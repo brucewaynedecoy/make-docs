@@ -25,6 +25,11 @@ When generating plans, PRDs, or work backlogs:
 2. Use the matching template from `docs/.templates/` as the structural starting point for each document.
 3. Read the `AGENTS.md` or `CLAUDE.md` in the target subdirectory for directory-specific conventions.
 
+When the user wants to add capabilities or revise, deprecate, or remove established requirements:
+
+1. Consult `docs/.references/prd-change-management.md`.
+2. Use the relevant change plan, PRD change, or delta backlog template from `docs/.templates/`.
+
 When the user asks for a reusable prompt template or a prompt-driven workflow:
 
 1. Consult `docs/.prompts/`.

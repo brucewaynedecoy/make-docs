@@ -30,6 +30,7 @@ Use the appropriate plan template from `docs/.templates/`:
 
 - `plan-prd-decompose.md` — For plans that reverse-engineer an existing codebase into a PRD set and rebuild backlog.
 - `plan-prd.md` — For plans that generate a PRD set and implementation backlog from a new idea or design.
+- `plan-prd-change.md` — For plans that add capabilities or revise, deprecate, or remove established requirements in the active PRD namespace.
 
 ## References
 
@@ -37,6 +38,7 @@ Before creating a plan, consult these files in `docs/.references/`:
 
 - `planning-workflow.md` — Step-by-step workflow to follow when producing a reviewable plan.
 - `output-contract.md` — Required paths, naming rules, and structural constraints that the plan and its outputs must satisfy.
+- `prd-change-management.md` — Use when the plan will evolve an existing active PRD namespace instead of replacing it.
 - `harness-capability-matrix.md` — Use when determining delegation tier or MCP availability for the plan.
 
 ## Agent Instructions
@@ -46,3 +48,4 @@ Before creating a plan, consult these files in `docs/.references/`:
 - Plans should be created before execution work begins, not retroactively.
 - Read `docs/.references/planning-workflow.md` before starting a new plan.
 - Use the matching template from `docs/.templates/` as the structural starting point.
+- For additive changes, enhancements, revisions, or removals, route to `plan-prd-change.md` instead of the baseline plan templates.

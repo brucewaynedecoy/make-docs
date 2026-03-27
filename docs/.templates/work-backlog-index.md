@@ -1,4 +1,4 @@
-# {{DATE}} Rebuild Backlog Index
+# {{DATE}} {{BACKLOG_TITLE}} Index
 
 ## Purpose
 
@@ -14,4 +14,5 @@ Explain why the backlog was split into multiple files and how to navigate it.
 
 - Read the phases in order.
 - Keep phase files dependency-ordered.
+- Make sure every phase file includes `Source PRD Docs`.
 - Link every phase back to the relevant PRD docs.

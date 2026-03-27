@@ -8,6 +8,7 @@ This directory contains templates for plans, PRD documents, and work backlogs.
 
 - `plan-prd-decompose.md` — Plan for reverse-engineering an existing codebase into a PRD set and rebuild backlog.
 - `plan-prd.md` — Plan for generating a PRD set and implementation backlog from a new idea or design.
+- `plan-prd-change.md` — Plan for additive changes, enhancements, revisions, or removals in the active PRD namespace.
 
 ### PRD Templates — Fixed Core
 
@@ -22,6 +23,11 @@ This directory contains templates for plans, PRD documents, and work backlogs.
 - `prd-subsystem.md` — Template for subsystem docs (`05-*` and above).
 - `prd-reference.md` — Template for reference-only docs (`05-*` and above).
 
+### PRD Templates — Change Docs
+
+- `prd-change-addition.md` — Template for net-new capability additions and enhancements.
+- `prd-change-revision.md` — Template for revisions, deprecations, and removals.
+
 ### Work Backlog Templates
 
 - `work-backlog.md` — Single-file backlog.
@@ -33,3 +39,4 @@ This directory contains templates for plans, PRD documents, and work backlogs.
 - Use these templates as the starting point when generating any plan, PRD, or work document.
 - Do not modify template files — copy the structure into the target directory.
 - Refer to `docs/.references/output-contract.md` for required headings and path conventions.
+- For additive changes, enhancements, revisions, or removals, also consult `docs/.references/prd-change-management.md` before choosing a change template.
