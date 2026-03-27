@@ -1,41 +1,8 @@
-# Documentation Directory
+# Documentation Router
 
-This directory contains structured project documentation organized into purpose-specific subdirectories.
-
-## Structure
-
-- `.prompts/` — Reusable prompt templates for common documentation workflows
-- `.references/` — Normative reference documents that govern how plans, PRDs, and work backlogs are generated
-- `.templates/` — Document templates for plans, PRDs, and work backlogs
-- `designs/` — Ideas, architectural decisions, and design documents
-- `plans/` — Approach and rationale documents created before execution
-- `prd/` — Product requirement documents
-- `work/` — Prescriptive work items, backlogs, and task lists
-
-## Agent Instructions
-
-When managing documents in this directory:
-
-1. Always apply the correct naming convention for the target directory before creating files.
-2. Do not create files directly in `docs/` — use the appropriate subdirectory.
-
-When generating plans, PRDs, or work backlogs:
-
-1. Consult `docs/.references/` for the rules and workflows that govern document generation. Start with `output-contract.md` for required paths, naming, and section headings.
-2. Use the matching template from `docs/.templates/` as the structural starting point for each document.
-3. Read the `AGENTS.md` or `CLAUDE.md` in the target subdirectory for directory-specific conventions.
-
-When the user wants to add capabilities or revise, deprecate, or remove established requirements:
-
-1. Consult `docs/.references/prd-change-management.md`.
-2. Use the relevant change plan, PRD change, or delta backlog template from `docs/.templates/`.
-
-When the user wants to turn a request into a design doc:
-
-1. Consult `docs/.references/design-workflow.md` and `docs/.references/design-contract.md`.
-2. Use `docs/.templates/design.md`.
-
-When the user asks for a reusable prompt template or a prompt-driven workflow:
-
-1. Consult `docs/.prompts/`.
-2. Treat prompt files as optional starting points, not as the authoritative rules for document generation.
+Use `docs/` only as a router. Do not create generated files directly in this directory.
+- For design docs, read `docs/.references/design-workflow.md`, `docs/.references/design-contract.md`, and `docs/.templates/design.md`, then continue in `docs/designs/`.
+- For plans, read `docs/.references/planning-workflow.md` and the selected plan template in `docs/.templates/`, then continue in `docs/plans/`.
+- For PRD or work generation, read `docs/.references/execution-workflow.md`, `docs/.references/output-contract.md`, and the selected template in `docs/.templates/`, then continue in `docs/prd/` or `docs/work/`.
+- For requirement changes, also read `docs/.references/prd-change-management.md` before choosing change templates or delta outputs.
+- For reusable prompt starters, use `docs/.prompts/`; prompts are optional starters, not authority.
