@@ -15,11 +15,14 @@ This workflow supports three planning modes:
 Inspect:
 
 - the repo root and current documentation tree
+- any referenced design docs and whether they include `## Intended Follow-On`
 - any existing plans, PRD docs, and work backlogs
 - whether `docs/prd/` already contains active content outside `archive/`
 - whether the user request is best classified as baseline generation, decomposition, or active-set evolution
 
-If the request is ambiguous, infer the likely mode from the repo and prompt. Ask the user only when the ambiguity materially changes the output shape.
+If a referenced design doc includes `## Intended Follow-On`, treat that route as authoritative unless the user explicitly overrides it.
+
+If the request is ambiguous, infer the likely mode from the repo, prompt, and explicit design handoff. Ask the user only when the ambiguity materially changes the output shape.
 
 ## Planning Goals
 
@@ -54,6 +57,7 @@ Ask the user only when the answer affects the output shape or execution style. T
 - whether the user explicitly wants to forbid delegation and force single-agent execution despite the default
 
 Do not ask questions that can be answered by repo inspection.
+Do not ask the user which planning route to use when the referenced design docs already declare `## Intended Follow-On`, unless the user is explicitly reconsidering that route.
 
 ## Plan Structure
 

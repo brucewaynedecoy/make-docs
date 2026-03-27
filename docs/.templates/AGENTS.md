@@ -1,8 +1,12 @@
 # Templates Directory
 
-This directory contains templates for plans, PRD documents, and work backlogs.
+This directory contains templates for design docs, plans, PRD documents, and work backlogs.
 
 ## Files
+
+### Design Templates
+
+- `design.md` — Template for generated design docs in `docs/designs/`.
 
 ### Plan Templates
 
@@ -36,7 +40,8 @@ This directory contains templates for plans, PRD documents, and work backlogs.
 
 ## Agent Instructions
 
-- Use these templates as the starting point when generating any plan, PRD, or work document.
+- Use these templates as the starting point when generating any design, plan, PRD, or work document.
+- Use `design.md` together with `docs/.references/design-workflow.md` and `docs/.references/design-contract.md` for request-to-design work.
 - Do not modify template files — copy the structure into the target directory.
-- Refer to `docs/.references/output-contract.md` for required headings and path conventions.
+- Refer to `docs/.references/design-contract.md` for design-doc structure and to `docs/.references/output-contract.md` for plan, PRD, and work-doc structure.
 - For additive changes, enhancements, revisions, or removals, also consult `docs/.references/prd-change-management.md` before choosing a change template.

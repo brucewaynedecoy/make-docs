@@ -14,25 +14,17 @@ Pattern: `YYYY-MM-DD-<slug>.md`
 - Slug: lowercase, hyphens only, no special characters.
 - Example: `2026-03-04-authentication-flow.md`
 
-## Required Sections (for generated designs)
-
-> IMPORTANT: User-generated design documents may exist in this directory that might not conform to the following structure. However, agents MUST conform to the following structure when generating design documents. DO NOT force this structure when UPDATING a USER-GENERATED design document, unless asked.
-
-- `## Purpose` — What decision this document captures.
-- `## Context` — Problem, constraints, and forces.
-- `## Decision` — The chosen approach.
-- `## Alternatives Considered` — Other approaches and why rejected.
-- `## Consequences` — Outcomes, trade-offs, and risks.
-
 ## References and Templates
 
-- There is no design template in `docs/.templates/`. Use the required sections above as the structural guide.
-- Design documents are not governed by `docs/.references/output-contract.md`. That contract applies to plans, PRDs, and work backlogs.
-- If a design informs a plan, PRD set, or work backlog, link to it from those documents rather than duplicating content.
+- Use `docs/.templates/design.md` when generating a new design doc.
+- Use `docs/.references/design-contract.md` for required sections and follow-on routing.
+- Use `docs/.references/design-workflow.md` for request-to-design intake, create-vs-update rules, and lineage handling.
+- Design documents are governed by `docs/.references/design-contract.md`, not `docs/.references/output-contract.md`.
 
 ## Agent Instructions
 
 - Always apply date-slug naming.
 - Do not backdate designs — use today's date.
-- Designs are living documents — update them when decisions change.
+- Prefer updating an existing related design when the decision area clearly matches; otherwise create a new dated design doc.
+- Designs are living documents — use the lineage rules in `docs/.references/design-contract.md` when a material update changes prior design intent.
 - Link to related plans, PRD docs, or work items where relevant.

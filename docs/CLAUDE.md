@@ -30,6 +30,11 @@ When the user wants to add capabilities or revise, deprecate, or remove establis
 1. Consult `docs/.references/prd-change-management.md`.
 2. Use the relevant change plan, PRD change, or delta backlog template from `docs/.templates/`.
 
+When the user wants to turn a request into a design doc:
+
+1. Consult `docs/.references/design-workflow.md` and `docs/.references/design-contract.md`.
+2. Use `docs/.templates/design.md`.
+
 When the user asks for a reusable prompt template or a prompt-driven workflow:
 
 1. Consult `docs/.prompts/`.
