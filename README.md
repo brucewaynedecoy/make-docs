@@ -85,31 +85,33 @@ Update behavior is intentionally non-destructive:
 
 ### Copy the drop-in docs files manually
 
-If you do not want to use the installer, you can still copy the template files directly.
+If you do not want to use the installer, you can still copy the drop-in files directly. The commands below copy only:
+
+- `docs/`
+- `AGENTS.md`
+- `CLAUDE.md`
 
 Using `curl` + `tar` (no clone required):
 
 ```bash
 # From your project root
+tmp_dir="$(mktemp -d)"
 curl -sL https://github.com/<owner>/starter-docs/archive/refs/heads/main.tar.gz \
-  | tar -xz --strip-components=1 \
-    --exclude='*/README.md' \
-    --exclude='*/justfile' \
-    --exclude='*/scripts' \
-    --exclude='*/scripts/*'
+  | tar -xz -C "$tmp_dir" --strip-components=1
+mkdir -p ./docs
+rsync -av "$tmp_dir/docs/" ./docs/
+rsync -av "$tmp_dir/AGENTS.md" "$tmp_dir/CLAUDE.md" ./
+rm -rf "$tmp_dir"
 ```
 
 Using `git clone` + `rsync`:
 
 ```bash
-# Clone into a temporary directory, copy contents, clean up
+# Clone into a temporary directory, copy only the drop-in files, clean up
 git clone --depth 1 https://github.com/<owner>/starter-docs.git /tmp/starter-docs
-rsync -av \
-  --exclude='README.md' \
-  --exclude='justfile' \
-  --exclude='scripts/' \
-  --exclude='.git' \
-  /tmp/starter-docs/ ./
+mkdir -p ./docs
+rsync -av /tmp/starter-docs/docs/ ./docs/
+rsync -av /tmp/starter-docs/AGENTS.md /tmp/starter-docs/CLAUDE.md ./
 rm -rf /tmp/starter-docs
 ```
 
@@ -117,11 +119,9 @@ Using `degit` (if installed):
 
 ```bash
 npx degit <owner>/starter-docs ./tmp-starter-docs
-rsync -av \
-  --exclude='README.md' \
-  --exclude='justfile' \
-  --exclude='scripts/' \
-  ./tmp-starter-docs/ ./
+mkdir -p ./docs
+rsync -av ./tmp-starter-docs/docs/ ./docs/
+rsync -av ./tmp-starter-docs/AGENTS.md ./tmp-starter-docs/CLAUDE.md ./
 rm -rf ./tmp-starter-docs
 ```
 
