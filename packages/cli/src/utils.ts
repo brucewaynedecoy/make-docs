@@ -29,18 +29,18 @@ export function findPackageRoot(fromUrl: string): string {
 }
 
 function resolveTemplateRoot(packageRoot: string): string {
-  const bundled = path.join(packageRoot, "template");
-  if (existsSync(bundled)) {
-    return bundled;
-  }
-
   const sibling = path.resolve(packageRoot, "..", "docs", "template");
   if (existsSync(sibling)) {
     return sibling;
   }
 
+  const bundled = path.join(packageRoot, "template");
+  if (existsSync(bundled)) {
+    return bundled;
+  }
+
   throw new Error(
-    `Could not locate template root. Tried ${bundled} and ${sibling}.`,
+    `Could not locate template root. Tried ${sibling} and ${bundled}.`,
   );
 }
 

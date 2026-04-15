@@ -1,5 +1,7 @@
 # PRD Change Plan
 
+> In v2, plans are directories. Use this template as the shape of the `00-overview.md` file in the plan directory; split additional detail into `0N-<phase>.md` files as needed.
+
 **Date:** {{DATE}}
 **Repository:** `{{REPO_ROOT}}`
 **Purpose:** Produce a reviewable plan for evolving the active PRD namespace through an additive change, enhancement, revision, or removal.
@@ -34,14 +36,15 @@ Open questions or ambiguities should be captured here and promoted into `03-open
 
 ## Output Contract
 
-- Plan file: `docs/plans/{{DATE}}-{{CHANGE_NAME}}-change-plan.md`
+- Plan directory: `docs/plans/{{DATE}}-w{{W}}-r{{R}}-{{CHANGE_SLUG}}/`
+  - entry point: `docs/plans/{{DATE}}-w{{W}}-r{{R}}-{{CHANGE_SLUG}}/00-overview.md`
+  - phase files: `docs/plans/{{DATE}}-w{{W}}-r{{R}}-{{CHANGE_SLUG}}/0N-<phase>.md`
 - New change docs:
   - `docs/prd/{{NEXT_NUMBER}}-{{CHANGE_SLUG}}.md`
   - add more if the change must split across multiple docs
 - Baseline docs to annotate: {{ANNOTATION_TARGETS}}
 - Delta backlog:
-  - `docs/work/{{DATE}}-{{CHANGE_NAME}}-delta-backlog.md`
-  - or `docs/work/{{DATE}}-{{CHANGE_NAME}}-delta-backlog/` if the backlog must split
+  - `docs/work/{{DATE}}-w{{W}}-r{{R}}-{{CHANGE_SLUG}}/`
 
 ## Change Doc Strategy
 

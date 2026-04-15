@@ -1,5 +1,7 @@
 # Planning Workflow
 
+See `docs/.references/wave-model.md` for W/R semantics and resolution rules.
+
 ## Purpose
 
 Use this workflow to produce a reviewable plan before generating or evolving PRD documentation. Planning mode exists to lock the output structure, workstream boundaries, and validation approach before the repo is mutated.
@@ -17,7 +19,7 @@ Inspect:
 - the repo root and current documentation tree
 - any referenced design docs and whether they include `## Intended Follow-On`
 - any existing plans, PRD docs, and work backlogs
-- whether `docs/prd/` already contains active content outside `archive/`
+- whether `docs/prd/` already contains active content (archives live under `docs/.archive/prds/YYYY-MM-DD/`)
 - whether the user request is best classified as baseline generation, decomposition, or active-set evolution
 
 If a referenced design doc includes `## Intended Follow-On`, treat that route as authoritative unless the user explicitly overrides it.
@@ -34,7 +36,7 @@ Produce a plan that makes the execution step decision-complete. The plan should 
 - whether execution requires an archive gate or an active-set evolution path
 - the delegation tier and workstream split
 - the coordinator role and write scope
-- the backlog placement under `docs/work`
+- the backlog placement under `docs/work/YYYY-MM-DD-w{W}-r{R}-<slug>/`
 - the validation pass and any follow-up review
 
 For active-set evolution, the plan should also settle:
@@ -53,13 +55,15 @@ Ask the user only when the answer affects the output shape or execution style. T
 - whether reference-style docs should stay separate from subsystem docs
 - whether a change should stay a scoped delta or force a wider PRD rewrite
 - whether the user explicitly wants a cleanup rewrite of baseline PRD text instead of the default non-destructive annotations
-- whether the backlog should remain one file or move into a dated folder
+- whether the backlog directory should be scoped to a delta or regenerated as a full backlog
 - whether the user explicitly wants to forbid delegation and force single-agent execution despite the default
 
 Do not ask questions that can be answered by repo inspection.
 Do not ask the user which planning route to use when the referenced design docs already declare `## Intended Follow-On`, unless the user is explicitly reconsidering that route.
 
 ## Plan Structure
+
+Plans are always directories. The chosen template describes the shape of the `00-overview.md` entry point inside the plan directory, plus the referenced `0N-<phase>.md` files.
 
 Start from the relevant template in `docs/.templates/`:
 
@@ -90,10 +94,10 @@ Change plans should additionally cover:
 
 Planning mode should present the plan in chat first.
 
-Write only after approval, using the matching path:
+Plans are always directories. Write only after approval, using the matching path:
 
-- baseline or decomposition plan: `docs/plans/YYYY-MM-DD-{{PLAN NAME}}.md`
-- change plan: `docs/plans/YYYY-MM-DD-{{CHANGE NAME}}-change-plan.md`
+- baseline or decomposition plan: `docs/plans/YYYY-MM-DD-w{W}-r{R}-<slug>/` (with `00-overview.md` as the entry point and `0N-<phase>.md` files for each phase)
+- change plan: same directory pattern — `docs/plans/YYYY-MM-DD-w{W}-r{R}-<slug>/` — using a slug that signals the change intent (for example, `...-notifications-enhancement`). Do not hard-code a `-change-plan` suffix.
 
 ## Approval Prompt Rule
 

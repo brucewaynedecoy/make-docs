@@ -1,10 +1,12 @@
 # Design Workflow
 
+See `docs/.references/wave-model.md` for W/R semantics.
+
 ## Purpose
 
 Use this workflow when the user wants to turn a request into one or more design docs before planning, PRD generation, or backlog generation.
 
-This workflow ends with design docs in `docs/designs/`. It does not draft a plan.
+This workflow ends with design docs in `docs/designs/` using the form `docs/designs/YYYY-MM-DD-w{W}-r{R}-<slug>.md`. It does not draft a plan.
 
 ## Preflight
 
@@ -53,7 +55,7 @@ Before writing:
 
 Before closing the task, confirm:
 
-1. The output lives in `docs/designs/` and follows date-slug naming.
+1. The output lives in `docs/designs/` and follows `YYYY-MM-DD-w{W}-r{R}-<slug>.md` naming.
 2. The generated design uses the required design template structure.
 3. The create-vs-update choice is justified by the current design tree.
 4. `## Design Lineage` is present when the design materially updates prior intent.

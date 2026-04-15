@@ -1,5 +1,7 @@
 # Phase {{PHASE_NUMBER}}: {{PHASE_TITLE}}
 
+> Shape for `0N-<phase>.md` files inside a work directory. See `docs/.references/wave-model.md` for W/R semantics.
+
 ## Purpose
 
 Explain why this phase exists and what foundation it depends on.

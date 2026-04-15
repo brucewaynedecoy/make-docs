@@ -26,6 +26,8 @@ This W/R/P encoding is piloted here ahead of broader adoption across designs, pl
 
 ## W/R/P Resolution Rules
 
+See `docs/.references/wave-model.md` for W/R/P semantics and general resolution rules. The rules below are specific to agent session guides and extend (do not replace) the general model.
+
 Resolve `w{W}-r{R}-p{P}` in this order:
 
 1. If the active plan or work backlog encodes `w{W}-r{R}-p{P}` in its path or filenames, match those values.

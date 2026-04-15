@@ -1,5 +1,7 @@
 # PRD Change Management
 
+Archive layout is authoritative in `docs/.archive/AGENTS.md`.
+
 ## Purpose
 
 Use this reference when `docs/prd/` already contains an active PRD namespace and the user wants to evolve it without replacing the whole set.
@@ -89,8 +91,10 @@ Example:
 
 ## Work Backlog Coupling
 
-- Full-set generation still writes a backlog for the whole active PRD set.
-- Active-set evolution writes a new dated delta backlog by default instead of rewriting a prior backlog.
+- Backlogs are always directories: `docs/work/YYYY-MM-DD-w{W}-r{R}-<slug>/` with `00-index.md` and `0N-<phase>.md` files.
+- Plans that drive those backlogs are also directories: `docs/plans/YYYY-MM-DD-w{W}-r{R}-<slug>/` with `00-overview.md` and `0N-<phase>.md` files.
+- Full-set generation still writes a backlog directory covering the whole active PRD set.
+- Active-set evolution writes a new dated delta backlog directory by default instead of rewriting a prior backlog.
 - Every delta backlog phase should cite:
   - the new change doc or docs
   - the impacted baseline docs that still matter to implementation

@@ -1,5 +1,7 @@
 # PRD Generation Plan
 
+> In v2, plans are directories. Use this template as the shape of the `00-overview.md` file in the plan directory; split additional detail into `0N-<phase>.md` files as needed.
+
 **Date:** {{DATE}}
 **Repository:** `{{REPO_ROOT}}`
 **Purpose:** Produce a reviewable plan for translating a new idea or design into a structured PRD set and implementation backlog.
@@ -27,7 +29,9 @@ Open questions or ambiguities in the inputs should be captured here and promoted
 
 ## Output Contract
 
-- Plan file: `docs/plans/{{DATE}}-prd-plan.md`
+- Plan directory: `docs/plans/{{DATE}}-w{{W}}-r{{R}}-{{SLUG}}/`
+  - entry point: `docs/plans/{{DATE}}-w{{W}}-r{{R}}-{{SLUG}}/00-overview.md`
+  - phase files: `docs/plans/{{DATE}}-w{{W}}-r{{R}}-{{SLUG}}/0N-<phase>.md`
 - PRD core:
   - `docs/prd/00-index.md`
   - `docs/prd/01-product-overview.md`
@@ -36,8 +40,7 @@ Open questions or ambiguities in the inputs should be captured here and promoted
   - `docs/prd/04-glossary.md`
   - adaptive numbered feature/subsystem docs starting at `05-*`
 - Implementation work:
-  - `docs/work/{{DATE}}-implementation-backlog.md`
-  - or `docs/work/{{DATE}}-implementation-backlog/` if the backlog must split
+  - `docs/work/{{DATE}}-w{{W}}-r{{R}}-{{SLUG}}/`
 
 ## Existing PRD Handling
 

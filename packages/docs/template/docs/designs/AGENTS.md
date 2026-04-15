@@ -4,16 +4,12 @@ This directory is an output target for design docs.
 
 ## Naming Convention
 
-Pattern: `YYYY-MM-DD-<slug>.md`
+Pattern: `YYYY-MM-DD-w{W}-r{R}-<slug>.md`
 
 - Prefix with the creation date (today's date, never backdated).
 - Slug: lowercase, hyphens only, no special characters.
-- Example: `2026-03-04-authentication-flow.md`
-
-## Archive
-
-- `archive/` contains design documents for work that has already been planned and implemented. Never move design docs here unless explicitly asked by the user.
-- When referencing an archived design, use its path under `archive/` — do not move it back.
+- Example: `2026-04-15-w1-r0-authentication-flow.md`
+- See `docs/.references/wave-model.md` for W/R semantics and resolution rules.
 
 ## Agent Instructions
 
@@ -23,3 +19,4 @@ Pattern: `YYYY-MM-DD-<slug>.md`
 - Do not backdate designs — use today's date.
 - Designs are living documents — update them when decisions change.
 - Link to related plans, PRD docs, or work items where relevant.
+- Archived designs live in `docs/.archive/designs/`; never archive unless the user explicitly asks. See `docs/.archive/AGENTS.md`.

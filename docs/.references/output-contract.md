@@ -1,5 +1,7 @@
 # Output Contract
 
+See `docs/.references/wave-model.md` for W/R/P semantics and resolution.
+
 ## Purpose
 
 Use this contract to keep plan, PRD, and work document outputs consistent across repositories and harnesses. Treat the codebase as authoritative, write in plain English, and keep the PRD set descriptive while keeping implementation work prescriptive.
@@ -8,48 +10,44 @@ Use this contract to keep plan, PRD, and work document outputs consistent across
 
 | Artifact | Required path |
 | --- | --- |
-| Baseline or decomposition plan | `docs/plans/YYYY-MM-DD-{{PLAN NAME}}.md` |
-| PRD change plan | `docs/plans/YYYY-MM-DD-{{CHANGE NAME}}-change-plan.md` |
+| Design | `docs/designs/YYYY-MM-DD-w{W}-r{R}-<slug>.md` |
+| Plan directory | `docs/plans/YYYY-MM-DD-w{W}-r{R}-<slug>/` |
+| Work directory | `docs/work/YYYY-MM-DD-w{W}-r{R}-<slug>/` |
 | PRD index | `docs/prd/00-index.md` |
 | Product overview | `docs/prd/01-product-overview.md` |
 | Architecture overview | `docs/prd/02-architecture-overview.md` |
 | Risk register | `docs/prd/03-open-questions-and-risk-register.md` |
 | Glossary | `docs/prd/04-glossary.md` |
-| Baseline implementation backlog | `docs/work/YYYY-MM-DD-{{PLAN NAME}}-backlog.md` |
-| Delta backlog | `docs/work/YYYY-MM-DD-{{CHANGE NAME}}-delta-backlog.md` |
-| Archived PRD set | `docs/prd/archive/YYYY-MM-DD/` or `docs/prd/archive/YYYY-MM-DD-XX/` |
+| Archived PRD set | `docs/.archive/prds/YYYY-MM-DD/` or `docs/.archive/prds/YYYY-MM-DD-XX/` |
 | Agent session guide | `docs/guides/agent/YYYY-MM-DD-w{W}-r{R}-p{P}-<slug>.md` |
 
-If a backlog becomes too large for one file, migrate it to a dated folder and create:
+Plan directories contain `00-overview.md` plus one or more `0N-<phase>.md` files. Work directories contain `00-index.md` plus one or more `0N-<phase>.md` files. See `docs/.references/wave-model.md` for the full naming pattern and `## Work Phase Structure Rules` below for work content requirements.
 
-- `docs/work/YYYY-MM-DD-{{BACKLOG NAME}}-backlog/00-index.md`
-- ordered phase files such as `01-foundation.md`, `02-core-platform.md`, `03-integrations.md`
-
-If a delta backlog becomes too large for one file, migrate it to:
-
-- `docs/work/YYYY-MM-DD-{{CHANGE NAME}}-delta-backlog/00-index.md`
-- ordered phase files such as `01-foundation.md`, `02-integration-update.md`, `03-rollout.md`
+For change-oriented plans and delta backlogs, carry the distinguishing context in the `<slug>` (for example `...-auth-recovery-change` or `...-notifications-delta`) rather than in the directory structure. Every plan and every work backlog uses the same W/R directory shape.
 
 ## PRD Lifecycle Rules
 
 - `docs/prd/` contains one active PRD namespace at a time.
-- Every root entry in `docs/prd/` except the `archive/` directory is part of the active namespace.
+- Every root entry in `docs/prd/` is part of the active namespace.
 - Active namespaces can be created in two ways:
   - `full-set generation` — generate or replace the active namespace as a set
   - `active-set evolution` — append change docs and update impacted baseline docs without replacing the namespace
-- Older namespaces belong under `docs/prd/archive/`, not alongside the active namespace.
+- Older namespaces belong under `docs/.archive/prds/`, not alongside the active namespace.
 - Archived PRD sets are historical records and are not part of active PRD validation.
 
 ## Archive Rules
 
 Apply these rules only when writing a fresh active PRD namespace through `full-set generation`.
 
-- Before writing a fresh PRD set, inspect `docs/prd/` for active root entries outside `archive/`.
+- Before writing a fresh PRD set, inspect `docs/prd/` for active root entries.
 - If no such entries exist, proceed normally.
 - If active root entries exist, summarize them and ask for explicit approval before moving them.
-- On approval, move those entries into `docs/prd/archive/YYYY-MM-DD/`.
-- If that dated directory already exists, use `docs/prd/archive/YYYY-MM-DD-XX/`, where `XX` is a zero-padded increment starting at `01`.
-- Do not place loose files directly under `docs/prd/archive/`; it should contain dated directories only.
+- On approval, move those entries into `docs/.archive/prds/YYYY-MM-DD/`.
+- If that dated directory already exists, use `docs/.archive/prds/YYYY-MM-DD-XX/`, where `XX` is a zero-padded increment starting at `01`.
+- Do not place loose files directly under `docs/.archive/prds/`; it should contain dated directories only.
+- Never archive designs, plans, work, or PRDs unless the user explicitly asks.
+
+Archive layout and hard rules are authoritative in `docs/.archive/AGENTS.md`.
 
 ## Active-Set Evolution Rules
 
@@ -121,7 +119,7 @@ docs/prd/
 ```
 
 Do not place unnumbered Markdown files directly under `docs/prd/`.
-Do not place active PRD docs under `docs/prd/archive/`.
+Do not place active PRD docs under `docs/.archive/prds/`.
 
 ## Section Contracts
 
@@ -138,26 +136,24 @@ Use the matching template in `docs/.templates/` and preserve these required head
 | `prd-reference.md` | `## Purpose`, `## Reference`, `## Source Anchors` |
 | `prd-change-addition.md` | `## Purpose`, `## Change Type`, `## Capability Addition or Enhancement`, `## Affected Baseline Docs`, `## Contracts and Data`, `## Integration Impact`, `## Required Baseline Annotations`, `## Source Anchors` |
 | `prd-change-revision.md` | `## Purpose`, `## Change Type`, `## Baseline Being Revised or Removed`, `## Rationale`, `## Effective Requirement`, `## Impacted Docs and Dependencies`, `## Required Baseline Annotations`, `## Source Anchors` |
-| `work-backlog.md` | `## Purpose`, `## Dependency Order`, `## Phases`, `## Acceptance Criteria` |
-| `work-backlog-index.md` | `## Purpose`, `## Phase Map`, `## Usage Notes` |
-| `work-backlog-phase.md` | `## Purpose`, `## Overview`, `## Source PRD Docs`, repeatable `## Stage {{STAGE_NUMBER}} - {{STAGE_NAME}}` headings with `### Tasks`, `### Acceptance criteria`, and `### Dependencies` |
+| `work-index.md` | `## Purpose`, `## Phase Map`, `## Usage Notes` |
+| `work-phase.md` | `## Purpose`, `## Overview`, `## Source PRD Docs`, repeatable `## Stage {{STAGE_NUMBER}} - {{STAGE_NAME}}` headings with `### Tasks`, `### Acceptance criteria`, and `### Dependencies` |
 
 ## Work Phase Structure Rules
 
-- In a single-file backlog, each `## Phase {{PHASE_NUMBER}} - {{PHASE_NAME}}` section should contain:
-  - `### Overview`
-  - `### Source PRD Docs`
-  - one or more `### Stage {{STAGE_NUMBER}} - {{STAGE_NAME}}` sections
-- Each stage in a single-file backlog should contain:
-  - `#### Tasks`
-  - `#### Acceptance criteria`
-  - `#### Dependencies`
-- In a split phase file, the file should contain:
+Every work backlog is a directory, not a single file.
+
+- The work directory is `docs/work/YYYY-MM-DD-w{W}-r{R}-<slug>/`.
+- It contains an index file `00-index.md` with:
+  - `## Purpose`
+  - `## Phase Map`
+  - `## Usage Notes`
+- It contains one or more phase files named `0N-<phase>.md`. Each phase file contains:
   - `## Purpose`
   - `## Overview`
   - `## Source PRD Docs`
   - one or more `## Stage {{STAGE_NUMBER}} - {{STAGE_NAME}}` sections
-- Each stage in a split phase file should contain:
+- Each stage in a phase file contains:
   - `### Tasks`
   - `### Acceptance criteria`
   - `### Dependencies`
@@ -195,15 +191,15 @@ Use `## Source Anchors` to aggregate the most important files that shaped the do
 ## Work Backlog Rule
 
 - Keep work out of `docs/prd/`.
-- Link backlog phases back to the relevant PRD docs.
-- Organize backlog phases by dependency order, not by implementation convenience.
+- Every work backlog is a directory under `docs/work/` following the W/R naming pattern; link phase files back to the relevant PRD docs.
+- Organize phases and stages by dependency order, not by implementation convenience.
 - Include task-level acceptance criteria in every stage.
-- Use a dated delta backlog by default for active-set evolution work instead of rewriting a prior backlog.
-- Every phase must include `Source PRD Docs`.
+- For active-set evolution work, use a dated delta work directory with a distinguishing slug (for example `...-<subject>-delta`) instead of rewriting a prior backlog.
+- Every phase file must include `## Source PRD Docs`.
 
 ## Link Rules
 
 - Use relative Markdown links between generated docs.
 - Make sure every internal link resolves.
-- Use the PRD index and backlog index as navigation entry points.
+- Use the PRD index and the work `00-index.md` as navigation entry points.
 - Archived PRD docs do not need to satisfy the active PRD link contract.

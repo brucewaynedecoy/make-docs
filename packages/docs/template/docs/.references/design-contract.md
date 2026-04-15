@@ -8,7 +8,15 @@ User-authored design docs may not fully conform. Apply this contract to newly ge
 
 ## Required Path
 
-- `docs/designs/YYYY-MM-DD-{{DESIGN NAME}}.md`
+- `docs/designs/YYYY-MM-DD-w{W}-r{R}-<slug>.md`
+
+See `docs/.references/wave-model.md` for W/R semantics and resolution rules.
+
+## Archiving
+
+Archive designs only when the user explicitly asks. Never archive proactively.
+
+Defer to `docs/.archive/AGENTS.md` for archive structure and procedure.
 
 ## Required Headings
 

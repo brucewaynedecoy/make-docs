@@ -1,5 +1,7 @@
 # Execution Workflow
 
+See `docs/.references/wave-model.md` for W/R semantics; archive rules are authoritative in `docs/.archive/AGENTS.md`.
+
 ## Purpose
 
 Use this workflow to generate or evolve the active PRD namespace and the related backlog in a consistent way. Execution mode is allowed only after the user explicitly authorizes execution, either after plan approval or as direct execution from the start.
@@ -26,7 +28,7 @@ Use `active-set evolution` when the user wants to add capability, enhance an exi
 
 1. Determine the highest usable delegation tier for the current session: parallel agents, then subagents, then single-agent fallback.
 2. Re-check existing docs so you avoid duplicating or clobbering useful material.
-3. Inspect `docs/prd/` and determine whether active root entries already exist outside `archive/`.
+3. Inspect `docs/prd/` and determine whether active root entries already exist outside the archive.
 4. Classify the task as `full-set generation` or `active-set evolution`.
 5. If the task is active-set evolution, identify the impacted baseline docs before spawning authoring work.
 
@@ -68,8 +70,8 @@ If delegation is available, the coordinator must not:
 Apply this gate only in `full-set generation` mode:
 
 - Treat `docs/prd/` as a single active PRD namespace.
-- If root entries already exist outside `docs/prd/archive/`, summarize them and ask for approval before moving them.
-- On approval, archive every root entry except `archive/` into `docs/prd/archive/YYYY-MM-DD/` or `docs/prd/archive/YYYY-MM-DD-XX/`.
+- If root entries already exist in `docs/prd/`, summarize them and ask for approval before moving them.
+- On approval, archive every root entry into `docs/.archive/prds/YYYY-MM-DD/` or `docs/.archive/prds/YYYY-MM-DD-XX/`.
 - Include stray or hidden root entries in the archive summary and move set when they are part of the active namespace.
 - If archival is declined, stop before writing anything into `docs/prd/`.
 - Treat archived PRD sets as historical records, not active output targets.
@@ -131,15 +133,15 @@ For active-set evolution, prefer these separate write scopes when possible:
 - Supplement and cite useful existing docs.
 - Do not silently overwrite docs that serve another audience or purpose.
 - If existing docs drift from the code, record the drift in `03-open-questions-and-risk-register.md`.
-- If the task is full-set generation and an older active PRD set already exists under `docs/prd/`, archive it before writing the replacement active PRD set.
+- If the task is full-set generation and an older active PRD set already exists under `docs/prd/`, archive it to `docs/.archive/prds/YYYY-MM-DD/` before writing the replacement active PRD set.
 - If the task is active-set evolution, preserve baseline text and add non-destructive annotations unless the user explicitly asks for a cleanup rewrite.
 
 ## Backlog Rules
 
-- Full-set generation writes `docs/work/YYYY-MM-DD-{{PLAN NAME}}-backlog.md` by default.
-- Active-set evolution writes `docs/work/YYYY-MM-DD-{{CHANGE NAME}}-delta-backlog.md` by default.
-- Split either backlog into a dated folder only when one file becomes too large to navigate.
-- Keep backlog phases dependency-ordered.
+- Work is always a directory in v2. Full-set generation writes `docs/work/YYYY-MM-DD-w{W}-r{R}-<slug>/` containing `00-index.md` plus `0N-<phase>.md` phase files.
+- Active-set evolution writes `docs/work/YYYY-MM-DD-w{W}-r{R}-<slug>/` as a delta backlog directory containing `00-index.md` plus `0N-<phase>.md` phase files.
+- Plans use the same form: `docs/plans/YYYY-MM-DD-w{W}-r{R}-<slug>/` containing `00-overview.md` plus `0N-<phase>.md` phase files.
+- Keep backlog phases dependency-ordered across the `0N-<phase>.md` files.
 - Include task-level acceptance criteria in every stage.
 - Include phase-level PRD traceability via `Source PRD Docs`.
 - Delta backlogs should cite both the new change docs and the impacted baseline docs that still constrain implementation.

@@ -63,9 +63,8 @@ const PRD_TEMPLATE_PATHS = [
 ];
 
 const WORK_TEMPLATE_PATHS = [
-  "docs/.templates/work-backlog.md",
-  "docs/.templates/work-backlog-index.md",
-  "docs/.templates/work-backlog-phase.md",
+  "docs/.templates/work-index.md",
+  "docs/.templates/work-phase.md",
 ];
 
 const REQUIRED_REFERENCE_PATHS = {

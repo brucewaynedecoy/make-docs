@@ -1,5 +1,7 @@
 # {{TITLE}}
 
+> Filename: `YYYY-MM-DD-w{W}-r{R}-<slug>.md`. See `docs/.references/wave-model.md` for W/R semantics.
+
 ## Purpose
 
 Explain what decision this document captures and why it exists.

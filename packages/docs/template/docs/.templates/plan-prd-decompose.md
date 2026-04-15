@@ -1,5 +1,7 @@
 # Codebase Decomposition Plan
 
+> In v2, plans are directories. Use this template as the shape of the `00-overview.md` file in the plan directory; split additional detail into `0N-<phase>.md` files as needed.
+
 **Date:** {{DATE}}
 **Repository:** `{{REPO_ROOT}}`
 **Purpose:** Produce a reviewable plan for reverse-engineering the repository into a structured PRD set and rebuild backlog.
@@ -10,7 +12,9 @@ State what the decomposition should preserve, who the outputs are for, and what 
 
 ## Output Contract
 
-- Plan file: `docs/plans/{{DATE}}-decomposition-plan.md`
+- Plan directory: `docs/plans/{{DATE}}-w{{W}}-r{{R}}-{{SLUG}}/`
+  - entry point: `docs/plans/{{DATE}}-w{{W}}-r{{R}}-{{SLUG}}/00-overview.md`
+  - phase files: `docs/plans/{{DATE}}-w{{W}}-r{{R}}-{{SLUG}}/0N-<phase>.md`
 - PRD core:
   - `docs/prd/00-index.md`
   - `docs/prd/01-product-overview.md`
@@ -19,8 +23,7 @@ State what the decomposition should preserve, who the outputs are for, and what 
   - `docs/prd/04-glossary.md`
   - adaptive numbered subsystem/reference docs starting at `05-*`
 - Rebuild work:
-  - `docs/work/{{DATE}}-rebuild-backlog.md`
-  - or `docs/work/{{DATE}}-rebuild-backlog/` if the backlog must split
+  - `docs/work/{{DATE}}-w{{W}}-r{{R}}-{{SLUG}}/`
 
 ## Existing PRD Handling
 
