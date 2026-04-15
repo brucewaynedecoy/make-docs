@@ -18,6 +18,7 @@ Use this contract to keep plan, PRD, and work document outputs consistent across
 | Baseline implementation backlog | `docs/work/YYYY-MM-DD-{{PLAN NAME}}-backlog.md` |
 | Delta backlog | `docs/work/YYYY-MM-DD-{{CHANGE NAME}}-delta-backlog.md` |
 | Archived PRD set | `docs/prd/archive/YYYY-MM-DD/` or `docs/prd/archive/YYYY-MM-DD-XX/` |
+| Agent session guide | `docs/guides/agent/YYYY-MM-DD-w{W}-r{R}-p{P}-<slug>.md` |
 
 If a backlog becomes too large for one file, migrate it to a dated folder and create:
 
