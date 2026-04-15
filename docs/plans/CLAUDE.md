@@ -4,46 +4,15 @@ This directory contains approach and rationale documents created before executio
 
 ## Naming Convention
 
-Files must use the pattern: `YYYY-MM-DD-<slug>.md`
+Pattern: `YYYY-MM-DD-<slug>.md`
 
 - Prefix with the creation date (today's date, never backdated).
-- The slug is lowercase with hyphens separating words.
-- No special characters, spaces, or underscores.
+- Slug: lowercase, hyphens only, no special characters.
 - Example: `2026-03-25-migration-strategy.md`
-
-## Required Sections
-
-Every plan must include these headings:
-
-- `## Purpose` — What the plan covers and why.
-- `## Objective` — Concrete goals and completion criteria.
-- `## Approach` — Proposed approach and trade-offs.
-- `## Validation` — How success will be verified.
-
-## Templates
-
-Use the appropriate plan template from `docs/.templates/`:
-
-- `plan-prd-decompose.md` — For plans that reverse-engineer an existing codebase into a PRD set and rebuild backlog.
-- `plan-prd.md` — For plans that generate a PRD set and implementation backlog from a new idea or design.
-
-## References
-
-Before creating a plan, consult these files in `docs/.references/`:
-
-- `planning-workflow.md` — Step-by-step workflow to follow when producing a reviewable plan.
-- `output-contract.md` — Required paths, naming rules, and structural constraints that the plan and its outputs must satisfy.
-- `harness-capability-matrix.md` — Use when determining delegation tier or MCP availability for the plan.
-
-## Archive
-
-- `archive/` contains plan for work that has already been implemented. Never move plans here unless explicitly asked by the user.
-- When referencing an archived plan, use its path under `archive/` — do not move it back.
 
 ## Agent Instructions
 
-- Always apply the date-slug naming convention.
-- Do not backdate plans — use today's date.
-- Plans should be created before execution work begins, not retroactively.
-- Read `docs/.references/planning-workflow.md` before starting a new plan.
-- Use the matching template from `docs/.templates/` as the structural starting point.
+- Before writing, read `docs/.references/planning-workflow.md` and copy the matching template from `docs/.templates/` (`plan-prd.md`, `plan-prd-decompose.md`, or `plan-prd-change.md`).
+- Always apply the date-slug naming; do not backdate plans.
+- Plans are written before execution begins, not retroactively.
+- `archive/` holds plans for work already implemented. Never move plans there unless explicitly asked, and reference archived plans in place.

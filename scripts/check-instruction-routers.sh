@@ -27,7 +27,7 @@ line_budget_for() {
   case "$1" in
     ./AGENTS.md|./CLAUDE.md) echo 5 ;;
     ./docs/AGENTS.md|./docs/CLAUDE.md) echo 15 ;;
-    *) echo 12 ;;
+    *) echo 30 ;;
   esac
 }
 

@@ -2,14 +2,34 @@
 
 Drop-in documentation structure, templates, and AI agent instructions for any project. Install the system with `npx starter-docs` to get a ready-made setup for generating PRDs, implementation backlogs, architectural designs, and plans with consistent naming conventions and enforced section contracts.
 
+## Repository Layout
+
+This repo is a pseudo-monorepo organized under `packages/`:
+
+```
+packages/
+  cli/           # The publishable installer CLI (npm package: starter-docs)
+  docs/          # The shippable documentation template
+    template/    # The template tree that gets copied into consumer projects
+  content/       # Reserved for CLI-rendered content fragments
+  skills/        # Agent skills shipped alongside the template
+docs/            # This repo's own dogfood docs (design, planning, work tracking for starter-docs itself)
+scripts/         # Repo-level orchestration (template sync, smoke-pack, router checks)
+```
+
+The publishable CLI reads the template from `packages/docs/template/` in dev and from its own `template/` directory once packed. The repo-root `docs/` directory is where this project designs and plans its own evolution — it is not shipped to consumers.
+
 ## What's Included
+
+Consumers of `starter-docs` receive the following structure in their project root:
 
 ```
 docs/
-  .prompts/          # Reusable prompt templates for common documentation workflows
-  .references/       # Normative rules: output contracts, workflows, capability matrix
+  .prompts/           # Reusable prompt templates for common documentation workflows
+  .references/        # Normative rules: output contracts, workflows, capability matrix
   .templates/         # Reusable document templates for PRDs, plans, and backlogs
   designs/            # Architectural decisions and design rationale (ADRs)
+  guides/             # User, developer, and agent session guides
   plans/              # Approach and strategy documents (created before execution)
   prd/                # Product requirement documents (descriptive: what the product is)
   work/               # Work backlogs and task lists (prescriptive: what to do)
@@ -20,8 +40,6 @@ AGENTS.md             # Root agent instructions (multi-agent compatible)
 Each directory includes its own `CLAUDE.md` and `AGENTS.md` files with context-specific instructions for AI agents generating documentation within that directory.
 
 The hidden support directories under `docs/` each serve a different role: `docs/.references/` contains the authoritative rules and workflows, `docs/.templates/` contains document structure starting points, and `docs/.prompts/` contains reusable prompt text for kicking off common documentation tasks.
-
-This repo also includes maintainer-only validation tooling for the instruction routers. That tooling is documented below and is intentionally excluded from the downstream copy commands.
 
 ## Quick Start
 
@@ -98,9 +116,10 @@ Using `curl` + `tar` (no clone required):
 tmp_dir="$(mktemp -d)"
 curl -sL https://github.com/<owner>/starter-docs/archive/refs/heads/main.tar.gz \
   | tar -xz -C "$tmp_dir" --strip-components=1
+template="$tmp_dir/packages/docs/template"
 mkdir -p ./docs
-rsync -av "$tmp_dir/docs/" ./docs/
-rsync -av "$tmp_dir/AGENTS.md" "$tmp_dir/CLAUDE.md" ./
+rsync -av "$template/docs/" ./docs/
+rsync -av "$template/AGENTS.md" "$template/CLAUDE.md" ./
 rm -rf "$tmp_dir"
 ```
 
@@ -109,9 +128,10 @@ Using `git clone` + `rsync`:
 ```bash
 # Clone into a temporary directory, copy only the drop-in files, clean up
 git clone --depth 1 https://github.com/<owner>/starter-docs.git /tmp/starter-docs
+template=/tmp/starter-docs/packages/docs/template
 mkdir -p ./docs
-rsync -av /tmp/starter-docs/docs/ ./docs/
-rsync -av /tmp/starter-docs/AGENTS.md /tmp/starter-docs/CLAUDE.md ./
+rsync -av "$template/docs/" ./docs/
+rsync -av "$template/AGENTS.md" "$template/CLAUDE.md" ./
 rm -rf /tmp/starter-docs
 ```
 
@@ -119,9 +139,10 @@ Using `degit` (if installed):
 
 ```bash
 npx degit <owner>/starter-docs ./tmp-starter-docs
+template=./tmp-starter-docs/packages/docs/template
 mkdir -p ./docs
-rsync -av ./tmp-starter-docs/docs/ ./docs/
-rsync -av ./tmp-starter-docs/AGENTS.md ./tmp-starter-docs/CLAUDE.md ./
+rsync -av "$template/docs/" ./docs/
+rsync -av "$template/AGENTS.md" "$template/CLAUDE.md" ./
 rm -rf ./tmp-starter-docs
 ```
 
@@ -135,7 +156,7 @@ After installing or copying, your project will have:
 - **`CLAUDE.md` / `AGENTS.md`** -- Root-level agent instructions that point AI agents to the documentation system. The installer can generate these to match the selected capability profile and will not overwrite conflicting files automatically.
 - **`docs/.starter-docs/manifest.json`** -- Present when you use the CLI installer. Tracks the selected profile and managed file hashes so `update` stays narrow and safe.
 
-The copy commands above intentionally exclude this repo's maintainer-only `justfile` and `scripts/check-instruction-routers.sh`.
+The copy commands above scope to `packages/docs/template/`, which intentionally excludes the CLI source, repo-level scripts, and this repo's own dogfood `docs/`.
 
 ## How It Works
 
@@ -176,25 +197,32 @@ Additional subsystem documents (`05-*` through `99-*`) are added as needed for f
 
 If you used the installer, rerun `npx starter-docs update --reconfigure` after changing which capability families you want managed locally. The installer will regenerate profile-aware router files so they stay aligned with the directories you keep.
 
-## Maintainer Checks
+## Contributing
 
-This repo includes a maintainer-only validation script for the instruction routers:
+This repo uses npm workspaces. The publishable CLI is at `packages/cli/`; the shippable template is at `packages/docs/template/`. All repo-level orchestration scripts live at `scripts/`.
 
-- `scripts/check-instruction-routers.sh` verifies that `AGENTS.md` and `CLAUDE.md` pairs stay identical, stay within the router line budgets, and do not reintroduce heavy headings like `## Files` or `## Templates`.
-
-Run it after editing instruction routers and before committing those changes:
+Common commands (from the repo root):
 
 ```bash
-just check-instruction-routers
+npm install                 # install all workspaces
+just build                  # build the CLI
+just test                   # run all CLI tests
+just smoke-pack             # pack the CLI and exercise the installer end-to-end
+just check-instruction-routers  # validate AGENTS.md / CLAUDE.md pairs across the repo
 ```
 
-Fallback if `just` is unavailable:
+Fallbacks without `just`:
 
 ```bash
+npm run build -w starter-docs
+npm test -w starter-docs
+node scripts/smoke-pack.mjs
 bash scripts/check-instruction-routers.sh
 ```
 
-This check is for maintainers of this template repo. It is not part of the downstream documentation workflow and is intentionally not copied into consumer projects.
+The instruction-router check enforces that every `AGENTS.md` has an identical `CLAUDE.md` sibling, that both stay within the per-directory line budget, and that neither reintroduces heavy headings like `## Files` or `## Templates`. Run it after editing any router before committing.
+
+Template changes propagate to the CLI tarball at publish time via the `prepack` script in `packages/cli/package.json`, which copies `packages/docs/template/` into `packages/cli/template/` before `npm pack` runs.
 
 ## License
 

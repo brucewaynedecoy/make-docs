@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(scriptDir, "..");
+const cliPackageDir = path.join(repoRoot, "packages", "cli");
 const npmHome = mkdtempSync(path.join(os.tmpdir(), "starter-docs-npm-home-"));
 const packOutputDir = mkdtempSync(path.join(os.tmpdir(), "starter-docs-pack-output-"));
 
@@ -20,17 +21,21 @@ function npmEnv() {
   };
 }
 
-execFileSync("npm", ["run", "build"], {
-  cwd: repoRoot,
+execFileSync("npm", ["run", "prepack"], {
+  cwd: cliPackageDir,
   stdio: "inherit",
   env: npmEnv(),
 });
 
-const packOutput = execFileSync("npm", ["pack", "--json", "--pack-destination", packOutputDir], {
-  cwd: repoRoot,
-  encoding: "utf8",
-  env: npmEnv(),
-});
+const packOutput = execFileSync(
+  "npm",
+  ["pack", "--json", "--ignore-scripts", "--pack-destination", packOutputDir],
+  {
+    cwd: cliPackageDir,
+    encoding: "utf8",
+    env: npmEnv(),
+  },
+);
 const [{ filename }] = JSON.parse(packOutput);
 const tarballPath = path.join(packOutputDir, filename);
 

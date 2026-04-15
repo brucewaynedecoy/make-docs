@@ -89,18 +89,26 @@ Two `docs/` surfaces, clearly separated:
 | `builds/` | **delete** | Empty |
 | `.backup/` | **investigate** | If legacy, delete or relocate into `.archive/` once v2 archive lands |
 
-## Key Decisions (please confirm)
+## Frozen Decisions
 
-1. **Workspace manager**: npm workspaces (already using npm; no new tooling). Alternatives: pnpm, yarn. Recommend npm.
-2. **Public package name**: keep `starter-docs` on `packages/cli` so `npx starter-docs` keeps working for existing users. Template package may be internal-only (`private: true`) unless we see value in publishing it standalone.
-3. **Template bundling**: when `packages/cli` is published, it must include the template tree. Two options:
-   - (a) **Copy at build time** via tsup `onSuccess` or a prepublish script that copies `packages/docs/template/` → `packages/cli/template/`. Ship from there.
-   - (b) **Workspace path reference + publish script** that resolves the sibling at publish time.
-   - Recommend (a) for simplicity. The CLI becomes self-contained once published.
-4. **Template package path**: `packages/docs/template/` (inner `template/` dir) vs `packages/docs/` (contents directly inside). Recommend the inner `template/` dir — it keeps package metadata (`package.json`, `README.md`, `AGENTS.md`) separate from the shipped tree.
-5. **Repo-root `docs/` starting content**: on day one, copy `packages/docs/template/*` as the seed — we immediately gain our own design/plans/work directories under v1 conventions. The two trees then diverge: the repo-root `docs/` evolves as we implement v2; the template tree is only updated when a v2 change is stable and ready to ship.
-6. **Versioning**: the CLI hits `1.0.0` on v2 publish (currently `0.1.0`). Template package can be independently versioned if published.
-7. **Scripts stay at repo root**: validation and release orchestration live at root, not inside any package, since they span packages.
+Confirmed 2026-04-15:
+
+1. **Workspace manager**: npm workspaces.
+2. **CLI package name**: `starter-docs` lives at `packages/cli`. (The package has not been publicly released, so no backward-compat UX constraint, but the public-facing name is preserved.)
+3. **Template bundling**: option (a) — prepublish copy from `packages/docs/template/` into `packages/cli/template/` so the CLI is self-contained once published.
+4. **Template package path**: inner `template/` directory inside `packages/docs/`, keeping package metadata separate from the shipped tree.
+5. **Repo-root `docs/` seeding**: the current root `docs/` is copied into `packages/docs/template/`. Afterwards the root `docs/` becomes the dogfood surface for starter-docs' own designs/plans/work.
+6. **Versioning**: CLI bumps to `1.0.0` on v2 publish; template package versioned independently if ever published standalone.
+7. **Scripts location**: stays at repo root for cross-package validation and release orchestration.
+
+## Open Items for Later Phases
+
+Deferred, not blocking Phase 1–6:
+
+- Whether to publish `@starter-docs/template` standalone or keep it `private: true` forever.
+- Whether `packages/content/` remains its own package or nests under `packages/cli/content/` — decide during Phase 4 once we understand its consumers.
+- Whether `packages/skills/` publishes standalone or bundles with the CLI — decide during Phase 4.
+- CI integration and publish dist-tag flow — Phase 7.
 
 ## Migration Sequence (phased)
 

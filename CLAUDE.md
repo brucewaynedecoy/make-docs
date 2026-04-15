@@ -1,3 +1,3 @@
 # Agent Instructions
 
-When asked to create documentation for this project that is not `README.md`, read the same-named instruction file in `docs/` before writing.
+This is a pseudo-monorepo. The publishable CLI lives at `packages/cli/`; the shippable docs template lives at `packages/docs/template/`. Use the repo-root `docs/` to design, plan, and track this project's own evolution. Read each directory's `AGENTS.md`/`CLAUDE.md` before writing.

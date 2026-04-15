@@ -11,6 +11,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 export const PACKAGE_ROOT = findPackageRoot(import.meta.url);
+export const TEMPLATE_ROOT = resolveTemplateRoot(PACKAGE_ROOT);
 
 export function findPackageRoot(fromUrl: string): string {
   let current = path.dirname(fileURLToPath(fromUrl));
@@ -27,8 +28,28 @@ export function findPackageRoot(fromUrl: string): string {
   return current;
 }
 
+function resolveTemplateRoot(packageRoot: string): string {
+  const bundled = path.join(packageRoot, "template");
+  if (existsSync(bundled)) {
+    return bundled;
+  }
+
+  const sibling = path.resolve(packageRoot, "..", "docs", "template");
+  if (existsSync(sibling)) {
+    return sibling;
+  }
+
+  throw new Error(
+    `Could not locate template root. Tried ${bundled} and ${sibling}.`,
+  );
+}
+
 export function readPackageFile(relativePath: string): string {
-  return readTextFile(path.join(PACKAGE_ROOT, relativePath));
+  if (relativePath === "package.json") {
+    return readTextFile(path.join(PACKAGE_ROOT, relativePath));
+  }
+
+  return readTextFile(path.join(TEMPLATE_ROOT, relativePath));
 }
 
 export function readTextFile(filePath: string): string {
