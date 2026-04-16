@@ -27,8 +27,8 @@ The scaffold creates all directories (including empty skill directories for late
 
 ### Acceptance criteria
 
-- [ ] Full directory tree under `packages/skills/archive-docs/` exists matching the plan structure.
-- [ ] Empty skill directories (`archive/`, `staleness-check/`, `deprecate/`, `archive-impact/`) and `agents/` contain `.gitkeep` so git tracks them.
+- [x] Full directory tree under `packages/skills/archive-docs/` exists matching the plan structure.
+- [ ] Empty skill directories (`archive/`, `staleness-check/`, `deprecate/`, `archive-impact/`) and `agents/` contain `.gitkeep` so git tracks them. (Deferred — git will track once SKILL.md files are added in Phases 3-4.)
 
 ### Dependencies
 
@@ -73,9 +73,9 @@ The scaffold creates all directories (including empty skill directories for late
 
 ### Acceptance criteria
 
-- [ ] `plugin.json` is valid JSON.
-- [ ] Contains `name: "archive-docs"` and `version: "0.1.0"`.
-- [ ] Lists all 4 skills (`archive`, `staleness-check`, `deprecate`, `archive-impact`) with correct relative `path` values.
+- [x] `plugin.json` is valid JSON.
+- [x] Contains `name: "archive-docs"` and `version: "0.1.0"`.
+- [x] Lists all 4 skills (`archive`, `staleness-check`, `deprecate`, `archive-impact`) with correct relative `path` values.
 
 ### Dependencies
 
@@ -100,12 +100,12 @@ The scaffold creates all directories (including empty skill directories for late
 
 ### Acceptance criteria
 
-- [ ] `archive-workflow.md` exists at `packages/skills/archive-docs/references/archive-workflow.md`.
-- [ ] Contains all nine sections: archival modes, relationship tracing, interview flow, replacement detection, link rewriting, staleness signals, deprecation rules, impact analysis format, and relationship to existing authorities.
-- [ ] All internal references (to `docs/.archive/AGENTS.md`, `docs/.references/output-contract.md`) resolve correctly.
-- [ ] Mode decision table is present with all four modes.
-- [ ] Interview flow documents all six steps with question templates.
-- [ ] Staleness signal table covers all six signals.
+- [x] `archive-workflow.md` exists at `packages/skills/archive-docs/references/archive-workflow.md`.
+- [x] Contains all nine sections: archival modes, relationship tracing, interview flow, replacement detection, link rewriting, staleness signals, deprecation rules, impact analysis format, and relationship to existing authorities.
+- [x] All internal references (to `docs/.archive/AGENTS.md`, `docs/.references/output-contract.md`) resolve correctly.
+- [x] Mode decision table is present with all four modes.
+- [x] Interview flow documents all six steps with question templates.
+- [x] Staleness signal table covers all six signals.
 
 ### Dependencies
 
@@ -134,12 +134,12 @@ The scaffold creates all directories (including empty skill directories for late
 
 ### Acceptance criteria
 
-- [ ] `trace_relationships.py` exists at `packages/skills/archive-docs/scripts/trace_relationships.py`.
-- [ ] Script accepts `--doc-root`, `--output`, and `--format` arguments.
-- [ ] Scans `designs/`, `plans/`, `work/`, and `guides/` sub-directories.
-- [ ] Extracts markdown links and builds upstream/downstream/lateral relationship graph.
-- [ ] Implements slug-based heuristic fallback with `"source": "slug-heuristic"` marker.
-- [ ] Outputs valid JSON matching the plan schema.
-- [ ] `python packages/skills/archive-docs/scripts/trace_relationships.py --doc-root docs/` runs without errors against the dogfood doc tree.
-- [ ] Skips `docs/.archive/` when scanning.
-- [ ] Uses only Python stdlib (no `pip install` required).
+- [x] `trace_relationships.py` exists at `packages/skills/archive-docs/scripts/trace_relationships.py`.
+- [x] Script accepts `--doc-root`, `--output`, and `--format` arguments.
+- [x] Scans `designs/`, `plans/`, `work/`, and `guides/` sub-directories.
+- [x] Extracts markdown links and builds upstream/downstream/lateral relationship graph.
+- [x] Implements slug-based heuristic fallback with `"source": "slug-heuristic"` marker.
+- [x] Outputs valid JSON matching the plan schema.
+- [x] `python packages/skills/archive-docs/scripts/trace_relationships.py --doc-root docs/` runs without errors against the dogfood doc tree (80 artifacts, 202 relationships, 32 heuristic matches).
+- [x] Skips `docs/.archive/` when scanning.
+- [x] Uses only Python stdlib (no `pip install` required).

@@ -8,6 +8,9 @@ This directory is the single consolidated archive for all artifact types and mir
 - `docs/.archive/plans/` — archived plan directories (mirrors `docs/plans/`).
 - `docs/.archive/work/` — archived work directories (mirrors `docs/work/`).
 - `docs/.archive/prds/` — archived PRD sets grouped by date: `docs/.archive/prds/YYYY-MM-DD/`; use `-XX` increment suffix when the same date repeats.
+- `docs/.archive/guides/agent/` — archived agent session guides.
+- `docs/.archive/guides/developer/` — archived developer guides.
+- `docs/.archive/guides/user/` — archived user guides.
 
 Sub-directories are created only when an artifact is explicitly archived. Do not pre-create them.
 

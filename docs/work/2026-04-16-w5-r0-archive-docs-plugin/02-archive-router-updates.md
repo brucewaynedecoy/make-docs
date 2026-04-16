@@ -28,10 +28,10 @@ Add three guide archive sub-directories to the docs/.archive/ mapping in the tem
 
 ### Acceptance criteria
 
-- [ ] `packages/docs/template/docs/.archive/AGENTS.md` contains three new `docs/.archive/guides/` sub-directory entries.
-- [ ] `packages/docs/template/docs/.archive/CLAUDE.md` contains three new `docs/.archive/guides/` sub-directory entries.
-- [ ] Both template files are byte-identical (`diff --brief` returns nothing).
-- [ ] New mappings present after existing `prds/` entry.
+- [x] `packages/docs/template/docs/.archive/AGENTS.md` contains three new `docs/.archive/guides/` sub-directory entries.
+- [x] `packages/docs/template/docs/.archive/CLAUDE.md` contains three new `docs/.archive/guides/` sub-directory entries.
+- [x] Both template files are byte-identical (`diff --brief` returns nothing).
+- [x] New mappings present after existing `prds/` entry.
 
 ### Dependencies
 
@@ -48,10 +48,10 @@ Add three guide archive sub-directories to the docs/.archive/ mapping in the tem
 
 ### Acceptance criteria
 
-- [ ] `docs/.archive/AGENTS.md` is byte-identical to `packages/docs/template/docs/.archive/AGENTS.md`.
-- [ ] `docs/.archive/CLAUDE.md` is byte-identical to `packages/docs/template/docs/.archive/CLAUDE.md`.
-- [ ] `bash scripts/check-instruction-routers.sh` passes (no router drift detected).
-- [ ] No other files are modified by this stage.
+- [x] `docs/.archive/AGENTS.md` is byte-identical to `packages/docs/template/docs/.archive/AGENTS.md`.
+- [x] `docs/.archive/CLAUDE.md` is byte-identical to `packages/docs/template/docs/.archive/CLAUDE.md`.
+- [x] `bash scripts/check-instruction-routers.sh` passes (no router drift detected).
+- [x] No other files are modified by this stage.
 
 ### Dependencies
 
