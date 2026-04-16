@@ -20,3 +20,8 @@ smoke-pack:
 
 check-instruction-routers:
     bash scripts/check-instruction-routers.sh
+
+check-wave-numbering:
+    bash scripts/check-wave-numbering.sh
+
+validate: test check-instruction-routers check-wave-numbering
