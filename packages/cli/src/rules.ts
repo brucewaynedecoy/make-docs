@@ -42,9 +42,14 @@ export const PROMPT_RULES: PromptRule[] = [
     relativePath: "docs/.prompts/update-readme-green-field.prompt.md",
     requires: ["designs", "plans"],
   },
+  {
+    relativePath: "docs/.prompts/session-to-agent-guide.prompt.md",
+    requires: [],
+  },
 ];
 
 const PLAN_TEMPLATE_PATHS = [
+  "docs/.templates/plan-overview.md",
   "docs/.templates/plan-prd.md",
   "docs/.templates/plan-prd-decompose.md",
   "docs/.templates/plan-prd-change.md",
@@ -67,9 +72,10 @@ const WORK_TEMPLATE_PATHS = [
   "docs/.templates/work-phase.md",
 ];
 
-const GUIDE_TEMPLATE_PATHS = [
+const ALWAYS_TEMPLATE_PATHS = [
   "docs/.templates/guide-developer.md",
   "docs/.templates/guide-user.md",
+  "docs/.templates/agent-guide.md",
 ];
 
 const REQUIRED_REFERENCE_PATHS = {
@@ -93,6 +99,8 @@ const REQUIRED_REFERENCE_PATHS = {
 
 const ALWAYS_REFERENCE_PATHS = [
   "docs/.references/guide-contract.md",
+  "docs/.references/wave-model.md",
+  "docs/.references/agent-guide-contract.md",
 ];
 
 export function profileHasCapabilities(
@@ -117,7 +125,7 @@ export function getPromptPaths(profile: InstallProfile): string[] {
 export function getTemplatePaths(profile: InstallProfile): string[] {
   const paths = new Set<string>();
 
-  for (const templatePath of GUIDE_TEMPLATE_PATHS) {
+  for (const templatePath of ALWAYS_TEMPLATE_PATHS) {
     paths.add(templatePath);
   }
 

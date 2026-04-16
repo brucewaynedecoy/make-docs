@@ -146,6 +146,7 @@ describe("installer integration", () => {
         selections.capabilities.designs = false;
         selections.capabilities.prd = false;
         selections.capabilities.work = false;
+        selections.prompts = false;
       });
 
       expect(existsSync(path.join(targetDir, "docs/plans/AGENTS.md"))).toBe(true);

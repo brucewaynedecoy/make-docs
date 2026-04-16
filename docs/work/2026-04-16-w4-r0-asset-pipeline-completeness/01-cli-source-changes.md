@@ -31,8 +31,8 @@ Five changes across two files. After this phase, every install profile produces 
 
 ### Acceptance criteria
 
-- [ ] `ALWAYS_REFERENCE_PATHS` contains all three entries
-- [ ] A reduced profile (no capabilities) installs `wave-model.md` and `agent-guide-contract.md`
+- [x] `ALWAYS_REFERENCE_PATHS` contains all three entries
+- [x] A reduced profile (no capabilities) installs `wave-model.md` and `agent-guide-contract.md`
 
 ### Dependencies
 
@@ -55,10 +55,10 @@ Five changes across two files. After this phase, every install profile produces 
 
 ### Acceptance criteria
 
-- [ ] Constant renamed from `GUIDE_TEMPLATE_PATHS` to `ALWAYS_TEMPLATE_PATHS`
-- [ ] `agent-guide.md` included in the array
-- [ ] `getTemplatePaths` loop references the renamed constant
-- [ ] A reduced profile (no capabilities) installs `agent-guide.md`
+- [x] Constant renamed from `GUIDE_TEMPLATE_PATHS` to `ALWAYS_TEMPLATE_PATHS`
+- [x] `agent-guide.md` included in the array
+- [x] `getTemplatePaths` loop references the renamed constant
+- [x] A reduced profile (no capabilities) installs `agent-guide.md`
 
 ### Dependencies
 
@@ -80,8 +80,8 @@ Five changes across two files. After this phase, every install profile produces 
 
 ### Acceptance criteria
 
-- [ ] `PLAN_TEMPLATE_PATHS` includes `plan-overview.md`
-- [ ] A plans-enabled profile installs `plan-overview.md`
+- [x] `PLAN_TEMPLATE_PATHS` includes `plan-overview.md`
+- [x] A plans-enabled profile installs `plan-overview.md`
 
 ### Dependencies
 
@@ -102,8 +102,8 @@ Five changes across two files. After this phase, every install profile produces 
 
 ### Acceptance criteria
 
-- [ ] `PROMPT_RULES` includes `session-to-agent-guide.prompt.md` with `requires: []`
-- [ ] A prompts-enabled profile (even with no capabilities) installs this prompt
+- [x] `PROMPT_RULES` includes `session-to-agent-guide.prompt.md` with `requires: []`
+- [x] A prompts-enabled profile (even with no capabilities) installs this prompt
 
 ### Dependencies
 
@@ -121,8 +121,8 @@ Five changes across two files. After this phase, every install profile produces 
 
 ### Acceptance criteria
 
-- [ ] `addInstructionAssets` adds `docs/.archive/AGENTS.md` and `docs/.archive/CLAUDE.md`
-- [ ] A reduced profile (no capabilities) includes archive routers when instruction kinds are selected
+- [x] `addInstructionAssets` adds `docs/.archive/AGENTS.md` and `docs/.archive/CLAUDE.md`
+- [x] A reduced profile (no capabilities) includes archive routers when instruction kinds are selected
 
 ### Dependencies
 
@@ -137,8 +137,8 @@ Five changes across two files. After this phase, every install profile produces 
 
 ### Acceptance criteria
 
-- [ ] Build succeeds
-- [ ] All existing tests pass
+- [x] Build succeeds
+- [x] All existing tests pass (43 tests, 6 files — one existing test updated to explicitly disable prompts)
 
 ### Dependencies
 
