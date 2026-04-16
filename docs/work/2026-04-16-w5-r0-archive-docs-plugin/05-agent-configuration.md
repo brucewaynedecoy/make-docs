@@ -24,9 +24,9 @@ Three configuration deliverables (openai.yaml, .claude/ registration, .agents/ s
 
 ### Acceptance criteria
 
-- [ ] File exists at `packages/skills/archive-docs/agents/openai.yaml`
-- [ ] Valid YAML with `interface` and `policy` sections
-- [ ] Follows the same structural pattern as `packages/skills/decompose-codebase/agents/openai.yaml`
+- [x] File exists at `packages/skills/archive-docs/agents/openai.yaml`
+- [x] Valid YAML with `interface` and `policy` sections
+- [x] Follows the same structural pattern as `packages/skills/decompose-codebase/agents/openai.yaml`
 
 ### Dependencies
 
@@ -43,10 +43,10 @@ Three configuration deliverables (openai.yaml, .claude/ registration, .agents/ s
 
 ### Acceptance criteria
 
-- [ ] `.claude/settings.json` exists at the repo root
-- [ ] Contains a `skills` array listing all five SKILL.md paths (1 decompose-codebase + 4 archive-docs)
-- [ ] Does NOT contain a `permissions` key
-- [ ] Agent can discover all registered skills
+- [x] `.claude/settings.json` exists at the repo root
+- [x] Contains a `skills` array listing all five SKILL.md paths (1 decompose-codebase + 4 archive-docs)
+- [x] Does NOT contain a `permissions` key
+- [x] Agent can discover all registered skills
 
 ### Dependencies
 
@@ -62,9 +62,9 @@ Three configuration deliverables (openai.yaml, .claude/ registration, .agents/ s
 
 ### Acceptance criteria
 
-- [ ] `.agents/` directory exists at the project root
-- [ ] `.agents/README.md` exists with appropriate registration table
-- [ ] References both `decompose-codebase` and `archive-docs` plugin configs
+- [x] `.agents/` directory exists at the project root
+- [x] `.agents/README.md` exists with appropriate registration table
+- [x] References both `decompose-codebase` and `archive-docs` plugin configs
 
 ### Dependencies
 
@@ -82,12 +82,12 @@ Three configuration deliverables (openai.yaml, .claude/ registration, .agents/ s
 
 ### Acceptance criteria
 
-- [ ] `trace_relationships.py` exits 0 and produces valid JSON output
-- [ ] Tracer identifies `guide-structure-contract` chain (design -> plan -> work)
-- [ ] Tracer identifies `design-naming-simplification` chain (design -> plan -> work)
-- [ ] `just validate` passes (tests, router check, wave numbering)
-- [ ] `bash scripts/check-instruction-routers.sh` passes with exit code 0
-- [ ] Manual review of all four SKILL.md files complete -- no blocking gaps or unresolved references
+- [x] `trace_relationships.py` exits 0 and produces valid JSON output (84 artifacts, 218 relationships, 32 heuristic)
+- [x] Tracer identifies `guide-structure-contract` chain (design → plan → work — 20 artifacts)
+- [x] Tracer identifies `design-naming-simplification` chain (design → plan → work — 17 artifacts)
+- [x] `just validate` passes (44 tests, router check, wave numbering)
+- [x] `bash scripts/check-instruction-routers.sh` passes with exit code 0
+- [ ] Manual review of all four SKILL.md files complete — deferred to user review
 
 ### Dependencies
 

@@ -1,0 +1,9 @@
+{
+  "skills": [
+    "packages/skills/decompose-codebase/SKILL.md",
+    "packages/skills/archive-docs/skills/archive/SKILL.md",
+    "packages/skills/archive-docs/skills/staleness-check/SKILL.md",
+    "packages/skills/archive-docs/skills/deprecate/SKILL.md",
+    "packages/skills/archive-docs/skills/archive-impact/SKILL.md"
+  ]
+}
