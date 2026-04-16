@@ -1,7 +1,7 @@
 ---
 title: Installing Starter Docs
 path: getting-started
-status: published
+status: draft
 order: 10
 tags:
   - installation

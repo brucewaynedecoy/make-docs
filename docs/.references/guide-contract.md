@@ -74,6 +74,8 @@ The `path` field serves dual purposes:
 | `published` | Complete and current. | Included in publication pipelines. |
 | `deprecated` | Superseded or no longer applicable. Retained with a deprecation note at the top. | Excluded from publication pipelines. |
 
+New guides always start as `draft`. An agent must never set `status: published` on a newly created guide — only the user or an explicit user request promotes a guide to `published`.
+
 Transitions: `draft` → `published` → `deprecated`. A `deprecated` guide may return to `draft` for substantial rewrites. Archival (moving to `docs/.archive/guides/`) follows existing archive rules: only when the user explicitly asks.
 
 ## Scope

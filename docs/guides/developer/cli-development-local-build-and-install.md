@@ -1,7 +1,7 @@
 ---
 title: Building and Installing the CLI Locally
 path: cli/development
-status: published
+status: draft
 order: 10
 tags:
   - build
