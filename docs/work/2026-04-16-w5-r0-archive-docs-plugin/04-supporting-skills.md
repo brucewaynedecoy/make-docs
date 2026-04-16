@@ -28,8 +28,8 @@ Create at `packages/skills/archive-docs/skills/staleness-check/SKILL.md`.
 
 ### Acceptance criteria
 
-- [ ] File exists at `packages/skills/archive-docs/skills/staleness-check/SKILL.md`
-- [ ] All sections present (frontmatter, Overview, Staleness Signals, Output, References)
+- [x] File exists at `packages/skills/archive-docs/skills/staleness-check/SKILL.md`
+- [x] All sections present (frontmatter, Overview, Staleness Signals, Output, References)
 
 ### Dependencies
 
@@ -50,8 +50,8 @@ Create at `packages/skills/archive-docs/skills/deprecate/SKILL.md`.
 
 ### Acceptance criteria
 
-- [ ] File exists at `packages/skills/archive-docs/skills/deprecate/SKILL.md`
-- [ ] All sections present (frontmatter, Overview, Deprecation Behavior, Deprecation Notice Format, Relationship to Archival, References)
+- [x] File exists at `packages/skills/archive-docs/skills/deprecate/SKILL.md`
+- [x] All sections present (frontmatter, Overview, Deprecation Behavior, Deprecation Notice Format, Relationship to Archival, References)
 
 ### Dependencies
 
@@ -70,8 +70,8 @@ Create at `packages/skills/archive-docs/skills/archive-impact/SKILL.md`.
 
 ### Acceptance criteria
 
-- [ ] File exists at `packages/skills/archive-docs/skills/archive-impact/SKILL.md`
-- [ ] All sections present (frontmatter, Overview, Output Format, References)
+- [x] File exists at `packages/skills/archive-docs/skills/archive-impact/SKILL.md`
+- [x] All sections present (frontmatter, Overview, Output Format, References)
 
 ### Dependencies
 

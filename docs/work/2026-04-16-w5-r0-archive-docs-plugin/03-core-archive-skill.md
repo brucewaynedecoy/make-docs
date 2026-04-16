@@ -64,19 +64,19 @@ One file: `packages/skills/archive-docs/skills/archive/SKILL.md`. This is the la
 
 ### Acceptance criteria
 
-- [ ] File exists at `packages/skills/archive-docs/skills/archive/SKILL.md`
-- [ ] Follows decompose-codebase SKILL.md pattern (YAML frontmatter + structured prose sections)
-- [ ] YAML frontmatter contains `name: archive` and description with all trigger phrases
-- [ ] All 10 sections present: Overview, Workflow, Archival Modes, Relationship Tracing, User Interview Flow, Replacement Detection, Link Rewriting, Archive Rules, References (plus frontmatter)
-- [ ] Overview lists all 4 modes with descriptions
-- [ ] Workflow defines 7-step end-to-end flow
-- [ ] Each archival mode includes decision criteria and at least 2 example triggers
-- [ ] Relationship Tracing defines upstream/downstream/lateral and references `references/archive-workflow.md`
-- [ ] User Interview Flow defines 6-step sequence
-- [ ] Replacement Detection defines all 4 signals
-- [ ] Link Rewriting describes scan, transformation, and user-confirmed application
-- [ ] Archive Rules include hard rule about explicit user approval
-- [ ] References section links to `references/archive-workflow.md`
+- [x] File exists at `packages/skills/archive-docs/skills/archive/SKILL.md`
+- [x] Follows decompose-codebase SKILL.md pattern (YAML frontmatter + structured prose sections)
+- [x] YAML frontmatter contains `name: archive` and description with all trigger phrases
+- [x] All 10 sections present: Overview, Workflow, Archival Modes, Relationship Tracing, User Interview Flow, Replacement Detection, Link Rewriting, Archive Rules, References (plus frontmatter)
+- [x] Overview lists all 4 modes with descriptions
+- [x] Workflow defines 7-step end-to-end flow
+- [x] Each archival mode includes decision criteria and at least 2 example triggers
+- [x] Relationship Tracing defines upstream/downstream/lateral and references `references/archive-workflow.md`
+- [x] User Interview Flow defines 6-step sequence
+- [x] Replacement Detection defines all 4 signals
+- [x] Link Rewriting describes scan, transformation, and user-confirmed application
+- [x] Archive Rules include hard rule about explicit user approval
+- [x] References section links to `references/archive-workflow.md`
 
 ### Dependencies
 
