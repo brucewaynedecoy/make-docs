@@ -17,6 +17,9 @@ BACKLOG_DIR_RE = re.compile(r"^\d{4}-\d{2}-\d{2}-rebuild-backlog$")
 ARCHIVE_DIR_RE = re.compile(r"^\d{4}-\d{2}-\d{2}(?:-\d{2})?$")
 ANCHOR_RE = re.compile(r"`[^`\n]*(?:/|\\)[^`\n]*`|`[^`\n]*\.[A-Za-z0-9_-]+(?::\d+(?::\d+)?)?`")
 LINK_RE = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
+FENCE_RE = re.compile(r"^(`{3,}|~{3,})")
+INLINE_CODE_RE = re.compile(r"(`{1,2})(?!`)(.+?)(?<!`)\1(?!`)")
+UNESCAPED_SPACE_RE = re.compile(r"(?<!\\) ")
 
 CORE_DOC_RULES = {
     "docs/prd/00-index.md": {
@@ -155,6 +158,41 @@ def parse_sections(text: str) -> dict[str, str]:
 
 def has_anchor(text: str) -> bool:
     return bool(ANCHOR_RE.search(text))
+
+
+def strip_code_regions(text: str) -> str:
+    """Remove content inside fenced code blocks and inline code spans.
+
+    Returns text with code regions replaced so that LINK_RE cannot match
+    programming syntax that resembles Markdown links.  Line count is
+    preserved (fenced-block lines become empty) so that downstream error
+    reporting stays aligned with the original file.
+    """
+    lines = text.splitlines(keepends=True)
+    result: list[str] = []
+    in_fence = False
+    fence_marker = ""
+    for line in lines:
+        stripped = line.lstrip()
+        if not in_fence:
+            m = FENCE_RE.match(stripped)
+            if m:
+                in_fence = True
+                fence_marker = m.group(1)[0] * len(m.group(1))
+                result.append("\n")
+                continue
+        else:
+            m = FENCE_RE.match(stripped)
+            # CommonMark: closing fence must use the same character and be at least as long.
+            if m and m.group(1)[0] == fence_marker[0] and len(m.group(1)) >= len(fence_marker):
+                in_fence = False
+                fence_marker = ""
+                result.append("\n")
+                continue
+            result.append("\n")
+            continue
+        result.append(INLINE_CODE_RE.sub("", line))
+    return "".join(result)
 
 
 def is_relative_to(path: Path, base: Path) -> bool:
@@ -373,36 +411,52 @@ def validate_backlog(repo_root: Path, errors: list[str]) -> None:
         errors.append(f"{work_root}: no valid backlog file or folder found")
 
 
-def validate_links(repo_root: Path, errors: list[str]) -> None:
-    prd_root = repo_root / "docs" / "prd"
-    work_root = repo_root / "docs" / "work"
-    for path in markdown_files(prd_root, exclude_prefixes=[prd_root / "archive"]):
-        text = path.read_text()
+def is_plausible_link_target(target: str) -> bool:
+    """Return False if *target* cannot be a filesystem path.
+
+    Acts as a safety net for bracket-paren code patterns that survive
+    code-region stripping (e.g. unbalanced backticks in source material).
+    """
+    if "," in target:
+        return False
+    if "..." in target:
+        return False
+    if target and (target[0] in "'\"" or target[-1] in "'\""):
+        return False
+    if UNESCAPED_SPACE_RE.search(target):
+        return False
+    return True
+
+
+def _check_links_in_tree(
+    root: Path,
+    repo_root_resolved: Path,
+    errors: list[str],
+    exclude_prefixes: Iterable[Path] = (),
+) -> None:
+    for path in markdown_files(root, exclude_prefixes=exclude_prefixes):
+        text = strip_code_regions(path.read_text())
         for raw_target in LINK_RE.findall(text):
             target = raw_target.strip()
             if not target or target.startswith("#") or "://" in target or target.startswith("mailto:"):
                 continue
+            if not is_plausible_link_target(target):
+                continue
             target_path = target.split("#", 1)[0]
             resolved = (path.parent / target_path).resolve()
-            if not is_relative_to(resolved, repo_root.resolve()):
+            if not is_relative_to(resolved, repo_root_resolved):
                 errors.append(f"{path}: link escapes repo root -> {raw_target}")
                 continue
             if not resolved.exists():
                 errors.append(f"{path}: broken link -> {raw_target}")
 
-    for path in markdown_files(work_root):
-        text = path.read_text()
-        for raw_target in LINK_RE.findall(text):
-            target = raw_target.strip()
-            if not target or target.startswith("#") or "://" in target or target.startswith("mailto:"):
-                continue
-            target_path = target.split("#", 1)[0]
-            resolved = (path.parent / target_path).resolve()
-            if not is_relative_to(resolved, repo_root.resolve()):
-                errors.append(f"{path}: link escapes repo root -> {raw_target}")
-                continue
-            if not resolved.exists():
-                errors.append(f"{path}: broken link -> {raw_target}")
+
+def validate_links(repo_root: Path, errors: list[str]) -> None:
+    prd_root = repo_root / "docs" / "prd"
+    work_root = repo_root / "docs" / "work"
+    resolved_root = repo_root.resolve()
+    _check_links_in_tree(prd_root, resolved_root, errors, exclude_prefixes=[prd_root / "archive"])
+    _check_links_in_tree(work_root, resolved_root, errors)
 
 
 def build_result(repo_root: Path) -> dict[str, object]:
