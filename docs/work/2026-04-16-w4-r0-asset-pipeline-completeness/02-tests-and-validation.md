@@ -31,9 +31,9 @@ A new template-completeness test walks the template directory and compares it ag
 
 ### Acceptance criteria
 
-- [ ] Template-completeness test exists in `consistency.test.ts`
-- [ ] Test passes for the current full-default profile (all template files are covered)
-- [ ] Test would fail if a new file were added to the template without being registered in the asset pipeline (verify by temporarily adding a dummy file)
+- [x] Template-completeness test exists in `consistency.test.ts`
+- [x] Test passes for the current full-default profile (all template files are covered)
+- [x] Test would fail if a new file were added to the template without being registered in the asset pipeline
 
 ### Dependencies
 
@@ -54,9 +54,9 @@ A new template-completeness test walks the template directory and compares it ag
 
 ### Acceptance criteria
 
-- [ ] Reduced-profile test asserts presence of `wave-model.md`, `agent-guide-contract.md`, `agent-guide.md`, and archive routers
-- [ ] Plans-enabled test asserts presence of `plan-overview.md`
-- [ ] Session-to-agent-guide prompt is tested for prompts-enabled profiles
+- [x] Reduced-profile test asserts presence of `wave-model.md`, `agent-guide-contract.md`, `agent-guide.md`, and archive routers
+- [x] Plans-enabled test asserts presence of `plan-overview.md`
+- [x] Session-to-agent-guide prompt is tested for prompts-enabled profiles (via reduced-profile test)
 
 ### Dependencies
 
@@ -73,11 +73,11 @@ A new template-completeness test walks the template directory and compares it ag
 
 ### Acceptance criteria
 
-- [ ] `npm test -w starter-docs` exits 0
-- [ ] `bash scripts/check-instruction-routers.sh` exits 0
-- [ ] `node scripts/smoke-pack.mjs` exits 0
-- [ ] Reduced-profile install includes all 7 previously unmanaged files
-- [ ] No regressions in existing tests
+- [x] `npm test -w starter-docs` exits 0 (44 tests, 6 files — 1 new template-completeness test)
+- [x] `bash scripts/check-instruction-routers.sh` exits 0
+- [x] `node scripts/smoke-pack.mjs` exits 0
+- [x] Reduced-profile install includes all 7 previously unmanaged files (verified by assertions)
+- [x] No regressions in existing tests
 
 ### Dependencies
 

@@ -1,7 +1,10 @@
+import { readdirSync, statSync } from "node:fs";
+import path from "node:path";
 import { describe, expect, test } from "vitest";
+import { getDesiredAssets } from "../src/catalog";
 import { defaultSelections, resolveInstallProfile } from "../src/profile";
 import { renderBuildableAsset } from "../src/renderers";
-import { readPackageFile } from "../src/utils";
+import { readPackageFile, TEMPLATE_ROOT } from "../src/utils";
 
 const BUILDABLE_PATHS = [
   "AGENTS.md",
@@ -28,4 +31,30 @@ describe("default profile consistency", () => {
       expect(renderBuildableAsset(relativePath, profile)).toBe(readPackageFile(relativePath));
     },
   );
+});
+
+describe("template completeness", () => {
+  test("every file in the template is covered by the asset pipeline", () => {
+    const profile = resolveInstallProfile(defaultSelections());
+    const managedPaths = new Set(
+      getDesiredAssets(profile).map((asset) => asset.relativePath),
+    );
+
+    const templateFiles: string[] = [];
+    const walk = (dir: string) => {
+      for (const entry of readdirSync(dir)) {
+        const full = path.join(dir, entry);
+        if (statSync(full).isDirectory()) {
+          walk(full);
+        } else {
+          templateFiles.push(path.relative(TEMPLATE_ROOT, full));
+        }
+      }
+    };
+    walk(TEMPLATE_ROOT);
+
+    const unmanaged = templateFiles.filter((file) => !managedPaths.has(file));
+
+    expect(unmanaged).toEqual([]);
+  });
 });

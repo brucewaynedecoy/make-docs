@@ -88,6 +88,7 @@ describe("installer integration", () => {
       });
 
       expect(existsSync(path.join(targetDir, "docs/plans/AGENTS.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/.templates/plan-overview.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/prd/AGENTS.md"))).toBe(false);
       expect(existsSync(path.join(targetDir, "docs/work/AGENTS.md"))).toBe(false);
     } finally {
@@ -106,10 +107,16 @@ describe("installer integration", () => {
       });
 
       expect(existsSync(path.join(targetDir, "docs/.references/guide-contract.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/.references/wave-model.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/.references/agent-guide-contract.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/.templates/guide-developer.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/.templates/guide-user.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/.templates/agent-guide.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/guides/AGENTS.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/guides/CLAUDE.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/.archive/AGENTS.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/.archive/CLAUDE.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/.prompts/session-to-agent-guide.prompt.md"))).toBe(true);
     } finally {
       cleanupTempDir(targetDir);
     }
