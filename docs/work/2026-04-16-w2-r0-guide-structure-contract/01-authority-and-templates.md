@@ -40,10 +40,10 @@ These three files establish the structural contract that all developer and user 
 
 ### Acceptance criteria
 
-- [ ] File exists at `packages/docs/template/docs/.references/guide-contract.md`
-- [ ] Contains all 9 sections: Purpose, Required Frontmatter, Optional Frontmatter, Slug Convention, Path Rules, Status Lifecycle, Scope, Cross-Audience Guides, Link Rules
-- [ ] Tables are well-formatted and complete
-- [ ] Matches tone and structure of sibling files (`design-contract.md`, `agent-guide-contract.md`)
+- [x] File exists at `packages/docs/template/docs/.references/guide-contract.md`
+- [x] Contains all 9 sections: Purpose, Required Frontmatter, Optional Frontmatter, Slug Convention, Path Rules, Status Lifecycle, Scope, Cross-Audience Guides, Link Rules
+- [x] Tables are well-formatted and complete
+- [x] Matches tone and structure of sibling files (`design-contract.md`, `agent-guide-contract.md`)
 
 ### Dependencies
 
@@ -67,11 +67,11 @@ These three files establish the structural contract that all developer and user 
 
 ### Acceptance criteria
 
-- [ ] File exists at `packages/docs/template/docs/.templates/guide-developer.md`
-- [ ] YAML frontmatter is valid and includes all required fields as placeholders
-- [ ] Blockquote references `guide-contract.md`
-- [ ] Six suggested headings present
-- [ ] Matches tone of sibling templates (`design.md`, `agent-guide.md`)
+- [x] File exists at `packages/docs/template/docs/.templates/guide-developer.md`
+- [x] YAML frontmatter is valid and includes all required fields as placeholders
+- [x] Blockquote references `guide-contract.md`
+- [x] Six suggested headings present
+- [x] Matches tone of sibling templates (`design.md`, `agent-guide.md`)
 
 ### Dependencies
 
@@ -95,10 +95,10 @@ These three files establish the structural contract that all developer and user 
 
 ### Acceptance criteria
 
-- [ ] File exists at `packages/docs/template/docs/.templates/guide-user.md`
-- [ ] YAML frontmatter is valid and matches developer template structure
-- [ ] Six suggested headings present (user-audience appropriate)
-- [ ] Matches tone of sibling templates
+- [x] File exists at `packages/docs/template/docs/.templates/guide-user.md`
+- [x] YAML frontmatter is valid and matches developer template structure
+- [x] Six suggested headings present (user-audience appropriate)
+- [x] Matches tone of sibling templates
 
 ### Dependencies
 
