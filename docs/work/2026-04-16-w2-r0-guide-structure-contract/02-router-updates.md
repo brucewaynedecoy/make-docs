@@ -30,10 +30,10 @@ Three pairs of AGENTS.md/CLAUDE.md files need updating: the guide-level routers,
 
 ### Acceptance criteria
 
-- [ ] Both files exist and are byte-identical
-- [ ] Content references `guide-contract.md`, `guide-developer.md`, `guide-user.md`, and `agent-guide-contract.md`
-- [ ] Agent guide exemption is explicitly stated
-- [ ] Directory creation instruction preserved
+- [x] Both files exist and are byte-identical
+- [x] Content references `guide-contract.md`, `guide-developer.md`, `guide-user.md`, and `agent-guide-contract.md`
+- [x] Agent guide exemption is explicitly stated
+- [x] Directory creation instruction preserved
 
 ### Dependencies
 
@@ -52,10 +52,10 @@ Three pairs of AGENTS.md/CLAUDE.md files need updating: the guide-level routers,
 
 ### Acceptance criteria
 
-- [ ] Both files are byte-identical
-- [ ] Guides routing line references `guide-contract.md` and both guide templates
-- [ ] Agent guide routing unchanged
-- [ ] All other lines in the file unchanged
+- [x] Both files are byte-identical
+- [x] Guides routing line references `guide-contract.md` and both guide templates
+- [x] Agent guide routing unchanged
+- [x] All other lines in the file unchanged
 
 ### Dependencies
 
@@ -71,10 +71,10 @@ Three pairs of AGENTS.md/CLAUDE.md files need updating: the guide-level routers,
 
 ### Acceptance criteria
 
-- [ ] Both files are byte-identical
-- [ ] Template listing mentions `guide-developer.md` and `guide-user.md`
-- [ ] Existing template family listings preserved
-- [ ] All other lines unchanged
+- [x] Both files are byte-identical
+- [x] Template listing mentions `guide-developer.md` and `guide-user.md`
+- [x] Existing template family listings preserved
+- [x] All other lines unchanged
 
 ### Dependencies
 
