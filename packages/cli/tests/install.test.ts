@@ -41,6 +41,15 @@ describe("installer integration", () => {
       expect(
         existsSync(path.join(targetDir, "docs/.references/harness-capability-matrix.md")),
       ).toBe(true);
+
+      expect(existsSync(path.join(targetDir, "docs/.references/guide-contract.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/.templates/guide-developer.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/.templates/guide-user.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/guides/AGENTS.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/guides/CLAUDE.md"))).toBe(true);
+
+      const guidesRouter = readFileSync(path.join(targetDir, "docs/guides/AGENTS.md"), "utf8");
+      expect(guidesRouter).toContain("guide-contract.md");
     } finally {
       cleanupTempDir(targetDir);
     }
@@ -81,6 +90,26 @@ describe("installer integration", () => {
       expect(existsSync(path.join(targetDir, "docs/plans/AGENTS.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/prd/AGENTS.md"))).toBe(false);
       expect(existsSync(path.join(targetDir, "docs/work/AGENTS.md"))).toBe(false);
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("includes guide files even when all capabilities are disabled", () => {
+    const targetDir = createTempDir();
+    try {
+      installWithSelections(targetDir, (selections) => {
+        selections.capabilities.designs = false;
+        selections.capabilities.plans = false;
+        selections.capabilities.prd = false;
+        selections.capabilities.work = false;
+      });
+
+      expect(existsSync(path.join(targetDir, "docs/.references/guide-contract.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/.templates/guide-developer.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/.templates/guide-user.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/guides/AGENTS.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/guides/CLAUDE.md"))).toBe(true);
     } finally {
       cleanupTempDir(targetDir);
     }

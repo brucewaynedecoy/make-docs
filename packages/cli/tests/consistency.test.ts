@@ -12,6 +12,8 @@ const BUILDABLE_PATHS = [
   "docs/.templates/CLAUDE.md",
   "docs/.prompts/AGENTS.md",
   "docs/.prompts/CLAUDE.md",
+  "docs/guides/AGENTS.md",
+  "docs/guides/CLAUDE.md",
   "docs/.references/design-workflow.md",
   "docs/.references/design-contract.md",
   "docs/.templates/design.md",

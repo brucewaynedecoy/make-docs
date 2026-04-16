@@ -25,8 +25,8 @@ Three test/script files need updates, followed by a sequential validation run: u
 
 ### Acceptance criteria
 
-- [ ] `BUILDABLE_PATHS` includes both guide router paths
-- [ ] `npm run validate:defaults -w starter-docs` passes
+- [x] `BUILDABLE_PATHS` includes both guide router paths
+- [x] `npm run validate:defaults -w starter-docs` passes
 
 ### Dependencies
 
@@ -54,9 +54,9 @@ Three test/script files need updates, followed by a sequential validation run: u
 
 ### Acceptance criteria
 
-- [ ] Full-default install test asserts presence and content of all guide-related files
-- [ ] Reduced-profile test confirms guide files are not capability-gated
-- [ ] `npm test -w starter-docs` passes
+- [x] Full-default install test asserts presence and content of all guide-related files
+- [x] Reduced-profile test confirms guide files are not capability-gated
+- [x] `npm test -w starter-docs` passes
 
 ### Dependencies
 
@@ -72,9 +72,9 @@ Three test/script files need updates, followed by a sequential validation run: u
 
 ### Acceptance criteria
 
-- [ ] Script checks `docs/guides/` for AGENTS.md and CLAUDE.md
-- [ ] Script checks `docs/guides/agent/` for AGENTS.md and CLAUDE.md
-- [ ] `bash scripts/check-instruction-routers.sh` exits 0
+- [x] Script checks `docs/guides/` for AGENTS.md and CLAUDE.md (auto-discovered via `find`)
+- [x] Script checks `docs/guides/agent/` for AGENTS.md and CLAUDE.md (auto-discovered via `find`)
+- [x] `bash scripts/check-instruction-routers.sh` exits 0
 
 ### Dependencies
 
@@ -97,12 +97,12 @@ Three test/script files need updates, followed by a sequential validation run: u
 
 ### Acceptance criteria
 
-- [ ] `npm test -w starter-docs` exits 0
-- [ ] `bash scripts/check-instruction-routers.sh` exits 0
-- [ ] `node scripts/smoke-pack.mjs` exits 0
-- [ ] Fresh install includes all guide-related files
-- [ ] Migrated guides have correct frontmatter and slug-mirrors-path filenames
-- [ ] No regressions in existing tests
+- [x] `npm test -w starter-docs` exits 0 (43 tests, 6 files, all pass)
+- [x] `bash scripts/check-instruction-routers.sh` exits 0
+- [x] `node scripts/smoke-pack.mjs` exits 0
+- [x] Fresh install includes all guide-related files (confirmed in smoke-pack output)
+- [x] Migrated guides have correct frontmatter and slug-mirrors-path filenames
+- [x] No regressions in existing tests
 
 ### Dependencies
 
