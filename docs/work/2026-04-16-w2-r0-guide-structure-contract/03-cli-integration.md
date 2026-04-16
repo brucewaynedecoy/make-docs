@@ -36,12 +36,12 @@ Three CLI source files need changes: `rules.ts` (always-installed references and
 
 ### Acceptance criteria
 
-- [ ] `ALWAYS_REFERENCE_PATHS` constant exists with `guide-contract.md`
-- [ ] `getReferencePaths()` includes always-installed paths unconditionally
-- [ ] `GUIDE_TEMPLATE_PATHS` constant exists with both guide templates
-- [ ] `getTemplatePaths()` includes guide templates unconditionally
-- [ ] `getReferenceDirInstalled()` returns true for all profiles (always at least one reference)
-- [ ] `getTemplateDirInstalled()` returns true for all profiles (always at least one template)
+- [x] `ALWAYS_REFERENCE_PATHS` constant exists with `guide-contract.md`
+- [x] `getReferencePaths()` includes always-installed paths unconditionally
+- [x] `GUIDE_TEMPLATE_PATHS` constant exists with both guide templates
+- [x] `getTemplatePaths()` includes guide templates unconditionally
+- [x] `getReferenceDirInstalled()` returns true for all profiles (always at least one reference)
+- [x] `getTemplateDirInstalled()` returns true for all profiles (always at least one template)
 
 ### Dependencies
 
@@ -60,9 +60,9 @@ Three CLI source files need changes: `rules.ts` (always-installed references and
 
 ### Acceptance criteria
 
-- [ ] `addInstructionAssets()` adds `docs/guides/AGENTS.md` and `docs/guides/CLAUDE.md` for selected instruction kinds
-- [ ] `addInstructionAssets()` adds `docs/guides/agent/AGENTS.md` and `docs/guides/agent/CLAUDE.md` for selected instruction kinds
-- [ ] Lines are placed after the root/docs adds and before capability-gated blocks
+- [x] `addInstructionAssets()` adds `docs/guides/AGENTS.md` and `docs/guides/CLAUDE.md` for selected instruction kinds
+- [x] `addInstructionAssets()` adds `docs/guides/agent/AGENTS.md` and `docs/guides/agent/CLAUDE.md` for selected instruction kinds
+- [x] Lines are placed after the root/docs adds and before capability-gated blocks
 
 ### Dependencies
 
@@ -91,13 +91,13 @@ Three CLI source files need changes: `rules.ts` (always-installed references and
 
 ### Acceptance criteria
 
-- [ ] `GUIDES_ROUTER_INSTRUCTIONS` constant exists
-- [ ] `isBuildablePath()` recognizes guide router paths
-- [ ] `renderBuildableAsset()` dispatches guide routers to `renderGuidesRouter()`
-- [ ] `renderGuidesRouter()` returns content referencing guide-contract, both guide templates, and agent-guide-contract
-- [ ] `renderDocsRouter()` emits guides routing line for all profiles
-- [ ] `renderTemplatesRouter()` mentions guide templates for all profiles
-- [ ] Full-default profile still short-circuits to static template files (existing behavior preserved)
+- [x] `GUIDES_ROUTER_INSTRUCTIONS` constant exists
+- [x] `isBuildablePath()` recognizes guide router paths
+- [x] `renderBuildableAsset()` dispatches guide routers to `renderGuidesRouter()`
+- [x] `renderGuidesRouter()` returns content referencing guide-contract, both guide templates, and agent-guide-contract
+- [x] `renderDocsRouter()` emits guides routing line for all profiles
+- [x] `renderTemplatesRouter()` mentions guide templates for all profiles
+- [x] Full-default profile still short-circuits to static template files (existing behavior preserved)
 
 ### Dependencies
 

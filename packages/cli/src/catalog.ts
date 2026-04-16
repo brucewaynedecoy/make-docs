@@ -31,6 +31,8 @@ function addInstructionAssets(
 
   relativePaths.add(instructionKind);
   relativePaths.add(`docs/${instructionKind}`);
+  relativePaths.add(`docs/guides/${instructionKind}`);
+  relativePaths.add(`docs/guides/agent/${instructionKind}`);
 
   if (profile.capabilityState.designs.effectiveSelection) {
     relativePaths.add(`docs/designs/${instructionKind}`);

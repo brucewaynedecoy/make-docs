@@ -67,6 +67,11 @@ const WORK_TEMPLATE_PATHS = [
   "docs/.templates/work-phase.md",
 ];
 
+const GUIDE_TEMPLATE_PATHS = [
+  "docs/.templates/guide-developer.md",
+  "docs/.templates/guide-user.md",
+];
+
 const REQUIRED_REFERENCE_PATHS = {
   designs: ["docs/.references/design-workflow.md", "docs/.references/design-contract.md"],
   plans: [
@@ -85,6 +90,10 @@ const REQUIRED_REFERENCE_PATHS = {
     "docs/.references/prd-change-management.md",
   ],
 } as const;
+
+const ALWAYS_REFERENCE_PATHS = [
+  "docs/.references/guide-contract.md",
+];
 
 export function profileHasCapabilities(
   profile: InstallProfile,
@@ -107,6 +116,10 @@ export function getPromptPaths(profile: InstallProfile): string[] {
 
 export function getTemplatePaths(profile: InstallProfile): string[] {
   const paths = new Set<string>();
+
+  for (const templatePath of GUIDE_TEMPLATE_PATHS) {
+    paths.add(templatePath);
+  }
 
   if (profile.capabilityState.designs.effectiveSelection) {
     paths.add("docs/.templates/design.md");
@@ -135,6 +148,10 @@ export function getTemplatePaths(profile: InstallProfile): string[] {
 
 export function getReferencePaths(profile: InstallProfile): string[] {
   const paths = new Set<string>();
+
+  for (const referencePath of ALWAYS_REFERENCE_PATHS) {
+    paths.add(referencePath);
+  }
 
   for (const capability of Object.keys(REQUIRED_REFERENCE_PATHS) as Capability[]) {
     if (profile.capabilityState[capability].effectiveSelection) {

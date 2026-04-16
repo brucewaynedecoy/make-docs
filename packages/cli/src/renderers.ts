@@ -18,6 +18,10 @@ const DESIGN_REFERENCE_RENDERERS = new Set([
   "docs/.references/design-contract.md",
   "docs/.templates/design.md",
 ]);
+const GUIDES_ROUTER_INSTRUCTIONS = new Set([
+  "docs/guides/AGENTS.md",
+  "docs/guides/CLAUDE.md",
+]);
 
 export function isBuildablePath(relativePath: string): boolean {
   return (
@@ -25,7 +29,8 @@ export function isBuildablePath(relativePath: string): boolean {
     DOCS_ROUTER_INSTRUCTIONS.has(relativePath) ||
     TEMPLATE_ROUTER_INSTRUCTIONS.has(relativePath) ||
     PROMPTS_ROUTER_INSTRUCTIONS.has(relativePath) ||
-    DESIGN_REFERENCE_RENDERERS.has(relativePath)
+    DESIGN_REFERENCE_RENDERERS.has(relativePath) ||
+    GUIDES_ROUTER_INSTRUCTIONS.has(relativePath)
   );
 }
 
@@ -54,6 +59,9 @@ export function renderBuildableAsset(relativePath: string, profile: InstallProfi
       return renderDesignContract(profile);
     case "docs/.templates/design.md":
       return renderDesignTemplate(profile);
+    case "docs/guides/AGENTS.md":
+    case "docs/guides/CLAUDE.md":
+      return renderGuidesRouter(profile);
     default:
       throw new Error(`No buildable renderer registered for ${relativePath}.`);
   }
@@ -103,6 +111,10 @@ function renderDocsRouter(profile: InstallProfile): string {
     );
   }
 
+  lines.push(
+    "- For guides, continue in `docs/guides/`. Agent session summaries live in `docs/guides/agent/` — read `docs/.references/agent-guide-contract.md` and `docs/.templates/agent-guide.md` before writing. User-facing and developer-facing guides live in `docs/guides/user/` and `docs/guides/developer/` — read `docs/.references/guide-contract.md` and the matching template (`docs/.templates/guide-developer.md` or `docs/.templates/guide-user.md`) before writing.",
+  );
+
   if (getPromptPaths(profile).length > 0) {
     lines.push(
       "- For reusable prompt starters, use `docs/.prompts/`; prompts are optional starters, not authority.",
@@ -112,12 +124,29 @@ function renderDocsRouter(profile: InstallProfile): string {
   return `${lines.join("\n")}\n`;
 }
 
+function renderGuidesRouter(profile: InstallProfile): string {
+  return [
+    "# Guides for Devs and Users",
+    "",
+    "Use `docs/guides` only as a router. Do not create generated files directly in this directory.",
+    "",
+    "- **User guides** are stored in `docs/guides/user/`. This can include developer-styled user documentation for extending or integrating with this project's product(s). Before writing, read `docs/.references/guide-contract.md` and copy the template from `docs/.templates/guide-user.md`.",
+    "- **Developer guides** are stored in `docs/guides/developer/`. Before writing, read `docs/.references/guide-contract.md` and copy the template from `docs/.templates/guide-developer.md`.",
+    "- **Agent session summaries** are stored in `docs/guides/agent/`. These follow a SEPARATE contract — read `docs/.references/agent-guide-contract.md` and `docs/.templates/agent-guide.md` before writing. Agent guides are exempt from the guide structure contract.",
+    "- If the `docs/guides/user`, `docs/guides/developer`, or `docs/guides/agent` directories do not exist, create them ONLY when first writing a guide that belongs in the specific sub-folder.",
+    "",
+    "Documentation must be easy to understand, easy to use, and easy to follow, with links to supporting sections or documents where necessary and where possible.",
+    "",
+  ].join("\n");
+}
+
 function renderTemplatesRouter(profile: InstallProfile): string {
   const templateFamilies: string[] = [];
 
   if (profile.capabilityState.designs.effectiveSelection) {
     templateFamilies.push("`design.md` for design docs");
   }
+  templateFamilies.push("`guide-developer.md` and `guide-user.md` for guides");
 
   const wildcardFamilies: string[] = [];
   if (profile.capabilityState.plans.effectiveSelection) {
