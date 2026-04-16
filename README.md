@@ -17,7 +17,7 @@ docs/            # This repo's own dogfood docs (design, planning, work tracking
 scripts/         # Repo-level orchestration (template sync, smoke-pack, router checks)
 ```
 
-The publishable CLI reads the template from `packages/docs/template/` in dev and from its own `template/` directory once packed. The repo-root `docs/` directory is where this project designs and plans its own evolution — it is not shipped to consumers.
+The publishable CLI reads the template from `packages/docs/template/` in dev and from its own `template/` directory once packed. The repo-root `docs/` directory is a **dogfood instance** of the template — this project uses its own conventions to design and plan its own evolution. When template-owned files (routers, references, templates) change in `packages/docs/template/`, they are manually re-seeded into `docs/` to keep the dogfood surface in sync. See the [Dogfooding and Re-seeding](packages/docs/README.md#dogfooding-and-re-seeding) section in the docs package README for the full workflow.
 
 ## What's Included
 
