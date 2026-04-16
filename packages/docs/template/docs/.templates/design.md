@@ -1,6 +1,6 @@
 # {{TITLE}}
 
-> Filename: `YYYY-MM-DD-w{W}-r{R}-<slug>.md`. See `docs/.references/wave-model.md` for W/R semantics.
+> Filename: `YYYY-MM-DD-<slug>.md`. See `docs/.references/design-contract.md` for naming and structural rules.
 
 ## Purpose
 

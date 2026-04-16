@@ -24,9 +24,9 @@ Three files change: the design template's filename blockquote, and the design di
 
 ### Acceptance criteria
 
-- [ ] Blockquote uses `YYYY-MM-DD-<slug>.md` pattern
-- [ ] References `design-contract.md` instead of `wave-model.md`
-- [ ] All other template content unchanged
+- [x] Blockquote uses `YYYY-MM-DD-<slug>.md` pattern
+- [x] References `design-contract.md` instead of `wave-model.md`
+- [x] All other template content unchanged
 
 ### Dependencies
 
@@ -46,10 +46,10 @@ Three files change: the design template's filename blockquote, and the design di
 
 ### Acceptance criteria
 
-- [ ] `designs/AGENTS.md` uses simplified pattern and example (no W/R)
-- [ ] No wave-model.md reference for design naming
-- [ ] All other agent instructions preserved
-- [ ] `designs/CLAUDE.md` is byte-identical to `designs/AGENTS.md`
+- [x] `designs/AGENTS.md` uses simplified pattern and example (no W/R)
+- [x] No wave-model.md reference for design naming
+- [x] All other agent instructions preserved
+- [x] `designs/CLAUDE.md` is byte-identical to `designs/AGENTS.md`
 
 ### Dependencies
 

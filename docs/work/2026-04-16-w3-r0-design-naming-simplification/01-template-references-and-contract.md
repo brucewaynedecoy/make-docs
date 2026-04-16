@@ -29,10 +29,10 @@ Three reference files in `packages/docs/template/docs/.references/` carry the W/
 
 ### Acceptance criteria
 
-- [ ] Design row removed from Naming Patterns table
-- [ ] Resolution Rules no longer mention `docs/designs/`
-- [ ] `## Design Exemption` section exists after `## PRD Exemption`
-- [ ] No other sections modified
+- [x] Design row removed from Naming Patterns table
+- [x] Resolution Rules no longer mention `docs/designs/`
+- [x] `## Design Exemption` section exists after `## PRD Exemption`
+- [x] No other sections modified
 
 ### Dependencies
 
@@ -48,9 +48,9 @@ Three reference files in `packages/docs/template/docs/.references/` carry the W/
 
 ### Acceptance criteria
 
-- [ ] Required Path shows `YYYY-MM-DD-<slug>.md`
-- [ ] No wave-model.md reference in the Required Path section
-- [ ] All other sections unchanged (Required Headings, Design Lineage, Link Rules, etc.)
+- [x] Required Path shows `YYYY-MM-DD-<slug>.md`
+- [x] No wave-model.md reference in the Required Path section
+- [x] All other sections unchanged (Required Headings, Design Lineage, Link Rules, etc.)
 
 ### Dependencies
 
@@ -66,10 +66,10 @@ Three reference files in `packages/docs/template/docs/.references/` carry the W/
 
 ### Acceptance criteria
 
-- [ ] No occurrences of `w{W}-r{R}` in design path patterns
-- [ ] No standalone wave-model.md reference for design naming
-- [ ] Validation checklist updated
-- [ ] All other workflow logic unchanged (Preflight, Create vs Update, Lineage, Follow-On, Stop Rule)
+- [x] No occurrences of `w{W}-r{R}` in design path patterns
+- [x] No standalone wave-model.md reference for design naming
+- [x] Validation checklist updated
+- [x] All other workflow logic unchanged (Preflight, Create vs Update, Lineage, Follow-On, Stop Rule)
 
 ### Dependencies
 
