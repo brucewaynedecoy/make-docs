@@ -18,6 +18,16 @@ Summarize what was touched this session. Use prose, a short file tree, a table, 
 
 ## Documentation
 
+### Project
+
+Project-level docs: READMEs, agent instructions, designs, plans, work backlogs, references, or templates.
+
+| Path | Description |
+| --- | --- |
+| {{DOCS_PATH}} | {{ONE_LINE_DESCRIPTION}} |
+
+If none, state "None this session."
+
 ### Developer
 
 Docs intended for engineers, maintainers, or internal contributors.

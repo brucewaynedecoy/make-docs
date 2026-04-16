@@ -44,14 +44,16 @@ Each agent guide must include, in order:
 
 - `# {{TITLE}}` — level-1 title capturing the session focus.
 - `## Changes` — free-form prose, markdown tables, and/or file trees summarizing what was touched. May use sub-headings.
-- `## Documentation` — contains both required sub-sections below.
+- `## Documentation` — contains all required sub-sections below.
+  - `### Project`
   - `### Developer`
   - `### User`
 
 ## Documentation Tables
 
-Both sub-sections under `## Documentation` are markdown tables with columns `Path` and `Description`.
+All sub-sections under `## Documentation` are markdown tables with columns `Path` and `Description`.
 
+- `### Project` — project-level documentation created or updated in the session: READMEs, agent instructions (`AGENTS.md`/`CLAUDE.md`), designs, plans, work backlogs, and reference or template files.
 - `### Developer` — developer guides created or updated in the session.
 - `### User` — user guides created or updated in the session.
 
@@ -61,6 +63,12 @@ Example:
 
 ```markdown
 ## Documentation
+
+### Project
+
+| Path | Description |
+| --- | --- |
+| [docs/designs/2026-04-16-w2-r0-auth-redesign.md](../../designs/2026-04-16-w2-r0-auth-redesign.md) | New design for the auth module redesign. |
 
 ### Developer
 
