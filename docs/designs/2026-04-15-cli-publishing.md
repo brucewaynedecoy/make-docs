@@ -1,6 +1,6 @@
 # CLI Publishing — First npm Release
 
-> Filename: `2026-04-15-w2-r0-cli-publishing.md`. See [../.references/wave-model.md](../.references/wave-model.md) for W/R semantics.
+> Filename: `2026-04-15-cli-publishing.md`. See [../.references/wave-model.md](../.references/wave-model.md) for W/R semantics.
 
 ## Purpose
 

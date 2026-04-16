@@ -1,6 +1,6 @@
 # Guide Structure Contract — Frontmatter, Slug Convention, and Publication Paths
 
-> Filename: `2026-04-16-w2-r0-guide-structure-contract.md`. See `docs/.references/wave-model.md` for W/R semantics.
+> Filename: `2026-04-16-guide-structure-contract.md`. See `docs/.references/wave-model.md` for W/R semantics.
 
 ## Purpose
 

@@ -1,6 +1,6 @@
 # Asset Pipeline Completeness — Unmanaged Template Files
 
-> Filename: `2026-04-16-w2-r0-asset-pipeline-completeness.md`. See `docs/.references/wave-model.md` for W/R semantics.
+> Filename: `2026-04-16-asset-pipeline-completeness.md`. See `docs/.references/wave-model.md` for W/R semantics.
 
 ## Purpose
 

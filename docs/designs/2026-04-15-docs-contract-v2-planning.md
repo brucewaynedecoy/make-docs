@@ -1,6 +1,6 @@
 # Docs Contract v2 — Planning Proposals
 
-> Filename: `2026-04-15-w2-r0-docs-contract-v2-planning.md`. See [`docs/.references/wave-model.md`](../.references/wave-model.md) for W/R semantics.
+> Filename: `2026-04-15-docs-contract-v2-planning.md`. See [`docs/.references/wave-model.md`](../.references/wave-model.md) for W/R semantics.
 
 ## Purpose
 
