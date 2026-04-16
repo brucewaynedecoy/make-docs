@@ -39,11 +39,11 @@ Two work streams execute in parallel: guide migration (rename + frontmatter) and
 
 ### Acceptance criteria
 
-- [ ] Old file `docs/guides/developer/local-build-and-install.md` no longer exists
-- [ ] New file `docs/guides/developer/cli-development-local-build-and-install.md` exists
-- [ ] YAML frontmatter is valid and contains all specified fields
-- [ ] Body content is unchanged from the original
-- [ ] Slug prefix matches `path` value
+- [x] Old file `docs/guides/developer/local-build-and-install.md` no longer exists
+- [x] New file `docs/guides/developer/cli-development-local-build-and-install.md` exists
+- [x] YAML frontmatter is valid and contains all specified fields
+- [x] Body content is unchanged from the original
+- [x] Slug prefix matches `path` value
 
 ### Dependencies
 
@@ -75,11 +75,11 @@ Two work streams execute in parallel: guide migration (rename + frontmatter) and
 
 ### Acceptance criteria
 
-- [ ] Old file `docs/guides/user/installing-starter-docs.md` no longer exists
-- [ ] New file `docs/guides/user/getting-started-installing-starter-docs.md` exists
-- [ ] YAML frontmatter is valid and contains all specified fields
-- [ ] Body content is unchanged from the original
-- [ ] Slug prefix matches `path` value
+- [x] Old file `docs/guides/user/installing-starter-docs.md` no longer exists
+- [x] New file `docs/guides/user/getting-started-installing-starter-docs.md` exists
+- [x] YAML frontmatter is valid and contains all specified fields
+- [x] Body content is unchanged from the original
+- [x] Slug prefix matches `path` value
 
 ### Dependencies
 
@@ -104,10 +104,10 @@ Two work streams execute in parallel: guide migration (rename + frontmatter) and
 
 ### Acceptance criteria
 
-- [ ] 3 new files created in `docs/`
-- [ ] 6 router files overwritten in `docs/`
-- [ ] Each target file is byte-identical to its source in `packages/docs/template/`
-- [ ] `bash scripts/check-instruction-routers.sh` passes for dogfood `docs/`
+- [x] 3 new files created in `docs/`
+- [x] 6 router files overwritten in `docs/`
+- [x] Each target file is byte-identical to its source in `packages/docs/template/`
+- [ ] `bash scripts/check-instruction-routers.sh` passes for dogfood `docs/` (deferred to Phase 5)
 
 ### Dependencies
 
