@@ -27,8 +27,8 @@ Create test fixtures with known false-positive patterns and legitimate links, wr
 
 ### Acceptance criteria
 
-- [ ] Fixtures cover all categories listed above.
-- [ ] At least one fixture contains a genuinely broken link (to confirm the validator still catches it).
+- [x] Fixtures cover all categories listed above.
+- [x] At least one fixture contains a genuinely broken link (to confirm the validator still catches it).
 
 ### Dependencies
 
@@ -53,9 +53,9 @@ Create test fixtures with known false-positive patterns and legitimate links, wr
 
 ### Acceptance criteria
 
-- [ ] All unit tests pass with `python -m pytest` (or `python -m unittest`).
-- [ ] Test coverage includes every rejection heuristic.
-- [ ] Test coverage includes both fenced and inline code masking.
+- [x] All unit tests pass with `python -m pytest` (or `python -m unittest`).
+- [x] Test coverage includes every rejection heuristic.
+- [x] Test coverage includes both fenced and inline code masking.
 
 ### Dependencies
 
@@ -72,9 +72,9 @@ Create test fixtures with known false-positive patterns and legitimate links, wr
 
 ### Acceptance criteria
 
-- [ ] Validator produces zero false positives on code-heavy fixtures.
-- [ ] Validator produces no regressions on the starter-docs repo.
-- [ ] All genuinely broken links are still reported.
+- [x] Validator produces zero false positives on code-heavy fixtures.
+- [x] Validator produces no regressions on the starter-docs repo.
+- [x] All genuinely broken links are still reported.
 
 ### Dependencies
 
