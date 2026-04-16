@@ -30,9 +30,9 @@ Six template-owned files need re-seeding, followed by the standard validation se
 
 ### Acceptance criteria
 
-- [ ] 6 files re-seeded and verified byte-identical to source
-- [ ] Existing design files in `docs/designs/` are NOT modified
-- [ ] `bash scripts/check-instruction-routers.sh` passes for dogfood `docs/`
+- [x] 6 files re-seeded and verified byte-identical to source
+- [x] Existing design files in `docs/designs/` are NOT modified
+- [x] `bash scripts/check-instruction-routers.sh` passes for dogfood `docs/`
 
 ### Dependencies
 
@@ -53,13 +53,13 @@ Six template-owned files need re-seeding, followed by the standard validation se
 
 ### Acceptance criteria
 
-- [ ] `npm test -w starter-docs` exits 0
-- [ ] `bash scripts/check-instruction-routers.sh` exits 0
-- [ ] `node scripts/smoke-pack.mjs` exits 0
-- [ ] Fresh install contains simplified design naming pattern
-- [ ] Wave model contains Design Exemption section
-- [ ] No regressions in existing tests
-- [ ] Existing designs untouched
+- [x] `npm test -w starter-docs` exits 0 (43 tests, 6 files)
+- [x] `bash scripts/check-instruction-routers.sh` exits 0
+- [x] `node scripts/smoke-pack.mjs` exits 0
+- [x] Fresh install contains simplified design naming pattern (confirmed via smoke-pack)
+- [x] Wave model contains Design Exemption section
+- [x] No regressions in existing tests
+- [x] Existing designs untouched (all 8 files intact)
 
 ### Dependencies
 

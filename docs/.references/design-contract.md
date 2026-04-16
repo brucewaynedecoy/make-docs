@@ -8,9 +8,9 @@ User-authored design docs may not fully conform. Apply this contract to newly ge
 
 ## Required Path
 
-- `docs/designs/YYYY-MM-DD-w{W}-r{R}-<slug>.md`
+- `docs/designs/YYYY-MM-DD-<slug>.md`
 
-See `docs/.references/wave-model.md` for W/R semantics and resolution rules.
+`YYYY-MM-DD` is today's date (never backdated). `<slug>` is lowercase, hyphens only.
 
 ## Archiving
 

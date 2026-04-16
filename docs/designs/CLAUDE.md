@@ -4,12 +4,11 @@ This directory is an output target for design docs.
 
 ## Naming Convention
 
-Pattern: `YYYY-MM-DD-w{W}-r{R}-<slug>.md`
+Pattern: `YYYY-MM-DD-<slug>.md`
 
 - Prefix with the creation date (today's date, never backdated).
 - Slug: lowercase, hyphens only, no special characters.
-- Example: `2026-04-15-w1-r0-authentication-flow.md`
-- See `docs/.references/wave-model.md` for W/R semantics and resolution rules.
+- Example: `2026-04-16-authentication-flow.md`
 
 ## Agent Instructions
 
