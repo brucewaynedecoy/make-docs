@@ -24,9 +24,9 @@ Three independent cleanup and configuration tasks run in parallel: deleting inva
 
 ### Acceptance criteria
 
-- [ ] `.claude/settings.json` no longer exists.
-- [ ] `.agents/` directory no longer exists.
-- [ ] `.claude/` directory still contains `settings.local.json`.
+- [x] `.claude/settings.json` no longer exists.
+- [x] `.agents/` directory no longer exists.
+- [x] `.claude/` directory still contains `settings.local.json`.
 
 ### Dependencies
 
@@ -44,11 +44,11 @@ Three independent cleanup and configuration tasks run in parallel: deleting inva
 
 ### Acceptance criteria
 
-- [ ] `scripts/copy-template-to-cli.mjs` defines `skillsSource` and `skillsTarget` variables pointing to the correct paths.
-- [ ] Script checks `skillsSource` existence before copying.
-- [ ] Script removes `skillsTarget` if it exists before copying.
-- [ ] Script copies `packages/skills/` to `packages/cli/skills/` via `cpSync`.
-- [ ] Running the script copies both `packages/docs/template/` and `packages/skills/` into the CLI package.
+- [x] `scripts/copy-template-to-cli.mjs` defines `skillsSource` and `skillsTarget` variables pointing to the correct paths.
+- [x] Script checks `skillsSource` existence before copying.
+- [x] Script removes `skillsTarget` if it exists before copying.
+- [x] Script copies `packages/skills/` to `packages/cli/skills/` via `cpSync`.
+- [x] Running the script copies both `packages/docs/template/` and `packages/skills/` into the CLI package.
 
 ### Dependencies
 
@@ -63,7 +63,7 @@ Three independent cleanup and configuration tasks run in parallel: deleting inva
 
 ### Acceptance criteria
 
-- [ ] `packages/cli/package.json` `files` array includes `"skills"`.
+- [x] `packages/cli/package.json` `files` array includes `"skills"`.
 
 ### Dependencies
 
@@ -80,9 +80,9 @@ Three independent cleanup and configuration tasks run in parallel: deleting inva
 
 ### Acceptance criteria
 
-- [ ] `npm run prepack -w starter-docs` completes without errors.
-- [ ] `packages/cli/skills/decompose-codebase/` exists in the bundled output.
-- [ ] `packages/cli/skills/archive-docs/` exists in the bundled output.
+- [x] `npm run prepack -w starter-docs` completes without errors.
+- [x] `packages/cli/skills/decompose-codebase/` exists in the bundled output.
+- [x] `packages/cli/skills/archive-docs/` exists in the bundled output.
 
 ### Dependencies
 

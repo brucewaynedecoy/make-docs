@@ -23,9 +23,9 @@ Three sequential stages: extend the type interfaces, update the profile helper f
 
 ### Acceptance criteria
 
-- [ ] `InstallSelections` has a `skills: boolean` field.
-- [ ] `InstallManifest` has an optional `skillFiles?: Record<string, ManifestFileEntry>` field.
-- [ ] `npm run build -w starter-docs` succeeds.
+- [x] `InstallSelections` has a `skills: boolean` field.
+- [x] `InstallManifest` has an optional `skillFiles?: Record<string, ManifestFileEntry>` field.
+- [x] `npm run build -w starter-docs` succeeds.
 
 ### Dependencies
 
@@ -41,10 +41,10 @@ Three sequential stages: extend the type interfaces, update the profile helper f
 
 ### Acceptance criteria
 
-- [ ] `defaultSelections()` returns `skills: true`.
-- [ ] `cloneSelections()` copies the `skills` field.
-- [ ] `isFullDefaultProfile()` includes a `skills` check.
-- [ ] `npm run build -w starter-docs` succeeds.
+- [x] `defaultSelections()` returns `skills: true`.
+- [x] `cloneSelections()` copies the `skills` field.
+- [x] `isFullDefaultProfile()` includes a `skills` check.
+- [x] `npm run build -w starter-docs` succeeds.
 
 ### Dependencies
 
@@ -61,8 +61,8 @@ Three sequential stages: extend the type interfaces, update the profile helper f
 
 ### Acceptance criteria
 
-- [ ] All existing tests pass with `npm test -w starter-docs`.
-- [ ] No test constructs `InstallSelections` without the `skills` field.
+- [x] All existing tests pass with `npm test -w starter-docs`.
+- [x] No test constructs `InstallSelections` without the `skills` field.
 
 ### Dependencies
 

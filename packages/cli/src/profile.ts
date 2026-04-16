@@ -29,6 +29,7 @@ export function defaultSelections(): InstallSelections {
       "AGENTS.md": true,
       "CLAUDE.md": true,
     },
+    skills: true,
   };
 }
 
@@ -39,6 +40,7 @@ export function cloneSelections(selections: InstallSelections): InstallSelection
     templatesMode: selections.templatesMode,
     referencesMode: selections.referencesMode,
     instructionKinds: { ...selections.instructionKinds },
+    skills: selections.skills,
   };
 }
 
@@ -103,6 +105,7 @@ export function isFullDefaultProfile(profile: InstallProfile): boolean {
     profile.selections.templatesMode === "all" &&
     profile.selections.referencesMode === "all" &&
     profile.selections.instructionKinds["AGENTS.md"] &&
-    profile.selections.instructionKinds["CLAUDE.md"]
+    profile.selections.instructionKinds["CLAUDE.md"] &&
+    profile.selections.skills
   );
 }

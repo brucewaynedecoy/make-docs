@@ -27,6 +27,7 @@ export interface InstallSelections {
   templatesMode: TemplatesMode;
   referencesMode: ReferencesMode;
   instructionKinds: Record<InstructionKind, boolean>;
+  skills: boolean;
 }
 
 export interface CapabilityState {
@@ -64,6 +65,7 @@ export interface InstallManifest {
   selections: InstallSelections;
   effectiveCapabilities: Capability[];
   files: Record<string, ManifestFileEntry>;
+  skillFiles?: Record<string, ManifestFileEntry>;
 }
 
 export interface InstructionConflict {

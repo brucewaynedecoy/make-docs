@@ -1,0 +1,6 @@
+interface:
+  display_name: "Archive Docs"
+  short_description: "Relationship-aware archival, staleness detection, deprecation, and impact analysis"
+  default_prompt: "Use $archive-docs to archive, deprecate, or assess the impact of archiving documents in this project's docs/ tree."
+policy:
+  allow_implicit_invocation: true
