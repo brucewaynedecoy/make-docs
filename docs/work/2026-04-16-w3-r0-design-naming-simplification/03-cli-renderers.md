@@ -27,9 +27,9 @@ Six occurrences of `YYYY-MM-DD-w{W}-r{R}-<slug>.md` in design renderer output ne
 
 ### Acceptance criteria
 
-- [ ] Full variant: no `w{W}-r{R}` in path patterns, references `design-contract.md`
-- [ ] Reduced variant: no `w{W}-r{R}` in path patterns, references `design-contract.md`
-- [ ] All other workflow text unchanged (Preflight, Create vs Update, Lineage, Follow-On, Stop Rule)
+- [x] Full variant: no `w{W}-r{R}` in path patterns, references `design-contract.md`
+- [x] Reduced variant: no `w{W}-r{R}` in path patterns, references `design-contract.md`
+- [x] All other workflow text unchanged (Preflight, Create vs Update, Lineage, Follow-On, Stop Rule)
 
 ### Dependencies
 
@@ -48,9 +48,9 @@ Six occurrences of `YYYY-MM-DD-w{W}-r{R}-<slug>.md` in design renderer output ne
 
 ### Acceptance criteria
 
-- [ ] Required Path shows `YYYY-MM-DD-<slug>.md`
-- [ ] No wave-model.md reference in Required Path section
-- [ ] All other contract sections unchanged
+- [x] Required Path shows `YYYY-MM-DD-<slug>.md`
+- [x] No wave-model.md reference in Required Path section
+- [x] All other contract sections unchanged
 
 ### Dependencies
 
@@ -66,8 +66,8 @@ Six occurrences of `YYYY-MM-DD-w{W}-r{R}-<slug>.md` in design renderer output ne
 
 ### Acceptance criteria
 
-- [ ] Blockquote uses simplified pattern
-- [ ] References `design-contract.md` instead of `wave-model.md`
+- [x] Blockquote uses simplified pattern
+- [x] References `design-contract.md` instead of `wave-model.md`
 
 ### Dependencies
 
@@ -82,9 +82,9 @@ Six occurrences of `YYYY-MM-DD-w{W}-r{R}-<slug>.md` in design renderer output ne
 
 ### Acceptance criteria
 
-- [ ] Build succeeds
-- [ ] All tests pass
-- [ ] No occurrences of `w{W}-r{R}` remain in design-related renderer output
+- [x] Build succeeds
+- [x] All tests pass (43 tests, 6 files)
+- [x] No occurrences of `w{W}-r{R}` remain in design-related renderer output
 
 ### Dependencies
 
