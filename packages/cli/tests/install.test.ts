@@ -36,6 +36,18 @@ describe("installer integration", () => {
       const { manifest } = installWithSelections(targetDir, () => {});
 
       expect(manifest.effectiveCapabilities).toEqual(["designs", "plans", "prd", "work"]);
+      expect(existsSync(path.join(targetDir, ".claude/skills/archive-docs-archive.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, ".agents/skills/archive-docs-archive.md"))).toBe(true);
+      expect(
+        existsSync(
+          path.join(targetDir, ".claude/skill-assets/archive-docs/references/archive-workflow.md"),
+        ),
+      ).toBe(true);
+      expect(
+        existsSync(
+          path.join(targetDir, ".agents/skill-assets/archive-docs/scripts/trace_relationships.py"),
+        ),
+      ).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/work/AGENTS.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/.prompts/designs-to-plan.prompt.md"))).toBe(true);
       expect(
@@ -50,6 +62,8 @@ describe("installer integration", () => {
 
       const guidesRouter = readFileSync(path.join(targetDir, "docs/guides/AGENTS.md"), "utf8");
       expect(guidesRouter).toContain("guide-contract.md");
+      expect(manifest.skillFiles).toContain(".claude/skills/archive-docs-archive.md");
+      expect(manifest.skillFiles).toContain(".agents/skills/archive-docs-archive.md");
     } finally {
       cleanupTempDir(targetDir);
     }
@@ -383,6 +397,29 @@ describe("installer integration", () => {
       expect(existsSync(path.join(targetDir, "docs/.prompts/designs-to-plan.prompt.md"))).toBe(
         true,
       );
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("removes deselected harness skill files on reconfigure", () => {
+    const targetDir = createTempDir();
+    try {
+      installWithSelections(targetDir, () => {});
+
+      const { manifest } = installWithSelections(targetDir, (selections) => {
+        selections.harnesses.codex = false;
+      });
+
+      expect(existsSync(path.join(targetDir, ".claude/skills/archive-docs-archive.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, ".agents/skills/archive-docs-archive.md"))).toBe(false);
+      expect(
+        existsSync(
+          path.join(targetDir, ".agents/skill-assets/archive-docs/references/archive-workflow.md"),
+        ),
+      ).toBe(false);
+      expect(manifest.skillFiles.every((file) => !file.startsWith(".agents/"))).toBe(true);
+      expect(manifest.skillFiles.some((file) => file.startsWith(".claude/"))).toBe(true);
     } finally {
       cleanupTempDir(targetDir);
     }

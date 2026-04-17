@@ -22,8 +22,11 @@ export function loadManifest(targetDir: string): InstallManifest | null {
     return null;
   }
 
-  const parsed = JSON.parse(readTextFile(manifestPath)) as InstallManifest;
+  const parsed = JSON.parse(readTextFile(manifestPath)) as InstallManifest & {
+    skillFiles?: unknown;
+  };
   parsed.selections = migrateSelections(parsed.selections);
+  parsed.skillFiles = migrateSkillFiles(parsed.skillFiles);
   return parsed;
 }
 
@@ -59,6 +62,7 @@ export function createManifest(
   packageMeta: PackageMeta,
   profile: InstallProfile,
   files: Record<string, ManifestFileEntry>,
+  skillFiles: string[],
 ): InstallManifest {
   return {
     schemaVersion: MANIFEST_SCHEMA_VERSION,
@@ -69,6 +73,7 @@ export function createManifest(
     selections: profile.selections,
     effectiveCapabilities: profile.effectiveCapabilities,
     files,
+    skillFiles: Array.from(new Set(skillFiles)).sort(),
   };
 }
 
@@ -76,4 +81,20 @@ export function writeManifest(targetDir: string, manifest: InstallManifest): str
   const manifestPath = getManifestPath(targetDir);
   writeTextFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
   return manifestPath;
+}
+
+function migrateSkillFiles(skillFiles: unknown): string[] {
+  if (Array.isArray(skillFiles)) {
+    return skillFiles.filter((value): value is string => typeof value === "string");
+  }
+
+  if (isPlainObject(skillFiles)) {
+    return Object.keys(skillFiles);
+  }
+
+  return [];
+}
+
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }

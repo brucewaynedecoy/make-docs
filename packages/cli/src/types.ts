@@ -92,7 +92,7 @@ export interface InstallManifest {
   selections: InstallSelections;
   effectiveCapabilities: Capability[];
   files: Record<string, ManifestFileEntry>;
-  skillFiles?: Record<string, ManifestFileEntry>;
+  skillFiles: string[];
 }
 
 export interface InstructionConflict {
@@ -116,6 +116,7 @@ export interface InstallPlan {
   profile: InstallProfile;
   actions: PlannedAction[];
   desiredFiles: Record<string, ManifestFileEntry>;
+  desiredSkillFiles: string[];
   conflictsRunId?: string;
 }
 

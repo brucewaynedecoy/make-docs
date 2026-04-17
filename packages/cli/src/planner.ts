@@ -1,6 +1,7 @@
 import { existsSync } from "node:fs";
 import path from "node:path";
 import { getDesiredAssets } from "./catalog";
+import { getDesiredSkillAssets } from "./skill-catalog";
 import type {
   InstallManifest,
   InstallPlan,
@@ -29,8 +30,11 @@ export function createInstallPlan(options: {
     instructionConflictResolutions,
   } = options;
   const desiredAssets = getDesiredAssets(profile);
+  const desiredSkillAssets = getDesiredSkillAssets(profile.selections);
+  const desiredSkillFiles = desiredSkillAssets.map((asset) => asset.relativePath);
+  const allDesiredAssets = [...desiredAssets, ...desiredSkillAssets];
   const desiredFiles = Object.fromEntries(
-    desiredAssets.map((asset) => [
+    allDesiredAssets.map((asset) => [
       asset.relativePath,
       {
         hash: hashText(asset.content),
@@ -41,8 +45,9 @@ export function createInstallPlan(options: {
 
   const actions: PlannedAction[] = [];
   let conflictsRunId: string | undefined;
+  const existingSkillFiles = new Set(existingManifest?.skillFiles ?? []);
 
-  for (const asset of desiredAssets) {
+  for (const asset of allDesiredAssets) {
     const absolutePath = relativePathToTarget(targetDir, asset.relativePath);
     const desiredHash = hashText(asset.content);
 
@@ -77,6 +82,18 @@ export function createInstallPlan(options: {
         sourceId: asset.sourceId,
         content: asset.content,
         contentHash: desiredHash,
+      });
+      continue;
+    }
+
+    if (existingSkillFiles.has(asset.relativePath) && !manifestEntry) {
+      actions.push({
+        type: asset.assetClass === "buildable" ? "generate" : "update",
+        relativePath: asset.relativePath,
+        sourceId: asset.sourceId,
+        content: asset.content,
+        contentHash: desiredHash,
+        reason: "Managed skill file is missing manifest metadata and will be refreshed.",
       });
       continue;
     }
@@ -156,6 +173,18 @@ export function createInstallPlan(options: {
         reason: "Managed file was modified locally and will not be removed automatically.",
       });
     }
+
+    for (const relativePath of existingSkillFiles) {
+      if (relativePath in desiredFiles || relativePath in existingManifest.files) {
+        continue;
+      }
+
+      actions.push({
+        type: "remove-managed",
+        relativePath,
+        sourceId: `skill:${relativePath}`,
+      });
+    }
   }
 
   actions.sort((left, right) => left.relativePath.localeCompare(right.relativePath));
@@ -166,6 +195,7 @@ export function createInstallPlan(options: {
     profile,
     actions,
     desiredFiles,
+    desiredSkillFiles: desiredSkillFiles.sort(),
     conflictsRunId,
   };
 }

@@ -70,6 +70,8 @@ export function applyInstallPlan(options: {
 }): ApplyResult {
   const { targetDir, plan, existingManifest } = options;
   const nextFiles = { ...(existingManifest?.files ?? {}) };
+  const nextSkillFiles = new Set(existingManifest?.skillFiles ?? []);
+  const desiredSkillFiles = new Set(plan.desiredSkillFiles);
   const conflictFiles: string[] = [];
 
   mkdirSync(targetDir, { recursive: true });
@@ -82,6 +84,20 @@ export function applyInstallPlan(options: {
       nextFiles,
       conflictFiles,
     });
+
+    if (
+      desiredSkillFiles.has(action.relativePath) &&
+      (action.type === "create" ||
+        action.type === "update" ||
+        action.type === "generate" ||
+        action.type === "noop")
+    ) {
+      nextSkillFiles.add(action.relativePath);
+    }
+
+    if (action.type === "remove-managed") {
+      nextSkillFiles.delete(action.relativePath);
+    }
   }
 
   const manifest = createManifest(
@@ -91,6 +107,7 @@ export function applyInstallPlan(options: {
     },
     plan.profile,
     nextFiles,
+    Array.from(nextSkillFiles).sort(),
   );
   writeManifest(targetDir, manifest);
 
@@ -153,7 +170,7 @@ function applyAction(options: {
           targetDir,
           "docs/.starter-docs/conflicts",
           plan.conflictsRunId,
-          action.relativePath,
+          toConflictRelativePath(action.relativePath),
         );
         ensureParentDir(conflictPath);
         writeTextFile(conflictPath, action.content);
@@ -173,4 +190,17 @@ function getInstructionKindForPath(relativePath: string): InstructionKind | null
   return INSTRUCTION_KINDS.includes(basename as InstructionKind)
     ? (basename as InstructionKind)
     : null;
+}
+
+function toConflictRelativePath(relativePath: string): string {
+  const segments = relativePath.split(/[/\\]+/).filter(Boolean);
+  const safeSegments = segments.filter((segment) => segment !== "." && segment !== "..");
+
+  if (path.isAbsolute(relativePath)) {
+    const [first, ...rest] = safeSegments;
+    const drive = first?.replace(/:$/, "");
+    return path.join("__absolute__", ...(drive ? [drive, ...rest] : rest));
+  }
+
+  return path.join(...safeSegments);
 }
