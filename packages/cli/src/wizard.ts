@@ -23,6 +23,7 @@ import {
   CAPABILITIES,
   INSTRUCTION_KINDS,
   INSTRUCTION_KIND_TO_HARNESS,
+  getActiveInstructionKinds,
   type Capability,
   type InstallProfile,
   type InstallSelections,
@@ -188,10 +189,7 @@ export function getWizardOptionSelections(
     prompts: selections.prompts,
     templatesMode: selections.templatesMode,
     referencesMode: selections.referencesMode,
-    instructionKinds: INSTRUCTION_KINDS.filter(
-      (instructionKind) =>
-        selections.harnesses[INSTRUCTION_KIND_TO_HARNESS[instructionKind]],
-    ),
+    instructionKinds: Array.from(getActiveInstructionKinds(selections)),
   };
 }
 
@@ -256,10 +254,7 @@ export function buildCapabilityChecklistState(
 export function renderWizardReviewSummary(selections: InstallSelections): string {
   const normalizedSelections = normalizeWizardSelections(selections);
   const profile = resolveInstallProfile(normalizedSelections);
-  const instructionKinds = INSTRUCTION_KINDS.filter(
-    (instructionKind) =>
-      normalizedSelections.harnesses[INSTRUCTION_KIND_TO_HARNESS[instructionKind]],
-  );
+  const instructionKinds = Array.from(getActiveInstructionKinds(normalizedSelections));
   const instructionSummary =
     instructionKinds.length === INSTRUCTION_KINDS.length
       ? "all"

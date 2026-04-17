@@ -15,6 +15,11 @@ export const INSTRUCTION_KIND_TO_HARNESS: Record<InstructionKind, Harness> = {
   "CLAUDE.md": "claude-code",
 };
 
+export const HARNESS_TO_INSTRUCTION: Record<Harness, InstructionKind> = {
+  "claude-code": "CLAUDE.md",
+  codex: "AGENTS.md",
+};
+
 export type TemplatesMode = "required" | "all";
 export type ReferencesMode = "required" | "all";
 export type InstructionConflictResolution = "update" | "overwrite" | "skip";
@@ -38,6 +43,18 @@ export interface InstallSelections {
   harnesses: Record<Harness, boolean>;
   skills: boolean;
   skillScope: "project" | "global";
+}
+
+export function getActiveInstructionKinds(
+  selections: Pick<InstallSelections, "harnesses">,
+): Set<InstructionKind> {
+  const active = new Set<InstructionKind>();
+  for (const harness of HARNESSES) {
+    if (selections.harnesses[harness]) {
+      active.add(HARNESS_TO_INSTRUCTION[harness]);
+    }
+  }
+  return active;
 }
 
 export interface CapabilityState {

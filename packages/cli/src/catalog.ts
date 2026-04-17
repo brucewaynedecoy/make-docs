@@ -1,7 +1,7 @@
 import { getPromptPaths, getReferenceDirInstalled, getReferencePaths, getTemplateDirInstalled, getTemplatePaths, getPromptsDirInstalled } from "./rules";
 import { renderBuildableAsset, isBuildablePath } from "./renderers";
 import type { InstallProfile, InstructionKind, ResolvedAsset } from "./types";
-import { INSTRUCTION_KINDS, INSTRUCTION_KIND_TO_HARNESS } from "./types";
+import { getActiveInstructionKinds } from "./types";
 import { readPackageFile } from "./utils";
 
 function buildAsset(profile: InstallProfile, relativePath: string): ResolvedAsset {
@@ -22,45 +22,41 @@ function buildAsset(profile: InstallProfile, relativePath: string): ResolvedAsse
 
 function addInstructionAssets(
   profile: InstallProfile,
-  instructionKind: InstructionKind,
+  activeInstructionKind: InstructionKind,
   relativePaths: Set<string>,
 ): void {
-  if (!profile.selections.harnesses[INSTRUCTION_KIND_TO_HARNESS[instructionKind]]) {
-    return;
-  }
-
-  relativePaths.add(instructionKind);
-  relativePaths.add(`docs/${instructionKind}`);
-  relativePaths.add(`docs/guides/${instructionKind}`);
-  relativePaths.add(`docs/guides/agent/${instructionKind}`);
-  relativePaths.add(`docs/.archive/${instructionKind}`);
+  relativePaths.add(activeInstructionKind);
+  relativePaths.add(`docs/${activeInstructionKind}`);
+  relativePaths.add(`docs/guides/${activeInstructionKind}`);
+  relativePaths.add(`docs/guides/agent/${activeInstructionKind}`);
+  relativePaths.add(`docs/.archive/${activeInstructionKind}`);
 
   if (profile.capabilityState.designs.effectiveSelection) {
-    relativePaths.add(`docs/designs/${instructionKind}`);
+    relativePaths.add(`docs/designs/${activeInstructionKind}`);
   }
 
   if (profile.capabilityState.plans.effectiveSelection) {
-    relativePaths.add(`docs/plans/${instructionKind}`);
+    relativePaths.add(`docs/plans/${activeInstructionKind}`);
   }
 
   if (profile.capabilityState.prd.effectiveSelection) {
-    relativePaths.add(`docs/prd/${instructionKind}`);
+    relativePaths.add(`docs/prd/${activeInstructionKind}`);
   }
 
   if (profile.capabilityState.work.effectiveSelection) {
-    relativePaths.add(`docs/work/${instructionKind}`);
+    relativePaths.add(`docs/work/${activeInstructionKind}`);
   }
 
   if (getReferenceDirInstalled(profile)) {
-    relativePaths.add(`docs/.references/${instructionKind}`);
+    relativePaths.add(`docs/.references/${activeInstructionKind}`);
   }
 
   if (getTemplateDirInstalled(profile)) {
-    relativePaths.add(`docs/.templates/${instructionKind}`);
+    relativePaths.add(`docs/.templates/${activeInstructionKind}`);
   }
 
   if (getPromptsDirInstalled(profile)) {
-    relativePaths.add(`docs/.prompts/${instructionKind}`);
+    relativePaths.add(`docs/.prompts/${activeInstructionKind}`);
   }
 }
 
@@ -79,7 +75,7 @@ export function getDesiredAssets(profile: InstallProfile): ResolvedAsset[] {
     relativePaths.add(promptPath);
   }
 
-  for (const instructionKind of INSTRUCTION_KINDS) {
+  for (const instructionKind of getActiveInstructionKinds(profile.selections)) {
     addInstructionAssets(profile, instructionKind, relativePaths);
   }
 
