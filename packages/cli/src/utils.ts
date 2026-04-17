@@ -123,7 +123,7 @@ export function formatInlineList(items: string[]): string {
 }
 
 export function relativePathToTarget(targetDir: string, relativePath: string): string {
-  return path.join(targetDir, relativePath);
+  return path.isAbsolute(relativePath) ? path.normalize(relativePath) : path.join(targetDir, relativePath);
 }
 
 export function exists(filePath: string): boolean {

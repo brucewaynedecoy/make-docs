@@ -58,6 +58,21 @@ async function installManifest(
   });
 }
 
+function mockHomeDirectory(homeDir: string): () => void {
+  const previousHome = process.env.HOME;
+  process.env.HOME = homeDir;
+  vi.spyOn(os, "homedir").mockReturnValue(homeDir);
+
+  return () => {
+    if (previousHome === undefined) {
+      delete process.env.HOME;
+      return;
+    }
+
+    process.env.HOME = previousHome;
+  };
+}
+
 describe("cli interactive flows", () => {
   beforeEach(() => {
     runSelectionWizardMock.mockReset();
@@ -186,6 +201,8 @@ describe("cli interactive flows", () => {
 
   test("supports canonical harness and skill flags for non-interactive init", async () => {
     const targetDir = createTempDir();
+    const fakeHome = createTempDir("starter-docs-home-");
+    const restoreHome = mockHomeDirectory(fakeHome);
 
     try {
       const { runCli } = await import("../src/cli");
@@ -211,11 +228,89 @@ describe("cli interactive flows", () => {
       expect(manifest?.selections.skillScope).toBe("global");
       expect(manifest?.selections.optionalSkills).toEqual(["decompose-codebase"]);
       expect(manifest?.skillFiles).toContain(
-        path.join(os.homedir(), ".claude/skills/decompose-codebase/SKILL.md"),
+        path.join(fakeHome, ".claude/skills/decompose-codebase/SKILL.md"),
       );
       expect(manifest?.skillFiles).not.toContain(
-        path.join(os.homedir(), ".agents/skills/decompose-codebase/SKILL.md"),
+        path.join(fakeHome, ".agents/skills/decompose-codebase/SKILL.md"),
       );
+    } finally {
+      restoreHome();
+      cleanupTempDir(targetDir);
+      cleanupTempDir(fakeHome);
+    }
+  });
+
+  test.each([
+    ["--no-claude-code", { "claude-code": false, codex: true }],
+    ["--no-codex", { "claude-code": true, codex: false }],
+  ])("applies %s to the harness selections", async (flag, expectedHarnesses) => {
+    const targetDir = createTempDir();
+
+    try {
+      const { runCli } = await import("../src/cli");
+
+      await runCli(["init", "--yes", flag, "--target", targetDir]);
+
+      expect(loadManifest(targetDir)?.selections.harnesses).toEqual(expectedHarnesses);
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("supports --no-skills for non-interactive init", async () => {
+    const targetDir = createTempDir();
+
+    try {
+      const { runCli } = await import("../src/cli");
+
+      await runCli(["init", "--yes", "--no-skills", "--target", targetDir]);
+
+      const manifest = loadManifest(targetDir);
+      expect(manifest?.selections.skills).toBe(false);
+      expect(manifest?.selections.optionalSkills).toEqual([]);
+      expect(manifest?.skillFiles).toEqual([]);
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test.each(["project", "global"] as const)(
+    "supports --skill-scope %s for non-interactive init",
+    async (skillScope) => {
+      const targetDir = createTempDir();
+      const fakeHome = skillScope === "global" ? createTempDir("starter-docs-home-") : null;
+      const restoreHome = fakeHome ? mockHomeDirectory(fakeHome) : null;
+
+      try {
+        const { runCli } = await import("../src/cli");
+
+        await runCli(["init", "--yes", "--skill-scope", skillScope, "--target", targetDir]);
+
+        const manifest = loadManifest(targetDir);
+        expect(manifest?.selections.skills).toBe(true);
+        expect(manifest?.selections.skillScope).toBe(skillScope);
+      } finally {
+        restoreHome?.();
+        cleanupTempDir(targetDir);
+        if (fakeHome) {
+          cleanupTempDir(fakeHome);
+        }
+      }
+    },
+  );
+
+  test.each([
+    ["--no-claude", { "claude-code": false, codex: true }],
+    ["--no-agents", { "claude-code": true, codex: false }],
+  ])("supports deprecated harness alias %s", async (flag, expectedHarnesses) => {
+    const targetDir = createTempDir();
+
+    try {
+      const { runCli } = await import("../src/cli");
+
+      await runCli(["init", "--yes", flag, "--target", targetDir]);
+
+      expect(loadManifest(targetDir)?.selections.harnesses).toEqual(expectedHarnesses);
     } finally {
       cleanupTempDir(targetDir);
     }
@@ -240,6 +335,8 @@ describe("cli interactive flows", () => {
 
   test("reconfigure can disable skills while preserving the stored skill scope", async () => {
     const targetDir = createTempDir();
+    const fakeHome = createTempDir("starter-docs-home-");
+    const restoreHome = mockHomeDirectory(fakeHome);
 
     try {
       await installManifest(targetDir, (selections) => {
@@ -258,12 +355,16 @@ describe("cli interactive flows", () => {
         existsSync(path.join(targetDir, ".claude/skills/decompose-codebase/SKILL.md")),
       ).toBe(false);
     } finally {
+      restoreHome();
       cleanupTempDir(targetDir);
+      cleanupTempDir(fakeHome);
     }
   });
 
   test("reconfigure can clear optional skills and change the skill scope", async () => {
     const targetDir = createTempDir();
+    const fakeHome = createTempDir("starter-docs-home-");
+    const restoreHome = mockHomeDirectory(fakeHome);
 
     try {
       await installManifest(targetDir, (selections) => {
@@ -293,7 +394,9 @@ describe("cli interactive flows", () => {
         existsSync(path.join(targetDir, ".claude/skills/decompose-codebase/SKILL.md")),
       ).toBe(false);
     } finally {
+      restoreHome();
       cleanupTempDir(targetDir);
+      cleanupTempDir(fakeHome);
     }
   });
 

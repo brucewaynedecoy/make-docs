@@ -144,7 +144,7 @@ export async function createInstallPlan(options: {
         continue;
       }
 
-      const absolutePath = path.join(targetDir, relativePath);
+      const absolutePath = relativePathToTarget(targetDir, relativePath);
       if (!existsSync(absolutePath)) {
         actions.push({
           type: "remove-managed",

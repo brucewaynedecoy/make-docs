@@ -23,6 +23,16 @@ const BUILDABLE_PATHS = [
 ];
 
 describe("default profile consistency", () => {
+  test("BUILDABLE_PATHS matches the default profile buildable asset set", () => {
+    const profile = resolveInstallProfile(defaultSelections());
+    const buildablePaths = getDesiredAssets(profile)
+      .filter((asset) => asset.assetClass === "buildable")
+      .map((asset) => asset.relativePath)
+      .sort();
+
+    expect(buildablePaths).toEqual([...BUILDABLE_PATHS].sort());
+  });
+
   test.each(BUILDABLE_PATHS)(
     "matches the checked-in full-profile source for %s",
     (relativePath) => {

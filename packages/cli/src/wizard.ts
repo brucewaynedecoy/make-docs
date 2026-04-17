@@ -22,16 +22,14 @@ import {
 import { getOptionalSkillChoices } from "./skill-catalog";
 import {
   CAPABILITIES,
-  INSTRUCTION_KINDS,
-  INSTRUCTION_KIND_TO_HARNESS,
-  getActiveInstructionKinds,
+  HARNESSES,
   type Capability,
+  type Harness,
   type InstallProfile,
   type InstallSelections,
   type InstructionConflict,
   type InstructionConflictResolution,
   type InstructionConflictResolutions,
-  type InstructionKind,
   type ReferencesMode,
   type TemplatesMode,
 } from "./types";
@@ -97,17 +95,32 @@ const OPTION_METADATA = {
     all: "Install every valid reference file for the chosen profile.",
     required: "Install only the minimal reference set required for the chosen profile.",
   },
-  instructionKinds: {
-    label: "Instruction files",
-    descriptions: {
-      "AGENTS.md": "Multi-agent routing instructions used by Codex-style tooling.",
-      "CLAUDE.md": "Claude-compatible instructions for environments that read Claude routers.",
-    } satisfies Record<InstructionKind, string>,
+};
+
+const HARNESS_METADATA: Record<
+  Harness,
+  {
+    label: string;
+    hint: string;
+  }
+> = {
+  "claude-code": {
+    label: "Claude Code",
+    hint: "CLAUDE.md + .claude/",
+  },
+  codex: {
+    label: "Codex",
+    hint: "AGENTS.md + .agents/",
   },
 };
 
-export type WizardStep = "capabilities" | "options" | "review";
-export type WizardReviewAction = "apply" | "edit-capabilities" | "edit-options" | "cancel";
+export type WizardStep = "capabilities" | "harnesses" | "options" | "review";
+export type WizardReviewAction =
+  | "apply"
+  | "edit-capabilities"
+  | "edit-harnesses"
+  | "edit-options"
+  | "cancel";
 export type UpdateWizardAction = "update-existing" | "reconfigure";
 
 export interface RunSelectionWizardOptions {
@@ -140,7 +153,6 @@ export interface WizardOptionSelections {
   prompts: boolean;
   templatesMode: TemplatesMode;
   referencesMode: ReferencesMode;
-  instructionKinds: InstructionKind[];
 }
 
 export interface CapabilityStepState {
@@ -148,9 +160,26 @@ export interface CapabilityStepState {
   checklist: CapabilityChecklistState;
 }
 
+export interface HarnessSelectionOption {
+  value: Harness;
+  label: string;
+  hint: string;
+}
+
+export interface HarnessStepState {
+  selections: InstallSelections;
+  options: HarnessSelectionOption[];
+  selectedHarnesses: Harness[];
+}
+
 export interface OptionsStepState {
   selections: InstallSelections;
   options: WizardOptionSelections;
+  skillScopeOptions: Array<{
+    value: InstallSelections["skillScope"];
+    label: string;
+    hint: string;
+  }>;
 }
 
 export interface ReviewStepState {
@@ -162,6 +191,7 @@ export interface ReviewStepState {
 export interface WizardRenderer {
   beginSession?(title: string): Promise<void> | void;
   editCapabilities(state: CapabilityStepState): Promise<Capability[] | null>;
+  editHarnesses(state: HarnessStepState): Promise<Harness[] | null>;
   editOptions(state: OptionsStepState): Promise<WizardOptionSelections | null>;
   review(state: ReviewStepState): Promise<WizardReviewAction>;
 }
@@ -206,8 +236,27 @@ export function getWizardOptionSelections(
     prompts: selections.prompts,
     templatesMode: selections.templatesMode,
     referencesMode: selections.referencesMode,
-    instructionKinds: Array.from(getActiveInstructionKinds(selections)),
   };
+}
+
+export function getSelectedHarnesses(
+  selections: Pick<InstallSelections, "harnesses">,
+): Harness[] {
+  return HARNESSES.filter((harness) => selections.harnesses[harness]);
+}
+
+export function applyHarnessSelections(
+  selections: InstallSelections,
+  selectedHarnesses: Iterable<Harness>,
+): InstallSelections {
+  const next = cloneSelections(selections);
+  const selectedSet = new Set(selectedHarnesses);
+
+  for (const harness of HARNESSES) {
+    next.harnesses[harness] = selectedSet.has(harness);
+  }
+
+  return next;
 }
 
 export function applyWizardOptionSelections(
@@ -223,11 +272,6 @@ export function applyWizardOptionSelections(
   next.prompts = options.prompts;
   next.templatesMode = options.templatesMode;
   next.referencesMode = options.referencesMode;
-
-  for (const instructionKind of INSTRUCTION_KINDS) {
-    next.harnesses[INSTRUCTION_KIND_TO_HARNESS[instructionKind]] =
-      options.instructionKinds.includes(instructionKind);
-  }
 
   return next;
 }
@@ -276,20 +320,18 @@ export function buildCapabilityChecklistState(
 export function renderWizardReviewSummary(selections: InstallSelections): string {
   const normalizedSelections = normalizeWizardSelections(selections);
   const profile = resolveInstallProfile(normalizedSelections);
-  const instructionKinds = Array.from(getActiveInstructionKinds(normalizedSelections));
-  const instructionSummary =
-    instructionKinds.length === INSTRUCTION_KINDS.length
-      ? "all"
-      : instructionKinds.length > 0
-        ? formatInlineList(instructionKinds)
-        : "none";
+  const selectedHarnesses = getSelectedHarnesses(normalizedSelections);
+  const harnessSummary =
+    selectedHarnesses.length > 0
+      ? formatInlineList(selectedHarnesses.map((harness) => HARNESS_METADATA[harness].label))
+      : "none";
   const optionalSkillSummary =
     normalizedSelections.optionalSkills.length > 0
       ? formatInlineList(normalizedSelections.optionalSkills)
       : "required only";
   const skillsSummary = normalizedSelections.skills
-    ? optionalSkillSummary
-    : "off";
+    ? `Yes (${normalizedSelections.skillScope})`
+    : "No";
 
   return [
     "Document types",
@@ -306,14 +348,12 @@ export function renderWizardReviewSummary(selections: InstallSelections): string
     }),
     "",
     "Options",
+    `- Harnesses: ${harnessSummary}`,
     `- ${OPTION_METADATA.skills.label}: ${skillsSummary}`,
-    `- ${OPTION_METADATA.skillScope.label}: ${
-      normalizedSelections.skills ? normalizedSelections.skillScope : "n/a"
-    }`,
+    `- Optional skills: ${normalizedSelections.skills ? optionalSkillSummary : "n/a"}`,
     `- ${OPTION_METADATA.prompts.label}: ${normalizedSelections.prompts ? "included" : "omitted"}`,
     `- ${OPTION_METADATA.templatesMode.label}: ${normalizedSelections.templatesMode}`,
     `- ${OPTION_METADATA.referencesMode.label}: ${normalizedSelections.referencesMode}`,
-    `- Agents: ${instructionSummary}`,
   ].join("\n");
 }
 
@@ -344,6 +384,30 @@ export async function runSelectionWizardWithRenderer(
       }
 
       selections = applyCapabilitySelections(selections, selectedCapabilities);
+      step = "harnesses";
+      continue;
+    }
+
+    if (step === "harnesses") {
+      const selectedHarnesses = await renderer.editHarnesses({
+        selections,
+        options: HARNESSES.map((harness) => ({
+          value: harness,
+          label: HARNESS_METADATA[harness].label,
+          hint: HARNESS_METADATA[harness].hint,
+        })),
+        selectedHarnesses: getSelectedHarnesses(selections),
+      });
+
+      if (!selectedHarnesses) {
+        return null;
+      }
+
+      if (selectedHarnesses.length === 0) {
+        continue;
+      }
+
+      selections = applyHarnessSelections(selections, selectedHarnesses);
       step = "options";
       continue;
     }
@@ -352,6 +416,18 @@ export async function runSelectionWizardWithRenderer(
       const nextOptions = await renderer.editOptions({
         selections,
         options: getWizardOptionSelections(selections),
+        skillScopeOptions: [
+          {
+            value: "project",
+            label: "Project",
+            hint: OPTION_METADATA.skillScope.project,
+          },
+          {
+            value: "global",
+            label: "Global",
+            hint: OPTION_METADATA.skillScope.global,
+          },
+        ],
       });
 
       if (!nextOptions) {
@@ -375,6 +451,11 @@ export async function runSelectionWizardWithRenderer(
 
     if (reviewAction === "edit-capabilities") {
       step = "capabilities";
+      continue;
+    }
+
+    if (reviewAction === "edit-harnesses") {
+      step = "harnesses";
       continue;
     }
 
@@ -478,6 +559,9 @@ function createClackWizardRenderer(): WizardRenderer {
     async editCapabilities(state) {
       return promptForCapabilities(state.selections);
     },
+    async editHarnesses(state) {
+      return promptForHarnesses(state.selections);
+    },
     async editOptions(state) {
       return promptForOptions(state.options);
     },
@@ -495,9 +579,14 @@ function createClackWizardRenderer(): WizardRenderer {
             hint: "Adjust managed document types",
           },
           {
+            value: "edit-harnesses",
+            label: "Edit harnesses",
+            hint: "Adjust Claude Code and Codex support",
+          },
+          {
             value: "edit-options",
             label: "Edit options",
-            hint: "Adjust prompts, templates, references, and instructions",
+            hint: "Adjust skills, prompts, templates, and references",
           },
           { value: "cancel", label: "Cancel", hint: "Exit without applying changes" },
         ],
@@ -556,6 +645,28 @@ async function promptForCapabilities(
   }
 
   return buildCapabilityChecklistState(promptState.selections).selectedCapabilities;
+}
+
+async function promptForHarnesses(
+  selections: InstallSelections,
+): Promise<Harness[] | null> {
+  const result = await multiselect<Harness>({
+    message: "Which agent platforms will you use?",
+    withGuide: true,
+    initialValues: getSelectedHarnesses(selections),
+    required: true,
+    options: HARNESSES.map((harness) => ({
+      value: harness,
+      label: HARNESS_METADATA[harness].label,
+      hint: HARNESS_METADATA[harness].hint,
+    })),
+  });
+
+  if (isCancel(result)) {
+    return null;
+  }
+
+  return result;
 }
 
 async function promptForOptions(
@@ -682,21 +793,6 @@ async function promptForOptions(
     return null;
   }
 
-  const instructionKinds = await multiselect<InstructionKind>({
-    message: "Which agent instructions should be installed?",
-    withGuide: true,
-    initialValues: options.instructionKinds,
-    required: true,
-    options: INSTRUCTION_KINDS.map((instructionKind) => ({
-      value: instructionKind,
-      label: instructionKind,
-    })),
-  });
-
-  if (isCancel(instructionKinds)) {
-    return null;
-  }
-
   return {
     skills: skillsResult,
     skillScope,
@@ -704,7 +800,6 @@ async function promptForOptions(
     prompts: promptsResult,
     templatesMode,
     referencesMode,
-    instructionKinds,
   };
 }
 

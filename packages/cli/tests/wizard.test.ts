@@ -1,11 +1,11 @@
 import { describe, expect, test } from "vitest";
 import { defaultSelections } from "../src/profile";
+import type { Capability, Harness } from "../src/types";
 import type {
   WizardOptionSelections,
   WizardRenderer,
   WizardReviewAction,
 } from "../src/wizard";
-import type { Capability } from "../src/types";
 import {
   applyCapabilitySelections,
   applyWizardOptionSelections,
@@ -17,12 +17,14 @@ import {
 
 class MockWizardRenderer implements WizardRenderer {
   public readonly seenCapabilityStates: Capability[][] = [];
-  public readonly seenOptionStates: WizardOptionSelections[] = [];
+  public readonly seenHarnessStates: Parameters<WizardRenderer["editHarnesses"]>[0][] = [];
+  public readonly seenOptionStates: Parameters<WizardRenderer["editOptions"]>[0][] = [];
   public readonly seenReviewActions: WizardReviewAction[] = [];
   public readonly introTitles: string[] = [];
 
   constructor(
     private readonly capabilityAnswers: Array<Capability[] | null>,
+    private readonly harnessAnswers: Array<Harness[] | null>,
     private readonly optionAnswers: Array<WizardOptionSelections | null>,
     private readonly reviewAnswers: WizardReviewAction[],
   ) {}
@@ -36,8 +38,13 @@ class MockWizardRenderer implements WizardRenderer {
     return this.capabilityAnswers.shift() ?? null;
   }
 
+  async editHarnesses(state: Parameters<WizardRenderer["editHarnesses"]>[0]) {
+    this.seenHarnessStates.push(state);
+    return this.harnessAnswers.shift() ?? null;
+  }
+
   async editOptions(state: Parameters<WizardRenderer["editOptions"]>[0]) {
-    this.seenOptionStates.push(state.options);
+    this.seenOptionStates.push(state);
     return this.optionAnswers.shift() ?? null;
   }
 
@@ -80,15 +87,17 @@ describe("selection wizard", () => {
     expect(selections.capabilities.work).toBe(false);
   });
 
-  test("maps grouped option answers back into install selections", () => {
-    const selections = applyWizardOptionSelections(defaultSelections(), {
+  test("maps grouped option answers back into install selections without mutating harnesses", () => {
+    const initialSelections = defaultSelections();
+    initialSelections.harnesses["claude-code"] = false;
+
+    const selections = applyWizardOptionSelections(initialSelections, {
       skills: true,
       skillScope: "global",
       optionalSkills: ["decompose-codebase"],
       prompts: false,
       templatesMode: "required",
       referencesMode: "all",
-      instructionKinds: ["AGENTS.md"],
     });
 
     expect(getWizardOptionSelections(selections)).toEqual({
@@ -98,21 +107,135 @@ describe("selection wizard", () => {
       prompts: false,
       templatesMode: "required",
       referencesMode: "all",
-      instructionKinds: ["AGENTS.md"],
     });
     expect(selections.harnesses["claude-code"]).toBe(false);
+    expect(selections.harnesses.codex).toBe(true);
   });
 
-  test("renders agents as all when both instruction files are selected", () => {
-    const summary = renderWizardReviewSummary(defaultSelections());
+  test("renders harnesses and skill scope in the review summary", () => {
+    const selections = defaultSelections();
+    selections.skillScope = "global";
+    selections.optionalSkills = ["decompose-codebase"];
 
-    expect(summary).toContain("- Agents: all");
-    expect(summary).not.toContain("AGENTS.md and CLAUDE.md");
+    const summary = renderWizardReviewSummary(selections);
+
+    expect(summary).toContain("- Harnesses: Claude Code and Codex");
+    expect(summary).toContain("- Skills: Yes (global)");
+    expect(summary).toContain("- Optional skills: decompose-codebase");
+    expect(summary).not.toContain("- Agents:");
+  });
+
+  test("renders harness options and applies harness selections", async () => {
+    const renderer = new MockWizardRenderer(
+      [["designs", "plans", "prd", "work"]],
+      [["claude-code"]],
+      [
+        {
+          skills: false,
+          skillScope: "project",
+          optionalSkills: [],
+          prompts: true,
+          templatesMode: "all",
+          referencesMode: "all",
+        },
+      ],
+      ["apply"],
+    );
+
+    const result = await runSelectionWizardWithRenderer(renderer, {
+      initialSelections: defaultSelections(),
+      introTitle: "Configure starter-docs",
+    });
+
+    expect(renderer.seenHarnessStates[0]?.options).toEqual([
+      {
+        value: "claude-code",
+        label: "Claude Code",
+        hint: "CLAUDE.md + .claude/",
+      },
+      {
+        value: "codex",
+        label: "Codex",
+        hint: "AGENTS.md + .agents/",
+      },
+    ]);
+    expect(result?.harnesses).toEqual({
+      "claude-code": true,
+      codex: false,
+    });
+  });
+
+  test("renders skill scope options and applies the chosen scope", async () => {
+    const renderer = new MockWizardRenderer(
+      [["designs", "plans", "prd", "work"]],
+      [["claude-code", "codex"]],
+      [
+        {
+          skills: true,
+          skillScope: "global",
+          optionalSkills: ["decompose-codebase"],
+          prompts: true,
+          templatesMode: "all",
+          referencesMode: "required",
+        },
+      ],
+      ["apply"],
+    );
+
+    const result = await runSelectionWizardWithRenderer(renderer, {
+      initialSelections: defaultSelections(),
+      introTitle: "Configure starter-docs",
+    });
+
+    expect(renderer.seenOptionStates[0]?.skillScopeOptions).toEqual([
+      {
+        value: "project",
+        label: "Project",
+        hint: "Install skills into this project.",
+      },
+      {
+        value: "global",
+        label: "Global",
+        hint: "Install skills into your home directory for reuse across projects.",
+      },
+    ]);
+    expect(result?.skillScope).toBe("global");
+    expect(result?.optionalSkills).toEqual(["decompose-codebase"]);
+  });
+
+  test("re-prompts harness selection when all harnesses are deselected", async () => {
+    const renderer = new MockWizardRenderer(
+      [["designs", "plans", "prd", "work"]],
+      [[], ["codex"]],
+      [
+        {
+          skills: false,
+          skillScope: "project",
+          optionalSkills: [],
+          prompts: true,
+          templatesMode: "all",
+          referencesMode: "all",
+        },
+      ],
+      ["apply"],
+    );
+
+    const result = await runSelectionWizardWithRenderer(renderer, {
+      initialSelections: defaultSelections(),
+      introTitle: "Configure starter-docs",
+    });
+
+    expect(renderer.seenHarnessStates).toHaveLength(2);
+    expect(result?.harnesses).toEqual({
+      "claude-code": false,
+      codex: true,
+    });
   });
 
   test("supports editing options from the review step before applying", async () => {
     const renderer = new MockWizardRenderer(
       [["designs", "plans", "prd", "work"]],
+      [["claude-code", "codex"]],
       [
         {
           skills: true,
@@ -121,7 +244,6 @@ describe("selection wizard", () => {
           prompts: true,
           templatesMode: "all",
           referencesMode: "all",
-          instructionKinds: ["AGENTS.md", "CLAUDE.md"],
         },
         {
           skills: true,
@@ -130,7 +252,6 @@ describe("selection wizard", () => {
           prompts: false,
           templatesMode: "required",
           referencesMode: "required",
-          instructionKinds: ["AGENTS.md"],
         },
       ],
       ["edit-options", "apply"],
@@ -149,16 +270,12 @@ describe("selection wizard", () => {
       templatesMode: "required",
       referencesMode: "required",
     });
-    expect(result?.harnesses).toEqual({
-      "claude-code": false,
-      codex: true,
-    });
     expect(renderer.introTitles).toEqual(["Configure starter-docs"]);
     expect(renderer.seenOptionStates).toHaveLength(2);
   });
 
   test("cancels when the renderer stops at the capability step", async () => {
-    const renderer = new MockWizardRenderer([null], [], []);
+    const renderer = new MockWizardRenderer([null], [], [], []);
 
     const result = await runSelectionWizardWithRenderer(renderer, {
       initialSelections: defaultSelections(),

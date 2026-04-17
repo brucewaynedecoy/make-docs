@@ -1,9 +1,10 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { applyInstallPlan, planInstall } from "../src/install";
 import { loadManifest } from "../src/manifest";
-import { defaultSelections } from "../src/profile";
+import { defaultSelections, resolveInstallProfile } from "../src/profile";
 import { hashText, readPackageFile } from "../src/utils";
 import {
   cleanupTempDir,
@@ -40,6 +41,42 @@ async function installWithSelections(
   return { selections, plan, result, manifest: loadManifest(targetDir)! };
 }
 
+const FULL_PROFILE_INSTRUCTION_DIRS = [
+  ".",
+  "docs",
+  "docs/guides",
+  "docs/guides/agent",
+  "docs/.archive",
+  "docs/designs",
+  "docs/plans",
+  "docs/prd",
+  "docs/work",
+  "docs/.references",
+  "docs/.templates",
+  "docs/.prompts",
+] as const;
+
+function getInstructionPaths(instructionKind: "AGENTS.md" | "CLAUDE.md"): string[] {
+  return FULL_PROFILE_INSTRUCTION_DIRS.map((relativeDir) =>
+    relativeDir === "." ? instructionKind : path.join(relativeDir, instructionKind),
+  );
+}
+
+function mockHomeDirectory(homeDir: string): () => void {
+  const previousHome = process.env.HOME;
+  process.env.HOME = homeDir;
+  vi.spyOn(os, "homedir").mockReturnValue(homeDir);
+
+  return () => {
+    if (previousHome === undefined) {
+      delete process.env.HOME;
+      return;
+    }
+
+    process.env.HOME = previousHome;
+  };
+}
+
 describe("installer integration", () => {
   beforeEach(() => {
     mockSkillFetches();
@@ -48,6 +85,26 @@ describe("installer integration", () => {
   afterEach(() => {
     vi.restoreAllMocks();
     vi.unstubAllGlobals();
+  });
+
+  test("installs the correct instruction files for both harnesses", async () => {
+    const targetDir = createTempDir();
+    try {
+      await installWithSelections(targetDir, (selections) => {
+        selections.harnesses["claude-code"] = true;
+        selections.harnesses.codex = true;
+      });
+
+      for (const relativePath of getInstructionPaths("CLAUDE.md")) {
+        expect(existsSync(path.join(targetDir, relativePath))).toBe(true);
+      }
+
+      for (const relativePath of getInstructionPaths("AGENTS.md")) {
+        expect(existsSync(path.join(targetDir, relativePath))).toBe(true);
+      }
+    } finally {
+      cleanupTempDir(targetDir);
+    }
   });
 
   test("installs the full default profile", async () => {
@@ -59,8 +116,24 @@ describe("installer integration", () => {
       expect(existsSync(path.join(targetDir, ".claude/skills/archive-docs/SKILL.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, ".agents/skills/archive-docs/SKILL.md"))).toBe(true);
       expect(
+        existsSync(path.join(targetDir, ".claude/skills/archive-docs/agents/openai.yaml")),
+      ).toBe(true);
+      expect(
+        existsSync(path.join(targetDir, ".agents/skills/archive-docs/agents/openai.yaml")),
+      ).toBe(true);
+      expect(
         existsSync(
           path.join(targetDir, ".claude/skills/archive-docs/references/archive-workflow.md"),
+        ),
+      ).toBe(true);
+      expect(
+        existsSync(
+          path.join(targetDir, ".agents/skills/archive-docs/references/archive-workflow.md"),
+        ),
+      ).toBe(true);
+      expect(
+        existsSync(
+          path.join(targetDir, ".claude/skills/archive-docs/scripts/trace_relationships.py"),
         ),
       ).toBe(true);
       expect(
@@ -94,6 +167,64 @@ describe("installer integration", () => {
     }
   });
 
+  test("migrates legacy instructionKinds manifests to harness selections", () => {
+    const targetDir = createTempDir();
+    try {
+      const manifestPath = path.join(targetDir, "docs/.starter-docs/manifest.json");
+      mkdirSync(path.dirname(manifestPath), { recursive: true });
+
+      writeFileSync(
+        manifestPath,
+        `${JSON.stringify(
+          {
+            schemaVersion: 1,
+            packageName: "starter-docs",
+            packageVersion: "0.1.0",
+            updatedAt: new Date().toISOString(),
+            profileId: "legacy-profile",
+            selections: {
+              capabilities: {
+                designs: true,
+                plans: true,
+                prd: true,
+                work: true,
+              },
+              prompts: true,
+              templatesMode: "all",
+              referencesMode: "all",
+              instructionKinds: {
+                "CLAUDE.md": true,
+                "AGENTS.md": false,
+              },
+              skills: true,
+              skillScope: "project",
+              optionalSkills: [],
+            },
+            effectiveCapabilities: ["designs", "plans", "prd", "work"],
+            files: {},
+            skillFiles: [],
+          },
+          null,
+          2,
+        )}\n`,
+        "utf8",
+      );
+
+      const manifest = loadManifest(targetDir);
+      const expectedSelections = defaultSelections();
+      expectedSelections.harnesses["claude-code"] = true;
+      expectedSelections.harnesses.codex = false;
+
+      expect(manifest?.selections).toEqual(expectedSelections);
+      expect(resolveInstallProfile(manifest!.selections).profileId).toBe(
+        resolveInstallProfile(expectedSelections).profileId,
+      );
+      expect("instructionKinds" in (manifest?.selections ?? {})).toBe(false);
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
   test("installs an optional skill only when selected", async () => {
     const targetDir = createTempDir();
     try {
@@ -111,6 +242,134 @@ describe("installer integration", () => {
       ).toBe(true);
     } finally {
       cleanupTempDir(targetDir);
+    }
+  });
+
+  test("skips skill installation when skills are disabled", async () => {
+    const targetDir = createTempDir();
+    try {
+      const { manifest } = await installWithSelections(targetDir, (selections) => {
+        selections.skills = false;
+      });
+
+      expect(existsSync(path.join(targetDir, ".claude/skills"))).toBe(false);
+      expect(existsSync(path.join(targetDir, ".agents/skills"))).toBe(false);
+      expect(existsSync(path.join(targetDir, "CLAUDE.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "AGENTS.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/CLAUDE.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/AGENTS.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/work/AGENTS.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/work/CLAUDE.md"))).toBe(true);
+      expect(manifest.skillFiles).toEqual([]);
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("installs only Claude Code harness instructions and skills when Codex is disabled", async () => {
+    const targetDir = createTempDir();
+    try {
+      await installWithSelections(targetDir, (selections) => {
+        selections.harnesses.codex = false;
+      });
+
+      for (const relativePath of getInstructionPaths("CLAUDE.md")) {
+        expect(existsSync(path.join(targetDir, relativePath))).toBe(true);
+      }
+
+      for (const relativePath of getInstructionPaths("AGENTS.md")) {
+        expect(existsSync(path.join(targetDir, relativePath))).toBe(false);
+      }
+
+      expect(existsSync(path.join(targetDir, ".claude/skills/archive-docs/SKILL.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, ".agents"))).toBe(false);
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("installs only Codex harness instructions and skills when Claude Code is disabled", async () => {
+    const targetDir = createTempDir();
+    try {
+      await installWithSelections(targetDir, (selections) => {
+        selections.harnesses["claude-code"] = false;
+      });
+
+      for (const relativePath of getInstructionPaths("AGENTS.md")) {
+        expect(existsSync(path.join(targetDir, relativePath))).toBe(true);
+      }
+
+      for (const relativePath of getInstructionPaths("CLAUDE.md")) {
+        expect(existsSync(path.join(targetDir, relativePath))).toBe(false);
+      }
+
+      expect(existsSync(path.join(targetDir, ".agents/skills/archive-docs/SKILL.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, ".claude"))).toBe(false);
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("keeps installed skill references valid inside each harness skill directory", async () => {
+    const targetDir = createTempDir();
+    try {
+      await installWithSelections(targetDir, () => {});
+
+      for (const harnessRoot of [".claude", ".agents"]) {
+        const skillPath = path.join(targetDir, harnessRoot, "skills/archive-docs/SKILL.md");
+        const contents = readFileSync(skillPath, "utf8");
+
+        for (const relativeLink of [
+          "./references/archive-workflow.md",
+          "./scripts/trace_relationships.py",
+          "./agents/openai.yaml",
+        ]) {
+          expect(contents).toContain(`(${relativeLink})`);
+          expect(existsSync(path.join(path.dirname(skillPath), relativeLink))).toBe(true);
+        }
+      }
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("installs project-scoped skills under the target directory", async () => {
+    const targetDir = createTempDir();
+    const fakeHome = createTempDir("starter-docs-home-");
+    const restoreHome = mockHomeDirectory(fakeHome);
+    try {
+      await installWithSelections(targetDir, (selections) => {
+        selections.skillScope = "project";
+      });
+
+      expect(existsSync(path.join(targetDir, ".claude/skills/archive-docs/SKILL.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, ".agents/skills/archive-docs/SKILL.md"))).toBe(true);
+      expect(existsSync(path.join(fakeHome, ".claude/skills/archive-docs/SKILL.md"))).toBe(false);
+      expect(existsSync(path.join(fakeHome, ".agents/skills/archive-docs/SKILL.md"))).toBe(false);
+    } finally {
+      restoreHome();
+      cleanupTempDir(targetDir);
+      cleanupTempDir(fakeHome);
+    }
+  });
+
+  test("installs global-scoped skills under the mocked home directory", async () => {
+    const targetDir = createTempDir();
+    const fakeHome = createTempDir("starter-docs-home-");
+    const restoreHome = mockHomeDirectory(fakeHome);
+    try {
+      await installWithSelections(targetDir, (selections) => {
+        selections.skillScope = "global";
+      });
+
+      expect(existsSync(path.join(fakeHome, ".claude/skills/archive-docs/SKILL.md"))).toBe(true);
+      expect(existsSync(path.join(fakeHome, ".agents/skills/archive-docs/SKILL.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, ".claude/skills/archive-docs/SKILL.md"))).toBe(false);
+      expect(existsSync(path.join(targetDir, ".agents/skills/archive-docs/SKILL.md"))).toBe(false);
+    } finally {
+      restoreHome();
+      cleanupTempDir(targetDir);
+      cleanupTempDir(fakeHome);
     }
   });
 
