@@ -34,14 +34,7 @@ export function defaultSelections(): InstallSelections {
 }
 
 export function cloneSelections(selections: InstallSelections): InstallSelections {
-  return {
-    capabilities: { ...selections.capabilities },
-    prompts: selections.prompts,
-    templatesMode: selections.templatesMode,
-    referencesMode: selections.referencesMode,
-    instructionKinds: { ...selections.instructionKinds },
-    skills: selections.skills,
-  };
+  return structuredClone(selections);
 }
 
 export function resolveCapabilityState(
@@ -83,6 +76,7 @@ export function resolveInstallProfile(selections: InstallSelections): InstallPro
       templatesMode: selections.templatesMode,
       referencesMode: selections.referencesMode,
       instructionKinds: selections.instructionKinds,
+      skills: selections.skills,
     }),
   ).slice(0, 16);
 

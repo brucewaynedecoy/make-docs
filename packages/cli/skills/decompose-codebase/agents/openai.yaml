@@ -1,6 +1,0 @@
-interface:
-  display_name: "Decompose Codebase"
-  short_description: "Plan and reverse-engineer repos into structured PRDs"
-  default_prompt: "Use $decompose-codebase to plan and document this repository into a structured PRD set and rebuild backlog."
-policy:
-  allow_implicit_invocation: true

@@ -9,7 +9,6 @@
   "files": [
     "dist",
     "template",
-    "skills",
     "README.md"
   ],
   "engines": {
