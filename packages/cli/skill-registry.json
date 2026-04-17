@@ -1,0 +1,63 @@
+{
+  "$schema": "./src/schemas/skill-registry.schema.json",
+  "skills": [
+    {
+      "name": "decompose-codebase",
+      "source": "local:packages/skills/decompose-codebase",
+      "entryPoint": "SKILL.md",
+      "installName": "decompose-codebase.md",
+      "required": false,
+      "description": "Plan and reverse-engineer repos into structured PRDs.",
+      "assets": []
+    },
+    {
+      "name": "archive",
+      "source": "local:packages/skills/archive-docs/skills/archive",
+      "entryPoint": "SKILL.md",
+      "installName": "archive-docs-archive.md",
+      "required": false,
+      "description": "Relationship-aware archival with 4 modes.",
+      "plugin": "archive-docs",
+      "assets": [
+        {
+          "source": "local:packages/skills/archive-docs/references/archive-workflow.md",
+          "installPath": "archive-docs/references/archive-workflow.md"
+        },
+        {
+          "source": "local:packages/skills/archive-docs/scripts/trace_relationships.py",
+          "installPath": "archive-docs/scripts/trace_relationships.py"
+        }
+      ]
+    },
+    {
+      "name": "archive-impact",
+      "source": "local:packages/skills/archive-docs/skills/archive-impact",
+      "entryPoint": "SKILL.md",
+      "installName": "archive-docs-archive-impact.md",
+      "required": false,
+      "description": "Assess downstream impact before archiving.",
+      "plugin": "archive-docs",
+      "assets": []
+    },
+    {
+      "name": "deprecate",
+      "source": "local:packages/skills/archive-docs/skills/deprecate",
+      "entryPoint": "SKILL.md",
+      "installName": "archive-docs-deprecate.md",
+      "required": false,
+      "description": "Mark documents as deprecated with forwarding references.",
+      "plugin": "archive-docs",
+      "assets": []
+    },
+    {
+      "name": "staleness-check",
+      "source": "local:packages/skills/archive-docs/skills/staleness-check",
+      "entryPoint": "SKILL.md",
+      "installName": "archive-docs-staleness-check.md",
+      "required": false,
+      "description": "Detect stale documents by age, drift, and link health.",
+      "plugin": "archive-docs",
+      "assets": []
+    }
+  ]
+}
