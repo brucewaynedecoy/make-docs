@@ -94,7 +94,7 @@ describe("selection wizard", () => {
       referencesMode: "all",
       instructionKinds: ["AGENTS.md"],
     });
-    expect(selections.instructionKinds["CLAUDE.md"]).toBe(false);
+    expect(selections.harnesses["claude-code"]).toBe(false);
   });
 
   test("renders agents as all when both instruction files are selected", () => {
@@ -134,9 +134,9 @@ describe("selection wizard", () => {
       templatesMode: "required",
       referencesMode: "required",
     });
-    expect(result?.instructionKinds).toEqual({
-      "AGENTS.md": true,
-      "CLAUDE.md": false,
+    expect(result?.harnesses).toEqual({
+      "claude-code": false,
+      codex: true,
     });
     expect(renderer.introTitles).toEqual(["Configure starter-docs"]);
     expect(renderer.seenOptionStates).toHaveLength(2);

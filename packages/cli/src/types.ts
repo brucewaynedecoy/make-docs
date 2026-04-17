@@ -6,6 +6,15 @@ export const INSTRUCTION_KINDS = ["AGENTS.md", "CLAUDE.md"] as const;
 
 export type InstructionKind = (typeof INSTRUCTION_KINDS)[number];
 
+export const HARNESSES = ["claude-code", "codex"] as const;
+
+export type Harness = (typeof HARNESSES)[number];
+
+export const INSTRUCTION_KIND_TO_HARNESS: Record<InstructionKind, Harness> = {
+  "AGENTS.md": "codex",
+  "CLAUDE.md": "claude-code",
+};
+
 export type TemplatesMode = "required" | "all";
 export type ReferencesMode = "required" | "all";
 export type InstructionConflictResolution = "update" | "overwrite" | "skip";
@@ -26,8 +35,9 @@ export interface InstallSelections {
   prompts: boolean;
   templatesMode: TemplatesMode;
   referencesMode: ReferencesMode;
-  instructionKinds: Record<InstructionKind, boolean>;
+  harnesses: Record<Harness, boolean>;
   skills: boolean;
+  skillScope: "project" | "global";
 }
 
 export interface CapabilityState {

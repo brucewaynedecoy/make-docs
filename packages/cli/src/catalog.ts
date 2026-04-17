@@ -1,7 +1,7 @@
 import { getPromptPaths, getReferenceDirInstalled, getReferencePaths, getTemplateDirInstalled, getTemplatePaths, getPromptsDirInstalled } from "./rules";
 import { renderBuildableAsset, isBuildablePath } from "./renderers";
 import type { InstallProfile, InstructionKind, ResolvedAsset } from "./types";
-import { INSTRUCTION_KINDS } from "./types";
+import { INSTRUCTION_KINDS, INSTRUCTION_KIND_TO_HARNESS } from "./types";
 import { readPackageFile } from "./utils";
 
 function buildAsset(profile: InstallProfile, relativePath: string): ResolvedAsset {
@@ -25,7 +25,7 @@ function addInstructionAssets(
   instructionKind: InstructionKind,
   relativePaths: Set<string>,
 ): void {
-  if (!profile.selections.instructionKinds[instructionKind]) {
+  if (!profile.selections.harnesses[INSTRUCTION_KIND_TO_HARNESS[instructionKind]]) {
     return;
   }
 

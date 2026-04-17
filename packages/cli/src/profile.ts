@@ -25,11 +25,12 @@ export function defaultSelections(): InstallSelections {
     prompts: true,
     templatesMode: "all",
     referencesMode: "all",
-    instructionKinds: {
-      "AGENTS.md": true,
-      "CLAUDE.md": true,
+    harnesses: {
+      "claude-code": true,
+      codex: true,
     },
     skills: true,
+    skillScope: "project",
   };
 }
 
@@ -75,8 +76,9 @@ export function resolveInstallProfile(selections: InstallSelections): InstallPro
       prompts: selections.prompts,
       templatesMode: selections.templatesMode,
       referencesMode: selections.referencesMode,
-      instructionKinds: selections.instructionKinds,
+      harnesses: selections.harnesses,
       skills: selections.skills,
+      skillScope: selections.skillScope,
     }),
   ).slice(0, 16);
 
@@ -98,8 +100,9 @@ export function isFullDefaultProfile(profile: InstallProfile): boolean {
     profile.selections.prompts &&
     profile.selections.templatesMode === "all" &&
     profile.selections.referencesMode === "all" &&
-    profile.selections.instructionKinds["AGENTS.md"] &&
-    profile.selections.instructionKinds["CLAUDE.md"] &&
-    profile.selections.skills
+    profile.selections.harnesses["claude-code"] &&
+    profile.selections.harnesses.codex &&
+    profile.selections.skills &&
+    profile.selections.skillScope === "project"
   );
 }

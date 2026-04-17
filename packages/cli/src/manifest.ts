@@ -1,6 +1,12 @@
 import { existsSync } from "node:fs";
 import path from "node:path";
-import type { InstallManifest, InstallProfile, ManifestFileEntry, PackageMeta } from "./types";
+import type {
+  InstallManifest,
+  InstallProfile,
+  InstallSelections,
+  ManifestFileEntry,
+  PackageMeta,
+} from "./types";
 import { readTextFile, writeTextFile } from "./utils";
 
 export const MANIFEST_SCHEMA_VERSION = 1;
@@ -16,7 +22,37 @@ export function loadManifest(targetDir: string): InstallManifest | null {
     return null;
   }
 
-  return JSON.parse(readTextFile(manifestPath)) as InstallManifest;
+  const parsed = JSON.parse(readTextFile(manifestPath)) as InstallManifest;
+  parsed.selections = migrateSelections(parsed.selections);
+  return parsed;
+}
+
+export function migrateSelections(selections: InstallSelections): InstallSelections {
+  const legacy = selections as InstallSelections & {
+    instructionKinds?: Record<string, boolean>;
+  };
+
+  if (legacy.instructionKinds && !legacy.harnesses) {
+    const ik = legacy.instructionKinds;
+    const migrated: InstallSelections = {
+      capabilities: legacy.capabilities,
+      prompts: legacy.prompts,
+      templatesMode: legacy.templatesMode,
+      referencesMode: legacy.referencesMode,
+      harnesses: {
+        "claude-code": ik["CLAUDE.md"] ?? false,
+        codex: ik["AGENTS.md"] ?? false,
+      },
+      skills: legacy.skills ?? true,
+      skillScope: legacy.skillScope ?? "project",
+    };
+    return migrated;
+  }
+
+  return {
+    ...legacy,
+    skillScope: legacy.skillScope ?? "project",
+  };
 }
 
 export function createManifest(

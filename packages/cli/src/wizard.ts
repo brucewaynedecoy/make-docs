@@ -22,6 +22,7 @@ import {
 import {
   CAPABILITIES,
   INSTRUCTION_KINDS,
+  INSTRUCTION_KIND_TO_HARNESS,
   type Capability,
   type InstallProfile,
   type InstallSelections,
@@ -188,7 +189,8 @@ export function getWizardOptionSelections(
     templatesMode: selections.templatesMode,
     referencesMode: selections.referencesMode,
     instructionKinds: INSTRUCTION_KINDS.filter(
-      (instructionKind) => selections.instructionKinds[instructionKind],
+      (instructionKind) =>
+        selections.harnesses[INSTRUCTION_KIND_TO_HARNESS[instructionKind]],
     ),
   };
 }
@@ -203,7 +205,8 @@ export function applyWizardOptionSelections(
   next.referencesMode = options.referencesMode;
 
   for (const instructionKind of INSTRUCTION_KINDS) {
-    next.instructionKinds[instructionKind] = options.instructionKinds.includes(instructionKind);
+    next.harnesses[INSTRUCTION_KIND_TO_HARNESS[instructionKind]] =
+      options.instructionKinds.includes(instructionKind);
   }
 
   return next;
@@ -254,7 +257,8 @@ export function renderWizardReviewSummary(selections: InstallSelections): string
   const normalizedSelections = normalizeWizardSelections(selections);
   const profile = resolveInstallProfile(normalizedSelections);
   const instructionKinds = INSTRUCTION_KINDS.filter(
-    (instructionKind) => normalizedSelections.instructionKinds[instructionKind],
+    (instructionKind) =>
+      normalizedSelections.harnesses[INSTRUCTION_KIND_TO_HARNESS[instructionKind]],
   );
   const instructionSummary =
     instructionKinds.length === INSTRUCTION_KINDS.length

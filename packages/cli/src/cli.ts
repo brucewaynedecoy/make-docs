@@ -3,7 +3,7 @@ import { stdin as input, stdout as output } from "node:process";
 import { confirm, isCancel } from "@clack/prompts";
 import { applyInstallPlan, findInstructionConflicts, planInstall } from "./install";
 import { loadManifest } from "./manifest";
-import { defaultSelections, hasEffectiveCapabilities } from "./profile";
+import { cloneSelections, defaultSelections, hasEffectiveCapabilities } from "./profile";
 import type {
   InstallManifest,
   InstallSelections,
@@ -217,13 +217,7 @@ function resolveSelections(options: {
       ? existingManifest.selections
       : defaultSelections();
 
-  const selections: InstallSelections = {
-    capabilities: { ...baseSelections.capabilities },
-    prompts: baseSelections.prompts,
-    templatesMode: baseSelections.templatesMode,
-    referencesMode: baseSelections.referencesMode,
-    instructionKinds: { ...baseSelections.instructionKinds },
-  };
+  const selections = cloneSelections(baseSelections);
 
   if (parsed.noDesigns) {
     selections.capabilities.designs = false;
@@ -241,10 +235,10 @@ function resolveSelections(options: {
     selections.prompts = false;
   }
   if (parsed.noAgents) {
-    selections.instructionKinds["AGENTS.md"] = false;
+    selections.harnesses.codex = false;
   }
   if (parsed.noClaude) {
-    selections.instructionKinds["CLAUDE.md"] = false;
+    selections.harnesses["claude-code"] = false;
   }
   if (parsed.templatesMode) {
     selections.templatesMode = parsed.templatesMode;
