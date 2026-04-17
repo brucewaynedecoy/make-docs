@@ -1,6 +1,9 @@
 import { homedir } from "node:os";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
-import { getDesiredSkillAssets } from "../src/skill-catalog";
+import {
+  getDesiredSkillAssets,
+  getGroupedSkillChoices,
+} from "../src/skill-catalog";
 import { defaultSelections } from "../src/profile";
 import { mockSkillFetches } from "./helpers";
 
@@ -19,6 +22,24 @@ describe("skill catalog", () => {
     selections.skills = false;
 
     await expect(getDesiredSkillAssets(selections)).resolves.toEqual([]);
+  });
+
+  test("groups default and optional skills for the wizard", () => {
+    const groupedChoices = getGroupedSkillChoices();
+
+    expect(groupedChoices.defaultSkills).toEqual([
+      {
+        name: "archive-docs",
+        description:
+          "Relationship-aware archival, staleness detection, deprecation, and impact analysis for docs/ artifacts.",
+      },
+    ]);
+    expect(groupedChoices.optionalSkills).toEqual([
+      {
+        name: "decompose-codebase",
+        description: "Plan and reverse-engineer repos into structured PRDs.",
+      },
+    ]);
   });
 
   test("builds harness-specific skill directories with supporting files", async () => {
@@ -42,17 +63,26 @@ describe("skill catalog", () => {
     expect(
       assets.some(
         (asset) =>
-          asset.relativePath === ".agents/skills/archive-docs/scripts/trace_relationships.py",
+          asset.relativePath ===
+          ".agents/skills/archive-docs/scripts/trace_relationships.py",
       ),
     ).toBe(true);
     expect(
       assets.some(
-        (asset) => asset.relativePath === ".claude/skills/archive-docs/agents/openai.yaml",
+        (asset) =>
+          asset.relativePath ===
+          ".claude/skills/archive-docs/agents/openai.yaml",
       ),
     ).toBe(true);
-    expect(archiveSkillForClaude?.content).toContain("./references/archive-workflow.md");
-    expect(archiveSkillForClaude?.content).toContain("./scripts/trace_relationships.py");
-    expect(archiveSkillForCodex?.content).toContain("./references/archive-workflow.md");
+    expect(archiveSkillForClaude?.content).toContain(
+      "./references/archive-workflow.md",
+    );
+    expect(archiveSkillForClaude?.content).toContain(
+      "./scripts/trace_relationships.py",
+    );
+    expect(archiveSkillForCodex?.content).toContain(
+      "./references/archive-workflow.md",
+    );
   });
 
   test("uses the home directory for global scope and omits deselected harnesses", async () => {
@@ -64,16 +94,21 @@ describe("skill catalog", () => {
 
     expect(assets.length).toBeGreaterThan(0);
     expect(
-      assets.every((asset) => asset.relativePath.startsWith(`${homedir()}/.claude/`)),
+      assets.every((asset) =>
+        asset.relativePath.startsWith(`${homedir()}/.claude/`),
+      ),
     ).toBe(true);
-    expect(assets.some((asset) => asset.relativePath.includes(".agents/"))).toBe(false);
+    expect(
+      assets.some((asset) => asset.relativePath.includes(".agents/")),
+    ).toBe(false);
   });
 
   test("installs optional skills only when explicitly selected", async () => {
     const withoutOptional = await getDesiredSkillAssets(defaultSelections());
     expect(
       withoutOptional.some(
-        (asset) => asset.relativePath === ".claude/skills/decompose-codebase/SKILL.md",
+        (asset) =>
+          asset.relativePath === ".claude/skills/decompose-codebase/SKILL.md",
       ),
     ).toBe(false);
 
@@ -83,13 +118,15 @@ describe("skill catalog", () => {
     const withOptional = await getDesiredSkillAssets(selections);
     expect(
       withOptional.some(
-        (asset) => asset.relativePath === ".claude/skills/decompose-codebase/SKILL.md",
+        (asset) =>
+          asset.relativePath === ".claude/skills/decompose-codebase/SKILL.md",
       ),
     ).toBe(true);
     expect(
       withOptional.some(
         (asset) =>
-          asset.relativePath === ".agents/skills/decompose-codebase/references/mcp-playbook.md",
+          asset.relativePath ===
+          ".agents/skills/decompose-codebase/references/mcp-playbook.md",
       ),
     ).toBe(true);
   });

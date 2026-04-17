@@ -1,14 +1,34 @@
 import * as os from "node:os";
 import path from "node:path";
 import { resolveSkillSource } from "./skill-resolver";
-import { getOptionalSkills, loadSkillRegistry, type SkillRegistryEntry } from "./skill-registry";
-import { HARNESSES, type Harness, type InstallSelections, type ResolvedAsset } from "./types";
+import {
+  getOptionalSkills,
+  getRequiredSkills,
+  loadSkillRegistry,
+  type SkillRegistryEntry,
+} from "./skill-registry";
+import {
+  HARNESSES,
+  type Harness,
+  type InstallSelections,
+  type ResolvedAsset,
+} from "./types";
 import { PACKAGE_ROOT } from "./utils";
 
 const HARNESS_SKILL_DIRS: Record<Harness, string> = {
   "claude-code": ".claude/skills",
   codex: ".agents/skills",
 };
+
+export interface WizardSkillChoice {
+  name: string;
+  description: string;
+}
+
+export interface GroupedSkillChoices {
+  defaultSkills: WizardSkillChoice[];
+  optionalSkills: WizardSkillChoice[];
+}
 
 export async function getDesiredSkillAssets(
   selections: InstallSelections,
@@ -35,22 +55,36 @@ export async function getDesiredSkillAssets(
           return [];
         }
 
-        return selectedEntries.map((entry) => buildSkillAssets(entry, harness, installRoot));
+        return selectedEntries.map((entry) =>
+          buildSkillAssets(entry, harness, installRoot),
+        );
       }),
     )
   ).flat();
 
-  return desiredAssets.sort((left, right) => left.relativePath.localeCompare(right.relativePath));
+  return desiredAssets.sort((left, right) =>
+    left.relativePath.localeCompare(right.relativePath),
+  );
 }
 
-export function getOptionalSkillChoices(): Array<Pick<SkillRegistryEntry, "name" | "description">> {
+export function getGroupedSkillChoices(): GroupedSkillChoices {
   const registry = loadSkillRegistry(PACKAGE_ROOT);
-  return getOptionalSkills(registry)
-    .map((entry) => ({
-      name: entry.name,
-      description: entry.description,
-    }))
-    .sort((left, right) => left.name.localeCompare(right.name));
+
+  const toChoice = (
+    entry: Pick<SkillRegistryEntry, "name" | "description">,
+  ): WizardSkillChoice => ({
+    name: entry.name,
+    description: entry.description,
+  });
+
+  return {
+    defaultSkills: getRequiredSkills(registry)
+      .map(toChoice)
+      .sort((left, right) => left.name.localeCompare(right.name)),
+    optionalSkills: getOptionalSkills(registry)
+      .map(toChoice)
+      .sort((left, right) => left.name.localeCompare(right.name)),
+  };
 }
 
 async function buildSkillAssets(
@@ -58,7 +92,11 @@ async function buildSkillAssets(
   harness: Harness,
   installRoot: string,
 ): Promise<ResolvedAsset[]> {
-  const resolvedSkill = await resolveSkillSource(entry.source, entry.entryPoint, entry.assets);
+  const resolvedSkill = await resolveSkillSource(
+    entry.source,
+    entry.entryPoint,
+    entry.assets,
+  );
   const skillInstallRoot = getInstallPath(
     installRoot,
     HARNESS_SKILL_DIRS[harness],
@@ -79,7 +117,10 @@ async function buildSkillAssets(
       relativePath: getInstallPath(skillInstallRoot, asset.installPath),
       assetClass: "static",
       sourceId: getSkillAssetSourceId(harness, entry.name, asset.installPath),
-      content: typeof asset.content === "string" ? asset.content : asset.content.toString("utf8"),
+      content:
+        typeof asset.content === "string"
+          ? asset.content
+          : asset.content.toString("utf8"),
     });
   });
 

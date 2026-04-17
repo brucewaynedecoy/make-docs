@@ -8,17 +8,23 @@ import type {
 } from "../src/wizard";
 import {
   applyCapabilitySelections,
+  buildSkillSelectionState,
   applyWizardOptionSelections,
   buildCapabilityChecklistState,
   getWizardOptionSelections,
   renderWizardReviewSummary,
   runSelectionWizardWithRenderer,
+  shouldPromptForSkillSelection,
 } from "../src/wizard";
 
 class MockWizardRenderer implements WizardRenderer {
   public readonly seenCapabilityStates: Capability[][] = [];
-  public readonly seenHarnessStates: Parameters<WizardRenderer["editHarnesses"]>[0][] = [];
-  public readonly seenOptionStates: Parameters<WizardRenderer["editOptions"]>[0][] = [];
+  public readonly seenHarnessStates: Parameters<
+    WizardRenderer["editHarnesses"]
+  >[0][] = [];
+  public readonly seenOptionStates: Parameters<
+    WizardRenderer["editOptions"]
+  >[0][] = [];
   public readonly seenReviewActions: WizardReviewAction[] = [];
   public readonly introTitles: string[] = [];
 
@@ -33,7 +39,9 @@ class MockWizardRenderer implements WizardRenderer {
     this.introTitles.push(title);
   }
 
-  async editCapabilities(state: Parameters<WizardRenderer["editCapabilities"]>[0]) {
+  async editCapabilities(
+    state: Parameters<WizardRenderer["editCapabilities"]>[0],
+  ) {
     this.seenCapabilityStates.push(state.checklist.selectedCapabilities);
     return this.capabilityAnswers.shift() ?? null;
   }
@@ -68,18 +76,25 @@ describe("selection wizard", () => {
     const checklist = buildCapabilityChecklistState(selections);
 
     expect(checklist.selectedCapabilities).toEqual(["designs"]);
-    expect(checklist.options.find((option) => option.value === "prd")).toMatchObject({
+    expect(
+      checklist.options.find((option) => option.value === "prd"),
+    ).toMatchObject({
       disabled: true,
       statusText: "prd requires plans",
     });
-    expect(checklist.options.find((option) => option.value === "work")).toMatchObject({
+    expect(
+      checklist.options.find((option) => option.value === "work"),
+    ).toMatchObject({
       disabled: true,
       statusText: "work requires plans and prd",
     });
   });
 
   test("auto-clears dependent capabilities when a prerequisite is removed", () => {
-    const selections = applyCapabilitySelections(defaultSelections(), ["designs", "plans"]);
+    const selections = applyCapabilitySelections(defaultSelections(), [
+      "designs",
+      "plans",
+    ]);
 
     expect(selections.capabilities.designs).toBe(true);
     expect(selections.capabilities.plans).toBe(true);
@@ -110,6 +125,97 @@ describe("selection wizard", () => {
     });
     expect(selections.harnesses["claude-code"]).toBe(false);
     expect(selections.harnesses.codex).toBe(true);
+  });
+
+  test("builds grouped skill state with default read-only skills and optional selections", () => {
+    const skillSelection = buildSkillSelectionState(
+      {
+        skills: true,
+        skillScope: "project",
+        optionalSkills: ["decompose-codebase"],
+        prompts: true,
+        templatesMode: "all",
+        referencesMode: "all",
+      },
+      {
+        defaultSkills: [
+          {
+            name: "archive-docs",
+            description: "Relationship-aware archival.",
+          },
+        ],
+        optionalSkills: [
+          {
+            name: "decompose-codebase",
+            description:
+              "Plan and reverse-engineer repos into structured PRDs.",
+          },
+        ],
+      },
+    );
+
+    expect(skillSelection.selectedSkillNames).toEqual([
+      "archive-docs",
+      "decompose-codebase",
+    ]);
+    expect(skillSelection.selectedOptionalSkillNames).toEqual([
+      "decompose-codebase",
+    ]);
+    expect(skillSelection.promptOptions).toEqual([
+      {
+        value: "__skill-group:default",
+        label: "Default",
+        hint: "Installed automatically",
+        disabled: true,
+        rowKind: "heading",
+      },
+      {
+        value: "archive-docs",
+        label: "archive-docs",
+        hint: "Relationship-aware archival.",
+        disabled: true,
+        rowKind: "default-skill",
+      },
+      {
+        value: "__skill-group:optional",
+        label: "Optional",
+        hint: "Select any additional skills to install",
+        disabled: true,
+        rowKind: "heading",
+      },
+      {
+        value: "decompose-codebase",
+        label: "decompose-codebase",
+        hint: "Plan and reverse-engineer repos into structured PRDs.",
+        disabled: false,
+        rowKind: "optional-skill",
+      },
+    ]);
+  });
+
+  test("skips the grouped skill prompt when there are no optional skills", () => {
+    const skillSelection = buildSkillSelectionState(
+      {
+        skills: true,
+        skillScope: "project",
+        optionalSkills: [],
+        prompts: true,
+        templatesMode: "all",
+        referencesMode: "all",
+      },
+      {
+        defaultSkills: [
+          {
+            name: "archive-docs",
+            description: "Relationship-aware archival.",
+          },
+        ],
+        optionalSkills: [],
+      },
+    );
+
+    expect(shouldPromptForSkillSelection(skillSelection)).toBe(false);
+    expect(skillSelection.selectedSkillNames).toEqual(["archive-docs"]);
   });
 
   test("renders harnesses and skill scope in the review summary", () => {
@@ -199,8 +305,52 @@ describe("selection wizard", () => {
         hint: "Install skills into your home directory for reuse across projects.",
       },
     ]);
+    expect(renderer.seenOptionStates[0]?.skillSelection.defaultSkills).toEqual([
+      {
+        name: "archive-docs",
+        description:
+          "Relationship-aware archival, staleness detection, deprecation, and impact analysis for docs/ artifacts.",
+      },
+    ]);
+    expect(renderer.seenOptionStates[0]?.skillSelection.optionalSkills).toEqual(
+      [
+        {
+          name: "decompose-codebase",
+          description: "Plan and reverse-engineer repos into structured PRDs.",
+        },
+      ],
+    );
     expect(result?.skillScope).toBe("global");
     expect(result?.optionalSkills).toEqual(["decompose-codebase"]);
+  });
+
+  test("allows the wizard to continue with only default skills selected", async () => {
+    const renderer = new MockWizardRenderer(
+      [["designs", "plans", "prd", "work"]],
+      [["claude-code", "codex"]],
+      [
+        {
+          skills: true,
+          skillScope: "project",
+          optionalSkills: [],
+          prompts: true,
+          templatesMode: "all",
+          referencesMode: "all",
+        },
+      ],
+      ["apply"],
+    );
+
+    const result = await runSelectionWizardWithRenderer(renderer, {
+      initialSelections: defaultSelections(),
+      introTitle: "Configure starter-docs",
+    });
+
+    expect(
+      renderer.seenOptionStates[0]?.skillSelection.selectedSkillNames,
+    ).toEqual(["archive-docs"]);
+    expect(result?.skills).toBe(true);
+    expect(result?.optionalSkills).toEqual([]);
   });
 
   test("re-prompts harness selection when all harnesses are deselected", async () => {

@@ -19,7 +19,11 @@ import {
   cloneSelections,
   resolveInstallProfile,
 } from "./profile";
-import { getOptionalSkillChoices } from "./skill-catalog";
+import {
+  getGroupedSkillChoices,
+  type GroupedSkillChoices,
+  type WizardSkillChoice,
+} from "./skill-catalog";
 import {
   CAPABILITIES,
   HARNESSES,
@@ -78,7 +82,8 @@ const OPTION_METADATA = {
   skillScope: {
     label: "Skill scope",
     project: "Install skills into this project.",
-    global: "Install skills into your home directory for reuse across projects.",
+    global:
+      "Install skills into your home directory for reuse across projects.",
   },
   prompts: {
     label: "Prompt starters",
@@ -88,12 +93,14 @@ const OPTION_METADATA = {
   templatesMode: {
     label: "Templates",
     all: "Install every valid template for the chosen profile.",
-    required: "Install only the minimal template set required for the chosen profile.",
+    required:
+      "Install only the minimal template set required for the chosen profile.",
   },
   referencesMode: {
     label: "References",
     all: "Install every valid reference file for the chosen profile.",
-    required: "Install only the minimal reference set required for the chosen profile.",
+    required:
+      "Install only the minimal reference set required for the chosen profile.",
   },
 };
 
@@ -175,6 +182,7 @@ export interface HarnessStepState {
 export interface OptionsStepState {
   selections: InstallSelections;
   options: WizardOptionSelections;
+  skillSelection: SkillSelectionState;
   skillScopeOptions: Array<{
     value: InstallSelections["skillScope"];
     label: string;
@@ -196,7 +204,25 @@ export interface WizardRenderer {
   review(state: ReviewStepState): Promise<WizardReviewAction>;
 }
 
-export function normalizeWizardSelections(selections: InstallSelections): InstallSelections {
+export interface SkillSelectionPromptOption {
+  value: string;
+  label: string;
+  hint: string;
+  disabled: boolean;
+  rowKind: "heading" | "default-skill" | "optional-skill";
+}
+
+export interface SkillSelectionState {
+  defaultSkills: WizardSkillChoice[];
+  optionalSkills: WizardSkillChoice[];
+  promptOptions: SkillSelectionPromptOption[];
+  selectedSkillNames: string[];
+  selectedOptionalSkillNames: string[];
+}
+
+export function normalizeWizardSelections(
+  selections: InstallSelections,
+): InstallSelections {
   const next = cloneSelections(selections);
 
   for (const capability of CAPABILITIES) {
@@ -239,6 +265,73 @@ export function getWizardOptionSelections(
   };
 }
 
+export function buildSkillSelectionState(
+  options: WizardOptionSelections,
+  skillChoices: GroupedSkillChoices,
+): SkillSelectionState {
+  const selectedOptionalSkillSet = new Set(options.optionalSkills);
+  const selectedOptionalSkillNames = skillChoices.optionalSkills
+    .filter((skill) => selectedOptionalSkillSet.has(skill.name))
+    .map((skill) => skill.name);
+  const selectedSkillNames = [
+    ...skillChoices.defaultSkills.map((skill) => skill.name),
+    ...selectedOptionalSkillNames,
+  ];
+  const promptOptions: SkillSelectionPromptOption[] = [];
+
+  if (skillChoices.defaultSkills.length > 0) {
+    promptOptions.push({
+      value: "__skill-group:default",
+      label: "Default",
+      hint: "Installed automatically",
+      disabled: true,
+      rowKind: "heading",
+    });
+    promptOptions.push(
+      ...skillChoices.defaultSkills.map((skill) => ({
+        value: skill.name,
+        label: skill.name,
+        hint: skill.description,
+        disabled: true,
+        rowKind: "default-skill" as const,
+      })),
+    );
+  }
+
+  if (skillChoices.optionalSkills.length > 0) {
+    promptOptions.push({
+      value: "__skill-group:optional",
+      label: "Optional",
+      hint: "Select any additional skills to install",
+      disabled: true,
+      rowKind: "heading",
+    });
+    promptOptions.push(
+      ...skillChoices.optionalSkills.map((skill) => ({
+        value: skill.name,
+        label: skill.name,
+        hint: skill.description,
+        disabled: false,
+        rowKind: "optional-skill" as const,
+      })),
+    );
+  }
+
+  return {
+    defaultSkills: skillChoices.defaultSkills,
+    optionalSkills: skillChoices.optionalSkills,
+    promptOptions,
+    selectedSkillNames,
+    selectedOptionalSkillNames,
+  };
+}
+
+export function shouldPromptForSkillSelection(
+  skillSelection: SkillSelectionState,
+): boolean {
+  return skillSelection.optionalSkills.length > 0;
+}
+
 export function getSelectedHarnesses(
   selections: Pick<InstallSelections, "harnesses">,
 ): Harness[] {
@@ -257,6 +350,31 @@ export function applyHarnessSelections(
   }
 
   return next;
+}
+
+function buildOptionsStepState(
+  selections: InstallSelections,
+): OptionsStepState {
+  const options = getWizardOptionSelections(selections);
+  const skillChoices = getGroupedSkillChoices();
+
+  return {
+    selections,
+    options,
+    skillSelection: buildSkillSelectionState(options, skillChoices),
+    skillScopeOptions: [
+      {
+        value: "project",
+        label: "Project",
+        hint: OPTION_METADATA.skillScope.project,
+      },
+      {
+        value: "global",
+        label: "Global",
+        hint: OPTION_METADATA.skillScope.global,
+      },
+    ],
+  };
 }
 
 export function applyWizardOptionSelections(
@@ -293,13 +411,13 @@ export function buildCapabilityChecklistState(
     const statusText = state.effectiveSelection
       ? "Selected"
       : disabled
-        ? state.disabledReason ?? "Unavailable"
+        ? (state.disabledReason ?? "Unavailable")
         : "Available";
 
     return {
       value: capability,
       label: metadata.label,
-      hint: disabled ? state.disabledReason ?? metadata.hint : metadata.hint,
+      hint: disabled ? (state.disabledReason ?? metadata.hint) : metadata.hint,
       disabled,
       description: metadata.description,
       dependencyText,
@@ -317,13 +435,17 @@ export function buildCapabilityChecklistState(
   };
 }
 
-export function renderWizardReviewSummary(selections: InstallSelections): string {
+export function renderWizardReviewSummary(
+  selections: InstallSelections,
+): string {
   const normalizedSelections = normalizeWizardSelections(selections);
   const profile = resolveInstallProfile(normalizedSelections);
   const selectedHarnesses = getSelectedHarnesses(normalizedSelections);
   const harnessSummary =
     selectedHarnesses.length > 0
-      ? formatInlineList(selectedHarnesses.map((harness) => HARNESS_METADATA[harness].label))
+      ? formatInlineList(
+          selectedHarnesses.map((harness) => HARNESS_METADATA[harness].label),
+        )
       : "none";
   const optionalSkillSummary =
     normalizedSelections.optionalSkills.length > 0
@@ -413,22 +535,9 @@ export async function runSelectionWizardWithRenderer(
     }
 
     if (step === "options") {
-      const nextOptions = await renderer.editOptions({
-        selections,
-        options: getWizardOptionSelections(selections),
-        skillScopeOptions: [
-          {
-            value: "project",
-            label: "Project",
-            hint: OPTION_METADATA.skillScope.project,
-          },
-          {
-            value: "global",
-            label: "Global",
-            hint: OPTION_METADATA.skillScope.global,
-          },
-        ],
-      });
+      const nextOptions = await renderer.editOptions(
+        buildOptionsStepState(selections),
+      );
 
       if (!nextOptions) {
         return null;
@@ -514,7 +623,9 @@ export async function promptForInstructionConflictResolutions(
 
   for (const conflict of conflicts) {
     note(
-      [`Path: ${conflict.relativePath}`, `Conflict: ${conflict.reason}`].join("\n"),
+      [`Path: ${conflict.relativePath}`, `Conflict: ${conflict.reason}`].join(
+        "\n",
+      ),
       `Existing ${conflict.instructionKind} detected`,
     );
 
@@ -563,7 +674,7 @@ function createClackWizardRenderer(): WizardRenderer {
       return promptForHarnesses(state.selections);
     },
     async editOptions(state) {
-      return promptForOptions(state.options);
+      return promptForOptions(state);
     },
     async review(state) {
       note(state.summary, "Review selections");
@@ -588,7 +699,11 @@ function createClackWizardRenderer(): WizardRenderer {
             label: "Edit options",
             hint: "Adjust skills, prompts, templates, and references",
           },
-          { value: "cancel", label: "Cancel", hint: "Exit without applying changes" },
+          {
+            value: "cancel",
+            label: "Cancel",
+            hint: "Exit without applying changes",
+          },
         ],
       });
 
@@ -610,7 +725,8 @@ async function promptForCapabilities(
 
   const prompt = new MultiSelectPrompt<CapabilityChecklistOption>({
     options: buildCapabilityChecklistState(promptState.selections).options,
-    initialValues: buildCapabilityChecklistState(promptState.selections).selectedCapabilities,
+    initialValues: buildCapabilityChecklistState(promptState.selections)
+      .selectedCapabilities,
     required: true,
     render(this: MultiSelectPrompt<CapabilityChecklistOption>) {
       return renderCapabilitiesFrame(this, promptState.selections);
@@ -623,7 +739,10 @@ async function promptForCapabilities(
   });
 
   const syncPromptState = () => {
-    promptState.selections = applyCapabilitySelections(selections, prompt.value ?? []);
+    promptState.selections = applyCapabilitySelections(
+      selections,
+      prompt.value ?? [],
+    );
 
     const checklist = buildCapabilityChecklistState(promptState.selections);
     prompt.options = checklist.options;
@@ -644,7 +763,8 @@ async function promptForCapabilities(
     return null;
   }
 
-  return buildCapabilityChecklistState(promptState.selections).selectedCapabilities;
+  return buildCapabilityChecklistState(promptState.selections)
+    .selectedCapabilities;
 }
 
 async function promptForHarnesses(
@@ -670,8 +790,10 @@ async function promptForHarnesses(
 }
 
 async function promptForOptions(
-  options: WizardOptionSelections,
+  state: OptionsStepState,
 ): Promise<WizardOptionSelections | null> {
+  const { options, skillSelection, skillScopeOptions } = state;
+
   const skillsResult = await confirm({
     message: "Install agent skills?",
     withGuide: true,
@@ -692,18 +814,7 @@ async function promptForOptions(
       message: "Where should skills be installed?",
       withGuide: true,
       initialValue: options.skillScope,
-      options: [
-        {
-          value: "project",
-          label: "Project",
-          hint: OPTION_METADATA.skillScope.project,
-        },
-        {
-          value: "global",
-          label: "Global",
-          hint: OPTION_METADATA.skillScope.global,
-        },
-      ],
+      options: skillScopeOptions,
     });
 
     if (isCancel(scopeResult)) {
@@ -712,24 +823,30 @@ async function promptForOptions(
 
     skillScope = scopeResult;
 
-    const availableOptionalSkills = getOptionalSkillChoices();
-    if (availableOptionalSkills.length > 0) {
-      const optionalSkillSelection = await multiselect<string>({
-        message: "Which optional skills should be installed?",
-        withGuide: true,
-        initialValues: options.optionalSkills,
-        options: availableOptionalSkills.map((skill) => ({
-          value: skill.name,
-          label: skill.name,
-          hint: skill.description,
-        })),
+    if (shouldPromptForSkillSelection(skillSelection)) {
+      const prompt = new MultiSelectPrompt<SkillSelectionPromptOption>({
+        options: skillSelection.promptOptions,
+        initialValues: skillSelection.selectedSkillNames,
+        required: false,
+        render(this: MultiSelectPrompt<SkillSelectionPromptOption>) {
+          return renderSkillSelectionFrame(this, skillSelection);
+        },
+        validate(value) {
+          if (!value || value.length === 0) {
+            return "Please keep at least one skill enabled.";
+          }
+        },
       });
 
+      const optionalSkillSelection = await prompt.prompt();
       if (isCancel(optionalSkillSelection)) {
         return null;
       }
 
-      optionalSkills = [...optionalSkillSelection].sort();
+      const selectedSkillSet = new Set(optionalSkillSelection);
+      optionalSkills = skillSelection.optionalSkills
+        .filter((skill) => selectedSkillSet.has(skill.name))
+        .map((skill) => skill.name);
     } else {
       optionalSkills = [];
     }
@@ -803,6 +920,114 @@ async function promptForOptions(
   };
 }
 
+function renderSkillSelectionFrame(
+  prompt: MultiSelectPrompt<SkillSelectionPromptOption>,
+  skillSelection: SkillSelectionState,
+): string {
+  const lineColor = prompt.state === "error" ? "yellow" : "cyan";
+  const header = [
+    styleText("gray", S_BAR),
+    wrapTextWithPrefix(
+      process.stdout,
+      "Which skills should be installed?",
+      `${styleText(lineColor, S_BAR)}  `,
+      `${symbol(prompt.state)}  `,
+    ),
+  ];
+  const bodyPrefix = `${styleText(lineColor, S_BAR)}  `;
+  const selectedSkillNames = new Set(
+    prompt.value ?? skillSelection.selectedSkillNames,
+  );
+  const selectedSummary =
+    selectedSkillNames.size > 0
+      ? formatInlineList(Array.from(selectedSkillNames))
+      : "no skills";
+
+  if (prompt.state === "submit") {
+    return `${header.join("\n")}\n${styleText("gray", S_BAR)}  ${styleText("dim", selectedSummary)}`;
+  }
+
+  if (prompt.state === "cancel") {
+    return `${header.join("\n")}\n${styleText("gray", S_BAR)}  ${styleText(
+      ["strikethrough", "dim"],
+      selectedSummary,
+    )}`;
+  }
+
+  const skillLines = skillSelection.promptOptions.map((option, index) =>
+    renderSkillSelectionOption(
+      option,
+      index === prompt.cursor,
+      selectedSkillNames,
+    ),
+  );
+  const hintLines = [
+    styleText(
+      "dim",
+      "Default skills are installed automatically and cannot be changed here.",
+    ),
+    styleText(
+      "dim",
+      "Optional skills can be toggled with space. Press enter to continue with the current selection.",
+    ),
+  ];
+  const errorLines =
+    prompt.state === "error" && prompt.error
+      ? prompt.error.split("\n").map((line) => styleText("yellow", line))
+      : [];
+
+  return [
+    ...header,
+    ...skillLines.map((line) => `${bodyPrefix}${line}`),
+    `${bodyPrefix}${hintLines[0]}`,
+    `${bodyPrefix}${hintLines[1]}`,
+    ...errorLines.map((line) => `${bodyPrefix}${line}`),
+  ].join("\n");
+}
+
+function renderSkillSelectionOption(
+  option: SkillSelectionPromptOption,
+  active: boolean,
+  selectedSkillNames: ReadonlySet<string>,
+): string {
+  if (option.rowKind === "heading") {
+    return styleText("dim", option.label);
+  }
+
+  if (option.rowKind === "default-skill") {
+    return [
+      "  ",
+      styleText("green", S_CHECKBOX_SELECTED),
+      ` ${option.label}`,
+      styleText("dim", " (default, read-only)"),
+      option.hint ? ` ${styleText("dim", `(${option.hint})`)}` : "",
+    ].join("");
+  }
+
+  const selected = selectedSkillNames.has(option.value);
+  if (selected && active) {
+    return `${styleText("green", S_CHECKBOX_SELECTED)} ${option.label}${
+      option.hint ? ` ${styleText("dim", `(${option.hint})`)}` : ""
+    }`;
+  }
+
+  if (selected) {
+    return `${styleText("green", S_CHECKBOX_SELECTED)} ${styleText("dim", option.label)}${
+      option.hint ? ` ${styleText("dim", `(${option.hint})`)}` : ""
+    }`;
+  }
+
+  if (active) {
+    return `${styleText("cyan", S_CHECKBOX_ACTIVE)} ${option.label}${
+      option.hint ? ` ${styleText("dim", `(${option.hint})`)}` : ""
+    }`;
+  }
+
+  return `${styleText("dim", S_CHECKBOX_INACTIVE)} ${styleText("dim", option.label)}${
+    option.hint ? ` ${styleText("dim", `(${option.hint})`)}` : ""
+  }`;
+}
+
 function renderCapabilitiesFrame(
   prompt: MultiSelectPrompt<CapabilityChecklistOption>,
   selections: InstallSelections,
@@ -819,22 +1044,29 @@ function renderCapabilitiesFrame(
     ),
   ];
   const bodyPrefix = `${styleText(lineColor, S_BAR)}  `;
-  const focusedOption = checklist.options[prompt.cursor] ?? checklist.options[0];
+  const focusedOption =
+    checklist.options[prompt.cursor] ?? checklist.options[0];
   const selectedLabels =
     checklist.selectedCapabilities.length > 0
-      ? checklist.selectedCapabilities.map((capability) => CAPABILITY_METADATA[capability].label)
+      ? checklist.selectedCapabilities.map(
+          (capability) => CAPABILITY_METADATA[capability].label,
+        )
       : [];
 
   if (prompt.state === "submit") {
     const submittedSummary =
-      selectedLabels.length > 0 ? formatInlineList(selectedLabels) : "no capability families";
+      selectedLabels.length > 0
+        ? formatInlineList(selectedLabels)
+        : "no capability families";
 
     return `${header.join("\n")}\n${styleText("gray", S_BAR)}  ${styleText("dim", submittedSummary)}`;
   }
 
   if (prompt.state === "cancel") {
     const cancelledSummary =
-      selectedLabels.length > 0 ? formatInlineList(selectedLabels) : "no capability families";
+      selectedLabels.length > 0
+        ? formatInlineList(selectedLabels)
+        : "no capability families";
 
     return `${header.join("\n")}\n${styleText("gray", S_BAR)}  ${styleText(
       ["strikethrough", "dim"],
@@ -843,7 +1075,11 @@ function renderCapabilitiesFrame(
   }
 
   const checklistLines = checklist.options.map((option, index) =>
-    renderCapabilityOption(option, index === prompt.cursor, checklist.selectedCapabilities),
+    renderCapabilityOption(
+      option,
+      index === prompt.cursor,
+      checklist.selectedCapabilities,
+    ),
   );
 
   const detailLines = renderDetailBox(
@@ -859,7 +1095,9 @@ function renderCapabilitiesFrame(
 
   const hintLines = [
     `${styleText("dim", "Selected now:")} ${
-      selectedLabels.length > 0 ? formatInlineList(selectedLabels) : styleText("dim", "none")
+      selectedLabels.length > 0
+        ? formatInlineList(selectedLabels)
+        : styleText("dim", "none")
     }`,
     `${styleText("dim", "Use ↑/↓ to navigate")} • ${styleText(
       "dim",
@@ -871,11 +1109,13 @@ function renderCapabilitiesFrame(
   const spacer = styleText(lineColor, S_BAR);
   const errorLines =
     prompt.state === "error"
-      ? prompt.error.split("\n").map((line, index) =>
-          index === 0
-            ? `${styleText("yellow", S_BAR_END)}  ${styleText("yellow", line)}`
-            : `   ${styleText("yellow", line)}`,
-        )
+      ? prompt.error
+          .split("\n")
+          .map((line, index) =>
+            index === 0
+              ? `${styleText("yellow", S_BAR_END)}  ${styleText("yellow", line)}`
+              : `   ${styleText("yellow", line)}`,
+          )
       : [];
 
   return [
@@ -920,7 +1160,11 @@ function renderCapabilityOption(
   return `${styleText("dim", S_CHECKBOX_INACTIVE)} ${styleText("dim", option.label)}`;
 }
 
-function renderDetailBox(title: string, lines: string[], columns: number): string[] {
+function renderDetailBox(
+  title: string,
+  lines: string[],
+  columns: number,
+): string[] {
   const maxWidth = Math.max(46, Math.min(columns - 8, 88));
   const contentWidth = Math.max(24, maxWidth - 4);
   const boxLines = [
