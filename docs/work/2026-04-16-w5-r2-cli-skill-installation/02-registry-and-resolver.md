@@ -6,6 +6,8 @@
 
 Create the data layer that all later phases consume: a static skill registry, a typed loader, and a `local:` protocol resolver. This phase has no dependency on Phase 1 and can execute in parallel with it.
 
+> Implemented divergence: the shipped registry is remote-only, contains two skills (`archive-docs` and `decompose-codebase`), and no longer uses `plugin` fields or `local:` sources. See the [updated design](../../designs/2026-04-16-cli-skill-installation-r2.md) and [phase-5 agent guide](../../guides/agent/2026-04-17-w5-r2-p5-cli-skill-installation.md).
+
 ## Overview
 
 Four stages build the registry and resolver bottom-up. First, author the static JSON registry listing all five bundled skills. Second, implement the typed loader that reads and validates that file. Third, implement the `local:` protocol resolver that turns registry URIs into filesystem content. Fourth, verify everything compiles and the modules integrate correctly.

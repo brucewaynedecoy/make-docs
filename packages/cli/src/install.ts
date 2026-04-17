@@ -23,13 +23,13 @@ import {
   writeTextFile,
 } from "./utils";
 
-export function planInstall(options: {
+export async function planInstall(options: {
   targetDir: string;
   selections: InstallSelections;
   existingManifest: InstallManifest | null;
   packageMeta?: PackageMeta;
   instructionConflictResolutions?: InstructionConflictResolutions;
-}): InstallPlan {
+}): Promise<InstallPlan> {
   const packageMeta = options.packageMeta ?? readPackageMeta();
   const profile = resolveInstallProfile(options.selections);
 

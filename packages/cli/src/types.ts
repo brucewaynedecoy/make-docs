@@ -43,6 +43,7 @@ export interface InstallSelections {
   harnesses: Record<Harness, boolean>;
   skills: boolean;
   skillScope: "project" | "global";
+  optionalSkills: string[];
 }
 
 export function getActiveInstructionKinds(

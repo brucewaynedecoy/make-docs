@@ -1,5 +1,5 @@
 ---
-title: Strategic Roadmap — Skills, Plugins, Multi-Harness, and Extensibility
+title: Strategic Roadmap — Skills, Agentics, Multi-Harness, and Extensibility
 path: roadmap
 status: draft
 order: 1
@@ -7,150 +7,146 @@ tags:
   - strategy
   - roadmap
   - agentics
-  - plugins
   - multi-harness
 applies-to:
   - cli
   - template
   - skills
+related:
+  - ../../designs/2026-04-16-cli-skill-installation-r2.md
+  - ../../designs/2026-04-16-archive-docs-skill.md
 ---
 
-# Strategic Roadmap — Skills, Plugins, Multi-Harness, and Extensibility
+# Strategic Roadmap — Skills, Agentics, Multi-Harness, and Extensibility
 
 ## Overview
 
-This document captures the strategic direction for evolving `starter-docs` from a documentation template installer into an ecosystem of skills, plugins, hooks, and multi-harness agent tooling. It addresses four interconnected concerns that shape the project's roadmap:
+`starter-docs` is no longer just a docs-template installer. It now has a real distribution surface for harness-aware skills, while still carrying a broader long-term ambition around “agentics” such as hooks, MCP servers, agent definitions, and other reusable add-ons.
 
-1. **Skills vs. Plugins** — when to use each packaging model
-2. **Agentics ecosystem** — how to sequence the infrastructure without over-building
-3. **Multi-harness support** — how to support Claude Code, Codex, Cursor, and others without duplicating content
-4. **Extensibility** — when and how to provide SDK, CI/CD, and pipeline capabilities
+The current roadmap should reflect two realities at the same time:
 
-The guiding principle: **each phase delivers standalone value and validates assumptions for the next.** No phase requires building infrastructure on spec.
+1. The shipped platform is **skill-first**, not plugin-first.
+2. The long-term direction can still grow into a broader agentics ecosystem when there is enough real usage to justify it.
 
-## Skills vs. Plugins
+The governing principle is unchanged: **ship the smallest real abstraction that solves the current problem, and let repeated demand justify the next layer.**
 
-### Definitions
+## Current Product Shape
 
-- **Skill**: A single markdown instruction file (`SKILL.md`) that teaches an agent how to follow a specific workflow. Self-contained, easy to create, highly customizable. Example: `decompose-codebase`.
-- **Plugin**: An installable bundle that combines multiple skills, hooks, agent definitions, shared references, and scripts under a single manifest (`plugin.json`). Used when capabilities share infrastructure or serve a unified purpose. Example: `archive-docs`.
+### What is shipped now
 
-### When to use each
+- A publishable CLI installs docs scaffolding plus harness-aware skills.
+- Skills are distributed through a remote registry, not bundled into the CLI package.
+- Skills install as full directories under `.claude/skills/<name>/` and `.agents/skills/<name>/`.
+- `archive-docs` is a required skill.
+- `decompose-codebase` is an optional skill.
 
-| Use a skill when... | Use a plugin when... |
-| --- | --- |
-| The capability is a single workflow | The capability spans multiple workflows |
-| No shared state or references needed | Skills share references, scripts, or hooks |
-| Trigger surface is narrow and clear | Trigger surface is broad (multiple entry points) |
-| No hooks or agent definitions needed | Hooks, agent configs, or scripts are part of the package |
+### What that means strategically
 
-### Current state
+The project has validated a useful base abstraction:
 
-The `decompose-codebase` skill is a skill (one SKILL.md, self-contained). The planned `archive-docs` is a plugin (4+ skills sharing a workflow reference and tracing script). The plugin model is the right abstraction for anything that bundles multiple capabilities — but a full plugin runtime or registry is not needed yet. A `plugin.json` manifest plus a convention for where shared assets live is enough to ship plugins today.
+- one canonical skill package
+- one registry entry per installable skill
+- one installer that can project the same skill to multiple harnesses
 
-## Agentics Ecosystem Strategy
+That is enough to keep moving. It does **not** yet justify a more complex plugin or agentics runtime in the CLI.
 
-### The vision
+## Packaging Direction
 
-The [agentics ecosystem design](../../designs/2026-04-15-w2-r0-agentics-ecosystem.md) proposes a registry, gateway skill, modules, roles, and 8 capability types. This is the right long-term architecture for a platform. However, building registry/gateway/module infrastructure before there are enough plugins to justify it risks over-engineering.
+### Skills are the primary packaging unit
 
-### The strategy
+Use a skill when:
 
-**Let the plugins drive the infrastructure, not the other way around.**
+- the capability can be expressed as one root `SKILL.md`
+- sibling references, scripts, and agent files can travel with that skill directory
+- the same logical workflow should install into Claude Code and Codex with minimal harness-specific behavior
 
-1. Build `archive-docs` as a plugin.
-2. Build one or two more plugins (e.g., `docs-healthcheck`, `draft-design`).
-3. Observe what registry/gateway patterns emerge naturally from how those plugins are structured, installed, and invoked.
-4. Build the ecosystem infrastructure to formalize the patterns that are already working — not to anticipate patterns that might be needed.
+That is the current state of both shipped skills:
 
-The agentics design becomes a *target* to iterate toward, not a prerequisite to build first.
-
-## Multi-Harness Support
-
-### The landscape
-
-| Harness | Instruction file | Skills support | Hooks support | Agent definitions |
-| --- | --- | --- | --- | --- |
-| Claude Code | `CLAUDE.md` | Yes (`.claude/skills/`) | Yes (PreToolUse, PostToolUse, Stop) | Yes (`.claude/agents/`) |
-| Codex (OpenAI) | `AGENTS.md` | Yes (markdown instructions) | No | Yes (`.agents/`, YAML) |
-| Cursor | `.cursorrules`, `.cursor/rules/` | Partial (rules files) | No | No |
-| Windsurf | `.windsurfrules` | Partial (rules files) | No | No |
-| Aider | `CONVENTIONS.md`, `.aider.conf.yml` | Partial (conventions) | No | No |
-| Cline | `.clinerules` | Partial (rules files) | No | No |
-
-### What's already portable
-
-Most of what `starter-docs` ships is harness-agnostic:
-
-| Layer | Portable? | Notes |
+| Skill | Role | Status |
 | --- | --- | --- |
-| AGENTS.md / CLAUDE.md routers | Mostly | AGENTS.md has cross-harness traction; CLAUDE.md is Claude-specific but content-identical |
-| Skills (SKILL.md) | Yes | Markdown instructions work everywhere |
-| References / templates | Yes | Plain files, harness-agnostic |
-| Hooks | No | Claude Code-specific; no equivalent in most harnesses |
-| Agent definitions | Partially | Each harness has its own format |
-| Settings (`.claude/settings.json`) | No | Fully Claude Code-specific |
+| `archive-docs` | Relationship-aware archival, deprecation, staleness checking, and impact analysis | Required, shipped |
+| `decompose-codebase` | Reverse-engineering and PRD/backlog decomposition | Optional, shipped |
 
-### The strategy: single source, harness adapters
+### Agentics remains a future expansion layer
 
-The canonical skill/reference/template lives in `packages/skills/<name>/`. A thin adapter layer generates harness-specific registration files:
+The longer-term agentics direction still matters, but it should be treated as an expansion of the registry and installer model, not as something that had to be built first.
 
-- **Claude Code**: skill registration in `.claude/settings.json` or `.claude/skills/`
-- **Codex**: agent YAML in `.agents/`
-- **Cursor**: rules injection into `.cursor/rules/`
-- **Generic**: AGENTS.md sections that any harness can read
+Potential future installable types include:
 
-The key principle: **never duplicate content across harness directories.** One canonical source, multiple projections. Adapters can be scripts in the CLI (`starter-docs adapt --harness claude-code`) or documented conventions.
+- plugins
+- hooks
+- MCP servers
+- agent definitions
+- harness-specific settings integrations
 
-For hooks specifically: accept that they're Claude Code-only for now. For other harnesses, the same behavior can be approximated via git pre-commit hooks or CI/CD scripts.
+Those should be introduced when there is a concrete need to install and manage them as first-class units, not as speculative infrastructure.
 
-## Extensibility Strategy
+## Multi-Harness Strategy
 
-### What extensibility means for starter-docs
+### Current rule: one skill source, multiple harness targets
 
-The full extensibility surface includes: custom contracts, multi-step workflows, CI/CD integration, headless/pipeline mode, an SDK, specialized extensibility agents, and tooling for running starter-docs touch-free in automations customized to user requirements.
+Canonical skill content lives once under `packages/skills/<name>/`. The CLI installs that same logical skill into the selected harness roots:
 
-### Why to defer the heavy build
+| Harness | Skill root | Instruction router |
+| --- | --- | --- |
+| Claude Code | `.claude/skills/<name>/` | `CLAUDE.md` |
+| Codex | `.agents/skills/<name>/` | `AGENTS.md` |
 
-Before building an SDK or pipeline framework, the project needs:
+This is the right level of abstraction today:
 
-1. At least 3-5 external consumers using starter-docs with real projects
-2. Evidence of what they actually customize (contracts? templates? naming? something unexpected?)
-3. Evidence of pipeline demand (are consumers manually running starter-docs in CI today?)
+- shared content stays shared
+- harness differences stay in the installer and router logic
+- skills remain easy to author and reason about
 
-### Cheap extensibility wins available now
+### Why `archive-docs` became one skill
 
-These require no new infrastructure and deliver immediate value:
+`archive-docs` was briefly modeled as a plugin-style bundle of multiple related skills. That turned out to be the wrong near-term packaging decision.
 
-- **Headless mode**: already exists (`starter-docs init --yes`). Making skills invocable non-interactively (e.g., `starter-docs run staleness-check --json`) is a small CLI addition.
-- **Custom contracts**: supported by convention — consumers override a reference file in their own `docs/.references/` and the router picks it up.
-- **CI/CD integration**: starts with existing scripts (`check-instruction-routers.sh`, `smoke-pack.mjs`). Adding `staleness-check` as a CLI-invocable script is the natural next step.
+Converting it into one skill was the better move because it:
+
+- kept the full capability together
+- preserved required scripts and references
+- avoided inventing a cross-harness plugin contract prematurely
+- matched the current installer’s real strengths
+
+That decision should be treated as the current baseline, not as a compromise to undo immediately.
+
+## Extensibility Direction
+
+### Near-term
+
+The next worthwhile extensions are still small and practical:
+
+- more remote-registry skills
+- better headless CLI coverage
+- stronger docs and schema/tooling around the registry
+- broader harness verification and smoke testing
+
+### Later
+
+Deeper extensibility should come only after repeated consumer demand:
+
+- richer registry metadata
+- new installable agentics types
+- harness adapters beyond Claude Code and Codex
+- CI-oriented automation and validation workflows
+- higher-level APIs or SDKs
+
+The constraint is intentional: do not build an ecosystem framework before there is enough ecosystem to deserve one.
 
 ## Roadmap
 
-### Phase sequence
-
-| Phase | Scope | Dependencies | Complexity |
-| --- | --- | --- | --- |
-| **Now** | Finish in-progress work: asset-pipeline-completeness → plan → implement. Closes a real gap in the CLI's managed asset pipeline. | None | Small |
-| **Next** | Build the `archive-docs` base plugin (4 skills). Proves the plugin model and delivers immediate user value. | None | Medium |
-| **Then** | Multi-harness adapter convention. Design how skills/references project into different harness directories. Implement for Claude Code + Codex first, Cursor as a stretch. | Informed by plugin experience | Medium |
-| **After** | Minimal plugin infrastructure in the CLI: `plugin.json` manifest, `starter-docs add/remove <plugin>`, `starter-docs list --plugins`. Just enough to install the archive-docs plugin into a consumer project. | Archive-docs exists as proof case | Medium |
-| **Later** | Archive-docs extended (completion hooks, search, wave lifecycle, PRD rotation, provenance). Builds on the validated base plugin. | Base plugin working, hooks decided | Medium-Large |
-| **Eventually** | Agentics ecosystem infrastructure (registry, gateway, modules, roles). Build when there are 3+ plugins and external consumer feedback. | Multiple plugins, consumer feedback | Large |
-| **Horizon** | Extensibility SDK, CI/CD pipeline integration, headless skill invocation. Build when demand is validated by real external usage. | Ecosystem infrastructure, external adoption | Large |
-
-### Sequencing principles
-
-1. **Each phase ships standalone value.** No phase exists solely to enable a future phase.
-2. **Plugins prove the model before infrastructure formalizes it.** Archive-docs validates the plugin pattern. Multi-harness adapters validate portability. CLI plugin commands validate distribution. Each step retires a risk.
-3. **External adoption gates the heavy investment.** The agentics ecosystem and extensibility SDK are valuable but expensive. They should be built in response to validated demand, not in anticipation of it.
-4. **Multi-harness support is a cross-cutting concern, not a phase.** Every skill, plugin, and CLI feature should be designed with portability in mind from the start, even if adapter implementation happens in a dedicated phase.
+| Horizon | Focus | Why it belongs there |
+| --- | --- | --- |
+| Now | Finish CLI parity, schema correctness, and documentation truthfulness for the shipped skill installer | Removes friction and makes the current platform coherent |
+| Next | Add more high-value remote skills and tighten skill-authoring conventions | Expands real utility without changing the core abstraction |
+| Then | Validate harness portability with more install/test coverage and selective new harness targets | Proves where adapter complexity is actually needed |
+| Later | Introduce broader agentics registry types when there are concrete install/use cases beyond skills | Lets usage shape the abstraction |
+| Horizon | Consider SDK, automation, and advanced extensibility layers | Worth doing only after external demand is clear |
 
 ## Related Design Documents
 
-- [Agentics Ecosystem](../../designs/2026-04-15-w2-r0-agentics-ecosystem.md) — the long-term platform vision
-- [Archive Docs Plugin](../../designs/2026-04-16-archive-docs-skill.md) — base plugin (4 skills)
-- [Archive Docs Extended](../../designs/2026-04-16-archive-docs-extended.md) — follow-on capabilities (4 more skills + hooks + provenance)
-- [Asset Pipeline Completeness](../../designs/2026-04-16-w2-r0-asset-pipeline-completeness.md) — in-progress gap fix
-- [CLI Publishing](../../designs/2026-04-15-w2-r0-cli-publishing.md) — first npm release plan
+- [CLI Skill Installation R2](../../designs/2026-04-16-cli-skill-installation-r2.md) — current source of truth for remote registry skill delivery
+- [Archive Docs Skill](../../designs/2026-04-16-archive-docs-skill.md) — `archive-docs` capability design
+- [Archive Docs Extended](../../designs/2026-04-16-archive-docs-extended.md) — longer-term follow-on ideas
+- [Agentics Ecosystem](../../designs/2026-04-15-agentics-ecosystem.md) — long-term platform direction, intentionally deferred behind real demand

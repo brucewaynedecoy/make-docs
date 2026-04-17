@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Scan a docs/ tree and build a relationship graph between artifacts.
 
-Supports the archive-docs plugin by automating relationship tracing
+Supports the archive-docs skill by automating relationship tracing
 across designs, plans, work backlogs, and guides.
 
 Python 3.9+ — stdlib only, no external dependencies.

@@ -6,6 +6,8 @@
 
 Update the prepack pipeline so it reads `skill-registry.json` and copies only the declared entry points and assets for each registered skill into a staging directory. Replace any bulk skill copy with a registry-driven selective copy, and update the package manifest to ship only the staging directory and registry file.
 
+> Implemented divergence: the shipped CLI does not publish a staged skill directory. Prepack validates and publishes registry metadata only, while skills are resolved remotely at install time. See the [updated design](../../designs/2026-04-16-cli-skill-installation-r2.md) and [phase-5 agent guide](../../guides/agent/2026-04-17-w5-r2-p5-cli-skill-installation.md).
+
 ## Overview
 
 Three stages run mostly in parallel: updating the prepack script with registry-driven staging logic, updating the package.json files array, and a final verification pass that confirms the selective copy produces exactly the declared files.

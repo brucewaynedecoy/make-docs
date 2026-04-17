@@ -15,13 +15,13 @@ import type {
 import { INSTRUCTION_KINDS } from "./types";
 import { hashText, readTextFile, relativePathToTarget, createRunId } from "./utils";
 
-export function createInstallPlan(options: {
+export async function createInstallPlan(options: {
   targetDir: string;
   packageMeta: PackageMeta;
   profile: InstallProfile;
   existingManifest: InstallManifest | null;
   instructionConflictResolutions?: InstructionConflictResolutions;
-}): InstallPlan {
+}): Promise<InstallPlan> {
   const {
     targetDir,
     packageMeta,
@@ -30,7 +30,7 @@ export function createInstallPlan(options: {
     instructionConflictResolutions,
   } = options;
   const desiredAssets = getDesiredAssets(profile);
-  const desiredSkillAssets = getDesiredSkillAssets(profile.selections);
+  const desiredSkillAssets = await getDesiredSkillAssets(profile.selections);
   const desiredSkillFiles = desiredSkillAssets.map((asset) => asset.relativePath);
   const allDesiredAssets = [...desiredAssets, ...desiredSkillAssets];
   const desiredFiles = Object.fromEntries(

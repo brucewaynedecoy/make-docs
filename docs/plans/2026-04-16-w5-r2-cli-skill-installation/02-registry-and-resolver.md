@@ -4,6 +4,8 @@
 
 Create the skill registry file (`skill-registry.json`), a typed registry loader (`skill-registry.ts`), and a `local:` protocol resolver (`skill-resolver.ts`). These provide the data layer that later phases consume for skill installation, selective prepack, and wizard display.
 
+> Implemented divergence: the shipped registry is remote-only, contains two skills (`archive-docs` and `decompose-codebase`), and no longer uses `plugin` fields or `local:` sources. See the [updated design](../../designs/2026-04-16-cli-skill-installation-r2.md) and [phase-5 agent guide](../../guides/agent/2026-04-17-w5-r2-p5-cli-skill-installation.md).
+
 ## Depends On
 
 - None. The registry is independent of the type-system changes in Phase 1. Phases 1 and 2 can run in parallel.

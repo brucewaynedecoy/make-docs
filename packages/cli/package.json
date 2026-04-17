@@ -9,6 +9,8 @@
   "files": [
     "dist",
     "template",
+    "skill-registry.json",
+    "skill-registry.schema.json",
     "README.md"
   ],
   "engines": {

@@ -14,7 +14,7 @@ applies-to:
 
 # Installing Starter Docs
 
-Starter-docs is a drop-in documentation structure that gives your project organized templates, capability directories, and AI agent instructions out of the box. This guide walks you through every way to install it -- from a single npx command to building from source -- and covers updating, previewing changes, and troubleshooting.
+Starter-docs is a drop-in documentation structure that gives your project organized templates, capability directories, AI agent instructions, and optional installable skills out of the box. This guide walks you through every way to install it -- from a single npx command to building from source -- and covers updating, previewing changes, and troubleshooting.
 
 ## Prerequisites
 
@@ -37,8 +37,8 @@ npx starter-docs
 This launches an interactive wizard that walks you through setup:
 
 1. **Capability selection** -- All four capabilities (designs, plans, prd, work) are selected by default. The wizard lets you opt *out* of any you don't need.
-2. **Template and reference scope** -- Choose whether to install only the required templates and references or the full set.
-3. **Agent instructions** -- AGENTS.md and CLAUDE.md router files are included by default; you can skip them if you prefer.
+2. **Harness selection** -- Choose whether to configure Claude Code, Codex, or both. Harness selection determines which router files and skill directories are managed.
+3. **Options and skills** -- Choose prompt/template/reference scope, decide whether to install skills, pick project or global skill scope, and select any optional skills.
 4. **Confirmation** -- Review your selections before anything is written to disk.
 
 To skip the wizard and accept all defaults:
@@ -133,10 +133,28 @@ Install only required references:
 npx starter-docs init --yes --references required
 ```
 
-Skip agent instruction files:
+Install only the Claude Code harness:
 
 ```bash
-npx starter-docs init --yes --no-agents --no-claude
+npx starter-docs init --yes --no-codex
+```
+
+Skip skill installation entirely:
+
+```bash
+npx starter-docs init --yes --no-skills
+```
+
+Enable the optional `decompose-codebase` skill:
+
+```bash
+npx starter-docs init --yes --optional-skills decompose-codebase
+```
+
+Install skills globally instead of in the current project:
+
+```bash
+npx starter-docs init --yes --skill-scope global
 ```
 
 Install into a specific directory:
@@ -205,6 +223,12 @@ If you originally skipped a capability and now want it (or vice versa), use `--r
 npx starter-docs update --reconfigure --no-designs
 ```
 
+You can also change harness or skill settings during reconfigure:
+
+```bash
+npx starter-docs update --reconfigure --no-codex --skill-scope global --optional-skills decompose-codebase
+```
+
 ## What Gets Installed
 
 After a default installation, your project will contain the following structure:
@@ -213,6 +237,14 @@ After a default installation, your project will contain the following structure:
 your-project/
   AGENTS.md                         # Root agent instruction router
   CLAUDE.md                         # Root Claude instruction router
+  .agents/
+    skills/
+      archive-docs/
+        SKILL.md
+  .claude/
+    skills/
+      archive-docs/
+        SKILL.md
   docs/
     AGENTS.md                       # Docs-level agent router
     CLAUDE.md                       # Docs-level Claude router
@@ -230,6 +262,13 @@ your-project/
     work/                           # Work items (tasks, stories)
       AGENTS.md
 ```
+
+Skill installation depends on your selections:
+
+- `archive-docs` is installed automatically whenever skills are enabled.
+- `decompose-codebase` is installed only if you select it.
+- Project scope installs skills under the current repo (`.claude/skills/`, `.agents/skills/`).
+- Global scope installs skills under your home directory (`~/.claude/skills/`, `~/.agents/skills/`).
 
 **Manifest:** The file at `docs/.starter-docs/manifest.json` is how starter-docs tracks which files it manages. Do not delete this file -- it is required for updates and reconfiguration.
 
@@ -253,7 +292,7 @@ Because `prd` depends on `plans`, opting out of `plans` will also remove `prd`. 
 | `starter-docs` | Alias for `starter-docs init` -- launches the interactive wizard |
 | `starter-docs init` | Install starter-docs into a project |
 | `starter-docs update` | Update an existing installation to the latest version |
-| `starter-docs update --reconfigure` | Change capability selections during an update |
+| `starter-docs update --reconfigure` | Change install selections during an update |
 
 ### Flags
 
@@ -266,11 +305,14 @@ Because `prd` depends on `plans`, opting out of `plans` will also remove `prd`. 
 | `--no-plans` | `init`, `reconfigure` | Exclude the plans capability (also excludes prd and work) |
 | `--no-prd` | `init`, `reconfigure` | Exclude the prd capability (also excludes work) |
 | `--no-work` | `init`, `reconfigure` | Exclude the work capability |
-| `--no-prompts` | `init` | Skip installing prompt starters |
-| `--templates required\|all` | `init` | Install only required templates or the full set |
-| `--references required\|all` | `init` | Install only required references or the full set |
-| `--no-agents` | `init` | Skip installing AGENTS.md router files |
-| `--no-claude` | `init` | Skip installing CLAUDE.md router files |
+| `--no-prompts` | `init`, `reconfigure` | Skip installing prompt starters |
+| `--templates required\|all` | `init`, `reconfigure` | Install only required templates or the full set |
+| `--references required\|all` | `init`, `reconfigure` | Install only required references or the full set |
+| `--no-claude-code` | `init`, `reconfigure` | Skip the Claude Code harness (deprecated alias: `--no-claude`) |
+| `--no-codex` | `init`, `reconfigure` | Skip the Codex harness (deprecated alias: `--no-agents`) |
+| `--no-skills` | `init`, `reconfigure` | Skip skill installation |
+| `--skill-scope project\|global` | `init`, `reconfigure` | Install skills in the project or in your home directory |
+| `--optional-skills <csv\|none>` | `init`, `reconfigure` | Replace the selected optional skills; use `none` to clear them |
 
 ## Troubleshooting
 

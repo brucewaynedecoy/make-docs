@@ -6,6 +6,8 @@
 
 Restructure the interactive wizard to add harness selection and skills+scope steps, remove the deprecated instruction-kinds prompt, introduce renamed CLI flags with backward-compatible aliases, and update help text. Depends on Phase 1 (harness types, `InstallSelections` shape) and Phase 2 (registry loader for skills context).
 
+> Implemented divergence: the shipped CLI kept the harness-first wizard but finalized on canonical `--no-claude-code` / `--no-codex` flags, added `--no-skills`, `--skill-scope`, and `--optional-skills`, and retained the older names only as deprecated aliases. See the [updated design](../../designs/2026-04-16-cli-skill-installation-r2.md).
+
 ## Overview
 
 Seven stages across `wizard.ts` and `cli.ts`. Stages 1-4 modify the wizard flow (harness step, instruction-kinds removal, skills+scope step, review summary). Stages 5-7 modify the CLI (new flags with aliases, resolveSelections/hasSelectionOverrides wiring, printHelp update). Stage 8 builds and tests. Stages 1-4 and 5-7 can run in parallel; Stage 8 depends on all prior stages.

@@ -31,6 +31,7 @@ export function defaultSelections(): InstallSelections {
     },
     skills: true,
     skillScope: "project",
+    optionalSkills: [],
   };
 }
 
@@ -79,6 +80,7 @@ export function resolveInstallProfile(selections: InstallSelections): InstallPro
       harnesses: selections.harnesses,
       skills: selections.skills,
       skillScope: selections.skillScope,
+      optionalSkills: [...selections.optionalSkills].sort(),
     }),
   ).slice(0, 16);
 
@@ -103,6 +105,7 @@ export function isFullDefaultProfile(profile: InstallProfile): boolean {
     profile.selections.harnesses["claude-code"] &&
     profile.selections.harnesses.codex &&
     profile.selections.skills &&
-    profile.selections.skillScope === "project"
+    profile.selections.skillScope === "project" &&
+    profile.selections.optionalSkills.length === 0
   );
 }

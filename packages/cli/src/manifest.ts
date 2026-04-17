@@ -25,15 +25,24 @@ export function loadManifest(targetDir: string): InstallManifest | null {
   const parsed = JSON.parse(readTextFile(manifestPath)) as InstallManifest & {
     skillFiles?: unknown;
   };
-  parsed.selections = migrateSelections(parsed.selections);
   parsed.skillFiles = migrateSkillFiles(parsed.skillFiles);
+  parsed.selections = migrateSelections(parsed.selections, parsed.skillFiles);
   return parsed;
 }
 
-export function migrateSelections(selections: InstallSelections): InstallSelections {
+export function migrateSelections(
+  selections: InstallSelections,
+  skillFiles: string[] = [],
+): InstallSelections {
   const legacy = selections as InstallSelections & {
     instructionKinds?: Record<string, boolean>;
+    optionalSkills?: unknown;
   };
+  const migratedOptionalSkills = migrateOptionalSkills(
+    legacy.optionalSkills,
+    skillFiles,
+    legacy.skills ?? true,
+  );
 
   if (legacy.instructionKinds && !legacy.harnesses) {
     const ik = legacy.instructionKinds;
@@ -48,6 +57,7 @@ export function migrateSelections(selections: InstallSelections): InstallSelecti
       },
       skills: legacy.skills ?? true,
       skillScope: legacy.skillScope ?? "project",
+      optionalSkills: migratedOptionalSkills,
     };
     return migrated;
   }
@@ -55,6 +65,7 @@ export function migrateSelections(selections: InstallSelections): InstallSelecti
   return {
     ...legacy,
     skillScope: legacy.skillScope ?? "project",
+    optionalSkills: migratedOptionalSkills,
   };
 }
 
@@ -93,6 +104,31 @@ function migrateSkillFiles(skillFiles: unknown): string[] {
   }
 
   return [];
+}
+
+function migrateOptionalSkills(
+  optionalSkills: unknown,
+  skillFiles: string[],
+  skillsEnabled: boolean,
+): string[] {
+  if (!skillsEnabled) {
+    return [];
+  }
+
+  if (Array.isArray(optionalSkills)) {
+    return Array.from(
+      new Set(optionalSkills.filter((value): value is string => typeof value === "string")),
+    ).sort();
+  }
+
+  // Preserve existing installs that were created before optional skill selection existed.
+  const hasDecomposeCodebase =
+    skillFiles.includes(".claude/skills/decompose-codebase/SKILL.md") ||
+    skillFiles.includes(".agents/skills/decompose-codebase/SKILL.md") ||
+    skillFiles.includes(".claude/skills/decompose-codebase.md") ||
+    skillFiles.includes(".agents/skills/decompose-codebase.md");
+
+  return hasDecomposeCodebase ? ["decompose-codebase"] : [];
 }
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Shared authority for the archive-docs plugin. All skills in this plugin defer to this file for workflow rules. Archive structure and the hard "never archive unless asked" rule are authoritative in `docs/.archive/AGENTS.md`; this file governs the workflow for getting there.
+Shared authority for the `archive-docs` skill. All modes in this skill defer to this file for workflow rules. Archive structure and the hard "never archive unless asked" rule are authoritative in `docs/.archive/AGENTS.md`; this file governs the workflow for getting there.
 
 ## Archival Modes
 

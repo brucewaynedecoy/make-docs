@@ -6,6 +6,8 @@
 
 Add a harness-aware skill catalog that computes multi-target install paths, rewrites references per harness, and integrates with the planner and installer. Depends on Phase 1 (harness types, `HARNESSES` const, `InstallSelections` shape) and Phase 2 (skill registry, `local:` protocol resolver).
 
+> Implemented divergence: the shipped installer preserves each skill as a full directory under the harness root and colocates support files inside that directory. There is no `skill-assets/` projection model in the final implementation. See the [updated design](../../designs/2026-04-16-cli-skill-installation-r2.md) and [phase-5 agent guide](../../guides/agent/2026-04-17-w5-r2-p5-cli-skill-installation.md).
+
 ## Overview
 
 Wire the full multi-harness skill installation pipeline: load the registry, compute per-harness install targets, rewrite asset references, plan skill actions, execute writes, and track in the manifest. Five stages across four files (`skill-catalog.ts`, `planner.ts`, `install.ts`, `manifest.ts`).

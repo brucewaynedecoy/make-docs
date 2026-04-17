@@ -13,7 +13,6 @@ export interface SkillRegistryEntry {
   installName: string;
   required: boolean;
   description: string;
-  plugin?: string;
   assets: SkillAssetEntry[];
 }
 
@@ -63,13 +62,6 @@ export function getRequiredSkills(registry: SkillRegistry): SkillRegistryEntry[]
   return registry.skills.filter((skill) => skill.required === true);
 }
 
-export function getSkillsByPlugin(
-  registry: SkillRegistry,
-  plugin: string,
-): SkillRegistryEntry[] {
-  return registry.skills.filter((skill) => skill.plugin === plugin);
-}
-
 function validateEntry(entry: unknown, index: number): SkillRegistryEntry | null {
   if (!isPlainObject(entry)) {
     console.warn(`Skill registry entry at index ${index} is not an object; skipping.`);
@@ -83,6 +75,13 @@ function validateEntry(entry: unknown, index: number): SkillRegistryEntry | null
   const entryPoint = readRequiredString(entry, "entryPoint", `entry \`${name}\``);
   const installName = readRequiredString(entry, "installName", `entry \`${name}\``);
   if (source === null || entryPoint === null || installName === null) return null;
+
+  if (!isRemoteSource(source)) {
+    console.warn(
+      `Skill registry entry \`${name}\` must use a remote source URL; skipping.`,
+    );
+    return null;
+  }
 
   if (!Array.isArray(entry.assets)) {
     console.warn(`Skill registry entry \`${name}\` is missing \`assets\` array; skipping.`);
@@ -111,7 +110,6 @@ function validateEntry(entry: unknown, index: number): SkillRegistryEntry | null
     installName,
     required: entry.required === true,
     description: typeof entry.description === "string" ? entry.description : "",
-    plugin: typeof entry.plugin === "string" ? entry.plugin : undefined,
     assets,
   };
 }
@@ -131,4 +129,13 @@ function readRequiredString(
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function isRemoteSource(source: string): boolean {
+  return (
+    source.startsWith("https://") ||
+    source.startsWith("http://") ||
+    source.startsWith("github:") ||
+    source.startsWith("url:")
+  );
 }

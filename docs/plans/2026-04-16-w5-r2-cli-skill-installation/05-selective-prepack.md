@@ -4,6 +4,8 @@
 
 Update the prepack pipeline so it reads `skill-registry.json` and copies only the entry points and declared assets for each registered skill into a staging directory. The staging directory and registry file are added to the `files` array in `packages/cli/package.json`, replacing any bulk skill copy. This ensures the published tarball contains exactly the skill files the registry declares — nothing more, nothing less.
 
+> Implemented divergence: the shipped CLI does not publish a staged skill directory. Prepack validates and publishes registry metadata only, while skills are resolved remotely at install time. See the [updated design](../../designs/2026-04-16-cli-skill-installation-r2.md) and [phase-5 agent guide](../../guides/agent/2026-04-17-w5-r2-p5-cli-skill-installation.md).
+
 ## Dependencies
 
 - Phase 2 (registry must exist). The prepack script imports and parses `skill-registry.json` to determine which files to stage.

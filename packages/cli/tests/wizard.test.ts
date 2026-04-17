@@ -82,6 +82,9 @@ describe("selection wizard", () => {
 
   test("maps grouped option answers back into install selections", () => {
     const selections = applyWizardOptionSelections(defaultSelections(), {
+      skills: true,
+      skillScope: "global",
+      optionalSkills: ["decompose-codebase"],
       prompts: false,
       templatesMode: "required",
       referencesMode: "all",
@@ -89,6 +92,9 @@ describe("selection wizard", () => {
     });
 
     expect(getWizardOptionSelections(selections)).toEqual({
+      skills: true,
+      skillScope: "global",
+      optionalSkills: ["decompose-codebase"],
       prompts: false,
       templatesMode: "required",
       referencesMode: "all",
@@ -109,12 +115,18 @@ describe("selection wizard", () => {
       [["designs", "plans", "prd", "work"]],
       [
         {
+          skills: true,
+          skillScope: "project",
+          optionalSkills: [],
           prompts: true,
           templatesMode: "all",
           referencesMode: "all",
           instructionKinds: ["AGENTS.md", "CLAUDE.md"],
         },
         {
+          skills: true,
+          skillScope: "global",
+          optionalSkills: ["decompose-codebase"],
           prompts: false,
           templatesMode: "required",
           referencesMode: "required",
@@ -130,6 +142,9 @@ describe("selection wizard", () => {
     });
 
     expect(result).toMatchObject({
+      skills: true,
+      skillScope: "global",
+      optionalSkills: ["decompose-codebase"],
       prompts: false,
       templatesMode: "required",
       referencesMode: "required",

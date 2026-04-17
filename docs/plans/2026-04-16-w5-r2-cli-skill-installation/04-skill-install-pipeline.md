@@ -4,6 +4,8 @@
 
 Add a harness-aware skill catalog that computes multi-target install paths, rewrites references per harness, and integrates with the planner and installer. When both Claude Code and Codex are selected, each skill produces two installed copies — one in `.claude/skills/` and one in `.agents/skills/` — with assets similarly duplicated into `.claude/skill-assets/` and `.agents/skill-assets/`. The install root depends on scope: `.` for project, `~` for global.
 
+> Implemented divergence: the shipped installer preserves each skill as a full directory under the harness root and colocates support files inside that directory. There is no `skill-assets/` projection model in the final implementation. See the [updated design](../../designs/2026-04-16-cli-skill-installation-r2.md) and [phase-5 agent guide](../../guides/agent/2026-04-17-w5-r2-p5-cli-skill-installation.md).
+
 ## Depends On
 
 - Phase 1 (needs `Harness` type, `HARNESSES` const, `harnesses` and `skillScope` in `InstallSelections`)

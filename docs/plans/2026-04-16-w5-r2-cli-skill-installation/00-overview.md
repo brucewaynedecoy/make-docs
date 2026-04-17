@@ -4,6 +4,8 @@
 
 Implement the harness-aware, registry-based skill delivery designed in [2026-04-16-cli-skill-installation-r2.md](../../designs/2026-04-16-cli-skill-installation-r2.md). This is **Wave 5 Revision 2** (`w5-r2`). It replaces the instruction-kind selection model with harness selection, adds a skill registry with `local:` protocol support, implements multi-target skill installation (Claude Code + Codex) with project/global scope, and updates the wizard and CLI flags accordingly.
 
+> Implemented divergence: the shipped CLI uses remote-only registry sources, installs directory-based skills under `.claude/skills/<name>/` and `.agents/skills/<name>/`, treats `archive-docs` as a single required skill, and publishes registry metadata instead of a staged skill bundle. Treat this plan as historical execution intent. See the [updated design](../../designs/2026-04-16-cli-skill-installation-r2.md) and [phase-5 agent guide](../../guides/agent/2026-04-17-w5-r2-p5-cli-skill-installation.md) for the final shipped behavior.
+
 ## Objective
 
 - `InstallSelections` uses `harnesses: Record<Harness, boolean>` instead of `instructionKinds`.

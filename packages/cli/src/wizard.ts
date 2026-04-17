@@ -19,6 +19,7 @@ import {
   cloneSelections,
   resolveInstallProfile,
 } from "./profile";
+import { getOptionalSkillChoices } from "./skill-catalog";
 import {
   CAPABILITIES,
   INSTRUCTION_KINDS,
@@ -71,6 +72,16 @@ const CAPABILITY_METADATA: Record<
 };
 
 const OPTION_METADATA = {
+  skills: {
+    label: "Skills",
+    description:
+      "Install reusable agent skills under the selected harness skill directories.",
+  },
+  skillScope: {
+    label: "Skill scope",
+    project: "Install skills into this project.",
+    global: "Install skills into your home directory for reuse across projects.",
+  },
   prompts: {
     label: "Prompt starters",
     description:
@@ -123,6 +134,9 @@ export interface CapabilityChecklistState {
 }
 
 export interface WizardOptionSelections {
+  skills: boolean;
+  skillScope: InstallSelections["skillScope"];
+  optionalSkills: string[];
   prompts: boolean;
   templatesMode: TemplatesMode;
   referencesMode: ReferencesMode;
@@ -186,6 +200,9 @@ export function getWizardOptionSelections(
   selections: InstallSelections,
 ): WizardOptionSelections {
   return {
+    skills: selections.skills,
+    skillScope: selections.skillScope,
+    optionalSkills: [...selections.optionalSkills].sort(),
     prompts: selections.prompts,
     templatesMode: selections.templatesMode,
     referencesMode: selections.referencesMode,
@@ -198,6 +215,11 @@ export function applyWizardOptionSelections(
   options: WizardOptionSelections,
 ): InstallSelections {
   const next = cloneSelections(selections);
+  next.skills = options.skills;
+  next.skillScope = options.skillScope;
+  next.optionalSkills = options.skills
+    ? Array.from(new Set(options.optionalSkills)).sort()
+    : [];
   next.prompts = options.prompts;
   next.templatesMode = options.templatesMode;
   next.referencesMode = options.referencesMode;
@@ -261,6 +283,13 @@ export function renderWizardReviewSummary(selections: InstallSelections): string
       : instructionKinds.length > 0
         ? formatInlineList(instructionKinds)
         : "none";
+  const optionalSkillSummary =
+    normalizedSelections.optionalSkills.length > 0
+      ? formatInlineList(normalizedSelections.optionalSkills)
+      : "required only";
+  const skillsSummary = normalizedSelections.skills
+    ? optionalSkillSummary
+    : "off";
 
   return [
     "Document types",
@@ -277,6 +306,10 @@ export function renderWizardReviewSummary(selections: InstallSelections): string
     }),
     "",
     "Options",
+    `- ${OPTION_METADATA.skills.label}: ${skillsSummary}`,
+    `- ${OPTION_METADATA.skillScope.label}: ${
+      normalizedSelections.skills ? normalizedSelections.skillScope : "n/a"
+    }`,
     `- ${OPTION_METADATA.prompts.label}: ${normalizedSelections.prompts ? "included" : "omitted"}`,
     `- ${OPTION_METADATA.templatesMode.label}: ${normalizedSelections.templatesMode}`,
     `- ${OPTION_METADATA.referencesMode.label}: ${normalizedSelections.referencesMode}`,
@@ -528,6 +561,71 @@ async function promptForCapabilities(
 async function promptForOptions(
   options: WizardOptionSelections,
 ): Promise<WizardOptionSelections | null> {
+  const skillsResult = await confirm({
+    message: "Install agent skills?",
+    withGuide: true,
+    initialValue: options.skills,
+    active: "Yes",
+    inactive: "No",
+  });
+
+  if (isCancel(skillsResult)) {
+    return null;
+  }
+
+  let skillScope: InstallSelections["skillScope"] = options.skillScope;
+  let optionalSkills = options.optionalSkills;
+
+  if (skillsResult) {
+    const scopeResult = await select<InstallSelections["skillScope"]>({
+      message: "Where should skills be installed?",
+      withGuide: true,
+      initialValue: options.skillScope,
+      options: [
+        {
+          value: "project",
+          label: "Project",
+          hint: OPTION_METADATA.skillScope.project,
+        },
+        {
+          value: "global",
+          label: "Global",
+          hint: OPTION_METADATA.skillScope.global,
+        },
+      ],
+    });
+
+    if (isCancel(scopeResult)) {
+      return null;
+    }
+
+    skillScope = scopeResult;
+
+    const availableOptionalSkills = getOptionalSkillChoices();
+    if (availableOptionalSkills.length > 0) {
+      const optionalSkillSelection = await multiselect<string>({
+        message: "Which optional skills should be installed?",
+        withGuide: true,
+        initialValues: options.optionalSkills,
+        options: availableOptionalSkills.map((skill) => ({
+          value: skill.name,
+          label: skill.name,
+          hint: skill.description,
+        })),
+      });
+
+      if (isCancel(optionalSkillSelection)) {
+        return null;
+      }
+
+      optionalSkills = [...optionalSkillSelection].sort();
+    } else {
+      optionalSkills = [];
+    }
+  } else {
+    optionalSkills = [];
+  }
+
   const promptsResult = await confirm({
     message: "Install starter prompts?",
     withGuide: true,
@@ -600,6 +698,9 @@ async function promptForOptions(
   }
 
   return {
+    skills: skillsResult,
+    skillScope,
+    optionalSkills,
     prompts: promptsResult,
     templatesMode,
     referencesMode,

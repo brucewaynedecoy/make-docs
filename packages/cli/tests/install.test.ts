@@ -1,21 +1,32 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { describe, expect, test } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { applyInstallPlan, planInstall } from "../src/install";
 import { loadManifest } from "../src/manifest";
 import { defaultSelections } from "../src/profile";
-import { readPackageFile } from "../src/utils";
-import { cleanupTempDir, collectFiles, collectMarkdownContents, createTempDir } from "./helpers";
+import { hashText, readPackageFile } from "../src/utils";
+import {
+  cleanupTempDir,
+  collectFiles,
+  collectMarkdownContents,
+  createTempDir,
+  mockSkillFetches,
+} from "./helpers";
 
-function installWithSelections(
+async function installWithSelections(
   targetDir: string,
   configure: (selections: ReturnType<typeof defaultSelections>) => void,
-) {
+): Promise<{
+  selections: ReturnType<typeof defaultSelections>;
+  plan: Awaited<ReturnType<typeof planInstall>>;
+  result: ReturnType<typeof applyInstallPlan>;
+  manifest: NonNullable<ReturnType<typeof loadManifest>>;
+}> {
   const selections = defaultSelections();
   configure(selections);
 
   const existingManifest = loadManifest(targetDir);
-  const plan = planInstall({
+  const plan = await planInstall({
     targetDir,
     selections,
     existingManifest,
@@ -30,24 +41,38 @@ function installWithSelections(
 }
 
 describe("installer integration", () => {
-  test("installs the full default profile", () => {
+  beforeEach(() => {
+    mockSkillFetches();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
+  });
+
+  test("installs the full default profile", async () => {
     const targetDir = createTempDir();
     try {
-      const { manifest } = installWithSelections(targetDir, () => {});
+      const { manifest } = await installWithSelections(targetDir, () => {});
 
       expect(manifest.effectiveCapabilities).toEqual(["designs", "plans", "prd", "work"]);
-      expect(existsSync(path.join(targetDir, ".claude/skills/archive-docs-archive.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, ".agents/skills/archive-docs-archive.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, ".claude/skills/archive-docs/SKILL.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, ".agents/skills/archive-docs/SKILL.md"))).toBe(true);
       expect(
         existsSync(
-          path.join(targetDir, ".claude/skill-assets/archive-docs/references/archive-workflow.md"),
+          path.join(targetDir, ".claude/skills/archive-docs/references/archive-workflow.md"),
         ),
       ).toBe(true);
       expect(
         existsSync(
-          path.join(targetDir, ".agents/skill-assets/archive-docs/scripts/trace_relationships.py"),
+          path.join(targetDir, ".agents/skills/archive-docs/scripts/trace_relationships.py"),
         ),
       ).toBe(true);
+      expect(existsSync(path.join(targetDir, ".claude/skill-assets"))).toBe(false);
+      expect(existsSync(path.join(targetDir, ".agents/skill-assets"))).toBe(false);
+      expect(
+        existsSync(path.join(targetDir, ".claude/skills/decompose-codebase/SKILL.md")),
+      ).toBe(false);
       expect(existsSync(path.join(targetDir, "docs/work/AGENTS.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/.prompts/designs-to-plan.prompt.md"))).toBe(true);
       expect(
@@ -62,17 +87,37 @@ describe("installer integration", () => {
 
       const guidesRouter = readFileSync(path.join(targetDir, "docs/guides/AGENTS.md"), "utf8");
       expect(guidesRouter).toContain("guide-contract.md");
-      expect(manifest.skillFiles).toContain(".claude/skills/archive-docs-archive.md");
-      expect(manifest.skillFiles).toContain(".agents/skills/archive-docs-archive.md");
+      expect(manifest.skillFiles).toContain(".claude/skills/archive-docs/SKILL.md");
+      expect(manifest.skillFiles).toContain(".agents/skills/archive-docs/SKILL.md");
     } finally {
       cleanupTempDir(targetDir);
     }
   });
 
-  test("disabling plans automatically disables prd and work", () => {
+  test("installs an optional skill only when selected", async () => {
     const targetDir = createTempDir();
     try {
-      installWithSelections(targetDir, (selections) => {
+      await installWithSelections(targetDir, (selections) => {
+        selections.optionalSkills = ["decompose-codebase"];
+      });
+
+      expect(existsSync(path.join(targetDir, ".claude/skills/decompose-codebase/SKILL.md"))).toBe(
+        true,
+      );
+      expect(
+        existsSync(
+          path.join(targetDir, ".agents/skills/decompose-codebase/references/mcp-playbook.md"),
+        ),
+      ).toBe(true);
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("disabling plans automatically disables prd and work", async () => {
+    const targetDir = createTempDir();
+    try {
+      await installWithSelections(targetDir, (selections) => {
         selections.capabilities.plans = false;
       });
 
@@ -94,10 +139,10 @@ describe("installer integration", () => {
     }
   });
 
-  test("disabling prd automatically disables work", () => {
+  test("disabling prd automatically disables work", async () => {
     const targetDir = createTempDir();
     try {
-      installWithSelections(targetDir, (selections) => {
+      await installWithSelections(targetDir, (selections) => {
         selections.capabilities.prd = false;
       });
 
@@ -110,10 +155,10 @@ describe("installer integration", () => {
     }
   });
 
-  test("includes guide files even when all capabilities are disabled", () => {
+  test("includes guide files even when all capabilities are disabled", async () => {
     const targetDir = createTempDir();
     try {
-      installWithSelections(targetDir, (selections) => {
+      await installWithSelections(targetDir, (selections) => {
         selections.capabilities.designs = false;
         selections.capabilities.plans = false;
         selections.capabilities.prd = false;
@@ -136,10 +181,10 @@ describe("installer integration", () => {
     }
   });
 
-  test("supports a designs-only install without planning routes", () => {
+  test("supports a designs-only install without planning routes", async () => {
     const targetDir = createTempDir();
     try {
-      installWithSelections(targetDir, (selections) => {
+      await installWithSelections(targetDir, (selections) => {
         selections.capabilities.plans = false;
         selections.capabilities.prd = false;
         selections.capabilities.work = false;
@@ -160,10 +205,10 @@ describe("installer integration", () => {
     }
   });
 
-  test("supports a plans-only install without prompts", () => {
+  test("supports a plans-only install without prompts", async () => {
     const targetDir = createTempDir();
     try {
-      installWithSelections(targetDir, (selections) => {
+      await installWithSelections(targetDir, (selections) => {
         selections.capabilities.designs = false;
         selections.capabilities.prd = false;
         selections.capabilities.work = false;
@@ -180,10 +225,10 @@ describe("installer integration", () => {
     }
   });
 
-  test("supports plans and prd without work", () => {
+  test("supports plans and prd without work", async () => {
     const targetDir = createTempDir();
     try {
-      installWithSelections(targetDir, (selections) => {
+      await installWithSelections(targetDir, (selections) => {
         selections.capabilities.designs = false;
         selections.capabilities.work = false;
       });
@@ -205,10 +250,10 @@ describe("installer integration", () => {
     }
   });
 
-  test("removes prompt references when prompts are disabled", () => {
+  test("removes prompt references when prompts are disabled", async () => {
     const targetDir = createTempDir();
     try {
-      installWithSelections(targetDir, (selections) => {
+      await installWithSelections(targetDir, (selections) => {
         selections.prompts = false;
       });
 
@@ -221,14 +266,14 @@ describe("installer integration", () => {
     }
   });
 
-  test("stages conflicting instruction files without overwriting them", () => {
+  test("stages conflicting instruction files without overwriting them", async () => {
     const targetDir = createTempDir();
     try {
       mkdirSync(path.join(targetDir, "docs"), { recursive: true });
       writeFileSync(path.join(targetDir, "AGENTS.md"), "custom root agents\n", "utf8");
       writeFileSync(path.join(targetDir, "docs/AGENTS.md"), "custom docs agents\n", "utf8");
 
-      const { manifest } = installWithSelections(targetDir, () => {});
+      const { manifest } = await installWithSelections(targetDir, () => {});
 
       expect(readFileSync(path.join(targetDir, "AGENTS.md"), "utf8")).toBe("custom root agents\n");
       expect(readFileSync(path.join(targetDir, "docs/AGENTS.md"), "utf8")).toBe(
@@ -251,14 +296,14 @@ describe("installer integration", () => {
     }
   });
 
-  test("appends generated instructions when updating a conflicting instruction file", () => {
+  test("appends generated instructions when updating a conflicting instruction file", async () => {
     const targetDir = createTempDir();
     try {
       writeFileSync(path.join(targetDir, "AGENTS.md"), "custom root agents\n", "utf8");
 
       const selections = defaultSelections();
       const existingManifest = loadManifest(targetDir);
-      const plan = planInstall({
+      const plan = await planInstall({
         targetDir,
         selections,
         existingManifest,
@@ -286,14 +331,14 @@ describe("installer integration", () => {
     }
   });
 
-  test("overwrites conflicting instruction files when overwrite is selected", () => {
+  test("overwrites conflicting instruction files when overwrite is selected", async () => {
     const targetDir = createTempDir();
     try {
       writeFileSync(path.join(targetDir, "AGENTS.md"), "custom root agents\n", "utf8");
 
       const selections = defaultSelections();
       const existingManifest = loadManifest(targetDir);
-      const plan = planInstall({
+      const plan = await planInstall({
         targetDir,
         selections,
         existingManifest,
@@ -321,13 +366,13 @@ describe("installer integration", () => {
     }
   });
 
-  test("plans a noop update for unchanged managed files", () => {
+  test("plans a noop update for unchanged managed files", async () => {
     const targetDir = createTempDir();
     try {
-      installWithSelections(targetDir, () => {});
+      await installWithSelections(targetDir, () => {});
 
       const existingManifest = loadManifest(targetDir);
-      const plan = planInstall({
+      const plan = await planInstall({
         targetDir,
         selections: defaultSelections(),
         existingManifest,
@@ -339,14 +384,14 @@ describe("installer integration", () => {
     }
   });
 
-  test("skips and stages updates for locally modified managed files", () => {
+  test("skips and stages updates for locally modified managed files", async () => {
     const targetDir = createTempDir();
     try {
-      installWithSelections(targetDir, () => {});
+      await installWithSelections(targetDir, () => {});
       writeFileSync(path.join(targetDir, "docs/AGENTS.md"), "locally edited docs router\n", "utf8");
 
       const existingManifest = loadManifest(targetDir);
-      const plan = planInstall({
+      const plan = await planInstall({
         targetDir,
         selections: defaultSelections(),
         existingManifest,
@@ -378,12 +423,12 @@ describe("installer integration", () => {
     }
   });
 
-  test("supports update reconfiguration from full to partial and back", () => {
+  test("supports update reconfiguration from full to partial and back", async () => {
     const targetDir = createTempDir();
     try {
-      installWithSelections(targetDir, () => {});
+      await installWithSelections(targetDir, () => {});
 
-      installWithSelections(targetDir, (selections) => {
+      await installWithSelections(targetDir, (selections) => {
         selections.capabilities.work = false;
         selections.prompts = false;
       });
@@ -391,7 +436,7 @@ describe("installer integration", () => {
       expect(existsSync(path.join(targetDir, "docs/work/AGENTS.md"))).toBe(false);
       expect(existsSync(path.join(targetDir, "docs/.prompts"))).toBe(false);
 
-      installWithSelections(targetDir, () => {});
+      await installWithSelections(targetDir, () => {});
 
       expect(existsSync(path.join(targetDir, "docs/work/AGENTS.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/.prompts/designs-to-plan.prompt.md"))).toBe(
@@ -402,24 +447,88 @@ describe("installer integration", () => {
     }
   });
 
-  test("removes deselected harness skill files on reconfigure", () => {
+  test("removes deselected harness skill files on reconfigure", async () => {
     const targetDir = createTempDir();
     try {
-      installWithSelections(targetDir, () => {});
+      await installWithSelections(targetDir, () => {});
 
-      const { manifest } = installWithSelections(targetDir, (selections) => {
+      const { manifest } = await installWithSelections(targetDir, (selections) => {
         selections.harnesses.codex = false;
       });
 
-      expect(existsSync(path.join(targetDir, ".claude/skills/archive-docs-archive.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, ".agents/skills/archive-docs-archive.md"))).toBe(false);
+      expect(existsSync(path.join(targetDir, ".claude/skills/archive-docs/SKILL.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, ".agents/skills/archive-docs/SKILL.md"))).toBe(false);
       expect(
         existsSync(
-          path.join(targetDir, ".agents/skill-assets/archive-docs/references/archive-workflow.md"),
+          path.join(targetDir, ".agents/skills/archive-docs/references/archive-workflow.md"),
         ),
       ).toBe(false);
       expect(manifest.skillFiles.every((file) => !file.startsWith(".agents/"))).toBe(true);
       expect(manifest.skillFiles.some((file) => file.startsWith(".claude/"))).toBe(true);
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("migrates managed flat archive-docs files into the directory layout", async () => {
+    const targetDir = createTempDir();
+    try {
+      const oldClaudeSkill = path.join(targetDir, ".claude/skills/archive-docs-archive.md");
+      const oldCodexSkill = path.join(targetDir, ".agents/skills/archive-docs-archive.md");
+      const oldAsset = path.join(
+        targetDir,
+        ".claude/skill-assets/archive-docs/references/archive-workflow.md",
+      );
+
+      mkdirSync(path.dirname(oldClaudeSkill), { recursive: true });
+      mkdirSync(path.dirname(oldCodexSkill), { recursive: true });
+      mkdirSync(path.dirname(oldAsset), { recursive: true });
+
+      writeFileSync(oldClaudeSkill, "legacy archive skill\n", "utf8");
+      writeFileSync(oldCodexSkill, "legacy archive skill\n", "utf8");
+      writeFileSync(oldAsset, "legacy workflow\n", "utf8");
+
+      const manifestPath = path.join(targetDir, "docs/.starter-docs/manifest.json");
+      mkdirSync(path.dirname(manifestPath), { recursive: true });
+      writeFileSync(
+        manifestPath,
+        `${JSON.stringify(
+          {
+            schemaVersion: 1,
+            packageName: "starter-docs",
+            packageVersion: "0.1.0",
+            updatedAt: new Date().toISOString(),
+            profileId: "legacy-profile",
+            selections: {
+              ...defaultSelections(),
+              optionalSkills: [],
+            },
+            effectiveCapabilities: ["designs", "plans", "prd", "work"],
+            files: {
+              ".claude/skill-assets/archive-docs/references/archive-workflow.md": {
+                hash: hashText("legacy workflow\n"),
+                sourceId: "skill-asset:claude-code:archive-docs:references/archive-workflow.md",
+              },
+            },
+            skillFiles: [
+              ".claude/skills/archive-docs-archive.md",
+              ".agents/skills/archive-docs-archive.md",
+            ],
+          },
+          null,
+          2,
+        )}\n`,
+        "utf8",
+      );
+
+      await installWithSelections(targetDir, () => {});
+
+      expect(existsSync(oldClaudeSkill)).toBe(false);
+      expect(existsSync(oldCodexSkill)).toBe(false);
+      expect(existsSync(oldAsset)).toBe(false);
+      expect(existsSync(path.join(targetDir, ".claude/skills/archive-docs/SKILL.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, ".agents/skills/archive-docs/SKILL.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, ".claude/skill-assets"))).toBe(false);
     } finally {
       cleanupTempDir(targetDir);
     }

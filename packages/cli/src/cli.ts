@@ -4,6 +4,11 @@ import { confirm, isCancel } from "@clack/prompts";
 import { applyInstallPlan, findInstructionConflicts, planInstall } from "./install";
 import { loadManifest } from "./manifest";
 import { cloneSelections, defaultSelections, hasEffectiveCapabilities } from "./profile";
+import {
+  getOptionalSkills,
+  getRequiredSkills,
+  loadSkillRegistry,
+} from "./skill-registry";
 import type {
   InstallManifest,
   InstallSelections,
@@ -11,7 +16,7 @@ import type {
   ReferencesMode,
   TemplatesMode,
 } from "./types";
-import { readPackageMeta } from "./utils";
+import { PACKAGE_ROOT, readPackageMeta } from "./utils";
 import {
   promptForInstructionConflictResolutions,
   promptForUpdateWizardAction,
@@ -32,10 +37,13 @@ interface ParsedArgs {
   noPrd: boolean;
   noWork: boolean;
   noPrompts: boolean;
-  noAgents: boolean;
-  noClaude: boolean;
+  noCodex: boolean;
+  noClaudeCode: boolean;
+  noSkills: boolean;
   templatesMode?: TemplatesMode;
   referencesMode?: ReferencesMode;
+  skillScope?: InstallSelections["skillScope"];
+  optionalSkills?: string[];
 }
 
 export async function runCli(argv = process.argv.slice(2)): Promise<void> {
@@ -120,7 +128,7 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
     }
   }
 
-  let plan = planInstall({
+  let plan = await planInstall({
     targetDir,
     selections,
     existingManifest,
@@ -137,7 +145,7 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
         return;
       }
 
-      plan = planInstall({
+      plan = await planInstall({
         targetDir,
         selections,
         existingManifest,
@@ -234,11 +242,25 @@ function resolveSelections(options: {
   if (parsed.noPrompts) {
     selections.prompts = false;
   }
-  if (parsed.noAgents) {
+  if (parsed.noCodex) {
     selections.harnesses.codex = false;
   }
-  if (parsed.noClaude) {
+  if (parsed.noClaudeCode) {
     selections.harnesses["claude-code"] = false;
+  }
+  if (parsed.noSkills) {
+    selections.skills = false;
+    selections.optionalSkills = [];
+  } else {
+    if (parsed.skillScope || parsed.optionalSkills !== undefined) {
+      selections.skills = true;
+    }
+    if (parsed.skillScope) {
+      selections.skillScope = parsed.skillScope;
+    }
+    if (parsed.optionalSkills !== undefined) {
+      selections.optionalSkills = [...parsed.optionalSkills];
+    }
   }
   if (parsed.templatesMode) {
     selections.templatesMode = parsed.templatesMode;
@@ -257,10 +279,13 @@ function hasSelectionOverrides(parsed: ParsedArgs): boolean {
       parsed.noPrd ||
       parsed.noWork ||
       parsed.noPrompts ||
-      parsed.noAgents ||
-      parsed.noClaude ||
+      parsed.noCodex ||
+      parsed.noClaudeCode ||
+      parsed.noSkills ||
       parsed.templatesMode ||
-      parsed.referencesMode,
+      parsed.referencesMode ||
+      parsed.skillScope ||
+      parsed.optionalSkills !== undefined,
   );
 }
 
@@ -275,8 +300,9 @@ function parseArgs(argv: string[]): ParsedArgs {
     noPrd: false,
     noWork: false,
     noPrompts: false,
-    noAgents: false,
-    noClaude: false,
+    noCodex: false,
+    noClaudeCode: false,
+    noSkills: false,
   };
 
   const args = [...argv];
@@ -318,11 +344,16 @@ function parseArgs(argv: string[]): ParsedArgs {
       case "--no-prompts":
         parsed.noPrompts = true;
         break;
+      case "--no-codex":
       case "--no-agents":
-        parsed.noAgents = true;
+        parsed.noCodex = true;
         break;
+      case "--no-claude-code":
       case "--no-claude":
-        parsed.noClaude = true;
+        parsed.noClaudeCode = true;
+        break;
+      case "--no-skills":
+        parsed.noSkills = true;
         break;
       case "--templates": {
         const value = args.shift();
@@ -340,12 +371,74 @@ function parseArgs(argv: string[]): ParsedArgs {
         parsed.referencesMode = value;
         break;
       }
+      case "--skill-scope": {
+        const value = args.shift();
+        if (value !== "project" && value !== "global") {
+          throw new Error("`--skill-scope` must be either `project` or `global`.");
+        }
+        parsed.skillScope = value;
+        break;
+      }
+      case "--optional-skills": {
+        const value = args.shift();
+        if (!value) {
+          throw new Error("`--optional-skills` requires a comma-separated value or `none`.");
+        }
+        parsed.optionalSkills =
+          value === "none"
+            ? []
+            : Array.from(
+                new Set(
+                  value
+                    .split(",")
+                    .map((entry) => entry.trim())
+                    .filter((entry) => entry.length > 0),
+                ),
+              ).sort();
+
+        if (value !== "none" && parsed.optionalSkills.length === 0) {
+          throw new Error("`--optional-skills` requires at least one skill id or `none`.");
+        }
+        break;
+      }
       default:
         throw new Error(`Unknown argument: ${arg}`);
     }
   }
 
+  validateParsedArgs(parsed);
   return parsed;
+}
+
+function validateParsedArgs(parsed: ParsedArgs): void {
+  if (parsed.noSkills && (parsed.skillScope || parsed.optionalSkills !== undefined)) {
+    throw new Error(
+      "`--no-skills` cannot be combined with `--skill-scope` or `--optional-skills`.",
+    );
+  }
+
+  if (parsed.optionalSkills === undefined) {
+    return;
+  }
+
+  const registry = loadSkillRegistry(PACKAGE_ROOT);
+  const optionalSkills = new Set(getOptionalSkills(registry).map((skill) => skill.name));
+  const requiredSkills = new Set(getRequiredSkills(registry).map((skill) => skill.name));
+
+  for (const skillName of parsed.optionalSkills) {
+    if (requiredSkills.has(skillName)) {
+      throw new Error(
+        `Required skill \`${skillName}\` cannot be passed to \`--optional-skills\`.`,
+      );
+    }
+
+    if (!optionalSkills.has(skillName)) {
+      const validList = Array.from(optionalSkills).sort().join(", ");
+      throw new Error(
+        `Unknown optional skill \`${skillName}\`. Valid optional skills: ${validList || "(none)"}.`,
+      );
+    }
+  }
 }
 
 function printPlan(actions: PlannedAction[]): void {
@@ -371,8 +464,15 @@ function printHelp(): void {
   output.write(`starter-docs\n
 Usage:
   starter-docs
-  starter-docs init [--target <dir>] [--dry-run] [--yes] [--no-designs] [--no-plans] [--no-prd] [--no-work] [--no-prompts] [--templates required|all] [--references required|all] [--no-agents] [--no-claude]
+  starter-docs init [--target <dir>] [--dry-run] [--yes] [--no-designs] [--no-plans] [--no-prd] [--no-work] [--no-prompts] [--templates required|all] [--references required|all] [--no-codex] [--no-claude-code] [--no-skills] [--skill-scope project|global] [--optional-skills <csv|none>]
   starter-docs update [--target <dir>] [--dry-run] [--yes]
   starter-docs update --reconfigure [selection flags]
+
+Selection flags:
+  --no-codex                     Skip Codex harness (deprecated alias: --no-agents)
+  --no-claude-code              Skip Claude Code harness (deprecated alias: --no-claude)
+  --no-skills                   Skip skill installation
+  --skill-scope project|global  Set skill install scope
+  --optional-skills <csv|none>  Replace selected optional skills
 \n`);
 }

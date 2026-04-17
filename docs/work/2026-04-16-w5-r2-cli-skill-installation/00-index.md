@@ -6,6 +6,8 @@
 
 This backlog tracks execution of the harness-aware, registry-based skill installation. It is **Wave 5 Revision 2** (`w5-r2`). It derives from [the plan](../../plans/2026-04-16-w5-r2-cli-skill-installation/00-overview.md) and the originating [design](../../designs/2026-04-16-cli-skill-installation-r2.md).
 
+> Implemented divergence: the shipped CLI uses remote-only registry sources, installs skills as directories under `.claude/skills/<name>/` and `.agents/skills/<name>/`, treats `archive-docs` as one required skill, and publishes registry metadata instead of a staged bundle. Treat this backlog as historical execution detail. See the [updated design](../../designs/2026-04-16-cli-skill-installation-r2.md) and [phase-5 agent guide](../../guides/agent/2026-04-17-w5-r2-p5-cli-skill-installation.md) for the final shipped behavior.
+
 ## Phase Map
 
 | File | Purpose |

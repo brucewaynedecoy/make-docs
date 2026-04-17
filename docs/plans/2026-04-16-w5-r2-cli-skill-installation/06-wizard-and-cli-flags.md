@@ -4,6 +4,8 @@
 
 Restructure the wizard flow to add a harness selection step and a skills+scope step, remove instruction-kinds from the options step, and update the CLI flags with new names and backward-compatible aliases. The wizard flow changes from:
 
+> Implemented divergence: the shipped CLI kept the harness-first wizard but finalized on canonical `--no-claude-code` / `--no-codex` flags, added `--no-skills`, `--skill-scope`, and `--optional-skills`, and retained the older names only as deprecated aliases. See the [updated design](../../designs/2026-04-16-cli-skill-installation-r2.md).
+
 ```
 Capabilities -> Options (prompts, templates, references, instruction-kinds) -> Review
 ```
