@@ -1,41 +1,88 @@
-# CLI Skill Installation R2 — Registry-Based Skill Delivery
+# CLI Skill Installation R2 — Harness-Aware, Registry-Based Skill Delivery
 
 > Filename: `2026-04-16-cli-skill-installation-r2.md`. See `docs/.references/design-contract.md` for naming and structural rules.
 
 ## Purpose
 
-Replace the copy-based skill bundling approach (designed in R1, partially implemented, then reverted) with a registry-based model where the CLI fetches and installs skills from configured sources at install time rather than bundling them into the CLI package. This eliminates file duplication, supports skills from external repositories, and cleanly separates the CLI (the installer) from the skills (the installable content).
+Redesign the CLI's skill installation and agent-harness configuration model. Replace the instruction-kind selection ("which instruction files: AGENTS.md / CLAUDE.md?") with a harness selection ("which agent platforms: Claude Code / Codex?"), add a skill registry that lists available skills with configurable sources, and let users choose between global and project-scoped skill installation. This unifies three concerns — harness targeting, skill delivery, and install scope — into a single coherent flow.
 
 ## Context
 
-### What R1 got wrong
+### What R1 got wrong (bundling)
 
-The R1 design (`2026-04-16-cli-skill-installation.md`) proposed bundling `packages/skills/` into the CLI package at publish time via the `prepack` script, then copying skill files from the bundle into `.claude/skills/` during install. This was implemented in Phase 1 (prepack extension + package.json files array) but revealed fundamental problems:
+The R1 design proposed bundling `packages/skills/` into the CLI package at publish time. This was implemented and reverted because it duplicated files (including test files, `__pycache__`, agent YAMLs), didn't support external skill sources, and conflated the CLI with the skills it installs.
 
-1. **File duplication.** The entire `packages/skills/` tree — including Python scripts, test files, `__pycache__`, agent YAML configs, and internal references — was copied into `packages/cli/skills/`. This bloats the CLI package with source assets that don't belong there.
-2. **No external source support.** Bundling hardcodes the assumption that all skills live in this repo. The roadmap envisions skills from other repos, community contributions, and consumer-authored skills — none of which can be bundled.
-3. **Wrong separation of concerns.** The CLI should know *where* to find skills, not *carry* them. The template package (`packages/docs/template/`) works because consumers receive docs structure — a static deliverable. Skills are different: they're agent instructions that may evolve independently, come from multiple sources, and should be installed on demand.
+### What R1 got right (retained)
 
-### What R1 got right
+- `skills: boolean` in `InstallSelections` — gates skill installation regardless of delivery mechanism.
+- `skillFiles?` in `InstallManifest` — tracks installed skills for update/reconfigure.
+- The `structuredClone` refactor in `cloneSelections`.
+- The `profileId` hash now includes `skills`.
 
-- The `skills: boolean` toggle in `InstallSelections` (Phase 2) is correct — it gates skill installation regardless of delivery mechanism.
-- The `skillFiles?` field in `InstallManifest` is correct — it tracks installed skills for update/reconfigure.
-- The `.claude/skills/` install target is correct — that's where Claude Code discovers skills.
-- The concept of `.claude/skill-assets/<plugin>/` for supporting assets (references, scripts) is sound.
+### What the original R2 draft missed
 
-These Phase 2 changes are retained. Only the Phase 1 bundling approach is replaced.
+The original R2 draft (now superseded by this rewrite) correctly introduced registry-based delivery and the `local:` protocol. However, it kept the old instruction-kind selection model and hardcoded `.claude/skills/` as the only install target. It did not address:
 
-### What was reverted
+1. **Harness selection.** Users should choose which agent platforms to support (Claude Code, Codex, or both), not which instruction files to install. The CLI should derive instruction files from the harness choice — Claude Code needs `CLAUDE.md`, Codex needs `AGENTS.md`, selecting both installs both.
+2. **Install scope.** Skills can be installed globally (`~/.claude/skills/`, `~/.agents/skills/`) or per-project (`./.claude/skills/`, `./.agents/skills/`). The user should choose.
+3. **Multi-harness install targets.** Each harness has its own skill directory. The CLI needs to install skills into the correct directory for each selected harness.
 
-- `scripts/copy-template-to-cli.mjs` — skills copy step removed (the `syncDir` helper refactor was kept)
-- `packages/cli/package.json` — `"skills"` removed from `files` array
-- `packages/cli/skills/` — deleted (was created by the prepack run)
+### Current wizard flow vs. proposed flow
+
+**Current flow:**
+```
+Capabilities → Options (prompts, templates, references, instruction kinds: AGENTS.md / CLAUDE.md) → Review → Apply
+```
+
+**Proposed flow:**
+```
+Capabilities → Harnesses (Claude Code / Codex) → Options (prompts, templates, references) → Skills (select optional skills, choose scope) → Review → Apply
+```
+
+The instruction-kind multiselect is removed. The harness selection replaces it and determines which instruction files are installed.
 
 ## Decision
 
-### 1. Skill registry config
+### 1. Harness selection model
 
-The CLI carries a **skill registry** — a configuration that lists available skills and where to find them. The registry is a JSON structure embedded in or loaded by the CLI, not a separate server.
+Replace `instructionKinds: Record<InstructionKind, boolean>` with a harness-based model:
+
+```ts
+export type Harness = "claude-code" | "codex";
+export const HARNESSES = ["claude-code", "codex"] as const;
+
+export interface InstallSelections {
+  capabilities: Record<Capability, boolean>;
+  prompts: boolean;
+  templatesMode: TemplatesMode;
+  referencesMode: ReferencesMode;
+  harnesses: Record<Harness, boolean>;  // replaces instructionKinds
+  skills: boolean;
+  skillScope: "project" | "global";
+}
+```
+
+The mapping from harness to instruction files:
+
+| Harness | Instruction file | Skill directory (project) | Skill directory (global) |
+| --- | --- | --- | --- |
+| `claude-code` | `CLAUDE.md` | `.claude/skills/` | `~/.claude/skills/` |
+| `codex` | `AGENTS.md` | `.agents/skills/` | `~/.agents/skills/` |
+
+When both harnesses are selected, both instruction files AND both skill directories are populated. This is additive — selecting Claude Code doesn't prevent Codex files from being installed, and vice versa.
+
+### 2. Backward compatibility
+
+The `instructionKinds` field in existing manifests maps cleanly:
+
+- `"CLAUDE.md": true` → `harnesses: { "claude-code": true }`
+- `"AGENTS.md": true` → `harnesses: { "codex": true }`
+
+The manifest loader should handle both old (`instructionKinds`) and new (`harnesses`) schemas gracefully. When loading an old manifest, derive `harnesses` from `instructionKinds`.
+
+### 3. Skill registry config
+
+The registry model from the original R2 draft is retained. The `installTarget` field changes from a single path to a harness-relative path:
 
 ```json
 {
@@ -43,175 +90,200 @@ The CLI carries a **skill registry** — a configuration that lists available sk
     {
       "name": "decompose-codebase",
       "source": "local:packages/skills/decompose-codebase",
-      "installTarget": ".claude/skills/decompose-codebase.md",
       "entryPoint": "SKILL.md",
+      "installName": "decompose-codebase.md",
       "required": false,
-      "description": "Plan and reverse-engineer repos into structured PRDs."
+      "description": "Plan and reverse-engineer repos into structured PRDs.",
+      "assets": []
     },
     {
       "name": "archive",
       "source": "local:packages/skills/archive-docs/skills/archive",
-      "installTarget": ".claude/skills/archive-docs-archive.md",
       "entryPoint": "SKILL.md",
+      "installName": "archive-docs-archive.md",
       "required": false,
       "description": "Relationship-aware archival with 4 modes.",
+      "plugin": "archive-docs",
       "assets": [
         {
           "source": "local:packages/skills/archive-docs/references/archive-workflow.md",
-          "installTarget": ".claude/skill-assets/archive-docs/references/archive-workflow.md"
+          "installPath": "archive-docs/references/archive-workflow.md"
         },
         {
           "source": "local:packages/skills/archive-docs/scripts/trace_relationships.py",
-          "installTarget": ".claude/skill-assets/archive-docs/scripts/trace_relationships.py"
+          "installPath": "archive-docs/scripts/trace_relationships.py"
         }
       ]
-    },
-    {
-      "name": "staleness-check",
-      "source": "local:packages/skills/archive-docs/skills/staleness-check",
-      "installTarget": ".claude/skills/archive-docs-staleness-check.md",
-      "entryPoint": "SKILL.md",
-      "required": false,
-      "description": "Advisory scanning for archival candidates.",
-      "assets": []
-    },
-    {
-      "name": "deprecate",
-      "source": "local:packages/skills/archive-docs/skills/deprecate",
-      "installTarget": ".claude/skills/archive-docs-deprecate.md",
-      "entryPoint": "SKILL.md",
-      "required": false,
-      "description": "Mark artifacts as superseded without archiving.",
-      "assets": []
-    },
-    {
-      "name": "archive-impact",
-      "source": "local:packages/skills/archive-docs/skills/archive-impact",
-      "installTarget": ".claude/skills/archive-docs-archive-impact.md",
-      "entryPoint": "SKILL.md",
-      "required": false,
-      "description": "Dry-run impact analysis for archival.",
-      "assets": []
     }
   ]
 }
 ```
 
-### 2. Source protocol
+Key change from original R2: `installTarget` (absolute path) is replaced by `installName` (filename only) and `installPath` (relative path for assets). The CLI computes the full install path at runtime based on the selected harness(es) and scope:
 
-The `source` field uses a protocol prefix to indicate how the skill is fetched:
+- Skill: `<scope-root>/<harness-skills-dir>/<installName>`
+- Asset: `<scope-root>/<harness-skill-assets-dir>/<installPath>`
 
-| Protocol | Format | Behavior |
+Where:
+- `<scope-root>` is `.` for project scope or `~` for global scope
+- `<harness-skills-dir>` is `.claude/skills/` or `.agents/skills/`
+- `<harness-skill-assets-dir>` is `.claude/skill-assets/` or `.agents/skill-assets/`
+
+### 4. Source protocol
+
+Retained from original R2:
+
+| Protocol | Format | Status |
 | --- | --- | --- |
-| `local:` | `local:<relative-path>` | Read from the local filesystem relative to the CLI package root. Used for skills that ship in the same repo. At dev time, resolves relative to the repo root. At published time, resolves relative to the CLI package root — meaning local skills still need to be bundled for the published package, BUT only the specific files listed in the registry (entry point + declared assets), not the entire directory tree. |
-| `github:` | `github:<owner>/<repo>/<path>[@<ref>]` | Fetch from a GitHub repository via the GitHub API or raw content URL. Used for skills from other repos. Deferred to a future iteration. |
-| `url:` | `url:<https://...>` | Fetch from an arbitrary HTTPS URL. Deferred to a future iteration. |
+| `local:` | `local:<relative-path>` | Implemented (initial release) |
+| `github:` | `github:<owner>/<repo>/<path>[@<ref>]` | Defined, deferred |
+| `url:` | `url:<https://...>` | Defined, deferred |
 
-For the initial implementation, only `local:` is supported. `github:` and `url:` are defined in the schema but return a clear error ("remote skill sources are not yet supported") when encountered.
+### 5. Install logic
 
-### 3. Install logic
+When skills are enabled (`selections.skills === true`), for each selected harness:
 
-When skills are enabled (`selections.skills === true`), the CLI:
+1. Load the skill registry.
+2. Determine the install root based on scope: `.` (project) or `~` (global).
+3. Determine the skills directory for the harness: `.claude/skills/` or `.agents/skills/`.
+4. For each skill to install:
+   a. Resolve the source via protocol handler.
+   b. Read the entry point content.
+   c. Rewrite relative references to point to the harness-specific asset location.
+   d. Write to `<install-root>/<harness-skills-dir>/<installName>`.
+5. For each declared asset:
+   a. Read from source.
+   b. Write to `<install-root>/<harness-skill-assets-dir>/<installPath>`.
+6. Track installed files in `manifest.skillFiles` (keyed by harness + scope).
 
-1. Loads the skill registry (from the bundled config or an external config file).
-2. Filters to skills that should be installed (all `required` skills + any selected by the user).
-3. For each skill:
-   a. Resolves the `source` using the protocol handler.
-   b. Reads the `entryPoint` file (e.g., `SKILL.md`) from the resolved source.
-   c. Rewrites relative references in the skill content so they point to the installed asset locations.
-   d. Writes the rewritten content to `installTarget` (e.g., `.claude/skills/archive-docs-archive.md`).
-4. For each declared `asset`:
-   a. Reads the file from the resolved source.
-   b. Copies it to the `installTarget` path.
-5. Tracks all installed files in `manifest.skillFiles` for update/reconfigure.
+### 6. Selective prepack for publishing
 
-### 4. Selective bundling for published CLI
+Retained from original R2: the prepack script reads `skill-registry.json` and selectively copies only declared entry points and assets to a staging directory. No full-tree copying.
 
-For the published CLI package, local skills still need their entry points and declared assets to be accessible. Instead of copying the entire `packages/skills/` tree, the prepack script selectively copies only the files referenced by the registry:
+### 7. Wizard flow
 
-- Each skill's `entryPoint` file
-- Each skill's declared `assets`
-- The `plugin.json` manifest (optional, for metadata)
+The wizard gains a new step structure:
 
-This is a targeted copy, not a directory mirror. Python tests, `__pycache__`, agent YAMLs, and other non-installable files are excluded.
+```
+Step 1: Capabilities       (existing — designs, plans, prd, work)
+Step 2: Harnesses          (NEW — Claude Code, Codex — multiselect, at least one required)
+Step 3: Options            (existing minus instruction-kinds — prompts, templates, references)
+Step 4: Skills             (NEW — select optional skills; choose project vs global scope)
+Step 5: Review             (existing — updated to show harnesses, skills, scope)
+```
 
-### 5. Registry location
+**Step 2 — Harness selection:**
+```
+? Which agent platforms should be supported? (select at least one)
+  ● Claude Code    — Claude-compatible instructions and skills (.claude/)
+  ○ Codex          — OpenAI Codex instructions and skills (.agents/)
+```
 
-Two options for where the registry lives:
+**Step 4 — Skills:**
+```
+? Install agent skills? (Y/n)
+? Install skills globally or in this project?
+  ● Project    — .claude/skills/ and/or .agents/skills/ in this project
+  ○ Global     — ~/.claude/skills/ and/or ~/.agents/skills/ for all projects
+```
 
-- **Option A**: Embedded in the CLI source as a TypeScript constant (e.g., `src/skill-registry.ts`). Simple; registry changes require a CLI code change and rebuild.
-- **Option B**: An external JSON file (e.g., `skill-registry.json` at the CLI package root) loaded at runtime. The file ships in the published package. Registry changes don't require a rebuild.
+### 8. CLI flags
 
-**Recommend Option B** — an external `skill-registry.json`. This makes it easy to inspect, edit, and extend without touching TypeScript. The CLI loads it at startup alongside the template root.
+Replace `--no-agents` and `--no-claude` with harness-specific flags:
 
-### 6. Wizard integration
-
-The wizard's skills step (to be added in a follow-on phase) can read the registry to present available skills with descriptions. Skills marked `required: true` are installed automatically; others are opt-in via the wizard or `--skills` flag.
-
-For the initial implementation, all registered skills are installed when `selections.skills === true`. Per-skill selection is deferred to the module/registry system on the roadmap.
-
-### 7. Dogfood approach
-
-For this project's own dogfood use:
-
-1. The skill registry lists skills with `local:packages/skills/...` sources.
-2. Running `npm run dev -w starter-docs -- init --yes --target .` installs skills from the local source into `.claude/skills/`.
-3. This is the same mechanism consumers would use — the only difference is that consumers' published CLI resolves `local:` paths relative to the CLI package, while dev resolves them relative to the repo root.
-
-### 8. What changes from R1
-
-| Aspect | R1 (reverted) | R2 (this design) |
+| Old flag | New flag | Effect |
 | --- | --- | --- |
-| Skill source | Bundled in CLI package | Registry points to source locations |
-| Prepack | Copies entire `packages/skills/` | Selectively copies only registered entry points + assets |
-| External skills | Not supported | Supported via `github:` and `url:` protocols (future) |
-| File duplication | Full directory mirror | Only installable files, only when published |
-| Install logic | Copy from bundle to `.claude/skills/` | Fetch from source, rewrite paths, write to `.claude/skills/` |
-| Registry | None | `skill-registry.json` listing available skills |
+| `--no-claude` | `--no-claude-code` | Skip Claude Code harness |
+| `--no-agents` | `--no-codex` | Skip Codex harness |
+| *(new)* | `--no-skills` | Skip skill installation |
+| *(new)* | `--skill-scope project\|global` | Set skill install scope (default: `project`) |
+
+The old flags (`--no-claude`, `--no-agents`) should be accepted as aliases for backward compatibility but mapped to the new harness model internally.
+
+### 9. Instruction file derivation
+
+The CLI no longer asks which instruction files to install. Instead, it derives them:
+
+- Claude Code selected → install `CLAUDE.md` routers in all relevant directories
+- Codex selected → install `AGENTS.md` routers in all relevant directories
+- Both selected → install both (current default behavior)
+
+The existing `addInstructionAssets` function in `catalog.ts` continues to work — it iterates over `INSTRUCTION_KINDS` and adds files per directory. The gating changes from `selections.instructionKinds[kind]` to a harness-derived check:
+
+```ts
+const activeInstructionKinds = new Set<InstructionKind>();
+if (selections.harnesses["claude-code"]) activeInstructionKinds.add("CLAUDE.md");
+if (selections.harnesses["codex"]) activeInstructionKinds.add("AGENTS.md");
+```
+
+### 10. Dogfood approach
+
+For this project:
+
+1. Run the CLI with both harnesses selected and project scope.
+2. Claude Code skills install to `.claude/skills/`.
+3. Codex skills install to `.agents/skills/`.
+4. Instruction files (`CLAUDE.md` + `AGENTS.md`) install as today.
+5. Open a new Claude Code session — skills are discoverable.
+
+### 11. What changes from original R2
+
+| Aspect | Original R2 | This rewrite |
+| --- | --- | --- |
+| Selection model | Instruction kinds (AGENTS.md / CLAUDE.md) | Harness selection (Claude Code / Codex) |
+| Install scope | Project only | Project or global |
+| Install targets | `.claude/skills/` only | Per-harness: `.claude/skills/`, `.agents/skills/` |
+| Registry installTarget | Absolute path per skill | `installName` + runtime path computation |
+| Wizard flow | Skills step only | Harness step + skills step with scope |
+| CLI flags | `--no-skills` only | `--no-claude-code`, `--no-codex`, `--no-skills`, `--skill-scope` |
+| Backward compat | None | Old `--no-claude`/`--no-agents` accepted as aliases |
 
 ## Alternatives Considered
 
-**Keep R1's bundling approach but filter out non-installable files.** Add a filter to the prepack copy that excludes `.py`, `.pyc`, `.yaml`, `__pycache__`, test files, etc. Rejected because: it's a deny-list that would need updating as new file types appear in skills. The registry's allow-list approach (only copy declared files) is inherently safer.
+**Keep instruction-kind selection and add skills alongside.** The user would still pick AGENTS.md/CLAUDE.md, then separately pick skills. Rejected because: instruction kinds are an implementation detail that users shouldn't think about. "Which platforms do you use?" is a much clearer question, and the instruction files follow logically.
 
-**Fetch all skills from GitHub at install time (no local source).** All skills, even first-party ones, would be fetched from the `starter-docs` GitHub repo. Rejected because: it adds a network dependency for basic installs, breaks offline use, and slows down the install flow. Local skills should be instant.
+**Always install skills for all harnesses regardless of selection.** If the user picks Claude Code only, still install into `.agents/skills/` in case they add Codex later. Rejected because: it creates unexpected directories and files in the project. The user should get exactly what they asked for.
 
-**npm package per skill.** Each skill could be its own npm package (e.g., `@starter-docs/skill-archive`). Consumers install skills as dependencies. Rejected because: the overhead of publishing and versioning individual skill packages is excessive at this stage. The registry model provides the same discoverability without the npm ceremony.
+**Default to global scope.** Skills are globally useful — install them in `~/.claude/skills/` by default. Rejected because: global installs affect all projects and are harder to version-control. Project scope is safer as a default; global is an explicit opt-in.
 
-**Embed the registry in plugin.json files.** Each plugin's `plugin.json` could serve as its own registry entry, and the CLI could discover plugins by scanning `packages/skills/*/plugin.json`. Rejected for the CLI's immediate needs because: the CLI needs a single, ordered list of all installable skills — not a discovery mechanism that scans the filesystem. However, the `plugin.json` files remain useful as plugin metadata for future tooling.
+**Separate harness selection from the wizard into a config file.** A `.starter-docs-config.json` at the project root could declare target harnesses. Rejected for now because: the wizard flow is the right UX for first-time setup. A config file may be useful later for CI/headless use.
 
 ## Consequences
 
 **What improves:**
-- No file duplication — skills exist in one place (`packages/skills/`) and are read from there.
-- The published CLI package ships only the files consumers will actually receive, not entire skill source trees.
-- External skill sources are architecturally supported (protocols defined, implementation deferred).
-- The registry provides a single source of truth for what's installable, with descriptions and metadata.
-- Dogfooding works the same way as consumer installation — `local:` protocol resolves the skill source.
+- Users think in terms of platforms (Claude Code, Codex), not instruction files.
+- Skills install into the correct harness-specific directory automatically.
+- Global vs. project scope gives users control over how broadly skills are applied.
+- Multi-harness support is first-class — selecting both installs everything for both.
+- Backward compatibility with old manifests and CLI flags is maintained.
 
 **What shifts:**
-- The CLI gains a `skill-registry.json` config file.
-- The CLI gains source-protocol resolution logic (`local:` handler, future `github:`/`url:` handlers).
-- The prepack script gains selective file copying based on registry entries (instead of the reverted full-directory copy).
-- The path-rewriting logic from R1 is retained but operates on fetched content rather than bundled content.
+- `InstallSelections` replaces `instructionKinds` with `harnesses` and adds `skillScope`.
+- The wizard gains a harness step and a skills+scope step.
+- `addInstructionAssets` derives instruction kinds from harness selection.
+- The skill registry's `installTarget` becomes harness-relative (`installName` + runtime computation).
+- CLI argument parsing adds 4 new flags and 2 backward-compat aliases.
+- Manifest schema evolves (harnesses field, backward-compat with instructionKinds).
 
 **Risks:**
-- **Registry maintenance:** Adding a new skill requires updating `skill-registry.json`. Mitigation: the registry is a simple JSON file; the `plugin.json` files could eventually be used to auto-generate it.
-- **Selective prepack complexity:** The prepack script needs to parse the registry and copy individual files. More complex than a directory mirror, but more correct.
-- **`local:` path resolution at dev vs. published time:** The same `local:packages/skills/...` path resolves differently depending on whether the CLI is running from source or from the published package. The resolver must handle both cases (similar to how `resolveTemplateRoot` handles sibling vs. bundled template).
+- **Manifest migration:** Old manifests with `instructionKinds` need to be handled. Mitigation: the loader derives `harnesses` from `instructionKinds` when the field is present. Clean migration path.
+- **Global scope safety:** Installing to `~/.claude/skills/` affects all projects. Mitigation: global is never the default; it requires explicit selection in the wizard or `--skill-scope global`.
+- **Codex directory convention:** `.agents/skills/` is our best understanding of Codex conventions, which are still evolving. Mitigation: the harness-to-directory mapping is a single config, easy to update.
 
 **Deferred:**
-- `github:` and `url:` protocol handlers
-- Per-skill selection in the wizard (all-or-nothing for now)
-- Auto-generation of `skill-registry.json` from `plugin.json` files
+- `github:` and `url:` protocol handlers.
+- Per-skill selection in the wizard.
+- Auto-generation of registry from `plugin.json` files.
+- Additional harness targets (Cursor, Windsurf, Aider) — these can be added as new `Harness` values with their own directory mappings.
 
 ## Design Lineage
 
 - Update Mode: `new-doc-related`
 - Prior Design Docs: [2026-04-16-cli-skill-installation.md](2026-04-16-cli-skill-installation.md)
-- Reason: R1's copy-based bundling approach was implemented, found to be fundamentally wrong (duplicates files, bundles non-installable assets, doesn't support external sources), and reverted. This design replaces it with a registry-based fetch model.
+- Reason: R1's copy-based bundling was reverted. The original R2 draft introduced registry-based delivery but missed harness selection, install scope, and multi-target support. This rewrite incorporates all three alongside the registry model.
 
 ## Intended Follow-On
 
 - Route: `baseline-plan`
 - Next Prompt: [designs-to-plan.prompt.md](../.prompts/designs-to-plan.prompt.md)
-- Why: This is the second revision of Wave 5 work. The downstream plan should be `w5-r2` and should cover: creating the registry JSON, implementing the `local:` protocol handler, updating the prepack for selective copying, integrating skill install into the plan/apply pipeline, wizard and CLI flag updates (carried from R1 Phase 4), tests, and dogfood validation.
+- Why: The downstream plan should be `w5-r2` and should cover: registry creation, resolver, harness type system changes, instruction-kind-to-harness migration, skill catalog with multi-target support, wizard harness+skills steps, CLI flags, selective prepack, tests, and dogfood validation.
