@@ -28,10 +28,10 @@ Seven stages across `wizard.ts` and `cli.ts`. Stages 1-4 modify the wizard flow 
 
 ### Acceptance criteria
 
-- [ ] Wizard flow inserts a harness step between capabilities and options
-- [ ] Multiselect offers Claude Code and Codex with hint text
-- [ ] At least one harness must be selected (validation enforced)
-- [ ] Result correctly maps to `selections.harnesses` object
+- [x] Wizard flow inserts a harness step between capabilities and options
+- [x] Multiselect offers Claude Code and Codex with hint text
+- [x] At least one harness must be selected (validation enforced)
+- [x] Result correctly maps to `selections.harnesses` object
 
 ### Dependencies
 
@@ -48,9 +48,9 @@ Seven stages across `wizard.ts` and `cli.ts`. Stages 1-4 modify the wizard flow 
 
 ### Acceptance criteria
 
-- [ ] `WizardOptionSelections` no longer includes `instructionKinds`
-- [ ] Options step prompts only for prompts, templates mode, and references mode
-- [ ] No references to instruction-kinds remain in wizard option logic
+- [x] `WizardOptionSelections` no longer includes `instructionKinds`
+- [x] Options step prompts only for prompts, templates mode, and references mode
+- [x] No references to instruction-kinds remain in wizard option logic
 
 ### Dependencies
 
@@ -68,10 +68,10 @@ Seven stages across `wizard.ts` and `cli.ts`. Stages 1-4 modify the wizard flow 
 
 ### Acceptance criteria
 
-- [ ] Wizard prompts "Install agent skills?" after options step
-- [ ] Accepting triggers the skill scope selection prompt
-- [ ] Declining skips the scope prompt and preserves existing skillScope
-- [ ] Both `selections.skills` and `selections.skillScope` are correctly set
+- [x] Wizard prompts "Install agent skills?" after options step
+- [x] Accepting triggers the skill scope selection prompt
+- [x] Declining skips the scope prompt and preserves existing skillScope
+- [x] Both `selections.skills` and `selections.skillScope` are correctly set
 
 ### Dependencies
 
@@ -88,10 +88,10 @@ Seven stages across `wizard.ts` and `cli.ts`. Stages 1-4 modify the wizard flow 
 
 ### Acceptance criteria
 
-- [ ] Review summary displays selected harnesses by label
-- [ ] Review summary displays skills status with scope when enabled
-- [ ] Review summary no longer shows instruction-kinds
-- [ ] Summary correctly reflects all combinations (single harness, both harnesses, skills on/off)
+- [x] Review summary displays selected harnesses by label
+- [x] Review summary displays skills status with scope when enabled
+- [x] Review summary no longer shows instruction-kinds
+- [x] Summary correctly reflects all combinations (single harness, both harnesses, skills on/off)
 
 ### Dependencies
 
@@ -109,11 +109,11 @@ Seven stages across `wizard.ts` and `cli.ts`. Stages 1-4 modify the wizard flow 
 
 ### Acceptance criteria
 
-- [ ] `ParsedArgs` has `noClaudeCode`, `noCodex`, `noSkills`, and `skillScope` fields
-- [ ] `--no-claude-code` and `--no-claude` both set `noClaudeCode = true`
-- [ ] `--no-codex` and `--no-agents` both set `noCodex = true`
-- [ ] `--no-skills` sets `noSkills = true`
-- [ ] `--skill-scope project` and `--skill-scope global` set `skillScope` correctly
+- [x] `ParsedArgs` has `noClaudeCode`, `noCodex`, `noSkills`, and `skillScope` fields
+- [x] `--no-claude-code` and `--no-claude` both set `noClaudeCode = true`
+- [x] `--no-codex` and `--no-agents` both set `noCodex = true`
+- [x] `--no-skills` sets `noSkills = true`
+- [x] `--skill-scope project` and `--skill-scope global` set `skillScope` correctly
 
 ### Dependencies
 
@@ -132,10 +132,10 @@ Seven stages across `wizard.ts` and `cli.ts`. Stages 1-4 modify the wizard flow 
 
 ### Acceptance criteria
 
-- [ ] `resolveSelections` applies all four new flags to selections
-- [ ] Old `noClaude`/`noAgents` instruction-kinds logic is removed
-- [ ] `hasSelectionOverrides` returns `true` for each new flag individually
-- [ ] Combined flags apply correctly (e.g., `--no-codex --no-skills --skill-scope global`)
+- [x] `resolveSelections` applies all four new flags to selections
+- [x] Old `noClaude`/`noAgents` instruction-kinds logic is removed
+- [x] `hasSelectionOverrides` returns `true` for each new flag individually
+- [x] Combined flags apply correctly (e.g., `--no-codex --no-skills --skill-scope global`)
 
 ### Dependencies
 
@@ -155,11 +155,11 @@ Seven stages across `wizard.ts` and `cli.ts`. Stages 1-4 modify the wizard flow 
 
 ### Acceptance criteria
 
-- [ ] `printHelp` lists `--no-claude-code` with alias note
-- [ ] `printHelp` lists `--no-codex` with alias note
-- [ ] `printHelp` lists `--no-skills`
-- [ ] `printHelp` lists `--skill-scope` with value description
-- [ ] Old flag names (`--no-claude`, `--no-agents`) no longer appear as primary entries
+- [x] `printHelp` lists `--no-claude-code` with alias note
+- [x] `printHelp` lists `--no-codex` with alias note
+- [x] `printHelp` lists `--no-skills`
+- [x] `printHelp` lists `--skill-scope` with value description
+- [x] Old flag names (`--no-claude`, `--no-agents`) no longer appear as primary entries
 
 ### Dependencies
 
@@ -176,10 +176,10 @@ Seven stages across `wizard.ts` and `cli.ts`. Stages 1-4 modify the wizard flow 
 
 ### Acceptance criteria
 
-- [ ] `npm run build -w starter-docs` succeeds with zero type errors
-- [ ] `npm test -w starter-docs` passes
-- [ ] Wizard flow follows Capabilities -> Harnesses -> Options -> Skills -> Review
-- [ ] CLI flags and aliases resolve correctly in non-interactive mode
+- [x] `npm run build -w starter-docs` succeeds with zero type errors
+- [x] `npm test -w starter-docs` passes
+- [x] Wizard flow follows Capabilities -> Harnesses -> Options -> Skills -> Review
+- [x] CLI flags and aliases resolve correctly in non-interactive mode
 
 ### Dependencies
 

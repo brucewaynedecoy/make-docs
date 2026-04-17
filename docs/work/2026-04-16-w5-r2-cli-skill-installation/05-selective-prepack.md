@@ -35,13 +35,13 @@ Three stages run mostly in parallel: updating the prepack script with registry-d
 
 ### Acceptance criteria
 
-- [ ] `scripts/copy-template-to-cli.mjs` reads and parses `skill-registry.json` from the correct location.
-- [ ] Script iterates each registry skill entry and resolves `entryPoint` and `assets` paths.
-- [ ] Script removes `packages/cli/skills-staging/` before copying.
-- [ ] Script copies only registry-declared files into `packages/cli/skills-staging/`, preserving relative directory structure.
-- [ ] Script copies `skill-registry.json` to `packages/cli/skill-registry.json`.
-- [ ] Script exits with a non-zero code and error message if the registry file is missing.
-- [ ] Any previous bulk `skills/` copy logic is removed from the script.
+- [x] `scripts/copy-template-to-cli.mjs` reads and parses `skill-registry.json` from the correct location.
+- [x] Script iterates each registry skill entry and resolves `entryPoint` and `assets` paths.
+- [x] Script removes `packages/cli/skills-staging/` before copying.
+- [x] Script copies only registry-declared files into `packages/cli/skills-staging/`, preserving relative directory structure.
+- [x] Script copies `skill-registry.json` to `packages/cli/skill-registry.json`.
+- [x] Script exits with a non-zero code and error message if the registry file is missing.
+- [x] Any previous bulk `skills/` copy logic is removed from the script.
 
 ### Dependencies
 
@@ -58,9 +58,9 @@ Three stages run mostly in parallel: updating the prepack script with registry-d
 
 ### Acceptance criteria
 
-- [ ] `packages/cli/package.json` `files` array includes `"skills-staging"`.
-- [ ] `packages/cli/package.json` `files` array includes `"skill-registry.json"`.
-- [ ] No bulk `"skills"` entry remains in the `files` array.
+- [x] `packages/cli/package.json` `files` array includes `"skills-staging"`.
+- [x] `packages/cli/package.json` `files` array includes `"skill-registry.json"`.
+- [x] No bulk `"skills"` entry remains in the `files` array.
 
 ### Dependencies
 
@@ -79,11 +79,11 @@ Three stages run mostly in parallel: updating the prepack script with registry-d
 
 ### Acceptance criteria
 
-- [ ] `npm run prepack -w starter-docs` completes without errors.
-- [ ] `packages/cli/skills-staging/` contains exactly the registry-declared entry points and assets — nothing more.
-- [ ] `packages/cli/skill-registry.json` is present after prepack.
-- [ ] `npm run build -w starter-docs` succeeds.
-- [ ] `npm test -w starter-docs` passes with no regressions.
+- [x] `npm run prepack -w starter-docs` completes without errors.
+- [x] `packages/cli/skills-staging/` contains exactly the registry-declared entry points and assets — nothing more.
+- [x] `packages/cli/skill-registry.json` is present after prepack.
+- [x] `npm run build -w starter-docs` succeeds.
+- [x] `npm test -w starter-docs` passes with no regressions.
 
 ### Dependencies
 

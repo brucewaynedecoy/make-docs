@@ -28,12 +28,12 @@ Four stages build the registry and resolver bottom-up. First, author the static 
 
 ### Acceptance criteria
 
-- [ ] File exists at `packages/cli/skill-registry.json` and is valid JSON.
-- [ ] Contains exactly 5 skill entries with correct `name` values.
-- [ ] Every entry has `name`, `source`, `entryPoint`, `installName`, `required`, `description`, and `assets` fields.
-- [ ] The `archive` entry declares 2 shared assets with correct `source` and `installPath`.
-- [ ] All four archive-docs skills have `"plugin": "archive-docs"`.
-- [ ] `decompose-codebase` has no `plugin` field and an empty `assets` array.
+- [x] File exists at `packages/cli/skill-registry.json` and is valid JSON.
+- [x] Contains exactly 5 skill entries with correct `name` values.
+- [x] Every entry has `name`, `source`, `entryPoint`, `installName`, `required`, `description`, and `assets` fields.
+- [x] The `archive` entry declares 2 shared assets with correct `source` and `installPath`.
+- [x] All four archive-docs skills have `"plugin": "archive-docs"`.
+- [x] `decompose-codebase` has no `plugin` field and an empty `assets` array.
 
 ### Dependencies
 
@@ -53,14 +53,14 @@ Four stages build the registry and resolver bottom-up. First, author the static 
 
 ### Acceptance criteria
 
-- [ ] `SkillAssetEntry`, `SkillRegistryEntry`, and `SkillRegistry` are exported as TypeScript interfaces.
-- [ ] `loadSkillRegistry` reads and parses `skill-registry.json` from the given `packageRoot`.
-- [ ] Missing or malformed JSON throws a descriptive error.
-- [ ] Invalid individual entries are skipped with a console warning, not a crash.
-- [ ] `getOptionalSkills` correctly filters on `required === false`.
-- [ ] `getRequiredSkills` correctly filters on `required === true`.
-- [ ] `getSkillsByPlugin` returns only entries with a matching `plugin` field.
-- [ ] All exports compile without errors.
+- [x] `SkillAssetEntry`, `SkillRegistryEntry`, and `SkillRegistry` are exported as TypeScript interfaces.
+- [x] `loadSkillRegistry` reads and parses `skill-registry.json` from the given `packageRoot`.
+- [x] Missing or malformed JSON throws a descriptive error.
+- [x] Invalid individual entries are skipped with a console warning, not a crash.
+- [x] `getOptionalSkills` correctly filters on `required === false`.
+- [x] `getRequiredSkills` correctly filters on `required === true`.
+- [x] `getSkillsByPlugin` returns only entries with a matching `plugin` field.
+- [x] All exports compile without errors.
 
 ### Dependencies
 
@@ -79,14 +79,14 @@ Four stages build the registry and resolver bottom-up. First, author the static 
 
 ### Acceptance criteria
 
-- [ ] `ResolvedSkill` type is exported with correct shape.
-- [ ] `UnsupportedProtocolError` is exported and extends `Error`.
-- [ ] `resolveLocalPath` strips the `local:` prefix and returns an absolute path.
-- [ ] `resolveLocalPath` throws when the resolved path escapes `repoRoot`.
-- [ ] `resolveSkillSource` reads entry-point content as a UTF-8 string for `local:` URIs.
-- [ ] `resolveSkillSource` reads `.md` assets as strings and non-`.md` assets as Buffers.
-- [ ] `resolveSkillSource` throws `UnsupportedProtocolError` for non-`local:` protocols.
-- [ ] All exports compile without errors.
+- [x] `ResolvedSkill` type is exported with correct shape.
+- [x] `UnsupportedProtocolError` is exported and extends `Error`.
+- [x] `resolveLocalPath` strips the `local:` prefix and returns an absolute path.
+- [x] `resolveLocalPath` throws when the resolved path escapes `repoRoot`.
+- [x] `resolveSkillSource` reads entry-point content as a UTF-8 string for `local:` URIs.
+- [x] `resolveSkillSource` reads `.md` assets as strings and non-`.md` assets as Buffers.
+- [x] `resolveSkillSource` throws `UnsupportedProtocolError` for non-`local:` protocols.
+- [x] All exports compile without errors.
 
 ### Dependencies
 
@@ -102,9 +102,9 @@ Four stages build the registry and resolver bottom-up. First, author the static 
 
 ### Acceptance criteria
 
-- [ ] `npm run build -w starter-docs` succeeds with zero errors.
-- [ ] Build output includes compiled `skill-registry.js` and `skill-resolver.js`.
-- [ ] `npm test -w starter-docs` passes with no regressions.
+- [x] `npm run build -w starter-docs` succeeds with zero errors.
+- [x] Build output includes compiled `skill-registry.js` and `skill-resolver.js`.
+- [x] `npm test -w starter-docs` passes with no regressions.
 
 ### Dependencies
 

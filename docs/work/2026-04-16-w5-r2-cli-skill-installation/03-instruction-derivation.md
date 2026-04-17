@@ -24,12 +24,12 @@ Four sequential stages: introduce the derivation helper in types.ts, update cata
 
 ### Acceptance criteria
 
-- [ ] `HARNESS_TO_INSTRUCTION` maps `"claude-code"` to `"CLAUDE.md"` and `"codex"` to `"AGENTS.md"`.
-- [ ] `getActiveInstructionKinds` returns `Set(["CLAUDE.md"])` when only `claude-code` is `true`.
-- [ ] `getActiveInstructionKinds` returns `Set(["AGENTS.md"])` when only `codex` is `true`.
-- [ ] `getActiveInstructionKinds` returns both kinds when both harnesses are `true`.
-- [ ] `getActiveInstructionKinds` returns an empty set when both harnesses are `false`.
-- [ ] Both `HARNESS_TO_INSTRUCTION` and `getActiveInstructionKinds` are exported.
+- [x] `HARNESS_TO_INSTRUCTION` maps `"claude-code"` to `"CLAUDE.md"` and `"codex"` to `"AGENTS.md"`.
+- [x] `getActiveInstructionKinds` returns `Set(["CLAUDE.md"])` when only `claude-code` is `true`.
+- [x] `getActiveInstructionKinds` returns `Set(["AGENTS.md"])` when only `codex` is `true`.
+- [x] `getActiveInstructionKinds` returns both kinds when both harnesses are `true`.
+- [x] `getActiveInstructionKinds` returns an empty set when both harnesses are `false`.
+- [x] Both `HARNESS_TO_INSTRUCTION` and `getActiveInstructionKinds` are exported.
 
 ### Dependencies
 
@@ -45,10 +45,10 @@ Four sequential stages: introduce the derivation helper in types.ts, update cata
 
 ### Acceptance criteria
 
-- [ ] `catalog.ts` imports `getActiveInstructionKinds` from `./types`.
-- [ ] `addInstructionAssets` no longer reads `instructionKinds` directly from `profile.selections`.
-- [ ] The outer loop iterates over `getActiveInstructionKinds(profile.selections)` instead of `INSTRUCTION_KINDS`.
-- [ ] When a harness is disabled, its corresponding instruction-kind assets are excluded from the catalog.
+- [x] `catalog.ts` imports `getActiveInstructionKinds` from `./types`.
+- [x] `addInstructionAssets` no longer reads `instructionKinds` directly from `profile.selections`.
+- [x] The outer loop iterates over `getActiveInstructionKinds(profile.selections)` instead of `INSTRUCTION_KINDS`.
+- [x] When a harness is disabled, its corresponding instruction-kind assets are excluded from the catalog.
 
 ### Dependencies
 
@@ -64,10 +64,10 @@ Four sequential stages: introduce the derivation helper in types.ts, update cata
 
 ### Acceptance criteria
 
-- [ ] `renderers.ts` imports `getActiveInstructionKinds` from `./types`.
-- [ ] `renderBuildableAsset` uses `getActiveInstructionKinds` for instruction-file gating.
-- [ ] No remaining reference to `instructionKinds` on `profile.selections` in `renderers.ts`.
-- [ ] A disabled harness causes its instruction file to be skipped during rendering.
+- [x] `renderers.ts` imports `getActiveInstructionKinds` from `./types`.
+- [x] `renderBuildableAsset` uses `getActiveInstructionKinds` for instruction-file gating.
+- [x] No remaining reference to `instructionKinds` on `profile.selections` in `renderers.ts`.
+- [x] A disabled harness causes its instruction file to be skipped during rendering.
 
 ### Dependencies
 
@@ -84,10 +84,10 @@ Four sequential stages: introduce the derivation helper in types.ts, update cata
 
 ### Acceptance criteria
 
-- [ ] `npm run build -w starter-docs` succeeds with zero errors.
-- [ ] `npm test -w starter-docs` passes with no regressions.
-- [ ] No test fixture in catalog or renderer tests references `instructionKinds` directly.
-- [ ] Grep for `instructionKinds` in `catalog.ts` and `renderers.ts` returns zero matches.
+- [x] `npm run build -w starter-docs` succeeds with zero errors.
+- [x] `npm test -w starter-docs` passes with no regressions.
+- [x] No test fixture in catalog or renderer tests references `instructionKinds` directly.
+- [x] Grep for `instructionKinds` in `catalog.ts` and `renderers.ts` returns zero matches.
 
 ### Dependencies
 

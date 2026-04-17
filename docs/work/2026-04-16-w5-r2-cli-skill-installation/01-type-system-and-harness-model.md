@@ -24,9 +24,9 @@ Four sequential stages: introduce the new type and const, swap the selection int
 
 ### Acceptance criteria
 
-- [ ] `Harness` type and `HARNESSES` const exist in `types.ts`.
-- [ ] `InstallSelections` uses `harnesses: Record<Harness, boolean>` (no `instructionKinds`).
-- [ ] `InstallSelections` has `skillScope: "project" | "global"`.
+- [x] `Harness` type and `HARNESSES` const exist in `types.ts`.
+- [x] `InstallSelections` uses `harnesses: Record<Harness, boolean>` (no `instructionKinds`).
+- [x] `InstallSelections` has `skillScope: "project" | "global"`.
 
 ### Dependencies
 
@@ -43,10 +43,10 @@ Four sequential stages: introduce the new type and const, swap the selection int
 
 ### Acceptance criteria
 
-- [ ] `defaultSelections()` returns both harnesses true and `skillScope` "project".
-- [ ] `cloneSelections()` correctly clones the new fields (verified by existing `structuredClone` behavior).
-- [ ] `isFullDefaultProfile()` checks both harnesses, skills, and skillScope.
-- [ ] `profileId` hash includes harnesses and skillScope instead of instructionKinds.
+- [x] `defaultSelections()` returns both harnesses true and `skillScope` "project".
+- [x] `cloneSelections()` correctly clones the new fields (verified by existing `structuredClone` behavior).
+- [x] `isFullDefaultProfile()` checks both harnesses, skills, and skillScope.
+- [x] `profileId` hash includes harnesses and skillScope instead of instructionKinds.
 
 ### Dependencies
 
@@ -62,9 +62,9 @@ Four sequential stages: introduce the new type and const, swap the selection int
 
 ### Acceptance criteria
 
-- [ ] Loading an old manifest with `instructionKinds` produces correct `harnesses` values (`"CLAUDE.md" -> "claude-code"`, `"AGENTS.md" -> "codex"`).
-- [ ] Migrated manifest object does not contain `instructionKinds`.
-- [ ] Loading a new manifest with `harnesses` already present passes through unchanged.
+- [x] Loading an old manifest with `instructionKinds` produces correct `harnesses` values (`"CLAUDE.md" -> "claude-code"`, `"AGENTS.md" -> "codex"`).
+- [x] Migrated manifest object does not contain `instructionKinds`.
+- [x] Loading a new manifest with `harnesses` already present passes through unchanged.
 
 ### Dependencies
 
@@ -80,9 +80,9 @@ Four sequential stages: introduce the new type and const, swap the selection int
 
 ### Acceptance criteria
 
-- [ ] No source file outside manifest.ts references `instructionKinds` for selection purposes.
-- [ ] `npm run build -w starter-docs` succeeds with zero type errors.
-- [ ] `npm test -w starter-docs` passes.
+- [x] No source file outside manifest.ts references `instructionKinds` for selection purposes.
+- [x] `npm run build -w starter-docs` succeeds with zero type errors.
+- [x] `npm test -w starter-docs` passes.
 
 ### Dependencies
 

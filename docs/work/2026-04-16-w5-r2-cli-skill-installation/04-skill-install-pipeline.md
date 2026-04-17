@@ -34,12 +34,12 @@ Wire the full multi-harness skill installation pipeline: load the registry, comp
 
 ### Acceptance criteria
 
-- [ ] `skill-catalog.ts` exists and exports `getDesiredSkillAssets`
-- [ ] When both harnesses are selected, returned assets include entries for both `.claude/skills/` and `.agents/skills/`
-- [ ] When only one harness is selected, assets are returned only for that harness's directories
-- [ ] Project scope uses `.` as the install root; global scope uses `os.homedir()`
-- [ ] Relative references in SKILL.md content are rewritten to resolve from the harness-specific install location
-- [ ] Rewritten references correctly point to `../skill-assets/<plugin>/<path>` for both harnesses
+- [x] `skill-catalog.ts` exists and exports `getDesiredSkillAssets`
+- [x] When both harnesses are selected, returned assets include entries for both `.claude/skills/` and `.agents/skills/`
+- [x] When only one harness is selected, assets are returned only for that harness's directories
+- [x] Project scope uses `.` as the install root; global scope uses `os.homedir()`
+- [x] Relative references in SKILL.md content are rewritten to resolve from the harness-specific install location
+- [x] Rewritten references correctly point to `../skill-assets/<plugin>/<path>` for both harnesses
 
 ### Dependencies
 
@@ -57,9 +57,9 @@ Wire the full multi-harness skill installation pipeline: load the registry, comp
 
 ### Acceptance criteria
 
-- [ ] Skill actions appear in install plans when skills are selected
-- [ ] Action types (`create`/`update`/`noop`) correctly reflect manifest state
-- [ ] Planner treats fully resolved paths from the skill catalog opaquely (no harness awareness needed)
+- [x] Skill actions appear in install plans when skills are selected
+- [x] Action types (`create`/`update`/`noop`) correctly reflect manifest state
+- [x] Planner treats fully resolved paths from the skill catalog opaquely (no harness awareness needed)
 
 ### Dependencies
 
@@ -76,10 +76,10 @@ Wire the full multi-harness skill installation pipeline: load the registry, comp
 
 ### Acceptance criteria
 
-- [ ] Skill files written to correct harness-specific directories during install (`.claude/skills/`, `.agents/skills/`, etc.)
-- [ ] Supporting assets written to correct harness-specific asset directories (`.claude/skill-assets/`, `.agents/skill-assets/`)
-- [ ] Parent directories created automatically when they do not exist
-- [ ] Installed skill file paths collected for manifest tracking
+- [x] Skill files written to correct harness-specific directories during install (`.claude/skills/`, `.agents/skills/`, etc.)
+- [x] Supporting assets written to correct harness-specific asset directories (`.claude/skill-assets/`, `.agents/skill-assets/`)
+- [x] Parent directories created automatically when they do not exist
+- [x] Installed skill file paths collected for manifest tracking
 
 ### Dependencies
 
@@ -96,10 +96,10 @@ Wire the full multi-harness skill installation pipeline: load the registry, comp
 
 ### Acceptance criteria
 
-- [ ] Manifests with `skillFiles` parse correctly
-- [ ] Manifests without `skillFiles` parse correctly (backward-compatible with R1 shape)
-- [ ] `skillFiles` written to manifest when skill files are installed
-- [ ] Removing a harness on reconfigure plans `remove` actions for that harness's skill files
+- [x] Manifests with `skillFiles` parse correctly
+- [x] Manifests without `skillFiles` parse correctly (backward-compatible with R1 shape)
+- [x] `skillFiles` written to manifest when skill files are installed
+- [x] Removing a harness on reconfigure plans `remove` actions for that harness's skill files
 
 ### Dependencies
 
@@ -115,9 +115,9 @@ Wire the full multi-harness skill installation pipeline: load the registry, comp
 
 ### Acceptance criteria
 
-- [ ] `npm run build -w starter-docs` succeeds with no errors
-- [ ] `npm test -w starter-docs` passes with no failures
-- [ ] End-to-end: selecting both harnesses produces two copies of each skill in the correct directories
+- [x] `npm run build -w starter-docs` succeeds with no errors
+- [x] `npm test -w starter-docs` passes with no failures
+- [x] End-to-end: selecting both harnesses produces two copies of each skill in the correct directories
 
 ### Dependencies
 
