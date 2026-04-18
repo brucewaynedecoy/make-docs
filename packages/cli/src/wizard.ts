@@ -929,7 +929,7 @@ function renderSkillSelectionFrame(
     styleText("gray", S_BAR),
     wrapTextWithPrefix(
       process.stdout,
-      "Which skills should be installed?",
+      "Select skills to install",
       `${styleText(lineColor, S_BAR)}  `,
       `${symbol(prompt.state)}  `,
     ),
@@ -954,35 +954,89 @@ function renderSkillSelectionFrame(
     )}`;
   }
 
-  const skillLines = skillSelection.promptOptions.map((option, index) =>
-    renderSkillSelectionOption(
-      option,
-      index === prompt.cursor,
-      selectedSkillNames,
-    ),
+  const focusedOption = getFocusedSkillSelectionOption(prompt, skillSelection);
+  const skillLines = renderSkillSelectionLines(
+    skillSelection.promptOptions,
+    prompt.cursor,
+    selectedSkillNames,
+  );
+  const detailLines = renderDetailBox(
+    focusedOption.label,
+    [
+      focusedOption.hint || "No additional description available.",
+      "",
+      `Group: ${focusedOption.rowKind === "default-skill" ? "Default" : "Optional"}`,
+      `Status: ${
+        focusedOption.rowKind === "default-skill"
+          ? "Installed automatically"
+          : selectedSkillNames.has(focusedOption.value)
+            ? "Selected"
+            : "Available"
+      }`,
+    ],
+    process.stdout.columns,
   );
   const hintLines = [
+    `${styleText("dim", "Selected now:")} ${
+      selectedSkillNames.size > 0 ? selectedSummary : styleText("dim", "none")
+    }`,
+    `${styleText("dim", "Use ↑/↓ to navigate")} • ${styleText(
+      "dim",
+      "Space toggles optional skills",
+    )} • ${styleText("dim", "Enter to confirm")}`,
     styleText(
       "dim",
       "Default skills are installed automatically and cannot be changed here.",
     ),
-    styleText(
-      "dim",
-      "Optional skills can be toggled with space. Press enter to continue with the current selection.",
-    ),
   ];
+  const footer = styleText(lineColor, S_BAR_END);
+  const spacer = styleText(lineColor, S_BAR);
   const errorLines =
     prompt.state === "error" && prompt.error
-      ? prompt.error.split("\n").map((line) => styleText("yellow", line))
+      ? prompt.error
+          .split("\n")
+          .map((line, index) =>
+            index === 0
+              ? `${styleText("yellow", S_BAR_END)}  ${styleText("yellow", line)}`
+              : `   ${styleText("yellow", line)}`,
+          )
       : [];
 
   return [
     ...header,
+    spacer,
     ...skillLines.map((line) => `${bodyPrefix}${line}`),
+    spacer,
+    ...detailLines.map((line) => `${bodyPrefix}${line}`),
+    spacer,
     `${bodyPrefix}${hintLines[0]}`,
     `${bodyPrefix}${hintLines[1]}`,
-    ...errorLines.map((line) => `${bodyPrefix}${line}`),
+    `${bodyPrefix}${hintLines[2]}`,
+    footer,
+    ...errorLines,
   ].join("\n");
+}
+
+function getFocusedSkillSelectionOption(
+  prompt: MultiSelectPrompt<SkillSelectionPromptOption>,
+  skillSelection: SkillSelectionState,
+): SkillSelectionPromptOption {
+  const activeOption = skillSelection.promptOptions[prompt.cursor];
+  if (activeOption && activeOption.rowKind !== "heading") {
+    return activeOption;
+  }
+
+  return (
+    skillSelection.promptOptions.find(
+      (option) => option.rowKind !== "heading",
+    ) ?? {
+      value: "__skills",
+      label: "Skills",
+      hint: "",
+      disabled: true,
+      rowKind: "heading",
+    }
+  );
 }
 
 function renderSkillSelectionOption(
@@ -991,7 +1045,7 @@ function renderSkillSelectionOption(
   selectedSkillNames: ReadonlySet<string>,
 ): string {
   if (option.rowKind === "heading") {
-    return styleText("dim", option.label);
+    return styleText(["bold", "white"], option.label);
   }
 
   if (option.rowKind === "default-skill") {
@@ -1006,26 +1060,55 @@ function renderSkillSelectionOption(
 
   const selected = selectedSkillNames.has(option.value);
   if (selected && active) {
-    return `${styleText("green", S_CHECKBOX_SELECTED)} ${option.label}${
+    return `  ${styleText("green", S_CHECKBOX_SELECTED)} ${styleText("white", option.label)}${
       option.hint ? ` ${styleText("dim", `(${option.hint})`)}` : ""
     }`;
   }
 
   if (selected) {
-    return `${styleText("green", S_CHECKBOX_SELECTED)} ${styleText("dim", option.label)}${
+    return `  ${styleText("green", S_CHECKBOX_SELECTED)} ${styleText("dim", option.label)}${
       option.hint ? ` ${styleText("dim", `(${option.hint})`)}` : ""
     }`;
   }
 
   if (active) {
-    return `${styleText("cyan", S_CHECKBOX_ACTIVE)} ${option.label}${
-      option.hint ? ` ${styleText("dim", `(${option.hint})`)}` : ""
-    }`;
+    return `  ${styleText("cyan", S_CHECKBOX_ACTIVE)} ${styleText(
+      ["bold", "white"],
+      option.label,
+    )}${option.hint ? ` ${styleText("dim", `(${option.hint})`)}` : ""}`;
   }
 
-  return `${styleText("dim", S_CHECKBOX_INACTIVE)} ${styleText("dim", option.label)}${
+  return `  ${styleText("dim", S_CHECKBOX_INACTIVE)} ${styleText("dim", option.label)}${
     option.hint ? ` ${styleText("dim", `(${option.hint})`)}` : ""
   }`;
+}
+
+function renderSkillSelectionLines(
+  options: SkillSelectionPromptOption[],
+  activeIndex: number,
+  selectedSkillNames: ReadonlySet<string>,
+): string[] {
+  const lines: string[] = [];
+
+  options.forEach((option, index) => {
+    if (option.rowKind === "heading" && lines.length > 0) {
+      lines.push("");
+    }
+
+    lines.push(
+      renderSkillSelectionOption(
+        option,
+        index === activeIndex,
+        selectedSkillNames,
+      ),
+    );
+
+    if (option.rowKind === "heading") {
+      lines.push("");
+    }
+  });
+
+  return lines;
 }
 
 function renderCapabilitiesFrame(
