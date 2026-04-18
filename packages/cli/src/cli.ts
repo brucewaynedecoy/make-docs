@@ -23,7 +23,8 @@ import {
   runSelectionWizard,
 } from "./wizard";
 
-type Command = "init" | "update";
+type Command = "init" | "update" | "backup" | "uninstall";
+type PermissionsMode = "confirm" | "allow-all";
 
 interface ParsedArgs {
   command?: Command;
@@ -32,6 +33,7 @@ interface ParsedArgs {
   yes: boolean;
   help: boolean;
   reconfigure: boolean;
+  backup: boolean;
   noDesigns: boolean;
   noPlans: boolean;
   noPrd: boolean;
@@ -40,6 +42,7 @@ interface ParsedArgs {
   noCodex: boolean;
   noClaudeCode: boolean;
   noSkills: boolean;
+  permissions?: PermissionsMode;
   templatesMode?: TemplatesMode;
   referencesMode?: ReferencesMode;
   skillScope?: InstallSelections["skillScope"];
@@ -49,13 +52,21 @@ interface ParsedArgs {
 export async function runCli(argv = process.argv.slice(2)): Promise<void> {
   const parsed = parseArgs(argv);
   if (parsed.help) {
-    printHelp();
+    printHelp(parsed.command);
     return;
+  }
+
+  if (isLifecycleCommand(parsed.command)) {
+    throw lifecycleCommandNotImplemented(parsed.command);
   }
 
   const targetDir = path.resolve(parsed.targetDir ?? process.cwd());
   const existingManifest = loadManifest(targetDir);
   const command = inferCommand(parsed, existingManifest);
+
+  if (parsed.reconfigure && command !== "update") {
+    throw new Error("`--reconfigure` is only valid with `update`.");
+  }
 
   if (command === "update" && !existingManifest) {
     throw new Error(
@@ -289,12 +300,60 @@ function hasSelectionOverrides(parsed: ParsedArgs): boolean {
   );
 }
 
+function isLifecycleCommand(command?: Command): command is "backup" | "uninstall" {
+  return command === "backup" || command === "uninstall";
+}
+
+function getSelectionOverrideFlags(parsed: ParsedArgs): string[] {
+  const flags: string[] = [];
+
+  if (parsed.noDesigns) {
+    flags.push("--no-designs");
+  }
+  if (parsed.noPlans) {
+    flags.push("--no-plans");
+  }
+  if (parsed.noPrd) {
+    flags.push("--no-prd");
+  }
+  if (parsed.noWork) {
+    flags.push("--no-work");
+  }
+  if (parsed.noPrompts) {
+    flags.push("--no-prompts");
+  }
+  if (parsed.noCodex) {
+    flags.push("--no-codex");
+  }
+  if (parsed.noClaudeCode) {
+    flags.push("--no-claude-code");
+  }
+  if (parsed.noSkills) {
+    flags.push("--no-skills");
+  }
+  if (parsed.templatesMode) {
+    flags.push("--templates");
+  }
+  if (parsed.referencesMode) {
+    flags.push("--references");
+  }
+  if (parsed.skillScope) {
+    flags.push("--skill-scope");
+  }
+  if (parsed.optionalSkills !== undefined) {
+    flags.push("--optional-skills");
+  }
+
+  return flags;
+}
+
 function parseArgs(argv: string[]): ParsedArgs {
   const parsed: ParsedArgs = {
     dryRun: false,
     yes: false,
     help: false,
     reconfigure: false,
+    backup: false,
     noDesigns: false,
     noPlans: false,
     noPrd: false,
@@ -306,7 +365,12 @@ function parseArgs(argv: string[]): ParsedArgs {
   };
 
   const args = [...argv];
-  if (args[0] === "init" || args[0] === "update") {
+  if (
+    args[0] === "init" ||
+    args[0] === "update" ||
+    args[0] === "backup" ||
+    args[0] === "uninstall"
+  ) {
     parsed.command = args.shift() as Command;
   }
 
@@ -328,6 +392,9 @@ function parseArgs(argv: string[]): ParsedArgs {
         break;
       case "--reconfigure":
         parsed.reconfigure = true;
+        break;
+      case "--backup":
+        parsed.backup = true;
         break;
       case "--no-designs":
         parsed.noDesigns = true;
@@ -379,6 +446,14 @@ function parseArgs(argv: string[]): ParsedArgs {
         parsed.skillScope = value;
         break;
       }
+      case "--permissions": {
+        const value = args.shift();
+        if (value !== "confirm" && value !== "allow-all") {
+          throw new Error("`--permissions` must be either `confirm` or `allow-all`.");
+        }
+        parsed.permissions = value;
+        break;
+      }
       case "--optional-skills": {
         const value = args.shift();
         if (!value) {
@@ -411,6 +486,35 @@ function parseArgs(argv: string[]): ParsedArgs {
 }
 
 function validateParsedArgs(parsed: ParsedArgs): void {
+  if (parsed.backup && parsed.command !== "uninstall") {
+    throw new Error(
+      `\`--backup\` is only valid with \`uninstall\`, not \`${parsed.command ?? "no command"}\`.`,
+    );
+  }
+
+  if (parsed.permissions && !isLifecycleCommand(parsed.command)) {
+    throw new Error(
+      `\`--permissions\` is only valid with \`backup\` or \`uninstall\`, not \`${parsed.command ?? "no command"}\`.`,
+    );
+  }
+
+  if (parsed.reconfigure && parsed.command && parsed.command !== "update") {
+    throw new Error("`--reconfigure` is only valid with `update`.");
+  }
+
+  const selectionOverrideFlags = getSelectionOverrideFlags(parsed);
+  if (
+    parsed.command &&
+    selectionOverrideFlags.length > 0 &&
+    (parsed.command !== "init" && (parsed.command !== "update" || !parsed.reconfigure))
+  ) {
+    const label = selectionOverrideFlags.length === 1 ? "flag" : "flags";
+    const verb = selectionOverrideFlags.length === 1 ? "is" : "are";
+    throw new Error(
+      `Selection ${label} ${selectionOverrideFlags.join(", ")} ${verb} only valid with \`init\` or \`update --reconfigure\`, not \`${parsed.command}\`.`,
+    );
+  }
+
   if (parsed.noSkills && (parsed.skillScope || parsed.optionalSkills !== undefined)) {
     throw new Error(
       "`--no-skills` cannot be combined with `--skill-scope` or `--optional-skills`.",
@@ -460,19 +564,168 @@ function printPlan(actions: PlannedAction[]): void {
   output.write(`- noop: ${noopCount} file(s)\n`);
 }
 
-function printHelp(): void {
-  output.write(`starter-docs\n
+function lifecycleCommandNotImplemented(command: "backup" | "uninstall"): Error {
+  return new Error(
+    `The \`${command}\` command is not implemented yet. Run \`starter-docs ${command} --help\` to review the planned interface.`,
+  );
+}
+
+function printHelp(command?: Command): void {
+  switch (command) {
+    case "init":
+      output.write(`starter-docs init
+
+Create a new starter-docs install in the target directory.
+
+Usage:
+  starter-docs init [options]
+
+Options:
+
+General options:
+  --target <dir>                 Install into a different directory.
+  --dry-run                      Show planned changes without writing files.
+  --yes                          Skip interactive prompts when possible.
+  --help, -h                     Show help for this command.
+
+Content options:
+  --no-designs                   Skip docs/designs scaffolding.
+  --no-plans                     Skip docs/plans scaffolding.
+  --no-prd                       Skip docs/prd scaffolding.
+  --no-work                      Skip docs/work scaffolding.
+  --no-prompts                   Skip reusable prompt starters.
+  --templates required|all       Install required templates only, or the full template set.
+  --references required|all      Install required references only, or the full reference set.
+
+Harness options:
+  --no-codex                     Skip the Codex harness.
+  --no-claude-code               Skip the Claude Code harness.
+  Deprecated aliases: --no-agents, --no-claude
+
+Skill options:
+  --no-skills                    Skip skill installation entirely.
+  --skill-scope project|global   Choose whether skills install in the repo or the global Codex home.
+  --optional-skills <csv|none>   Replace the optional skill set with a comma-separated list or none.
+
+Examples:
+  starter-docs init
+  starter-docs init --target ~/Projects/example --dry-run
+  starter-docs init --no-designs --no-plans --optional-skills none
+`);
+      return;
+    case "update":
+      output.write(`starter-docs update
+
+Update an existing starter-docs install in the target directory.
+
+Usage:
+  starter-docs update [--target <dir>] [--dry-run] [--yes] [--help]
+  starter-docs update --reconfigure [options]
+
+Options:
+
+General options:
+  --target <dir>                 Update a different starter-docs install directory.
+  --dry-run                      Show planned changes without writing files.
+  --yes                          Skip interactive prompts when possible.
+  --help, -h                     Show help for this command.
+
+Reconfigure options:
+  --reconfigure                  Review and change install selections before applying updates.
+
+Content options:
+  --no-designs                   Skip docs/designs scaffolding when reconfiguring.
+  --no-plans                     Skip docs/plans scaffolding when reconfiguring.
+  --no-prd                       Skip docs/prd scaffolding when reconfiguring.
+  --no-work                      Skip docs/work scaffolding when reconfiguring.
+  --no-prompts                   Skip reusable prompt starters when reconfiguring.
+  --templates required|all       Choose required templates only, or the full template set.
+  --references required|all      Choose required references only, or the full reference set.
+
+Harness options:
+  --no-codex                     Skip the Codex harness when reconfiguring.
+  --no-claude-code               Skip the Claude Code harness when reconfiguring.
+  Deprecated aliases: --no-agents, --no-claude
+
+Skill options:
+  --no-skills                    Skip skill installation entirely when reconfiguring.
+  --skill-scope project|global   Choose whether skills install in the repo or the global Codex home.
+  --optional-skills <csv|none>   Replace the optional skill set with a comma-separated list or none.
+
+Examples:
+  starter-docs update
+  starter-docs update --reconfigure
+  starter-docs update --target ~/Projects/example --dry-run
+`);
+      return;
+    case "backup":
+      output.write(`starter-docs backup
+
+Create a backup of the managed starter-docs files in the target directory.
+
+Usage:
+  starter-docs backup [--target <dir>] [--permissions confirm|allow-all] [--help]
+
+Options:
+  --target <dir>                   Back up a different starter-docs install directory.
+  --permissions confirm|allow-all  Control confirmation prompts for the backup run.
+                                   confirm asks before copying files.
+                                   allow-all skips confirmation prompts after showing the audit summary.
+  --help, -h                       Show help for this command.
+
+Examples:
+  starter-docs backup
+  starter-docs backup --target ~/Projects/example
+  starter-docs backup --permissions allow-all
+`);
+      return;
+    case "uninstall":
+      output.write(`starter-docs uninstall
+
+Remove the managed starter-docs files from the target directory.
+
+Usage:
+  starter-docs uninstall [--target <dir>] [--backup] [--permissions confirm|allow-all] [--help]
+
+Options:
+  --target <dir>                   Uninstall from a different starter-docs install directory.
+  --backup                         Create a backup before removing files.
+  --permissions confirm|allow-all  Control confirmation prompts for the uninstall run.
+                                   confirm asks before removing files.
+                                   allow-all skips confirmation prompts after showing warnings and the audit summary.
+  --help, -h                       Show help for this command.
+
+Examples:
+  starter-docs uninstall
+  starter-docs uninstall --backup
+  starter-docs uninstall --target ~/Projects/example --permissions allow-all
+`);
+      return;
+    default:
+      output.write(`starter-docs
+
+Create, update, back up, and remove starter-docs installs.
+
 Usage:
   starter-docs
-  starter-docs init [--target <dir>] [--dry-run] [--yes] [--no-designs] [--no-plans] [--no-prd] [--no-work] [--no-prompts] [--templates required|all] [--references required|all] [--no-codex] [--no-claude-code] [--no-skills] [--skill-scope project|global] [--optional-skills <csv|none>]
-  starter-docs update [--target <dir>] [--dry-run] [--yes]
-  starter-docs update --reconfigure [selection flags]
+  starter-docs <command> [options]
+  starter-docs --help
 
-Selection flags:
-  --no-codex                     Skip Codex harness (deprecated alias: --no-agents)
-  --no-claude-code              Skip Claude Code harness (deprecated alias: --no-claude)
-  --no-skills                   Skip skill installation
-  --skill-scope project|global  Set skill install scope
-  --optional-skills <csv|none>  Replace selected optional skills
-\n`);
+Commands:
+  init       Create a new starter-docs install in the target directory.
+  update     Update an existing starter-docs install.
+  backup     Create a backup of managed files before lifecycle changes.
+  uninstall  Remove managed files, with an optional backup first.
+
+Common patterns:
+  starter-docs
+  starter-docs init --target ~/Projects/example --dry-run
+  starter-docs update --reconfigure
+  starter-docs backup --permissions confirm
+  starter-docs uninstall --backup
+
+Run starter-docs with no command to choose init or update automatically based on the target manifest.
+Run starter-docs <command> --help for command-specific options and examples.
+`);
+  }
 }

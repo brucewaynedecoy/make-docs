@@ -73,6 +73,35 @@ function mockHomeDirectory(homeDir: string): () => void {
   };
 }
 
+async function captureCliOutput(argv: string[]): Promise<string> {
+  const writeSpy = vi.spyOn(process.stdout, "write").mockImplementation(() => true);
+
+  try {
+    const { runCli } = await import("../src/cli");
+
+    await runCli(argv);
+    return writeSpy.mock.calls.map(([chunk]) => String(chunk)).join("");
+  } finally {
+    writeSpy.mockRestore();
+  }
+}
+
+async function captureCliError(argv: string[]): Promise<Error> {
+  const { runCli } = await import("../src/cli");
+
+  try {
+    await runCli(argv);
+  } catch (error) {
+    if (error instanceof Error) {
+      return error;
+    }
+
+    throw error;
+  }
+
+  throw new Error(`Expected CLI invocation to fail: ${argv.join(" ")}`);
+}
+
 describe("cli interactive flows", () => {
   beforeEach(() => {
     runSelectionWizardMock.mockReset();
@@ -450,22 +479,93 @@ describe("cli interactive flows", () => {
     }
   });
 
-  test("prints help with canonical harness and skill flags", async () => {
-    const writeSpy = vi.spyOn(process.stdout, "write").mockImplementation(() => true);
+  test("prints structured top-level help with all four commands", async () => {
+    setTTY(false);
+
+    const output = await captureCliOutput(["--help"]);
+
+    expect(output).toMatch(/starter-docs/i);
+    expect(output).toMatch(/\bCommands\b/i);
+    expect(output).toMatch(/\bExamples\b/i);
+    expect(output).toContain("starter-docs init");
+    expect(output).toContain("starter-docs update");
+    expect(output).toContain("starter-docs backup");
+    expect(output).toContain("starter-docs uninstall");
+    expect(output).toMatch(/--help/i);
+  });
+
+  test.each([
+    ["init", ["Usage", "Options", "Examples", "starter-docs init"]],
+    ["update", ["Usage", "Options", "Examples", "starter-docs update"]],
+    ["backup", ["Usage", "Options", "Examples", "starter-docs backup"]],
+    ["uninstall", ["Usage", "Options", "Examples", "starter-docs uninstall"]],
+  ])("prints command-specific help for %s", async (command, snippets) => {
+    setTTY(false);
+
+    const output = await captureCliOutput([command, "--help"]);
+
+    for (const snippet of snippets) {
+      expect(output).toContain(snippet);
+    }
+  });
+
+  test("documents backup help with lifecycle-specific options", async () => {
+    setTTY(false);
+
+    const output = await captureCliOutput(["backup", "--help"]);
+
+    expect(output).toContain("starter-docs backup");
+    expect(output).toContain("--target");
+    expect(output).toContain("--permissions");
+    expect(output).toContain("--help");
+    expect(output).not.toContain("--no-skills");
+  });
+
+  test("documents uninstall help with backup and permissions options", async () => {
+    setTTY(false);
+
+    const output = await captureCliOutput(["uninstall", "--help"]);
+
+    expect(output).toContain("starter-docs uninstall");
+    expect(output).toContain("--target");
+    expect(output).toContain("--backup");
+    expect(output).toContain("--permissions");
+    expect(output).toContain("--help");
+    expect(output).not.toContain("--optional-skills");
+  });
+
+  test.each([
+    ["backup", ["--permissions", "confirm"]],
+    ["uninstall", ["--backup", "--permissions", "allow-all"]],
+  ])("parses %s without falling back to unknown-argument handling", async (command, flags) => {
+    const targetDir = createTempDir();
 
     try {
-      const { runCli } = await import("../src/cli");
+      const error = await captureCliError([command, ...flags, "--target", targetDir]);
 
-      await runCli(["--help"]);
-
-      const output = writeSpy.mock.calls.map(([chunk]) => String(chunk)).join("");
-      expect(output).toContain("--no-codex");
-      expect(output).toContain("--no-claude-code");
-      expect(output).toContain("--no-skills");
-      expect(output).toContain("--skill-scope project|global");
-      expect(output).toContain("--optional-skills <csv|none>");
+      expect(error.message).toMatch(new RegExp(command, "i"));
+      expect(error.message).not.toContain(`Unknown argument: ${command}`);
     } finally {
-      writeSpy.mockRestore();
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test.each([
+    [["backup", "--no-skills"], ["backup", "--no-skills"]],
+    [["uninstall", "--optional-skills", "decompose-codebase"], ["uninstall", "--optional-skills"]],
+    [["init", "--permissions", "confirm"], ["init", "--permissions"]],
+    [["init", "--backup"], ["init", "--backup"]],
+  ])("rejects invalid cross-command flag mixes for %s", async (argv, messageParts) => {
+    const targetDir = createTempDir();
+
+    try {
+      const error = await captureCliError([...argv, "--target", targetDir]);
+
+      for (const part of messageParts) {
+        expect(error.message).toContain(part);
+      }
+    } finally {
+      cleanupTempDir(targetDir);
     }
   });
 });

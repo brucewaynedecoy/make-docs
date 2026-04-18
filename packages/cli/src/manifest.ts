@@ -1,13 +1,18 @@
+import os from "node:os";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import type {
+  AuditPathKind,
+  AuditPathMetadata,
   InstallManifest,
   InstallProfile,
   InstallSelections,
+  ManifestAuditContext,
+  ManifestAuditRecord,
   ManifestFileEntry,
   PackageMeta,
 } from "./types";
-import { readTextFile, writeTextFile } from "./utils";
+import { normalizeRelativePath, readTextFile, writeTextFile } from "./utils";
 
 export const MANIFEST_SCHEMA_VERSION = 1;
 export const MANIFEST_RELATIVE_PATH = "docs/.starter-docs/manifest.json";
@@ -94,6 +99,87 @@ export function writeManifest(targetDir: string, manifest: InstallManifest): str
   return manifestPath;
 }
 
+export function getManifestAuditContext(
+  targetDir: string,
+  manifest: InstallManifest,
+  homeDir = os.homedir(),
+): ManifestAuditContext {
+  const managedFiles = Object.entries(manifest.files)
+    .map(([managedPath, entry]) =>
+      createManifestAuditRecord(targetDir, homeDir, managedPath, "manifest-file", entry),
+    )
+    .sort(compareAuditRecords);
+
+  const skillFiles = Array.from(new Set(manifest.skillFiles))
+    .map((managedPath) =>
+      createManifestAuditRecord(
+        targetDir,
+        homeDir,
+        managedPath,
+        "manifest-skill-file",
+        manifest.files[managedPath],
+      ),
+    )
+    .sort(compareAuditRecords);
+
+  return {
+    manifestPath: getManifestPath(targetDir),
+    managedFiles,
+    skillFiles,
+    priorSelections: structuredClone(manifest.selections),
+  };
+}
+
+export function createAuditPathMetadata(
+  targetDir: string,
+  auditPath: string,
+  kind: AuditPathKind,
+  homeDir = os.homedir(),
+): AuditPathMetadata {
+  const normalizedTargetDir = path.resolve(targetDir);
+  const absolutePath = path.isAbsolute(auditPath)
+    ? path.normalize(auditPath)
+    : path.resolve(normalizedTargetDir, auditPath);
+  const normalizedHomeDir = path.resolve(homeDir);
+  const projectRelativePath = getContainedRelativePath(normalizedTargetDir, absolutePath);
+  const homeRelativePath = getContainedRelativePath(normalizedHomeDir, absolutePath);
+
+  const pathScope =
+    projectRelativePath !== null ? "project" : homeRelativePath !== null ? "home" : "external";
+  const displayPath =
+    pathScope === "project"
+      ? normalizeRelativePath(projectRelativePath ?? auditPath)
+      : normalizeRelativePath(absolutePath);
+  const backupRelativePath =
+    pathScope === "project"
+      ? normalizeRelativePath(projectRelativePath ?? auditPath)
+      : pathScope === "home"
+        ? normalizeRelativePath(path.join("_home", homeRelativePath ?? ""))
+        : null;
+  const depth =
+    displayPath === "." ? 0 : displayPath.split("/").filter((segment) => segment.length > 0).length;
+  const scopeOrder = pathScope === "project" ? 0 : pathScope === "home" ? 1 : 2;
+
+  return {
+    path: displayPath,
+    absolutePath,
+    kind,
+    scope: pathScope,
+    pathScope,
+    backupRelativePath,
+    backup: {
+      scope: pathScope === "external" ? null : pathScope,
+      relativePath: backupRelativePath,
+    },
+    ordering: {
+      scopeOrder,
+      depth,
+      sortKey: `${scopeOrder}:${displayPath}`,
+      pruneSortKey: `${scopeOrder}:${String(10_000 - depth).padStart(5, "0")}:${displayPath}`,
+    },
+  };
+}
+
 function migrateSkillFiles(skillFiles: unknown): string[] {
   if (Array.isArray(skillFiles)) {
     return skillFiles.filter((value): value is string => typeof value === "string");
@@ -133,4 +219,36 @@ function migrateOptionalSkills(
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function createManifestAuditRecord(
+  targetDir: string,
+  homeDir: string,
+  managedPath: string,
+  ownershipSource: ManifestAuditRecord["ownershipSource"],
+  manifestEntry?: ManifestFileEntry,
+): ManifestAuditRecord {
+  return {
+    ...createAuditPathMetadata(targetDir, managedPath, "file", homeDir),
+    ownershipSource,
+    sourceId: manifestEntry?.sourceId,
+    manifestHash: manifestEntry?.hash,
+  };
+}
+
+function compareAuditRecords(left: ManifestAuditRecord, right: ManifestAuditRecord): number {
+  return left.ordering.sortKey.localeCompare(right.ordering.sortKey);
+}
+
+function getContainedRelativePath(root: string, candidate: string): string | null {
+  const relative = path.relative(root, candidate);
+  if (relative === "") {
+    return ".";
+  }
+
+  if (relative.startsWith("..") || path.isAbsolute(relative)) {
+    return null;
+  }
+
+  return relative;
 }

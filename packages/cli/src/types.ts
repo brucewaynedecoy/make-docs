@@ -131,3 +131,119 @@ export interface ApplyResult {
   appliedActions: PlannedAction[];
   conflictFiles: string[];
 }
+
+export type AuditMode = "manifest-present" | "manifest-missing";
+export type AuditPathKind = "file" | "directory";
+export type AuditPathScope = "project" | "home" | "external";
+export type AuditOwnershipSource =
+  | "manifest-file"
+  | "manifest-skill-file"
+  | "managed-state"
+  | "fallback";
+export type AuditSkippedStatus = "already-absent" | "excluded";
+export type AuditReasonCode =
+  | "root-instruction-content-match"
+  | "managed-file-hash-match"
+  | "managed-skill-file-content-match"
+  | "managed-state-file"
+  | "fallback-canonical-content-match"
+  | "fallback-root-fingerprint-match"
+  | "directory-eligible-for-prune"
+  | "already-absent"
+  | "inside-backup-root"
+  | "outside-supported-roots"
+  | "root-instruction-content-mismatch"
+  | "managed-file-modified"
+  | "manifest-skill-file-without-metadata"
+  | "manifest-skill-file-content-mismatch"
+  | "fallback-root-fingerprint-mismatch"
+  | "fallback-ambiguous"
+  | "directory-contains-unmanaged-descendants"
+  | "directory-contains-preserved-descendants";
+
+export interface AuditReason {
+  code: AuditReasonCode;
+  message: string;
+}
+
+export interface AuditBackupPath {
+  scope: Exclude<AuditPathScope, "external"> | null;
+  relativePath: string | null;
+}
+
+export interface AuditOrderingMetadata {
+  scopeOrder: number;
+  depth: number;
+  sortKey: string;
+  pruneSortKey: string;
+}
+
+export interface AuditPathMetadata {
+  path: string;
+  absolutePath: string;
+  kind: AuditPathKind;
+  scope: AuditPathScope;
+  pathScope: AuditPathScope;
+  backupRelativePath: string | null;
+  backup: AuditBackupPath;
+  ordering: AuditOrderingMetadata;
+}
+
+export interface AuditManagedPathMetadata extends AuditPathMetadata {
+  ownershipSource: AuditOwnershipSource;
+  sourceId?: string;
+}
+
+export interface AuditCandidateMetadata extends AuditPathMetadata {
+  ownershipSource?: AuditOwnershipSource;
+  sourceId?: string;
+}
+
+export interface ManifestAuditRecord extends AuditManagedPathMetadata {
+  manifestHash?: string;
+}
+
+export interface ManifestAuditContext {
+  manifestPath: string;
+  managedFiles: ManifestAuditRecord[];
+  skillFiles: ManifestAuditRecord[];
+  priorSelections: InstallSelections;
+}
+
+export interface AuditRemovableFile extends AuditManagedPathMetadata {
+  kind: "file";
+  reason: string;
+  reasonCode: AuditReasonCode;
+  expectedHash?: string;
+  currentHash?: string;
+}
+
+export interface AuditPrunableDirectory extends AuditPathMetadata {
+  kind: "directory";
+  reason: string;
+  reasonCode: AuditReasonCode;
+  removableDescendantPaths: string[];
+  preservedDescendantPaths: string[];
+}
+
+export interface AuditPreservedPath extends AuditCandidateMetadata {
+  reason: string;
+  reasonCode: AuditReasonCode;
+  preservedDescendantPaths?: string[];
+}
+
+export interface AuditSkippedPath extends AuditCandidateMetadata {
+  reason: string;
+  reasonCode: AuditReasonCode;
+  status: AuditSkippedStatus;
+}
+
+export interface AuditReport {
+  mode: AuditMode;
+  targetDir: string;
+  manifestPath: string;
+  removableFiles: AuditRemovableFile[];
+  prunableDirectories: AuditPrunableDirectory[];
+  preservedPaths: AuditPreservedPath[];
+  skippedPaths: AuditSkippedPath[];
+}
