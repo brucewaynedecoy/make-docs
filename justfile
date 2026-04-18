@@ -15,11 +15,16 @@ dev:
 test:
     npm test -w starter-docs
 
-install-cli: build
+install-cli-pack: build
     cd {{cli_dir}}
     npm run prepack
     npm pack
     npm install -g ./starter-docs-{{cli_version}}.tgz
+
+install-cli-link: build
+    cd {{cli_dir}}
+    npm run build
+    npm link
 
 validate-defaults:
     npm run validate:defaults -w starter-docs
