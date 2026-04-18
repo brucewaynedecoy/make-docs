@@ -1,5 +1,8 @@
 set shell := ["bash", "-eu", "-o", "pipefail", "-c"]
 
+cli_dir        := "packages/cli"
+cli_version    := `node -p "require('./packages/cli/package.json').version"`
+
 default:
     @just --list
 
@@ -11,6 +14,12 @@ dev:
 
 test:
     npm test -w starter-docs
+
+install-cli: build
+    cd {{cli_dir}}
+    npm run prepack
+    npm pack
+    npm install -g ./starter-docs-{{cli_version}}.tgz
 
 validate-defaults:
     npm run validate:defaults -w starter-docs
