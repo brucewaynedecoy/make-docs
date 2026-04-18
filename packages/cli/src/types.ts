@@ -247,3 +247,32 @@ export interface AuditReport {
   preservedPaths: AuditPreservedPath[];
   skippedPaths: AuditSkippedPath[];
 }
+
+export type LifecyclePermissionsMode = "confirm" | "allow-all";
+
+export interface BackupDestinationPlan {
+  backupRoot: string;
+  dateStamp: string;
+  directoryName: string;
+  destinationDir: string;
+  promotion?: {
+    from: string;
+    to: string;
+  };
+}
+
+export interface BackupCommandOptions {
+  targetDir: string;
+  permissions: LifecyclePermissionsMode;
+  homeDir?: string;
+  now?: Date;
+}
+
+export interface BackupExecutionResult {
+  status: "completed" | "cancelled" | "noop";
+  targetDir: string;
+  destinationDir: string | null;
+  auditReport: AuditReport;
+  copiedFiles: string[];
+  materializedDirectories: string[];
+}

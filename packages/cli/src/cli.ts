@@ -1,6 +1,7 @@
 import path from "node:path";
 import { stdin as input, stdout as output } from "node:process";
 import { confirm, isCancel } from "@clack/prompts";
+import { runBackupCommand } from "./backup";
 import { applyInstallPlan, findInstructionConflicts, planInstall } from "./install";
 import { loadManifest } from "./manifest";
 import { cloneSelections, defaultSelections, hasEffectiveCapabilities } from "./profile";
@@ -12,6 +13,7 @@ import {
 import type {
   InstallManifest,
   InstallSelections,
+  LifecyclePermissionsMode,
   PlannedAction,
   ReferencesMode,
   TemplatesMode,
@@ -24,7 +26,6 @@ import {
 } from "./wizard";
 
 type Command = "init" | "update" | "backup" | "uninstall";
-type PermissionsMode = "confirm" | "allow-all";
 
 interface ParsedArgs {
   command?: Command;
@@ -42,7 +43,7 @@ interface ParsedArgs {
   noCodex: boolean;
   noClaudeCode: boolean;
   noSkills: boolean;
-  permissions?: PermissionsMode;
+  permissions?: LifecyclePermissionsMode;
   templatesMode?: TemplatesMode;
   referencesMode?: ReferencesMode;
   skillScope?: InstallSelections["skillScope"];
@@ -56,11 +57,20 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
     return;
   }
 
-  if (isLifecycleCommand(parsed.command)) {
+  const targetDir = path.resolve(parsed.targetDir ?? process.cwd());
+
+  if (parsed.command === "backup") {
+    await runBackupCommand({
+      targetDir,
+      permissions: parsed.permissions ?? "confirm",
+    });
+    return;
+  }
+
+  if (parsed.command === "uninstall") {
     throw lifecycleCommandNotImplemented(parsed.command);
   }
 
-  const targetDir = path.resolve(parsed.targetDir ?? process.cwd());
   const existingManifest = loadManifest(targetDir);
   const command = inferCommand(parsed, existingManifest);
 

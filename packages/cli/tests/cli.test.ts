@@ -534,17 +534,59 @@ describe("cli interactive flows", () => {
     expect(output).not.toContain("--optional-skills");
   });
 
-  test.each([
-    ["backup", ["--permissions", "confirm"]],
-    ["uninstall", ["--backup", "--permissions", "allow-all"]],
-  ])("parses %s without falling back to unknown-argument handling", async (command, flags) => {
+  test("routes backup through the implemented lifecycle flow", async () => {
     const targetDir = createTempDir();
 
     try {
-      const error = await captureCliError([command, ...flags, "--target", targetDir]);
+      setTTY(false);
+      const output = await captureCliOutput([
+        "backup",
+        "--permissions",
+        "allow-all",
+        "--target",
+        targetDir,
+      ]);
 
-      expect(error.message).toMatch(new RegExp(command, "i"));
-      expect(error.message).not.toContain(`Unknown argument: ${command}`);
+      expect(output).toContain("starter-docs backup");
+      expect(output).toContain("No starter-docs-managed files required backup.");
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("defaults backup permissions to confirm mode", async () => {
+    const targetDir = createTempDir();
+
+    try {
+      await installManifest(targetDir, (selections) => {
+        selections.skills = false;
+      });
+      confirmMock.mockResolvedValue(false);
+      const { runCli } = await import("../src/cli");
+
+      await runCli(["backup", "--target", targetDir]);
+
+      expect(confirmMock).toHaveBeenCalledTimes(1);
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("still parses uninstall lifecycle flags without falling back to unknown-argument handling", async () => {
+    const targetDir = createTempDir();
+
+    try {
+      const error = await captureCliError([
+        "uninstall",
+        "--backup",
+        "--permissions",
+        "allow-all",
+        "--target",
+        targetDir,
+      ]);
+
+      expect(error.message).toMatch(/uninstall/i);
+      expect(error.message).not.toContain("Unknown argument: uninstall");
     } finally {
       cleanupTempDir(targetDir);
     }
