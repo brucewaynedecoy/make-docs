@@ -128,7 +128,6 @@ export type WizardReviewAction =
   | "edit-harnesses"
   | "edit-options"
   | "cancel";
-export type UpdateWizardAction = "update-existing" | "reconfigure";
 
 export interface RunSelectionWizardOptions {
   initialSelections: InstallSelections;
@@ -575,36 +574,6 @@ export async function runSelectionWizardWithRenderer(
 
     return null;
   }
-}
-
-export async function promptForUpdateWizardAction(): Promise<UpdateWizardAction | null> {
-  const result = await select<UpdateWizardAction | "cancel">({
-    message: "How would you like to continue?",
-    withGuide: true,
-    options: [
-      {
-        value: "update-existing",
-        label: "Update with existing selections",
-        hint: "Keep the current install profile and preview the update",
-      },
-      {
-        value: "reconfigure",
-        label: "Reconfigure selections",
-        hint: "Open the interactive wizard before updating",
-      },
-      {
-        value: "cancel",
-        label: "Cancel",
-        hint: "Exit without applying changes",
-      },
-    ],
-  });
-
-  if (isCancel(result) || result === "cancel") {
-    return null;
-  }
-
-  return result;
 }
 
 export async function promptForInstructionConflictResolutions(

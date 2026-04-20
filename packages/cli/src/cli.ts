@@ -21,7 +21,6 @@ import type {
 import { PACKAGE_ROOT, readPackageMeta } from "./utils";
 import {
   promptForInstructionConflictResolutions,
-  promptForUpdateWizardAction,
   runSelectionWizard,
 } from "./wizard";
 
@@ -97,6 +96,12 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
   }
 
   const interactive = !parsed.yes;
+  if (!interactive && installIntent === "reconfigure" && !hasSelectionOverrides(parsed)) {
+    throw new Error(
+      "`starter-docs reconfigure --yes` requires at least one selection flag. Provide selection flags or run `starter-docs reconfigure` interactively.",
+    );
+  }
+
   if (interactive && (!input.isTTY || !output.isTTY)) {
     throw new Error("Interactive prompts require a TTY. Use --yes for non-interactive runs.");
   }
@@ -123,27 +128,6 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
       const wizardSelections = await runSelectionWizard({
         initialSelections: selections,
         introTitle: "Let's reconfigure your starter-docs install",
-      });
-      if (!wizardSelections) {
-        output.write("Installer cancelled.\n");
-        return;
-      }
-      selections = wizardSelections;
-      skipApplyConfirm = true;
-    } else if (!parsed.command && !hasSelectionOverrides(parsed)) {
-      const updateAction = await promptForUpdateWizardAction();
-      if (!updateAction) {
-        output.write("Installer cancelled.\n");
-        return;
-      }
-
-      const wizardSelections = await runSelectionWizard({
-        initialSelections: selections,
-        introTitle:
-          updateAction === "update-existing"
-            ? "Review your current starter-docs install"
-            : "Let's reconfigure your starter-docs install",
-        startStep: updateAction === "update-existing" ? "review" : "capabilities",
       });
       if (!wizardSelections) {
         output.write("Installer cancelled.\n");

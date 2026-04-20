@@ -8,14 +8,12 @@ import { defaultSelections } from "../src/profile";
 import { createTempDir, cleanupTempDir, mockSkillFetches } from "./helpers";
 
 const runSelectionWizardMock = vi.fn();
-const promptForUpdateWizardActionMock = vi.fn();
 const promptForInstructionConflictResolutionsMock = vi.fn();
 const confirmMock = vi.fn();
 const runUninstallCommandMock = vi.fn();
 
 vi.mock("../src/wizard", () => ({
   runSelectionWizard: runSelectionWizardMock,
-  promptForUpdateWizardAction: promptForUpdateWizardActionMock,
   promptForInstructionConflictResolutions: promptForInstructionConflictResolutionsMock,
 }));
 
@@ -106,7 +104,6 @@ async function captureCliError(argv: string[]): Promise<Error> {
 describe("cli interactive flows", () => {
   beforeEach(() => {
     runSelectionWizardMock.mockReset();
-    promptForUpdateWizardActionMock.mockReset();
     promptForInstructionConflictResolutionsMock.mockReset();
     confirmMock.mockReset();
     runUninstallCommandMock.mockReset();
@@ -135,7 +132,6 @@ describe("cli interactive flows", () => {
         }),
         introTitle: "Let's configure your starter-docs install",
       });
-      expect(promptForUpdateWizardActionMock).not.toHaveBeenCalled();
       expect(promptForInstructionConflictResolutionsMock).not.toHaveBeenCalled();
       expect(confirmMock).not.toHaveBeenCalled();
       expect(writeSpy).toHaveBeenCalled();
@@ -148,15 +144,22 @@ describe("cli interactive flows", () => {
     const targetDir = createTempDir();
 
     try {
-      await installManifest(targetDir);
-      runSelectionWizardMock.mockResolvedValue(defaultSelections());
+      await installManifest(targetDir, (selections) => {
+        selections.capabilities.work = false;
+        selections.skills = false;
+      });
+      const wizardSelections = defaultSelections();
+      wizardSelections.capabilities.work = false;
+      wizardSelections.skills = false;
+      runSelectionWizardMock.mockResolvedValue(wizardSelections);
       const { runCli } = await import("../src/cli");
 
       await runCli(["reconfigure", "--target", targetDir]);
 
       expect(runSelectionWizardMock).toHaveBeenCalledWith({
         initialSelections: expect.objectContaining({
-          capabilities: expect.objectContaining({ designs: true, plans: true, prd: true, work: true }),
+          capabilities: expect.objectContaining({ designs: true, plans: true, prd: true, work: false }),
+          skills: false,
         }),
         introTitle: "Let's reconfigure your starter-docs install",
       });
@@ -165,25 +168,69 @@ describe("cli interactive flows", () => {
     }
   });
 
-  test("offers update vs reconfigure for implicit update and starts at review when keeping selections", async () => {
+  test("syncs saved selections on a bare interactive apply without opening the wizard", async () => {
     const targetDir = createTempDir();
 
     try {
-      await installManifest(targetDir);
-      promptForUpdateWizardActionMock.mockResolvedValue("update-existing");
-      runSelectionWizardMock.mockResolvedValue(defaultSelections());
+      await installManifest(targetDir, (selections) => {
+        selections.capabilities.work = false;
+        selections.skills = false;
+      });
+      confirmMock.mockResolvedValue(true);
       const { runCli } = await import("../src/cli");
 
       await runCli(["--target", targetDir]);
 
-      expect(promptForUpdateWizardActionMock).toHaveBeenCalledTimes(1);
-      expect(runSelectionWizardMock).toHaveBeenCalledWith({
-        initialSelections: expect.objectContaining({
-          capabilities: expect.objectContaining({ designs: true, plans: true, prd: true, work: true }),
-        }),
-        introTitle: "Review your current starter-docs install",
-        startStep: "review",
+      expect(runSelectionWizardMock).not.toHaveBeenCalled();
+      expect(confirmMock).toHaveBeenCalledTimes(1);
+      expect(loadManifest(targetDir)?.selections.capabilities.work).toBe(false);
+      expect(loadManifest(targetDir)?.selections.skills).toBe(false);
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("installs default selections on a bare non-interactive apply", async () => {
+    const targetDir = createTempDir();
+
+    try {
+      setTTY(false);
+      const { runCli } = await import("../src/cli");
+
+      await runCli(["--yes", "--target", targetDir]);
+
+      const manifest = loadManifest(targetDir);
+      expect(runSelectionWizardMock).not.toHaveBeenCalled();
+      expect(confirmMock).not.toHaveBeenCalled();
+      expect(manifest?.selections.capabilities).toEqual({
+        designs: true,
+        plans: true,
+        prd: true,
+        work: true,
       });
+      expect(manifest?.selections.skills).toBe(true);
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("syncs saved selections on a bare non-interactive apply", async () => {
+    const targetDir = createTempDir();
+
+    try {
+      await installManifest(targetDir, (selections) => {
+        selections.capabilities.work = false;
+        selections.skills = false;
+      });
+      setTTY(false);
+      const { runCli } = await import("../src/cli");
+
+      await runCli(["--yes", "--target", targetDir]);
+
+      expect(runSelectionWizardMock).not.toHaveBeenCalled();
+      expect(confirmMock).not.toHaveBeenCalled();
+      expect(loadManifest(targetDir)?.selections.capabilities.work).toBe(false);
+      expect(loadManifest(targetDir)?.selections.skills).toBe(false);
     } finally {
       cleanupTempDir(targetDir);
     }
@@ -210,6 +257,10 @@ describe("cli interactive flows", () => {
 
     try {
       await installManifest(targetDir);
+      const claudeSkillPath = path.join(targetDir, ".claude/skills/archive-docs/SKILL.md");
+      const codexSkillPath = path.join(targetDir, ".agents/skills/archive-docs/SKILL.md");
+      expect(existsSync(claudeSkillPath)).toBe(true);
+      expect(existsSync(codexSkillPath)).toBe(true);
       const { runCli } = await import("../src/cli");
 
       await runCli(["--yes", "--no-skills", "--target", targetDir]);
@@ -217,6 +268,8 @@ describe("cli interactive flows", () => {
       expect(runSelectionWizardMock).not.toHaveBeenCalled();
       expect(loadManifest(targetDir)?.selections.skills).toBe(false);
       expect(loadManifest(targetDir)?.selections.optionalSkills).toEqual([]);
+      expect(existsSync(claudeSkillPath)).toBe(false);
+      expect(existsSync(codexSkillPath)).toBe(false);
     } finally {
       cleanupTempDir(targetDir);
     }
@@ -443,6 +496,41 @@ describe("cli interactive flows", () => {
       restoreHome();
       cleanupTempDir(targetDir);
       cleanupTempDir(fakeHome);
+    }
+  });
+
+  test("rejects non-interactive reconfigure without selection flags", async () => {
+    const targetDir = createTempDir();
+
+    try {
+      await installManifest(targetDir);
+
+      const error = await captureCliError([
+        "reconfigure",
+        "--yes",
+        "--target",
+        targetDir,
+      ]);
+
+      expect(error.message).toContain("requires at least one selection flag");
+      expect(error.message).toContain("starter-docs reconfigure");
+      expect(runSelectionWizardMock).not.toHaveBeenCalled();
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("rejects reconfigure without a manifest with first-run guidance", async () => {
+    const targetDir = createTempDir();
+
+    try {
+      const error = await captureCliError(["reconfigure", "--target", targetDir]);
+
+      expect(error.message).toContain("No starter-docs manifest");
+      expect(error.message).toContain("Run `starter-docs` first");
+      expect(runSelectionWizardMock).not.toHaveBeenCalled();
+    } finally {
+      cleanupTempDir(targetDir);
     }
   });
 
