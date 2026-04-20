@@ -32,8 +32,8 @@ The CLI should expose five top-level user-facing help surfaces:
 - `starter-docs --help`
 - `starter-docs init --help`
 - `starter-docs update --help`
-- `starter-docs backup [--target <dir>] [--permissions confirm|allow-all] [--help]`
-- `starter-docs uninstall [--target <dir>] [--backup] [--permissions confirm|allow-all] [--help]`
+- `starter-docs backup [--target <dir>] [--yes] [--help]`
+- `starter-docs uninstall [--target <dir>] [--backup] [--yes] [--help]`
 
 Top-level help should no longer be a flat usage block. It should become a structured summary page with:
 
@@ -108,7 +108,7 @@ Same-day backup naming should be deterministic:
 - subsequent same-day backups continue with the next ordinal
 - ordinals are zero-padded through `09`, then continue naturally as `10`, `11`, and so on
 
-`backup` should accept `--permissions confirm|allow-all`. The default is `confirm`. `allow-all` should still print the audit/result summary, but it should skip interactive confirmation prompts.
+`backup` should accept `--yes` to skip interactive confirmation prompts. By default, it should ask for confirmation after printing the audit/result summary.
 
 ### 5. Add a safety-first `uninstall` command with optional pre-removal backup
 
@@ -133,7 +133,7 @@ The uninstall flow should be deliberately explicit:
 
 The combined flow must not re-run audit between backup and removal. The audit is the shared execution contract for both steps.
 
-Like `backup`, `uninstall` should accept `--permissions confirm|allow-all`, defaulting to `confirm`. In `allow-all` mode the CLI should still print the warning and audit summaries, but it may skip the confirmation prompts and continue automatically.
+Like `backup`, `uninstall` should accept `--yes` to skip interactive confirmation prompts. By default, it should ask for confirmation after printing the warning and audit summaries.
 
 ### 6. Treat terminal presentation as part of the safety contract
 

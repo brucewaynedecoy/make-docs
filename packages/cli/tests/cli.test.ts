@@ -522,15 +522,15 @@ describe("cli interactive flows", () => {
 
     expect(output).toContain("starter-docs backup");
     expect(output).toContain("--target");
-    expect(output).toContain("--permissions confirm|allow-all");
-    expect(output).toContain("--permissions");
+    expect(output).toContain("--yes");
+    expect(output).toContain("Skip confirmation prompts");
     expect(output).toContain("non-destructive");
     expect(output).toContain("source files remain in place");
     expect(output).toContain("--help");
     expect(output).not.toContain("--no-skills");
   });
 
-  test("documents uninstall help with backup and permissions options", async () => {
+  test("documents uninstall help with backup and yes options", async () => {
     setTTY(false);
 
     const output = await captureCliOutput(["uninstall", "--help"]);
@@ -538,8 +538,8 @@ describe("cli interactive flows", () => {
     expect(output).toContain("starter-docs uninstall");
     expect(output).toContain("--target");
     expect(output).toContain("--backup");
-    expect(output).toContain("--permissions confirm|allow-all");
-    expect(output).toContain("--permissions");
+    expect(output).toContain("--yes");
+    expect(output).toContain("Skip confirmation prompts");
     expect(output).toContain("destructive");
     expect(output).toContain("audited managed files are removed");
     expect(output).toContain("--help");
@@ -562,8 +562,7 @@ describe("cli interactive flows", () => {
       setTTY(false);
       const output = await captureCliOutput([
         "backup",
-        "--permissions",
-        "allow-all",
+        "--yes",
         "--target",
         targetDir,
       ]);
@@ -575,7 +574,7 @@ describe("cli interactive flows", () => {
     }
   });
 
-  test("defaults backup permissions to confirm mode", async () => {
+  test("defaults backup to confirmation mode", async () => {
     const targetDir = createTempDir();
 
     try {
@@ -593,6 +592,21 @@ describe("cli interactive flows", () => {
     }
   });
 
+  test("uses --yes to skip backup confirmation prompts", async () => {
+    const targetDir = createTempDir();
+
+    try {
+      setTTY(false);
+      const { runCli } = await import("../src/cli");
+
+      await runCli(["backup", "--yes", "--target", targetDir]);
+
+      expect(confirmMock).not.toHaveBeenCalled();
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
   test("routes uninstall through the implemented lifecycle flow", async () => {
     const targetDir = createTempDir();
     const cli = await import("../src/cli");
@@ -603,8 +617,7 @@ describe("cli interactive flows", () => {
       await cli.runCli([
         "uninstall",
         "--backup",
-        "--permissions",
-        "allow-all",
+        "--yes",
         "--target",
         targetDir,
       ]);
@@ -621,7 +634,7 @@ describe("cli interactive flows", () => {
     }
   });
 
-  test("defaults uninstall permissions to confirm mode", async () => {
+  test("defaults uninstall to confirmation mode", async () => {
     const targetDir = createTempDir();
     const cli = await import("../src/cli");
 
@@ -642,10 +655,31 @@ describe("cli interactive flows", () => {
     }
   });
 
+  test("uses --yes to skip uninstall confirmation prompts", async () => {
+    const targetDir = createTempDir();
+    const cli = await import("../src/cli");
+
+    try {
+      cli.__setUninstallCommandLoaderForTests(async () => runUninstallCommandMock);
+
+      await cli.runCli(["uninstall", "--yes", "--target", targetDir]);
+
+      expect(runUninstallCommandMock).toHaveBeenCalledTimes(1);
+      expect(runUninstallCommandMock).toHaveBeenCalledWith({
+        targetDir: path.resolve(targetDir),
+        backup: false,
+        permissions: "allow-all",
+      });
+    } finally {
+      cli.__setUninstallCommandLoaderForTests(null);
+      cleanupTempDir(targetDir);
+    }
+  });
+
   test.each([
     [["backup", "--no-skills"], ["backup", "--no-skills"]],
     [["uninstall", "--optional-skills", "decompose-codebase"], ["uninstall", "--optional-skills"]],
-    [["init", "--permissions", "confirm"], ["init", "--permissions"]],
+    [["init", "--permissions", "confirm"], ["Unknown argument", "--permissions"]],
     [["init", "--backup"], ["init", "--backup"]],
   ])("rejects invalid cross-command flag mixes for %s", async (argv, messageParts) => {
     const targetDir = createTempDir();

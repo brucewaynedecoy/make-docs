@@ -13,11 +13,11 @@ Build `starter-docs backup` on top of the shared audit engine so the CLI can pro
 
 | File | Change Summary |
 | ---- | -------------- |
-| `packages/cli/src/cli.ts` | Register `backup` as a first-class command, parse `--permissions confirm|allow-all` and `--help`, print command-specific help, and dispatch into the backup flow. |
+| `packages/cli/src/cli.ts` | Register `backup` as a first-class command, parse `--yes` and `--help`, print command-specific help, and dispatch into the backup flow. |
 | `packages/cli/src/backup.ts` | **New.** Run the shared audit, resolve the backup destination, render the backup confirmation/result flow, and copy audited files/directories into `.backup/`. |
 | `packages/cli/src/lifecycle-ui.ts` | **New.** Shared formatted audit/result presentation helpers for backup and later uninstall flows. |
-| `packages/cli/tests/backup.test.ts` | **New.** Cover backup execution, destination naming, `_home` layout, confirm vs allow-all, and same-day ordinal promotion. |
-| `packages/cli/tests/cli.test.ts` | Extend CLI parsing/help coverage for `starter-docs backup`, `--permissions`, and `backup --help`. |
+| `packages/cli/tests/backup.test.ts` | **New.** Cover backup execution, destination naming, `_home` layout, default confirmation vs `--yes`, and same-day ordinal promotion. |
+| `packages/cli/tests/cli.test.ts` | Extend CLI parsing/help coverage for `starter-docs backup`, `--yes`, and `backup --help`. |
 
 ## Detailed Changes
 
@@ -31,19 +31,17 @@ Required behavior:
 2. Accept:
    - `starter-docs backup`
    - `starter-docs backup --target <dir>`
-   - `starter-docs backup --permissions confirm`
-   - `starter-docs backup --permissions allow-all`
+   - `starter-docs backup --yes`
    - `starter-docs backup --help`
-3. Default `--permissions` to `confirm` when omitted.
-4. Reject any other `--permissions` value with a clear CLI error.
-5. Route `starter-docs backup --help` to a backup-specific help screen without running audit or touching the filesystem.
-6. Keep backup command wiring isolated from uninstall-specific flags; `--backup` remains uninstall-only.
+3. Default to confirmation prompts when `--yes` is omitted.
+4. Route `starter-docs backup --help` to a backup-specific help screen without running audit or touching the filesystem.
+5. Keep backup command wiring isolated from uninstall-specific flags; `--backup` remains uninstall-only.
 
 The backup help text should describe:
 
 - that the command audits the same managed footprint used by uninstall
 - that it creates a dated directory under `.backup/`
-- that `confirm` prompts before copying and `allow-all` skips the prompt but still prints the audit summary
+- that default mode prompts before copying and `--yes` skips the prompt while still printing the audit summary
 
 ### 2. Build the backup orchestration flow on the shared audit engine
 
@@ -58,8 +56,8 @@ The flow should be:
    - target directory
    - resolved backup destination
    - grouped counts for files to copy, directories to preserve as empty directories, and paths retained/skipped by the audit
-4. In `confirm` mode, prompt once after the audit summary and before any copy occurs.
-5. In `allow-all` mode, print the same audit summary and continue without prompting.
+4. By default, prompt once after the audit summary and before any copy occurs.
+5. With `--yes`, print the same audit summary and continue without prompting.
 6. Copy the audited payload into the resolved destination.
 7. Render a completion summary showing the destination and final copied counts.
 
@@ -136,8 +134,8 @@ Backup should use these helpers immediately. Uninstall-specific prompts or phras
 ## Acceptance Criteria
 
 - [ ] `starter-docs backup` is a valid top-level command and `starter-docs backup --help` prints command-specific help without running audit.
-- [ ] Omitting `--permissions` defaults backup to `confirm`.
-- [ ] `--permissions allow-all` skips the interactive confirmation prompt but still prints the audit summary before copying.
+- [ ] Omitting `--yes` defaults backup to interactive confirmation.
+- [ ] `--yes` skips the interactive confirmation prompt but still prints the audit summary before copying.
 - [ ] Backup invokes the shared audit engine exactly once per run and uses that single result for presentation and copy execution.
 - [ ] If the audit result is empty, backup exits successfully without creating a new `.backup/` destination.
 - [ ] Backup copies all audited removable files into `.backup/<date-or-ordinal>/` while preserving project-relative paths.

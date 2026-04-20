@@ -23,7 +23,7 @@ This phase is the dedicated validation/fixup pass for the wave. It should not re
    - command descriptions and examples
    - `backup --help`
    - `uninstall --help`
-   - `confirm|allow-all` help text
+   - `--yes` prompt-skipping help text
 2. Add `packages/cli/tests/renderers.test.ts` if lifecycle presentation helpers need isolated output coverage.
 3. Add or extend reusable helpers in `packages/cli/tests/helpers.ts` for output capture and temp fixtures.
 
@@ -59,7 +59,7 @@ This phase is the dedicated validation/fixup pass for the wave. It should not re
    - plain uninstall remove/prune behavior
    - unmanaged-file preservation
    - modified/unmodified root instruction files
-   - `allow-all`
+   - `--yes`
    - `uninstall --backup`
    - backup-failure abort behavior
 
@@ -83,9 +83,9 @@ This phase is the dedicated validation/fixup pass for the wave. It should not re
 1. Update `scripts/smoke-pack.mjs` to exercise backup and uninstall against a packed CLI install.
 2. Have the smoke test:
    - install/init a real temp target
-   - run `backup --permissions allow-all`
+   - run `backup --yes`
    - verify `.backup/<date-or-sequence>/` exists and contains managed files
-   - run `uninstall --permissions allow-all`
+   - run `uninstall --yes`
    - verify managed files are removed, preserved custom files remain, and `.backup/` still exists
 3. Keep smoke-pack isolated from any user home directories by using temp/fake-home fixtures when needed.
 
@@ -130,8 +130,8 @@ This phase is the dedicated validation/fixup pass for the wave. It should not re
    - `npm run dev -w starter-docs -- init --yes --target /tmp/starter-docs-lifecycle`
    - create one unmanaged file inside a managed-looking directory
    - optionally modify `AGENTS.md` or `CLAUDE.md`
-   - `npm run dev -w starter-docs -- backup --permissions allow-all --target /tmp/starter-docs-lifecycle`
-   - `npm run dev -w starter-docs -- uninstall --backup --permissions allow-all --target /tmp/starter-docs-lifecycle`
+   - `npm run dev -w starter-docs -- backup --yes --target /tmp/starter-docs-lifecycle`
+   - `npm run dev -w starter-docs -- uninstall --backup --yes --target /tmp/starter-docs-lifecycle`
 2. Verify that:
    - managed files are removed
    - preserved custom files remain

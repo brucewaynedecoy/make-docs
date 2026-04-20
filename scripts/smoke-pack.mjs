@@ -141,7 +141,7 @@ try {
 
   execFileSync(
     "node",
-    [packedCli, "backup", "--permissions", "allow-all", "--target", targetDir],
+    [packedCli, "backup", "--yes", "--target", targetDir],
     { stdio: "inherit" },
   );
 
@@ -155,7 +155,7 @@ try {
 
   execFileSync(
     "node",
-    [packedCli, "uninstall", "--permissions", "allow-all", "--target", targetDir],
+    [packedCli, "uninstall", "--yes", "--target", targetDir],
     { stdio: "inherit" },
   );
 

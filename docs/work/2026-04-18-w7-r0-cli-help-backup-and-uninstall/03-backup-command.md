@@ -8,7 +8,7 @@ Implement `starter-docs backup` as the non-destructive lifecycle command that co
 
 ## Overview
 
-This phase turns the audit contract into a usable command. It owns backup command routing, `--permissions` behavior, destination planning under `.backup/`, `_home` layout for global paths, and the shared presentation helpers that uninstall will later reuse.
+This phase turns the audit contract into a usable command. It owns backup command routing, `--yes` prompt-skipping behavior, destination planning under `.backup/`, `_home` layout for global paths, and the shared presentation helpers that uninstall will later reuse.
 
 ## Source Plan Phases
 
@@ -20,16 +20,16 @@ This phase turns the audit contract into a usable command. It owns backup comman
 
 1. Update `packages/cli/src/cli.ts` so `starter-docs backup` dispatches into backup execution instead of the Phase-1 placeholder error.
 2. Keep `backup --help` routed to its command-specific help surface without running audit.
-3. Default `--permissions` to `confirm` when omitted.
-4. Reject invalid `--permissions` values cleanly.
+3. Default to interactive confirmation when `--yes` is omitted.
+4. Treat legacy `--permissions` values as unknown arguments.
 5. Extend `packages/cli/tests/cli.test.ts` for the final backup command behavior.
 
 ### Acceptance criteria
 
 - [ ] `starter-docs backup` dispatches to backup execution
 - [ ] `starter-docs backup --help` still exits before audit/copy work
-- [ ] Omitting `--permissions` defaults backup to `confirm`
-- [ ] Invalid `--permissions` values fail clearly
+- [ ] Omitting `--yes` defaults backup to interactive confirmation
+- [ ] Legacy `--permissions` values fail clearly as unknown arguments
 - [ ] CLI tests cover final backup command routing and help
 
 ### Dependencies
@@ -93,16 +93,16 @@ This phase turns the audit contract into a usable command. It owns backup comman
    - target directory
    - resolved backup destination
    - grouped counts for files, directories, and retained/skipped paths
-3. In `confirm` mode, prompt once after the audit summary and before copy.
-4. In `allow-all` mode, print the same summary and proceed without prompting.
+3. By default, prompt once after the audit summary and before copy.
+4. With `--yes`, print the same summary and proceed without prompting.
 5. Render a completion summary with destination and copied counts after success.
 
 ### Acceptance criteria
 
 - [ ] `packages/cli/src/lifecycle-ui.ts` exists and is used by backup
 - [ ] Backup audit output is grouped and readable
-- [ ] `confirm` mode prompts once before copy
-- [ ] `allow-all` mode skips the prompt but still shows the audit summary
+- [ ] Default mode prompts once before copy
+- [ ] `--yes` skips the prompt but still shows the audit summary
 - [ ] Completion output shows the resolved destination and copied totals
 
 ### Dependencies
@@ -119,7 +119,7 @@ This phase turns the audit contract into a usable command. It owns backup comman
    - destination naming
    - same-day ordinal promotion
    - `_home` path mapping
-   - `confirm` vs `allow-all`
+   - default confirmation vs `--yes`
    - non-destructive behavior
 3. Extend `packages/cli/tests/cli.test.ts` as needed for backup help and parser coverage.
 4. Run targeted backup tests, then the full suite, then a build.
@@ -130,7 +130,7 @@ This phase turns the audit contract into a usable command. It owns backup comman
 - [ ] Backup naming and ordinal promotion are covered
 - [ ] `_home` path mapping is covered
 - [ ] Non-destructive backup behavior is covered
-- [ ] `confirm` vs `allow-all` behavior is covered
+- [ ] default confirmation vs `--yes` behavior is covered
 - [ ] `npm run build -w starter-docs` succeeds
 - [ ] `npm test -w starter-docs` passes
 

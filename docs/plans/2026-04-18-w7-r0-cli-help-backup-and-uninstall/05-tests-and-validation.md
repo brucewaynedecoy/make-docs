@@ -13,7 +13,7 @@ Add focused unit, integration, smoke-pack, and manual validation coverage for th
 
 | File | Change Summary |
 | ---- | -------------- |
-| `packages/cli/tests/cli.test.ts` | Add top-level and command-specific help assertions for `backup` and `uninstall`, plus permission-mode coverage. |
+| `packages/cli/tests/cli.test.ts` | Add top-level and command-specific help assertions for `backup` and `uninstall`, plus `--yes` prompt-skipping coverage. |
 | `packages/cli/tests/helpers.ts` | Add reusable temp-dir, fake-home, output-capture, and fixture helpers needed for backup/uninstall scenarios. |
 | `packages/cli/tests/renderers.test.ts` | Add focused coverage for any new formatted warning/audit/help rendering helpers if they live outside `cli.test.ts`. |
 | `packages/cli/tests/lifecycle.test.ts` | Create a dedicated lifecycle test file covering audit ownership, backup naming, uninstall preserve/remove rules, `uninstall --backup`, manifest-missing fallback, and `.backup/` exclusion. |
@@ -29,9 +29,9 @@ Required coverage:
 
 - `starter-docs --help` lists `init`, `update`, `backup`, and `uninstall`
 - top-level help includes short command descriptions and an examples section
-- `starter-docs backup --help` documents `--target`, `--permissions`, and non-destructive behavior
-- `starter-docs uninstall --help` documents `--target`, `--backup`, `--permissions`, and destructive behavior
-- permission values `confirm|allow-all` appear in the command help where applicable
+- `starter-docs backup --help` documents `--target`, `--yes`, and non-destructive behavior
+- `starter-docs uninstall --help` documents `--target`, `--backup`, `--yes`, and destructive behavior
+- `--yes` help text explains that prompts are skipped only after summaries are shown
 
 ### 2. Add lifecycle tests for audit ownership and safety rules
 
@@ -70,7 +70,7 @@ Required scenarios:
 - uninstall preserves directories that still contain unmanaged files
 - uninstall preserves modified root instruction files
 - uninstall removes unmodified generated root instruction files
-- `starter-docs uninstall --permissions allow-all` runs without prompts but still produces summary output
+- `starter-docs uninstall --yes` runs without prompts but still produces summary output
 - `starter-docs uninstall --backup` creates the backup, then removes the same audited files without re-running the audit
 - backup failure during `uninstall --backup` aborts uninstall
 
@@ -84,9 +84,9 @@ Smoke-pack expectations:
 
 1. pack and install the CLI into a temp workspace
 2. run `init --yes` to create a real managed target
-3. run `backup --permissions allow-all`
+3. run `backup --yes`
 4. verify `.backup/<date-or-sequence>/` exists and contains starter-docs-managed files
-5. run `uninstall --permissions allow-all`
+5. run `uninstall --yes`
 6. verify managed files are removed, preserved custom files remain, and `.backup/` still exists untouched
 
 Manual validation sequence:
@@ -98,8 +98,8 @@ Manual validation sequence:
 5. Dogfood in a temp target:
    - `npm run dev -w starter-docs -- init --yes --target /tmp/starter-docs-lifecycle`
    - create one unmanaged file inside a managed-looking directory and optionally modify `AGENTS.md` or `CLAUDE.md`
-   - `npm run dev -w starter-docs -- backup --permissions allow-all --target /tmp/starter-docs-lifecycle`
-   - `npm run dev -w starter-docs -- uninstall --backup --permissions allow-all --target /tmp/starter-docs-lifecycle`
+   - `npm run dev -w starter-docs -- backup --yes --target /tmp/starter-docs-lifecycle`
+   - `npm run dev -w starter-docs -- uninstall --backup --yes --target /tmp/starter-docs-lifecycle`
    - verify preserved custom files still exist, managed files are gone, and the backup tree remains available for inspection
 6. Clean up the temp target after verification
 
@@ -114,7 +114,7 @@ The final validation run should happen last, after all new automated coverage is
 ## Acceptance Criteria
 
 - [ ] Top-level help tests cover `init`, `update`, `backup`, and `uninstall`
-- [ ] `backup --help` and `uninstall --help` assertions cover `--target`, `--permissions`, and `--backup` where applicable
+- [ ] `backup --help` and `uninstall --help` assertions cover `--target`, `--yes`, and `--backup` where applicable
 - [ ] Lifecycle tests cover manifest-backed audit ownership rules
 - [ ] Lifecycle tests cover manifest-missing fallback behavior conservatively
 - [ ] Lifecycle tests verify `.backup/` is excluded from removal candidates

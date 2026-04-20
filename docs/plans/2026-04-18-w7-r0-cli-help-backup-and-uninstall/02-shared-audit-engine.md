@@ -106,7 +106,7 @@ This phase should define the output contract those later phases need, but it sho
 Out of scope here:
 
 - command parsing
-- `--permissions` handling
+- lifecycle prompt-skipping flag handling
 - confirmation prompts and audit rendering UI
 - backup directory creation and file copying
 - uninstall file removal and actual directory pruning execution

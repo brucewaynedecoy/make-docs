@@ -6,7 +6,7 @@ Implemented the command-surface foundation described in [the design](../../desig
 
 | Area | Summary |
 | --- | --- |
-| CLI surface | [`packages/cli/src/cli.ts`](../../../packages/cli/src/cli.ts) now recognizes `backup` and `uninstall`, parses `--permissions` and `--backup`, rejects invalid cross-command flag mixes, and keeps implicit command inference limited to install and update flows. |
+| CLI surface | [`packages/cli/src/cli.ts`](../../../packages/cli/src/cli.ts) now recognizes `backup` and `uninstall`, parses lifecycle `--yes` prompt skipping and uninstall `--backup`, rejects invalid cross-command flag mixes, and keeps implicit command inference limited to install and update flows. |
 | Help rendering | [`packages/cli/src/cli.ts`](../../../packages/cli/src/cli.ts) now renders structured top-level help plus command-specific help for `init`, `update`, `backup`, and `uninstall`, with user-facing descriptions for lifecycle flags instead of implementation detail. |
 | Dispatch guards | [`packages/cli/src/cli.ts`](../../../packages/cli/src/cli.ts) routes `--help` before manifest validation, selection validation, TTY checks, or install planning, and non-help `backup` and `uninstall` calls now fail with deliberate placeholder errors instead of falling through into install or update behavior. |
 | Test coverage | [`packages/cli/tests/cli.test.ts`](../../../packages/cli/tests/cli.test.ts) now covers top-level help, all four command-specific help screens, explicit `backup` and `uninstall` parsing, and the invalid cross-command flag combinations called out in the backlog. |

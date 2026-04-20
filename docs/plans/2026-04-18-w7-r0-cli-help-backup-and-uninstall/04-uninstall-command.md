@@ -18,7 +18,7 @@ This phase must consume audit results; it must not redesign or re-author the sha
 
 | File | Change Summary |
 | ---- | -------------- |
-| `packages/cli/src/cli.ts` | Add `uninstall` command routing, parse `--backup`, `--permissions`, `--target`, and `--help`, and dispatch into the uninstall executor. |
+| `packages/cli/src/cli.ts` | Add `uninstall` command routing, parse `--backup`, `--yes`, `--target`, and `--help`, and dispatch into the uninstall executor. |
 | `packages/cli/src/uninstall.ts` | Add the uninstall orchestration flow: warning panel, audit consumption, audit-summary rendering, optional backup execution, destructive removal, and final outcome reporting. |
 | `packages/cli/src/backup.ts` | Accept a precomputed audit result and resolved backup destination so `uninstall --backup` can reuse the same audit instead of recomputing ownership. |
 | `packages/cli/src/utils.ts` | Reuse or minimally extend leaf-removal and prune-empty-directory helpers where needed for deterministic, safe uninstall ordering. |
@@ -33,14 +33,14 @@ Command contract:
 
 - `starter-docs uninstall --target <dir>`
 - `starter-docs uninstall --backup --target <dir>`
-- `starter-docs uninstall --permissions confirm|allow-all --target <dir>`
+- `starter-docs uninstall --yes --target <dir>`
 - `starter-docs uninstall --help`
 
 Behavioral requirements:
 
-- `--permissions` defaults to `confirm`.
-- `allow-all` suppresses interactive confirmation prompts only; it does not suppress the warning or audit summaries.
-- `--help` for `uninstall` must show the command purpose, the destructive nature of the command, `--backup`, `--permissions`, and `--target`.
+- Omitting `--yes` keeps interactive confirmation prompts enabled.
+- `--yes` suppresses interactive confirmation prompts only; it does not suppress the warning or audit summaries.
+- `--help` for `uninstall` must show the command purpose, the destructive nature of the command, `--backup`, `--yes`, and `--target`.
 - `cli.ts` should remain a thin dispatcher. Destructive flow logic belongs in `uninstall.ts`.
 
 ### 2. Implement the uninstall review flow around one audit result
@@ -59,8 +59,8 @@ Behavioral requirements:
 
 Prompt semantics:
 
-- In `confirm` mode, the user must explicitly approve the warning step and the final removal step.
-- In `allow-all` mode, both prompts are skipped, but both summaries are still shown.
+- By default, the user must explicitly approve the warning step and the final removal step.
+- With `--yes`, both prompts are skipped, but both summaries are still shown.
 - If the user cancels at either confirmation point, uninstall exits cleanly without modifying files.
 
 Warning-message requirements:
@@ -131,9 +131,9 @@ This phase should not overlap with shared audit authoring or standalone backup a
 ## Acceptance Criteria
 
 - [ ] `starter-docs uninstall` is a recognized top-level command
-- [ ] `starter-docs uninstall --help` documents `--backup`, `--permissions`, and `--target`
-- [ ] `--permissions` defaults to `confirm`
-- [ ] `allow-all` skips prompts but still prints warning and audit summaries
+- [ ] `starter-docs uninstall --help` documents `--backup`, `--yes`, and `--target`
+- [ ] Omitting `--yes` defaults to interactive confirmation
+- [ ] `--yes` skips prompts but still prints warning and audit summaries
 - [ ] The initial uninstall warning suggests `starter-docs backup` and `starter-docs uninstall --backup` when `--backup` is not set
 - [ ] `starter-docs uninstall --backup` runs one audit, shows the exact backup destination, then backs up and removes from the same audit result
 - [ ] Backup failure during `starter-docs uninstall --backup` aborts removal

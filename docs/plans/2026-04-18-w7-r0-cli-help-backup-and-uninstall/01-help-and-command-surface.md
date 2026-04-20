@@ -36,18 +36,18 @@ Do not infer `backup` or `uninstall`.
 
 Extend `ParsedArgs` with the new command-surface fields needed by later phases:
 
-- `permissions?: "confirm" | "allow-all"`
+- `yes: boolean` for lifecycle prompt skipping
 - `backup: boolean` for `uninstall --backup`
 
 Parse and validate:
 
-- `starter-docs backup [--target <dir>] [--permissions confirm|allow-all] [--help]`
-- `starter-docs uninstall [--target <dir>] [--backup] [--permissions confirm|allow-all] [--help]`
+- `starter-docs backup [--target <dir>] [--yes] [--help]`
+- `starter-docs uninstall [--target <dir>] [--backup] [--yes] [--help]`
 
 Validation rules for this phase:
 
 - `--backup` is only valid with `uninstall`
-- `--permissions` is only valid with `backup` or `uninstall`
+- `--yes` skips lifecycle confirmation prompts after summaries are shown
 - install-selection flags remain valid only for `init` and `update --reconfigure`
 - `--reconfigure` remains invalid outside `update`
 
@@ -82,7 +82,7 @@ Help wording should be updated while the surface is being rewritten:
 
 - keep canonical harness flags (`--no-claude-code`, `--no-codex`) and note deprecated aliases once
 - explain `--skill-scope` and `--optional-skills` more clearly than the current flat output
-- describe `--permissions` in terms of confirmation behavior, not internal implementation
+- describe `--yes` in terms of skipping confirmation prompts, not internal implementation
 - describe `--backup` as “create a backup before removing files”
 
 This phase should keep help rendering in `cli.ts`; no separate renderer module is needed yet.
@@ -112,8 +112,8 @@ Add focused `cli.test.ts` coverage for:
 
 - top-level help includes the four commands and a structured section layout
 - `init --help` and `update --help` still show install/reconfigure flags
-- `backup --help` documents `--target`, `--permissions`, and `--help`
-- `uninstall --help` documents `--target`, `--backup`, `--permissions`, and `--help`
+- `backup --help` documents `--target`, `--yes`, and `--help`
+- `uninstall --help` documents `--target`, `--backup`, `--yes`, and `--help`
 - explicit `backup` and `uninstall` commands are recognized by the parser
 - non-help `backup` and `uninstall` invocations fail with the deliberate placeholder error instead of falling into install/update behavior
 - invalid flag mixes fail clearly, for example:
@@ -137,9 +137,9 @@ There is no expected overlap with manifest, planner, installer, backup, or unins
 - [ ] `starter-docs --help` prints structured top-level help with command summaries and examples
 - [ ] `starter-docs init --help` and `starter-docs update --help` print command-specific help
 - [ ] `starter-docs backup --help` and `starter-docs uninstall --help` print command-specific help
-- [ ] `backup` and `uninstall` command grammar accepts `--target`, `--permissions`, and `--help`
+- [ ] `backup` and `uninstall` command grammar accepts `--target`, `--yes`, and `--help`
 - [ ] `uninstall` command grammar accepts `--backup`
-- [ ] `--permissions` is rejected outside `backup` and `uninstall`
+- [ ] legacy `--permissions` is rejected as an unknown argument
 - [ ] `--backup` is rejected outside `uninstall`
 - [ ] install-selection flags remain rejected for `backup` and `uninstall`
 - [ ] non-help `backup` and `uninstall` invocations fail with a clear placeholder error instead of unknown-argument or install/update behavior

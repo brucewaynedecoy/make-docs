@@ -160,6 +160,10 @@ describe("uninstall command", () => {
       expect(existsSync(path.join(targetDir, "docs/.starter-docs/manifest.json"))).toBe(false);
       expect(existsSync(path.join(targetDir, "docs/.starter-docs"))).toBe(false);
       expect(existsSync(path.join(targetDir, ".backup"))).toBe(false);
+      expect(output).toContain("WARNING");
+      expect(output).toContain("This command removes audited starter-docs-managed paths");
+      expect(output).toContain("Safer alternative: starter-docs backup");
+      expect(output).toContain("Safer destructive flow: starter-docs uninstall --backup");
       expect(output).toContain("starter-docs uninstall");
       expect(output).toContain("Uninstall complete");
       expect(output).toContain("Files removed:");
@@ -248,6 +252,8 @@ describe("uninstall command", () => {
       ).toBe(true);
       expect(existsSync(path.join(targetDir, "AGENTS.md"))).toBe(false);
       expect(existsSync(path.join(targetDir, "CLAUDE.md"))).toBe(false);
+      expect(output).toContain("WARNING");
+      expect(output).toContain("A backup will be created before removal begins.");
       expect(output).toContain("Backup destination: ");
       expect(output).toContain(".backup/2026-04-18");
       expect(output).toContain("Uninstall complete");

@@ -1,5 +1,5 @@
 import { stdin as input, stdout as output } from "node:process";
-import { confirm, isCancel } from "@clack/prompts";
+import { confirm, isCancel, note } from "@clack/prompts";
 import type {
   AuditPathMetadata,
   AuditPreservedPath,
@@ -57,7 +57,7 @@ export async function confirmBackupRun(
     permissions,
     message: "Create this backup?",
     ttyError:
-      "Backup confirmation requires a TTY. Re-run with `starter-docs backup --permissions allow-all`.",
+      "Backup confirmation requires a TTY. Re-run with `starter-docs backup --yes`.",
   });
 }
 
@@ -65,22 +65,17 @@ export function renderUninstallWarning(options: {
   targetDir: string;
   backupDestinationDir: string | null;
 }): void {
-  const { targetDir, backupDestinationDir } = options;
-  const lines = [
-    "starter-docs uninstall",
-    `Target: ${targetDir}`,
-    "Warning: this command removes audited starter-docs-managed paths.",
-  ];
+  const lines = ["This command removes audited starter-docs-managed paths", ""];
 
-  if (backupDestinationDir) {
+  if (options.backupDestinationDir) {
     lines.push("A backup will be created before removal begins.");
-    lines.push(`Backup destination: ${backupDestinationDir}`);
+    lines.push(`Backup destination: ${options.backupDestinationDir}`);
   } else {
     lines.push("Safer alternative: starter-docs backup");
     lines.push("Safer destructive flow: starter-docs uninstall --backup");
   }
 
-  renderBox(lines);
+  note(lines.join("\n"), "WARNING");
 }
 
 export async function confirmUninstallWarning(
@@ -90,7 +85,7 @@ export async function confirmUninstallWarning(
     permissions,
     message: "Continue with uninstall review?",
     ttyError:
-      "Uninstall confirmation requires a TTY. Re-run with `starter-docs uninstall --permissions allow-all`.",
+      "Uninstall confirmation requires a TTY. Re-run with `starter-docs uninstall --yes`.",
   });
 }
 
@@ -143,7 +138,7 @@ export async function confirmUninstallRun(options: {
     permissions: options.permissions,
     message,
     ttyError:
-      "Uninstall confirmation requires a TTY. Re-run with `starter-docs uninstall --permissions allow-all`.",
+      "Uninstall confirmation requires a TTY. Re-run with `starter-docs uninstall --yes`.",
   });
 }
 

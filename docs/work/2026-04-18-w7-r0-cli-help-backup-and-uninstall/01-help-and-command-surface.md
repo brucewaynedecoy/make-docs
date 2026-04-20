@@ -20,14 +20,14 @@ This phase is the public command-surface foundation for the wave. It should stop
 
 1. Update `packages/cli/src/cli.ts` so `Command` recognizes `init`, `update`, `backup`, and `uninstall`.
 2. Extend `ParsedArgs` with the new lifecycle-surface fields needed for later phases:
-   - `permissions?: "confirm" | "allow-all"`
+   - `yes: boolean`
    - `backup: boolean`
 3. Parse the new command forms:
-   - `starter-docs backup [--target <dir>] [--permissions confirm|allow-all] [--help]`
-   - `starter-docs uninstall [--target <dir>] [--backup] [--permissions confirm|allow-all] [--help]`
+   - `starter-docs backup [--target <dir>] [--yes] [--help]`
+   - `starter-docs uninstall [--target <dir>] [--backup] [--yes] [--help]`
 4. Enforce parser validation rules:
    - `--backup` only valid with `uninstall`
-   - `--permissions` only valid with `backup` or `uninstall`
+   - legacy `--permissions` rejected as an unknown argument
    - install-selection flags still only valid with `init` and `update --reconfigure`
    - `--reconfigure` remains update-only
 5. Keep implicit command inference limited to install/update flows only.
@@ -35,8 +35,8 @@ This phase is the public command-surface foundation for the wave. It should stop
 ### Acceptance criteria
 
 - [ ] `Command` recognizes `backup` and `uninstall`
-- [ ] `ParsedArgs` captures `permissions` and `backup`
-- [ ] `--permissions` is rejected outside `backup` and `uninstall`
+- [ ] `ParsedArgs` captures `yes` and `backup`
+- [ ] legacy `--permissions` is rejected as an unknown argument
 - [ ] `--backup` is rejected outside `uninstall`
 - [ ] Selection flags remain rejected for `backup` and `uninstall`
 - [ ] No implicit inference path treats a no-command invocation as `backup` or `uninstall`
@@ -69,14 +69,14 @@ This phase is the public command-surface foundation for the wave. It should stop
    - canonical harness flags
    - deprecated aliases noted once
    - clearer `--skill-scope` and `--optional-skills`
-5. Document `--permissions` and `--backup` in user-facing terms rather than implementation language.
+5. Document `--yes` and `--backup` in user-facing terms rather than implementation language.
 
 ### Acceptance criteria
 
 - [ ] `starter-docs --help` shows structured top-level help with command summaries and examples
 - [ ] `init --help`, `update --help`, `backup --help`, and `uninstall --help` each show command-specific help
-- [ ] `backup --help` documents `--target`, `--permissions`, and `--help`
-- [ ] `uninstall --help` documents `--target`, `--backup`, `--permissions`, and `--help`
+- [ ] `backup --help` documents `--target`, `--yes`, and `--help`
+- [ ] `uninstall --help` documents `--target`, `--backup`, `--yes`, and `--help`
 - [ ] Existing install/help text is clearer than the current flat block
 
 ### Dependencies

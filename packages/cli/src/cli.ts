@@ -43,7 +43,6 @@ interface ParsedArgs {
   noCodex: boolean;
   noClaudeCode: boolean;
   noSkills: boolean;
-  permissions?: LifecyclePermissionsMode;
   templatesMode?: TemplatesMode;
   referencesMode?: ReferencesMode;
   skillScope?: InstallSelections["skillScope"];
@@ -73,7 +72,7 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
   if (parsed.command === "backup") {
     await runBackupCommand({
       targetDir,
-      permissions: parsed.permissions ?? "confirm",
+      permissions: parsed.yes ? "allow-all" : "confirm",
     });
     return;
   }
@@ -83,7 +82,7 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
     await runUninstallCommand({
       targetDir,
       backup: parsed.backup,
-      permissions: parsed.permissions ?? "confirm",
+      permissions: parsed.yes ? "allow-all" : "confirm",
     });
     return;
   }
@@ -497,14 +496,6 @@ function parseArgs(argv: string[]): ParsedArgs {
         parsed.skillScope = value;
         break;
       }
-      case "--permissions": {
-        const value = args.shift();
-        if (value !== "confirm" && value !== "allow-all") {
-          throw new Error("`--permissions` must be either `confirm` or `allow-all`.");
-        }
-        parsed.permissions = value;
-        break;
-      }
       case "--optional-skills": {
         const value = args.shift();
         if (!value) {
@@ -540,12 +531,6 @@ function validateParsedArgs(parsed: ParsedArgs): void {
   if (parsed.backup && parsed.command !== "uninstall") {
     throw new Error(
       `\`--backup\` is only valid with \`uninstall\`, not \`${parsed.command ?? "no command"}\`.`,
-    );
-  }
-
-  if (parsed.permissions && !isLifecycleCommand(parsed.command)) {
-    throw new Error(
-      `\`--permissions\` is only valid with \`backup\` or \`uninstall\`, not \`${parsed.command ?? "no command"}\`.`,
     );
   }
 
@@ -710,19 +695,17 @@ Create a backup of the managed starter-docs files in the target directory.
 This command is non-destructive: source files remain in place.
 
 Usage:
-  starter-docs backup [--target <dir>] [--permissions confirm|allow-all] [--help]
+  starter-docs backup [--target <dir>] [--yes] [--help]
 
 Options:
   --target <dir>                   Back up a different starter-docs install directory.
-  --permissions confirm|allow-all  Control confirmation prompts for the backup run.
-                                   confirm asks before copying files.
-                                   allow-all skips confirmation prompts after showing the audit summary.
+  --yes                            Skip confirmation prompts after showing the audit summary.
   --help, -h                       Show help for this command.
 
 Examples:
   starter-docs backup
   starter-docs backup --target ~/Projects/example
-  starter-docs backup --permissions allow-all
+  starter-docs backup --yes
 `);
       return;
     case "uninstall":
@@ -732,20 +715,18 @@ Remove the managed starter-docs files from the target directory.
 This command is destructive: audited managed files are removed after review.
 
 Usage:
-  starter-docs uninstall [--target <dir>] [--backup] [--permissions confirm|allow-all] [--help]
+  starter-docs uninstall [--target <dir>] [--backup] [--yes] [--help]
 
 Options:
   --target <dir>                   Uninstall from a different starter-docs install directory.
   --backup                         Create a backup before removing files.
-  --permissions confirm|allow-all  Control confirmation prompts for the uninstall run.
-                                   confirm asks before removing files.
-                                   allow-all skips confirmation prompts after showing warnings and the audit summary.
+  --yes                            Skip confirmation prompts after showing warnings and the audit summary.
   --help, -h                       Show help for this command.
 
 Examples:
   starter-docs uninstall
   starter-docs uninstall --backup
-  starter-docs uninstall --target ~/Projects/example --permissions allow-all
+  starter-docs uninstall --target ~/Projects/example --yes
 `);
       return;
     default:
@@ -768,7 +749,7 @@ Examples:
   starter-docs
   starter-docs init --target ~/Projects/example --dry-run
   starter-docs update --reconfigure
-  starter-docs backup --permissions confirm
+  starter-docs backup --yes
   starter-docs uninstall --backup
 
 Run starter-docs with no command to choose init or update automatically based on the target manifest.

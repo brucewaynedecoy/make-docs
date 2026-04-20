@@ -20,14 +20,14 @@ This phase owns uninstall routing, the warning/audit/final-confirm UX, `--backup
 
 1. Update `packages/cli/src/cli.ts` so `starter-docs uninstall` dispatches into uninstall execution instead of the Phase-1 placeholder error.
 2. Keep `uninstall --help` routed to help without running audit or delete work.
-3. Ensure `--backup`, `--permissions`, and `--target` are passed through to uninstall execution cleanly.
+3. Ensure `--backup`, `--yes`, and `--target` are passed through to uninstall execution cleanly.
 4. Extend `packages/cli/tests/cli.test.ts` for final uninstall routing/help assertions.
 
 ### Acceptance criteria
 
 - [ ] `starter-docs uninstall` dispatches to uninstall execution
 - [ ] `starter-docs uninstall --help` exits before audit/removal work
-- [ ] `--backup`, `--permissions`, and `--target` reach uninstall execution correctly
+- [ ] `--backup`, `--yes`, and `--target` reach uninstall execution correctly
 - [ ] CLI tests cover final uninstall command routing and help
 
 ### Dependencies
@@ -46,15 +46,15 @@ This phase owns uninstall routing, the warning/audit/final-confirm UX, `--backup
    - directories eligible for pruning
    - preserved/skipped paths
 5. Render a final irreversible-action confirmation before removal.
-6. In `confirm` mode, require user approval at both checkpoints.
-7. In `allow-all` mode, skip prompts but still print warning and audit summaries.
+6. By default, require user approval at both checkpoints.
+7. With `--yes`, skip prompts but still print warning and audit summaries.
 
 ### Acceptance criteria
 
 - [ ] `packages/cli/src/uninstall.ts` exists and owns uninstall orchestration
 - [ ] Uninstall shows both the initial warning and audit summary before removal
-- [ ] `confirm` mode requires explicit approval at both confirmation points
-- [ ] `allow-all` skips prompts but still prints warning and audit summaries
+- [ ] Default mode requires explicit approval at both confirmation points
+- [ ] `--yes` skips prompts but still prints warning and audit summaries
 - [ ] Canceling at either confirmation point exits cleanly with no mutations
 
 ### Dependencies
@@ -122,7 +122,7 @@ This phase owns uninstall routing, the warning/audit/final-confirm UX, `--backup
    - uninstall preserve/remove behavior
    - unmanaged-file preservation
    - modified/unmodified root instruction files
-   - `allow-all`
+   - `--yes`
    - `uninstall --backup`
 4. Run targeted lifecycle tests and then the full suite.
 
