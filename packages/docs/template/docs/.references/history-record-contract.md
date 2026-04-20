@@ -1,10 +1,10 @@
-# Agent Guide Contract
+# History Record Contract
 
 ## Purpose
 
-Use this contract for agent-authored session history records under `docs/.assets/history/`.
+Use this contract for session history records under `docs/.assets/history/`.
 
-Agent history records are **breadcrumbs**: concise, point-in-time references for a future auditor. A reader should be able to skim one and know what was touched and why, then follow links to deeper detail. They are not verbose narratives and not live logs.
+History records are **breadcrumbs**: concise, point-in-time references for a future auditor. A reader should be able to skim one and know what was touched and why, then follow links to deeper detail. They are not verbose narratives and not live logs.
 
 ## Required Path
 
@@ -50,7 +50,7 @@ Do not encode wave, revision, phase, stage, or task in the filename. Capture tha
 
 ## Coordinate Rules
 
-See `docs/.references/wave-model.md` for W/R/P semantics and general resolution rules. The rules below are specific to agent history records and extend (do not replace) the general model.
+See `docs/.references/wave-model.md` for W/R/P semantics and general resolution rules. The rules below are specific to history records and extend (do not replace) the general model.
 
 Coordinates use one combined abbreviation that captures as much positioning as is known for the session:
 
@@ -68,7 +68,7 @@ Unknown deeper levels should be omitted rather than filled with placeholders.
 
 ## Required Headings
 
-Each agent history record must include, in order:
+Each history record must include, in order:
 
 - `# {{TITLE}}` — level-1 title capturing the session focus.
 - `## Changes` — free-form prose, markdown tables, and/or file trees summarizing what was touched. May use sub-headings.
@@ -111,17 +111,17 @@ None this session.
 
 ## When to Create
 
-Create an agent history record:
+Create a history record:
 
 - at the end of a work session,
 - on an explicit "summarize this session" request, or
 - at a meaningful checkpoint.
 
-Agent history records are written once at the end of the relevant span. Do not maintain them as live logs during the session.
+History records are written once at the end of the relevant span. Do not maintain them as live logs during the session.
 
 ## Update Rules
 
-- Each session gets its own new file. Agent history records are immutable breadcrumbs.
+- Each session gets its own new file. History records are immutable breadcrumbs.
 - Edit a prior history record in place only to correct factual errors.
 - Never append new session work to a prior session's summary; write a new file instead.
 

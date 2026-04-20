@@ -1,11 +1,11 @@
 ___
-name: Session to Agent Guide
+name: Session to History Record
 description: Instructs the agent to summarize the current session into a new dated history record under `docs/.assets/history/`.
 ___
 
-Please summarize this session into a new agent history record.
+Please summarize this session into a new history record.
 
-Before writing anything, read `docs/.references/agent-guide-contract.md`, `docs/.templates/agent-guide.md`, and the router at `docs/.assets/history/AGENTS.md` (or `CLAUDE.md`). Do not restate their rules — follow them.
+Before writing anything, read `docs/.references/history-record-contract.md`, `docs/.templates/history-record.md`, and the router at `docs/.assets/history/AGENTS.md` (or `CLAUDE.md`). Do not restate their rules — follow them.
 
 Use today's date for `YYYY-MM-DD` and never backdate. If the active plan or work context gives a known position, record it in one `coordinate` frontmatter field such as `W9 R0 P1` or `W9 R0 P1 S2 T4`; omit unknown coordinate levels.
 

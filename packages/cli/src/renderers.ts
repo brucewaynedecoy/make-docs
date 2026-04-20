@@ -131,7 +131,7 @@ function renderDocsRouter(profile: InstallProfile): string {
 
   lines.push(
     "- For guides, continue in `docs/guides/`. User-facing and developer-facing guides live in `docs/guides/user/` and `docs/guides/developer/` — read `docs/.references/guide-contract.md` and the matching template (`docs/.templates/guide-developer.md` or `docs/.templates/guide-user.md`) before writing.",
-    "- For agent history records, continue in `docs/.assets/history/` — read `docs/.references/agent-guide-contract.md` and `docs/.templates/agent-guide.md` before writing.",
+    "- For history records, continue in `docs/.assets/history/` — read `docs/.references/history-record-contract.md` and `docs/.templates/history-record.md` before writing.",
   );
 
   if (getPromptPaths(profile).length > 0) {
@@ -151,7 +151,7 @@ function renderGuidesRouter(profile: InstallProfile): string {
     "",
     "- **User guides** are stored in `docs/guides/user/`. This can include developer-styled user documentation for extending or integrating with this project's product(s). Before writing, read `docs/.references/guide-contract.md` and copy the template from `docs/.templates/guide-user.md`.",
     "- **Developer guides** are stored in `docs/guides/developer/`. Before writing, read `docs/.references/guide-contract.md` and copy the template from `docs/.templates/guide-developer.md`.",
-    "- Agent history records are not guides. Route them through `docs/.assets/history/` instead.",
+    "- History records are not guides. Route them through `docs/.assets/history/` instead.",
     "- If the `docs/guides/user` or `docs/guides/developer` directories do not exist, create them ONLY when first writing a guide that belongs in the specific sub-folder.",
     "",
     "Documentation must be easy to understand, easy to use, and easy to follow, with links to supporting sections or documents where necessary and where possible.",
@@ -164,7 +164,7 @@ function renderAssetsRouter(): string {
     "# Operational Assets Router",
     "",
     "This directory holds operational documentation assets that support the docs system.",
-    "- History records belong in `docs/.assets/history/`; read `docs/.references/agent-guide-contract.md` and `docs/.templates/agent-guide.md` before writing.",
+    "- History records belong in `docs/.assets/history/`; read `docs/.references/history-record-contract.md` and `docs/.templates/history-record.md` before writing.",
     "- Starter-docs CLI state belongs in `docs/.assets/starter-docs/`; do not hand-edit CLI-managed state files.",
     "- Do not create new asset namespaces unless a contract or explicit user request adds them.",
     "",
@@ -175,8 +175,8 @@ function renderHistoryAssetsRouter(): string {
   return [
     "# History Assets Router",
     "",
-    "This directory stores agent-authored session history records.",
-    "- Before writing, read `docs/.references/agent-guide-contract.md` and `docs/.templates/agent-guide.md`.",
+    "This directory stores session history records.",
+    "- Before writing, read `docs/.references/history-record-contract.md` and `docs/.templates/history-record.md`.",
     "- Create records at `docs/.assets/history/YYYY-MM-DD-<slug>.md`.",
     "- Include only known frontmatter fields; do not invent unknown client, model, or provider values.",
     "- Keep records concise: breadcrumbs for a future auditor, not live logs.",

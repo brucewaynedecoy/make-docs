@@ -21,13 +21,13 @@ Mode detection is intent-based: infer the mode from user phrasing and confirm be
 
 - **Work backlog** — scan `00-index.md` and phase files for links into `docs/plans/`.
 - **Plan** — scan `00-overview.md` for links into `docs/designs/`.
-- **Agent guide** — parse `w{W}-r{R}-p{P}` from the filename; find the matching plan and work directory sharing the same wave.
+- **History record** — read `coordinate` frontmatter; find the matching plan and work directory sharing the same wave/revision.
 
 ### Downstream Tracing
 
 - **Design** — scan `docs/plans/` for overview files linking back to the design.
 - **Plan** — scan `docs/work/` for index files linking back to the plan.
-- **Plan/Work** — scan `docs/guides/agent/` for guides whose filename matches the same wave/revision.
+- **Plan/Work** — scan `docs/.assets/history/` for history records whose `coordinate` matches the same wave/revision.
 
 ### Lateral Tracing
 
@@ -88,7 +88,7 @@ When running in dry-run or impact mode, produce the following:
 - **Files that would move** — each file with its archive destination path.
 - **Active artifacts with links to target(s)** — these links would break on archival.
 - **Proposed link rewrites** — old path to new path for each affected link.
-- **Guide reference count** — number of agent, developer, and user guides referencing the target.
+- **Guide and history reference count** — number of history records, developer guides, and user guides referencing the target.
 - **Incomplete downstream warning** — flag if any target has downstream work that is not yet complete.
 
 ## Archive Sub-Directory Mapping
@@ -101,7 +101,7 @@ This mapping mirrors `docs/.archive/AGENTS.md`. Sub-directories are created on d
 | Plan | `docs/.archive/plans/` |
 | Work | `docs/.archive/work/` |
 | PRD set | `docs/.archive/prds/YYYY-MM-DD/` |
-| Agent guide | `docs/.archive/guides/agent/` |
+| History record | `docs/.archive/.assets/history/` |
 | Developer guide | `docs/.archive/guides/developer/` |
 | User guide | `docs/.archive/guides/user/` |
 

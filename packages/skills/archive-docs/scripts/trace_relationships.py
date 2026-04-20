@@ -20,10 +20,10 @@ from typing import Any
 # ---------------------------------------------------------------------------
 
 ARTIFACT_DIRS: dict[str, str] = {
+    ".assets/history": "history_record",
     "designs": "design",
     "plans": "plan",
     "work": "work",
-    "guides/agent": "agent_guide",
     "guides/developer": "developer_guide",
     "guides/user": "user_guide",
 }
@@ -31,7 +31,10 @@ ARTIFACT_DIRS: dict[str, str] = {
 LINK_RE = re.compile(r"\[([^\]]*)\]\(([^)]+)\)")
 DATE_PREFIX_RE = re.compile(r"^\d{4}-\d{2}-\d{2}-")
 WAVE_PREFIX_RE = re.compile(r"^w\d+-r\d+-")
-AGENT_GUIDE_WR_RE = re.compile(r"w(\d+)-r(\d+)")
+HISTORY_COORDINATE_RE = re.compile(r"\bW(\d+)\s+R(\d+)", re.IGNORECASE)
+LEGACY_HISTORY_WR_RE = re.compile(r"w(\d+)-r(\d+)")
+COORDINATE_RE = re.compile(r"^coordinate:\s*[\"']?([^\"'\n]+)[\"']?", re.MULTILINE)
+ROUTER_FILENAMES = {"AGENTS.md", "CLAUDE.md"}
 RELATED_BLOCK_RE = re.compile(
     r"^related:\s*\n((?:\s*-\s*.+\n?)+)", re.MULTILINE
 )
@@ -72,6 +75,8 @@ def discover_artifacts(doc_root: Path) -> dict[str, dict[str, Any]]:
 
         for entry in sorted(subdir.iterdir()):
             if entry.is_file() and entry.suffix == ".md":
+                if entry.name in ROUTER_FILENAMES:
+                    continue
                 rel = str(entry.relative_to(doc_root))
                 artifacts[rel] = _new_artifact(kind)
             elif entry.is_dir():
@@ -117,6 +122,23 @@ def extract_related(text: str) -> list[str]:
     if not block:
         return []
     return [m.strip() for m in RELATED_ITEM_RE.findall(block.group(1))]
+
+
+def extract_history_coordinate(text: str, file_name: str) -> tuple[str, str] | None:
+    """Extract W/R from history frontmatter, falling back to legacy filenames."""
+    fm_match = FRONTMATTER_RE.match(text)
+    if fm_match:
+        coordinate_match = COORDINATE_RE.search(fm_match.group(1))
+        if coordinate_match:
+            wr_match = HISTORY_COORDINATE_RE.search(coordinate_match.group(1))
+            if wr_match:
+                return wr_match.group(1), wr_match.group(2)
+
+    legacy_match = LEGACY_HISTORY_WR_RE.search(file_name)
+    if legacy_match:
+        return legacy_match.group(1), legacy_match.group(2)
+
+    return None
 
 
 def resolve_link(source_file: str, href: str, doc_root: Path) -> str | None:
@@ -215,24 +237,33 @@ def build_lateral_relationships(
     return count
 
 
-def build_agent_guide_associations(
-    artifacts: dict[str, dict[str, Any]],
+def build_history_record_associations(
+    artifacts: dict[str, dict[str, Any]], doc_root: Path
 ) -> int:
-    """Match agent guide filenames with w{W}-r{R} to plans/work of same wave."""
+    """Match history record coordinates to plans/work in the same wave/revision."""
     count = 0
-    guides = {k: v for k, v in artifacts.items() if v["type"] == "agent_guide"}
+    records = {k: v for k, v in artifacts.items() if v["type"] == "history_record"}
     others = {k: v for k, v in artifacts.items() if v["type"] in ("plan", "work")}
 
-    for g_path, g_art in guides.items():
-        m = AGENT_GUIDE_WR_RE.search(Path(g_path).name)
-        if not m:
+    for record_path, record_art in records.items():
+        full = doc_root / record_path
+        if not full.is_file():
             continue
-        wave = m.group(1)
-        wave_re = re.compile(rf"w{re.escape(wave)}-r\d+")
-        for o_path, o_art in others.items():
-            if wave_re.search(Path(o_path.rstrip("/")).name):
-                _add_rel(g_art, "lateral", o_path, "link", g_path)
-                _add_rel(o_art, "lateral", g_path, "link", g_path)
+        try:
+            text = full.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+
+        coordinate = extract_history_coordinate(text, Path(record_path).name)
+        if not coordinate:
+            continue
+
+        wave, revision = coordinate
+        wr_re = re.compile(rf"w{re.escape(wave)}-r{re.escape(revision)}")
+        for other_path, other_art in others.items():
+            if wr_re.search(Path(other_path.rstrip("/")).name):
+                _add_rel(record_art, "lateral", other_path, "link", record_path)
+                _add_rel(other_art, "lateral", record_path, "link", record_path)
                 count += 1
 
     return count
@@ -364,7 +395,7 @@ def main(argv: list[str] | None = None) -> None:
 
     link_count = build_link_relationships(artifacts, doc_root)
     link_count += build_lateral_relationships(artifacts, doc_root)
-    link_count += build_agent_guide_associations(artifacts)
+    link_count += build_history_record_associations(artifacts, doc_root)
     heuristic_count = build_heuristic_relationships(artifacts)
 
     # Filter to target if requested

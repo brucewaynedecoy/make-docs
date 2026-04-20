@@ -43,7 +43,7 @@ export const PROMPT_RULES: PromptRule[] = [
     requires: ["designs", "plans"],
   },
   {
-    relativePath: "docs/.prompts/session-to-agent-guide.prompt.md",
+    relativePath: "docs/.prompts/session-to-history-record.prompt.md",
     requires: [],
   },
   {
@@ -79,7 +79,7 @@ const WORK_TEMPLATE_PATHS = [
 const ALWAYS_TEMPLATE_PATHS = [
   "docs/.templates/guide-developer.md",
   "docs/.templates/guide-user.md",
-  "docs/.templates/agent-guide.md",
+  "docs/.templates/history-record.md",
 ];
 
 const REQUIRED_REFERENCE_PATHS = {
@@ -104,7 +104,7 @@ const REQUIRED_REFERENCE_PATHS = {
 const ALWAYS_REFERENCE_PATHS = [
   "docs/.references/guide-contract.md",
   "docs/.references/wave-model.md",
-  "docs/.references/agent-guide-contract.md",
+  "docs/.references/history-record-contract.md",
   "docs/.references/commit-message-convention.md",
 ];
 

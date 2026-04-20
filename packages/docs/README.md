@@ -18,7 +18,8 @@ packages/docs/
         ├── .references/              # authoritative rules and workflows
         ├── .templates/               # structural starters for generated docs
         ├── designs/                  # architectural decisions (ADRs)
-        ├── guides/                   # user, developer, and agent session guides
+        ├── .assets/                  # operational assets, including history records
+        ├── guides/                   # user and developer guides
         ├── plans/                    # approach + rationale (always directories in v2)
         ├── prd/                      # product requirements
         └── work/                     # work backlogs (always directories in v2)
@@ -41,7 +42,7 @@ Consumers should start at `template/docs/AGENTS.md` (or `CLAUDE.md`) and read pe
 - `wave-model.md` — Wave/Revision/Phase (W/R/P) encoding authority
 - `output-contract.md` — required paths, section contracts, lifecycle rules
 - `design-contract.md`, `planning-workflow.md`, `execution-workflow.md` — per-artifact authority
-- `agent-guide-contract.md` — agent session summary contract
+- `history-record-contract.md` — session history record contract
 
 ## Editing the Template
 
@@ -65,7 +66,7 @@ When you edit files in the template package, the repo-root `docs/` may become st
 
 Only template-owned files are re-seeded — never project-specific content:
 
-- **Router files** — `AGENTS.md` / `CLAUDE.md` in `docs/`, `docs/guides/`, `docs/guides/agent/`, `docs/.templates/`, `docs/.prompts/`, `docs/.references/`, `docs/.archive/`, and capability directories
+- **Router files** — `AGENTS.md` / `CLAUDE.md` in `docs/`, `docs/guides/`, `docs/.assets/`, `docs/.templates/`, `docs/.prompts/`, `docs/.references/`, `docs/.archive/`, and capability directories
 - **Reference files** — `docs/.references/*.md` (contracts, workflows, wave model)
 - **Template files** — `docs/.templates/*.md` (structural starters)
 

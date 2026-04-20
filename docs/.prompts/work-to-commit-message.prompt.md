@@ -11,8 +11,8 @@ Inspect the local context first:
 
 - `git status --short`
 - recent commit subjects with `git log --format='%h %s' -n 30`
-- the relevant design, plan, work, and agent history docs for the requested coordinate
-- `docs/.assets/history/` for current agent history records, falling back to legacy `docs/guides/agent/` only when needed
+- the relevant design, plan, work, and history records for the requested coordinate
+- `docs/.assets/history/` for current history records, falling back to legacy records only when needed
 
 If the user explicitly asks you to commit, stage only the requested change set, create the commit with the drafted subject/body, and verify it with `git log -1 --format=%B`. Do not stage unrelated edits, do not rewrite user work, and do not create a commit when the request is only to draft a message.
 
@@ -22,7 +22,6 @@ Optional hints (leave blank to infer from the repository):
 
 - Intent: {{INTENT}}
 - Coordinate: {{COORDINATE}}
-- Agent history record: {{HISTORY_RECORD}}
+- History record: {{HISTORY_RECORD}}
 - Plan or design path: {{PLAN_OR_DESIGN_PATH}}
 - Commit mode: {{COMMIT_MODE}}
-

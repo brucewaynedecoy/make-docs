@@ -1,6 +1,6 @@
 # Commit Message Convention
 
-Use this reference when drafting or creating project commits from wave, revision, phase, plan, work, or agent history artifacts.
+Use this reference when drafting or creating project commits from wave, revision, phase, plan, work, or history artifacts.
 
 Commit messages use one short subject line, then one blank line, then an optional body paragraph. The body paragraph is copied from the authoritative source document described below.
 
@@ -20,14 +20,14 @@ Rules:
 - Use `P1`, `P5`, or a phase range such as `P1-2`.
 - Do not include commas in the coordinate. Use `[W8 R0 P5]`, not legacy `[W8, R0, P5]`.
 - Use the wave name from the plan/work/history title.
-- Use the phase name from the implemented work phase or matching agent history record.
+- Use the phase name from the implemented work phase or matching history record.
 - If the phase commit intentionally spans multiple phases, use the exact phase range and a concise combined phase label.
 
 Body:
 
-- Copy the first paragraph under `## Changes` from the matching agent history record.
+- Copy the first paragraph under `## Changes` from the matching history record.
 - Prefer `docs/.assets/history/`.
-- If the repo has not migrated yet, accept legacy records under `docs/guides/agent/`.
+- If the repo has not migrated yet, accept legacy history records identified by the legacy router.
 - Do not include tables, documentation sections, verification lists, or extra commentary in the commit body.
 
 Example:
@@ -35,7 +35,7 @@ Example:
 ```text
 feat: [W8 R0 P5] CLI command simplification - Apply and sync output polish
 
-Implemented a Wave 8 follow-up phase for the `starter-docs` apply/sync review output, framed by [the command simplification design](../../designs/2026-04-20-cli-command-simplification.md) and the completed Phase 4 validation work in [the Phase 4 agent guide](2026-04-20-w8-r0-p4-cli-command-simplification.md). This phase focused on making the already-installed no-op sync readout clearer, less redundant, and consistent with Clack-rendered CLI screens.
+Implemented a Wave 8 follow-up phase for the `starter-docs` apply/sync review output, framed by [the command simplification design](../../designs/2026-04-20-cli-command-simplification.md) and the completed Phase 4 validation work in [the Phase 4 history record](2026-04-20-w8-r0-p4-cli-command-simplification.md). This phase focused on making the already-installed no-op sync readout clearer, less redundant, and consistent with Clack-rendered CLI screens.
 ```
 
 ## Plan Commits
@@ -66,7 +66,7 @@ Example:
 ```text
 plan: [W9 R0] Docs assets, starter-docs state, and session history
 
-Define the intended documentation architecture for moving starter-docs operational state out of `docs/.starter-docs/`, introducing a template-owned `docs/.assets/` namespace, and migrating agent session history out of `docs/guides/agent/`.
+Define the intended documentation architecture for moving starter-docs operational state out of `docs/.starter-docs/`, introducing a template-owned `docs/.assets/` namespace, and migrating session history into the assets namespace.
 ```
 
 ## Source Resolution
@@ -75,10 +75,10 @@ Before drafting or committing:
 
 - Inspect `git status --short` to understand the staged and unstaged change set.
 - Inspect recent history with `git log --format='%h %s' -n 30` to preserve the current naming style.
-- Find the relevant coordinate from the changed files, branch name, plan/work paths, agent history frontmatter, or nearby commit subjects.
-- For feature commits, read the matching agent history record and extract only the first `## Changes` paragraph.
+- Find the relevant coordinate from the changed files, branch name, plan/work paths, history record frontmatter, or nearby commit subjects.
+- For feature commits, read the matching history record and extract only the first `## Changes` paragraph.
 - For plan commits, read the seeding design first, then the plan overview if needed, and extract only the first `## Purpose` paragraph.
-- If the source documents disagree, prefer the artifact closest to the committed work: agent history for feature work, design or plan overview for plan work.
+- If the source documents disagree, prefer the artifact closest to the committed work: history records for feature work, design or plan overview for plan work.
 
 ## Commit Execution
 
@@ -91,4 +91,3 @@ When committing:
 - Do not rewrite, revert, or clean existing user changes to make the commit easier.
 - Use `git commit` with the subject and body exactly as drafted.
 - Verify the final message with `git log -1 --format=%B`.
-
