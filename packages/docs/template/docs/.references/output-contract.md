@@ -19,7 +19,7 @@ Use this contract to keep plan, PRD, and work document outputs consistent across
 | Risk register | `docs/prd/03-open-questions-and-risk-register.md` |
 | Glossary | `docs/prd/04-glossary.md` |
 | Archived PRD set | `docs/.archive/prds/YYYY-MM-DD/` or `docs/.archive/prds/YYYY-MM-DD-XX/` |
-| Agent session guide | `docs/guides/agent/YYYY-MM-DD-w{W}-r{R}-p{P}-<slug>.md` |
+| Agent history record | `docs/.assets/history/YYYY-MM-DD-<slug>.md` |
 
 Plan directories contain `00-overview.md` plus one or more `0N-<phase>.md` files. Work directories contain `00-index.md` plus one or more `0N-<phase>.md` files. See `docs/.references/wave-model.md` for the full naming pattern and `## Work Phase Structure Rules` below for work content requirements.
 

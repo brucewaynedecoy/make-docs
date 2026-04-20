@@ -44,8 +44,10 @@ async function installWithSelections(
 const FULL_PROFILE_INSTRUCTION_DIRS = [
   ".",
   "docs",
+  "docs/.assets",
+  "docs/.assets/history",
+  "docs/.assets/starter-docs",
   "docs/guides",
-  "docs/guides/agent",
   "docs/.archive",
   "docs/designs",
   "docs/plans",
@@ -157,9 +159,13 @@ describe("installer integration", () => {
       expect(existsSync(path.join(targetDir, "docs/.templates/guide-user.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/guides/AGENTS.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/guides/CLAUDE.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/.assets/AGENTS.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/.assets/history/AGENTS.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/.assets/starter-docs/AGENTS.md"))).toBe(true);
 
       const guidesRouter = readFileSync(path.join(targetDir, "docs/guides/AGENTS.md"), "utf8");
       expect(guidesRouter).toContain("guide-contract.md");
+      expect(guidesRouter).not.toContain("docs/guides/agent");
       expect(manifest.skillFiles).toContain(".claude/skills/archive-docs/SKILL.md");
       expect(manifest.skillFiles).toContain(".agents/skills/archive-docs/SKILL.md");
     } finally {
@@ -432,6 +438,9 @@ describe("installer integration", () => {
       expect(existsSync(path.join(targetDir, "docs/.templates/agent-guide.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/guides/AGENTS.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/guides/CLAUDE.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/.assets/AGENTS.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/.assets/history/AGENTS.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/.assets/starter-docs/AGENTS.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/.archive/AGENTS.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/.archive/CLAUDE.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/.prompts/session-to-agent-guide.prompt.md"))).toBe(true);

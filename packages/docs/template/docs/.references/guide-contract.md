@@ -4,7 +4,7 @@
 
 Use this contract for developer and user guides under `docs/guides/developer/` and `docs/guides/user/`.
 
-This contract does NOT apply to `docs/guides/agent/`, which retains its own contract (`docs/.references/agent-guide-contract.md`).
+This contract does NOT apply to agent history records, which use `docs/.references/agent-guide-contract.md`.
 
 ## Required Frontmatter
 
@@ -81,7 +81,7 @@ Transitions: `draft` → `published` → `deprecated`. A `deprecated` guide may 
 ## Scope
 
 - Applies to `docs/guides/developer/` and `docs/guides/user/` only.
-- Does NOT apply to `docs/guides/agent/`, which retains `docs/.references/agent-guide-contract.md`.
+- Does NOT apply to agent history records, which use `docs/.references/agent-guide-contract.md`.
 
 ## Cross-Audience Guides
 

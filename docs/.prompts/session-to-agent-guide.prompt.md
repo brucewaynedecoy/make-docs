@@ -1,15 +1,15 @@
 ___
 name: Session to Agent Guide
-description: Instructs the agent to summarize the current session into a new dated agent guide under `docs/guides/agent/`.
+description: Instructs the agent to summarize the current session into a new dated history record under `docs/.assets/history/`.
 ___
 
-Please summarize this session into a new agent guide.
+Please summarize this session into a new agent history record.
 
-Before writing anything, read `docs/.references/agent-guide-contract.md`, `docs/.templates/agent-guide.md`, and the router at `docs/guides/agent/AGENTS.md` (or `CLAUDE.md`). Do not restate their rules — follow them.
+Before writing anything, read `docs/.references/agent-guide-contract.md`, `docs/.templates/agent-guide.md`, and the router at `docs/.assets/history/AGENTS.md` (or `CLAUDE.md`). Do not restate their rules — follow them.
 
-Resolve the `w{W}-r{R}-p{P}` components using the contract's resolution rules. If no active wave context exists, default to `w1-r0-p1` and include the `> Note:` blockquote at the top of the file. Use today's date for `YYYY-MM-DD` and never backdate.
+Use today's date for `YYYY-MM-DD` and never backdate. If the active plan or work context gives a known position, record it in one `coordinate` frontmatter field such as `W9 R0 P1` or `W9 R0 P1 S2 T4`; omit unknown coordinate levels.
 
-Create a new file at `docs/guides/agent/YYYY-MM-DD-w{W}-r{R}-p{P}-<slug>.md` (default slug `summary`). Follow the required headings exactly: `## Changes`, then `## Documentation` containing `### Developer` and `### User` tables. State `None this session.` for any empty sub-section.
+Create a new file at `docs/.assets/history/YYYY-MM-DD-<slug>.md` (default slug `summary`). Fill only known frontmatter fields; do not invent unknown `client`, `model`, or `provider` values. Follow the required headings exactly: `## Changes`, then `## Documentation` containing `### Project`, `### Developer`, and `### User` tables. State `None this session.` for any empty sub-section.
 
 Keep the summary concise — breadcrumbs for a future auditor, not a verbose narrative. Use relative Markdown links to any touched files, plans, designs, or backlog phases.
 

@@ -33,11 +33,11 @@ None. This backlog is derived from the `w9-r0` plan and design, not from an acti
 
 ### Acceptance criteria
 
-- [ ] The repo contract names `docs/.assets/history/` as the required history path.
-- [ ] The template contract names `docs/.assets/history/` as the required history path.
-- [ ] The contract includes YAML frontmatter examples.
-- [ ] The contract states that coordinate details are captured in one `coordinate` string.
-- [ ] The contract no longer tells agents to create new records in `docs/guides/agent/`.
+- [x] The repo contract names `docs/.assets/history/` as the required history path.
+- [x] The template contract names `docs/.assets/history/` as the required history path.
+- [x] The contract includes YAML frontmatter examples.
+- [x] The contract states that coordinate details are captured in one `coordinate` string.
+- [x] The contract no longer tells agents to create new records in `docs/guides/agent/`.
 
 ### Dependencies
 
@@ -57,11 +57,11 @@ None. This backlog is derived from the `w9-r0` plan and design, not from an acti
 
 ### Acceptance criteria
 
-- [ ] The repo history template includes frontmatter.
-- [ ] The template copy includes the same frontmatter model.
-- [ ] The repo prompt writes new records under `docs/.assets/history/`.
-- [ ] The template prompt writes new records under `docs/.assets/history/`.
-- [ ] The prompt preserves the concise breadcrumb style.
+- [x] The repo history template includes frontmatter.
+- [x] The template copy includes the same frontmatter model.
+- [x] The repo prompt writes new records under `docs/.assets/history/`.
+- [x] The template prompt writes new records under `docs/.assets/history/`.
+- [x] The prompt preserves the concise breadcrumb style.
 
 ### Dependencies
 
@@ -81,11 +81,11 @@ None. This backlog is derived from the `w9-r0` plan and design, not from an acti
 
 ### Acceptance criteria
 
-- [ ] `wave-model.md` uses the new history path.
-- [ ] `output-contract.md` uses the new history path.
-- [ ] `guide-contract.md` no longer references `docs/guides/agent/` as an active guide subtype.
-- [ ] Root routers direct history work to `docs/.assets/history/`.
-- [ ] Guide routers no longer route agent session history.
+- [x] `wave-model.md` uses the new history path.
+- [x] `output-contract.md` uses the new history path.
+- [x] `guide-contract.md` no longer references `docs/guides/agent/` as an active guide subtype.
+- [x] Root routers direct history work to `docs/.assets/history/`.
+- [x] Guide routers no longer route agent session history.
 
 ### Dependencies
 
@@ -104,11 +104,11 @@ None. This backlog is derived from the `w9-r0` plan and design, not from an acti
 
 ### Acceptance criteria
 
-- [ ] Repo `.assets` routers exist.
-- [ ] Template `.assets` routers exist.
-- [ ] History routers point to `docs/.references/agent-guide-contract.md` and `docs/.templates/agent-guide.md`.
-- [ ] Starter-docs routers identify `docs/.assets/starter-docs/` as CLI-managed state.
-- [ ] No deferred namespaces are created.
+- [x] Repo `.assets` routers exist.
+- [x] Template `.assets` routers exist.
+- [x] History routers point to `docs/.references/agent-guide-contract.md` and `docs/.templates/agent-guide.md`.
+- [x] Starter-docs routers identify `docs/.assets/starter-docs/` as CLI-managed state.
+- [x] No deferred namespaces are created.
 
 ### Dependencies
 
@@ -125,10 +125,10 @@ None. This backlog is derived from the `w9-r0` plan and design, not from an acti
 
 ### Acceptance criteria
 
-- [ ] Active contract/template/prompt/router files no longer direct new history records to `docs/guides/agent/`.
-- [ ] Active contract/template/prompt/router files mention `docs/.assets/history/` where history routing is needed.
-- [ ] Relative links introduced by this phase resolve.
-- [ ] `git diff --check` passes.
+- [x] Active contract/template/prompt/router files no longer direct new history records to `docs/guides/agent/`.
+- [x] Active contract/template/prompt/router files mention `docs/.assets/history/` where history routing is needed.
+- [x] Relative links introduced by this phase resolve.
+- [x] `git diff --check` passes.
 
 ### Dependencies
 

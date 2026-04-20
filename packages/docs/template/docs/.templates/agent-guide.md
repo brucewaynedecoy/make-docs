@@ -1,7 +1,17 @@
-# {{TITLE}}
+---
+date: "{{YYYY-MM-DD}}"
+client: "{{CLIENT}}"
+model: "{{MODEL}}"
+coordinate: "{{COORDINATE}}"
+# provider: "{{PROVIDER}}"
+# repo: "{{REPO}}"
+# branch: "{{BRANCH}}"
+# status: "{{STATUS}}"
+# summary: "{{ONE_LINE_SUMMARY}}"
+---
+<!-- Remove unknown frontmatter keys instead of leaving placeholders or inventing values. -->
 
-> Note: No active wave context detected; defaulted to w1-r0-p1.
-<!-- Keep the note above only when W/R/P were defaulted; otherwise remove it. -->
+# {{TITLE}}
 
 ## Changes
 

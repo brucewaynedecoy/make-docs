@@ -13,6 +13,14 @@ const PROMPTS_ROUTER_INSTRUCTIONS = new Set([
   "docs/.prompts/AGENTS.md",
   "docs/.prompts/CLAUDE.md",
 ]);
+const ASSETS_ROUTER_INSTRUCTIONS = new Set([
+  "docs/.assets/AGENTS.md",
+  "docs/.assets/CLAUDE.md",
+  "docs/.assets/history/AGENTS.md",
+  "docs/.assets/history/CLAUDE.md",
+  "docs/.assets/starter-docs/AGENTS.md",
+  "docs/.assets/starter-docs/CLAUDE.md",
+]);
 const DESIGN_REFERENCE_RENDERERS = new Set([
   "docs/.references/design-workflow.md",
   "docs/.references/design-contract.md",
@@ -29,6 +37,7 @@ export function isBuildablePath(relativePath: string): boolean {
     DOCS_ROUTER_INSTRUCTIONS.has(relativePath) ||
     TEMPLATE_ROUTER_INSTRUCTIONS.has(relativePath) ||
     PROMPTS_ROUTER_INSTRUCTIONS.has(relativePath) ||
+    ASSETS_ROUTER_INSTRUCTIONS.has(relativePath) ||
     DESIGN_REFERENCE_RENDERERS.has(relativePath) ||
     GUIDES_ROUTER_INSTRUCTIONS.has(relativePath)
   );
@@ -53,6 +62,15 @@ export function renderBuildableAsset(relativePath: string, profile: InstallProfi
     case "docs/.prompts/AGENTS.md":
     case "docs/.prompts/CLAUDE.md":
       return renderPromptsRouter(profile);
+    case "docs/.assets/AGENTS.md":
+    case "docs/.assets/CLAUDE.md":
+      return renderAssetsRouter();
+    case "docs/.assets/history/AGENTS.md":
+    case "docs/.assets/history/CLAUDE.md":
+      return renderHistoryAssetsRouter();
+    case "docs/.assets/starter-docs/AGENTS.md":
+    case "docs/.assets/starter-docs/CLAUDE.md":
+      return renderStarterDocsStateRouter();
     case "docs/.references/design-workflow.md":
       return renderDesignWorkflow(profile);
     case "docs/.references/design-contract.md":
@@ -112,7 +130,8 @@ function renderDocsRouter(profile: InstallProfile): string {
   }
 
   lines.push(
-    "- For guides, continue in `docs/guides/`. Agent session summaries live in `docs/guides/agent/` — read `docs/.references/agent-guide-contract.md` and `docs/.templates/agent-guide.md` before writing. User-facing and developer-facing guides live in `docs/guides/user/` and `docs/guides/developer/` — read `docs/.references/guide-contract.md` and the matching template (`docs/.templates/guide-developer.md` or `docs/.templates/guide-user.md`) before writing.",
+    "- For guides, continue in `docs/guides/`. User-facing and developer-facing guides live in `docs/guides/user/` and `docs/guides/developer/` — read `docs/.references/guide-contract.md` and the matching template (`docs/.templates/guide-developer.md` or `docs/.templates/guide-user.md`) before writing.",
+    "- For agent history records, continue in `docs/.assets/history/` — read `docs/.references/agent-guide-contract.md` and `docs/.templates/agent-guide.md` before writing.",
   );
 
   if (getPromptPaths(profile).length > 0) {
@@ -132,10 +151,48 @@ function renderGuidesRouter(profile: InstallProfile): string {
     "",
     "- **User guides** are stored in `docs/guides/user/`. This can include developer-styled user documentation for extending or integrating with this project's product(s). Before writing, read `docs/.references/guide-contract.md` and copy the template from `docs/.templates/guide-user.md`.",
     "- **Developer guides** are stored in `docs/guides/developer/`. Before writing, read `docs/.references/guide-contract.md` and copy the template from `docs/.templates/guide-developer.md`.",
-    "- **Agent session summaries** are stored in `docs/guides/agent/`. These follow a SEPARATE contract — read `docs/.references/agent-guide-contract.md` and `docs/.templates/agent-guide.md` before writing. Agent guides are exempt from the guide structure contract.",
-    "- If the `docs/guides/user`, `docs/guides/developer`, or `docs/guides/agent` directories do not exist, create them ONLY when first writing a guide that belongs in the specific sub-folder.",
+    "- Agent history records are not guides. Route them through `docs/.assets/history/` instead.",
+    "- If the `docs/guides/user` or `docs/guides/developer` directories do not exist, create them ONLY when first writing a guide that belongs in the specific sub-folder.",
     "",
     "Documentation must be easy to understand, easy to use, and easy to follow, with links to supporting sections or documents where necessary and where possible.",
+    "",
+  ].join("\n");
+}
+
+function renderAssetsRouter(): string {
+  return [
+    "# Operational Assets Router",
+    "",
+    "This directory holds operational documentation assets that support the docs system.",
+    "- History records belong in `docs/.assets/history/`; read `docs/.references/agent-guide-contract.md` and `docs/.templates/agent-guide.md` before writing.",
+    "- Starter-docs CLI state belongs in `docs/.assets/starter-docs/`; do not hand-edit CLI-managed state files.",
+    "- Do not create new asset namespaces unless a contract or explicit user request adds them.",
+    "",
+  ].join("\n");
+}
+
+function renderHistoryAssetsRouter(): string {
+  return [
+    "# History Assets Router",
+    "",
+    "This directory stores agent-authored session history records.",
+    "- Before writing, read `docs/.references/agent-guide-contract.md` and `docs/.templates/agent-guide.md`.",
+    "- Create records at `docs/.assets/history/YYYY-MM-DD-<slug>.md`.",
+    "- Include only known frontmatter fields; do not invent unknown client, model, or provider values.",
+    "- Keep records concise: breadcrumbs for a future auditor, not live logs.",
+    "- Use relative Markdown links when referencing files touched during the session.",
+    "",
+  ].join("\n");
+}
+
+function renderStarterDocsStateRouter(): string {
+  return [
+    "# Starter-Docs State Router",
+    "",
+    "This directory stores starter-docs CLI-managed state.",
+    "- Treat `docs/.assets/starter-docs/` as owned by the CLI.",
+    "- Do not hand-edit files here unless the user explicitly asks to repair CLI state.",
+    "- Do not create memories, preferences, or other deferred asset namespaces here.",
     "",
   ].join("\n");
 }
