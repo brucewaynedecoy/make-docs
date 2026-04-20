@@ -170,22 +170,39 @@ describe("cli interactive flows", () => {
 
   test("syncs saved selections on a bare interactive apply without opening the wizard", async () => {
     const targetDir = createTempDir();
+    const writeSpy = vi.spyOn(process.stdout, "write").mockImplementation(() => true);
 
     try {
       await installManifest(targetDir, (selections) => {
         selections.capabilities.work = false;
         selections.skills = false;
       });
-      confirmMock.mockResolvedValue(true);
       const { runCli } = await import("../src/cli");
 
       await runCli(["--target", targetDir]);
 
+      const output = writeSpy.mock.calls.map(([chunk]) => String(chunk)).join("");
       expect(runSelectionWizardMock).not.toHaveBeenCalled();
-      expect(confirmMock).toHaveBeenCalledTimes(1);
+      expect(confirmMock).not.toHaveBeenCalled();
+      expect(output).toContain("Information");
+      expect(output).toContain("Mode: existing install sync");
+      expect(output).toContain("Manifest:");
+      expect(output).toContain("(found)");
+      expect(output).toContain("Selection source: saved manifest selections");
+      expect(output).toContain("Changes planned: 0");
+      expect(output).toContain("Results");
+      expect(output).toContain("No managed file changes are needed.");
+      expect(output).toContain("Every managed file already matched");
+      expect(output).not.toContain("found an existing manifest");
+      expect(output).not.toContain("It compared the saved selections");
+      expect(output).not.toContain("starter-docs is already up to date");
+      expect(output).not.toContain(
+        `\nManifest: ${path.join(targetDir, "docs/.starter-docs/manifest.json")}`,
+      );
       expect(loadManifest(targetDir)?.selections.capabilities.work).toBe(false);
       expect(loadManifest(targetDir)?.selections.skills).toBe(false);
     } finally {
+      writeSpy.mockRestore();
       cleanupTempDir(targetDir);
     }
   });

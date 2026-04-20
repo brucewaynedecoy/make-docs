@@ -1,6 +1,6 @@
 import path from "node:path";
 import { stdin as input, stdout as output } from "node:process";
-import { confirm, isCancel } from "@clack/prompts";
+import { confirm, isCancel, note } from "@clack/prompts";
 import { runBackupCommand } from "./backup";
 import { applyInstallPlan, findInstructionConflicts, planInstall } from "./install";
 import { loadManifest } from "./manifest";
@@ -110,6 +110,11 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
     parsed,
     existingManifest,
   });
+  let selectionSource = describeSelectionSource({
+    parsed,
+    existingManifest,
+    installIntent,
+  });
   let skipApplyConfirm = false;
 
   if (interactive) {
@@ -123,6 +128,7 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
         return;
       }
       selections = wizardSelections;
+      selectionSource = "interactive wizard selections";
       skipApplyConfirm = true;
     } else if (installIntent === "reconfigure") {
       const wizardSelections = await runSelectionWizard({
@@ -134,6 +140,7 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
         return;
       }
       selections = wizardSelections;
+      selectionSource = "interactive reconfigure wizard";
       skipApplyConfirm = true;
     }
   }
@@ -169,16 +176,29 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
     throw new Error("At least one capability must remain enabled.");
   }
 
-  printPlan(plan.actions);
+  const hasPlannedChanges = plan.actions.some((action) => action.type !== "noop");
+  printPlan({
+    actions: plan.actions,
+    dryRun: parsed.dryRun,
+    existingManifest,
+    installIntent,
+    packageName: plan.packageName,
+    packageVersion: plan.packageVersion,
+    selectionSource,
+    targetDir,
+  });
 
   if (parsed.dryRun) {
     output.write("\nDry run complete.\n");
     return;
   }
 
-  if (interactive && !skipApplyConfirm) {
+  if (interactive && !skipApplyConfirm && hasPlannedChanges) {
     const proceed = await confirm({
-      message: "Apply these changes?",
+      message: getApplyConfirmationMessage({
+        existingManifest,
+        installIntent,
+      }),
       initialValue: true,
       active: "Yes",
       inactive: "No",
@@ -197,10 +217,15 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
     existingManifest,
   });
 
-  output.write(
-    `\nInstalled starter-docs ${applied.manifest.packageVersion} into ${targetDir}.\n`,
-  );
-  output.write(`Manifest: ${path.join(targetDir, "docs/.starter-docs/manifest.json")}\n`);
+  if (hasPlannedChanges) {
+    writeApplyCompletionSummary({
+      existingManifest,
+      installIntent,
+      manifest: applied.manifest,
+      targetDir,
+    });
+  }
+
   if (applied.conflictFiles.length > 0) {
     output.write("Conflicts were staged for manual review:\n");
     for (const conflictFile of applied.conflictFiles) {
@@ -211,6 +236,30 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
 
 function inferInstallIntent(parsed: ParsedArgs): InstallIntent {
   return parsed.command === "reconfigure" ? "reconfigure" : "apply";
+}
+
+function describeSelectionSource(options: {
+  parsed: ParsedArgs;
+  existingManifest: InstallManifest | null;
+  installIntent: InstallIntent;
+}): string {
+  const { parsed, existingManifest, installIntent } = options;
+
+  if (installIntent === "reconfigure") {
+    return hasSelectionOverrides(parsed)
+      ? "saved manifest selections plus reconfigure flags"
+      : "saved manifest selections";
+  }
+
+  if (existingManifest) {
+    return hasSelectionOverrides(parsed)
+      ? "saved manifest selections plus command-line flags"
+      : "saved manifest selections";
+  }
+
+  return hasSelectionOverrides(parsed)
+    ? "default selections plus command-line flags"
+    : "default selections";
 }
 
 function resolveSelections(options: {
@@ -562,23 +611,173 @@ function validateParsedArgs(parsed: ParsedArgs): void {
   }
 }
 
-function printPlan(actions: PlannedAction[]): void {
+function printPlan(options: {
+  actions: PlannedAction[];
+  dryRun: boolean;
+  existingManifest: InstallManifest | null;
+  installIntent: InstallIntent;
+  packageName: string;
+  packageVersion: string;
+  selectionSource: string;
+  targetDir: string;
+}): void {
+  const {
+    actions,
+    dryRun,
+    existingManifest,
+    installIntent,
+    packageName,
+    packageVersion,
+    selectionSource,
+    targetDir,
+  } = options;
   const nonNoop = actions.filter((action) => action.type !== "noop");
   const noopCount = actions.length - nonNoop.length;
+  const counts = countActions(actions);
+  const manifestPath = path.join(targetDir, "docs/.starter-docs/manifest.json");
+  const mode = describeApplyMode({ existingManifest, installIntent });
 
-  output.write("\nPlanned changes:\n");
-  for (const action of nonNoop) {
-    const actionLabel =
-      action.type === "update-conflict"
-        ? "update"
-        : action.reason === "Overwrite existing conflicting agent instructions."
-          ? "overwrite"
-          : action.type;
-    output.write(
-      `- ${actionLabel}: ${action.relativePath}${action.reason ? ` (${action.reason})` : ""}\n`,
+  note(
+    [
+      `Target: ${targetDir}`,
+      `Mode: ${mode}`,
+      existingManifest
+        ? `Manifest: ${manifestPath} (found)`
+        : `Manifest: ${manifestPath} (will be created)`,
+      existingManifest
+        ? `Installed version: ${existingManifest.packageVersion}`
+        : "Installed version: none detected",
+      `Package version: ${packageName} ${packageVersion}`,
+      `Selection source: ${selectionSource}`,
+      `Managed files evaluated: ${actions.length}`,
+      `Already current: ${noopCount}`,
+      `Changes planned: ${nonNoop.length}`,
+      `Create: ${counts.create}`,
+      `Update/regenerate: ${counts.update + counts.generate + counts["update-conflict"]}`,
+      `Remove managed: ${counts["remove-managed"]}`,
+      `Stage conflicts: ${counts["skip-conflict"]}`,
+    ].join("\n"),
+    "Information",
+  );
+
+  if (nonNoop.length === 0) {
+    renderNoopExplanation({ dryRun, existingManifest });
+    return;
+  }
+
+  note(nonNoop.map(formatActionLine).join("\n"), "Planned file operations");
+}
+
+function countActions(actions: PlannedAction[]): Record<PlannedAction["type"], number> {
+  return {
+    create: actions.filter((action) => action.type === "create").length,
+    generate: actions.filter((action) => action.type === "generate").length,
+    noop: actions.filter((action) => action.type === "noop").length,
+    "remove-managed": actions.filter((action) => action.type === "remove-managed").length,
+    "skip-conflict": actions.filter((action) => action.type === "skip-conflict").length,
+    update: actions.filter((action) => action.type === "update").length,
+    "update-conflict": actions.filter((action) => action.type === "update-conflict").length,
+  };
+}
+
+function describeApplyMode(options: {
+  existingManifest: InstallManifest | null;
+  installIntent: InstallIntent;
+}): string {
+  if (options.installIntent === "reconfigure") {
+    return "existing install reconfigure";
+  }
+
+  return options.existingManifest ? "existing install sync" : "first install";
+}
+
+function renderNoopExplanation(options: {
+  dryRun: boolean;
+  existingManifest: InstallManifest | null;
+}): void {
+  const noChangeText = options.dryRun
+    ? "No managed file changes would be made."
+    : "No managed file changes are needed.";
+
+  const lines = [noChangeText];
+
+  if (options.existingManifest) {
+    lines.push(
+      "Every managed file already matched the desired content.",
+      "",
+    );
+  } else {
+    lines.push(
+      "starter-docs did not find an existing manifest, so this run used first-install mode.",
+      "The selected files already matched starter-docs content.",
+      "Applying will create the manifest that tracks future syncs.",
+      "",
     );
   }
-  output.write(`- noop: ${noopCount} file(s)\n`);
+
+  lines.push(
+    "Useful next steps:",
+    "- Run `starter-docs reconfigure` to change which docs, prompts, harnesses, or skills are managed.",
+    "- Run `starter-docs --dry-run` after upgrading starter-docs to preview future changes.",
+  );
+
+  note(lines.join("\n"), "Results");
+}
+
+function formatActionLabel(action: PlannedAction): string {
+  if (action.type === "update-conflict") {
+    return "update";
+  }
+
+  if (action.reason === "Overwrite existing conflicting agent instructions.") {
+    return "overwrite";
+  }
+
+  return action.type;
+}
+
+function formatActionLine(action: PlannedAction): string {
+  const reason = action.reason ? ` (${action.reason})` : "";
+
+  return `- ${formatActionLabel(action)}: ${action.relativePath}${reason}`;
+}
+
+function getApplyConfirmationMessage(options: {
+  existingManifest: InstallManifest | null;
+  installIntent: InstallIntent;
+}): string {
+  if (options.installIntent === "reconfigure") {
+    return "Apply this reconfiguration?";
+  }
+
+  return options.existingManifest
+    ? "Apply this starter-docs sync?"
+    : "Install starter-docs with this plan?";
+}
+
+function writeApplyCompletionSummary(options: {
+  existingManifest: InstallManifest | null;
+  installIntent: InstallIntent;
+  manifest: InstallManifest;
+  targetDir: string;
+}): void {
+  if (options.installIntent === "reconfigure") {
+    output.write(
+      `\nReconfigured starter-docs ${options.manifest.packageVersion} in ${options.targetDir}.\n`,
+    );
+    return;
+  }
+
+  if (options.existingManifest) {
+    output.write(
+      `\nSynced starter-docs ${options.manifest.packageVersion} in ${options.targetDir}.\n`,
+    );
+    return;
+  }
+
+  output.write(
+    `\nInstalled starter-docs ${options.manifest.packageVersion} into ${options.targetDir}.\n`,
+  );
 }
 
 function printHelp(command?: Command): void {
