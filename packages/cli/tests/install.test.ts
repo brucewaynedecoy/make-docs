@@ -160,8 +160,12 @@ describe("installer integration", () => {
       expect(existsSync(path.join(targetDir, "docs/guides/AGENTS.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/guides/CLAUDE.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/.assets/AGENTS.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/.assets/CLAUDE.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/.assets/history/AGENTS.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/.assets/history/CLAUDE.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/.assets/starter-docs/AGENTS.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/.assets/starter-docs/CLAUDE.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/guides/agent"))).toBe(false);
 
       const guidesRouter = readFileSync(path.join(targetDir, "docs/guides/AGENTS.md"), "utf8");
       expect(guidesRouter).toContain("guide-contract.md");
@@ -439,8 +443,12 @@ describe("installer integration", () => {
       expect(existsSync(path.join(targetDir, "docs/guides/AGENTS.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/guides/CLAUDE.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/.assets/AGENTS.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/.assets/CLAUDE.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/.assets/history/AGENTS.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/.assets/history/CLAUDE.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/.assets/starter-docs/AGENTS.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/.assets/starter-docs/CLAUDE.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/guides/agent"))).toBe(false);
       expect(existsSync(path.join(targetDir, "docs/.archive/AGENTS.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/.archive/CLAUDE.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/.prompts/session-to-history-record.prompt.md"))).toBe(true);

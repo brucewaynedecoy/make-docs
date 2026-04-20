@@ -1,6 +1,16 @@
 import { describe, expect, test } from "vitest";
 import { defaultSelections, resolveInstallProfile } from "../src/profile";
 import { renderBuildableAsset } from "../src/renderers";
+import { readPackageFile } from "../src/utils";
+
+const ASSETS_ROUTER_PATHS = [
+  "docs/.assets/AGENTS.md",
+  "docs/.assets/CLAUDE.md",
+  "docs/.assets/history/AGENTS.md",
+  "docs/.assets/history/CLAUDE.md",
+  "docs/.assets/starter-docs/AGENTS.md",
+  "docs/.assets/starter-docs/CLAUDE.md",
+];
 
 describe("buildable renderers", () => {
   test("renders a docs router without missing capabilities", () => {
@@ -17,6 +27,21 @@ describe("buildable renderers", () => {
     expect(rendered).not.toContain("docs/prd/");
     expect(rendered).not.toContain("docs/work/");
   });
+
+  test.each(ASSETS_ROUTER_PATHS)(
+    "renders %s for reduced profiles",
+    (relativePath) => {
+      const selections = defaultSelections();
+      selections.capabilities.designs = false;
+      selections.capabilities.plans = false;
+      selections.capabilities.prd = false;
+      selections.capabilities.work = false;
+
+      const profile = resolveInstallProfile(selections);
+
+      expect(renderBuildableAsset(relativePath, profile)).toBe(readPackageFile(relativePath));
+    },
+  );
 
   test("removes prompt links from design workflow when plans are absent", () => {
     const selections = defaultSelections();

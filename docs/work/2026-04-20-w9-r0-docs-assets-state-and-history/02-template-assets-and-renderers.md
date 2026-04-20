@@ -27,14 +27,14 @@ None. This backlog is derived from the `w9-r0` plan and design, not from an acti
 3. Add managed paths for `docs/.assets/history/${activeInstructionKind}`.
 4. Add managed paths for `docs/.assets/starter-docs/${activeInstructionKind}`.
 5. Keep `docs/guides/${activeInstructionKind}` managed for user and developer guides.
-6. Confirm `packages/cli/src/rules.ts` still always installs `agent-guide-contract.md`, `agent-guide.md`, and `session-to-agent-guide.prompt.md`.
+6. Confirm `packages/cli/src/rules.ts` still always installs `history-record-contract.md`, `history-record.md`, and `session-to-history-record.prompt.md`.
 
 ### Acceptance criteria
 
-- [ ] `getDesiredAssets()` includes `.assets` router paths for selected instruction kinds.
-- [ ] `getDesiredAssets()` no longer includes `docs/guides/agent/AGENTS.md` or `docs/guides/agent/CLAUDE.md`.
-- [ ] Guide routers under `docs/guides/` remain managed.
-- [ ] History contract, template, and prompt remain always installed.
+- [x] `getDesiredAssets()` includes `.assets` router paths for selected instruction kinds.
+- [x] `getDesiredAssets()` no longer includes `docs/guides/agent/AGENTS.md` or `docs/guides/agent/CLAUDE.md`.
+- [x] Guide routers under `docs/guides/` remain managed.
+- [x] History contract, template, and prompt remain always installed.
 
 ### Dependencies
 
@@ -53,10 +53,10 @@ None. This backlog is derived from the `w9-r0` plan and design, not from an acti
 
 ### Acceptance criteria
 
-- [ ] `renderBuildableAsset()` can render every `.assets` router.
-- [ ] `renderDocsRouter()` references `docs/.assets/history/`.
-- [ ] `renderGuidesRouter()` no longer references `docs/guides/agent/`.
-- [ ] Renderer output matches the checked-in template router content.
+- [x] `renderBuildableAsset()` can render every `.assets` router.
+- [x] `renderDocsRouter()` references `docs/.assets/history/`.
+- [x] `renderGuidesRouter()` no longer references `docs/guides/agent/`.
+- [x] Renderer output matches the checked-in template router content.
 
 ### Dependencies
 
@@ -73,10 +73,10 @@ None. This backlog is derived from the `w9-r0` plan and design, not from an acti
 
 ### Acceptance criteria
 
-- [ ] The package template no longer contains `docs/guides/agent/AGENTS.md`.
-- [ ] The package template no longer contains `docs/guides/agent/CLAUDE.md`.
-- [ ] Fresh-install asset planning does not recreate `docs/guides/agent/`.
-- [ ] Existing repo history files are still untouched until Phase 4.
+- [x] The package template no longer contains `docs/guides/agent/AGENTS.md`.
+- [x] The package template no longer contains `docs/guides/agent/CLAUDE.md`.
+- [x] Fresh-install asset planning does not recreate `docs/guides/agent/`.
+- [x] Existing repo history files are still untouched until Phase 4.
 
 ### Dependencies
 
@@ -94,10 +94,10 @@ None. This backlog is derived from the `w9-r0` plan and design, not from an acti
 
 ### Acceptance criteria
 
-- [ ] `npm test -w starter-docs -- tests/consistency.test.ts` passes.
-- [ ] `npm test -w starter-docs -- tests/renderers.test.ts` passes.
-- [ ] Focused install tests for router/template asset presence pass.
-- [ ] Template completeness still reports no unmanaged template files.
+- [x] `npm test -w starter-docs -- tests/consistency.test.ts` passes.
+- [x] `npm test -w starter-docs -- tests/renderers.test.ts` passes.
+- [x] Focused install tests for router/template asset presence pass.
+- [x] Template completeness still reports no unmanaged template files.
 
 ### Dependencies
 
