@@ -91,6 +91,24 @@ try {
       [packedCli, "--yes", "--target", targetDir],
       { stdio: "inherit" },
     );
+    assertExists(
+      path.join(targetDir, "docs/.starter-docs/manifest.json"),
+      "Smoke pack bare install did not produce a manifest.",
+    );
+    assertExists(
+      path.join(targetDir, "docs/AGENTS.md"),
+      "Smoke pack bare install did not produce docs/AGENTS.md.",
+    );
+
+    execFileSync(
+      "node",
+      [packedCli, "--yes", "--target", targetDir],
+      { stdio: "inherit" },
+    );
+    assertMissing(
+      path.join(targetDir, "docs/.starter-docs/conflicts"),
+      "Smoke pack bare sync staged conflicts for an unchanged install.",
+    );
   } finally {
     await fixtureServer.close();
   }
