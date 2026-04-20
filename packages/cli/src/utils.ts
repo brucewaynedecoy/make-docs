@@ -4,7 +4,9 @@ import {
   mkdirSync,
   readFileSync,
   readdirSync,
+  rmdirSync,
   rmSync,
+  statSync,
   writeFileSync,
 } from "node:fs";
 import path from "node:path";
@@ -104,6 +106,38 @@ export function pruneEmptyDirectories(startDir: string, stopDir: string): void {
     rmSync(current, { recursive: true, force: true });
     current = path.dirname(current);
   }
+}
+
+export function removeFileIfPresent(filePath: string): boolean {
+  if (!existsSync(filePath)) {
+    return false;
+  }
+
+  const stats = statSync(filePath);
+  if (!stats.isFile()) {
+    throw new Error(`Expected a regular file at ${filePath}, but found a different entry type.`);
+  }
+
+  rmSync(filePath, { force: false });
+  return true;
+}
+
+export function pruneDirectoryIfEmpty(directoryPath: string): boolean {
+  if (!existsSync(directoryPath)) {
+    return false;
+  }
+
+  const stats = statSync(directoryPath);
+  if (!stats.isDirectory()) {
+    throw new Error(`Expected a directory at ${directoryPath}, but found a different entry type.`);
+  }
+
+  if (readdirSync(directoryPath).length > 0) {
+    return false;
+  }
+
+  rmdirSync(directoryPath);
+  return true;
 }
 
 export function formatInlineList(items: string[]): string {

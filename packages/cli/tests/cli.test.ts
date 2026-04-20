@@ -11,6 +11,7 @@ const runSelectionWizardMock = vi.fn();
 const promptForUpdateWizardActionMock = vi.fn();
 const promptForInstructionConflictResolutionsMock = vi.fn();
 const confirmMock = vi.fn();
+const runUninstallCommandMock = vi.fn();
 
 vi.mock("../src/wizard", () => ({
   runSelectionWizard: runSelectionWizardMock,
@@ -108,6 +109,7 @@ describe("cli interactive flows", () => {
     promptForUpdateWizardActionMock.mockReset();
     promptForInstructionConflictResolutionsMock.mockReset();
     confirmMock.mockReset();
+    runUninstallCommandMock.mockReset();
     mockSkillFetches();
     setTTY(true);
   });
@@ -534,6 +536,15 @@ describe("cli interactive flows", () => {
     expect(output).not.toContain("--optional-skills");
   });
 
+  test("keeps uninstall help on the help path without dispatching lifecycle work", async () => {
+    setTTY(false);
+
+    const output = await captureCliOutput(["uninstall", "--help"]);
+
+    expect(output).toContain("starter-docs uninstall");
+    expect(runUninstallCommandMock).not.toHaveBeenCalled();
+  });
+
   test("routes backup through the implemented lifecycle flow", async () => {
     const targetDir = createTempDir();
 
@@ -572,11 +583,14 @@ describe("cli interactive flows", () => {
     }
   });
 
-  test("still parses uninstall lifecycle flags without falling back to unknown-argument handling", async () => {
+  test("routes uninstall through the implemented lifecycle flow", async () => {
     const targetDir = createTempDir();
+    const cli = await import("../src/cli");
 
     try {
-      const error = await captureCliError([
+      cli.__setUninstallCommandLoaderForTests(async () => runUninstallCommandMock);
+
+      await cli.runCli([
         "uninstall",
         "--backup",
         "--permissions",
@@ -585,9 +599,35 @@ describe("cli interactive flows", () => {
         targetDir,
       ]);
 
-      expect(error.message).toMatch(/uninstall/i);
-      expect(error.message).not.toContain("Unknown argument: uninstall");
+      expect(runUninstallCommandMock).toHaveBeenCalledTimes(1);
+      expect(runUninstallCommandMock).toHaveBeenCalledWith({
+        targetDir: path.resolve(targetDir),
+        backup: true,
+        permissions: "allow-all",
+      });
     } finally {
+      cli.__setUninstallCommandLoaderForTests(null);
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("defaults uninstall permissions to confirm mode", async () => {
+    const targetDir = createTempDir();
+    const cli = await import("../src/cli");
+
+    try {
+      cli.__setUninstallCommandLoaderForTests(async () => runUninstallCommandMock);
+
+      await cli.runCli(["uninstall", "--target", targetDir]);
+
+      expect(runUninstallCommandMock).toHaveBeenCalledTimes(1);
+      expect(runUninstallCommandMock).toHaveBeenCalledWith({
+        targetDir: path.resolve(targetDir),
+        backup: false,
+        permissions: "confirm",
+      });
+    } finally {
+      cli.__setUninstallCommandLoaderForTests(null);
       cleanupTempDir(targetDir);
     }
   });

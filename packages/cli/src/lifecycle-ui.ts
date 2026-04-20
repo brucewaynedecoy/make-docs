@@ -53,25 +53,136 @@ export function renderBackupAuditSummary(options: {
 export async function confirmBackupRun(
   permissions: LifecyclePermissionsMode,
 ): Promise<boolean> {
-  if (permissions === "allow-all") {
-    return true;
-  }
-
-  if (!input.isTTY || !output.isTTY) {
-    throw new Error(
-      "Backup confirmation requires a TTY. Re-run with `starter-docs backup --permissions allow-all`.",
-    );
-  }
-
-  const proceed = await confirm({
+  return confirmLifecycleCheckpoint({
+    permissions,
     message: "Create this backup?",
-    initialValue: true,
-    active: "Yes",
-    inactive: "No",
-    withGuide: true,
+    ttyError:
+      "Backup confirmation requires a TTY. Re-run with `starter-docs backup --permissions allow-all`.",
   });
+}
 
-  return !(isCancel(proceed) || !proceed);
+export function renderUninstallWarning(options: {
+  targetDir: string;
+  backupDestinationDir: string | null;
+}): void {
+  const { targetDir, backupDestinationDir } = options;
+  const lines = [
+    "starter-docs uninstall",
+    `Target: ${targetDir}`,
+    "Warning: this command removes audited starter-docs-managed paths.",
+  ];
+
+  if (backupDestinationDir) {
+    lines.push("A backup will be created before removal begins.");
+    lines.push(`Backup destination: ${backupDestinationDir}`);
+  } else {
+    lines.push("Safer alternative: starter-docs backup");
+    lines.push("Safer destructive flow: starter-docs uninstall --backup");
+  }
+
+  renderBox(lines);
+}
+
+export async function confirmUninstallWarning(
+  permissions: LifecyclePermissionsMode,
+): Promise<boolean> {
+  return confirmLifecycleCheckpoint({
+    permissions,
+    message: "Continue with uninstall review?",
+    ttyError:
+      "Uninstall confirmation requires a TTY. Re-run with `starter-docs uninstall --permissions allow-all`.",
+  });
+}
+
+export function renderUninstallAuditSummary(options: {
+  auditReport: AuditReport;
+  backupDestinationDir: string | null;
+}): void {
+  const { auditReport, backupDestinationDir } = options;
+  renderBox([
+    "starter-docs uninstall",
+    `Target: ${auditReport.targetDir}`,
+    `Backup before removal: ${backupDestinationDir ?? "not requested"}`,
+    `Files to remove: ${auditReport.removableFiles.length}`,
+    `Directories to prune: ${auditReport.prunableDirectories.length}`,
+    `Preserved: ${auditReport.preservedPaths.length}`,
+    `Skipped: ${auditReport.skippedPaths.length}`,
+  ]);
+
+  renderEntryGroup(
+    "Files to remove",
+    auditReport.removableFiles,
+    (entry) => `${formatPath(entry)} (${entry.reason})`,
+  );
+  renderEntryGroup(
+    "Directories to prune",
+    auditReport.prunableDirectories,
+    (entry) => `${formatPath(entry)} (${entry.reason})`,
+  );
+  renderEntryGroup(
+    "Preserved paths",
+    auditReport.preservedPaths,
+    (entry) => `${formatPath(entry)} (${entry.reason})`,
+  );
+  renderEntryGroup(
+    "Skipped paths",
+    auditReport.skippedPaths,
+    (entry) => `${formatPath(entry)} (${entry.reason})`,
+  );
+}
+
+export async function confirmUninstallRun(options: {
+  permissions: LifecyclePermissionsMode;
+  backupRequested: boolean;
+}): Promise<boolean> {
+  const message = options.backupRequested
+    ? "Create the backup and then remove these audited paths? This action cannot be undone."
+    : "Remove these audited paths? This action cannot be undone.";
+
+  return confirmLifecycleCheckpoint({
+    permissions: options.permissions,
+    message,
+    ttyError:
+      "Uninstall confirmation requires a TTY. Re-run with `starter-docs uninstall --permissions allow-all`.",
+  });
+}
+
+export function renderUninstallCancelled(): void {
+  output.write("\nUninstall cancelled. No files were changed.\n");
+}
+
+export function renderUninstallCompletionSummary(options: {
+  auditReport: AuditReport;
+  removedFiles: string[];
+  prunedDirectories: string[];
+  backupResult: BackupExecutionResult | null;
+}): void {
+  renderBox([
+    "Uninstall complete",
+    `Files removed: ${options.removedFiles.length}`,
+    `Directories pruned: ${options.prunedDirectories.length}`,
+    `Preserved paths: ${options.auditReport.preservedPaths.length}`,
+    `Skipped paths: ${options.auditReport.skippedPaths.length}`,
+    `Backup: ${formatBackupStatus(options.backupResult)}`,
+  ]);
+}
+
+export function renderUninstallFailureSummary(options: {
+  auditReport: AuditReport;
+  removedFiles: string[];
+  prunedDirectories: string[];
+  backupResult: BackupExecutionResult | null;
+  errorMessage: string;
+}): void {
+  renderBox([
+    "Uninstall partially completed",
+    `Files removed before failure: ${options.removedFiles.length}`,
+    `Directories pruned before failure: ${options.prunedDirectories.length}`,
+    `Preserved paths: ${options.auditReport.preservedPaths.length}`,
+    `Skipped paths: ${options.auditReport.skippedPaths.length}`,
+    `Backup: ${formatBackupStatus(options.backupResult)}`,
+    `Error: ${options.errorMessage}`,
+  ]);
 }
 
 export function renderBackupNoopSummary(): void {
@@ -126,4 +237,44 @@ function renderEntryGroup(
 
 function formatPath(entry: Pick<AuditPathMetadata, "path">): string {
   return entry.path;
+}
+
+function formatBackupStatus(result: BackupExecutionResult | null): string {
+  if (!result) {
+    return "not requested";
+  }
+
+  if (result.status === "completed" && result.destinationDir) {
+    return `created at ${result.destinationDir}`;
+  }
+
+  if (result.status === "noop") {
+    return "requested, but no backup files or directories needed to be created";
+  }
+
+  return "requested";
+}
+
+async function confirmLifecycleCheckpoint(options: {
+  permissions: LifecyclePermissionsMode;
+  message: string;
+  ttyError: string;
+}): Promise<boolean> {
+  if (options.permissions === "allow-all") {
+    return true;
+  }
+
+  if (!input.isTTY || !output.isTTY) {
+    throw new Error(options.ttyError);
+  }
+
+  const proceed = await confirm({
+    message: options.message,
+    initialValue: true,
+    active: "Yes",
+    inactive: "No",
+    withGuide: true,
+  });
+
+  return !(isCancel(proceed) || !proceed);
 }

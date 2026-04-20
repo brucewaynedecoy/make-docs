@@ -18,6 +18,7 @@ import {
 import { loadManifest } from "./manifest";
 import type {
   AuditPrunableDirectory,
+  AuditReport,
   AuditRemovableFile,
   BackupCommandOptions,
   BackupDestinationPlan,
@@ -27,43 +28,43 @@ import { ensureParentDir } from "./utils";
 
 const PROJECT_BACKUP_DIRNAME = ".backup";
 
+type CopyableAuditRemovableFile = AuditRemovableFile & {
+  backupRelativePath: string;
+};
+
+type MaterializableAuditPrunableDirectory = AuditPrunableDirectory & {
+  backupRelativePath: string;
+};
+
+export type PrepareBackupExecutionOptions = {
+  targetDir: string;
+  homeDir?: string;
+  now?: Date;
+  auditReport?: AuditReport;
+  destinationPlan?: BackupDestinationPlan | null;
+};
+
+export type PreparedBackupExecution = {
+  targetDir: string;
+  auditReport: AuditReport;
+  destinationPlan: BackupDestinationPlan | null;
+  copyableFiles: CopyableAuditRemovableFile[];
+  materializableDirectories: MaterializableAuditPrunableDirectory[];
+};
+
 export async function runBackupCommand(
   options: BackupCommandOptions,
 ): Promise<BackupExecutionResult> {
-  const targetDir = path.resolve(options.targetDir);
-  const homeDir = path.resolve(options.homeDir ?? os.homedir());
-  const manifest = loadManifest(targetDir);
-  const auditReport = await createAuditReport({
-    targetDir,
-    manifest,
-    homeDir,
-  });
-
-  const copyableFiles = auditReport.removableFiles.filter(hasBackupRelativePath);
-  const materializableDirectories = auditReport.prunableDirectories.filter(
-    hasBackupRelativePath,
-  );
-  const hasCopyableEntries =
-    copyableFiles.length > 0 || materializableDirectories.length > 0;
-  const destinationPlan = hasCopyableEntries
-    ? resolveBackupDestinationPlan(targetDir, options.now ?? new Date())
-    : null;
+  const preparedBackup = await prepareBackupExecution(options);
 
   renderBackupAuditSummary({
-    auditReport,
-    destinationDir: destinationPlan?.destinationDir ?? null,
+    auditReport: preparedBackup.auditReport,
+    destinationDir: preparedBackup.destinationPlan?.destinationDir ?? null,
   });
 
-  if (!hasCopyableEntries) {
+  if (!hasBackupWork(preparedBackup)) {
     renderBackupNoopSummary();
-    return {
-      status: "noop",
-      targetDir,
-      destinationDir: null,
-      auditReport,
-      copiedFiles: [],
-      materializedDirectories: [],
-    };
+    return createNoopBackupResult(preparedBackup);
   }
 
   const shouldProceed = await confirmBackupRun(options.permissions);
@@ -71,34 +72,94 @@ export async function runBackupCommand(
     renderBackupCancelled();
     return {
       status: "cancelled",
-      targetDir,
-      destinationDir: destinationPlan.destinationDir,
-      auditReport,
+      targetDir: preparedBackup.targetDir,
+      destinationDir: preparedBackup.destinationPlan.destinationDir,
+      auditReport: preparedBackup.auditReport,
       copiedFiles: [],
       materializedDirectories: [],
     };
   }
 
-  ensureBackupDestination(destinationPlan);
-  const copiedFiles = copyAuditedFiles(copyableFiles, destinationPlan.destinationDir);
-  const materializedDirectories = materializePrunableDirectories(
-    materializableDirectories,
-    destinationPlan.destinationDir,
-  );
-
-  const result: BackupExecutionResult = {
-    status: "completed",
-    targetDir,
-    destinationDir: destinationPlan.destinationDir,
-    auditReport,
-    copiedFiles,
-    materializedDirectories,
-  };
+  const result = executePreparedBackup(preparedBackup);
   renderBackupCompletionSummary(result);
   return result;
 }
 
-function resolveBackupDestinationPlan(
+export async function prepareBackupExecution(
+  options: PrepareBackupExecutionOptions,
+): Promise<PreparedBackupExecution> {
+  const targetDir = path.resolve(options.targetDir);
+  const homeDir = path.resolve(options.homeDir ?? os.homedir());
+  const auditReport =
+    options.auditReport ??
+    (await createAuditReport({
+      targetDir,
+      manifest: loadManifest(targetDir),
+      homeDir,
+    }));
+
+  const copyableFiles = auditReport.removableFiles.filter(hasBackupRelativePath);
+  const materializableDirectories = auditReport.prunableDirectories.filter(
+    hasBackupRelativePath,
+  );
+  const hasCopyableEntries =
+    copyableFiles.length > 0 || materializableDirectories.length > 0;
+  const hasProvidedDestinationPlan = Object.hasOwn(options, "destinationPlan");
+  const destinationPlan = hasCopyableEntries
+    ? hasProvidedDestinationPlan
+      ? options.destinationPlan ?? null
+      : resolveBackupDestinationPlan(targetDir, options.now ?? new Date())
+    : null;
+
+  if (hasCopyableEntries && !destinationPlan) {
+    throw new Error(
+      "Backup destination plan is required when audited entries are copyable.",
+    );
+  }
+
+  return {
+    targetDir,
+    auditReport,
+    destinationPlan,
+    copyableFiles,
+    materializableDirectories,
+  };
+}
+
+export function executePreparedBackup(
+  preparedBackup: PreparedBackupExecution,
+): BackupExecutionResult {
+  if (!hasBackupWork(preparedBackup)) {
+    return createNoopBackupResult(preparedBackup);
+  }
+
+  if (!preparedBackup.destinationPlan) {
+    throw new Error(
+      "Backup destination plan is required before copying audited backup entries.",
+    );
+  }
+
+  ensureBackupDestination(preparedBackup.destinationPlan);
+  const copiedFiles = copyAuditedFiles(
+    preparedBackup.copyableFiles,
+    preparedBackup.destinationPlan.destinationDir,
+  );
+  const materializedDirectories = materializePrunableDirectories(
+    preparedBackup.materializableDirectories,
+    preparedBackup.destinationPlan.destinationDir,
+  );
+
+  return {
+    status: "completed",
+    targetDir: preparedBackup.targetDir,
+    destinationDir: preparedBackup.destinationPlan.destinationDir,
+    auditReport: preparedBackup.auditReport,
+    copiedFiles,
+    materializedDirectories,
+  };
+}
+
+export function resolveBackupDestinationPlan(
   targetDir: string,
   now: Date,
 ): BackupDestinationPlan {
@@ -236,6 +297,26 @@ function hasBackupRelativePath<T extends { backupRelativePath: string | null }>(
   entry: T,
 ): entry is T & { backupRelativePath: string } {
   return typeof entry.backupRelativePath === "string";
+}
+
+function hasBackupWork(preparedBackup: PreparedBackupExecution): boolean {
+  return (
+    preparedBackup.copyableFiles.length > 0 ||
+    preparedBackup.materializableDirectories.length > 0
+  );
+}
+
+function createNoopBackupResult(
+  preparedBackup: PreparedBackupExecution,
+): BackupExecutionResult {
+  return {
+    status: "noop",
+    targetDir: preparedBackup.targetDir,
+    destinationDir: null,
+    auditReport: preparedBackup.auditReport,
+    copiedFiles: [],
+    materializedDirectories: [],
+  };
 }
 
 function formatDateStamp(now: Date): string {

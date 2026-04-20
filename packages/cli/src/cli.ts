@@ -50,6 +50,17 @@ interface ParsedArgs {
   optionalSkills?: string[];
 }
 
+type UninstallCommandOptions = {
+  targetDir: string;
+  backup: boolean;
+  permissions: LifecyclePermissionsMode;
+};
+
+type UninstallCommandRunner = (options: UninstallCommandOptions) => Promise<void>;
+type UninstallCommandLoader = () => Promise<UninstallCommandRunner>;
+
+let uninstallCommandLoaderOverride: UninstallCommandLoader | null = null;
+
 export async function runCli(argv = process.argv.slice(2)): Promise<void> {
   const parsed = parseArgs(argv);
   if (parsed.help) {
@@ -68,7 +79,13 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
   }
 
   if (parsed.command === "uninstall") {
-    throw lifecycleCommandNotImplemented(parsed.command);
+    const runUninstallCommand = await loadUninstallCommand();
+    await runUninstallCommand({
+      targetDir,
+      backup: parsed.backup,
+      permissions: parsed.permissions ?? "confirm",
+    });
+    return;
   }
 
   const existingManifest = loadManifest(targetDir);
@@ -312,6 +329,31 @@ function hasSelectionOverrides(parsed: ParsedArgs): boolean {
 
 function isLifecycleCommand(command?: Command): command is "backup" | "uninstall" {
   return command === "backup" || command === "uninstall";
+}
+
+export function __setUninstallCommandLoaderForTests(
+  loader: UninstallCommandLoader | null,
+): void {
+  uninstallCommandLoaderOverride = loader;
+}
+
+async function loadUninstallCommand(): Promise<UninstallCommandRunner> {
+  if (uninstallCommandLoaderOverride) {
+    return uninstallCommandLoaderOverride();
+  }
+
+  const uninstallModulePath: string = "./uninstall";
+  const uninstallModule = (await import(uninstallModulePath)) as {
+    runUninstallCommand?: UninstallCommandRunner;
+  };
+
+  if (typeof uninstallModule.runUninstallCommand !== "function") {
+    throw new Error(
+      "The `uninstall` command module must export `runUninstallCommand(options)`.",
+    );
+  }
+
+  return uninstallModule.runUninstallCommand;
 }
 
 function getSelectionOverrideFlags(parsed: ParsedArgs): string[] {
@@ -572,12 +614,6 @@ function printPlan(actions: PlannedAction[]): void {
     );
   }
   output.write(`- noop: ${noopCount} file(s)\n`);
-}
-
-function lifecycleCommandNotImplemented(command: "backup" | "uninstall"): Error {
-  return new Error(
-    `The \`${command}\` command is not implemented yet. Run \`starter-docs ${command} --help\` to review the planned interface.`,
-  );
 }
 
 function printHelp(command?: Command): void {
