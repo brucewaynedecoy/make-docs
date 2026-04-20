@@ -64,9 +64,9 @@ Confirm:
 Run an internal Markdown link check over changed docs and moved history records. At minimum, validate:
 
 - `docs/.assets/history/*.md`,
-- `docs/.references/agent-guide-contract.md`,
-- `docs/.templates/agent-guide.md`,
-- `docs/.prompts/session-to-agent-guide.prompt.md`,
+- `docs/.references/history-record-contract.md`,
+- `docs/.templates/history-record.md`,
+- `docs/.prompts/session-to-history-record.prompt.md`,
 - `docs/guides/user/getting-started-installing-starter-docs.md`,
 - `docs/guides/developer/cli-development-local-build-and-install.md`,
 - new plan/work docs if generated after this plan.
@@ -92,13 +92,13 @@ git diff --check
 
 ## Acceptance Criteria
 
-- [ ] Focused test suites pass.
-- [ ] `npm run build -w starter-docs` passes.
-- [ ] `npm test -w starter-docs` passes.
-- [ ] `node scripts/smoke-pack.mjs` passes.
-- [ ] `bash scripts/check-instruction-routers.sh` passes.
-- [ ] Link validation passes for changed docs and moved history.
-- [ ] Active stale references to `docs/.starter-docs/` are removed.
-- [ ] Active stale references to `docs/guides/agent/` are removed.
-- [ ] Historical stale references are documented as intentional or left only in clearly historical docs.
-- [ ] `git diff --check` passes.
+- [x] Focused test suites pass.
+- [x] `npm run build -w starter-docs` passes.
+- [x] `npm test -w starter-docs` passes.
+- [x] `node scripts/smoke-pack.mjs` passes.
+- [x] `bash scripts/check-instruction-routers.sh` passes.
+- [x] Link validation passes for changed docs and moved history.
+- [x] Active stale references to `docs/.starter-docs/` are removed.
+- [x] Active stale references to `docs/guides/agent/` are removed.
+- [x] Historical stale references are documented as intentional or left only in clearly historical docs.
+- [x] `git diff --check` passes.

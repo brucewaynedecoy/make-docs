@@ -34,14 +34,14 @@ None. This backlog is derived from the `w9-r0` plan and design, not from an acti
 
 ### Acceptance criteria
 
-- [ ] Consistency tests pass.
-- [ ] Renderer tests pass.
-- [ ] Install tests pass.
-- [ ] CLI tests pass.
-- [ ] Audit tests pass.
-- [ ] Backup tests pass.
-- [ ] Uninstall tests pass.
-- [ ] Lifecycle tests pass.
+- [x] Consistency tests pass.
+- [x] Renderer tests pass.
+- [x] Install tests pass.
+- [x] CLI tests pass.
+- [x] Audit tests pass.
+- [x] Backup tests pass.
+- [x] Uninstall tests pass.
+- [x] Lifecycle tests pass.
 
 ### Dependencies
 
@@ -59,10 +59,10 @@ None. This backlog is derived from the `w9-r0` plan and design, not from an acti
 
 ### Acceptance criteria
 
-- [ ] `npm run build -w starter-docs` passes.
-- [ ] `npm test -w starter-docs` passes.
-- [ ] `node scripts/smoke-pack.mjs` passes.
-- [ ] `bash scripts/check-instruction-routers.sh` passes.
+- [x] `npm run build -w starter-docs` passes.
+- [x] `npm test -w starter-docs` passes.
+- [x] `node scripts/smoke-pack.mjs` passes.
+- [x] `bash scripts/check-instruction-routers.sh` passes.
 
 ### Dependencies
 
@@ -74,7 +74,7 @@ None. This backlog is derived from the `w9-r0` plan and design, not from an acti
 
 1. Run a Markdown link check over changed docs and moved history records.
 2. At minimum, validate `docs/.assets/history/*.md`.
-3. Validate `docs/.references/agent-guide-contract.md`, `docs/.templates/agent-guide.md`, and `docs/.prompts/session-to-agent-guide.prompt.md`.
+3. Validate `docs/.references/history-record-contract.md`, `docs/.templates/history-record.md`, and `docs/.prompts/session-to-history-record.prompt.md`.
 4. Validate `docs/guides/user/getting-started-installing-starter-docs.md` and `docs/guides/developer/cli-development-local-build-and-install.md`.
 5. Validate this work backlog and the `w9-r0` plan docs.
 6. Run `rg -n "docs/\\.starter-docs|\\.starter-docs/conflicts|docs/guides/agent" docs packages scripts`.
@@ -83,10 +83,10 @@ None. This backlog is derived from the `w9-r0` plan and design, not from an acti
 
 ### Acceptance criteria
 
-- [ ] Changed docs and moved history records have resolving internal links.
-- [ ] Active source-of-truth files no longer point new work at retired paths.
-- [ ] Historical old-path references are left only where they describe prior behavior.
-- [ ] The implementation has enough notes to explain any intentional stale-reference allowlist.
+- [x] Changed docs and moved history records have resolving internal links.
+- [x] Active source-of-truth files no longer point new work at retired paths.
+- [x] Historical old-path references are left only where they describe prior behavior.
+- [x] The implementation has enough notes to explain any intentional stale-reference allowlist.
 
 ### Dependencies
 
@@ -104,10 +104,10 @@ None. This backlog is derived from the `w9-r0` plan and design, not from an acti
 
 ### Acceptance criteria
 
-- [ ] `git diff --check` passes.
-- [ ] Worktree changes are limited to the intended implementation and docs.
-- [ ] No temporary artifacts remain.
-- [ ] Final response reports any validation command that could not be run.
+- [x] `git diff --check` passes.
+- [x] Worktree changes are limited to the intended implementation and docs.
+- [x] No temporary artifacts remain.
+- [x] Final response reports any validation command that could not be run.
 
 ### Dependencies
 
