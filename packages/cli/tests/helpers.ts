@@ -3,9 +3,14 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { vi } from "vitest";
+import { applyInstallPlan, planInstall } from "../src/install";
+import { loadManifest } from "../src/manifest";
+import { defaultSelections } from "../src/profile";
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 const RAW_REPO_PREFIX = "https://raw.githubusercontent.com/brucewaynedecoy/starter-docs/main/";
+
+export type TestInstallSelections = ReturnType<typeof defaultSelections>;
 
 export function createTempDir(prefix = "starter-docs-test-"): string {
   return mkdtempSync(path.join(os.tmpdir(), prefix));
@@ -23,6 +28,53 @@ export function collectMarkdownContents(rootDir: string): string[] {
   return walk(rootDir)
     .filter((relativePath) => relativePath.endsWith(".md"))
     .map((relativePath) => readFileSync(path.join(rootDir, relativePath), "utf8"));
+}
+
+export function setTTY(value: boolean): void {
+  Object.defineProperty(process.stdin, "isTTY", {
+    configurable: true,
+    value,
+  });
+  Object.defineProperty(process.stdout, "isTTY", {
+    configurable: true,
+    value,
+  });
+}
+
+export async function installStarterDocsTarget(
+  targetDir: string,
+  configure?: (selections: TestInstallSelections) => void,
+): Promise<void> {
+  const selections = defaultSelections();
+  configure?.(selections);
+
+  const existingManifest = loadManifest(targetDir);
+  const plan = await planInstall({
+    targetDir,
+    selections,
+    existingManifest,
+  });
+
+  applyInstallPlan({
+    targetDir,
+    plan,
+    existingManifest,
+  });
+}
+
+export function mockHomeDirectory(homeDir: string): () => void {
+  const previousHome = process.env.HOME;
+  process.env.HOME = homeDir;
+  vi.spyOn(os, "homedir").mockReturnValue(homeDir);
+
+  return () => {
+    if (previousHome === undefined) {
+      delete process.env.HOME;
+      return;
+    }
+
+    process.env.HOME = previousHome;
+  };
 }
 
 export function mockSkillFetches(): void {

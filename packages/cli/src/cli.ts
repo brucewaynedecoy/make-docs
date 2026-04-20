@@ -342,8 +342,7 @@ async function loadUninstallCommand(): Promise<UninstallCommandRunner> {
     return uninstallCommandLoaderOverride();
   }
 
-  const uninstallModulePath: string = "./uninstall";
-  const uninstallModule = (await import(uninstallModulePath)) as {
+  const uninstallModule = (await import("./uninstall")) as {
     runUninstallCommand?: UninstallCommandRunner;
   };
 
@@ -708,6 +707,7 @@ Examples:
       output.write(`starter-docs backup
 
 Create a backup of the managed starter-docs files in the target directory.
+This command is non-destructive: source files remain in place.
 
 Usage:
   starter-docs backup [--target <dir>] [--permissions confirm|allow-all] [--help]
@@ -729,6 +729,7 @@ Examples:
       output.write(`starter-docs uninstall
 
 Remove the managed starter-docs files from the target directory.
+This command is destructive: audited managed files are removed after review.
 
 Usage:
   starter-docs uninstall [--target <dir>] [--backup] [--permissions confirm|allow-all] [--help]
@@ -763,7 +764,7 @@ Commands:
   backup     Create a backup of managed files before lifecycle changes.
   uninstall  Remove managed files, with an optional backup first.
 
-Common patterns:
+Examples:
   starter-docs
   starter-docs init --target ~/Projects/example --dry-run
   starter-docs update --reconfigure

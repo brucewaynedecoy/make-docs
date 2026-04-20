@@ -81,13 +81,14 @@ const targetDir = mkdtempSync(path.join(os.tmpdir(), "starter-docs-smoke-"));
 try {
   execFileSync("tar", ["-xzf", tarballPath, "-C", unpackDir], { stdio: "inherit" });
   const packageRoot = path.join(unpackDir, "package");
+  const packedCli = path.join(packageRoot, "dist/index.js");
   const fixtureServer = await startRepoFixtureServer(repoRoot);
 
   try {
     rewritePackedSkillRegistry(packageRoot, fixtureServer.baseUrl);
     execFileSync(
       "node",
-      [path.join(packageRoot, "dist/index.js"), "init", "--yes", "--target", targetDir],
+      [packedCli, "init", "--yes", "--target", targetDir],
       { stdio: "inherit" },
     );
   } finally {
@@ -134,6 +135,39 @@ try {
       `Smoke pack install left legacy skill artifact ${relativePath}.`,
     );
   }
+
+  const customFilePath = path.join(targetDir, "docs/.templates/custom-smoke.md");
+  writeFileSync(customFilePath, "preserve this unmanaged smoke fixture\n", "utf8");
+
+  execFileSync(
+    "node",
+    [packedCli, "backup", "--permissions", "allow-all", "--target", targetDir],
+    { stdio: "inherit" },
+  );
+
+  const backupRoot = path.join(targetDir, ".backup");
+  const backupDir = getOnlyBackupDirectory(backupRoot);
+  assertExists(path.join(backupDir, "AGENTS.md"), "Smoke pack backup did not copy AGENTS.md.");
+  assertExists(
+    path.join(backupDir, "docs/.starter-docs/manifest.json"),
+    "Smoke pack backup did not copy the starter-docs manifest.",
+  );
+
+  execFileSync(
+    "node",
+    [packedCli, "uninstall", "--permissions", "allow-all", "--target", targetDir],
+    { stdio: "inherit" },
+  );
+
+  assertMissing(path.join(targetDir, "AGENTS.md"), "Smoke pack uninstall left AGENTS.md behind.");
+  assertMissing(path.join(targetDir, "CLAUDE.md"), "Smoke pack uninstall left CLAUDE.md behind.");
+  assertMissing(
+    path.join(targetDir, "docs/.starter-docs/manifest.json"),
+    "Smoke pack uninstall left the starter-docs manifest behind.",
+  );
+  assertExists(customFilePath, "Smoke pack uninstall removed an unmanaged custom file.");
+  assertExists(backupRoot, "Smoke pack uninstall removed the .backup directory.");
+  assertExists(path.join(backupDir, "AGENTS.md"), "Smoke pack uninstall modified the backup tree.");
 } finally {
   rmSync(unpackDir, { recursive: true, force: true });
   rmSync(targetDir, { recursive: true, force: true });
@@ -299,6 +333,21 @@ function assertDirectoryEntries(directoryPath, expectedEntries) {
       );
     }
   });
+}
+
+function getOnlyBackupDirectory(backupRoot) {
+  assertExists(backupRoot, "Smoke pack backup did not produce a .backup directory.");
+  const backupEntries = readdirSync(backupRoot).filter((entry) =>
+    existsSync(path.join(backupRoot, entry)),
+  );
+
+  if (backupEntries.length !== 1) {
+    throw new Error(
+      `Expected exactly one smoke-pack backup directory, found ${backupEntries.join(", ") || "(none)"}.`,
+    );
+  }
+
+  return path.join(backupRoot, backupEntries[0]);
 }
 
 function ensureTrailingSlash(value) {

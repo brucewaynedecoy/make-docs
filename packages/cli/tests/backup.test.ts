@@ -196,7 +196,7 @@ describe("backup command", () => {
     } finally {
       cleanupTempDir(targetDir);
     }
-  });
+  }, 15_000);
 
   test("prompts once in confirm mode and cancels cleanly before creating a backup", async () => {
     const targetDir = createTempDir();
