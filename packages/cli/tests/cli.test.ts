@@ -119,7 +119,7 @@ describe("cli interactive flows", () => {
     vi.unstubAllGlobals();
   });
 
-  test("uses the wizard for interactive init", async () => {
+  test("uses the wizard for interactive apply without an existing manifest", async () => {
     const targetDir = createTempDir();
     const writeSpy = vi.spyOn(process.stdout, "write").mockImplementation(() => true);
 
@@ -127,7 +127,7 @@ describe("cli interactive flows", () => {
       runSelectionWizardMock.mockResolvedValue(defaultSelections());
       const { runCli } = await import("../src/cli");
 
-      await runCli(["init", "--target", targetDir]);
+      await runCli(["--target", targetDir]);
 
       expect(runSelectionWizardMock).toHaveBeenCalledWith({
         initialSelections: expect.objectContaining({
@@ -144,7 +144,7 @@ describe("cli interactive flows", () => {
     }
   });
 
-  test("uses the wizard for update --reconfigure", async () => {
+  test("uses the wizard for reconfigure", async () => {
     const targetDir = createTempDir();
 
     try {
@@ -152,7 +152,7 @@ describe("cli interactive flows", () => {
       runSelectionWizardMock.mockResolvedValue(defaultSelections());
       const { runCli } = await import("../src/cli");
 
-      await runCli(["update", "--reconfigure", "--target", targetDir]);
+      await runCli(["reconfigure", "--target", targetDir]);
 
       expect(runSelectionWizardMock).toHaveBeenCalledWith({
         initialSelections: expect.objectContaining({
@@ -195,11 +195,28 @@ describe("cli interactive flows", () => {
     try {
       const { runCli } = await import("../src/cli");
 
-      await runCli(["init", "--yes", "--no-work", "--target", targetDir]);
+      await runCli(["--yes", "--no-work", "--target", targetDir]);
 
       expect(runSelectionWizardMock).not.toHaveBeenCalled();
       expect(promptForInstructionConflictResolutionsMock).not.toHaveBeenCalled();
       expect(loadManifest(targetDir)?.selections.capabilities.work).toBe(false);
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("applies selection flags on a bare existing install", async () => {
+    const targetDir = createTempDir();
+
+    try {
+      await installManifest(targetDir);
+      const { runCli } = await import("../src/cli");
+
+      await runCli(["--yes", "--no-skills", "--target", targetDir]);
+
+      expect(runSelectionWizardMock).not.toHaveBeenCalled();
+      expect(loadManifest(targetDir)?.selections.skills).toBe(false);
+      expect(loadManifest(targetDir)?.selections.optionalSkills).toEqual([]);
     } finally {
       cleanupTempDir(targetDir);
     }
@@ -216,7 +233,7 @@ describe("cli interactive flows", () => {
       });
       const { runCli } = await import("../src/cli");
 
-      await runCli(["init", "--target", targetDir]);
+      await runCli(["--target", targetDir]);
 
       expect(promptForInstructionConflictResolutionsMock).toHaveBeenCalledWith([
         {
@@ -230,7 +247,7 @@ describe("cli interactive flows", () => {
     }
   });
 
-  test("supports canonical harness and skill flags for non-interactive init", async () => {
+  test("supports canonical harness and skill flags for non-interactive apply", async () => {
     const targetDir = createTempDir();
     const fakeHome = createTempDir("starter-docs-home-");
     const restoreHome = mockHomeDirectory(fakeHome);
@@ -239,7 +256,6 @@ describe("cli interactive flows", () => {
       const { runCli } = await import("../src/cli");
 
       await runCli([
-        "init",
         "--yes",
         "--no-codex",
         "--skill-scope",
@@ -280,7 +296,7 @@ describe("cli interactive flows", () => {
     try {
       const { runCli } = await import("../src/cli");
 
-      await runCli(["init", "--yes", flag, "--target", targetDir]);
+      await runCli(["--yes", flag, "--target", targetDir]);
 
       expect(loadManifest(targetDir)?.selections.harnesses).toEqual(expectedHarnesses);
     } finally {
@@ -288,13 +304,13 @@ describe("cli interactive flows", () => {
     }
   });
 
-  test("supports --no-skills for non-interactive init", async () => {
+  test("supports --no-skills for non-interactive apply", async () => {
     const targetDir = createTempDir();
 
     try {
       const { runCli } = await import("../src/cli");
 
-      await runCli(["init", "--yes", "--no-skills", "--target", targetDir]);
+      await runCli(["--yes", "--no-skills", "--target", targetDir]);
 
       const manifest = loadManifest(targetDir);
       expect(manifest?.selections.skills).toBe(false);
@@ -306,7 +322,7 @@ describe("cli interactive flows", () => {
   });
 
   test.each(["project", "global"] as const)(
-    "supports --skill-scope %s for non-interactive init",
+    "supports --skill-scope %s for non-interactive apply",
     async (skillScope) => {
       const targetDir = createTempDir();
       const fakeHome = skillScope === "global" ? createTempDir("starter-docs-home-") : null;
@@ -315,7 +331,7 @@ describe("cli interactive flows", () => {
       try {
         const { runCli } = await import("../src/cli");
 
-        await runCli(["init", "--yes", "--skill-scope", skillScope, "--target", targetDir]);
+        await runCli(["--yes", "--skill-scope", skillScope, "--target", targetDir]);
 
         const manifest = loadManifest(targetDir);
         expect(manifest?.selections.skills).toBe(true);
@@ -339,7 +355,7 @@ describe("cli interactive flows", () => {
     try {
       const { runCli } = await import("../src/cli");
 
-      await runCli(["init", "--yes", flag, "--target", targetDir]);
+      await runCli(["--yes", flag, "--target", targetDir]);
 
       expect(loadManifest(targetDir)?.selections.harnesses).toEqual(expectedHarnesses);
     } finally {
@@ -353,7 +369,7 @@ describe("cli interactive flows", () => {
     try {
       const { runCli } = await import("../src/cli");
 
-      await runCli(["init", "--yes", "--no-agents", "--no-claude", "--target", targetDir]);
+      await runCli(["--yes", "--no-agents", "--no-claude", "--target", targetDir]);
 
       expect(loadManifest(targetDir)?.selections.harnesses).toEqual({
         "claude-code": false,
@@ -376,7 +392,7 @@ describe("cli interactive flows", () => {
       });
       const { runCli } = await import("../src/cli");
 
-      await runCli(["update", "--reconfigure", "--yes", "--no-skills", "--target", targetDir]);
+      await runCli(["reconfigure", "--yes", "--no-skills", "--target", targetDir]);
 
       const manifest = loadManifest(targetDir);
       expect(manifest?.selections.skills).toBe(false);
@@ -405,8 +421,7 @@ describe("cli interactive flows", () => {
       const { runCli } = await import("../src/cli");
 
       await runCli([
-        "update",
-        "--reconfigure",
+        "reconfigure",
         "--yes",
         "--skill-scope",
         "project",
@@ -439,7 +454,6 @@ describe("cli interactive flows", () => {
 
       await expect(
         runCli([
-          "init",
           "--yes",
           "--no-skills",
           "--skill-scope",
@@ -453,7 +467,6 @@ describe("cli interactive flows", () => {
 
       await expect(
         runCli([
-          "init",
           "--yes",
           "--optional-skills",
           "archive-docs",
@@ -466,7 +479,6 @@ describe("cli interactive flows", () => {
 
       await expect(
         runCli([
-          "init",
           "--yes",
           "--optional-skills",
           "unknown-skill",
@@ -481,7 +493,7 @@ describe("cli interactive flows", () => {
     }
   });
 
-  test("prints structured top-level help with all four commands", async () => {
+  test("prints structured top-level help with the public command model", async () => {
     setTTY(false);
 
     const output = await captureCliOutput(["--help"]);
@@ -489,20 +501,19 @@ describe("cli interactive flows", () => {
     expect(output).toMatch(/starter-docs/i);
     expect(output).toMatch(/\bCommands\b/i);
     expect(output).toMatch(/\bExamples\b/i);
-    expect(output).toContain("starter-docs init");
-    expect(output).toContain("starter-docs update");
+    expect(output).toContain("starter-docs reconfigure");
     expect(output).toContain("starter-docs backup");
     expect(output).toContain("starter-docs uninstall");
-    expect(output).toContain("init       Create a new starter-docs install in the target directory.");
-    expect(output).toContain("update     Update an existing starter-docs install.");
-    expect(output).toContain("backup     Create a backup of managed files before lifecycle changes.");
-    expect(output).toContain("uninstall  Remove managed files, with an optional backup first.");
+    expect(output).toContain("reconfigure  Change the configured starter-docs footprint.");
+    expect(output).toContain("backup       Create a backup of managed files before lifecycle changes.");
+    expect(output).toContain("uninstall    Remove managed files, with an optional backup first.");
+    expect(output).not.toContain("starter-docs init");
+    expect(output).not.toContain("starter-docs update");
     expect(output).toMatch(/--help/i);
   });
 
   test.each([
-    ["init", ["Usage", "Options", "Examples", "starter-docs init"]],
-    ["update", ["Usage", "Options", "Examples", "starter-docs update"]],
+    ["reconfigure", ["Usage", "Options", "Examples", "starter-docs reconfigure"]],
     ["backup", ["Usage", "Options", "Examples", "starter-docs backup"]],
     ["uninstall", ["Usage", "Options", "Examples", "starter-docs uninstall"]],
   ])("prints command-specific help for %s", async (command, snippets) => {
@@ -512,6 +523,28 @@ describe("cli interactive flows", () => {
 
     for (const snippet of snippets) {
       expect(output).toContain(snippet);
+    }
+  });
+
+  test.each([
+    [["init", "--yes"], ["`init` command was removed", "starter-docs --yes"]],
+    [["update", "--yes"], ["`update` command was removed", "starter-docs --yes"]],
+    [["--reconfigure"], ["`--reconfigure` was removed", "starter-docs reconfigure"]],
+    [
+      ["update", "--reconfigure", "--yes"],
+      ["`update --reconfigure` command was removed", "starter-docs reconfigure"],
+    ],
+  ])("reports migration guidance for removed command surface %s", async (argv, messageParts) => {
+    const targetDir = createTempDir();
+
+    try {
+      const error = await captureCliError([...argv, "--target", targetDir]);
+
+      for (const part of messageParts) {
+        expect(error.message).toContain(part);
+      }
+    } finally {
+      cleanupTempDir(targetDir);
     }
   });
 
@@ -679,8 +712,9 @@ describe("cli interactive flows", () => {
   test.each([
     [["backup", "--no-skills"], ["backup", "--no-skills"]],
     [["uninstall", "--optional-skills", "decompose-codebase"], ["uninstall", "--optional-skills"]],
-    [["init", "--permissions", "confirm"], ["Unknown argument", "--permissions"]],
-    [["init", "--backup"], ["init", "--backup"]],
+    [["--permissions", "confirm"], ["Unknown argument", "--permissions"]],
+    [["--backup"], ["no command", "--backup"]],
+    [["reconfigure", "--backup"], ["reconfigure", "--backup"]],
   ])("rejects invalid cross-command flag mixes for %s", async (argv, messageParts) => {
     const targetDir = createTempDir();
 

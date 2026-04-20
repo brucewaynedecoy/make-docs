@@ -25,7 +25,8 @@ import {
   runSelectionWizard,
 } from "./wizard";
 
-type Command = "init" | "update" | "backup" | "uninstall";
+type Command = "reconfigure" | "backup" | "uninstall";
+type InstallIntent = "apply" | "reconfigure";
 
 interface ParsedArgs {
   command?: Command;
@@ -33,7 +34,6 @@ interface ParsedArgs {
   dryRun: boolean;
   yes: boolean;
   help: boolean;
-  reconfigure: boolean;
   backup: boolean;
   noDesigns: boolean;
   noPlans: boolean;
@@ -88,21 +88,11 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
   }
 
   const existingManifest = loadManifest(targetDir);
-  const command = inferCommand(parsed, existingManifest);
+  const installIntent = inferInstallIntent(parsed);
 
-  if (parsed.reconfigure && command !== "update") {
-    throw new Error("`--reconfigure` is only valid with `update`.");
-  }
-
-  if (command === "update" && !existingManifest) {
+  if (installIntent === "reconfigure" && !existingManifest) {
     throw new Error(
-      "No starter-docs manifest was found in the target directory. Run `starter-docs init` first.",
-    );
-  }
-
-  if (command === "update" && hasSelectionOverrides(parsed) && !parsed.reconfigure) {
-    throw new Error(
-      "Selection flags are only valid for `init` or `update --reconfigure`.",
+      "No starter-docs manifest was found in the target directory. Run `starter-docs` first.",
     );
   }
 
@@ -113,13 +103,12 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
 
   let selections = resolveSelections({
     parsed,
-    command,
     existingManifest,
   });
   let skipApplyConfirm = false;
 
   if (interactive) {
-    if (command === "init") {
+    if (!existingManifest && installIntent === "apply") {
       const wizardSelections = await runSelectionWizard({
         initialSelections: selections,
         introTitle: "Let's configure your starter-docs install",
@@ -130,7 +119,7 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
       }
       selections = wizardSelections;
       skipApplyConfirm = true;
-    } else if (parsed.reconfigure) {
+    } else if (installIntent === "reconfigure") {
       const wizardSelections = await runSelectionWizard({
         initialSelections: selections,
         introTitle: "Let's reconfigure your starter-docs install",
@@ -236,31 +225,16 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
   }
 }
 
-function inferCommand(
-  parsed: ParsedArgs,
-  existingManifest: InstallManifest | null,
-): Command {
-  if (parsed.command) {
-    return parsed.command;
-  }
-
-  if (existingManifest) {
-    return "update";
-  }
-
-  return "init";
+function inferInstallIntent(parsed: ParsedArgs): InstallIntent {
+  return parsed.command === "reconfigure" ? "reconfigure" : "apply";
 }
 
 function resolveSelections(options: {
   parsed: ParsedArgs;
-  command: Command;
   existingManifest: InstallManifest | null;
 }): InstallSelections {
-  const { parsed, command, existingManifest } = options;
-  const baseSelections =
-    command === "update" && existingManifest
-      ? existingManifest.selections
-      : defaultSelections();
+  const { parsed, existingManifest } = options;
+  const baseSelections = existingManifest ? existingManifest.selections : defaultSelections();
 
   const selections = cloneSelections(baseSelections);
 
@@ -402,7 +376,6 @@ function parseArgs(argv: string[]): ParsedArgs {
     dryRun: false,
     yes: false,
     help: false,
-    reconfigure: false,
     backup: false,
     noDesigns: false,
     noPlans: false,
@@ -415,12 +388,11 @@ function parseArgs(argv: string[]): ParsedArgs {
   };
 
   const args = [...argv];
-  if (
-    args[0] === "init" ||
-    args[0] === "update" ||
-    args[0] === "backup" ||
-    args[0] === "uninstall"
-  ) {
+  rejectRemovedUpdateReconfigure(args);
+  rejectRemovedReconfigureFlag(args);
+  rejectRemovedCommand(args);
+
+  if (args[0] === "reconfigure" || args[0] === "backup" || args[0] === "uninstall") {
     parsed.command = args.shift() as Command;
   }
 
@@ -439,9 +411,6 @@ function parseArgs(argv: string[]): ParsedArgs {
       case "--help":
       case "-h":
         parsed.help = true;
-        break;
-      case "--reconfigure":
-        parsed.reconfigure = true;
         break;
       case "--backup":
         parsed.backup = true;
@@ -527,6 +496,39 @@ function parseArgs(argv: string[]): ParsedArgs {
   return parsed;
 }
 
+function rejectRemovedUpdateReconfigure(args: string[]): void {
+  if (args[0] !== "update" || !args.includes("--reconfigure")) {
+    return;
+  }
+
+  throw new Error(
+    "The `update --reconfigure` command was removed. Use `starter-docs reconfigure` instead.",
+  );
+}
+
+function rejectRemovedCommand(args: string[]): void {
+  const command = args[0];
+  if (command !== "init" && command !== "update") {
+    return;
+  }
+
+  const suggestedArgs = args.slice(1).join(" ");
+  const suggestedCommand = suggestedArgs ? `starter-docs ${suggestedArgs}` : "starter-docs";
+  throw new Error(
+    `The \`${command}\` command was removed. Use \`${suggestedCommand}\` instead.`,
+  );
+}
+
+function rejectRemovedReconfigureFlag(args: string[]): void {
+  if (!args.includes("--reconfigure")) {
+    return;
+  }
+
+  throw new Error(
+    "`--reconfigure` was removed. Use `starter-docs reconfigure` instead.",
+  );
+}
+
 function validateParsedArgs(parsed: ParsedArgs): void {
   if (parsed.backup && parsed.command !== "uninstall") {
     throw new Error(
@@ -534,20 +536,15 @@ function validateParsedArgs(parsed: ParsedArgs): void {
     );
   }
 
-  if (parsed.reconfigure && parsed.command && parsed.command !== "update") {
-    throw new Error("`--reconfigure` is only valid with `update`.");
-  }
-
   const selectionOverrideFlags = getSelectionOverrideFlags(parsed);
   if (
-    parsed.command &&
-    selectionOverrideFlags.length > 0 &&
-    (parsed.command !== "init" && (parsed.command !== "update" || !parsed.reconfigure))
+    isLifecycleCommand(parsed.command) &&
+    selectionOverrideFlags.length > 0
   ) {
     const label = selectionOverrideFlags.length === 1 ? "flag" : "flags";
     const verb = selectionOverrideFlags.length === 1 ? "is" : "are";
     throw new Error(
-      `Selection ${label} ${selectionOverrideFlags.join(", ")} ${verb} only valid with \`init\` or \`update --reconfigure\`, not \`${parsed.command}\`.`,
+      `Selection ${label} ${selectionOverrideFlags.join(", ")} ${verb} only valid with \`starter-docs\` or \`starter-docs reconfigure\`, not \`${parsed.command}\`.`,
     );
   }
 
@@ -602,18 +599,18 @@ function printPlan(actions: PlannedAction[]): void {
 
 function printHelp(command?: Command): void {
   switch (command) {
-    case "init":
-      output.write(`starter-docs init
+    case "reconfigure":
+      output.write(`starter-docs reconfigure
 
-Create a new starter-docs install in the target directory.
+Change the configured starter-docs footprint for an existing install.
 
 Usage:
-  starter-docs init [options]
+  starter-docs reconfigure [options]
 
 Options:
 
 General options:
-  --target <dir>                 Install into a different directory.
+  --target <dir>                 Reconfigure a different starter-docs install directory.
   --dry-run                      Show planned changes without writing files.
   --yes                          Skip interactive prompts when possible.
   --help, -h                     Show help for this command.
@@ -638,54 +635,9 @@ Skill options:
   --optional-skills <csv|none>   Replace the optional skill set with a comma-separated list or none.
 
 Examples:
-  starter-docs init
-  starter-docs init --target ~/Projects/example --dry-run
-  starter-docs init --no-designs --no-plans --optional-skills none
-`);
-      return;
-    case "update":
-      output.write(`starter-docs update
-
-Update an existing starter-docs install in the target directory.
-
-Usage:
-  starter-docs update [--target <dir>] [--dry-run] [--yes] [--help]
-  starter-docs update --reconfigure [options]
-
-Options:
-
-General options:
-  --target <dir>                 Update a different starter-docs install directory.
-  --dry-run                      Show planned changes without writing files.
-  --yes                          Skip interactive prompts when possible.
-  --help, -h                     Show help for this command.
-
-Reconfigure options:
-  --reconfigure                  Review and change install selections before applying updates.
-
-Content options:
-  --no-designs                   Skip docs/designs scaffolding when reconfiguring.
-  --no-plans                     Skip docs/plans scaffolding when reconfiguring.
-  --no-prd                       Skip docs/prd scaffolding when reconfiguring.
-  --no-work                      Skip docs/work scaffolding when reconfiguring.
-  --no-prompts                   Skip reusable prompt starters when reconfiguring.
-  --templates required|all       Choose required templates only, or the full template set.
-  --references required|all      Choose required references only, or the full reference set.
-
-Harness options:
-  --no-codex                     Skip the Codex harness when reconfiguring.
-  --no-claude-code               Skip the Claude Code harness when reconfiguring.
-  Deprecated aliases: --no-agents, --no-claude
-
-Skill options:
-  --no-skills                    Skip skill installation entirely when reconfiguring.
-  --skill-scope project|global   Choose whether skills install in the repo or the global Codex home.
-  --optional-skills <csv|none>   Replace the optional skill set with a comma-separated list or none.
-
-Examples:
-  starter-docs update
-  starter-docs update --reconfigure
-  starter-docs update --target ~/Projects/example --dry-run
+  starter-docs reconfigure
+  starter-docs reconfigure --target ~/Projects/example --dry-run
+  starter-docs reconfigure --no-designs --no-plans --optional-skills none
 `);
       return;
     case "backup":
@@ -732,27 +684,26 @@ Examples:
     default:
       output.write(`starter-docs
 
-Create, update, back up, and remove starter-docs installs.
+Apply, reconfigure, back up, and remove starter-docs installs.
 
 Usage:
-  starter-docs
+  starter-docs [options]
   starter-docs <command> [options]
   starter-docs --help
 
 Commands:
-  init       Create a new starter-docs install in the target directory.
-  update     Update an existing starter-docs install.
-  backup     Create a backup of managed files before lifecycle changes.
-  uninstall  Remove managed files, with an optional backup first.
+  reconfigure  Change the configured starter-docs footprint.
+  backup       Create a backup of managed files before lifecycle changes.
+  uninstall    Remove managed files, with an optional backup first.
 
 Examples:
   starter-docs
-  starter-docs init --target ~/Projects/example --dry-run
-  starter-docs update --reconfigure
+  starter-docs --target ~/Projects/example --dry-run
+  starter-docs reconfigure
   starter-docs backup --yes
   starter-docs uninstall --backup
 
-Run starter-docs with no command to choose init or update automatically based on the target manifest.
+Run starter-docs with no command to apply or sync the target install.
 Run starter-docs <command> --help for command-specific options and examples.
 `);
   }
