@@ -187,6 +187,7 @@ describe("cli interactive flows", () => {
       expect(output).toContain("Information");
       expect(output).toContain("Mode: existing install sync");
       expect(output).toContain("Manifest:");
+      expect(output).toContain("docs/.assets/starter-docs/manifest.json");
       expect(output).toContain("(found)");
       expect(output).toContain("Selection source: saved manifest selections");
       expect(output).toContain("Changes planned: 0");
@@ -196,9 +197,6 @@ describe("cli interactive flows", () => {
       expect(output).not.toContain("found an existing manifest");
       expect(output).not.toContain("It compared the saved selections");
       expect(output).not.toContain("starter-docs is already up to date");
-      expect(output).not.toContain(
-        `\nManifest: ${path.join(targetDir, "docs/.starter-docs/manifest.json")}`,
-      );
       expect(loadManifest(targetDir)?.selections.capabilities.work).toBe(false);
       expect(loadManifest(targetDir)?.selections.skills).toBe(false);
     } finally {
@@ -625,7 +623,7 @@ describe("cli interactive flows", () => {
 
     const output = await captureCliOutput(["reconfigure", "--help"]);
 
-    expect(output).toContain("Requires an existing docs/.starter-docs/manifest.json");
+    expect(output).toContain("Requires an existing docs/.assets/starter-docs/manifest.json");
     expect(output).toContain("Interactive runs open the selection wizard");
     expect(output).toContain("Non-interactive runs with --yes must include at least one selection flag");
     expect(output).toContain("--yes                          Skip interactive prompts; requires a selection flag.");

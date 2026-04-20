@@ -1,6 +1,6 @@
 import { existsSync, mkdirSync, rmSync } from "node:fs";
 import path from "node:path";
-import { createManifest, writeManifest } from "./manifest";
+import { CONFLICTS_RELATIVE_DIR, createManifest, writeManifest } from "./manifest";
 import { createInstallPlan } from "./planner";
 import { resolveInstallProfile } from "./profile";
 import type {
@@ -168,7 +168,7 @@ function applyAction(options: {
       if (typeof action.content === "string" && plan.conflictsRunId) {
         const conflictPath = path.join(
           targetDir,
-          "docs/.starter-docs/conflicts",
+          CONFLICTS_RELATIVE_DIR,
           plan.conflictsRunId,
           toConflictRelativePath(action.relativePath),
         );

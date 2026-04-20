@@ -30,11 +30,11 @@ None. This backlog is derived from the `w9-r0` plan and design, not from an acti
 
 ### Acceptance criteria
 
-- [ ] New installs write the manifest at `docs/.assets/starter-docs/manifest.json`.
-- [ ] Existing-target sync reads the new manifest path.
-- [ ] Skipped conflicts stage under `docs/.assets/starter-docs/conflicts/<run-id>/...`.
-- [ ] No code path silently reads the old alpha manifest path.
-- [ ] Manifest and conflict path strings are not duplicated unnecessarily in source.
+- [x] New installs write the manifest at `docs/.assets/starter-docs/manifest.json`.
+- [x] Existing-target sync reads the new manifest path.
+- [x] Skipped conflicts stage under `docs/.assets/starter-docs/conflicts/<run-id>/...`.
+- [x] No code path silently reads the old alpha manifest path.
+- [x] Manifest and conflict path strings are not duplicated unnecessarily in source.
 
 ### Dependencies
 
@@ -53,11 +53,11 @@ None. This backlog is derived from the `w9-r0` plan and design, not from an acti
 
 ### Acceptance criteria
 
-- [ ] Manifest-present audit includes the new manifest as managed state.
-- [ ] Manifest-missing audit setup removes the new manifest path.
-- [ ] Backup copies the new manifest path.
-- [ ] Uninstall removes the new manifest path.
-- [ ] Uninstall does not remove history records or `.assets` routers.
+- [x] Manifest-present audit includes the new manifest as managed state.
+- [x] Manifest-missing audit setup removes the new manifest path.
+- [x] Backup copies the new manifest path.
+- [x] Uninstall removes the new manifest path.
+- [x] Uninstall does not remove history records or `.assets` routers.
 
 ### Dependencies
 
@@ -75,11 +75,11 @@ None. This backlog is derived from the `w9-r0` plan and design, not from an acti
 
 ### Acceptance criteria
 
-- [ ] Apply/sync plan output displays the new manifest path.
-- [ ] `starter-docs reconfigure --help` references the new manifest path.
-- [ ] CLI source README examples use the new state paths.
-- [ ] CLI package README uses the new state paths.
-- [ ] Runtime and CLI-facing docs no longer point users to `docs/.starter-docs/`.
+- [x] Apply/sync plan output displays the new manifest path.
+- [x] `starter-docs reconfigure --help` references the new manifest path.
+- [x] CLI source README examples use the new state paths.
+- [x] CLI package README uses the new state paths.
+- [x] Runtime and CLI-facing docs no longer point users to `docs/.starter-docs/`.
 
 ### Dependencies
 
@@ -100,13 +100,13 @@ None. This backlog is derived from the `w9-r0` plan and design, not from an acti
 
 ### Acceptance criteria
 
-- [ ] `npm test -w starter-docs -- tests/install.test.ts` passes.
-- [ ] `npm test -w starter-docs -- tests/cli.test.ts` passes.
-- [ ] `npm test -w starter-docs -- tests/audit.test.ts` passes.
-- [ ] `npm test -w starter-docs -- tests/backup.test.ts` passes.
-- [ ] `npm test -w starter-docs -- tests/uninstall.test.ts` passes.
-- [ ] `npm test -w starter-docs -- tests/lifecycle.test.ts` passes.
-- [ ] `node scripts/smoke-pack.mjs` passes after this phase and dependent template changes are present.
+- [x] `npm test -w starter-docs -- tests/install.test.ts` passes.
+- [x] `npm test -w starter-docs -- tests/cli.test.ts` passes.
+- [x] `npm test -w starter-docs -- tests/audit.test.ts` passes.
+- [x] `npm test -w starter-docs -- tests/backup.test.ts` passes.
+- [x] `npm test -w starter-docs -- tests/uninstall.test.ts` passes.
+- [x] `npm test -w starter-docs -- tests/lifecycle.test.ts` passes.
+- [x] `node scripts/smoke-pack.mjs` passes after this phase and dependent template changes are present.
 
 ### Dependencies
 

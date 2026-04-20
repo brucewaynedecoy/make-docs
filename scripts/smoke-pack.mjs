@@ -92,7 +92,7 @@ try {
       { stdio: "inherit" },
     );
     assertExists(
-      path.join(targetDir, "docs/.starter-docs/manifest.json"),
+      path.join(targetDir, "docs/.assets/starter-docs/manifest.json"),
       "Smoke pack bare install did not produce a manifest.",
     );
     assertExists(
@@ -106,14 +106,14 @@ try {
       { stdio: "inherit" },
     );
     assertMissing(
-      path.join(targetDir, "docs/.starter-docs/conflicts"),
+      path.join(targetDir, "docs/.assets/starter-docs/conflicts"),
       "Smoke pack bare sync staged conflicts for an unchanged install.",
     );
   } finally {
     await fixtureServer.close();
   }
 
-  const manifestPath = path.join(targetDir, "docs/.starter-docs/manifest.json");
+  const manifestPath = path.join(targetDir, "docs/.assets/starter-docs/manifest.json");
   assertExists(manifestPath, "Smoke pack install did not produce a manifest.");
   assertExists(
     path.join(targetDir, "docs/AGENTS.md"),
@@ -167,7 +167,7 @@ try {
   const backupDir = getOnlyBackupDirectory(backupRoot);
   assertExists(path.join(backupDir, "AGENTS.md"), "Smoke pack backup did not copy AGENTS.md.");
   assertExists(
-    path.join(backupDir, "docs/.starter-docs/manifest.json"),
+    path.join(backupDir, "docs/.assets/starter-docs/manifest.json"),
     "Smoke pack backup did not copy the starter-docs manifest.",
   );
 
@@ -180,7 +180,7 @@ try {
   assertMissing(path.join(targetDir, "AGENTS.md"), "Smoke pack uninstall left AGENTS.md behind.");
   assertMissing(path.join(targetDir, "CLAUDE.md"), "Smoke pack uninstall left CLAUDE.md behind.");
   assertMissing(
-    path.join(targetDir, "docs/.starter-docs/manifest.json"),
+    path.join(targetDir, "docs/.assets/starter-docs/manifest.json"),
     "Smoke pack uninstall left the starter-docs manifest behind.",
   );
   assertExists(customFilePath, "Smoke pack uninstall removed an unmanaged custom file.");

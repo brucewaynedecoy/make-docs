@@ -57,8 +57,8 @@ describe("lifecycle validation", () => {
       expect(report.mode).toBe("manifest-present");
       expect(removablePaths).toContain("AGENTS.md");
       expect(removablePaths).toContain("CLAUDE.md");
-      expect(removablePaths).toContain("docs/.starter-docs/manifest.json");
-      expect(prunablePaths).toContain("docs/.starter-docs");
+      expect(removablePaths).toContain("docs/.assets/starter-docs/manifest.json");
+      expect(prunablePaths).toContain("docs/.assets/starter-docs");
       expect(allAuditPaths(report).some((entryPath) => entryPath.startsWith(".backup/"))).toBe(false);
     } finally {
       cleanupTempDir(targetDir);
@@ -72,7 +72,7 @@ describe("lifecycle validation", () => {
       await installStarterDocsTarget(targetDir, (selections) => {
         selections.skills = false;
       });
-      rmSync(path.join(targetDir, "docs/.starter-docs/manifest.json"), { force: true });
+      rmSync(path.join(targetDir, "docs/.assets/starter-docs/manifest.json"), { force: true });
       mkdirSync(path.join(targetDir, "notes"), { recursive: true });
       writeFileSync(path.join(targetDir, "notes/AGENTS.md"), "not starter-docs\n");
 
@@ -117,7 +117,7 @@ describe("lifecycle validation", () => {
         "custom agent instructions\n",
       );
       expect(existsSync(path.join(targetDir, "docs/.templates/custom.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, "docs/.starter-docs"))).toBe(false);
+      expect(existsSync(path.join(targetDir, "docs/.assets/starter-docs"))).toBe(false);
     } finally {
       cleanupTempDir(targetDir);
     }
@@ -246,7 +246,7 @@ function createSyntheticAuditReport(targetDir: string, absolutePath: string): Au
   return {
     mode: "manifest-present",
     targetDir,
-    manifestPath: path.join(targetDir, "docs/.starter-docs/manifest.json"),
+    manifestPath: path.join(targetDir, "docs/.assets/starter-docs/manifest.json"),
     removableFiles: [removableFile],
     prunableDirectories: [],
     preservedPaths: [],

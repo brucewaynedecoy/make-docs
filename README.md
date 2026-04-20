@@ -92,14 +92,14 @@ The installer writes only the files that match your selected profile:
 - visible capability directories such as `docs/designs/`, `docs/plans/`, `docs/prd/`, and `docs/work/`
 - only the prompt starters, templates, and reference files that are valid for that profile
 - generated instruction routers and support files that avoid pointing agents at missing directories or prompt files
-- `docs/.starter-docs/manifest.json`, which records the installed profile and managed file hashes for later apply/sync runs
+- `docs/.assets/starter-docs/manifest.json`, which records the installed profile and managed file hashes for later apply/sync runs
 
 Apply/sync behavior is intentionally non-destructive:
 
 - unchanged managed files are updated in place
 - locally modified managed files are skipped
 - unmanaged conflicting files are never overwritten
-- proposed replacements are staged under `docs/.starter-docs/conflicts/<run-id>/`
+- proposed replacements are staged under `docs/.assets/starter-docs/conflicts/<run-id>/`
 
 ### Copy the drop-in docs files manually
 
@@ -154,7 +154,7 @@ After installing or copying, your project will have:
 
 - **`docs/`** -- A structured documentation directory with templates and agent instructions ready to use.
 - **`CLAUDE.md` / `AGENTS.md`** -- Root-level agent instructions that point AI agents to the documentation system. The installer can generate these to match the selected capability profile and will not overwrite conflicting files automatically.
-- **`docs/.starter-docs/manifest.json`** -- Present when you use the CLI installer. Tracks the selected profile and managed file hashes so future apply/sync runs stay narrow and safe.
+- **`docs/.assets/starter-docs/manifest.json`** -- Present when you use the CLI installer. Tracks the selected profile and managed file hashes so future apply/sync runs stay narrow and safe.
 
 The copy commands above scope to `packages/docs/template/`, which intentionally excludes the CLI source, repo-level scripts, and this repo's own dogfood `docs/`.
 

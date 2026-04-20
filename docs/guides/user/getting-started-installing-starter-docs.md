@@ -195,7 +195,7 @@ Apply/sync runs are **non-destructive**. The installer compares each managed fil
 |---|---|
 | Managed file unchanged locally | Updated in place to the new version |
 | Managed file modified locally | Skipped -- your changes are preserved |
-| Unmanaged file conflicts with a new file | Never overwritten; the proposed replacement is staged under `docs/.starter-docs/conflicts/<run-id>/` for you to review |
+| Unmanaged file conflicts with a new file | Never overwritten; the proposed replacement is staged under `docs/.assets/starter-docs/conflicts/<run-id>/` for you to review |
 
 You can preview a sync before applying it:
 
@@ -257,8 +257,16 @@ your-project/
     .references/                    # Reference documents for workflows and contracts
     .templates/                     # Document templates for designs, plans, PRDs, work items
     .prompts/                       # Optional prompt starters for AI-assisted workflows
-    .starter-docs/
-      manifest.json                 # Tracks every managed file, its hash, and version
+    .assets/
+      AGENTS.md
+      CLAUDE.md
+      history/
+        AGENTS.md
+        CLAUDE.md
+      starter-docs/
+        AGENTS.md
+        CLAUDE.md
+        manifest.json               # CLI-managed state for managed file hashes and version
     designs/                        # Design documents
       AGENTS.md
     plans/                          # Planning documents
@@ -276,7 +284,7 @@ Skill installation depends on your selections:
 - Project scope installs skills under the current repo (`.claude/skills/`, `.agents/skills/`).
 - Global scope installs skills under your home directory (`~/.claude/skills/`, `~/.agents/skills/`).
 
-**Manifest:** The file at `docs/.starter-docs/manifest.json` is how starter-docs tracks which files it manages. Do not delete this file -- it is required for updates and reconfiguration.
+**Manifest:** The file at `docs/.assets/starter-docs/manifest.json` is how starter-docs tracks which files it manages. Do not delete this file -- it is required for updates and reconfiguration.
 
 ## Capability Reference
 
@@ -331,9 +339,9 @@ This means you are running `reconfigure`, `backup`, or `uninstall` in a director
 npx starter-docs
 ```
 
-### Conflict files appearing in `.starter-docs/conflicts/`
+### Conflict files appearing in `.assets/starter-docs/conflicts/`
 
-During apply/sync, if a file that starter-docs wants to create already exists but is not tracked in the manifest, the proposed file is staged under `docs/.starter-docs/conflicts/<run-id>/` instead of overwriting yours. To resolve:
+During apply/sync, if a file that starter-docs wants to create already exists but is not tracked in the manifest, the proposed file is staged under `docs/.assets/starter-docs/conflicts/<run-id>/` instead of overwriting yours. To resolve:
 
 1. Compare the staged file with your existing file.
 2. Merge the changes you want to keep.

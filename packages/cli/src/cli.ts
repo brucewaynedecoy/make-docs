@@ -3,7 +3,7 @@ import { stdin as input, stdout as output } from "node:process";
 import { confirm, isCancel, note } from "@clack/prompts";
 import { runBackupCommand } from "./backup";
 import { applyInstallPlan, findInstructionConflicts, planInstall } from "./install";
-import { loadManifest } from "./manifest";
+import { loadManifest, MANIFEST_RELATIVE_PATH } from "./manifest";
 import { cloneSelections, defaultSelections, hasEffectiveCapabilities } from "./profile";
 import {
   getOptionalSkills,
@@ -634,7 +634,7 @@ function printPlan(options: {
   const nonNoop = actions.filter((action) => action.type !== "noop");
   const noopCount = actions.length - nonNoop.length;
   const counts = countActions(actions);
-  const manifestPath = path.join(targetDir, "docs/.starter-docs/manifest.json");
+  const manifestPath = path.join(targetDir, MANIFEST_RELATIVE_PATH);
   const mode = describeApplyMode({ existingManifest, installIntent });
 
   note(
@@ -786,7 +786,7 @@ function printHelp(command?: Command): void {
       output.write(`starter-docs reconfigure
 
 Change the configured starter-docs footprint for an existing install.
-Requires an existing docs/.starter-docs/manifest.json in the target directory.
+Requires an existing ${MANIFEST_RELATIVE_PATH} in the target directory.
 
 Interactive runs open the selection wizard using the saved manifest selections.
 Non-interactive runs with --yes must include at least one selection flag.
