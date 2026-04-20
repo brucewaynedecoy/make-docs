@@ -34,7 +34,7 @@ The package is intentionally small. Most changes land in one of these files:
 For fast iteration on TypeScript source, run the entrypoint directly with `tsx`:
 
 ```bash
-npm run dev -- init --target "$(mktemp -d)"
+npm run dev -- --target "$(mktemp -d)"
 ```
 
 For packaging-sensitive work, prefer the built artifact:
@@ -72,8 +72,8 @@ npm run build
 
 TEST_DIR=$(mktemp -d)
 node dist/index.js --help
-node dist/index.js init --dry-run --target "$TEST_DIR"
-node dist/index.js init --target "$TEST_DIR"
+node dist/index.js --dry-run --target "$TEST_DIR"
+node dist/index.js --target "$TEST_DIR"
 ```
 
 The interactive wizard should currently walk through:
@@ -104,23 +104,23 @@ cat "$TEST_DIR/docs/.starter-docs/manifest.json"
 1. Default install: accept defaults, confirm `docs/work/AGENTS.md` and the manifest are created.
 2. Dependency logic: deselect `Plans` and confirm `PRD` and `Work` disable automatically.
 3. Review loop: choose `Edit document types` or `Edit options`, change values, and return to review.
-4. Implicit update: rerun against an installed target with no explicit command.
+4. Apply/sync: rerun against an installed target with no explicit command.
 
 ```bash
 node dist/index.js --target "$TEST_DIR"
 ```
 
-5. Forced reconfigure:
+5. Reconfigure saved selections:
 
 ```bash
-node dist/index.js update --reconfigure --target "$TEST_DIR"
+node dist/index.js reconfigure --target "$TEST_DIR"
 ```
 
-6. Managed-file conflict staging: modify a managed file, rerun update, and confirm the replacement is staged instead of overwritten.
+6. Managed-file conflict staging: modify a managed file, rerun apply/sync, and confirm the replacement is staged instead of overwritten.
 
 ```bash
 printf 'local edit\n' > "$TEST_DIR/docs/AGENTS.md"
-node dist/index.js update --target "$TEST_DIR"
+node dist/index.js --target "$TEST_DIR"
 find "$TEST_DIR/docs/.starter-docs/conflicts" | sort
 ```
 
@@ -129,7 +129,7 @@ find "$TEST_DIR/docs/.starter-docs/conflicts" | sort
 ```bash
 CONFLICT_DIR=$(mktemp -d)
 printf 'custom root agents\n' > "$CONFLICT_DIR/AGENTS.md"
-node dist/index.js init --target "$CONFLICT_DIR"
+node dist/index.js --target "$CONFLICT_DIR"
 ```
 
 ### Packaged `npx` validation
@@ -142,7 +142,7 @@ TARBALL=$(npm pack --silent)
 TEST_DIR=$(mktemp -d)
 
 npm exec --yes --package "./$TARBALL" -- \
-  starter-docs init --target "$TEST_DIR"
+  starter-docs --target "$TEST_DIR"
 ```
 
 Important detail: the `--yes` above is for `npm exec`, not the installer. Do not pass installer `--yes` if you want to see the wizard.

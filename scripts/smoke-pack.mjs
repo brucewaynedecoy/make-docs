@@ -88,7 +88,7 @@ try {
     rewritePackedSkillRegistry(packageRoot, fixtureServer.baseUrl);
     execFileSync(
       "node",
-      [packedCli, "init", "--yes", "--target", targetDir],
+      [packedCli, "--yes", "--target", targetDir],
       { stdio: "inherit" },
     );
   } finally {

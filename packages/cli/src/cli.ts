@@ -587,6 +587,10 @@ function printHelp(command?: Command): void {
       output.write(`starter-docs reconfigure
 
 Change the configured starter-docs footprint for an existing install.
+Requires an existing docs/.starter-docs/manifest.json in the target directory.
+
+Interactive runs open the selection wizard using the saved manifest selections.
+Non-interactive runs with --yes must include at least one selection flag.
 
 Usage:
   starter-docs reconfigure [options]
@@ -596,7 +600,7 @@ Options:
 General options:
   --target <dir>                 Reconfigure a different starter-docs install directory.
   --dry-run                      Show planned changes without writing files.
-  --yes                          Skip interactive prompts when possible.
+  --yes                          Skip interactive prompts; requires a selection flag.
   --help, -h                     Show help for this command.
 
 Content options:
@@ -621,7 +625,8 @@ Skill options:
 Examples:
   starter-docs reconfigure
   starter-docs reconfigure --target ~/Projects/example --dry-run
-  starter-docs reconfigure --no-designs --no-plans --optional-skills none
+  starter-docs reconfigure --yes --no-work
+  starter-docs reconfigure --yes --no-codex --skill-scope global --optional-skills decompose-codebase
 `);
       return;
     case "backup":
@@ -668,27 +673,32 @@ Examples:
     default:
       output.write(`starter-docs
 
-Apply, reconfigure, back up, and remove starter-docs installs.
+Apply, sync, reconfigure, back up, and remove starter-docs installs.
 
 Usage:
   starter-docs [options]
-  starter-docs <command> [options]
-  starter-docs --help
+  starter-docs reconfigure [options]
+  starter-docs backup [options]
+  starter-docs uninstall [options]
+
+Primary workflow:
+  Run starter-docs with no command to install into a new target or sync an existing manifest using saved selections.
 
 Commands:
-  reconfigure  Change the configured starter-docs footprint.
-  backup       Create a backup of managed files before lifecycle changes.
+  reconfigure  Change saved selections for an existing install.
+  backup       Create a backup of managed files.
   uninstall    Remove managed files, with an optional backup first.
 
 Examples:
   starter-docs
+  starter-docs --yes
   starter-docs --target ~/Projects/example --dry-run
   starter-docs reconfigure
+  starter-docs reconfigure --yes --no-skills
   starter-docs backup --yes
   starter-docs uninstall --backup
 
-Run starter-docs with no command to apply or sync the target install.
-Run starter-docs <command> --help for command-specific options and examples.
+Use --help or -h with any command for command-specific options and examples.
 `);
   }
 }

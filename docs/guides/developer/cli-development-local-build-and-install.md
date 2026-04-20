@@ -70,7 +70,7 @@ During development the CLI resolves the documentation template from the sibling 
 To pass flags to the CLI in dev mode, append them after `--`:
 
 ```sh
-npm run dev -- init --dry-run --yes --target /tmp/dev-test
+npm run dev -- --dry-run --yes --target /tmp/dev-test
 ```
 
 ## Running Tests
@@ -126,7 +126,7 @@ What happens behind the scenes (implemented in [`scripts/smoke-pack.mjs`](../../
 1. Runs `npm run prepack` in the CLI package, which copies `packages/docs/template/` into `packages/cli/template/` and then builds with tsup.
 2. Runs `npm pack --json` to produce a tarball.
 3. Unpacks the tarball into a temporary directory.
-4. Executes `node dist/index.js init --yes --target <temp-dir>` from the unpacked package.
+4. Executes `node dist/index.js --yes --target <temp-dir>` from the unpacked package.
 5. Asserts that `docs/.starter-docs/manifest.json` and `docs/AGENTS.md` exist in the target.
 6. Cleans up all temporary directories.
 
@@ -175,7 +175,7 @@ npm install -g ./starter-docs-0.1.0.tgz
 Test the installed CLI:
 
 ```sh
-starter-docs init --dry-run --yes --target /tmp/test-install
+starter-docs --dry-run --yes --target /tmp/test-install
 ```
 
 To uninstall:
@@ -188,8 +188,8 @@ npm uninstall -g starter-docs
 
 | Task | Commands |
 |---|---|
-| Edit a template file and test | Edit file under `packages/docs/template/`, then `npm run dev -- init --dry-run --yes --target /tmp/tpl-test` |
-| Edit CLI source and test | Edit file under `packages/cli/src/`, then `npm run dev -- init --yes --target /tmp/cli-test` |
+| Edit a template file and test | Edit file under `packages/docs/template/`, then `npm run dev -- --dry-run --yes --target /tmp/tpl-test` |
+| Edit CLI source and test | Edit file under `packages/cli/src/`, then `npm run dev -- --yes --target /tmp/cli-test` |
 | Run the full test suite | `npm test` |
 | Validate defaults after changing a template | `npm run validate:defaults` |
 | Full pre-publish check | `npm test && npm run validate:defaults && npm run smoke:pack` |

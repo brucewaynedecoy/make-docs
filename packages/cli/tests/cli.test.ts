@@ -589,15 +589,34 @@ describe("cli interactive flows", () => {
     expect(output).toMatch(/starter-docs/i);
     expect(output).toMatch(/\bCommands\b/i);
     expect(output).toMatch(/\bExamples\b/i);
+    expect(output).toContain("starter-docs [options]");
+    expect(output).toContain("install into a new target or sync an existing manifest");
     expect(output).toContain("starter-docs reconfigure");
     expect(output).toContain("starter-docs backup");
     expect(output).toContain("starter-docs uninstall");
-    expect(output).toContain("reconfigure  Change the configured starter-docs footprint.");
-    expect(output).toContain("backup       Create a backup of managed files before lifecycle changes.");
+    expect(output).toContain("reconfigure  Change saved selections for an existing install.");
+    expect(output).toContain("backup       Create a backup of managed files.");
     expect(output).toContain("uninstall    Remove managed files, with an optional backup first.");
     expect(output).not.toContain("starter-docs init");
     expect(output).not.toContain("starter-docs update");
+    expect(output).not.toContain("--reconfigure");
     expect(output).toMatch(/--help/i);
+  });
+
+  test("documents reconfigure selection-change behavior", async () => {
+    setTTY(false);
+
+    const output = await captureCliOutput(["reconfigure", "--help"]);
+
+    expect(output).toContain("Requires an existing docs/.starter-docs/manifest.json");
+    expect(output).toContain("Interactive runs open the selection wizard");
+    expect(output).toContain("Non-interactive runs with --yes must include at least one selection flag");
+    expect(output).toContain("--yes                          Skip interactive prompts; requires a selection flag.");
+    expect(output).toContain("starter-docs reconfigure --yes --no-work");
+    expect(output).toContain("--optional-skills <csv|none>");
+    expect(output).not.toContain("starter-docs init");
+    expect(output).not.toContain("starter-docs update");
+    expect(output).not.toContain("--reconfigure");
   });
 
   test.each([

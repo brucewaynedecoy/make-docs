@@ -26,6 +26,8 @@ describe("buildable renderers", () => {
     expect(rendered).toContain("planning-not-installed");
     expect(rendered).not.toContain("designs-to-plan.prompt.md");
     expect(rendered).not.toContain("docs/.prompts/");
+    expect(rendered).toContain("npx starter-docs reconfigure");
+    expect(rendered).not.toContain("npx starter-docs update --reconfigure");
   });
 
   test("removes prompt links from design workflow when prompts are disabled", () => {
@@ -37,5 +39,7 @@ describe("buildable renderers", () => {
 
     expect(rendered).toContain("Prompt links are unavailable in this profile");
     expect(rendered).not.toContain("docs/.prompts/");
+    expect(rendered).toContain("npx starter-docs reconfigure");
+    expect(rendered).not.toContain("npx starter-docs update --reconfigure");
   });
 });

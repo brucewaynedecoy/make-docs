@@ -14,7 +14,7 @@ applies-to:
 
 # Installing Starter Docs
 
-Starter-docs is a drop-in documentation structure that gives your project organized templates, capability directories, AI agent instructions, and optional installable skills out of the box. This guide walks you through every way to install it -- from a single npx command to building from source -- and covers updating, previewing changes, and troubleshooting.
+Starter-docs is a drop-in documentation structure that gives your project organized templates, capability directories, AI agent instructions, and optional installable skills out of the box. This guide walks you through every way to install it -- from a single npx command to building from source -- and covers syncing existing installs, reconfiguring selections, previewing changes, and troubleshooting.
 
 ## Prerequisites
 
@@ -44,7 +44,7 @@ This launches an interactive wizard that walks you through setup:
 To skip the wizard and accept all defaults:
 
 ```bash
-npx starter-docs init --yes
+npx starter-docs --yes
 ```
 
 ## Installing from Source
@@ -60,7 +60,7 @@ git clone https://github.com/<owner>/starter-docs.git /tmp/starter-docs
 cd /tmp/starter-docs
 npm install
 npm run build
-node packages/cli/dist/index.js init --target /path/to/your/project
+node packages/cli/dist/index.js --target /path/to/your/project
 rm -rf /tmp/starter-docs
 ```
 
@@ -104,7 +104,7 @@ Run this from your project root.
 Pass `--yes` to accept every default without prompts:
 
 ```bash
-npx starter-docs init --yes
+npx starter-docs --yes
 ```
 
 You can combine `--yes` with selection flags to tailor the install in a single command. A few examples:
@@ -112,55 +112,55 @@ You can combine `--yes` with selection flags to tailor the install in a single c
 Install everything except the work capability:
 
 ```bash
-npx starter-docs init --yes --no-work
+npx starter-docs --yes --no-work
 ```
 
 Install without designs or prd:
 
 ```bash
-npx starter-docs init --yes --no-designs --no-prd
+npx starter-docs --yes --no-designs --no-prd
 ```
 
 Install only required templates (skip optional ones):
 
 ```bash
-npx starter-docs init --yes --templates required
+npx starter-docs --yes --templates required
 ```
 
 Install only required references:
 
 ```bash
-npx starter-docs init --yes --references required
+npx starter-docs --yes --references required
 ```
 
 Install only the Claude Code harness:
 
 ```bash
-npx starter-docs init --yes --no-codex
+npx starter-docs --yes --no-codex
 ```
 
 Skip skill installation entirely:
 
 ```bash
-npx starter-docs init --yes --no-skills
+npx starter-docs --yes --no-skills
 ```
 
 Enable the optional `decompose-codebase` skill:
 
 ```bash
-npx starter-docs init --yes --optional-skills decompose-codebase
+npx starter-docs --yes --optional-skills decompose-codebase
 ```
 
 Install skills globally instead of in the current project:
 
 ```bash
-npx starter-docs init --yes --skill-scope global
+npx starter-docs --yes --skill-scope global
 ```
 
 Install into a specific directory:
 
 ```bash
-npx starter-docs init --yes --target ./my-project
+npx starter-docs --yes --target ./my-project
 ```
 
 ## Previewing Changes
@@ -168,28 +168,28 @@ npx starter-docs init --yes --target ./my-project
 Use `--dry-run` to see exactly what would be written without actually writing anything:
 
 ```bash
-npx starter-docs init --dry-run
+npx starter-docs --dry-run
 ```
 
 Dry-run works with any combination of flags:
 
 ```bash
-npx starter-docs init --dry-run --no-work --templates required
+npx starter-docs --dry-run --no-work --templates required
 ```
 
-This is especially useful before an update to verify which files will change.
+This is especially useful before an apply/sync run to verify which files will change.
 
-## Updating an Existing Installation
+## Syncing an Existing Installation
 
-After you have already run `init`, use `update` to bring your installation in line with a newer version of starter-docs:
+After you have already installed starter-docs, run the same bare command again to bring your installation in line with the current package version and your saved manifest selections:
 
 ```bash
-npx starter-docs update
+npx starter-docs
 ```
 
-### How updates work
+### How apply/sync works
 
-Updates are **non-destructive**. The updater compares each managed file against the version recorded in your manifest:
+Apply/sync runs are **non-destructive**. The installer compares each managed file against the version recorded in your manifest:
 
 | Scenario | What happens |
 |---|---|
@@ -197,36 +197,42 @@ Updates are **non-destructive**. The updater compares each managed file against 
 | Managed file modified locally | Skipped -- your changes are preserved |
 | Unmanaged file conflicts with a new file | Never overwritten; the proposed replacement is staged under `docs/.starter-docs/conflicts/<run-id>/` for you to review |
 
-You can preview an update before applying it:
+You can preview a sync before applying it:
 
 ```bash
-npx starter-docs update --dry-run
+npx starter-docs --dry-run
 ```
 
 ### Targeting a specific directory
 
 ```bash
-npx starter-docs update --target ./my-project
+npx starter-docs --target ./my-project
 ```
 
-### Accepting all update defaults
+### Accepting all sync defaults
 
 ```bash
-npx starter-docs update --yes
+npx starter-docs --yes
 ```
 
 ### Changing your capability selections
 
-If you originally skipped a capability and now want it (or vice versa), use `--reconfigure` with the appropriate selection flags:
+If you originally skipped a capability and now want it, run the interactive reconfigure command and enable it in the wizard:
 
 ```bash
-npx starter-docs update --reconfigure --no-designs
+npx starter-docs reconfigure
+```
+
+If you want a non-interactive selection change, combine `reconfigure --yes` with at least one selection flag:
+
+```bash
+npx starter-docs reconfigure --yes --no-designs
 ```
 
 You can also change harness or skill settings during reconfigure:
 
 ```bash
-npx starter-docs update --reconfigure --no-codex --skill-scope global --optional-skills decompose-codebase
+npx starter-docs reconfigure --yes --no-codex --skill-scope global --optional-skills decompose-codebase
 ```
 
 ## What Gets Installed
@@ -289,44 +295,45 @@ Because `prd` depends on `plans`, opting out of `plans` will also remove `prd`. 
 
 | Command | Description |
 |---|---|
-| `starter-docs` | Alias for `starter-docs init` -- launches the interactive wizard |
-| `starter-docs init` | Install starter-docs into a project |
-| `starter-docs update` | Update an existing installation to the latest version |
-| `starter-docs update --reconfigure` | Change install selections during an update |
+| `starter-docs` | Install into a new target, or sync an existing install using saved manifest selections |
+| `starter-docs reconfigure` | Change saved selections for an existing install |
+| `starter-docs backup` | Back up managed files |
+| `starter-docs uninstall` | Remove managed files, with optional backup first |
 
 ### Flags
 
 | Flag | Applies To | Description |
 |---|---|---|
-| `--target <dir>` | `init`, `update` | Set the target project directory (defaults to current directory) |
-| `--dry-run` | `init`, `update` | Preview changes without writing any files |
-| `--yes` | `init`, `update` | Accept all defaults without prompts |
-| `--no-designs` | `init`, `reconfigure` | Exclude the designs capability |
-| `--no-plans` | `init`, `reconfigure` | Exclude the plans capability (also excludes prd and work) |
-| `--no-prd` | `init`, `reconfigure` | Exclude the prd capability (also excludes work) |
-| `--no-work` | `init`, `reconfigure` | Exclude the work capability |
-| `--no-prompts` | `init`, `reconfigure` | Skip installing prompt starters |
-| `--templates required\|all` | `init`, `reconfigure` | Install only required templates or the full set |
-| `--references required\|all` | `init`, `reconfigure` | Install only required references or the full set |
-| `--no-claude-code` | `init`, `reconfigure` | Skip the Claude Code harness (deprecated alias: `--no-claude`) |
-| `--no-codex` | `init`, `reconfigure` | Skip the Codex harness (deprecated alias: `--no-agents`) |
-| `--no-skills` | `init`, `reconfigure` | Skip skill installation |
-| `--skill-scope project\|global` | `init`, `reconfigure` | Install skills in the project or in your home directory |
-| `--optional-skills <csv\|none>` | `init`, `reconfigure` | Replace the selected optional skills; use `none` to clear them |
+| `--target <dir>` | `starter-docs`, `reconfigure`, `backup`, `uninstall` | Set the target project directory (defaults to current directory) |
+| `--dry-run` | `starter-docs`, `reconfigure` | Preview changes without writing any files |
+| `--yes` | `starter-docs`, `reconfigure`, `backup`, `uninstall` | Skip prompts where safe; `reconfigure --yes` requires at least one selection flag |
+| `--backup` | `uninstall` | Create a backup before removing managed files |
+| `--no-designs` | `starter-docs`, `reconfigure` | Exclude the designs capability |
+| `--no-plans` | `starter-docs`, `reconfigure` | Exclude the plans capability (also excludes prd and work) |
+| `--no-prd` | `starter-docs`, `reconfigure` | Exclude the prd capability (also excludes work) |
+| `--no-work` | `starter-docs`, `reconfigure` | Exclude the work capability |
+| `--no-prompts` | `starter-docs`, `reconfigure` | Skip installing prompt starters |
+| `--templates required\|all` | `starter-docs`, `reconfigure` | Install only required templates or the full set |
+| `--references required\|all` | `starter-docs`, `reconfigure` | Install only required references or the full set |
+| `--no-claude-code` | `starter-docs`, `reconfigure` | Skip the Claude Code harness (deprecated alias: `--no-claude`) |
+| `--no-codex` | `starter-docs`, `reconfigure` | Skip the Codex harness (deprecated alias: `--no-agents`) |
+| `--no-skills` | `starter-docs`, `reconfigure` | Skip skill installation |
+| `--skill-scope project\|global` | `starter-docs`, `reconfigure` | Install skills in the project or in your home directory |
+| `--optional-skills <csv\|none>` | `starter-docs`, `reconfigure` | Replace the selected optional skills; use `none` to clear them |
 
 ## Troubleshooting
 
 ### "No starter-docs manifest found"
 
-This means you are running `update` in a directory that does not have an existing starter-docs installation. Run `init` first:
+This means you are running `reconfigure`, `backup`, or `uninstall` in a directory that does not have an existing starter-docs installation. Run the bare installer first:
 
 ```bash
-npx starter-docs init
+npx starter-docs
 ```
 
 ### Conflict files appearing in `.starter-docs/conflicts/`
 
-During an update, if a file that starter-docs wants to create already exists but is not tracked in the manifest, the proposed file is staged under `docs/.starter-docs/conflicts/<run-id>/` instead of overwriting yours. To resolve:
+During apply/sync, if a file that starter-docs wants to create already exists but is not tracked in the manifest, the proposed file is staged under `docs/.starter-docs/conflicts/<run-id>/` instead of overwriting yours. To resolve:
 
 1. Compare the staged file with your existing file.
 2. Merge the changes you want to keep.
