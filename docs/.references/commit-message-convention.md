@@ -69,6 +69,47 @@ plan: [W9 R0] Docs assets, starter-docs state, and session history
 Define the intended documentation architecture for moving starter-docs operational state out of `docs/.starter-docs/`, introducing a template-owned `docs/.assets/` namespace, and migrating session history into the assets namespace.
 ```
 
+## Inference Workflow
+
+Use this workflow when the user asks for a commit message but does not provide the exact commit kind, coordinate, or label.
+
+Commit kind:
+
+- Use `feat:` when the change set implements phase work, especially source, tests, generated template assets, packaged docs, or behavior described by a work phase.
+- Use `plan:` when the change set creates or updates pre-implementation design, plan, decomposition, or backlog artifacts and does not implement the phase itself.
+- If the change set includes both planning docs and implementation work, prefer `feat:` when implementation files are part of the requested commit; otherwise prefer `plan:`.
+
+Coordinate:
+
+Resolve the coordinate in this order, stopping at the first unambiguous match:
+
+1. Explicit user-provided coordinate or commit kind.
+2. Matching history record frontmatter, title, or filename.
+3. Changed work phase path such as `docs/work/YYYY-MM-DD-w8-r0-<slug>/05-<phase>.md`.
+4. Changed plan phase path such as `docs/plans/YYYY-MM-DD-w8-r0-<slug>/05-<phase>.md`.
+5. Changed plan overview, work index, or design metadata for wave/revision-only plan work.
+6. Branch name or current task name if it contains `w{wave}-r{revision}` and optional `p{phase}`.
+7. Nearby recent commit subjects that share the same changed wave slug and continue the phase sequence.
+
+Names:
+
+- Derive the wave name from the design H1, plan overview H1, work index H1, or history record H1.
+- Remove suffixes such as `- Implementation Plan`, `- Work Backlog`, or `- Phase N: ...` when deriving the wave name.
+- Derive the phase name from the matching work phase heading, plan phase heading, or history record title.
+- Remove leading `Phase N`, `Phase N:`, or equivalent numbering from the phase name before placing it after ` - `.
+
+Body source:
+
+- For `feat:`, use the matching history record `## Changes` first paragraph.
+- For `plan:`, use the seeding design `## Purpose` first paragraph, then the plan overview `## Purpose` first paragraph.
+- If the expected body source is missing, draft the best subject and explain that the body source could not be found. Do not invent a body paragraph.
+
+Ambiguity:
+
+- If one coordinate is clearly dominant from changed paths and docs, use it.
+- If multiple plausible coordinates remain, draft the best candidate with a source note, but do not create a commit without user confirmation.
+- If staged files and unstaged files point to different coordinates, use only the staged set when the user has staged changes; otherwise ask which change set should be committed.
+
 ## Source Resolution
 
 Before drafting or committing:
