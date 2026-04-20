@@ -21,13 +21,13 @@ Mode detection is intent-based: infer the mode from user phrasing and confirm be
 
 - **Work backlog** — scan `00-index.md` and phase files for links into `docs/plans/`.
 - **Plan** — scan `00-overview.md` for links into `docs/designs/`.
-- **History record** — read `coordinate` frontmatter; find the matching plan and work directory sharing the same wave/revision.
+- **History record** — read `coordinate` frontmatter; find the matching plan and work directory sharing the same wave/revision. If older moved records do not have `coordinate`, fall back to W/R/P filename parsing.
 
 ### Downstream Tracing
 
 - **Design** — scan `docs/plans/` for overview files linking back to the design.
 - **Plan** — scan `docs/work/` for index files linking back to the plan.
-- **Plan/Work** — scan `docs/.assets/history/` for history records whose `coordinate` matches the same wave/revision.
+- **Plan/Work** — scan `docs/.assets/history/` for history records whose `coordinate` matches the same wave/revision. If older moved records do not have `coordinate`, fall back to W/R/P filename parsing.
 
 ### Lateral Tracing
 

@@ -12,7 +12,7 @@ Every other reference file, template, and router links here instead of restating
 | --- | --- | --- |
 | `w{W}` | Wave | One end-to-end iteration: design to plan to work. Wave 1 is the initial wave. A new wave begins when the user starts a new end-to-end initiative. |
 | `r{R}` | Revision | Revision within a wave. `r0` is the initial revision. `r1+` are meaningful redos of that wave's artifacts (for example a redesigned design or a re-planned plan after feedback). |
-| `p{P}` | Phase | Phase within a plan or work backlog. Appears in inner phase files and may appear in history record `coordinate` frontmatter. `p{P}` does NOT appear in the top-level names of designs, plans, work directories, or history filenames. |
+| `p{P}` | Phase | Phase within a plan or work backlog. Appears in inner phase files, phase-scoped history filenames, and history record `coordinate` frontmatter. `p{P}` does not appear in the top-level names of designs, plans, or work directories. Stage/task detail stays in `coordinate` only. |
 
 ## Naming Patterns
 
@@ -24,7 +24,7 @@ Every other reference file, template, and router links here instead of restating
 | Work directory | `docs/work/YYYY-MM-DD-w{W}-r{R}-<slug>/` |
 | Work index file | `docs/work/YYYY-MM-DD-w{W}-r{R}-<slug>/00-index.md` |
 | Work phase file | `docs/work/YYYY-MM-DD-w{W}-r{R}-<slug>/0N-<phase>.md` |
-| History record | `docs/.assets/history/YYYY-MM-DD-<slug>.md` |
+| History record | `docs/.assets/history/YYYY-MM-DD-w{W}-r{R}-p{P}-<slug>.md` when W/R/P is known; see `docs/.references/history-record-contract.md` for fallbacks. |
 
 `YYYY-MM-DD` is the date the artifact is written. Never backdate.
 
@@ -41,7 +41,7 @@ When writing a new plan directory or work directory, determine `W` and `R` in th
    - If the user is starting a new end-to-end initiative, increment `W` and reset `R` to `0`.
 4. **If no prior entries exist**, default to `w1-r0`.
 
-For history records, store any known W/R/P/S/T position in the `coordinate` frontmatter field described by `docs/.references/history-record-contract.md`.
+For history records, store any known W/R/P/S/T position in the `coordinate` frontmatter field described by `docs/.references/history-record-contract.md`. Include W/R/P in the filename when all three are known. Include W/R when only those two are known. Keep stage and task detail only in `coordinate`.
 
 ## PRD Exemption
 

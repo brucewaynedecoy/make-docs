@@ -65,7 +65,7 @@ just dev
 
 Both delegate to `npm run dev -w starter-docs`, which runs `tsx src/index.ts` inside `packages/cli/`.
 
-During development the CLI resolves the documentation template from the sibling workspace at `packages/docs/template/` (see `resolveTemplateRoot()` in [`packages/cli/src/utils.ts`](../../packages/cli/src/utils.ts)). No copy step is required -- edits to template files are picked up immediately.
+During development the CLI resolves the documentation template from the sibling workspace at `packages/docs/template/` (see `resolveTemplateRoot()` in [`packages/cli/src/utils.ts`](../../../packages/cli/src/utils.ts)). No copy step is required -- edits to template files are picked up immediately.
 
 To pass flags to the CLI in dev mode, append them after `--`:
 
@@ -121,7 +121,7 @@ npm run smoke:pack
 just smoke-pack
 ```
 
-What happens behind the scenes (implemented in [`scripts/smoke-pack.mjs`](../../scripts/smoke-pack.mjs)):
+What happens behind the scenes (implemented in [`scripts/smoke-pack.mjs`](../../../scripts/smoke-pack.mjs)):
 
 1. Runs `npm run prepack` in the CLI package, which copies `packages/docs/template/` into `packages/cli/template/` and then builds with tsup.
 2. Runs `npm pack --json` to produce a tarball.
@@ -236,7 +236,7 @@ Restart your shell and retry.
 
 **Symptom:** `npm run smoke:pack` fails at the prepack step.
 
-**Cause:** The copy-template script ([`scripts/copy-template-to-cli.mjs`](../../scripts/copy-template-to-cli.mjs)) could not copy `packages/docs/template/` into `packages/cli/template/`, or tsup failed to compile.
+**Cause:** The copy-template script ([`scripts/copy-template-to-cli.mjs`](../../../scripts/copy-template-to-cli.mjs)) could not copy `packages/docs/template/` into `packages/cli/template/`, or tsup failed to compile.
 
 **Fix:** Run the steps manually to isolate the failure:
 

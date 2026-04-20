@@ -68,9 +68,10 @@ Use this mode when the user wants advisory analysis without moving or editing fi
    - deprecated status
    - supersession
    - no active references
-4. Use [`scripts/trace_relationships.py`](./scripts/trace_relationships.py) when needed for relationship scans.
-5. Present a grouped staleness report with the signal and rationale for each candidate.
-6. Do not archive anything in this mode. If the user wants to proceed, switch to `archive`.
+4. For history records, prefer `coordinate` frontmatter for W/R/P matching; fall back to W/R/P filename parsing for older moved records when frontmatter is absent.
+5. Use [`scripts/trace_relationships.py`](./scripts/trace_relationships.py) when needed for relationship scans.
+6. Present a grouped staleness report with the signal and rationale for each candidate.
+7. Do not archive anything in this mode. If the user wants to proceed, switch to `archive`.
 
 ## Mode: `deprecate`
 

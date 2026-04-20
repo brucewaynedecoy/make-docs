@@ -8,7 +8,9 @@ History records are **breadcrumbs**: concise, point-in-time references for a fut
 
 ## Required Path
 
-- `docs/.assets/history/YYYY-MM-DD-<slug>.md`
+- When wave, revision, and phase are known: `docs/.assets/history/YYYY-MM-DD-w{W}-r{R}-p{P}-<slug>.md`
+- When only wave and revision are known: `docs/.assets/history/YYYY-MM-DD-w{W}-r{R}-<slug>.md`
+- When no coordinate is known: `docs/.assets/history/YYYY-MM-DD-<slug>.md`
 
 Use today's date in `YYYY-MM-DD`. Never backdate.
 
@@ -44,9 +46,11 @@ The `coordinate` field replaces separate `wave`, `revision`, `phase`, `stage`, a
 | Component | Meaning |
 | --- | --- |
 | `YYYY-MM-DD` | Date the session summary is written. |
+| `w{W}-r{R}-p{P}` | Coordinate prefix for phase-scoped work when wave, revision, and phase are known. |
+| `w{W}-r{R}` | Coordinate prefix when only wave and revision are known. |
 | `<slug>` | Lowercase, hyphens only, no special characters. Default is `summary`. Use a more specific slug (for example `auth-refactor`) when the session's focus is narrower. |
 
-Do not encode wave, revision, phase, stage, or task in the filename. Capture that position in `coordinate` when known.
+Encode known wave/revision/phase position in the filename for phase-scoped history records. Keep stage and task detail only in `coordinate` frontmatter, not in filenames. Do not invent missing coordinate levels.
 
 ## Coordinate Rules
 

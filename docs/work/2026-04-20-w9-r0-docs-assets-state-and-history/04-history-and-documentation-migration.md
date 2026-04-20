@@ -32,12 +32,12 @@ None. This backlog is derived from the `w9-r0` plan and design, not from an acti
 
 ### Acceptance criteria
 
-- [ ] Current session records live under `docs/.assets/history/`.
-- [ ] No active session record remains under `docs/guides/agent/`.
-- [ ] Moved records have minimal frontmatter when inferable.
-- [ ] `coordinate` values use a combined string such as `W8 R0 P5`.
-- [ ] No moved record introduces separate `wave`, `revision`, `phase`, `stage`, or `task` frontmatter fields.
-- [ ] Links inside moved records resolve.
+- [x] Current session records live under `docs/.assets/history/`.
+- [x] No active session record remains under `docs/guides/agent/`.
+- [x] Moved records have minimal frontmatter when inferable.
+- [x] `coordinate` values use a combined string such as `W8 R0 P5`.
+- [x] No moved record introduces separate `wave`, `revision`, `phase`, `stage`, or `task` frontmatter fields.
+- [x] Links inside moved records resolve.
 
 ### Dependencies
 
@@ -57,11 +57,11 @@ None. This backlog is derived from the `w9-r0` plan and design, not from an acti
 
 ### Acceptance criteria
 
-- [ ] Active user docs describe `docs/.assets/starter-docs/manifest.json`.
-- [ ] Active developer docs describe `docs/.assets/starter-docs/manifest.json`.
-- [ ] Package README docs use the new manifest and conflict paths.
-- [ ] Template package docs describe `.assets` routers and history correctly.
-- [ ] Historical docs are not noisily rewritten.
+- [x] Active user docs describe `docs/.assets/starter-docs/manifest.json`.
+- [x] Active developer docs describe `docs/.assets/starter-docs/manifest.json`.
+- [x] Package README docs use the new manifest and conflict paths.
+- [x] Template package docs describe `.assets` routers and history correctly.
+- [x] Historical docs are not noisily rewritten.
 
 ### Dependencies
 
@@ -79,10 +79,10 @@ None. This backlog is derived from the `w9-r0` plan and design, not from an acti
 
 ### Acceptance criteria
 
-- [ ] Archive-skill instructions scan `docs/.assets/history/`.
-- [ ] Archive-skill references no longer require `docs/guides/agent/`.
-- [ ] Lookup guidance can use `coordinate` frontmatter.
-- [ ] Legacy filename parsing remains available for moved older records when useful.
+- [x] Archive-skill instructions scan `docs/.assets/history/`.
+- [x] Archive-skill references no longer require `docs/guides/agent/`.
+- [x] Lookup guidance can use `coordinate` frontmatter.
+- [x] Legacy filename parsing remains available for moved older records when useful.
 
 ### Dependencies
 
@@ -100,10 +100,10 @@ None. This backlog is derived from the `w9-r0` plan and design, not from an acti
 
 ### Acceptance criteria
 
-- [ ] Active source-of-truth docs do not route new history work to `docs/guides/agent/`.
-- [ ] Active source-of-truth docs do not route users to `docs/.starter-docs/`.
-- [ ] Remaining old-path references are historical or explicitly allowlisted.
-- [ ] Internal links introduced or changed by this phase resolve.
+- [x] Active source-of-truth docs do not route new history work to `docs/guides/agent/`.
+- [x] Active source-of-truth docs do not route users to `docs/.starter-docs/`.
+- [x] Remaining old-path references are historical or explicitly allowlisted.
+- [x] Internal links introduced or changed by this phase resolve.
 
 ### Dependencies
 

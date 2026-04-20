@@ -17,8 +17,10 @@ packages/docs/
         ├── .prompts/                 # reusable prompt starters
         ├── .references/              # authoritative rules and workflows
         ├── .templates/               # structural starters for generated docs
+        ├── .assets/                  # operational assets
+        │   ├── history/              # session history records
+        │   └── starter-docs/         # CLI manifest and conflict staging
         ├── designs/                  # architectural decisions (ADRs)
-        ├── .assets/                  # operational assets, including history records
         ├── guides/                   # user and developer guides
         ├── plans/                    # approach + rationale (always directories in v2)
         ├── prd/                      # product requirements
@@ -31,7 +33,7 @@ The CLI at `packages/cli/` bundles this template at publish time:
 
 1. `prepack` runs `scripts/copy-template-to-cli.mjs`, which copies `packages/docs/template/` into `packages/cli/template/`.
 2. `npm publish` ships `packages/cli/` including the bundled `template/`.
-3. On the consumer's machine, `npx starter-docs init` copies the template into the consumer's project root.
+3. On the consumer's machine, `npx starter-docs` copies the template into the consumer's project root on first install.
 
 In dev, the CLI reads directly from `packages/docs/template/` via a sibling-first resolver in `packages/cli/src/utils.ts`. Edit this package's `template/` directly; no manual sync is needed.
 
@@ -42,7 +44,7 @@ Consumers should start at `template/docs/AGENTS.md` (or `CLAUDE.md`) and read pe
 - `wave-model.md` — Wave/Revision/Phase (W/R/P) encoding authority
 - `output-contract.md` — required paths, section contracts, lifecycle rules
 - `design-contract.md`, `planning-workflow.md`, `execution-workflow.md` — per-artifact authority
-- `history-record-contract.md` — session history record contract
+- `history-record-contract.md` — session history record contract for `docs/.assets/history/`
 
 ## Editing the Template
 
@@ -66,7 +68,7 @@ When you edit files in the template package, the repo-root `docs/` may become st
 
 Only template-owned files are re-seeded — never project-specific content:
 
-- **Router files** — `AGENTS.md` / `CLAUDE.md` in `docs/`, `docs/guides/`, `docs/.assets/`, `docs/.templates/`, `docs/.prompts/`, `docs/.references/`, `docs/.archive/`, and capability directories
+- **Router files** — `AGENTS.md` / `CLAUDE.md` in `docs/`, `docs/guides/`, `docs/.assets/`, `docs/.assets/history/`, `docs/.assets/starter-docs/`, `docs/.templates/`, `docs/.prompts/`, `docs/.references/`, `docs/.archive/`, and capability directories
 - **Reference files** — `docs/.references/*.md` (contracts, workflows, wave model)
 - **Template files** — `docs/.templates/*.md` (structural starters)
 

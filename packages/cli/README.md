@@ -6,9 +6,11 @@ Drop-in documentation structure, templates, and AI agent instructions for any pr
 
 ```
 docs/
+  .assets/           # Operational assets: history records and CLI state
   .prompts/          # Reusable prompt templates for common documentation workflows
   .references/       # Normative rules: output contracts, workflows, capability matrix
   .templates/         # Reusable document templates for PRDs, plans, and backlogs
+  guides/             # User and developer guides
   designs/            # Architectural decisions and design rationale (ADRs)
   plans/              # Approach and strategy documents (created before execution)
   prd/                # Product requirement documents (descriptive: what the product is)
@@ -19,7 +21,7 @@ AGENTS.md             # Root agent instructions (multi-agent compatible)
 
 Each directory includes its own `CLAUDE.md` and `AGENTS.md` files with context-specific instructions for AI agents generating documentation within that directory.
 
-The hidden support directories under `docs/` each serve a different role: `docs/.references/` contains the authoritative rules and workflows, `docs/.templates/` contains document structure starting points, and `docs/.prompts/` contains reusable prompt text for kicking off common documentation tasks.
+The hidden support directories under `docs/` each serve a different role: `docs/.assets/` contains operational assets such as history records and installer state, `docs/.references/` contains the authoritative rules and workflows, `docs/.templates/` contains document structure starting points, and `docs/.prompts/` contains reusable prompt text for kicking off common documentation tasks.
 
 This repo also includes maintainer-only validation tooling for the instruction routers. That tooling is documented below and is intentionally excluded from the downstream copy commands.
 
@@ -134,6 +136,7 @@ After installing or copying, your project will have:
 - **`docs/`** -- A structured documentation directory with templates and agent instructions ready to use.
 - **`CLAUDE.md` / `AGENTS.md`** -- Root-level agent instructions that point AI agents to the documentation system. The installer can generate these to match the selected capability profile and will not overwrite conflicting files automatically.
 - **`docs/.assets/starter-docs/manifest.json`** -- Present when you use the CLI installer. Tracks the selected profile and managed file hashes so future apply/sync runs stay narrow and safe.
+- **`docs/.assets/history/`** -- Session history records for point-in-time work breadcrumbs. User and developer guides stay under `docs/guides/`.
 
 The copy commands above intentionally exclude this repo's maintainer-only `justfile` and `scripts/check-instruction-routers.sh`.
 
