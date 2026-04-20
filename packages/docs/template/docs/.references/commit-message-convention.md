@@ -1,0 +1,94 @@
+# Commit Message Convention
+
+Use this reference when drafting or creating project commits from wave, revision, phase, plan, work, or agent history artifacts.
+
+Commit messages use one short subject line, then one blank line, then an optional body paragraph. The body paragraph is copied from the authoritative source document described below.
+
+## Feature Commits
+
+Use feature commits for implemented phase work.
+
+Subject:
+
+```text
+feat: [W{wave} R{revision} P{phase-or-range}] {wave name} - {phase name}
+```
+
+Rules:
+
+- Include wave, revision, and phase inside square brackets.
+- Use `P1`, `P5`, or a phase range such as `P1-2`.
+- Do not include commas in the coordinate. Use `[W8 R0 P5]`, not legacy `[W8, R0, P5]`.
+- Use the wave name from the plan/work/history title.
+- Use the phase name from the implemented work phase or matching agent history record.
+- If the phase commit intentionally spans multiple phases, use the exact phase range and a concise combined phase label.
+
+Body:
+
+- Copy the first paragraph under `## Changes` from the matching agent history record.
+- Prefer `docs/.assets/history/`.
+- If the repo has not migrated yet, accept legacy records under `docs/guides/agent/`.
+- Do not include tables, documentation sections, verification lists, or extra commentary in the commit body.
+
+Example:
+
+```text
+feat: [W8 R0 P5] CLI command simplification - Apply and sync output polish
+
+Implemented a Wave 8 follow-up phase for the `starter-docs` apply/sync review output, framed by [the command simplification design](../../designs/2026-04-20-cli-command-simplification.md) and the completed Phase 4 validation work in [the Phase 4 agent guide](2026-04-20-w8-r0-p4-cli-command-simplification.md). This phase focused on making the already-installed no-op sync readout clearer, less redundant, and consistent with Clack-rendered CLI screens.
+```
+
+## Plan Commits
+
+Use plan commits for pre-work planning, design, decomposition, or backlog generation that establishes a wave/revision before implementation phases are committed.
+
+Subject:
+
+```text
+plan: [W{wave} R{revision}] {wave name}
+```
+
+Rules:
+
+- Include wave and revision inside square brackets.
+- Do not include phase in plan commit coordinates.
+- Do not include commas in the coordinate. Use `[W9 R0]`, not legacy `[W9, R0]`.
+- Use the wave name from the design, plan overview, or work index.
+
+Body:
+
+- Copy the first paragraph under `## Purpose` from the design document that seeded the plan.
+- If there is no clear design document, copy the first paragraph under `## Purpose` from the plan overview.
+- If neither source has a clean first paragraph, omit the body instead of inventing one.
+
+Example:
+
+```text
+plan: [W9 R0] Docs assets, starter-docs state, and session history
+
+Define the intended documentation architecture for moving starter-docs operational state out of `docs/.starter-docs/`, introducing a template-owned `docs/.assets/` namespace, and migrating agent session history out of `docs/guides/agent/`.
+```
+
+## Source Resolution
+
+Before drafting or committing:
+
+- Inspect `git status --short` to understand the staged and unstaged change set.
+- Inspect recent history with `git log --format='%h %s' -n 30` to preserve the current naming style.
+- Find the relevant coordinate from the changed files, branch name, plan/work paths, agent history frontmatter, or nearby commit subjects.
+- For feature commits, read the matching agent history record and extract only the first `## Changes` paragraph.
+- For plan commits, read the seeding design first, then the plan overview if needed, and extract only the first `## Purpose` paragraph.
+- If the source documents disagree, prefer the artifact closest to the committed work: agent history for feature work, design or plan overview for plan work.
+
+## Commit Execution
+
+Only create the commit when the user explicitly asks for a commit.
+
+When committing:
+
+- Stage only files that belong to the requested change set.
+- Do not stage unrelated user edits.
+- Do not rewrite, revert, or clean existing user changes to make the commit easier.
+- Use `git commit` with the subject and body exactly as drafted.
+- Verify the final message with `git log -1 --format=%B`.
+

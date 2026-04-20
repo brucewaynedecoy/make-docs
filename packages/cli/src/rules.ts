@@ -46,6 +46,10 @@ export const PROMPT_RULES: PromptRule[] = [
     relativePath: "docs/.prompts/session-to-agent-guide.prompt.md",
     requires: [],
   },
+  {
+    relativePath: "docs/.prompts/work-to-commit-message.prompt.md",
+    requires: [],
+  },
 ];
 
 const PLAN_TEMPLATE_PATHS = [
@@ -101,6 +105,7 @@ const ALWAYS_REFERENCE_PATHS = [
   "docs/.references/guide-contract.md",
   "docs/.references/wave-model.md",
   "docs/.references/agent-guide-contract.md",
+  "docs/.references/commit-message-convention.md",
 ];
 
 export function profileHasCapabilities(
