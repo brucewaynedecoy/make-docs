@@ -1,6 +1,6 @@
 # Maintainer README
 
-This file is for contributors working on the `starter-docs` package itself. The root [`README.md`](../README.md) is consumer-facing; this one is for local development, QA, packaging, and release work.
+This file is for contributors working on the `make-docs` package itself. The root [`README.md`](../README.md) is consumer-facing; this one is for local development, QA, packaging, and release work.
 
 ## Prerequisites
 
@@ -88,8 +88,8 @@ The interactive wizard should currently walk through:
 
 If the selected install would conflict with an existing `AGENTS.md` or `CLAUDE.md` at one of the managed target paths, the CLI should also present a conflict-resolution prompt for each conflicting file:
 
-- `Update` (default): append starter-docs instructions to the end of the existing file
-- `Overwrite`: replace the file with the starter-docs version and manage it
+- `Update` (default): append make-docs instructions to the end of the existing file
+- `Overwrite`: replace the file with the make-docs version and manage it
 - `Skip`: leave the file alone and stage the generated version under `docs/.assets/config/conflicts/`
 
 After an install or dry run, inspect the result:
@@ -142,7 +142,7 @@ TARBALL=$(npm pack --silent)
 TEST_DIR=$(mktemp -d)
 
 npm exec --yes --package "./$TARBALL" -- \
-  starter-docs --target "$TEST_DIR"
+  make-docs --target "$TEST_DIR"
 ```
 
 Important detail: the `--yes` above is for `npm exec`, not the installer. Do not pass installer `--yes` if you want to see the wizard.

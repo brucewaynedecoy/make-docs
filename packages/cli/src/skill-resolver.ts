@@ -226,7 +226,7 @@ async function fetchRemoteBinary(url: string): Promise<Buffer> {
 async function fetchRemote(url: string, mode: "text" | "binary"): Promise<string | Buffer> {
   const response = await fetch(url, {
     headers: {
-      "User-Agent": "starter-docs-cli",
+      "User-Agent": "make-docs-cli",
     },
   });
 

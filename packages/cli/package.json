@@ -1,10 +1,10 @@
 {
-  "name": "starter-docs",
+  "name": "make-docs",
   "version": "0.1.0",
   "description": "Drop-in documentation structure, templates, and AI agent instructions with an NPX installer.",
   "type": "module",
   "bin": {
-    "starter-docs": "./dist/index.js"
+    "make-docs": "./dist/index.js"
   },
   "files": [
     "dist",

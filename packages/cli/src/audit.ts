@@ -222,7 +222,7 @@ function classifyManifestRecord(options: {
       record,
       createReason(
         "managed-state-file",
-        "The starter-docs manifest is CLI-managed state and is eligible for removal.",
+        "The make-docs manifest is CLI-managed state and is eligible for removal.",
       ),
       currentHash,
       undefined,
@@ -238,7 +238,7 @@ function classifyManifestRecord(options: {
         record,
         createReason(
           "root-instruction-content-match",
-          "The root instruction file exactly matches the canonical starter-docs content for the recorded selections.",
+          "The root instruction file exactly matches the canonical make-docs content for the recorded selections.",
         ),
         currentHash,
         hashText(expectedContent),
@@ -251,7 +251,7 @@ function classifyManifestRecord(options: {
       record,
       createReason(
         "root-instruction-content-mismatch",
-        "The root instruction file does not exactly match the canonical starter-docs content and will be preserved.",
+        "The root instruction file does not exactly match the canonical make-docs content and will be preserved.",
       ),
     );
     return;
@@ -263,7 +263,7 @@ function classifyManifestRecord(options: {
       record,
       createReason(
         "managed-file-hash-match",
-        "The file still matches the manifest-tracked starter-docs content.",
+        "The file still matches the manifest-tracked make-docs content.",
       ),
       currentHash,
       record.manifestHash,
@@ -279,7 +279,7 @@ function classifyManifestRecord(options: {
         record,
         createReason(
           "manifest-skill-file-without-metadata",
-          "The skill file is tracked only by the manifest skill list and cannot be proven removable without canonical starter-docs content.",
+          "The skill file is tracked only by the manifest skill list and cannot be proven removable without canonical make-docs content.",
         ),
       );
       return;
@@ -291,7 +291,7 @@ function classifyManifestRecord(options: {
         record,
         createReason(
           "managed-skill-file-content-match",
-          "The skill file exactly matches canonical starter-docs skill content.",
+          "The skill file exactly matches canonical make-docs skill content.",
         ),
         currentHash,
         hashText(expectedContent),
@@ -304,7 +304,7 @@ function classifyManifestRecord(options: {
       record,
       createReason(
         "manifest-skill-file-content-mismatch",
-        "The manifest-tracked skill file does not match canonical starter-docs skill content and will be preserved.",
+        "The manifest-tracked skill file does not match canonical make-docs skill content and will be preserved.",
       ),
     );
     return;
@@ -422,7 +422,7 @@ async function classifyManifestMissing(options: {
         skillRoot,
         createReason(
           "fallback-ambiguous",
-          "The harness skill root exists, but fallback mode cannot prove which contents are starter-docs-managed.",
+          "The harness skill root exists, but fallback mode cannot prove which contents are make-docs-managed.",
         ),
       );
     }
@@ -490,7 +490,7 @@ function classifyFallbackRecord(options: {
       record,
       createReason(
         "fallback-ambiguous",
-        "Fallback mode found a non-file at an expected starter-docs-managed file path and will preserve it.",
+        "Fallback mode found a non-file at an expected make-docs-managed file path and will preserve it.",
       ),
     );
     return;
@@ -500,13 +500,13 @@ function classifyFallbackRecord(options: {
   const currentHash = hashText(currentContent);
 
   if (record.ownershipSource === "managed-state") {
-    if (looksLikeStarterDocsManifest(record.absolutePath)) {
+    if (looksLikeMakeDocsManifest(record.absolutePath)) {
       addRemovable(
         removableFiles,
         record,
         createReason(
           "managed-state-file",
-          "The starter-docs manifest matches the generated manifest shape and is eligible for removal.",
+          "The make-docs manifest matches the generated manifest shape and is eligible for removal.",
         ),
         currentHash,
         undefined,
@@ -517,7 +517,7 @@ function classifyFallbackRecord(options: {
         record,
         createReason(
           "fallback-ambiguous",
-          "Fallback mode found starter-docs state at the expected path, but its contents do not match the generated manifest shape.",
+          "Fallback mode found make-docs state at the expected path, but its contents do not match the generated manifest shape.",
         ),
       );
     }
@@ -531,7 +531,7 @@ function classifyFallbackRecord(options: {
         record,
         createReason(
           "fallback-root-fingerprint-match",
-          "The root instruction file exactly matches a known starter-docs-generated fingerprint.",
+          "The root instruction file exactly matches a known make-docs-generated fingerprint.",
         ),
         currentHash,
         currentHash,
@@ -542,7 +542,7 @@ function classifyFallbackRecord(options: {
         record,
         createReason(
           "fallback-root-fingerprint-mismatch",
-          "The root instruction file does not match a known starter-docs-generated fingerprint and will be preserved.",
+          "The root instruction file does not match a known make-docs-generated fingerprint and will be preserved.",
         ),
       );
     }
@@ -556,7 +556,7 @@ function classifyFallbackRecord(options: {
       record,
       createReason(
         "fallback-canonical-content-match",
-        "The file exactly matches canonical starter-docs content in fallback mode.",
+        "The file exactly matches canonical make-docs content in fallback mode.",
       ),
       currentHash,
       hashText(expectedContent),
@@ -630,7 +630,7 @@ function classifyPrunableDirectories(options: {
     if (remainingEntries.length === 0) {
       const pruneReason = createReason(
         "directory-eligible-for-prune",
-        "The directory becomes empty after removing audited starter-docs-managed descendants.",
+        "The directory becomes empty after removing audited make-docs-managed descendants.",
       );
       prunableDirectories.set(directoryPath, {
         ...metadata,
@@ -658,8 +658,8 @@ function classifyPrunableDirectories(options: {
           ? "directory-contains-preserved-descendants"
           : "directory-contains-unmanaged-descendants",
         preservedDescendantPaths.length > 0
-          ? "The directory still contains preserved descendants after subtracting removable starter-docs paths."
-          : "The directory still contains unmanaged descendants after subtracting removable starter-docs paths.",
+          ? "The directory still contains preserved descendants after subtracting removable make-docs paths."
+          : "The directory still contains unmanaged descendants after subtracting removable make-docs paths.",
       ),
       preservedDescendantPaths,
     );
@@ -912,7 +912,7 @@ function getExistingPathKind(absolutePath: string): AuditPathKind {
   return statSync(absolutePath).isDirectory() ? "directory" : "file";
 }
 
-function looksLikeStarterDocsManifest(filePath: string): boolean {
+function looksLikeMakeDocsManifest(filePath: string): boolean {
   try {
     const raw = JSON.parse(readTextFile(filePath)) as Record<string, unknown>;
     return (

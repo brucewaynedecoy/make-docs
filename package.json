@@ -1,8 +1,8 @@
 {
-  "name": "starter-docs-monorepo",
+  "name": "make-docs-monorepo",
   "version": "0.0.0",
   "private": true,
-  "description": "Monorepo root for starter-docs. The publishable CLI lives at packages/cli; the template lives at packages/docs/template.",
+  "description": "Monorepo root for make-docs. The publishable CLI lives at packages/cli; the template lives at packages/docs/template.",
   "type": "module",
   "engines": {
     "node": ">=18"
@@ -11,10 +11,10 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "npm run build -w starter-docs",
-    "dev": "npm run dev -w starter-docs",
-    "test": "npm test -w starter-docs",
-    "validate:defaults": "npm run validate:defaults -w starter-docs",
+    "build": "npm run build -w make-docs",
+    "dev": "npm run dev -w make-docs",
+    "test": "npm test -w make-docs",
+    "validate:defaults": "npm run validate:defaults -w make-docs",
     "smoke:pack": "node scripts/smoke-pack.mjs"
   }
 }

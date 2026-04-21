@@ -3,7 +3,7 @@
   "skills": [
     {
       "name": "archive-docs",
-      "source": "https://github.com/brucewaynedecoy/starter-docs/tree/main/packages/skills/archive-docs",
+      "source": "https://github.com/brucewaynedecoy/make-docs/tree/main/packages/skills/archive-docs",
       "entryPoint": "SKILL.md",
       "installName": "archive-docs",
       "required": true,
@@ -25,7 +25,7 @@
     },
     {
       "name": "decompose-codebase",
-      "source": "https://github.com/brucewaynedecoy/starter-docs/tree/main/packages/skills/decompose-codebase",
+      "source": "https://github.com/brucewaynedecoy/make-docs/tree/main/packages/skills/decompose-codebase",
       "entryPoint": "SKILL.md",
       "installName": "decompose-codebase",
       "required": false,

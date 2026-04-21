@@ -584,7 +584,7 @@ export async function promptForInstructionConflictResolutions(
   }
 
   note(
-    "starter-docs found existing agent instruction files where managed guidance would normally be installed.\nChoose how to handle each conflict before continuing.",
+    "make-docs found existing agent instruction files where managed guidance would normally be installed.\nChoose how to handle each conflict before continuing.",
     "Resolve agent instruction conflicts",
   );
 
@@ -599,24 +599,24 @@ export async function promptForInstructionConflictResolutions(
     );
 
     const resolution = await select<InstructionConflictResolution>({
-      message: `How should starter-docs handle ${conflict.relativePath}?`,
+      message: `How should make-docs handle ${conflict.relativePath}?`,
       withGuide: true,
       initialValue: "update",
       options: [
         {
           value: "update",
           label: "Update",
-          hint: "Append the starter-docs instructions to the end of the existing file.",
+          hint: "Append the make-docs instructions to the end of the existing file.",
         },
         {
           value: "overwrite",
           label: "Overwrite",
-          hint: "Replace the existing file with the starter-docs version and manage it directly.",
+          hint: "Replace the existing file with the make-docs version and manage it directly.",
         },
         {
           value: "skip",
           label: "Skip",
-          hint: "WARNING: Leave this file unchanged. Agent behavior and automation could be severely impacted if starter-docs instructions are skipped here.",
+          hint: "WARNING: Leave this file unchanged. Agent behavior and automation could be severely impacted if make-docs instructions are skipped here.",
         },
       ],
     });

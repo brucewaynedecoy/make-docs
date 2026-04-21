@@ -1,6 +1,6 @@
 {
-  "name": "@starter-docs/skills",
+  "name": "@make-docs/skills",
   "version": "0.0.0",
   "private": true,
-  "description": "Agent skills catalog shipped with starter-docs."
+  "description": "Agent skills catalog shipped with make-docs."
 }

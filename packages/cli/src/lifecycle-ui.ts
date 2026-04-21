@@ -23,7 +23,7 @@ export function renderBackupAuditSummary(options: {
 }): void {
   const { auditReport, destinationDir } = options;
   renderBox([
-    "starter-docs backup",
+    "make-docs backup",
     `Target: ${auditReport.targetDir}`,
     `Destination: ${destinationDir ?? "(no backup directory will be created)"}`,
     `Files to copy: ${auditReport.removableFiles.length}`,
@@ -57,7 +57,7 @@ export async function confirmBackupRun(
     permissions,
     message: "Create this backup?",
     ttyError:
-      "Backup confirmation requires a TTY. Re-run with `starter-docs backup --yes`.",
+      "Backup confirmation requires a TTY. Re-run with `make-docs backup --yes`.",
   });
 }
 
@@ -65,14 +65,14 @@ export function renderUninstallWarning(options: {
   targetDir: string;
   backupDestinationDir: string | null;
 }): void {
-  const lines = ["This command removes audited starter-docs-managed paths", ""];
+  const lines = ["This command removes audited make-docs-managed paths", ""];
 
   if (options.backupDestinationDir) {
     lines.push("A backup will be created before removal begins.");
     lines.push(`Backup destination: ${options.backupDestinationDir}`);
   } else {
-    lines.push("Safer alternative: starter-docs backup");
-    lines.push("Safer destructive flow: starter-docs uninstall --backup");
+    lines.push("Safer alternative: make-docs backup");
+    lines.push("Safer destructive flow: make-docs uninstall --backup");
   }
 
   note(lines.join("\n"), "WARNING");
@@ -85,7 +85,7 @@ export async function confirmUninstallWarning(
     permissions,
     message: "Continue with uninstall review?",
     ttyError:
-      "Uninstall confirmation requires a TTY. Re-run with `starter-docs uninstall --yes`.",
+      "Uninstall confirmation requires a TTY. Re-run with `make-docs uninstall --yes`.",
   });
 }
 
@@ -95,7 +95,7 @@ export function renderUninstallAuditSummary(options: {
 }): void {
   const { auditReport, backupDestinationDir } = options;
   renderBox([
-    "starter-docs uninstall",
+    "make-docs uninstall",
     `Target: ${auditReport.targetDir}`,
     `Backup before removal: ${backupDestinationDir ?? "not requested"}`,
     `Files to remove: ${auditReport.removableFiles.length}`,
@@ -138,7 +138,7 @@ export async function confirmUninstallRun(options: {
     permissions: options.permissions,
     message,
     ttyError:
-      "Uninstall confirmation requires a TTY. Re-run with `starter-docs uninstall --yes`.",
+      "Uninstall confirmation requires a TTY. Re-run with `make-docs uninstall --yes`.",
   });
 }
 
@@ -181,7 +181,7 @@ export function renderUninstallFailureSummary(options: {
 }
 
 export function renderBackupNoopSummary(): void {
-  output.write("\nNo starter-docs-managed files required backup.\n");
+  output.write("\nNo make-docs-managed files required backup.\n");
 }
 
 export function renderBackupCancelled(): void {

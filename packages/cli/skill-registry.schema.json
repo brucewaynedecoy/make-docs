@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "./skill-registry.schema.json",
-  "title": "starter-docs skill registry",
+  "title": "make-docs skill registry",
   "type": "object",
   "additionalProperties": false,
   "required": ["skills"],

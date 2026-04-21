@@ -91,14 +91,14 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
 
   if (installIntent === "reconfigure" && !existingManifest) {
     throw new Error(
-      "No starter-docs manifest was found in the target directory. Run `starter-docs` first.",
+      "No make-docs manifest was found in the target directory. Run `make-docs` first.",
     );
   }
 
   const interactive = !parsed.yes;
   if (!interactive && installIntent === "reconfigure" && !hasSelectionOverrides(parsed)) {
     throw new Error(
-      "`starter-docs reconfigure --yes` requires at least one selection flag. Provide selection flags or run `starter-docs reconfigure` interactively.",
+      "`make-docs reconfigure --yes` requires at least one selection flag. Provide selection flags or run `make-docs reconfigure` interactively.",
     );
   }
 
@@ -121,7 +121,7 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
     if (!existingManifest && installIntent === "apply") {
       const wizardSelections = await runSelectionWizard({
         initialSelections: selections,
-        introTitle: "Let's configure your starter-docs install",
+        introTitle: "Let's configure your make-docs install",
       });
       if (!wizardSelections) {
         output.write("Installer cancelled.\n");
@@ -133,7 +133,7 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
     } else if (installIntent === "reconfigure") {
       const wizardSelections = await runSelectionWizard({
         initialSelections: selections,
-        introTitle: "Let's reconfigure your starter-docs install",
+        introTitle: "Let's reconfigure your make-docs install",
       });
       if (!wizardSelections) {
         output.write("Installer cancelled.\n");
@@ -535,7 +535,7 @@ function rejectRemovedUpdateReconfigure(args: string[]): void {
   }
 
   throw new Error(
-    "The `update --reconfigure` command was removed. Use `starter-docs reconfigure` instead.",
+    "The `update --reconfigure` command was removed. Use `make-docs reconfigure` instead.",
   );
 }
 
@@ -546,7 +546,7 @@ function rejectRemovedCommand(args: string[]): void {
   }
 
   const suggestedArgs = args.slice(1).join(" ");
-  const suggestedCommand = suggestedArgs ? `starter-docs ${suggestedArgs}` : "starter-docs";
+  const suggestedCommand = suggestedArgs ? `make-docs ${suggestedArgs}` : "make-docs";
   throw new Error(
     `The \`${command}\` command was removed. Use \`${suggestedCommand}\` instead.`,
   );
@@ -558,7 +558,7 @@ function rejectRemovedReconfigureFlag(args: string[]): void {
   }
 
   throw new Error(
-    "`--reconfigure` was removed. Use `starter-docs reconfigure` instead.",
+    "`--reconfigure` was removed. Use `make-docs reconfigure` instead.",
   );
 }
 
@@ -577,7 +577,7 @@ function validateParsedArgs(parsed: ParsedArgs): void {
     const label = selectionOverrideFlags.length === 1 ? "flag" : "flags";
     const verb = selectionOverrideFlags.length === 1 ? "is" : "are";
     throw new Error(
-      `Selection ${label} ${selectionOverrideFlags.join(", ")} ${verb} only valid with \`starter-docs\` or \`starter-docs reconfigure\`, not \`${parsed.command}\`.`,
+      `Selection ${label} ${selectionOverrideFlags.join(", ")} ${verb} only valid with \`make-docs\` or \`make-docs reconfigure\`, not \`${parsed.command}\`.`,
     );
   }
 
@@ -708,8 +708,8 @@ function renderNoopExplanation(options: {
     );
   } else {
     lines.push(
-      "starter-docs did not find an existing manifest, so this run used first-install mode.",
-      "The selected files already matched starter-docs content.",
+      "make-docs did not find an existing manifest, so this run used first-install mode.",
+      "The selected files already matched make-docs content.",
       "Applying will create the manifest that tracks future syncs.",
       "",
     );
@@ -717,8 +717,8 @@ function renderNoopExplanation(options: {
 
   lines.push(
     "Useful next steps:",
-    "- Run `starter-docs reconfigure` to change which docs, prompts, harnesses, or skills are managed.",
-    "- Run `starter-docs --dry-run` after upgrading starter-docs to preview future changes.",
+    "- Run `make-docs reconfigure` to change which docs, prompts, harnesses, or skills are managed.",
+    "- Run `make-docs --dry-run` after upgrading make-docs to preview future changes.",
   );
 
   note(lines.join("\n"), "Results");
@@ -751,8 +751,8 @@ function getApplyConfirmationMessage(options: {
   }
 
   return options.existingManifest
-    ? "Apply this starter-docs sync?"
-    : "Install starter-docs with this plan?";
+    ? "Apply this make-docs sync?"
+    : "Install make-docs with this plan?";
 }
 
 function writeApplyCompletionSummary(options: {
@@ -763,41 +763,41 @@ function writeApplyCompletionSummary(options: {
 }): void {
   if (options.installIntent === "reconfigure") {
     output.write(
-      `\nReconfigured starter-docs ${options.manifest.packageVersion} in ${options.targetDir}.\n`,
+      `\nReconfigured make-docs ${options.manifest.packageVersion} in ${options.targetDir}.\n`,
     );
     return;
   }
 
   if (options.existingManifest) {
     output.write(
-      `\nSynced starter-docs ${options.manifest.packageVersion} in ${options.targetDir}.\n`,
+      `\nSynced make-docs ${options.manifest.packageVersion} in ${options.targetDir}.\n`,
     );
     return;
   }
 
   output.write(
-    `\nInstalled starter-docs ${options.manifest.packageVersion} into ${options.targetDir}.\n`,
+    `\nInstalled make-docs ${options.manifest.packageVersion} into ${options.targetDir}.\n`,
   );
 }
 
 function printHelp(command?: Command): void {
   switch (command) {
     case "reconfigure":
-      output.write(`starter-docs reconfigure
+      output.write(`make-docs reconfigure
 
-Change the configured starter-docs footprint for an existing install.
+Change the configured make-docs footprint for an existing install.
 Requires an existing ${MANIFEST_RELATIVE_PATH} in the target directory.
 
 Interactive runs open the selection wizard using the saved manifest selections.
 Non-interactive runs with --yes must include at least one selection flag.
 
 Usage:
-  starter-docs reconfigure [options]
+  make-docs reconfigure [options]
 
 Options:
 
 General options:
-  --target <dir>                 Reconfigure a different starter-docs install directory.
+  --target <dir>                 Reconfigure a different make-docs install directory.
   --dry-run                      Show planned changes without writing files.
   --yes                          Skip interactive prompts; requires a selection flag.
   --help, -h                     Show help for this command.
@@ -822,66 +822,66 @@ Skill options:
   --optional-skills <csv|none>   Replace the optional skill set with a comma-separated list or none.
 
 Examples:
-  starter-docs reconfigure
-  starter-docs reconfigure --target ~/Projects/example --dry-run
-  starter-docs reconfigure --yes --no-work
-  starter-docs reconfigure --yes --no-codex --skill-scope global --optional-skills decompose-codebase
+  make-docs reconfigure
+  make-docs reconfigure --target ~/Projects/example --dry-run
+  make-docs reconfigure --yes --no-work
+  make-docs reconfigure --yes --no-codex --skill-scope global --optional-skills decompose-codebase
 `);
       return;
     case "backup":
-      output.write(`starter-docs backup
+      output.write(`make-docs backup
 
-Create a backup of the managed starter-docs files in the target directory.
+Create a backup of the managed make-docs files in the target directory.
 This command is non-destructive: source files remain in place.
 
 Usage:
-  starter-docs backup [--target <dir>] [--yes] [--help]
+  make-docs backup [--target <dir>] [--yes] [--help]
 
 Options:
-  --target <dir>                   Back up a different starter-docs install directory.
+  --target <dir>                   Back up a different make-docs install directory.
   --yes                            Skip confirmation prompts after showing the audit summary.
   --help, -h                       Show help for this command.
 
 Examples:
-  starter-docs backup
-  starter-docs backup --target ~/Projects/example
-  starter-docs backup --yes
+  make-docs backup
+  make-docs backup --target ~/Projects/example
+  make-docs backup --yes
 `);
       return;
     case "uninstall":
-      output.write(`starter-docs uninstall
+      output.write(`make-docs uninstall
 
-Remove the managed starter-docs files from the target directory.
+Remove the managed make-docs files from the target directory.
 This command is destructive: audited managed files are removed after review.
 
 Usage:
-  starter-docs uninstall [--target <dir>] [--backup] [--yes] [--help]
+  make-docs uninstall [--target <dir>] [--backup] [--yes] [--help]
 
 Options:
-  --target <dir>                   Uninstall from a different starter-docs install directory.
+  --target <dir>                   Uninstall from a different make-docs install directory.
   --backup                         Create a backup before removing files.
   --yes                            Skip confirmation prompts after showing warnings and the audit summary.
   --help, -h                       Show help for this command.
 
 Examples:
-  starter-docs uninstall
-  starter-docs uninstall --backup
-  starter-docs uninstall --target ~/Projects/example --yes
+  make-docs uninstall
+  make-docs uninstall --backup
+  make-docs uninstall --target ~/Projects/example --yes
 `);
       return;
     default:
-      output.write(`starter-docs
+      output.write(`make-docs
 
-Apply, sync, reconfigure, back up, and remove starter-docs installs.
+Apply, sync, reconfigure, back up, and remove make-docs installs.
 
 Usage:
-  starter-docs [options]
-  starter-docs reconfigure [options]
-  starter-docs backup [options]
-  starter-docs uninstall [options]
+  make-docs [options]
+  make-docs reconfigure [options]
+  make-docs backup [options]
+  make-docs uninstall [options]
 
 Primary workflow:
-  Run starter-docs with no command to install into a new target or sync an existing manifest using saved selections.
+  Run make-docs with no command to install into a new target or sync an existing manifest using saved selections.
 
 Commands:
   reconfigure  Change saved selections for an existing install.
@@ -889,13 +889,13 @@ Commands:
   uninstall    Remove managed files, with an optional backup first.
 
 Examples:
-  starter-docs
-  starter-docs --yes
-  starter-docs --target ~/Projects/example --dry-run
-  starter-docs reconfigure
-  starter-docs reconfigure --yes --no-skills
-  starter-docs backup --yes
-  starter-docs uninstall --backup
+  make-docs
+  make-docs --yes
+  make-docs --target ~/Projects/example --dry-run
+  make-docs reconfigure
+  make-docs reconfigure --yes --no-skills
+  make-docs backup --yes
+  make-docs uninstall --backup
 
 Use --help or -h with any command for command-specific options and examples.
 `);
