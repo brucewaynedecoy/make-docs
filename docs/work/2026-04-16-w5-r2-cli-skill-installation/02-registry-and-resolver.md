@@ -96,15 +96,15 @@ Four stages build the registry and resolver bottom-up. First, author the static 
 
 ### Tasks
 
-1. Run `npm run build -w starter-docs` and fix any compilation errors in the new modules.
+1. Run `npm run build -w make-docs` and fix any compilation errors in the new modules.
 2. Verify that `skill-registry.ts` and `skill-resolver.ts` are included in the build output.
-3. Confirm no regressions in existing tests with `npm test -w starter-docs`.
+3. Confirm no regressions in existing tests with `npm test -w make-docs`.
 
 ### Acceptance criteria
 
-- [x] `npm run build -w starter-docs` succeeds with zero errors.
+- [x] `npm run build -w make-docs` succeeds with zero errors.
 - [x] Build output includes compiled `skill-registry.js` and `skill-resolver.js`.
-- [x] `npm test -w starter-docs` passes with no regressions.
+- [x] `npm test -w make-docs` passes with no regressions.
 
 ### Dependencies
 

@@ -55,7 +55,7 @@ And verify a plans-enabled profile includes:
 
 Execute in order:
 
-1. `npm test -w starter-docs` — all tests pass, including the new template-completeness test.
+1. `npm test -w make-docs` — all tests pass, including the new template-completeness test.
 2. `bash scripts/check-instruction-routers.sh` — exits 0.
 3. `node scripts/smoke-pack.mjs` — pack/install/verify succeeds.
 4. Manual spot-check: run a reduced-profile install (`--no-work --no-prd --no-designs --no-plans --yes`) into a temp dir and verify `wave-model.md`, `agent-guide-contract.md`, `agent-guide.md`, and archive routers are present.
@@ -66,7 +66,7 @@ Execute in order:
 - [ ] The template-completeness test would fail if a new file were added to the template without being registered in the asset pipeline.
 - [ ] Reduced-profile test asserts presence of `wave-model.md`, `agent-guide-contract.md`, `agent-guide.md`, and archive routers.
 - [ ] Plans-enabled test asserts presence of `plan-overview.md`.
-- [ ] `npm test -w starter-docs` exits 0.
+- [ ] `npm test -w make-docs` exits 0.
 - [ ] `bash scripts/check-instruction-routers.sh` exits 0.
 - [ ] `node scripts/smoke-pack.mjs` exits 0.
 - [ ] No regressions in existing tests.

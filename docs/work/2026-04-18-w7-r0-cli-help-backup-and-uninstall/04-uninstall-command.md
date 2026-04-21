@@ -4,7 +4,7 @@
 
 ## Purpose
 
-Implement `starter-docs uninstall` as the destructive lifecycle command that consumes one audit snapshot, warns clearly, optionally backs up from the same audit, and removes only audited leaf files and prunable directories.
+Implement `make-docs uninstall` as the destructive lifecycle command that consumes one audit snapshot, warns clearly, optionally backs up from the same audit, and removes only audited leaf files and prunable directories.
 
 ## Overview
 
@@ -18,15 +18,15 @@ This phase owns uninstall routing, the warning/audit/final-confirm UX, `--backup
 
 ### Tasks
 
-1. Update `packages/cli/src/cli.ts` so `starter-docs uninstall` dispatches into uninstall execution instead of the Phase-1 placeholder error.
+1. Update `packages/cli/src/cli.ts` so `make-docs uninstall` dispatches into uninstall execution instead of the Phase-1 placeholder error.
 2. Keep `uninstall --help` routed to help without running audit or delete work.
 3. Ensure `--backup`, `--yes`, and `--target` are passed through to uninstall execution cleanly.
 4. Extend `packages/cli/tests/cli.test.ts` for final uninstall routing/help assertions.
 
 ### Acceptance criteria
 
-- [ ] `starter-docs uninstall` dispatches to uninstall execution
-- [ ] `starter-docs uninstall --help` exits before audit/removal work
+- [ ] `make-docs uninstall` dispatches to uninstall execution
+- [ ] `make-docs uninstall --help` exits before audit/removal work
 - [ ] `--backup`, `--yes`, and `--target` reach uninstall execution correctly
 - [ ] CLI tests cover final uninstall command routing and help
 
@@ -66,7 +66,7 @@ This phase owns uninstall routing, the warning/audit/final-confirm UX, `--backup
 ### Tasks
 
 1. Extend `packages/cli/src/backup.ts` to accept a precomputed audit result and resolved backup destination.
-2. For `starter-docs uninstall --backup`, resolve the backup destination once and display it in the uninstall warning/audit output.
+2. For `make-docs uninstall --backup`, resolve the backup destination once and display it in the uninstall warning/audit output.
 3. Pass the single audit result directly into backup execution.
 4. Abort uninstall entirely if backup fails.
 5. Keep audit ownership rules unchanged; this stage should consume Phase-2 results only.
@@ -92,7 +92,7 @@ This phase owns uninstall routing, the warning/audit/final-confirm UX, `--backup
 3. Prune only directories explicitly marked prunable by the audit and only when they are still empty at deletion time.
 4. Leave preserved/skipped paths untouched.
 5. Remove project-root `AGENTS.md` and `CLAUDE.md` only when the audit marked them as exact generated-content matches.
-6. Remove the manifest and prune `docs/.starter-docs/` only when that directory becomes empty.
+6. Remove the manifest and prune `docs/.make-docs/` only when that directory becomes empty.
 7. Never remove or traverse `.backup/` as an uninstall target.
 
 ### Acceptance criteria
@@ -131,7 +131,7 @@ This phase owns uninstall routing, the warning/audit/final-confirm UX, `--backup
 - [ ] Uninstall completion output distinguishes removals, prunes, preserved paths, and backup status
 - [ ] Partial-delete failures are reported without cleaning up preserved paths or `.backup/`
 - [ ] Lifecycle tests cover plain uninstall and `uninstall --backup`
-- [ ] `npm test -w starter-docs` passes after uninstall coverage is added
+- [ ] `npm test -w make-docs` passes after uninstall coverage is added
 
 ### Dependencies
 

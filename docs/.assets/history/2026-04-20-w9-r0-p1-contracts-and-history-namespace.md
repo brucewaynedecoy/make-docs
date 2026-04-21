@@ -13,7 +13,7 @@ This session completed Wave 9 Phase 1: contracts and history namespace setup. Ne
 | --- | --- |
 | History contract | Updated the repo and template copies of `agent-guide-contract.md` to require `docs/.assets/history/YYYY-MM-DD-<slug>.md`, add flexible YAML frontmatter, and move W/R/P/S/T details into one `coordinate` field. |
 | Template and prompt | Added frontmatter scaffolding to the agent history template and rerouted the session-summary prompt to `docs/.assets/history/`, including instructions to omit unknown client/model/provider values. |
-| Routers | Added `.assets`, `.assets/history`, and `.assets/starter-docs` routers in both the repo docs and shippable template; docs/guides routers now focus on user and developer guides. |
+| Routers | Added `.assets`, `.assets/history`, and `.assets/make-docs` routers in both the repo docs and shippable template; docs/guides routers now focus on user and developer guides. |
 | Legacy guides | Kept existing repo-side `docs/guides/agent/` records in place and changed their router to legacy-only. Removed the obsolete template-side `docs/guides/agent/` routers. |
 | CLI asset generation | Updated the CLI asset catalog and renderer so generated installs include the new `.assets` router files and stop installing template-side legacy agent guide routers. |
 | Validation | Updated installer/renderer/consistency tests, marked Phase 1 work acceptance complete, and ran the full test/build/default-validation checks. |
@@ -21,9 +21,9 @@ This session completed Wave 9 Phase 1: contracts and history namespace setup. Ne
 Validation commands run:
 
 ```text
-npm test -w starter-docs
-npm run build -w starter-docs
-npm run validate:defaults -w starter-docs
+npm test -w make-docs
+npm run build -w make-docs
+npm run validate:defaults -w make-docs
 git diff --check
 ```
 
@@ -39,7 +39,7 @@ git diff --check
 | [docs/.prompts/session-to-history-record.prompt.md](../../.prompts/session-to-history-record.prompt.md) | Rerouted session summaries to `docs/.assets/history/`. |
 | [docs/.assets/AGENTS.md](../../.assets/AGENTS.md) | New top-level operational assets router. |
 | [docs/.assets/history/AGENTS.md](../../.assets/history/AGENTS.md) | New history-specific router. |
-| [docs/.assets/starter-docs/AGENTS.md](../../.assets/starter-docs/AGENTS.md) | New starter-docs CLI state router. |
+| [docs/.assets/make-docs/AGENTS.md](../../.assets/make-docs/AGENTS.md) | New make-docs CLI state router. |
 | [packages/cli/src/catalog.ts](../../../packages/cli/src/catalog.ts) | Added `.assets` instruction router files to generated installs. |
 | [packages/cli/src/renderers.ts](../../../packages/cli/src/renderers.ts) | Added buildable renderers for `.assets` routers and updated docs/guides routing output. |
 | [packages/cli/tests/consistency.test.ts](../../../packages/cli/tests/consistency.test.ts) | Updated default-template coverage for the new buildable router files. |

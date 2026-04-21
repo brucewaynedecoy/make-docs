@@ -166,5 +166,5 @@ Implementation notes:
 - [ ] `resolveSkillSource` reads entry-point content and asset content for `local:` URIs.
 - [ ] `resolveLocalPath` rejects paths that escape the repo root.
 - [ ] Unsupported protocols throw `UnsupportedProtocolError`.
-- [ ] `npm run build -w starter-docs` succeeds.
-- [ ] `npm test -w starter-docs` passes (unit tests for loader and resolver added in Phase 7).
+- [ ] `npm run build -w make-docs` succeeds.
+- [ ] `npm test -w make-docs` passes (unit tests for loader and resolver added in Phase 7).

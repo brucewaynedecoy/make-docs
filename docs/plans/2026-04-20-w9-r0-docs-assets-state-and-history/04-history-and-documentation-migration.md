@@ -2,7 +2,7 @@
 
 ## Objective
 
-Move active repository session history into `docs/.assets/history/` and update active documentation surfaces so users and agents see the new `.assets` model instead of the retired `docs/.starter-docs/` and `docs/guides/agent/` locations.
+Move active repository session history into `docs/.assets/history/` and update active documentation surfaces so users and agents see the new `.assets` model instead of the retired `docs/.make-docs/` and `docs/guides/agent/` locations.
 
 ## Depends On
 
@@ -18,7 +18,7 @@ Move active repository session history into `docs/.assets/history/` and update a
 | `docs/guides/agent/AGENTS.md` and `CLAUDE.md` | Remove after `docs/.assets/history/` routers exist. |
 | `docs/.assets/history/*.md` | Add or preserve frontmatter where practical during migration; keep existing history content concise. |
 | `README.md` | Update current CLI state-path descriptions. |
-| `docs/guides/user/getting-started-installing-starter-docs.md` | Update manifest, conflict, troubleshooting, and directory tree references. |
+| `docs/guides/user/getting-started-installing-make-docs.md` | Update manifest, conflict, troubleshooting, and directory tree references. |
 | `docs/guides/developer/cli-development-local-build-and-install.md` | Update smoke-pack and manifest expectations. |
 | `packages/docs/README.md` | Update template router inventory and session-history descriptions. |
 | `packages/skills/archive-docs/SKILL.md` | Scan `docs/.assets/history/` instead of `docs/guides/agent/`. |
@@ -62,8 +62,8 @@ Do not invent unknown client/model/provider values for older records. The contra
 
 Update active user/developer docs and package READMEs that explain current behavior:
 
-- replace `docs/.starter-docs/manifest.json` with `docs/.assets/config/manifest.json`,
-- replace `docs/.starter-docs/conflicts/<run-id>/` with `docs/.assets/config/conflicts/<run-id>/`,
+- replace `docs/.make-docs/manifest.json` with `docs/.assets/config/manifest.json`,
+- replace `docs/.make-docs/conflicts/<run-id>/` with `docs/.assets/config/conflicts/<run-id>/`,
 - describe `docs/.assets/history/` as the history destination,
 - keep `docs/guides/` framed as stable user/developer guides.
 

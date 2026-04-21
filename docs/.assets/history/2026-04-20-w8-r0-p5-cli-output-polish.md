@@ -7,7 +7,7 @@ coordinate: "W8 R0 P5"
 
 ## Changes
 
-Implemented a Wave 8 follow-up phase for the `starter-docs` apply/sync review output, framed by [the command simplification design](../../designs/2026-04-20-cli-command-simplification.md) and the completed Phase 4 validation work in [the Phase 4 agent guide](2026-04-20-w8-r0-p4-cli-command-simplification.md). This phase focused on making the already-installed no-op sync readout clearer, less redundant, and consistent with Clack-rendered CLI screens.
+Implemented a Wave 8 follow-up phase for the `make-docs` apply/sync review output, framed by [the command simplification design](../../designs/2026-04-20-cli-command-simplification.md) and the completed Phase 4 validation work in [the Phase 4 agent guide](2026-04-20-w8-r0-p4-cli-command-simplification.md). This phase focused on making the already-installed no-op sync readout clearer, less redundant, and consistent with Clack-rendered CLI screens.
 
 | Area | Summary |
 | --- | --- |
@@ -17,7 +17,7 @@ Implemented a Wave 8 follow-up phase for the `starter-docs` apply/sync review ou
 | Completion text | No-change sync/reconfigure runs no longer emit redundant trailing plain-text summary or manifest lines after the Clack output. Changed runs keep concise completion text without repeating the manifest path. |
 | Confirmation behavior | Interactive apply/sync still skips confirmation when no file changes are planned, while changed interactive runs use mode-aware confirmation copy. |
 | Regression coverage | [`packages/cli/tests/cli.test.ts`](../../../packages/cli/tests/cli.test.ts) captures the already-installed sync output and asserts the `Information`/`Results` headings, no-op result text, skipped confirmation, and removal of redundant prose/trailing manifest output. |
-| Verification | `npm test -w starter-docs -- tests/cli.test.ts`, `npm run build -w starter-docs`, `npm test -w starter-docs`, `node scripts/smoke-pack.mjs`, and `git diff --check` passed. |
+| Verification | `npm test -w make-docs -- tests/cli.test.ts`, `npm run build -w make-docs`, `npm test -w make-docs`, `node scripts/smoke-pack.mjs`, and `git diff --check` passed. |
 
 ## Documentation
 

@@ -70,7 +70,7 @@ Execute the following commands in order. Each must pass before proceeding to the
 
 1. **Unit and integration tests**
    ```bash
-   npm test -w starter-docs
+   npm test -w make-docs
    ```
    Expected: all tests pass, including the new/updated assertions in `consistency.test.ts` and `install.test.ts`.
 
@@ -87,7 +87,7 @@ Execute the following commands in order. Each must pass before proceeding to the
    Expected: the full pack/install/verify cycle succeeds. The packed template includes `guide-contract.md`, both guide templates, and the updated router files. The installed output matches expectations.
 
 4. **Manual spot-checks** (not automated, but required before marking the plan complete)
-   - A fresh `npx starter-docs init --yes` into a temp directory includes `docs/.references/guide-contract.md`, `docs/.templates/guide-developer.md`, `docs/.templates/guide-user.md`, and the updated guide routers.
+   - A fresh `npx make-docs init --yes` into a temp directory includes `docs/.references/guide-contract.md`, `docs/.templates/guide-developer.md`, `docs/.templates/guide-user.md`, and the updated guide routers.
    - The two migrated dogfood guides have correct YAML frontmatter and slug-mirrors-path filenames.
 
 ## Acceptance Criteria
@@ -96,7 +96,7 @@ Execute the following commands in order. Each must pass before proceeding to the
 2. The full-default install test in `install.test.ts` asserts presence and content of guide-contract, guide templates, and guide routers.
 3. A reduced-profile install test confirms guide files are present regardless of capability flags.
 4. `scripts/check-instruction-routers.sh` validates `docs/guides/` and `docs/guides/agent/` router files.
-5. `npm test -w starter-docs` passes with zero failures.
+5. `npm test -w make-docs` passes with zero failures.
 6. `bash scripts/check-instruction-routers.sh` exits 0.
 7. `node scripts/smoke-pack.mjs` exits 0.
 8. No unrelated test files are modified by this phase.

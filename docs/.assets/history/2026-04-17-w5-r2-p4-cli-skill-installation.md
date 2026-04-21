@@ -16,7 +16,7 @@ Implemented the end-to-end skill installation pipeline for Phase 4. The CLI now 
 | [packages/cli/src/install.ts](../../../packages/cli/src/install.ts) | Extended `applyInstallPlan` to maintain a separate `nextSkillFiles` set while applying the existing action types, then persists the final sorted set back into the manifest. Also added safe conflict-staging path normalization so absolute paths produced by global skill installs do not create invalid conflict output paths. |
 | [packages/cli/src/manifest.ts](../../../packages/cli/src/manifest.ts) and [packages/cli/src/types.ts](../../../packages/cli/src/types.ts) | Changed `InstallManifest.skillFiles` from the earlier optional object-like shape to a required string array, added backward-compatible migration for missing or legacy `skillFiles` values, and extended the install-plan/manifest types so the final tracked skill path list flows through plan creation and manifest writes cleanly. |
 | [packages/cli/tests/skill-catalog.test.ts](../../../packages/cli/tests/skill-catalog.test.ts) and [packages/cli/tests/install.test.ts](../../../packages/cli/tests/install.test.ts) | Added focused coverage for harness-specific skill paths, global-scope path roots, reference rewriting, installed manifest tracking, and harness-removal reconfigure behavior that deletes deselected harness skill files while preserving the remaining harness. |
-| Validation | `npm run build -w starter-docs` passed, and `npm test -w starter-docs` passed with 48/48 tests green after the Phase 4 changes. |
+| Validation | `npm run build -w make-docs` passed, and `npm test -w make-docs` passed with 48/48 tests green after the Phase 4 changes. |
 
 Files modified:
 

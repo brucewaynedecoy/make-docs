@@ -43,7 +43,7 @@ Example shape:
   "skills": [
     {
       "name": "archive-docs",
-      "source": "https://github.com/brucewaynedecoy/starter-docs/tree/main/packages/skills/archive-docs",
+      "source": "https://github.com/brucewaynedecoy/make-docs/tree/main/packages/skills/archive-docs",
       "entryPoint": "SKILL.md",
       "installName": "archive-docs",
       "required": true,

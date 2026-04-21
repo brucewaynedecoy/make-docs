@@ -59,5 +59,5 @@ In `packages/cli/package.json`, the `files` array currently lists `["dist", "tem
 - [ ] `.agents/` directory no longer exists.
 - [ ] `scripts/copy-template-to-cli.mjs` copies both `packages/docs/template/` and `packages/skills/` into the CLI package.
 - [ ] `packages/cli/package.json` `files` includes `"skills"`.
-- [ ] Running `npm run prepack -w starter-docs` produces both `packages/cli/template/` and `packages/cli/skills/`.
+- [ ] Running `npm run prepack -w make-docs` produces both `packages/cli/template/` and `packages/cli/skills/`.
 - [ ] The bundled `skills/` directory contains `decompose-codebase/` and `archive-docs/` with all their assets.

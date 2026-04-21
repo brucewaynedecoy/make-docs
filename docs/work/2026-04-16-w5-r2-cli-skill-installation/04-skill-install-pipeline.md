@@ -109,14 +109,14 @@ Wire the full multi-harness skill installation pipeline: load the registry, comp
 
 ### Tasks
 
-1. Run `npm run build -w starter-docs` and verify success.
-2. Run `npm test -w starter-docs` and verify all tests pass.
+1. Run `npm run build -w make-docs` and verify success.
+2. Run `npm test -w make-docs` and verify all tests pass.
 3. Verify that the skill catalog, planner integration, install integration, and manifest changes work together end-to-end.
 
 ### Acceptance criteria
 
-- [x] `npm run build -w starter-docs` succeeds with no errors
-- [x] `npm test -w starter-docs` passes with no failures
+- [x] `npm run build -w make-docs` succeeds with no errors
+- [x] `npm test -w make-docs` passes with no failures
 - [x] End-to-end: selecting both harnesses produces two copies of each skill in the correct directories
 
 ### Dependencies

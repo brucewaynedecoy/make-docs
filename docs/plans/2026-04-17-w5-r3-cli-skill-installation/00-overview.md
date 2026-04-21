@@ -29,7 +29,7 @@ Implement the follow-on wizard UX correction designed in [2026-04-17-cli-skill-s
 
 ## Validation
 
-1. `npm test -w starter-docs -- tests/wizard.test.ts tests/skill-catalog.test.ts`
-2. `npm test -w starter-docs`
-3. `npm run dev -w starter-docs -- init --dry-run` and confirm the skill-selection screen allows continuing with only the default required skill(s) selected.
+1. `npm test -w make-docs -- tests/wizard.test.ts tests/skill-catalog.test.ts`
+2. `npm test -w make-docs`
+3. `npm run dev -w make-docs -- init --dry-run` and confirm the skill-selection screen allows continuing with only the default required skill(s) selected.
 4. Manual spot-check that the prompt still renders optional skills as selectable while leaving required skills read-only.

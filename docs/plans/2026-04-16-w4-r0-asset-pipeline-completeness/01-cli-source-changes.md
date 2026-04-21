@@ -94,5 +94,5 @@ Changes to `rules.ts` and `catalog.ts` are independent files and can be edited i
 - [ ] `PLAN_TEMPLATE_PATHS` contains `plan-overview.md` alongside the existing plan templates.
 - [ ] `PROMPT_RULES` contains `session-to-agent-guide.prompt.md` with `requires: []`.
 - [ ] `addInstructionAssets` adds `docs/.archive/AGENTS.md` and `docs/.archive/CLAUDE.md` for selected instruction kinds.
-- [ ] `npm run build -w starter-docs` succeeds.
-- [ ] `npm test -w starter-docs` passes with no regressions.
+- [ ] `npm run build -w make-docs` succeeds.
+- [ ] `npm test -w make-docs` passes with no regressions.

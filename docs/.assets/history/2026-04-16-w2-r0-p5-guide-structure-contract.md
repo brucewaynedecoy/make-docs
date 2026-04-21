@@ -27,7 +27,7 @@ packages/cli/tests/
 
 | Check | Result |
 | --- | --- |
-| `npm test -w starter-docs` | 43 tests, 6 files, all pass (3 new tests) |
+| `npm test -w make-docs` | 43 tests, 6 files, all pass (3 new tests) |
 | `bash scripts/check-instruction-routers.sh` | Exits 0 |
 | `node scripts/smoke-pack.mjs` | Pack/install/verify succeeds |
 

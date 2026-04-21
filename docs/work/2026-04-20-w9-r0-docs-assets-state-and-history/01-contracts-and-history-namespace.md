@@ -107,7 +107,7 @@ None. This backlog is derived from the `w9-r0` plan and design, not from an acti
 - [x] Repo `.assets` routers exist.
 - [x] Template `.assets` routers exist.
 - [x] History routers point to `docs/.references/agent-guide-contract.md` and `docs/.templates/agent-guide.md`.
-- [x] Starter-docs routers identify `docs/.assets/config/` as CLI-managed state.
+- [x] Make Docs routers identify `docs/.assets/config/` as CLI-managed state.
 - [x] No deferred namespaces are created.
 
 ### Dependencies

@@ -34,7 +34,7 @@ This phase can run alongside Phase 3 after Phase 1. It blocks fresh-install outp
 
 ### Tasks
 
-1. Search `packages/docs/template/` for `starter-docs`, `Starter-Docs`, `Starter Docs`, `starter docs`, `STARTER_DOCS`, and `@starter-docs`.
+1. Search `packages/docs/template/` for `make-docs`, `Make-Docs`, `Make Docs`, `make docs`, `MAKE_DOCS`, and `@make-docs`.
 2. Replace template-owned old-name text with the canonical `make-docs` form.
 3. Rename any tracked template filename or directory segment containing the old product name.
 4. Update links inside the template after path renames.

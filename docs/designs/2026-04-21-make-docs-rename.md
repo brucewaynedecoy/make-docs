@@ -4,9 +4,9 @@
 
 ## Purpose
 
-Prepare the project for the planned repository rename from `starter-docs` to `make-docs` before the repository itself is renamed.
+Prepare the project for the planned repository rename from `make-docs` to `make-docs` before the repository itself is renamed.
 
-This design establishes the desired end state for a comprehensive alpha-phase product rename. The follow-on implementation should update every tracked reference, package name, CLI command, generated instruction, link, filename, and directory segment that still uses the old `starter-docs` name so the project consistently presents itself as `make-docs`.
+This design establishes the desired end state for a comprehensive alpha-phase product rename. The follow-on implementation should update every tracked reference, package name, CLI command, generated instruction, link, filename, and directory segment that still uses the old `make-docs` name so the project consistently presents itself as `make-docs`.
 
 ## Context
 
@@ -18,9 +18,9 @@ The rename has not happened at the repository host or local checkout level yet, 
 - generated router text in `packages/cli/src/renderers.ts`
 - package template resources under `packages/docs/template/`
 - repo-root docs, user/developer guides, references, prompts, design docs, plans, work backlogs, and history records
-- GitHub examples and skill registry source URLs that currently point at a `starter-docs` repository path
+- GitHub examples and skill registry source URLs that currently point at a `make-docs` repository path
 
-The project is still alpha, so there is no requirement to preserve compatibility with existing installs, old package names, old binary names, or old manifest package names. At the same time, the migration needs to be thorough because a partial rename would create confusing public behavior: users could install `make-docs` while docs, manifests, generated instructions, or lifecycle messages still refer to `starter-docs`.
+The project is still alpha, so there is no requirement to preserve compatibility with existing installs, old package names, old binary names, or old manifest package names. At the same time, the migration needs to be thorough because a partial rename would create confusing public behavior: users could install `make-docs` while docs, manifests, generated instructions, or lifecycle messages still refer to `make-docs`.
 
 The CLI state path created by the Wave 9 config namespace work remains correct:
 
@@ -32,7 +32,7 @@ The rename changes the product/package identity recorded in that manifest, not t
 
 ## Decision
 
-Rename the product and implementation identity globally from `starter-docs` to `make-docs`.
+Rename the product and implementation identity globally from `make-docs` to `make-docs`.
 
 Canonical names after the migration:
 
@@ -56,12 +56,12 @@ make-docs backup
 make-docs uninstall
 ```
 
-Do not keep a `starter-docs` binary alias, package alias, compatibility command, compatibility help text, or legacy package-name migration. Fresh manifests should record `packageName: "make-docs"`.
+Do not keep a `make-docs` binary alias, package alias, compatibility command, compatibility help text, or legacy package-name migration. Fresh manifests should record `packageName: "make-docs"`.
 
 The user install guide should move from:
 
 ```text
-docs/guides/user/getting-started-installing-starter-docs.md
+docs/guides/user/getting-started-installing-make-docs.md
 ```
 
 to:
@@ -70,15 +70,15 @@ to:
 docs/guides/user/getting-started-installing-make-docs.md
 ```
 
-All links to that guide should be updated. Other tracked filenames and directory segments containing `starter-docs` should be renamed to the equivalent `make-docs` form.
+All links to that guide should be updated. Other tracked filenames and directory segments containing `make-docs` should be renamed to the equivalent `make-docs` form.
 
-Historical design docs, plans, work items, and history records should be rewritten as part of this alpha rename instead of preserving the old brand for historical accuracy. The final tracked tree should not contain `starter-docs`, `Starter-Docs`, `Starter Docs`, `starter docs`, `STARTER_DOCS`, or `@starter-docs` outside intentionally ignored generated/cache directories.
+Historical design docs, plans, work items, and history records should be rewritten as part of this alpha rename instead of preserving the old brand for historical accuracy. The final tracked tree should not contain `make-docs`, `Make-Docs`, `Make Docs`, `make docs`, `MAKE_DOCS`, or `@make-docs` outside intentionally ignored generated/cache directories.
 
 The implementation should update `packages/docs/template/` first for template-owned docs and routers, then run the normal template sync so `packages/cli/template/` matches the shippable docs template.
 
 ## Alternatives Considered
 
-### Keep a `starter-docs` Compatibility Alias
+### Keep a `make-docs` Compatibility Alias
 
 Rejected. There are no existing non-alpha consumers to preserve, and keeping an alias would force the CLI, tests, docs, and lifecycle messaging to carry two product names. A clean rename is simpler and less error-prone.
 
@@ -88,7 +88,7 @@ Rejected. Leaving the old name in historical docs would make stale-reference che
 
 ### Defer Workspace Package Scope Renames
 
-Rejected. Keeping `@starter-docs/*` while publishing or documenting `make-docs` would leave the monorepo internally inconsistent and make `npm -w` commands, lockfile entries, and package references confusing.
+Rejected. Keeping `@make-docs/*` while publishing or documenting `make-docs` would leave the monorepo internally inconsistent and make `npm -w` commands, lockfile entries, and package references confusing.
 
 ### Rename the Local Checkout as Part of the Migration
 
@@ -98,7 +98,7 @@ Rejected for this design. The implementation can update tracked files and packag
 
 The follow-on implementation will be a broad mechanical migration, not a localized feature change. It must update package manifests and regenerate the lockfile, rename the user guide file, update source constants and tests, refresh docs and package templates, and rerun the template copy step for the CLI bundle.
 
-Because no compatibility path is retained, old commands such as `starter-docs`, `npx starter-docs`, and `starter-docs reconfigure` should disappear from help text, docs, generated instructions, smoke tests, and source tests. Failure guidance for removed subcommands should also use `make-docs`.
+Because no compatibility path is retained, old commands such as `make-docs`, `npx make-docs`, and `make-docs reconfigure` should disappear from help text, docs, generated instructions, smoke tests, and source tests. Failure guidance for removed subcommands should also use `make-docs`.
 
 The validation bar is a clean package build plus zero stale old-brand strings in tracked files and pathnames, except ignored generated/cache directories:
 

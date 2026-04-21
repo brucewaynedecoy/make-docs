@@ -62,14 +62,14 @@ This phase is intentionally narrow. It updates the wizard from an optional-only 
 
 1. Add wizard coverage in `packages/cli/tests/wizard.test.ts` for grouped rendering, required-only continuation, optional preselection, and the no-optional-skills skip path.
 2. Confirm helper behavior in `packages/cli/tests/skill-catalog.test.ts` for required/default vs optional grouping.
-3. Run `npm test -w starter-docs -- tests/wizard.test.ts tests/skill-catalog.test.ts`.
-4. Run `npm test -w starter-docs`.
-5. Run `npm run dev -w starter-docs -- init --dry-run` and verify the user can proceed with only the default skills selected.
+3. Run `npm test -w make-docs -- tests/wizard.test.ts tests/skill-catalog.test.ts`.
+4. Run `npm test -w make-docs`.
+5. Run `npm run dev -w make-docs -- init --dry-run` and verify the user can proceed with only the default skills selected.
 
 ### Acceptance criteria
 
 - Targeted wizard and skill-catalog tests pass.
-- The full `starter-docs` test suite passes without regression.
+- The full `make-docs` test suite passes without regression.
 - Manual dry-run verification confirms the grouped screen allows continuation with only default skills selected.
 - The prompt text, grouping, and submit behavior match the approved design and plan docs.
 

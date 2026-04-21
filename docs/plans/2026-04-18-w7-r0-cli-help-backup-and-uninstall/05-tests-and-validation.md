@@ -27,10 +27,10 @@ Add tests that assert the improved help output is readable and command-scoped in
 
 Required coverage:
 
-- `starter-docs --help` lists `init`, `update`, `backup`, and `uninstall`
+- `make-docs --help` lists `init`, `update`, `backup`, and `uninstall`
 - top-level help includes short command descriptions and an examples section
-- `starter-docs backup --help` documents `--target`, `--yes`, and non-destructive behavior
-- `starter-docs uninstall --help` documents `--target`, `--backup`, `--yes`, and destructive behavior
+- `make-docs backup --help` documents `--target`, `--yes`, and non-destructive behavior
+- `make-docs uninstall --help` documents `--target`, `--backup`, `--yes`, and destructive behavior
 - `--yes` help text explains that prompts are skipped only after summaries are shown
 
 ### 2. Add lifecycle tests for audit ownership and safety rules
@@ -43,7 +43,7 @@ Audit-rule scenarios to cover:
 - unmanaged files inside managed-looking directories force preservation of those directories
 - exact generated-content `AGENTS.md` / `CLAUDE.md` are removable
 - modified `AGENTS.md` / `CLAUDE.md` are preserved
-- manifest-missing fallback only audits known starter-docs locations
+- manifest-missing fallback only audits known make-docs locations
 - `.backup/` contents are never returned as removal candidates
 
 These tests should validate both the ownership classification and the final execution results where practical.
@@ -70,8 +70,8 @@ Required scenarios:
 - uninstall preserves directories that still contain unmanaged files
 - uninstall preserves modified root instruction files
 - uninstall removes unmodified generated root instruction files
-- `starter-docs uninstall --yes` runs without prompts but still produces summary output
-- `starter-docs uninstall --backup` creates the backup, then removes the same audited files without re-running the audit
+- `make-docs uninstall --yes` runs without prompts but still produces summary output
+- `make-docs uninstall --backup` creates the backup, then removes the same audited files without re-running the audit
 - backup failure during `uninstall --backup` aborts uninstall
 
 If the implementation exposes audit-call counts or a test seam, assert the single-audit contract explicitly.
@@ -85,21 +85,21 @@ Smoke-pack expectations:
 1. pack and install the CLI into a temp workspace
 2. run `init --yes` to create a real managed target
 3. run `backup --yes`
-4. verify `.backup/<date-or-sequence>/` exists and contains starter-docs-managed files
+4. verify `.backup/<date-or-sequence>/` exists and contains make-docs-managed files
 5. run `uninstall --yes`
 6. verify managed files are removed, preserved custom files remain, and `.backup/` still exists untouched
 
 Manual validation sequence:
 
-1. `npm test -w starter-docs`
+1. `npm test -w make-docs`
 2. `bash scripts/check-instruction-routers.sh`
 3. `bash scripts/check-wave-numbering.sh`
 4. `node scripts/smoke-pack.mjs`
 5. Dogfood in a temp target:
-   - `npm run dev -w starter-docs -- init --yes --target /tmp/starter-docs-lifecycle`
+   - `npm run dev -w make-docs -- init --yes --target /tmp/make-docs-lifecycle`
    - create one unmanaged file inside a managed-looking directory and optionally modify `AGENTS.md` or `CLAUDE.md`
-   - `npm run dev -w starter-docs -- backup --yes --target /tmp/starter-docs-lifecycle`
-   - `npm run dev -w starter-docs -- uninstall --backup --yes --target /tmp/starter-docs-lifecycle`
+   - `npm run dev -w make-docs -- backup --yes --target /tmp/make-docs-lifecycle`
+   - `npm run dev -w make-docs -- uninstall --backup --yes --target /tmp/make-docs-lifecycle`
    - verify preserved custom files still exist, managed files are gone, and the backup tree remains available for inspection
 6. Clean up the temp target after verification
 
@@ -126,7 +126,7 @@ The final validation run should happen last, after all new automated coverage is
 - [ ] `uninstall --backup` tests confirm one audit is reused for backup and removal
 - [ ] Backup-failure handling during `uninstall --backup` is covered and aborts deletion
 - [ ] `node scripts/smoke-pack.mjs` validates backup and uninstall against a packed CLI install
-- [ ] `npm test -w starter-docs` passes
+- [ ] `npm test -w make-docs` passes
 - [ ] `bash scripts/check-instruction-routers.sh` passes
 - [ ] `bash scripts/check-wave-numbering.sh` passes
 - [ ] Manual dogfood verification confirms managed files are removed, preserved files remain, and `.backup/` survives uninstall

@@ -117,7 +117,7 @@ Six stages covering test assertions for skill installation (full-default, no-ski
 2. Run `bash scripts/check-instruction-routers.sh` and verify exit code 0.
 3. Run `bash scripts/check-wave-numbering.sh` and verify it passes.
 4. Run `node scripts/smoke-pack.mjs` and verify pack/install/verify succeeds including skills.
-5. Dogfood: run `npm run dev -w starter-docs -- init --yes --target /tmp/skill-dogfood`.
+5. Dogfood: run `npm run dev -w make-docs -- init --yes --target /tmp/skill-dogfood`.
 6. Verify `.claude/skills/` has 5 skill files.
 7. Open a new Claude Code session in `/tmp/skill-dogfood` and confirm skill discovery.
 8. Clean up: `rm -rf /tmp/skill-dogfood`.

@@ -3,7 +3,7 @@ name: Work to Commit Message
 description: Instructs the agent to draft or create a commit message that follows the project wave/revision/phase convention.
 ___
 
-Please prepare a commit message for the current work using the starter-docs commit message convention.
+Please prepare a commit message for the current work using the make-docs commit message convention.
 
 Before drafting or committing, read `docs/.references/commit-message-convention.md`. Use it as the authority for subject shape, body source, and commit execution rules.
 

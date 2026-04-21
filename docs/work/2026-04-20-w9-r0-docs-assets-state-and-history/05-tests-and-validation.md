@@ -22,14 +22,14 @@ None. This backlog is derived from the `w9-r0` plan and design, not from an acti
 
 ### Tasks
 
-1. Run `npm test -w starter-docs -- tests/consistency.test.ts`.
-2. Run `npm test -w starter-docs -- tests/renderers.test.ts`.
-3. Run `npm test -w starter-docs -- tests/install.test.ts`.
-4. Run `npm test -w starter-docs -- tests/cli.test.ts`.
-5. Run `npm test -w starter-docs -- tests/audit.test.ts`.
-6. Run `npm test -w starter-docs -- tests/backup.test.ts`.
-7. Run `npm test -w starter-docs -- tests/uninstall.test.ts`.
-8. Run `npm test -w starter-docs -- tests/lifecycle.test.ts`.
+1. Run `npm test -w make-docs -- tests/consistency.test.ts`.
+2. Run `npm test -w make-docs -- tests/renderers.test.ts`.
+3. Run `npm test -w make-docs -- tests/install.test.ts`.
+4. Run `npm test -w make-docs -- tests/cli.test.ts`.
+5. Run `npm test -w make-docs -- tests/audit.test.ts`.
+6. Run `npm test -w make-docs -- tests/backup.test.ts`.
+7. Run `npm test -w make-docs -- tests/uninstall.test.ts`.
+8. Run `npm test -w make-docs -- tests/lifecycle.test.ts`.
 9. Fix failures caused by incomplete `.assets` path, renderer, template, or documentation updates.
 
 ### Acceptance criteria
@@ -51,16 +51,16 @@ None. This backlog is derived from the `w9-r0` plan and design, not from an acti
 
 ### Tasks
 
-1. Run `npm run build -w starter-docs`.
-2. Run `npm test -w starter-docs`.
+1. Run `npm run build -w make-docs`.
+2. Run `npm test -w make-docs`.
 3. Run `node scripts/smoke-pack.mjs`.
 4. Run `bash scripts/check-instruction-routers.sh`.
 5. Fix failures without expanding scope beyond the approved `.assets` migration.
 
 ### Acceptance criteria
 
-- [x] `npm run build -w starter-docs` passes.
-- [x] `npm test -w starter-docs` passes.
+- [x] `npm run build -w make-docs` passes.
+- [x] `npm test -w make-docs` passes.
 - [x] `node scripts/smoke-pack.mjs` passes.
 - [x] `bash scripts/check-instruction-routers.sh` passes.
 
@@ -75,9 +75,9 @@ None. This backlog is derived from the `w9-r0` plan and design, not from an acti
 1. Run a Markdown link check over changed docs and moved history records.
 2. At minimum, validate `docs/.assets/history/*.md`.
 3. Validate `docs/.references/history-record-contract.md`, `docs/.templates/history-record.md`, and `docs/.prompts/session-to-history-record.prompt.md`.
-4. Validate `docs/guides/user/getting-started-installing-starter-docs.md` and `docs/guides/developer/cli-development-local-build-and-install.md`.
+4. Validate `docs/guides/user/getting-started-installing-make-docs.md` and `docs/guides/developer/cli-development-local-build-and-install.md`.
 5. Validate this work backlog and the `w9-r0` plan docs.
-6. Run `rg -n "docs/\\.starter-docs|\\.starter-docs/conflicts|docs/guides/agent" docs packages scripts`.
+6. Run `rg -n "docs/\\.make-docs|\\.make-docs/conflicts|docs/guides/agent" docs packages scripts`.
 7. Run `rg -n "docs/\\.assets/config|docs/\\.assets/history" docs packages scripts`.
 8. Separate active source-of-truth references from historical references.
 

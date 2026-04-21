@@ -21,12 +21,12 @@ Three test/script files need updates, followed by a sequential validation run: u
 1. In `packages/cli/tests/consistency.test.ts`, add two entries to the `BUILDABLE_PATHS` constant:
    - `"docs/guides/AGENTS.md"`
    - `"docs/guides/CLAUDE.md"`
-2. Run `npm run validate:defaults -w starter-docs` to verify the consistency test passes.
+2. Run `npm run validate:defaults -w make-docs` to verify the consistency test passes.
 
 ### Acceptance criteria
 
 - [x] `BUILDABLE_PATHS` includes both guide router paths
-- [x] `npm run validate:defaults -w starter-docs` passes
+- [x] `npm run validate:defaults -w make-docs` passes
 
 ### Dependencies
 
@@ -50,13 +50,13 @@ Three test/script files need updates, followed by a sequential validation run: u
    - `docs/.templates/guide-user.md` exists
    - `docs/guides/AGENTS.md` exists
    - `docs/guides/CLAUDE.md` exists
-3. Run `npm test -w starter-docs` to verify all tests pass.
+3. Run `npm test -w make-docs` to verify all tests pass.
 
 ### Acceptance criteria
 
 - [x] Full-default install test asserts presence and content of all guide-related files
 - [x] Reduced-profile test confirms guide files are not capability-gated
-- [x] `npm test -w starter-docs` passes
+- [x] `npm test -w make-docs` passes
 
 ### Dependencies
 
@@ -84,10 +84,10 @@ Three test/script files need updates, followed by a sequential validation run: u
 
 ### Tasks
 
-1. Run `npm test -w starter-docs` — all tests pass.
+1. Run `npm test -w make-docs` — all tests pass.
 2. Run `bash scripts/check-instruction-routers.sh` — exits 0.
 3. Run `node scripts/smoke-pack.mjs` — pack/install/verify succeeds.
-4. Manual spot-check: run `npx starter-docs init --yes --target /tmp/guide-contract-test` and verify:
+4. Manual spot-check: run `npx make-docs init --yes --target /tmp/guide-contract-test` and verify:
    - `docs/.references/guide-contract.md` exists
    - `docs/.templates/guide-developer.md` exists
    - `docs/.templates/guide-user.md` exists
@@ -97,7 +97,7 @@ Three test/script files need updates, followed by a sequential validation run: u
 
 ### Acceptance criteria
 
-- [x] `npm test -w starter-docs` exits 0 (43 tests, 6 files, all pass)
+- [x] `npm test -w make-docs` exits 0 (43 tests, 6 files, all pass)
 - [x] `bash scripts/check-instruction-routers.sh` exits 0
 - [x] `node scripts/smoke-pack.mjs` exits 0
 - [x] Fresh install includes all guide-related files (confirmed in smoke-pack output)

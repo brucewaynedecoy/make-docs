@@ -35,7 +35,7 @@ Completed Wave 9 Phase 4, framed by [the Phase 4 plan](../../plans/2026-04-20-w9
 | [README.md](../../../README.md) | Updated top-level documentation tree and install output summary for `.assets/history`. |
 | [packages/cli/README.md](../../../packages/cli/README.md) | Updated package README tree and install output summary for `.assets/history`. |
 | [packages/cli/src/renderers.ts](../../../packages/cli/src/renderers.ts) | Updated generated history router text to match the new filename rules. |
-| [packages/docs/README.md](../../../packages/docs/README.md) | Updated template package inventory and router list for `.assets/history` and `.assets/starter-docs`. |
+| [packages/docs/README.md](../../../packages/docs/README.md) | Updated template package inventory and router list for `.assets/history` and `.assets/make-docs`. |
 | [packages/docs/template/docs/](../../../packages/docs/template/docs/) | Mirrored the history router, contract, template, prompt, output contract, and wave-model updates into the shippable docs template. |
 | [packages/skills/archive-docs/SKILL.md](../../../packages/skills/archive-docs/SKILL.md) | Updated archive lookup guidance for history records in `.assets/history`. |
 | [packages/skills/archive-docs/references/archive-workflow.md](../../../packages/skills/archive-docs/references/archive-workflow.md) | Updated upstream/downstream history tracing to use `.assets/history` and coordinate frontmatter. |

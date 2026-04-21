@@ -23,8 +23,8 @@ This phase is the public command-surface foundation for the wave. It should stop
    - `yes: boolean`
    - `backup: boolean`
 3. Parse the new command forms:
-   - `starter-docs backup [--target <dir>] [--yes] [--help]`
-   - `starter-docs uninstall [--target <dir>] [--backup] [--yes] [--help]`
+   - `make-docs backup [--target <dir>] [--yes] [--help]`
+   - `make-docs uninstall [--target <dir>] [--backup] [--yes] [--help]`
 4. Enforce parser validation rules:
    - `--backup` only valid with `uninstall`
    - legacy `--permissions` rejected as an unknown argument
@@ -50,11 +50,11 @@ This phase is the public command-surface foundation for the wave. It should stop
 ### Tasks
 
 1. Refactor `printHelp()` in `packages/cli/src/cli.ts` into command-aware help rendering for:
-   - `starter-docs --help`
-   - `starter-docs init --help`
-   - `starter-docs update --help`
-   - `starter-docs backup --help`
-   - `starter-docs uninstall --help`
+   - `make-docs --help`
+   - `make-docs init --help`
+   - `make-docs update --help`
+   - `make-docs backup --help`
+   - `make-docs uninstall --help`
 2. Add a structured top-level help layout with:
    - short purpose statement
    - `Commands` section with one-line summaries
@@ -73,7 +73,7 @@ This phase is the public command-surface foundation for the wave. It should stop
 
 ### Acceptance criteria
 
-- [ ] `starter-docs --help` shows structured top-level help with command summaries and examples
+- [ ] `make-docs --help` shows structured top-level help with command summaries and examples
 - [ ] `init --help`, `update --help`, `backup --help`, and `uninstall --help` each show command-specific help
 - [ ] `backup --help` documents `--target`, `--yes`, and `--help`
 - [ ] `uninstall --help` documents `--target`, `--backup`, `--yes`, and `--help`
@@ -97,8 +97,8 @@ This phase is the public command-surface foundation for the wave. It should stop
 
 ### Acceptance criteria
 
-- [ ] `starter-docs --help` exits before install/update-specific validation
-- [ ] `starter-docs backup --help` and `starter-docs uninstall --help` work before lifecycle execution exists
+- [ ] `make-docs --help` exits before install/update-specific validation
+- [ ] `make-docs backup --help` and `make-docs uninstall --help` work before lifecycle execution exists
 - [ ] Non-help `backup` and `uninstall` invocations fail with an intentional placeholder error
 - [ ] No lifecycle command falls through into install/update planning
 
@@ -114,10 +114,10 @@ This phase is the public command-surface foundation for the wave. It should stop
 2. Add assertions that top-level help includes all four commands and sectioned output.
 3. Add command-specific help assertions for `backup` and `uninstall`.
 4. Add parser tests for invalid flag mixes, including:
-   - `starter-docs backup --no-skills`
-   - `starter-docs uninstall --optional-skills decompose-codebase`
-   - `starter-docs init --permissions confirm`
-   - `starter-docs init --backup`
+   - `make-docs backup --no-skills`
+   - `make-docs uninstall --optional-skills decompose-codebase`
+   - `make-docs init --permissions confirm`
+   - `make-docs init --backup`
 5. Run targeted CLI tests and then the full suite.
 
 ### Acceptance criteria
@@ -125,8 +125,8 @@ This phase is the public command-surface foundation for the wave. It should stop
 - [ ] `packages/cli/tests/cli.test.ts` covers top-level help and all four command-specific help screens
 - [ ] Explicit `backup` and `uninstall` command parsing is covered
 - [ ] Invalid cross-command flag combinations are covered
-- [ ] `npm test -w starter-docs -- tests/cli.test.ts` passes
-- [ ] `npm test -w starter-docs` passes
+- [ ] `npm test -w make-docs -- tests/cli.test.ts` passes
+- [ ] `npm test -w make-docs` passes
 
 ### Dependencies
 

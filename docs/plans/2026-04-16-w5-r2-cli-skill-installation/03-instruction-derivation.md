@@ -189,5 +189,5 @@ profile.selections.harnesses["claude-code"]
 - [ ] `--no-agents` still works as a backward-compat alias for `--no-codex`.
 - [ ] `--no-claude` still works as a backward-compat alias for `--no-claude-code`.
 - [ ] `isFullProfile` checks `harnesses` instead of `instructionKinds`.
-- [ ] `npm run build -w starter-docs` succeeds.
-- [ ] `npm test -w starter-docs` passes with no regressions.
+- [ ] `npm run build -w make-docs` succeeds.
+- [ ] `npm test -w make-docs` passes with no regressions.

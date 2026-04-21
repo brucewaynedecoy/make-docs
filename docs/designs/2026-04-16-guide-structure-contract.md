@@ -8,7 +8,7 @@ Establish a structural contract for developer and user guides under `docs/guides
 
 ## Context
 
-Every other output target in `starter-docs` has a contract:
+Every other output target in `make-docs` has a contract:
 
 | Artifact | Contract | Naming convention | Metadata |
 | --- | --- | --- | --- |
@@ -22,7 +22,7 @@ Every other output target in `starter-docs` has a contract:
 
 The `docs/guides/` router instructs agents on audience separation and general documentation quality, but imposes no structure on filenames, metadata, or logical organization. As the guide library grows — especially in monorepos or projects with multiple subsystems — the flat, unstructured approach will make discovery, grouping, and external publication difficult.
 
-The two guides just created (`docs/guides/developer/local-build-and-install.md` and `docs/guides/user/installing-starter-docs.md`) surfaced this gap: they were written with good content but no structural metadata, no grouping convention, and no mechanism for a documentation pipeline to know where they belong.
+The two guides just created (`docs/guides/developer/local-build-and-install.md` and `docs/guides/user/installing-make-docs.md`) surfaced this gap: they were written with good content but no structural metadata, no grouping convention, and no mechanism for a documentation pipeline to know where they belong.
 
 ### Constraints
 
@@ -70,7 +70,7 @@ tags:
 applies-to:
   - cli
 related:
-  - ../user/cli-getting-started-installing-starter-docs.md
+  - ../user/cli-getting-started-installing-make-docs.md
 ---
 ```
 
@@ -88,7 +88,7 @@ Where `<path-prefix>` is the `path` frontmatter value with `/` replaced by `-`.
 | --- | --- |
 | `cli/development` | `cli-development-local-build-and-install.md` |
 | `cli/testing` | `cli-testing-smoke-pack.md` |
-| `getting-started` | `getting-started-installing-starter-docs.md` |
+| `getting-started` | `getting-started-installing-make-docs.md` |
 | `template/customization` | `template-customization-adding-capabilities.md` |
 
 Rules:
@@ -164,7 +164,7 @@ The two existing guides will be migrated to the new convention:
 | Current filename | New filename | `path` |
 | --- | --- | --- |
 | `developer/local-build-and-install.md` | `developer/cli-development-local-build-and-install.md` | `cli/development` |
-| `user/installing-starter-docs.md` | `user/getting-started-installing-starter-docs.md` | `getting-started` |
+| `user/installing-make-docs.md` | `user/getting-started-installing-make-docs.md` | `getting-started` |
 
 Frontmatter will be added to both files. This is a small, low-risk migration since only two files exist.
 
@@ -184,11 +184,11 @@ Frontmatter will be added to both files. This is a small, low-risk migration sin
 
 **What improves:**
 
-- Guides gain structural parity with every other output target in `starter-docs`.
+- Guides gain structural parity with every other output target in `make-docs`.
 - Agents have a clear contract to follow, reducing inconsistency as the guide library grows.
 - The `path` field enables both logical grouping (for search/discovery) and publication routing (for external doc sites) without imposing directory structure.
 - The slug convention makes filesystem browsing immediately informative — `ls docs/guides/developer/` reveals grouping at a glance.
-- Consumer projects that install `starter-docs` inherit the contract, templates, and convention automatically.
+- Consumer projects that install `make-docs` inherit the contract, templates, and convention automatically.
 
 **What shifts:**
 

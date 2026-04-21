@@ -31,7 +31,7 @@ Execute in order:
 
 1. **Unit and integration tests**
    ```bash
-   npm test -w starter-docs
+   npm test -w make-docs
    ```
    Expected: all tests pass with no regressions.
 
@@ -57,7 +57,7 @@ Execute in order:
 
 - [ ] 6 files re-seeded from template; all verified byte-identical to source.
 - [ ] Existing design files in `docs/designs/` are NOT modified.
-- [ ] `npm test -w starter-docs` exits 0.
+- [ ] `npm test -w make-docs` exits 0.
 - [ ] `bash scripts/check-instruction-routers.sh` exits 0.
 - [ ] `node scripts/smoke-pack.mjs` exits 0.
 - [ ] Fresh install contains simplified design naming pattern throughout.

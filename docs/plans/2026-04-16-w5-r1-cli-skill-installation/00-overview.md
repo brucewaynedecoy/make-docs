@@ -36,9 +36,9 @@ Implement the CLI skill installation capability designed in [2026-04-16-cli-skil
 
 ## Validation
 
-1. `npm test -w starter-docs` — all tests pass, including new skill-related tests.
+1. `npm test -w make-docs` — all tests pass, including new skill-related tests.
 2. `bash scripts/check-instruction-routers.sh` — passes.
 3. `bash scripts/check-wave-numbering.sh` — passes (w5-r1 is a valid revision of w5).
 4. `node scripts/smoke-pack.mjs` — pack/install/verify succeeds and includes skills.
-5. Dogfood: run `npm run dev -w starter-docs -- init --yes --target /tmp/skill-test` and confirm `.claude/skills/` contains discoverable skill files.
+5. Dogfood: run `npm run dev -w make-docs -- init --yes --target /tmp/skill-test` and confirm `.claude/skills/` contains discoverable skill files.
 6. `.claude/settings.json` and `.agents/README.md` no longer exist.

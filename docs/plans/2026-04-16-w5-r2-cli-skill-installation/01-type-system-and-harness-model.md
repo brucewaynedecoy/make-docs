@@ -134,5 +134,5 @@ After the type change, any file importing `instructionKinds` or `InstructionKind
 - [ ] `isFullDefaultProfile()` checks both harnesses, skills, and skillScope.
 - [ ] `profileId` hash includes harnesses and skillScope instead of instructionKinds.
 - [ ] Loading an old manifest with `instructionKinds` produces correct `harnesses` values (`"CLAUDE.md" -> "claude-code"`, `"AGENTS.md" -> "codex"`).
-- [ ] `npm run build -w starter-docs` succeeds with zero type errors.
-- [ ] `npm test -w starter-docs` passes.
+- [ ] `npm run build -w make-docs` succeeds with zero type errors.
+- [ ] `npm test -w make-docs` passes.

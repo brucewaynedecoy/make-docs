@@ -67,13 +67,13 @@ Create test fixtures with known false-positive patterns and legitimate links, wr
 ### Tasks
 
 1. Run `python packages/skills/decompose-codebase/scripts/validate_output.py --repo-root <fixture-dir>` and confirm clean output on false-positive fixtures.
-2. Run the validator against the starter-docs repo itself (`--repo-root .`) and confirm no regressions.
+2. Run the validator against the make-docs repo itself (`--repo-root .`) and confirm no regressions.
 3. If a SaltStack-heavy decomposition output is available, run against it and confirm zero false-positive broken-link errors.
 
 ### Acceptance criteria
 
 - [x] Validator produces zero false positives on code-heavy fixtures.
-- [x] Validator produces no regressions on the starter-docs repo.
+- [x] Validator produces no regressions on the make-docs repo.
 - [x] All genuinely broken links are still reported.
 
 ### Dependencies

@@ -70,7 +70,7 @@ export function renderBuildableAsset(relativePath: string, profile: InstallProfi
       return renderHistoryAssetsRouter();
     case "docs/.assets/config/AGENTS.md":
     case "docs/.assets/config/CLAUDE.md":
-      return renderStarterDocsConfigRouter();
+      return renderMakeDocsConfigRouter();
     case "docs/.references/design-workflow.md":
       return renderDesignWorkflow(profile);
     case "docs/.references/design-contract.md":
@@ -188,11 +188,11 @@ function renderHistoryAssetsRouter(): string {
   ].join("\n");
 }
 
-function renderStarterDocsConfigRouter(): string {
+function renderMakeDocsConfigRouter(): string {
   return [
-    "# Starter-Docs Config Router",
+    "# make-docs Config Router",
     "",
-    "This directory stores starter-docs CLI-managed config and state.",
+    "This directory stores make-docs CLI-managed config and state.",
     "- Treat `docs/.assets/config/` as owned by the CLI.",
     "- Do not hand-edit files here unless the user explicitly asks to repair CLI state.",
     "- Do not create memories, preferences, or other deferred asset namespaces here.",
@@ -325,7 +325,7 @@ function renderDesignWorkflow(profile: InstallProfile): string {
       "  - `change-plan`",
       "- Prompt links are unavailable in this profile because prompt starters are not installed locally.",
       "- Record:",
-      "  - `Next Step:` rerun `npx starter-docs reconfigure` and enable prompts if you want local prompt starters",
+      "  - `Next Step:` rerun `npx make-docs reconfigure` and enable prompts if you want local prompt starters",
       "  - `Why:` a short explanation of why the selected route is the correct downstream workflow",
       "",
       "## Stop Rule",
@@ -385,7 +385,7 @@ function renderDesignWorkflow(profile: InstallProfile): string {
     "- Because the `plans` capability is not installed in this profile, do not link to prompt starter files that are not installed locally.",
     "- Record the follow-on as:",
     "  - `Route:` `planning-not-installed`",
-    "  - `Next Step:` rerun `npx starter-docs reconfigure` and enable `plans`",
+    "  - `Next Step:` rerun `npx make-docs reconfigure` and enable `plans`",
     "  - `Why:` a short explanation of whether the next step should be baseline planning or change planning once planning assets are installed",
     "",
     "## Stop Rule",
@@ -446,7 +446,7 @@ function renderDesignContract(profile: InstallProfile): string {
       "The `## Intended Follow-On` section must include:",
       "",
       "- `Route:` `baseline-plan` or `change-plan`",
-      "- `Next Step:` rerun `npx starter-docs reconfigure` and enable prompts if you want local prompt starters",
+      "- `Next Step:` rerun `npx make-docs reconfigure` and enable prompts if you want local prompt starters",
       "- `Why:` a short explanation of why that route is the correct downstream workflow",
       "",
       "Do not add a `Next Prompt` link when prompt starters are not installed locally.",
@@ -498,7 +498,7 @@ function renderDesignContract(profile: InstallProfile): string {
     "The `## Intended Follow-On` section must include:",
     "",
     "- `Route:` `planning-not-installed`",
-    "- `Next Step:` rerun `npx starter-docs reconfigure` and enable `plans` if you want local planning prompts and templates",
+    "- `Next Step:` rerun `npx make-docs reconfigure` and enable `plans` if you want local planning prompts and templates",
     "- `Why:` a short explanation of what planning should happen later",
     "",
     "Do not add a `Next Prompt` link when planning assets are not installed locally.",
@@ -554,7 +554,7 @@ function renderDesignTemplate(profile: InstallProfile): string {
     "## Intended Follow-On",
     "",
     "- Route: planning-not-installed",
-    "- Next Step: Re-run `npx starter-docs reconfigure` and enable `plans` to install local planning prompts and templates.",
+    "- Next Step: Re-run `npx make-docs reconfigure` and enable `plans` to install local planning prompts and templates.",
     "- Why: Explain whether this design should later feed a baseline plan or a change plan.",
     "",
   ].join("\n");

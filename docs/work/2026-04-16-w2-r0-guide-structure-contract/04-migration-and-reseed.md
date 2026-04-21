@@ -53,11 +53,11 @@ Two work streams execute in parallel: guide migration (rename + frontmatter) and
 
 ### Tasks
 
-1. Rename `docs/guides/user/installing-starter-docs.md` to `docs/guides/user/getting-started-installing-starter-docs.md` (use `git mv`).
+1. Rename `docs/guides/user/installing-make-docs.md` to `docs/guides/user/getting-started-installing-make-docs.md` (use `git mv`).
 2. Prepend YAML frontmatter to the renamed file:
    ```yaml
    ---
-   title: Installing Starter Docs
+   title: Installing Make Docs
    path: getting-started
    status: published
    order: 10
@@ -75,8 +75,8 @@ Two work streams execute in parallel: guide migration (rename + frontmatter) and
 
 ### Acceptance criteria
 
-- [x] Old file `docs/guides/user/installing-starter-docs.md` no longer exists
-- [x] New file `docs/guides/user/getting-started-installing-starter-docs.md` exists
+- [x] Old file `docs/guides/user/installing-make-docs.md` no longer exists
+- [x] New file `docs/guides/user/getting-started-installing-make-docs.md` exists
 - [x] YAML frontmatter is valid and contains all specified fields
 - [x] Body content is unchanged from the original
 - [x] Slug prefix matches `path` value

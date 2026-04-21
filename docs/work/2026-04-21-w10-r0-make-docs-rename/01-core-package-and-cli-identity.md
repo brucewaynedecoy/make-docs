@@ -35,7 +35,7 @@ This worker blocks all final validation and should land before template, docs, a
 
 ### Tasks
 
-1. Update the root package name from `starter-docs-monorepo` to `make-docs-monorepo`.
+1. Update the root package name from `make-docs-monorepo` to `make-docs-monorepo`.
 2. Update root scripts to use `-w make-docs` for `build`, `dev`, `test`, and `validate:defaults`.
 3. Update `packages/cli/package.json` package name to `make-docs`.
 4. Replace the CLI `bin` entry so only `make-docs` points at `./dist/index.js`.
@@ -46,7 +46,7 @@ This worker blocks all final validation and should land before template, docs, a
 ### Acceptance criteria
 
 - [ ] `npm run build -w make-docs` resolves the CLI workspace.
-- [ ] `packages/cli/package.json` has no `starter-docs` package or bin entry.
+- [ ] `packages/cli/package.json` has no `make-docs` package or bin entry.
 - [ ] Private workspace package names use `@make-docs/*`.
 - [ ] `package-lock.json` reflects the new package names.
 - [ ] No compatibility package alias is added.
@@ -59,7 +59,7 @@ This worker blocks all final validation and should land before template, docs, a
 
 ### Tasks
 
-1. Rename `STARTER_DOCS_CONFIG_RELATIVE_DIR` to `MAKE_DOCS_CONFIG_RELATIVE_DIR`.
+1. Rename `MAKE_DOCS_CONFIG_RELATIVE_DIR` to `MAKE_DOCS_CONFIG_RELATIVE_DIR`.
 2. Update all imports and references to the renamed constant.
 3. Preserve `MANIFEST_RELATIVE_PATH` as `docs/.assets/config/manifest.json`.
 4. Update runtime text in `packages/cli/src/cli.ts` from old command examples to `make-docs`.

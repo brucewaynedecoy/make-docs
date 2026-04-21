@@ -220,5 +220,5 @@ Recommended execution: edit all three files in parallel, since each file's chang
 6. The dynamically rendered `docs/.templates/AGENTS.md` / `docs/.templates/CLAUDE.md` mentions guide templates for all profiles.
 7. The dynamically rendered `docs/guides/AGENTS.md` / `docs/guides/CLAUDE.md` references the guide-contract, guide templates, and agent-guide-contract.
 8. Full-default profiles still short-circuit to the static template files (existing behavior preserved).
-9. `npm test -w starter-docs` passes with no regressions.
+9. `npm test -w make-docs` passes with no regressions.
 10. `node scripts/smoke-pack.mjs` succeeds.

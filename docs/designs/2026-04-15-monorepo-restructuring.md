@@ -4,19 +4,19 @@
 
 ## Purpose
 
-Capture the decision to restructure the `starter-docs` repository into a pseudo-monorepo so that the project can dogfood its own `docs/` conventions while keeping the shippable docs template pristine.
+Capture the decision to restructure the `make-docs` repository into a pseudo-monorepo so that the project can dogfood its own `docs/` conventions while keeping the shippable docs template pristine.
 
 ## Context
 
-`starter-docs` has two documentation surfaces with conflicting needs that share a single directory:
+`make-docs` has two documentation surfaces with conflicting needs that share a single directory:
 
-- The repo-root `docs/` tree is the **deliverable**. It is bundled into the published NPM package and copied into consumer projects by the CLI installer. It must stay clean — no drafts, no project-specific designs, no meta-work about `starter-docs` itself.
-- v2 design, planning, and work-tracking for `starter-docs` should also live **in this repo**, ideally written using **this project's own `docs/` conventions**. Dogfooding is the only way to validate the contracts we ship.
+- The repo-root `docs/` tree is the **deliverable**. It is bundled into the published NPM package and copied into consumer projects by the CLI installer. It must stay clean — no drafts, no project-specific designs, no meta-work about `make-docs` itself.
+- v2 design, planning, and work-tracking for `make-docs` should also live **in this repo**, ideally written using **this project's own `docs/` conventions**. Dogfooding is the only way to validate the contracts we ship.
 
 Pre-restructure, the repo looked roughly like this:
 
 ```
-starter-docs/
+make-docs/
 ├── src/                     # CLI source (cli.ts, install.ts, renderers.ts, ...)
 ├── dist/                    # CLI build output
 ├── tests/                   # CLI tests (vitest)
@@ -26,7 +26,7 @@ starter-docs/
 ├── scripts/                 # check-instruction-routers.sh, smoke-pack.mjs
 ├── builds/                  # (empty)
 ├── .backup/                 # legacy — investigate before moving
-├── package.json             # name: starter-docs, bin: starter-docs
+├── package.json             # name: make-docs, bin: make-docs
 ├── tsup.config.ts, tsconfig.json, justfile
 ├── AGENTS.md, CLAUDE.md, README.md, TODO.md
 ```
@@ -42,19 +42,19 @@ Restructure the repo into a pseudo-monorepo with a small number of `packages/` a
 ### Target layout
 
 ```
-starter-docs/
+make-docs/
 ├── docs/                        # REPO-LEVEL docs — used to dogfood v2 design/plan/work
 │   └── (populated using our own docs conventions as v2 evolves)
 │
 ├── packages/
 │   ├── docs/                    # the shippable template package
-│   │   ├── package.json         # e.g. @starter-docs/template (private or published)
+│   │   ├── package.json         # e.g. @make-docs/template (private or published)
 │   │   ├── AGENTS.md, CLAUDE.md, README.md
 │   │   └── template/            # the actual template tree (designs/, plans/, prd/, work/,
 │   │                            #   guides/, .references/, .templates/, .prompts/)
 │   │
 │   ├── cli/                     # the installer CLI
-│   │   ├── package.json         # name: starter-docs (keeps public bin name)
+│   │   ├── package.json         # name: make-docs (keeps public bin name)
 │   │   ├── src/
 │   │   ├── tests/
 │   │   ├── dist/
@@ -81,7 +81,7 @@ Two `docs/` surfaces, clearly separated:
 
 | Surface | Purpose | Published |
 |---|---|---|
-| `./docs/` (repo root) | Internal v2 planning/design/work for `starter-docs` itself | No |
+| `./docs/` (repo root) | Internal v2 planning/design/work for `make-docs` itself | No |
 | `./packages/docs/template/` | The shippable template that consumers receive | Yes (via CLI package bundling) |
 
 ### Package inventory & moves
@@ -106,10 +106,10 @@ Two `docs/` surfaces, clearly separated:
 Confirmed 2026-04-15:
 
 1. **Workspace manager**: npm workspaces.
-2. **CLI package name**: `starter-docs` lives at `packages/cli`. The package has not been publicly released, so there is no backward-compat UX constraint, but the public-facing name is preserved.
+2. **CLI package name**: `make-docs` lives at `packages/cli`. The package has not been publicly released, so there is no backward-compat UX constraint, but the public-facing name is preserved.
 3. **Template bundling**: prepublish copy from `packages/docs/template/` into `packages/cli/template/` so the CLI is self-contained once published.
 4. **Template package path**: inner `template/` directory inside `packages/docs/`, keeping package metadata separate from the shipped tree.
-5. **Repo-root `docs/` seeding**: the current root `docs/` is copied into `packages/docs/template/`. Afterwards the root `docs/` becomes the dogfood surface for `starter-docs`' own designs, plans, and work.
+5. **Repo-root `docs/` seeding**: the current root `docs/` is copied into `packages/docs/template/`. Afterwards the root `docs/` becomes the dogfood surface for `make-docs`' own designs, plans, and work.
 6. **Versioning**: CLI bumps to `1.0.0` on v2 publish; template package versioned independently if ever published standalone.
 7. **Scripts location**: stays at repo root for cross-package validation and release orchestration.
 
@@ -131,7 +131,7 @@ Each phase leaves the repo in a working, testable state. Tests must pass at the 
 - **Keep a single flat layout, no workspaces.** Keeps the repo simple but leaves the core conflict unresolved: the shipped `docs/` tree and the project's own design/plan/work artifacts keep colliding in one directory. Rejected — dogfooding is only credible if we actually use our own conventions in a separate, non-published surface.
 - **Single `docs/` surface with a convention to exclude internal files at publish time.** Would rely on filename/prefix conventions plus `.npmignore`-style filtering to keep meta-work out of the tarball. Rejected because it continues to leak internal artifacts into the tree consumers see in the repo (including via GitHub) and creates fragile publish-time filtering.
 - **Use a heavier monorepo tool (Turborepo or Nx) from the start.** Provides task graphs and caching, but adds tooling surface area that is probably overkill at the current package count. Deferred — npm workspaces is sufficient today; revisit if the number of packages grows.
-- **Publish the template as a standalone package (`@starter-docs/template`) immediately.** Allows third parties to consume the template without the CLI. Deferred until we have a real consumer asking for it; for now the template package can stay `private: true` and be bundled into the CLI via the prepublish copy step.
+- **Publish the template as a standalone package (`@make-docs/template`) immediately.** Allows third parties to consume the template without the CLI. Deferred until we have a real consumer asking for it; for now the template package can stay `private: true` and be bundled into the CLI via the prepublish copy step.
 - **Nest `content/` and `skills/` inside the CLI package instead of making them siblings.** Simpler layout but makes the ownership and consumption boundary harder to evolve later. Left open: the final home for `packages/content/` and `packages/skills/` is explicitly deferred to Phase 4, once we understand their consumers.
 - **Generate the template tree from a single source of truth** (for example, the CLI's own catalog) rather than maintaining it as hand-edited files. Interesting but large scope; out of scope for this restructuring.
 
@@ -141,10 +141,10 @@ The scratchpad did not explore alternative bundling strategies beyond the prepub
 
 **Benefits**
 
-- Internal and shipped documentation surfaces are fully separated; meta-work on `starter-docs` can no longer leak into the published template.
+- Internal and shipped documentation surfaces are fully separated; meta-work on `make-docs` can no longer leak into the published template.
 - The repo can genuinely dogfood its own design/plan/work conventions in the repo-root `docs/`, surfacing contract issues early.
 - Each package (`cli`, `docs`, `content`, `skills`) has an independent `package.json`, opening the door to independent versioning and, if warranted later, independent publishing.
-- Public CLI UX (`npx starter-docs`) is preserved because the CLI package keeps the `starter-docs` name.
+- Public CLI UX (`npx make-docs`) is preserved because the CLI package keeps the `make-docs` name.
 
 **Trade-offs**
 
@@ -159,9 +159,9 @@ The scratchpad did not explore alternative bundling strategies beyond the prepub
 - **`content/parts/` semantics.** Whether `packages/content/` stays its own package or nests under `packages/cli/content/` is deferred to Phase 4, once we understand its consumers.
 - **`packages/skills/` bundling.** If skills install alongside `docs/`, they need bundling logic analogous to the template's prepublish copy. Deferred to Phase 4.
 - **`.archive/` interplay.** The v2 archive feature needs to exist both at repo root (`./docs/.archive/`) and inside the shipped template (`packages/docs/template/.archive/`). The archive directory and its `AGENTS.md` ship as part of the template deliverable.
-- **Template publishing stance.** Whether `@starter-docs/template` is ever published standalone or kept `private: true` forever is deliberately left open.
+- **Template publishing stance.** Whether `@make-docs/template` is ever published standalone or kept `private: true` forever is deliberately left open.
 - **Backward compatibility.** External tooling or CI that paths into the repo-root `docs/` will break when that directory becomes the dogfood surface. An inventory of such consumers is needed before Phase 3.
-- **Consumer-facing CLI name stability.** Keeping `starter-docs` on `packages/cli` preserves `npx starter-docs`. Intent confirmed.
+- **Consumer-facing CLI name stability.** Keeping `make-docs` on `packages/cli` preserves `npx make-docs`. Intent confirmed.
 
 **Implementation status (as of 2026-04-15)**
 

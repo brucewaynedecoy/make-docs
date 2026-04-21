@@ -75,14 +75,14 @@ Four sequential stages: introduce the new type and const, swap the selection int
 ### Tasks
 
 1. Grep for all remaining references to `instructionKinds` across the codebase and update each to use `harnesses` (keep `InstructionKind` type available only for the migration path in manifest.ts).
-2. Run `npm run build -w starter-docs` and fix any type errors.
-3. Run `npm test -w starter-docs` and fix any failing tests (update test fixtures that construct `InstallSelections` without the new fields).
+2. Run `npm run build -w make-docs` and fix any type errors.
+3. Run `npm test -w make-docs` and fix any failing tests (update test fixtures that construct `InstallSelections` without the new fields).
 
 ### Acceptance criteria
 
 - [x] No source file outside manifest.ts references `instructionKinds` for selection purposes.
-- [x] `npm run build -w starter-docs` succeeds with zero type errors.
-- [x] `npm test -w starter-docs` passes.
+- [x] `npm run build -w make-docs` succeeds with zero type errors.
+- [x] `npm test -w make-docs` passes.
 
 ### Dependencies
 

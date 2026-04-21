@@ -31,7 +31,7 @@ Test the following functions:
 ### 3. Run full validation
 
 - Run `python packages/skills/decompose-codebase/scripts/validate_output.py --repo-root <test-fixture>` and confirm clean output.
-- Run against the starter-docs repo itself to confirm no regressions.
+- Run against the make-docs repo itself to confirm no regressions.
 - If a known SaltStack decomposition output is available, run against it and confirm zero false-positive broken-link errors.
 
 ## Files to Create/Modify
@@ -46,4 +46,4 @@ Test the following functions:
 - All unit tests pass.
 - The validator produces zero false positives on fixtures containing Salt/Jinja2/Python bracket-paren code.
 - The validator still catches genuinely broken links.
-- Running against the starter-docs repo produces no regressions.
+- Running against the make-docs repo produces no regressions.

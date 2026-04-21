@@ -132,8 +132,8 @@ Five changes across two files. After this phase, every install profile produces 
 
 ### Tasks
 
-1. Run `npm run build -w starter-docs` — verify compilation succeeds.
-2. Run `npm test -w starter-docs` — verify all existing tests pass with no regressions.
+1. Run `npm run build -w make-docs` — verify compilation succeeds.
+2. Run `npm test -w make-docs` — verify all existing tests pass with no regressions.
 
 ### Acceptance criteria
 

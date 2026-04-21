@@ -25,7 +25,7 @@ Three sequential stages: extend the type interfaces, update the profile helper f
 
 - [x] `InstallSelections` has a `skills: boolean` field.
 - [x] `InstallManifest` has an optional `skillFiles?: Record<string, ManifestFileEntry>` field.
-- [x] `npm run build -w starter-docs` succeeds.
+- [x] `npm run build -w make-docs` succeeds.
 
 ### Dependencies
 
@@ -44,7 +44,7 @@ Three sequential stages: extend the type interfaces, update the profile helper f
 - [x] `defaultSelections()` returns `skills: true`.
 - [x] `cloneSelections()` copies the `skills` field.
 - [x] `isFullDefaultProfile()` includes a `skills` check.
-- [x] `npm run build -w starter-docs` succeeds.
+- [x] `npm run build -w make-docs` succeeds.
 
 ### Dependencies
 
@@ -54,14 +54,14 @@ Three sequential stages: extend the type interfaces, update the profile helper f
 
 ### Tasks
 
-1. Run `npm test -w starter-docs` and identify any tests that fail because they construct `InstallSelections` without the new `skills` field or call `defaultSelections()` expecting the old shape.
+1. Run `npm test -w make-docs` and identify any tests that fail because they construct `InstallSelections` without the new `skills` field or call `defaultSelections()` expecting the old shape.
 2. Add `skills: true` (or the appropriate value) to every test fixture that constructs `InstallSelections` manually.
 3. Update any snapshot or assertion that checks the shape of `defaultSelections()` output.
-4. Re-run `npm test -w starter-docs` and confirm all tests pass.
+4. Re-run `npm test -w make-docs` and confirm all tests pass.
 
 ### Acceptance criteria
 
-- [x] All existing tests pass with `npm test -w starter-docs`.
+- [x] All existing tests pass with `npm test -w make-docs`.
 - [x] No test constructs `InstallSelections` without the `skills` field.
 
 ### Dependencies

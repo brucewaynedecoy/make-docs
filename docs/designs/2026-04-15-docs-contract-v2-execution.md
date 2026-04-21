@@ -104,7 +104,7 @@ Copy the template tree at `packages/docs/template/docs/*` (including dotfiles) o
 
 ### Phase 7 — Final validation (main thread)
 
-- `npm test -w starter-docs`
+- `npm test -w make-docs`
 - `bash scripts/check-instruction-routers.sh`
 - `node scripts/smoke-pack.mjs`
 

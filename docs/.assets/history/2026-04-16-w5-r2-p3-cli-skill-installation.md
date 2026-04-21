@@ -15,7 +15,7 @@ Replaced direct reads of the old `instructionKinds` selection shape in the asset
 | `catalog.ts` | Hoisted the harness filter to the caller: `getDesiredAssets` now iterates `getActiveInstructionKinds(profile.selections)` instead of all `INSTRUCTION_KINDS`. Dropped the inline `harnesses[...]` guard inside `addInstructionAssets` (caller now pre-filters), renamed its param to `activeInstructionKind` to make that contract visible. |
 | `renderers.ts` | No code change required. A jcodemunch text search confirmed zero `instructionKinds` references — its path-matching sets are harness-agnostic by design, and by the time a path reaches `renderBuildableAsset`, `catalog.ts` has already excluded any disabled-harness paths. Acceptance criterion trivially satisfied. |
 | `wizard.ts` (simplify pass) | Collapsed two duplicate `INSTRUCTION_KINDS.filter(kind => selections.harnesses[INSTRUCTION_KIND_TO_HARNESS[kind]])` expressions in `getWizardOptionSelections` and `renderWizardReviewSummary` down to `Array.from(getActiveInstructionKinds(selections))` — same logic now flows through the new Phase 3 helper. |
-| Validation | `tsc --noEmit` clean, `npm run build -w starter-docs` succeeds, all 44 existing tests pass. Final grep for `instructionKinds` in `catalog.ts` and `renderers.ts` returns zero matches. |
+| Validation | `tsc --noEmit` clean, `npm run build -w make-docs` succeeds, all 44 existing tests pass. Final grep for `instructionKinds` in `catalog.ts` and `renderers.ts` returns zero matches. |
 
 Files modified:
 

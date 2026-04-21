@@ -132,18 +132,18 @@ This phase must coordinate with Phase 2 if renderer or consistency tests are alr
 1. Run tracked-file checks:
 
    ```text
-   git grep -n "starter-docs"
-   git grep -n "Starter-Docs"
-   git grep -n "Starter Docs"
-   git grep -n "starter docs"
-   git grep -n "STARTER_DOCS"
-   git grep -n "@starter-docs"
+   git grep -n "make-docs"
+   git grep -n "Make-Docs"
+   git grep -n "Make Docs"
+   git grep -n "make docs"
+   git grep -n "MAKE_DOCS"
+   git grep -n "@make-docs"
    ```
 
 2. Run tracked-path checks:
 
    ```text
-   git ls-files | rg "starter-docs|Starter-Docs|Starter Docs|starter docs|STARTER_DOCS|@starter-docs"
+   git ls-files | rg "make-docs|Make-Docs|Make Docs|make docs|MAKE_DOCS|@make-docs"
    ```
 
 3. Fix every tracked old-name string and pathname found by those checks.

@@ -4,13 +4,13 @@
 
 ## Purpose
 
-Capture, as a settled design, the five proposals that reshape the `starter-docs` v2 `docs/` contract: Wave/Revision/Phase (W/R/P) encoding across artifact families, plans-as-directories, work-as-directories (dropping the `-backlog` suffix), a consolidated hidden `docs/.archive/` mirror with a strict "never archive unless explicitly asked" rule, and agent session guides under `docs/guides/agent/` that pilot the W/R/P scheme.
+Capture, as a settled design, the five proposals that reshape the `make-docs` v2 `docs/` contract: Wave/Revision/Phase (W/R/P) encoding across artifact families, plans-as-directories, work-as-directories (dropping the `-backlog` suffix), a consolidated hidden `docs/.archive/` mirror with a strict "never archive unless explicitly asked" rule, and agent session guides under `docs/guides/agent/` that pilot the W/R/P scheme.
 
 This document records the design intent that subsequent planning and execution can proceed from. It is recorded retroactively: several of the proposals are already landed in recent commits (W/R/P encoding, agent guides, plans and work as directories); this design captures the decision surface rather than claiming the work is unstarted.
 
 ## Context
 
-`starter-docs` v1 established a working `docs/` contract with a clear principle set worth carrying forward:
+`make-docs` v1 established a working `docs/` contract with a clear principle set worth carrying forward:
 
 - Routers stay minimal. Authority lives in `docs/.references/`.
 - Progressive disclosure: each directory's `AGENTS.md` or `CLAUDE.md` names only the next files to read and does not restate rules that live in references.
@@ -127,8 +127,8 @@ Each alternative below was surfaced in the original scratchpad as an open questi
 
 **Explicitly deferred.** The following items from the scratchpad are not decided here and are left for later designs:
 
-- Migration strategy for existing downstream projects built on v1 `starter-docs`.
-- Whether to version the `starter-docs` package itself (semver bump to 2.0.0) and how the NPX installer communicates v1 to v2 breaking changes.
+- Migration strategy for existing downstream projects built on v1 `make-docs`.
+- Whether to version the `make-docs` package itself (semver bump to 2.0.0) and how the NPX installer communicates v1 to v2 breaking changes.
 - Whether `docs/guides/user/` and `docs/guides/developer/` need any v2-specific structural changes or stay as-is.
 - Whether `.prompts/` gains per-artifact sub-directories as the prompt library grows.
 - Whether the repo-root `.backup/` directory is legacy and should be absorbed into `.archive/`.

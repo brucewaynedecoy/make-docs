@@ -107,5 +107,5 @@ Update manifest read/write to handle the `skillFiles` field:
 - [ ] Skill files are written during `applyInstallPlan` to the correct harness-specific directories.
 - [ ] `manifest.skillFiles` tracks all installed skill and asset files.
 - [ ] Removing a harness on reconfigure plans `remove` actions for that harness's skill files.
-- [ ] `npm run build -w starter-docs` succeeds.
-- [ ] `npm test -w starter-docs` passes.
+- [ ] `npm run build -w make-docs` succeeds.
+- [ ] `npm test -w make-docs` passes.

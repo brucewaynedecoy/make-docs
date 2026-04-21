@@ -42,7 +42,7 @@ Six template-owned files need re-seeding, followed by the standard validation se
 
 ### Tasks
 
-1. Run `npm test -w starter-docs` — all tests pass.
+1. Run `npm test -w make-docs` — all tests pass.
 2. Run `bash scripts/check-instruction-routers.sh` — exits 0.
 3. Run `node scripts/smoke-pack.mjs` — pack/install/verify succeeds.
 4. Manual spot-check: fresh `init --yes` into a temp dir:
@@ -53,7 +53,7 @@ Six template-owned files need re-seeding, followed by the standard validation se
 
 ### Acceptance criteria
 
-- [x] `npm test -w starter-docs` exits 0 (43 tests, 6 files)
+- [x] `npm test -w make-docs` exits 0 (43 tests, 6 files)
 - [x] `bash scripts/check-instruction-routers.sh` exits 0
 - [x] `node scripts/smoke-pack.mjs` exits 0
 - [x] Fresh install contains simplified design naming pattern (confirmed via smoke-pack)

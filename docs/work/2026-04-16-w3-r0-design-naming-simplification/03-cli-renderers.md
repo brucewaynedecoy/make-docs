@@ -77,8 +77,8 @@ Six occurrences of `YYYY-MM-DD-w{W}-r{R}-<slug>.md` in design renderer output ne
 
 ### Tasks
 
-1. Run `npm run build -w starter-docs` — verify compilation succeeds.
-2. Run `npm test -w starter-docs` — verify all tests pass with no regressions.
+1. Run `npm run build -w make-docs` — verify compilation succeeds.
+2. Run `npm test -w make-docs` — verify all tests pass with no regressions.
 
 ### Acceptance criteria
 

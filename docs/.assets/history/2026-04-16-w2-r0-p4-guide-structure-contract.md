@@ -14,7 +14,7 @@ Migrated two existing dogfood guides to the new slug-mirrors-path naming convent
 | Old path | New path | `path` frontmatter |
 | --- | --- | --- |
 | `docs/guides/developer/local-build-and-install.md` | `docs/guides/developer/cli-development-local-build-and-install.md` | `cli/development` |
-| `docs/guides/user/installing-starter-docs.md` | `docs/guides/user/getting-started-installing-starter-docs.md` | `getting-started` |
+| `docs/guides/user/installing-make-docs.md` | `docs/guides/user/getting-started-installing-make-docs.md` | `getting-started` |
 
 Both guides received full YAML frontmatter blocks (`title`, `path`, `status: published`, `order`, `tags`, `applies-to`). Renames used `git mv` to preserve history. Body content was verified intact.
 
@@ -54,4 +54,4 @@ All 9 targets verified byte-identical to their template source.
 
 | Path | Description |
 | --- | --- |
-| [docs/guides/user/getting-started-installing-starter-docs.md](../../guides/user/getting-started-installing-starter-docs.md) | Migrated: renamed and added YAML frontmatter. |
+| [docs/guides/user/getting-started-installing-make-docs.md](../../guides/user/getting-started-installing-make-docs.md) | Migrated: renamed and added YAML frontmatter. |

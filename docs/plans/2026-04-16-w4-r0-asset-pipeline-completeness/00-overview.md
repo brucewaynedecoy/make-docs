@@ -31,7 +31,7 @@ The guide-structure-contract work already established the `ALWAYS_REFERENCE_PATH
 
 ## Validation
 
-1. `npm test -w starter-docs` — all tests pass, including the new template-completeness test.
+1. `npm test -w make-docs` — all tests pass, including the new template-completeness test.
 2. `bash scripts/check-instruction-routers.sh` — routers validate.
 3. `node scripts/smoke-pack.mjs` — pack/install/verify succeeds.
 4. Manual verification: a reduced-profile install (e.g., `--no-work --no-prd`) includes `wave-model.md`, `agent-guide-contract.md`, `agent-guide.md`, `docs/.archive/AGENTS.md`, and `docs/.archive/CLAUDE.md`.

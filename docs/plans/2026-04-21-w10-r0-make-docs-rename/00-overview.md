@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Implement the rename defined in [2026-04-21-make-docs-rename.md](../../designs/2026-04-21-make-docs-rename.md). This is **Wave 10 Revision 0** (`w10-r0`): a comprehensive alpha-phase migration from `starter-docs` to `make-docs` across package identity, CLI command surface, generated template output, documentation, tests, and historical records.
+Implement the rename defined in [2026-04-21-make-docs-rename.md](../../designs/2026-04-21-make-docs-rename.md). This is **Wave 10 Revision 0** (`w10-r0`): a comprehensive alpha-phase migration from `make-docs` to `make-docs` across package identity, CLI command surface, generated template output, documentation, tests, and historical records.
 
 The actual repository checkout and remote repository are not renamed by this plan. This plan prepares all tracked project content for that later repository rename.
 
@@ -14,7 +14,7 @@ The actual repository checkout and remote repository are not renamed by this pla
 - Fresh manifests at `docs/.assets/config/manifest.json` record `packageName: "make-docs"`.
 - The user install guide is renamed to `docs/guides/user/getting-started-installing-make-docs.md`, and all links are repaired.
 - Historical design, plan, work, and history records are rewritten so tracked files and pathnames no longer contain the old product name.
-- The final tracked tree contains no `starter-docs`, `Starter-Docs`, `Starter Docs`, `starter docs`, `STARTER_DOCS`, or `@starter-docs` references outside ignored generated/cache directories.
+- The final tracked tree contains no `make-docs`, `Make-Docs`, `Make Docs`, `make docs`, `MAKE_DOCS`, or `@make-docs` references outside ignored generated/cache directories.
 
 ## Change Classification
 
@@ -85,9 +85,9 @@ Parallelism rules:
 
 - `package-lock.json` must be regenerated after package names change; stale lockfile package names block tests and smoke packaging.
 - Root npm scripts must switch to `-w make-docs` before validation commands in this wave can run.
-- The packed CLI must expose only the `make-docs` bin; any remaining `starter-docs` bin entry blocks completion.
+- The packed CLI must expose only the `make-docs` bin; any remaining `make-docs` bin entry blocks completion.
 - `packages/docs/template/` must be synced into `packages/cli/template/` after template edits.
-- The user guide rename blocks link validation until every old `getting-started-installing-starter-docs.md` link is repaired.
+- The user guide rename blocks link validation until every pre-rename guide link is repaired.
 - Historical docs are in scope for rewrite, so stale-reference allowlists should be avoided except for ignored generated/cache directories.
 
 ## MCP Strategy
@@ -100,7 +100,7 @@ Parallelism rules:
 ## Non-Goals
 
 - Do not rename the local checkout directory or remote repository.
-- Do not preserve a `starter-docs` command, npm alias, manifest migration path, or compatibility warning.
+- Do not preserve a `make-docs` command, npm alias, manifest migration path, or compatibility warning.
 - Do not rename skill IDs such as `archive-docs` or `decompose-codebase`; they do not contain the old product name.
 - Do not change the CLI state path `docs/.assets/config/manifest.json`.
 - Do not create new PRD docs for this rename.
@@ -114,4 +114,4 @@ Parallelism rules:
 5. `bash scripts/check-instruction-routers.sh` passes.
 6. `git diff --check` passes.
 7. Packed package validation confirms only the `make-docs` bin is exposed.
-8. Exact-match searches over tracked files and tracked pathnames find zero old-name variants: `starter-docs`, `Starter-Docs`, `Starter Docs`, `starter docs`, `STARTER_DOCS`, and `@starter-docs`.
+8. Exact-match searches over tracked files and tracked pathnames find zero old-name variants: `make-docs`, `Make-Docs`, `Make Docs`, `make docs`, `MAKE_DOCS`, and `@make-docs`.

@@ -8,7 +8,7 @@ Rewrite repo documentation and tracked pathnames so the dogfood docs, historical
 
 - Root `README.md`, package READMEs, and source README files.
 - Repo-root docs under `docs/`, including designs, plans, work backlogs, references, prompts, guides, and history records.
-- User guide rename from `getting-started-installing-starter-docs.md` to `getting-started-installing-make-docs.md`.
+- User guide path finalization at `getting-started-installing-make-docs.md`.
 - Markdown links, GitHub URL examples, local temp path examples, command examples, and history record links.
 - Tracked pathnames containing old product-name segments.
 

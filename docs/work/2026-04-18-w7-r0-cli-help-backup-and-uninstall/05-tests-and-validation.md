@@ -104,7 +104,7 @@ This phase is the dedicated validation/fixup pass for the wave. It should not re
 
 ### Tasks
 
-1. Run `npm test -w starter-docs`.
+1. Run `npm test -w make-docs`.
 2. Run `bash scripts/check-instruction-routers.sh`.
 3. Run `bash scripts/check-wave-numbering.sh`.
 4. Run `node scripts/smoke-pack.mjs`.
@@ -112,7 +112,7 @@ This phase is the dedicated validation/fixup pass for the wave. It should not re
 
 ### Acceptance criteria
 
-- [ ] `npm test -w starter-docs` passes
+- [ ] `npm test -w make-docs` passes
 - [ ] `bash scripts/check-instruction-routers.sh` passes
 - [ ] `bash scripts/check-wave-numbering.sh` passes
 - [ ] `node scripts/smoke-pack.mjs` passes
@@ -127,11 +127,11 @@ This phase is the dedicated validation/fixup pass for the wave. It should not re
 ### Tasks
 
 1. Dogfood the lifecycle flow in a temp target:
-   - `npm run dev -w starter-docs -- init --yes --target /tmp/starter-docs-lifecycle`
+   - `npm run dev -w make-docs -- init --yes --target /tmp/make-docs-lifecycle`
    - create one unmanaged file inside a managed-looking directory
    - optionally modify `AGENTS.md` or `CLAUDE.md`
-   - `npm run dev -w starter-docs -- backup --yes --target /tmp/starter-docs-lifecycle`
-   - `npm run dev -w starter-docs -- uninstall --backup --yes --target /tmp/starter-docs-lifecycle`
+   - `npm run dev -w make-docs -- backup --yes --target /tmp/make-docs-lifecycle`
+   - `npm run dev -w make-docs -- uninstall --backup --yes --target /tmp/make-docs-lifecycle`
 2. Verify that:
    - managed files are removed
    - preserved custom files remain

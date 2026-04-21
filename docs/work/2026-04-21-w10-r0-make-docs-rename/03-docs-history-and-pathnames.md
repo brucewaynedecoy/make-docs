@@ -35,7 +35,7 @@ This worker should not edit package manifests, CLI source, renderer source, or t
 
 ### Tasks
 
-1. Rename `docs/guides/user/getting-started-installing-starter-docs.md` to `docs/guides/user/getting-started-installing-make-docs.md`.
+1. Confirm the user install guide lives at `docs/guides/user/getting-started-installing-make-docs.md`.
 2. Update every link to the renamed guide across repo docs.
 3. Update the guide title and frontmatter to `Installing Make Docs`.
 4. Update command examples in the guide to `npx make-docs` and `make-docs`.
@@ -101,7 +101,7 @@ This worker should not edit package manifests, CLI source, renderer source, or t
 
 ### Tasks
 
-1. Run `git ls-files | rg "starter-docs|Starter-Docs|Starter Docs|starter docs|STARTER_DOCS|@starter-docs"` to find tracked pathnames.
+1. Run `git ls-files | rg "make-docs|Make-Docs|Make Docs|make docs|MAKE_DOCS|@make-docs"` to find tracked pathnames.
 2. Rename any tracked Markdown path segment containing the old product name.
 3. Repair links to every renamed path.
 4. Re-run the tracked-path search until it returns no matches.

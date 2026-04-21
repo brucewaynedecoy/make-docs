@@ -2,7 +2,7 @@
 
 ## Objective
 
-Implement `starter-docs uninstall` as a safety-first destructive command that consumes the shared audit results from earlier phases, presents a two-step confirmation flow, optionally creates a backup from the same audit snapshot, and removes only the audited leaf files plus now-empty parent directories.
+Implement `make-docs uninstall` as a safety-first destructive command that consumes the shared audit results from earlier phases, presents a two-step confirmation flow, optionally creates a backup from the same audit snapshot, and removes only the audited leaf files plus now-empty parent directories.
 
 ## Depends On
 
@@ -27,14 +27,14 @@ This phase must consume audit results; it must not redesign or re-author the sha
 
 ### 1. Add the `uninstall` CLI surface
 
-Extend the CLI command model so `starter-docs uninstall` is a first-class top-level command.
+Extend the CLI command model so `make-docs uninstall` is a first-class top-level command.
 
 Command contract:
 
-- `starter-docs uninstall --target <dir>`
-- `starter-docs uninstall --backup --target <dir>`
-- `starter-docs uninstall --yes --target <dir>`
-- `starter-docs uninstall --help`
+- `make-docs uninstall --target <dir>`
+- `make-docs uninstall --backup --target <dir>`
+- `make-docs uninstall --yes --target <dir>`
+- `make-docs uninstall --help`
 
 Behavioral requirements:
 
@@ -66,8 +66,8 @@ Prompt semantics:
 Warning-message requirements:
 
 - When `--backup` is **not** present, the first warning must explicitly suggest:
-  - `starter-docs backup`
-  - `starter-docs uninstall --backup`
+  - `make-docs backup`
+  - `make-docs uninstall --backup`
 - When `--backup` **is** present, the first warning must instead describe the exact backup directory that will be created before removal begins.
 
 ### 3. Execute `uninstall --backup` from a single audit snapshot
@@ -101,7 +101,7 @@ Project-root instruction files:
 
 Manifest behavior:
 
-- successful uninstall should remove the manifest file and prune `docs/.starter-docs/` only if it becomes empty
+- successful uninstall should remove the manifest file and prune `docs/.make-docs/` only if it becomes empty
 - manifest-missing fallback behavior is owned by the audit phase, not by uninstall execution
 
 ### 5. Report outcome clearly and fail safely
@@ -130,14 +130,14 @@ This phase should not overlap with shared audit authoring or standalone backup a
 
 ## Acceptance Criteria
 
-- [ ] `starter-docs uninstall` is a recognized top-level command
-- [ ] `starter-docs uninstall --help` documents `--backup`, `--yes`, and `--target`
+- [ ] `make-docs uninstall` is a recognized top-level command
+- [ ] `make-docs uninstall --help` documents `--backup`, `--yes`, and `--target`
 - [ ] Omitting `--yes` defaults to interactive confirmation
 - [ ] `--yes` skips prompts but still prints warning and audit summaries
-- [ ] The initial uninstall warning suggests `starter-docs backup` and `starter-docs uninstall --backup` when `--backup` is not set
-- [ ] `starter-docs uninstall --backup` runs one audit, shows the exact backup destination, then backs up and removes from the same audit result
-- [ ] Backup failure during `starter-docs uninstall --backup` aborts removal
+- [ ] The initial uninstall warning suggests `make-docs backup` and `make-docs uninstall --backup` when `--backup` is not set
+- [ ] `make-docs uninstall --backup` runs one audit, shows the exact backup destination, then backs up and removes from the same audit result
+- [ ] Backup failure during `make-docs uninstall --backup` aborts removal
 - [ ] Uninstall removes only audited file leaves and prunes only audited directories that become empty
 - [ ] Preserved/skipped paths remain untouched, including modified `AGENTS.md` or `CLAUDE.md`
 - [ ] `.backup/` is never removed or traversed as an uninstall target
-- [ ] Successful uninstall removes the starter-docs manifest and any now-empty managed directories
+- [ ] Successful uninstall removes the make-docs manifest and any now-empty managed directories

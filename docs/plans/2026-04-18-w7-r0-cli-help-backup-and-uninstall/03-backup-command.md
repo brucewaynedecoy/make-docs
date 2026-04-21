@@ -2,7 +2,7 @@
 
 ## Objective
 
-Build `starter-docs backup` on top of the shared audit engine so the CLI can produce a non-destructive, reviewable backup of everything the lifecycle audit considers removable or prunable. This phase owns the backup command flow, same-day backup destination naming, backup copy/layout rules, and the formatted audit/result presentation needed for backup. It does not implement uninstall behavior beyond any shared terminal presentation helpers that backup and uninstall should both consume.
+Build `make-docs backup` on top of the shared audit engine so the CLI can produce a non-destructive, reviewable backup of everything the lifecycle audit considers removable or prunable. This phase owns the backup command flow, same-day backup destination naming, backup copy/layout rules, and the formatted audit/result presentation needed for backup. It does not implement uninstall behavior beyond any shared terminal presentation helpers that backup and uninstall should both consume.
 
 ## Depends On
 
@@ -17,24 +17,24 @@ Build `starter-docs backup` on top of the shared audit engine so the CLI can pro
 | `packages/cli/src/backup.ts` | **New.** Run the shared audit, resolve the backup destination, render the backup confirmation/result flow, and copy audited files/directories into `.backup/`. |
 | `packages/cli/src/lifecycle-ui.ts` | **New.** Shared formatted audit/result presentation helpers for backup and later uninstall flows. |
 | `packages/cli/tests/backup.test.ts` | **New.** Cover backup execution, destination naming, `_home` layout, default confirmation vs `--yes`, and same-day ordinal promotion. |
-| `packages/cli/tests/cli.test.ts` | Extend CLI parsing/help coverage for `starter-docs backup`, `--yes`, and `backup --help`. |
+| `packages/cli/tests/cli.test.ts` | Extend CLI parsing/help coverage for `make-docs backup`, `--yes`, and `backup --help`. |
 
 ## Detailed Changes
 
 ### 1. Add `backup` to the CLI command surface
 
-Update the CLI parser and dispatcher so `starter-docs backup` behaves like a real top-level command rather than a flag combination on another flow.
+Update the CLI parser and dispatcher so `make-docs backup` behaves like a real top-level command rather than a flag combination on another flow.
 
 Required behavior:
 
 1. Add `backup` to the command union and command inference path.
 2. Accept:
-   - `starter-docs backup`
-   - `starter-docs backup --target <dir>`
-   - `starter-docs backup --yes`
-   - `starter-docs backup --help`
+   - `make-docs backup`
+   - `make-docs backup --target <dir>`
+   - `make-docs backup --yes`
+   - `make-docs backup --help`
 3. Default to confirmation prompts when `--yes` is omitted.
-4. Route `starter-docs backup --help` to a backup-specific help screen without running audit or touching the filesystem.
+4. Route `make-docs backup --help` to a backup-specific help screen without running audit or touching the filesystem.
 5. Keep backup command wiring isolated from uninstall-specific flags; `--backup` remains uninstall-only.
 
 The backup help text should describe:
@@ -105,7 +105,7 @@ The backup layout must preserve enough structure to make the copied tree underst
 Path mapping rules:
 
 1. Project-local files keep their normal target-relative paths inside the backup destination.
-   - Example: `docs/.starter-docs/manifest.json` becomes `.backup/2026-04-18/docs/.starter-docs/manifest.json`
+   - Example: `docs/.make-docs/manifest.json` becomes `.backup/2026-04-18/docs/.make-docs/manifest.json`
 2. Global/home-directory files are written beneath `.backup/<date>/_home/`, preserving their path relative to the user home directory.
    - Example: `~/.claude/skills/archive-docs/SKILL.md` becomes `.backup/2026-04-18/_home/.claude/skills/archive-docs/SKILL.md`
 3. Directory-only prune candidates follow the same mapping rules as files.
@@ -133,7 +133,7 @@ Backup should use these helpers immediately. Uninstall-specific prompts or phras
 
 ## Acceptance Criteria
 
-- [ ] `starter-docs backup` is a valid top-level command and `starter-docs backup --help` prints command-specific help without running audit.
+- [ ] `make-docs backup` is a valid top-level command and `make-docs backup --help` prints command-specific help without running audit.
 - [ ] Omitting `--yes` defaults backup to interactive confirmation.
 - [ ] `--yes` skips the interactive confirmation prompt but still prints the audit summary before copying.
 - [ ] Backup invokes the shared audit engine exactly once per run and uses that single result for presentation and copy execution.
@@ -143,5 +143,5 @@ Backup should use these helpers immediately. Uninstall-specific prompts or phras
 - [ ] Audited directory-prune candidates are created in the backup tree even when they contain no copied files.
 - [ ] Repeated backups on the same date promote the plain-date directory to `-01` and create the new backup as `-02`, with later runs continuing the ordinal sequence.
 - [ ] Backup never audits or copies anything already under `.backup/`.
-- [ ] `npm run build -w starter-docs` succeeds.
-- [ ] `npm test -w starter-docs` passes.
+- [ ] `npm run build -w make-docs` succeeds.
+- [ ] `npm test -w make-docs` passes.

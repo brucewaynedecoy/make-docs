@@ -48,7 +48,7 @@ Examples:
 | --- | --- |
 | `cli/development` | `cli-development-local-build-and-install.md` |
 | `cli/testing` | `cli-testing-smoke-pack.md` |
-| `getting-started` | `getting-started-installing-starter-docs.md` |
+| `getting-started` | `getting-started-installing-make-docs.md` |
 | `template/customization` | `template-customization-adding-capabilities.md` |
 
 ## Path Rules

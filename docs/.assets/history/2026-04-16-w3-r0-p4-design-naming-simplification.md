@@ -26,7 +26,7 @@ All 6 targets verified byte-identical to their template source. Existing design 
 
 | Check | Result |
 | --- | --- |
-| `npm test -w starter-docs` | 43 tests, 6 files, all pass |
+| `npm test -w make-docs` | 43 tests, 6 files, all pass |
 | `bash scripts/check-instruction-routers.sh` | Exits 0 |
 | `node scripts/smoke-pack.mjs` | Pack/install/verify succeeds |
 

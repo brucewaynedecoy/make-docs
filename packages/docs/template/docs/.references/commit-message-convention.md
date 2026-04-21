@@ -35,7 +35,7 @@ Example:
 ```text
 feat: [W8 R0 P5] CLI command simplification - Apply and sync output polish
 
-Implemented a Wave 8 follow-up phase for the `starter-docs` apply/sync review output, framed by [the command simplification design](../../designs/2026-04-20-cli-command-simplification.md) and the completed Phase 4 validation work in [the Phase 4 history record](2026-04-20-w8-r0-p4-cli-command-simplification.md). This phase focused on making the already-installed no-op sync readout clearer, less redundant, and consistent with Clack-rendered CLI screens.
+Implemented a Wave 8 follow-up phase for the `make-docs` apply/sync review output, framed by [the command simplification design](../../designs/2026-04-20-cli-command-simplification.md) and the completed Phase 4 validation work in [the Phase 4 history record](2026-04-20-w8-r0-p4-cli-command-simplification.md). This phase focused on making the already-installed no-op sync readout clearer, less redundant, and consistent with Clack-rendered CLI screens.
 ```
 
 ## Plan Commits
@@ -64,9 +64,9 @@ Body:
 Example:
 
 ```text
-plan: [W9 R0] Docs assets, starter-docs state, and session history
+plan: [W9 R0] Docs assets, make-docs state, and session history
 
-Define the intended documentation architecture for moving starter-docs operational state out of `docs/.starter-docs/`, introducing a template-owned `docs/.assets/` namespace, and migrating session history into the assets namespace.
+Define the intended documentation architecture for moving make-docs operational state out of `docs/.make-docs/`, introducing a template-owned `docs/.assets/` namespace, and migrating session history into the assets namespace.
 ```
 
 ## Inference Workflow

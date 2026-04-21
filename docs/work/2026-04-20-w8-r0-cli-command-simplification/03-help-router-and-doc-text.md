@@ -18,7 +18,7 @@ This phase owns help output, generated router messages, and docs references that
 
 ### Tasks
 
-1. Update `starter-docs --help` usage to show bare `starter-docs [options]`.
+1. Update `make-docs --help` usage to show bare `make-docs [options]`.
 2. List commands as `reconfigure`, `backup`, and `uninstall`.
 3. Explain bare apply/sync as the primary workflow.
 4. Remove `init`, `update`, and `--reconfigure` examples.
@@ -38,7 +38,7 @@ This phase owns help output, generated router messages, and docs references that
 
 ### Tasks
 
-1. Add command-specific help for `starter-docs reconfigure --help`.
+1. Add command-specific help for `make-docs reconfigure --help`.
 2. Document the existing manifest requirement.
 3. Document interactive wizard behavior.
 4. Document non-interactive selection flag requirements.
@@ -46,7 +46,7 @@ This phase owns help output, generated router messages, and docs references that
 
 ### Acceptance criteria
 
-- [ ] `starter-docs reconfigure --help` renders without requiring a manifest
+- [ ] `make-docs reconfigure --help` renders without requiring a manifest
 - [ ] Help explains interactive reconfiguration
 - [ ] Help explains `--yes` plus selection flags
 - [ ] Help explains that `reconfigure --yes` without flags is invalid
@@ -59,14 +59,14 @@ This phase owns help output, generated router messages, and docs references that
 
 ### Tasks
 
-1. Search generated renderer output for `npx starter-docs update --reconfigure`.
-2. Replace those messages with `npx starter-docs reconfigure`.
+1. Search generated renderer output for `npx make-docs update --reconfigure`.
+2. Replace those messages with `npx make-docs reconfigure`.
 3. Keep capability-specific guidance accurate when prompts, plans, or skills are missing.
 
 ### Acceptance criteria
 
 - [ ] Generated renderer text no longer references `update --reconfigure`
-- [ ] Replacement guidance uses `npx starter-docs reconfigure`
+- [ ] Replacement guidance uses `npx make-docs reconfigure`
 - [ ] Capability-specific missing-install guidance remains understandable
 
 ### Dependencies

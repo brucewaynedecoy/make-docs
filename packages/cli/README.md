@@ -1,6 +1,6 @@
-# Starter Docs
+# Make Docs
 
-Drop-in documentation structure, templates, and AI agent instructions for any project. Install the system with `npx starter-docs` to get a ready-made setup for generating PRDs, implementation backlogs, architectural designs, and plans with consistent naming conventions and enforced section contracts.
+Drop-in documentation structure, templates, and AI agent instructions for any project. Install the system with `npx make-docs` to get a ready-made setup for generating PRDs, implementation backlogs, architectural designs, and plans with consistent naming conventions and enforced section contracts.
 
 ## What's Included
 
@@ -32,7 +32,7 @@ This repo also includes maintainer-only validation tooling for the instruction r
 From your project root:
 
 ```bash
-npx starter-docs
+npx make-docs
 ```
 
 The installer starts in full-install mode:
@@ -54,19 +54,19 @@ Useful non-interactive forms:
 
 ```bash
 # Install everything with defaults
-npx starter-docs --yes
+npx make-docs --yes
 
 # Full install except work docs
-npx starter-docs --yes --no-work
+npx make-docs --yes --no-work
 
 # Sync an existing install using its saved manifest selections
-npx starter-docs
+npx make-docs
 
 # Reconfigure an existing install
-npx starter-docs reconfigure
+npx make-docs reconfigure
 
 # Preview changes without writing files
-npx starter-docs --dry-run
+npx make-docs --dry-run
 ```
 
 ### What the installer writes
@@ -98,7 +98,7 @@ Using `curl` + `tar` (no clone required):
 ```bash
 # From your project root
 tmp_dir="$(mktemp -d)"
-curl -sL https://github.com/<owner>/starter-docs/archive/refs/heads/main.tar.gz \
+curl -sL https://github.com/<owner>/make-docs/archive/refs/heads/main.tar.gz \
   | tar -xz -C "$tmp_dir" --strip-components=1
 mkdir -p ./docs
 rsync -av "$tmp_dir/docs/" ./docs/
@@ -110,21 +110,21 @@ Using `git clone` + `rsync`:
 
 ```bash
 # Clone into a temporary directory, copy only the drop-in files, clean up
-git clone --depth 1 https://github.com/<owner>/starter-docs.git /tmp/starter-docs
+git clone --depth 1 https://github.com/<owner>/make-docs.git /tmp/make-docs
 mkdir -p ./docs
-rsync -av /tmp/starter-docs/docs/ ./docs/
-rsync -av /tmp/starter-docs/AGENTS.md /tmp/starter-docs/CLAUDE.md ./
-rm -rf /tmp/starter-docs
+rsync -av /tmp/make-docs/docs/ ./docs/
+rsync -av /tmp/make-docs/AGENTS.md /tmp/make-docs/CLAUDE.md ./
+rm -rf /tmp/make-docs
 ```
 
 Using `degit` (if installed):
 
 ```bash
-npx degit <owner>/starter-docs ./tmp-starter-docs
+npx degit <owner>/make-docs ./tmp-make-docs
 mkdir -p ./docs
-rsync -av ./tmp-starter-docs/docs/ ./docs/
-rsync -av ./tmp-starter-docs/AGENTS.md ./tmp-starter-docs/CLAUDE.md ./
-rm -rf ./tmp-starter-docs
+rsync -av ./tmp-make-docs/docs/ ./docs/
+rsync -av ./tmp-make-docs/AGENTS.md ./tmp-make-docs/CLAUDE.md ./
+rm -rf ./tmp-make-docs
 ```
 
 > **Note:** Replace `<owner>` with the GitHub username or organization once the repo is public.
@@ -177,7 +177,7 @@ Additional subsystem documents (`05-*` through `99-*`) are added as needed for f
 - **Output contract** (`docs/.references/output-contract.md`) -- Adjust naming conventions, required sections, and structural rules.
 - **Agent instructions** (`CLAUDE.md`, `AGENTS.md`, and per-directory variants) -- Tailor agent behavior to your team's conventions.
 
-If you used the installer, rerun `npx starter-docs reconfigure` after changing which capability families you want managed locally. The installer will regenerate profile-aware router files so they stay aligned with the directories you keep.
+If you used the installer, rerun `npx make-docs reconfigure` after changing which capability families you want managed locally. The installer will regenerate profile-aware router files so they stay aligned with the directories you keep.
 
 ## Maintainer Checks
 

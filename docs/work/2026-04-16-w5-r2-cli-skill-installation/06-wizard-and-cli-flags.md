@@ -169,15 +169,15 @@ Seven stages across `wizard.ts` and `cli.ts`. Stages 1-4 modify the wizard flow 
 
 ### Tasks
 
-1. Run `npm run build -w starter-docs` — verify compilation succeeds with zero type errors.
-2. Run `npm test -w starter-docs` — verify all existing tests pass with no regressions.
+1. Run `npm run build -w make-docs` — verify compilation succeeds with zero type errors.
+2. Run `npm test -w make-docs` — verify all existing tests pass with no regressions.
 3. Manual smoke test: run the wizard and confirm the new flow (Capabilities -> Harnesses -> Options -> Skills -> Review).
 4. Manual smoke test: run with `--no-claude-code --no-skills` and verify selections resolve correctly without entering the wizard.
 
 ### Acceptance criteria
 
-- [x] `npm run build -w starter-docs` succeeds with zero type errors
-- [x] `npm test -w starter-docs` passes
+- [x] `npm run build -w make-docs` succeeds with zero type errors
+- [x] `npm test -w make-docs` passes
 - [x] Wizard flow follows Capabilities -> Harnesses -> Options -> Skills -> Review
 - [x] CLI flags and aliases resolve correctly in non-interactive mode
 

@@ -36,18 +36,18 @@ applies-to:
 ---
 ```
 
-### 2. User guide: installing starter-docs
+### 2. User guide: installing make-docs
 
 | | Value |
 | --- | --- |
-| **Old path** | `docs/guides/user/installing-starter-docs.md` |
-| **New path** | `docs/guides/user/getting-started-installing-starter-docs.md` |
+| **Old path** | `docs/guides/user/installing-make-docs.md` |
+| **New path** | `docs/guides/user/getting-started-installing-make-docs.md` |
 
 Frontmatter to prepend:
 
 ```yaml
 ---
-title: Installing Starter Docs
+title: Installing Make Docs
 path: getting-started
 status: published
 order: 10
@@ -94,8 +94,8 @@ These two streams share no files and can execute in parallel. The only shared di
 
 - [ ] `docs/guides/developer/local-build-and-install.md` no longer exists.
 - [ ] `docs/guides/developer/cli-development-local-build-and-install.md` exists with the correct frontmatter and original body content.
-- [ ] `docs/guides/user/installing-starter-docs.md` no longer exists.
-- [ ] `docs/guides/user/getting-started-installing-starter-docs.md` exists with the correct frontmatter and original body content.
+- [ ] `docs/guides/user/installing-make-docs.md` no longer exists.
+- [ ] `docs/guides/user/getting-started-installing-make-docs.md` exists with the correct frontmatter and original body content.
 - [ ] `docs/.references/guide-contract.md` exists and matches the template source.
 - [ ] `docs/.templates/guide-developer.md` and `docs/.templates/guide-user.md` exist and match the template source.
 - [ ] `docs/guides/AGENTS.md` and `docs/guides/CLAUDE.md` match the template source.

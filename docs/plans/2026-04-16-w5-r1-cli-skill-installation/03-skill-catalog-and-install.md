@@ -88,4 +88,4 @@ Update manifest read/write to handle the optional `skillFiles` field. Existing m
 - [ ] Skill actions appear in the install plan.
 - [ ] Skill files are written during `applyInstallPlan`.
 - [ ] `manifest.skillFiles` tracks installed skill files.
-- [ ] `npm run build -w starter-docs` succeeds.
+- [ ] `npm run build -w make-docs` succeeds.

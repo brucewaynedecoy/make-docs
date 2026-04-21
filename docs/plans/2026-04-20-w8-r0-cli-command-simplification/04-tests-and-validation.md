@@ -14,7 +14,7 @@ Lock the simplified command model with automated tests, packed smoke validation,
 | File | Change Summary |
 | ---- | -------------- |
 | `packages/cli/tests/cli.test.ts` | Replace old `init`/`update` expectations with apply/reconfigure tests and removed-command error tests. |
-| `scripts/smoke-pack.mjs` | Ensure packed CLI validation uses bare `starter-docs` and, if needed, `starter-docs reconfigure` instead of removed verbs. |
+| `scripts/smoke-pack.mjs` | Ensure packed CLI validation uses bare `make-docs` and, if needed, `make-docs reconfigure` instead of removed verbs. |
 
 ## Detailed Changes
 
@@ -31,9 +31,9 @@ Tests should assert:
 
 Tests should cover:
 
-- first install with bare `starter-docs --yes`
-- existing-install sync with bare `starter-docs --yes`
-- existing-install desired-state change with bare `starter-docs --yes --no-skills`
+- first install with bare `make-docs --yes`
+- existing-install sync with bare `make-docs --yes`
+- existing-install desired-state change with bare `make-docs --yes --no-skills`
 - interactive reconfigure wizard path
 - non-interactive reconfigure with selection flags
 - non-interactive reconfigure without selection flags error
@@ -47,10 +47,10 @@ Existing tests for backup and uninstall should continue to pass. Add focused ass
 
 Run:
 
-1. `npm run build -w starter-docs`
-2. `npm test -w starter-docs`
+1. `npm run build -w make-docs`
+2. `npm test -w make-docs`
 3. `node scripts/smoke-pack.mjs`
-4. a stale-reference search for `starter-docs init`, `starter-docs update`, `update --reconfigure`, and `--reconfigure`
+4. a stale-reference search for `make-docs init`, `make-docs update`, `update --reconfigure`, and `--reconfigure`
 
 Historical references may remain only when they are deliberately documenting removed behavior or migration errors.
 

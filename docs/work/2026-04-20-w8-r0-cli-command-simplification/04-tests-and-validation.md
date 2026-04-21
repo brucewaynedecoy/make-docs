@@ -38,8 +38,8 @@ This phase should happen after parser, behavior, help, and generated guidance ch
 
 ### Tasks
 
-1. Verify tests cover first install with bare `starter-docs`.
-2. Verify tests cover existing-install sync with bare `starter-docs`.
+1. Verify tests cover first install with bare `make-docs`.
+2. Verify tests cover existing-install sync with bare `make-docs`.
 3. Verify tests cover bare desired-state selection changes.
 4. Verify tests cover interactive and non-interactive reconfigure.
 5. Verify tests cover reconfigure failure cases.
@@ -60,8 +60,8 @@ This phase should happen after parser, behavior, help, and generated guidance ch
 
 ### Tasks
 
-1. Update `scripts/smoke-pack.mjs` to invoke bare `starter-docs` for install/apply.
-2. Use `starter-docs reconfigure` only if the smoke needs to verify selection changes.
+1. Update `scripts/smoke-pack.mjs` to invoke bare `make-docs` for install/apply.
+2. Use `make-docs reconfigure` only if the smoke needs to verify selection changes.
 3. Keep existing packed backup and uninstall validation intact.
 
 ### Acceptance criteria
@@ -78,10 +78,10 @@ This phase should happen after parser, behavior, help, and generated guidance ch
 
 ### Tasks
 
-1. Run `npm run build -w starter-docs`.
-2. Run `npm test -w starter-docs`.
+1. Run `npm run build -w make-docs`.
+2. Run `npm test -w make-docs`.
 3. Run `node scripts/smoke-pack.mjs`.
-4. Search for stale `starter-docs init`, `starter-docs update`, `update --reconfigure`, and `--reconfigure` references.
+4. Search for stale `make-docs init`, `make-docs update`, `update --reconfigure`, and `--reconfigure` references.
 5. Fix any validation failures before closeout.
 
 ### Acceptance criteria

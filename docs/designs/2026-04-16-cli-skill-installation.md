@@ -4,7 +4,7 @@
 
 ## Purpose
 
-Add skill installation support to the `starter-docs` CLI so that skills shipped in `packages/skills/` are installed into the correct harness-specific directories in consumer projects during `init` and `update`. This closes a gap discovered during the Wave 5 archive-docs plugin implementation: the plugin was built, validated, and registered — but consumers (including this project) have no way to actually receive the skills through the CLI. The manual registration attempted in Wave 5 Phase 5 (`.claude/settings.json` with a `skills` array, `.agents/README.md`) was invalid — neither Claude Code nor Codex recognizes those conventions.
+Add skill installation support to the `make-docs` CLI so that skills shipped in `packages/skills/` are installed into the correct harness-specific directories in consumer projects during `init` and `update`. This closes a gap discovered during the Wave 5 archive-docs plugin implementation: the plugin was built, validated, and registered — but consumers (including this project) have no way to actually receive the skills through the CLI. The manual registration attempted in Wave 5 Phase 5 (`.claude/settings.json` with a `skills` array, `.agents/README.md`) was invalid — neither Claude Code nor Codex recognizes those conventions.
 
 ## Context
 
@@ -79,7 +79,7 @@ When `skills` is enabled, the CLI:
    - `archive-docs/skills/archive/SKILL.md` → `.claude/skills/archive-docs-archive.md`
    - `archive-docs/skills/staleness-check/SKILL.md` → `.claude/skills/archive-docs-staleness-check.md`
    - etc.
-4. Tracks installed skill files in the manifest (`docs/.starter-docs/manifest.json`) so `update` can detect changes
+4. Tracks installed skill files in the manifest (`docs/.make-docs/manifest.json`) so `update` can detect changes
 
 The flat naming convention (`<plugin>-<skill-name>.md`) avoids nested directories in `.claude/skills/` while maintaining traceability.
 
@@ -115,7 +115,7 @@ Codex agent configuration is still evolving. Rather than guess at the convention
 
 ### 8. Manifest tracking
 
-Installed skill files are tracked in `docs/.starter-docs/manifest.json` under a `skillFiles` key (parallel to the existing `files` key for docs-template assets). This enables:
+Installed skill files are tracked in `docs/.make-docs/manifest.json` under a `skillFiles` key (parallel to the existing `files` key for docs-template assets). This enables:
 - `update` to detect changed skills and re-install them
 - `update --reconfigure` to add/remove skills
 - The manifest to serve as the single source of truth for what's installed
@@ -126,14 +126,14 @@ Installed skill files are tracked in `docs/.starter-docs/manifest.json` under a 
 
 **Symlink skills instead of copying.** The CLI could create symlinks from `.claude/skills/` to the installed skill source. Rejected because: symlinks are fragile across platforms (Windows), don't survive `npm pack`, and break if the source is moved. Copying is more robust.
 
-**Don't install skills through the CLI — require manual setup.** Document the manual process ("copy SKILL.md to `.claude/skills/`") and defer CLI integration. Rejected because: the whole point of `starter-docs` is that installation is automated. Manual skill setup contradicts the project's value proposition and, as Wave 5 demonstrated, is error-prone.
+**Don't install skills through the CLI — require manual setup.** Document the manual process ("copy SKILL.md to `.claude/skills/`") and defer CLI integration. Rejected because: the whole point of `make-docs` is that installation is automated. Manual skill setup contradicts the project's value proposition and, as Wave 5 demonstrated, is error-prone.
 
 **Register skills in `.claude/settings.json`.** The Wave 5 Phase 5 approach. Rejected because: Claude Code doesn't support a `skills` key in settings.json. Skill discovery is directory-based (`.claude/skills/`), not config-based.
 
 ## Consequences
 
 **What improves:**
-- Skills are installable via the CLI — `npx starter-docs` installs both docs and skills in one step.
+- Skills are installable via the CLI — `npx make-docs` installs both docs and skills in one step.
 - The archive-docs plugin (and decompose-codebase) become immediately usable by consumers.
 - The dogfood project can test skills through the same CLI that consumers use.
 - The manifest tracks skills, enabling update/reconfigure for the skill set.

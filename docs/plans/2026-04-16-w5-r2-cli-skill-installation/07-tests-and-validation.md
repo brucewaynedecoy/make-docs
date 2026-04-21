@@ -89,11 +89,11 @@ After the existing `init --yes` step, add checks:
 
 ### 12. Final validation run
 
-1. `npm test -w starter-docs` -- all tests pass.
+1. `npm test -w make-docs` -- all tests pass.
 2. `bash scripts/check-instruction-routers.sh` -- passes.
 3. `bash scripts/check-wave-numbering.sh` -- passes (w5-r2 is valid).
 4. `node scripts/smoke-pack.mjs` -- pack/install/verify succeeds including skills.
-5. Dogfood: `npm run dev -w starter-docs -- init --yes --target /tmp/skill-dogfood-r2` then verify:
+5. Dogfood: `npm run dev -w make-docs -- init --yes --target /tmp/skill-dogfood-r2` then verify:
    - `.claude/skills/` exists with skill files
    - `.agents/skills/` exists with skill files
    - Opening a new Claude Code session in `/tmp/skill-dogfood-r2` discovers the installed skills
@@ -112,7 +112,7 @@ After the existing `init --yes` step, add checks:
 - [ ] Wizard tests cover harness selection and scope selection steps
 - [ ] Consistency test passes with updated `BUILDABLE_PATHS`
 - [ ] Smoke-pack verifies skill files in packed install output
-- [ ] `npm test -w starter-docs` passes
+- [ ] `npm test -w make-docs` passes
 - [ ] `bash scripts/check-instruction-routers.sh` passes
 - [ ] `bash scripts/check-wave-numbering.sh` passes
 - [ ] `node scripts/smoke-pack.mjs` passes

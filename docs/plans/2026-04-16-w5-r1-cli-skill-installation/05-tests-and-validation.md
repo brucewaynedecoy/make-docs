@@ -53,11 +53,11 @@ After the existing `init --yes` step, add checks:
 
 ### 6. Final validation run
 
-1. `npm test -w starter-docs` — all tests pass
+1. `npm test -w make-docs` — all tests pass
 2. `bash scripts/check-instruction-routers.sh` — passes
 3. `bash scripts/check-wave-numbering.sh` — passes (w5-r1 is valid)
 4. `node scripts/smoke-pack.mjs` — pack/install/verify succeeds including skills
-5. Dogfood: `npm run dev -w starter-docs -- init --yes --target /tmp/skill-dogfood` then verify:
+5. Dogfood: `npm run dev -w make-docs -- init --yes --target /tmp/skill-dogfood` then verify:
    - `.claude/skills/` exists with 5 skill files
    - `.claude/skill-assets/` exists with supporting assets
    - Opening a new Claude Code session in `/tmp/skill-dogfood` discovers the skills
@@ -70,7 +70,7 @@ After the existing `init --yes` step, add checks:
 - [ ] Path rewriting test confirms references resolve correctly
 - [ ] `--no-skills` flag test added to CLI tests
 - [ ] Smoke-pack verifies skill files in packed install output
-- [ ] `npm test -w starter-docs` passes
+- [ ] `npm test -w make-docs` passes
 - [ ] `bash scripts/check-instruction-routers.sh` passes
 - [ ] `bash scripts/check-wave-numbering.sh` passes
 - [ ] `node scripts/smoke-pack.mjs` passes

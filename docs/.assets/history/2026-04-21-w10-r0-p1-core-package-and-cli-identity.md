@@ -13,10 +13,10 @@ This session completed Wave 10 Phase 1 core identity work from [01-core-package-
 | --- | --- |
 | Package manifests | Renamed the root package to `make-docs-monorepo`, changed root scripts to target `-w make-docs`, renamed the CLI package/bin to `make-docs`, and renamed private workspaces to `@make-docs/template`, `@make-docs/skills`, and `@make-docs/content`. |
 | Lockfile | Regenerated `package-lock.json` with the new workspace links and without a compatibility package alias. |
-| CLI runtime | Renamed `STARTER_DOCS_CONFIG_RELATIVE_DIR` to `MAKE_DOCS_CONFIG_RELATIVE_DIR`, preserved `docs/.assets/config/manifest.json`, and updated CLI help, lifecycle, audit, wizard, and maintainer README copy outside renderer output. |
+| CLI runtime | Renamed `MAKE_DOCS_CONFIG_RELATIVE_DIR` to `MAKE_DOCS_CONFIG_RELATIVE_DIR`, preserved `docs/.assets/config/manifest.json`, and updated CLI help, lifecycle, audit, wizard, and maintainer README copy outside renderer output. |
 | Skill registry | Updated registry source URLs to the future `brucewaynedecoy/make-docs` repository path, changed the schema title to `make-docs skill registry`, and left skill IDs unchanged. |
 | Validation | `npm run build -w make-docs` and `git diff --check` passed. A scoped old-name scan passed for the Phase 1 write scope excluding `packages/cli/src/renderers.ts`, which remains Phase 2-owned. |
-| Phase 4 handoff | `npm test -w make-docs` failed on expected follow-up work: tests still assert `starter-docs` output and skill-fetch tests now hit future `make-docs` GitHub URLs that return 404 until test expectations or mocks are updated. |
+| Phase 4 handoff | `npm test -w make-docs` failed on expected follow-up work: tests still assert `make-docs` output and skill-fetch tests now hit future `make-docs` GitHub URLs that return 404 until test expectations or mocks are updated. |
 
 ## Documentation
 
@@ -30,7 +30,7 @@ This session completed Wave 10 Phase 1 core identity work from [01-core-package-
 
 | Path | Description |
 | --- | --- |
-| [packages/cli/src/README.md](../../../packages/cli/src/README.md) | Updated maintainer-facing command examples and conflict copy from `starter-docs` to `make-docs`. |
+| [packages/cli/src/README.md](../../../packages/cli/src/README.md) | Updated maintainer-facing command examples and conflict copy from `make-docs` to `make-docs`. |
 
 ### User
 

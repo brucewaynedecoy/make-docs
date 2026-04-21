@@ -2,7 +2,7 @@
 
 ## Objective
 
-Move starter-docs CLI state from `docs/.starter-docs/` to `docs/.assets/config/` across install, sync, reconfigure, audit, backup, uninstall, CLI output, and smoke validation.
+Move make-docs CLI state from `docs/.make-docs/` to `docs/.assets/config/` across install, sync, reconfigure, audit, backup, uninstall, CLI output, and smoke validation.
 
 ## Depends On
 
@@ -38,7 +38,7 @@ Set:
 export const MANIFEST_RELATIVE_PATH = "docs/.assets/config/manifest.json";
 ```
 
-Do not add fallback reads from `docs/.starter-docs/manifest.json`. This is an alpha-phase path move, and existing installs are out of scope.
+Do not add fallback reads from `docs/.make-docs/manifest.json`. This is an alpha-phase path move, and existing installs are out of scope.
 
 ### 2. Centralize the conflict staging path
 
@@ -52,7 +52,7 @@ The exact location can live in `manifest.ts`, `install.ts`, or a small state-pat
 
 ### 3. Remove hardcoded old path text
 
-Replace hardcoded `docs/.starter-docs/manifest.json` mentions in runtime output with the new path. Known areas include:
+Replace hardcoded `docs/.make-docs/manifest.json` mentions in runtime output with the new path. Known areas include:
 
 - `printPlan()` manifest note in `packages/cli/src/cli.ts`
 - command-specific help text for `reconfigure`
@@ -79,7 +79,7 @@ Update all tests that assert:
 - CLI output containing manifest paths,
 - packed smoke install/sync/backup/uninstall behavior.
 
-Do not add tests for legacy `.starter-docs` compatibility.
+Do not add tests for legacy `.make-docs` compatibility.
 
 ## Parallelism
 
@@ -90,7 +90,7 @@ Manifest path updates and conflict path updates are tightly coupled and should b
 - [ ] New installs write `docs/.assets/config/manifest.json`.
 - [ ] Existing-target sync reads `docs/.assets/config/manifest.json`.
 - [ ] Skipped conflicts stage under `docs/.assets/config/conflicts/<run-id>/...`.
-- [ ] Runtime output and help no longer point users to `docs/.starter-docs/`.
+- [ ] Runtime output and help no longer point users to `docs/.make-docs/`.
 - [ ] Backup includes the new manifest path.
 - [ ] Uninstall removes the new manifest and does not remove `docs/.assets/history/`.
 - [ ] Focused CLI, install, audit, backup, uninstall, lifecycle, and smoke expectations pass.

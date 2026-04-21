@@ -44,7 +44,7 @@ Implement the harness-aware, registry-based skill delivery designed in [2026-04-
 
 ## Validation
 
-1. `npm test -w starter-docs` — all tests pass.
+1. `npm test -w make-docs` — all tests pass.
 2. `bash scripts/check-instruction-routers.sh` — passes.
 3. `bash scripts/check-wave-numbering.sh` — passes.
 4. `node scripts/smoke-pack.mjs` — pack/install/verify succeeds with skills.

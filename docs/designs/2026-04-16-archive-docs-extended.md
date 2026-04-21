@@ -141,18 +141,18 @@ Add provenance tracking to all archival operations.
 
 ### 6. Template-level distribution
 
-Once the agentics ecosystem infrastructure (registry, gateway, module system) is in place, the `archive-docs` plugin should ship as part of the template — consumers who install `starter-docs` get the archive skills automatically.
+Once the agentics ecosystem infrastructure (registry, gateway, module system) is in place, the `archive-docs` plugin should ship as part of the template — consumers who install `make-docs` get the archive skills automatically.
 
 **Interim approach (before the ecosystem lands):**
 - The plugin lives in `packages/skills/archive-docs/` and is registered at the project level via `.claude/settings.json` and `.agents/`.
-- Consumers who clone or install `starter-docs` can manually register the skills.
-- The `starter-docs` CLI does not yet know about skills (it ships only the docs template).
+- Consumers who clone or install `make-docs` can manually register the skills.
+- The `make-docs` CLI does not yet know about skills (it ships only the docs template).
 
 **Future approach (after the ecosystem lands):**
 - The plugin is registered in `packages/registry/index.json` as a module.
-- `starter-docs add archive-docs` installs the skills, hooks, and agent configs into the consumer's project.
+- `make-docs add archive-docs` installs the skills, hooks, and agent configs into the consumer's project.
 - The gateway skill can invoke archive skills by name.
-- The `starter-docs doctor` command can verify archive skill registration.
+- The `make-docs doctor` command can verify archive skill registration.
 
 **Dependency:** This capability depends on the agentics ecosystem design being implemented. It should not block the initial plugin release.
 
@@ -222,7 +222,7 @@ packages/skills/archive-docs/
 
 **Deferred:**
 - Undo/restore functionality (reversing an archive operation).
-- Integration with the `starter-docs` CLI for non-interactive archival.
+- Integration with the `make-docs` CLI for non-interactive archival.
 - Archive retention policies (auto-prune archives older than N days/waves).
 
 ## Design Lineage

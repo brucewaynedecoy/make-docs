@@ -72,5 +72,5 @@ Add `profile.selections.skills &&` to the return expression.
 - [ ] `defaultSelections()` returns `skills: true`.
 - [ ] `cloneSelections()` copies the `skills` field.
 - [ ] `isFullDefaultProfile()` includes a `skills` check.
-- [ ] `npm run build -w starter-docs` succeeds.
-- [ ] `npm test -w starter-docs` passes (existing tests may need minor updates to include `skills` in their selections).
+- [ ] `npm run build -w make-docs` succeeds.
+- [ ] `npm test -w make-docs` passes (existing tests may need minor updates to include `skills` in their selections).

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Rename the npm workspace identity, CLI package/bin, source constants, CLI text, and registry metadata from `starter-docs` to `make-docs`.
+Rename the npm workspace identity, CLI package/bin, source constants, CLI text, and registry metadata from `make-docs` to `make-docs`.
 
 ## Scope
 
@@ -21,7 +21,7 @@ Rename the npm workspace identity, CLI package/bin, source constants, CLI text, 
    - CLI package name and bin: `make-docs`
    - private workspaces: `@make-docs/template`, `@make-docs/skills`, `@make-docs/content`
 2. Regenerate `package-lock.json` once after manifest changes. Do not hand-edit lockfile package-name references except as part of resolving deterministic lockfile output.
-3. Rename source constants and env-like identifiers, including `STARTER_DOCS_CONFIG_RELATIVE_DIR` to `MAKE_DOCS_CONFIG_RELATIVE_DIR`.
+3. Rename source constants and env-like identifiers, including `MAKE_DOCS_CONFIG_RELATIVE_DIR` to `MAKE_DOCS_CONFIG_RELATIVE_DIR`.
 4. Update CLI copy in `packages/cli/src/` so help, errors, notes, lifecycle warnings, wizard prompts, install/sync summaries, and next-step guidance use `make-docs`.
 5. Update skill registry source URLs from the old repository path to the future `make-docs` repository path.
 6. Confirm fresh manifests record `packageName: "make-docs"` through the package metadata flow, without adding legacy package-name migration.
@@ -40,6 +40,6 @@ This phase should be owned by one worker because package metadata, workspace nam
 
 - `npm run build -w make-docs` can resolve the workspace.
 - `packages/cli/package.json` exposes only a `make-docs` bin.
-- `package-lock.json` has no `starter-docs` or `@starter-docs` package identities.
-- CLI source contains no old product-name strings or `STARTER_DOCS_*` identifiers.
-- No `starter-docs` compatibility bin, alias, or migration branch is introduced.
+- `package-lock.json` has no `make-docs` or `@make-docs` package identities.
+- CLI source contains no old product-name strings or `MAKE_DOCS_*` identifiers.
+- No `make-docs` compatibility bin, alias, or migration branch is introduced.

@@ -26,7 +26,7 @@ This phase owns parser shape, command validation, and removed-command guidance. 
 ### Acceptance criteria
 
 - [ ] Public command parsing recognizes `reconfigure`, `backup`, and `uninstall`
-- [ ] Bare `starter-docs` is still valid
+- [ ] Bare `make-docs` is still valid
 - [ ] `init` and `update` do not dispatch to install/update execution
 - [ ] `backup` and `uninstall` still dispatch to their existing paths
 
@@ -40,12 +40,12 @@ This phase owns parser shape, command validation, and removed-command guidance. 
 
 1. Remove `--reconfigure` from normal option parsing.
 2. Add a specific error for any invocation containing `--reconfigure`.
-3. Ensure the error points users to `starter-docs reconfigure`.
+3. Ensure the error points users to `make-docs reconfigure`.
 
 ### Acceptance criteria
 
-- [ ] `starter-docs --reconfigure` fails with `starter-docs reconfigure` guidance
-- [ ] `starter-docs update --reconfigure` fails with `starter-docs reconfigure` guidance
+- [ ] `make-docs --reconfigure` fails with `make-docs reconfigure` guidance
+- [ ] `make-docs update --reconfigure` fails with `make-docs reconfigure` guidance
 - [ ] `--reconfigure` does not reach install planning
 
 ### Dependencies
@@ -56,15 +56,15 @@ This phase owns parser shape, command validation, and removed-command guidance. 
 
 ### Tasks
 
-1. Detect `starter-docs init ...` and fail with guidance to use `starter-docs ...`.
-2. Detect `starter-docs update ...` and fail with guidance to use `starter-docs ...`.
-3. Prefer `starter-docs reconfigure` guidance when removed update invocations include reconfiguration intent.
+1. Detect `make-docs init ...` and fail with guidance to use `make-docs ...`.
+2. Detect `make-docs update ...` and fail with guidance to use `make-docs ...`.
+3. Prefer `make-docs reconfigure` guidance when removed update invocations include reconfiguration intent.
 4. Keep errors non-zero and clear enough for users and agents to self-correct.
 
 ### Acceptance criteria
 
-- [ ] `starter-docs init --yes` fails with bare `starter-docs --yes` guidance
-- [ ] `starter-docs update --yes` fails with bare `starter-docs --yes` guidance
+- [ ] `make-docs init --yes` fails with bare `make-docs --yes` guidance
+- [ ] `make-docs update --yes` fails with bare `make-docs --yes` guidance
 - [ ] removed-command errors are not generic unknown-command failures
 
 ### Dependencies
@@ -75,8 +75,8 @@ This phase owns parser shape, command validation, and removed-command guidance. 
 
 ### Tasks
 
-1. Permit selection flags on bare `starter-docs`.
-2. Permit selection flags on `starter-docs reconfigure`.
+1. Permit selection flags on bare `make-docs`.
+2. Permit selection flags on `make-docs reconfigure`.
 3. Keep selection flags rejected for `backup` and `uninstall`.
 4. Keep `--backup` rejected outside `uninstall`.
 
@@ -106,7 +106,7 @@ This phase owns parser shape, command validation, and removed-command guidance. 
 - [ ] Parser tests cover the final public command model
 - [ ] Removed-command guidance is tested
 - [ ] `--reconfigure` guidance is tested
-- [ ] `npm test -w starter-docs -- tests/cli.test.ts` passes
+- [ ] `npm test -w make-docs -- tests/cli.test.ts` passes
 
 ### Dependencies
 

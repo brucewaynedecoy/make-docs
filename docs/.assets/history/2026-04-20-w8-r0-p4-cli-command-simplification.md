@@ -15,7 +15,7 @@ Implemented Phase 4 of the Wave 8 CLI command simplification, framed by [the des
 | Renderer coverage | [`packages/cli/tests/renderers.test.ts`](../../../packages/cli/tests/renderers.test.ts) already covered generated fallback guidance for the simplified reconfigure command. |
 | Packed smoke | [`scripts/smoke-pack.mjs`](../../../scripts/smoke-pack.mjs) now runs the packed CLI twice with the bare command: once for first install and once for unchanged existing-install sync, asserting the sync does not stage conflicts before continuing through backup and uninstall validation. |
 | Stale-reference scan | User-facing docs, developer docs, generated renderer text, and smoke validation were scanned and contain no stale public command examples. Remaining matches are limited to design/plan/work specifications and migration-error code/tests that intentionally document removed behavior. |
-| Verification | `node --check scripts/smoke-pack.mjs`, `npm run build -w starter-docs`, `npm test -w starter-docs`, `node scripts/smoke-pack.mjs`, and stale-reference scans passed. |
+| Verification | `node --check scripts/smoke-pack.mjs`, `npm run build -w make-docs`, `npm test -w make-docs`, `node scripts/smoke-pack.mjs`, and stale-reference scans passed. |
 
 ## Documentation
 

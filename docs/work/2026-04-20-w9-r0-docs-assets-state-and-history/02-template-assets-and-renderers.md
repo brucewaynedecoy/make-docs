@@ -94,8 +94,8 @@ None. This backlog is derived from the `w9-r0` plan and design, not from an acti
 
 ### Acceptance criteria
 
-- [x] `npm test -w starter-docs -- tests/consistency.test.ts` passes.
-- [x] `npm test -w starter-docs -- tests/renderers.test.ts` passes.
+- [x] `npm test -w make-docs -- tests/consistency.test.ts` passes.
+- [x] `npm test -w make-docs -- tests/renderers.test.ts` passes.
 - [x] Focused install tests for router/template asset presence pass.
 - [x] Template completeness still reports no unmanaged template files.
 

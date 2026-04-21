@@ -41,8 +41,8 @@ Extend `ParsedArgs` with the new command-surface fields needed by later phases:
 
 Parse and validate:
 
-- `starter-docs backup [--target <dir>] [--yes] [--help]`
-- `starter-docs uninstall [--target <dir>] [--backup] [--yes] [--help]`
+- `make-docs backup [--target <dir>] [--yes] [--help]`
+- `make-docs uninstall [--target <dir>] [--backup] [--yes] [--help]`
 
 Validation rules for this phase:
 
@@ -57,12 +57,12 @@ For explicit `backup` and `uninstall` invocations without `--help`, do not imple
 
 Replace the single flat `printHelp()` output with a command-aware help renderer that supports:
 
-- top-level help for `starter-docs --help`
+- top-level help for `make-docs --help`
 - command-specific help for:
-  - `starter-docs init --help`
-  - `starter-docs update --help`
-  - `starter-docs backup --help`
-  - `starter-docs uninstall --help`
+  - `make-docs init --help`
+  - `make-docs update --help`
+  - `make-docs backup --help`
+  - `make-docs uninstall --help`
 
 The top-level help screen should include:
 
@@ -93,9 +93,9 @@ Update `runCli()` so help handling is command-aware and returns before unrelated
 
 Required behavior:
 
-- `starter-docs --help` prints the top-level help and exits
-- `starter-docs init --help` and `starter-docs update --help` print the matching command help and exit
-- `starter-docs backup --help` and `starter-docs uninstall --help` print the matching command help and exit
+- `make-docs --help` prints the top-level help and exits
+- `make-docs init --help` and `make-docs update --help` print the matching command help and exit
+- `make-docs backup --help` and `make-docs uninstall --help` print the matching command help and exit
 
 Help dispatch must happen before:
 
@@ -117,10 +117,10 @@ Add focused `cli.test.ts` coverage for:
 - explicit `backup` and `uninstall` commands are recognized by the parser
 - non-help `backup` and `uninstall` invocations fail with the deliberate placeholder error instead of falling into install/update behavior
 - invalid flag mixes fail clearly, for example:
-  - `starter-docs backup --no-skills`
-  - `starter-docs uninstall --optional-skills decompose-codebase`
-  - `starter-docs init --permissions confirm`
-  - `starter-docs init --backup`
+  - `make-docs backup --no-skills`
+  - `make-docs uninstall --optional-skills decompose-codebase`
+  - `make-docs init --permissions confirm`
+  - `make-docs init --backup`
 
 Do not add tests for audit output, confirmation prompts, backup directory naming, or deletion behavior in this phase. Those belong to later phases once the lifecycle engine exists.
 
@@ -134,14 +134,14 @@ There is no expected overlap with manifest, planner, installer, backup, or unins
 ## Acceptance Criteria
 
 - [ ] `Command` recognizes `init`, `update`, `backup`, and `uninstall`
-- [ ] `starter-docs --help` prints structured top-level help with command summaries and examples
-- [ ] `starter-docs init --help` and `starter-docs update --help` print command-specific help
-- [ ] `starter-docs backup --help` and `starter-docs uninstall --help` print command-specific help
+- [ ] `make-docs --help` prints structured top-level help with command summaries and examples
+- [ ] `make-docs init --help` and `make-docs update --help` print command-specific help
+- [ ] `make-docs backup --help` and `make-docs uninstall --help` print command-specific help
 - [ ] `backup` and `uninstall` command grammar accepts `--target`, `--yes`, and `--help`
 - [ ] `uninstall` command grammar accepts `--backup`
 - [ ] legacy `--permissions` is rejected as an unknown argument
 - [ ] `--backup` is rejected outside `uninstall`
 - [ ] install-selection flags remain rejected for `backup` and `uninstall`
 - [ ] non-help `backup` and `uninstall` invocations fail with a clear placeholder error instead of unknown-argument or install/update behavior
-- [ ] `npm test -w starter-docs -- tests/cli.test.ts` passes
-- [ ] `npm test -w starter-docs` passes
+- [ ] `npm test -w make-docs -- tests/cli.test.ts` passes
+- [ ] `npm test -w make-docs` passes

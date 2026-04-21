@@ -2,14 +2,14 @@
 
 ## Purpose
 
-Implement the new CLI lifecycle surface designed in [2026-04-18-cli-help-backup-and-uninstall.md](../../designs/2026-04-18-cli-help-backup-and-uninstall.md). This is **Wave 7 Revision 0** (`w7-r0`): a new baseline wave that expands `starter-docs` beyond install/update with a clearer help system, a shared audit engine, a non-destructive `backup` command, and a safety-first `uninstall` command.
+Implement the new CLI lifecycle surface designed in [2026-04-18-cli-help-backup-and-uninstall.md](../../designs/2026-04-18-cli-help-backup-and-uninstall.md). This is **Wave 7 Revision 0** (`w7-r0`): a new baseline wave that expands `make-docs` beyond install/update with a clearer help system, a shared audit engine, a non-destructive `backup` command, and a safety-first `uninstall` command.
 
 ## Objective
 
 - Top-level and command-specific `--help` output become structured, readable, and explicit about commands, flags, and examples.
 - A shared audit engine defines the exact managed files and prunable directories for both `backup` and `uninstall`.
-- `starter-docs backup` copies the audited file set into deterministic `.backup/` roots without deleting originals.
-- `starter-docs uninstall` removes only audited leaves, prunes only emptied parent directories, preserves modified `AGENTS.md` and `CLAUDE.md`, and supports `--backup` plus `--yes` for prompt skipping.
+- `make-docs backup` copies the audited file set into deterministic `.backup/` roots without deleting originals.
+- `make-docs uninstall` removes only audited leaves, prunes only emptied parent directories, preserves modified `AGENTS.md` and `CLAUDE.md`, and supports `--backup` plus `--yes` for prompt skipping.
 - Final validation proves the audit is conservative, same-day backup naming is correct, and destructive flows never remove unmanaged files or `.backup/` contents.
 
 ## Phase Map
@@ -32,7 +32,7 @@ Implement the new CLI lifecycle surface designed in [2026-04-18-cli-help-backup-
 
 ## Validation
 
-1. `starter-docs --help`, `starter-docs init --help`, `starter-docs update --help`, `starter-docs backup --help`, and `starter-docs uninstall --help` render the new grouped help structure with accurate commands, flags, and examples.
+1. `make-docs --help`, `make-docs init --help`, `make-docs update --help`, `make-docs backup --help`, and `make-docs uninstall --help` render the new grouped help structure with accurate commands, flags, and examples.
 2. Automated tests cover manifest-first audit behavior, conservative manifest-missing fallback, modified versus unmodified root instruction files, same-day backup directory sequencing, `--yes` prompt skipping, and uninstall preservation of unmanaged files.
 3. Manual lifecycle validation in a temp target confirms `backup` copies the exact audited file set, `uninstall --backup` reuses one audit before backup and removal, and `.backup/` contents are never selected for deletion.
 4. Full CLI validation passes after all phases complete.

@@ -33,7 +33,7 @@ Implement the design naming simplification described in [2026-04-16-design-namin
 
 ## Validation
 
-1. `npm test -w starter-docs` — all tests pass.
+1. `npm test -w make-docs` — all tests pass.
 2. `bash scripts/check-instruction-routers.sh` — routers validate.
 3. `node scripts/smoke-pack.mjs` — pack/install/verify succeeds.
 4. Manual verification: a fresh `init --yes` into a temp dir produces design-related files with the simplified naming pattern (no W/R references).

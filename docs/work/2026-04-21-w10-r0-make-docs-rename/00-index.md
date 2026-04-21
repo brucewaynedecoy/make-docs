@@ -4,7 +4,7 @@
 
 ## Purpose
 
-This backlog tracks execution of the Wave 10 rename from `starter-docs` to `make-docs`. It derives from [the `w10-r0` plan](../../plans/2026-04-21-w10-r0-make-docs-rename/00-overview.md) and the originating [design](../../designs/2026-04-21-make-docs-rename.md).
+This backlog tracks execution of the Wave 10 rename from `make-docs` to `make-docs`. It derives from [the `w10-r0` plan](../../plans/2026-04-21-w10-r0-make-docs-rename/00-overview.md) and the originating [design](../../designs/2026-04-21-make-docs-rename.md).
 
 The work is alpha-phase scoped. It intentionally does not keep compatibility with the old package name, CLI binary, command examples, package scopes, or manifest package identity.
 

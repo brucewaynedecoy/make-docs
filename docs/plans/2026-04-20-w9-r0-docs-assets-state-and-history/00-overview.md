@@ -1,10 +1,10 @@
-# Docs Assets, Starter-Docs State, and Session History - Implementation Plan
+# Docs Assets, Make-Docs State, and Session History - Implementation Plan
 
 ## Purpose
 
-Implement the architecture defined in [2026-04-20-docs-assets-state-and-history.md](../../designs/2026-04-20-docs-assets-state-and-history.md). This is **Wave 9 Revision 0** (`w9-r0`): a change to move starter-docs operational state and agent-authored session history into the template-owned `docs/.assets/` namespace.
+Implement the architecture defined in [2026-04-20-docs-assets-state-and-history.md](../../designs/2026-04-20-docs-assets-state-and-history.md). This is **Wave 9 Revision 0** (`w9-r0`): a change to move make-docs operational state and agent-authored session history into the template-owned `docs/.assets/` namespace.
 
-This plan is alpha-phase scoped. It does not spend implementation effort on backward-compatible migration from existing `docs/.starter-docs/manifest.json` installs.
+This plan is alpha-phase scoped. It does not spend implementation effort on backward-compatible migration from existing `docs/.make-docs/manifest.json` installs.
 
 ## Objective
 
@@ -63,7 +63,7 @@ No `docs/prd/` baseline annotations are required. Existing active documentation 
 | `docs/.references/wave-model.md` | history path and coordinate rules | revise | combined `coordinate` convention |
 | `docs/.references/output-contract.md` | required path table | revise | `docs/.assets/history/` |
 | `README.md`, `packages/cli/README.md`, `packages/cli/src/README.md` | manifest and conflict descriptions | revise | `docs/.assets/config/` |
-| `docs/guides/user/getting-started-installing-starter-docs.md` | install state, conflict, troubleshooting sections | revise | `docs/.assets/config/` |
+| `docs/guides/user/getting-started-installing-make-docs.md` | install state, conflict, troubleshooting sections | revise | `docs/.assets/config/` |
 | `packages/skills/archive-docs/SKILL.md` and references | history lookup behavior | revise | `docs/.assets/history/` |
 
 ## Phase Map
@@ -72,7 +72,7 @@ No `docs/prd/` baseline annotations are required. Existing active documentation 
 | ---- | ------- |
 | `01-contracts-and-history-namespace.md` | Update the history contract/template/prompt model and introduce `.assets` router source files in the project and template. |
 | `02-template-assets-and-renderers.md` | Wire `.assets` routers into the managed asset pipeline and generated router renderers while removing `docs/guides/agent/` from install output. |
-| `03-cli-state-paths.md` | Move starter-docs manifest and conflict staging paths to `docs/.assets/config/` across install, audit, backup, uninstall, CLI output, and tests. |
+| `03-cli-state-paths.md` | Move make-docs manifest and conflict staging paths to `docs/.assets/config/` across install, audit, backup, uninstall, CLI output, and tests. |
 | `04-history-and-documentation-migration.md` | Move active repo session history into `docs/.assets/history/` and update active docs, guides, READMEs, and skill references. |
 | `05-tests-and-validation.md` | Run focused and full validation, link checks, smoke packaging, and stale-reference checks with an explicit historical-doc allowlist. |
 
@@ -86,8 +86,8 @@ No `docs/prd/` baseline annotations are required. Existing active documentation 
 
 ## Research Findings
 
-- `packages/cli/src/manifest.ts` owns `MANIFEST_RELATIVE_PATH`, currently `docs/.starter-docs/manifest.json`.
-- `packages/cli/src/install.ts` hardcodes conflict staging under `docs/.starter-docs/conflicts`.
+- `packages/cli/src/manifest.ts` owns `MANIFEST_RELATIVE_PATH`, currently `docs/.make-docs/manifest.json`.
+- `packages/cli/src/install.ts` hardcodes conflict staging under `docs/.make-docs/conflicts`.
 - `packages/cli/src/audit.ts` already uses `MANIFEST_RELATIVE_PATH` for manifest-present and manifest-missing audit classification, so moving the constant changes most audit state automatically.
 - `packages/cli/src/cli.ts`, `packages/cli/src/README.md`, `packages/cli/README.md`, `scripts/smoke-pack.mjs`, and several lifecycle tests still mention the old state path directly.
 - `packages/cli/src/catalog.ts` currently installs instruction routers for `docs/guides/agent/`; these should move to `docs/.assets/`, `docs/.assets/history/`, and `docs/.assets/config/`.
@@ -112,12 +112,12 @@ If implementation is delegated, split ownership by write scope:
 
 - Use `jcodemunch` first for source search, symbol outlines, and targeted code reads.
 - Use `jdocmunch` first for docs contracts, templates, existing plans, and active documentation references.
-- Use `rg` as a supplemental exact-match check for path strings such as `docs/.starter-docs`, `.starter-docs/conflicts`, and `docs/guides/agent`.
+- Use `rg` as a supplemental exact-match check for path strings such as `docs/.make-docs`, `.make-docs/conflicts`, and `docs/guides/agent`.
 - If either MCP index is stale, read the specific local file needed and avoid broad batch reads.
 
 ## Non-Goals
 
-- Do not implement a legacy reader or migrator for `docs/.starter-docs/manifest.json`.
+- Do not implement a legacy reader or migrator for `docs/.make-docs/manifest.json`.
 - Do not create `docs/.assets/memories/` or `docs/.assets/preferences/` in this wave.
 - Do not rename `docs/.references/agent-guide-contract.md`, `docs/.templates/agent-guide.md`, or `docs/.prompts/session-to-agent-guide.prompt.md` in this wave. Update their contents and routing semantics instead. A later cleanup can rename those files if the project wants less legacy wording.
 - Do not rewrite historical design, plan, or work documents solely to remove old path mentions unless they are active instructions, active user/developer docs, package READMEs, or validation targets.
@@ -125,8 +125,8 @@ If implementation is delegated, split ownership by write scope:
 ## Validation
 
 1. Focused tests pass for manifest path behavior, conflict staging, audit, backup, uninstall, CLI output, and template asset consistency.
-2. Full package validation passes: `npm run build -w starter-docs`, `npm test -w starter-docs`, and `node scripts/smoke-pack.mjs`.
+2. Full package validation passes: `npm run build -w make-docs`, `npm test -w make-docs`, and `node scripts/smoke-pack.mjs`.
 3. Template completeness passes so every `packages/docs/template/docs/.assets/**` file is managed by the CLI asset pipeline.
 4. Internal links resolve after moving history files.
-5. Stale-reference search confirms active source-of-truth files no longer point users or generated output at `docs/.starter-docs/` or `docs/guides/agent/`.
+5. Stale-reference search confirms active source-of-truth files no longer point users or generated output at `docs/.make-docs/` or `docs/guides/agent/`.
 6. `git diff --check` passes.

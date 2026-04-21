@@ -29,14 +29,14 @@ Validate that `.assets` state and history are fully integrated, that the package
 Run focused tests during implementation:
 
 ```sh
-npm test -w starter-docs -- tests/consistency.test.ts
-npm test -w starter-docs -- tests/renderers.test.ts
-npm test -w starter-docs -- tests/install.test.ts
-npm test -w starter-docs -- tests/cli.test.ts
-npm test -w starter-docs -- tests/audit.test.ts
-npm test -w starter-docs -- tests/backup.test.ts
-npm test -w starter-docs -- tests/uninstall.test.ts
-npm test -w starter-docs -- tests/lifecycle.test.ts
+npm test -w make-docs -- tests/consistency.test.ts
+npm test -w make-docs -- tests/renderers.test.ts
+npm test -w make-docs -- tests/install.test.ts
+npm test -w make-docs -- tests/cli.test.ts
+npm test -w make-docs -- tests/audit.test.ts
+npm test -w make-docs -- tests/backup.test.ts
+npm test -w make-docs -- tests/uninstall.test.ts
+npm test -w make-docs -- tests/lifecycle.test.ts
 ```
 
 ### 2. Full package validation
@@ -44,8 +44,8 @@ npm test -w starter-docs -- tests/lifecycle.test.ts
 Run:
 
 ```sh
-npm run build -w starter-docs
-npm test -w starter-docs
+npm run build -w make-docs
+npm test -w make-docs
 node scripts/smoke-pack.mjs
 bash scripts/check-instruction-routers.sh
 ```
@@ -67,7 +67,7 @@ Run an internal Markdown link check over changed docs and moved history records.
 - `docs/.references/history-record-contract.md`,
 - `docs/.templates/history-record.md`,
 - `docs/.prompts/session-to-history-record.prompt.md`,
-- `docs/guides/user/getting-started-installing-starter-docs.md`,
+- `docs/guides/user/getting-started-installing-make-docs.md`,
 - `docs/guides/developer/cli-development-local-build-and-install.md`,
 - new plan/work docs if generated after this plan.
 
@@ -76,7 +76,7 @@ Run an internal Markdown link check over changed docs and moved history records.
 Run stale-reference searches after implementation:
 
 ```sh
-rg -n "docs/\\.starter-docs|\\.starter-docs/conflicts|docs/guides/agent" docs packages scripts
+rg -n "docs/\\.make-docs|\\.make-docs/conflicts|docs/guides/agent" docs packages scripts
 rg -n "docs/\\.assets/config|docs/\\.assets/history" docs packages scripts
 ```
 
@@ -93,12 +93,12 @@ git diff --check
 ## Acceptance Criteria
 
 - [x] Focused test suites pass.
-- [x] `npm run build -w starter-docs` passes.
-- [x] `npm test -w starter-docs` passes.
+- [x] `npm run build -w make-docs` passes.
+- [x] `npm test -w make-docs` passes.
 - [x] `node scripts/smoke-pack.mjs` passes.
 - [x] `bash scripts/check-instruction-routers.sh` passes.
 - [x] Link validation passes for changed docs and moved history.
-- [x] Active stale references to `docs/.starter-docs/` are removed.
+- [x] Active stale references to `docs/.make-docs/` are removed.
 - [x] Active stale references to `docs/guides/agent/` are removed.
 - [x] Historical stale references are documented as intentional or left only in clearly historical docs.
 - [x] `git diff --check` passes.

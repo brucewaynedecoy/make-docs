@@ -189,5 +189,5 @@ Options:
 - [ ] `--no-skills` disables skill installation.
 - [ ] `--skill-scope project|global` sets the skill scope (default: project).
 - [ ] `printHelp` documents all new flags and aliases.
-- [ ] `npm run build -w starter-docs` succeeds with zero type errors.
-- [ ] `npm test -w starter-docs` passes.
+- [ ] `npm run build -w make-docs` succeeds with zero type errors.
+- [ ] `npm test -w make-docs` passes.

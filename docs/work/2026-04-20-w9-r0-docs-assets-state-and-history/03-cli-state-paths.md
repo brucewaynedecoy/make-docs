@@ -4,7 +4,7 @@
 
 ## Purpose
 
-Move starter-docs CLI-managed state from `docs/.starter-docs/` to `docs/.assets/config/`.
+Move make-docs CLI-managed state from `docs/.make-docs/` to `docs/.assets/config/`.
 
 ## Overview
 
@@ -25,7 +25,7 @@ None. This backlog is derived from the `w9-r0` plan and design, not from an acti
 1. Change `MANIFEST_RELATIVE_PATH` in `packages/cli/src/manifest.ts` to `docs/.assets/config/manifest.json`.
 2. Add or expose a shared conflict root constant for `docs/.assets/config/conflicts`.
 3. Replace the hardcoded conflict root in `packages/cli/src/install.ts`.
-4. Avoid adding fallback reads from `docs/.starter-docs/manifest.json`.
+4. Avoid adding fallback reads from `docs/.make-docs/manifest.json`.
 5. Prefer imported constants over repeated path literals when updating code.
 
 ### Acceptance criteria
@@ -76,10 +76,10 @@ None. This backlog is derived from the `w9-r0` plan and design, not from an acti
 ### Acceptance criteria
 
 - [x] Apply/sync plan output displays the new manifest path.
-- [x] `starter-docs reconfigure --help` references the new manifest path.
+- [x] `make-docs reconfigure --help` references the new manifest path.
 - [x] CLI source README examples use the new state paths.
 - [x] CLI package README uses the new state paths.
-- [x] Runtime and CLI-facing docs no longer point users to `docs/.starter-docs/`.
+- [x] Runtime and CLI-facing docs no longer point users to `docs/.make-docs/`.
 
 ### Dependencies
 
@@ -100,12 +100,12 @@ None. This backlog is derived from the `w9-r0` plan and design, not from an acti
 
 ### Acceptance criteria
 
-- [x] `npm test -w starter-docs -- tests/install.test.ts` passes.
-- [x] `npm test -w starter-docs -- tests/cli.test.ts` passes.
-- [x] `npm test -w starter-docs -- tests/audit.test.ts` passes.
-- [x] `npm test -w starter-docs -- tests/backup.test.ts` passes.
-- [x] `npm test -w starter-docs -- tests/uninstall.test.ts` passes.
-- [x] `npm test -w starter-docs -- tests/lifecycle.test.ts` passes.
+- [x] `npm test -w make-docs -- tests/install.test.ts` passes.
+- [x] `npm test -w make-docs -- tests/cli.test.ts` passes.
+- [x] `npm test -w make-docs -- tests/audit.test.ts` passes.
+- [x] `npm test -w make-docs -- tests/backup.test.ts` passes.
+- [x] `npm test -w make-docs -- tests/uninstall.test.ts` passes.
+- [x] `npm test -w make-docs -- tests/lifecycle.test.ts` passes.
 - [x] `node scripts/smoke-pack.mjs` passes after this phase and dependent template changes are present.
 
 ### Dependencies

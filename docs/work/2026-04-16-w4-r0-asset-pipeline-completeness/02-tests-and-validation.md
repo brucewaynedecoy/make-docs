@@ -66,14 +66,14 @@ A new template-completeness test walks the template directory and compares it ag
 
 ### Tasks
 
-1. Run `npm test -w starter-docs` — all tests pass.
+1. Run `npm test -w make-docs` — all tests pass.
 2. Run `bash scripts/check-instruction-routers.sh` — exits 0.
 3. Run `node scripts/smoke-pack.mjs` — pack/install/verify succeeds.
 4. Manual spot-check: run a reduced-profile install into a temp dir and verify all previously unmanaged files are now present.
 
 ### Acceptance criteria
 
-- [x] `npm test -w starter-docs` exits 0 (44 tests, 6 files — 1 new template-completeness test)
+- [x] `npm test -w make-docs` exits 0 (44 tests, 6 files — 1 new template-completeness test)
 - [x] `bash scripts/check-instruction-routers.sh` exits 0
 - [x] `node scripts/smoke-pack.mjs` exits 0
 - [x] Reduced-profile install includes all 7 previously unmanaged files (verified by assertions)

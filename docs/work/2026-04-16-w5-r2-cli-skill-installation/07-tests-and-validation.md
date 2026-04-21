@@ -106,11 +106,11 @@ This phase adds or updates tests across five test files and one smoke script, th
 
 ### Tasks
 
-1. Run `npm test -w starter-docs` — all tests pass.
+1. Run `npm test -w make-docs` — all tests pass.
 2. Run `bash scripts/check-instruction-routers.sh` — passes.
 3. Run `bash scripts/check-wave-numbering.sh` — passes (w5-r2 is valid).
 4. Run `node scripts/smoke-pack.mjs` — pack/install/verify succeeds including skills.
-5. Dogfood: run `npm run dev -w starter-docs -- init --yes --target /tmp/skill-dogfood-r2` and verify:
+5. Dogfood: run `npm run dev -w make-docs -- init --yes --target /tmp/skill-dogfood-r2` and verify:
    - `.claude/skills/` exists with skill files
    - `.agents/skills/` exists with skill files
    - Opening a new Claude Code session in `/tmp/skill-dogfood-r2` discovers the installed skills
@@ -118,7 +118,7 @@ This phase adds or updates tests across five test files and one smoke script, th
 
 ### Acceptance criteria
 
-- [ ] `npm test -w starter-docs` passes with zero failures
+- [ ] `npm test -w make-docs` passes with zero failures
 - [ ] `bash scripts/check-instruction-routers.sh` passes
 - [ ] `bash scripts/check-wave-numbering.sh` passes
 - [ ] `node scripts/smoke-pack.mjs` passes end-to-end

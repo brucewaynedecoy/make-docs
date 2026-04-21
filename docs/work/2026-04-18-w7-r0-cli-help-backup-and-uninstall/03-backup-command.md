@@ -4,7 +4,7 @@
 
 ## Purpose
 
-Implement `starter-docs backup` as the non-destructive lifecycle command that consumes one audit result, presents it clearly, resolves a deterministic backup destination, and copies the audited payload without modifying the originals.
+Implement `make-docs backup` as the non-destructive lifecycle command that consumes one audit result, presents it clearly, resolves a deterministic backup destination, and copies the audited payload without modifying the originals.
 
 ## Overview
 
@@ -18,7 +18,7 @@ This phase turns the audit contract into a usable command. It owns backup comman
 
 ### Tasks
 
-1. Update `packages/cli/src/cli.ts` so `starter-docs backup` dispatches into backup execution instead of the Phase-1 placeholder error.
+1. Update `packages/cli/src/cli.ts` so `make-docs backup` dispatches into backup execution instead of the Phase-1 placeholder error.
 2. Keep `backup --help` routed to its command-specific help surface without running audit.
 3. Default to interactive confirmation when `--yes` is omitted.
 4. Treat legacy `--permissions` values as unknown arguments.
@@ -26,8 +26,8 @@ This phase turns the audit contract into a usable command. It owns backup comman
 
 ### Acceptance criteria
 
-- [ ] `starter-docs backup` dispatches to backup execution
-- [ ] `starter-docs backup --help` still exits before audit/copy work
+- [ ] `make-docs backup` dispatches to backup execution
+- [ ] `make-docs backup --help` still exits before audit/copy work
 - [ ] Omitting `--yes` defaults backup to interactive confirmation
 - [ ] Legacy `--permissions` values fail clearly as unknown arguments
 - [ ] CLI tests cover final backup command routing and help
@@ -131,8 +131,8 @@ This phase turns the audit contract into a usable command. It owns backup comman
 - [ ] `_home` path mapping is covered
 - [ ] Non-destructive backup behavior is covered
 - [ ] default confirmation vs `--yes` behavior is covered
-- [ ] `npm run build -w starter-docs` succeeds
-- [ ] `npm test -w starter-docs` passes
+- [ ] `npm run build -w make-docs` succeeds
+- [ ] `npm test -w make-docs` passes
 
 ### Dependencies
 

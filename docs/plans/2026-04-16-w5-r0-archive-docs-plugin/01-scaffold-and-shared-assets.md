@@ -50,7 +50,7 @@ Create `packages/skills/archive-docs/plugin.json` with the following structure:
 {
   "name": "archive-docs",
   "version": "0.1.0",
-  "description": "Relationship-aware document archival, staleness detection, deprecation, and impact analysis for starter-docs projects.",
+  "description": "Relationship-aware document archival, staleness detection, deprecation, and impact analysis for make-docs projects.",
   "skills": [
     {
       "name": "archive",

@@ -54,7 +54,7 @@ This phase is intentionally about classification, not side effects. It should pr
    - `manifest.files` as the primary managed file map
    - `manifest.skillFiles` as additional managed candidates
    - `manifest.selections` as the source of prior selection context
-3. Implement manifest-missing fallback that inspects only known starter-docs-managed locations and remains conservative in ambiguous cases.
+3. Implement manifest-missing fallback that inspects only known make-docs-managed locations and remains conservative in ambiguous cases.
 4. Ensure the audit never treats `.backup/` contents as removal candidates.
 5. Keep this stage classification-only: no copy or delete behavior.
 
@@ -62,7 +62,7 @@ This phase is intentionally about classification, not side effects. It should pr
 
 - [ ] `packages/cli/src/audit.ts` exists and exports the shared audit entrypoint
 - [ ] Manifest-present mode is driven by manifest files, skill files, and selections
-- [ ] Manifest-missing mode only inspects expected starter-docs-managed locations
+- [ ] Manifest-missing mode only inspects expected make-docs-managed locations
 - [ ] `.backup/` contents are excluded from removal consideration
 - [ ] The audit performs no mutations
 
@@ -130,8 +130,8 @@ This phase is intentionally about classification, not side effects. It should pr
 - [ ] `.backup/` exclusion is covered
 - [ ] Root instruction file match/non-match behavior is covered
 - [ ] Home/global audit-path handling is covered
-- [ ] `npm test -w starter-docs -- tests/audit.test.ts` passes
-- [ ] `npm test -w starter-docs` passes
+- [ ] `npm test -w make-docs -- tests/audit.test.ts` passes
+- [ ] `npm test -w make-docs` passes
 
 ### Dependencies
 

@@ -77,15 +77,15 @@ Four sequential stages: introduce the derivation helper in types.ts, update cata
 
 ### Tasks
 
-1. Run `npm run build -w starter-docs` and fix any compilation errors.
-2. Run `npm test -w starter-docs` and fix any test failures caused by the new derivation path.
+1. Run `npm run build -w make-docs` and fix any compilation errors.
+2. Run `npm test -w make-docs` and fix any test failures caused by the new derivation path.
 3. Update any test fixtures that construct `InstallSelections` with `instructionKinds` to instead use `harnesses` where the derivation is now expected.
 4. Verify no remaining direct references to `instructionKinds` in `catalog.ts` or `renderers.ts`.
 
 ### Acceptance criteria
 
-- [x] `npm run build -w starter-docs` succeeds with zero errors.
-- [x] `npm test -w starter-docs` passes with no regressions.
+- [x] `npm run build -w make-docs` succeeds with zero errors.
+- [x] `npm test -w make-docs` passes with no regressions.
 - [x] No test fixture in catalog or renderer tests references `instructionKinds` directly.
 - [x] Grep for `instructionKinds` in `catalog.ts` and `renderers.ts` returns zero matches.
 

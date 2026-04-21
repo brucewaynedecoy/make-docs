@@ -58,7 +58,7 @@ Optional fields include:
 
 ```yaml
 provider: "OpenAI"
-repo: "starter-docs"
+repo: "make-docs"
 branch: "main"
 status: "completed"
 summary: "Short summary of the session."
@@ -90,7 +90,7 @@ Unknown deeper levels are omitted.
 
 Create minimal router instructions:
 
-- `docs/.assets/AGENTS.md` and `docs/.assets/CLAUDE.md` route to `history/` and `starter-docs/`.
+- `docs/.assets/AGENTS.md` and `docs/.assets/CLAUDE.md` route to `history/` and `make-docs/`.
 - `docs/.assets/history/AGENTS.md` and `CLAUDE.md` point to `docs/.references/agent-guide-contract.md` and `docs/.templates/agent-guide.md`.
 - `docs/.assets/config/AGENTS.md` and `CLAUDE.md` explain that this namespace is CLI-managed state and should not be hand-edited except for deliberate recovery or diagnostics.
 

@@ -31,18 +31,18 @@ Update tests and validation scripts for the new package/bin identity, then prove
 5. Run exact-match stale-reference checks over tracked files:
 
    ```text
-   git grep -n "starter-docs"
-   git grep -n "Starter-Docs"
-   git grep -n "Starter Docs"
-   git grep -n "starter docs"
-   git grep -n "STARTER_DOCS"
-   git grep -n "@starter-docs"
+   git grep -n "make-docs"
+   git grep -n "Make-Docs"
+   git grep -n "Make Docs"
+   git grep -n "make docs"
+   git grep -n "MAKE_DOCS"
+   git grep -n "@make-docs"
    ```
 
 6. Run tracked-path stale-reference checks:
 
    ```text
-   git ls-files | rg "starter-docs|Starter-Docs|Starter Docs|starter docs|STARTER_DOCS|@starter-docs"
+   git ls-files | rg "make-docs|Make-Docs|Make Docs|make docs|MAKE_DOCS|@make-docs"
    ```
 
 ## Parallelization

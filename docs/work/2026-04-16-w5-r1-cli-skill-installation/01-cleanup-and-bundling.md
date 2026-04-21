@@ -73,14 +73,14 @@ Three independent cleanup and configuration tasks run in parallel: deleting inva
 
 ### Tasks
 
-1. Run `npm run prepack -w starter-docs`.
+1. Run `npm run prepack -w make-docs`.
 2. Verify `packages/cli/skills/` directory exists after the prepack run.
 3. Confirm `packages/cli/skills/decompose-codebase/` is present with its assets.
 4. Confirm `packages/cli/skills/archive-docs/` is present with its assets.
 
 ### Acceptance criteria
 
-- [x] `npm run prepack -w starter-docs` completes without errors.
+- [x] `npm run prepack -w make-docs` completes without errors.
 - [x] `packages/cli/skills/decompose-codebase/` exists in the bundled output.
 - [x] `packages/cli/skills/archive-docs/` exists in the bundled output.
 

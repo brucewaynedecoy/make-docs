@@ -25,8 +25,8 @@ This phase keeps the existing install planner, manifest, and selection machinery
 
 ### Acceptance criteria
 
-- [ ] `starter-docs --yes` installs when no manifest exists
-- [ ] `starter-docs --yes` syncs saved selections when a manifest exists
+- [ ] `make-docs --yes` installs when no manifest exists
+- [ ] `make-docs --yes` syncs saved selections when a manifest exists
 - [ ] bare existing-install sync does not ask update vs reconfigure
 
 ### Dependencies
@@ -44,7 +44,7 @@ This phase keeps the existing install planner, manifest, and selection machinery
 
 ### Acceptance criteria
 
-- [ ] `starter-docs --yes --no-skills` disables skills on an existing install
+- [ ] `make-docs --yes --no-skills` disables skills on an existing install
 - [ ] Desired-state selection changes are saved to the manifest
 - [ ] Desired-state selection changes are applied in the same run
 - [ ] Existing incompatible selection flag validation still applies
@@ -53,22 +53,22 @@ This phase keeps the existing install planner, manifest, and selection machinery
 
 - Stage 1
 
-## Stage 3 — Implement `starter-docs reconfigure`
+## Stage 3 — Implement `make-docs reconfigure`
 
 ### Tasks
 
-1. Require an existing manifest for `starter-docs reconfigure`.
+1. Require an existing manifest for `make-docs reconfigure`.
 2. In interactive mode, open the selection wizard from current manifest selections.
 3. In non-interactive mode, require at least one selection flag.
-4. Fail `starter-docs reconfigure --yes` without selection flags with clear guidance.
+4. Fail `make-docs reconfigure --yes` without selection flags with clear guidance.
 5. Apply and persist reconfigured selections through the existing install planner.
 
 ### Acceptance criteria
 
-- [ ] `starter-docs reconfigure` opens the wizard from existing selections
-- [ ] `starter-docs reconfigure --yes --no-skills` changes and applies selections
-- [ ] `starter-docs reconfigure --yes` without selection flags fails clearly
-- [ ] `starter-docs reconfigure` without a manifest fails with guidance to run `starter-docs` first
+- [ ] `make-docs reconfigure` opens the wizard from existing selections
+- [ ] `make-docs reconfigure --yes --no-skills` changes and applies selections
+- [ ] `make-docs reconfigure --yes` without selection flags fails clearly
+- [ ] `make-docs reconfigure` without a manifest fails with guidance to run `make-docs` first
 
 ### Dependencies
 

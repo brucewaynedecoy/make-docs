@@ -69,5 +69,5 @@ Update the help text to include `--no-skills` in the init usage line.
 - [ ] The wizard includes a "Install agent skills?" prompt in the options step.
 - [ ] The review summary shows skills status.
 - [ ] `printHelp` includes `--no-skills`.
-- [ ] `npm run build -w starter-docs` succeeds.
-- [ ] `npm test -w starter-docs` passes.
+- [ ] `npm run build -w make-docs` succeeds.
+- [ ] `npm test -w make-docs` passes.

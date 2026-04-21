@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This file is the single source of truth for the Wave/Revision/Phase (W/R/P) encoding used across `starter-docs` v2.
+This file is the single source of truth for the Wave/Revision/Phase (W/R/P) encoding used across `make-docs` v2.
 
 Every other reference file, template, and router links here instead of restating these rules. The encoding was piloted in `docs/.references/history-record-contract.md` and is extended to designs, plans, and work in v2. PRDs are exempt; see `## PRD Exemption`.
 

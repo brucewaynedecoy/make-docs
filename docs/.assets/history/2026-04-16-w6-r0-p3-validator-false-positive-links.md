@@ -7,7 +7,7 @@ coordinate: "W6 R0 P3"
 
 ## Changes
 
-Created the test suite for the validator false-positive link fix and ran a full validation pass against the starter-docs repo to confirm no regressions.
+Created the test suite for the validator false-positive link fix and ran a full validation pass against the make-docs repo to confirm no regressions.
 
 | Area | Summary |
 | --- | --- |
@@ -16,7 +16,7 @@ Created the test suite for the validator false-positive link fix and ran a full 
 | `TestIsPlausibleLinkTarget` (12 tests) | Rejects commas, ellipsis, quotes, unescaped spaces. Accepts relative paths, parent paths, fragments, escaped spaces, bare filenames, subdirectories. |
 | `TestValidateLinksEndToEnd` (8 tests) | Temp-directory fixtures: code-only docs, broken links, valid links, fragment/URL/mailto skipping, mixed content, bare bracket-paren heuristic, work directory filtering, full `build_result` integration with minimal PRD skeleton. |
 | Simplification pass | Extracted `_check_prd()` / `_check_work()` helpers, `_write_minimal_prd_set()` skeleton builder, hoisted `self.resolved_root` into setUp, added unclosed-fence edge case. |
-| Regression check | Ran `validate_output.py --repo-root .` against the starter-docs repo. All 31 errors are pre-existing structural issues. The single link error is a genuinely broken reference (renamed design file). Zero false positives from code patterns. |
+| Regression check | Ran `validate_output.py --repo-root .` against the make-docs repo. All 31 errors are pre-existing structural issues. The single link error is a genuinely broken reference (renamed design file). Zero false positives from code patterns. |
 
 Files created:
 

@@ -1,6 +1,6 @@
-# @starter-docs/template
+# @make-docs/template
 
-The shippable documentation template for `starter-docs`. Consumers receive this tree in their project root (via the `starter-docs` CLI or a manual copy); every file here ends up on a consumer's machine.
+The shippable documentation template for `make-docs`. Consumers receive this tree in their project root (via the `make-docs` CLI or a manual copy); every file here ends up on a consumer's machine.
 
 ## Package Layout
 
@@ -19,7 +19,7 @@ packages/docs/
         ├── .templates/               # structural starters for generated docs
         ├── .assets/                  # operational assets
         │   ├── history/              # session history records
-        │   └── starter-docs/         # CLI manifest and conflict staging
+        │   └── config/            # CLI manifest and conflict staging
         ├── designs/                  # architectural decisions (ADRs)
         ├── guides/                   # user and developer guides
         ├── plans/                    # approach + rationale (always directories in v2)
@@ -33,7 +33,7 @@ The CLI at `packages/cli/` bundles this template at publish time:
 
 1. `prepack` runs `scripts/copy-template-to-cli.mjs`, which copies `packages/docs/template/` into `packages/cli/template/`.
 2. `npm publish` ships `packages/cli/` including the bundled `template/`.
-3. On the consumer's machine, `npx starter-docs` copies the template into the consumer's project root on first install.
+3. On the consumer's machine, `npx make-docs` copies the template into the consumer's project root on first install.
 
 In dev, the CLI reads directly from `packages/docs/template/` via a sibling-first resolver in `packages/cli/src/utils.ts`. Edit this package's `template/` directly; no manual sync is needed.
 
@@ -121,4 +121,4 @@ The re-seed is manual because:
 
 ## Publishing
 
-This package is currently `private: true`. It is not published to npm standalone — consumers get the template through the `starter-docs` CLI. If we decide to publish it independently later, see `starter-docs-v2-publish.md` at the repo root.
+This package is currently `private: true`. It is not published to npm standalone — consumers get the template through the `make-docs` CLI. If we decide to publish it independently later, see `make-docs-v2-publish.md` at the repo root.

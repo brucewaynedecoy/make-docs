@@ -15,7 +15,7 @@ applies-to:
 
 ## Overview
 
-This guide walks developers and contributors through building, running, and testing the `starter-docs` CLI from source. It covers day-to-day development workflows, local installation methods, and the smoke-test pipeline. If you are a consumer of the published npm package rather than a contributor, this guide is not for you.
+This guide walks developers and contributors through building, running, and testing the `make-docs` CLI from source. It covers day-to-day development workflows, local installation methods, and the smoke-test pipeline. If you are a consumer of the published npm package rather than a contributor, this guide is not for you.
 
 ## Prerequisites
 
@@ -30,8 +30,8 @@ This guide walks developers and contributors through building, running, and test
 Clone the repository and install all workspace dependencies from the repo root:
 
 ```sh
-git clone <repo-url> starter-docs
-cd starter-docs
+git clone <repo-url> make-docs
+cd make-docs
 npm install
 ```
 
@@ -49,7 +49,7 @@ npm run build
 just build
 ```
 
-Both commands delegate to `npm run build -w starter-docs`, which runs `tsup` inside `packages/cli/`. The compiled output lands in `packages/cli/dist/`.
+Both commands delegate to `npm run build -w make-docs`, which runs `tsup` inside `packages/cli/`. The compiled output lands in `packages/cli/dist/`.
 
 ## Running in Development Mode
 
@@ -63,7 +63,7 @@ npm run dev
 just dev
 ```
 
-Both delegate to `npm run dev -w starter-docs`, which runs `tsx src/index.ts` inside `packages/cli/`.
+Both delegate to `npm run dev -w make-docs`, which runs `tsx src/index.ts` inside `packages/cli/`.
 
 During development the CLI resolves the documentation template from the sibling workspace at `packages/docs/template/` (see `resolveTemplateRoot()` in [`packages/cli/src/utils.ts`](../../../packages/cli/src/utils.ts)). No copy step is required -- edits to template files are picked up immediately.
 
@@ -134,7 +134,7 @@ If any step fails the script exits non-zero with a diagnostic message.
 
 ## Installing Locally via npm link
 
-`npm link` creates a global symlink so you can invoke `starter-docs` from any directory, pointing at your local build:
+`npm link` creates a global symlink so you can invoke `make-docs` from any directory, pointing at your local build:
 
 ```sh
 cd packages/cli
@@ -145,7 +145,7 @@ npm link
 Verify the link:
 
 ```sh
-starter-docs --help
+make-docs --help
 ```
 
 You should see the CLI help output. Any subsequent `npm run build` updates the linked binary in place.
@@ -153,7 +153,7 @@ You should see the CLI help output. Any subsequent `npm run build` updates the l
 To remove the global link when you are done:
 
 ```sh
-npm unlink -g starter-docs
+npm unlink -g make-docs
 ```
 
 ## Installing Locally via npm pack
@@ -166,22 +166,22 @@ npm run prepack
 npm pack
 ```
 
-This produces a tarball such as `starter-docs-0.1.0.tgz`. Install it globally:
+This produces a tarball such as `make-docs-0.1.0.tgz`. Install it globally:
 
 ```sh
-npm install -g ./starter-docs-0.1.0.tgz
+npm install -g ./make-docs-0.1.0.tgz
 ```
 
 Test the installed CLI:
 
 ```sh
-starter-docs --dry-run --yes --target /tmp/test-install
+make-docs --dry-run --yes --target /tmp/test-install
 ```
 
 To uninstall:
 
 ```sh
-npm uninstall -g starter-docs
+npm uninstall -g make-docs
 ```
 
 ## Common Development Workflows
@@ -193,7 +193,7 @@ npm uninstall -g starter-docs
 | Run the full test suite | `npm test` |
 | Validate defaults after changing a template | `npm run validate:defaults` |
 | Full pre-publish check | `npm test && npm run validate:defaults && npm run smoke:pack` |
-| Test as a globally installed package | `cd packages/cli && npm run build && npm link`, then run `starter-docs` from another directory |
+| Test as a globally installed package | `cd packages/cli && npm run build && npm link`, then run `make-docs` from another directory |
 
 ## Troubleshooting
 
@@ -207,7 +207,7 @@ npm uninstall -g starter-docs
 
 ### Stale build output
 
-**Symptom:** Code changes are not reflected when running `node packages/cli/dist/index.js` or the globally linked `starter-docs` command.
+**Symptom:** Code changes are not reflected when running `node packages/cli/dist/index.js` or the globally linked `make-docs` command.
 
 **Cause:** The `dist/` directory contains a previous build. Unlike `npm run dev`, the compiled entry point does not pick up source changes automatically.
 
@@ -242,7 +242,7 @@ Restart your shell and retry.
 
 ```sh
 node scripts/copy-template-to-cli.mjs
-npm run build -w starter-docs
+npm run build -w make-docs
 ```
 
 Check for TypeScript errors in the build output and verify that `packages/docs/template/` is populated.

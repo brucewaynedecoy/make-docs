@@ -70,20 +70,20 @@ Three stages run mostly in parallel: updating the prepack script with registry-d
 
 ### Tasks
 
-1. Run `npm run prepack -w starter-docs`.
+1. Run `npm run prepack -w make-docs`.
 2. Verify `packages/cli/skills-staging/` exists and contains only files declared in `skill-registry.json`.
 3. Verify files not declared in the registry are absent from the staging directory.
 4. Verify `packages/cli/skill-registry.json` exists.
-5. Run `npm run build -w starter-docs` and confirm it succeeds.
-6. Run `npm test -w starter-docs` and confirm no regressions.
+5. Run `npm run build -w make-docs` and confirm it succeeds.
+6. Run `npm test -w make-docs` and confirm no regressions.
 
 ### Acceptance criteria
 
-- [x] `npm run prepack -w starter-docs` completes without errors.
+- [x] `npm run prepack -w make-docs` completes without errors.
 - [x] `packages/cli/skills-staging/` contains exactly the registry-declared entry points and assets — nothing more.
 - [x] `packages/cli/skill-registry.json` is present after prepack.
-- [x] `npm run build -w starter-docs` succeeds.
-- [x] `npm test -w starter-docs` passes with no regressions.
+- [x] `npm run build -w make-docs` succeeds.
+- [x] `npm test -w make-docs` passes with no regressions.
 
 ### Dependencies
 

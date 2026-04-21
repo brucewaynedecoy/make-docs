@@ -16,7 +16,7 @@ Replaced the `instructionKinds: Record<InstructionKind, boolean>` selection mode
 | `manifest.ts` | Added `migrateSelections()` — detects legacy manifests with `instructionKinds` and derives the new `harnesses` + `skillScope` fields, stripping `instructionKinds` from the returned object. Invoked in `loadManifest()` so every loaded manifest is normalized. |
 | `catalog.ts`, `wizard.ts`, `cli.ts` | Rewired all `selections.instructionKinds[...]` reads/writes to use `selections.harnesses[INSTRUCTION_KIND_TO_HARNESS[kind]]`. Wizard's internal `WizardOptionSelections.instructionKinds: InstructionKind[]` is intentionally preserved — Phase 6 restructures the wizard flow. |
 | `cli.ts::resolveSelections` | Replaced the field-by-field `InstallSelections` rebuild with `cloneSelections(baseSelections)` so future `InstallSelections` additions don't require touching this call site. |
-| Tests | Updated two assertions in `wizard.test.ts` that read the new shape (`selections.harnesses["claude-code"]` / `result?.harnesses`). All 44 tests pass; `tsc --noEmit` and `npm run build -w starter-docs` clean. |
+| Tests | Updated two assertions in `wizard.test.ts` that read the new shape (`selections.harnesses["claude-code"]` / `result?.harnesses`). All 44 tests pass; `tsc --noEmit` and `npm run build -w make-docs` clean. |
 
 Files modified:
 

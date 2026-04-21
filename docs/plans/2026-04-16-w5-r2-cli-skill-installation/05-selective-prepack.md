@@ -74,6 +74,6 @@ If Phase 1 (R1) previously added a bulk `"skills"` entry, remove it in favor of 
 - [ ] Files not declared in the registry are excluded from the staging directory.
 - [ ] `skill-registry.json` is copied into the CLI package root.
 - [ ] `packages/cli/package.json` `files` array includes `"skills-staging"` and `"skill-registry.json"`.
-- [ ] Running `npm run prepack -w starter-docs` produces `packages/cli/skills-staging/` containing exactly the registry-declared files and nothing else.
-- [ ] `npm run build -w starter-docs` succeeds.
-- [ ] `npm test -w starter-docs` passes with no regressions.
+- [ ] Running `npm run prepack -w make-docs` produces `packages/cli/skills-staging/` containing exactly the registry-declared files and nothing else.
+- [ ] `npm run build -w make-docs` succeeds.
+- [ ] `npm test -w make-docs` passes with no regressions.

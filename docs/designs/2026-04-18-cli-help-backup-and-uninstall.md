@@ -14,7 +14,7 @@ The current CLI is strong at install and reconfigure flows, but it still has thr
 
 The repo already has pieces that should shape this design instead of being replaced:
 
-- the CLI manifest at `docs/.starter-docs/manifest.json`
+- the CLI manifest at `docs/.make-docs/manifest.json`
 - install planning and managed-file removal behavior in the planner/install pipeline
 - harness-specific root instruction files: `CLAUDE.md` and `AGENTS.md`
 - project-scoped and global/home-directory skill installs
@@ -29,11 +29,11 @@ This is a new decision area rather than another revision of the `w5` skill-insta
 
 The CLI should expose five top-level user-facing help surfaces:
 
-- `starter-docs --help`
-- `starter-docs init --help`
-- `starter-docs update --help`
-- `starter-docs backup [--target <dir>] [--yes] [--help]`
-- `starter-docs uninstall [--target <dir>] [--backup] [--yes] [--help]`
+- `make-docs --help`
+- `make-docs init --help`
+- `make-docs update --help`
+- `make-docs backup [--target <dir>] [--yes] [--help]`
+- `make-docs uninstall [--target <dir>] [--backup] [--yes] [--help]`
 
 Top-level help should no longer be a flat usage block. It should become a structured summary page with:
 
@@ -52,16 +52,16 @@ Command-specific help screens should follow the same structure at a smaller scal
 
 The audit source of truth should be:
 
-- manifest-first when `docs/.starter-docs/manifest.json` exists
+- manifest-first when `docs/.make-docs/manifest.json` exists
 - conservative expected-path fallback when the manifest is missing
 
-When a manifest is present, the audit should use it as the primary ownership record for managed files, skill files, selected harnesses, and other installed outputs. When the manifest is absent, the audit should limit itself to known starter-docs-managed locations and should remain conservative rather than guessing broadly across the tree.
+When a manifest is present, the audit should use it as the primary ownership record for managed files, skill files, selected harnesses, and other installed outputs. When the manifest is absent, the audit should limit itself to known make-docs-managed locations and should remain conservative rather than guessing broadly across the tree.
 
 Audit results should classify:
 
 - files eligible for backup/removal
 - directories eligible for pruning after leaf removal
-- retained paths that look starter-docs-related but must be preserved
+- retained paths that look make-docs-related but must be preserved
 - skipped or conflicted paths that require preservation because they are not clearly CLI-owned
 
 The audit must never consider anything under `.backup/` as a removal candidate.
@@ -79,14 +79,14 @@ This applies to both project-local and global/home-directory install roots. The 
 
 For root instruction files, path-only ownership is not sufficient. `CLAUDE.md` and `AGENTS.md` should be inspected by content:
 
-- remove them only when their current contents exactly match the generated starter-docs instruction content for the applicable harness selection
+- remove them only when their current contents exactly match the generated make-docs instruction content for the applicable harness selection
 - preserve them when contents differ, because that indicates preexisting user files or post-install customization
 
 This file-content rule is intentionally stricter than the directory-pruning rule because root instruction files are user-visible authoring surfaces and are especially likely to be customized.
 
 ### 4. Add a dedicated `backup` command with deterministic backup roots
 
-`starter-docs backup` should be a non-destructive maintenance command that:
+`make-docs backup` should be a non-destructive maintenance command that:
 
 - runs the shared audit
 - shows the audited file set in a clean terminal summary
@@ -112,18 +112,18 @@ Same-day backup naming should be deterministic:
 
 ### 5. Add a safety-first `uninstall` command with optional pre-removal backup
 
-`starter-docs uninstall` should be a destructive maintenance command that removes the same audited file set that `backup` would copy.
+`make-docs uninstall` should be a destructive maintenance command that removes the same audited file set that `backup` would copy.
 
 The uninstall flow should be deliberately explicit:
 
 1. show an initial warning panel before execution proceeds
-2. if `--backup` is not present, that warning must explicitly suggest `starter-docs backup` and `starter-docs uninstall --backup` as safer alternatives
+2. if `--backup` is not present, that warning must explicitly suggest `make-docs backup` and `make-docs uninstall --backup` as safer alternatives
 3. run the shared audit
 4. show a detailed audit summary listing exactly what will be removed and what will be preserved
 5. show a final confirmation that removal cannot be undone
 6. remove audited files and prune only the emptied parent directories
 
-`starter-docs uninstall --backup` should be a single combined flow:
+`make-docs uninstall --backup` should be a single combined flow:
 
 - run the audit once
 - present uninstall messaging that also states the exact backup destination that will be created
@@ -157,7 +157,7 @@ The goal is not ornamental UI. The goal is to make destructive and semi-destruct
 
 **Delete whole managed directories directly instead of pruning upward from leaves.** Rejected because directory-level deletion is too risky when users may have added their own files under harness or skill directories after installation.
 
-**Always delete root instruction files if their names match expected starter-docs outputs.** Rejected because filename matching is not enough to distinguish generated instructions from user-authored or user-modified files.
+**Always delete root instruction files if their names match expected make-docs outputs.** Rejected because filename matching is not enough to distinguish generated instructions from user-authored or user-modified files.
 
 ## Consequences
 

@@ -119,6 +119,6 @@ There is no expected overlap with installer, planner, manifest, or CLI-flag surf
 - [ ] `InstallSelections.optionalSkills` stores only optional skill ids
 - [ ] Required skills are not copied into `optionalSkills`
 - [ ] The prompt is skipped when there are no optional skills in the registry
-- [ ] `npm test -w starter-docs -- tests/wizard.test.ts tests/skill-catalog.test.ts` passes
-- [ ] `npm test -w starter-docs` passes
+- [ ] `npm test -w make-docs -- tests/wizard.test.ts tests/skill-catalog.test.ts` passes
+- [ ] `npm test -w make-docs` passes
 - [ ] Manual `init --dry-run` verification confirms the screen no longer makes optional skills effectively required

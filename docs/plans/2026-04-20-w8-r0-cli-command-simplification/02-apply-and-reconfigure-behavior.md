@@ -2,7 +2,7 @@
 
 ## Objective
 
-Implement the semantics behind the simplified command model without changing the underlying install planner more than necessary. Bare `starter-docs` applies desired state, while `starter-docs reconfigure` explicitly changes the saved install footprint.
+Implement the semantics behind the simplified command model without changing the underlying install planner more than necessary. Bare `make-docs` applies desired state, while `make-docs reconfigure` explicitly changes the saved install footprint.
 
 ## Depends On
 
@@ -19,21 +19,21 @@ Implement the semantics behind the simplified command model without changing the
 
 ## Detailed Changes
 
-### 1. Bare `starter-docs` applies desired state
+### 1. Bare `make-docs` applies desired state
 
-When no manifest exists, bare `starter-docs` should install using default selections plus any selection flags.
+When no manifest exists, bare `make-docs` should install using default selections plus any selection flags.
 
-When a manifest exists and no selection flags are present, bare `starter-docs` should sync using the saved manifest selections. It should not ask whether the user wants update versus reconfigure.
+When a manifest exists and no selection flags are present, bare `make-docs` should sync using the saved manifest selections. It should not ask whether the user wants update versus reconfigure.
 
-When a manifest exists and selection flags are present, bare `starter-docs` should treat those flags as desired state, update the saved selections, and apply the resulting plan.
+When a manifest exists and selection flags are present, bare `make-docs` should treat those flags as desired state, update the saved selections, and apply the resulting plan.
 
-### 2. `starter-docs reconfigure` changes selections
+### 2. `make-docs reconfigure` changes selections
 
-`starter-docs reconfigure` requires an existing manifest. If no manifest exists, it should fail with guidance to run `starter-docs` first.
+`make-docs reconfigure` requires an existing manifest. If no manifest exists, it should fail with guidance to run `make-docs` first.
 
-Interactive `starter-docs reconfigure` should open the selection wizard with current manifest selections.
+Interactive `make-docs reconfigure` should open the selection wizard with current manifest selections.
 
-Non-interactive `starter-docs reconfigure --yes` should require at least one selection flag. Without selection flags it should fail because there is no wizard input to define the change.
+Non-interactive `make-docs reconfigure --yes` should require at least one selection flag. Without selection flags it should fail because there is no wizard input to define the change.
 
 ### 3. Preserve existing planner safety behavior
 
@@ -49,11 +49,11 @@ The existing install planner and apply confirmation behavior should remain the f
 
 ## Acceptance Criteria
 
-- [ ] Bare `starter-docs --yes` installs when no manifest exists.
-- [ ] Bare `starter-docs --yes` syncs existing manifest selections when a manifest exists.
-- [ ] Bare `starter-docs --yes --no-skills` updates saved selections on an existing install and applies the resulting state.
-- [ ] `starter-docs reconfigure` opens the wizard from current manifest selections.
-- [ ] `starter-docs reconfigure --yes --no-skills` updates saved selections and applies the resulting state.
-- [ ] `starter-docs reconfigure --yes` without selection flags fails clearly.
-- [ ] `starter-docs reconfigure` without a manifest fails with guidance to run `starter-docs` first.
+- [ ] Bare `make-docs --yes` installs when no manifest exists.
+- [ ] Bare `make-docs --yes` syncs existing manifest selections when a manifest exists.
+- [ ] Bare `make-docs --yes --no-skills` updates saved selections on an existing install and applies the resulting state.
+- [ ] `make-docs reconfigure` opens the wizard from current manifest selections.
+- [ ] `make-docs reconfigure --yes --no-skills` updates saved selections and applies the resulting state.
+- [ ] `make-docs reconfigure --yes` without selection flags fails clearly.
+- [ ] `make-docs reconfigure` without a manifest fails with guidance to run `make-docs` first.
 - [ ] `backup --yes` and `uninstall --yes` still behave as before.

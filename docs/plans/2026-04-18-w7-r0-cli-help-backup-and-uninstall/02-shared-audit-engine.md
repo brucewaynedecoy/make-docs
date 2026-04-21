@@ -2,7 +2,7 @@
 
 ## Objective
 
-Define and implement the shared audit substrate consumed by both `starter-docs backup` and `starter-docs uninstall`. This phase should establish one conservative, manifest-aware audit result that later phases can render, copy, and remove against without re-deciding ownership or path safety.
+Define and implement the shared audit substrate consumed by both `make-docs backup` and `make-docs uninstall`. This phase should establish one conservative, manifest-aware audit result that later phases can render, copy, and remove against without re-deciding ownership or path safety.
 
 ## Depends On
 
@@ -28,7 +28,7 @@ The shared result should distinguish at least:
 
 - managed files that are eligible for backup and/or removal
 - directories that become eligible for pruning only after managed-file removal
-- preserved paths that look related to starter-docs but must not be touched
+- preserved paths that look related to make-docs but must not be touched
 - skipped paths that were considered and intentionally excluded
 
 Each item should carry enough context for later phases to render clear summaries without re-inspecting the filesystem, including:
@@ -54,7 +54,7 @@ Manifest-present behavior:
 Manifest-missing fallback behavior:
 
 - do not guess broadly across the repo
-- only inspect starter-docs-owned locations that the CLI is expected to create, including root instruction files, docs routers, managed `docs/.starter-docs/` state, and known harness skill roots
+- only inspect make-docs-owned locations that the CLI is expected to create, including root instruction files, docs routers, managed `docs/.make-docs/` state, and known harness skill roots
 - treat fallback findings as candidates that still need ownership checks before being marked removable
 - prefer preservation over removal whenever ownership is ambiguous
 
@@ -94,7 +94,7 @@ When a manifest is present:
 When the manifest is missing:
 
 - use a conservative generated-fingerprint strategy rather than filename-only ownership
-- a root instruction file may be removable only when its contents exactly match a known starter-docs-generated fingerprint
+- a root instruction file may be removable only when its contents exactly match a known make-docs-generated fingerprint
 - if the content differs, preserve it and record the preservation reason explicitly
 
 Do not apply this exact-content requirement to every managed file in the tree. This stricter rule is specific to the root instruction files because they are likely to be user-authored or user-edited.
@@ -123,7 +123,7 @@ Create `audit.test.ts` coverage for the shared engine itself rather than only te
 Cover at least:
 
 - manifest-present installs with both docs files and skill files
-- manifest-missing fallback limited to expected starter-docs paths
+- manifest-missing fallback limited to expected make-docs paths
 - `.backup/` contents being ignored for both file and directory classification
 - modified root `AGENTS.md` / `CLAUDE.md` being preserved
 - exact-match generated root instruction files being classified as removable
@@ -143,11 +143,11 @@ Cover at least:
 - [ ] The audit result distinguishes removable files, prunable directories, preserved paths, and skipped or already-absent candidates.
 - [ ] Audit results are deterministic and sorted for stable rendering and test assertions.
 - [ ] When a manifest exists, audit classification is driven primarily by `manifest.files`, `manifest.skillFiles`, and `manifest.selections`.
-- [ ] When a manifest is missing, the audit inspects only known starter-docs-managed locations and remains conservative in ambiguous cases.
+- [ ] When a manifest is missing, the audit inspects only known make-docs-managed locations and remains conservative in ambiguous cases.
 - [ ] Paths under `.backup/` never appear as removable files or prunable directories.
 - [ ] Root `AGENTS.md` and `CLAUDE.md` are removable only on exact canonical or fingerprinted content matches.
 - [ ] Modified or user-authored root instruction files are preserved with explicit preservation reasons.
 - [ ] Directory prune candidates are ordered deepest-first and exclude any directory that still contains unmanaged or preserved content.
 - [ ] The audit result includes backup-relative destination paths for both project-local and home/global files.
-- [ ] `npm test -w starter-docs -- tests/audit.test.ts` passes.
-- [ ] `npm test -w starter-docs` passes.
+- [ ] `npm test -w make-docs -- tests/audit.test.ts` passes.
+- [ ] `npm test -w make-docs` passes.

@@ -51,5 +51,5 @@ All changes are within one file (`renderers.ts`). They should be made in a singl
 - [ ] `renderDesignWorkflow` emits `YYYY-MM-DD-<slug>.md` for both full and reduced variants.
 - [ ] `renderDesignContract` emits the simplified Required Path.
 - [ ] `renderDesignTemplate` emits the simplified filename blockquote.
-- [ ] `npm run build -w starter-docs` succeeds.
-- [ ] `npm test -w starter-docs` passes with no regressions (existing design-workflow content assertions still hold).
+- [ ] `npm run build -w make-docs` succeeds.
+- [ ] `npm test -w make-docs` passes with no regressions (existing design-workflow content assertions still hold).

@@ -112,7 +112,7 @@ Wire the full skill installation pipeline: resolve the skills root, discover and
 
 ### Tasks
 
-1. Run `npm run build -w starter-docs` and verify success.
+1. Run `npm run build -w make-docs` and verify success.
 2. Run existing tests and verify they pass with the new changes.
 
 ### Acceptance criteria

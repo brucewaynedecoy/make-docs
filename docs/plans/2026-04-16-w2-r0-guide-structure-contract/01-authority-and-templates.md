@@ -63,7 +63,7 @@ Include an example table:
 | ------------ | -------- |
 | `cli/development` | `cli-development-local-build-and-install.md` |
 | `cli/testing` | `cli-testing-smoke-pack.md` |
-| `getting-started` | `getting-started-installing-starter-docs.md` |
+| `getting-started` | `getting-started-installing-make-docs.md` |
 
 #### Section: `## Path Rules`
 

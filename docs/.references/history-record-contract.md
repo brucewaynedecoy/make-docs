@@ -33,7 +33,7 @@ Useful optional dimensions:
 
 ```yaml
 provider: "OpenAI"
-repo: "starter-docs"
+repo: "make-docs"
 branch: "main"
 status: "completed"
 summary: "Updated history routing and documentation contracts."

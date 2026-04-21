@@ -1,12 +1,12 @@
-# Docs Assets, Starter-Docs State, and Session History - Work Backlog
+# Docs Assets, Make-Docs State, and Session History - Work Backlog
 
 > See `docs/.references/wave-model.md` for W/R semantics.
 
 ## Purpose
 
-This backlog tracks execution of the docs assets, starter-docs state, and session history migration. It derives from [the `w9-r0` plan](../../plans/2026-04-20-w9-r0-docs-assets-state-and-history/00-overview.md) and the originating [design](../../designs/2026-04-20-docs-assets-state-and-history.md).
+This backlog tracks execution of the docs assets, make-docs state, and session history migration. It derives from [the `w9-r0` plan](../../plans/2026-04-20-w9-r0-docs-assets-state-and-history/00-overview.md) and the originating [design](../../designs/2026-04-20-docs-assets-state-and-history.md).
 
-The work moves starter-docs operational state and agent-authored session history into the template-owned `docs/.assets/` namespace. It is alpha-phase scoped and intentionally does not implement legacy migration from existing `docs/.starter-docs/` installs.
+The work moves make-docs operational state and agent-authored session history into the template-owned `docs/.assets/` namespace. It is alpha-phase scoped and intentionally does not implement legacy migration from existing `docs/.make-docs/` installs.
 
 ## Phase Map
 
@@ -27,4 +27,4 @@ The work moves starter-docs operational state and agent-authored session history
 - Phase 4 depends on Phases 1 and 2 because moved history records need the new destination and router contract.
 - Phase 5 depends on all previous phases and should remain a dedicated validation/fixup pass.
 - Use `jcodemunch` first for source search and `jdocmunch` first for docs search. Use `rg` only as an exact-match supplement for stale path checks.
-- Do not add compatibility reads for `docs/.starter-docs/manifest.json`; existing alpha installs are out of scope.
+- Do not add compatibility reads for `docs/.make-docs/manifest.json`; existing alpha installs are out of scope.

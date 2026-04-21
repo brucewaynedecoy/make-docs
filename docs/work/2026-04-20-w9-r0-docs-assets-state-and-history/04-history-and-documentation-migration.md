@@ -50,7 +50,7 @@ None. This backlog is derived from the `w9-r0` plan and design, not from an acti
 1. Update `README.md` to describe `docs/.assets/config/manifest.json` and the new conflict staging path.
 2. Update `packages/cli/README.md` with the same current state paths.
 3. Update `packages/cli/src/README.md` examples and conflict explanations.
-4. Update `docs/guides/user/getting-started-installing-starter-docs.md` manifest, conflict, troubleshooting, and directory tree references.
+4. Update `docs/guides/user/getting-started-installing-make-docs.md` manifest, conflict, troubleshooting, and directory tree references.
 5. Update `docs/guides/developer/cli-development-local-build-and-install.md` smoke-pack and manifest references.
 6. Update `packages/docs/README.md` router inventory and session-history descriptions.
 7. Keep historical design/plan/work references unchanged unless they are active source-of-truth instructions.
@@ -93,7 +93,7 @@ None. This backlog is derived from the `w9-r0` plan and design, not from an acti
 ### Tasks
 
 1. Re-run exact-match searches for `docs/guides/agent` across active docs and package sources.
-2. Re-run exact-match searches for `docs/.starter-docs` across active docs and package sources.
+2. Re-run exact-match searches for `docs/.make-docs` across active docs and package sources.
 3. Update active source-of-truth files that still route users or agents to retired paths.
 4. Leave clearly historical references in old designs, plans, work backlogs, and moved history records when they describe prior behavior.
 5. Record any intentional stale-reference allowlist in the final validation notes or implementation closeout.
@@ -101,7 +101,7 @@ None. This backlog is derived from the `w9-r0` plan and design, not from an acti
 ### Acceptance criteria
 
 - [x] Active source-of-truth docs do not route new history work to `docs/guides/agent/`.
-- [x] Active source-of-truth docs do not route users to `docs/.starter-docs/`.
+- [x] Active source-of-truth docs do not route users to `docs/.make-docs/`.
 - [x] Remaining old-path references are historical or explicitly allowlisted.
 - [x] Internal links introduced or changed by this phase resolve.
 

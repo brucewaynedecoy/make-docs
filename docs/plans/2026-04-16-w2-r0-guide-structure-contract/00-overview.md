@@ -40,7 +40,7 @@ This plan addresses the gap for guides-related files (adding guide routers and g
 
 ## Validation
 
-1. `npm test -w starter-docs` — all existing and new tests pass.
+1. `npm test -w make-docs` — all existing and new tests pass.
 2. `bash scripts/check-instruction-routers.sh` — routers validate in both the template and dogfood docs.
 3. `node scripts/smoke-pack.mjs` — end-to-end pack/install/verify succeeds.
 4. Manual verification: the two migrated guides have correct frontmatter and slug-mirrors-path filenames.

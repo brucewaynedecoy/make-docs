@@ -32,7 +32,7 @@ No tooling or skill exists to help agents:
 
 ### Artifact relationship model
 
-The `starter-docs` lifecycle creates a directed graph:
+The `make-docs` lifecycle creates a directed graph:
 
 ```
 design → plan → work backlog
@@ -58,7 +58,7 @@ The plugin needs to traverse these relationships in both directions:
 - The hard "never archive unless explicitly asked" rule remains. The plugin does NOT auto-archive anything — it interviews the user and executes only on explicit approval.
 - The plugin must work with the existing `docs/.archive/` structure and not introduce a new archive scheme.
 - Archived artifacts preserve their original filenames and directory structure (W/R naming for plans/work, date-slug for designs).
-- The plugin must handle both the dogfood `docs/` and consumer projects using `starter-docs`.
+- The plugin must handle both the dogfood `docs/` and consumer projects using `make-docs`.
 
 ### Skill vs. plugin
 
@@ -276,7 +276,7 @@ This change should be made in the template package and re-seeded to the dogfood 
 
 **Archive via git tags or branches instead of a directory.** Moving files to `docs/.archive/` could be replaced by tagging a commit and deleting the files, with retrieval via `git show`. Rejected because: it breaks the "archived artifacts are referenced in place via relative links" model that the existing contracts depend on. Files in `docs/.archive/` remain browsable and linkable.
 
-**A CLI command (`starter-docs archive`) instead of a plugin.** The archival logic could live in the CLI rather than as agent skills. Rejected because: the relationship tracing and user interview require conversational interaction that a CLI command can't provide. The plugin leverages the agent's ability to read files, follow links, and ask questions. A future CLI integration could invoke skills non-interactively for simple cases.
+**A CLI command (`make-docs archive`) instead of a plugin.** The archival logic could live in the CLI rather than as agent skills. Rejected because: the relationship tracing and user interview require conversational interaction that a CLI command can't provide. The plugin leverages the agent's ability to read files, follow links, and ask questions. A future CLI integration could invoke skills non-interactively for simple cases.
 
 **No relationship tracing — archive only what the user names.** Simpler to implement but loses the core value proposition. The whole point is that users shouldn't need to remember the full dependency chain. Rejected in favor of tracing-with-interview.
 
@@ -316,7 +316,7 @@ This change should be made in the template package and re-seeded to the dogfood 
 - Wave lifecycle management — deferred to the follow-on design.
 - PRD active-set rotation — deferred to the follow-on design.
 - Template-level distribution of the plugin — deferred to the follow-on design.
-- Integration with the `starter-docs` CLI for non-interactive archival — deferred to the follow-on design.
+- Integration with the `make-docs` CLI for non-interactive archival — deferred to the follow-on design.
 
 ## Intended Follow-On
 

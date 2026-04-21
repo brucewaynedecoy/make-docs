@@ -21,7 +21,7 @@ related:
 
 ## Overview
 
-`starter-docs` is no longer just a docs-template installer. It now has a real distribution surface for harness-aware skills, while still carrying a broader long-term ambition around “agentics” such as hooks, MCP servers, agent definitions, and other reusable add-ons.
+`make-docs` is no longer just a docs-template installer. It now has a real distribution surface for harness-aware skills, while still carrying a broader long-term ambition around “agentics” such as hooks, MCP servers, agent definitions, and other reusable add-ons.
 
 The current roadmap should reflect two realities at the same time:
 
