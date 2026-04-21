@@ -77,7 +77,7 @@ Run stale-reference searches after implementation:
 
 ```sh
 rg -n "docs/\\.starter-docs|\\.starter-docs/conflicts|docs/guides/agent" docs packages scripts
-rg -n "docs/\\.assets/starter-docs|docs/\\.assets/history" docs packages scripts
+rg -n "docs/\\.assets/config|docs/\\.assets/history" docs packages scripts
 ```
 
 Allowed old-path references should be limited to historical designs, historical plans, historical work backlogs, and historical history records that are explicitly describing prior behavior. Active source-of-truth surfaces must not point users or generated output at retired paths.

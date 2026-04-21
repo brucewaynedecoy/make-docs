@@ -8,8 +8,8 @@ const ASSETS_ROUTER_PATHS = [
   "docs/.assets/CLAUDE.md",
   "docs/.assets/history/AGENTS.md",
   "docs/.assets/history/CLAUDE.md",
-  "docs/.assets/starter-docs/AGENTS.md",
-  "docs/.assets/starter-docs/CLAUDE.md",
+  "docs/.assets/config/AGENTS.md",
+  "docs/.assets/config/CLAUDE.md",
 ];
 
 describe("buildable renderers", () => {

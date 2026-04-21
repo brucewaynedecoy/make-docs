@@ -68,7 +68,7 @@ When you edit files in the template package, the repo-root `docs/` may become st
 
 Only template-owned files are re-seeded — never project-specific content:
 
-- **Router files** — `AGENTS.md` / `CLAUDE.md` in `docs/`, `docs/guides/`, `docs/.assets/`, `docs/.assets/history/`, `docs/.assets/starter-docs/`, `docs/.templates/`, `docs/.prompts/`, `docs/.references/`, `docs/.archive/`, and capability directories
+- **Router files** — `AGENTS.md` / `CLAUDE.md` in `docs/`, `docs/guides/`, `docs/.assets/`, `docs/.assets/history/`, `docs/.assets/config/`, `docs/.templates/`, `docs/.prompts/`, `docs/.references/`, `docs/.archive/`, and capability directories
 - **Reference files** — `docs/.references/*.md` (contracts, workflows, wave model)
 - **Template files** — `docs/.templates/*.md` (structural starters)
 

@@ -46,7 +46,7 @@ const FULL_PROFILE_INSTRUCTION_DIRS = [
   "docs",
   "docs/.assets",
   "docs/.assets/history",
-  "docs/.assets/starter-docs",
+  "docs/.assets/config",
   "docs/guides",
   "docs/.archive",
   "docs/designs",
@@ -163,8 +163,9 @@ describe("installer integration", () => {
       expect(existsSync(path.join(targetDir, "docs/.assets/CLAUDE.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/.assets/history/AGENTS.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/.assets/history/CLAUDE.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, "docs/.assets/starter-docs/AGENTS.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, "docs/.assets/starter-docs/CLAUDE.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/.assets/config/AGENTS.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/.assets/config/CLAUDE.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/.assets/starter-docs"))).toBe(false);
       expect(existsSync(path.join(targetDir, "docs/guides/agent"))).toBe(false);
 
       const guidesRouter = readFileSync(path.join(targetDir, "docs/guides/AGENTS.md"), "utf8");
@@ -180,7 +181,7 @@ describe("installer integration", () => {
   test("migrates legacy instructionKinds manifests to harness selections", () => {
     const targetDir = createTempDir();
     try {
-      const manifestPath = path.join(targetDir, "docs/.assets/starter-docs/manifest.json");
+      const manifestPath = path.join(targetDir, "docs/.assets/config/manifest.json");
       mkdirSync(path.dirname(manifestPath), { recursive: true });
 
       writeFileSync(
@@ -446,8 +447,9 @@ describe("installer integration", () => {
       expect(existsSync(path.join(targetDir, "docs/.assets/CLAUDE.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/.assets/history/AGENTS.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/.assets/history/CLAUDE.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, "docs/.assets/starter-docs/AGENTS.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, "docs/.assets/starter-docs/CLAUDE.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/.assets/config/AGENTS.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/.assets/config/CLAUDE.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/.assets/starter-docs"))).toBe(false);
       expect(existsSync(path.join(targetDir, "docs/guides/agent"))).toBe(false);
       expect(existsSync(path.join(targetDir, "docs/.archive/AGENTS.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/.archive/CLAUDE.md"))).toBe(true);
@@ -558,7 +560,7 @@ describe("installer integration", () => {
 
       const files = collectFiles(targetDir);
       const conflictFiles = files.filter((relativePath) =>
-        relativePath.startsWith("docs/.assets/starter-docs/conflicts/"),
+        relativePath.startsWith("docs/.assets/config/conflicts/"),
       );
 
       expect(conflictFiles.some((relativePath) => relativePath.endsWith("/AGENTS.md"))).toBe(true);
@@ -690,7 +692,7 @@ describe("installer integration", () => {
       expect(
         files.some(
           (relativePath) =>
-            relativePath.startsWith("docs/.assets/starter-docs/conflicts/") &&
+            relativePath.startsWith("docs/.assets/config/conflicts/") &&
             relativePath.endsWith("/docs/AGENTS.md"),
         ),
       ).toBe(true);
@@ -764,7 +766,7 @@ describe("installer integration", () => {
       writeFileSync(oldCodexSkill, "legacy archive skill\n", "utf8");
       writeFileSync(oldAsset, "legacy workflow\n", "utf8");
 
-      const manifestPath = path.join(targetDir, "docs/.assets/starter-docs/manifest.json");
+      const manifestPath = path.join(targetDir, "docs/.assets/config/manifest.json");
       mkdirSync(path.dirname(manifestPath), { recursive: true });
       writeFileSync(
         manifestPath,

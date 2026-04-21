@@ -66,7 +66,7 @@ Example:
 ```text
 plan: [W9 R0] Docs assets, starter-docs state, and session history
 
-Define the intended documentation architecture for moving starter-docs operational state into `docs/.assets/starter-docs/`, introducing a template-owned `docs/.assets/` namespace, and migrating session history into the assets namespace.
+Define the intended documentation architecture for moving starter-docs operational state into `docs/.assets/config/`, introducing a template-owned `docs/.assets/` namespace, and migrating session history into the assets namespace.
 ```
 
 ## Inference Workflow

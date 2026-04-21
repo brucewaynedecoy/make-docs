@@ -127,7 +127,7 @@ What happens behind the scenes (implemented in [`scripts/smoke-pack.mjs`](../../
 2. Runs `npm pack --json` to produce a tarball.
 3. Unpacks the tarball into a temporary directory.
 4. Executes `node dist/index.js --yes --target <temp-dir>` from the unpacked package.
-5. Asserts that `docs/.assets/starter-docs/manifest.json` and `docs/AGENTS.md` exist in the target.
+5. Asserts that `docs/.assets/config/manifest.json` and `docs/AGENTS.md` exist in the target.
 6. Cleans up all temporary directories.
 
 If any step fails the script exits non-zero with a diagnostic message.

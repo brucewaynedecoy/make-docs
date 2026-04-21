@@ -15,9 +15,9 @@ import type {
 import { normalizeRelativePath, readTextFile, writeTextFile } from "./utils";
 
 export const MANIFEST_SCHEMA_VERSION = 1;
-export const STARTER_DOCS_STATE_RELATIVE_DIR = "docs/.assets/starter-docs";
-export const MANIFEST_RELATIVE_PATH = `${STARTER_DOCS_STATE_RELATIVE_DIR}/manifest.json`;
-export const CONFLICTS_RELATIVE_DIR = `${STARTER_DOCS_STATE_RELATIVE_DIR}/conflicts`;
+export const STARTER_DOCS_CONFIG_RELATIVE_DIR = "docs/.assets/config";
+export const MANIFEST_RELATIVE_PATH = `${STARTER_DOCS_CONFIG_RELATIVE_DIR}/manifest.json`;
+export const CONFLICTS_RELATIVE_DIR = `${STARTER_DOCS_CONFIG_RELATIVE_DIR}/conflicts`;
 
 export function getManifestPath(targetDir: string): string {
   return path.join(targetDir, MANIFEST_RELATIVE_PATH);

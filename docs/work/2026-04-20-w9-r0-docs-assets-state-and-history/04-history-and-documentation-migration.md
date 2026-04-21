@@ -47,7 +47,7 @@ None. This backlog is derived from the `w9-r0` plan and design, not from an acti
 
 ### Tasks
 
-1. Update `README.md` to describe `docs/.assets/starter-docs/manifest.json` and the new conflict staging path.
+1. Update `README.md` to describe `docs/.assets/config/manifest.json` and the new conflict staging path.
 2. Update `packages/cli/README.md` with the same current state paths.
 3. Update `packages/cli/src/README.md` examples and conflict explanations.
 4. Update `docs/guides/user/getting-started-installing-starter-docs.md` manifest, conflict, troubleshooting, and directory tree references.
@@ -57,8 +57,8 @@ None. This backlog is derived from the `w9-r0` plan and design, not from an acti
 
 ### Acceptance criteria
 
-- [x] Active user docs describe `docs/.assets/starter-docs/manifest.json`.
-- [x] Active developer docs describe `docs/.assets/starter-docs/manifest.json`.
+- [x] Active user docs describe `docs/.assets/config/manifest.json`.
+- [x] Active developer docs describe `docs/.assets/config/manifest.json`.
 - [x] Package README docs use the new manifest and conflict paths.
 - [x] Template package docs describe `.assets` routers and history correctly.
 - [x] Historical docs are not noisily rewritten.

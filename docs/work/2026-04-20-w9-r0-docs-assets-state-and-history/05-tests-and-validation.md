@@ -78,7 +78,7 @@ None. This backlog is derived from the `w9-r0` plan and design, not from an acti
 4. Validate `docs/guides/user/getting-started-installing-starter-docs.md` and `docs/guides/developer/cli-development-local-build-and-install.md`.
 5. Validate this work backlog and the `w9-r0` plan docs.
 6. Run `rg -n "docs/\\.starter-docs|\\.starter-docs/conflicts|docs/guides/agent" docs packages scripts`.
-7. Run `rg -n "docs/\\.assets/starter-docs|docs/\\.assets/history" docs packages scripts`.
+7. Run `rg -n "docs/\\.assets/config|docs/\\.assets/history" docs packages scripts`.
 8. Separate active source-of-truth references from historical references.
 
 ### Acceptance criteria

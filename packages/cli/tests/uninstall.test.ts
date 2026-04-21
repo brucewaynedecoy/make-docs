@@ -153,12 +153,12 @@ describe("uninstall command", () => {
       expect(result.status).toBe("completed");
       expect(result.removedFiles).toContain("AGENTS.md");
       expect(result.removedFiles).toContain("CLAUDE.md");
-      expect(result.removedFiles).toContain("docs/.assets/starter-docs/manifest.json");
-      expect(result.prunedDirectories).toContain("docs/.assets/starter-docs");
+      expect(result.removedFiles).toContain("docs/.assets/config/manifest.json");
+      expect(result.prunedDirectories).toContain("docs/.assets/config");
       expect(existsSync(path.join(targetDir, "AGENTS.md"))).toBe(false);
       expect(existsSync(path.join(targetDir, "CLAUDE.md"))).toBe(false);
-      expect(existsSync(path.join(targetDir, "docs/.assets/starter-docs/manifest.json"))).toBe(false);
-      expect(existsSync(path.join(targetDir, "docs/.assets/starter-docs"))).toBe(false);
+      expect(existsSync(path.join(targetDir, "docs/.assets/config/manifest.json"))).toBe(false);
+      expect(existsSync(path.join(targetDir, "docs/.assets/config"))).toBe(false);
       expect(existsSync(path.join(targetDir, ".backup"))).toBe(false);
       expect(output).toContain("WARNING");
       expect(output).toContain("This command removes audited starter-docs-managed paths");
@@ -194,7 +194,7 @@ describe("uninstall command", () => {
       expect(readFileSync(path.join(targetDir, "CLAUDE.md"), "utf8")).toBe("custom root claude\n");
       expect(existsSync(path.join(targetDir, "docs/.templates/custom.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/.templates"))).toBe(true);
-      expect(existsSync(path.join(targetDir, "docs/.assets/starter-docs/manifest.json"))).toBe(false);
+      expect(existsSync(path.join(targetDir, "docs/.assets/config/manifest.json"))).toBe(false);
       expect(output).toContain("Preserved paths");
     } finally {
       cleanupTempDir(targetDir);
@@ -219,10 +219,10 @@ describe("uninstall command", () => {
       });
 
       expect(result.status).toBe("completed");
-      expect(result.prunedDirectories).toContain("docs/.assets/starter-docs");
+      expect(result.prunedDirectories).toContain("docs/.assets/config");
       expect(result.prunedDirectories).not.toContain("docs/.assets/history");
       expect(result.prunedDirectories).not.toContain("docs/.assets");
-      expect(existsSync(path.join(targetDir, "docs/.assets/starter-docs"))).toBe(false);
+      expect(existsSync(path.join(targetDir, "docs/.assets/config"))).toBe(false);
       expect(existsSync(historyRecordPath)).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/.assets/history"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/.assets"))).toBe(true);
@@ -251,7 +251,7 @@ describe("uninstall command", () => {
       expect(confirmMock).toHaveBeenCalledTimes(2);
       expect(existsSync(path.join(targetDir, "AGENTS.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "CLAUDE.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, "docs/.assets/starter-docs/manifest.json"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/.assets/config/manifest.json"))).toBe(true);
       expect(output).toContain("Uninstall cancelled. No files were changed.");
     } finally {
       cleanupTempDir(targetDir);

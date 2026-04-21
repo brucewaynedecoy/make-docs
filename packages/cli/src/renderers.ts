@@ -18,8 +18,8 @@ const ASSETS_ROUTER_INSTRUCTIONS = new Set([
   "docs/.assets/CLAUDE.md",
   "docs/.assets/history/AGENTS.md",
   "docs/.assets/history/CLAUDE.md",
-  "docs/.assets/starter-docs/AGENTS.md",
-  "docs/.assets/starter-docs/CLAUDE.md",
+  "docs/.assets/config/AGENTS.md",
+  "docs/.assets/config/CLAUDE.md",
 ]);
 const DESIGN_REFERENCE_RENDERERS = new Set([
   "docs/.references/design-workflow.md",
@@ -68,9 +68,9 @@ export function renderBuildableAsset(relativePath: string, profile: InstallProfi
     case "docs/.assets/history/AGENTS.md":
     case "docs/.assets/history/CLAUDE.md":
       return renderHistoryAssetsRouter();
-    case "docs/.assets/starter-docs/AGENTS.md":
-    case "docs/.assets/starter-docs/CLAUDE.md":
-      return renderStarterDocsStateRouter();
+    case "docs/.assets/config/AGENTS.md":
+    case "docs/.assets/config/CLAUDE.md":
+      return renderStarterDocsConfigRouter();
     case "docs/.references/design-workflow.md":
       return renderDesignWorkflow(profile);
     case "docs/.references/design-contract.md":
@@ -165,7 +165,7 @@ function renderAssetsRouter(): string {
     "",
     "This directory holds operational documentation assets that support the docs system.",
     "- History records belong in `docs/.assets/history/`; read `docs/.references/history-record-contract.md` and `docs/.templates/history-record.md` before writing.",
-    "- Starter-docs CLI state belongs in `docs/.assets/starter-docs/`; do not hand-edit CLI-managed state files.",
+    "- Starter-docs CLI config belongs in `docs/.assets/config/`; do not hand-edit CLI-managed config or state files.",
     "- Do not create new asset namespaces unless a contract or explicit user request adds them.",
     "",
   ].join("\n");
@@ -188,12 +188,12 @@ function renderHistoryAssetsRouter(): string {
   ].join("\n");
 }
 
-function renderStarterDocsStateRouter(): string {
+function renderStarterDocsConfigRouter(): string {
   return [
-    "# Starter-Docs State Router",
+    "# Starter-Docs Config Router",
     "",
-    "This directory stores starter-docs CLI-managed state.",
-    "- Treat `docs/.assets/starter-docs/` as owned by the CLI.",
+    "This directory stores starter-docs CLI-managed config and state.",
+    "- Treat `docs/.assets/config/` as owned by the CLI.",
     "- Do not hand-edit files here unless the user explicitly asks to repair CLI state.",
     "- Do not create memories, preferences, or other deferred asset namespaces here.",
     "",

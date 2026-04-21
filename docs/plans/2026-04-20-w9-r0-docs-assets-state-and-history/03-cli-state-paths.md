@@ -2,7 +2,7 @@
 
 ## Objective
 
-Move starter-docs CLI state from `docs/.starter-docs/` to `docs/.assets/starter-docs/` across install, sync, reconfigure, audit, backup, uninstall, CLI output, and smoke validation.
+Move starter-docs CLI state from `docs/.starter-docs/` to `docs/.assets/config/` across install, sync, reconfigure, audit, backup, uninstall, CLI output, and smoke validation.
 
 ## Depends On
 
@@ -18,11 +18,11 @@ Move starter-docs CLI state from `docs/.starter-docs/` to `docs/.assets/starter-
 
 | File | Change Summary |
 | ---- | -------------- |
-| `packages/cli/src/manifest.ts` | Change the canonical manifest path to `docs/.assets/starter-docs/manifest.json`. |
-| `packages/cli/src/install.ts` | Change skipped-conflict staging to `docs/.assets/starter-docs/conflicts/<run-id>/...`; prefer a shared constant over a hardcoded string. |
+| `packages/cli/src/manifest.ts` | Change the canonical manifest path to `docs/.assets/config/manifest.json`. |
+| `packages/cli/src/install.ts` | Change skipped-conflict staging to `docs/.assets/config/conflicts/<run-id>/...`; prefer a shared constant over a hardcoded string. |
 | `packages/cli/src/audit.ts` | Confirm manifest-present and manifest-missing paths classify the new manifest path as managed state. |
 | `packages/cli/src/backup.ts` | Ensure backups copy the new manifest path and preserve relative destination behavior. |
-| `packages/cli/src/uninstall.ts` | Ensure uninstall removes the new manifest and prunes only the emptied `docs/.assets/starter-docs/` state branch. |
+| `packages/cli/src/uninstall.ts` | Ensure uninstall removes the new manifest and prunes only the emptied `docs/.assets/config/` state branch. |
 | `packages/cli/src/cli.ts` | Replace hardcoded manifest/help text with the new path or shared helper. |
 | `packages/cli/src/README.md` and `packages/cli/README.md` | Update examples and state-path descriptions. |
 | `packages/cli/tests/*.test.ts` | Update manifest, conflicts, audit, backup, uninstall, lifecycle, and CLI output expectations. |
@@ -35,7 +35,7 @@ Move starter-docs CLI state from `docs/.starter-docs/` to `docs/.assets/starter-
 Set:
 
 ```ts
-export const MANIFEST_RELATIVE_PATH = "docs/.assets/starter-docs/manifest.json";
+export const MANIFEST_RELATIVE_PATH = "docs/.assets/config/manifest.json";
 ```
 
 Do not add fallback reads from `docs/.starter-docs/manifest.json`. This is an alpha-phase path move, and existing installs are out of scope.
@@ -45,7 +45,7 @@ Do not add fallback reads from `docs/.starter-docs/manifest.json`. This is an al
 Replace the hardcoded conflict root in `applyAction()` with a shared constant such as:
 
 ```ts
-export const CONFLICTS_RELATIVE_DIR = "docs/.assets/starter-docs/conflicts";
+export const CONFLICTS_RELATIVE_DIR = "docs/.assets/config/conflicts";
 ```
 
 The exact location can live in `manifest.ts`, `install.ts`, or a small state-path helper, but avoid introducing a broad abstraction unless the implementation genuinely needs it.
@@ -63,7 +63,7 @@ Prefer using `MANIFEST_RELATIVE_PATH` in code so future path moves do not requir
 
 ### 4. Preserve lifecycle safety
 
-Audit should continue treating the manifest as managed state. Backup should copy it under `.backup/<date>/docs/.assets/starter-docs/manifest.json`. Uninstall should remove it and prune only directories that are empty after managed files are removed.
+Audit should continue treating the manifest as managed state. Backup should copy it under `.backup/<date>/docs/.assets/config/manifest.json`. Uninstall should remove it and prune only directories that are empty after managed files are removed.
 
 The presence of `docs/.assets/history/` routers or history files must prevent uninstall from pruning the parent `docs/.assets/` directory.
 
@@ -87,9 +87,9 @@ Manifest path updates and conflict path updates are tightly coupled and should b
 
 ## Acceptance Criteria
 
-- [ ] New installs write `docs/.assets/starter-docs/manifest.json`.
-- [ ] Existing-target sync reads `docs/.assets/starter-docs/manifest.json`.
-- [ ] Skipped conflicts stage under `docs/.assets/starter-docs/conflicts/<run-id>/...`.
+- [ ] New installs write `docs/.assets/config/manifest.json`.
+- [ ] Existing-target sync reads `docs/.assets/config/manifest.json`.
+- [ ] Skipped conflicts stage under `docs/.assets/config/conflicts/<run-id>/...`.
 - [ ] Runtime output and help no longer point users to `docs/.starter-docs/`.
 - [ ] Backup includes the new manifest path.
 - [ ] Uninstall removes the new manifest and does not remove `docs/.assets/history/`.

@@ -14,7 +14,7 @@ The work moves starter-docs operational state and agent-authored session history
 | --- | --- |
 | [01-contracts-and-history-namespace.md](./01-contracts-and-history-namespace.md) | Update history contracts, templates, prompts, and router source files so `docs/.assets/history/` is the canonical destination. |
 | [02-template-assets-and-renderers.md](./02-template-assets-and-renderers.md) | Wire `.assets` routers into the CLI asset pipeline and generated renderer output, and remove fresh-install `docs/guides/agent/` output. |
-| [03-cli-state-paths.md](./03-cli-state-paths.md) | Move CLI manifest and conflict staging behavior to `docs/.assets/starter-docs/` across source, tests, docs, and smoke validation. |
+| [03-cli-state-paths.md](./03-cli-state-paths.md) | Move CLI manifest and conflict staging behavior to `docs/.assets/config/` across source, tests, docs, and smoke validation. |
 | [04-history-and-documentation-migration.md](./04-history-and-documentation-migration.md) | Move current session history, update active docs, and update archive-skill history lookup references. |
 | [05-tests-and-validation.md](./05-tests-and-validation.md) | Run focused and full validation, link checks, router checks, stale-reference checks, and final whitespace validation. |
 

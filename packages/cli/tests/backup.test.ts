@@ -114,15 +114,15 @@ describe("backup command", () => {
       expect(result.destinationDir).toBe(backupDir);
       expect(result.copiedFiles).toContain("AGENTS.md");
       expect(result.copiedFiles).toContain("CLAUDE.md");
-      expect(result.copiedFiles).toContain("docs/.assets/starter-docs/manifest.json");
+      expect(result.copiedFiles).toContain("docs/.assets/config/manifest.json");
       expect(existsSync(path.join(backupDir, "AGENTS.md"))).toBe(true);
       expect(existsSync(path.join(backupDir, "CLAUDE.md"))).toBe(true);
-      expect(existsSync(path.join(backupDir, "docs/.assets/starter-docs/manifest.json"))).toBe(true);
+      expect(existsSync(path.join(backupDir, "docs/.assets/config/manifest.json"))).toBe(true);
       expect(readFileSync(path.join(targetDir, "AGENTS.md"), "utf8")).toBe(
         readFileSync(path.join(backupDir, "AGENTS.md"), "utf8"),
       );
       expect(existsSync(path.join(targetDir, "AGENTS.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, "docs/.assets/starter-docs/manifest.json"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/.assets/config/manifest.json"))).toBe(true);
       expect(output).toContain("starter-docs backup");
       expect(output).toContain(`Destination: ${backupDir}`);
       expect(output).toContain("Backup complete");

@@ -8,7 +8,7 @@ Establish the `.assets` documentation namespace and update the session-history c
 
 ## Overview
 
-This phase owns documentation authority. It should update the project docs and shippable template in parallel so new instructions, checked-in sources, and future CLI-rendered routers agree on `docs/.assets/history/` and `docs/.assets/starter-docs/`.
+This phase owns documentation authority. It should update the project docs and shippable template in parallel so new instructions, checked-in sources, and future CLI-rendered routers agree on `docs/.assets/history/` and `docs/.assets/config/`.
 
 ## Source PRD Docs
 
@@ -97,7 +97,7 @@ None. This backlog is derived from the `w9-r0` plan and design, not from an acti
 
 1. Create `docs/.assets/AGENTS.md` and `docs/.assets/CLAUDE.md` as top-level operational-assets routers.
 2. Create `docs/.assets/history/AGENTS.md` and `docs/.assets/history/CLAUDE.md` as history-specific routers.
-3. Create `docs/.assets/starter-docs/AGENTS.md` and `docs/.assets/starter-docs/CLAUDE.md` as CLI-state routers.
+3. Create `docs/.assets/config/AGENTS.md` and `docs/.assets/config/CLAUDE.md` as CLI-state routers.
 4. Mirror all six router files under `packages/docs/template/docs/.assets/`.
 5. Keep router wording minimal: what belongs there, which contract/template to read, and what not to hand-edit.
 6. Do not create `docs/.assets/memories/` or `docs/.assets/preferences/`.
@@ -107,7 +107,7 @@ None. This backlog is derived from the `w9-r0` plan and design, not from an acti
 - [x] Repo `.assets` routers exist.
 - [x] Template `.assets` routers exist.
 - [x] History routers point to `docs/.references/agent-guide-contract.md` and `docs/.templates/agent-guide.md`.
-- [x] Starter-docs routers identify `docs/.assets/starter-docs/` as CLI-managed state.
+- [x] Starter-docs routers identify `docs/.assets/config/` as CLI-managed state.
 - [x] No deferred namespaces are created.
 
 ### Dependencies

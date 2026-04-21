@@ -18,7 +18,7 @@ Teach the CLI asset pipeline to install and render the new `.assets` routers, ke
 | File | Change Summary |
 | ---- | -------------- |
 | `packages/cli/src/catalog.ts` | Replace `docs/guides/agent/${instructionKind}` with `.assets` router paths. |
-| `packages/cli/src/renderers.ts` | Add renderers for `.assets`, `.assets/history`, and `.assets/starter-docs`; update docs and guides router text. |
+| `packages/cli/src/renderers.ts` | Add renderers for `.assets`, `.assets/history`, and `.assets/config`; update docs and guides router text. |
 | `packages/cli/src/rules.ts` | Ensure the existing history contract/template/prompt remain always installed; add no legacy `guides/agent` paths. |
 | `packages/cli/tests/consistency.test.ts` | Add new buildable `.assets` router paths and remove `docs/guides/agent` expectations. |
 | `packages/cli/tests/renderers.test.ts` | Update renderer output expectations for root/docs/guides/assets routers. |
@@ -35,7 +35,7 @@ In `addInstructionAssets`, install the selected instruction kind for:
 ```ts
 relativePaths.add(`docs/.assets/${activeInstructionKind}`);
 relativePaths.add(`docs/.assets/history/${activeInstructionKind}`);
-relativePaths.add(`docs/.assets/starter-docs/${activeInstructionKind}`);
+relativePaths.add(`docs/.assets/config/${activeInstructionKind}`);
 ```
 
 Remove:
@@ -54,8 +54,8 @@ Add buildable-path support in `renderers.ts` for:
 - `docs/.assets/CLAUDE.md`
 - `docs/.assets/history/AGENTS.md`
 - `docs/.assets/history/CLAUDE.md`
-- `docs/.assets/starter-docs/AGENTS.md`
-- `docs/.assets/starter-docs/CLAUDE.md`
+- `docs/.assets/config/AGENTS.md`
+- `docs/.assets/config/CLAUDE.md`
 
 Follow the existing renderer style: short deterministic strings, profile-aware instruction-kind wording, and no separate module unless the file becomes difficult to read.
 
@@ -94,7 +94,7 @@ Renderer changes and consistency-test updates can proceed in parallel after the 
 
 ## Acceptance Criteria
 
-- [ ] Fresh installs include `.assets`, `.assets/history`, and `.assets/starter-docs` routers.
+- [ ] Fresh installs include `.assets`, `.assets/history`, and `.assets/config` routers.
 - [ ] Fresh installs no longer include `docs/guides/agent/AGENTS.md` or `docs/guides/agent/CLAUDE.md`.
 - [ ] `renderBuildableAsset()` output matches checked-in template files for every buildable path.
 - [ ] `packages/cli/tests/consistency.test.ts` passes.

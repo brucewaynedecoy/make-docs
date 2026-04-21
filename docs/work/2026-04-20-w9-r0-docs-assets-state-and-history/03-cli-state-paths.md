@@ -4,7 +4,7 @@
 
 ## Purpose
 
-Move starter-docs CLI-managed state from `docs/.starter-docs/` to `docs/.assets/starter-docs/`.
+Move starter-docs CLI-managed state from `docs/.starter-docs/` to `docs/.assets/config/`.
 
 ## Overview
 
@@ -22,17 +22,17 @@ None. This backlog is derived from the `w9-r0` plan and design, not from an acti
 
 ### Tasks
 
-1. Change `MANIFEST_RELATIVE_PATH` in `packages/cli/src/manifest.ts` to `docs/.assets/starter-docs/manifest.json`.
-2. Add or expose a shared conflict root constant for `docs/.assets/starter-docs/conflicts`.
+1. Change `MANIFEST_RELATIVE_PATH` in `packages/cli/src/manifest.ts` to `docs/.assets/config/manifest.json`.
+2. Add or expose a shared conflict root constant for `docs/.assets/config/conflicts`.
 3. Replace the hardcoded conflict root in `packages/cli/src/install.ts`.
 4. Avoid adding fallback reads from `docs/.starter-docs/manifest.json`.
 5. Prefer imported constants over repeated path literals when updating code.
 
 ### Acceptance criteria
 
-- [x] New installs write the manifest at `docs/.assets/starter-docs/manifest.json`.
+- [x] New installs write the manifest at `docs/.assets/config/manifest.json`.
 - [x] Existing-target sync reads the new manifest path.
-- [x] Skipped conflicts stage under `docs/.assets/starter-docs/conflicts/<run-id>/...`.
+- [x] Skipped conflicts stage under `docs/.assets/config/conflicts/<run-id>/...`.
 - [x] No code path silently reads the old alpha manifest path.
 - [x] Manifest and conflict path strings are not duplicated unnecessarily in source.
 
@@ -46,9 +46,9 @@ None. This backlog is derived from the `w9-r0` plan and design, not from an acti
 
 1. Confirm `packages/cli/src/audit.ts` classifies the new manifest path as managed state through `MANIFEST_RELATIVE_PATH`.
 2. Update any audit test setup that removes or asserts the old manifest path.
-3. Confirm backup copies the new manifest relative path into `.backup/<date>/docs/.assets/starter-docs/manifest.json`.
+3. Confirm backup copies the new manifest relative path into `.backup/<date>/docs/.assets/config/manifest.json`.
 4. Confirm uninstall removes the new manifest path.
-5. Update pruning expectations so `docs/.assets/starter-docs/` can be pruned only when empty.
+5. Update pruning expectations so `docs/.assets/config/` can be pruned only when empty.
 6. Ensure uninstall never removes `docs/.assets/history/` or parent `docs/.assets/` when history or router files remain.
 
 ### Acceptance criteria
@@ -71,7 +71,7 @@ None. This backlog is derived from the `w9-r0` plan and design, not from an acti
 2. Update `packages/cli/src/cli.ts` command help that mentions the manifest requirement.
 3. Update `packages/cli/src/README.md` conflict and manifest examples.
 4. Update `packages/cli/README.md` state-path and conflict-staging descriptions.
-5. Keep user-facing prose clear that `docs/.assets/starter-docs/` is CLI-managed state.
+5. Keep user-facing prose clear that `docs/.assets/config/` is CLI-managed state.
 
 ### Acceptance criteria
 

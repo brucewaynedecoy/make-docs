@@ -62,8 +62,8 @@ Do not invent unknown client/model/provider values for older records. The contra
 
 Update active user/developer docs and package READMEs that explain current behavior:
 
-- replace `docs/.starter-docs/manifest.json` with `docs/.assets/starter-docs/manifest.json`,
-- replace `docs/.starter-docs/conflicts/<run-id>/` with `docs/.assets/starter-docs/conflicts/<run-id>/`,
+- replace `docs/.starter-docs/manifest.json` with `docs/.assets/config/manifest.json`,
+- replace `docs/.starter-docs/conflicts/<run-id>/` with `docs/.assets/config/conflicts/<run-id>/`,
 - describe `docs/.assets/history/` as the history destination,
 - keep `docs/guides/` framed as stable user/developer guides.
 
@@ -91,7 +91,7 @@ History moves and active doc updates can be split, but one coordinator should ow
 - [ ] No active history records remain under `docs/guides/agent/`.
 - [ ] `docs/.assets/history/` contains moved session records and history routers.
 - [ ] Moved records have minimal frontmatter when values are known.
-- [ ] Active user/developer docs describe `docs/.assets/starter-docs/manifest.json`.
+- [ ] Active user/developer docs describe `docs/.assets/config/manifest.json`.
 - [ ] Archive-skill instructions scan `docs/.assets/history/`.
 - [ ] Root and guide routers no longer send history work to `docs/guides/agent/`.
 - [ ] Historical references to old paths are either updated or intentionally allowlisted.

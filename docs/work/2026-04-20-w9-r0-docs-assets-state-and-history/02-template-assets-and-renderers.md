@@ -25,7 +25,7 @@ None. This backlog is derived from the `w9-r0` plan and design, not from an acti
 1. In `packages/cli/src/catalog.ts`, replace the `docs/guides/agent/${activeInstructionKind}` asset with `.assets` router paths.
 2. Add managed paths for `docs/.assets/${activeInstructionKind}`.
 3. Add managed paths for `docs/.assets/history/${activeInstructionKind}`.
-4. Add managed paths for `docs/.assets/starter-docs/${activeInstructionKind}`.
+4. Add managed paths for `docs/.assets/config/${activeInstructionKind}`.
 5. Keep `docs/guides/${activeInstructionKind}` managed for user and developer guides.
 6. Confirm `packages/cli/src/rules.ts` still always installs `history-record-contract.md`, `history-record.md`, and `session-to-history-record.prompt.md`.
 
@@ -46,7 +46,7 @@ None. This backlog is derived from the `w9-r0` plan and design, not from an acti
 
 1. In `packages/cli/src/renderers.ts`, add buildable-path support for `docs/.assets/AGENTS.md` and `docs/.assets/CLAUDE.md`.
 2. Add buildable-path support for `docs/.assets/history/AGENTS.md` and `docs/.assets/history/CLAUDE.md`.
-3. Add buildable-path support for `docs/.assets/starter-docs/AGENTS.md` and `docs/.assets/starter-docs/CLAUDE.md`.
+3. Add buildable-path support for `docs/.assets/config/AGENTS.md` and `docs/.assets/config/CLAUDE.md`.
 4. Keep renderer output deterministic and aligned with the checked-in template sources.
 5. Update `renderDocsRouter()` so root docs routing points history work at `docs/.assets/history/`.
 6. Update `renderGuidesRouter()` so it only routes user and developer guide work.

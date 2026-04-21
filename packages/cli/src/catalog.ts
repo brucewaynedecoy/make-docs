@@ -29,7 +29,7 @@ function addInstructionAssets(
   relativePaths.add(`docs/${activeInstructionKind}`);
   relativePaths.add(`docs/.assets/${activeInstructionKind}`);
   relativePaths.add(`docs/.assets/history/${activeInstructionKind}`);
-  relativePaths.add(`docs/.assets/starter-docs/${activeInstructionKind}`);
+  relativePaths.add(`docs/.assets/config/${activeInstructionKind}`);
   relativePaths.add(`docs/guides/${activeInstructionKind}`);
   relativePaths.add(`docs/.archive/${activeInstructionKind}`);
 

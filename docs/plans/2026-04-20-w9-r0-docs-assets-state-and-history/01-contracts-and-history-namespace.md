@@ -24,7 +24,7 @@ Establish the `.assets` documentation namespace and update the session-history c
 | `docs/guides/AGENTS.md` and `docs/guides/CLAUDE.md` | Remove agent-history routing from guides and clarify that guides are user/developer-facing. |
 | `docs/.assets/AGENTS.md` and `docs/.assets/CLAUDE.md` | Create top-level assets routers. |
 | `docs/.assets/history/AGENTS.md` and `docs/.assets/history/CLAUDE.md` | Create history-specific routers. |
-| `docs/.assets/starter-docs/AGENTS.md` and `docs/.assets/starter-docs/CLAUDE.md` | Create CLI-state-specific routers that explain state ownership and editing cautions. |
+| `docs/.assets/config/AGENTS.md` and `docs/.assets/config/CLAUDE.md` | Create CLI-state-specific routers that explain state ownership and editing cautions. |
 | `packages/docs/template/docs/**` matching the files above | Apply the same source-template changes so future installs receive the new contract and routers. |
 
 ## Detailed Changes
@@ -92,7 +92,7 @@ Create minimal router instructions:
 
 - `docs/.assets/AGENTS.md` and `docs/.assets/CLAUDE.md` route to `history/` and `starter-docs/`.
 - `docs/.assets/history/AGENTS.md` and `CLAUDE.md` point to `docs/.references/agent-guide-contract.md` and `docs/.templates/agent-guide.md`.
-- `docs/.assets/starter-docs/AGENTS.md` and `CLAUDE.md` explain that this namespace is CLI-managed state and should not be hand-edited except for deliberate recovery or diagnostics.
+- `docs/.assets/config/AGENTS.md` and `CLAUDE.md` explain that this namespace is CLI-managed state and should not be hand-edited except for deliberate recovery or diagnostics.
 
 ### 5. Remove guide-router responsibility for history
 
@@ -112,5 +112,5 @@ The project-root docs and `packages/docs/template/docs/` copies can be updated i
 - [ ] `docs/.templates/agent-guide.md` includes YAML frontmatter with `client`, `model`, `date`, and `coordinate` examples.
 - [ ] The prompt writes new records to `docs/.assets/history/`.
 - [ ] `wave-model.md`, `output-contract.md`, and `guide-contract.md` no longer define agent records under `docs/guides/agent/`.
-- [ ] `.assets`, `.assets/history`, and `.assets/starter-docs` routers exist in both repo docs and the package template.
+- [ ] `.assets`, `.assets/history`, and `.assets/config` routers exist in both repo docs and the package template.
 - [ ] Root and guide routers no longer direct new session summaries to `docs/guides/agent/`.

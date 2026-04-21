@@ -9,8 +9,8 @@ This plan is alpha-phase scoped. It does not spend implementation effort on back
 ## Objective
 
 - `docs/.assets/` becomes the documented home for operational documentation assets.
-- The CLI writes and reads its manifest at `docs/.assets/starter-docs/manifest.json`.
-- The CLI stages unmanaged update conflicts under `docs/.assets/starter-docs/conflicts/<run-id>/...`.
+- The CLI writes and reads its manifest at `docs/.assets/config/manifest.json`.
+- The CLI stages unmanaged update conflicts under `docs/.assets/config/conflicts/<run-id>/...`.
 - Agent session records move from `docs/guides/agent/` to `docs/.assets/history/`.
 - History records gain flexible YAML frontmatter with `client`, `model`, `date`, optional measurement fields, and a combined `coordinate` value such as `W9 R0 P1`.
 - Template files, generated router text, asset-pipeline rules, project docs, tests, and smoke validation all agree on the new paths.
@@ -62,8 +62,8 @@ No `docs/prd/` baseline annotations are required. Existing active documentation 
 | `docs/.references/agent-guide-contract.md` | path, naming, frontmatter, link rules | revise | `docs/.assets/history/` contract |
 | `docs/.references/wave-model.md` | history path and coordinate rules | revise | combined `coordinate` convention |
 | `docs/.references/output-contract.md` | required path table | revise | `docs/.assets/history/` |
-| `README.md`, `packages/cli/README.md`, `packages/cli/src/README.md` | manifest and conflict descriptions | revise | `docs/.assets/starter-docs/` |
-| `docs/guides/user/getting-started-installing-starter-docs.md` | install state, conflict, troubleshooting sections | revise | `docs/.assets/starter-docs/` |
+| `README.md`, `packages/cli/README.md`, `packages/cli/src/README.md` | manifest and conflict descriptions | revise | `docs/.assets/config/` |
+| `docs/guides/user/getting-started-installing-starter-docs.md` | install state, conflict, troubleshooting sections | revise | `docs/.assets/config/` |
 | `packages/skills/archive-docs/SKILL.md` and references | history lookup behavior | revise | `docs/.assets/history/` |
 
 ## Phase Map
@@ -72,7 +72,7 @@ No `docs/prd/` baseline annotations are required. Existing active documentation 
 | ---- | ------- |
 | `01-contracts-and-history-namespace.md` | Update the history contract/template/prompt model and introduce `.assets` router source files in the project and template. |
 | `02-template-assets-and-renderers.md` | Wire `.assets` routers into the managed asset pipeline and generated router renderers while removing `docs/guides/agent/` from install output. |
-| `03-cli-state-paths.md` | Move starter-docs manifest and conflict staging paths to `docs/.assets/starter-docs/` across install, audit, backup, uninstall, CLI output, and tests. |
+| `03-cli-state-paths.md` | Move starter-docs manifest and conflict staging paths to `docs/.assets/config/` across install, audit, backup, uninstall, CLI output, and tests. |
 | `04-history-and-documentation-migration.md` | Move active repo session history into `docs/.assets/history/` and update active docs, guides, READMEs, and skill references. |
 | `05-tests-and-validation.md` | Run focused and full validation, link checks, smoke packaging, and stale-reference checks with an explicit historical-doc allowlist. |
 
@@ -90,7 +90,7 @@ No `docs/prd/` baseline annotations are required. Existing active documentation 
 - `packages/cli/src/install.ts` hardcodes conflict staging under `docs/.starter-docs/conflicts`.
 - `packages/cli/src/audit.ts` already uses `MANIFEST_RELATIVE_PATH` for manifest-present and manifest-missing audit classification, so moving the constant changes most audit state automatically.
 - `packages/cli/src/cli.ts`, `packages/cli/src/README.md`, `packages/cli/README.md`, `scripts/smoke-pack.mjs`, and several lifecycle tests still mention the old state path directly.
-- `packages/cli/src/catalog.ts` currently installs instruction routers for `docs/guides/agent/`; these should move to `docs/.assets/`, `docs/.assets/history/`, and `docs/.assets/starter-docs/`.
+- `packages/cli/src/catalog.ts` currently installs instruction routers for `docs/guides/agent/`; these should move to `docs/.assets/`, `docs/.assets/history/`, and `docs/.assets/config/`.
 - `packages/cli/src/renderers.ts` currently renders root, docs, guides, templates, prompts, and design references but has no `.assets` router renderer.
 - `packages/cli/tests/consistency.test.ts` requires every file under `packages/docs/template/docs/` to be present in the managed asset pipeline.
 - Existing history files are currently under `docs/guides/agent/`; moving them to `docs/.assets/history/` preserves relative-link depth for most links.
