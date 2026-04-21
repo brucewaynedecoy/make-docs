@@ -1,5 +1,5 @@
 ---
-title: Installing Starter Docs
+title: Installing Make Docs
 path: getting-started
 status: draft
 order: 10
@@ -12,9 +12,9 @@ applies-to:
   - template
 ---
 
-# Installing Starter Docs
+# Installing Make Docs
 
-Starter-docs is a drop-in documentation structure that gives your project organized templates, capability directories, AI agent instructions, and optional installable skills out of the box. This guide walks you through every way to install it -- from a single npx command to building from source -- and covers syncing existing installs, reconfiguring selections, previewing changes, and troubleshooting.
+Make Docs is a drop-in documentation structure that gives your project organized templates, capability directories, AI agent instructions, and optional installable skills out of the box. This guide walks you through every way to install it -- from a single npx command to building from source -- and covers syncing existing installs, reconfiguring selections, previewing changes, and troubleshooting.
 
 ## Prerequisites
 
@@ -26,12 +26,12 @@ Starter-docs is a drop-in documentation structure that gives your project organi
 
 ## Installing via npx (Recommended)
 
-> **Note:** This method requires the `starter-docs` package to be published to npm. As of this writing, the package has not yet been published. See [Installing from Source](#installing-from-source) for methods that work today.
+> **Note:** This method requires the `make-docs` package to be published to npm. As of this writing, the package has not yet been published. See [Installing from Source](#installing-from-source) for methods that work today.
 
 From your project root, run:
 
 ```bash
-npx starter-docs
+npx make-docs
 ```
 
 This launches an interactive wizard that walks you through setup:
@@ -44,7 +44,7 @@ This launches an interactive wizard that walks you through setup:
 To skip the wizard and accept all defaults:
 
 ```bash
-npx starter-docs --yes
+npx make-docs --yes
 ```
 
 ## Installing from Source
@@ -56,12 +56,12 @@ These methods work right now, before the npm package is published.
 Clone the repository, build the CLI, run the installer against your project, then clean up:
 
 ```bash
-git clone https://github.com/<owner>/starter-docs.git /tmp/starter-docs
-cd /tmp/starter-docs
+git clone https://github.com/<owner>/make-docs.git /tmp/make-docs
+cd /tmp/make-docs
 npm install
 npm run build
 node packages/cli/dist/index.js --target /path/to/your/project
-rm -rf /tmp/starter-docs
+rm -rf /tmp/make-docs
 ```
 
 Replace `/path/to/your/project` with the absolute path to the project where you want docs installed.
@@ -72,7 +72,7 @@ This copies the template files directly without running the CLI. You get the ful
 
 ```bash
 tmp_dir="$(mktemp -d)"
-git clone --depth 1 https://github.com/<owner>/starter-docs.git "$tmp_dir"
+git clone --depth 1 https://github.com/<owner>/make-docs.git "$tmp_dir"
 template="$tmp_dir/packages/docs/template"
 mkdir -p ./docs
 rsync -av "$template/docs/" ./docs/
@@ -87,12 +87,12 @@ Run this from your project root.
 degit downloads the repository without its git history, which is faster for a one-time copy:
 
 ```bash
-npx degit <owner>/starter-docs ./tmp-starter-docs
-template=./tmp-starter-docs/packages/docs/template
+npx degit <owner>/make-docs ./tmp-make-docs
+template=./tmp-make-docs/packages/docs/template
 mkdir -p ./docs
 rsync -av "$template/docs/" ./docs/
 rsync -av "$template/AGENTS.md" "$template/CLAUDE.md" ./
-rm -rf ./tmp-starter-docs
+rm -rf ./tmp-make-docs
 ```
 
 Run this from your project root.
@@ -104,7 +104,7 @@ Run this from your project root.
 Pass `--yes` to accept every default without prompts:
 
 ```bash
-npx starter-docs --yes
+npx make-docs --yes
 ```
 
 You can combine `--yes` with selection flags to tailor the install in a single command. A few examples:
@@ -112,55 +112,55 @@ You can combine `--yes` with selection flags to tailor the install in a single c
 Install everything except the work capability:
 
 ```bash
-npx starter-docs --yes --no-work
+npx make-docs --yes --no-work
 ```
 
 Install without designs or prd:
 
 ```bash
-npx starter-docs --yes --no-designs --no-prd
+npx make-docs --yes --no-designs --no-prd
 ```
 
 Install only required templates (skip optional ones):
 
 ```bash
-npx starter-docs --yes --templates required
+npx make-docs --yes --templates required
 ```
 
 Install only required references:
 
 ```bash
-npx starter-docs --yes --references required
+npx make-docs --yes --references required
 ```
 
 Install only the Claude Code harness:
 
 ```bash
-npx starter-docs --yes --no-codex
+npx make-docs --yes --no-codex
 ```
 
 Skip skill installation entirely:
 
 ```bash
-npx starter-docs --yes --no-skills
+npx make-docs --yes --no-skills
 ```
 
 Enable the optional `decompose-codebase` skill:
 
 ```bash
-npx starter-docs --yes --optional-skills decompose-codebase
+npx make-docs --yes --optional-skills decompose-codebase
 ```
 
 Install skills globally instead of in the current project:
 
 ```bash
-npx starter-docs --yes --skill-scope global
+npx make-docs --yes --skill-scope global
 ```
 
 Install into a specific directory:
 
 ```bash
-npx starter-docs --yes --target ./my-project
+npx make-docs --yes --target ./my-project
 ```
 
 ## Previewing Changes
@@ -168,23 +168,23 @@ npx starter-docs --yes --target ./my-project
 Use `--dry-run` to see exactly what would be written without actually writing anything:
 
 ```bash
-npx starter-docs --dry-run
+npx make-docs --dry-run
 ```
 
 Dry-run works with any combination of flags:
 
 ```bash
-npx starter-docs --dry-run --no-work --templates required
+npx make-docs --dry-run --no-work --templates required
 ```
 
 This is especially useful before an apply/sync run to verify which files will change.
 
 ## Syncing an Existing Installation
 
-After you have already installed starter-docs, run the same bare command again to bring your installation in line with the current package version and your saved manifest selections:
+After you have already installed make-docs, run the same bare command again to bring your installation in line with the current package version and your saved manifest selections:
 
 ```bash
-npx starter-docs
+npx make-docs
 ```
 
 ### How apply/sync works
@@ -200,19 +200,19 @@ Apply/sync runs are **non-destructive**. The installer compares each managed fil
 You can preview a sync before applying it:
 
 ```bash
-npx starter-docs --dry-run
+npx make-docs --dry-run
 ```
 
 ### Targeting a specific directory
 
 ```bash
-npx starter-docs --target ./my-project
+npx make-docs --target ./my-project
 ```
 
 ### Accepting all sync defaults
 
 ```bash
-npx starter-docs --yes
+npx make-docs --yes
 ```
 
 ### Changing your capability selections
@@ -220,19 +220,19 @@ npx starter-docs --yes
 If you originally skipped a capability and now want it, run the interactive reconfigure command and enable it in the wizard:
 
 ```bash
-npx starter-docs reconfigure
+npx make-docs reconfigure
 ```
 
 If you want a non-interactive selection change, combine `reconfigure --yes` with at least one selection flag:
 
 ```bash
-npx starter-docs reconfigure --yes --no-designs
+npx make-docs reconfigure --yes --no-designs
 ```
 
 You can also change harness or skill settings during reconfigure:
 
 ```bash
-npx starter-docs reconfigure --yes --no-codex --skill-scope global --optional-skills decompose-codebase
+npx make-docs reconfigure --yes --no-codex --skill-scope global --optional-skills decompose-codebase
 ```
 
 ## What Gets Installed
@@ -263,7 +263,7 @@ your-project/
       history/
         AGENTS.md
         CLAUDE.md
-      starter-docs/
+      make-docs/
         AGENTS.md
         CLAUDE.md
         manifest.json               # CLI-managed state for managed file hashes and version
@@ -284,7 +284,7 @@ Skill installation depends on your selections:
 - Project scope installs skills under the current repo (`.claude/skills/`, `.agents/skills/`).
 - Global scope installs skills under your home directory (`~/.claude/skills/`, `~/.agents/skills/`).
 
-**Manifest:** The file at `docs/.assets/config/manifest.json` is how starter-docs tracks which files it manages. Do not delete this file -- it is required for updates and reconfiguration.
+**Manifest:** The file at `docs/.assets/config/manifest.json` is how make-docs tracks which files it manages. Do not delete this file -- it is required for updates and reconfiguration.
 
 ## Capability Reference
 
@@ -303,45 +303,45 @@ Because `prd` depends on `plans`, opting out of `plans` will also remove `prd`. 
 
 | Command | Description |
 |---|---|
-| `starter-docs` | Install into a new target, or sync an existing install using saved manifest selections |
-| `starter-docs reconfigure` | Change saved selections for an existing install |
-| `starter-docs backup` | Back up managed files |
-| `starter-docs uninstall` | Remove managed files, with optional backup first |
+| `make-docs` | Install into a new target, or sync an existing install using saved manifest selections |
+| `make-docs reconfigure` | Change saved selections for an existing install |
+| `make-docs backup` | Back up managed files |
+| `make-docs uninstall` | Remove managed files, with optional backup first |
 
 ### Flags
 
 | Flag | Applies To | Description |
 |---|---|---|
-| `--target <dir>` | `starter-docs`, `reconfigure`, `backup`, `uninstall` | Set the target project directory (defaults to current directory) |
-| `--dry-run` | `starter-docs`, `reconfigure` | Preview changes without writing any files |
-| `--yes` | `starter-docs`, `reconfigure`, `backup`, `uninstall` | Skip prompts where safe; `reconfigure --yes` requires at least one selection flag |
+| `--target <dir>` | `make-docs`, `reconfigure`, `backup`, `uninstall` | Set the target project directory (defaults to current directory) |
+| `--dry-run` | `make-docs`, `reconfigure` | Preview changes without writing any files |
+| `--yes` | `make-docs`, `reconfigure`, `backup`, `uninstall` | Skip prompts where safe; `reconfigure --yes` requires at least one selection flag |
 | `--backup` | `uninstall` | Create a backup before removing managed files |
-| `--no-designs` | `starter-docs`, `reconfigure` | Exclude the designs capability |
-| `--no-plans` | `starter-docs`, `reconfigure` | Exclude the plans capability (also excludes prd and work) |
-| `--no-prd` | `starter-docs`, `reconfigure` | Exclude the prd capability (also excludes work) |
-| `--no-work` | `starter-docs`, `reconfigure` | Exclude the work capability |
-| `--no-prompts` | `starter-docs`, `reconfigure` | Skip installing prompt starters |
-| `--templates required\|all` | `starter-docs`, `reconfigure` | Install only required templates or the full set |
-| `--references required\|all` | `starter-docs`, `reconfigure` | Install only required references or the full set |
-| `--no-claude-code` | `starter-docs`, `reconfigure` | Skip the Claude Code harness (deprecated alias: `--no-claude`) |
-| `--no-codex` | `starter-docs`, `reconfigure` | Skip the Codex harness (deprecated alias: `--no-agents`) |
-| `--no-skills` | `starter-docs`, `reconfigure` | Skip skill installation |
-| `--skill-scope project\|global` | `starter-docs`, `reconfigure` | Install skills in the project or in your home directory |
-| `--optional-skills <csv\|none>` | `starter-docs`, `reconfigure` | Replace the selected optional skills; use `none` to clear them |
+| `--no-designs` | `make-docs`, `reconfigure` | Exclude the designs capability |
+| `--no-plans` | `make-docs`, `reconfigure` | Exclude the plans capability (also excludes prd and work) |
+| `--no-prd` | `make-docs`, `reconfigure` | Exclude the prd capability (also excludes work) |
+| `--no-work` | `make-docs`, `reconfigure` | Exclude the work capability |
+| `--no-prompts` | `make-docs`, `reconfigure` | Skip installing prompt starters |
+| `--templates required\|all` | `make-docs`, `reconfigure` | Install only required templates or the full set |
+| `--references required\|all` | `make-docs`, `reconfigure` | Install only required references or the full set |
+| `--no-claude-code` | `make-docs`, `reconfigure` | Skip the Claude Code harness (deprecated alias: `--no-claude`) |
+| `--no-codex` | `make-docs`, `reconfigure` | Skip the Codex harness (deprecated alias: `--no-agents`) |
+| `--no-skills` | `make-docs`, `reconfigure` | Skip skill installation |
+| `--skill-scope project\|global` | `make-docs`, `reconfigure` | Install skills in the project or in your home directory |
+| `--optional-skills <csv\|none>` | `make-docs`, `reconfigure` | Replace the selected optional skills; use `none` to clear them |
 
 ## Troubleshooting
 
-### "No starter-docs manifest found"
+### "No make-docs manifest found"
 
-This means you are running `reconfigure`, `backup`, or `uninstall` in a directory that does not have an existing starter-docs installation. Run the bare installer first:
+This means you are running `reconfigure`, `backup`, or `uninstall` in a directory that does not have an existing make-docs installation. Run the bare installer first:
 
 ```bash
-npx starter-docs
+npx make-docs
 ```
 
 ### Conflict files appearing in `.assets/config/conflicts/`
 
-During apply/sync, if a file that starter-docs wants to create already exists but is not tracked in the manifest, the proposed file is staged under `docs/.assets/config/conflicts/<run-id>/` instead of overwriting yours. To resolve:
+During apply/sync, if a file that make-docs wants to create already exists but is not tracked in the manifest, the proposed file is staged under `docs/.assets/config/conflicts/<run-id>/` instead of overwriting yours. To resolve:
 
 1. Compare the staged file with your existing file.
 2. Merge the changes you want to keep.
@@ -353,7 +353,7 @@ Make sure you have write access to the target directory. If you are installing i
 
 ### Node.js version too old
 
-starter-docs requires Node.js 18 or later. Check your version:
+make-docs requires Node.js 18 or later. Check your version:
 
 ```bash
 node --version
@@ -361,6 +361,6 @@ node --version
 
 If the reported version is below 18, update Node.js before retrying.
 
-### The `npx starter-docs` command is not found
+### The `npx make-docs` command is not found
 
 The npm package has not been published yet. Use one of the [source-based install methods](#installing-from-source) until the package is available on npm.
