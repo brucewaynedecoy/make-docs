@@ -161,10 +161,10 @@ describe("uninstall command", () => {
       expect(existsSync(path.join(targetDir, "docs/.assets/config"))).toBe(false);
       expect(existsSync(path.join(targetDir, ".backup"))).toBe(false);
       expect(output).toContain("WARNING");
-      expect(output).toContain("This command removes audited starter-docs-managed paths");
-      expect(output).toContain("Safer alternative: starter-docs backup");
-      expect(output).toContain("Safer destructive flow: starter-docs uninstall --backup");
-      expect(output).toContain("starter-docs uninstall");
+      expect(output).toContain("This command removes audited make-docs-managed paths");
+      expect(output).toContain("Safer alternative: make-docs backup");
+      expect(output).toContain("Safer destructive flow: make-docs uninstall --backup");
+      expect(output).toContain("make-docs uninstall");
       expect(output).toContain("Uninstall complete");
       expect(output).toContain("Files removed:");
     } finally {
@@ -201,7 +201,7 @@ describe("uninstall command", () => {
     }
   });
 
-  test("preserves history records and assets routers while pruning empty starter-docs state", async () => {
+  test("preserves history records and assets routers while pruning empty make-docs state", async () => {
     const targetDir = createTempDir();
 
     try {
@@ -260,7 +260,7 @@ describe("uninstall command", () => {
 
   test("uninstall with backup reuses one audit snapshot and removes files after backup", async () => {
     const targetDir = createTempDir();
-    const fakeHome = createTempDir("starter-docs-home-");
+    const fakeHome = createTempDir("make-docs-home-");
     const restoreHome = mockHomeDirectory(fakeHome);
 
     try {

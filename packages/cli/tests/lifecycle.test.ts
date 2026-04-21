@@ -15,7 +15,7 @@ import type { AuditReport, AuditRemovableFile } from "../src/types";
 import {
   cleanupTempDir,
   createTempDir,
-  installStarterDocsTarget,
+  installMakeDocsTarget,
   mockHomeDirectory,
   mockSkillFetches,
   setTTY,
@@ -41,7 +41,7 @@ describe("lifecycle validation", () => {
     const targetDir = createTempDir();
 
     try {
-      await installStarterDocsTarget(targetDir, (selections) => {
+      await installMakeDocsTarget(targetDir, (selections) => {
         selections.skills = false;
       });
       mkdirSync(path.join(targetDir, ".backup/2026-04-18/docs"), { recursive: true });
@@ -69,12 +69,12 @@ describe("lifecycle validation", () => {
     const targetDir = createTempDir();
 
     try {
-      await installStarterDocsTarget(targetDir, (selections) => {
+      await installMakeDocsTarget(targetDir, (selections) => {
         selections.skills = false;
       });
       rmSync(path.join(targetDir, "docs/.assets/config/manifest.json"), { force: true });
       mkdirSync(path.join(targetDir, "notes"), { recursive: true });
-      writeFileSync(path.join(targetDir, "notes/AGENTS.md"), "not starter-docs\n");
+      writeFileSync(path.join(targetDir, "notes/AGENTS.md"), "not make-docs\n");
 
       const report = await createAuditReport({
         targetDir,
@@ -95,7 +95,7 @@ describe("lifecycle validation", () => {
     const targetDir = createTempDir();
 
     try {
-      await installStarterDocsTarget(targetDir, (selections) => {
+      await installMakeDocsTarget(targetDir, (selections) => {
         selections.skills = false;
       });
       writeFileSync(path.join(targetDir, "AGENTS.md"), "custom agent instructions\n");
@@ -145,11 +145,11 @@ describe("lifecycle validation", () => {
 
   test("backup maps home-scoped files under _home without deleting source files", async () => {
     const targetDir = createTempDir();
-    const fakeHome = createTempDir("starter-docs-home-");
+    const fakeHome = createTempDir("make-docs-home-");
     const restoreHome = mockHomeDirectory(fakeHome);
 
     try {
-      await installStarterDocsTarget(targetDir, (selections) => {
+      await installMakeDocsTarget(targetDir, (selections) => {
         selections.skillScope = "global";
       });
 

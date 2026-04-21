@@ -42,7 +42,7 @@ describe("skill registry", () => {
   });
 
   test("rejects local skill sources", () => {
-    const packageRoot = mkdtempSync(path.join(os.tmpdir(), "starter-docs-skill-registry-"));
+    const packageRoot = mkdtempSync(path.join(os.tmpdir(), "make-docs-skill-registry-"));
     try {
       mkdirSync(packageRoot, { recursive: true });
       writeFileSync(

@@ -22,7 +22,7 @@ const AUDIT_FUNCTION_NAMES = [
   "createAuditReport",
   "createSharedAuditReport",
   "runAudit",
-  "auditStarterDocs",
+  "auditMakeDocs",
   "auditLifecyclePaths",
 ] as const;
 
@@ -574,7 +574,7 @@ describe("shared audit engine", () => {
 
   test("covers home and global path mapping to _home backup-relative destinations", async () => {
     const targetDir = createTempDir();
-    const fakeHome = createTempDir("starter-docs-home-");
+    const fakeHome = createTempDir("make-docs-home-");
     const restoreHome = mockHomeDirectory(fakeHome);
 
     try {

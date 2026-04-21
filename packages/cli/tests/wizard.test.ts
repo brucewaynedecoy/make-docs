@@ -250,7 +250,7 @@ describe("selection wizard", () => {
 
     const result = await runSelectionWizardWithRenderer(renderer, {
       initialSelections: defaultSelections(),
-      introTitle: "Configure starter-docs",
+      introTitle: "Configure make-docs",
     });
 
     expect(renderer.seenHarnessStates[0]?.options).toEqual([
@@ -290,7 +290,7 @@ describe("selection wizard", () => {
 
     const result = await runSelectionWizardWithRenderer(renderer, {
       initialSelections: defaultSelections(),
-      introTitle: "Configure starter-docs",
+      introTitle: "Configure make-docs",
     });
 
     expect(renderer.seenOptionStates[0]?.skillScopeOptions).toEqual([
@@ -343,7 +343,7 @@ describe("selection wizard", () => {
 
     const result = await runSelectionWizardWithRenderer(renderer, {
       initialSelections: defaultSelections(),
-      introTitle: "Configure starter-docs",
+      introTitle: "Configure make-docs",
     });
 
     expect(
@@ -372,7 +372,7 @@ describe("selection wizard", () => {
 
     const result = await runSelectionWizardWithRenderer(renderer, {
       initialSelections: defaultSelections(),
-      introTitle: "Configure starter-docs",
+      introTitle: "Configure make-docs",
     });
 
     expect(renderer.seenHarnessStates).toHaveLength(2);
@@ -409,7 +409,7 @@ describe("selection wizard", () => {
 
     const result = await runSelectionWizardWithRenderer(renderer, {
       initialSelections: defaultSelections(),
-      introTitle: "Configure starter-docs",
+      introTitle: "Configure make-docs",
     });
 
     expect(result).toMatchObject({
@@ -420,7 +420,7 @@ describe("selection wizard", () => {
       templatesMode: "required",
       referencesMode: "required",
     });
-    expect(renderer.introTitles).toEqual(["Configure starter-docs"]);
+    expect(renderer.introTitles).toEqual(["Configure make-docs"]);
     expect(renderer.seenOptionStates).toHaveLength(2);
   });
 
@@ -429,7 +429,7 @@ describe("selection wizard", () => {
 
     const result = await runSelectionWizardWithRenderer(renderer, {
       initialSelections: defaultSelections(),
-      introTitle: "Configure starter-docs",
+      introTitle: "Configure make-docs",
     });
 
     expect(result).toBeNull();

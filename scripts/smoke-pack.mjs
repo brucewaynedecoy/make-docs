@@ -15,8 +15,8 @@ import { fileURLToPath } from "node:url";
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(scriptDir, "..");
 const cliPackageDir = path.join(repoRoot, "packages", "cli");
-const npmHome = mkdtempSync(path.join(os.tmpdir(), "starter-docs-npm-home-"));
-const packOutputDir = mkdtempSync(path.join(os.tmpdir(), "starter-docs-pack-output-"));
+const npmHome = mkdtempSync(path.join(os.tmpdir(), "make-docs-npm-home-"));
+const packOutputDir = mkdtempSync(path.join(os.tmpdir(), "make-docs-pack-output-"));
 
 const EXPECTED_SKILL_PATHS = [
   ".claude/skills/archive-docs/SKILL.md",
@@ -75,20 +75,22 @@ const packOutput = execFileSync(
 const [{ filename }] = JSON.parse(packOutput);
 const tarballPath = path.join(packOutputDir, filename);
 
-const unpackDir = mkdtempSync(path.join(os.tmpdir(), "starter-docs-pack-"));
-const targetDir = mkdtempSync(path.join(os.tmpdir(), "starter-docs-smoke-"));
+const unpackDir = mkdtempSync(path.join(os.tmpdir(), "make-docs-pack-"));
+const targetDir = mkdtempSync(path.join(os.tmpdir(), "make-docs-smoke-"));
 
 try {
   execFileSync("tar", ["-xzf", tarballPath, "-C", unpackDir], { stdio: "inherit" });
   const packageRoot = path.join(unpackDir, "package");
-  const packedCli = path.join(packageRoot, "dist/index.js");
+  const packedPackage = readPackedPackage(packageRoot);
+  assertOnlyMakeDocsBin(packedPackage);
+  const packedMakeDocs = path.join(packageRoot, packedPackage.bin["make-docs"]);
   const fixtureServer = await startRepoFixtureServer(repoRoot);
 
   try {
     rewritePackedSkillRegistry(packageRoot, fixtureServer.baseUrl);
     execFileSync(
       "node",
-      [packedCli, "--yes", "--target", targetDir],
+      [packedMakeDocs, "--yes", "--target", targetDir],
       { stdio: "inherit" },
     );
     assertExists(
@@ -102,7 +104,7 @@ try {
 
     execFileSync(
       "node",
-      [packedCli, "--yes", "--target", targetDir],
+      [packedMakeDocs, "--yes", "--target", targetDir],
       { stdio: "inherit" },
     );
     assertMissing(
@@ -115,6 +117,7 @@ try {
 
   const manifestPath = path.join(targetDir, "docs/.assets/config/manifest.json");
   assertExists(manifestPath, "Smoke pack install did not produce a manifest.");
+  assertManifestPackageName(manifestPath, "make-docs");
   assertExists(
     path.join(targetDir, "docs/AGENTS.md"),
     "Smoke pack install did not produce docs/AGENTS.md.",
@@ -159,7 +162,7 @@ try {
 
   execFileSync(
     "node",
-    [packedCli, "backup", "--yes", "--target", targetDir],
+    [packedMakeDocs, "backup", "--yes", "--target", targetDir],
     { stdio: "inherit" },
   );
 
@@ -168,12 +171,12 @@ try {
   assertExists(path.join(backupDir, "AGENTS.md"), "Smoke pack backup did not copy AGENTS.md.");
   assertExists(
     path.join(backupDir, "docs/.assets/config/manifest.json"),
-    "Smoke pack backup did not copy the starter-docs manifest.",
+    "Smoke pack backup did not copy the make-docs manifest.",
   );
 
   execFileSync(
     "node",
-    [packedCli, "uninstall", "--yes", "--target", targetDir],
+    [packedMakeDocs, "uninstall", "--yes", "--target", targetDir],
     { stdio: "inherit" },
   );
 
@@ -181,7 +184,7 @@ try {
   assertMissing(path.join(targetDir, "CLAUDE.md"), "Smoke pack uninstall left CLAUDE.md behind.");
   assertMissing(
     path.join(targetDir, "docs/.assets/config/manifest.json"),
-    "Smoke pack uninstall left the starter-docs manifest behind.",
+    "Smoke pack uninstall left the make-docs manifest behind.",
   );
   assertExists(customFilePath, "Smoke pack uninstall removed an unmanaged custom file.");
   assertExists(backupRoot, "Smoke pack uninstall removed the .backup directory.");
@@ -192,6 +195,35 @@ try {
   rmSync(packOutputDir, { recursive: true, force: true });
   rmSync(npmHome, { recursive: true, force: true });
   rmSync(tarballPath, { force: true });
+}
+
+function readPackedPackage(packageRoot) {
+  return JSON.parse(readFileSync(path.join(packageRoot, "package.json"), "utf8"));
+}
+
+function assertOnlyMakeDocsBin(packageJson) {
+  const bin = packageJson.bin;
+  if (!bin || typeof bin !== "object" || Array.isArray(bin)) {
+    throw new Error("Packed package does not expose a bin map.");
+  }
+
+  const binNames = Object.keys(bin).sort();
+  if (binNames.length !== 1 || binNames[0] !== "make-docs") {
+    throw new Error(`Packed package exposed unexpected bins: ${binNames.join(", ") || "(none)"}.`);
+  }
+
+  if (bin["make-docs"] !== "./dist/index.js" && bin["make-docs"] !== "dist/index.js") {
+    throw new Error(`Packed make-docs bin points at ${bin["make-docs"]}.`);
+  }
+}
+
+function assertManifestPackageName(manifestPath, expectedPackageName) {
+  const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+  if (manifest.packageName !== expectedPackageName) {
+    throw new Error(
+      `Smoke pack manifest packageName was ${manifest.packageName}, expected ${expectedPackageName}.`,
+    );
+  }
 }
 
 function rewritePackedSkillRegistry(packageRoot, baseUrl) {

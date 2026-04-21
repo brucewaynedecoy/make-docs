@@ -7,25 +7,25 @@ default:
     @just --list
 
 build:
-    npm run build -w starter-docs
+    npm run build -w make-docs
 
 dev:
-    npm run dev -w starter-docs
+    npm run dev -w make-docs
 
 test:
-    npm test -w starter-docs
+    npm test -w make-docs
 
 install-cli-pack:
     cd {{cli_dir}} && npm run prepack
     cd {{cli_dir}} && npm pack
-    cd {{cli_dir}} && npm install -g ./starter-docs-{{cli_version}}.tgz
+    cd {{cli_dir}} && npm install -g ./make-docs-{{cli_version}}.tgz
 
 install-cli-link: build
     cd {{cli_dir}} && npm run build
     cd {{cli_dir}} && npm link
 
 validate-defaults:
-    npm run validate:defaults -w starter-docs
+    npm run validate:defaults -w make-docs
 
 smoke-pack:
     node scripts/smoke-pack.mjs

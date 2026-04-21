@@ -165,7 +165,6 @@ describe("installer integration", () => {
       expect(existsSync(path.join(targetDir, "docs/.assets/history/CLAUDE.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/.assets/config/AGENTS.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/.assets/config/CLAUDE.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, "docs/.assets/starter-docs"))).toBe(false);
       expect(existsSync(path.join(targetDir, "docs/guides/agent"))).toBe(false);
 
       const guidesRouter = readFileSync(path.join(targetDir, "docs/guides/AGENTS.md"), "utf8");
@@ -189,7 +188,7 @@ describe("installer integration", () => {
         `${JSON.stringify(
           {
             schemaVersion: 1,
-            packageName: "starter-docs",
+            packageName: "make-docs",
             packageVersion: "0.1.0",
             updatedAt: new Date().toISOString(),
             profileId: "legacy-profile",
@@ -346,7 +345,7 @@ describe("installer integration", () => {
 
   test("installs project-scoped skills under the target directory", async () => {
     const targetDir = createTempDir();
-    const fakeHome = createTempDir("starter-docs-home-");
+    const fakeHome = createTempDir("make-docs-home-");
     const restoreHome = mockHomeDirectory(fakeHome);
     try {
       await installWithSelections(targetDir, (selections) => {
@@ -366,7 +365,7 @@ describe("installer integration", () => {
 
   test("installs global-scoped skills under the mocked home directory", async () => {
     const targetDir = createTempDir();
-    const fakeHome = createTempDir("starter-docs-home-");
+    const fakeHome = createTempDir("make-docs-home-");
     const restoreHome = mockHomeDirectory(fakeHome);
     try {
       await installWithSelections(targetDir, (selections) => {
@@ -449,7 +448,6 @@ describe("installer integration", () => {
       expect(existsSync(path.join(targetDir, "docs/.assets/history/CLAUDE.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/.assets/config/AGENTS.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/.assets/config/CLAUDE.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, "docs/.assets/starter-docs"))).toBe(false);
       expect(existsSync(path.join(targetDir, "docs/guides/agent"))).toBe(false);
       expect(existsSync(path.join(targetDir, "docs/.archive/AGENTS.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/.archive/CLAUDE.md"))).toBe(true);
@@ -773,7 +771,7 @@ describe("installer integration", () => {
         `${JSON.stringify(
           {
             schemaVersion: 1,
-            packageName: "starter-docs",
+            packageName: "make-docs",
             packageVersion: "0.1.0",
             updatedAt: new Date().toISOString(),
             profileId: "legacy-profile",

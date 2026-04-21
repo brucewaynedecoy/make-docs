@@ -130,7 +130,7 @@ describe("cli interactive flows", () => {
         initialSelections: expect.objectContaining({
           capabilities: expect.objectContaining({ designs: true, plans: true, prd: true, work: true }),
         }),
-        introTitle: "Let's configure your starter-docs install",
+        introTitle: "Let's configure your make-docs install",
       });
       expect(promptForInstructionConflictResolutionsMock).not.toHaveBeenCalled();
       expect(confirmMock).not.toHaveBeenCalled();
@@ -161,7 +161,7 @@ describe("cli interactive flows", () => {
           capabilities: expect.objectContaining({ designs: true, plans: true, prd: true, work: false }),
           skills: false,
         }),
-        introTitle: "Let's reconfigure your starter-docs install",
+        introTitle: "Let's reconfigure your make-docs install",
       });
     } finally {
       cleanupTempDir(targetDir);
@@ -196,7 +196,7 @@ describe("cli interactive flows", () => {
       expect(output).toContain("Every managed file already matched");
       expect(output).not.toContain("found an existing manifest");
       expect(output).not.toContain("It compared the saved selections");
-      expect(output).not.toContain("starter-docs is already up to date");
+      expect(output).not.toContain("make-docs is already up to date");
       expect(loadManifest(targetDir)?.selections.capabilities.work).toBe(false);
       expect(loadManifest(targetDir)?.selections.skills).toBe(false);
     } finally {
@@ -317,7 +317,7 @@ describe("cli interactive flows", () => {
 
   test("supports canonical harness and skill flags for non-interactive apply", async () => {
     const targetDir = createTempDir();
-    const fakeHome = createTempDir("starter-docs-home-");
+    const fakeHome = createTempDir("make-docs-home-");
     const restoreHome = mockHomeDirectory(fakeHome);
 
     try {
@@ -393,7 +393,7 @@ describe("cli interactive flows", () => {
     "supports --skill-scope %s for non-interactive apply",
     async (skillScope) => {
       const targetDir = createTempDir();
-      const fakeHome = skillScope === "global" ? createTempDir("starter-docs-home-") : null;
+      const fakeHome = skillScope === "global" ? createTempDir("make-docs-home-") : null;
       const restoreHome = fakeHome ? mockHomeDirectory(fakeHome) : null;
 
       try {
@@ -450,7 +450,7 @@ describe("cli interactive flows", () => {
 
   test("reconfigure can disable skills while preserving the stored skill scope", async () => {
     const targetDir = createTempDir();
-    const fakeHome = createTempDir("starter-docs-home-");
+    const fakeHome = createTempDir("make-docs-home-");
     const restoreHome = mockHomeDirectory(fakeHome);
 
     try {
@@ -478,7 +478,7 @@ describe("cli interactive flows", () => {
 
   test("reconfigure can clear optional skills and change the skill scope", async () => {
     const targetDir = createTempDir();
-    const fakeHome = createTempDir("starter-docs-home-");
+    const fakeHome = createTempDir("make-docs-home-");
     const restoreHome = mockHomeDirectory(fakeHome);
 
     try {
@@ -528,7 +528,7 @@ describe("cli interactive flows", () => {
       ]);
 
       expect(error.message).toContain("requires at least one selection flag");
-      expect(error.message).toContain("starter-docs reconfigure");
+      expect(error.message).toContain("make-docs reconfigure");
       expect(runSelectionWizardMock).not.toHaveBeenCalled();
     } finally {
       cleanupTempDir(targetDir);
@@ -541,8 +541,8 @@ describe("cli interactive flows", () => {
     try {
       const error = await captureCliError(["reconfigure", "--target", targetDir]);
 
-      expect(error.message).toContain("No starter-docs manifest");
-      expect(error.message).toContain("Run `starter-docs` first");
+      expect(error.message).toContain("No make-docs manifest");
+      expect(error.message).toContain("Run `make-docs` first");
       expect(runSelectionWizardMock).not.toHaveBeenCalled();
     } finally {
       cleanupTempDir(targetDir);
@@ -601,19 +601,19 @@ describe("cli interactive flows", () => {
 
     const output = await captureCliOutput(["--help"]);
 
-    expect(output).toMatch(/starter-docs/i);
+    expect(output).toMatch(/make-docs/i);
     expect(output).toMatch(/\bCommands\b/i);
     expect(output).toMatch(/\bExamples\b/i);
-    expect(output).toContain("starter-docs [options]");
+    expect(output).toContain("make-docs [options]");
     expect(output).toContain("install into a new target or sync an existing manifest");
-    expect(output).toContain("starter-docs reconfigure");
-    expect(output).toContain("starter-docs backup");
-    expect(output).toContain("starter-docs uninstall");
+    expect(output).toContain("make-docs reconfigure");
+    expect(output).toContain("make-docs backup");
+    expect(output).toContain("make-docs uninstall");
     expect(output).toContain("reconfigure  Change saved selections for an existing install.");
     expect(output).toContain("backup       Create a backup of managed files.");
     expect(output).toContain("uninstall    Remove managed files, with an optional backup first.");
-    expect(output).not.toContain("starter-docs init");
-    expect(output).not.toContain("starter-docs update");
+    expect(output).not.toContain("make-docs init");
+    expect(output).not.toContain("make-docs update");
     expect(output).not.toContain("--reconfigure");
     expect(output).toMatch(/--help/i);
   });
@@ -627,17 +627,17 @@ describe("cli interactive flows", () => {
     expect(output).toContain("Interactive runs open the selection wizard");
     expect(output).toContain("Non-interactive runs with --yes must include at least one selection flag");
     expect(output).toContain("--yes                          Skip interactive prompts; requires a selection flag.");
-    expect(output).toContain("starter-docs reconfigure --yes --no-work");
+    expect(output).toContain("make-docs reconfigure --yes --no-work");
     expect(output).toContain("--optional-skills <csv|none>");
-    expect(output).not.toContain("starter-docs init");
-    expect(output).not.toContain("starter-docs update");
+    expect(output).not.toContain("make-docs init");
+    expect(output).not.toContain("make-docs update");
     expect(output).not.toContain("--reconfigure");
   });
 
   test.each([
-    ["reconfigure", ["Usage", "Options", "Examples", "starter-docs reconfigure"]],
-    ["backup", ["Usage", "Options", "Examples", "starter-docs backup"]],
-    ["uninstall", ["Usage", "Options", "Examples", "starter-docs uninstall"]],
+    ["reconfigure", ["Usage", "Options", "Examples", "make-docs reconfigure"]],
+    ["backup", ["Usage", "Options", "Examples", "make-docs backup"]],
+    ["uninstall", ["Usage", "Options", "Examples", "make-docs uninstall"]],
   ])("prints command-specific help for %s", async (command, snippets) => {
     setTTY(false);
 
@@ -649,12 +649,12 @@ describe("cli interactive flows", () => {
   });
 
   test.each([
-    [["init", "--yes"], ["`init` command was removed", "starter-docs --yes"]],
-    [["update", "--yes"], ["`update` command was removed", "starter-docs --yes"]],
-    [["--reconfigure"], ["`--reconfigure` was removed", "starter-docs reconfigure"]],
+    [["init", "--yes"], ["`init` command was removed", "make-docs --yes"]],
+    [["update", "--yes"], ["`update` command was removed", "make-docs --yes"]],
+    [["--reconfigure"], ["`--reconfigure` was removed", "make-docs reconfigure"]],
     [
       ["update", "--reconfigure", "--yes"],
-      ["`update --reconfigure` command was removed", "starter-docs reconfigure"],
+      ["`update --reconfigure` command was removed", "make-docs reconfigure"],
     ],
   ])("reports migration guidance for removed command surface %s", async (argv, messageParts) => {
     const targetDir = createTempDir();
@@ -675,7 +675,7 @@ describe("cli interactive flows", () => {
 
     const output = await captureCliOutput(["backup", "--help"]);
 
-    expect(output).toContain("starter-docs backup");
+    expect(output).toContain("make-docs backup");
     expect(output).toContain("--target");
     expect(output).toContain("--yes");
     expect(output).toContain("Skip confirmation prompts");
@@ -690,7 +690,7 @@ describe("cli interactive flows", () => {
 
     const output = await captureCliOutput(["uninstall", "--help"]);
 
-    expect(output).toContain("starter-docs uninstall");
+    expect(output).toContain("make-docs uninstall");
     expect(output).toContain("--target");
     expect(output).toContain("--backup");
     expect(output).toContain("--yes");
@@ -706,7 +706,7 @@ describe("cli interactive flows", () => {
 
     const output = await captureCliOutput(["uninstall", "--help"]);
 
-    expect(output).toContain("starter-docs uninstall");
+    expect(output).toContain("make-docs uninstall");
     expect(runUninstallCommandMock).not.toHaveBeenCalled();
   });
 
@@ -722,8 +722,8 @@ describe("cli interactive flows", () => {
         targetDir,
       ]);
 
-      expect(output).toContain("starter-docs backup");
-      expect(output).toContain("No starter-docs-managed files required backup.");
+      expect(output).toContain("make-docs backup");
+      expect(output).toContain("No make-docs-managed files required backup.");
     } finally {
       cleanupTempDir(targetDir);
     }

@@ -123,7 +123,7 @@ describe("backup command", () => {
       );
       expect(existsSync(path.join(targetDir, "AGENTS.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/.assets/config/manifest.json"))).toBe(true);
-      expect(output).toContain("starter-docs backup");
+      expect(output).toContain("make-docs backup");
       expect(output).toContain(`Destination: ${backupDir}`);
       expect(output).toContain("Backup complete");
     } finally {
@@ -133,7 +133,7 @@ describe("backup command", () => {
 
   test("copies global managed files into the _home backup subtree", async () => {
     const targetDir = createTempDir();
-    const fakeHome = createTempDir("starter-docs-home-");
+    const fakeHome = createTempDir("make-docs-home-");
     const restoreHome = mockHomeDirectory(fakeHome);
 
     try {
@@ -239,8 +239,8 @@ describe("backup command", () => {
       expect(result.destinationDir).toBeNull();
       expect(confirmMock).not.toHaveBeenCalled();
       expect(existsSync(path.join(targetDir, ".backup"))).toBe(false);
-      expect(output).toContain("starter-docs backup");
-      expect(output).toContain("No starter-docs-managed files required backup.");
+      expect(output).toContain("make-docs backup");
+      expect(output).toContain("No make-docs-managed files required backup.");
     } finally {
       cleanupTempDir(targetDir);
     }

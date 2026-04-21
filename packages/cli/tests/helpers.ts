@@ -8,11 +8,11 @@ import { loadManifest } from "../src/manifest";
 import { defaultSelections } from "../src/profile";
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
-const RAW_REPO_PREFIX = "https://raw.githubusercontent.com/brucewaynedecoy/starter-docs/main/";
+const RAW_REPO_PREFIX = "https://raw.githubusercontent.com/brucewaynedecoy/make-docs/main/";
 
 export type TestInstallSelections = ReturnType<typeof defaultSelections>;
 
-export function createTempDir(prefix = "starter-docs-test-"): string {
+export function createTempDir(prefix = "make-docs-test-"): string {
   return mkdtempSync(path.join(os.tmpdir(), prefix));
 }
 
@@ -41,7 +41,7 @@ export function setTTY(value: boolean): void {
   });
 }
 
-export async function installStarterDocsTarget(
+export async function installMakeDocsTarget(
   targetDir: string,
   configure?: (selections: TestInstallSelections) => void,
 ): Promise<void> {
