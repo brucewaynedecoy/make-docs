@@ -332,6 +332,21 @@ describe("lifecycle validation", () => {
         expect.stringContaining("Files to copy: 1"),
         "make-docs backup",
       );
+      expect(getClackNoteBody("make-docs backup")).toContain(
+        [
+          "Files to copy:",
+          "- managed-file.md (Synthetic backup failure fixture.)",
+          "",
+          "Directories to materialize:",
+          "- docs/.assets/config",
+          "",
+          "Retained paths:",
+          "- CLAUDE.md (The managed file has local changes.)",
+          "",
+          "Skipped paths:",
+          "- .backup/2026-04-17/AGENTS.md (Backup content is excluded from lifecycle operations.)",
+        ].join("\n"),
+      );
       expect(clackMocks.note).toHaveBeenCalledWith(
         expect.stringContaining("Materialized directories: 1"),
         "Backup complete",
@@ -347,6 +362,21 @@ describe("lifecycle validation", () => {
       expect(clackMocks.note).toHaveBeenCalledWith(
         expect.stringContaining("Files to remove: 1"),
         "make-docs uninstall",
+      );
+      expect(getClackNoteBody("make-docs uninstall")).toContain(
+        [
+          "Files to remove:",
+          "- managed-file.md (Synthetic backup failure fixture.)",
+          "",
+          "Directories to prune:",
+          "- docs/.assets/config (Directory is eligible for pruning.)",
+          "",
+          "Preserved paths:",
+          "- CLAUDE.md (The managed file has local changes.)",
+          "",
+          "Skipped paths:",
+          "- .backup/2026-04-17/AGENTS.md (Backup content is excluded from lifecycle operations.)",
+        ].join("\n"),
       );
       expect(clackMocks.note).toHaveBeenCalledWith(
         expect.stringContaining("Backup: not requested"),
@@ -437,6 +467,18 @@ describe("lifecycle validation", () => {
     expect(clackMocks.confirm).toHaveBeenCalledTimes(promptCount);
   });
 });
+
+function getClackNoteBody(title: string): string {
+  const call = clackMocks.note.mock.calls.find(
+    ([, noteTitle]) => noteTitle === title,
+  );
+
+  if (!call || typeof call[0] !== "string") {
+    throw new Error(`Expected Clack note body for ${title}.`);
+  }
+
+  return call[0];
+}
 
 async function captureStdout<T>(operation: () => Promise<T>): Promise<T> {
   const writeSpy = vi.spyOn(process.stdout, "write").mockImplementation(() => true);

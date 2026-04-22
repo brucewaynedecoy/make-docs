@@ -346,7 +346,16 @@ function renderAuditNote(options: {
   lines: string[];
   groups: string[][];
 }): void {
-  note([...options.lines, "", ...options.groups.flat()].join("\n"), options.title);
+  note(
+    [...options.lines, "", ...formatEntryGroups(options.groups)].join("\n"),
+    options.title,
+  );
+}
+
+function formatEntryGroups(groups: string[][]): string[] {
+  return groups.flatMap((group, index) =>
+    index === 0 ? group : ["", ...group],
+  );
 }
 
 function formatEntryGroup(
