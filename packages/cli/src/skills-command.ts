@@ -1,12 +1,21 @@
 import { stdin as input, stdout as output } from "node:process";
-import { confirm, isCancel, note } from "@clack/prompts";
+import { note } from "@clack/prompts";
 import {
   applySkillsOnlyInstallPlan,
   planSkillsOnlyInstall,
 } from "./install";
 import { loadManifest } from "./manifest";
 import { cloneSelections, defaultSelections } from "./profile";
-import type { InstallManifest, InstallSelections, PlannedAction } from "./types";
+import {
+  applySkillsUiStateToSelections,
+  countSkillActions,
+  createClackSkillsUiRenderer,
+  renderSkillsPlanSummary,
+  runSkillsUiWithRenderer,
+  stateFromSkillsSelections,
+  type SkillsUiState,
+} from "./skills-ui";
+import type { InstallManifest, InstallPlan, InstallSelections } from "./types";
 import { readPackageMeta } from "./utils";
 
 export type SkillsCommandOptions = {
@@ -22,21 +31,41 @@ export type SkillsCommandOptions = {
 
 export async function runSkillsCommand(options: SkillsCommandOptions): Promise<void> {
   const existingManifest = loadManifest(options.targetDir);
-  const selections = resolveSkillsSelections(options, existingManifest);
+  const initialSelections = resolveSkillsSelections(options, existingManifest);
+  const packageMeta = readPackageMeta();
+  const interactiveState = await resolveInteractiveSkillsState({
+    options,
+    existingManifest,
+    initialSelections,
+    packageMeta,
+  });
+
+  if (interactiveState === null) {
+    output.write("Skills command cancelled.\n");
+    return;
+  }
+
+  const state =
+    interactiveState ??
+    stateFromSkillsSelections({
+      action: options.remove ? "remove" : "sync",
+      targetDir: options.targetDir,
+      selections: initialSelections,
+    });
+  const selections = applySkillsUiStateToSelections(state, initialSelections);
   const plan = await planSkillsOnlyInstall({
     targetDir: options.targetDir,
     selections,
     existingManifest,
-    remove: options.remove,
-    packageMeta: readPackageMeta(),
+    remove: state.action === "remove",
+    packageMeta,
   });
   const hasPlannedChanges = plan.actions.some((action) => action.type !== "noop");
 
   printSkillsPlan({
-    actions: plan.actions,
     dryRun: options.dryRun,
-    remove: options.remove,
-    targetDir: options.targetDir,
+    plan,
+    state,
   });
 
   if (options.dryRun) {
@@ -49,25 +78,8 @@ export async function runSkillsCommand(options: SkillsCommandOptions): Promise<v
     return;
   }
 
-  if (!options.yes && hasPlannedChanges) {
-    if (!input.isTTY || !output.isTTY) {
-      throw new Error("Interactive prompts require a TTY. Use --yes for non-interactive runs.");
-    }
-
-    const proceed = await confirm({
-      message: options.remove
-        ? "Remove managed make-docs skill files?"
-        : "Apply make-docs skill changes?",
-      initialValue: true,
-      active: "Yes",
-      inactive: "No",
-      withGuide: true,
-    });
-
-    if (isCancel(proceed) || !proceed) {
-      output.write("Skills command cancelled.\n");
-      return;
-    }
+  if (!options.yes && (!input.isTTY || !output.isTTY)) {
+    throw new Error("Interactive prompts require a TTY. Use --yes for non-interactive runs.");
   }
 
   const applied = applySkillsOnlyInstallPlan({
@@ -76,11 +88,11 @@ export async function runSkillsCommand(options: SkillsCommandOptions): Promise<v
     existingManifest,
   });
 
-  output.write(
-    options.remove
-      ? `Removed make-docs skills. Manifest: ${options.targetDir}/docs/.assets/config/manifest.json\n`
-      : `Synchronized make-docs skills. Manifest: ${options.targetDir}/docs/.assets/config/manifest.json\n`,
-  );
+  writeSkillsCompletion({
+    existingManifest,
+    state,
+    plan,
+  });
 
   if (applied.conflictFiles.length > 0) {
     output.write("Conflicts were staged for manual review:\n");
@@ -88,6 +100,53 @@ export async function runSkillsCommand(options: SkillsCommandOptions): Promise<v
       output.write(`- ${conflictFile}\n`);
     }
   }
+}
+
+async function resolveInteractiveSkillsState(options: {
+  options: SkillsCommandOptions;
+  existingManifest: InstallManifest | null;
+  initialSelections: InstallSelections;
+  packageMeta: ReturnType<typeof readPackageMeta>;
+}): Promise<SkillsUiState | null | undefined> {
+  const { options: commandOptions, existingManifest, initialSelections, packageMeta } = options;
+
+  if (commandOptions.yes || !input.isTTY || !output.isTTY) {
+    return undefined;
+  }
+
+  const initialState = stateFromSkillsSelections({
+    action: commandOptions.remove ? "remove" : "sync",
+    targetDir: commandOptions.targetDir,
+    selections: initialSelections,
+  });
+
+  return runSkillsUiWithRenderer(createClackSkillsUiRenderer(), {
+    initialState,
+    introTitle: "Manage make-docs skills",
+    async buildReviewState(state) {
+      const selections = applySkillsUiStateToSelections(state, initialSelections);
+      const plan = await planSkillsOnlyInstall({
+        targetDir: commandOptions.targetDir,
+        selections,
+        existingManifest,
+        remove: state.action === "remove",
+        packageMeta,
+      });
+
+      return {
+        state,
+        summary: renderSkillsPlanSummary({
+          state,
+          actions: plan.actions,
+          dryRun: commandOptions.dryRun,
+        }),
+        actions:
+          state.action === "sync"
+            ? ["apply", "edit-action", "edit-platforms", "edit-scope", "edit-skills", "cancel"]
+            : ["apply", "edit-action", "cancel"],
+      };
+    },
+  });
 }
 
 function resolveSkillsSelections(
@@ -115,34 +174,40 @@ function resolveSkillsSelections(
 }
 
 function printSkillsPlan(options: {
-  actions: PlannedAction[];
   dryRun: boolean;
-  remove: boolean;
-  targetDir: string;
+  plan: InstallPlan;
+  state: SkillsUiState;
 }): void {
-  const counts = countActions(options.actions);
-  const title = options.remove ? "make-docs skills removal plan" : "make-docs skills plan";
+  const title =
+    options.state.action === "remove" ? "make-docs skills removal plan" : "make-docs skills plan";
   note(
-    [
-      `Target: ${options.targetDir}`,
-      `Mode: ${options.dryRun ? "dry run" : "apply"}`,
-      `Already current: ${counts.noop}`,
-      `Create/update: ${counts.create + counts.update + counts.generate}`,
-      `Remove managed: ${counts["remove-managed"]}`,
-      `Stage conflicts: ${counts["skip-conflict"]}`,
-    ].join("\n"),
+    renderSkillsPlanSummary({
+      state: options.state,
+      actions: options.plan.actions,
+      dryRun: options.dryRun,
+    }),
     title,
   );
 }
 
-function countActions(actions: PlannedAction[]): Record<PlannedAction["type"], number> {
-  return {
-    create: actions.filter((action) => action.type === "create").length,
-    generate: actions.filter((action) => action.type === "generate").length,
-    noop: actions.filter((action) => action.type === "noop").length,
-    "remove-managed": actions.filter((action) => action.type === "remove-managed").length,
-    "skip-conflict": actions.filter((action) => action.type === "skip-conflict").length,
-    update: actions.filter((action) => action.type === "update").length,
-    "update-conflict": actions.filter((action) => action.type === "update-conflict").length,
-  };
+function writeSkillsCompletion(options: {
+  existingManifest: InstallManifest | null;
+  state: SkillsUiState;
+  plan: InstallPlan;
+}): void {
+  const manifestPath = `${options.state.targetDir}/docs/.assets/config/manifest.json`;
+  if (options.state.action === "remove") {
+    output.write(`Removed managed skills. Manifest: ${manifestPath}\n`);
+    return;
+  }
+
+  const counts = countSkillActions(options.plan.actions);
+  const changedCount =
+    counts.create +
+    counts.generate +
+    counts.update +
+    counts["update-conflict"] +
+    counts["remove-managed"];
+  const verb = options.existingManifest ? "Updated" : "Installed";
+  output.write(`${verb} skills (${changedCount} changed). Manifest: ${manifestPath}\n`);
 }

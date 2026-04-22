@@ -29,10 +29,10 @@ This phase owns human-facing screens and summaries. It should use the skills-onl
 
 ### Acceptance criteria
 
-- [ ] Skills UI state contains only skills-command fields.
-- [ ] Required and optional skill choices reuse registry-backed catalog data.
-- [ ] Renderer-level tests can drive the flow.
-- [ ] Existing install/reconfigure wizard types are not overloaded with unrelated skills-command action state.
+- [x] Skills UI state contains only skills-command fields.
+- [x] Required and optional skill choices reuse registry-backed catalog data.
+- [x] Renderer-level tests can drive the flow.
+- [x] Existing install/reconfigure wizard types are not overloaded with unrelated skills-command action state.
 
 ### Dependencies
 
@@ -51,11 +51,11 @@ This phase owns human-facing screens and summaries. It should use the skills-onl
 
 ### Acceptance criteria
 
-- [ ] Interactive sync asks only skills-related questions.
-- [ ] The platform prompt requires at least one harness.
-- [ ] The scope prompt supports project and global.
-- [ ] Required skills cannot be deselected.
-- [ ] Optional skills can be selected or omitted.
+- [x] Interactive sync asks only skills-related questions.
+- [x] The platform prompt requires at least one harness.
+- [x] The scope prompt supports project and global.
+- [x] Required skills cannot be deselected.
+- [x] Optional skills can be selected or omitted.
 
 ### Dependencies
 
@@ -72,10 +72,10 @@ This phase owns human-facing screens and summaries. It should use the skills-onl
 
 ### Acceptance criteria
 
-- [ ] Interactive removal does not ask irrelevant optional skill questions.
-- [ ] Removal review clearly identifies the removal scope.
-- [ ] No-manifest and no-tracked-skill cases are readable no-ops.
-- [ ] Cancellation exits before applying changes.
+- [x] Interactive removal does not ask irrelevant optional skill questions.
+- [x] Removal review clearly identifies the removal scope.
+- [x] No-manifest and no-tracked-skill cases are readable no-ops.
+- [x] Cancellation exits before applying changes.
 
 ### Dependencies
 
@@ -92,11 +92,11 @@ This phase owns human-facing screens and summaries. It should use the skills-onl
 
 ### Acceptance criteria
 
-- [ ] Review includes only skills-command information.
-- [ ] Apply returns final command state.
-- [ ] Edit returns users to prior skills screens.
-- [ ] Cancel exits without applying.
-- [ ] Required skills are not described redundantly on every screen.
+- [x] Review includes only skills-command information.
+- [x] Apply returns final command state.
+- [x] Edit returns users to prior skills screens.
+- [x] Cancel exits without applying.
+- [x] Required skills are not described redundantly on every screen.
 
 ### Dependencies
 
@@ -114,11 +114,11 @@ This phase owns human-facing screens and summaries. It should use the skills-onl
 
 ### Acceptance criteria
 
-- [ ] Skills plan output does not mention document types, templates, prompts, or references.
-- [ ] Planned operations list contains only skill file paths.
-- [ ] Completion output uses skills-specific language.
-- [ ] Conflict output remains actionable.
-- [ ] Existing full install/reconfigure output is unchanged.
+- [x] Skills plan output does not mention document types, templates, prompts, or references.
+- [x] Planned operations list contains only skill file paths.
+- [x] Completion output uses skills-specific language.
+- [x] Conflict output remains actionable.
+- [x] Existing full install/reconfigure output is unchanged.
 
 ### Dependencies
 
@@ -136,11 +136,11 @@ This phase owns human-facing screens and summaries. It should use the skills-onl
 
 ### Acceptance criteria
 
-- [ ] Renderer-level tests cover sync.
-- [ ] Renderer-level tests cover removal.
-- [ ] Review edit/cancel behavior is covered.
-- [ ] Plan/completion summary output is covered.
-- [ ] Existing wizard tests still pass.
+- [x] Renderer-level tests cover sync.
+- [x] Renderer-level tests cover removal.
+- [x] Review edit/cancel behavior is covered.
+- [x] Plan/completion summary output is covered.
+- [x] Existing wizard tests still pass.
 
 ### Dependencies
 

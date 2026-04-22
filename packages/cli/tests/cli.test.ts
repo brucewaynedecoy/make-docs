@@ -506,6 +506,27 @@ describe("cli interactive flows", () => {
     }
   });
 
+  test("skills sync output uses skills-specific language", async () => {
+    const targetDir = createTempDir();
+
+    try {
+      const output = await captureCliOutput(["skills", "--yes", "--target", targetDir]);
+
+      expect(output).toContain("make-docs skills plan");
+      expect(output).toContain("Planned skill file operations:");
+      expect(output).toContain(".claude/skills/archive-docs/SKILL.md");
+      expect(output).toContain(".agents/skills/archive-docs/SKILL.md");
+      expect(output).toContain("Installed skills");
+      expect(output).not.toContain("Installed make-docs");
+      expect(output).not.toContain("Reconfigured make-docs");
+      expect(output).not.toContain("docs/.prompts");
+      expect(output).not.toContain("docs/.templates");
+      expect(output).not.toContain("docs/.references");
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
   test.each([
     ["--no-claude", { "claude-code": false, codex: true }],
     ["--no-agents", { "claude-code": true, codex: false }],
