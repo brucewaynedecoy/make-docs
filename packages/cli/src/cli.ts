@@ -24,7 +24,7 @@ import {
   runSelectionWizard,
 } from "./wizard";
 
-type Command = "reconfigure" | "backup" | "uninstall";
+type Command = "reconfigure" | "skills" | "backup" | "uninstall";
 type InstallIntent = "apply" | "reconfigure";
 
 interface ParsedArgs {
@@ -34,6 +34,7 @@ interface ParsedArgs {
   yes: boolean;
   help: boolean;
   backup: boolean;
+  remove: boolean;
   noDesigns: boolean;
   noPlans: boolean;
   noPrd: boolean;
@@ -57,7 +58,21 @@ type UninstallCommandOptions = {
 type UninstallCommandRunner = (options: UninstallCommandOptions) => Promise<void>;
 type UninstallCommandLoader = () => Promise<UninstallCommandRunner>;
 
+type SkillsCommandOptions = {
+  targetDir: string;
+  dryRun: boolean;
+  yes: boolean;
+  remove: boolean;
+  noCodex: boolean;
+  noClaudeCode: boolean;
+  skillScope?: InstallSelections["skillScope"];
+  optionalSkills?: string[];
+};
+
+type SkillsCommandRunner = (options: SkillsCommandOptions) => Promise<void>;
+
 let uninstallCommandLoaderOverride: UninstallCommandLoader | null = null;
+let skillsCommandRunnerOverride: SkillsCommandRunner | null = null;
 
 export async function runCli(argv = process.argv.slice(2)): Promise<void> {
   const parsed = parseArgs(argv);
@@ -82,6 +97,21 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
       targetDir,
       backup: parsed.backup,
       permissions: parsed.yes ? "allow-all" : "confirm",
+    });
+    return;
+  }
+
+  if (parsed.command === "skills") {
+    await runSkillsCommand({
+      targetDir,
+      dryRun: parsed.dryRun,
+      yes: parsed.yes,
+      remove: parsed.remove,
+      noCodex: parsed.noCodex,
+      noClaudeCode: parsed.noClaudeCode,
+      skillScope: parsed.skillScope,
+      optionalSkills:
+        parsed.optionalSkills === undefined ? undefined : [...parsed.optionalSkills],
     });
     return;
   }
@@ -343,6 +373,12 @@ export function __setUninstallCommandLoaderForTests(
   uninstallCommandLoaderOverride = loader;
 }
 
+export function __setSkillsCommandRunnerForTests(
+  runner: SkillsCommandRunner | null,
+): void {
+  skillsCommandRunnerOverride = runner;
+}
+
 async function loadUninstallCommand(): Promise<UninstallCommandRunner> {
   if (uninstallCommandLoaderOverride) {
     return uninstallCommandLoaderOverride();
@@ -359,6 +395,18 @@ async function loadUninstallCommand(): Promise<UninstallCommandRunner> {
   }
 
   return uninstallModule.runUninstallCommand;
+}
+
+async function runSkillsCommand(options: SkillsCommandOptions): Promise<void> {
+  if (skillsCommandRunnerOverride) {
+    await skillsCommandRunnerOverride(options);
+    return;
+  }
+
+  void options;
+  output.write(
+    "The `make-docs skills` command surface is available; skills sync and removal will be implemented in a later phase.\n",
+  );
 }
 
 function getSelectionOverrideFlags(parsed: ParsedArgs): string[] {
@@ -410,6 +458,7 @@ function parseArgs(argv: string[]): ParsedArgs {
     yes: false,
     help: false,
     backup: false,
+    remove: false,
     noDesigns: false,
     noPlans: false,
     noPrd: false,
@@ -425,7 +474,12 @@ function parseArgs(argv: string[]): ParsedArgs {
   rejectRemovedReconfigureFlag(args);
   rejectRemovedCommand(args);
 
-  if (args[0] === "reconfigure" || args[0] === "backup" || args[0] === "uninstall") {
+  if (
+    args[0] === "reconfigure" ||
+    args[0] === "skills" ||
+    args[0] === "backup" ||
+    args[0] === "uninstall"
+  ) {
     parsed.command = args.shift() as Command;
   }
 
@@ -447,6 +501,9 @@ function parseArgs(argv: string[]): ParsedArgs {
         break;
       case "--backup":
         parsed.backup = true;
+        break;
+      case "--remove":
+        parsed.remove = true;
         break;
       case "--no-designs":
         parsed.noDesigns = true;
@@ -562,11 +619,65 @@ function rejectRemovedReconfigureFlag(args: string[]): void {
   );
 }
 
+function getInvalidSkillsCommandFlags(parsed: ParsedArgs): string[] {
+  const flags: string[] = [];
+
+  if (parsed.noDesigns) {
+    flags.push("--no-designs");
+  }
+  if (parsed.noPlans) {
+    flags.push("--no-plans");
+  }
+  if (parsed.noPrd) {
+    flags.push("--no-prd");
+  }
+  if (parsed.noWork) {
+    flags.push("--no-work");
+  }
+  if (parsed.noPrompts) {
+    flags.push("--no-prompts");
+  }
+  if (parsed.noSkills) {
+    flags.push("--no-skills");
+  }
+  if (parsed.templatesMode) {
+    flags.push("--templates");
+  }
+  if (parsed.referencesMode) {
+    flags.push("--references");
+  }
+
+  return flags;
+}
+
 function validateParsedArgs(parsed: ParsedArgs): void {
   if (parsed.backup && parsed.command !== "uninstall") {
     throw new Error(
       `\`--backup\` is only valid with \`uninstall\`, not \`${parsed.command ?? "no command"}\`.`,
     );
+  }
+
+  if (parsed.remove && parsed.command !== "skills") {
+    throw new Error(
+      `\`--remove\` is only valid with \`make-docs skills\`, not \`${parsed.command ?? "no command"}\`.`,
+    );
+  }
+
+  if (parsed.command === "skills") {
+    const invalidSkillsFlags = getInvalidSkillsCommandFlags(parsed);
+    if (invalidSkillsFlags.length > 0) {
+      const label = invalidSkillsFlags.length === 1 ? "flag" : "flags";
+      const verb = invalidSkillsFlags.length === 1 ? "is" : "are";
+      throw new Error(
+        `Selection ${label} ${invalidSkillsFlags.join(", ")} ${verb} not valid with \`make-docs skills\`. Use skills command options such as \`--remove\`, \`--skill-scope\`, or \`--optional-skills\`.`,
+      );
+    }
+
+    if (parsed.remove && parsed.optionalSkills !== undefined) {
+      throw new Error(
+        "`--optional-skills` cannot be combined with `make-docs skills --remove`.",
+      );
+    }
   }
 
   const selectionOverrideFlags = getSelectionOverrideFlags(parsed);
@@ -828,6 +939,37 @@ Examples:
   make-docs reconfigure --yes --no-codex --skill-scope global --optional-skills decompose-codebase
 `);
       return;
+    case "skills":
+      output.write(`make-docs skills
+
+Sync or remove managed make-docs skills without changing the docs scaffold.
+
+Usage:
+  make-docs skills [options]
+
+General options:
+  --target <dir>                 Sync skills for a different make-docs install directory.
+  --dry-run                      Show planned skill changes without writing files.
+  --yes                          Skip interactive prompts.
+  --help, -h                     Show help for this command.
+
+Platform options:
+  --no-codex                     Skip Codex skill files.
+  --no-claude-code               Skip Claude Code skill files.
+  Deprecated aliases: --no-agents, --no-claude
+
+Skill options:
+  --remove                       Remove managed skills owned by make-docs.
+  --skill-scope project|global   Choose whether skills install in the repo or the global Codex home.
+  --optional-skills <csv|none>   Replace the optional skill set with a comma-separated list or none.
+
+Examples:
+  make-docs skills
+  make-docs skills --dry-run
+  make-docs skills --remove
+  make-docs skills --skill-scope global
+`);
+      return;
     case "backup":
       output.write(`make-docs backup
 
@@ -877,6 +1019,7 @@ Apply, sync, reconfigure, back up, and remove make-docs installs.
 Usage:
   make-docs [options]
   make-docs reconfigure [options]
+  make-docs skills [options]
   make-docs backup [options]
   make-docs uninstall [options]
 
@@ -885,6 +1028,7 @@ Primary workflow:
 
 Commands:
   reconfigure  Change saved selections for an existing install.
+  skills       Sync or remove managed skills.
   backup       Create a backup of managed files.
   uninstall    Remove managed files, with an optional backup first.
 
@@ -894,6 +1038,7 @@ Examples:
   make-docs --target ~/Projects/example --dry-run
   make-docs reconfigure
   make-docs reconfigure --yes --no-skills
+  make-docs skills --dry-run
   make-docs backup --yes
   make-docs uninstall --backup
 

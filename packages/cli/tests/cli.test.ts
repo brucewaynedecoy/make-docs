@@ -11,6 +11,7 @@ const runSelectionWizardMock = vi.fn();
 const promptForInstructionConflictResolutionsMock = vi.fn();
 const confirmMock = vi.fn();
 const runUninstallCommandMock = vi.fn();
+const runSkillsCommandMock = vi.fn();
 
 vi.mock("../src/wizard", () => ({
   runSelectionWizard: runSelectionWizardMock,
@@ -107,6 +108,7 @@ describe("cli interactive flows", () => {
     promptForInstructionConflictResolutionsMock.mockReset();
     confirmMock.mockReset();
     runUninstallCommandMock.mockReset();
+    runSkillsCommandMock.mockReset();
     mockSkillFetches();
     setTTY(true);
   });
@@ -414,6 +416,77 @@ describe("cli interactive flows", () => {
     },
   );
 
+  test("routes skills removal through the skills command boundary", async () => {
+    const targetDir = createTempDir();
+    const cli = await import("../src/cli");
+
+    try {
+      cli.__setSkillsCommandRunnerForTests(runSkillsCommandMock);
+
+      await cli.runCli([
+        "skills",
+        "--yes",
+        "--dry-run",
+        "--remove",
+        "--no-codex",
+        "--no-claude-code",
+        "--skill-scope",
+        "global",
+        "--target",
+        targetDir,
+      ]);
+
+      expect(runSkillsCommandMock).toHaveBeenCalledTimes(1);
+      expect(runSkillsCommandMock).toHaveBeenCalledWith({
+        targetDir: path.resolve(targetDir),
+        dryRun: true,
+        yes: true,
+        remove: true,
+        noCodex: true,
+        noClaudeCode: true,
+        skillScope: "global",
+        optionalSkills: undefined,
+      });
+    } finally {
+      cli.__setSkillsCommandRunnerForTests(null);
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("parses skills sync options without entering the apply path", async () => {
+    const targetDir = createTempDir();
+    const cli = await import("../src/cli");
+
+    try {
+      cli.__setSkillsCommandRunnerForTests(runSkillsCommandMock);
+
+      await cli.runCli([
+        "skills",
+        "--yes",
+        "--optional-skills",
+        "decompose-codebase",
+        "--target",
+        targetDir,
+      ]);
+
+      expect(runSelectionWizardMock).not.toHaveBeenCalled();
+      expect(runSkillsCommandMock).toHaveBeenCalledTimes(1);
+      expect(runSkillsCommandMock).toHaveBeenCalledWith({
+        targetDir: path.resolve(targetDir),
+        dryRun: false,
+        yes: true,
+        remove: false,
+        noCodex: false,
+        noClaudeCode: false,
+        skillScope: undefined,
+        optionalSkills: ["decompose-codebase"],
+      });
+    } finally {
+      cli.__setSkillsCommandRunnerForTests(null);
+      cleanupTempDir(targetDir);
+    }
+  });
+
   test.each([
     ["--no-claude", { "claude-code": false, codex: true }],
     ["--no-agents", { "claude-code": true, codex: false }],
@@ -596,6 +669,63 @@ describe("cli interactive flows", () => {
     }
   });
 
+  test.each([
+    [["--no-designs"], ["--no-designs", "make-docs skills"]],
+    [["--templates", "all"], ["--templates", "make-docs skills"]],
+    [["--references", "required"], ["--references", "make-docs skills"]],
+  ])("rejects content selection flags under skills %s", async (argv, messageParts) => {
+    const targetDir = createTempDir();
+
+    try {
+      const error = await captureCliError(["skills", ...argv, "--target", targetDir]);
+
+      for (const part of messageParts) {
+        expect(error.message).toContain(part);
+      }
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("rejects optional skill selection during skills removal", async () => {
+    const targetDir = createTempDir();
+
+    try {
+      const error = await captureCliError([
+        "skills",
+        "--remove",
+        "--optional-skills",
+        "decompose-codebase",
+        "--target",
+        targetDir,
+      ]);
+
+      expect(error.message).toContain(
+        "`--optional-skills` cannot be combined with `make-docs skills --remove`.",
+      );
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test.each([
+    [["--remove"], ["--remove", "no command"]],
+    [["reconfigure", "--remove"], ["--remove", "reconfigure"]],
+    [["--skills"], ["Unknown argument", "--skills"]],
+  ])("rejects invalid root and cross-command skills flags for %s", async (argv, messageParts) => {
+    const targetDir = createTempDir();
+
+    try {
+      const error = await captureCliError([...argv, "--target", targetDir]);
+
+      for (const part of messageParts) {
+        expect(error.message).toContain(part);
+      }
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
   test("prints structured top-level help with the public command model", async () => {
     setTTY(false);
 
@@ -607,14 +737,17 @@ describe("cli interactive flows", () => {
     expect(output).toContain("make-docs [options]");
     expect(output).toContain("install into a new target or sync an existing manifest");
     expect(output).toContain("make-docs reconfigure");
+    expect(output).toContain("make-docs skills");
     expect(output).toContain("make-docs backup");
     expect(output).toContain("make-docs uninstall");
     expect(output).toContain("reconfigure  Change saved selections for an existing install.");
+    expect(output).toContain("skills       Sync or remove managed skills.");
     expect(output).toContain("backup       Create a backup of managed files.");
     expect(output).toContain("uninstall    Remove managed files, with an optional backup first.");
     expect(output).not.toContain("make-docs init");
     expect(output).not.toContain("make-docs update");
     expect(output).not.toContain("--reconfigure");
+    expect(output).not.toContain("--skills");
     expect(output).toMatch(/--help/i);
   });
 
@@ -634,8 +767,31 @@ describe("cli interactive flows", () => {
     expect(output).not.toContain("--reconfigure");
   });
 
+  test("documents skills command help with skills-specific options", async () => {
+    setTTY(false);
+
+    const output = await captureCliOutput(["skills", "--help"]);
+
+    expect(output).toContain("make-docs skills");
+    expect(output).toContain("Sync or remove managed make-docs skills");
+    expect(output).toContain("Usage:");
+    expect(output).toContain("General options:");
+    expect(output).toContain("Platform options:");
+    expect(output).toContain("Skill options:");
+    expect(output).toContain("--remove");
+    expect(output).toContain("--skill-scope project|global");
+    expect(output).toContain("--optional-skills <csv|none>");
+    expect(output).toContain("make-docs skills --dry-run");
+    expect(output).toContain("make-docs skills --remove");
+    expect(output).toContain("make-docs skills --skill-scope global");
+    expect(output).not.toContain("--no-designs");
+    expect(output).not.toContain("--templates required|all");
+    expect(output).not.toContain("--skills");
+  });
+
   test.each([
     ["reconfigure", ["Usage", "Options", "Examples", "make-docs reconfigure"]],
+    ["skills", ["Usage", "Skill options", "Examples", "make-docs skills"]],
     ["backup", ["Usage", "Options", "Examples", "make-docs backup"]],
     ["uninstall", ["Usage", "Options", "Examples", "make-docs uninstall"]],
   ])("prints command-specific help for %s", async (command, snippets) => {
