@@ -1,6 +1,6 @@
 # Output Contract
 
-See `docs/.references/wave-model.md` for W/R/P semantics and resolution.
+See `docs/assets/references/wave-model.md` for W/R/P semantics and resolution.
 
 ## Purpose
 
@@ -18,10 +18,10 @@ Use this contract to keep plan, PRD, and work document outputs consistent across
 | Architecture overview | `docs/prd/02-architecture-overview.md` |
 | Risk register | `docs/prd/03-open-questions-and-risk-register.md` |
 | Glossary | `docs/prd/04-glossary.md` |
-| Archived PRD set | `docs/.archive/prds/YYYY-MM-DD/` or `docs/.archive/prds/YYYY-MM-DD-XX/` |
-| History record | `docs/.assets/history/YYYY-MM-DD-w{W}-r{R}-p{P}-<slug>.md` when W/R/P is known; fall back to `docs/.assets/history/YYYY-MM-DD-w{W}-r{R}-<slug>.md` when only W/R is known or `docs/.assets/history/YYYY-MM-DD-<slug>.md` when no coordinate is known. |
+| Archived PRD set | `docs/assets/archive/prds/YYYY-MM-DD/` or `docs/assets/archive/prds/YYYY-MM-DD-XX/` |
+| History record | `docs/assets/history/YYYY-MM-DD-w{W}-r{R}-p{P}-<slug>.md` when W/R/P is known; fall back to `docs/assets/history/YYYY-MM-DD-w{W}-r{R}-<slug>.md` when only W/R is known or `docs/assets/history/YYYY-MM-DD-<slug>.md` when no coordinate is known. |
 
-Plan directories contain `00-overview.md` plus one or more `0N-<phase>.md` files. Work directories contain `00-index.md` plus one or more `0N-<phase>.md` files. See `docs/.references/wave-model.md` for the full naming pattern and `## Work Phase Structure Rules` below for work content requirements.
+Plan directories contain `00-overview.md` plus one or more `0N-<phase>.md` files. Work directories contain `00-index.md` plus one or more `0N-<phase>.md` files. See `docs/assets/references/wave-model.md` for the full naming pattern and `## Work Phase Structure Rules` below for work content requirements.
 
 For change-oriented plans and delta backlogs, carry the distinguishing context in the `<slug>` (for example `...-auth-recovery-change` or `...-notifications-delta`) rather than in the directory structure. Every plan and every work backlog uses the same W/R directory shape.
 
@@ -32,7 +32,7 @@ For change-oriented plans and delta backlogs, carry the distinguishing context i
 - Active namespaces can be created in two ways:
   - `full-set generation` — generate or replace the active namespace as a set
   - `active-set evolution` — append change docs and update impacted baseline docs without replacing the namespace
-- Older namespaces belong under `docs/.archive/prds/`, not alongside the active namespace.
+- Older namespaces belong under `docs/assets/archive/prds/`, not alongside the active namespace.
 - Archived PRD sets are historical records and are not part of active PRD validation.
 
 ## Archive Rules
@@ -42,12 +42,12 @@ Apply these rules only when writing a fresh active PRD namespace through `full-s
 - Before writing a fresh PRD set, inspect `docs/prd/` for active root entries.
 - If no such entries exist, proceed normally.
 - If active root entries exist, summarize them and ask for explicit approval before moving them.
-- On approval, move those entries into `docs/.archive/prds/YYYY-MM-DD/`.
-- If that dated directory already exists, use `docs/.archive/prds/YYYY-MM-DD-XX/`, where `XX` is a zero-padded increment starting at `01`.
-- Do not place loose files directly under `docs/.archive/prds/`; it should contain dated directories only.
+- On approval, move those entries into `docs/assets/archive/prds/YYYY-MM-DD/`.
+- If that dated directory already exists, use `docs/assets/archive/prds/YYYY-MM-DD-XX/`, where `XX` is a zero-padded increment starting at `01`.
+- Do not place loose files directly under `docs/assets/archive/prds/`; it should contain dated directories only.
 - Never archive designs, plans, work, or PRDs unless the user explicitly asks.
 
-Archive layout and hard rules are authoritative in `docs/.archive/AGENTS.md`.
+Archive layout and hard rules are authoritative in `docs/assets/archive/AGENTS.md`.
 
 ## Active-Set Evolution Rules
 
@@ -57,7 +57,7 @@ Apply these rules when the user wants to add, enhance, revise, deprecate, or rem
 - Append new change docs using the next available `NN-` number.
 - Never renumber or reorder existing active PRD docs.
 - Preserve prior baseline text unless the user explicitly asks for a cleanup rewrite.
-- Update impacted baseline docs with `### Change Notes` blocks as defined in `docs/.references/prd-change-management.md`.
+- Update impacted baseline docs with `### Change Notes` blocks as defined in `docs/assets/references/prd-change-management.md`.
 - Update `docs/prd/00-index.md` so the effective lineage remains readable.
 
 ## PRD Tree Rules
@@ -119,11 +119,11 @@ docs/prd/
 ```
 
 Do not place unnumbered Markdown files directly under `docs/prd/`.
-Do not place active PRD docs under `docs/.archive/prds/`.
+Do not place active PRD docs under `docs/assets/archive/prds/`.
 
 ## Section Contracts
 
-Use the matching template in `docs/.templates/` and preserve these required headings.
+Use the matching template in `docs/assets/templates/` and preserve these required headings.
 
 | Doc type | Required headings |
 | --- | --- |

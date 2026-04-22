@@ -7,4 +7,4 @@ Please read the design docs {{DESIGN DOCS}} and inspect each doc's `## Intended 
 
 Confirm that the referenced design docs point to the `baseline-plan` route. If they point to `change-plan`, use the change-planning prompt instead unless the user explicitly instructs otherwise.
 
-Then help me create a detailed plan document in `docs/plans` to implement this design idea. Follow `docs/.references/wave-model.md` and record the coordinate decision in the plan.
+Then help me create a detailed plan document in `docs/plans` to implement this design idea. Follow `docs/assets/references/wave-model.md` and record the coordinate decision in the plan.

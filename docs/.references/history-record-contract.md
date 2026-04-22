@@ -2,15 +2,15 @@
 
 ## Purpose
 
-Use this contract for session history records under `docs/.assets/history/`.
+Use this contract for session history records under `docs/assets/history/`.
 
 History records are **breadcrumbs**: concise, point-in-time references for a future auditor. A reader should be able to skim one and know what was touched and why, then follow links to deeper detail. They are not verbose narratives and not live logs.
 
 ## Required Path
 
-- When wave, revision, and phase are known: `docs/.assets/history/YYYY-MM-DD-w{W}-r{R}-p{P}-<slug>.md`
-- When only wave and revision are known: `docs/.assets/history/YYYY-MM-DD-w{W}-r{R}-<slug>.md`
-- When no coordinate is known: `docs/.assets/history/YYYY-MM-DD-<slug>.md`
+- When wave, revision, and phase are known: `docs/assets/history/YYYY-MM-DD-w{W}-r{R}-p{P}-<slug>.md`
+- When only wave and revision are known: `docs/assets/history/YYYY-MM-DD-w{W}-r{R}-<slug>.md`
+- When no coordinate is known: `docs/assets/history/YYYY-MM-DD-<slug>.md`
 
 Use today's date in `YYYY-MM-DD`. Never backdate.
 
@@ -54,7 +54,7 @@ Encode known wave/revision/phase position in the filename for phase-scoped histo
 
 ## Coordinate Rules
 
-See `docs/.references/wave-model.md` for W/R/P semantics and general resolution rules. The rules below are specific to history records and extend (do not replace) the general model.
+See `docs/assets/references/wave-model.md` for W/R/P semantics and general resolution rules. The rules below are specific to history records and extend (do not replace) the general model.
 
 Coordinates use one combined abbreviation that captures as much positioning as is known for the session:
 

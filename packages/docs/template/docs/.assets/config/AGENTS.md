@@ -1,6 +1,6 @@
-# make-docs Config Router
+# Retired make-docs Config Router
 
-This directory stores make-docs CLI-managed config and state.
-- Treat `docs/.assets/config/` as owned by the CLI.
-- Do not hand-edit files here unless the user explicitly asks to repair CLI state.
-- Do not create memories, preferences, or other deferred asset namespaces here.
+This legacy docs-tree config location is retired.
+- Future make-docs runtime state belongs at `.make-docs/manifest.json` and `.make-docs/conflicts/<run-id>/`.
+- Treat any existing files here as migration inputs only.
+- Do not add new config, state, manifest, conflict, memory, or preference files under `docs/assets/`.

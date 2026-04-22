@@ -4,7 +4,7 @@
 
 Use this contract for developer and user guides under `docs/guides/developer/` and `docs/guides/user/`.
 
-This contract does NOT apply to history records, which use `docs/.references/history-record-contract.md`.
+This contract does NOT apply to history records, which use `docs/assets/references/history-record-contract.md`.
 
 ## Required Frontmatter
 
@@ -76,12 +76,12 @@ The `path` field serves dual purposes:
 
 New guides always start as `draft`. An agent must never set `status: published` on a newly created guide — only the user or an explicit user request promotes a guide to `published`.
 
-Transitions: `draft` → `published` → `deprecated`. A `deprecated` guide may return to `draft` for substantial rewrites. Archival (moving to `docs/.archive/guides/`) follows existing archive rules: only when the user explicitly asks.
+Transitions: `draft` → `published` → `deprecated`. A `deprecated` guide may return to `draft` for substantial rewrites. Archival (moving to `docs/assets/archive/guides/`) follows existing archive rules: only when the user explicitly asks.
 
 ## Scope
 
 - Applies to `docs/guides/developer/` and `docs/guides/user/` only.
-- Does NOT apply to history records, which use `docs/.references/history-record-contract.md`.
+- Does NOT apply to history records, which use `docs/assets/references/history-record-contract.md`.
 
 ## Cross-Audience Guides
 

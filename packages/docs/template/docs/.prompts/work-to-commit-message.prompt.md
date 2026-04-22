@@ -5,14 +5,14 @@ ___
 
 Please prepare a commit message for the current work using the make-docs commit message convention.
 
-Before drafting or committing, read `docs/.references/commit-message-convention.md`. Use it as the authority for subject shape, body source, and commit execution rules.
+Before drafting or committing, read `docs/assets/references/commit-message-convention.md`. Use it as the authority for subject shape, body source, and commit execution rules.
 
 Inspect the local context first:
 
 - `git status --short`
 - recent commit subjects with `git log --format='%h %s' -n 30`
 - the relevant design, plan, work, and history records for the requested coordinate
-- `docs/.assets/history/` for current history records, falling back to legacy records only when needed
+- `docs/assets/history/` for current history records, falling back to legacy records only when needed
 
 If the user explicitly asks you to commit, stage only the requested change set, create the commit with the drafted subject/body, and verify it with `git log -1 --format=%B`. Do not stage unrelated edits, do not rewrite user work, and do not create a commit when the request is only to draft a message.
 

@@ -1,6 +1,6 @@
 # {{TITLE}}
 
-> In v2, work backlogs are directories. This template is the shape of the `00-index.md` entry-point file. Phase detail lives in sibling `0N-<phase>.md` files (see `work-phase.md`). See `docs/.references/wave-model.md` for W/R semantics.
+> In v2, work backlogs are directories. This template is the shape of the `00-index.md` entry-point file. Phase detail lives in sibling `0N-<phase>.md` files (see `work-phase.md`). See `docs/assets/references/wave-model.md` for W/R semantics.
 
 ## Purpose
 

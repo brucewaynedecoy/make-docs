@@ -1,6 +1,6 @@
 # PRD Change Management
 
-Archive layout is authoritative in `docs/.archive/AGENTS.md`.
+Archive layout is authoritative in `docs/assets/archive/AGENTS.md`.
 
 ## Purpose
 
@@ -17,10 +17,10 @@ This workflow covers:
 
 | Change type | Meaning | Template | Typical annotation |
 | --- | --- | --- | --- |
-| `addition` | Introduces a net-new capability that was not previously required | `docs/.templates/prd-change-addition.md` | None required unless baseline docs need cross-links |
-| `enhancement` | Extends an existing capability with new behavior or scope | `docs/.templates/prd-change-addition.md` | `Enhanced by` |
-| `revision` | Changes an established requirement, contract, or constraint | `docs/.templates/prd-change-revision.md` | `Superseded by` |
-| `removal` | Deprecates or removes an established requirement or capability | `docs/.templates/prd-change-revision.md` | `Deprecated by` or `Removed by` |
+| `addition` | Introduces a net-new capability that was not previously required | `docs/assets/templates/prd-change-addition.md` | None required unless baseline docs need cross-links |
+| `enhancement` | Extends an existing capability with new behavior or scope | `docs/assets/templates/prd-change-addition.md` | `Enhanced by` |
+| `revision` | Changes an established requirement, contract, or constraint | `docs/assets/templates/prd-change-revision.md` | `Superseded by` |
+| `removal` | Deprecates or removes an established requirement or capability | `docs/assets/templates/prd-change-revision.md` | `Deprecated by` or `Removed by` |
 
 ## Active-Set Evolution Rules
 

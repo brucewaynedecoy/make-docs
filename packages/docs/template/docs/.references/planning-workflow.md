@@ -1,6 +1,6 @@
 # Planning Workflow
 
-See `docs/.references/wave-model.md` for W/R semantics and resolution rules.
+See `docs/assets/references/wave-model.md` for W/R semantics and resolution rules.
 
 ## Purpose
 
@@ -21,12 +21,12 @@ Inspect:
 - any `Coordinate Handoff` or source-lineage notes in referenced designs
 - any existing plans, PRD docs, and work backlogs
 - any history records for prior phases that the request revises, reworks, corrects, standardizes, or finishes
-- whether `docs/prd/` already contains active content (archives live under `docs/.archive/prds/YYYY-MM-DD/`)
+- whether `docs/prd/` already contains active content (archives live under `docs/assets/archive/prds/YYYY-MM-DD/`)
 - whether the user request is best classified as baseline generation, decomposition, or active-set evolution
 
 If a referenced design doc includes `## Intended Follow-On`, treat that route as authoritative unless the user explicitly overrides it.
 
-Resolve the W/R coordinate using `docs/.references/wave-model.md` before writing. Explicit user guidance and source lineage from designs, prior plans, prior work backlogs, and history records take precedence over the highest existing wave. If source lineage points to an earlier wave but later unrelated waves exist, keep the lineage wave and increment its revision.
+Resolve the W/R coordinate using `docs/assets/references/wave-model.md` before writing. Explicit user guidance and source lineage from designs, prior plans, prior work backlogs, and history records take precedence over the highest existing wave. If source lineage points to an earlier wave but later unrelated waves exist, keep the lineage wave and increment its revision.
 
 If the request is ambiguous, infer the likely mode from the repo, prompt, and explicit design handoff. Ask the user only when the ambiguity materially changes the output shape.
 
@@ -69,7 +69,7 @@ Do not ask the user which planning route to use when the referenced design docs 
 
 Plans are always directories. The chosen template describes the shape of the `00-overview.md` entry point inside the plan directory, plus the referenced `0N-<phase>.md` files.
 
-Start from the relevant template in `docs/.templates/`:
+Start from the relevant template in `docs/assets/templates/`:
 
 - `plan-prd.md` for baseline PRD generation from a new idea or design
 - `plan-prd-decompose.md` for reverse-engineering an existing codebase into a fresh PRD set

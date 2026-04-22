@@ -11,7 +11,7 @@ status: draft
 
 # {{TITLE}}
 
-> See `docs/.references/guide-contract.md` for frontmatter schema and slug rules.
+> See `docs/assets/references/guide-contract.md` for frontmatter schema and slug rules.
 
 ## Overview
 

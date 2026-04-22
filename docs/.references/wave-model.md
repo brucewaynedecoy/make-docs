@@ -4,7 +4,7 @@
 
 This file is the single source of truth for the Wave/Revision/Phase (W/R/P) encoding used across `make-docs` v2.
 
-Every other reference file, template, and router links here instead of restating these rules. The encoding was piloted in `docs/.references/history-record-contract.md` and is extended to designs, plans, and work in v2. PRDs are exempt; see `## PRD Exemption`.
+Every other reference file, template, and router links here instead of restating these rules. The encoding was piloted in `docs/assets/references/history-record-contract.md` and is extended to designs, plans, and work in v2. PRDs are exempt; see `## PRD Exemption`.
 
 ## Terms
 
@@ -24,7 +24,7 @@ Every other reference file, template, and router links here instead of restating
 | Work directory | `docs/work/YYYY-MM-DD-w{W}-r{R}-<slug>/` |
 | Work index file | `docs/work/YYYY-MM-DD-w{W}-r{R}-<slug>/00-index.md` |
 | Work phase file | `docs/work/YYYY-MM-DD-w{W}-r{R}-<slug>/0N-<phase>.md` |
-| History record | `docs/.assets/history/YYYY-MM-DD-w{W}-r{R}-p{P}-<slug>.md` when W/R/P is known; see `docs/.references/history-record-contract.md` for fallbacks. |
+| History record | `docs/assets/history/YYYY-MM-DD-w{W}-r{R}-p{P}-<slug>.md` when W/R/P is known; see `docs/assets/references/history-record-contract.md` for fallbacks. |
 
 `YYYY-MM-DD` is the date the artifact is written. Never backdate.
 
@@ -44,14 +44,14 @@ When writing a new plan directory or work directory, determine `W` and `R` in th
 
 Do not assign a new wave solely because newer unrelated waves exist. The highest-wave scan is a fallback for genuinely new initiatives, not evidence that a revision to older work belongs to a newer wave.
 
-For history records, store any known W/R/P/S/T position in the `coordinate` frontmatter field described by `docs/.references/history-record-contract.md`. Include W/R/P in the filename when all three are known. Include W/R when only those two are known. Keep stage and task detail only in `coordinate`.
+For history records, store any known W/R/P/S/T position in the `coordinate` frontmatter field described by `docs/assets/references/history-record-contract.md`. Include W/R/P in the filename when all three are known. Include W/R when only those two are known. Keep stage and task detail only in `coordinate`.
 
 ## PRD Exemption
 
 PRDs are intentionally exempt from W/R/P. The PRD namespace evolves in place through active-set evolution and change docs rather than iterating in waves.
 
-- PRD docs keep the fixed `NN-<slug>.md` convention described in `docs/.references/output-contract.md`.
-- Change management for PRDs is governed by `docs/.references/prd-change-management.md`.
+- PRD docs keep the fixed `NN-<slug>.md` convention described in `docs/assets/references/output-contract.md`.
+- Change management for PRDs is governed by `docs/assets/references/prd-change-management.md`.
 - Archived PRD sets are grouped by date, not by wave (see `## Archive Integration`).
 
 ## Design Exemption
@@ -60,13 +60,13 @@ Designs are exempt from W/R encoding. Design filenames use the simplified patter
 
 The date provides chronological ordering; the slug provides topical identity. No wave or revision identifier is required.
 
-When a design is revised or superseded, write a new dated design and use `## Design Lineage` (defined in `docs/.references/design-contract.md`) to link back to prior designs. Do not use `r{R}` revision numbering on designs.
+When a design is revised or superseded, write a new dated design and use `## Design Lineage` (defined in `docs/assets/references/design-contract.md`) to link back to prior designs. Do not use `r{R}` revision numbering on designs.
 
 Designs are inputs to a wave cycle (design → plan → work), not products of one. Binding a design to a wave number implies a 1:1 relationship with a downstream plan/work cycle that often does not hold.
 
 ## Archive Integration
 
-Archive rules for designs, plans, work, and PRDs live in `docs/.archive/AGENTS.md`. W/R/P naming is preserved when an artifact is archived; it is not rewritten.
+Archive rules for designs, plans, work, and PRDs live in `docs/assets/archive/AGENTS.md`. W/R/P naming is preserved when an artifact is archived; it is not rewritten.
 
 ## Forward Compatibility
 

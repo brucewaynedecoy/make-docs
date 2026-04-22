@@ -61,7 +61,7 @@ Rules:
 Body:
 
 - Copy the first paragraph under `## Changes` from the matching history record.
-- Prefer `docs/.assets/history/`.
+- Prefer `docs/assets/history/`.
 - If the repo has not migrated yet, accept legacy history records identified by the legacy router.
 - Do not include tables, documentation sections, verification lists, or extra commentary in the commit body.
 
@@ -99,9 +99,9 @@ Body:
 Example:
 
 ```text
-plan: [W9 R0] Docs assets, make-docs state, and session history
+plan: [W9 R1] Docs Assets Resource Namespace Overhaul
 
-Define the intended documentation architecture for moving make-docs operational state into `docs/.assets/config/`, introducing a template-owned `docs/.assets/` namespace, and migrating session history into the assets namespace.
+Define the replacement architecture for non-project document resources under `docs/` after Wave 9. The new model removes the collection of top-level hidden resource directories, consolidates document resources under one visible `docs/assets/` directory, and moves make-docs runtime state out of `docs/` into root `.make-docs/`.
 ```
 
 ## Inference Workflow

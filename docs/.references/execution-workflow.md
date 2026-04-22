@@ -1,6 +1,6 @@
 # Execution Workflow
 
-See `docs/.references/wave-model.md` for W/R semantics; archive rules are authoritative in `docs/.archive/AGENTS.md`.
+See `docs/assets/references/wave-model.md` for W/R semantics; archive rules are authoritative in `docs/assets/archive/AGENTS.md`.
 
 ## Purpose
 
@@ -71,7 +71,7 @@ Apply this gate only in `full-set generation` mode:
 
 - Treat `docs/prd/` as a single active PRD namespace.
 - If root entries already exist in `docs/prd/`, summarize them and ask for approval before moving them.
-- On approval, archive every root entry into `docs/.archive/prds/YYYY-MM-DD/` or `docs/.archive/prds/YYYY-MM-DD-XX/`.
+- On approval, archive every root entry into `docs/assets/archive/prds/YYYY-MM-DD/` or `docs/assets/archive/prds/YYYY-MM-DD-XX/`.
 - Include stray or hidden root entries in the archive summary and move set when they are part of the active namespace.
 - If archival is declined, stop before writing anything into `docs/prd/`.
 - Treat archived PRD sets as historical records, not active output targets.
@@ -82,7 +82,7 @@ Apply this gate only in `active-set evolution` mode:
 
 - Do not archive the active PRD namespace.
 - Determine the next available `NN-` number before drafting change docs.
-- Choose the relevant change template based on `docs/.references/prd-change-management.md`.
+- Choose the relevant change template based on `docs/assets/references/prd-change-management.md`.
 - Preserve prior baseline text unless the user explicitly asked for a cleanup rewrite.
 - Update impacted baseline docs with `### Change Notes` backlinks where applicable.
 - Update `docs/prd/00-index.md` so the new change docs and affected baseline docs show accurate status and lineage metadata.
@@ -133,7 +133,7 @@ For active-set evolution, prefer these separate write scopes when possible:
 - Supplement and cite useful existing docs.
 - Do not silently overwrite docs that serve another audience or purpose.
 - If existing docs drift from the code, record the drift in `03-open-questions-and-risk-register.md`.
-- If the task is full-set generation and an older active PRD set already exists under `docs/prd/`, archive it to `docs/.archive/prds/YYYY-MM-DD/` before writing the replacement active PRD set.
+- If the task is full-set generation and an older active PRD set already exists under `docs/prd/`, archive it to `docs/assets/archive/prds/YYYY-MM-DD/` before writing the replacement active PRD set.
 - If the task is active-set evolution, preserve baseline text and add non-destructive annotations unless the user explicitly asks for a cleanup rewrite.
 
 ## Backlog Rules

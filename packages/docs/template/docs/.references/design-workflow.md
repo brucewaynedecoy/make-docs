@@ -37,8 +37,8 @@ Before writing:
   - `baseline-plan`
   - `change-plan`
 - Required prompt links:
-  - `baseline-plan` → `docs/.prompts/designs-to-plan.prompt.md`
-  - `change-plan` → `docs/.prompts/designs-to-plan-change.prompt.md`
+  - `baseline-plan` → `docs/assets/prompts/designs-to-plan.prompt.md`
+  - `change-plan` → `docs/assets/prompts/designs-to-plan-change.prompt.md`
 - Downstream planners should treat the explicit route in `## Intended Follow-On` as authoritative unless the user explicitly overrides it.
 - Route guidance:
   - use `baseline-plan` when the design should feed a fresh baseline planning flow

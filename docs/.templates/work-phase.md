@@ -1,6 +1,6 @@
 # Phase {{PHASE_NUMBER}}: {{PHASE_TITLE}}
 
-> Shape for `0N-<phase>.md` files inside a work directory. See `docs/.references/wave-model.md` for W/R semantics.
+> Shape for `0N-<phase>.md` files inside a work directory. See `docs/assets/references/wave-model.md` for W/R semantics.
 
 ## Purpose
 
