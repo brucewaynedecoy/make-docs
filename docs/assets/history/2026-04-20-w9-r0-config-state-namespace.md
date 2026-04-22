@@ -25,13 +25,13 @@ Completed a Wave 9 corrective follow-up that moved the active make-docs CLI-mana
 | --- | --- |
 | [README.md](../../../README.md) | Updated install/sync state path references to `docs/.assets/config/`. |
 | [docs/.assets/AGENTS.md](../AGENTS.md) | Updated assets router guidance for CLI-managed config/state. |
-| [docs/.assets/config/AGENTS.md](../config/AGENTS.md) | New config router replacing the retired make-docs state router. |
-| [docs/.references/commit-message-convention.md](../../.references/commit-message-convention.md) | Updated the Wave 9 commit-message example to name the config namespace. |
+| `docs/.assets/config/AGENTS.md` | New config router replacing the retired make-docs state router. |
+| [docs/.references/commit-message-convention.md](../references/commit-message-convention.md) | Updated the Wave 9 commit-message example to name the config namespace. |
 | [docs/plans/2026-04-20-w9-r0-docs-assets-state-and-history/](../../plans/2026-04-20-w9-r0-docs-assets-state-and-history/) | Updated active Wave 9 plan references from `.assets/make-docs` to `.assets/config`. |
 | [docs/work/2026-04-20-w9-r0-docs-assets-state-and-history/](../../work/2026-04-20-w9-r0-docs-assets-state-and-history/) | Updated active Wave 9 work references from `.assets/make-docs` to `.assets/config`. |
 | [packages/cli/src/manifest.ts](../../../packages/cli/src/manifest.ts) | Changed the canonical manifest and conflict paths to the config namespace. |
 | [packages/cli/src/renderers.ts](../../../packages/cli/src/renderers.ts) | Updated generated router paths and wording for the config namespace. |
-| [packages/docs/template/docs/.assets/config/AGENTS.md](../../../packages/docs/template/docs/.assets/config/AGENTS.md) | Added the shippable config router in the docs template. |
+| `packages/docs/template/docs/.assets/config/AGENTS.md` | Added the shippable config router in the docs template. |
 | [scripts/smoke-pack.mjs](../../../scripts/smoke-pack.mjs) | Updated packed CLI validation to assert the new config paths. |
 | [docs/.assets/history/2026-04-20-w9-r0-config-state-namespace.md](./2026-04-20-w9-r0-config-state-namespace.md) | History record for this corrective follow-up. |
 

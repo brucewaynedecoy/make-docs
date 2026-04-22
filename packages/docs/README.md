@@ -13,13 +13,12 @@ packages/docs/
     ├── CLAUDE.md      # consumer's ./CLAUDE.md (mirror)
     └── docs/          # consumer's ./docs/
         ├── AGENTS.md + CLAUDE.md     # docs router
-        ├── .archive/                 # consolidated archive (v2)
-        ├── .prompts/                 # reusable prompt starters
-        ├── .references/              # authoritative rules and workflows
-        ├── .templates/               # structural starters for generated docs
-        ├── .assets/                  # operational assets
+        ├── assets/                   # document resources
+        │   ├── archive/              # consolidated archive (v2)
         │   ├── history/              # session history records
-        │   └── config/            # CLI manifest and conflict staging
+        │   ├── prompts/              # reusable prompt starters
+        │   ├── references/           # authoritative rules and workflows
+        │   └── templates/            # structural starters for generated docs
         ├── designs/                  # architectural decisions (ADRs)
         ├── guides/                   # user and developer guides
         ├── plans/                    # approach + rationale (always directories in v2)
@@ -39,12 +38,14 @@ In dev, the CLI reads directly from `packages/docs/template/` via a sibling-firs
 
 ## Key Conventions
 
-Consumers should start at `template/docs/AGENTS.md` (or `CLAUDE.md`) and read per-directory routers as they go. For the authoritative rules and output contract, see the `template/docs/.references/` files — especially:
+Consumers should start at `template/docs/AGENTS.md` (or `CLAUDE.md`) and read per-directory routers as they go. For the authoritative rules and output contract, see the `template/docs/assets/references/` files — especially:
 
 - `wave-model.md` — Wave/Revision/Phase (W/R/P) encoding authority
 - `output-contract.md` — required paths, section contracts, lifecycle rules
 - `design-contract.md`, `planning-workflow.md`, `execution-workflow.md` — per-artifact authority
-- `history-record-contract.md` — session history record contract for `docs/.assets/history/`
+- `history-record-contract.md` — session history record contract for `docs/assets/history/`
+
+CLI runtime state is intentionally not part of this template package. The installer creates root `.make-docs/manifest.json` and `.make-docs/conflicts/` in the target project when needed.
 
 ## Editing the Template
 
@@ -68,9 +69,9 @@ When you edit files in the template package, the repo-root `docs/` may become st
 
 Only template-owned files are re-seeded — never project-specific content:
 
-- **Router files** — `AGENTS.md` / `CLAUDE.md` in `docs/`, `docs/guides/`, `docs/.assets/`, `docs/.assets/history/`, `docs/.assets/config/`, `docs/.templates/`, `docs/.prompts/`, `docs/.references/`, `docs/.archive/`, and capability directories
-- **Reference files** — `docs/.references/*.md` (contracts, workflows, wave model)
-- **Template files** — `docs/.templates/*.md` (structural starters)
+- **Router files** — `AGENTS.md` / `CLAUDE.md` in `docs/`, `docs/guides/`, `docs/assets/`, `docs/assets/archive/`, `docs/assets/history/`, `docs/assets/prompts/`, `docs/assets/references/`, `docs/assets/templates/`, and capability directories
+- **Reference files** — `docs/assets/references/*.md` (contracts, workflows, wave model)
+- **Template files** — `docs/assets/templates/*.md` (structural starters)
 
 Project-specific content in `docs/` (designs, plans, work backlogs, guides, PRDs) is **never overwritten** by re-seeding — those are authored artifacts, not template deliverables.
 
@@ -88,7 +89,7 @@ Copy the changed files from `packages/docs/template/` to `docs/`:
 
 ```bash
 # Example: re-seed a new reference and updated routers
-cp packages/docs/template/docs/.references/guide-contract.md docs/.references/guide-contract.md
+cp packages/docs/template/docs/assets/references/guide-contract.md docs/assets/references/guide-contract.md
 cp packages/docs/template/docs/guides/AGENTS.md docs/guides/AGENTS.md
 cp packages/docs/template/docs/guides/CLAUDE.md docs/guides/CLAUDE.md
 ```
@@ -96,7 +97,7 @@ cp packages/docs/template/docs/guides/CLAUDE.md docs/guides/CLAUDE.md
 Verify the copies match:
 
 ```bash
-diff packages/docs/template/docs/.references/guide-contract.md docs/.references/guide-contract.md
+diff packages/docs/template/docs/assets/references/guide-contract.md docs/assets/references/guide-contract.md
 ```
 
 There is no automated re-seed script — it is intentionally manual so contributors review what they are propagating. If the set of changed files is large, a bulk copy with verification works:
@@ -107,8 +108,8 @@ for f in $(find packages/docs/template/docs -name 'AGENTS.md' -o -name 'CLAUDE.m
   target="docs/${f#packages/docs/template/docs/}"
   cp "$f" "$target"
 done
-cp packages/docs/template/docs/.references/*.md docs/.references/
-cp packages/docs/template/docs/.templates/*.md docs/.templates/
+cp packages/docs/template/docs/assets/references/*.md docs/assets/references/
+cp packages/docs/template/docs/assets/templates/*.md docs/assets/templates/
 ```
 
 ### Why not automate it?

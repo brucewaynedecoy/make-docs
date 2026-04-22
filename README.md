@@ -25,22 +25,25 @@ Consumers of `make-docs` receive the following structure in their project root:
 
 ```
 docs/
-  .assets/            # Operational assets: history records and CLI state
-  .prompts/           # Reusable prompt templates for common documentation workflows
-  .references/        # Normative rules: output contracts, workflows, capability matrix
-  .templates/         # Reusable document templates for PRDs, plans, and backlogs
+  assets/             # Document resources used by the docs system
+    archive/          # Explicitly archived docs artifacts
+    history/          # Session history records
+    prompts/          # Reusable prompt starters for common documentation workflows
+    references/       # Normative rules: output contracts, workflows, capability matrix
+    templates/        # Reusable document templates for PRDs, plans, and backlogs
   designs/            # Architectural decisions and design rationale (ADRs)
   guides/             # User and developer guides
   plans/              # Approach and strategy documents (created before execution)
   prd/                # Product requirement documents (descriptive: what the product is)
   work/               # Work backlogs and task lists (prescriptive: what to do)
+.make-docs/           # CLI runtime state created by installer runs
 CLAUDE.md             # Root agent instructions
 AGENTS.md             # Root agent instructions (multi-agent compatible)
 ```
 
 Each directory includes its own `CLAUDE.md` and `AGENTS.md` files with context-specific instructions for AI agents generating documentation within that directory.
 
-The hidden support directories under `docs/` each serve a different role: `docs/.assets/` contains operational assets such as history records and installer state, `docs/.references/` contains the authoritative rules and workflows, `docs/.templates/` contains document structure starting points, and `docs/.prompts/` contains reusable prompt text for kicking off common documentation tasks.
+The support resource namespace under `docs/assets/` contains document resources only: archive records, history records, reusable prompts, references, and templates. Mutable CLI runtime state lives outside `docs/` under root `.make-docs/`.
 
 ## Quick Start
 
@@ -93,14 +96,14 @@ The installer writes only the files that match your selected profile:
 - visible capability directories such as `docs/designs/`, `docs/plans/`, `docs/prd/`, and `docs/work/`
 - only the prompt starters, templates, and reference files that are valid for that profile
 - generated instruction routers and support files that avoid pointing agents at missing directories or prompt files
-- `docs/.assets/config/manifest.json`, which records the installed profile and managed file hashes for later apply/sync runs
+- `.make-docs/manifest.json`, which records the installed profile and managed file hashes for later apply/sync runs
 
 Apply/sync behavior is intentionally non-destructive:
 
 - unchanged managed files are updated in place
 - locally modified managed files are skipped
 - unmanaged conflicting files are never overwritten
-- proposed replacements are staged under `docs/.assets/config/conflicts/<run-id>/`
+- proposed replacements are staged under `.make-docs/conflicts/<run-id>/`
 
 ### Copy the drop-in docs files manually
 
@@ -155,8 +158,8 @@ After installing or copying, your project will have:
 
 - **`docs/`** -- A structured documentation directory with templates and agent instructions ready to use.
 - **`CLAUDE.md` / `AGENTS.md`** -- Root-level agent instructions that point AI agents to the documentation system. The installer can generate these to match the selected capability profile and will not overwrite conflicting files automatically.
-- **`docs/.assets/config/manifest.json`** -- Present when you use the CLI installer. Tracks the selected profile and managed file hashes so future apply/sync runs stay narrow and safe.
-- **`docs/.assets/history/`** -- Session history records for point-in-time work breadcrumbs. User and developer guides stay under `docs/guides/`.
+- **`.make-docs/manifest.json`** -- Present when you use the CLI installer. Tracks the selected profile and managed file hashes so future apply/sync runs stay narrow and safe.
+- **`docs/assets/history/`** -- Session history records for point-in-time work breadcrumbs. User and developer guides stay under `docs/guides/`.
 
 The copy commands above scope to `packages/docs/template/`, which intentionally excludes the CLI source, repo-level scripts, and this repo's own dogfood `docs/`.
 
@@ -192,9 +195,9 @@ Additional subsystem documents (`05-*` through `99-*`) are added as needed for f
 
 ## Customization
 
-- **Prompt templates** (`docs/.prompts/`) -- Add or refine reusable prompts for common documentation workflows and handoff tasks.
-- **Templates** (`docs/.templates/`) -- Modify these to change the structure of generated documents.
-- **Output contract** (`docs/.references/output-contract.md`) -- Adjust naming conventions, required sections, and structural rules.
+- **Prompt templates** (`docs/assets/prompts/`) -- Add or refine reusable prompts for common documentation workflows and handoff tasks.
+- **Templates** (`docs/assets/templates/`) -- Modify these to change the structure of generated documents.
+- **Output contract** (`docs/assets/references/output-contract.md`) -- Adjust naming conventions, required sections, and structural rules.
 - **Agent instructions** (`CLAUDE.md`, `AGENTS.md`, and per-directory variants) -- Tailor agent behavior to your team's conventions.
 
 If you used the installer, rerun `npx make-docs reconfigure` after changing which capability families you want managed locally. The installer will regenerate profile-aware router files so they stay aligned with the directories you keep.

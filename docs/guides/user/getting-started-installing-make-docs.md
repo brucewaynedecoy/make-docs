@@ -195,7 +195,7 @@ Apply/sync runs are **non-destructive**. The installer compares each managed fil
 |---|---|
 | Managed file unchanged locally | Updated in place to the new version |
 | Managed file modified locally | Skipped -- your changes are preserved |
-| Unmanaged file conflicts with a new file | Never overwritten; the proposed replacement is staged under `docs/.assets/config/conflicts/<run-id>/` for you to review |
+| Unmanaged file conflicts with a new file | Never overwritten; the proposed replacement is staged under `.make-docs/conflicts/<run-id>/` for you to review |
 
 You can preview a sync before applying it:
 
@@ -284,7 +284,7 @@ Skill installation depends on your selections:
 - Project scope installs skills under the current repo (`.claude/skills/`, `.agents/skills/`).
 - Global scope installs skills under your home directory (`~/.claude/skills/`, `~/.agents/skills/`).
 
-**Manifest:** The file at `docs/.assets/config/manifest.json` is how make-docs tracks which files it manages. Do not delete this file -- it is required for updates and reconfiguration.
+**Manifest:** The file at `.make-docs/manifest.json` is how make-docs tracks which files it manages. Do not delete this file -- it is required for updates and reconfiguration.
 
 ## Capability Reference
 
@@ -339,9 +339,9 @@ This means you are running `reconfigure`, `backup`, or `uninstall` in a director
 npx make-docs
 ```
 
-### Conflict files appearing in `.assets/config/conflicts/`
+### Conflict files appearing in `.make-docs/conflicts/`
 
-During apply/sync, if a file that make-docs wants to create already exists but is not tracked in the manifest, the proposed file is staged under `docs/.assets/config/conflicts/<run-id>/` instead of overwriting yours. To resolve:
+During apply/sync, if a file that make-docs wants to create already exists but is not tracked in the manifest, the proposed file is staged under `.make-docs/conflicts/<run-id>/` instead of overwriting yours. To resolve:
 
 1. Compare the staged file with your existing file.
 2. Merge the changes you want to keep.

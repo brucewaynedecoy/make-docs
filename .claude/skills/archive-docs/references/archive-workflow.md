@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Shared authority for the `archive-docs` skill. All modes in this skill defer to this file for workflow rules. Archive structure and the hard "never archive unless asked" rule are authoritative in `docs/.archive/AGENTS.md`; this file governs the workflow for getting there.
+Shared authority for the `archive-docs` skill. All modes in this skill defer to this file for workflow rules. Archive structure and the hard "never archive unless asked" rule are authoritative in `docs/assets/archive/AGENTS.md`; this file governs the workflow for getting there.
 
 ## Archival Modes
 
@@ -27,7 +27,7 @@ Mode detection is intent-based: infer the mode from user phrasing and confirm be
 
 - **Design** — scan `docs/plans/` for overview files linking back to the design.
 - **Plan** — scan `docs/work/` for index files linking back to the plan.
-- **Plan/Work** — scan `docs/.assets/history/` for history records whose `coordinate` matches the same wave/revision. If older moved records do not have `coordinate`, fall back to W/R/P filename parsing.
+- **Plan/Work** — scan `docs/assets/history/` for history records whose `coordinate` matches the same wave/revision. If older moved records do not have `coordinate`, fall back to W/R/P filename parsing.
 
 ### Lateral Tracing
 
@@ -43,7 +43,7 @@ When link-based tracing produces no results, fall back to slug matching. A plan 
 2. **Trace relationships** — run upstream, downstream, and lateral tracing from each target.
 3. **Present findings** — group results by relationship type (upstream, downstream, lateral, slug-matched) with a recommendation for each (archive, skip, or flag for review).
 4. **Confirm** — wait for explicit user approval. The user may select all, some, or none.
-5. **Execute** — move approved artifacts to `docs/.archive/` per the sub-directory mapping below.
+5. **Execute** — move approved artifacts to `docs/assets/archive/` per the sub-directory mapping below.
 6. **Post-archive link rewriting** — scan remaining active artifacts for broken links and propose rewrites.
 
 ## Replacement Detection
@@ -93,22 +93,22 @@ When running in dry-run or impact mode, produce the following:
 
 ## Archive Sub-Directory Mapping
 
-This mapping mirrors `docs/.archive/AGENTS.md`. Sub-directories are created on demand, not pre-created.
+This mapping mirrors `docs/assets/archive/AGENTS.md`. Sub-directories are created on demand, not pre-created.
 
 | Artifact type | Archive target |
 | --- | --- |
-| Design | `docs/.archive/designs/` |
-| Plan | `docs/.archive/plans/` |
-| Work | `docs/.archive/work/` |
-| PRD set | `docs/.archive/prds/YYYY-MM-DD/` |
-| History record | `docs/.archive/.assets/history/` |
-| Developer guide | `docs/.archive/guides/developer/` |
-| User guide | `docs/.archive/guides/user/` |
+| Design | `docs/assets/archive/designs/` |
+| Plan | `docs/assets/archive/plans/` |
+| Work | `docs/assets/archive/work/` |
+| PRD set | `docs/assets/archive/prds/YYYY-MM-DD/` |
+| History record | `docs/assets/archive/history/` |
+| Developer guide | `docs/assets/archive/guides/developer/` |
+| User guide | `docs/assets/archive/guides/user/` |
 
 ## Hard Rules
 
 - NEVER archive without explicit user approval.
-- Archive structure authority is `docs/.archive/AGENTS.md`.
+- Archive structure authority is `docs/assets/archive/AGENTS.md`.
 - Archived artifacts preserve their original filenames.
 - W/R naming is preserved when archived (not rewritten).
 - PRD archives use dated sub-directories; use `-XX` zero-padded increment suffix when the same date repeats.

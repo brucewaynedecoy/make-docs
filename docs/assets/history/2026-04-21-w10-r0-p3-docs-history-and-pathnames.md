@@ -28,9 +28,9 @@ This session completed Wave 10 Phase 3 from [03-docs-history-and-pathnames.md](.
 | [TODO.md](../../../TODO.md) | Project task list updated for the new product name. |
 | [packages/cli/README.md](../../../packages/cli/README.md) | CLI package README updated for `make-docs` install and source-copy examples. |
 | [packages/docs/README.md](../../../packages/docs/README.md) | Template package README updated for `@make-docs/template` and `make-docs` distribution wording. |
-| [docs/.assets/AGENTS.md](../../.assets/AGENTS.md) | Active assets router updated for make-docs-managed state wording. |
-| [docs/.references/commit-message-convention.md](../../.references/commit-message-convention.md) | Active reference copy updated for the new product name. |
-| [docs/.references/history-record-contract.md](../../.references/history-record-contract.md) | Active history contract copy updated for the new product name. |
+| [docs/.assets/AGENTS.md](../AGENTS.md) | Active assets router updated for make-docs-managed state wording. |
+| [docs/.references/commit-message-convention.md](../references/commit-message-convention.md) | Active reference copy updated for the new product name. |
+| [docs/.references/history-record-contract.md](../references/history-record-contract.md) | Active history contract copy updated for the new product name. |
 | [docs/designs/2026-04-21-make-docs-rename.md](../../designs/2026-04-21-make-docs-rename.md) | Wave 10 design updated as part of the docs rename pass. |
 | [docs/work/2026-04-21-w10-r0-make-docs-rename/03-docs-history-and-pathnames.md](../../work/2026-04-21-w10-r0-make-docs-rename/03-docs-history-and-pathnames.md) | Phase 3 work item updated during the rename pass. |
 

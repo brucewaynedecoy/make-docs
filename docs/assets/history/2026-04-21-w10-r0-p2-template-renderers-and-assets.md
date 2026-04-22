@@ -24,12 +24,12 @@ This session completed Wave 10 Phase 2 from [02-template-renderers-and-assets.md
 | Path | Description |
 | --- | --- |
 | [docs/.assets/history/2026-04-21-w10-r0-p2-template-renderers-and-assets.md](2026-04-21-w10-r0-p2-template-renderers-and-assets.md) | New history record for the Wave 10 Phase 2 template and renderer rename. |
-| [packages/docs/template/docs/.assets/config/AGENTS.md](../../../packages/docs/template/docs/.assets/config/AGENTS.md) | Template router copy updated to identify make-docs-managed config state. |
-| [packages/docs/template/docs/.prompts/work-to-commit-message.prompt.md](../../../packages/docs/template/docs/.prompts/work-to-commit-message.prompt.md) | Template prompt copy updated for the new product name. |
-| [packages/docs/template/docs/.references/commit-message-convention.md](../../../packages/docs/template/docs/.references/commit-message-convention.md) | Template reference copy updated for the new product name. |
-| [packages/docs/template/docs/.references/guide-contract.md](../../../packages/docs/template/docs/.references/guide-contract.md) | Template guide contract copy updated for the new product name. |
-| [packages/docs/template/docs/.references/history-record-contract.md](../../../packages/docs/template/docs/.references/history-record-contract.md) | Template history contract copy updated for the new product name. |
-| [packages/docs/template/docs/.references/wave-model.md](../../../packages/docs/template/docs/.references/wave-model.md) | Template wave model copy updated for the new product name. |
+| `packages/docs/template/docs/.assets/config/AGENTS.md` | Template router copy updated to identify make-docs-managed config state. |
+| [packages/docs/template/docs/assets/prompts/work-to-commit-message.prompt.md](../../../packages/docs/template/docs/assets/prompts/work-to-commit-message.prompt.md) | Template prompt copy updated for the new product name. |
+| [packages/docs/template/docs/assets/references/commit-message-convention.md](../../../packages/docs/template/docs/assets/references/commit-message-convention.md) | Template reference copy updated for the new product name. |
+| [packages/docs/template/docs/assets/references/guide-contract.md](../../../packages/docs/template/docs/assets/references/guide-contract.md) | Template guide contract copy updated for the new product name. |
+| [packages/docs/template/docs/assets/references/history-record-contract.md](../../../packages/docs/template/docs/assets/references/history-record-contract.md) | Template history contract copy updated for the new product name. |
+| [packages/docs/template/docs/assets/references/wave-model.md](../../../packages/docs/template/docs/assets/references/wave-model.md) | Template wave model copy updated for the new product name. |
 | [packages/cli/src/renderers.ts](../../../packages/cli/src/renderers.ts) | Generated router and next-step output updated to use `make-docs`. |
 | [packages/cli/tests/renderers.test.ts](../../../packages/cli/tests/renderers.test.ts) | Renderer expectations updated for generated `make-docs` guidance. |
 

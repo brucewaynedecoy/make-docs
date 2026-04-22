@@ -9,7 +9,7 @@ description: Archive, deprecate, inspect archival impact, or scan for stale docs
 
 This skill consolidates four documentation-maintenance workflows into one entrypoint:
 
-- `archive` — move approved artifacts into `docs/.archive/`
+- `archive` — move approved artifacts into `docs/assets/archive/`
 - `staleness-check` — report archival candidates without changing files
 - `deprecate` — mark artifacts as superseded in place
 - `archive-impact` — produce a dry-run impact report
@@ -27,14 +27,14 @@ If more than one mode could apply, explain the ambiguity and ask before taking a
 
 - Operate only on artifacts under `docs/`.
 - Treat [`references/archive-workflow.md`](./references/archive-workflow.md) as the shared authority for tracing, replacement detection, staleness signals, deprecation rules, impact reporting, and archive path mapping.
-- Treat `docs/.archive/AGENTS.md` as the structural authority for where archived artifacts belong.
+- Treat `docs/assets/archive/AGENTS.md` as the structural authority for where archived artifacts belong.
 - Use [`scripts/trace_relationships.py`](./scripts/trace_relationships.py) when the doc tree is large enough that manual tracing would be noisy or error-prone.
 - Never archive without explicit user approval.
 - When the mode is mutating (`archive` or `deprecate`), confirm the final target set before writing anything.
 
 ## Mode: `archive`
 
-Use this mode when the user wants to move docs into `docs/.archive/`.
+Use this mode when the user wants to move docs into `docs/assets/archive/`.
 
 1. Resolve the target artifact(s) under `docs/`.
 2. Infer the archival submode:
@@ -48,7 +48,7 @@ Use this mode when the user wants to move docs into `docs/.archive/`.
    - `[requested]` user-specified targets
    - `[traced]` artifacts discovered by relationship analysis
 6. Wait for explicit approval of the final archive set.
-7. Move approved artifacts into `docs/.archive/`, preserving filenames and directory structure.
+7. Move approved artifacts into `docs/assets/archive/`, preserving filenames and directory structure.
 8. After the move, scan active artifacts for broken links and propose rewrites for user approval.
 
 Archive-mode reminders:
@@ -62,7 +62,7 @@ Archive-mode reminders:
 Use this mode when the user wants advisory analysis without moving or editing files.
 
 1. State `Mode: staleness-check`.
-2. Scan `docs/designs/`, `docs/plans/`, `docs/work/`, `docs/guides/developer/`, `docs/guides/user/`, and `docs/.assets/history/`.
+2. Scan `docs/designs/`, `docs/plans/`, `docs/work/`, `docs/guides/developer/`, `docs/guides/user/`, and `docs/assets/history/`.
 3. Evaluate staleness signals from [`references/archive-workflow.md`](./references/archive-workflow.md), including:
    - downstream completion
    - deprecated status
@@ -88,7 +88,7 @@ Use this mode when the artifact should stay in place but be marked as no longer 
 
 Deprecation-mode reminders:
 
-- Do not move files to `docs/.archive/`.
+- Do not move files to `docs/assets/archive/`.
 - Batch deprecation is allowed, but always confirm the full set first.
 - Deprecation is a precursor to archival; it is not archival itself.
 

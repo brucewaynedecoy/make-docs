@@ -7,7 +7,7 @@ coordinate: "W3 R0 P1"
 
 ## Changes
 
-Updated three reference files in the template package (`packages/docs/template/docs/.references/`) to exempt designs from W/R encoding and simplify the design naming pattern to `YYYY-MM-DD-<slug>.md`.
+Updated three reference files in the template package (`packages/docs/template/docs/assets/references/`) to exempt designs from W/R encoding and simplify the design naming pattern to `YYYY-MM-DD-<slug>.md`.
 
 | Area | Summary |
 | --- | --- |
@@ -18,7 +18,7 @@ Updated three reference files in the template package (`packages/docs/template/d
 Files modified:
 
 ```text
-packages/docs/template/docs/.references/
+packages/docs/template/docs/assets/references/
 ├── wave-model.md            (updated)
 ├── design-contract.md       (updated)
 └── design-workflow.md       (updated)

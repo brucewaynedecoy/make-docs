@@ -28,8 +28,8 @@ This session completed Wave 10 Phase 4 from [04-tests-packaging-and-validation.m
 | [scripts/smoke-pack.mjs](../../../scripts/smoke-pack.mjs) | Pack smoke validation updated to exercise and assert the `make-docs` package identity. |
 | [packages/cli/src/renderers.ts](../../../packages/cli/src/renderers.ts) | Remaining generated router wording updated for make-docs-managed config state. |
 | [packages/cli/tests/](../../../packages/cli/tests/) | CLI, install, audit, backup, lifecycle, uninstall, wizard, skill registry, and helper tests updated for the `make-docs` identity. |
-| [packages/docs/template/docs/.assets/AGENTS.md](../../../packages/docs/template/docs/.assets/AGENTS.md) | Template asset router copy updated for make-docs-managed config state. |
-| [packages/docs/template/docs/.assets/CLAUDE.md](../../../packages/docs/template/docs/.assets/CLAUDE.md) | Template asset router copy updated for make-docs-managed config state. |
+| [packages/docs/template/docs/assets/AGENTS.md](../../../packages/docs/template/docs/assets/AGENTS.md) | Template asset router copy updated for make-docs-managed config state. |
+| [packages/docs/template/docs/assets/CLAUDE.md](../../../packages/docs/template/docs/assets/CLAUDE.md) | Template asset router copy updated for make-docs-managed config state. |
 
 ### Developer
 

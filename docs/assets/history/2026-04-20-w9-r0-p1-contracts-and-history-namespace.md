@@ -34,12 +34,12 @@ git diff --check
 | Path | Description |
 | --- | --- |
 | [docs/work/2026-04-20-w9-r0-docs-assets-state-and-history/01-contracts-and-history-namespace.md](../../work/2026-04-20-w9-r0-docs-assets-state-and-history/01-contracts-and-history-namespace.md) | Phase 1 work item with all acceptance criteria marked complete. |
-| [docs/.references/history-record-contract.md](../../.references/history-record-contract.md) | Updated history record contract for the future `.assets/history` namespace. |
-| [docs/.templates/history-record.md](../../.templates/history-record.md) | Added the flexible frontmatter scaffold for history records. |
-| [docs/.prompts/session-to-history-record.prompt.md](../../.prompts/session-to-history-record.prompt.md) | Rerouted session summaries to `docs/.assets/history/`. |
-| [docs/.assets/AGENTS.md](../../.assets/AGENTS.md) | New top-level operational assets router. |
-| [docs/.assets/history/AGENTS.md](../../.assets/history/AGENTS.md) | New history-specific router. |
-| [docs/.assets/make-docs/AGENTS.md](../../.assets/make-docs/AGENTS.md) | New make-docs CLI state router. |
+| [docs/.references/history-record-contract.md](../references/history-record-contract.md) | Updated history record contract for the future `.assets/history` namespace. |
+| [docs/.templates/history-record.md](../templates/history-record.md) | Added the flexible frontmatter scaffold for history records. |
+| [docs/.prompts/session-to-history-record.prompt.md](../prompts/session-to-history-record.prompt.md) | Rerouted session summaries to `docs/.assets/history/`. |
+| [docs/.assets/AGENTS.md](../AGENTS.md) | New top-level operational assets router. |
+| [docs/.assets/history/AGENTS.md](AGENTS.md) | New history-specific router. |
+| `docs/.assets/make-docs/AGENTS.md` | New make-docs CLI state router. |
 | [packages/cli/src/catalog.ts](../../../packages/cli/src/catalog.ts) | Added `.assets` instruction router files to generated installs. |
 | [packages/cli/src/renderers.ts](../../../packages/cli/src/renderers.ts) | Added buildable renderers for `.assets` routers and updated docs/guides routing output. |
 | [packages/cli/tests/consistency.test.ts](../../../packages/cli/tests/consistency.test.ts) | Updated default-template coverage for the new buildable router files. |

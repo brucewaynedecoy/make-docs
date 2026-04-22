@@ -20,7 +20,7 @@ from typing import Any
 # ---------------------------------------------------------------------------
 
 ARTIFACT_DIRS: dict[str, str] = {
-    ".assets/history": "history_record",
+    "assets/history": "history_record",
     "designs": "design",
     "plans": "plan",
     "work": "work",

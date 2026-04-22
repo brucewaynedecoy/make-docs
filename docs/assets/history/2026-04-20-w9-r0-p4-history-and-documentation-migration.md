@@ -27,11 +27,11 @@ Completed Wave 9 Phase 4, framed by [the Phase 4 plan](../../plans/2026-04-20-w9
 | [docs/.assets/history/](./) | New home for moved session history records. |
 | [docs/.assets/history/AGENTS.md](./AGENTS.md) | Updated history router filename guidance. |
 | [docs/.assets/history/CLAUDE.md](./CLAUDE.md) | Updated history router filename guidance. |
-| [docs/.prompts/session-to-history-record.prompt.md](../../.prompts/session-to-history-record.prompt.md) | Updated prompt instructions for W/R/P-aware history filenames. |
-| [docs/.references/history-record-contract.md](../../.references/history-record-contract.md) | Updated path, naming, and coordinate rules for phase-scoped history records. |
-| [docs/.references/output-contract.md](../../.references/output-contract.md) | Updated output path contract for history record filename fallbacks. |
-| [docs/.references/wave-model.md](../../.references/wave-model.md) | Updated W/R/P naming rules for history record filenames. |
-| [docs/.templates/history-record.md](../../.templates/history-record.md) | Added filename guidance for W/R/P-scoped history records. |
+| [docs/.prompts/session-to-history-record.prompt.md](../prompts/session-to-history-record.prompt.md) | Updated prompt instructions for W/R/P-aware history filenames. |
+| [docs/.references/history-record-contract.md](../references/history-record-contract.md) | Updated path, naming, and coordinate rules for phase-scoped history records. |
+| [docs/.references/output-contract.md](../references/output-contract.md) | Updated output path contract for history record filename fallbacks. |
+| [docs/.references/wave-model.md](../references/wave-model.md) | Updated W/R/P naming rules for history record filenames. |
+| [docs/.templates/history-record.md](../templates/history-record.md) | Added filename guidance for W/R/P-scoped history records. |
 | [README.md](../../../README.md) | Updated top-level documentation tree and install output summary for `.assets/history`. |
 | [packages/cli/README.md](../../../packages/cli/README.md) | Updated package README tree and install output summary for `.assets/history`. |
 | [packages/cli/src/renderers.ts](../../../packages/cli/src/renderers.ts) | Updated generated history router text to match the new filename rules. |
