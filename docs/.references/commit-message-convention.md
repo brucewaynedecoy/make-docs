@@ -4,6 +4,41 @@ Use this reference when drafting or creating project commits from wave, revision
 
 Commit messages use one short subject line, then one blank line, then an optional body paragraph. The body paragraph is copied from the authoritative source document described below.
 
+## Document Commits
+
+Use document commits for documentation changes that don't fit into the other categories.
+
+Subject:
+
+If a wave or revision is indicated, use `[W{wave} R{revision}]` to indicate the wave and revision.  Example:
+```text
+docs: [W{wave} R{revision}] {documentation target purpose}
+```
+
+If documentation is specific to a phase, use `[W{wave} R{revision} P{phase}]` to indicate the wave, revision, and phase.  Example:
+```text
+docs: [W{wave} R{revision} P{phase}] {documentation target purpose}
+```
+
+Otherwise simply capture the document purpose in the subject line.
+
+```text
+docs: {document target purpose}
+```
+
+Rules:
+
+- If a wave or revision was not specified or defined while creating the documentation, do not include them in the subject line.
+- Otherwise, include them in the subject line.
+- Do not make up wave, revision, or phase coordinates that are not present in the source document.
+
+Body:
+
+- Summarize the changes made to the documentation in a single paragraph.
+- Do not include tables, verification lists, or extra commentary in the commit body.
+- DO include links to relevant documentation sections or files, but only if they are directly relevant to the changes.
+- Favor the principle of progressive-disclosure, and only include links that, if followed, would provide immediate context for the changes.
+
 ## Feature Commits
 
 Use feature commits for implemented phase work.
