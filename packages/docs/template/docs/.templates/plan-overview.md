@@ -8,6 +8,12 @@ State what this plan covers and why it exists in one short paragraph. Link back 
 
 List the concrete goals and the completion criteria for the plan. A reader should be able to tell when the plan is done.
 
+## Coordinate Decision
+
+- Coordinate: `W{{W}} R{{R}}`
+- Classification: `new-wave` or `revision`
+- Evidence: Explain the explicit user guidance, design handoff, source lineage, prior plan/work/history records, or highest-wave fallback used to choose this coordinate.
+
 ## Phase Map
 
 List the phase detail files in this plan directory with a one-line description of each. Every plan has at least one phase file even when the work is small.

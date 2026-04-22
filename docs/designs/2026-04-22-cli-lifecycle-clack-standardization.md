@@ -138,3 +138,4 @@ The tests do not need to snapshot every decorative character. They should assert
 - Route: `change-plan`
 - Next Prompt: [designs-to-plan-change.prompt.md](../.prompts/designs-to-plan-change.prompt.md)
 - Why: this is targeted rework against shipped lifecycle commands, so downstream planning should produce an additive change plan rather than a fresh baseline plan.
+- Coordinate Handoff: related completed coordinate `W7 R0 P3-P4`; recommended downstream coordinate `W7 R1` because this standardizes the already-shipped backup and uninstall lifecycle command surfaces rather than starting a new initiative.

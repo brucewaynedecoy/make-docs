@@ -36,11 +36,14 @@ The `## Intended Follow-On` section must include:
 - `Route:` `baseline-plan` or `change-plan`
 - `Next Prompt:` a relative Markdown link to the matching prompt template
 - `Why:` a short explanation of why that route is the correct downstream workflow
+- `Coordinate Handoff:` when known, a short note that names the related completed coordinate and the recommended downstream W/R coordinate
 
 Required prompt targets:
 
 - `baseline-plan` → `[designs-to-plan.prompt.md](../.prompts/designs-to-plan.prompt.md)`
 - `change-plan` → `[designs-to-plan-change.prompt.md](../.prompts/designs-to-plan-change.prompt.md)`
+
+For `change-plan` designs, include `Coordinate Handoff` whenever the design revises, reworks, corrects, standardizes, or finishes earlier wave work. The handoff should identify the prior coordinate, the recommended downstream coordinate, and the basis for treating the work as a revision rather than a new wave. If the coordinate cannot be resolved from the request or repository history, write `Coordinate Handoff: unresolved; planner must resolve before writing.`
 
 ## Optional Design Lineage
 

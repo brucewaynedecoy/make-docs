@@ -27,3 +27,4 @@ Describe outcomes, trade-offs, risks, and follow-on implications.
 - Route: `baseline-plan` or `change-plan`
 - Next Prompt: [{{PROMPT_LABEL}}](../.prompts/{{PROMPT_FILE}})
 - Why: Explain why this design should flow into that planning path.
+- Coordinate Handoff: For `change-plan`, identify the related completed coordinate and recommended downstream W/R coordinate when known; otherwise state `unresolved; planner must resolve before writing.`

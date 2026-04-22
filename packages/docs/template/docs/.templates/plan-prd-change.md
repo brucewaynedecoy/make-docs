@@ -10,6 +10,12 @@
 
 State what is changing, why the change is needed, who the outputs are for, and what counts as completion.
 
+## Coordinate Decision
+
+- Coordinate: `W{{W}} R{{R}}`
+- Classification: `new-wave` or `revision`
+- Evidence: Explain the explicit user guidance, design handoff, source lineage, prior plan/work/history records, or highest-wave fallback used to choose this coordinate.
+
 ## Change Classification
 
 - Requested change type: {{CHANGE_TYPE}} <!-- addition | enhancement | revision | removal -->

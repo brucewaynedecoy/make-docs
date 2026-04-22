@@ -10,6 +10,12 @@
 
 State what the decomposition should preserve, who the outputs are for, and what counts as completion.
 
+## Coordinate Decision
+
+- Coordinate: `W{{W}} R{{R}}`
+- Classification: `new-wave` or `revision`
+- Evidence: Explain the explicit user guidance, design handoff, source lineage, prior plan/work/history records, or highest-wave fallback used to choose this coordinate.
+
 ## Output Contract
 
 - Plan directory: `docs/plans/{{DATE}}-w{{W}}-r{{R}}-{{SLUG}}/`

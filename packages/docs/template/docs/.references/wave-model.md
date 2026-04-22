@@ -35,11 +35,14 @@ Every other reference file, template, and router links here instead of restating
 When writing a new plan directory or work directory, determine `W` and `R` in this order:
 
 1. **Honor explicit guidance.** If the user has stated the wave or revision (for example "this is wave 2" or "redo the design as r1"), use those values.
-2. **Scan the target directory** (`docs/plans/` or `docs/work/`) for existing entries matching `w{W}-r{R}`. Parse the highest `W` present.
-3. **Decide W and R within the highest W:**
-   - If the user is revising an existing artifact in that wave, keep `W` and increment `R`.
-   - If the user is starting a new end-to-end initiative, increment `W` and reset `R` to `0`.
-4. **If no prior entries exist**, default to `w1-r0`.
+2. **Resolve source lineage before scanning for the highest wave.** Inspect the user request, referenced designs, design lineage, intended follow-on coordinate handoff, prior plans, prior work backlogs, and history records for an existing W/R/P coordinate. If the new work revises, reworks, corrects, standardizes, or finishes something already delivered in a known wave, keep that `W` and use the next unused `R` for that wave. This lineage rule wins even when later unrelated waves already exist.
+3. **Scan the target directory only after lineage is resolved** (`docs/plans/` or `docs/work/`) for existing entries matching `w{W}-r{R}`. Parse the highest `W` and the existing revisions for any lineage-selected wave.
+4. **Decide W and R when no source lineage applies:**
+   - If the user is revising an existing artifact in the highest relevant wave, keep `W` and use the next unused `R`.
+   - If the user is starting a new end-to-end initiative, increment the highest existing `W` and reset `R` to `0`.
+5. **If no prior entries exist**, default to `w1-r0`.
+
+Do not assign a new wave solely because newer unrelated waves exist. The highest-wave scan is a fallback for genuinely new initiatives, not evidence that a revision to older work belongs to a newer wave.
 
 For history records, store any known W/R/P/S/T position in the `coordinate` frontmatter field described by `docs/.references/history-record-contract.md`. Include W/R/P in the filename when all three are known. Include W/R when only those two are known. Keep stage and task detail only in `coordinate`.
 

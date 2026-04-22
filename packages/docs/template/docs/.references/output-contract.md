@@ -10,7 +10,7 @@ Use this contract to keep plan, PRD, and work document outputs consistent across
 
 | Artifact | Required path |
 | --- | --- |
-| Design | `docs/designs/YYYY-MM-DD-w{W}-r{R}-<slug>.md` |
+| Design | `docs/designs/YYYY-MM-DD-<slug>.md` |
 | Plan directory | `docs/plans/YYYY-MM-DD-w{W}-r{R}-<slug>/` |
 | Work directory | `docs/work/YYYY-MM-DD-w{W}-r{R}-<slug>/` |
 | PRD index | `docs/prd/00-index.md` |

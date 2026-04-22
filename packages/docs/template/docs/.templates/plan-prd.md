@@ -10,6 +10,12 @@
 
 State what the PRD set should capture, who the outputs are for, and what counts as completion. Identify whether the target is a greenfield project or an addition to an existing codebase.
 
+## Coordinate Decision
+
+- Coordinate: `W{{W}} R{{R}}`
+- Classification: `new-wave` or `revision`
+- Evidence: Explain the explicit user guidance, design handoff, source lineage, prior plan/work/history records, or highest-wave fallback used to choose this coordinate.
+
 ## Design Inputs
 
 List every source of truth that feeds into PRD generation. Each entry should note its format, location, and confidence level (authoritative, draft, exploratory).
