@@ -31,10 +31,10 @@ This phase converts the existing uninstall workflow in `packages/cli/src/uninsta
 
 ### Acceptance criteria
 
-- [ ] Uninstall execution can use the production lifecycle renderer.
-- [ ] Tests can provide a fake or recording renderer where needed.
-- [ ] `UninstallExecutionResult` remains compatible with existing callers.
-- [ ] CLI dispatch remains stable unless renderer injection requires a narrow adjustment.
+- [x] Uninstall execution can use the production lifecycle renderer.
+- [x] Tests can provide a fake or recording renderer where needed.
+- [x] `UninstallExecutionResult` remains compatible with existing callers.
+- [x] CLI dispatch remains stable unless renderer injection requires a narrow adjustment.
 
 ### Dependencies
 
@@ -52,11 +52,11 @@ This phase converts the existing uninstall workflow in `packages/cli/src/uninsta
 
 ### Acceptance criteria
 
-- [ ] Initial uninstall warning uses the lifecycle renderer.
-- [ ] Warning still suggests backup alternatives when `--backup` is omitted.
-- [ ] Warning still surfaces the exact backup destination when `--backup` is present.
-- [ ] Uninstall audit review uses the lifecycle renderer.
-- [ ] Audit review does not change removable, prunable, preserved, or skipped classification.
+- [x] Initial uninstall warning uses the lifecycle renderer.
+- [x] Warning still suggests backup alternatives when `--backup` is omitted.
+- [x] Warning still surfaces the exact backup destination when `--backup` is present.
+- [x] Uninstall audit review uses the lifecycle renderer.
+- [x] Audit review does not change removable, prunable, preserved, or skipped classification.
 
 ### Dependencies
 
@@ -76,12 +76,12 @@ This phase converts the existing uninstall workflow in `packages/cli/src/uninsta
 
 ### Acceptance criteria
 
-- [ ] Final destructive confirmation uses the lifecycle renderer.
-- [ ] Remove-only confirmation remains clearly destructive.
-- [ ] Backup-then-remove confirmation remains clearly ordered.
-- [ ] Cancellation at either checkpoint renders through the lifecycle renderer.
-- [ ] Cancellation at either checkpoint does not modify files.
-- [ ] Non-TTY confirmation failures still guide users to `make-docs uninstall --yes`.
+- [x] Final destructive confirmation uses the lifecycle renderer.
+- [x] Remove-only confirmation remains clearly destructive.
+- [x] Backup-then-remove confirmation remains clearly ordered.
+- [x] Cancellation at either checkpoint renders through the lifecycle renderer.
+- [x] Cancellation at either checkpoint does not modify files.
+- [x] Non-TTY confirmation failures still guide users to `make-docs uninstall --yes`.
 
 ### Dependencies
 
@@ -99,11 +99,11 @@ This phase converts the existing uninstall workflow in `packages/cli/src/uninsta
 
 ### Acceptance criteria
 
-- [ ] Success summary uses the lifecycle renderer.
-- [ ] Partial-failure summary uses the lifecycle renderer.
-- [ ] Success and failure summaries include backup status.
-- [ ] Partial-failure summary includes partial mutation counts and error message.
-- [ ] Renderer methods do not mutate filesystem state.
+- [x] Success summary uses the lifecycle renderer.
+- [x] Partial-failure summary uses the lifecycle renderer.
+- [x] Success and failure summaries include backup status.
+- [x] Partial-failure summary includes partial mutation counts and error message.
+- [x] Renderer methods do not mutate filesystem state.
 
 ### Dependencies
 
@@ -122,11 +122,11 @@ This phase converts the existing uninstall workflow in `packages/cli/src/uninsta
 
 ### Acceptance criteria
 
-- [ ] Uninstall tests prove warning, audit review, prompt skipping, cancellation, success, and partial failure route through the lifecycle renderer.
-- [ ] Existing `uninstall --backup` single-audit tests continue to pass.
-- [ ] Existing backup-failure-aborts-removal tests continue to pass.
-- [ ] Existing safe removal and pruning tests continue to pass.
-- [ ] Tests do not rely on raw box-drawing output where semantic assertions are sufficient.
+- [x] Uninstall tests prove warning, audit review, prompt skipping, cancellation, success, and partial failure route through the lifecycle renderer.
+- [x] Existing `uninstall --backup` single-audit tests continue to pass.
+- [x] Existing backup-failure-aborts-removal tests continue to pass.
+- [x] Existing safe removal and pruning tests continue to pass.
+- [x] Tests do not rely on raw box-drawing output where semantic assertions are sufficient.
 
 ### Dependencies
 

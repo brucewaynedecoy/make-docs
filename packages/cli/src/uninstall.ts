@@ -7,13 +7,7 @@ import {
 } from "./backup";
 import { createAuditReport } from "./audit";
 import {
-  confirmUninstallRun,
-  confirmUninstallWarning,
-  renderUninstallAuditSummary,
-  renderUninstallCancelled,
-  renderUninstallCompletionSummary,
-  renderUninstallFailureSummary,
-  renderUninstallWarning,
+  getLifecycleRenderer,
 } from "./lifecycle-ui";
 import { loadManifest } from "./manifest";
 import type {
@@ -58,6 +52,7 @@ export type UninstallExecutionResult =
 export async function runUninstallCommand(
   options: UninstallCommandOptions,
 ): Promise<UninstallExecutionResult> {
+  const renderer = getLifecycleRenderer();
   const targetDir = path.resolve(options.targetDir);
   const homeDir = path.resolve(options.homeDir ?? os.homedir());
   const backupDestinationPlan = options.backup
@@ -65,14 +60,16 @@ export async function runUninstallCommand(
     : null;
   const backupDestinationDir = backupDestinationPlan?.destinationDir ?? null;
 
-  renderUninstallWarning({
+  renderer.renderUninstallWarning({
     targetDir,
     backupDestinationDir,
   });
 
-  const warningApproved = await confirmUninstallWarning(options.permissions);
+  const warningApproved = await renderer.confirmUninstallWarning(
+    options.permissions,
+  );
   if (!warningApproved) {
-    renderUninstallCancelled();
+    renderer.renderUninstallCancelled();
     return {
       status: "cancelled",
       checkpoint: "warning",
@@ -95,17 +92,17 @@ export async function runUninstallCommand(
     auditReport,
   };
 
-  renderUninstallAuditSummary({
+  renderer.renderUninstallAuditSummary({
     auditReport,
     backupDestinationDir,
   });
 
-  const finalApproved = await confirmUninstallRun({
+  const finalApproved = await renderer.confirmUninstallRun({
     permissions: options.permissions,
     backupRequested: options.backup,
   });
   if (!finalApproved) {
-    renderUninstallCancelled();
+    renderer.renderUninstallCancelled();
     return {
       status: "cancelled",
       checkpoint: "final",
@@ -150,7 +147,7 @@ export async function runUninstallCommand(
       }
     }
   } catch (error) {
-    renderUninstallFailureSummary({
+    renderer.renderUninstallFailureSummary({
       auditReport: plan.auditReport,
       removedFiles,
       prunedDirectories,
@@ -162,7 +159,7 @@ export async function runUninstallCommand(
     );
   }
 
-  renderUninstallCompletionSummary({
+  renderer.renderUninstallCompletionSummary({
     auditReport: plan.auditReport,
     removedFiles,
     prunedDirectories,

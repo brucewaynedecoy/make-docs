@@ -3,13 +3,28 @@ import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { applyInstallPlan, planInstall } from "../src/install";
+import {
+  __setLifecycleRendererForTests,
+  type LifecycleRenderer,
+  type LifecycleUninstallAuditSummaryOptions,
+  type LifecycleUninstallCompletionSummaryOptions,
+  type LifecycleUninstallFailureSummaryOptions,
+  type LifecycleUninstallRunConfirmationOptions,
+  type LifecycleUninstallWarningOptions,
+} from "../src/lifecycle-ui";
 import { loadManifest } from "../src/manifest";
 import { defaultSelections } from "../src/profile";
+import type {
+  BackupExecutionResult,
+  LifecyclePermissionsMode,
+} from "../src/types";
 import * as fileUtils from "../src/utils";
 import { cleanupTempDir, createTempDir, mockSkillFetches } from "./helpers";
 
-const confirmMock = vi.fn();
-const createAuditReportMock = vi.fn();
+const { confirmMock, createAuditReportMock } = vi.hoisted(() => ({
+  confirmMock: vi.fn(),
+  createAuditReportMock: vi.fn(),
+}));
 
 vi.mock("@clack/prompts", async () => {
   const actual = await vi.importActual<typeof import("@clack/prompts")>("@clack/prompts");
@@ -131,6 +146,7 @@ describe("uninstall command", () => {
   });
 
   afterEach(() => {
+    __setLifecycleRendererForTests(null);
     vi.useRealTimers();
     vi.restoreAllMocks();
     vi.unstubAllGlobals();
@@ -167,6 +183,70 @@ describe("uninstall command", () => {
       expect(output).toContain("make-docs uninstall");
       expect(output).toContain("Uninstall complete");
       expect(output).toContain("Files removed:");
+      expect(confirmMock).not.toHaveBeenCalled();
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("routes successful uninstall lifecycle states through the renderer", async () => {
+    const targetDir = createTempDir();
+    const events: UninstallRendererEvent[] = [];
+
+    try {
+      await installManifest(targetDir, (selections) => {
+        selections.skills = false;
+      });
+      __setLifecycleRendererForTests(
+        createUninstallRecordingLifecycleRenderer(events),
+      );
+
+      const { result } = await captureUninstallRun({
+        targetDir,
+        backup: true,
+        permissions: "allow-all",
+      });
+
+      expect(result.status).toBe("completed");
+      expect(result.backupResult?.status).toBe("completed");
+      expect(events.map((event) => event.name)).toEqual([
+        "uninstall:warning",
+        "uninstall:warning-confirmation",
+        "uninstall:audit-summary",
+        "uninstall:run-confirmation",
+        "uninstall:completion-summary",
+      ]);
+      expect(events[0]).toMatchObject({
+        targetDir,
+        backupDestinationDir: path.join(targetDir, ".backup/2026-04-18"),
+        backupDestinationExistsAtWarning: false,
+      });
+      expect(events[1]).toMatchObject({
+        permissions: "allow-all",
+      });
+      expect(events[2]).toMatchObject({
+        targetDir,
+        backupDestinationDir: path.join(targetDir, ".backup/2026-04-18"),
+        filesToRemove: result.plan.auditReport.removableFiles.length,
+        directoriesToPrune: result.plan.auditReport.prunableDirectories.length,
+        preserved: result.plan.auditReport.preservedPaths.length,
+        skipped: result.plan.auditReport.skippedPaths.length,
+        backupDestinationExistsAtReview: false,
+      });
+      expect(events[3]).toMatchObject({
+        permissions: "allow-all",
+        backupRequested: true,
+      });
+      expect(events[4]).toMatchObject({
+        removedFiles: result.removedFiles.length,
+        prunedDirectories: result.prunedDirectories.length,
+        preserved: result.plan.auditReport.preservedPaths.length,
+        skipped: result.plan.auditReport.skippedPaths.length,
+        backupStatus: "completed",
+        backupDestinationDir: path.join(targetDir, ".backup/2026-04-18"),
+      });
+      expect(confirmMock).not.toHaveBeenCalled();
+      expect(createAuditReportMock).toHaveBeenCalledTimes(1);
     } finally {
       cleanupTempDir(targetDir);
     }
@@ -258,6 +338,80 @@ describe("uninstall command", () => {
     }
   });
 
+  test("routes warning cancellation through the renderer before audit or mutation", async () => {
+    const targetDir = createTempDir();
+    const events: UninstallRendererEvent[] = [];
+
+    try {
+      await installManifest(targetDir, (selections) => {
+        selections.skills = false;
+      });
+      __setLifecycleRendererForTests(
+        createUninstallRecordingLifecycleRenderer(events, {
+          warningApproved: false,
+        }),
+      );
+
+      const { result } = await captureUninstallRun({
+        targetDir,
+        backup: true,
+        permissions: "confirm",
+      });
+
+      expect(result.status).toBe("cancelled");
+      expect(result.checkpoint).toBe("warning");
+      expect(events.map((event) => event.name)).toEqual([
+        "uninstall:warning",
+        "uninstall:warning-confirmation",
+        "uninstall:cancelled",
+      ]);
+      expect(createAuditReportMock).not.toHaveBeenCalled();
+      expect(existsSync(path.join(targetDir, "AGENTS.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, ".backup"))).toBe(false);
+      expect(confirmMock).not.toHaveBeenCalled();
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("routes final cancellation through the renderer before backup or mutation", async () => {
+    const targetDir = createTempDir();
+    const events: UninstallRendererEvent[] = [];
+
+    try {
+      await installManifest(targetDir, (selections) => {
+        selections.skills = false;
+      });
+      __setLifecycleRendererForTests(
+        createUninstallRecordingLifecycleRenderer(events, {
+          finalApproved: false,
+        }),
+      );
+
+      const { result } = await captureUninstallRun({
+        targetDir,
+        backup: true,
+        permissions: "confirm",
+      });
+
+      expect(result.status).toBe("cancelled");
+      expect(result.checkpoint).toBe("final");
+      expect(events.map((event) => event.name)).toEqual([
+        "uninstall:warning",
+        "uninstall:warning-confirmation",
+        "uninstall:audit-summary",
+        "uninstall:run-confirmation",
+        "uninstall:cancelled",
+      ]);
+      expect(createAuditReportMock).toHaveBeenCalledTimes(1);
+      expect(existsSync(path.join(targetDir, "AGENTS.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, ".backup"))).toBe(false);
+      expect(confirmMock).not.toHaveBeenCalled();
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
   test("uninstall with backup reuses one audit snapshot and removes files after backup", async () => {
     const targetDir = createTempDir();
     const fakeHome = createTempDir("make-docs-home-");
@@ -287,6 +441,7 @@ describe("uninstall command", () => {
       expect(output).toContain("Backup destination: ");
       expect(output).toContain(".backup/2026-04-18");
       expect(output).toContain("Uninstall complete");
+      expect(confirmMock).not.toHaveBeenCalled();
     } finally {
       restoreHome();
       cleanupTempDir(targetDir);
@@ -302,13 +457,15 @@ describe("uninstall command", () => {
         selections.skills = false;
       });
       const originalRemoveFileIfPresent = fileUtils.removeFileIfPresent;
-      vi.spyOn(fileUtils, "removeFileIfPresent").mockImplementation((filePath) => {
-        if (filePath.endsWith("CLAUDE.md")) {
-          throw new Error("simulated delete failure");
-        }
+      vi.spyOn(fileUtils, "removeFileIfPresent").mockImplementation(
+        (filePath) => {
+          if (filePath.endsWith("CLAUDE.md")) {
+            throw new Error("simulated delete failure");
+          }
 
-        return originalRemoveFileIfPresent(filePath);
-      });
+          return originalRemoveFileIfPresent(filePath);
+        },
+      );
 
       const { error, output } = await captureUninstallFailure({
         targetDir,
@@ -327,4 +484,214 @@ describe("uninstall command", () => {
       cleanupTempDir(targetDir);
     }
   });
+
+  test("routes partial failure through the renderer with partial mutation counts", async () => {
+    const targetDir = createTempDir();
+    const events: UninstallRendererEvent[] = [];
+
+    try {
+      await installManifest(targetDir, (selections) => {
+        selections.skills = false;
+      });
+      __setLifecycleRendererForTests(
+        createUninstallRecordingLifecycleRenderer(events),
+      );
+      const originalRemoveFileIfPresent = fileUtils.removeFileIfPresent;
+      vi.spyOn(fileUtils, "removeFileIfPresent").mockImplementation((filePath) => {
+        if (filePath.endsWith("CLAUDE.md")) {
+          throw new Error("simulated delete failure");
+        }
+
+        return originalRemoveFileIfPresent(filePath);
+      });
+
+      const { error } = await captureUninstallFailure({
+        targetDir,
+        backup: false,
+        permissions: "allow-all",
+      });
+
+      expect(error.message).toContain("Uninstall partially completed");
+      expect(events.map((event) => event.name)).toEqual([
+        "uninstall:warning",
+        "uninstall:warning-confirmation",
+        "uninstall:audit-summary",
+        "uninstall:run-confirmation",
+        "uninstall:failure-summary",
+      ]);
+      expect(events[4]).toMatchObject({
+        removedFiles: 1,
+        prunedDirectories: 0,
+        backupStatus: "not-requested",
+        errorMessage: "simulated delete failure",
+      });
+      expect(existsSync(path.join(targetDir, "AGENTS.md"))).toBe(false);
+      expect(existsSync(path.join(targetDir, "CLAUDE.md"))).toBe(true);
+      expect(confirmMock).not.toHaveBeenCalled();
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
 });
+
+type UninstallRendererEvent =
+  | {
+      name: "uninstall:warning";
+      targetDir: string;
+      backupDestinationDir: string | null;
+      backupDestinationExistsAtWarning: boolean;
+    }
+  | {
+      name: "uninstall:warning-confirmation";
+      permissions: LifecyclePermissionsMode;
+    }
+  | {
+      name: "uninstall:audit-summary";
+      targetDir: string;
+      backupDestinationDir: string | null;
+      filesToRemove: number;
+      directoriesToPrune: number;
+      preserved: number;
+      skipped: number;
+      backupDestinationExistsAtReview: boolean;
+    }
+  | {
+      name: "uninstall:run-confirmation";
+      permissions: LifecyclePermissionsMode;
+      backupRequested: boolean;
+    }
+  | {
+      name: "uninstall:cancelled";
+    }
+  | {
+      name: "uninstall:completion-summary";
+      removedFiles: number;
+      prunedDirectories: number;
+      preserved: number;
+      skipped: number;
+      backupStatus: BackupStatus;
+      backupDestinationDir: string | null;
+    }
+  | {
+      name: "uninstall:failure-summary";
+      removedFiles: number;
+      prunedDirectories: number;
+      preserved: number;
+      skipped: number;
+      backupStatus: BackupStatus;
+      backupDestinationDir: string | null;
+      errorMessage: string;
+    }
+  | {
+      name: "backup:ignored";
+    };
+
+type BackupStatus = "not-requested" | BackupExecutionResult["status"];
+
+function createUninstallRecordingLifecycleRenderer(
+  events: UninstallRendererEvent[],
+  options: {
+    warningApproved?: boolean;
+    finalApproved?: boolean;
+  } = {},
+): LifecycleRenderer {
+  return {
+    beginWorkflow() {
+      return;
+    },
+    renderBackupAuditSummary() {
+      events.push({ name: "backup:ignored" });
+    },
+    async confirmBackupRun() {
+      events.push({ name: "backup:ignored" });
+      return true;
+    },
+    renderBackupNoopSummary() {
+      events.push({ name: "backup:ignored" });
+    },
+    renderBackupCancelled() {
+      events.push({ name: "backup:ignored" });
+    },
+    renderBackupCompletionSummary() {
+      events.push({ name: "backup:ignored" });
+    },
+    renderUninstallWarning(warningOptions: LifecycleUninstallWarningOptions) {
+      events.push({
+        name: "uninstall:warning",
+        targetDir: warningOptions.targetDir,
+        backupDestinationDir: warningOptions.backupDestinationDir,
+        backupDestinationExistsAtWarning: warningOptions.backupDestinationDir
+          ? existsSync(warningOptions.backupDestinationDir)
+          : false,
+      });
+    },
+    async confirmUninstallWarning(permissions) {
+      events.push({
+        name: "uninstall:warning-confirmation",
+        permissions,
+      });
+      return options.warningApproved ?? true;
+    },
+    renderUninstallAuditSummary(
+      summaryOptions: LifecycleUninstallAuditSummaryOptions,
+    ) {
+      events.push({
+        name: "uninstall:audit-summary",
+        targetDir: summaryOptions.auditReport.targetDir,
+        backupDestinationDir: summaryOptions.backupDestinationDir,
+        filesToRemove: summaryOptions.auditReport.removableFiles.length,
+        directoriesToPrune:
+          summaryOptions.auditReport.prunableDirectories.length,
+        preserved: summaryOptions.auditReport.preservedPaths.length,
+        skipped: summaryOptions.auditReport.skippedPaths.length,
+        backupDestinationExistsAtReview: summaryOptions.backupDestinationDir
+          ? existsSync(summaryOptions.backupDestinationDir)
+          : false,
+      });
+    },
+    async confirmUninstallRun(
+      confirmationOptions: LifecycleUninstallRunConfirmationOptions,
+    ) {
+      events.push({
+        name: "uninstall:run-confirmation",
+        permissions: confirmationOptions.permissions,
+        backupRequested: confirmationOptions.backupRequested,
+      });
+      return options.finalApproved ?? true;
+    },
+    renderUninstallCancelled() {
+      events.push({ name: "uninstall:cancelled" });
+    },
+    renderUninstallCompletionSummary(
+      summaryOptions: LifecycleUninstallCompletionSummaryOptions,
+    ) {
+      events.push({
+        name: "uninstall:completion-summary",
+        removedFiles: summaryOptions.removedFiles.length,
+        prunedDirectories: summaryOptions.prunedDirectories.length,
+        preserved: summaryOptions.auditReport.preservedPaths.length,
+        skipped: summaryOptions.auditReport.skippedPaths.length,
+        backupStatus: getBackupStatus(summaryOptions.backupResult),
+        backupDestinationDir: summaryOptions.backupResult?.destinationDir ?? null,
+      });
+    },
+    renderUninstallFailureSummary(
+      summaryOptions: LifecycleUninstallFailureSummaryOptions,
+    ) {
+      events.push({
+        name: "uninstall:failure-summary",
+        removedFiles: summaryOptions.removedFiles.length,
+        prunedDirectories: summaryOptions.prunedDirectories.length,
+        preserved: summaryOptions.auditReport.preservedPaths.length,
+        skipped: summaryOptions.auditReport.skippedPaths.length,
+        backupStatus: getBackupStatus(summaryOptions.backupResult),
+        backupDestinationDir: summaryOptions.backupResult?.destinationDir ?? null,
+        errorMessage: summaryOptions.errorMessage,
+      });
+    },
+  };
+}
+
+function getBackupStatus(result: BackupExecutionResult | null): BackupStatus {
+  return result?.status ?? "not-requested";
+}
