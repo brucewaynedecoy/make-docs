@@ -4,7 +4,7 @@ import {
   applySkillsOnlyInstallPlan,
   planSkillsOnlyInstall,
 } from "./install";
-import { loadManifest } from "./manifest";
+import { loadManifest, MANIFEST_RELATIVE_PATH } from "./manifest";
 import { cloneSelections, defaultSelections } from "./profile";
 import {
   applySkillsUiStateToSelections,
@@ -195,7 +195,7 @@ function writeSkillsCompletion(options: {
   state: SkillsUiState;
   plan: InstallPlan;
 }): void {
-  const manifestPath = `${options.state.targetDir}/docs/.assets/config/manifest.json`;
+  const manifestPath = `${options.state.targetDir}/${MANIFEST_RELATIVE_PATH}`;
   if (options.state.action === "remove") {
     output.write(`Removed managed skills. Manifest: ${manifestPath}\n`);
     return;

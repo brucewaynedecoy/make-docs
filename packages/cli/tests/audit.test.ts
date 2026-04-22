@@ -473,7 +473,7 @@ describe("shared audit engine", () => {
       const unrelatedInstructionPath = path.join(targetDir, "notes/AGENTS.md");
       mkdirSync(path.dirname(unrelatedInstructionPath), { recursive: true });
       writeFileSync(unrelatedInstructionPath, readPackageFile("AGENTS.md"), "utf8");
-      rmSync(path.join(targetDir, "docs/.assets/config/manifest.json"), { force: true });
+      rmSync(path.join(targetDir, ".make-docs/manifest.json"), { force: true });
 
       const report = await runAudit({ targetDir, manifest: null });
 

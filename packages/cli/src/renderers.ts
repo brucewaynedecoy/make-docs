@@ -6,25 +6,31 @@ import { formatInlineList, readPackageFile } from "./utils";
 const ROOT_INSTRUCTIONS = new Set(["AGENTS.md", "CLAUDE.md"]);
 const DOCS_ROUTER_INSTRUCTIONS = new Set(["docs/AGENTS.md", "docs/CLAUDE.md"]);
 const TEMPLATE_ROUTER_INSTRUCTIONS = new Set([
-  "docs/.templates/AGENTS.md",
-  "docs/.templates/CLAUDE.md",
+  "docs/assets/templates/AGENTS.md",
+  "docs/assets/templates/CLAUDE.md",
 ]);
 const PROMPTS_ROUTER_INSTRUCTIONS = new Set([
-  "docs/.prompts/AGENTS.md",
-  "docs/.prompts/CLAUDE.md",
+  "docs/assets/prompts/AGENTS.md",
+  "docs/assets/prompts/CLAUDE.md",
+]);
+const REFERENCES_ROUTER_INSTRUCTIONS = new Set([
+  "docs/assets/references/AGENTS.md",
+  "docs/assets/references/CLAUDE.md",
+]);
+const ARCHIVE_ROUTER_INSTRUCTIONS = new Set([
+  "docs/assets/archive/AGENTS.md",
+  "docs/assets/archive/CLAUDE.md",
 ]);
 const ASSETS_ROUTER_INSTRUCTIONS = new Set([
-  "docs/.assets/AGENTS.md",
-  "docs/.assets/CLAUDE.md",
-  "docs/.assets/history/AGENTS.md",
-  "docs/.assets/history/CLAUDE.md",
-  "docs/.assets/config/AGENTS.md",
-  "docs/.assets/config/CLAUDE.md",
+  "docs/assets/AGENTS.md",
+  "docs/assets/CLAUDE.md",
+  "docs/assets/history/AGENTS.md",
+  "docs/assets/history/CLAUDE.md",
 ]);
 const DESIGN_REFERENCE_RENDERERS = new Set([
-  "docs/.references/design-workflow.md",
-  "docs/.references/design-contract.md",
-  "docs/.templates/design.md",
+  "docs/assets/references/design-workflow.md",
+  "docs/assets/references/design-contract.md",
+  "docs/assets/templates/design.md",
 ]);
 const GUIDES_ROUTER_INSTRUCTIONS = new Set([
   "docs/guides/AGENTS.md",
@@ -37,6 +43,8 @@ export function isBuildablePath(relativePath: string): boolean {
     DOCS_ROUTER_INSTRUCTIONS.has(relativePath) ||
     TEMPLATE_ROUTER_INSTRUCTIONS.has(relativePath) ||
     PROMPTS_ROUTER_INSTRUCTIONS.has(relativePath) ||
+    REFERENCES_ROUTER_INSTRUCTIONS.has(relativePath) ||
+    ARCHIVE_ROUTER_INSTRUCTIONS.has(relativePath) ||
     ASSETS_ROUTER_INSTRUCTIONS.has(relativePath) ||
     DESIGN_REFERENCE_RENDERERS.has(relativePath) ||
     GUIDES_ROUTER_INSTRUCTIONS.has(relativePath)
@@ -56,26 +64,29 @@ export function renderBuildableAsset(relativePath: string, profile: InstallProfi
     case "docs/AGENTS.md":
     case "docs/CLAUDE.md":
       return renderDocsRouter(profile);
-    case "docs/.templates/AGENTS.md":
-    case "docs/.templates/CLAUDE.md":
+    case "docs/assets/templates/AGENTS.md":
+    case "docs/assets/templates/CLAUDE.md":
       return renderTemplatesRouter(profile);
-    case "docs/.prompts/AGENTS.md":
-    case "docs/.prompts/CLAUDE.md":
+    case "docs/assets/prompts/AGENTS.md":
+    case "docs/assets/prompts/CLAUDE.md":
       return renderPromptsRouter(profile);
-    case "docs/.assets/AGENTS.md":
-    case "docs/.assets/CLAUDE.md":
+    case "docs/assets/references/AGENTS.md":
+    case "docs/assets/references/CLAUDE.md":
+      return readPackageFile(relativePath);
+    case "docs/assets/archive/AGENTS.md":
+    case "docs/assets/archive/CLAUDE.md":
+      return readPackageFile(relativePath);
+    case "docs/assets/AGENTS.md":
+    case "docs/assets/CLAUDE.md":
       return renderAssetsRouter();
-    case "docs/.assets/history/AGENTS.md":
-    case "docs/.assets/history/CLAUDE.md":
+    case "docs/assets/history/AGENTS.md":
+    case "docs/assets/history/CLAUDE.md":
       return renderHistoryAssetsRouter();
-    case "docs/.assets/config/AGENTS.md":
-    case "docs/.assets/config/CLAUDE.md":
-      return renderMakeDocsConfigRouter();
-    case "docs/.references/design-workflow.md":
+    case "docs/assets/references/design-workflow.md":
       return renderDesignWorkflow(profile);
-    case "docs/.references/design-contract.md":
+    case "docs/assets/references/design-contract.md":
       return renderDesignContract(profile);
-    case "docs/.templates/design.md":
+    case "docs/assets/templates/design.md":
       return renderDesignTemplate(profile);
     case "docs/guides/AGENTS.md":
     case "docs/guides/CLAUDE.md":
@@ -94,13 +105,13 @@ function renderDocsRouter(profile: InstallProfile): string {
 
   if (profile.capabilityState.designs.effectiveSelection) {
     lines.push(
-      "- For design docs, read `docs/.references/design-workflow.md`, `docs/.references/design-contract.md`, and `docs/.templates/design.md`, then continue in `docs/designs/`.",
+      "- For design docs, read `docs/assets/references/design-workflow.md`, `docs/assets/references/design-contract.md`, and `docs/assets/templates/design.md`, then continue in `docs/designs/`.",
     );
   }
 
   if (profile.capabilityState.plans.effectiveSelection) {
     lines.push(
-      "- For plans, read `docs/.references/planning-workflow.md` and the selected plan template in `docs/.templates/`, then continue in `docs/plans/`.",
+      "- For plans, read `docs/assets/references/planning-workflow.md` and the selected plan template in `docs/assets/templates/`, then continue in `docs/plans/`.",
     );
   }
 
@@ -109,11 +120,11 @@ function renderDocsRouter(profile: InstallProfile): string {
     profile.capabilityState.work.effectiveSelection
   ) {
     lines.push(
-      "- For PRD or work generation, read `docs/.references/execution-workflow.md`, `docs/.references/output-contract.md`, and the selected template in `docs/.templates/`, then continue in `docs/prd/` or `docs/work/`.",
+      "- For PRD or work generation, read `docs/assets/references/execution-workflow.md`, `docs/assets/references/output-contract.md`, and the selected template in `docs/assets/templates/`, then continue in `docs/prd/` or `docs/work/`.",
     );
   } else if (profile.capabilityState.prd.effectiveSelection) {
     lines.push(
-      "- For PRD generation, read `docs/.references/execution-workflow.md`, `docs/.references/output-contract.md`, and the selected template in `docs/.templates/`, then continue in `docs/prd/`.",
+      "- For PRD generation, read `docs/assets/references/execution-workflow.md`, `docs/assets/references/output-contract.md`, and the selected template in `docs/assets/templates/`, then continue in `docs/prd/`.",
     );
   }
 
@@ -124,19 +135,19 @@ function renderDocsRouter(profile: InstallProfile): string {
   ) {
     lines.push(
       profile.capabilityState.prd.effectiveSelection || profile.capabilityState.work.effectiveSelection
-        ? "- For requirement changes, also read `docs/.references/prd-change-management.md` before choosing change templates or delta outputs."
-        : "- For requirement-change plans, also read `docs/.references/prd-change-management.md` before choosing the change-planning template.",
+        ? "- For requirement changes, also read `docs/assets/references/prd-change-management.md` before choosing change templates or delta outputs."
+        : "- For requirement-change plans, also read `docs/assets/references/prd-change-management.md` before choosing the change-planning template.",
     );
   }
 
   lines.push(
-    "- For guides, continue in `docs/guides/`. User-facing and developer-facing guides live in `docs/guides/user/` and `docs/guides/developer/` — read `docs/.references/guide-contract.md` and the matching template (`docs/.templates/guide-developer.md` or `docs/.templates/guide-user.md`) before writing.",
-    "- For history records, continue in `docs/.assets/history/` — read `docs/.references/history-record-contract.md` and `docs/.templates/history-record.md` before writing.",
+    "- For guides, continue in `docs/guides/`. User-facing and developer-facing guides live in `docs/guides/user/` and `docs/guides/developer/` — read `docs/assets/references/guide-contract.md` and the matching template (`docs/assets/templates/guide-developer.md` or `docs/assets/templates/guide-user.md`) before writing.",
+    "- For history records, continue in `docs/assets/history/` — read `docs/assets/references/history-record-contract.md` and `docs/assets/templates/history-record.md` before writing.",
   );
 
   if (getPromptPaths(profile).length > 0) {
     lines.push(
-      "- For reusable prompt starters, use `docs/.prompts/`; prompts are optional starters, not authority.",
+      "- For reusable prompt starters, use `docs/assets/prompts/`; prompts are optional starters, not authority.",
     );
   }
 
@@ -149,9 +160,9 @@ function renderGuidesRouter(profile: InstallProfile): string {
     "",
     "Use `docs/guides` only as a router. Do not create generated files directly in this directory.",
     "",
-    "- **User guides** are stored in `docs/guides/user/`. This can include developer-styled user documentation for extending or integrating with this project's product(s). Before writing, read `docs/.references/guide-contract.md` and copy the template from `docs/.templates/guide-user.md`.",
-    "- **Developer guides** are stored in `docs/guides/developer/`. Before writing, read `docs/.references/guide-contract.md` and copy the template from `docs/.templates/guide-developer.md`.",
-    "- History records are not guides. Route them through `docs/.assets/history/` instead.",
+    "- **User guides** are stored in `docs/guides/user/`. This can include developer-styled user documentation for extending or integrating with this project's product(s). Before writing, read `docs/assets/references/guide-contract.md` and copy the template from `docs/assets/templates/guide-user.md`.",
+    "- **Developer guides** are stored in `docs/guides/developer/`. Before writing, read `docs/assets/references/guide-contract.md` and copy the template from `docs/assets/templates/guide-developer.md`.",
+    "- History records are not guides. Route them through `docs/assets/history/` instead.",
     "- If the `docs/guides/user` or `docs/guides/developer` directories do not exist, create them ONLY when first writing a guide that belongs in the specific sub-folder.",
     "",
     "Documentation must be easy to understand, easy to use, and easy to follow, with links to supporting sections or documents where necessary and where possible.",
@@ -161,12 +172,14 @@ function renderGuidesRouter(profile: InstallProfile): string {
 
 function renderAssetsRouter(): string {
   return [
-    "# Operational Assets Router",
+    "# Document Assets Router",
     "",
-    "This directory holds operational documentation assets that support the docs system.",
-    "- History records belong in `docs/.assets/history/`; read `docs/.references/history-record-contract.md` and `docs/.templates/history-record.md` before writing.",
-    "- make-docs CLI config belongs in `docs/.assets/config/`; do not hand-edit CLI-managed config or state files.",
-    "- Do not create new asset namespaces unless a contract or explicit user request adds them.",
+    "This router describes the target `docs/assets/` document-resource namespace.",
+    "- Archive records belong in `docs/assets/archive/`.",
+    "- History records belong in `docs/assets/history/`; read `docs/assets/references/history-record-contract.md` and `docs/assets/templates/history-record.md` before writing.",
+    "- Reusable prompts, references, and templates belong in `docs/assets/prompts/`, `docs/assets/references/`, and `docs/assets/templates/`.",
+    "- make-docs runtime state does not belong under `docs/assets/`; canonical state lives at `.make-docs/manifest.json` and `.make-docs/conflicts/<run-id>/`.",
+    "- Do not create `docs/assets/config/`, `docs/assets/state/`, `docs/assets/manifest.json`, or `docs/assets/conflicts/`.",
     "",
   ].join("\n");
 }
@@ -176,26 +189,14 @@ function renderHistoryAssetsRouter(): string {
     "# History Assets Router",
     "",
     "This directory stores session history records.",
-    "- Before writing, read `docs/.references/history-record-contract.md` and `docs/.templates/history-record.md`.",
-    "- When W/R/P is known, create records at `docs/.assets/history/YYYY-MM-DD-w{W}-r{R}-p{P}-<slug>.md`.",
-    "- If only W/R is known, create records at `docs/.assets/history/YYYY-MM-DD-w{W}-r{R}-<slug>.md`.",
-    "- If no coordinate is known, create records at `docs/.assets/history/YYYY-MM-DD-<slug>.md`.",
+    "- Before writing, read `docs/assets/references/history-record-contract.md` and `docs/assets/templates/history-record.md`.",
+    "- When W/R/P is known, create records at `docs/assets/history/YYYY-MM-DD-w{W}-r{R}-p{P}-<slug>.md`.",
+    "- If only W/R is known, create records at `docs/assets/history/YYYY-MM-DD-w{W}-r{R}-<slug>.md`.",
+    "- If no coordinate is known, create records at `docs/assets/history/YYYY-MM-DD-<slug>.md`.",
     "- Keep stage and task detail only in `coordinate` frontmatter, not filenames.",
     "- Include only known frontmatter fields; do not invent unknown client, model, or provider values.",
     "- Keep records concise: breadcrumbs for a future auditor, not live logs.",
     "- Use relative Markdown links when referencing files touched during the session.",
-    "",
-  ].join("\n");
-}
-
-function renderMakeDocsConfigRouter(): string {
-  return [
-    "# make-docs Config Router",
-    "",
-    "This directory stores make-docs CLI-managed config and state.",
-    "- Treat `docs/.assets/config/` as owned by the CLI.",
-    "- Do not hand-edit files here unless the user explicitly asks to repair CLI state.",
-    "- Do not create memories, preferences, or other deferred asset namespaces here.",
     "",
   ].join("\n");
 }
@@ -236,7 +237,7 @@ function renderTemplatesRouter(profile: InstallProfile): string {
     "This directory contains structural starting points for generated docs.",
     "- Copy the relevant template shape into the target output file; do not write outputs here.",
     usageLine,
-    "- Resolve workflow and contract questions in `docs/.references/`, then continue in the target output directory router.",
+    "- Resolve workflow and contract questions in `docs/assets/references/`, then continue in the target output directory router.",
     "- Do not modify template files unless the user explicitly asks.",
     "",
   ].join("\n");
@@ -269,7 +270,7 @@ function renderPromptsRouter(profile: InstallProfile): string {
     "This directory stores reusable prompt starters, not authoritative rules and not generated outputs.",
     "- Use it only when the user wants a stored prompt or a reusable workflow kickoff.",
     "- Keep placeholder tokens explicit unless the user asks to instantiate them.",
-    "- When executing a prompt, read the target workflow in `docs/.references/`, the matching template in `docs/.templates/`, and the router in the target output directory.",
+    "- When executing a prompt, read the target workflow in `docs/assets/references/`, the matching template in `docs/assets/templates/`, and the router in the target output directory.",
     outputText,
     "",
   ].join("\n");
@@ -280,7 +281,7 @@ function renderDesignWorkflow(profile: InstallProfile): string {
     profile.capabilityState.plans.effectiveSelection &&
     hasDesignPlanningPrompts(profile)
   ) {
-    return readPackageFile("docs/.references/design-workflow.md");
+    return readPackageFile("docs/assets/references/design-workflow.md");
   }
 
   if (profile.capabilityState.plans.effectiveSelection) {
@@ -411,7 +412,7 @@ function renderDesignContract(profile: InstallProfile): string {
     profile.capabilityState.plans.effectiveSelection &&
     hasDesignPlanningPrompts(profile)
   ) {
-    return readPackageFile("docs/.references/design-contract.md");
+    return readPackageFile("docs/assets/references/design-contract.md");
   }
 
   if (profile.capabilityState.plans.effectiveSelection) {
@@ -523,13 +524,13 @@ function renderDesignContract(profile: InstallProfile): string {
 
 function renderDesignTemplate(profile: InstallProfile): string {
   if (profile.capabilityState.plans.effectiveSelection) {
-    return readPackageFile("docs/.templates/design.md");
+    return readPackageFile("docs/assets/templates/design.md");
   }
 
   return [
     "# {{TITLE}}",
     "",
-    "> Filename: `YYYY-MM-DD-<slug>.md`. See `docs/.references/design-contract.md` for naming and structural rules.",
+    "> Filename: `YYYY-MM-DD-<slug>.md`. See `docs/assets/references/design-contract.md` for naming and structural rules.",
     "",
     "## Purpose",
     "",
@@ -563,7 +564,7 @@ function renderDesignTemplate(profile: InstallProfile): string {
 function hasDesignPlanningPrompts(profile: InstallProfile): boolean {
   return getPromptPaths(profile).some(
     (relativePath) =>
-      relativePath === "docs/.prompts/designs-to-plan.prompt.md" ||
-      relativePath === "docs/.prompts/designs-to-plan-change.prompt.md",
+      relativePath === "docs/assets/prompts/designs-to-plan.prompt.md" ||
+      relativePath === "docs/assets/prompts/designs-to-plan-change.prompt.md",
   );
 }

@@ -88,7 +88,7 @@ const OPTION_METADATA = {
   prompts: {
     label: "Prompt starters",
     description:
-      "Reusable starter prompts under `docs/.prompts/` for common design, planning, PRD, and work handoff flows.",
+      "Reusable starter prompts under `docs/assets/prompts/` for common design, planning, PRD, and work handoff flows.",
   },
   templatesMode: {
     label: "Templates",

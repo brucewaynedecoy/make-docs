@@ -15,9 +15,9 @@ import type {
 import { normalizeRelativePath, readTextFile, writeTextFile } from "./utils";
 
 export const MANIFEST_SCHEMA_VERSION = 1;
-export const MAKE_DOCS_CONFIG_RELATIVE_DIR = "docs/.assets/config";
-export const MANIFEST_RELATIVE_PATH = `${MAKE_DOCS_CONFIG_RELATIVE_DIR}/manifest.json`;
-export const CONFLICTS_RELATIVE_DIR = `${MAKE_DOCS_CONFIG_RELATIVE_DIR}/conflicts`;
+export const MAKE_DOCS_STATE_RELATIVE_DIR = ".make-docs";
+export const MANIFEST_RELATIVE_PATH = `${MAKE_DOCS_STATE_RELATIVE_DIR}/manifest.json`;
+export const CONFLICTS_RELATIVE_DIR = `${MAKE_DOCS_STATE_RELATIVE_DIR}/conflicts`;
 
 export function getManifestPath(targetDir: string): string {
   return path.join(targetDir, MANIFEST_RELATIVE_PATH);

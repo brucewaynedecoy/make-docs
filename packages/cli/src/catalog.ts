@@ -27,11 +27,10 @@ function addInstructionAssets(
 ): void {
   relativePaths.add(activeInstructionKind);
   relativePaths.add(`docs/${activeInstructionKind}`);
-  relativePaths.add(`docs/.assets/${activeInstructionKind}`);
-  relativePaths.add(`docs/.assets/history/${activeInstructionKind}`);
-  relativePaths.add(`docs/.assets/config/${activeInstructionKind}`);
+  relativePaths.add(`docs/assets/${activeInstructionKind}`);
+  relativePaths.add(`docs/assets/history/${activeInstructionKind}`);
   relativePaths.add(`docs/guides/${activeInstructionKind}`);
-  relativePaths.add(`docs/.archive/${activeInstructionKind}`);
+  relativePaths.add(`docs/assets/archive/${activeInstructionKind}`);
 
   if (profile.capabilityState.designs.effectiveSelection) {
     relativePaths.add(`docs/designs/${activeInstructionKind}`);
@@ -50,15 +49,15 @@ function addInstructionAssets(
   }
 
   if (getReferenceDirInstalled(profile)) {
-    relativePaths.add(`docs/.references/${activeInstructionKind}`);
+    relativePaths.add(`docs/assets/references/${activeInstructionKind}`);
   }
 
   if (getTemplateDirInstalled(profile)) {
-    relativePaths.add(`docs/.templates/${activeInstructionKind}`);
+    relativePaths.add(`docs/assets/templates/${activeInstructionKind}`);
   }
 
   if (getPromptsDirInstalled(profile)) {
-    relativePaths.add(`docs/.prompts/${activeInstructionKind}`);
+    relativePaths.add(`docs/assets/prompts/${activeInstructionKind}`);
   }
 }
 

@@ -115,7 +115,7 @@ try {
       "Smoke pack skills dry run did not finish cleanly.",
     );
     assertMissing(
-      path.join(targetDir, "docs/.assets/config/manifest.json"),
+      path.join(targetDir, ".make-docs/manifest.json"),
       "Smoke pack skills dry run created a manifest.",
     );
 
@@ -125,7 +125,7 @@ try {
       { stdio: "inherit" },
     );
     assertExists(
-      path.join(targetDir, "docs/.assets/config/manifest.json"),
+      path.join(targetDir, ".make-docs/manifest.json"),
       "Smoke pack bare install did not produce a manifest.",
     );
     assertExists(
@@ -139,14 +139,14 @@ try {
       { stdio: "inherit" },
     );
     assertMissing(
-      path.join(targetDir, "docs/.assets/config/conflicts"),
+      path.join(targetDir, ".make-docs/conflicts"),
       "Smoke pack bare sync staged conflicts for an unchanged install.",
     );
   } finally {
     await fixtureServer.close();
   }
 
-  const manifestPath = path.join(targetDir, "docs/.assets/config/manifest.json");
+  const manifestPath = path.join(targetDir, ".make-docs/manifest.json");
   assertExists(manifestPath, "Smoke pack install did not produce a manifest.");
   assertManifestPackageName(manifestPath, "make-docs");
   assertExists(
@@ -212,7 +212,7 @@ try {
     );
   }
 
-  const customFilePath = path.join(targetDir, "docs/.templates/custom-smoke.md");
+  const customFilePath = path.join(targetDir, "docs/assets/templates/custom-smoke.md");
   writeFileSync(customFilePath, "preserve this unmanaged smoke fixture\n", "utf8");
 
   execFileSync(
@@ -225,7 +225,7 @@ try {
   const backupDir = getOnlyBackupDirectory(backupRoot);
   assertExists(path.join(backupDir, "AGENTS.md"), "Smoke pack backup did not copy AGENTS.md.");
   assertExists(
-    path.join(backupDir, "docs/.assets/config/manifest.json"),
+    path.join(backupDir, ".make-docs/manifest.json"),
     "Smoke pack backup did not copy the make-docs manifest.",
   );
 
@@ -238,7 +238,7 @@ try {
   assertMissing(path.join(targetDir, "AGENTS.md"), "Smoke pack uninstall left AGENTS.md behind.");
   assertMissing(path.join(targetDir, "CLAUDE.md"), "Smoke pack uninstall left CLAUDE.md behind.");
   assertMissing(
-    path.join(targetDir, "docs/.assets/config/manifest.json"),
+    path.join(targetDir, ".make-docs/manifest.json"),
     "Smoke pack uninstall left the make-docs manifest behind.",
   );
   assertExists(customFilePath, "Smoke pack uninstall removed an unmanaged custom file.");

@@ -81,18 +81,17 @@ async function syncSkillsOnly(
 const FULL_PROFILE_INSTRUCTION_DIRS = [
   ".",
   "docs",
-  "docs/.assets",
-  "docs/.assets/history",
-  "docs/.assets/config",
+  "docs/assets",
+  "docs/assets/archive",
+  "docs/assets/history",
   "docs/guides",
-  "docs/.archive",
   "docs/designs",
   "docs/plans",
   "docs/prd",
   "docs/work",
-  "docs/.references",
-  "docs/.templates",
-  "docs/.prompts",
+  "docs/assets/references",
+  "docs/assets/templates",
+  "docs/assets/prompts",
 ] as const;
 
 function getInstructionPaths(instructionKind: "AGENTS.md" | "CLAUDE.md"): string[] {
@@ -186,22 +185,24 @@ describe("installer integration", () => {
         existsSync(path.join(targetDir, ".claude/skills/decompose-codebase/SKILL.md")),
       ).toBe(false);
       expect(existsSync(path.join(targetDir, "docs/work/AGENTS.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, "docs/.prompts/designs-to-plan.prompt.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/assets/prompts/designs-to-plan.prompt.md"))).toBe(true);
       expect(
-        existsSync(path.join(targetDir, "docs/.references/harness-capability-matrix.md")),
+        existsSync(path.join(targetDir, "docs/assets/references/harness-capability-matrix.md")),
       ).toBe(true);
 
-      expect(existsSync(path.join(targetDir, "docs/.references/guide-contract.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, "docs/.templates/guide-developer.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, "docs/.templates/guide-user.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/assets/references/guide-contract.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/assets/templates/guide-developer.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/assets/templates/guide-user.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/guides/AGENTS.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/guides/CLAUDE.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, "docs/.assets/AGENTS.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, "docs/.assets/CLAUDE.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, "docs/.assets/history/AGENTS.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, "docs/.assets/history/CLAUDE.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, "docs/.assets/config/AGENTS.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, "docs/.assets/config/CLAUDE.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/assets/AGENTS.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/assets/CLAUDE.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/assets/archive/AGENTS.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/assets/archive/CLAUDE.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/assets/history/AGENTS.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/assets/history/CLAUDE.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/assets/references/AGENTS.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/assets/references/CLAUDE.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/guides/agent"))).toBe(false);
 
       const guidesRouter = readFileSync(path.join(targetDir, "docs/guides/AGENTS.md"), "utf8");
@@ -217,7 +218,7 @@ describe("installer integration", () => {
   test("migrates legacy instructionKinds manifests to harness selections", () => {
     const targetDir = createTempDir();
     try {
-      const manifestPath = path.join(targetDir, "docs/.assets/config/manifest.json");
+      const manifestPath = path.join(targetDir, ".make-docs/manifest.json");
       mkdirSync(path.dirname(manifestPath), { recursive: true });
 
       writeFileSync(
@@ -432,10 +433,10 @@ describe("installer integration", () => {
       expect(existsSync(path.join(targetDir, "docs/prd/AGENTS.md"))).toBe(false);
       expect(existsSync(path.join(targetDir, "docs/work/AGENTS.md"))).toBe(false);
       expect(
-        existsSync(path.join(targetDir, "docs/.prompts/request-to-design.prompt.md")),
+        existsSync(path.join(targetDir, "docs/assets/prompts/request-to-design.prompt.md")),
       ).toBe(true);
       expect(
-        existsSync(path.join(targetDir, "docs/.prompts/designs-to-plan.prompt.md")),
+        existsSync(path.join(targetDir, "docs/assets/prompts/designs-to-plan.prompt.md")),
       ).toBe(false);
       expect(readFileSync(path.join(targetDir, "docs/AGENTS.md"), "utf8")).not.toContain(
         "docs/plans/",
@@ -453,7 +454,7 @@ describe("installer integration", () => {
       });
 
       expect(existsSync(path.join(targetDir, "docs/plans/AGENTS.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, "docs/.templates/plan-overview.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/assets/templates/plan-overview.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/prd/AGENTS.md"))).toBe(false);
       expect(existsSync(path.join(targetDir, "docs/work/AGENTS.md"))).toBe(false);
     } finally {
@@ -471,24 +472,24 @@ describe("installer integration", () => {
         selections.capabilities.work = false;
       });
 
-      expect(existsSync(path.join(targetDir, "docs/.references/guide-contract.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, "docs/.references/wave-model.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, "docs/.references/history-record-contract.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, "docs/.templates/guide-developer.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, "docs/.templates/guide-user.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, "docs/.templates/history-record.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/assets/references/guide-contract.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/assets/references/wave-model.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/assets/references/history-record-contract.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/assets/templates/guide-developer.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/assets/templates/guide-user.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/assets/templates/history-record.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/guides/AGENTS.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/guides/CLAUDE.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, "docs/.assets/AGENTS.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, "docs/.assets/CLAUDE.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, "docs/.assets/history/AGENTS.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, "docs/.assets/history/CLAUDE.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, "docs/.assets/config/AGENTS.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, "docs/.assets/config/CLAUDE.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/assets/AGENTS.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/assets/CLAUDE.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/assets/history/AGENTS.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/assets/history/CLAUDE.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/assets/references/AGENTS.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/assets/references/CLAUDE.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/guides/agent"))).toBe(false);
-      expect(existsSync(path.join(targetDir, "docs/.archive/AGENTS.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, "docs/.archive/CLAUDE.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, "docs/.prompts/session-to-history-record.prompt.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/assets/archive/AGENTS.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/assets/archive/CLAUDE.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/assets/prompts/session-to-history-record.prompt.md"))).toBe(true);
     } finally {
       cleanupTempDir(targetDir);
     }
@@ -504,13 +505,13 @@ describe("installer integration", () => {
       });
 
       const workflow = readFileSync(
-        path.join(targetDir, "docs/.references/design-workflow.md"),
+        path.join(targetDir, "docs/assets/references/design-workflow.md"),
         "utf8",
       );
       const docsRouter = readFileSync(path.join(targetDir, "docs/AGENTS.md"), "utf8");
 
       expect(workflow).toContain("planning-not-installed");
-      expect(workflow).not.toContain("docs/.prompts/");
+      expect(workflow).not.toContain("docs/assets/prompts/");
       expect(docsRouter).toContain("docs/designs/");
       expect(docsRouter).not.toContain("docs/plans/");
     } finally {
@@ -529,9 +530,9 @@ describe("installer integration", () => {
       });
 
       expect(existsSync(path.join(targetDir, "docs/plans/AGENTS.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, "docs/.prompts"))).toBe(false);
+      expect(existsSync(path.join(targetDir, "docs/assets/prompts"))).toBe(false);
       expect(readFileSync(path.join(targetDir, "docs/AGENTS.md"), "utf8")).not.toContain(
-        "docs/.prompts/",
+        "docs/assets/prompts/",
       );
     } finally {
       cleanupTempDir(targetDir);
@@ -550,10 +551,10 @@ describe("installer integration", () => {
       expect(existsSync(path.join(targetDir, "docs/prd/AGENTS.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/work/AGENTS.md"))).toBe(false);
       expect(
-        existsSync(path.join(targetDir, "docs/.prompts/plan-to-prd-green-field.prompt.md")),
+        existsSync(path.join(targetDir, "docs/assets/prompts/plan-to-prd-green-field.prompt.md")),
       ).toBe(true);
       expect(
-        existsSync(path.join(targetDir, "docs/.prompts/prd-to-work-full-prd.prompt.md")),
+        existsSync(path.join(targetDir, "docs/assets/prompts/prd-to-work-full-prd.prompt.md")),
       ).toBe(false);
       expect(readFileSync(path.join(targetDir, "docs/AGENTS.md"), "utf8")).not.toContain(
         "docs/work/",
@@ -570,10 +571,11 @@ describe("installer integration", () => {
         selections.prompts = false;
       });
 
-      expect(existsSync(path.join(targetDir, "docs/.prompts"))).toBe(false);
+      expect(existsSync(path.join(targetDir, "docs/assets/prompts"))).toBe(false);
 
-      const contents = collectMarkdownContents(targetDir).join("\n");
-      expect(contents).not.toContain("docs/.prompts/");
+      expect(readFileSync(path.join(targetDir, "docs/AGENTS.md"), "utf8")).not.toContain(
+        "docs/assets/prompts/",
+      );
     } finally {
       cleanupTempDir(targetDir);
     }
@@ -595,7 +597,7 @@ describe("installer integration", () => {
 
       const files = collectFiles(targetDir);
       const conflictFiles = files.filter((relativePath) =>
-        relativePath.startsWith("docs/.assets/config/conflicts/"),
+        relativePath.startsWith(".make-docs/conflicts/"),
       );
 
       expect(conflictFiles.some((relativePath) => relativePath.endsWith("/AGENTS.md"))).toBe(true);
@@ -727,7 +729,7 @@ describe("installer integration", () => {
       expect(
         files.some(
           (relativePath) =>
-            relativePath.startsWith("docs/.assets/config/conflicts/") &&
+            relativePath.startsWith(".make-docs/conflicts/") &&
             relativePath.endsWith("/docs/AGENTS.md"),
         ),
       ).toBe(true);
@@ -747,12 +749,12 @@ describe("installer integration", () => {
       });
 
       expect(existsSync(path.join(targetDir, "docs/work/AGENTS.md"))).toBe(false);
-      expect(existsSync(path.join(targetDir, "docs/.prompts"))).toBe(false);
+      expect(existsSync(path.join(targetDir, "docs/assets/prompts"))).toBe(false);
 
       await installWithSelections(targetDir, () => {});
 
       expect(existsSync(path.join(targetDir, "docs/work/AGENTS.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, "docs/.prompts/designs-to-plan.prompt.md"))).toBe(
+      expect(existsSync(path.join(targetDir, "docs/assets/prompts/designs-to-plan.prompt.md"))).toBe(
         true,
       );
     } finally {
@@ -801,7 +803,7 @@ describe("installer integration", () => {
       writeFileSync(oldCodexSkill, "legacy archive skill\n", "utf8");
       writeFileSync(oldAsset, "legacy workflow\n", "utf8");
 
-      const manifestPath = path.join(targetDir, "docs/.assets/config/manifest.json");
+      const manifestPath = path.join(targetDir, ".make-docs/manifest.json");
       mkdirSync(path.dirname(manifestPath), { recursive: true });
       writeFileSync(
         manifestPath,
@@ -855,7 +857,7 @@ describe("installer integration", () => {
       expect(existsSync(path.join(targetDir, ".claude/skills/archive-docs/SKILL.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, ".agents/skills/archive-docs/SKILL.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/AGENTS.md"))).toBe(false);
-      expect(existsSync(path.join(targetDir, "docs/.templates"))).toBe(false);
+      expect(existsSync(path.join(targetDir, "docs/assets/templates"))).toBe(false);
       expect(manifest.files).toEqual({});
       expect(manifest.skillFiles).toContain(".claude/skills/archive-docs/SKILL.md");
       expect(manifest.skillFiles).toContain(".agents/skills/archive-docs/SKILL.md");

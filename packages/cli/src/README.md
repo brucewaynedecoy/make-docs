@@ -90,13 +90,13 @@ If the selected install would conflict with an existing `AGENTS.md` or `CLAUDE.m
 
 - `Update` (default): append make-docs instructions to the end of the existing file
 - `Overwrite`: replace the file with the make-docs version and manage it
-- `Skip`: leave the file alone and stage the generated version under `docs/.assets/config/conflicts/`
+- `Skip`: leave the file alone and stage the generated version under `.make-docs/conflicts/`
 
 After an install or dry run, inspect the result:
 
 ```bash
 find "$TEST_DIR" -maxdepth 4 | sort
-cat "$TEST_DIR/docs/.assets/config/manifest.json"
+cat "$TEST_DIR/.make-docs/manifest.json"
 ```
 
 ### Manual scenarios worth walking through
@@ -121,7 +121,7 @@ node dist/index.js reconfigure --target "$TEST_DIR"
 ```bash
 printf 'local edit\n' > "$TEST_DIR/docs/AGENTS.md"
 node dist/index.js --target "$TEST_DIR"
-find "$TEST_DIR/docs/.assets/config/conflicts" | sort
+find "$TEST_DIR/.make-docs/conflicts" | sort
 ```
 
 7. Existing root instruction conflict: create a root `AGENTS.md` before install and confirm the conflict prompt appears.

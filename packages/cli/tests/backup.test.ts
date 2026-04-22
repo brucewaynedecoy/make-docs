@@ -142,15 +142,15 @@ describe("backup command", () => {
       expect(result.destinationDir).toBe(backupDir);
       expect(result.copiedFiles).toContain("AGENTS.md");
       expect(result.copiedFiles).toContain("CLAUDE.md");
-      expect(result.copiedFiles).toContain("docs/.assets/config/manifest.json");
+      expect(result.copiedFiles).toContain(".make-docs/manifest.json");
       expect(existsSync(path.join(backupDir, "AGENTS.md"))).toBe(true);
       expect(existsSync(path.join(backupDir, "CLAUDE.md"))).toBe(true);
-      expect(existsSync(path.join(backupDir, "docs/.assets/config/manifest.json"))).toBe(true);
+      expect(existsSync(path.join(backupDir, ".make-docs/manifest.json"))).toBe(true);
       expect(readFileSync(path.join(targetDir, "AGENTS.md"), "utf8")).toBe(
         readFileSync(path.join(backupDir, "AGENTS.md"), "utf8"),
       );
       expect(existsSync(path.join(targetDir, "AGENTS.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, "docs/.assets/config/manifest.json"))).toBe(true);
+      expect(existsSync(path.join(targetDir, ".make-docs/manifest.json"))).toBe(true);
       expect(output).toContain("make-docs backup");
       expect(output).toContain("Destination:");
       expect(output).toContain(".backup/2026-04-18");
@@ -191,7 +191,7 @@ describe("backup command", () => {
       });
       expect(events[1]).toMatchObject({
         destinationDir: path.join(targetDir, ".backup/2026-04-18"),
-        filesToCopy: 70,
+        filesToCopy: 68,
         directoriesToMaterialize: 13,
         retained: 0,
         skipped: 0,
@@ -203,7 +203,7 @@ describe("backup command", () => {
       expect(events[3]).toMatchObject({
         status: "completed",
         destinationDir: path.join(targetDir, ".backup/2026-04-18"),
-        copiedFiles: 70,
+        copiedFiles: 68,
         materializedDirectories: 13,
         retained: 0,
         skipped: 0,

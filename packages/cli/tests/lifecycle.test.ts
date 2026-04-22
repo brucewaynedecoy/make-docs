@@ -92,8 +92,8 @@ describe("lifecycle validation", () => {
       expect(report.mode).toBe("manifest-present");
       expect(removablePaths).toContain("AGENTS.md");
       expect(removablePaths).toContain("CLAUDE.md");
-      expect(removablePaths).toContain("docs/.assets/config/manifest.json");
-      expect(prunablePaths).toContain("docs/.assets/config");
+      expect(removablePaths).toContain(".make-docs/manifest.json");
+      expect(prunablePaths).toContain(".make-docs");
       expect(allAuditPaths(report).some((entryPath) => entryPath.startsWith(".backup/"))).toBe(false);
     } finally {
       cleanupTempDir(targetDir);
@@ -107,7 +107,7 @@ describe("lifecycle validation", () => {
       await installMakeDocsTarget(targetDir, (selections) => {
         selections.skills = false;
       });
-      rmSync(path.join(targetDir, "docs/.assets/config/manifest.json"), { force: true });
+      rmSync(path.join(targetDir, ".make-docs/manifest.json"), { force: true });
       mkdirSync(path.join(targetDir, "notes"), { recursive: true });
       writeFileSync(path.join(targetDir, "notes/AGENTS.md"), "not make-docs\n");
 
@@ -134,7 +134,7 @@ describe("lifecycle validation", () => {
         selections.skills = false;
       });
       writeFileSync(path.join(targetDir, "AGENTS.md"), "custom agent instructions\n");
-      writeFileSync(path.join(targetDir, "docs/.templates/custom.md"), "keep this unmanaged file\n");
+      writeFileSync(path.join(targetDir, "docs/assets/templates/custom.md"), "keep this unmanaged file\n");
 
       const result = await captureStdout(() =>
         runUninstallCommand({
@@ -147,12 +147,12 @@ describe("lifecycle validation", () => {
       expect(result.status).toBe("completed");
       expect(result.removedFiles).not.toContain("AGENTS.md");
       expect(result.removedFiles).toContain("CLAUDE.md");
-      expect(result.prunedDirectories).not.toContain("docs/.templates");
+      expect(result.prunedDirectories).not.toContain("docs/assets/templates");
       expect(readFileSync(path.join(targetDir, "AGENTS.md"), "utf8")).toBe(
         "custom agent instructions\n",
       );
-      expect(existsSync(path.join(targetDir, "docs/.templates/custom.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, "docs/.assets/config"))).toBe(false);
+      expect(existsSync(path.join(targetDir, "docs/assets/templates/custom.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, ".make-docs"))).toBe(false);
     } finally {
       cleanupTempDir(targetDir);
     }
@@ -298,7 +298,7 @@ describe("lifecycle validation", () => {
         destinationDir: backupDestinationDir,
         auditReport,
         copiedFiles: ["AGENTS.md"],
-        materializedDirectories: ["docs/.assets/config"],
+        materializedDirectories: [".make-docs"],
       });
       renderer.renderUninstallWarning({
         targetDir,
@@ -316,7 +316,7 @@ describe("lifecycle validation", () => {
       renderer.renderUninstallCompletionSummary({
         auditReport,
         removedFiles: ["AGENTS.md"],
-        prunedDirectories: ["docs/.assets/config"],
+        prunedDirectories: [".make-docs"],
         backupResult: null,
       });
       renderer.renderUninstallFailureSummary({
@@ -338,7 +338,7 @@ describe("lifecycle validation", () => {
           "- managed-file.md (Synthetic backup failure fixture.)",
           "",
           "Directories to materialize:",
-          "- docs/.assets/config",
+          "- .make-docs",
           "",
           "Retained paths:",
           "- CLAUDE.md (The managed file has local changes.)",
@@ -369,7 +369,7 @@ describe("lifecycle validation", () => {
           "- managed-file.md (Synthetic backup failure fixture.)",
           "",
           "Directories to prune:",
-          "- docs/.assets/config (Directory is eligible for pruning.)",
+          "- .make-docs (Directory is eligible for pruning.)",
           "",
           "Preserved paths:",
           "- CLAUDE.md (The managed file has local changes.)",
@@ -525,7 +525,7 @@ function createSyntheticAuditReport(targetDir: string, absolutePath: string): Au
   return {
     mode: "manifest-present",
     targetDir,
-    manifestPath: path.join(targetDir, "docs/.assets/config/manifest.json"),
+    manifestPath: path.join(targetDir, ".make-docs/manifest.json"),
     removableFiles: [removableFile],
     prunableDirectories: [],
     preservedPaths: [],
@@ -544,25 +544,25 @@ function createRendererAuditReport(targetDir: string): AuditReport {
   }
 
   const prunableDirectory: AuditPrunableDirectory = {
-    path: "docs/.assets/config",
-    absolutePath: path.join(targetDir, "docs/.assets/config"),
+    path: ".make-docs",
+    absolutePath: path.join(targetDir, ".make-docs"),
     kind: "directory",
     scope: "project",
     pathScope: "project",
-    backupRelativePath: "docs/.assets/config",
+    backupRelativePath: ".make-docs",
     backup: {
       scope: "project",
-      relativePath: "docs/.assets/config",
+      relativePath: ".make-docs",
     },
     ordering: {
       scopeOrder: 0,
       depth: 3,
-      sortKey: "project:docs/.assets/config",
-      pruneSortKey: "0003:project:docs/.assets/config",
+      sortKey: "project:.make-docs",
+      pruneSortKey: "0003:project:.make-docs",
     },
     reason: "Directory is eligible for pruning.",
     reasonCode: "directory-eligible-for-prune",
-    removableDescendantPaths: ["docs/.assets/config/manifest.json"],
+    removableDescendantPaths: [".make-docs/manifest.json"],
     preservedDescendantPaths: [],
   };
   const preservedPath: AuditPreservedPath = {
@@ -610,7 +610,7 @@ function createRendererAuditReport(targetDir: string): AuditReport {
   return {
     mode: "manifest-present",
     targetDir,
-    manifestPath: path.join(targetDir, "docs/.assets/config/manifest.json"),
+    manifestPath: path.join(targetDir, ".make-docs/manifest.json"),
     removableFiles: [removableFile],
     prunableDirectories: [prunableDirectory],
     preservedPaths: [preservedPath],

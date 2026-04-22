@@ -4,12 +4,14 @@ import { renderBuildableAsset } from "../src/renderers";
 import { readPackageFile } from "../src/utils";
 
 const ASSETS_ROUTER_PATHS = [
-  "docs/.assets/AGENTS.md",
-  "docs/.assets/CLAUDE.md",
-  "docs/.assets/history/AGENTS.md",
-  "docs/.assets/history/CLAUDE.md",
-  "docs/.assets/config/AGENTS.md",
-  "docs/.assets/config/CLAUDE.md",
+  "docs/assets/AGENTS.md",
+  "docs/assets/CLAUDE.md",
+  "docs/assets/archive/AGENTS.md",
+  "docs/assets/archive/CLAUDE.md",
+  "docs/assets/history/AGENTS.md",
+  "docs/assets/history/CLAUDE.md",
+  "docs/assets/references/AGENTS.md",
+  "docs/assets/references/CLAUDE.md",
 ];
 
 describe("buildable renderers", () => {
@@ -21,7 +23,7 @@ describe("buildable renderers", () => {
     const rendered = renderBuildableAsset("docs/AGENTS.md", profile);
 
     expect(rendered).toContain("docs/designs/");
-    expect(rendered).toContain("docs/.assets/history/");
+    expect(rendered).toContain("docs/assets/history/");
     expect(rendered).not.toContain("docs/guides/agent");
     expect(rendered).not.toContain("docs/plans/");
     expect(rendered).not.toContain("docs/prd/");
@@ -48,11 +50,11 @@ describe("buildable renderers", () => {
     selections.capabilities.plans = false;
 
     const profile = resolveInstallProfile(selections);
-    const rendered = renderBuildableAsset("docs/.references/design-workflow.md", profile);
+    const rendered = renderBuildableAsset("docs/assets/references/design-workflow.md", profile);
 
     expect(rendered).toContain("planning-not-installed");
     expect(rendered).not.toContain("designs-to-plan.prompt.md");
-    expect(rendered).not.toContain("docs/.prompts/");
+    expect(rendered).not.toContain("docs/assets/prompts/");
     expect(rendered).toContain("npx make-docs reconfigure");
     expect(rendered).not.toContain("npx make-docs update --reconfigure");
   });
@@ -62,10 +64,10 @@ describe("buildable renderers", () => {
     selections.prompts = false;
 
     const profile = resolveInstallProfile(selections);
-    const rendered = renderBuildableAsset("docs/.references/design-workflow.md", profile);
+    const rendered = renderBuildableAsset("docs/assets/references/design-workflow.md", profile);
 
     expect(rendered).toContain("Prompt links are unavailable in this profile");
-    expect(rendered).not.toContain("docs/.prompts/");
+    expect(rendered).not.toContain("docs/assets/prompts/");
     expect(rendered).toContain("npx make-docs reconfigure");
     expect(rendered).not.toContain("npx make-docs update --reconfigure");
   });

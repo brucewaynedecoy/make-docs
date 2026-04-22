@@ -189,7 +189,7 @@ describe("cli interactive flows", () => {
       expect(output).toContain("Information");
       expect(output).toContain("Mode: existing install sync");
       expect(output).toContain("Manifest:");
-      expect(output).toContain("docs/.assets/config/manifest.json");
+      expect(output).toContain(".make-docs/manifest.json");
       expect(output).toContain("(found)");
       expect(output).toContain("Selection source: saved manifest selections");
       expect(output).toContain("Changes planned: 0");
@@ -498,7 +498,7 @@ describe("cli interactive flows", () => {
 
       const output = writeSpy.mock.calls.map(([chunk]) => String(chunk)).join("");
       expect(output).toContain("No make-docs skill changes are needed.");
-      expect(existsSync(path.join(targetDir, "docs/.assets/config/manifest.json"))).toBe(
+      expect(existsSync(path.join(targetDir, ".make-docs/manifest.json"))).toBe(
         false,
       );
     } finally {
@@ -540,9 +540,9 @@ describe("cli interactive flows", () => {
       expect(output).toContain("Installed skills");
       expect(output).not.toContain("Installed make-docs");
       expect(output).not.toContain("Reconfigured make-docs");
-      expect(output).not.toContain("docs/.prompts");
-      expect(output).not.toContain("docs/.templates");
-      expect(output).not.toContain("docs/.references");
+      expect(output).not.toContain("docs/assets/prompts");
+      expect(output).not.toContain("docs/assets/templates");
+      expect(output).not.toContain("docs/assets/references");
     } finally {
       cleanupTempDir(targetDir);
     }
@@ -817,7 +817,7 @@ describe("cli interactive flows", () => {
 
     const output = await captureCliOutput(["reconfigure", "--help"]);
 
-    expect(output).toContain("Requires an existing docs/.assets/config/manifest.json");
+    expect(output).toContain("Requires an existing .make-docs/manifest.json");
     expect(output).toContain("Interactive runs open the selection wizard");
     expect(output).toContain("Non-interactive runs with --yes must include at least one selection flag");
     expect(output).toContain("--yes                          Skip interactive prompts; requires a selection flag.");

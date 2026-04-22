@@ -7,105 +7,105 @@ export interface PromptRule {
 
 export const PROMPT_RULES: PromptRule[] = [
   {
-    relativePath: "docs/.prompts/request-to-design.prompt.md",
+    relativePath: "docs/assets/prompts/request-to-design.prompt.md",
     requires: ["designs"],
   },
   {
-    relativePath: "docs/.prompts/designs-to-plan.prompt.md",
+    relativePath: "docs/assets/prompts/designs-to-plan.prompt.md",
     requires: ["designs", "plans"],
   },
   {
-    relativePath: "docs/.prompts/designs-to-plan-change.prompt.md",
+    relativePath: "docs/assets/prompts/designs-to-plan-change.prompt.md",
     requires: ["designs", "plans"],
   },
   {
-    relativePath: "docs/.prompts/plan-to-prd-change.prompt.md",
+    relativePath: "docs/assets/prompts/plan-to-prd-change.prompt.md",
     requires: ["plans", "prd"],
   },
   {
-    relativePath: "docs/.prompts/plan-to-prd-green-field.prompt.md",
+    relativePath: "docs/assets/prompts/plan-to-prd-green-field.prompt.md",
     requires: ["plans", "prd"],
   },
   {
-    relativePath: "docs/.prompts/prd-change-to-work.prompt.md",
+    relativePath: "docs/assets/prompts/prd-change-to-work.prompt.md",
     requires: ["prd", "work"],
   },
   {
-    relativePath: "docs/.prompts/prd-to-work-full-prd.prompt.md",
+    relativePath: "docs/assets/prompts/prd-to-work-full-prd.prompt.md",
     requires: ["prd", "work"],
   },
   {
-    relativePath: "docs/.prompts/prd-to-work-prd-feature.prompt.md",
+    relativePath: "docs/assets/prompts/prd-to-work-prd-feature.prompt.md",
     requires: ["prd", "work"],
   },
   {
-    relativePath: "docs/.prompts/update-readme-green-field.prompt.md",
+    relativePath: "docs/assets/prompts/update-readme-green-field.prompt.md",
     requires: ["designs", "plans"],
   },
   {
-    relativePath: "docs/.prompts/session-to-history-record.prompt.md",
+    relativePath: "docs/assets/prompts/session-to-history-record.prompt.md",
     requires: [],
   },
   {
-    relativePath: "docs/.prompts/work-to-commit-message.prompt.md",
+    relativePath: "docs/assets/prompts/work-to-commit-message.prompt.md",
     requires: [],
   },
 ];
 
 const PLAN_TEMPLATE_PATHS = [
-  "docs/.templates/plan-overview.md",
-  "docs/.templates/plan-prd.md",
-  "docs/.templates/plan-prd-decompose.md",
-  "docs/.templates/plan-prd-change.md",
+  "docs/assets/templates/plan-overview.md",
+  "docs/assets/templates/plan-prd.md",
+  "docs/assets/templates/plan-prd-decompose.md",
+  "docs/assets/templates/plan-prd-change.md",
 ];
 
 const PRD_TEMPLATE_PATHS = [
-  "docs/.templates/prd-architecture.md",
-  "docs/.templates/prd-change-addition.md",
-  "docs/.templates/prd-change-revision.md",
-  "docs/.templates/prd-glossary.md",
-  "docs/.templates/prd-index.md",
-  "docs/.templates/prd-overview.md",
-  "docs/.templates/prd-reference.md",
-  "docs/.templates/prd-risk-register.md",
-  "docs/.templates/prd-subsystem.md",
+  "docs/assets/templates/prd-architecture.md",
+  "docs/assets/templates/prd-change-addition.md",
+  "docs/assets/templates/prd-change-revision.md",
+  "docs/assets/templates/prd-glossary.md",
+  "docs/assets/templates/prd-index.md",
+  "docs/assets/templates/prd-overview.md",
+  "docs/assets/templates/prd-reference.md",
+  "docs/assets/templates/prd-risk-register.md",
+  "docs/assets/templates/prd-subsystem.md",
 ];
 
 const WORK_TEMPLATE_PATHS = [
-  "docs/.templates/work-index.md",
-  "docs/.templates/work-phase.md",
+  "docs/assets/templates/work-index.md",
+  "docs/assets/templates/work-phase.md",
 ];
 
 const ALWAYS_TEMPLATE_PATHS = [
-  "docs/.templates/guide-developer.md",
-  "docs/.templates/guide-user.md",
-  "docs/.templates/history-record.md",
+  "docs/assets/templates/guide-developer.md",
+  "docs/assets/templates/guide-user.md",
+  "docs/assets/templates/history-record.md",
 ];
 
 const REQUIRED_REFERENCE_PATHS = {
-  designs: ["docs/.references/design-workflow.md", "docs/.references/design-contract.md"],
+  designs: ["docs/assets/references/design-workflow.md", "docs/assets/references/design-contract.md"],
   plans: [
-    "docs/.references/planning-workflow.md",
-    "docs/.references/output-contract.md",
-    "docs/.references/prd-change-management.md",
+    "docs/assets/references/planning-workflow.md",
+    "docs/assets/references/output-contract.md",
+    "docs/assets/references/prd-change-management.md",
   ],
   prd: [
-    "docs/.references/execution-workflow.md",
-    "docs/.references/output-contract.md",
-    "docs/.references/prd-change-management.md",
+    "docs/assets/references/execution-workflow.md",
+    "docs/assets/references/output-contract.md",
+    "docs/assets/references/prd-change-management.md",
   ],
   work: [
-    "docs/.references/execution-workflow.md",
-    "docs/.references/output-contract.md",
-    "docs/.references/prd-change-management.md",
+    "docs/assets/references/execution-workflow.md",
+    "docs/assets/references/output-contract.md",
+    "docs/assets/references/prd-change-management.md",
   ],
 } as const;
 
 const ALWAYS_REFERENCE_PATHS = [
-  "docs/.references/guide-contract.md",
-  "docs/.references/wave-model.md",
-  "docs/.references/history-record-contract.md",
-  "docs/.references/commit-message-convention.md",
+  "docs/assets/references/guide-contract.md",
+  "docs/assets/references/wave-model.md",
+  "docs/assets/references/history-record-contract.md",
+  "docs/assets/references/commit-message-convention.md",
 ];
 
 export function profileHasCapabilities(
@@ -135,7 +135,7 @@ export function getTemplatePaths(profile: InstallProfile): string[] {
   }
 
   if (profile.capabilityState.designs.effectiveSelection) {
-    paths.add("docs/.templates/design.md");
+    paths.add("docs/assets/templates/design.md");
   }
 
   if (profile.capabilityState.plans.effectiveSelection) {
@@ -175,7 +175,7 @@ export function getReferencePaths(profile: InstallProfile): string[] {
   }
 
   if (profile.selections.referencesMode === "all" && profile.effectiveCapabilities.length > 0) {
-    paths.add("docs/.references/harness-capability-matrix.md");
+    paths.add("docs/assets/references/harness-capability-matrix.md");
   }
 
   return Array.from(paths).sort();

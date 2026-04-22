@@ -232,7 +232,7 @@ describe("skills-only UI", () => {
     expect(summary).toContain("Planned skill file operations:");
     expect(summary).toContain(".agents/skills/archive-docs/SKILL.md");
     expect(summary).toContain(".claude/skills/decompose-codebase/SKILL.md");
-    expect(summary).not.toContain("docs/.prompts");
+    expect(summary).not.toContain("docs/assets/prompts");
     expect(summary).not.toContain("templates");
     expect(summary).not.toContain("references");
   });
