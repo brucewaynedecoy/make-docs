@@ -3,11 +3,33 @@ import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { applyInstallPlan, planInstall } from "../src/install";
+import {
+  __setLifecycleRendererForTests,
+  type LifecycleAuditSummaryOptions,
+  type LifecycleRenderer,
+} from "../src/lifecycle-ui";
 import { loadManifest } from "../src/manifest";
 import { defaultSelections } from "../src/profile";
+import type { BackupExecutionResult, LifecyclePermissionsMode } from "../src/types";
 import { cleanupTempDir, createTempDir, mockSkillFetches } from "./helpers";
 
-const confirmMock = vi.fn();
+const { createAuditReportMock, confirmMock } = vi.hoisted(() => ({
+  createAuditReportMock: vi.fn(),
+  confirmMock: vi.fn(),
+}));
+
+vi.mock("../src/audit", async () => {
+  const actual = await vi.importActual<typeof import("../src/audit")>(
+    "../src/audit",
+  );
+
+  createAuditReportMock.mockImplementation(actual.createAuditReport);
+
+  return {
+    ...actual,
+    createAuditReport: createAuditReportMock,
+  };
+});
 
 vi.mock("@clack/prompts", async () => {
   const actual = await vi.importActual<typeof import("@clack/prompts")>("@clack/prompts");
@@ -82,7 +104,12 @@ async function captureBackupRun(
 }
 
 describe("backup command", () => {
-  beforeEach(() => {
+  beforeEach(async () => {
+    const actualAudit = await vi.importActual<typeof import("../src/audit")>(
+      "../src/audit",
+    );
+    createAuditReportMock.mockReset();
+    createAuditReportMock.mockImplementation(actualAudit.createAuditReport);
     confirmMock.mockReset();
     mockSkillFetches();
     setTTY(true);
@@ -91,6 +118,7 @@ describe("backup command", () => {
   });
 
   afterEach(() => {
+    __setLifecycleRendererForTests(null);
     vi.useRealTimers();
     vi.restoreAllMocks();
     vi.unstubAllGlobals();
@@ -127,6 +155,58 @@ describe("backup command", () => {
       expect(output).toContain("Destination:");
       expect(output).toContain(".backup/2026-04-18");
       expect(output).toContain("Backup complete");
+      expect(confirmMock).not.toHaveBeenCalled();
+      expect(createAuditReportMock).toHaveBeenCalledTimes(1);
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("routes successful backup lifecycle states through the renderer", async () => {
+    const targetDir = createTempDir();
+    const events: BackupRendererEvent[] = [];
+
+    try {
+      await installManifest(targetDir, (selections) => {
+        selections.skills = false;
+      });
+      __setLifecycleRendererForTests(
+        createBackupRecordingLifecycleRenderer(events),
+      );
+
+      const { result } = await captureBackupRun({
+        targetDir,
+        permissions: "confirm",
+      });
+
+      expect(result.status).toBe("completed");
+      expect(events.map((event) => event.name)).toEqual([
+        "backup:audit-summary",
+        "backup:run-confirmation",
+        "backup:completion-summary",
+      ]);
+      expect(events[0]).toMatchObject({
+        destinationDir: path.join(targetDir, ".backup/2026-04-18"),
+        filesToCopy: 70,
+        directoriesToMaterialize: 13,
+        retained: 0,
+        skipped: 0,
+        destinationExistedAtReview: false,
+      });
+      expect(events[1]).toMatchObject({
+        permissions: "confirm",
+      });
+      expect(events[2]).toMatchObject({
+        status: "completed",
+        destinationDir: path.join(targetDir, ".backup/2026-04-18"),
+        copiedFiles: 70,
+        materializedDirectories: 13,
+        retained: 0,
+        skipped: 0,
+      });
+      expect(existsSync(path.join(targetDir, ".backup/2026-04-18"))).toBe(true);
+      expect(confirmMock).not.toHaveBeenCalled();
+      expect(createAuditReportMock).toHaveBeenCalledTimes(1);
     } finally {
       cleanupTempDir(targetDir);
     }
@@ -227,6 +307,36 @@ describe("backup command", () => {
     }
   });
 
+  test("routes backup cancellation through the renderer before creating a destination", async () => {
+    const targetDir = createTempDir();
+    const events: BackupRendererEvent[] = [];
+
+    try {
+      await installManifest(targetDir, (selections) => {
+        selections.skills = false;
+      });
+      __setLifecycleRendererForTests(
+        createBackupRecordingLifecycleRenderer(events, { shouldProceed: false }),
+      );
+
+      const { result } = await captureBackupRun({
+        targetDir,
+        permissions: "confirm",
+      });
+
+      expect(result.status).toBe("cancelled");
+      expect(events.map((event) => event.name)).toEqual([
+        "backup:audit-summary",
+        "backup:run-confirmation",
+        "backup:cancelled",
+      ]);
+      expect(existsSync(path.join(targetDir, ".backup"))).toBe(false);
+      expect(confirmMock).not.toHaveBeenCalled();
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
   test("exits cleanly without prompting or creating backup directories when nothing is copyable", async () => {
     const targetDir = createTempDir();
 
@@ -242,8 +352,165 @@ describe("backup command", () => {
       expect(existsSync(path.join(targetDir, ".backup"))).toBe(false);
       expect(output).toContain("make-docs backup");
       expect(output).toContain("No make-docs-managed files required backup.");
+      expect(output).toContain("No backup destination was created.");
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("routes backup noop through the renderer without prompting or creating a destination", async () => {
+    const targetDir = createTempDir();
+    const events: BackupRendererEvent[] = [];
+
+    try {
+      __setLifecycleRendererForTests(
+        createBackupRecordingLifecycleRenderer(events),
+      );
+
+      const { result } = await captureBackupRun({
+        targetDir,
+        permissions: "confirm",
+      });
+
+      expect(result.status).toBe("noop");
+      expect(events.map((event) => event.name)).toEqual([
+        "backup:audit-summary",
+        "backup:noop-summary",
+      ]);
+      expect(events[0]).toMatchObject({
+        destinationDir: null,
+        filesToCopy: 0,
+        directoriesToMaterialize: 0,
+      });
+      expect(existsSync(path.join(targetDir, ".backup"))).toBe(false);
+      expect(confirmMock).not.toHaveBeenCalled();
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("keeps non-TTY confirmation guidance before creating a destination", async () => {
+    const targetDir = createTempDir();
+
+    try {
+      await installManifest(targetDir, (selections) => {
+        selections.skills = false;
+      });
+      setTTY(false);
+
+      await expect(
+        captureBackupRun({
+          targetDir,
+          permissions: "confirm",
+        }),
+      ).rejects.toThrow(
+        "Backup confirmation requires a TTY. Re-run with `make-docs backup --yes`.",
+      );
+      expect(existsSync(path.join(targetDir, ".backup"))).toBe(false);
     } finally {
       cleanupTempDir(targetDir);
     }
   });
 });
+
+type BackupRendererEvent =
+  | {
+      name: "backup:audit-summary";
+      destinationDir: string | null;
+      filesToCopy: number;
+      directoriesToMaterialize: number;
+      retained: number;
+      skipped: number;
+      destinationExistedAtReview: boolean;
+    }
+  | {
+      name: "backup:run-confirmation";
+      permissions: LifecyclePermissionsMode;
+    }
+  | {
+      name: "backup:noop-summary" | "backup:cancelled";
+    }
+  | {
+      name: "backup:completion-summary";
+      status: BackupExecutionResult["status"];
+      destinationDir: string | null;
+      copiedFiles: number;
+      materializedDirectories: number;
+      retained: number;
+      skipped: number;
+    }
+  | {
+      name: "uninstall:ignored";
+    };
+
+function createBackupRecordingLifecycleRenderer(
+  events: BackupRendererEvent[],
+  options: { shouldProceed?: boolean } = {},
+): LifecycleRenderer {
+  return {
+    beginWorkflow() {
+      return;
+    },
+    renderBackupAuditSummary(summaryOptions: LifecycleAuditSummaryOptions) {
+      events.push({
+        name: "backup:audit-summary",
+        destinationDir: summaryOptions.destinationDir,
+        filesToCopy: summaryOptions.copyableFiles.length,
+        directoriesToMaterialize:
+          summaryOptions.materializableDirectories.length,
+        retained: summaryOptions.auditReport.preservedPaths.length,
+        skipped: summaryOptions.auditReport.skippedPaths.length,
+        destinationExistedAtReview: summaryOptions.destinationDir
+          ? existsSync(summaryOptions.destinationDir)
+          : false,
+      });
+    },
+    async confirmBackupRun(permissions) {
+      events.push({
+        name: "backup:run-confirmation",
+        permissions,
+      });
+      return options.shouldProceed ?? true;
+    },
+    renderBackupNoopSummary() {
+      events.push({ name: "backup:noop-summary" });
+    },
+    renderBackupCancelled() {
+      events.push({ name: "backup:cancelled" });
+    },
+    renderBackupCompletionSummary(result) {
+      events.push({
+        name: "backup:completion-summary",
+        status: result.status,
+        destinationDir: result.destinationDir,
+        copiedFiles: result.copiedFiles.length,
+        materializedDirectories: result.materializedDirectories.length,
+        retained: result.auditReport.preservedPaths.length,
+        skipped: result.auditReport.skippedPaths.length,
+      });
+    },
+    renderUninstallWarning() {
+      events.push({ name: "uninstall:ignored" });
+    },
+    async confirmUninstallWarning() {
+      events.push({ name: "uninstall:ignored" });
+      return true;
+    },
+    renderUninstallAuditSummary() {
+      events.push({ name: "uninstall:ignored" });
+    },
+    async confirmUninstallRun() {
+      events.push({ name: "uninstall:ignored" });
+      return true;
+    },
+    renderUninstallCancelled() {
+      events.push({ name: "uninstall:ignored" });
+    },
+    renderUninstallCompletionSummary() {
+      events.push({ name: "uninstall:ignored" });
+    },
+    renderUninstallFailureSummary() {
+      events.push({ name: "uninstall:ignored" });
+    },
+  };
+}

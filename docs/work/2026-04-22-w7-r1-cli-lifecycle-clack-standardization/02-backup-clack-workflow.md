@@ -31,10 +31,10 @@ This phase converts the existing backup workflow in `packages/cli/src/backup.ts`
 
 ### Acceptance criteria
 
-- [ ] Backup execution can use the production lifecycle renderer.
-- [ ] Tests can provide a fake or recording renderer where needed.
-- [ ] `BackupExecutionResult` remains compatible with existing callers.
-- [ ] Backup command dispatch from `packages/cli/src/cli.ts` remains unchanged unless renderer injection requires a narrow adjustment.
+- [x] Backup execution can use the production lifecycle renderer.
+- [x] Tests can provide a fake or recording renderer where needed.
+- [x] `BackupExecutionResult` remains compatible with existing callers.
+- [x] Backup command dispatch from `packages/cli/src/cli.ts` remains unchanged unless renderer injection requires a narrow adjustment.
 
 ### Dependencies
 
@@ -52,11 +52,11 @@ This phase converts the existing backup workflow in `packages/cli/src/backup.ts`
 
 ### Acceptance criteria
 
-- [ ] Backup audit review uses the lifecycle renderer.
-- [ ] Review appears before confirmation and before copy.
-- [ ] Backup confirmation uses the lifecycle renderer.
-- [ ] Cancellation uses the lifecycle renderer and does not modify files.
-- [ ] Non-TTY confirmation failures still guide users to `make-docs backup --yes`.
+- [x] Backup audit review uses the lifecycle renderer.
+- [x] Review appears before confirmation and before copy.
+- [x] Backup confirmation uses the lifecycle renderer.
+- [x] Cancellation uses the lifecycle renderer and does not modify files.
+- [x] Non-TTY confirmation failures still guide users to `make-docs backup --yes`.
 
 ### Dependencies
 
@@ -75,11 +75,11 @@ This phase converts the existing backup workflow in `packages/cli/src/backup.ts`
 
 ### Acceptance criteria
 
-- [ ] Backup noop uses the lifecycle renderer.
-- [ ] Backup noop does not create a `.backup/` destination.
-- [ ] Backup completion uses the lifecycle renderer.
-- [ ] Completion includes copied, materialized, retained, and skipped counts.
-- [ ] Backup-specific raw stdout completion output is no longer the production path.
+- [x] Backup noop uses the lifecycle renderer.
+- [x] Backup noop does not create a `.backup/` destination.
+- [x] Backup completion uses the lifecycle renderer.
+- [x] Completion includes copied, materialized, retained, and skipped counts.
+- [x] Backup-specific raw stdout completion output is no longer the production path.
 
 ### Dependencies
 
@@ -97,11 +97,11 @@ This phase converts the existing backup workflow in `packages/cli/src/backup.ts`
 
 ### Acceptance criteria
 
-- [ ] Backup tests prove review, prompt skipping, cancellation, noop, and success route through the lifecycle renderer.
-- [ ] Existing backup destination and layout tests continue to pass.
-- [ ] Existing audit-once tests continue to pass.
-- [ ] Existing empty-audit no-op tests continue to pass.
-- [ ] Tests do not rely on raw box-drawing output where semantic assertions are sufficient.
+- [x] Backup tests prove review, prompt skipping, cancellation, noop, and success route through the lifecycle renderer.
+- [x] Existing backup destination and layout tests continue to pass.
+- [x] Existing audit-once tests continue to pass.
+- [x] Existing empty-audit no-op tests continue to pass.
+- [x] Tests do not rely on raw box-drawing output where semantic assertions are sufficient.
 
 ### Dependencies
 

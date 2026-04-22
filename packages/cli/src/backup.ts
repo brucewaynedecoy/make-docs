@@ -8,13 +8,7 @@ import {
 import os from "node:os";
 import path from "node:path";
 import { createAuditReport } from "./audit";
-import {
-  confirmBackupRun,
-  renderBackupAuditSummary,
-  renderBackupCancelled,
-  renderBackupCompletionSummary,
-  renderBackupNoopSummary,
-} from "./lifecycle-ui";
+import { getLifecycleRenderer } from "./lifecycle-ui";
 import { loadManifest } from "./manifest";
 import type {
   AuditPrunableDirectory,
@@ -55,21 +49,24 @@ export type PreparedBackupExecution = {
 export async function runBackupCommand(
   options: BackupCommandOptions,
 ): Promise<BackupExecutionResult> {
+  const renderer = getLifecycleRenderer();
   const preparedBackup = await prepareBackupExecution(options);
 
-  renderBackupAuditSummary({
+  renderer.renderBackupAuditSummary({
     auditReport: preparedBackup.auditReport,
     destinationDir: preparedBackup.destinationPlan?.destinationDir ?? null,
+    copyableFiles: preparedBackup.copyableFiles,
+    materializableDirectories: preparedBackup.materializableDirectories,
   });
 
   if (!hasBackupWork(preparedBackup)) {
-    renderBackupNoopSummary();
+    renderer.renderBackupNoopSummary();
     return createNoopBackupResult(preparedBackup);
   }
 
-  const shouldProceed = await confirmBackupRun(options.permissions);
+  const shouldProceed = await renderer.confirmBackupRun(options.permissions);
   if (!shouldProceed) {
-    renderBackupCancelled();
+    renderer.renderBackupCancelled();
     return {
       status: "cancelled",
       targetDir: preparedBackup.targetDir,
@@ -81,7 +78,7 @@ export async function runBackupCommand(
   }
 
   const result = executePreparedBackup(preparedBackup);
-  renderBackupCompletionSummary(result);
+  renderer.renderBackupCompletionSummary(result);
   return result;
 }
 

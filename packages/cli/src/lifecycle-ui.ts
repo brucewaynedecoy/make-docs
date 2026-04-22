@@ -20,6 +20,8 @@ type LifecycleRenderableEntry =
 export type LifecycleAuditSummaryOptions = {
   auditReport: AuditReport;
   destinationDir: string | null;
+  copyableFiles: AuditRemovableFile[];
+  materializableDirectories: AuditPrunableDirectory[];
 };
 
 export type LifecycleUninstallWarningOptions = {
@@ -89,12 +91,12 @@ export function createClackLifecycleRenderer(): LifecycleRenderer {
         groups: [
           formatEntryGroup(
             "Files to copy",
-            options.auditReport.removableFiles,
+            options.copyableFiles,
             (entry) => `${formatPath(entry)} (${entry.reason})`,
           ),
           formatEntryGroup(
             "Directories to materialize",
-            options.auditReport.prunableDirectories,
+            options.materializableDirectories,
           ),
           formatEntryGroup(
             "Retained paths",
@@ -118,7 +120,9 @@ export function createClackLifecycleRenderer(): LifecycleRenderer {
       });
     },
     renderBackupNoopSummary() {
-      outro("No make-docs-managed files required backup.");
+      outro(
+        "No make-docs-managed files required backup. No backup destination was created.",
+      );
     },
     renderBackupCancelled() {
       outro("Backup cancelled.");
@@ -316,8 +320,8 @@ function buildBackupAuditSummaryLines(options: LifecycleAuditSummaryOptions): st
   return [
     `Target: ${auditReport.targetDir}`,
     `Destination: ${destinationDir ?? "(no backup directory will be created)"}`,
-    `Files to copy: ${auditReport.removableFiles.length}`,
-    `Directories to materialize: ${auditReport.prunableDirectories.length}`,
+    `Files to copy: ${options.copyableFiles.length}`,
+    `Directories to materialize: ${options.materializableDirectories.length}`,
     `Retained: ${auditReport.preservedPaths.length}`,
     `Skipped: ${auditReport.skippedPaths.length}`,
   ];
