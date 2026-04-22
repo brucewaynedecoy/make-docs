@@ -506,6 +506,27 @@ describe("cli interactive flows", () => {
     }
   });
 
+  test("skills removal with no tracked skills is a no-op", async () => {
+    const targetDir = createTempDir();
+
+    try {
+      await installManifest(targetDir, (selections) => {
+        selections.skills = false;
+      });
+
+      const output = await captureCliOutput(["skills", "--yes", "--remove", "--target", targetDir]);
+      const manifest = loadManifest(targetDir);
+
+      expect(output).toContain("make-docs skills removal plan");
+      expect(output).toContain("Removal scope: all manifest-tracked skill files");
+      expect(output).toContain("No make-docs skill changes are needed.");
+      expect(manifest?.skillFiles).toEqual([]);
+      expect(existsSync(path.join(targetDir, "docs/AGENTS.md"))).toBe(true);
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
   test("skills sync output uses skills-specific language", async () => {
     const targetDir = createTempDir();
 

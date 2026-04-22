@@ -30,11 +30,11 @@ This phase is a validation and fixup pass. It should not introduce new user-faci
 
 ### Acceptance criteria
 
-- [ ] Top-level help coverage includes `skills`.
-- [ ] Skills help coverage includes usage, options, and examples.
-- [ ] Root-level `--skills` is tested as invalid.
-- [ ] Skills invalid flag boundaries are tested.
-- [ ] Parser/help tests pass.
+- [x] Top-level help coverage includes `skills`.
+- [x] Skills help coverage includes usage, options, and examples.
+- [x] Root-level `--skills` is tested as invalid.
+- [x] Skills invalid flag boundaries are tested.
+- [x] Parser/help tests pass.
 
 ### Dependencies
 
@@ -53,12 +53,12 @@ This phase is a validation and fixup pass. It should not introduce new user-faci
 
 ### Acceptance criteria
 
-- [ ] First-time sync writes only skill files plus minimal manifest state.
-- [ ] Existing non-skill managed files remain unchanged and tracked.
-- [ ] Global skill writes are covered.
-- [ ] Harness-constrained writes are covered.
-- [ ] Optional skill add/remove behavior is covered.
-- [ ] No unit test hits live network.
+- [x] First-time sync writes only skill files plus minimal manifest state.
+- [x] Existing non-skill managed files remain unchanged and tracked.
+- [x] Global skill writes are covered.
+- [x] Harness-constrained writes are covered.
+- [x] Optional skill add/remove behavior is covered.
+- [x] No unit test hits live network.
 
 ### Dependencies
 
@@ -76,11 +76,11 @@ This phase is a validation and fixup pass. It should not introduce new user-faci
 
 ### Acceptance criteria
 
-- [ ] Removal deletes only manifest-tracked skill files.
-- [ ] Non-skill manifest files remain in place and tracked.
-- [ ] Unrelated skill-directory files are preserved.
-- [ ] Modified managed skill file safety is covered.
-- [ ] No-op removal cases are covered.
+- [x] Removal deletes only manifest-tracked skill files.
+- [x] Non-skill manifest files remain in place and tracked.
+- [x] Unrelated skill-directory files are preserved.
+- [x] Modified managed skill file safety is covered.
+- [x] No-op removal cases are covered.
 
 ### Dependencies
 
@@ -99,11 +99,11 @@ This phase is a validation and fixup pass. It should not introduce new user-faci
 
 ### Acceptance criteria
 
-- [ ] Interactive sync is covered without a live TTY.
-- [ ] Interactive removal is covered without a live TTY.
-- [ ] Review edit behavior is covered.
-- [ ] Cancellation prevents apply.
-- [ ] Existing full wizard tests still pass.
+- [x] Interactive sync is covered without a live TTY.
+- [x] Interactive removal is covered without a live TTY.
+- [x] Review edit behavior is covered.
+- [x] Cancellation prevents apply.
+- [x] Existing full wizard tests still pass.
 
 ### Dependencies
 
@@ -120,9 +120,9 @@ This phase is a validation and fixup pass. It should not introduce new user-faci
 
 ### Acceptance criteria
 
-- [ ] Smoke-pack validates the skills command help surface.
-- [ ] Smoke-pack validates at least one non-mutating skills command path.
-- [ ] Existing smoke-pack validation still passes.
+- [x] Smoke-pack validates the skills command help surface.
+- [x] Smoke-pack validates at least one non-mutating skills command path.
+- [x] Existing smoke-pack validation still passes.
 
 ### Dependencies
 
@@ -141,12 +141,12 @@ This phase is a validation and fixup pass. It should not introduce new user-faci
 
 ### Acceptance criteria
 
-- [ ] Build passes.
-- [ ] Full package tests pass.
-- [ ] Smoke-pack passes.
-- [ ] No docs or help text advertise root-level `--skills`.
-- [ ] Manual dry runs confirm skills-only sync and removal boundaries.
-- [ ] No validation failures remain.
+- [x] Build passes.
+- [x] Full package tests pass.
+- [x] Smoke-pack passes.
+- [x] No docs or help text advertise root-level `--skills`.
+- [x] Manual dry runs confirm skills-only sync and removal boundaries.
+- [x] No validation failures remain.
 
 ### Dependencies
 

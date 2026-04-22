@@ -864,6 +864,48 @@ describe("installer integration", () => {
     }
   });
 
+  test("skills-only sync writes global skill files under the home directory", async () => {
+    const targetDir = createTempDir();
+    const fakeHome = createTempDir("make-docs-home-");
+    const restoreHome = mockHomeDirectory(fakeHome);
+    try {
+      const { manifest } = await syncSkillsOnly(targetDir, (selections) => {
+        selections.skillScope = "global";
+      });
+
+      expect(existsSync(path.join(fakeHome, ".claude/skills/archive-docs/SKILL.md"))).toBe(true);
+      expect(existsSync(path.join(fakeHome, ".agents/skills/archive-docs/SKILL.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, ".claude/skills/archive-docs/SKILL.md"))).toBe(false);
+      expect(existsSync(path.join(targetDir, ".agents/skills/archive-docs/SKILL.md"))).toBe(false);
+      expect(manifest.skillFiles).toContain(
+        path.join(fakeHome, ".claude/skills/archive-docs/SKILL.md"),
+      );
+      expect(manifest.skillFiles).toContain(
+        path.join(fakeHome, ".agents/skills/archive-docs/SKILL.md"),
+      );
+    } finally {
+      restoreHome();
+      cleanupTempDir(targetDir);
+      cleanupTempDir(fakeHome);
+    }
+  });
+
+  test("skills-only sync respects disabled harness selections on first run", async () => {
+    const targetDir = createTempDir();
+    try {
+      const { manifest } = await syncSkillsOnly(targetDir, (selections) => {
+        selections.harnesses.codex = false;
+      });
+
+      expect(existsSync(path.join(targetDir, ".claude/skills/archive-docs/SKILL.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, ".agents/skills/archive-docs/SKILL.md"))).toBe(false);
+      expect(manifest.skillFiles.some((file) => file.startsWith(".claude/"))).toBe(true);
+      expect(manifest.skillFiles.every((file) => !file.startsWith(".agents/"))).toBe(true);
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
   test("preserves non-skill manifest files during skills-only sync", async () => {
     const targetDir = createTempDir();
     try {

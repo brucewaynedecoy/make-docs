@@ -84,10 +84,41 @@ try {
   const packedPackage = readPackedPackage(packageRoot);
   assertOnlyMakeDocsBin(packedPackage);
   const packedMakeDocs = path.join(packageRoot, packedPackage.bin["make-docs"]);
+  const skillsHelp = execFileSync("node", [packedMakeDocs, "skills", "--help"], {
+    encoding: "utf8",
+  });
+  assertOutputContains(skillsHelp, "make-docs skills", "Smoke pack skills help omitted usage.");
+  assertOutputContains(skillsHelp, "--remove", "Smoke pack skills help omitted removal option.");
+  assertOutputContains(
+    skillsHelp,
+    "--skill-scope project|global",
+    "Smoke pack skills help omitted skill scope option.",
+  );
+
   const fixtureServer = await startRepoFixtureServer(repoRoot);
 
   try {
     rewritePackedSkillRegistry(packageRoot, fixtureServer.baseUrl);
+    const skillsDryRun = execFileSync(
+      "node",
+      [packedMakeDocs, "skills", "--dry-run", "--target", targetDir],
+      { encoding: "utf8" },
+    );
+    assertOutputContains(
+      skillsDryRun,
+      "make-docs skills plan",
+      "Smoke pack skills dry run omitted the skills plan title.",
+    );
+    assertOutputContains(
+      skillsDryRun,
+      "Dry run complete.",
+      "Smoke pack skills dry run did not finish cleanly.",
+    );
+    assertMissing(
+      path.join(targetDir, "docs/.assets/config/manifest.json"),
+      "Smoke pack skills dry run created a manifest.",
+    );
+
     execFileSync(
       "node",
       [packedMakeDocs, "--yes", "--target", targetDir],
@@ -132,6 +163,30 @@ try {
       `Smoke pack install did not produce ${relativePath}.`,
     );
   }
+
+  const skillsRemoveDryRun = execFileSync(
+    "node",
+    [packedMakeDocs, "skills", "--remove", "--dry-run", "--target", targetDir],
+    { encoding: "utf8" },
+  );
+  assertOutputContains(
+    skillsRemoveDryRun,
+    "make-docs skills removal plan",
+    "Smoke pack skills removal dry run omitted the removal plan title.",
+  );
+  assertOutputContains(
+    skillsRemoveDryRun,
+    "Removal scope: all manifest-tracked skill files",
+    "Smoke pack skills removal dry run omitted the removal scope.",
+  );
+  assertExists(
+    path.join(targetDir, ".claude/skills/archive-docs/SKILL.md"),
+    "Smoke pack skills removal dry run removed Claude Code skill files.",
+  );
+  assertExists(
+    path.join(targetDir, ".agents/skills/archive-docs/SKILL.md"),
+    "Smoke pack skills removal dry run removed Codex skill files.",
+  );
 
   assertMissing(
     path.join(targetDir, ".claude/skills/decompose-codebase"),
@@ -362,6 +417,12 @@ function assertExists(filePath, message) {
 function assertMissing(filePath, message) {
   if (existsSync(filePath)) {
     throw new Error(message);
+  }
+}
+
+function assertOutputContains(output, expected, message) {
+  if (!output.includes(expected)) {
+    throw new Error(`${message}\nExpected to find: ${expected}\nOutput:\n${output}`);
   }
 }
 
