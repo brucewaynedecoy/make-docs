@@ -12,10 +12,10 @@ Pattern: `YYYY-MM-DD-<slug>.md`
 
 ## Agent Instructions
 
-- Before writing, read `docs/.references/design-workflow.md`, `docs/.references/design-contract.md`, and `docs/.templates/design.md`.
-- Use `docs/.references/design-contract.md` as the authority for lineage, required headings, and follow-on links.
+- Before writing, read `docs/assets/references/design-workflow.md`, `docs/assets/references/design-contract.md`, and `docs/assets/templates/design.md`.
+- Use `docs/assets/references/design-contract.md` as the authority for lineage, required headings, and follow-on links.
 - Always apply date-slug naming.
 - Do not backdate designs — use today's date.
 - Designs are living documents — update them when decisions change.
 - Link to related plans, PRD docs, or work items where relevant.
-- Archived designs live in `docs/.archive/designs/`; never archive unless the user explicitly asks. See `docs/.archive/AGENTS.md`.
+- Archived designs live in `docs/assets/archive/designs/`; never archive unless the user explicitly asks. See `docs/assets/archive/AGENTS.md`.
