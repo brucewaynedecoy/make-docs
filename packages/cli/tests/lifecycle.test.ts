@@ -11,11 +11,18 @@ import { createAuditReport } from "../src/audit";
 import { resolveBackupDestinationPlan, runBackupCommand } from "../src/backup";
 import {
   __setLifecycleRendererForTests,
+  createClackLifecycleRenderer,
   type LifecycleRenderer,
 } from "../src/lifecycle-ui";
 import { loadManifest } from "../src/manifest";
 import { runUninstallCommand } from "../src/uninstall";
-import type { AuditReport, AuditRemovableFile } from "../src/types";
+import type {
+  AuditPreservedPath,
+  AuditPrunableDirectory,
+  AuditReport,
+  AuditRemovableFile,
+  AuditSkippedPath,
+} from "../src/types";
 import {
   cleanupTempDir,
   createTempDir,
@@ -26,9 +33,33 @@ import {
 } from "./helpers";
 
 const NOW = new Date("2026-04-18T12:00:00Z");
+const clackMocks = vi.hoisted(() => ({
+  confirm: vi.fn(),
+  intro: vi.fn(),
+  note: vi.fn(),
+  outro: vi.fn(),
+}));
+
+vi.mock("@clack/prompts", async () => {
+  const actual =
+    await vi.importActual<typeof import("@clack/prompts")>("@clack/prompts");
+
+  return {
+    ...actual,
+    confirm: clackMocks.confirm,
+    intro: clackMocks.intro,
+    isCancel: (value: unknown) => value === "cancelled",
+    note: clackMocks.note,
+    outro: clackMocks.outro,
+  };
+});
 
 describe("lifecycle validation", () => {
   beforeEach(() => {
+    clackMocks.confirm.mockReset();
+    clackMocks.intro.mockReset();
+    clackMocks.note.mockReset();
+    clackMocks.outro.mockReset();
     mockSkillFetches();
     setTTY(true);
     vi.useFakeTimers();
@@ -217,6 +248,7 @@ describe("lifecycle validation", () => {
         now: NOW,
       });
       expect(events).toEqual([
+        "workflow:make-docs backup",
         "backup:audit-summary",
         "backup:noop-summary",
       ]);
@@ -230,6 +262,7 @@ describe("lifecycle validation", () => {
         now: NOW,
       });
       expect(events).toEqual([
+        "workflow:make-docs uninstall",
         "uninstall:warning",
         "uninstall:warning-confirmation",
         "uninstall:audit-summary",
@@ -240,6 +273,168 @@ describe("lifecycle validation", () => {
       __setLifecycleRendererForTests(null);
       cleanupTempDir(targetDir);
     }
+  });
+
+  test("Clack lifecycle renderer emits semantic workflow summaries", () => {
+    const targetDir = createTempDir();
+
+    try {
+      const renderer = createClackLifecycleRenderer();
+      const auditReport = createRendererAuditReport(targetDir);
+      const backupDestinationDir = path.join(targetDir, ".backup/2026-04-18");
+
+      renderer.beginWorkflow("make-docs lifecycle");
+      renderer.renderBackupAuditSummary({
+        auditReport,
+        destinationDir: backupDestinationDir,
+        copyableFiles: auditReport.removableFiles,
+        materializableDirectories: auditReport.prunableDirectories,
+      });
+      renderer.renderBackupNoopSummary();
+      renderer.renderBackupCancelled();
+      renderer.renderBackupCompletionSummary({
+        status: "completed",
+        targetDir,
+        destinationDir: backupDestinationDir,
+        auditReport,
+        copiedFiles: ["AGENTS.md"],
+        materializedDirectories: ["docs/.assets/config"],
+      });
+      renderer.renderUninstallWarning({
+        targetDir,
+        backupDestinationDir: null,
+      });
+      renderer.renderUninstallWarning({
+        targetDir,
+        backupDestinationDir,
+      });
+      renderer.renderUninstallAuditSummary({
+        auditReport,
+        backupDestinationDir,
+      });
+      renderer.renderUninstallCancelled();
+      renderer.renderUninstallCompletionSummary({
+        auditReport,
+        removedFiles: ["AGENTS.md"],
+        prunedDirectories: ["docs/.assets/config"],
+        backupResult: null,
+      });
+      renderer.renderUninstallFailureSummary({
+        auditReport,
+        removedFiles: ["AGENTS.md"],
+        prunedDirectories: [],
+        backupResult: null,
+        errorMessage: "simulated failure",
+      });
+
+      expect(clackMocks.intro).toHaveBeenCalledWith("make-docs lifecycle");
+      expect(clackMocks.note).toHaveBeenCalledWith(
+        expect.stringContaining("Files to copy: 1"),
+        "make-docs backup",
+      );
+      expect(clackMocks.note).toHaveBeenCalledWith(
+        expect.stringContaining("Materialized directories: 1"),
+        "Backup complete",
+      );
+      expect(clackMocks.note).toHaveBeenCalledWith(
+        expect.stringContaining("Safer destructive flow: make-docs uninstall --backup"),
+        "WARNING",
+      );
+      expect(clackMocks.note).toHaveBeenCalledWith(
+        expect.stringContaining(`Backup destination: ${backupDestinationDir}`),
+        "WARNING",
+      );
+      expect(clackMocks.note).toHaveBeenCalledWith(
+        expect.stringContaining("Files to remove: 1"),
+        "make-docs uninstall",
+      );
+      expect(clackMocks.note).toHaveBeenCalledWith(
+        expect.stringContaining("Backup: not requested"),
+        "Uninstall complete",
+      );
+      expect(clackMocks.note).toHaveBeenCalledWith(
+        expect.stringContaining("Error: simulated failure"),
+        "Uninstall partially completed",
+      );
+      expect(clackMocks.outro).toHaveBeenCalledWith(
+        "No make-docs-managed files required backup. No backup destination was created.",
+      );
+      expect(clackMocks.outro).toHaveBeenCalledWith("Backup cancelled.");
+      expect(clackMocks.outro).toHaveBeenCalledWith(
+        "Uninstall cancelled. No files were changed.",
+      );
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("Clack lifecycle confirmations handle approval, cancellation, prompt skipping, and non-TTY errors", async () => {
+    const renderer = createClackLifecycleRenderer();
+
+    await expect(renderer.confirmBackupRun("allow-all")).resolves.toBe(true);
+    expect(clackMocks.confirm).not.toHaveBeenCalled();
+
+    clackMocks.confirm.mockResolvedValueOnce(true);
+    await expect(renderer.confirmBackupRun("confirm")).resolves.toBe(true);
+    expect(clackMocks.confirm).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        message: "Create this backup?",
+        initialValue: true,
+        active: "Yes",
+        inactive: "No",
+        withGuide: true,
+      }),
+    );
+
+    clackMocks.confirm.mockResolvedValueOnce(false);
+    await expect(renderer.confirmUninstallWarning("confirm")).resolves.toBe(false);
+    expect(clackMocks.confirm).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        message: "Continue with uninstall review?",
+      }),
+    );
+
+    clackMocks.confirm.mockResolvedValueOnce("cancelled");
+    await expect(
+      renderer.confirmUninstallRun({
+        permissions: "confirm",
+        backupRequested: true,
+      }),
+    ).resolves.toBe(false);
+    expect(clackMocks.confirm).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        message:
+          "Create the backup and then remove these audited paths? This action cannot be undone.",
+      }),
+    );
+
+    clackMocks.confirm.mockResolvedValueOnce(true);
+    await expect(
+      renderer.confirmUninstallRun({
+        permissions: "confirm",
+        backupRequested: false,
+      }),
+    ).resolves.toBe(true);
+    expect(clackMocks.confirm).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        message: "Remove these audited paths? This action cannot be undone.",
+      }),
+    );
+
+    const promptCount = clackMocks.confirm.mock.calls.length;
+    setTTY(false);
+    await expect(renderer.confirmBackupRun("confirm")).rejects.toThrow(
+      "Backup confirmation requires a TTY. Re-run with `make-docs backup --yes`.",
+    );
+    await expect(
+      renderer.confirmUninstallRun({
+        permissions: "confirm",
+        backupRequested: false,
+      }),
+    ).rejects.toThrow(
+      "Uninstall confirmation requires a TTY. Re-run with `make-docs uninstall --yes`.",
+    );
+    expect(clackMocks.confirm).toHaveBeenCalledTimes(promptCount);
   });
 });
 
@@ -293,6 +488,91 @@ function createSyntheticAuditReport(targetDir: string, absolutePath: string): Au
     prunableDirectories: [],
     preservedPaths: [],
     skippedPaths: [],
+  };
+}
+
+function createRendererAuditReport(targetDir: string): AuditReport {
+  const removableFile = createSyntheticAuditReport(
+    targetDir,
+    path.join(targetDir, "AGENTS.md"),
+  ).removableFiles[0];
+
+  if (!removableFile) {
+    throw new Error("Expected synthetic removable file.");
+  }
+
+  const prunableDirectory: AuditPrunableDirectory = {
+    path: "docs/.assets/config",
+    absolutePath: path.join(targetDir, "docs/.assets/config"),
+    kind: "directory",
+    scope: "project",
+    pathScope: "project",
+    backupRelativePath: "docs/.assets/config",
+    backup: {
+      scope: "project",
+      relativePath: "docs/.assets/config",
+    },
+    ordering: {
+      scopeOrder: 0,
+      depth: 3,
+      sortKey: "project:docs/.assets/config",
+      pruneSortKey: "0003:project:docs/.assets/config",
+    },
+    reason: "Directory is eligible for pruning.",
+    reasonCode: "directory-eligible-for-prune",
+    removableDescendantPaths: ["docs/.assets/config/manifest.json"],
+    preservedDescendantPaths: [],
+  };
+  const preservedPath: AuditPreservedPath = {
+    path: "CLAUDE.md",
+    absolutePath: path.join(targetDir, "CLAUDE.md"),
+    kind: "file",
+    scope: "project",
+    pathScope: "project",
+    backupRelativePath: "CLAUDE.md",
+    backup: {
+      scope: "project",
+      relativePath: "CLAUDE.md",
+    },
+    ordering: {
+      scopeOrder: 0,
+      depth: 1,
+      sortKey: "project:CLAUDE.md",
+      pruneSortKey: "0001:project:CLAUDE.md",
+    },
+    reason: "The managed file has local changes.",
+    reasonCode: "managed-file-modified",
+  };
+  const skippedPath: AuditSkippedPath = {
+    path: ".backup/2026-04-17/AGENTS.md",
+    absolutePath: path.join(targetDir, ".backup/2026-04-17/AGENTS.md"),
+    kind: "file",
+    scope: "project",
+    pathScope: "project",
+    backupRelativePath: null,
+    backup: {
+      scope: null,
+      relativePath: null,
+    },
+    ordering: {
+      scopeOrder: 0,
+      depth: 3,
+      sortKey: "project:.backup/2026-04-17/AGENTS.md",
+      pruneSortKey: "0003:project:.backup/2026-04-17/AGENTS.md",
+    },
+    reason: "Backup content is excluded from lifecycle operations.",
+    reasonCode: "inside-backup-root",
+    status: "excluded",
+  };
+
+  return {
+    mode: "manifest-present",
+    targetDir,
+    manifestPath: path.join(targetDir, "docs/.assets/config/manifest.json"),
+    removableFiles: [removableFile],
+    prunableDirectories: [prunableDirectory],
+    preservedPaths: [preservedPath],
+    skippedPaths: [skippedPath],
   };
 }
 

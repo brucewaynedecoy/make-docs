@@ -31,10 +31,10 @@ This phase is the closing validation pass for W7 R1. It should confirm the new l
 
 ### Acceptance criteria
 
-- [ ] Lifecycle renderer tests prove production flows use Clack-backed lifecycle rendering.
-- [ ] Shared tests assert semantic event labels, counts, and safety messages.
-- [ ] Tests cover approval, cancellation, prompt skipping, and non-TTY errors.
-- [ ] Tests avoid brittle snapshots of full decorative output.
+- [x] Lifecycle renderer tests prove production flows use Clack-backed lifecycle rendering.
+- [x] Shared tests assert semantic event labels, counts, and safety messages.
+- [x] Tests cover approval, cancellation, prompt skipping, and non-TTY errors.
+- [x] Tests avoid brittle snapshots of full decorative output.
 
 ### Dependencies
 
@@ -51,10 +51,10 @@ This phase is the closing validation pass for W7 R1. It should confirm the new l
 
 ### Acceptance criteria
 
-- [ ] Backup tests cover review, prompt skipping, cancellation, noop, and success.
-- [ ] Backup tests prove unchanged audit and copy semantics.
-- [ ] Backup tests prove unchanged destination naming and layout semantics.
-- [ ] Backup tests prove `.backup/` exclusion remains intact.
+- [x] Backup tests cover review, prompt skipping, cancellation, noop, and success.
+- [x] Backup tests prove unchanged audit and copy semantics.
+- [x] Backup tests prove unchanged destination naming and layout semantics.
+- [x] Backup tests prove `.backup/` exclusion remains intact.
 
 ### Dependencies
 
@@ -74,11 +74,11 @@ This phase is the closing validation pass for W7 R1. It should confirm the new l
 
 ### Acceptance criteria
 
-- [ ] Uninstall tests cover warning, audit review, prompt skipping, cancellation, success, and partial failure.
-- [ ] Uninstall tests prove unchanged `uninstall --backup` single-audit semantics.
-- [ ] Uninstall tests prove backup failure still aborts removal.
-- [ ] Uninstall tests prove unchanged safe removal and pruning semantics.
-- [ ] Uninstall tests prove `.backup/` exclusion remains intact.
+- [x] Uninstall tests cover warning, audit review, prompt skipping, cancellation, success, and partial failure.
+- [x] Uninstall tests prove unchanged `uninstall --backup` single-audit semantics.
+- [x] Uninstall tests prove backup failure still aborts removal.
+- [x] Uninstall tests prove unchanged safe removal and pruning semantics.
+- [x] Uninstall tests prove `.backup/` exclusion remains intact.
 
 ### Dependencies
 
@@ -96,10 +96,10 @@ This phase is the closing validation pass for W7 R1. It should confirm the new l
 
 ### Acceptance criteria
 
-- [ ] Documentation examples are checked for drift.
-- [ ] Any updated examples match the Clack-backed lifecycle workflow.
-- [ ] Unrelated docs remain untouched.
-- [ ] Command names and safety guidance stay aligned with current CLI behavior.
+- [x] Documentation examples are checked for drift.
+- [x] Any updated examples match the Clack-backed lifecycle workflow.
+- [x] Unrelated docs remain untouched.
+- [x] Command names and safety guidance stay aligned with current CLI behavior.
 
 ### Dependencies
 
@@ -117,11 +117,11 @@ This phase is the closing validation pass for W7 R1. It should confirm the new l
 
 ### Acceptance criteria
 
-- [ ] `npm run build -w make-docs` passes.
-- [ ] `npm test -w make-docs` passes.
-- [ ] `node scripts/smoke-pack.mjs` passes.
-- [ ] Any environmental blocker is documented with narrower passing checks.
-- [ ] Lifecycle renderer coverage avoids brittle decorative snapshots.
+- [x] `npm run build -w make-docs` passes.
+- [x] `npm test -w make-docs` passes.
+- [x] `node scripts/smoke-pack.mjs` passes.
+- [x] Any environmental blocker is documented with narrower passing checks.
+- [x] Lifecycle renderer coverage avoids brittle decorative snapshots.
 
 ### Dependencies
 

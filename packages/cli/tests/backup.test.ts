@@ -181,11 +181,15 @@ describe("backup command", () => {
 
       expect(result.status).toBe("completed");
       expect(events.map((event) => event.name)).toEqual([
+        "workflow",
         "backup:audit-summary",
         "backup:run-confirmation",
         "backup:completion-summary",
       ]);
       expect(events[0]).toMatchObject({
+        title: "make-docs backup",
+      });
+      expect(events[1]).toMatchObject({
         destinationDir: path.join(targetDir, ".backup/2026-04-18"),
         filesToCopy: 70,
         directoriesToMaterialize: 13,
@@ -193,10 +197,10 @@ describe("backup command", () => {
         skipped: 0,
         destinationExistedAtReview: false,
       });
-      expect(events[1]).toMatchObject({
+      expect(events[2]).toMatchObject({
         permissions: "confirm",
       });
-      expect(events[2]).toMatchObject({
+      expect(events[3]).toMatchObject({
         status: "completed",
         destinationDir: path.join(targetDir, ".backup/2026-04-18"),
         copiedFiles: 70,
@@ -326,6 +330,7 @@ describe("backup command", () => {
 
       expect(result.status).toBe("cancelled");
       expect(events.map((event) => event.name)).toEqual([
+        "workflow",
         "backup:audit-summary",
         "backup:run-confirmation",
         "backup:cancelled",
@@ -374,10 +379,14 @@ describe("backup command", () => {
 
       expect(result.status).toBe("noop");
       expect(events.map((event) => event.name)).toEqual([
+        "workflow",
         "backup:audit-summary",
         "backup:noop-summary",
       ]);
       expect(events[0]).toMatchObject({
+        title: "make-docs backup",
+      });
+      expect(events[1]).toMatchObject({
         destinationDir: null,
         filesToCopy: 0,
         directoriesToMaterialize: 0,
@@ -415,6 +424,10 @@ describe("backup command", () => {
 
 type BackupRendererEvent =
   | {
+      name: "workflow";
+      title: string;
+    }
+  | {
       name: "backup:audit-summary";
       destinationDir: string | null;
       filesToCopy: number;
@@ -448,8 +461,8 @@ function createBackupRecordingLifecycleRenderer(
   options: { shouldProceed?: boolean } = {},
 ): LifecycleRenderer {
   return {
-    beginWorkflow() {
-      return;
+    beginWorkflow(title) {
+      events.push({ name: "workflow", title });
     },
     renderBackupAuditSummary(summaryOptions: LifecycleAuditSummaryOptions) {
       events.push({

@@ -210,6 +210,7 @@ describe("uninstall command", () => {
       expect(result.status).toBe("completed");
       expect(result.backupResult?.status).toBe("completed");
       expect(events.map((event) => event.name)).toEqual([
+        "workflow",
         "uninstall:warning",
         "uninstall:warning-confirmation",
         "uninstall:audit-summary",
@@ -217,14 +218,17 @@ describe("uninstall command", () => {
         "uninstall:completion-summary",
       ]);
       expect(events[0]).toMatchObject({
+        title: "make-docs uninstall",
+      });
+      expect(events[1]).toMatchObject({
         targetDir,
         backupDestinationDir: path.join(targetDir, ".backup/2026-04-18"),
         backupDestinationExistsAtWarning: false,
       });
-      expect(events[1]).toMatchObject({
+      expect(events[2]).toMatchObject({
         permissions: "allow-all",
       });
-      expect(events[2]).toMatchObject({
+      expect(events[3]).toMatchObject({
         targetDir,
         backupDestinationDir: path.join(targetDir, ".backup/2026-04-18"),
         filesToRemove: result.plan.auditReport.removableFiles.length,
@@ -233,11 +237,11 @@ describe("uninstall command", () => {
         skipped: result.plan.auditReport.skippedPaths.length,
         backupDestinationExistsAtReview: false,
       });
-      expect(events[3]).toMatchObject({
+      expect(events[4]).toMatchObject({
         permissions: "allow-all",
         backupRequested: true,
       });
-      expect(events[4]).toMatchObject({
+      expect(events[5]).toMatchObject({
         removedFiles: result.removedFiles.length,
         prunedDirectories: result.prunedDirectories.length,
         preserved: result.plan.auditReport.preservedPaths.length,
@@ -361,6 +365,7 @@ describe("uninstall command", () => {
       expect(result.status).toBe("cancelled");
       expect(result.checkpoint).toBe("warning");
       expect(events.map((event) => event.name)).toEqual([
+        "workflow",
         "uninstall:warning",
         "uninstall:warning-confirmation",
         "uninstall:cancelled",
@@ -397,6 +402,7 @@ describe("uninstall command", () => {
       expect(result.status).toBe("cancelled");
       expect(result.checkpoint).toBe("final");
       expect(events.map((event) => event.name)).toEqual([
+        "workflow",
         "uninstall:warning",
         "uninstall:warning-confirmation",
         "uninstall:audit-summary",
@@ -513,13 +519,14 @@ describe("uninstall command", () => {
 
       expect(error.message).toContain("Uninstall partially completed");
       expect(events.map((event) => event.name)).toEqual([
+        "workflow",
         "uninstall:warning",
         "uninstall:warning-confirmation",
         "uninstall:audit-summary",
         "uninstall:run-confirmation",
         "uninstall:failure-summary",
       ]);
-      expect(events[4]).toMatchObject({
+      expect(events[5]).toMatchObject({
         removedFiles: 1,
         prunedDirectories: 0,
         backupStatus: "not-requested",
@@ -535,6 +542,10 @@ describe("uninstall command", () => {
 });
 
 type UninstallRendererEvent =
+  | {
+      name: "workflow";
+      title: string;
+    }
   | {
       name: "uninstall:warning";
       targetDir: string;
@@ -596,8 +607,8 @@ function createUninstallRecordingLifecycleRenderer(
   } = {},
 ): LifecycleRenderer {
   return {
-    beginWorkflow() {
-      return;
+    beginWorkflow(title) {
+      events.push({ name: "workflow", title });
     },
     renderBackupAuditSummary() {
       events.push({ name: "backup:ignored" });
