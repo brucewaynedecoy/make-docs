@@ -29,10 +29,10 @@ This phase owns command parsing, command-specific flag validation, and help outp
 
 ### Acceptance criteria
 
-- [ ] `make-docs skills` is recognized as a top-level command.
-- [ ] Bare `make-docs` still enters the apply/sync path.
-- [ ] `reconfigure`, `backup`, and `uninstall` still dispatch to their existing paths.
-- [ ] No root-level `--skills` option is added.
+- [x] `make-docs skills` is recognized as a top-level command.
+- [x] Bare `make-docs` still enters the apply/sync path.
+- [x] `reconfigure`, `backup`, and `uninstall` still dispatch to their existing paths.
+- [x] No root-level `--skills` option is added.
 
 ### Dependencies
 
@@ -50,11 +50,11 @@ This phase owns command parsing, command-specific flag validation, and help outp
 
 ### Acceptance criteria
 
-- [ ] `make-docs skills --remove` parses as removal mode.
-- [ ] `make-docs skills --skill-scope global` parses.
-- [ ] `make-docs skills --optional-skills decompose-codebase` parses.
-- [ ] `make-docs skills --no-codex` and `--no-claude-code` parse.
-- [ ] `--remove` outside `make-docs skills` fails clearly.
+- [x] `make-docs skills --remove` parses as removal mode.
+- [x] `make-docs skills --skill-scope global` parses.
+- [x] `make-docs skills --optional-skills decompose-codebase` parses.
+- [x] `make-docs skills --no-codex` and `--no-claude-code` parse.
+- [x] `--remove` outside `make-docs skills` fails clearly.
 
 ### Dependencies
 
@@ -71,11 +71,11 @@ This phase owns command parsing, command-specific flag validation, and help outp
 
 ### Acceptance criteria
 
-- [ ] `make-docs skills --no-designs` fails with a skills-command-specific message.
-- [ ] `make-docs skills --templates all` fails clearly.
-- [ ] `make-docs skills --remove --optional-skills decompose-codebase` fails clearly.
-- [ ] Unknown optional skill ids still fail with the valid optional skill list.
-- [ ] Existing lifecycle invalid flag tests continue to pass.
+- [x] `make-docs skills --no-designs` fails with a skills-command-specific message.
+- [x] `make-docs skills --templates all` fails clearly.
+- [x] `make-docs skills --remove --optional-skills decompose-codebase` fails clearly.
+- [x] Unknown optional skill ids still fail with the valid optional skill list.
+- [x] Existing lifecycle invalid flag tests continue to pass.
 
 ### Dependencies
 
@@ -93,11 +93,11 @@ This phase owns command parsing, command-specific flag validation, and help outp
 
 ### Acceptance criteria
 
-- [ ] `make-docs --help` lists `skills`.
-- [ ] `make-docs skills --help` renders the skills command summary and usage.
-- [ ] Skills help documents `--remove`.
-- [ ] Skills help documents accepted platform and skill flags.
-- [ ] Help text does not mention root-level `--skills`.
+- [x] `make-docs --help` lists `skills`.
+- [x] `make-docs skills --help` renders the skills command summary and usage.
+- [x] Skills help documents `--remove`.
+- [x] Skills help documents accepted platform and skill flags.
+- [x] Help text does not mention root-level `--skills`.
 
 ### Dependencies
 
@@ -115,11 +115,11 @@ This phase owns command parsing, command-specific flag validation, and help outp
 
 ### Acceptance criteria
 
-- [ ] Parser tests cover the `skills` command.
-- [ ] Help tests cover `make-docs skills --help`.
-- [ ] Invalid flag boundaries are tested.
-- [ ] `make-docs --skills` is tested as invalid.
-- [ ] Targeted CLI tests pass.
+- [x] Parser tests cover the `skills` command.
+- [x] Help tests cover `make-docs skills --help`.
+- [x] Invalid flag boundaries are tested.
+- [x] `make-docs --skills` is tested as invalid.
+- [x] Targeted CLI tests pass.
 
 ### Dependencies
 

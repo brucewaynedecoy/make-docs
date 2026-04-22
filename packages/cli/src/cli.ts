@@ -403,10 +403,10 @@ async function runSkillsCommand(options: SkillsCommandOptions): Promise<void> {
     return;
   }
 
-  void options;
-  output.write(
-    "The `make-docs skills` command surface is available; skills sync and removal will be implemented in a later phase.\n",
-  );
+  const skillsModule = (await import("./skills-command")) as {
+    runSkillsCommand: SkillsCommandRunner;
+  };
+  await skillsModule.runSkillsCommand(options);
 }
 
 function getSelectionOverrideFlags(parsed: ParsedArgs): string[] {

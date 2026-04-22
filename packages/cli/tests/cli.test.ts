@@ -487,6 +487,25 @@ describe("cli interactive flows", () => {
     }
   });
 
+  test("skills removal without a manifest does not create one", async () => {
+    const targetDir = createTempDir();
+    const writeSpy = vi.spyOn(process.stdout, "write").mockImplementation(() => true);
+
+    try {
+      const { runCli } = await import("../src/cli");
+
+      await runCli(["skills", "--yes", "--remove", "--target", targetDir]);
+
+      const output = writeSpy.mock.calls.map(([chunk]) => String(chunk)).join("");
+      expect(output).toContain("No make-docs skill changes are needed.");
+      expect(existsSync(path.join(targetDir, "docs/.assets/config/manifest.json"))).toBe(
+        false,
+      );
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
   test.each([
     ["--no-claude", { "claude-code": false, codex: true }],
     ["--no-agents", { "claude-code": true, codex: false }],

@@ -2,7 +2,12 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
-import { applyInstallPlan, planInstall } from "../src/install";
+import {
+  applyInstallPlan,
+  applySkillsOnlyInstallPlan,
+  planInstall,
+  planSkillsOnlyInstall,
+} from "../src/install";
 import { loadManifest } from "../src/manifest";
 import { defaultSelections, resolveInstallProfile } from "../src/profile";
 import { hashText, readPackageFile } from "../src/utils";
@@ -33,6 +38,38 @@ async function installWithSelections(
     existingManifest,
   });
   const result = applyInstallPlan({
+    targetDir,
+    plan,
+    existingManifest,
+  });
+
+  return { selections, plan, result, manifest: loadManifest(targetDir)! };
+}
+
+async function syncSkillsOnly(
+  targetDir: string,
+  configure: (selections: ReturnType<typeof defaultSelections>) => void = () => {},
+  remove = false,
+): Promise<{
+  selections: ReturnType<typeof defaultSelections>;
+  plan: Awaited<ReturnType<typeof planSkillsOnlyInstall>>;
+  result: ReturnType<typeof applySkillsOnlyInstallPlan>;
+  manifest: NonNullable<ReturnType<typeof loadManifest>>;
+}> {
+  const existingManifest = loadManifest(targetDir);
+  const selections = existingManifest
+    ? structuredClone(existingManifest.selections)
+    : defaultSelections();
+  selections.skills = true;
+  configure(selections);
+
+  const plan = await planSkillsOnlyInstall({
+    targetDir,
+    selections,
+    existingManifest,
+    remove,
+  });
+  const result = applySkillsOnlyInstallPlan({
     targetDir,
     plan,
     existingManifest,
@@ -805,6 +842,103 @@ describe("installer integration", () => {
       expect(existsSync(path.join(targetDir, ".claude/skills/archive-docs/SKILL.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, ".agents/skills/archive-docs/SKILL.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, ".claude/skill-assets"))).toBe(false);
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("syncs skills without installing docs scaffold on first run", async () => {
+    const targetDir = createTempDir();
+    try {
+      const { manifest } = await syncSkillsOnly(targetDir);
+
+      expect(existsSync(path.join(targetDir, ".claude/skills/archive-docs/SKILL.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, ".agents/skills/archive-docs/SKILL.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/AGENTS.md"))).toBe(false);
+      expect(existsSync(path.join(targetDir, "docs/.templates"))).toBe(false);
+      expect(manifest.files).toEqual({});
+      expect(manifest.skillFiles).toContain(".claude/skills/archive-docs/SKILL.md");
+      expect(manifest.skillFiles).toContain(".agents/skills/archive-docs/SKILL.md");
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("preserves non-skill manifest files during skills-only sync", async () => {
+    const targetDir = createTempDir();
+    try {
+      await installWithSelections(targetDir, () => {});
+      const before = loadManifest(targetDir)!;
+
+      const { manifest } = await syncSkillsOnly(targetDir, (selections) => {
+        selections.harnesses.codex = false;
+      });
+
+      expect(manifest.files["docs/AGENTS.md"]).toEqual(before.files["docs/AGENTS.md"]);
+      expect(existsSync(path.join(targetDir, "docs/AGENTS.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, ".agents/skills/archive-docs/SKILL.md"))).toBe(false);
+      expect(manifest.skillFiles.every((file) => !file.startsWith(".agents/"))).toBe(true);
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("skills-only sync cleans up deselected optional skill files", async () => {
+    const targetDir = createTempDir();
+    try {
+      await syncSkillsOnly(targetDir, (selections) => {
+        selections.optionalSkills = ["decompose-codebase"];
+      });
+
+      expect(existsSync(path.join(targetDir, ".claude/skills/decompose-codebase/SKILL.md"))).toBe(
+        true,
+      );
+
+      const { manifest } = await syncSkillsOnly(targetDir, (selections) => {
+        selections.optionalSkills = [];
+      });
+
+      expect(existsSync(path.join(targetDir, ".claude/skills/decompose-codebase/SKILL.md"))).toBe(
+        false,
+      );
+      expect(manifest.skillFiles.some((file) => file.includes("decompose-codebase"))).toBe(false);
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("skills-only removal removes tracked skills and leaves unrelated files", async () => {
+    const targetDir = createTempDir();
+    try {
+      await syncSkillsOnly(targetDir);
+      const untracked = path.join(targetDir, ".claude/skills/local-note.md");
+      mkdirSync(path.dirname(untracked), { recursive: true });
+      writeFileSync(untracked, "local note\n", "utf8");
+
+      const { manifest } = await syncSkillsOnly(targetDir, undefined, true);
+
+      expect(existsSync(path.join(targetDir, ".claude/skills/archive-docs/SKILL.md"))).toBe(false);
+      expect(existsSync(path.join(targetDir, ".agents/skills/archive-docs/SKILL.md"))).toBe(false);
+      expect(existsSync(untracked)).toBe(true);
+      expect(manifest.files).toEqual({});
+      expect(manifest.skillFiles).toEqual([]);
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("skills-only removal preserves modified managed skill files", async () => {
+    const targetDir = createTempDir();
+    try {
+      await syncSkillsOnly(targetDir);
+      const skillPath = path.join(targetDir, ".claude/skills/archive-docs/SKILL.md");
+      writeFileSync(skillPath, "local skill edits\n", "utf8");
+
+      const { manifest } = await syncSkillsOnly(targetDir, undefined, true);
+
+      expect(existsSync(skillPath)).toBe(true);
+      expect(readFileSync(skillPath, "utf8")).toBe("local skill edits\n");
+      expect(manifest.skillFiles).toContain(".claude/skills/archive-docs/SKILL.md");
     } finally {
       cleanupTempDir(targetDir);
     }

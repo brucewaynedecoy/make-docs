@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, rmSync } from "node:fs";
 import path from "node:path";
 import { CONFLICTS_RELATIVE_DIR, createManifest, writeManifest } from "./manifest";
-import { createInstallPlan } from "./planner";
+import { createInstallPlan, createSkillsOnlyInstallPlan } from "./planner";
 import { resolveInstallProfile } from "./profile";
 import type {
   ApplyResult,
@@ -42,6 +42,25 @@ export async function planInstall(options: {
   });
 }
 
+export async function planSkillsOnlyInstall(options: {
+  targetDir: string;
+  selections: InstallSelections;
+  existingManifest: InstallManifest | null;
+  remove: boolean;
+  packageMeta?: PackageMeta;
+}): Promise<InstallPlan> {
+  const packageMeta = options.packageMeta ?? readPackageMeta();
+  const profile = resolveInstallProfile(options.selections);
+
+  return createSkillsOnlyInstallPlan({
+    targetDir: options.targetDir,
+    packageMeta,
+    profile,
+    existingManifest: options.existingManifest,
+    remove: options.remove,
+  });
+}
+
 export function findInstructionConflicts(plan: InstallPlan): InstructionConflict[] {
   return plan.actions.flatMap((action) => {
     if (action.type !== "skip-conflict" || typeof action.content !== "string" || !action.reason) {
@@ -68,6 +87,29 @@ export function applyInstallPlan(options: {
   plan: InstallPlan;
   existingManifest: InstallManifest | null;
 }): ApplyResult {
+  return applyInstallPlanInternal({
+    ...options,
+    trackSkillFilesInManifestFiles: true,
+  });
+}
+
+export function applySkillsOnlyInstallPlan(options: {
+  targetDir: string;
+  plan: InstallPlan;
+  existingManifest: InstallManifest | null;
+}): ApplyResult {
+  return applyInstallPlanInternal({
+    ...options,
+    trackSkillFilesInManifestFiles: false,
+  });
+}
+
+function applyInstallPlanInternal(options: {
+  targetDir: string;
+  plan: InstallPlan;
+  existingManifest: InstallManifest | null;
+  trackSkillFilesInManifestFiles: boolean;
+}): ApplyResult {
   const { targetDir, plan, existingManifest } = options;
   const nextFiles = { ...(existingManifest?.files ?? {}) };
   const nextSkillFiles = new Set(existingManifest?.skillFiles ?? []);
@@ -93,6 +135,9 @@ export function applyInstallPlan(options: {
         action.type === "noop")
     ) {
       nextSkillFiles.add(action.relativePath);
+      if (!options.trackSkillFilesInManifestFiles) {
+        delete nextFiles[action.relativePath];
+      }
     }
 
     if (action.type === "remove-managed") {

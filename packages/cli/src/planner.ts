@@ -11,6 +11,7 @@ import type {
   InstructionKind,
   PackageMeta,
   PlannedAction,
+  ResolvedAsset,
 } from "./types";
 import { INSTRUCTION_KINDS } from "./types";
 import { hashText, readTextFile, relativePathToTarget, createRunId } from "./utils";
@@ -198,6 +199,212 @@ export async function createInstallPlan(options: {
     desiredSkillFiles: desiredSkillFiles.sort(),
     conflictsRunId,
   };
+}
+
+export async function createSkillsOnlyInstallPlan(options: {
+  targetDir: string;
+  packageMeta: PackageMeta;
+  profile: InstallProfile;
+  existingManifest: InstallManifest | null;
+  remove: boolean;
+}): Promise<InstallPlan> {
+  const { targetDir, packageMeta, profile, existingManifest, remove } = options;
+  const desiredSkillAssets = remove ? [] : await getDesiredSkillAssets(profile.selections);
+  const desiredSkillFiles = desiredSkillAssets.map((asset) => asset.relativePath);
+  const desiredFiles = Object.fromEntries(
+    desiredSkillAssets.map((asset) => [
+      asset.relativePath,
+      {
+        hash: hashText(asset.content),
+        sourceId: asset.sourceId,
+      },
+    ]),
+  );
+  const previousSkillContent = await getPreviousSkillContentByPath(existingManifest);
+  const existingSkillFiles = new Set(existingManifest?.skillFiles ?? []);
+  const actions: PlannedAction[] = [];
+  let conflictsRunId: string | undefined;
+
+  if (!remove) {
+    for (const asset of desiredSkillAssets) {
+      const action = planDesiredSkillAsset({
+        targetDir,
+        asset,
+        existingManifest,
+        existingSkillFiles,
+        previousSkillContent,
+      });
+      if (action.type === "skip-conflict") {
+        conflictsRunId ??= createRunId();
+      }
+      actions.push(action);
+    }
+  }
+
+  if (existingManifest) {
+    for (const relativePath of existingSkillFiles) {
+      if (relativePath in desiredFiles) {
+        continue;
+      }
+
+      const action = planStaleSkillFile({
+        targetDir,
+        relativePath,
+        existingManifest,
+        previousSkillContent,
+      });
+      if (action.type === "skip-conflict") {
+        conflictsRunId ??= createRunId();
+      }
+      actions.push(action);
+    }
+  }
+
+  actions.sort((left, right) => left.relativePath.localeCompare(right.relativePath));
+
+  return {
+    packageName: packageMeta.name,
+    packageVersion: packageMeta.version,
+    profile,
+    actions,
+    desiredFiles,
+    desiredSkillFiles: desiredSkillFiles.sort(),
+    conflictsRunId,
+  };
+}
+
+function planDesiredSkillAsset(options: {
+  targetDir: string;
+  asset: ResolvedAsset;
+  existingManifest: InstallManifest | null;
+  existingSkillFiles: Set<string>;
+  previousSkillContent: Map<string, string>;
+}): PlannedAction {
+  const { targetDir, asset, existingManifest, existingSkillFiles, previousSkillContent } =
+    options;
+  const absolutePath = relativePathToTarget(targetDir, asset.relativePath);
+  const desiredHash = hashText(asset.content);
+
+  if (!existsSync(absolutePath)) {
+    return {
+      type: "create",
+      relativePath: asset.relativePath,
+      sourceId: asset.sourceId,
+      content: asset.content,
+      contentHash: desiredHash,
+    };
+  }
+
+  const currentContent = readTextFile(absolutePath);
+  if (currentContent === asset.content) {
+    return {
+      type: "noop",
+      relativePath: asset.relativePath,
+      sourceId: asset.sourceId,
+      contentHash: desiredHash,
+    };
+  }
+
+  const currentHash = hashText(currentContent);
+  const manifestEntry = existingManifest?.files[asset.relativePath];
+  if (manifestEntry && manifestEntry.hash === currentHash) {
+    return {
+      type: "update",
+      relativePath: asset.relativePath,
+      sourceId: asset.sourceId,
+      content: asset.content,
+      contentHash: desiredHash,
+    };
+  }
+
+  const previousContent = previousSkillContent.get(asset.relativePath);
+  if (
+    existingSkillFiles.has(asset.relativePath) &&
+    previousContent !== undefined &&
+    currentContent === previousContent
+  ) {
+    return {
+      type: "update",
+      relativePath: asset.relativePath,
+      sourceId: asset.sourceId,
+      content: asset.content,
+      contentHash: desiredHash,
+      reason: "Managed skill file will be refreshed.",
+    };
+  }
+
+  return {
+    type: "skip-conflict",
+    relativePath: asset.relativePath,
+    sourceId: asset.sourceId,
+    content: asset.content,
+    contentHash: desiredHash,
+    reason: existingSkillFiles.has(asset.relativePath)
+      ? "Managed skill file was modified locally."
+      : "Unmanaged skill file already exists with different content.",
+  };
+}
+
+function planStaleSkillFile(options: {
+  targetDir: string;
+  relativePath: string;
+  existingManifest: InstallManifest;
+  previousSkillContent: Map<string, string>;
+}): PlannedAction {
+  const { targetDir, relativePath, existingManifest, previousSkillContent } = options;
+  const manifestEntry = existingManifest.files[relativePath];
+  const absolutePath = relativePathToTarget(targetDir, relativePath);
+
+  if (!existsSync(absolutePath)) {
+    return {
+      type: "remove-managed",
+      relativePath,
+      sourceId: manifestEntry?.sourceId ?? `skill:${relativePath}`,
+    };
+  }
+
+  const currentContent = readTextFile(absolutePath);
+  const currentHash = hashText(currentContent);
+  if (manifestEntry && manifestEntry.hash === currentHash) {
+    return {
+      type: "remove-managed",
+      relativePath,
+      sourceId: manifestEntry.sourceId,
+    };
+  }
+
+  const previousContent = previousSkillContent.get(relativePath);
+  if (!manifestEntry && (previousContent === undefined || currentContent === previousContent)) {
+    return {
+      type: "remove-managed",
+      relativePath,
+      sourceId: `skill:${relativePath}`,
+    };
+  }
+
+  return {
+    type: "skip-conflict",
+    relativePath,
+    sourceId: manifestEntry?.sourceId ?? `skill:${relativePath}`,
+    reason: "Managed skill file was modified locally and will not be removed automatically.",
+  };
+}
+
+async function getPreviousSkillContentByPath(
+  existingManifest: InstallManifest | null,
+): Promise<Map<string, string>> {
+  if (!existingManifest) {
+    return new Map();
+  }
+
+  const selections = structuredClone(existingManifest.selections);
+  selections.skills = true;
+  try {
+    const previousAssets = await getDesiredSkillAssets(selections);
+    return new Map(previousAssets.map((asset) => [asset.relativePath, asset.content]));
+  } catch {
+    return new Map();
+  }
 }
 
 function getInstructionConflictResolution(

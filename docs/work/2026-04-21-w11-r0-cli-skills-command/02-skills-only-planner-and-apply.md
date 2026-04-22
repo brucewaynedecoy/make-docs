@@ -31,11 +31,11 @@ This phase should reuse the existing remote skill registry, resolver, manifest, 
 
 ### Acceptance criteria
 
-- [ ] Sync mode seeds from manifest selections when a manifest exists.
-- [ ] Sync mode seeds from skills-only defaults when no manifest exists.
-- [ ] Command flags override seeded skills selections.
-- [ ] Sync mode always enables skills.
-- [ ] Removal mode can operate from `skillFiles` even if saved selections currently disable skills.
+- [x] Sync mode seeds from manifest selections when a manifest exists.
+- [x] Sync mode seeds from skills-only defaults when no manifest exists.
+- [x] Command flags override seeded skills selections.
+- [x] Sync mode always enables skills.
+- [x] Removal mode can operate from `skillFiles` even if saved selections currently disable skills.
 
 ### Dependencies
 
@@ -54,11 +54,11 @@ This phase should reuse the existing remote skill registry, resolver, manifest, 
 
 ### Acceptance criteria
 
-- [ ] Desired sync assets contain required skill files.
-- [ ] Desired sync assets contain selected optional skill files.
-- [ ] Disabled harnesses do not produce desired skill paths.
-- [ ] Project and global scope paths are computed correctly.
-- [ ] No docs templates, prompts, references, root instructions, or generated docs assets enter the desired graph.
+- [x] Desired sync assets contain required skill files.
+- [x] Desired sync assets contain selected optional skill files.
+- [x] Disabled harnesses do not produce desired skill paths.
+- [x] Project and global scope paths are computed correctly.
+- [x] No docs templates, prompts, references, root instructions, or generated docs assets enter the desired graph.
 
 ### Dependencies
 
@@ -77,11 +77,11 @@ This phase should reuse the existing remote skill registry, resolver, manifest, 
 
 ### Acceptance criteria
 
-- [ ] Missing desired skill files plan as create actions.
-- [ ] Current managed skill files plan as update actions when safe.
-- [ ] Modified managed skill files are not silently overwritten.
-- [ ] Stale managed skill files plan as remove actions.
-- [ ] Non-skill manifest `files` entries are carried forward unchanged.
+- [x] Missing desired skill files plan as create actions.
+- [x] Current managed skill files plan as update actions when safe.
+- [x] Modified managed skill files are not silently overwritten.
+- [x] Stale managed skill files plan as remove actions.
+- [x] Non-skill manifest `files` entries are carried forward unchanged.
 
 ### Dependencies
 
@@ -100,11 +100,11 @@ This phase should reuse the existing remote skill registry, resolver, manifest, 
 
 ### Acceptance criteria
 
-- [ ] `make-docs skills --remove --yes` removes manifest-tracked skill files.
-- [ ] Non-skill manifest files remain in place.
-- [ ] Untracked files in skill directories remain in place.
-- [ ] Modified managed skill files are preserved or conflict-staged.
-- [ ] Empty managed skill directories are pruned only when safe.
+- [x] `make-docs skills --remove --yes` removes manifest-tracked skill files.
+- [x] Non-skill manifest files remain in place.
+- [x] Untracked files in skill directories remain in place.
+- [x] Modified managed skill files are preserved or conflict-staged.
+- [x] Empty managed skill directories are pruned only when safe.
 
 ### Dependencies
 
@@ -123,11 +123,11 @@ This phase should reuse the existing remote skill registry, resolver, manifest, 
 
 ### Acceptance criteria
 
-- [ ] First-time skills-only sync creates minimal manifest state.
-- [ ] Existing full installs keep their non-skill manifest entries.
-- [ ] Skill file tracking reflects the post-apply state.
-- [ ] Later full `make-docs`, `reconfigure`, `backup`, and `uninstall` can load the manifest.
-- [ ] Dry runs do not write skill files or manifest changes.
+- [x] First-time skills-only sync creates minimal manifest state.
+- [x] Existing full installs keep their non-skill manifest entries.
+- [x] Skill file tracking reflects the post-apply state.
+- [x] Later full `make-docs`, `reconfigure`, `backup`, and `uninstall` can load the manifest.
+- [x] Dry runs do not write skill files or manifest changes.
 
 ### Dependencies
 
@@ -147,11 +147,11 @@ This phase should reuse the existing remote skill registry, resolver, manifest, 
 
 ### Acceptance criteria
 
-- [ ] Skills-only sync tests prove non-skill files are untouched.
-- [ ] Scope and harness stale cleanup is covered.
-- [ ] Optional skill cleanup is covered.
-- [ ] Removal mode is covered.
-- [ ] Manifest compatibility is covered.
+- [x] Skills-only sync tests prove non-skill files are untouched.
+- [x] Scope and harness stale cleanup is covered.
+- [x] Optional skill cleanup is covered.
+- [x] Removal mode is covered.
+- [x] Manifest compatibility is covered.
 
 ### Dependencies
 
