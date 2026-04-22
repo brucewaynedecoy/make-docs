@@ -9,6 +9,10 @@ import path from "node:path";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { createAuditReport } from "../src/audit";
 import { resolveBackupDestinationPlan, runBackupCommand } from "../src/backup";
+import {
+  __setLifecycleRendererForTests,
+  type LifecycleRenderer,
+} from "../src/lifecycle-ui";
 import { loadManifest } from "../src/manifest";
 import { runUninstallCommand } from "../src/uninstall";
 import type { AuditReport, AuditRemovableFile } from "../src/types";
@@ -199,6 +203,44 @@ describe("lifecycle validation", () => {
       cleanupTempDir(targetDir);
     }
   });
+
+  test("backup and uninstall route lifecycle states through the renderer boundary", async () => {
+    const targetDir = createTempDir();
+    const events: string[] = [];
+
+    try {
+      __setLifecycleRendererForTests(createRecordingLifecycleRenderer(events));
+
+      await runBackupCommand({
+        targetDir,
+        permissions: "allow-all",
+        now: NOW,
+      });
+      expect(events).toEqual([
+        "backup:audit-summary",
+        "backup:noop-summary",
+      ]);
+
+      events.length = 0;
+
+      await runUninstallCommand({
+        targetDir,
+        backup: false,
+        permissions: "allow-all",
+        now: NOW,
+      });
+      expect(events).toEqual([
+        "uninstall:warning",
+        "uninstall:warning-confirmation",
+        "uninstall:audit-summary",
+        "uninstall:run-confirmation",
+        "uninstall:completion-summary",
+      ]);
+    } finally {
+      __setLifecycleRendererForTests(null);
+      cleanupTempDir(targetDir);
+    }
+  });
 });
 
 async function captureStdout<T>(operation: () => Promise<T>): Promise<T> {
@@ -251,5 +293,52 @@ function createSyntheticAuditReport(targetDir: string, absolutePath: string): Au
     prunableDirectories: [],
     preservedPaths: [],
     skippedPaths: [],
+  };
+}
+
+function createRecordingLifecycleRenderer(events: string[]): LifecycleRenderer {
+  return {
+    beginWorkflow(title) {
+      events.push(`workflow:${title}`);
+    },
+    renderBackupAuditSummary() {
+      events.push("backup:audit-summary");
+    },
+    async confirmBackupRun() {
+      events.push("backup:run-confirmation");
+      return true;
+    },
+    renderBackupNoopSummary() {
+      events.push("backup:noop-summary");
+    },
+    renderBackupCancelled() {
+      events.push("backup:cancelled");
+    },
+    renderBackupCompletionSummary() {
+      events.push("backup:completion-summary");
+    },
+    renderUninstallWarning() {
+      events.push("uninstall:warning");
+    },
+    async confirmUninstallWarning() {
+      events.push("uninstall:warning-confirmation");
+      return true;
+    },
+    renderUninstallAuditSummary() {
+      events.push("uninstall:audit-summary");
+    },
+    async confirmUninstallRun() {
+      events.push("uninstall:run-confirmation");
+      return true;
+    },
+    renderUninstallCancelled() {
+      events.push("uninstall:cancelled");
+    },
+    renderUninstallCompletionSummary() {
+      events.push("uninstall:completion-summary");
+    },
+    renderUninstallFailureSummary() {
+      events.push("uninstall:failure-summary");
+    },
   };
 }

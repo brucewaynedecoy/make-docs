@@ -1,5 +1,5 @@
 import { stdin as input, stdout as output } from "node:process";
-import { confirm, isCancel, note } from "@clack/prompts";
+import { confirm, intro, isCancel, note, outro } from "@clack/prompts";
 import type {
   AuditPathMetadata,
   AuditPreservedPath,
@@ -17,217 +17,344 @@ type LifecycleRenderableEntry =
   | AuditPreservedPath
   | AuditSkippedPath;
 
-export function renderBackupAuditSummary(options: {
+export type LifecycleAuditSummaryOptions = {
   auditReport: AuditReport;
   destinationDir: string | null;
-}): void {
+};
+
+export type LifecycleUninstallWarningOptions = {
+  targetDir: string;
+  backupDestinationDir: string | null;
+};
+
+export type LifecycleUninstallAuditSummaryOptions = {
+  auditReport: AuditReport;
+  backupDestinationDir: string | null;
+};
+
+export type LifecycleUninstallRunConfirmationOptions = {
+  permissions: LifecyclePermissionsMode;
+  backupRequested: boolean;
+};
+
+export type LifecycleUninstallCompletionSummaryOptions = {
+  auditReport: AuditReport;
+  removedFiles: string[];
+  prunedDirectories: string[];
+  backupResult: BackupExecutionResult | null;
+};
+
+export type LifecycleUninstallFailureSummaryOptions =
+  LifecycleUninstallCompletionSummaryOptions & {
+    errorMessage: string;
+  };
+
+export interface LifecycleRenderer {
+  beginWorkflow(title: string): void;
+  renderBackupAuditSummary(options: LifecycleAuditSummaryOptions): void;
+  confirmBackupRun(permissions: LifecyclePermissionsMode): Promise<boolean>;
+  renderBackupNoopSummary(): void;
+  renderBackupCancelled(): void;
+  renderBackupCompletionSummary(result: BackupExecutionResult): void;
+  renderUninstallWarning(options: LifecycleUninstallWarningOptions): void;
+  confirmUninstallWarning(
+    permissions: LifecyclePermissionsMode,
+  ): Promise<boolean>;
+  renderUninstallAuditSummary(
+    options: LifecycleUninstallAuditSummaryOptions,
+  ): void;
+  confirmUninstallRun(
+    options: LifecycleUninstallRunConfirmationOptions,
+  ): Promise<boolean>;
+  renderUninstallCancelled(): void;
+  renderUninstallCompletionSummary(
+    options: LifecycleUninstallCompletionSummaryOptions,
+  ): void;
+  renderUninstallFailureSummary(
+    options: LifecycleUninstallFailureSummaryOptions,
+  ): void;
+}
+
+let lifecycleRenderer: LifecycleRenderer = createClackLifecycleRenderer();
+
+export function createClackLifecycleRenderer(): LifecycleRenderer {
+  return {
+    beginWorkflow(title) {
+      intro(title);
+    },
+    renderBackupAuditSummary(options) {
+      renderAuditNote({
+        title: "make-docs backup",
+        lines: buildBackupAuditSummaryLines(options),
+        groups: [
+          formatEntryGroup(
+            "Files to copy",
+            options.auditReport.removableFiles,
+            (entry) => `${formatPath(entry)} (${entry.reason})`,
+          ),
+          formatEntryGroup(
+            "Directories to materialize",
+            options.auditReport.prunableDirectories,
+          ),
+          formatEntryGroup(
+            "Retained paths",
+            options.auditReport.preservedPaths,
+            (entry) => `${formatPath(entry)} (${entry.reason})`,
+          ),
+          formatEntryGroup(
+            "Skipped paths",
+            options.auditReport.skippedPaths,
+            (entry) => `${formatPath(entry)} (${entry.reason})`,
+          ),
+        ],
+      });
+    },
+    confirmBackupRun(permissions) {
+      return confirmLifecycleCheckpoint({
+        permissions,
+        message: "Create this backup?",
+        ttyError:
+          "Backup confirmation requires a TTY. Re-run with `make-docs backup --yes`.",
+      });
+    },
+    renderBackupNoopSummary() {
+      outro("No make-docs-managed files required backup.");
+    },
+    renderBackupCancelled() {
+      outro("Backup cancelled.");
+    },
+    renderBackupCompletionSummary(result) {
+      if (result.status !== "completed" || !result.destinationDir) {
+        return;
+      }
+
+      note(
+        [
+          `Destination: ${result.destinationDir}`,
+          `Copied files: ${result.copiedFiles.length}`,
+          `Materialized directories: ${result.materializedDirectories.length}`,
+          `Retained paths surfaced: ${result.auditReport.preservedPaths.length}`,
+          `Skipped paths surfaced: ${result.auditReport.skippedPaths.length}`,
+        ].join("\n"),
+        "Backup complete",
+      );
+    },
+    renderUninstallWarning(options) {
+      const lines = ["This command removes audited make-docs-managed paths", ""];
+
+      if (options.backupDestinationDir) {
+        lines.push("A backup will be created before removal begins.");
+        lines.push(`Backup destination: ${options.backupDestinationDir}`);
+      } else {
+        lines.push("Safer alternative: make-docs backup");
+        lines.push("Safer destructive flow: make-docs uninstall --backup");
+      }
+
+      note(lines.join("\n"), "WARNING");
+    },
+    confirmUninstallWarning(permissions) {
+      return confirmLifecycleCheckpoint({
+        permissions,
+        message: "Continue with uninstall review?",
+        ttyError:
+          "Uninstall confirmation requires a TTY. Re-run with `make-docs uninstall --yes`.",
+      });
+    },
+    renderUninstallAuditSummary(options) {
+      renderAuditNote({
+        title: "make-docs uninstall",
+        lines: buildUninstallAuditSummaryLines(options),
+        groups: [
+          formatEntryGroup(
+            "Files to remove",
+            options.auditReport.removableFiles,
+            (entry) => `${formatPath(entry)} (${entry.reason})`,
+          ),
+          formatEntryGroup(
+            "Directories to prune",
+            options.auditReport.prunableDirectories,
+            (entry) => `${formatPath(entry)} (${entry.reason})`,
+          ),
+          formatEntryGroup(
+            "Preserved paths",
+            options.auditReport.preservedPaths,
+            (entry) => `${formatPath(entry)} (${entry.reason})`,
+          ),
+          formatEntryGroup(
+            "Skipped paths",
+            options.auditReport.skippedPaths,
+            (entry) => `${formatPath(entry)} (${entry.reason})`,
+          ),
+        ],
+      });
+    },
+    confirmUninstallRun(options) {
+      const message = options.backupRequested
+        ? "Create the backup and then remove these audited paths? This action cannot be undone."
+        : "Remove these audited paths? This action cannot be undone.";
+
+      return confirmLifecycleCheckpoint({
+        permissions: options.permissions,
+        message,
+        ttyError:
+          "Uninstall confirmation requires a TTY. Re-run with `make-docs uninstall --yes`.",
+      });
+    },
+    renderUninstallCancelled() {
+      outro("Uninstall cancelled. No files were changed.");
+    },
+    renderUninstallCompletionSummary(options) {
+      note(
+        [
+          `Files removed: ${options.removedFiles.length}`,
+          `Directories pruned: ${options.prunedDirectories.length}`,
+          `Preserved paths: ${options.auditReport.preservedPaths.length}`,
+          `Skipped paths: ${options.auditReport.skippedPaths.length}`,
+          `Backup: ${formatBackupStatus(options.backupResult)}`,
+        ].join("\n"),
+        "Uninstall complete",
+      );
+    },
+    renderUninstallFailureSummary(options) {
+      note(
+        [
+          `Files removed before failure: ${options.removedFiles.length}`,
+          `Directories pruned before failure: ${options.prunedDirectories.length}`,
+          `Preserved paths: ${options.auditReport.preservedPaths.length}`,
+          `Skipped paths: ${options.auditReport.skippedPaths.length}`,
+          `Backup: ${formatBackupStatus(options.backupResult)}`,
+          `Error: ${options.errorMessage}`,
+        ].join("\n"),
+        "Uninstall partially completed",
+      );
+    },
+  };
+}
+
+export function getLifecycleRenderer(): LifecycleRenderer {
+  return lifecycleRenderer;
+}
+
+export function __setLifecycleRendererForTests(
+  renderer: LifecycleRenderer | null,
+): void {
+  lifecycleRenderer = renderer ?? createClackLifecycleRenderer();
+}
+
+export function beginLifecycleWorkflow(title: string): void {
+  getLifecycleRenderer().beginWorkflow(title);
+}
+
+export function renderBackupAuditSummary(
+  options: LifecycleAuditSummaryOptions,
+): void {
+  getLifecycleRenderer().renderBackupAuditSummary(options);
+}
+
+export async function confirmBackupRun(
+  permissions: LifecyclePermissionsMode,
+): Promise<boolean> {
+  return getLifecycleRenderer().confirmBackupRun(permissions);
+}
+
+export function renderUninstallWarning(
+  options: LifecycleUninstallWarningOptions,
+): void {
+  getLifecycleRenderer().renderUninstallWarning(options);
+}
+
+export async function confirmUninstallWarning(
+  permissions: LifecyclePermissionsMode,
+): Promise<boolean> {
+  return getLifecycleRenderer().confirmUninstallWarning(permissions);
+}
+
+export function renderUninstallAuditSummary(
+  options: LifecycleUninstallAuditSummaryOptions,
+): void {
+  getLifecycleRenderer().renderUninstallAuditSummary(options);
+}
+
+export async function confirmUninstallRun(
+  options: LifecycleUninstallRunConfirmationOptions,
+): Promise<boolean> {
+  return getLifecycleRenderer().confirmUninstallRun(options);
+}
+
+export function renderUninstallCancelled(): void {
+  getLifecycleRenderer().renderUninstallCancelled();
+}
+
+export function renderUninstallCompletionSummary(
+  options: LifecycleUninstallCompletionSummaryOptions,
+): void {
+  getLifecycleRenderer().renderUninstallCompletionSummary(options);
+}
+
+export function renderUninstallFailureSummary(
+  options: LifecycleUninstallFailureSummaryOptions,
+): void {
+  getLifecycleRenderer().renderUninstallFailureSummary(options);
+}
+
+export function renderBackupNoopSummary(): void {
+  getLifecycleRenderer().renderBackupNoopSummary();
+}
+
+export function renderBackupCancelled(): void {
+  getLifecycleRenderer().renderBackupCancelled();
+}
+
+export function renderBackupCompletionSummary(
+  result: BackupExecutionResult,
+): void {
+  getLifecycleRenderer().renderBackupCompletionSummary(result);
+}
+
+function buildBackupAuditSummaryLines(options: LifecycleAuditSummaryOptions): string[] {
   const { auditReport, destinationDir } = options;
-  renderBox([
-    "make-docs backup",
+  return [
     `Target: ${auditReport.targetDir}`,
     `Destination: ${destinationDir ?? "(no backup directory will be created)"}`,
     `Files to copy: ${auditReport.removableFiles.length}`,
     `Directories to materialize: ${auditReport.prunableDirectories.length}`,
     `Retained: ${auditReport.preservedPaths.length}`,
     `Skipped: ${auditReport.skippedPaths.length}`,
-  ]);
-
-  renderEntryGroup(
-    "Files to copy",
-    auditReport.removableFiles,
-    (entry) => `${formatPath(entry)} (${entry.reason})`,
-  );
-  renderEntryGroup("Directories to materialize", auditReport.prunableDirectories);
-  renderEntryGroup(
-    "Retained paths",
-    auditReport.preservedPaths,
-    (entry) => `${formatPath(entry)} (${entry.reason})`,
-  );
-  renderEntryGroup(
-    "Skipped paths",
-    auditReport.skippedPaths,
-    (entry) => `${formatPath(entry)} (${entry.reason})`,
-  );
+  ];
 }
 
-export async function confirmBackupRun(
-  permissions: LifecyclePermissionsMode,
-): Promise<boolean> {
-  return confirmLifecycleCheckpoint({
-    permissions,
-    message: "Create this backup?",
-    ttyError:
-      "Backup confirmation requires a TTY. Re-run with `make-docs backup --yes`.",
-  });
-}
-
-export function renderUninstallWarning(options: {
-  targetDir: string;
-  backupDestinationDir: string | null;
-}): void {
-  const lines = ["This command removes audited make-docs-managed paths", ""];
-
-  if (options.backupDestinationDir) {
-    lines.push("A backup will be created before removal begins.");
-    lines.push(`Backup destination: ${options.backupDestinationDir}`);
-  } else {
-    lines.push("Safer alternative: make-docs backup");
-    lines.push("Safer destructive flow: make-docs uninstall --backup");
-  }
-
-  note(lines.join("\n"), "WARNING");
-}
-
-export async function confirmUninstallWarning(
-  permissions: LifecyclePermissionsMode,
-): Promise<boolean> {
-  return confirmLifecycleCheckpoint({
-    permissions,
-    message: "Continue with uninstall review?",
-    ttyError:
-      "Uninstall confirmation requires a TTY. Re-run with `make-docs uninstall --yes`.",
-  });
-}
-
-export function renderUninstallAuditSummary(options: {
-  auditReport: AuditReport;
-  backupDestinationDir: string | null;
-}): void {
+function buildUninstallAuditSummaryLines(
+  options: LifecycleUninstallAuditSummaryOptions,
+): string[] {
   const { auditReport, backupDestinationDir } = options;
-  renderBox([
-    "make-docs uninstall",
+  return [
     `Target: ${auditReport.targetDir}`,
     `Backup before removal: ${backupDestinationDir ?? "not requested"}`,
     `Files to remove: ${auditReport.removableFiles.length}`,
     `Directories to prune: ${auditReport.prunableDirectories.length}`,
     `Preserved: ${auditReport.preservedPaths.length}`,
     `Skipped: ${auditReport.skippedPaths.length}`,
-  ]);
-
-  renderEntryGroup(
-    "Files to remove",
-    auditReport.removableFiles,
-    (entry) => `${formatPath(entry)} (${entry.reason})`,
-  );
-  renderEntryGroup(
-    "Directories to prune",
-    auditReport.prunableDirectories,
-    (entry) => `${formatPath(entry)} (${entry.reason})`,
-  );
-  renderEntryGroup(
-    "Preserved paths",
-    auditReport.preservedPaths,
-    (entry) => `${formatPath(entry)} (${entry.reason})`,
-  );
-  renderEntryGroup(
-    "Skipped paths",
-    auditReport.skippedPaths,
-    (entry) => `${formatPath(entry)} (${entry.reason})`,
-  );
+  ];
 }
 
-export async function confirmUninstallRun(options: {
-  permissions: LifecyclePermissionsMode;
-  backupRequested: boolean;
-}): Promise<boolean> {
-  const message = options.backupRequested
-    ? "Create the backup and then remove these audited paths? This action cannot be undone."
-    : "Remove these audited paths? This action cannot be undone.";
-
-  return confirmLifecycleCheckpoint({
-    permissions: options.permissions,
-    message,
-    ttyError:
-      "Uninstall confirmation requires a TTY. Re-run with `make-docs uninstall --yes`.",
-  });
-}
-
-export function renderUninstallCancelled(): void {
-  output.write("\nUninstall cancelled. No files were changed.\n");
-}
-
-export function renderUninstallCompletionSummary(options: {
-  auditReport: AuditReport;
-  removedFiles: string[];
-  prunedDirectories: string[];
-  backupResult: BackupExecutionResult | null;
+function renderAuditNote(options: {
+  title: string;
+  lines: string[];
+  groups: string[][];
 }): void {
-  renderBox([
-    "Uninstall complete",
-    `Files removed: ${options.removedFiles.length}`,
-    `Directories pruned: ${options.prunedDirectories.length}`,
-    `Preserved paths: ${options.auditReport.preservedPaths.length}`,
-    `Skipped paths: ${options.auditReport.skippedPaths.length}`,
-    `Backup: ${formatBackupStatus(options.backupResult)}`,
-  ]);
+  note([...options.lines, "", ...options.groups.flat()].join("\n"), options.title);
 }
 
-export function renderUninstallFailureSummary(options: {
-  auditReport: AuditReport;
-  removedFiles: string[];
-  prunedDirectories: string[];
-  backupResult: BackupExecutionResult | null;
-  errorMessage: string;
-}): void {
-  renderBox([
-    "Uninstall partially completed",
-    `Files removed before failure: ${options.removedFiles.length}`,
-    `Directories pruned before failure: ${options.prunedDirectories.length}`,
-    `Preserved paths: ${options.auditReport.preservedPaths.length}`,
-    `Skipped paths: ${options.auditReport.skippedPaths.length}`,
-    `Backup: ${formatBackupStatus(options.backupResult)}`,
-    `Error: ${options.errorMessage}`,
-  ]);
-}
-
-export function renderBackupNoopSummary(): void {
-  output.write("\nNo make-docs-managed files required backup.\n");
-}
-
-export function renderBackupCancelled(): void {
-  output.write("\nBackup cancelled.\n");
-}
-
-export function renderBackupCompletionSummary(result: BackupExecutionResult): void {
-  if (result.status !== "completed" || !result.destinationDir) {
-    return;
-  }
-
-  renderBox([
-    "Backup complete",
-    `Destination: ${result.destinationDir}`,
-    `Copied files: ${result.copiedFiles.length}`,
-    `Materialized directories: ${result.materializedDirectories.length}`,
-    `Retained paths surfaced: ${result.auditReport.preservedPaths.length}`,
-    `Skipped paths surfaced: ${result.auditReport.skippedPaths.length}`,
-  ]);
-}
-
-function renderBox(lines: string[]): void {
-  const width = lines.reduce((max, line) => Math.max(max, line.length), 0);
-  const border = `+${"-".repeat(width + 2)}+\n`;
-
-  output.write(`\n${border}`);
-  for (const line of lines) {
-    output.write(`| ${line.padEnd(width, " ")} |\n`);
-  }
-  output.write(border);
-}
-
-function renderEntryGroup(
+function formatEntryGroup(
   title: string,
   entries: LifecycleRenderableEntry[],
   formatter: (entry: LifecycleRenderableEntry) => string = formatPath,
-): void {
-  output.write(`\n${title}:\n`);
+): string[] {
   if (entries.length === 0) {
-    output.write("- none\n");
-    return;
+    return [`${title}:`, "- none"];
   }
 
-  for (const entry of entries) {
-    output.write(`- ${formatter(entry)}\n`);
-  }
+  return [`${title}:`, ...entries.map((entry) => `- ${formatter(entry)}`)];
 }
 
 function formatPath(entry: Pick<AuditPathMetadata, "path">): string {

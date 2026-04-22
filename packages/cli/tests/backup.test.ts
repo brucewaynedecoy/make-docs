@@ -124,7 +124,8 @@ describe("backup command", () => {
       expect(existsSync(path.join(targetDir, "AGENTS.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/.assets/config/manifest.json"))).toBe(true);
       expect(output).toContain("make-docs backup");
-      expect(output).toContain(`Destination: ${backupDir}`);
+      expect(output).toContain("Destination:");
+      expect(output).toContain(".backup/2026-04-18");
       expect(output).toContain("Backup complete");
     } finally {
       cleanupTempDir(targetDir);

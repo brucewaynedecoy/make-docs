@@ -31,10 +31,10 @@ This phase owns the shared renderer contract in `packages/cli/src/lifecycle-ui.t
 
 ### Acceptance criteria
 
-- [ ] Current lifecycle rendering helpers are mapped to future renderer methods.
-- [ ] Backup and uninstall call sites that need conversion are identified.
-- [ ] Existing Clack patterns that should be reused are identified.
-- [ ] Safety-critical labels, totals, and guidance strings are listed before refactoring begins.
+- [x] Current lifecycle rendering helpers are mapped to future renderer methods.
+- [x] Backup and uninstall call sites that need conversion are identified.
+- [x] Existing Clack patterns that should be reused are identified.
+- [x] Safety-critical labels, totals, and guidance strings are listed before refactoring begins.
 
 ### Dependencies
 
@@ -52,10 +52,10 @@ This phase owns the shared renderer contract in `packages/cli/src/lifecycle-ui.t
 
 ### Acceptance criteria
 
-- [ ] `lifecycle-ui.ts` exposes a clear lifecycle renderer contract.
-- [ ] Renderer methods cover all current backup and uninstall workflow states.
-- [ ] Payloads contain operation mode, target, destination or backup status, path groups, counts, and error details where needed.
-- [ ] Backup and uninstall can depend on semantic renderer methods rather than direct formatting helpers.
+- [x] `lifecycle-ui.ts` exposes a clear lifecycle renderer contract.
+- [x] Renderer methods cover all current backup and uninstall workflow states.
+- [x] Payloads contain operation mode, target, destination or backup status, path groups, counts, and error details where needed.
+- [x] Backup and uninstall can depend on semantic renderer methods rather than direct formatting helpers.
 
 ### Dependencies
 
@@ -73,10 +73,10 @@ This phase owns the shared renderer contract in `packages/cli/src/lifecycle-ui.t
 
 ### Acceptance criteria
 
-- [ ] Production lifecycle rendering uses Clack primitives for warnings, summaries, prompts, and workflow closure.
-- [ ] `allow-all` and non-TTY confirmation behavior remain stable.
-- [ ] Direct stdout helpers are no longer the core production lifecycle UI abstraction.
-- [ ] Safety-critical labels and totals remain visible through the Clack-backed renderer.
+- [x] Production lifecycle rendering uses Clack primitives for warnings, summaries, prompts, and workflow closure.
+- [x] `allow-all` and non-TTY confirmation behavior remain stable.
+- [x] Direct stdout helpers are no longer the core production lifecycle UI abstraction.
+- [x] Safety-critical labels and totals remain visible through the Clack-backed renderer.
 
 ### Dependencies
 
@@ -93,10 +93,10 @@ This phase owns the shared renderer contract in `packages/cli/src/lifecycle-ui.t
 
 ### Acceptance criteria
 
-- [ ] Tests can inspect lifecycle rendering semantically without snapshotting decorative output.
-- [ ] Prompt approval, prompt cancellation, and prompt skipping can be simulated.
-- [ ] Event order can be asserted for backup and uninstall.
-- [ ] Existing TTY-oriented tests still have a path to verify non-TTY errors.
+- [x] Tests can inspect lifecycle rendering semantically without snapshotting decorative output.
+- [x] Prompt approval, prompt cancellation, and prompt skipping can be simulated.
+- [x] Event order can be asserted for backup and uninstall.
+- [x] Existing TTY-oriented tests still have a path to verify non-TTY errors.
 
 ### Dependencies
 
