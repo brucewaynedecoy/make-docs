@@ -7,7 +7,7 @@ Use this workflow to produce a reviewable decomposition plan before generating d
 ## Preflight
 
 1. Run `scripts/probe_environment.py --format json`.
-2. Inspect the repo root, current doc folders, any existing decomposition artifacts, and whether `docs/prd/` already contains active content outside `docs/prd/archive/`.
+2. Inspect the repo root, current doc folders, any existing decomposition artifacts, and whether `docs/prd/` already contains active root entries. Archived PRD sets live under `docs/assets/archive/prds/YYYY-MM-DD/`.
 3. Confirm whether live session MCP access is actually available.
 4. If `jdocmunch` or `jcodemunch` are visible in the session, index docs and code before planning the catalog.
 
@@ -20,7 +20,7 @@ Produce a plan that makes the execution step decision-complete. The plan should 
 - whether execution will require archiving an existing active PRD set
 - the delegation tier and workstream split for execution
 - the coordinator role and write scope
-- the backlog placement under `docs/work`
+- the backlog placement under `docs/work/YYYY-MM-DD-w{W}-r{R}-<slug>/`
 - the validation pass and any follow-up review
 
 ## User Preference Questions
@@ -29,15 +29,15 @@ Ask the user only when the answer affects the output shape or execution style. T
 
 - whether a large subsystem should split into a numbered folder
 - whether reference-style docs should stay separate from subsystem docs
-- whether the backlog should remain one file or move into a dated folder
 - whether the user explicitly wants to forbid delegation and force single-agent execution despite the default
 
 Do not ask questions that can be answered by repo inspection.
 
 ## Plan Structure
 
-Start from `assets/templates/decomposition-plan.md` and fill it with:
+Start from `assets/templates/decomposition-plan.md` and use it as the overview content shape for a plan directory at `docs/plans/YYYY-MM-DD-w{W}-r{R}-<slug>/`, with `00-overview.md` as the entry point and one or more `0N-<phase>.md` files. Fill it with:
 
+- coordinate decision
 - repo summary
 - output contract
 - existing PRD handling
@@ -49,7 +49,7 @@ Start from `assets/templates/decomposition-plan.md` and fill it with:
 
 ## File Writing Rule
 
-Planning mode should present the plan in chat first. Write `docs/plans/YYYY-MM-DD-decomposition-plan.md` only after the user approves the plan or explicitly asks for the file.
+Planning mode should present the plan in chat first. Write only after the user approves the plan or explicitly asks for the files, using `docs/plans/YYYY-MM-DD-w{W}-r{R}-<slug>/` with `00-overview.md` plus one or more `0N-<phase>.md` files.
 
 ## Approval Prompt Rule
 
@@ -101,6 +101,6 @@ Before leaving planning mode, make the execution prerequisites explicit:
 - target output paths are fixed
 - execution should use the delegation ladder by default: parallel agents, then subagents, then single-agent fallback
 - if delegation is available, the coordinator write scope is `none`
-- if `docs/prd/` already has active content, archival approval is required before execution can write the new PRD set
+- if `docs/prd/` already has active root entries, archival approval is required before execution can write the new PRD set
 - workstreams are disjoint
 - validation step is mandatory
