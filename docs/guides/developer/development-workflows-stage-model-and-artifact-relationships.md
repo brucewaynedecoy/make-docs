@@ -31,14 +31,15 @@ related:
 
 ## Overview
 
-`make-docs` does not force one linear workflow for every project. It provides a small set of stages and artifact types that can be combined in different ways depending on what you already have and what you need next.
+This guide is for contributors, maintainers, and agents who need the current-stage artifact model, not the lighter user mental model. `make-docs` does not force one linear workflow for every project. It uses a small set of stages and artifact families that can be combined differently depending on starting state, desired output, and whether the repo already has an active PRD surface.
 
-The main idea is:
+The current-state model is:
 
 - designs capture intent and route downstream planning
 - plans make execution decision-complete
 - PRDs describe the active product and requirement set
 - work backlogs translate PRD decisions into dependency-ordered delivery work
+- history records capture point-in-time delivery events without becoming part of the active requirement surface
 
 Decomposition fits into that model as a way to generate a fresh PRD set from an existing codebase, not as a mandatory stage that every project must go through.
 
@@ -71,7 +72,7 @@ This guide assumes you already know the top-level artifact families in the repo:
 - `docs/work/` for delivery backlogs
 - `docs/assets/history/` for point-in-time history records
 
-Read this guide before authoring or updating lifecycle docs so you choose the right route instead of forcing everything through a single pattern.
+Read this guide before changing templates, references, routes, or generated outputs so you do not flatten distinct artifact responsibilities into a single "docs" workflow.
 
 ## Setup / Configuration
 
@@ -92,6 +93,16 @@ Two details are easy to miss:
 2. PRDs are exempt from W/R numbering. Plans and work use W/R lineage; designs and PRDs do not.
 
 ## Usage
+
+### Stage responsibilities at a glance
+
+| Artifact family | Primary job | Current-state rules that matter to contributors |
+| --- | --- | --- |
+| Design | Capture intent and choose the downstream route | Design docs are dated, topic-first artifacts and route into planning through `## Intended Follow-On`. |
+| Plan | Lock execution decisions before writing | Plans live under `docs/plans/YYYY-MM-DD-w{W}-r{R}-<slug>/` and choose baseline, decomposition, or change execution. |
+| PRD | Hold the active product knowledge base | `docs/prd/` contains one active namespace with fixed core docs `00` through `04` and adaptive docs starting at `05`. |
+| Work | Translate effective requirements into delivery phases | Work lives under `docs/work/YYYY-MM-DD-w{W}-r{R}-<slug>/` and must trace back to source PRD docs. |
+| History | Record what happened at a point in time | History records live under `docs/assets/history/` and carry W/R/P in frontmatter and filename only when known. |
 
 ### Stage and artifact relationships
 
@@ -116,7 +127,7 @@ Plans are decision-complete execution specs. They settle output shape, routing, 
 - Plans can target baseline PRD generation, decomposition, or PRD change work
 - Plans are where the system decides whether the task is a fresh PRD set or active-set evolution
 
-In practice, planning is the stage that answers "what exact docs and backlog will execution produce?"
+In practice, planning is the stage that answers "what exact docs and backlog will execution produce, and does this work belong to an existing W/R line or a new one?"
 
 #### PRD
 
@@ -139,6 +150,8 @@ This is where greenfield, iterative, and decomposed flows converge:
 - decomposition generates a fresh PRD set from an existing codebase
 - iterative change work evolves the active set with change docs and annotations
 
+The product overview and architecture PRDs treat this namespace as the stable documentation center of gravity. Contributor-facing workflow changes should preserve that role instead of treating PRDs as disposable per-wave outputs.
+
 #### Work backlog
 
 Work backlogs are downstream from PRD work, not parallel alternatives to it.
@@ -148,6 +161,14 @@ Work backlogs are downstream from PRD work, not parallel alternatives to it.
 - every work phase must link back to its source PRD docs
 
 That coupling matters because the backlog is supposed to implement the effective requirements, not bypass them.
+
+#### History records
+
+History records are not another planning or PRD stage. They are retrospective delivery artifacts that capture what happened within a known coordinate.
+
+- use them to record implementation outcomes, corrections, or completed phase work
+- keep stage and task detail in `coordinate` frontmatter rather than promoting it into plan, work, or PRD filenames
+- treat them as evidence and traceability, not as active requirements
 
 #### Decomposition
 
@@ -186,6 +207,14 @@ That distinction is intentional:
 
 - a design can feed different downstream paths without needing wave identity in its filename
 - a PRD set should remain the active requirement surface instead of fragmenting into multiple wave-specific copies
+
+#### Phase appears only where execution detail needs it
+
+`p{P}` is phase-level detail, not a top-level directory coordinate.
+
+- use `p{P}` in plan phase files, work phase files, and history record naming/frontmatter when the phase is known
+- do not promote `p{P}` into top-level plan or work directory names
+- do not add W/R/P naming to PRD docs
 
 #### Full-set generation has an archive gate
 
@@ -228,6 +257,10 @@ Because the backlog is downstream execution guidance. The PRD set is the require
 ### "Why do plans and work use W/R, but PRDs do not?"
 
 Plans and work represent initiative lineage. PRDs represent the active product knowledge base. Mixing those concerns would make iterative PRD maintenance harder, not easier.
+
+### "Where do history records fit if they are not part of the active stage chain?"
+
+They sit beside the active chain as audit and traceability evidence. They may refer to a known W/R/P position, but they do not replace design, plan, PRD, or work artifacts.
 
 ## Related Resources
 

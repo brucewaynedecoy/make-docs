@@ -31,7 +31,7 @@ related:
 
 ## Overview
 
-The most common workflow mistake in `make-docs` is choosing a route based on habit instead of current state. This guide is the practical chooser for contributors, maintainers, and agents who need to decide whether they are doing baseline generation, decomposition, or active-set evolution.
+The most common workflow mistake in `make-docs` is choosing a route based on habit instead of current state. This guide is the route chooser for contributors, maintainers, and agents who need to decide between baseline generation, decomposition-driven PRD generation, targeted active-set evolution, and follow-up W/R work.
 
 The route decision should come from two questions:
 
@@ -64,6 +64,12 @@ These are the change templates used once a task is already in active-set evoluti
 - additions and enhancements use `prd-change-addition.md`
 - revisions and removals use `prd-change-revision.md`
 
+The current CLI and PRD surface split route choice from skill execution:
+
+- route choice still happens in planning and execution workflow docs
+- the optional `decompose-codebase` skill is an implementation aid for the decomposition route, not a replacement for route selection
+- direct cross-bundle linking into Bundle C skill coverage is deferred to Phase 6 assembly
+
 ## Usage
 
 ### Decision table
@@ -75,6 +81,15 @@ These are the change templates used once a task is already in active-set evoluti
 | Active PRD set, net-new capability | Change docs and delta backlog | Change plan -> active-set evolution | The active namespace already exists and should be extended in place |
 | Active PRD set, changed or removed requirement | Revision/removal docs, baseline annotations, delta backlog | Change plan -> active-set evolution | Existing requirements must preserve lineage instead of being silently rewritten |
 | Existing initiative needs re-plan or follow-up work | Revised plan/work lineage, possibly no PRD change | Continue the existing wave/revision line as appropriate | W/R lineage belongs to plan/work, not the PRD namespace |
+
+### Route-selection checks
+
+Before you choose a route, answer these in order:
+
+1. Is the authoritative starting point a design, an existing codebase, or an active PRD set?
+2. Is the outcome a fresh PRD namespace, an in-place change to the active namespace, or only follow-up execution work?
+3. Does the task belong to an existing W/R line that should be revised instead of replaced?
+4. Would the route require replacing active `docs/prd/` root entries, and if so, has the archive gate been handled?
 
 ### Route 1: Fresh baseline generation
 
@@ -112,7 +127,7 @@ Expected artifacts:
 - a full PRD set generated from the codebase
 - a rebuild backlog directory
 
-This route still ends in `full-set generation`, but the planning and discovery assumptions are different from greenfield baseline work.
+This route still ends in `full-set generation`, but the planning and discovery assumptions are different from greenfield baseline work. In current state, the optional `decompose-codebase` skill belongs to the decomposition execution path, while this guide remains the authority for deciding when that path is appropriate.
 
 ### Route 3: Active-set evolution
 
@@ -150,6 +165,17 @@ In that case:
 - increment the revision only when the work is a real redo or correction
 - avoid inventing PRD changes that do not exist
 
+### What should not drive route selection
+
+Do not choose a route because:
+
+- a familiar template exists
+- decomposition tooling is available
+- the codebase is large
+- the task feels important enough to justify a fresh PRD set
+
+Choose the route from current state and required outputs. Tooling, templates, and backlog size are downstream consequences.
+
 ### Quick chooser
 
 If you need a fast rule of thumb:
@@ -176,6 +202,10 @@ Only when the task is full-set generation or when the user explicitly asks for a
 ### "When should I replace the active PRD set?"
 
 Only when the task is truly full-set generation. If the change belongs inside the current namespace, evolve it in place instead.
+
+### "Where should I document the decomposition skill itself?"
+
+Outside this guide. Route choice stays here; detailed skill entry points, registry behavior, and distribution belong in the skills documentation bundle and can be cross-linked during Phase 6 assembly.
 
 ## Related Resources
 
