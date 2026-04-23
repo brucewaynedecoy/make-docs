@@ -17,7 +17,7 @@ Assembly begins only after the drafting bundles are complete. Once this phase st
 - [../../prd/02-architecture-overview.md](../../prd/02-architecture-overview.md)
 - [../../prd/06-template-contracts-and-generated-assets.md](../../prd/06-template-contracts-and-generated-assets.md)
 - [../../prd/07-cli-command-surface-and-lifecycle.md](../../prd/07-cli-command-surface-and-lifecycle.md)
-- [../../prd/08-skills-delivery-and-runtime-integration.md](../../prd/08-skills-delivery-and-runtime-integration.md)
+- [../../prd/08-skills-catalog-and-distribution.md](../../prd/08-skills-catalog-and-distribution.md)
 - [../../prd/09-dogfood-and-maintainer-operations.md](../../prd/09-dogfood-and-maintainer-operations.md)
 - [../../prd/10-packaging-validation-and-release-reference.md](../../prd/10-packaging-validation-and-release-reference.md)
 
