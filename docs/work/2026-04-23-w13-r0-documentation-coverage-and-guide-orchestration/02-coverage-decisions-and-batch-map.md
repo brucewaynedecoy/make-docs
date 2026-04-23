@@ -31,16 +31,16 @@ Phase 2 is the decision gate between discovery and guide drafting. Its outputs a
 
 ### Tasks
 
-1. Review every provisional ledger row and assign one final outcome: `developer`, `user`, `both`, `link-only`, or `none`.
-2. Apply the design rubric exactly: maintainer and extensibility surfaces default to `developer`; install, CLI, workflow, and concept surfaces default to `user`; `both` only when the audiences need genuinely distinct treatments.
-3. Use `link-only` when broader-guide coverage is sufficient and `none` only when the capability is obsolete, too internal, or no longer meaningful as guide content.
-4. Record concise reasoning in the ledger where the final outcome is non-obvious or where historical evidence pointed in a different direction.
+- [x] Reviewed every provisional ledger row and assigned one final outcome: `developer`, `user`, `both`, `link-only`, or `none`.
+- [x] Applied the design rubric exactly: maintainer and extensibility surfaces default to `developer`; install, CLI, workflow, and concept surfaces default to `user`; `both` only when the audiences need genuinely distinct treatments.
+- [x] Used `link-only` where broader-guide coverage is sufficient and reserved `none` for obsolete or no-longer-meaningful guide content.
+- [x] Recorded concise reasoning in the ledger where the final outcome is non-obvious or where historical evidence pointed in a different direction.
 
 ### Acceptance criteria
 
-- [ ] Every ledger row has one final outcome and no provisional audience fields remain.
-- [ ] `both`, `link-only`, and `none` rows include enough reasoning to survive later review.
-- [ ] Audience decisions follow the design rubric instead of wave chronology.
+- [x] Every ledger row has one final outcome and no provisional audience fields remain.
+- [x] `both`, `link-only`, and `none` rows include enough reasoning to survive later review.
+- [x] Audience decisions follow the design rubric instead of wave chronology.
 
 ### Dependencies
 
@@ -50,16 +50,16 @@ Phase 2 is the decision gate between discovery and guide drafting. Its outputs a
 
 ### Tasks
 
-1. Map every non-`none` row into one canonical guide family: onboarding, concepts and workflows, CLI lifecycle, template and contracts, skills, or maintainer and release operations.
-2. Decide whether each row updates an existing guide, creates a new guide, or lands as `link-only` coverage in an existing guide.
-3. Record the final audience, guide family, target `path`, final filename slug, and suggested title in the ledger or delivery map.
-4. Prefer existing guide anchors before creating new files, especially the current onboarding, workflow, coordinate, CLI-development, and maintainer-adjacent guides already present in the repo.
+- [x] Mapped every non-`none` row into one canonical guide family: onboarding, concepts and workflows, CLI lifecycle, template and contracts, skills, or maintainer and release operations.
+- [x] Decided whether each row updates an existing guide, creates a new guide, or lands as `link-only` coverage in an existing guide.
+- [x] Recorded the final audience, guide family, target `path`, final filename slug, and suggested title in the ledger or delivery map.
+- [x] Preferred existing guide anchors before creating new files, especially the current onboarding, workflow, coordinate, CLI-development, and maintainer-adjacent guides already present in the repo.
 
 ### Acceptance criteria
 
-- [ ] Every non-`none` row maps to exactly one guide family.
-- [ ] Every non-`none` row has a final create, update, or link-only target.
-- [ ] No later bundle worker will need to invent a filename, title, or primary guide family.
+- [x] Every non-`none` row maps to exactly one guide family.
+- [x] Every non-`none` row has a final create, update, or link-only target.
+- [x] No later bundle worker will need to invent a filename, title, or primary guide family.
 
 ### Dependencies
 
@@ -69,17 +69,17 @@ Phase 2 is the decision gate between discovery and guide drafting. Its outputs a
 
 ### Tasks
 
-1. Create `docs/work/2026-04-23-w13-r0-documentation-coverage-and-guide-orchestration/supporting/guide-delivery-map.md`.
-2. Copy the finalized guide decisions into a worker-facing map that records target audience, guide family, action, guide `path`, filename slug, target worker bundle, and priority.
-3. Assign each non-`none` row a priority of `P1`, `P2`, or `P3`.
-4. Group work into the fixed bundle families: Bundle A for onboarding/concepts/workflows, Bundle B for CLI lifecycle, Bundle C for skills, and Bundle D for template/contracts/maintainer/release operations.
+- [x] Created `docs/work/2026-04-23-w13-r0-documentation-coverage-and-guide-orchestration/supporting/guide-delivery-map.md`.
+- [x] Copied the finalized guide decisions into a worker-facing map that records target audience, guide family, action, guide `path`, filename slug, target worker bundle, and priority.
+- [x] Assigned each non-`none` row a priority of `P1`, `P2`, or `P3`.
+- [x] Grouped work into the fixed bundle families: Bundle A for onboarding/concepts/workflows, Bundle B for CLI lifecycle, Bundle C for skills, and Bundle D for template/contracts/maintainer/release operations.
 
 ### Acceptance criteria
 
-- [ ] The guide delivery map exists at the planned support path.
-- [ ] Every non-`none` row has a priority.
-- [ ] Every guide change belongs to exactly one bundle.
-- [ ] The delivery map is specific enough for bundle workers to execute without reopening planning.
+- [x] The guide delivery map exists at the planned support path.
+- [x] Every non-`none` row has a priority.
+- [x] Every guide change belongs to exactly one bundle.
+- [x] The delivery map is specific enough for bundle workers to execute without reopening planning.
 
 ### Dependencies
 
@@ -89,18 +89,27 @@ Phase 2 is the decision gate between discovery and guide drafting. Its outputs a
 
 ### Tasks
 
-1. Record `README.md` discovery work, deferred cross-bundle `related` links, and `link-only` rows that depend on another bundle as assembly-owned items.
-2. Document each bundle's allowed write scope and explicitly call out prohibited shared files.
-3. Define the required handoff payload for later workers: files changed, ledger rows satisfied, evidence used, unresolved questions, and links added or deferred.
-4. Leave shared navigation and validation ownership with Phase 6 rather than smearing that work across bundle phases.
+- [x] Recorded `README.md` discovery work, deferred cross-bundle `related` links, and `link-only` rows that depend on another bundle as assembly-owned items.
+- [x] Documented each bundle's allowed write scope and explicitly called out prohibited shared files.
+- [x] Defined the required handoff payload for later workers: files changed, ledger rows satisfied, evidence used, unresolved questions, and links added or deferred.
+- [x] Left shared navigation and validation ownership with Phase 6 rather than smearing that work across bundle phases.
 
 ### Acceptance criteria
 
-- [ ] `README.md` and other shared assembly dependencies are reserved for Phase 6.
-- [ ] Bundle write scopes are explicit and non-overlapping.
-- [ ] Worker handoff expectations are documented before drafting begins.
-- [ ] Phase 3-5 workers can start without reinterpreting ownership.
+- [x] `README.md` and other shared assembly dependencies are reserved for Phase 6.
+- [x] Bundle write scopes are explicit and non-overlapping.
+- [x] Worker handoff expectations are documented before drafting begins.
+- [x] Phase 3-5 workers can start without reinterpreting ownership.
 
 ### Dependencies
 
 - Stage 3 - Create the execution-facing guide delivery map.
+
+## Implementation Notes
+
+Completed on 2026-04-23.
+
+- Finalized `supporting/capability-coverage-ledger.md` with locked outcomes for all 12 capability rows: 4 `developer`, 3 `user`, 3 `both`, 2 `link-only`, and 0 `none`.
+- Created `supporting/guide-delivery-map.md` with exact target files, path values, titles, priorities, and bundle assignments for Phases 3-6.
+- Reused the current onboarding, workflow, coordinate, and developer workflow guides where coverage already exists, and locked new guide creation to the missing CLI lifecycle, skills, template, maintainer, and release surfaces only.
+- Reserved `README.md` discovery updates and final cross-bundle `related` normalization for Phase 6 so bundle workers can draft without competing for shared files.

@@ -1,6 +1,6 @@
 # Capability Coverage Ledger
 
-> Phase 1 artifact for [W13 R0](../01-inventory-and-ledger.md). This ledger inventories the current guide surface first, records the historical discovery pass second, and normalizes the current-state capability rows that Phase 2 will convert into final guide decisions.
+> Phase 1 artifact for [W13 R0](../01-inventory-and-ledger.md), finalized in [Phase 2](../02-coverage-decisions-and-batch-map.md). This ledger inventories the current guide surface first, records the historical discovery pass second, and now carries the final guide outcomes that drive the delivery map.
 
 ## Purpose
 
@@ -59,10 +59,13 @@ Wave artifacts remain discovery inputs, but the rows below describe the product 
 - `current status`: Active and shipped through the guide contract, templates, and router generation. The product already publishes user and developer guide families, but no current guide explains that contract directly for maintainers.
 - `evidence links`: [Guide Structure Contract design](../../../designs/2026-04-16-guide-structure-contract.md), [W2 R0 plan](../../../plans/2026-04-16-w2-r0-guide-structure-contract/00-overview.md), [W2 R0 work](../../2026-04-16-w2-r0-guide-structure-contract/00-index.md), [W2 history](../../../assets/history/2026-04-16-w2-r0-p1-guide-structure-contract.md), [guide contract reference](../../../assets/references/guide-contract.md).
 - `existing guide overlap`: All current guides follow the contract, but none of the existing guide bodies explain guide taxonomy, slug rules, or publication paths as a maintainer topic.
-- `developer guide action`: provisional: likely `developer` coverage through a maintainer or template-contract guide rather than a user-facing guide.
-- `user guide action`: provisional: likely `none` or `link-only`; users do not need a dedicated guide about guide publication mechanics.
-- `suggested guide path/title`: provisional `template / Guide Contract and Publication Paths`.
-- `priority`: provisional `P2`.
+- `final outcome`: `developer`
+- `guide family`: `template and contracts`
+- `developer guide action`: create `docs/guides/developer/template-contracts-guide-authoring.md`.
+- `user guide action`: `none`; users consume guides rather than maintaining the guide-authoring contract.
+- `suggested guide path/title`: `template/contracts / Guide Contracts and Authoring for make-docs`.
+- `priority`: `P2`
+- `decision notes`: This row serves maintainers authoring or extending the guide library. It needs a dedicated developer contract guide instead of user-facing coverage.
 - `related docs`: [guides router](../../../guides/AGENTS.md), [guide developer template](../../../assets/templates/guide-developer.md), [guide user template](../../../assets/templates/guide-user.md), [history record contract](../../../assets/references/history-record-contract.md).
 
 ### L02 - Stage Model, Coordinates, and Artifact Relationships
@@ -72,10 +75,13 @@ Wave artifacts remain discovery inputs, but the rows below describe the product 
 - `current status`: Active and already substantially documented. Current user and developer guides cover most of the coordinate and stage-model surface, though cross-linking and terminology consistency still need review.
 - `evidence links`: [Docs Contract v2 — Planning Proposals](../../../designs/2026-04-15-docs-contract-v2-planning.md), [Design Naming Simplification design](../../../designs/2026-04-16-design-naming-simplification.md), [W3 R0 plan](../../../plans/2026-04-16-w3-r0-design-naming-simplification/00-overview.md), [W3 R0 work](../../2026-04-16-w3-r0-design-naming-simplification/00-index.md), [user coordinate guide](../../../guides/user/concepts-wave-revision-phase-coordinates.md), [developer stage-model guide](../../../guides/developer/development-workflows-stage-model-and-artifact-relationships.md), [wave-model reference](../../../assets/references/wave-model.md).
 - `existing guide overlap`: Strong overlap with four existing guides. This looks like update-and-normalize work rather than a greenfield documentation gap.
-- `developer guide action`: provisional: likely `link-only` or targeted updates to the current developer workflow guide.
-- `user guide action`: provisional: likely targeted updates to existing concept and workflow guides rather than new standalone files.
-- `suggested guide path/title`: provisional updates to `concepts / Understanding W/R/P Coordinates` and `development/workflows / Understanding the Make Docs Stage Model`.
-- `priority`: provisional `P2`.
+- `final outcome`: `both`
+- `guide family`: `concepts and workflows`
+- `developer guide action`: update `docs/guides/developer/development-workflows-stage-model-and-artifact-relationships.md`.
+- `user guide action`: update `docs/guides/user/concepts-wave-revision-phase-coordinates.md` and `docs/guides/user/workflows-how-make-docs-stages-fit-together.md`.
+- `suggested guide path/title`: `concepts / Understanding W/R/P Coordinates`, `workflows / How Make Docs Stages Fit Together`, and `development/workflows / Understanding the Make Docs Stage Model`.
+- `priority`: `P1`
+- `decision notes`: `both` is justified here because users need a navigation and terminology mental model, while developers need the artifact-relationship and contributor-facing workflow rules.
 - `related docs`: [user stage workflow guide](../../../guides/user/workflows-how-make-docs-stages-fit-together.md), [PRD index](../../../prd/00-index.md), [01 Product Overview](../../../prd/01-product-overview.md), [02 Architecture Overview](../../../prd/02-architecture-overview.md).
 
 ### L03 - Route Selection and Decomposition-Driven Workflow Choice
@@ -85,10 +91,13 @@ Wave artifacts remain discovery inputs, but the rows below describe the product 
 - `current status`: Active and partially documented. Both route guides describe when to choose decomposition, but they do not yet cover the current decompose-codebase skill and output model as first-class guide material.
 - `evidence links`: [developer route guide](../../../guides/developer/development-workflows-choosing-the-right-route.md), [user route guide](../../../guides/user/workflows-choosing-the-right-route-for-your-project.md), [Decompose Codebase Skill — Contract De-Drift](../../../designs/2026-04-23-decompose-codebase-skill-contract-dedrift.md), [W5 R4 work](../../2026-04-23-w5-r4-decompose-codebase-skill-contract-dedrift/00-index.md), [W12 R0 backlog](../../2026-04-23-w12-r0-make-docs-prd-decomposition/00-index.md), [PRD index audience paths](../../../prd/00-index.md), [01 Product Overview](../../../prd/01-product-overview.md).
 - `existing guide overlap`: Strong overlap for the decision layer; weak overlap for the actual decomposition skill and its deliverables.
-- `developer guide action`: provisional: likely update the current developer route guide and add or link to a deeper decomposition guide if the skills bundle does not absorb it cleanly.
-- `user guide action`: provisional: likely update the current user route guide and consider a link to a decomposition-specific workflow guide.
-- `suggested guide path/title`: provisional `workflows / Decomposition-Driven PRD Generation`.
-- `priority`: provisional `P1`.
+- `final outcome`: `both`
+- `guide family`: `concepts and workflows`
+- `developer guide action`: update `docs/guides/developer/development-workflows-choosing-the-right-route.md`.
+- `user guide action`: update `docs/guides/user/workflows-choosing-the-right-route-for-your-project.md`.
+- `suggested guide path/title`: `workflows / Choosing the Right Route for Your Project` and `development/workflows / Choosing the Right Make Docs Route`.
+- `priority`: `P1`
+- `decision notes`: Route choice stays in the workflow family. The concrete `decompose-codebase` skill entry point and outputs are handled in L08 and connected through cross-bundle links rather than duplicated here.
 - `related docs`: [W12 PRD decomposition work](../../2026-04-23-w12-r0-make-docs-prd-decomposition/03-skills-and-cli-lifecycle.md), [08 Skills Catalog and Distribution](../../../prd/08-skills-catalog-and-distribution.md), [03 Open Questions and Risk Register](../../../prd/03-open-questions-and-risk-register.md).
 
 ### L04 - Install Profile, Apply or Sync, and Reconfigure Semantics
@@ -98,10 +107,13 @@ Wave artifacts remain discovery inputs, but the rows below describe the product 
 - `current status`: Active and shipped as the primary user entry path. The current install guide covers much of this surface, but it also mixes in command and lifecycle material that probably needs its own guide family.
 - `evidence links`: [Installing Make Docs](../../../guides/user/getting-started-installing-make-docs.md), [CLI Command Simplification design](../../../designs/2026-04-20-cli-command-simplification.md), [W8 R0 plan](../../../plans/2026-04-20-w8-r0-cli-command-simplification/00-overview.md), [W8 R0 work](../../2026-04-20-w8-r0-cli-command-simplification/00-index.md), [05 Installation, Profile, and Manifest Lifecycle](../../../prd/05-installation-profile-and-manifest-lifecycle.md), [07 CLI Command Surface and Lifecycle](../../../prd/07-cli-command-surface-and-lifecycle.md), [current `profile.ts`](../../../../packages/cli/src/profile.ts), [current `cli.ts`](../../../../packages/cli/src/cli.ts).
 - `existing guide overlap`: Strong overlap with `Installing Make Docs`; likely still missing a cleaner dedicated CLI lifecycle guide for sync and reconfigure.
-- `developer guide action`: provisional: likely `link-only` into developer CLI docs unless Phase 2 decides maintainer-specific reconfigure behavior needs a separate explainer.
-- `user guide action`: provisional: update `Installing Make Docs` and likely create or expand a user `cli-*` guide for install, sync, and reconfigure.
-- `suggested guide path/title`: provisional updates to `getting-started / Installing Make Docs` plus a new `cli / Install, Sync, and Reconfigure`.
-- `priority`: provisional `P1`.
+- `final outcome`: `user`
+- `guide family`: `onboarding`
+- `developer guide action`: `none` as a standalone target; maintainer implications are covered by L10 and L12.
+- `user guide action`: update `docs/guides/user/getting-started-installing-make-docs.md`.
+- `suggested guide path/title`: `getting-started / Installing Make Docs`.
+- `priority`: `P1`
+- `decision notes`: This remains the primary user entry path. The onboarding guide should narrow to first install, first apply, and capability selection, then hand ongoing lifecycle operations to the CLI guide from L05.
 - `related docs`: [01 Product Overview](../../../prd/01-product-overview.md), [02 Architecture Overview](../../../prd/02-architecture-overview.md), [manifest lifecycle PRD](../../../prd/05-installation-profile-and-manifest-lifecycle.md).
 
 ### L05 - Lifecycle Commands, Shared Audit Engine, and Recovery UX
@@ -111,10 +123,13 @@ Wave artifacts remain discovery inputs, but the rows below describe the product 
 - `current status`: Active, shipped, and under-documented as a coherent surface. Current guides mention parts of it, but there is no dedicated lifecycle or recovery guide for users or maintainers.
 - `evidence links`: [CLI Lifecycle UX — Help, Backup, and Uninstall](../../../designs/2026-04-18-cli-help-backup-and-uninstall.md), [CLI Lifecycle Clack Standardization](../../../designs/2026-04-22-cli-lifecycle-clack-standardization.md), [W7 R0 plan](../../../plans/2026-04-18-w7-r0-cli-help-backup-and-uninstall/00-overview.md), [W7 R1 plan](../../../plans/2026-04-22-w7-r1-cli-lifecycle-clack-standardization/00-overview.md), [W7 R0 work](../../2026-04-18-w7-r0-cli-help-backup-and-uninstall/00-index.md), [W7 R1 work](../../2026-04-22-w7-r1-cli-lifecycle-clack-standardization/00-index.md), [07 CLI Command Surface and Lifecycle](../../../prd/07-cli-command-surface-and-lifecycle.md), [current `audit.ts`](../../../../packages/cli/src/audit.ts).
 - `existing guide overlap`: Partial overlap in `Installing Make Docs` and `Building and Installing the CLI Locally`, but neither guide makes backup, uninstall, and audit boundaries easy to find.
-- `developer guide action`: provisional: likely create or expand a developer CLI or maintainer guide that explains the audit model and safe removal boundaries.
-- `user guide action`: provisional: likely create a user-facing CLI lifecycle guide for backup, uninstall, and recovery.
-- `suggested guide path/title`: provisional `cli / Backup, Uninstall, and Recovery`.
-- `priority`: provisional `P1`.
+- `final outcome`: `user`
+- `guide family`: `CLI lifecycle`
+- `developer guide action`: `link-only` coverage inside `docs/guides/developer/release-packaging-validation-and-release-reference.md`.
+- `user guide action`: create `docs/guides/user/cli-lifecycle-managing-installations.md`.
+- `suggested guide path/title`: `cli/lifecycle / Managing Installations with the Make Docs CLI`.
+- `priority`: `P1`
+- `decision notes`: The command and recovery workflow belongs in one user-facing lifecycle guide. The maintainer-facing audit and safety nuances should be absorbed by release and validation docs instead of spawning a separate developer CLI lifecycle guide.
 - `related docs`: [current `cli.ts`](../../../../packages/cli/src/cli.ts), [10 Packaging, Validation, and Release Reference](../../../prd/10-packaging-validation-and-release-reference.md), [history W7 R0 P3](../../../assets/history/2026-04-18-w7-r0-p3-cli-help-backup-and-uninstall.md).
 
 ### L06 - Skills Command, Registry, Scope, and Distribution Model
@@ -124,10 +139,13 @@ Wave artifacts remain discovery inputs, but the rows below describe the product 
 - `current status`: Active, shipped, and materially under-documented. The roadmap mentions the packaging direction, but there is no current user or developer guide for the skills lifecycle surface.
 - `evidence links`: [CLI Skill Installation](../../../designs/2026-04-16-cli-skill-installation.md), [CLI Skill Installation R2](../../../designs/2026-04-16-cli-skill-installation-r2.md), [CLI Skill Selection UX — Default and Optional Groups](../../../designs/2026-04-17-cli-skill-selection-default-and-optional-groups.md), [CLI Skills Command - Skills-Only Lifecycle Surface](../../../designs/2026-04-21-cli-skills-command.md), [W5 R2 plan](../../../plans/2026-04-16-w5-r2-cli-skill-installation/00-overview.md), [W11 R0 work](../../2026-04-21-w11-r0-cli-skills-command/00-index.md), [08 Skills Catalog and Distribution](../../../prd/08-skills-catalog-and-distribution.md), [current `skills-command.ts`](../../../../packages/cli/src/skills-command.ts), [current `skill-catalog.ts`](../../../../packages/cli/src/skill-catalog.ts), [current `skill-registry.ts`](../../../../packages/cli/src/skill-registry.ts).
 - `existing guide overlap`: Only strategic overlap in [roadmap](../../../guides/developer/roadmap.md). No current guide explains how to use or maintain the skills lifecycle surface.
-- `developer guide action`: provisional: likely create a developer `skills-*` guide that covers registry, scope, harness targets, and skills-only planning.
-- `user guide action`: provisional: likely create a user `skills-*` guide that covers command usage, scope choices, and optional-skill selection.
-- `suggested guide path/title`: provisional `skills / Managing Skills with make-docs`.
-- `priority`: provisional `P1`.
+- `final outcome`: `both`
+- `guide family`: `skills`
+- `developer guide action`: create `docs/guides/developer/skills-catalog-and-distribution-model.md`.
+- `user guide action`: create `docs/guides/user/skills-installing-and-managing-skills.md`.
+- `suggested guide path/title`: `skills / Installing and Managing Skills` and `skills / Skills Catalog and Distribution Model`.
+- `priority`: `P1`
+- `decision notes`: `both` is required because users need command and scope guidance, while maintainers need the registry, harness, and distribution model explained as a separate developer surface.
 - `related docs`: [07 CLI Command Surface and Lifecycle](../../../prd/07-cli-command-surface-and-lifecycle.md), [roadmap](../../../guides/developer/roadmap.md), [current `cli.ts`](../../../../packages/cli/src/cli.ts).
 
 ### L07 - Archive Docs Skill
@@ -137,10 +155,13 @@ Wave artifacts remain discovery inputs, but the rows below describe the product 
 - `current status`: Active, shipped, and installed by default when skills are enabled. Dedicated guide coverage is currently absent.
 - `evidence links`: [Archive Docs — Relationship-Aware Document Archival Plugin](../../../designs/2026-04-16-archive-docs-skill.md), [W5 R0 plan](../../../plans/2026-04-16-w5-r0-archive-docs-plugin/00-overview.md), [W5 R0 work](../../2026-04-16-w5-r0-archive-docs-plugin/00-index.md), [W5 history](../../../assets/history/2026-04-16-w5-r0-p1-archive-docs-plugin.md), [08 Skills Catalog and Distribution](../../../prd/08-skills-catalog-and-distribution.md), [roadmap](../../../guides/developer/roadmap.md).
 - `existing guide overlap`: Roadmap mentions `archive-docs` strategically; no current user or developer guide explains what the skill does or when to use it.
-- `developer guide action`: provisional: likely create or fold into a developer skills catalog guide with a dedicated `archive-docs` section.
-- `user guide action`: provisional: likely create or fold into a user skills catalog guide with a dedicated `archive-docs` section.
-- `suggested guide path/title`: provisional `skills / Archive Docs Skill`.
-- `priority`: provisional `P2`.
+- `final outcome`: `link-only`
+- `guide family`: `skills`
+- `developer guide action`: `link-only` coverage inside `docs/guides/developer/skills-catalog-and-distribution-model.md`.
+- `user guide action`: `link-only` coverage inside `docs/guides/user/skills-installing-and-managing-skills.md`.
+- `suggested guide path/title`: `skills / Installing and Managing Skills` and `skills / Skills Catalog and Distribution Model`.
+- `priority`: `P2`
+- `decision notes`: `archive-docs` ships by default, but the surface is narrow enough to start as a documented shipped-skill section instead of a standalone guide.
 - `related docs`: [current `skill-registry.ts`](../../../../packages/cli/src/skill-registry.ts), [packages/skills/archive-docs](../../../../packages/skills/archive-docs), [guide roadmap](../../../guides/developer/roadmap.md).
 
 ### L08 - Decompose Codebase Skill
@@ -150,10 +171,13 @@ Wave artifacts remain discovery inputs, but the rows below describe the product 
 - `current status`: Active, shipped as an optional skill, and only partially documented through route-selection guides and the current PRD decomposition backlog. The skill contract and delivered assets are not yet guide-ready.
 - `evidence links`: [Decompose Codebase Skill — Contract De-Drift](../../../designs/2026-04-23-decompose-codebase-skill-contract-dedrift.md), [W5 R4 plan](../../../plans/2026-04-23-w5-r4-decompose-codebase-skill-contract-dedrift/00-overview.md), [W5 R4 work](../../2026-04-23-w5-r4-decompose-codebase-skill-contract-dedrift/00-index.md), [W12 R0 backlog](../../2026-04-23-w12-r0-make-docs-prd-decomposition/00-index.md), [08 Skills Catalog and Distribution](../../../prd/08-skills-catalog-and-distribution.md), [developer route guide](../../../guides/developer/development-workflows-choosing-the-right-route.md).
 - `existing guide overlap`: Partial overlap in the route guides, but no current guide explains the skill payload, expected outputs, or maintainer-facing contract.
-- `developer guide action`: provisional: likely create or fold into a developer skills guide with stronger cross-links back to route selection.
-- `user guide action`: provisional: likely create or fold into a user workflow or skills guide if the skill is intended to be directly operated by non-maintainer users.
-- `suggested guide path/title`: provisional `skills / Decompose Codebase Skill`.
-- `priority`: provisional `P2`.
+- `final outcome`: `user`
+- `guide family`: `skills`
+- `developer guide action`: `link-only` references from `docs/guides/developer/development-workflows-choosing-the-right-route.md` and `docs/guides/developer/skills-catalog-and-distribution-model.md`; no standalone developer skill guide in this phase.
+- `user guide action`: create `docs/guides/user/skills-decomposing-an-existing-codebase.md`.
+- `suggested guide path/title`: `skills / Decomposing an Existing Codebase`.
+- `priority`: `P1`
+- `decision notes`: The workflow choice remains in L03, but the concrete skill inputs, outputs, and expected artifacts need a dedicated user guide in the skills family.
 - `related docs`: [packages/skills/decompose-codebase](../../../../packages/skills/decompose-codebase), [current `skill-catalog.ts`](../../../../packages/cli/src/skill-catalog.ts), [current W12 backlog](../../2026-04-23-w12-r0-make-docs-prd-decomposition/03-skills-and-cli-lifecycle.md).
 
 ### L09 - Template Asset Pipeline, Generated Routers, and Contract Surfaces
@@ -163,10 +187,13 @@ Wave artifacts remain discovery inputs, but the rows below describe the product 
 - `current status`: Active and central to the maintainer surface, but not explained in a dedicated guide. Current guide coverage is indirect.
 - `evidence links`: [Asset Pipeline Completeness](../../../designs/2026-04-16-asset-pipeline-completeness.md), [Guide Structure Contract](../../../designs/2026-04-16-guide-structure-contract.md), [Docs Assets Resource Namespace Overhaul](../../../designs/2026-04-22-docs-assets-resource-namespace.md), [W4 R0 work](../../2026-04-16-w4-r0-asset-pipeline-completeness/00-index.md), [W9 R1 work](../../2026-04-22-w9-r1-docs-assets-resource-namespace/00-index.md), [06 Template Contracts and Generated Assets](../../../prd/06-template-contracts-and-generated-assets.md), [current `renderers.ts`](../../../../packages/cli/src/renderers.ts), [current `utils.ts`](../../../../packages/cli/src/utils.ts).
 - `existing guide overlap`: `Building and Installing the CLI Locally` covers validation and smoke-pack consequences, but not the actual template, catalog, and renderer model.
-- `developer guide action`: provisional: likely create a developer `template-*` guide that explains template ownership, catalog rules, and generated routers.
-- `user guide action`: provisional: likely `none` or `link-only`; users generally consume the result rather than maintaining the template system.
-- `suggested guide path/title`: provisional `template / Template Contracts and Generated Assets`.
-- `priority`: provisional `P1`.
+- `final outcome`: `developer`
+- `guide family`: `template and contracts`
+- `developer guide action`: create `docs/guides/developer/template-assets-and-generated-routers.md`.
+- `user guide action`: `none`; this is a maintainer-only implementation surface.
+- `suggested guide path/title`: `template/assets / Template Assets and Generated Routers`.
+- `priority`: `P1`
+- `decision notes`: This is a first-stop maintainer topic for template ownership and generated output boundaries, so it merits a dedicated developer guide rather than a note buried in local CLI development docs.
 - `related docs`: [guide contract reference](../../../assets/references/guide-contract.md), [execution workflow reference](../../../assets/references/execution-workflow.md), [packages/docs/README.md](../../../../packages/docs/README.md), [packages/docs/template](../../../../packages/docs/template).
 
 ### L10 - Docs Assets Namespace, History Records, and Runtime State Boundaries
@@ -176,10 +203,13 @@ Wave artifacts remain discovery inputs, but the rows below describe the product 
 - `current status`: Active with a historical mismatch that must be preserved explicitly. Current truth is that document resources and history live under `docs/assets/**`, while runtime manifest and conflict state remain under `.make-docs/**`, not `docs/assets/config/`.
 - `evidence links`: [Docs Assets, Make-Docs State, and Session History](../../../designs/2026-04-20-docs-assets-state-and-history.md), [Docs Assets Resource Namespace Overhaul](../../../designs/2026-04-22-docs-assets-resource-namespace.md), [W9 R0 work](../../2026-04-20-w9-r0-docs-assets-state-and-history/00-index.md), [W9 R1 work](../../2026-04-22-w9-r1-docs-assets-resource-namespace/00-index.md), [W10 history](../../../assets/history/2026-04-21-w10-r0-p3-docs-history-and-pathnames.md), [history record contract](../../../assets/references/history-record-contract.md), [current `renderers.ts`](../../../../packages/cli/src/renderers.ts), [current `audit.ts`](../../../../packages/cli/src/audit.ts).
 - `existing guide overlap`: No dedicated guide currently explains this boundary. The install guide and generated routers imply pieces of it, but the mismatch between historical W9 intent and current code truth is not documented anywhere.
-- `developer guide action`: provisional: likely create or fold into a maintainer or template-contract guide, with an explicit mismatch note carried forward.
-- `user guide action`: provisional: likely `none` or `link-only`; end users only need the runtime-path story when troubleshooting.
-- `suggested guide path/title`: provisional `maintainer / Docs Assets and Runtime State Boundaries`.
-- `priority`: provisional `P1`.
+- `final outcome`: `developer`
+- `guide family`: `maintainer and release operations`
+- `developer guide action`: create `docs/guides/developer/maintainer-docs-assets-and-runtime-state-boundaries.md`.
+- `user guide action`: `link-only` troubleshooting references in `docs/guides/user/getting-started-installing-make-docs.md` and `docs/guides/user/cli-lifecycle-managing-installations.md`; no standalone user guide.
+- `suggested guide path/title`: `maintainer / Docs Assets and Runtime State Boundaries`.
+- `priority`: `P1`
+- `decision notes`: The explicit `docs/assets/**` versus `.make-docs/**` mismatch must survive into the final guide set. Current code and PRD truth win over historical W9 migration intent.
 - `related docs`: [current root README](../../../../README.md), [packages/docs/README.md](../../../../packages/docs/README.md), [guide installing make-docs](../../../guides/user/getting-started-installing-make-docs.md).
 
 ### L11 - Validation and Broken-Link False-Positive Filtering
@@ -189,10 +219,13 @@ Wave artifacts remain discovery inputs, but the rows below describe the product 
 - `current status`: Active, internal, and effectively undocumented. This is a maintainer-quality surface rather than a user-facing product feature.
 - `evidence links`: [Validator False-Positive Link Detection in Code Snippets](../../../designs/2026-04-16-validator-false-positive-links.md), [W6 R0 plan](../../../plans/2026-04-16-w6-r0-validator-false-positive-links/00-overview.md), [W6 R0 work](../../2026-04-16-w6-r0-validator-false-positive-links/00-index.md), [W6 history](../../../assets/history/2026-04-16-w6-r0-p1-validator-false-positive-links.md), [10 Packaging, Validation, and Release Reference](../../../prd/10-packaging-validation-and-release-reference.md).
 - `existing guide overlap`: No direct guide coverage today. This topic likely belongs inside a broader maintainer validation guide rather than as a standalone document.
-- `developer guide action`: provisional: likely `link-only` coverage inside a release or validation guide.
-- `user guide action`: provisional: `none`.
-- `suggested guide path/title`: provisional `release / Validation and Link Hygiene`.
-- `priority`: provisional `P3`.
+- `final outcome`: `link-only`
+- `guide family`: `maintainer and release operations`
+- `developer guide action`: `link-only` coverage inside `docs/guides/developer/release-packaging-validation-and-release-reference.md`.
+- `user guide action`: `none`.
+- `suggested guide path/title`: `release / Packaging, Validation, and Release Reference`.
+- `priority`: `P3`
+- `decision notes`: This is useful maintainer context, but it is too narrow and internal to justify its own guide.
 - `related docs`: [current `cli-development-local-build-and-install`](../../../guides/developer/cli-development-local-build-and-install.md), [current `packages/cli/src/README.md`](../../../../packages/cli/src/README.md).
 
 ### L12 - Product Identity, Local Build, Dogfood, Packaging, and Release Validation
@@ -202,16 +235,19 @@ Wave artifacts remain discovery inputs, but the rows below describe the product 
 - `current status`: Active and partially documented. Current coverage is split between the local-build developer guide and the roadmap, leaving no dedicated maintainer or release guide.
 - `evidence links`: [Make Docs Rename](../../../designs/2026-04-21-make-docs-rename.md), [W10 R0 plan](../../../plans/2026-04-21-w10-r0-make-docs-rename/00-overview.md), [W10 R0 work](../../2026-04-21-w10-r0-make-docs-rename/00-index.md), [Building and Installing the CLI Locally](../../../guides/developer/cli-development-local-build-and-install.md), [09 Dogfood and Maintainer Operations](../../../prd/09-dogfood-and-maintainer-operations.md), [10 Packaging, Validation, and Release Reference](../../../prd/10-packaging-validation-and-release-reference.md), [current `utils.ts`](../../../../packages/cli/src/utils.ts), [packages/docs/README.md](../../../../packages/docs/README.md).
 - `existing guide overlap`: Strong overlap with the existing CLI development guide for local build and smoke-pack steps; weak overlap for dogfood operations, package identity, and release procedure.
-- `developer guide action`: provisional: likely update `cli-development-local-build-and-install` and create companion maintainer or release guides.
-- `user guide action`: provisional: likely `none` or `link-only`; users do not need release-procedure detail.
-- `suggested guide path/title`: provisional `maintainer / Dogfood and Maintainer Operations` and `release / Packaging, Validation, and Release`.
-- `priority`: provisional `P1`.
+- `final outcome`: `developer`
+- `guide family`: `maintainer and release operations`
+- `developer guide action`: update `docs/guides/developer/cli-development-local-build-and-install.md`; create `docs/guides/developer/maintainer-dogfood-and-maintainer-operations.md`; create `docs/guides/developer/release-packaging-validation-and-release-reference.md`.
+- `user guide action`: `none`; user entry-point guides should link here only when troubleshooting or contributing.
+- `suggested guide path/title`: `cli/development / Building and Installing the CLI Locally`, `maintainer / Dogfood and Maintainer Operations`, and `release / Packaging, Validation, and Release Reference`.
+- `priority`: `P1`
+- `decision notes`: Keep `docs/guides/developer/roadmap.md` strategic and untouched. Rename-specific history should appear only as supporting context inside the maintainer and release guides rather than as a separate operational guide.
 - `related docs`: [roadmap](../../../guides/developer/roadmap.md), [current root README](../../../../README.md), [packages/cli/package.json](../../../../packages/cli/package.json), [scripts/smoke-pack.mjs](../../../../scripts/smoke-pack.mjs).
 
 ## Phase 2 Handoff Notes
 
-- `evidence gap`: No explicit `W1` implementation plan, work backlog, or history record remains in the active repo. If Phase 2 needs exact `W1` provenance, targeted commit inspection is the fallback.
-- `existing-guide overlap conflict`: The current install guide and the current developer CLI guide both accumulate too many unrelated topics. Phase 2 should decide whether to split them into narrower lifecycle, maintainer, and release guides or keep them as hubs with stronger `related` links.
-- `current-truth mismatch`: `W9` historical artifacts describe a broader `docs/assets` state surface, but current renderer and audit code keep runtime state in `.make-docs/**`. Later guide decisions must follow current code and PRD truth, not the older migration intent.
-- `bundle-boundary question`: The decomposition surface spans both workflows and skills. Phase 2 must decide whether `decompose-codebase` is a dedicated skills guide, a workflow guide, or a cross-linked pair.
-- `low-priority row`: The `make-docs` rename appears to be mostly absorbed into the current guide corpus. Phase 2 should decide whether that row resolves to `link-only` or `none`.
+- `resolved split`: The onboarding guide stays focused on first install and initial capability selection, while ongoing apply or sync, reconfigure, help, backup, uninstall, and recovery guidance moves to the dedicated user CLI lifecycle guide from L05.
+- `resolved decomposition boundary`: Workflow choice remains in Bundle A route guides, while the concrete `decompose-codebase` skill entry point, outputs, and expectations land in Bundle C and are cross-linked later.
+- `link-only host guides`: L07 is absorbed into the generic user and developer skills guides, and L11 is absorbed into the release guide.
+- `assembly-owned work`: `README.md` discovery updates and final cross-bundle `related` normalization remain reserved for Phase 6.
+- `current-truth mismatch`: L10 must preserve the explicit `docs/assets/**` versus `.make-docs/**` boundary in the final guide prose.
