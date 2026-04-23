@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Tests for validate_output.py — focused on false-positive link detection."""
+"""Tests for validate_output.py — link filtering plus v2 contract coverage."""
 
 from __future__ import annotations
 
@@ -231,6 +231,25 @@ class TestValidateLinksEndToEnd(unittest.TestCase):
             "## Purpose\nGl.\n## Terms\nTerms.\n## Source Anchors\n`src/`\n"
         )
 
+    def _write_minimal_work_directory(
+        self,
+        directory_name: str = "2024-01-01-w5-r4-sample-backlog",
+    ) -> Path:
+        work_backlog = self.work_dir / directory_name
+        work_backlog.mkdir()
+        (work_backlog / "00-index.md").write_text(
+            "## Purpose\nIdx.\n## Phase Map\nMap.\n## Usage Notes\nNotes.\n"
+        )
+        (work_backlog / "01-foundation.md").write_text(
+            "## Purpose\nP.\n## Overview\nO.\n## Source PRD Docs\n"
+            "- [PRD Index](../../prd/00-index.md)\n"
+            "## Stage 1 - Foundation\n"
+            "### Tasks\n1. T.\n"
+            "### Acceptance criteria\n- [ ] A.\n"
+            "### Dependencies\n- None.\n"
+        )
+        return work_backlog
+
     def test_no_false_positives_on_code_patterns(self):
         """Fenced and inline code with bracket-paren syntax produces zero errors."""
         self._write_prd("05-salt-subsystem.md", (
@@ -318,6 +337,8 @@ class TestValidateLinksEndToEnd(unittest.TestCase):
     def test_build_result_integration(self):
         """Full build_result integration — code patterns don't cause failures."""
         self._write_minimal_prd_set()
+        (self.prd_dir / "AGENTS.md").write_text("Router.\n")
+        (self.work_dir / "AGENTS.md").write_text("Router.\n")
         self._write_prd("05-salt.md", (
             "## Purpose\nSalt.\n## Scope\n`scope/`\n"
             "## Component and Capability Map\n`map/`\n"
@@ -327,18 +348,61 @@ class TestValidateLinksEndToEnd(unittest.TestCase):
             "## Source Anchors\n`src/`\n\n"
             "```salt\nsalt['pillar.get'](..., merge=True)\n```\n"
         ))
-        work_backlog = self.work_dir / "2024-01-01-rebuild-backlog"
-        work_backlog.mkdir()
-        (work_backlog / "00-index.md").write_text(
-            "## Purpose\nIdx.\n## Phase Map\nMap.\n## Usage Notes\nNotes.\n"
-        )
-        (work_backlog / "01-phase.md").write_text(
-            "## Purpose\nP.\n## Tasks\nT.\n## Acceptance Criteria\nAC.\n"
-        )
+        self._write_minimal_work_directory()
 
         result = build_result(self.tmpdir)
         link_errors = [e for e in result["errors"] if "link" in e.lower()]
         self.assertEqual(link_errors, [], f"False positives in build_result: {link_errors}")
+        self.assertTrue(result["ok"], f"Unexpected validation errors: {result['errors']}")
+
+    def test_build_result_accepts_assets_archive_namespace(self):
+        self._write_minimal_prd_set()
+        self._write_minimal_work_directory()
+
+        archive_dir = self.tmpdir / "docs" / "assets" / "archive" / "prds" / "2024-01-01"
+        archive_dir.mkdir(parents=True)
+        (archive_dir / "00-index.md").write_text("Archived.\n")
+
+        result = build_result(self.tmpdir)
+        self.assertTrue(result["ok"], f"Unexpected validation errors: {result['errors']}")
+
+    def test_build_result_rejects_legacy_archive_namespace(self):
+        self._write_minimal_prd_set()
+        self._write_minimal_work_directory()
+
+        legacy_archive = self.prd_dir / "archive" / "2024-01-01"
+        legacy_archive.mkdir(parents=True)
+
+        result = build_result(self.tmpdir)
+        self.assertFalse(result["ok"])
+        self.assertTrue(
+            any("legacy archive namespace is no longer supported" in error for error in result["errors"]),
+            result["errors"],
+        )
+
+    def test_build_result_rejects_legacy_single_file_backlog(self):
+        self._write_minimal_prd_set()
+        (self.work_dir / "2024-01-01-rebuild-backlog.md").write_text(
+            "## Purpose\nLegacy.\n## Dependency Order\nOrder.\n## Phases\nP.\n## Acceptance Criteria\nA.\n"
+        )
+
+        result = build_result(self.tmpdir)
+        self.assertFalse(result["ok"])
+        self.assertTrue(
+            any("backlog entries must be directories named YYYY-MM-DD-w{W}-r{R}-<slug>" in error for error in result["errors"]),
+            result["errors"],
+        )
+
+    def test_build_result_rejects_legacy_backlog_directory_naming(self):
+        self._write_minimal_prd_set()
+        self._write_minimal_work_directory("2024-01-01-rebuild-backlog")
+
+        result = build_result(self.tmpdir)
+        self.assertFalse(result["ok"])
+        self.assertTrue(
+            any("work directories must use YYYY-MM-DD-w{W}-r{R}-<slug> naming" in error for error in result["errors"]),
+            result["errors"],
+        )
 
 
 if __name__ == "__main__":

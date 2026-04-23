@@ -96,10 +96,6 @@
           "installPath": "assets/templates/prd-glossary.md"
         },
         {
-          "source": "assets/templates/rebuild-backlog.md",
-          "installPath": "assets/templates/rebuild-backlog.md"
-        },
-        {
           "source": "assets/templates/rebuild-backlog-index.md",
           "installPath": "assets/templates/rebuild-backlog-index.md"
         },

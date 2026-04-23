@@ -41,6 +41,68 @@ describe("skill registry", () => {
     ]);
   });
 
+  test("declares the retained decompose skill asset surface", () => {
+    const registry = loadSkillRegistry(PACKAGE_ROOT);
+    const decomposeSkill = registry.skills.find((skill) => skill.name === "decompose-codebase");
+
+    expect(decomposeSkill?.assets).toEqual([
+      { source: "agents/openai.yaml", installPath: "agents/openai.yaml" },
+      { source: "scripts/probe_environment.py", installPath: "scripts/probe_environment.py" },
+      { source: "scripts/validate_output.py", installPath: "scripts/validate_output.py" },
+      {
+        source: "references/planning-workflow.md",
+        installPath: "references/planning-workflow.md",
+      },
+      {
+        source: "references/execution-workflow.md",
+        installPath: "references/execution-workflow.md",
+      },
+      { source: "references/mcp-playbook.md", installPath: "references/mcp-playbook.md" },
+      { source: "references/output-contract.md", installPath: "references/output-contract.md" },
+      {
+        source: "references/harness-capability-matrix.md",
+        installPath: "references/harness-capability-matrix.md",
+      },
+      {
+        source: "assets/templates/decomposition-plan.md",
+        installPath: "assets/templates/decomposition-plan.md",
+      },
+      { source: "assets/templates/prd-index.md", installPath: "assets/templates/prd-index.md" },
+      {
+        source: "assets/templates/prd-overview.md",
+        installPath: "assets/templates/prd-overview.md",
+      },
+      {
+        source: "assets/templates/prd-architecture.md",
+        installPath: "assets/templates/prd-architecture.md",
+      },
+      {
+        source: "assets/templates/prd-subsystem.md",
+        installPath: "assets/templates/prd-subsystem.md",
+      },
+      {
+        source: "assets/templates/prd-reference.md",
+        installPath: "assets/templates/prd-reference.md",
+      },
+      {
+        source: "assets/templates/prd-risk-register.md",
+        installPath: "assets/templates/prd-risk-register.md",
+      },
+      {
+        source: "assets/templates/prd-glossary.md",
+        installPath: "assets/templates/prd-glossary.md",
+      },
+      {
+        source: "assets/templates/rebuild-backlog-index.md",
+        installPath: "assets/templates/rebuild-backlog-index.md",
+      },
+      {
+        source: "assets/templates/rebuild-backlog-phase.md",
+        installPath: "assets/templates/rebuild-backlog-phase.md",
+      },
+    ]);
+  });
+
   test("rejects local skill sources", () => {
     const packageRoot = mkdtempSync(path.join(os.tmpdir(), "make-docs-skill-registry-"));
     try {
