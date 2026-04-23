@@ -22,15 +22,15 @@ None. This backlog is derived from the `w5-r4` plan and design, not from an acti
 
 ### Tasks
 
-- [ ] Rewrite `packages/skills/decompose-codebase/assets/templates/decomposition-plan.md` to the v2 plan-directory model.
-- [ ] Ensure the local decomposition-plan template describes `00-overview.md` plus `0N-<phase>.md` outputs.
-- [ ] Align coordinator policy, worker ownership, MCP strategy, and validation sections with the current shared decomposition-plan contract.
-- [ ] Remove any wording that implies the default decomposition plan output is a single Markdown file.
+- [x] Rewrite `packages/skills/decompose-codebase/assets/templates/decomposition-plan.md` to the v2 plan-directory model.
+- [x] Ensure the local decomposition-plan template describes `00-overview.md` plus `0N-<phase>.md` outputs.
+- [x] Align coordinator policy, worker ownership, MCP strategy, and validation sections with the current shared decomposition-plan contract.
+- [x] Remove any wording that implies the default decomposition plan output is a single Markdown file.
 
 ### Acceptance criteria
 
-- [ ] The local decomposition-plan template now describes a v2 plan directory.
-- [ ] The local decomposition-plan template matches the current shared decomposition-plan semantics.
+- [x] The local decomposition-plan template now describes a v2 plan directory.
+- [x] The local decomposition-plan template matches the current shared decomposition-plan semantics.
 
 ### Dependencies
 
@@ -40,16 +40,16 @@ None. This backlog is derived from the `w5-r4` plan and design, not from an acti
 
 ### Tasks
 
-- [ ] Rewrite `packages/skills/decompose-codebase/assets/templates/rebuild-backlog-index.md` around the current `work-index.md` shape.
-- [ ] Rewrite `packages/skills/decompose-codebase/assets/templates/rebuild-backlog-phase.md` around the current `work-phase.md` shape.
-- [ ] Ensure the local backlog templates describe `00-index.md` plus dependency-ordered phase files.
-- [ ] Ensure each phase template includes source-PRD traceability language consistent with the shared work-phase contract.
+- [x] Rewrite `packages/skills/decompose-codebase/assets/templates/rebuild-backlog-index.md` around the current `work-index.md` shape.
+- [x] Rewrite `packages/skills/decompose-codebase/assets/templates/rebuild-backlog-phase.md` around the current `work-phase.md` shape.
+- [x] Ensure the local backlog templates describe `00-index.md` plus dependency-ordered phase files.
+- [x] Ensure each phase template includes source-PRD traceability language consistent with the shared work-phase contract.
 
 ### Acceptance criteria
 
-- [ ] The local backlog index template aligns with the shared work-index model.
-- [ ] The local backlog phase template aligns with the shared work-phase model.
-- [ ] The retained local backlog templates no longer imply a one-file backlog default.
+- [x] The local backlog index template aligns with the shared work-index model.
+- [x] The local backlog phase template aligns with the shared work-phase model.
+- [x] The retained local backlog templates no longer imply a one-file backlog default.
 
 ### Dependencies
 
@@ -59,16 +59,16 @@ None. This backlog is derived from the `w5-r4` plan and design, not from an acti
 
 ### Tasks
 
-- [ ] Delete `packages/skills/decompose-codebase/assets/templates/rebuild-backlog.md`.
-- [ ] Remove any active references to the retired one-file backlog template from the packaged skill docs.
-- [ ] Compare the local `prd-*.md` templates against `docs/assets/templates/prd-*.md`.
-- [ ] Reseed any drifted local `prd-*.md` template from the repo-authoritative shared template.
+- [x] Delete `packages/skills/decompose-codebase/assets/templates/rebuild-backlog.md`.
+- [x] Remove any active references to the retired one-file backlog template from the packaged skill docs.
+- [x] Compare the local `prd-*.md` templates against `docs/assets/templates/prd-*.md`.
+- [x] Reseed any drifted local `prd-*.md` template from the repo-authoritative shared template.
 
 ### Acceptance criteria
 
-- [ ] `assets/templates/rebuild-backlog.md` is removed from the packaged skill source.
-- [ ] No active packaged template or doc still references the retired one-file backlog template.
-- [ ] Shared PRD template drift is either eliminated or confirmed absent.
+- [x] `assets/templates/rebuild-backlog.md` is removed from the packaged skill source.
+- [x] No active packaged template or doc still references the retired one-file backlog template.
+- [x] Shared PRD template drift is either eliminated or confirmed absent.
 
 ### Dependencies
 

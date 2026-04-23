@@ -22,16 +22,16 @@ None. This backlog is derived from the `w5-r4` plan and design, not from an acti
 
 ### Tasks
 
-- [ ] Define the mapped mirrored file set for `packages/skills/decompose-codebase/` to `.agents/skills/decompose-codebase/`.
-- [ ] Include `SKILL.md`, `agents/openai.yaml`, `references/*.md`, retained `assets/templates/*.md`, `scripts/probe_environment.py`, and `scripts/validate_output.py`.
-- [ ] Exclude intentional package-only files such as `assets/README.md`, `scripts/test_validate_output.py`, and `scripts/__pycache__/`.
-- [ ] Refresh the mirrored files from the packaged source after Phases 1 through 3 settle the final surface.
-- [ ] Remove stale mirror-only files when the packaged source retires them.
+- [x] Define the mapped mirrored file set for `packages/skills/decompose-codebase/` to `.agents/skills/decompose-codebase/`.
+- [x] Include `SKILL.md`, `agents/openai.yaml`, `references/*.md`, retained `assets/templates/*.md`, `scripts/probe_environment.py`, and `scripts/validate_output.py`.
+- [x] Exclude intentional package-only files such as `assets/README.md`, `scripts/test_validate_output.py`, and `scripts/__pycache__/`.
+- [x] Refresh the mirrored files from the packaged source after Phases 1 through 3 settle the final surface.
+- [x] Remove stale mirror-only files when the packaged source retires them.
 
 ### Acceptance criteria
 
-- [ ] The mirrored file set is explicit and package-driven.
-- [ ] The `.agents` mirror contains the refreshed mapped files and no stale retired mirror-only files.
+- [x] The mirrored file set is explicit and package-driven.
+- [x] The `.agents` mirror contains the refreshed mapped files and no stale retired mirror-only files.
 
 ### Dependencies
 
@@ -41,16 +41,16 @@ None. This backlog is derived from the `w5-r4` plan and design, not from an acti
 
 ### Tasks
 
-- [ ] Add a mapped-file parity assertion to `packages/cli/tests/consistency.test.ts` or a new dedicated consistency test.
-- [ ] Assert that every mapped packaged file exists in the `.agents` mirror.
-- [ ] Assert byte equality for each mapped file.
-- [ ] Assert that no stale retired mapped file remains only in the mirror.
-- [ ] Treat `packages/skills/decompose-codebase/` as authoritative and `.agents/skills/decompose-codebase/` as the mirror.
+- [x] Add a mapped-file parity assertion to `packages/cli/tests/consistency.test.ts` or a new dedicated consistency test.
+- [x] Assert that every mapped packaged file exists in the `.agents` mirror.
+- [x] Assert byte equality for each mapped file.
+- [x] Assert that no stale retired mapped file remains only in the mirror.
+- [x] Treat `packages/skills/decompose-codebase/` as authoritative and `.agents/skills/decompose-codebase/` as the mirror.
 
 ### Acceptance criteria
 
-- [ ] The parity test fails on missing, extra, or divergent mapped files.
-- [ ] The parity test is package-driven, not mirror-driven.
+- [x] The parity test fails on missing, extra, or divergent mapped files.
+- [x] The parity test is package-driven, not mirror-driven.
 
 ### Dependencies
 

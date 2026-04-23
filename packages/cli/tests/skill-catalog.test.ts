@@ -129,5 +129,39 @@ describe("skill catalog", () => {
           ".agents/skills/decompose-codebase/references/mcp-playbook.md",
       ),
     ).toBe(true);
+    expect(
+      withOptional.some(
+        (asset) =>
+          asset.relativePath ===
+          ".claude/skills/decompose-codebase/assets/templates/decomposition-plan.md",
+      ),
+    ).toBe(true);
+    expect(
+      withOptional.some(
+        (asset) =>
+          asset.relativePath ===
+          ".claude/skills/decompose-codebase/assets/templates/rebuild-backlog-phase.md",
+      ),
+    ).toBe(true);
+    expect(
+      withOptional.some(
+        (asset) =>
+          asset.relativePath ===
+          ".claude/skills/decompose-codebase/assets/templates/rebuild-backlog.md",
+      ),
+    ).toBe(false);
+    expect(
+      withOptional.some(
+        (asset) =>
+          asset.relativePath === ".claude/skills/decompose-codebase/assets/README.md",
+      ),
+    ).toBe(false);
+    expect(
+      withOptional.some(
+        (asset) =>
+          asset.relativePath ===
+          ".claude/skills/decompose-codebase/scripts/test_validate_output.py",
+      ),
+    ).toBe(false);
   });
 });

@@ -276,18 +276,45 @@ describe("installer integration", () => {
   test("installs an optional skill only when selected", async () => {
     const targetDir = createTempDir();
     try {
-      await installWithSelections(targetDir, (selections) => {
+      const { manifest } = await installWithSelections(targetDir, (selections) => {
         selections.optionalSkills = ["decompose-codebase"];
       });
 
-      expect(existsSync(path.join(targetDir, ".claude/skills/decompose-codebase/SKILL.md"))).toBe(
-        true,
-      );
+      for (const harnessRoot of [".claude", ".agents"]) {
+        const skillRoot = path.join(targetDir, harnessRoot, "skills/decompose-codebase");
+
+        expect(existsSync(path.join(skillRoot, "SKILL.md"))).toBe(true);
+        expect(existsSync(path.join(skillRoot, "references/mcp-playbook.md"))).toBe(true);
+        expect(existsSync(path.join(skillRoot, "scripts/validate_output.py"))).toBe(true);
+        expect(
+          existsSync(path.join(skillRoot, "assets/templates/decomposition-plan.md")),
+        ).toBe(true);
+        expect(
+          existsSync(path.join(skillRoot, "assets/templates/rebuild-backlog-index.md")),
+        ).toBe(true);
+        expect(
+          existsSync(path.join(skillRoot, "assets/templates/rebuild-backlog-phase.md")),
+        ).toBe(true);
+        expect(existsSync(path.join(skillRoot, "assets/templates/rebuild-backlog.md"))).toBe(
+          false,
+        );
+        expect(existsSync(path.join(skillRoot, "assets/README.md"))).toBe(false);
+        expect(existsSync(path.join(skillRoot, "scripts/test_validate_output.py"))).toBe(false);
+      }
+
       expect(
-        existsSync(
-          path.join(targetDir, ".agents/skills/decompose-codebase/references/mcp-playbook.md"),
+        manifest.skillFiles.some((file) =>
+          file.endsWith("decompose-codebase/assets/templates/rebuild-backlog.md"),
         ),
-      ).toBe(true);
+      ).toBe(false);
+      expect(
+        manifest.skillFiles.some((file) => file.endsWith("decompose-codebase/assets/README.md")),
+      ).toBe(false);
+      expect(
+        manifest.skillFiles.some((file) =>
+          file.endsWith("decompose-codebase/scripts/test_validate_output.py"),
+        ),
+      ).toBe(false);
     } finally {
       cleanupTempDir(targetDir);
     }

@@ -12,14 +12,15 @@ from typing import Iterable
 
 ROOT_FILE_RE = re.compile(r"^(\d{2})-[a-z0-9][a-z0-9-]*\.md$")
 ROOT_DIR_RE = re.compile(r"^(\d{2})-[a-z0-9][a-z0-9-]*$")
-BACKLOG_FILE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}-rebuild-backlog\.md$")
-BACKLOG_DIR_RE = re.compile(r"^\d{4}-\d{2}-\d{2}-rebuild-backlog$")
+WORK_DIR_RE = re.compile(r"^\d{4}-\d{2}-\d{2}-w\d+-r\d+-[a-z0-9][a-z0-9-]*$")
+WORK_PHASE_FILE_RE = re.compile(r"^(0[1-9]|[1-9]\d)-[a-z0-9][a-z0-9-]*\.md$")
 ARCHIVE_DIR_RE = re.compile(r"^\d{4}-\d{2}-\d{2}(?:-\d{2})?$")
 ANCHOR_RE = re.compile(r"`[^`\n]*(?:/|\\)[^`\n]*`|`[^`\n]*\.[A-Za-z0-9_-]+(?::\d+(?::\d+)?)?`")
 LINK_RE = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
 FENCE_RE = re.compile(r"^(`{3,}|~{3,})")
 INLINE_CODE_RE = re.compile(r"(`{1,2})(?!`)(.+?)(?<!`)\1(?!`)")
 UNESCAPED_SPACE_RE = re.compile(r"(?<!\\) ")
+INSTRUCTION_FILES = {"AGENTS.md", "CLAUDE.md"}
 
 CORE_DOC_RULES = {
     "docs/prd/00-index.md": {
@@ -114,18 +115,13 @@ REFERENCE_RULE = {
     "anchor_sections": ["Reference", "Source Anchors"],
 }
 
-BACKLOG_RULE = {
-    "required": ["Purpose", "Dependency Order", "Phases", "Acceptance Criteria"],
-    "anchor_sections": [],
-}
-
 BACKLOG_INDEX_RULE = {
     "required": ["Purpose", "Phase Map", "Usage Notes"],
     "anchor_sections": [],
 }
 
 BACKLOG_PHASE_RULE = {
-    "required": ["Purpose", "Tasks", "Acceptance Criteria"],
+    "required": ["Purpose", "Overview", "Source PRD Docs"],
     "anchor_sections": [],
 }
 
@@ -256,14 +252,19 @@ def validate_anchor_sections(
 
 
 def validate_archive_root(archive_root: Path, errors: list[str]) -> None:
+    if not archive_root.exists():
+        return
+    if not archive_root.is_dir():
+        errors.append(f"{archive_root}: docs/assets/archive/prds must be a directory")
+        return
     for entry in sorted(archive_root.iterdir()):
         if entry.name.startswith("."):
             continue
         if entry.is_file():
-            errors.append(f"{entry}: docs/prd/archive must contain dated directories only")
+            errors.append(f"{entry}: docs/assets/archive/prds must contain dated directories only")
             continue
         if not entry.is_dir():
-            errors.append(f"{entry}: unexpected entry in docs/prd/archive")
+            errors.append(f"{entry}: unexpected entry in docs/assets/archive/prds")
             continue
         if not ARCHIVE_DIR_RE.match(entry.name):
             errors.append(
@@ -290,13 +291,12 @@ def validate_prd_structure(repo_root: Path, errors: list[str]) -> None:
 
     seen_prefixes: dict[int, Path] = {}
     for child in sorted(prd_root.iterdir()):
-        if child.name.startswith("."):
+        if child.name.startswith(".") or child.name in INSTRUCTION_FILES:
             continue
         if child.name == "archive":
-            if not child.is_dir():
-                errors.append(f"{child}: docs/prd/archive must be a directory")
-            else:
-                validate_archive_root(child, errors)
+            errors.append(
+                f"{child}: legacy archive namespace is no longer supported; use docs/assets/archive/prds/"
+            )
             continue
         if child.is_file():
             if child.suffix != ".md":
@@ -341,6 +341,8 @@ def validate_prd_structure(repo_root: Path, errors: list[str]) -> None:
 def validate_prd_docs(repo_root: Path, errors: list[str]) -> None:
     prd_root = repo_root / "docs" / "prd"
     for path in markdown_files(prd_root, exclude_prefixes=[prd_root / "archive"]):
+        if path.name in INSTRUCTION_FILES:
+            continue
         sections = parse_sections(path.read_text())
         doc_type = classify_prd_doc(path.relative_to(repo_root))
         if doc_type in CORE_DOC_RULES:
@@ -356,59 +358,91 @@ def validate_prd_docs(repo_root: Path, errors: list[str]) -> None:
         validate_anchor_sections(path, sections, rule["anchor_sections"], errors)
 
 
+def validate_work_phase_doc(
+    path: Path,
+    text: str,
+    sections: dict[str, str],
+    errors: list[str],
+) -> None:
+    validate_required_sections(path, sections, BACKLOG_PHASE_RULE["required"], errors)
+
+    if not any(title.startswith("Stage ") for title in sections):
+        errors.append(f"{path}: work phase must contain at least one '## Stage ...' section")
+
+    for heading in ("### Tasks", "### Acceptance criteria", "### Dependencies"):
+        if heading not in text:
+            errors.append(f"{path}: missing required work-phase subsection '{heading}'")
+
+
+def validate_assets_archive(repo_root: Path, errors: list[str]) -> None:
+    validate_archive_root(repo_root / "docs" / "assets" / "archive" / "prds", errors)
+
+
 def validate_backlog(repo_root: Path, errors: list[str]) -> None:
     work_root = repo_root / "docs" / "work"
     if not work_root.exists():
         errors.append(f"{work_root}: missing docs/work directory")
         return
 
-    entries = [entry for entry in sorted(work_root.iterdir()) if not entry.name.startswith(".")]
+    entries = [
+        entry
+        for entry in sorted(work_root.iterdir())
+        if not entry.name.startswith(".") and entry.name not in INSTRUCTION_FILES
+    ]
     if not entries:
-        errors.append(f"{work_root}: no rebuild backlog file or folder found")
+        errors.append(f"{work_root}: no work backlog directory found")
         return
 
     valid_entries = 0
     for entry in entries:
         if entry.is_file():
-            if not BACKLOG_FILE_RE.match(entry.name):
-                errors.append(f"{entry}: backlog files must use YYYY-MM-DD-rebuild-backlog.md naming")
-                continue
-            valid_entries += 1
-            sections = parse_sections(entry.read_text())
-            validate_required_sections(entry, sections, BACKLOG_RULE["required"], errors)
+            errors.append(
+                f"{entry}: backlog entries must be directories named YYYY-MM-DD-w{{W}}-r{{R}}-<slug>"
+            )
             continue
 
         if entry.is_dir():
-            if not BACKLOG_DIR_RE.match(entry.name):
-                errors.append(f"{entry}: backlog folders must use YYYY-MM-DD-rebuild-backlog naming")
+            if not WORK_DIR_RE.match(entry.name):
+                errors.append(
+                    f"{entry}: work directories must use YYYY-MM-DD-w{{W}}-r{{R}}-<slug> naming"
+                )
                 continue
             valid_entries += 1
             index_file = entry / "00-index.md"
-            if not index_file.exists():
-                errors.append(f"{index_file}: split backlog folder must contain 00-index.md")
+            if not index_file.is_file():
+                errors.append(f"{index_file}: work directory must contain 00-index.md")
             else:
                 sections = parse_sections(index_file.read_text())
                 validate_required_sections(index_file, sections, BACKLOG_INDEX_RULE["required"], errors)
+            phase_file_count = 0
             for nested in sorted(entry.iterdir()):
+                if nested.name.startswith(".") or nested.name in INSTRUCTION_FILES:
+                    continue
                 if nested == index_file:
                     continue
                 if nested.is_dir():
-                    errors.append(f"{nested}: split backlog folders must not contain nested directories")
+                    errors.append(f"{nested}: work directories must not contain nested directories")
                     continue
                 if nested.suffix != ".md":
-                    errors.append(f"{nested}: split backlog entries must be markdown files")
+                    errors.append(f"{nested}: work directory entries must be markdown files")
                     continue
-                if not ROOT_FILE_RE.match(nested.name):
-                    errors.append(f"{nested}: split backlog phase files must use NN-slug.md naming")
+                if not WORK_PHASE_FILE_RE.match(nested.name):
+                    errors.append(f"{nested}: work phase files must use 01-<slug>.md style naming")
                     continue
-                sections = parse_sections(nested.read_text())
-                validate_required_sections(nested, sections, BACKLOG_PHASE_RULE["required"], errors)
+                phase_file_count += 1
+                text = nested.read_text()
+                sections = parse_sections(text)
+                validate_work_phase_doc(nested, text, sections, errors)
+            if phase_file_count == 0:
+                errors.append(
+                    f"{entry}: work directory must contain at least one phase file using 01-<slug>.md naming"
+                )
             continue
 
         errors.append(f"{entry}: unexpected entry in docs/work")
 
     if valid_entries == 0:
-        errors.append(f"{work_root}: no valid backlog file or folder found")
+        errors.append(f"{work_root}: no valid work backlog directory found")
 
 
 def is_plausible_link_target(target: str) -> bool:
@@ -464,6 +498,7 @@ def build_result(repo_root: Path) -> dict[str, object]:
 
     validate_prd_structure(repo_root, errors)
     validate_prd_docs(repo_root, errors)
+    validate_assets_archive(repo_root, errors)
     validate_backlog(repo_root, errors)
     validate_links(repo_root, errors)
 

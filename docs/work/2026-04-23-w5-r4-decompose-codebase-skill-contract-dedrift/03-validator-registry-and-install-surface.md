@@ -22,15 +22,15 @@ None. This backlog is derived from the `w5-r4` plan and design, not from an acti
 
 ### Tasks
 
-- [ ] Update `packages/skills/decompose-codebase/scripts/validate_output.py` to validate archived PRD sets under `docs/assets/archive/prds/...`.
-- [ ] Update `validate_output.py` to validate directory-based work outputs under `docs/work/YYYY-MM-DD-w{W}-r{R}-<slug>/`.
-- [ ] Add or update rules for `00-index.md` plus `0N-<phase>.md` backlog files.
-- [ ] Remove validator rules that still encode `docs/prd/archive/...` and `YYYY-MM-DD-rebuild-backlog.md` as current behavior.
+- [x] Update `packages/skills/decompose-codebase/scripts/validate_output.py` to validate archived PRD sets under `docs/assets/archive/prds/...`.
+- [x] Update `validate_output.py` to validate directory-based work outputs under `docs/work/YYYY-MM-DD-w{W}-r{R}-<slug>/`.
+- [x] Add or update rules for `00-index.md` plus `0N-<phase>.md` backlog files.
+- [x] Remove validator rules that still encode `docs/prd/archive/...` and `YYYY-MM-DD-rebuild-backlog.md` as current behavior.
 
 ### Acceptance criteria
 
-- [ ] The validator enforces the v2 archive/work-directory model.
-- [ ] The validator no longer encodes the legacy single-file backlog contract as current behavior.
+- [x] The validator enforces the v2 archive/work-directory model.
+- [x] The validator no longer encodes the legacy single-file backlog contract as current behavior.
 
 ### Dependencies
 
@@ -40,15 +40,15 @@ None. This backlog is derived from the `w5-r4` plan and design, not from an acti
 
 ### Tasks
 
-- [ ] Add `test_validate_output.py` coverage for a valid v2 work directory with `00-index.md` and at least one phase file.
-- [ ] Add coverage for the `docs/assets/archive/prds/...` archive namespace.
-- [ ] Add explicit checks that legacy single-file backlog assumptions are rejected or fail where appropriate under the new contract.
-- [ ] Keep the existing Wave 6 false-positive link regression coverage intact.
+- [x] Add `test_validate_output.py` coverage for a valid v2 work directory with `00-index.md` and at least one phase file.
+- [x] Add coverage for the `docs/assets/archive/prds/...` archive namespace.
+- [x] Add explicit checks that legacy single-file backlog assumptions are rejected or fail where appropriate under the new contract.
+- [x] Keep the existing Wave 6 false-positive link regression coverage intact.
 
 ### Acceptance criteria
 
-- [ ] Validator tests cover both v2 acceptance and legacy rejection.
-- [ ] Wave 6 false-positive link protections remain intact.
+- [x] Validator tests cover both v2 acceptance and legacy rejection.
+- [x] Wave 6 false-positive link protections remain intact.
 
 ### Dependencies
 
@@ -58,17 +58,17 @@ None. This backlog is derived from the `w5-r4` plan and design, not from an acti
 
 ### Tasks
 
-- [ ] Remove `assets/templates/rebuild-backlog.md` from `packages/cli/skill-registry.json`.
-- [ ] Update `packages/cli/tests/skill-catalog.test.ts` so the expected decompose optional-skill asset surface matches the retained packaged files.
-- [ ] Update `packages/cli/tests/skill-registry.test.ts` to assert the intended decompose asset set.
-- [ ] Update `packages/cli/tests/install.test.ts` so optional decompose installs prove retained files install and retired files do not.
-- [ ] Keep source-only files such as `assets/README.md` and `scripts/test_validate_output.py` out of the installed asset set unless execution proves they are required at runtime.
+- [x] Remove `assets/templates/rebuild-backlog.md` from `packages/cli/skill-registry.json`.
+- [x] Update `packages/cli/tests/skill-catalog.test.ts` so the expected decompose optional-skill asset surface matches the retained packaged files.
+- [x] Update `packages/cli/tests/skill-registry.test.ts` to assert the intended decompose asset set.
+- [x] Update `packages/cli/tests/install.test.ts` so optional decompose installs prove retained files install and retired files do not.
+- [x] Keep source-only files such as `assets/README.md` and `scripts/test_validate_output.py` out of the installed asset set unless execution proves they are required at runtime.
 
 ### Acceptance criteria
 
-- [ ] The registry no longer declares the retired one-file backlog template.
-- [ ] Install and skill-catalog tests prove the retained decompose skill asset set installs correctly.
-- [ ] Registry, packaged source, and install tests agree on the intended decompose skill file surface.
+- [x] The registry no longer declares the retired one-file backlog template.
+- [x] Install and skill-catalog tests prove the retained decompose skill asset set installs correctly.
+- [x] Registry, packaged source, and install tests agree on the intended decompose skill file surface.
 
 ### Dependencies
 

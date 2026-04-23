@@ -1,10 +1,11 @@
-import { readdirSync, statSync } from "node:fs";
+import { readFileSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, test } from "vitest";
 import { getDesiredAssets } from "../src/catalog";
 import { defaultSelections, resolveInstallProfile } from "../src/profile";
 import { renderBuildableAsset } from "../src/renderers";
 import { readPackageFile, TEMPLATE_ROOT } from "../src/utils";
+import { collectFiles } from "./helpers";
 
 const BUILDABLE_PATHS = [
   "AGENTS.md",
@@ -29,6 +30,29 @@ const BUILDABLE_PATHS = [
   "docs/assets/references/design-contract.md",
   "docs/assets/templates/design.md",
 ];
+
+const REPO_ROOT = path.resolve(TEMPLATE_ROOT, "..", "..", "..");
+const DECOMPOSE_PACKAGE_ROOT = path.join(REPO_ROOT, "packages", "skills", "decompose-codebase");
+const DECOMPOSE_MIRROR_ROOT = path.join(REPO_ROOT, ".agents", "skills", "decompose-codebase");
+
+function isMirroredDecomposeSkillFile(relativePath: string): boolean {
+  return (
+    relativePath === "SKILL.md" ||
+    relativePath === "agents/openai.yaml" ||
+    relativePath === "scripts/probe_environment.py" ||
+    relativePath === "scripts/validate_output.py" ||
+    relativePath.startsWith("references/") ||
+    relativePath.startsWith("assets/templates/")
+  );
+}
+
+function isPackageOnlyDecomposeSkillFile(relativePath: string): boolean {
+  return (
+    relativePath === "assets/README.md" ||
+    relativePath === "scripts/test_validate_output.py" ||
+    relativePath.startsWith("scripts/__pycache__/")
+  );
+}
 
 describe("default profile consistency", () => {
   test("BUILDABLE_PATHS matches the default profile buildable asset set", () => {
@@ -74,5 +98,30 @@ describe("template completeness", () => {
     const unmanaged = templateFiles.filter((file) => !managedPaths.has(file));
 
     expect(unmanaged).toEqual([]);
+  });
+});
+
+describe("dogfood skill mirror parity", () => {
+  test("decompose-codebase mirror matches the packaged mapped file set", () => {
+    const expectedMirrorFiles = collectFiles(DECOMPOSE_PACKAGE_ROOT)
+      .filter((relativePath) => !isPackageOnlyDecomposeSkillFile(relativePath))
+      .filter(isMirroredDecomposeSkillFile)
+      .sort();
+    const mirrorFiles = collectFiles(DECOMPOSE_MIRROR_ROOT).sort();
+
+    expect(mirrorFiles).toEqual(expectedMirrorFiles);
+
+    for (const relativePath of expectedMirrorFiles) {
+      const packageContents = readFileSync(
+        path.join(DECOMPOSE_PACKAGE_ROOT, relativePath),
+        "utf8",
+      );
+      const mirrorContents = readFileSync(
+        path.join(DECOMPOSE_MIRROR_ROOT, relativePath),
+        "utf8",
+      );
+
+      expect(mirrorContents).toBe(packageContents);
+    }
   });
 });
