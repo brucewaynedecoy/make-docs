@@ -6,361 +6,162 @@ order: 10
 tags:
   - installation
   - setup
-  - npx
+  - onboarding
+  - cli
 applies-to:
   - cli
-  - template
+  - docs
+related:
+  - ./cli-lifecycle-managing-installations.md
+  - ./skills-installing-and-managing-skills.md
+  - ./concepts-wave-revision-phase-coordinates.md
+  - ./workflows-how-make-docs-stages-fit-together.md
+  - ./workflows-choosing-the-right-route-for-your-project.md
+  - ../developer/maintainer-docs-assets-and-runtime-state-boundaries.md
+  - ../../prd/05-installation-profile-and-manifest-lifecycle.md
+  - ../../prd/07-cli-command-surface-and-lifecycle.md
 ---
 
 # Installing Make Docs
 
-Make Docs is a drop-in documentation structure that gives your project organized templates, capability directories, AI agent instructions, and optional installable skills out of the box. This guide walks you through every way to install it -- from a single npx command to building from source -- and covers syncing existing installs, reconfiguring selections, previewing changes, and troubleshooting.
+Use this guide for the first install only: prerequisites, the initial `make-docs` run, your first apply, and the main capability choices. Ongoing sync, reconfigure, backup, uninstall, and recovery flows are covered in [Managing Installations with the Make Docs CLI](./cli-lifecycle-managing-installations.md).
 
-## Prerequisites
+## Before You Start
 
-| Requirement | Minimum Version | Needed For |
-|---|---|---|
-| Node.js | 18 or later | All install methods |
-| npm | Bundled with Node.js | npx and CLI commands |
-| git | Any recent version | Source-based installs only |
+You need:
 
-## Installing via npx (Recommended)
+| Requirement | Why it matters |
+| --- | --- |
+| Node.js 18 or later | The CLI is Node-based. |
+| npm and `npx` | `npx make-docs` is the main install entry point. |
+| A target project directory | The installer writes the selected docs scaffold into that repo. |
 
-> **Note:** This method requires the `make-docs` package to be published to npm. As of this writing, the package has not yet been published. See [Installing from Source](#installing-from-source) for methods that work today.
+Run the installer from the root of the project you want to set up.
 
-From your project root, run:
+## First Install
+
+The standard entry point is:
 
 ```bash
 npx make-docs
 ```
 
-This launches an interactive wizard that walks you through setup:
+On a first install, `make-docs` opens the selection wizard and walks you through:
 
-1. **Capability selection** -- All four capabilities (designs, plans, prd, work) are selected by default. The wizard lets you opt *out* of any you don't need.
-2. **Harness selection** -- Choose whether to configure Claude Code, Codex, or both. Harness selection determines which router files and skill directories are managed.
-3. **Options and skills** -- Choose prompt/template/reference scope, decide whether to install skills, pick project or global skill scope, and select any optional skills.
-4. **Confirmation** -- Review your selections before anything is written to disk.
+1. capabilities
+2. harnesses
+3. install options
+4. review and apply
 
-To skip the wizard and accept all defaults:
-
-```bash
-npx make-docs --yes
-```
-
-## Installing from Source
-
-These methods work right now, before the npm package is published.
-
-### Clone, build, and run
-
-Clone the repository, build the CLI, run the installer against your project, then clean up:
-
-```bash
-git clone https://github.com/<owner>/make-docs.git /tmp/make-docs
-cd /tmp/make-docs
-npm install
-npm run build
-node packages/cli/dist/index.js --target /path/to/your/project
-rm -rf /tmp/make-docs
-```
-
-Replace `/path/to/your/project` with the absolute path to the project where you want docs installed.
-
-### Manual rsync from the template directory
-
-This copies the template files directly without running the CLI. You get the full default set of files but skip the interactive wizard:
-
-```bash
-tmp_dir="$(mktemp -d)"
-git clone --depth 1 https://github.com/<owner>/make-docs.git "$tmp_dir"
-template="$tmp_dir/packages/docs/template"
-mkdir -p ./docs
-rsync -av "$template/docs/" ./docs/
-rsync -av "$template/AGENTS.md" "$template/CLAUDE.md" ./
-rm -rf "$tmp_dir"
-```
-
-Run this from your project root.
-
-### Using degit
-
-degit downloads the repository without its git history, which is faster for a one-time copy:
-
-```bash
-npx degit <owner>/make-docs ./tmp-make-docs
-template=./tmp-make-docs/packages/docs/template
-mkdir -p ./docs
-rsync -av "$template/docs/" ./docs/
-rsync -av "$template/AGENTS.md" "$template/CLAUDE.md" ./
-rm -rf ./tmp-make-docs
-```
-
-Run this from your project root.
-
-> **About the `<owner>` placeholder:** Replace `<owner>` in all GitHub URLs above with the GitHub username or organization that hosts the repository once it is public.
-
-## Non-Interactive Installation
-
-Pass `--yes` to accept every default without prompts:
+If you want the default first install without prompts, run:
 
 ```bash
 npx make-docs --yes
 ```
 
-You can combine `--yes` with selection flags to tailor the install in a single command. A few examples:
-
-Install everything except the work capability:
+If you want to preview the first install without writing files, run:
 
 ```bash
+npx make-docs --dry-run
+```
+
+`make-docs` treats a run with no existing manifest as a first install. The first successful apply creates `.make-docs/manifest.json`, which becomes the saved state for later lifecycle operations.
+
+## What the Default First Install Includes
+
+The default profile installs:
+
+- all four capabilities: `designs`, `plans`, `prd`, and `work`
+- both supported harnesses, which generate `AGENTS.md` and `CLAUDE.md`
+- prompt starters
+- all valid templates
+- all valid references
+- skills in project scope, with no optional skills selected by default
+
+That gives you a full starter docs system plus the saved manifest needed for later sync and reconfigure runs.
+
+## Choosing Capabilities
+
+Capabilities control which major docs families `make-docs` manages:
+
+| Capability | What it adds |
+| --- | --- |
+| `designs` | Design docs and design-routing support |
+| `plans` | Plan docs and planning workflow assets |
+| `prd` | The active PRD namespace and PRD workflow assets |
+| `work` | Work backlogs tied to PRD outputs |
+
+Two dependency rules matter on day one:
+
+- `prd` depends on `plans`
+- `work` depends on both `plans` and `prd`
+
+That means disabling `plans` also disables `prd` and `work`, and disabling `prd` also disables `work`.
+
+Examples:
+
+```bash
+# Keep a full install, but skip work backlogs
 npx make-docs --yes --no-work
+
+# Install only design and planning surfaces
+npx make-docs --yes --no-prd --no-work
 ```
 
-Install without designs or prd:
+## Choosing Harnesses and Install Options
+
+After capabilities, the wizard asks which harnesses and install options you want.
+
+The main choices are:
+
+- whether to target the Codex harness, the Claude Code harness, or both
+- whether to install skills
+- whether skills should live in the project or global scope
+- whether to add any optional skills
+- whether templates and references should be `all` or `required`
+
+Examples:
 
 ```bash
-npx make-docs --yes --no-designs --no-prd
-```
+# Install only the Codex harness
+npx make-docs --yes --no-claude
 
-Install only required templates (skip optional ones):
-
-```bash
-npx make-docs --yes --templates required
-```
-
-Install only required references:
-
-```bash
-npx make-docs --yes --references required
-```
-
-Install only the Claude Code harness:
-
-```bash
-npx make-docs --yes --no-codex
-```
-
-Skip skill installation entirely:
-
-```bash
+# Skip skills on the first install
 npx make-docs --yes --no-skills
-```
 
-Enable the optional `decompose-codebase` skill:
-
-```bash
+# Add an optional skill during install
 npx make-docs --yes --optional-skills decompose-codebase
 ```
 
-Install skills globally instead of in the current project:
+This guide stops at initial selection. Use [Installing and Managing Skills](./skills-installing-and-managing-skills.md) for ongoing skill changes and [Managing Installations with the Make Docs CLI](./cli-lifecycle-managing-installations.md) for lifecycle operations after the first install.
 
-```bash
-npx make-docs --yes --skill-scope global
-```
+## Your First Apply
 
-Install into a specific directory:
+The review step shows:
 
-```bash
-npx make-docs --yes --target ./my-project
-```
+- the target directory
+- whether this is a first install
+- which selections are being applied
+- how many files will be created, generated, updated, skipped, or left unchanged
 
-## Previewing Changes
+On the first successful apply, `make-docs` writes:
 
-Use `--dry-run` to see exactly what would be written without actually writing anything:
+- the selected root instruction files
+- the selected `docs/` scaffold
+- `.make-docs/manifest.json`
 
-```bash
-npx make-docs --dry-run
-```
+The installer is non-destructive. If it finds a conflicting unmanaged root instruction file, it prompts for a conflict decision. If a managed file has already been modified locally, later generated replacements are staged under `.make-docs/conflicts/` instead of overwriting your copy.
 
-Dry-run works with any combination of flags:
+If you need the maintainer-facing explanation for why runtime state lives under `.make-docs/` while document resources live under `docs/assets/`, use [Docs Assets and Runtime State Boundaries](../developer/maintainer-docs-assets-and-runtime-state-boundaries.md).
 
-```bash
-npx make-docs --dry-run --no-work --templates required
-```
+## What to Do Next
 
-This is especially useful before an apply/sync run to verify which files will change.
+After the first install:
 
-## Syncing an Existing Installation
+- use [How Make Docs Stages Fit Together](./workflows-how-make-docs-stages-fit-together.md) to understand the overall artifact model
+- use [Choosing the Right Route for Your Project](./workflows-choosing-the-right-route-for-your-project.md) to pick the right documentation route
+- use [Understanding W/R/P Coordinates](./concepts-wave-revision-phase-coordinates.md) when you start working with plan and backlog lineage
+- use [Installing and Managing Skills](./skills-installing-and-managing-skills.md) when you want to adjust shipped skills after the first install
+- use [Managing Installations with the Make Docs CLI](./cli-lifecycle-managing-installations.md) for apply or sync, reconfigure, backup, uninstall, and recovery
 
-After you have already installed make-docs, run the same bare command again to bring your installation in line with the current package version and your saved manifest selections:
-
-```bash
-npx make-docs
-```
-
-### How apply/sync works
-
-Apply/sync runs are **non-destructive**. The installer compares each managed file against the version recorded in your manifest:
-
-| Scenario | What happens |
-|---|---|
-| Managed file unchanged locally | Updated in place to the new version |
-| Managed file modified locally | Skipped -- your changes are preserved |
-| Unmanaged file conflicts with a new file | Never overwritten; the proposed replacement is staged under `.make-docs/conflicts/<run-id>/` for you to review |
-
-You can preview a sync before applying it:
-
-```bash
-npx make-docs --dry-run
-```
-
-### Targeting a specific directory
-
-```bash
-npx make-docs --target ./my-project
-```
-
-### Accepting all sync defaults
-
-```bash
-npx make-docs --yes
-```
-
-### Changing your capability selections
-
-If you originally skipped a capability and now want it, run the interactive reconfigure command and enable it in the wizard:
-
-```bash
-npx make-docs reconfigure
-```
-
-If you want a non-interactive selection change, combine `reconfigure --yes` with at least one selection flag:
-
-```bash
-npx make-docs reconfigure --yes --no-designs
-```
-
-You can also change harness or skill settings during reconfigure:
-
-```bash
-npx make-docs reconfigure --yes --no-codex --skill-scope global --optional-skills decompose-codebase
-```
-
-## What Gets Installed
-
-After a default installation, your project will contain the following structure:
-
-```
-your-project/
-  AGENTS.md                         # Root agent instruction router
-  CLAUDE.md                         # Root Claude instruction router
-  .agents/
-    skills/
-      archive-docs/
-        SKILL.md
-  .claude/
-    skills/
-      archive-docs/
-        SKILL.md
-  docs/
-    AGENTS.md                       # Docs-level agent router
-    CLAUDE.md                       # Docs-level Claude router
-    .references/                    # Reference documents for workflows and contracts
-    .templates/                     # Document templates for designs, plans, PRDs, work items
-    .prompts/                       # Optional prompt starters for AI-assisted workflows
-    .assets/
-      AGENTS.md
-      CLAUDE.md
-      history/
-        AGENTS.md
-        CLAUDE.md
-      make-docs/
-        AGENTS.md
-        CLAUDE.md
-        manifest.json               # CLI-managed state for managed file hashes and version
-    designs/                        # Design documents
-      AGENTS.md
-    plans/                          # Planning documents
-      AGENTS.md
-    prd/                            # Product requirements documents
-      AGENTS.md
-    work/                           # Work items (tasks, stories)
-      AGENTS.md
-```
-
-Skill installation depends on your selections:
-
-- `archive-docs` is installed automatically whenever skills are enabled.
-- `decompose-codebase` is installed only if you select it.
-- Project scope installs skills under the current repo (`.claude/skills/`, `.agents/skills/`).
-- Global scope installs skills under your home directory (`~/.claude/skills/`, `~/.agents/skills/`).
-
-**Manifest:** The file at `.make-docs/manifest.json` is how make-docs tracks which files it manages. Do not delete this file -- it is required for updates and reconfiguration.
-
-## Capability Reference
-
-| Capability | Description | Dependencies |
-|---|---|---|
-| `designs` | Architecture and design documents for your project. | None |
-| `plans` | High-level plans that guide implementation. | None |
-| `prd` | Product requirements documents that formalize what to build. | Requires `plans` |
-| `work` | Granular work items (tasks, stories) derived from PRDs. | Requires `plans` and `prd` |
-
-All four capabilities are selected by default. You opt **out** of the ones you do not need using `--no-<capability>` flags.
-
-Because `prd` depends on `plans`, opting out of `plans` will also remove `prd`. Similarly, because `work` depends on both `plans` and `prd`, opting out of either will also remove `work`.
-
-## Command Reference
-
-| Command | Description |
-|---|---|
-| `make-docs` | Install into a new target, or sync an existing install using saved manifest selections |
-| `make-docs reconfigure` | Change saved selections for an existing install |
-| `make-docs backup` | Back up managed files |
-| `make-docs uninstall` | Remove managed files, with optional backup first |
-
-### Flags
-
-| Flag | Applies To | Description |
-|---|---|---|
-| `--target <dir>` | `make-docs`, `reconfigure`, `backup`, `uninstall` | Set the target project directory (defaults to current directory) |
-| `--dry-run` | `make-docs`, `reconfigure` | Preview changes without writing any files |
-| `--yes` | `make-docs`, `reconfigure`, `backup`, `uninstall` | Skip prompts where safe; `reconfigure --yes` requires at least one selection flag |
-| `--backup` | `uninstall` | Create a backup before removing managed files |
-| `--no-designs` | `make-docs`, `reconfigure` | Exclude the designs capability |
-| `--no-plans` | `make-docs`, `reconfigure` | Exclude the plans capability (also excludes prd and work) |
-| `--no-prd` | `make-docs`, `reconfigure` | Exclude the prd capability (also excludes work) |
-| `--no-work` | `make-docs`, `reconfigure` | Exclude the work capability |
-| `--no-prompts` | `make-docs`, `reconfigure` | Skip installing prompt starters |
-| `--templates required\|all` | `make-docs`, `reconfigure` | Install only required templates or the full set |
-| `--references required\|all` | `make-docs`, `reconfigure` | Install only required references or the full set |
-| `--no-claude-code` | `make-docs`, `reconfigure` | Skip the Claude Code harness (deprecated alias: `--no-claude`) |
-| `--no-codex` | `make-docs`, `reconfigure` | Skip the Codex harness (deprecated alias: `--no-agents`) |
-| `--no-skills` | `make-docs`, `reconfigure` | Skip skill installation |
-| `--skill-scope project\|global` | `make-docs`, `reconfigure` | Install skills in the project or in your home directory |
-| `--optional-skills <csv\|none>` | `make-docs`, `reconfigure` | Replace the selected optional skills; use `none` to clear them |
-
-## Troubleshooting
-
-### "No make-docs manifest found"
-
-This means you are running `reconfigure`, `backup`, or `uninstall` in a directory that does not have an existing make-docs installation. Run the bare installer first:
-
-```bash
-npx make-docs
-```
-
-### Conflict files appearing in `.make-docs/conflicts/`
-
-During apply/sync, if a file that make-docs wants to create already exists but is not tracked in the manifest, the proposed file is staged under `.make-docs/conflicts/<run-id>/` instead of overwriting yours. To resolve:
-
-1. Compare the staged file with your existing file.
-2. Merge the changes you want to keep.
-3. Delete the conflict directory once resolved.
-
-### Permission errors when writing files
-
-Make sure you have write access to the target directory. If you are installing into a directory owned by another user or protected by system permissions, you may need to adjust ownership or run with appropriate privileges.
-
-### Node.js version too old
-
-make-docs requires Node.js 18 or later. Check your version:
-
-```bash
-node --version
-```
-
-If the reported version is below 18, update Node.js before retrying.
-
-### The `npx make-docs` command is not found
-
-The npm package has not been published yet. Use one of the [source-based install methods](#installing-from-source) until the package is available on npm.
+For ongoing apply or sync, reconfigure, backup, uninstall, and recovery, continue with [Managing Installations with the Make Docs CLI](./cli-lifecycle-managing-installations.md).

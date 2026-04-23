@@ -6,243 +6,132 @@ order: 10
 tags:
   - build
   - testing
-  - npm-link
+  - smoke-pack
 applies-to:
   - cli
+related:
+  - ../user/cli-lifecycle-managing-installations.md
+  - ./maintainer-docs-assets-and-runtime-state-boundaries.md
+  - ./maintainer-dogfood-and-maintainer-operations.md
+  - ./release-packaging-validation-and-release-reference.md
 ---
 
 # Building and Installing the CLI Locally
 
 ## Overview
 
-This guide walks developers and contributors through building, running, and testing the `make-docs` CLI from source. It covers day-to-day development workflows, local installation methods, and the smoke-test pipeline. If you are a consumer of the published npm package rather than a contributor, this guide is not for you.
+This guide is the local development entry point for the `make-docs` CLI. It is intentionally narrow: build the CLI, run the test and router-validation paths that matter during development, and exercise local install flows through built or packed artifacts.
+
+For maintainer-specific dogfood work, use [Dogfood and Maintainer Operations](./maintainer-dogfood-and-maintainer-operations.md). For packaging and release procedure, use [Packaging, Validation, and Release Reference](./release-packaging-validation-and-release-reference.md). For path-boundary questions around `docs/assets/**` versus `.make-docs/**`, use [Docs Assets and Runtime State Boundaries](./maintainer-docs-assets-and-runtime-state-boundaries.md).
 
 ## Prerequisites
 
 | Requirement | Notes |
-|---|---|
-| **Node.js >= 18** | Required. Check with `node --version`. |
-| **npm** | Ships with Node.js. Check with `npm --version`. |
-| **just** | Optional convenience runner. Install via `brew install just` (macOS) or see [just docs](https://github.com/casey/just#installation). All `just` recipes have direct npm equivalents listed below. |
+| --- | --- |
+| Node.js `>=18` | Required for workspace install, build, and tests. |
+| npm | Used for workspace scripts and local pack/install checks. |
+| repo-root install | Run `npm install` once from the repo root. |
 
-## Cloning and Setup
+## Local Build Paths
 
-Clone the repository and install all workspace dependencies from the repo root:
+Use the repo root unless a command explicitly says otherwise.
 
-```sh
-git clone <repo-url> make-docs
-cd make-docs
+```bash
 npm install
+npm run build -w make-docs
 ```
 
-`npm install` at the root handles every workspace (`packages/cli`, `packages/docs`, etc.) automatically -- no per-package install step is needed.
+For fast iteration against source without rebuilding every change:
 
-## Building the CLI
-
-Compile TypeScript to JavaScript using [tsup](https://tsup.egoist.dev/):
-
-```sh
-# npm
-npm run build
-
-# just
-just build
+```bash
+npm run dev -w make-docs -- --target "$(mktemp -d)"
 ```
 
-Both commands delegate to `npm run build -w make-docs`, which runs `tsup` inside `packages/cli/`. The compiled output lands in `packages/cli/dist/`.
+For built-artifact checks, prefer:
 
-## Running in Development Mode
-
-For rapid iteration you can skip the build entirely. The `dev` script uses [tsx](https://tsx.is/) to execute TypeScript source directly:
-
-```sh
-# npm
-npm run dev
-
-# just
-just dev
+```bash
+npm run build -w make-docs
+node packages/cli/dist/index.js --help
 ```
 
-Both delegate to `npm run dev -w make-docs`, which runs `tsx src/index.ts` inside `packages/cli/`.
+## Core Validation Commands
 
-During development the CLI resolves the documentation template from the sibling workspace at `packages/docs/template/` (see `resolveTemplateRoot()` in [`packages/cli/src/utils.ts`](../../../packages/cli/src/utils.ts)). No copy step is required -- edits to template files are picked up immediately.
+Run the smallest command set that matches the change:
 
-To pass flags to the CLI in dev mode, append them after `--`:
+| If you changed | Run |
+| --- | --- |
+| TypeScript logic, planner, installer, wizard, profile rules | `npm test -w make-docs` |
+| template-owned defaults or profile-aware generated assets | `npm run validate:defaults -w make-docs` |
+| instruction routers or copied router content | `bash scripts/check-instruction-routers.sh` |
+| packaged install behavior or tarball-sensitive flow | `node scripts/smoke-pack.mjs` |
 
-```sh
-npm run dev -- --dry-run --yes --target /tmp/dev-test
+These commands are the local development baseline for L12:
+
+```bash
+npm test -w make-docs
+npm run validate:defaults -w make-docs
+bash scripts/check-instruction-routers.sh
+node scripts/smoke-pack.mjs
 ```
 
-## Running Tests
+## Local Install Entry Paths
 
-### Unit and integration tests
+Use one of these depending on what you need to prove.
 
-```sh
-# npm
-npm test
+### Built CLI from `dist/`
 
-# just
-just test
+Best for normal local behavior checks:
+
+```bash
+npm run build -w make-docs
+TEST_DIR="$(mktemp -d)"
+node packages/cli/dist/index.js --dry-run --target "$TEST_DIR"
+node packages/cli/dist/index.js --target "$TEST_DIR"
 ```
 
-Both delegate to `vitest run` inside `packages/cli/`.
+### `npm link`
 
-### Default-value consistency checks
+Best when you want a shell-level `make-docs` command backed by your local build:
 
-Validates that hardcoded defaults stay in sync with the template:
-
-```sh
-# npm
-npm run validate:defaults
-
-# just
-just validate-defaults
-```
-
-### Instruction-router validation
-
-Checks that every directory's routing instructions are intact:
-
-```sh
-just check-instruction-routers
-```
-
-(No npm equivalent -- this runs `bash scripts/check-instruction-routers.sh` directly.)
-
-## Testing a Packed Install (Smoke Test)
-
-The smoke test exercises the full publish pipeline without actually publishing:
-
-```sh
-# npm
-npm run smoke:pack
-
-# just
-just smoke-pack
-```
-
-What happens behind the scenes (implemented in [`scripts/smoke-pack.mjs`](../../../scripts/smoke-pack.mjs)):
-
-1. Runs `npm run prepack` in the CLI package, which copies `packages/docs/template/` into `packages/cli/template/` and then builds with tsup.
-2. Runs `npm pack --json` to produce a tarball.
-3. Unpacks the tarball into a temporary directory.
-4. Executes `node dist/index.js --yes --target <temp-dir>` from the unpacked package.
-5. Asserts that `.make-docs/manifest.json` and `docs/AGENTS.md` exist in the target.
-6. Cleans up all temporary directories.
-
-If any step fails the script exits non-zero with a diagnostic message.
-
-## Installing Locally via npm link
-
-`npm link` creates a global symlink so you can invoke `make-docs` from any directory, pointing at your local build:
-
-```sh
+```bash
 cd packages/cli
 npm run build
 npm link
-```
-
-Verify the link:
-
-```sh
 make-docs --help
 ```
 
-You should see the CLI help output. Any subsequent `npm run build` updates the linked binary in place.
+Remove the global link when finished:
 
-To remove the global link when you are done:
-
-```sh
+```bash
 npm unlink -g make-docs
 ```
 
-## Installing Locally via npm pack
+### Packed tarball
 
-If you want to test the exact artifact that `npm publish` would upload -- including the `prepack` copy step -- use `npm pack`:
+Best when you need the publish-shaped artifact:
 
-```sh
+```bash
 cd packages/cli
 npm run prepack
 npm pack
 ```
 
-This produces a tarball such as `make-docs-0.1.0.tgz`. Install it globally:
+Then test one real packaged invocation:
 
-```sh
-npm install -g ./make-docs-0.1.0.tgz
+```bash
+TARBALL="$(ls make-docs-*.tgz | tail -n 1)"
+TEST_DIR="$(mktemp -d)"
+npm exec --yes --package "./$TARBALL" -- make-docs --target "$TEST_DIR"
 ```
 
-Test the installed CLI:
+## When To Leave This Guide
 
-```sh
-make-docs --dry-run --yes --target /tmp/test-install
-```
+- If you are re-seeding repo-root `docs/` from `packages/docs/template/`, move to [Dogfood and Maintainer Operations](./maintainer-dogfood-and-maintainer-operations.md).
+- If you are deciding whether a file belongs in `docs/assets/**` or `.make-docs/**`, move to [Docs Assets and Runtime State Boundaries](./maintainer-docs-assets-and-runtime-state-boundaries.md).
+- If you are validating tarball contents, smoke-pack expectations, release checks, or publish procedure, move to [Packaging, Validation, and Release Reference](./release-packaging-validation-and-release-reference.md).
 
-To uninstall:
+## Related Resources
 
-```sh
-npm uninstall -g make-docs
-```
-
-## Common Development Workflows
-
-| Task | Commands |
-|---|---|
-| Edit a template file and test | Edit file under `packages/docs/template/`, then `npm run dev -- --dry-run --yes --target /tmp/tpl-test` |
-| Edit CLI source and test | Edit file under `packages/cli/src/`, then `npm run dev -- --yes --target /tmp/cli-test` |
-| Run the full test suite | `npm test` |
-| Validate defaults after changing a template | `npm run validate:defaults` |
-| Full pre-publish check | `npm test && npm run validate:defaults && npm run smoke:pack` |
-| Test as a globally installed package | `cd packages/cli && npm run build && npm link`, then run `make-docs` from another directory |
-
-## Troubleshooting
-
-### Template not found
-
-**Symptom:** The CLI errors with a message about a missing template directory.
-
-**Cause:** In development mode the CLI expects the template at `packages/docs/template/` relative to the CLI package root. If you are running from an unusual working directory or have moved packages, the path will not resolve.
-
-**Fix:** Make sure you are running commands from the repository root (or using the npm/just scripts, which handle paths for you). Confirm that `packages/docs/template/` exists and is not empty.
-
-### Stale build output
-
-**Symptom:** Code changes are not reflected when running `node packages/cli/dist/index.js` or the globally linked `make-docs` command.
-
-**Cause:** The `dist/` directory contains a previous build. Unlike `npm run dev`, the compiled entry point does not pick up source changes automatically.
-
-**Fix:** Rebuild with `npm run build` (or `just build`). If you used `npm link`, the symlink points at `dist/index.js` so the rebuild is sufficient -- no re-link needed.
-
-### Permission errors with npm link or global install
-
-**Symptom:** `EACCES` or similar permission errors when running `npm link` or `npm install -g`.
-
-**Fix:** Avoid using `sudo`. Instead, configure npm to use a user-owned prefix:
-
-```sh
-mkdir -p ~/.npm-global
-npm config set prefix '~/.npm-global'
-```
-
-Then add `~/.npm-global/bin` to your `PATH` in your shell profile (e.g., `~/.zshrc` or `~/.bashrc`):
-
-```sh
-export PATH="$HOME/.npm-global/bin:$PATH"
-```
-
-Restart your shell and retry.
-
-### Smoke test fails during prepack
-
-**Symptom:** `npm run smoke:pack` fails at the prepack step.
-
-**Cause:** The copy-template script ([`scripts/copy-template-to-cli.mjs`](../../../scripts/copy-template-to-cli.mjs)) could not copy `packages/docs/template/` into `packages/cli/template/`, or tsup failed to compile.
-
-**Fix:** Run the steps manually to isolate the failure:
-
-```sh
-node scripts/copy-template-to-cli.mjs
-npm run build -w make-docs
-```
-
-Check for TypeScript errors in the build output and verify that `packages/docs/template/` is populated.
+- [Docs Assets and Runtime State Boundaries](./maintainer-docs-assets-and-runtime-state-boundaries.md)
+- [Dogfood and Maintainer Operations](./maintainer-dogfood-and-maintainer-operations.md)
+- [Packaging, Validation, and Release Reference](./release-packaging-validation-and-release-reference.md)

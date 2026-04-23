@@ -6,136 +6,135 @@ order: 20
 tags:
   - workflow
   - routing
+  - decomposition
   - prd
-  - backlog
 applies-to:
   - docs
   - workflow
 related:
   - ./workflows-how-make-docs-stages-fit-together.md
-  - ../developer/development-workflows-choosing-the-right-route.md
   - ./concepts-wave-revision-phase-coordinates.md
   - ./getting-started-installing-make-docs.md
+  - ./skills-decomposing-an-existing-codebase.md
+  - ../developer/development-workflows-choosing-the-right-route.md
+  - ../../prd/02-architecture-overview.md
 ---
 
 # Choosing the Right Route for Your Project
 
-> See `docs/assets/references/guide-contract.md` for frontmatter schema and slug rules.
+Choose the route based on the project's current starting point, not on habit.
 
-## Overview
+The three main starting points are:
 
-The best `make-docs` workflow depends on what you already have.
+- a new idea or design
+- an existing codebase
+- an active PRD set
 
-You do not need to force every project through the same path. The better question is:
+## Quick Chooser
 
-- are you starting from an idea?
-- from a real codebase?
-- or from an existing PRD set that needs to change?
-
-## Prerequisites
-
-Read [How Make Docs Stages Fit Together](./workflows-how-make-docs-stages-fit-together.md) first if you want the background on what each stage does.
-
-## Getting Started
-
-Use this table to pick the most natural route.
-
-| If you already have... | And you want... | Best route | Typical result |
+| If you have... | And you need... | Best route | Typical result |
 | --- | --- | --- | --- |
-| A new concept, feature, or initiative | A fresh product definition and delivery plan | Design -> plan -> full PRD generation | Full PRD set plus full backlog |
-| An existing codebase with weak or missing product docs | A clear product definition based on what exists | Decomposition -> plan -> full PRD generation | Full PRD set plus rebuild backlog |
-| An active PRD set | A net-new capability or enhancement | PRD change planning -> targeted PRD update | Change docs plus delta backlog |
-| An active PRD set | A revised or removed requirement | PRD change planning -> targeted PRD update | Revision/removal docs plus delta backlog |
-| Existing plan/work history for the same initiative | Follow-up planning or a corrected delivery path | Continue the existing wave/revision line | Revised plan/work artifacts, with PRD changes only if needed |
+| A new initiative or design | A first active PRD set | Design -> plan -> full-set generation | Full PRD set plus full backlog |
+| An existing codebase with missing or weak product docs | A current product definition based on real behavior | Decomposition -> plan -> full-set generation | Full PRD set plus rebuild backlog |
+| An active PRD set that is still trustworthy | A targeted product change | Change planning -> active-set evolution | Change docs plus delta backlog |
+| Existing plan or backlog lineage for the same initiative | Follow-up execution work or a correction | Continue the same W/R line | Revised plan/work artifacts, with PRD updates only if needed |
 
-## Step-by-Step Instructions
+## Route 1: Start from a New Idea or Design
 
-### Choose a full PRD set when the whole requirement surface needs to exist
+Use this route when the product definition still needs to be established.
 
-A full PRD set is natural when:
+This is the right fit when:
 
 - the project is new
-- the existing documentation is not usable
-- you need a baseline description of the whole system
+- the main input is intent rather than existing code
+- you need a baseline PRD namespace before delivery planning
 
-This usually leads to a full backlog as well, because the whole product scope is being defined.
+Expected outcome:
 
-### Choose decomposition when the code already tells the story
+- a plan
+- a full PRD set
+- a full backlog
 
-If the software already exists, decomposition is often the fastest honest route.
+## Route 2: Start from an Existing Codebase
 
-Use it when:
+Use this route when the codebase is the most trustworthy source of truth.
 
-- the codebase is real and important
-- you need to recover product knowledge from what already ships
-- guessing from memory or stale docs would be risky
+This is the right fit when:
 
-This still ends with a PRD set and backlog, but it starts from the code instead of from a blank sheet.
+- the software already exists
+- the current docs are missing, stale, or incomplete
+- guessing from memory would be risky
 
-### Choose a targeted PRD update when the active PRD set already works
+Expected outcome:
 
-If the project already has an active PRD set, you usually do not want to replace it just to make one change.
+- a decomposition-oriented plan
+- a fresh PRD set generated from the existing system
+- a rebuild-oriented backlog
 
-Choose a targeted update when:
+This guide only helps you choose that route. For the concrete skill workflow, inputs, and expected outputs, continue with [Decomposing an Existing Codebase](./skills-decomposing-an-existing-codebase.md).
 
-- you are adding a new capability
-- you are extending an existing one
-- you are revising or removing a specific requirement
+## Route 3: Start from an Active PRD Set
 
-This route usually produces:
+Use this route when the repo already has an active PRD namespace and only part of it is changing.
 
-- targeted PRD change docs
-- updates that show how those changes connect to the existing baseline
-- a delta backlog focused on the affected work
+This is the right fit when:
 
-### Choose a full backlog only when the scope is full
+- you are adding a capability
+- you are enhancing an existing one
+- you are revising or removing a requirement
 
-A full backlog makes sense when:
+Expected outcome:
 
-- you are creating a full PRD set
-- you need a delivery plan for the whole active requirement surface
+- a change plan
+- one or more PRD change docs
+- baseline annotations where needed
+- a delta backlog
 
-A delta backlog makes sense when:
+This is the default route for iterative product work.
 
-- only part of the product is changing
-- the rest of the PRD set still stands
-- you want a smaller, more focused delivery plan
+## Route 4: Continue Existing W/R Lineage
 
-### Practical rule of thumb
+Sometimes the right answer is not a PRD route at all.
 
-1. If the project is new, start from design.
-2. If the system already exists, consider decomposition.
-3. If the PRD already exists, prefer targeted PRD updates over full replacement.
-4. If only planning or delivery needs to change, keep the existing initiative lineage and avoid unnecessary PRD churn.
+If the main task is:
 
-## Troubleshooting
+- follow-up planning
+- backlog correction
+- continuing an existing initiative
 
-### "I have both a codebase and a design. Which route should I pick?"
+then keep the same wave and update the revision only when the work is a real redo or correction. Do not create PRD churn unless the requirements actually changed.
 
-Pick the route based on which source needs to carry the most weight. If the system already exists and must be described accurately, decomposition may still be the better route even if a new design also exists.
+## How to Decide
 
-### "How do I know whether to update the PRD or replace it?"
+Ask these questions in order:
 
-If the existing PRD set is still the active truth and you are changing only part of it, update it in place. Replace it only when a fresh full-set generation is truly needed.
+1. Does the repo already have a trustworthy active PRD set?
+2. If not, is the best source of truth a design or the codebase?
+3. Does the task need a full requirement surface or only a targeted change?
+4. Is the main work about requirements, or is it really follow-up inside existing plan/work lineage?
 
-### "Can one project use different routes over time?"
+If the answers point to an active PRD set, prefer active-set evolution over full replacement.
 
-Yes. A project might start with a baseline PRD set, later use targeted PRD changes for iterative work, and later still use decomposition if the real system drifts far away from the old documentation.
+## Common Questions
 
-## FAQ
+### The repo has both code and docs. Should I still decompose it?
 
-### What is the most flexible thing about this system?
+Usually no. If the active PRD set is still current enough to evolve in place, use change planning instead of regenerating the whole namespace.
 
-It does not assume that every project starts from a blank slate. It can adapt to greenfield work, mature codebases, and ongoing iterative change.
+### When should I create a full backlog?
 
-### When should I read about coordinates?
+When the route creates or replaces a full PRD set, or when the user explicitly asks for a full delivery plan.
 
-Read [Understanding W/R/P Coordinates](./concepts-wave-revision-phase-coordinates.md) when you need help understanding plan and backlog lineage.
+### When should I create a delta backlog?
 
-### When should I read about installation?
+When the active PRD set stays in place and only the affected slice of work needs planning.
 
-Read [Installing Make Docs](./getting-started-installing-make-docs.md) when your next step is setting up or syncing the docs system rather than choosing a workflow route.
+### What if I am mostly correcting an earlier plan or backlog?
 
-### Where should contributors go?
+That is usually W/R follow-up work, not a reason to regenerate the PRD set.
 
-Contributors and maintainers should use the companion developer guide [Choosing the Right Make Docs Route](../developer/development-workflows-choosing-the-right-route.md) for the deeper internal model and source references.
+## Related Resources
+
+- Use [How Make Docs Stages Fit Together](./workflows-how-make-docs-stages-fit-together.md) for the broader stage model behind these choices.
+- Use [Understanding W/R/P Coordinates](./concepts-wave-revision-phase-coordinates.md) when the route decision depends on existing plan or backlog lineage.
+- Use the companion developer guide [Choosing the Right Make Docs Route](../developer/development-workflows-choosing-the-right-route.md) for the maintainer-facing decision model.

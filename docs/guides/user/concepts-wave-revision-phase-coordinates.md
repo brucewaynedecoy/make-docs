@@ -5,12 +5,15 @@ status: draft
 order: 20
 tags:
   - coordinates
-  - history
-  - commits
+  - wave
+  - revision
+  - phase
 applies-to:
   - docs
   - workflow
 related:
+  - ./workflows-how-make-docs-stages-fit-together.md
+  - ./workflows-choosing-the-right-route-for-your-project.md
   - ../../assets/references/wave-model.md
   - ../../assets/references/history-record-contract.md
   - ../../assets/references/commit-message-convention.md
@@ -18,133 +21,118 @@ related:
 
 # Understanding W/R/P Coordinates
 
-Make Docs uses coordinates such as `W1 R0 P1` to identify where a document, history record, or commit belongs in an end-to-end documentation workflow. The coordinate is short, but it carries three pieces of context: wave, revision, and phase.
+`make-docs` uses W/R/P coordinates to track initiative lineage in plans, work backlogs, history records, and phase-scoped commits. The three parts are:
 
-This guide explains how to read the coordinate, where it appears, and what to do when you are not sure which coordinate applies.
+- `W` for wave
+- `R` for revision
+- `P` for phase
+
+Read `W13 R0 P3` as "wave 13, revision 0, phase 3."
 
 ## Quick Reference
 
-| Token | Name | What it means |
+| Token | Meaning | Used for |
 | --- | --- | --- |
-| `W1` | Wave 1 | The first end-to-end initiative in a project. A wave usually runs from design to plan to work. |
-| `R0` | Revision 0 | The initial version of that wave. Revisions are zero-based, so `R0` is normal. |
-| `P1` | Phase 1 | The first phase inside a plan or work backlog. Phases are one-based. |
+| `W13` | The thirteenth end-to-end initiative | Plan and work lineage |
+| `R0` | The first version of that initiative | Corrections or redos stay in the same wave and increment revision |
+| `P3` | The third phase inside that plan or backlog | Phase files, history records, and phase-level commits |
 
-Read `W7 R1 P3` as "Wave 7, revision 1, phase 3."
+The source of truth for the naming rules is [wave-model.md](../../assets/references/wave-model.md).
 
-The authoritative rules live in [the wave model](../../assets/references/wave-model.md).
+## Where Coordinates Belong
 
-## How Waves Work
+W/R/P is part of the plan-and-backlog side of the system, not the entire docs system.
 
-A wave is one complete initiative. It starts when the user asks for a new end-to-end body of work, then usually moves through design, planning, work execution, history records, and commits.
-
-Use a new wave when the work is a new initiative. For example, if the latest unrelated initiative was `W4 R0` and the user starts a new feature planning effort, the next initiative is usually `W5 R0`.
-
-Do not create a new wave just because a newer wave exists. If the current task revises older work, keep the older wave and increment its revision instead.
-
-## How Revisions Work
-
-A revision is a meaningful redo inside the same wave. The first version is always `R0`. Later revisions are `R1`, `R2`, and so on.
-
-Use a new revision when the user asks to redesign, re-plan, correct, standardize, or finish something that already belongs to an existing wave. For example, if `W5 R0` delivered the first version of a CLI skill installation workflow and the user later asks to rework that same workflow after feedback, the follow-up should stay in `W5` and become the next unused revision, such as `W5 R1`.
-
-## How Phases Work
-
-A phase is a chunk of implementation or planning work inside a wave and revision. Phases appear inside plan files, work files, history records, and phase-specific commits.
-
-Top-level plan and work directories include only wave and revision:
-
-```text
-docs/plans/2026-04-21-w10-r0-make-docs-rename/
-docs/work/2026-04-21-w10-r0-make-docs-rename/
-```
-
-Individual phase files use ordinary numbered filenames inside those directories:
-
-```text
-01-core-package-and-cli-identity.md
-02-template-and-installer-rename.md
-03-docs-history-and-pathnames.md
-```
-
-History records include the phase when the phase is known:
-
-```text
-docs/assets/history/2026-04-21-w10-r0-p1-core-package-and-cli-identity.md
-```
-
-## Where Coordinates Appear
-
-Coordinates appear in different formats depending on the artifact.
-
-| Location | Example | Notes |
+| Artifact family | Uses W/R/P? | Why |
 | --- | --- | --- |
-| Plan directory | `docs/plans/2026-04-21-w10-r0-make-docs-rename/` | Uses lowercase `w` and `r`; no phase in the directory name. |
-| Work directory | `docs/work/2026-04-21-w10-r0-make-docs-rename/` | Mirrors the plan directory shape. |
-| History filename | `docs/assets/history/2026-04-21-w10-r0-p1-core-package-and-cli-identity.md` | Includes `p` when the record is phase-scoped. |
-| History frontmatter | `coordinate: "W10 R0 P1"` | Uses the human-readable display form. |
-| Commit subject | `feat: [W10 R0 P1] Make Docs rename - Core package and CLI identity` | Uses square brackets and no commas. |
+| `docs/plans/` | Yes | Plans track initiative lineage. |
+| `docs/work/` | Yes | Work backlogs follow plan lineage. |
+| `docs/assets/history/` | Yes, when known | History records often capture phase-scoped progress. |
+| Commit messages tied to phased work | Yes | They can point back to the same initiative and phase. |
+| `docs/designs/` | No | Designs use dated filenames and design lineage instead. |
+| `docs/prd/` | No | The PRD namespace evolves in place as the active product truth. |
 
-History record details are defined in [the history record contract](../../assets/references/history-record-contract.md). Commit message details are defined in [the commit message convention](../../assets/references/commit-message-convention.md).
+That distinction matters because [How Make Docs Stages Fit Together](./workflows-how-make-docs-stages-fit-together.md) and [Choosing the Right Route for Your Project](./workflows-choosing-the-right-route-for-your-project.md) both depend on the same rule: plans and work use initiative lineage, while designs and PRDs do not.
 
-## How Commit Messages Use Coordinates
+## What Each Part Means
 
-Plan commits usually include wave and revision only:
+### Wave
 
-```text
-plan: [W9 R1] Docs Assets Resource Namespace Overhaul
-```
+A wave is one end-to-end initiative. In user terms, it is the planning and delivery line for one coherent body of work.
 
-Feature commits include wave, revision, and phase:
+Start a new wave when:
 
-```text
-feat: [W8 R0 P5] CLI command simplification - Apply and sync output polish
-```
+- the task is a new initiative
+- it is not a correction or continuation of an earlier plan/work line
 
-Document commits include a coordinate only when the source document already has one:
+Do not start a new wave only because a newer unrelated wave already exists.
 
-```text
-docs: [W10 R0 P3] document docs history and pathname migration
-```
+### Revision
 
-Do not add a coordinate to a commit message if the source work does not establish one. The coordinate should be evidence from the changed files, branch name, plan, work backlog, or history record, not a guess.
+A revision is a meaningful redo inside the same wave.
 
-## How to Decide the Right Coordinate
+Use the next revision when:
 
-Use this order when you need to identify a coordinate:
+- the task corrects an earlier plan
+- the task reworks an existing initiative
+- the task continues the same initiative after a real reset or redo
 
-1. Follow any explicit coordinate from the user.
-2. Check the related history record, plan, work backlog, or branch name.
-3. If the task revises existing work, keep the original wave and use the next unused revision.
-4. If the task starts a new end-to-end initiative, use the next unused wave and reset revision to `R0`.
-5. Add a phase only when the work is tied to a specific plan or work phase.
+`R0` is normal. Revisions are zero-based.
 
-If you still cannot resolve the coordinate, leave it out instead of filling in placeholders.
+### Phase
+
+A phase is one numbered chunk inside a plan or work backlog.
+
+Use a phase when the work is tied to a specific plan phase or backlog phase. Phase numbers appear in:
+
+- phase files
+- phase-scoped history records
+- commits that clearly belong to that phase
+
+## How Coordinates Show Up in Files
+
+| Location | Example |
+| --- | --- |
+| Plan directory | `docs/plans/2026-04-23-w13-r0-documentation-coverage-and-guide-orchestration/` |
+| Work directory | `docs/work/2026-04-23-w13-r0-documentation-coverage-and-guide-orchestration/` |
+| Work phase file | `03-user-guide-delivery.md` |
+| History record | `docs/assets/history/2026-04-23-w13-r0-p3-user-guide-delivery.md` |
+| Commit subject | `docs: [W13 R0 P3] update user-guide coverage` |
+
+Top-level plan and work directories include wave and revision, but not phase. Phase belongs inside the directory structure and in the history or commit record for that specific slice of work.
+
+## How to Choose the Right Coordinate
+
+Use this order:
+
+1. Follow the coordinate the user already gave you.
+2. If the task belongs to an existing plan or backlog line, keep that wave.
+3. If the task is a redo or correction of that same line, increment the revision.
+4. If the task is a new initiative, start the next wave at `R0`.
+5. Add `P` only when the work is clearly tied to a specific phase.
+
+If you cannot prove the coordinate, leave it out instead of guessing.
 
 ## Common Questions
 
-### Is `R0` a mistake?
+### Why do plans and work use W/R, but PRDs do not?
 
-No. Revisions are zero-based. `R0` means the first version of the wave.
+Plans and work track initiative lineage. PRDs track the active product knowledge base. Mixing those two jobs would make iterative PRD maintenance harder.
 
-### Why is `P1` not in top-level plan or work directory names?
+### Why do designs not use W/R/P?
 
-Plan and work directories represent the whole wave and revision. Phases are the files inside those directories, so phase numbers stay in phase files, history records, and phase-specific commits.
+Designs are dated, topic-first artifacts. They feed later planning, but they are not named as wave artifacts.
 
-### Should designs use W/R/P?
+### Is `R0` an error?
 
-No. Designs use dated filenames such as `docs/designs/YYYY-MM-DD-<slug>.md`. If a design revises an earlier design, it uses design lineage instead of `R1` in the filename.
+No. `R0` means the first revision.
 
-### Should PRDs use W/R/P?
+### What if I know the wave and revision but not the phase?
 
-No. PRDs evolve as an active document set with change notes and fixed numbering. They are intentionally outside the wave/revision/phase model.
+Use only what you know. Do not invent `P0` or another placeholder.
 
-### What if only `W` and `R` are known?
+## Related Resources
 
-Use only the known pieces. For history records, that means a path such as:
-
-```text
-docs/assets/history/YYYY-MM-DD-w9-r1-<slug>.md
-```
-
-Do not write `P0` or another placeholder just to complete the shape.
+- Use [How Make Docs Stages Fit Together](./workflows-how-make-docs-stages-fit-together.md) for the user mental model of how plans, PRDs, and backlogs connect.
+- Use [Choosing the Right Route for Your Project](./workflows-choosing-the-right-route-for-your-project.md) when the main question is route selection rather than naming.
+- Use [history-record-contract.md](../../assets/references/history-record-contract.md) and [commit-message-convention.md](../../assets/references/commit-message-convention.md) when you need the exact filename or commit formatting rules.

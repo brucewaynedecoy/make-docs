@@ -5,7 +5,7 @@ status: draft
 order: 10
 tags:
   - workflow
-  - design
+  - stages
   - prd
   - backlog
 applies-to:
@@ -13,165 +13,174 @@ applies-to:
   - workflow
 related:
   - ./workflows-choosing-the-right-route-for-your-project.md
-  - ../developer/development-workflows-stage-model-and-artifact-relationships.md
   - ./concepts-wave-revision-phase-coordinates.md
   - ./getting-started-installing-make-docs.md
+  - ../developer/development-workflows-stage-model-and-artifact-relationships.md
+  - ../../prd/01-product-overview.md
+  - ../../prd/02-architecture-overview.md
 ---
 
 # How Make Docs Stages Fit Together
 
-> See `docs/assets/references/guide-contract.md` for frontmatter schema and slug rules.
+`make-docs` is not one rigid pipeline. It is a small stage model with a few valid entry points.
 
-## Overview
+The stable idea is:
 
-`make-docs` is flexible on purpose. A project does not have to start from the same place every time.
-
-You might start from:
-
-- a new idea that needs a design
-- an existing codebase that needs better documentation
-- an active PRD set that needs to be updated
-
-What stays consistent is the job of each stage:
-
-- design explains intent
-- planning decides the route and outputs
-- PRDs describe the active product requirements
+- designs capture intent
+- plans choose the execution route
+- PRDs hold the active product requirements
 - work backlogs turn those requirements into delivery steps
 
+What changes from project to project is where you enter that model.
+
+## The Four Main Stages
+
+| Stage | Main job | Main output |
+| --- | --- | --- |
+| Design | Explain what should exist and why | A design doc in `docs/designs/` |
+| Plan | Decide the route and expected deliverables | A plan directory in `docs/plans/` |
+| PRD | Define or evolve the active product truth | The active PRD namespace in `docs/prd/` |
+| Work | Turn the PRD output into delivery work | A work backlog in `docs/work/` |
+
+## The Stage Model in One View
+
 ```mermaid
-flowchart LR
-    A["New idea"] --> B["Design"]
-    C["Existing codebase"] --> D["Decomposition"]
-    E["Existing PRD set"] --> F["Targeted PRD change"]
+flowchart TD
+    A["Starting point"] --> B["Design"]
+    A --> C["Existing codebase"]
+    A --> D["Active PRD set"]
 
-    B --> G["Plan"]
-    D --> G
-    F --> G
+    B --> E["Plan"]
+    C --> E
+    D --> E
 
-    G --> H["PRD output"]
-    H --> I["Work backlog"]
+    E --> F["Full-set generation"]
+    E --> G["Active-set evolution"]
+
+    F --> H["Active PRD set"]
+    H --> I["Full backlog"]
+
+    G --> J["Change docs + annotations"]
+    J --> K["Delta backlog"]
 ```
 
-## Prerequisites
+The important distinction is not "did I use planning?" You always plan. The real distinction is whether planning leads to:
 
-This guide is for people trying to understand the overall system, not for people who need internal implementation details.
+- `full-set generation`, or
+- `active-set evolution`
 
-If you also need help with the wave and revision naming used by plans and work backlogs, read [Understanding W/R/P Coordinates](./concepts-wave-revision-phase-coordinates.md).
+## What Full-Set Generation Means
 
-## Getting Started
+Full-set generation is the route for creating or replacing the active PRD namespace as a set.
 
-Think about `make-docs` as a set of routes instead of a single rigid pipeline.
+This usually happens when:
 
-### Design
+- the project is new
+- the main source is a new design
+- the system already exists, but you need a fresh PRD set from the codebase
 
-Use design work when you are deciding what should exist and why.
+Typical outputs:
 
-This is most useful when:
+- a plan
+- the fixed PRD core plus any needed adaptive PRD docs
+- a full work backlog
 
-- the project is still taking shape
-- there are multiple valid approaches
-- the team needs to agree on intent before writing product docs or backlog work
+Decomposition belongs here. It is a route into full-set generation from an existing codebase, not a separate long-term stage that every project carries forever.
 
-### Plan
+## What Active-Set Evolution Means
 
-Planning decides what happens next.
+Active-set evolution is the route for changing part of an already active PRD set.
 
-It turns the current situation into a concrete route, such as:
+This is the normal route when:
 
-- create a fresh PRD set
-- reverse engineer an existing system into a PRD set
-- update an existing PRD set with targeted changes
+- the repo already has a trustworthy PRD namespace
+- you are adding a capability
+- you are enhancing, revising, or removing an existing requirement
 
-### PRD
+Typical outputs:
 
-The PRD set is the active description of the product or system.
+- a change-oriented plan
+- one or more numbered PRD change docs
+- `### Change Notes` in affected baseline PRD docs
+- an updated `docs/prd/00-index.md`
+- a new delta backlog under `docs/work/`
 
-It can be created in more than one way:
+This route keeps the active PRD set in place instead of replacing it.
 
-- from a new design or idea
-- from decomposition of an existing codebase
-- by evolving an existing PRD set with change docs
+## Common Entry Points
 
-### Work backlog
+### Start from a design
 
-The backlog is the delivery plan that follows from the PRD work.
+Choose this when the main question is intent.
 
-Sometimes that means a full backlog for a full PRD set. Sometimes it means a smaller delta backlog for a targeted change.
+The usual flow is:
 
-## Step-by-Step Instructions
+1. write or refine the design
+2. create the plan
+3. generate a full PRD set or a PRD change path
+4. create the matching backlog
 
-### Route 1: Start from a new idea
+### Start from an existing codebase
 
-This is the most familiar route:
+Choose this when the code is the best source of truth.
 
-1. capture the design intent
-2. turn it into a plan
-3. generate a PRD set
-4. generate a backlog
-
-This route is a natural fit for greenfield work.
-
-### Route 2: Start from an existing codebase
-
-If the software already exists but the documentation does not:
+The usual flow is:
 
 1. inspect the codebase
-2. decompose it into a plan for reverse engineering
-3. generate a fresh PRD set from what exists
-4. produce a rebuild backlog
+2. plan decomposition
+3. generate a fresh PRD set
+4. create a rebuild-oriented backlog
 
-This route is about understanding and preserving an existing system.
+### Start from an active PRD set
 
-### Route 3: Start from an existing PRD set
+Choose this when the product already has active product docs and only part of it is changing.
 
-If the product already has an active PRD set and only part of it is changing:
+The usual flow is:
 
 1. identify the change
 2. plan the update
-3. add targeted PRD change docs
-4. produce a delta backlog for that change
+3. evolve the PRD set with change docs and annotations
+4. create a delta backlog
 
-This route is a natural fit for iterative product work.
+## How W/R Coordinates Fit In
 
-### Why this flexibility matters
+W/R lineage belongs to plans and work backlogs, not to designs or PRDs.
 
-Different projects need different entry points:
+That means:
 
-- new initiatives need structure for intent
-- mature systems may need documentation recovered from code
-- ongoing products usually need targeted updates rather than full replacement
+- design docs stay date-based
+- the active PRD namespace evolves in place
+- plans and work directories carry wave and revision lineage
 
-The system works best when you choose the route that matches the project’s real starting point.
+Use [Understanding W/R/P Coordinates](./concepts-wave-revision-phase-coordinates.md) when you need the naming details.
 
-## Troubleshooting
+## Practical Mental Model
 
-### "Do I always need a design first?"
+If you only remember one version of the system, remember this:
 
-No. A design is helpful when intent is still being worked out. If the system already exists and the main problem is missing product docs, decomposition may be the better first step.
+- design decides intent
+- plan decides route
+- PRDs hold the active truth
+- work backlogs follow from the PRDs
 
-### "Does every change require rebuilding the full PRD set?"
+The route changes, but those jobs stay stable.
 
-No. If an active PRD set already exists, many changes are better handled as targeted updates plus a delta backlog.
+## Common Questions
 
-### "Is decomposition a separate workflow from PRD generation?"
+### Do I always need a design first?
 
-It is better to think of decomposition as a route into PRD generation. It helps you get to a PRD set from an existing codebase.
+No. If the product already exists and the codebase is the real source of truth, decomposition may be the right starting point. If the repo already has an active PRD set, change planning may be the right start.
 
-## FAQ
+### Is decomposition separate from PRD generation?
 
-### What is the simplest way to think about the stages?
+No. It is a route into full-set PRD generation from an existing codebase.
 
-Design decides intent, planning decides route, PRDs define the active product requirements, and backlogs turn those requirements into delivery steps.
+### Does every change require replacing the whole PRD set?
 
-### When is a full backlog the right outcome?
+No. Most ongoing product work should use active-set evolution, not full replacement.
 
-When you are creating or replacing a full PRD set, or when you explicitly want a full delivery plan for the whole requirement surface.
+## Related Resources
 
-### When is a delta backlog the right outcome?
-
-When you are making a targeted change to an existing PRD set and only need delivery work for that change.
-
-### Where should I go next?
-
-Read [Choosing the Right Route for Your Project](./workflows-choosing-the-right-route-for-your-project.md) if you want help deciding which route fits your current project.
+- Use [Choosing the Right Route for Your Project](./workflows-choosing-the-right-route-for-your-project.md) when you want a route chooser rather than the stage overview.
+- Use [Installing Make Docs](./getting-started-installing-make-docs.md) when you still need to set up the system in a repo.
+- Use the companion developer guide [Understanding the Make Docs Stage Model](../developer/development-workflows-stage-model-and-artifact-relationships.md) for the contributor-facing version of the same model.
