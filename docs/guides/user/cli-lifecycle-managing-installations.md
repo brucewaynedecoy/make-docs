@@ -11,11 +11,20 @@ tags:
   - recovery
 applies-to:
   - cli
+related:
+  - ./getting-started-installing-make-docs.md
+  - ./skills-installing-and-managing-skills.md
+  - ../developer/maintainer-docs-assets-and-runtime-state-boundaries.md
+  - ../developer/release-packaging-validation-and-release-reference.md
+  - ../../prd/05-installation-profile-and-manifest-lifecycle.md
+  - ../../prd/07-cli-command-surface-and-lifecycle.md
 ---
 
 # Managing Installations with the Make Docs CLI
 
 This guide covers the current lifecycle commands for an existing `make-docs` installation. Use it when you need to sync managed files, change selections, preview changes, create backups, uninstall managed assets, or recover safely from a bad lifecycle change.
+
+For the first install and initial profile selection, use [Installing Make Docs](./getting-started-installing-make-docs.md).
 
 ## Prerequisites
 
@@ -34,6 +43,8 @@ The lifecycle surface has three main modes:
 | Work with recovery-oriented lifecycle actions | `make-docs backup` and `make-docs uninstall` |
 
 `make-docs` does not use a separate `sync` command. Running the bare command applies a first install when no manifest exists and performs a sync when one does.
+
+For the maintainer-facing explanation of why lifecycle state lives under `.make-docs/` while document resources stay under `docs/assets/`, use [Docs Assets and Runtime State Boundaries](../developer/maintainer-docs-assets-and-runtime-state-boundaries.md).
 
 ## Apply or sync an installation
 

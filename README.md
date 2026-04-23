@@ -45,6 +45,15 @@ Each directory includes its own `CLAUDE.md` and `AGENTS.md` files with context-s
 
 The support resource namespace under `docs/assets/` contains document resources only: archive records, history records, reusable prompts, references, and templates. Mutable CLI runtime state lives outside `docs/` under root `.make-docs/`.
 
+## Guide Discovery
+
+If you are using or maintaining `make-docs`, start with the guide that matches the job at hand:
+
+- Onboarding: [Installing Make Docs](docs/guides/user/getting-started-installing-make-docs.md) for first install and initial profile choices, then [Managing Installations with the Make Docs CLI](docs/guides/user/cli-lifecycle-managing-installations.md) for apply or sync, reconfigure, backup, uninstall, and recovery.
+- Workflows and concepts: [How Make Docs Stages Fit Together](docs/guides/user/workflows-how-make-docs-stages-fit-together.md), [Understanding W/R/P Coordinates](docs/guides/user/concepts-wave-revision-phase-coordinates.md), [Choosing the Right Route for Your Project](docs/guides/user/workflows-choosing-the-right-route-for-your-project.md), and the developer workflow companions in [`docs/guides/developer/`](docs/guides/developer/).
+- CLI and skills: [Installing and Managing Skills](docs/guides/user/skills-installing-and-managing-skills.md), [Decomposing an Existing Codebase](docs/guides/user/skills-decomposing-an-existing-codebase.md), [Skills Catalog and Distribution Model](docs/guides/developer/skills-catalog-and-distribution-model.md), and [Building and Installing the CLI Locally](docs/guides/developer/cli-development-local-build-and-install.md).
+- Maintainer and release operations: [Guide Contracts and Authoring for make-docs](docs/guides/developer/template-contracts-guide-authoring.md), [Template Assets and Generated Routers](docs/guides/developer/template-assets-and-generated-routers.md), [Docs Assets and Runtime State Boundaries](docs/guides/developer/maintainer-docs-assets-and-runtime-state-boundaries.md), [Dogfood and Maintainer Operations](docs/guides/developer/maintainer-dogfood-and-maintainer-operations.md), and [Packaging, Validation, and Release Reference](docs/guides/developer/release-packaging-validation-and-release-reference.md).
+
 ## Quick Start
 
 ### Install with `npx` (recommended)

@@ -84,3 +84,28 @@ Every later worker handoff must include:
 - evidence used
 - unresolved questions
 - links added or deferred to Phase 6
+
+## Phase 6 Final Delivery Status
+
+| Capability ID | Final status | Delivered in | Notes |
+| --- | --- | --- | --- |
+| `L01` | delivered | `docs/guides/developer/template-contracts-guide-authoring.md` | Contract guide shipped with shared authority references and Phase 6 navigation links intact. |
+| `L02` | delivered | existing user and developer workflow guides | Coordinate and stage-model coverage stayed in the existing guide family and passed final link validation. |
+| `L03` | delivered | existing user and developer route guides | Route guides now point directly to the decomposition skill coverage instead of deferring that linkage. |
+| `L04` | delivered | existing onboarding guide | First-install guidance stays narrow and now links directly to lifecycle, skills, and state-boundary follow-on docs. |
+| `L05` | delivered | `docs/guides/user/cli-lifecycle-managing-installations.md` | Lifecycle guide now participates in cross-bundle navigation with onboarding, maintainer, and release docs. |
+| `L06` | delivered | user and developer skills guides | Skills command, scope, and distribution coverage shipped for both audiences and passed final validation. |
+| `L07` | delivered as `link-only` | user and developer skills guides | `archive-docs` remains intentionally absorbed into the broader shipped-skills coverage. |
+| `L08` | delivered | `docs/guides/user/skills-decomposing-an-existing-codebase.md` | Decomposition guide now links back to route selection and the shared skills model. |
+| `L09` | delivered | `docs/guides/developer/template-assets-and-generated-routers.md` | Template asset and router ownership guidance shipped without deviations. |
+| `L10` | delivered | `docs/guides/developer/maintainer-docs-assets-and-runtime-state-boundaries.md` plus user troubleshooting links | Current truth remains the `.make-docs/**` runtime boundary, and Phase 6 linked that maintainer explanation into user lifecycle entry points. |
+| `L11` | delivered as `link-only` | `docs/guides/developer/release-packaging-validation-and-release-reference.md` | Validation false-positive filtering remains intentionally embedded inside the release reference. |
+| `L12` | delivered | CLI development, maintainer, and release guides | Local build, dogfood, packaging, and release coverage is now fully linked across the guide set. |
+
+## Accepted Deviations
+
+None after Phase 6 assembly.
+
+## Intentionally Deferred Rows
+
+None after Phase 6 assembly.

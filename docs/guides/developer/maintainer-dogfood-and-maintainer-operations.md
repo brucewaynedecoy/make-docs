@@ -11,9 +11,11 @@ applies-to:
   - cli
   - template
 related:
+  - ../user/cli-lifecycle-managing-installations.md
   - ./cli-development-local-build-and-install.md
   - ./maintainer-docs-assets-and-runtime-state-boundaries.md
   - ./release-packaging-validation-and-release-reference.md
+  - ./skills-catalog-and-distribution-model.md
   - ../../prd/09-dogfood-and-maintainer-operations.md
 ---
 

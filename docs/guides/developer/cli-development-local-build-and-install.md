@@ -10,6 +10,7 @@ tags:
 applies-to:
   - cli
 related:
+  - ../user/cli-lifecycle-managing-installations.md
   - ./maintainer-docs-assets-and-runtime-state-boundaries.md
   - ./maintainer-dogfood-and-maintainer-operations.md
   - ./release-packaging-validation-and-release-reference.md

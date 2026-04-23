@@ -13,7 +13,9 @@ applies-to:
   - docs
 related:
   - ./skills-installing-and-managing-skills.md
+  - ./workflows-choosing-the-right-route-for-your-project.md
   - ../developer/skills-catalog-and-distribution-model.md
+  - ../../prd/08-skills-catalog-and-distribution.md
 ---
 
 # Decomposing an Existing Codebase
@@ -133,4 +135,3 @@ Use an explicit execution prompt that points at the approved plan file.
 ### I want this behavior available in future projects too
 
 Install the skill in global scope with the skills command instead of project scope.
-

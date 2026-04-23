@@ -14,6 +14,7 @@ applies-to:
   - guides
 related:
   - ./template-assets-and-generated-routers.md
+  - ../../prd/06-template-contracts-and-generated-assets.md
   - ../../assets/references/guide-contract.md
   - ../../assets/templates/guide-developer.md
   - ../../assets/templates/guide-user.md

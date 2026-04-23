@@ -15,6 +15,7 @@ related:
   - ./workflows-how-make-docs-stages-fit-together.md
   - ./concepts-wave-revision-phase-coordinates.md
   - ./getting-started-installing-make-docs.md
+  - ./skills-decomposing-an-existing-codebase.md
   - ../developer/development-workflows-choosing-the-right-route.md
   - ../../prd/02-architecture-overview.md
 ---
@@ -70,7 +71,7 @@ Expected outcome:
 - a fresh PRD set generated from the existing system
 - a rebuild-oriented backlog
 
-This guide only helps you choose that route. The dedicated decomposition skill guide is owned by a later bundle and is intentionally deferred from this file's `related` links until that guide exists.
+This guide only helps you choose that route. For the concrete skill workflow, inputs, and expected outputs, continue with [Decomposing an Existing Codebase](./skills-decomposing-an-existing-codebase.md).
 
 ## Route 3: Start from an Active PRD Set
 

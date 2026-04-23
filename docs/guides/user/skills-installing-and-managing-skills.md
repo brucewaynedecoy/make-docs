@@ -11,8 +11,11 @@ applies-to:
   - cli
   - skills
 related:
+  - ./cli-lifecycle-managing-installations.md
   - ./skills-decomposing-an-existing-codebase.md
   - ../developer/skills-catalog-and-distribution-model.md
+  - ../developer/release-packaging-validation-and-release-reference.md
+  - ../../prd/08-skills-catalog-and-distribution.md
 ---
 
 # Installing and Managing Skills
@@ -170,4 +173,3 @@ That is expected. Global scope installs skill files in your home directory inste
 ### I want to remove skills but keep the rest of the install
 
 Use `make-docs skills --remove`.
-

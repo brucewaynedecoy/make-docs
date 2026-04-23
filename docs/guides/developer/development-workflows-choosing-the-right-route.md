@@ -16,7 +16,9 @@ applies-to:
   - skills
 related:
   - ./development-workflows-stage-model-and-artifact-relationships.md
+  - ./skills-catalog-and-distribution-model.md
   - ../user/workflows-choosing-the-right-route-for-your-project.md
+  - ../user/skills-decomposing-an-existing-codebase.md
   - ../../assets/templates/plan-prd.md
   - ../../assets/templates/plan-prd-decompose.md
   - ../../assets/templates/plan-prd-change.md
@@ -68,7 +70,7 @@ The current CLI and PRD surface split route choice from skill execution:
 
 - route choice still happens in planning and execution workflow docs
 - the optional `decompose-codebase` skill is an implementation aid for the decomposition route, not a replacement for route selection
-- direct cross-bundle linking into Bundle C skill coverage is deferred to Phase 6 assembly
+- detailed skill behavior and registry ownership live in [Skills Catalog and Distribution Model](./skills-catalog-and-distribution-model.md) and the companion user guide [Decomposing an Existing Codebase](../user/skills-decomposing-an-existing-codebase.md)
 
 ## Usage
 
@@ -205,7 +207,7 @@ Only when the task is truly full-set generation. If the change belongs inside th
 
 ### "Where should I document the decomposition skill itself?"
 
-Outside this guide. Route choice stays here; detailed skill entry points, registry behavior, and distribution belong in the skills documentation bundle and can be cross-linked during Phase 6 assembly.
+Outside this guide. Route choice stays here; detailed skill entry points belong in [Decomposing an Existing Codebase](../user/skills-decomposing-an-existing-codebase.md), while registry behavior and distribution belong in [Skills Catalog and Distribution Model](./skills-catalog-and-distribution-model.md).
 
 ## Related Resources
 

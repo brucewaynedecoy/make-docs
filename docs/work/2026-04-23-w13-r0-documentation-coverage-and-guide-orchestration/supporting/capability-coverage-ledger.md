@@ -251,3 +251,12 @@ Wave artifacts remain discovery inputs, but the rows below describe the product 
 - `link-only host guides`: L07 is absorbed into the generic user and developer skills guides, and L11 is absorbed into the release guide.
 - `assembly-owned work`: `README.md` discovery updates and final cross-bundle `related` normalization remain reserved for Phase 6.
 - `current-truth mismatch`: L10 must preserve the explicit `docs/assets/**` versus `.make-docs/**` boundary in the final guide prose.
+
+## Phase 6 Validation Notes
+
+- `final delivery status`: All planned rows `L01` through `L12` are now delivered. `L07` and `L11` remain intentionally `link-only` inside their host guides, and no row finished as `none`.
+- `navigation resolution`: `README.md` now provides a guide-discovery entry point outside `docs/guides/`, and the deferred cross-bundle `related` links were normalized across onboarding, CLI lifecycle, skills, maintainer, and release guides.
+- `current-truth confirmation`: L10 remains resolved in favor of current code and PRD truth. Indexed code validation confirms `packages/cli/src/manifest.ts` still defines runtime state under `.make-docs/`, with `.make-docs/manifest.json` and `.make-docs/conflicts` as the active paths.
+- `validation result`: Frontmatter, required-field, `status: draft`, and path-family checks passed across the 16 guides touched by W13 Phases 3 through 5. Exact local relative-link resolution also passed for the same guide set.
+- `broken-link tooling note`: A repo-wide `jdocmunch` broken-link scan still reports substantial pre-existing unrelated link debt outside the W13 guide set. Phase 6 used that result only as a broad sanity check and relied on exact local resolution for the owned files.
+- `outcome changes`: No capability-row audience, family, or outcome decisions changed during validation. Phase 6 only finalized navigation, traceability, and mechanical cleanup.

@@ -12,8 +12,12 @@ applies-to:
   - cli
   - skills
 related:
+  - ./development-workflows-choosing-the-right-route.md
+  - ./maintainer-dogfood-and-maintainer-operations.md
+  - ./release-packaging-validation-and-release-reference.md
   - ../user/skills-installing-and-managing-skills.md
   - ../user/skills-decomposing-an-existing-codebase.md
+  - ../../prd/08-skills-catalog-and-distribution.md
 ---
 
 # Skills Catalog and Distribution Model
@@ -153,4 +157,3 @@ Review the per-harness install paths and asset mapping produced by the skill cat
 ### A user needs to manage only skills, not the full install
 
 Point them to the dedicated `make-docs skills` workflow instead of the broader install lifecycle.
-

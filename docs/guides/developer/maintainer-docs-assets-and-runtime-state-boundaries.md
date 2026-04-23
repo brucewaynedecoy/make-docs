@@ -11,6 +11,8 @@ applies-to:
   - cli
   - template
 related:
+  - ../user/getting-started-installing-make-docs.md
+  - ../user/cli-lifecycle-managing-installations.md
   - ./cli-development-local-build-and-install.md
   - ./maintainer-dogfood-and-maintainer-operations.md
   - ./release-packaging-validation-and-release-reference.md

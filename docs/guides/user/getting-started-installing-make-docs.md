@@ -12,16 +12,19 @@ applies-to:
   - cli
   - docs
 related:
+  - ./cli-lifecycle-managing-installations.md
+  - ./skills-installing-and-managing-skills.md
   - ./concepts-wave-revision-phase-coordinates.md
   - ./workflows-how-make-docs-stages-fit-together.md
   - ./workflows-choosing-the-right-route-for-your-project.md
+  - ../developer/maintainer-docs-assets-and-runtime-state-boundaries.md
   - ../../prd/05-installation-profile-and-manifest-lifecycle.md
   - ../../prd/07-cli-command-surface-and-lifecycle.md
 ---
 
 # Installing Make Docs
 
-Use this guide for the first install only: prerequisites, the initial `make-docs` run, your first apply, and the main capability choices. Ongoing sync, reconfigure, backup, uninstall, and recovery flows belong in the future CLI lifecycle guide.
+Use this guide for the first install only: prerequisites, the initial `make-docs` run, your first apply, and the main capability choices. Ongoing sync, reconfigure, backup, uninstall, and recovery flows are covered in [Managing Installations with the Make Docs CLI](./cli-lifecycle-managing-installations.md).
 
 ## Before You Start
 
@@ -130,7 +133,7 @@ npx make-docs --yes --no-skills
 npx make-docs --yes --optional-skills decompose-codebase
 ```
 
-This guide stops at initial selection. Detailed skill management and ongoing CLI lifecycle operations are intentionally deferred to later guides.
+This guide stops at initial selection. Use [Installing and Managing Skills](./skills-installing-and-managing-skills.md) for ongoing skill changes and [Managing Installations with the Make Docs CLI](./cli-lifecycle-managing-installations.md) for lifecycle operations after the first install.
 
 ## Your First Apply
 
@@ -149,6 +152,8 @@ On the first successful apply, `make-docs` writes:
 
 The installer is non-destructive. If it finds a conflicting unmanaged root instruction file, it prompts for a conflict decision. If a managed file has already been modified locally, later generated replacements are staged under `.make-docs/conflicts/` instead of overwriting your copy.
 
+If you need the maintainer-facing explanation for why runtime state lives under `.make-docs/` while document resources live under `docs/assets/`, use [Docs Assets and Runtime State Boundaries](../developer/maintainer-docs-assets-and-runtime-state-boundaries.md).
+
 ## What to Do Next
 
 After the first install:
@@ -156,5 +161,7 @@ After the first install:
 - use [How Make Docs Stages Fit Together](./workflows-how-make-docs-stages-fit-together.md) to understand the overall artifact model
 - use [Choosing the Right Route for Your Project](./workflows-choosing-the-right-route-for-your-project.md) to pick the right documentation route
 - use [Understanding W/R/P Coordinates](./concepts-wave-revision-phase-coordinates.md) when you start working with plan and backlog lineage
+- use [Installing and Managing Skills](./skills-installing-and-managing-skills.md) when you want to adjust shipped skills after the first install
+- use [Managing Installations with the Make Docs CLI](./cli-lifecycle-managing-installations.md) for apply or sync, reconfigure, backup, uninstall, and recovery
 
-Ongoing apply or sync, reconfigure, backup, uninstall, and recovery guidance is deferred to the future user CLI lifecycle guide from Phase 6 assembly.
+For ongoing apply or sync, reconfigure, backup, uninstall, and recovery, continue with [Managing Installations with the Make Docs CLI](./cli-lifecycle-managing-installations.md).
