@@ -59,7 +59,7 @@ Recommended entry:
 
 | Slot | Status | Document | Focus |
 | --- | --- | --- | --- |
-| `11` | Current | [11-revise-cli-asset-selection-simplification.md](11-revise-cli-asset-selection-simplification.md) | Revision making prompt, template, and reference assets always managed rather than user-selectable. |
+| `11` | Current | [11-revise-cli-asset-selection-simplification.md](../../../../prd/11-revise-cli-asset-selection-simplification.md) | Revision making prompt, template, and reference assets always managed rather than user-selectable. |
 
 Update reading guidance only if needed. Keep the index concise and avoid turning it into a design explanation.
 
@@ -72,7 +72,7 @@ Use:
 ```md
 ### Change Notes
 
-- Superseded by [11-revise-cli-asset-selection-simplification.md](./11-revise-cli-asset-selection-simplification.md).
+- Superseded by [11-revise-cli-asset-selection-simplification.md](../../../../prd/11-revise-cli-asset-selection-simplification.md).
 ```
 
 Targets:

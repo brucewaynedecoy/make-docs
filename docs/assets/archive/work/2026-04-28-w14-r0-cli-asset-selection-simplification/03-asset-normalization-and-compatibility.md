@@ -12,9 +12,9 @@ This phase owns the underlying selection and planning semantics. It follows the 
 
 ## Source PRD Docs
 
-- [05 Installation, Profile, and Manifest Lifecycle](../../prd/05-installation-profile-and-manifest-lifecycle.md)
-- [06 Template Contracts and Generated Assets](../../prd/06-template-contracts-and-generated-assets.md)
-- [07 CLI Command Surface and Lifecycle](../../prd/07-cli-command-surface-and-lifecycle.md)
+- [05 Installation, Profile, and Manifest Lifecycle](../../../../prd/05-installation-profile-and-manifest-lifecycle.md)
+- [06 Template Contracts and Generated Assets](../../../../prd/06-template-contracts-and-generated-assets.md)
+- [07 CLI Command Surface and Lifecycle](../../../../prd/07-cli-command-surface-and-lifecycle.md)
 - Planned change doc: `docs/prd/11-revise-cli-asset-selection-simplification.md`
 
 ## Source Plan Phases
