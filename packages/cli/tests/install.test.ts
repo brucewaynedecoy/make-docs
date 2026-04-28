@@ -183,7 +183,7 @@ describe("installer integration", () => {
       expect(existsSync(path.join(targetDir, ".agents/skill-assets"))).toBe(false);
       expect(
         existsSync(path.join(targetDir, ".claude/skills/decompose-codebase/SKILL.md")),
-      ).toBe(false);
+      ).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/work/AGENTS.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/assets/prompts/designs-to-plan.prompt.md"))).toBe(true);
       expect(
@@ -210,6 +210,8 @@ describe("installer integration", () => {
       expect(guidesRouter).not.toContain("docs/guides/agent");
       expect(manifest.skillFiles).toContain(".claude/skills/archive-docs/SKILL.md");
       expect(manifest.skillFiles).toContain(".agents/skills/archive-docs/SKILL.md");
+      expect(manifest.skillFiles).toContain(".claude/skills/decompose-codebase/SKILL.md");
+      expect(manifest.skillFiles).toContain(".agents/skills/decompose-codebase/SKILL.md");
     } finally {
       cleanupTempDir(targetDir);
     }
@@ -246,7 +248,7 @@ describe("installer integration", () => {
               },
               skills: true,
               skillScope: "project",
-              optionalSkills: [],
+              selectedSkills: ["archive-docs", "decompose-codebase"],
             },
             effectiveCapabilities: ["designs", "plans", "prd", "work"],
             files: {},
@@ -260,6 +262,54 @@ describe("installer integration", () => {
 
       expect(() => loadManifest(targetDir)).toThrow(
         /Fix or remove the stale manifest and rerun bare `make-docs`/,
+      );
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("rejects manifests with deprecated optionalSkills selections", () => {
+    const targetDir = createTempDir();
+    try {
+      const manifestPath = path.join(targetDir, ".make-docs/manifest.json");
+      mkdirSync(path.dirname(manifestPath), { recursive: true });
+
+      writeFileSync(
+        manifestPath,
+        `${JSON.stringify(
+          {
+            schemaVersion: 1,
+            packageName: "make-docs",
+            packageVersion: "0.1.0",
+            updatedAt: new Date().toISOString(),
+            profileId: "legacy-optional-skills",
+            selections: {
+              capabilities: {
+                designs: true,
+                plans: true,
+                prd: true,
+                work: true,
+              },
+              harnesses: {
+                "claude-code": true,
+                codex: true,
+              },
+              skills: true,
+              skillScope: "project",
+              optionalSkills: ["decompose-codebase"],
+            },
+            effectiveCapabilities: ["designs", "plans", "prd", "work"],
+            files: {},
+            skillFiles: [],
+          },
+          null,
+          2,
+        )}\n`,
+        "utf8",
+      );
+
+      expect(() => loadManifest(targetDir)).toThrow(
+        /selections\.optionalSkills is no longer supported/,
       );
     } finally {
       cleanupTempDir(targetDir);
@@ -328,7 +378,7 @@ describe("installer integration", () => {
               },
               skills: true,
               skillScope: "project",
-              optionalSkills: [],
+              selectedSkills: ["archive-docs", "decompose-codebase"],
             },
             effectiveCapabilities: ["designs", "plans", "prd", "work"],
             files: {},
@@ -355,11 +405,11 @@ describe("installer integration", () => {
     }
   });
 
-  test("installs an optional skill only when selected", async () => {
+  test("installs selected skill assets when selected", async () => {
     const targetDir = createTempDir();
     try {
       const { manifest } = await installWithSelections(targetDir, (selections) => {
-        selections.optionalSkills = ["decompose-codebase"];
+        selections.selectedSkills = ["decompose-codebase"];
       });
 
       for (const harnessRoot of [".claude", ".agents"]) {
@@ -916,7 +966,7 @@ describe("installer integration", () => {
             profileId: "legacy-profile",
             selections: {
               ...defaultSelections(),
-              optionalSkills: [],
+              selectedSkills: ["archive-docs", "decompose-codebase"],
             },
             effectiveCapabilities: ["designs", "plans", "prd", "work"],
             files: {
@@ -1027,11 +1077,11 @@ describe("installer integration", () => {
     }
   });
 
-  test("skills-only sync cleans up deselected optional skill files", async () => {
+  test("skills-only sync cleans up deselected skill files", async () => {
     const targetDir = createTempDir();
     try {
       await syncSkillsOnly(targetDir, (selections) => {
-        selections.optionalSkills = ["decompose-codebase"];
+        selections.selectedSkills = ["decompose-codebase"];
       });
 
       expect(existsSync(path.join(targetDir, ".claude/skills/decompose-codebase/SKILL.md"))).toBe(
@@ -1039,7 +1089,7 @@ describe("installer integration", () => {
       );
 
       const { manifest } = await syncSkillsOnly(targetDir, (selections) => {
-        selections.optionalSkills = [];
+        selections.selectedSkills = [];
       });
 
       expect(existsSync(path.join(targetDir, ".claude/skills/decompose-codebase/SKILL.md"))).toBe(

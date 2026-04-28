@@ -35,22 +35,19 @@ export function loadManifest(targetDir: string): InstallManifest | null {
   return validateAndMigrateManifest(parsed, manifestPath);
 }
 
-export function migrateSelections(
-  selections: unknown,
-  skillFiles: string[] = [],
-): InstallSelections {
+export function migrateSelections(selections: unknown): InstallSelections {
   assertPlainObject(selections, "selections");
   assertNoRemovedAssetFields(selections, "selections");
 
   const legacy = selections as InstallSelections & {
     instructionKinds?: Record<string, boolean>;
     optionalSkills?: unknown;
+    selectedSkills?: unknown;
   };
-  const migratedOptionalSkills = migrateOptionalSkills(
-    legacy.optionalSkills,
-    skillFiles,
-    legacy.skills ?? true,
-  );
+  if ("optionalSkills" in legacy) {
+    throw new Error("selections.optionalSkills is no longer supported");
+  }
+  const selectedSkills = validateSelectedSkills(legacy.selectedSkills);
 
   if (legacy.instructionKinds && !legacy.harnesses) {
     assertPlainObject(legacy.instructionKinds, "selections.instructionKinds");
@@ -62,12 +59,17 @@ export function migrateSelections(
           ik["CLAUDE.md"] ?? false,
           "selections.instructionKinds.CLAUDE.md",
         ),
-        codex: validateBoolean(ik["AGENTS.md"] ?? false, "selections.instructionKinds.AGENTS.md"),
+        codex: validateBoolean(
+          ik["AGENTS.md"] ?? false,
+          "selections.instructionKinds.AGENTS.md",
+        ),
       },
       skills:
-        legacy.skills === undefined ? true : validateBoolean(legacy.skills, "selections.skills"),
+        legacy.skills === undefined
+          ? true
+          : validateBoolean(legacy.skills, "selections.skills"),
       skillScope: validateSkillScope(legacy.skillScope ?? "project"),
-      optionalSkills: migratedOptionalSkills,
+      selectedSkills,
     };
     return migrated;
   }
@@ -77,7 +79,7 @@ export function migrateSelections(
     harnesses: validateHarnesses(legacy.harnesses),
     skills: validateBoolean(legacy.skills, "selections.skills"),
     skillScope: validateSkillScope(legacy.skillScope ?? "project"),
-    optionalSkills: migratedOptionalSkills,
+    selectedSkills,
   };
 }
 
@@ -100,7 +102,10 @@ export function createManifest(
   };
 }
 
-export function writeManifest(targetDir: string, manifest: InstallManifest): string {
+export function writeManifest(
+  targetDir: string,
+  manifest: InstallManifest,
+): string {
   const manifestPath = getManifestPath(targetDir);
   writeTextFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
   return manifestPath;
@@ -113,7 +118,13 @@ export function getManifestAuditContext(
 ): ManifestAuditContext {
   const managedFiles = Object.entries(manifest.files)
     .map(([managedPath, entry]) =>
-      createManifestAuditRecord(targetDir, homeDir, managedPath, "manifest-file", entry),
+      createManifestAuditRecord(
+        targetDir,
+        homeDir,
+        managedPath,
+        "manifest-file",
+        entry,
+      ),
     )
     .sort(compareAuditRecords);
 
@@ -148,11 +159,21 @@ export function createAuditPathMetadata(
     ? path.normalize(auditPath)
     : path.resolve(normalizedTargetDir, auditPath);
   const normalizedHomeDir = path.resolve(homeDir);
-  const projectRelativePath = getContainedRelativePath(normalizedTargetDir, absolutePath);
-  const homeRelativePath = getContainedRelativePath(normalizedHomeDir, absolutePath);
+  const projectRelativePath = getContainedRelativePath(
+    normalizedTargetDir,
+    absolutePath,
+  );
+  const homeRelativePath = getContainedRelativePath(
+    normalizedHomeDir,
+    absolutePath,
+  );
 
   const pathScope =
-    projectRelativePath !== null ? "project" : homeRelativePath !== null ? "home" : "external";
+    projectRelativePath !== null
+      ? "project"
+      : homeRelativePath !== null
+        ? "home"
+        : "external";
   const displayPath =
     pathScope === "project"
       ? normalizeRelativePath(projectRelativePath ?? auditPath)
@@ -164,7 +185,9 @@ export function createAuditPathMetadata(
         ? normalizeRelativePath(path.join("_home", homeRelativePath ?? ""))
         : null;
   const depth =
-    displayPath === "." ? 0 : displayPath.split("/").filter((segment) => segment.length > 0).length;
+    displayPath === "."
+      ? 0
+      : displayPath.split("/").filter((segment) => segment.length > 0).length;
   const scopeOrder = pathScope === "project" ? 0 : pathScope === "home" ? 1 : 2;
 
   return {
@@ -189,7 +212,9 @@ export function createAuditPathMetadata(
 
 function migrateSkillFiles(skillFiles: unknown): string[] {
   if (Array.isArray(skillFiles)) {
-    return skillFiles.filter((value): value is string => typeof value === "string");
+    return skillFiles.filter(
+      (value): value is string => typeof value === "string",
+    );
   }
 
   if (isPlainObject(skillFiles)) {
@@ -199,7 +224,10 @@ function migrateSkillFiles(skillFiles: unknown): string[] {
   return [];
 }
 
-function validateAndMigrateManifest(value: unknown, manifestPath: string): InstallManifest {
+function validateAndMigrateManifest(
+  value: unknown,
+  manifestPath: string,
+): InstallManifest {
   try {
     assertPlainObject(value, "manifest");
     assertNoRemovedAssetFields(value, "manifest");
@@ -209,34 +237,48 @@ function validateAndMigrateManifest(value: unknown, manifestPath: string): Insta
     }
 
     const skillFiles = migrateSkillFiles(value.skillFiles);
-    const selections = migrateSelections(value.selections, skillFiles);
+    const selections = migrateSelections(value.selections);
     const files = validateManifestFiles(value.files);
 
-    const schemaVersion = validateNumber(value.schemaVersion, "manifest.schemaVersion");
+    const schemaVersion = validateNumber(
+      value.schemaVersion,
+      "manifest.schemaVersion",
+    );
     if (schemaVersion !== MANIFEST_SCHEMA_VERSION) {
-      throw new Error(`manifest.schemaVersion must be ${MANIFEST_SCHEMA_VERSION}`);
+      throw new Error(
+        `manifest.schemaVersion must be ${MANIFEST_SCHEMA_VERSION}`,
+      );
     }
 
     return {
       schemaVersion,
       packageName: validateString(value.packageName, "manifest.packageName"),
-      packageVersion: validateString(value.packageVersion, "manifest.packageVersion"),
+      packageVersion: validateString(
+        value.packageVersion,
+        "manifest.packageVersion",
+      ),
       updatedAt: validateString(value.updatedAt, "manifest.updatedAt"),
       profileId: validateString(value.profileId, "manifest.profileId"),
       selections,
-      effectiveCapabilities: validateEffectiveCapabilities(value.effectiveCapabilities),
+      effectiveCapabilities: validateEffectiveCapabilities(
+        value.effectiveCapabilities,
+      ),
       files,
       skillFiles,
     };
   } catch (error) {
-    const reason = error instanceof Error ? error.message : "invalid manifest shape";
+    const reason =
+      error instanceof Error ? error.message : "invalid manifest shape";
     throw new Error(
       `Stale or malformed make-docs manifest at ${manifestPath}: ${reason}. Fix or remove the stale manifest and rerun bare \`make-docs\` to rebuild it.`,
     );
   }
 }
 
-function assertNoRemovedAssetFields(value: Record<string, unknown>, label: string): void {
+function assertNoRemovedAssetFields(
+  value: Record<string, unknown>,
+  label: string,
+): void {
   for (const field of ["prompts", "templatesMode", "referencesMode"]) {
     if (field in value) {
       throw new Error(`${label}.${field} is no longer supported`);
@@ -263,7 +305,10 @@ function validateHarnesses(value: unknown): InstallSelections["harnesses"] {
   const harnesses = {} as InstallSelections["harnesses"];
 
   for (const harness of HARNESSES) {
-    harnesses[harness] = validateBoolean(value[harness], `selections.harnesses.${harness}`);
+    harnesses[harness] = validateBoolean(
+      value[harness],
+      `selections.harnesses.${harness}`,
+    );
   }
 
   return harnesses;
@@ -277,7 +322,9 @@ function validateSkillScope(value: unknown): InstallSelections["skillScope"] {
   return value;
 }
 
-function validateManifestFiles(value: unknown): Record<string, ManifestFileEntry> {
+function validateManifestFiles(
+  value: unknown,
+): Record<string, ManifestFileEntry> {
   assertPlainObject(value, "manifest.files");
   const files: Record<string, ManifestFileEntry> = {};
 
@@ -285,7 +332,10 @@ function validateManifestFiles(value: unknown): Record<string, ManifestFileEntry
     assertPlainObject(entry, `manifest.files.${managedPath}`);
     files[managedPath] = {
       hash: validateString(entry.hash, `manifest.files.${managedPath}.hash`),
-      sourceId: validateString(entry.sourceId, `manifest.files.${managedPath}.sourceId`),
+      sourceId: validateString(
+        entry.sourceId,
+        `manifest.files.${managedPath}.sourceId`,
+      ),
     };
   }
 
@@ -298,8 +348,13 @@ function validateEffectiveCapabilities(value: unknown): Capability[] {
   }
 
   return value.map((capability, index) => {
-    if (typeof capability !== "string" || !CAPABILITIES.includes(capability as Capability)) {
-      throw new Error(`manifest.effectiveCapabilities.${index} must be a valid capability`);
+    if (
+      typeof capability !== "string" ||
+      !CAPABILITIES.includes(capability as Capability)
+    ) {
+      throw new Error(
+        `manifest.effectiveCapabilities.${index} must be a valid capability`,
+      );
     }
     return capability as Capability;
   });
@@ -329,35 +384,27 @@ function validateBoolean(value: unknown, label: string): boolean {
   return value;
 }
 
-function assertPlainObject(value: unknown, label: string): asserts value is Record<string, unknown> {
+function assertPlainObject(
+  value: unknown,
+  label: string,
+): asserts value is Record<string, unknown> {
   if (!isPlainObject(value)) {
     throw new Error(`${label} must be an object`);
   }
 }
 
-function migrateOptionalSkills(
-  optionalSkills: unknown,
-  skillFiles: string[],
-  skillsEnabled: boolean,
-): string[] {
-  if (!skillsEnabled) {
-    return [];
+function validateSelectedSkills(value: unknown): string[] {
+  if (!Array.isArray(value)) {
+    throw new Error("selections.selectedSkills must be an array");
   }
 
-  if (Array.isArray(optionalSkills)) {
-    return Array.from(
-      new Set(optionalSkills.filter((value): value is string => typeof value === "string")),
-    ).sort();
-  }
-
-  // Preserve existing installs that were created before optional skill selection existed.
-  const hasDecomposeCodebase =
-    skillFiles.includes(".claude/skills/decompose-codebase/SKILL.md") ||
-    skillFiles.includes(".agents/skills/decompose-codebase/SKILL.md") ||
-    skillFiles.includes(".claude/skills/decompose-codebase.md") ||
-    skillFiles.includes(".agents/skills/decompose-codebase.md");
-
-  return hasDecomposeCodebase ? ["decompose-codebase"] : [];
+  return Array.from(
+    new Set(
+      value.map((skill, index) =>
+        validateString(skill, `selections.selectedSkills.${index}`),
+      ),
+    ),
+  ).sort();
 }
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
@@ -379,11 +426,17 @@ function createManifestAuditRecord(
   };
 }
 
-function compareAuditRecords(left: ManifestAuditRecord, right: ManifestAuditRecord): number {
+function compareAuditRecords(
+  left: ManifestAuditRecord,
+  right: ManifestAuditRecord,
+): number {
   return left.ordering.sortKey.localeCompare(right.ordering.sortKey);
 }
 
-function getContainedRelativePath(root: string, candidate: string): string | null {
+function getContainedRelativePath(
+  root: string,
+  candidate: string,
+): string | null {
   const relative = path.relative(root, candidate);
   if (relative === "") {
     return ".";

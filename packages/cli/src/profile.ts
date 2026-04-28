@@ -1,4 +1,5 @@
-import { hashText, formatInlineList } from "./utils";
+import { getSkillRegistryNames, loadSkillRegistry } from "./skill-registry";
+import { hashText, formatInlineList, PACKAGE_ROOT } from "./utils";
 import {
   CAPABILITIES,
   type Capability,
@@ -28,11 +29,13 @@ export function defaultSelections(): InstallSelections {
     },
     skills: true,
     skillScope: "project",
-    optionalSkills: [],
+    selectedSkills: getDefaultSelectedSkills(),
   };
 }
 
-export function cloneSelections(selections: InstallSelections): InstallSelections {
+export function cloneSelections(
+  selections: InstallSelections,
+): InstallSelections {
   return structuredClone(selections);
 }
 
@@ -46,7 +49,8 @@ export function resolveCapabilityState(
       (dependency) => !state[dependency]?.effectiveSelection,
     );
     const explicitSelection = selections.capabilities[capability];
-    const effectiveSelection = explicitSelection && missingPrerequisites.length === 0;
+    const effectiveSelection =
+      explicitSelection && missingPrerequisites.length === 0;
 
     state[capability] = {
       explicitSelection,
@@ -62,7 +66,9 @@ export function resolveCapabilityState(
   return state;
 }
 
-export function resolveInstallProfile(selections: InstallSelections): InstallProfile {
+export function resolveInstallProfile(
+  selections: InstallSelections,
+): InstallProfile {
   const capabilityState = resolveCapabilityState(selections);
   const effectiveCapabilities = CAPABILITIES.filter(
     (capability) => capabilityState[capability].effectiveSelection,
@@ -74,7 +80,7 @@ export function resolveInstallProfile(selections: InstallSelections): InstallPro
       harnesses: selections.harnesses,
       skills: selections.skills,
       skillScope: selections.skillScope,
-      optionalSkills: [...selections.optionalSkills].sort(),
+      selectedSkills: [...selections.selectedSkills].sort(),
     }),
   ).slice(0, 16);
 
@@ -92,11 +98,27 @@ export function hasEffectiveCapabilities(profile: InstallProfile): boolean {
 
 export function isFullDefaultProfile(profile: InstallProfile): boolean {
   return (
-    CAPABILITIES.every((capability) => profile.capabilityState[capability].effectiveSelection) &&
+    CAPABILITIES.every(
+      (capability) => profile.capabilityState[capability].effectiveSelection,
+    ) &&
     profile.selections.harnesses["claude-code"] &&
     profile.selections.harnesses.codex &&
     profile.selections.skills &&
     profile.selections.skillScope === "project" &&
-    profile.selections.optionalSkills.length === 0
+    arraysEqual(
+      [...profile.selections.selectedSkills].sort(),
+      getDefaultSelectedSkills(),
+    )
+  );
+}
+
+function getDefaultSelectedSkills(): string[] {
+  return getSkillRegistryNames(loadSkillRegistry(PACKAGE_ROOT));
+}
+
+function arraysEqual(left: string[], right: string[]): boolean {
+  return (
+    left.length === right.length &&
+    left.every((value, index) => value === right[index])
   );
 }

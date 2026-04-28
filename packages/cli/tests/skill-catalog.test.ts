@@ -2,7 +2,7 @@ import { homedir } from "node:os";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import {
   getDesiredSkillAssets,
-  getGroupedSkillChoices,
+  getRecommendedSkillChoices,
 } from "../src/skill-catalog";
 import { defaultSelections } from "../src/profile";
 import { mockSkillFetches } from "./helpers";
@@ -24,17 +24,15 @@ describe("skill catalog", () => {
     await expect(getDesiredSkillAssets(selections)).resolves.toEqual([]);
   });
 
-  test("groups default and optional skills for the wizard", () => {
-    const groupedChoices = getGroupedSkillChoices();
+  test("returns one recommended skill list for the wizard", () => {
+    const choices = getRecommendedSkillChoices();
 
-    expect(groupedChoices.defaultSkills).toEqual([
+    expect(choices).toEqual([
       {
         name: "archive-docs",
         description:
           "Relationship-aware archival, staleness detection, deprecation, and impact analysis for docs/ artifacts.",
       },
-    ]);
-    expect(groupedChoices.optionalSkills).toEqual([
       {
         name: "decompose-codebase",
         description: "Plan and reverse-engineer repos into structured PRDs.",
@@ -103,61 +101,81 @@ describe("skill catalog", () => {
     ).toBe(false);
   });
 
-  test("installs optional skills only when explicitly selected", async () => {
-    const withoutOptional = await getDesiredSkillAssets(defaultSelections());
+  test("fresh defaults select every registry skill", async () => {
+    const assets = await getDesiredSkillAssets(defaultSelections());
+
     expect(
-      withoutOptional.some(
+      assets.some(
+        (asset) =>
+          asset.relativePath === ".claude/skills/archive-docs/SKILL.md",
+      ),
+    ).toBe(true);
+    expect(
+      assets.some(
+        (asset) =>
+          asset.relativePath === ".claude/skills/decompose-codebase/SKILL.md",
+      ),
+    ).toBe(true);
+  });
+
+  test("selected skills control the desired skill assets", async () => {
+    const withoutDecompose = defaultSelections();
+    withoutDecompose.selectedSkills = ["archive-docs"];
+
+    const archiveOnly = await getDesiredSkillAssets(withoutDecompose);
+    expect(
+      archiveOnly.some(
         (asset) =>
           asset.relativePath === ".claude/skills/decompose-codebase/SKILL.md",
       ),
     ).toBe(false);
 
     const selections = defaultSelections();
-    selections.optionalSkills = ["decompose-codebase"];
+    selections.selectedSkills = ["decompose-codebase"];
 
-    const withOptional = await getDesiredSkillAssets(selections);
+    const withDecompose = await getDesiredSkillAssets(selections);
     expect(
-      withOptional.some(
+      withDecompose.some(
         (asset) =>
           asset.relativePath === ".claude/skills/decompose-codebase/SKILL.md",
       ),
     ).toBe(true);
     expect(
-      withOptional.some(
+      withDecompose.some(
         (asset) =>
           asset.relativePath ===
           ".agents/skills/decompose-codebase/references/mcp-playbook.md",
       ),
     ).toBe(true);
     expect(
-      withOptional.some(
+      withDecompose.some(
         (asset) =>
           asset.relativePath ===
           ".claude/skills/decompose-codebase/assets/templates/decomposition-plan.md",
       ),
     ).toBe(true);
     expect(
-      withOptional.some(
+      withDecompose.some(
         (asset) =>
           asset.relativePath ===
           ".claude/skills/decompose-codebase/assets/templates/rebuild-backlog-phase.md",
       ),
     ).toBe(true);
     expect(
-      withOptional.some(
+      withDecompose.some(
         (asset) =>
           asset.relativePath ===
           ".claude/skills/decompose-codebase/assets/templates/rebuild-backlog.md",
       ),
     ).toBe(false);
     expect(
-      withOptional.some(
+      withDecompose.some(
         (asset) =>
           asset.relativePath === ".claude/skills/decompose-codebase/assets/README.md",
       ),
     ).toBe(false);
     expect(
-      withOptional.some(
+      withDecompose.some(
         (asset) =>
           asset.relativePath ===
           ".claude/skills/decompose-codebase/scripts/test_validate_output.py",

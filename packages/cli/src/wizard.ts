@@ -20,8 +20,7 @@ import {
   resolveInstallProfile,
 } from "./profile";
 import {
-  getGroupedSkillChoices,
-  type GroupedSkillChoices,
+  getRecommendedSkillChoices,
   type WizardSkillChoice,
 } from "./skill-catalog";
 import {
@@ -136,7 +135,7 @@ export interface CapabilityChecklistState {
 export interface WizardOptionSelections {
   skills: boolean;
   skillScope: InstallSelections["skillScope"];
-  optionalSkills: string[];
+  selectedSkills: string[];
 }
 
 export interface CapabilityStepState {
@@ -186,15 +185,13 @@ export interface SkillSelectionPromptOption {
   label: string;
   hint: string;
   disabled: boolean;
-  rowKind: "heading" | "default-skill" | "optional-skill";
+  rowKind: "skill";
 }
 
 export interface SkillSelectionState {
-  defaultSkills: WizardSkillChoice[];
-  optionalSkills: WizardSkillChoice[];
+  skills: WizardSkillChoice[];
   promptOptions: SkillSelectionPromptOption[];
   selectedSkillNames: string[];
-  selectedOptionalSkillNames: string[];
 }
 
 export function normalizeWizardSelections(
@@ -235,75 +232,37 @@ export function getWizardOptionSelections(
   return {
     skills: selections.skills,
     skillScope: selections.skillScope,
-    optionalSkills: [...selections.optionalSkills].sort(),
+    selectedSkills: [...selections.selectedSkills].sort(),
   };
 }
 
 export function buildSkillSelectionState(
   options: WizardOptionSelections,
-  skillChoices: GroupedSkillChoices,
+  skillChoices: WizardSkillChoice[],
 ): SkillSelectionState {
-  const selectedOptionalSkillSet = new Set(options.optionalSkills);
-  const selectedOptionalSkillNames = skillChoices.optionalSkills
-    .filter((skill) => selectedOptionalSkillSet.has(skill.name))
+  const selectedSkillSet = new Set(options.selectedSkills);
+  const selectedSkillNames = skillChoices
+    .filter((skill) => selectedSkillSet.has(skill.name))
     .map((skill) => skill.name);
-  const selectedSkillNames = [
-    ...skillChoices.defaultSkills.map((skill) => skill.name),
-    ...selectedOptionalSkillNames,
-  ];
-  const promptOptions: SkillSelectionPromptOption[] = [];
-
-  if (skillChoices.defaultSkills.length > 0) {
-    promptOptions.push({
-      value: "__skill-group:default",
-      label: "Default",
-      hint: "Installed automatically",
-      disabled: true,
-      rowKind: "heading",
-    });
-    promptOptions.push(
-      ...skillChoices.defaultSkills.map((skill) => ({
-        value: skill.name,
-        label: skill.name,
-        hint: skill.description,
-        disabled: true,
-        rowKind: "default-skill" as const,
-      })),
-    );
-  }
-
-  if (skillChoices.optionalSkills.length > 0) {
-    promptOptions.push({
-      value: "__skill-group:optional",
-      label: "Optional",
-      hint: "Select any additional skills to install",
-      disabled: true,
-      rowKind: "heading",
-    });
-    promptOptions.push(
-      ...skillChoices.optionalSkills.map((skill) => ({
-        value: skill.name,
-        label: skill.name,
-        hint: skill.description,
-        disabled: false,
-        rowKind: "optional-skill" as const,
-      })),
-    );
-  }
+  const promptOptions = skillChoices.map((skill) => ({
+    value: skill.name,
+    label: skill.name,
+    hint: skill.description,
+    disabled: false,
+    rowKind: "skill" as const,
+  }));
 
   return {
-    defaultSkills: skillChoices.defaultSkills,
-    optionalSkills: skillChoices.optionalSkills,
+    skills: skillChoices,
     promptOptions,
     selectedSkillNames,
-    selectedOptionalSkillNames,
   };
 }
 
 export function shouldPromptForSkillSelection(
   skillSelection: SkillSelectionState,
 ): boolean {
-  return skillSelection.optionalSkills.length > 0;
+  return skillSelection.skills.length > 0;
 }
 
 export function getSelectedHarnesses(
@@ -330,7 +289,7 @@ function buildOptionsStepState(
   selections: InstallSelections,
 ): OptionsStepState {
   const options = getWizardOptionSelections(selections);
-  const skillChoices = getGroupedSkillChoices();
+  const skillChoices = getRecommendedSkillChoices();
 
   return {
     selections,
@@ -358,8 +317,8 @@ export function applyWizardOptionSelections(
   const next = cloneSelections(selections);
   next.skills = options.skills;
   next.skillScope = options.skillScope;
-  next.optionalSkills = options.skills
-    ? Array.from(new Set(options.optionalSkills)).sort()
+  next.selectedSkills = options.skills
+    ? Array.from(new Set(options.selectedSkills)).sort()
     : [];
 
   return next;
@@ -418,10 +377,10 @@ export function renderWizardReviewSummary(
           selectedHarnesses.map((harness) => HARNESS_METADATA[harness].label),
         )
       : "none";
-  const optionalSkillSummary =
-    normalizedSelections.optionalSkills.length > 0
-      ? formatInlineList(normalizedSelections.optionalSkills)
-      : "required only";
+  const selectedSkillSummary =
+    normalizedSelections.selectedSkills.length > 0
+      ? formatInlineList(normalizedSelections.selectedSkills)
+      : "none";
   const skillsSummary = normalizedSelections.skills
     ? `Yes (${normalizedSelections.skillScope})`
     : "No";
@@ -443,7 +402,7 @@ export function renderWizardReviewSummary(
     "Options",
     `- Harnesses: ${harnessSummary}`,
     `- ${OPTION_METADATA.skills.label}: ${skillsSummary}`,
-    `- Optional skills: ${normalizedSelections.skills ? optionalSkillSummary : "n/a"}`,
+    `- Selected skills: ${normalizedSelections.skills ? selectedSkillSummary : "n/a"}`,
   ].join("\n");
 }
 
@@ -745,7 +704,7 @@ async function promptForOptions(
   }
 
   let skillScope: InstallSelections["skillScope"] = options.skillScope;
-  let optionalSkills = options.optionalSkills;
+  let selectedSkills = options.selectedSkills;
 
   if (skillsResult) {
     const scopeResult = await select<InstallSelections["skillScope"]>({
@@ -769,33 +728,28 @@ async function promptForOptions(
         render(this: MultiSelectPrompt<SkillSelectionPromptOption>) {
           return renderSkillSelectionFrame(this, skillSelection);
         },
-        validate(value) {
-          if (!value || value.length === 0) {
-            return "Please keep at least one skill enabled.";
-          }
-        },
       });
 
-      const optionalSkillSelection = await prompt.prompt();
-      if (isCancel(optionalSkillSelection)) {
+      const skillResult = await prompt.prompt();
+      if (isCancel(skillResult)) {
         return null;
       }
 
-      const selectedSkillSet = new Set(optionalSkillSelection);
-      optionalSkills = skillSelection.optionalSkills
+      const selectedSkillSet = new Set(skillResult);
+      selectedSkills = skillSelection.skills
         .filter((skill) => selectedSkillSet.has(skill.name))
         .map((skill) => skill.name);
     } else {
-      optionalSkills = [];
+      selectedSkills = [];
     }
   } else {
-    optionalSkills = [];
+    selectedSkills = [];
   }
 
   return {
     skills: skillsResult,
     skillScope,
-    optionalSkills,
+    selectedSkills,
   };
 }
 
@@ -844,13 +798,8 @@ function renderSkillSelectionFrame(
     [
       focusedOption.hint || "No additional description available.",
       "",
-      `Group: ${focusedOption.rowKind === "default-skill" ? "Default" : "Optional"}`,
       `Status: ${
-        focusedOption.rowKind === "default-skill"
-          ? "Installed automatically"
-          : selectedSkillNames.has(focusedOption.value)
-            ? "Selected"
-            : "Available"
+        selectedSkillNames.has(focusedOption.value) ? "Selected" : "Available"
       }`,
     ],
     process.stdout.columns,
@@ -861,12 +810,8 @@ function renderSkillSelectionFrame(
     }`,
     `${styleText("dim", "Use ↑/↓ to navigate")} • ${styleText(
       "dim",
-      "Space toggles optional skills",
+      "Space toggles skills",
     )} • ${styleText("dim", "Enter to confirm")}`,
-    styleText(
-      "dim",
-      "Default skills are installed automatically and cannot be changed here.",
-    ),
   ];
   const footer = styleText(lineColor, S_BAR_END);
   const spacer = styleText(lineColor, S_BAR);
@@ -890,7 +835,6 @@ function renderSkillSelectionFrame(
     spacer,
     `${bodyPrefix}${hintLines[0]}`,
     `${bodyPrefix}${hintLines[1]}`,
-    `${bodyPrefix}${hintLines[2]}`,
     footer,
     ...errorLines,
   ].join("\n");
@@ -901,19 +845,17 @@ function getFocusedSkillSelectionOption(
   skillSelection: SkillSelectionState,
 ): SkillSelectionPromptOption {
   const activeOption = skillSelection.promptOptions[prompt.cursor];
-  if (activeOption && activeOption.rowKind !== "heading") {
+  if (activeOption) {
     return activeOption;
   }
 
   return (
-    skillSelection.promptOptions.find(
-      (option) => option.rowKind !== "heading",
-    ) ?? {
+    skillSelection.promptOptions[0] ?? {
       value: "__skills",
       label: "Skills",
       hint: "",
       disabled: true,
-      rowKind: "heading",
+      rowKind: "skill",
     }
   );
 }
@@ -923,20 +865,6 @@ function renderSkillSelectionOption(
   active: boolean,
   selectedSkillNames: ReadonlySet<string>,
 ): string {
-  if (option.rowKind === "heading") {
-    return styleText(["bold", "white"], option.label);
-  }
-
-  if (option.rowKind === "default-skill") {
-    return [
-      "  ",
-      styleText("green", S_CHECKBOX_SELECTED),
-      ` ${option.label}`,
-      styleText("dim", " (default, read-only)"),
-      option.hint ? ` ${styleText("dim", `(${option.hint})`)}` : "",
-    ].join("");
-  }
-
   const selected = selectedSkillNames.has(option.value);
   if (selected && active) {
     return `  ${styleText("green", S_CHECKBOX_SELECTED)} ${styleText("white", option.label)}${
@@ -970,10 +898,6 @@ function renderSkillSelectionLines(
   const lines: string[] = [];
 
   options.forEach((option, index) => {
-    if (option.rowKind === "heading" && lines.length > 0) {
-      lines.push("");
-    }
-
     lines.push(
       renderSkillSelectionOption(
         option,
@@ -981,10 +905,6 @@ function renderSkillSelectionLines(
         selectedSkillNames,
       ),
     );
-
-    if (option.rowKind === "heading") {
-      lines.push("");
-    }
   });
 
   return lines;

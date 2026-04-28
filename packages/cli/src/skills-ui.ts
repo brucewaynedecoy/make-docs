@@ -5,8 +5,8 @@ import {
   note,
   select,
 } from "@clack/prompts";
-import { getGroupedSkillChoices } from "./skill-catalog";
-import type { GroupedSkillChoices, WizardSkillChoice } from "./skill-catalog";
+import { getRecommendedSkillChoices } from "./skill-catalog";
+import type { WizardSkillChoice } from "./skill-catalog";
 import {
   HARNESSES,
   type Harness,
@@ -30,7 +30,7 @@ export interface SkillsUiState {
   targetDir: string;
   harnesses: Harness[];
   skillScope: InstallSelections["skillScope"];
-  optionalSkills: string[];
+  selectedSkills: string[];
 }
 
 export interface SkillsActionStepState {
@@ -55,9 +55,8 @@ export interface SkillsScopeStepState {
 
 export interface SkillsSelectionStepState {
   state: SkillsUiState;
-  requiredSkills: WizardSkillChoice[];
-  optionalSkills: WizardSkillChoice[];
-  selectedOptionalSkills: string[];
+  skills: WizardSkillChoice[];
+  selectedSkills: string[];
 }
 
 export interface SkillsReviewStepState {
@@ -73,7 +72,7 @@ export interface SkillsUiRenderer {
   chooseScope(
     state: SkillsScopeStepState,
   ): Promise<InstallSelections["skillScope"] | null>;
-  chooseOptionalSkills(
+  chooseSelectedSkills(
     state: SkillsSelectionStepState,
   ): Promise<string[] | null>;
   review(state: SkillsReviewStepState): Promise<SkillsReviewAction>;
@@ -148,14 +147,14 @@ export async function runSkillsUiWithRenderer(
     }
 
     if (step === "skills") {
-      const optionalSkills = await renderer.chooseOptionalSkills(
+      const selectedSkills = await renderer.chooseSelectedSkills(
         buildSkillsSelectionStepState(state),
       );
-      if (!optionalSkills) {
+      if (!selectedSkills) {
         return null;
       }
 
-      state = { ...state, optionalSkills };
+      state = { ...state, selectedSkills };
       step = "review";
       continue;
     }
@@ -223,31 +222,24 @@ export function createClackSkillsUiRenderer(): SkillsUiRenderer {
 
       return isCancel(scope) ? null : scope;
     },
-    async chooseOptionalSkills(state) {
-      if (state.requiredSkills.length > 0) {
-        note(
-          `Installed automatically: ${formatSkillNames(state.requiredSkills)}`,
-          "Required skills",
-        );
-      }
-
-      if (state.optionalSkills.length === 0) {
+    async chooseSelectedSkills(state) {
+      if (state.skills.length === 0) {
         return [];
       }
 
-      const optionalSkills = await multiselect<string>({
-        message: "Which optional skills should be installed?",
+      const selectedSkills = await multiselect<string>({
+        message: "Which skills should be installed?",
         withGuide: true,
         required: false,
-        initialValues: state.selectedOptionalSkills,
-        options: state.optionalSkills.map((skill) => ({
+        initialValues: state.selectedSkills,
+        options: state.skills.map((skill) => ({
           value: skill.name,
           label: skill.name,
           hint: skill.description,
         })),
       });
 
-      return isCancel(optionalSkills) ? null : optionalSkills;
+      return isCancel(selectedSkills) ? null : selectedSkills;
     },
     async review(state) {
       note(state.summary, "Review skills changes");
@@ -273,7 +265,7 @@ export function stateFromSkillsSelections(options: {
     targetDir: options.targetDir,
     harnesses: getSelectedHarnesses(options.selections),
     skillScope: options.selections.skillScope,
-    optionalSkills: [...options.selections.optionalSkills],
+    selectedSkills: [...options.selections.selectedSkills],
   };
 }
 
@@ -291,7 +283,7 @@ export function applySkillsUiStateToSelections(
     HARNESSES.map((harness) => [harness, state.harnesses.includes(harness)]),
   ) as Record<Harness, boolean>;
   selections.skillScope = state.skillScope;
-  selections.optionalSkills = [...state.optionalSkills];
+  selections.selectedSkills = [...state.selectedSkills];
   return selections;
 }
 
@@ -311,7 +303,7 @@ export function renderSkillsPlanSummary(options: {
     lines.push(
       `Platforms: ${formatHarnesses(options.state.harnesses)}`,
       `Scope: ${options.state.skillScope}`,
-      `Optional skills: ${formatOptionalSkills(options.state.optionalSkills)}`,
+      `Selected skills: ${formatSelectedSkills(options.state.selectedSkills)}`,
     );
   } else {
     lines.push("Removal scope: all manifest-tracked skill files");
@@ -404,16 +396,15 @@ function buildScopeStepState(state: SkillsUiState): SkillsScopeStepState {
 
 function buildSkillsSelectionStepState(
   state: SkillsUiState,
-  skillChoices: GroupedSkillChoices = getGroupedSkillChoices(),
+  skillChoices: WizardSkillChoice[] = getRecommendedSkillChoices(),
 ): SkillsSelectionStepState {
-  const optionalSkillNames = new Set(skillChoices.optionalSkills.map((skill) => skill.name));
+  const skillNames = new Set(skillChoices.map((skill) => skill.name));
 
   return {
     state: cloneSkillsUiState(state),
-    requiredSkills: skillChoices.defaultSkills,
-    optionalSkills: skillChoices.optionalSkills,
-    selectedOptionalSkills: state.optionalSkills.filter((skillName) =>
-      optionalSkillNames.has(skillName),
+    skills: skillChoices,
+    selectedSkills: state.selectedSkills.filter((skillName) =>
+      skillNames.has(skillName),
     ),
   };
 }
@@ -464,8 +455,8 @@ function reviewActionOption(
       hint: "Adjust project or global installation",
     },
     "edit-skills": {
-      label: "Edit optional skills",
-      hint: "Adjust optional skills",
+      label: "Edit selected skills",
+      hint: "Adjust selected skills",
     },
     cancel: {
       label: "Cancel",
@@ -485,12 +476,8 @@ function formatHarnesses(harnesses: Harness[]): string {
   return labels.length > 0 ? formatInlineList(labels) : "none";
 }
 
-function formatOptionalSkills(optionalSkills: string[]): string {
-  return optionalSkills.length > 0 ? formatInlineList(optionalSkills) : "none";
-}
-
-function formatSkillNames(skills: WizardSkillChoice[]): string {
-  return formatInlineList(skills.map((skill) => skill.name));
+function formatSelectedSkills(selectedSkills: string[]): string {
+  return selectedSkills.length > 0 ? formatInlineList(selectedSkills) : "none";
 }
 
 function formatSkillActionLine(action: PlannedAction): string {
@@ -512,6 +499,6 @@ function cloneSkillsUiState(state: SkillsUiState): SkillsUiState {
   return {
     ...state,
     harnesses: [...state.harnesses],
-    optionalSkills: [...state.optionalSkills],
+    selectedSkills: [...state.selectedSkills],
   };
 }

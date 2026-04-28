@@ -11,7 +11,6 @@ export interface SkillRegistryEntry {
   source: string;
   entryPoint: string;
   installName: string;
-  required: boolean;
   description: string;
   assets: SkillAssetEntry[];
 }
@@ -36,15 +35,24 @@ export function loadSkillRegistry(packageRoot: string): SkillRegistry {
   try {
     parsed = JSON.parse(raw);
   } catch (cause) {
-    throw new Error(`Skill registry at ${registryPath} is not valid JSON`, { cause });
+    throw new Error(`Skill registry at ${registryPath} is not valid JSON`, {
+      cause,
+    });
   }
 
-  if (!isPlainObject(parsed) || !Array.isArray((parsed as { skills?: unknown }).skills)) {
-    throw new Error(`Skill registry at ${registryPath} must have a \`skills\` array`);
+  if (
+    !isPlainObject(parsed) ||
+    !Array.isArray((parsed as { skills?: unknown }).skills)
+  ) {
+    throw new Error(
+      `Skill registry at ${registryPath} must have a \`skills\` array`,
+    );
   }
 
   const skills: SkillRegistryEntry[] = [];
-  for (const [index, entry] of ((parsed as { skills: unknown[] }).skills).entries()) {
+  for (const [index, entry] of (
+    parsed as { skills: unknown[] }
+  ).skills.entries()) {
     const validated = validateEntry(entry, index);
     if (validated) {
       skills.push(validated);
@@ -54,17 +62,18 @@ export function loadSkillRegistry(packageRoot: string): SkillRegistry {
   return { skills };
 }
 
-export function getOptionalSkills(registry: SkillRegistry): SkillRegistryEntry[] {
-  return registry.skills.filter((skill) => skill.required === false);
+export function getSkillRegistryNames(registry: SkillRegistry): string[] {
+  return registry.skills.map((skill) => skill.name).sort();
 }
 
-export function getRequiredSkills(registry: SkillRegistry): SkillRegistryEntry[] {
-  return registry.skills.filter((skill) => skill.required === true);
-}
-
-function validateEntry(entry: unknown, index: number): SkillRegistryEntry | null {
+function validateEntry(
+  entry: unknown,
+  index: number,
+): SkillRegistryEntry | null {
   if (!isPlainObject(entry)) {
-    console.warn(`Skill registry entry at index ${index} is not an object; skipping.`);
+    console.warn(
+      `Skill registry entry at index ${index} is not an object; skipping.`,
+    );
     return null;
   }
 
@@ -72,9 +81,18 @@ function validateEntry(entry: unknown, index: number): SkillRegistryEntry | null
   if (name === null) return null;
 
   const source = readRequiredString(entry, "source", `entry \`${name}\``);
-  const entryPoint = readRequiredString(entry, "entryPoint", `entry \`${name}\``);
-  const installName = readRequiredString(entry, "installName", `entry \`${name}\``);
-  if (source === null || entryPoint === null || installName === null) return null;
+  const entryPoint = readRequiredString(
+    entry,
+    "entryPoint",
+    `entry \`${name}\``,
+  );
+  const installName = readRequiredString(
+    entry,
+    "installName",
+    `entry \`${name}\``,
+  );
+  if (source === null || entryPoint === null || installName === null)
+    return null;
 
   if (!isRemoteSource(source)) {
     console.warn(
@@ -84,7 +102,9 @@ function validateEntry(entry: unknown, index: number): SkillRegistryEntry | null
   }
 
   if (!Array.isArray(entry.assets)) {
-    console.warn(`Skill registry entry \`${name}\` is missing \`assets\` array; skipping.`);
+    console.warn(
+      `Skill registry entry \`${name}\` is missing \`assets\` array; skipping.`,
+    );
     return null;
   }
 
@@ -108,7 +128,6 @@ function validateEntry(entry: unknown, index: number): SkillRegistryEntry | null
     source,
     entryPoint,
     installName,
-    required: entry.required === true,
     description: typeof entry.description === "string" ? entry.description : "",
     assets,
   };
@@ -121,7 +140,9 @@ function readRequiredString(
 ): string | null {
   const value = entry[field];
   if (typeof value !== "string" || value.length === 0) {
-    console.warn(`Skill registry ${context} is missing required field \`${field}\`; skipping.`);
+    console.warn(
+      `Skill registry ${context} is missing required field \`${field}\`; skipping.`,
+    );
     return null;
   }
   return value;

@@ -6,7 +6,6 @@
       "source": "https://github.com/brucewaynedecoy/make-docs/tree/main/packages/skills/archive-docs",
       "entryPoint": "SKILL.md",
       "installName": "archive-docs",
-      "required": true,
       "description": "Relationship-aware archival, staleness detection, deprecation, and impact analysis for docs/ artifacts.",
       "assets": [
         {
@@ -28,7 +27,6 @@
       "source": "https://github.com/brucewaynedecoy/make-docs/tree/main/packages/skills/decompose-codebase",
       "entryPoint": "SKILL.md",
       "installName": "decompose-codebase",
-      "required": false,
       "description": "Plan and reverse-engineer repos into structured PRDs.",
       "assets": [
         {

@@ -48,11 +48,13 @@ Effective behavior:
 - Registry entries describe installable skills and do not carry `required`.
 - Fresh defaults select every registry skill when `skills` is enabled.
 - Persisted selections represent the selected skill set, not optional additions to an implicit required set.
+- Current manifests store selected skill names as `selectedSkills`; `optionalSkills` is no longer active manifest or selection state.
 - Desired skill assets are generated only for selected skill names when skills are enabled.
 - Full install and skills-only selection UIs do not render `Default`, `Optional`, `Required skills`, or `Optional skills` as product categories.
 - Every skill row is selectable and deselectable in the interactive selection UI.
 - The highlighted skill detail panel and bottom selected-skill summary/instructions remain.
-- Legacy manifests with `optionalSkills` migrate to the prior effective selected-skill set: formerly required skills plus the listed optional skills.
+- The CLI provides no backward-compatibility support for deprecated skill-selection state or flags: legacy manifests with `optionalSkills` are not migrated, `required` registry metadata is not honored, and `--optional-skills` is not aliased.
+- Alpha users with older manifests or generated skill footprints should reinstall or regenerate the project so the manifest and managed skill files are produced from `selectedSkills`.
 - `skillFiles` remains managed-output ownership tracking and is not merged into `manifest.files`.
 
 Code anchors:
@@ -101,8 +103,8 @@ Code anchors:
 The following baseline PRD docs must carry `### Change Notes` using `Superseded by`:
 
 - `docs/prd/03-open-questions-and-risk-register.md` under skills delivery, registry, authoring, and safety-risk sections affected by the selected-skill model.
-- `docs/prd/05-installation-profile-and-manifest-lifecycle.md` near `InstallSelections`, profile identity, skill ownership, and manifest migration references to `optionalSkills`.
-- `docs/prd/07-cli-command-surface-and-lifecycle.md` near wizard/review behavior, skills command validation, and public flag language.
+- `docs/prd/05-installation-profile-and-manifest-lifecycle.md` near `InstallSelections`, profile identity, skill ownership, and legacy manifest references to `optionalSkills`.
+- `docs/prd/07-cli-command-surface-and-lifecycle.md` near wizard/review behavior, skills command validation, and removal of deprecated public flag language.
 - `docs/prd/08-skills-catalog-and-distribution.md` near command behavior, catalog layer, registry contract, shipped inventory, install selections, and rebuild notes that describe required/optional behavior.
 
 ## Source Anchors

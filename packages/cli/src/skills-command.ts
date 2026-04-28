@@ -26,7 +26,7 @@ export type SkillsCommandOptions = {
   noCodex: boolean;
   noClaudeCode: boolean;
   skillScope?: InstallSelections["skillScope"];
-  optionalSkills?: string[];
+  selectedSkills?: string[];
 };
 
 export async function runSkillsCommand(options: SkillsCommandOptions): Promise<void> {
@@ -166,8 +166,8 @@ function resolveSkillsSelections(
   if (options.skillScope) {
     selections.skillScope = options.skillScope;
   }
-  if (options.optionalSkills !== undefined) {
-    selections.optionalSkills = [...options.optionalSkills];
+  if (options.selectedSkills !== undefined) {
+    selections.selectedSkills = [...options.selectedSkills];
   }
 
   return selections;

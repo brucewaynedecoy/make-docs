@@ -16,7 +16,6 @@
           "source",
           "entryPoint",
           "installName",
-          "required",
           "description",
           "assets"
         ],
@@ -36,9 +35,6 @@
           "installName": {
             "type": "string",
             "minLength": 1
-          },
-          "required": {
-            "type": "boolean"
           },
           "description": {
             "type": "string"

@@ -3,8 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, test, vi } from "vitest";
 import {
-  getOptionalSkills,
-  getRequiredSkills,
+  getSkillRegistryNames,
   loadSkillRegistry,
 } from "../src/skill-registry";
 import { PACKAGE_ROOT } from "../src/utils";
@@ -26,19 +25,37 @@ describe("skill registry", () => {
     expect(typeof registry.$schema).toBe("string");
     expect(existsSync(path.join(PACKAGE_ROOT, registry.$schema!))).toBe(true);
     expect(packageJson.files).toContain("skill-registry.schema.json");
+
+    const schema = JSON.parse(
+      readFileSync(path.join(PACKAGE_ROOT, registry.$schema!), "utf8"),
+    ) as {
+      properties?: {
+        skills?: {
+          items?: {
+            properties?: Record<string, unknown>;
+          };
+        };
+      };
+    };
+    expect(schema.properties?.skills?.items?.properties).not.toHaveProperty(
+      "required",
+    );
   });
 
-  test("loads the packaged registry with one required and one optional skill", () => {
+  test("loads the packaged registry with recommended skills only", () => {
     const registry = loadSkillRegistry(PACKAGE_ROOT);
 
     expect(registry.skills.map((skill) => skill.name)).toEqual([
       "archive-docs",
       "decompose-codebase",
     ]);
-    expect(getRequiredSkills(registry).map((skill) => skill.name)).toEqual(["archive-docs"]);
-    expect(getOptionalSkills(registry).map((skill) => skill.name)).toEqual([
+    expect(getSkillRegistryNames(registry)).toEqual([
+      "archive-docs",
       "decompose-codebase",
     ]);
+    expect(
+      registry.skills.every((skill) => !("required" in skill)),
+    ).toBe(true);
   });
 
   test("declares the retained decompose skill asset surface", () => {
@@ -117,7 +134,6 @@ describe("skill registry", () => {
                 source: "local:packages/skills/local-only",
                 entryPoint: "SKILL.md",
                 installName: "local-only",
-                required: false,
                 description: "invalid",
                 assets: [],
               },

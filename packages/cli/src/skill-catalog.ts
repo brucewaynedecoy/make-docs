@@ -1,12 +1,7 @@
 import * as os from "node:os";
 import path from "node:path";
 import { resolveSkillSource } from "./skill-resolver";
-import {
-  getOptionalSkills,
-  getRequiredSkills,
-  loadSkillRegistry,
-  type SkillRegistryEntry,
-} from "./skill-registry";
+import { loadSkillRegistry, type SkillRegistryEntry } from "./skill-registry";
 import {
   HARNESSES,
   type Harness,
@@ -25,11 +20,6 @@ export interface WizardSkillChoice {
   description: string;
 }
 
-export interface GroupedSkillChoices {
-  defaultSkills: WizardSkillChoice[];
-  optionalSkills: WizardSkillChoice[];
-}
-
 export async function getDesiredSkillAssets(
   selections: InstallSelections,
 ): Promise<ResolvedAsset[]> {
@@ -38,9 +28,9 @@ export async function getDesiredSkillAssets(
   }
 
   const registry = loadSkillRegistry(PACKAGE_ROOT);
-  const selectedOptionalSkills = new Set(selections.optionalSkills);
-  const selectedEntries = registry.skills.filter(
-    (entry) => entry.required || selectedOptionalSkills.has(entry.name),
+  const selectedSkills = new Set(selections.selectedSkills);
+  const selectedEntries = registry.skills.filter((entry) =>
+    selectedSkills.has(entry.name),
   );
 
   if (selectedEntries.length === 0) {
@@ -67,7 +57,7 @@ export async function getDesiredSkillAssets(
   );
 }
 
-export function getGroupedSkillChoices(): GroupedSkillChoices {
+export function getRecommendedSkillChoices(): WizardSkillChoice[] {
   const registry = loadSkillRegistry(PACKAGE_ROOT);
 
   const toChoice = (
@@ -77,14 +67,9 @@ export function getGroupedSkillChoices(): GroupedSkillChoices {
     description: entry.description,
   });
 
-  return {
-    defaultSkills: getRequiredSkills(registry)
-      .map(toChoice)
-      .sort((left, right) => left.name.localeCompare(right.name)),
-    optionalSkills: getOptionalSkills(registry)
-      .map(toChoice)
-      .sort((left, right) => left.name.localeCompare(right.name)),
-  };
+  return registry.skills
+    .map(toChoice)
+    .sort((left, right) => left.name.localeCompare(right.name));
 }
 
 async function buildSkillAssets(

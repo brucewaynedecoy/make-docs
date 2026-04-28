@@ -6,8 +6,7 @@ import { applyInstallPlan, findInstructionConflicts, planInstall } from "./insta
 import { loadManifest, MANIFEST_RELATIVE_PATH } from "./manifest";
 import { cloneSelections, defaultSelections, hasEffectiveCapabilities } from "./profile";
 import {
-  getOptionalSkills,
-  getRequiredSkills,
+  getSkillRegistryNames,
   loadSkillRegistry,
 } from "./skill-registry";
 import type {
@@ -41,7 +40,7 @@ interface ParsedArgs {
   noClaudeCode: boolean;
   noSkills: boolean;
   skillScope?: InstallSelections["skillScope"];
-  optionalSkills?: string[];
+  selectedSkills?: string[];
 }
 
 type UninstallCommandOptions = {
@@ -61,7 +60,7 @@ type SkillsCommandOptions = {
   noCodex: boolean;
   noClaudeCode: boolean;
   skillScope?: InstallSelections["skillScope"];
-  optionalSkills?: string[];
+  selectedSkills?: string[];
 };
 
 type SkillsCommandRunner = (options: SkillsCommandOptions) => Promise<void>;
@@ -105,8 +104,8 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
       noCodex: parsed.noCodex,
       noClaudeCode: parsed.noClaudeCode,
       skillScope: parsed.skillScope,
-      optionalSkills:
-        parsed.optionalSkills === undefined ? undefined : [...parsed.optionalSkills],
+      selectedSkills:
+        parsed.selectedSkills === undefined ? undefined : [...parsed.selectedSkills],
     });
     return;
   }
@@ -316,16 +315,16 @@ function resolveSelections(options: {
   }
   if (parsed.noSkills) {
     selections.skills = false;
-    selections.optionalSkills = [];
+    selections.selectedSkills = [];
   } else {
-    if (parsed.skillScope || parsed.optionalSkills !== undefined) {
+    if (parsed.skillScope || parsed.selectedSkills !== undefined) {
       selections.skills = true;
     }
     if (parsed.skillScope) {
       selections.skillScope = parsed.skillScope;
     }
-    if (parsed.optionalSkills !== undefined) {
-      selections.optionalSkills = [...parsed.optionalSkills];
+    if (parsed.selectedSkills !== undefined) {
+      selections.selectedSkills = [...parsed.selectedSkills];
     }
   }
   return selections;
@@ -341,7 +340,7 @@ function hasSelectionOverrides(parsed: ParsedArgs): boolean {
       parsed.noClaudeCode ||
       parsed.noSkills ||
       parsed.skillScope ||
-      parsed.optionalSkills !== undefined,
+      parsed.selectedSkills !== undefined,
   );
 }
 
@@ -418,8 +417,8 @@ function getSelectionOverrideFlags(parsed: ParsedArgs): string[] {
   if (parsed.skillScope) {
     flags.push("--skill-scope");
   }
-  if (parsed.optionalSkills !== undefined) {
-    flags.push("--optional-skills");
+  if (parsed.selectedSkills !== undefined) {
+    flags.push("--selected-skills");
   }
 
   return flags;
@@ -508,25 +507,15 @@ function parseArgs(argv: string[]): ParsedArgs {
         parsed.skillScope = value;
         break;
       }
-      case "--optional-skills": {
+      case "--selected-skills": {
         const value = args.shift();
         if (!value) {
-          throw new Error("`--optional-skills` requires a comma-separated value or `none`.");
+          throw new Error("`--selected-skills` requires a comma-separated value, `all`, or `none`.");
         }
-        parsed.optionalSkills =
-          value === "none"
-            ? []
-            : Array.from(
-                new Set(
-                  value
-                    .split(",")
-                    .map((entry) => entry.trim())
-                    .filter((entry) => entry.length > 0),
-                ),
-              ).sort();
+        parsed.selectedSkills = parseSelectedSkillsValue(value);
 
-        if (value !== "none" && parsed.optionalSkills.length === 0) {
-          throw new Error("`--optional-skills` requires at least one skill id or `none`.");
+        if (value !== "none" && value !== "all" && parsed.selectedSkills.length === 0) {
+          throw new Error("`--selected-skills` requires at least one skill id, `all`, or `none`.");
         }
         break;
       }
@@ -537,6 +526,25 @@ function parseArgs(argv: string[]): ParsedArgs {
 
   validateParsedArgs(parsed);
   return parsed;
+}
+
+function parseSelectedSkillsValue(value: string): string[] {
+  if (value === "none") {
+    return [];
+  }
+
+  if (value === "all") {
+    return getSkillRegistryNames(loadSkillRegistry(PACKAGE_ROOT));
+  }
+
+  return Array.from(
+    new Set(
+      value
+        .split(",")
+        .map((entry) => entry.trim())
+        .filter((entry) => entry.length > 0),
+    ),
+  ).sort();
 }
 
 function rejectRemovedUpdateReconfigure(args: string[]): void {
@@ -613,13 +621,13 @@ function validateParsedArgs(parsed: ParsedArgs): void {
       const label = invalidSkillsFlags.length === 1 ? "flag" : "flags";
       const verb = invalidSkillsFlags.length === 1 ? "is" : "are";
       throw new Error(
-        `Selection ${label} ${invalidSkillsFlags.join(", ")} ${verb} not valid with \`make-docs skills\`. Use skills command options such as \`--remove\`, \`--skill-scope\`, or \`--optional-skills\`.`,
+        `Selection ${label} ${invalidSkillsFlags.join(", ")} ${verb} not valid with \`make-docs skills\`. Use skills command options such as \`--remove\`, \`--skill-scope\`, or \`--selected-skills\`.`,
       );
     }
 
-    if (parsed.remove && parsed.optionalSkills !== undefined) {
+    if (parsed.remove && parsed.selectedSkills !== undefined) {
       throw new Error(
-        "`--optional-skills` cannot be combined with `make-docs skills --remove`.",
+        "`--selected-skills` cannot be combined with `make-docs skills --remove`.",
       );
     }
   }
@@ -636,31 +644,24 @@ function validateParsedArgs(parsed: ParsedArgs): void {
     );
   }
 
-  if (parsed.noSkills && (parsed.skillScope || parsed.optionalSkills !== undefined)) {
+  if (parsed.noSkills && (parsed.skillScope || parsed.selectedSkills !== undefined)) {
     throw new Error(
-      "`--no-skills` cannot be combined with `--skill-scope` or `--optional-skills`.",
+      "`--no-skills` cannot be combined with `--skill-scope` or `--selected-skills`.",
     );
   }
 
-  if (parsed.optionalSkills === undefined) {
+  if (parsed.selectedSkills === undefined) {
     return;
   }
 
   const registry = loadSkillRegistry(PACKAGE_ROOT);
-  const optionalSkills = new Set(getOptionalSkills(registry).map((skill) => skill.name));
-  const requiredSkills = new Set(getRequiredSkills(registry).map((skill) => skill.name));
+  const registrySkills = new Set(getSkillRegistryNames(registry));
 
-  for (const skillName of parsed.optionalSkills) {
-    if (requiredSkills.has(skillName)) {
+  for (const skillName of parsed.selectedSkills) {
+    if (!registrySkills.has(skillName)) {
+      const validList = Array.from(registrySkills).sort().join(", ");
       throw new Error(
-        `Required skill \`${skillName}\` cannot be passed to \`--optional-skills\`.`,
-      );
-    }
-
-    if (!optionalSkills.has(skillName)) {
-      const validList = Array.from(optionalSkills).sort().join(", ");
-      throw new Error(
-        `Unknown optional skill \`${skillName}\`. Valid optional skills: ${validList || "(none)"}.`,
+        `Unknown selected skill \`${skillName}\`. Valid skills: ${validList || "(none)"}.`,
       );
     }
   }
@@ -871,13 +872,14 @@ Harness options:
 Skill options:
   --no-skills                    Skip skill installation entirely.
   --skill-scope project|global   Choose whether skills install in the repo or the global Codex home.
-  --optional-skills <csv|none>   Replace the optional skill set with a comma-separated list or none.
+  --selected-skills <csv|all|none>
+                                  Replace the selected skill set.
 
 Examples:
   make-docs reconfigure
   make-docs reconfigure --target ~/Projects/example --dry-run
   make-docs reconfigure --yes --no-work
-  make-docs reconfigure --yes --no-codex --skill-scope global --optional-skills decompose-codebase
+  make-docs reconfigure --yes --no-codex --skill-scope global --selected-skills decompose-codebase
 `);
       return;
     case "skills":
@@ -902,13 +904,15 @@ Platform options:
 Skill options:
   --remove                       Remove managed skills owned by make-docs.
   --skill-scope project|global   Choose whether skills install in the repo or the global Codex home.
-  --optional-skills <csv|none>   Replace the optional skill set with a comma-separated list or none.
+  --selected-skills <csv|all|none>
+                                  Replace the selected skill set.
 
 Examples:
   make-docs skills
   make-docs skills --dry-run
   make-docs skills --remove
   make-docs skills --skill-scope global
+  make-docs skills --selected-skills all
 `);
       return;
     case "backup":

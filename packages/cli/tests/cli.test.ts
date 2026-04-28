@@ -284,7 +284,7 @@ describe("cli interactive flows", () => {
 
       expect(runSelectionWizardMock).not.toHaveBeenCalled();
       expect(loadManifest(targetDir)?.selections.skills).toBe(false);
-      expect(loadManifest(targetDir)?.selections.optionalSkills).toEqual([]);
+      expect(loadManifest(targetDir)?.selections.selectedSkills).toEqual([]);
       expect(existsSync(claudeSkillPath)).toBe(false);
       expect(existsSync(codexSkillPath)).toBe(false);
     } finally {
@@ -330,7 +330,7 @@ describe("cli interactive flows", () => {
         "--no-codex",
         "--skill-scope",
         "global",
-        "--optional-skills",
+        "--selected-skills",
         "decompose-codebase",
         "--target",
         targetDir,
@@ -343,7 +343,7 @@ describe("cli interactive flows", () => {
       });
       expect(manifest?.selections.skills).toBe(true);
       expect(manifest?.selections.skillScope).toBe("global");
-      expect(manifest?.selections.optionalSkills).toEqual(["decompose-codebase"]);
+      expect(manifest?.selections.selectedSkills).toEqual(["decompose-codebase"]);
       expect(manifest?.skillFiles).toContain(
         path.join(fakeHome, ".claude/skills/decompose-codebase/SKILL.md"),
       );
@@ -384,8 +384,43 @@ describe("cli interactive flows", () => {
 
       const manifest = loadManifest(targetDir);
       expect(manifest?.selections.skills).toBe(false);
-      expect(manifest?.selections.optionalSkills).toEqual([]);
+      expect(manifest?.selections.selectedSkills).toEqual([]);
       expect(manifest?.skillFiles).toEqual([]);
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("supports --selected-skills all and none for non-interactive apply", async () => {
+    const targetDir = createTempDir();
+
+    try {
+      const { runCli } = await import("../src/cli");
+
+      await runCli(["--yes", "--selected-skills", "none", "--target", targetDir]);
+
+      let manifest = loadManifest(targetDir);
+      expect(manifest?.selections.selectedSkills).toEqual([]);
+      expect(manifest?.skillFiles).toEqual([]);
+
+      await runCli([
+        "reconfigure",
+        "--yes",
+        "--selected-skills",
+        "all",
+        "--target",
+        targetDir,
+      ]);
+
+      manifest = loadManifest(targetDir);
+      expect(manifest?.selections.selectedSkills).toEqual([
+        "archive-docs",
+        "decompose-codebase",
+      ]);
+      expect(manifest?.skillFiles).toContain(".claude/skills/archive-docs/SKILL.md");
+      expect(manifest?.skillFiles).toContain(
+        ".claude/skills/decompose-codebase/SKILL.md",
+      );
     } finally {
       cleanupTempDir(targetDir);
     }
@@ -445,7 +480,7 @@ describe("cli interactive flows", () => {
         noCodex: true,
         noClaudeCode: true,
         skillScope: "global",
-        optionalSkills: undefined,
+        selectedSkills: undefined,
       });
     } finally {
       cli.__setSkillsCommandRunnerForTests(null);
@@ -463,7 +498,7 @@ describe("cli interactive flows", () => {
       await cli.runCli([
         "skills",
         "--yes",
-        "--optional-skills",
+        "--selected-skills",
         "decompose-codebase",
         "--target",
         targetDir,
@@ -479,7 +514,7 @@ describe("cli interactive flows", () => {
         noCodex: false,
         noClaudeCode: false,
         skillScope: undefined,
-        optionalSkills: ["decompose-codebase"],
+        selectedSkills: ["decompose-codebase"],
       });
     } finally {
       cli.__setSkillsCommandRunnerForTests(null);
@@ -590,7 +625,7 @@ describe("cli interactive flows", () => {
     try {
       await installManifest(targetDir, (selections) => {
         selections.skillScope = "global";
-        selections.optionalSkills = ["decompose-codebase"];
+        selections.selectedSkills = ["decompose-codebase"];
       });
       const { runCli } = await import("../src/cli");
 
@@ -599,7 +634,7 @@ describe("cli interactive flows", () => {
       const manifest = loadManifest(targetDir);
       expect(manifest?.selections.skills).toBe(false);
       expect(manifest?.selections.skillScope).toBe("global");
-      expect(manifest?.selections.optionalSkills).toEqual([]);
+      expect(manifest?.selections.selectedSkills).toEqual([]);
       expect(
         existsSync(path.join(targetDir, ".claude/skills/decompose-codebase/SKILL.md")),
       ).toBe(false);
@@ -610,7 +645,7 @@ describe("cli interactive flows", () => {
     }
   });
 
-  test("reconfigure can clear optional skills and change the skill scope", async () => {
+  test("reconfigure can clear selected skills and change the skill scope", async () => {
     const targetDir = createTempDir();
     const fakeHome = createTempDir("make-docs-home-");
     const restoreHome = mockHomeDirectory(fakeHome);
@@ -618,7 +653,7 @@ describe("cli interactive flows", () => {
     try {
       await installManifest(targetDir, (selections) => {
         selections.skillScope = "global";
-        selections.optionalSkills = ["decompose-codebase"];
+        selections.selectedSkills = ["decompose-codebase"];
       });
       const { runCli } = await import("../src/cli");
 
@@ -627,7 +662,7 @@ describe("cli interactive flows", () => {
         "--yes",
         "--skill-scope",
         "project",
-        "--optional-skills",
+        "--selected-skills",
         "none",
         "--target",
         targetDir,
@@ -636,8 +671,10 @@ describe("cli interactive flows", () => {
       const manifest = loadManifest(targetDir);
       expect(manifest?.selections.skills).toBe(true);
       expect(manifest?.selections.skillScope).toBe("project");
-      expect(manifest?.selections.optionalSkills).toEqual([]);
-      expect(existsSync(path.join(targetDir, ".claude/skills/archive-docs/SKILL.md"))).toBe(true);
+      expect(manifest?.selections.selectedSkills).toEqual([]);
+      expect(existsSync(path.join(targetDir, ".claude/skills/archive-docs/SKILL.md"))).toBe(
+        false,
+      );
       expect(
         existsSync(path.join(targetDir, ".claude/skills/decompose-codebase/SKILL.md")),
       ).toBe(false);
@@ -683,7 +720,7 @@ describe("cli interactive flows", () => {
     }
   });
 
-  test("rejects conflicting and invalid optional-skill selections", async () => {
+  test("rejects conflicting and invalid selected-skill selections", async () => {
     const targetDir = createTempDir();
 
     try {
@@ -699,31 +736,19 @@ describe("cli interactive flows", () => {
           targetDir,
         ]),
       ).rejects.toThrow(
-        "`--no-skills` cannot be combined with `--skill-scope` or `--optional-skills`.",
+        "`--no-skills` cannot be combined with `--skill-scope` or `--selected-skills`.",
       );
 
       await expect(
         runCli([
           "--yes",
-          "--optional-skills",
-          "archive-docs",
-          "--target",
-          targetDir,
-        ]),
-      ).rejects.toThrow(
-        "Required skill `archive-docs` cannot be passed to `--optional-skills`.",
-      );
-
-      await expect(
-        runCli([
-          "--yes",
-          "--optional-skills",
+          "--selected-skills",
           "unknown-skill",
           "--target",
           targetDir,
         ]),
       ).rejects.toThrow(
-        "Unknown optional skill `unknown-skill`. Valid optional skills: decompose-codebase.",
+        "Unknown selected skill `unknown-skill`. Valid skills: archive-docs, decompose-codebase.",
       );
     } finally {
       cleanupTempDir(targetDir);
@@ -750,6 +775,7 @@ describe("cli interactive flows", () => {
     ["--no-prompts"],
     ["--templates"],
     ["--references"],
+    ["--optional-skills"],
   ])("rejects removed asset-selection flag %s", async (flag) => {
     const targetDir = createTempDir();
 
@@ -762,21 +788,21 @@ describe("cli interactive flows", () => {
     }
   });
 
-  test("rejects optional skill selection during skills removal", async () => {
+  test("rejects selected skill selection during skills removal", async () => {
     const targetDir = createTempDir();
 
     try {
       const error = await captureCliError([
         "skills",
         "--remove",
-        "--optional-skills",
+        "--selected-skills",
         "decompose-codebase",
         "--target",
         targetDir,
       ]);
 
       expect(error.message).toContain(
-        "`--optional-skills` cannot be combined with `make-docs skills --remove`.",
+        "`--selected-skills` cannot be combined with `make-docs skills --remove`.",
       );
     } finally {
       cleanupTempDir(targetDir);
@@ -836,7 +862,8 @@ describe("cli interactive flows", () => {
     expect(output).toContain("Non-interactive runs with --yes must include at least one selection flag");
     expect(output).toContain("--yes                          Skip interactive prompts; requires a selection flag.");
     expect(output).toContain("make-docs reconfigure --yes --no-work");
-    expect(output).toContain("--optional-skills <csv|none>");
+    expect(output).toContain("--selected-skills <csv|all|none>");
+    expect(output).not.toContain("--optional-skills");
     expect(output).not.toContain("--no-prompts");
     expect(output).not.toContain("--templates required|all");
     expect(output).not.toContain("--references required|all");
@@ -858,7 +885,8 @@ describe("cli interactive flows", () => {
     expect(output).toContain("Skill options:");
     expect(output).toContain("--remove");
     expect(output).toContain("--skill-scope project|global");
-    expect(output).toContain("--optional-skills <csv|none>");
+    expect(output).toContain("--selected-skills <csv|all|none>");
+    expect(output).not.toContain("--optional-skills");
     expect(output).toContain("make-docs skills --dry-run");
     expect(output).toContain("make-docs skills --remove");
     expect(output).toContain("make-docs skills --skill-scope global");
@@ -946,6 +974,8 @@ describe("cli interactive flows", () => {
 
   test("routes backup through the implemented lifecycle flow", async () => {
     const targetDir = createTempDir();
+    const fakeHome = createTempDir("make-docs-home-");
+    const restoreHome = mockHomeDirectory(fakeHome);
 
     try {
       setTTY(false);
@@ -959,7 +989,9 @@ describe("cli interactive flows", () => {
       expect(output).toContain("make-docs backup");
       expect(output).toContain("No make-docs-managed files required backup.");
     } finally {
+      restoreHome();
       cleanupTempDir(targetDir);
+      cleanupTempDir(fakeHome);
     }
   });
 
@@ -1067,7 +1099,7 @@ describe("cli interactive flows", () => {
 
   test.each([
     [["backup", "--no-skills"], ["backup", "--no-skills"]],
-    [["uninstall", "--optional-skills", "decompose-codebase"], ["uninstall", "--optional-skills"]],
+    [["uninstall", "--selected-skills", "decompose-codebase"], ["uninstall", "--selected-skills"]],
     [["--permissions", "confirm"], ["Unknown argument", "--permissions"]],
     [["--backup"], ["no command", "--backup"]],
     [["reconfigure", "--backup"], ["reconfigure", "--backup"]],

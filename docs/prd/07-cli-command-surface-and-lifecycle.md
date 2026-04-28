@@ -104,7 +104,7 @@ Code anchors:
 ### Change Notes
 
 - Superseded by [11-revise-cli-asset-selection-simplification.md](./11-revise-cli-asset-selection-simplification.md) for prompt/template/reference selection flags as active installer decisions.
-- Superseded by [12-revise-cli-skill-selection-simplification.md](./12-revise-cli-skill-selection-simplification.md) for optional-skill CLI validation and selected-skill flag language.
+- Superseded by [12-revise-cli-skill-selection-simplification.md](./12-revise-cli-skill-selection-simplification.md) for removing `--optional-skills` and replacing optional-skill CLI validation with selected-skill command behavior.
 
 The root command contract is encoded in `Command`, `InstallIntent`, and `ParsedArgs` in `packages/cli/src/cli.ts:27`, `packages/cli/src/cli.ts:28`, and `packages/cli/src/cli.ts:30`. `parseArgs` normalizes the public flags in `packages/cli/src/cli.ts:455`, while `validateParsedArgs` enforces cross-command boundaries in `packages/cli/src/cli.ts:653`: `--backup` is uninstall-only, `--remove` is skills-only, selection flags are invalid on lifecycle commands, and optional skill identifiers must be known optional registry entries in `packages/cli/src/cli.ts:705`.
 

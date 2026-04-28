@@ -31,7 +31,7 @@ The fixed-core overview layer now exists, but this register still carries the un
 ### Change Notes
 
 - Superseded by [11-revise-cli-asset-selection-simplification.md](./11-revise-cli-asset-selection-simplification.md) for whether template and reference modes should remain public options.
-- Superseded by [12-revise-cli-skill-selection-simplification.md](./12-revise-cli-skill-selection-simplification.md) for selected-skill UX and persisted-selection continuity; remote source policy remains an unresolved delivery-security question.
+- Superseded by [12-revise-cli-skill-selection-simplification.md](./12-revise-cli-skill-selection-simplification.md) for selected-skill UX and the `selectedSkills` manifest requirement; remote source policy remains an unresolved delivery-security question.
 
 | Question | Current evidence | Why unresolved |
 | --- | --- | --- |

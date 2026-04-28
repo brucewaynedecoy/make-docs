@@ -37,7 +37,7 @@ The public repo docs describe the same subsystem as the installer surface that w
 ### Change Notes
 
 - Superseded by [11-revise-cli-asset-selection-simplification.md](./11-revise-cli-asset-selection-simplification.md) for `prompts`, `templatesMode`, and `referencesMode` as user-facing persisted choices.
-- Superseded by [12-revise-cli-skill-selection-simplification.md](./12-revise-cli-skill-selection-simplification.md) for `optionalSkills` and legacy optional-skill migration semantics.
+- Superseded by [12-revise-cli-skill-selection-simplification.md](./12-revise-cli-skill-selection-simplification.md) for replacing `optionalSkills` and legacy optional-skill backfill with current-manifest `selectedSkills`.
 
 - User intent is captured by `InstallSelections` in `packages/cli/src/types.ts:38`, which includes capability toggles, prompt/template/reference modes, harness toggles, `skills`, `skillScope`, and `optionalSkills`. Root instruction enablement is derived from harness state by `getActiveInstructionKinds()` in `packages/cli/src/types.ts:49`.
 - Effective capability state is stored per capability in `CapabilityState` at `packages/cli/src/types.ts:61` and aggregated into `InstallProfile` at `packages/cli/src/types.ts:68`. The important invariant is that explicit intent and effective capability can differ, but the manifest stores both the original selections and the final `effectiveCapabilities` via `packages/cli/src/manifest.ts:79-96`.

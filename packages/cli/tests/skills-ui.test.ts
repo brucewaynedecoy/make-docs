@@ -19,7 +19,7 @@ class MockSkillsUiRenderer implements SkillsUiRenderer {
   >[0][] = [];
   public readonly seenScopeStates: Parameters<SkillsUiRenderer["chooseScope"]>[0][] = [];
   public readonly seenSkillStates: Parameters<
-    SkillsUiRenderer["chooseOptionalSkills"]
+    SkillsUiRenderer["chooseSelectedSkills"]
   >[0][] = [];
   public readonly seenReviewStates: Parameters<SkillsUiRenderer["review"]>[0][] = [];
 
@@ -27,7 +27,7 @@ class MockSkillsUiRenderer implements SkillsUiRenderer {
     private readonly actionAnswers: Array<SkillsUiAction | null>,
     private readonly harnessAnswers: Array<Harness[] | null>,
     private readonly scopeAnswers: Array<SkillsUiState["skillScope"] | null>,
-    private readonly optionalSkillAnswers: Array<string[] | null>,
+    private readonly selectedSkillAnswers: Array<string[] | null>,
     private readonly reviewAnswers: SkillsReviewAction[],
   ) {}
 
@@ -50,11 +50,11 @@ class MockSkillsUiRenderer implements SkillsUiRenderer {
     return this.scopeAnswers.shift() ?? null;
   }
 
-  async chooseOptionalSkills(
-    state: Parameters<SkillsUiRenderer["chooseOptionalSkills"]>[0],
+  async chooseSelectedSkills(
+    state: Parameters<SkillsUiRenderer["chooseSelectedSkills"]>[0],
   ) {
     this.seenSkillStates.push(state);
-    return this.optionalSkillAnswers.shift() ?? null;
+    return this.selectedSkillAnswers.shift() ?? null;
   }
 
   async review(state: Parameters<SkillsUiRenderer["review"]>[0]) {
@@ -68,7 +68,7 @@ const initialState: SkillsUiState = {
   targetDir: "/tmp/project",
   harnesses: ["claude-code", "codex"],
   skillScope: "project",
-  optionalSkills: [],
+  selectedSkills: ["archive-docs", "decompose-codebase"],
 };
 
 const sampleActions: PlannedAction[] = [
@@ -129,7 +129,7 @@ describe("skills-only UI", () => {
       targetDir: "/tmp/project",
       harnesses: ["codex"],
       skillScope: "global",
-      optionalSkills: ["decompose-codebase"],
+      selectedSkills: ["decompose-codebase"],
     });
     expect(renderer.introTitles).toEqual(["Manage make-docs skills"]);
     expect(renderer.seenPlatformStates[0]?.options).toEqual([
@@ -144,15 +144,17 @@ describe("skills-only UI", () => {
         hint: "AGENTS.md + .agents/",
       },
     ]);
-    expect(renderer.seenSkillStates[0]?.requiredSkills.map((skill) => skill.name)).toEqual([
+    expect(renderer.seenSkillStates[0]?.skills.map((skill) => skill.name)).toEqual([
       "archive-docs",
+      "decompose-codebase",
     ]);
-    expect(renderer.seenSkillStates[0]?.optionalSkills.map((skill) => skill.name)).toEqual([
+    expect(renderer.seenSkillStates[0]?.selectedSkills).toEqual([
+      "archive-docs",
       "decompose-codebase",
     ]);
   });
 
-  test("uses a concise removal flow without scope or optional skill prompts", async () => {
+  test("uses a concise removal flow without scope or selected skill prompts", async () => {
     const renderer = new MockSkillsUiRenderer(["remove"], [], [], [], ["apply"]);
 
     const result = await runSkillsUiWithRenderer(renderer, {
@@ -195,7 +197,7 @@ describe("skills-only UI", () => {
     expect(result).toMatchObject({
       harnesses: ["claude-code", "codex"],
       skillScope: "global",
-      optionalSkills: ["decompose-codebase"],
+      selectedSkills: ["decompose-codebase"],
     });
   });
 
@@ -221,14 +223,15 @@ describe("skills-only UI", () => {
     const summary = renderSkillsPlanSummary({
       state: {
         ...initialState,
-        optionalSkills: ["decompose-codebase"],
+        selectedSkills: ["decompose-codebase"],
       },
       actions: sampleActions,
       dryRun: true,
     });
 
     expect(summary).toContain("Action: sync skills");
-    expect(summary).toContain("Optional skills: decompose-codebase");
+    expect(summary).toContain("Selected skills: decompose-codebase");
+    expect(summary).not.toContain("Optional skills");
     expect(summary).toContain("Planned skill file operations:");
     expect(summary).toContain(".agents/skills/archive-docs/SKILL.md");
     expect(summary).toContain(".claude/skills/decompose-codebase/SKILL.md");
