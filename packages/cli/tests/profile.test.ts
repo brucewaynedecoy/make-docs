@@ -33,4 +33,20 @@ describe("profile resolution", () => {
     expect(profile.capabilityState.work.explicitSelection).toBe(true);
     expect(profile.capabilityState.work.effectiveSelection).toBe(true);
   });
+
+  test("does not include removed asset fields in default selections or profile identity", () => {
+    const selections = defaultSelections();
+    const profile = resolveInstallProfile(selections);
+    const withRemovedFields = {
+      ...selections,
+      prompts: false,
+      templatesMode: "required",
+      referencesMode: "required",
+    };
+
+    expect("prompts" in selections).toBe(false);
+    expect("templatesMode" in selections).toBe(false);
+    expect("referencesMode" in selections).toBe(false);
+    expect(profile.profileId).toBe(resolveInstallProfile(withRemovedFields).profileId);
+  });
 });

@@ -41,11 +41,7 @@ The options step should still collect:
 - skill scope when skills are enabled
 - optional skills when optional choices are available
 
-The returned `WizardOptionSelections` should carry normalized always-managed asset values if those fields remain in the interface:
-
-- `prompts: true`
-- `templatesMode: "all"`
-- `referencesMode: "all"`
+The returned `WizardOptionSelections` should not carry prompt/template/reference asset fields after Phase 3 removes them from active selection state.
 
 ### 2. Remove invariant rows from `renderWizardReviewSummary`
 
@@ -66,14 +62,16 @@ The `Options` section should keep user-controlled values:
 
 Inspect `OPTION_METADATA` and any help strings or labels tied only to prompt/template/reference choices.
 
-If entries are no longer used anywhere after Phase 2 and Phase 3, remove them. If retained for compatibility with CLI flags or internal tests, keep them internal and do not present them as interactive wizard choices.
+If entries are no longer used anywhere after Phase 2 and Phase 3, remove them. Any remaining references should be limited to stale-manifest validation, removed-flag tests, docs, or history.
 
 ### 4. Settle non-interactive asset flag behavior
 
-The code currently has selection override paths for prompt/template/reference asset controls. Execution must choose one compatibility policy and encode it in tests:
+The code currently has selection override paths for prompt/template/reference asset controls. The approved alpha policy is to remove those public asset override flags and encode that behavior in tests:
 
-- Preferred: reject legacy public asset override flags with migration guidance explaining that included prompts, templates, and references are always managed.
-- Acceptable fallback: accept legacy flags for one compatibility window but normalize them to always-managed values before planning, and remove their help/documentation from the public surface.
+- `--no-prompts` is rejected as an unknown argument.
+- `--templates` is rejected as an unknown argument.
+- `--references` is rejected as an unknown argument.
+- help output no longer advertises those flags.
 
 The implementation should not silently narrow asset installation in response to legacy asset flags.
 
@@ -85,12 +83,12 @@ The existing review loop can still return to capabilities, harnesses, or options
 
 ## Parallelism
 
-This phase can be owned by one CLI surface worker. It can run after Phase 1 and in parallel with Phase 3 if the workers agree on the `WizardOptionSelections` compatibility shape before editing shared types.
+This phase can be owned by one CLI surface worker. It can run after Phase 1 and in parallel with Phase 3 if the workers agree on the reduced `WizardOptionSelections` shape before editing shared types.
 
 ## Acceptance Criteria
 
 - The three removed question strings no longer appear in wizard execution paths.
 - Review output no longer includes prompt/template/reference rows.
 - Remaining wizard choices still work: capabilities, harnesses, skills, skill scope, optional skills, and review navigation.
-- Any public legacy asset flags either reject with clear guidance or normalize to always-managed values without reducing the installed asset set.
+- Public legacy asset flags are rejected as unknown arguments and cannot reduce the installed asset set.
 - Wizard tests cover the shorter options step and review summary.

@@ -1,13 +1,13 @@
-# Phase 3 - Asset Normalization and Compatibility
+# Phase 3 - Asset Field Removal and Stale-Manifest Validation
 
 ## Objective
 
-Make all install, sync, and reconfigure paths converge on always-managed prompts, templates, and references before asset planning or manifest persistence.
+Make all install, sync, and reconfigure paths converge on always-managed prompts, templates, and references while removing the old prompt/template/reference asset-selection fields from active state.
 
 ## Depends On
 
 - Phase 1 PRD requirement
-- Phase 2 interface decision for legacy CLI flags and `WizardOptionSelections`
+- Phase 2 alpha removal decision for legacy CLI flags and `WizardOptionSelections`
 - Current `InstallSelections`, `resolveInstallProfile`, and asset rule behavior
 
 ## Files To Modify
@@ -32,25 +32,25 @@ Possible after discovery:
 
 ## Detailed Changes
 
-### 1. Add one normalization boundary for always-managed assets
+### 1. Remove asset-selection fields from active state
 
-Introduce or reuse a helper that takes `InstallSelections` and returns selections with:
+Remove these fields from the current selection contract:
 
-- `prompts = true`
-- `templatesMode = "all"`
-- `referencesMode = "all"`
+- `prompts`
+- `templatesMode`
+- `referencesMode`
 
-Use this boundary before:
+Update the active state surfaces together:
 
-- resolving install profiles
-- planning desired assets
-- writing manifests
-- rendering wizard review output
-- comparing or restoring manifest selections
+- `InstallSelections`
+- profile defaults and `profileId` inputs
+- wizard option state
+- manifest-written selections
+- tests and fixtures
 
-Avoid scattering the same assignments across unrelated modules unless there is already a local pattern that strongly favors that shape.
+The always-managed behavior should be encoded in asset rules, not in invariant user selection fields.
 
-### 2. Preserve manifest compatibility
+### 2. Validate stale manifests explicitly
 
 Existing manifests may contain:
 
@@ -58,20 +58,21 @@ Existing manifests may contain:
 - `templatesMode: "required"`
 - `referencesMode: "required"`
 
-Execution should define how those manifests behave on the next sync or reconfigure. Recommended behavior:
+Because this wave is an alpha cleanup, these manifests should not be normalized silently. The accepted behavior is:
 
-- load old selections without crashing
-- normalize them to always-managed assets before planning
-- write the refreshed manifest with always-managed values after apply
-- avoid treating old omitted/required-only modes as authority to remove now-included assets
+- fail manifest validation before planning
+- name the removed fields
+- tell users to fix or remove the stale manifest
+- tell users to rerun bare `make-docs` to rebuild the manifest
+- avoid introducing or mentioning a new `make-docs update` command
 
 ### 3. Revisit profile identity
 
 `resolveInstallProfile` currently includes `prompts`, `templatesMode`, and `referencesMode` in the `profileId` hash.
 
-After normalization, those fields may remain in the hash as invariant values, or they may be removed if the fields are retired. The accepted outcome is that semantically equivalent legacy selections all resolve to the same effective asset-management behavior.
+After field removal, these fields should be removed from profile identity inputs. Current selections that differ only by the removed legacy fields should not exist; stale persisted selections are rejected at manifest load instead.
 
-The implementation should add profile tests that make the intended identity behavior explicit.
+The implementation should add profile tests that make the reduced active selection shape explicit.
 
 ### 4. Make asset rules match the always-managed contract
 
@@ -91,25 +92,27 @@ Expected behavior:
 - references include the complete reference set for effective capabilities, including assets previously gated behind `referencesMode === "all"` when capabilities are selected
 - directory routers remain installed only when the corresponding managed family has files
 
-### 5. Retire fields only if blast radius stays small
+### 5. Remove fields coherently
 
-The design does not require deleting `prompts`, `templatesMode`, or `referencesMode` from all shared types immediately.
+The approved alpha policy requires deleting `prompts`, `templatesMode`, and `referencesMode` from active shared types and current manifests in this wave.
 
-Acceptable Phase 3 outcomes:
+Required Phase 3 outcome:
 
-- Conservative: keep the fields as compatibility/invariant fields and normalize them everywhere.
-- Cleanup: remove the fields from user-facing option types and, only if safe, from shared install types and manifests with explicit migration.
+- remove the fields from user-facing option types
+- remove the fields from shared install types
+- remove the fields from current manifest writes
+- keep remaining references limited to stale-manifest validation, removed-flag tests, PRD/history text, or archived planning context
 
-Do not mix partial removal with hidden behavior changes. If the fields remain, their values must be invariant after normalization.
+Do not mix partial removal with hidden behavior changes.
 
 ## Parallelism
 
-This phase should be one write scope because profile resolution, asset rules, and manifest compatibility are tightly coupled. It can run in parallel with Phase 2 only if shared type changes are coordinated before either worker edits `wizard.ts` or `cli.ts`.
+This phase should be one write scope because profile resolution, asset rules, and manifest validation are tightly coupled. It can run in parallel with Phase 2 only if shared type changes are coordinated before either worker edits `wizard.ts` or `cli.ts`.
 
 ## Acceptance Criteria
 
-- Legacy selections with omitted prompts or required-only asset modes no longer produce reduced asset plans.
-- Default selections and legacy reduced asset selections normalize to the always-managed asset contract.
-- Reconfigure and bare sync use the same normalization behavior.
-- Profile tests document the intended `profileId` behavior.
+- Legacy selections with omitted prompts or required-only asset modes fail with stale-manifest guidance before planning.
+- Default selections satisfy the always-managed asset contract without storing invariant asset fields.
+- Reconfigure and bare sync use the same stale-manifest validation behavior.
+- Profile tests document the reduced `profileId` input behavior.
 - Install tests prove prompts, templates, and references are still created/updated after the selection surface is simplified.

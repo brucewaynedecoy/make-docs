@@ -6,15 +6,16 @@
 
 ## Objective
 
-Revise the active PRD namespace, CLI wizard, selection normalization, and tests so prompts, document templates, and reference files are no longer user-selectable asset groups. The completed change should remove the three interactive asset prompts, remove their rows from the wizard review summary, and ensure install, sync, and reconfigure flows always manage all included prompts, templates, and references that belong to the effective product surface.
+Revise the active PRD namespace, CLI wizard, selection model, and tests so prompts, document templates, and reference files are no longer user-selectable asset groups. The completed change should remove the three interactive asset prompts, remove their rows from the wizard review summary, remove the old asset-selection fields from active state, and ensure install, sync, and reconfigure flows always manage all included prompts, templates, and references that belong to the effective product surface.
 
 Completion means:
 
 - the active PRD set records the revision in a new numbered change doc
 - impacted baseline PRD docs contain `### Change Notes` backlinks
 - the CLI no longer exposes prompt/template/reference selection as interactive wizard decisions
-- effective selections normalize to prompts included, all templates, and all references before planning or manifest writes
-- tests prove the shorter wizard flow, review output, asset inclusion, and compatibility behavior
+- active selections no longer store prompt/template/reference mode fields before planning or manifest writes
+- stale manifests with removed asset-selection fields fail with clear guidance to fix or remove the manifest and rerun bare `make-docs`
+- tests prove the shorter wizard flow, review output, asset inclusion, removed-flag behavior, and stale-manifest recovery guidance
 - a scoped delta backlog is ready under the matching `docs/work/` coordinate
 
 ## Coordinate Decision
@@ -44,17 +45,18 @@ This is a revision because it changes established requirements for the CLI optio
 | Current tests | TypeScript tests | `packages/cli/tests/wizard.test.ts`, `packages/cli/tests/cli.test.ts`, `packages/cli/tests/install.test.ts`, `packages/cli/tests/profile.test.ts`, `packages/cli/tests/consistency.test.ts`, `packages/cli/tests/renderers.test.ts` | High |
 | Planning references | Markdown references/templates | `docs/assets/references/prd-change-management.md`, `docs/assets/references/wave-model.md`, `docs/assets/templates/prd-change-revision.md` | High |
 
-Open questions for execution:
+Execution decisions:
 
-- Should legacy non-interactive asset flags be removed, rejected with migration guidance, or accepted but normalized to always-managed values for one compatibility window?
-- Should `prompts`, `templatesMode`, and `referencesMode` remain in `InstallSelections` and persisted manifests as compatibility fields, or should execution remove them from shared types in this wave?
+- Legacy non-interactive asset flags are removed from the parser/help surface and now fail as unknown arguments.
+- `prompts`, `templatesMode`, and `referencesMode` are removed from active `InstallSelections` and persisted current manifests in this alpha wave.
+- Legacy or hand-edited manifests that still contain the removed fields fail validation with guidance to fix or remove the stale manifest and rerun bare `make-docs`.
 
 ## Baseline Context
 
 - Active `docs/prd/` status: active PRD namespace exists with fixed core docs `00` through `10`.
 - Impacted baseline docs: `03`, `05`, `06`, and `07`.
 - Discovery pass required: yes.
-- Discovery scope: current CLI flag/help behavior for `--no-prompts`, template mode, and reference mode; manifest compatibility for older selections; profile ID impact; asset list impact; wizard tests and install/smoke tests that assume configurable asset choices.
+- Discovery scope: current CLI flag/help behavior for `--no-prompts`, template mode, and reference mode; stale-manifest validation for older selections; profile ID impact; asset list impact; wizard tests and install/smoke tests that assume configurable asset choices.
 
 ## Output Contract
 
@@ -83,9 +85,9 @@ The change doc should use `docs/assets/templates/prd-change-revision.md` and tre
 
 - interactive wizard asset prompts are removed
 - review summary omits invariant asset rows
-- install selections normalize to prompts included, all templates, and all references
+- install selections no longer expose prompt/template/reference mode fields
 - asset planning continues to include every included prompt, template, and reference that belongs to the effective capability surface
-- compatibility with existing manifests is explicit and tested
+- stale-manifest validation for removed fields is explicit and tested
 
 ## Baseline Annotation Plan
 
@@ -102,14 +104,14 @@ The change doc should use `docs/assets/templates/prd-change-revision.md` and tre
 | ---- | ------- |
 | `01-prd-change-and-baseline-annotations.md` | Create the PRD change doc, annotate impacted baseline docs, and update the PRD index without renumbering existing docs. |
 | `02-cli-selection-surface.md` | Remove asset-selection prompts from the wizard and settle the non-interactive flag/help behavior for asset controls. |
-| `03-asset-normalization-and-compatibility.md` | Normalize effective selections to always-managed assets and preserve compatibility with existing manifests, profile IDs, and planner behavior. |
+| `03-asset-normalization-and-compatibility.md` | Remove asset-selection fields from active state, keep effective assets always managed, and reject stale manifests with rebuild guidance. |
 | `04-tests-delta-backlog-and-validation.md` | Update targeted tests, create the matching delta backlog, and run focused validation. |
 
 ## Dependencies
 
 - Phase 1 should land first because execution needs the effective requirement and baseline backlinks before code changes begin.
 - Phase 2 depends on Phase 1 for public behavior wording and owns the user-visible CLI surface.
-- Phase 3 can run in parallel with Phase 2 after Phase 1 if write scopes stay disjoint, but final integration must reconcile wizard output, CLI overrides, manifest compatibility, and profile IDs.
+- Phase 3 can run in parallel with Phase 2 after Phase 1 if write scopes stay disjoint, but final integration must reconcile wizard output, removed CLI overrides, stale-manifest validation, and profile IDs.
 - Phase 4 depends on Phases 1 through 3 for final expected behavior and target paths.
 
 ## Worker Ownership
@@ -120,7 +122,7 @@ If implementation is delegated, split ownership by write scope:
 | ------ | ----- | ----------- | ------------ | ------------ |
 | PRD worker | Active PRD evolution | `docs/prd/00-index.md`, `docs/prd/03-open-questions-and-risk-register.md`, `docs/prd/05-installation-profile-and-manifest-lifecycle.md`, `docs/prd/06-template-contracts-and-generated-assets.md`, `docs/prd/07-cli-command-surface-and-lifecycle.md`, `docs/prd/11-revise-cli-asset-selection-simplification.md` | Originating design and current PRD set | Change doc, baseline annotations, index update |
 | CLI surface worker | Wizard and public CLI option behavior | `packages/cli/src/wizard.ts`, selected help/argument surfaces in `packages/cli/src/cli.ts` | Phase 1 requirement | Shorter wizard flow, review summary without invariant asset rows, settled flag/help behavior |
-| Compatibility worker | Selection normalization and asset planning | `packages/cli/src/profile.ts`, `packages/cli/src/rules.ts`, `packages/cli/src/types.ts`, manifest/selection helpers as needed | Phase 1 and interface decisions from Phase 2 | Always-managed asset normalization with manifest/backward-compat behavior |
+| Model worker | Selection field removal and asset planning | `packages/cli/src/profile.ts`, `packages/cli/src/rules.ts`, `packages/cli/src/types.ts`, `packages/cli/src/manifest.ts`, manifest/selection helpers as needed | Phase 1 and interface decisions from Phase 2 | Always-managed asset planning with stale-manifest validation |
 | Test and backlog worker | Tests and execution backlog | `packages/cli/tests/**`, `docs/work/2026-04-28-w14-r0-cli-asset-selection-simplification/**` | Phases 1 through 3 | Targeted tests, delta backlog, validation notes |
 | Validation worker | Final contract and regression pass | Validation-only edits across touched files | All prior workers | Passing focused tests, link checks, stale-string checks, and final review |
 
@@ -147,8 +149,8 @@ Execution should verify:
 2. Impacted baseline PRD docs contain `### Change Notes` backlinks to the new change doc, and no existing PRD docs are renumbered.
 3. The wizard no longer asks `Install starter prompts?`, `Which document templates should be installed?`, or `Which reference files should be installed?`.
 4. The wizard review summary no longer includes prompt, template mode, or reference mode rows.
-5. Effective install selections always produce prompts included, all templates, and all references before planning and manifest writes.
-6. Existing manifests with omitted prompts or required-only asset modes are handled deliberately and covered by tests.
+5. Effective install selections always produce prompts included, all templates, and all references without storing asset-mode fields.
+6. Existing manifests with omitted prompts or required-only asset modes fail with actionable stale-manifest guidance and are covered by tests.
 7. Install/reconfigure tests prove all included prompts, templates, and references remain managed.
 8. Focused commands pass, at minimum: `npm test -w make-docs -- wizard`, `npm test -w make-docs -- cli`, `npm test -w make-docs -- install`, `npm test -w make-docs -- profile`, and `npm run build -w make-docs`.
 9. `jdocmunch` and `jcodemunch` are refreshed after execution.

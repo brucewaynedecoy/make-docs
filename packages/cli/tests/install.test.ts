@@ -215,7 +215,7 @@ describe("installer integration", () => {
     }
   });
 
-  test("migrates legacy instructionKinds manifests to harness selections", () => {
+  test("rejects manifests with removed asset selection fields", () => {
     const targetDir = createTempDir();
     try {
       const manifestPath = path.join(targetDir, ".make-docs/manifest.json");
@@ -240,6 +240,88 @@ describe("installer integration", () => {
               prompts: true,
               templatesMode: "all",
               referencesMode: "all",
+              harnesses: {
+                "claude-code": true,
+                codex: false,
+              },
+              skills: true,
+              skillScope: "project",
+              optionalSkills: [],
+            },
+            effectiveCapabilities: ["designs", "plans", "prd", "work"],
+            files: {},
+            skillFiles: [],
+          },
+          null,
+          2,
+        )}\n`,
+        "utf8",
+      );
+
+      expect(() => loadManifest(targetDir)).toThrow(
+        /Fix or remove the stale manifest and rerun bare `make-docs`/,
+      );
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("rejects manifests missing required current fields", () => {
+    const targetDir = createTempDir();
+    try {
+      const manifestPath = path.join(targetDir, ".make-docs/manifest.json");
+      mkdirSync(path.dirname(manifestPath), { recursive: true });
+
+      writeFileSync(
+        manifestPath,
+        `${JSON.stringify(
+          {
+            schemaVersion: 1,
+            packageName: "make-docs",
+            packageVersion: "0.1.0",
+            updatedAt: new Date().toISOString(),
+            profileId: "missing-skill-files",
+            selections: defaultSelections(),
+            effectiveCapabilities: ["designs", "plans", "prd", "work"],
+            files: {},
+          },
+          null,
+          2,
+        )}\n`,
+        "utf8",
+      );
+
+      expect(() => loadManifest(targetDir)).toThrow(/manifest\.skillFiles is required/);
+      expect(() => loadManifest(targetDir)).toThrow(
+        /Fix or remove the stale manifest and rerun bare `make-docs`/,
+      );
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("migrates legacy instructionKinds manifests to harness selections", () => {
+    const targetDir = createTempDir();
+    try {
+      const manifestPath = path.join(targetDir, ".make-docs/manifest.json");
+      mkdirSync(path.dirname(manifestPath), { recursive: true });
+
+      writeFileSync(
+        manifestPath,
+        `${JSON.stringify(
+          {
+            schemaVersion: 1,
+            packageName: "make-docs",
+            packageVersion: "0.1.0",
+            updatedAt: new Date().toISOString(),
+            profileId: "legacy-profile",
+            selections: {
+              capabilities: {
+                designs: true,
+                plans: true,
+                prd: true,
+                work: true,
+              },
               instructionKinds: {
                 "CLAUDE.md": true,
                 "AGENTS.md": false,
@@ -546,21 +628,25 @@ describe("installer integration", () => {
     }
   });
 
-  test("supports a plans-only install without prompts", async () => {
+  test("supports a plans-only install with required prompts", async () => {
     const targetDir = createTempDir();
     try {
       await installWithSelections(targetDir, (selections) => {
         selections.capabilities.designs = false;
         selections.capabilities.prd = false;
         selections.capabilities.work = false;
-        selections.prompts = false;
       });
 
       expect(existsSync(path.join(targetDir, "docs/plans/AGENTS.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, "docs/assets/prompts"))).toBe(false);
-      expect(readFileSync(path.join(targetDir, "docs/AGENTS.md"), "utf8")).not.toContain(
-        "docs/assets/prompts/",
-      );
+      expect(
+        existsSync(path.join(targetDir, "docs/assets/prompts/session-to-history-record.prompt.md")),
+      ).toBe(true);
+      expect(
+        existsSync(path.join(targetDir, "docs/assets/prompts/plan-to-prd-green-field.prompt.md")),
+      ).toBe(false);
+      expect(
+        existsSync(path.join(targetDir, "docs/assets/prompts/prd-to-work-full-prd.prompt.md")),
+      ).toBe(false);
     } finally {
       cleanupTempDir(targetDir);
     }
@@ -585,23 +671,6 @@ describe("installer integration", () => {
       ).toBe(false);
       expect(readFileSync(path.join(targetDir, "docs/AGENTS.md"), "utf8")).not.toContain(
         "docs/work/",
-      );
-    } finally {
-      cleanupTempDir(targetDir);
-    }
-  });
-
-  test("removes prompt references when prompts are disabled", async () => {
-    const targetDir = createTempDir();
-    try {
-      await installWithSelections(targetDir, (selections) => {
-        selections.prompts = false;
-      });
-
-      expect(existsSync(path.join(targetDir, "docs/assets/prompts"))).toBe(false);
-
-      expect(readFileSync(path.join(targetDir, "docs/AGENTS.md"), "utf8")).not.toContain(
-        "docs/assets/prompts/",
       );
     } finally {
       cleanupTempDir(targetDir);
@@ -772,11 +841,15 @@ describe("installer integration", () => {
 
       await installWithSelections(targetDir, (selections) => {
         selections.capabilities.work = false;
-        selections.prompts = false;
       });
 
       expect(existsSync(path.join(targetDir, "docs/work/AGENTS.md"))).toBe(false);
-      expect(existsSync(path.join(targetDir, "docs/assets/prompts"))).toBe(false);
+      expect(existsSync(path.join(targetDir, "docs/assets/prompts/designs-to-plan.prompt.md"))).toBe(
+        true,
+      );
+      expect(existsSync(path.join(targetDir, "docs/assets/prompts/prd-to-work-full-prd.prompt.md"))).toBe(
+        false,
+      );
 
       await installWithSelections(targetDir, () => {});
 

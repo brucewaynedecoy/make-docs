@@ -110,18 +110,12 @@ describe("selection wizard", () => {
       skills: true,
       skillScope: "global",
       optionalSkills: ["decompose-codebase"],
-      prompts: false,
-      templatesMode: "required",
-      referencesMode: "all",
     });
 
     expect(getWizardOptionSelections(selections)).toEqual({
       skills: true,
       skillScope: "global",
       optionalSkills: ["decompose-codebase"],
-      prompts: false,
-      templatesMode: "required",
-      referencesMode: "all",
     });
     expect(selections.harnesses["claude-code"]).toBe(false);
     expect(selections.harnesses.codex).toBe(true);
@@ -133,9 +127,6 @@ describe("selection wizard", () => {
         skills: true,
         skillScope: "project",
         optionalSkills: ["decompose-codebase"],
-        prompts: true,
-        templatesMode: "all",
-        referencesMode: "all",
       },
       {
         defaultSkills: [
@@ -199,9 +190,6 @@ describe("selection wizard", () => {
         skills: true,
         skillScope: "project",
         optionalSkills: [],
-        prompts: true,
-        templatesMode: "all",
-        referencesMode: "all",
       },
       {
         defaultSkills: [
@@ -240,9 +228,6 @@ describe("selection wizard", () => {
           skills: false,
           skillScope: "project",
           optionalSkills: [],
-          prompts: true,
-          templatesMode: "all",
-          referencesMode: "all",
         },
       ],
       ["apply"],
@@ -280,9 +265,6 @@ describe("selection wizard", () => {
           skills: true,
           skillScope: "global",
           optionalSkills: ["decompose-codebase"],
-          prompts: true,
-          templatesMode: "all",
-          referencesMode: "required",
         },
       ],
       ["apply"],
@@ -333,9 +315,6 @@ describe("selection wizard", () => {
           skills: true,
           skillScope: "project",
           optionalSkills: [],
-          prompts: true,
-          templatesMode: "all",
-          referencesMode: "all",
         },
       ],
       ["apply"],
@@ -362,9 +341,6 @@ describe("selection wizard", () => {
           skills: false,
           skillScope: "project",
           optionalSkills: [],
-          prompts: true,
-          templatesMode: "all",
-          referencesMode: "all",
         },
       ],
       ["apply"],
@@ -391,17 +367,11 @@ describe("selection wizard", () => {
           skills: true,
           skillScope: "project",
           optionalSkills: [],
-          prompts: true,
-          templatesMode: "all",
-          referencesMode: "all",
         },
         {
           skills: true,
           skillScope: "global",
           optionalSkills: ["decompose-codebase"],
-          prompts: false,
-          templatesMode: "required",
-          referencesMode: "required",
         },
       ],
       ["edit-options", "apply"],
@@ -416,9 +386,6 @@ describe("selection wizard", () => {
       skills: true,
       skillScope: "global",
       optionalSkills: ["decompose-codebase"],
-      prompts: false,
-      templatesMode: "required",
-      referencesMode: "required",
     });
     expect(renderer.introTitles).toEqual(["Configure make-docs"]);
     expect(renderer.seenOptionStates).toHaveLength(2);

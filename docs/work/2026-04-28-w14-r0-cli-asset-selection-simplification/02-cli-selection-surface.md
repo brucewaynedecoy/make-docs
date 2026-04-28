@@ -33,10 +33,10 @@ This phase owns the interactive CLI behavior. It removes the three obsolete asse
 
 ### Acceptance criteria
 
-- [ ] Runtime wizard code no longer contains the three removed prompt strings.
-- [ ] Skills, skill scope, and optional skills remain configurable.
-- [ ] Cancelling remaining prompts still exits the wizard cleanly.
-- [ ] The options step can still be reached from review navigation.
+- [x] Runtime wizard code no longer contains the three removed prompt strings.
+- [x] Skills, skill scope, and optional skills remain configurable.
+- [x] Cancelling remaining prompts still exits the wizard cleanly.
+- [x] The options step can still be reached from review navigation.
 
 ### Dependencies
 
@@ -54,10 +54,10 @@ This phase owns the interactive CLI behavior. It removes the three obsolete asse
 
 ### Acceptance criteria
 
-- [ ] Review output no longer includes prompt inclusion or omission.
-- [ ] Review output no longer includes template mode.
-- [ ] Review output no longer includes reference mode.
-- [ ] Review output still summarizes user-controlled selections.
+- [x] Review output no longer includes prompt inclusion or omission.
+- [x] Review output no longer includes template mode.
+- [x] Review output no longer includes reference mode.
+- [x] Review output still summarizes user-controlled selections.
 
 ### Dependencies
 
@@ -68,17 +68,15 @@ This phase owns the interactive CLI behavior. It removes the three obsolete asse
 ### Tasks
 
 1. Inspect `packages/cli/src/cli.ts` for `--no-prompts`, template mode, and reference mode parsing/help.
-2. Choose the implementation policy from the plan:
-   - reject legacy asset override flags with migration guidance, or
-   - accept them temporarily but normalize to always-managed values before planning.
+2. Apply the alpha implementation policy from the approved plan: remove the legacy asset override flags so they are rejected as unknown arguments.
 3. Update help text and validation so public guidance does not advertise asset omission as active behavior.
 4. Add or update CLI tests for the chosen policy.
 
 ### Acceptance criteria
 
-- [ ] Legacy asset flags cannot reduce installed prompt/template/reference assets.
-- [ ] User-facing guidance explains that included prompts, templates, and references are always managed.
-- [ ] Tests cover the chosen compatibility behavior.
+- [x] Legacy asset flags cannot reduce installed prompt/template/reference assets.
+- [x] User-facing guidance explains that included prompts, templates, and references are always managed.
+- [x] Tests cover the chosen alpha removal behavior.
 
 ### Dependencies
 
@@ -91,14 +89,14 @@ This phase owns the interactive CLI behavior. It removes the three obsolete asse
 
 1. Find remaining uses of `OPTION_METADATA.prompts`, `OPTION_METADATA.templatesMode`, and `OPTION_METADATA.referencesMode`.
 2. Remove obsolete metadata if it is no longer used after the surface and compatibility decisions.
-3. Keep any retained metadata internal and compatibility-scoped.
+3. Keep any retained metadata internal and stale-manifest-validation-scoped.
 4. Update tests that asserted the old labels or review rows.
 
 ### Acceptance criteria
 
-- [ ] Obsolete user-facing labels are removed from wizard output.
-- [ ] Any remaining metadata references are intentional and covered by compatibility tests.
-- [ ] No unrelated option metadata is changed.
+- [x] Obsolete user-facing labels are removed from wizard output.
+- [x] Any remaining metadata references are intentional and covered by stale-manifest or removed-flag tests.
+- [x] No unrelated option metadata is changed.
 
 ### Dependencies
 
@@ -115,10 +113,10 @@ This phase owns the interactive CLI behavior. It removes the three obsolete asse
 
 ### Acceptance criteria
 
-- [ ] `packages/cli/tests/wizard.test.ts` covers the shorter options step.
-- [ ] Removed prompt strings are not expected by tests.
-- [ ] Optional skill behavior remains covered.
-- [ ] Focused wizard tests pass.
+- [x] `packages/cli/tests/wizard.test.ts` covers the shorter options step.
+- [x] Removed prompt strings are not expected by tests.
+- [x] Optional skill behavior remains covered.
+- [x] Focused wizard tests pass.
 
 ### Dependencies
 

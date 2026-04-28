@@ -20,8 +20,6 @@ export const HARNESS_TO_INSTRUCTION: Record<Harness, InstructionKind> = {
   codex: "AGENTS.md",
 };
 
-export type TemplatesMode = "required" | "all";
-export type ReferencesMode = "required" | "all";
 export type InstructionConflictResolution = "update" | "overwrite" | "skip";
 export type InstructionConflictResolutions = Partial<
   Record<string, InstructionConflictResolution>
@@ -37,9 +35,6 @@ export type ActionType =
 
 export interface InstallSelections {
   capabilities: Record<Capability, boolean>;
-  prompts: boolean;
-  templatesMode: TemplatesMode;
-  referencesMode: ReferencesMode;
   harnesses: Record<Harness, boolean>;
   skills: boolean;
   skillScope: "project" | "global";

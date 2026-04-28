@@ -4,6 +4,7 @@ import path from "node:path";
 import type {
   AuditPathKind,
   AuditPathMetadata,
+  Capability,
   InstallManifest,
   InstallProfile,
   InstallSelections,
@@ -12,6 +13,7 @@ import type {
   ManifestFileEntry,
   PackageMeta,
 } from "./types";
+import { CAPABILITIES, HARNESSES } from "./types";
 import { normalizeRelativePath, readTextFile, writeTextFile } from "./utils";
 
 export const MANIFEST_SCHEMA_VERSION = 1;
@@ -29,18 +31,17 @@ export function loadManifest(targetDir: string): InstallManifest | null {
     return null;
   }
 
-  const parsed = JSON.parse(readTextFile(manifestPath)) as InstallManifest & {
-    skillFiles?: unknown;
-  };
-  parsed.skillFiles = migrateSkillFiles(parsed.skillFiles);
-  parsed.selections = migrateSelections(parsed.selections, parsed.skillFiles);
-  return parsed;
+  const parsed = JSON.parse(readTextFile(manifestPath)) as unknown;
+  return validateAndMigrateManifest(parsed, manifestPath);
 }
 
 export function migrateSelections(
-  selections: InstallSelections,
+  selections: unknown,
   skillFiles: string[] = [],
 ): InstallSelections {
+  assertPlainObject(selections, "selections");
+  assertNoRemovedAssetFields(selections, "selections");
+
   const legacy = selections as InstallSelections & {
     instructionKinds?: Record<string, boolean>;
     optionalSkills?: unknown;
@@ -52,26 +53,30 @@ export function migrateSelections(
   );
 
   if (legacy.instructionKinds && !legacy.harnesses) {
+    assertPlainObject(legacy.instructionKinds, "selections.instructionKinds");
     const ik = legacy.instructionKinds;
     const migrated: InstallSelections = {
-      capabilities: legacy.capabilities,
-      prompts: legacy.prompts,
-      templatesMode: legacy.templatesMode,
-      referencesMode: legacy.referencesMode,
+      capabilities: validateCapabilities(legacy.capabilities),
       harnesses: {
-        "claude-code": ik["CLAUDE.md"] ?? false,
-        codex: ik["AGENTS.md"] ?? false,
+        "claude-code": validateBoolean(
+          ik["CLAUDE.md"] ?? false,
+          "selections.instructionKinds.CLAUDE.md",
+        ),
+        codex: validateBoolean(ik["AGENTS.md"] ?? false, "selections.instructionKinds.AGENTS.md"),
       },
-      skills: legacy.skills ?? true,
-      skillScope: legacy.skillScope ?? "project",
+      skills:
+        legacy.skills === undefined ? true : validateBoolean(legacy.skills, "selections.skills"),
+      skillScope: validateSkillScope(legacy.skillScope ?? "project"),
       optionalSkills: migratedOptionalSkills,
     };
     return migrated;
   }
 
   return {
-    ...legacy,
-    skillScope: legacy.skillScope ?? "project",
+    capabilities: validateCapabilities(legacy.capabilities),
+    harnesses: validateHarnesses(legacy.harnesses),
+    skills: validateBoolean(legacy.skills, "selections.skills"),
+    skillScope: validateSkillScope(legacy.skillScope ?? "project"),
     optionalSkills: migratedOptionalSkills,
   };
 }
@@ -192,6 +197,142 @@ function migrateSkillFiles(skillFiles: unknown): string[] {
   }
 
   return [];
+}
+
+function validateAndMigrateManifest(value: unknown, manifestPath: string): InstallManifest {
+  try {
+    assertPlainObject(value, "manifest");
+    assertNoRemovedAssetFields(value, "manifest");
+
+    if (!("skillFiles" in value)) {
+      throw new Error("manifest.skillFiles is required");
+    }
+
+    const skillFiles = migrateSkillFiles(value.skillFiles);
+    const selections = migrateSelections(value.selections, skillFiles);
+    const files = validateManifestFiles(value.files);
+
+    const schemaVersion = validateNumber(value.schemaVersion, "manifest.schemaVersion");
+    if (schemaVersion !== MANIFEST_SCHEMA_VERSION) {
+      throw new Error(`manifest.schemaVersion must be ${MANIFEST_SCHEMA_VERSION}`);
+    }
+
+    return {
+      schemaVersion,
+      packageName: validateString(value.packageName, "manifest.packageName"),
+      packageVersion: validateString(value.packageVersion, "manifest.packageVersion"),
+      updatedAt: validateString(value.updatedAt, "manifest.updatedAt"),
+      profileId: validateString(value.profileId, "manifest.profileId"),
+      selections,
+      effectiveCapabilities: validateEffectiveCapabilities(value.effectiveCapabilities),
+      files,
+      skillFiles,
+    };
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : "invalid manifest shape";
+    throw new Error(
+      `Stale or malformed make-docs manifest at ${manifestPath}: ${reason}. Fix or remove the stale manifest and rerun bare \`make-docs\` to rebuild it.`,
+    );
+  }
+}
+
+function assertNoRemovedAssetFields(value: Record<string, unknown>, label: string): void {
+  for (const field of ["prompts", "templatesMode", "referencesMode"]) {
+    if (field in value) {
+      throw new Error(`${label}.${field} is no longer supported`);
+    }
+  }
+}
+
+function validateCapabilities(value: unknown): Record<Capability, boolean> {
+  assertPlainObject(value, "selections.capabilities");
+  const capabilities = {} as Record<Capability, boolean>;
+
+  for (const capability of CAPABILITIES) {
+    capabilities[capability] = validateBoolean(
+      value[capability],
+      `selections.capabilities.${capability}`,
+    );
+  }
+
+  return capabilities;
+}
+
+function validateHarnesses(value: unknown): InstallSelections["harnesses"] {
+  assertPlainObject(value, "selections.harnesses");
+  const harnesses = {} as InstallSelections["harnesses"];
+
+  for (const harness of HARNESSES) {
+    harnesses[harness] = validateBoolean(value[harness], `selections.harnesses.${harness}`);
+  }
+
+  return harnesses;
+}
+
+function validateSkillScope(value: unknown): InstallSelections["skillScope"] {
+  if (value !== "project" && value !== "global") {
+    throw new Error("selections.skillScope must be project or global");
+  }
+
+  return value;
+}
+
+function validateManifestFiles(value: unknown): Record<string, ManifestFileEntry> {
+  assertPlainObject(value, "manifest.files");
+  const files: Record<string, ManifestFileEntry> = {};
+
+  for (const [managedPath, entry] of Object.entries(value)) {
+    assertPlainObject(entry, `manifest.files.${managedPath}`);
+    files[managedPath] = {
+      hash: validateString(entry.hash, `manifest.files.${managedPath}.hash`),
+      sourceId: validateString(entry.sourceId, `manifest.files.${managedPath}.sourceId`),
+    };
+  }
+
+  return files;
+}
+
+function validateEffectiveCapabilities(value: unknown): Capability[] {
+  if (!Array.isArray(value)) {
+    throw new Error("manifest.effectiveCapabilities must be an array");
+  }
+
+  return value.map((capability, index) => {
+    if (typeof capability !== "string" || !CAPABILITIES.includes(capability as Capability)) {
+      throw new Error(`manifest.effectiveCapabilities.${index} must be a valid capability`);
+    }
+    return capability as Capability;
+  });
+}
+
+function validateString(value: unknown, label: string): string {
+  if (typeof value !== "string") {
+    throw new Error(`${label} must be a string`);
+  }
+
+  return value;
+}
+
+function validateNumber(value: unknown, label: string): number {
+  if (typeof value !== "number") {
+    throw new Error(`${label} must be a number`);
+  }
+
+  return value;
+}
+
+function validateBoolean(value: unknown, label: string): boolean {
+  if (typeof value !== "boolean") {
+    throw new Error(`${label} must be a boolean`);
+  }
+
+  return value;
+}
+
+function assertPlainObject(value: unknown, label: string): asserts value is Record<string, unknown> {
+  if (!isPlainObject(value)) {
+    throw new Error(`${label} must be an object`);
+  }
 }
 
 function migrateOptionalSkills(

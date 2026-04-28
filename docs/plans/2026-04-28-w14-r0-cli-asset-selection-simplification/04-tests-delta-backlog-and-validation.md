@@ -8,7 +8,7 @@ Convert the approved plan and PRD change into an execution-ready delta backlog, 
 
 - Phase 1 PRD changes
 - Phase 2 CLI selection-surface changes
-- Phase 3 normalization and compatibility changes
+- Phase 3 field-removal and stale-manifest validation changes
 
 ## Files To Modify
 
@@ -44,7 +44,7 @@ Recommended backlog phases:
 
 1. PRD change and baseline annotations
 2. CLI wizard and public option surface
-3. Selection normalization and manifest compatibility
+3. Selection field removal and stale-manifest validation
 4. Tests and validation
 
 Do not regenerate the full `docs/assets/archive/work/2026-04-23-w12-r0-make-docs-prd-decomposition/` backlog.
@@ -59,23 +59,20 @@ Test expectations should prove:
 - optional skill behavior still works with and without optional skills
 - cancellation behavior still works for the remaining prompts
 
-### 3. Update CLI and compatibility tests
+### 3. Update CLI and stale-manifest tests
 
-Depending on the Phase 2 flag decision, tests should prove either:
-
-- legacy asset flags are rejected with clear migration guidance, or
-- legacy asset flags are accepted but normalize to always-managed values and do not reduce managed assets
+Tests should prove that legacy asset flags are rejected as unknown arguments and are absent from help output.
 
 Add coverage for:
 
 - first install
-- bare sync with an old manifest
-- explicit reconfigure with an old manifest
+- bare sync with a stale manifest
+- explicit reconfigure with a stale manifest
 - non-interactive `--yes` behavior
 
 ### 4. Update profile and install tests
 
-Profile tests should prove the normalized effective selection behavior and any intended `profileId` changes.
+Profile tests should prove the reduced active selection shape and intended `profileId` changes.
 
 Install tests should prove:
 
@@ -83,7 +80,7 @@ Install tests should prove:
 - all templates for effective capabilities are managed
 - all references for effective capabilities are managed
 - assets previously gated by required/all modes are included under the always-managed contract
-- a manifest with older reduced asset settings does not remove now-included assets on sync
+- a manifest with older reduced asset settings fails with guidance to fix or remove the manifest and rerun `make-docs`
 
 ### 5. Run focused validation
 
@@ -106,7 +103,7 @@ rg "Install starter prompts\\?|Which document templates should be installed\\?|W
 rg "Starter prompts|Template mode|Reference mode|templatesMode|referencesMode|no-prompts" packages/cli/src packages/cli/tests docs/prd docs/work
 ```
 
-The second check may find legitimate compatibility references; review every hit instead of treating the command as a required zero-output gate.
+The second check may find legitimate stale-manifest validation, removed-flag test, PRD, plan, work, or history references; review every hit instead of treating the command as a required zero-output gate.
 
 ## Parallelism
 
@@ -115,8 +112,8 @@ Backlog generation can start after Phase 1 and be updated after Phases 2 and 3 s
 ## Acceptance Criteria
 
 - A scoped delta backlog exists under `docs/work/2026-04-28-w14-r0-cli-asset-selection-simplification/`.
-- Focused wizard, CLI, profile, install, consistency, and renderer tests are updated for the always-managed asset contract.
+- Focused wizard, CLI, profile, install, consistency, and renderer tests are updated for the always-managed asset contract and stale-manifest validation.
 - Build and focused tests pass, or failures are documented with exact commands and failure causes.
 - Stale removed prompt strings are absent from runtime code.
-- Any remaining asset-mode references are intentional compatibility, PRD, or history references.
+- Any remaining asset-mode references are intentional stale-manifest validation, removed-flag test, PRD, plan, work, or history references.
 - `jdocmunch` and `jcodemunch` indexes are refreshed after edits.

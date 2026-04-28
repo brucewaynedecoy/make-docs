@@ -15,8 +15,6 @@ import type {
   InstallSelections,
   LifecyclePermissionsMode,
   PlannedAction,
-  ReferencesMode,
-  TemplatesMode,
 } from "./types";
 import { PACKAGE_ROOT, readPackageMeta } from "./utils";
 import {
@@ -39,12 +37,9 @@ interface ParsedArgs {
   noPlans: boolean;
   noPrd: boolean;
   noWork: boolean;
-  noPrompts: boolean;
   noCodex: boolean;
   noClaudeCode: boolean;
   noSkills: boolean;
-  templatesMode?: TemplatesMode;
-  referencesMode?: ReferencesMode;
   skillScope?: InstallSelections["skillScope"];
   optionalSkills?: string[];
 }
@@ -313,9 +308,6 @@ function resolveSelections(options: {
   if (parsed.noWork) {
     selections.capabilities.work = false;
   }
-  if (parsed.noPrompts) {
-    selections.prompts = false;
-  }
   if (parsed.noCodex) {
     selections.harnesses.codex = false;
   }
@@ -336,13 +328,6 @@ function resolveSelections(options: {
       selections.optionalSkills = [...parsed.optionalSkills];
     }
   }
-  if (parsed.templatesMode) {
-    selections.templatesMode = parsed.templatesMode;
-  }
-  if (parsed.referencesMode) {
-    selections.referencesMode = parsed.referencesMode;
-  }
-
   return selections;
 }
 
@@ -352,12 +337,9 @@ function hasSelectionOverrides(parsed: ParsedArgs): boolean {
       parsed.noPlans ||
       parsed.noPrd ||
       parsed.noWork ||
-      parsed.noPrompts ||
       parsed.noCodex ||
       parsed.noClaudeCode ||
       parsed.noSkills ||
-      parsed.templatesMode ||
-      parsed.referencesMode ||
       parsed.skillScope ||
       parsed.optionalSkills !== undefined,
   );
@@ -424,9 +406,6 @@ function getSelectionOverrideFlags(parsed: ParsedArgs): string[] {
   if (parsed.noWork) {
     flags.push("--no-work");
   }
-  if (parsed.noPrompts) {
-    flags.push("--no-prompts");
-  }
   if (parsed.noCodex) {
     flags.push("--no-codex");
   }
@@ -435,12 +414,6 @@ function getSelectionOverrideFlags(parsed: ParsedArgs): string[] {
   }
   if (parsed.noSkills) {
     flags.push("--no-skills");
-  }
-  if (parsed.templatesMode) {
-    flags.push("--templates");
-  }
-  if (parsed.referencesMode) {
-    flags.push("--references");
   }
   if (parsed.skillScope) {
     flags.push("--skill-scope");
@@ -463,7 +436,6 @@ function parseArgs(argv: string[]): ParsedArgs {
     noPlans: false,
     noPrd: false,
     noWork: false,
-    noPrompts: false,
     noCodex: false,
     noClaudeCode: false,
     noSkills: false,
@@ -517,9 +489,6 @@ function parseArgs(argv: string[]): ParsedArgs {
       case "--no-work":
         parsed.noWork = true;
         break;
-      case "--no-prompts":
-        parsed.noPrompts = true;
-        break;
       case "--no-codex":
       case "--no-agents":
         parsed.noCodex = true;
@@ -531,22 +500,6 @@ function parseArgs(argv: string[]): ParsedArgs {
       case "--no-skills":
         parsed.noSkills = true;
         break;
-      case "--templates": {
-        const value = args.shift();
-        if (value !== "required" && value !== "all") {
-          throw new Error("`--templates` must be either `required` or `all`.");
-        }
-        parsed.templatesMode = value;
-        break;
-      }
-      case "--references": {
-        const value = args.shift();
-        if (value !== "required" && value !== "all") {
-          throw new Error("`--references` must be either `required` or `all`.");
-        }
-        parsed.referencesMode = value;
-        break;
-      }
       case "--skill-scope": {
         const value = args.shift();
         if (value !== "project" && value !== "global") {
@@ -634,17 +587,8 @@ function getInvalidSkillsCommandFlags(parsed: ParsedArgs): string[] {
   if (parsed.noWork) {
     flags.push("--no-work");
   }
-  if (parsed.noPrompts) {
-    flags.push("--no-prompts");
-  }
   if (parsed.noSkills) {
     flags.push("--no-skills");
-  }
-  if (parsed.templatesMode) {
-    flags.push("--templates");
-  }
-  if (parsed.referencesMode) {
-    flags.push("--references");
   }
 
   return flags;
@@ -828,7 +772,7 @@ function renderNoopExplanation(options: {
 
   lines.push(
     "Useful next steps:",
-    "- Run `make-docs reconfigure` to change which docs, prompts, harnesses, or skills are managed.",
+    "- Run `make-docs reconfigure` to change which docs, harnesses, or skills are managed.",
     "- Run `make-docs --dry-run` after upgrading make-docs to preview future changes.",
   );
 
@@ -918,9 +862,6 @@ Content options:
   --no-plans                     Skip docs/plans scaffolding.
   --no-prd                       Skip docs/prd scaffolding.
   --no-work                      Skip docs/work scaffolding.
-  --no-prompts                   Skip reusable prompt starters.
-  --templates required|all       Install required templates only, or the full template set.
-  --references required|all      Install required references only, or the full reference set.
 
 Harness options:
   --no-codex                     Skip the Codex harness.

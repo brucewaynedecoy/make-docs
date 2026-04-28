@@ -22,9 +22,6 @@ export function defaultSelections(): InstallSelections {
       prd: true,
       work: true,
     },
-    prompts: true,
-    templatesMode: "all",
-    referencesMode: "all",
     harnesses: {
       "claude-code": true,
       codex: true,
@@ -74,9 +71,6 @@ export function resolveInstallProfile(selections: InstallSelections): InstallPro
   const profileId = hashText(
     JSON.stringify({
       capabilities: capabilityState,
-      prompts: selections.prompts,
-      templatesMode: selections.templatesMode,
-      referencesMode: selections.referencesMode,
       harnesses: selections.harnesses,
       skills: selections.skills,
       skillScope: selections.skillScope,
@@ -99,9 +93,6 @@ export function hasEffectiveCapabilities(profile: InstallProfile): boolean {
 export function isFullDefaultProfile(profile: InstallProfile): boolean {
   return (
     CAPABILITIES.every((capability) => profile.capabilityState[capability].effectiveSelection) &&
-    profile.selections.prompts &&
-    profile.selections.templatesMode === "all" &&
-    profile.selections.referencesMode === "all" &&
     profile.selections.harnesses["claude-code"] &&
     profile.selections.harnesses.codex &&
     profile.selections.skills &&

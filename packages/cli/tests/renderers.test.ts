@@ -59,16 +59,4 @@ describe("buildable renderers", () => {
     expect(rendered).not.toContain("npx make-docs update --reconfigure");
   });
 
-  test("removes prompt links from design workflow when prompts are disabled", () => {
-    const selections = defaultSelections();
-    selections.prompts = false;
-
-    const profile = resolveInstallProfile(selections);
-    const rendered = renderBuildableAsset("docs/assets/references/design-workflow.md", profile);
-
-    expect(rendered).toContain("Prompt links are unavailable in this profile");
-    expect(rendered).not.toContain("docs/assets/prompts/");
-    expect(rendered).toContain("npx make-docs reconfigure");
-    expect(rendered).not.toContain("npx make-docs update --reconfigure");
-  });
 });

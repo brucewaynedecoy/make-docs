@@ -118,10 +118,6 @@ export function profileHasCapabilities(
 }
 
 export function getPromptPaths(profile: InstallProfile): string[] {
-  if (!profile.selections.prompts) {
-    return [];
-  }
-
   return PROMPT_RULES.filter((rule) => profileHasCapabilities(profile, rule.requires)).map(
     (rule) => rule.relativePath,
   );
@@ -174,7 +170,7 @@ export function getReferencePaths(profile: InstallProfile): string[] {
     }
   }
 
-  if (profile.selections.referencesMode === "all" && profile.effectiveCapabilities.length > 0) {
+  if (profile.effectiveCapabilities.length > 0) {
     paths.add("docs/assets/references/harness-capability-matrix.md");
   }
 

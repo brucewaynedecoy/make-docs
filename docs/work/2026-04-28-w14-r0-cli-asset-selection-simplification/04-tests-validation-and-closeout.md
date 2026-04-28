@@ -28,16 +28,16 @@ This phase updates focused tests, runs the targeted validation suite, performs s
 
 1. Update `packages/cli/tests/wizard.test.ts` for the shorter wizard options step and review summary.
 2. Update `packages/cli/tests/cli.test.ts` for the chosen legacy asset flag behavior.
-3. Update `packages/cli/tests/profile.test.ts` for normalized asset-selection and profile identity behavior.
-4. Update `packages/cli/tests/install.test.ts` for old-manifest compatibility and always-managed asset coverage.
+3. Update `packages/cli/tests/profile.test.ts` for removed asset-selection fields and profile identity behavior.
+4. Update `packages/cli/tests/install.test.ts` for stale-manifest validation and always-managed asset coverage.
 5. Update `packages/cli/tests/consistency.test.ts` or `packages/cli/tests/renderers.test.ts` if the expected full asset list or rendered router behavior changes.
 
 ### Acceptance criteria
 
-- [ ] Tests fail against the old user-facing asset-selection behavior.
-- [ ] Tests pass after Phases 2 and 3 are implemented.
-- [ ] Coverage includes first install, sync from old manifest, and reconfigure from old manifest.
-- [ ] Coverage proves included prompts, templates, and references remain managed.
+- [x] Tests fail against the old user-facing asset-selection behavior.
+- [x] Tests pass after Phases 2 and 3 are implemented.
+- [x] Coverage includes first install and stale-manifest recovery guidance.
+- [x] Coverage proves included prompts, templates, and references remain managed.
 
 ### Dependencies
 
@@ -57,12 +57,12 @@ This phase updates focused tests, runs the targeted validation suite, performs s
 
 ### Acceptance criteria
 
-- [ ] Focused wizard tests pass.
-- [ ] Focused CLI tests pass.
-- [ ] Focused profile tests pass.
-- [ ] Focused install tests pass.
-- [ ] Focused consistency and renderer tests pass.
-- [ ] Build passes, or any failure is documented with exact failing command and root cause.
+- [x] Focused wizard tests pass.
+- [x] Focused CLI tests pass.
+- [x] Focused profile tests pass.
+- [x] Focused install tests pass.
+- [x] Focused consistency and renderer tests pass.
+- [x] Build passes, or any failure is documented with exact failing command and root cause.
 
 ### Dependencies
 
@@ -83,15 +83,15 @@ This phase updates focused tests, runs the targeted validation suite, performs s
    - `templatesMode`
    - `referencesMode`
    - `no-prompts`
-3. Review each remaining hit and classify it as compatibility, PRD/history, or stale runtime surface.
+3. Review each remaining hit and classify it as stale-manifest validation, removed-flag test coverage, PRD/history, or stale runtime surface.
 4. Check local Markdown links in touched design, plan, PRD, and work files.
 
 ### Acceptance criteria
 
-- [ ] Removed prompt strings are absent from runtime code.
-- [ ] Remaining asset-mode references are intentional and documented by tests or PRD/history context.
-- [ ] Touched Markdown links resolve.
-- [ ] No new broken internal links are introduced.
+- [x] Removed prompt strings are absent from runtime code.
+- [x] Remaining asset-mode references are intentional and documented by tests or PRD/history context.
+- [x] Touched Markdown links resolve.
+- [x] No new broken internal links are introduced.
 
 ### Dependencies
 
@@ -108,10 +108,10 @@ This phase updates focused tests, runs the targeted validation suite, performs s
 
 ### Acceptance criteria
 
-- [ ] `jcodemunch` can find changed CLI symbols after reindexing.
-- [ ] `jdocmunch` can find the new PRD change doc and work backlog after reindexing.
-- [ ] History records exist for completed implementation phases.
-- [ ] History records use the `w14-r0-pN` coordinate pattern.
+- [x] `jcodemunch` can find changed CLI symbols after reindexing.
+- [x] `jdocmunch` can find the new PRD change doc and work backlog after reindexing.
+- [x] History records exist for completed implementation phases.
+- [x] History records use the `w14-r0-pN` coordinate pattern.
 
 ### Dependencies
 
@@ -128,9 +128,9 @@ This phase updates focused tests, runs the targeted validation suite, performs s
 
 ### Acceptance criteria
 
-- [ ] Diff scope matches W14 R0.
-- [ ] Effective requirement is consistent across PRD, plan, and work artifacts.
-- [ ] User-facing closeout includes changed files and validation status.
+- [x] Diff scope matches W14 R0.
+- [x] Effective requirement is consistent across PRD, plan, and work artifacts.
+- [x] User-facing closeout includes changed files and validation status.
 
 ### Dependencies
 

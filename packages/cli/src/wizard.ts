@@ -34,8 +34,6 @@ import {
   type InstructionConflict,
   type InstructionConflictResolution,
   type InstructionConflictResolutions,
-  type ReferencesMode,
-  type TemplatesMode,
 } from "./types";
 import { formatInlineList } from "./utils";
 
@@ -84,23 +82,6 @@ const OPTION_METADATA = {
     project: "Install skills into this project.",
     global:
       "Install skills into your home directory for reuse across projects.",
-  },
-  prompts: {
-    label: "Prompt starters",
-    description:
-      "Reusable starter prompts under `docs/assets/prompts/` for common design, planning, PRD, and work handoff flows.",
-  },
-  templatesMode: {
-    label: "Templates",
-    all: "Install every valid template for the chosen profile.",
-    required:
-      "Install only the minimal template set required for the chosen profile.",
-  },
-  referencesMode: {
-    label: "References",
-    all: "Install every valid reference file for the chosen profile.",
-    required:
-      "Install only the minimal reference set required for the chosen profile.",
   },
 };
 
@@ -156,9 +137,6 @@ export interface WizardOptionSelections {
   skills: boolean;
   skillScope: InstallSelections["skillScope"];
   optionalSkills: string[];
-  prompts: boolean;
-  templatesMode: TemplatesMode;
-  referencesMode: ReferencesMode;
 }
 
 export interface CapabilityStepState {
@@ -258,9 +236,6 @@ export function getWizardOptionSelections(
     skills: selections.skills,
     skillScope: selections.skillScope,
     optionalSkills: [...selections.optionalSkills].sort(),
-    prompts: selections.prompts,
-    templatesMode: selections.templatesMode,
-    referencesMode: selections.referencesMode,
   };
 }
 
@@ -386,9 +361,6 @@ export function applyWizardOptionSelections(
   next.optionalSkills = options.skills
     ? Array.from(new Set(options.optionalSkills)).sort()
     : [];
-  next.prompts = options.prompts;
-  next.templatesMode = options.templatesMode;
-  next.referencesMode = options.referencesMode;
 
   return next;
 }
@@ -472,9 +444,6 @@ export function renderWizardReviewSummary(
     `- Harnesses: ${harnessSummary}`,
     `- ${OPTION_METADATA.skills.label}: ${skillsSummary}`,
     `- Optional skills: ${normalizedSelections.skills ? optionalSkillSummary : "n/a"}`,
-    `- ${OPTION_METADATA.prompts.label}: ${normalizedSelections.prompts ? "included" : "omitted"}`,
-    `- ${OPTION_METADATA.templatesMode.label}: ${normalizedSelections.templatesMode}`,
-    `- ${OPTION_METADATA.referencesMode.label}: ${normalizedSelections.referencesMode}`,
   ].join("\n");
 }
 
@@ -666,7 +635,7 @@ function createClackWizardRenderer(): WizardRenderer {
           {
             value: "edit-options",
             label: "Edit options",
-            hint: "Adjust skills, prompts, templates, and references",
+            hint: "Adjust skills and skill scope",
           },
           {
             value: "cancel",
@@ -823,69 +792,10 @@ async function promptForOptions(
     optionalSkills = [];
   }
 
-  const promptsResult = await confirm({
-    message: "Install starter prompts?",
-    withGuide: true,
-    initialValue: options.prompts,
-    active: "Yes",
-    inactive: "No",
-  });
-
-  if (isCancel(promptsResult)) {
-    return null;
-  }
-
-  const templatesMode = await select<TemplatesMode>({
-    message: "Which document templates should be installed?",
-    withGuide: true,
-    initialValue: options.templatesMode,
-    options: [
-      {
-        value: "all",
-        label: "All templates",
-        hint: OPTION_METADATA.templatesMode.all,
-      },
-      {
-        value: "required",
-        label: "Required templates only",
-        hint: OPTION_METADATA.templatesMode.required,
-      },
-    ],
-  });
-
-  if (isCancel(templatesMode)) {
-    return null;
-  }
-
-  const referencesMode = await select<ReferencesMode>({
-    message: "Which reference files should be installed?",
-    withGuide: true,
-    initialValue: options.referencesMode,
-    options: [
-      {
-        value: "all",
-        label: "All references",
-        hint: OPTION_METADATA.referencesMode.all,
-      },
-      {
-        value: "required",
-        label: "Required references only",
-        hint: OPTION_METADATA.referencesMode.required,
-      },
-    ],
-  });
-
-  if (isCancel(referencesMode)) {
-    return null;
-  }
-
   return {
     skills: skillsResult,
     skillScope,
     optionalSkills,
-    prompts: promptsResult,
-    templatesMode,
-    referencesMode,
   };
 }
 

@@ -10,7 +10,7 @@ The change belongs in the active PRD namespace because the current baseline docu
 
 This doc records a `revision`.
 
-It supersedes the prior requirement that the CLI expose prompt, template, and reference asset controls in the wizard and selection review. The revised requirement is that those asset families are normalized to the complete included set before planning and manifest writes, with compatibility handling for older manifests and flags.
+It supersedes the prior requirement that the CLI expose prompt, template, and reference asset controls in the wizard and selection review. Because this is an alpha cleanup, the removed asset controls do not require backward compatibility. The revised requirement is that included prompts, templates, and references are invariant managed assets, while the old `--no-prompts`, `--templates`, `--references`, `prompts`, `templatesMode`, and `referencesMode` surfaces are removed rather than normalized.
 
 ## Baseline Being Revised or Removed
 
@@ -45,9 +45,11 @@ Effective behavior:
 - The wizard does not ask which document templates should be installed.
 - The wizard does not ask which reference files should be installed.
 - The wizard review summary does not list prompt inclusion, template mode, or reference mode rows as user decisions.
-- Effective install selections normalize to prompt starters included, all included templates, and all included references before planning and manifest writes.
+- Included prompt starters, document templates, and reference files are invariant managed assets whenever their owning capability surface is installed.
+- The old `--no-prompts`, `--templates`, and `--references` flags are removed from the public CLI contract.
+- The old `prompts`, `templatesMode`, and `referencesMode` selection fields are removed from the active persisted-selection contract rather than translated into new values.
 - Install, sync, and reconfigure flows continue to manage every included prompt, template, and reference file that belongs to the effective capability surface.
-- Existing manifests or legacy flags that represent omitted prompts or required-only template/reference modes must be migrated, normalized, or rejected with explicit compatibility behavior.
+- Manifest checking must identify stale or malformed manifests that still carry the removed asset-selection fields, tell users to fix or remove the stale manifest, and tell them to rerun bare `make-docs` to rebuild the manifest.
 
 Code anchors:
 

@@ -79,12 +79,10 @@ node dist/index.js --target "$TEST_DIR"
 The interactive wizard should currently walk through:
 
 1. `Choose the document types to manage in this project:`
-2. `Install starter prompts?`
-3. `Which document templates should be installed?`
-4. `Which reference files should be installed?`
-5. `Which agent instructions should be installed?`
-6. `Review selections`
-7. `What would you like to do next?`
+2. `Which agent platforms will you use?`
+3. `Install agent skills?`
+4. `Review selections`
+5. `What would you like to do next?`
 
 If the selected install would conflict with an existing `AGENTS.md` or `CLAUDE.md` at one of the managed target paths, the CLI should also present a conflict-resolution prompt for each conflicting file:
 

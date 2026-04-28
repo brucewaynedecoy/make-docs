@@ -732,8 +732,6 @@ describe("cli interactive flows", () => {
 
   test.each([
     [["--no-designs"], ["--no-designs", "make-docs skills"]],
-    [["--templates", "all"], ["--templates", "make-docs skills"]],
-    [["--references", "required"], ["--references", "make-docs skills"]],
   ])("rejects content selection flags under skills %s", async (argv, messageParts) => {
     const targetDir = createTempDir();
 
@@ -743,6 +741,22 @@ describe("cli interactive flows", () => {
       for (const part of messageParts) {
         expect(error.message).toContain(part);
       }
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test.each([
+    ["--no-prompts"],
+    ["--templates"],
+    ["--references"],
+  ])("rejects removed asset-selection flag %s", async (flag) => {
+    const targetDir = createTempDir();
+
+    try {
+      const error = await captureCliError([flag, "--target", targetDir]);
+
+      expect(error.message).toContain(`Unknown argument: ${flag}`);
     } finally {
       cleanupTempDir(targetDir);
     }
@@ -823,6 +837,9 @@ describe("cli interactive flows", () => {
     expect(output).toContain("--yes                          Skip interactive prompts; requires a selection flag.");
     expect(output).toContain("make-docs reconfigure --yes --no-work");
     expect(output).toContain("--optional-skills <csv|none>");
+    expect(output).not.toContain("--no-prompts");
+    expect(output).not.toContain("--templates required|all");
+    expect(output).not.toContain("--references required|all");
     expect(output).not.toContain("make-docs init");
     expect(output).not.toContain("make-docs update");
     expect(output).not.toContain("--reconfigure");

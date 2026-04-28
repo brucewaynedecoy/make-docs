@@ -34,10 +34,10 @@ This phase adds `docs/prd/11-revise-cli-asset-selection-simplification.md`, upda
 
 ### Acceptance criteria
 
-- [ ] `docs/prd/11-revise-cli-asset-selection-simplification.md` exists.
-- [ ] The doc uses all required `prd-change-revision.md` headings.
-- [ ] The effective requirement covers wizard prompts, review rows, selection normalization, manifest compatibility, and asset coverage.
-- [ ] Source anchors include `packages/cli/src/wizard.ts`, `packages/cli/src/cli.ts`, `packages/cli/src/profile.ts`, and `packages/cli/src/rules.ts`.
+- [x] `docs/prd/11-revise-cli-asset-selection-simplification.md` exists.
+- [x] The doc uses all required `prd-change-revision.md` headings.
+- [x] The effective requirement covers wizard prompts, review rows, selection field removal, stale-manifest validation, and asset coverage.
+- [x] Source anchors include `packages/cli/src/wizard.ts`, `packages/cli/src/cli.ts`, `packages/cli/src/profile.ts`, and `packages/cli/src/rules.ts`.
 
 ### Dependencies
 
@@ -55,10 +55,10 @@ This phase adds `docs/prd/11-revise-cli-asset-selection-simplification.md`, upda
 
 ### Acceptance criteria
 
-- [ ] Every impacted baseline PRD contains a backlink to doc `11`.
-- [ ] The backlinks are placed under the impacted headings or requirement text.
-- [ ] Existing baseline text remains visible.
-- [ ] No active PRD docs are renumbered.
+- [x] Every impacted baseline PRD contains a backlink to doc `11`.
+- [x] The backlinks are placed under the impacted headings or requirement text.
+- [x] Existing baseline text remains visible.
+- [x] No active PRD docs are renumbered.
 
 ### Dependencies
 
@@ -75,9 +75,9 @@ This phase adds `docs/prd/11-revise-cli-asset-selection-simplification.md`, upda
 
 ### Acceptance criteria
 
-- [ ] `docs/prd/00-index.md` lists doc `11`.
-- [ ] Existing docs `00` through `10` keep their current numbering.
-- [ ] The index gives readers a clear route from baseline docs to the change doc.
+- [x] `docs/prd/00-index.md` lists doc `11`.
+- [x] Existing docs `00` through `10` keep their current numbering.
+- [x] The index gives readers a clear route from baseline docs to the change doc.
 
 ### Dependencies
 
@@ -94,9 +94,9 @@ This phase adds `docs/prd/11-revise-cli-asset-selection-simplification.md`, upda
 
 ### Acceptance criteria
 
-- [ ] PRD links resolve locally.
-- [ ] The effective requirement can be followed from each affected baseline doc to doc `11`.
-- [ ] `jdocmunch` search finds the new change doc after reindexing.
+- [x] PRD links resolve locally.
+- [x] The effective requirement can be followed from each affected baseline doc to doc `11`.
+- [x] `jdocmunch` search finds the new change doc after reindexing.
 
 ### Dependencies
 
