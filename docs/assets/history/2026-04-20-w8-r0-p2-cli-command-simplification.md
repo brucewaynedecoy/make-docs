@@ -7,7 +7,7 @@ coordinate: "W8 R0 P2"
 
 ## Changes
 
-Implemented Phase 2 of the Wave 8 CLI command simplification, framed by [the design](../../designs/2026-04-20-cli-command-simplification.md), [the Phase 2 plan](../../plans/2026-04-20-w8-r0-cli-command-simplification/02-apply-and-reconfigure-behavior.md), and [the Phase 2 backlog](../../work/2026-04-20-w8-r0-cli-command-simplification/02-apply-and-reconfigure-behavior.md). This phase made bare `make-docs` the apply/sync path for both fresh and existing installs, while reserving `make-docs reconfigure` for explicit footprint changes.
+Implemented Phase 2 of the Wave 8 CLI command simplification, framed by [the design](../archive/designs/2026-04-20-cli-command-simplification.md), [the Phase 2 plan](../archive/plans/2026-04-20-w8-r0-cli-command-simplification/02-apply-and-reconfigure-behavior.md), and [the Phase 2 backlog](../archive/work/2026-04-20-w8-r0-cli-command-simplification/02-apply-and-reconfigure-behavior.md). This phase made bare `make-docs` the apply/sync path for both fresh and existing installs, while reserving `make-docs reconfigure` for explicit footprint changes.
 
 | Area | Summary |
 | --- | --- |

@@ -7,7 +7,7 @@ coordinate: "W8 R0 P3"
 
 ## Changes
 
-Implemented Phase 3 of the Wave 8 CLI command simplification, framed by [the design](../../designs/2026-04-20-cli-command-simplification.md), [the Phase 3 plan](../../plans/2026-04-20-w8-r0-cli-command-simplification/03-help-router-and-doc-text.md), and [the Phase 3 backlog](../../work/2026-04-20-w8-r0-cli-command-simplification/03-help-router-and-doc-text.md). This phase aligned help output, generated router guidance, and active project documentation around bare `make-docs` apply/sync runs plus explicit `make-docs reconfigure` selection changes.
+Implemented Phase 3 of the Wave 8 CLI command simplification, framed by [the design](../archive/designs/2026-04-20-cli-command-simplification.md), [the Phase 3 plan](../archive/plans/2026-04-20-w8-r0-cli-command-simplification/03-help-router-and-doc-text.md), and [the Phase 3 backlog](../archive/work/2026-04-20-w8-r0-cli-command-simplification/03-help-router-and-doc-text.md). This phase aligned help output, generated router guidance, and active project documentation around bare `make-docs` apply/sync runs plus explicit `make-docs reconfigure` selection changes.
 
 | Area | Summary |
 | --- | --- |

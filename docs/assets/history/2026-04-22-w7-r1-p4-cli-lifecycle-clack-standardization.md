@@ -7,7 +7,7 @@ coordinate: "W7 R1 P4"
 
 ## Changes
 
-Implemented Phase 4 of the Wave 7 Revision 1 CLI lifecycle Clack standardization, framed by [the design](../../designs/2026-04-22-cli-lifecycle-clack-standardization.md), [the Phase 4 plan](../../plans/2026-04-22-w7-r1-cli-lifecycle-clack-standardization/04-tests-and-validation.md), and [the Phase 4 backlog](../../work/2026-04-22-w7-r1-cli-lifecycle-clack-standardization/04-tests-and-validation.md). This phase added explicit lifecycle workflow start rendering for backup and uninstall, expanded semantic Clack renderer contract coverage for summaries, prompts, cancellations, non-TTY guidance, and failure states, and completed the W7 R1 validation pass across build, automated tests, and package smoke checks.
+Implemented Phase 4 of the Wave 7 Revision 1 CLI lifecycle Clack standardization, framed by [the design](../archive/designs/2026-04-22-cli-lifecycle-clack-standardization.md), [the Phase 4 plan](../archive/plans/2026-04-22-w7-r1-cli-lifecycle-clack-standardization/04-tests-and-validation.md), and [the Phase 4 backlog](../archive/work/2026-04-22-w7-r1-cli-lifecycle-clack-standardization/04-tests-and-validation.md). This phase added explicit lifecycle workflow start rendering for backup and uninstall, expanded semantic Clack renderer contract coverage for summaries, prompts, cancellations, non-TTY guidance, and failure states, and completed the W7 R1 validation pass across build, automated tests, and package smoke checks.
 
 | Area | Summary |
 | --- | --- |
@@ -24,7 +24,7 @@ Implemented Phase 4 of the Wave 7 Revision 1 CLI lifecycle Clack standardization
 
 | Path | Description |
 | --- | --- |
-| [docs/work/2026-04-22-w7-r1-cli-lifecycle-clack-standardization/04-tests-and-validation.md](../../work/2026-04-22-w7-r1-cli-lifecycle-clack-standardization/04-tests-and-validation.md) | Marked the Phase 4 tests and validation acceptance criteria complete after implementation and verification. |
+| [docs/assets/archive/work/2026-04-22-w7-r1-cli-lifecycle-clack-standardization/04-tests-and-validation.md](../archive/work/2026-04-22-w7-r1-cli-lifecycle-clack-standardization/04-tests-and-validation.md) | Marked the Phase 4 tests and validation acceptance criteria complete after implementation and verification. |
 | [docs/.assets/history/2026-04-22-w7-r1-p4-cli-lifecycle-clack-standardization.md](2026-04-22-w7-r1-p4-cli-lifecycle-clack-standardization.md) | Session breadcrumb for the Phase 4 tests and validation implementation. |
 
 ### Developer

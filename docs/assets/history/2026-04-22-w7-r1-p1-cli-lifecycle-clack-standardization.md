@@ -7,7 +7,7 @@ coordinate: "W7 R1 P1"
 
 ## Changes
 
-Implemented Phase 1 of the Wave 7 Revision 1 CLI lifecycle Clack standardization, framed by [the design](../../designs/2026-04-22-cli-lifecycle-clack-standardization.md), [the Phase 1 plan](../../plans/2026-04-22-w7-r1-cli-lifecycle-clack-standardization/01-renderer-boundary.md), and [the Phase 1 backlog](../../work/2026-04-22-w7-r1-cli-lifecycle-clack-standardization/01-renderer-boundary.md). This phase introduced a semantic lifecycle renderer boundary in `lifecycle-ui.ts`, moved backup and uninstall production rendering onto Clack primitives, preserved the existing permission and confirmation semantics, and added test coverage for renderer event ordering without changing audit, backup, or removal behavior.
+Implemented Phase 1 of the Wave 7 Revision 1 CLI lifecycle Clack standardization, framed by [the design](../archive/designs/2026-04-22-cli-lifecycle-clack-standardization.md), [the Phase 1 plan](../archive/plans/2026-04-22-w7-r1-cli-lifecycle-clack-standardization/01-renderer-boundary.md), and [the Phase 1 backlog](../archive/work/2026-04-22-w7-r1-cli-lifecycle-clack-standardization/01-renderer-boundary.md). This phase introduced a semantic lifecycle renderer boundary in `lifecycle-ui.ts`, moved backup and uninstall production rendering onto Clack primitives, preserved the existing permission and confirmation semantics, and added test coverage for renderer event ordering without changing audit, backup, or removal behavior.
 
 | Area | Summary |
 | --- | --- |
@@ -23,7 +23,7 @@ Implemented Phase 1 of the Wave 7 Revision 1 CLI lifecycle Clack standardization
 
 | Path | Description |
 | --- | --- |
-| [docs/work/2026-04-22-w7-r1-cli-lifecycle-clack-standardization/01-renderer-boundary.md](../../work/2026-04-22-w7-r1-cli-lifecycle-clack-standardization/01-renderer-boundary.md) | Marked the Phase 1 renderer-boundary acceptance criteria complete after implementation and verification. |
+| [docs/assets/archive/work/2026-04-22-w7-r1-cli-lifecycle-clack-standardization/01-renderer-boundary.md](../archive/work/2026-04-22-w7-r1-cli-lifecycle-clack-standardization/01-renderer-boundary.md) | Marked the Phase 1 renderer-boundary acceptance criteria complete after implementation and verification. |
 | [docs/.assets/history/2026-04-22-w7-r1-p1-cli-lifecycle-clack-standardization.md](2026-04-22-w7-r1-p1-cli-lifecycle-clack-standardization.md) | Session breadcrumb for the Phase 1 renderer-boundary implementation. |
 
 ### Developer

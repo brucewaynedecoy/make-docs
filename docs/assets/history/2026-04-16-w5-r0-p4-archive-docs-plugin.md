@@ -35,7 +35,7 @@ All three skills reference `references/archive-workflow.md` for shared tracing a
 
 | Path | Description |
 | --- | --- |
-| [docs/work/2026-04-16-w5-r0-archive-docs-plugin/04-supporting-skills.md](../../work/2026-04-16-w5-r0-archive-docs-plugin/04-supporting-skills.md) | Work backlog phase — all acceptance criteria checked off. |
+| [docs/assets/archive/work/2026-04-16-w5-r0-archive-docs-plugin/04-supporting-skills.md](../archive/work/2026-04-16-w5-r0-archive-docs-plugin/04-supporting-skills.md) | Work backlog phase — all acceptance criteria checked off. |
 
 ### Developer
 

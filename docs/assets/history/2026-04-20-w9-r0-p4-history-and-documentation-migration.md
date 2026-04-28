@@ -7,7 +7,7 @@ coordinate: "W9 R0 P4"
 
 ## Changes
 
-Completed Wave 9 Phase 4, framed by [the Phase 4 plan](../../plans/2026-04-20-w9-r0-docs-assets-state-and-history/04-history-and-documentation-migration.md) and [the Phase 4 backlog](../../work/2026-04-20-w9-r0-docs-assets-state-and-history/04-history-and-documentation-migration.md). This phase moved current repository history records into `docs/.assets/history/` and updated active documentation surfaces for the new `.assets` model.
+Completed Wave 9 Phase 4, framed by [the Phase 4 plan](../archive/plans/2026-04-20-w9-r0-docs-assets-state-and-history/04-history-and-documentation-migration.md) and [the Phase 4 backlog](../archive/work/2026-04-20-w9-r0-docs-assets-state-and-history/04-history-and-documentation-migration.md). This phase moved current repository history records into `docs/.assets/history/` and updated active documentation surfaces for the new `.assets` model.
 
 | Area | Summary |
 | --- | --- |
@@ -23,7 +23,7 @@ Completed Wave 9 Phase 4, framed by [the Phase 4 plan](../../plans/2026-04-20-w9
 
 | Path | Description |
 | --- | --- |
-| [docs/work/2026-04-20-w9-r0-docs-assets-state-and-history/04-history-and-documentation-migration.md](../../work/2026-04-20-w9-r0-docs-assets-state-and-history/04-history-and-documentation-migration.md) | Phase 4 work item with acceptance criteria marked complete. |
+| [docs/assets/archive/work/2026-04-20-w9-r0-docs-assets-state-and-history/04-history-and-documentation-migration.md](../archive/work/2026-04-20-w9-r0-docs-assets-state-and-history/04-history-and-documentation-migration.md) | Phase 4 work item with acceptance criteria marked complete. |
 | [docs/.assets/history/](./) | New home for moved session history records. |
 | [docs/.assets/history/AGENTS.md](./AGENTS.md) | Updated history router filename guidance. |
 | [docs/.assets/history/CLAUDE.md](./CLAUDE.md) | Updated history router filename guidance. |

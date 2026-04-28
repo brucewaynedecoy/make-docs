@@ -7,7 +7,7 @@ coordinate: "W7 R0 P5"
 
 ## Changes
 
-Implemented the final validation pass described in [the design](../../designs/2026-04-18-cli-help-backup-and-uninstall.md), [the Phase 5 plan](../../plans/2026-04-18-w7-r0-cli-help-backup-and-uninstall/05-tests-and-validation.md), and [the Phase 5 backlog](../../work/2026-04-18-w7-r0-cli-help-backup-and-uninstall/05-tests-and-validation.md). This phase locked down the lifecycle command behavior with broader help assertions, end-to-end lifecycle tests, packed-install smoke coverage, and a manual dogfood run against a temporary target.
+Implemented the final validation pass described in [the design](../archive/designs/2026-04-18-cli-help-backup-and-uninstall.md), [the Phase 5 plan](../archive/plans/2026-04-18-w7-r0-cli-help-backup-and-uninstall/05-tests-and-validation.md), and [the Phase 5 backlog](../archive/work/2026-04-18-w7-r0-cli-help-backup-and-uninstall/05-tests-and-validation.md). This phase locked down the lifecycle command behavior with broader help assertions, end-to-end lifecycle tests, packed-install smoke coverage, and a manual dogfood run against a temporary target.
 
 | Area | Summary |
 | --- | --- |

@@ -31,9 +31,9 @@ Completed Phase 7 for `w5-r2` by filling the remaining validation gaps, fixing t
 
 | Path | Description |
 | --- | --- |
-| [docs/work/2026-04-16-w5-r2-cli-skill-installation/07-tests-and-validation.md](../../work/2026-04-16-w5-r2-cli-skill-installation/07-tests-and-validation.md) | Historical phase backlog defining the validation, smoke-pack, and dogfood acceptance criteria completed in this session. |
-| [docs/plans/2026-04-16-w5-r2-cli-skill-installation/07-tests-and-validation.md](../../plans/2026-04-16-w5-r2-cli-skill-installation/07-tests-and-validation.md) | Phase plan describing the intended validation scope and smoke-pack expectations that were carried through to completion here. |
-| [docs/designs/2026-04-16-cli-skill-installation-r2.md](../../designs/2026-04-16-cli-skill-installation-r2.md) | Living design source for the remote-registry, single-skill, harness-aware install model that Phase 7 validated end to end. |
+| [docs/assets/archive/work/2026-04-16-w5-r2-cli-skill-installation/07-tests-and-validation.md](../archive/work/2026-04-16-w5-r2-cli-skill-installation/07-tests-and-validation.md) | Historical phase backlog defining the validation, smoke-pack, and dogfood acceptance criteria completed in this session. |
+| [docs/assets/archive/plans/2026-04-16-w5-r2-cli-skill-installation/07-tests-and-validation.md](../archive/plans/2026-04-16-w5-r2-cli-skill-installation/07-tests-and-validation.md) | Phase plan describing the intended validation scope and smoke-pack expectations that were carried through to completion here. |
+| [docs/assets/archive/designs/2026-04-16-cli-skill-installation-r2.md](../archive/designs/2026-04-16-cli-skill-installation-r2.md) | Living design source for the remote-registry, single-skill, harness-aware install model that Phase 7 validated end to end. |
 
 ### Developer
 

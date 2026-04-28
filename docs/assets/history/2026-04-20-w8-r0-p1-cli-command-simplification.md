@@ -7,7 +7,7 @@ coordinate: "W8 R0 P1"
 
 ## Changes
 
-Implemented Phase 1 of the Wave 8 CLI command simplification, framed by [the design](../../designs/2026-04-20-cli-command-simplification.md), [the Phase 1 plan](../../plans/2026-04-20-w8-r0-cli-command-simplification/01-command-model-and-parser.md), and [the Phase 1 backlog](../../work/2026-04-20-w8-r0-cli-command-simplification/01-command-model-and-parser.md). This phase focused on parser shape, command validation, removed-command guidance, and parser tests. It did not intentionally rewrite the deeper apply/reconfigure behavior planned for later phases.
+Implemented Phase 1 of the Wave 8 CLI command simplification, framed by [the design](../archive/designs/2026-04-20-cli-command-simplification.md), [the Phase 1 plan](../archive/plans/2026-04-20-w8-r0-cli-command-simplification/01-command-model-and-parser.md), and [the Phase 1 backlog](../archive/work/2026-04-20-w8-r0-cli-command-simplification/01-command-model-and-parser.md). This phase focused on parser shape, command validation, removed-command guidance, and parser tests. It did not intentionally rewrite the deeper apply/reconfigure behavior planned for later phases.
 
 | Area | Summary |
 | --- | --- |

@@ -38,7 +38,7 @@ The template-completeness test is the safety net: any future file added to `pack
 
 | Path | Description |
 | --- | --- |
-| [docs/work/2026-04-16-w4-r0-asset-pipeline-completeness/02-tests-and-validation.md](../../work/2026-04-16-w4-r0-asset-pipeline-completeness/02-tests-and-validation.md) | Work backlog phase — all 3 stages' acceptance criteria checked off. |
+| [docs/assets/archive/work/2026-04-16-w4-r0-asset-pipeline-completeness/02-tests-and-validation.md](../archive/work/2026-04-16-w4-r0-asset-pipeline-completeness/02-tests-and-validation.md) | Work backlog phase — all 3 stages' acceptance criteria checked off. |
 
 ### Developer
 

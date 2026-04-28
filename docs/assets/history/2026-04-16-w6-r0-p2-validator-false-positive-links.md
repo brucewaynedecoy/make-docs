@@ -21,7 +21,7 @@ packages/skills/decompose-codebase/scripts/
 └── validate_output.py    (updated — is_plausible_link_target added; validate_links updated)
 ```
 
-Derives from the [design](../../designs/2026-04-16-validator-false-positive-links.md), [plan phase 2](../../plans/2026-04-16-w6-r0-validator-false-positive-links/02-heuristic-rejection.md), and [work phase 2](../../work/2026-04-16-w6-r0-validator-false-positive-links/02-heuristic-rejection.md).
+Derives from the [design](../archive/designs/2026-04-16-validator-false-positive-links.md), [plan phase 2](../archive/plans/2026-04-16-w6-r0-validator-false-positive-links/02-heuristic-rejection.md), and [work phase 2](../archive/work/2026-04-16-w6-r0-validator-false-positive-links/02-heuristic-rejection.md).
 
 ## Documentation
 
@@ -29,7 +29,7 @@ Derives from the [design](../../designs/2026-04-16-validator-false-positive-link
 
 | Path | Description |
 | --- | --- |
-| [docs/work/2026-04-16-w6-r0-validator-false-positive-links/02-heuristic-rejection.md](../../work/2026-04-16-w6-r0-validator-false-positive-links/02-heuristic-rejection.md) | Work backlog phase for heuristic target rejection. |
+| [docs/assets/archive/work/2026-04-16-w6-r0-validator-false-positive-links/02-heuristic-rejection.md](../archive/work/2026-04-16-w6-r0-validator-false-positive-links/02-heuristic-rejection.md) | Work backlog phase for heuristic target rejection. |
 
 ### Developer
 

@@ -7,7 +7,7 @@ coordinate: "W10 R0 P2"
 
 ## Changes
 
-This session completed Wave 10 Phase 2 from [02-template-renderers-and-assets.md](../../work/2026-04-21-w10-r0-make-docs-rename/02-template-renderers-and-assets.md), based on the source plan at [docs/plans/2026-04-21-w10-r0-make-docs-rename/02-template-renderers-and-assets.md](../../plans/2026-04-21-w10-r0-make-docs-rename/02-template-renderers-and-assets.md). The phase updated shippable template text and generated router output so fresh installs receive `make-docs` guidance.
+This session completed Wave 10 Phase 2 from [02-template-renderers-and-assets.md](../archive/work/2026-04-21-w10-r0-make-docs-rename/02-template-renderers-and-assets.md), based on the source plan at [docs/assets/archive/plans/2026-04-21-w10-r0-make-docs-rename/02-template-renderers-and-assets.md](../archive/plans/2026-04-21-w10-r0-make-docs-rename/02-template-renderers-and-assets.md). The phase updated shippable template text and generated router output so fresh installs receive `make-docs` guidance.
 
 | Area | Summary |
 | --- | --- |

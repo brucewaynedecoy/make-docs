@@ -7,7 +7,7 @@ coordinate: "W7 R0 P2"
 
 ## Changes
 
-Implemented the shared audit substrate described in [the design](../../designs/2026-04-18-cli-help-backup-and-uninstall.md), [the Phase 2 plan](../../plans/2026-04-18-w7-r0-cli-help-backup-and-uninstall/02-shared-audit-engine.md), and [the Phase 2 backlog](../../work/2026-04-18-w7-r0-cli-help-backup-and-uninstall/02-shared-audit-engine.md). This phase stayed classification-only: it establishes ownership, preservation, and prune-safety decisions once so later backup and uninstall phases can execute from a deterministic audit result instead of re-deriving file safety on the fly.
+Implemented the shared audit substrate described in [the design](../archive/designs/2026-04-18-cli-help-backup-and-uninstall.md), [the Phase 2 plan](../archive/plans/2026-04-18-w7-r0-cli-help-backup-and-uninstall/02-shared-audit-engine.md), and [the Phase 2 backlog](../archive/work/2026-04-18-w7-r0-cli-help-backup-and-uninstall/02-shared-audit-engine.md). This phase stayed classification-only: it establishes ownership, preservation, and prune-safety decisions once so later backup and uninstall phases can execute from a deterministic audit result instead of re-deriving file safety on the fly.
 
 | Area | Summary |
 | --- | --- |

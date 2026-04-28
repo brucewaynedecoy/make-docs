@@ -31,7 +31,7 @@ Build succeeded. All 44 tests passed.
 
 | Path | Description |
 | --- | --- |
-| [docs/work/2026-04-16-w5-r1-cli-skill-installation/02-cli-types-and-profile.md](../../work/2026-04-16-w5-r1-cli-skill-installation/02-cli-types-and-profile.md) | Work backlog phase — all acceptance criteria checked off. |
+| [docs/assets/archive/work/2026-04-16-w5-r1-cli-skill-installation/02-cli-types-and-profile.md](../archive/work/2026-04-16-w5-r1-cli-skill-installation/02-cli-types-and-profile.md) | Work backlog phase — all acceptance criteria checked off. |
 
 ### Developer
 

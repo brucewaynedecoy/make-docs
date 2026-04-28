@@ -35,7 +35,7 @@ All three files are scoped-static assets — they ship as-is in the template and
 
 | Path | Description |
 | --- | --- |
-| [docs/work/2026-04-16-w2-r0-guide-structure-contract/01-authority-and-templates.md](../../work/2026-04-16-w2-r0-guide-structure-contract/01-authority-and-templates.md) | Work backlog phase — acceptance criteria checked off. |
+| [docs/assets/archive/work/2026-04-16-w2-r0-guide-structure-contract/01-authority-and-templates.md](../archive/work/2026-04-16-w2-r0-guide-structure-contract/01-authority-and-templates.md) | Work backlog phase — acceptance criteria checked off. |
 
 ### Developer
 

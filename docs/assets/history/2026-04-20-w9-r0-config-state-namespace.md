@@ -27,8 +27,8 @@ Completed a Wave 9 corrective follow-up that moved the active make-docs CLI-mana
 | [docs/.assets/AGENTS.md](../AGENTS.md) | Updated assets router guidance for CLI-managed config/state. |
 | `docs/.assets/config/AGENTS.md` | New config router replacing the retired make-docs state router. |
 | [docs/.references/commit-message-convention.md](../references/commit-message-convention.md) | Updated the Wave 9 commit-message example to name the config namespace. |
-| [docs/plans/2026-04-20-w9-r0-docs-assets-state-and-history/](../../plans/2026-04-20-w9-r0-docs-assets-state-and-history/) | Updated active Wave 9 plan references from `.assets/make-docs` to `.assets/config`. |
-| [docs/work/2026-04-20-w9-r0-docs-assets-state-and-history/](../../work/2026-04-20-w9-r0-docs-assets-state-and-history/) | Updated active Wave 9 work references from `.assets/make-docs` to `.assets/config`. |
+| [docs/assets/archive/plans/2026-04-20-w9-r0-docs-assets-state-and-history/](../archive/plans/2026-04-20-w9-r0-docs-assets-state-and-history/) | Updated active Wave 9 plan references from `.assets/make-docs` to `.assets/config`. |
+| [docs/assets/archive/work/2026-04-20-w9-r0-docs-assets-state-and-history/](../archive/work/2026-04-20-w9-r0-docs-assets-state-and-history/) | Updated active Wave 9 work references from `.assets/make-docs` to `.assets/config`. |
 | [packages/cli/src/manifest.ts](../../../packages/cli/src/manifest.ts) | Changed the canonical manifest and conflict paths to the config namespace. |
 | [packages/cli/src/renderers.ts](../../../packages/cli/src/renderers.ts) | Updated generated router paths and wording for the config namespace. |
 | `packages/docs/template/docs/.assets/config/AGENTS.md` | Added the shippable config router in the docs template. |

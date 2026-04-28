@@ -30,7 +30,7 @@ Apply and sync stay intentionally non-destructive. The consumer README explains 
 
 Re-seeding is deliberately manual. The docs package README requires maintainers to copy only template-owned files from `packages/docs/template/` back into `docs/`, verify the copies, and avoid bulk automation unless they are deliberately reviewing the change set (`packages/docs/README.md:86-121`). That manual step is part of the contract, not an omission: the same README says the process stays manual for reviewability, selective propagation, and conflict awareness (`packages/docs/README.md:115-121`).
 
-Historical migration docs still matter, but only as background. `docs/plans/2026-04-22-w9-r1-docs-assets-resource-namespace/04-dogfood-docs-migration.md` records the shift from hidden-dot resource paths such as `docs/.references/` and `docs/.templates/` to the current `docs/assets/...` tree and root `.make-docs/...` state. Current routing authority remains the live README and `docs/assets/references/*`; old path names should be read as migration history, not active contract.
+Historical migration docs still matter, but only as background. `docs/assets/archive/plans/2026-04-22-w9-r1-docs-assets-resource-namespace/04-dogfood-docs-migration.md` records the shift from hidden-dot resource paths such as `docs/.references/` and `docs/.templates/` to the current `docs/assets/...` tree and root `.make-docs/...` state. Current routing authority remains the live README and `docs/assets/references/*`; old path names should be read as migration history, not active contract.
 
 ## Integrations
 
@@ -49,7 +49,7 @@ Do not move runtime state back under `docs/`. The current contract puts `.make-d
 Candidate items that should also surface in `03-open-questions-and-risk-register.md`:
 
 - Manual re-seeding has no automated freshness check. The workflow is intentional, but there is no code path that proves repo-root `docs/` still matches template-owned files after template edits (`packages/docs/README.md:103-121`).
-- Historical docs still reference superseded hidden-dot paths such as `docs/.references/`, `docs/.templates/`, and `docs/assets/config/manifest.json` in migration plans like `docs/plans/2026-04-22-w9-r1-docs-assets-resource-namespace/04-dogfood-docs-migration.md`. Those references are factual history, but easy to mistake for current routing authority.
+- Historical docs still reference superseded hidden-dot paths such as `docs/.references/`, `docs/.templates/`, and `docs/assets/config/manifest.json` in migration plans like `docs/assets/archive/plans/2026-04-22-w9-r1-docs-assets-resource-namespace/04-dogfood-docs-migration.md`. Those references are factual history, but easy to mistake for current routing authority.
 - `packages/content/` is described as reserved for future CLI-rendered fragments in `README.md:10-17` and exists as a top-level workspace directory, but this subsystem does not yet define active ownership or dogfood behavior for it.
 
 ## Source Anchors
@@ -69,5 +69,5 @@ Candidate items that should also surface in `03-open-questions-and-risk-register
 - `scripts/check-wave-numbering.sh`
 - `scripts/copy-template-to-cli.mjs`
 - `scripts/smoke-pack.mjs`
-- `docs/plans/2026-04-16-w2-r0-guide-structure-contract/04-migration-and-reseed.md`
-- `docs/plans/2026-04-22-w9-r1-docs-assets-resource-namespace/04-dogfood-docs-migration.md`
+- `docs/assets/archive/plans/2026-04-16-w2-r0-guide-structure-contract/04-migration-and-reseed.md`
+- `docs/assets/archive/plans/2026-04-22-w9-r1-docs-assets-resource-namespace/04-dogfood-docs-migration.md`

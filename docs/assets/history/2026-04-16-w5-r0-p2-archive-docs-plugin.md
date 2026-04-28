@@ -34,7 +34,7 @@ docs/.archive/
 
 | Path | Description |
 | --- | --- |
-| [docs/work/2026-04-16-w5-r0-archive-docs-plugin/02-archive-router-updates.md](../../work/2026-04-16-w5-r0-archive-docs-plugin/02-archive-router-updates.md) | Work backlog phase — acceptance criteria checked off. |
+| [docs/assets/archive/work/2026-04-16-w5-r0-archive-docs-plugin/02-archive-router-updates.md](../archive/work/2026-04-16-w5-r0-archive-docs-plugin/02-archive-router-updates.md) | Work backlog phase — acceptance criteria checked off. |
 
 ### Developer
 

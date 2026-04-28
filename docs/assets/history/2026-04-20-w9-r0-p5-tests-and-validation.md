@@ -7,7 +7,7 @@ coordinate: "W9 R0 P5"
 
 ## Changes
 
-Completed Wave 9 Phase 5, framed by [the Phase 5 plan](../../plans/2026-04-20-w9-r0-docs-assets-state-and-history/05-tests-and-validation.md) and [the Phase 5 backlog](../../work/2026-04-20-w9-r0-docs-assets-state-and-history/05-tests-and-validation.md). This phase validated the `.assets` state and history migration across focused tests, full package checks, packed CLI behavior, Markdown links, stale-reference searches, and repository hygiene.
+Completed Wave 9 Phase 5, framed by [the Phase 5 plan](../archive/plans/2026-04-20-w9-r0-docs-assets-state-and-history/05-tests-and-validation.md) and [the Phase 5 backlog](../archive/work/2026-04-20-w9-r0-docs-assets-state-and-history/05-tests-and-validation.md). This phase validated the `.assets` state and history migration across focused tests, full package checks, packed CLI behavior, Markdown links, stale-reference searches, and repository hygiene.
 
 | Area | Summary |
 | --- | --- |
@@ -23,8 +23,8 @@ Completed Wave 9 Phase 5, framed by [the Phase 5 plan](../../plans/2026-04-20-w9
 
 | Path | Description |
 | --- | --- |
-| [docs/plans/2026-04-20-w9-r0-docs-assets-state-and-history/05-tests-and-validation.md](../../plans/2026-04-20-w9-r0-docs-assets-state-and-history/05-tests-and-validation.md) | Updated link-validation targets to the renamed history-record assets and marked Phase 5 acceptance criteria complete. |
-| [docs/work/2026-04-20-w9-r0-docs-assets-state-and-history/05-tests-and-validation.md](../../work/2026-04-20-w9-r0-docs-assets-state-and-history/05-tests-and-validation.md) | Updated validation tasks for the renamed history-record assets and marked all validation stages complete. |
+| [docs/assets/archive/plans/2026-04-20-w9-r0-docs-assets-state-and-history/05-tests-and-validation.md](../archive/plans/2026-04-20-w9-r0-docs-assets-state-and-history/05-tests-and-validation.md) | Updated link-validation targets to the renamed history-record assets and marked Phase 5 acceptance criteria complete. |
+| [docs/assets/archive/work/2026-04-20-w9-r0-docs-assets-state-and-history/05-tests-and-validation.md](../archive/work/2026-04-20-w9-r0-docs-assets-state-and-history/05-tests-and-validation.md) | Updated validation tasks for the renamed history-record assets and marked all validation stages complete. |
 | [docs/.assets/history/2026-04-20-w9-r0-p5-tests-and-validation.md](./2026-04-20-w9-r0-p5-tests-and-validation.md) | History record for the Phase 5 tests and validation pass. |
 
 ### Developer

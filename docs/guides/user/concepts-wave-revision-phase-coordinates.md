@@ -93,8 +93,8 @@ Use a phase when the work is tied to a specific plan phase or backlog phase. Pha
 
 | Location | Example |
 | --- | --- |
-| Plan directory | `docs/plans/2026-04-23-w13-r0-documentation-coverage-and-guide-orchestration/` |
-| Work directory | `docs/work/2026-04-23-w13-r0-documentation-coverage-and-guide-orchestration/` |
+| Plan directory | `docs/assets/archive/plans/2026-04-23-w13-r0-documentation-coverage-and-guide-orchestration/` |
+| Work directory | `docs/assets/archive/work/2026-04-23-w13-r0-documentation-coverage-and-guide-orchestration/` |
 | Work phase file | `03-user-guide-delivery.md` |
 | History record | `docs/assets/history/2026-04-23-w13-r0-p3-user-guide-delivery.md` |
 | Commit subject | `docs: [W13 R0 P3] update user-guide coverage` |

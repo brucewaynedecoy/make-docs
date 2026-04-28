@@ -7,7 +7,7 @@ coordinate: "W7 R1 P2"
 
 ## Changes
 
-Implemented Phase 2 of the Wave 7 Revision 1 CLI lifecycle Clack standardization, framed by [the design](../../designs/2026-04-22-cli-lifecycle-clack-standardization.md), [the Phase 2 plan](../../plans/2026-04-22-w7-r1-cli-lifecycle-clack-standardization/02-backup-clack-workflow.md), and [the Phase 2 backlog](../../work/2026-04-22-w7-r1-cli-lifecycle-clack-standardization/02-backup-clack-workflow.md). This phase routed `make-docs backup` through the active lifecycle renderer for audit review, confirmation, cancellation, noop, and completion states while preserving audit-once behavior, destination semantics, non-TTY guidance, and empty-audit no-destination behavior.
+Implemented Phase 2 of the Wave 7 Revision 1 CLI lifecycle Clack standardization, framed by [the design](../archive/designs/2026-04-22-cli-lifecycle-clack-standardization.md), [the Phase 2 plan](../archive/plans/2026-04-22-w7-r1-cli-lifecycle-clack-standardization/02-backup-clack-workflow.md), and [the Phase 2 backlog](../archive/work/2026-04-22-w7-r1-cli-lifecycle-clack-standardization/02-backup-clack-workflow.md). This phase routed `make-docs backup` through the active lifecycle renderer for audit review, confirmation, cancellation, noop, and completion states while preserving audit-once behavior, destination semantics, non-TTY guidance, and empty-audit no-destination behavior.
 
 | Area | Summary |
 | --- | --- |
@@ -23,7 +23,7 @@ Implemented Phase 2 of the Wave 7 Revision 1 CLI lifecycle Clack standardization
 
 | Path | Description |
 | --- | --- |
-| [docs/work/2026-04-22-w7-r1-cli-lifecycle-clack-standardization/02-backup-clack-workflow.md](../../work/2026-04-22-w7-r1-cli-lifecycle-clack-standardization/02-backup-clack-workflow.md) | Marked the Phase 2 backup Clack workflow acceptance criteria complete after implementation and verification. |
+| [docs/assets/archive/work/2026-04-22-w7-r1-cli-lifecycle-clack-standardization/02-backup-clack-workflow.md](../archive/work/2026-04-22-w7-r1-cli-lifecycle-clack-standardization/02-backup-clack-workflow.md) | Marked the Phase 2 backup Clack workflow acceptance criteria complete after implementation and verification. |
 | [docs/.assets/history/2026-04-22-w7-r1-p2-cli-lifecycle-clack-standardization.md](2026-04-22-w7-r1-p2-cli-lifecycle-clack-standardization.md) | Session breadcrumb for the Phase 2 backup Clack workflow implementation. |
 
 ### Developer

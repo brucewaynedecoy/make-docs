@@ -7,7 +7,7 @@ coordinate: "W7 R0 P3"
 
 ## Changes
 
-Implemented the dedicated backup command described in [the design](../../designs/2026-04-18-cli-help-backup-and-uninstall.md), [the Phase 3 plan](../../plans/2026-04-18-w7-r0-cli-help-backup-and-uninstall/03-backup-command.md), and [the Phase 3 backlog](../../work/2026-04-18-w7-r0-cli-help-backup-and-uninstall/03-backup-command.md). This phase turned the shared audit result into a non-destructive CLI flow: `make-docs backup` now audits once, shows the resolved destination and grouped lifecycle summary, confirms by default or auto-proceeds with `--yes`, and copies the audited payload into deterministic `.backup/` destinations without modifying the original files.
+Implemented the dedicated backup command described in [the design](../archive/designs/2026-04-18-cli-help-backup-and-uninstall.md), [the Phase 3 plan](../archive/plans/2026-04-18-w7-r0-cli-help-backup-and-uninstall/03-backup-command.md), and [the Phase 3 backlog](../archive/work/2026-04-18-w7-r0-cli-help-backup-and-uninstall/03-backup-command.md). This phase turned the shared audit result into a non-destructive CLI flow: `make-docs backup` now audits once, shows the resolved destination and grouped lifecycle summary, confirms by default or auto-proceeds with `--yes`, and copies the audited payload into deterministic `.backup/` destinations without modifying the original files.
 
 | Area | Summary |
 | --- | --- |

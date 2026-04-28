@@ -40,7 +40,7 @@ Files deleted:
 
 | Path | Description |
 | --- | --- |
-| [docs/work/2026-04-16-w5-r1-cli-skill-installation/01-cleanup-and-bundling.md](../../work/2026-04-16-w5-r1-cli-skill-installation/01-cleanup-and-bundling.md) | Work backlog phase — all acceptance criteria checked off. |
+| [docs/assets/archive/work/2026-04-16-w5-r1-cli-skill-installation/01-cleanup-and-bundling.md](../archive/work/2026-04-16-w5-r1-cli-skill-installation/01-cleanup-and-bundling.md) | Work backlog phase — all acceptance criteria checked off. |
 
 ### Developer
 

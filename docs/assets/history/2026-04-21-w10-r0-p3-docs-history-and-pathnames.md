@@ -7,7 +7,7 @@ coordinate: "W10 R0 P3"
 
 ## Changes
 
-This session completed Wave 10 Phase 3 from [03-docs-history-and-pathnames.md](../../work/2026-04-21-w10-r0-make-docs-rename/03-docs-history-and-pathnames.md), based on the source plan at [docs/plans/2026-04-21-w10-r0-make-docs-rename/03-docs-history-and-pathnames.md](../../plans/2026-04-21-w10-r0-make-docs-rename/03-docs-history-and-pathnames.md). The phase rewrote repo documentation, package docs, historical records, and tracked Markdown pathnames to use `make-docs`.
+This session completed Wave 10 Phase 3 from [03-docs-history-and-pathnames.md](../archive/work/2026-04-21-w10-r0-make-docs-rename/03-docs-history-and-pathnames.md), based on the source plan at [docs/assets/archive/plans/2026-04-21-w10-r0-make-docs-rename/03-docs-history-and-pathnames.md](../archive/plans/2026-04-21-w10-r0-make-docs-rename/03-docs-history-and-pathnames.md). The phase rewrote repo documentation, package docs, historical records, and tracked Markdown pathnames to use `make-docs`.
 
 | Area | Summary |
 | --- | --- |
@@ -31,8 +31,8 @@ This session completed Wave 10 Phase 3 from [03-docs-history-and-pathnames.md](.
 | [docs/.assets/AGENTS.md](../AGENTS.md) | Active assets router updated for make-docs-managed state wording. |
 | [docs/.references/commit-message-convention.md](../references/commit-message-convention.md) | Active reference copy updated for the new product name. |
 | [docs/.references/history-record-contract.md](../references/history-record-contract.md) | Active history contract copy updated for the new product name. |
-| [docs/designs/2026-04-21-make-docs-rename.md](../../designs/2026-04-21-make-docs-rename.md) | Wave 10 design updated as part of the docs rename pass. |
-| [docs/work/2026-04-21-w10-r0-make-docs-rename/03-docs-history-and-pathnames.md](../../work/2026-04-21-w10-r0-make-docs-rename/03-docs-history-and-pathnames.md) | Phase 3 work item updated during the rename pass. |
+| [docs/assets/archive/designs/2026-04-21-make-docs-rename.md](../archive/designs/2026-04-21-make-docs-rename.md) | Wave 10 design updated as part of the docs rename pass. |
+| [docs/assets/archive/work/2026-04-21-w10-r0-make-docs-rename/03-docs-history-and-pathnames.md](../archive/work/2026-04-21-w10-r0-make-docs-rename/03-docs-history-and-pathnames.md) | Phase 3 work item updated during the rename pass. |
 
 ### Developer
 

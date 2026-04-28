@@ -13,8 +13,8 @@ applies-to:
   - template
   - skills
 related:
-  - ../../designs/2026-04-16-cli-skill-installation-r2.md
-  - ../../designs/2026-04-16-archive-docs-skill.md
+  - ../../assets/archive/designs/2026-04-16-cli-skill-installation-r2.md
+  - ../../assets/archive/designs/2026-04-16-archive-docs-skill.md
 ---
 
 # Strategic Roadmap — Skills, Agentics, Multi-Harness, and Extensibility
@@ -146,7 +146,7 @@ The constraint is intentional: do not build an ecosystem framework before there 
 
 ## Related Design Documents
 
-- [CLI Skill Installation R2](../../designs/2026-04-16-cli-skill-installation-r2.md) — current source of truth for remote registry skill delivery
-- [Archive Docs Skill](../../designs/2026-04-16-archive-docs-skill.md) — `archive-docs` capability design
+- [CLI Skill Installation R2](../../assets/archive/designs/2026-04-16-cli-skill-installation-r2.md) — current source of truth for remote registry skill delivery
+- [Archive Docs Skill](../../assets/archive/designs/2026-04-16-archive-docs-skill.md) — `archive-docs` capability design
 - [Archive Docs Extended](../../designs/2026-04-16-archive-docs-extended.md) — longer-term follow-on ideas
 - [Agentics Ecosystem](../../designs/2026-04-15-agentics-ecosystem.md) — long-term platform direction, intentionally deferred behind real demand

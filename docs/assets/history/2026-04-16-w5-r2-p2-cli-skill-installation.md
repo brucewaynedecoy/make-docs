@@ -35,8 +35,8 @@ Naming note: the resolver's asset type is `ResolvedSkillAsset` (not `ResolvedAss
 
 | Path | Description |
 | --- | --- |
-| [docs/work/2026-04-16-w5-r2-cli-skill-installation/02-registry-and-resolver.md](../../work/2026-04-16-w5-r2-cli-skill-installation/02-registry-and-resolver.md) | Work backlog phase — all four stages closed, acceptance criteria met. |
-| [docs/plans/2026-04-16-w5-r2-cli-skill-installation/02-registry-and-resolver.md](../../plans/2026-04-16-w5-r2-cli-skill-installation/02-registry-and-resolver.md) | Source plan — file-by-file specifications for the registry, loader, and resolver. |
+| [docs/assets/archive/work/2026-04-16-w5-r2-cli-skill-installation/02-registry-and-resolver.md](../archive/work/2026-04-16-w5-r2-cli-skill-installation/02-registry-and-resolver.md) | Work backlog phase — all four stages closed, acceptance criteria met. |
+| [docs/assets/archive/plans/2026-04-16-w5-r2-cli-skill-installation/02-registry-and-resolver.md](../archive/plans/2026-04-16-w5-r2-cli-skill-installation/02-registry-and-resolver.md) | Source plan — file-by-file specifications for the registry, loader, and resolver. |
 
 ### Developer
 

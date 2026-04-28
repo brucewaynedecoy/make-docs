@@ -7,7 +7,7 @@ coordinate: "W8 R0 P4"
 
 ## Changes
 
-Implemented Phase 4 of the Wave 8 CLI command simplification, framed by [the design](../../designs/2026-04-20-cli-command-simplification.md), [the Phase 4 plan](../../plans/2026-04-20-w8-r0-cli-command-simplification/04-tests-and-validation.md), and [the Phase 4 backlog](../../work/2026-04-20-w8-r0-cli-command-simplification/04-tests-and-validation.md). This phase closed the wave with final regression coverage review, packed CLI validation, stale-reference scanning, and the required build/test/smoke checks.
+Implemented Phase 4 of the Wave 8 CLI command simplification, framed by [the design](../archive/designs/2026-04-20-cli-command-simplification.md), [the Phase 4 plan](../archive/plans/2026-04-20-w8-r0-cli-command-simplification/04-tests-and-validation.md), and [the Phase 4 backlog](../archive/work/2026-04-20-w8-r0-cli-command-simplification/04-tests-and-validation.md). This phase closed the wave with final regression coverage review, packed CLI validation, stale-reference scanning, and the required build/test/smoke checks.
 
 | Area | Summary |
 | --- | --- |

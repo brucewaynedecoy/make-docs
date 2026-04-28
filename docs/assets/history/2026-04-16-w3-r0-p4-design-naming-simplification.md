@@ -36,7 +36,7 @@ All 6 targets verified byte-identical to their template source. Existing design 
 
 | Path | Description |
 | --- | --- |
-| [docs/work/2026-04-16-w3-r0-design-naming-simplification/04-reseed-and-validation.md](../../work/2026-04-16-w3-r0-design-naming-simplification/04-reseed-and-validation.md) | Work backlog phase — acceptance criteria checked off. |
+| [docs/assets/archive/work/2026-04-16-w3-r0-design-naming-simplification/04-reseed-and-validation.md](../archive/work/2026-04-16-w3-r0-design-naming-simplification/04-reseed-and-validation.md) | Work backlog phase — acceptance criteria checked off. |
 
 ### Developer
 

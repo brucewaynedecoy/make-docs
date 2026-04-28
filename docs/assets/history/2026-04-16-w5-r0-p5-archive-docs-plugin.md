@@ -35,7 +35,7 @@ packages/skills/archive-docs/agents/
 
 | Path | Description |
 | --- | --- |
-| [docs/work/2026-04-16-w5-r0-archive-docs-plugin/05-agent-configuration.md](../../work/2026-04-16-w5-r0-archive-docs-plugin/05-agent-configuration.md) | Work backlog phase — acceptance criteria checked off (manual SKILL.md review deferred to user). |
+| [docs/assets/archive/work/2026-04-16-w5-r0-archive-docs-plugin/05-agent-configuration.md](../archive/work/2026-04-16-w5-r0-archive-docs-plugin/05-agent-configuration.md) | Work backlog phase — acceptance criteria checked off (manual SKILL.md review deferred to user). |
 
 ### Developer
 

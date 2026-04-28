@@ -7,7 +7,7 @@ coordinate: "W8 R0 P5"
 
 ## Changes
 
-Implemented a Wave 8 follow-up phase for the `make-docs` apply/sync review output, framed by [the command simplification design](../../designs/2026-04-20-cli-command-simplification.md) and the completed Phase 4 validation work in [the Phase 4 agent guide](2026-04-20-w8-r0-p4-cli-command-simplification.md). This phase focused on making the already-installed no-op sync readout clearer, less redundant, and consistent with Clack-rendered CLI screens.
+Implemented a Wave 8 follow-up phase for the `make-docs` apply/sync review output, framed by [the command simplification design](../archive/designs/2026-04-20-cli-command-simplification.md) and the completed Phase 4 validation work in [the Phase 4 agent guide](2026-04-20-w8-r0-p4-cli-command-simplification.md). This phase focused on making the already-installed no-op sync readout clearer, less redundant, and consistent with Clack-rendered CLI screens.
 
 | Area | Summary |
 | --- | --- |

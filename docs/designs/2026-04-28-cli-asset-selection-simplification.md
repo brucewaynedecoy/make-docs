@@ -28,9 +28,9 @@ The code path that currently exposes this behavior is the CLI selection wizard i
 
 Related prior design context:
 
-- [2026-04-16-asset-pipeline-completeness.md](2026-04-16-asset-pipeline-completeness.md) introduced always-installed asset categories and made unmanaged template coverage more complete.
-- [2026-04-20-cli-command-simplification.md](2026-04-20-cli-command-simplification.md) simplified the CLI command surface around install and reconfigure behavior.
-- [2026-04-22-docs-assets-resource-namespace.md](2026-04-22-docs-assets-resource-namespace.md) standardized the docs asset namespace that the CLI now manages.
+- [2026-04-16-asset-pipeline-completeness.md](../assets/archive/designs/2026-04-16-asset-pipeline-completeness.md) introduced always-installed asset categories and made unmanaged template coverage more complete.
+- [2026-04-20-cli-command-simplification.md](../assets/archive/designs/2026-04-20-cli-command-simplification.md) simplified the CLI command surface around install and reconfigure behavior.
+- [2026-04-22-docs-assets-resource-namespace.md](../assets/archive/designs/2026-04-22-docs-assets-resource-namespace.md) standardized the docs asset namespace that the CLI now manages.
 
 ## Decision
 
@@ -123,7 +123,7 @@ Validation should include at least:
 ## Design Lineage
 
 - Update Mode: `new-doc-related`
-- Prior Design Docs: [2026-04-16-asset-pipeline-completeness.md](2026-04-16-asset-pipeline-completeness.md), [2026-04-20-cli-command-simplification.md](2026-04-20-cli-command-simplification.md), [2026-04-22-docs-assets-resource-namespace.md](2026-04-22-docs-assets-resource-namespace.md)
+- Prior Design Docs: [2026-04-16-asset-pipeline-completeness.md](../assets/archive/designs/2026-04-16-asset-pipeline-completeness.md), [2026-04-20-cli-command-simplification.md](../assets/archive/designs/2026-04-20-cli-command-simplification.md), [2026-04-22-docs-assets-resource-namespace.md](../assets/archive/designs/2026-04-22-docs-assets-resource-namespace.md)
 - Reason: this design narrows the user-facing CLI selection surface while relying on the prior asset-pipeline, command-surface, and docs-asset namespace decisions that made prompts, templates, and references part of the managed product contract.
 
 ## Intended Follow-On

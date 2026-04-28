@@ -31,7 +31,7 @@ packages/docs/template/docs/
 
 | Path | Description |
 | --- | --- |
-| [docs/work/2026-04-16-w3-r0-design-naming-simplification/02-template-and-routers.md](../../work/2026-04-16-w3-r0-design-naming-simplification/02-template-and-routers.md) | Work backlog phase — acceptance criteria checked off. |
+| [docs/assets/archive/work/2026-04-16-w3-r0-design-naming-simplification/02-template-and-routers.md](../archive/work/2026-04-16-w3-r0-design-naming-simplification/02-template-and-routers.md) | Work backlog phase — acceptance criteria checked off. |
 
 ### Developer
 

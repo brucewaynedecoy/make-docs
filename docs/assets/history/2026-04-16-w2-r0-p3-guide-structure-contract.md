@@ -32,7 +32,7 @@ Build succeeded. All 40 existing tests passed with no regressions.
 
 | Path | Description |
 | --- | --- |
-| [docs/work/2026-04-16-w2-r0-guide-structure-contract/03-cli-integration.md](../../work/2026-04-16-w2-r0-guide-structure-contract/03-cli-integration.md) | Work backlog phase — acceptance criteria checked off. |
+| [docs/assets/archive/work/2026-04-16-w2-r0-guide-structure-contract/03-cli-integration.md](../archive/work/2026-04-16-w2-r0-guide-structure-contract/03-cli-integration.md) | Work backlog phase — acceptance criteria checked off. |
 
 ### Developer
 

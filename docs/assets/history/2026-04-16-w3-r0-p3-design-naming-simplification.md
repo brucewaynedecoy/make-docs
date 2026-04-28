@@ -30,7 +30,7 @@ Build succeeded. All 43 tests passed with no regressions. The full-default profi
 
 | Path | Description |
 | --- | --- |
-| [docs/work/2026-04-16-w3-r0-design-naming-simplification/03-cli-renderers.md](../../work/2026-04-16-w3-r0-design-naming-simplification/03-cli-renderers.md) | Work backlog phase — acceptance criteria checked off. |
+| [docs/assets/archive/work/2026-04-16-w3-r0-design-naming-simplification/03-cli-renderers.md](../archive/work/2026-04-16-w3-r0-design-naming-simplification/03-cli-renderers.md) | Work backlog phase — acceptance criteria checked off. |
 
 ### Developer
 

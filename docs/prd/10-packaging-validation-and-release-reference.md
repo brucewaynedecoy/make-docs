@@ -39,7 +39,7 @@ The smoke script is therefore more than a tarball smoke test. It is the encoded 
 | `npm test` or `npm test -w make-docs` | Full CLI Vitest suite | Covers profile logic, CLI flows, installer integration, skills behavior, and lifecycle commands. | `package.json:16`, `packages/cli/package.json:22`, `packages/cli/src/README.md:152-177` |
 | `npm run validate:defaults` | Default-asset consistency | Runs `packages/cli/tests/consistency.test.ts`, which checks that the buildable asset set matches the default profile and that every template file is covered by the asset pipeline. | `package.json:17`, `packages/cli/package.json:23`, `packages/cli/tests/consistency.test.ts:33-77` |
 | `bash scripts/check-instruction-routers.sh` | Router integrity | Enforces `AGENTS.md`/`CLAUDE.md` pairing, byte identity, per-directory line budgets, and banned headings. | `scripts/check-instruction-routers.sh:1-58`, `packages/cli/src/README.md:165-176` |
-| `bash scripts/check-wave-numbering.sh` | Docs/work namespace hygiene | Warns on duplicate `wN-rN` coordinates across both repo-root docs and `packages/docs/template/docs`. | `scripts/check-wave-numbering.sh:15-58`, `docs/work/2026-04-16-w5-r2-cli-skill-installation/07-tests-and-validation.md` |
+| `bash scripts/check-wave-numbering.sh` | Docs/work namespace hygiene | Warns on duplicate `wN-rN` coordinates across both repo-root docs and `packages/docs/template/docs`. | `scripts/check-wave-numbering.sh:15-58`, `docs/assets/archive/work/2026-04-16-w5-r2-cli-skill-installation/07-tests-and-validation.md` |
 | `node scripts/smoke-pack.mjs` | Packaged end-to-end validation | Exercises prepack, tarball creation, packaged CLI install, skills, backup, and uninstall in temp directories. | `package.json:18`, `scripts/smoke-pack.mjs:60-246` |
 | `npm exec --yes --package "./$TARBALL" -- make-docs --target "$TEST_DIR"` | Manual packaged run | Provides one real npm launcher pass beyond the automated smoke script before publish. | `packages/cli/src/README.md:135-148` |
 
@@ -80,4 +80,4 @@ For a true first public release, the design record adds prerequisites that are s
 - `scripts/copy-template-to-cli.mjs`
 - `scripts/smoke-pack.mjs`
 - `docs/designs/2026-04-15-cli-publishing.md`
-- `docs/work/2026-04-16-w5-r2-cli-skill-installation/07-tests-and-validation.md`
+- `docs/assets/archive/work/2026-04-16-w5-r2-cli-skill-installation/07-tests-and-validation.md`

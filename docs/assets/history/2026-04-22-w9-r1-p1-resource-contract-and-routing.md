@@ -11,7 +11,7 @@ summary: "Updated active docs routing contracts for the docs/assets resource nam
 
 ## Changes
 
-Implemented W9 R1 Phase 1 for the docs assets resource namespace overhaul, framed by [the Phase 1 backlog](../../work/2026-04-22-w9-r1-docs-assets-resource-namespace/01-resource-contract-and-routing.md). This phase updated active dogfood and template routing language so document resources route through `docs/assets/`, while mutable make-docs state is described as root `.make-docs/` state.
+Implemented W9 R1 Phase 1 for the docs assets resource namespace overhaul, framed by [the Phase 1 backlog](../archive/work/2026-04-22-w9-r1-docs-assets-resource-namespace/01-resource-contract-and-routing.md). This phase updated active dogfood and template routing language so document resources route through `docs/assets/`, while mutable make-docs state is described as root `.make-docs/` state.
 
 | Area | Summary |
 | --- | --- |
@@ -33,7 +33,7 @@ Implemented W9 R1 Phase 1 for the docs assets resource namespace overhaul, frame
 | [docs/.templates/](../templates/) and [docs/.prompts/](../prompts/) | Template comments and prompt bodies updated to route future generated docs through `docs/assets/` resources. |
 | [docs/.archive/](../archive/) and [docs/.assets/](../) | Existing router files updated with target archive, history, resource, and retired-state wording ahead of physical migration. |
 | [packages/docs/template/docs/](../../../packages/docs/template/docs/) | Shippable template copy updated with matching Phase 1 routing language. |
-| [docs/work/2026-04-22-w9-r1-docs-assets-resource-namespace/01-resource-contract-and-routing.md](../../work/2026-04-22-w9-r1-docs-assets-resource-namespace/01-resource-contract-and-routing.md) | Phase 1 backlog marked complete. |
+| [docs/assets/archive/work/2026-04-22-w9-r1-docs-assets-resource-namespace/01-resource-contract-and-routing.md](../archive/work/2026-04-22-w9-r1-docs-assets-resource-namespace/01-resource-contract-and-routing.md) | Phase 1 backlog marked complete. |
 | [docs/assets/history/2026-04-22-w9-r1-p1-resource-contract-and-routing.md](./2026-04-22-w9-r1-p1-resource-contract-and-routing.md) | History record for this Phase 1 implementation. |
 
 ### Developer

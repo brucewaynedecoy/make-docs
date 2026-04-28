@@ -37,7 +37,7 @@ Build succeeded. All 43 tests passed (one existing test updated to match new beh
 
 | Path | Description |
 | --- | --- |
-| [docs/work/2026-04-16-w4-r0-asset-pipeline-completeness/01-cli-source-changes.md](../../work/2026-04-16-w4-r0-asset-pipeline-completeness/01-cli-source-changes.md) | Work backlog phase — all 6 stages' acceptance criteria checked off. |
+| [docs/assets/archive/work/2026-04-16-w4-r0-asset-pipeline-completeness/01-cli-source-changes.md](../archive/work/2026-04-16-w4-r0-asset-pipeline-completeness/01-cli-source-changes.md) | Work backlog phase — all 6 stages' acceptance criteria checked off. |
 
 ### Developer
 

@@ -28,7 +28,7 @@ Follows the `decompose-codebase/SKILL.md` pattern (frontmatter + structured proc
 
 | Path | Description |
 | --- | --- |
-| [docs/work/2026-04-16-w5-r0-archive-docs-plugin/03-core-archive-skill.md](../../work/2026-04-16-w5-r0-archive-docs-plugin/03-core-archive-skill.md) | Work backlog phase — all acceptance criteria checked off. |
+| [docs/assets/archive/work/2026-04-16-w5-r0-archive-docs-plugin/03-core-archive-skill.md](../archive/work/2026-04-16-w5-r0-archive-docs-plugin/03-core-archive-skill.md) | Work backlog phase — all acceptance criteria checked off. |
 
 ### Developer
 

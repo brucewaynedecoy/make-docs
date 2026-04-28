@@ -11,7 +11,7 @@ summary: "Completed Phase 6 assembly, navigation, and validation for the W13 gui
 
 ## Changes
 
-Implemented W13 R0 Phase 6 for the documentation coverage audit and guide orchestration effort, framed by [the Phase 6 backlog](../../work/2026-04-23-w13-r0-documentation-coverage-and-guide-orchestration/06-navigation-assembly-and-validation.md) and [the W13 R0 plan overview](../../plans/2026-04-23-w13-r0-documentation-coverage-and-guide-orchestration/00-overview.md). This phase added a compact guide-discovery section to [README.md](../../../README.md), normalized the deferred cross-bundle `related` links across onboarding, CLI lifecycle, skills, maintainer, and release guides, updated the Phase 6 backlog plus the supporting ledger and delivery map with final delivery status, and completed guide-contract, current-truth, and exact local link validation for the W13 guide set while keeping cleanup scoped to mechanical assembly work.
+Implemented W13 R0 Phase 6 for the documentation coverage audit and guide orchestration effort, framed by [the Phase 6 backlog](../archive/work/2026-04-23-w13-r0-documentation-coverage-and-guide-orchestration/06-navigation-assembly-and-validation.md) and [the W13 R0 plan overview](../archive/plans/2026-04-23-w13-r0-documentation-coverage-and-guide-orchestration/00-overview.md). This phase added a compact guide-discovery section to [README.md](../../../README.md), normalized the deferred cross-bundle `related` links across onboarding, CLI lifecycle, skills, maintainer, and release guides, updated the Phase 6 backlog plus the supporting ledger and delivery map with final delivery status, and completed guide-contract, current-truth, and exact local link validation for the W13 guide set while keeping cleanup scoped to mechanical assembly work.
 
 | Area | Summary |
 | --- | --- |
@@ -27,9 +27,9 @@ Implemented W13 R0 Phase 6 for the documentation coverage audit and guide orches
 | Path | Description |
 | --- | --- |
 | [README.md](../../../README.md) | Added the shared guide-discovery entry point for the completed user and developer guide library. |
-| [docs/work/2026-04-23-w13-r0-documentation-coverage-and-guide-orchestration/06-navigation-assembly-and-validation.md](../../work/2026-04-23-w13-r0-documentation-coverage-and-guide-orchestration/06-navigation-assembly-and-validation.md) | Marked Phase 6 complete and recorded the final validation and acceptance summary. |
-| [docs/work/2026-04-23-w13-r0-documentation-coverage-and-guide-orchestration/supporting/capability-coverage-ledger.md](../../work/2026-04-23-w13-r0-documentation-coverage-and-guide-orchestration/supporting/capability-coverage-ledger.md) | Added final Phase 6 validation notes and locked the delivered row outcomes. |
-| [docs/work/2026-04-23-w13-r0-documentation-coverage-and-guide-orchestration/supporting/guide-delivery-map.md](../../work/2026-04-23-w13-r0-documentation-coverage-and-guide-orchestration/supporting/guide-delivery-map.md) | Added final delivery status for every capability row and confirmed no accepted deviations or deferred rows remained. |
+| [docs/assets/archive/work/2026-04-23-w13-r0-documentation-coverage-and-guide-orchestration/06-navigation-assembly-and-validation.md](../archive/work/2026-04-23-w13-r0-documentation-coverage-and-guide-orchestration/06-navigation-assembly-and-validation.md) | Marked Phase 6 complete and recorded the final validation and acceptance summary. |
+| [docs/assets/archive/work/2026-04-23-w13-r0-documentation-coverage-and-guide-orchestration/supporting/capability-coverage-ledger.md](../archive/work/2026-04-23-w13-r0-documentation-coverage-and-guide-orchestration/supporting/capability-coverage-ledger.md) | Added final Phase 6 validation notes and locked the delivered row outcomes. |
+| [docs/assets/archive/work/2026-04-23-w13-r0-documentation-coverage-and-guide-orchestration/supporting/guide-delivery-map.md](../archive/work/2026-04-23-w13-r0-documentation-coverage-and-guide-orchestration/supporting/guide-delivery-map.md) | Added final delivery status for every capability row and confirmed no accepted deviations or deferred rows remained. |
 | [docs/assets/history/2026-04-23-w13-r0-p6-navigation-assembly-and-validation.md](2026-04-23-w13-r0-p6-navigation-assembly-and-validation.md) | History record for the completed W13 R0 Phase 6 implementation checkpoint. |
 
 ### Developer

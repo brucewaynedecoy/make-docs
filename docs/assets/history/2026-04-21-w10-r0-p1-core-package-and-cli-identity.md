@@ -7,7 +7,7 @@ coordinate: "W10 R0 P1"
 
 ## Changes
 
-This session completed Wave 10 Phase 1 core identity work from [01-core-package-and-cli-identity.md](../../work/2026-04-21-w10-r0-make-docs-rename/01-core-package-and-cli-identity.md), based on the source plan at [docs/plans/2026-04-21-w10-r0-make-docs-rename/01-core-package-and-cli-identity.md](../../plans/2026-04-21-w10-r0-make-docs-rename/01-core-package-and-cli-identity.md). The phase established `make-docs` as the canonical package, workspace, CLI binary, runtime copy, and skill registry identity while leaving renderer output for Phase 2.
+This session completed Wave 10 Phase 1 core identity work from [01-core-package-and-cli-identity.md](../archive/work/2026-04-21-w10-r0-make-docs-rename/01-core-package-and-cli-identity.md), based on the source plan at [docs/assets/archive/plans/2026-04-21-w10-r0-make-docs-rename/01-core-package-and-cli-identity.md](../archive/plans/2026-04-21-w10-r0-make-docs-rename/01-core-package-and-cli-identity.md). The phase established `make-docs` as the canonical package, workspace, CLI binary, runtime copy, and skill registry identity while leaving renderer output for Phase 2.
 
 | Area | Summary |
 | --- | --- |

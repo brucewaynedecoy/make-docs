@@ -11,7 +11,7 @@ summary: "Added the `make-docs skills` command surface, command-specific help, p
 
 ## Changes
 
-Implemented Phase 1 of the Wave 11 CLI skills command work, framed by [the Phase 1 plan](../../plans/2026-04-21-w11-r0-cli-skills-command/01-command-surface-and-help.md) and [the Phase 1 backlog](../../work/2026-04-21-w11-r0-cli-skills-command/01-command-surface-and-help.md). This phase adds `make-docs skills` as a first-class top-level command with skills-specific parsing, validation, help output, and test coverage while leaving the full skills planner for later phases.
+Implemented Phase 1 of the Wave 11 CLI skills command work, framed by [the Phase 1 plan](../archive/plans/2026-04-21-w11-r0-cli-skills-command/01-command-surface-and-help.md) and [the Phase 1 backlog](../archive/work/2026-04-21-w11-r0-cli-skills-command/01-command-surface-and-help.md). This phase adds `make-docs skills` as a first-class top-level command with skills-specific parsing, validation, help output, and test coverage while leaving the full skills planner for later phases.
 
 | Area | Summary |
 | --- | --- |

@@ -39,7 +39,7 @@ Smoke-pack output confirmed `guide-contract.md`, `guide-developer.md`, `guide-us
 
 | Path | Description |
 | --- | --- |
-| [docs/work/2026-04-16-w2-r0-guide-structure-contract/05-tests-and-validation.md](../../work/2026-04-16-w2-r0-guide-structure-contract/05-tests-and-validation.md) | Work backlog phase — acceptance criteria checked off. |
+| [docs/assets/archive/work/2026-04-16-w2-r0-guide-structure-contract/05-tests-and-validation.md](../archive/work/2026-04-16-w2-r0-guide-structure-contract/05-tests-and-validation.md) | Work backlog phase — acceptance criteria checked off. |
 
 ### Developer
 

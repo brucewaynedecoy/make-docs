@@ -7,7 +7,7 @@ coordinate: "W7 R0 P4"
 
 ## Changes
 
-Implemented the uninstall command described in [the design](../../designs/2026-04-18-cli-help-backup-and-uninstall.md), [the Phase 4 plan](../../plans/2026-04-18-w7-r0-cli-help-backup-and-uninstall/04-uninstall-command.md), and [the Phase 4 backlog](../../work/2026-04-18-w7-r0-cli-help-backup-and-uninstall/04-uninstall-command.md). This phase turned `make-docs uninstall` into a guarded lifecycle command: it routes through the CLI, shows destructive-operation warnings, audits once, optionally creates a backup from that same audit snapshot, removes only audited managed files, prunes only audited empty directories, and reports either a completion summary or a partial-failure summary.
+Implemented the uninstall command described in [the design](../archive/designs/2026-04-18-cli-help-backup-and-uninstall.md), [the Phase 4 plan](../archive/plans/2026-04-18-w7-r0-cli-help-backup-and-uninstall/04-uninstall-command.md), and [the Phase 4 backlog](../archive/work/2026-04-18-w7-r0-cli-help-backup-and-uninstall/04-uninstall-command.md). This phase turned `make-docs uninstall` into a guarded lifecycle command: it routes through the CLI, shows destructive-operation warnings, audits once, optionally creates a backup from that same audit snapshot, removes only audited managed files, prunes only audited empty directories, and reports either a completion summary or a partial-failure summary.
 
 | Area | Summary |
 | --- | --- |

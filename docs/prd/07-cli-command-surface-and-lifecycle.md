@@ -148,7 +148,7 @@ The wizard and audit logic both depend on the profile/capability graph. The capa
 
 Terminal UX is implemented through prompt/rendering libraries but intentionally abstracted behind renderer interfaces. The wizard uses the renderer contract in `packages/cli/src/wizard.ts:198` and the clack-backed implementation in `packages/cli/src/wizard.ts:634`, while backup/uninstall use the lifecycle renderer in `packages/cli/src/lifecycle-ui.ts:54`. The tests assert behavior at the renderer boundary in `packages/cli/tests/wizard.test.ts:234` and `packages/cli/tests/lifecycle.test.ts:238`, which keeps prompt-library churn from redefining the subsystem contract.
 
-The command surface also integrates with the README layer, but the code is more current than the prose. Both `README.md:73` and `packages/cli/README.md:56` still teach install/reconfigure/dry-run first, while the canonical public command matrix now lives in `packages/cli/src/cli.ts:1015` and `packages/cli/tests/cli.test.ts:790`. The originating design and implementation-plan docs in `docs/designs/2026-04-18-cli-help-backup-and-uninstall.md` and `docs/plans/2026-04-18-w7-r0-cli-help-backup-and-uninstall/00-overview.md` remain useful lineage, but they now describe some surfaces that the implementation intentionally removed.
+The command surface also integrates with the README layer, but the code is more current than the prose. Both `README.md:73` and `packages/cli/README.md:56` still teach install/reconfigure/dry-run first, while the canonical public command matrix now lives in `packages/cli/src/cli.ts:1015` and `packages/cli/tests/cli.test.ts:790`. The originating design and implementation-plan docs in `docs/assets/archive/designs/2026-04-18-cli-help-backup-and-uninstall.md` and `docs/assets/archive/plans/2026-04-18-w7-r0-cli-help-backup-and-uninstall/00-overview.md` remain useful lineage, but they now describe some surfaces that the implementation intentionally removed.
 
 Code anchors:
 
@@ -166,8 +166,8 @@ Code anchors:
 - `packages/cli/src/audit.ts:331`
 - `README.md:73`
 - `packages/cli/README.md:56`
-- `docs/designs/2026-04-18-cli-help-backup-and-uninstall.md`
-- `docs/plans/2026-04-18-w7-r0-cli-help-backup-and-uninstall/00-overview.md`
+- `docs/assets/archive/designs/2026-04-18-cli-help-backup-and-uninstall.md`
+- `docs/assets/archive/plans/2026-04-18-w7-r0-cli-help-backup-and-uninstall/00-overview.md`
 
 ## Rebuild Notes
 
@@ -187,7 +187,7 @@ Preserve conservative ownership rules. Root instruction files are removable only
 
 Factual drift and ambiguity that should also surface in the shared risk register:
 
-- `docs/designs/2026-04-18-cli-help-backup-and-uninstall.md` and `docs/plans/2026-04-18-w7-r0-cli-help-backup-and-uninstall/00-overview.md` still describe help surfaces for `make-docs init` and `make-docs update`, but the shipped CLI rejects those commands and points users to the default command or `reconfigure` in `packages/cli/src/cli.ts:589`, `packages/cli/src/cli.ts:599`, and `packages/cli/tests/cli.test.ts:868`.
+- `docs/assets/archive/designs/2026-04-18-cli-help-backup-and-uninstall.md` and `docs/assets/archive/plans/2026-04-18-w7-r0-cli-help-backup-and-uninstall/00-overview.md` still describe help surfaces for `make-docs init` and `make-docs update`, but the shipped CLI rejects those commands and points users to the default command or `reconfigure` in `packages/cli/src/cli.ts:589`, `packages/cli/src/cli.ts:599`, and `packages/cli/tests/cli.test.ts:868`.
 - `README.md:73` and `packages/cli/README.md:56` still teach install/reconfigure/dry-run as the visible workflow and do not document the shipped `skills`, `backup`, or `uninstall` surfaces that appear in `packages/cli/src/cli.ts:1019` and `packages/cli/tests/cli.test.ts:790`.
 - `packages/content/package.json` exists, but there is no content-specific command/help entry in `packages/cli/src/cli.ts:104` or `packages/cli/src/cli.ts:1019`. If `packages/content` becomes a supported downstream artifact, the top-level command taxonomy and help model will need a documented expansion rather than an implicit one.
 
@@ -210,8 +210,8 @@ Code anchors:
 - `packages/cli/src/audit.ts:577`
 - `README.md:73`
 - `packages/cli/README.md:56`
-- `docs/designs/2026-04-18-cli-help-backup-and-uninstall.md`
-- `docs/plans/2026-04-18-w7-r0-cli-help-backup-and-uninstall/00-overview.md`
+- `docs/assets/archive/designs/2026-04-18-cli-help-backup-and-uninstall.md`
+- `docs/assets/archive/plans/2026-04-18-w7-r0-cli-help-backup-and-uninstall/00-overview.md`
 - `packages/content/package.json`
 
 ## Source Anchors
@@ -229,5 +229,5 @@ Code anchors:
 - `packages/cli/tests/lifecycle.test.ts`
 - `README.md`
 - `packages/cli/README.md`
-- `docs/designs/2026-04-18-cli-help-backup-and-uninstall.md`
-- `docs/plans/2026-04-18-w7-r0-cli-help-backup-and-uninstall/00-overview.md`
+- `docs/assets/archive/designs/2026-04-18-cli-help-backup-and-uninstall.md`
+- `docs/assets/archive/plans/2026-04-18-w7-r0-cli-help-backup-and-uninstall/00-overview.md`

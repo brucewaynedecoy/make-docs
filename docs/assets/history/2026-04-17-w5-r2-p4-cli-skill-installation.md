@@ -35,8 +35,8 @@ packages/cli/
 
 Notes for future phases:
 
-- [Phase 5](../../work/2026-04-16-w5-r2-cli-skill-installation/05-selective-prepack.md) now needs to ensure the new skill-catalog inputs (`skill-registry.json`, skill entrypoints, and declared assets) are included in the published package and selectively copied during prepack.
-- [Phase 6](../../work/2026-04-16-w5-r2-cli-skill-installation/06-wizard-and-cli-flags.md) can build directly on the new skill pipeline: the remaining work is exposing `skills` and `skillScope` through the wizard and CLI flags rather than adding more install-path infrastructure.
+- [Phase 5](../archive/work/2026-04-16-w5-r2-cli-skill-installation/05-selective-prepack.md) now needs to ensure the new skill-catalog inputs (`skill-registry.json`, skill entrypoints, and declared assets) are included in the published package and selectively copied during prepack.
+- [Phase 6](../archive/work/2026-04-16-w5-r2-cli-skill-installation/06-wizard-and-cli-flags.md) can build directly on the new skill pipeline: the remaining work is exposing `skills` and `skillScope` through the wizard and CLI flags rather than adding more install-path infrastructure.
 
 ## Documentation
 
@@ -44,8 +44,8 @@ Notes for future phases:
 
 | Path | Description |
 | --- | --- |
-| [docs/work/2026-04-16-w5-r2-cli-skill-installation/04-skill-install-pipeline.md](../../work/2026-04-16-w5-r2-cli-skill-installation/04-skill-install-pipeline.md) | Work backlog phase — defines the five stage rollout for the harness-aware skill install pipeline that this session completed. |
-| [docs/plans/2026-04-16-w5-r2-cli-skill-installation/04-skill-install-pipeline.md](../../plans/2026-04-16-w5-r2-cli-skill-installation/04-skill-install-pipeline.md) | Source plan — specifies the new `skill-catalog.ts`, planner/install integration, manifest `skillFiles` behavior, and acceptance criteria for skill path rewriting and reconfigure removal. |
+| [docs/assets/archive/work/2026-04-16-w5-r2-cli-skill-installation/04-skill-install-pipeline.md](../archive/work/2026-04-16-w5-r2-cli-skill-installation/04-skill-install-pipeline.md) | Work backlog phase — defines the five stage rollout for the harness-aware skill install pipeline that this session completed. |
+| [docs/assets/archive/plans/2026-04-16-w5-r2-cli-skill-installation/04-skill-install-pipeline.md](../archive/plans/2026-04-16-w5-r2-cli-skill-installation/04-skill-install-pipeline.md) | Source plan — specifies the new `skill-catalog.ts`, planner/install integration, manifest `skillFiles` behavior, and acceptance criteria for skill path rewriting and reconfigure removal. |
 
 ### Developer
 

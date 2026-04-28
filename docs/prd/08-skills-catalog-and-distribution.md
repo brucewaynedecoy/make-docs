@@ -89,9 +89,9 @@ Code anchors:
 
 The skills subsystem integrates directly with the main CLI parser and help system in `packages/cli/src/cli.ts`. The parser decides when the top-level command becomes `skills`, lazily loads `packages/cli/src/skills-command.ts`, and validates optional skill ids against the packaged registry before the command runs. This keeps registry contents and command-line affordances synchronized, but it also means every new skill entry changes user-facing validation behavior immediately.
 
-The skills subsystem also integrates with the shared planner/apply stack rather than maintaining a parallel installer. `packages/cli/src/install.ts:45` routes the command through `resolveInstallProfile()`, and `packages/cli/src/planner.ts:204` reuses the same `InstallPlan` and `PlannedAction` vocabulary as the broader installer while keeping the action set skills-only. That reuse is important because the same conflict staging and manifest-writing code paths still apply, but the skill command is required to leave non-skill managed files alone; the design intent is recorded in `docs/designs/2026-04-21-cli-skills-command.md` and enforced by `packages/cli/tests/skills-ui.test.ts` and `packages/cli/tests/install.test.ts`.
+The skills subsystem also integrates with the shared planner/apply stack rather than maintaining a parallel installer. `packages/cli/src/install.ts:45` routes the command through `resolveInstallProfile()`, and `packages/cli/src/planner.ts:204` reuses the same `InstallPlan` and `PlannedAction` vocabulary as the broader installer while keeping the action set skills-only. That reuse is important because the same conflict staging and manifest-writing code paths still apply, but the skill command is required to leave non-skill managed files alone; the design intent is recorded in `docs/assets/archive/designs/2026-04-21-cli-skills-command.md` and enforced by `packages/cli/tests/skills-ui.test.ts` and `packages/cli/tests/install.test.ts`.
 
-The delivery path currently spans both `packages/skills/` and `packages/cli/`, but not in the originally designed way. The April 16 design in `docs/designs/2026-04-16-cli-skill-installation.md` proposed copying `packages/skills/` into `packages/cli/skills/` during prepack and shipping those local payloads with the published CLI. The live package metadata in `packages/cli/package.json` instead ships `dist`, `template`, `skill-registry.json`, `skill-registry.schema.json`, and `README.md`, and the current `prepack` script only runs `scripts/copy-template-to-cli.mjs` plus build. That script copies `packages/docs/template/` into `packages/cli/template/` and validates the registry JSON, but it does not copy `packages/skills/`. The practical integration today is therefore "CLI ships registry and resolver, resolver fetches from GitHub sources under `packages/skills/...` at install time."
+The delivery path currently spans both `packages/skills/` and `packages/cli/`, but not in the originally designed way. The April 16 design in `docs/assets/archive/designs/2026-04-16-cli-skill-installation.md` proposed copying `packages/skills/` into `packages/cli/skills/` during prepack and shipping those local payloads with the published CLI. The live package metadata in `packages/cli/package.json` instead ships `dist`, `template`, `skill-registry.json`, `skill-registry.schema.json`, and `README.md`, and the current `prepack` script only runs `scripts/copy-template-to-cli.mjs` plus build. That script copies `packages/docs/template/` into `packages/cli/template/` and validates the registry JSON, but it does not copy `packages/skills/`. The practical integration today is therefore "CLI ships registry and resolver, resolver fetches from GitHub sources under `packages/skills/...` at install time."
 
 The subsystem depends on external network and repository layout stability. `packages/cli/src/skill-resolver.ts:6` defaults `github:` sources to the `main` branch when no ref is supplied, and `packages/cli/src/skill-resolver.ts:226` fetches remote content without checksum verification. Because current registry entries point at `https://github.com/brucewaynedecoy/make-docs/tree/main/...` in `packages/cli/skill-registry.json`, any repo move, branch rename, or unavailable network path can block new installs or updates even when the CLI package itself is present locally.
 
@@ -102,8 +102,8 @@ Code anchors:
 - `packages/cli/src/planner.ts:204`
 - `packages/cli/package.json`
 - `scripts/copy-template-to-cli.mjs`
-- `docs/designs/2026-04-16-cli-skill-installation.md`
-- `docs/designs/2026-04-21-cli-skills-command.md`
+- `docs/assets/archive/designs/2026-04-16-cli-skill-installation.md`
+- `docs/assets/archive/designs/2026-04-21-cli-skills-command.md`
 - `packages/cli/skill-registry.json`
 
 ## Rebuild Notes
@@ -116,7 +116,7 @@ A clean-room rebuild needs to preserve the hard separation between the full scaf
 
 A rebuild also needs to keep manifest ownership split across `files` and `skillFiles`. The safe-update logic in `packages/cli/src/planner.ts:276` and the safe-removal logic in `packages/cli/src/planner.ts:348` depend on knowing which skill files were previously managed and whether local edits diverged from the last known managed content. Collapsing skill ownership into the general manifest file map would make `make-docs skills --remove` much harder to reason about and would blur the subsystem boundary that `packages/cli/src/install.ts:96` currently preserves.
 
-Factual drift note: the current implementation does not match the earlier "bundle skill payloads into the CLI package" design from `docs/designs/2026-04-16-cli-skill-installation.md`. The live package metadata in `packages/cli/package.json`, the current prepack script in `scripts/copy-template-to-cli.mjs`, and the remote GitHub entries in `packages/cli/skill-registry.json` describe a different delivery model. Candidate shared risk-register item: decide whether the intended long-term contract is remote-fetch delivery, bundled local payload delivery, or dual-mode fallback, then align code, docs, and release checks around that single model.
+Factual drift note: the current implementation does not match the earlier "bundle skill payloads into the CLI package" design from `docs/assets/archive/designs/2026-04-16-cli-skill-installation.md`. The live package metadata in `packages/cli/package.json`, the current prepack script in `scripts/copy-template-to-cli.mjs`, and the remote GitHub entries in `packages/cli/skill-registry.json` describe a different delivery model. Candidate shared risk-register item: decide whether the intended long-term contract is remote-fetch delivery, bundled local payload delivery, or dual-mode fallback, then align code, docs, and release checks around that single model.
 
 Factual risk note: current source resolution accepts `http://`, `https://`, `github:`, and `url:` in `packages/cli/src/skill-registry.ts:134`, while the resolver defaults GitHub sources to `main` in `packages/cli/src/skill-resolver.ts:6` and performs unauthenticated remote fetches in `packages/cli/src/skill-resolver.ts:226`. Candidate shared risk-register item: tighten allowed source protocols and define whether mutable branch-based URLs are acceptable for production skill delivery.
 
@@ -154,5 +154,5 @@ Code anchors:
 - `packages/skills/README.md`
 - `packages/skills/archive-docs/`
 - `packages/skills/decompose-codebase/`
-- `docs/designs/2026-04-16-cli-skill-installation.md`
-- `docs/designs/2026-04-21-cli-skills-command.md`
+- `docs/assets/archive/designs/2026-04-16-cli-skill-installation.md`
+- `docs/assets/archive/designs/2026-04-21-cli-skills-command.md`

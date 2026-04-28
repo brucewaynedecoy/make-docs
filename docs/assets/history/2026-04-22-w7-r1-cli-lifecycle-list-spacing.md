@@ -7,7 +7,7 @@ coordinate: "W7 R1"
 
 ## Changes
 
-Fixed a Wave 7 Revision 1 CLI lifecycle Clack standardization UI issue, framed by [the lifecycle Clack standardization design](../../designs/2026-04-22-cli-lifecycle-clack-standardization.md) and the completed [Phase 4 validation history](2026-04-22-w7-r1-p4-cli-lifecycle-clack-standardization.md). This fix adds blank-line separation between grouped audit review lists in the shared lifecycle renderer so backup and uninstall review screens are easier to scan without changing labels, counts, ordering, confirmation behavior, warnings, completion summaries, or failure summaries.
+Fixed a Wave 7 Revision 1 CLI lifecycle Clack standardization UI issue, framed by [the lifecycle Clack standardization design](../archive/designs/2026-04-22-cli-lifecycle-clack-standardization.md) and the completed [Phase 4 validation history](2026-04-22-w7-r1-p4-cli-lifecycle-clack-standardization.md). This fix adds blank-line separation between grouped audit review lists in the shared lifecycle renderer so backup and uninstall review screens are easier to scan without changing labels, counts, ordering, confirmation behavior, warnings, completion summaries, or failure summaries.
 
 | Area | Summary |
 | --- | --- |

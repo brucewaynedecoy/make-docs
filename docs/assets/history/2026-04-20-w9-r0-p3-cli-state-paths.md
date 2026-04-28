@@ -7,7 +7,7 @@ coordinate: "W9 R0 P3"
 
 ## Changes
 
-Completed Wave 9 Phase 3, framed by [the Phase 3 plan](../../plans/2026-04-20-w9-r0-docs-assets-state-and-history/03-cli-state-paths.md) and [the Phase 3 backlog](../../work/2026-04-20-w9-r0-docs-assets-state-and-history/03-cli-state-paths.md). This phase moved make-docs CLI-managed state from `docs/.make-docs/` to `docs/.assets/make-docs/` without adding legacy fallback reads.
+Completed Wave 9 Phase 3, framed by [the Phase 3 plan](../archive/plans/2026-04-20-w9-r0-docs-assets-state-and-history/03-cli-state-paths.md) and [the Phase 3 backlog](../archive/work/2026-04-20-w9-r0-docs-assets-state-and-history/03-cli-state-paths.md). This phase moved make-docs CLI-managed state from `docs/.make-docs/` to `docs/.assets/make-docs/` without adding legacy fallback reads.
 
 | Area | Summary |
 | --- | --- |
@@ -24,7 +24,7 @@ Completed Wave 9 Phase 3, framed by [the Phase 3 plan](../../plans/2026-04-20-w9
 
 | Path | Description |
 | --- | --- |
-| [docs/work/2026-04-20-w9-r0-docs-assets-state-and-history/03-cli-state-paths.md](../../work/2026-04-20-w9-r0-docs-assets-state-and-history/03-cli-state-paths.md) | Phase 3 work item with acceptance criteria marked complete. |
+| [docs/assets/archive/work/2026-04-20-w9-r0-docs-assets-state-and-history/03-cli-state-paths.md](../archive/work/2026-04-20-w9-r0-docs-assets-state-and-history/03-cli-state-paths.md) | Phase 3 work item with acceptance criteria marked complete. |
 | [README.md](../../../README.md) | Updated public install/sync state path references to `docs/.assets/make-docs/`. |
 | [docs/.references/commit-message-convention.md](../references/commit-message-convention.md) | Updated the Wave 9 example wording to describe the new state namespace. |
 | [packages/cli/README.md](../../../packages/cli/README.md) | Updated package README manifest and conflict staging examples. |

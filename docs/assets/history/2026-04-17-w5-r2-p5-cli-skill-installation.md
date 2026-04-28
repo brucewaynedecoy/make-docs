@@ -32,9 +32,9 @@ Implemented Phase 5 around the clarified requirement that the CLI should publish
 
 | Path | Description |
 | --- | --- |
-| [docs/work/2026-04-16-w5-r2-cli-skill-installation/05-selective-prepack.md](../../work/2026-04-16-w5-r2-cli-skill-installation/05-selective-prepack.md) | Historical phase backlog for the packaging portion of `w5-r2`. The shipped implementation diverged from its staging-oriented prepack model. |
-| [docs/plans/2026-04-16-w5-r2-cli-skill-installation/05-selective-prepack.md](../../plans/2026-04-16-w5-r2-cli-skill-installation/05-selective-prepack.md) | Historical phase plan for packaging. Kept as lineage even though the final implementation did not publish a staging directory. |
-| [docs/designs/2026-04-16-cli-skill-installation-r2.md](../../designs/2026-04-16-cli-skill-installation-r2.md) | Living design source for the final remote-registry, single-skill `archive-docs` model. |
+| [docs/assets/archive/work/2026-04-16-w5-r2-cli-skill-installation/05-selective-prepack.md](../archive/work/2026-04-16-w5-r2-cli-skill-installation/05-selective-prepack.md) | Historical phase backlog for the packaging portion of `w5-r2`. The shipped implementation diverged from its staging-oriented prepack model. |
+| [docs/assets/archive/plans/2026-04-16-w5-r2-cli-skill-installation/05-selective-prepack.md](../archive/plans/2026-04-16-w5-r2-cli-skill-installation/05-selective-prepack.md) | Historical phase plan for packaging. Kept as lineage even though the final implementation did not publish a staging directory. |
+| [docs/assets/archive/designs/2026-04-16-cli-skill-installation-r2.md](../archive/designs/2026-04-16-cli-skill-installation-r2.md) | Living design source for the final remote-registry, single-skill `archive-docs` model. |
 
 ### Developer
 

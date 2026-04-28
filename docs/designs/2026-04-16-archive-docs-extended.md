@@ -4,7 +4,7 @@
 
 ## Purpose
 
-Extend the `archive-docs` plugin (designed in [2026-04-16-archive-docs-skill.md](2026-04-16-archive-docs-skill.md)) with lifecycle automation, archive search/recall, wave-scoped archival, PRD active-set rotation, provenance tracking, and template-level distribution. These capabilities build on the core archival, staleness detection, deprecation, and impact analysis skills already designed, and are scoped as separate skills or enhancements within the same plugin.
+Extend the `archive-docs` plugin (designed in [2026-04-16-archive-docs-skill.md](../assets/archive/designs/2026-04-16-archive-docs-skill.md)) with lifecycle automation, archive search/recall, wave-scoped archival, PRD active-set rotation, provenance tracking, and template-level distribution. These capabilities build on the core archival, staleness detection, deprecation, and impact analysis skills already designed, and are scoped as separate skills or enhancements within the same plugin.
 
 ## Context
 
@@ -228,7 +228,7 @@ packages/skills/archive-docs/
 ## Design Lineage
 
 - Update Mode: `new-doc-related`
-- Prior Design Docs: [2026-04-16-archive-docs-skill.md](2026-04-16-archive-docs-skill.md)
+- Prior Design Docs: [2026-04-16-archive-docs-skill.md](../assets/archive/designs/2026-04-16-archive-docs-skill.md)
 - Reason: This design extends the base archive plugin with lifecycle automation, search, wave management, PRD rotation, provenance, and distribution capabilities that were explicitly deferred from the base design.
 
 ## Intended Follow-On

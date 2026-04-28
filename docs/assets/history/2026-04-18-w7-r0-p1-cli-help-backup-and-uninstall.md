@@ -7,7 +7,7 @@ coordinate: "W7 R0 P1"
 
 ## Changes
 
-Implemented the command-surface foundation described in [the design](../../designs/2026-04-18-cli-help-backup-and-uninstall.md), [the Phase 1 plan](../../plans/2026-04-18-w7-r0-cli-help-backup-and-uninstall/01-help-and-command-surface.md), and [the Phase 1 backlog](../../work/2026-04-18-w7-r0-cli-help-backup-and-uninstall/01-help-and-command-surface.md). This phase intentionally stopped at parsing, validation, help rendering, and placeholder lifecycle dispatch so later phases can add backup and uninstall execution without reopening the CLI grammar.
+Implemented the command-surface foundation described in [the design](../archive/designs/2026-04-18-cli-help-backup-and-uninstall.md), [the Phase 1 plan](../archive/plans/2026-04-18-w7-r0-cli-help-backup-and-uninstall/01-help-and-command-surface.md), and [the Phase 1 backlog](../archive/work/2026-04-18-w7-r0-cli-help-backup-and-uninstall/01-help-and-command-surface.md). This phase intentionally stopped at parsing, validation, help rendering, and placeholder lifecycle dispatch so later phases can add backup and uninstall execution without reopening the CLI grammar.
 
 | Area | Summary |
 | --- | --- |

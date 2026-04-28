@@ -29,9 +29,9 @@ Completed `w5-r3` Phase 1 by fixing the wizard screen that previously treated op
 
 | Path | Description |
 | --- | --- |
-| [docs/work/2026-04-17-w5-r3-cli-skill-installation/01-skill-selection-default-and-optional-groups.md](../../work/2026-04-17-w5-r3-cli-skill-installation/01-skill-selection-default-and-optional-groups.md) | Active phase backlog that defined the grouped default-and-optional skill-selection implementation completed in this session. |
-| [docs/plans/2026-04-17-w5-r3-cli-skill-installation/01-skill-selection-default-and-optional-groups.md](../../plans/2026-04-17-w5-r3-cli-skill-installation/01-skill-selection-default-and-optional-groups.md) | Phase plan for the narrow wizard UX fix and its validation scope. |
-| [docs/designs/2026-04-17-cli-skill-selection-default-and-optional-groups.md](../../designs/2026-04-17-cli-skill-selection-default-and-optional-groups.md) | Design source for the grouped skill-selection screen, required/default read-only behavior, and required-only submit semantics. |
+| [docs/assets/archive/work/2026-04-17-w5-r3-cli-skill-installation/01-skill-selection-default-and-optional-groups.md](../archive/work/2026-04-17-w5-r3-cli-skill-installation/01-skill-selection-default-and-optional-groups.md) | Active phase backlog that defined the grouped default-and-optional skill-selection implementation completed in this session. |
+| [docs/assets/archive/plans/2026-04-17-w5-r3-cli-skill-installation/01-skill-selection-default-and-optional-groups.md](../archive/plans/2026-04-17-w5-r3-cli-skill-installation/01-skill-selection-default-and-optional-groups.md) | Phase plan for the narrow wizard UX fix and its validation scope. |
+| [docs/assets/archive/designs/2026-04-17-cli-skill-selection-default-and-optional-groups.md](../archive/designs/2026-04-17-cli-skill-selection-default-and-optional-groups.md) | Design source for the grouped skill-selection screen, required/default read-only behavior, and required-only submit semantics. |
 
 ### Developer
 

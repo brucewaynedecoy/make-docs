@@ -25,7 +25,7 @@ packages/skills/decompose-codebase/scripts/
 └── test_validate_output.py    (new — 33 tests)
 ```
 
-Derives from the [design](../../designs/2026-04-16-validator-false-positive-links.md), [plan phase 3](../../plans/2026-04-16-w6-r0-validator-false-positive-links/03-tests-and-validation.md), and [work phase 3](../../work/2026-04-16-w6-r0-validator-false-positive-links/03-tests-and-validation.md).
+Derives from the [design](../archive/designs/2026-04-16-validator-false-positive-links.md), [plan phase 3](../archive/plans/2026-04-16-w6-r0-validator-false-positive-links/03-tests-and-validation.md), and [work phase 3](../archive/work/2026-04-16-w6-r0-validator-false-positive-links/03-tests-and-validation.md).
 
 ## Documentation
 
@@ -33,7 +33,7 @@ Derives from the [design](../../designs/2026-04-16-validator-false-positive-link
 
 | Path | Description |
 | --- | --- |
-| [docs/work/2026-04-16-w6-r0-validator-false-positive-links/03-tests-and-validation.md](../../work/2026-04-16-w6-r0-validator-false-positive-links/03-tests-and-validation.md) | Work backlog phase for tests and validation. |
+| [docs/assets/archive/work/2026-04-16-w6-r0-validator-false-positive-links/03-tests-and-validation.md](../archive/work/2026-04-16-w6-r0-validator-false-positive-links/03-tests-and-validation.md) | Work backlog phase for tests and validation. |
 
 ### Developer
 

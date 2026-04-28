@@ -38,8 +38,8 @@ Notes for future phases:
 
 | Path | Description |
 | --- | --- |
-| [docs/work/2026-04-16-w5-r2-cli-skill-installation/03-instruction-derivation.md](../../work/2026-04-16-w5-r2-cli-skill-installation/03-instruction-derivation.md) | Work backlog phase — all four stages closed, acceptance criteria met. |
-| [docs/plans/2026-04-16-w5-r2-cli-skill-installation/03-instruction-derivation.md](../../plans/2026-04-16-w5-r2-cli-skill-installation/03-instruction-derivation.md) | Source plan — specifies the derivation helper, catalog wiring, and renderer guard replacement. |
+| [docs/assets/archive/work/2026-04-16-w5-r2-cli-skill-installation/03-instruction-derivation.md](../archive/work/2026-04-16-w5-r2-cli-skill-installation/03-instruction-derivation.md) | Work backlog phase — all four stages closed, acceptance criteria met. |
+| [docs/assets/archive/plans/2026-04-16-w5-r2-cli-skill-installation/03-instruction-derivation.md](../archive/plans/2026-04-16-w5-r2-cli-skill-installation/03-instruction-derivation.md) | Source plan — specifies the derivation helper, catalog wiring, and renderer guard replacement. |
 
 ### Developer
 

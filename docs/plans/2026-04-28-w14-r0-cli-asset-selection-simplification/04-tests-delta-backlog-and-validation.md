@@ -47,7 +47,7 @@ Recommended backlog phases:
 3. Selection normalization and manifest compatibility
 4. Tests and validation
 
-Do not regenerate the full `docs/work/2026-04-23-w12-r0-make-docs-prd-decomposition/` backlog.
+Do not regenerate the full `docs/assets/archive/work/2026-04-23-w12-r0-make-docs-prd-decomposition/` backlog.
 
 ### 2. Update wizard tests
 

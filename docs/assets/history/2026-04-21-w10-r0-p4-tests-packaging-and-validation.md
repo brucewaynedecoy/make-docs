@@ -7,7 +7,7 @@ coordinate: "W10 R0 P4"
 
 ## Changes
 
-This session completed Wave 10 Phase 4 from [04-tests-packaging-and-validation.md](../../work/2026-04-21-w10-r0-make-docs-rename/04-tests-packaging-and-validation.md), based on the source plan at [docs/plans/2026-04-21-w10-r0-make-docs-rename/04-tests-packaging-and-validation.md](../../plans/2026-04-21-w10-r0-make-docs-rename/04-tests-packaging-and-validation.md). The phase finished the `make-docs` test, packaging, and stale-reference validation pass.
+This session completed Wave 10 Phase 4 from [04-tests-packaging-and-validation.md](../archive/work/2026-04-21-w10-r0-make-docs-rename/04-tests-packaging-and-validation.md), based on the source plan at [docs/assets/archive/plans/2026-04-21-w10-r0-make-docs-rename/04-tests-packaging-and-validation.md](../archive/plans/2026-04-21-w10-r0-make-docs-rename/04-tests-packaging-and-validation.md). The phase finished the `make-docs` test, packaging, and stale-reference validation pass.
 
 | Area | Summary |
 | --- | --- |

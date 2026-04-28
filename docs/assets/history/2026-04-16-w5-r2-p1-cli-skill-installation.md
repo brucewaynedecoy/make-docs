@@ -39,8 +39,8 @@ packages/cli/
 
 | Path | Description |
 | --- | --- |
-| [docs/work/2026-04-16-w5-r2-cli-skill-installation/01-type-system-and-harness-model.md](../../work/2026-04-16-w5-r2-cli-skill-installation/01-type-system-and-harness-model.md) | Work backlog phase — all four stages closed, acceptance criteria met. |
-| [docs/plans/2026-04-16-w5-r2-cli-skill-installation/01-type-system-and-harness-model.md](../../plans/2026-04-16-w5-r2-cli-skill-installation/01-type-system-and-harness-model.md) | Source plan — design-level detail on each file change and the migration contract. |
+| [docs/assets/archive/work/2026-04-16-w5-r2-cli-skill-installation/01-type-system-and-harness-model.md](../archive/work/2026-04-16-w5-r2-cli-skill-installation/01-type-system-and-harness-model.md) | Work backlog phase — all four stages closed, acceptance criteria met. |
+| [docs/assets/archive/plans/2026-04-16-w5-r2-cli-skill-installation/01-type-system-and-harness-model.md](../archive/plans/2026-04-16-w5-r2-cli-skill-installation/01-type-system-and-harness-model.md) | Source plan — design-level detail on each file change and the migration contract. |
 
 ### Developer
 

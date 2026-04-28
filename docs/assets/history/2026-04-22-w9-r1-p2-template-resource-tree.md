@@ -11,7 +11,7 @@ summary: "Moved the shippable docs template resource tree under docs/assets."
 
 ## Changes
 
-Implemented W9 R1 Phase 2 for the docs assets resource namespace overhaul, framed by [the Phase 2 backlog](../../work/2026-04-22-w9-r1-docs-assets-resource-namespace/02-template-resource-tree.md). This phase moved the shippable docs template resources into `packages/docs/template/docs/assets/`, removed the template config router instead of carrying CLI state into docs assets, and repaired active template routers to use `docs/assets/` paths.
+Implemented W9 R1 Phase 2 for the docs assets resource namespace overhaul, framed by [the Phase 2 backlog](../archive/work/2026-04-22-w9-r1-docs-assets-resource-namespace/02-template-resource-tree.md). This phase moved the shippable docs template resources into `packages/docs/template/docs/assets/`, removed the template config router instead of carrying CLI state into docs assets, and repaired active template routers to use `docs/assets/` paths.
 
 | Area | Summary |
 | --- | --- |
@@ -32,7 +32,7 @@ Implemented W9 R1 Phase 2 for the docs assets resource namespace overhaul, frame
 | [packages/docs/template/docs/plans/](../../../packages/docs/template/docs/plans/) | Updated plan router references to the new template support-resource paths. |
 | [packages/docs/template/docs/prd/](../../../packages/docs/template/docs/prd/) | Updated PRD router references to the new template support-resource paths. |
 | [packages/docs/template/docs/work/](../../../packages/docs/template/docs/work/) | Updated work router references to the new template support-resource paths. |
-| [docs/work/2026-04-22-w9-r1-docs-assets-resource-namespace/02-template-resource-tree.md](../../work/2026-04-22-w9-r1-docs-assets-resource-namespace/02-template-resource-tree.md) | Marked Phase 2 work tasks and acceptance criteria complete. |
+| [docs/assets/archive/work/2026-04-22-w9-r1-docs-assets-resource-namespace/02-template-resource-tree.md](../archive/work/2026-04-22-w9-r1-docs-assets-resource-namespace/02-template-resource-tree.md) | Marked Phase 2 work tasks and acceptance criteria complete. |
 | [docs/assets/history/2026-04-22-w9-r1-p2-template-resource-tree.md](2026-04-22-w9-r1-p2-template-resource-tree.md) | History record for this phase. |
 
 ### Developer
