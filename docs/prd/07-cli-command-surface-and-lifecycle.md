@@ -41,6 +41,11 @@ The parser recognizes four explicit subcommands, a no-command primary workflow, 
 
 ### Interactive wizard and review flow
 
+#### Change Notes
+
+- Superseded by [11-revise-cli-asset-selection-simplification.md](./11-revise-cli-asset-selection-simplification.md) for prompt/template/reference wizard questions and review rows.
+- Superseded by [12-revise-cli-skill-selection-simplification.md](./12-revise-cli-skill-selection-simplification.md) for default/optional skill grouping and selected-skill review language.
+
 Interactive selection is a first-class capability, not just a prompt wrapper. The CLI opens the wizard only for first install and explicit reconfigure in `packages/cli/src/cli.ts:150` and `packages/cli/src/cli.ts:163`; a bare run against an existing manifest stays on saved selections and does not reopen the wizard, as verified in `packages/cli/tests/cli.test.ts:173`.
 
 The wizard is a four-step state machine in `packages/cli/src/wizard.ts:124` and `packages/cli/src/wizard.ts:487`: capabilities, harnesses, options, and review. Capability selection is dependency-aware through `normalizeWizardSelections` and `buildCapabilityChecklistState` in `packages/cli/src/wizard.ts:222` and `packages/cli/src/wizard.ts:396`, so `prd` is disabled without `plans` and `work` is disabled without both `plans` and `prd`; the tests pin those lockouts in `packages/cli/tests/wizard.test.ts:70`.
@@ -95,6 +100,11 @@ Code anchors:
 - `packages/cli/src/audit.ts:577`
 
 ## Contracts and Data
+
+### Change Notes
+
+- Superseded by [11-revise-cli-asset-selection-simplification.md](./11-revise-cli-asset-selection-simplification.md) for prompt/template/reference selection flags as active installer decisions.
+- Superseded by [12-revise-cli-skill-selection-simplification.md](./12-revise-cli-skill-selection-simplification.md) for optional-skill CLI validation and selected-skill flag language.
 
 The root command contract is encoded in `Command`, `InstallIntent`, and `ParsedArgs` in `packages/cli/src/cli.ts:27`, `packages/cli/src/cli.ts:28`, and `packages/cli/src/cli.ts:30`. `parseArgs` normalizes the public flags in `packages/cli/src/cli.ts:455`, while `validateParsedArgs` enforces cross-command boundaries in `packages/cli/src/cli.ts:653`: `--backup` is uninstall-only, `--remove` is skills-only, selection flags are invalid on lifecycle commands, and optional skill identifiers must be known optional registry entries in `packages/cli/src/cli.ts:705`.
 
@@ -160,6 +170,10 @@ Code anchors:
 - `docs/plans/2026-04-18-w7-r0-cli-help-backup-and-uninstall/00-overview.md`
 
 ## Rebuild Notes
+
+### Change Notes
+
+- Superseded by [11-revise-cli-asset-selection-simplification.md](./11-revise-cli-asset-selection-simplification.md) and [12-revise-cli-skill-selection-simplification.md](./12-revise-cli-skill-selection-simplification.md) for rebuild guidance around the wizard options step. Rebuilders should preserve the command and lifecycle boundaries while applying the W14 selection-surface simplifications.
 
 Any clean-room rebuild needs to preserve the meaning of “no command.” The current UX deliberately treats `make-docs` as install-or-sync based on manifest presence in `packages/cli/src/cli.ts:119` and `packages/cli/src/cli.ts:794`, not as a separate `init` or `update` command family. Reintroducing explicit `init` or `update` commands without also revisiting the migration errors in `packages/cli/src/cli.ts:589` and `packages/cli/src/cli.ts:599` would break the shipped public model captured in `packages/cli/tests/cli.test.ts:790`.
 

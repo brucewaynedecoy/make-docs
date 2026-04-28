@@ -23,6 +23,10 @@ Code anchors:
 
 ## Component and Capability Map
 
+### Change Notes
+
+- Superseded by [12-revise-cli-skill-selection-simplification.md](./12-revise-cli-skill-selection-simplification.md) for required/optional skill grouping, default skill immutability, and optional-only selection behavior.
+
 The top-level CLI exposes `skills` as a first-class command beside `reconfigure`, `backup`, and `uninstall` in `packages/cli/src/cli.ts:27`. The command-specific help in `packages/cli/src/cli.ts:942` limits the surface to target directory, dry run, non-interactive apply, harness selection, removal, skill scope, and optional skill selection; it intentionally avoids the broader content/template/reference flags that belong to initial install and reconfigure flows. Argument validation in `packages/cli/src/cli.ts:641` through `packages/cli/src/cli.ts:719` rejects non-skills selection flags on `make-docs skills`, prevents `--optional-skills` during `--remove`, and checks requested optional skills against the packaged registry.
 
 The executor in `packages/cli/src/skills-command.ts:32` is thin on purpose. It loads the existing manifest, derives base selections from either the saved manifest or `defaultSelections()`, optionally runs the dedicated UI, then calls `planSkillsOnlyInstall()` and `applySkillsOnlyInstallPlan()` in `packages/cli/src/install.ts:45` and `packages/cli/src/install.ts:96`. The same module keeps skills output isolated from the main scaffold flow by printing a skills-specific review summary in `packages/cli/src/skills-command.ts:176` and by reporting completion against the manifest path in `packages/cli/src/skills-command.ts:193`.
@@ -50,6 +54,10 @@ Code anchors:
 
 ## Contracts and Data
 
+### Change Notes
+
+- Superseded by [12-revise-cli-skill-selection-simplification.md](./12-revise-cli-skill-selection-simplification.md) for the `required` registry field and `optionalSkills` persisted-selection model. The effective W14 requirement is a selected-skill set over all recommended registry entries.
+
 The skills subsystem hangs off the shared install contract in `packages/cli/src/types.ts:31`. `InstallSelections` carries `harnesses`, `skills`, `skillScope`, and `optionalSkills`, and the skills command mutates only that subset in `packages/cli/src/skills-command.ts:152` and `packages/cli/src/skills-ui.ts:280`. The skill-specific UI state mirrors that reduced surface in `packages/cli/src/skills-ui.ts:28`, which keeps command execution from depending on the broader capability/prompt/template/reference state used by full installs.
 
 The packaged registry contract is defined in `packages/cli/src/skill-registry.ts:4` through `packages/cli/src/skill-registry.ts:19`. Every `SkillRegistryEntry` needs `name`, `source`, `entryPoint`, `installName`, `required`, `description`, and an `assets` array, and `packages/cli/src/skill-registry.ts:83` rejects entries whose `source` is not remote. `packages/cli/skill-registry.json` also declares `$schema: "./skill-registry.schema.json"`, and `packages/cli/tests/skill-registry.test.ts` proves that the schema file is expected to ship with the package. The current registry uses remote GitHub tree URLs for both entries, which means the registry is packaged locally but the payload sources remain external.
@@ -75,6 +83,10 @@ Code anchors:
 
 ## Integrations
 
+### Change Notes
+
+- Superseded by [12-revise-cli-skill-selection-simplification.md](./12-revise-cli-skill-selection-simplification.md) for CLI validation that only accepts formerly optional skill ids. Validation should apply to the selected-skill set over all registry skills.
+
 The skills subsystem integrates directly with the main CLI parser and help system in `packages/cli/src/cli.ts`. The parser decides when the top-level command becomes `skills`, lazily loads `packages/cli/src/skills-command.ts`, and validates optional skill ids against the packaged registry before the command runs. This keeps registry contents and command-line affordances synchronized, but it also means every new skill entry changes user-facing validation behavior immediately.
 
 The skills subsystem also integrates with the shared planner/apply stack rather than maintaining a parallel installer. `packages/cli/src/install.ts:45` routes the command through `resolveInstallProfile()`, and `packages/cli/src/planner.ts:204` reuses the same `InstallPlan` and `PlannedAction` vocabulary as the broader installer while keeping the action set skills-only. That reuse is important because the same conflict staging and manifest-writing code paths still apply, but the skill command is required to leave non-skill managed files alone; the design intent is recorded in `docs/designs/2026-04-21-cli-skills-command.md` and enforced by `packages/cli/tests/skills-ui.test.ts` and `packages/cli/tests/install.test.ts`.
@@ -95,6 +107,10 @@ Code anchors:
 - `packages/cli/skill-registry.json`
 
 ## Rebuild Notes
+
+### Change Notes
+
+- Superseded by [12-revise-cli-skill-selection-simplification.md](./12-revise-cli-skill-selection-simplification.md) where rebuild guidance depends on required/default versus optional skill categories. Skill command separation, remote resolver behavior, and `skillFiles` ownership remain active constraints.
 
 A clean-room rebuild needs to preserve the hard separation between the full scaffold lifecycle and the skills-only lifecycle. The skills command should continue to behave like a dedicated maintenance surface, not a partial invocation of the broader installer. That means preserving the top-level command split in `packages/cli/src/cli.ts:27`, the isolated UI flow in `packages/cli/src/skills-ui.ts:102`, and the skills-only planner path in `packages/cli/src/planner.ts:204`. Rebuilders should treat the tests in `packages/cli/tests/skills-ui.test.ts`, `packages/cli/tests/skill-catalog.test.ts`, and `packages/cli/tests/install.test.ts` as behavioral guardrails, not just unit coverage.
 

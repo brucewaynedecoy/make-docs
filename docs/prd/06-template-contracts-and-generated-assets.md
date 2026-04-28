@@ -14,6 +14,10 @@ Profile-specific installs do not invent a second contract layer. Instead, `packa
 
 ## Component and Capability Map
 
+### Change Notes
+
+- Superseded by [11-revise-cli-asset-selection-simplification.md](./11-revise-cli-asset-selection-simplification.md) for prompt/template/reference asset selection. Included prompts, templates, and references are becoming always-managed assets rather than wizard-selected asset groups.
+
 - The physical source of truth is `packages/docs/template/`: root instructions live at `packages/docs/template/AGENTS.md`, the docs router lives at `packages/docs/template/docs/AGENTS.md`, document-resource routers live at `packages/docs/template/docs/assets/AGENTS.md`, `packages/docs/template/docs/assets/references/AGENTS.md`, and `packages/docs/template/docs/assets/templates/AGENTS.md`, and the authoritative shipped contracts/templates live under `packages/docs/template/docs/assets/references/*.md` and `packages/docs/template/docs/assets/templates/*.md`.
 - Install profile resolution starts in `packages/cli/src/profile.ts:10-15`, where `prd` depends on `plans` and `work` depends on both `plans` and `prd`. `packages/cli/src/profile.ts:42-93` turns raw selections into `capabilityState`, `effectiveCapabilities`, and a stable `profileId`, while `packages/cli/src/types.ts:38-80` defines the `InstallSelections`, `InstallProfile`, `InstructionKind`, and `ResolvedAsset` shapes used across the pipeline.
 - Rule-based selection happens in `packages/cli/src/rules.ts:8-109`. `PROMPT_RULES` gates prompt starters by capability, `PLAN_TEMPLATE_PATHS` / `PRD_TEMPLATE_PATHS` / `WORK_TEMPLATE_PATHS` plus `ALWAYS_TEMPLATE_PATHS` determine which templates are installable, and `REQUIRED_REFERENCE_PATHS` plus `ALWAYS_REFERENCE_PATHS` do the same for references. `getPromptPaths()`, `getTemplatePaths()`, and `getReferencePaths()` in `packages/cli/src/rules.ts:120-194` produce the actual per-profile asset lists.
@@ -23,6 +27,10 @@ Profile-specific installs do not invent a second contract layer. Instead, `packa
 - Validation is built into the subsystem. `packages/cli/tests/consistency.test.ts:33-77` asserts that every file under `TEMPLATE_ROOT` is covered by `getDesiredAssets(profile)` and that every `buildable` path renders exactly to the checked-in full-profile file. `packages/cli/tests/renderers.test.ts:17-73` confirms reduced-profile router behavior and verifies that design workflow fallback text removes links to unavailable prompts.
 
 ## Contracts and Data
+
+### Change Notes
+
+- Superseded by [11-revise-cli-asset-selection-simplification.md](./11-revise-cli-asset-selection-simplification.md) for mode-sensitive prompt/template/reference selection. The effective W14 requirement is to normalize these asset families to the included managed set before planning and manifest writes.
 
 - The shipped contract files are explicit artifacts, not inferred conventions. `packages/docs/template/docs/assets/references/output-contract.md` fixes required paths such as `docs/prd/00-index.md` through `docs/prd/04-glossary.md`, requires directory-based plan/work outputs, and defines section contracts for PRD and work documents. `packages/docs/template/docs/assets/templates/prd-subsystem.md`, `packages/docs/template/docs/assets/templates/prd-index.md`, and `packages/docs/template/docs/assets/templates/work-index.md` provide the structural starters that generated docs must follow.
 - The consumer-visible contract surface is mirrored into this repository's dogfood docs at `docs/assets/references/output-contract.md`, `docs/assets/references/execution-workflow.md`, and `docs/assets/templates/prd-subsystem.md`, but `packages/docs/template/docs/assets/**` remains the template package source of truth. `packages/docs/README.md` explicitly instructs contributors to edit `packages/docs/template/` first and then re-seed dogfood copies when template-owned files change.
@@ -39,6 +47,10 @@ Profile-specific installs do not invent a second contract layer. Instead, `packa
 - Validation integration spans both code and docs. `packages/cli/tests/consistency.test.ts:54-77` guards full template coverage, `packages/cli/tests/renderers.test.ts:33-73` guards profile-aware rendering, and `packages/docs/README.md` describes manual re-seed verification by diffing template-owned files after copying them into the dogfood tree.
 
 ## Rebuild Notes
+
+### Change Notes
+
+- Superseded by [11-revise-cli-asset-selection-simplification.md](./11-revise-cli-asset-selection-simplification.md) for rebuild guidance around public template/reference modes. Rebuilders should preserve full managed asset coverage while removing the obsolete user-facing selection knobs.
 
 - A clean-room rebuild should preserve three separate layers instead of collapsing them into one: the authoring tree in `packages/docs/template/`, the profile-selection rules in `packages/cli/src/profile.ts`, `packages/cli/src/rules.ts`, and `packages/cli/src/catalog.ts`, and the managed-install state in `packages/cli/src/planner.ts`, `packages/cli/src/install.ts`, and `packages/cli/src/manifest.ts`. Losing that separation would blur template ownership, selection policy, and manifest-safe apply behavior.
 - Preserve the `buildable` vs copied-file boundary. Today the pipeline renders only routers and the design fallback trio (`packages/cli/src/renderers.ts:40-96`) and copies most contract/template files verbatim from the template package (`packages/cli/src/utils.ts:49-55`). If a rebuild starts rendering every reference and template file dynamically, `packages/cli/tests/consistency.test.ts:44-50` will no longer be able to prove that the checked-in full-profile template matches generated output.

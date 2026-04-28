@@ -18,6 +18,11 @@ The public repo docs describe the same subsystem as the installer surface that w
 
 ## Component and Capability Map
 
+### Change Notes
+
+- Superseded by [11-revise-cli-asset-selection-simplification.md](./11-revise-cli-asset-selection-simplification.md) for prompt/template/reference asset choices, which are becoming invariant managed selections.
+- Superseded by [12-revise-cli-skill-selection-simplification.md](./12-revise-cli-skill-selection-simplification.md) for skill selection, which is moving from optional additions plus implicit required skills to an explicit selected-skill set.
+
 - CLI intent routing starts with `packages/cli/src/cli.ts:119-147`, which loads the existing manifest, infers `apply` versus `reconfigure`, and records whether selections came from defaults, saved manifest state, flags, or the interactive wizard. Bare apply against an existing manifest intentionally behaves like sync instead of reopening the wizard, as covered by `packages/cli/tests/cli.test.ts:173-203`.
 - First interactive installs and interactive reconfigure runs pass through the wizard in `packages/cli/src/cli.ts:150-175`, but non-interactive `--yes` runs skip prompts and rely on default or saved selections from `packages/cli/src/cli.ts:128-137` and `packages/cli/src/cli.ts:295-346`. First-run defaults under `--yes` are verified in `packages/cli/tests/cli.test.ts:210-229`.
 - The capability graph is encoded directly in `packages/cli/src/profile.ts:10-15`; `packages/cli/src/profile.ts:42-65` keeps explicit selections even when prerequisites are missing, then marks downstream capabilities ineffective until prerequisites return. That “selected but disabled” behavior is also part of the user-facing installer contract in `README.md:64-71`.
@@ -28,6 +33,11 @@ The public repo docs describe the same subsystem as the installer surface that w
 - Skills participate in the same lifecycle but keep separate ownership tracking. `packages/cli/src/install.ts:114-156` carries `skillFiles` independently from `manifest.files`, and `packages/cli/src/planner.ts:204-390` uses prior canonical skill content to decide whether a skill file can be refreshed or removed safely. Harness deselection removes only that harness’s tracked skill files in `packages/cli/tests/install.test.ts:765-781`, while `--no-skills` clears stored skill ownership in `packages/cli/tests/cli.test.ts:272-289`.
 
 ## Contracts and Data
+
+### Change Notes
+
+- Superseded by [11-revise-cli-asset-selection-simplification.md](./11-revise-cli-asset-selection-simplification.md) for `prompts`, `templatesMode`, and `referencesMode` as user-facing persisted choices.
+- Superseded by [12-revise-cli-skill-selection-simplification.md](./12-revise-cli-skill-selection-simplification.md) for `optionalSkills` and legacy optional-skill migration semantics.
 
 - User intent is captured by `InstallSelections` in `packages/cli/src/types.ts:38`, which includes capability toggles, prompt/template/reference modes, harness toggles, `skills`, `skillScope`, and `optionalSkills`. Root instruction enablement is derived from harness state by `getActiveInstructionKinds()` in `packages/cli/src/types.ts:49`.
 - Effective capability state is stored per capability in `CapabilityState` at `packages/cli/src/types.ts:61` and aggregated into `InstallProfile` at `packages/cli/src/types.ts:68`. The important invariant is that explicit intent and effective capability can differ, but the manifest stores both the original selections and the final `effectiveCapabilities` via `packages/cli/src/manifest.ts:79-96`.

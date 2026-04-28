@@ -8,6 +8,11 @@ The fixed-core overview layer now exists, but this register still carries the un
 
 ## Confirmed Drift
 
+### Change Notes
+
+- Superseded by [11-revise-cli-asset-selection-simplification.md](./11-revise-cli-asset-selection-simplification.md) for prompt/template/reference controls that are becoming invariant managed assets.
+- Superseded by [12-revise-cli-skill-selection-simplification.md](./12-revise-cli-skill-selection-simplification.md) for skill registry and selection behavior that is moving from required/optional categories to one selected-skill set.
+
 | Item | Evidence | Why it matters |
 | --- | --- | --- |
 | README wording understates the live idempotent sync model. | `README.md:101-107` and `packages/cli/README.md:84-89` say unchanged managed files are updated in place, but `packages/cli/src/planner.ts:19-189` plans `noop` for exact matches and `packages/cli/src/cli.ts:725-805` reports `Already current`. | Contributors can misread the installer as more write-heavy than it really is. |
@@ -23,6 +28,11 @@ The fixed-core overview layer now exists, but this register still carries the un
 
 ## Open Questions
 
+### Change Notes
+
+- Superseded by [11-revise-cli-asset-selection-simplification.md](./11-revise-cli-asset-selection-simplification.md) for whether template and reference modes should remain public options.
+- Superseded by [12-revise-cli-skill-selection-simplification.md](./12-revise-cli-skill-selection-simplification.md) for selected-skill UX and persisted-selection continuity; remote source policy remains an unresolved delivery-security question.
+
 | Question | Current evidence | Why unresolved |
 | --- | --- | --- |
 | What is the intended long-term skills delivery contract: remote-fetch, bundled-local, or dual-mode fallback? | Current runtime is remote-fetch (`packages/cli/src/skill-registry.ts:134`, `packages/cli/src/skill-resolver.ts:6-226`), while prior design work expected bundled payloads. | Release policy, offline behavior, integrity checks, and smoke-pack acceptance all depend on this decision. |
@@ -34,6 +44,10 @@ The fixed-core overview layer now exists, but this register still carries the un
 | How should remote skill sources be constrained? | `packages/cli/src/skill-registry.ts:134` accepts `http://`, `https://`, `github:`, and `url:`, while `packages/cli/src/skill-resolver.ts:6` defaults GitHub sources to `main` and `packages/cli/src/skill-resolver.ts:226` performs unauthenticated fetches. | Mutable refs and permissive protocols have security and reproducibility implications. |
 
 ## Rebuild Risks
+
+### Change Notes
+
+- Superseded by [12-revise-cli-skill-selection-simplification.md](./12-revise-cli-skill-selection-simplification.md) where rebuild risk depends on the old `optionalSkills` or required/default skill assumptions; home-scoped skill ownership and audit safety remain active constraints.
 
 | Risk | Failure mode | Key anchors |
 | --- | --- | --- |

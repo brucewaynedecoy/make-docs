@@ -10,9 +10,10 @@ The fixed-core overview layer is now present through [01 Product Overview](01-pr
 
 1. Read [01 Product Overview](01-product-overview.md) and [02 Architecture Overview](02-architecture-overview.md) first. They establish the user model, runtime zones, module map, and configuration surfaces for the rest of the set.
 2. Read [05 Installation, Profile, and Manifest Lifecycle](05-installation-profile-and-manifest-lifecycle.md), [06 Template Contracts and Generated Assets](06-template-contracts-and-generated-assets.md), [07 CLI Command Surface and Lifecycle](07-cli-command-surface-and-lifecycle.md), [08 Skills Catalog and Distribution](08-skills-catalog-and-distribution.md), [09 Dogfood and Maintainer Operations](09-dogfood-and-maintainer-operations.md), and [10 Packaging, Validation, and Release Reference](10-packaging-validation-and-release-reference.md) in that order. That sequence follows the live dependency chain from `packages/cli/src/profile.ts:10-99` and `packages/cli/src/manifest.ts:18-245` into `packages/cli/src/catalog.ts:64-85`, `packages/cli/src/cli.ts:77-244`, `packages/cli/src/skill-catalog.ts:33-138`, `packages/cli/src/utils.ts:33-55`, and `scripts/smoke-pack.mjs:60-246`.
-3. Read [03 Open Questions and Risk Register](03-open-questions-and-risk-register.md) after the subsystem docs to see where the current implementation and the current documentation still diverge, especially around `packages/cli/src/rules.ts:130-194`, `packages/cli/src/skill-resolver.ts:40-226`, and `packages/cli/package.json:9-25`.
-4. Use [04 Glossary](04-glossary.md) whenever a term comes from the typed install, asset, skills, or lifecycle contracts in `packages/cli/src/types.ts:38-271`.
-5. Use the paired backlog at [docs/work/2026-04-23-w12-r0-make-docs-prd-decomposition/00-index.md](../work/2026-04-23-w12-r0-make-docs-prd-decomposition/00-index.md) when you need dependency-ordered implementation work rather than descriptive product context.
+3. Read [11 Revise CLI Asset Selection Simplification](11-revise-cli-asset-selection-simplification.md) and [12 Revise CLI Skill Selection Simplification](12-revise-cli-skill-selection-simplification.md) after the baseline subsystem docs. They carry the active W14 revisions for invariant prompt/template/reference assets and the selected-by-default skill model.
+4. Read [03 Open Questions and Risk Register](03-open-questions-and-risk-register.md) after the subsystem docs to see where the current implementation and the current documentation still diverge, especially around `packages/cli/src/rules.ts:130-194`, `packages/cli/src/skill-resolver.ts:40-226`, and `packages/cli/package.json:9-25`.
+5. Use [04 Glossary](04-glossary.md) whenever a term comes from the typed install, asset, skills, or lifecycle contracts in `packages/cli/src/types.ts:38-271`.
+6. Use the paired backlog at [docs/work/2026-04-23-w12-r0-make-docs-prd-decomposition/00-index.md](../work/2026-04-23-w12-r0-make-docs-prd-decomposition/00-index.md) when you need dependency-ordered implementation work rather than descriptive product context.
 
 ## Document Map
 
@@ -29,6 +30,8 @@ The fixed-core overview layer is now present through [01 Product Overview](01-pr
 | `08` | Current | [08-skills-catalog-and-distribution.md](08-skills-catalog-and-distribution.md) | Skills command, registry/resolver model, project vs global scope, and current distribution mechanics. |
 | `09` | Current | [09-dogfood-and-maintainer-operations.md](09-dogfood-and-maintainer-operations.md) | Repo-root `docs/` as a first-class dogfood runtime surface and maintainer workflow boundary. |
 | `10` | Current | [10-packaging-validation-and-release-reference.md](10-packaging-validation-and-release-reference.md) | Package allowlist, prepack/template copy flow, smoke-pack validation, and release-surface reference. |
+| `11` | Current | [11-revise-cli-asset-selection-simplification.md](11-revise-cli-asset-selection-simplification.md) | Revision making prompt, template, and reference assets always managed rather than user-selectable. |
+| `12` | Current | [12-revise-cli-skill-selection-simplification.md](12-revise-cli-skill-selection-simplification.md) | Revision making shipped skills one recommended, selected-by-default set instead of required/default plus optional categories. |
 
 ## Source Anchors
 
@@ -37,6 +40,8 @@ The fixed-core overview layer is now present through [01 Product Overview](01-pr
 - `docs/assets/references/execution-workflow.md`
 - `docs/prd/01-product-overview.md`
 - `docs/prd/02-architecture-overview.md`
+- `docs/prd/11-revise-cli-asset-selection-simplification.md`
+- `docs/prd/12-revise-cli-skill-selection-simplification.md`
 - `packages/cli/src/cli.ts:77-244`
 - `packages/cli/src/profile.ts:10-99`
 - `packages/cli/src/manifest.ts:18-245`
@@ -60,7 +65,7 @@ Start with [01 Product Overview](01-product-overview.md) and [02 Architecture Ov
 
 ### Product or Technical Lead
 
-Read [01 Product Overview](01-product-overview.md) and [02 Architecture Overview](02-architecture-overview.md) first, then [03 Open Questions and Risk Register](03-open-questions-and-risk-register.md), [05](05-installation-profile-and-manifest-lifecycle.md), [06](06-template-contracts-and-generated-assets.md), [08](08-skills-catalog-and-distribution.md), and [10](10-packaging-validation-and-release-reference.md). Those docs concentrate the open contract choices around template modes, skills delivery, `packages/content`, and release readiness.
+Read [01 Product Overview](01-product-overview.md) and [02 Architecture Overview](02-architecture-overview.md) first, then [03 Open Questions and Risk Register](03-open-questions-and-risk-register.md), [05](05-installation-profile-and-manifest-lifecycle.md), [06](06-template-contracts-and-generated-assets.md), [08](08-skills-catalog-and-distribution.md), [10](10-packaging-validation-and-release-reference.md), [11](11-revise-cli-asset-selection-simplification.md), and [12](12-revise-cli-skill-selection-simplification.md). Those docs concentrate the open contract choices around template modes, skills delivery, `packages/content`, release readiness, and the W14 simplifications.
 
 ### AI Coding Assistant
 
