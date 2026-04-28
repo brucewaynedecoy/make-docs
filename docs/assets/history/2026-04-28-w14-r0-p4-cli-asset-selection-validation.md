@@ -11,7 +11,7 @@ summary: "Validated the W14 R0 CLI asset-selection simplification implementation
 
 ## Changes
 
-Implemented W14 R0 Phase 4 from [the tests, validation, and closeout backlog](../../work/2026-04-28-w14-r0-cli-asset-selection-simplification/04-tests-validation-and-closeout.md). Focused CLI test suites and the package build pass after the docs, CLI surface, selection model, manifest validation, and asset-planning changes were integrated. Static removed-string checks were classified so remaining hits are limited to design/plan/work documentation, rejection tests, stale-manifest fixtures, and manifest validation.
+Implemented W14 R0 Phase 4 from [the tests, validation, and closeout backlog](../archive/work/2026-04-28-w14-r0-cli-asset-selection-simplification/04-tests-validation-and-closeout.md). Focused CLI test suites and the package build pass after the docs, CLI surface, selection model, manifest validation, and asset-planning changes were integrated. Static removed-string checks were classified so remaining hits are limited to design/plan/work documentation, rejection tests, stale-manifest fixtures, and manifest validation.
 
 | Area | Summary |
 | --- | --- |
@@ -41,7 +41,7 @@ Indexes refreshed after closeout:
 
 | Path | Description |
 | --- | --- |
-| [docs/work/2026-04-28-w14-r0-cli-asset-selection-simplification/04-tests-validation-and-closeout.md](../../work/2026-04-28-w14-r0-cli-asset-selection-simplification/04-tests-validation-and-closeout.md) | Phase 4 backlog item validated by focused tests, build, static checks, and history closeout. |
+| [docs/work/2026-04-28-w14-r0-cli-asset-selection-simplification/04-tests-validation-and-closeout.md](../archive/work/2026-04-28-w14-r0-cli-asset-selection-simplification/04-tests-validation-and-closeout.md) | Phase 4 backlog item validated by focused tests, build, static checks, and history closeout. |
 | [docs/assets/history/2026-04-28-w14-r0-p1-cli-asset-selection-prd-revision.md](2026-04-28-w14-r0-p1-cli-asset-selection-prd-revision.md) | History record for the W14 R0 Phase 1 PRD revision checkpoint. |
 | [docs/assets/history/2026-04-28-w14-r0-p2-cli-asset-selection-surface.md](2026-04-28-w14-r0-p2-cli-asset-selection-surface.md) | History record for the W14 R0 Phase 2 CLI surface checkpoint. |
 | [docs/assets/history/2026-04-28-w14-r0-p3-cli-asset-selection-model-and-manifest.md](2026-04-28-w14-r0-p3-cli-asset-selection-model-and-manifest.md) | History record for the W14 R0 Phase 3 model and manifest checkpoint. |

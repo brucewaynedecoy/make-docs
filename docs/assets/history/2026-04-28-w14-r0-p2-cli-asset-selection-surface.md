@@ -11,7 +11,7 @@ summary: "Removed prompt, template, and reference asset choices from the CLI and
 
 ## Changes
 
-Implemented W14 R0 Phase 2 from [the CLI selection surface backlog](../../work/2026-04-28-w14-r0-cli-asset-selection-simplification/02-cli-selection-surface.md). The interactive installer no longer asks users whether to install starter prompts, which templates to install, or which reference files to install. The review surface now focuses on the remaining user decisions, and the removed CLI flags are rejected as unknown arguments instead of remaining as compatibility flags.
+Implemented W14 R0 Phase 2 from [the CLI selection surface backlog](../archive/work/2026-04-28-w14-r0-cli-asset-selection-simplification/02-cli-selection-surface.md). The interactive installer no longer asks users whether to install starter prompts, which templates to install, or which reference files to install. The review surface now focuses on the remaining user decisions, and the removed CLI flags are rejected as unknown arguments instead of remaining as compatibility flags.
 
 | Area | Summary |
 | --- | --- |
@@ -30,7 +30,7 @@ Implemented W14 R0 Phase 2 from [the CLI selection surface backlog](../../work/2
 | [packages/cli/tests/wizard.test.ts](../../../packages/cli/tests/wizard.test.ts) | Wizard tests updated for the reduced option state and review rows. |
 | [packages/cli/tests/cli.test.ts](../../../packages/cli/tests/cli.test.ts) | CLI tests assert removed flags are unknown and absent from help output. |
 | [packages/cli/src/README.md](../../../packages/cli/src/README.md) | Manual wizard smoke sequence updated to match the simplified options flow. |
-| [docs/work/2026-04-28-w14-r0-cli-asset-selection-simplification/02-cli-selection-surface.md](../../work/2026-04-28-w14-r0-cli-asset-selection-simplification/02-cli-selection-surface.md) | Phase 2 backlog item implemented by the CLI and wizard surface cleanup. |
+| [docs/work/2026-04-28-w14-r0-cli-asset-selection-simplification/02-cli-selection-surface.md](../archive/work/2026-04-28-w14-r0-cli-asset-selection-simplification/02-cli-selection-surface.md) | Phase 2 backlog item implemented by the CLI and wizard surface cleanup. |
 | [docs/assets/history/2026-04-28-w14-r0-p2-cli-asset-selection-surface.md](2026-04-28-w14-r0-p2-cli-asset-selection-surface.md) | History record for the completed W14 R0 Phase 2 checkpoint. |
 
 ### Developer

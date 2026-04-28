@@ -74,8 +74,8 @@ Impacted docs and artifacts:
 - [05 Installation, Profile, and Manifest Lifecycle](./05-installation-profile-and-manifest-lifecycle.md)
 - [06 Template Contracts and Generated Assets](./06-template-contracts-and-generated-assets.md)
 - [07 CLI Command Surface and Lifecycle](./07-cli-command-surface-and-lifecycle.md)
-- [2026-04-28 W14 R0 CLI Asset Selection Simplification Plan](../plans/2026-04-28-w14-r0-cli-asset-selection-simplification/00-overview.md)
-- [2026-04-28 W14 R0 CLI Asset Selection Simplification Work](../work/2026-04-28-w14-r0-cli-asset-selection-simplification/00-index.md)
+- [2026-04-28 W14 R0 CLI Asset Selection Simplification Plan](../assets/archive/plans/2026-04-28-w14-r0-cli-asset-selection-simplification/00-overview.md)
+- [2026-04-28 W14 R0 CLI Asset Selection Simplification Work](../assets/archive/work/2026-04-28-w14-r0-cli-asset-selection-simplification/00-index.md)
 
 Code anchors:
 
@@ -98,9 +98,9 @@ The following baseline PRD docs must carry `### Change Notes` using `Superseded 
 
 ## Source Anchors
 
-- `docs/designs/2026-04-28-cli-asset-selection-simplification.md`
-- `docs/plans/2026-04-28-w14-r0-cli-asset-selection-simplification/00-overview.md`
-- `docs/work/2026-04-28-w14-r0-cli-asset-selection-simplification/00-index.md`
+- `docs/assets/archive/designs/2026-04-28-cli-asset-selection-simplification.md`
+- `docs/assets/archive/plans/2026-04-28-w14-r0-cli-asset-selection-simplification/00-overview.md`
+- `docs/assets/archive/work/2026-04-28-w14-r0-cli-asset-selection-simplification/00-index.md`
 - `docs/prd/03-open-questions-and-risk-register.md`
 - `docs/prd/05-installation-profile-and-manifest-lifecycle.md`
 - `docs/prd/06-template-contracts-and-generated-assets.md`

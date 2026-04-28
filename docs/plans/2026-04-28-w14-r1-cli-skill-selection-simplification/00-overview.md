@@ -23,7 +23,7 @@ Completion means:
 
 - Coordinate: `W14 R1`
 - Classification: `revision`
-- Evidence: the originating design explicitly names `W5 R2` as the related completed coordinate for CLI-managed skill installation and recommends `W14 R0` only if planned together with the CLI asset-selection simplification work. `docs/plans/2026-04-28-w14-r0-cli-asset-selection-simplification/` already exists, so this plan uses the next available `W14` revision rather than overwriting `W14 R0` or returning to the older `W5` sequence.
+- Evidence: the originating design explicitly names `W5 R2` as the related completed coordinate for CLI-managed skill installation and recommends `W14 R0` only if planned together with the CLI asset-selection simplification work. `docs/assets/archive/plans/2026-04-28-w14-r0-cli-asset-selection-simplification/` already exists, so this plan uses the next available `W14` revision rather than overwriting `W14 R0` or returning to the older `W5` sequence.
 
 ## Change Classification
 
@@ -40,7 +40,7 @@ This is a revision because it changes established requirements for the skills re
 | ----- | ------ | -------- | ---------- |
 | Originating design | Markdown design doc | `docs/designs/2026-04-28-cli-skill-selection-simplification.md` | High |
 | Prior skill installation design | Markdown design doc | `docs/assets/archive/designs/2026-04-16-cli-skill-installation-r2.md` | High |
-| Related asset-selection simplification plan | Markdown plan directory | `docs/plans/2026-04-28-w14-r0-cli-asset-selection-simplification/` | High |
+| Related asset-selection simplification plan | Markdown plan directory | `docs/assets/archive/plans/2026-04-28-w14-r0-cli-asset-selection-simplification/` | High |
 | Active skills PRD baseline | Markdown PRD doc | `docs/prd/08-skills-catalog-and-distribution.md` | High |
 | Manifest and lifecycle PRD baseline | Markdown PRD doc | `docs/prd/05-installation-profile-and-manifest-lifecycle.md` | High |
 | CLI surface PRD baseline | Markdown PRD doc | `docs/prd/07-cli-command-surface-and-lifecycle.md` | High |
