@@ -99,6 +99,9 @@ If the harness supports delegated workers, do not postpone delegation until the 
 - Supplement and cite useful existing docs.
 - Do not silently overwrite docs that serve another audience or purpose.
 - If existing docs drift from the code, record the drift in `03-open-questions-and-risk-register.md`.
+- Treat `03-open-questions-and-risk-register.md` as the living register for gap state, open questions, resolved decisions, confirmed drift, and rebuild risks.
+- Do not create separate questions, decisions, risks, gaps, or architecture-decision files when the active PRD risk register exists unless the user explicitly asks for a new convention.
+- Risk-register items use one `###` item heading with a `Status` / `Decision` / `Follow-Up` table, then `Question` or `Issue`, `Why it matters`, `Recommendation`, and `To close`.
 - If an older active PRD set already exists under `docs/prd/`, archive it before writing the replacement active PRD set.
 
 ## Backlog Rules

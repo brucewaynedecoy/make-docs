@@ -12,7 +12,7 @@ Use this contract to keep decomposition outputs consistent across repositories a
 | PRD index | `docs/prd/00-index.md` |
 | Product overview | `docs/prd/01-product-overview.md` |
 | Architecture overview | `docs/prd/02-architecture-overview.md` |
-| Risk register | `docs/prd/03-open-questions-and-risk-register.md` |
+| Risk and gap register | `docs/prd/03-open-questions-and-risk-register.md` |
 | Glossary | `docs/prd/04-glossary.md` |
 | Work directory | `docs/work/YYYY-MM-DD-w{W}-r{R}-<slug>/` |
 | Archived PRD set | `docs/assets/archive/prds/YYYY-MM-DD/` or `docs/assets/archive/prds/YYYY-MM-DD-XX/` |
@@ -31,6 +31,7 @@ Work directories contain:
 
 - `docs/prd/` contains one active PRD set only.
 - Every root entry in `docs/prd/` is part of the active PRD namespace.
+- `docs/prd/03-open-questions-and-risk-register.md` is the living register for discovered gaps, confirmed drift, open questions, decisions, and rebuild risks in the active namespace.
 - Older PRD sets belong under `docs/assets/archive/prds/`, not alongside the active PRD set.
 - Archived PRD sets are historical records and are not part of active PRD validation.
 
@@ -110,6 +111,8 @@ Use the matching template in `assets/templates/` and preserve these required hea
 | Work index | `## Purpose`, `## Phase Map`, `## Usage Notes` |
 | Work phase | `## Purpose`, `## Overview`, `## Source PRD Docs`, repeatable stage headings with `### Tasks`, `### Acceptance criteria`, and `### Dependencies` |
 
+Risk-register items under `## Confirmed Drift`, `## Open Questions`, and `## Rebuild Risks` use `###` item headings with a `Status` / `Decision` / `Follow-Up` table. Valid item statuses are `Open`, `Confirming`, `Deferred`, and `Closed`. Each item should include `Question` or `Issue`, `Why it matters`, `Recommendation`, and `To close`; include `Resolution` only for closed items.
+
 ## Code Anchor Rules
 
 ### General rule
@@ -137,6 +140,7 @@ Use `## Source Anchors` to aggregate the most important files that shaped the do
 - Supplement existing docs and cite them where useful.
 - Do not silently rewrite or replace existing documentation that already serves a different audience.
 - If docs and code disagree, treat the code as authoritative and record the disagreement in `03-open-questions-and-risk-register.md`.
+- Do not create separate questions, decisions, risks, gaps, or architecture-decision files when the active PRD risk register exists unless the user explicitly asks for a new convention.
 - If an older PRD set exists in `docs/prd/`, archive it as a set before writing the new active PRD set.
 
 ## Work Backlog Rule

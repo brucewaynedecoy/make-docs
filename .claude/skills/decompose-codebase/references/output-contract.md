@@ -8,35 +8,41 @@ Use this contract to keep decomposition outputs consistent across repositories a
 
 | Artifact | Required path |
 | --- | --- |
-| Decomposition plan | `docs/plans/YYYY-MM-DD-decomposition-plan.md` |
+| Decomposition plan directory | `docs/plans/YYYY-MM-DD-w{W}-r{R}-<slug>/` |
 | PRD index | `docs/prd/00-index.md` |
 | Product overview | `docs/prd/01-product-overview.md` |
 | Architecture overview | `docs/prd/02-architecture-overview.md` |
-| Risk register | `docs/prd/03-open-questions-and-risk-register.md` |
+| Risk and gap register | `docs/prd/03-open-questions-and-risk-register.md` |
 | Glossary | `docs/prd/04-glossary.md` |
-| Rebuild backlog | `docs/work/YYYY-MM-DD-rebuild-backlog.md` |
-| Archived PRD set | `docs/prd/archive/YYYY-MM-DD/` or `docs/prd/archive/YYYY-MM-DD-XX/` |
+| Work directory | `docs/work/YYYY-MM-DD-w{W}-r{R}-<slug>/` |
+| Archived PRD set | `docs/assets/archive/prds/YYYY-MM-DD/` or `docs/assets/archive/prds/YYYY-MM-DD-XX/` |
 
-If the rebuild backlog becomes too large for one file, migrate it to `docs/work/YYYY-MM-DD-rebuild-backlog/` and create:
+Plan directories contain:
 
-- `docs/work/YYYY-MM-DD-rebuild-backlog/00-index.md`
-- ordered phase files such as `01-foundation.md`, `02-core-platform.md`, `03-integrations.md`
+- `00-overview.md`
+- one or more `0N-<phase>.md` files
+
+Work directories contain:
+
+- `00-index.md`
+- one or more `0N-<phase>.md` files
 
 ## PRD Lifecycle Rules
 
 - `docs/prd/` contains one active PRD set only.
-- Every root entry in `docs/prd/` except the `archive/` directory is part of the active PRD namespace.
-- Older PRD sets belong under `docs/prd/archive/`, not alongside the active PRD set.
+- Every root entry in `docs/prd/` is part of the active PRD namespace.
+- `docs/prd/03-open-questions-and-risk-register.md` is the living register for discovered gaps, confirmed drift, open questions, decisions, and rebuild risks in the active namespace.
+- Older PRD sets belong under `docs/assets/archive/prds/`, not alongside the active PRD set.
 - Archived PRD sets are historical records and are not part of active PRD validation.
 
 ## Archive Rules
 
-- Before writing a fresh PRD set, inspect `docs/prd/` for active root entries outside `archive/`.
+- Before writing a fresh PRD set, inspect `docs/prd/` for active root entries.
 - If no such entries exist, proceed normally.
 - If active root entries exist, summarize them and ask for explicit approval before moving them.
-- On approval, move those entries into `docs/prd/archive/YYYY-MM-DD/`.
-- If that dated directory already exists, use `docs/prd/archive/YYYY-MM-DD-XX/`, where `XX` is a zero-padded increment starting at `01`.
-- Do not place loose files directly under `docs/prd/archive/`; it should contain dated directories only.
+- On approval, move those entries into `docs/assets/archive/prds/YYYY-MM-DD/`.
+- If that dated directory already exists, use `docs/assets/archive/prds/YYYY-MM-DD-XX/`, where `XX` is a zero-padded increment starting at `01`.
+- Do not place loose files directly under `docs/assets/archive/prds/`; it should contain dated directories only.
 
 ## PRD Tree Rules
 
@@ -87,7 +93,7 @@ docs/prd/
 ```
 
 Do not place unnumbered Markdown files directly under `docs/prd/`.
-Do not place active PRD docs under `docs/prd/archive/`.
+Do not place active PRD docs under `docs/assets/archive/prds/`.
 
 ## Section Contracts
 
@@ -102,9 +108,10 @@ Use the matching template in `assets/templates/` and preserve these required hea
 | `04-glossary.md` | `## Purpose`, `## Terms`, `## Source Anchors` |
 | Subsystem doc | `## Purpose`, `## Scope`, `## Component and Capability Map`, `## Contracts and Data`, `## Integrations`, `## Rebuild Notes`, `## Source Anchors` |
 | Reference doc | `## Purpose`, `## Reference`, `## Source Anchors` |
-| Single-file backlog | `## Purpose`, `## Dependency Order`, `## Phases`, `## Acceptance Criteria` |
-| Split backlog index | `## Purpose`, `## Phase Map`, `## Usage Notes` |
-| Split backlog phase | `## Purpose`, `## Tasks`, `## Acceptance Criteria` |
+| Work index | `## Purpose`, `## Phase Map`, `## Usage Notes` |
+| Work phase | `## Purpose`, `## Overview`, `## Source PRD Docs`, repeatable stage headings with `### Tasks`, `### Acceptance criteria`, and `### Dependencies` |
+
+Risk-register items under `## Confirmed Drift`, `## Open Questions`, and `## Rebuild Risks` use `###` item headings with a `Status` / `Decision` / `Follow-Up` table. Valid item statuses are `Open`, `Confirming`, `Deferred`, and `Closed`. Each item should include `Question` or `Issue`, `Why it matters`, `Recommendation`, and `To close`; include `Resolution` only for closed items.
 
 ## Code Anchor Rules
 
@@ -133,14 +140,16 @@ Use `## Source Anchors` to aggregate the most important files that shaped the do
 - Supplement existing docs and cite them where useful.
 - Do not silently rewrite or replace existing documentation that already serves a different audience.
 - If docs and code disagree, treat the code as authoritative and record the disagreement in `03-open-questions-and-risk-register.md`.
+- Do not create separate questions, decisions, risks, gaps, or architecture-decision files when the active PRD risk register exists unless the user explicitly asks for a new convention.
 - If an older PRD set exists in `docs/prd/`, archive it as a set before writing the new active PRD set.
 
-## Rebuild Backlog Rule
+## Work Backlog Rule
 
 - Keep rebuild work out of `docs/prd/`.
+- Every rebuild backlog is a directory under `docs/work/YYYY-MM-DD-w{W}-r{R}-<slug>/`.
+- Use `00-index.md` as the entry point and `0N-<phase>.md` files for dependency-ordered phase detail.
 - Link backlog phases back to the relevant PRD docs.
-- Organize backlog phases by dependency order, not by implementation convenience.
-- Include task-level acceptance criteria in every phase.
+- Include task-level acceptance criteria in every stage.
 
 ## Link Rules
 

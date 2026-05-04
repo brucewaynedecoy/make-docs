@@ -20,7 +20,7 @@ If neither exists, switch back to planning mode.
 3. If available, index docs with `jdocmunch` and code with `jcodemunch`.
 4. Determine the highest usable delegation tier for the current session: parallel agents, then subagents, then single-agent fallback.
 5. Re-check existing docs so you avoid duplicating or clobbering useful material.
-6. Inspect `docs/prd/` and determine whether active root entries already exist outside `archive/`.
+6. Inspect `docs/prd/` and determine whether active root entries already exist. Archived PRD sets live under `docs/assets/archive/prds/`.
 
 ## Delegation Ladder
 
@@ -55,11 +55,11 @@ If delegation is available, the coordinator must not:
 - run validator-driven document fixes itself
 - perform broad deep-dive reads that belong to a worker's authoring scope
 
-## Active PRD Gate
+## Full-Set Replacement Gate
 
 - Treat `docs/prd/` as a single active PRD namespace.
-- If root entries already exist outside `docs/prd/archive/`, summarize them and ask for approval before moving them.
-- On approval, archive every root entry except `archive/` into `docs/prd/archive/YYYY-MM-DD/` or `docs/prd/archive/YYYY-MM-DD-XX/`.
+- If root entries already exist in `docs/prd/`, summarize them and ask for approval before moving them.
+- On approval, archive every root entry into `docs/assets/archive/prds/YYYY-MM-DD/` or `docs/assets/archive/prds/YYYY-MM-DD-XX/`.
 - Include stray or hidden root entries in the archive summary and move set when they are part of the active namespace.
 - If archival is declined, stop before writing anything into `docs/prd/`.
 - Treat archived PRD sets as historical records, not active output targets.
@@ -99,14 +99,17 @@ If the harness supports delegated workers, do not postpone delegation until the 
 - Supplement and cite useful existing docs.
 - Do not silently overwrite docs that serve another audience or purpose.
 - If existing docs drift from the code, record the drift in `03-open-questions-and-risk-register.md`.
+- Treat `03-open-questions-and-risk-register.md` as the living register for gap state, open questions, resolved decisions, confirmed drift, and rebuild risks.
+- Do not create separate questions, decisions, risks, gaps, or architecture-decision files when the active PRD risk register exists unless the user explicitly asks for a new convention.
+- Risk-register items use one `###` item heading with a `Status` / `Decision` / `Follow-Up` table, then `Question` or `Issue`, `Why it matters`, `Recommendation`, and `To close`.
 - If an older active PRD set already exists under `docs/prd/`, archive it before writing the replacement active PRD set.
 
 ## Backlog Rules
 
-- Write the rebuild backlog to `docs/work/YYYY-MM-DD-rebuild-backlog.md` by default.
-- Split into `docs/work/YYYY-MM-DD-rebuild-backlog/` only when one file becomes too large to navigate.
-- Keep backlog phases dependency-ordered.
-- Include task-level acceptance criteria in every phase.
+- Work is always a directory in v2. Write the rebuild backlog to `docs/work/YYYY-MM-DD-w{W}-r{R}-<slug>/` with `00-index.md` plus one or more `0N-<phase>.md` files.
+- Keep the backlog dependency-ordered across the `0N-<phase>.md` files.
+- Include phase-level PRD traceability through `## Source PRD Docs`.
+- Include task-level acceptance criteria in every stage.
 
 ## Final Validation
 

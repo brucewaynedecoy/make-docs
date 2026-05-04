@@ -30,6 +30,14 @@ describe("buildable renderers", () => {
     expect(rendered).not.toContain("docs/work/");
   });
 
+  test("renders the canonical risk-register route for PRD-enabled profiles", () => {
+    const profile = resolveInstallProfile(defaultSelections());
+    const rendered = renderBuildableAsset("docs/AGENTS.md", profile);
+
+    expect(rendered).toContain("docs/prd/03-open-questions-and-risk-register.md");
+    expect(rendered).toContain("do not create separate questions, decisions, risks, gaps");
+  });
+
   test.each(ASSETS_ROUTER_PATHS)(
     "renders %s for reduced profiles",
     (relativePath) => {

@@ -56,10 +56,11 @@ When no guide is needed, explicitly record `No new developer guide was needed` i
 Capture only novel gaps that surfaced during or from the phase.
 
 1. Check whether the repo already has `docs/prd/03-open-questions-and-risk-register.md`.
-2. If it exists, update it for novel open questions, risks, gaps, or resolved gaps.
+2. If it exists, update it for novel open questions, risks, gaps, drift, decisions, or resolved gaps.
 3. If it does not exist, do not create a standalone PRD risk register and do not introduce `docs/architecture/` solely for closeout.
 4. When no active PRD risk register exists, capture novel gaps in the phase history entry under the project documentation or changes section, and note that no active PRD risk register exists.
 5. If a gap is already documented elsewhere, link the existing coverage instead of duplicating it.
+6. Do not create separate questions, decisions, risks, gaps, or architecture-decision files while the active PRD risk register exists unless the user explicitly asks for a new convention.
 
 Each novel gap should state:
 
@@ -67,6 +68,8 @@ Each novel gap should state:
 - whether it was filled during the phase
 - if unfilled, when it is expected to be resolved
 - if there is no planned resolution, what it blocks
+
+When updating the PRD risk register, use one `###` item heading with a `Status` / `Decision` / `Follow-Up` table. Valid statuses are `Open`, `Confirming`, `Deferred`, and `Closed`. Include `Question` or `Issue`, `Why it matters`, `Recommendation`, and `To close`; add `Resolution` only when the item is closed.
 
 When no novel gaps were found, explicitly record `No novel gaps were found` in the history entry.
 

@@ -12,6 +12,7 @@ This workflow covers:
 - enhancements to existing capabilities
 - revisions to established requirements
 - deprecations or removals of established requirements
+- direct updates to the living risk register for newly discovered or resolved gaps, drift, open questions, decisions, and risks
 
 ## Change Taxonomy
 
@@ -35,6 +36,19 @@ This workflow covers:
   - `remove-`
 - The newest linked change doc defines the effective requirement for the scope it changes.
 - Earlier baseline text remains visible unless the user explicitly asks for a cleanup rewrite.
+- Update `docs/prd/03-open-questions-and-risk-register.md` directly when the change discovers or resolves a gap, drift item, open question, decision, or risk; do not create a new `NN-` change doc solely to track register state.
+- Do not create separate questions, decisions, risks, gaps, or architecture-decision files while an active PRD risk register exists unless the user explicitly asks for a new convention.
+
+## Risk Register Update Rules
+
+- Keep `docs/prd/03-open-questions-and-risk-register.md` as the canonical living register for gap state, open questions, resolved decisions, confirmed drift, and rebuild risks.
+- Preserve the fixed sections `## Confirmed Drift`, `## Open Questions`, `## Rebuild Risks`, and `## Source Anchors`.
+- Add or update one `###` item per gap, question, drift, or risk.
+- Each item starts with a table containing `Status`, `Decision`, and `Follow-Up`.
+- Use only `Open`, `Confirming`, `Deferred`, or `Closed` for item status.
+- Include `Question` or `Issue`, `Why it matters`, `Recommendation`, and `To close` for every item.
+- Add `Resolution` only when the item is closed.
+- If the item is already documented, update that existing item instead of duplicating it.
 
 ## Change Doc Selection Rules
 
@@ -109,3 +123,4 @@ Before closing an active-set evolution task, confirm:
 3. `docs/prd/00-index.md` includes the new change docs and updated status or lineage metadata.
 4. The effective requirement can be resolved by following links from the impacted baseline doc to the newest change doc.
 5. Baseline text remains visible unless the user explicitly approved a cleanup rewrite.
+6. Newly discovered or resolved gaps, drift, questions, decisions, and risks are reflected in `docs/prd/03-open-questions-and-risk-register.md`.

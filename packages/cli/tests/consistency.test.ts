@@ -34,6 +34,12 @@ const BUILDABLE_PATHS = [
 const REPO_ROOT = path.resolve(TEMPLATE_ROOT, "..", "..", "..");
 const DECOMPOSE_PACKAGE_ROOT = path.join(REPO_ROOT, "packages", "skills", "decompose-codebase");
 const DECOMPOSE_MIRROR_ROOT = path.join(REPO_ROOT, ".agents", "skills", "decompose-codebase");
+const DECOMPOSE_CLAUDE_MIRROR_ROOT = path.join(
+  REPO_ROOT,
+  ".claude",
+  "skills",
+  "decompose-codebase",
+);
 const CLOSEOUT_COMMIT_PACKAGE_ROOT = path.join(
   REPO_ROOT,
   "packages",
@@ -46,8 +52,32 @@ const CLOSEOUT_COMMIT_MIRROR_ROOT = path.join(
   "skills",
   "closeout-commit",
 );
+const CLOSEOUT_COMMIT_CLAUDE_MIRROR_ROOT = path.join(
+  REPO_ROOT,
+  ".claude",
+  "skills",
+  "closeout-commit",
+);
 const CLOSEOUT_PACKAGE_ROOT = path.join(REPO_ROOT, "packages", "skills", "closeout-phase");
 const CLOSEOUT_MIRROR_ROOT = path.join(REPO_ROOT, ".agents", "skills", "closeout-phase");
+const CLOSEOUT_CLAUDE_MIRROR_ROOT = path.join(
+  REPO_ROOT,
+  ".claude",
+  "skills",
+  "closeout-phase",
+);
+
+const RISK_REGISTER_TEMPLATE_PATHS = [
+  "docs/assets/templates/prd-risk-register.md",
+  "packages/docs/template/docs/assets/templates/prd-risk-register.md",
+  "packages/skills/decompose-codebase/assets/templates/prd-risk-register.md",
+];
+
+const DOGFOOD_TEMPLATE_PARITY_PATHS = [
+  "docs/assets/templates/prd-risk-register.md",
+  "docs/assets/references/output-contract.md",
+  "docs/assets/references/prd-change-management.md",
+];
 
 function isMirroredDecomposeSkillFile(relativePath: string): boolean {
   return (
@@ -115,6 +145,47 @@ describe("template completeness", () => {
   });
 });
 
+describe("risk register routing contract", () => {
+  test("PRD routers identify the living risk register", () => {
+    for (const relativePath of [
+      "docs/prd/AGENTS.md",
+      "docs/prd/CLAUDE.md",
+      "packages/docs/template/docs/prd/AGENTS.md",
+      "packages/docs/template/docs/prd/CLAUDE.md",
+    ]) {
+      const contents = readFileSync(path.join(REPO_ROOT, relativePath), "utf8");
+
+      expect(contents).toContain("03-open-questions-and-risk-register.md");
+      expect(contents).toContain("living register");
+      expect(contents).toContain("do not create separate questions, decisions, risks, gaps");
+    }
+  });
+
+  test("risk-register templates expose item state fields", () => {
+    for (const relativePath of RISK_REGISTER_TEMPLATE_PATHS) {
+      const contents = readFileSync(path.join(REPO_ROOT, relativePath), "utf8");
+
+      expect(contents).toContain("| Status | Decision | Follow-Up |");
+      expect(contents).toContain("`Open`, `Confirming`, `Deferred`, or `Closed`");
+      expect(contents).toContain("**Why it matters**");
+      expect(contents).toContain("**Recommendation**");
+      expect(contents).toContain("**To close**");
+    }
+  });
+
+  test("dogfood risk-register contracts match the shipped template copies", () => {
+    for (const relativePath of DOGFOOD_TEMPLATE_PARITY_PATHS) {
+      const dogfoodContents = readFileSync(path.join(REPO_ROOT, relativePath), "utf8");
+      const templateContents = readFileSync(
+        path.join(REPO_ROOT, "packages", "docs", "template", relativePath),
+        "utf8",
+      );
+
+      expect(dogfoodContents).toBe(templateContents);
+    }
+  });
+});
+
 describe("dogfood skill mirror parity", () => {
   test("closeout-commit mirror matches the packaged mapped file set", () => {
     const expectedMirrorFiles = [
@@ -122,21 +193,21 @@ describe("dogfood skill mirror parity", () => {
       "agents/openai.yaml",
       "references/closeout-commit-workflow.md",
     ].sort();
-    const mirrorFiles = collectFiles(CLOSEOUT_COMMIT_MIRROR_ROOT).sort();
 
-    expect(mirrorFiles).toEqual(expectedMirrorFiles);
+    for (const mirrorRoot of [CLOSEOUT_COMMIT_MIRROR_ROOT, CLOSEOUT_COMMIT_CLAUDE_MIRROR_ROOT]) {
+      const mirrorFiles = collectFiles(mirrorRoot).sort();
 
-    for (const relativePath of expectedMirrorFiles) {
-      const packageContents = readFileSync(
-        path.join(CLOSEOUT_COMMIT_PACKAGE_ROOT, relativePath),
-        "utf8",
-      );
-      const mirrorContents = readFileSync(
-        path.join(CLOSEOUT_COMMIT_MIRROR_ROOT, relativePath),
-        "utf8",
-      );
+      expect(mirrorFiles).toEqual(expectedMirrorFiles);
 
-      expect(mirrorContents).toBe(packageContents);
+      for (const relativePath of expectedMirrorFiles) {
+        const packageContents = readFileSync(
+          path.join(CLOSEOUT_COMMIT_PACKAGE_ROOT, relativePath),
+          "utf8",
+        );
+        const mirrorContents = readFileSync(path.join(mirrorRoot, relativePath), "utf8");
+
+        expect(mirrorContents).toBe(packageContents);
+      }
     }
   });
 
@@ -146,21 +217,18 @@ describe("dogfood skill mirror parity", () => {
       "agents/openai.yaml",
       "references/closeout-workflow.md",
     ].sort();
-    const mirrorFiles = collectFiles(CLOSEOUT_MIRROR_ROOT).sort();
 
-    expect(mirrorFiles).toEqual(expectedMirrorFiles);
+    for (const mirrorRoot of [CLOSEOUT_MIRROR_ROOT, CLOSEOUT_CLAUDE_MIRROR_ROOT]) {
+      const mirrorFiles = collectFiles(mirrorRoot).sort();
 
-    for (const relativePath of expectedMirrorFiles) {
-      const packageContents = readFileSync(
-        path.join(CLOSEOUT_PACKAGE_ROOT, relativePath),
-        "utf8",
-      );
-      const mirrorContents = readFileSync(
-        path.join(CLOSEOUT_MIRROR_ROOT, relativePath),
-        "utf8",
-      );
+      expect(mirrorFiles).toEqual(expectedMirrorFiles);
 
-      expect(mirrorContents).toBe(packageContents);
+      for (const relativePath of expectedMirrorFiles) {
+        const packageContents = readFileSync(path.join(CLOSEOUT_PACKAGE_ROOT, relativePath), "utf8");
+        const mirrorContents = readFileSync(path.join(mirrorRoot, relativePath), "utf8");
+
+        expect(mirrorContents).toBe(packageContents);
+      }
     }
   });
 
@@ -169,21 +237,21 @@ describe("dogfood skill mirror parity", () => {
       .filter((relativePath) => !isPackageOnlyDecomposeSkillFile(relativePath))
       .filter(isMirroredDecomposeSkillFile)
       .sort();
-    const mirrorFiles = collectFiles(DECOMPOSE_MIRROR_ROOT).sort();
 
-    expect(mirrorFiles).toEqual(expectedMirrorFiles);
+    for (const mirrorRoot of [DECOMPOSE_MIRROR_ROOT, DECOMPOSE_CLAUDE_MIRROR_ROOT]) {
+      const mirrorFiles = collectFiles(mirrorRoot).sort();
 
-    for (const relativePath of expectedMirrorFiles) {
-      const packageContents = readFileSync(
-        path.join(DECOMPOSE_PACKAGE_ROOT, relativePath),
-        "utf8",
-      );
-      const mirrorContents = readFileSync(
-        path.join(DECOMPOSE_MIRROR_ROOT, relativePath),
-        "utf8",
-      );
+      expect(mirrorFiles).toEqual(expectedMirrorFiles);
 
-      expect(mirrorContents).toBe(packageContents);
+      for (const relativePath of expectedMirrorFiles) {
+        const packageContents = readFileSync(
+          path.join(DECOMPOSE_PACKAGE_ROOT, relativePath),
+          "utf8",
+        );
+        const mirrorContents = readFileSync(path.join(mirrorRoot, relativePath), "utf8");
+
+        expect(mirrorContents).toBe(packageContents);
+      }
     }
   });
 });

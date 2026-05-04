@@ -16,7 +16,7 @@ Use this contract to keep plan, PRD, and work document outputs consistent across
 | PRD index | `docs/prd/00-index.md` |
 | Product overview | `docs/prd/01-product-overview.md` |
 | Architecture overview | `docs/prd/02-architecture-overview.md` |
-| Risk register | `docs/prd/03-open-questions-and-risk-register.md` |
+| Risk and gap register | `docs/prd/03-open-questions-and-risk-register.md` |
 | Glossary | `docs/prd/04-glossary.md` |
 | Archived PRD set | `docs/assets/archive/prds/YYYY-MM-DD/` or `docs/assets/archive/prds/YYYY-MM-DD-XX/` |
 | History record | `docs/assets/history/YYYY-MM-DD-w{W}-r{R}-p{P}-<slug>.md` when W/R/P is known; fall back to `docs/assets/history/YYYY-MM-DD-w{W}-r{R}-<slug>.md` when only W/R is known or `docs/assets/history/YYYY-MM-DD-<slug>.md` when no coordinate is known. |
@@ -32,6 +32,7 @@ For change-oriented plans and delta backlogs, carry the distinguishing context i
 - Active namespaces can be created in two ways:
   - `full-set generation` — generate or replace the active namespace as a set
   - `active-set evolution` — append change docs and update impacted baseline docs without replacing the namespace
+- `docs/prd/03-open-questions-and-risk-register.md` is the living register for discovered gaps, confirmed drift, open questions, decisions, and rebuild risks in the active namespace.
 - Older namespaces belong under `docs/assets/archive/prds/`, not alongside the active namespace.
 - Archived PRD sets are historical records and are not part of active PRD validation.
 
@@ -58,6 +59,7 @@ Apply these rules when the user wants to add, enhance, revise, deprecate, or rem
 - Never renumber or reorder existing active PRD docs.
 - Preserve prior baseline text unless the user explicitly asks for a cleanup rewrite.
 - Update impacted baseline docs with `### Change Notes` blocks as defined in `docs/assets/references/prd-change-management.md`.
+- Update `docs/prd/03-open-questions-and-risk-register.md` directly for newly discovered or resolved gaps, drift, questions, decisions, and risks. Do not create a new `NN-` change doc solely to track register state.
 - Update `docs/prd/00-index.md` so the effective lineage remains readable.
 
 ## PRD Tree Rules
@@ -139,6 +141,8 @@ Use the matching template in `docs/assets/templates/` and preserve these require
 | `work-index.md` | `## Purpose`, `## Phase Map`, `## Usage Notes` |
 | `work-phase.md` | `## Purpose`, `## Overview`, `## Source PRD Docs`, repeatable `## Stage {{STAGE_NUMBER}} - {{STAGE_NAME}}` headings with `### Tasks`, `### Acceptance criteria`, and `### Dependencies` |
 
+Risk-register items under `## Confirmed Drift`, `## Open Questions`, and `## Rebuild Risks` use `###` item headings with a `Status` / `Decision` / `Follow-Up` table. Valid item statuses are `Open`, `Confirming`, `Deferred`, and `Closed`. Each item should include `Question` or `Issue`, `Why it matters`, `Recommendation`, and `To close`; include `Resolution` only for closed items.
+
 ## Work Phase Structure Rules
 
 Every work backlog is a directory, not a single file.
@@ -185,6 +189,7 @@ Use `## Source Anchors` to aggregate the most important files that shaped the do
 - Supplement existing docs and cite them where useful.
 - Do not silently rewrite or replace existing documentation that already serves a different audience.
 - If docs and code disagree, treat the code as authoritative and record the disagreement in `03-open-questions-and-risk-register.md`.
+- Do not create separate questions, decisions, risks, gaps, or architecture-decision files when the active PRD risk register exists unless the user explicitly asks for a new convention.
 - If an older active PRD namespace exists in `docs/prd/` and the task is full-set generation, archive it as a set before writing the new active namespace.
 - If the task is active-set evolution, preserve baseline text and use non-destructive annotations unless the user explicitly asks for a cleanup rewrite.
 

@@ -1,29 +1,34 @@
-# {{PHASE_NUMBER}} {{PHASE_TITLE}}
+# Phase {{PHASE_NUMBER}}: {{PHASE_TITLE}}
+
+> Shape for `0N-<phase>.md` files inside a work directory. See `docs/assets/references/wave-model.md` for W/R semantics.
+
+## Purpose
+
+Explain why this phase exists and what foundation it depends on.
 
 ## Overview
 
-Explain why this phase exists and what foundation it depends on.
+Explain the work covered by this phase and the value it unlocks.
+
+## Source PRD Docs
+
+- [{{DOC_TITLE}}](../../prd/{{DOC_PATH}})
+- [{{DOC_TITLE}}](../../prd/{{DOC_PATH}})
 
 ## Stage {{STAGE_NUMBER}} - {{STAGE_NAME}}
 
 ### Tasks
 
-1. First task description.
-2. Second task description.
-3. Third task description.
+1. {{TASK}}
+2. {{TASK}}
 
-### Acceptance Criteria
+### Acceptance criteria
 
-- [ ] First criterion.
-- [ ] Second criterion.
-- [ ] Third criterion.
+- [ ] {{ACCEPTANCE}}
+- [ ] {{ACCEPTANCE}}
 
 ### Dependencies
 
-List work that must complete before this work can begin, or related work items.
+- {{DEPENDENCY}}
 
-### Related PRD docs
-
-- [{{DOC_TITLE}}](../prd/{{DOC_PATH}})
-
-<!-- Insert stages as needed using the pattern above. -->
+<!-- Insert additional STAGES as needed -->

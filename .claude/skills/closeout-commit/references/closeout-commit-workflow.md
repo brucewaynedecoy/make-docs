@@ -36,10 +36,11 @@ If staged and unstaged files point to different work, draft for the staged set a
 Capture only novel gaps discovered during the turn, session, validation, or changed files.
 
 1. Check whether `docs/prd/03-open-questions-and-risk-register.md` exists.
-2. If it exists, update it for novel open questions, risks, gaps, or resolved gaps.
+2. If it exists, update it for novel open questions, risks, gaps, drift, decisions, or resolved gaps.
 3. If it does not exist, do not create a standalone PRD risk register solely for commit closeout.
 4. When no active PRD risk register exists, record novel gaps in the history entry and state that no active PRD risk register exists.
 5. If a gap is already documented elsewhere, link the existing coverage instead of duplicating it.
+6. Do not create separate questions, decisions, risks, gaps, or architecture-decision files while the active PRD risk register exists unless the user explicitly asks for a new convention.
 
 Each novel gap should state:
 
@@ -47,6 +48,8 @@ Each novel gap should state:
 - whether it was filled by this change set
 - if unfilled, when it is expected to be resolved
 - if there is no planned resolution, what it blocks
+
+When updating the PRD risk register, use one `###` item heading with a `Status` / `Decision` / `Follow-Up` table. Valid statuses are `Open`, `Confirming`, `Deferred`, and `Closed`. Include `Question` or `Issue`, `Why it matters`, `Recommendation`, and `To close`; add `Resolution` only when the item is closed.
 
 When no novel gaps were found, explicitly record `No novel gaps were found` in the history entry.
 

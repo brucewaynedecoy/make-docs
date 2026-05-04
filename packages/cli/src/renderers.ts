@@ -140,6 +140,12 @@ function renderDocsRouter(profile: InstallProfile): string {
     );
   }
 
+  if (profile.capabilityState.prd.effectiveSelection) {
+    lines.push(
+      "- For gaps, drift, unresolved questions, risks, decisions, or closeout findings, first update `docs/prd/03-open-questions-and-risk-register.md` when it exists; do not create separate questions, decisions, risks, gaps, or architecture-decision files unless the user explicitly asks.",
+    );
+  }
+
   lines.push(
     "- For guides, continue in `docs/guides/`. User-facing and developer-facing guides live in `docs/guides/user/` and `docs/guides/developer/` — read `docs/assets/references/guide-contract.md` and the matching template (`docs/assets/templates/guide-developer.md` or `docs/assets/templates/guide-user.md`) before writing.",
     "- For history records, continue in `docs/assets/history/` — read `docs/assets/references/history-record-contract.md` and `docs/assets/templates/history-record.md` before writing.",
