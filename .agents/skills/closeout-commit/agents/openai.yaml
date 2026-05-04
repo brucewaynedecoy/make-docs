@@ -1,0 +1,6 @@
+interface:
+  display_name: "Closeout Commit"
+  short_description: "Capture gaps, write history, and draft commit messages for uncommitted changes"
+  default_prompt: "Use $closeout-commit to close out the current change set and draft a commit message."
+policy:
+  allow_implicit_invocation: true

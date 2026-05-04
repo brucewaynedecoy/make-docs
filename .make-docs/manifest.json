@@ -20,7 +20,10 @@
     },
     "skills": true,
     "skillScope": "project",
-    "optionalSkills": [
+    "selectedSkills": [
+      "archive-docs",
+      "closeout-commit",
+      "closeout-phase",
       "decompose-codebase"
     ]
   },
@@ -36,6 +39,12 @@
     ".agents/skills/archive-docs/agents/openai.yaml",
     ".agents/skills/archive-docs/references/archive-workflow.md",
     ".agents/skills/archive-docs/scripts/trace_relationships.py",
+    ".agents/skills/closeout-commit/SKILL.md",
+    ".agents/skills/closeout-commit/agents/openai.yaml",
+    ".agents/skills/closeout-commit/references/closeout-commit-workflow.md",
+    ".agents/skills/closeout-phase/SKILL.md",
+    ".agents/skills/closeout-phase/agents/openai.yaml",
+    ".agents/skills/closeout-phase/references/closeout-workflow.md",
     ".agents/skills/decompose-codebase/SKILL.md",
     ".agents/skills/decompose-codebase/agents/openai.yaml",
     ".agents/skills/decompose-codebase/assets/templates/decomposition-plan.md",
@@ -60,6 +69,12 @@
     ".claude/skills/archive-docs/agents/openai.yaml",
     ".claude/skills/archive-docs/references/archive-workflow.md",
     ".claude/skills/archive-docs/scripts/trace_relationships.py",
+    ".claude/skills/closeout-commit/SKILL.md",
+    ".claude/skills/closeout-commit/agents/openai.yaml",
+    ".claude/skills/closeout-commit/references/closeout-commit-workflow.md",
+    ".claude/skills/closeout-phase/SKILL.md",
+    ".claude/skills/closeout-phase/agents/openai.yaml",
+    ".claude/skills/closeout-phase/references/closeout-workflow.md",
     ".claude/skills/decompose-codebase/SKILL.md",
     ".claude/skills/decompose-codebase/agents/openai.yaml",
     ".claude/skills/decompose-codebase/assets/templates/decomposition-plan.md",

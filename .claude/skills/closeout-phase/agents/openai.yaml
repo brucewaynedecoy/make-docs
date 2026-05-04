@@ -1,0 +1,6 @@
+interface:
+  display_name: "Closeout Phase"
+  short_description: "Verify phase completion, capture closeout docs, and draft commit messages"
+  default_prompt: "Use $closeout-phase to close out the completed work backlog phase in this repo."
+policy:
+  allow_implicit_invocation: true

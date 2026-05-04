@@ -47,15 +47,49 @@ describe("skill registry", () => {
 
     expect(registry.skills.map((skill) => skill.name)).toEqual([
       "archive-docs",
+      "closeout-commit",
+      "closeout-phase",
       "decompose-codebase",
     ]);
     expect(getSkillRegistryNames(registry)).toEqual([
       "archive-docs",
+      "closeout-commit",
+      "closeout-phase",
       "decompose-codebase",
     ]);
     expect(
       registry.skills.every((skill) => !("required" in skill)),
     ).toBe(true);
+  });
+
+  test("declares the closeout commit skill asset surface", () => {
+    const registry = loadSkillRegistry(PACKAGE_ROOT);
+    const closeoutSkill = registry.skills.find(
+      (skill) => skill.name === "closeout-commit",
+    );
+
+    expect(closeoutSkill?.assets).toEqual([
+      { source: "agents/openai.yaml", installPath: "agents/openai.yaml" },
+      {
+        source: "references/closeout-commit-workflow.md",
+        installPath: "references/closeout-commit-workflow.md",
+      },
+    ]);
+  });
+
+  test("declares the closeout skill asset surface", () => {
+    const registry = loadSkillRegistry(PACKAGE_ROOT);
+    const closeoutSkill = registry.skills.find(
+      (skill) => skill.name === "closeout-phase",
+    );
+
+    expect(closeoutSkill?.assets).toEqual([
+      { source: "agents/openai.yaml", installPath: "agents/openai.yaml" },
+      {
+        source: "references/closeout-workflow.md",
+        installPath: "references/closeout-workflow.md",
+      },
+    ]);
   });
 
   test("declares the retained decompose skill asset surface", () => {

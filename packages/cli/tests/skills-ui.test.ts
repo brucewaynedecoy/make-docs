@@ -68,7 +68,12 @@ const initialState: SkillsUiState = {
   targetDir: "/tmp/project",
   harnesses: ["claude-code", "codex"],
   skillScope: "project",
-  selectedSkills: ["archive-docs", "decompose-codebase"],
+  selectedSkills: [
+    "archive-docs",
+    "closeout-commit",
+    "closeout-phase",
+    "decompose-codebase",
+  ],
 };
 
 const sampleActions: PlannedAction[] = [
@@ -146,10 +151,14 @@ describe("skills-only UI", () => {
     ]);
     expect(renderer.seenSkillStates[0]?.skills.map((skill) => skill.name)).toEqual([
       "archive-docs",
+      "closeout-commit",
+      "closeout-phase",
       "decompose-codebase",
     ]);
     expect(renderer.seenSkillStates[0]?.selectedSkills).toEqual([
       "archive-docs",
+      "closeout-commit",
+      "closeout-phase",
       "decompose-codebase",
     ]);
   });

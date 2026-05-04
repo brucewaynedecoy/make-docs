@@ -34,6 +34,20 @@ const BUILDABLE_PATHS = [
 const REPO_ROOT = path.resolve(TEMPLATE_ROOT, "..", "..", "..");
 const DECOMPOSE_PACKAGE_ROOT = path.join(REPO_ROOT, "packages", "skills", "decompose-codebase");
 const DECOMPOSE_MIRROR_ROOT = path.join(REPO_ROOT, ".agents", "skills", "decompose-codebase");
+const CLOSEOUT_COMMIT_PACKAGE_ROOT = path.join(
+  REPO_ROOT,
+  "packages",
+  "skills",
+  "closeout-commit",
+);
+const CLOSEOUT_COMMIT_MIRROR_ROOT = path.join(
+  REPO_ROOT,
+  ".agents",
+  "skills",
+  "closeout-commit",
+);
+const CLOSEOUT_PACKAGE_ROOT = path.join(REPO_ROOT, "packages", "skills", "closeout-phase");
+const CLOSEOUT_MIRROR_ROOT = path.join(REPO_ROOT, ".agents", "skills", "closeout-phase");
 
 function isMirroredDecomposeSkillFile(relativePath: string): boolean {
   return (
@@ -102,6 +116,54 @@ describe("template completeness", () => {
 });
 
 describe("dogfood skill mirror parity", () => {
+  test("closeout-commit mirror matches the packaged mapped file set", () => {
+    const expectedMirrorFiles = [
+      "SKILL.md",
+      "agents/openai.yaml",
+      "references/closeout-commit-workflow.md",
+    ].sort();
+    const mirrorFiles = collectFiles(CLOSEOUT_COMMIT_MIRROR_ROOT).sort();
+
+    expect(mirrorFiles).toEqual(expectedMirrorFiles);
+
+    for (const relativePath of expectedMirrorFiles) {
+      const packageContents = readFileSync(
+        path.join(CLOSEOUT_COMMIT_PACKAGE_ROOT, relativePath),
+        "utf8",
+      );
+      const mirrorContents = readFileSync(
+        path.join(CLOSEOUT_COMMIT_MIRROR_ROOT, relativePath),
+        "utf8",
+      );
+
+      expect(mirrorContents).toBe(packageContents);
+    }
+  });
+
+  test("closeout-phase mirror matches the packaged mapped file set", () => {
+    const expectedMirrorFiles = [
+      "SKILL.md",
+      "agents/openai.yaml",
+      "references/closeout-workflow.md",
+    ].sort();
+    const mirrorFiles = collectFiles(CLOSEOUT_MIRROR_ROOT).sort();
+
+    expect(mirrorFiles).toEqual(expectedMirrorFiles);
+
+    for (const relativePath of expectedMirrorFiles) {
+      const packageContents = readFileSync(
+        path.join(CLOSEOUT_PACKAGE_ROOT, relativePath),
+        "utf8",
+      );
+      const mirrorContents = readFileSync(
+        path.join(CLOSEOUT_MIRROR_ROOT, relativePath),
+        "utf8",
+      );
+
+      expect(mirrorContents).toBe(packageContents);
+    }
+  });
+
   test("decompose-codebase mirror matches the packaged mapped file set", () => {
     const expectedMirrorFiles = collectFiles(DECOMPOSE_PACKAGE_ROOT)
       .filter((relativePath) => !isPackageOnlyDecomposeSkillFile(relativePath))

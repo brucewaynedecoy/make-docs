@@ -184,6 +184,56 @@ describe("installer integration", () => {
       expect(
         existsSync(path.join(targetDir, ".claude/skills/decompose-codebase/SKILL.md")),
       ).toBe(true);
+      expect(existsSync(path.join(targetDir, ".claude/skills/closeout-commit/SKILL.md"))).toBe(
+        true,
+      );
+      expect(existsSync(path.join(targetDir, ".agents/skills/closeout-commit/SKILL.md"))).toBe(
+        true,
+      );
+      expect(
+        existsSync(path.join(targetDir, ".claude/skills/closeout-commit/agents/openai.yaml")),
+      ).toBe(true);
+      expect(
+        existsSync(path.join(targetDir, ".agents/skills/closeout-commit/agents/openai.yaml")),
+      ).toBe(true);
+      expect(
+        existsSync(
+          path.join(
+            targetDir,
+            ".claude/skills/closeout-commit/references/closeout-commit-workflow.md",
+          ),
+        ),
+      ).toBe(true);
+      expect(
+        existsSync(
+          path.join(
+            targetDir,
+            ".agents/skills/closeout-commit/references/closeout-commit-workflow.md",
+          ),
+        ),
+      ).toBe(true);
+      expect(existsSync(path.join(targetDir, ".claude/skills/closeout-phase/SKILL.md"))).toBe(
+        true,
+      );
+      expect(existsSync(path.join(targetDir, ".agents/skills/closeout-phase/SKILL.md"))).toBe(
+        true,
+      );
+      expect(
+        existsSync(path.join(targetDir, ".claude/skills/closeout-phase/agents/openai.yaml")),
+      ).toBe(true);
+      expect(
+        existsSync(path.join(targetDir, ".agents/skills/closeout-phase/agents/openai.yaml")),
+      ).toBe(true);
+      expect(
+        existsSync(
+          path.join(targetDir, ".claude/skills/closeout-phase/references/closeout-workflow.md"),
+        ),
+      ).toBe(true);
+      expect(
+        existsSync(
+          path.join(targetDir, ".agents/skills/closeout-phase/references/closeout-workflow.md"),
+        ),
+      ).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/work/AGENTS.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/assets/prompts/designs-to-plan.prompt.md"))).toBe(true);
       expect(
@@ -210,6 +260,10 @@ describe("installer integration", () => {
       expect(guidesRouter).not.toContain("docs/guides/agent");
       expect(manifest.skillFiles).toContain(".claude/skills/archive-docs/SKILL.md");
       expect(manifest.skillFiles).toContain(".agents/skills/archive-docs/SKILL.md");
+      expect(manifest.skillFiles).toContain(".claude/skills/closeout-commit/SKILL.md");
+      expect(manifest.skillFiles).toContain(".agents/skills/closeout-commit/SKILL.md");
+      expect(manifest.skillFiles).toContain(".claude/skills/closeout-phase/SKILL.md");
+      expect(manifest.skillFiles).toContain(".agents/skills/closeout-phase/SKILL.md");
       expect(manifest.skillFiles).toContain(".claude/skills/decompose-codebase/SKILL.md");
       expect(manifest.skillFiles).toContain(".agents/skills/decompose-codebase/SKILL.md");
     } finally {
@@ -248,7 +302,12 @@ describe("installer integration", () => {
               },
               skills: true,
               skillScope: "project",
-              selectedSkills: ["archive-docs", "decompose-codebase"],
+              selectedSkills: [
+                "archive-docs",
+                "closeout-commit",
+                "closeout-phase",
+                "decompose-codebase",
+              ],
             },
             effectiveCapabilities: ["designs", "plans", "prd", "work"],
             files: {},
@@ -378,7 +437,12 @@ describe("installer integration", () => {
               },
               skills: true,
               skillScope: "project",
-              selectedSkills: ["archive-docs", "decompose-codebase"],
+              selectedSkills: [
+                "archive-docs",
+                "closeout-commit",
+                "closeout-phase",
+                "decompose-codebase",
+              ],
             },
             effectiveCapabilities: ["designs", "plans", "prd", "work"],
             files: {},
@@ -534,6 +598,38 @@ describe("installer integration", () => {
           expect(contents).toContain(`(${relativeLink})`);
           expect(existsSync(path.join(path.dirname(skillPath), relativeLink))).toBe(true);
         }
+
+        const closeoutSkillPath = path.join(
+          targetDir,
+          harnessRoot,
+          "skills/closeout-phase/SKILL.md",
+        );
+        const closeoutContents = readFileSync(closeoutSkillPath, "utf8");
+
+        for (const relativeLink of ["./references/closeout-workflow.md"]) {
+          expect(closeoutContents).toContain(`(${relativeLink})`);
+          expect(existsSync(path.join(path.dirname(closeoutSkillPath), relativeLink))).toBe(true);
+        }
+        expect(existsSync(path.join(path.dirname(closeoutSkillPath), "./agents/openai.yaml"))).toBe(
+          true,
+        );
+
+        const closeoutCommitSkillPath = path.join(
+          targetDir,
+          harnessRoot,
+          "skills/closeout-commit/SKILL.md",
+        );
+        const closeoutCommitContents = readFileSync(closeoutCommitSkillPath, "utf8");
+
+        for (const relativeLink of ["./references/closeout-commit-workflow.md"]) {
+          expect(closeoutCommitContents).toContain(`(${relativeLink})`);
+          expect(existsSync(path.join(path.dirname(closeoutCommitSkillPath), relativeLink))).toBe(
+            true,
+          );
+        }
+        expect(
+          existsSync(path.join(path.dirname(closeoutCommitSkillPath), "./agents/openai.yaml")),
+        ).toBe(true);
       }
     } finally {
       cleanupTempDir(targetDir);
@@ -966,7 +1062,12 @@ describe("installer integration", () => {
             profileId: "legacy-profile",
             selections: {
               ...defaultSelections(),
-              selectedSkills: ["archive-docs", "decompose-codebase"],
+              selectedSkills: [
+                "archive-docs",
+                "closeout-commit",
+                "closeout-phase",
+                "decompose-codebase",
+              ],
             },
             effectiveCapabilities: ["designs", "plans", "prd", "work"],
             files: {

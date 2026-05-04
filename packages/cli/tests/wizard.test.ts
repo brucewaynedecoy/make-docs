@@ -134,6 +134,14 @@ describe("selection wizard", () => {
           description: "Relationship-aware archival.",
         },
         {
+          name: "closeout-commit",
+          description: "Close out uncommitted changes.",
+        },
+        {
+          name: "closeout-phase",
+          description: "Close out completed phases.",
+        },
+        {
           name: "decompose-codebase",
           description:
             "Plan and reverse-engineer repos into structured PRDs.",
@@ -147,6 +155,20 @@ describe("selection wizard", () => {
         value: "archive-docs",
         label: "archive-docs",
         hint: "Relationship-aware archival.",
+        disabled: false,
+        rowKind: "skill",
+      },
+      {
+        value: "closeout-commit",
+        label: "closeout-commit",
+        hint: "Close out uncommitted changes.",
+        disabled: false,
+        rowKind: "skill",
+      },
+      {
+        value: "closeout-phase",
+        label: "closeout-phase",
+        hint: "Close out completed phases.",
         disabled: false,
         rowKind: "skill",
       },
@@ -263,6 +285,16 @@ describe("selection wizard", () => {
           "Relationship-aware archival, staleness detection, deprecation, and impact analysis for docs/ artifacts.",
       },
       {
+        name: "closeout-commit",
+        description:
+          "Capture gaps, write history, and draft commit messages for uncommitted changes.",
+      },
+      {
+        name: "closeout-phase",
+        description:
+          "Close out completed work backlog phases with checked criteria, guides, gap capture, history, and commit-message drafts.",
+      },
+      {
         name: "decompose-codebase",
         description: "Plan and reverse-engineer repos into structured PRDs.",
       },
@@ -292,7 +324,12 @@ describe("selection wizard", () => {
 
     expect(
       renderer.seenOptionStates[0]?.skillSelection.selectedSkillNames,
-    ).toEqual(["archive-docs", "decompose-codebase"]);
+    ).toEqual([
+      "archive-docs",
+      "closeout-commit",
+      "closeout-phase",
+      "decompose-codebase",
+    ]);
     expect(result?.skills).toBe(true);
     expect(result?.selectedSkills).toEqual([]);
   });

@@ -23,6 +23,40 @@
       ]
     },
     {
+      "name": "closeout-commit",
+      "source": "https://github.com/brucewaynedecoy/make-docs/tree/main/packages/skills/closeout-commit",
+      "entryPoint": "SKILL.md",
+      "installName": "closeout-commit",
+      "description": "Capture gaps, write history, and draft commit messages for uncommitted changes.",
+      "assets": [
+        {
+          "source": "agents/openai.yaml",
+          "installPath": "agents/openai.yaml"
+        },
+        {
+          "source": "references/closeout-commit-workflow.md",
+          "installPath": "references/closeout-commit-workflow.md"
+        }
+      ]
+    },
+    {
+      "name": "closeout-phase",
+      "source": "https://github.com/brucewaynedecoy/make-docs/tree/main/packages/skills/closeout-phase",
+      "entryPoint": "SKILL.md",
+      "installName": "closeout-phase",
+      "description": "Close out completed work backlog phases with checked criteria, guides, gap capture, history, and commit-message drafts.",
+      "assets": [
+        {
+          "source": "agents/openai.yaml",
+          "installPath": "agents/openai.yaml"
+        },
+        {
+          "source": "references/closeout-workflow.md",
+          "installPath": "references/closeout-workflow.md"
+        }
+      ]
+    },
+    {
       "name": "decompose-codebase",
       "source": "https://github.com/brucewaynedecoy/make-docs/tree/main/packages/skills/decompose-codebase",
       "entryPoint": "SKILL.md",
