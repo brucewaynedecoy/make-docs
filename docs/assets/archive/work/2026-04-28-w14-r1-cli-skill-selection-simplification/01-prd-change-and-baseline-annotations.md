@@ -12,10 +12,10 @@ This phase adds the planned PRD revision doc, updates the PRD index, and annotat
 
 ## Source PRD Docs
 
-- [03 Open Questions and Risk Register](../../prd/03-open-questions-and-risk-register.md)
-- [05 Installation, Profile, and Manifest Lifecycle](../../prd/05-installation-profile-and-manifest-lifecycle.md)
-- [07 CLI Command Surface and Lifecycle](../../prd/07-cli-command-surface-and-lifecycle.md)
-- [08 Skills Catalog and Distribution](../../prd/08-skills-catalog-and-distribution.md)
+- [03 Open Questions and Risk Register](../../../../prd/03-open-questions-and-risk-register.md)
+- [05 Installation, Profile, and Manifest Lifecycle](../../../../prd/05-installation-profile-and-manifest-lifecycle.md)
+- [07 CLI Command Surface and Lifecycle](../../../../prd/07-cli-command-surface-and-lifecycle.md)
+- [08 Skills Catalog and Distribution](../../../../prd/08-skills-catalog-and-distribution.md)
 - Planned change doc: `docs/prd/12-revise-cli-skill-selection-simplification.md`
 
 ## Source Plan Phases
@@ -34,9 +34,9 @@ This phase adds the planned PRD revision doc, updates the PRD index, and annotat
 
 ### Acceptance criteria
 
-- [ ] The execution record states the chosen PRD number and why.
-- [ ] No existing PRD docs are renumbered.
-- [ ] No placeholder PRD docs are created.
+- [x] The execution record states the chosen PRD number and why.
+- [x] No existing PRD docs are renumbered.
+- [x] No placeholder PRD docs are created.
 
 ### Dependencies
 
@@ -56,10 +56,10 @@ This phase adds the planned PRD revision doc, updates the PRD index, and annotat
 
 ### Acceptance criteria
 
-- [ ] The PRD revision doc exists at the confirmed `NN-` path.
-- [ ] The doc uses all required `prd-change-revision.md` headings.
-- [ ] The effective requirement covers registry metadata, selected-skill state, migration, wizard behavior, skills-only behavior, and flag language.
-- [ ] Source anchors include `packages/cli/skill-registry.json`, `packages/cli/skill-registry.schema.json`, `packages/cli/src/skill-registry.ts`, `packages/cli/src/skill-catalog.ts`, `packages/cli/src/types.ts`, `packages/cli/src/manifest.ts`, `packages/cli/src/wizard.ts`, `packages/cli/src/skills-ui.ts`, and `packages/cli/src/cli.ts`.
+- [x] The PRD revision doc exists at the confirmed `NN-` path.
+- [x] The doc uses all required `prd-change-revision.md` headings.
+- [x] The effective requirement covers registry metadata, selected-skill state, migration, wizard behavior, skills-only behavior, and flag language.
+- [x] Source anchors include `packages/cli/skill-registry.json`, `packages/cli/skill-registry.schema.json`, `packages/cli/src/skill-registry.ts`, `packages/cli/src/skill-catalog.ts`, `packages/cli/src/types.ts`, `packages/cli/src/manifest.ts`, `packages/cli/src/wizard.ts`, `packages/cli/src/skills-ui.ts`, and `packages/cli/src/cli.ts`.
 
 ### Dependencies
 
@@ -77,10 +77,10 @@ This phase adds the planned PRD revision doc, updates the PRD index, and annotat
 
 ### Acceptance criteria
 
-- [ ] Every impacted baseline PRD contains a backlink to the new skill-selection change doc.
-- [ ] The backlinks are placed under the impacted headings or requirement text.
-- [ ] Existing baseline text remains visible.
-- [ ] No active PRD docs are renumbered.
+- [x] Every impacted baseline PRD contains a backlink to the new skill-selection change doc.
+- [x] The backlinks are placed under the impacted headings or requirement text.
+- [x] Existing baseline text remains visible.
+- [x] No active PRD docs are renumbered.
 
 ### Dependencies
 
@@ -98,11 +98,11 @@ This phase adds the planned PRD revision doc, updates the PRD index, and annotat
 
 ### Acceptance criteria
 
-- [ ] `docs/prd/00-index.md` lists the new skill-selection change doc.
-- [ ] Existing docs keep their current numbering.
-- [ ] PRD links resolve locally.
-- [ ] The effective requirement can be followed from each affected baseline doc to the change doc.
-- [ ] `jdocmunch` search finds the new change doc after reindexing.
+- [x] `docs/prd/00-index.md` lists the new skill-selection change doc.
+- [x] Existing docs keep their current numbering.
+- [x] PRD links resolve locally.
+- [x] The effective requirement can be followed from each affected baseline doc to the change doc.
+- [x] `jdocmunch` search finds the new change doc after reindexing.
 
 ### Dependencies
 

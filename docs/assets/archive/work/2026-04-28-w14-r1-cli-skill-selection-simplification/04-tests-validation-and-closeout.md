@@ -12,10 +12,10 @@ This phase updates targeted tests, validates code and docs behavior, refreshes M
 
 ## Source PRD Docs
 
-- [03 Open Questions and Risk Register](../../prd/03-open-questions-and-risk-register.md)
-- [05 Installation, Profile, and Manifest Lifecycle](../../prd/05-installation-profile-and-manifest-lifecycle.md)
-- [07 CLI Command Surface and Lifecycle](../../prd/07-cli-command-surface-and-lifecycle.md)
-- [08 Skills Catalog and Distribution](../../prd/08-skills-catalog-and-distribution.md)
+- [03 Open Questions and Risk Register](../../../../prd/03-open-questions-and-risk-register.md)
+- [05 Installation, Profile, and Manifest Lifecycle](../../../../prd/05-installation-profile-and-manifest-lifecycle.md)
+- [07 CLI Command Surface and Lifecycle](../../../../prd/07-cli-command-surface-and-lifecycle.md)
+- [08 Skills Catalog and Distribution](../../../../prd/08-skills-catalog-and-distribution.md)
 - Planned change doc: `docs/prd/12-revise-cli-skill-selection-simplification.md`
 
 ## Source Plan Phases
@@ -35,10 +35,10 @@ This phase updates targeted tests, validates code and docs behavior, refreshes M
 
 ### Acceptance criteria
 
-- [ ] Registry tests pass without `required`.
-- [ ] Catalog tests prove selected-skill filtering.
-- [ ] Catalog tests prove all skills are selected by default when skills are enabled.
-- [ ] Invalid registry entry coverage remains meaningful.
+- [x] Registry tests pass without `required`.
+- [x] Catalog tests prove selected-skill filtering.
+- [x] Catalog tests prove all skills are selected by default when skills are enabled.
+- [x] Invalid registry entry coverage remains meaningful.
 
 ### Dependencies
 
@@ -58,11 +58,11 @@ This phase updates targeted tests, validates code and docs behavior, refreshes M
 
 ### Acceptance criteria
 
-- [ ] Wizard tests no longer depend on heading rows.
-- [ ] Skills UI tests no longer depend on required/optional prompts.
-- [ ] Render tests prove the removed note is absent.
-- [ ] Render tests prove the retained detail and instruction sections still exist.
-- [ ] Removal mode behavior remains covered.
+- [x] Wizard tests no longer depend on heading rows.
+- [x] Skills UI tests no longer depend on required/optional prompts.
+- [x] Render tests prove the removed note is absent.
+- [x] Render tests prove the retained detail and instruction sections still exist.
+- [x] Removal mode behavior remains covered.
 
 ### Dependencies
 
@@ -82,11 +82,11 @@ This phase updates targeted tests, validates code and docs behavior, refreshes M
 
 ### Acceptance criteria
 
-- [ ] CLI tests cover new selected-skill flag behavior.
-- [ ] Compatibility behavior for old `--optional-skills` is explicit and tested.
-- [ ] Manifest migration tests preserve prior effective installed skill sets.
-- [ ] Install tests prove selected skills drive managed skill outputs.
-- [ ] `skillFiles` remains separate from `files`.
+- [x] CLI tests cover new selected-skill flag behavior.
+- [x] Compatibility behavior for old `--optional-skills` is explicit and tested.
+- [x] Manifest migration tests preserve prior effective installed skill sets.
+- [x] Install tests prove selected skills drive managed skill outputs.
+- [x] `skillFiles` remains separate from `files`.
 
 ### Dependencies
 
@@ -111,10 +111,10 @@ rg -n "Default skills|Required skills|Optional skills|optional skills|Which opti
 
 ### Acceptance criteria
 
-- [ ] Focused test commands pass.
-- [ ] Build passes.
-- [ ] Stale-string scan has no unexpected active user-facing required/optional skill copy.
-- [ ] Any allowed compatibility matches are documented in closeout notes.
+- [x] Focused test commands pass.
+- [x] Build passes.
+- [x] Stale-string scan has no unexpected active user-facing required/optional skill copy.
+- [x] Any allowed compatibility matches are documented in closeout notes.
 
 ### Dependencies
 
@@ -133,12 +133,12 @@ rg -n "Default skills|Required skills|Optional skills|optional skills|Which opti
 
 ### Acceptance criteria
 
-- [ ] `jdocmunch` index is refreshed.
-- [ ] `jcodemunch` index is refreshed.
-- [ ] New docs are link-valid.
-- [ ] Active PRD numbering remains stable.
-- [ ] The final implementation scope matches this W14 R1 backlog.
-- [ ] Any remaining risks are documented or explicitly deferred.
+- [x] `jdocmunch` index is refreshed.
+- [x] `jcodemunch` index is refreshed.
+- [x] New docs are link-valid.
+- [x] Active PRD numbering remains stable.
+- [x] The final implementation scope matches this W14 R1 backlog.
+- [x] Any remaining risks are documented or explicitly deferred.
 
 ### Dependencies
 

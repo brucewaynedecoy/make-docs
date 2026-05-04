@@ -62,7 +62,7 @@ Recommended entry:
 
 | Slot | Status | Document | Focus |
 | --- | --- | --- | --- |
-| `12` | Current | [12-revise-cli-skill-selection-simplification.md](12-revise-cli-skill-selection-simplification.md) | Revision making shipped skills one recommended, selected-by-default set instead of required/default plus optional categories. |
+| `12` | Current | [12-revise-cli-skill-selection-simplification.md](../../../../prd/12-revise-cli-skill-selection-simplification.md) | Revision making shipped skills one recommended, selected-by-default set instead of required/default plus optional categories. |
 
 If doc `11` has not yet been created by `W14 R0` execution, confirm the next available PRD number before writing. Do not reserve or create placeholder docs.
 
@@ -75,7 +75,7 @@ Use:
 ```md
 ### Change Notes
 
-- Superseded by [12-revise-cli-skill-selection-simplification.md](./12-revise-cli-skill-selection-simplification.md).
+- Superseded by [12-revise-cli-skill-selection-simplification.md](../../../../prd/12-revise-cli-skill-selection-simplification.md).
 ```
 
 Targets:

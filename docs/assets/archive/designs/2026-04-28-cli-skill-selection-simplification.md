@@ -21,7 +21,7 @@ The current CLI skill model still carries the `w5-r2` distinction between requir
 
 That model no longer matches the desired UX. Users should see a single list of recommended skills on the `Select skills to install` screen. Every listed skill should start selected, but none should be mandatory from that screen. The existing highlighted-skill description panel should remain, as should the bottom section showing the current selection and keyboard instructions.
 
-This is closely related to [2026-04-16-cli-skill-installation-r2.md](../assets/archive/designs/2026-04-16-cli-skill-installation-r2.md), which documented the shipped remote registry and harness-aware skill installation model, and to [2026-04-28-cli-asset-selection-simplification.md](../assets/archive/designs/2026-04-28-cli-asset-selection-simplification.md), which removes stale choices from the same CLI interview surface.
+This is closely related to [2026-04-16-cli-skill-installation-r2.md](2026-04-16-cli-skill-installation-r2.md), which documented the shipped remote registry and harness-aware skill installation model, and to [2026-04-28-cli-asset-selection-simplification.md](2026-04-28-cli-asset-selection-simplification.md), which removes stale choices from the same CLI interview surface.
 
 ## Decision
 
@@ -140,12 +140,12 @@ Existing installed projects should remain understandable after upgrade. Migratio
 ## Design Lineage
 
 - Update Mode: `new-doc-related`
-- Prior Design Docs: [2026-04-16-cli-skill-installation-r2.md](../assets/archive/designs/2026-04-16-cli-skill-installation-r2.md), [2026-04-28-cli-asset-selection-simplification.md](../assets/archive/designs/2026-04-28-cli-asset-selection-simplification.md)
+- Prior Design Docs: [2026-04-16-cli-skill-installation-r2.md](2026-04-16-cli-skill-installation-r2.md), [2026-04-28-cli-asset-selection-simplification.md](2026-04-28-cli-asset-selection-simplification.md)
 - Reason: this design revises the shipped skill registry and wizard selection model from required/optional categories into one recommended skill set, and it aligns with the broader simplification of the CLI interview surface.
 
 ## Intended Follow-On
 
 - Route: `change-plan`
-- Next Prompt: [designs-to-plan-change.prompt.md](../assets/prompts/designs-to-plan-change.prompt.md)
+- Next Prompt: [designs-to-plan-change.prompt.md](../../prompts/designs-to-plan-change.prompt.md)
 - Why: this is a targeted revision to existing CLI skill installation, registry, manifest, and wizard behavior rather than a new baseline planning track.
 - Coordinate Handoff: related completed coordinate is `W5 R2` for CLI-managed skill installation. Recommended downstream coordinate is `W14 R0` if planned together with the CLI asset-selection simplification work, otherwise the next available `W14` revision; planner should confirm coordinate availability before writing.

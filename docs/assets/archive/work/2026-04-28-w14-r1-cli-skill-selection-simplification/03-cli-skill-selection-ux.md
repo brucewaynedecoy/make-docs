@@ -12,8 +12,8 @@ This phase is user-facing. It keeps the existing skill detail panel, selected-sk
 
 ## Source PRD Docs
 
-- [07 CLI Command Surface and Lifecycle](../../prd/07-cli-command-surface-and-lifecycle.md)
-- [08 Skills Catalog and Distribution](../../prd/08-skills-catalog-and-distribution.md)
+- [07 CLI Command Surface and Lifecycle](../../../../prd/07-cli-command-surface-and-lifecycle.md)
+- [08 Skills Catalog and Distribution](../../../../prd/08-skills-catalog-and-distribution.md)
 - Planned change doc: `docs/prd/12-revise-cli-skill-selection-simplification.md`
 
 ## Source Plan Phases
@@ -36,13 +36,13 @@ This phase is user-facing. It keeps the existing skill detail panel, selected-sk
 
 ### Acceptance criteria
 
-- [ ] The full install wizard skill picker has no `Default` heading.
-- [ ] The full install wizard skill picker has no `Optional` heading.
-- [ ] Every skill row is toggleable.
-- [ ] All skills are selected on fresh installs.
-- [ ] Highlighted skill descriptions still render.
-- [ ] Selected summary and keyboard instructions still render.
-- [ ] The old default-skill immutability note is absent.
+- [x] The full install wizard skill picker has no `Default` heading.
+- [x] The full install wizard skill picker has no `Optional` heading.
+- [x] Every skill row is toggleable.
+- [x] All skills are selected on fresh installs.
+- [x] Highlighted skill descriptions still render.
+- [x] Selected summary and keyboard instructions still render.
+- [x] The old default-skill immutability note is absent.
 
 ### Dependencies
 
@@ -62,12 +62,12 @@ This phase is user-facing. It keeps the existing skill detail panel, selected-sk
 
 ### Acceptance criteria
 
-- [ ] Skills-only UI has no `Required skills` note.
-- [ ] Skills-only UI has no optional-skill prompt.
-- [ ] Skills-only UI defaults to all registry skills selected.
-- [ ] Removal mode still skips skill selection.
-- [ ] Review and edit actions use selected-skill language.
-- [ ] Harness and scope prompts still behave as before.
+- [x] Skills-only UI has no `Required skills` note.
+- [x] Skills-only UI has no optional-skill prompt.
+- [x] Skills-only UI defaults to all registry skills selected.
+- [x] Removal mode still skips skill selection.
+- [x] Review and edit actions use selected-skill language.
+- [x] Harness and scope prompts still behave as before.
 
 ### Dependencies
 
@@ -87,11 +87,11 @@ This phase is user-facing. It keeps the existing skill detail panel, selected-sk
 
 ### Acceptance criteria
 
-- [ ] Public help no longer teaches optional skills as the primary concept.
-- [ ] Unknown skill validation checks all registry skills.
-- [ ] Deprecated `--optional-skills` behavior is either deliberately supported or deliberately rejected with guidance.
-- [ ] `--no-skills` still disables skill installation.
-- [ ] Main flow and skills command use consistent selected-skill terminology.
+- [x] Public help no longer teaches optional skills as the primary concept.
+- [x] Unknown skill validation checks all registry skills.
+- [x] Deprecated `--optional-skills` behavior is either deliberately supported or deliberately rejected with guidance.
+- [x] `--no-skills` still disables skill installation.
+- [x] Main flow and skills command use consistent selected-skill terminology.
 
 ### Dependencies
 
@@ -108,10 +108,10 @@ This phase is user-facing. It keeps the existing skill detail panel, selected-sk
 
 ### Acceptance criteria
 
-- [ ] Review summaries use selected-skill language.
-- [ ] Edit actions use selected-skill language.
-- [ ] No active user-facing prompt describes skills as required/default versus optional.
-- [ ] Documentation surfaces touched by this phase match the new command vocabulary.
+- [x] Review summaries use selected-skill language.
+- [x] Edit actions use selected-skill language.
+- [x] No active user-facing prompt describes skills as required/default versus optional.
+- [x] Documentation surfaces touched by this phase match the new command vocabulary.
 
 ### Dependencies
 

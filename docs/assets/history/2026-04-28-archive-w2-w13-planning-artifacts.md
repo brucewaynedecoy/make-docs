@@ -40,7 +40,7 @@ Validation notes:
 | [docs/prd/08-skills-catalog-and-distribution.md](../../prd/08-skills-catalog-and-distribution.md) | Updated active skills PRD lineage links to archived skill installation and skills command design docs. |
 | [docs/prd/09-dogfood-and-maintainer-operations.md](../../prd/09-dogfood-and-maintainer-operations.md) | Updated active dogfood and maintainer references to archived W2/W9 migration planning docs. |
 | [docs/designs/2026-04-28-cli-asset-selection-simplification.md](../archive/designs/2026-04-28-cli-asset-selection-simplification.md) | Updated W14 asset-selection lineage links to archived prior design docs. |
-| [docs/designs/2026-04-28-cli-skill-selection-simplification.md](../../designs/2026-04-28-cli-skill-selection-simplification.md) | Updated W14 skill-selection lineage links to archived prior skill installation design docs. |
+| [docs/assets/archive/designs/2026-04-28-cli-skill-selection-simplification.md](../archive/designs/2026-04-28-cli-skill-selection-simplification.md) | Updated W14 skill-selection lineage links to archived prior skill installation design docs. |
 | [docs/assets/references/commit-message-convention.md](../references/commit-message-convention.md) | Updated the example command-simplification design link to the archive namespace. |
 | [docs/assets/history/2026-04-23-w13-r0-p6-navigation-assembly-and-validation.md](2026-04-23-w13-r0-p6-navigation-assembly-and-validation.md) | Representative active history breadcrumb updated to point at archived W13 plan/work artifacts. |
 | [docs/assets/history/2026-04-28-archive-w2-w13-planning-artifacts.md](2026-04-28-archive-w2-w13-planning-artifacts.md) | History record for this archive checkpoint. |

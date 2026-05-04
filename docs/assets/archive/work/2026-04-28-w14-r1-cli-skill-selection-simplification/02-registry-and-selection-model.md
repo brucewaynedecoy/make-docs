@@ -12,8 +12,8 @@ This phase removes `required` metadata from the packaged registry and schema, re
 
 ## Source PRD Docs
 
-- [05 Installation, Profile, and Manifest Lifecycle](../../prd/05-installation-profile-and-manifest-lifecycle.md)
-- [08 Skills Catalog and Distribution](../../prd/08-skills-catalog-and-distribution.md)
+- [05 Installation, Profile, and Manifest Lifecycle](../../../../prd/05-installation-profile-and-manifest-lifecycle.md)
+- [08 Skills Catalog and Distribution](../../../../prd/08-skills-catalog-and-distribution.md)
 - Planned change doc: `docs/prd/12-revise-cli-skill-selection-simplification.md`
 
 ## Source Plan Phases
@@ -33,11 +33,11 @@ This phase removes `required` metadata from the packaged registry and schema, re
 
 ### Acceptance criteria
 
-- [ ] Packaged registry entries contain no `required` field.
-- [ ] Packaged registry schema does not require or define `required`.
-- [ ] TypeScript registry entries contain no `required` field.
-- [ ] Registry validation still skips malformed entries for missing required install metadata.
-- [ ] No production code imports required/optional grouping helpers.
+- [x] Packaged registry entries contain no `required` field.
+- [x] Packaged registry schema does not require or define `required`.
+- [x] TypeScript registry entries contain no `required` field.
+- [x] Registry validation still skips malformed entries for missing required install metadata.
+- [x] No production code imports required/optional grouping helpers.
 
 ### Dependencies
 
@@ -55,10 +55,10 @@ This phase removes `required` metadata from the packaged registry and schema, re
 
 ### Acceptance criteria
 
-- [ ] The catalog exposes one recommended skill collection.
-- [ ] No catalog type names imply `default` or `optional` categories.
-- [ ] Skill choice ordering remains deterministic.
-- [ ] UI callers can still access skill name and description for rendering.
+- [x] The catalog exposes one recommended skill collection.
+- [x] No catalog type names imply `default` or `optional` categories.
+- [x] Skill choice ordering remains deterministic.
+- [x] UI callers can still access skill name and description for rendering.
 
 ### Dependencies
 
@@ -77,11 +77,11 @@ This phase removes `required` metadata from the packaged registry and schema, re
 
 ### Acceptance criteria
 
-- [ ] `InstallSelections` can represent any subset of registry skills.
-- [ ] Fresh defaults include all registry skill names when skills are enabled.
-- [ ] Skill-disabled selections produce no desired skill assets.
-- [ ] Profile identity changes when selected skills change.
-- [ ] No active selection helper depends on an implicit required skill set.
+- [x] `InstallSelections` can represent any subset of registry skills.
+- [x] Fresh defaults include all registry skill names when skills are enabled.
+- [x] Skill-disabled selections produce no desired skill assets.
+- [x] Profile identity changes when selected skills change.
+- [x] No active selection helper depends on an implicit required skill set.
 
 ### Dependencies
 
@@ -99,11 +99,11 @@ This phase removes `required` metadata from the packaged registry and schema, re
 
 ### Acceptance criteria
 
-- [ ] Selected skills are the only skills expanded into desired assets.
-- [ ] Deselecting a formerly required skill removes its desired assets.
-- [ ] Project and global scope paths remain correct.
-- [ ] Harness-specific install paths remain correct.
-- [ ] Existing `skillFiles` ownership semantics are not collapsed into `manifest.files`.
+- [x] Selected skills are the only skills expanded into desired assets.
+- [x] Deselecting a formerly required skill removes its desired assets.
+- [x] Project and global scope paths remain correct.
+- [x] Harness-specific install paths remain correct.
+- [x] Existing `skillFiles` ownership semantics are not collapsed into `manifest.files`.
 
 ### Dependencies
 
@@ -122,11 +122,11 @@ This phase removes `required` metadata from the packaged registry and schema, re
 
 ### Acceptance criteria
 
-- [ ] Legacy manifests with `optionalSkills` migrate to the prior effective selected-skill set.
-- [ ] Legacy manifests with `skills: false` remain skill-disabled.
-- [ ] Legacy manifests with older skill-file layouts still migrate predictably.
-- [ ] New manifests persist the selected-skill field.
-- [ ] `skillFiles` remains the output ownership list for managed skill paths.
+- [x] Legacy manifests with `optionalSkills` migrate to the prior effective selected-skill set.
+- [x] Legacy manifests with `skills: false` remain skill-disabled.
+- [x] Legacy manifests with older skill-file layouts still migrate predictably.
+- [x] New manifests persist the selected-skill field.
+- [x] `skillFiles` remains the output ownership list for managed skill paths.
 
 ### Dependencies
 
