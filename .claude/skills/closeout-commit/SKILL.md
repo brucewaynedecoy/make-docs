@@ -5,6 +5,24 @@ description: Close out uncommitted changes before drafting a commit. Use when th
 
 # Closeout Commit
 
+## Delegation First
+
+Before inspecting the working tree beyond minimal status, first attempt to spawn a worker agent to run this skill. If you are already the spawned worker for this skill invocation, do not spawn another worker; execute the workflow directly.
+
+Use the active harness's native delegation mechanism when available: Codex `spawn_agent`, Claude Code `Task`, or any other exposed agent-spawn/subagent capability. Do not inspect closeout references, read broad repo docs, or perform change-set analysis in the primary agent before this attempt.
+
+When spawning succeeds, the primary agent becomes coordinator only. Hand the worker a minimal, self-contained prompt containing:
+
+- the user's request
+- the current working directory
+- the skill name and `packages/skills/closeout-commit/SKILL.md` path
+- the requested change-set scope if the user specified staged, unstaged, or full working tree
+- the required output contract: files changed, validation run, gap/history decisions, approvals needed, blockers, and drafted commit message
+
+The worker must read this skill and its referenced resources in its own context, prefer `jdocmunch` and `jcodemunch` first, reindex if stale, and only fall back to direct file reads after reindexing does not work. The worker owns change discovery, gap capture, history entry decisions, commit convention lookup, validation summary, and commit-message drafting.
+
+When spawning is unsupported or the spawn attempt fails, state that delegation is unavailable or failed, include the short reason, and continue by executing this skill directly.
+
 ## Workflow
 
 1. Inspect `git status --short` and determine whether the user is asking about staged changes, unstaged changes, or the full working tree.

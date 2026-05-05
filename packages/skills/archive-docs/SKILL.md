@@ -5,6 +5,24 @@ description: Archive, deprecate, inspect archival impact, or scan for stale docs
 
 # Archive Docs
 
+## Delegation First
+
+Before intent routing or relationship tracing, first attempt to spawn a worker agent to run this skill. If you are already the spawned worker for this skill invocation, do not spawn another worker; execute the workflow directly.
+
+Use the active harness's native delegation mechanism when available: Codex `spawn_agent`, Claude Code `Task`, or any other exposed agent-spawn/subagent capability. Do not inspect the reference workflow, trace docs, or load broad repo context in the primary agent before this attempt.
+
+When spawning succeeds, the primary agent becomes coordinator only. Hand the worker a minimal, self-contained prompt containing:
+
+- the user's request
+- the current working directory
+- the skill name and `packages/skills/archive-docs/SKILL.md` path
+- the inferred mode if it is obvious from the request, or instructions to resolve mode ambiguity
+- the required output contract: mode, candidate or changed files, approvals needed, validation run, blockers, and concise summary
+
+The worker must read this skill and its referenced resources in its own context, prefer `jdocmunch` and `jcodemunch` first, reindex if stale, and only fall back to direct file reads after reindexing does not work. The worker owns relationship tracing, approval-gate preparation, link impact analysis, and any approved archive/deprecation edits.
+
+When spawning is unsupported or the spawn attempt fails, state that delegation is unavailable or failed, include the short reason, and continue by executing this skill directly.
+
 ## Intent Router
 
 This skill consolidates four documentation-maintenance workflows into one entrypoint:

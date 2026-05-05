@@ -5,6 +5,24 @@ description: Close out a completed work backlog phase. Use when the agent needs 
 
 # Closeout Phase
 
+## Delegation First
+
+Before reading the target phase or closeout reference workflow, first attempt to spawn a worker agent to run this skill. If you are already the spawned worker for this skill invocation, do not spawn another worker; execute the workflow directly.
+
+Use the active harness's native delegation mechanism when available: Codex `spawn_agent`, Claude Code `Task`, or any other exposed agent-spawn/subagent capability. Do not inspect closeout references, read broad repo docs, or perform phase evidence analysis in the primary agent before this attempt.
+
+When spawning succeeds, the primary agent becomes coordinator only. Hand the worker a minimal, self-contained prompt containing:
+
+- the user's request
+- the current working directory
+- the skill name and `packages/skills/closeout-phase/SKILL.md` path
+- the target `docs/work/` phase path when the user provided one, or instructions to resolve it
+- the required output contract: files changed, validation run, acceptance criteria decisions, guide/gap/history decisions, approvals needed, blockers, and drafted commit message
+
+The worker must read this skill and its referenced resources in its own context, prefer `jdocmunch` and `jcodemunch` first, reindex if stale, and only fall back to direct file reads after reindexing does not work. The worker owns acceptance evidence review, guide coverage, gap capture, history entry decisions, validation summary, and commit-message drafting.
+
+When spawning is unsupported or the spawn attempt fails, state that delegation is unavailable or failed, include the short reason, and continue by executing this skill directly.
+
 ## Workflow
 
 1. Resolve the target work backlog phase document under `docs/work/`.
