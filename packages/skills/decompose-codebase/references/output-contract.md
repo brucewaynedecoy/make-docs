@@ -111,7 +111,7 @@ Use the matching template in `assets/templates/` and preserve these required hea
 | Work index | `## Purpose`, `## Phase Map`, `## Usage Notes` |
 | Work phase | `## Purpose`, `## Overview`, `## Source PRD Docs`, repeatable stage headings with `### Tasks`, `### Acceptance criteria`, and `### Dependencies` |
 
-Risk-register items under `## Confirmed Drift`, `## Open Questions`, and `## Rebuild Risks` use `###` item headings with a `Status` / `Decision` / `Follow-Up` table. Valid item statuses are `Open`, `Confirming`, `Deferred`, and `Closed`. Each item should include `Question` or `Issue`, `Why it matters`, `Recommendation`, and `To close`; include `Resolution` only for closed items.
+Risk-register items under `## Confirmed Drift`, `## Open Questions`, and `## Rebuild Risks` use numbered `###` item headings with a `Status` / `Decision` / `Follow-Up` table. Use `D-001`, `D-002`, etc. for confirmed drift; `Q-001`, `Q-002`, etc. for open questions; and `R-001`, `R-002`, etc. for rebuild risks. Assign the next available number within the section and never renumber existing items, even when they move to `Closed`. Do not use `### Change Notes` inside the risk register; that heading remains for baseline PRD lineage only. Valid item statuses are `Open`, `Confirming`, `Deferred`, and `Closed`. Each item should include `Question` or `Issue`, `Why it matters`, `Recommendation`, and `To close`; include `Resolution` only for closed items.
 
 ## Code Anchor Rules
 

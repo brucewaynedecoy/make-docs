@@ -107,6 +107,20 @@ function isPackageOnlyDecomposeSkillFile(relativePath: string): boolean {
   );
 }
 
+function sectionBetween(contents: string, startHeading: string, endHeading: string): string {
+  const start = contents.indexOf(startHeading);
+  const end = contents.indexOf(endHeading);
+
+  expect(start).toBeGreaterThanOrEqual(0);
+  expect(end).toBeGreaterThan(start);
+
+  return contents.slice(start, end);
+}
+
+function itemHeadings(section: string): string[] {
+  return [...section.matchAll(/^### (.+)$/gm)].map((match) => match[1]);
+}
+
 describe("default profile consistency", () => {
   test("BUILDABLE_PATHS matches the default profile buildable asset set", () => {
     const profile = resolveInstallProfile(defaultSelections());
@@ -174,12 +188,73 @@ describe("risk register routing contract", () => {
     for (const relativePath of RISK_REGISTER_TEMPLATE_PATHS) {
       const contents = readFileSync(path.join(REPO_ROOT, relativePath), "utf8");
 
+      expect(contents).toContain("D-001");
+      expect(contents).toContain("Q-001");
+      expect(contents).toContain("R-001");
+      expect(contents).toContain("never renumber existing items");
+      expect(contents).toContain("Do not use `### Change Notes` inside this register");
       expect(contents).toContain("| Status | Decision | Follow-Up |");
       expect(contents).toContain("`Open`, `Confirming`, `Deferred`, or `Closed`");
       expect(contents).toContain("**Why it matters**");
       expect(contents).toContain("**Recommendation**");
       expect(contents).toContain("**To close**");
     }
+  });
+
+  test("risk-register references disallow change notes inside the register", () => {
+    for (const relativePath of [
+      "docs/assets/references/prd-change-management.md",
+      "packages/docs/template/docs/assets/references/prd-change-management.md",
+    ]) {
+      const contents = readFileSync(path.join(REPO_ROOT, relativePath), "utf8");
+
+      expect(contents).toContain("Do not use `### Change Notes` inside `03-open-questions-and-risk-register.md`");
+      expect(contents).toContain("D-001");
+      expect(contents).toContain("Q-001");
+      expect(contents).toContain("R-001");
+    }
+  });
+
+  test("active risk register uses section-prefixed item IDs", () => {
+    const contents = readFileSync(
+      path.join(REPO_ROOT, "docs/prd/03-open-questions-and-risk-register.md"),
+      "utf8",
+    );
+    const drift = sectionBetween(contents, "## Confirmed Drift", "## Open Questions");
+    const questions = sectionBetween(contents, "## Open Questions", "## Rebuild Risks");
+    const risks = sectionBetween(contents, "## Rebuild Risks", "## Source Anchors");
+
+    expect(contents).not.toContain("### Change Notes");
+    expect(itemHeadings(drift)).toEqual([
+      "D-001 README Wording Understates the Live Idempotent Sync Model",
+      "D-002 Public Command Guidance Lags the Shipped Command Taxonomy",
+      "D-003 Template and Reference Mode Labels Promise More Than the Selector Enforces",
+      "D-004 ResolvedAsset Asset Class Is Stale Relative to the Catalog",
+      "D-005 Skills Delivery Diverges From Earlier Bundled-Payload Expectations",
+      "D-006 Packaged README and Maintainer README Do Not Match the Current Tarball Allowlist",
+      "D-007 Dogfood Re-Seeding Remains Manual Without a Freshness Proof",
+      "D-008 Historical Hidden-Dot Paths Remain Easy to Mistake for Current Routing",
+      "D-009 Future packages/content Boundary Is Undefined",
+      "D-010 Skills Authoring and Release Guidance Is Thin Relative to Runtime Dependence",
+    ]);
+    expect(itemHeadings(questions)).toEqual([
+      "Q-001 What Is the Long-Term Skills Delivery Contract?",
+      "Q-002 Should Template and Reference Modes Remain Public Options?",
+      "Q-003 Should ResolvedAsset Keep a Third Asset Class?",
+      "Q-004 How Should packages/content Participate in the Product?",
+      "Q-005 How Should Maintainers Prove Dogfood Freshness?",
+      "Q-006 What Defines Public Release Readiness?",
+      "Q-007 How Should Remote Skill Sources Be Constrained?",
+    ]);
+    expect(itemHeadings(risks)).toEqual([
+      "R-001 Home-Scoped Skills Are Easy to Drop From a Clean-Room Rebuild",
+      "R-002 Audit Removability Depends on Regenerated Canonical Skill Content",
+      "R-003 Dev-Template and Packed-Template Resolution Can Diverge",
+      "R-004 Path Knowledge Is Duplicated Across Modules and Docs",
+      "R-005 The No-Command CLI Workflow Is Easy to Simplify Incorrectly",
+      "R-006 Backup and Uninstall Depend on a Single Reviewed Audit Snapshot",
+      "R-007 Manual Dogfood Re-Seeding Can Hide Product Drift",
+    ]);
   });
 
   test("dogfood risk-register contracts match the shipped template copies", () => {

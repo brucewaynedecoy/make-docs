@@ -6,10 +6,12 @@ Capture drift, ambiguities, unresolved behavior, decisions, and rebuild risks th
 
 Use this as the active PRD namespace's living register. When agents discover or resolve gaps, drift, open questions, risks, decisions, or closeout findings, update this document directly instead of creating a separate questions, decisions, risks, gaps, or architecture-decision file unless the user explicitly asks.
 
-Each item under `## Confirmed Drift`, `## Open Questions`, and `## Rebuild Risks` should use one `###` heading, a state table, and the body fields below. Use `Open`, `Confirming`, `Deferred`, or `Closed` for `Status`. Add `Resolution` only when the item is closed.
+Each item under `## Confirmed Drift`, `## Open Questions`, and `## Rebuild Risks` should use one numbered `###` heading, a state table, and the body fields below. Use `D-001`, `D-002`, etc. under `## Confirmed Drift`; `Q-001`, `Q-002`, etc. under `## Open Questions`; and `R-001`, `R-002`, etc. under `## Rebuild Risks`. Assign the next available number inside the section and never renumber existing items, even when an item moves to `Closed`. Use `Open`, `Confirming`, `Deferred`, or `Closed` for `Status`. Add `Resolution` only when the item is closed.
+
+Do not use `### Change Notes` inside this register. `### Change Notes` remains valid in baseline PRD docs for active-set evolution lineage, but the risk register tracks lineage through item IDs, `Decision`, `Follow-Up`, `Recommendation`, `To close`, and optional `Resolution`.
 
 ```markdown
-### <Gap, Question, Drift, or Risk Title>
+### D-001 <Gap, Question, Drift, or Risk Title>
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |

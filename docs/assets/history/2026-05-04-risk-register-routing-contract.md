@@ -29,14 +29,14 @@ make-docs/
 | Area | Summary |
 | --- | --- |
 | Router guidance | Added explicit gap-capture and anti-proliferation routing to generated docs routers and PRD routers. |
-| Risk-register contract | Updated output, PRD-change, and risk-register template contracts to describe the living register and item-level state schema. |
-| Active register | Converted the make-docs active risk register from section tables into per-item headings with state tables, issue/question bodies, recommendations, and close criteria. |
+| Risk-register contract | Updated output, PRD-change, and risk-register template contracts to describe the living register, item-level state schema, fixed level-2 headings, stable `D-###` / `Q-###` / `R-###` item IDs, and the never-renumber rule. |
+| Active register | Converted the make-docs active risk register from section tables into per-item headings with state tables, issue/question bodies, recommendations, close criteria, and stable section-prefixed IDs; removed risk-register-local `### Change Notes` blocks after preserving their useful links in item state fields. |
 | Skill assets | Updated closeout and decompose-codebase skill references/templates, then mirrored the dogfood `.agents` and `.claude` skill copies. |
 | Reference input | Used `example-gaps-doc-from-other-project.md` only as a temporary comparison input; it remains untracked and is not part of the project contract. |
 
 ### Gap Decisions
 
-This change fills the routing gap that allowed agents to create standalone questions, decisions, risks, gaps, or architecture-decision files even when an active PRD risk register exists. No `docs/architecture/` convention was introduced.
+This change fills the routing gap that allowed agents to create standalone questions, decisions, risks, gaps, or architecture-decision files even when an active PRD risk register exists. The follow-up numbering contract also fills the remaining addressability gap by making risk-register item headings deterministic and stable. No `docs/architecture/` convention was introduced, and `### Change Notes` remains valid for baseline PRD lineage but not as a risk-register item subsection.
 
 ### Validation
 
@@ -69,9 +69,9 @@ jcodemunch index_folder .
 | [docs/AGENTS.md](../../AGENTS.md) | Dogfood docs router with the canonical gap-capture route. |
 | [docs/prd/AGENTS.md](../../prd/AGENTS.md) | PRD router with living-register and anti-proliferation guidance. |
 | [docs/prd/03-open-questions-and-risk-register.md](../../prd/03-open-questions-and-risk-register.md) | Active risk register migrated to item-level state tracking. |
-| [docs/assets/references/output-contract.md](../references/output-contract.md) | Output contract updated for living risk-register behavior and item schema. |
-| [docs/assets/references/prd-change-management.md](../references/prd-change-management.md) | Active-set evolution rules updated for direct risk-register updates. |
-| [docs/assets/templates/prd-risk-register.md](../templates/prd-risk-register.md) | Template updated with item-level state table and closeout fields. |
+| [docs/assets/references/output-contract.md](../references/output-contract.md) | Output contract updated for living risk-register behavior, item schema, and stable section-prefixed item IDs. |
+| [docs/assets/references/prd-change-management.md](../references/prd-change-management.md) | Active-set evolution rules updated for direct numbered risk-register updates and risk-register-local `### Change Notes` deprecation. |
+| [docs/assets/templates/prd-risk-register.md](../templates/prd-risk-register.md) | Template updated with item-level state table, closeout fields, stable item IDs, and the never-renumber rule. |
 | [packages/docs/template/docs](../../../packages/docs/template/docs) | Shipped template copies aligned with the dogfood contract. |
 | [packages/skills](../../../packages/skills) | Closeout and decompose-codebase skill assets updated for the living-register contract. |
 | [packages/cli/tests](../../../packages/cli/tests) | Focused tests updated for router and risk-register contract expectations. |

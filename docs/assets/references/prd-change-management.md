@@ -43,12 +43,15 @@ This workflow covers:
 
 - Keep `docs/prd/03-open-questions-and-risk-register.md` as the canonical living register for gap state, open questions, resolved decisions, confirmed drift, and rebuild risks.
 - Preserve the fixed sections `## Confirmed Drift`, `## Open Questions`, `## Rebuild Risks`, and `## Source Anchors`.
-- Add or update one `###` item per gap, question, drift, or risk.
+- Add or update one numbered `###` item per gap, question, drift, or risk.
+- Use `D-001`, `D-002`, etc. under `## Confirmed Drift`; `Q-001`, `Q-002`, etc. under `## Open Questions`; and `R-001`, `R-002`, etc. under `## Rebuild Risks`.
+- Assign the next available number within the section and never renumber existing items, even when they move to `Closed`.
 - Each item starts with a table containing `Status`, `Decision`, and `Follow-Up`.
 - Use only `Open`, `Confirming`, `Deferred`, or `Closed` for item status.
 - Include `Question` or `Issue`, `Why it matters`, `Recommendation`, and `To close` for every item.
 - Add `Resolution` only when the item is closed.
 - If the item is already documented, update that existing item instead of duplicating it.
+- Do not use `### Change Notes` inside `03-open-questions-and-risk-register.md`; that heading remains valid only in baseline PRD docs and sections that need active-set evolution lineage.
 
 ## Change Doc Selection Rules
 

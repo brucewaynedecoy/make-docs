@@ -10,12 +10,7 @@ Status values are `Open`, `Confirming`, `Deferred`, and `Closed`. `Closed` requi
 
 ## Confirmed Drift
 
-### Change Notes
-
-- Superseded by [11-revise-cli-asset-selection-simplification.md](./11-revise-cli-asset-selection-simplification.md) for prompt/template/reference controls that are becoming invariant managed assets.
-- Superseded by [12-revise-cli-skill-selection-simplification.md](./12-revise-cli-skill-selection-simplification.md) for skill registry and selection behavior that is moving from required/optional categories to one selected-skill set.
-
-### README Wording Understates the Live Idempotent Sync Model
+### D-001 README Wording Understates the Live Idempotent Sync Model
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
@@ -29,7 +24,7 @@ Status values are `Open`, `Confirming`, `Deferred`, and `Closed`. `Closed` requi
 
 **To close**: README text matches the current planner behavior and focused CLI tests still pass.
 
-### Public Command Guidance Lags the Shipped Command Taxonomy
+### D-002 Public Command Guidance Lags the Shipped Command Taxonomy
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
@@ -43,11 +38,11 @@ Status values are `Open`, `Confirming`, `Deferred`, and `Closed`. `Closed` requi
 
 **To close**: Public command docs only describe accepted command paths or clearly label archived command history as historical.
 
-### Template and Reference Mode Labels Promise More Than the Selector Enforces
+### D-003 Template and Reference Mode Labels Promise More Than the Selector Enforces
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Confirming | Superseded by [11-revise-cli-asset-selection-simplification.md](./11-revise-cli-asset-selection-simplification.md). | Verify whether the W14 asset-selection simplification fully removed or reworded the public mode surface. |
+| Confirming | Superseded by [11-revise-cli-asset-selection-simplification.md](./11-revise-cli-asset-selection-simplification.md), which makes prompt/template/reference controls invariant managed assets. | Verify whether the W14 asset-selection simplification fully removed or reworded the public mode surface. |
 
 **Issue**: The wizard exposed `templatesMode` and `referencesMode` choices in `packages/cli/src/wizard.ts:354-889`, but `packages/cli/src/rules.ts:130-194` ignored `templatesMode` and used `referencesMode` only to optionally add `docs/assets/references/harness-capability-matrix.md`.
 
@@ -57,7 +52,7 @@ Status values are `Open`, `Confirming`, `Deferred`, and `Closed`. `Closed` requi
 
 **To close**: Current wizard, manifest, rules, README, and tests agree on asset-selection behavior.
 
-### ResolvedAsset Asset Class Is Stale Relative to the Catalog
+### D-004 ResolvedAsset Asset Class Is Stale Relative to the Catalog
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
@@ -71,11 +66,11 @@ Status values are `Open`, `Confirming`, `Deferred`, and `Closed`. `Closed` requi
 
 **To close**: The type union, catalog output, and tests agree on every live asset class.
 
-### Skills Delivery Diverges From Earlier Bundled-Payload Expectations
+### D-005 Skills Delivery Diverges From Earlier Bundled-Payload Expectations
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | None yet | Decide and document the long-term skills delivery contract. |
+| Open | Selected-skill category behavior is superseded by [12-revise-cli-skill-selection-simplification.md](./12-revise-cli-skill-selection-simplification.md); the delivery model decision remains open. | Decide and document the long-term skills delivery contract. |
 
 **Issue**: Runtime behavior comes from `packages/cli/src/skill-registry.ts:25-134` and `packages/cli/src/skill-resolver.ts:40-226`, which load a packaged registry and fetch skill payloads remotely; earlier design material such as `docs/assets/archive/designs/2026-04-16-cli-skill-installation.md` described bundling skill payloads into the CLI package.
 
@@ -85,7 +80,7 @@ Status values are `Open`, `Confirming`, `Deferred`, and `Closed`. `Closed` requi
 
 **To close**: Registry, resolver, package metadata, release docs, and tests all reflect the selected model.
 
-### Packaged README and Maintainer README Do Not Match the Current Tarball Allowlist
+### D-006 Packaged README and Maintainer README Do Not Match the Current Tarball Allowlist
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
@@ -99,7 +94,7 @@ Status values are `Open`, `Confirming`, `Deferred`, and `Closed`. `Closed` requi
 
 **To close**: `npm pack --dry-run` output and README package-surface descriptions agree.
 
-### Dogfood Re-Seeding Remains Manual Without a Freshness Proof
+### D-007 Dogfood Re-Seeding Remains Manual Without a Freshness Proof
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
@@ -113,7 +108,7 @@ Status values are `Open`, `Confirming`, `Deferred`, and `Closed`. `Closed` requi
 
 **To close**: A focused check catches stale dogfood template/reference copies after package-template edits.
 
-### Historical Hidden-Dot Paths Remain Easy to Mistake for Current Routing
+### D-008 Historical Hidden-Dot Paths Remain Easy to Mistake for Current Routing
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
@@ -127,7 +122,7 @@ Status values are `Open`, `Confirming`, `Deferred`, and `Closed`. `Closed` requi
 
 **To close**: Active docs no longer imply hidden-dot paths are current; historical links remain only as lineage.
 
-### Future packages/content Boundary Is Undefined
+### D-009 Future packages/content Boundary Is Undefined
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
@@ -141,7 +136,7 @@ Status values are `Open`, `Confirming`, `Deferred`, and `Closed`. `Closed` requi
 
 **To close**: A future design or PRD defines ownership, packaging, rendering, and dogfood rules for `packages/content/`.
 
-### Skills Authoring and Release Guidance Is Thin Relative to Runtime Dependence
+### D-010 Skills Authoring and Release Guidance Is Thin Relative to Runtime Dependence
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
@@ -157,16 +152,11 @@ Status values are `Open`, `Confirming`, `Deferred`, and `Closed`. `Closed` requi
 
 ## Open Questions
 
-### Change Notes
-
-- Superseded by [11-revise-cli-asset-selection-simplification.md](./11-revise-cli-asset-selection-simplification.md) for whether template and reference modes should remain public options.
-- Superseded by [12-revise-cli-skill-selection-simplification.md](./12-revise-cli-skill-selection-simplification.md) for selected-skill UX and the `selectedSkills` manifest requirement; remote source policy remains an unresolved delivery-security question.
-
-### What Is the Long-Term Skills Delivery Contract?
+### Q-001 What Is the Long-Term Skills Delivery Contract?
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | None yet | Choose remote-fetch, bundled-local, or dual-mode fallback. |
+| Open | Selected-skill UX and the `selectedSkills` manifest requirement are superseded by [12-revise-cli-skill-selection-simplification.md](./12-revise-cli-skill-selection-simplification.md); remote delivery remains unresolved. | Choose remote-fetch, bundled-local, or dual-mode fallback. |
 
 **Question**: What is the intended long-term skills delivery contract: remote-fetch, bundled-local, or dual-mode fallback?
 
@@ -176,11 +166,11 @@ Status values are `Open`, `Confirming`, `Deferred`, and `Closed`. `Closed` requi
 
 **To close**: The chosen delivery model is reflected in resolver behavior, package metadata, release docs, and tests.
 
-### Should Template and Reference Modes Remain Public Options?
+### Q-002 Should Template and Reference Modes Remain Public Options?
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Confirming | Superseded by [11-revise-cli-asset-selection-simplification.md](./11-revise-cli-asset-selection-simplification.md). | Verify current code and docs after the W14 simplification. |
+| Confirming | Superseded by [11-revise-cli-asset-selection-simplification.md](./11-revise-cli-asset-selection-simplification.md), which controls whether template and reference modes remain public options. | Verify current code and docs after the W14 simplification. |
 
 **Question**: Should `templatesMode` and `referencesMode` remain public options, and if so what should `required` vs `all` actually mean?
 
@@ -190,7 +180,7 @@ Status values are `Open`, `Confirming`, `Deferred`, and `Closed`. `Closed` requi
 
 **To close**: Current wizard, manifest, rules, docs, and tests agree on asset and reference selection.
 
-### Should ResolvedAsset Keep a Third Asset Class?
+### Q-003 Should ResolvedAsset Keep a Third Asset Class?
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
@@ -204,7 +194,7 @@ Status values are `Open`, `Confirming`, `Deferred`, and `Closed`. `Closed` requi
 
 **To close**: Type declarations, catalog behavior, and tests agree.
 
-### How Should packages/content Participate in the Product?
+### Q-004 How Should packages/content Participate in the Product?
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
@@ -218,7 +208,7 @@ Status values are `Open`, `Confirming`, `Deferred`, and `Closed`. `Closed` requi
 
 **To close**: A future design defines content ownership, package inclusion, rendering, dogfood, and release checks.
 
-### How Should Maintainers Prove Dogfood Freshness?
+### Q-005 How Should Maintainers Prove Dogfood Freshness?
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
@@ -232,7 +222,7 @@ Status values are `Open`, `Confirming`, `Deferred`, and `Closed`. `Closed` requi
 
 **To close**: CI or focused local tests fail when dogfood contract files drift from the package template unexpectedly.
 
-### What Defines Public Release Readiness?
+### Q-006 What Defines Public Release Readiness?
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
@@ -246,11 +236,11 @@ Status values are `Open`, `Confirming`, `Deferred`, and `Closed`. `Closed` requi
 
 **To close**: Package metadata, license posture, registry-name verification, and first-release version/tag strategy are documented and implemented.
 
-### How Should Remote Skill Sources Be Constrained?
+### Q-007 How Should Remote Skill Sources Be Constrained?
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | None yet | Define source protocol, pinning, and integrity policy for remote skills. |
+| Open | [12-revise-cli-skill-selection-simplification.md](./12-revise-cli-skill-selection-simplification.md) resolves selected-skill UX, but remote source policy remains an unresolved delivery-security question. | Define source protocol, pinning, and integrity policy for remote skills. |
 
 **Question**: How should remote skill sources be constrained?
 
@@ -262,15 +252,11 @@ Status values are `Open`, `Confirming`, `Deferred`, and `Closed`. `Closed` requi
 
 ## Rebuild Risks
 
-### Change Notes
-
-- Superseded by [12-revise-cli-skill-selection-simplification.md](./12-revise-cli-skill-selection-simplification.md) where rebuild risk depends on the old `optionalSkills` or required/default skill assumptions; home-scoped skill ownership and audit safety remain active constraints.
-
-### Home-Scoped Skills Are Easy to Drop From a Clean-Room Rebuild
+### R-001 Home-Scoped Skills Are Easy to Drop From a Clean-Room Rebuild
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Home-scoped skill ownership remains active product behavior. | Preserve home-scope backup, audit, and manifest handling in any rebuild. |
+| Open | Home-scoped skill ownership remains active product behavior; old `optionalSkills` and required/default skill assumptions are superseded by [12-revise-cli-skill-selection-simplification.md](./12-revise-cli-skill-selection-simplification.md). | Preserve home-scope backup, audit, and manifest handling in any rebuild. |
 
 **Issue**: A rebuild that assumes all managed files live under the target repo will break global skill installs, backup mapping, and uninstall safety.
 
@@ -280,7 +266,7 @@ Status values are `Open`, `Confirming`, `Deferred`, and `Closed`. `Closed` requi
 
 **To close**: Any rebuild plan explicitly covers project-scope and home-scope managed skill paths.
 
-### Audit Removability Depends on Regenerated Canonical Skill Content
+### R-002 Audit Removability Depends on Regenerated Canonical Skill Content
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
@@ -294,7 +280,7 @@ Status values are `Open`, `Confirming`, `Deferred`, and `Closed`. `Closed` requi
 
 **To close**: The audit model is documented and tested for the selected skill delivery contract.
 
-### Dev-Template and Packed-Template Resolution Can Diverge
+### R-003 Dev-Template and Packed-Template Resolution Can Diverge
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
@@ -308,7 +294,7 @@ Status values are `Open`, `Confirming`, `Deferred`, and `Closed`. `Closed` requi
 
 **To close**: Release validation proves both local and packed template resolution.
 
-### Path Knowledge Is Duplicated Across Modules and Docs
+### R-004 Path Knowledge Is Duplicated Across Modules and Docs
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
@@ -322,7 +308,7 @@ Status values are `Open`, `Confirming`, `Deferred`, and `Closed`. `Closed` requi
 
 **To close**: Either path constants are centralized or tests cover every duplicated path surface that matters.
 
-### The No-Command CLI Workflow Is Easy to Simplify Incorrectly
+### R-005 The No-Command CLI Workflow Is Easy to Simplify Incorrectly
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
@@ -336,7 +322,7 @@ Status values are `Open`, `Confirming`, `Deferred`, and `Closed`. `Closed` requi
 
 **To close**: Public help, parser behavior, docs, and tests all describe the same command model.
 
-### Backup and Uninstall Depend on a Single Reviewed Audit Snapshot
+### R-006 Backup and Uninstall Depend on a Single Reviewed Audit Snapshot
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
@@ -350,7 +336,7 @@ Status values are `Open`, `Confirming`, `Deferred`, and `Closed`. `Closed` requi
 
 **To close**: Backup and uninstall docs/tests continue to show one reviewed audit snapshot driving subsequent actions.
 
-### Manual Dogfood Re-Seeding Can Hide Product Drift
+### R-007 Manual Dogfood Re-Seeding Can Hide Product Drift
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |

@@ -95,7 +95,7 @@ Each novel gap should state:
 - if unfilled, when it is expected to be resolved
 - if there is no planned resolution, what it blocks
 
-When updating the PRD risk register, use one `###` item heading with a `Status` / `Decision` / `Follow-Up` table. Valid statuses are `Open`, `Confirming`, `Deferred`, and `Closed`. Include `Question` or `Issue`, `Why it matters`, `Recommendation`, and `To close`; add `Resolution` only when the item is closed.
+When updating the PRD risk register, use one numbered `###` item heading with a `Status` / `Decision` / `Follow-Up` table. Use `D-001`, `D-002`, etc. under `## Confirmed Drift`; `Q-001`, `Q-002`, etc. under `## Open Questions`; and `R-001`, `R-002`, etc. under `## Rebuild Risks`. Assign the next available number within the section and never renumber existing items. Valid statuses are `Open`, `Confirming`, `Deferred`, and `Closed`. Include `Question` or `Issue`, `Why it matters`, `Recommendation`, and `To close`; add `Resolution` only when the item is closed. Do not use `### Change Notes` inside the risk register.
 
 When no novel gaps were found, explicitly record `No novel gaps were found` in the history entry.
 
