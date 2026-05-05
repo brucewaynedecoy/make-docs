@@ -79,6 +79,15 @@ const DOGFOOD_TEMPLATE_PARITY_PATHS = [
   "docs/assets/references/prd-change-management.md",
 ];
 
+const GUIDE_TEMPLATE_PARITY_PATHS = [
+  "docs/assets/references/guide-contract.md",
+  "docs/assets/templates/guide-developer.md",
+  "docs/assets/templates/guide-user.md",
+  "docs/assets/prompts/work-to-guides.prompt.md",
+  "docs/guides/AGENTS.md",
+  "docs/guides/CLAUDE.md",
+];
+
 function isMirroredDecomposeSkillFile(relativePath: string): boolean {
   return (
     relativePath === "SKILL.md" ||
@@ -175,6 +184,49 @@ describe("risk register routing contract", () => {
 
   test("dogfood risk-register contracts match the shipped template copies", () => {
     for (const relativePath of DOGFOOD_TEMPLATE_PARITY_PATHS) {
+      const dogfoodContents = readFileSync(path.join(REPO_ROOT, relativePath), "utf8");
+      const templateContents = readFileSync(
+        path.join(REPO_ROOT, "packages", "docs", "template", relativePath),
+        "utf8",
+      );
+
+      expect(dogfoodContents).toBe(templateContents);
+    }
+  });
+});
+
+describe("guide generation routing contract", () => {
+  test("guide routers require audience decisions and future coverage notes", () => {
+    for (const relativePath of [
+      "docs/guides/AGENTS.md",
+      "docs/guides/CLAUDE.md",
+      "packages/docs/template/docs/guides/AGENTS.md",
+      "packages/docs/template/docs/guides/CLAUDE.md",
+    ]) {
+      const contents = readFileSync(path.join(REPO_ROOT, relativePath), "utf8");
+
+      expect(contents).toContain("developer`, `user`, `both`, `update-existing`, `link-only`, or `none");
+      expect(contents).toContain("## Future Coverage");
+      expect(contents).toContain("Do not create design docs, architecture decisions, or PRD risk-register items solely to remember future guide work");
+    }
+  });
+
+  test("guide contract defines audience intent and future coverage handling", () => {
+    for (const relativePath of [
+      "docs/assets/references/guide-contract.md",
+      "packages/docs/template/docs/assets/references/guide-contract.md",
+    ]) {
+      const contents = readFileSync(path.join(REPO_ROOT, relativePath), "utf8");
+
+      expect(contents).toContain("## Audience Contract");
+      expect(contents).toContain("## Guide Coverage Decision");
+      expect(contents).toContain("## Partial and Future Coverage");
+      expect(contents).toContain("Do not add frontmatter fields for deferred guide work");
+    }
+  });
+
+  test("dogfood guide contracts match the shipped template copies", () => {
+    for (const relativePath of GUIDE_TEMPLATE_PARITY_PATHS) {
       const dogfoodContents = readFileSync(path.join(REPO_ROOT, relativePath), "utf8");
       const templateContents = readFileSync(
         path.join(REPO_ROOT, "packages", "docs", "template", relativePath),

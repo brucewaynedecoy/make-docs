@@ -1,6 +1,6 @@
 ---
 name: closeout-phase
-description: Close out a completed work backlog phase. Use when the agent needs to verify unchecked acceptance criteria in a docs/work phase file, mark completed criteria, generate maintainer or developer guides when warranted, capture novel gaps, create a docs/assets/history entry, and draft a commit message from the repo convention.
+description: Close out a completed work backlog phase. Use when the agent needs to verify unchecked acceptance criteria in a docs/work phase file, mark completed criteria, generate or update developer and/or user guides when warranted, capture novel gaps, create a docs/assets/history entry, and draft a commit message from the repo convention.
 ---
 
 # Closeout Phase
@@ -11,7 +11,7 @@ description: Close out a completed work backlog phase. Use when the agent needs 
 2. Read [references/closeout-workflow.md](./references/closeout-workflow.md).
 3. Follow the closeout gates in order:
    - acceptance criteria verification
-   - developer guide decision
+   - guide coverage decision
    - gap capture
    - history entry
    - commit message draft
@@ -24,7 +24,7 @@ description: Close out a completed work backlog phase. Use when the agent needs 
 Before writing, read the nearest applicable `AGENTS.md`/`CLAUDE.md` files and the target repo contracts for:
 
 - work backlogs
-- developer guides
+- developer and user guides
 - history records
 - PRD or risk gap tracking, if present
 - commit message convention, if present

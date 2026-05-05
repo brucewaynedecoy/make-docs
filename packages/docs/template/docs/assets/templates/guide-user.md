@@ -11,30 +11,48 @@ status: draft
 
 # {{TITLE}}
 
-> See `docs/assets/references/guide-contract.md` for frontmatter schema and slug rules.
+> See `docs/assets/references/guide-contract.md` for frontmatter schema, slug rules, audience rules, coverage decisions, and future coverage handling.
 
 ## Overview
 
-What this guide covers and who it is for.
+What this guide helps users accomplish and who should start here.
 
-## Prerequisites
+## Before You Begin
 
-What you need before you begin.
+What the user needs before they can follow the guide.
 
 ## Getting Started
 
-First steps to get up and running.
+The shortest path to a first successful outcome.
 
-## Step-by-Step Instructions
+## Core Workflow
 
-Detailed walkthrough of the primary workflow.
+Step-by-step instructions for the primary user task.
+
+## Advanced Usage
+
+Optional deeper capabilities, variations, or next steps for experienced users.
 
 ## Troubleshooting
 
-Common issues and how to resolve them.
+Common issues, expected symptoms, and how to resolve them.
 
 ## FAQ
 
 Frequently asked questions.
 
-<!-- Headings above are suggestions. Add, remove, or rename sections to fit the guide's content. -->
+## Related Resources
+
+Links to related guides or deeper reference material.
+
+<!--
+## Future Coverage
+
+Use this section only when confirmed downstream work should update this guide later.
+
+- Blocked by: <phase, capability, decision, or artifact>
+  Update when: <concrete trigger>
+  Guide change: <what to add, revise, or remove>
+-->
+
+<!-- Headings above are suggestions. Add, remove, or rename sections to fit the guide's content while preserving the audience intent in the guide contract. -->

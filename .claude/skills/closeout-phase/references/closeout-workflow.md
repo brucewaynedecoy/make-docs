@@ -15,6 +15,7 @@ Use this workflow to close a completed work backlog phase without treating unche
 3. Inspect current git status and preserve unrelated local changes.
 4. Prefer indexed lookup for code and docs when available. Reindex stale `jdocmunch` or `jcodemunch` indexes before using direct reads.
 5. Build an evidence set from phase artifacts, changed files, tests, history records, and existing guides.
+6. Read the repo's guide contract and inspect current guides under `docs/guides/developer/` and `docs/guides/user/` before making guide decisions.
 
 ## Gate 1: Acceptance Criteria
 
@@ -32,24 +33,49 @@ For each unchecked acceptance criterion:
 
 Record any remaining unchecked items and why they stayed open.
 
-## Gate 2: Developer Guide Decision
+## Gate 2: Guide Coverage Decision
 
-Create or update a guide under `docs/guides/developer/` only when the phase introduced durable maintainer-facing or developer-facing knowledge that is not already covered by existing docs.
+Create or update guides only when the phase introduced durable user-facing, maintainer-facing, contributor-facing, operational, validation, or extension knowledge that is not already covered clearly.
 
-Create a guide when at least one condition is true:
+Before writing guide files:
+
+1. Read `docs/assets/references/guide-contract.md` when it exists.
+2. Read the matching guide templates under `docs/assets/templates/`.
+3. Inspect existing guides under `docs/guides/developer/` and `docs/guides/user/` for overlap.
+4. Decide the outcome for each documentation-worthy capability: `developer`, `user`, `both`, `update-existing`, `link-only`, or `none`.
+
+Create or update a developer guide when at least one condition is true:
 
 - maintainers need a new operational procedure to work safely with the shipped change
-- developers need orientation around new code paths, contracts, generated files, or validation flows
-- the phase created a repeated troubleshooting, release, migration, or setup concern
-- existing docs mention the capability but do not explain how to maintain or extend it
+- developers need orientation around new code paths, contracts, generated files, validation flows, or extension points
+- the phase created a repeated troubleshooting, release, migration, setup, or first-PR concern
+- existing docs mention the capability but do not explain how to maintain, extend, validate, or safely change it
+
+Create or update a user guide when at least one condition is true:
+
+- users need a new or changed workflow to use what the project ships
+- novices need orientation to a product concept, command, setup path, or expected result
+- advanced users need discoverable deeper usage, configuration, troubleshooting, or workflow expansion
+- existing docs mention the capability but do not explain how a user should apply it
+
+Prefer updating an existing guide when it already owns the topic. Use `related` frontmatter and cross-links for companion coverage instead of duplicating full guides across audiences.
 
 Do not create a guide when:
 
-- the phase only moved, archived, or checked off docs with no new maintainer procedure
+- the phase only moved, archived, or checked off docs with no new user, maintainer, or developer procedure
 - existing guides already cover the knowledge clearly
 - the only useful content would repeat the phase history entry
+- the capability is too internal for users and too narrow for maintainers or contributors
 
-When no guide is needed, explicitly record `No new developer guide was needed` in the history entry with a short reason.
+When current behavior is useful now but downstream work is needed to complete or enrich the guide later, write the current coverage now and add `## Future Coverage` to the guide with:
+
+- `Blocked by`: the missing downstream phase, capability, decision, or artifact
+- `Update when`: the concrete signal that should trigger the guide update
+- `Guide change`: what should be added, revised, or removed later
+
+Do not create design docs, architecture decisions, or PRD risk-register items solely to remember future guide work.
+
+When no guide is needed, explicitly record `No new developer guide was needed` and/or `No new user guide was needed` in the history entry with a short reason.
 
 ## Gate 3: Gap Capture
 
@@ -81,7 +107,8 @@ The history entry should include:
 
 - phase coordinate and source documents
 - acceptance criteria status changes
-- guide decisions, including no-guide outcomes
+- guide decisions for both developer and user audiences, including no-guide outcomes
+- future coverage notes added to guides, if any
 - gap capture decisions, including no-gap outcomes
 - validation performed and notable results
 - links to any PRD, guide, plan, work, or archived docs changed during closeout

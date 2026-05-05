@@ -11,30 +11,44 @@ status: draft
 
 # {{TITLE}}
 
-> See `docs/assets/references/guide-contract.md` for frontmatter schema and slug rules.
+> See `docs/assets/references/guide-contract.md` for frontmatter schema, slug rules, audience rules, coverage decisions, and future coverage handling.
 
 ## Overview
 
-What this guide covers and who it is for.
+What this guide helps contributors, maintainers, integrators, or operators do.
+
+## Project Orientation
+
+Where the relevant code, docs, generated files, contracts, and source-of-truth artifacts live.
 
 ## Prerequisites
 
-Tools, access, or knowledge required before starting.
+Tools, access, local setup, or project knowledge required before starting.
 
-## Setup / Configuration
+## Development Workflow
 
-Environment setup or configuration steps.
+How to change, extend, maintain, validate, or troubleshoot this capability.
 
-## Usage
+## Validation
 
-How to use the feature, tool, or workflow.
+Commands, checks, review points, or evidence that show the change is working.
 
 ## Troubleshooting
 
-Common issues and solutions.
+Common failures, likely causes, and recovery steps.
 
 ## Related Resources
 
-Links to related guides, designs, or external references.
+Links to related guides, designs, PRDs, work backlogs, history records, or reference contracts.
 
-<!-- Headings above are suggestions. Add, remove, or rename sections to fit the guide's content. -->
+<!--
+## Future Coverage
+
+Use this section only when confirmed downstream work should update this guide later.
+
+- Blocked by: <phase, capability, decision, or artifact>
+  Update when: <concrete trigger>
+  Guide change: <what to add, revise, or remove>
+-->
+
+<!-- Headings above are suggestions. Add, remove, or rename sections to fit the guide's content while preserving the audience intent in the guide contract. -->

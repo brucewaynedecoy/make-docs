@@ -237,6 +237,8 @@ describe("lifecycle validation", () => {
 
   test("backup and uninstall route lifecycle states through the renderer boundary", async () => {
     const targetDir = createTempDir();
+    const fakeHome = createTempDir("make-docs-home-");
+    const restoreHome = mockHomeDirectory(fakeHome);
     const events: string[] = [];
 
     try {
@@ -271,7 +273,9 @@ describe("lifecycle validation", () => {
       ]);
     } finally {
       __setLifecycleRendererForTests(null);
+      restoreHome();
       cleanupTempDir(targetDir);
+      cleanupTempDir(fakeHome);
     }
   });
 

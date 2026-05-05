@@ -39,6 +39,10 @@ export const PROMPT_RULES: PromptRule[] = [
     requires: ["prd", "work"],
   },
   {
+    relativePath: "docs/assets/prompts/work-to-guides.prompt.md",
+    requires: ["work"],
+  },
+  {
     relativePath: "docs/assets/prompts/update-readme-green-field.prompt.md",
     requires: ["designs", "plans"],
   },

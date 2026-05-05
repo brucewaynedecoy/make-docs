@@ -147,7 +147,8 @@ function renderDocsRouter(profile: InstallProfile): string {
   }
 
   lines.push(
-    "- For guides, continue in `docs/guides/`. User-facing and developer-facing guides live in `docs/guides/user/` and `docs/guides/developer/` — read `docs/assets/references/guide-contract.md` and the matching template (`docs/assets/templates/guide-developer.md` or `docs/assets/templates/guide-user.md`) before writing.",
+    "- For guides, continue in `docs/guides/`. Before writing, read `docs/assets/references/guide-contract.md`, inspect existing guides for overlap, choose `developer`, `user`, `both`, `update-existing`, `link-only`, or `none`, and use the matching template (`docs/assets/templates/guide-developer.md` or `docs/assets/templates/guide-user.md`).",
+    "- Use `## Future Coverage` inside guides for downstream-dependent guide updates. Do not create design docs, architecture decisions, or PRD risk-register items solely to remember future guide work.",
     "- For history records, continue in `docs/assets/history/` — read `docs/assets/references/history-record-contract.md` and `docs/assets/templates/history-record.md` before writing.",
   );
 
@@ -166,8 +167,12 @@ function renderGuidesRouter(profile: InstallProfile): string {
     "",
     "Use `docs/guides` only as a router. Do not create generated files directly in this directory.",
     "",
-    "- **User guides** are stored in `docs/guides/user/`. This can include developer-styled user documentation for extending or integrating with this project's product(s). Before writing, read `docs/assets/references/guide-contract.md` and copy the template from `docs/assets/templates/guide-user.md`.",
-    "- **Developer guides** are stored in `docs/guides/developer/`. Before writing, read `docs/assets/references/guide-contract.md` and copy the template from `docs/assets/templates/guide-developer.md`.",
+    "- Before writing any guide, read `docs/assets/references/guide-contract.md`, inspect existing guides for overlap, and decide whether the right outcome is `developer`, `user`, `both`, `update-existing`, `link-only`, or `none`.",
+    "- **User guides** are stored in `docs/guides/user/`. They explain the shipped product from a user's perspective, from novice orientation through advanced workflows. Use `docs/assets/templates/guide-user.md` when creating one.",
+    "- **Developer guides** are stored in `docs/guides/developer/`. They help contributors, maintainers, integrators, and operators navigate the codebase, docs, contracts, validation, extension points, and safe-change workflows. Use `docs/assets/templates/guide-developer.md` when creating one.",
+    "- Prefer updating an existing guide when it already owns the topic. Use cross-links and `related` frontmatter instead of duplicating full guides across audiences.",
+    "- If current confirmed behavior is useful but downstream work will expand it, write the current coverage now and add `## Future Coverage` for the blocked guide update.",
+    "- Do not create design docs, architecture decisions, or PRD risk-register items solely to remember future guide work.",
     "- History records are not guides. Route them through `docs/assets/history/` instead.",
     "- If the `docs/guides/user` or `docs/guides/developer` directories do not exist, create them ONLY when first writing a guide that belongs in the specific sub-folder.",
     "",

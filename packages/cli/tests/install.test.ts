@@ -236,6 +236,7 @@ describe("installer integration", () => {
       ).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/work/AGENTS.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/assets/prompts/designs-to-plan.prompt.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/assets/prompts/work-to-guides.prompt.md"))).toBe(true);
       expect(
         existsSync(path.join(targetDir, "docs/assets/references/harness-capability-matrix.md")),
       ).toBe(true);
@@ -257,6 +258,8 @@ describe("installer integration", () => {
 
       const guidesRouter = readFileSync(path.join(targetDir, "docs/guides/AGENTS.md"), "utf8");
       expect(guidesRouter).toContain("guide-contract.md");
+      expect(guidesRouter).toContain("developer`, `user`, `both`, `update-existing`, `link-only`, or `none");
+      expect(guidesRouter).toContain("## Future Coverage");
       expect(guidesRouter).not.toContain("docs/guides/agent");
       expect(manifest.skillFiles).toContain(".claude/skills/archive-docs/SKILL.md");
       expect(manifest.skillFiles).toContain(".agents/skills/archive-docs/SKILL.md");

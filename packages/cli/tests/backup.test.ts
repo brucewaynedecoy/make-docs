@@ -191,7 +191,7 @@ describe("backup command", () => {
       });
       expect(events[1]).toMatchObject({
         destinationDir: path.join(targetDir, ".backup/2026-04-18"),
-        filesToCopy: 68,
+        filesToCopy: 69,
         directoriesToMaterialize: 13,
         retained: 0,
         skipped: 0,
@@ -203,7 +203,7 @@ describe("backup command", () => {
       expect(events[3]).toMatchObject({
         status: "completed",
         destinationDir: path.join(targetDir, ".backup/2026-04-18"),
-        copiedFiles: 68,
+        copiedFiles: 69,
         materializedDirectories: 13,
         retained: 0,
         skipped: 0,
@@ -344,6 +344,8 @@ describe("backup command", () => {
 
   test("exits cleanly without prompting or creating backup directories when nothing is copyable", async () => {
     const targetDir = createTempDir();
+    const fakeHome = createTempDir("make-docs-home-");
+    const restoreHome = mockHomeDirectory(fakeHome);
 
     try {
       const { result, output } = await captureBackupRun({
@@ -359,12 +361,16 @@ describe("backup command", () => {
       expect(output).toContain("No make-docs-managed files required backup.");
       expect(output).toContain("No backup destination was created.");
     } finally {
+      restoreHome();
       cleanupTempDir(targetDir);
+      cleanupTempDir(fakeHome);
     }
   });
 
   test("routes backup noop through the renderer without prompting or creating a destination", async () => {
     const targetDir = createTempDir();
+    const fakeHome = createTempDir("make-docs-home-");
+    const restoreHome = mockHomeDirectory(fakeHome);
     const events: BackupRendererEvent[] = [];
 
     try {
@@ -394,7 +400,9 @@ describe("backup command", () => {
       expect(existsSync(path.join(targetDir, ".backup"))).toBe(false);
       expect(confirmMock).not.toHaveBeenCalled();
     } finally {
+      restoreHome();
       cleanupTempDir(targetDir);
+      cleanupTempDir(fakeHome);
     }
   });
 
