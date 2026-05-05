@@ -120,7 +120,7 @@ function renderDocsRouter(profile: InstallProfile): string {
     profile.capabilityState.work.effectiveSelection
   ) {
     lines.push(
-      "- For PRD or work generation, read `docs/assets/references/execution-workflow.md`, `docs/assets/references/output-contract.md`, and the selected template in `docs/assets/templates/`, then continue in `docs/prd/` or `docs/work/`.",
+      "- For PRD or work generation, read `docs/assets/references/execution-workflow.md`, `docs/assets/references/output-contract.md`, and the selected template in `docs/assets/templates/`, then continue in `docs/prd/` or `docs/work/`; work phase tasks use `- [ ] t1: ...` checkbox items and acceptance criteria use plain bullets.",
     );
   } else if (profile.capabilityState.prd.effectiveSelection) {
     lines.push(

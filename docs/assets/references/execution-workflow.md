@@ -142,7 +142,8 @@ For active-set evolution, prefer these separate write scopes when possible:
 - Active-set evolution writes `docs/work/YYYY-MM-DD-w{W}-r{R}-<slug>/` as a delta backlog directory containing `00-index.md` plus `0N-<phase>.md` phase files.
 - Plans use the same form: `docs/plans/YYYY-MM-DD-w{W}-r{R}-<slug>/` containing `00-overview.md` plus `0N-<phase>.md` phase files.
 - Keep backlog phases dependency-ordered across the `0N-<phase>.md` files.
-- Include task-level acceptance criteria in every stage.
+- In every stage, write `### Tasks` as markdown task list items using phase-local task IDs (`- [ ] t1: ...`, `- [x] t1: ...`) and write `### Acceptance criteria` as plain unordered bullets only.
+- Increment task IDs across the entire phase file without resetting in later stages. Do not renumber existing task IDs when inserting or completing work.
 - Include phase-level PRD traceability via `Source PRD Docs`.
 - Delta backlogs should cite both the new change docs and the impacted baseline docs that still constrain implementation.
 

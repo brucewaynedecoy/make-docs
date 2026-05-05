@@ -34,7 +34,7 @@ When spawning is unsupported or the spawn attempt fails, state that delegation i
    - commit message convention resolution
    - commit message draft
 4. Draft the commit message only. Do not stage files or create the commit unless the user explicitly asks.
-5. Use `$closeout-phase` only when the change set includes a specific `docs/work/` phase with unchecked acceptance criteria, or the user explicitly asks to close out a phase.
+5. Use `$closeout-phase` only when the change set includes a specific `docs/work/` phase with unchecked task items, or the user explicitly asks to close out a phase.
 6. End with a concise summary of files changed, validation run, gap/history decisions, and the drafted commit message.
 
 ## Required Repo Context

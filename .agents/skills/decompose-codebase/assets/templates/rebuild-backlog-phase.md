@@ -19,13 +19,13 @@ Explain the work covered by this phase and the value it unlocks.
 
 ### Tasks
 
-1. {{TASK}}
-2. {{TASK}}
+- [ ] t1: {{TASK}}
+- [ ] t2: {{TASK}}
 
 ### Acceptance criteria
 
-- [ ] {{ACCEPTANCE}}
-- [ ] {{ACCEPTANCE}}
+- {{ACCEPTANCE}}
+- {{ACCEPTANCE}}
 
 ### Dependencies
 

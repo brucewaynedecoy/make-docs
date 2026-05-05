@@ -109,7 +109,8 @@ If the harness supports delegated workers, do not postpone delegation until the 
 - Work is always a directory in v2. Write the rebuild backlog to `docs/work/YYYY-MM-DD-w{W}-r{R}-<slug>/` with `00-index.md` plus one or more `0N-<phase>.md` files.
 - Keep the backlog dependency-ordered across the `0N-<phase>.md` files.
 - Include phase-level PRD traceability through `## Source PRD Docs`.
-- Include task-level acceptance criteria in every stage.
+- In every stage, write `### Tasks` as markdown task list items using phase-local task IDs (`- [ ] t1: ...`, `- [x] t1: ...`) and write `### Acceptance criteria` as plain unordered bullets only.
+- Increment task IDs across the entire phase file without resetting in later stages. Do not renumber existing task IDs when inserting or completing work.
 
 ## Final Validation
 

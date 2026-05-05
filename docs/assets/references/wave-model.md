@@ -13,6 +13,7 @@ Every other reference file, template, and router links here instead of restating
 | `w{W}` | Wave | One end-to-end iteration: design to plan to work. Wave 1 is the initial wave. A new wave begins when the user starts a new end-to-end initiative. |
 | `r{R}` | Revision | Revision within a wave. `r0` is the initial revision. `r1+` are meaningful redos of that wave's artifacts (for example a redesigned design or a re-planned plan after feedback). |
 | `p{P}` | Phase | Phase within a plan or work backlog. Appears in inner phase files, phase-scoped history filenames, and history record `coordinate` frontmatter. `p{P}` does not appear in the top-level names of designs, plans, or work directories. Stage/task detail stays in `coordinate` only. |
+| `t{T}` | Task | Task within one work backlog phase file. Task IDs appear on `### Tasks` checkbox items as phase-local ordinals (`t1`, `t2`, etc.) and are referenced externally as `w{W} r{R} p{P} t{T}` by inferring W/R from the work directory and P from the phase file. |
 
 ## Naming Patterns
 
@@ -45,6 +46,8 @@ When writing a new plan directory or work directory, determine `W` and `R` in th
 Do not assign a new wave solely because newer unrelated waves exist. The highest-wave scan is a fallback for genuinely new initiatives, not evidence that a revision to older work belongs to a newer wave.
 
 For history records, store any known W/R/P/S/T position in the `coordinate` frontmatter field described by `docs/assets/references/history-record-contract.md`. Include W/R/P in the filename when all three are known. Include W/R when only those two are known. Keep stage and task detail only in `coordinate`.
+
+For work backlog tasks, number task IDs ordinally across the entire phase file, not within each stage. Start the first task at `t1`, continue through later `### Tasks` sections without resetting, and do not renumber existing task IDs when inserting or completing work. Use unordered markdown task syntax (`- [ ] t1: ...` or `- [x] t1: ...`) so checkbox rendering stays reliable.
 
 ## PRD Exemption
 

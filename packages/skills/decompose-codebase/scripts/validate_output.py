@@ -20,6 +20,9 @@ LINK_RE = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
 FENCE_RE = re.compile(r"^(`{3,}|~{3,})")
 INLINE_CODE_RE = re.compile(r"(`{1,2})(?!`)(.+?)(?<!`)\1(?!`)")
 UNESCAPED_SPACE_RE = re.compile(r"(?<!\\) ")
+TASK_ITEM_RE = re.compile(r"^- \[[ xX]\] t([1-9]\d*):\s+\S")
+ACCEPTANCE_CHECKBOX_RE = re.compile(r"^- \[[ xX]\]\s+")
+TASK_LABEL_IN_ACCEPTANCE_RE = re.compile(r"^- t[1-9]\d*:")
 INSTRUCTION_FILES = {"AGENTS.md", "CLAUDE.md"}
 
 CORE_DOC_RULES = {
@@ -251,6 +254,33 @@ def validate_anchor_sections(
             errors.append(f"{path}: section '## {heading}' does not contain a code anchor")
 
 
+def get_subsection_lines(section_body: str, heading: str) -> list[str] | None:
+    current_heading: str | None = None
+    lines: list[str] = []
+    found = False
+
+    for line in section_body.splitlines():
+        if line.startswith("### "):
+            current_heading = line[4:].strip()
+            if current_heading == heading:
+                found = True
+            continue
+        if current_heading == heading:
+            lines.append(line)
+
+    if not found:
+        return None
+    return lines
+
+
+def significant_lines(lines: list[str]) -> list[str]:
+    return [
+        line.strip()
+        for line in lines
+        if line.strip() and not line.strip().startswith("<!--")
+    ]
+
+
 def validate_archive_root(archive_root: Path, errors: list[str]) -> None:
     if not archive_root.exists():
         return
@@ -366,12 +396,62 @@ def validate_work_phase_doc(
 ) -> None:
     validate_required_sections(path, sections, BACKLOG_PHASE_RULE["required"], errors)
 
-    if not any(title.startswith("Stage ") for title in sections):
+    stage_items = [(title, body) for title, body in sections.items() if title.startswith("Stage ")]
+    if not stage_items:
         errors.append(f"{path}: work phase must contain at least one '## Stage ...' section")
 
-    for heading in ("### Tasks", "### Acceptance criteria", "### Dependencies"):
-        if heading not in text:
-            errors.append(f"{path}: missing required work-phase subsection '{heading}'")
+    expected_task_number = 1
+    seen_task_numbers: set[int] = set()
+
+    for stage_title, stage_body in stage_items:
+        for heading in ("Tasks", "Acceptance criteria", "Dependencies"):
+            if get_subsection_lines(stage_body, heading) is None:
+                errors.append(
+                    f"{path}: stage '## {stage_title}' missing required subsection '### {heading}'"
+                )
+
+        task_lines = get_subsection_lines(stage_body, "Tasks")
+        if task_lines is not None:
+            task_items = significant_lines(task_lines)
+            if not task_items:
+                errors.append(f"{path}: stage '## {stage_title}' must include at least one task item")
+            for line in task_items:
+                match = TASK_ITEM_RE.match(line)
+                if not match:
+                    errors.append(
+                        f"{path}: task item in '## {stage_title}' must use '- [ ] tN: ...' or '- [x] tN: ...': {line}"
+                    )
+                    continue
+                task_number = int(match.group(1))
+                if task_number in seen_task_numbers:
+                    errors.append(f"{path}: duplicate task id t{task_number}")
+                if task_number != expected_task_number:
+                    errors.append(
+                        f"{path}: task item in '## {stage_title}' expected t{expected_task_number} but found t{task_number}"
+                    )
+                seen_task_numbers.add(task_number)
+                expected_task_number += 1
+
+        acceptance_lines = get_subsection_lines(stage_body, "Acceptance criteria")
+        if acceptance_lines is not None:
+            acceptance_items = significant_lines(acceptance_lines)
+            if not acceptance_items:
+                errors.append(
+                    f"{path}: stage '## {stage_title}' must include at least one acceptance criterion"
+                )
+            for line in acceptance_items:
+                if ACCEPTANCE_CHECKBOX_RE.match(line):
+                    errors.append(
+                        f"{path}: acceptance criteria in '## {stage_title}' must be plain bullets, not checkboxes: {line}"
+                    )
+                elif TASK_LABEL_IN_ACCEPTANCE_RE.match(line):
+                    errors.append(
+                        f"{path}: acceptance criteria in '## {stage_title}' must not use task ids: {line}"
+                    )
+                elif not line.startswith("- "):
+                    errors.append(
+                        f"{path}: acceptance criteria in '## {stage_title}' must use plain '- ...' bullets: {line}"
+                    )
 
 
 def validate_assets_archive(repo_root: Path, errors: list[str]) -> None:

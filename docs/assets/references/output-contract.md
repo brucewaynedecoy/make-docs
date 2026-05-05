@@ -161,6 +161,9 @@ Every work backlog is a directory, not a single file.
   - `### Tasks`
   - `### Acceptance criteria`
   - `### Dependencies`
+- `### Tasks` items are markdown task list items with phase-local task IDs: `- [ ] t1: {{TASK}}` for open tasks and `- [x] t1: {{TASK}}` for completed tasks.
+- Task IDs start at `t1` in each phase file and increment across all stages in that file. Do not reset numbering in later stages and do not renumber existing task IDs when inserting or completing work.
+- `### Acceptance criteria` items are always plain unordered bullets (`- {{ACCEPTANCE}}`). Do not use checkbox syntax or `t{T}` labels in acceptance criteria.
 
 ## Code Anchor Rules
 
@@ -198,7 +201,8 @@ Use `## Source Anchors` to aggregate the most important files that shaped the do
 - Keep work out of `docs/prd/`.
 - Every work backlog is a directory under `docs/work/` following the W/R naming pattern; link phase files back to the relevant PRD docs.
 - Organize phases and stages by dependency order, not by implementation convenience.
-- Include task-level acceptance criteria in every stage.
+- Include markdown task-list items and plain-bullet acceptance criteria in every stage.
+- Use phase-local task IDs (`t1`, `t2`, etc.) on task items so a task can be referenced externally as `w{W} r{R} p{P} t{T}`.
 - For active-set evolution work, use a dated delta work directory with a distinguishing slug (for example `...-<subject>-delta`) instead of rewriting a prior backlog.
 - Every phase file must include `## Source PRD Docs`.
 

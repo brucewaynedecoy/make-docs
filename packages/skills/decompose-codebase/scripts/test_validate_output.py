@@ -244,8 +244,8 @@ class TestValidateLinksEndToEnd(unittest.TestCase):
             "## Purpose\nP.\n## Overview\nO.\n## Source PRD Docs\n"
             "- [PRD Index](../../prd/00-index.md)\n"
             "## Stage 1 - Foundation\n"
-            "### Tasks\n1. T.\n"
-            "### Acceptance criteria\n- [ ] A.\n"
+            "### Tasks\n- [ ] t1: T.\n"
+            "### Acceptance criteria\n- A.\n"
             "### Dependencies\n- None.\n"
         )
         return work_backlog
@@ -333,6 +333,105 @@ class TestValidateLinksEndToEnd(unittest.TestCase):
         ))
         _, link_errors = self._check_work()
         self.assertEqual(link_errors, [])
+
+    def test_build_result_accepts_phase_local_task_ids_across_stages(self):
+        self._write_minimal_prd_set()
+        work_backlog = self._write_minimal_work_directory()
+        (work_backlog / "01-foundation.md").write_text(
+            "## Purpose\nP.\n## Overview\nO.\n## Source PRD Docs\n"
+            "- [PRD Index](../../prd/00-index.md)\n"
+            "## Stage 1 - Foundation\n"
+            "### Tasks\n- [ ] t1: First task.\n- [x] t2: Second task.\n"
+            "### Acceptance criteria\n- First acceptance.\n"
+            "### Dependencies\n- None.\n"
+            "## Stage 2 - Follow-up\n"
+            "### Tasks\n- [ ] t3: Third task.\n"
+            "### Acceptance criteria\n- Third acceptance.\n"
+            "### Dependencies\n- Stage 1.\n"
+        )
+
+        result = build_result(self.tmpdir)
+        self.assertTrue(result["ok"], f"Unexpected validation errors: {result['errors']}")
+
+    def test_build_result_rejects_numbered_task_items(self):
+        self._write_minimal_prd_set()
+        work_backlog = self._write_minimal_work_directory()
+        (work_backlog / "01-foundation.md").write_text(
+            "## Purpose\nP.\n## Overview\nO.\n## Source PRD Docs\n"
+            "- [PRD Index](../../prd/00-index.md)\n"
+            "## Stage 1 - Foundation\n"
+            "### Tasks\n1. T.\n"
+            "### Acceptance criteria\n- A.\n"
+            "### Dependencies\n- None.\n"
+        )
+
+        result = build_result(self.tmpdir)
+        self.assertFalse(result["ok"])
+        self.assertTrue(
+            any("must use '- [ ] tN: ...' or '- [x] tN: ...'" in error for error in result["errors"]),
+            result["errors"],
+        )
+
+    def test_build_result_rejects_missing_task_ids(self):
+        self._write_minimal_prd_set()
+        work_backlog = self._write_minimal_work_directory()
+        (work_backlog / "01-foundation.md").write_text(
+            "## Purpose\nP.\n## Overview\nO.\n## Source PRD Docs\n"
+            "- [PRD Index](../../prd/00-index.md)\n"
+            "## Stage 1 - Foundation\n"
+            "### Tasks\n- [ ] Missing task id.\n"
+            "### Acceptance criteria\n- A.\n"
+            "### Dependencies\n- None.\n"
+        )
+
+        result = build_result(self.tmpdir)
+        self.assertFalse(result["ok"])
+        self.assertTrue(
+            any("must use '- [ ] tN: ...' or '- [x] tN: ...'" in error for error in result["errors"]),
+            result["errors"],
+        )
+
+    def test_build_result_rejects_acceptance_checkboxes(self):
+        self._write_minimal_prd_set()
+        work_backlog = self._write_minimal_work_directory()
+        (work_backlog / "01-foundation.md").write_text(
+            "## Purpose\nP.\n## Overview\nO.\n## Source PRD Docs\n"
+            "- [PRD Index](../../prd/00-index.md)\n"
+            "## Stage 1 - Foundation\n"
+            "### Tasks\n- [ ] t1: T.\n"
+            "### Acceptance criteria\n- [ ] A.\n"
+            "### Dependencies\n- None.\n"
+        )
+
+        result = build_result(self.tmpdir)
+        self.assertFalse(result["ok"])
+        self.assertTrue(
+            any("must be plain bullets, not checkboxes" in error for error in result["errors"]),
+            result["errors"],
+        )
+
+    def test_build_result_rejects_task_id_reset_in_later_stage(self):
+        self._write_minimal_prd_set()
+        work_backlog = self._write_minimal_work_directory()
+        (work_backlog / "01-foundation.md").write_text(
+            "## Purpose\nP.\n## Overview\nO.\n## Source PRD Docs\n"
+            "- [PRD Index](../../prd/00-index.md)\n"
+            "## Stage 1 - Foundation\n"
+            "### Tasks\n- [ ] t1: First task.\n"
+            "### Acceptance criteria\n- First acceptance.\n"
+            "### Dependencies\n- None.\n"
+            "## Stage 2 - Follow-up\n"
+            "### Tasks\n- [ ] t1: Reset task.\n"
+            "### Acceptance criteria\n- Second acceptance.\n"
+            "### Dependencies\n- Stage 1.\n"
+        )
+
+        result = build_result(self.tmpdir)
+        self.assertFalse(result["ok"])
+        self.assertTrue(
+            any("expected t2 but found t1" in error for error in result["errors"]),
+            result["errors"],
+        )
 
     def test_build_result_integration(self):
         """Full build_result integration — code patterns don't cause failures."""

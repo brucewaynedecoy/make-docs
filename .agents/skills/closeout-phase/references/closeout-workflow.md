@@ -1,6 +1,6 @@
 # Closeout Phase Workflow
 
-Use this workflow to close a completed work backlog phase without treating unchecked boxes as proof of unfinished work or creating unnecessary documentation.
+Use this workflow to close a completed work backlog phase without treating unchecked task boxes as proof of unfinished work or creating unnecessary documentation.
 
 ## Inputs
 
@@ -11,15 +11,15 @@ Use this workflow to close a completed work backlog phase without treating unche
 ## Preflight
 
 1. Read the nearest `AGENTS.md`/`CLAUDE.md` files that apply to every file you expect to touch.
-2. Identify the phase coordinate, source plan/PRD docs, and acceptance criteria section.
+2. Identify the phase coordinate, source plan/PRD docs, task list, and acceptance criteria section.
 3. Inspect current git status and preserve unrelated local changes.
 4. Prefer indexed lookup for code and docs when available. Reindex stale `jdocmunch` or `jcodemunch` indexes before using direct reads.
 5. Build an evidence set from phase artifacts, changed files, tests, history records, and existing guides.
 6. Read the repo's guide contract and inspect current guides under `docs/guides/developer/` and `docs/guides/user/` before making guide decisions.
 
-## Gate 1: Acceptance Criteria
+## Gate 1: Task Completion
 
-For each unchecked acceptance criterion:
+For each unchecked `### Tasks` item:
 
 1. Determine whether it maps to completed work, unfinished work, failed work, or ambiguous evidence.
 2. Treat these as completion evidence:
@@ -27,11 +27,12 @@ For each unchecked acceptance criterion:
    - tests or validation relevant to the criterion passed
    - linked history, plan, PRD, or guide docs confirm the outcome
    - the user explicitly states the item is complete and the checkbox is stale
-3. Mark the criterion complete only when evidence supports completion and no failing validation contradicts it.
-4. Do not mark the criterion complete when evidence shows unfinished work, failed tests, or an unresolved blocker.
-5. Ask the user before changing the checkbox when the evidence is ambiguous or when completion depends on context that is not present in the repo.
+3. Use `### Acceptance criteria` bullets as evidence for the related task; do not add checkbox syntax to acceptance criteria.
+4. Mark the task complete only when evidence supports completion and no failing validation contradicts it.
+5. Do not mark the task complete when evidence shows unfinished work, failed tests, or an unresolved blocker.
+6. Ask the user before changing the checkbox when the evidence is ambiguous or when completion depends on context that is not present in the repo.
 
-Record any remaining unchecked items and why they stayed open.
+Record any remaining unchecked task items and why they stayed open.
 
 ## Gate 2: Guide Coverage Decision
 

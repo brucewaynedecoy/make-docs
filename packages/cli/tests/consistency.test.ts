@@ -88,6 +88,14 @@ const GUIDE_TEMPLATE_PARITY_PATHS = [
   "docs/guides/CLAUDE.md",
 ];
 
+const WORK_PHASE_TEMPLATE_PATHS = [
+  "docs/assets/templates/work-phase.md",
+  "packages/docs/template/docs/assets/templates/work-phase.md",
+  "packages/skills/decompose-codebase/assets/templates/rebuild-backlog-phase.md",
+  ".agents/skills/decompose-codebase/assets/templates/rebuild-backlog-phase.md",
+  ".claude/skills/decompose-codebase/assets/templates/rebuild-backlog-phase.md",
+];
+
 function isMirroredDecomposeSkillFile(relativePath: string): boolean {
   return (
     relativePath === "SKILL.md" ||
@@ -165,6 +173,38 @@ describe("template completeness", () => {
     const unmanaged = templateFiles.filter((file) => !managedPaths.has(file));
 
     expect(unmanaged).toEqual([]);
+  });
+});
+
+describe("work backlog task contract", () => {
+  test("work phase templates use task checkboxes and plain acceptance bullets", () => {
+    for (const relativePath of WORK_PHASE_TEMPLATE_PATHS) {
+      const contents = readFileSync(path.join(REPO_ROOT, relativePath), "utf8");
+
+      expect(contents).toContain("- [ ] t1: {{TASK}}");
+      expect(contents).toContain("- [ ] t2: {{TASK}}");
+      expect(contents).toContain("- {{ACCEPTANCE}}");
+      expect(contents).not.toContain("1. {{TASK}}");
+      expect(contents).not.toContain("- [ ] {{ACCEPTANCE}}");
+    }
+  });
+
+  test("work backlog references document task IDs and plain acceptance criteria", () => {
+    for (const relativePath of [
+      "docs/assets/references/output-contract.md",
+      "docs/assets/references/execution-workflow.md",
+      "packages/docs/template/docs/assets/references/output-contract.md",
+      "packages/docs/template/docs/assets/references/execution-workflow.md",
+      "packages/skills/decompose-codebase/references/output-contract.md",
+      "packages/skills/decompose-codebase/references/execution-workflow.md",
+    ]) {
+      const contents = readFileSync(path.join(REPO_ROOT, relativePath), "utf8");
+
+      expect(contents).toContain("phase-local task IDs");
+      expect(contents).toContain("- [ ] t1:");
+      expect(contents).toContain("plain unordered bullets");
+      expect(contents).toContain("renumber existing task IDs");
+    }
   });
 });
 
@@ -314,6 +354,8 @@ describe("guide generation routing contract", () => {
 
       expect(contents).toContain("re-check overlapping existing guides");
       expect(contents).toContain("No existing guide enrichment was needed");
+      expect(contents).toContain("For each unchecked `### Tasks` item");
+      expect(contents).toContain("Use `### Acceptance criteria` bullets as evidence");
     }
   });
 

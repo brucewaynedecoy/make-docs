@@ -41,7 +41,7 @@ describe("skill catalog", () => {
       {
         name: "closeout-phase",
         description:
-          "Close out completed work backlog phases with checked criteria, guides, gap capture, history, and commit-message drafts.",
+          "Close out completed work backlog phases with checked tasks, acceptance evidence, guides, gap capture, history, and commit-message drafts.",
       },
       {
         name: "decompose-codebase",
