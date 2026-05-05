@@ -76,6 +76,8 @@ Resolve each documentation-worthy capability to one of these outcomes:
 
 When both audiences are relevant, avoid duplicating the same guide in both directories. Put the detailed guide in the primary audience directory and use `related` frontmatter plus concise companion coverage when the secondary audience needs a different entry point.
 
+After creating or updating guide content, re-check overlapping developer and user guides. Add reciprocal links, `related` frontmatter, or concise supplemental context when the new guide work helps an existing guide become easier to discover, navigate, or apply.
+
 When no guide is needed during closeout or generation, record the no-guide decision in the history entry or planning artifact with the reason.
 
 ## Partial and Future Coverage

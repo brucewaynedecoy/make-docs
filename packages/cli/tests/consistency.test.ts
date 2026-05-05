@@ -281,6 +281,8 @@ describe("guide generation routing contract", () => {
       const contents = readFileSync(path.join(REPO_ROOT, relativePath), "utf8");
 
       expect(contents).toContain("developer`, `user`, `both`, `update-existing`, `link-only`, or `none");
+      expect(contents).toContain("re-check overlapping guides");
+      expect(contents).toContain("reciprocal links");
       expect(contents).toContain("## Future Coverage");
       expect(contents).toContain("Do not create design docs, architecture decisions, or PRD risk-register items solely to remember future guide work");
     }
@@ -295,8 +297,23 @@ describe("guide generation routing contract", () => {
 
       expect(contents).toContain("## Audience Contract");
       expect(contents).toContain("## Guide Coverage Decision");
+      expect(contents).toContain("re-check overlapping developer and user guides");
+      expect(contents).toContain("reciprocal links");
       expect(contents).toContain("## Partial and Future Coverage");
       expect(contents).toContain("Do not add frontmatter fields for deferred guide work");
+    }
+  });
+
+  test("closeout workflow requires guide reconciliation decisions", () => {
+    for (const relativePath of [
+      "packages/skills/closeout-phase/references/closeout-workflow.md",
+      ".agents/skills/closeout-phase/references/closeout-workflow.md",
+      ".claude/skills/closeout-phase/references/closeout-workflow.md",
+    ]) {
+      const contents = readFileSync(path.join(REPO_ROOT, relativePath), "utf8");
+
+      expect(contents).toContain("re-check overlapping existing guides");
+      expect(contents).toContain("No existing guide enrichment was needed");
     }
   });
 

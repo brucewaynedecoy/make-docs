@@ -259,6 +259,7 @@ describe("installer integration", () => {
       const guidesRouter = readFileSync(path.join(targetDir, "docs/guides/AGENTS.md"), "utf8");
       expect(guidesRouter).toContain("guide-contract.md");
       expect(guidesRouter).toContain("developer`, `user`, `both`, `update-existing`, `link-only`, or `none");
+      expect(guidesRouter).toContain("re-check overlapping guides");
       expect(guidesRouter).toContain("## Future Coverage");
       expect(guidesRouter).not.toContain("docs/guides/agent");
       expect(manifest.skillFiles).toContain(".claude/skills/archive-docs/SKILL.md");

@@ -60,6 +60,8 @@ Create or update a user guide when at least one condition is true:
 
 Prefer updating an existing guide when it already owns the topic. Use `related` frontmatter and cross-links for companion coverage instead of duplicating full guides across audiences.
 
+After creating or updating guide content, re-check overlapping existing guides and add reciprocal links, `related` frontmatter, or concise supplemental context when it improves discoverability. Record the reconciliation changes made, or explicitly record `No existing guide enrichment was needed` with a short reason.
+
 Do not create a guide when:
 
 - the phase only moved, archived, or checked off docs with no new user, maintainer, or developer procedure
