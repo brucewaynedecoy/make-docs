@@ -1,6 +1,7 @@
 # Documentation Router
 
 Use `docs/` only as a router. Do not create generated files directly in this directory.
+
 - Source Markdown uses semantic line breaks only: do not hard-wrap prose for visual width, use editor soft-wrap, and separate a completed list from following paragraph text with one blank line.
 - For design docs, read `docs/assets/references/design-workflow.md`, `docs/assets/references/design-contract.md`, and `docs/assets/templates/design.md`, then continue in `docs/designs/`.
 - For plans, read `docs/assets/references/planning-workflow.md` and the selected plan template in `docs/assets/templates/`, then continue in `docs/plans/`.

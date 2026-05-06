@@ -127,8 +127,7 @@ docs/prd/
 └── 08-remove-legacy-session-flow.md
 ```
 
-Do not place unnumbered Markdown files directly under `docs/prd/`.
-Do not place active PRD docs under `docs/assets/archive/prds/`.
+Do not place unnumbered Markdown files directly under `docs/prd/`. Do not place active PRD docs under `docs/assets/archive/prds/`.
 
 ## Section Contracts
 

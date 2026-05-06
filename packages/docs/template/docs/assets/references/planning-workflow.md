@@ -62,8 +62,7 @@ Ask the user only when the answer affects the output shape or execution style. T
 - whether the backlog directory should be scoped to a delta or regenerated as a full backlog
 - whether the user explicitly wants to forbid delegation and force single-agent execution despite the default
 
-Do not ask questions that can be answered by repo inspection.
-Do not ask the user which planning route to use when the referenced design docs already declare `## Intended Follow-On`, unless the user is explicitly reconsidering that route.
+Do not ask questions that can be answered by repo inspection. Do not ask the user which planning route to use when the referenced design docs already declare `## Intended Follow-On`, unless the user is explicitly reconsidering that route.
 
 ## Plan Structure
 

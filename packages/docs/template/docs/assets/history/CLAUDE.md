@@ -1,6 +1,7 @@
 # History Assets Router
 
 This directory stores session history records.
+
 - Before writing, read `docs/assets/references/history-record-contract.md` and `docs/assets/templates/history-record.md`.
 - When W/R/P is known, create records at `docs/assets/history/YYYY-MM-DD-w{W}-r{R}-p{P}-<slug>.md`.
 - If only W/R is known, create records at `docs/assets/history/YYYY-MM-DD-w{W}-r{R}-<slug>.md`.

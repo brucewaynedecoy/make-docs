@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "packageName": "make-docs",
   "packageVersion": "0.1.0",
-  "updatedAt": "2026-04-22T16:43:34.861Z",
-  "profileId": "e2d1b8812b31e639",
+  "updatedAt": "2026-05-06T17:14:58.804Z",
+  "profileId": "304b1b93df2839e4",
   "selections": {
     "capabilities": {
       "designs": true,
@@ -11,9 +11,6 @@
       "prd": true,
       "work": true
     },
-    "prompts": true,
-    "templatesMode": "all",
-    "referencesMode": "all",
     "harnesses": {
       "claude-code": true,
       "codex": true
@@ -34,21 +31,622 @@
     "prd",
     "work"
   ],
-  "files": {},
+  "files": {
+    ".agents/skills/archive-docs/agents/openai.yaml": {
+      "hash": "fea9688c03a635e68695d38b2b0651dedc94927d5be393989da88d5ec2297010",
+      "sourceId": "skill-asset:codex:archive-docs:agents/openai.yaml"
+    },
+    ".agents/skills/archive-docs/references/archive-workflow.md": {
+      "hash": "0a83f677d875204e5c47c5214f6906066ddb2b9b83e5896f75b591b18002febc",
+      "sourceId": "skill-asset:codex:archive-docs:references/archive-workflow.md"
+    },
+    ".agents/skills/archive-docs/scripts/trace_relationships.py": {
+      "hash": "6f84a39f68fe1435042b0b76295be60cf7b3a6ab9eaa7a3533798048231351cd",
+      "sourceId": "skill-asset:codex:archive-docs:scripts/trace_relationships.py"
+    },
+    ".agents/skills/archive-docs/SKILL.md": {
+      "hash": "6486a1b5036294be745daeb846b243a506ac3ed39841f62bcd3be762593d5ec2",
+      "sourceId": "skill:codex:archive-docs"
+    },
+    ".agents/skills/cleanup-docs/agents/openai.yaml": {
+      "hash": "976c380f3b8557fca2b133b5a5d04c1a3ace3ecb147c7371d2c815844d433702",
+      "sourceId": "skill-asset:codex:cleanup-docs:agents/openai.yaml"
+    },
+    ".agents/skills/cleanup-docs/scripts/check_markdown_style.py": {
+      "hash": "ef8f5d6bed70f01faeb1bc639097e227100ad4512d43e3e47f32bd3235520db7",
+      "sourceId": "skill-asset:codex:cleanup-docs:scripts/check_markdown_style.py"
+    },
+    ".agents/skills/cleanup-docs/SKILL.md": {
+      "hash": "c0f70a26806196bbaaaf2c63e4ea4b7ebd0b854050aee905c11e6335b6c2a8d1",
+      "sourceId": "skill:codex:cleanup-docs"
+    },
+    ".agents/skills/closeout-commit/agents/openai.yaml": {
+      "hash": "8e6a9c7d80d75d2054ebd53e979d2363f62c9d31d3dfa5fb2d7bdbe3c3e64949",
+      "sourceId": "skill-asset:codex:closeout-commit:agents/openai.yaml"
+    },
+    ".agents/skills/closeout-commit/references/closeout-commit-workflow.md": {
+      "hash": "a27a2f31fcdd6557c665fe09c600c259e9d8d421de6cd21815a028aa80596845",
+      "sourceId": "skill-asset:codex:closeout-commit:references/closeout-commit-workflow.md"
+    },
+    ".agents/skills/closeout-commit/scripts/closeout_history.py": {
+      "hash": "605bf59907ec411c8135c48a25d4a45c50bc28a1efc1324399f8a3fe68252520",
+      "sourceId": "skill-asset:codex:closeout-commit:scripts/closeout_history.py"
+    },
+    ".agents/skills/closeout-commit/scripts/closeout_probe.py": {
+      "hash": "ad81f06cf9e9f2b8dd0eb8601b69ea12801f0827fb25347ae850b80d702d812a",
+      "sourceId": "skill-asset:codex:closeout-commit:scripts/closeout_probe.py"
+    },
+    ".agents/skills/closeout-commit/scripts/closeout_validate.py": {
+      "hash": "8d92338c2c753b1618f74acd235cf139d3625209ba98ad9f6a9a672f51e55a98",
+      "sourceId": "skill-asset:codex:closeout-commit:scripts/closeout_validate.py"
+    },
+    ".agents/skills/closeout-commit/SKILL.md": {
+      "hash": "84bfdb6f08148fc61c62c7b34d1d9efc56e7c136a169549f3a10c9250ed6fafc",
+      "sourceId": "skill:codex:closeout-commit"
+    },
+    ".agents/skills/closeout-phase/agents/openai.yaml": {
+      "hash": "86e5d2de609916042e4aa44e4236254c9eaa6761e3e296dd84a47d5a8c7ade57",
+      "sourceId": "skill-asset:codex:closeout-phase:agents/openai.yaml"
+    },
+    ".agents/skills/closeout-phase/references/closeout-workflow.md": {
+      "hash": "e88146452ffc57f27ba832fb29224909d7d6b101636c22ca079ae40830010e6f",
+      "sourceId": "skill-asset:codex:closeout-phase:references/closeout-workflow.md"
+    },
+    ".agents/skills/closeout-phase/scripts/closeout_history.py": {
+      "hash": "605bf59907ec411c8135c48a25d4a45c50bc28a1efc1324399f8a3fe68252520",
+      "sourceId": "skill-asset:codex:closeout-phase:scripts/closeout_history.py"
+    },
+    ".agents/skills/closeout-phase/scripts/closeout_probe.py": {
+      "hash": "ad81f06cf9e9f2b8dd0eb8601b69ea12801f0827fb25347ae850b80d702d812a",
+      "sourceId": "skill-asset:codex:closeout-phase:scripts/closeout_probe.py"
+    },
+    ".agents/skills/closeout-phase/scripts/closeout_validate.py": {
+      "hash": "8d92338c2c753b1618f74acd235cf139d3625209ba98ad9f6a9a672f51e55a98",
+      "sourceId": "skill-asset:codex:closeout-phase:scripts/closeout_validate.py"
+    },
+    ".agents/skills/closeout-phase/scripts/guide_coverage_probe.py": {
+      "hash": "3aa0a7bbe4775b062a1938a3e6c5c77b19ebec51e11983632af5850b52fc7cc5",
+      "sourceId": "skill-asset:codex:closeout-phase:scripts/guide_coverage_probe.py"
+    },
+    ".agents/skills/closeout-phase/scripts/work_phase_state.py": {
+      "hash": "c791e495371d41756a6bfbcdf8f9997ee866069fbc505dd648e78c7cea1e4a0e",
+      "sourceId": "skill-asset:codex:closeout-phase:scripts/work_phase_state.py"
+    },
+    ".agents/skills/closeout-phase/SKILL.md": {
+      "hash": "e93add12202588b422e3c956a7bfa04bea47c7733bea4ced9de4eaa83829d6de",
+      "sourceId": "skill:codex:closeout-phase"
+    },
+    ".agents/skills/decompose-codebase/agents/openai.yaml": {
+      "hash": "9b0a36b5f3dbba03e0fd6f2c3650cd8c09e56b328a747952a9f5ae4523c251f3",
+      "sourceId": "skill-asset:codex:decompose-codebase:agents/openai.yaml"
+    },
+    ".agents/skills/decompose-codebase/assets/templates/decomposition-plan.md": {
+      "hash": "7e41e6d51bae8762cd953c63b64809c296b286e9aaed2fdceaf669d79f213063",
+      "sourceId": "skill-asset:codex:decompose-codebase:assets/templates/decomposition-plan.md"
+    },
+    ".agents/skills/decompose-codebase/assets/templates/prd-architecture.md": {
+      "hash": "5164164db7c057c44768bf7255bb2c29d752bca9194902497149bf112da35f84",
+      "sourceId": "skill-asset:codex:decompose-codebase:assets/templates/prd-architecture.md"
+    },
+    ".agents/skills/decompose-codebase/assets/templates/prd-glossary.md": {
+      "hash": "24f00b9547a61b5fff157563b83e1aa8d457277f5e4d0a9b3297a4bc439428df",
+      "sourceId": "skill-asset:codex:decompose-codebase:assets/templates/prd-glossary.md"
+    },
+    ".agents/skills/decompose-codebase/assets/templates/prd-index.md": {
+      "hash": "e2f06f89dbc6a6cbcb312ed697ce0a01c2fd5cd678a9963c3c3635f5e3511d7e",
+      "sourceId": "skill-asset:codex:decompose-codebase:assets/templates/prd-index.md"
+    },
+    ".agents/skills/decompose-codebase/assets/templates/prd-overview.md": {
+      "hash": "61eb0cc330b1f71d4a9b9373cd73dc4eddb84099398cf82fa7c1ef29cebb0f3a",
+      "sourceId": "skill-asset:codex:decompose-codebase:assets/templates/prd-overview.md"
+    },
+    ".agents/skills/decompose-codebase/assets/templates/prd-reference.md": {
+      "hash": "cc7f5fbd68a186ba307349756638baeb56b65c7346bd0069c9c615fb96379f9d",
+      "sourceId": "skill-asset:codex:decompose-codebase:assets/templates/prd-reference.md"
+    },
+    ".agents/skills/decompose-codebase/assets/templates/prd-risk-register.md": {
+      "hash": "5e3b7a845f5cc25bbcc118231e146b9a7dc09225e6dc958596c5d2f39b736579",
+      "sourceId": "skill-asset:codex:decompose-codebase:assets/templates/prd-risk-register.md"
+    },
+    ".agents/skills/decompose-codebase/assets/templates/prd-subsystem.md": {
+      "hash": "0e554252985624713ed3255ed590931fd92dd713cd364479b1bab1478ea9aff7",
+      "sourceId": "skill-asset:codex:decompose-codebase:assets/templates/prd-subsystem.md"
+    },
+    ".agents/skills/decompose-codebase/assets/templates/rebuild-backlog-index.md": {
+      "hash": "caeac40a8a1eba2924073f460b769cfa16ca4a1015b2ef062f179b0c5238291c",
+      "sourceId": "skill-asset:codex:decompose-codebase:assets/templates/rebuild-backlog-index.md"
+    },
+    ".agents/skills/decompose-codebase/assets/templates/rebuild-backlog-phase.md": {
+      "hash": "16b75220ce342586d6bc1ebe47ad16e42346a80c1fa779a2f1d677d081cf7cf6",
+      "sourceId": "skill-asset:codex:decompose-codebase:assets/templates/rebuild-backlog-phase.md"
+    },
+    ".agents/skills/decompose-codebase/references/execution-workflow.md": {
+      "hash": "43d5f35f895776f8db95d6a34eea440aa46aff51c0cd091eb8cff4db89c26e4f",
+      "sourceId": "skill-asset:codex:decompose-codebase:references/execution-workflow.md"
+    },
+    ".agents/skills/decompose-codebase/references/harness-capability-matrix.md": {
+      "hash": "20bf1ab3931a34f6cc7714376f2236fc44c4d74b4a6265fc2536b482290b44f2",
+      "sourceId": "skill-asset:codex:decompose-codebase:references/harness-capability-matrix.md"
+    },
+    ".agents/skills/decompose-codebase/references/mcp-playbook.md": {
+      "hash": "6940dacf17b88b970b866770831895d68d651d6a9729828ff4d852bd0ac29219",
+      "sourceId": "skill-asset:codex:decompose-codebase:references/mcp-playbook.md"
+    },
+    ".agents/skills/decompose-codebase/references/output-contract.md": {
+      "hash": "6a30c3094eeb432e04cd7c211731ab011e382fd8cc9fc71fcaa8224c3fd47884",
+      "sourceId": "skill-asset:codex:decompose-codebase:references/output-contract.md"
+    },
+    ".agents/skills/decompose-codebase/references/planning-workflow.md": {
+      "hash": "96f749ef79e5a19b4e0aae9959e26abbf779feece94b36a7a16fa9dd5b1c0281",
+      "sourceId": "skill-asset:codex:decompose-codebase:references/planning-workflow.md"
+    },
+    ".agents/skills/decompose-codebase/scripts/probe_environment.py": {
+      "hash": "aa42c3832c99cf614612c51ed17a4ea40f97c913f9e717a23dd6f0dcef3c8488",
+      "sourceId": "skill-asset:codex:decompose-codebase:scripts/probe_environment.py"
+    },
+    ".agents/skills/decompose-codebase/scripts/validate_output.py": {
+      "hash": "76f5369e5aa1a6e085dba8066415b3ce880ce7f14b9b6298124c8b9485692b08",
+      "sourceId": "skill-asset:codex:decompose-codebase:scripts/validate_output.py"
+    },
+    ".agents/skills/decompose-codebase/SKILL.md": {
+      "hash": "6504fa41978566c4e054bb81e5c04be743db7e3334026c165140f47ba918c2fe",
+      "sourceId": "skill:codex:decompose-codebase"
+    },
+    ".claude/skills/archive-docs/agents/openai.yaml": {
+      "hash": "fea9688c03a635e68695d38b2b0651dedc94927d5be393989da88d5ec2297010",
+      "sourceId": "skill-asset:claude-code:archive-docs:agents/openai.yaml"
+    },
+    ".claude/skills/archive-docs/references/archive-workflow.md": {
+      "hash": "0a83f677d875204e5c47c5214f6906066ddb2b9b83e5896f75b591b18002febc",
+      "sourceId": "skill-asset:claude-code:archive-docs:references/archive-workflow.md"
+    },
+    ".claude/skills/archive-docs/scripts/trace_relationships.py": {
+      "hash": "6f84a39f68fe1435042b0b76295be60cf7b3a6ab9eaa7a3533798048231351cd",
+      "sourceId": "skill-asset:claude-code:archive-docs:scripts/trace_relationships.py"
+    },
+    ".claude/skills/archive-docs/SKILL.md": {
+      "hash": "6486a1b5036294be745daeb846b243a506ac3ed39841f62bcd3be762593d5ec2",
+      "sourceId": "skill:claude-code:archive-docs"
+    },
+    ".claude/skills/cleanup-docs/agents/openai.yaml": {
+      "hash": "976c380f3b8557fca2b133b5a5d04c1a3ace3ecb147c7371d2c815844d433702",
+      "sourceId": "skill-asset:claude-code:cleanup-docs:agents/openai.yaml"
+    },
+    ".claude/skills/cleanup-docs/scripts/check_markdown_style.py": {
+      "hash": "ef8f5d6bed70f01faeb1bc639097e227100ad4512d43e3e47f32bd3235520db7",
+      "sourceId": "skill-asset:claude-code:cleanup-docs:scripts/check_markdown_style.py"
+    },
+    ".claude/skills/cleanup-docs/SKILL.md": {
+      "hash": "c0f70a26806196bbaaaf2c63e4ea4b7ebd0b854050aee905c11e6335b6c2a8d1",
+      "sourceId": "skill:claude-code:cleanup-docs"
+    },
+    ".claude/skills/closeout-commit/agents/openai.yaml": {
+      "hash": "8e6a9c7d80d75d2054ebd53e979d2363f62c9d31d3dfa5fb2d7bdbe3c3e64949",
+      "sourceId": "skill-asset:claude-code:closeout-commit:agents/openai.yaml"
+    },
+    ".claude/skills/closeout-commit/references/closeout-commit-workflow.md": {
+      "hash": "a27a2f31fcdd6557c665fe09c600c259e9d8d421de6cd21815a028aa80596845",
+      "sourceId": "skill-asset:claude-code:closeout-commit:references/closeout-commit-workflow.md"
+    },
+    ".claude/skills/closeout-commit/scripts/closeout_history.py": {
+      "hash": "605bf59907ec411c8135c48a25d4a45c50bc28a1efc1324399f8a3fe68252520",
+      "sourceId": "skill-asset:claude-code:closeout-commit:scripts/closeout_history.py"
+    },
+    ".claude/skills/closeout-commit/scripts/closeout_probe.py": {
+      "hash": "ad81f06cf9e9f2b8dd0eb8601b69ea12801f0827fb25347ae850b80d702d812a",
+      "sourceId": "skill-asset:claude-code:closeout-commit:scripts/closeout_probe.py"
+    },
+    ".claude/skills/closeout-commit/scripts/closeout_validate.py": {
+      "hash": "8d92338c2c753b1618f74acd235cf139d3625209ba98ad9f6a9a672f51e55a98",
+      "sourceId": "skill-asset:claude-code:closeout-commit:scripts/closeout_validate.py"
+    },
+    ".claude/skills/closeout-commit/SKILL.md": {
+      "hash": "84bfdb6f08148fc61c62c7b34d1d9efc56e7c136a169549f3a10c9250ed6fafc",
+      "sourceId": "skill:claude-code:closeout-commit"
+    },
+    ".claude/skills/closeout-phase/agents/openai.yaml": {
+      "hash": "86e5d2de609916042e4aa44e4236254c9eaa6761e3e296dd84a47d5a8c7ade57",
+      "sourceId": "skill-asset:claude-code:closeout-phase:agents/openai.yaml"
+    },
+    ".claude/skills/closeout-phase/references/closeout-workflow.md": {
+      "hash": "e88146452ffc57f27ba832fb29224909d7d6b101636c22ca079ae40830010e6f",
+      "sourceId": "skill-asset:claude-code:closeout-phase:references/closeout-workflow.md"
+    },
+    ".claude/skills/closeout-phase/scripts/closeout_history.py": {
+      "hash": "605bf59907ec411c8135c48a25d4a45c50bc28a1efc1324399f8a3fe68252520",
+      "sourceId": "skill-asset:claude-code:closeout-phase:scripts/closeout_history.py"
+    },
+    ".claude/skills/closeout-phase/scripts/closeout_probe.py": {
+      "hash": "ad81f06cf9e9f2b8dd0eb8601b69ea12801f0827fb25347ae850b80d702d812a",
+      "sourceId": "skill-asset:claude-code:closeout-phase:scripts/closeout_probe.py"
+    },
+    ".claude/skills/closeout-phase/scripts/closeout_validate.py": {
+      "hash": "8d92338c2c753b1618f74acd235cf139d3625209ba98ad9f6a9a672f51e55a98",
+      "sourceId": "skill-asset:claude-code:closeout-phase:scripts/closeout_validate.py"
+    },
+    ".claude/skills/closeout-phase/scripts/guide_coverage_probe.py": {
+      "hash": "3aa0a7bbe4775b062a1938a3e6c5c77b19ebec51e11983632af5850b52fc7cc5",
+      "sourceId": "skill-asset:claude-code:closeout-phase:scripts/guide_coverage_probe.py"
+    },
+    ".claude/skills/closeout-phase/scripts/work_phase_state.py": {
+      "hash": "c791e495371d41756a6bfbcdf8f9997ee866069fbc505dd648e78c7cea1e4a0e",
+      "sourceId": "skill-asset:claude-code:closeout-phase:scripts/work_phase_state.py"
+    },
+    ".claude/skills/closeout-phase/SKILL.md": {
+      "hash": "e93add12202588b422e3c956a7bfa04bea47c7733bea4ced9de4eaa83829d6de",
+      "sourceId": "skill:claude-code:closeout-phase"
+    },
+    ".claude/skills/decompose-codebase/agents/openai.yaml": {
+      "hash": "9b0a36b5f3dbba03e0fd6f2c3650cd8c09e56b328a747952a9f5ae4523c251f3",
+      "sourceId": "skill-asset:claude-code:decompose-codebase:agents/openai.yaml"
+    },
+    ".claude/skills/decompose-codebase/assets/templates/decomposition-plan.md": {
+      "hash": "7e41e6d51bae8762cd953c63b64809c296b286e9aaed2fdceaf669d79f213063",
+      "sourceId": "skill-asset:claude-code:decompose-codebase:assets/templates/decomposition-plan.md"
+    },
+    ".claude/skills/decompose-codebase/assets/templates/prd-architecture.md": {
+      "hash": "5164164db7c057c44768bf7255bb2c29d752bca9194902497149bf112da35f84",
+      "sourceId": "skill-asset:claude-code:decompose-codebase:assets/templates/prd-architecture.md"
+    },
+    ".claude/skills/decompose-codebase/assets/templates/prd-glossary.md": {
+      "hash": "24f00b9547a61b5fff157563b83e1aa8d457277f5e4d0a9b3297a4bc439428df",
+      "sourceId": "skill-asset:claude-code:decompose-codebase:assets/templates/prd-glossary.md"
+    },
+    ".claude/skills/decompose-codebase/assets/templates/prd-index.md": {
+      "hash": "e2f06f89dbc6a6cbcb312ed697ce0a01c2fd5cd678a9963c3c3635f5e3511d7e",
+      "sourceId": "skill-asset:claude-code:decompose-codebase:assets/templates/prd-index.md"
+    },
+    ".claude/skills/decompose-codebase/assets/templates/prd-overview.md": {
+      "hash": "61eb0cc330b1f71d4a9b9373cd73dc4eddb84099398cf82fa7c1ef29cebb0f3a",
+      "sourceId": "skill-asset:claude-code:decompose-codebase:assets/templates/prd-overview.md"
+    },
+    ".claude/skills/decompose-codebase/assets/templates/prd-reference.md": {
+      "hash": "cc7f5fbd68a186ba307349756638baeb56b65c7346bd0069c9c615fb96379f9d",
+      "sourceId": "skill-asset:claude-code:decompose-codebase:assets/templates/prd-reference.md"
+    },
+    ".claude/skills/decompose-codebase/assets/templates/prd-risk-register.md": {
+      "hash": "5e3b7a845f5cc25bbcc118231e146b9a7dc09225e6dc958596c5d2f39b736579",
+      "sourceId": "skill-asset:claude-code:decompose-codebase:assets/templates/prd-risk-register.md"
+    },
+    ".claude/skills/decompose-codebase/assets/templates/prd-subsystem.md": {
+      "hash": "0e554252985624713ed3255ed590931fd92dd713cd364479b1bab1478ea9aff7",
+      "sourceId": "skill-asset:claude-code:decompose-codebase:assets/templates/prd-subsystem.md"
+    },
+    ".claude/skills/decompose-codebase/assets/templates/rebuild-backlog-index.md": {
+      "hash": "caeac40a8a1eba2924073f460b769cfa16ca4a1015b2ef062f179b0c5238291c",
+      "sourceId": "skill-asset:claude-code:decompose-codebase:assets/templates/rebuild-backlog-index.md"
+    },
+    ".claude/skills/decompose-codebase/assets/templates/rebuild-backlog-phase.md": {
+      "hash": "16b75220ce342586d6bc1ebe47ad16e42346a80c1fa779a2f1d677d081cf7cf6",
+      "sourceId": "skill-asset:claude-code:decompose-codebase:assets/templates/rebuild-backlog-phase.md"
+    },
+    ".claude/skills/decompose-codebase/references/execution-workflow.md": {
+      "hash": "43d5f35f895776f8db95d6a34eea440aa46aff51c0cd091eb8cff4db89c26e4f",
+      "sourceId": "skill-asset:claude-code:decompose-codebase:references/execution-workflow.md"
+    },
+    ".claude/skills/decompose-codebase/references/harness-capability-matrix.md": {
+      "hash": "20bf1ab3931a34f6cc7714376f2236fc44c4d74b4a6265fc2536b482290b44f2",
+      "sourceId": "skill-asset:claude-code:decompose-codebase:references/harness-capability-matrix.md"
+    },
+    ".claude/skills/decompose-codebase/references/mcp-playbook.md": {
+      "hash": "6940dacf17b88b970b866770831895d68d651d6a9729828ff4d852bd0ac29219",
+      "sourceId": "skill-asset:claude-code:decompose-codebase:references/mcp-playbook.md"
+    },
+    ".claude/skills/decompose-codebase/references/output-contract.md": {
+      "hash": "6a30c3094eeb432e04cd7c211731ab011e382fd8cc9fc71fcaa8224c3fd47884",
+      "sourceId": "skill-asset:claude-code:decompose-codebase:references/output-contract.md"
+    },
+    ".claude/skills/decompose-codebase/references/planning-workflow.md": {
+      "hash": "96f749ef79e5a19b4e0aae9959e26abbf779feece94b36a7a16fa9dd5b1c0281",
+      "sourceId": "skill-asset:claude-code:decompose-codebase:references/planning-workflow.md"
+    },
+    ".claude/skills/decompose-codebase/scripts/probe_environment.py": {
+      "hash": "aa42c3832c99cf614612c51ed17a4ea40f97c913f9e717a23dd6f0dcef3c8488",
+      "sourceId": "skill-asset:claude-code:decompose-codebase:scripts/probe_environment.py"
+    },
+    ".claude/skills/decompose-codebase/scripts/validate_output.py": {
+      "hash": "76f5369e5aa1a6e085dba8066415b3ce880ce7f14b9b6298124c8b9485692b08",
+      "sourceId": "skill-asset:claude-code:decompose-codebase:scripts/validate_output.py"
+    },
+    ".claude/skills/decompose-codebase/SKILL.md": {
+      "hash": "6504fa41978566c4e054bb81e5c04be743db7e3334026c165140f47ba918c2fe",
+      "sourceId": "skill:claude-code:decompose-codebase"
+    },
+    "AGENTS.md": {
+      "hash": "699053532e624a4a9d9e43a51c48879e59f15b3078adbb72ec22e22ca7680b8d",
+      "sourceId": "build:AGENTS.md"
+    },
+    "CLAUDE.md": {
+      "hash": "699053532e624a4a9d9e43a51c48879e59f15b3078adbb72ec22e22ca7680b8d",
+      "sourceId": "build:CLAUDE.md"
+    },
+    "docs/AGENTS.md": {
+      "hash": "725ca16be6fc08635c13e612563d375543f5c6ffc9aa438fdf4ded41a734fe7b",
+      "sourceId": "build:docs/AGENTS.md"
+    },
+    "docs/assets/AGENTS.md": {
+      "hash": "e999038882aebfdf9c5aa59a27f579e1d6ed18672a9f0d578d495e43f6ff3bcd",
+      "sourceId": "build:docs/assets/AGENTS.md"
+    },
+    "docs/assets/archive/AGENTS.md": {
+      "hash": "17ebeb4698683b2e4e19912976369cf2ce6c2b5e535909c0f922960f4543f795",
+      "sourceId": "build:docs/assets/archive/AGENTS.md"
+    },
+    "docs/assets/archive/CLAUDE.md": {
+      "hash": "17ebeb4698683b2e4e19912976369cf2ce6c2b5e535909c0f922960f4543f795",
+      "sourceId": "build:docs/assets/archive/CLAUDE.md"
+    },
+    "docs/assets/CLAUDE.md": {
+      "hash": "e999038882aebfdf9c5aa59a27f579e1d6ed18672a9f0d578d495e43f6ff3bcd",
+      "sourceId": "build:docs/assets/CLAUDE.md"
+    },
+    "docs/assets/history/AGENTS.md": {
+      "hash": "321501dd5562e8c1a1858bcdf620186aa6eaaf7172d5602db92e5e3efe21346d",
+      "sourceId": "build:docs/assets/history/AGENTS.md"
+    },
+    "docs/assets/history/CLAUDE.md": {
+      "hash": "321501dd5562e8c1a1858bcdf620186aa6eaaf7172d5602db92e5e3efe21346d",
+      "sourceId": "build:docs/assets/history/CLAUDE.md"
+    },
+    "docs/assets/prompts/AGENTS.md": {
+      "hash": "f22d5dca63f2fba7f467206635fd3c0fbecc8e7bb1c80c5c3186d6084c022316",
+      "sourceId": "build:docs/assets/prompts/AGENTS.md"
+    },
+    "docs/assets/prompts/CLAUDE.md": {
+      "hash": "f22d5dca63f2fba7f467206635fd3c0fbecc8e7bb1c80c5c3186d6084c022316",
+      "sourceId": "build:docs/assets/prompts/CLAUDE.md"
+    },
+    "docs/assets/prompts/designs-to-plan-change.prompt.md": {
+      "hash": "9b03dc5a99ad94507e4a0426ebb38ed705c4a041078befb9acb7abfcd785f7d2",
+      "sourceId": "file:docs/assets/prompts/designs-to-plan-change.prompt.md"
+    },
+    "docs/assets/prompts/designs-to-plan.prompt.md": {
+      "hash": "8d6b34567ffe96ed55fec96124643ba550c350c09fb2f5817926e5592dd08bf4",
+      "sourceId": "file:docs/assets/prompts/designs-to-plan.prompt.md"
+    },
+    "docs/assets/prompts/plan-to-prd-change.prompt.md": {
+      "hash": "ded0f1f0ac172412c21d2e69d15619e1b50903a3ca4fb5a17fa0723f5e8f41dd",
+      "sourceId": "file:docs/assets/prompts/plan-to-prd-change.prompt.md"
+    },
+    "docs/assets/prompts/plan-to-prd-green-field.prompt.md": {
+      "hash": "10dfb0396eac2b11fa6d31183852aa880106b0f0a04c92a1010d5b4a4795283f",
+      "sourceId": "file:docs/assets/prompts/plan-to-prd-green-field.prompt.md"
+    },
+    "docs/assets/prompts/prd-change-to-work.prompt.md": {
+      "hash": "e3855bf500605f2bed9240895333f9de04189d3ddbcaa755eafeb94d2c00bad8",
+      "sourceId": "file:docs/assets/prompts/prd-change-to-work.prompt.md"
+    },
+    "docs/assets/prompts/prd-to-work-full-prd.prompt.md": {
+      "hash": "cb5aa03bf4978043a843f0ad9a1c7301b2472585370f3c14c7fbee0c33721cdf",
+      "sourceId": "file:docs/assets/prompts/prd-to-work-full-prd.prompt.md"
+    },
+    "docs/assets/prompts/prd-to-work-prd-feature.prompt.md": {
+      "hash": "454efb0cb51c6f162559c3c975be215362b4758ff809591b3e6bdaedbec29c15",
+      "sourceId": "file:docs/assets/prompts/prd-to-work-prd-feature.prompt.md"
+    },
+    "docs/assets/prompts/request-to-design.prompt.md": {
+      "hash": "b25802d8c68629bc68fa2fb1bbe809469ffb920d1ad589c58062a33e8c079258",
+      "sourceId": "file:docs/assets/prompts/request-to-design.prompt.md"
+    },
+    "docs/assets/prompts/session-to-history-record.prompt.md": {
+      "hash": "a490f8a96f209f480ed62e8222bb09f7d7b93c906cb54383796f9efd6db26576",
+      "sourceId": "file:docs/assets/prompts/session-to-history-record.prompt.md"
+    },
+    "docs/assets/prompts/update-readme-green-field.prompt.md": {
+      "hash": "2f695d40b34cf7d6c484401afc26584f834050d368fe38ba52c45ee3b2544fbf",
+      "sourceId": "file:docs/assets/prompts/update-readme-green-field.prompt.md"
+    },
+    "docs/assets/prompts/work-to-commit-message.prompt.md": {
+      "hash": "56dbb6f724d75217b854a33bec3ca7731ffebde9220710b2fb33e53680da3f35",
+      "sourceId": "file:docs/assets/prompts/work-to-commit-message.prompt.md"
+    },
+    "docs/assets/prompts/work-to-guides.prompt.md": {
+      "hash": "3a3e962865099b9ce0c96a510dbfec12921e98e434f63cb087c3a91a8e9c7b1a",
+      "sourceId": "file:docs/assets/prompts/work-to-guides.prompt.md"
+    },
+    "docs/assets/references/AGENTS.md": {
+      "hash": "a0be84324dd937c262bda149199b8f1c7f6af251b2a1ec1263184fd4ea1a9916",
+      "sourceId": "build:docs/assets/references/AGENTS.md"
+    },
+    "docs/assets/references/CLAUDE.md": {
+      "hash": "a0be84324dd937c262bda149199b8f1c7f6af251b2a1ec1263184fd4ea1a9916",
+      "sourceId": "build:docs/assets/references/CLAUDE.md"
+    },
+    "docs/assets/references/commit-message-convention.md": {
+      "hash": "beceac1995e6aaf4dadc7f145fa40e5969be71697e2bc41e9030bd5d9d1c8739",
+      "sourceId": "file:docs/assets/references/commit-message-convention.md"
+    },
+    "docs/assets/references/design-contract.md": {
+      "hash": "a4a44f2b241cbebd33e454a8679c04e742cece4dbd3a57d3cddc44f8a8b97c52",
+      "sourceId": "build:docs/assets/references/design-contract.md"
+    },
+    "docs/assets/references/design-workflow.md": {
+      "hash": "bb26b28a2d7e6515d433f05811d798ca9fcdb2737189e0254702813e467120fb",
+      "sourceId": "build:docs/assets/references/design-workflow.md"
+    },
+    "docs/assets/references/execution-workflow.md": {
+      "hash": "c151d7dfe62226c5d18c6a7062c6064c0f6dfeebb5d27c22eaeebe44d09c7853",
+      "sourceId": "file:docs/assets/references/execution-workflow.md"
+    },
+    "docs/assets/references/guide-contract.md": {
+      "hash": "00a73c2068449f17d6cc52cd7325d99bef14cd0f3c88abbbfef8e2ce4e1e8ea1",
+      "sourceId": "file:docs/assets/references/guide-contract.md"
+    },
+    "docs/assets/references/harness-capability-matrix.md": {
+      "hash": "20bf1ab3931a34f6cc7714376f2236fc44c4d74b4a6265fc2536b482290b44f2",
+      "sourceId": "file:docs/assets/references/harness-capability-matrix.md"
+    },
+    "docs/assets/references/history-record-contract.md": {
+      "hash": "e809a78dc0512f6388fd0a42594b6ce93e55a39a72349c1d8e7e18af55c605d3",
+      "sourceId": "file:docs/assets/references/history-record-contract.md"
+    },
+    "docs/assets/references/output-contract.md": {
+      "hash": "ce7fc18e64dbf0410e2ca9efcc56e838c51b17a851f4f7c84afed37bd14dc4db",
+      "sourceId": "file:docs/assets/references/output-contract.md"
+    },
+    "docs/assets/references/planning-workflow.md": {
+      "hash": "5558ad39510da5919aa97a6588f475f1f1c9d14968a5ce26bd98e3018cd65faf",
+      "sourceId": "file:docs/assets/references/planning-workflow.md"
+    },
+    "docs/assets/references/prd-change-management.md": {
+      "hash": "e9bac9e52e0e1be561768e5d887aaa89dff4b9429c322049006c178d34610228",
+      "sourceId": "file:docs/assets/references/prd-change-management.md"
+    },
+    "docs/assets/references/wave-model.md": {
+      "hash": "935f9fb21f9155c52f25a2be69d1ed88dca0c047a5b7d26cd7ea0a33702ddced",
+      "sourceId": "file:docs/assets/references/wave-model.md"
+    },
+    "docs/assets/templates/AGENTS.md": {
+      "hash": "8ba44874d4a6e3a4bc9b97dfb1eb1820dfbee3d9d173ce61b4aadce70678f5a2",
+      "sourceId": "build:docs/assets/templates/AGENTS.md"
+    },
+    "docs/assets/templates/CLAUDE.md": {
+      "hash": "8ba44874d4a6e3a4bc9b97dfb1eb1820dfbee3d9d173ce61b4aadce70678f5a2",
+      "sourceId": "build:docs/assets/templates/CLAUDE.md"
+    },
+    "docs/assets/templates/design.md": {
+      "hash": "cccd0a516cc8d2e0c2f7c30ea26a771965759dd5af482253d4684d2a9b856c76",
+      "sourceId": "build:docs/assets/templates/design.md"
+    },
+    "docs/assets/templates/guide-developer.md": {
+      "hash": "0a463c35f4ce931ccee4b9100424e7fcf04cc8891744437f16c9fa1d9b28872b",
+      "sourceId": "file:docs/assets/templates/guide-developer.md"
+    },
+    "docs/assets/templates/guide-user.md": {
+      "hash": "c734ab506b56dd5bf39ee4402d46d8662cbb6b0708f6da30dcb77b23988ae6e3",
+      "sourceId": "file:docs/assets/templates/guide-user.md"
+    },
+    "docs/assets/templates/history-record.md": {
+      "hash": "65787ef3c7f98cc37a9ab67e8a976bf1b579a495c321aa503ebf44b2f80c3a63",
+      "sourceId": "file:docs/assets/templates/history-record.md"
+    },
+    "docs/assets/templates/plan-overview.md": {
+      "hash": "ad731eb21113eec90cde198a8a0a11f219470bcaf0d12cb9a949cf6809ee4c62",
+      "sourceId": "file:docs/assets/templates/plan-overview.md"
+    },
+    "docs/assets/templates/plan-prd-change.md": {
+      "hash": "98dafbb3e6046bdde75082eb9601abce71c3d01cfc59d12b3f879938c3cbcabb",
+      "sourceId": "file:docs/assets/templates/plan-prd-change.md"
+    },
+    "docs/assets/templates/plan-prd-decompose.md": {
+      "hash": "1d2f1008e5292132e92a482be6f9c8391c742c3c6bab6a20395e723a698c7051",
+      "sourceId": "file:docs/assets/templates/plan-prd-decompose.md"
+    },
+    "docs/assets/templates/plan-prd.md": {
+      "hash": "71208e00bc607c68893d454978a5b9798a7def4d520d2cc4652323a82cde2cc6",
+      "sourceId": "file:docs/assets/templates/plan-prd.md"
+    },
+    "docs/assets/templates/prd-architecture.md": {
+      "hash": "5164164db7c057c44768bf7255bb2c29d752bca9194902497149bf112da35f84",
+      "sourceId": "file:docs/assets/templates/prd-architecture.md"
+    },
+    "docs/assets/templates/prd-change-addition.md": {
+      "hash": "51cc8014437991d47453ffebc968cd18304f2d17af5b652f97cd51e264d9aa57",
+      "sourceId": "file:docs/assets/templates/prd-change-addition.md"
+    },
+    "docs/assets/templates/prd-change-revision.md": {
+      "hash": "f1faad7030cf6b993eb1da37c68e399829ea906e5e06f84dce99a3464b3673ed",
+      "sourceId": "file:docs/assets/templates/prd-change-revision.md"
+    },
+    "docs/assets/templates/prd-glossary.md": {
+      "hash": "24f00b9547a61b5fff157563b83e1aa8d457277f5e4d0a9b3297a4bc439428df",
+      "sourceId": "file:docs/assets/templates/prd-glossary.md"
+    },
+    "docs/assets/templates/prd-index.md": {
+      "hash": "e2f06f89dbc6a6cbcb312ed697ce0a01c2fd5cd678a9963c3c3635f5e3511d7e",
+      "sourceId": "file:docs/assets/templates/prd-index.md"
+    },
+    "docs/assets/templates/prd-overview.md": {
+      "hash": "61eb0cc330b1f71d4a9b9373cd73dc4eddb84099398cf82fa7c1ef29cebb0f3a",
+      "sourceId": "file:docs/assets/templates/prd-overview.md"
+    },
+    "docs/assets/templates/prd-reference.md": {
+      "hash": "cc7f5fbd68a186ba307349756638baeb56b65c7346bd0069c9c615fb96379f9d",
+      "sourceId": "file:docs/assets/templates/prd-reference.md"
+    },
+    "docs/assets/templates/prd-risk-register.md": {
+      "hash": "5e3b7a845f5cc25bbcc118231e146b9a7dc09225e6dc958596c5d2f39b736579",
+      "sourceId": "file:docs/assets/templates/prd-risk-register.md"
+    },
+    "docs/assets/templates/prd-subsystem.md": {
+      "hash": "0e554252985624713ed3255ed590931fd92dd713cd364479b1bab1478ea9aff7",
+      "sourceId": "file:docs/assets/templates/prd-subsystem.md"
+    },
+    "docs/assets/templates/work-index.md": {
+      "hash": "caeac40a8a1eba2924073f460b769cfa16ca4a1015b2ef062f179b0c5238291c",
+      "sourceId": "file:docs/assets/templates/work-index.md"
+    },
+    "docs/assets/templates/work-phase.md": {
+      "hash": "16b75220ce342586d6bc1ebe47ad16e42346a80c1fa779a2f1d677d081cf7cf6",
+      "sourceId": "file:docs/assets/templates/work-phase.md"
+    },
+    "docs/CLAUDE.md": {
+      "hash": "725ca16be6fc08635c13e612563d375543f5c6ffc9aa438fdf4ded41a734fe7b",
+      "sourceId": "build:docs/CLAUDE.md"
+    },
+    "docs/designs/AGENTS.md": {
+      "hash": "300cb98ce1280c2072af37401b13d021ca8424879b40afbfbf9b054ba32ef7d1",
+      "sourceId": "file:docs/designs/AGENTS.md"
+    },
+    "docs/designs/CLAUDE.md": {
+      "hash": "300cb98ce1280c2072af37401b13d021ca8424879b40afbfbf9b054ba32ef7d1",
+      "sourceId": "file:docs/designs/CLAUDE.md"
+    },
+    "docs/guides/AGENTS.md": {
+      "hash": "774cd884a902f34ceaa18f9d96bf2b543fc4a4b1109d64953359144055faf9d1",
+      "sourceId": "build:docs/guides/AGENTS.md"
+    },
+    "docs/guides/CLAUDE.md": {
+      "hash": "774cd884a902f34ceaa18f9d96bf2b543fc4a4b1109d64953359144055faf9d1",
+      "sourceId": "build:docs/guides/CLAUDE.md"
+    },
+    "docs/plans/AGENTS.md": {
+      "hash": "b022884cb614ac6e6e5f40014e2d75978621f459246a48062bda180423f5dc6d",
+      "sourceId": "file:docs/plans/AGENTS.md"
+    },
+    "docs/plans/CLAUDE.md": {
+      "hash": "b022884cb614ac6e6e5f40014e2d75978621f459246a48062bda180423f5dc6d",
+      "sourceId": "file:docs/plans/CLAUDE.md"
+    },
+    "docs/prd/AGENTS.md": {
+      "hash": "9fd5fc64e79e7612b67100adc316d90743bcd6974bd25a2d2d5eb604d95e6976",
+      "sourceId": "file:docs/prd/AGENTS.md"
+    },
+    "docs/prd/CLAUDE.md": {
+      "hash": "9fd5fc64e79e7612b67100adc316d90743bcd6974bd25a2d2d5eb604d95e6976",
+      "sourceId": "file:docs/prd/CLAUDE.md"
+    },
+    "docs/work/AGENTS.md": {
+      "hash": "24e00dcad7eef9347af435a0184b81f354991c12529515c171c949042a954741",
+      "sourceId": "file:docs/work/AGENTS.md"
+    },
+    "docs/work/CLAUDE.md": {
+      "hash": "24e00dcad7eef9347af435a0184b81f354991c12529515c171c949042a954741",
+      "sourceId": "file:docs/work/CLAUDE.md"
+    }
+  },
   "skillFiles": [
     ".agents/skills/archive-docs/SKILL.md",
     ".agents/skills/archive-docs/agents/openai.yaml",
     ".agents/skills/archive-docs/references/archive-workflow.md",
     ".agents/skills/archive-docs/scripts/trace_relationships.py",
-    ".agents/skills/closeout-commit/SKILL.md",
-    ".agents/skills/closeout-commit/agents/openai.yaml",
-    ".agents/skills/closeout-commit/references/closeout-commit-workflow.md",
-    ".agents/skills/closeout-phase/SKILL.md",
-    ".agents/skills/closeout-phase/agents/openai.yaml",
-    ".agents/skills/closeout-phase/references/closeout-workflow.md",
     ".agents/skills/cleanup-docs/SKILL.md",
     ".agents/skills/cleanup-docs/agents/openai.yaml",
     ".agents/skills/cleanup-docs/scripts/check_markdown_style.py",
+    ".agents/skills/closeout-commit/SKILL.md",
+    ".agents/skills/closeout-commit/agents/openai.yaml",
+    ".agents/skills/closeout-commit/references/closeout-commit-workflow.md",
+    ".agents/skills/closeout-commit/scripts/closeout_history.py",
+    ".agents/skills/closeout-commit/scripts/closeout_probe.py",
+    ".agents/skills/closeout-commit/scripts/closeout_validate.py",
+    ".agents/skills/closeout-phase/SKILL.md",
+    ".agents/skills/closeout-phase/agents/openai.yaml",
+    ".agents/skills/closeout-phase/references/closeout-workflow.md",
+    ".agents/skills/closeout-phase/scripts/closeout_history.py",
+    ".agents/skills/closeout-phase/scripts/closeout_probe.py",
+    ".agents/skills/closeout-phase/scripts/closeout_validate.py",
+    ".agents/skills/closeout-phase/scripts/guide_coverage_probe.py",
+    ".agents/skills/closeout-phase/scripts/work_phase_state.py",
     ".agents/skills/decompose-codebase/SKILL.md",
     ".agents/skills/decompose-codebase/agents/openai.yaml",
     ".agents/skills/decompose-codebase/assets/templates/decomposition-plan.md",
@@ -61,7 +659,6 @@
     ".agents/skills/decompose-codebase/assets/templates/prd-subsystem.md",
     ".agents/skills/decompose-codebase/assets/templates/rebuild-backlog-index.md",
     ".agents/skills/decompose-codebase/assets/templates/rebuild-backlog-phase.md",
-    ".agents/skills/decompose-codebase/assets/templates/rebuild-backlog.md",
     ".agents/skills/decompose-codebase/references/execution-workflow.md",
     ".agents/skills/decompose-codebase/references/harness-capability-matrix.md",
     ".agents/skills/decompose-codebase/references/mcp-playbook.md",
@@ -73,15 +670,23 @@
     ".claude/skills/archive-docs/agents/openai.yaml",
     ".claude/skills/archive-docs/references/archive-workflow.md",
     ".claude/skills/archive-docs/scripts/trace_relationships.py",
-    ".claude/skills/closeout-commit/SKILL.md",
-    ".claude/skills/closeout-commit/agents/openai.yaml",
-    ".claude/skills/closeout-commit/references/closeout-commit-workflow.md",
-    ".claude/skills/closeout-phase/SKILL.md",
-    ".claude/skills/closeout-phase/agents/openai.yaml",
-    ".claude/skills/closeout-phase/references/closeout-workflow.md",
     ".claude/skills/cleanup-docs/SKILL.md",
     ".claude/skills/cleanup-docs/agents/openai.yaml",
     ".claude/skills/cleanup-docs/scripts/check_markdown_style.py",
+    ".claude/skills/closeout-commit/SKILL.md",
+    ".claude/skills/closeout-commit/agents/openai.yaml",
+    ".claude/skills/closeout-commit/references/closeout-commit-workflow.md",
+    ".claude/skills/closeout-commit/scripts/closeout_history.py",
+    ".claude/skills/closeout-commit/scripts/closeout_probe.py",
+    ".claude/skills/closeout-commit/scripts/closeout_validate.py",
+    ".claude/skills/closeout-phase/SKILL.md",
+    ".claude/skills/closeout-phase/agents/openai.yaml",
+    ".claude/skills/closeout-phase/references/closeout-workflow.md",
+    ".claude/skills/closeout-phase/scripts/closeout_history.py",
+    ".claude/skills/closeout-phase/scripts/closeout_probe.py",
+    ".claude/skills/closeout-phase/scripts/closeout_validate.py",
+    ".claude/skills/closeout-phase/scripts/guide_coverage_probe.py",
+    ".claude/skills/closeout-phase/scripts/work_phase_state.py",
     ".claude/skills/decompose-codebase/SKILL.md",
     ".claude/skills/decompose-codebase/agents/openai.yaml",
     ".claude/skills/decompose-codebase/assets/templates/decomposition-plan.md",
@@ -94,7 +699,6 @@
     ".claude/skills/decompose-codebase/assets/templates/prd-subsystem.md",
     ".claude/skills/decompose-codebase/assets/templates/rebuild-backlog-index.md",
     ".claude/skills/decompose-codebase/assets/templates/rebuild-backlog-phase.md",
-    ".claude/skills/decompose-codebase/assets/templates/rebuild-backlog.md",
     ".claude/skills/decompose-codebase/references/execution-workflow.md",
     ".claude/skills/decompose-codebase/references/harness-capability-matrix.md",
     ".claude/skills/decompose-codebase/references/mcp-playbook.md",

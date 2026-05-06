@@ -10,12 +10,14 @@ Use document commits for documentation changes that don't fit into the other cat
 
 Subject:
 
-If a wave or revision is indicated, use `[W{wave} R{revision}]` to indicate the wave and revision.  Example:
+If a wave or revision is indicated, use `[W{wave} R{revision}]` to indicate the wave and revision. Example:
+
 ```text
 docs: [W{wave} R{revision}] {documentation target purpose}
 ```
 
-If documentation is specific to a phase, use `[W{wave} R{revision} P{phase}]` to indicate the wave, revision, and phase.  Example:
+If documentation is specific to a phase, use `[W{wave} R{revision} P{phase}]` to indicate the wave, revision, and phase. Example:
+
 ```text
 docs: [W{wave} R{revision} P{phase}] {documentation target purpose}
 ```

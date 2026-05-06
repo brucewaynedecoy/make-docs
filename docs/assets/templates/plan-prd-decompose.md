@@ -3,7 +3,9 @@
 > In v2, plans are directories. Use this template as the shape of the `00-overview.md` file in the plan directory; split additional detail into `0N-<phase>.md` files as needed.
 
 **Date:** {{DATE}}
+
 **Repository:** `{{REPO_ROOT}}`
+
 **Purpose:** Produce a reviewable plan for reverse-engineering the repository into a structured PRD set and rebuild backlog.
 
 ## Objective
