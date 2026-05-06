@@ -49,10 +49,12 @@ describe("skill registry", () => {
       "archive-docs",
       "closeout-commit",
       "closeout-phase",
+      "cleanup-docs",
       "decompose-codebase",
     ]);
     expect(getSkillRegistryNames(registry)).toEqual([
       "archive-docs",
+      "cleanup-docs",
       "closeout-commit",
       "closeout-phase",
       "decompose-codebase",
@@ -88,6 +90,21 @@ describe("skill registry", () => {
       {
         source: "references/closeout-workflow.md",
         installPath: "references/closeout-workflow.md",
+      },
+    ]);
+  });
+
+  test("declares the cleanup docs skill asset surface", () => {
+    const registry = loadSkillRegistry(PACKAGE_ROOT);
+    const cleanupSkill = registry.skills.find(
+      (skill) => skill.name === "cleanup-docs",
+    );
+
+    expect(cleanupSkill?.assets).toEqual([
+      { source: "agents/openai.yaml", installPath: "agents/openai.yaml" },
+      {
+        source: "scripts/check_markdown_style.py",
+        installPath: "scripts/check_markdown_style.py",
       },
     ]);
   });

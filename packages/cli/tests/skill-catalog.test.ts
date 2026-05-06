@@ -34,6 +34,11 @@ describe("skill catalog", () => {
           "Relationship-aware archival, staleness detection, deprecation, and impact analysis for docs/ artifacts.",
       },
       {
+        name: "cleanup-docs",
+        description:
+          "Audit and clean Markdown docs formatting drift, hard-wrapped prose, list spacing, and document-contract issues.",
+      },
+      {
         name: "closeout-commit",
         description:
           "Capture gaps, write history, and draft commit messages for uncommitted changes.",
@@ -117,6 +122,18 @@ describe("skill catalog", () => {
     ).toBe(true);
     expect(
       assets.some(
+        (asset) => asset.relativePath === ".claude/skills/cleanup-docs/SKILL.md",
+      ),
+    ).toBe(true);
+    expect(
+      assets.some(
+        (asset) =>
+          asset.relativePath ===
+          ".agents/skills/cleanup-docs/scripts/check_markdown_style.py",
+      ),
+    ).toBe(true);
+    expect(
+      assets.some(
         (asset) =>
           asset.relativePath ===
           ".claude/skills/closeout-phase/agents/openai.yaml",
@@ -176,6 +193,11 @@ describe("skill catalog", () => {
       assets.some(
         (asset) =>
           asset.relativePath === ".claude/skills/closeout-commit/SKILL.md",
+      ),
+    ).toBe(true);
+    expect(
+      assets.some(
+        (asset) => asset.relativePath === ".claude/skills/cleanup-docs/SKILL.md",
       ),
     ).toBe(true);
   });

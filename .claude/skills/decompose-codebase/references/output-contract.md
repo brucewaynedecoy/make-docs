@@ -4,6 +4,12 @@
 
 Use this contract to keep decomposition outputs consistent across repositories and harnesses. Treat the codebase as authoritative, write in plain English, and keep the PRD set descriptive while keeping rebuild work prescriptive.
 
+## Markdown Source Formatting
+
+- Do not hard-wrap prose paragraphs for visual width; use editor soft-wrap instead.
+- Insert line breaks only for semantic Markdown structure: paragraph boundaries, headings, list items, tables, blockquotes, code fences, frontmatter, or intentional line-based formats.
+- Separate a completed list from following paragraph text with one blank line.
+
 ## Required Paths
 
 | Artifact | Required path |

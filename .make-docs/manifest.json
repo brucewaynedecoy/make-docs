@@ -22,6 +22,7 @@
     "skillScope": "project",
     "selectedSkills": [
       "archive-docs",
+      "cleanup-docs",
       "closeout-commit",
       "closeout-phase",
       "decompose-codebase"
@@ -45,6 +46,9 @@
     ".agents/skills/closeout-phase/SKILL.md",
     ".agents/skills/closeout-phase/agents/openai.yaml",
     ".agents/skills/closeout-phase/references/closeout-workflow.md",
+    ".agents/skills/cleanup-docs/SKILL.md",
+    ".agents/skills/cleanup-docs/agents/openai.yaml",
+    ".agents/skills/cleanup-docs/scripts/check_markdown_style.py",
     ".agents/skills/decompose-codebase/SKILL.md",
     ".agents/skills/decompose-codebase/agents/openai.yaml",
     ".agents/skills/decompose-codebase/assets/templates/decomposition-plan.md",
@@ -75,6 +79,9 @@
     ".claude/skills/closeout-phase/SKILL.md",
     ".claude/skills/closeout-phase/agents/openai.yaml",
     ".claude/skills/closeout-phase/references/closeout-workflow.md",
+    ".claude/skills/cleanup-docs/SKILL.md",
+    ".claude/skills/cleanup-docs/agents/openai.yaml",
+    ".claude/skills/cleanup-docs/scripts/check_markdown_style.py",
     ".claude/skills/decompose-codebase/SKILL.md",
     ".claude/skills/decompose-codebase/agents/openai.yaml",
     ".claude/skills/decompose-codebase/assets/templates/decomposition-plan.md",

@@ -1,0 +1,6 @@
+interface:
+  display_name: "Cleanup Docs"
+  short_description: "Audit and clean Markdown docs formatting drift"
+  default_prompt: "Use $cleanup-docs to inspect and clean Markdown docs for hard-wrapped prose, list spacing, and document-contract drift."
+policy:
+  allow_implicit_invocation: true

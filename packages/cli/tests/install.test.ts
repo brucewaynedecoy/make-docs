@@ -462,6 +462,12 @@ describe("installer integration", () => {
       const expectedSelections = defaultSelections();
       expectedSelections.harnesses["claude-code"] = true;
       expectedSelections.harnesses.codex = false;
+      expectedSelections.selectedSkills = [
+        "archive-docs",
+        "closeout-commit",
+        "closeout-phase",
+        "decompose-codebase",
+      ];
 
       expect(manifest?.selections).toEqual(expectedSelections);
       expect(resolveInstallProfile(manifest!.selections).profileId).toBe(

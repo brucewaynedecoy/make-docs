@@ -57,6 +57,23 @@
       ]
     },
     {
+      "name": "cleanup-docs",
+      "source": "https://github.com/brucewaynedecoy/make-docs/tree/main/packages/skills/cleanup-docs",
+      "entryPoint": "SKILL.md",
+      "installName": "cleanup-docs",
+      "description": "Audit and clean Markdown docs formatting drift, hard-wrapped prose, list spacing, and document-contract issues.",
+      "assets": [
+        {
+          "source": "agents/openai.yaml",
+          "installPath": "agents/openai.yaml"
+        },
+        {
+          "source": "scripts/check_markdown_style.py",
+          "installPath": "scripts/check_markdown_style.py"
+        }
+      ]
+    },
+    {
       "name": "decompose-codebase",
       "source": "https://github.com/brucewaynedecoy/make-docs/tree/main/packages/skills/decompose-codebase",
       "entryPoint": "SKILL.md",
