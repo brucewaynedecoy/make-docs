@@ -150,6 +150,20 @@ Status values are `Open`, `Confirming`, `Deferred`, and `Closed`. `Closed` requi
 
 **To close**: New skill authors can follow one repo-native guide from package files through registry, tests, dogfood mirrors, and release checks.
 
+### D-011 PRD 05 Still Carries the Pre-W14 R2 Conflict Model
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | PRD 05 is follow-up-only for W14 R2 P1 and is not part of the P1 edit scope. | Later workers should assess and annotate PRD 05 only if implementation confirms a direct lifecycle requirement change. |
+
+**Issue**: `docs/prd/05-installation-profile-and-manifest-lifecycle.md` still describes the pre-W14 R2 conflict model, while [13-revise-cli-conflict-resolution.md](./13-revise-cli-conflict-resolution.md) supersedes the instruction-specific `Update` / `Overwrite` / `Skip` path with batch-first overwrite/skip review for divergent managed agent instructions, references, and templates.
+
+**Why it matters**: PRD 05 remains important lifecycle context, but editing it during P1 would cross the required baseline annotation boundary for this worker.
+
+**Recommendation**: Keep PRD 05 as explicit follow-up context for W14 R2 P1 rather than changing it in the baseline annotation pass.
+
+**To close**: A later scoped worker confirms whether PRD 05 needs a lifecycle annotation and updates it under that worker's ownership rules.
+
 ## Open Questions
 
 ### Q-001 What Is the Long-Term Skills Delivery Contract?

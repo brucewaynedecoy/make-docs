@@ -51,6 +51,10 @@ Effective behavior:
 - Install, sync, and reconfigure flows continue to manage every included prompt, template, and reference file that belongs to the effective capability surface.
 - Manifest checking must identify stale or malformed manifests that still carry the removed asset-selection fields, tell users to fix or remove the stale manifest, and tell them to rerun bare `make-docs` to rebuild the manifest.
 
+### Change Notes
+
+- Superseded by [13-revise-cli-conflict-resolution.md](./13-revise-cli-conflict-resolution.md) for requiring always-managed references and templates with divergent local files to surface through batch-first overwrite/skip conflict review instead of implicit update, silent overwrite, or instruction-only handling.
+
 Code anchors:
 
 - `packages/cli/src/wizard.ts`

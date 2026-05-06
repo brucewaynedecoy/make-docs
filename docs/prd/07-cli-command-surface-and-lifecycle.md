@@ -56,6 +56,10 @@ Review is a mutable checkpoint, not a final dead end. `renderWizardReviewSummary
 
 ### Plan review, confirmation, and apply orchestration
 
+#### Change Notes
+
+- Superseded by [13-revise-cli-conflict-resolution.md](./13-revise-cli-conflict-resolution.md) for replacing instruction-specific conflict review with batch-first managed-file conflict review across divergent agent instructions, references, and templates, and for removing instruction-only `Update` from the active conflict flow.
+
 After selections are resolved, `runCli` computes an install plan, optionally collects instruction-conflict resolutions, rejects plans with no effective capabilities, prints a structured plan, and only then applies writes in `packages/cli/src/cli.ts:178`, `packages/cli/src/cli.ts:185`, `packages/cli/src/cli.ts:205`, `packages/cli/src/cli.ts:210`, and `packages/cli/src/cli.ts:244`. The review summary includes target, mode, manifest state, selection source, and action counts in `packages/cli/src/cli.ts:725`, while noop runs emit mode-specific guidance in `packages/cli/src/cli.ts:805`.
 
 The generic post-plan confirmation is conditional. When the wizard has already collected review-and-apply intent, `runCli` sets `skipApplyConfirm` in `packages/cli/src/cli.ts:148`, `packages/cli/src/cli.ts:162`, and `packages/cli/src/cli.ts:174`, so the CLI does not immediately ask the user to confirm a second time. For interactive sync flows that did not use the wizard, the CLI still shows the plan and then asks for confirmation in `packages/cli/src/cli.ts:226`.

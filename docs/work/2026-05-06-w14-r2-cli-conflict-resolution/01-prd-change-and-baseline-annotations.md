@@ -20,9 +20,9 @@ This phase converts the approved design and plan into the PRD contract that impl
 
 ### Tasks
 
-- [ ] t1: Create `docs/prd/13-revise-cli-conflict-resolution.md` from the revision change template.
-- [ ] t2: Capture the batch-first conflict decision, grouped review order, overwrite/skip-only per-file decisions, and deterministic apply behavior.
-- [ ] t3: Link the PRD change doc to the source design and W14 R2 plan.
+- [x] t1: Create `docs/prd/13-revise-cli-conflict-resolution.md` from the revision change template.
+- [x] t2: Capture the batch-first conflict decision, grouped review order, overwrite/skip-only per-file decisions, and deterministic apply behavior.
+- [x] t3: Link the PRD change doc to the source design and W14 R2 plan.
 
 ### Acceptance criteria
 
@@ -40,10 +40,10 @@ This phase converts the approved design and plan into the PRD contract that impl
 
 ### Tasks
 
-- [ ] t4: Update `docs/prd/00-index.md` to include `docs/prd/13-revise-cli-conflict-resolution.md`.
-- [ ] t5: Add a change note in `docs/prd/07-cli-command-surface-and-lifecycle.md` for revised install/reconfigure conflict behavior.
-- [ ] t6: Add a follow-on note in `docs/prd/11-revise-cli-asset-selection-simplification.md` connecting always-managed references and templates to explicit conflict handling.
-- [ ] t7: Record concrete risks or open questions in `docs/prd/03-open-questions-and-risk-register.md` only if discovered.
+- [x] t4: Update `docs/prd/00-index.md` to include `docs/prd/13-revise-cli-conflict-resolution.md`.
+- [x] t5: Add a change note in `docs/prd/07-cli-command-surface-and-lifecycle.md` for revised install/reconfigure conflict behavior.
+- [x] t6: Add a follow-on note in `docs/prd/11-revise-cli-asset-selection-simplification.md` connecting always-managed references and templates to explicit conflict handling.
+- [x] t7: Record concrete risks or open questions in `docs/prd/03-open-questions-and-risk-register.md` only if discovered.
 
 ### Acceptance criteria
 
@@ -60,9 +60,9 @@ This phase converts the approved design and plan into the PRD contract that impl
 
 ### Tasks
 
-- [ ] t8: Verify every new or edited PRD link resolves.
-- [ ] t9: Verify no active PRD files were renumbered.
-- [ ] t10: Reindex docs with `jdocmunch` after the PRD edits.
+- [x] t8: Verify every new or edited PRD link resolves.
+- [x] t9: Verify no active PRD files were renumbered.
+- [x] t10: Reindex docs with `jdocmunch` after the PRD edits.
 
 ### Acceptance criteria
 
