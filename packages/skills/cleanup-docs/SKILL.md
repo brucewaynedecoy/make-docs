@@ -19,13 +19,15 @@ Use this skill to audit and clean Markdown documentation while preserving the re
 2. Run `python3 scripts/check_markdown_style.py <scope>` from this skill to gather deterministic formatting findings.
 3. Review the scoped documents for contract fit: required headings, task/acceptance shape, links, frontmatter, and local style.
 4. Clean only clear formatting drift:
-   - unwrap prose that was hard-wrapped for visual width;
+   - unwrap only top-level prose that was hard-wrapped for visual width;
    - insert one blank line between a list and following paragraph text;
-   - preserve headings, lists, tables, blockquotes, code fences, frontmatter, and intentional line-based formats.
+   - manually review wrapped list-item continuations instead of auto-fixing them;
+   - preserve headings, lists, list indentation, tables, blockquotes, code fences, frontmatter, and intentional line-based formats.
 5. Report files changed, issues left unchanged, and any contract violations that need separate design, plan, or work follow-up.
 
 ## Script Notes
 
 - Default script mode is report-only.
 - Use `--format json` when the agent needs structured findings.
-- Use `--fix` only after preview confirmation; fix mode is conservative and limited to prose unwrapping and missing blank lines after list blocks.
+- Use `--fix` only after preview confirmation; fix mode is conservative and limited to top-level prose unwrapping and missing blank lines after list blocks.
+- Fix mode must not unwrap YAML frontmatter, fenced code blocks, or text inside list items. Treat list indentation as semantic.

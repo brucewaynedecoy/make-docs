@@ -11,7 +11,10 @@ from pathlib import Path
 
 
 FENCE_RE = re.compile(r"^\s*(`{3,}|~{3,})")
-LIST_RE = re.compile(r"^\s*(?:[-+*]|\d+[.)])\s+")
+LIST_RE = re.compile(
+    r"^(?P<indent>[ \t]*)(?P<marker>(?:[-+*]|\d+[.)]))[ \t]+"
+    r"(?:(?P<task>\[[ xX]\])[ \t]+)?(?P<text>.*)$"
+)
 HEADING_RE = re.compile(r"^\s{0,3}#{1,6}\s+")
 HTML_COMMENT_RE = re.compile(r"^\s*<!--.*-->\s*$")
 
@@ -65,8 +68,69 @@ def is_structural(line: str) -> bool:
     )
 
 
-def is_indented_continuation(line: str) -> bool:
-    return bool(line) and line[0].isspace() and line.strip()
+def leading_indent(line: str) -> int:
+    return len(line) - len(line.lstrip(" \t"))
+
+
+def is_list_item(line: str) -> bool:
+    return LIST_RE.match(line) is not None
+
+
+def is_list_continuation(lines: list[str], index: int) -> bool:
+    line = lines[index]
+    if not line.strip() or is_list_item(line):
+        return False
+    indent = leading_indent(line)
+    if indent == 0:
+        return False
+
+    previous = index - 1
+    while previous >= 0:
+        previous_line = lines[previous]
+        if not previous_line.strip():
+            return False
+        match = LIST_RE.match(previous_line)
+        if match:
+            return indent > leading_indent(previous_line)
+        previous -= 1
+    return False
+
+
+def is_top_level_prose(lines: list[str], index: int) -> bool:
+    line = lines[index]
+    return (
+        leading_indent(line) == 0
+        and not is_structural(line)
+        and not is_list_continuation(lines, index)
+    )
+
+
+def is_list_line(lines: list[str], index: int) -> bool:
+    return is_list_item(lines[index]) or is_list_continuation(lines, index)
+
+
+def is_list_block_start(lines: list[str], index: int) -> bool:
+    return is_list_item(lines[index]) and not (
+        index > 0 and is_list_item(lines[index - 1])
+    )
+
+
+def list_block_end(lines: list[str], index: int) -> int:
+    cursor = index + 1
+    while cursor < len(lines) and is_list_line(lines, cursor):
+        cursor += 1
+    return cursor
+
+
+def list_line_needs_blank_after(lines: list[str], index: int) -> bool:
+    if not is_list_line(lines, index) or index + 1 >= len(lines):
+        return False
+    next_index = index + 1
+    return (
+        not is_list_line(lines, next_index)
+        and lines[next_index].strip()
+        and not is_structural(lines[next_index])
+    )
 
 
 def looks_like_wrapped_pair(left: str, right: str) -> bool:
@@ -81,6 +145,35 @@ def looks_like_wrapped_pair(left: str, right: str) -> bool:
     if len(left_text) < 45:
         return False
     return left_text[-1].isalnum() and right_text[0].islower()
+
+
+def looks_like_wrapped_top_level_pair(lines: list[str], index: int) -> bool:
+    return (
+        index + 1 < len(lines)
+        and is_top_level_prose(lines, index)
+        and is_top_level_prose(lines, index + 1)
+        and looks_like_wrapped_pair(lines[index], lines[index + 1])
+    )
+
+
+def looks_like_wrapped_list_continuation(lines: list[str], index: int) -> bool:
+    if index + 1 >= len(lines):
+        return False
+    match = LIST_RE.match(lines[index])
+    if not match or not is_list_continuation(lines, index + 1):
+        return False
+    item_text = match.group("text").strip()
+    continuation_text = lines[index + 1].strip()
+    if len(item_text) < 45:
+        return False
+    if item_text.endswith(("  ", "\\", ".", "!", "?", ":", ";")):
+        return False
+    return (
+        bool(item_text)
+        and bool(continuation_text)
+        and item_text[-1].isalnum()
+        and continuation_text[0].islower()
+    )
 
 
 def scan_text(path: Path, text: str) -> list[Finding]:
@@ -106,15 +199,13 @@ def scan_text(path: Path, text: str) -> list[Finding]:
         if in_fence or in_frontmatter(index, fm_end):
             continue
 
-        if LIST_RE.match(line) and not (index > 0 and LIST_RE.match(lines[index - 1])):
-            next_index = index + 1
-            while next_index < len(lines) and LIST_RE.match(lines[next_index]):
-                next_index += 1
+        if is_list_block_start(lines, index):
+            next_index = list_block_end(lines, index)
             if (
                 next_index < len(lines)
                 and lines[next_index].strip()
                 and not is_structural(lines[next_index])
-                and not is_indented_continuation(lines[next_index])
+                and not is_list_continuation(lines, next_index)
             ):
                 findings.append(
                     Finding(
@@ -126,7 +217,18 @@ def scan_text(path: Path, text: str) -> list[Finding]:
                     )
                 )
 
-        if index + 1 < len(lines) and looks_like_wrapped_pair(line, lines[index + 1]):
+        if looks_like_wrapped_list_continuation(lines, index):
+            findings.append(
+                Finding(
+                    str(path),
+                    line_no,
+                    "list-continuation-wrap",
+                    "List item appears wrapped into an indented continuation; prefer one logical line or preserve indentation during manual cleanup.",
+                    line.strip(),
+                )
+            )
+
+        if looks_like_wrapped_top_level_pair(lines, index):
             findings.append(
                 Finding(
                     str(path),
@@ -164,22 +266,30 @@ def fix_text(text: str) -> str:
             index += 1
             continue
 
-        if in_fence or in_frontmatter(index, fm_end) or is_structural(line):
+        if (
+            in_fence
+            or in_frontmatter(index, fm_end)
+            or is_structural(line)
+            or is_list_continuation(lines, index)
+        ):
             output.append(line)
             index += 1
-            if (
-                LIST_RE.match(line)
-                and index < len(lines)
-                and lines[index].strip()
-                and not is_structural(lines[index])
-                and not is_indented_continuation(lines[index])
-            ):
+            if list_line_needs_blank_after(lines, index - 1):
                 output.append("")
+            continue
+
+        if not is_top_level_prose(lines, index):
+            output.append(line)
+            index += 1
             continue
 
         paragraph = [line.strip()]
         index += 1
-        while index < len(lines) and looks_like_wrapped_pair(paragraph[-1], lines[index]):
+        while (
+            index < len(lines)
+            and is_top_level_prose(lines, index)
+            and looks_like_wrapped_pair(paragraph[-1], lines[index])
+        ):
             paragraph.append(lines[index].strip())
             index += 1
         output.append(" ".join(paragraph))

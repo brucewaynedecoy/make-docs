@@ -11,6 +11,7 @@ Use this contract to keep plan, PRD, and work document outputs consistent across
 - Do not hard-wrap prose paragraphs for visual width; use editor soft-wrap instead.
 - Insert line breaks only for semantic Markdown structure: paragraph boundaries, headings, list items, tables, blockquotes, code fences, frontmatter, or intentional line-based formats.
 - Separate a completed list from following paragraph text with one blank line.
+- Prefer one logical line per list item unless nested structure is semantically required. When list continuation or nesting is required, indentation is semantic and must be preserved exactly.
 
 ## Required Paths
 

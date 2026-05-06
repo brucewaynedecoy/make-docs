@@ -73,6 +73,56 @@ class MarkdownStyleTests(unittest.TestCase):
         self.assertIn("source because the next line", fixed)
         self.assertIn("- two\n\nNext paragraph.", fixed)
 
+    def test_fix_mode_preserves_frontmatter_and_code_fences(self) -> None:
+        text = (
+            "---\n"
+            "summary: This frontmatter line is long enough to look wrapped\n"
+            "because it continues in YAML frontmatter.\n"
+            "---\n\n"
+            "```md\n"
+            "This fenced code line is long enough to look wrapped\n"
+            "because code keeps its exact source layout.\n"
+            "```\n"
+        )
+
+        self.assertEqual(checker.fix_text(text), text)
+
+    def test_fix_mode_preserves_list_continuations(self) -> None:
+        text = (
+            "- This unordered list item is long enough to look wrapped\n"
+            "  because its continuation indentation is semantic.\n"
+            "1. This ordered list item is long enough to look wrapped\n"
+            "   because its continuation indentation is semantic.\n"
+            "- [ ] This task item is long enough to look wrapped\n"
+            "  because its continuation indentation is semantic.\n"
+            "  - This nested item must stay nested.\n"
+        )
+
+        self.assertEqual(checker.fix_text(text), text)
+
+    def test_reports_but_does_not_fix_wrapped_list_continuation(self) -> None:
+        text = (
+            "- This unordered list item is long enough to look wrapped\n"
+            "  because its continuation indentation is semantic.\n"
+        )
+
+        findings = checker.scan_text(Path("sample.md"), text)
+
+        self.assertEqual([item.rule for item in findings], ["list-continuation-wrap"])
+        self.assertEqual(checker.fix_text(text), text)
+
+    def test_fix_mode_adds_blank_after_list_with_continuation(self) -> None:
+        fixed = checker.fix_text(
+            "- This unordered list item is long enough to look wrapped\n"
+            "  because its continuation indentation is semantic.\n"
+            "Next paragraph starts too soon.\n"
+        )
+
+        self.assertIn(
+            "because its continuation indentation is semantic.\n\nNext paragraph",
+            fixed,
+        )
+
     def test_json_output_is_stable(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "sample.md"
