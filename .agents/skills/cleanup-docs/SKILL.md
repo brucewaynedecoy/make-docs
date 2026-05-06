@@ -16,18 +16,22 @@ Use this skill to audit and clean Markdown documentation while preserving the re
 ## Workflow
 
 1. Read the nearest `AGENTS.md` or `CLAUDE.md` and the relevant contract/template references for the scoped document type.
-2. Run `python3 scripts/check_markdown_style.py <scope>` from this skill to gather deterministic formatting findings.
-3. Review the scoped documents for contract fit: required headings, task/acceptance shape, links, frontmatter, and local style.
-4. Clean only clear formatting drift:
-   - unwrap only top-level prose that was hard-wrapped for visual width;
-   - insert one blank line between a list and following paragraph text;
+2. Run `python3 scripts/check_markdown_style.py --format json <scope>` from this skill to gather deterministic formatting findings.
+3. Review a deterministic cross-file sample of findings before fixing: inspect up to 10 findings or 10% of findings, whichever is larger, capped at 25.
+4. If the sample has no false positives, run `python3 scripts/check_markdown_style.py --fix <scope>`.
+5. If the sample has false positives, divide findings into batches of 10 and spawn worker agents for manual review and repair; when spawning is unavailable, review batches serially.
+6. Review the scoped documents for contract fit: required headings, task/acceptance shape, links, frontmatter, and local style.
+7. Clean only clear formatting drift:
+   - insert one blank line between adjacent Markdown blocks;
+   - unwrap only top-level prose paragraphs that were hard-wrapped for visual width;
    - manually review wrapped list-item continuations instead of auto-fixing them;
-   - preserve headings, lists, list indentation, tables, blockquotes, code fences, frontmatter, and intentional line-based formats.
-5. Report files changed, issues left unchanged, and any contract violations that need separate design, plan, or work follow-up.
+   - preserve headings, lists, list indentation, tables, blockquotes, code fences, frontmatter, comments, and intentional line-based formats.
+8. Report files changed, issues left unchanged, and any contract violations that need separate design, plan, or work follow-up.
 
 ## Script Notes
 
 - Default script mode is report-only.
 - Use `--format json` when the agent needs structured findings.
-- Use `--fix` only after preview confirmation; fix mode is conservative and limited to top-level prose unwrapping and missing blank lines after list blocks.
-- Fix mode must not unwrap YAML frontmatter, fenced code blocks, or text inside list items. Treat list indentation as semantic.
+- Findings are ordered so block-boundary issues come before paragraph wrapping issues.
+- Use `--fix` only after sample review; fix mode first inserts missing blank lines between blocks, then unwraps top-level prose paragraphs.
+- Fix mode must not unwrap YAML frontmatter, fenced code blocks, comments, tables, blockquotes, or text inside list items. Treat list indentation as semantic.

@@ -70,6 +70,7 @@ const initialState: SkillsUiState = {
   skillScope: "project",
   selectedSkills: [
     "archive-docs",
+    "cleanup-docs",
     "closeout-commit",
     "closeout-phase",
     "decompose-codebase",
@@ -151,12 +152,14 @@ describe("skills-only UI", () => {
     ]);
     expect(renderer.seenSkillStates[0]?.skills.map((skill) => skill.name)).toEqual([
       "archive-docs",
+      "cleanup-docs",
       "closeout-commit",
       "closeout-phase",
       "decompose-codebase",
     ]);
     expect(renderer.seenSkillStates[0]?.selectedSkills).toEqual([
       "archive-docs",
+      "cleanup-docs",
       "closeout-commit",
       "closeout-phase",
       "decompose-codebase",

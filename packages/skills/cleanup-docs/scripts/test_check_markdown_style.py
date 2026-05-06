@@ -16,62 +16,76 @@ class MarkdownStyleTests(unittest.TestCase):
     def findings_for(self, text: str) -> list[checker.Finding]:
         return checker.scan_text(Path("sample.md"), text)
 
-    def test_flags_hard_wrapped_examples(self) -> None:
+    def rules_for(self, text: str) -> list[str]:
+        return [finding.rule for finding in self.findings_for(text)]
+
+    def test_flags_block_boundary_violations(self) -> None:
         text = (
-            "`lemme start` runs an agent profile on an inner harness. In v1, Phase 06 wires\n"
-            "the CLI surface and a stub execution bridge for validation; the real Claude\n"
-            "Code adapter flow lands in Phase 07. The command shape is stable enough to use\n"
-            "for profile, config, workdir, and headless-wrapper examples.\n\n"
-            "For the Phase 06 stub bridge, use `stub` as the harness. Registered adapters\n"
-            "such as `claude-code` and its `claude` alias are accepted by the CLI, but the\n"
-            "full adapter execution bridge is later adapter work.\n\n"
-            "Use a direct source workdir only when you explicitly accept shared-workdir\n"
-            "behavior:\n"
+            "# Heading\n"
+            "Paragraph starts too soon.\n"
+            "Next paragraph line is wrapped.\n"
+            "- list starts too soon\n"
+            "```md\n"
+            "code starts too soon\n"
+            "```\n"
+            "<!-- comment starts too soon -->\n"
         )
 
         findings = self.findings_for(text)
 
-        self.assertGreaterEqual(len([item for item in findings if item.rule == "hard-wrap"]), 3)
+        self.assertEqual(
+            [finding.rule for finding in findings[:4]],
+            ["block-spacing", "block-spacing", "block-spacing", "block-spacing"],
+        )
+        self.assertEqual(findings[0].block_type, "heading->paragraph")
+        self.assertTrue(all(finding.fixable for finding in findings[:4]))
 
-    def test_flags_list_followed_by_paragraph_without_blank_line(self) -> None:
-        findings = self.findings_for("- one\n- two\nNext paragraph starts too soon.\n")
+    def test_flags_list_followed_by_paragraph_or_heading_without_blank_line(self) -> None:
+        paragraph_rules = self.rules_for("- one\n- two\nNext paragraph starts too soon.\n")
+        heading_rules = self.rules_for("- one\n## Heading starts too soon\n")
 
-        self.assertEqual([item.rule for item in findings], ["list-spacing"])
+        self.assertEqual(paragraph_rules, ["block-spacing"])
+        self.assertEqual(heading_rules, ["block-spacing"])
 
-    def test_ignores_structural_markdown(self) -> None:
+    def test_flags_code_fence_followed_by_paragraph_without_blank_line(self) -> None:
+        findings = self.findings_for("```md\ncode\n```\nParagraph starts too soon.\n")
+
+        self.assertEqual([finding.rule for finding in findings], ["block-spacing"])
+        self.assertEqual(findings[0].block_type, "code-fence->paragraph")
+
+    def test_flags_wrapped_top_level_paragraphs(self) -> None:
         text = (
-            "---\n"
-            "title: wrapped\n"
-            "summary: This frontmatter line is intentionally long and followed by lower text\n"
-            "lowercase should not matter here\n"
-            "---\n\n"
-            "# Heading\n\n"
-            "```md\n"
-            "This code line is intentionally long and followed by lower text\n"
-            "lowercase code text\n"
-            "```\n\n"
-            "| Column | Value |\n"
-            "| --- | --- |\n"
-            "| Long prose cell that wraps in the source | lower cell |\n\n"
-            "> Quote text that may be manually wrapped\n"
-            "> with another quote line\n\n"
-            "- list item continuation\n"
-            "  still part of the item\n"
+            "Stand up the shared substrate every later phase depends on: the\n"
+            "Cargo workspace and per-crate manifests, the pinned Rust toolchain,\n"
+            "the typed error model plus event tracing subscriber.\n\n"
+            "Plan source: [Plan Phase 01](../../plans\n"
+            "/2026-05-01-w1-r0-lemme-cli-v1-baseline\n"
+            "/01-bootstrap-and-foundation.md).\n"
         )
 
-        self.assertEqual(self.findings_for(text), [])
+        findings = self.findings_for(text)
 
-    def test_fix_mode_unwraps_and_inserts_blank_lines(self) -> None:
+        self.assertEqual([finding.rule for finding in findings], ["paragraph-wrap", "paragraph-wrap"])
+        self.assertEqual(findings[0].start_line, 1)
+        self.assertEqual(findings[0].end_line, 3)
+        self.assertTrue(all(finding.fixable for finding in findings))
+
+    def test_fix_mode_spaces_blocks_before_unwrapping_paragraphs(self) -> None:
         fixed = checker.fix_text(
+            "# Heading\n"
             "A generated paragraph that is long enough to look wrapped in source\n"
-            "because the next line keeps the same sentence going.\n\n"
+            "because the next line keeps the same sentence going.\n"
             "- one\n"
-            "- two\n"
             "Next paragraph.\n"
         )
 
-        self.assertIn("source because the next line", fixed)
-        self.assertIn("- two\n\nNext paragraph.", fixed)
+        self.assertEqual(
+            fixed,
+            "# Heading\n\n"
+            "A generated paragraph that is long enough to look wrapped in source because the next line keeps the same sentence going.\n\n"
+            "- one\n\n"
+            "Next paragraph.\n",
+        )
 
     def test_fix_mode_preserves_frontmatter_and_code_fences(self) -> None:
         text = (
@@ -86,9 +100,17 @@ class MarkdownStyleTests(unittest.TestCase):
         )
 
         self.assertEqual(checker.fix_text(text), text)
+        self.assertEqual(self.findings_for(text), [])
 
-    def test_fix_mode_preserves_list_continuations(self) -> None:
+    def test_fix_mode_preserves_tables_blockquotes_comments_and_lists(self) -> None:
         text = (
+            "| Column | Value |\n"
+            "| --- | --- |\n"
+            "| Long prose cell that wraps in the source | lower cell |\n\n"
+            "> Quote text that may be manually wrapped\n"
+            "> with another quote line\n\n"
+            "<!-- comment line that may look wrapped\n"
+            "but should remain untouched -->\n\n"
             "- This unordered list item is long enough to look wrapped\n"
             "  because its continuation indentation is semantic.\n"
             "1. This ordered list item is long enough to look wrapped\n"
@@ -106,27 +128,16 @@ class MarkdownStyleTests(unittest.TestCase):
             "  because its continuation indentation is semantic.\n"
         )
 
-        findings = checker.scan_text(Path("sample.md"), text)
+        findings = self.findings_for(text)
 
-        self.assertEqual([item.rule for item in findings], ["list-continuation-wrap"])
+        self.assertEqual([finding.rule for finding in findings], ["list-continuation-wrap"])
+        self.assertFalse(findings[0].fixable)
         self.assertEqual(checker.fix_text(text), text)
 
-    def test_fix_mode_adds_blank_after_list_with_continuation(self) -> None:
-        fixed = checker.fix_text(
-            "- This unordered list item is long enough to look wrapped\n"
-            "  because its continuation indentation is semantic.\n"
-            "Next paragraph starts too soon.\n"
-        )
-
-        self.assertIn(
-            "because its continuation indentation is semantic.\n\nNext paragraph",
-            fixed,
-        )
-
-    def test_json_output_is_stable(self) -> None:
+    def test_json_output_schema_and_order_are_stable(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "sample.md"
-            path.write_text("- one\nNext paragraph.\n")
+            path.write_text("# Heading\nParagraph one\nParagraph two\n")
             result = subprocess.run(
                 [
                     "python3",
@@ -142,7 +153,38 @@ class MarkdownStyleTests(unittest.TestCase):
 
         payload = json.loads(result.stdout)
         self.assertFalse(payload["ok"])
-        self.assertEqual(payload["findings"][0]["rule"], "list-spacing")
+        self.assertEqual([item["rule"] for item in payload["findings"]], ["block-spacing", "paragraph-wrap"])
+        expected_keys = {
+            "path",
+            "start_line",
+            "end_line",
+            "rule",
+            "message",
+            "fixable",
+            "confidence",
+            "block_type",
+            "preview",
+        }
+        self.assertEqual(set(payload["findings"][0]), expected_keys)
+
+    def test_text_output_groups_by_file_and_rule(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "sample.md"
+            path.write_text("# Heading\nParagraph one\nParagraph two\n")
+            result = subprocess.run(
+                [
+                    "python3",
+                    str(Path(__file__).with_name("check_markdown_style.py")),
+                    str(path),
+                ],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+
+        self.assertIn(str(path), result.stdout)
+        self.assertIn("  block-spacing", result.stdout)
+        self.assertIn("  paragraph-wrap", result.stdout)
 
 
 if __name__ == "__main__":

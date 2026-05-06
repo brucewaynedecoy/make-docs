@@ -415,11 +415,13 @@ describe("cli interactive flows", () => {
       manifest = loadManifest(targetDir);
       expect(manifest?.selections.selectedSkills).toEqual([
         "archive-docs",
+        "cleanup-docs",
         "closeout-commit",
         "closeout-phase",
         "decompose-codebase",
       ]);
       expect(manifest?.skillFiles).toContain(".claude/skills/archive-docs/SKILL.md");
+      expect(manifest?.skillFiles).toContain(".claude/skills/cleanup-docs/SKILL.md");
       expect(manifest?.skillFiles).toContain(
         ".claude/skills/closeout-commit/SKILL.md",
       );
@@ -754,7 +756,7 @@ describe("cli interactive flows", () => {
           targetDir,
         ]),
       ).rejects.toThrow(
-        "Unknown selected skill `unknown-skill`. Valid skills: archive-docs, closeout-commit, closeout-phase, decompose-codebase.",
+        "Unknown selected skill `unknown-skill`. Valid skills: archive-docs, cleanup-docs, closeout-commit, closeout-phase, decompose-codebase.",
       );
     } finally {
       cleanupTempDir(targetDir);

@@ -6,9 +6,9 @@ Use this contract to keep decomposition outputs consistent across repositories a
 
 ## Markdown Source Formatting
 
-- Do not hard-wrap prose paragraphs for visual width; use editor soft-wrap instead.
-- Insert line breaks only for semantic Markdown structure: paragraph boundaries, headings, list items, tables, blockquotes, code fences, frontmatter, or intentional line-based formats.
-- Separate a completed list from following paragraph text with one blank line.
+- Do not hard-wrap prose paragraphs for visual width; use editor soft-wrap instead. Paragraphs should be one logical source line unless semantic Markdown structure requires otherwise.
+- Insert line breaks only for semantic Markdown structure: paragraph boundaries, headings, list items, tables, blockquotes, code fences, frontmatter, comments, or intentional line-based formats.
+- Separate every Markdown block from the next block with one blank line, including headings, paragraphs, lists, fenced code blocks, blockquotes, comments, and tables.
 - Prefer one logical line per list item unless nested structure is semantically required. When list continuation or nesting is required, indentation is semantic and must be preserved exactly.
 
 ## Required Paths

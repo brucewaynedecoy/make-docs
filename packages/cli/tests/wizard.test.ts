@@ -134,6 +134,10 @@ describe("selection wizard", () => {
           description: "Relationship-aware archival.",
         },
         {
+          name: "cleanup-docs",
+          description: "Clean Markdown docs formatting drift.",
+        },
+        {
           name: "closeout-commit",
           description: "Close out uncommitted changes.",
         },
@@ -155,6 +159,13 @@ describe("selection wizard", () => {
         value: "archive-docs",
         label: "archive-docs",
         hint: "Relationship-aware archival.",
+        disabled: false,
+        rowKind: "skill",
+      },
+      {
+        value: "cleanup-docs",
+        label: "cleanup-docs",
+        hint: "Clean Markdown docs formatting drift.",
         disabled: false,
         rowKind: "skill",
       },
@@ -285,6 +296,11 @@ describe("selection wizard", () => {
           "Relationship-aware archival, staleness detection, deprecation, and impact analysis for docs/ artifacts.",
       },
       {
+        name: "cleanup-docs",
+        description:
+          "Audit and clean Markdown docs formatting drift, hard-wrapped prose, list spacing, and document-contract issues.",
+      },
+      {
         name: "closeout-commit",
         description:
           "Capture gaps, write history, and draft commit messages for uncommitted changes.",
@@ -292,7 +308,7 @@ describe("selection wizard", () => {
       {
         name: "closeout-phase",
         description:
-          "Close out completed work backlog phases with checked criteria, guides, gap capture, history, and commit-message drafts.",
+          "Close out completed work backlog phases with checked tasks, acceptance evidence, guides, gap capture, history, and commit-message drafts.",
       },
       {
         name: "decompose-codebase",
@@ -326,6 +342,7 @@ describe("selection wizard", () => {
       renderer.seenOptionStates[0]?.skillSelection.selectedSkillNames,
     ).toEqual([
       "archive-docs",
+      "cleanup-docs",
       "closeout-commit",
       "closeout-phase",
       "decompose-codebase",
