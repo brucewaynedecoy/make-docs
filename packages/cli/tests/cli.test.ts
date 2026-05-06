@@ -1,5 +1,5 @@
 import { beforeEach, afterEach, describe, expect, test, vi } from "vitest";
-import { existsSync, writeFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { applyInstallPlan, planInstall } from "../src/install";
@@ -71,6 +71,29 @@ function mockHomeDirectory(homeDir: string): () => void {
 
     process.env.HOME = previousHome;
   };
+}
+
+function listConflictFiles(targetDir: string): string[] {
+  const conflictDir = path.join(targetDir, ".make-docs/conflicts");
+  if (!existsSync(conflictDir)) {
+    return [];
+  }
+
+  const files: string[] = [];
+  const collect = (directory: string) => {
+    for (const entry of readdirSync(directory, { withFileTypes: true })) {
+      const entryPath = path.join(directory, entry.name);
+      if (entry.isDirectory()) {
+        collect(entryPath);
+        continue;
+      }
+
+      files.push(path.relative(targetDir, entryPath));
+    }
+  };
+
+  collect(conflictDir);
+  return files.sort();
 }
 
 async function captureCliOutput(argv: string[]): Promise<string> {
@@ -292,7 +315,7 @@ describe("cli interactive flows", () => {
     }
   });
 
-  test("prompts for managed file conflict resolutions when selected agent files already exist", async () => {
+  test("applies interactive managed file conflict overwrite resolutions", async () => {
     const targetDir = createTempDir();
 
     try {
@@ -315,6 +338,59 @@ describe("cli interactive flows", () => {
             "Existing conflicting agent instruction file was skipped because no overwrite resolution was provided.",
         },
       ]);
+      expect(readFileSync(path.join(targetDir, "AGENTS.md"), "utf8")).not.toBe(
+        "custom root agents\n",
+      );
+      expect(loadManifest(targetDir)?.files["AGENTS.md"]).toEqual(
+        expect.objectContaining({ sourceId: "build:AGENTS.md" }),
+      );
+      expect(listConflictFiles(targetDir).some((file) => file.endsWith("/AGENTS.md"))).toBe(
+        false,
+      );
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("cancels interactive apply when managed file conflict prompt is cancelled", async () => {
+    const targetDir = createTempDir();
+
+    try {
+      writeFileSync(path.join(targetDir, "AGENTS.md"), "custom root agents\n", "utf8");
+      runSelectionWizardMock.mockResolvedValue(defaultSelections());
+      promptForManagedFileConflictResolutionsMock.mockResolvedValue(null);
+
+      const output = await captureCliOutput(["--target", targetDir]);
+
+      expect(output).toContain("Installer cancelled.");
+      expect(promptForManagedFileConflictResolutionsMock).toHaveBeenCalledTimes(1);
+      expect(readFileSync(path.join(targetDir, "AGENTS.md"), "utf8")).toBe(
+        "custom root agents\n",
+      );
+      expect(existsSync(path.join(targetDir, ".make-docs/manifest.json"))).toBe(false);
+      expect(listConflictFiles(targetDir)).toEqual([]);
+      expect(output).not.toContain("Installed make-docs");
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("stages managed file conflicts conservatively during non-interactive apply", async () => {
+    const targetDir = createTempDir();
+
+    try {
+      writeFileSync(path.join(targetDir, "AGENTS.md"), "custom root agents\n", "utf8");
+      const output = await captureCliOutput(["--yes", "--target", targetDir]);
+
+      expect(promptForManagedFileConflictResolutionsMock).not.toHaveBeenCalled();
+      expect(readFileSync(path.join(targetDir, "AGENTS.md"), "utf8")).toBe(
+        "custom root agents\n",
+      );
+      expect(loadManifest(targetDir)).not.toBeNull();
+      expect(output).toContain("Conflicts were staged for manual review:");
+      expect(listConflictFiles(targetDir).some((file) => file.endsWith("/AGENTS.md"))).toBe(
+        true,
+      );
     } finally {
       cleanupTempDir(targetDir);
     }

@@ -276,6 +276,7 @@ describe("risk register routing contract", () => {
       "D-008 Historical Hidden-Dot Paths Remain Easy to Mistake for Current Routing",
       "D-009 Future packages/content Boundary Is Undefined",
       "D-010 Skills Authoring and Release Guidance Is Thin Relative to Runtime Dependence",
+      "D-011 PRD 05 Still Carries the Pre-W14 R2 Conflict Model",
     ]);
     expect(itemHeadings(questions)).toEqual([
       "Q-001 What Is the Long-Term Skills Delivery Contract?",

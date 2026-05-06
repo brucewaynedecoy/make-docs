@@ -1,6 +1,10 @@
-import { describe, expect, test } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 import { defaultSelections } from "../src/profile";
-import type { Capability, Harness } from "../src/types";
+import type {
+  Capability,
+  Harness,
+  ReviewableManagedFileConflict,
+} from "../src/types";
 import type {
   WizardOptionSelections,
   WizardRenderer,
@@ -12,10 +16,30 @@ import {
   applyWizardOptionSelections,
   buildCapabilityChecklistState,
   getWizardOptionSelections,
+  promptForManagedFileConflictResolutions,
   renderWizardReviewSummary,
   runSelectionWizardWithRenderer,
   shouldPromptForSkillSelection,
 } from "../src/wizard";
+
+const clackMocks = vi.hoisted(() => ({
+  isCancel: vi.fn(),
+  note: vi.fn(),
+  select: vi.fn(),
+}));
+
+const cancelPrompt = Symbol("cancel prompt");
+
+vi.mock("@clack/prompts", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@clack/prompts")>();
+
+  return {
+    ...actual,
+    isCancel: clackMocks.isCancel,
+    note: clackMocks.note,
+    select: clackMocks.select,
+  };
+});
 
 class MockWizardRenderer implements WizardRenderer {
   public readonly seenCapabilityStates: Capability[][] = [];
@@ -65,6 +89,25 @@ class MockWizardRenderer implements WizardRenderer {
     return answer;
   }
 }
+
+function managedFileConflict(
+  relativePath: string,
+  group: ReviewableManagedFileConflict["group"],
+): ReviewableManagedFileConflict {
+  return {
+    relativePath,
+    group,
+    sourceId: `source:${relativePath}`,
+    reason: "local content differs",
+  };
+}
+
+beforeEach(() => {
+  clackMocks.note.mockReset();
+  clackMocks.select.mockReset();
+  clackMocks.isCancel.mockReset();
+  clackMocks.isCancel.mockImplementation((value) => value === cancelPrompt);
+});
 
 describe("selection wizard", () => {
   test("derives disabled capability rows from unmet prerequisites", () => {
@@ -419,5 +462,122 @@ describe("selection wizard", () => {
     });
 
     expect(result).toBeNull();
+  });
+});
+
+describe("promptForManagedFileConflictResolutions", () => {
+  const conflicts = [
+    managedFileConflict("docs/assets/templates/guide.md", "templates"),
+    managedFileConflict("AGENTS.md", "agent-instructions"),
+    managedFileConflict("docs/assets/references/style.md", "references"),
+  ];
+
+  test("returns an empty resolution map when there are no conflicts", async () => {
+    const result = await promptForManagedFileConflictResolutions([]);
+
+    expect(result).toEqual({});
+    expect(clackMocks.select).not.toHaveBeenCalled();
+  });
+
+  test("maps every conflict path to overwrite when Overwrite all is selected", async () => {
+    clackMocks.select.mockResolvedValue("overwrite-all");
+
+    const result = await promptForManagedFileConflictResolutions(conflicts);
+
+    expect(result).toEqual({
+      "AGENTS.md": "overwrite",
+      "docs/assets/references/style.md": "overwrite",
+      "docs/assets/templates/guide.md": "overwrite",
+    });
+  });
+
+  test("maps every conflict path to skip when Skip all is selected", async () => {
+    clackMocks.select.mockResolvedValue("skip-all");
+
+    const result = await promptForManagedFileConflictResolutions(conflicts);
+
+    expect(result).toEqual({
+      "AGENTS.md": "skip",
+      "docs/assets/references/style.md": "skip",
+      "docs/assets/templates/guide.md": "skip",
+    });
+  });
+
+  test("prompts review-each files in group order, then relative path order", async () => {
+    clackMocks.select
+      .mockResolvedValueOnce("review-each")
+      .mockResolvedValueOnce("overwrite")
+      .mockResolvedValueOnce("skip")
+      .mockResolvedValueOnce("overwrite")
+      .mockResolvedValueOnce("skip")
+      .mockResolvedValueOnce("skip");
+
+    const result = await promptForManagedFileConflictResolutions([
+      managedFileConflict("docs/assets/templates/zeta.md", "templates"),
+      managedFileConflict("docs/assets/references/bravo.md", "references"),
+      managedFileConflict("docs/assets/templates/alpha.md", "templates"),
+      managedFileConflict("AGENTS.md", "agent-instructions"),
+      managedFileConflict("docs/assets/references/alpha.md", "references"),
+    ]);
+
+    expect(
+      clackMocks.select.mock.calls.map(([options]) => options.message),
+    ).toEqual([
+      "How should make-docs handle these existing files?",
+      "How should make-docs handle AGENTS.md?",
+      "How should make-docs handle docs/assets/references/alpha.md?",
+      "How should make-docs handle docs/assets/references/bravo.md?",
+      "How should make-docs handle docs/assets/templates/alpha.md?",
+      "How should make-docs handle docs/assets/templates/zeta.md?",
+    ]);
+    expect(result).toEqual({
+      "AGENTS.md": "overwrite",
+      "docs/assets/references/alpha.md": "skip",
+      "docs/assets/references/bravo.md": "overwrite",
+      "docs/assets/templates/alpha.md": "skip",
+      "docs/assets/templates/zeta.md": "skip",
+    });
+  });
+
+  test("returns null when the batch prompt is cancelled", async () => {
+    clackMocks.select.mockResolvedValue(cancelPrompt);
+
+    const result = await promptForManagedFileConflictResolutions(conflicts);
+
+    expect(result).toBeNull();
+    expect(clackMocks.select).toHaveBeenCalledTimes(1);
+  });
+
+  test("returns null without a partial map when per-file review is cancelled", async () => {
+    clackMocks.select
+      .mockResolvedValueOnce("review-each")
+      .mockResolvedValueOnce("overwrite")
+      .mockResolvedValueOnce(cancelPrompt);
+
+    const result = await promptForManagedFileConflictResolutions(conflicts);
+
+    expect(result).toBeNull();
+    expect(clackMocks.select).toHaveBeenCalledTimes(3);
+  });
+
+  test("uses the expected batch prompt message and no conflict-review option label is Update", async () => {
+    clackMocks.select
+      .mockResolvedValueOnce("review-each")
+      .mockResolvedValueOnce("overwrite")
+      .mockResolvedValueOnce("skip")
+      .mockResolvedValueOnce("skip");
+
+    await promptForManagedFileConflictResolutions(conflicts);
+
+    const firstSelectOptions = clackMocks.select.mock.calls[0]?.[0];
+
+    expect(firstSelectOptions?.message).toBe(
+      "How should make-docs handle these existing files?",
+    );
+    expect(
+      clackMocks.select.mock.calls.flatMap(
+        ([options]) => options.options?.map((option) => option.label) ?? [],
+      ),
+    ).not.toContain("Update");
   });
 });

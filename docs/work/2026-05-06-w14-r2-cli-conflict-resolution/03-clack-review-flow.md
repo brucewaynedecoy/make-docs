@@ -17,10 +17,10 @@ This phase replaces per-instruction conflict prompts with a batch-first Clack fl
 
 ### Tasks
 
-- [ ] t1: Replace `promptForInstructionConflictResolutions` in `packages/cli/src/wizard.ts` with a generalized conflict-resolution prompt.
-- [ ] t2: Render a Clack note summarizing total diff count, counts by group, and review order.
-- [ ] t3: Add the initial `Overwrite all`, `Skip all`, and `Review each` selection.
-- [ ] t4: Map `Overwrite all` and `Skip all` to per-path resolution records.
+- [x] t1: Replace `promptForInstructionConflictResolutions` in `packages/cli/src/wizard.ts` with a generalized conflict-resolution prompt.
+- [x] t2: Render a Clack note summarizing total diff count, counts by group, and review order.
+- [x] t3: Add the initial `Overwrite all`, `Skip all`, and `Review each` selection.
+- [x] t4: Map `Overwrite all` and `Skip all` to per-path resolution records.
 
 ### Acceptance criteria
 
@@ -36,10 +36,10 @@ This phase replaces per-instruction conflict prompts with a batch-first Clack fl
 
 ### Tasks
 
-- [ ] t5: Sort reviewable diffs by group: agent instructions, references, templates.
-- [ ] t6: Render a group boundary before each non-empty group.
-- [ ] t7: Render per-file context with group name, path, conflict reason, and `File N of M` progress.
-- [ ] t8: Offer only `Overwrite` and `Skip` per file.
+- [x] t5: Sort reviewable diffs by group: agent instructions, references, templates.
+- [x] t6: Render a group boundary before each non-empty group.
+- [x] t7: Render per-file context with group name, path, conflict reason, and `File N of M` progress.
+- [x] t8: Offer only `Overwrite` and `Skip` per file.
 
 ### Acceptance criteria
 
@@ -56,10 +56,10 @@ This phase replaces per-instruction conflict prompts with a batch-first Clack fl
 
 ### Tasks
 
-- [ ] t9: Update `packages/cli/src/cli.ts` to call the generalized conflict prompt after the initial plan discovers reviewable diffs.
-- [ ] t10: Feed returned resolutions into the second deterministic install plan.
-- [ ] t11: Preserve cancellation semantics so cancellation exits without partial apply.
-- [ ] t12: Update CLI mock names and imports in tests.
+- [x] t9: Update `packages/cli/src/cli.ts` to call the generalized conflict prompt after the initial plan discovers reviewable diffs.
+- [x] t10: Feed returned resolutions into the second deterministic install plan.
+- [x] t11: Preserve cancellation semantics so cancellation exits without partial apply.
+- [x] t12: Update CLI mock names and imports in tests.
 
 ### Acceptance criteria
 
@@ -76,9 +76,9 @@ This phase replaces per-instruction conflict prompts with a batch-first Clack fl
 
 ### Tasks
 
-- [ ] t13: Review user-facing labels, hints, and notes for Clack style consistency.
-- [ ] t14: Remove stale instruction-only wording from conflict-review output.
-- [ ] t15: Confirm the flow does not introduce raw, unstyled terminal output.
+- [x] t13: Review user-facing labels, hints, and notes for Clack style consistency.
+- [x] t14: Remove stale instruction-only wording from conflict-review output.
+- [x] t15: Confirm the flow does not introduce raw, unstyled terminal output.
 
 ### Acceptance criteria
 

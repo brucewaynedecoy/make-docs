@@ -30,6 +30,7 @@ import {
   type Harness,
   type InstallProfile,
   type InstallSelections,
+  type ManagedFileConflictGroup,
   type ManagedFileConflictResolution,
   type ManagedFileConflictResolutions,
   type ReviewableManagedFileConflict,
@@ -99,6 +100,21 @@ const HARNESS_METADATA: Record<
     label: "Codex",
     hint: "AGENTS.md + .agents/",
   },
+};
+
+const MANAGED_FILE_CONFLICT_GROUP_ORDER: ManagedFileConflictGroup[] = [
+  "agent-instructions",
+  "references",
+  "templates",
+];
+
+const MANAGED_FILE_CONFLICT_GROUP_LABELS: Record<
+  ManagedFileConflictGroup,
+  string
+> = {
+  "agent-instructions": "Agent instructions",
+  references: "References",
+  templates: "Templates",
 };
 
 export type WizardStep = "capabilities" | "harnesses" | "options" | "review";
@@ -511,47 +527,156 @@ export async function promptForManagedFileConflictResolutions(
     return {};
   }
 
+  const sortedConflicts = sortManagedFileConflicts(conflicts);
+
   note(
-    "make-docs found existing managed files with local content where managed guidance would normally be installed.\nChoose how to handle each conflict before continuing.",
+    renderManagedFileConflictSummary(sortedConflicts),
     "Resolve managed file conflicts",
   );
 
+  const batchResolution = await select<
+    "overwrite-all" | "skip-all" | "review-each"
+  >({
+    message: "How should make-docs handle these existing files?",
+    withGuide: true,
+    initialValue: "review-each",
+    options: [
+      {
+        value: "overwrite-all",
+        label: "Overwrite all",
+      },
+      {
+        value: "skip-all",
+        label: "Skip all",
+      },
+      {
+        value: "review-each",
+        label: "Review each",
+      },
+    ],
+  });
+
+  if (isCancel(batchResolution)) {
+    return null;
+  }
+
+  if (batchResolution === "overwrite-all") {
+    return buildManagedFileConflictResolutions(sortedConflicts, "overwrite");
+  }
+
+  if (batchResolution === "skip-all") {
+    return buildManagedFileConflictResolutions(sortedConflicts, "skip");
+  }
+
+  const resolutions: ManagedFileConflictResolutions = {};
+
+  for (const group of MANAGED_FILE_CONFLICT_GROUP_ORDER) {
+    const groupConflicts = sortedConflicts.filter(
+      (conflict) => conflict.group === group,
+    );
+
+    if (groupConflicts.length === 0) {
+      continue;
+    }
+
+    note(
+      `${groupConflicts.length} ${pluralizeFile(groupConflicts.length)} to review.`,
+      styleText("cyan", MANAGED_FILE_CONFLICT_GROUP_LABELS[group]),
+    );
+
+    for (const conflict of groupConflicts) {
+      const fileNumber = sortedConflicts.indexOf(conflict) + 1;
+
+      note(
+        [
+          `Group: ${MANAGED_FILE_CONFLICT_GROUP_LABELS[conflict.group]}`,
+          `Path: ${conflict.relativePath}`,
+          `Conflict: ${conflict.reason}`,
+          `File ${fileNumber} of ${sortedConflicts.length}`,
+        ].join("\n"),
+        "Existing managed file",
+      );
+
+      const resolution = await select<ManagedFileConflictResolution>({
+        message: `How should make-docs handle ${conflict.relativePath}?`,
+        withGuide: true,
+        initialValue: "skip",
+        options: [
+          {
+            value: "overwrite",
+            label: "Overwrite",
+          },
+          {
+            value: "skip",
+            label: "Skip",
+          },
+        ],
+      });
+
+      if (isCancel(resolution)) {
+        return null;
+      }
+
+      resolutions[conflict.relativePath] = resolution;
+    }
+  }
+
+  return resolutions;
+}
+
+function sortManagedFileConflicts(
+  conflicts: ReviewableManagedFileConflict[],
+): ReviewableManagedFileConflict[] {
+  return [...conflicts].sort((left, right) => {
+    const groupOrder =
+      MANAGED_FILE_CONFLICT_GROUP_ORDER.indexOf(left.group) -
+      MANAGED_FILE_CONFLICT_GROUP_ORDER.indexOf(right.group);
+
+    if (groupOrder !== 0) {
+      return groupOrder;
+    }
+
+    return left.relativePath.localeCompare(right.relativePath);
+  });
+}
+
+function renderManagedFileConflictSummary(
+  conflicts: ReviewableManagedFileConflict[],
+): string {
+  const counts = new Map<ManagedFileConflictGroup, number>(
+    MANAGED_FILE_CONFLICT_GROUP_ORDER.map((group) => [group, 0]),
+  );
+
+  for (const conflict of conflicts) {
+    counts.set(conflict.group, (counts.get(conflict.group) ?? 0) + 1);
+  }
+
+  return [
+    `make-docs found ${conflicts.length} existing managed ${pluralizeFile(
+      conflicts.length,
+    )} with local content.`,
+    `Agent instructions: ${counts.get("agent-instructions") ?? 0}`,
+    `References: ${counts.get("references") ?? 0}`,
+    `Templates: ${counts.get("templates") ?? 0}`,
+    "Review order: agent instructions, references, templates.",
+  ].join("\n");
+}
+
+function buildManagedFileConflictResolutions(
+  conflicts: ReviewableManagedFileConflict[],
+  resolution: ManagedFileConflictResolution,
+): ManagedFileConflictResolutions {
   const resolutions: ManagedFileConflictResolutions = {};
 
   for (const conflict of conflicts) {
-    note(
-      [`Path: ${conflict.relativePath}`, `Conflict: ${conflict.reason}`].join(
-        "\n",
-      ),
-      `Existing ${conflict.instructionKind ?? conflict.group} detected`,
-    );
-
-    const resolution = await select<ManagedFileConflictResolution>({
-      message: `How should make-docs handle ${conflict.relativePath}?`,
-      withGuide: true,
-      initialValue: "skip",
-      options: [
-        {
-          value: "overwrite",
-          label: "Overwrite",
-          hint: "Replace the existing file with the make-docs version and manage it directly.",
-        },
-        {
-          value: "skip",
-          label: "Skip",
-          hint: "WARNING: Leave this file unchanged. Agent behavior and automation could be severely impacted if make-docs instructions are skipped here.",
-        },
-      ],
-    });
-
-    if (isCancel(resolution)) {
-      return null;
-    }
-
     resolutions[conflict.relativePath] = resolution;
   }
 
   return resolutions;
+}
+
+function pluralizeFile(count: number): string {
+  return count === 1 ? "file" : "files";
 }
 
 function createClackWizardRenderer(): WizardRenderer {

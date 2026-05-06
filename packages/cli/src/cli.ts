@@ -173,11 +173,12 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
     }
   }
 
+  const packageMeta = readPackageMeta();
   let plan = await planInstall({
     targetDir,
     selections,
     existingManifest,
-    packageMeta: readPackageMeta(),
+    packageMeta,
   });
 
   if (interactive) {
@@ -194,7 +195,7 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
         targetDir,
         selections,
         existingManifest,
-        packageMeta: readPackageMeta(),
+        packageMeta,
         managedFileConflictResolutions,
       });
     }
