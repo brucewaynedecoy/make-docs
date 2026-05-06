@@ -12,15 +12,27 @@ Use this workflow to turn an uncommitted change set or current-session work into
 ## Preflight
 
 1. Read the nearest `AGENTS.md`/`CLAUDE.md` files that apply to every file you expect to touch.
-2. Inspect `git status --short`.
-3. If files are staged, treat the staged set as the commit candidate unless the user says otherwise.
-4. If nothing is staged, inspect the unstaged and untracked files that belong to the requested change set.
-5. Preserve unrelated local changes. Do not stage, revert, or clean files unless explicitly asked.
-6. Prefer indexed lookup for code and docs when available. Reindex stale `jdocmunch` or `jcodemunch` indexes before using direct reads.
+2. Run `scripts/closeout_probe.py --repo-root . --scope auto --json` before manually reading broad diffs or docs. If the user specified staged, unstaged, or full working tree scope, pass that explicit scope.
+3. Treat the probe JSON as the first context boundary: use its file classification, contract paths, candidate coordinates, history candidates, risk-register next IDs, and validation hints before opening files manually.
+4. Inspect `git status --short` only as needed to confirm the probe scope.
+5. If files are staged, treat the staged set as the commit candidate unless the user says otherwise.
+6. If nothing is staged, inspect the unstaged and untracked files that belong to the requested change set.
+7. Preserve unrelated local changes. Do not stage, revert, or clean files unless explicitly asked.
+8. Prefer indexed lookup for code and docs when available. Reindex stale `jdocmunch` or `jcodemunch` indexes before using direct reads.
+
+## Scripted Fast Path
+
+Use the local helper scripts before broad manual analysis:
+
+- `scripts/closeout_probe.py --repo-root . --scope auto --json > /tmp/closeout-probe.json` summarizes the candidate change set, repo contracts, coordinates, history candidates, risk-register IDs, and validation hints.
+- `scripts/closeout_validate.py --repo-root . --probe-json /tmp/closeout-probe.json --print-only` lists focused validation commands. Use `--run` only when you are ready to execute them.
+- `scripts/closeout_history.py --mode commit --repo-root . --probe-json /tmp/closeout-probe.json` drafts a history skeleton. Add `--write` only after the gap/history decision is ready.
+
+Only read diffs, docs, guides, or references that the probe identifies as relevant or that remain unresolved after reviewing the JSON. For ordinary commit closeout, do not inspect `docs/guides/` unless the probe shows a `docs/work/` phase in scope, the user requested guide work, or the changed files already touch guides.
 
 ## Gate 1: Change Set Discovery
 
-Build a concise evidence set from:
+Build a concise evidence set from the probe output first, then from:
 
 - `git diff --stat`
 - `git diff --cached --stat` when staged files exist
@@ -105,9 +117,11 @@ Only create the commit when the user explicitly asks for a commit. If committing
 
 Run validation that matches the files changed. Prefer:
 
+- the focused command list from `scripts/closeout_validate.py`
 - focused tests for touched CLI or code behavior
 - markdown link or contract checks when available
 - `git diff --check`
-- `jdocmunch` and `jcodemunch` refreshes after meaningful docs or code edits
+- `jdocmunch` refresh after meaningful doc, guide, history, or router edits
+- `jcodemunch` refresh only after meaningful code, script, TypeScript, or public API edits
 
 If a requested validation cannot run, state what was skipped and why.

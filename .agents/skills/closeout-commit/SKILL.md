@@ -19,23 +19,24 @@ When spawning succeeds, the primary agent becomes coordinator only. Hand the wor
 - the requested change-set scope if the user specified staged, unstaged, or full working tree
 - the required output contract: files changed, validation run, gap/history decisions, approvals needed, blockers, and drafted commit message
 
-The worker must read this skill and its referenced resources in its own context, prefer `jdocmunch` and `jcodemunch` first, reindex if stale, and only fall back to direct file reads after reindexing does not work. The worker owns change discovery, gap capture, history entry decisions, commit convention lookup, validation summary, and commit-message drafting.
+The worker must read this skill and its referenced resources in its own context. Before broad repo analysis, it must run [scripts/closeout_probe.py](./scripts/closeout_probe.py) and use the JSON as the context boundary for change discovery, contract locations, candidate coordinates, risk/history hints, and validation hints. It must use [scripts/closeout_validate.py](./scripts/closeout_validate.py) for validation selection and may use [scripts/closeout_history.py](./scripts/closeout_history.py) to draft a history skeleton. The worker must prefer `jdocmunch` and `jcodemunch` first for any follow-up reads, reindex if stale, and only fall back to direct file reads after reindexing does not work. The worker owns change discovery, gap capture, history entry decisions, commit convention lookup, validation summary, and commit-message drafting.
 
 When spawning is unsupported or the spawn attempt fails, state that delegation is unavailable or failed, include the short reason, and continue by executing this skill directly.
 
 ## Workflow
 
 1. Inspect `git status --short` and determine whether the user is asking about staged changes, unstaged changes, or the full working tree.
-2. Read [references/closeout-commit-workflow.md](./references/closeout-commit-workflow.md).
-3. Follow the closeout gates in order:
+2. Run [scripts/closeout_probe.py](./scripts/closeout_probe.py) with the selected scope before inspecting broad diffs or reference docs manually.
+3. Read [references/closeout-commit-workflow.md](./references/closeout-commit-workflow.md), using the probe output to limit follow-up reads to relevant files and unresolved questions.
+4. Follow the closeout gates in order:
    - change set discovery
    - gap capture
    - history entry
    - commit message convention resolution
    - commit message draft
-4. Draft the commit message only. Do not stage files or create the commit unless the user explicitly asks.
-5. Use `$closeout-phase` only when the change set includes a specific `docs/work/` phase with unchecked task items, or the user explicitly asks to close out a phase.
-6. End with a concise summary of files changed, validation run, gap/history decisions, and the drafted commit message.
+5. Draft the commit message only. Do not stage files or create the commit unless the user explicitly asks.
+6. Use `$closeout-phase` only when the change set includes a specific `docs/work/` phase with unchecked task items, or the user explicitly asks to close out a phase. Do not inspect developer or user guides for ordinary commit closeout unless a phase is in scope or the user explicitly asks for guide work.
+7. End with a concise summary of files changed, validation run, gap/history decisions, and the drafted commit message.
 
 ## Required Repo Context
 

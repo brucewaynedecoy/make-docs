@@ -11,15 +11,28 @@ Use this workflow to close a completed work backlog phase without treating unche
 ## Preflight
 
 1. Read the nearest `AGENTS.md`/`CLAUDE.md` files that apply to every file you expect to touch.
-2. Identify the phase coordinate, source plan/PRD docs, task list, and acceptance criteria section.
-3. Inspect current git status and preserve unrelated local changes.
-4. Prefer indexed lookup for code and docs when available. Reindex stale `jdocmunch` or `jcodemunch` indexes before using direct reads.
-5. Build an evidence set from phase artifacts, changed files, tests, history records, and existing guides.
-6. Read the repo's guide contract and inspect current guides under `docs/guides/developer/` and `docs/guides/user/` before making guide decisions.
+2. Run `scripts/work_phase_state.py TARGET_PHASE --json` before manually reading phase details. Use the JSON for the phase coordinate, source links, task list, unchecked tasks, acceptance criteria, and syntax warnings.
+3. Run `scripts/closeout_probe.py --repo-root . --scope auto --json` before broad diff or contract discovery. Use explicit staged, unstaged, or full scope if the user specified it.
+4. Run `scripts/guide_coverage_probe.py --repo-root . --changed-files-json PROBE_JSON` before opening guide files.
+5. Inspect current git status only as needed to confirm the probe scope, and preserve unrelated local changes.
+6. Prefer indexed lookup for code and docs when available. Reindex stale `jdocmunch` or `jcodemunch` indexes before using direct reads.
+7. Build an evidence set from the phase-state JSON, closeout probe, guide probe, changed files, tests, history records, and only the existing guides that remain relevant after probing.
+
+## Scripted Fast Path
+
+Use the local helper scripts before broad manual analysis:
+
+- `scripts/work_phase_state.py TARGET_PHASE --json > /tmp/work-phase-state.json` summarizes phase coordinates, `tN` tasks, unchecked tasks, acceptance criteria bullets, source links, and task-syntax warnings.
+- `scripts/closeout_probe.py --repo-root . --scope auto --json > /tmp/closeout-probe.json` summarizes changed files, repo contracts, history candidates, risk-register IDs, and validation hints.
+- `scripts/guide_coverage_probe.py --repo-root . --changed-files-json /tmp/closeout-probe.json > /tmp/guide-coverage.json` lists guide candidates before manual guide reads.
+- `scripts/closeout_validate.py --repo-root . --probe-json /tmp/closeout-probe.json --print-only` lists focused validation commands. Use `--run` only when you are ready to execute them.
+- `scripts/closeout_history.py --mode phase --repo-root . --probe-json /tmp/closeout-probe.json --phase-json /tmp/work-phase-state.json` drafts a phase history skeleton. Add `--write` only after the task, guide, and gap decisions are ready.
+
+Only read phase-linked docs, guide files, diffs, or references that the probes identify as relevant or that remain unresolved after reviewing the JSON.
 
 ## Gate 1: Task Completion
 
-For each unchecked `### Tasks` item:
+For each unchecked `### Tasks` item reported by `work_phase_state.py`:
 
 1. Determine whether it maps to completed work, unfinished work, failed work, or ambiguous evidence.
 2. Treat these as completion evidence:
@@ -42,8 +55,9 @@ Before writing guide files:
 
 1. Read `docs/assets/references/guide-contract.md` when it exists.
 2. Read the matching guide templates under `docs/assets/templates/`.
-3. Inspect existing guides under `docs/guides/developer/` and `docs/guides/user/` for overlap.
-4. Decide the outcome for each documentation-worthy capability: `developer`, `user`, `both`, `update-existing`, `link-only`, or `none`.
+3. Inspect `guide_coverage_probe.py` output before opening existing guide files.
+4. Inspect only existing guides under `docs/guides/developer/` and `docs/guides/user/` that overlap the phase, changed files, or guide decision.
+5. Decide the outcome for each documentation-worthy capability: `developer`, `user`, `both`, `update-existing`, `link-only`, or `none`.
 
 Create or update a developer guide when at least one condition is true:
 
@@ -131,9 +145,11 @@ Draft a commit message only; do not commit unless the user explicitly asks.
 
 Run validation that matches the files changed. Prefer:
 
+- the focused command list from `scripts/closeout_validate.py`
 - focused tests for touched CLI or code behavior
 - markdown link or contract checks when available
 - `git diff --check`
-- `jdocmunch` and `jcodemunch` refreshes after meaningful docs or code edits
+- `jdocmunch` refresh after meaningful doc, guide, history, or router edits
+- `jcodemunch` refresh only after meaningful code, script, TypeScript, or public API edits
 
 If a requested validation cannot run, state what was skipped and why.

@@ -378,6 +378,9 @@ describe("dogfood skill mirror parity", () => {
       "SKILL.md",
       "agents/openai.yaml",
       "references/closeout-commit-workflow.md",
+      "scripts/closeout_history.py",
+      "scripts/closeout_probe.py",
+      "scripts/closeout_validate.py",
     ].sort();
 
     for (const mirrorRoot of [CLOSEOUT_COMMIT_MIRROR_ROOT, CLOSEOUT_COMMIT_CLAUDE_MIRROR_ROOT]) {
@@ -402,6 +405,11 @@ describe("dogfood skill mirror parity", () => {
       "SKILL.md",
       "agents/openai.yaml",
       "references/closeout-workflow.md",
+      "scripts/closeout_history.py",
+      "scripts/closeout_probe.py",
+      "scripts/closeout_validate.py",
+      "scripts/guide_coverage_probe.py",
+      "scripts/work_phase_state.py",
     ].sort();
 
     for (const mirrorRoot of [CLOSEOUT_MIRROR_ROOT, CLOSEOUT_CLAUDE_MIRROR_ROOT]) {
@@ -438,6 +446,22 @@ describe("dogfood skill mirror parity", () => {
 
         expect(mirrorContents).toBe(packageContents);
       }
+    }
+  });
+
+  test("shared closeout helper scripts match across closeout skills", () => {
+    for (const relativePath of [
+      "scripts/closeout_history.py",
+      "scripts/closeout_probe.py",
+      "scripts/closeout_validate.py",
+    ]) {
+      const commitContents = readFileSync(
+        path.join(CLOSEOUT_COMMIT_PACKAGE_ROOT, relativePath),
+        "utf8",
+      );
+      const phaseContents = readFileSync(path.join(CLOSEOUT_PACKAGE_ROOT, relativePath), "utf8");
+
+      expect(phaseContents).toBe(commitContents);
     }
   });
 });

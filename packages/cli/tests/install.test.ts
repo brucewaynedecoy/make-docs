@@ -616,7 +616,14 @@ describe("installer integration", () => {
         );
         const closeoutContents = readFileSync(closeoutSkillPath, "utf8");
 
-        for (const relativeLink of ["./references/closeout-workflow.md"]) {
+        for (const relativeLink of [
+          "./references/closeout-workflow.md",
+          "./scripts/work_phase_state.py",
+          "./scripts/closeout_probe.py",
+          "./scripts/guide_coverage_probe.py",
+          "./scripts/closeout_validate.py",
+          "./scripts/closeout_history.py",
+        ]) {
           expect(closeoutContents).toContain(`(${relativeLink})`);
           expect(existsSync(path.join(path.dirname(closeoutSkillPath), relativeLink))).toBe(true);
         }
@@ -631,7 +638,12 @@ describe("installer integration", () => {
         );
         const closeoutCommitContents = readFileSync(closeoutCommitSkillPath, "utf8");
 
-        for (const relativeLink of ["./references/closeout-commit-workflow.md"]) {
+        for (const relativeLink of [
+          "./references/closeout-commit-workflow.md",
+          "./scripts/closeout_probe.py",
+          "./scripts/closeout_validate.py",
+          "./scripts/closeout_history.py",
+        ]) {
           expect(closeoutCommitContents).toContain(`(${relativeLink})`);
           expect(existsSync(path.join(path.dirname(closeoutCommitSkillPath), relativeLink))).toBe(
             true,

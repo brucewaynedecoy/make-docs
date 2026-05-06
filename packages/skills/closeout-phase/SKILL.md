@@ -19,23 +19,26 @@ When spawning succeeds, the primary agent becomes coordinator only. Hand the wor
 - the target `docs/work/` phase path when the user provided one, or instructions to resolve it
 - the required output contract: files changed, validation run, task completion decisions, guide/gap/history decisions, approvals needed, blockers, and drafted commit message
 
-The worker must read this skill and its referenced resources in its own context, prefer `jdocmunch` and `jcodemunch` first, reindex if stale, and only fall back to direct file reads after reindexing does not work. The worker owns task evidence review, guide coverage, gap capture, history entry decisions, validation summary, and commit-message drafting.
+The worker must read this skill and its referenced resources in its own context. Before broad repo analysis, it must run [scripts/work_phase_state.py](./scripts/work_phase_state.py) for the target phase, [scripts/closeout_probe.py](./scripts/closeout_probe.py) for changed files and repo contracts, and [scripts/guide_coverage_probe.py](./scripts/guide_coverage_probe.py) before opening guide files. It must use the JSON outputs as the context boundary and only read files identified as relevant or unresolved. It must use [scripts/closeout_validate.py](./scripts/closeout_validate.py) for validation selection and may use [scripts/closeout_history.py](./scripts/closeout_history.py) to draft a history skeleton. The worker must prefer `jdocmunch` and `jcodemunch` first for follow-up reads, reindex if stale, and only fall back to direct file reads after reindexing does not work. The worker owns task evidence review, guide coverage, gap capture, history entry decisions, validation summary, and commit-message drafting.
 
 When spawning is unsupported or the spawn attempt fails, state that delegation is unavailable or failed, include the short reason, and continue by executing this skill directly.
 
 ## Workflow
 
 1. Resolve the target work backlog phase document under `docs/work/`.
-2. Read [references/closeout-workflow.md](./references/closeout-workflow.md).
-3. Follow the closeout gates in order:
+2. Run [scripts/work_phase_state.py](./scripts/work_phase_state.py) on the target phase before manually reading phase details.
+3. Run [scripts/closeout_probe.py](./scripts/closeout_probe.py) for changed files, contracts, candidate coordinates, risk/history hints, and validation hints.
+4. Run [scripts/guide_coverage_probe.py](./scripts/guide_coverage_probe.py) before opening guide files.
+5. Read [references/closeout-workflow.md](./references/closeout-workflow.md), using the probe outputs to limit follow-up reads to relevant files and unresolved questions.
+6. Follow the closeout gates in order:
    - task completion verification
    - guide coverage decision
    - gap capture
    - history entry
    - commit message draft
-4. Do not mark unchecked task items complete unless evidence shows the work is complete and passing, or the user confirms the unchecked item is only stale documentation. Use acceptance criteria as evidence, not as checkboxes to mark.
-5. Do not create `docs/architecture/` or a standalone PRD risk register unless the target repo already uses that convention.
-6. End with a concise summary of files changed, validation run, and the drafted commit message.
+7. Do not mark unchecked task items complete unless evidence shows the work is complete and passing, or the user confirms the unchecked item is only stale documentation. Use acceptance criteria as evidence, not as checkboxes to mark.
+8. Do not create `docs/architecture/` or a standalone PRD risk register unless the target repo already uses that convention.
+9. End with a concise summary of files changed, validation run, and the drafted commit message.
 
 ## Required Repo Context
 

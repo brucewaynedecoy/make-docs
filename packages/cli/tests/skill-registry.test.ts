@@ -76,6 +76,9 @@ describe("skill registry", () => {
         source: "references/closeout-commit-workflow.md",
         installPath: "references/closeout-commit-workflow.md",
       },
+      { source: "scripts/closeout_probe.py", installPath: "scripts/closeout_probe.py" },
+      { source: "scripts/closeout_validate.py", installPath: "scripts/closeout_validate.py" },
+      { source: "scripts/closeout_history.py", installPath: "scripts/closeout_history.py" },
     ]);
   });
 
@@ -91,6 +94,11 @@ describe("skill registry", () => {
         source: "references/closeout-workflow.md",
         installPath: "references/closeout-workflow.md",
       },
+      { source: "scripts/closeout_probe.py", installPath: "scripts/closeout_probe.py" },
+      { source: "scripts/closeout_validate.py", installPath: "scripts/closeout_validate.py" },
+      { source: "scripts/closeout_history.py", installPath: "scripts/closeout_history.py" },
+      { source: "scripts/work_phase_state.py", installPath: "scripts/work_phase_state.py" },
+      { source: "scripts/guide_coverage_probe.py", installPath: "scripts/guide_coverage_probe.py" },
     ]);
   });
 
