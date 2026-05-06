@@ -2,7 +2,11 @@ import path from "node:path";
 import { stdin as input, stdout as output } from "node:process";
 import { confirm, isCancel, note } from "@clack/prompts";
 import { runBackupCommand } from "./backup";
-import { applyInstallPlan, findInstructionConflicts, planInstall } from "./install";
+import {
+  applyInstallPlan,
+  findReviewableManagedFileConflicts,
+  planInstall,
+} from "./install";
 import { loadManifest, MANIFEST_RELATIVE_PATH } from "./manifest";
 import { cloneSelections, defaultSelections, hasEffectiveCapabilities } from "./profile";
 import {
@@ -17,7 +21,7 @@ import type {
 } from "./types";
 import { PACKAGE_ROOT, readPackageMeta } from "./utils";
 import {
-  promptForInstructionConflictResolutions,
+  promptForManagedFileConflictResolutions,
   runSelectionWizard,
 } from "./wizard";
 
@@ -177,11 +181,11 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
   });
 
   if (interactive) {
-    const instructionConflicts = findInstructionConflicts(plan);
-    if (instructionConflicts.length > 0) {
-      const instructionConflictResolutions =
-        await promptForInstructionConflictResolutions(instructionConflicts);
-      if (!instructionConflictResolutions) {
+    const managedFileConflicts = findReviewableManagedFileConflicts(plan);
+    if (managedFileConflicts.length > 0) {
+      const managedFileConflictResolutions =
+        await promptForManagedFileConflictResolutions(managedFileConflicts);
+      if (!managedFileConflictResolutions) {
         output.write("Installer cancelled.\n");
         return;
       }
@@ -191,7 +195,7 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
         selections,
         existingManifest,
         packageMeta: readPackageMeta(),
-        instructionConflictResolutions,
+        managedFileConflictResolutions,
       });
     }
   }

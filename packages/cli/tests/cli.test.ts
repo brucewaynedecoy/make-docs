@@ -8,14 +8,14 @@ import { defaultSelections } from "../src/profile";
 import { createTempDir, cleanupTempDir, mockSkillFetches } from "./helpers";
 
 const runSelectionWizardMock = vi.fn();
-const promptForInstructionConflictResolutionsMock = vi.fn();
+const promptForManagedFileConflictResolutionsMock = vi.fn();
 const confirmMock = vi.fn();
 const runUninstallCommandMock = vi.fn();
 const runSkillsCommandMock = vi.fn();
 
 vi.mock("../src/wizard", () => ({
   runSelectionWizard: runSelectionWizardMock,
-  promptForInstructionConflictResolutions: promptForInstructionConflictResolutionsMock,
+  promptForManagedFileConflictResolutions: promptForManagedFileConflictResolutionsMock,
 }));
 
 vi.mock("@clack/prompts", async () => {
@@ -105,7 +105,7 @@ async function captureCliError(argv: string[]): Promise<Error> {
 describe("cli interactive flows", () => {
   beforeEach(() => {
     runSelectionWizardMock.mockReset();
-    promptForInstructionConflictResolutionsMock.mockReset();
+    promptForManagedFileConflictResolutionsMock.mockReset();
     confirmMock.mockReset();
     runUninstallCommandMock.mockReset();
     runSkillsCommandMock.mockReset();
@@ -134,7 +134,7 @@ describe("cli interactive flows", () => {
         }),
         introTitle: "Let's configure your make-docs install",
       });
-      expect(promptForInstructionConflictResolutionsMock).not.toHaveBeenCalled();
+      expect(promptForManagedFileConflictResolutionsMock).not.toHaveBeenCalled();
       expect(confirmMock).not.toHaveBeenCalled();
       expect(writeSpy).toHaveBeenCalled();
     } finally {
@@ -262,7 +262,7 @@ describe("cli interactive flows", () => {
       await runCli(["--yes", "--no-work", "--target", targetDir]);
 
       expect(runSelectionWizardMock).not.toHaveBeenCalled();
-      expect(promptForInstructionConflictResolutionsMock).not.toHaveBeenCalled();
+      expect(promptForManagedFileConflictResolutionsMock).not.toHaveBeenCalled();
       expect(loadManifest(targetDir)?.selections.capabilities.work).toBe(false);
     } finally {
       cleanupTempDir(targetDir);
@@ -292,24 +292,27 @@ describe("cli interactive flows", () => {
     }
   });
 
-  test("prompts for instruction conflict resolutions when selected agent files already exist", async () => {
+  test("prompts for managed file conflict resolutions when selected agent files already exist", async () => {
     const targetDir = createTempDir();
 
     try {
       writeFileSync(path.join(targetDir, "AGENTS.md"), "custom root agents\n", "utf8");
       runSelectionWizardMock.mockResolvedValue(defaultSelections());
-      promptForInstructionConflictResolutionsMock.mockResolvedValue({
-        "AGENTS.md": "update",
+      promptForManagedFileConflictResolutionsMock.mockResolvedValue({
+        "AGENTS.md": "overwrite",
       });
       const { runCli } = await import("../src/cli");
 
       await runCli(["--target", targetDir]);
 
-      expect(promptForInstructionConflictResolutionsMock).toHaveBeenCalledWith([
+      expect(promptForManagedFileConflictResolutionsMock).toHaveBeenCalledWith([
         {
           relativePath: "AGENTS.md",
+          group: "agent-instructions",
+          sourceId: "build:AGENTS.md",
           instructionKind: "AGENTS.md",
-          reason: "Unmanaged file already exists with different content.",
+          reason:
+            "Existing conflicting agent instruction file was skipped because no overwrite resolution was provided.",
         },
       ]);
     } finally {

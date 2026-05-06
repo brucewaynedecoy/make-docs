@@ -30,9 +30,9 @@ import {
   type Harness,
   type InstallProfile,
   type InstallSelections,
-  type InstructionConflict,
-  type InstructionConflictResolution,
-  type InstructionConflictResolutions,
+  type ManagedFileConflictResolution,
+  type ManagedFileConflictResolutions,
+  type ReviewableManagedFileConflict,
 } from "./types";
 import { formatInlineList } from "./utils";
 
@@ -504,38 +504,33 @@ export async function runSelectionWizardWithRenderer(
   }
 }
 
-export async function promptForInstructionConflictResolutions(
-  conflicts: InstructionConflict[],
-): Promise<InstructionConflictResolutions | null> {
+export async function promptForManagedFileConflictResolutions(
+  conflicts: ReviewableManagedFileConflict[],
+): Promise<ManagedFileConflictResolutions | null> {
   if (conflicts.length === 0) {
     return {};
   }
 
   note(
-    "make-docs found existing agent instruction files where managed guidance would normally be installed.\nChoose how to handle each conflict before continuing.",
-    "Resolve agent instruction conflicts",
+    "make-docs found existing managed files with local content where managed guidance would normally be installed.\nChoose how to handle each conflict before continuing.",
+    "Resolve managed file conflicts",
   );
 
-  const resolutions: InstructionConflictResolutions = {};
+  const resolutions: ManagedFileConflictResolutions = {};
 
   for (const conflict of conflicts) {
     note(
       [`Path: ${conflict.relativePath}`, `Conflict: ${conflict.reason}`].join(
         "\n",
       ),
-      `Existing ${conflict.instructionKind} detected`,
+      `Existing ${conflict.instructionKind ?? conflict.group} detected`,
     );
 
-    const resolution = await select<InstructionConflictResolution>({
+    const resolution = await select<ManagedFileConflictResolution>({
       message: `How should make-docs handle ${conflict.relativePath}?`,
       withGuide: true,
-      initialValue: "update",
+      initialValue: "skip",
       options: [
-        {
-          value: "update",
-          label: "Update",
-          hint: "Append the make-docs instructions to the end of the existing file.",
-        },
         {
           value: "overwrite",
           label: "Overwrite",

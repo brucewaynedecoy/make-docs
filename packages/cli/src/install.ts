@@ -1,20 +1,23 @@
 import { existsSync, mkdirSync, rmSync } from "node:fs";
 import path from "node:path";
 import { CONFLICTS_RELATIVE_DIR, createManifest, writeManifest } from "./manifest";
-import { createInstallPlan, createSkillsOnlyInstallPlan } from "./planner";
+import {
+  classifyReviewableManagedFileConflictPath,
+  createInstallPlan,
+  createSkillsOnlyInstallPlan,
+} from "./planner";
 import { resolveInstallProfile } from "./profile";
 import type {
   ApplyResult,
-  InstructionConflict,
-  InstructionConflictResolutions,
-  InstructionKind,
   InstallManifest,
   InstallPlan,
   InstallSelections,
+  ManagedFileConflictGroup,
+  ManagedFileConflictResolutions,
   PackageMeta,
   PlannedAction,
+  ReviewableManagedFileConflict,
 } from "./types";
-import { INSTRUCTION_KINDS } from "./types";
 import {
   ensureParentDir,
   pruneEmptyDirectories,
@@ -28,7 +31,7 @@ export async function planInstall(options: {
   selections: InstallSelections;
   existingManifest: InstallManifest | null;
   packageMeta?: PackageMeta;
-  instructionConflictResolutions?: InstructionConflictResolutions;
+  managedFileConflictResolutions?: ManagedFileConflictResolutions;
 }): Promise<InstallPlan> {
   const packageMeta = options.packageMeta ?? readPackageMeta();
   const profile = resolveInstallProfile(options.selections);
@@ -38,7 +41,7 @@ export async function planInstall(options: {
     packageMeta,
     profile,
     existingManifest: options.existingManifest,
-    instructionConflictResolutions: options.instructionConflictResolutions,
+    managedFileConflictResolutions: options.managedFileConflictResolutions,
   });
 }
 
@@ -61,25 +64,37 @@ export async function planSkillsOnlyInstall(options: {
   });
 }
 
-export function findInstructionConflicts(plan: InstallPlan): InstructionConflict[] {
-  return plan.actions.flatMap((action) => {
-    if (action.type !== "skip-conflict" || typeof action.content !== "string" || !action.reason) {
-      return [];
-    }
+export function findReviewableManagedFileConflicts(
+  plan: InstallPlan,
+): ReviewableManagedFileConflict[] {
+  return plan.actions
+    .flatMap((action) => {
+      if (
+        action.type !== "skip-conflict" ||
+        typeof action.content !== "string" ||
+        !action.reason
+      ) {
+        return [];
+      }
 
-    const instructionKind = getInstructionKindForPath(action.relativePath);
-    if (!instructionKind) {
-      return [];
-    }
+      const classification = classifyReviewableManagedFileConflictPath(action.relativePath);
+      if (!classification || !action.sourceId) {
+        return [];
+      }
 
-    return [
-      {
-        relativePath: action.relativePath,
-        instructionKind,
-        reason: action.reason,
-      },
-    ];
-  });
+      return [
+        {
+          relativePath: action.relativePath,
+          group: classification.group,
+          sourceId: action.sourceId,
+          reason: action.reason,
+          ...(classification.instructionKind
+            ? { instructionKind: classification.instructionKind }
+            : {}),
+        },
+      ];
+    })
+    .sort(compareReviewableManagedFileConflicts);
 }
 
 export function applyInstallPlan(options: {
@@ -230,12 +245,21 @@ function applyAction(options: {
   }
 }
 
-function getInstructionKindForPath(relativePath: string): InstructionKind | null {
-  const basename = path.posix.basename(relativePath);
-  return INSTRUCTION_KINDS.includes(basename as InstructionKind)
-    ? (basename as InstructionKind)
-    : null;
+function compareReviewableManagedFileConflicts(
+  left: ReviewableManagedFileConflict,
+  right: ReviewableManagedFileConflict,
+): number {
+  const leftGroup = MANAGED_FILE_CONFLICT_GROUP_ORDER[left.group];
+  const rightGroup = MANAGED_FILE_CONFLICT_GROUP_ORDER[right.group];
+
+  return leftGroup - rightGroup || left.relativePath.localeCompare(right.relativePath);
 }
+
+const MANAGED_FILE_CONFLICT_GROUP_ORDER: Record<ManagedFileConflictGroup, number> = {
+  "agent-instructions": 0,
+  references: 1,
+  templates: 2,
+};
 
 function toConflictRelativePath(relativePath: string): string {
   const segments = relativePath.split(/[/\\]+/).filter(Boolean);

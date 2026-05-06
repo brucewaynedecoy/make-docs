@@ -20,10 +20,14 @@ export const HARNESS_TO_INSTRUCTION: Record<Harness, InstructionKind> = {
   codex: "AGENTS.md",
 };
 
-export type InstructionConflictResolution = "update" | "overwrite" | "skip";
-export type InstructionConflictResolutions = Partial<
-  Record<string, InstructionConflictResolution>
+export type ManagedFileConflictResolution = "overwrite" | "skip";
+export type ManagedFileConflictResolutions = Partial<
+  Record<string, ManagedFileConflictResolution>
 >;
+export type ManagedFileConflictGroup =
+  | "agent-instructions"
+  | "references"
+  | "templates";
 export type ActionType =
   | "create"
   | "noop"
@@ -91,10 +95,12 @@ export interface InstallManifest {
   skillFiles: string[];
 }
 
-export interface InstructionConflict {
+export interface ReviewableManagedFileConflict {
   relativePath: string;
-  instructionKind: InstructionKind;
+  group: ManagedFileConflictGroup;
+  sourceId: string;
   reason: string;
+  instructionKind?: InstructionKind;
 }
 
 export interface PlannedAction {

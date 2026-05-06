@@ -6,9 +6,10 @@ import type {
   InstallManifest,
   InstallPlan,
   InstallProfile,
-  InstructionConflictResolution,
-  InstructionConflictResolutions,
   InstructionKind,
+  ManagedFileConflictGroup,
+  ManagedFileConflictResolution,
+  ManagedFileConflictResolutions,
   PackageMeta,
   PlannedAction,
   ResolvedAsset,
@@ -21,14 +22,14 @@ export async function createInstallPlan(options: {
   packageMeta: PackageMeta;
   profile: InstallProfile;
   existingManifest: InstallManifest | null;
-  instructionConflictResolutions?: InstructionConflictResolutions;
+  managedFileConflictResolutions?: ManagedFileConflictResolutions;
 }): Promise<InstallPlan> {
   const {
     targetDir,
     packageMeta,
     profile,
     existingManifest,
-    instructionConflictResolutions,
+    managedFileConflictResolutions,
   } = options;
   const desiredAssets = getDesiredAssets(profile);
   const desiredSkillAssets = await getDesiredSkillAssets(profile.selections);
@@ -99,29 +100,22 @@ export async function createInstallPlan(options: {
       continue;
     }
 
-    const conflictResolution = getInstructionConflictResolution(
+    const conflictClassification = classifyReviewableManagedFileConflictPath(
       asset.relativePath,
-      instructionConflictResolutions,
     );
-    if (conflictResolution === "overwrite") {
+    const conflictResolution = getManagedFileConflictResolution(
+      asset.relativePath,
+      conflictClassification,
+      managedFileConflictResolutions,
+    );
+    if (conflictClassification && conflictResolution === "overwrite") {
       actions.push({
         type: asset.assetClass === "buildable" ? "generate" : "update",
         relativePath: asset.relativePath,
         sourceId: asset.sourceId,
         content: asset.content,
         contentHash: desiredHash,
-        reason: "Overwrite existing conflicting agent instructions.",
-      });
-      continue;
-    }
-
-    if (conflictResolution === "update") {
-      actions.push({
-        type: "update-conflict",
-        relativePath: asset.relativePath,
-        sourceId: asset.sourceId,
-        content: mergeInstructionConflictContent(currentContent, asset.content),
-        reason: "Append generated instructions to the end of the existing file.",
+        reason: getManagedFileConflictOverwriteReason(conflictClassification.group),
       });
       continue;
     }
@@ -133,9 +127,11 @@ export async function createInstallPlan(options: {
       sourceId: asset.sourceId,
       content: asset.content,
       contentHash: desiredHash,
-      reason: manifestEntry
-        ? "Managed file was modified locally."
-        : "Unmanaged file already exists with different content.",
+      reason: getManagedFileConflictSkipReason(
+        conflictClassification,
+        conflictResolution,
+        Boolean(manifestEntry),
+      ),
     });
   }
 
@@ -407,16 +403,49 @@ async function getPreviousSkillContentByPath(
   }
 }
 
-function getInstructionConflictResolution(
+function getManagedFileConflictResolution(
   relativePath: string,
-  instructionConflictResolutions?: InstructionConflictResolutions,
-): InstructionConflictResolution | null {
-  const instructionKind = getInstructionKindForPath(relativePath);
-  if (!instructionKind) {
+  classification: ReviewableManagedFileConflictClassification | null,
+  managedFileConflictResolutions?: ManagedFileConflictResolutions,
+): ManagedFileConflictResolution | null {
+  if (!classification) {
     return null;
   }
 
-  return instructionConflictResolutions?.[relativePath] ?? null;
+  return managedFileConflictResolutions?.[relativePath] ?? null;
+}
+
+type ReviewableManagedFileConflictClassification = {
+  group: ManagedFileConflictGroup;
+  instructionKind?: InstructionKind;
+};
+
+export function classifyReviewableManagedFileConflictPath(
+  relativePath: string,
+): ReviewableManagedFileConflictClassification | null {
+  if (relativePath.startsWith("docs/assets/references/")) {
+    return {
+      group: "references",
+      instructionKind: getInstructionKindForPath(relativePath) ?? undefined,
+    };
+  }
+
+  if (relativePath.startsWith("docs/assets/templates/")) {
+    return {
+      group: "templates",
+      instructionKind: getInstructionKindForPath(relativePath) ?? undefined,
+    };
+  }
+
+  const instructionKind = getInstructionKindForPath(relativePath);
+  if (instructionKind) {
+    return {
+      group: "agent-instructions",
+      instructionKind,
+    };
+  }
+
+  return null;
 }
 
 function getInstructionKindForPath(relativePath: string): InstructionKind | null {
@@ -426,19 +455,46 @@ function getInstructionKindForPath(relativePath: string): InstructionKind | null
     : null;
 }
 
-function mergeInstructionConflictContent(currentContent: string, desiredContent: string): string {
-  if (currentContent.includes(desiredContent)) {
-    return currentContent;
+function getManagedFileConflictOverwriteReason(group: ManagedFileConflictGroup): string {
+  switch (group) {
+    case "agent-instructions":
+      return "Overwrite existing conflicting agent instruction file.";
+    case "references":
+      return "Overwrite existing conflicting reference file.";
+    case "templates":
+      return "Overwrite existing conflicting template file.";
+  }
+}
+
+function getManagedFileConflictSkipReason(
+  classification: ReviewableManagedFileConflictClassification | null,
+  resolution: ManagedFileConflictResolution | null,
+  isManifestOwned: boolean,
+): string {
+  if (!classification) {
+    return isManifestOwned
+      ? "Managed file was modified locally."
+      : "Unmanaged file already exists with different content.";
   }
 
-  if (currentContent.length === 0) {
-    return desiredContent;
+  if (resolution === "skip") {
+    return `Existing conflicting ${getManagedFileConflictGroupLabel(
+      classification.group,
+    )} was explicitly skipped.`;
   }
 
-  const normalizedCurrent = currentContent.endsWith("\n")
-    ? currentContent
-    : `${currentContent}\n`;
-  const separator = normalizedCurrent.trim().length > 0 ? "\n" : "";
+  return `Existing conflicting ${getManagedFileConflictGroupLabel(
+    classification.group,
+  )} was skipped because no overwrite resolution was provided.`;
+}
 
-  return `${normalizedCurrent}${separator}${desiredContent}`;
+function getManagedFileConflictGroupLabel(group: ManagedFileConflictGroup): string {
+  switch (group) {
+    case "agent-instructions":
+      return "agent instruction file";
+    case "references":
+      return "reference file";
+    case "templates":
+      return "template file";
+  }
 }
