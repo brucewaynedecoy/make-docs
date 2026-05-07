@@ -52,6 +52,11 @@ describe("skill catalog", () => {
         name: "decompose-codebase",
         description: "Plan and reverse-engineer repos into structured PRDs.",
       },
+      {
+        name: "implement-wave",
+        description:
+          "Drive docs/work waves through implementation, validation, closeout, and phase commits.",
+      },
     ]);
   });
 
@@ -139,6 +144,26 @@ describe("skill catalog", () => {
           ".claude/skills/closeout-phase/agents/openai.yaml",
       ),
     ).toBe(true);
+    expect(
+      assets.some(
+        (asset) =>
+          asset.relativePath === ".claude/skills/implement-wave/SKILL.md",
+      ),
+    ).toBe(true);
+    expect(
+      assets.some(
+        (asset) =>
+          asset.relativePath ===
+          ".agents/skills/implement-wave/references/wave-implementation-workflow.md",
+      ),
+    ).toBe(true);
+    expect(
+      assets.some(
+        (asset) =>
+          asset.relativePath ===
+          ".claude/skills/implement-wave/scripts/phase_gate.py",
+      ),
+    ).toBe(true);
     expect(archiveSkillForClaude?.content).toContain(
       "./references/archive-workflow.md",
     );
@@ -198,6 +223,11 @@ describe("skill catalog", () => {
     expect(
       assets.some(
         (asset) => asset.relativePath === ".claude/skills/cleanup-docs/SKILL.md",
+      ),
+    ).toBe(true);
+    expect(
+      assets.some(
+        (asset) => asset.relativePath === ".claude/skills/implement-wave/SKILL.md",
       ),
     ).toBe(true);
   });

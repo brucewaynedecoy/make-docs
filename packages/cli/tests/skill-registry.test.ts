@@ -50,6 +50,7 @@ describe("skill registry", () => {
       "closeout-commit",
       "closeout-phase",
       "cleanup-docs",
+      "implement-wave",
       "decompose-codebase",
     ]);
     expect(getSkillRegistryNames(registry)).toEqual([
@@ -58,6 +59,7 @@ describe("skill registry", () => {
       "closeout-commit",
       "closeout-phase",
       "decompose-codebase",
+      "implement-wave",
     ]);
     expect(
       registry.skills.every((skill) => !("required" in skill)),
@@ -114,6 +116,31 @@ describe("skill registry", () => {
         source: "scripts/check_markdown_style.py",
         installPath: "scripts/check_markdown_style.py",
       },
+    ]);
+  });
+
+  test("declares the implement wave skill asset surface", () => {
+    const registry = loadSkillRegistry(PACKAGE_ROOT);
+    const implementSkill = registry.skills.find(
+      (skill) => skill.name === "implement-wave",
+    );
+
+    expect(implementSkill?.assets).toEqual([
+      { source: "agents/openai.yaml", installPath: "agents/openai.yaml" },
+      {
+        source: "references/wave-implementation-workflow.md",
+        installPath: "references/wave-implementation-workflow.md",
+      },
+      {
+        source: "scripts/implement_wave_common.py",
+        installPath: "scripts/implement_wave_common.py",
+      },
+      { source: "scripts/resolve_wave.py", installPath: "scripts/resolve_wave.py" },
+      { source: "scripts/wave_status.py", installPath: "scripts/wave_status.py" },
+      { source: "scripts/phase_plan.py", installPath: "scripts/phase_plan.py" },
+      { source: "scripts/checkpoint.py", installPath: "scripts/checkpoint.py" },
+      { source: "scripts/scope_guard.py", installPath: "scripts/scope_guard.py" },
+      { source: "scripts/phase_gate.py", installPath: "scripts/phase_gate.py" },
     ]);
   });
 

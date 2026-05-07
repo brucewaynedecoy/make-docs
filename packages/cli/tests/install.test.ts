@@ -207,6 +207,12 @@ describe("installer integration", () => {
       expect(
         existsSync(path.join(targetDir, ".claude/skills/decompose-codebase/SKILL.md")),
       ).toBe(true);
+      expect(existsSync(path.join(targetDir, ".claude/skills/implement-wave/SKILL.md"))).toBe(
+        true,
+      );
+      expect(existsSync(path.join(targetDir, ".agents/skills/implement-wave/SKILL.md"))).toBe(
+        true,
+      );
       expect(existsSync(path.join(targetDir, ".claude/skills/closeout-commit/SKILL.md"))).toBe(
         true,
       );
@@ -293,6 +299,8 @@ describe("installer integration", () => {
       expect(manifest.skillFiles).toContain(".agents/skills/closeout-phase/SKILL.md");
       expect(manifest.skillFiles).toContain(".claude/skills/decompose-codebase/SKILL.md");
       expect(manifest.skillFiles).toContain(".agents/skills/decompose-codebase/SKILL.md");
+      expect(manifest.skillFiles).toContain(".claude/skills/implement-wave/SKILL.md");
+      expect(manifest.skillFiles).toContain(".agents/skills/implement-wave/SKILL.md");
     } finally {
       cleanupTempDir(targetDir);
     }
@@ -674,6 +682,36 @@ describe("installer integration", () => {
         }
         expect(
           existsSync(path.join(path.dirname(closeoutCommitSkillPath), "./agents/openai.yaml")),
+        ).toBe(true);
+
+        const implementWaveSkillPath = path.join(
+          targetDir,
+          harnessRoot,
+          "skills/implement-wave/SKILL.md",
+        );
+        const implementWaveContents = readFileSync(implementWaveSkillPath, "utf8");
+
+        for (const relativeLink of [
+          "./references/wave-implementation-workflow.md",
+          "./scripts/resolve_wave.py",
+          "./scripts/wave_status.py",
+          "./scripts/phase_plan.py",
+          "./scripts/checkpoint.py",
+          "./scripts/scope_guard.py",
+          "./scripts/phase_gate.py",
+        ]) {
+          expect(implementWaveContents).toContain(`(${relativeLink})`);
+          expect(existsSync(path.join(path.dirname(implementWaveSkillPath), relativeLink))).toBe(
+            true,
+          );
+        }
+        expect(
+          existsSync(
+            path.join(path.dirname(implementWaveSkillPath), "./scripts/implement_wave_common.py"),
+          ),
+        ).toBe(true);
+        expect(
+          existsSync(path.join(path.dirname(implementWaveSkillPath), "./agents/openai.yaml")),
         ).toBe(true);
       }
     } finally {

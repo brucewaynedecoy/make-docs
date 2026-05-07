@@ -66,6 +66,19 @@ const CLOSEOUT_CLAUDE_MIRROR_ROOT = path.join(
   "skills",
   "closeout-phase",
 );
+const IMPLEMENT_WAVE_PACKAGE_ROOT = path.join(
+  REPO_ROOT,
+  "packages",
+  "skills",
+  "implement-wave",
+);
+const IMPLEMENT_WAVE_MIRROR_ROOT = path.join(REPO_ROOT, ".agents", "skills", "implement-wave");
+const IMPLEMENT_WAVE_CLAUDE_MIRROR_ROOT = path.join(
+  REPO_ROOT,
+  ".claude",
+  "skills",
+  "implement-wave",
+);
 
 const RISK_REGISTER_TEMPLATE_PATHS = [
   "docs/assets/templates/prd-risk-register.md",
@@ -441,6 +454,37 @@ describe("dogfood skill mirror parity", () => {
       for (const relativePath of expectedMirrorFiles) {
         const packageContents = readFileSync(
           path.join(DECOMPOSE_PACKAGE_ROOT, relativePath),
+          "utf8",
+        );
+        const mirrorContents = readFileSync(path.join(mirrorRoot, relativePath), "utf8");
+
+        expect(mirrorContents).toBe(packageContents);
+      }
+    }
+  });
+
+  test("implement-wave mirror matches the packaged mapped file set", () => {
+    const expectedMirrorFiles = [
+      "SKILL.md",
+      "agents/openai.yaml",
+      "references/wave-implementation-workflow.md",
+      "scripts/checkpoint.py",
+      "scripts/implement_wave_common.py",
+      "scripts/phase_gate.py",
+      "scripts/phase_plan.py",
+      "scripts/resolve_wave.py",
+      "scripts/scope_guard.py",
+      "scripts/wave_status.py",
+    ].sort();
+
+    for (const mirrorRoot of [IMPLEMENT_WAVE_MIRROR_ROOT, IMPLEMENT_WAVE_CLAUDE_MIRROR_ROOT]) {
+      const mirrorFiles = collectFiles(mirrorRoot).sort();
+
+      expect(mirrorFiles).toEqual(expectedMirrorFiles);
+
+      for (const relativePath of expectedMirrorFiles) {
+        const packageContents = readFileSync(
+          path.join(IMPLEMENT_WAVE_PACKAGE_ROOT, relativePath),
           "utf8",
         );
         const mirrorContents = readFileSync(path.join(mirrorRoot, relativePath), "utf8");

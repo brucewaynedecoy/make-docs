@@ -106,6 +106,51 @@
       ]
     },
     {
+      "name": "implement-wave",
+      "source": "https://github.com/brucewaynedecoy/make-docs/tree/main/packages/skills/implement-wave",
+      "entryPoint": "SKILL.md",
+      "installName": "implement-wave",
+      "description": "Drive docs/work waves through implementation, validation, closeout, and phase commits.",
+      "assets": [
+        {
+          "source": "agents/openai.yaml",
+          "installPath": "agents/openai.yaml"
+        },
+        {
+          "source": "references/wave-implementation-workflow.md",
+          "installPath": "references/wave-implementation-workflow.md"
+        },
+        {
+          "source": "scripts/implement_wave_common.py",
+          "installPath": "scripts/implement_wave_common.py"
+        },
+        {
+          "source": "scripts/resolve_wave.py",
+          "installPath": "scripts/resolve_wave.py"
+        },
+        {
+          "source": "scripts/wave_status.py",
+          "installPath": "scripts/wave_status.py"
+        },
+        {
+          "source": "scripts/phase_plan.py",
+          "installPath": "scripts/phase_plan.py"
+        },
+        {
+          "source": "scripts/checkpoint.py",
+          "installPath": "scripts/checkpoint.py"
+        },
+        {
+          "source": "scripts/scope_guard.py",
+          "installPath": "scripts/scope_guard.py"
+        },
+        {
+          "source": "scripts/phase_gate.py",
+          "installPath": "scripts/phase_gate.py"
+        }
+      ]
+    },
+    {
       "name": "decompose-codebase",
       "source": "https://github.com/brucewaynedecoy/make-docs/tree/main/packages/skills/decompose-codebase",
       "entryPoint": "SKILL.md",

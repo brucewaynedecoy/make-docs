@@ -1,0 +1,6 @@
+interface:
+  display_name: "Implement Wave"
+  short_description: "Drive docs/work waves through implementation, validation, closeout, and phase commits"
+  default_prompt: "Use $implement-wave to implement the target docs/work wave or phase end to end with checkpoints and phase gates."
+policy:
+  allow_implicit_invocation: true
