@@ -32,7 +32,7 @@ The fixed-core overview layer is now present through [01 Product Overview](01-pr
 | `10` | Current | [10-packaging-validation-and-release-reference.md](10-packaging-validation-and-release-reference.md) | Package allowlist, prepack/template copy flow, smoke-pack validation, and release-surface reference. |
 | `11` | Current | [11-revise-cli-asset-selection-simplification.md](11-revise-cli-asset-selection-simplification.md) | Revision making prompt, template, and reference assets always managed rather than user-selectable. |
 | `12` | Current | [12-revise-cli-skill-selection-simplification.md](12-revise-cli-skill-selection-simplification.md) | Revision making shipped skills one recommended, selected-by-default set instead of required/default plus optional categories. |
-| `13` | Current | [13-revise-cli-conflict-resolution.md](13-revise-cli-conflict-resolution.md) | Revision making divergent managed agent instructions, references, and templates use batch-first overwrite/skip conflict review. |
+| `13` | Current | [13-revise-cli-conflict-resolution.md](13-revise-cli-conflict-resolution.md) | Revision making selected managed-file diffs, including instructions, prompts, references, templates, desired skill assets, and generic selected managed files, use batch-first overwrite/skip conflict review. |
 
 ## Source Anchors
 

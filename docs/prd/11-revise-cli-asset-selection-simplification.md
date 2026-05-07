@@ -48,12 +48,12 @@ Effective behavior:
 - Included prompt starters, document templates, and reference files are invariant managed assets whenever their owning capability surface is installed.
 - The old `--no-prompts`, `--templates`, and `--references` flags are removed from the public CLI contract.
 - The old `prompts`, `templatesMode`, and `referencesMode` selection fields are removed from the active persisted-selection contract rather than translated into new values.
-- Install, sync, and reconfigure flows continue to manage every included prompt, template, and reference file that belongs to the effective capability surface.
+- Install, sync, and reconfigure flows continue to manage every included prompt, template, and reference file that belongs to the effective capability surface, but applying a divergent selected asset still depends on the explicit managed-file diff resolution required by [13-revise-cli-conflict-resolution.md](./13-revise-cli-conflict-resolution.md).
 - Manifest checking must identify stale or malformed manifests that still carry the removed asset-selection fields, tell users to fix or remove the stale manifest, and tell them to rerun bare `make-docs` to rebuild the manifest.
 
 ### Change Notes
 
-- Superseded by [13-revise-cli-conflict-resolution.md](./13-revise-cli-conflict-resolution.md) for requiring always-managed references and templates with divergent local files to surface through batch-first overwrite/skip conflict review instead of implicit update, silent overwrite, or instruction-only handling.
+- Superseded by [13-revise-cli-conflict-resolution.md](./13-revise-cli-conflict-resolution.md) for requiring always-managed prompts, references, templates, selected skill assets, and generic selected managed files with divergent local content to surface through batch-first overwrite/skip conflict review instead of implicit update, silent overwrite, or instruction-only handling.
 
 Code anchors:
 

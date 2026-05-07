@@ -102,6 +102,12 @@ export function applyInstallPlan(options: {
   plan: InstallPlan;
   existingManifest: InstallManifest | null;
 }): ApplyResult {
+  const unresolvedConflicts = findReviewableManagedFileConflicts(options.plan);
+  if (unresolvedConflicts.length > 0) {
+    const paths = unresolvedConflicts.map((conflict) => conflict.relativePath).join(", ");
+    throw new Error(`Cannot apply install plan with unresolved managed-file conflicts: ${paths}.`);
+  }
+
   return applyInstallPlanInternal({
     ...options,
     trackSkillFilesInManifestFiles: true,
@@ -216,6 +222,9 @@ function applyAction(options: {
       }
       return;
     }
+    case "skip": {
+      return;
+    }
     case "remove-managed": {
       if (existsSync(absolutePath)) {
         rmSync(absolutePath, { force: true });
@@ -259,6 +268,9 @@ const MANAGED_FILE_CONFLICT_GROUP_ORDER: Record<ManagedFileConflictGroup, number
   "agent-instructions": 0,
   references: 1,
   templates: 2,
+  prompts: 3,
+  skills: 4,
+  "managed-files": 5,
 };
 
 function toConflictRelativePath(relativePath: string): string {

@@ -560,7 +560,7 @@ describe("promptForManagedFileConflictResolutions", () => {
 
     expect(summaryTitle).toBe("Resolve managed file conflicts");
     expect(summaryMessage).toContain(
-      "make-docs found 5 existing managed files with local content.",
+      "make-docs found 5 existing managed files with content that differs from make-docs.",
     );
     expect(summaryMessage).toContain("Agent instructions: 1");
     expect(summaryMessage).toContain("References: 2");

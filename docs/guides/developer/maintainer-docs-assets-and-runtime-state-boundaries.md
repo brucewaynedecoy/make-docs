@@ -62,6 +62,24 @@ Follow these ownership rules when touching paths near the boundary:
 3. Treat `.make-docs/**` as installer output owned by apply, sync, backup, and uninstall behavior.
 4. Do not move manifest or conflict files into `docs/` to make the tree look tidier. That would collapse authored docs and mutable runtime state back into one namespace.
 
+## Planner and Apply Semantics
+
+The planner classifies managed-file work before apply writes anything.
+Plan output should stay grouped with the user-facing labels `generate`, `update`, `skip`, and `remove`, even when the internal action names are more specific.
+
+Selected existing files with content that differs from the desired make-docs content require an explicit resolution before apply.
+Interactive runs can resolve them with batch choices or per-file review.
+Non-interactive runs, including `--yes`, must fail while those diffs remain unresolved.
+Apply should refuse unresolved diffs instead of treating them as safe defaults.
+
+Do not use a manifest hash mismatch alone as proof that a selected desired managed file was modified locally.
+For files still selected by the current profile, the desired package content is the comparison point that determines whether the file can be updated, needs review, or should be skipped.
+This distinction matters during package upgrades: a file can differ from the old manifest hash because make-docs changed upstream, not because the user edited it.
+
+Reviewable managed-file coverage is broad.
+When selected, prompts, references, templates, router and agent instruction files, skill assets, and other managed files all participate in the same planning and apply rules.
+It also includes prompts, skills, router files, and other selected managed files.
+
 ## Maintainer Checks
 
 When a change touches these boundaries, verify the right layer:

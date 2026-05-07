@@ -33,11 +33,24 @@ async function installWithSelections(
   configure(selections);
 
   const existingManifest = loadManifest(targetDir);
-  const plan = await planInstall({
+  let plan = await planInstall({
     targetDir,
     selections,
     existingManifest,
   });
+  const reviewableConflicts = findReviewableManagedFileConflicts(plan);
+  if (reviewableConflicts.length > 0) {
+    const managedFileConflictResolutions: Record<string, "overwrite"> = {};
+    for (const conflict of reviewableConflicts) {
+      managedFileConflictResolutions[conflict.relativePath] = "overwrite";
+    }
+    plan = await planInstall({
+      targetDir,
+      selections,
+      existingManifest,
+      managedFileConflictResolutions,
+    });
+  }
   const result = applyInstallPlan({
     targetDir,
     plan,
@@ -855,14 +868,12 @@ describe("installer integration", () => {
     }
   });
 
-  test("stages conflicting instruction files without overwriting them", async () => {
+  test("treats existing selected file diffs as reviewable before apply", async () => {
     const targetDir = createTempDir();
     try {
       mkdirSync(path.join(targetDir, "docs"), { recursive: true });
       writeFileSync(path.join(targetDir, "AGENTS.md"), "custom root agents\n", "utf8");
       writeFileSync(path.join(targetDir, "docs/AGENTS.md"), "custom docs agents\n", "utf8");
-
-      const { manifest } = await installWithSelections(targetDir, () => {});
 
       const existingManifest = loadManifest(targetDir);
       const plan = await planInstall({
@@ -883,8 +894,18 @@ describe("installer integration", () => {
         reason:
           "Existing conflicting agent instruction file was skipped because no overwrite resolution was provided.",
       });
-      expect(rootInstructionAction.type).not.toBe("update-conflict");
-      expect(docsInstructionAction.type).not.toBe("update-conflict");
+      expect(
+        findReviewableManagedFileConflicts(plan).map((conflict) => conflict.relativePath),
+      ).toEqual(["AGENTS.md", "docs/AGENTS.md"]);
+      expect(() =>
+        applyInstallPlan({
+          targetDir,
+          plan,
+          existingManifest,
+        }),
+      ).toThrow(
+        "Cannot apply install plan with unresolved managed-file conflicts: AGENTS.md, docs/AGENTS.md.",
+      );
       expect(readFileSync(path.join(targetDir, "AGENTS.md"), "utf8")).toBe("custom root agents\n");
       expect(readFileSync(path.join(targetDir, "docs/AGENTS.md"), "utf8")).toBe(
         "custom docs agents\n",
@@ -895,18 +916,14 @@ describe("installer integration", () => {
         relativePath.startsWith(".make-docs/conflicts/"),
       );
 
-      expect(conflictFiles.some((relativePath) => relativePath.endsWith("/AGENTS.md"))).toBe(true);
-      expect(conflictFiles.some((relativePath) => relativePath.endsWith("/docs/AGENTS.md"))).toBe(
-        true,
-      );
-      expect(manifest.files["AGENTS.md"]).toBeUndefined();
-      expect(manifest.files["docs/AGENTS.md"]).toBeUndefined();
+      expect(conflictFiles).toEqual([]);
+      expect(existsSync(path.join(targetDir, ".make-docs/manifest.json"))).toBe(false);
     } finally {
       cleanupTempDir(targetDir);
     }
   });
 
-  test("overwrites reviewable managed-file conflicts with desired content", async () => {
+  test("creates update actions when overwriting reviewable managed-file conflicts", async () => {
     const targetDir = createTempDir();
     try {
       writeFileSync(path.join(targetDir, "AGENTS.md"), "custom root agents\n", "utf8");
@@ -951,7 +968,7 @@ describe("installer integration", () => {
       });
 
       expect(getPlannedAction(plan, "AGENTS.md")).toMatchObject({
-        type: "generate",
+        type: "update",
         content: readPackageFile("AGENTS.md"),
         reason: "Overwrite existing conflicting agent instruction file.",
       });
@@ -985,7 +1002,7 @@ describe("installer integration", () => {
     }
   });
 
-  test("keeps explicitly skipped managed-file conflicts as skip actions", async () => {
+  test("keeps explicitly skipped managed-file conflicts as final skip actions", async () => {
     const targetDir = createTempDir();
     try {
       writeFileSync(path.join(targetDir, "AGENTS.md"), "custom root agents\n", "utf8");
@@ -1016,15 +1033,15 @@ describe("installer integration", () => {
       });
 
       expect(getPlannedAction(plan, "AGENTS.md")).toMatchObject({
-        type: "skip-conflict",
+        type: "skip",
         reason: "Existing conflicting agent instruction file was explicitly skipped.",
       });
       expect(getPlannedAction(plan, "docs/assets/references/guide-contract.md")).toMatchObject({
-        type: "skip-conflict",
+        type: "skip",
         reason: "Existing conflicting reference file was explicitly skipped.",
       });
       expect(getPlannedAction(plan, "docs/assets/templates/guide-user.md")).toMatchObject({
-        type: "skip-conflict",
+        type: "skip",
         reason: "Existing conflicting template file was explicitly skipped.",
       });
 
@@ -1042,6 +1059,7 @@ describe("installer integration", () => {
       expect(result.manifest.files["AGENTS.md"]).toBeUndefined();
       expect(result.manifest.files["docs/assets/references/guide-contract.md"]).toBeUndefined();
       expect(result.manifest.files["docs/assets/templates/guide-user.md"]).toBeUndefined();
+      expect(result.conflictFiles).toEqual([]);
     } finally {
       cleanupTempDir(targetDir);
     }
@@ -1110,6 +1128,7 @@ describe("installer integration", () => {
       });
 
       expect(plan.actions.find((action) => action.relativePath === "AGENTS.md")).toMatchObject({
+        type: "update",
         reason: "Overwrite existing conflicting agent instruction file.",
       });
 
@@ -1146,7 +1165,7 @@ describe("installer integration", () => {
     }
   });
 
-  test("preserves non-conflict planner actions for create update generate noop and skills", async () => {
+  test("preserves planner actions for create update generate noop and skills", async () => {
     const targetDir = createTempDir();
     try {
       const selections = defaultSelections();
@@ -1215,6 +1234,9 @@ describe("installer integration", () => {
         targetDir,
         selections,
         existingManifest: loadManifest(targetDir),
+        managedFileConflictResolutions: {
+          [managedReferencePath]: "overwrite",
+        },
       });
       expect(getPlannedAction(updatePlan, managedReferencePath)).toMatchObject({
         type: "update",
@@ -1225,7 +1247,7 @@ describe("installer integration", () => {
     }
   });
 
-  test("skips and stages updates for locally modified managed files", async () => {
+  test("blocks apply for unresolved reviewable managed-file diffs", async () => {
     const targetDir = createTempDir();
     try {
       await installWithSelections(targetDir, () => {});
@@ -1240,12 +1262,19 @@ describe("installer integration", () => {
 
       const action = plan.actions.find((candidate) => candidate.relativePath === "docs/AGENTS.md");
       expect(action?.type).toBe("skip-conflict");
+      expect(
+        findReviewableManagedFileConflicts(plan).map((conflict) => conflict.relativePath),
+      ).toEqual(["docs/AGENTS.md"]);
 
-      applyInstallPlan({
-        targetDir,
-        plan,
-        existingManifest,
-      });
+      expect(() =>
+        applyInstallPlan({
+          targetDir,
+          plan,
+          existingManifest,
+        }),
+      ).toThrow(
+        "Cannot apply install plan with unresolved managed-file conflicts: docs/AGENTS.md.",
+      );
 
       expect(readFileSync(path.join(targetDir, "docs/AGENTS.md"), "utf8")).toBe(
         "locally edited docs router\n",
@@ -1258,7 +1287,7 @@ describe("installer integration", () => {
             relativePath.startsWith(".make-docs/conflicts/") &&
             relativePath.endsWith("/docs/AGENTS.md"),
         ),
-      ).toBe(true);
+      ).toBe(false);
     } finally {
       cleanupTempDir(targetDir);
     }

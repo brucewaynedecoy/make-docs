@@ -17,6 +17,7 @@ This is a delta backlog. It should revise the existing CLI install conflict work
 - [02-conflict-model-and-planner.md](../../plans/2026-05-06-w14-r2-cli-conflict-resolution/02-conflict-model-and-planner.md)
 - [03-clack-review-flow.md](../../plans/2026-05-06-w14-r2-cli-conflict-resolution/03-clack-review-flow.md)
 - [04-tests-delta-backlog-and-validation.md](../../plans/2026-05-06-w14-r2-cli-conflict-resolution/04-tests-delta-backlog-and-validation.md)
+- [05-managed-file-diff-review-and-plan-output-cleanup.md](../../plans/2026-05-06-w14-r2-cli-conflict-resolution/05-managed-file-diff-review-and-plan-output-cleanup.md)
 
 ## Phase Map
 
@@ -26,6 +27,7 @@ This is a delta backlog. It should revise the existing CLI install conflict work
 | 2 | [02-conflict-model-and-planner.md](./02-conflict-model-and-planner.md) | CLI model and planner | Generalize conflict types and deterministic planner behavior. |
 | 3 | [03-clack-review-flow.md](./03-clack-review-flow.md) | CLI interactive flow | Implement batch-first and grouped Clack review. |
 | 4 | [04-tests-delta-backlog-and-validation.md](./04-tests-delta-backlog-and-validation.md) | Tests and closeout | Add focused regressions, validate, and record closeout evidence. |
+| 5 | [05-managed-file-diff-review-and-plan-output-cleanup.md](./05-managed-file-diff-review-and-plan-output-cleanup.md) | Cleanup and closeout | Confirm selected managed-file diffs are reviewable, unresolved non-interactive diffs fail before apply, and plan output hides internal planner labels. |
 
 ## Execution Order
 
@@ -33,6 +35,7 @@ This is a delta backlog. It should revise the existing CLI install conflict work
 2. Complete Phase 2 before Phase 3 so the UI consumes a stable generalized conflict model.
 3. Complete Phase 3 before final tests so prompt names, labels, and cancellation behavior are settled.
 4. Complete Phase 4 after implementation to validate the full delta and capture history.
+5. Treat Phase 5 as retroactive cleanup that depends on the completed generalized conflict model, review flow, and validation harness.
 
 ## Global Constraints
 

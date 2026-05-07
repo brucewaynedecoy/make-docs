@@ -58,11 +58,15 @@ Review is a mutable checkpoint, not a final dead end. `renderWizardReviewSummary
 
 #### Change Notes
 
-- Superseded by [13-revise-cli-conflict-resolution.md](./13-revise-cli-conflict-resolution.md) for replacing instruction-specific conflict review with batch-first managed-file conflict review across divergent agent instructions, references, and templates, and for removing instruction-only `Update` from the active conflict flow.
+- Superseded by [13-revise-cli-conflict-resolution.md](./13-revise-cli-conflict-resolution.md) for replacing instruction-specific conflict review with batch-first managed-file conflict review across divergent selected managed files, and for removing instruction-only `Update` from the active conflict flow.
 
 After selections are resolved, `runCli` computes an install plan, optionally collects managed-file conflict resolutions, rejects plans with no effective capabilities, prints a structured plan, and only then applies writes in `packages/cli/src/cli.ts:178`, `packages/cli/src/cli.ts:185`, `packages/cli/src/cli.ts:205`, `packages/cli/src/cli.ts:210`, and `packages/cli/src/cli.ts:244`. The review summary includes target, mode, manifest state, selection source, and action counts in `packages/cli/src/cli.ts:725`, while noop runs emit mode-specific guidance in `packages/cli/src/cli.ts:805`.
 
+Final user-facing planned operations use four verbs: `generate` means a missing selected file will be created, `update` means an existing selected file will be overwritten from the desired content after any required resolution, `skip` means the user explicitly chose to preserve the existing file, and `remove` means a previously managed file will be removed because it is no longer selected. Review-only conflict states must be resolved before the final plan is presented; they are not surfaced as a separate final operation label.
+
 The generic post-plan confirmation is conditional. When the wizard has already collected review-and-apply intent, `runCli` sets `skipApplyConfirm` in `packages/cli/src/cli.ts:148`, `packages/cli/src/cli.ts:162`, and `packages/cli/src/cli.ts:174`, so the CLI does not immediately ask the user to confirm a second time. For interactive sync flows that did not use the wizard, the CLI still shows the plan and then asks for confirmation in `packages/cli/src/cli.ts:226`.
+
+Prompting is also the boundary between interactive and non-interactive conflict handling. Interactive runs may collect batch or per-file overwrite/skip resolutions for reviewable selected managed-file diffs; non-interactive runs fail when such diffs are unresolved instead of guessing a skip or overwrite policy.
 
 When apply succeeds, completion language differs by mode in `packages/cli/src/cli.ts:869`, and staged conflict files are surfaced for manual review in `packages/cli/src/cli.ts:259`. That behavior matches the install/readme promise that conflicting replacements are staged rather than overwritten in `README.md:101` and `packages/cli/README.md:84`.
 

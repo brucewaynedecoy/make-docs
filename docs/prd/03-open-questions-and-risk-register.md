@@ -154,15 +154,17 @@ Status values are `Open`, `Confirming`, `Deferred`, and `Closed`. `Closed` requi
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | PRD 05 is follow-up-only for W14 R2 P1 and is not part of the P1 edit scope. | Later workers should assess and annotate PRD 05 only if implementation confirms a direct lifecycle requirement change. |
+| Closed | PRD 05 now carries the W14 R2 managed-file conflict lifecycle annotation. | No further PRD 05 conflict-model follow-up is required for W14 R2 P5. |
 
-**Issue**: `docs/prd/05-installation-profile-and-manifest-lifecycle.md` still describes the pre-W14 R2 conflict model, while [13-revise-cli-conflict-resolution.md](./13-revise-cli-conflict-resolution.md) supersedes the instruction-specific `Update` / `Overwrite` / `Skip` path with batch-first overwrite/skip review for divergent managed agent instructions, references, and templates.
+**Issue**: `docs/prd/05-installation-profile-and-manifest-lifecycle.md` described the pre-W14 R2 conflict model after [13-revise-cli-conflict-resolution.md](./13-revise-cli-conflict-resolution.md) superseded instruction-specific review with batch-first overwrite/skip review for divergent selected managed files.
 
-**Why it matters**: PRD 05 remains important lifecycle context, but editing it during P1 would cross the required baseline annotation boundary for this worker.
+**Why it matters**: PRD 05 remains important lifecycle context, so stale planner/apply language could make manifest hash mismatches look like proof of local modification or imply that unresolved selected diffs can still apply.
 
-**Recommendation**: Keep PRD 05 as explicit follow-up context for W14 R2 P1 rather than changing it in the baseline annotation pass.
+**Recommendation**: Keep PRD 05 aligned with the shipped P5 behavior: manifest hash mismatch is only review evidence, selected desired diffs require explicit resolution, and non-interactive runs fail when reviewable diffs are unresolved.
 
-**To close**: A later scoped worker confirms whether PRD 05 needs a lifecycle annotation and updates it under that worker's ownership rules.
+**To close**: Closed by the W14 R2 P5 PRD reconciliation updates to PRD 05 and PRD 13.
+
+**Resolution**: PRD 05 now records the selected managed-file review boundary and PRD 13 now covers prompts, desired skill assets, and generic selected managed files in addition to instructions, references, and templates.
 
 ## Open Questions
 

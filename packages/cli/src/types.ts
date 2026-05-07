@@ -26,11 +26,15 @@ export type ManagedFileConflictResolutions = Partial<
 >;
 export type ManagedFileConflictGroup =
   | "agent-instructions"
+  | "managed-files"
+  | "prompts"
   | "references"
+  | "skills"
   | "templates";
 export type ActionType =
   | "create"
   | "noop"
+  | "skip"
   | "update"
   | "update-conflict"
   | "skip-conflict"

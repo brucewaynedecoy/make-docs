@@ -59,8 +59,32 @@ For an existing install, the CLI reads the saved manifest, plans changes against
 ### What sync preserves
 
 - Managed files that still match the previously installed version can be updated in place.
-- Managed files you edited locally are preserved instead of being overwritten.
+- Managed files with local differences are preserved unless you explicitly choose to overwrite them during review.
 - The lifecycle plan reports what would change before anything is written.
+
+### Review planned changes and diffs
+
+Before install, sync, or reconfigure writes files, the CLI shows a plan grouped by the operation it intends to perform:
+
+| Label | Meaning |
+| --- | --- |
+| `generate` | Create a managed file that does not exist yet. |
+| `update` | Replace a managed file that is safe to update or that you explicitly chose to overwrite. |
+| `skip` | Leave a file unchanged. |
+| `remove` | Delete a managed file that is no longer selected. |
+
+When the plan finds existing managed files whose content differs from the new make-docs content, the CLI pauses for a diff review before the final apply prompt.
+The review can include agent instruction files, references, templates, prompts, skill assets, and other managed files selected for the current install.
+
+You can choose one batch action:
+
+- `Overwrite all` applies the new make-docs content for every listed file.
+- `Skip all` preserves every listed file.
+- `Review each` walks each file one at a time so you can overwrite or skip per file after inspecting the diff.
+
+No file changes are applied until you confirm the final apply prompt.
+If you cancel during diff review or at the final apply prompt, the command exits before writing the planned changes.
+In non-interactive mode, including `--yes`, the CLI cannot ask you to resolve reviewable diffs; unresolved diffs fail the command instead of silently overwriting or skipping them.
 
 ### Apply or sync a different directory
 

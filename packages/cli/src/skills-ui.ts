@@ -17,6 +17,7 @@ import { formatInlineList } from "./utils";
 
 export type SkillsUiAction = "sync" | "remove";
 export type SkillsUiStep = "action" | "platforms" | "scope" | "skills" | "review";
+type RenderedSkillActionKind = "generate" | "update" | "skip" | "remove";
 export type SkillsReviewAction =
   | "apply"
   | "edit-action"
@@ -24,6 +25,13 @@ export type SkillsReviewAction =
   | "edit-scope"
   | "edit-skills"
   | "cancel";
+
+const RENDERED_SKILL_ACTION_KIND_ORDER: Record<RenderedSkillActionKind, number> = {
+  generate: 0,
+  update: 1,
+  skip: 2,
+  remove: 3,
+};
 
 export interface SkillsUiState {
   action: SkillsUiAction;
@@ -312,15 +320,15 @@ export function renderSkillsPlanSummary(options: {
   lines.push(
     `Managed skill files evaluated: ${options.actions.length}`,
     `Already current: ${counts.noop}`,
-    `Create: ${counts.create + counts.generate}`,
+    `Generate: ${counts.create + counts.generate}`,
     `Update: ${counts.update + counts["update-conflict"]}`,
-    `Remove managed: ${counts["remove-managed"]}`,
-    `Stage conflicts: ${counts["skip-conflict"]}`,
+    `Skip: ${counts.skip + counts["skip-conflict"]}`,
+    `Remove: ${counts["remove-managed"]}`,
     "",
     "Planned skill file operations:",
   );
 
-  const plannedOperations = options.actions.filter((action) => action.type !== "noop");
+  const plannedOperations = getRenderedSkillActions(options.actions);
   if (plannedOperations.length === 0) {
     lines.push("- none");
   } else {
@@ -340,6 +348,7 @@ export function countSkillActions(
     generate: actions.filter((action) => action.type === "generate").length,
     noop: actions.filter((action) => action.type === "noop").length,
     "remove-managed": actions.filter((action) => action.type === "remove-managed").length,
+    skip: actions.filter((action) => action.type === "skip").length,
     "skip-conflict": actions.filter((action) => action.type === "skip-conflict").length,
     update: actions.filter((action) => action.type === "update").length,
     "update-conflict": actions.filter((action) => action.type === "update-conflict").length,
@@ -481,18 +490,60 @@ function formatSelectedSkills(selectedSkills: string[]): string {
 }
 
 function formatSkillActionLine(action: PlannedAction): string {
-  const label: Record<PlannedAction["type"], string> = {
-    create: "create",
-    generate: "create",
-    noop: "already current",
-    "remove-managed": "remove",
-    "skip-conflict": "conflict",
-    update: "update",
-    "update-conflict": "update conflict",
-  };
+  const kind = getRenderedSkillActionKind(action);
+  if (!kind) {
+    throw new Error(`Cannot render no-op action for ${action.relativePath}.`);
+  }
 
-  const reason = action.reason ? ` (${action.reason})` : "";
-  return `${label[action.type]}: ${action.relativePath}${reason}`;
+  return `${kind}: ${action.relativePath}`;
+}
+
+function getRenderedSkillActions(actions: PlannedAction[]): PlannedAction[] {
+  return actions
+    .filter((action) => getRenderedSkillActionKind(action) !== null)
+    .sort(compareRenderedSkillActions);
+}
+
+function compareRenderedSkillActions(left: PlannedAction, right: PlannedAction): number {
+  const leftKind = getRenderedSkillActionKind(left);
+  const rightKind = getRenderedSkillActionKind(right);
+
+  if (leftKind && rightKind && leftKind !== rightKind) {
+    return (
+      RENDERED_SKILL_ACTION_KIND_ORDER[leftKind] -
+      RENDERED_SKILL_ACTION_KIND_ORDER[rightKind]
+    );
+  }
+
+  return comparePosixTreePath(left.relativePath, right.relativePath);
+}
+
+function getRenderedSkillActionKind(
+  action: PlannedAction,
+): RenderedSkillActionKind | null {
+  switch (action.type) {
+    case "create":
+    case "generate":
+      return "generate";
+    case "update":
+    case "update-conflict":
+      return "update";
+    case "skip":
+    case "skip-conflict":
+      return "skip";
+    case "remove-managed":
+      return "remove";
+    case "noop":
+      return null;
+  }
+}
+
+function comparePosixTreePath(left: string, right: string): number {
+  if (left === right) {
+    return 0;
+  }
+
+  return left < right ? -1 : 1;
 }
 
 function cloneSkillsUiState(state: SkillsUiState): SkillsUiState {

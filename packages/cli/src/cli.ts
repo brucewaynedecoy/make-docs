@@ -27,6 +27,14 @@ import {
 
 type Command = "reconfigure" | "skills" | "backup" | "uninstall";
 type InstallIntent = "apply" | "reconfigure";
+type RenderedActionKind = "generate" | "update" | "skip" | "remove";
+
+const RENDERED_ACTION_KIND_ORDER: Record<RenderedActionKind, number> = {
+  generate: 0,
+  update: 1,
+  skip: 2,
+  remove: 3,
+};
 
 interface ParsedArgs {
   command?: Command;
@@ -220,6 +228,20 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
   if (parsed.dryRun) {
     output.write("\nDry run complete.\n");
     return;
+  }
+
+  const unresolvedManagedFileConflicts = findReviewableManagedFileConflicts(plan);
+  if (!interactive && unresolvedManagedFileConflicts.length > 0) {
+    throw new Error(
+      [
+        "Non-interactive make-docs runs cannot apply unresolved managed-file diffs.",
+        "Run `make-docs` without `--yes` to review the conflicts interactively.",
+        "Conflicting managed files:",
+        ...unresolvedManagedFileConflicts.map(
+          (conflict) => `- ${conflict.relativePath}`,
+        ),
+      ].join("\n"),
+    );
   }
 
   if (interactive && !skipApplyConfirm && hasPlannedChanges) {
@@ -693,6 +715,7 @@ function printPlan(options: {
     targetDir,
   } = options;
   const nonNoop = actions.filter((action) => action.type !== "noop");
+  const renderedActions = getRenderedActions(actions);
   const noopCount = actions.length - nonNoop.length;
   const counts = countActions(actions);
   const manifestPath = path.join(targetDir, MANIFEST_RELATIVE_PATH);
@@ -713,10 +736,10 @@ function printPlan(options: {
       `Managed files evaluated: ${actions.length}`,
       `Already current: ${noopCount}`,
       `Changes planned: ${nonNoop.length}`,
-      `Create: ${counts.create}`,
-      `Update/regenerate: ${counts.update + counts.generate + counts["update-conflict"]}`,
-      `Remove managed: ${counts["remove-managed"]}`,
-      `Stage conflicts: ${counts["skip-conflict"]}`,
+      `Generate: ${counts.create + counts.generate}`,
+      `Update: ${counts.update + counts["update-conflict"]}`,
+      `Skip: ${counts.skip + counts["skip-conflict"]}`,
+      `Remove: ${counts["remove-managed"]}`,
     ].join("\n"),
     "Information",
   );
@@ -726,7 +749,7 @@ function printPlan(options: {
     return;
   }
 
-  note(nonNoop.map(formatActionLine).join("\n"), "Planned file operations");
+  note(renderedActions.map(formatActionLine).join("\n"), "Planned file operations");
 }
 
 function countActions(actions: PlannedAction[]): Record<PlannedAction["type"], number> {
@@ -735,6 +758,7 @@ function countActions(actions: PlannedAction[]): Record<PlannedAction["type"], n
     generate: actions.filter((action) => action.type === "generate").length,
     noop: actions.filter((action) => action.type === "noop").length,
     "remove-managed": actions.filter((action) => action.type === "remove-managed").length,
+    skip: actions.filter((action) => action.type === "skip").length,
     "skip-conflict": actions.filter((action) => action.type === "skip-conflict").length,
     update: actions.filter((action) => action.type === "update").length,
     "update-conflict": actions.filter((action) => action.type === "update-conflict").length,
@@ -785,22 +809,59 @@ function renderNoopExplanation(options: {
   note(lines.join("\n"), "Results");
 }
 
-function formatActionLabel(action: PlannedAction): string {
-  if (action.type === "update-conflict") {
-    return "update";
-  }
-
-  if (action.reason === "Overwrite existing conflicting agent instructions.") {
-    return "overwrite";
-  }
-
-  return action.type;
+function getRenderedActions(actions: PlannedAction[]): PlannedAction[] {
+  return actions
+    .filter((action) => getRenderedActionKind(action) !== null)
+    .sort(compareRenderedActions);
 }
 
 function formatActionLine(action: PlannedAction): string {
-  const reason = action.reason ? ` (${action.reason})` : "";
+  const kind = getRenderedActionKind(action);
+  if (!kind) {
+    throw new Error(`Cannot render no-op action for ${action.relativePath}.`);
+  }
 
-  return `- ${formatActionLabel(action)}: ${action.relativePath}${reason}`;
+  return `- ${kind}: ${action.relativePath}`;
+}
+
+function compareRenderedActions(left: PlannedAction, right: PlannedAction): number {
+  const leftKind = getRenderedActionKind(left);
+  const rightKind = getRenderedActionKind(right);
+
+  if (leftKind && rightKind && leftKind !== rightKind) {
+    return (
+      RENDERED_ACTION_KIND_ORDER[leftKind] -
+      RENDERED_ACTION_KIND_ORDER[rightKind]
+    );
+  }
+
+  return comparePosixTreePath(left.relativePath, right.relativePath);
+}
+
+function getRenderedActionKind(action: PlannedAction): RenderedActionKind | null {
+  switch (action.type) {
+    case "create":
+    case "generate":
+      return "generate";
+    case "update":
+    case "update-conflict":
+      return "update";
+    case "skip":
+    case "skip-conflict":
+      return "skip";
+    case "remove-managed":
+      return "remove";
+    case "noop":
+      return null;
+  }
+}
+
+function comparePosixTreePath(left: string, right: string): number {
+  if (left === right) {
+    return 0;
+  }
+
+  return left < right ? -1 : 1;
 }
 
 function getApplyConfirmationMessage(options: {

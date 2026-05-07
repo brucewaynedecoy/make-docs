@@ -34,6 +34,7 @@ export async function createInstallPlan(options: {
   const desiredAssets = getDesiredAssets(profile);
   const desiredSkillAssets = await getDesiredSkillAssets(profile.selections);
   const desiredSkillFiles = desiredSkillAssets.map((asset) => asset.relativePath);
+  const desiredSkillFileSet = new Set(desiredSkillFiles);
   const allDesiredAssets = [...desiredAssets, ...desiredSkillAssets];
   const desiredFiles = Object.fromEntries(
     allDesiredAssets.map((asset) => [
@@ -75,33 +76,10 @@ export async function createInstallPlan(options: {
       continue;
     }
 
-    const currentHash = hashText(currentContent);
     const manifestEntry = existingManifest?.files[asset.relativePath];
-    if (manifestEntry && manifestEntry.hash === currentHash) {
-      actions.push({
-        type: asset.assetClass === "buildable" ? "generate" : "update",
-        relativePath: asset.relativePath,
-        sourceId: asset.sourceId,
-        content: asset.content,
-        contentHash: desiredHash,
-      });
-      continue;
-    }
-
-    if (existingSkillFiles.has(asset.relativePath) && !manifestEntry) {
-      actions.push({
-        type: asset.assetClass === "buildable" ? "generate" : "update",
-        relativePath: asset.relativePath,
-        sourceId: asset.sourceId,
-        content: asset.content,
-        contentHash: desiredHash,
-        reason: "Managed skill file is missing manifest metadata and will be refreshed.",
-      });
-      continue;
-    }
-
     const conflictClassification = classifyReviewableManagedFileConflictPath(
       asset.relativePath,
+      { isDesiredSkillAsset: desiredSkillFileSet.has(asset.relativePath) },
     );
     const conflictResolution = getManagedFileConflictResolution(
       asset.relativePath,
@@ -110,12 +88,27 @@ export async function createInstallPlan(options: {
     );
     if (conflictClassification && conflictResolution === "overwrite") {
       actions.push({
-        type: asset.assetClass === "buildable" ? "generate" : "update",
+        type: "update",
         relativePath: asset.relativePath,
         sourceId: asset.sourceId,
         content: asset.content,
         contentHash: desiredHash,
         reason: getManagedFileConflictOverwriteReason(conflictClassification.group),
+      });
+      continue;
+    }
+
+    if (conflictClassification && conflictResolution === "skip") {
+      actions.push({
+        type: "skip",
+        relativePath: asset.relativePath,
+        sourceId: asset.sourceId,
+        contentHash: desiredHash,
+        reason: getManagedFileConflictSkipReason(
+          conflictClassification,
+          conflictResolution,
+          Boolean(manifestEntry),
+        ),
       });
       continue;
     }
@@ -167,7 +160,8 @@ export async function createInstallPlan(options: {
         type: "skip-conflict",
         relativePath,
         sourceId: manifestEntry.sourceId,
-        reason: "Managed file was modified locally and will not be removed automatically.",
+        reason:
+          "Existing managed file differs from the recorded manifest and will not be removed automatically.",
       });
     }
 
@@ -336,7 +330,7 @@ function planDesiredSkillAsset(options: {
     content: asset.content,
     contentHash: desiredHash,
     reason: existingSkillFiles.has(asset.relativePath)
-      ? "Managed skill file was modified locally."
+      ? "Existing managed skill file differs from the desired skill content."
       : "Unmanaged skill file already exists with different content.",
   };
 }
@@ -382,7 +376,8 @@ function planStaleSkillFile(options: {
     type: "skip-conflict",
     relativePath,
     sourceId: manifestEntry?.sourceId ?? `skill:${relativePath}`,
-    reason: "Managed skill file was modified locally and will not be removed automatically.",
+    reason:
+      "Existing managed file differs from the recorded manifest and will not be removed automatically.",
   };
 }
 
@@ -422,7 +417,15 @@ type ReviewableManagedFileConflictClassification = {
 
 export function classifyReviewableManagedFileConflictPath(
   relativePath: string,
+  options: { isDesiredSkillAsset?: boolean } = {},
 ): ReviewableManagedFileConflictClassification | null {
+  if (options.isDesiredSkillAsset || isSkillAssetPath(relativePath)) {
+    return {
+      group: "skills",
+      instructionKind: getInstructionKindForPath(relativePath) ?? undefined,
+    };
+  }
+
   if (relativePath.startsWith("docs/assets/references/")) {
     return {
       group: "references",
@@ -437,6 +440,13 @@ export function classifyReviewableManagedFileConflictPath(
     };
   }
 
+  if (relativePath.startsWith("docs/assets/prompts/")) {
+    return {
+      group: "prompts",
+      instructionKind: getInstructionKindForPath(relativePath) ?? undefined,
+    };
+  }
+
   const instructionKind = getInstructionKindForPath(relativePath);
   if (instructionKind) {
     return {
@@ -445,7 +455,9 @@ export function classifyReviewableManagedFileConflictPath(
     };
   }
 
-  return null;
+  return {
+    group: "managed-files",
+  };
 }
 
 function getInstructionKindForPath(relativePath: string): InstructionKind | null {
@@ -455,12 +467,27 @@ function getInstructionKindForPath(relativePath: string): InstructionKind | null
     : null;
 }
 
+function isSkillAssetPath(relativePath: string): boolean {
+  return (
+    relativePath.startsWith(".claude/skills/") ||
+    relativePath.startsWith(".claude/skill-assets/") ||
+    relativePath.startsWith(".agents/skills/") ||
+    relativePath.startsWith(".agents/skill-assets/")
+  );
+}
+
 function getManagedFileConflictOverwriteReason(group: ManagedFileConflictGroup): string {
   switch (group) {
     case "agent-instructions":
       return "Overwrite existing conflicting agent instruction file.";
+    case "managed-files":
+      return "Overwrite existing conflicting managed file.";
+    case "prompts":
+      return "Overwrite existing conflicting prompt file.";
     case "references":
       return "Overwrite existing conflicting reference file.";
+    case "skills":
+      return "Overwrite existing conflicting skill file.";
     case "templates":
       return "Overwrite existing conflicting template file.";
   }
@@ -473,7 +500,7 @@ function getManagedFileConflictSkipReason(
 ): string {
   if (!classification) {
     return isManifestOwned
-      ? "Managed file was modified locally."
+      ? "Existing managed file differs from the recorded manifest."
       : "Unmanaged file already exists with different content.";
   }
 
@@ -492,8 +519,14 @@ function getManagedFileConflictGroupLabel(group: ManagedFileConflictGroup): stri
   switch (group) {
     case "agent-instructions":
       return "agent instruction file";
+    case "managed-files":
+      return "managed file";
+    case "prompts":
+      return "prompt file";
     case "references":
       return "reference file";
+    case "skills":
+      return "skill file";
     case "templates":
       return "template file";
   }

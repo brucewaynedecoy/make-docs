@@ -6,17 +6,18 @@
 
 ## Objective
 
-Implement a batch-first, Clack-styled conflict-resolution flow for divergent managed agent instructions, references, and templates.
+Implement a batch-first, Clack-styled conflict-resolution flow for divergent selected managed files, including agent instructions, prompts, references, templates, desired skill assets, and generic selected managed files.
 
 The completed implementation should:
 
 - inspect existing managed files before prompting;
 - summarize all reviewable diffs before asking for decisions;
 - support `Overwrite all`, `Skip all`, and `Review each`;
-- review files in the order agent instructions, references, then templates;
+- review files through deterministic managed-file grouping that includes agent instructions, prompts, references, templates, desired skill assets, and generic selected managed files;
 - remove the instruction-only `Update` option from the conflict flow;
 - keep install application deterministic from the final plan and resolution map;
-- cover planner, CLI, wizard, and tests without changing unrelated install behavior.
+- cover planner, CLI, wizard, and tests without changing unrelated install behavior;
+- ensure selected existing managed-file diffs are reviewable, unresolved non-interactive diffs fail before apply, and planned operations render as grouped user-facing `generate`, `update`, `skip`, and `remove` operations without internal reason suffixes.
 
 ## Coordinate Decision
 
@@ -71,10 +72,10 @@ Create one revision PRD change doc:
 
 - `docs/prd/13-revise-cli-conflict-resolution.md`
 - Change type: `revision`
-- Scope: replace instruction-only conflict decisions with a managed-file diff review model covering agent instructions, references, and templates.
+- Scope: replace instruction-only conflict decisions with a selected managed-file diff review model covering agent instructions, prompts, references, templates, desired skill assets, and generic selected managed files.
 - Required traceability: link to this plan and the source design.
 
-The PRD change doc should preserve the user-facing behavior from the design: one initial batch prompt, optional grouped review, no `Update` option, and visible group/file progress during review.
+The PRD change doc should preserve the user-facing behavior from the design and P5 cleanup: one initial batch prompt, optional grouped review, no `Update` option, visible group/file progress during review, pre-apply failure for unresolved non-interactive diffs, and plan output that groups `generate`, `update`, `skip`, and `remove` operations without internal reason labels.
 
 ## Baseline Annotation Plan
 
@@ -82,7 +83,7 @@ Execution should update baseline docs only where needed:
 
 - `docs/prd/00-index.md`: add the new PRD change doc and status.
 - `docs/prd/07-cli-command-surface-and-lifecycle.md`: annotate the install/reconfigure conflict-resolution behavior as superseded or revised by the new change doc.
-- `docs/prd/11-revise-cli-asset-selection-simplification.md`: add a follow-on note that always-managed references and templates now receive explicit conflict handling.
+- `docs/prd/11-revise-cli-asset-selection-simplification.md`: add a follow-on note that selected managed-file diffs across prompts, references, templates, desired skill assets, and generic selected managed files now receive explicit conflict handling where reviewable.
 - `docs/prd/03-open-questions-and-risk-register.md`: record any unresolved risks discovered during implementation, especially around non-interactive `--yes` behavior or cancellation semantics.
 
 ## Phase Map
@@ -93,6 +94,7 @@ Execution should update baseline docs only where needed:
 | 2 | [02-conflict-model-and-planner.md](./02-conflict-model-and-planner.md) | Replace instruction-only conflict resolution types with a general reviewable managed-file diff model. |
 | 3 | [03-clack-review-flow.md](./03-clack-review-flow.md) | Implement the batch-first and grouped per-file Clack review flow. |
 | 4 | [04-tests-delta-backlog-and-validation.md](./04-tests-delta-backlog-and-validation.md) | Update tests, generate the delta backlog, and validate the change. |
+| 5 | [05-managed-file-diff-review-and-plan-output-cleanup.md](./05-managed-file-diff-review-and-plan-output-cleanup.md) | Capture the retroactive cleanup that made selected managed-file diffs reviewable, blocked unresolved non-interactive apply, and cleaned plan output labels. |
 
 ## Dependencies
 
@@ -100,6 +102,7 @@ Execution should update baseline docs only where needed:
 - Phase 2 must complete before Phase 3 because the review UI needs the generalized conflict model and resolution map.
 - Phase 3 depends on the CLI orchestration shape from Phase 2 and should not reintroduce instruction-only `Update`.
 - Phase 4 depends on Phases 2 and 3 for test targets and on Phase 1 for work-backlog source docs.
+- Phase 5 is retroactive cleanup after Phases 2 through 4: it depends on the generalized conflict model, CLI orchestration, and validation harness already being in place.
 
 ## Worker Ownership
 
@@ -109,6 +112,7 @@ Execution should update baseline docs only where needed:
 | Worker 2 | Conflict model and planner | `packages/cli/src/types.ts`, `packages/cli/src/planner.ts`, `packages/cli/src/install.ts` | Phase 1 contract | generalized conflict types, reviewable diff classification, deterministic resolution mapping |
 | Worker 3 | Clack review flow and CLI orchestration | `packages/cli/src/wizard.ts`, `packages/cli/src/cli.ts` | Worker 2 model | batch prompt, grouped review, cancellation handling, progress text |
 | Worker 4 | Tests, backlog, and validation | `packages/cli/tests/`, `docs/work/2026-05-06-w14-r2-cli-conflict-resolution/` | Workers 1-3 | focused tests, delta backlog, validation evidence |
+| Worker 5 | Managed-file diff review and plan output cleanup | `packages/cli/src/cli.ts`, `packages/cli/src/install.ts`, `packages/cli/src/planner.ts`, `packages/cli/src/skills-ui.ts`, `packages/cli/src/types.ts`, `packages/cli/src/wizard.ts`, focused CLI/install/wizard tests | Workers 2-4 | selected managed-file diff review coverage, non-interactive unresolved-diff failure, grouped plan output cleanup |
 
 If delegation is unavailable, execute the same phases serially in this order.
 
@@ -124,7 +128,7 @@ If delegation is unavailable, execute the same phases serially in this order.
 
 - Do not reintroduce optional reference or template installation prompts.
 - Do not redesign the full install wizard.
-- Do not change managed skill-file conflict handling unless the implementation discovers shared model work that must be extracted without changing behavior.
+- Do not broaden unrelated skill-file behavior beyond the selected managed-file diff review cleanup captured by P5.
 - Do not implement textual diffs or side-by-side file previews unless explicitly requested later.
 - Do not execute this plan until the user separately approves implementation.
 

@@ -102,19 +102,28 @@ const HARNESS_METADATA: Record<
   },
 };
 
-const MANAGED_FILE_CONFLICT_GROUP_ORDER: ManagedFileConflictGroup[] = [
+const MANAGED_FILE_CONFLICT_GROUP_ORDER: readonly string[] = [
   "agent-instructions",
   "references",
   "templates",
+  "prompts",
+  "skills",
+  "managed-files",
+  "router-files",
+  "routers",
+  "other",
 ];
 
-const MANAGED_FILE_CONFLICT_GROUP_LABELS: Record<
-  ManagedFileConflictGroup,
-  string
-> = {
+const MANAGED_FILE_CONFLICT_GROUP_LABELS: Record<string, string> = {
   "agent-instructions": "Agent instructions",
   references: "References",
   templates: "Templates",
+  prompts: "Prompts",
+  skills: "Skills",
+  "managed-files": "Managed files",
+  "router-files": "Router files",
+  routers: "Router files",
+  other: "Other managed files",
 };
 
 export type WizardStep = "capabilities" | "harnesses" | "options" | "review";
@@ -570,9 +579,9 @@ export async function promptForManagedFileConflictResolutions(
 
   const resolutions: ManagedFileConflictResolutions = {};
 
-  for (const group of MANAGED_FILE_CONFLICT_GROUP_ORDER) {
+  for (const group of getManagedFileConflictGroups(sortedConflicts)) {
     const groupConflicts = sortedConflicts.filter(
-      (conflict) => conflict.group === group,
+      (conflict) => getManagedFileConflictGroupKey(conflict) === group,
     );
 
     if (groupConflicts.length === 0) {
@@ -581,7 +590,7 @@ export async function promptForManagedFileConflictResolutions(
 
     note(
       `${groupConflicts.length} ${pluralizeFile(groupConflicts.length)} to review.`,
-      styleText("cyan", MANAGED_FILE_CONFLICT_GROUP_LABELS[group]),
+      styleText("cyan", getManagedFileConflictGroupLabel(group)),
     );
 
     for (const conflict of groupConflicts) {
@@ -589,7 +598,7 @@ export async function promptForManagedFileConflictResolutions(
 
       note(
         [
-          `Group: ${MANAGED_FILE_CONFLICT_GROUP_LABELS[conflict.group]}`,
+          `Group: ${getManagedFileConflictGroupLabel(conflict.group)}`,
           `Path: ${conflict.relativePath}`,
           `Conflict: ${conflict.reason}`,
           `File ${fileNumber} of ${sortedConflicts.length}`,
@@ -628,12 +637,19 @@ function sortManagedFileConflicts(
   conflicts: ReviewableManagedFileConflict[],
 ): ReviewableManagedFileConflict[] {
   return [...conflicts].sort((left, right) => {
+    const leftGroup = getManagedFileConflictGroupKey(left);
+    const rightGroup = getManagedFileConflictGroupKey(right);
     const groupOrder =
-      MANAGED_FILE_CONFLICT_GROUP_ORDER.indexOf(left.group) -
-      MANAGED_FILE_CONFLICT_GROUP_ORDER.indexOf(right.group);
+      getManagedFileConflictGroupOrder(leftGroup) -
+      getManagedFileConflictGroupOrder(rightGroup);
 
     if (groupOrder !== 0) {
       return groupOrder;
+    }
+
+    const groupNameOrder = leftGroup.localeCompare(rightGroup);
+    if (groupNameOrder !== 0) {
+      return groupNameOrder;
     }
 
     return left.relativePath.localeCompare(right.relativePath);
@@ -643,22 +659,25 @@ function sortManagedFileConflicts(
 function renderManagedFileConflictSummary(
   conflicts: ReviewableManagedFileConflict[],
 ): string {
-  const counts = new Map<ManagedFileConflictGroup, number>(
-    MANAGED_FILE_CONFLICT_GROUP_ORDER.map((group) => [group, 0]),
-  );
+  const groups = getManagedFileConflictGroups(conflicts);
+  const counts = new Map<string, number>(groups.map((group) => [group, 0]));
 
   for (const conflict of conflicts) {
-    counts.set(conflict.group, (counts.get(conflict.group) ?? 0) + 1);
+    const group = getManagedFileConflictGroupKey(conflict);
+    counts.set(group, (counts.get(group) ?? 0) + 1);
   }
 
   return [
     `make-docs found ${conflicts.length} existing managed ${pluralizeFile(
       conflicts.length,
-    )} with local content.`,
-    `Agent instructions: ${counts.get("agent-instructions") ?? 0}`,
-    `References: ${counts.get("references") ?? 0}`,
-    `Templates: ${counts.get("templates") ?? 0}`,
-    "Review order: agent instructions, references, templates.",
+    )} with content that differs from make-docs.`,
+    ...groups.map(
+      (group) =>
+        `${getManagedFileConflictGroupLabel(group)}: ${counts.get(group) ?? 0}`,
+    ),
+    `Review order: ${groups
+      .map((group) => getManagedFileConflictGroupLabel(group).toLowerCase())
+      .join(", ")}.`,
   ].join("\n");
 }
 
@@ -677,6 +696,51 @@ function buildManagedFileConflictResolutions(
 
 function pluralizeFile(count: number): string {
   return count === 1 ? "file" : "files";
+}
+
+function getManagedFileConflictGroups(
+  conflicts: ReviewableManagedFileConflict[],
+): string[] {
+  const groupKeys = conflicts.map((conflict) =>
+    getManagedFileConflictGroupKey(conflict),
+  );
+
+  return Array.from(new Set(groupKeys)).sort((left, right) => {
+    const groupOrder =
+      getManagedFileConflictGroupOrder(left) -
+      getManagedFileConflictGroupOrder(right);
+
+    if (groupOrder !== 0) {
+      return groupOrder;
+    }
+
+    return left.localeCompare(right);
+  });
+}
+
+function getManagedFileConflictGroupKey(
+  conflict: ReviewableManagedFileConflict,
+): string {
+  return conflict.group;
+}
+
+function getManagedFileConflictGroupOrder(group: string): number {
+  const index = MANAGED_FILE_CONFLICT_GROUP_ORDER.indexOf(group);
+  return index === -1 ? MANAGED_FILE_CONFLICT_GROUP_ORDER.length : index;
+}
+
+function getManagedFileConflictGroupLabel(
+  group: ManagedFileConflictGroup | string,
+): string {
+  return MANAGED_FILE_CONFLICT_GROUP_LABELS[group] ?? toTitleCase(group);
+}
+
+function toTitleCase(value: string): string {
+  return value
+    .split(/[-_\s]+/)
+    .filter(Boolean)
+    .map((word) => `${word.slice(0, 1).toUpperCase()}${word.slice(1)}`)
+    .join(" ");
 }
 
 function createClackWizardRenderer(): WizardRenderer {

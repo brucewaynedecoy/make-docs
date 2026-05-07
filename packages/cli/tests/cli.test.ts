@@ -1,5 +1,5 @@
 import { beforeEach, afterEach, describe, expect, test, vi } from "vitest";
-import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { applyInstallPlan, planInstall } from "../src/install";
@@ -307,11 +307,21 @@ describe("cli interactive flows", () => {
       const codexSkillPath = path.join(targetDir, ".agents/skills/archive-docs/SKILL.md");
       expect(existsSync(claudeSkillPath)).toBe(true);
       expect(existsSync(codexSkillPath)).toBe(true);
+      promptForManagedFileConflictResolutionsMock.mockResolvedValue({
+        "docs/AGENTS.md": "overwrite",
+        "docs/CLAUDE.md": "overwrite",
+        "docs/assets/prompts/AGENTS.md": "overwrite",
+        "docs/assets/prompts/CLAUDE.md": "overwrite",
+        "docs/assets/templates/AGENTS.md": "overwrite",
+        "docs/assets/templates/CLAUDE.md": "overwrite",
+      });
+      confirmMock.mockResolvedValue(true);
       const { runCli } = await import("../src/cli");
 
-      await runCli(["--yes", "--no-skills", "--target", targetDir]);
+      await runCli(["--no-skills", "--target", targetDir]);
 
       expect(runSelectionWizardMock).not.toHaveBeenCalled();
+      expect(promptForManagedFileConflictResolutionsMock).toHaveBeenCalledTimes(1);
       expect(loadManifest(targetDir)?.selections.skills).toBe(false);
       expect(loadManifest(targetDir)?.selections.selectedSkills).toEqual([]);
       expect(existsSync(claudeSkillPath)).toBe(false);
@@ -406,7 +416,7 @@ describe("cli interactive flows", () => {
     }
   });
 
-  test("stages managed file conflicts conservatively during non-interactive apply", async () => {
+  test("fails non-interactive apply with unresolved managed file conflicts before writing outputs", async () => {
     const targetDir = createTempDir();
 
     try {
@@ -421,9 +431,16 @@ describe("cli interactive flows", () => {
         "docs/assets/templates/guide-user.md",
         "custom guide template\n",
       );
-      const output = await captureCliOutput(["--yes", "--target", targetDir]);
+      const error = await captureCliError(["--yes", "--target", targetDir]);
 
       expect(promptForManagedFileConflictResolutionsMock).not.toHaveBeenCalled();
+      expect(error.message).toContain(
+        "Non-interactive make-docs runs cannot apply unresolved managed-file diffs.",
+      );
+      expect(error.message).toContain("Conflicting managed files:");
+      expect(error.message).toContain("- AGENTS.md");
+      expect(error.message).toContain("- docs/assets/references/guide-contract.md");
+      expect(error.message).toContain("- docs/assets/templates/guide-user.md");
       expect(readFileSync(path.join(targetDir, "AGENTS.md"), "utf8")).toBe(
         "custom root agents\n",
       );
@@ -433,15 +450,59 @@ describe("cli interactive flows", () => {
       expect(
         readFileSync(path.join(targetDir, "docs/assets/templates/guide-user.md"), "utf8"),
       ).toBe("custom guide template\n");
-      expect(loadManifest(targetDir)).not.toBeNull();
-      expect(output).toContain("Conflicts were staged for manual review:");
-      expect(
-        listConflictFiles(targetDir).map((file) => file.replace(/.*conflicts\/[^/]+\//, "")),
-      ).toEqual([
-        "AGENTS.md",
+      expect(loadManifest(targetDir)).toBeNull();
+      expect(listConflictFiles(targetDir)).toEqual([]);
+      expect(existsSync(path.join(targetDir, "docs/AGENTS.md"))).toBe(false);
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("renders planned file operations by final generate update skip and remove groups", async () => {
+    const targetDir = createTempDir();
+
+    try {
+      await installManifest(targetDir);
+      rmSync(path.join(targetDir, "docs/assets/templates/guide-developer.md"));
+      writeCustomManagedFile(targetDir, "AGENTS.md", "custom root agents\n");
+      writeCustomManagedFile(
+        targetDir,
         "docs/assets/references/guide-contract.md",
-        "docs/assets/templates/guide-user.md",
+        "custom guide contract\n",
+      );
+      promptForManagedFileConflictResolutionsMock.mockResolvedValue({
+        "AGENTS.md": "skip",
+        "docs/assets/references/guide-contract.md": "overwrite",
+      });
+
+      const output = await captureCliOutput([
+        "--dry-run",
+        "--no-work",
+        "--target",
+        targetDir,
       ]);
+      const plannedLines = output
+        .replace(/\u001b\[[0-9;]*m/g, "")
+        .split("\n")
+        .map((line) => line.replace(/[│║]/g, "").trim())
+        .filter((line) => /^- (generate|update|skip|remove): /.test(line));
+
+      expect(output).toContain("Planned file operations");
+      expect(plannedLines).toContain("- generate: docs/assets/templates/guide-developer.md");
+      expect(plannedLines).toContain("- update: docs/assets/references/guide-contract.md");
+      expect(plannedLines).toContain("- skip: AGENTS.md");
+      expect(plannedLines.some((line) => line.startsWith("- remove: "))).toBe(true);
+      expect(plannedLines.every((line) => !line.includes("("))).toBe(true);
+      expect(output).not.toContain("skip-conflict");
+
+      const firstGenerate = plannedLines.findIndex((line) => line.startsWith("- generate: "));
+      const firstUpdate = plannedLines.findIndex((line) => line.startsWith("- update: "));
+      const firstSkip = plannedLines.findIndex((line) => line.startsWith("- skip: "));
+      const firstRemove = plannedLines.findIndex((line) => line.startsWith("- remove: "));
+      expect(firstGenerate).toBeGreaterThanOrEqual(0);
+      expect(firstUpdate).toBeGreaterThan(firstGenerate);
+      expect(firstSkip).toBeGreaterThan(firstUpdate);
+      expect(firstRemove).toBeGreaterThan(firstSkip);
     } finally {
       cleanupTempDir(targetDir);
     }
@@ -523,6 +584,7 @@ describe("cli interactive flows", () => {
 
   test("supports --selected-skills all and none for non-interactive apply", async () => {
     const targetDir = createTempDir();
+    const allTargetDir = createTempDir();
 
     try {
       const { runCli } = await import("../src/cli");
@@ -534,15 +596,14 @@ describe("cli interactive flows", () => {
       expect(manifest?.skillFiles).toEqual([]);
 
       await runCli([
-        "reconfigure",
-        "--yes",
         "--selected-skills",
         "all",
+        "--yes",
         "--target",
-        targetDir,
+        allTargetDir,
       ]);
 
-      manifest = loadManifest(targetDir);
+      manifest = loadManifest(allTargetDir);
       expect(manifest?.selections.selectedSkills).toEqual([
         "archive-docs",
         "cleanup-docs",
@@ -561,6 +622,7 @@ describe("cli interactive flows", () => {
       );
     } finally {
       cleanupTempDir(targetDir);
+      cleanupTempDir(allTargetDir);
     }
   });
 
