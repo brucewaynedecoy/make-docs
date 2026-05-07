@@ -503,7 +503,7 @@ describe("promptForManagedFileConflictResolutions", () => {
     });
   });
 
-  test("prompts review-each files in group order, then relative path order", async () => {
+  test("prompts for a batch decision before review-each files in group order", async () => {
     clackMocks.select
       .mockResolvedValueOnce("review-each")
       .mockResolvedValueOnce("overwrite")
@@ -539,6 +539,84 @@ describe("promptForManagedFileConflictResolutions", () => {
     });
   });
 
+  test("renders conflict summary, group boundaries, and per-file progress notes", async () => {
+    clackMocks.select
+      .mockResolvedValueOnce("review-each")
+      .mockResolvedValueOnce("skip")
+      .mockResolvedValueOnce("skip")
+      .mockResolvedValueOnce("skip")
+      .mockResolvedValueOnce("skip")
+      .mockResolvedValueOnce("skip");
+
+    await promptForManagedFileConflictResolutions([
+      managedFileConflict("docs/assets/templates/zeta.md", "templates"),
+      managedFileConflict("docs/assets/references/bravo.md", "references"),
+      managedFileConflict("docs/assets/templates/alpha.md", "templates"),
+      managedFileConflict("AGENTS.md", "agent-instructions"),
+      managedFileConflict("docs/assets/references/alpha.md", "references"),
+    ]);
+
+    const [summaryMessage, summaryTitle] = clackMocks.note.mock.calls[0] ?? [];
+
+    expect(summaryTitle).toBe("Resolve managed file conflicts");
+    expect(summaryMessage).toContain(
+      "make-docs found 5 existing managed files with local content.",
+    );
+    expect(summaryMessage).toContain("Agent instructions: 1");
+    expect(summaryMessage).toContain("References: 2");
+    expect(summaryMessage).toContain("Templates: 2");
+    expect(summaryMessage).toContain(
+      "Review order: agent instructions, references, templates.",
+    );
+
+    const groupBoundaryNotes = clackMocks.note.mock.calls
+      .slice(1)
+      .filter(([message]) => String(message).endsWith("to review."));
+
+    expect(groupBoundaryNotes).toEqual([
+      ["1 file to review.", expect.stringContaining("Agent instructions")],
+      ["2 files to review.", expect.stringContaining("References")],
+      ["2 files to review.", expect.stringContaining("Templates")],
+    ]);
+
+    const fileProgressNotes = clackMocks.note.mock.calls
+      .filter(([, title]) => title === "Existing managed file")
+      .map(([message]) => message);
+
+    expect(fileProgressNotes).toEqual([
+      [
+        "Group: Agent instructions",
+        "Path: AGENTS.md",
+        "Conflict: local content differs",
+        "File 1 of 5",
+      ].join("\n"),
+      [
+        "Group: References",
+        "Path: docs/assets/references/alpha.md",
+        "Conflict: local content differs",
+        "File 2 of 5",
+      ].join("\n"),
+      [
+        "Group: References",
+        "Path: docs/assets/references/bravo.md",
+        "Conflict: local content differs",
+        "File 3 of 5",
+      ].join("\n"),
+      [
+        "Group: Templates",
+        "Path: docs/assets/templates/alpha.md",
+        "Conflict: local content differs",
+        "File 4 of 5",
+      ].join("\n"),
+      [
+        "Group: Templates",
+        "Path: docs/assets/templates/zeta.md",
+        "Conflict: local content differs",
+        "File 5 of 5",
+      ].join("\n"),
+    ]);
+  });
+
   test("returns null when the batch prompt is cancelled", async () => {
     clackMocks.select.mockResolvedValue(cancelPrompt);
 
@@ -560,7 +638,7 @@ describe("promptForManagedFileConflictResolutions", () => {
     expect(clackMocks.select).toHaveBeenCalledTimes(3);
   });
 
-  test("uses the expected batch prompt message and no conflict-review option label is Update", async () => {
+  test("uses expected batch choices and no conflict-review option label is Update", async () => {
     clackMocks.select
       .mockResolvedValueOnce("review-each")
       .mockResolvedValueOnce("overwrite")
@@ -574,6 +652,20 @@ describe("promptForManagedFileConflictResolutions", () => {
     expect(firstSelectOptions?.message).toBe(
       "How should make-docs handle these existing files?",
     );
+    expect(firstSelectOptions?.options).toEqual([
+      {
+        value: "overwrite-all",
+        label: "Overwrite all",
+      },
+      {
+        value: "skip-all",
+        label: "Skip all",
+      },
+      {
+        value: "review-each",
+        label: "Review each",
+      },
+    ]);
     expect(
       clackMocks.select.mock.calls.flatMap(
         ([options]) => options.options?.map((option) => option.label) ?? [],

@@ -18,11 +18,11 @@ This phase updates planner, CLI, and wizard tests for the generalized conflict f
 
 ### Tasks
 
-- [ ] t1: Replace tests for instruction `update` conflict handling with overwrite/skip-only behavior.
-- [ ] t2: Add tests for divergent agent instruction overwrite and skip decisions.
-- [ ] t3: Add tests for divergent reference overwrite and skip decisions.
-- [ ] t4: Add tests for divergent template overwrite and skip decisions.
-- [ ] t5: Add tests proving existing noop, create, manifest-owned update, generated, and managed skill-file paths are unchanged.
+- [x] t1: Replace tests for instruction `update` conflict handling with overwrite/skip-only behavior.
+- [x] t2: Add tests for divergent agent instruction overwrite and skip decisions.
+- [x] t3: Add tests for divergent reference overwrite and skip decisions.
+- [x] t4: Add tests for divergent template overwrite and skip decisions.
+- [x] t5: Add tests proving existing noop, create, manifest-owned update, generated, and managed skill-file paths are unchanged.
 
 ### Acceptance criteria
 
@@ -39,11 +39,11 @@ This phase updates planner, CLI, and wizard tests for the generalized conflict f
 
 ### Tasks
 
-- [ ] t6: Add tests proving the batch prompt appears before per-file review.
-- [ ] t7: Add tests proving grouped review order is agent instructions, references, then templates.
-- [ ] t8: Add tests for visible group and file progress text.
-- [ ] t9: Add tests proving cancellation exits without partial apply.
-- [ ] t10: Update CLI orchestration tests for renamed generalized prompt exports or mocks.
+- [x] t6: Add tests proving the batch prompt appears before per-file review.
+- [x] t7: Add tests proving grouped review order is agent instructions, references, then templates.
+- [x] t8: Add tests for visible group and file progress text.
+- [x] t9: Add tests proving cancellation exits without partial apply.
+- [x] t10: Update CLI orchestration tests for renamed generalized prompt exports or mocks.
 
 ### Acceptance criteria
 
@@ -59,12 +59,12 @@ This phase updates planner, CLI, and wizard tests for the generalized conflict f
 
 ### Tasks
 
-- [ ] t11: Run focused tests for install planning and CLI conflict prompts.
-- [ ] t12: Run `npm test -w make-docs`.
-- [ ] t13: Run `npm run validate:defaults -w make-docs`.
-- [ ] t14: Run `bash scripts/check-instruction-routers.sh`.
-- [ ] t15: Run `git diff --check`.
-- [ ] t16: Scan for stale `InstructionConflictResolution`, `InstructionConflictResolutions`, instruction-only conflict wording, and user-facing `Update` conflict labels.
+- [x] t11: Run focused tests for install planning and CLI conflict prompts.
+- [x] t12: Run `npm test -w make-docs`.
+- [x] t13: Run `npm run validate:defaults -w make-docs`.
+- [x] t14: Run `bash scripts/check-instruction-routers.sh`.
+- [x] t15: Run `git diff --check`.
+- [x] t16: Scan for stale `InstructionConflictResolution`, `InstructionConflictResolutions`, instruction-only conflict wording, and user-facing `Update` conflict labels.
 
 ### Acceptance criteria
 
@@ -80,10 +80,10 @@ This phase updates planner, CLI, and wizard tests for the generalized conflict f
 
 ### Tasks
 
-- [ ] t17: Reindex docs with `jdocmunch` after PRD and work-history edits.
-- [ ] t18: Reindex code with `jcodemunch` after implementation if code-indexed review is needed.
-- [ ] t19: Create `docs/assets/history/` records for completed implementation phases.
-- [ ] t20: Summarize validation evidence and remaining risks for handoff.
+- [x] t17: Reindex docs with `jdocmunch` after PRD and work-history edits.
+- [x] t18: Reindex code with `jcodemunch` after implementation if code-indexed review is needed.
+- [x] t19: Create `docs/assets/history/` records for completed implementation phases.
+- [x] t20: Summarize validation evidence and remaining risks for handoff.
 
 ### Acceptance criteria
 

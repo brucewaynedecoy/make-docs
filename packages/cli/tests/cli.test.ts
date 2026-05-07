@@ -1,5 +1,5 @@
 import { beforeEach, afterEach, describe, expect, test, vi } from "vitest";
-import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { applyInstallPlan, planInstall } from "../src/install";
@@ -94,6 +94,12 @@ function listConflictFiles(targetDir: string): string[] {
 
   collect(conflictDir);
   return files.sort();
+}
+
+function writeCustomManagedFile(targetDir: string, relativePath: string, content: string) {
+  const absolutePath = path.join(targetDir, relativePath);
+  mkdirSync(path.dirname(absolutePath), { recursive: true });
+  writeFileSync(absolutePath, content, "utf8");
 }
 
 async function captureCliOutput(argv: string[]): Promise<string> {
@@ -352,11 +358,21 @@ describe("cli interactive flows", () => {
     }
   });
 
-  test("cancels interactive apply when managed file conflict prompt is cancelled", async () => {
+  test("cancels interactive apply with multiple managed file conflicts before applying", async () => {
     const targetDir = createTempDir();
 
     try {
-      writeFileSync(path.join(targetDir, "AGENTS.md"), "custom root agents\n", "utf8");
+      writeCustomManagedFile(targetDir, "AGENTS.md", "custom root agents\n");
+      writeCustomManagedFile(
+        targetDir,
+        "docs/assets/references/guide-contract.md",
+        "custom guide contract\n",
+      );
+      writeCustomManagedFile(
+        targetDir,
+        "docs/assets/templates/guide-user.md",
+        "custom guide template\n",
+      );
       runSelectionWizardMock.mockResolvedValue(defaultSelections());
       promptForManagedFileConflictResolutionsMock.mockResolvedValue(null);
 
@@ -364,9 +380,24 @@ describe("cli interactive flows", () => {
 
       expect(output).toContain("Installer cancelled.");
       expect(promptForManagedFileConflictResolutionsMock).toHaveBeenCalledTimes(1);
+      expect(
+        promptForManagedFileConflictResolutionsMock.mock.calls[0]?.[0].map(
+          (conflict: { relativePath: string }) => conflict.relativePath,
+        ),
+      ).toEqual([
+        "AGENTS.md",
+        "docs/assets/references/guide-contract.md",
+        "docs/assets/templates/guide-user.md",
+      ]);
       expect(readFileSync(path.join(targetDir, "AGENTS.md"), "utf8")).toBe(
         "custom root agents\n",
       );
+      expect(
+        readFileSync(path.join(targetDir, "docs/assets/references/guide-contract.md"), "utf8"),
+      ).toBe("custom guide contract\n");
+      expect(
+        readFileSync(path.join(targetDir, "docs/assets/templates/guide-user.md"), "utf8"),
+      ).toBe("custom guide template\n");
       expect(existsSync(path.join(targetDir, ".make-docs/manifest.json"))).toBe(false);
       expect(listConflictFiles(targetDir)).toEqual([]);
       expect(output).not.toContain("Installed make-docs");
@@ -379,18 +410,38 @@ describe("cli interactive flows", () => {
     const targetDir = createTempDir();
 
     try {
-      writeFileSync(path.join(targetDir, "AGENTS.md"), "custom root agents\n", "utf8");
+      writeCustomManagedFile(targetDir, "AGENTS.md", "custom root agents\n");
+      writeCustomManagedFile(
+        targetDir,
+        "docs/assets/references/guide-contract.md",
+        "custom guide contract\n",
+      );
+      writeCustomManagedFile(
+        targetDir,
+        "docs/assets/templates/guide-user.md",
+        "custom guide template\n",
+      );
       const output = await captureCliOutput(["--yes", "--target", targetDir]);
 
       expect(promptForManagedFileConflictResolutionsMock).not.toHaveBeenCalled();
       expect(readFileSync(path.join(targetDir, "AGENTS.md"), "utf8")).toBe(
         "custom root agents\n",
       );
+      expect(
+        readFileSync(path.join(targetDir, "docs/assets/references/guide-contract.md"), "utf8"),
+      ).toBe("custom guide contract\n");
+      expect(
+        readFileSync(path.join(targetDir, "docs/assets/templates/guide-user.md"), "utf8"),
+      ).toBe("custom guide template\n");
       expect(loadManifest(targetDir)).not.toBeNull();
       expect(output).toContain("Conflicts were staged for manual review:");
-      expect(listConflictFiles(targetDir).some((file) => file.endsWith("/AGENTS.md"))).toBe(
-        true,
-      );
+      expect(
+        listConflictFiles(targetDir).map((file) => file.replace(/.*conflicts\/[^/]+\//, "")),
+      ).toEqual([
+        "AGENTS.md",
+        "docs/assets/references/guide-contract.md",
+        "docs/assets/templates/guide-user.md",
+      ]);
     } finally {
       cleanupTempDir(targetDir);
     }

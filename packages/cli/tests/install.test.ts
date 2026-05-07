@@ -116,6 +116,15 @@ function mockHomeDirectory(homeDir: string): () => void {
   };
 }
 
+function getPlannedAction(
+  plan: Awaited<ReturnType<typeof planInstall>>,
+  relativePath: string,
+) {
+  const action = plan.actions.find((candidate) => candidate.relativePath === relativePath);
+  expect(action).toBeDefined();
+  return action!;
+}
+
 describe("installer integration", () => {
   beforeEach(() => {
     mockSkillFetches();
@@ -855,6 +864,27 @@ describe("installer integration", () => {
 
       const { manifest } = await installWithSelections(targetDir, () => {});
 
+      const existingManifest = loadManifest(targetDir);
+      const plan = await planInstall({
+        targetDir,
+        selections: defaultSelections(),
+        existingManifest,
+      });
+      const rootInstructionAction = getPlannedAction(plan, "AGENTS.md");
+      const docsInstructionAction = getPlannedAction(plan, "docs/AGENTS.md");
+
+      expect(rootInstructionAction).toMatchObject({
+        type: "skip-conflict",
+        reason:
+          "Existing conflicting agent instruction file was skipped because no overwrite resolution was provided.",
+      });
+      expect(docsInstructionAction).toMatchObject({
+        type: "skip-conflict",
+        reason:
+          "Existing conflicting agent instruction file was skipped because no overwrite resolution was provided.",
+      });
+      expect(rootInstructionAction.type).not.toBe("update-conflict");
+      expect(docsInstructionAction.type).not.toBe("update-conflict");
       expect(readFileSync(path.join(targetDir, "AGENTS.md"), "utf8")).toBe("custom root agents\n");
       expect(readFileSync(path.join(targetDir, "docs/AGENTS.md"), "utf8")).toBe(
         "custom docs agents\n",
@@ -880,6 +910,12 @@ describe("installer integration", () => {
     const targetDir = createTempDir();
     try {
       writeFileSync(path.join(targetDir, "AGENTS.md"), "custom root agents\n", "utf8");
+      mkdirSync(path.join(targetDir, "docs/assets/references"), { recursive: true });
+      writeFileSync(
+        path.join(targetDir, "docs/assets/references/guide-contract.md"),
+        "custom guide contract\n",
+        "utf8",
+      );
       mkdirSync(path.join(targetDir, "docs/assets/templates"), { recursive: true });
       writeFileSync(
         path.join(targetDir, "docs/assets/templates/guide-user.md"),
@@ -897,7 +933,11 @@ describe("installer integration", () => {
 
       expect(
         findReviewableManagedFileConflicts(initialPlan).map((conflict) => conflict.relativePath),
-      ).toEqual(["AGENTS.md", "docs/assets/templates/guide-user.md"]);
+      ).toEqual([
+        "AGENTS.md",
+        "docs/assets/references/guide-contract.md",
+        "docs/assets/templates/guide-user.md",
+      ]);
 
       const plan = await planInstall({
         targetDir,
@@ -905,20 +945,22 @@ describe("installer integration", () => {
         existingManifest,
         managedFileConflictResolutions: {
           "AGENTS.md": "overwrite",
+          "docs/assets/references/guide-contract.md": "overwrite",
           "docs/assets/templates/guide-user.md": "overwrite",
         },
       });
 
-      expect(plan.actions.find((action) => action.relativePath === "AGENTS.md")).toMatchObject({
+      expect(getPlannedAction(plan, "AGENTS.md")).toMatchObject({
         type: "generate",
         content: readPackageFile("AGENTS.md"),
         reason: "Overwrite existing conflicting agent instruction file.",
       });
-      expect(
-        plan.actions.find(
-          (action) => action.relativePath === "docs/assets/templates/guide-user.md",
-        ),
-      ).toMatchObject({
+      expect(getPlannedAction(plan, "docs/assets/references/guide-contract.md")).toMatchObject({
+        type: "update",
+        content: readPackageFile("docs/assets/references/guide-contract.md"),
+        reason: "Overwrite existing conflicting reference file.",
+      });
+      expect(getPlannedAction(plan, "docs/assets/templates/guide-user.md")).toMatchObject({
         type: "update",
         content: readPackageFile("docs/assets/templates/guide-user.md"),
         reason: "Overwrite existing conflicting template file.",
@@ -929,10 +971,14 @@ describe("installer integration", () => {
       expect(readFileSync(path.join(targetDir, "AGENTS.md"), "utf8")).toBe(
         readPackageFile("AGENTS.md"),
       );
-      expect(readFileSync(path.join(targetDir, "docs/assets/templates/guide-user.md"), "utf8")).toBe(
-        readPackageFile("docs/assets/templates/guide-user.md"),
-      );
+      expect(
+        readFileSync(path.join(targetDir, "docs/assets/references/guide-contract.md"), "utf8"),
+      ).toBe(readPackageFile("docs/assets/references/guide-contract.md"));
+      expect(
+        readFileSync(path.join(targetDir, "docs/assets/templates/guide-user.md"), "utf8"),
+      ).toBe(readPackageFile("docs/assets/templates/guide-user.md"));
       expect(result.manifest.files["AGENTS.md"]).toBeDefined();
+      expect(result.manifest.files["docs/assets/references/guide-contract.md"]).toBeDefined();
       expect(result.manifest.files["docs/assets/templates/guide-user.md"]).toBeDefined();
     } finally {
       cleanupTempDir(targetDir);
@@ -942,10 +988,17 @@ describe("installer integration", () => {
   test("keeps explicitly skipped managed-file conflicts as skip actions", async () => {
     const targetDir = createTempDir();
     try {
+      writeFileSync(path.join(targetDir, "AGENTS.md"), "custom root agents\n", "utf8");
       mkdirSync(path.join(targetDir, "docs/assets/references"), { recursive: true });
       writeFileSync(
         path.join(targetDir, "docs/assets/references/guide-contract.md"),
         "custom guide contract\n",
+        "utf8",
+      );
+      mkdirSync(path.join(targetDir, "docs/assets/templates"), { recursive: true });
+      writeFileSync(
+        path.join(targetDir, "docs/assets/templates/guide-user.md"),
+        "custom guide template\n",
         "utf8",
       );
 
@@ -956,25 +1009,39 @@ describe("installer integration", () => {
         selections,
         existingManifest,
         managedFileConflictResolutions: {
+          "AGENTS.md": "skip",
           "docs/assets/references/guide-contract.md": "skip",
+          "docs/assets/templates/guide-user.md": "skip",
         },
       });
 
-      expect(
-        plan.actions.find(
-          (action) => action.relativePath === "docs/assets/references/guide-contract.md",
-        ),
-      ).toMatchObject({
+      expect(getPlannedAction(plan, "AGENTS.md")).toMatchObject({
+        type: "skip-conflict",
+        reason: "Existing conflicting agent instruction file was explicitly skipped.",
+      });
+      expect(getPlannedAction(plan, "docs/assets/references/guide-contract.md")).toMatchObject({
         type: "skip-conflict",
         reason: "Existing conflicting reference file was explicitly skipped.",
+      });
+      expect(getPlannedAction(plan, "docs/assets/templates/guide-user.md")).toMatchObject({
+        type: "skip-conflict",
+        reason: "Existing conflicting template file was explicitly skipped.",
       });
 
       const result = applyInstallPlan({ targetDir, plan, existingManifest });
 
-      expect(readFileSync(path.join(targetDir, "docs/assets/references/guide-contract.md"), "utf8")).toBe(
+      expect(readFileSync(path.join(targetDir, "AGENTS.md"), "utf8")).toBe("custom root agents\n");
+      expect(
+        readFileSync(path.join(targetDir, "docs/assets/references/guide-contract.md"), "utf8"),
+      ).toBe(
         "custom guide contract\n",
       );
+      expect(
+        readFileSync(path.join(targetDir, "docs/assets/templates/guide-user.md"), "utf8"),
+      ).toBe("custom guide template\n");
+      expect(result.manifest.files["AGENTS.md"]).toBeUndefined();
       expect(result.manifest.files["docs/assets/references/guide-contract.md"]).toBeUndefined();
+      expect(result.manifest.files["docs/assets/templates/guide-user.md"]).toBeUndefined();
     } finally {
       cleanupTempDir(targetDir);
     }
@@ -1074,6 +1141,85 @@ describe("installer integration", () => {
       });
 
       expect(plan.actions.every((action) => action.type === "noop")).toBe(true);
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("preserves non-conflict planner actions for create update generate noop and skills", async () => {
+    const targetDir = createTempDir();
+    try {
+      const selections = defaultSelections();
+      const createPlan = await planInstall({
+        targetDir,
+        selections,
+        existingManifest: loadManifest(targetDir),
+      });
+
+      expect(
+        getPlannedAction(createPlan, "docs/assets/references/guide-contract.md"),
+      ).toMatchObject({
+        type: "create",
+        content: readPackageFile("docs/assets/references/guide-contract.md"),
+      });
+      expect(getPlannedAction(createPlan, "AGENTS.md")).toMatchObject({
+        type: "generate",
+        content: readPackageFile("AGENTS.md"),
+      });
+      expect(getPlannedAction(createPlan, ".claude/skills/archive-docs/SKILL.md")).toMatchObject({
+        type: "create",
+      });
+
+      const initialResult = applyInstallPlan({
+        targetDir,
+        plan: createPlan,
+        existingManifest: loadManifest(targetDir),
+      });
+      expect(initialResult.manifest.skillFiles).toContain(".claude/skills/archive-docs/SKILL.md");
+
+      const noopPlan = await planInstall({
+        targetDir,
+        selections,
+        existingManifest: loadManifest(targetDir),
+      });
+      expect(getPlannedAction(noopPlan, "docs/assets/references/guide-contract.md")).toMatchObject(
+        {
+          type: "noop",
+        },
+      );
+      expect(getPlannedAction(noopPlan, "AGENTS.md")).toMatchObject({
+        type: "noop",
+      });
+      expect(getPlannedAction(noopPlan, ".claude/skills/archive-docs/SKILL.md")).toMatchObject({
+        type: "noop",
+      });
+
+      const managedReferencePath = "docs/assets/references/guide-contract.md";
+      writeFileSync(
+        path.join(targetDir, managedReferencePath),
+        "previous managed reference\n",
+        "utf8",
+      );
+      const manifest = loadManifest(targetDir)!;
+      manifest.files[managedReferencePath] = {
+        hash: hashText("previous managed reference\n"),
+        sourceId: "package:docs/assets/references/guide-contract.md",
+      };
+      writeFileSync(
+        path.join(targetDir, ".make-docs/manifest.json"),
+        `${JSON.stringify(manifest, null, 2)}\n`,
+        "utf8",
+      );
+
+      const updatePlan = await planInstall({
+        targetDir,
+        selections,
+        existingManifest: loadManifest(targetDir),
+      });
+      expect(getPlannedAction(updatePlan, managedReferencePath)).toMatchObject({
+        type: "update",
+        content: readPackageFile(managedReferencePath),
+      });
     } finally {
       cleanupTempDir(targetDir);
     }

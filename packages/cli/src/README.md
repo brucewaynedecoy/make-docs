@@ -84,11 +84,11 @@ The interactive wizard should currently walk through:
 4. `Review selections`
 5. `What would you like to do next?`
 
-If the selected install would conflict with an existing `AGENTS.md` or `CLAUDE.md` at one of the managed target paths, the CLI should also present a conflict-resolution prompt for each conflicting file:
+If the selected install would conflict with existing managed agent instructions, references, or templates, the CLI should present one batch conflict-resolution prompt before any per-file review:
 
-- `Update` (default): append make-docs instructions to the end of the existing file
-- `Overwrite`: replace the file with the make-docs version and manage it
-- `Skip`: leave the file alone and stage the generated version under `.make-docs/conflicts/`
+- `Overwrite all`: replace every conflicting managed file with the make-docs version and manage it
+- `Skip all`: leave every conflicting file alone and stage generated replacements under `.make-docs/conflicts/`
+- `Review each`: review files in group order: agent instructions, references, then templates
 
 After an install or dry run, inspect the result:
 
