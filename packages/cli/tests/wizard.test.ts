@@ -194,7 +194,7 @@ describe("selection wizard", () => {
             "Plan and reverse-engineer repos into structured PRDs.",
         },
         {
-          name: "implement-wave",
+          name: "work-on-wave",
           description: "Implement docs/work waves.",
         },
       ],
@@ -238,8 +238,8 @@ describe("selection wizard", () => {
         rowKind: "skill",
       },
       {
-        value: "implement-wave",
-        label: "implement-wave",
+        value: "work-on-wave",
+        label: "work-on-wave",
         hint: "Implement docs/work waves.",
         disabled: false,
         rowKind: "skill",
@@ -369,9 +369,9 @@ describe("selection wizard", () => {
         description: "Plan and reverse-engineer repos into structured PRDs.",
       },
       {
-        name: "implement-wave",
+        name: "work-on-wave",
         description:
-          "Drive docs/work waves through implementation, validation, closeout, and phase commits.",
+          "Work on docs/work waves through implementation, validation, closeout, and phase commits.",
       },
     ]);
     expect(result?.skillScope).toBe("global");
@@ -405,7 +405,7 @@ describe("selection wizard", () => {
       "closeout-commit",
       "closeout-phase",
       "decompose-codebase",
-      "implement-wave",
+      "work-on-wave",
     ]);
     expect(result?.skills).toBe(true);
     expect(result?.selectedSkills).toEqual([]);

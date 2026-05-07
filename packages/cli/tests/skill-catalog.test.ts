@@ -53,9 +53,9 @@ describe("skill catalog", () => {
         description: "Plan and reverse-engineer repos into structured PRDs.",
       },
       {
-        name: "implement-wave",
+        name: "work-on-wave",
         description:
-          "Drive docs/work waves through implementation, validation, closeout, and phase commits.",
+          "Work on docs/work waves through implementation, validation, closeout, and phase commits.",
       },
     ]);
   });
@@ -147,21 +147,21 @@ describe("skill catalog", () => {
     expect(
       assets.some(
         (asset) =>
-          asset.relativePath === ".claude/skills/implement-wave/SKILL.md",
+          asset.relativePath === ".claude/skills/work-on-wave/SKILL.md",
       ),
     ).toBe(true);
     expect(
       assets.some(
         (asset) =>
           asset.relativePath ===
-          ".agents/skills/implement-wave/references/wave-implementation-workflow.md",
+          ".agents/skills/work-on-wave/references/wave-implementation-workflow.md",
       ),
     ).toBe(true);
     expect(
       assets.some(
         (asset) =>
           asset.relativePath ===
-          ".claude/skills/implement-wave/scripts/phase_gate.py",
+          ".claude/skills/work-on-wave/scripts/phase_gate.py",
       ),
     ).toBe(true);
     expect(archiveSkillForClaude?.content).toContain(
@@ -227,7 +227,7 @@ describe("skill catalog", () => {
     ).toBe(true);
     expect(
       assets.some(
-        (asset) => asset.relativePath === ".claude/skills/implement-wave/SKILL.md",
+        (asset) => asset.relativePath === ".claude/skills/work-on-wave/SKILL.md",
       ),
     ).toBe(true);
   });

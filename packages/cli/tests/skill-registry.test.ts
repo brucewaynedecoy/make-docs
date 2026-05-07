@@ -50,7 +50,7 @@ describe("skill registry", () => {
       "closeout-commit",
       "closeout-phase",
       "cleanup-docs",
-      "implement-wave",
+      "work-on-wave",
       "decompose-codebase",
     ]);
     expect(getSkillRegistryNames(registry)).toEqual([
@@ -59,7 +59,7 @@ describe("skill registry", () => {
       "closeout-commit",
       "closeout-phase",
       "decompose-codebase",
-      "implement-wave",
+      "work-on-wave",
     ]);
     expect(
       registry.skills.every((skill) => !("required" in skill)),
@@ -119,10 +119,10 @@ describe("skill registry", () => {
     ]);
   });
 
-  test("declares the implement wave skill asset surface", () => {
+  test("declares the work on wave skill asset surface", () => {
     const registry = loadSkillRegistry(PACKAGE_ROOT);
     const implementSkill = registry.skills.find(
-      (skill) => skill.name === "implement-wave",
+      (skill) => skill.name === "work-on-wave",
     );
 
     expect(implementSkill?.assets).toEqual([
@@ -132,8 +132,8 @@ describe("skill registry", () => {
         installPath: "references/wave-implementation-workflow.md",
       },
       {
-        source: "scripts/implement_wave_common.py",
-        installPath: "scripts/implement_wave_common.py",
+        source: "scripts/work_on_wave_common.py",
+        installPath: "scripts/work_on_wave_common.py",
       },
       { source: "scripts/resolve_wave.py", installPath: "scripts/resolve_wave.py" },
       { source: "scripts/wave_status.py", installPath: "scripts/wave_status.py" },

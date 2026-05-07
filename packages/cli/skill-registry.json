@@ -106,11 +106,11 @@
       ]
     },
     {
-      "name": "implement-wave",
-      "source": "https://github.com/brucewaynedecoy/make-docs/tree/main/packages/skills/implement-wave",
+      "name": "work-on-wave",
+      "source": "https://github.com/brucewaynedecoy/make-docs/tree/main/packages/skills/work-on-wave",
       "entryPoint": "SKILL.md",
-      "installName": "implement-wave",
-      "description": "Drive docs/work waves through implementation, validation, closeout, and phase commits.",
+      "installName": "work-on-wave",
+      "description": "Work on docs/work waves through implementation, validation, closeout, and phase commits.",
       "assets": [
         {
           "source": "agents/openai.yaml",
@@ -121,8 +121,8 @@
           "installPath": "references/wave-implementation-workflow.md"
         },
         {
-          "source": "scripts/implement_wave_common.py",
-          "installPath": "scripts/implement_wave_common.py"
+          "source": "scripts/work_on_wave_common.py",
+          "installPath": "scripts/work_on_wave_common.py"
         },
         {
           "source": "scripts/resolve_wave.py",
