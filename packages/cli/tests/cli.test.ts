@@ -610,6 +610,7 @@ describe("cli interactive flows", () => {
         "closeout-commit",
         "closeout-phase",
         "decompose-codebase",
+        "work-on-phase",
         "work-on-wave",
       ]);
       expect(manifest?.skillFiles).toContain(".claude/skills/archive-docs/SKILL.md");
@@ -622,6 +623,7 @@ describe("cli interactive flows", () => {
         ".claude/skills/decompose-codebase/SKILL.md",
       );
       expect(manifest?.skillFiles).toContain(".claude/skills/work-on-wave/SKILL.md");
+      expect(manifest?.skillFiles).toContain(".claude/skills/work-on-phase/SKILL.md");
     } finally {
       cleanupTempDir(targetDir);
       cleanupTempDir(allTargetDir);
@@ -950,7 +952,7 @@ describe("cli interactive flows", () => {
           targetDir,
         ]),
       ).rejects.toThrow(
-        "Unknown selected skill `unknown-skill`. Valid skills: archive-docs, cleanup-docs, closeout-commit, closeout-phase, decompose-codebase, work-on-wave.",
+        "Unknown selected skill `unknown-skill`. Valid skills: archive-docs, cleanup-docs, closeout-commit, closeout-phase, decompose-codebase, work-on-phase, work-on-wave.",
       );
     } finally {
       cleanupTempDir(targetDir);

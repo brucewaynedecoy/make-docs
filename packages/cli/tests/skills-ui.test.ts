@@ -74,6 +74,7 @@ const initialState: SkillsUiState = {
     "closeout-commit",
     "closeout-phase",
     "decompose-codebase",
+    "work-on-phase",
     "work-on-wave",
   ],
 };
@@ -157,6 +158,7 @@ describe("skills-only UI", () => {
       "closeout-commit",
       "closeout-phase",
       "decompose-codebase",
+      "work-on-phase",
       "work-on-wave",
     ]);
     expect(renderer.seenSkillStates[0]?.selectedSkills).toEqual([
@@ -165,6 +167,7 @@ describe("skills-only UI", () => {
       "closeout-commit",
       "closeout-phase",
       "decompose-codebase",
+      "work-on-phase",
       "work-on-wave",
     ]);
   });

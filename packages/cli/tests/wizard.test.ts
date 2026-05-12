@@ -194,6 +194,10 @@ describe("selection wizard", () => {
             "Plan and reverse-engineer repos into structured PRDs.",
         },
         {
+          name: "work-on-phase",
+          description: "Implement one docs/work phase.",
+        },
+        {
           name: "work-on-wave",
           description: "Implement docs/work waves.",
         },
@@ -234,6 +238,13 @@ describe("selection wizard", () => {
         value: "decompose-codebase",
         label: "decompose-codebase",
         hint: "Plan and reverse-engineer repos into structured PRDs.",
+        disabled: false,
+        rowKind: "skill",
+      },
+      {
+        value: "work-on-phase",
+        label: "work-on-phase",
+        hint: "Implement one docs/work phase.",
         disabled: false,
         rowKind: "skill",
       },
@@ -369,6 +380,11 @@ describe("selection wizard", () => {
         description: "Plan and reverse-engineer repos into structured PRDs.",
       },
       {
+        name: "work-on-phase",
+        description:
+          "Implement one explicit docs/work phase through planning, validation, closeout, and optional commit.",
+      },
+      {
         name: "work-on-wave",
         description:
           "Work on docs/work waves through implementation, validation, closeout, and phase commits.",
@@ -405,6 +421,7 @@ describe("selection wizard", () => {
       "closeout-commit",
       "closeout-phase",
       "decompose-codebase",
+      "work-on-phase",
       "work-on-wave",
     ]);
     expect(result?.skills).toBe(true);

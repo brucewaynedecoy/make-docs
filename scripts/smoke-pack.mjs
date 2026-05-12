@@ -23,10 +23,28 @@ const EXPECTED_SKILL_PATHS = [
   ".claude/skills/archive-docs/agents/openai.yaml",
   ".claude/skills/archive-docs/references/archive-workflow.md",
   ".claude/skills/archive-docs/scripts/trace_relationships.py",
+  ".claude/skills/work-on-phase/SKILL.md",
+  ".claude/skills/work-on-phase/agents/openai.yaml",
+  ".claude/skills/work-on-phase/references/phase-implementation-workflow.md",
+  ".claude/skills/work-on-phase/scripts/phase_gate.py",
   ".agents/skills/archive-docs/SKILL.md",
   ".agents/skills/archive-docs/agents/openai.yaml",
   ".agents/skills/archive-docs/references/archive-workflow.md",
   ".agents/skills/archive-docs/scripts/trace_relationships.py",
+  ".agents/skills/work-on-phase/SKILL.md",
+  ".agents/skills/work-on-phase/agents/openai.yaml",
+  ".agents/skills/work-on-phase/references/phase-implementation-workflow.md",
+  ".agents/skills/work-on-phase/scripts/phase_gate.py",
+];
+
+const EXPECTED_DEFAULT_SKILLS = [
+  "archive-docs",
+  "cleanup-docs",
+  "closeout-commit",
+  "closeout-phase",
+  "decompose-codebase",
+  "work-on-phase",
+  "work-on-wave",
 ];
 
 const LEGACY_SKILL_PATHS = [
@@ -154,8 +172,8 @@ try {
     "Smoke pack install did not produce docs/AGENTS.md.",
   );
 
-  assertDirectoryEntries(path.join(targetDir, ".claude/skills"), ["archive-docs"]);
-  assertDirectoryEntries(path.join(targetDir, ".agents/skills"), ["archive-docs"]);
+  assertDirectoryEntries(path.join(targetDir, ".claude/skills"), EXPECTED_DEFAULT_SKILLS);
+  assertDirectoryEntries(path.join(targetDir, ".agents/skills"), EXPECTED_DEFAULT_SKILLS);
 
   for (const relativePath of EXPECTED_SKILL_PATHS) {
     assertExists(
@@ -188,13 +206,13 @@ try {
     "Smoke pack skills removal dry run removed Codex skill files.",
   );
 
-  assertMissing(
-    path.join(targetDir, ".claude/skills/decompose-codebase"),
-    "Smoke pack install should not install optional skill .claude/skills/decompose-codebase by default.",
+  assertExists(
+    path.join(targetDir, ".claude/skills/decompose-codebase/SKILL.md"),
+    "Smoke pack install did not install the default Claude Code decompose-codebase skill.",
   );
-  assertMissing(
-    path.join(targetDir, ".agents/skills/decompose-codebase"),
-    "Smoke pack install should not install optional skill .agents/skills/decompose-codebase by default.",
+  assertExists(
+    path.join(targetDir, ".agents/skills/decompose-codebase/SKILL.md"),
+    "Smoke pack install did not install the default Codex decompose-codebase skill.",
   );
   assertMissing(
     path.join(targetDir, ".claude/skill-assets"),

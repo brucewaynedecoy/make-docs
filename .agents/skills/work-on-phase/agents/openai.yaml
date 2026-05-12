@@ -1,0 +1,6 @@
+interface:
+  display_name: "Work On Phase"
+  short_description: "Implement one docs/work phase through planning, validation, closeout, and optional commit"
+  default_prompt: "Use $work-on-phase to implement the explicit docs/work phase target with risk-register checks, closeout, and no wave continuation."
+policy:
+  allow_implicit_invocation: true

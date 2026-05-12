@@ -51,6 +51,7 @@ describe("skill registry", () => {
       "closeout-phase",
       "cleanup-docs",
       "work-on-wave",
+      "work-on-phase",
       "decompose-codebase",
     ]);
     expect(getSkillRegistryNames(registry)).toEqual([
@@ -59,6 +60,7 @@ describe("skill registry", () => {
       "closeout-commit",
       "closeout-phase",
       "decompose-codebase",
+      "work-on-phase",
       "work-on-wave",
     ]);
     expect(
@@ -137,6 +139,30 @@ describe("skill registry", () => {
       },
       { source: "scripts/resolve_wave.py", installPath: "scripts/resolve_wave.py" },
       { source: "scripts/wave_status.py", installPath: "scripts/wave_status.py" },
+      { source: "scripts/phase_plan.py", installPath: "scripts/phase_plan.py" },
+      { source: "scripts/checkpoint.py", installPath: "scripts/checkpoint.py" },
+      { source: "scripts/scope_guard.py", installPath: "scripts/scope_guard.py" },
+      { source: "scripts/phase_gate.py", installPath: "scripts/phase_gate.py" },
+    ]);
+  });
+
+  test("declares the work on phase skill asset surface", () => {
+    const registry = loadSkillRegistry(PACKAGE_ROOT);
+    const implementSkill = registry.skills.find(
+      (skill) => skill.name === "work-on-phase",
+    );
+
+    expect(implementSkill?.assets).toEqual([
+      { source: "agents/openai.yaml", installPath: "agents/openai.yaml" },
+      {
+        source: "references/phase-implementation-workflow.md",
+        installPath: "references/phase-implementation-workflow.md",
+      },
+      {
+        source: "scripts/work_on_wave_common.py",
+        installPath: "scripts/work_on_wave_common.py",
+      },
+      { source: "scripts/resolve_wave.py", installPath: "scripts/resolve_wave.py" },
       { source: "scripts/phase_plan.py", installPath: "scripts/phase_plan.py" },
       { source: "scripts/checkpoint.py", installPath: "scripts/checkpoint.py" },
       { source: "scripts/scope_guard.py", installPath: "scripts/scope_guard.py" },

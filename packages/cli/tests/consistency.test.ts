@@ -79,6 +79,19 @@ const WORK_ON_WAVE_CLAUDE_MIRROR_ROOT = path.join(
   "skills",
   "work-on-wave",
 );
+const WORK_ON_PHASE_PACKAGE_ROOT = path.join(
+  REPO_ROOT,
+  "packages",
+  "skills",
+  "work-on-phase",
+);
+const WORK_ON_PHASE_MIRROR_ROOT = path.join(REPO_ROOT, ".agents", "skills", "work-on-phase");
+const WORK_ON_PHASE_CLAUDE_MIRROR_ROOT = path.join(
+  REPO_ROOT,
+  ".claude",
+  "skills",
+  "work-on-phase",
+);
 
 const RISK_REGISTER_TEMPLATE_PATHS = [
   "docs/assets/templates/prd-risk-register.md",
@@ -485,6 +498,36 @@ describe("dogfood skill mirror parity", () => {
       for (const relativePath of expectedMirrorFiles) {
         const packageContents = readFileSync(
           path.join(WORK_ON_WAVE_PACKAGE_ROOT, relativePath),
+          "utf8",
+        );
+        const mirrorContents = readFileSync(path.join(mirrorRoot, relativePath), "utf8");
+
+        expect(mirrorContents).toBe(packageContents);
+      }
+    }
+  });
+
+  test("work-on-phase mirror matches the packaged mapped file set", () => {
+    const expectedMirrorFiles = [
+      "SKILL.md",
+      "agents/openai.yaml",
+      "references/phase-implementation-workflow.md",
+      "scripts/checkpoint.py",
+      "scripts/work_on_wave_common.py",
+      "scripts/phase_gate.py",
+      "scripts/phase_plan.py",
+      "scripts/resolve_wave.py",
+      "scripts/scope_guard.py",
+    ].sort();
+
+    for (const mirrorRoot of [WORK_ON_PHASE_MIRROR_ROOT, WORK_ON_PHASE_CLAUDE_MIRROR_ROOT]) {
+      const mirrorFiles = collectFiles(mirrorRoot).sort();
+
+      expect(mirrorFiles).toEqual(expectedMirrorFiles);
+
+      for (const relativePath of expectedMirrorFiles) {
+        const packageContents = readFileSync(
+          path.join(WORK_ON_PHASE_PACKAGE_ROOT, relativePath),
           "utf8",
         );
         const mirrorContents = readFileSync(path.join(mirrorRoot, relativePath), "utf8");

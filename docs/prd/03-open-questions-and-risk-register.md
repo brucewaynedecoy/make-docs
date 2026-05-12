@@ -140,7 +140,7 @@ Status values are `Open`, `Confirming`, `Deferred`, and `Closed`. `Closed` requi
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | None yet | Expand maintainer guidance for adding and releasing package-shipped skills. |
+| Closed | `packages/skills/README.md` now documents the skill authoring, registry, mirror, and validation flow. | No further package-level authoring guidance follow-up is required for this gap. |
 
 **Issue**: `packages/skills/README.md` is minimal, while the runtime depends on the structure of `packages/skills/archive-docs/`, `packages/skills/decompose-codebase/`, `packages/skills/closeout-commit/`, and `packages/skills/closeout-phase/` via `packages/cli/skill-registry.json`, `packages/cli/src/skill-catalog.ts:90-138`, and `packages/cli/src/skill-resolver.ts:40-226`.
 
@@ -149,6 +149,8 @@ Status values are `Open`, `Confirming`, `Deferred`, and `Closed`. `Closed` requi
 **Recommendation**: Add a maintainer guide or package README section that describes source-of-truth files, registry updates, mirrors, and validation.
 
 **To close**: New skill authors can follow one repo-native guide from package files through registry, tests, dogfood mirrors, and release checks.
+
+**Resolution**: Closed by the `packages/skills/README.md` authoring flow added with the `work-on-phase` skill. The README now names the package source tree, `agents/openai.yaml`, `references/`, `scripts/`, `packages/cli/skill-registry.json`, `.agents` and `.claude` dogfood mirrors, focused CLI tests, build, and pack smoke checks.
 
 ### D-011 PRD 05 Still Carries the Pre-W14 R2 Conflict Model
 

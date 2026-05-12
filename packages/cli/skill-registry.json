@@ -151,6 +151,47 @@
       ]
     },
     {
+      "name": "work-on-phase",
+      "source": "https://github.com/brucewaynedecoy/make-docs/tree/main/packages/skills/work-on-phase",
+      "entryPoint": "SKILL.md",
+      "installName": "work-on-phase",
+      "description": "Implement one explicit docs/work phase through planning, validation, closeout, and optional commit.",
+      "assets": [
+        {
+          "source": "agents/openai.yaml",
+          "installPath": "agents/openai.yaml"
+        },
+        {
+          "source": "references/phase-implementation-workflow.md",
+          "installPath": "references/phase-implementation-workflow.md"
+        },
+        {
+          "source": "scripts/work_on_wave_common.py",
+          "installPath": "scripts/work_on_wave_common.py"
+        },
+        {
+          "source": "scripts/resolve_wave.py",
+          "installPath": "scripts/resolve_wave.py"
+        },
+        {
+          "source": "scripts/phase_plan.py",
+          "installPath": "scripts/phase_plan.py"
+        },
+        {
+          "source": "scripts/checkpoint.py",
+          "installPath": "scripts/checkpoint.py"
+        },
+        {
+          "source": "scripts/scope_guard.py",
+          "installPath": "scripts/scope_guard.py"
+        },
+        {
+          "source": "scripts/phase_gate.py",
+          "installPath": "scripts/phase_gate.py"
+        }
+      ]
+    },
+    {
       "name": "decompose-codebase",
       "source": "https://github.com/brucewaynedecoy/make-docs/tree/main/packages/skills/decompose-codebase",
       "entryPoint": "SKILL.md",

@@ -213,6 +213,12 @@ describe("installer integration", () => {
       expect(existsSync(path.join(targetDir, ".agents/skills/work-on-wave/SKILL.md"))).toBe(
         true,
       );
+      expect(existsSync(path.join(targetDir, ".claude/skills/work-on-phase/SKILL.md"))).toBe(
+        true,
+      );
+      expect(existsSync(path.join(targetDir, ".agents/skills/work-on-phase/SKILL.md"))).toBe(
+        true,
+      );
       expect(existsSync(path.join(targetDir, ".claude/skills/closeout-commit/SKILL.md"))).toBe(
         true,
       );
@@ -301,6 +307,8 @@ describe("installer integration", () => {
       expect(manifest.skillFiles).toContain(".agents/skills/decompose-codebase/SKILL.md");
       expect(manifest.skillFiles).toContain(".claude/skills/work-on-wave/SKILL.md");
       expect(manifest.skillFiles).toContain(".agents/skills/work-on-wave/SKILL.md");
+      expect(manifest.skillFiles).toContain(".claude/skills/work-on-phase/SKILL.md");
+      expect(manifest.skillFiles).toContain(".agents/skills/work-on-phase/SKILL.md");
     } finally {
       cleanupTempDir(targetDir);
     }
@@ -712,6 +720,35 @@ describe("installer integration", () => {
         ).toBe(true);
         expect(
           existsSync(path.join(path.dirname(workOnWaveSkillPath), "./agents/openai.yaml")),
+        ).toBe(true);
+
+        const workOnPhaseSkillPath = path.join(
+          targetDir,
+          harnessRoot,
+          "skills/work-on-phase/SKILL.md",
+        );
+        const workOnPhaseContents = readFileSync(workOnPhaseSkillPath, "utf8");
+
+        for (const relativeLink of [
+          "./references/phase-implementation-workflow.md",
+          "./scripts/resolve_wave.py",
+          "./scripts/phase_plan.py",
+          "./scripts/checkpoint.py",
+          "./scripts/scope_guard.py",
+          "./scripts/phase_gate.py",
+        ]) {
+          expect(workOnPhaseContents).toContain(`(${relativeLink})`);
+          expect(existsSync(path.join(path.dirname(workOnPhaseSkillPath), relativeLink))).toBe(
+            true,
+          );
+        }
+        expect(
+          existsSync(
+            path.join(path.dirname(workOnPhaseSkillPath), "./scripts/work_on_wave_common.py"),
+          ),
+        ).toBe(true);
+        expect(
+          existsSync(path.join(path.dirname(workOnPhaseSkillPath), "./agents/openai.yaml")),
         ).toBe(true);
       }
     } finally {
