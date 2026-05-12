@@ -16,14 +16,61 @@ WR_DIR_RE = re.compile(r"w(\d+)-r(\d+)", re.IGNORECASE)
 PHASE_FILE_RE = re.compile(r"^(0[1-9]|[1-9]\d)-(.+)\.md$")
 TASK_RE = re.compile(r"^- \[([ xX])\] (t[1-9]\d*):\s*(.+)$")
 ACCEPTANCE_CHECKBOX_RE = re.compile(r"^- \[[ xX]\]\s+")
-PATHLIKE_RE = re.compile(
-    r"`((?:\.?[A-Za-z0-9_-]+/)[A-Za-z0-9_./@+-]+|[A-Za-z0-9_.-]+\.(?:ts|tsx|js|mjs|py|rs|md|json|yaml|yml|toml|sh))`"
-)
+BACKTICK_RE = re.compile(r"`([^`]+)`")
 HEADING_RE = re.compile(r"^(#{1,6})\s+(.+?)\s*$")
+PATH_HINT_NAMES = {
+    ".gitignore",
+    ".npmrc",
+    "Cargo.lock",
+    "Cargo.toml",
+    "justfile",
+    "Justfile",
+    "Makefile",
+    "package.json",
+    "package-lock.json",
+    "pnpm-lock.yaml",
+    "yarn.lock",
+}
+PATH_HINT_SUFFIXES = {
+    ".cjs",
+    ".go",
+    ".js",
+    ".json",
+    ".lock",
+    ".md",
+    ".mjs",
+    ".py",
+    ".rs",
+    ".sh",
+    ".toml",
+    ".ts",
+    ".tsx",
+    ".yaml",
+    ".yml",
+}
 
 
 class WaveError(RuntimeError):
     """Expected user-facing failure."""
+
+
+def target_from_parts(parts: list[str]) -> str:
+    return " ".join(part for part in parts if part).strip()
+
+
+def is_path_hint(value: str) -> bool:
+    clean = value.strip()
+    if not clean or clean.startswith(("-", "$")):
+        return False
+    if clean in PATH_HINT_NAMES or Path(clean).name in PATH_HINT_NAMES:
+        return True
+    if clean.startswith(".") and "/" not in clean and " " not in clean:
+        return True
+    if clean.endswith("/"):
+        return True
+    if "/" in clean and not clean.startswith(("http://", "https://")):
+        return True
+    return Path(clean).suffix in PATH_HINT_SUFFIXES
 
 
 def find_repo_root(start: Path | None = None) -> Path:
@@ -131,8 +178,10 @@ def parse_phase(path: Path) -> dict[str, Any]:
                     {"command": stripped[1:-1].strip(), "line": index, "stage": current_h2}
                 )
 
-        for path_match in PATHLIKE_RE.finditer(line):
-            declared_paths.add(path_match.group(1))
+        for path_match in BACKTICK_RE.finditer(line):
+            candidate = path_match.group(1).strip()
+            if is_path_hint(candidate):
+                declared_paths.add(candidate)
         for link in re.findall(r"\[[^\]]+\]\(([^)]+)\)", line):
             if not link.startswith(("http://", "https://", "#", "mailto:")):
                 links.add(link)

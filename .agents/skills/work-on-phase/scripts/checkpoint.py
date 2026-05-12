@@ -15,6 +15,7 @@ from work_on_wave_common import (
     resolve_target,
     save_state,
     state_path_for,
+    target_from_parts,
     utc_now,
 )
 
@@ -24,18 +25,18 @@ def build_checkpoint(args: argparse.Namespace) -> dict[str, Any]:
     state_path = state_path_for(resolution)
     state = load_state(state_path) or {
         "schemaVersion": 1,
-        "waveSlug": resolution["waveSlug"],
-        "waveDir": resolution["waveDir"],
-        "target": resolution["target"],
-        "mode": args.mode or resolution["mode"],
-        "commitPolicy": args.commit_policy,
         "phases": {},
         "createdAt": utc_now(),
     }
     state["updatedAt"] = utc_now()
-    state["mode"] = args.mode or state.get("mode") or resolution["mode"]
+    state["waveSlug"] = resolution["waveSlug"]
+    state["waveDir"] = resolution["waveDir"]
+    state["target"] = resolution["target"]
+    state["coordinate"] = resolution["coordinate"]
+    state["mode"] = args.mode or resolution["mode"]
     state["commitPolicy"] = args.commit_policy or state.get("commitPolicy") or "commit-required"
     state["nextPhasePath"] = resolution["phasePath"]
+    state["activePhasePath"] = args.phase or resolution.get("phasePath")
 
     key = phase_key(args.phase or resolution.get("phasePath"))
     phase_state = state.setdefault("phases", {}).setdefault(key, {})
@@ -73,7 +74,7 @@ def build_checkpoint(args: argparse.Namespace) -> dict[str, Any]:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("target", help="Wave/phase coordinate or docs/work path.")
+    parser.add_argument("target", nargs="+", help="Wave/phase coordinate or docs/work path.")
     parser.add_argument("--phase", help="Explicit phase path to update in state.")
     parser.add_argument("--mode", choices=["wave", "phase"])
     parser.add_argument(
@@ -93,6 +94,7 @@ def main() -> int:
     args = parser.parse_args()
 
     try:
+        args.target = target_from_parts(args.target)
         print(json.dumps(build_checkpoint(args), indent=2, sort_keys=True))
     except WaveError as error:
         parser.exit(2, f"checkpoint: {error}\n")

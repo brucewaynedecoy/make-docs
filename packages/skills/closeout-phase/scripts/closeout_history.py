@@ -41,6 +41,31 @@ def coordinate_label(probe: dict[str, Any], phase: dict[str, Any]) -> str:
     return "Uncoordinated"
 
 
+def coordinate_slug(probe: dict[str, Any], phase: dict[str, Any]) -> str | None:
+    coordinate = phase.get("coordinate")
+    if coordinate and coordinate.get("w") is not None and coordinate.get("r") is not None:
+        parts = [f"w{coordinate['w']}", f"r{coordinate['r']}"]
+        if coordinate.get("p") is not None:
+            parts.append(f"p{coordinate['p']}")
+        return "-".join(parts)
+    for item in probe.get("coordinates", []):
+        if item.get("w") is not None and item.get("r") is not None:
+            parts = [f"w{item['w']}", f"r{item['r']}"]
+            if item.get("p") is not None:
+                parts.append(f"p{item['p']}")
+            return "-".join(parts)
+    return None
+
+
+def history_filename(mode: str, date: str, title: str, probe: dict[str, Any], phase: dict[str, Any]) -> str:
+    title_slug = slugify(title)
+    if mode == "phase":
+        coord = coordinate_slug(probe, phase)
+        if coord:
+            return f"{date}-{coord}-{title_slug}.md"
+    return f"{date}-{title_slug}.md"
+
+
 def default_title(mode: str, probe: dict[str, Any], phase: dict[str, Any]) -> str:
     if phase.get("title"):
         return f"{phase['title']} Closeout"
@@ -135,7 +160,9 @@ def main() -> int:
     phase = load_json(args.phase_json)
     title = args.title or default_title(args.mode, probe, phase)
     contents = render_history(args.mode, title, args.date, probe, phase)
-    output_path = repo_root / args.output_dir / f"{args.date}-{slugify(title)}.md"
+    output_path = repo_root / args.output_dir / history_filename(
+        args.mode, args.date, title, probe, phase
+    )
 
     result = {"path": str(output_path), "wrote": False, "contents": contents}
     if args.write:

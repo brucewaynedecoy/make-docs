@@ -16,6 +16,7 @@ from work_on_wave_common import (
     phase_key,
     resolve_target,
     state_path_for,
+    target_from_parts,
 )
 
 
@@ -69,7 +70,7 @@ def build_gate_report(target: str, commit_policy: str | None = None) -> dict[str
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("target", help="Wave/phase coordinate or docs/work path.")
+    parser.add_argument("target", nargs="+", help="Wave/phase coordinate or docs/work path.")
     parser.add_argument(
         "--commit-policy",
         choices=["draft-only", "commit-required", "commit-and-push"],
@@ -78,7 +79,7 @@ def main() -> int:
     args = parser.parse_args()
 
     try:
-        print(json.dumps(build_gate_report(args.target, args.commit_policy), indent=2, sort_keys=True))
+        print(json.dumps(build_gate_report(target_from_parts(args.target), args.commit_policy), indent=2, sort_keys=True))
     except WaveError as error:
         parser.exit(2, f"phase_gate: {error}\n")
     return 0

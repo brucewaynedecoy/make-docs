@@ -112,7 +112,7 @@ def classify_path(path: str) -> str:
         return "docs"
     if path.endswith((".json", ".yaml", ".yml", ".toml")):
         return "config"
-    if path.endswith((".ts", ".tsx", ".js", ".py", ".sh")):
+    if path.endswith((".ts", ".tsx", ".js", ".py", ".rs", ".sh")):
         return "code"
     return "other"
 
@@ -202,23 +202,55 @@ def next_risk_ids(repo_root: Path) -> dict[str, Any]:
     }
 
 
-def validation_hints(files: list[dict[str, Any]]) -> list[str]:
+def is_make_docs_node_workspace(repo_root: Path | None, paths: list[str]) -> bool:
+    if repo_root is None:
+        return any(path.startswith(("packages/cli/", "packages/skills/")) for path in paths)
+    package_json = repo_root / "package.json"
+    if not package_json.exists():
+        return False
+    text = safe_read(package_json)
+    return "make-docs" in text or any(
+        path.startswith(("packages/cli/", "packages/skills/", "package.json", "package-lock.json"))
+        for path in paths
+    )
+
+
+def is_rust_workspace(repo_root: Path | None, paths: list[str]) -> bool:
+    if repo_root is not None and (repo_root / "Cargo.toml").exists():
+        return True
+    return any(Path(path).suffix == ".rs" or Path(path).name in {"Cargo.toml", "Cargo.lock"} for path in paths)
+
+
+def validation_hints(files: list[dict[str, Any]], repo_root: Path | None = None) -> list[str]:
     paths = [file["path"] for file in files]
     categories = {file["category"] for file in files}
-    commands = ["git diff --check"]
+    commands: list[str] = []
 
     if any(path.startswith("packages/skills/decompose-codebase/scripts/") for path in paths):
-        commands.insert(0, "python3 -B packages/skills/decompose-codebase/scripts/test_validate_output.py")
+        commands.append("python3 -B packages/skills/decompose-codebase/scripts/test_validate_output.py")
     if any(path.startswith("packages/skills/closeout-commit/scripts/") for path in paths):
-        commands.insert(0, "python3 -B packages/skills/closeout-commit/scripts/test_closeout_helpers.py")
+        commands.append("python3 -B packages/skills/closeout-commit/scripts/test_closeout_helpers.py")
     if any(path.startswith("packages/skills/closeout-phase/scripts/") for path in paths):
-        commands.insert(0, "python3 -B packages/skills/closeout-phase/scripts/test_closeout_helpers.py")
-    if categories.intersection({"code", "tests", "skill", "config"}):
+        commands.append("python3 -B packages/skills/closeout-phase/scripts/test_closeout_helpers.py")
+    if is_rust_workspace(repo_root, paths):
+        commands.extend(
+            [
+                "cargo metadata --format-version 1",
+                "cargo check --workspace",
+                "cargo test --workspace",
+                "cargo fmt --all -- --check",
+                "cargo clippy --workspace --all-targets -- -D warnings",
+                "cargo doc --workspace --no-deps",
+                "cargo build --workspace",
+            ]
+        )
+    if categories.intersection({"code", "tests", "skill", "config"}) and is_make_docs_node_workspace(repo_root, paths):
         commands.append("npm test -w make-docs -- consistency install skill-catalog skill-registry")
     if any(path.startswith(("packages/cli/src/", "packages/cli/tests/")) for path in paths):
         commands.append("npm run build -w make-docs")
     if any(path.startswith(("docs/", "packages/docs/template/docs/")) for path in paths):
         commands.append("scripts/check-instruction-routers.sh")
+    commands.append("git diff --check")
 
     deduped: list[str] = []
     for command in commands:
@@ -250,7 +282,7 @@ def build_probe(repo_root: Path, scope: str) -> dict[str, Any]:
         "coordinates": coordinates,
         "historyCandidates": discover_history_candidates(repo_root, coordinates),
         "riskRegister": next_risk_ids(repo_root),
-        "validationHints": validation_hints(files),
+        "validationHints": validation_hints(files, repo_root),
     }
 
 

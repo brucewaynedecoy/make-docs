@@ -7,7 +7,14 @@ import argparse
 import json
 from pathlib import Path
 
-from work_on_wave_common import WaveError, load_state, parse_phase, resolve_target, state_path_for
+from work_on_wave_common import (
+    WaveError,
+    load_state,
+    parse_phase,
+    resolve_target,
+    state_path_for,
+    target_from_parts,
+)
 
 
 def build_status(target: str) -> dict[str, object]:
@@ -35,12 +42,12 @@ def build_status(target: str) -> dict[str, object]:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("target", help="Wave/phase coordinate or docs/work path.")
+    parser.add_argument("target", nargs="+", help="Wave/phase coordinate or docs/work path.")
     parser.add_argument("--json", action="store_true", help="Emit JSON. Default is JSON.")
     args = parser.parse_args()
 
     try:
-        print(json.dumps(build_status(args.target), indent=2, sort_keys=True))
+        print(json.dumps(build_status(target_from_parts(args.target)), indent=2, sort_keys=True))
     except WaveError as error:
         parser.exit(2, f"wave_status: {error}\n")
     return 0

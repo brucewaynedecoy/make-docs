@@ -8,6 +8,9 @@ import tempfile
 import unittest
 from pathlib import Path
 
+import closeout_history
+import closeout_probe
+import closeout_validate
 import guide_coverage_probe
 import work_phase_state
 
@@ -90,6 +93,57 @@ class GuideCoverageProbeTests(unittest.TestCase):
         self.assertEqual(guides[0]["path"], "docs/guides/developer/closeout-fast-path.md")
         self.assertGreater(guides[0]["score"], 0)
         self.assertEqual(guides[0]["related"], ["../user/closeout.md"])
+
+
+class CloseoutProbeTests(unittest.TestCase):
+    def test_rust_validation_hints_do_not_include_make_docs_npm_without_node_workspace(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "Cargo.toml").write_text("[workspace]\n", encoding="utf-8")
+
+            hints = closeout_probe.validation_hints(
+                [{"path": "crates/demo/src/lib.rs", "category": "code"}],
+                root,
+            )
+
+        self.assertIn("cargo metadata --format-version 1", hints)
+        self.assertIn("cargo test --workspace", hints)
+        self.assertIn("git diff --check", hints)
+        self.assertNotIn("npm test -w make-docs -- consistency install skill-catalog skill-registry", hints)
+
+    def test_make_docs_validation_requires_node_workspace_evidence(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "package.json").write_text('{"name":"make-docs"}\n', encoding="utf-8")
+
+            hints = closeout_probe.validation_hints(
+                [{"path": "packages/skills/closeout-phase/SKILL.md", "category": "skill"}],
+                root,
+            )
+
+        self.assertIn("npm test -w make-docs -- consistency install skill-catalog skill-registry", hints)
+
+
+class CloseoutValidateTests(unittest.TestCase):
+    def test_commands_from_probe_deduplicates_diff_check(self) -> None:
+        commands = closeout_validate.commands_from_probe(
+            {"validationHints": ["git diff --check", "git diff --check"]}
+        )
+
+        self.assertEqual(commands, ["git diff --check"])
+
+
+class CloseoutHistoryTests(unittest.TestCase):
+    def test_phase_history_filename_uses_coordinate_prefix(self) -> None:
+        filename = closeout_history.history_filename(
+            "phase",
+            "2026-05-11",
+            "Tool Manifest Crate Closeout",
+            {},
+            {"coordinate": {"w": 1, "r": 0, "p": 2}},
+        )
+
+        self.assertEqual(filename, "2026-05-11-w1-r0-p2-tool-manifest-crate-closeout.md")
 
 
 if __name__ == "__main__":

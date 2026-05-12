@@ -10,14 +10,15 @@ Use this skill to implement one explicit `docs/work/` phase. The target phase do
 ## Start Here
 
 1. Read the nearest `AGENTS.md` or `CLAUDE.md`.
-2. Require an explicit phase target. Accept `W14 R2 P1` or a direct `docs/work/.../01-*.md` phase path. If the user provides only `W14 R2`, a work directory, or no target, stop and ask for the exact phase.
-3. Run [scripts/resolve_wave.py](./scripts/resolve_wave.py) to resolve the target phase.
+2. Require an explicit phase target. Accept a quoted coordinate such as `'W14 R2 P1'`, split coordinate tokens such as `W14 R2 P1`, or a direct `docs/work/.../01-*.md` phase path. If the user provides only `W14 R2`, a work directory, or no target, stop and ask for the exact phase.
+3. Run [scripts/resolve_wave.py](./scripts/resolve_wave.py) to resolve the target phase, using `python3 scripts/resolve_wave.py 'W14 R2 P1' --json` in examples.
 4. Run [scripts/phase_plan.py](./scripts/phase_plan.py) before delegating or editing.
 5. Read [references/phase-implementation-workflow.md](./references/phase-implementation-workflow.md) for the single-phase lifecycle and gate rules.
 
 ## Operating Contract
 
 - Default mode is `draft-only`: stop after validation, `closeout-phase`, and a commit-message draft unless the user explicitly asks to commit.
+- In `draft-only`, externally visible tasks such as opening a PR, waiting for CI, merging, or pushing are documented handoffs unless the user explicitly changes the commit policy or authorizes the action.
 - `commit-required` is opt-in: create one local phase commit after closeout.
 - `commit-and-push` is opt-in: create one local phase commit and push it after closeout.
 - Never advance to another phase.
@@ -38,7 +39,7 @@ If subagents are unavailable, execute the same phase plan serially.
 3. Check `docs/prd/03-open-questions-and-risk-register.md` when present. Ask the user before implementation only when an unresolved gap could materially change this phase and cannot be resolved from repo context.
 4. Implement only the resolved phase scope.
 5. Run validation from the phase plan and relevant repo contracts.
-6. Run code review when code changed, then resolve or explicitly waive findings.
+6. Run code review when code changed, then resolve or explicitly waive findings. Valid evidence is a delegated review summary, coordinator diff review, or a waiver with the reason.
 7. Run `scope_guard.py` and handle scope drift before closeout.
 8. Invoke `closeout-phase`; do not duplicate its workflow here.
 9. Re-check the risk register after closeout. Close resolved items or add newly discovered gaps/drift in the existing register when present; otherwise capture them in the history entry.

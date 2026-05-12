@@ -16,6 +16,7 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(SCRIPT_DIR))
 
 from checkpoint import build_checkpoint  # noqa: E402
+from phase_plan import build_plan  # noqa: E402
 from work_on_wave_common import parse_phase, resolve_target, save_state, state_path_for  # noqa: E402
 from phase_gate import build_gate_report  # noqa: E402
 from scope_guard import build_scope_report  # noqa: E402
@@ -95,6 +96,26 @@ class WorkOnWaveHelperTests(unittest.TestCase):
         direct_resolution = resolve_target("docs/work/2026-05-07-w1-r0-sample/01-first.md", self.temp_dir)
         self.assertEqual(direct_resolution["mode"], "phase")
 
+    def test_helper_scripts_accept_split_coordinate_tokens(self) -> None:
+        result = subprocess.run(
+            [
+                "python3",
+                str(SCRIPT_DIR / "resolve_wave.py"),
+                "W1",
+                "R0",
+                "P2",
+                "--json",
+            ],
+            cwd=self.temp_dir,
+            check=False,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertTrue(json.loads(result.stdout)["phasePath"].endswith("02-second.md"))
+
     def test_parses_phase_tasks_acceptance_dependencies_and_validation(self) -> None:
         phase = parse_phase(self.work_dir / "01-first.md")
 
@@ -148,6 +169,39 @@ class WorkOnWaveHelperTests(unittest.TestCase):
 
         self.assertEqual(report["status"], "warning")
         self.assertEqual(report["outOfScope"], ["src/other.ts"])
+
+    def test_scope_guard_allows_managed_state_and_lockfile_derivatives(self) -> None:
+        report = build_scope_report(
+            str(self.work_dir / "01-first.md"),
+            [
+                "Cargo.toml",
+                "Cargo.lock",
+                ".make-docs/runs/2026-05-07-w1-r0-sample/state.json",
+            ],
+        )
+
+        self.assertEqual(report["status"], "warning")
+        self.assertEqual(report["outOfScope"], ["Cargo.toml"])
+        self.assertEqual({item["path"] for item in report["allowedDerived"]}, {"Cargo.lock", ".make-docs/runs/2026-05-07-w1-r0-sample/state.json"})
+
+    def test_phase_plan_warns_when_linked_source_count_conflicts(self) -> None:
+        source = self.temp_dir / "docs" / "prd" / "01-source.md"
+        source.parent.mkdir(parents=True)
+        source.write_text("The implementation requires eleven crate stubs.\n", encoding="utf-8")
+        (self.work_dir / "01-first.md").write_text(
+            "# Phase 1: First\n\n"
+            "[Source](../../prd/01-source.md)\n\n"
+            "### Tasks\n\n"
+            "- [ ] t1: Update `src/app.ts`.\n"
+            "- [ ] t2: Update docs.\n",
+            encoding="utf-8",
+        )
+        import os
+
+        os.chdir(self.temp_dir)
+        plan = build_plan("W1 R0 P1")
+
+        self.assertIn("mentions 11 expected item(s)", plan["warnings"][0])
 
     def test_phase_gate_blocks_missing_evidence_and_passes_complete_state(self) -> None:
         complete_phase = self.work_dir / "03-complete.md"

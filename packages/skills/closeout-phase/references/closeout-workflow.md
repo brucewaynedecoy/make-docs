@@ -17,6 +17,7 @@ Use this workflow to close a completed work backlog phase without treating unche
 5. Inspect current git status only as needed to confirm the probe scope, and preserve unrelated local changes.
 6. Prefer indexed lookup for code and docs when available. Reindex stale `jdocmunch` or `jcodemunch` indexes before using direct reads.
 7. Build an evidence set from the phase-state JSON, closeout probe, guide probe, changed files, tests, history records, and only the existing guides that remain relevant after probing.
+8. If the phase includes PR, CI, merge, push, or other externally visible tasks, treat them as documented handoffs unless the user explicitly authorized the action in the active turn.
 
 ## Scripted Fast Path
 
@@ -29,6 +30,8 @@ Use the local helper scripts before broad manual analysis:
 - `scripts/closeout_history.py --mode phase --repo-root . --probe-json /tmp/closeout-probe.json --phase-json /tmp/work-phase-state.json` drafts a phase history skeleton. Add `--write` only after the task, guide, and gap decisions are ready.
 
 Only read phase-linked docs, guide files, diffs, or references that the probes identify as relevant or that remain unresolved after reviewing the JSON.
+
+For long closeouts, keep the coordinator or user informed at these boundaries: probe complete, task decisions complete, guide/gap decision complete, validation selected or run, and final closeout summary.
 
 ## Gate 1: Task Completion
 
