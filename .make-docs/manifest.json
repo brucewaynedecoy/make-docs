@@ -361,8 +361,8 @@
       "sourceId": "build:CLAUDE.md"
     },
     "docs/AGENTS.md": {
-      "hash": "725ca16be6fc08635c13e612563d375543f5c6ffc9aa438fdf4ded41a734fe7b",
-      "sourceId": "build:docs/AGENTS.md"
+      "hash": "60e6bafe4c6189e25ef1eb3e3206f577471f039534da791388b9b64e08fb58e8",
+      "sourceId": "file:docs/AGENTS.md"
     },
     "docs/assets/AGENTS.md": {
       "hash": "e999038882aebfdf9c5aa59a27f579e1d6ed18672a9f0d578d495e43f6ff3bcd",
@@ -453,7 +453,7 @@
       "sourceId": "build:docs/assets/references/CLAUDE.md"
     },
     "docs/assets/references/commit-message-convention.md": {
-      "hash": "beceac1995e6aaf4dadc7f145fa40e5969be71697e2bc41e9030bd5d9d1c8739",
+      "hash": "d46751ab8ba7b6addb93c65ddb1e385564510bed5df7a48b1a4c8a9f80da8bc8",
       "sourceId": "file:docs/assets/references/commit-message-convention.md"
     },
     "docs/assets/references/design-contract.md": {
@@ -581,8 +581,8 @@
       "sourceId": "file:docs/assets/templates/work-phase.md"
     },
     "docs/CLAUDE.md": {
-      "hash": "725ca16be6fc08635c13e612563d375543f5c6ffc9aa438fdf4ded41a734fe7b",
-      "sourceId": "build:docs/CLAUDE.md"
+      "hash": "60e6bafe4c6189e25ef1eb3e3206f577471f039534da791388b9b64e08fb58e8",
+      "sourceId": "file:docs/CLAUDE.md"
     },
     "docs/designs/AGENTS.md": {
       "hash": "300cb98ce1280c2072af37401b13d021ca8424879b40afbfbf9b054ba32ef7d1",

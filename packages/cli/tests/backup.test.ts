@@ -191,8 +191,8 @@ describe("backup command", () => {
       });
       expect(events[1]).toMatchObject({
         destinationDir: path.join(targetDir, ".backup/2026-04-18"),
-        filesToCopy: 69,
-        directoriesToMaterialize: 13,
+        filesToCopy: 72,
+        directoriesToMaterialize: 14,
         retained: 0,
         skipped: 0,
         destinationExistedAtReview: false,
@@ -203,8 +203,8 @@ describe("backup command", () => {
       expect(events[3]).toMatchObject({
         status: "completed",
         destinationDir: path.join(targetDir, ".backup/2026-04-18"),
-        copiedFiles: 69,
-        materializedDirectories: 13,
+        copiedFiles: 72,
+        materializedDirectories: 14,
         retained: 0,
         skipped: 0,
       });

@@ -175,7 +175,7 @@ Every work backlog is a directory, not a single file.
 
 ### General rule
 
-Every substantive PRD section should cite concrete repo paths in inline code. Prefer relative repo paths with optional line anchors.
+Every substantive PRD section should cite concrete repo paths in inline code. Prefer relative repo paths with optional line anchors. Apply `docs/assets/references/path-and-link-hygiene.md` for repo-relative path rules, relative Markdown links, sanitized placeholders, and full-path exceptions.
 
 Accepted examples:
 
@@ -215,6 +215,7 @@ Use `## Source Anchors` to aggregate the most important files that shaped the do
 ## Link Rules
 
 - Use relative Markdown links between generated docs.
+- Apply `docs/assets/references/path-and-link-hygiene.md` when deciding whether an absolute path or sanitized placeholder is warranted.
 - Make sure every internal link resolves.
 - Use the PRD index and the work `00-index.md` as navigation entry points.
 - Archived PRD docs do not need to satisfy the active PRD link contract.

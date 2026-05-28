@@ -114,12 +114,32 @@ const GUIDE_TEMPLATE_PARITY_PATHS = [
   "docs/guides/CLAUDE.md",
 ];
 
+const PATH_HYGIENE_PARITY_PATHS = [
+  ".make-docs/scripts/check_path_hygiene.py",
+  "docs/AGENTS.md",
+  "docs/CLAUDE.md",
+  "docs/assets/prompts/docs-path-hygiene-cleanup.prompt.md",
+  "docs/assets/references/AGENTS.md",
+  "docs/assets/references/CLAUDE.md",
+  "docs/assets/references/design-contract.md",
+  "docs/assets/references/guide-contract.md",
+  "docs/assets/references/history-record-contract.md",
+  "docs/assets/references/output-contract.md",
+  "docs/assets/references/path-and-link-hygiene.md",
+];
+
 const WORK_PHASE_TEMPLATE_PATHS = [
   "docs/assets/templates/work-phase.md",
   "packages/docs/template/docs/assets/templates/work-phase.md",
   "packages/skills/decompose-codebase/assets/templates/rebuild-backlog-phase.md",
   ".agents/skills/decompose-codebase/assets/templates/rebuild-backlog-phase.md",
   ".claude/skills/decompose-codebase/assets/templates/rebuild-backlog-phase.md",
+];
+
+const COMMIT_MESSAGE_CONVENTION_PATHS = [
+  "docs/assets/references/commit-message-convention.md",
+  "packages/docs/template/docs/assets/references/commit-message-convention.md",
+  "packages/cli/template/docs/assets/references/commit-message-convention.md",
 ];
 
 function isMirroredDecomposeSkillFile(relativePath: string): boolean {
@@ -199,6 +219,34 @@ describe("template completeness", () => {
     const unmanaged = templateFiles.filter((file) => !managedPaths.has(file));
 
     expect(unmanaged).toEqual([]);
+  });
+});
+
+describe("commit message convention contract", () => {
+  test("dogfood and shipped template copies match", () => {
+    const [dogfoodPath, ...templatePaths] = COMMIT_MESSAGE_CONVENTION_PATHS;
+    const dogfoodContents = readFileSync(path.join(REPO_ROOT, dogfoodPath), "utf8");
+
+    for (const relativePath of templatePaths) {
+      expect(readFileSync(path.join(REPO_ROOT, relativePath), "utf8")).toBe(dogfoodContents);
+    }
+  });
+
+  test("requires full fenced subject and body output", () => {
+    const contents = readFileSync(
+      path.join(REPO_ROOT, "docs/assets/references/commit-message-convention.md"),
+      "utf8",
+    );
+
+    expect(contents).toContain("## Output Format");
+    expect(contents).toContain("one required body paragraph");
+    expect(contents).toContain("Always return one fenced `text` block");
+    expect(contents).toContain("Return the subject line, one blank line, and one body paragraph");
+    expect(contents).toContain("Never return only a subject line or title");
+    expect(contents).toContain("draft a concise one-paragraph body from the actual staged or unstaged diff");
+    expect(contents).toContain("Verify both subject and body with `git log -1 --format=%B`");
+    expect(contents).not.toContain("omit the body instead of inventing one");
+    expect(contents).not.toContain("optional body paragraph");
   });
 });
 
@@ -395,6 +443,37 @@ describe("guide generation routing contract", () => {
       );
 
       expect(dogfoodContents).toBe(templateContents);
+    }
+  });
+});
+
+describe("path hygiene contract", () => {
+  test("dogfood path-hygiene assets match the shipped template copies", () => {
+    for (const relativePath of PATH_HYGIENE_PARITY_PATHS) {
+      const dogfoodContents = readFileSync(path.join(REPO_ROOT, relativePath), "utf8");
+      const templateContents = readFileSync(
+        path.join(REPO_ROOT, "packages", "docs", "template", relativePath),
+        "utf8",
+      );
+
+      expect(dogfoodContents).toBe(templateContents);
+    }
+  });
+
+  test("routers and contracts point path decisions to the hygiene reference", () => {
+    for (const relativePath of [
+      "docs/AGENTS.md",
+      "docs/CLAUDE.md",
+      "docs/assets/references/AGENTS.md",
+      "docs/assets/references/CLAUDE.md",
+      "docs/assets/references/design-contract.md",
+      "docs/assets/references/guide-contract.md",
+      "docs/assets/references/history-record-contract.md",
+      "docs/assets/references/output-contract.md",
+    ]) {
+      const contents = readFileSync(path.join(REPO_ROOT, relativePath), "utf8");
+
+      expect(contents).toContain("path-and-link-hygiene.md");
     }
   });
 });

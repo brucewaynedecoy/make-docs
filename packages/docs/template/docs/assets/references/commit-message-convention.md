@@ -2,7 +2,32 @@
 
 Use this reference when drafting or creating project commits from wave, revision, phase, plan, work, or history artifacts.
 
-Commit messages use one short subject line, then one blank line, then an optional body paragraph. The body paragraph is copied from the authoritative source document described below.
+Commit messages use one short subject line, then one blank line, then one required body paragraph. Prefer copying or deriving the body from the authoritative source document described below; when that source is missing, draft the body from the actual change set.
+
+## Output Format
+
+Always return one fenced `text` block containing the full commit message:
+
+```text
+subject line
+
+body paragraph
+```
+
+Rules:
+
+- Return the subject line, one blank line, and one body paragraph in the same block.
+- Never return only a subject line or title.
+- Keep the body to a single paragraph.
+- Do not include tables, verification lists, source notes, or extra commentary inside the commit message block.
+
+Example:
+
+```text
+feat: [W1 R2 P1] CLI Agent Terminology and Help Flags - Active PRD Contract Revision
+
+Adds the active PRD revision for REQ02, updates baseline PRD backlinks, and marks W1 R2 P1 complete so downstream parser and documentation phases can cite the effective `--agent`, `-a`, help, and rejected `--harness` contract.
+```
 
 ## Document Commits
 
@@ -72,7 +97,7 @@ Example:
 ```text
 feat: [W8 R0 P5] CLI command simplification - Apply and sync output polish
 
-Implemented a Wave 8 follow-up phase for the `make-docs` apply/sync review output, framed by [the command simplification design](../../designs/2026-04-20-cli-command-simplification.md) and the completed Phase 4 validation work in [the Phase 4 history record](2026-04-20-w8-r0-p4-cli-command-simplification.md). This phase focused on making the already-installed no-op sync readout clearer, less redundant, and consistent with Clack-rendered CLI screens.
+Implemented a Wave 8 follow-up phase for the `make-docs` apply/sync review output, framed by the command simplification design (`docs/designs/2026-04-20-cli-command-simplification.md`) and the completed Phase 4 validation work in the Phase 4 history record (`docs/assets/history/2026-04-20-w8-r0-p4-cli-command-simplification.md`). This phase focused on making the already-installed no-op sync readout clearer, less redundant, and consistent with Clack-rendered CLI screens.
 ```
 
 ## Plan Commits
@@ -96,7 +121,7 @@ Body:
 
 - Copy the first paragraph under `## Purpose` from the design document that seeded the plan.
 - If there is no clear design document, copy the first paragraph under `## Purpose` from the plan overview.
-- If neither source has a clean first paragraph, omit the body instead of inventing one.
+- If neither source has a clean first paragraph, draft a concise one-paragraph body from the actual staged or unstaged diff being summarized.
 
 Example:
 
@@ -139,7 +164,8 @@ Body source:
 
 - For `feat:`, use the matching history record `## Changes` first paragraph.
 - For `plan:`, use the seeding design `## Purpose` first paragraph, then the plan overview `## Purpose` first paragraph.
-- If the expected body source is missing, draft the best subject and explain that the body source could not be found. Do not invent a body paragraph.
+- If the expected body source is missing, draft a concise one-paragraph body from the actual staged or unstaged diff being summarized.
+- Do not invent source-document facts for a fallback body; describe only what the diff, changed paths, and nearby plan/work artifacts support.
 
 Ambiguity:
 
@@ -156,6 +182,7 @@ Before drafting or committing:
 - Find the relevant coordinate from the changed files, branch name, plan/work paths, history record frontmatter, or nearby commit subjects.
 - For feature commits, read the matching history record and extract only the first `## Changes` paragraph.
 - For plan commits, read the seeding design first, then the plan overview if needed, and extract only the first `## Purpose` paragraph.
+- If the preferred body source is missing, inspect the relevant staged or unstaged diff and draft one concise body paragraph from that change set.
 - If the source documents disagree, prefer the artifact closest to the committed work: history records for feature work, design or plan overview for plan work.
 
 ## Commit Execution
@@ -167,5 +194,5 @@ When committing:
 - Stage only files that belong to the requested change set.
 - Do not stage unrelated user edits.
 - Do not rewrite, revert, or clean existing user changes to make the commit easier.
-- Use `git commit` with the subject and body exactly as drafted.
-- Verify the final message with `git log -1 --format=%B`.
+- Use `git commit` with the full subject-plus-body block exactly as drafted.
+- Verify both subject and body with `git log -1 --format=%B`.

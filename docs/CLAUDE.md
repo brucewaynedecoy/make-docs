@@ -2,7 +2,7 @@
 
 Use `docs/` only as a router. Do not create generated files directly in this directory.
 
-- Source Markdown uses semantic line breaks only: do not hard-wrap prose for visual width, use editor soft-wrap, and separate a completed list from following paragraph text with one blank line.
+- Source Markdown uses semantic line breaks; for path and link hygiene, use project-relative paths and relative Markdown links, and read `docs/assets/references/path-and-link-hygiene.md` when auditing or deciding whether an absolute path is warranted.
 - For design docs, read `docs/assets/references/design-workflow.md`, `docs/assets/references/design-contract.md`, and `docs/assets/templates/design.md`, then continue in `docs/designs/`.
 - For plans, read `docs/assets/references/planning-workflow.md` and the selected plan template in `docs/assets/templates/`, then continue in `docs/plans/`.
 - For PRD or work generation, read `docs/assets/references/execution-workflow.md`, `docs/assets/references/output-contract.md`, and the selected template in `docs/assets/templates/`, then continue in `docs/prd/` or `docs/work/`; work phase tasks use `- [ ] t1: ...` checkbox items and acceptance criteria use plain bullets.

@@ -270,6 +270,14 @@ describe("installer integration", () => {
         ),
       ).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/work/AGENTS.md"))).toBe(true);
+      expect(
+        existsSync(path.join(targetDir, ".make-docs/scripts/check_path_hygiene.py")),
+      ).toBe(true);
+      expect(
+        existsSync(
+          path.join(targetDir, "docs/assets/prompts/docs-path-hygiene-cleanup.prompt.md"),
+        ),
+      ).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/assets/prompts/designs-to-plan.prompt.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/assets/prompts/work-to-guides.prompt.md"))).toBe(true);
       expect(
@@ -277,6 +285,9 @@ describe("installer integration", () => {
       ).toBe(true);
 
       expect(existsSync(path.join(targetDir, "docs/assets/references/guide-contract.md"))).toBe(true);
+      expect(
+        existsSync(path.join(targetDir, "docs/assets/references/path-and-link-hygiene.md")),
+      ).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/assets/templates/guide-developer.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/assets/templates/guide-user.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/guides/AGENTS.md"))).toBe(true);
@@ -297,6 +308,15 @@ describe("installer integration", () => {
       expect(guidesRouter).toContain("re-check overlapping guides");
       expect(guidesRouter).toContain("## Future Coverage");
       expect(guidesRouter).not.toContain("docs/guides/agent");
+      expect(manifest.files[".make-docs/scripts/check_path_hygiene.py"]?.sourceId).toBe(
+        "file:.make-docs/scripts/check_path_hygiene.py",
+      );
+      expect(
+        manifest.files["docs/assets/prompts/docs-path-hygiene-cleanup.prompt.md"]?.sourceId,
+      ).toBe("file:docs/assets/prompts/docs-path-hygiene-cleanup.prompt.md");
+      expect(manifest.files["docs/assets/references/path-and-link-hygiene.md"]?.sourceId).toBe(
+        "file:docs/assets/references/path-and-link-hygiene.md",
+      );
       expect(manifest.skillFiles).toContain(".claude/skills/archive-docs/SKILL.md");
       expect(manifest.skillFiles).toContain(".agents/skills/archive-docs/SKILL.md");
       expect(manifest.skillFiles).toContain(".claude/skills/closeout-commit/SKILL.md");

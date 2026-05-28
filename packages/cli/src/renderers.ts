@@ -101,7 +101,7 @@ function renderDocsRouter(profile: InstallProfile): string {
     "# Documentation Router",
     "",
     "Use `docs/` only as a router. Do not create generated files directly in this directory.",
-    "- Source Markdown uses semantic line breaks only: do not hard-wrap prose for visual width, use editor soft-wrap, and separate a completed list from following paragraph text with one blank line.",
+    "- Source Markdown uses semantic line breaks; for path and link hygiene, use project-relative paths and relative Markdown links, and read `docs/assets/references/path-and-link-hygiene.md` when auditing or deciding whether an absolute path is warranted.",
   ];
 
   if (profile.capabilityState.designs.effectiveSelection) {

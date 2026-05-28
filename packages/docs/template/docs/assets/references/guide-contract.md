@@ -154,5 +154,6 @@ Transitions: `draft` to `published` to `deprecated`. A `deprecated` guide may re
 ## Link Rules
 
 - Use relative Markdown links between guides and related designs, plans, PRDs, work backlogs, history records, or reference files.
+- Apply `docs/assets/references/path-and-link-hygiene.md` for repo-relative path rules, sanitized placeholders, and full-path exceptions.
 - Every internal link must resolve.
 - Use `related` frontmatter for companion guides and high-value source artifacts.

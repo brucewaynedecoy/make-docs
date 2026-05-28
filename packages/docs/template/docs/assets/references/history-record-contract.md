@@ -132,5 +132,6 @@ History records are written once at the end of the relevant span. Do not maintai
 ## Link Rules
 
 - Use relative Markdown links when referencing specific files, plans, designs, or work items that the session touched.
+- Apply `docs/assets/references/path-and-link-hygiene.md` for repo-relative path rules, sanitized placeholders, and full-path exceptions.
 - Make sure every internal link resolves.
 - Link back to the active plan, design, or backlog phase that frames the session whenever one exists.

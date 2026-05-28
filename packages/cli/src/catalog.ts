@@ -1,4 +1,12 @@
-import { getPromptPaths, getReferenceDirInstalled, getReferencePaths, getTemplateDirInstalled, getTemplatePaths, getPromptsDirInstalled } from "./rules";
+import {
+  getPromptPaths,
+  getPromptsDirInstalled,
+  getReferenceDirInstalled,
+  getReferencePaths,
+  getScriptPaths,
+  getTemplateDirInstalled,
+  getTemplatePaths,
+} from "./rules";
 import { renderBuildableAsset, isBuildablePath } from "./renderers";
 import type { InstallProfile, InstructionKind, ResolvedAsset } from "./types";
 import { getActiveInstructionKinds } from "./types";
@@ -74,6 +82,10 @@ export function getDesiredAssets(profile: InstallProfile): ResolvedAsset[] {
 
   for (const promptPath of getPromptPaths(profile)) {
     relativePaths.add(promptPath);
+  }
+
+  for (const scriptPath of getScriptPaths(profile)) {
+    relativePaths.add(scriptPath);
   }
 
   for (const instructionKind of getActiveInstructionKinds(profile.selections)) {

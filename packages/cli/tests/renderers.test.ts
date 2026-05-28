@@ -23,6 +23,7 @@ describe("buildable renderers", () => {
     const rendered = renderBuildableAsset("docs/AGENTS.md", profile);
 
     expect(rendered).toContain("docs/designs/");
+    expect(rendered).toContain("docs/assets/references/path-and-link-hygiene.md");
     expect(rendered).toContain("docs/assets/history/");
     expect(rendered).not.toContain("docs/guides/agent");
     expect(rendered).not.toContain("docs/plans/");

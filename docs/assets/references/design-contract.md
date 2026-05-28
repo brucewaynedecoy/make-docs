@@ -58,4 +58,5 @@ When present, include:
 ## Link Rules
 
 - Use relative Markdown links between design docs and related plans, PRD docs, or work items.
+- Apply `docs/assets/references/path-and-link-hygiene.md` for repo-relative path rules, sanitized placeholders, and full-path exceptions.
 - If a design is intended to feed planning, the `Next Prompt` link in `## Intended Follow-On` must resolve.

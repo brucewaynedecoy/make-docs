@@ -7,6 +7,10 @@ export interface PromptRule {
 
 export const PROMPT_RULES: PromptRule[] = [
   {
+    relativePath: "docs/assets/prompts/docs-path-hygiene-cleanup.prompt.md",
+    requires: [],
+  },
+  {
     relativePath: "docs/assets/prompts/request-to-design.prompt.md",
     requires: ["designs"],
   },
@@ -110,7 +114,10 @@ const ALWAYS_REFERENCE_PATHS = [
   "docs/assets/references/wave-model.md",
   "docs/assets/references/history-record-contract.md",
   "docs/assets/references/commit-message-convention.md",
+  "docs/assets/references/path-and-link-hygiene.md",
 ];
+
+const ALWAYS_SCRIPT_PATHS = [".make-docs/scripts/check_path_hygiene.py"];
 
 export function profileHasCapabilities(
   profile: InstallProfile,
@@ -125,6 +132,10 @@ export function getPromptPaths(profile: InstallProfile): string[] {
   return PROMPT_RULES.filter((rule) => profileHasCapabilities(profile, rule.requires)).map(
     (rule) => rule.relativePath,
   );
+}
+
+export function getScriptPaths(_profile: InstallProfile): string[] {
+  return [...ALWAYS_SCRIPT_PATHS];
 }
 
 export function getTemplatePaths(profile: InstallProfile): string[] {
