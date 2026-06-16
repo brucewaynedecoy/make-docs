@@ -81,18 +81,21 @@
 └─ CLAUDE.md
 
 docs/
-├─ archive/
-│  ├─ check_markdown_style.py
+├─ designs/
 │  ├─ AGENTS.md
 │  └─ CLAUDE.md
-├─ assets/
-│  ├─ check_markdown_style.py
+├─ guides/
 │  ├─ AGENTS.md
 │  └─ CLAUDE.md
-├─ contracts/
-│  ├─ 2025.07.19 - Data Synchronization/
-│  └─ 2025.09.30 - Schema System Redesign/
-└─ system/
+├─ plans/
+│  ├─ AGENTS.md
+│  └─ CLAUDE.md
+├─ prd/
+│  ├─ AGENTS.md
+│  └─ CLAUDE.md
+└─ work/
+   ├─ AGENTS.md
+   └─ CLAUDE.md
 
 ```
 
