@@ -10,7 +10,7 @@
 │  │  ├─ guides.md # originally "guide-contract.md"
 │  │  ├─ history-entry.md # originally "history-record-contract.md"
 │  │  └─ output.md # originally "output-contract.md"
-│  └─ user/
+│  └─ custom/
 │     ├─ AGENTS.md
 │     └─ CLAUDE.md
 ├─ references/
@@ -24,7 +24,7 @@
 │  │  ├─ planning-workflow.md
 │  │  ├─ prd-change-management.md
 │  │  └─ wave-model.md
-│  └─ user/
+│  └─ custom/
 │     ├─ AGENTS.md
 │     └─ CLAUDE.md
 ├─ scripts/
@@ -48,7 +48,7 @@
 │  │  ├─ work_resolve_wave.py # originally "resolve_wave.py"
 │  │  ├─ work_scope_guard.py # originally "scope_guard.py"
 │  │  └─ wave_status.py
-│  └─ user/
+│  └─ custom/
 │     ├─ AGENTS.md
 │     └─ CLAUDE.md
 ├─ templates/
@@ -74,7 +74,7 @@
 │  │  ├─ prd-subsystem.md
 │  │  ├─ work-index.md
 │  │  └─ work-phase.md
-│  └─ user/
+│  └─ custom/
 │     ├─ AGENTS.md
 │     └─ CLAUDE.md
 ├─ AGENTS.md
@@ -82,6 +82,10 @@
 
 docs/
 ├─ archive/
+│  ├─ check_markdown_style.py
+│  ├─ AGENTS.md
+│  └─ CLAUDE.md
+├─ assets/
 │  ├─ check_markdown_style.py
 │  ├─ AGENTS.md
 │  └─ CLAUDE.md
