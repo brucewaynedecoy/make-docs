@@ -1,10 +1,19 @@
 {
-  "name": "make-docs",
-  "version": "0.1.0",
+  "name": "@brucewaynedecoy/make-docs",
+  "version": "1.0.0-rc.1",
   "description": "Drop-in documentation structure, templates, and AI agent instructions with an NPX installer.",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/brucewaynedecoy/make-docs.git"
+  },
+  "homepage": "https://github.com/brucewaynedecoy/make-docs#readme",
+  "bugs": {
+    "url": "https://github.com/brucewaynedecoy/make-docs/issues"
+  },
   "type": "module",
   "bin": {
-    "make-docs": "./dist/index.js"
+    "make-docs": "dist/index.js"
   },
   "files": [
     "dist",
@@ -15,6 +24,9 @@
   ],
   "engines": {
     "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "scripts": {
     "build": "tsup",

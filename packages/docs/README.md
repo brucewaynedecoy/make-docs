@@ -32,7 +32,7 @@ The CLI at `packages/cli/` bundles this template at publish time:
 
 1. `prepack` runs `scripts/copy-template-to-cli.mjs`, which copies `packages/docs/template/` into `packages/cli/template/`.
 2. `npm publish` ships `packages/cli/` including the bundled `template/`.
-3. On the consumer's machine, `npx make-docs` copies the template into the consumer's project root on first install.
+3. On the consumer's machine, `npx @brucewaynedecoy/make-docs@next` copies the template into the consumer's project root on first install.
 
 In dev, the CLI reads directly from `packages/docs/template/` via a sibling-first resolver in `packages/cli/src/utils.ts`. Edit this package's `template/` directly; no manual sync is needed.
 

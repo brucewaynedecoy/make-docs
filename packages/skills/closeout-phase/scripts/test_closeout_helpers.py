@@ -109,7 +109,7 @@ class CloseoutProbeTests(unittest.TestCase):
         self.assertIn("cargo metadata --format-version 1", hints)
         self.assertIn("cargo test --workspace", hints)
         self.assertIn("git diff --check", hints)
-        self.assertNotIn("npm test -w make-docs -- consistency install skill-catalog skill-registry", hints)
+        self.assertNotIn("npm test -w packages/cli -- consistency install skill-catalog skill-registry", hints)
 
     def test_make_docs_validation_requires_node_workspace_evidence(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -121,7 +121,7 @@ class CloseoutProbeTests(unittest.TestCase):
                 root,
             )
 
-        self.assertIn("npm test -w make-docs -- consistency install skill-catalog skill-registry", hints)
+        self.assertIn("npm test -w packages/cli -- consistency install skill-catalog skill-registry", hints)
 
 
 class CloseoutValidateTests(unittest.TestCase):

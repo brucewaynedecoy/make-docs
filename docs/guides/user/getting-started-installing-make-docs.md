@@ -33,7 +33,7 @@ You need:
 | Requirement | Why it matters |
 | --- | --- |
 | Node.js 18 or later | The CLI is Node-based. |
-| npm and `npx` | `npx make-docs` is the main install entry point. |
+| npm and `npx` | `npx @brucewaynedecoy/make-docs@next` is the main RC install entry point. |
 | A target project directory | The installer writes the selected docs scaffold into that repo. |
 
 Run the installer from the root of the project you want to set up.
@@ -43,7 +43,7 @@ Run the installer from the root of the project you want to set up.
 The standard entry point is:
 
 ```bash
-npx make-docs
+npx @brucewaynedecoy/make-docs@next
 ```
 
 On a first install, `make-docs` opens the selection wizard and walks you through:
@@ -56,13 +56,13 @@ On a first install, `make-docs` opens the selection wizard and walks you through
 If you want the default first install without prompts, run:
 
 ```bash
-npx make-docs --yes
+npx @brucewaynedecoy/make-docs@next --yes
 ```
 
 If you want to preview the first install without writing files, run:
 
 ```bash
-npx make-docs --dry-run
+npx @brucewaynedecoy/make-docs@next --dry-run
 ```
 
 `make-docs` treats a run with no existing manifest as a first install. The first successful apply creates `.make-docs/manifest.json`, which becomes the saved state for later lifecycle operations.
@@ -102,10 +102,10 @@ Examples:
 
 ```bash
 # Keep a full install, but skip work backlogs
-npx make-docs --yes --no-work
+npx @brucewaynedecoy/make-docs@next --yes --no-work
 
 # Install only design and planning surfaces
-npx make-docs --yes --no-prd --no-work
+npx @brucewaynedecoy/make-docs@next --yes --no-prd --no-work
 ```
 
 ## Choosing Harnesses and Install Options
@@ -124,13 +124,13 @@ Examples:
 
 ```bash
 # Install only the Codex harness
-npx make-docs --yes --no-claude
+npx @brucewaynedecoy/make-docs@next --yes --no-claude
 
 # Skip skills on the first install
-npx make-docs --yes --no-skills
+npx @brucewaynedecoy/make-docs@next --yes --no-skills
 
 # Add an optional skill during install
-npx make-docs --yes --optional-skills decompose-codebase
+npx @brucewaynedecoy/make-docs@next --yes --optional-skills decompose-codebase
 ```
 
 This guide stops at initial selection. Use [Installing and Managing Skills](./skills-installing-and-managing-skills.md) for ongoing skill changes and [Managing Installations with the Make Docs CLI](./cli-lifecycle-managing-installations.md) for lifecycle operations after the first install.

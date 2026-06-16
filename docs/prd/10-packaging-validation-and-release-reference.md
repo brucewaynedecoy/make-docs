@@ -10,7 +10,7 @@ This reference doc captures the current publishable surface for `make-docs`, the
 
 | Topic | Current behavior | Primary anchors |
 | --- | --- | --- |
-| Publishable npm package | The only publishable workspace is `make-docs` under `packages/cli/`; the monorepo root is `private: true` and only delegates scripts to that workspace. | `package.json:2-19`, `packages/cli/package.json:2-25` |
+| Publishable npm package | The only publishable workspace is `@brucewaynedecoy/make-docs` under `packages/cli/`; the monorepo root is `private: true` and only delegates scripts to that workspace. The package exposes the `make-docs` binary. | `package.json:2-19`, `packages/cli/package.json:2-25` |
 | CLI allowlist | The current shipped file allowlist is `dist`, `template`, `skill-registry.json`, `skill-registry.schema.json`, and `README.md`. Root `docs/`, root `AGENTS.md`, and root `CLAUDE.md` are not in the allowlist. | `packages/cli/package.json:9-15` |
 | Template packaging | `prepack` runs `node ../../scripts/copy-template-to-cli.mjs && npm run build`, and that script replaces `packages/cli/template` with `packages/docs/template` before pack/publish. | `packages/cli/package.json:19-25`, `scripts/copy-template-to-cli.mjs:24-32` |
 | Dev vs packed template resolution | Local development reads `packages/docs/template/` first through `resolveTemplateRoot`, then falls back to the bundled `packages/cli/template/` in packed contexts. | `packages/cli/src/utils.ts:33-55`, `packages/docs/README.md:31-37` |
@@ -36,7 +36,7 @@ The smoke script is therefore more than a tarball smoke test. It is the encoded 
 
 | Command | Scope | What it proves | Primary anchors |
 | --- | --- | --- | --- |
-| `npm test` or `npm test -w make-docs` | Full CLI Vitest suite | Covers profile logic, CLI flows, installer integration, skills behavior, and lifecycle commands. | `package.json:16`, `packages/cli/package.json:22`, `packages/cli/src/README.md:152-177` |
+| `npm test` or `npm test -w packages/cli` | Full CLI Vitest suite | Covers profile logic, CLI flows, installer integration, skills behavior, and lifecycle commands. | `package.json:16`, `packages/cli/package.json:22`, `packages/cli/src/README.md:152-177` |
 | `npm run validate:defaults` | Default-asset consistency | Runs `packages/cli/tests/consistency.test.ts`, which checks that the buildable asset set matches the default profile and that every template file is covered by the asset pipeline. | `package.json:17`, `packages/cli/package.json:23`, `packages/cli/tests/consistency.test.ts:33-77` |
 | `bash scripts/check-instruction-routers.sh` | Router integrity | Enforces `AGENTS.md`/`CLAUDE.md` pairing, byte identity, per-directory line budgets, and banned headings. | `scripts/check-instruction-routers.sh:1-58`, `packages/cli/src/README.md:165-176` |
 | `bash scripts/check-wave-numbering.sh` | Docs/work namespace hygiene | Warns on duplicate `wN-rN` coordinates across both repo-root docs and `packages/docs/template/docs`. | `scripts/check-wave-numbering.sh:15-58`, `docs/assets/archive/work/2026-04-16-w5-r2-cli-skill-installation/07-tests-and-validation.md` |
@@ -48,19 +48,17 @@ The smoke script is therefore more than a tarball smoke test. It is the encoded 
 The current maintainer runbook is spread across `packages/cli/src/README.md:179-204`, the repo-root workspace scripts in `package.json:13-18`, and the first-publish design in `docs/designs/2026-04-15-cli-publishing.md`. The current procedural baseline is:
 
 1. Run the validation chain from the repo root: `npm test`, `npm run validate:defaults`, `npm run build`, `node scripts/smoke-pack.mjs`, and the router/wave checks when docs assets or W/R folders changed (`package.json:13-18`, `packages/cli/src/README.md:165-176`, `scripts/check-instruction-routers.sh:1-58`, `scripts/check-wave-numbering.sh:48-58`).
-2. Create and inspect a tarball with `npm pack --json` or `npm pack --dry-run -w make-docs` before publish (`packages/cli/src/README.md:183-201`, `designs/2026-04-15-cli-publishing.md`).
+2. Create and inspect a tarball with `npm pack --json` or `npm pack --dry-run -w packages/cli` before publish (`packages/cli/src/README.md:183-201`, `designs/2026-04-15-cli-publishing.md`).
 3. Run one manual packaged install with `npm exec --yes --package "./$TARBALL" -- make-docs --target "$TEST_DIR"` if the change was packaging-sensitive (`packages/cli/src/README.md:135-148`).
-4. Publish from the CLI workspace, not from `packages/docs` or `packages/skills`, because those workspaces remain `private` (`packages/cli/package.json:2-25`, `packages/docs/package.json:2-5`, `packages/skills/package.json:2-5`).
+4. Publish from the CLI workspace with `npm publish --access public --tag next -w packages/cli`, not from `packages/docs` or `packages/skills`, because those workspaces remain `private` (`packages/cli/package.json:2-25`, `packages/docs/package.json:2-5`, `packages/skills/package.json:2-5`).
 
-For a true first public release, the design record adds prerequisites that are still not encoded in the package metadata: registry-name verification, repository metadata, a license file, and a consciously chosen first-release version/tag strategy (`docs/designs/2026-04-15-cli-publishing.md`, `packages/cli/package.json:2-25`). Those are still reference-level decisions rather than finished repo state.
+For a true first public release, the release state now uses Apache-2.0 licensing, scoped package identity, repository metadata, version `1.0.0-rc.1`, and the `next` dist-tag strategy (`docs/designs/2026-04-15-cli-publishing.md`, `packages/cli/package.json:2-25`).
 
 ### Current Drift and Risk-Register Candidates
 
 | Item | Evidence | Why it matters |
 | --- | --- | --- |
-| Maintainer README package-surface drift | `packages/cli/src/README.md:181-204` says the published package includes `dist`, `docs`, root instruction files, and the root consumer README, but the actual allowlist in `packages/cli/package.json:9-15` ships `dist`, `template`, registry files, and `README.md`. | Contributors following the maintainer README can reason about the wrong tarball contents. Candidate item for `03-open-questions-and-risk-register.md`. |
-| Packaged README copy-command drift | `packages/cli/README.md:91-120` still tells users to copy tarball-root `docs/`, `AGENTS.md`, and `CLAUDE.md`, but those paths are not part of the current package allowlist in `packages/cli/package.json:9-15`. | The README shipped with the npm package can instruct consumers to use files that are not actually present. Candidate risk-register item. |
-| First-publish prerequisites remain incomplete | `packages/cli/package.json:2-25` still lacks `repository`, `homepage`, and `bugs`; `packages/cli/LICENSE` and repo-root `LICENSE` are absent; version remains `0.1.0`. | The release design in `docs/designs/2026-04-15-cli-publishing.md` treats these as prerequisites, so public release readiness is still ambiguous. Candidate risk-register item. |
+| Scoped package name is now required | The unscoped `make-docs` publish was blocked by npm's similarity guard; package metadata now uses `@brucewaynedecoy/make-docs` while preserving the `make-docs` binary. | Public docs and generated guidance must use scoped `npx @brucewaynedecoy/make-docs@next` until a future unscoped name strategy exists. |
 | Reserved future package with no release contract | `README.md:10-17` describes `packages/content/` as reserved for CLI-rendered fragments, but current package metadata and release scripts do not define how or whether it will ship. | This is a future-facing gap that can complicate later packaging and dogfood expectations. Candidate risk-register item. |
 
 ## Source Anchors

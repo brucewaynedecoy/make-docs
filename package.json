@@ -11,10 +11,10 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "npm run build -w make-docs",
-    "dev": "npm run dev -w make-docs",
-    "test": "npm test -w make-docs",
-    "validate:defaults": "npm run validate:defaults -w make-docs",
+    "build": "npm run build -w packages/cli",
+    "dev": "npm run dev -w packages/cli",
+    "test": "npm test -w packages/cli",
+    "validate:defaults": "npm run validate:defaults -w packages/cli",
     "smoke:pack": "node scripts/smoke-pack.mjs"
   }
 }

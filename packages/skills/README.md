@@ -24,12 +24,12 @@ roots under `packages/skills/`.
 Run focused helper tests for any changed skill scripts, then run:
 
 ```bash
-npm test -w make-docs -- consistency install skill-catalog skill-registry
+npm test -w packages/cli -- consistency install skill-catalog skill-registry
 ```
 
 For release-facing changes, also run:
 
 ```bash
-npm run build -w make-docs
+npm run build -w packages/cli
 npm run smoke:pack
 ```

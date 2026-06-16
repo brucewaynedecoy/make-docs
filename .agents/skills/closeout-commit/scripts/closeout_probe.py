@@ -245,9 +245,9 @@ def validation_hints(files: list[dict[str, Any]], repo_root: Path | None = None)
             ]
         )
     if categories.intersection({"code", "tests", "skill", "config"}) and is_make_docs_node_workspace(repo_root, paths):
-        commands.append("npm test -w make-docs -- consistency install skill-catalog skill-registry")
+        commands.append("npm test -w packages/cli -- consistency install skill-catalog skill-registry")
     if any(path.startswith(("packages/cli/src/", "packages/cli/tests/")) for path in paths):
-        commands.append("npm run build -w make-docs")
+        commands.append("npm run build -w packages/cli")
     if any(path.startswith(("docs/", "packages/docs/template/docs/")) for path in paths):
         commands.append("scripts/check-instruction-routers.sh")
     commands.append("git diff --check")

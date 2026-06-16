@@ -65,8 +65,8 @@ Do not overwrite authored project docs such as:
 Typical checks after a dogfood-sensitive change:
 
 ```bash
-npm test -w make-docs
-npm run validate:defaults -w make-docs
+npm test -w packages/cli
+npm run validate:defaults -w packages/cli
 bash scripts/check-instruction-routers.sh
 node scripts/smoke-pack.mjs
 ```

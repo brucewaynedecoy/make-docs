@@ -64,7 +64,7 @@ describe("buildable renderers", () => {
     expect(rendered).toContain("planning-not-installed");
     expect(rendered).not.toContain("designs-to-plan.prompt.md");
     expect(rendered).not.toContain("docs/assets/prompts/");
-    expect(rendered).toContain("npx make-docs reconfigure");
+    expect(rendered).toContain("npx @brucewaynedecoy/make-docs@next reconfigure");
     expect(rendered).not.toContain("npx make-docs update --reconfigure");
   });
 

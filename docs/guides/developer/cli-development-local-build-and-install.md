@@ -38,19 +38,19 @@ Use the repo root unless a command explicitly says otherwise.
 
 ```bash
 npm install
-npm run build -w make-docs
+npm run build -w packages/cli
 ```
 
 For fast iteration against source without rebuilding every change:
 
 ```bash
-npm run dev -w make-docs -- --target "$(mktemp -d)"
+npm run dev -w packages/cli -- --target "$(mktemp -d)"
 ```
 
 For built-artifact checks, prefer:
 
 ```bash
-npm run build -w make-docs
+npm run build -w packages/cli
 node packages/cli/dist/index.js --help
 ```
 
@@ -60,16 +60,16 @@ Run the smallest command set that matches the change:
 
 | If you changed | Run |
 | --- | --- |
-| TypeScript logic, planner, installer, wizard, profile rules | `npm test -w make-docs` |
-| template-owned defaults or profile-aware generated assets | `npm run validate:defaults -w make-docs` |
+| TypeScript logic, planner, installer, wizard, profile rules | `npm test -w packages/cli` |
+| template-owned defaults or profile-aware generated assets | `npm run validate:defaults -w packages/cli` |
 | instruction routers or copied router content | `bash scripts/check-instruction-routers.sh` |
 | packaged install behavior or tarball-sensitive flow | `node scripts/smoke-pack.mjs` |
 
 These commands are the local development baseline for L12:
 
 ```bash
-npm test -w make-docs
-npm run validate:defaults -w make-docs
+npm test -w packages/cli
+npm run validate:defaults -w packages/cli
 bash scripts/check-instruction-routers.sh
 node scripts/smoke-pack.mjs
 ```
@@ -83,7 +83,7 @@ Use one of these depending on what you need to prove.
 Best for normal local behavior checks:
 
 ```bash
-npm run build -w make-docs
+npm run build -w packages/cli
 TEST_DIR="$(mktemp -d)"
 node packages/cli/dist/index.js --dry-run --target "$TEST_DIR"
 node packages/cli/dist/index.js --target "$TEST_DIR"
@@ -119,7 +119,7 @@ npm pack
 Then test one real packaged invocation:
 
 ```bash
-TARBALL="$(ls make-docs-*.tgz | tail -n 1)"
+TARBALL="$(ls brucewaynedecoy-make-docs-*.tgz | tail -n 1)"
 TEST_DIR="$(mktemp -d)"
 npm exec --yes --package "./$TARBALL" -- make-docs --target "$TEST_DIR"
 ```

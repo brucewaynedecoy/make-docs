@@ -176,7 +176,7 @@ npm run smoke:pack
 
 ## Packaging And Release
 
-The package is published from the repo root and includes only the entries listed in [`package.json`](../package.json): `dist`, `docs`, root instruction files, and the root consumer README.
+The package is published from `packages/cli/` as `@brucewaynedecoy/make-docs` and includes only the entries listed in [`package.json`](../package.json): `dist`, `template`, registry files, and the package README.
 
 Recommended release checklist:
 
@@ -186,7 +186,7 @@ Recommended release checklist:
 4. Run `npm run smoke:pack`.
 5. Run one real `npm exec --package "./<tarball>"` install test.
 6. Inspect the tarball contents with `npm pack --json` if you changed packaging inputs.
-7. Publish with `npm publish`.
+7. Publish with `npm publish --access public --tag next`.
 
 Example release flow:
 
@@ -196,10 +196,10 @@ npm test
 npm run build
 npm run smoke:pack
 npm pack --json
-npm publish
+npm publish --access public --tag next
 ```
 
-If the package is ever moved under a scope, you may also need `npm publish --access public`.
+The package is scoped, so public publishes must include `--access public`.
 
 ## Notes For Contributors
 

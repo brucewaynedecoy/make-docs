@@ -64,7 +64,7 @@ class CloseoutProbeTests(unittest.TestCase):
 
         self.assertIn("cargo metadata --format-version 1", hints)
         self.assertIn("cargo test --workspace", hints)
-        self.assertNotIn("npm test -w make-docs -- consistency install skill-catalog skill-registry", hints)
+        self.assertNotIn("npm test -w packages/cli -- consistency install skill-catalog skill-registry", hints)
 
 
 class CloseoutValidateTests(unittest.TestCase):

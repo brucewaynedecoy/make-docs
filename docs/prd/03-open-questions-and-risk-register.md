@@ -244,15 +244,17 @@ Status values are `Open`, `Confirming`, `Deferred`, and `Closed`. `Closed` requi
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | None yet | Resolve metadata, license, and first-release prerequisites. |
+| Closed | First public release readiness uses scoped package `@brucewaynedecoy/make-docs`, Apache-2.0 licensing, repository metadata, version `1.0.0-rc.1`, and the `next` dist-tag. | Publish the scoped rc with `npm publish --access public --tag next -w packages/cli`. |
 
 **Question**: What minimum metadata and legal prerequisites define public release ready for `make-docs`?
 
-**Why it matters**: `packages/cli/package.json:2-25` still lacks `repository`, `homepage`, and `bugs`; license files are absent; the first-publish design still treats these as prerequisites. The package can be built and smoke-tested today, but public-release readiness remains ambiguous.
+**Why it matters**: Public release readiness depends on legal posture, npm package identity, package metadata, and a first-release tag strategy agreeing with the publishable tarball.
 
-**Recommendation**: Treat this as a release-readiness checklist item before the first public npm publish.
+**Recommendation**: Publish the first public release under the scoped package name with `--access public --tag next`, then verify `npx @brucewaynedecoy/make-docs@next` from a clean directory.
 
-**To close**: Package metadata, license posture, registry-name verification, and first-release version/tag strategy are documented and implemented.
+**To close**: Closed by scoped package metadata, Apache-2.0 license files, repository metadata, version `1.0.0-rc.1`, and `next` release commands.
+
+**Resolution**: The unscoped `make-docs` publish was blocked by npm's similarity guard against existing package names. The first public release path is now the scoped package `@brucewaynedecoy/make-docs`, with the installed `make-docs` binary preserved.
 
 ### Q-007 How Should Remote Skill Sources Be Constrained?
 

@@ -17,6 +17,7 @@ const repoRoot = path.resolve(scriptDir, "..");
 const cliPackageDir = path.join(repoRoot, "packages", "cli");
 const npmHome = mkdtempSync(path.join(os.tmpdir(), "make-docs-npm-home-"));
 const packOutputDir = mkdtempSync(path.join(os.tmpdir(), "make-docs-pack-output-"));
+const EXPECTED_PACKAGE_NAME = "@brucewaynedecoy/make-docs";
 
 const EXPECTED_SKILL_PATHS = [
   ".claude/skills/archive-docs/SKILL.md",
@@ -166,7 +167,7 @@ try {
 
   const manifestPath = path.join(targetDir, ".make-docs/manifest.json");
   assertExists(manifestPath, "Smoke pack install did not produce a manifest.");
-  assertManifestPackageName(manifestPath, "make-docs");
+  assertManifestPackageName(manifestPath, EXPECTED_PACKAGE_NAME);
   assertExists(
     path.join(targetDir, "docs/AGENTS.md"),
     "Smoke pack install did not produce docs/AGENTS.md.",

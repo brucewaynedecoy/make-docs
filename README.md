@@ -1,6 +1,6 @@
 # Make Docs
 
-Drop-in documentation structure, templates, and AI agent instructions for any project. Install the system with `npx make-docs` to get a ready-made setup for generating PRDs, implementation backlogs, architectural designs, and plans with consistent naming conventions and enforced section contracts.
+Drop-in documentation structure, templates, and AI agent instructions for any project. Install the system with `npx @brucewaynedecoy/make-docs@next` to get a ready-made setup for generating PRDs, implementation backlogs, architectural designs, and plans with consistent naming conventions and enforced section contracts.
 
 ## Repository Layout
 
@@ -8,7 +8,7 @@ This repo is a pseudo-monorepo organized under `packages/`:
 
 ```
 packages/
-  cli/           # The publishable installer CLI (npm package: make-docs)
+  cli/           # The publishable installer CLI (npm package: @brucewaynedecoy/make-docs; bin: make-docs)
   docs/          # The shippable documentation template
     template/    # The template tree that gets copied into consumer projects
   content/       # Reserved for CLI-rendered content fragments
@@ -61,7 +61,7 @@ If you are using or maintaining `make-docs`, start with the guide that matches t
 From your project root:
 
 ```bash
-npx make-docs
+npx @brucewaynedecoy/make-docs@next
 ```
 
 The installer starts in full-install mode:
@@ -83,19 +83,19 @@ Useful non-interactive forms:
 
 ```bash
 # Install everything with defaults
-npx make-docs --yes
+npx @brucewaynedecoy/make-docs@next --yes
 
 # Full install except work docs
-npx make-docs --yes --no-work
+npx @brucewaynedecoy/make-docs@next --yes --no-work
 
 # Sync an existing install using its saved manifest selections
-npx make-docs
+npx @brucewaynedecoy/make-docs@next
 
 # Reconfigure an existing install
-npx make-docs reconfigure
+npx @brucewaynedecoy/make-docs@next reconfigure
 
 # Preview changes without writing files
-npx make-docs --dry-run
+npx @brucewaynedecoy/make-docs@next --dry-run
 ```
 
 ### What the installer writes
@@ -209,7 +209,7 @@ Additional subsystem documents (`05-*` through `99-*`) are added as needed for f
 - **Output contract** (`docs/assets/references/output-contract.md`) -- Adjust naming conventions, required sections, and structural rules.
 - **Agent instructions** (`CLAUDE.md`, `AGENTS.md`, and per-directory variants) -- Tailor agent behavior to your team's conventions.
 
-If you used the installer, rerun `npx make-docs reconfigure` after changing which capability families you want managed locally. The installer will regenerate profile-aware router files so they stay aligned with the directories you keep.
+If you used the installer, rerun `npx @brucewaynedecoy/make-docs@next reconfigure` after changing which capability families you want managed locally. The installer will regenerate profile-aware router files so they stay aligned with the directories you keep.
 
 ## Contributing
 
@@ -228,8 +228,8 @@ just check-instruction-routers  # validate AGENTS.md / CLAUDE.md pairs across th
 Fallbacks without `just`:
 
 ```bash
-npm run build -w make-docs
-npm test -w make-docs
+npm run build -w packages/cli
+npm test -w packages/cli
 node scripts/smoke-pack.mjs
 bash scripts/check-instruction-routers.sh
 ```
@@ -240,4 +240,4 @@ Template changes propagate to the CLI tarball at publish time via the `prepack` 
 
 ## License
 
-This project is provided as-is for use in your own projects.
+Apache-2.0

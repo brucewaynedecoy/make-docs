@@ -33,7 +33,7 @@ The publishable package is the CLI workspace in `packages/cli/`. The template wo
 
 | Surface | Current role |
 | --- | --- |
-| `packages/cli/` | published npm package |
+| `packages/cli/` | published npm package `@brucewaynedecoy/make-docs` with the `make-docs` binary |
 | `packages/docs/template/` | source-of-truth template tree during development |
 | `packages/cli/template/` | bundled template copy produced during `prepack` |
 | repo-root `docs/` | dogfood validation surface, not packaged output |
@@ -50,8 +50,8 @@ Run the validation set that matches the change, then escalate to the full chain 
 
 | Command | What it proves |
 | --- | --- |
-| `npm test -w make-docs` | CLI behavior, planner/install flows, skills behavior, and integration coverage |
-| `npm run validate:defaults -w make-docs` | profile-aware generated assets still match the checked-in default surface |
+| `npm test -w packages/cli` | CLI behavior, planner/install flows, skills behavior, and integration coverage |
+| `npm run validate:defaults -w packages/cli` | profile-aware generated assets still match the checked-in default surface |
 | `bash scripts/check-instruction-routers.sh` | router pairs, byte identity, and line-budget rules still hold |
 | `node scripts/smoke-pack.mjs` | prepack bundling, tarball install, manifest creation, skills, backup, and uninstall still work together |
 
@@ -83,11 +83,11 @@ When link validation changes or appears to regress:
 
 Use this order for release work:
 
-1. Run `npm test -w make-docs`.
-2. Run `npm run validate:defaults -w make-docs`.
+1. Run `npm test -w packages/cli`.
+2. Run `npm run validate:defaults -w packages/cli`.
 3. Run `bash scripts/check-instruction-routers.sh` when router or docs-resource changes are involved.
 4. Run `node scripts/smoke-pack.mjs`.
-5. Inspect a tarball with `npm pack --json -w make-docs` or run a packaged invocation from the tarball when packaging inputs changed.
+5. Inspect a tarball with `npm pack --json -w packages/cli` or run a packaged invocation from the tarball when packaging inputs changed.
 6. Publish from `packages/cli/`, not from `packages/docs` or `packages/skills`.
 
 If the issue is still at the local build stage, step back to [Building and Installing the CLI Locally](./cli-development-local-build-and-install.md). If the issue is stale dogfood docs or template propagation, step back to [Dogfood and Maintainer Operations](./maintainer-dogfood-and-maintainer-operations.md).
