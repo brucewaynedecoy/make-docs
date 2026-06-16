@@ -54,6 +54,24 @@ describe("buildable renderers", () => {
     },
   );
 
+  test("CLAUDE.md renders as the @AGENTS.md import when AGENTS.md is installed", () => {
+    const profile = resolveInstallProfile(defaultSelections());
+
+    expect(renderBuildableAsset("CLAUDE.md", profile)).toBe("@AGENTS.md\n");
+    expect(renderBuildableAsset("docs/CLAUDE.md", profile)).toBe("@AGENTS.md\n");
+    expect(renderBuildableAsset("docs/guides/CLAUDE.md", profile)).toBe("@AGENTS.md\n");
+  });
+
+  test("CLAUDE.md inlines its AGENTS.md sibling for a Claude-only install", () => {
+    const selections = defaultSelections();
+    selections.harnesses.codex = false;
+    const profile = resolveInstallProfile(selections);
+
+    expect(renderBuildableAsset("CLAUDE.md", profile)).toBe(readPackageFile("AGENTS.md"));
+    expect(renderBuildableAsset("docs/CLAUDE.md", profile)).toContain("# Documentation Router");
+    expect(renderBuildableAsset("docs/CLAUDE.md", profile)).not.toBe("@AGENTS.md\n");
+  });
+
   test("removes prompt links from design workflow when plans are absent", () => {
     const selections = defaultSelections();
     selections.capabilities.plans = false;
@@ -66,6 +84,26 @@ describe("buildable renderers", () => {
     expect(rendered).not.toContain("docs/assets/prompts/");
     expect(rendered).toContain("npx @brucewaynedecoy/make-docs@next reconfigure");
     expect(rendered).not.toContain("npx make-docs update --reconfigure");
+  });
+
+  test("capability-aware routers byte-match their AGENTS.md template at full breadth", () => {
+    // Deselecting a harness keeps every capability but bypasses the
+    // isFullDefaultProfile readPackageFile short-circuit, so the dynamic
+    // renderers run at full breadth. Their output must equal the checked-in
+    // template, or AGENTS.md stops being the single source of truth for
+    // non-default installs.
+    const selections = defaultSelections();
+    selections.harnesses.codex = false;
+    const profile = resolveInstallProfile(selections);
+
+    for (const relativePath of [
+      "docs/AGENTS.md",
+      "docs/assets/templates/AGENTS.md",
+      "docs/assets/prompts/AGENTS.md",
+      "docs/guides/AGENTS.md",
+    ]) {
+      expect(renderBuildableAsset(relativePath, profile)).toBe(readPackageFile(relativePath));
+    }
   });
 
 });

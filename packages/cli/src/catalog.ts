@@ -7,15 +7,21 @@ import {
   getTemplateDirInstalled,
   getTemplatePaths,
 } from "./rules";
-import { renderBuildableAsset, isBuildablePath } from "./renderers";
+import {
+  isBuildablePath,
+  isClaudeInstructionPath,
+  renderBuildableAsset,
+  renderClaudeInstruction,
+} from "./renderers";
 import type { InstallProfile, InstructionKind, ResolvedAsset } from "./types";
 import { getActiveInstructionKinds } from "./types";
 import { readPackageFile } from "./utils";
 
 function buildAsset(profile: InstallProfile, relativePath: string): ResolvedAsset {
   const assetClass = isBuildablePath(relativePath) ? "buildable" : "scoped-static";
-  const content =
-    assetClass === "buildable"
+  const content = isClaudeInstructionPath(relativePath)
+    ? renderClaudeInstruction(relativePath, profile)
+    : assetClass === "buildable"
       ? renderBuildableAsset(relativePath, profile)
       : readPackageFile(relativePath);
 

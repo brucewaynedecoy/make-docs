@@ -52,7 +52,7 @@ Run the validation set that matches the change, then escalate to the full chain 
 | --- | --- |
 | `npm test -w packages/cli` | CLI behavior, planner/install flows, skills behavior, and integration coverage |
 | `npm run validate:defaults -w packages/cli` | profile-aware generated assets still match the checked-in default surface |
-| `bash scripts/check-instruction-routers.sh` | router pairs, byte identity, and line-budget rules still hold |
+| `bash scripts/check-instruction-routers.sh` | router pairs, each `CLAUDE.md` is the `@AGENTS.md` import, and AGENTS.md line-budget rules still hold |
 | `node scripts/smoke-pack.mjs` | prepack bundling, tarball install, manifest creation, skills, backup, and uninstall still work together |
 
 A release-sensitive run should normally include all four.

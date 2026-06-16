@@ -234,7 +234,7 @@ Status values are `Open`, `Confirming`, `Deferred`, and `Closed`. `Closed` requi
 
 **Question**: How should maintainers prove dogfood freshness if manual re-seeding remains the chosen workflow?
 
-**Why it matters**: `packages/docs/README.md:86-121` values reviewability and selective propagation, but current checks such as `scripts/check-instruction-routers.sh:1-58` do not prove template parity. The repo needs a deliberate stance on reviewability versus automated freshness.
+**Why it matters**: `packages/docs/README.md:86-121` values reviewability and selective propagation, but current checks such as `scripts/check-instruction-routers.sh:34-69` do not prove template parity. The repo needs a deliberate stance on reviewability versus automated freshness.
 
 **Recommendation**: Preserve manual review while expanding consistency tests for files that are expected to match exactly.
 

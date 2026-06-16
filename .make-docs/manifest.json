@@ -357,12 +357,12 @@
       "sourceId": "build:AGENTS.md"
     },
     "CLAUDE.md": {
-      "hash": "699053532e624a4a9d9e43a51c48879e59f15b3078adbb72ec22e22ca7680b8d",
+      "hash": "336cc4fbf19beaada7ccf9986414fa91851a8d7a07dfb3ccbe800a69eed0ab49",
       "sourceId": "build:CLAUDE.md"
     },
     "docs/AGENTS.md": {
       "hash": "60e6bafe4c6189e25ef1eb3e3206f577471f039534da791388b9b64e08fb58e8",
-      "sourceId": "file:docs/AGENTS.md"
+      "sourceId": "build:docs/AGENTS.md"
     },
     "docs/assets/AGENTS.md": {
       "hash": "e999038882aebfdf9c5aa59a27f579e1d6ed18672a9f0d578d495e43f6ff3bcd",
@@ -373,11 +373,11 @@
       "sourceId": "build:docs/assets/archive/AGENTS.md"
     },
     "docs/assets/archive/CLAUDE.md": {
-      "hash": "17ebeb4698683b2e4e19912976369cf2ce6c2b5e535909c0f922960f4543f795",
+      "hash": "336cc4fbf19beaada7ccf9986414fa91851a8d7a07dfb3ccbe800a69eed0ab49",
       "sourceId": "build:docs/assets/archive/CLAUDE.md"
     },
     "docs/assets/CLAUDE.md": {
-      "hash": "e999038882aebfdf9c5aa59a27f579e1d6ed18672a9f0d578d495e43f6ff3bcd",
+      "hash": "336cc4fbf19beaada7ccf9986414fa91851a8d7a07dfb3ccbe800a69eed0ab49",
       "sourceId": "build:docs/assets/CLAUDE.md"
     },
     "docs/assets/history/AGENTS.md": {
@@ -385,7 +385,7 @@
       "sourceId": "build:docs/assets/history/AGENTS.md"
     },
     "docs/assets/history/CLAUDE.md": {
-      "hash": "321501dd5562e8c1a1858bcdf620186aa6eaaf7172d5602db92e5e3efe21346d",
+      "hash": "336cc4fbf19beaada7ccf9986414fa91851a8d7a07dfb3ccbe800a69eed0ab49",
       "sourceId": "build:docs/assets/history/CLAUDE.md"
     },
     "docs/assets/prompts/AGENTS.md": {
@@ -393,7 +393,7 @@
       "sourceId": "build:docs/assets/prompts/AGENTS.md"
     },
     "docs/assets/prompts/CLAUDE.md": {
-      "hash": "f22d5dca63f2fba7f467206635fd3c0fbecc8e7bb1c80c5c3186d6084c022316",
+      "hash": "336cc4fbf19beaada7ccf9986414fa91851a8d7a07dfb3ccbe800a69eed0ab49",
       "sourceId": "build:docs/assets/prompts/CLAUDE.md"
     },
     "docs/assets/prompts/designs-to-plan-change.prompt.md": {
@@ -449,7 +449,7 @@
       "sourceId": "build:docs/assets/references/AGENTS.md"
     },
     "docs/assets/references/CLAUDE.md": {
-      "hash": "a0be84324dd937c262bda149199b8f1c7f6af251b2a1ec1263184fd4ea1a9916",
+      "hash": "336cc4fbf19beaada7ccf9986414fa91851a8d7a07dfb3ccbe800a69eed0ab49",
       "sourceId": "build:docs/assets/references/CLAUDE.md"
     },
     "docs/assets/references/commit-message-convention.md": {
@@ -501,7 +501,7 @@
       "sourceId": "build:docs/assets/templates/AGENTS.md"
     },
     "docs/assets/templates/CLAUDE.md": {
-      "hash": "8ba44874d4a6e3a4bc9b97dfb1eb1820dfbee3d9d173ce61b4aadce70678f5a2",
+      "hash": "336cc4fbf19beaada7ccf9986414fa91851a8d7a07dfb3ccbe800a69eed0ab49",
       "sourceId": "build:docs/assets/templates/CLAUDE.md"
     },
     "docs/assets/templates/design.md": {
@@ -581,15 +581,15 @@
       "sourceId": "file:docs/assets/templates/work-phase.md"
     },
     "docs/CLAUDE.md": {
-      "hash": "60e6bafe4c6189e25ef1eb3e3206f577471f039534da791388b9b64e08fb58e8",
-      "sourceId": "file:docs/CLAUDE.md"
+      "hash": "336cc4fbf19beaada7ccf9986414fa91851a8d7a07dfb3ccbe800a69eed0ab49",
+      "sourceId": "build:docs/CLAUDE.md"
     },
     "docs/designs/AGENTS.md": {
       "hash": "300cb98ce1280c2072af37401b13d021ca8424879b40afbfbf9b054ba32ef7d1",
       "sourceId": "file:docs/designs/AGENTS.md"
     },
     "docs/designs/CLAUDE.md": {
-      "hash": "300cb98ce1280c2072af37401b13d021ca8424879b40afbfbf9b054ba32ef7d1",
+      "hash": "336cc4fbf19beaada7ccf9986414fa91851a8d7a07dfb3ccbe800a69eed0ab49",
       "sourceId": "file:docs/designs/CLAUDE.md"
     },
     "docs/guides/AGENTS.md": {
@@ -597,7 +597,7 @@
       "sourceId": "build:docs/guides/AGENTS.md"
     },
     "docs/guides/CLAUDE.md": {
-      "hash": "774cd884a902f34ceaa18f9d96bf2b543fc4a4b1109d64953359144055faf9d1",
+      "hash": "336cc4fbf19beaada7ccf9986414fa91851a8d7a07dfb3ccbe800a69eed0ab49",
       "sourceId": "build:docs/guides/CLAUDE.md"
     },
     "docs/plans/AGENTS.md": {
@@ -605,7 +605,7 @@
       "sourceId": "file:docs/plans/AGENTS.md"
     },
     "docs/plans/CLAUDE.md": {
-      "hash": "b022884cb614ac6e6e5f40014e2d75978621f459246a48062bda180423f5dc6d",
+      "hash": "336cc4fbf19beaada7ccf9986414fa91851a8d7a07dfb3ccbe800a69eed0ab49",
       "sourceId": "file:docs/plans/CLAUDE.md"
     },
     "docs/prd/AGENTS.md": {
@@ -613,7 +613,7 @@
       "sourceId": "file:docs/prd/AGENTS.md"
     },
     "docs/prd/CLAUDE.md": {
-      "hash": "9fd5fc64e79e7612b67100adc316d90743bcd6974bd25a2d2d5eb604d95e6976",
+      "hash": "336cc4fbf19beaada7ccf9986414fa91851a8d7a07dfb3ccbe800a69eed0ab49",
       "sourceId": "file:docs/prd/CLAUDE.md"
     },
     "docs/work/AGENTS.md": {
@@ -621,7 +621,7 @@
       "sourceId": "file:docs/work/AGENTS.md"
     },
     "docs/work/CLAUDE.md": {
-      "hash": "24e00dcad7eef9347af435a0184b81f354991c12529515c171c949042a954741",
+      "hash": "336cc4fbf19beaada7ccf9986414fa91851a8d7a07dfb3ccbe800a69eed0ab49",
       "sourceId": "file:docs/work/CLAUDE.md"
     }
   },

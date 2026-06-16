@@ -40,25 +40,25 @@ while IFS= read -r agent_file; do
     continue
   fi
 
-  if ! cmp -s "$agent_file" "$claude_file"; then
-    report_error "$agent_file and $claude_file differ"
+  # CLAUDE.md is a thin import of its AGENTS.md sibling (Claude Code expands
+  # `@AGENTS.md`; other agents read AGENTS.md directly). AGENTS.md holds the content.
+  if ! printf '@AGENTS.md\n' | cmp -s - "$claude_file"; then
+    report_error "$claude_file must contain only '@AGENTS.md' (the AGENTS.md import)"
   fi
 
-  for file in "$agent_file" "$claude_file"; do
-    max_lines="$(line_budget_for "$file")"
-    line_count="$(wc -l < "$file" | tr -d ' ')"
-    if (( line_count > max_lines )); then
-      report_error "$file has $line_count lines; budget is $max_lines"
-    fi
+  max_lines="$(line_budget_for "$agent_file")"
+  line_count="$(wc -l < "$agent_file" | tr -d ' ')"
+  if (( line_count > max_lines )); then
+    report_error "$agent_file has $line_count lines; budget is $max_lines"
+  fi
 
-    if [[ "$file" != "./AGENTS.md" && "$file" != "./CLAUDE.md" ]]; then
-      for heading in "${banned_headings[@]}"; do
-        if grep -Fxq "$heading" "$file"; then
-          report_error "$file contains banned heading: $heading"
-        fi
-      done
-    fi
-  done
+  if [[ "$agent_file" != "./AGENTS.md" ]]; then
+    for heading in "${banned_headings[@]}"; do
+      if grep -Fxq "$heading" "$agent_file"; then
+        report_error "$agent_file contains banned heading: $heading"
+      fi
+    done
+  fi
 done < <(find . -type f -name AGENTS.md | sort)
 
 while IFS= read -r claude_file; do

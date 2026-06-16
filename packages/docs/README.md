@@ -10,7 +10,7 @@ packages/docs/
 ├── README.md          # you are here
 └── template/          # the tree that ships to consumers
     ├── AGENTS.md      # consumer's ./AGENTS.md (root agent instructions)
-    ├── CLAUDE.md      # consumer's ./CLAUDE.md (mirror)
+    ├── CLAUDE.md      # consumer's ./CLAUDE.md (one-line `@AGENTS.md` import)
     └── docs/          # consumer's ./docs/
         ├── AGENTS.md + CLAUDE.md     # docs router
         ├── assets/                   # document resources
@@ -57,7 +57,7 @@ just check-instruction-routers     # AGENTS.md/CLAUDE.md pair integrity + line b
 just smoke-pack                    # end-to-end pack + install
 ```
 
-Every `AGENTS.md` under `template/docs/` has a byte-identical `CLAUDE.md` sibling. Keep both in sync; the router check enforces it.
+Every `AGENTS.md` under `template/docs/` has a `CLAUDE.md` sibling that contains only `@AGENTS.md` — a one-line import so Claude Code sources the sibling `AGENTS.md` (other agents read `AGENTS.md` directly). `AGENTS.md` is the single source of truth; edit it, not `CLAUDE.md`. The router check enforces that each `CLAUDE.md` is exactly the import.
 
 ## Dogfooding and Re-seeding
 

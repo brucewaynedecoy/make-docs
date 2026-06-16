@@ -140,7 +140,7 @@ export function pruneDirectoryIfEmpty(directoryPath: string): boolean {
   return true;
 }
 
-export function formatInlineList(items: string[]): string {
+export function formatInlineList(items: string[], conjunction = "and"): string {
   if (items.length === 0) {
     return "";
   }
@@ -150,10 +150,10 @@ export function formatInlineList(items: string[]): string {
   }
 
   if (items.length === 2) {
-    return `${items[0]} and ${items[1]}`;
+    return `${items[0]} ${conjunction} ${items[1]}`;
   }
 
-  return `${items.slice(0, -1).join(", ")}, and ${items.at(-1)}`;
+  return `${items.slice(0, -1).join(", ")}, ${conjunction} ${items.at(-1)}`;
 }
 
 export function relativePathToTarget(targetDir: string, relativePath: string): string {

@@ -1,5 +1,6 @@
 import { isFullDefaultProfile } from "./profile";
 import { getPromptPaths } from "./rules";
+import { getActiveInstructionKinds } from "./types";
 import type { InstallProfile } from "./types";
 import { formatInlineList, readPackageFile } from "./utils";
 
@@ -51,7 +52,31 @@ export function isBuildablePath(relativePath: string): boolean {
   );
 }
 
+export function isClaudeInstructionPath(relativePath: string): boolean {
+  return relativePath === "CLAUDE.md" || relativePath.endsWith("/CLAUDE.md");
+}
+
+/**
+ * Renders a `CLAUDE.md` instruction file. When `AGENTS.md` is also installed, the
+ * `CLAUDE.md` is a one-line `@AGENTS.md` import that sources its sibling (Claude Code
+ * expands the import; other agents read `AGENTS.md` directly). In a Claude-only install
+ * there is no sibling to import, so it inlines the exact content `AGENTS.md` would carry.
+ */
+export function renderClaudeInstruction(relativePath: string, profile: InstallProfile): string {
+  const agentsPath = `${relativePath.slice(0, -"CLAUDE.md".length)}AGENTS.md`;
+  if (getActiveInstructionKinds(profile.selections).has("AGENTS.md")) {
+    return "@AGENTS.md\n";
+  }
+  return isBuildablePath(agentsPath)
+    ? renderBuildableAsset(agentsPath, profile)
+    : readPackageFile(agentsPath);
+}
+
 export function renderBuildableAsset(relativePath: string, profile: InstallProfile): string {
+  if (isClaudeInstructionPath(relativePath)) {
+    return renderClaudeInstruction(relativePath, profile);
+  }
+
   if (isFullDefaultProfile(profile)) {
     return readPackageFile(relativePath);
   }
@@ -60,27 +85,22 @@ export function renderBuildableAsset(relativePath: string, profile: InstallProfi
     return readPackageFile(relativePath);
   }
 
+  // Every `CLAUDE.md` path is intercepted by the `isClaudeInstructionPath` guard
+  // above, so only `AGENTS.md` (and the design `.md` renderers) reach this switch.
   switch (relativePath) {
     case "docs/AGENTS.md":
-    case "docs/CLAUDE.md":
       return renderDocsRouter(profile);
     case "docs/assets/templates/AGENTS.md":
-    case "docs/assets/templates/CLAUDE.md":
       return renderTemplatesRouter(profile);
     case "docs/assets/prompts/AGENTS.md":
-    case "docs/assets/prompts/CLAUDE.md":
       return renderPromptsRouter(profile);
     case "docs/assets/references/AGENTS.md":
-    case "docs/assets/references/CLAUDE.md":
       return readPackageFile(relativePath);
     case "docs/assets/archive/AGENTS.md":
-    case "docs/assets/archive/CLAUDE.md":
       return readPackageFile(relativePath);
     case "docs/assets/AGENTS.md":
-    case "docs/assets/CLAUDE.md":
       return renderAssetsRouter();
     case "docs/assets/history/AGENTS.md":
-    case "docs/assets/history/CLAUDE.md":
       return renderHistoryAssetsRouter();
     case "docs/assets/references/design-workflow.md":
       return renderDesignWorkflow(profile);
@@ -89,7 +109,6 @@ export function renderBuildableAsset(relativePath: string, profile: InstallProfi
     case "docs/assets/templates/design.md":
       return renderDesignTemplate(profile);
     case "docs/guides/AGENTS.md":
-    case "docs/guides/CLAUDE.md":
       return renderGuidesRouter(profile);
     default:
       throw new Error(`No buildable renderer registered for ${relativePath}.`);
@@ -101,6 +120,7 @@ function renderDocsRouter(profile: InstallProfile): string {
     "# Documentation Router",
     "",
     "Use `docs/` only as a router. Do not create generated files directly in this directory.",
+    "",
     "- Source Markdown uses semantic line breaks; for path and link hygiene, use project-relative paths and relative Markdown links, and read `docs/assets/references/path-and-link-hygiene.md` when auditing or deciding whether an absolute path is warranted.",
   ];
 
@@ -223,7 +243,7 @@ function renderTemplatesRouter(profile: InstallProfile): string {
   if (profile.capabilityState.designs.effectiveSelection) {
     templateFamilies.push("`design.md` for design docs");
   }
-  templateFamilies.push("`guide-developer.md` and `guide-user.md` for guides");
+  templateFamilies.push("`guide-developer.md` or `guide-user.md` for guides");
 
   const wildcardFamilies: string[] = [];
   if (profile.capabilityState.plans.effectiveSelection) {
@@ -238,7 +258,7 @@ function renderTemplatesRouter(profile: InstallProfile): string {
 
   if (wildcardFamilies.length > 0) {
     templateFamilies.push(
-      `the matching ${formatInlineList(wildcardFamilies)} template for the target artifact`,
+      `the matching ${formatInlineList(wildcardFamilies, "or")} template for the target artifact`,
     );
   }
 
@@ -251,6 +271,7 @@ function renderTemplatesRouter(profile: InstallProfile): string {
     "# Templates Router",
     "",
     "This directory contains structural starting points for generated docs.",
+    "",
     "- Copy the relevant template shape into the target output file; do not write outputs here.",
     usageLine,
     "- Resolve workflow and contract questions in `docs/assets/references/`, then continue in the target output directory router.",
@@ -272,18 +293,19 @@ function renderPromptsRouter(profile: InstallProfile): string {
     outputs.push("work backlogs");
   }
   if (profile.capabilityState.designs.effectiveSelection) {
-    outputs.push("design docs");
+    outputs.push("designs");
   }
 
   const outputText =
     outputs.length > 0
-      ? `- Do not write generated ${formatInlineList(outputs)} here.`
+      ? `- Do not write generated ${formatInlineList(outputs, "or")} here.`
       : "- Do not write generated outputs here.";
 
   return [
     "# Prompts Router",
     "",
     "This directory stores reusable prompt starters, not authoritative rules and not generated outputs.",
+    "",
     "- Use it only when the user wants a stored prompt or a reusable workflow kickoff.",
     "- Keep placeholder tokens explicit unless the user asks to instantiate them.",
     "- When executing a prompt, read the target workflow in `docs/assets/references/`, the matching template in `docs/assets/templates/`, and the router in the target output directory.",

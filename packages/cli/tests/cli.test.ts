@@ -307,21 +307,19 @@ describe("cli interactive flows", () => {
       const codexSkillPath = path.join(targetDir, ".agents/skills/archive-docs/SKILL.md");
       expect(existsSync(claudeSkillPath)).toBe(true);
       expect(existsSync(codexSkillPath)).toBe(true);
-      promptForManagedFileConflictResolutionsMock.mockResolvedValue({
-        "docs/AGENTS.md": "overwrite",
-        "docs/CLAUDE.md": "overwrite",
-        "docs/assets/prompts/AGENTS.md": "overwrite",
-        "docs/assets/prompts/CLAUDE.md": "overwrite",
-        "docs/assets/templates/AGENTS.md": "overwrite",
-        "docs/assets/templates/CLAUDE.md": "overwrite",
-      });
+      const docsRouterPath = path.join(targetDir, "docs/AGENTS.md");
+      const docsRouterBefore = readFileSync(docsRouterPath, "utf8");
       confirmMock.mockResolvedValue(true);
       const { runCli } = await import("../src/cli");
 
       await runCli(["--no-skills", "--target", targetDir]);
 
       expect(runSelectionWizardMock).not.toHaveBeenCalled();
-      expect(promptForManagedFileConflictResolutionsMock).toHaveBeenCalledTimes(1);
+      // Toggling skills off leaves the install non-default, but the capability-aware
+      // routers still render their template content, so no managed documentation file
+      // changes and no conflict resolution is required.
+      expect(promptForManagedFileConflictResolutionsMock).not.toHaveBeenCalled();
+      expect(readFileSync(docsRouterPath, "utf8")).toBe(docsRouterBefore);
       expect(loadManifest(targetDir)?.selections.skills).toBe(false);
       expect(loadManifest(targetDir)?.selections.selectedSkills).toEqual([]);
       expect(existsSync(claudeSkillPath)).toBe(false);

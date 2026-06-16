@@ -163,6 +163,13 @@ describe("installer integration", () => {
       for (const relativePath of getInstructionPaths("AGENTS.md")) {
         expect(existsSync(path.join(targetDir, relativePath))).toBe(true);
       }
+
+      // The catalog renders each CLAUDE.md as the one-line import; prove it reaches disk
+      // for a buildable root and a scoped-static nested router, not just in memory.
+      expect(readFileSync(path.join(targetDir, "CLAUDE.md"), "utf8")).toBe("@AGENTS.md\n");
+      expect(readFileSync(path.join(targetDir, "docs/work/CLAUDE.md"), "utf8")).toBe(
+        "@AGENTS.md\n",
+      );
     } finally {
       cleanupTempDir(targetDir);
     }
@@ -620,6 +627,18 @@ describe("installer integration", () => {
       for (const relativePath of getInstructionPaths("AGENTS.md")) {
         expect(existsSync(path.join(targetDir, relativePath))).toBe(false);
       }
+
+      // With no AGENTS.md sibling to import, each CLAUDE.md must inline the exact
+      // content AGENTS.md would have carried. Prove the inlined content — not a
+      // dangling `@AGENTS.md` import — reaches disk for a buildable root and a
+      // scoped-static nested router.
+      expect(readFileSync(path.join(targetDir, "CLAUDE.md"), "utf8")).toBe(
+        readPackageFile("AGENTS.md"),
+      );
+      expect(readFileSync(path.join(targetDir, "CLAUDE.md"), "utf8")).not.toBe("@AGENTS.md\n");
+      expect(readFileSync(path.join(targetDir, "docs/work/CLAUDE.md"), "utf8")).toBe(
+        readPackageFile("docs/work/AGENTS.md"),
+      );
 
       expect(existsSync(path.join(targetDir, ".claude/skills/archive-docs/SKILL.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, ".agents"))).toBe(false);

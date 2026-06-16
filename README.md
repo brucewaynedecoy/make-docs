@@ -234,7 +234,7 @@ node scripts/smoke-pack.mjs
 bash scripts/check-instruction-routers.sh
 ```
 
-The instruction-router check enforces that every `AGENTS.md` has an identical `CLAUDE.md` sibling, that both stay within the per-directory line budget, and that neither reintroduces heavy headings like `## Files` or `## Templates`. Run it after editing any router before committing.
+The instruction-router check enforces that every `AGENTS.md` has a `CLAUDE.md` sibling containing only the one-line `@AGENTS.md` import, that each `AGENTS.md` stays within the per-directory line budget, and that it does not reintroduce heavy headings like `## Files` or `## Templates`. Run it after editing any router before committing.
 
 Template changes propagate to the CLI tarball at publish time via the `prepack` script in `packages/cli/package.json`, which copies `packages/docs/template/` into `packages/cli/template/` before `npm pack` runs.
 

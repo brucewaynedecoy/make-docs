@@ -196,6 +196,56 @@ describe("default profile consistency", () => {
   );
 });
 
+describe("CLAUDE.md import contract", () => {
+  function claudeAssets(profile: ReturnType<typeof resolveInstallProfile>) {
+    return getDesiredAssets(profile).filter(
+      (asset) =>
+        asset.relativePath === "CLAUDE.md" || asset.relativePath.endsWith("/CLAUDE.md"),
+    );
+  }
+
+  test("every CLAUDE.md is the one-line @AGENTS.md import under the default profile", () => {
+    const profile = resolveInstallProfile(defaultSelections());
+    const assets = claudeAssets(profile);
+
+    expect(assets.length).toBeGreaterThan(0);
+    for (const asset of assets) {
+      expect(asset.content).toBe("@AGENTS.md\n");
+    }
+  });
+
+  test("a Claude-only install writes no AGENTS.md and inlines its content into CLAUDE.md", () => {
+    const selections = defaultSelections();
+    selections.harnesses.codex = false;
+    const profile = resolveInstallProfile(selections);
+    const assets = getDesiredAssets(profile);
+
+    // No AGENTS.md sibling exists, so nothing should be a dangling @AGENTS.md import.
+    expect(
+      assets.some(
+        (a) => a.relativePath === "AGENTS.md" || a.relativePath.endsWith("/AGENTS.md"),
+      ),
+    ).toBe(false);
+    for (const asset of claudeAssets(profile)) {
+      expect(asset.content).not.toBe("@AGENTS.md\n");
+    }
+
+    // Buildable root + generated router and scoped-static routers inline the full content.
+    const root = assets.find((a) => a.relativePath === "CLAUDE.md");
+    expect(root?.content).toBe(readPackageFile("AGENTS.md"));
+    expect(assets.find((a) => a.relativePath === "docs/CLAUDE.md")?.content).toContain(
+      "# Documentation Router",
+    );
+    // Scoped-static routers inline their AGENTS.md sibling verbatim (readPackageFile), so
+    // assert byte-equality to catch a wrong-sibling or truncated inline, not just non-import.
+    for (const dir of ["docs/designs", "docs/plans", "docs/prd", "docs/work"]) {
+      expect(assets.find((a) => a.relativePath === `${dir}/CLAUDE.md`)?.content).toBe(
+        readPackageFile(`${dir}/AGENTS.md`),
+      );
+    }
+  });
+});
+
 describe("template completeness", () => {
   test("every file in the template is covered by the asset pipeline", () => {
     const profile = resolveInstallProfile(defaultSelections());
@@ -286,9 +336,7 @@ describe("risk register routing contract", () => {
   test("PRD routers identify the living risk register", () => {
     for (const relativePath of [
       "docs/prd/AGENTS.md",
-      "docs/prd/CLAUDE.md",
       "packages/docs/template/docs/prd/AGENTS.md",
-      "packages/docs/template/docs/prd/CLAUDE.md",
     ]) {
       const contents = readFileSync(path.join(REPO_ROOT, relativePath), "utf8");
 
@@ -389,9 +437,7 @@ describe("guide generation routing contract", () => {
   test("guide routers require audience decisions and future coverage notes", () => {
     for (const relativePath of [
       "docs/guides/AGENTS.md",
-      "docs/guides/CLAUDE.md",
       "packages/docs/template/docs/guides/AGENTS.md",
-      "packages/docs/template/docs/guides/CLAUDE.md",
     ]) {
       const contents = readFileSync(path.join(REPO_ROOT, relativePath), "utf8");
 
@@ -463,9 +509,7 @@ describe("path hygiene contract", () => {
   test("routers and contracts point path decisions to the hygiene reference", () => {
     for (const relativePath of [
       "docs/AGENTS.md",
-      "docs/CLAUDE.md",
       "docs/assets/references/AGENTS.md",
-      "docs/assets/references/CLAUDE.md",
       "docs/assets/references/design-contract.md",
       "docs/assets/references/guide-contract.md",
       "docs/assets/references/history-record-contract.md",
