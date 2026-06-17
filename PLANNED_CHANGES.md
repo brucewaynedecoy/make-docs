@@ -47,6 +47,20 @@ Add a skill for using the CLI.  When installing make-docs, recommend installing 
 
 There are other skills that need to be added (as well as existing skills that need to be significantly improved).  As a rule, all skills that rely on scripts or deterministic logic should have that logic baked into the CLI itself rather than stored in standalone or external scripts or files.  See [2026-05-28-coverage-pass-contract-and-skill-evolution.md](docs/designs/2026-05-28-coverage-pass-contract-and-skill-evolution.md).
 
+### Skills Cleanup
+Currently, we are reproducing all of the contents of skills across agent directories (e.g., `.agents/skills/` and `.claude/skills/`).  The redundancy is unnecessary, and make-docs should not be inflicting this on users/maintainers.  Instead, when skills are installed via the CLI, they should be installed in a single, shared location (e.g., `.make-docs/skills/`), and for every agent directory, a symlink should be created to this shared location.  The only difference, then, between global installs and project-specific installs is:
+
+- The location of the shared skills directory:
+  - Global installs: `.make-docs/skills/`
+  - Project-specific installs: `<project_root>/.make-docs/skills/`
+- And where the symlink is created:
+  - Global installs: `<agent_dir>/skills/`
+  - Project-specific installs: `<project_root>/<agent_dir>/skills/`
+
+> NOTE ON OTHER AGENTIC ARTIFACTS (e.g., PLUG-INS, MCP SERVERS, ETC.):
+>
+> The same principles apply to other agentic artifacts (e.g., plug-ins, MCP servers, etc.).  For example, plug-ins should be installed in a single, shared location (e.g., `.make-docs/plugins/`), and for every agent directory, a symlink should be created to this shared location. Etc.
+
 ## Lifecycle Sequencing Nudges
 
 Scratchpad only (not yet a design). Fixes two gaps where make-docs fails to nudge agents toward the intended `design -> plan -> PRD -> work -> implement` lifecycle: an agent can land on a plan and jump straight to implementing, skipping PRD and work-backlog generation, with nothing authoritative to steer it back. Both fixes must be **authoritative but not absolute** — the agent's default when left to decide, always overridable by the user. The design contract already strikes this tone: its `## Intended Follow-On` is "authoritative unless the user explicitly overrides it." Reuse that exact framing.
