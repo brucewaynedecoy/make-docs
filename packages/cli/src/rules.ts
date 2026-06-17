@@ -43,6 +43,22 @@ export const PROMPT_RULES: PromptRule[] = [
     requires: ["prd", "work"],
   },
   {
+    relativePath: "docs/assets/prompts/coverage-pass-developer-guide.prompt.md",
+    requires: ["work"],
+  },
+  {
+    relativePath: "docs/assets/prompts/coverage-pass-user-guide.prompt.md",
+    requires: ["work"],
+  },
+  {
+    relativePath: "docs/assets/prompts/coverage-pass-prd-reconciliation.prompt.md",
+    requires: ["work"],
+  },
+  {
+    relativePath: "docs/assets/prompts/coverage-pass-testing-uat.prompt.md",
+    requires: ["work"],
+  },
+  {
     relativePath: "docs/assets/prompts/work-to-guides.prompt.md",
     requires: ["work"],
   },

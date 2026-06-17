@@ -5,7 +5,9 @@ ___
 
 Please summarize this session into a new history record.
 
-Before writing anything, read `docs/assets/references/history-record-contract.md`, `docs/assets/templates/history-record.md`, and the router at `docs/assets/history/AGENTS.md` (or `CLAUDE.md`). Do not restate their rules — follow them.
+Before writing anything, read `docs/assets/references/history-record-contract.md`, `docs/assets/references/coverage-pass-contract.md`, `docs/assets/templates/history-record.md`, and the router at `docs/assets/history/AGENTS.md` (or `CLAUDE.md`). Do not restate their rules — follow them.
+
+If this history record is part of a coverage pass, apply the history idempotency rule in `coverage-pass-contract.md` before deciding whether to create a new file or update the current session's record.
 
 Use today's date for `YYYY-MM-DD` and never backdate. If the active plan or work context gives a known position, record it in one `coordinate` frontmatter field such as `W9 R0 P1` or `W9 R0 P1 S2 T4`; omit unknown coordinate levels.
 

@@ -2,7 +2,7 @@
 
 Use `docs/guides` only as a router. Do not create generated files directly in this directory.
 
-- Before writing any guide, read `docs/assets/references/guide-contract.md`, inspect existing guides for overlap, and decide whether the right outcome is `developer`, `user`, `both`, `update-existing`, `link-only`, or `none`.
+- Before writing any guide, read `docs/assets/references/guide-contract.md` and `docs/assets/references/coverage-pass-contract.md`, inspect existing guides for overlap, decide whether the right outcome is `developer`, `user`, `both`, `update-existing`, `link-only`, or `none`, and use the coverage-pass contract to decide the guide/playbook verdict and target persona(s).
 - **User guides** are stored in `docs/guides/user/`. They explain the shipped product from a user's perspective, from novice orientation through advanced workflows. Use `docs/assets/templates/guide-user.md` when creating one.
 - **Developer guides** are stored in `docs/guides/developer/`. They help contributors, maintainers, integrators, and operators navigate the codebase, docs, contracts, validation, extension points, and safe-change workflows. Use `docs/assets/templates/guide-developer.md` when creating one.
 - Prefer updating an existing guide when it already owns the topic. Use cross-links and `related` frontmatter instead of duplicating full guides across audiences.
