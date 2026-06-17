@@ -22,9 +22,9 @@ provided as an installable, light router — so consuming projects can use it.
 
 ### Tasks
 
-- [ ] t1: Add references in the lifecycle anchor and `planning-workflow.md` citing `docs/artifacts/` as a recommended (never required) input source — "if present, read it to hydrate the design and plan."
-- [ ] t2: Provide a light `AGENTS.md`/`CLAUDE.md` router for `docs/artifacts/` as a managed/template asset, stating the zero-contract seed purpose (the dogfood instance at `docs/artifacts/` can serve as the basis).
-- [ ] t3: Update `planning-workflow.md` so planning reads `docs/artifacts/`, generalizing the prior architecture-seed idea; treat "architecture" docs as one kind of artifact, not the directory name.
+- [x] t1: Add references in the lifecycle anchor and `planning-workflow.md` citing `docs/artifacts/` as a recommended (never required) input source — "if present, read it to hydrate the design and plan."
+- [x] t2: Provide a light `AGENTS.md`/`CLAUDE.md` router for `docs/artifacts/` as a managed/template asset, stating the zero-contract seed purpose (the dogfood instance at `docs/artifacts/` can serve as the basis).
+- [x] t3: Update `planning-workflow.md` so planning reads `docs/artifacts/`, generalizing the prior architecture-seed idea; treat "architecture" docs as one kind of artifact, not the directory name.
 
 ### Acceptance criteria
 

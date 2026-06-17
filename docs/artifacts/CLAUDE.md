@@ -1,6 +1,6 @@
 # Artifacts Router
 
-`docs/artifacts/` is an **optional, zero-contract** home for free-form,
+`docs/artifacts/` is a managed/template asset and an **optional, zero-contract** home for free-form,
 pre-design inputs — raw ideas, meeting and transcript notes, sketches, specs,
 diagrams, schema drafts, requirements, and supplemental reference material that
 hydrate downstream design, planning, and PRD work.

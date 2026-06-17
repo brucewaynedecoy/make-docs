@@ -16,6 +16,7 @@ The lifecycle is organized as bands.
 `docs/artifacts/` may hold source material, notes, screenshots, analysis, or
 other inputs that inform later work.
 It is an input surface, not a lifecycle stage.
+If present, read it to hydrate the design and plan.
 
 ### Segment 1 - Plan
 
