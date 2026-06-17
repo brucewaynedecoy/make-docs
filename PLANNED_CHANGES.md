@@ -12,8 +12,9 @@ Make-Docs is too common and confusing.  First choice for rename is `norms` (whic
 - `normly`
 - `normify`
 - `normroom`
-- `normalspace`
-- `normon`
+- `nomrom` ("nom" as in the onomtaopoeia of someone eating with great enjoyment, and "rom" as in "Read-Only Memory")
+
+Of the above potential names, `nomrom` is the my personal favorite.
 
 As a part of renaming, we will also need to rename some of the directories installed in projects/directories (e.g., `.make-docs` -> `.norms`, etc.).
 
