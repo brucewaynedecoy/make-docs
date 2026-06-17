@@ -388,7 +388,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | None yet | Decide whether to create `docs/library/playbooks/` and move guides now or with the restructure. |
+| Closed | Create only `docs/library/playbooks/` in W16; defer any `docs/guides/` move to the broader restructure. | Track guide relocation in the broader restructure; do not relocate guides in W16 R0. |
 
 **Question**: W16 authors a playbook under `docs/library/playbooks/`, but moving `docs/guides/` to `docs/library/guides/` is part of the broader restructure.
 
@@ -396,7 +396,9 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 **Recommendation**: Either create only the playbook subtree now and move guides later, or sequence both with the restructure.
 
-**To close**: The library layout timing is decided and consistent.
+**Resolution (2026-06-17)**: W16 R0 creates the playbook subtree only. The broader `docs/library/guides/` move remains out of scope for W16 R0.
+
+**To close**: Closed on 2026-06-17 by the W16 R0 Phase 03 lifecycle playbook decision.
 
 ## Rebuild Risks
 

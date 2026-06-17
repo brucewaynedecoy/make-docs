@@ -22,11 +22,11 @@ as a map, not automation.
 
 ### Tasks
 
-- [ ] t1: Create the playbook at `docs/library/playbooks/<persona>/make-docs-lifecycle.md` for the agent/maintainer persona, with a `persona:` frontmatter field. Resolve whether `docs/library/playbooks/` is created here or with the broader restructure (risk register Q-014) before writing.
-- [ ] t2: Write per-stage sections in a uniform shape: Purpose, Inputs, Decision points, Suggested assists (skills, references, templates, prompts — never required), Exit criteria, Handoff.
-- [ ] t3: Narrate inputs -> Segment 1 -> Segment 2 (loop plus coverage band) -> Segment 3 in the anchor's neutral vocabulary, citing the anchor for ordering.
-- [ ] t4: Frame the playbook explicitly as a map, not automation — no enforced order, no gating.
-- [ ] t5: Make the playbook discoverable from the README and the `docs/` router.
+- [x] t1: Create the playbook at `docs/library/playbooks/<persona>/make-docs-lifecycle.md` for the agent/maintainer persona, with a `persona:` frontmatter field. Resolve whether `docs/library/playbooks/` is created here or with the broader restructure (risk register Q-014) before writing.
+- [x] t2: Write per-stage sections in a uniform shape: Purpose, Inputs, Decision points, Suggested assists (skills, references, templates, prompts — never required), Exit criteria, Handoff.
+- [x] t3: Narrate inputs -> Segment 1 -> Segment 2 (loop plus coverage band) -> Segment 3 in the anchor's neutral vocabulary, citing the anchor for ordering.
+- [x] t4: Frame the playbook explicitly as a map, not automation — no enforced order, no gating.
+- [x] t5: Make the playbook discoverable from the README and the `docs/` router.
 
 ### Acceptance criteria
 
