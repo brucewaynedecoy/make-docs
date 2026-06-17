@@ -30,3 +30,12 @@ Call out external dependencies, upstream artifacts, or prerequisites that must b
 ## Validation
 
 Describe how success of the overall plan is verified once all phases complete. Reference the review pass or acceptance gate that closes the plan.
+
+## Intended Follow-On
+
+This handoff is advisory-default-but-overridable: it is authoritative unless the user explicitly overrides it, and it is not a gate or precondition.
+
+- Route: `prd-generation`
+- Next step: Generate or update the PRD set from this plan.
+- Why: The plan should become the product or documentation contract before work backlog generation.
+- Coordinate Handoff: Carry `W{{W}} R{{R}}` into the downstream PRD and work backlog lineage, or explain the coordinate question that must be resolved before writing.

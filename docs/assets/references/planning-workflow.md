@@ -82,6 +82,7 @@ Every plan should cover:
 - execution mode and PRD lifecycle handling
 - coordinator policy and delegation tier
 - planned document catalog
+- intended follow-on, including route, next step, why, and coordinate handoff
 - worker ownership, write scopes, and dependencies
 - MCP strategy and fallback strategy
 - validation and review steps
@@ -158,3 +159,16 @@ Before leaving planning mode, make the execution prerequisites explicit:
 - if the task is active-set evolution, the plan names the new change docs, impacted baseline docs, annotation targets, and delta backlog scope
 - workstreams are disjoint
 - validation is mandatory
+
+Every plan `00-overview.md` includes `## Intended Follow-On` recommending PRD
+generation as the next step.
+That handoff is advisory-default-but-overridable: it is authoritative unless the
+user explicitly overrides it, and it is not a gate or precondition.
+Include:
+
+- `Route:` `prd-generation`
+- `Next step:` generate or update the PRD set from the plan
+- `Why:` why the plan should become the product or documentation contract before
+  backlog generation
+- `Coordinate Handoff:` the W/R lineage the downstream PRD and work backlog
+  should carry, or the coordinate question that must be resolved before writing

@@ -135,7 +135,7 @@ Use the matching template in `docs/assets/templates/` and preserve these require
 
 | Doc type | Required headings |
 | --- | --- |
-| `prd-index.md` | `## Purpose`, `## Reading Order`, `## Document Map`, `## Source Anchors`, `## Audience Paths` |
+| `prd-index.md` | `## Purpose`, `## Reading Order`, `## Document Map`, `## Source Anchors`, `## Audience Paths`, `## Intended Follow-On` |
 | `prd-overview.md` | `## Purpose`, `## Users`, `## Key Capabilities`, `## System Boundaries`, `## Current Limitations`, `## Source Anchors` |
 | `prd-architecture.md` | `## Purpose`, `## Topology`, `## Module Map`, `## Runtime Boundaries`, `## Data Flow`, `## Configuration Surfaces`, `## Source Anchors` |
 | `prd-risk-register.md` | `## Purpose`, `## Confirmed Drift`, `## Open Questions`, `## Rebuild Risks`, `## Source Anchors` |
@@ -144,10 +144,31 @@ Use the matching template in `docs/assets/templates/` and preserve these require
 | `prd-reference.md` | `## Purpose`, `## Reference`, `## Source Anchors` |
 | `prd-change-addition.md` | `## Purpose`, `## Change Type`, `## Capability Addition or Enhancement`, `## Affected Baseline Docs`, `## Contracts and Data`, `## Integration Impact`, `## Required Baseline Annotations`, `## Source Anchors` |
 | `prd-change-revision.md` | `## Purpose`, `## Change Type`, `## Baseline Being Revised or Removed`, `## Rationale`, `## Effective Requirement`, `## Impacted Docs and Dependencies`, `## Required Baseline Annotations`, `## Source Anchors` |
-| `work-index.md` | `## Purpose`, `## Phase Map`, `## Usage Notes` |
+| `work-index.md` | `## Purpose`, `## Phase Map`, `## Usage Notes`, `## Intended Follow-On` |
 | `work-phase.md` | `## Purpose`, `## Overview`, `## Source PRD Docs`, repeatable `## Stage {{STAGE_NUMBER}} - {{STAGE_NAME}}` headings with `### Tasks`, `### Acceptance criteria`, and `### Dependencies` |
 
 Risk-register items under `## Confirmed Drift`, `## Open Questions`, and `## Rebuild Risks` use numbered `###` item headings with a `Status` / `Decision` / `Follow-Up` table. Use `D-001`, `D-002`, etc. for confirmed drift; `Q-001`, `Q-002`, etc. for open questions; and `R-001`, `R-002`, etc. for rebuild risks. Assign the next available number within the section and never renumber existing items, even when they move to `Closed`. Do not use `### Change Notes` inside the risk register; that heading remains for baseline PRD lineage only. Valid item statuses are `Open`, `Confirming`, `Deferred`, and `Closed`. Each item should include `Question` or `Issue`, `Why it matters`, `Recommendation`, and `To close`; include `Resolution` only for closed items.
+
+## Intended Follow-On Handoffs
+
+The `## Intended Follow-On` section is advisory-default-but-overridable: it is
+authoritative unless the user explicitly overrides it, and it is not a gate or
+precondition.
+No document fails validation solely because its follow-on is deferred,
+overridden, or unresolved.
+
+Each handoff includes:
+
+- `Route:` the downstream workflow route
+- `Next step:` the recommended next action
+- `Why:` the reason that next step normally follows
+- `Coordinate Handoff:` the W/R/P lineage or coordinate question the downstream
+  workflow should carry
+
+For PRD indexes, use route `work-backlog-generation` and recommend creating or
+updating the work backlog from the PRD set.
+For work indexes, use route `implementation-loop` and recommend starting with
+the first applicable phase in the backlog.
 
 ## Work Phase Structure Rules
 
@@ -158,6 +179,7 @@ Every work backlog is a directory, not a single file.
   - `## Purpose`
   - `## Phase Map`
   - `## Usage Notes`
+  - `## Intended Follow-On`
 - It contains one or more phase files named `0N-<phase>.md`. Each phase file contains:
   - `## Purpose`
   - `## Overview`
@@ -211,6 +233,7 @@ Use `## Source Anchors` to aggregate the most important files that shaped the do
 - Use phase-local task IDs (`t1`, `t2`, etc.) on task items so a task can be referenced externally as `w{W} r{R} p{P} t{T}`.
 - For active-set evolution work, use a dated delta work directory with a distinguishing slug (for example `...-<subject>-delta`) instead of rewriting a prior backlog.
 - Every phase file must include `## Source PRD Docs`.
+- Every work `00-index.md` includes `## Intended Follow-On` recommending the implementation loop as the next step. The handoff is authoritative unless the user explicitly overrides it, and it is not a gate or precondition.
 
 ## Link Rules
 
