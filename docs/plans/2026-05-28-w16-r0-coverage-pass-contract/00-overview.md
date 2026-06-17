@@ -1,301 +1,137 @@
 ---
-title: "Coverage Pass Contract and Skill Decision-Frame Refactor"
+title: "W16 R0 — Coverage Pass Contract, Lifecycle Anchor, and Playbook"
 date: "2026-05-28"
+revised: "2026-06-17"
 coordinate: "W16 R0"
 status: "draft"
 ---
 
-# Coverage Pass Contract and Skill Decision-Frame Refactor
+# W16 R0 — Coverage Pass Contract, Lifecycle Anchor, and Playbook
+
+## Revision Note
+
+**Originally** (2026-05-28) this plan scoped only the coverage-pass contract
+plus a refactor of the closeout and work-execution skills.
+
+**Expanded 2026-06-17** to the full lifecycle-workflow foundation the
+contract enables: the always-read lifecycle anchor, the dogfooded lifecycle
+playbook, stage follow-on handoffs, and the optional `docs/artifacts/` seed
+directory — alongside the contract and its starter prompts.
+
+The skill refactor and three-location skill mirror remain **deferred** to the
+later no-scripts / CLI-migration wave, so those skills are rewritten once
+(contract-citing and script-free together) rather than twice.
+
+All stage vocabulary is kept **domain-neutral** (e.g., "release / publish,"
+not "launch / deploy") so make-docs stays usable for non-software
+documentation work.
 
 ## Purpose
 
-This plan codifies the "decision-frame" pattern — used informally in the
-user's ad-hoc closeout prompt chain — into a first-class repo contract at
-`docs/assets/references/coverage-pass-contract.md`, then refactors the
-existing closeout and work-execution skills to reference that contract
-instead of restating its rules inline. The goal is to make every closeout
-pass (guide coverage, PRD coverage, future testing/launch/archive passes)
-share one set of named decision outcomes, one history-record idempotency
-rule, and one set of skip-conditions, so future passes can be added by
-authoring a single thin skill plus a single short reference entry.
+Build the authoritative-plus-narrative layer that lets make-docs nudge agents
+through its whole lifecycle without becoming prescriptive. One foundation —
+the coverage-pass contract — carries five companion artifacts: an always-read
+lifecycle anchor (authoritative default ordering), a dogfooded lifecycle
+playbook (the human-facing map), stage follow-on handoffs (so the
+design → plan → PRD → work → implement chain stops breaking), an optional
+artifacts seed directory (a zero-contract home for pre-design inputs), and the
+coverage-pass starter prompts.
 
-This plan does not change the high-level wave/phase/PRD model. It changes
-how individual "closeout-style" passes are specified and how the skills
-that execute them are written.
+This plan produces documentation only. Implementation derives from the work
+backlog generated after this plan and its PRD reconciliation land.
 
 ## Objective
 
-A reviewer should be able to confirm completion when all of the following are true:
+Active scope is complete when each phase's acceptance criteria (in the phase
+files) are met:
 
-1. `docs/assets/references/coverage-pass-contract.md` exists, defines the
-   shared decision-frame vocabulary, and is linked from the references
-   router (`docs/assets/references/AGENTS.md`) and from `docs/CLAUDE.md`
-   where appropriate.
-2. `closeout-phase`, `closeout-commit`, `work-on-phase`, and `work-on-wave`
-   reference the coverage-pass contract for any rule the contract now owns,
-   and remove duplicated language they previously embedded.
-3. The existing guide-coverage and gap-capture gates inside
-   `packages/skills/closeout-phase/references/closeout-workflow.md` are
-   rewritten as invocations of the coverage-pass contract rather than
-   self-contained gate text.
-4. The user's ad-hoc prompts for developer-guide, user-guide, and PRD
-   reconciliation passes can be re-expressed as short stage prompts that
-   point at the contract; we ship those as starters under
-   `docs/assets/prompts/`.
-5. No existing skill regresses: each refactored skill still produces the
-   same artifact set (guide changes, history record, gap-register updates,
-   commit-message draft) for the same inputs.
+1. The coverage-pass contract exists and is the single source for the
+   decision-frame mechanics, with four named surfaces (guide/playbook,
+   history, PRD, testing/UAT).
+2. The lifecycle anchor states the arc, the default ordering, the
+   derive-from-backlog principle, and the surface-departures straddle — with
+   no hard "never skip" gate.
+3. The lifecycle playbook exists as the dogfooded, persona-scoped narrative
+   map citing the anchor.
+4. Plans, PRDs, and work backlogs carry an advisory-default-but-overridable
+   `## Intended Follow-On` handoff.
+5. `docs/artifacts/` is sanctioned as an optional, zero-contract recommended
+   input surface.
+6. The coverage-pass starter prompts reproduce the closeout chain in
+   contract-citing form.
 
 ## Coordinate Decision
 
 - Coordinate: `W16 R0`
 - Classification: `new-wave`
-- Evidence: There is no prior plan or work backlog for a cross-cutting
-  workflow-contract refactor. The highest existing wave in `docs/plans/`
-  is `W15 R0` (`work-backlog-source-authority`). This work introduces a
-  new contract surface and a coordinated skill refactor, which is
-  distinct enough to warrant a new wave rather than a revision of W14
-  or W15. Confirm the coordinate during plan review before generating
-  the PRD/work artifacts.
-
-## Background
-
-The user has been running a four-prompt closeout chain (plan-and-implement,
-developer-guide coverage, user-guide coverage, PRD reconciliation, commit
-message) across other Make Docs–consuming projects. That chain has, in
-practice, outperformed the bundled `work-on-wave`, `work-on-phase`,
-`closeout-phase`, and `closeout-commit` skills.
-
-The wins are pattern-level, not content-level:
-
-- **Explicit decision outcomes.** Every pass forces one of a fixed set of
-  verdicts (e.g. `developer`, `user`, `both`, `update-existing`,
-  `link-only`, `none`) and requires the agent to record the verdict and a
-  reason — including the "no change needed" case.
-- **History-record idempotency.** A single rule — "check if a history
-  record already exists for this session; update it or create one, but
-  never duplicate" — is restated identically across passes.
-- **Contracts cited first, then acted on.** The prompts open by pointing
-  at contract and template files, instead of restating their rules.
-- **Validation as a closing checklist**, not a mid-flow script the agent
-  has to satisfy to proceed.
-
-Today these rules are partially duplicated inside `closeout-workflow.md`,
-partially embedded inline in `closeout-phase/SKILL.md` and
-`closeout-commit/SKILL.md`, and partially scattered across the prompt
-chain the user maintains by hand. The decision-frame pattern should live
-in one place.
+- Evidence: introduces a new cross-cutting workflow-contract surface plus the
+  lifecycle layer built on it; no prior plan or backlog covers it. The highest
+  prior wave is `W15 R0`. Confirm the coordinate before generating PRD/work
+  artifacts.
 
 ## Scope
 
-In scope:
+### Active (this wave) — one phase file each
 
-- A new reference: `docs/assets/references/coverage-pass-contract.md`.
-- Edits to:
-  - `docs/assets/references/AGENTS.md` (router entry).
-  - `docs/CLAUDE.md` (router link, only if needed for discoverability).
-  - `packages/skills/closeout-phase/SKILL.md`
-  - `packages/skills/closeout-phase/references/closeout-workflow.md`
-  - `packages/skills/closeout-commit/SKILL.md`
-  - `packages/skills/closeout-commit/references/closeout-commit-workflow.md`
-  - `packages/skills/work-on-phase/SKILL.md`
-  - `packages/skills/work-on-wave/SKILL.md`
-- New starter prompts under `docs/assets/prompts/` capturing the
-  developer-guide, user-guide, and PRD-reconciliation passes as short,
-  contract-citing prompts.
-- Mirror updates to the published skill copies under `.agents/skills/`
-  and `.claude/skills/` so each harness sees the same content.
+| Phase | File | Builds |
+| --- | --- | --- |
+| 01 | [01-coverage-pass-contract.md](01-coverage-pass-contract.md) | The coverage-pass contract + router wiring. |
+| 02 | [02-lifecycle-anchor.md](02-lifecycle-anchor.md) | The always-read lifecycle anchor. |
+| 03 | [03-lifecycle-playbook.md](03-lifecycle-playbook.md) | The dogfooded build-stack lifecycle playbook. |
+| 04 | [04-stage-follow-on-handoffs.md](04-stage-follow-on-handoffs.md) | Intended-Follow-On handoffs for plan/PRD/work. |
+| 05 | [05-artifacts-seed.md](05-artifacts-seed.md) | The optional `docs/artifacts/` seed directory. |
+| 06 | [06-starter-prompts.md](06-starter-prompts.md) | The coverage-pass starter prompts. |
 
-Out of scope (will be addressed in follow-on waves):
+### Deferred — to the no-scripts / CLI-migration wave
 
-- The broader "make-docs playbook" table-of-contents work the user wants
-  to discuss after this plan is approved.
-- Any terminology-overlay configuration (e.g. mapping `wave` to `sprint`).
-- Deprecation or merging of `closeout-phase` and `closeout-commit` into a
-  single skill.
-- New stage skills for testing, soft launch, archive, etc. — those become
-  trivial to add once the contract is in place.
+- Refactor of `closeout-phase`, `closeout-commit`, `work-on-phase`, and
+  `work-on-wave` to cite the contract.
+- The three-location skill mirror (`packages/skills` → `.agents`/`.claude`).
+- Rationale: these touch the same skills the no-scripts migration rewrites;
+  doing them here means touching each skill twice.
 
-## Phase Map
+### Out of scope — later waves
 
-| File | Purpose |
-| ---- | ------- |
-| `01-coverage-pass-contract.md` | Author the new reference contract and wire it into the references router and `docs/CLAUDE.md` if needed. |
-| `02-closeout-phase-refactor.md` | Rewrite `closeout-phase` SKILL and its `closeout-workflow.md` to delegate guide/gap rules to the new contract. |
-| `03-closeout-commit-refactor.md` | Rewrite `closeout-commit` SKILL and its `closeout-commit-workflow.md` to delegate gap/history rules to the new contract. |
-| `04-work-skill-refactor.md` | Update `work-on-phase` and `work-on-wave` SKILLs to cite the contract for closeout handoff language and remove duplicated rules. |
-| `05-starter-prompts.md` | Add starter prompts under `docs/assets/prompts/` for developer-guide, user-guide, and PRD-reconciliation passes, plus a short commit-message starter. |
-| `06-mirror-and-validate.md` | Mirror updated skills to `.agents/skills/` and `.claude/skills/`, run docs/style validation, refresh indexes, sanity-check link hygiene. |
-
-## Phase 01 — Coverage Pass Contract
-
-Author `docs/assets/references/coverage-pass-contract.md`. The contract
-must define, at minimum:
-
-- **Purpose**: what a "coverage pass" is and when one is run (typically
-  during closeout, but the contract is reusable for any pass that has to
-  make a documentation decision).
-- **Named outcomes**: the canonical verdict vocabulary, with definitions:
-  - `create` (new artifact)
-  - `update-existing` (modify existing artifact)
-  - `link-only` (cross-link without content change)
-  - `none` (explicitly no change needed)
-  - plus pass-specific outcome subsets, e.g. guide passes also allow
-    `developer`, `user`, `both`.
-- **History-record idempotency rule**: one normative paragraph that every
-  pass references verbatim — check for a session record; update if found;
-  create if not; never duplicate.
-- **Verdict-and-reason rule**: every pass must record the chosen outcome
-  *and* a short reason, including for `none`.
-- **Validation checklist template**: the common close-of-pass checks
-  (markdown style, docs index refresh, broken links, `git diff --check`,
-  placeholder scan).
-- **Pass authoring guidance**: how to author a new pass (developer
-  guide, user guide, PRD reconciliation, testing, launch, archive, …)
-  by referencing the contract instead of restating it.
-- **Non-goals**: the contract does not own what *should* be in a guide,
-  PRD, or history record — those remain in `guide-contract.md`,
-  `output-contract.md`, `prd-change-management.md`,
-  `history-record-contract.md`.
-
-Update `docs/assets/references/AGENTS.md` and `docs/CLAUDE.md` so the
-new contract is discoverable from the normal router path.
-
-Acceptance criteria:
-
-- File exists at the specified path.
-- File defines the verdict vocabulary, the idempotency rule, the
-  verdict-and-reason rule, and the validation checklist.
-- File is linked from at least the references router.
-- Existing contracts referenced from the new file remain unchanged
-  in this phase.
-
-## Phase 02 — `closeout-phase` Refactor
-
-Rewrite `packages/skills/closeout-phase/SKILL.md` so it:
-
-- References `coverage-pass-contract.md` for the verdict vocabulary,
-  the history-record idempotency rule, and the validation checklist.
-- Keeps phase-specific behavior (task-completion verification using
-  `work_phase_state.py`, `scope_guard` integration, `phase_gate`).
-
-Rewrite `closeout-workflow.md` to:
-
-- Replace duplicated guide-decision text with a reference to the
-  coverage-pass contract, then state only the phase-specific guide pass
-  responsibilities (e.g. "decide guide coverage for the implementation
-  changes in this phase").
-- Replace duplicated gap-capture text with a reference to the contract
-  plus PRD-specific routing rules (still owned by
-  `prd-change-management.md`).
-
-Acceptance criteria:
-
-- No rule that lives in the new contract is restated verbatim inside
-  the skill or workflow.
-- All previous outcomes (guide change decisions, gap capture, history
-  entry, validation, commit-message draft) are still reachable through
-  the rewritten workflow.
-
-## Phase 03 — `closeout-commit` Refactor
-
-Same shape as Phase 02, applied to `closeout-commit`:
-
-- Update SKILL and `closeout-commit-workflow.md` to reference the
-  coverage-pass contract for shared rules.
-- Keep commit-specific behavior (working-tree scope inspection, change
-  set discovery, commit-convention lookup).
-- Confirm the skill still does *not* run a guide pass unless the user
-  asks or a phase is in scope.
-
-## Phase 04 — Work-Execution Skill Refactor
-
-For `work-on-phase` and `work-on-wave`:
-
-- Replace any restated closeout rule with a reference to
-  `closeout-phase` (which in turn references the contract).
-- Remove rule duplication around history records, gap routing, and
-  validation language.
-- Leave delegation, planning, scope-guard, and phase-gate logic intact.
-
-## Phase 05 — Starter Prompts
-
-Add (or refactor, if equivalents exist) starter prompts under
-`docs/assets/prompts/`:
-
-- `coverage-pass-developer-guide.md`
-- `coverage-pass-user-guide.md`
-- `coverage-pass-prd-reconciliation.md`
-- `commit-message-from-convention.md`
-
-Each prompt should:
-
-- Open by pointing the agent at `coverage-pass-contract.md` and any
-  pass-specific contract (guide, PRD, history).
-- State the pass-specific outcome subset.
-- Require a verdict-and-reason for every documentation-worthy
-  capability.
-- Include the history-record idempotency rule by reference, not by
-  restating it.
-- Use the same closing-validation checklist by reference.
-
-These are starters, not skills. They mirror the chain the user already
-runs by hand, but now backed by the contract.
-
-## Phase 06 — Mirror and Validate
-
-- Mirror updated SKILL and reference files from `packages/skills/...`
-  to `.agents/skills/...` and `.claude/skills/...` so all harnesses load
-  the same content.
-- Run the repo's markdown/style checks (`make-docs` validation if
-  available; otherwise the closest equivalent the repo ships).
-- Refresh the `jdocmunch` docs index for `docs/`.
-- Run `git diff --check`.
-- Sanity-check relative links in the new contract and the rewritten
-  workflows.
-- Confirm no placeholders (`TODO`, `TBD`, `{{...}}`) remain in
-  contract-owned text.
+- Persona/config implementation, terminology and convention overlay, plugins,
+  the package rename, and the broader `docs/` restructure. The contract and
+  playbook are written to be *forward-compatible* with these but do not
+  implement them.
 
 ## Dependencies
 
-- The plan assumes the existing references (`guide-contract.md`,
+- Active scope depends on existing content contracts (`guide-contract.md`,
   `history-record-contract.md`, `output-contract.md`,
-  `prd-change-management.md`, `execution-workflow.md`,
-  `path-and-link-hygiene.md`) remain stable. They are *referenced* by
-  the new contract, not rewritten.
-- No code dependencies. All changes are documentation and skill prose.
+  `prd-change-management.md`, `path-and-link-hygiene.md`) remaining stable;
+  they are referenced, not rewritten.
+- The contract's persona-target axis is forward-written against a future
+  configuration; it ships with the legacy Developer/User mapping so it is
+  correct before that configuration exists.
+- Documentation-only; no code dependencies.
 
 ## Validation
 
-The plan is complete when:
-
-- `coverage-pass-contract.md` is the single source for the
-  decision-frame vocabulary, history-record idempotency rule,
-  verdict-and-reason rule, and validation checklist.
-- All four target skills (`closeout-phase`, `closeout-commit`,
-  `work-on-phase`, `work-on-wave`) reference the contract for every
-  rule it now owns.
-- Starter prompts under `docs/assets/prompts/` reproduce the user's
-  current four-prompt chain in contract-citing form.
-- Skill copies under `.agents/skills/` and `.claude/skills/` match
-  `packages/skills/`.
-- Repo-level validation passes (markdown/style, docs index refresh,
-  link hygiene, `git diff --check`, placeholder scan).
+- Each phase's acceptance criteria hold.
+- Repo checks pass: markdown/style, docs index refresh, link hygiene,
+  `git diff --check`, placeholder scan.
+- No new guide/playbook is marked `status: published`; the anchor contains no
+  hard "never skip" language; all stage vocabulary is domain-neutral.
 
 ## Risks and Open Questions
 
-- **R-1:** The contract may overreach if it tries to encode pass-specific
-  language (e.g. guide audience selection) that already lives in
-  `guide-contract.md`. Mitigation: keep the new contract focused on
-  *decision frame* mechanics; defer content rules to the existing
-  contracts.
-- **Q-1:** Should `closeout-phase` and `closeout-commit` eventually merge
-  into a single skill once the contract centralizes their shared rules?
-  Defer this question to a follow-on plan after the refactor lands and
-  the duplication is concretely measurable.
-- **Q-2:** Should the verdict vocabulary be enforced by a script (e.g.
-  a closeout validator that fails if a history record omits the verdict
-  field) or only by prose? Defer; prose-first now, scripted enforcement
-  later if drift appears.
-- **Q-3:** Confirm the `W16 R0` coordinate before generating PRD/work
-  artifacts from this plan.
+The full risk and decision set for this wave (and the broader make-docs
+evolution it sits within) is reconciled in
+`docs/prd/03-open-questions-and-risk-register.md`. Plan-local highlights:
+
+- **R-1:** Contract scope creep into pass-specific content or persona
+  definition. Mitigation: mechanics only; defer content to existing contracts
+  and persona definition to configuration.
+- **R-2:** The anchor drifts toward prescriptiveness or a hard gate.
+  Mitigation: the surface-departures straddle and explicit non-goals; no
+  "never skip" language.
+- **R-3:** Terminology re-introduces a software bias. Mitigation:
+  domain-neutral vocabulary is an explicit acceptance criterion and a register
+  entry.
+- **Q-1:** The post-restructure home for starter prompts.
+- **Q-2:** Confirm the `W16 R0` coordinate.
+- **Q-3:** Whether `docs/library/playbooks/` is created now or with the
+  broader restructure.

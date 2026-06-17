@@ -1,0 +1,99 @@
+<svg viewBox="0 0 760 560" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="ttl dsc">
+<title id="ttl">The make-docs lifecycle arc</title>
+<desc id="dsc">Optional artifacts inputs feed a linear planning segment (design, plan, PRD, work backlog), then a looped per-phase build segment with a cross-cutting coverage-pass band, then a release segment (release/publish, archival, retrospective). Color marks what make-docs covers today versus gaps.</desc>
+<style>
+  .title{font-family:var(--font-serif,Georgia,serif);font-size:18px;fill:var(--color-text-primary,#1a1a1a);}
+  .seg{font-family:var(--font-sans,system-ui,sans-serif);font-size:10.5px;letter-spacing:.07em;fill:var(--color-text-secondary,#6b7280);}
+  .name{font-family:var(--font-sans,system-ui,sans-serif);font-size:12.5px;fill:var(--color-text-primary,#1a1a1a);font-weight:600;}
+  .sub{font-family:var(--font-sans,system-ui,sans-serif);font-size:9.5px;fill:var(--color-text-secondary,#6b7280);}
+  .chip{font-family:var(--font-sans,system-ui,sans-serif);font-size:10px;fill:var(--color-text-primary,#1a1a1a);}
+  .box{fill:var(--color-background-primary,#ffffff);stroke:var(--color-border-secondary,#c7cbd1);stroke-width:1.5;}
+  .covered{fill:var(--color-text-info,#3b82f6);fill-opacity:.10;stroke:var(--color-text-info,#3b82f6);stroke-width:1.5;}
+  .gap{fill:none;stroke:var(--color-border-secondary,#b6bcc4);stroke-width:1.5;stroke-dasharray:5 4;}
+  .band{fill:var(--color-text-secondary,#6b7280);fill-opacity:.06;stroke:var(--color-border-tertiary,#e2e5ea);stroke-width:1;}
+  .container{fill:none;stroke:var(--color-border-tertiary,#e2e5ea);stroke-width:1;}
+  .flow{fill:none;stroke:var(--color-text-secondary,#9aa0a8);stroke-width:1.5;marker-end:url(#ah);}
+  .loop{fill:none;stroke:var(--color-text-info,#3b82f6);stroke-width:1.5;stroke-dasharray:4 3;marker-end:url(#ah);}
+</style>
+<defs>
+  <marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" fill="var(--color-text-secondary,#9aa0a8)"/>
+  </marker>
+</defs>
+
+<text x="380" y="26" text-anchor="middle" class="title">The make-docs lifecycle arc</text>
+
+<rect x="290" y="40" width="180" height="38" rx="8" class="gap"/>
+<text x="380" y="58" text-anchor="middle" class="name">docs/artifacts/</text>
+<text x="380" y="71" text-anchor="middle" class="sub">optional seed · no contract</text>
+<path d="M380,78 L380,94" class="flow"/>
+
+<rect x="30" y="96" width="700" height="86" rx="10" class="container"/>
+<text x="46" y="114" class="seg">SEGMENT 1 · PLAN — linear · gated · one-time</text>
+<rect x="46" y="128" width="150" height="42" rx="7" class="box covered"/>
+<text x="121" y="147" text-anchor="middle" class="name">Design</text>
+<text x="121" y="161" text-anchor="middle" class="sub">docs/designs/</text>
+<rect x="216" y="128" width="150" height="42" rx="7" class="box covered"/>
+<text x="291" y="147" text-anchor="middle" class="name">Plan</text>
+<text x="291" y="161" text-anchor="middle" class="sub">docs/plans/</text>
+<rect x="388" y="128" width="150" height="42" rx="7" class="box covered"/>
+<text x="463" y="147" text-anchor="middle" class="name">PRD</text>
+<text x="463" y="161" text-anchor="middle" class="sub">docs/prd/</text>
+<rect x="560" y="128" width="150" height="42" rx="7" class="box covered"/>
+<text x="635" y="147" text-anchor="middle" class="name">Work backlog</text>
+<text x="635" y="161" text-anchor="middle" class="sub">docs/work/</text>
+<path d="M198,149 L214,149" class="flow"/>
+<path d="M368,149 L386,149" class="flow"/>
+<path d="M540,149 L558,149" class="flow"/>
+<path d="M380,182 L380,198" class="flow"/>
+
+<rect x="30" y="200" width="700" height="216" rx="10" class="container"/>
+<text x="46" y="218" class="seg">SEGMENT 2 · BUILD — looped per phase (the part you re-run)</text>
+<rect x="46" y="238" width="152" height="58" rx="7" class="box covered"/>
+<text x="122" y="263" text-anchor="middle" class="name">Implement</text>
+<text x="122" y="278" text-anchor="middle" class="sub">build · tests</text>
+<rect x="222" y="232" width="372" height="128" rx="9" class="band"/>
+<text x="408" y="249" text-anchor="middle" class="seg">COVERAGE PASSES · every phase</text>
+<rect x="230" y="258" width="112" height="28" rx="6" class="box covered"/>
+<text x="286" y="276" text-anchor="middle" class="chip">Testing/UAT *</text>
+<rect x="350" y="258" width="112" height="28" rx="6" class="box covered"/>
+<text x="406" y="276" text-anchor="middle" class="chip">Dev guide</text>
+<rect x="470" y="258" width="112" height="28" rx="6" class="box covered"/>
+<text x="526" y="276" text-anchor="middle" class="chip">User guide</text>
+<rect x="230" y="296" width="112" height="28" rx="6" class="box covered"/>
+<text x="286" y="314" text-anchor="middle" class="chip">PRD reconcile</text>
+<rect x="350" y="296" width="112" height="28" rx="6" class="box covered"/>
+<text x="406" y="314" text-anchor="middle" class="chip">Docs hygiene</text>
+<rect x="470" y="296" width="112" height="28" rx="6" class="box covered"/>
+<text x="526" y="314" text-anchor="middle" class="chip">History (woven)</text>
+<rect x="608" y="238" width="112" height="58" rx="7" class="box covered"/>
+<text x="664" y="263" text-anchor="middle" class="name">Commit *</text>
+<text x="664" y="278" text-anchor="middle" class="sub">phase gate</text>
+<path d="M198,267 L220,267" class="flow"/>
+<path d="M594,267 L606,267" class="flow"/>
+<path d="M662,296 L662,384 L122,384 L122,298" class="loop"/>
+<text x="392" y="380" text-anchor="middle" class="sub">loop each phase until the wave is done</text>
+<path d="M380,416 L380,432" class="flow"/>
+
+<rect x="30" y="434" width="700" height="72" rx="10" class="container"/>
+<text x="46" y="452" class="seg">SEGMENT 3 · RELEASE &amp; BEYOND — per release · mostly gaps</text>
+<rect x="54" y="464" width="206" height="34" rx="7" class="gap"/>
+<text x="157" y="481" text-anchor="middle" class="name">Release / publish</text>
+<text x="157" y="493" text-anchor="middle" class="sub">gap</text>
+<rect x="277" y="464" width="206" height="34" rx="7" class="box covered"/>
+<text x="380" y="481" text-anchor="middle" class="name">Docs archival</text>
+<text x="380" y="493" text-anchor="middle" class="sub">archive-docs skill</text>
+<rect x="500" y="464" width="206" height="34" rx="7" class="gap"/>
+<text x="603" y="481" text-anchor="middle" class="name">Retrospective</text>
+<text x="603" y="493" text-anchor="middle" class="sub">gap</text>
+<path d="M262,481 L275,481" class="flow"/>
+<path d="M485,481 L498,481" class="flow"/>
+
+<rect x="40" y="524" width="15" height="11" rx="3" class="box covered"/>
+<text x="61" y="533" class="sub">covered today</text>
+<rect x="166" y="524" width="15" height="11" rx="3" class="gap"/>
+<text x="187" y="533" class="sub">gap / optional</text>
+<rect x="288" y="524" width="15" height="11" rx="3" class="band"/>
+<text x="309" y="533" class="sub">cross-cutting band</text>
+<text x="440" y="533" class="sub">* in-loop only (skipped when unattended)</text>
+</svg>

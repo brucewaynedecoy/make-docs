@@ -1,5 +1,16 @@
 # Make Docs Lifecycle Playbook and Terminology Overlay
 
+> **Superseded 2026-06-17 (Sense-A → Sense-B).** This design framed the
+> playbook as a single operating manual. The consolidated, current design
+> is
+> [2026-06-17-make-docs-lifecycle-foundation.md](2026-06-17-make-docs-lifecycle-foundation.md),
+> where a **playbook** is a persona-scoped procedural output type (under
+> `docs/library/playbooks/<persona>/`) and make-docs's own lifecycle
+> playbook is the dogfooded instance. The stage list and gap-analysis
+> intent below remain useful as historical context; for the current
+> direction on personas, configuration, the restructure, and the overlay,
+> see [docs/artifacts/evolution-direction.md](../artifacts/evolution-direction.md).
+
 ## Purpose
 
 Capture the decision to introduce a user-facing **lifecycle playbook**

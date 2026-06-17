@@ -1,5 +1,18 @@
 # Coverage Pass Contract and Skill Evolution
 
+> **Updated 2026-06-17 — re-scoped; partly superseded.** Two decisions
+> changed how this design executes. (1) The four-skill refactor in the
+> Decision below is **deferred** to the later no-scripts / CLI-migration
+> wave (see the risk register, R-008 and R-014). (2) The contract is now
+> **persona-aware** — the verdict axis is separate from the persona-target
+> axis — and adds **history** and **testing/UAT** as named coverage
+> surfaces alongside guide and PRD. Active scope is the contract plus
+> starter prompts. See the implementation plan
+> [00-overview.md](../plans/2026-05-28-w16-r0-coverage-pass-contract/00-overview.md),
+> the consolidated design
+> [2026-06-17-make-docs-lifecycle-foundation.md](2026-06-17-make-docs-lifecycle-foundation.md),
+> and the [risk register](../prd/03-open-questions-and-risk-register.md).
+
 ## Purpose
 
 Capture the decision to introduce a single repo-level "coverage pass"

@@ -8,6 +8,8 @@ The fixed-core overview layer now exists, but this living register still carries
 
 Status values are `Open`, `Confirming`, `Deferred`, and `Closed`. `Closed` requires an explicit recorded resolution.
 
+This register also tracks cross-cutting workflow, lifecycle, contract, and product-evolution decisions and risks that reach beyond the CLI, install, and packaging surface, including items not yet scoped to a specific wave.
+
 ## Confirmed Drift
 
 ### D-001 README Wording Understates the Live Idempotent Sync Model
@@ -168,6 +170,34 @@ Status values are `Open`, `Confirming`, `Deferred`, and `Closed`. `Closed` requi
 
 **Resolution**: PRD 05 now records the selected managed-file review boundary and PRD 13 now covers prompts, desired skill assets, and generic selected managed files in addition to instructions, references, and templates.
 
+### D-012 Authoritative Layer Encodes Structure but Not Lifecycle Ordering
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | Addressed by the W16 R0 lifecycle anchor and stage follow-on handoffs. | Land the anchor and handoffs, then re-evaluate. |
+
+**Issue**: Routers and contracts encode where artifacts live but not the order stages run. The design → plan → PRD → work → implement sequence is stated only in `docs/assets/prompts/` starters, which `docs/assets/prompts/AGENTS.md` marks as non-authoritative, so an agent can land on a plan and jump straight to implementing.
+
+**Why it matters**: Agents silently skip PRD and work-backlog generation, breaking the documentation-first pipeline make-docs exists to enforce.
+
+**Recommendation**: Add an always-read lifecycle anchor (default ordering, "implementation derives from a work backlog," surface-departures-not-silent) plus per-stage `## Intended Follow-On` handoffs.
+
+**To close**: The anchor and handoffs ship and an agent reading any stage output is nudged to the next stage without a hard gate.
+
+### D-013 W16 Design Docs Trail the Re-Scoped Plan
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Confirming | Reconciliation notes added to both designs; a fuller Sense-B playbook design is still pending. | Author the persona-scoped playbook design; verify the coverage-pass design matches the deferred skill scope. |
+
+**Issue**: The lifecycle-playbook design still frames a playbook as a single operating manual rather than a persona-scoped output type, and the coverage-pass design lists the four-skill refactor as active rather than deferred.
+
+**Why it matters**: Design docs carry rationale; if they contradict the active plan, contributors inherit the wrong intent.
+
+**Recommendation**: Keep the dated reconciliation notes and produce the persona-scoped playbook design as part of the playbook work.
+
+**To close**: Both designs agree with the current plan and the persona-scoped playbook framing.
+
 ## Open Questions
 
 ### Q-001 What Is the Long-Term Skills Delivery Contract?
@@ -270,6 +300,104 @@ Status values are `Open`, `Confirming`, `Deferred`, and `Closed`. `Closed` requi
 
 **To close**: Registry schema, resolver validation, docs, and tests enforce the chosen policy.
 
+### Q-008 What Is the Package and Directory Rename Target?
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | Rename intended; final name unresolved. | Select a name and the corresponding in-project directory rename. |
+
+**Question**: What does make-docs rename to, and what do its installed directories (currently `.make-docs/`) rename to?
+
+**Why it matters**: The name appears in the package, CLI, directories, contracts, and generated docs; the rename touches all of them and any docs authored now carry the old name.
+
+**Recommendation**: Decide the name before broad authored-surface work so the rename is a single sweep.
+
+**To close**: A name is chosen and the package, CLI, and directory renames are scoped.
+
+### Q-009 What Is the Persona Model Schema?
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | Default personas Agent/Developer/User over primitives agent/maintainer/user; custom personas allowed. | Fix the configuration schema (slug, label, description, primitive) before contracts hard-reference field names. |
+
+**Question**: What are the exact persona primitives, default personas, and configuration fields?
+
+**Why it matters**: The coverage-pass contract's persona-target axis and the persona-scoped guide and playbook directories depend on a stable schema.
+
+**Recommendation**: Confirm the schema; until then the contract describes the persona set abstractly with a legacy Developer/User mapping.
+
+**To close**: The persona configuration schema is defined and referenced consistently.
+
+### Q-010 Where Do Starter Prompts Live After the Restructure?
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | None yet | Decide the post-restructure home for reusable starter prompts. |
+
+**Question**: After the planned move of `docs/assets/**` into the in-project tool directory, where do reusable starter prompts live?
+
+**Why it matters**: The planned restructure tree has no prompts directory under either the tool directory or `docs/`, yet W16 ships starter prompts.
+
+**Recommendation**: Settle the prompts home before executing the restructure, not before authoring the prompts.
+
+**To close**: The restructure defines a prompts location and the prompts move there.
+
+### Q-011 Should Coordinate and Prefix Conventions Be Configurable?
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | Configurability intended; mechanism unresolved. | Decide where convention mappings live and the prefix options. |
+
+**Question**: Should teams redefine structural vocabulary (designs/plans/prd/work), coordinates (wave/revision/phase), and file-prefix style (slug-date vs version-number), and where is that controlled?
+
+**Why it matters**: All logic and agent instructions that map to directories and coordinates would need to read the mapping instead of hard-coded conventions.
+
+**Recommendation**: Treat the overlay as presentation only — rename presented vocabulary, never paths, frontmatter, skill names, or contract names.
+
+**To close**: A configuration mechanism defines convention mappings and the prefix-style choice.
+
+### Q-012 How Do Plugins and Skills Share an Install and Respect Config Mapping?
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | Shared install via a single location plus per-harness symlinks intended. | Define a cross-platform redirection model and how plugins read config relabels. |
+
+**Question**: How are skills and plugins installed once and exposed to each harness without duplication, and how does a plugin that guides (for example) requirements → design → plan respect a config that relabels "designs" to "ideas"?
+
+**Why it matters**: Skills are duplicated across agent directories today; plugins will face the same problem and must honor the customization mapping.
+
+**Recommendation**: Evaluate filesystem redirection (symlinks, Linux/Mac/Windows) versus CLI routing that returns the mapped contracts, instructions, and paths.
+
+**To close**: A cross-platform shared-install and config-aware routing model is defined.
+
+### Q-013 What Are the Plugin Flow and Exposure Boundaries?
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | None yet | Resolve request-vs-change, docs visibility, and scaffold exposure. |
+
+**Question**: Is "file a request" a separate flow from "make a change"? Are generated docs shown, hidden, or toggle-able for non-technical users? Is the scaffold/build entry point user-facing or maintainer-only?
+
+**Why it matters**: Plugins are the sanctioned entry point for non-maintainers; these boundaries decide the guardrails against doc-set corruption.
+
+**Recommendation**: Decide per plugin before building the plugin bundles.
+
+**To close**: Each plugin's flow and exposure are specified.
+
+### Q-014 Does the `docs/library/` Move Land in W16 or the Broader Restructure?
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | None yet | Decide whether to create `docs/library/playbooks/` and move guides now or with the restructure. |
+
+**Question**: W16 authors a playbook under `docs/library/playbooks/`, but moving `docs/guides/` to `docs/library/guides/` is part of the broader restructure.
+
+**Why it matters**: Creating the playbook home early without the guides move leaves a partial `docs/library/` layout.
+
+**Recommendation**: Either create only the playbook subtree now and move guides later, or sequence both with the restructure.
+
+**To close**: The library layout timing is decided and consistent.
+
 ## Rebuild Risks
 
 ### R-001 Home-Scoped Skills Are Easy to Drop From a Clean-Room Rebuild
@@ -369,6 +497,104 @@ Status values are `Open`, `Confirming`, `Deferred`, and `Closed`. `Closed` requi
 **Recommendation**: Preserve manual review but add tests that catch contract drift between template and dogfood copies.
 
 **To close**: Template contract changes cannot pass focused tests while dogfood copies are stale.
+
+### R-008 Deferring the Skill Refactor Prolongs Reliance on Script-Gated Skills
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | Skill refactor deferred to the no-scripts / CLI-migration wave. | Ship the W16 starter prompts as the interim path; revisit if that wave slips. |
+
+**Issue**: The closeout and work skills keep their current script-gated behavior until the no-scripts wave rewrites them to cite the coverage-pass contract.
+
+**Why it matters**: Users stay on the less-effective skills longer than the contract alone would require.
+
+**Recommendation**: Use the contract-citing starter prompts as the interim chain; sequence the skill refactor with the no-scripts migration so the skills change once.
+
+**To close**: The four skills cite the contract, carry no standalone script references, and pass parity across install locations.
+
+### R-009 The Lifecycle Anchor Could Drift Toward a Hard Gate
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | Anchor is advisory: default the arc and surface departures, never forbid them. | Keep the straddle wording and non-goals when editing the anchor. |
+
+**Issue**: An always-read ordering reference can creep into a "never skip stages" rule.
+
+**Why it matters**: A hard gate would make make-docs prescriptive and break non-linear real workflows — the corner make-docs exists to avoid.
+
+**Recommendation**: Keep the nudge as "default to the arc and surface any departure," not enforcement.
+
+**To close**: The anchor contains no hard-gate language and still nudges effectively.
+
+### R-010 make-docs Vocabulary Could Re-Introduce a Software Bias
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Confirming | Stage vocabulary is domain-neutral (e.g., "release / publish," not "launch / deploy"). | Audit anchor, playbook, and contract text for software-specific terms. |
+
+**Issue**: Terms like "launch" or "deploy" steer agents toward assuming a technical deployment outcome.
+
+**Why it matters**: make-docs serves non-software documentation work; biased vocabulary narrows its use.
+
+**Recommendation**: Define release-style stages as "make the work available to its audience" and keep all stage vocabulary neutral.
+
+**To close**: Lifecycle and contract docs use domain-neutral vocabulary throughout.
+
+### R-011 The Persona-Target Axis References a Future Configuration
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | Ships with a legacy Developer/User mapping so it is correct before configuration exists. | Replace the legacy mapping with the configured persona set when personas land. |
+
+**Issue**: The coverage-pass contract's persona-target axis points at a configuration file that does not yet exist.
+
+**Why it matters**: A dangling reference could confuse agents before the persona system ships.
+
+**Recommendation**: Describe the persona set abstractly and rely on the legacy mapping until configuration exists.
+
+**To close**: The contract reads from the real persona configuration once available.
+
+### R-012 Playbooks and Plugins Could Become Overlapping Deliverables
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Confirming | Resolved by the content-vs-invocation boundary; the Run-Playbook plugin is the seam. | Keep the boundary explicit when designing plugins. |
+
+**Issue**: Both playbooks and plugins can look like "the thing that runs a workflow."
+
+**Why it matters**: Without a boundary, the project risks building two systems that do the same job.
+
+**Recommendation**: A playbook is a persona-scoped *process definition* (content); a plugin is an *invocation* (a slash command) wrapping a built-in workflow or the generic Run-Playbook executor.
+
+**To close**: Plugin and playbook designs cite and respect the boundary.
+
+### R-013 The Restructure and Rename Will Relocate Newly Authored Assets
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | Authored now at current paths; relocation is a later mechanical sweep. | Record migration mappings for the contract, prompts, and library docs. |
+
+**Issue**: Assets authored in W16 (the coverage-pass contract, starter prompts, library playbook) will move when `docs/assets/**` migrates into the renamed tool directory.
+
+**Why it matters**: Links and references authored now can break on the restructure if mappings are not tracked.
+
+**Recommendation**: Author at current paths, record each item's target location, and treat relocation as one sweep during the restructure.
+
+**To close**: Migration mappings exist and the restructure relocates the assets without broken links.
+
+### R-014 The No-Scripts Migration Has a Transitional Break Window
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | Move deterministic logic into the CLI; sequence the skill refactor into the same wave. | Avoid rewriting skills to cite the contract before the CLI provides their logic. |
+
+**Issue**: Moving all script logic into the CLI while skills still reference standalone scripts creates a window where skills could break.
+
+**Why it matters**: Skills depend on standalone scripts today; removing them without the CLI replacement in place breaks closeout and work flows.
+
+**Recommendation**: Land the CLI logic and the contract-citing skill rewrite together in the no-scripts wave.
+
+**To close**: Skills source their deterministic logic from the CLI with no standalone script dependencies.
 
 ## Source Anchors
 
