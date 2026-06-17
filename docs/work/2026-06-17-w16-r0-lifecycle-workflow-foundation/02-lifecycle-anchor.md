@@ -21,11 +21,11 @@ backlog, while keeping departures allowed and surfaced rather than forbidden.
 
 ### Tasks
 
-- [ ] t1: Create the lifecycle anchor reference (working name `docs/assets/references/lifecycle.md`) describing the arc as bands: optional `docs/artifacts/` inputs; Segment 1 (Design -> Plan -> PRD -> Work backlog); Segment 2 (Implement -> coverage-pass band -> Commit, looped per phase); Segment 3 (Release/publish -> Archival -> Retrospective).
-- [ ] t2: State the default-ordering principle: implementation normally derives from a work backlog, which derives from a PRD, which derives from a plan.
-- [ ] t3: Write the straddle rule — default to the arc; allow skip/reorder/revisit when the user directs it or the situation warrants; surface any departure rather than taking it silently; no hard "never skip" gate.
-- [ ] t4: Use domain-neutral vocabulary throughout, defining "release / publish" as making the work available to its audience (deploy code, publish docs, push to source control, hand off a report).
-- [ ] t5: Wire the anchor into the read path via a router pointer (root and `docs/` routers) without bloating every turn.
+- [x] t1: Create the lifecycle anchor reference (working name `docs/assets/references/lifecycle.md`) describing the arc as bands: optional `docs/artifacts/` inputs; Segment 1 (Design -> Plan -> PRD -> Work backlog); Segment 2 (Implement -> coverage-pass band -> Commit, looped per phase); Segment 3 (Release/publish -> Archival -> Retrospective).
+- [x] t2: State the default-ordering principle: implementation normally derives from a work backlog, which derives from a PRD, which derives from a plan.
+- [x] t3: Write the straddle rule — default to the arc; allow skip/reorder/revisit when the user directs it or the situation warrants; surface any departure rather than taking it silently; no hard "never skip" gate.
+- [x] t4: Use domain-neutral vocabulary throughout, defining "release / publish" as making the work available to its audience (deploy code, publish docs, push to source control, hand off a report).
+- [x] t5: Wire the anchor into the read path via a router pointer (root and `docs/` routers) without bloating every turn.
 
 ### Acceptance criteria
 

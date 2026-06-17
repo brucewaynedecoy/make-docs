@@ -1,6 +1,6 @@
 # Documentation Router
 
-Use `docs/` only as a router. Do not create generated files directly in this directory.
+Use `docs/` only as a router. Do not create generated files directly in this directory. For lifecycle order or skip/reorder/revisit decisions, read `docs/assets/references/lifecycle.md` and surface departures from the default arc.
 
 - Source Markdown uses semantic line breaks; for path and link hygiene, use project-relative paths and relative Markdown links, and read `docs/assets/references/path-and-link-hygiene.md` when auditing or deciding whether an absolute path is warranted.
 - For design docs, read `docs/assets/references/design-workflow.md`, `docs/assets/references/design-contract.md`, and `docs/assets/templates/design.md`, then continue in `docs/designs/`.
