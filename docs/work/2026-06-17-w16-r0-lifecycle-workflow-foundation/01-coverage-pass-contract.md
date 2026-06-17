@@ -23,13 +23,13 @@ canonical home for the pattern.
 
 ### Tasks
 
-- [ ] t1: Create `docs/assets/references/coverage-pass-contract.md` with the seven-step pass skeleton.
-- [ ] t2: Define the base verdict semantics (`create`, `update-existing`, `link-only`, `none`) as a spine, with the rule that pass-specific verdicts map onto it.
-- [ ] t3: Define the named coverage surfaces (guide/playbook, history, PRD, testing/UAT) with their verdict sets and mappings.
-- [ ] t4: Document the verdict-vs-persona-target separation, the configured-persona-set rule, and the legacy Developer/User mapping for use before configuration exists.
-- [ ] t5: Write the history-record idempotency rule (deferring mechanics to `history-record-contract.md`) with the dual-role note.
-- [ ] t6: Write the verdict-and-reason rule and the prose close-of-pass validation checklist.
-- [ ] t7: Write the "defining a new coverage pass" recipe and the explicit non-goals.
+- [x] t1: Create `docs/assets/references/coverage-pass-contract.md` with the seven-step pass skeleton.
+- [x] t2: Define the base verdict semantics (`create`, `update-existing`, `link-only`, `none`) as a spine, with the rule that pass-specific verdicts map onto it.
+- [x] t3: Define the named coverage surfaces (guide/playbook, history, PRD, testing/UAT) with their verdict sets and mappings.
+- [x] t4: Document the verdict-vs-persona-target separation, the configured-persona-set rule, and the legacy Developer/User mapping for use before configuration exists.
+- [x] t5: Write the history-record idempotency rule (deferring mechanics to `history-record-contract.md`) with the dual-role note.
+- [x] t6: Write the verdict-and-reason rule and the prose close-of-pass validation checklist.
+- [x] t7: Write the "defining a new coverage pass" recipe and the explicit non-goals.
 
 ### Acceptance criteria
 
@@ -45,9 +45,9 @@ canonical home for the pattern.
 
 ### Tasks
 
-- [ ] t8: Add a one-line entry for the contract to `docs/assets/references/AGENTS.md`.
-- [ ] t9: Replace the inline guide-verdict list in `docs/CLAUDE.md` with a pointer to the contract.
-- [ ] t10: Replace the inline verdict restatement in `docs/guides/AGENTS.md` with a pointer to the contract.
+- [x] t8: Add a one-line entry for the contract to `docs/assets/references/AGENTS.md`.
+- [x] t9: Replace the inline guide-verdict list in `docs/CLAUDE.md` with a pointer to the contract.
+- [x] t10: Replace the inline verdict restatement in `docs/guides/AGENTS.md` with a pointer to the contract.
 
 ### Acceptance criteria
 
