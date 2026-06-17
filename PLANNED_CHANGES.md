@@ -1,0 +1,53 @@
+# Planned Changes
+
+> AGENT INSTRUCTIONS:  This file is temporary and will not be a permanent fixture in this repo.  When creating designs, plans, work backlogs, PRDs, history entries, or any other documentation, do NOT use this file as a reference.
+
+## No Scripts
+No scripts.  Move ALL script logic into the CLI.  Add an MCP endpoint to the CLI, but also add skills that guide agents on using the CLI (e.g., if the user does NOT want to set up their agent with the MCP server).
+
+## Rename
+Make-Docs is too common and confusing.  First choice for rename is `norms` (which seems to be available on npm and Homebrew, but NOT on Cargo).  If we can't settle on something that isn't already taken that leverages the word `norm`, then we'll lean towards something involving "No Gap" instead (e.g., `nogap` installs the `nogap` CLI, etc.).  Here are some potential names to consider that are not already taken:
+
+- `nrmly`
+- `normly`
+- `normify`
+- `normroom`
+- `normalspace`
+- `normon`
+
+As a part of renaming, we will also need to rename some of the directories installed in projects/directories (e.g., `.make-docs` -> `.norms`, etc.).
+
+## Restructure Docs
+Restructure the documentation to be more organized and easier to navigate.  See [PLANNED_RESTRUCTURE.md](PLANNED_RESTRUCTURE.md) for more details.
+
+Two critical parts of the restructure are moving `docs/guides` into `docs/library` (e.g., `docs/guides/` -> `docs/library/guides/`) and moving most of the contents of `docs/assets` into `.make-docs` / `.nogap`.
+
+The addition of the `library` directory will give us the ability to split out playbooks from role-specific guides/documentation about the product/project/system (which is what is stored in `guides`).
+
+## Update CLI
+Update the entire CLI so that the project-specific installation/setup/reconfigure/remove process is all handled under a single sub-command if possible (e.g., `gap init`, `gap setup`, etc.), with other sub-commands for other CLI functionality (like running the tools/mcp server/etc.).  This CLI-forking pattern is already somewhat baked into the CLI (see `make-docs` vs. `make-docs skills` for an example), but it would need clear boundaries between the project-specific sub-commands and the general CLI functionality.
+
+## Customizability
+A new `config.yaml` file will be added to the tool's in-project directory (e.g., `.make-docs/config.yaml`) to allow customization of the tool's behavior.  Agent instructions will need to be updated to reference this file, as will much (if not all) of the CLI logic.
+
+### Personas
+This config will contain project/repo-specific settings such as personas.  Today, we only support "Developer" and "User" personas (i.e., under `docs/guides`; however, after implementing persona support and configurability, the DEFAULT personas will be "Agent", "Developer", and "User", but additional personas can be added via the config.  The result will be that guides under `docs/library/guides/` and playbooks under `docs/library/playbooks/` will be contained in sub-directories indicating which persona they are targeted at, and when agents draft new guides and playbooks, they'll use the persona-specific descriptions from the config to generate content that is tailored to the persona's needs.
+
+### Conventions
+Currently, make-docs uses a structural convention of `designs`, `guides`, `plans`, `prd`, and `work`, and coordinate conventions of wave (i.e., `w{n}`), revision (i.e., `r{n}`), and phase (i.e., `p{n}`).  Make-docs also currently implements a slug-formatted date as a file prefix for certain files (i.e., history entries; design docs; etc.) and for certain sub-directories (i.e., under `docs/plans` and `docs/work`).  However, we want make-docs to flexibly use other conventions and vocabulary that can be defined in the config.  For example, teams/users should be able to define their own conventions and vocabulary for organizing docs, and make-docs should be able to use those conventions instead of the hard-coded conventions it currently uses.  They should also be able to choose whether files/directories that apply a prefix convention should use the slug-formatted date (as the convention) or a version-number style convention (which would be controlled in either the make-docs config file, the manifest file, or something else TBD).
+
+The result should be that all logic and agent instructions that map things to specific sub-directories under `docs/` and that map to coordinates, will be able to use mappings provided in the config instead (i.e., instead of using hard-coded/hard-documented conventions and coordinates).  See [2026-05-28-make-docs-lifecycle-playbook.md](docs/designs/2026-05-28-make-docs-lifecycle-playbook.md).
+
+## Skills
+Add a skill for using the CLI.  When installing make-docs, recommend installing the Skill if the MCP server isn't installed.
+
+There are other skills that need to be added (as well as existing skills that need to be significantly improved).  As a rule, all skills that rely on scripts or deterministic logic should have that logic baked into the CLI itself rather than stored in standalone or external scripts or files.  See [2026-05-28-coverage-pass-contract-and-skill-evolution.md](docs/designs/2026-05-28-coverage-pass-contract-and-skill-evolution.md).
+
+## Plug-Ins
+Both Claude Code and Codex support plug-ins, though the implementation is different between the two.  We intend to support both.
+
+Just like skills, we will add the ability for the CLI tool to install and manage plug-ins (globally or project-specific...though I think this may only be supported globally for both agent harnesses...tbd).
+
+Also just like skills, we will maintain a directory of plug-ins that are available for installation, which could be in the make-docs repo or could be in a separate plug-ins repository.
+
+The plug-ins we've identified so far include:

@@ -1,3 +1,8 @@
+# Planned Restructure
+
+> AGENT INSTRUCTIONS:  This file is temporary and will not be a permanent fixture in this repo.  When creating designs, plans, work backlogs, PRDs, history entries, or any other documentation, do NOT use this file as a reference.
+
+## Directory Structure
 
 ```md
 .make-docs/
@@ -78,13 +83,21 @@
 │     ├─ AGENTS.md
 │     └─ CLAUDE.md
 ├─ AGENTS.md
-└─ CLAUDE.md
+├─ CLAUDE.md
+├─ config.yaml
+└─ manifest.json
 
 docs/
 ├─ designs/
 │  ├─ AGENTS.md
 │  └─ CLAUDE.md
-├─ guides/
+├─ library/
+│  ├─ guides/
+│  │  ├─ AGENTS.md
+│  │  └─ CLAUDE.md
+│  ├─ playbooks/
+│  │  ├─ AGENTS.md
+│  │  └─ CLAUDE.md
 │  ├─ AGENTS.md
 │  └─ CLAUDE.md
 ├─ plans/
@@ -98,6 +111,10 @@ docs/
    └─ CLAUDE.md
 
 ```
+
+## Example Manifest
+
+### Current State
 
 ```json
 {
