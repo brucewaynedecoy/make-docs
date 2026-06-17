@@ -47,6 +47,39 @@ Add a skill for using the CLI.  When installing make-docs, recommend installing 
 
 There are other skills that need to be added (as well as existing skills that need to be significantly improved).  As a rule, all skills that rely on scripts or deterministic logic should have that logic baked into the CLI itself rather than stored in standalone or external scripts or files.  See [2026-05-28-coverage-pass-contract-and-skill-evolution.md](docs/designs/2026-05-28-coverage-pass-contract-and-skill-evolution.md).
 
+## Lifecycle Sequencing Nudges
+
+Scratchpad only (not yet a design). Fixes two gaps where make-docs fails to nudge agents toward the intended `design -> plan -> PRD -> work -> implement` lifecycle: an agent can land on a plan and jump straight to implementing, skipping PRD and work-backlog generation, with nothing authoritative to steer it back. Both fixes must be **authoritative but not absolute** — the agent's default when left to decide, always overridable by the user. The design contract already strikes this tone: its `## Intended Follow-On` is "authoritative unless the user explicitly overrides it." Reuse that exact framing.
+
+### Stage Follow-On Handoffs
+Designs already carry `## Intended Follow-On` (Route, Next Prompt, Why, Coordinate Handoff). Give the same handoff to the primary output of every downstream stage so the chain doesn't break at any seam:
+
+- **Plan** (`00-overview.md`) -> recommended next: generate the PRD (`plan-to-prd-green-field.prompt.md` / `plan-to-prd-change.prompt.md`).
+- **PRD** (`00-index.md`) -> recommended next: generate the work backlog (`prd-to-work-*.prompt.md` / `prd-change-to-work.prompt.md`).
+- **Work backlog** (`00-index.md`) -> recommended next: the implementation loop (`work-on-phase` / `work-on-wave`).
+
+Wording rules:
+
+- Names the *advisable* next workflow; it is the default the agent takes when not otherwise steered.
+- Explicitly overridable — if the user steers elsewhere, the user wins.
+- NOT a gate or precondition. Records preferred sequence and intent, not enforcement. No stage "fails" for lacking a follow-on.
+- Carry the coordinate forward (like the design's `Coordinate Handoff`) so the next stage inherits W/R/P.
+
+Open: Route vocabulary per stage; frontmatter vs. section vs. both; whether index docs and/or phase docs carry it; whether the follow-on should also name the persona set in scope once personas land.
+
+### Always-Read Lifecycle Anchor
+A thin, authoritative reference (working name: `lifecycle.md`) that an agent reads early — it lays out the whole arc and the *default* forward path. Harder to straddle; do NOT write a hard "never skip stages" rule. Real workflows skip, reorder, and revisit, and an absolute gate would paint users into the corner make-docs exists to avoid. Instead:
+
+- State the canonical arc and the *preferred* default ordering.
+- State the principle that tripped us up: implementation normally **derives from a work backlog**, which derives from a PRD, which derives from a plan — so the default is to route through those, not jump.
+- Explicitly **allow** skipping/reordering/revisiting when the user directs it or the situation warrants.
+- The real nudge is not "never skip" — it is **"default to the arc, and *surface* any departure rather than taking it silently."** An agent about to implement straight from a plan should either route through PRD -> work by default, or say "I'm skipping PRD/work generation here because X — confirm?" The failure mode to kill is the *silent* skip, not the skip itself.
+- Agent-facing (authoritative ordering); the lifecycle playbook is the human-facing narrative map. They cite each other — the anchor is what makes the playbook's order actually nudge agents.
+
+Open: where the anchor lives (a references file vs. a line in the root routers that points to it) and how it enters the "always-read" path without bloating every turn.
+
+Together these also close the deeper gap behind them: today the routers are spatial ("where things go") and the only place the *sequence* is written is the optional prompts, which are explicitly non-authoritative. Handoffs + anchor put the sequence into the authoritative layer.
+
 ## Plug-Ins
 Both Claude Code and Codex support plug-ins, though the implementation is different between the two.  We intend to support both.
 
