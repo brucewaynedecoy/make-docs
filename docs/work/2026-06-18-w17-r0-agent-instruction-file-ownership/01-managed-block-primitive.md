@@ -21,10 +21,10 @@ deterministic rather than a fragile content match.
 
 ### Tasks
 
-- [ ] t1: Add marker constants (working form `<!-- make-docs:begin -->` / `<!-- make-docs:end -->`) and a block parser/writer module under `packages/cli/src/`.
-- [ ] t2: Implement idempotent operations: insert when absent, replace the body on update, re-assert when the body was edited, and no-op when the body already matches.
-- [ ] t3: Handle edge cases deterministically: missing, duplicate, or unterminated markers, and files without a trailing newline; preserve surrounding content byte-for-byte.
-- [ ] t4: Add unit tests under `packages/cli/tests/` for greenfield, update, edited-body, and malformed-marker cases.
+- [x] t1: Add marker constants (working form `<!-- make-docs:begin -->` / `<!-- make-docs:end -->`) and a block parser/writer module under `packages/cli/src/`.
+- [x] t2: Implement idempotent operations: insert when absent, replace the body on update, re-assert when the body was edited, and no-op when the body already matches.
+- [x] t3: Handle edge cases deterministically: missing, duplicate, or unterminated markers, and files without a trailing newline; preserve surrounding content byte-for-byte.
+- [x] t4: Add unit tests under `packages/cli/tests/` for greenfield, update, edited-body, and malformed-marker cases.
 
 ### Acceptance criteria
 
