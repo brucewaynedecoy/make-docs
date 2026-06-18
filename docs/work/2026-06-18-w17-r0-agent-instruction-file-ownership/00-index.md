@@ -8,8 +8,8 @@
 
 This delta backlog implements
 [PRD 15 — Revise Agent Instruction File Ownership](../../prd/15-revise-agent-instruction-file-ownership.md):
-a delimited managed-block plus dedicated-file model for agent instruction files,
-with block-scoped reconciliation, non-destructive migration, and dogfood. It is
+a delimited managed-block inline-routing model for agent instruction files, with
+block-scoped reconciliation, non-destructive migration, and dogfood. It is
 derived from the W17 R0 plan and revises the conflict and ownership behavior in
 PRD 07 and 13.
 
@@ -29,7 +29,7 @@ content and stay in the repo root.
 | File | Purpose |
 | --- | --- |
 | [01-managed-block-primitive.md](./01-managed-block-primitive.md) | Build the delimited managed-block parser/writer. |
-| [02-dedicated-file-and-harness-block.md](./02-dedicated-file-and-harness-block.md) | Add the dedicated instruction file and harness-aware block render. |
+| [02-dedicated-file-and-harness-block.md](./02-dedicated-file-and-harness-block.md) | Add inline root instruction block rendering and harness parity. |
 | [03-block-level-reconciliation.md](./03-block-level-reconciliation.md) | Move manifest tracking and conflict review to block scope. |
 | [04-migration-and-dogfood.md](./04-migration-and-dogfood.md) | Migrate existing installs and re-seed the dogfood. |
 | [05-validation.md](./05-validation.md) | CLI tests, smoke-pack, and PRD reconciliation closeout. |

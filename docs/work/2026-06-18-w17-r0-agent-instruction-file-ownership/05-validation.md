@@ -24,7 +24,7 @@ baseline annotations are confirmed against the now-real implementation.
 ### Tasks
 
 - [x] t1: Run focused CLI tests for the block model and its edge cases: idempotency, user-content preservation, missing/edited/duplicate markers, multiple harnesses, greenfield install, migration, and block-scoped conflict review. Covered by `npm test -w packages/cli -- managed-block renderers install`.
-- [x] t2: Smoke-pack the packaged template to confirm the dedicated instruction source and the block template ship and install cleanly from a clean directory. Covered by `npm run smoke:pack` and `scripts/smoke-pack.mjs`, including packed `.make-docs/AGENTS.md` / `.make-docs/CLAUDE.md` and clean-install root managed-block assertions.
+- [x] t2: Smoke-pack the packaged template to confirm the inline root instruction block ships and installs cleanly from a clean directory. Covered by `npm run smoke:pack` and `scripts/smoke-pack.mjs`, including absence of packed `.make-docs/AGENTS.md` / `.make-docs/CLAUDE.md` instruction files and clean-install root managed-block assertions.
 - [x] t3: Regression-check that non-instruction managed files keep the existing whole-file overwrite/skip conflict behavior. Covered by the focused install test suite's non-instruction reference/template conflict cases.
 
 ## Stage 2 - PRD reconciliation closeout

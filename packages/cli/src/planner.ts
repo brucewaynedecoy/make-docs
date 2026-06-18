@@ -84,6 +84,7 @@ export async function createInstallPlan(options: {
       asset,
       currentContent,
       manifestEntry,
+      currentHash,
     );
     if (migrationContent) {
       actions.push({
@@ -603,6 +604,7 @@ function getRootInstructionMigrationContent(
   asset: ResolvedAsset,
   currentContent: string,
   manifestEntry: InstallManifest["files"][string] | undefined,
+  currentHash: string | null,
 ): { content: string; reason: string } | null {
   if (!isRootInstructionPath(asset.relativePath)) {
     return null;
@@ -610,6 +612,17 @@ function getRootInstructionMigrationContent(
 
   const currentBlock = parseManagedBlock(currentContent);
   if (currentBlock.state !== "absent") {
+    if (
+      currentBlock.state === "valid" &&
+      currentHash !== null &&
+      manifestEntry?.hash === currentHash
+    ) {
+      return {
+        content: getPlannedUpdateContent(asset, currentContent),
+        reason: "Refresh the manifest-owned root instruction block to the current inline routing.",
+      };
+    }
+
     return null;
   }
 

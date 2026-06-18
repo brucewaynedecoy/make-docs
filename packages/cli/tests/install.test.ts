@@ -9,7 +9,7 @@ import {
   planInstall,
   planSkillsOnlyInstall,
 } from "../src/install";
-import { parseManagedBlock } from "../src/managed-block";
+import { parseManagedBlock, renderManagedBlock } from "../src/managed-block";
 import { loadManifest } from "../src/manifest";
 import { defaultSelections, resolveInstallProfile } from "../src/profile";
 import { hashText, readPackageFile } from "../src/utils";
@@ -95,7 +95,6 @@ async function syncSkillsOnly(
 
 const FULL_PROFILE_INSTRUCTION_DIRS = [
   ".",
-  ".make-docs",
   "docs",
   "docs/assets",
   "docs/assets/archive",
@@ -109,6 +108,16 @@ const FULL_PROFILE_INSTRUCTION_DIRS = [
   "docs/assets/templates",
   "docs/assets/prompts",
 ] as const;
+
+const LEGACY_W17_AGENTS_BODY = [
+  "See `.make-docs/AGENTS.md` for the full make-docs routing.",
+  "",
+  "When asked to create documentation for this project that is not `README.md`, read the same-named instruction file in `docs/` before writing.",
+  "",
+].join("\n");
+const LEGACY_W17_CLAUDE_BODY = "@.make-docs/CLAUDE.md\n";
+const LEGACY_W17_DEDICATED_CONTENT =
+  "# make-docs Instructions\n\nWhen asked to create documentation for this project that is not `README.md`, read the same-named instruction file in `docs/` before writing.\n";
 
 function getInstructionPaths(instructionKind: "AGENTS.md" | "CLAUDE.md"): string[] {
   return FULL_PROFILE_INSTRUCTION_DIRS.map((relativeDir) =>
@@ -1093,6 +1102,101 @@ describe("installer integration", () => {
       expect(readFileSync(path.join(targetDir, "AGENTS.md"), "utf8")).toBe(
         readPackageFile("AGENTS.md"),
       );
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("refreshes clean W17 root blocks and removes stale dedicated instruction files", async () => {
+    const targetDir = createTempDir();
+    try {
+      const selections = defaultSelections();
+      const profile = resolveInstallProfile(selections);
+      writeFileSync(
+        path.join(targetDir, "AGENTS.md"),
+        `${renderManagedBlock(LEGACY_W17_AGENTS_BODY)}\n`,
+        "utf8",
+      );
+      writeFileSync(
+        path.join(targetDir, "CLAUDE.md"),
+        `${renderManagedBlock(LEGACY_W17_CLAUDE_BODY)}\n`,
+        "utf8",
+      );
+      mkdirSync(path.join(targetDir, ".make-docs"), { recursive: true });
+      writeFileSync(
+        path.join(targetDir, ".make-docs/AGENTS.md"),
+        LEGACY_W17_DEDICATED_CONTENT,
+        "utf8",
+      );
+      writeFileSync(
+        path.join(targetDir, ".make-docs/CLAUDE.md"),
+        LEGACY_W17_DEDICATED_CONTENT,
+        "utf8",
+      );
+
+      const existingManifest = {
+        schemaVersion: 1,
+        packageName: "make-docs",
+        packageVersion: "0.1.0",
+        updatedAt: "2026-06-18T00:00:00.000Z",
+        profileId: profile.profileId,
+        selections,
+        effectiveCapabilities: profile.effectiveCapabilities,
+        files: {
+          "AGENTS.md": {
+            hash: hashText(LEGACY_W17_AGENTS_BODY),
+            sourceId: "build:AGENTS.md",
+          },
+          "CLAUDE.md": {
+            hash: hashText(LEGACY_W17_CLAUDE_BODY),
+            sourceId: "build:CLAUDE.md",
+          },
+          ".make-docs/AGENTS.md": {
+            hash: hashText(LEGACY_W17_DEDICATED_CONTENT),
+            sourceId: "build:.make-docs/AGENTS.md",
+          },
+          ".make-docs/CLAUDE.md": {
+            hash: hashText(LEGACY_W17_DEDICATED_CONTENT),
+            sourceId: "build:.make-docs/CLAUDE.md",
+          },
+        },
+        skillFiles: [],
+      };
+
+      const plan = await planInstall({
+        targetDir,
+        selections,
+        existingManifest,
+      });
+
+      expect(getPlannedAction(plan, "AGENTS.md")).toMatchObject({
+        type: "update",
+        content: readPackageFile("AGENTS.md"),
+        reason: "Refresh the manifest-owned root instruction block to the current inline routing.",
+      });
+      expect(getPlannedAction(plan, "CLAUDE.md")).toMatchObject({
+        type: "update",
+        content: readPackageFile("CLAUDE.md"),
+        reason: "Refresh the manifest-owned root instruction block to the current inline routing.",
+      });
+      expect(getPlannedAction(plan, ".make-docs/AGENTS.md")).toMatchObject({
+        type: "remove-managed",
+      });
+      expect(getPlannedAction(plan, ".make-docs/CLAUDE.md")).toMatchObject({
+        type: "remove-managed",
+      });
+
+      const result = applyInstallPlan({ targetDir, plan, existingManifest });
+      expect(readFileSync(path.join(targetDir, "AGENTS.md"), "utf8")).toBe(
+        readPackageFile("AGENTS.md"),
+      );
+      expect(readFileSync(path.join(targetDir, "CLAUDE.md"), "utf8")).toBe(
+        readPackageFile("CLAUDE.md"),
+      );
+      expect(existsSync(path.join(targetDir, ".make-docs/AGENTS.md"))).toBe(false);
+      expect(existsSync(path.join(targetDir, ".make-docs/CLAUDE.md"))).toBe(false);
+      expect(result.manifest.files[".make-docs/AGENTS.md"]).toBeUndefined();
+      expect(result.manifest.files[".make-docs/CLAUDE.md"]).toBeUndefined();
     } finally {
       cleanupTempDir(targetDir);
     }

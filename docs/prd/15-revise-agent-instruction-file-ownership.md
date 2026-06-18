@@ -6,10 +6,9 @@ Revise the established CLI requirement for owning and maintaining agent
 instruction files. Today the CLI renders the root `AGENTS.md`/`CLAUDE.md`
 verbatim from the template and resolves any divergence only by whole-file
 overwrite or skip, with no append-merge. This change establishes a delimited
-managed-block model backed by a dedicated, fully managed instruction file, so
-make-docs maintains its routing without owning the entire shared file — and a
-consuming project's own instructions and make-docs's project-specific
-instructions both survive.
+managed-block model with inline root routing, so make-docs maintains its routing
+without owning the entire shared file — and a consuming project's own
+instructions and make-docs's project-specific instructions both survive.
 
 ## Change Type
 
@@ -56,20 +55,18 @@ managed block, not the whole shared file:
 - make-docs maintains only the text between explicit markers in any shared
   instruction file; content outside the markers is owned by the project or user
   and is never modified.
-- The substance of make-docs's routing lives in a dedicated, fully managed
-  instruction file per harness (for example `.make-docs/AGENTS.md`,
-  `.make-docs/CLAUDE.md`); the shared root file carries only the marker block
-  that loads it.
-- The block loads the dedicated file in a harness-aware way: an auto-loading
-  import where the harness supports it (Claude Code `@`-import), or inline
-  essential routing plus a pointer otherwise.
-- Reconciliation is block-scoped: the manifest tracks the block (and
-  dedicated-file) hash; editing content outside the block never conflicts; an
-  edited block is re-asserted or surfaced as a block-scoped decision, not a
-  whole-file conflict.
+- The substance of make-docs's root routing lives directly in the managed block.
+  The installed root `AGENTS.md` and `CLAUDE.md` blocks mirror each other unless
+  a future route-specific requirement explicitly needs different behavior.
+- The managed block must not load, point to, or depend on dedicated
+  `.make-docs/AGENTS.md` or `.make-docs/CLAUDE.md` instruction files.
+- Reconciliation is block-scoped: the manifest tracks the block hash; editing
+  content outside the block never conflicts; an edited block is re-asserted or
+  surfaced as a block-scoped decision, not a whole-file conflict.
 - Existing installs migrate non-destructively; project-specific content (for
   make-docs's own repo, the template-first maintainer rules) lives outside the
-  block and persists across reconfigure.
+  block and persists across reconfigure. Clean W17 dedicated instruction files
+  are removed when their manifest hashes still match.
 - Non-instruction managed files keep the existing whole-file overwrite/skip
   conflict behavior from PRD 13.
 
@@ -84,11 +81,9 @@ Code anchors:
 
 This revision affects the CLI instruction-file render path, the managed-file
 manifest and audit model, and the conflict-review flow. It constrains downstream
-implementation by making the delimited block, the dedicated instruction file,
-harness-aware loading, and block-scoped reconciliation part of the active PRD
-contract. Per-harness import and auto-load behavior must be verified (Claude
-Code confident; Codex to verify). The implementation is sequenced by the W17 R0
-plan.
+implementation by making the delimited block, inline root routing, harness
+parity, and block-scoped reconciliation part of the active PRD contract. The
+implementation is sequenced by the W17 R0 plan.
 
 Code anchors:
 

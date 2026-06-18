@@ -353,11 +353,11 @@
       "sourceId": "skill:claude-code:decompose-codebase"
     },
     "AGENTS.md": {
-      "hash": "c22a7e0b008944a1c19500df830987edfa64bf4253a0c1a690e99591cfe5bc35",
+      "hash": "799b4aca46dec07fcd72ac774a9d7c1fe32b4b4bc1300b547d43ff55b865867b",
       "sourceId": "build:AGENTS.md"
     },
     "CLAUDE.md": {
-      "hash": "eb82e421c608d5058fada4b2c750d094996f32bb5f3b79aada36f54708863a52",
+      "hash": "799b4aca46dec07fcd72ac774a9d7c1fe32b4b4bc1300b547d43ff55b865867b",
       "sourceId": "build:CLAUDE.md"
     },
     "docs/AGENTS.md": {
@@ -623,14 +623,6 @@
     "docs/work/CLAUDE.md": {
       "hash": "24e00dcad7eef9347af435a0184b81f354991c12529515c171c949042a954741",
       "sourceId": "file:docs/work/CLAUDE.md"
-    },
-    ".make-docs/AGENTS.md": {
-      "hash": "6d8f31b40303fd7133f1ae5b097ba095c61dbef0d9eab264d85e3d62da745b7d",
-      "sourceId": "build:.make-docs/AGENTS.md"
-    },
-    ".make-docs/CLAUDE.md": {
-      "hash": "6d8f31b40303fd7133f1ae5b097ba095c61dbef0d9eab264d85e3d62da745b7d",
-      "sourceId": "build:.make-docs/CLAUDE.md"
     }
   },
   "skillFiles": [

@@ -6,21 +6,21 @@
 
 **Purpose:** Produce a reviewable plan for revising the make-docs CLI's
 agent-instruction-file ownership model — replacing the all-or-nothing
-overwrite/skip-all conflict behavior with a delimited managed-block plus
-dedicated-file model — as an active-set evolution of the existing PRD namespace.
+overwrite/skip-all conflict behavior with a delimited managed-block inline
+routing model — as an active-set evolution of the existing PRD namespace.
 Seeded by
 [2026-06-18-agent-instruction-file-ownership.md](../../designs/2026-06-18-agent-instruction-file-ownership.md).
 
 ## Objective
 
-Change the CLI so that make-docs maintains its routing instructions inside a
-deterministically delimited block — backed by a dedicated, fully managed
-`.make-docs/<harness>.md` file — rather than owning the whole root
-`AGENTS.md`/`CLAUDE.md`. Completion: the CLI can install, update, and re-assert
-its block without touching user or project-specific content outside it;
-reconcile at block scope; migrate existing installs; and make-docs's own dogfood
-root files carry the make-docs block with project-specific maintainer
-instructions preserved outside it.
+Change the CLI so that make-docs maintains its routing instructions directly
+inside deterministically delimited root `AGENTS.md` and `CLAUDE.md` blocks
+rather than owning the whole root files or importing auxiliary instruction
+files. Completion: the CLI can install, update, and re-assert its block without
+touching user or project-specific content outside it; reconcile at block scope;
+migrate existing installs; and make-docs's own dogfood root files carry the
+make-docs block inline with project-specific maintainer instructions preserved
+outside it.
 
 ## Coordinate Decision
 
@@ -76,7 +76,7 @@ installs whose root files are currently verbatim renders.
 
 | New doc | Kind | Why it exists | Affected baseline docs |
 | --- | --- | --- | --- |
-| `15-revise-agent-instruction-file-ownership.md` | revision | Revises the established instruction-file conflict/ownership requirement (overwrite/skip-all) to the block + dedicated-file model. | `05`, `06`, `07`, `13` |
+| `15-revise-agent-instruction-file-ownership.md` | revision | Revises the established instruction-file conflict/ownership requirement (overwrite/skip-all) to the inline managed-block model. | `05`, `06`, `07`, `13` |
 
 ## Baseline Annotation Plan
 
@@ -109,7 +109,7 @@ Workstreams are disjoint and named by concern, not by agent:
 | Worker | Scope | Write Scope | Dependencies | Deliverables |
 | --- | --- | --- | --- | --- |
 | Block primitive | Phase 01 | `packages/cli/src` + tests | none | Delimited-block parser/writer |
-| Renderer + template | Phase 02 | `packages/cli/src/renderers.ts`, `packages/docs/template` | 01 | Dedicated file + harness block |
+| Renderer + template | Phase 02 | `packages/cli/src/renderers.ts`, `packages/docs/template` | 01 | Inline root block + harness parity |
 | Reconciliation | Phase 03 | `packages/cli/src` (manifest, audit, conflict) | 01, 02 | Block-level reconcile + conflict |
 | Migration + dogfood | Phase 04 | `packages/cli/src`, repo-root mirrors | 01-03 | Migration + dogfood re-seed |
 | Validation + assembly | Phase 05 | `packages/cli/tests`; `docs/prd`, delta backlog | 01-04 | Tests, smoke, PRD/index/backlog reconcile |
@@ -138,7 +138,7 @@ Workstreams are disjoint and named by concern, not by agent:
 | Phase | File | Builds |
 | --- | --- | --- |
 | 01 | [01-managed-block-primitive.md](01-managed-block-primitive.md) | The delimited managed-block parser/writer. |
-| 02 | [02-dedicated-file-and-harness-block.md](02-dedicated-file-and-harness-block.md) | The dedicated instruction file + harness-aware block rendering. |
+| 02 | [02-dedicated-file-and-harness-block.md](02-dedicated-file-and-harness-block.md) | Inline root instruction block rendering and harness parity. |
 | 03 | [03-block-level-reconciliation.md](03-block-level-reconciliation.md) | Manifest tracking and conflict review at block scope. |
 | 04 | [04-migration-and-dogfood.md](04-migration-and-dogfood.md) | Migration of existing installs and the dogfood re-seed. |
 | 05 | [05-validation.md](05-validation.md) | CLI tests, smoke-pack, and PRD/backlog reconciliation. |

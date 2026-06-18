@@ -45,37 +45,34 @@ absence of delimiters, not an inherent impossibility.
 
 ## Decision
 
-Adopt a delimited-block ownership model with the bulk of make-docs's content in
-a dedicated file, evolving toward the planned `system`/`custom` overlay.
+Adopt a delimited-block ownership model where make-docs's required routing lives
+directly in the shared root instruction block.
 
 1. **Delimited managed block (ownership primitive).** make-docs maintains only
    the text between explicit markers (working form `<!-- make-docs:begin -->`
    and `<!-- make-docs:end -->`) in any shared instruction file. The CLI
    locates, replaces, and re-asserts that block deterministically; everything
    outside the markers is owned by the project or user and is never modified.
-2. **Dedicated managed instruction file.** The substance of make-docs's routing
-   lives in a fully managed file under the tool directory
-   (`.make-docs/AGENTS.md`, `.make-docs/CLAUDE.md`), which has no user content
-   and therefore never conflicts. The shared root file carries only the small
-   marker block that loads it.
-3. **Harness-aware loading.** On Claude Code, the block is an import
-   (`@.make-docs/CLAUDE.md`) that auto-loads recursively, so the routing reaches
-   the agent without depending on the agent choosing to follow a link. On a
-   harness without import support, the block inlines the essential routing plus
-   a pointer to `.make-docs/AGENTS.md`. The design degrades gracefully.
+2. **Inline root routing.** The required make-docs routing lives directly inside
+   the managed block in the root `AGENTS.md` and `CLAUDE.md`. The block must be
+   complete enough to guide agents without following links, imports, or
+   auxiliary `.make-docs/<harness>.md` instruction files.
+3. **Harness parity by default.** The root `CLAUDE.md` block mirrors the root
+   `AGENTS.md` block. Route-specific differences are allowed only when the route
+   needs different behavior; make-docs routing must not depend on a Claude Code
+   import or a Codex-only pointer.
 4. **Block-level reconciliation.** The CLI tracks the managed block's hash in
    the manifest and reconciles at the block level: a user editing their own
    content never triggers a conflict; a missing block is re-inserted
    idempotently; an edited block is re-asserted or surfaced as a block-scoped
    review, never a whole-file conflict.
 5. **Stable home for project-specific content.** Project-specific instructions
-   (for make-docs's own repo, the template-first maintainer rules) live outside
-   the marker block in the shared file. The CLI never touches them, and they do
-   not ship to consumers.
-6. **Path to system/custom.** The dedicated file is the `system` instruction
-   source and the outside-the-block content is `custom`. This model is the
-   stepping stone to generalizing the planned `system`/`custom` overlay to
-   instruction files.
+   live outside the marker block in the shared file. The CLI never touches them,
+   and they do not ship to consumers. Consumer-facing make-docs routing, such as
+   lifecycle routing, belongs inside the managed block rather than outside it.
+6. **No auxiliary instruction imports.** Dedicated imported instruction files
+   under `.make-docs/` are out of scope for this model unless a future design and
+   PRD explicitly approve that product shape.
 
 ## Alternatives Considered
 
@@ -93,10 +90,21 @@ on a followed pointer) and silently relocating a project's `AGENTS.md` is
 surprising. Retained only as a last-resort fallback for a harness that will not
 import or follow pointers.
 
+**Dedicated managed instruction file.** Put the bulk of make-docs routing in
+`.make-docs/AGENTS.md` and `.make-docs/CLAUDE.md`, then point or import to it
+from the root block. Rejected: it creates hidden managed assets, makes Claude and
+Codex root files diverge for convenience rather than product need, and omits
+consumer-facing routing unless every harness reliably loads the auxiliary file.
+
+**Harness-specific import optimization.** Use Claude Code `@` imports where
+available while keeping a Codex pointer fallback. Rejected: harness capability
+should not drive the installed product shape when the required routing is small
+enough to fit directly in the managed block.
+
 **Full system/custom assembly first.** Generate the file purely from a `system`
 and a `custom` source now. Deferred, not rejected — it is the clean end state
-but a larger build; the marker-block plus dedicated-file model delivers most of
-the value now and evolves into it.
+but a larger build; the inline marker-block model delivers the ownership boundary
+without introducing auxiliary instruction files.
 
 ## Consequences
 
@@ -107,25 +115,26 @@ the value now and evolves into it.
 - A consuming project's own instructions and make-docs's project-specific
   instructions both survive, closing the project-specific-instruction gap
   surfaced alongside D-014.
-- It is an incremental, compatible step toward the `system`/`custom` overlay.
+- Root `AGENTS.md` and `CLAUDE.md` remain easy to inspect and can mirror each
+  other unless a future route-specific difference is required.
 
 **Negative and risks:**
 
 - Implementation complexity: block parsing, idempotency, and edge cases
   (missing or edited markers, multiple harnesses, greenfield writes, and
   migrating existing installs whose root files are verbatim renders).
-- Harness import and auto-load behavior must be verified per harness; the design
-  must degrade to inline routing where import is unavailable.
+- The managed block is larger than a one-line pointer or import, so the block
+  content must stay concise and limited to root-level routing.
 - The marker block is a small remaining corruption surface, bounded to the block
   and recoverable by re-assertion.
-- A one-time migration is needed for existing installs, including make-docs's
-  own dogfood root files.
+- A one-time migration is needed for existing installs, including removal of the
+  W17 dedicated instruction files when they are still manifest-clean.
 
 **Operational:**
 
 - Touches the CLI renderers, the conflict-review flow, and manifest handling;
-  the template ships the dedicated `.make-docs/<harness>.md` source plus the
-  block template.
+  the template ships root managed blocks directly and no dedicated
+  `.make-docs/<harness>.md` instruction source.
 - This is a CLI and product-template change: implementation is authored under
   `packages/` first (the source of truth) and then dogfooded, per the
   template-first rule.

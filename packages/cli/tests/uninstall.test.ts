@@ -527,7 +527,7 @@ describe("uninstall command", () => {
         "uninstall:failure-summary",
       ]);
       expect(events[5]).toMatchObject({
-        removedFiles: 5,
+        removedFiles: 3,
         prunedDirectories: 0,
         backupStatus: "not-requested",
         errorMessage: "simulated delete failure",

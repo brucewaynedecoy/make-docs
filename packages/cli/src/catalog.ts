@@ -34,7 +34,6 @@ function addInstructionAssets(
   relativePaths: Set<string>,
 ): void {
   relativePaths.add(activeInstructionKind);
-  relativePaths.add(`.make-docs/${activeInstructionKind}`);
   relativePaths.add(`docs/${activeInstructionKind}`);
   relativePaths.add(`docs/assets/${activeInstructionKind}`);
   relativePaths.add(`docs/assets/history/${activeInstructionKind}`);

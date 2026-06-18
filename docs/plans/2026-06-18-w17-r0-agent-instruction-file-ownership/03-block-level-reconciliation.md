@@ -8,8 +8,8 @@ its block in place.
 
 ## What to build
 
-- Manifest changes: record the managed block's hash (and the dedicated file's
-  hash) instead of the whole shared-file hash for instruction files, in
+- Manifest changes: record the managed block's hash instead of the whole
+  shared-file hash for instruction files, in
   `packages/cli/src/manifest.ts`.
 - Audit/planner changes: compare the block (not the whole file) to decide
   noop/update/conflict for instruction files (`packages/cli/src/audit.ts`,

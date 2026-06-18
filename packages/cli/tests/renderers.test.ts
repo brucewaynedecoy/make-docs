@@ -30,11 +30,13 @@ describe("buildable renderers", () => {
     expect(countOccurrences(rendered, MANAGED_BLOCK_END)).toBe(1);
     expect(parsed.prefix).toBe("");
     expect(parsed.suffix).toBe("\n");
-    expect(parsed.body).toContain(".make-docs/AGENTS.md");
+    expect(parsed.body).not.toContain(".make-docs/AGENTS.md");
+    expect(parsed.body).not.toContain("@.make-docs/CLAUDE.md");
     expect(parsed.body).toContain("read the same-named instruction file in `docs/`");
+    expect(parsed.body).toContain("read `docs/assets/references/lifecycle.md`");
   });
 
-  test("renders Claude root instructions as a single import managed block", () => {
+  test("renders Claude root instructions as the same inline managed block", () => {
     const profile = resolveInstallProfile(defaultSelections());
     const rendered = renderBuildableAsset("CLAUDE.md", profile);
     const parsed = parseManagedBlock(rendered);
@@ -43,32 +45,18 @@ describe("buildable renderers", () => {
     expect(countOccurrences(rendered, MANAGED_BLOCK_END)).toBe(1);
     expect(parsed.prefix).toBe("");
     expect(parsed.suffix).toBe("\n");
-    expect(parsed.body).toBe("@.make-docs/CLAUDE.md\n");
+    expect(rendered).toBe(renderBuildableAsset("AGENTS.md", profile));
+    expect(parsed.body).not.toContain("@.make-docs/CLAUDE.md");
+    expect(parsed.body).toContain("read the same-named instruction file in `docs/`");
+    expect(parsed.body).toContain("read `docs/assets/references/lifecycle.md`");
   });
 
-  test("tracks dedicated instruction files as managed assets", () => {
+  test("does not track dedicated instruction files as managed assets", () => {
     const profile = resolveInstallProfile(defaultSelections());
     const assets = getDesiredAssets(profile);
 
-    expect(assets).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          assetClass: "buildable",
-          relativePath: ".make-docs/AGENTS.md",
-          sourceId: "build:.make-docs/AGENTS.md",
-        }),
-        expect.objectContaining({
-          assetClass: "buildable",
-          relativePath: ".make-docs/CLAUDE.md",
-          sourceId: "build:.make-docs/CLAUDE.md",
-        }),
-      ]),
-    );
-    expect(renderBuildableAsset(".make-docs/AGENTS.md", profile)).toBe(
-      readPackageFile(".make-docs/AGENTS.md"),
-    );
-    expect(renderBuildableAsset(".make-docs/CLAUDE.md", profile)).toBe(
-      readPackageFile(".make-docs/CLAUDE.md"),
+    expect(assets.map((asset) => asset.relativePath)).not.toEqual(
+      expect.arrayContaining([".make-docs/AGENTS.md", ".make-docs/CLAUDE.md"]),
     );
   });
 

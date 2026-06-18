@@ -305,55 +305,86 @@ function assertManifestPackageName(manifestPath, expectedPackageName) {
 function assertPackedInstructionTemplate(packageRoot) {
   const agentsRoot = path.join(packageRoot, "template/AGENTS.md");
   const claudeRoot = path.join(packageRoot, "template/CLAUDE.md");
+  const agentsContent = readFileSync(agentsRoot, "utf8");
+  const claudeContent = readFileSync(claudeRoot, "utf8");
 
-  assertExists(
+  assertMissing(
     path.join(packageRoot, "template/.make-docs/AGENTS.md"),
-    "Packed template omitted template/.make-docs/AGENTS.md.",
+    "Packed template still includes template/.make-docs/AGENTS.md.",
   );
-  assertExists(
+  assertMissing(
     path.join(packageRoot, "template/.make-docs/CLAUDE.md"),
-    "Packed template omitted template/.make-docs/CLAUDE.md.",
+    "Packed template still includes template/.make-docs/CLAUDE.md.",
   );
   assertOutputContains(
-    readFileSync(agentsRoot, "utf8"),
+    agentsContent,
     "<!-- make-docs:begin -->",
     "Packed AGENTS.md template omitted the managed block marker.",
   );
   assertOutputContains(
-    readFileSync(agentsRoot, "utf8"),
-    ".make-docs/AGENTS.md",
-    "Packed AGENTS.md template omitted the dedicated instruction pointer.",
+    agentsContent,
+    "read the same-named instruction file in `docs/`",
+    "Packed AGENTS.md template omitted the inline docs routing.",
   );
   assertOutputContains(
-    readFileSync(claudeRoot, "utf8"),
+    agentsContent,
+    "read `docs/assets/references/lifecycle.md`",
+    "Packed AGENTS.md template omitted the inline lifecycle routing.",
+  );
+  if (claudeContent !== agentsContent) {
+    throw new Error("Packed CLAUDE.md template did not mirror AGENTS.md.");
+  }
+  assertOutputExcludes(
+    agentsContent,
+    ".make-docs/AGENTS.md",
+    "Packed AGENTS.md template still includes the dedicated instruction pointer.",
+  );
+  assertOutputExcludes(
+    claudeContent,
     "@.make-docs/CLAUDE.md",
-    "Packed CLAUDE.md template omitted the dedicated instruction import.",
+    "Packed CLAUDE.md template still includes the dedicated instruction import.",
   );
 }
 
 function assertInstalledInstructionTemplate(targetDir) {
-  assertExists(
+  const agentsContent = readFileSync(path.join(targetDir, "AGENTS.md"), "utf8");
+  const claudeContent = readFileSync(path.join(targetDir, "CLAUDE.md"), "utf8");
+
+  assertMissing(
     path.join(targetDir, ".make-docs/AGENTS.md"),
-    "Smoke pack install did not produce .make-docs/AGENTS.md.",
+    "Smoke pack install produced stale .make-docs/AGENTS.md.",
   );
-  assertExists(
+  assertMissing(
     path.join(targetDir, ".make-docs/CLAUDE.md"),
-    "Smoke pack install did not produce .make-docs/CLAUDE.md.",
+    "Smoke pack install produced stale .make-docs/CLAUDE.md.",
   );
   assertOutputContains(
-    readFileSync(path.join(targetDir, "AGENTS.md"), "utf8"),
+    agentsContent,
     "<!-- make-docs:begin -->",
     "Smoke pack root AGENTS.md omitted the managed block marker.",
   );
   assertOutputContains(
-    readFileSync(path.join(targetDir, "AGENTS.md"), "utf8"),
-    ".make-docs/AGENTS.md",
-    "Smoke pack root AGENTS.md omitted the dedicated instruction pointer.",
+    agentsContent,
+    "read the same-named instruction file in `docs/`",
+    "Smoke pack root AGENTS.md omitted the inline docs routing.",
   );
   assertOutputContains(
-    readFileSync(path.join(targetDir, "CLAUDE.md"), "utf8"),
+    agentsContent,
+    "read `docs/assets/references/lifecycle.md`",
+    "Smoke pack root AGENTS.md omitted the inline lifecycle routing.",
+  );
+  if (claudeContent !== agentsContent) {
+    throw new Error("Smoke pack root CLAUDE.md did not mirror AGENTS.md.");
+  }
+  assertOutputExcludes(
+    agentsContent,
+    ".make-docs/AGENTS.md",
+    "Smoke pack root AGENTS.md still includes the dedicated instruction pointer.",
+  );
+  assertOutputExcludes(
+    claudeContent,
     "@.make-docs/CLAUDE.md",
-    "Smoke pack root CLAUDE.md omitted the dedicated instruction import.",
+    "Smoke pack root CLAUDE.md still includes the dedicated instruction import.",
   );
 }
 
@@ -499,6 +530,12 @@ function assertMissing(filePath, message) {
 function assertOutputContains(output, expected, message) {
   if (!output.includes(expected)) {
     throw new Error(`${message}\nExpected to find: ${expected}\nOutput:\n${output}`);
+  }
+}
+
+function assertOutputExcludes(output, unexpected, message) {
+  if (output.includes(unexpected)) {
+    throw new Error(`${message}\nUnexpectedly found: ${unexpected}\nOutput:\n${output}`);
   }
 }
 

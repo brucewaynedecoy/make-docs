@@ -39,7 +39,7 @@ Code anchors:
 
 ### Change Notes
 
-- Superseded by [15-revise-agent-instruction-file-ownership.md](./15-revise-agent-instruction-file-ownership.md) for instruction files: the whole-file overwrite/skip-only model and the "no append-merge path for agent instructions" requirement are replaced by a delimited managed-block plus dedicated-file model. Non-instruction managed files keep this batch-first conflict behavior.
+- Superseded by [15-revise-agent-instruction-file-ownership.md](./15-revise-agent-instruction-file-ownership.md) for instruction files: the whole-file overwrite/skip-only model and the "no append-merge path for agent instructions" requirement are replaced by a delimited managed-block inline-routing model. Non-instruction managed files keep this batch-first conflict behavior.
 
 The CLI installer must handle divergent selected managed files through a batch-first conflict-resolution flow.
 
