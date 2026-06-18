@@ -105,6 +105,7 @@ export interface ReviewableManagedFileConflict {
   sourceId: string;
   reason: string;
   instructionKind?: InstructionKind;
+  scope?: "file" | "managed-block";
 }
 
 export interface PlannedAction {

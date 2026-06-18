@@ -4,10 +4,12 @@ import path from "node:path";
 import { getDesiredAssets } from "./catalog";
 import {
   createAuditPathMetadata,
+  getManifestFileHash,
   getManifestAuditContext,
   getManifestPath,
   MANIFEST_RELATIVE_PATH,
 } from "./manifest";
+import { parseManagedBlock } from "./managed-block";
 import { defaultSelections, resolveInstallProfile } from "./profile";
 import { renderBuildableAsset } from "./renderers";
 import { getDesiredSkillAssets } from "./skill-catalog";
@@ -232,16 +234,33 @@ function classifyManifestRecord(options: {
 
   if (isRootInstructionPath(record.path)) {
     const expectedContent = rootInstructionContentByPath.get(record.path);
-    if (expectedContent && currentContent === expectedContent) {
+    const currentBlockHash = getManifestFileHash(record.path, currentContent);
+    const expectedBlockHash =
+      record.manifestHash ??
+      (expectedContent ? getManifestFileHash(record.path, expectedContent) : null);
+    if (currentBlockHash && expectedBlockHash && currentBlockHash === expectedBlockHash) {
+      const parsed = parseManagedBlock(currentContent);
+      if (parsed.prefix.trim().length > 0 || parsed.suffix.trim().length > 0) {
+        addPreserved(
+          preservedPaths,
+          record,
+          createReason(
+            "root-instruction-content-mismatch",
+            "The managed block matches the manifest, but user content exists outside the block so the root instruction file is preserved.",
+          ),
+        );
+        return;
+      }
+
       addRemovable(
         removableFiles,
         record,
         createReason(
           "root-instruction-content-match",
-          "The root instruction file exactly matches the canonical make-docs content for the recorded selections.",
+          "The root instruction file's managed block matches the manifest and no user content exists outside the block.",
         ),
-        currentHash,
-        hashText(expectedContent),
+        currentBlockHash,
+        expectedBlockHash,
       );
       return;
     }

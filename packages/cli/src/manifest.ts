@@ -8,13 +8,15 @@ import type {
   InstallManifest,
   InstallProfile,
   InstallSelections,
+  InstructionKind,
   ManifestAuditContext,
   ManifestAuditRecord,
   ManifestFileEntry,
   PackageMeta,
 } from "./types";
-import { CAPABILITIES, HARNESSES } from "./types";
-import { normalizeRelativePath, readTextFile, writeTextFile } from "./utils";
+import { CAPABILITIES, HARNESSES, INSTRUCTION_KINDS } from "./types";
+import { parseManagedBlock } from "./managed-block";
+import { hashText, normalizeRelativePath, readTextFile, writeTextFile } from "./utils";
 
 export const MANIFEST_SCHEMA_VERSION = 1;
 export const MAKE_DOCS_STATE_RELATIVE_DIR = ".make-docs";
@@ -23,6 +25,15 @@ export const CONFLICTS_RELATIVE_DIR = `${MAKE_DOCS_STATE_RELATIVE_DIR}/conflicts
 
 export function getManifestPath(targetDir: string): string {
   return path.join(targetDir, MANIFEST_RELATIVE_PATH);
+}
+
+export function getManifestFileHash(relativePath: string, content: string): string | null {
+  if (!isRootInstructionManifestPath(relativePath)) {
+    return hashText(content);
+  }
+
+  const parsed = parseManagedBlock(content);
+  return parsed.state === "valid" ? hashText(parsed.body) : null;
 }
 
 export function loadManifest(targetDir: string): InstallManifest | null {
@@ -431,6 +442,10 @@ function compareAuditRecords(
   right: ManifestAuditRecord,
 ): number {
   return left.ordering.sortKey.localeCompare(right.ordering.sortKey);
+}
+
+function isRootInstructionManifestPath(relativePath: string): boolean {
+  return INSTRUCTION_KINDS.includes(relativePath as InstructionKind);
 }
 
 function getContainedRelativePath(

@@ -91,6 +91,7 @@ export function findReviewableManagedFileConflicts(
           ...(classification.instructionKind
             ? { instructionKind: classification.instructionKind }
             : {}),
+          ...(classification.scope ? { scope: classification.scope } : {}),
         },
       ];
     })

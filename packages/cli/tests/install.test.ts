@@ -9,6 +9,7 @@ import {
   planInstall,
   planSkillsOnlyInstall,
 } from "../src/install";
+import { parseManagedBlock } from "../src/managed-block";
 import { loadManifest } from "../src/manifest";
 import { defaultSelections, resolveInstallProfile } from "../src/profile";
 import { hashText, readPackageFile } from "../src/utils";
@@ -983,7 +984,7 @@ describe("installer integration", () => {
       expect(rootInstructionAction).toMatchObject({
         type: "skip-conflict",
         reason:
-          "Existing conflicting agent instruction file was skipped because no overwrite resolution was provided.",
+          "Existing conflicting make-docs managed block was skipped because no reassert resolution was provided.",
       });
       expect(docsInstructionAction).toMatchObject({
         type: "skip-conflict",
@@ -991,8 +992,14 @@ describe("installer integration", () => {
           "Existing conflicting agent instruction file was skipped because no overwrite resolution was provided.",
       });
       expect(
-        findReviewableManagedFileConflicts(plan).map((conflict) => conflict.relativePath),
-      ).toEqual(["AGENTS.md", "docs/AGENTS.md"]);
+        findReviewableManagedFileConflicts(plan).map((conflict) => ({
+          path: conflict.relativePath,
+          scope: conflict.scope,
+        })),
+      ).toEqual([
+        { path: "AGENTS.md", scope: "managed-block" },
+        { path: "docs/AGENTS.md", scope: undefined },
+      ]);
       expect(() =>
         applyInstallPlan({
           targetDir,
@@ -1014,6 +1021,112 @@ describe("installer integration", () => {
 
       expect(conflictFiles).toEqual([]);
       expect(existsSync(path.join(targetDir, ".make-docs/manifest.json"))).toBe(false);
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("ignores user edits outside the root instruction managed block", async () => {
+    const targetDir = createTempDir();
+    try {
+      const { manifest } = await installWithSelections(targetDir, () => {});
+      const rootPath = path.join(targetDir, "AGENTS.md");
+      const installedContent = readFileSync(rootPath, "utf8");
+      const withUserContent = `Project-specific routing.\n\n${installedContent}`;
+      writeFileSync(rootPath, withUserContent, "utf8");
+
+      const plan = await planInstall({
+        targetDir,
+        selections: defaultSelections(),
+        existingManifest: manifest,
+      });
+
+      expect(getPlannedAction(plan, "AGENTS.md")).toMatchObject({
+        type: "noop",
+        contentHash: manifest.files["AGENTS.md"].hash,
+      });
+      expect(findReviewableManagedFileConflicts(plan)).toEqual([]);
+
+      const result = applyInstallPlan({ targetDir, plan, existingManifest: manifest });
+      expect(readFileSync(rootPath, "utf8")).toBe(withUserContent);
+      expect(result.manifest.files["AGENTS.md"].hash).toBe(manifest.files["AGENTS.md"].hash);
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("surfaces root instruction block edits as block-scoped review", async () => {
+    const targetDir = createTempDir();
+    try {
+      const { manifest } = await installWithSelections(targetDir, () => {});
+      const rootPath = path.join(targetDir, "AGENTS.md");
+      const installedContent = readFileSync(rootPath, "utf8");
+      writeFileSync(
+        rootPath,
+        installedContent.replace("same-named instruction file", "edited instruction file"),
+        "utf8",
+      );
+
+      const plan = await planInstall({
+        targetDir,
+        selections: defaultSelections(),
+        existingManifest: manifest,
+      });
+      const action = getPlannedAction(plan, "AGENTS.md");
+      const conflicts = findReviewableManagedFileConflicts(plan);
+
+      expect(action).toMatchObject({
+        type: "skip-conflict",
+        reason:
+          "Existing conflicting make-docs managed block was skipped because no reassert resolution was provided.",
+      });
+      expect(conflicts).toEqual([
+        expect.objectContaining({
+          relativePath: "AGENTS.md",
+          group: "agent-instructions",
+          scope: "managed-block",
+          instructionKind: "AGENTS.md",
+        }),
+      ]);
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("reasserts the root instruction block while preserving outside content", async () => {
+    const targetDir = createTempDir();
+    try {
+      const { manifest } = await installWithSelections(targetDir, () => {});
+      const rootPath = path.join(targetDir, "AGENTS.md");
+      const installedContent = readFileSync(rootPath, "utf8");
+      const withUserContent = `Project-specific routing.\n\n${installedContent}\nLocal footer.\n`;
+      writeFileSync(
+        rootPath,
+        withUserContent.replace("same-named instruction file", "edited instruction file"),
+        "utf8",
+      );
+
+      const plan = await planInstall({
+        targetDir,
+        selections: defaultSelections(),
+        existingManifest: manifest,
+        managedFileConflictResolutions: {
+          "AGENTS.md": "overwrite",
+        },
+      });
+
+      expect(getPlannedAction(plan, "AGENTS.md")).toMatchObject({
+        type: "update",
+        reason: "Reassert the make-docs managed block inside the existing agent instruction file.",
+      });
+
+      applyInstallPlan({ targetDir, plan, existingManifest: manifest });
+      const finalContent = readFileSync(rootPath, "utf8");
+      const parsed = parseManagedBlock(finalContent);
+
+      expect(finalContent.startsWith("Project-specific routing.\n\n")).toBe(true);
+      expect(finalContent.endsWith("\nLocal footer.\n")).toBe(true);
+      expect(parsed.body).toBe(parseManagedBlock(readPackageFile("AGENTS.md")).body);
     } finally {
       cleanupTempDir(targetDir);
     }
@@ -1065,9 +1178,9 @@ describe("installer integration", () => {
 
       expect(getPlannedAction(plan, "AGENTS.md")).toMatchObject({
         type: "update",
-        content: readPackageFile("AGENTS.md"),
-        reason: "Overwrite existing conflicting agent instruction file.",
+        reason: "Reassert the make-docs managed block inside the existing agent instruction file.",
       });
+      expect(getPlannedAction(plan, "AGENTS.md").content).toContain("custom root agents\n");
       expect(getPlannedAction(plan, "docs/assets/references/guide-contract.md")).toMatchObject({
         type: "update",
         content: readPackageFile("docs/assets/references/guide-contract.md"),
@@ -1081,8 +1194,8 @@ describe("installer integration", () => {
 
       const result = applyInstallPlan({ targetDir, plan, existingManifest });
 
-      expect(readFileSync(path.join(targetDir, "AGENTS.md"), "utf8")).toBe(
-        readPackageFile("AGENTS.md"),
+      expect(readFileSync(path.join(targetDir, "AGENTS.md"), "utf8")).toContain(
+        "custom root agents\n",
       );
       expect(
         readFileSync(path.join(targetDir, "docs/assets/references/guide-contract.md"), "utf8"),
@@ -1130,7 +1243,7 @@ describe("installer integration", () => {
 
       expect(getPlannedAction(plan, "AGENTS.md")).toMatchObject({
         type: "skip",
-        reason: "Existing conflicting agent instruction file was explicitly skipped.",
+        reason: "Existing conflicting make-docs managed block was explicitly kept.",
       });
       expect(getPlannedAction(plan, "docs/assets/references/guide-contract.md")).toMatchObject({
         type: "skip",
@@ -1225,7 +1338,7 @@ describe("installer integration", () => {
 
       expect(plan.actions.find((action) => action.relativePath === "AGENTS.md")).toMatchObject({
         type: "update",
-        reason: "Overwrite existing conflicting agent instruction file.",
+        reason: "Reassert the make-docs managed block inside the existing agent instruction file.",
       });
 
       const result = applyInstallPlan({
@@ -1234,8 +1347,8 @@ describe("installer integration", () => {
         existingManifest,
       });
 
-      expect(readFileSync(path.join(targetDir, "AGENTS.md"), "utf8")).toBe(
-        readPackageFile("AGENTS.md"),
+      expect(readFileSync(path.join(targetDir, "AGENTS.md"), "utf8")).toContain(
+        "custom root agents\n",
       );
       expect(result.manifest.files["AGENTS.md"]).toBeDefined();
     } finally {

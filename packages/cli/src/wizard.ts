@@ -609,15 +609,20 @@ export async function promptForManagedFileConflictResolutions(
       const resolution = await select<ManagedFileConflictResolution>({
         message: `How should make-docs handle ${conflict.relativePath}?`,
         withGuide: true,
-        initialValue: "skip",
+        initialValue:
+          conflict.scope === "managed-block" ? "overwrite" : "skip",
         options: [
           {
             value: "overwrite",
-            label: "Overwrite",
+            label:
+              conflict.scope === "managed-block"
+                ? "Reassert managed block"
+                : "Overwrite",
           },
           {
             value: "skip",
-            label: "Skip",
+            label:
+              conflict.scope === "managed-block" ? "Keep local block" : "Skip",
           },
         ],
       });

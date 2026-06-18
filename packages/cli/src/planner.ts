@@ -1,6 +1,8 @@
 import { existsSync } from "node:fs";
 import path from "node:path";
 import { getDesiredAssets } from "./catalog";
+import { getManifestFileHash } from "./manifest";
+import { parseManagedBlock, upsertManagedBlock } from "./managed-block";
 import { getDesiredSkillAssets } from "./skill-catalog";
 import type {
   InstallManifest,
@@ -40,7 +42,7 @@ export async function createInstallPlan(options: {
     allDesiredAssets.map((asset) => [
       asset.relativePath,
       {
-        hash: hashText(asset.content),
+        hash: getManifestHashForAsset(asset),
         sourceId: asset.sourceId,
       },
     ]),
@@ -52,7 +54,7 @@ export async function createInstallPlan(options: {
 
   for (const asset of allDesiredAssets) {
     const absolutePath = relativePathToTarget(targetDir, asset.relativePath);
-    const desiredHash = hashText(asset.content);
+    const desiredHash = getManifestHashForAsset(asset);
 
     if (!existsSync(absolutePath)) {
       actions.push({
@@ -66,7 +68,8 @@ export async function createInstallPlan(options: {
     }
 
     const currentContent = readTextFile(absolutePath);
-    if (currentContent === asset.content) {
+    const currentHash = getCurrentManifestHash(asset.relativePath, currentContent);
+    if (currentHash === desiredHash) {
       actions.push({
         type: "noop",
         relativePath: asset.relativePath,
@@ -87,13 +90,14 @@ export async function createInstallPlan(options: {
       managedFileConflictResolutions,
     );
     if (conflictClassification && conflictResolution === "overwrite") {
+      const content = getPlannedUpdateContent(asset, currentContent);
       actions.push({
         type: "update",
         relativePath: asset.relativePath,
         sourceId: asset.sourceId,
-        content: asset.content,
+        content,
         contentHash: desiredHash,
-        reason: getManagedFileConflictOverwriteReason(conflictClassification.group),
+        reason: getManagedFileConflictOverwriteReason(conflictClassification),
       });
       continue;
     }
@@ -118,7 +122,7 @@ export async function createInstallPlan(options: {
       type: "skip-conflict",
       relativePath: asset.relativePath,
       sourceId: asset.sourceId,
-      content: asset.content,
+      content: getPlannedUpdateContent(asset, currentContent),
       contentHash: desiredHash,
       reason: getManagedFileConflictSkipReason(
         conflictClassification,
@@ -413,6 +417,7 @@ function getManagedFileConflictResolution(
 type ReviewableManagedFileConflictClassification = {
   group: ManagedFileConflictGroup;
   instructionKind?: InstructionKind;
+  scope?: "file" | "managed-block";
 };
 
 export function classifyReviewableManagedFileConflictPath(
@@ -452,6 +457,7 @@ export function classifyReviewableManagedFileConflictPath(
     return {
       group: "agent-instructions",
       instructionKind,
+      ...(isRootInstructionPath(relativePath) ? { scope: "managed-block" as const } : {}),
     };
   }
 
@@ -476,8 +482,14 @@ function isSkillAssetPath(relativePath: string): boolean {
   );
 }
 
-function getManagedFileConflictOverwriteReason(group: ManagedFileConflictGroup): string {
-  switch (group) {
+function getManagedFileConflictOverwriteReason(
+  classification: ReviewableManagedFileConflictClassification,
+): string {
+  if (classification.scope === "managed-block") {
+    return "Reassert the make-docs managed block inside the existing agent instruction file.";
+  }
+
+  switch (classification.group) {
     case "agent-instructions":
       return "Overwrite existing conflicting agent instruction file.";
     case "managed-files":
@@ -505,9 +517,17 @@ function getManagedFileConflictSkipReason(
   }
 
   if (resolution === "skip") {
+    if (classification.scope === "managed-block") {
+      return "Existing conflicting make-docs managed block was explicitly kept.";
+    }
+
     return `Existing conflicting ${getManagedFileConflictGroupLabel(
       classification.group,
     )} was explicitly skipped.`;
+  }
+
+  if (classification.scope === "managed-block") {
+    return "Existing conflicting make-docs managed block was skipped because no reassert resolution was provided.";
   }
 
   return `Existing conflicting ${getManagedFileConflictGroupLabel(
@@ -530,4 +550,34 @@ function getManagedFileConflictGroupLabel(group: ManagedFileConflictGroup): stri
     case "templates":
       return "template file";
   }
+}
+
+function getManifestHashForAsset(asset: ResolvedAsset): string {
+  const manifestHash = getManifestFileHash(asset.relativePath, asset.content);
+  if (manifestHash === null) {
+    throw new Error(`Root instruction asset ${asset.relativePath} is missing a valid managed block.`);
+  }
+
+  return manifestHash;
+}
+
+function getCurrentManifestHash(relativePath: string, content: string): string | null {
+  return getManifestFileHash(relativePath, content);
+}
+
+function getPlannedUpdateContent(asset: ResolvedAsset, currentContent: string): string {
+  if (!isRootInstructionPath(asset.relativePath)) {
+    return asset.content;
+  }
+
+  const parsed = parseManagedBlock(asset.content);
+  if (parsed.state !== "valid" || parsed.body === null) {
+    return asset.content;
+  }
+
+  return upsertManagedBlock(currentContent, parsed.body).content;
+}
+
+function isRootInstructionPath(relativePath: string): boolean {
+  return INSTRUCTION_KINDS.includes(relativePath as InstructionKind);
 }
