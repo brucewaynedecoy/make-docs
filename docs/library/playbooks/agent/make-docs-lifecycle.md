@@ -1,12 +1,12 @@
 ---
 title: "Make Docs Lifecycle Playbook"
-persona: "agent-maintainer"
+persona: "agent"
 status: "active"
 ---
 
 # Make Docs Lifecycle Playbook
 
-This playbook is a map for agents and maintainers working through the
+This playbook is the agent persona's map for working through the
 make-docs lifecycle.
 It is not automation, does not enforce stage order, and does not gate work.
 Use the lifecycle anchor for ordering defaults:

@@ -3,14 +3,14 @@
 ## Purpose
 
 Author make-docs's own dogfooded lifecycle playbook: the human-facing
-narrative map of the arc, written for the agent/maintainer persona, that cites
+narrative map of the arc, written for the agent persona, that cites
 the anchor. This is the first instance of the persona-scoped *playbook* output
 type.
 
 ## What to build
 
 - A playbook at `docs/library/playbooks/<persona>/make-docs-lifecycle.md`
-  (persona = the agent/maintainer default), with a `persona:` frontmatter
+  (persona = agent), with a `persona:` frontmatter
   field.
 - Per-stage sections in a uniform shape: Purpose · Inputs · Decision points ·
   Suggested assists (skills, references, templates, prompts — never required) ·
