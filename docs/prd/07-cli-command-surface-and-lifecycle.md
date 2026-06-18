@@ -59,6 +59,7 @@ Review is a mutable checkpoint, not a final dead end. `renderWizardReviewSummary
 #### Change Notes
 
 - Superseded by [13-revise-cli-conflict-resolution.md](./13-revise-cli-conflict-resolution.md) for replacing instruction-specific conflict review with batch-first managed-file conflict review across divergent selected managed files, and for removing instruction-only `Update` from the active conflict flow.
+- Superseded by [15-revise-agent-instruction-file-ownership.md](./15-revise-agent-instruction-file-ownership.md) for replacing whole-file overwrite/skip ownership of agent instruction files with a delimited managed-block plus dedicated-file model that preserves user and project-specific content outside the block.
 
 After selections are resolved, `runCli` computes an install plan, optionally collects managed-file conflict resolutions, rejects plans with no effective capabilities, prints a structured plan, and only then applies writes in `packages/cli/src/cli.ts:178`, `packages/cli/src/cli.ts:185`, `packages/cli/src/cli.ts:205`, `packages/cli/src/cli.ts:210`, and `packages/cli/src/cli.ts:244`. The review summary includes target, mode, manifest state, selection source, and action counts in `packages/cli/src/cli.ts:725`, while noop runs emit mode-specific guidance in `packages/cli/src/cli.ts:805`.
 

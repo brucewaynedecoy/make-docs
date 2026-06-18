@@ -34,6 +34,7 @@ The fixed-core overview layer is now present through [01 Product Overview](01-pr
 | `12` | Current | [12-revise-cli-skill-selection-simplification.md](12-revise-cli-skill-selection-simplification.md) | Revision making shipped skills one recommended, selected-by-default set instead of required/default plus optional categories. |
 | `13` | Current | [13-revise-cli-conflict-resolution.md](13-revise-cli-conflict-resolution.md) | Revision making selected managed-file diffs, including instructions, prompts, references, templates, desired skill assets, and generic selected managed files, use batch-first overwrite/skip conflict review. |
 | `14` | Current | [14-add-lifecycle-workflow-foundation.md](14-add-lifecycle-workflow-foundation.md) | Addition: the lifecycle workflow foundation — coverage-pass contract, always-read lifecycle anchor, persona-scoped playbook output type, stage follow-on handoffs, and an optional `docs/artifacts/` seed. |
+| `15` | Current | [15-revise-agent-instruction-file-ownership.md](15-revise-agent-instruction-file-ownership.md) | Revision: replaces whole-file overwrite/skip ownership of agent instruction files with a delimited managed-block plus dedicated-file model that preserves user and project-specific content. |
 
 ## Source Anchors
 
