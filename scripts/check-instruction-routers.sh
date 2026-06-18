@@ -31,6 +31,11 @@ line_budget_for() {
   esac
 }
 
+has_dedicated_harness_pair() {
+  local dir="$1"
+  [[ -f "$dir/.make-docs/AGENTS.md" && -f "$dir/.make-docs/CLAUDE.md" ]]
+}
+
 while IFS= read -r agent_file; do
   dir="$(dirname "$agent_file")"
   claude_file="$dir/CLAUDE.md"
@@ -40,7 +45,7 @@ while IFS= read -r agent_file; do
     continue
   fi
 
-  if ! cmp -s "$agent_file" "$claude_file"; then
+  if ! has_dedicated_harness_pair "$dir" && ! cmp -s "$agent_file" "$claude_file"; then
     report_error "$agent_file and $claude_file differ"
   fi
 

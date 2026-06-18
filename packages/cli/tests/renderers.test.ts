@@ -1,4 +1,10 @@
 import { describe, expect, test } from "vitest";
+import { getDesiredAssets } from "../src/catalog";
+import {
+  MANAGED_BLOCK_BEGIN,
+  MANAGED_BLOCK_END,
+  parseManagedBlock,
+} from "../src/managed-block";
 import { defaultSelections, resolveInstallProfile } from "../src/profile";
 import { renderBuildableAsset } from "../src/renderers";
 import { readPackageFile } from "../src/utils";
@@ -15,6 +21,57 @@ const ASSETS_ROUTER_PATHS = [
 ];
 
 describe("buildable renderers", () => {
+  test("renders Codex root instructions as a single fallback managed block", () => {
+    const profile = resolveInstallProfile(defaultSelections());
+    const rendered = renderBuildableAsset("AGENTS.md", profile);
+    const parsed = parseManagedBlock(rendered);
+
+    expect(countOccurrences(rendered, MANAGED_BLOCK_BEGIN)).toBe(1);
+    expect(countOccurrences(rendered, MANAGED_BLOCK_END)).toBe(1);
+    expect(parsed.prefix).toBe("");
+    expect(parsed.suffix).toBe("\n");
+    expect(parsed.body).toContain(".make-docs/AGENTS.md");
+    expect(parsed.body).toContain("read the same-named instruction file in `docs/`");
+  });
+
+  test("renders Claude root instructions as a single import managed block", () => {
+    const profile = resolveInstallProfile(defaultSelections());
+    const rendered = renderBuildableAsset("CLAUDE.md", profile);
+    const parsed = parseManagedBlock(rendered);
+
+    expect(countOccurrences(rendered, MANAGED_BLOCK_BEGIN)).toBe(1);
+    expect(countOccurrences(rendered, MANAGED_BLOCK_END)).toBe(1);
+    expect(parsed.prefix).toBe("");
+    expect(parsed.suffix).toBe("\n");
+    expect(parsed.body).toBe("@.make-docs/CLAUDE.md\n");
+  });
+
+  test("tracks dedicated instruction files as managed assets", () => {
+    const profile = resolveInstallProfile(defaultSelections());
+    const assets = getDesiredAssets(profile);
+
+    expect(assets).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          assetClass: "buildable",
+          relativePath: ".make-docs/AGENTS.md",
+          sourceId: "build:.make-docs/AGENTS.md",
+        }),
+        expect.objectContaining({
+          assetClass: "buildable",
+          relativePath: ".make-docs/CLAUDE.md",
+          sourceId: "build:.make-docs/CLAUDE.md",
+        }),
+      ]),
+    );
+    expect(renderBuildableAsset(".make-docs/AGENTS.md", profile)).toBe(
+      readPackageFile(".make-docs/AGENTS.md"),
+    );
+    expect(renderBuildableAsset(".make-docs/CLAUDE.md", profile)).toBe(
+      readPackageFile(".make-docs/CLAUDE.md"),
+    );
+  });
+
   test("renders a docs router without missing capabilities", () => {
     const selections = defaultSelections();
     selections.capabilities.plans = false;
@@ -69,3 +126,7 @@ describe("buildable renderers", () => {
   });
 
 });
+
+function countOccurrences(content: string, needle: string): number {
+  return content.split(needle).length - 1;
+}

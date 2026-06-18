@@ -1,9 +1,11 @@
 import { isFullDefaultProfile } from "./profile";
+import { upsertManagedBlock } from "./managed-block";
 import { getPromptPaths } from "./rules";
 import type { InstallProfile } from "./types";
 import { formatInlineList, readPackageFile } from "./utils";
 
 const ROOT_INSTRUCTIONS = new Set(["AGENTS.md", "CLAUDE.md"]);
+const DEDICATED_INSTRUCTIONS = new Set([".make-docs/AGENTS.md", ".make-docs/CLAUDE.md"]);
 const DOCS_ROUTER_INSTRUCTIONS = new Set(["docs/AGENTS.md", "docs/CLAUDE.md"]);
 const TEMPLATE_ROUTER_INSTRUCTIONS = new Set([
   "docs/assets/templates/AGENTS.md",
@@ -40,6 +42,7 @@ const GUIDES_ROUTER_INSTRUCTIONS = new Set([
 export function isBuildablePath(relativePath: string): boolean {
   return (
     ROOT_INSTRUCTIONS.has(relativePath) ||
+    DEDICATED_INSTRUCTIONS.has(relativePath) ||
     DOCS_ROUTER_INSTRUCTIONS.has(relativePath) ||
     TEMPLATE_ROUTER_INSTRUCTIONS.has(relativePath) ||
     PROMPTS_ROUTER_INSTRUCTIONS.has(relativePath) ||
@@ -52,11 +55,15 @@ export function isBuildablePath(relativePath: string): boolean {
 }
 
 export function renderBuildableAsset(relativePath: string, profile: InstallProfile): string {
+  if (ROOT_INSTRUCTIONS.has(relativePath)) {
+    return renderRootInstruction(relativePath);
+  }
+
   if (isFullDefaultProfile(profile)) {
     return readPackageFile(relativePath);
   }
 
-  if (ROOT_INSTRUCTIONS.has(relativePath)) {
+  if (DEDICATED_INSTRUCTIONS.has(relativePath)) {
     return readPackageFile(relativePath);
   }
 
@@ -94,6 +101,20 @@ export function renderBuildableAsset(relativePath: string, profile: InstallProfi
     default:
       throw new Error(`No buildable renderer registered for ${relativePath}.`);
   }
+}
+
+function renderRootInstruction(relativePath: string): string {
+  const body =
+    relativePath === "CLAUDE.md"
+      ? "@.make-docs/CLAUDE.md\n"
+      : [
+          "See `.make-docs/AGENTS.md` for the full make-docs routing.",
+          "",
+          "When asked to create documentation for this project that is not `README.md`, read the same-named instruction file in `docs/` before writing.",
+          "",
+        ].join("\n");
+
+  return upsertManagedBlock("", body).content;
 }
 
 function renderDocsRouter(profile: InstallProfile): string {

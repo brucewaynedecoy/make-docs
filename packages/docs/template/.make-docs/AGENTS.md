@@ -1,5 +1,3 @@
-<!-- make-docs:begin -->
-See `.make-docs/AGENTS.md` for the full make-docs routing.
+# make-docs Instructions
 
 When asked to create documentation for this project that is not `README.md`, read the same-named instruction file in `docs/` before writing.
-<!-- make-docs:end -->

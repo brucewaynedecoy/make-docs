@@ -8,6 +8,8 @@ import { readPackageFile, TEMPLATE_ROOT } from "../src/utils";
 import { collectFiles } from "./helpers";
 
 const BUILDABLE_PATHS = [
+  ".make-docs/AGENTS.md",
+  ".make-docs/CLAUDE.md",
   "AGENTS.md",
   "CLAUDE.md",
   "docs/AGENTS.md",

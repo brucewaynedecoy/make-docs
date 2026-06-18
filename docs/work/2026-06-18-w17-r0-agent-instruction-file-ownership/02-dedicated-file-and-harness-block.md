@@ -21,11 +21,11 @@ it degrades gracefully where imports are unavailable.
 
 ### Tasks
 
-- [ ] t1: Add the dedicated managed instruction source per harness (`.make-docs/AGENTS.md`, `.make-docs/CLAUDE.md`) under `packages/docs/template/**` and/or rendered by `packages/cli/src/renderers.ts`, carrying the full make-docs routing.
-- [ ] t2: Replace the verbatim root-instruction render (`packages/cli/src/renderers.ts:59-61`) with block injection using the Phase 01 primitive.
-- [ ] t3: Render the harness-aware block body: a Claude Code `@.make-docs/CLAUDE.md` import, or inline essential routing plus a pointer to `.make-docs/AGENTS.md` where import is unavailable.
-- [ ] t4: Verify per-harness import/auto-load behavior, record the result, and default to the inline-routing fallback where import is unavailable.
-- [ ] t5: Add tests that the root file contains exactly one make-docs block, the dedicated file is fully managed, and the Claude Code import auto-loads it.
+- [x] t1: Add the dedicated managed instruction source per harness (`.make-docs/AGENTS.md`, `.make-docs/CLAUDE.md`) under `packages/docs/template/**` and/or rendered by `packages/cli/src/renderers.ts`, carrying the full make-docs routing.
+- [x] t2: Replace the verbatim root-instruction render (`packages/cli/src/renderers.ts:59-61`) with block injection using the Phase 01 primitive.
+- [x] t3: Render the harness-aware block body: a Claude Code `@.make-docs/CLAUDE.md` import, or inline essential routing plus a pointer to `.make-docs/AGENTS.md` where import is unavailable.
+- [x] t4: Verify per-harness import/auto-load behavior, record the result, and default to the inline-routing fallback where import is unavailable.
+- [x] t5: Add tests that the root file contains exactly one make-docs block, the dedicated file is fully managed, and the Claude Code import auto-loads it.
 
 ### Acceptance criteria
 
@@ -37,3 +37,7 @@ it degrades gracefully where imports are unavailable.
 ### Dependencies
 
 - Phase 01 (the block primitive). Authored under `packages/cli/` and `packages/docs/template/` (template-first).
+
+## Closeout notes
+
+- Updated `scripts/check-instruction-routers.sh` so router parity validation allows harness-aware root blocks when a sibling `.make-docs/` dedicated instruction pair exists.

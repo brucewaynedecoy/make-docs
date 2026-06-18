@@ -465,7 +465,7 @@ describe("uninstall command", () => {
       const originalRemoveFileIfPresent = fileUtils.removeFileIfPresent;
       vi.spyOn(fileUtils, "removeFileIfPresent").mockImplementation(
         (filePath) => {
-          if (filePath.endsWith("CLAUDE.md")) {
+          if (filePath === path.join(targetDir, "CLAUDE.md")) {
             throw new Error("simulated delete failure");
           }
 
@@ -504,7 +504,7 @@ describe("uninstall command", () => {
       );
       const originalRemoveFileIfPresent = fileUtils.removeFileIfPresent;
       vi.spyOn(fileUtils, "removeFileIfPresent").mockImplementation((filePath) => {
-        if (filePath.endsWith("CLAUDE.md")) {
+        if (filePath === path.join(targetDir, "CLAUDE.md")) {
           throw new Error("simulated delete failure");
         }
 
@@ -527,7 +527,7 @@ describe("uninstall command", () => {
         "uninstall:failure-summary",
       ]);
       expect(events[5]).toMatchObject({
-        removedFiles: 3,
+        removedFiles: 5,
         prunedDirectories: 0,
         backupStatus: "not-requested",
         errorMessage: "simulated delete failure",

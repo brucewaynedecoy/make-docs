@@ -94,6 +94,7 @@ async function syncSkillsOnly(
 
 const FULL_PROFILE_INSTRUCTION_DIRS = [
   ".",
+  ".make-docs",
   "docs",
   "docs/assets",
   "docs/assets/archive",
