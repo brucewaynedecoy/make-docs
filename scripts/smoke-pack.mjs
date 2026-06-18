@@ -102,6 +102,7 @@ try {
   const packageRoot = path.join(unpackDir, "package");
   const packedPackage = readPackedPackage(packageRoot);
   assertOnlyMakeDocsBin(packedPackage);
+  assertPackedInstructionTemplate(packageRoot);
   const packedMakeDocs = path.join(packageRoot, packedPackage.bin["make-docs"]);
   const skillsHelp = execFileSync("node", [packedMakeDocs, "skills", "--help"], {
     encoding: "utf8",
@@ -151,6 +152,7 @@ try {
       path.join(targetDir, "docs/AGENTS.md"),
       "Smoke pack bare install did not produce docs/AGENTS.md.",
     );
+    assertInstalledInstructionTemplate(targetDir);
 
     execFileSync(
       "node",
@@ -298,6 +300,61 @@ function assertManifestPackageName(manifestPath, expectedPackageName) {
       `Smoke pack manifest packageName was ${manifest.packageName}, expected ${expectedPackageName}.`,
     );
   }
+}
+
+function assertPackedInstructionTemplate(packageRoot) {
+  const agentsRoot = path.join(packageRoot, "template/AGENTS.md");
+  const claudeRoot = path.join(packageRoot, "template/CLAUDE.md");
+
+  assertExists(
+    path.join(packageRoot, "template/.make-docs/AGENTS.md"),
+    "Packed template omitted template/.make-docs/AGENTS.md.",
+  );
+  assertExists(
+    path.join(packageRoot, "template/.make-docs/CLAUDE.md"),
+    "Packed template omitted template/.make-docs/CLAUDE.md.",
+  );
+  assertOutputContains(
+    readFileSync(agentsRoot, "utf8"),
+    "<!-- make-docs:begin -->",
+    "Packed AGENTS.md template omitted the managed block marker.",
+  );
+  assertOutputContains(
+    readFileSync(agentsRoot, "utf8"),
+    ".make-docs/AGENTS.md",
+    "Packed AGENTS.md template omitted the dedicated instruction pointer.",
+  );
+  assertOutputContains(
+    readFileSync(claudeRoot, "utf8"),
+    "@.make-docs/CLAUDE.md",
+    "Packed CLAUDE.md template omitted the dedicated instruction import.",
+  );
+}
+
+function assertInstalledInstructionTemplate(targetDir) {
+  assertExists(
+    path.join(targetDir, ".make-docs/AGENTS.md"),
+    "Smoke pack install did not produce .make-docs/AGENTS.md.",
+  );
+  assertExists(
+    path.join(targetDir, ".make-docs/CLAUDE.md"),
+    "Smoke pack install did not produce .make-docs/CLAUDE.md.",
+  );
+  assertOutputContains(
+    readFileSync(path.join(targetDir, "AGENTS.md"), "utf8"),
+    "<!-- make-docs:begin -->",
+    "Smoke pack root AGENTS.md omitted the managed block marker.",
+  );
+  assertOutputContains(
+    readFileSync(path.join(targetDir, "AGENTS.md"), "utf8"),
+    ".make-docs/AGENTS.md",
+    "Smoke pack root AGENTS.md omitted the dedicated instruction pointer.",
+  );
+  assertOutputContains(
+    readFileSync(path.join(targetDir, "CLAUDE.md"), "utf8"),
+    "@.make-docs/CLAUDE.md",
+    "Smoke pack root CLAUDE.md omitted the dedicated instruction import.",
+  );
 }
 
 function rewritePackedSkillRegistry(packageRoot, baseUrl) {

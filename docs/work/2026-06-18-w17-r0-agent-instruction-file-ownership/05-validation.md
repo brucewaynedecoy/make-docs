@@ -23,16 +23,16 @@ baseline annotations are confirmed against the now-real implementation.
 
 ### Tasks
 
-- [ ] t1: Run focused CLI tests for the block model and its edge cases: idempotency, user-content preservation, missing/edited/duplicate markers, multiple harnesses, greenfield install, migration, and block-scoped conflict review.
-- [ ] t2: Smoke-pack the packaged template to confirm the dedicated instruction source and the block template ship and install cleanly from a clean directory.
-- [ ] t3: Regression-check that non-instruction managed files keep the existing whole-file overwrite/skip conflict behavior.
+- [x] t1: Run focused CLI tests for the block model and its edge cases: idempotency, user-content preservation, missing/edited/duplicate markers, multiple harnesses, greenfield install, migration, and block-scoped conflict review. Covered by `npm test -w packages/cli -- managed-block renderers install`.
+- [x] t2: Smoke-pack the packaged template to confirm the dedicated instruction source and the block template ship and install cleanly from a clean directory. Covered by `npm run smoke:pack` and `scripts/smoke-pack.mjs`, including packed `.make-docs/AGENTS.md` / `.make-docs/CLAUDE.md` and clean-install root managed-block assertions.
+- [x] t3: Regression-check that non-instruction managed files keep the existing whole-file overwrite/skip conflict behavior. Covered by the focused install test suite's non-instruction reference/template conflict cases.
 
 ## Stage 2 - PRD reconciliation closeout
 
 ### Tasks
 
-- [ ] t4: Confirm and apply the deferred baseline annotations to `docs/prd/05-installation-profile-and-manifest-lifecycle.md` and `docs/prd/06-template-contracts-and-generated-assets.md` (`Superseded by` PRD 15) at the now-real render and manifest sections; update `docs/prd/00-index.md` if needed.
-- [ ] t5: Run a docs hygiene pass: refresh indexes, check links, confirm no placeholders, and run `git diff --check`.
+- [x] t4: Confirm and apply the deferred baseline annotations to `docs/prd/05-installation-profile-and-manifest-lifecycle.md` and `docs/prd/06-template-contracts-and-generated-assets.md` (`Superseded by` PRD 15) at the now-real render and manifest sections; update `docs/prd/00-index.md` if needed.
+- [x] t5: Run a docs hygiene pass: refresh indexes, check links, confirm no placeholders, and run `git diff --check`. `jdocmunch` reindex failed for the local path and repo-name forms, so direct reads were used after the required reindex attempts; `jcodemunch` was refreshed with an incremental code index. `python3 .make-docs/scripts/check_path_hygiene.py --repo-root . --format json`, `scripts/check-wave-numbering.sh`, `scripts/check-instruction-routers.sh`, `diff -rq packages/docs/template packages/cli/template`, and `git diff --check` passed. `npm test -w packages/cli -- consistency` remains blocked only by the pre-existing unmanaged-template and risk-register expected-heading baseline failures.
 
 ### Acceptance criteria
 
