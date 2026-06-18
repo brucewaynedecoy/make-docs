@@ -21,7 +21,7 @@ The chosen name is unresolved (see the register).
 
 ## Documentation Restructure
 
-- Move most of `docs/assets/**` (contracts, references, templates, and the
+- Move contents of `docs/assets/**` (contracts, references, templates, and the
   deterministic logic) into the in-project tool directory.
 - Split that tool directory into a **system** tier (shipped, canonical) and a
   **custom** tier (adopter overlay) for contracts, references, templates, and
