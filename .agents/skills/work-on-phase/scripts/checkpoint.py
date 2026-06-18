@@ -11,7 +11,9 @@ from typing import Any
 from work_on_wave_common import (
     WaveError,
     load_state,
+    localize_state_paths,
     phase_key,
+    repo_relative_path,
     resolve_target,
     save_state,
     state_path_for,
@@ -23,24 +25,30 @@ from work_on_wave_common import (
 def build_checkpoint(args: argparse.Namespace) -> dict[str, Any]:
     resolution = resolve_target(args.target)
     state_path = state_path_for(resolution)
-    state = load_state(state_path) or {
-        "schemaVersion": 1,
-        "phases": {},
-        "createdAt": utc_now(),
-    }
+    repo_root = Path(resolution["repoRoot"])
+    state = localize_state_paths(
+        load_state(state_path)
+        or {
+            "schemaVersion": 1,
+            "phases": {},
+            "createdAt": utc_now(),
+        },
+        repo_root,
+    )
     state["updatedAt"] = utc_now()
     state["waveSlug"] = resolution["waveSlug"]
-    state["waveDir"] = resolution["waveDir"]
-    state["target"] = resolution["target"]
+    state["waveDir"] = repo_relative_path(resolution["waveDir"], repo_root)
+    state["target"] = repo_relative_path(resolution["target"], repo_root)
     state["coordinate"] = resolution["coordinate"]
     state["mode"] = args.mode or resolution["mode"]
     state["commitPolicy"] = args.commit_policy or state.get("commitPolicy") or "commit-required"
-    state["nextPhasePath"] = resolution["phasePath"]
-    state["activePhasePath"] = args.phase or resolution.get("phasePath")
+    state["nextPhasePath"] = repo_relative_path(resolution["phasePath"], repo_root)
+    active_phase_path = args.phase or resolution.get("phasePath")
+    state["activePhasePath"] = repo_relative_path(active_phase_path, repo_root)
 
-    key = phase_key(args.phase or resolution.get("phasePath"))
+    key = phase_key(active_phase_path)
     phase_state = state.setdefault("phases", {}).setdefault(key, {})
-    phase_state["phasePath"] = args.phase or resolution.get("phasePath")
+    phase_state["phasePath"] = repo_relative_path(active_phase_path, repo_root)
     if args.status:
         phase_state["status"] = args.status
     if args.note:
@@ -68,6 +76,7 @@ def build_checkpoint(args: argparse.Namespace) -> dict[str, Any]:
     if args.push_status:
         phase_state.setdefault("push", {})["status"] = args.push_status
 
+    state = localize_state_paths(state, repo_root)
     save_state(state_path, state)
     return {"statePath": state_path.as_posix(), "state": state}
 

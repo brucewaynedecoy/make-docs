@@ -22,7 +22,7 @@ Use this skill to implement one explicit `docs/work/` phase. The target phase do
 - `commit-required` is opt-in: create one local phase commit after closeout.
 - `commit-and-push` is opt-in: create one local phase commit and push it after closeout.
 - Never advance to another phase.
-- Create managed state lazily with [scripts/checkpoint.py](./scripts/checkpoint.py); state belongs under `.make-docs/runs/` and must not be staged by default.
+- Create managed state lazily with [scripts/checkpoint.py](./scripts/checkpoint.py); state belongs under `.make-docs/runs/`, stores project-relative paths only, and must not be staged or committed.
 - Use [scripts/scope_guard.py](./scripts/scope_guard.py) before closeout to detect edits outside the phase scope.
 - Use [scripts/phase_gate.py](./scripts/phase_gate.py) before declaring the phase complete.
 

@@ -43,7 +43,7 @@ Confirm `closeout-phase` is installed or available in the repo package tree. If 
 
 ## State
 
-Managed state lives in `.make-docs/runs/<wave-slug>/state.json`. Store compact facts only:
+Managed state lives in `.make-docs/runs/<wave-slug>/state.json`. This is local resume state: do not stage or commit it. State files must store project-relative paths only; never serialize absolute checkout paths, home directories, or machine-specific temporary paths. Store compact facts only:
 
 - target and resolved phase path
 - commit policy

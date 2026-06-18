@@ -155,7 +155,21 @@ class WorkOnWaveHelperTests(unittest.TestCase):
         self.assertEqual(state_path.parent.parent.name, "runs")
         state = json.loads(state_path.read_text(encoding="utf-8"))
         self.assertEqual(state["commitPolicy"], "commit-required")
+        self.assertEqual(state["waveDir"], "docs/work/2026-05-07-w1-r0-sample")
+        self.assertEqual(
+            state["activePhasePath"],
+            "docs/work/2026-05-07-w1-r0-sample/01-first.md",
+        )
+        self.assertEqual(
+            state["nextPhasePath"],
+            "docs/work/2026-05-07-w1-r0-sample/01-first.md",
+        )
+        self.assertEqual(
+            state["phases"]["01-first.md"]["phasePath"],
+            "docs/work/2026-05-07-w1-r0-sample/01-first.md",
+        )
         self.assertIn("01-first.md", state["phases"])
+        self.assertNotIn(str(self.temp_dir), json.dumps(state))
 
     def test_scope_guard_reports_out_of_scope_changes(self) -> None:
         report = build_scope_report(
@@ -237,9 +251,13 @@ class WorkOnWaveHelperTests(unittest.TestCase):
             state_path,
             {
                 "schemaVersion": 1,
+                "waveDir": self.work_dir.as_posix(),
+                "target": (self.work_dir / "03-complete.md").as_posix(),
+                "activePhasePath": complete_phase.as_posix(),
                 "commitPolicy": "commit-required",
                 "phases": {
                     "03-complete.md": {
+                        "phasePath": complete_phase.as_posix(),
                         "validation": {"status": "passed"},
                         "review": {"status": "not-required", "required": False},
                         "closeout": {"status": "passed"},
@@ -252,6 +270,31 @@ class WorkOnWaveHelperTests(unittest.TestCase):
         passed = build_gate_report(str(complete_phase), "commit-required")
         self.assertEqual(passed["status"], "passed")
         self.assertEqual(passed["blockers"], [])
+
+        refreshed = build_checkpoint(
+            SimpleNamespace(
+                target=str(complete_phase),
+                phase=None,
+                mode=None,
+                commit_policy=None,
+                status="complete",
+                validation_status=None,
+                validation_command=None,
+                review_status=None,
+                review_required=None,
+                closeout_status=None,
+                commit_status=None,
+                commit_sha=None,
+                push_status=None,
+                note=None,
+            )
+        )
+        self.assertNotIn(str(self.temp_dir), json.dumps(refreshed["state"]))
+        self.assertEqual(refreshed["state"]["target"], "docs/work/2026-05-07-w1-r0-sample/03-complete.md")
+        self.assertEqual(
+            refreshed["state"]["phases"]["03-complete.md"]["phasePath"],
+            "docs/work/2026-05-07-w1-r0-sample/03-complete.md",
+        )
 
 
 if __name__ == "__main__":

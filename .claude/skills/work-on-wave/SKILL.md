@@ -21,7 +21,7 @@ Use this skill to work through a `docs/work/` wave or phase from backlog to veri
 - `draft-only` is opt-in: stop after closeout and commit-message draft.
 - In `draft-only`, externally visible tasks such as opening a PR, waiting for CI, merging, or pushing are documented handoffs unless the user explicitly changes the commit policy or authorizes the action.
 - `commit-and-push` is opt-in: require commit and successful push before advancing.
-- Create managed state lazily with [scripts/checkpoint.py](./scripts/checkpoint.py); state belongs under `.make-docs/runs/` and must not be added to templates.
+- Create managed state lazily with [scripts/checkpoint.py](./scripts/checkpoint.py); state belongs under `.make-docs/runs/`, stores project-relative paths only, and must not be staged, committed, or added to templates.
 - Use [scripts/scope_guard.py](./scripts/scope_guard.py) before closeout to detect edits outside the phase scope.
 - Use [scripts/phase_gate.py](./scripts/phase_gate.py) before declaring a phase complete or moving to another phase.
 

@@ -314,6 +314,35 @@ def build_resolution(
     }
 
 
+def repo_relative_path(path: str | Path | None, repo_root: Path) -> str | None:
+    if path is None:
+        return None
+    path_text = str(path)
+    if not path_text:
+        return path_text
+    candidate = Path(path_text)
+    if not candidate.is_absolute():
+        return path_text
+    try:
+        return candidate.resolve().relative_to(repo_root.resolve()).as_posix()
+    except ValueError:
+        return path_text
+
+
+def localize_state_paths(value: Any, repo_root: Path) -> Any:
+    if isinstance(value, dict):
+        return {key: localize_state_paths(item, repo_root) for key, item in value.items()}
+    if isinstance(value, list):
+        return [localize_state_paths(item, repo_root) for item in value]
+    if not isinstance(value, str):
+        return value
+
+    root_text = repo_root.resolve().as_posix()
+    if value == root_text:
+        return "."
+    return value.replace(f"{root_text}/", "")
+
+
 def state_path_for(resolution: dict[str, Any]) -> Path:
     return Path(resolution["repoRoot"]) / ".make-docs" / "runs" / resolution["waveSlug"] / "state.json"
 

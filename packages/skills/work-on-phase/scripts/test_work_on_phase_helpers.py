@@ -144,7 +144,16 @@ class WorkOnPhaseHelperTests(unittest.TestCase):
         state = result["state"]
         self.assertEqual(state["target"], "W1 R0 P2")
         self.assertEqual(state["coordinate"], {"w": 1, "r": 0, "p": 2})
-        self.assertTrue(state["activePhasePath"].endswith("02-second.md"))
+        self.assertEqual(state["waveDir"], "docs/work/2026-05-12-w1-r0-demo")
+        self.assertEqual(
+            state["activePhasePath"],
+            "docs/work/2026-05-12-w1-r0-demo/02-second.md",
+        )
+        self.assertEqual(
+            state["phases"]["02-second.md"]["phasePath"],
+            "docs/work/2026-05-12-w1-r0-demo/02-second.md",
+        )
+        self.assertNotIn(str(root), json.dumps(state))
 
     def test_scope_guard_allows_managed_state_and_lockfile_derivatives(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
