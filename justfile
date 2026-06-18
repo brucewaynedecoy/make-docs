@@ -18,6 +18,8 @@ test:
 install-cli-pack:
     cd {{cli_dir}} && npm run prepack
     cd {{cli_dir}} && npm pack
+    npm uninstall -g @brucewaynedecoy/make-docs make-docs >/dev/null 2>&1 || true
+    bin_path="$(npm prefix -g)/bin/make-docs"; if [ -L "$bin_path" ]; then target="$(readlink "$bin_path")"; case "$target" in *"/node_modules/make-docs/"*|*"/node_modules/@brucewaynedecoy/make-docs/"*) rm "$bin_path";; esac; fi
     cd {{cli_dir}} && npm install -g ./brucewaynedecoy-make-docs-{{cli_version}}.tgz
 
 install-cli-link: build
