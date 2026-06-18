@@ -21,21 +21,28 @@ The chosen name is unresolved (see the register).
 
 ## Documentation Restructure
 
-- Move contents of `docs/assets/**` (contracts, references, templates, and the
-  deterministic logic) into the in-project tool directory.
-- Split that tool directory into a **system** tier (shipped, canonical) and a
-  **custom** tier (adopter overlay) for contracts, references, templates, and
-  scripts.
-- Move `docs/guides/` under a new `docs/library/`, and add
-  `docs/library/playbooks/` so role-specific guides are separated from
-  procedural playbooks.
+- Move contents of `docs/assets/**` (contracts, references, templates, and the deterministic logic) into the in-project tool directory.
+- Split that tool directory into a **system** tier (shipped, canonical) and a **custom** tier (adopter overlay) for contracts, references, templates, and scripts.
+- Move `docs/guides/` under a new `docs/library/`, and add `docs/library/playbooks/` so role-specific guides are separated from procedural playbooks.
 
-## No Scripts (Logic into the CLI)
+See [evolution-direction-structure.md](evolution-direction-structure.md) for a detailed breakdown of the proposed structure.
+
+## CLI Enhancements
+
+### No Scripts / Thin Scripts (Move logic into the CLI)
 
 Move all deterministic logic out of standalone scripts and into the CLI. Add an
 MCP endpoint to the CLI, plus a skill that guides agents on using the CLI for
 adopters who do not want to run the MCP server. Skills that currently rely on
 standalone scripts should source that logic from the CLI instead.
+
+Scripts will still exist under `.make-docs/scripts/`, but they will be segregated into `system/` and `custom/` subdirectories, and all `system/` scripts will be thin wrappers around CLI commands (which should help agents understand and use the CLI more effectively).
+
+### Separation of Concerns
+
+Currently, the CLI behaves as an installer/maintainer for make-docs.  However, it is intended to evolve into a standalone CLI tool that can be used by any agent, not just make-docs maintainers, with a focus on agent-friendly CLI usage and documentation, and an MCP server for agent interaction.  There is still a need for an installer, though, and so we have decided to split this functionality into two separate tools: a standalone CLI and an installer/maintainer.
+
+The functionality of the installer/maintainer will largely be what it is today, though with necessary improvements to the interactive installers/updaters/etc., to reflect the changes to how make-docs works and is installed; it will also be one entry point for installing the standalone CLI.  However, it also needs significant improvements so that it can build as small and as lightweight as possible, and optionally be used without installing ANY dependencies (especially as an `npx` script that can be used without any local installation at all).
 
 ## Docs Metadata
 
