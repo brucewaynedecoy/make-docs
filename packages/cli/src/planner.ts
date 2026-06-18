@@ -68,6 +68,7 @@ export async function createInstallPlan(options: {
     }
 
     const currentContent = readTextFile(absolutePath);
+    const manifestEntry = existingManifest?.files[asset.relativePath];
     const currentHash = getCurrentManifestHash(asset.relativePath, currentContent);
     if (currentHash === desiredHash) {
       actions.push({
@@ -79,7 +80,23 @@ export async function createInstallPlan(options: {
       continue;
     }
 
-    const manifestEntry = existingManifest?.files[asset.relativePath];
+    const migrationContent = getRootInstructionMigrationContent(
+      asset,
+      currentContent,
+      manifestEntry,
+    );
+    if (migrationContent) {
+      actions.push({
+        type: "update",
+        relativePath: asset.relativePath,
+        sourceId: asset.sourceId,
+        content: migrationContent.content,
+        contentHash: desiredHash,
+        reason: migrationContent.reason,
+      });
+      continue;
+    }
+
     const conflictClassification = classifyReviewableManagedFileConflictPath(
       asset.relativePath,
       { isDesiredSkillAsset: desiredSkillFileSet.has(asset.relativePath) },
@@ -580,4 +597,31 @@ function getPlannedUpdateContent(asset: ResolvedAsset, currentContent: string): 
 
 function isRootInstructionPath(relativePath: string): boolean {
   return INSTRUCTION_KINDS.includes(relativePath as InstructionKind);
+}
+
+function getRootInstructionMigrationContent(
+  asset: ResolvedAsset,
+  currentContent: string,
+  manifestEntry: InstallManifest["files"][string] | undefined,
+): { content: string; reason: string } | null {
+  if (!isRootInstructionPath(asset.relativePath)) {
+    return null;
+  }
+
+  const currentBlock = parseManagedBlock(currentContent);
+  if (currentBlock.state !== "absent") {
+    return null;
+  }
+
+  if (manifestEntry?.hash === hashText(currentContent)) {
+    return {
+      content: asset.content,
+      reason: "Migrate legacy root instruction file to the managed-block model.",
+    };
+  }
+
+  return {
+    content: getPlannedUpdateContent(asset, currentContent),
+    reason: "Insert the make-docs managed block into the existing root instruction file.",
+  };
 }

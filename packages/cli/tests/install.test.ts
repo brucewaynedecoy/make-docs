@@ -982,9 +982,8 @@ describe("installer integration", () => {
       const docsInstructionAction = getPlannedAction(plan, "docs/AGENTS.md");
 
       expect(rootInstructionAction).toMatchObject({
-        type: "skip-conflict",
-        reason:
-          "Existing conflicting make-docs managed block was skipped because no reassert resolution was provided.",
+        type: "update",
+        reason: "Insert the make-docs managed block into the existing root instruction file.",
       });
       expect(docsInstructionAction).toMatchObject({
         type: "skip-conflict",
@@ -996,10 +995,7 @@ describe("installer integration", () => {
           path: conflict.relativePath,
           scope: conflict.scope,
         })),
-      ).toEqual([
-        { path: "AGENTS.md", scope: "managed-block" },
-        { path: "docs/AGENTS.md", scope: undefined },
-      ]);
+      ).toEqual([{ path: "docs/AGENTS.md", scope: undefined }]);
       expect(() =>
         applyInstallPlan({
           targetDir,
@@ -1007,9 +1003,11 @@ describe("installer integration", () => {
           existingManifest,
         }),
       ).toThrow(
-        "Cannot apply install plan with unresolved managed-file conflicts: AGENTS.md, docs/AGENTS.md.",
+        "Cannot apply install plan with unresolved managed-file conflicts: docs/AGENTS.md.",
       );
-      expect(readFileSync(path.join(targetDir, "AGENTS.md"), "utf8")).toBe("custom root agents\n");
+      expect(readFileSync(path.join(targetDir, "AGENTS.md"), "utf8")).toContain(
+        "custom root agents\n",
+      );
       expect(readFileSync(path.join(targetDir, "docs/AGENTS.md"), "utf8")).toBe(
         "custom docs agents\n",
       );
@@ -1050,6 +1048,51 @@ describe("installer integration", () => {
       const result = applyInstallPlan({ targetDir, plan, existingManifest: manifest });
       expect(readFileSync(rootPath, "utf8")).toBe(withUserContent);
       expect(result.manifest.files["AGENTS.md"].hash).toBe(manifest.files["AGENTS.md"].hash);
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("migrates legacy whole-file root instruction ownership to the block model", async () => {
+    const targetDir = createTempDir();
+    try {
+      const legacyContent = "# Agent Instructions\n\nLegacy generated routing.\n";
+      writeFileSync(path.join(targetDir, "AGENTS.md"), legacyContent, "utf8");
+      const selections = defaultSelections();
+      const profile = resolveInstallProfile(selections);
+      const existingManifest = {
+        schemaVersion: 1,
+        packageName: "make-docs",
+        packageVersion: "0.1.0",
+        updatedAt: "2026-06-18T00:00:00.000Z",
+        profileId: profile.profileId,
+        selections,
+        effectiveCapabilities: profile.effectiveCapabilities,
+        files: {
+          "AGENTS.md": {
+            hash: hashText(legacyContent),
+            sourceId: "build:AGENTS.md",
+          },
+        },
+        skillFiles: [],
+      };
+
+      const plan = await planInstall({
+        targetDir,
+        selections,
+        existingManifest,
+      });
+
+      expect(getPlannedAction(plan, "AGENTS.md")).toMatchObject({
+        type: "update",
+        content: readPackageFile("AGENTS.md"),
+        reason: "Migrate legacy root instruction file to the managed-block model.",
+      });
+
+      applyInstallPlan({ targetDir, plan, existingManifest });
+      expect(readFileSync(path.join(targetDir, "AGENTS.md"), "utf8")).toBe(
+        readPackageFile("AGENTS.md"),
+      );
     } finally {
       cleanupTempDir(targetDir);
     }
@@ -1160,7 +1203,6 @@ describe("installer integration", () => {
       expect(
         findReviewableManagedFileConflicts(initialPlan).map((conflict) => conflict.relativePath),
       ).toEqual([
-        "AGENTS.md",
         "docs/assets/references/guide-contract.md",
         "docs/assets/templates/guide-user.md",
       ]);
@@ -1178,7 +1220,7 @@ describe("installer integration", () => {
 
       expect(getPlannedAction(plan, "AGENTS.md")).toMatchObject({
         type: "update",
-        reason: "Reassert the make-docs managed block inside the existing agent instruction file.",
+        reason: "Insert the make-docs managed block into the existing root instruction file.",
       });
       expect(getPlannedAction(plan, "AGENTS.md").content).toContain("custom root agents\n");
       expect(getPlannedAction(plan, "docs/assets/references/guide-contract.md")).toMatchObject({
@@ -1242,8 +1284,8 @@ describe("installer integration", () => {
       });
 
       expect(getPlannedAction(plan, "AGENTS.md")).toMatchObject({
-        type: "skip",
-        reason: "Existing conflicting make-docs managed block was explicitly kept.",
+        type: "update",
+        reason: "Insert the make-docs managed block into the existing root instruction file.",
       });
       expect(getPlannedAction(plan, "docs/assets/references/guide-contract.md")).toMatchObject({
         type: "skip",
@@ -1256,7 +1298,9 @@ describe("installer integration", () => {
 
       const result = applyInstallPlan({ targetDir, plan, existingManifest });
 
-      expect(readFileSync(path.join(targetDir, "AGENTS.md"), "utf8")).toBe("custom root agents\n");
+      expect(readFileSync(path.join(targetDir, "AGENTS.md"), "utf8")).toContain(
+        "custom root agents\n",
+      );
       expect(
         readFileSync(path.join(targetDir, "docs/assets/references/guide-contract.md"), "utf8"),
       ).toBe(
@@ -1265,7 +1309,7 @@ describe("installer integration", () => {
       expect(
         readFileSync(path.join(targetDir, "docs/assets/templates/guide-user.md"), "utf8"),
       ).toBe("custom guide template\n");
-      expect(result.manifest.files["AGENTS.md"]).toBeUndefined();
+      expect(result.manifest.files["AGENTS.md"]).toBeDefined();
       expect(result.manifest.files["docs/assets/references/guide-contract.md"]).toBeUndefined();
       expect(result.manifest.files["docs/assets/templates/guide-user.md"]).toBeUndefined();
       expect(result.conflictFiles).toEqual([]);
@@ -1300,7 +1344,6 @@ describe("installer integration", () => {
       const conflicts = findReviewableManagedFileConflicts(plan);
 
       expect(conflicts.map((conflict) => conflict.relativePath)).toEqual([
-        "AGENTS.md",
         "docs/AGENTS.md",
         "docs/assets/references/guide-contract.md",
         "docs/assets/references/wave-model.md",
@@ -1308,7 +1351,6 @@ describe("installer integration", () => {
         "docs/assets/templates/guide-user.md",
       ]);
       expect(conflicts.map((conflict) => conflict.group)).toEqual([
-        "agent-instructions",
         "agent-instructions",
         "references",
         "references",
@@ -1338,7 +1380,7 @@ describe("installer integration", () => {
 
       expect(plan.actions.find((action) => action.relativePath === "AGENTS.md")).toMatchObject({
         type: "update",
-        reason: "Reassert the make-docs managed block inside the existing agent instruction file.",
+        reason: "Insert the make-docs managed block into the existing root instruction file.",
       });
 
       const result = applyInstallPlan({

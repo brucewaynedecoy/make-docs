@@ -25,7 +25,7 @@ report_error() {
 
 line_budget_for() {
   case "$1" in
-    ./AGENTS.md|./CLAUDE.md) echo 5 ;;
+    ./AGENTS.md|./CLAUDE.md) echo 12 ;;
     ./docs/AGENTS.md|./docs/CLAUDE.md) echo 15 ;;
     *) echo 30 ;;
   esac

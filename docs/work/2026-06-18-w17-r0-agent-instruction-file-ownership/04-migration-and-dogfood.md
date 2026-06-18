@@ -22,15 +22,15 @@ reconfigure.
 
 ### Tasks
 
-- [ ] t1: Implement a one-time migration in the CLI that converts a verbatim-rendered root instruction file into the block model: extract make-docs's current content, replace it with the dedicated file plus the marker block, and preserve any non-make-docs content outside the block.
-- [ ] t2: Handle the existing-user-content case (a project's own `AGENTS.md`): preserve it outside the block and insert the make-docs block without overwriting it.
+- [x] t1: Implement a one-time migration in the CLI that converts a verbatim-rendered root instruction file into the block model: extract make-docs's current content, replace it with the dedicated file plus the marker block, and preserve any non-make-docs content outside the block.
+- [x] t2: Handle the existing-user-content case (a project's own `AGENTS.md`): preserve it outside the block and insert the make-docs block without overwriting it.
 
 ## Stage 2 - Dogfood migration
 
 ### Tasks
 
-- [ ] t3: Migrate make-docs's own repo-root `AGENTS.md`/`CLAUDE.md` to the block model (sourced from the dedicated file), placing the template-first maintainer instructions outside the block.
-- [ ] t4: Re-seed the dogfood from `packages/docs/template/**`, verify parity with `diff -rq`, and confirm the lifecycle and other routing bullets now flow from the dedicated file.
+- [x] t3: Migrate make-docs's own repo-root `AGENTS.md`/`CLAUDE.md` to the block model (sourced from the dedicated file), placing the template-first maintainer instructions outside the block.
+- [x] t4: Re-seed the dogfood from `packages/docs/template/**`, verify parity with `diff -rq`, and confirm the lifecycle and other routing bullets now flow from the dedicated file.
 
 ### Acceptance criteria
 
@@ -41,3 +41,9 @@ reconfigure.
 ### Dependencies
 
 - Phases 01-03. Authored under `packages/cli/`; dogfood re-seed verified (template-first).
+
+## Closeout notes
+
+- Updated `scripts/check-instruction-routers.sh` root line budgets so dogfood root instruction files can carry project-specific instructions plus a managed make-docs block.
+- Added dogfood dedicated instruction files at `.make-docs/AGENTS.md` and `.make-docs/CLAUDE.md`.
+- Refreshed `.make-docs/manifest.json` so the dogfood install tracks root managed-block hashes and the dedicated instruction files.
