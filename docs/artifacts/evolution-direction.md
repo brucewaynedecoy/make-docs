@@ -13,12 +13,6 @@ each item becomes authoritative only when it lands in a design, plan, PRD, and
 work backlog. Risks and open questions for these items are tracked in
 `docs/prd/03-open-questions-and-risk-register.md`.
 
-## Naming and Rename
-
-The product name is slated to change to something shorter and less generic.
-The rename will also rename the in-project directory (currently `.make-docs/`).
-The chosen name is unresolved (see the register).
-
 ## Documentation Restructure
 
 - Move contents of `docs/assets/**` (contracts, references, templates, and the deterministic logic) into the in-project tool directory.
@@ -76,6 +70,10 @@ Install shared agentic artifacts (skills, plugins, MCP servers) once in a single
 location and create per-harness symlinks, instead of duplicating content across
 each agent directory. The redirection must work across Linux, macOS, and
 Windows.
+
+### Adversarial Reviews
+
+We should add "adversarial reviews" to skills like the Decompose Codebase skill, especially for "chunks" of analyzed parts of the codebase/system (such as PRDs, etc.).
 
 ## Plugins
 
