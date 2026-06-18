@@ -19,3 +19,12 @@ Describe what this work directory covers and how to navigate its phase files.
 - Keep phase files dependency-ordered.
 - Every phase file must include `## Source PRD Docs`.
 - Link every phase back to the relevant PRD docs.
+
+## Intended Follow-On
+
+This handoff is advisory-default-but-overridable: it is authoritative unless the user explicitly overrides it, and it is not a gate or precondition.
+
+- Route: `implementation-loop`
+- Next step: Start with the first applicable phase in this backlog and continue phase-by-phase.
+- Why: The backlog is the implementation queue derived from the plan and PRD contract.
+- Coordinate Handoff: Carry this backlog's W/R coordinate into phase history records and commits, adding the active P coordinate for each phase.

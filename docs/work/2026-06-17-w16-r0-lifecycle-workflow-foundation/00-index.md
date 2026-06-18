@@ -18,6 +18,18 @@ The four-skill refactor and the three-location skill mirror are intentionally
 **out of scope** here; they are deferred to the no-scripts / CLI-migration wave
 (risk register R-008 and R-014).
 
+## Authoring Location and Re-Seed
+
+Product assets implemented by these phases — the references and templates under
+`docs/assets/**`, the routers, the starter prompts, and the `docs/artifacts/`
+router — are shipped product and must be authored in the source-of-truth
+template `packages/docs/template/docs/...` first, then re-seeded to the
+repo-root dogfood `docs/...`. make-docs's own content (this backlog and the
+other planning docs, the guides, the lifecycle playbook content, and the
+`docs/artifacts/` content) stays dogfood-only. The phase files name dogfood
+`docs/...` paths for brevity; every product-asset task follows this
+template-first rule. See risk register D-014.
+
 ## Phase Map
 
 | File | Purpose |

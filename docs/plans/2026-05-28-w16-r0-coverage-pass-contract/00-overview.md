@@ -26,6 +26,25 @@ All stage vocabulary is kept **domain-neutral** (e.g., "release / publish,"
 not "launch / deploy") so make-docs stays usable for non-software
 documentation work.
 
+## Authoring Location and Re-Seed
+
+Product assets in this wave — the references and templates under
+`docs/assets/**`, the routers (`docs/CLAUDE.md`, `docs/AGENTS.md`,
+`docs/guides/AGENTS.md`, the `docs/assets/references/` routers), the starter
+prompts, and the `docs/artifacts/` router — are **shipped product** and must be
+authored in the source-of-truth template `packages/docs/template/docs/...`
+first, then re-seeded to the repo-root dogfood `docs/...`.
+
+make-docs's own content stays dogfood-only and is not authored in the template:
+the planning docs (`docs/designs/`, `docs/plans/`, `docs/prd/`, `docs/work/`),
+the guides under `docs/guides/`, the lifecycle playbook content under
+`docs/library/playbooks/`, and the `docs/artifacts/` content (the SVG and
+digests).
+
+The phase files below name dogfood `docs/...` paths for brevity; every
+product-asset task follows the template-first rule stated here. See risk
+register D-014.
+
 ## Purpose
 
 Build the authoritative-plus-narrative layer that lets make-docs nudge agents

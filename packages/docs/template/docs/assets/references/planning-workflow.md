@@ -17,6 +17,8 @@ This workflow supports three planning modes:
 Inspect:
 
 - the repo root and current documentation tree
+- any `docs/artifacts/` inputs; if present, read them to hydrate the design and
+  plan
 - any referenced design docs and whether they include `## Intended Follow-On`
 - any `Coordinate Handoff` or source-lineage notes in referenced designs
 - any existing plans, PRD docs, and work backlogs
@@ -25,6 +27,11 @@ Inspect:
 - whether the user request is best classified as baseline generation, decomposition, or active-set evolution
 
 If a referenced design doc includes `## Intended Follow-On`, treat that route as authoritative unless the user explicitly overrides it.
+
+Treat architecture notes, diagrams, meeting notes, transcripts, sketches,
+requirements, and similar source material as artifacts.
+Use `docs/artifacts/` as the optional input home; do not create or require an
+architecture-specific seed directory name.
 
 Resolve the W/R coordinate using `docs/assets/references/wave-model.md` before writing. Explicit user guidance and source lineage from designs, prior plans, prior work backlogs, and history records take precedence over the highest existing wave. If source lineage points to an earlier wave but later unrelated waves exist, keep the lineage wave and increment its revision.
 
@@ -82,6 +89,7 @@ Every plan should cover:
 - execution mode and PRD lifecycle handling
 - coordinator policy and delegation tier
 - planned document catalog
+- intended follow-on, including route, next step, why, and coordinate handoff
 - worker ownership, write scopes, and dependencies
 - MCP strategy and fallback strategy
 - validation and review steps
@@ -158,3 +166,16 @@ Before leaving planning mode, make the execution prerequisites explicit:
 - if the task is active-set evolution, the plan names the new change docs, impacted baseline docs, annotation targets, and delta backlog scope
 - workstreams are disjoint
 - validation is mandatory
+
+Every plan `00-overview.md` includes `## Intended Follow-On` recommending PRD
+generation as the next step.
+That handoff is advisory-default-but-overridable: it is authoritative unless the
+user explicitly overrides it, and it is not a gate or precondition.
+Include:
+
+- `Route:` `prd-generation`
+- `Next step:` generate or update the PRD set from the plan
+- `Why:` why the plan should become the product or documentation contract before
+  backlog generation
+- `Coordinate Handoff:` the W/R lineage the downstream PRD and work backlog
+  should carry, or the coordinate question that must be resolved before writing

@@ -43,3 +43,12 @@ List the best reading path for product, architecture, or planning review.
 ### AI coding assistant
 
 List the fastest path for an assistant that needs safe, code-first context before making changes.
+
+## Intended Follow-On
+
+This handoff is advisory-default-but-overridable: it is authoritative unless the user explicitly overrides it, and it is not a gate or precondition.
+
+- Route: `work-backlog-generation`
+- Next step: Generate or update the work backlog from this PRD set.
+- Why: The PRD set should become the effective contract before phase-sized implementation work is queued.
+- Coordinate Handoff: Carry the plan or source W/R lineage named by this PRD set into `docs/work/`, or resolve the coordinate question before writing the backlog.

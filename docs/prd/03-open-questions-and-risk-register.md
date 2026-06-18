@@ -198,6 +198,22 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 **To close**: Both designs agree with the current plan and the persona-scoped playbook framing.
 
+### D-014 W16 R0 Product Assets Authored in the Dogfood Instead of the Template Source
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Closed | W16 R0 product assets were authored in repo-root dogfood `docs/` instead of `packages/docs/template/docs/`; resolved by reverse-seeding the template from the dogfood and restoring parity. | Sync `.make-docs/manifest.json` via reconfigure to track the newly managed template assets. |
+
+**Issue**: The W16 R0 plan and work backlog specified building product assets (the coverage-pass contract, `lifecycle.md`, router/contract/template edits, starter prompts, and the artifacts router) directly in repo-root `docs/`. The implementing agent followed those paths, so the source-of-truth template `packages/docs/template/docs/**` was left missing assets that existed only in the dogfood — the dogfood/template parity gap D-007 warns about.
+
+**Why it matters**: `packages/docs/template/docs/**` is what ships to consuming projects. Product assets that exist only in the dogfood are not shipped, and the two layers silently diverge.
+
+**Recommendation**: Author product assets in the template first, then re-seed to the dogfood. Keep repo-root `docs/designs/`, `docs/plans/`, `docs/prd/`, `docs/work/`, and make-docs's own content (the lifecycle playbook, `docs/artifacts/` content, guides) dogfood-only.
+
+**To close**: Template and dogfood agree on the W16 product assets, and the plan and work-backlog specs reflect the template-first flow.
+
+**Resolution**: The W16 product assets were reverse-seeded from the dogfood into `packages/docs/template/docs/**` (the contract, `lifecycle.md`, the references and templates edits, the root routers, and the artifacts routers); `diff -rq` confirms parity, with only make-docs's own history, archive, guide, playbook, and artifact content remaining dogfood-only. The W16 R0 plan and work-backlog index now state the template-first authoring and re-seed flow.
+
 ## Open Questions
 
 ### Q-001 What Is the Long-Term Skills Delivery Contract?
