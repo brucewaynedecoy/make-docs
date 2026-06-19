@@ -1,3 +1,4 @@
+<!-- make-docs:begin -->
 # Documentation Router
 
 Use `docs/` only as a router. Do not create generated files directly in this directory. For lifecycle order or skip/reorder/revisit decisions, read `docs/assets/references/lifecycle.md` and surface departures from the default arc.
@@ -13,3 +14,4 @@ Use `docs/` only as a router. Do not create generated files directly in this dir
 - Use `## Future Coverage` inside guides for downstream-dependent guide updates. Do not create design docs, architecture decisions, or PRD risk-register items solely to remember future guide work.
 - For history records, continue in `docs/assets/history/` — read `docs/assets/references/history-record-contract.md` and `docs/assets/templates/history-record.md` before writing.
 - For reusable prompt starters, use `docs/assets/prompts/`; prompts are optional starters, not authority.
+<!-- make-docs:end -->

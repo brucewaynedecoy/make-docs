@@ -16,11 +16,9 @@ are technically optional, but without make-docs's routing at the repo root,
 agents must be steered by hand for every task — the failure mode observed
 repeatedly while building the W16 lifecycle work.
 
-Today the CLI renders the root `AGENTS.md`/`CLAUDE.md` verbatim from the
-template (`packages/cli/src/renderers.ts:59-61` returns
-`readPackageFile(relativePath)` for `ROOT_INSTRUCTIONS`), records them as
-managed `build:` files in `.make-docs/manifest.json`, and resolves conflicts
-only by overwrite or skip-all (the W14 R2 review flow, PRD
+Previously the CLI treated root `AGENTS.md`/`CLAUDE.md` as whole-file managed
+assets, recorded whole-file hashes in `.make-docs/manifest.json`, and resolved
+conflicts only by overwrite or skip-all (the W14 R2 review flow, PRD
 `13-revise-cli-conflict-resolution.md`). Consequences:
 
 - A consuming project's own root instructions cannot coexist with make-docs's;
@@ -132,9 +130,9 @@ without introducing auxiliary instruction files.
 
 **Operational:**
 
-- Touches the CLI renderers, the conflict-review flow, and manifest handling;
-  the template ships root managed blocks directly and no dedicated
-  `.make-docs/<harness>.md` instruction source.
+- Touches the static asset catalog, managed-block reconciliation, conflict
+  review flow, and manifest handling; the template ships managed blocks
+  directly and no dedicated `.make-docs/<harness>.md` instruction source.
 - This is a CLI and product-template change: implementation is authored under
   `packages/` first (the source of truth) and then dogfooded, per the
   template-first rule.

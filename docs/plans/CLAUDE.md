@@ -1,3 +1,4 @@
+<!-- make-docs:begin -->
 # Plans Directory
 
 This directory contains approach and rationale documents created before execution begins. Plans are always directories: an entry-point `00-overview.md` plus one or more `0N-<phase>.md` files.
@@ -18,3 +19,4 @@ Pattern: `YYYY-MM-DD-w{W}-r{R}-<slug>/`
 - Apply the date-slug-W/R naming; do not backdate plans.
 - Plans are written before execution, not retroactively.
 - Archived plans live in `docs/assets/archive/plans/`. Never archive unless explicitly asked. See `docs/assets/archive/AGENTS.md`.
+<!-- make-docs:end -->

@@ -1,3 +1,4 @@
+<!-- make-docs:begin -->
 # Designs Router
 
 This directory is an output target for design docs.
@@ -19,3 +20,4 @@ Pattern: `YYYY-MM-DD-<slug>.md`
 - Designs are living documents — update them when decisions change.
 - Link to related plans, PRD docs, or work items where relevant.
 - Archived designs live in `docs/assets/archive/designs/`; never archive unless the user explicitly asks. See `docs/assets/archive/AGENTS.md`.
+<!-- make-docs:end -->

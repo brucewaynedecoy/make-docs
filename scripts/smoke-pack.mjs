@@ -38,7 +38,7 @@ const EXPECTED_SKILL_PATHS = [
   ".agents/skills/work-on-phase/scripts/phase_gate.py",
 ];
 
-const EXPECTED_DEFAULT_SKILLS = [
+const EXPECTED_ALL_SKILLS = [
   "archive-docs",
   "cleanup-docs",
   "closeout-commit",
@@ -115,6 +115,7 @@ try {
     "Smoke pack skills help omitted skill scope option.",
   );
 
+  const manifestPath = path.join(targetDir, ".make-docs/manifest.json");
   const fixtureServer = await startRepoFixtureServer(repoRoot);
 
   try {
@@ -163,11 +164,26 @@ try {
       path.join(targetDir, ".make-docs/conflicts"),
       "Smoke pack bare sync staged conflicts for an unchanged install.",
     );
+    assertManifestPackageName(manifestPath, EXPECTED_PACKAGE_NAME);
+    assertManifestSkillFiles(manifestPath, 0);
+    assertMissing(
+      path.join(targetDir, ".claude/skills"),
+      "Smoke pack bare install should not produce Claude Code skill files.",
+    );
+    assertMissing(
+      path.join(targetDir, ".agents/skills"),
+      "Smoke pack bare install should not produce Codex skill files.",
+    );
+
+    execFileSync(
+      "node",
+      [packedMakeDocs, "skills", "--yes", "--selected-skills", "all", "--target", targetDir],
+      { stdio: "inherit" },
+    );
   } finally {
     await fixtureServer.close();
   }
 
-  const manifestPath = path.join(targetDir, ".make-docs/manifest.json");
   assertExists(manifestPath, "Smoke pack install did not produce a manifest.");
   assertManifestPackageName(manifestPath, EXPECTED_PACKAGE_NAME);
   assertExists(
@@ -175,8 +191,9 @@ try {
     "Smoke pack install did not produce docs/AGENTS.md.",
   );
 
-  assertDirectoryEntries(path.join(targetDir, ".claude/skills"), EXPECTED_DEFAULT_SKILLS);
-  assertDirectoryEntries(path.join(targetDir, ".agents/skills"), EXPECTED_DEFAULT_SKILLS);
+  assertManifestContainsSkillFiles(manifestPath, EXPECTED_SKILL_PATHS);
+  assertDirectoryEntries(path.join(targetDir, ".claude/skills"), EXPECTED_ALL_SKILLS);
+  assertDirectoryEntries(path.join(targetDir, ".agents/skills"), EXPECTED_ALL_SKILLS);
 
   for (const relativePath of EXPECTED_SKILL_PATHS) {
     assertExists(
@@ -299,6 +316,28 @@ function assertManifestPackageName(manifestPath, expectedPackageName) {
     throw new Error(
       `Smoke pack manifest packageName was ${manifest.packageName}, expected ${expectedPackageName}.`,
     );
+  }
+}
+
+function assertManifestSkillFiles(manifestPath, expectedCount) {
+  const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+  const skillFiles = Array.isArray(manifest.skillFiles) ? manifest.skillFiles : [];
+
+  if (skillFiles.length !== expectedCount) {
+    throw new Error(
+      `Smoke pack manifest tracked ${skillFiles.length} skill files, expected ${expectedCount}.`,
+    );
+  }
+}
+
+function assertManifestContainsSkillFiles(manifestPath, expectedPaths) {
+  const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+  const skillFiles = Array.isArray(manifest.skillFiles) ? manifest.skillFiles : [];
+
+  for (const expectedPath of expectedPaths) {
+    if (!skillFiles.includes(expectedPath)) {
+      throw new Error(`Smoke pack manifest did not track skill file ${expectedPath}.`);
+    }
   }
 }
 

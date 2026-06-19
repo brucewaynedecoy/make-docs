@@ -425,6 +425,8 @@ describe("uninstall command", () => {
 
     try {
       await installManifest(targetDir, (selections) => {
+        selections.skills = true;
+        selections.selectedSkills = ["archive-docs"];
         selections.skillScope = "global";
       });
 

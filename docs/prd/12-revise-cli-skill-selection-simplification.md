@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This change revises the active skill installation requirements so shipped skills are treated as one recommended, selected-by-default set rather than split into required/default and optional categories.
+This change revises the active skill installation requirements so shipped skills are treated as an explicitly selected optional maintenance surface rather than split into required/default and optional categories.
 
 The change belongs in the active PRD namespace because the current baseline documents explicitly describe `required` registry metadata, `optionalSkills` selection state, required-vs-optional UI grouping, and optional-only CLI validation. Wave 14 Revision 1 changes that product and data model.
 
@@ -10,22 +10,22 @@ The change belongs in the active PRD namespace because the current baseline docu
 
 This doc records a `revision`.
 
-It supersedes the prior requirement that `archive-docs` be a mandatory/default skill and `decompose-codebase` be an optional add-on. The revised requirement is that all registry skills are recommended, initially selected when skills are enabled, and individually deselectable.
+It supersedes the prior requirement that `archive-docs` be a mandatory/default skill and `decompose-codebase` be an optional add-on. It also supersedes the W14 R1 selected-by-default model. The revised requirement is that fresh installs enable no skills by default; every first-party skill is optional, explicitly selectable, and tracked through `manifest.skillFiles` only after it is selected.
 
 ## Baseline Being Revised or Removed
 
 This revision alters these established requirement areas:
 
 - [03 Open Questions and Risk Register](./03-open-questions-and-risk-register.md), where skill registry, delivery, and release guidance risks are tracked.
-- [05 Installation, Profile, and Manifest Lifecycle](./05-installation-profile-and-manifest-lifecycle.md), where `InstallSelections`, `profileId`, and manifest migration currently reference `optionalSkills`.
-- [07 CLI Command Surface and Lifecycle](./07-cli-command-surface-and-lifecycle.md), where the wizard and CLI validation currently expose optional skill selection.
+- [05 Installation, Profile, and Manifest Lifecycle](./05-installation-profile-and-manifest-lifecycle.md), where `InstallSelections`, `profileId`, and manifest migration previously referenced `optionalSkills`.
+- [07 CLI Command Surface and Lifecycle](./07-cli-command-surface-and-lifecycle.md), where the wizard and CLI validation previously exposed optional skill selection.
 - [08 Skills Catalog and Distribution](./08-skills-catalog-and-distribution.md), where required/optional registry metadata, UI grouping, shipped inventory, and skills command behavior are described.
 
 ## Rationale
 
-The required-versus-optional skill distinction no longer matches the intended user experience. The skill selection screen should show one recommended list, select every skill by default, preserve the highlighted skill description panel, and allow every listed skill to be deselected.
+The required-versus-optional skill distinction no longer matches the intended user experience. The skill selection screen should show one installable list, preserve the highlighted skill description panel, and allow any listed skill to be selected or deselected.
 
-Keeping `required` in the registry or `optionalSkills` in persisted selection state would preserve a hidden mandatory category after the UI stops presenting one. That would make the CLI harder to reason about and would prevent users from deselecting skills that were formerly installed automatically.
+Keeping `required` in the registry, `optionalSkills` in persisted selection state, or selected-by-default behavior would preserve a hidden automatic installation path after the product stops presenting mandatory skills. That would make the CLI harder to reason about and would cause default installs to write skill files the user did not explicitly request.
 
 Code anchors:
 
@@ -41,18 +41,20 @@ Code anchors:
 
 ## Effective Requirement
 
-The CLI must model shipped skills as one recommended selected-skill set.
+The CLI must model shipped skills as one explicit selected-skill set.
 
 Effective behavior:
 
 - Registry entries describe installable skills and do not carry `required`.
-- Fresh defaults select every registry skill when `skills` is enabled.
+- Fresh defaults set `skills: false`, `selectedSkills: []`, and an inert `skillScope: "project"`.
+- No skill files are written on a default install or default sync.
 - Persisted selections represent the selected skill set, not optional additions to an implicit required set.
 - Current manifests store selected skill names as `selectedSkills`; `optionalSkills` is no longer active manifest or selection state.
 - Desired skill assets are generated only for selected skill names when skills are enabled.
 - Full install and skills-only selection UIs do not render `Default`, `Optional`, `Required skills`, or `Optional skills` as product categories.
 - Every skill row is selectable and deselectable in the interactive selection UI.
 - The highlighted skill detail panel and bottom selected-skill summary/instructions remain.
+- Non-interactive explicit selection, including `--selected-skills all`, can still install first-party skills for users who opt in.
 - The CLI provides no backward-compatibility support for deprecated skill-selection state or flags: legacy manifests with `optionalSkills` are not migrated, `required` registry metadata is not honored, and `--optional-skills` is not aliased.
 - Alpha users with older manifests or generated skill footprints should reinstall or regenerate the project so the manifest and managed skill files are produced from `selectedSkills`.
 - `skillFiles` remains managed-output ownership tracking and is not merged into `manifest.files`.

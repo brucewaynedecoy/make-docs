@@ -1,97 +1,19 @@
-import { readFileSync, readdirSync, statSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, test } from "vitest";
 import { getDesiredAssets } from "../src/catalog";
+import { parseManagedBlock } from "../src/managed-block";
 import { defaultSelections, resolveInstallProfile } from "../src/profile";
-import { renderBuildableAsset } from "../src/renderers";
 import { readPackageFile, TEMPLATE_ROOT } from "../src/utils";
-import { collectFiles } from "./helpers";
-
-const BUILDABLE_PATHS = [
-  "AGENTS.md",
-  "CLAUDE.md",
-  "docs/AGENTS.md",
-  "docs/CLAUDE.md",
-  "docs/assets/templates/AGENTS.md",
-  "docs/assets/templates/CLAUDE.md",
-  "docs/assets/prompts/AGENTS.md",
-  "docs/assets/prompts/CLAUDE.md",
-  "docs/assets/AGENTS.md",
-  "docs/assets/CLAUDE.md",
-  "docs/assets/archive/AGENTS.md",
-  "docs/assets/archive/CLAUDE.md",
-  "docs/assets/history/AGENTS.md",
-  "docs/assets/history/CLAUDE.md",
-  "docs/assets/references/AGENTS.md",
-  "docs/assets/references/CLAUDE.md",
-  "docs/guides/AGENTS.md",
-  "docs/guides/CLAUDE.md",
-  "docs/assets/references/design-workflow.md",
-  "docs/assets/references/design-contract.md",
-  "docs/assets/templates/design.md",
-];
 
 const REPO_ROOT = path.resolve(TEMPLATE_ROOT, "..", "..", "..");
-const DECOMPOSE_PACKAGE_ROOT = path.join(REPO_ROOT, "packages", "skills", "decompose-codebase");
-const DECOMPOSE_MIRROR_ROOT = path.join(REPO_ROOT, ".agents", "skills", "decompose-codebase");
-const DECOMPOSE_CLAUDE_MIRROR_ROOT = path.join(
-  REPO_ROOT,
-  ".claude",
-  "skills",
-  "decompose-codebase",
-);
 const CLOSEOUT_COMMIT_PACKAGE_ROOT = path.join(
   REPO_ROOT,
   "packages",
   "skills",
   "closeout-commit",
 );
-const CLOSEOUT_COMMIT_MIRROR_ROOT = path.join(
-  REPO_ROOT,
-  ".agents",
-  "skills",
-  "closeout-commit",
-);
-const CLOSEOUT_COMMIT_CLAUDE_MIRROR_ROOT = path.join(
-  REPO_ROOT,
-  ".claude",
-  "skills",
-  "closeout-commit",
-);
 const CLOSEOUT_PACKAGE_ROOT = path.join(REPO_ROOT, "packages", "skills", "closeout-phase");
-const CLOSEOUT_MIRROR_ROOT = path.join(REPO_ROOT, ".agents", "skills", "closeout-phase");
-const CLOSEOUT_CLAUDE_MIRROR_ROOT = path.join(
-  REPO_ROOT,
-  ".claude",
-  "skills",
-  "closeout-phase",
-);
-const WORK_ON_WAVE_PACKAGE_ROOT = path.join(
-  REPO_ROOT,
-  "packages",
-  "skills",
-  "work-on-wave",
-);
-const WORK_ON_WAVE_MIRROR_ROOT = path.join(REPO_ROOT, ".agents", "skills", "work-on-wave");
-const WORK_ON_WAVE_CLAUDE_MIRROR_ROOT = path.join(
-  REPO_ROOT,
-  ".claude",
-  "skills",
-  "work-on-wave",
-);
-const WORK_ON_PHASE_PACKAGE_ROOT = path.join(
-  REPO_ROOT,
-  "packages",
-  "skills",
-  "work-on-phase",
-);
-const WORK_ON_PHASE_MIRROR_ROOT = path.join(REPO_ROOT, ".agents", "skills", "work-on-phase");
-const WORK_ON_PHASE_CLAUDE_MIRROR_ROOT = path.join(
-  REPO_ROOT,
-  ".claude",
-  "skills",
-  "work-on-phase",
-);
 
 const RISK_REGISTER_TEMPLATE_PATHS = [
   "docs/assets/templates/prd-risk-register.md",
@@ -132,8 +54,6 @@ const WORK_PHASE_TEMPLATE_PATHS = [
   "docs/assets/templates/work-phase.md",
   "packages/docs/template/docs/assets/templates/work-phase.md",
   "packages/skills/decompose-codebase/assets/templates/rebuild-backlog-phase.md",
-  ".agents/skills/decompose-codebase/assets/templates/rebuild-backlog-phase.md",
-  ".claude/skills/decompose-codebase/assets/templates/rebuild-backlog-phase.md",
 ];
 
 const COMMIT_MESSAGE_CONVENTION_PATHS = [
@@ -141,25 +61,6 @@ const COMMIT_MESSAGE_CONVENTION_PATHS = [
   "packages/docs/template/docs/assets/references/commit-message-convention.md",
   "packages/cli/template/docs/assets/references/commit-message-convention.md",
 ];
-
-function isMirroredDecomposeSkillFile(relativePath: string): boolean {
-  return (
-    relativePath === "SKILL.md" ||
-    relativePath === "agents/openai.yaml" ||
-    relativePath === "scripts/probe_environment.py" ||
-    relativePath === "scripts/validate_output.py" ||
-    relativePath.startsWith("references/") ||
-    relativePath.startsWith("assets/templates/")
-  );
-}
-
-function isPackageOnlyDecomposeSkillFile(relativePath: string): boolean {
-  return (
-    relativePath === "assets/README.md" ||
-    relativePath === "scripts/test_validate_output.py" ||
-    relativePath.startsWith("scripts/__pycache__/")
-  );
-}
 
 function sectionBetween(contents: string, startHeading: string, endHeading: string): string {
   const start = contents.indexOf(startHeading);
@@ -175,25 +76,36 @@ function itemHeadings(section: string): string[] {
   return [...section.matchAll(/^### (.+)$/gm)].map((match) => match[1]);
 }
 
+function collectInstructionRouters(root: string): string[] {
+  const routers: string[] = [];
+  const walk = (directory: string) => {
+    for (const entry of readdirSync(directory)) {
+      const fullPath = path.join(directory, entry);
+      if (statSync(fullPath).isDirectory()) {
+        walk(fullPath);
+        continue;
+      }
+
+      if (entry === "AGENTS.md" || entry === "CLAUDE.md") {
+        routers.push(path.relative(root, fullPath));
+      }
+    }
+  };
+
+  walk(root);
+  return routers.sort();
+}
+
 describe("default profile consistency", () => {
-  test("BUILDABLE_PATHS matches the default profile buildable asset set", () => {
+  test("default scaffold assets are copied from the packaged template", () => {
     const profile = resolveInstallProfile(defaultSelections());
-    const buildablePaths = getDesiredAssets(profile)
-      .filter((asset) => asset.assetClass === "buildable")
-      .map((asset) => asset.relativePath)
-      .sort();
 
-    expect(buildablePaths).toEqual([...BUILDABLE_PATHS].sort());
+    for (const asset of getDesiredAssets(profile)) {
+      expect(asset.assetClass).toBe("scoped-static");
+      expect(asset.sourceId).toBe(`file:${asset.relativePath}`);
+      expect(asset.content).toBe(readPackageFile(asset.relativePath));
+    }
   });
-
-  test.each(BUILDABLE_PATHS)(
-    "matches the checked-in full-profile source for %s",
-    (relativePath) => {
-      const profile = resolveInstallProfile(defaultSelections());
-
-      expect(renderBuildableAsset(relativePath, profile)).toBe(readPackageFile(relativePath));
-    },
-  );
 });
 
 describe("template completeness", () => {
@@ -219,6 +131,21 @@ describe("template completeness", () => {
     const unmanaged = templateFiles.filter((file) => !managedPaths.has(file));
 
     expect(unmanaged).toEqual([]);
+  });
+
+  test("every template instruction router is managed-block wrapped", () => {
+    const instructionRouters = collectInstructionRouters(TEMPLATE_ROOT);
+
+    expect(instructionRouters.length).toBeGreaterThan(0);
+    for (const relativePath of instructionRouters) {
+      const contents = readFileSync(path.join(TEMPLATE_ROOT, relativePath), "utf8");
+      const parsed = parseManagedBlock(contents);
+
+      expect(parsed.state, relativePath).toBe("valid");
+      expect(parsed.body, relativePath).not.toBeNull();
+      expect(parsed.body, relativePath).not.toContain(".make-docs/AGENTS.md");
+      expect(parsed.body, relativePath).not.toContain("@.make-docs/CLAUDE.md");
+    }
   });
 });
 
@@ -343,7 +270,7 @@ describe("risk register routing contract", () => {
       "D-001 README Wording Understates the Live Idempotent Sync Model",
       "D-002 Public Command Guidance Lags the Shipped Command Taxonomy",
       "D-003 Template and Reference Mode Labels Promise More Than the Selector Enforces",
-      "D-004 ResolvedAsset Asset Class Is Stale Relative to the Catalog",
+      "D-004 ResolvedAsset Asset Class May Still Be Wider Than the Catalog",
       "D-005 Skills Delivery Diverges From Earlier Bundled-Payload Expectations",
       "D-006 Packaged README and Maintainer README Do Not Match the Current Tarball Allowlist",
       "D-007 Dogfood Re-Seeding Remains Manual Without a Freshness Proof",
@@ -351,6 +278,9 @@ describe("risk register routing contract", () => {
       "D-009 Future packages/content Boundary Is Undefined",
       "D-010 Skills Authoring and Release Guidance Is Thin Relative to Runtime Dependence",
       "D-011 PRD 05 Still Carries the Pre-W14 R2 Conflict Model",
+      "D-012 Authoritative Layer Encodes Structure but Not Lifecycle Ordering",
+      "D-013 W16 Design Docs Trail the Re-Scoped Plan",
+      "D-014 W16 R0 Product Assets Authored in the Dogfood Instead of the Template Source",
     ]);
     expect(itemHeadings(questions)).toEqual([
       "Q-001 What Is the Long-Term Skills Delivery Contract?",
@@ -360,6 +290,13 @@ describe("risk register routing contract", () => {
       "Q-005 How Should Maintainers Prove Dogfood Freshness?",
       "Q-006 What Defines Public Release Readiness?",
       "Q-007 How Should Remote Skill Sources Be Constrained?",
+      "Q-008 What Is the Package and Directory Rename Target?",
+      "Q-009 What Is the Persona Model Schema?",
+      "Q-010 Where Do Starter Prompts Live After the Restructure?",
+      "Q-011 Should Coordinate and Prefix Conventions Be Configurable?",
+      "Q-012 How Do Plugins and Skills Share an Install and Respect Config Mapping?",
+      "Q-013 What Are the Plugin Flow and Exposure Boundaries?",
+      "Q-014 Does the `docs/library/` Move Land in W16 or the Broader Restructure?",
     ]);
     expect(itemHeadings(risks)).toEqual([
       "R-001 Home-Scoped Skills Are Easy to Drop From a Clean-Room Rebuild",
@@ -369,6 +306,13 @@ describe("risk register routing contract", () => {
       "R-005 The No-Command CLI Workflow Is Easy to Simplify Incorrectly",
       "R-006 Backup and Uninstall Depend on a Single Reviewed Audit Snapshot",
       "R-007 Manual Dogfood Re-Seeding Can Hide Product Drift",
+      "R-008 Deferring the Skill Refactor Prolongs Reliance on Script-Gated Skills",
+      "R-009 The Lifecycle Anchor Could Drift Toward a Hard Gate",
+      "R-010 make-docs Vocabulary Could Re-Introduce a Software Bias",
+      "R-011 The Persona-Target Axis References a Future Configuration",
+      "R-012 Playbooks and Plugins Could Become Overlapping Deliverables",
+      "R-013 The Restructure and Rename Will Relocate Newly Authored Assets",
+      "R-014 The No-Scripts Migration Has a Transitional Break Window",
     ]);
   });
 
@@ -422,8 +366,6 @@ describe("guide generation routing contract", () => {
   test("closeout workflow requires guide reconciliation decisions", () => {
     for (const relativePath of [
       "packages/skills/closeout-phase/references/closeout-workflow.md",
-      ".agents/skills/closeout-phase/references/closeout-workflow.md",
-      ".claude/skills/closeout-phase/references/closeout-workflow.md",
     ]) {
       const contents = readFileSync(path.join(REPO_ROOT, relativePath), "utf8");
 
@@ -478,141 +420,10 @@ describe("path hygiene contract", () => {
   });
 });
 
-describe("dogfood skill mirror parity", () => {
-  test("closeout-commit mirror matches the packaged mapped file set", () => {
-    const expectedMirrorFiles = [
-      "SKILL.md",
-      "agents/openai.yaml",
-      "references/closeout-commit-workflow.md",
-      "scripts/closeout_history.py",
-      "scripts/closeout_probe.py",
-      "scripts/closeout_validate.py",
-    ].sort();
-
-    for (const mirrorRoot of [CLOSEOUT_COMMIT_MIRROR_ROOT, CLOSEOUT_COMMIT_CLAUDE_MIRROR_ROOT]) {
-      const mirrorFiles = collectFiles(mirrorRoot).sort();
-
-      expect(mirrorFiles).toEqual(expectedMirrorFiles);
-
-      for (const relativePath of expectedMirrorFiles) {
-        const packageContents = readFileSync(
-          path.join(CLOSEOUT_COMMIT_PACKAGE_ROOT, relativePath),
-          "utf8",
-        );
-        const mirrorContents = readFileSync(path.join(mirrorRoot, relativePath), "utf8");
-
-        expect(mirrorContents).toBe(packageContents);
-      }
-    }
-  });
-
-  test("closeout-phase mirror matches the packaged mapped file set", () => {
-    const expectedMirrorFiles = [
-      "SKILL.md",
-      "agents/openai.yaml",
-      "references/closeout-workflow.md",
-      "scripts/closeout_history.py",
-      "scripts/closeout_probe.py",
-      "scripts/closeout_validate.py",
-      "scripts/guide_coverage_probe.py",
-      "scripts/work_phase_state.py",
-    ].sort();
-
-    for (const mirrorRoot of [CLOSEOUT_MIRROR_ROOT, CLOSEOUT_CLAUDE_MIRROR_ROOT]) {
-      const mirrorFiles = collectFiles(mirrorRoot).sort();
-
-      expect(mirrorFiles).toEqual(expectedMirrorFiles);
-
-      for (const relativePath of expectedMirrorFiles) {
-        const packageContents = readFileSync(path.join(CLOSEOUT_PACKAGE_ROOT, relativePath), "utf8");
-        const mirrorContents = readFileSync(path.join(mirrorRoot, relativePath), "utf8");
-
-        expect(mirrorContents).toBe(packageContents);
-      }
-    }
-  });
-
-  test("decompose-codebase mirror matches the packaged mapped file set", () => {
-    const expectedMirrorFiles = collectFiles(DECOMPOSE_PACKAGE_ROOT)
-      .filter((relativePath) => !isPackageOnlyDecomposeSkillFile(relativePath))
-      .filter(isMirroredDecomposeSkillFile)
-      .sort();
-
-    for (const mirrorRoot of [DECOMPOSE_MIRROR_ROOT, DECOMPOSE_CLAUDE_MIRROR_ROOT]) {
-      const mirrorFiles = collectFiles(mirrorRoot).sort();
-
-      expect(mirrorFiles).toEqual(expectedMirrorFiles);
-
-      for (const relativePath of expectedMirrorFiles) {
-        const packageContents = readFileSync(
-          path.join(DECOMPOSE_PACKAGE_ROOT, relativePath),
-          "utf8",
-        );
-        const mirrorContents = readFileSync(path.join(mirrorRoot, relativePath), "utf8");
-
-        expect(mirrorContents).toBe(packageContents);
-      }
-    }
-  });
-
-  test("work-on-wave mirror matches the packaged mapped file set", () => {
-    const expectedMirrorFiles = [
-      "SKILL.md",
-      "agents/openai.yaml",
-      "references/wave-implementation-workflow.md",
-      "scripts/checkpoint.py",
-      "scripts/work_on_wave_common.py",
-      "scripts/phase_gate.py",
-      "scripts/phase_plan.py",
-      "scripts/resolve_wave.py",
-      "scripts/scope_guard.py",
-      "scripts/wave_status.py",
-    ].sort();
-
-    for (const mirrorRoot of [WORK_ON_WAVE_MIRROR_ROOT, WORK_ON_WAVE_CLAUDE_MIRROR_ROOT]) {
-      const mirrorFiles = collectFiles(mirrorRoot).sort();
-
-      expect(mirrorFiles).toEqual(expectedMirrorFiles);
-
-      for (const relativePath of expectedMirrorFiles) {
-        const packageContents = readFileSync(
-          path.join(WORK_ON_WAVE_PACKAGE_ROOT, relativePath),
-          "utf8",
-        );
-        const mirrorContents = readFileSync(path.join(mirrorRoot, relativePath), "utf8");
-
-        expect(mirrorContents).toBe(packageContents);
-      }
-    }
-  });
-
-  test("work-on-phase mirror matches the packaged mapped file set", () => {
-    const expectedMirrorFiles = [
-      "SKILL.md",
-      "agents/openai.yaml",
-      "references/phase-implementation-workflow.md",
-      "scripts/checkpoint.py",
-      "scripts/work_on_wave_common.py",
-      "scripts/phase_gate.py",
-      "scripts/phase_plan.py",
-      "scripts/resolve_wave.py",
-      "scripts/scope_guard.py",
-    ].sort();
-
-    for (const mirrorRoot of [WORK_ON_PHASE_MIRROR_ROOT, WORK_ON_PHASE_CLAUDE_MIRROR_ROOT]) {
-      const mirrorFiles = collectFiles(mirrorRoot).sort();
-
-      expect(mirrorFiles).toEqual(expectedMirrorFiles);
-
-      for (const relativePath of expectedMirrorFiles) {
-        const packageContents = readFileSync(
-          path.join(WORK_ON_PHASE_PACKAGE_ROOT, relativePath),
-          "utf8",
-        );
-        const mirrorContents = readFileSync(path.join(mirrorRoot, relativePath), "utf8");
-
-        expect(mirrorContents).toBe(packageContents);
-      }
+describe("optional skill package consistency", () => {
+  test("dogfood skill mirrors are not installed by default", () => {
+    for (const relativePath of [".agents/skills", ".claude/skills"]) {
+      expect(existsSync(path.join(REPO_ROOT, relativePath))).toBe(false);
     }
   });
 

@@ -4,6 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { applyInstallPlan, planInstall } from "../src/install";
 import { loadManifest } from "../src/manifest";
+import { renderManagedBlock } from "../src/managed-block";
 import { defaultSelections } from "../src/profile";
 import { createTempDir, cleanupTempDir, mockSkillFetches } from "./helpers";
 
@@ -12,6 +13,15 @@ const promptForManagedFileConflictResolutionsMock = vi.fn();
 const confirmMock = vi.fn();
 const runUninstallCommandMock = vi.fn();
 const runSkillsCommandMock = vi.fn();
+const ALL_SKILL_NAMES = [
+  "archive-docs",
+  "cleanup-docs",
+  "closeout-commit",
+  "closeout-phase",
+  "decompose-codebase",
+  "work-on-phase",
+  "work-on-wave",
+];
 
 vi.mock("../src/wizard", () => ({
   runSelectionWizard: runSelectionWizardMock,
@@ -58,6 +68,11 @@ async function installManifest(
   });
 }
 
+function enableAllSkills(selections: ReturnType<typeof defaultSelections>): void {
+  selections.skills = true;
+  selections.selectedSkills = [...ALL_SKILL_NAMES];
+}
+
 function mockHomeDirectory(homeDir: string): () => void {
   const previousHome = process.env.HOME;
   process.env.HOME = homeDir;
@@ -100,6 +115,14 @@ function writeCustomManagedFile(targetDir: string, relativePath: string, content
   const absolutePath = path.join(targetDir, relativePath);
   mkdirSync(path.dirname(absolutePath), { recursive: true });
   writeFileSync(absolutePath, content, "utf8");
+}
+
+function writeConflictingRootInstruction(targetDir: string) {
+  writeCustomManagedFile(
+    targetDir,
+    "AGENTS.md",
+    `${renderManagedBlock("- Locally edited make-docs routing.\n")}\n`,
+  );
 }
 
 async function captureCliOutput(argv: string[]): Promise<string> {
@@ -236,6 +259,29 @@ describe("cli interactive flows", () => {
     }
   });
 
+  test("ignores root instruction headings outside managed blocks during CLI sync", async () => {
+    const targetDir = createTempDir();
+
+    try {
+      await installManifest(targetDir);
+      for (const instructionFile of ["AGENTS.md", "CLAUDE.md"]) {
+        const instructionPath = path.join(targetDir, instructionFile);
+        const currentContent = readFileSync(instructionPath, "utf8");
+        writeFileSync(instructionPath, `# Agent Instructions\n\n${currentContent}`, "utf8");
+      }
+
+      const output = await captureCliOutput(["--yes", "--target", targetDir, "--dry-run"]);
+
+      expect(promptForManagedFileConflictResolutionsMock).not.toHaveBeenCalled();
+      expect(output).toContain("Mode: existing install sync");
+      expect(output).toContain("Already current:");
+      expect(output).toContain("Changes planned: 0");
+      expect(output).not.toContain("Resolve managed file conflicts");
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
   test("installs default selections on a bare non-interactive apply", async () => {
     const targetDir = createTempDir();
 
@@ -254,7 +300,9 @@ describe("cli interactive flows", () => {
         prd: true,
         work: true,
       });
-      expect(manifest?.selections.skills).toBe(true);
+      expect(manifest?.selections.skills).toBe(false);
+      expect(manifest?.selections.selectedSkills).toEqual([]);
+      expect(manifest?.skillFiles).toEqual([]);
     } finally {
       cleanupTempDir(targetDir);
     }
@@ -302,26 +350,18 @@ describe("cli interactive flows", () => {
     const targetDir = createTempDir();
 
     try {
-      await installManifest(targetDir);
+      await installManifest(targetDir, enableAllSkills);
       const claudeSkillPath = path.join(targetDir, ".claude/skills/archive-docs/SKILL.md");
       const codexSkillPath = path.join(targetDir, ".agents/skills/archive-docs/SKILL.md");
       expect(existsSync(claudeSkillPath)).toBe(true);
       expect(existsSync(codexSkillPath)).toBe(true);
-      promptForManagedFileConflictResolutionsMock.mockResolvedValue({
-        "docs/AGENTS.md": "overwrite",
-        "docs/CLAUDE.md": "overwrite",
-        "docs/assets/prompts/AGENTS.md": "overwrite",
-        "docs/assets/prompts/CLAUDE.md": "overwrite",
-        "docs/assets/templates/AGENTS.md": "overwrite",
-        "docs/assets/templates/CLAUDE.md": "overwrite",
-      });
       confirmMock.mockResolvedValue(true);
       const { runCli } = await import("../src/cli");
 
       await runCli(["--no-skills", "--target", targetDir]);
 
       expect(runSelectionWizardMock).not.toHaveBeenCalled();
-      expect(promptForManagedFileConflictResolutionsMock).toHaveBeenCalledTimes(1);
+      expect(promptForManagedFileConflictResolutionsMock).not.toHaveBeenCalled();
       expect(loadManifest(targetDir)?.selections.skills).toBe(false);
       expect(loadManifest(targetDir)?.selections.selectedSkills).toEqual([]);
       expect(existsSync(claudeSkillPath)).toBe(false);
@@ -335,7 +375,7 @@ describe("cli interactive flows", () => {
     const targetDir = createTempDir();
 
     try {
-      writeFileSync(path.join(targetDir, "AGENTS.md"), "custom root agents\n", "utf8");
+      writeConflictingRootInstruction(targetDir);
       runSelectionWizardMock.mockResolvedValue(defaultSelections());
       promptForManagedFileConflictResolutionsMock.mockResolvedValue({
         "AGENTS.md": "overwrite",
@@ -348,17 +388,18 @@ describe("cli interactive flows", () => {
         {
           relativePath: "AGENTS.md",
           group: "agent-instructions",
-          sourceId: "build:AGENTS.md",
+          sourceId: "file:AGENTS.md",
           instructionKind: "AGENTS.md",
+          scope: "managed-block",
           reason:
-            "Existing conflicting agent instruction file was skipped because no overwrite resolution was provided.",
+            "Existing conflicting make-docs managed block was skipped because no reassert resolution was provided.",
         },
       ]);
       expect(readFileSync(path.join(targetDir, "AGENTS.md"), "utf8")).not.toBe(
-        "custom root agents\n",
+        `${renderManagedBlock("- Locally edited make-docs routing.\n")}\n`,
       );
       expect(loadManifest(targetDir)?.files["AGENTS.md"]).toEqual(
-        expect.objectContaining({ sourceId: "build:AGENTS.md" }),
+        expect.objectContaining({ sourceId: "file:AGENTS.md" }),
       );
       expect(listConflictFiles(targetDir).some((file) => file.endsWith("/AGENTS.md"))).toBe(
         false,
@@ -372,7 +413,7 @@ describe("cli interactive flows", () => {
     const targetDir = createTempDir();
 
     try {
-      writeCustomManagedFile(targetDir, "AGENTS.md", "custom root agents\n");
+      writeConflictingRootInstruction(targetDir);
       writeCustomManagedFile(
         targetDir,
         "docs/assets/references/guide-contract.md",
@@ -400,7 +441,7 @@ describe("cli interactive flows", () => {
         "docs/assets/templates/guide-user.md",
       ]);
       expect(readFileSync(path.join(targetDir, "AGENTS.md"), "utf8")).toBe(
-        "custom root agents\n",
+        `${renderManagedBlock("- Locally edited make-docs routing.\n")}\n`,
       );
       expect(
         readFileSync(path.join(targetDir, "docs/assets/references/guide-contract.md"), "utf8"),
@@ -420,7 +461,7 @@ describe("cli interactive flows", () => {
     const targetDir = createTempDir();
 
     try {
-      writeCustomManagedFile(targetDir, "AGENTS.md", "custom root agents\n");
+      writeConflictingRootInstruction(targetDir);
       writeCustomManagedFile(
         targetDir,
         "docs/assets/references/guide-contract.md",
@@ -442,7 +483,7 @@ describe("cli interactive flows", () => {
       expect(error.message).toContain("- docs/assets/references/guide-contract.md");
       expect(error.message).toContain("- docs/assets/templates/guide-user.md");
       expect(readFileSync(path.join(targetDir, "AGENTS.md"), "utf8")).toBe(
-        "custom root agents\n",
+        `${renderManagedBlock("- Locally edited make-docs routing.\n")}\n`,
       );
       expect(
         readFileSync(path.join(targetDir, "docs/assets/references/guide-contract.md"), "utf8"),
@@ -464,7 +505,7 @@ describe("cli interactive flows", () => {
     try {
       await installManifest(targetDir);
       rmSync(path.join(targetDir, "docs/assets/templates/guide-developer.md"));
-      writeCustomManagedFile(targetDir, "AGENTS.md", "custom root agents\n");
+      writeConflictingRootInstruction(targetDir);
       writeCustomManagedFile(
         targetDir,
         "docs/assets/references/guide-contract.md",
@@ -770,7 +811,14 @@ describe("cli interactive flows", () => {
     const targetDir = createTempDir();
 
     try {
-      const output = await captureCliOutput(["skills", "--yes", "--target", targetDir]);
+      const output = await captureCliOutput([
+        "skills",
+        "--yes",
+        "--selected-skills",
+        "all",
+        "--target",
+        targetDir,
+      ]);
 
       expect(output).toContain("make-docs skills plan");
       expect(output).toContain("Planned skill file operations:");
@@ -828,6 +876,7 @@ describe("cli interactive flows", () => {
 
     try {
       await installManifest(targetDir, (selections) => {
+        selections.skills = true;
         selections.skillScope = "global";
         selections.selectedSkills = ["decompose-codebase"];
       });
@@ -856,6 +905,7 @@ describe("cli interactive flows", () => {
 
     try {
       await installManifest(targetDir, (selections) => {
+        selections.skills = true;
         selections.skillScope = "global";
         selections.selectedSkills = ["decompose-codebase"];
       });

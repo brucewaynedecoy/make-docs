@@ -1,5 +1,4 @@
-import { getSkillRegistryNames, loadSkillRegistry } from "./skill-registry";
-import { hashText, formatInlineList, PACKAGE_ROOT } from "./utils";
+import { hashText, formatInlineList } from "./utils";
 import {
   CAPABILITIES,
   type Capability,
@@ -27,9 +26,9 @@ export function defaultSelections(): InstallSelections {
       "claude-code": true,
       codex: true,
     },
-    skills: true,
+    skills: false,
     skillScope: "project",
-    selectedSkills: getDefaultSelectedSkills(),
+    selectedSkills: [],
   };
 }
 
@@ -94,31 +93,4 @@ export function resolveInstallProfile(
 
 export function hasEffectiveCapabilities(profile: InstallProfile): boolean {
   return profile.effectiveCapabilities.length > 0;
-}
-
-export function isFullDefaultProfile(profile: InstallProfile): boolean {
-  return (
-    CAPABILITIES.every(
-      (capability) => profile.capabilityState[capability].effectiveSelection,
-    ) &&
-    profile.selections.harnesses["claude-code"] &&
-    profile.selections.harnesses.codex &&
-    profile.selections.skills &&
-    profile.selections.skillScope === "project" &&
-    arraysEqual(
-      [...profile.selections.selectedSkills].sort(),
-      getDefaultSelectedSkills(),
-    )
-  );
-}
-
-function getDefaultSelectedSkills(): string[] {
-  return getSkillRegistryNames(loadSkillRegistry(PACKAGE_ROOT));
-}
-
-function arraysEqual(left: string[], right: string[]): boolean {
-  return (
-    left.length === right.length &&
-    left.every((value, index) => value === right[index])
-  );
 }

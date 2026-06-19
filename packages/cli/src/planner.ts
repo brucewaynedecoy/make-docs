@@ -58,7 +58,7 @@ export async function createInstallPlan(options: {
 
     if (!existsSync(absolutePath)) {
       actions.push({
-        type: asset.assetClass === "buildable" ? "generate" : "create",
+        type: "create",
         relativePath: asset.relativePath,
         sourceId: asset.sourceId,
         content: asset.content,
@@ -80,7 +80,7 @@ export async function createInstallPlan(options: {
       continue;
     }
 
-    const migrationContent = getRootInstructionMigrationContent(
+    const migrationContent = getInstructionMigrationContent(
       asset,
       currentContent,
       manifestEntry,
@@ -167,8 +167,26 @@ export async function createInstallPlan(options: {
       }
 
       const currentContent = readTextFile(absolutePath);
-      const currentHash = hashText(currentContent);
-      if (currentHash === manifestEntry.hash) {
+      const currentHash = getCurrentManifestHash(relativePath, currentContent);
+      const legacyFullFileHash = hashText(currentContent);
+      const isCleanInstructionBlock =
+        isInstructionPath(relativePath) &&
+        currentHash === manifestEntry.hash &&
+        instructionHasNoOutsideContent(currentContent);
+
+      if (
+        currentHash === manifestEntry.hash &&
+        (!isInstructionPath(relativePath) || isCleanInstructionBlock)
+      ) {
+        actions.push({
+          type: "remove-managed",
+          relativePath,
+          sourceId: manifestEntry.sourceId,
+        });
+        continue;
+      }
+
+      if (isInstructionPath(relativePath) && legacyFullFileHash === manifestEntry.hash) {
         actions.push({
           type: "remove-managed",
           relativePath,
@@ -475,7 +493,7 @@ export function classifyReviewableManagedFileConflictPath(
     return {
       group: "agent-instructions",
       instructionKind,
-      ...(isRootInstructionPath(relativePath) ? { scope: "managed-block" as const } : {}),
+      scope: "managed-block",
     };
   }
 
@@ -573,7 +591,7 @@ function getManagedFileConflictGroupLabel(group: ManagedFileConflictGroup): stri
 function getManifestHashForAsset(asset: ResolvedAsset): string {
   const manifestHash = getManifestFileHash(asset.relativePath, asset.content);
   if (manifestHash === null) {
-    throw new Error(`Root instruction asset ${asset.relativePath} is missing a valid managed block.`);
+    throw new Error(`Instruction asset ${asset.relativePath} is missing a valid managed block.`);
   }
 
   return manifestHash;
@@ -584,7 +602,7 @@ function getCurrentManifestHash(relativePath: string, content: string): string |
 }
 
 function getPlannedUpdateContent(asset: ResolvedAsset, currentContent: string): string {
-  if (!isRootInstructionPath(asset.relativePath)) {
+  if (!isInstructionPath(asset.relativePath)) {
     return asset.content;
   }
 
@@ -596,17 +614,26 @@ function getPlannedUpdateContent(asset: ResolvedAsset, currentContent: string): 
   return upsertManagedBlock(currentContent, parsed.body).content;
 }
 
-function isRootInstructionPath(relativePath: string): boolean {
-  return INSTRUCTION_KINDS.includes(relativePath as InstructionKind);
+function isInstructionPath(relativePath: string): boolean {
+  return getInstructionKindForPath(relativePath) !== null;
 }
 
-function getRootInstructionMigrationContent(
+function instructionHasNoOutsideContent(content: string): boolean {
+  const parsed = parseManagedBlock(content);
+  return (
+    parsed.state === "valid" &&
+    parsed.prefix.trim().length === 0 &&
+    parsed.suffix.trim().length === 0
+  );
+}
+
+function getInstructionMigrationContent(
   asset: ResolvedAsset,
   currentContent: string,
   manifestEntry: InstallManifest["files"][string] | undefined,
   currentHash: string | null,
 ): { content: string; reason: string } | null {
-  if (!isRootInstructionPath(asset.relativePath)) {
+  if (!isInstructionPath(asset.relativePath)) {
     return null;
   }
 
@@ -619,22 +646,26 @@ function getRootInstructionMigrationContent(
     ) {
       return {
         content: getPlannedUpdateContent(asset, currentContent),
-        reason: "Refresh the manifest-owned root instruction block to the current inline routing.",
+        reason: "Refresh the manifest-owned instruction block to the current routing.",
       };
     }
 
     return null;
   }
 
-  if (manifestEntry?.hash === hashText(currentContent)) {
+  if (manifestEntry) {
+    if (manifestEntry.hash !== hashText(currentContent)) {
+      return null;
+    }
+
     return {
       content: asset.content,
-      reason: "Migrate legacy root instruction file to the managed-block model.",
+      reason: "Migrate legacy instruction file to the managed-block model.",
     };
   }
 
   return {
     content: getPlannedUpdateContent(asset, currentContent),
-    reason: "Insert the make-docs managed block into the existing root instruction file.",
+    reason: "Insert the make-docs managed block into the existing instruction file.",
   };
 }

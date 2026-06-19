@@ -37,7 +37,7 @@ The smoke script is therefore more than a tarball smoke test. It is the encoded 
 | Command | Scope | What it proves | Primary anchors |
 | --- | --- | --- | --- |
 | `npm test` or `npm test -w packages/cli` | Full CLI Vitest suite | Covers profile logic, CLI flows, installer integration, skills behavior, and lifecycle commands. | `package.json:16`, `packages/cli/package.json:22`, `packages/cli/src/README.md:152-177` |
-| `npm run validate:defaults` | Default-asset consistency | Runs `packages/cli/tests/consistency.test.ts`, which checks that the buildable asset set matches the default profile and that every template file is covered by the asset pipeline. | `package.json:17`, `packages/cli/package.json:23`, `packages/cli/tests/consistency.test.ts:33-77` |
+| `npm run validate:defaults` | Default-asset consistency | Runs `packages/cli/tests/consistency.test.ts`, which checks that desired scaffold assets match packaged template bytes, every template file is covered by the static asset pipeline, and every instruction router has managed-block markers. | `package.json:17`, `packages/cli/package.json:23`, `packages/cli/tests/consistency.test.ts` |
 | `bash scripts/check-instruction-routers.sh` | Router integrity | Enforces `AGENTS.md`/`CLAUDE.md` pairing, byte identity, per-directory line budgets, and banned headings. | `scripts/check-instruction-routers.sh:1-58`, `packages/cli/src/README.md:165-176` |
 | `bash scripts/check-wave-numbering.sh` | Docs/work namespace hygiene | Warns on duplicate `wN-rN` coordinates across both repo-root docs and `packages/docs/template/docs`. | `scripts/check-wave-numbering.sh:15-58`, `docs/assets/archive/work/2026-04-16-w5-r2-cli-skill-installation/07-tests-and-validation.md` |
 | `node scripts/smoke-pack.mjs` | Packaged end-to-end validation | Exercises prepack, tarball creation, packaged CLI install, skills, backup, and uninstall in temp directories. | `package.json:18`, `scripts/smoke-pack.mjs:60-246` |
@@ -59,7 +59,7 @@ For a true first public release, the release state now uses Apache-2.0 licensing
 | Item | Evidence | Why it matters |
 | --- | --- | --- |
 | Scoped package name is now required | The unscoped `make-docs` publish was blocked by npm's similarity guard; package metadata now uses `@brucewaynedecoy/make-docs` while preserving the `make-docs` binary. | Public docs and generated guidance must use scoped `npx @brucewaynedecoy/make-docs@next` until a future unscoped name strategy exists. |
-| Reserved future package with no release contract | `README.md:10-17` describes `packages/content/` as reserved for CLI-rendered fragments, but current package metadata and release scripts do not define how or whether it will ship. | This is a future-facing gap that can complicate later packaging and dogfood expectations. Candidate risk-register item. |
+| Reserved future package with no release contract | `README.md:10-17` describes `packages/content/` as reserved for future content, but current package metadata and release scripts do not define how or whether it will ship. | This is a future-facing gap that can complicate later packaging and dogfood expectations. Candidate risk-register item. |
 
 ## Source Anchors
 

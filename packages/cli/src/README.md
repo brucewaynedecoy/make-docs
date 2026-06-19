@@ -22,12 +22,12 @@ The package is intentionally small. Most changes land in one of these files:
 - [`src/cli.ts`](./cli.ts): argument parsing, interactive vs non-interactive flow, plan/apply orchestration
 - [`src/wizard.ts`](./wizard.ts): interactive Clack wizard and review flow
 - [`src/profile.ts`](./profile.ts): default selections and capability dependency rules
-- [`src/catalog.ts`](./catalog.ts): which files belong to a resolved install profile
-- [`src/renderers.ts`](./renderers.ts): generated router and profile-aware file content
+- [`src/rules.ts`](./rules.ts): static template path selection rules
+- [`src/catalog.ts`](./catalog.ts): which static template files belong to a resolved install profile
 - [`src/planner.ts`](./planner.ts): diffing current files vs desired files into install actions
 - [`src/install.ts`](./install.ts): plan application and conflict staging
 - [`src/manifest.ts`](./manifest.ts): managed-file manifest load/write helpers
-- [`tests/`](../tests): integration, CLI, wizard, renderer, and consistency coverage
+- [`tests/`](../tests): integration, CLI, wizard, managed-block, and consistency coverage
 
 ## Development Workflow
 
@@ -49,7 +49,7 @@ Use this rule of thumb while changing the package:
 - If you touched wizard UX, CLI copy, or argument handling: test interactively against `dist/index.js`
 - If you touched profile resolution, planning, manifests, or conflict handling: run `npm test`
 - If you touched `package.json`, bundled dependencies, `files`, `bin`, or output structure: run `npm run smoke:pack`
-- If you touched default assets under `docs/` or profile-aware renderer output: run `npm run validate:defaults`
+- If you touched default assets under `docs/`, `packages/docs/template/`, or static asset selection: run `npm run validate:defaults`
 
 ## Build
 
@@ -162,7 +162,7 @@ npm run smoke:pack
 
 What each script covers:
 
-- `npm test`: Vitest suite across profile logic, renderers, wizard state, CLI flows, and installer integration
+- `npm test`: Vitest suite across profile logic, managed blocks, wizard state, CLI flows, and installer integration
 - `npm run validate:defaults`: validates the default asset set and consistency assumptions
 - `npm run smoke:pack`: builds the package, creates a tarball, unpacks it into a temp directory, and runs the packaged CLI against a temp target
 

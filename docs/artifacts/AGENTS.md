@@ -1,3 +1,4 @@
+<!-- make-docs:begin -->
 # Artifacts Router
 
 `docs/artifacts/` is a managed/template asset and an **optional, zero-contract** home for free-form,
@@ -12,3 +13,4 @@ hydrate downstream design, planning, and PRD work.
   contract.
 - Do not generate plans, PRDs, work backlogs, designs, guides, or history
   records here. Those have their own output directories.
+<!-- make-docs:end -->

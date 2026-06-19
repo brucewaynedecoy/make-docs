@@ -118,11 +118,25 @@ const LEGACY_W17_AGENTS_BODY = [
 const LEGACY_W17_CLAUDE_BODY = "@.make-docs/CLAUDE.md\n";
 const LEGACY_W17_DEDICATED_CONTENT =
   "# make-docs Instructions\n\nWhen asked to create documentation for this project that is not `README.md`, read the same-named instruction file in `docs/` before writing.\n";
+const ALL_SKILL_NAMES = [
+  "archive-docs",
+  "cleanup-docs",
+  "closeout-commit",
+  "closeout-phase",
+  "decompose-codebase",
+  "work-on-phase",
+  "work-on-wave",
+];
 
 function getInstructionPaths(instructionKind: "AGENTS.md" | "CLAUDE.md"): string[] {
   return FULL_PROFILE_INSTRUCTION_DIRS.map((relativeDir) =>
     relativeDir === "." ? instructionKind : path.join(relativeDir, instructionKind),
   );
+}
+
+function enableAllSkills(selections: ReturnType<typeof defaultSelections>): void {
+  selections.skills = true;
+  selections.selectedSkills = [...ALL_SKILL_NAMES];
 }
 
 function mockHomeDirectory(homeDir: string): () => void {
@@ -185,102 +199,16 @@ describe("installer integration", () => {
       const { manifest } = await installWithSelections(targetDir, () => {});
 
       expect(manifest.effectiveCapabilities).toEqual(["designs", "plans", "prd", "work"]);
-      expect(existsSync(path.join(targetDir, ".claude/skills/archive-docs/SKILL.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, ".agents/skills/archive-docs/SKILL.md"))).toBe(true);
-      expect(
-        existsSync(path.join(targetDir, ".claude/skills/archive-docs/agents/openai.yaml")),
-      ).toBe(true);
-      expect(
-        existsSync(path.join(targetDir, ".agents/skills/archive-docs/agents/openai.yaml")),
-      ).toBe(true);
-      expect(
-        existsSync(
-          path.join(targetDir, ".claude/skills/archive-docs/references/archive-workflow.md"),
-        ),
-      ).toBe(true);
-      expect(
-        existsSync(
-          path.join(targetDir, ".agents/skills/archive-docs/references/archive-workflow.md"),
-        ),
-      ).toBe(true);
-      expect(
-        existsSync(
-          path.join(targetDir, ".claude/skills/archive-docs/scripts/trace_relationships.py"),
-        ),
-      ).toBe(true);
-      expect(
-        existsSync(
-          path.join(targetDir, ".agents/skills/archive-docs/scripts/trace_relationships.py"),
-        ),
-      ).toBe(true);
+      expect(manifest.selections.skills).toBe(false);
+      expect(manifest.selections.selectedSkills).toEqual([]);
+      expect(manifest.skillFiles).toEqual([]);
+      expect(existsSync(path.join(targetDir, ".claude/skills"))).toBe(false);
+      expect(existsSync(path.join(targetDir, ".agents/skills"))).toBe(false);
       expect(existsSync(path.join(targetDir, ".claude/skill-assets"))).toBe(false);
       expect(existsSync(path.join(targetDir, ".agents/skill-assets"))).toBe(false);
-      expect(
-        existsSync(path.join(targetDir, ".claude/skills/decompose-codebase/SKILL.md")),
-      ).toBe(true);
-      expect(existsSync(path.join(targetDir, ".claude/skills/work-on-wave/SKILL.md"))).toBe(
-        true,
-      );
-      expect(existsSync(path.join(targetDir, ".agents/skills/work-on-wave/SKILL.md"))).toBe(
-        true,
-      );
-      expect(existsSync(path.join(targetDir, ".claude/skills/work-on-phase/SKILL.md"))).toBe(
-        true,
-      );
-      expect(existsSync(path.join(targetDir, ".agents/skills/work-on-phase/SKILL.md"))).toBe(
-        true,
-      );
-      expect(existsSync(path.join(targetDir, ".claude/skills/closeout-commit/SKILL.md"))).toBe(
-        true,
-      );
-      expect(existsSync(path.join(targetDir, ".agents/skills/closeout-commit/SKILL.md"))).toBe(
-        true,
-      );
-      expect(
-        existsSync(path.join(targetDir, ".claude/skills/closeout-commit/agents/openai.yaml")),
-      ).toBe(true);
-      expect(
-        existsSync(path.join(targetDir, ".agents/skills/closeout-commit/agents/openai.yaml")),
-      ).toBe(true);
-      expect(
-        existsSync(
-          path.join(
-            targetDir,
-            ".claude/skills/closeout-commit/references/closeout-commit-workflow.md",
-          ),
-        ),
-      ).toBe(true);
-      expect(
-        existsSync(
-          path.join(
-            targetDir,
-            ".agents/skills/closeout-commit/references/closeout-commit-workflow.md",
-          ),
-        ),
-      ).toBe(true);
-      expect(existsSync(path.join(targetDir, ".claude/skills/closeout-phase/SKILL.md"))).toBe(
-        true,
-      );
-      expect(existsSync(path.join(targetDir, ".agents/skills/closeout-phase/SKILL.md"))).toBe(
-        true,
-      );
-      expect(
-        existsSync(path.join(targetDir, ".claude/skills/closeout-phase/agents/openai.yaml")),
-      ).toBe(true);
-      expect(
-        existsSync(path.join(targetDir, ".agents/skills/closeout-phase/agents/openai.yaml")),
-      ).toBe(true);
-      expect(
-        existsSync(
-          path.join(targetDir, ".claude/skills/closeout-phase/references/closeout-workflow.md"),
-        ),
-      ).toBe(true);
-      expect(
-        existsSync(
-          path.join(targetDir, ".agents/skills/closeout-phase/references/closeout-workflow.md"),
-        ),
-      ).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/work/AGENTS.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/artifacts/AGENTS.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/artifacts/CLAUDE.md"))).toBe(true);
       expect(
         existsSync(path.join(targetDir, ".make-docs/scripts/check_path_hygiene.py")),
       ).toBe(true);
@@ -328,18 +256,6 @@ describe("installer integration", () => {
       expect(manifest.files["docs/assets/references/path-and-link-hygiene.md"]?.sourceId).toBe(
         "file:docs/assets/references/path-and-link-hygiene.md",
       );
-      expect(manifest.skillFiles).toContain(".claude/skills/archive-docs/SKILL.md");
-      expect(manifest.skillFiles).toContain(".agents/skills/archive-docs/SKILL.md");
-      expect(manifest.skillFiles).toContain(".claude/skills/closeout-commit/SKILL.md");
-      expect(manifest.skillFiles).toContain(".agents/skills/closeout-commit/SKILL.md");
-      expect(manifest.skillFiles).toContain(".claude/skills/closeout-phase/SKILL.md");
-      expect(manifest.skillFiles).toContain(".agents/skills/closeout-phase/SKILL.md");
-      expect(manifest.skillFiles).toContain(".claude/skills/decompose-codebase/SKILL.md");
-      expect(manifest.skillFiles).toContain(".agents/skills/decompose-codebase/SKILL.md");
-      expect(manifest.skillFiles).toContain(".claude/skills/work-on-wave/SKILL.md");
-      expect(manifest.skillFiles).toContain(".agents/skills/work-on-wave/SKILL.md");
-      expect(manifest.skillFiles).toContain(".claude/skills/work-on-phase/SKILL.md");
-      expect(manifest.skillFiles).toContain(".agents/skills/work-on-phase/SKILL.md");
     } finally {
       cleanupTempDir(targetDir);
     }
@@ -532,6 +448,7 @@ describe("installer integration", () => {
       const expectedSelections = defaultSelections();
       expectedSelections.harnesses["claude-code"] = true;
       expectedSelections.harnesses.codex = false;
+      expectedSelections.skills = true;
       expectedSelections.selectedSkills = [
         "archive-docs",
         "closeout-commit",
@@ -553,6 +470,7 @@ describe("installer integration", () => {
     const targetDir = createTempDir();
     try {
       const { manifest } = await installWithSelections(targetDir, (selections) => {
+        selections.skills = true;
         selections.selectedSkills = ["decompose-codebase"];
       });
 
@@ -617,7 +535,7 @@ describe("installer integration", () => {
     }
   });
 
-  test("installs only Claude Code harness instructions and skills when Codex is disabled", async () => {
+  test("installs only Claude Code harness instructions when Codex is disabled", async () => {
     const targetDir = createTempDir();
     try {
       await installWithSelections(targetDir, (selections) => {
@@ -632,14 +550,14 @@ describe("installer integration", () => {
         expect(existsSync(path.join(targetDir, relativePath))).toBe(false);
       }
 
-      expect(existsSync(path.join(targetDir, ".claude/skills/archive-docs/SKILL.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, ".claude/skills"))).toBe(false);
       expect(existsSync(path.join(targetDir, ".agents"))).toBe(false);
     } finally {
       cleanupTempDir(targetDir);
     }
   });
 
-  test("installs only Codex harness instructions and skills when Claude Code is disabled", async () => {
+  test("installs only Codex harness instructions when Claude Code is disabled", async () => {
     const targetDir = createTempDir();
     try {
       await installWithSelections(targetDir, (selections) => {
@@ -654,7 +572,7 @@ describe("installer integration", () => {
         expect(existsSync(path.join(targetDir, relativePath))).toBe(false);
       }
 
-      expect(existsSync(path.join(targetDir, ".agents/skills/archive-docs/SKILL.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, ".agents/skills"))).toBe(false);
       expect(existsSync(path.join(targetDir, ".claude"))).toBe(false);
     } finally {
       cleanupTempDir(targetDir);
@@ -664,7 +582,7 @@ describe("installer integration", () => {
   test("keeps installed skill references valid inside each harness skill directory", async () => {
     const targetDir = createTempDir();
     try {
-      await installWithSelections(targetDir, () => {});
+      await installWithSelections(targetDir, enableAllSkills);
 
       for (const harnessRoot of [".claude", ".agents"]) {
         const skillPath = path.join(targetDir, harnessRoot, "skills/archive-docs/SKILL.md");
@@ -793,6 +711,7 @@ describe("installer integration", () => {
     const restoreHome = mockHomeDirectory(fakeHome);
     try {
       await installWithSelections(targetDir, (selections) => {
+        enableAllSkills(selections);
         selections.skillScope = "project";
       });
 
@@ -813,6 +732,7 @@ describe("installer integration", () => {
     const restoreHome = mockHomeDirectory(fakeHome);
     try {
       await installWithSelections(targetDir, (selections) => {
+        enableAllSkills(selections);
         selections.skillScope = "global";
       });
 
@@ -844,9 +764,6 @@ describe("installer integration", () => {
       expect(
         existsSync(path.join(targetDir, "docs/assets/prompts/designs-to-plan.prompt.md")),
       ).toBe(false);
-      expect(readFileSync(path.join(targetDir, "docs/AGENTS.md"), "utf8")).not.toContain(
-        "docs/plans/",
-      );
     } finally {
       cleanupTempDir(targetDir);
     }
@@ -916,10 +833,11 @@ describe("installer integration", () => {
       );
       const docsRouter = readFileSync(path.join(targetDir, "docs/AGENTS.md"), "utf8");
 
-      expect(workflow).toContain("planning-not-installed");
-      expect(workflow).not.toContain("docs/assets/prompts/");
+      expect(workflow).toBe(readPackageFile("docs/assets/references/design-workflow.md"));
+      expect(
+        existsSync(path.join(targetDir, "docs/assets/prompts/designs-to-plan.prompt.md")),
+      ).toBe(false);
       expect(docsRouter).toContain("docs/designs/");
-      expect(docsRouter).not.toContain("docs/plans/");
     } finally {
       cleanupTempDir(targetDir);
     }
@@ -966,20 +884,23 @@ describe("installer integration", () => {
       expect(
         existsSync(path.join(targetDir, "docs/assets/prompts/prd-to-work-full-prd.prompt.md")),
       ).toBe(false);
-      expect(readFileSync(path.join(targetDir, "docs/AGENTS.md"), "utf8")).not.toContain(
-        "docs/work/",
-      );
     } finally {
       cleanupTempDir(targetDir);
     }
   });
 
-  test("treats existing selected file diffs as reviewable before apply", async () => {
+  test("inserts router blocks but treats existing non-router diffs as reviewable before apply", async () => {
     const targetDir = createTempDir();
     try {
       mkdirSync(path.join(targetDir, "docs"), { recursive: true });
       writeFileSync(path.join(targetDir, "AGENTS.md"), "custom root agents\n", "utf8");
       writeFileSync(path.join(targetDir, "docs/AGENTS.md"), "custom docs agents\n", "utf8");
+      mkdirSync(path.join(targetDir, "docs/assets/references"), { recursive: true });
+      writeFileSync(
+        path.join(targetDir, "docs/assets/references/guide-contract.md"),
+        "custom guide contract\n",
+        "utf8",
+      );
 
       const existingManifest = loadManifest(targetDir);
       const plan = await planInstall({
@@ -992,19 +913,23 @@ describe("installer integration", () => {
 
       expect(rootInstructionAction).toMatchObject({
         type: "update",
-        reason: "Insert the make-docs managed block into the existing root instruction file.",
+        reason: "Insert the make-docs managed block into the existing instruction file.",
       });
       expect(docsInstructionAction).toMatchObject({
+        type: "update",
+        reason: "Insert the make-docs managed block into the existing instruction file.",
+      });
+      expect(getPlannedAction(plan, "docs/assets/references/guide-contract.md")).toMatchObject({
         type: "skip-conflict",
         reason:
-          "Existing conflicting agent instruction file was skipped because no overwrite resolution was provided.",
+          "Existing conflicting reference file was skipped because no overwrite resolution was provided.",
       });
       expect(
         findReviewableManagedFileConflicts(plan).map((conflict) => ({
           path: conflict.relativePath,
           scope: conflict.scope,
         })),
-      ).toEqual([{ path: "docs/AGENTS.md", scope: undefined }]);
+      ).toEqual([{ path: "docs/assets/references/guide-contract.md", scope: undefined }]);
       expect(() =>
         applyInstallPlan({
           targetDir,
@@ -1012,7 +937,7 @@ describe("installer integration", () => {
           existingManifest,
         }),
       ).toThrow(
-        "Cannot apply install plan with unresolved managed-file conflicts: docs/AGENTS.md.",
+        "Cannot apply install plan with unresolved managed-file conflicts: docs/assets/references/guide-contract.md.",
       );
       expect(readFileSync(path.join(targetDir, "AGENTS.md"), "utf8")).toContain(
         "custom root agents\n",
@@ -1020,6 +945,9 @@ describe("installer integration", () => {
       expect(readFileSync(path.join(targetDir, "docs/AGENTS.md"), "utf8")).toBe(
         "custom docs agents\n",
       );
+      expect(
+        readFileSync(path.join(targetDir, "docs/assets/references/guide-contract.md"), "utf8"),
+      ).toBe("custom guide contract\n");
 
       const files = collectFiles(targetDir);
       const conflictFiles = files.filter((relativePath) =>
@@ -1033,14 +961,18 @@ describe("installer integration", () => {
     }
   });
 
-  test("ignores user edits outside the root instruction managed block", async () => {
+  test("ignores user edits outside instruction managed blocks", async () => {
     const targetDir = createTempDir();
     try {
       const { manifest } = await installWithSelections(targetDir, () => {});
       const rootPath = path.join(targetDir, "AGENTS.md");
+      const docsPath = path.join(targetDir, "docs/AGENTS.md");
       const installedContent = readFileSync(rootPath, "utf8");
       const withUserContent = `Project-specific routing.\n\n${installedContent}`;
       writeFileSync(rootPath, withUserContent, "utf8");
+      const docsInstalledContent = readFileSync(docsPath, "utf8");
+      const docsWithUserContent = `${docsInstalledContent}\nDocs footer.\n`;
+      writeFileSync(docsPath, docsWithUserContent, "utf8");
 
       const plan = await planInstall({
         targetDir,
@@ -1052,21 +984,31 @@ describe("installer integration", () => {
         type: "noop",
         contentHash: manifest.files["AGENTS.md"].hash,
       });
+      expect(getPlannedAction(plan, "docs/AGENTS.md")).toMatchObject({
+        type: "noop",
+        contentHash: manifest.files["docs/AGENTS.md"].hash,
+      });
       expect(findReviewableManagedFileConflicts(plan)).toEqual([]);
 
       const result = applyInstallPlan({ targetDir, plan, existingManifest: manifest });
       expect(readFileSync(rootPath, "utf8")).toBe(withUserContent);
+      expect(readFileSync(docsPath, "utf8")).toBe(docsWithUserContent);
       expect(result.manifest.files["AGENTS.md"].hash).toBe(manifest.files["AGENTS.md"].hash);
+      expect(result.manifest.files["docs/AGENTS.md"].hash).toBe(
+        manifest.files["docs/AGENTS.md"].hash,
+      );
     } finally {
       cleanupTempDir(targetDir);
     }
   });
 
-  test("migrates legacy whole-file root instruction ownership to the block model", async () => {
+  test("migrates legacy whole-file instruction ownership to the block model", async () => {
     const targetDir = createTempDir();
     try {
       const legacyContent = "# Agent Instructions\n\nLegacy generated routing.\n";
       writeFileSync(path.join(targetDir, "AGENTS.md"), legacyContent, "utf8");
+      mkdirSync(path.join(targetDir, "docs"), { recursive: true });
+      writeFileSync(path.join(targetDir, "docs/AGENTS.md"), legacyContent, "utf8");
       const selections = defaultSelections();
       const profile = resolveInstallProfile(selections);
       const existingManifest = {
@@ -1080,7 +1022,11 @@ describe("installer integration", () => {
         files: {
           "AGENTS.md": {
             hash: hashText(legacyContent),
-            sourceId: "build:AGENTS.md",
+            sourceId: "file:AGENTS.md",
+          },
+          "docs/AGENTS.md": {
+            hash: hashText(legacyContent),
+            sourceId: "file:docs/AGENTS.md",
           },
         },
         skillFiles: [],
@@ -1095,12 +1041,20 @@ describe("installer integration", () => {
       expect(getPlannedAction(plan, "AGENTS.md")).toMatchObject({
         type: "update",
         content: readPackageFile("AGENTS.md"),
-        reason: "Migrate legacy root instruction file to the managed-block model.",
+        reason: "Migrate legacy instruction file to the managed-block model.",
+      });
+      expect(getPlannedAction(plan, "docs/AGENTS.md")).toMatchObject({
+        type: "update",
+        content: readPackageFile("docs/AGENTS.md"),
+        reason: "Migrate legacy instruction file to the managed-block model.",
       });
 
       applyInstallPlan({ targetDir, plan, existingManifest });
       expect(readFileSync(path.join(targetDir, "AGENTS.md"), "utf8")).toBe(
         readPackageFile("AGENTS.md"),
+      );
+      expect(readFileSync(path.join(targetDir, "docs/AGENTS.md"), "utf8")).toBe(
+        readPackageFile("docs/AGENTS.md"),
       );
     } finally {
       cleanupTempDir(targetDir);
@@ -1145,19 +1099,19 @@ describe("installer integration", () => {
         files: {
           "AGENTS.md": {
             hash: hashText(LEGACY_W17_AGENTS_BODY),
-            sourceId: "build:AGENTS.md",
+            sourceId: "file:AGENTS.md",
           },
           "CLAUDE.md": {
             hash: hashText(LEGACY_W17_CLAUDE_BODY),
-            sourceId: "build:CLAUDE.md",
+            sourceId: "file:CLAUDE.md",
           },
           ".make-docs/AGENTS.md": {
             hash: hashText(LEGACY_W17_DEDICATED_CONTENT),
-            sourceId: "build:.make-docs/AGENTS.md",
+            sourceId: "file:.make-docs/AGENTS.md",
           },
           ".make-docs/CLAUDE.md": {
             hash: hashText(LEGACY_W17_DEDICATED_CONTENT),
-            sourceId: "build:.make-docs/CLAUDE.md",
+            sourceId: "file:.make-docs/CLAUDE.md",
           },
         },
         skillFiles: [],
@@ -1172,12 +1126,12 @@ describe("installer integration", () => {
       expect(getPlannedAction(plan, "AGENTS.md")).toMatchObject({
         type: "update",
         content: readPackageFile("AGENTS.md"),
-        reason: "Refresh the manifest-owned root instruction block to the current inline routing.",
+        reason: "Refresh the manifest-owned instruction block to the current routing.",
       });
       expect(getPlannedAction(plan, "CLAUDE.md")).toMatchObject({
         type: "update",
         content: readPackageFile("CLAUDE.md"),
-        reason: "Refresh the manifest-owned root instruction block to the current inline routing.",
+        reason: "Refresh the manifest-owned instruction block to the current routing.",
       });
       expect(getPlannedAction(plan, ".make-docs/AGENTS.md")).toMatchObject({
         type: "remove-managed",
@@ -1202,7 +1156,7 @@ describe("installer integration", () => {
     }
   });
 
-  test("surfaces root instruction block edits as block-scoped review", async () => {
+  test("surfaces instruction block edits as block-scoped review", async () => {
     const targetDir = createTempDir();
     try {
       const { manifest } = await installWithSelections(targetDir, () => {});
@@ -1213,16 +1167,27 @@ describe("installer integration", () => {
         installedContent.replace("same-named instruction file", "edited instruction file"),
         "utf8",
       );
+      const docsPath = path.join(targetDir, "docs/AGENTS.md");
+      const docsInstalledContent = readFileSync(docsPath, "utf8");
+      writeFileSync(
+        docsPath,
+        docsInstalledContent.replace("Use `docs/` only as a router", "Use edited docs routing"),
+        "utf8",
+      );
 
       const plan = await planInstall({
         targetDir,
         selections: defaultSelections(),
         existingManifest: manifest,
       });
-      const action = getPlannedAction(plan, "AGENTS.md");
       const conflicts = findReviewableManagedFileConflicts(plan);
 
-      expect(action).toMatchObject({
+      expect(getPlannedAction(plan, "AGENTS.md")).toMatchObject({
+        type: "skip-conflict",
+        reason:
+          "Existing conflicting make-docs managed block was skipped because no reassert resolution was provided.",
+      });
+      expect(getPlannedAction(plan, "docs/AGENTS.md")).toMatchObject({
         type: "skip-conflict",
         reason:
           "Existing conflicting make-docs managed block was skipped because no reassert resolution was provided.",
@@ -1230,6 +1195,12 @@ describe("installer integration", () => {
       expect(conflicts).toEqual([
         expect.objectContaining({
           relativePath: "AGENTS.md",
+          group: "agent-instructions",
+          scope: "managed-block",
+          instructionKind: "AGENTS.md",
+        }),
+        expect.objectContaining({
+          relativePath: "docs/AGENTS.md",
           group: "agent-instructions",
           scope: "managed-block",
           instructionKind: "AGENTS.md",
@@ -1324,7 +1295,7 @@ describe("installer integration", () => {
 
       expect(getPlannedAction(plan, "AGENTS.md")).toMatchObject({
         type: "update",
-        reason: "Insert the make-docs managed block into the existing root instruction file.",
+        reason: "Insert the make-docs managed block into the existing instruction file.",
       });
       expect(getPlannedAction(plan, "AGENTS.md").content).toContain("custom root agents\n");
       expect(getPlannedAction(plan, "docs/assets/references/guide-contract.md")).toMatchObject({
@@ -1389,7 +1360,7 @@ describe("installer integration", () => {
 
       expect(getPlannedAction(plan, "AGENTS.md")).toMatchObject({
         type: "update",
-        reason: "Insert the make-docs managed block into the existing root instruction file.",
+        reason: "Insert the make-docs managed block into the existing instruction file.",
       });
       expect(getPlannedAction(plan, "docs/assets/references/guide-contract.md")).toMatchObject({
         type: "skip",
@@ -1448,14 +1419,12 @@ describe("installer integration", () => {
       const conflicts = findReviewableManagedFileConflicts(plan);
 
       expect(conflicts.map((conflict) => conflict.relativePath)).toEqual([
-        "docs/AGENTS.md",
         "docs/assets/references/guide-contract.md",
         "docs/assets/references/wave-model.md",
         "docs/assets/templates/guide-developer.md",
         "docs/assets/templates/guide-user.md",
       ]);
       expect(conflicts.map((conflict) => conflict.group)).toEqual([
-        "agent-instructions",
         "references",
         "references",
         "templates",
@@ -1484,7 +1453,7 @@ describe("installer integration", () => {
 
       expect(plan.actions.find((action) => action.relativePath === "AGENTS.md")).toMatchObject({
         type: "update",
-        reason: "Insert the make-docs managed block into the existing root instruction file.",
+        reason: "Insert the make-docs managed block into the existing instruction file.",
       });
 
       const result = applyInstallPlan({
@@ -1520,7 +1489,7 @@ describe("installer integration", () => {
     }
   });
 
-  test("preserves planner actions for create update generate noop and skills", async () => {
+  test("preserves planner actions for create update and noop", async () => {
     const targetDir = createTempDir();
     try {
       const selections = defaultSelections();
@@ -1537,11 +1506,8 @@ describe("installer integration", () => {
         content: readPackageFile("docs/assets/references/guide-contract.md"),
       });
       expect(getPlannedAction(createPlan, "AGENTS.md")).toMatchObject({
-        type: "generate",
-        content: readPackageFile("AGENTS.md"),
-      });
-      expect(getPlannedAction(createPlan, ".claude/skills/archive-docs/SKILL.md")).toMatchObject({
         type: "create",
+        content: readPackageFile("AGENTS.md"),
       });
 
       const initialResult = applyInstallPlan({
@@ -1549,7 +1515,7 @@ describe("installer integration", () => {
         plan: createPlan,
         existingManifest: loadManifest(targetDir),
       });
-      expect(initialResult.manifest.skillFiles).toContain(".claude/skills/archive-docs/SKILL.md");
+      expect(initialResult.manifest.skillFiles).toEqual([]);
 
       const noopPlan = await planInstall({
         targetDir,
@@ -1562,9 +1528,6 @@ describe("installer integration", () => {
         },
       );
       expect(getPlannedAction(noopPlan, "AGENTS.md")).toMatchObject({
-        type: "noop",
-      });
-      expect(getPlannedAction(noopPlan, ".claude/skills/archive-docs/SKILL.md")).toMatchObject({
         type: "noop",
       });
 
@@ -1602,7 +1565,7 @@ describe("installer integration", () => {
     }
   });
 
-  test("blocks apply for unresolved reviewable managed-file diffs", async () => {
+  test("blocks apply for unresolved managed-block router diffs", async () => {
     const targetDir = createTempDir();
     try {
       await installWithSelections(targetDir, () => {});
@@ -1618,8 +1581,11 @@ describe("installer integration", () => {
       const action = plan.actions.find((candidate) => candidate.relativePath === "docs/AGENTS.md");
       expect(action?.type).toBe("skip-conflict");
       expect(
-        findReviewableManagedFileConflicts(plan).map((conflict) => conflict.relativePath),
-      ).toEqual(["docs/AGENTS.md"]);
+        findReviewableManagedFileConflicts(plan).map((conflict) => ({
+          path: conflict.relativePath,
+          scope: conflict.scope,
+        })),
+      ).toEqual([{ path: "docs/AGENTS.md", scope: "managed-block" }]);
 
       expect(() =>
         applyInstallPlan({
@@ -1679,9 +1645,10 @@ describe("installer integration", () => {
   test("removes deselected harness skill files on reconfigure", async () => {
     const targetDir = createTempDir();
     try {
-      await installWithSelections(targetDir, () => {});
+      await installWithSelections(targetDir, enableAllSkills);
 
       const { manifest } = await installWithSelections(targetDir, (selections) => {
+        enableAllSkills(selections);
         selections.harnesses.codex = false;
       });
 
@@ -1730,6 +1697,7 @@ describe("installer integration", () => {
             profileId: "legacy-profile",
             selections: {
               ...defaultSelections(),
+              skills: true,
               selectedSkills: [
                 "archive-docs",
                 "closeout-commit",
@@ -1755,7 +1723,7 @@ describe("installer integration", () => {
         "utf8",
       );
 
-      await installWithSelections(targetDir, () => {});
+      await installWithSelections(targetDir, enableAllSkills);
 
       expect(existsSync(oldClaudeSkill)).toBe(false);
       expect(existsSync(oldCodexSkill)).toBe(false);
@@ -1771,7 +1739,7 @@ describe("installer integration", () => {
   test("syncs skills without installing docs scaffold on first run", async () => {
     const targetDir = createTempDir();
     try {
-      const { manifest } = await syncSkillsOnly(targetDir);
+      const { manifest } = await syncSkillsOnly(targetDir, enableAllSkills);
 
       expect(existsSync(path.join(targetDir, ".claude/skills/archive-docs/SKILL.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, ".agents/skills/archive-docs/SKILL.md"))).toBe(true);
@@ -1791,6 +1759,7 @@ describe("installer integration", () => {
     const restoreHome = mockHomeDirectory(fakeHome);
     try {
       const { manifest } = await syncSkillsOnly(targetDir, (selections) => {
+        enableAllSkills(selections);
         selections.skillScope = "global";
       });
 
@@ -1815,6 +1784,7 @@ describe("installer integration", () => {
     const targetDir = createTempDir();
     try {
       const { manifest } = await syncSkillsOnly(targetDir, (selections) => {
+        enableAllSkills(selections);
         selections.harnesses.codex = false;
       });
 
@@ -1873,7 +1843,7 @@ describe("installer integration", () => {
   test("skills-only removal removes tracked skills and leaves unrelated files", async () => {
     const targetDir = createTempDir();
     try {
-      await syncSkillsOnly(targetDir);
+      await syncSkillsOnly(targetDir, enableAllSkills);
       const untracked = path.join(targetDir, ".claude/skills/local-note.md");
       mkdirSync(path.dirname(untracked), { recursive: true });
       writeFileSync(untracked, "local note\n", "utf8");
@@ -1893,7 +1863,7 @@ describe("installer integration", () => {
   test("skills-only removal preserves modified managed skill files", async () => {
     const targetDir = createTempDir();
     try {
-      await syncSkillsOnly(targetDir);
+      await syncSkillsOnly(targetDir, enableAllSkills);
       const skillPath = path.join(targetDir, ".claude/skills/archive-docs/SKILL.md");
       writeFileSync(skillPath, "local skill edits\n", "utf8");
 

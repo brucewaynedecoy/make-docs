@@ -29,7 +29,7 @@ content and stay in the repo root.
 | File | Purpose |
 | --- | --- |
 | [01-managed-block-primitive.md](./01-managed-block-primitive.md) | Build the delimited managed-block parser/writer. |
-| [02-dedicated-file-and-harness-block.md](./02-dedicated-file-and-harness-block.md) | Add inline root instruction block rendering and harness parity. |
+| [02-dedicated-file-and-harness-block.md](./02-dedicated-file-and-harness-block.md) | Add static inline instruction blocks and harness parity. |
 | [03-block-level-reconciliation.md](./03-block-level-reconciliation.md) | Move manifest tracking and conflict review to block scope. |
 | [04-migration-and-dogfood.md](./04-migration-and-dogfood.md) | Migrate existing installs and re-seed the dogfood. |
 | [05-validation.md](./05-validation.md) | CLI tests, smoke-pack, and PRD reconciliation closeout. |

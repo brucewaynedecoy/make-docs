@@ -77,7 +77,7 @@ export interface InstallProfile {
 
 export interface ResolvedAsset {
   relativePath: string;
-  assetClass: "static" | "scoped-static" | "buildable";
+  assetClass: "static" | "scoped-static";
   sourceId: string;
   content: string;
 }
@@ -148,7 +148,7 @@ export type AuditOwnershipSource =
   | "fallback";
 export type AuditSkippedStatus = "already-absent" | "excluded";
 export type AuditReasonCode =
-  | "root-instruction-content-match"
+  | "instruction-content-match"
   | "managed-file-hash-match"
   | "managed-skill-file-content-match"
   | "managed-state-file"
@@ -158,7 +158,7 @@ export type AuditReasonCode =
   | "already-absent"
   | "inside-backup-root"
   | "outside-supported-roots"
-  | "root-instruction-content-mismatch"
+  | "instruction-content-mismatch"
   | "managed-file-modified"
   | "manifest-skill-file-without-metadata"
   | "manifest-skill-file-content-mismatch"

@@ -54,13 +54,13 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 **To close**: Current wizard, manifest, rules, README, and tests agree on asset-selection behavior.
 
-### D-004 ResolvedAsset Asset Class Is Stale Relative to the Catalog
+### D-004 ResolvedAsset Asset Class May Still Be Wider Than the Catalog
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
 | Open | None yet | Decide whether `static` is future surface or dead type surface. |
 
-**Issue**: `packages/cli/src/types.ts:75-80` allows `"static"`, but `packages/cli/src/catalog.ts:7-20` emits only `"buildable"` and `"scoped-static"`.
+**Issue**: `packages/cli/src/types.ts:75-80` allows `"static"`, but `packages/cli/src/catalog.ts:7-20` currently emits `scoped-static` for scaffold assets.
 
 **Why it matters**: Type-level contracts no longer cleanly describe actual asset generation behavior.
 
@@ -130,9 +130,9 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 | --- | --- | --- |
 | Deferred | `packages/content/` is reserved but not active product surface. | Define the package/content contract before adding rendered content fragments. |
 
-**Issue**: `README.md:10-17` reserves `packages/content/`, but there is no selector in `packages/cli/src/catalog.ts:64-85`, no renderer in `packages/cli/src/renderers.ts:54-570`, and no command/help surface in `packages/cli/src/cli.ts:894-1019`.
+**Issue**: `README.md:10-17` reserves `packages/content/`, but there is no selector in `packages/cli/src/catalog.ts:64-85` and no command/help surface in `packages/cli/src/cli.ts:894-1019`.
 
-**Why it matters**: Future rendered content fragments still have no shipping or ownership contract.
+**Why it matters**: Future content fragments still have no shipping or ownership contract.
 
 **Recommendation**: Leave the package reserved until a specific content-fragment design exists.
 
@@ -266,7 +266,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 **Question**: How should `packages/content` participate in the product?
 
-**Why it matters**: `README.md:10-17` reserves the workspace, but there is no runtime integration point in `packages/cli/src/catalog.ts:64-85`, `packages/cli/src/renderers.ts:54-570`, or `scripts/smoke-pack.mjs:60-246`. Without an explicit answer, later content work will invent its own packaging and dogfood rules.
+**Why it matters**: `README.md:10-17` reserves the workspace, but there is no runtime integration point in `packages/cli/src/catalog.ts:64-85` or `scripts/smoke-pack.mjs:60-246`. Without an explicit answer, later content work will invent its own packaging and dogfood rules.
 
 **Recommendation**: Keep it reserved and inactive until a specific feature requires it.
 
@@ -466,9 +466,9 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 | --- | --- | --- |
 | Open | Literal path duplication remains accepted but risky. | Add parity checks when moving or adding template-owned paths. |
 
-**Issue**: Adding or moving a template-owned path can drift across `rules.ts`, `catalog.ts`, `renderers.ts`, tests, package docs, and dogfood copies.
+**Issue**: Adding or moving a template-owned path can drift across `rules.ts`, `catalog.ts`, tests, package docs, and dogfood copies.
 
-**Why it matters**: The duplication spans `packages/cli/src/rules.ts:8-194`, `packages/cli/src/catalog.ts:7-85`, `packages/cli/src/renderers.ts:40-570`, `packages/cli/tests/consistency.test.ts:33-77`, and `packages/docs/README.md:86-121`.
+**Why it matters**: The duplication spans `packages/cli/src/rules.ts:8-194`, `packages/cli/src/catalog.ts:7-85`, `packages/cli/tests/consistency.test.ts:33-77`, and `packages/docs/README.md:86-121`.
 
 **Recommendation**: Prefer focused consistency tests when a full centralization refactor is not in scope.
 
@@ -625,7 +625,6 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 - `packages/cli/src/cli.ts:77-244`
 - `packages/cli/src/rules.ts:130-194`
 - `packages/cli/src/catalog.ts:64-85`
-- `packages/cli/src/renderers.ts:54-570`
 - `packages/cli/src/skill-registry.ts:25-134`
 - `packages/cli/src/skill-resolver.ts:40-226`
 - `packages/cli/src/manifest.ts:18-245`

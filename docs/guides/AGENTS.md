@@ -1,3 +1,4 @@
+<!-- make-docs:begin -->
 # Guides for Devs and Users
 
 Use `docs/guides` only as a router. Do not create generated files directly in this directory.
@@ -13,3 +14,4 @@ Use `docs/guides` only as a router. Do not create generated files directly in th
 - If the `docs/guides/user` or `docs/guides/developer` directories do not exist, create them ONLY when first writing a guide that belongs in the specific sub-folder.
 
 Documentation must be easy to understand, easy to use, and easy to follow, with links to supporting sections or documents where necessary and where possible.
+<!-- make-docs:end -->

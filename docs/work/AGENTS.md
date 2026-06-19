@@ -1,3 +1,4 @@
+<!-- make-docs:begin -->
 # Work Directory
 
 Output target for implementation backlogs. In v2, every backlog is a **directory** containing an index plus one or more phase files.
@@ -16,3 +17,4 @@ Output target for implementation backlogs. In v2, every backlog is a **directory
 - Always create work as a directory; never a flat `.md` file.
 - Apply the date-W/R-slug naming; do not backdate.
 - Archived backlogs live in `docs/assets/archive/work/`. **Never archive unless explicitly asked.** See `docs/assets/archive/AGENTS.md`.
+<!-- make-docs:end -->

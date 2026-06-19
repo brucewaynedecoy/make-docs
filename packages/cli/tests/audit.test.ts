@@ -440,7 +440,10 @@ describe("shared audit engine", () => {
     const targetDir = createTempDir();
 
     try {
-      const manifest = await installWithSelections(targetDir, () => {});
+      const manifest = await installWithSelections(targetDir, (selections) => {
+        selections.skills = true;
+        selections.selectedSkills = ["archive-docs"];
+      });
       const report = await runAudit({ targetDir, manifest });
 
       expectAuditMode(report, "manifest-present");
@@ -579,7 +582,9 @@ describe("shared audit engine", () => {
 
     try {
       const manifest = await installWithSelections(targetDir, (selections) => {
+        selections.skills = true;
         selections.skillScope = "global";
+        selections.selectedSkills = ["archive-docs"];
       });
 
       const report = await runAudit({ targetDir, manifest });

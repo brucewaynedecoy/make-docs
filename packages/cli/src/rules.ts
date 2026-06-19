@@ -128,6 +128,8 @@ const REQUIRED_REFERENCE_PATHS = {
 const ALWAYS_REFERENCE_PATHS = [
   "docs/assets/references/guide-contract.md",
   "docs/assets/references/wave-model.md",
+  "docs/assets/references/lifecycle.md",
+  "docs/assets/references/coverage-pass-contract.md",
   "docs/assets/references/history-record-contract.md",
   "docs/assets/references/commit-message-convention.md",
   "docs/assets/references/path-and-link-hygiene.md",

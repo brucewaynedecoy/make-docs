@@ -1,3 +1,4 @@
+<!-- make-docs:begin -->
 # Templates Router
 
 This directory contains structural starting points for generated docs.
@@ -6,3 +7,4 @@ This directory contains structural starting points for generated docs.
 - Use `design.md` for design docs, `guide-developer.md` or `guide-user.md` for guides, and the matching `plan-*`, `prd-*`, or `work-*` template for the target artifact.
 - Resolve workflow and contract questions in `docs/assets/references/`, then continue in the target output directory router.
 - Do not modify template files unless the user explicitly asks.
+<!-- make-docs:end -->

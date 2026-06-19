@@ -274,6 +274,7 @@ describe("selection wizard", () => {
 
   test("renders harnesses and skill scope in the review summary", () => {
     const selections = defaultSelections();
+    selections.skills = true;
     selections.skillScope = "global";
     selections.selectedSkills = ["decompose-codebase"];
 
@@ -415,15 +416,7 @@ describe("selection wizard", () => {
 
     expect(
       renderer.seenOptionStates[0]?.skillSelection.selectedSkillNames,
-    ).toEqual([
-      "archive-docs",
-      "cleanup-docs",
-      "closeout-commit",
-      "closeout-phase",
-      "decompose-codebase",
-      "work-on-phase",
-      "work-on-wave",
-    ]);
+    ).toEqual([]);
     expect(result?.skills).toBe(true);
     expect(result?.selectedSkills).toEqual([]);
   });

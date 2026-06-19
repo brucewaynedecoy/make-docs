@@ -7,6 +7,21 @@ import {
 import { defaultSelections } from "../src/profile";
 import { mockSkillFetches } from "./helpers";
 
+const ALL_SKILL_NAMES = [
+  "archive-docs",
+  "cleanup-docs",
+  "closeout-commit",
+  "closeout-phase",
+  "decompose-codebase",
+  "work-on-phase",
+  "work-on-wave",
+];
+
+function enableAllSkills(selections: ReturnType<typeof defaultSelections>): void {
+  selections.skills = true;
+  selections.selectedSkills = [...ALL_SKILL_NAMES];
+}
+
 describe("skill catalog", () => {
   beforeEach(() => {
     mockSkillFetches();
@@ -66,7 +81,10 @@ describe("skill catalog", () => {
   });
 
   test("builds harness-specific skill directories with supporting files", async () => {
-    const assets = await getDesiredSkillAssets(defaultSelections());
+    const selections = defaultSelections();
+    enableAllSkills(selections);
+
+    const assets = await getDesiredSkillAssets(selections);
     const archiveSkillForClaude = assets.find(
       (asset) => asset.relativePath === ".claude/skills/archive-docs/SKILL.md",
     );
@@ -202,6 +220,7 @@ describe("skill catalog", () => {
 
   test("uses the home directory for global scope and omits deselected harnesses", async () => {
     const selections = defaultSelections();
+    enableAllSkills(selections);
     selections.harnesses.codex = false;
     selections.skillScope = "global";
 
@@ -218,8 +237,11 @@ describe("skill catalog", () => {
     ).toBe(false);
   });
 
-  test("fresh defaults select every registry skill", async () => {
-    const assets = await getDesiredSkillAssets(defaultSelections());
+  test("explicit all-skill selections include every registry skill", async () => {
+    const selections = defaultSelections();
+    enableAllSkills(selections);
+
+    const assets = await getDesiredSkillAssets(selections);
 
     expect(
       assets.some(
@@ -264,6 +286,7 @@ describe("skill catalog", () => {
 
   test("selected skills control the desired skill assets", async () => {
     const archiveSelections = defaultSelections();
+    archiveSelections.skills = true;
     archiveSelections.selectedSkills = ["archive-docs"];
 
     const archiveOnly = await getDesiredSkillAssets(archiveSelections);
@@ -287,6 +310,7 @@ describe("skill catalog", () => {
     ).toBe(false);
 
     const commitSelections = defaultSelections();
+    commitSelections.skills = true;
     commitSelections.selectedSkills = ["closeout-commit"];
 
     const withCommit = await getDesiredSkillAssets(commitSelections);
@@ -305,6 +329,7 @@ describe("skill catalog", () => {
     ).toBe(true);
 
     const closeoutSelections = defaultSelections();
+    closeoutSelections.skills = true;
     closeoutSelections.selectedSkills = ["closeout-phase"];
 
     const withCloseout = await getDesiredSkillAssets(closeoutSelections);
@@ -323,6 +348,7 @@ describe("skill catalog", () => {
     ).toBe(true);
 
     const selections = defaultSelections();
+    selections.skills = true;
     selections.selectedSkills = ["decompose-codebase"];
 
     const withDecompose = await getDesiredSkillAssets(selections);

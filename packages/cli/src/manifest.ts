@@ -28,7 +28,7 @@ export function getManifestPath(targetDir: string): string {
 }
 
 export function getManifestFileHash(relativePath: string, content: string): string | null {
-  if (!isRootInstructionManifestPath(relativePath)) {
+  if (!isInstructionManifestPath(relativePath)) {
     return hashText(content);
   }
 
@@ -77,7 +77,7 @@ export function migrateSelections(selections: unknown): InstallSelections {
       },
       skills:
         legacy.skills === undefined
-          ? true
+          ? false
           : validateBoolean(legacy.skills, "selections.skills"),
       skillScope: validateSkillScope(legacy.skillScope ?? "project"),
       selectedSkills,
@@ -444,8 +444,9 @@ function compareAuditRecords(
   return left.ordering.sortKey.localeCompare(right.ordering.sortKey);
 }
 
-function isRootInstructionManifestPath(relativePath: string): boolean {
-  return INSTRUCTION_KINDS.includes(relativePath as InstructionKind);
+function isInstructionManifestPath(relativePath: string): boolean {
+  const basename = path.posix.basename(normalizeRelativePath(relativePath));
+  return INSTRUCTION_KINDS.includes(basename as InstructionKind);
 }
 
 function getContainedRelativePath(

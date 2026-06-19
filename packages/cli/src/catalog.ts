@@ -7,24 +7,16 @@ import {
   getTemplateDirInstalled,
   getTemplatePaths,
 } from "./rules";
-import { renderBuildableAsset, isBuildablePath } from "./renderers";
 import type { InstallProfile, InstructionKind, ResolvedAsset } from "./types";
 import { getActiveInstructionKinds } from "./types";
 import { readPackageFile } from "./utils";
 
-function buildAsset(profile: InstallProfile, relativePath: string): ResolvedAsset {
-  const assetClass = isBuildablePath(relativePath) ? "buildable" : "scoped-static";
-  const content =
-    assetClass === "buildable"
-      ? renderBuildableAsset(relativePath, profile)
-      : readPackageFile(relativePath);
-
+function buildAsset(relativePath: string): ResolvedAsset {
   return {
     relativePath,
-    assetClass,
-    sourceId:
-      assetClass === "buildable" ? `build:${relativePath}` : `file:${relativePath}`,
-    content,
+    assetClass: "scoped-static",
+    sourceId: `file:${relativePath}`,
+    content: readPackageFile(relativePath),
   };
 }
 
@@ -35,6 +27,7 @@ function addInstructionAssets(
 ): void {
   relativePaths.add(activeInstructionKind);
   relativePaths.add(`docs/${activeInstructionKind}`);
+  relativePaths.add(`docs/artifacts/${activeInstructionKind}`);
   relativePaths.add(`docs/assets/${activeInstructionKind}`);
   relativePaths.add(`docs/assets/history/${activeInstructionKind}`);
   relativePaths.add(`docs/guides/${activeInstructionKind}`);
@@ -94,5 +87,5 @@ export function getDesiredAssets(profile: InstallProfile): ResolvedAsset[] {
 
   return Array.from(relativePaths)
     .sort()
-    .map((relativePath) => buildAsset(profile, relativePath));
+    .map((relativePath) => buildAsset(relativePath));
 }

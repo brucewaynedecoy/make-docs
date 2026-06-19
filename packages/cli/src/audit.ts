@@ -11,11 +11,9 @@ import {
 } from "./manifest";
 import { parseManagedBlock } from "./managed-block";
 import { defaultSelections, resolveInstallProfile } from "./profile";
-import { renderBuildableAsset } from "./renderers";
 import { getDesiredSkillAssets } from "./skill-catalog";
 import {
   HARNESSES,
-  INSTRUCTION_KINDS,
   type AuditCandidateMetadata,
   type AuditManagedPathMetadata,
   type AuditOwnershipSource,
@@ -33,7 +31,6 @@ import {
 } from "./types";
 import { hashText, readTextFile } from "./utils";
 
-const ROOT_INSTRUCTION_SET = new Set<string>(INSTRUCTION_KINDS);
 const PROJECT_BACKUP_DIRNAME = ".backup";
 const HARNESS_SKILL_DIRS: Record<Harness, string> = {
   "claude-code": ".claude/skills",
@@ -103,16 +100,9 @@ async function classifyManifestPresent(options: {
     manifest,
     removableFiles,
     preservedPaths,
-    skippedPaths,
+  skippedPaths,
   } = options;
   const auditContext = getManifestAuditContext(targetDir, manifest, homeDir);
-  const priorProfile = resolveInstallProfile(auditContext.priorSelections);
-  const rootInstructionContentByPath = new Map(
-    INSTRUCTION_KINDS.map((instructionKind) => [
-      instructionKind,
-      renderBuildableAsset(instructionKind, priorProfile),
-    ]),
-  );
 
   const manifestCandidates = new Map<string, ManifestAuditRecord>();
   for (const record of auditContext.managedFiles) {
@@ -139,7 +129,6 @@ async function classifyManifestPresent(options: {
     classifyManifestRecord({
       targetDir,
       record,
-      rootInstructionContentByPath,
       manifestSkillContentByPath,
       removableFiles,
       preservedPaths,
@@ -151,7 +140,6 @@ async function classifyManifestPresent(options: {
 function classifyManifestRecord(options: {
   targetDir: string;
   record: ManifestAuditRecord;
-  rootInstructionContentByPath: Map<string, string>;
   manifestSkillContentByPath: Map<string, string> | null;
   removableFiles: Map<string, AuditRemovableFile>;
   preservedPaths: Map<string, AuditPreservedPath>;
@@ -160,7 +148,6 @@ function classifyManifestRecord(options: {
   const {
     targetDir,
     record,
-    rootInstructionContentByPath,
     manifestSkillContentByPath,
     removableFiles,
     preservedPaths,
@@ -232,21 +219,17 @@ function classifyManifestRecord(options: {
     return;
   }
 
-  if (isRootInstructionPath(record.path)) {
-    const expectedContent = rootInstructionContentByPath.get(record.path);
+  if (isInstructionPath(record.path)) {
     const currentBlockHash = getManifestFileHash(record.path, currentContent);
-    const expectedBlockHash =
-      record.manifestHash ??
-      (expectedContent ? getManifestFileHash(record.path, expectedContent) : null);
-    if (currentBlockHash && expectedBlockHash && currentBlockHash === expectedBlockHash) {
+    if (currentBlockHash && record.manifestHash && currentBlockHash === record.manifestHash) {
       const parsed = parseManagedBlock(currentContent);
       if (parsed.prefix.trim().length > 0 || parsed.suffix.trim().length > 0) {
         addPreserved(
           preservedPaths,
           record,
           createReason(
-            "root-instruction-content-mismatch",
-            "The managed block matches the manifest, but user content exists outside the block so the root instruction file is preserved.",
+            "instruction-content-mismatch",
+            "The managed block matches the manifest, but user content exists outside the block so the instruction file is preserved.",
           ),
         );
         return;
@@ -256,11 +239,25 @@ function classifyManifestRecord(options: {
         removableFiles,
         record,
         createReason(
-          "root-instruction-content-match",
-          "The root instruction file's managed block matches the manifest and no user content exists outside the block.",
+          "instruction-content-match",
+          "The instruction file's managed block matches the manifest and no user content exists outside the block.",
         ),
         currentBlockHash,
-        expectedBlockHash,
+        record.manifestHash,
+      );
+      return;
+    }
+
+    if (record.manifestHash && currentHash === record.manifestHash) {
+      addRemovable(
+        removableFiles,
+        record,
+        createReason(
+          "instruction-content-match",
+          "The legacy instruction file still matches the manifest-tracked make-docs content.",
+        ),
+        currentHash,
+        record.manifestHash,
       );
       return;
     }
@@ -269,8 +266,8 @@ function classifyManifestRecord(options: {
       preservedPaths,
       record,
       createReason(
-        "root-instruction-content-mismatch",
-        "The root instruction file does not exactly match the canonical make-docs content and will be preserved.",
+        "instruction-content-mismatch",
+        "The instruction file does not match manifest-tracked make-docs content and will be preserved.",
       ),
     );
     return;
@@ -409,18 +406,11 @@ async function classifyManifestMissing(options: {
     }
   }
 
-  const rootFingerprints = new Set(
-    INSTRUCTION_KINDS.map((instructionKind) =>
-      hashText(renderBuildableAsset(instructionKind, fallbackProfile)),
-    ),
-  );
-
   for (const record of sortAuditEntries([...fallbackCandidates.values()])) {
     classifyFallbackRecord({
       targetDir,
       record,
       canonicalContentByPath,
-      rootFingerprints,
       removableFiles,
       preservedPaths,
       skippedPaths,
@@ -452,7 +442,6 @@ function classifyFallbackRecord(options: {
   targetDir: string;
   record: AuditManagedPathMetadata;
   canonicalContentByPath: Map<string, string>;
-  rootFingerprints: Set<string>;
   removableFiles: Map<string, AuditRemovableFile>;
   preservedPaths: Map<string, AuditPreservedPath>;
   skippedPaths: Map<string, AuditSkippedPath>;
@@ -461,7 +450,6 @@ function classifyFallbackRecord(options: {
     targetDir,
     record,
     canonicalContentByPath,
-    rootFingerprints,
     removableFiles,
     preservedPaths,
     skippedPaths,
@@ -543,28 +531,45 @@ function classifyFallbackRecord(options: {
     return;
   }
 
-  if (isRootInstructionPath(record.path)) {
-    if (rootFingerprints.has(currentHash)) {
+  if (isInstructionPath(record.path)) {
+    const expectedContent = canonicalContentByPath.get(record.path);
+    const currentBlockHash = getManifestFileHash(record.path, currentContent);
+    const expectedBlockHash =
+      typeof expectedContent === "string"
+        ? getManifestFileHash(record.path, expectedContent)
+        : null;
+    const parsed = parseManagedBlock(currentContent);
+    const blockOnly =
+      parsed.state === "valid" &&
+      parsed.prefix.trim().length === 0 &&
+      parsed.suffix.trim().length === 0;
+
+    if (
+      typeof expectedContent === "string" &&
+      (currentContent === expectedContent ||
+        (blockOnly && currentBlockHash && currentBlockHash === expectedBlockHash))
+    ) {
       addRemovable(
         removableFiles,
         record,
         createReason(
           "fallback-root-fingerprint-match",
-          "The root instruction file exactly matches a known make-docs-generated fingerprint.",
+          "The instruction file matches canonical make-docs content in fallback mode.",
         ),
         currentHash,
-        currentHash,
+        expectedBlockHash ?? hashText(expectedContent),
       );
-    } else {
-      addPreserved(
-        preservedPaths,
-        record,
-        createReason(
-          "fallback-root-fingerprint-mismatch",
-          "The root instruction file does not match a known make-docs-generated fingerprint and will be preserved.",
-        ),
-      );
+      return;
     }
+
+    addPreserved(
+      preservedPaths,
+      record,
+      createReason(
+        "fallback-root-fingerprint-mismatch",
+        "The instruction file does not match canonical make-docs content and will be preserved.",
+      ),
+    );
     return;
   }
 
@@ -914,8 +919,9 @@ function createReason(code: AuditReason["code"], message: string): AuditReason {
   return { code, message };
 }
 
-function isRootInstructionPath(auditPath: string): boolean {
-  return ROOT_INSTRUCTION_SET.has(auditPath);
+function isInstructionPath(auditPath: string): boolean {
+  const basename = path.posix.basename(auditPath);
+  return basename === "AGENTS.md" || basename === "CLAUDE.md";
 }
 
 function isInsideProjectBackupRoot(targetDir: string, absolutePath: string): boolean {

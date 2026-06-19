@@ -1,3 +1,4 @@
+<!-- make-docs:begin -->
 # History Assets Router
 
 This directory stores session history records.
@@ -10,3 +11,4 @@ This directory stores session history records.
 - Include only known frontmatter fields; do not invent unknown client, model, or provider values.
 - Keep records concise: breadcrumbs for a future auditor, not live logs.
 - Use relative Markdown links when referencing files touched during the session.
+<!-- make-docs:end -->

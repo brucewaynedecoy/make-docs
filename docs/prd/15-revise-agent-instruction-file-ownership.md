@@ -3,12 +3,13 @@
 ## Purpose
 
 Revise the established CLI requirement for owning and maintaining agent
-instruction files. Today the CLI renders the root `AGENTS.md`/`CLAUDE.md`
-verbatim from the template and resolves any divergence only by whole-file
-overwrite or skip, with no append-merge. This change establishes a delimited
-managed-block model with inline root routing, so make-docs maintains its routing
-without owning the entire shared file — and a consuming project's own
-instructions and make-docs's project-specific instructions both survive.
+instruction files. The CLI previously rendered root `AGENTS.md`/`CLAUDE.md`
+as whole files and resolved divergence only by whole-file overwrite or skip,
+with no append-merge. This change establishes a delimited managed-block model
+with inline routing for every installed `AGENTS.md` / `CLAUDE.md`, so
+make-docs maintains its routing without owning the entire shared file — and a
+consuming project's own instructions and make-docs's project-specific
+instructions both survive.
 
 ## Change Type
 
@@ -44,7 +45,10 @@ problems.
 
 Code anchors:
 
-- `packages/cli/src/renderers.ts:59-61`
+- `packages/cli/src/managed-block.ts`
+- `packages/cli/src/catalog.ts`
+- `packages/cli/src/planner.ts`
+- `packages/cli/src/manifest.ts`
 - `docs/prd/13-revise-cli-conflict-resolution.md`
 
 ## Effective Requirement
@@ -52,7 +56,7 @@ Code anchors:
 make-docs must own its instruction content through a deterministically delimited
 managed block, not the whole shared file:
 
-- make-docs maintains only the text between explicit markers in any shared
+- make-docs maintains only the text between explicit markers in any installed
   instruction file; content outside the markers is owned by the project or user
   and is never modified.
 - The substance of make-docs's root routing lives directly in the managed block.
@@ -63,6 +67,9 @@ managed block, not the whole shared file:
 - Reconciliation is block-scoped: the manifest tracks the block hash; editing
   content outside the block never conflicts; an edited block is re-asserted or
   surfaced as a block-scoped decision, not a whole-file conflict.
+- Static template content remains authoritative: instruction file bodies come
+  from `packages/docs/template/`; the CLI selects paths and reconciles blocks,
+  but does not dynamically assemble alternate router content.
 - Existing installs migrate non-destructively; project-specific content (for
   make-docs's own repo, the template-first maintainer rules) lives outside the
   block and persists across reconfigure. Clean W17 dedicated instruction files
@@ -72,7 +79,9 @@ managed block, not the whole shared file:
 
 Code anchors:
 
-- `packages/cli/src/renderers.ts`
+- `packages/cli/src/managed-block.ts`
+- `packages/cli/src/catalog.ts`
+- `packages/cli/src/planner.ts`
 - `packages/cli/src/manifest.ts`
 - `packages/cli/src/audit.ts`
 - `packages/cli/src/cli.ts`
@@ -106,5 +115,7 @@ Code anchors:
 
 - `docs/designs/2026-06-18-agent-instruction-file-ownership.md`
 - `docs/plans/2026-06-18-w17-r0-agent-instruction-file-ownership/00-overview.md`
-- `packages/cli/src/renderers.ts`
+- `packages/cli/src/managed-block.ts`
+- `packages/cli/src/catalog.ts`
+- `packages/cli/src/planner.ts`
 - `.make-docs/manifest.json`

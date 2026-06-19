@@ -1,3 +1,4 @@
+<!-- make-docs:begin -->
 # PRD Router
 
 This directory is an output target for the active PRD namespace and its change docs.
@@ -7,3 +8,4 @@ This directory is an output target for the active PRD namespace and its change d
 - Update the register directly for newly discovered or resolved gaps; do not create separate questions, decisions, risks, gaps, or architecture-decision files unless the user explicitly asks.
 - Before writing, read `docs/assets/references/execution-workflow.md`, `docs/assets/references/output-contract.md`, `docs/assets/references/prd-change-management.md`, and the matching `prd-*` template in `docs/assets/templates/`.
 - Treat the reference docs as the authority for namespace lifecycle, numbering, and validation.
+<!-- make-docs:end -->

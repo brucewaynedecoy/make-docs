@@ -44,7 +44,7 @@ outside it.
 | Input | Format | Location | Confidence |
 | --- | --- | --- | --- |
 | Instruction-file ownership design | design doc | `docs/designs/2026-06-18-agent-instruction-file-ownership.md` | high |
-| Current root-instruction renderer | code | `packages/cli/src/renderers.ts:6-61` | high |
+| Current static instruction asset pipeline | code | `packages/cli/src/catalog.ts`; `packages/cli/src/rules.ts`; `packages/docs/template/` | high |
 | Manifest managed-file model | data/code | `.make-docs/manifest.json`; `packages/cli/src/manifest.ts` | high |
 | Conflict-review flow | code/PRD | `packages/cli/src/cli.ts`; `docs/prd/13-revise-cli-conflict-resolution.md` | high |
 | Harness import/auto-load behavior | external | Claude Code `@`-import (confident); Codex `AGENTS.md` (to verify) | medium |
@@ -59,9 +59,9 @@ installs whose root files are currently verbatim renders.
 - Active `docs/prd/` status: active namespace, slots `00`-`14`.
 - Impacted baseline docs: `05`, `06`, `07`, `13`.
 - Discovery pass required: yes (light).
-- Discovery scope if required: confirm the current root-instruction render path,
-  the conflict-review behavior, the manifest hashing, and the per-harness
-  import/auto-load support.
+- Discovery scope if required: confirm the static instruction asset path, the
+  conflict-review behavior, the manifest hashing, and the per-harness
+  instruction-file loading behavior.
 
 ## Output Contract
 
@@ -92,7 +92,7 @@ asset**, so it is authored under `packages/` first (the source of truth) and
 then dogfooded to the repo-root mirrors — never edited in the dogfood as the
 source:
 
-- CLI logic under `packages/cli/src/**` (renderers, manifest, conflict review),
+- CLI logic under `packages/cli/src/**` (catalog, manifest, conflict review),
   with tests under `packages/cli/tests/**`.
 - Shipped instruction sources and the block template under
   `packages/docs/template/**`.
@@ -109,7 +109,7 @@ Workstreams are disjoint and named by concern, not by agent:
 | Worker | Scope | Write Scope | Dependencies | Deliverables |
 | --- | --- | --- | --- | --- |
 | Block primitive | Phase 01 | `packages/cli/src` + tests | none | Delimited-block parser/writer |
-| Renderer + template | Phase 02 | `packages/cli/src/renderers.ts`, `packages/docs/template` | 01 | Inline root block + harness parity |
+| Static catalog + template | Phase 02 | `packages/cli/src/catalog.ts`, `packages/cli/src/rules.ts`, `packages/docs/template` | 01 | Static inline instruction blocks + harness parity |
 | Reconciliation | Phase 03 | `packages/cli/src` (manifest, audit, conflict) | 01, 02 | Block-level reconcile + conflict |
 | Migration + dogfood | Phase 04 | `packages/cli/src`, repo-root mirrors | 01-03 | Migration + dogfood re-seed |
 | Validation + assembly | Phase 05 | `packages/cli/tests`; `docs/prd`, delta backlog | 01-04 | Tests, smoke, PRD/index/backlog reconcile |
@@ -138,7 +138,7 @@ Workstreams are disjoint and named by concern, not by agent:
 | Phase | File | Builds |
 | --- | --- | --- |
 | 01 | [01-managed-block-primitive.md](01-managed-block-primitive.md) | The delimited managed-block parser/writer. |
-| 02 | [02-dedicated-file-and-harness-block.md](02-dedicated-file-and-harness-block.md) | Inline root instruction block rendering and harness parity. |
+| 02 | [02-dedicated-file-and-harness-block.md](02-dedicated-file-and-harness-block.md) | Static inline instruction blocks and harness parity. |
 | 03 | [03-block-level-reconciliation.md](03-block-level-reconciliation.md) | Manifest tracking and conflict review at block scope. |
 | 04 | [04-migration-and-dogfood.md](04-migration-and-dogfood.md) | Migration of existing installs and the dogfood re-seed. |
 | 05 | [05-validation.md](05-validation.md) | CLI tests, smoke-pack, and PRD/backlog reconciliation. |
