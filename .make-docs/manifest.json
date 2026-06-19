@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "packageName": "@brucewaynedecoy/make-docs",
   "packageVersion": "1.0.0-rc.1",
-  "updatedAt": "2026-06-19T00:20:01.527Z",
+  "updatedAt": "2026-06-19T00:26:01.992Z",
   "profileId": "4757a4e744aa64f9",
   "selections": {
     "capabilities": {
@@ -27,11 +27,11 @@
   ],
   "files": {
     "AGENTS.md": {
-      "hash": "799b4aca46dec07fcd72ac774a9d7c1fe32b4b4bc1300b547d43ff55b865867b",
+      "hash": "d126860d7061303a74aa86a266631d7d86c755d478746b4ee55c73ba8ec2d943",
       "sourceId": "file:AGENTS.md"
     },
     "CLAUDE.md": {
-      "hash": "799b4aca46dec07fcd72ac774a9d7c1fe32b4b4bc1300b547d43ff55b865867b",
+      "hash": "d126860d7061303a74aa86a266631d7d86c755d478746b4ee55c73ba8ec2d943",
       "sourceId": "file:CLAUDE.md"
     },
     "docs/AGENTS.md": {
