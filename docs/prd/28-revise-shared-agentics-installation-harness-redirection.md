@@ -84,11 +84,11 @@ Stubs and shared payloads may instruct agents to call make-docs CLI or MCP opera
 
 ### Plugin Inheritance
 
-Plugin installation inherits the shared storage and generated exposure primitive but not a full plugin runtime contract.
+Plugin installation inherits the shared storage and generated exposure primitive, while [30-revise-harness-plugin-substrate-workflow-bundles.md](30-revise-harness-plugin-substrate-workflow-bundles.md) owns full plugin substrate and workflow bundle metadata.
 
-Future plugin designs may define plugin bundle metadata, Run Playbook behavior, MCP tool exposure, or harness-native plugin packaging. They must still use the shared agentics store for canonical payloads and generated harness exposure files unless a later accepted design supersedes this PRD.
+Selected plugin payloads use `.make-docs/agentics/plugins/<plugin-id>/` per scope and generated harness exposure files unless a later accepted design supersedes PRD 30.
 
-[29-revise-playbook-contract-run-playbook.md](29-revise-playbook-contract-run-playbook.md) now owns the playbook content contract and generic Run Playbook model. Future plugin payloads may expose that model, but this PRD continues to own only shared storage and generated harness exposure.
+[29-revise-playbook-contract-run-playbook.md](29-revise-playbook-contract-run-playbook.md) owns the playbook content contract and generic Run Playbook model. PRD 30 allows plugin payloads to expose that model, but this PRD continues to own only shared storage and generated harness exposure primitives.
 
 ### No-Default-Skills
 
@@ -99,7 +99,7 @@ Shared agentics are written only when the user explicitly selects skills or late
 ## Non-Requirements
 
 - No symlink-based default behavior.
-- No plugin runtime contract.
+- No full plugin substrate, workflow bundle metadata, or per-bundle UX contract in this shared-agentics PRD; [30-revise-harness-plugin-substrate-workflow-bundles.md](30-revise-harness-plugin-substrate-workflow-bundles.md) owns the substrate and bundle boundary.
 - No Run Playbook contract in this shared-agentics PRD; [29-revise-playbook-contract-run-playbook.md](29-revise-playbook-contract-run-playbook.md) owns that contract.
 - No MCP write surface.
 - No bundled-local versus remote-fetch skills delivery decision.
@@ -119,6 +119,7 @@ Shared agentics are written only when the user explicitly selects skills or late
 - [25 Revise CLI Separation and MCP Boundary](25-revise-cli-separation-and-mcp-boundary.md)
 - [26 Revise No-Scripts Migration Skill Refactor](26-revise-no-scripts-migration-skill-refactor.md)
 - [27 Revise Skill Purpose Registry Alternate Skills Manifest](27-revise-skill-purpose-registry-alternate-skills-manifest.md)
+- [30 Revise Harness Plugin Substrate Workflow Bundles](30-revise-harness-plugin-substrate-workflow-bundles.md)
 
 ## Acceptance Criteria
 
@@ -140,8 +141,11 @@ Shared agentics are written only when the user explicitly selects skills or late
 - [21 Revise Tool Directory System Custom Resource Tiers](21-revise-tool-directory-system-custom-resource-tiers.md)
 - [27 Revise Skill Purpose Registry Alternate Skills Manifest](27-revise-skill-purpose-registry-alternate-skills-manifest.md)
 - [29 Revise Playbook Contract Run Playbook](29-revise-playbook-contract-run-playbook.md)
+- [30 Revise Harness Plugin Substrate Workflow Bundles](30-revise-harness-plugin-substrate-workflow-bundles.md)
 - [../designs/2026-06-20-playbook-contract-and-run-playbook.md](../designs/2026-06-20-playbook-contract-and-run-playbook.md)
 - [../plans/2026-06-23-w18-r1-playbook-contract-run-playbook/00-overview.md](../plans/2026-06-23-w18-r1-playbook-contract-run-playbook/00-overview.md)
+- [../designs/2026-06-20-harness-plugin-substrate-and-workflow-bundles.md](../designs/2026-06-20-harness-plugin-substrate-and-workflow-bundles.md)
+- [../plans/2026-06-23-w18-r2-harness-plugin-substrate-workflow-bundles/00-overview.md](../plans/2026-06-23-w18-r2-harness-plugin-substrate-workflow-bundles/00-overview.md)
 - `packages/cli/src/skill-catalog.ts`
 - `packages/cli/src/manifest.ts`
 - `packages/cli/src/planner.ts`

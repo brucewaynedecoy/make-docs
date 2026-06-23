@@ -85,13 +85,15 @@ Skills that currently depend on standalone scripts must be rewritten in the same
 
 [29-revise-playbook-contract-run-playbook.md](29-revise-playbook-contract-run-playbook.md) supplies the generic Run Playbook execution model that future CLI, MCP, plugin, skill, or agent surfaces must reuse. MCP tools may inspect, validate, select, and dry-run playbooks under the read-first/plan-first surface, but writes or unattended execution still require a later permission and parity plan.
 
+[30-revise-harness-plugin-substrate-workflow-bundles.md](30-revise-harness-plugin-substrate-workflow-bundles.md) supplies the plugin substrate and workflow bundle metadata that future CLI, MCP, plugin, skill, or agent surfaces must reuse. Plugin entrypoints may call accepted CLI/MCP/shared-core operations, but they must not implement independent manifest, config, audit, backup, uninstall, generation, validation, or lifecycle routing behavior.
+
 ## Non-Requirements
 
 - No immediate Rust implementation.
 - No immediate MCP write surface.
 - No direct MCP asset source policy outside the accepted materialization contract.
 - No replacement of the no-command npm workflow with `init` or `update`.
-- No resolution of remote versus bundled skills, plugin runtime flow, or public plugin exposure.
+- No resolution of remote versus bundled skills, plugin runtime implementation parity, or per-bundle public UX.
 
 ## Affected Baseline Docs
 
@@ -105,6 +107,7 @@ Skills that currently depend on standalone scripts must be rewritten in the same
 - [24 Revise Configuration Convention Overlay](24-revise-configuration-convention-overlay.md)
 - [28 Revise Shared Agentics Installation Harness Redirection](28-revise-shared-agentics-installation-harness-redirection.md)
 - [29 Revise Playbook Contract Run Playbook](29-revise-playbook-contract-run-playbook.md)
+- [30 Revise Harness Plugin Substrate Workflow Bundles](30-revise-harness-plugin-substrate-workflow-bundles.md)
 
 ## Acceptance Criteria
 
@@ -131,10 +134,13 @@ Skills that currently depend on standalone scripts must be rewritten in the same
 - [27 Revise Skill Purpose Registry Alternate Skills Manifest](27-revise-skill-purpose-registry-alternate-skills-manifest.md)
 - [28 Revise Shared Agentics Installation Harness Redirection](28-revise-shared-agentics-installation-harness-redirection.md)
 - [29 Revise Playbook Contract Run Playbook](29-revise-playbook-contract-run-playbook.md)
+- [30 Revise Harness Plugin Substrate Workflow Bundles](30-revise-harness-plugin-substrate-workflow-bundles.md)
 - [../designs/2026-06-20-shared-agentics-installation-and-harness-redirection.md](../designs/2026-06-20-shared-agentics-installation-and-harness-redirection.md)
 - [../plans/2026-06-23-w17-r2-shared-agentics-installation-harness-redirection/00-overview.md](../plans/2026-06-23-w17-r2-shared-agentics-installation-harness-redirection/00-overview.md)
 - [../designs/2026-06-20-playbook-contract-and-run-playbook.md](../designs/2026-06-20-playbook-contract-and-run-playbook.md)
 - [../plans/2026-06-23-w18-r1-playbook-contract-run-playbook/00-overview.md](../plans/2026-06-23-w18-r1-playbook-contract-run-playbook/00-overview.md)
+- [../designs/2026-06-20-harness-plugin-substrate-and-workflow-bundles.md](../designs/2026-06-20-harness-plugin-substrate-and-workflow-bundles.md)
+- [../plans/2026-06-23-w18-r2-harness-plugin-substrate-workflow-bundles/00-overview.md](../plans/2026-06-23-w18-r2-harness-plugin-substrate-workflow-bundles/00-overview.md)
 - `packages/cli/src/cli.ts`
 - `packages/cli/src/profile.ts`
 - `packages/cli/src/manifest.ts`

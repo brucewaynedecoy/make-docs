@@ -77,6 +77,7 @@ For a true first public release, the release state now uses Apache-2.0 licensing
 - Enhanced by [27-revise-skill-purpose-registry-alternate-skills-manifest.md](./27-revise-skill-purpose-registry-alternate-skills-manifest.md) for skills-manifest package proof. Package validation must ship the evolved registry schema with the built-in manifest, prove bare installs still write no skill files, prove explicit first-party and alternate file-manifest installs, and reject unpinned remote manifests or skill payloads before installation.
 - Enhanced by [28-revise-shared-agentics-installation-harness-redirection.md](./28-revise-shared-agentics-installation-harness-redirection.md) for shared-agentics package proof. Packed validation must prove explicit selected skills write one canonical shared payload per scope, generate harness stubs for selected harnesses, preserve no-default-skills on bare installs, classify migrated duplicate payloads, and avoid any symlink or junction requirement.
 - Enhanced by [29-revise-playbook-contract-run-playbook.md](./29-revise-playbook-contract-run-playbook.md) for playbook package proof. Packed validation must cover shipped playbook defaults when present, including required frontmatter, path/persona consistency, `stack: build | run`, package-template parity, and provisional support-claim labeling for CLI, MCP, plugin, skill, template-sync, or unattended execution surfaces.
+- Enhanced by [30-revise-harness-plugin-substrate-workflow-bundles.md](./30-revise-harness-plugin-substrate-workflow-bundles.md) for plugin package proof. Packed validation must prove no-default plugin behavior, explicit selected plugin payload and generated exposure behavior when implemented, plugin asset inclusion or exclusion rules, and exclusion of conformance-lab records, generated local run artifacts, and unreviewed plugin outputs from shipped template/package surfaces.
 
 ## Source Anchors
 
@@ -104,13 +105,16 @@ For a true first public release, the release state now uses Apache-2.0 licensing
 - `docs/prd/27-revise-skill-purpose-registry-alternate-skills-manifest.md`
 - `docs/prd/28-revise-shared-agentics-installation-harness-redirection.md`
 - `docs/prd/29-revise-playbook-contract-run-playbook.md`
+- `docs/prd/30-revise-harness-plugin-substrate-workflow-bundles.md`
 - `docs/designs/2026-06-20-cli-separation-and-mcp-boundary.md`
 - `docs/designs/2026-06-20-no-scripts-migration-and-skill-refactor.md`
 - `docs/designs/2026-06-20-skill-purpose-registry-and-alternate-skills-manifest.md`
 - `docs/designs/2026-06-20-shared-agentics-installation-and-harness-redirection.md`
 - `docs/designs/2026-06-20-playbook-contract-and-run-playbook.md`
+- `docs/designs/2026-06-20-harness-plugin-substrate-and-workflow-bundles.md`
 - `docs/plans/2026-06-23-w10-r6-cli-separation-and-mcp-boundary/00-overview.md`
 - `docs/plans/2026-06-23-w16-r3-no-scripts-migration-skill-refactor/00-overview.md`
 - `docs/plans/2026-06-23-w17-r1-skill-purpose-registry-alternate-skills-manifest/00-overview.md`
 - `docs/plans/2026-06-23-w17-r2-shared-agentics-installation-harness-redirection/00-overview.md`
 - `docs/plans/2026-06-23-w18-r1-playbook-contract-run-playbook/00-overview.md`
+- `docs/plans/2026-06-23-w18-r2-harness-plugin-substrate-workflow-bundles/00-overview.md`

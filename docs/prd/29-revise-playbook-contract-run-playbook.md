@@ -92,6 +92,8 @@ A playbook may later be exposed through a plugin bundle, CLI affordance, MCP sur
 
 The content contract must not require one plugin per playbook and must not require a plugin for a playbook to be valid.
 
+[30-revise-harness-plugin-substrate-workflow-bundles.md](30-revise-harness-plugin-substrate-workflow-bundles.md) owns plugin substrate and workflow bundle metadata. Plugins may invoke Run Playbook, but they cannot redefine playbook storage, frontmatter, stack validation, authority order, output routing, or playbook validity.
+
 Support claims for CLI execution, MCP execution, plugin launch, template sync, or unattended operation require validation evidence. Until conformance-lab or implementation evidence exists, support language must remain provisional.
 
 ### Template Package and Migration Boundary
@@ -109,7 +111,7 @@ Manifest, catalog, audit, backup, uninstall, installer, CLI, MCP, and plugin beh
 
 ## Non-Requirements
 
-- No plugin substrate or product workflow bundle contract.
+- No plugin substrate or product workflow bundle contract in this PRD; [30-revise-harness-plugin-substrate-workflow-bundles.md](30-revise-harness-plugin-substrate-workflow-bundles.md) owns that boundary.
 - No public plugin exposure decision.
 - No one-plugin-per-playbook requirement.
 - No MCP write surface.
@@ -131,6 +133,7 @@ Manifest, catalog, audit, backup, uninstall, installer, CLI, MCP, and plugin beh
 - [24 Revise Configuration Convention Overlay](24-revise-configuration-convention-overlay.md)
 - [25 Revise CLI Separation and MCP Boundary](25-revise-cli-separation-and-mcp-boundary.md)
 - [28 Revise Shared Agentics Installation Harness Redirection](28-revise-shared-agentics-installation-harness-redirection.md)
+- [30 Revise Harness Plugin Substrate Workflow Bundles](30-revise-harness-plugin-substrate-workflow-bundles.md)
 
 ## Acceptance Criteria
 
@@ -150,6 +153,7 @@ Manifest, catalog, audit, backup, uninstall, installer, CLI, MCP, and plugin beh
 - [23 Revise Generated Metadata Lifecycle Handoffs](23-revise-generated-metadata-lifecycle-handoffs.md)
 - [24 Revise Configuration Convention Overlay](24-revise-configuration-convention-overlay.md)
 - [28 Revise Shared Agentics Installation Harness Redirection](28-revise-shared-agentics-installation-harness-redirection.md)
+- [30 Revise Harness Plugin Substrate Workflow Bundles](30-revise-harness-plugin-substrate-workflow-bundles.md)
 - `docs/library/playbooks/agent/make-docs-lifecycle.md`
 - `docs/assets/references/coverage-pass-contract.md`
 - `packages/cli/src/rules.ts`
@@ -159,3 +163,5 @@ Manifest, catalog, audit, backup, uninstall, installer, CLI, MCP, and plugin beh
 - `packages/cli/src/backup.ts`
 - `packages/cli/src/uninstall.ts`
 - `scripts/smoke-pack.mjs`
+- [../designs/2026-06-20-harness-plugin-substrate-and-workflow-bundles.md](../designs/2026-06-20-harness-plugin-substrate-and-workflow-bundles.md)
+- [../plans/2026-06-23-w18-r2-harness-plugin-substrate-workflow-bundles/00-overview.md](../plans/2026-06-23-w18-r2-harness-plugin-substrate-workflow-bundles/00-overview.md)

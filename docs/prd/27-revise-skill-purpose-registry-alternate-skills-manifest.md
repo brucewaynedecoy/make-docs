@@ -64,6 +64,7 @@ The install manifest remains behavior-first:
 - Selection provenance may record selected purpose id, manifest id, candidate skill, source policy class, and source provenance for review, reconfigure, audit, backup, uninstall, and support.
 - Selection provenance does not replace `selectedSkills` or `skillFiles`.
 - [28-revise-shared-agentics-installation-harness-redirection.md](28-revise-shared-agentics-installation-harness-redirection.md) consumes the resolved effective manifest and selection provenance when writing shared payloads and generated stubs. Agentic ownership records should preserve manifest id, purpose id, skill name, source policy, digest/ref, scope, canonical payload path, and generated stub paths without replacing `selectedSkills`.
+- [30-revise-harness-plugin-substrate-workflow-bundles.md](30-revise-harness-plugin-substrate-workflow-bundles.md) may let future plugin and workflow bundle surfaces present purpose metadata, but plugin selection remains explicit and separate from `selectedSkills`; skills-manifest purpose ids do not become plugin ids or bundle ids.
 
 ### Alternate Manifests
 
@@ -115,7 +116,7 @@ Implementation must prove:
 - No ambient alternate-manifest discovery.
 - No automatic merge of built-in and alternate manifests.
 - No closure of Q-001's bundled-local versus remote-fetch delivery decision.
-- No closure of plugin runtime flow, public plugin exposure, or remote-versus-bundled skills delivery.
+- No closure of plugin runtime implementation parity, per-bundle public UX, or remote-versus-bundled skills delivery.
 - No permission for configured labels to replace canonical purpose ids.
 - No deterministic workflow logic in purpose metadata.
 
@@ -131,6 +132,7 @@ Implementation must prove:
 - [25 Revise CLI Separation and MCP Boundary](25-revise-cli-separation-and-mcp-boundary.md)
 - [26 Revise No-Scripts Migration Skill Refactor](26-revise-no-scripts-migration-skill-refactor.md)
 - [28 Revise Shared Agentics Installation Harness Redirection](28-revise-shared-agentics-installation-harness-redirection.md)
+- [30 Revise Harness Plugin Substrate Workflow Bundles](30-revise-harness-plugin-substrate-workflow-bundles.md)
 
 ## Acceptance Criteria
 
@@ -151,8 +153,11 @@ Implementation must prove:
 - [12 Revise CLI Skill Selection Simplification](12-revise-cli-skill-selection-simplification.md)
 - [26 Revise No-Scripts Migration Skill Refactor](26-revise-no-scripts-migration-skill-refactor.md)
 - [28 Revise Shared Agentics Installation Harness Redirection](28-revise-shared-agentics-installation-harness-redirection.md)
+- [30 Revise Harness Plugin Substrate Workflow Bundles](30-revise-harness-plugin-substrate-workflow-bundles.md)
 - [../designs/2026-06-20-shared-agentics-installation-and-harness-redirection.md](../designs/2026-06-20-shared-agentics-installation-and-harness-redirection.md)
 - [../plans/2026-06-23-w17-r2-shared-agentics-installation-harness-redirection/00-overview.md](../plans/2026-06-23-w17-r2-shared-agentics-installation-harness-redirection/00-overview.md)
+- [../designs/2026-06-20-harness-plugin-substrate-and-workflow-bundles.md](../designs/2026-06-20-harness-plugin-substrate-and-workflow-bundles.md)
+- [../plans/2026-06-23-w18-r2-harness-plugin-substrate-workflow-bundles/00-overview.md](../plans/2026-06-23-w18-r2-harness-plugin-substrate-workflow-bundles/00-overview.md)
 - `packages/cli/skill-registry.json`
 - `packages/cli/skill-registry.schema.json`
 - `packages/cli/src/cli.ts`
