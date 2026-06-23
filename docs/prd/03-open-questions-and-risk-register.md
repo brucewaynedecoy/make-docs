@@ -392,7 +392,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | PRD 20 treats plugin and playbook scenarios as future conformance inputs only after shared agentics install, plugin substrate, and Run Playbook decisions land. [27-revise-skill-purpose-registry-alternate-skills-manifest.md](./27-revise-skill-purpose-registry-alternate-skills-manifest.md) provides purpose-led skill metadata that plugins may present later, but it does not define request-vs-change flows or public plugin exposure. [28-revise-shared-agentics-installation-harness-redirection.md](./28-revise-shared-agentics-installation-harness-redirection.md) unblocks a shared payload/stub primitive for future plugin storage and exposure, but it does not define plugin flow, runtime, or public exposure. | Resolve request-vs-change, docs visibility, scaffold exposure, and which plugin claims require conformance evidence. |
+| Open | PRD 20 treats plugin and playbook scenarios as future conformance inputs only after shared agentics install, plugin substrate, and Run Playbook decisions land. [27-revise-skill-purpose-registry-alternate-skills-manifest.md](./27-revise-skill-purpose-registry-alternate-skills-manifest.md) provides purpose-led skill metadata that plugins may present later, but it does not define request-vs-change flows or public plugin exposure. [28-revise-shared-agentics-installation-harness-redirection.md](./28-revise-shared-agentics-installation-harness-redirection.md) unblocks a shared payload/stub primitive for future plugin storage and exposure, but it does not define plugin flow, runtime, or public exposure. [29-revise-playbook-contract-run-playbook.md](./29-revise-playbook-contract-run-playbook.md) defines playbook validity and generic Run Playbook invocation without defining public plugin exposure. | Resolve request-vs-change, docs visibility, scaffold exposure, and which plugin claims require conformance evidence. |
 
 **Question**: Is "file a request" a separate flow from "make a change"? Are generated docs shown, hidden, or toggle-able for non-technical users? Is the scaffold/build entry point user-facing or maintainer-only?
 
@@ -564,7 +564,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | PRD 22 defines the persona schema, default personas, and primitive mapping, so the remaining risk is implementation/configuration drift rather than an undefined schema. PRD 23 consumes `persona` as the generated-doc frontmatter field for persona-scoped guides and playbooks. PRD 24 defines how config may add or relabel persona entries without renaming schema keys or primitive values. | Replace legacy mapping with the configured persona set when personas land and add validation fixtures for default/custom personas, duplicate slugs, invalid values, path/frontmatter drift, and generated `persona` frontmatter presence. |
+| Open | PRD 22 defines the persona schema, default personas, and primitive mapping, so the remaining risk is implementation/configuration drift rather than an undefined schema. PRD 23 consumes `persona` as the generated-doc frontmatter field for persona-scoped guides and playbooks. PRD 24 defines how config may add or relabel persona entries without renaming schema keys or primitive values. PRD 29 adds Run Playbook validation that must fail closed on missing or invalid playbook `persona` metadata. | Replace legacy mapping with the configured persona set when personas land and add validation fixtures for default/custom personas, duplicate slugs, invalid values, path/frontmatter drift, generated `persona` frontmatter presence, and Run Playbook persona validation. |
 
 **Issue**: The coverage-pass contract's persona-target axis points at a configuration file that does not yet exist.
 
@@ -578,21 +578,21 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Confirming | Resolved by the content-vs-invocation boundary; PRD 22 defines playbooks as persona-scoped content under `docs/assets/playbooks/**`, and the Run-Playbook plugin is the future invocation seam. | Keep the boundary explicit when designing plugins and do not make storage under `docs/assets/playbooks/**` executable by itself. |
+| Closed | Resolved by the content-vs-invocation boundary; PRD 22 defines playbooks as persona-scoped content under `docs/assets/playbooks/**`, and PRD 29 defines Run Playbook as a generic invocation model that can be exposed by agents, CLI, MCP, plugins, or skills without making plugin exposure mandatory. | Keep the boundary explicit when designing plugins and do not make storage under `docs/assets/playbooks/**` executable by itself. |
 
 **Issue**: Both playbooks and plugins can look like "the thing that runs a workflow."
 
 **Why it matters**: Without a boundary, the project risks building two systems that do the same job.
 
-**Recommendation**: A playbook is a persona-scoped *process definition* (content); a plugin is an *invocation* (a slash command) wrapping a built-in workflow or the generic Run-Playbook executor.
+**Recommendation**: A playbook is a persona-scoped process definition; Run Playbook is the generic invocation model; a plugin is an optional packaged exposure path over that model.
 
-**To close**: Plugin and playbook designs cite and respect the boundary.
+**To close**: Closed by PRD 29. Future plugin designs must cite and respect the boundary.
 
 ### R-013 The Restructure and Rename Will Relocate Newly Authored Assets
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Authored now at current paths; PRD 22 defines concrete target mappings for guide/playbook/archive assets: `docs/guides/**` to `docs/assets/guides/**`, `docs/library/playbooks/**` to `docs/assets/playbooks/**`, and `docs/assets/archive/**` to `docs/archive/**`. PRD 23 metadata backfill must avoid broad opportunistic rewrites during relocation and only add metadata to planned template/package/touched-file surfaces. PRD 24 config backfill must preserve local `.make-docs/config.yaml` and avoid creating alternate path schemas during relocation. | Record and execute migration mappings for the coverage contract, prompts, guides, playbooks, archive, history follow-on, metadata backfill, and config template placement without breaking links. |
+| Open | Authored now at current paths; PRD 22 defines concrete target mappings for guide/playbook/archive assets: `docs/guides/**` to `docs/assets/guides/**`, `docs/library/playbooks/**` to `docs/assets/playbooks/**`, and `docs/assets/archive/**` to `docs/archive/**`. PRD 23 metadata backfill must avoid broad opportunistic rewrites during relocation and only add metadata to planned template/package/touched-file surfaces. PRD 24 config backfill must preserve local `.make-docs/config.yaml` and avoid creating alternate path schemas during relocation. PRD 29 adds playbook `stack` metadata and Run Playbook path/persona validation to the migration surface. | Record and execute migration mappings for the coverage contract, prompts, guides, playbooks, archive, history follow-on, metadata backfill, config template placement, playbook stack metadata, and Run Playbook validation without breaking links. |
 
 **Issue**: Assets authored in W16 (the coverage-pass contract, starter prompts, library playbook) will move when `docs/assets/**` migrates into the renamed tool directory.
 
@@ -606,7 +606,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Move deterministic logic into the CLI without stranding skills between TypeScript, future Rust ownership, the provider/cache surfaces introduced by [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md), the migration classifier required by [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md), lab scenarios introduced by [20-revise-agent-harness-model-conformance-lab.md](./20-revise-agent-harness-model-conformance-lab.md), future `.make-docs/scripts/{system,custom}` tiers introduced by PRD 21, generated metadata validation introduced by PRD 23, config validation introduced by PRD 24, the CLI/MCP operation boundary introduced by [25-revise-cli-separation-and-mcp-boundary.md](./25-revise-cli-separation-and-mcp-boundary.md), the concrete W16 R3 sequence in [26-revise-no-scripts-migration-skill-refactor.md](./26-revise-no-scripts-migration-skill-refactor.md), the purpose-manifest metadata in [27-revise-skill-purpose-registry-alternate-skills-manifest.md](./27-revise-skill-purpose-registry-alternate-skills-manifest.md), and generated stubs/shared payloads introduced by [28-revise-shared-agentics-installation-harness-redirection.md](./28-revise-shared-agentics-installation-harness-redirection.md); sequence the skill refactor into the same wave. | Avoid rewriting skills, scripts, conformance scenarios, metadata validation, config validation, purpose manifests, shared stubs, shared payloads, or MCP tools to cite the contract before the CLI/shared-core provides their logic and before system assets, migration classification, YAML/body drift checks, structural-rename checks, old-script classification, wrapper delegation, selected-skill install/remove behavior, alternate-manifest provenance, and stub/payload classification remain locally recoverable without standalone script helpers. |
+| Open | Move deterministic logic into the CLI without stranding skills between TypeScript, future Rust ownership, the provider/cache surfaces introduced by [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md), the migration classifier required by [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md), lab scenarios introduced by [20-revise-agent-harness-model-conformance-lab.md](./20-revise-agent-harness-model-conformance-lab.md), future `.make-docs/scripts/{system,custom}` tiers introduced by PRD 21, generated metadata validation introduced by PRD 23, config validation introduced by PRD 24, the CLI/MCP operation boundary introduced by [25-revise-cli-separation-and-mcp-boundary.md](./25-revise-cli-separation-and-mcp-boundary.md), the concrete W16 R3 sequence in [26-revise-no-scripts-migration-skill-refactor.md](./26-revise-no-scripts-migration-skill-refactor.md), the purpose-manifest metadata in [27-revise-skill-purpose-registry-alternate-skills-manifest.md](./27-revise-skill-purpose-registry-alternate-skills-manifest.md), generated stubs/shared payloads introduced by [28-revise-shared-agentics-installation-harness-redirection.md](./28-revise-shared-agentics-installation-harness-redirection.md), and generic Run Playbook behavior introduced by [29-revise-playbook-contract-run-playbook.md](./29-revise-playbook-contract-run-playbook.md); sequence the skill refactor into the same wave. | Avoid rewriting skills, scripts, conformance scenarios, metadata validation, config validation, purpose manifests, shared stubs, shared payloads, Run Playbook surfaces, or MCP tools to cite the contract before the CLI/shared-core provides their logic and before system assets, migration classification, YAML/body drift checks, structural-rename checks, old-script classification, wrapper delegation, selected-skill install/remove behavior, alternate-manifest provenance, stub/payload classification, and playbook runner validation remain locally recoverable without standalone script helpers. |
 
 **Issue**: Moving all script logic into the CLI while skills still reference standalone scripts creates a window where skills could break.
 
@@ -634,6 +634,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 - `docs/prd/26-revise-no-scripts-migration-skill-refactor.md`
 - `docs/prd/27-revise-skill-purpose-registry-alternate-skills-manifest.md`
 - `docs/prd/28-revise-shared-agentics-installation-harness-redirection.md`
+- `docs/prd/29-revise-playbook-contract-run-playbook.md`
 - `docs/designs/2026-06-19-package-and-deployment-boundaries.md`
 - `docs/designs/2026-06-19-system-asset-delivery-and-materialization-contract.md`
 - `docs/designs/2026-06-19-compatibility-audit-and-migration-disposition.md`
@@ -647,6 +648,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 - `docs/designs/2026-06-20-no-scripts-migration-and-skill-refactor.md`
 - `docs/designs/2026-06-20-skill-purpose-registry-and-alternate-skills-manifest.md`
 - `docs/designs/2026-06-20-shared-agentics-installation-and-harness-redirection.md`
+- `docs/designs/2026-06-20-playbook-contract-and-run-playbook.md`
 - `docs/plans/2026-06-23-w10-r1-package-and-deployment-boundaries/00-overview.md`
 - `docs/plans/2026-06-23-w10-r2-system-asset-materialization-contract/00-overview.md`
 - `docs/plans/2026-06-23-w10-r3-compatibility-audit-and-migration-disposition/00-overview.md`
@@ -660,6 +662,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 - `docs/plans/2026-06-23-w16-r3-no-scripts-migration-skill-refactor/00-overview.md`
 - `docs/plans/2026-06-23-w17-r1-skill-purpose-registry-alternate-skills-manifest/00-overview.md`
 - `docs/plans/2026-06-23-w17-r2-shared-agentics-installation-harness-redirection/00-overview.md`
+- `docs/plans/2026-06-23-w18-r1-playbook-contract-run-playbook/00-overview.md`
 - `packages/docs/README.md:50-121`
 - `packages/skills/README.md`
 - `packages/cli/package.json:9-25`

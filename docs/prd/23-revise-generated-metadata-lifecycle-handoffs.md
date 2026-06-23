@@ -21,6 +21,8 @@ Existing active documents remain valid even when they predate this metadata cont
 
 [24-revise-configuration-convention-overlay.md](24-revise-configuration-convention-overlay.md) builds on this PRD by allowing configured display labels in generated prose while preserving YAML frontmatter as the canonical metadata layer.
 
+[29-revise-playbook-contract-run-playbook.md](29-revise-playbook-contract-run-playbook.md) narrows playbook metadata consumers: generated or shipped playbooks must carry `kind: playbook`, `persona`, `stack: build | run`, and summary metadata, and Run Playbook validation must fail closed when those fields are missing or invalid.
+
 ## Requirements
 
 ### Canonical Metadata Layer
@@ -34,9 +36,9 @@ Tooling should read YAML first, render required body sections from YAML when gen
 Every generated make-docs document has:
 
 ```yaml
-title: "{{TITLE}}"
-kind: "{{KIND}}"
-status: "{{STATUS}}"
+title: "<title>"
+kind: "<kind>"
+status: "<status>"
 ```
 
 `kind` is one of `design`, `plan`, `prd`, `work`, `history`, `guide`, or `playbook`.
@@ -49,11 +51,13 @@ Generated documents add conditional metadata when the condition applies:
 
 | Field | Requirement |
 | --- | --- |
-| `coordinate` | Required when W/R/P lineage is known or when the document is the authority for a downstream coordinate handoff. Unknown levels are omitted, not filled with placeholders. |
+| `coordinate` | Required when W/R/P lineage is known or when the document is the authority for a downstream coordinate handoff. Unknown levels are omitted, not filled with dummy values. |
 | `persona` | Required for persona-scoped guides and playbooks; value is the canonical persona slug from the configured persona set in PRD 22. |
 | `source` | Required when the document derives from an explicit source other than the immediately prior lifecycle artifact. |
 | `lifecycle` | Required when a generation step skips, reorders, revisits, or straddles the default lifecycle. |
 | `follow_on` | Required for generated documents that contain an `## Intended Follow-On` section. |
+
+For playbooks, [29-revise-playbook-contract-run-playbook.md](29-revise-playbook-contract-run-playbook.md) also requires `stack: build | run` and `summary`; validators must report invalid stack values and path/persona drift before Run Playbook execution.
 
 ### Handoff Metadata
 
@@ -61,10 +65,10 @@ The canonical handoff metadata shape is:
 
 ```yaml
 follow_on:
-  route: "{{ROUTE}}"
-  next_prompt: "{{REPO_RELATIVE_PROMPT_PATH}}"
-  why: "{{SHORT_REASON}}"
-  coordinate_handoff: "{{COORDINATE_HANDOFF}}"
+  route: "<route>"
+  next_prompt: "<repo-relative-prompt-path>"
+  why: "<short-reason>"
+  coordinate_handoff: "<coordinate-handoff>"
 ```
 
 Design docs, plan overviews, PRD indexes, and work indexes keep their body `## Intended Follow-On` sections for reader clarity. The body section renders the same four values in contract-specific wording:
@@ -81,8 +85,8 @@ Validators should flag YAML/body mismatch as drift. They should not fail a docum
 ```yaml
 lifecycle:
   default_arc: "design -> plan -> PRD -> work -> implementation"
-  departure: "{{DEPARTURE_KIND}}"
-  reason: "{{SHORT_REASON}}"
+  departure: "<departure-kind>"
+  reason: "<short-reason>"
 ```
 
 Initial `departure` values are `none`, `source-to-design-straddle`, `skip`, `reorder`, and `revisit`.
@@ -93,8 +97,8 @@ The current v2 design generation uses `source-to-design-straddle` because artifa
 
 ```yaml
 source:
-  type: "{{SOURCE_TYPE}}"
-  path: "{{REPO_RELATIVE_PATH}}"
+  type: "<source-type>"
+  path: "<repo-relative-path>"
 ```
 
 Initial `source.type` values are `design`, `plan`, `prd`, `work`, `history`, `artifact-roadmap`, `artifact-seed`, `implementation-closeout`, and `manual-request`.
@@ -122,6 +126,7 @@ Configuration overlays may change presentation labels in generated prose, but th
 - [14 Add Lifecycle Workflow Foundation](14-add-lifecycle-workflow-foundation.md)
 - [22 Revise New Docs Assets Playbooks Persona Model](22-revise-new-docs-assets-playbooks-persona-model.md)
 - [24 Revise Configuration Convention Overlay](24-revise-configuration-convention-overlay.md)
+- [29 Revise Playbook Contract Run Playbook](29-revise-playbook-contract-run-playbook.md)
 
 ## Acceptance Criteria
 
@@ -138,6 +143,9 @@ Configuration overlays may change presentation labels in generated prose, but th
 - [../work/2026-06-23-w16-r1-generated-metadata-lifecycle-handoffs/00-index.md](../work/2026-06-23-w16-r1-generated-metadata-lifecycle-handoffs/00-index.md)
 - [14 Add Lifecycle Workflow Foundation](14-add-lifecycle-workflow-foundation.md)
 - [22 Revise New Docs Assets Playbooks Persona Model](22-revise-new-docs-assets-playbooks-persona-model.md)
+- [29 Revise Playbook Contract Run Playbook](29-revise-playbook-contract-run-playbook.md)
+- [../designs/2026-06-20-playbook-contract-and-run-playbook.md](../designs/2026-06-20-playbook-contract-and-run-playbook.md)
+- [../plans/2026-06-23-w18-r1-playbook-contract-run-playbook/00-overview.md](../plans/2026-06-23-w18-r1-playbook-contract-run-playbook/00-overview.md)
 - `docs/assets/references/design-contract.md`
 - `docs/assets/references/output-contract.md`
 - `docs/assets/references/lifecycle.md`

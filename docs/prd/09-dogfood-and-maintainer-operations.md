@@ -20,6 +20,7 @@ It also defines the ownership boundary between template-owned files and project-
 - Enhanced by [19-revise-template-package-dogfood-source-of-truth-contract.md](./19-revise-template-package-dogfood-source-of-truth-contract.md) for reviewed dogfood reseeding. Root `docs/` exercises shipped template-owned files but must preserve generated designs, plans, PRDs, work backlogs, local guide content, local history/archive entries, artifact outputs, overlays, config, and other project-owned records unless a later accepted plan deliberately ships them as starter content.
 - Enhanced by [21-revise-tool-directory-system-custom-resource-tiers.md](./21-revise-tool-directory-system-custom-resource-tiers.md) for dogfooding `.make-docs/**` tool resources. Dogfood validation must not treat `.make-docs/` runtime state or custom tiers as reader-facing docs assets.
 - Enhanced by [22-revise-new-docs-assets-playbooks-persona-model.md](./22-revise-new-docs-assets-playbooks-persona-model.md) for dogfooding reader-facing assets. Future guide and playbook defaults must be reseeded and parity-checked through `docs/assets/{guides,playbooks}/`, while `docs/library/playbooks/**` remains transitional and archive migration must preserve lineage outside reader-facing assets.
+- Enhanced by [29-revise-playbook-contract-run-playbook.md](./29-revise-playbook-contract-run-playbook.md) for dogfooding the playbook contract. Accepted playbooks must be validated through the v2 `docs/assets/playbooks/**` path, minimum frontmatter, path/persona consistency, and build/run stack rules before dogfood copies are treated as release evidence.
 
 The source-of-truth template is `packages/docs/template/`, which the docs package README describes as the tree that ultimately ships to consumer projects (`packages/docs/README.md:7-37`). In local development, the CLI does not require a pre-copied bundle because `packages/cli/src/utils.ts:33-55` resolves `../docs/template` first and only falls back to `packages/cli/template` when the package has been packed.
 
@@ -79,3 +80,6 @@ Candidate items that should also surface in `03-open-questions-and-risk-register
 - `docs/assets/archive/plans/2026-04-16-w2-r0-guide-structure-contract/04-migration-and-reseed.md`
 - `docs/assets/archive/plans/2026-04-22-w9-r1-docs-assets-resource-namespace/04-dogfood-docs-migration.md`
 - `docs/prd/22-revise-new-docs-assets-playbooks-persona-model.md`
+- `docs/prd/29-revise-playbook-contract-run-playbook.md`
+- `docs/designs/2026-06-20-playbook-contract-and-run-playbook.md`
+- `docs/plans/2026-06-23-w18-r1-playbook-contract-run-playbook/00-overview.md`

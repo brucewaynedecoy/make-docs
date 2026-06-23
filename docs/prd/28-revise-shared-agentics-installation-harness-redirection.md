@@ -88,6 +88,8 @@ Plugin installation inherits the shared storage and generated exposure primitive
 
 Future plugin designs may define plugin bundle metadata, Run Playbook behavior, MCP tool exposure, or harness-native plugin packaging. They must still use the shared agentics store for canonical payloads and generated harness exposure files unless a later accepted design supersedes this PRD.
 
+[29-revise-playbook-contract-run-playbook.md](29-revise-playbook-contract-run-playbook.md) now owns the playbook content contract and generic Run Playbook model. Future plugin payloads may expose that model, but this PRD continues to own only shared storage and generated harness exposure.
+
 ### No-Default-Skills
 
 Bare install and default sync write no selected skill payloads and no skill stubs.
@@ -98,7 +100,7 @@ Shared agentics are written only when the user explicitly selects skills or late
 
 - No symlink-based default behavior.
 - No plugin runtime contract.
-- No Run Playbook contract.
+- No Run Playbook contract in this shared-agentics PRD; [29-revise-playbook-contract-run-playbook.md](29-revise-playbook-contract-run-playbook.md) owns that contract.
 - No MCP write surface.
 - No bundled-local versus remote-fetch skills delivery decision.
 - No automatic selected skill or plugin installation.
@@ -137,6 +139,9 @@ Shared agentics are written only when the user explicitly selects skills or late
 - [18 Revise Compatibility Audit and Migration Disposition](18-revise-compatibility-audit-and-migration-disposition.md)
 - [21 Revise Tool Directory System Custom Resource Tiers](21-revise-tool-directory-system-custom-resource-tiers.md)
 - [27 Revise Skill Purpose Registry Alternate Skills Manifest](27-revise-skill-purpose-registry-alternate-skills-manifest.md)
+- [29 Revise Playbook Contract Run Playbook](29-revise-playbook-contract-run-playbook.md)
+- [../designs/2026-06-20-playbook-contract-and-run-playbook.md](../designs/2026-06-20-playbook-contract-and-run-playbook.md)
+- [../plans/2026-06-23-w18-r1-playbook-contract-run-playbook/00-overview.md](../plans/2026-06-23-w18-r1-playbook-contract-run-playbook/00-overview.md)
 - `packages/cli/src/skill-catalog.ts`
 - `packages/cli/src/manifest.ts`
 - `packages/cli/src/planner.ts`

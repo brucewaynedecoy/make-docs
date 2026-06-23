@@ -24,6 +24,7 @@ The CLI no longer dynamically renders scaffold documents. What is in `packages/d
 - Enhanced by [22-revise-new-docs-assets-playbooks-persona-model.md](./22-revise-new-docs-assets-playbooks-persona-model.md) for future reader-facing guide/playbook defaults. Shipped guides and playbooks live under `docs/assets/{guides,playbooks}/`, use `persona` frontmatter as the machine-readable audience target, and still follow template-first authoring before dogfood reseeding or package copy.
 - Enhanced by [23-revise-generated-metadata-lifecycle-handoffs.md](./23-revise-generated-metadata-lifecycle-handoffs.md) for generated metadata. Future generated templates must carry common `title`, `kind`, and `status` frontmatter plus conditional metadata such as `follow_on`, `source`, `lifecycle`, `coordinate`, and `persona` when applicable.
 - Enhanced by [24-revise-configuration-convention-overlay.md](./24-revise-configuration-convention-overlay.md) for future config templates and generated prose defaults. Any default config template starts in the template source, and generated prose may use configured labels only while preserving canonical metadata and required body contracts.
+- Enhanced by [29-revise-playbook-contract-run-playbook.md](./29-revise-playbook-contract-run-playbook.md) for shipped playbook defaults. Template-owned playbooks must use `docs/assets/playbooks/<persona-slug>/<playbook-slug>.md`, required playbook frontmatter, and build/run stack metadata when they are shipped through the static template pipeline.
 
 - The physical source of truth is `packages/docs/template/`. Root instructions live at `packages/docs/template/AGENTS.md` and `packages/docs/template/CLAUDE.md`; docs routers and resource routers live under `packages/docs/template/docs/**`; authoritative contracts and templates live under `packages/docs/template/docs/assets/references/*.md` and `packages/docs/template/docs/assets/templates/*.md`.
 - Install profile resolution starts in `packages/cli/src/profile.ts`, where `prd` depends on `plans` and `work` depends on both `plans` and `prd`. `defaultSelections()` enables documentation capabilities and harnesses but disables skills by default.
@@ -45,6 +46,7 @@ The CLI no longer dynamically renders scaffold documents. What is in `packages/d
 - Enhanced by [22-revise-new-docs-assets-playbooks-persona-model.md](./22-revise-new-docs-assets-playbooks-persona-model.md) for reader-facing asset placement. `docs/assets/**` is narrowed to guides and playbooks as reusable reader-facing docs assets; archive moves toward `docs/archive/**`, and tool resources remain governed by PRD 21.
 - Enhanced by [23-revise-generated-metadata-lifecycle-handoffs.md](./23-revise-generated-metadata-lifecycle-handoffs.md) for generated template metadata and handoff rendering. Template changes must preserve YAML as the canonical machine-readable layer while keeping required body sections for readers.
 - Enhanced by [24-revise-configuration-convention-overlay.md](./24-revise-configuration-convention-overlay.md) for configuration rendering. Template selection and package copy remain canonical path operations; config may affect display labels in generated text but must not generate alternate schemas, filenames, or frontmatter keys.
+- Enhanced by [29-revise-playbook-contract-run-playbook.md](./29-revise-playbook-contract-run-playbook.md) for playbook contract validation. Static template validation must fail or report drift when shipped playbooks have missing minimum frontmatter, invalid `kind`, invalid `persona`, path/persona mismatch, invalid `stack`, or incomplete body contract sections.
 
 - Template content is authoritative. If a scaffold document needs different text, edit `packages/docs/template/` first, re-seed `packages/cli/template/`, and then dogfood the same template-owned file into repo-root `docs/` when appropriate.
 - Install selections are path selection only. Capabilities and harnesses may include or exclude template files, but they must not generate alternate file bodies.
@@ -96,3 +98,6 @@ The CLI no longer dynamically renders scaffold documents. What is in `packages/d
 - `docs/prd/22-revise-new-docs-assets-playbooks-persona-model.md`
 - `docs/prd/23-revise-generated-metadata-lifecycle-handoffs.md`
 - `docs/prd/24-revise-configuration-convention-overlay.md`
+- `docs/prd/29-revise-playbook-contract-run-playbook.md`
+- `docs/designs/2026-06-20-playbook-contract-and-run-playbook.md`
+- `docs/plans/2026-06-23-w18-r1-playbook-contract-run-playbook/00-overview.md`

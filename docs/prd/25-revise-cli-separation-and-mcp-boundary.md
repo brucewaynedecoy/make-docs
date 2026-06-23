@@ -83,6 +83,8 @@ Skills that currently depend on standalone scripts must be rewritten in the same
 
 [28-revise-shared-agentics-installation-harness-redirection.md](28-revise-shared-agentics-installation-harness-redirection.md) supplies the selected-agentics store and harness exposure primitive that future MCP or plugin surfaces must reuse. Discovery, dry-run planning, and installed-state inspection can read manifest ownership records and generated stubs without a live CLI process, but deterministic writes still delegate to CLI/shared-core operations.
 
+[29-revise-playbook-contract-run-playbook.md](29-revise-playbook-contract-run-playbook.md) supplies the generic Run Playbook execution model that future CLI, MCP, plugin, skill, or agent surfaces must reuse. MCP tools may inspect, validate, select, and dry-run playbooks under the read-first/plan-first surface, but writes or unattended execution still require a later permission and parity plan.
+
 ## Non-Requirements
 
 - No immediate Rust implementation.
@@ -102,6 +104,7 @@ Skills that currently depend on standalone scripts must be rewritten in the same
 - [21 Revise Tool Directory System Custom Resource Tiers](21-revise-tool-directory-system-custom-resource-tiers.md)
 - [24 Revise Configuration Convention Overlay](24-revise-configuration-convention-overlay.md)
 - [28 Revise Shared Agentics Installation Harness Redirection](28-revise-shared-agentics-installation-harness-redirection.md)
+- [29 Revise Playbook Contract Run Playbook](29-revise-playbook-contract-run-playbook.md)
 
 ## Acceptance Criteria
 
@@ -127,8 +130,11 @@ Skills that currently depend on standalone scripts must be rewritten in the same
 - [26 Revise No-Scripts Migration Skill Refactor](26-revise-no-scripts-migration-skill-refactor.md)
 - [27 Revise Skill Purpose Registry Alternate Skills Manifest](27-revise-skill-purpose-registry-alternate-skills-manifest.md)
 - [28 Revise Shared Agentics Installation Harness Redirection](28-revise-shared-agentics-installation-harness-redirection.md)
+- [29 Revise Playbook Contract Run Playbook](29-revise-playbook-contract-run-playbook.md)
 - [../designs/2026-06-20-shared-agentics-installation-and-harness-redirection.md](../designs/2026-06-20-shared-agentics-installation-and-harness-redirection.md)
 - [../plans/2026-06-23-w17-r2-shared-agentics-installation-harness-redirection/00-overview.md](../plans/2026-06-23-w17-r2-shared-agentics-installation-harness-redirection/00-overview.md)
+- [../designs/2026-06-20-playbook-contract-and-run-playbook.md](../designs/2026-06-20-playbook-contract-and-run-playbook.md)
+- [../plans/2026-06-23-w18-r1-playbook-contract-run-playbook/00-overview.md](../plans/2026-06-23-w18-r1-playbook-contract-run-playbook/00-overview.md)
 - `packages/cli/src/cli.ts`
 - `packages/cli/src/profile.ts`
 - `packages/cli/src/manifest.ts`

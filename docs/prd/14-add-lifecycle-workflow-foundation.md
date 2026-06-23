@@ -23,6 +23,7 @@ surface.
 - Revised by [23-revise-generated-metadata-lifecycle-handoffs.md](./23-revise-generated-metadata-lifecycle-handoffs.md): generated lifecycle handoffs should carry `follow_on` frontmatter as tooling authority while preserving body `## Intended Follow-On` sections for readers.
 - Revised by [24-revise-configuration-convention-overlay.md](./24-revise-configuration-convention-overlay.md): lifecycle labels may be rendered with project-specific presentation text, but lifecycle routes, handoff fields, departure slugs, and W/R/P lineage remain canonical.
 - Revised by [26-revise-no-scripts-migration-skill-refactor.md](./26-revise-no-scripts-migration-skill-refactor.md): the deferred closeout/work skill refactor must move deterministic lifecycle helpers into CLI/shared-core operations and rewrite affected first-party skills in the same migration window before standalone scripts are removed or downgraded.
+- Revised by [29-revise-playbook-contract-run-playbook.md](./29-revise-playbook-contract-run-playbook.md): persona-scoped playbooks now have a v2 content contract under `docs/assets/playbooks/**`, a required build/run stack discriminator, and a generic Run Playbook model that does not require every lifecycle playbook to become a plugin.
 
 ## Capability Addition or Enhancement
 
@@ -113,5 +114,8 @@ verbs apply.
 - `docs/prd/23-revise-generated-metadata-lifecycle-handoffs.md`
 - `docs/prd/24-revise-configuration-convention-overlay.md`
 - `docs/prd/26-revise-no-scripts-migration-skill-refactor.md`
+- `docs/prd/29-revise-playbook-contract-run-playbook.md`
 - `docs/designs/2026-06-20-no-scripts-migration-and-skill-refactor.md`
+- `docs/designs/2026-06-20-playbook-contract-and-run-playbook.md`
 - `docs/plans/2026-06-23-w16-r3-no-scripts-migration-skill-refactor/00-overview.md`
+- `docs/plans/2026-06-23-w18-r1-playbook-contract-run-playbook/00-overview.md`
