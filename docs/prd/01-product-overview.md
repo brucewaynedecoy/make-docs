@@ -32,6 +32,10 @@ The product deliberately separates authoring assets from installed runtime state
 
 Out of scope, the product does not currently publish `packages/docs`, `packages/skills`, or `packages/content` as standalone packages (`packages/docs/package.json:2-5`, `packages/skills/package.json:2-5`, `packages/content/package.json:2-5`), does not automate dogfood re-seeding (`packages/docs/README.md:103-121`), does not define a live rendered-fragment pipeline for `packages/content/` despite reserving it in `README.md:10-17`, and does not guarantee offline skill installs because skill payload resolution currently depends on remote URLs in `packages/cli/src/skill-registry.ts:79-84` and `packages/cli/src/skill-resolver.ts:118-244`.
 
+### Change Notes
+
+- Superseded by [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md) for v2 product/package identity and deployment ownership: `make-docs`, `Make Docs`, and `MakeDocs` remain the active names; the root workspace remains private; TypeScript npm and future Rust distributions expose one `make-docs` command.
+
 ## Current Limitations
 
 - The UI and CLI expose `required` versus `all` modes for templates and references in `packages/cli/src/wizard.ts:93-104` and `packages/cli/src/wizard.ts:838-888`, but the current selector logic in `packages/cli/src/rules.ts:130-182` only adds one extra reference for `referencesMode === "all"` and does not branch on `templatesMode` at all. The product surface promises more granularity than the live asset selector currently enforces.
@@ -39,6 +43,10 @@ Out of scope, the product does not currently publish `packages/docs`, `packages/
 - Dogfood freshness is manual by design. `packages/docs/README.md:86-121` requires contributors to copy updated template-owned files back into repo-root `docs/`, but there is no automated freshness check that proves `docs/assets/**` still mirrors `packages/docs/template/docs/assets/**` after template edits.
 - Package-surface documentation is currently inconsistent with the actual tarball allowlist. The live `files` set in `packages/cli/package.json:9-15` ships `dist`, `template`, the registry files, and `README.md`, while the maintainer and packaged READMEs still describe older package contents in `packages/cli/src/README.md:179-204` and `packages/cli/README.md:91-120`.
 - `packages/content/` remains a reserved future capability rather than an active subsystem. It is described in `README.md:10-17` and `packages/content/package.json:2-5`, but the current template resolver in `packages/cli/src/utils.ts` and static asset catalog in `packages/cli/src/catalog.ts` do not consume it.
+
+### Change Notes
+
+- Superseded by [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md) for stale rename limitations: no broad v2 product rename or default command alias work is active, and Q-008 is closed in favor of the stable `make-docs` / `Make Docs` / `MakeDocs` identity.
 
 ## Source Anchors
 

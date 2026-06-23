@@ -35,6 +35,10 @@ The third boundary is project scope versus home scope for skills. Documentation 
 
 The fourth boundary is canonical managed content versus local user modifications. The planner trusts manifest hashes and canonical skill content when deciding whether a file is safe to update or remove in `packages/cli/src/planner.ts:77-139`, `packages/cli/src/planner.ts:142-189`, and `packages/cli/src/planner.ts:308-390`. When that proof fails, the architecture preserves local edits and moves generated replacements into conflict staging instead of overwriting them (`packages/cli/src/install.ts:212-223`).
 
+### Change Notes
+
+- Enhanced by [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md) for deployment ownership and shared runtime contracts. The TypeScript npm package remains the npm/`npx` source of truth for install, manifest, audit, backup, uninstall, conflict, and skills-selection behavior until a Rust parity plan lands; the future Rust distribution must expose the same `make-docs` command and share manifest, provenance, audit, and version-disclosure contracts.
+
 ## Data Flow
 
 1. Command ingestion: `packages/cli/src/index.ts:1-7` invokes `runCli()`, `packages/cli/src/cli.ts:455-723` parses argv, validates command-specific flags, loads the current manifest with `packages/cli/src/manifest.ts:26-38`, and decides whether the run is apply, reconfigure, skills, backup, or uninstall.

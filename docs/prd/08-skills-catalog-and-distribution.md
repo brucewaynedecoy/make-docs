@@ -58,6 +58,7 @@ Code anchors:
 ### Change Notes
 
 - Superseded by [12-revise-cli-skill-selection-simplification.md](./12-revise-cli-skill-selection-simplification.md) for the `required` registry field, `optionalSkills` persisted-selection model, and selected-by-default behavior. The effective requirement is an explicit selected-skill set over all registry entries.
+- Enhanced by [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md) for the package-boundary effect on skills delivery. Bare installs keep no-default-skills behavior while Rust parity is pending, but remote-fetch versus bundled-local delivery and remote-source integrity remain open under Q-001 and Q-007.
 
 The skills subsystem hangs off the shared install contract in `packages/cli/src/types.ts:31`. `InstallSelections` carries `harnesses`, `skills`, `skillScope`, and `selectedSkills`, and the skills command mutates only that subset in `packages/cli/src/skills-command.ts:152` and `packages/cli/src/skills-ui.ts:280`. The skill-specific UI state mirrors that reduced surface in `packages/cli/src/skills-ui.ts:28`, which keeps command execution from depending on the broader capability/prompt/template/reference state used by full installs.
 
@@ -87,6 +88,7 @@ Code anchors:
 ### Change Notes
 
 - Superseded by [12-revise-cli-skill-selection-simplification.md](./12-revise-cli-skill-selection-simplification.md) for CLI validation that only accepts formerly optional skill ids. Validation now applies to the selected-skill set over all registry skills.
+- Enhanced by [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md) for shared plugin/skill install boundaries. Long-term MCP startup ownership belongs to Rust, but shared install, per-harness exposure, and config-aware plugin routing remain unresolved under Q-012.
 
 The skills subsystem integrates directly with the main CLI parser and help system in `packages/cli/src/cli.ts`. The parser decides when the top-level command becomes `skills`, lazily loads `packages/cli/src/skills-command.ts`, and validates selected skill ids against the packaged registry before the command runs. This keeps registry contents and command-line affordances synchronized, but it also means every new skill entry changes user-facing validation behavior immediately.
 

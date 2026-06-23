@@ -10,7 +10,7 @@ The fixed-core overview layer is now present through [01 Product Overview](01-pr
 
 1. Read [01 Product Overview](01-product-overview.md) and [02 Architecture Overview](02-architecture-overview.md) first. They establish the user model, runtime zones, module map, and configuration surfaces for the rest of the set.
 2. Read [05 Installation, Profile, and Manifest Lifecycle](05-installation-profile-and-manifest-lifecycle.md), [06 Template Contracts and Generated Assets](06-template-contracts-and-generated-assets.md), [07 CLI Command Surface and Lifecycle](07-cli-command-surface-and-lifecycle.md), [08 Skills Catalog and Distribution](08-skills-catalog-and-distribution.md), [09 Dogfood and Maintainer Operations](09-dogfood-and-maintainer-operations.md), and [10 Packaging, Validation, and Release Reference](10-packaging-validation-and-release-reference.md) in that order. That sequence follows the live dependency chain from `packages/cli/src/profile.ts:10-99` and `packages/cli/src/manifest.ts:18-245` into `packages/cli/src/catalog.ts:64-85`, `packages/cli/src/cli.ts:77-244`, `packages/cli/src/skill-catalog.ts:33-138`, `packages/cli/src/utils.ts:33-55`, and `scripts/smoke-pack.mjs:60-246`.
-3. Read [11 Revise CLI Asset Selection Simplification](11-revise-cli-asset-selection-simplification.md), [12 Revise CLI Skill Selection Simplification](12-revise-cli-skill-selection-simplification.md), [13 Revise CLI Conflict Resolution](13-revise-cli-conflict-resolution.md), and [15 Revise Agent Instruction File Ownership](15-revise-agent-instruction-file-ownership.md) after the baseline subsystem docs. They carry the active revisions for invariant prompt/template/reference assets, optional explicit skill selection, batch-first managed-file conflict review, and block-scoped agent instruction ownership.
+3. Read [11 Revise CLI Asset Selection Simplification](11-revise-cli-asset-selection-simplification.md), [12 Revise CLI Skill Selection Simplification](12-revise-cli-skill-selection-simplification.md), [13 Revise CLI Conflict Resolution](13-revise-cli-conflict-resolution.md), [15 Revise Agent Instruction File Ownership](15-revise-agent-instruction-file-ownership.md), and [16 Revise Package and Deployment Boundaries](16-revise-package-and-deployment-boundaries.md) after the baseline subsystem docs. They carry the active revisions for invariant prompt/template/reference assets, optional explicit skill selection, batch-first managed-file conflict review, block-scoped agent instruction ownership, and stable package/deployment ownership across TypeScript npm and future Rust distributions.
 4. Read [03 Open Questions and Risk Register](03-open-questions-and-risk-register.md) after the subsystem docs to see where the current implementation and the current documentation still diverge, especially around `packages/cli/src/rules.ts:130-194`, `packages/cli/src/skill-resolver.ts:40-226`, and `packages/cli/package.json:9-25`.
 5. Use [04 Glossary](04-glossary.md) whenever a term comes from the typed install, asset, skills, or lifecycle contracts in `packages/cli/src/types.ts:38-271`.
 6. Use the paired backlog at [docs/assets/archive/work/2026-04-23-w12-r0-make-docs-prd-decomposition/00-index.md](../assets/archive/work/2026-04-23-w12-r0-make-docs-prd-decomposition/00-index.md) when you need dependency-ordered implementation work rather than descriptive product context.
@@ -35,6 +35,7 @@ The fixed-core overview layer is now present through [01 Product Overview](01-pr
 | `13` | Current | [13-revise-cli-conflict-resolution.md](13-revise-cli-conflict-resolution.md) | Revision making selected managed-file diffs, including instructions, prompts, references, templates, desired skill assets, and generic selected managed files, use batch-first overwrite/skip conflict review. |
 | `14` | Current | [14-add-lifecycle-workflow-foundation.md](14-add-lifecycle-workflow-foundation.md) | Addition: the lifecycle workflow foundation — coverage-pass contract, always-read lifecycle anchor, persona-scoped playbook output type, stage follow-on handoffs, and an optional `docs/artifacts/` seed. |
 | `15` | Current | [15-revise-agent-instruction-file-ownership.md](15-revise-agent-instruction-file-ownership.md) | Revision: replaces whole-file overwrite/skip ownership of agent instruction files with a delimited managed-block inline-routing model that preserves user and project-specific content. |
+| `16` | Current | [16-revise-package-and-deployment-boundaries.md](16-revise-package-and-deployment-boundaries.md) | Revision: fixes stable v2 product identity, TypeScript npm ownership, future Rust distribution ownership, one `make-docs` command, no default aliases, MCP startup ownership, and shared package/audit/manifest contracts. |
 
 ## Source Anchors
 
@@ -46,6 +47,9 @@ The fixed-core overview layer is now present through [01 Product Overview](01-pr
 - `docs/prd/11-revise-cli-asset-selection-simplification.md`
 - `docs/prd/12-revise-cli-skill-selection-simplification.md`
 - `docs/prd/13-revise-cli-conflict-resolution.md`
+- `docs/prd/16-revise-package-and-deployment-boundaries.md`
+- `docs/designs/2026-06-19-package-and-deployment-boundaries.md`
+- `docs/plans/2026-06-23-w10-r1-package-and-deployment-boundaries/00-overview.md`
 - `packages/cli/src/cli.ts:77-244`
 - `packages/cli/src/profile.ts:10-99`
 - `packages/cli/src/manifest.ts:18-245`
@@ -61,7 +65,7 @@ The fixed-core overview layer is now present through [01 Product Overview](01-pr
 
 ### Maintainer or Release Owner
 
-Start with [01 Product Overview](01-product-overview.md), then [09 Dogfood and Maintainer Operations](09-dogfood-and-maintainer-operations.md), then [10 Packaging, Validation, and Release Reference](10-packaging-validation-and-release-reference.md). Those docs explain why repo-root `docs/` and the release surface are product behavior, not side chores, via `packages/docs/README.md:86-121`, `packages/cli/src/utils.ts:33-55`, `packages/cli/package.json:9-25`, and `scripts/smoke-pack.mjs:60-246`.
+Start with [01 Product Overview](01-product-overview.md), then [09 Dogfood and Maintainer Operations](09-dogfood-and-maintainer-operations.md), [10 Packaging, Validation, and Release Reference](10-packaging-validation-and-release-reference.md), and [16 Revise Package and Deployment Boundaries](16-revise-package-and-deployment-boundaries.md). Those docs explain why repo-root `docs/` and the release surface are product behavior, not side chores, via `packages/docs/README.md:86-121`, `packages/cli/src/utils.ts:33-55`, `packages/cli/package.json:9-25`, and `scripts/smoke-pack.mjs:60-246`.
 
 ### New Contributor
 
@@ -69,8 +73,14 @@ Start with [01 Product Overview](01-product-overview.md) and [02 Architecture Ov
 
 ### Product or Technical Lead
 
-Read [01 Product Overview](01-product-overview.md) and [02 Architecture Overview](02-architecture-overview.md) first, then [03 Open Questions and Risk Register](03-open-questions-and-risk-register.md), [05](05-installation-profile-and-manifest-lifecycle.md), [06](06-template-contracts-and-generated-assets.md), [08](08-skills-catalog-and-distribution.md), [10](10-packaging-validation-and-release-reference.md), [11](11-revise-cli-asset-selection-simplification.md), and [12](12-revise-cli-skill-selection-simplification.md). Those docs concentrate the open contract choices around template modes, skills delivery, `packages/content`, release readiness, and the W14 simplifications.
+Read [01 Product Overview](01-product-overview.md) and [02 Architecture Overview](02-architecture-overview.md) first, then [03 Open Questions and Risk Register](03-open-questions-and-risk-register.md), [05](05-installation-profile-and-manifest-lifecycle.md), [06](06-template-contracts-and-generated-assets.md), [08](08-skills-catalog-and-distribution.md), [10](10-packaging-validation-and-release-reference.md), [11](11-revise-cli-asset-selection-simplification.md), [12](12-revise-cli-skill-selection-simplification.md), and [16](16-revise-package-and-deployment-boundaries.md). Those docs concentrate the open contract choices around template modes, skills delivery, `packages/content`, release readiness, W14 simplifications, and v2 package/deployment ownership.
 
 ### AI Coding Assistant
 
-Use [04 Glossary](04-glossary.md) first, then read [01](01-product-overview.md), [02](02-architecture-overview.md), and [05](05-installation-profile-and-manifest-lifecycle.md) through [10](10-packaging-validation-and-release-reference.md) in order, and finally use the paired backlog at [../assets/archive/work/2026-04-23-w12-r0-make-docs-prd-decomposition/00-index.md](../assets/archive/work/2026-04-23-w12-r0-make-docs-prd-decomposition/00-index.md) before planning edits. Do not treat repo-root `docs/`, home-scoped skills, or `packages/content` as incidental; `README.md:10-17`, `packages/cli/src/manifest.ts:135-183`, and `packages/cli/src/skill-catalog.ts:33-46` make them part of the live boundary even where the future contract is still incomplete.
+Use [04 Glossary](04-glossary.md) first, then read [01](01-product-overview.md), [02](02-architecture-overview.md), [05](05-installation-profile-and-manifest-lifecycle.md) through [10](10-packaging-validation-and-release-reference.md) in order, then [16](16-revise-package-and-deployment-boundaries.md), and finally use the paired backlog at [../assets/archive/work/2026-04-23-w12-r0-make-docs-prd-decomposition/00-index.md](../assets/archive/work/2026-04-23-w12-r0-make-docs-prd-decomposition/00-index.md) before planning edits. Do not treat repo-root `docs/`, home-scoped skills, or `packages/content` as incidental; `README.md:10-17`, `packages/cli/src/manifest.ts:135-183`, and `packages/cli/src/skill-catalog.ts:33-46` make them part of the live boundary even where the future contract is still incomplete.
+
+## Intended Follow-On
+
+- Generate or reconcile the paired delta backlog under `docs/work/2026-06-23-w10-r1-package-and-deployment-boundaries/` before implementation begins.
+- Keep package/release validation dry-run only until a separate user authorization allows registry, Homebrew, Crates, or npm publish actions.
+- Preserve active-set evolution rules for future package, compatibility, Rust, MCP, and migration changes: append new PRD change docs, annotate affected baselines, and update this index plus the living risk register.

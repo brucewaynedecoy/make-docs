@@ -59,6 +59,10 @@ Effective behavior:
 - Alpha users with older manifests or generated skill footprints should reinstall or regenerate the project so the manifest and managed skill files are produced from `selectedSkills`.
 - `skillFiles` remains managed-output ownership tracking and is not merged into `manifest.files`.
 
+### Change Notes
+
+- Enhanced by [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md) for package-boundary context. Bare installs must keep no-default-skills behavior while Rust parity is pending, and stable product identity does not add aliases or rename behavior that changes `selectedSkills` manifest semantics.
+
 Code anchors:
 
 - `packages/cli/skill-registry.json`

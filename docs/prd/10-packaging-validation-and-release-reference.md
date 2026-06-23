@@ -61,6 +61,10 @@ For a true first public release, the release state now uses Apache-2.0 licensing
 | Scoped package name is now required | The unscoped `make-docs` publish was blocked by npm's similarity guard; package metadata now uses `@brucewaynedecoy/make-docs` while preserving the `make-docs` binary. | Public docs and generated guidance must use scoped `npx @brucewaynedecoy/make-docs@next` until a future unscoped name strategy exists. |
 | Reserved future package with no release contract | `README.md:10-17` describes `packages/content/` as reserved for future content, but current package metadata and release scripts do not define how or whether it will ship. | This is a future-facing gap that can complicate later packaging and dogfood expectations. Candidate risk-register item. |
 
+### Change Notes
+
+- Enhanced by [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md) for package and release-channel boundaries. The TypeScript npm package owns npm `next` and `latest`, the npm allowlist, packed-package validation, and dry-run release checks; future Homebrew and Crates artifacts must expose the same `make-docs` command while reporting runtime/version clearly, and publish actions remain out of scope unless separately authorized.
+
 ## Source Anchors
 
 - `package.json`

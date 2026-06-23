@@ -72,7 +72,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Selected-skill category behavior is superseded by [12-revise-cli-skill-selection-simplification.md](./12-revise-cli-skill-selection-simplification.md); the delivery model decision remains open. | Decide and document the long-term skills delivery contract. |
+| Open | Selected-skill category behavior is superseded by [12-revise-cli-skill-selection-simplification.md](./12-revise-cli-skill-selection-simplification.md), and package ownership is narrowed by [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md); the delivery model decision remains open. | Decide and document the long-term skills delivery contract. |
 
 **Issue**: Runtime behavior comes from `packages/cli/src/skill-registry.ts:25-134` and `packages/cli/src/skill-resolver.ts:40-226`, which load a packaged registry and fetch skill payloads remotely; earlier design material such as `docs/assets/archive/designs/2026-04-16-cli-skill-installation.md` described bundling skill payloads into the CLI package.
 
@@ -86,7 +86,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | None yet | Update package-surface docs after confirming intended tarball contents. |
+| Open | [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md) makes `packages/cli/package.json`, packed package behavior, and smoke-pack validation authoritative for the npm package boundary. README wording still needs implementation cleanup. | Align package-surface docs with dry-run pack output and the accepted npm/Rust deployment boundary. |
 
 **Issue**: `packages/cli/package.json:9-15` ships `dist`, `template`, registry files, and `README.md`, but `packages/cli/src/README.md:181-204` and `packages/cli/README.md:91-120` still describe tarball-root `docs/`, `AGENTS.md`, and `CLAUDE.md`.
 
@@ -220,7 +220,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Selected-skill UX and the `selectedSkills` manifest requirement are superseded by [12-revise-cli-skill-selection-simplification.md](./12-revise-cli-skill-selection-simplification.md); remote delivery remains unresolved. | Choose remote-fetch, bundled-local, or dual-mode fallback. |
+| Open | Selected-skill UX and the `selectedSkills` manifest requirement are superseded by [12-revise-cli-skill-selection-simplification.md](./12-revise-cli-skill-selection-simplification.md); [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md) preserves no-default-skills and TypeScript npm ownership but does not choose remote delivery. | Choose remote-fetch, bundled-local, or dual-mode fallback. |
 
 **Question**: What is the intended long-term skills delivery contract: remote-fetch, bundled-local, or dual-mode fallback?
 
@@ -306,7 +306,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | [12-revise-cli-skill-selection-simplification.md](./12-revise-cli-skill-selection-simplification.md) resolves selected-skill UX, but remote source policy remains an unresolved delivery-security question. | Define source protocol, pinning, and integrity policy for remote skills. |
+| Open | [12-revise-cli-skill-selection-simplification.md](./12-revise-cli-skill-selection-simplification.md) resolves selected-skill UX, and [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md) constrains command/deployment ownership; remote source policy remains an unresolved delivery-security question. | Define source protocol, pinning, and integrity policy for remote skills. |
 
 **Question**: How should remote skill sources be constrained?
 
@@ -320,15 +320,17 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Rename intended; final name unresolved. | Select a name and the corresponding in-project directory rename. |
+| Closed | [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md) fixes the v2 identity as `make-docs`, `Make Docs`, and `MakeDocs`; no broad rename or default command aliases are active. | None. |
 
 **Question**: What does make-docs rename to, and what do its installed directories (currently `.make-docs/`) rename to?
 
 **Why it matters**: The name appears in the package, CLI, directories, contracts, and generated docs; the rename touches all of them and any docs authored now carry the old name.
 
-**Recommendation**: Decide the name before broad authored-surface work so the rename is a single sweep.
+**Recommendation**: Keep the stable v2 identity in new docs and implementation work; do not plan broad rename or default alias work unless a later accepted design reopens it.
 
-**To close**: A name is chosen and the package, CLI, and directory renames are scoped.
+**To close**: Closed by `docs/prd/16-revise-package-and-deployment-boundaries.md`.
+
+**Resolution**: The package/command identifier remains `make-docs`, the prose display name is `Make Docs`, and `MakeDocs` is reserved for compact contexts. `.make-docs/` remains the installed-project state directory unless a later package-ownership design changes it.
 
 ### Q-009 What Is the Persona Model Schema?
 
@@ -376,7 +378,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Shared install via a single location plus per-harness symlinks intended. | Define a cross-platform redirection model and how plugins read config relabels. |
+| Open | [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md) assigns long-term MCP startup ownership to Rust and preserves one `make-docs` command, but shared skill/plugin install and config-aware routing remain unresolved. | Define a cross-platform redirection model and how plugins read config relabels. |
 
 **Question**: How are skills and plugins installed once and exposed to each harness without duplication, and how does a plugin that guides (for example) requirements → design → plan respect a config that relabels "designs" to "ideas"?
 
@@ -450,7 +452,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Dual dev/packed resolution remains active. | Preserve smoke-pack checks for template changes. |
+| Open | Dual dev/packed resolution remains active; [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md) adds the requirement that packed npm and future Rust artifacts preserve the same command and shared contract boundaries. | Preserve smoke-pack checks for template and package-boundary changes. |
 
 **Issue**: Testing only local dev paths can miss failures that appear only after `prepack` copies the template into `packages/cli/template`.
 
@@ -492,7 +494,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Single reviewed audit snapshot remains the safety model. | Keep backup/uninstall implementation and docs aligned around one audit snapshot. |
+| Open | Single reviewed audit snapshot remains the shared safety model for the TypeScript CLI and any future Rust implementation. | Keep backup/uninstall implementation and docs aligned around one audit snapshot. |
 
 **Issue**: Re-auditing between warning, backup, and delete steps can invalidate what the user already approved and break the current safety model.
 
@@ -604,7 +606,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Move deterministic logic into the CLI; sequence the skill refactor into the same wave. | Avoid rewriting skills to cite the contract before the CLI provides their logic. |
+| Open | Move deterministic logic into the CLI without stranding skills between TypeScript and future Rust ownership; sequence the skill refactor into the same wave. | Avoid rewriting skills to cite the contract before the CLI provides their logic. |
 
 **Issue**: Moving all script logic into the CLI while skills still reference standalone scripts creates a window where skills could break.
 
@@ -619,6 +621,9 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 - `README.md:6-46`
 - `docs/prd/01-product-overview.md`
 - `docs/prd/02-architecture-overview.md`
+- `docs/prd/16-revise-package-and-deployment-boundaries.md`
+- `docs/designs/2026-06-19-package-and-deployment-boundaries.md`
+- `docs/plans/2026-06-23-w10-r1-package-and-deployment-boundaries/00-overview.md`
 - `packages/docs/README.md:50-121`
 - `packages/skills/README.md`
 - `packages/cli/package.json:9-25`
