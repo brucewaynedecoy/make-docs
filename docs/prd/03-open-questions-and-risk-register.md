@@ -30,13 +30,13 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | None yet | Audit public command docs against the live parser and help output. |
+| Open | [25-revise-cli-separation-and-mcp-boundary.md](./25-revise-cli-separation-and-mcp-boundary.md) preserves the installer-first `npx` posture, meaningful no-command install/sync behavior, accepted lifecycle commands, and removed command rejections; public docs still need implementation cleanup. | Audit public command docs against the live parser, help output, and future runtime/version disclosure language. |
 
 **Issue**: `packages/cli/src/cli.ts:894-1019` exposes `skills`, `backup`, and `uninstall`, while `README.md:73`, `packages/cli/README.md:56`, and older docs still frame the product mostly as install/reconfigure/dry-run and still discuss removed `init` or `update` paths rejected by `packages/cli/src/cli.ts:589-612`.
 
 **Why it matters**: Operator docs and design lineage can point people toward commands the parser no longer accepts.
 
-**Recommendation**: Bring public docs and package README command examples in line with the no-command install flow and explicit lifecycle commands.
+**Recommendation**: Bring public docs and package README command examples in line with the no-command install flow, explicit lifecycle commands, and CLI/MCP boundary wording.
 
 **To close**: Public command docs only describe accepted command paths or clearly label archived command history as historical.
 
@@ -72,7 +72,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Selected-skill category behavior is superseded by [12-revise-cli-skill-selection-simplification.md](./12-revise-cli-skill-selection-simplification.md); the delivery model decision remains open. | Decide and document the long-term skills delivery contract. |
+| Open | Selected-skill category behavior is superseded by [12-revise-cli-skill-selection-simplification.md](./12-revise-cli-skill-selection-simplification.md), package ownership is narrowed by [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md), skills are explicitly outside the system asset modes in [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md), [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) permits preserving selected skills during migration only when manifest/file evidence is trustworthy, [26-revise-no-scripts-migration-skill-refactor.md](./26-revise-no-scripts-migration-skill-refactor.md) requires deterministic first-party skill behavior to be available from the CLI package/shared-core boundary rather than only remote or skill-local script payloads, [27-revise-skill-purpose-registry-alternate-skills-manifest.md](./27-revise-skill-purpose-registry-alternate-skills-manifest.md) defines purpose metadata and alternate-manifest source policy without choosing bundled-local versus remote-fetch delivery, [28-revise-shared-agentics-installation-harness-redirection.md](./28-revise-shared-agentics-installation-harness-redirection.md) decides shared local placement and generated harness exposure without choosing bundled-local versus remote-fetch delivery, and [30-revise-harness-plugin-substrate-workflow-bundles.md](./30-revise-harness-plugin-substrate-workflow-bundles.md) adds plugin source/provenance/trust metadata without choosing skills delivery; the skills delivery model decision remains open. | Decide and document the long-term skills delivery contract. |
 
 **Issue**: Runtime behavior comes from `packages/cli/src/skill-registry.ts:25-134` and `packages/cli/src/skill-resolver.ts:40-226`, which load a packaged registry and fetch skill payloads remotely; earlier design material such as `docs/assets/archive/designs/2026-04-16-cli-skill-installation.md` described bundling skill payloads into the CLI package.
 
@@ -86,7 +86,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | None yet | Update package-surface docs after confirming intended tarball contents. |
+| Open | [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md) makes `packages/cli/package.json`, packed package behavior, and smoke-pack validation authoritative for the npm package boundary; [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md) keeps full-snapshot package validation as the default system asset proof; [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) adds migration/classification docs to the package-facing safety surface; [19-revise-template-package-dogfood-source-of-truth-contract.md](./19-revise-template-package-dogfood-source-of-truth-contract.md) makes generated `packages/cli/template/` and source-of-truth wording part of the package surface; [25-revise-cli-separation-and-mcp-boundary.md](./25-revise-cli-separation-and-mcp-boundary.md) adds installer-first `npx`, dual-runtime disclosure, and MCP parity constraints to that surface. README wording still needs implementation cleanup. | Align package-surface docs with dry-run pack output and the accepted npm/Rust deployment, system asset materialization, compatibility migration, template/package source-of-truth, CLI/MCP boundary, and runtime/version output requirements. |
 
 **Issue**: `packages/cli/package.json:9-15` ships `dist`, `template`, registry files, and `README.md`, but `packages/cli/src/README.md:181-204` and `packages/cli/README.md:91-120` still describe tarball-root `docs/`, `AGENTS.md`, and `CLAUDE.md`.
 
@@ -100,7 +100,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Manual re-seeding remains intentional for now. | Add or improve parity checks that prove dogfood freshness without removing reviewability. |
+| Open | Manual re-seeding remains intentional for now; [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) requires existing dogfood/template installs to be classified by ownership evidence rather than path alone; [19-revise-template-package-dogfood-source-of-truth-contract.md](./19-revise-template-package-dogfood-source-of-truth-contract.md) requires targeted parity checks for files expected to match exactly; [20-revise-agent-harness-model-conformance-lab.md](./20-revise-agent-harness-model-conformance-lab.md) may use dogfood freshness as scenario evidence without replacing parity checks; [21-revise-tool-directory-system-custom-resource-tiers.md](./21-revise-tool-directory-system-custom-resource-tiers.md) adds `.make-docs/**` tool resources to future dogfood proof; [22-revise-new-docs-assets-playbooks-persona-model.md](./22-revise-new-docs-assets-playbooks-persona-model.md) adds reader-facing guide/playbook parity and archive-migration proof. | Add or improve parity, migration-classifier, conformance scenario, tool-directory, reader-facing asset, and archive checks that prove dogfood freshness without removing reviewability. |
 
 **Issue**: `packages/docs/README.md:86-121` makes manual re-seeding an intentional maintainer workflow, but no automated check proves repo-root `docs/assets/**` still matches `packages/docs/template/docs/assets/**` after template edits.
 
@@ -114,7 +114,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | None yet | Add clearer historical disclaimers or repair active links that imply hidden-dot paths are live. |
+| Open | [21-revise-tool-directory-system-custom-resource-tiers.md](./21-revise-tool-directory-system-custom-resource-tiers.md) makes `.make-docs/**` the explicit tool directory and keeps historical `docs/.references/`, `docs/.templates/`, and `docs/assets/config/manifest.json` paths non-current. | Add clearer historical disclaimers or repair active links that imply hidden-dot paths are live. |
 
 **Issue**: Current state lives under `docs/assets/**` and root `.make-docs/**` per `README.md:16-46` and `packages/cli/src/manifest.ts:18-20`, yet migration docs still refer to `docs/.references/`, `docs/.templates/`, and `docs/assets/config/manifest.json`.
 
@@ -188,21 +188,21 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Confirming | Reconciliation notes added to both designs; a fuller Sense-B playbook design is still pending. | Author the persona-scoped playbook design; verify the coverage-pass design matches the deferred skill scope. |
+| Closed | [22-revise-new-docs-assets-playbooks-persona-model.md](./22-revise-new-docs-assets-playbooks-persona-model.md), [29-revise-playbook-contract-run-playbook.md](./29-revise-playbook-contract-run-playbook.md), and [31-revise-coverage-pass-extensions-adversarial-review.md](./31-revise-coverage-pass-extensions-adversarial-review.md) reconcile the drift: playbooks are persona-scoped content, deferred skills remain outside the base coverage-pass contract, and adversarial review is optional coverage-pass behavior rather than a mandatory gate or default shipped surface. | No design-doc drift follow-up remains; implement the selected backlogs and keep any future coverage-pass extension reconciled through PRD 31. |
 
-**Issue**: The lifecycle-playbook design still frames a playbook as a single operating manual rather than a persona-scoped output type, and the coverage-pass design lists the four-skill refactor as active rather than deferred.
+**Issue**: The lifecycle-playbook design previously framed a playbook as a single operating manual rather than a persona-scoped output type, and the coverage-pass design listed the four-skill refactor as active rather than deferred.
 
 **Why it matters**: Design docs carry rationale; if they contradict the active plan, contributors inherit the wrong intent.
 
-**Recommendation**: Keep the dated reconciliation notes and produce the persona-scoped playbook design as part of the playbook work.
+**Recommendation**: Keep the dated reconciliation notes and use the accepted persona, playbook, and optional adversarial-review PRDs as the active authority for future implementation.
 
-**To close**: Both designs agree with the current plan and the persona-scoped playbook framing.
+**To close**: Closed by PRD 22, PRD 29, and PRD 31.
 
 ### D-014 W16 R0 Product Assets Authored in the Dogfood Instead of the Template Source
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Closed | W16 R0 product assets were authored in repo-root dogfood `docs/` instead of `packages/docs/template/docs/`; resolved by reverse-seeding the template from the dogfood and restoring parity. | Sync `.make-docs/manifest.json` via reconfigure to track the newly managed template assets. |
+| Closed | W16 R0 product assets were authored in repo-root dogfood `docs/` instead of `packages/docs/template/docs/`; resolved by reverse-seeding the template from the dogfood and restoring parity. [19-revise-template-package-dogfood-source-of-truth-contract.md](./19-revise-template-package-dogfood-source-of-truth-contract.md) makes the template-first correction an active v2 requirement, PRD 21 applies the same source-of-truth rule to future `.make-docs/**` tool resources, PRD 22 applies it to future shipped reader-facing guide/playbook defaults, PRD 24 applies it to any future default config template, and PRD 31 applies it to any future shipped adversarial-review prompt, reference, playbook, starter, plugin, CLI, MCP, or conformance asset. | Sync `.make-docs/manifest.json` via reconfigure to track the newly managed template assets and preserve template-first authoring for future reader-facing, default config, and adversarial-review assets. |
 
 **Issue**: The W16 R0 plan and work backlog specified building product assets (the coverage-pass contract, `lifecycle.md`, router/contract/template edits, starter prompts, and the artifacts router) directly in repo-root `docs/`. The implementing agent followed those paths, so the source-of-truth template `packages/docs/template/docs/**` was left missing assets that existed only in the dogfood — the dogfood/template parity gap D-007 warns about.
 
@@ -220,7 +220,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Selected-skill UX and the `selectedSkills` manifest requirement are superseded by [12-revise-cli-skill-selection-simplification.md](./12-revise-cli-skill-selection-simplification.md); remote delivery remains unresolved. | Choose remote-fetch, bundled-local, or dual-mode fallback. |
+| Open | Selected-skill UX and the `selectedSkills` manifest requirement are superseded by [12-revise-cli-skill-selection-simplification.md](./12-revise-cli-skill-selection-simplification.md); [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md) preserves no-default-skills and TypeScript npm ownership; [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md) clarifies that skills are not system assets; [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) prevents migration from silently expanding `selectedSkills` or installing skills by default; [26-revise-no-scripts-migration-skill-refactor.md](./26-revise-no-scripts-migration-skill-refactor.md) prevents deterministic first-party skill behavior from depending only on remote or skill-local script payloads; [27-revise-skill-purpose-registry-alternate-skills-manifest.md](./27-revise-skill-purpose-registry-alternate-skills-manifest.md) adds purpose-led metadata and effective-manifest selection while preserving resolved `selectedSkills`; [28-revise-shared-agentics-installation-harness-redirection.md](./28-revise-shared-agentics-installation-harness-redirection.md) chooses shared local payload placement plus generated harness stubs for selected agentics; [30-revise-harness-plugin-substrate-workflow-bundles.md](./30-revise-harness-plugin-substrate-workflow-bundles.md) keeps plugin selection explicit and separate from skill selection. It still does not choose remote skill delivery. | Choose remote-fetch, bundled-local, or dual-mode fallback for skills. |
 
 **Question**: What is the intended long-term skills delivery contract: remote-fetch, bundled-local, or dual-mode fallback?
 
@@ -276,7 +276,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Manual re-seeding remains intentional for now. | Add contract-level parity checks for dogfood/template drift. |
+| Open | Manual re-seeding remains intentional for now; compatibility migration must classify repo-root dogfood and template state conservatively when ownership is not trustworthy; PRD 19 requires reviewed reseeding plus targeted dogfood/template parity checks; PRD 22 extends the proof surface to reader-facing guide/playbook defaults and archive migration. | Add contract-level parity checks for dogfood/template drift, reader-facing guide/playbook parity, archive migration, and migration classifier coverage. |
 
 **Question**: How should maintainers prove dogfood freshness if manual re-seeding remains the chosen workflow?
 
@@ -306,7 +306,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | [12-revise-cli-skill-selection-simplification.md](./12-revise-cli-skill-selection-simplification.md) resolves selected-skill UX, but remote source policy remains an unresolved delivery-security question. | Define source protocol, pinning, and integrity policy for remote skills. |
+| Open | [12-revise-cli-skill-selection-simplification.md](./12-revise-cli-skill-selection-simplification.md) resolves selected-skill UX, [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md) constrains command/deployment ownership, [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md) defers remote system asset providers until protocol, pinning, caching, trust, and confirmation policy are resolved, [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) requires provider/cache evidence before provider-backed or hybrid installs classify as clean, [20-revise-agent-harness-model-conformance-lab.md](./20-revise-agent-harness-model-conformance-lab.md) treats provider-routed model results as evidence for that tuple only, PRD 21 reserves `.make-docs/agentics/` without deciding remote delivery, [26-revise-no-scripts-migration-skill-refactor.md](./26-revise-no-scripts-migration-skill-refactor.md) prevents remote skill sources from being the only executable source for deterministic first-party logic, [27-revise-skill-purpose-registry-alternate-skills-manifest.md](./27-revise-skill-purpose-registry-alternate-skills-manifest.md) rejects unpinned remote alternate manifests and unpinned remote skill payloads before installation, [28-revise-shared-agentics-installation-harness-redirection.md](./28-revise-shared-agentics-installation-harness-redirection.md) requires source provenance, digest/ref, and trust metadata in shared agentic ownership records, and [30-revise-harness-plugin-substrate-workflow-bundles.md](./30-revise-harness-plugin-substrate-workflow-bundles.md) requires plugin source manifest, source ref or version, digest, provenance, and trust policy. Broader remote skill and plugin source policy remains unresolved. | Define source protocol, pinning, and integrity policy for remote skills, plugins, and any future remote system asset provider. |
 
 **Question**: How should remote skill sources be constrained?
 
@@ -320,21 +320,23 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Rename intended; final name unresolved. | Select a name and the corresponding in-project directory rename. |
+| Closed | [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md) fixes the v2 identity as `make-docs`, `Make Docs`, and `MakeDocs`; no broad rename or default command aliases are active. | None. |
 
 **Question**: What does make-docs rename to, and what do its installed directories (currently `.make-docs/`) rename to?
 
 **Why it matters**: The name appears in the package, CLI, directories, contracts, and generated docs; the rename touches all of them and any docs authored now carry the old name.
 
-**Recommendation**: Decide the name before broad authored-surface work so the rename is a single sweep.
+**Recommendation**: Keep the stable v2 identity in new docs and implementation work; do not plan broad rename or default alias work unless a later accepted design reopens it.
 
-**To close**: A name is chosen and the package, CLI, and directory renames are scoped.
+**To close**: Closed by `docs/prd/16-revise-package-and-deployment-boundaries.md`.
+
+**Resolution**: The package/command identifier remains `make-docs`, the prose display name is `Make Docs`, and `MakeDocs` is reserved for compact contexts. `.make-docs/` remains the installed-project state directory unless a later package-ownership design changes it.
 
 ### Q-009 What Is the Persona Model Schema?
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Default personas Agent/Developer/User over primitives agent/maintainer/user; custom personas allowed. | Fix the configuration schema (slug, label, description, primitive) before contracts hard-reference field names. |
+| Closed | [22-revise-new-docs-assets-playbooks-persona-model.md](./22-revise-new-docs-assets-playbooks-persona-model.md) defines primitives `agent`, `maintainer`, and `user`; default personas `agent`, `developer`, and `user`; and custom persona fields `slug`, `label`, `description`, and `primitive`. PRD 24 confirms config may add or relabel personas but must preserve that schema and primitive set. PRD 31 confirms adversarial-review candidates use persona targets only when the challenge concerns persona-scoped content or audience-specific usability. PRD 20 may record persona-sensitive scenarios later, but it does not redefine the schema. | Implement the schema in configuration/defaults and validation fixtures without renaming PRD 22's canonical fields; include adversarial-review candidate fixtures for persona-targeted and `none` cases if that extension is implemented. |
 
 **Question**: What are the exact persona primitives, default personas, and configuration fields?
 
@@ -342,7 +344,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 **Recommendation**: Confirm the schema; until then the contract describes the persona set abstractly with a legacy Developer/User mapping.
 
-**To close**: The persona configuration schema is defined and referenced consistently.
+**To close**: Closed by PRD 22; implementation must still add configuration/defaults and validation fixtures.
 
 ### Q-010 Where Do Starter Prompts Live After the Restructure?
 
@@ -362,7 +364,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Configurability intended; mechanism unresolved. | Decide where convention mappings live and the prefix options. |
+| Partially closed | [24-revise-configuration-convention-overlay.md](./24-revise-configuration-convention-overlay.md) answers the structural question: configuration is presentation-only. Projects may relabel lifecycle/document/coordinate prose, but paths, metadata fields, route identifiers, prompt paths, skill names, contract names, and W/R/P lineage remain canonical. | Implement `.make-docs/config.yaml` schema, defaults, loader, diagnostics, and tests for presentation labels without structural renames. |
 
 **Question**: Should teams redefine structural vocabulary (designs/plans/prd/work), coordinates (wave/revision/phase), and file-prefix style (slug-date vs version-number), and where is that controlled?
 
@@ -370,41 +372,41 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 **Recommendation**: Treat the overlay as presentation only — rename presented vocabulary, never paths, frontmatter, skill names, or contract names.
 
-**To close**: A configuration mechanism defines convention mappings and the prefix-style choice.
+**To close**: Closed for structural configurability by PRD 24; implementation remains open for the config schema, loader, diagnostics, and rendering tests.
 
 ### Q-012 How Do Plugins and Skills Share an Install and Respect Config Mapping?
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Shared install via a single location plus per-harness symlinks intended. | Define a cross-platform redirection model and how plugins read config relabels. |
+| Open | [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md) assigns long-term MCP startup ownership to Rust and preserves one `make-docs` command; [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) requires future Rust/plugin install paths to preserve compatibility classification and migration dispositions; [20-revise-agent-harness-model-conformance-lab.md](./20-revise-agent-harness-model-conformance-lab.md) can test shared-install behavior only after the product contract exists; PRD 21 reserves `.make-docs/agentics/skills` and `.make-docs/agentics/plugins`; PRD 24 allows plugins and skills to display configured labels while routing through canonical identifiers; [25-revise-cli-separation-and-mcp-boundary.md](./25-revise-cli-separation-and-mcp-boundary.md) requires MCP, plugins, and skills to call canonical CLI/shared-core operations rather than independent routing logic; [26-revise-no-scripts-migration-skill-refactor.md](./26-revise-no-scripts-migration-skill-refactor.md) provides the concrete script-to-operation sequence those future surfaces must reuse; [27-revise-skill-purpose-registry-alternate-skills-manifest.md](./27-revise-skill-purpose-registry-alternate-skills-manifest.md) requires future surfaces to use canonical purpose ids and one effective skills manifest; [28-revise-shared-agentics-installation-harness-redirection.md](./28-revise-shared-agentics-installation-harness-redirection.md) chooses generated text stubs over symlinks as the v2 cross-platform selected-agentics exposure direction; [30-revise-harness-plugin-substrate-workflow-bundles.md](./30-revise-harness-plugin-substrate-workflow-bundles.md) specifies selected plugin payloads under `.make-docs/agentics/plugins/<plugin-id>/`, generated harness exposure files, explicit plugin selection, and config-after-canonical-resolution behavior. The question remains open until implementation evidence lands. | Implement and validate shared selected-agentics exposure for skills and plugins, structured ownership records, config-label rendering after canonical routing, and CLI/shared-core operation delegation. |
 
 **Question**: How are skills and plugins installed once and exposed to each harness without duplication, and how does a plugin that guides (for example) requirements → design → plan respect a config that relabels "designs" to "ideas"?
 
 **Why it matters**: Skills are duplicated across agent directories today; plugins will face the same problem and must honor the customization mapping.
 
-**Recommendation**: Evaluate filesystem redirection (symlinks, Linux/Mac/Windows) versus CLI routing that returns the mapped contracts, instructions, and paths.
+**Recommendation**: Use the shared selected-agentics store plus generated harness exposure as the default cross-platform redirection model; treat symlinks as a later optional optimization only if manifest, audit, fallback, and platform behavior are specified.
 
-**To close**: A cross-platform shared-install and config-aware routing model is defined.
+**To close**: The shared-install and config-aware routing model is implemented and validated for selected skills and selected plugins.
 
 ### Q-013 What Are the Plugin Flow and Exposure Boundaries?
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | None yet | Resolve request-vs-change, docs visibility, and scaffold exposure. |
+| Open | PRD 20 treats plugin and playbook scenarios as conformance inputs after shared agentics install, plugin substrate, and Run Playbook decisions land. [27-revise-skill-purpose-registry-alternate-skills-manifest.md](./27-revise-skill-purpose-registry-alternate-skills-manifest.md) provides purpose-led skill metadata that plugins may present later. [28-revise-shared-agentics-installation-harness-redirection.md](./28-revise-shared-agentics-installation-harness-redirection.md) unblocks a shared payload/stub primitive for plugin storage and exposure. [29-revise-playbook-contract-run-playbook.md](./29-revise-playbook-contract-run-playbook.md) defines playbook validity and generic Run Playbook invocation. [30-revise-harness-plugin-substrate-workflow-bundles.md](./30-revise-harness-plugin-substrate-workflow-bundles.md) defines plugin substrate, productized bundle families, bundle audience metadata, and the substrate-level non-maintainer guardrail, but leaves exact per-bundle UX unresolved. | Resolve request-vs-change, docs visibility, scaffold exposure, and implementation-specific support-claim evidence per bundle. |
 
 **Question**: Is "file a request" a separate flow from "make a change"? Are generated docs shown, hidden, or toggle-able for non-technical users? Is the scaffold/build entry point user-facing or maintainer-only?
 
 **Why it matters**: Plugins are the sanctioned entry point for non-maintainers; these boundaries decide the guardrails against doc-set corruption.
 
-**Recommendation**: Decide per plugin before building the plugin bundles.
+**Recommendation**: Decide per bundle before building public plugin entrypoints.
 
-**To close**: Each plugin's flow and exposure are specified.
+**To close**: Each plugin bundle's flow, audience, exposure boundary, gate behavior, support evidence, and docs visibility are specified and validated.
 
 ### Q-014 Does the `docs/library/` Move Land in W16 or the Broader Restructure?
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Closed | Create only `docs/library/playbooks/` in W16; defer any `docs/guides/` move to the broader restructure. | Track guide relocation in the broader restructure; do not relocate guides in W16 R0. |
+| Closed | Create only `docs/library/playbooks/` in W16; defer any `docs/guides/` move to the broader restructure. PRD 22 keeps the W16 decision historically valid while making `docs/library/playbooks/**` transitional and `docs/assets/playbooks/**` the v2 canonical target. | Track guide and playbook relocation in the broader restructure; do not retroactively treat W16 R0 as the final path model. |
 
 **Question**: W16 authors a playbook under `docs/library/playbooks/`, but moving `docs/guides/` to `docs/library/guides/` is part of the broader restructure.
 
@@ -422,7 +424,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Home-scoped skill ownership remains active product behavior; old `optionalSkills` and required/default skill assumptions are superseded by [12-revise-cli-skill-selection-simplification.md](./12-revise-cli-skill-selection-simplification.md). | Preserve home-scope backup, audit, and manifest handling in any rebuild. |
+| Open | Home-scoped skill ownership remains active product behavior; old `optionalSkills` and required/default skill assumptions are superseded by [12-revise-cli-skill-selection-simplification.md](./12-revise-cli-skill-selection-simplification.md), [27-revise-skill-purpose-registry-alternate-skills-manifest.md](./27-revise-skill-purpose-registry-alternate-skills-manifest.md) adds effective-manifest and selection-provenance context without changing project/global ownership, and [28-revise-shared-agentics-installation-harness-redirection.md](./28-revise-shared-agentics-installation-harness-redirection.md) extends the project/global split to shared payloads and generated harness stubs. | Preserve home-scope backup, audit, manifest, shared-payload, generated-stub, and selection-provenance handling in any rebuild. |
 
 **Issue**: A rebuild that assumes all managed files live under the target repo will break global skill installs, backup mapping, and uninstall safety.
 
@@ -436,7 +438,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Current safety model depends on regeneration. | Revisit if skill delivery or content resolution changes. |
+| Open | Current safety model depends on regeneration; [26-revise-no-scripts-migration-skill-refactor.md](./26-revise-no-scripts-migration-skill-refactor.md) adds managed old-script, managed wrapper, modified local file, and custom user script classification to the audit/removal boundary; [27-revise-skill-purpose-registry-alternate-skills-manifest.md](./27-revise-skill-purpose-registry-alternate-skills-manifest.md) adds alternate-manifest provenance but still requires canonical skill content for removability; [28-revise-shared-agentics-installation-harness-redirection.md](./28-revise-shared-agentics-installation-harness-redirection.md) adds canonical shared payload and generated-stub removability as first-class audit cases. | Revisit if skill delivery, content resolution, script wrappers, alternate manifests, shared payloads, generated stubs, or CLI/shared-core operation ownership changes. |
 
 **Issue**: If skills delivery, registry, or content resolution changes without a matching audit update, uninstall and backup can become too conservative or too destructive.
 
@@ -450,7 +452,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Dual dev/packed resolution remains active. | Preserve smoke-pack checks for template changes. |
+| Open | Dual dev/packed resolution remains active; [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md) adds the requirement that packed npm and future Rust artifacts preserve the same command and shared contract boundaries; [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md) keeps full-snapshot materialization as the default validation baseline; [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) adds source-state/disposition fixtures to the release-sensitive validation matrix; [19-revise-template-package-dogfood-source-of-truth-contract.md](./19-revise-template-package-dogfood-source-of-truth-contract.md) requires packed validation to exercise generated `packages/cli/template/` after copy/prepack; [20-revise-agent-harness-model-conformance-lab.md](./20-revise-agent-harness-model-conformance-lab.md) may consume smoke-pack as scenario evidence but cannot replace it; PRD 21 adds future `.make-docs/**` tool-resource package proof; PRD 22 adds reader-facing guide/playbook package proof; PRD 24 adds default config template parity and local config preservation proof; [25-revise-cli-separation-and-mcp-boundary.md](./25-revise-cli-separation-and-mcp-boundary.md) adds CLI/MCP parity, runtime/version disclosure, and PATH-order supportability proof. | Preserve smoke-pack checks for template, package-boundary, system asset materialization, compatibility migration, package-template copy, conformance-lab, tool-directory, reader-facing asset, configuration overlay, and CLI/MCP dual-runtime changes. |
 
 **Issue**: Testing only local dev paths can miss failures that appear only after `prepack` copies the template into `packages/cli/template`.
 
@@ -464,7 +466,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Literal path duplication remains accepted but risky. | Add parity checks when moving or adding template-owned paths. |
+| Open | Literal path duplication remains accepted but risky; [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md) adds provider/cache provenance and asset identity as future duplication-sensitive surfaces, [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) makes fallback path recognition a mutation gate, [19-revise-template-package-dogfood-source-of-truth-contract.md](./19-revise-template-package-dogfood-source-of-truth-contract.md) adds template/dogfood/package copy paths to the proof surface, PRD 20 adds conformance scenario/result paths that must stay out of shipped copies by default, PRD 21 adds `.make-docs/**` tool-resource paths, PRD 22 adds `docs/assets/guides/**`, `docs/assets/playbooks/**`, and `docs/archive/**`, PRD 23 adds generated metadata field names, route identifiers, and body-rendered handoff sections as duplication-sensitive surfaces, PRD 24 adds display-label/config schema surfaces that must not become alternate routing tables, [25-revise-cli-separation-and-mcp-boundary.md](./25-revise-cli-separation-and-mcp-boundary.md) adds CLI/MCP operation-contract names and canonical routing identifiers, and [26-revise-no-scripts-migration-skill-refactor.md](./26-revise-no-scripts-migration-skill-refactor.md) adds first-party operation names plus helper/wrapper script paths across registry, template, dogfood, and package copies. | Add parity, provenance, classifier, package-template copy, conformance asset exclusion, tool-directory path, reader-facing asset path, generated metadata, YAML/body handoff drift, config structural-rename, CLI/MCP shared-operation, and no-scripts helper/wrapper checks when moving, adding, or provider-resolving template-owned paths. |
 
 **Issue**: Adding or moving a template-owned path can drift across `rules.ts`, `catalog.ts`, tests, package docs, and dogfood copies.
 
@@ -478,7 +480,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | No-command install remains the public default. | Preserve parser rejection and help-output tests. |
+| Open | No-command install remains the public default, and [25-revise-cli-separation-and-mcp-boundary.md](./25-revise-cli-separation-and-mcp-boundary.md) explicitly rejects replacing it with an `init`/`update` command-router model for npm, Rust, or MCP surfaces. | Preserve parser rejection, help-output, and CLI/MCP parity tests. |
 
 **Issue**: Reintroducing `init`/`update`, collapsing wizard review with generic apply confirmation, or treating lifecycle commands as install flags would break the shipped public UX.
 
@@ -492,7 +494,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Single reviewed audit snapshot remains the safety model. | Keep backup/uninstall implementation and docs aligned around one audit snapshot. |
+| Open | Single reviewed audit snapshot remains the shared safety model for the TypeScript CLI, any future Rust implementation, any on-demand materialization path introduced by [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md), the `backup-and-reinstall` disposition defined by [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md), future `.make-docs/**` tool-resource migration in PRD 21, MCP writes constrained by [25-revise-cli-separation-and-mcp-boundary.md](./25-revise-cli-separation-and-mcp-boundary.md), old-script or wrapper removal introduced by [26-revise-no-scripts-migration-skill-refactor.md](./26-revise-no-scripts-migration-skill-refactor.md), alternate-manifest provenance introduced by [27-revise-skill-purpose-registry-alternate-skills-manifest.md](./27-revise-skill-purpose-registry-alternate-skills-manifest.md), and shared-payload/generated-stub classification introduced by [28-revise-shared-agentics-installation-harness-redirection.md](./28-revise-shared-agentics-installation-harness-redirection.md). PRD 20 may test this as a scenario but cannot loosen it. | Keep backup/uninstall implementation, provider-backed writes, migration backup-and-reinstall, conformance scenarios, tool-directory migration, MCP permissions, old-script removals, wrapper classification, alternate-manifest provenance, shared-payload/stub classification, and docs aligned around one reviewed audit/classification snapshot. |
 
 **Issue**: Re-auditing between warning, backup, and delete steps can invalidate what the user already approved and break the current safety model.
 
@@ -506,7 +508,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Manual re-seeding remains intentional for reviewability. | Add proof points for dogfood/template freshness. |
+| Open | Manual re-seeding remains intentional for reviewability; full-snapshot materialization remains the package validation baseline under [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md); [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) makes dogfood/template ownership evidence part of migration safety; [19-revise-template-package-dogfood-source-of-truth-contract.md](./19-revise-template-package-dogfood-source-of-truth-contract.md) makes reviewed reseeding and targeted parity proof mandatory; PRD 20 can cite reviewed parity results as lab evidence only when scenario records exist; PRD 21 adds future `.make-docs/**` tool-resource parity; PRD 22 adds reader-facing guide/playbook parity. | Add proof points for dogfood/template freshness, full-snapshot package parity, package-template copy parity, classifier behavior, conformance result records, tool-directory parity, and reader-facing asset parity. |
 
 **Issue**: Because repo-root `docs/` is both a maintainer workspace and a product rehearsal surface, stale dogfood files can make local behavior look correct while the shipped template has drifted.
 
@@ -520,7 +522,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Skill refactor deferred to the no-scripts / CLI-migration wave. | Ship the W16 starter prompts as the interim path; revisit if that wave slips. |
+| Open | Skill refactor is now scoped by [26-revise-no-scripts-migration-skill-refactor.md](./26-revise-no-scripts-migration-skill-refactor.md): deterministic logic must move into CLI/shared-core operations first, and `closeout-commit`, `closeout-phase`, `work-on-wave`, and `work-on-phase` skills must be rewritten in the same implementation window before standalone helper scripts are removed or downgraded. [25-revise-cli-separation-and-mcp-boundary.md](./25-revise-cli-separation-and-mcp-boundary.md) still requires those operations before MCP exposure. [27-revise-skill-purpose-registry-alternate-skills-manifest.md](./27-revise-skill-purpose-registry-alternate-skills-manifest.md) may add purpose metadata for these skills but does not reduce the no-scripts requirement. | Ship the W16 starter prompts as the interim path; close this only after CLI/shared-core parity, same-window skill rewrites, install/remove/audit tests, package/template validation, and purpose metadata prove the first-party skills no longer depend on standalone scripts. |
 
 **Issue**: The closeout and work skills keep their current script-gated behavior until the no-scripts wave rewrites them to cite the coverage-pass contract.
 
@@ -548,7 +550,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Confirming | Stage vocabulary is domain-neutral (e.g., "release / publish," not "launch / deploy"). | Audit anchor, playbook, and contract text for software-specific terms. |
+| Open | Stage vocabulary is domain-neutral (e.g., "release / publish," not "launch / deploy"), and PRD 24 adds presentation labels so projects can render domain-appropriate terms without renaming canonical contracts. | Audit anchor, playbook, contract, generated prose, and CLI text for software-specific terms; implement config labels as presentation only. |
 
 **Issue**: Terms like "launch" or "deploy" steer agents toward assuming a technical deployment outcome.
 
@@ -562,7 +564,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Ships with a legacy Developer/User mapping so it is correct before configuration exists. | Replace the legacy mapping with the configured persona set when personas land. |
+| Open | PRD 22 defines the persona schema, default personas, and primitive mapping, so the remaining risk is implementation/configuration drift rather than an undefined schema. PRD 23 consumes `persona` as the generated-doc frontmatter field for persona-scoped guides and playbooks. PRD 24 defines how config may add or relabel persona entries without renaming schema keys or primitive values. PRD 29 adds Run Playbook validation that must fail closed on missing or invalid playbook `persona` metadata. PRD 31 keeps adversarial-review persona targeting conditional and requires configured personas when the challenge is persona-scoped. | Replace legacy mapping with the configured persona set when personas land and add validation fixtures for default/custom personas, duplicate slugs, invalid values, path/frontmatter drift, generated `persona` frontmatter presence, Run Playbook persona validation, and adversarial-review candidate records with configured persona targets or `none`. |
 
 **Issue**: The coverage-pass contract's persona-target axis points at a configuration file that does not yet exist.
 
@@ -576,21 +578,21 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Confirming | Resolved by the content-vs-invocation boundary; the Run-Playbook plugin is the seam. | Keep the boundary explicit when designing plugins. |
+| Closed | Resolved by the content-vs-invocation boundary; PRD 22 defines playbooks as persona-scoped content under `docs/assets/playbooks/**`, PRD 29 defines Run Playbook as a generic invocation model that can be exposed by agents, CLI, MCP, plugins, or skills without making plugin exposure mandatory, and PRD 30 defines plugins as optional harness-visible invocation packages rather than playbook storage. | Keep the boundary explicit when designing plugins and do not make storage under `docs/assets/playbooks/**` executable by itself. |
 
 **Issue**: Both playbooks and plugins can look like "the thing that runs a workflow."
 
 **Why it matters**: Without a boundary, the project risks building two systems that do the same job.
 
-**Recommendation**: A playbook is a persona-scoped *process definition* (content); a plugin is an *invocation* (a slash command) wrapping a built-in workflow or the generic Run-Playbook executor.
+**Recommendation**: A playbook is a persona-scoped process definition; Run Playbook is the generic invocation model; a plugin is an optional packaged exposure path over that model.
 
-**To close**: Plugin and playbook designs cite and respect the boundary.
+**To close**: Closed by PRD 29 and reinforced by PRD 30. Future plugin designs must cite and respect the boundary.
 
 ### R-013 The Restructure and Rename Will Relocate Newly Authored Assets
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Authored now at current paths; relocation is a later mechanical sweep. | Record migration mappings for the contract, prompts, and library docs. |
+| Open | Authored now at current paths; PRD 22 defines concrete target mappings for guide/playbook/archive assets: `docs/guides/**` to `docs/assets/guides/**`, `docs/library/playbooks/**` to `docs/assets/playbooks/**`, and `docs/assets/archive/**` to `docs/archive/**`. PRD 23 metadata backfill must avoid broad opportunistic rewrites during relocation and only add metadata to planned template/package/touched-file surfaces. PRD 24 config backfill must preserve local `.make-docs/config.yaml` and avoid creating alternate path schemas during relocation. PRD 29 adds playbook `stack` metadata and Run Playbook path/persona validation to the migration surface. PRD 31 adds optional adversarial-review prompt, reference, playbook, plugin, CLI, MCP, and conformance assets only if a downstream plan selects those surfaces. | Record and execute migration mappings for the coverage contract, prompts, guides, playbooks, archive, history follow-on, metadata backfill, config template placement, playbook stack metadata, Run Playbook validation, and any selected adversarial-review surface without breaking links. |
 
 **Issue**: Assets authored in W16 (the coverage-pass contract, starter prompts, library playbook) will move when `docs/assets/**` migrates into the renamed tool directory.
 
@@ -604,7 +606,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Move deterministic logic into the CLI; sequence the skill refactor into the same wave. | Avoid rewriting skills to cite the contract before the CLI provides their logic. |
+| Open | Move deterministic logic into the CLI without stranding skills or plugins between TypeScript, future Rust ownership, the provider/cache surfaces introduced by [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md), the migration classifier required by [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md), lab scenarios introduced by [20-revise-agent-harness-model-conformance-lab.md](./20-revise-agent-harness-model-conformance-lab.md), future `.make-docs/scripts/{system,custom}` tiers introduced by PRD 21, generated metadata validation introduced by PRD 23, config validation introduced by PRD 24, the CLI/MCP operation boundary introduced by [25-revise-cli-separation-and-mcp-boundary.md](./25-revise-cli-separation-and-mcp-boundary.md), the concrete W16 R3 sequence in [26-revise-no-scripts-migration-skill-refactor.md](./26-revise-no-scripts-migration-skill-refactor.md), the purpose-manifest metadata in [27-revise-skill-purpose-registry-alternate-skills-manifest.md](./27-revise-skill-purpose-registry-alternate-skills-manifest.md), generated stubs/shared payloads introduced by [28-revise-shared-agentics-installation-harness-redirection.md](./28-revise-shared-agentics-installation-harness-redirection.md), generic Run Playbook behavior introduced by [29-revise-playbook-contract-run-playbook.md](./29-revise-playbook-contract-run-playbook.md), plugin substrate/workflow bundle metadata introduced by [30-revise-harness-plugin-substrate-workflow-bundles.md](./30-revise-harness-plugin-substrate-workflow-bundles.md), and optional adversarial-review surfaces introduced by [31-revise-coverage-pass-extensions-adversarial-review.md](./31-revise-coverage-pass-extensions-adversarial-review.md); sequence the skill and plugin rewrites into the same operation-first wave where they depend on deterministic behavior. | Avoid rewriting skills, scripts, conformance scenarios, metadata validation, config validation, purpose manifests, shared stubs, shared payloads, plugin exposure files, workflow bundles, Run Playbook surfaces, adversarial-review prompts/playbooks/plugins, or MCP tools to cite the contract before the CLI/shared-core provides their logic and before system assets, migration classification, YAML/body drift checks, structural-rename checks, old-script classification, wrapper delegation, selected-skill install/remove behavior, plugin selection behavior, alternate-manifest provenance, stub/payload classification, playbook runner validation, and adversarial candidate validation remain locally recoverable without standalone script helpers. |
 
 **Issue**: Moving all script logic into the CLI while skills still reference standalone scripts creates a window where skills could break.
 
@@ -619,6 +621,54 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 - `README.md:6-46`
 - `docs/prd/01-product-overview.md`
 - `docs/prd/02-architecture-overview.md`
+- `docs/prd/16-revise-package-and-deployment-boundaries.md`
+- `docs/prd/17-revise-system-asset-materialization-contract.md`
+- `docs/prd/18-revise-compatibility-audit-and-migration-disposition.md`
+- `docs/prd/19-revise-template-package-dogfood-source-of-truth-contract.md`
+- `docs/prd/20-revise-agent-harness-model-conformance-lab.md`
+- `docs/prd/21-revise-tool-directory-system-custom-resource-tiers.md`
+- `docs/prd/22-revise-new-docs-assets-playbooks-persona-model.md`
+- `docs/prd/23-revise-generated-metadata-lifecycle-handoffs.md`
+- `docs/prd/24-revise-configuration-convention-overlay.md`
+- `docs/prd/25-revise-cli-separation-and-mcp-boundary.md`
+- `docs/prd/26-revise-no-scripts-migration-skill-refactor.md`
+- `docs/prd/27-revise-skill-purpose-registry-alternate-skills-manifest.md`
+- `docs/prd/28-revise-shared-agentics-installation-harness-redirection.md`
+- `docs/prd/29-revise-playbook-contract-run-playbook.md`
+- `docs/prd/30-revise-harness-plugin-substrate-workflow-bundles.md`
+- `docs/prd/31-revise-coverage-pass-extensions-adversarial-review.md`
+- `docs/designs/2026-06-19-package-and-deployment-boundaries.md`
+- `docs/designs/2026-06-19-system-asset-delivery-and-materialization-contract.md`
+- `docs/designs/2026-06-19-compatibility-audit-and-migration-disposition.md`
+- `docs/designs/2026-06-19-template-package-and-dogfood-source-of-truth-contract.md`
+- `docs/designs/2026-06-19-agent-harness-and-model-conformance-lab.md`
+- `docs/designs/2026-06-19-tool-directory-system-and-custom-resource-tiers.md`
+- `docs/designs/2026-06-19-new-docs-assets-playbooks-and-persona-model.md`
+- `docs/designs/2026-06-20-generated-metadata-and-lifecycle-handoffs.md`
+- `docs/designs/2026-06-20-configuration-and-convention-overlay.md`
+- `docs/designs/2026-06-20-cli-separation-and-mcp-boundary.md`
+- `docs/designs/2026-06-20-no-scripts-migration-and-skill-refactor.md`
+- `docs/designs/2026-06-20-skill-purpose-registry-and-alternate-skills-manifest.md`
+- `docs/designs/2026-06-20-shared-agentics-installation-and-harness-redirection.md`
+- `docs/designs/2026-06-20-playbook-contract-and-run-playbook.md`
+- `docs/designs/2026-06-20-harness-plugin-substrate-and-workflow-bundles.md`
+- `docs/designs/2026-06-20-coverage-pass-extensions-and-adversarial-review.md`
+- `docs/plans/2026-06-23-w10-r1-package-and-deployment-boundaries/00-overview.md`
+- `docs/plans/2026-06-23-w10-r2-system-asset-materialization-contract/00-overview.md`
+- `docs/plans/2026-06-23-w10-r3-compatibility-audit-and-migration-disposition/00-overview.md`
+- `docs/plans/2026-06-23-w10-r4-template-package-dogfood-source-of-truth-contract/00-overview.md`
+- `docs/plans/2026-06-23-w10-r5-agent-harness-model-conformance-lab/00-overview.md`
+- `docs/plans/2026-06-23-w9-r2-tool-directory-system-custom-resource-tiers/00-overview.md`
+- `docs/plans/2026-06-23-w9-r3-new-docs-assets-playbooks-persona-model/00-overview.md`
+- `docs/plans/2026-06-23-w16-r1-generated-metadata-lifecycle-handoffs/00-overview.md`
+- `docs/plans/2026-06-23-w16-r2-configuration-convention-overlay/00-overview.md`
+- `docs/plans/2026-06-23-w10-r6-cli-separation-and-mcp-boundary/00-overview.md`
+- `docs/plans/2026-06-23-w16-r3-no-scripts-migration-skill-refactor/00-overview.md`
+- `docs/plans/2026-06-23-w17-r1-skill-purpose-registry-alternate-skills-manifest/00-overview.md`
+- `docs/plans/2026-06-23-w17-r2-shared-agentics-installation-harness-redirection/00-overview.md`
+- `docs/plans/2026-06-23-w18-r1-playbook-contract-run-playbook/00-overview.md`
+- `docs/plans/2026-06-23-w18-r2-harness-plugin-substrate-workflow-bundles/00-overview.md`
+- `docs/plans/2026-06-23-w18-r3-coverage-pass-extensions-adversarial-review/00-overview.md`
 - `packages/docs/README.md:50-121`
 - `packages/skills/README.md`
 - `packages/cli/package.json:9-25`

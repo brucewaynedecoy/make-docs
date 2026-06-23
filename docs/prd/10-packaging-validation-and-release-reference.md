@@ -61,6 +61,25 @@ For a true first public release, the release state now uses Apache-2.0 licensing
 | Scoped package name is now required | The unscoped `make-docs` publish was blocked by npm's similarity guard; package metadata now uses `@brucewaynedecoy/make-docs` while preserving the `make-docs` binary. | Public docs and generated guidance must use scoped `npx @brucewaynedecoy/make-docs@next` until a future unscoped name strategy exists. |
 | Reserved future package with no release contract | `README.md:10-17` describes `packages/content/` as reserved for future content, but current package metadata and release scripts do not define how or whether it will ship. | This is a future-facing gap that can complicate later packaging and dogfood expectations. Candidate risk-register item. |
 
+### Change Notes
+
+- Enhanced by [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md) for package and release-channel boundaries. The TypeScript npm package owns npm `next` and `latest`, the npm allowlist, packed-package validation, and dry-run release checks; future Homebrew and Crates artifacts must expose the same `make-docs` command while reporting runtime/version clearly, and publish actions remain out of scope unless separately authorized.
+- Enhanced by [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md) for system asset validation boundaries. Current smoke-pack and template parity checks remain the full-snapshot baseline, while future provider/cache work must add provider outage, stale hash, cache miss, on-demand conflict, and TypeScript/Rust manifest compatibility checks before becoming default.
+- Enhanced by [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) for compatibility validation. Release-sensitive changes must add fixtures across the source-state and disposition matrix, including clean v1, clean v2 full-snapshot, provider-backed v2 with unavailable provider, stale hybrid cache, modified v1, malformed manifest/block, missing canonical files, ambiguous missing-manifest installs, and unknown shapes.
+- Enhanced by [19-revise-template-package-dogfood-source-of-truth-contract.md](./19-revise-template-package-dogfood-source-of-truth-contract.md) for package-template proof. Packed npm validation must exercise `packages/cli/template/` after copy/prepack, and package README, tarball allowlist wording, maintainer docs, and smoke-pack expectations must agree with the template-first source-of-truth order.
+- Enhanced by [20-revise-agent-harness-model-conformance-lab.md](./20-revise-agent-harness-model-conformance-lab.md) for conformance evidence. Package validation commands can be lab scenario steps, but a green package validation run is not a public harness/model support claim without reviewed conformance result records.
+- Enhanced by [21-revise-tool-directory-system-custom-resource-tiers.md](./21-revise-tool-directory-system-custom-resource-tiers.md) for package proof of future `.make-docs/**` tool resources. Package copy, smoke-pack, and dry-run checks must prove tool-directory resources without moving runtime state into `docs/assets/**`.
+- Enhanced by [22-revise-new-docs-assets-playbooks-persona-model.md](./22-revise-new-docs-assets-playbooks-persona-model.md) for package proof of reader-facing guide/playbook assets. Packed validation must cover template copy, dogfood parity, frontmatter/persona fixtures, and path-hygiene checks for `docs/assets/{guides,playbooks}/` and future `docs/archive/**`.
+- Enhanced by [23-revise-generated-metadata-lifecycle-handoffs.md](./23-revise-generated-metadata-lifecycle-handoffs.md) for package proof of metadata-bearing templates. Packed validation must prove copied templates preserve required frontmatter and YAML/body handoff consistency.
+- Enhanced by [24-revise-configuration-convention-overlay.md](./24-revise-configuration-convention-overlay.md) for package proof of configuration overlays. Packed validation must prove any default config template follows source-first copy rules and install/reconfigure flows preserve local `.make-docs/config.yaml`.
+- Enhanced by [25-revise-cli-separation-and-mcp-boundary.md](./25-revise-cli-separation-and-mcp-boundary.md) for CLI/MCP package proof. Packed npm validation remains installer-first and must keep the public command taxonomy aligned with TypeScript behavior; future dual-runtime validation must prove runtime/version disclosure, PATH-order supportability, and CLI/MCP operation-contract parity before Rust or MCP surfaces are treated as implementation-ready.
+- Enhanced by [26-revise-no-scripts-migration-skill-refactor.md](./26-revise-no-scripts-migration-skill-refactor.md) for no-scripts package proof. Package validation must prove migrated CLI/shared-core operations, selected-skill install/update/remove behavior, managed old-script and wrapper classification, source-first template/dogfood/package copy, and smoke-pack coverage when shipped helper or skill assets change.
+- Enhanced by [27-revise-skill-purpose-registry-alternate-skills-manifest.md](./27-revise-skill-purpose-registry-alternate-skills-manifest.md) for skills-manifest package proof. Package validation must ship the evolved registry schema with the built-in manifest, prove bare installs still write no skill files, prove explicit first-party and alternate file-manifest installs, and reject unpinned remote manifests or skill payloads before installation.
+- Enhanced by [28-revise-shared-agentics-installation-harness-redirection.md](./28-revise-shared-agentics-installation-harness-redirection.md) for shared-agentics package proof. Packed validation must prove explicit selected skills write one canonical shared payload per scope, generate harness stubs for selected harnesses, preserve no-default-skills on bare installs, classify migrated duplicate payloads, and avoid any symlink or junction requirement.
+- Enhanced by [29-revise-playbook-contract-run-playbook.md](./29-revise-playbook-contract-run-playbook.md) for playbook package proof. Packed validation must cover shipped playbook defaults when present, including required frontmatter, path/persona consistency, `stack: build | run`, package-template parity, and provisional support-claim labeling for CLI, MCP, plugin, skill, template-sync, or unattended execution surfaces.
+- Enhanced by [30-revise-harness-plugin-substrate-workflow-bundles.md](./30-revise-harness-plugin-substrate-workflow-bundles.md) for plugin package proof. Packed validation must prove no-default plugin behavior, explicit selected plugin payload and generated exposure behavior when implemented, plugin asset inclusion or exclusion rules, and exclusion of conformance-lab records, generated local run artifacts, and unreviewed plugin outputs from shipped template/package surfaces.
+- Enhanced by [31-revise-coverage-pass-extensions-adversarial-review.md](./31-revise-coverage-pass-extensions-adversarial-review.md) for adversarial-review package proof. Packed validation must cover shipped adversarial prompts, references, playbooks, plugins, CLI/MCP affordances, or conformance records only when a downstream plan explicitly selects that surface; package proof must preserve template-first authoring, no-default exposure, prompt-rule coverage when prompts are added, playbook/plugin validation when those surfaces are added, and evidence-bound support claims.
+
 ## Source Anchors
 
 - `package.json`
@@ -79,3 +98,27 @@ For a true first public release, the release state now uses Apache-2.0 licensing
 - `scripts/smoke-pack.mjs`
 - `docs/designs/2026-04-15-cli-publishing.md`
 - `docs/assets/archive/work/2026-04-16-w5-r2-cli-skill-installation/07-tests-and-validation.md`
+- `docs/prd/22-revise-new-docs-assets-playbooks-persona-model.md`
+- `docs/prd/23-revise-generated-metadata-lifecycle-handoffs.md`
+- `docs/prd/24-revise-configuration-convention-overlay.md`
+- `docs/prd/25-revise-cli-separation-and-mcp-boundary.md`
+- `docs/prd/26-revise-no-scripts-migration-skill-refactor.md`
+- `docs/prd/27-revise-skill-purpose-registry-alternate-skills-manifest.md`
+- `docs/prd/28-revise-shared-agentics-installation-harness-redirection.md`
+- `docs/prd/29-revise-playbook-contract-run-playbook.md`
+- `docs/prd/30-revise-harness-plugin-substrate-workflow-bundles.md`
+- `docs/prd/31-revise-coverage-pass-extensions-adversarial-review.md`
+- `docs/designs/2026-06-20-cli-separation-and-mcp-boundary.md`
+- `docs/designs/2026-06-20-no-scripts-migration-and-skill-refactor.md`
+- `docs/designs/2026-06-20-skill-purpose-registry-and-alternate-skills-manifest.md`
+- `docs/designs/2026-06-20-shared-agentics-installation-and-harness-redirection.md`
+- `docs/designs/2026-06-20-playbook-contract-and-run-playbook.md`
+- `docs/designs/2026-06-20-harness-plugin-substrate-and-workflow-bundles.md`
+- `docs/designs/2026-06-20-coverage-pass-extensions-and-adversarial-review.md`
+- `docs/plans/2026-06-23-w10-r6-cli-separation-and-mcp-boundary/00-overview.md`
+- `docs/plans/2026-06-23-w16-r3-no-scripts-migration-skill-refactor/00-overview.md`
+- `docs/plans/2026-06-23-w17-r1-skill-purpose-registry-alternate-skills-manifest/00-overview.md`
+- `docs/plans/2026-06-23-w17-r2-shared-agentics-installation-harness-redirection/00-overview.md`
+- `docs/plans/2026-06-23-w18-r1-playbook-contract-run-playbook/00-overview.md`
+- `docs/plans/2026-06-23-w18-r2-harness-plugin-substrate-workflow-bundles/00-overview.md`
+- `docs/plans/2026-06-23-w18-r3-coverage-pass-extensions-adversarial-review/00-overview.md`

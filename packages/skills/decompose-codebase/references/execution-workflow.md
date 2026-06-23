@@ -104,6 +104,18 @@ If the harness supports delegated workers, do not postpone delegation until the 
 - Risk-register items use one numbered `###` item heading with a `Status` / `Decision` / `Follow-Up` table, then `Question` or `Issue`, `Why it matters`, `Recommendation`, and `To close`; use `D-###`, `Q-###`, or `R-###` prefixes by section, never renumber existing items, and do not use `### Change Notes` inside the register.
 - If an older active PRD set already exists under `docs/prd/`, archive it before writing the replacement active PRD set.
 
+## Work Backlog Source Authority
+
+When generating a rebuild backlog, use this authority order:
+
+1. Explicit user direction plus the accepted design, plan, PRD, and existing work artifacts for the current coordinate.
+2. Live repository contracts such as `docs/work/AGENTS.md`, `docs/assets/references/execution-workflow.md`, `output-contract.md`, `wave-model.md`, and current work templates.
+3. This skill's bundled references and templates only when live repo contracts are unavailable or the task explicitly concerns installed skill assets.
+4. Archived backlogs only as examples of style or lineage.
+5. Generated harness exposure files or mirrored/installed skill copies only as fallback evidence, never as independent backlog-shape authority.
+
+If a fallback source is used, record which fallback was used and why.
+
 ## Backlog Rules
 
 - Work is always a directory in v2. Write the rebuild backlog to `docs/work/YYYY-MM-DD-w{W}-r{R}-<slug>/` with `00-index.md` plus one or more `0N-<phase>.md` files.

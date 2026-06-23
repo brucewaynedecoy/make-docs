@@ -1,0 +1,70 @@
+# Phase 03: Package Validation and Release Boundaries
+
+## Purpose
+
+Reconcile npm package documentation with the actual package boundary and strengthen dry-run package validation without performing irreversible release actions.
+
+## Overview
+
+This phase handles D-006 and R-003 implementation work: package README/tarball alignment, dev-versus-packed validation, no-default-skills preservation, and release-channel documentation. It must keep real publish and registry operations blocked unless the user explicitly expands scope.
+
+## Source PRD Docs
+
+- [../../prd/16-revise-package-and-deployment-boundaries.md](../../prd/16-revise-package-and-deployment-boundaries.md)
+- [../../prd/03-open-questions-and-risk-register.md](../../prd/03-open-questions-and-risk-register.md)
+- [../../prd/08-skills-catalog-and-distribution.md](../../prd/08-skills-catalog-and-distribution.md)
+- [../../prd/10-packaging-validation-and-release-reference.md](../../prd/10-packaging-validation-and-release-reference.md)
+- [../../prd/12-revise-cli-skill-selection-simplification.md](../../prd/12-revise-cli-skill-selection-simplification.md)
+
+## Stage 1 - Package README and Tarball Alignment
+
+### Tasks
+
+- [ ] t1: Run dry-run package inspection against `packages/cli` and capture the actual shipped files without publishing.
+- [ ] t2: Compare dry-run output with `packages/cli/package.json` `files` and the package-surface text in `README.md`, `packages/cli/README.md`, and any maintained package README source.
+- [ ] t3: Update stale README/package-surface wording so it describes built CLI, bundled template, skill registry files, schema, and package README as the npm package boundary.
+- [ ] t4: Preserve root workspace privacy and avoid describing `packages/docs`, `packages/skills`, or `packages/content` as standalone deployment packages.
+- [ ] t5: Keep D-006 open until package docs and dry-run output agree; close it only with the evidence named in the risk item.
+
+### Acceptance criteria
+
+- Package documentation matches the dry-run tarball boundary.
+- The scoped npm package lookup and installed `make-docs` command are described consistently.
+- Root `docs/`, root `AGENTS.md`, root `CLAUDE.md`, scripts, and scratch planning material are not described as shipped npm package contents.
+- D-006 is either still open with a clear follow-up or closed with dry-run evidence.
+
+### Dependencies
+
+- Phase 02 public command boundary
+- `packages/cli/package.json`
+- `README.md`
+- `packages/cli/README.md`
+- `packages/cli/src/README.md`
+- [../../prd/03-open-questions-and-risk-register.md](../../prd/03-open-questions-and-risk-register.md)
+
+## Stage 2 - Dry-Run Validation and Smoke Coverage
+
+### Tasks
+
+- [ ] t6: Run or update `scripts/smoke-pack.mjs` so package validation proves packed-template behavior, CLI install, skills flow, backup, and uninstall behavior that matter to PRD 16.
+- [ ] t7: Verify bare packaged installs still write no skill files by default.
+- [ ] t8: Verify explicit skills installation remains opt-in and does not reopen Q-001, Q-007, or Q-012.
+- [ ] t9: Run npm publish validation only with dry-run flags and the intended `next` release-candidate tag; do not perform a real publish.
+- [ ] t10: Tie R-003 evidence to both dev-template and packed-template behavior, not only one path.
+
+### Acceptance criteria
+
+- Package validation distinguishes local development template resolution from packed artifact resolution.
+- No-default-skills behavior is preserved in packaged validation.
+- Release validation commands are dry-run only.
+- R-003 remains open unless both local and packed resolution are proven and documented.
+
+### Dependencies
+
+- Stage 1 package README and tarball alignment
+- `scripts/smoke-pack.mjs`
+- `packages/cli/tests/consistency.test.ts`
+- `packages/cli/tests/install.test.ts`
+- `packages/cli/tests/lifecycle.test.ts`
+- `packages/cli/tests/backup.test.ts`
+- `packages/cli/tests/uninstall.test.ts`

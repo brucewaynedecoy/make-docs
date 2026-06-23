@@ -23,6 +23,7 @@ related:
   - ../../assets/references/output-contract.md
   - ../../assets/references/prd-change-management.md
   - ../../assets/references/wave-model.md
+  - ../../work/AGENTS.md
 ---
 
 # Understanding the Make Docs Stage Model
@@ -161,6 +162,16 @@ Work backlogs are downstream from PRD work, not parallel alternatives to it.
 - every work phase must link back to its source PRD docs
 
 That coupling matters because the backlog is supposed to implement the effective requirements, not bypass them.
+
+When generating or revising a work backlog, use the live authority chain before reaching for examples or installed skill assets:
+
+1. explicit user direction plus the accepted design, plan, PRD, and existing work artifacts for the current coordinate
+2. live repo contracts, especially [docs/work/AGENTS.md](../../work/AGENTS.md), [execution-workflow.md](../../assets/references/execution-workflow.md), [output-contract.md](../../assets/references/output-contract.md), [wave-model.md](../../assets/references/wave-model.md), and the current work templates
+3. template/package source contracts when maintaining shipped make-docs assets
+4. archived backlogs only as style or lineage examples
+5. bundled skill references, generated harness stubs, and installed skill copies only as fallback evidence
+
+Record any fallback source you used and why. Do not let `decompose-codebase`, archived work packets, or harness mirrors silently become the backlog source of truth when live repo contracts exist.
 
 #### History records
 

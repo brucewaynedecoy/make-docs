@@ -36,7 +36,7 @@ Execution mode is expected to:
 
 ## Contract Source vs Installed Runtime
 
-In this repository, the authoritative lifecycle rules live under `docs/assets/` during source authoring. The installed skill does not depend on those repo-root files at runtime.
+Inside the make-docs source repository, shipped lifecycle assets are authored from the accepted v2 source-of-truth layers: template-owned files start under `packages/docs/template/`, dogfood copies under root `docs/` validate those shipped assets, and project-owned lifecycle artifacts stay under their active lifecycle directories. The installed skill does not depend on those repo-root files at runtime.
 
 Instead, the installed skill uses bundled local copies under:
 
@@ -45,6 +45,8 @@ Instead, the installed skill uses bundled local copies under:
 - `scripts/`
 
 That means paths such as `scripts/probe_environment.py` and `scripts/validate_output.py` refer to skill-local bundled assets, not repo-root utilities.
+
+In a target repository, live repo contracts and accepted design/plan/PRD/work artifacts outrank these bundled projections. Use the bundled copies only when live contracts are unavailable or the task specifically concerns installed skill assets.
 
 ## MCP Behavior
 

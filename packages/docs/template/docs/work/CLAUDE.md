@@ -13,6 +13,8 @@ Output target for implementation backlogs. In v2, every backlog is a **directory
 ## Agent Instructions
 
 - Before writing, read `docs/assets/references/execution-workflow.md` and copy the matching template from `docs/assets/templates/` (`work-index.md` for `00-index.md`; `work-phase.md` for phase files).
+- Use the current repository's accepted design, plan, PRD, and work contracts as backlog authority before consulting archived examples or installed skill projections.
+- Treat bundled skill assets, generated harness stubs, and archived backlogs as fallback/reference material only; they are not independent backlog-shape authority when live repo contracts are available.
 - In phase files, preserve markdown task syntax in `### Tasks` (`- [ ] t1: ...`) and keep `### Acceptance criteria` as plain bullets.
 - Always create work as a directory; never a flat `.md` file.
 - Apply the date-W/R-slug naming; do not backdate.

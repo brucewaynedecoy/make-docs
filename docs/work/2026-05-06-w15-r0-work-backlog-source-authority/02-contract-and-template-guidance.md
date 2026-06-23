@@ -6,42 +6,43 @@ Update active repo contracts so agents generating `docs/work/` backlogs can iden
 
 ## Overview
 
-This phase clarifies the root source-priority ladder in `docs/work/AGENTS.md` and the relevant `docs/assets` references/templates. The goal is guidance, not a broad rewrite of the backlog contract.
+This phase clarifies the source-priority ladder in the shipped template-owned work guidance first, then keeps the root dogfood copies aligned. The goal is guidance, not a broad rewrite of the backlog contract.
 
 ## Source PRD Docs
 
-- `docs/prd/14-revise-work-backlog-source-authority.md`
+- [docs/prd/06-template-contracts-and-generated-assets.md](../../prd/06-template-contracts-and-generated-assets.md)
 - [docs/prd/09-dogfood-and-maintainer-operations.md](../../prd/09-dogfood-and-maintainer-operations.md)
+- [docs/prd/14-add-lifecycle-workflow-foundation.md](../../prd/14-add-lifecycle-workflow-foundation.md)
 
 ## Stage 1 - Update Work Router Guidance
 
 ### Tasks
 
-- [ ] t1: Add a source-authority note to `docs/work/AGENTS.md`.
-- [ ] t2: State that `docs/work/AGENTS.md`, `execution-workflow.md`, `output-contract.md`, `wave-model.md`, `work-index.md`, and `work-phase.md` are primary for backlog shape.
-- [ ] t3: Clarify that approved plans drive backlog content and phase structure.
+- [x] t1: Add a source-authority note to `packages/docs/template/docs/work/AGENTS.md` and the aligned dogfood copy at `docs/work/AGENTS.md`.
+- [x] t2: State that live lifecycle artifacts plus `docs/work/AGENTS.md`, `execution-workflow.md`, `output-contract.md`, `wave-model.md`, `work-index.md`, and `work-phase.md` drive backlog shape before fallbacks.
+- [x] t3: Clarify that accepted designs, approved plans, PRDs, and existing work artifacts drive backlog content and phase structure for the current coordinate.
 
 ### Acceptance criteria
 
-- `docs/work/AGENTS.md` gives agents a deterministic first-read path.
+- Template-owned and dogfood `docs/work/AGENTS.md` files give agents a deterministic first-read path.
 - The guidance distinguishes shape authority from content source.
 - Existing directory, W/R, task, and acceptance criteria rules remain intact.
 
 ### Dependencies
 
-- Phase 1 PRD change doc is complete.
+- Phase 1 PRD owner reconciliation is complete.
 
 ## Stage 2 - Update Execution and Output Contracts
 
 ### Tasks
 
-- [ ] t4: Update `docs/assets/references/execution-workflow.md` backlog rules with the source-priority ladder.
-- [ ] t5: Update `docs/assets/references/output-contract.md` only if required-path or work-output guidance needs a source-authority note.
-- [ ] t6: Preserve existing active-set evolution and delta backlog rules.
+- [x] t4: Update `packages/docs/template/docs/assets/references/execution-workflow.md` and the aligned dogfood copy at `docs/assets/references/execution-workflow.md` with the source-priority ladder.
+- [x] t5: Review `output-contract.md`; no edit is needed because it remains path/shape-focused and does not promote another authority source.
+- [x] t6: Preserve existing active-set evolution and delta backlog rules.
 
 ### Acceptance criteria
 
-- `execution-workflow.md` explains when to use root contracts, plans, archived examples, package skills, and mirrors.
+- `execution-workflow.md` explains when to use live contracts, current lifecycle artifacts, archived examples, bundled skills, generated stubs, and mirrors.
 - `output-contract.md` remains concise and path-focused unless a source-authority note is necessary.
 - No existing backlog path contract changes unexpectedly.
 
@@ -53,9 +54,9 @@ This phase clarifies the root source-priority ladder in `docs/work/AGENTS.md` an
 
 ### Tasks
 
-- [ ] t7: Review `docs/assets/templates/work-index.md` for source-authority wording needs.
-- [ ] t8: Review `docs/assets/templates/work-phase.md` for source-authority wording needs.
-- [ ] t9: Make minimal template edits only if template comments currently leave the authority order ambiguous.
+- [x] t7: Review `packages/docs/template/docs/assets/templates/work-index.md` and the aligned dogfood copy for source-authority wording needs.
+- [x] t8: Review `packages/docs/template/docs/assets/templates/work-phase.md` and the aligned dogfood copy for source-authority wording needs.
+- [x] t9: Make no work-template edits because the template comments stay shape-focused and do not leave the authority order ambiguous.
 
 ### Acceptance criteria
 

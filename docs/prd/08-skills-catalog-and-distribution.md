@@ -26,6 +26,9 @@ Code anchors:
 ### Change Notes
 
 - Superseded by [12-revise-cli-skill-selection-simplification.md](./12-revise-cli-skill-selection-simplification.md) for required/default skill grouping, selected-by-default behavior, and optional-only selection behavior.
+- Clarified by the W15 source-authority reconciliation: selected skills, skill-local references/templates, generated harness exposure files, and any installed skill copies are secondary workflow surfaces. They may guide agents or provide fallback projections, but they must not be treated as primary backlog-shape authority when live repo contracts and accepted lifecycle artifacts are available.
+- Enhanced by [28-revise-shared-agentics-installation-harness-redirection.md](./28-revise-shared-agentics-installation-harness-redirection.md) for install shape. Selected skills install one canonical shared payload under `.make-docs/agentics/skills/` per scope and expose harness-specific generated text stubs under `.claude/skills/` and `.agents/skills/`; symlinks, junctions, or shell links are not required for v2 correctness.
+- Enhanced by [30-revise-harness-plugin-substrate-workflow-bundles.md](./30-revise-harness-plugin-substrate-workflow-bundles.md) for the plugin boundary. Skills and plugins share the selected-agentics store and generated-exposure primitive, but plugin selection remains explicit and separate from `selectedSkills`.
 
 The top-level CLI exposes `skills` as a first-class command beside `reconfigure`, `backup`, and `uninstall` in `packages/cli/src/cli.ts:27`. The command-specific help in `packages/cli/src/cli.ts:942` limits the surface to target directory, dry run, non-interactive apply, harness selection, removal, skill scope, and selected-skill input; it intentionally avoids the broader content/template/reference flags that belong to initial install and reconfigure flows. Argument validation in `packages/cli/src/cli.ts:641` through `packages/cli/src/cli.ts:719` rejects non-skills selection flags on `make-docs skills`, prevents selected-skill input during `--remove`, and checks requested selected skills against the packaged registry.
 
@@ -57,6 +60,14 @@ Code anchors:
 ### Change Notes
 
 - Superseded by [12-revise-cli-skill-selection-simplification.md](./12-revise-cli-skill-selection-simplification.md) for the `required` registry field, `optionalSkills` persisted-selection model, and selected-by-default behavior. The effective requirement is an explicit selected-skill set over all registry entries.
+- Enhanced by [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md) for the package-boundary effect on skills delivery. Bare installs keep no-default-skills behavior while Rust parity is pending, but remote-fetch versus bundled-local delivery and remote-source integrity remain open under Q-001 and Q-007.
+- Enhanced by [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md) for the system asset boundary. Skills and plugins remain selected agentic assets with separate delivery and trust decisions; they are not folded into `full-snapshot`, `provider-backed`, or `hybrid-pinned-cache` system asset modes.
+- Enhanced by [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) for skills migration safety. Migration may preserve prior selected skills only when manifest and file evidence are trustworthy, and it must not silently expand `selectedSkills` or install skill files by default.
+- Enhanced by [20-revise-agent-harness-model-conformance-lab.md](./20-revise-agent-harness-model-conformance-lab.md) for future adapter evidence. Lab adapters for future harnesses or model routes do not add current skills install targets or change the `selectedSkills` contract.
+- Enhanced by [26-revise-no-scripts-migration-skill-refactor.md](./26-revise-no-scripts-migration-skill-refactor.md) for first-party skill refactor requirements. Selected skills may still install prose, references, examples, and metadata, but deterministic make-docs logic must be available from the CLI package/shared-core boundary rather than depending on remote or skill-local script payloads as the only executable source.
+- Enhanced by [27-revise-skill-purpose-registry-alternate-skills-manifest.md](./27-revise-skill-purpose-registry-alternate-skills-manifest.md) for purpose-led selection and alternate manifests. The built-in registry becomes the default skills manifest in logical terms, purpose ids become stable selection metadata, alternate manifests are explicit inputs, and `selectedSkills` plus `skillFiles` remain the executable and ownership state.
+- Enhanced by [28-revise-shared-agentics-installation-harness-redirection.md](./28-revise-shared-agentics-installation-harness-redirection.md) for shared payload and exposure metadata. The executable selected-skill set still comes from `selectedSkills`, but ownership records must connect that selection to the canonical shared payload, generated stubs, source manifest provenance, exposure mode, scope, and migrated duplicate payload status.
+- Enhanced by [30-revise-harness-plugin-substrate-workflow-bundles.md](./30-revise-harness-plugin-substrate-workflow-bundles.md) for plugin substrate separation. Plugin records may reuse purpose and source metadata concepts, but `--selected-skills all` and existing skills UI flows must not select or install plugins.
 
 The skills subsystem hangs off the shared install contract in `packages/cli/src/types.ts:31`. `InstallSelections` carries `harnesses`, `skills`, `skillScope`, and `selectedSkills`, and the skills command mutates only that subset in `packages/cli/src/skills-command.ts:152` and `packages/cli/src/skills-ui.ts:280`. The skill-specific UI state mirrors that reduced surface in `packages/cli/src/skills-ui.ts:28`, which keeps command execution from depending on the broader capability/prompt/template/reference state used by full installs.
 
@@ -86,6 +97,10 @@ Code anchors:
 ### Change Notes
 
 - Superseded by [12-revise-cli-skill-selection-simplification.md](./12-revise-cli-skill-selection-simplification.md) for CLI validation that only accepts formerly optional skill ids. Validation now applies to the selected-skill set over all registry skills.
+- Enhanced by [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md) for shared plugin/skill install boundaries. Long-term MCP startup ownership belongs to Rust, and PRD 30 now owns plugin substrate while implementation proof remains open under Q-012.
+- Enhanced by [27-revise-skill-purpose-registry-alternate-skills-manifest.md](./27-revise-skill-purpose-registry-alternate-skills-manifest.md) for effective-manifest routing. Future plugin, MCP, or skill surfaces must route by canonical purpose ids and resolved skill names, not configured labels or ambient manifest discovery.
+- Enhanced by [28-revise-shared-agentics-installation-harness-redirection.md](./28-revise-shared-agentics-installation-harness-redirection.md) for the selected-agentics store/exposure primitive. Skills use generated harness stubs over a shared payload store.
+- Enhanced by [30-revise-harness-plugin-substrate-workflow-bundles.md](./30-revise-harness-plugin-substrate-workflow-bundles.md) for plugin substrate and workflow bundle metadata. Plugin runtime implementation, public per-bundle UX, and remote delivery remain separate decisions.
 
 The skills subsystem integrates directly with the main CLI parser and help system in `packages/cli/src/cli.ts`. The parser decides when the top-level command becomes `skills`, lazily loads `packages/cli/src/skills-command.ts`, and validates selected skill ids against the packaged registry before the command runs. This keeps registry contents and command-line affordances synchronized, but it also means every new skill entry changes user-facing validation behavior immediately.
 
@@ -154,5 +169,21 @@ Code anchors:
 - `packages/skills/README.md`
 - `packages/skills/archive-docs/`
 - `packages/skills/decompose-codebase/`
+- `packages/skills/closeout-commit/`
+- `packages/skills/closeout-phase/`
+- `packages/skills/work-on-wave/`
+- `packages/skills/work-on-phase/`
+- `docs/prd/26-revise-no-scripts-migration-skill-refactor.md`
+- `docs/prd/27-revise-skill-purpose-registry-alternate-skills-manifest.md`
+- `docs/prd/28-revise-shared-agentics-installation-harness-redirection.md`
+- `docs/prd/30-revise-harness-plugin-substrate-workflow-bundles.md`
+- `docs/designs/2026-06-20-no-scripts-migration-and-skill-refactor.md`
+- `docs/designs/2026-06-20-skill-purpose-registry-and-alternate-skills-manifest.md`
+- `docs/designs/2026-06-20-shared-agentics-installation-and-harness-redirection.md`
+- `docs/designs/2026-06-20-harness-plugin-substrate-and-workflow-bundles.md`
+- `docs/plans/2026-06-23-w16-r3-no-scripts-migration-skill-refactor/00-overview.md`
+- `docs/plans/2026-06-23-w17-r1-skill-purpose-registry-alternate-skills-manifest/00-overview.md`
+- `docs/plans/2026-06-23-w17-r2-shared-agentics-installation-harness-redirection/00-overview.md`
+- `docs/plans/2026-06-23-w18-r2-harness-plugin-substrate-workflow-bundles/00-overview.md`
 - `docs/assets/archive/designs/2026-04-16-cli-skill-installation.md`
 - `docs/assets/archive/designs/2026-04-21-cli-skills-command.md`

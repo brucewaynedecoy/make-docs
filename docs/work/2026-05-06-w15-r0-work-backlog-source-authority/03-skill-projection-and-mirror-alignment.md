@@ -2,28 +2,28 @@
 
 ## Purpose
 
-Align `decompose-codebase` package skill guidance and mirrored skill copies with the root source-authority contract.
+Align `decompose-codebase` package skill guidance with the v2 source-authority contract and record why legacy mirror sync does not apply in this checkout.
 
 ## Overview
 
-This phase updates package skill text first, then syncs mirrors mechanically. It preserves bundled skill assets for installed-skill contexts while making clear they are projections, not independent root repo authority.
+This phase updates package skill text first. The original mirror-sync target is superseded by the current checkout and v2 shared-agentics direction: `.agents/skills/decompose-codebase/` and `.claude/skills/decompose-codebase/` do not exist here, and future harness exposure should be generated rather than hand-maintained.
 
 ## Source PRD Docs
 
-- `docs/prd/14-revise-work-backlog-source-authority.md`
+- [docs/prd/08-skills-catalog-and-distribution.md](../../prd/08-skills-catalog-and-distribution.md)
 - [docs/prd/09-dogfood-and-maintainer-operations.md](../../prd/09-dogfood-and-maintainer-operations.md)
 
 ## Stage 1 - Update Package Skill Guidance
 
 ### Tasks
 
-- [ ] t1: Update `packages/skills/decompose-codebase/SKILL.md` to describe root `docs/assets` contracts as primary inside this repo.
-- [ ] t2: Clarify that skill-local `references/` and `assets/templates/` are bundled projections for installed skill execution.
-- [ ] t3: Clarify that mirrors under `.agents` and `.claude` are parity outputs and should not be edited independently.
+- [x] t1: Update `packages/skills/decompose-codebase/SKILL.md` to describe v2 template-owned, dogfood, and project-owned source layers instead of treating root `docs/assets` as the blanket authoring authority.
+- [x] t2: Clarify that skill-local `references/` and `assets/templates/` are bundled projections for installed skill execution and fallback usage.
+- [x] t3: Clarify through active PRD and W15 notes that generated harness exposure or installed skill copies are fallback outputs and should not be edited as independent authority.
 
 ### Acceptance criteria
 
-- Package skill guidance matches the PRD change doc and root contracts.
+- Package skill guidance matches the active PRD owner notes and root contracts.
 - The installed-skill use case remains supported.
 - The skill no longer invites agents to treat projections as the primary backlog-shape source in this repo.
 
@@ -35,9 +35,9 @@ This phase updates package skill text first, then syncs mirrors mechanically. It
 
 ### Tasks
 
-- [ ] t4: Review `packages/skills/decompose-codebase/references/` for conflicting source-authority wording.
-- [ ] t5: Review `packages/skills/decompose-codebase/assets/templates/` for conflicting source-authority wording.
-- [ ] t6: Update only the package skill-local files that conflict with the new source-priority ladder.
+- [x] t4: Review `packages/skills/decompose-codebase/references/` for conflicting source-authority wording.
+- [x] t5: Review `packages/skills/decompose-codebase/assets/templates/` for conflicting source-authority wording.
+- [x] t6: Update only the package skill-local files that conflict with the new source-priority ladder.
 
 ### Acceptance criteria
 
@@ -49,19 +49,19 @@ This phase updates package skill text first, then syncs mirrors mechanically. It
 
 - Stage 1 is complete.
 
-## Stage 3 - Sync Mirrors
+## Stage 3 - Resolve Mirror Disposition
 
 ### Tasks
 
-- [ ] t7: Sync `packages/skills/decompose-codebase/` into `.agents/skills/decompose-codebase/`.
-- [ ] t8: Sync `packages/skills/decompose-codebase/` into `.claude/skills/decompose-codebase/`.
-- [ ] t9: Verify no mirror-only edits remain.
+- [x] t7: Do not create `.agents/skills/decompose-codebase/`; the mirror target is absent and v2 moves toward generated harness exposure.
+- [x] t8: Do not create `.claude/skills/decompose-codebase/`; the mirror target is absent and v2 moves toward generated harness exposure.
+- [x] t9: Verify no mirror-only edits remain.
 
 ### Acceptance criteria
 
-- `.agents` and `.claude` mirrors match the package skill source.
-- Mirror parity is restored before validation.
-- Any sync command or manual copy approach is documented in phase closeout.
+- No `.agents` or `.claude` mirror directories are introduced by this reconciliation.
+- The package skill source remains the only edited skill source.
+- The mirror disposition is documented in phase closeout.
 
 ### Dependencies
 
@@ -71,15 +71,15 @@ This phase updates package skill text first, then syncs mirrors mechanically. It
 
 ### Tasks
 
-- [ ] t10: Review `packages/skills/decompose-codebase/scripts/validate_output.py` for assumptions affected by the source-authority wording.
-- [ ] t11: Avoid validator edits unless existing checks conflict with the updated contract.
-- [ ] t12: Update validator tests only if validator behavior changes.
+- [x] t10: Review `packages/skills/decompose-codebase/scripts/validate_output.py` for assumptions affected by the source-authority wording.
+- [x] t11: Avoid validator edits because existing checks validate output shape rather than source-authority precedence.
+- [x] t12: Do not update validator tests because validator behavior did not change.
 
 ### Acceptance criteria
 
 - Existing validator hooks still cover work backlog shape.
 - No new validator path is added without a concrete gap.
-- Validator and validator tests remain aligned with package and mirror skill assets.
+- Validator and validator tests remain aligned with package skill assets.
 
 ### Dependencies
 

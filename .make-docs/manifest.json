@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "packageName": "@brucewaynedecoy/make-docs",
   "packageVersion": "1.0.0-rc.1",
-  "updatedAt": "2026-06-19T00:26:01.992Z",
+  "updatedAt": "2026-06-19T12:15:38.528Z",
   "profileId": "4757a4e744aa64f9",
   "selections": {
     "capabilities": {
@@ -35,7 +35,7 @@
       "sourceId": "file:CLAUDE.md"
     },
     "docs/AGENTS.md": {
-      "hash": "f1047da0515d09ed541c8e63a2e4a0fb206c0e637fd0ad18f8f60d3623c628c1",
+      "hash": "733a0a4b1c81dd89f448bbe8d17e975dbeffa7068019fad17bc347e3214d6740",
       "sourceId": "file:docs/AGENTS.md"
     },
     "docs/assets/AGENTS.md": {
@@ -255,7 +255,7 @@
       "sourceId": "file:docs/assets/templates/work-phase.md"
     },
     "docs/CLAUDE.md": {
-      "hash": "f1047da0515d09ed541c8e63a2e4a0fb206c0e637fd0ad18f8f60d3623c628c1",
+      "hash": "733a0a4b1c81dd89f448bbe8d17e975dbeffa7068019fad17bc347e3214d6740",
       "sourceId": "file:docs/CLAUDE.md"
     },
     "docs/designs/AGENTS.md": {

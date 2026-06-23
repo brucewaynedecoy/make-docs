@@ -114,6 +114,14 @@ Code anchors:
 
 - Superseded by [11-revise-cli-asset-selection-simplification.md](./11-revise-cli-asset-selection-simplification.md) for prompt/template/reference selection flags as active installer decisions.
 - Superseded by [12-revise-cli-skill-selection-simplification.md](./12-revise-cli-skill-selection-simplification.md) for removing `--optional-skills` and replacing optional-skill CLI validation with selected-skill command behavior.
+- Superseded by [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md) for public package/command identity. The active v2 command surface has one primary command name, `make-docs`, no default compatibility aliases, and a future requirement for runtime/version disclosure once TypeScript and Rust distributions can both be installed.
+- Enhanced by [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md) for future materialization-mode UX. Any provider-backed or hybrid pinned-cache path must be explicit, explain provider outage recovery locally, and route on-demand writes through the same review and managed-file conflict safety as ordinary install.
+- Enhanced by [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) for migration command behavior. Ordinary install/reconfigure may recommend `backup-and-reinstall`, but it must not perform that destructive disposition implicitly; migration flows must surface `sync`, `migrate`, `migrate-with-review`, `backup-and-reinstall`, or `manual-review-required` before apply.
+- Enhanced by [20-revise-agent-harness-model-conformance-lab.md](./20-revise-agent-harness-model-conformance-lab.md) for support-claim evidence. Current shipped harness behavior remains Codex and Claude Code; OpenCode, Goose, Pi, and future IDEs are lab adapter targets until a later accepted design changes the executable harness model.
+- Enhanced by [25-revise-cli-separation-and-mcp-boundary.md](./25-revise-cli-separation-and-mcp-boundary.md) for the TypeScript CLI, future Rust CLI, and MCP boundary. The npm `npx` path remains installer-first with meaningful no-command install/sync behavior, explicit `reconfigure`, `skills`, `backup`, and `uninstall` commands, and rejected `init`, `update`, `--reconfigure`, and `--skills` surfaces; future MCP tools must delegate to the same CLI/shared-core operation contracts rather than defining a second behavior model.
+- Enhanced by [26-revise-no-scripts-migration-skill-refactor.md](./26-revise-no-scripts-migration-skill-refactor.md) for deterministic helper migration. First-party helper behavior must move into tested CLI/shared-core operations before standalone scripts are removed or reduced to thin wrappers, and ordinary CLI commands plus future MCP tools must share those operation semantics.
+- Enhanced by [27-revise-skill-purpose-registry-alternate-skills-manifest.md](./27-revise-skill-purpose-registry-alternate-skills-manifest.md) for purpose-led skill selection. The `skills` command and any full-install skill-selection surface must use one effective skills manifest per run, interpret `all` and `none` against that manifest, preserve resolved `selectedSkills` behavior, and reject untrusted alternate manifests before mutation.
+- Enhanced by [28-revise-shared-agentics-installation-harness-redirection.md](./28-revise-shared-agentics-installation-harness-redirection.md) for shared selected-agentics output. Skills command, dry-run, review, backup, and uninstall output must distinguish canonical shared payloads from generated harness stubs, keep bare installs skill-free, and never require symlink or junction support for v2 correctness.
 
 The root command contract is encoded in `Command`, `InstallIntent`, and `ParsedArgs` in `packages/cli/src/cli.ts:27`, `packages/cli/src/cli.ts:28`, and `packages/cli/src/cli.ts:30`. `parseArgs` normalizes the public flags in `packages/cli/src/cli.ts:455`, while `validateParsedArgs` enforces cross-command boundaries in `packages/cli/src/cli.ts:653`: `--backup` is uninstall-only, `--remove` is skills-only, selection flags are invalid on lifecycle commands, and selected skill identifiers must be known registry entries in `packages/cli/src/cli.ts:705`.
 
@@ -238,5 +246,17 @@ Code anchors:
 - `packages/cli/tests/lifecycle.test.ts`
 - `README.md`
 - `packages/cli/README.md`
+- `docs/prd/25-revise-cli-separation-and-mcp-boundary.md`
+- `docs/prd/26-revise-no-scripts-migration-skill-refactor.md`
+- `docs/prd/27-revise-skill-purpose-registry-alternate-skills-manifest.md`
+- `docs/prd/28-revise-shared-agentics-installation-harness-redirection.md`
+- `docs/designs/2026-06-20-cli-separation-and-mcp-boundary.md`
+- `docs/designs/2026-06-20-no-scripts-migration-and-skill-refactor.md`
+- `docs/designs/2026-06-20-skill-purpose-registry-and-alternate-skills-manifest.md`
+- `docs/designs/2026-06-20-shared-agentics-installation-and-harness-redirection.md`
+- `docs/plans/2026-06-23-w10-r6-cli-separation-and-mcp-boundary/00-overview.md`
+- `docs/plans/2026-06-23-w16-r3-no-scripts-migration-skill-refactor/00-overview.md`
+- `docs/plans/2026-06-23-w17-r1-skill-purpose-registry-alternate-skills-manifest/00-overview.md`
+- `docs/plans/2026-06-23-w17-r2-shared-agentics-installation-harness-redirection/00-overview.md`
 - `docs/assets/archive/designs/2026-04-18-cli-help-backup-and-uninstall.md`
 - `docs/assets/archive/plans/2026-04-18-w7-r0-cli-help-backup-and-uninstall/00-overview.md`
