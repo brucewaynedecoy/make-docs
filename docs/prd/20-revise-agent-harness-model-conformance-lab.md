@@ -61,6 +61,7 @@ Validation relationship:
 - The lab may call existing validation commands as scenario steps.
 - A green lab run does not replace package validation.
 - A green package validation run is not a public harness/model support claim without conformance evidence.
+- [25-revise-cli-separation-and-mcp-boundary.md](./25-revise-cli-separation-and-mcp-boundary.md) extends support-claim gating to CLI/MCP surfaces: a claim that an agent or harness can use MCP-backed make-docs behavior must have scenario evidence that the MCP tool delegates to the same CLI/shared-core operation contract and reports runtime/distribution identity.
 
 ## Impacted Docs and Dependencies
 
@@ -87,7 +88,9 @@ The paired delta backlog should be generated under `docs/work/2026-06-23-w10-r5-
 ## Source Anchors
 
 - `docs/designs/2026-06-19-agent-harness-and-model-conformance-lab.md`
+- `docs/designs/2026-06-20-cli-separation-and-mcp-boundary.md`
 - `docs/plans/2026-06-23-w10-r5-agent-harness-model-conformance-lab/00-overview.md`
+- `docs/plans/2026-06-23-w10-r6-cli-separation-and-mcp-boundary/00-overview.md`
 - `docs/work/2026-06-23-w10-r5-agent-harness-model-conformance-lab/00-index.md`
 - `docs/prd/07-cli-command-surface-and-lifecycle.md`
 - `docs/prd/08-skills-catalog-and-distribution.md`
@@ -96,6 +99,7 @@ The paired delta backlog should be generated under `docs/work/2026-06-23-w10-r5-
 - `docs/prd/17-revise-system-asset-materialization-contract.md`
 - `docs/prd/18-revise-compatibility-audit-and-migration-disposition.md`
 - `docs/prd/19-revise-template-package-dogfood-source-of-truth-contract.md`
+- `docs/prd/25-revise-cli-separation-and-mcp-boundary.md`
 - `packages/cli/src/types.ts`
 - `packages/cli/src/wizard.ts`
 - `packages/cli/src/skill-catalog.ts`

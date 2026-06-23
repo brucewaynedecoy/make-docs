@@ -80,6 +80,7 @@ MCP and shared-contract boundary:
 
 - Long-term MCP startup ownership belongs to the Rust CLI.
 - The TypeScript npm package may continue to bootstrap, configure, or bridge MCP-related setup during transition, but it should not become the long-term MCP runtime owner.
+- [25-revise-cli-separation-and-mcp-boundary.md](./25-revise-cli-separation-and-mcp-boundary.md) narrows that transition: the TypeScript npm package remains the current source of truth for installer-maintainer behavior, future MCP tools must delegate to CLI/shared-core operation contracts, and the first MCP surface is read-first and plan-first until a later permission model and parity proof authorizes writes.
 - The TypeScript and Rust implementations must share durable contracts rather than fork them.
 - `.make-docs/manifest.json`, package metadata needed for installed-project provenance, audit safety expectations, backup/uninstall behavior, and user-visible command semantics are shared product contracts.
 - Until a Rust implementation plan lands, the TypeScript CLI remains the implementation source of truth for those shared contracts.
@@ -137,7 +138,9 @@ Do not add `Change Notes` to `docs/prd/03-open-questions-and-risk-register.md`; 
 ## Source Anchors
 
 - `docs/designs/2026-06-19-package-and-deployment-boundaries.md`
+- `docs/designs/2026-06-20-cli-separation-and-mcp-boundary.md`
 - `docs/plans/2026-06-23-w10-r1-package-and-deployment-boundaries/00-overview.md`
+- `docs/plans/2026-06-23-w10-r6-cli-separation-and-mcp-boundary/00-overview.md`
 - `docs/prd/01-product-overview.md`
 - `docs/prd/02-architecture-overview.md`
 - `docs/prd/03-open-questions-and-risk-register.md`
@@ -146,6 +149,7 @@ Do not add `Change Notes` to `docs/prd/03-open-questions-and-risk-register.md`; 
 - `docs/prd/08-skills-catalog-and-distribution.md`
 - `docs/prd/10-packaging-validation-and-release-reference.md`
 - `docs/prd/12-revise-cli-skill-selection-simplification.md`
+- `docs/prd/25-revise-cli-separation-and-mcp-boundary.md`
 - `packages/cli/package.json`
 - `packages/cli/src/cli.ts`
 - `packages/cli/src/core/manifest.ts`

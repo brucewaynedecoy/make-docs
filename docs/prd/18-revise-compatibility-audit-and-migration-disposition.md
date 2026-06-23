@@ -107,6 +107,7 @@ TypeScript/Rust compatibility:
 - The TypeScript npm implementation remains the current executable source of truth.
 - A future Rust CLI may classify, sync, migrate, backup, uninstall, or provider-resolve only after it preserves this taxonomy, manifest compatibility, and single-audit safety model.
 - When both TypeScript and Rust distributions are installed, PATH order may choose the runtime, but the selected runtime must not fork the installed-project compatibility contract.
+- [25-revise-cli-separation-and-mcp-boundary.md](./25-revise-cli-separation-and-mcp-boundary.md) applies the same requirement to MCP and no-scripts replacement paths: every install, reconfigure, migration, backup, uninstall, Rust, or MCP write path must classify source state before mutation and reuse the same disposition and audit-snapshot contract.
 
 Dogfood and skills:
 
@@ -162,7 +163,9 @@ Do not add `Change Notes` to `docs/prd/03-open-questions-and-risk-register.md`; 
 - `docs/designs/2026-06-19-compatibility-audit-and-migration-disposition.md`
 - `docs/designs/2026-06-19-package-and-deployment-boundaries.md`
 - `docs/designs/2026-06-19-system-asset-delivery-and-materialization-contract.md`
+- `docs/designs/2026-06-20-cli-separation-and-mcp-boundary.md`
 - `docs/plans/2026-06-23-w10-r3-compatibility-audit-and-migration-disposition/00-overview.md`
+- `docs/plans/2026-06-23-w10-r6-cli-separation-and-mcp-boundary/00-overview.md`
 - `docs/prd/02-architecture-overview.md`
 - `docs/prd/05-installation-profile-and-manifest-lifecycle.md`
 - `docs/prd/06-template-contracts-and-generated-assets.md`
@@ -172,6 +175,7 @@ Do not add `Change Notes` to `docs/prd/03-open-questions-and-risk-register.md`; 
 - `docs/prd/16-revise-package-and-deployment-boundaries.md`
 - `docs/prd/17-revise-system-asset-materialization-contract.md`
 - `docs/prd/03-open-questions-and-risk-register.md`
+- `docs/prd/25-revise-cli-separation-and-mcp-boundary.md`
 - `packages/cli/src/manifest.ts`
 - `packages/cli/src/audit.ts`
 - `packages/cli/src/backup.ts`

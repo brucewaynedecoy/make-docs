@@ -72,6 +72,7 @@ For a true first public release, the release state now uses Apache-2.0 licensing
 - Enhanced by [22-revise-new-docs-assets-playbooks-persona-model.md](./22-revise-new-docs-assets-playbooks-persona-model.md) for package proof of reader-facing guide/playbook assets. Packed validation must cover template copy, dogfood parity, frontmatter/persona fixtures, and path-hygiene checks for `docs/assets/{guides,playbooks}/` and future `docs/archive/**`.
 - Enhanced by [23-revise-generated-metadata-lifecycle-handoffs.md](./23-revise-generated-metadata-lifecycle-handoffs.md) for package proof of metadata-bearing templates. Packed validation must prove copied templates preserve required frontmatter and YAML/body handoff consistency.
 - Enhanced by [24-revise-configuration-convention-overlay.md](./24-revise-configuration-convention-overlay.md) for package proof of configuration overlays. Packed validation must prove any default config template follows source-first copy rules and install/reconfigure flows preserve local `.make-docs/config.yaml`.
+- Enhanced by [25-revise-cli-separation-and-mcp-boundary.md](./25-revise-cli-separation-and-mcp-boundary.md) for CLI/MCP package proof. Packed npm validation remains installer-first and must keep the public command taxonomy aligned with TypeScript behavior; future dual-runtime validation must prove runtime/version disclosure, PATH-order supportability, and CLI/MCP operation-contract parity before Rust or MCP surfaces are treated as implementation-ready.
 
 ## Source Anchors
 
@@ -94,3 +95,6 @@ For a true first public release, the release state now uses Apache-2.0 licensing
 - `docs/prd/22-revise-new-docs-assets-playbooks-persona-model.md`
 - `docs/prd/23-revise-generated-metadata-lifecycle-handoffs.md`
 - `docs/prd/24-revise-configuration-convention-overlay.md`
+- `docs/prd/25-revise-cli-separation-and-mcp-boundary.md`
+- `docs/designs/2026-06-20-cli-separation-and-mcp-boundary.md`
+- `docs/plans/2026-06-23-w10-r6-cli-separation-and-mcp-boundary/00-overview.md`

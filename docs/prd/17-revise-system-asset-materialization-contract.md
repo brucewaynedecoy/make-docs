@@ -80,6 +80,7 @@ Provider and cache provenance:
 
 - The npm installer bundle is the current source of truth for full-snapshot materialization.
 - The future Rust CLI or MCP surface may become a provider for immutable system assets only after it preserves manifest, audit, backup, uninstall, and conflict-safety expectations.
+- [25-revise-cli-separation-and-mcp-boundary.md](./25-revise-cli-separation-and-mcp-boundary.md) further requires Rust/MCP provider paths to keep local bootstrap readability and manifest provider/version/ref/hash/offline/recovery evidence, and prevents MCP from being the only place a repository can understand provider-backed state.
 - A global cache is allowed only as a cache, not as an unpinned source of truth.
 - A cached asset set must be pinned by provider identity, provider version or immutable ref, hash algorithm, and hash set.
 - If the cache is missing or its hashes do not match, the CLI must rehydrate from an approved provider or fall back to a reviewed materialization path.
@@ -143,7 +144,9 @@ Do not add `Change Notes` to `docs/prd/03-open-questions-and-risk-register.md`; 
 
 - `docs/designs/2026-06-19-system-asset-delivery-and-materialization-contract.md`
 - `docs/designs/2026-06-19-package-and-deployment-boundaries.md`
+- `docs/designs/2026-06-20-cli-separation-and-mcp-boundary.md`
 - `docs/plans/2026-06-23-w10-r2-system-asset-materialization-contract/00-overview.md`
+- `docs/plans/2026-06-23-w10-r6-cli-separation-and-mcp-boundary/00-overview.md`
 - `docs/prd/02-architecture-overview.md`
 - `docs/prd/05-installation-profile-and-manifest-lifecycle.md`
 - `docs/prd/06-template-contracts-and-generated-assets.md`
@@ -152,6 +155,7 @@ Do not add `Change Notes` to `docs/prd/03-open-questions-and-risk-register.md`; 
 - `docs/prd/10-packaging-validation-and-release-reference.md`
 - `docs/prd/16-revise-package-and-deployment-boundaries.md`
 - `docs/prd/03-open-questions-and-risk-register.md`
+- `docs/prd/25-revise-cli-separation-and-mcp-boundary.md`
 - `packages/cli/src/rules.ts`
 - `packages/cli/src/catalog.ts`
 - `packages/cli/src/utils.ts`

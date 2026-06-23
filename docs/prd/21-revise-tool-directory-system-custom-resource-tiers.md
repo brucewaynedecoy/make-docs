@@ -87,6 +87,7 @@ Migration:
 - Current template-owned `docs/assets/{prompts,references,templates}/` content migrates toward `.make-docs/{prompts,references,templates}/system/` only through a later implementation plan.
 - Future reader-facing docs assets such as guides and playbooks belong under `docs/assets/**`; [22-revise-new-docs-assets-playbooks-persona-model.md](./22-revise-new-docs-assets-playbooks-persona-model.md) narrows that target to `docs/assets/{guides,playbooks}/` and assigns archive storage to future `docs/archive/**`.
 - `agentics/skills` and `agentics/plugins` are reserved for later shared skill/plugin delivery decisions.
+- [25-revise-cli-separation-and-mcp-boundary.md](./25-revise-cli-separation-and-mcp-boundary.md) constrains future `scripts/` and `agentics/` migration work: deterministic script-replacement logic must move into CLI/shared-core operations before MCP exposure, and skills/plugins must call that boundary instead of carrying independent filesystem or routing logic.
 - Implementation follows PRD 19 source-of-truth order: shipped defaults start in `packages/docs/template/`, dogfood selected files under review, and bundle through `packages/cli/template/` copy/prepack.
 
 ## Impacted Docs and Dependencies
@@ -128,6 +129,9 @@ The paired delta backlog should be generated under `docs/work/2026-06-23-w9-r2-t
 - `docs/prd/19-revise-template-package-dogfood-source-of-truth-contract.md`
 - `docs/prd/22-revise-new-docs-assets-playbooks-persona-model.md`
 - `docs/prd/24-revise-configuration-convention-overlay.md`
+- `docs/prd/25-revise-cli-separation-and-mcp-boundary.md`
+- `docs/designs/2026-06-20-cli-separation-and-mcp-boundary.md`
+- `docs/plans/2026-06-23-w10-r6-cli-separation-and-mcp-boundary/00-overview.md`
 - `packages/cli/src/rules.ts`
 - `packages/cli/src/catalog.ts`
 - `packages/cli/src/planner.ts`

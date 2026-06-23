@@ -30,13 +30,13 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | None yet | Audit public command docs against the live parser and help output. |
+| Open | [25-revise-cli-separation-and-mcp-boundary.md](./25-revise-cli-separation-and-mcp-boundary.md) preserves the installer-first `npx` posture, meaningful no-command install/sync behavior, accepted lifecycle commands, and removed command rejections; public docs still need implementation cleanup. | Audit public command docs against the live parser, help output, and future runtime/version disclosure language. |
 
 **Issue**: `packages/cli/src/cli.ts:894-1019` exposes `skills`, `backup`, and `uninstall`, while `README.md:73`, `packages/cli/README.md:56`, and older docs still frame the product mostly as install/reconfigure/dry-run and still discuss removed `init` or `update` paths rejected by `packages/cli/src/cli.ts:589-612`.
 
 **Why it matters**: Operator docs and design lineage can point people toward commands the parser no longer accepts.
 
-**Recommendation**: Bring public docs and package README command examples in line with the no-command install flow and explicit lifecycle commands.
+**Recommendation**: Bring public docs and package README command examples in line with the no-command install flow, explicit lifecycle commands, and CLI/MCP boundary wording.
 
 **To close**: Public command docs only describe accepted command paths or clearly label archived command history as historical.
 
@@ -86,7 +86,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md) makes `packages/cli/package.json`, packed package behavior, and smoke-pack validation authoritative for the npm package boundary; [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md) keeps full-snapshot package validation as the default system asset proof; [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) adds migration/classification docs to the package-facing safety surface; [19-revise-template-package-dogfood-source-of-truth-contract.md](./19-revise-template-package-dogfood-source-of-truth-contract.md) makes generated `packages/cli/template/` and source-of-truth wording part of the package surface. README wording still needs implementation cleanup. | Align package-surface docs with dry-run pack output and the accepted npm/Rust deployment, system asset materialization, compatibility migration, and template/package source-of-truth boundaries. |
+| Open | [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md) makes `packages/cli/package.json`, packed package behavior, and smoke-pack validation authoritative for the npm package boundary; [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md) keeps full-snapshot package validation as the default system asset proof; [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) adds migration/classification docs to the package-facing safety surface; [19-revise-template-package-dogfood-source-of-truth-contract.md](./19-revise-template-package-dogfood-source-of-truth-contract.md) makes generated `packages/cli/template/` and source-of-truth wording part of the package surface; [25-revise-cli-separation-and-mcp-boundary.md](./25-revise-cli-separation-and-mcp-boundary.md) adds installer-first `npx`, dual-runtime disclosure, and MCP parity constraints to that surface. README wording still needs implementation cleanup. | Align package-surface docs with dry-run pack output and the accepted npm/Rust deployment, system asset materialization, compatibility migration, template/package source-of-truth, CLI/MCP boundary, and runtime/version output requirements. |
 
 **Issue**: `packages/cli/package.json:9-15` ships `dist`, `template`, registry files, and `README.md`, but `packages/cli/src/README.md:181-204` and `packages/cli/README.md:91-120` still describe tarball-root `docs/`, `AGENTS.md`, and `CLAUDE.md`.
 
@@ -378,7 +378,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md) assigns long-term MCP startup ownership to Rust and preserves one `make-docs` command; [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) requires future Rust/plugin install paths to preserve compatibility classification and migration dispositions; [20-revise-agent-harness-model-conformance-lab.md](./20-revise-agent-harness-model-conformance-lab.md) can test shared-install behavior only after the product contract exists; PRD 21 reserves `.make-docs/agentics/skills` and `.make-docs/agentics/plugins` for that future decision; PRD 24 allows plugins and skills to display configured labels while routing through canonical identifiers. Shared skill/plugin install remains unresolved. | Define a cross-platform redirection model and how plugins read config relabels without treating labels as schema authority. |
+| Open | [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md) assigns long-term MCP startup ownership to Rust and preserves one `make-docs` command; [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) requires future Rust/plugin install paths to preserve compatibility classification and migration dispositions; [20-revise-agent-harness-model-conformance-lab.md](./20-revise-agent-harness-model-conformance-lab.md) can test shared-install behavior only after the product contract exists; PRD 21 reserves `.make-docs/agentics/skills` and `.make-docs/agentics/plugins` for that future decision; PRD 24 allows plugins and skills to display configured labels while routing through canonical identifiers; [25-revise-cli-separation-and-mcp-boundary.md](./25-revise-cli-separation-and-mcp-boundary.md) requires MCP, plugins, and skills to call canonical CLI/shared-core operations rather than independent routing logic. Shared skill/plugin install remains unresolved. | Define a cross-platform redirection model and how plugins read config relabels without treating labels as schema authority or bypassing the shared operation contract. |
 
 **Question**: How are skills and plugins installed once and exposed to each harness without duplication, and how does a plugin that guides (for example) requirements → design → plan respect a config that relabels "designs" to "ideas"?
 
@@ -452,7 +452,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Dual dev/packed resolution remains active; [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md) adds the requirement that packed npm and future Rust artifacts preserve the same command and shared contract boundaries; [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md) keeps full-snapshot materialization as the default validation baseline; [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) adds source-state/disposition fixtures to the release-sensitive validation matrix; [19-revise-template-package-dogfood-source-of-truth-contract.md](./19-revise-template-package-dogfood-source-of-truth-contract.md) requires packed validation to exercise generated `packages/cli/template/` after copy/prepack; [20-revise-agent-harness-model-conformance-lab.md](./20-revise-agent-harness-model-conformance-lab.md) may consume smoke-pack as scenario evidence but cannot replace it; PRD 21 adds future `.make-docs/**` tool-resource package proof; PRD 22 adds reader-facing guide/playbook package proof; PRD 24 adds default config template parity and local config preservation proof. | Preserve smoke-pack checks for template, package-boundary, system asset materialization, compatibility migration, package-template copy, conformance-lab, tool-directory, reader-facing asset, and configuration overlay changes. |
+| Open | Dual dev/packed resolution remains active; [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md) adds the requirement that packed npm and future Rust artifacts preserve the same command and shared contract boundaries; [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md) keeps full-snapshot materialization as the default validation baseline; [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) adds source-state/disposition fixtures to the release-sensitive validation matrix; [19-revise-template-package-dogfood-source-of-truth-contract.md](./19-revise-template-package-dogfood-source-of-truth-contract.md) requires packed validation to exercise generated `packages/cli/template/` after copy/prepack; [20-revise-agent-harness-model-conformance-lab.md](./20-revise-agent-harness-model-conformance-lab.md) may consume smoke-pack as scenario evidence but cannot replace it; PRD 21 adds future `.make-docs/**` tool-resource package proof; PRD 22 adds reader-facing guide/playbook package proof; PRD 24 adds default config template parity and local config preservation proof; [25-revise-cli-separation-and-mcp-boundary.md](./25-revise-cli-separation-and-mcp-boundary.md) adds CLI/MCP parity, runtime/version disclosure, and PATH-order supportability proof. | Preserve smoke-pack checks for template, package-boundary, system asset materialization, compatibility migration, package-template copy, conformance-lab, tool-directory, reader-facing asset, configuration overlay, and CLI/MCP dual-runtime changes. |
 
 **Issue**: Testing only local dev paths can miss failures that appear only after `prepack` copies the template into `packages/cli/template`.
 
@@ -466,7 +466,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Literal path duplication remains accepted but risky; [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md) adds provider/cache provenance and asset identity as future duplication-sensitive surfaces, [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) makes fallback path recognition a mutation gate, [19-revise-template-package-dogfood-source-of-truth-contract.md](./19-revise-template-package-dogfood-source-of-truth-contract.md) adds template/dogfood/package copy paths to the proof surface, PRD 20 adds conformance scenario/result paths that must stay out of shipped copies by default, PRD 21 adds `.make-docs/**` tool-resource paths, PRD 22 adds `docs/assets/guides/**`, `docs/assets/playbooks/**`, and `docs/archive/**`, PRD 23 adds generated metadata field names, route identifiers, and body-rendered handoff sections as duplication-sensitive surfaces, and PRD 24 adds display-label/config schema surfaces that must not become alternate routing tables. | Add parity, provenance, classifier, package-template copy, conformance asset exclusion, tool-directory path, reader-facing asset path, generated metadata, YAML/body handoff drift, and config structural-rename checks when moving, adding, or provider-resolving template-owned paths. |
+| Open | Literal path duplication remains accepted but risky; [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md) adds provider/cache provenance and asset identity as future duplication-sensitive surfaces, [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) makes fallback path recognition a mutation gate, [19-revise-template-package-dogfood-source-of-truth-contract.md](./19-revise-template-package-dogfood-source-of-truth-contract.md) adds template/dogfood/package copy paths to the proof surface, PRD 20 adds conformance scenario/result paths that must stay out of shipped copies by default, PRD 21 adds `.make-docs/**` tool-resource paths, PRD 22 adds `docs/assets/guides/**`, `docs/assets/playbooks/**`, and `docs/archive/**`, PRD 23 adds generated metadata field names, route identifiers, and body-rendered handoff sections as duplication-sensitive surfaces, PRD 24 adds display-label/config schema surfaces that must not become alternate routing tables, and [25-revise-cli-separation-and-mcp-boundary.md](./25-revise-cli-separation-and-mcp-boundary.md) adds CLI/MCP operation-contract names and canonical routing identifiers. | Add parity, provenance, classifier, package-template copy, conformance asset exclusion, tool-directory path, reader-facing asset path, generated metadata, YAML/body handoff drift, config structural-rename, and CLI/MCP shared-operation checks when moving, adding, or provider-resolving template-owned paths. |
 
 **Issue**: Adding or moving a template-owned path can drift across `rules.ts`, `catalog.ts`, tests, package docs, and dogfood copies.
 
@@ -480,7 +480,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | No-command install remains the public default. | Preserve parser rejection and help-output tests. |
+| Open | No-command install remains the public default, and [25-revise-cli-separation-and-mcp-boundary.md](./25-revise-cli-separation-and-mcp-boundary.md) explicitly rejects replacing it with an `init`/`update` command-router model for npm, Rust, or MCP surfaces. | Preserve parser rejection, help-output, and CLI/MCP parity tests. |
 
 **Issue**: Reintroducing `init`/`update`, collapsing wizard review with generic apply confirmation, or treating lifecycle commands as install flags would break the shipped public UX.
 
@@ -494,7 +494,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Single reviewed audit snapshot remains the shared safety model for the TypeScript CLI, any future Rust implementation, any on-demand materialization path introduced by [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md), the `backup-and-reinstall` disposition defined by [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md), and future `.make-docs/**` tool-resource migration in PRD 21. PRD 20 may test this as a scenario but cannot loosen it. | Keep backup/uninstall implementation, provider-backed writes, migration backup-and-reinstall, conformance scenarios, tool-directory migration, and docs aligned around one reviewed audit/classification snapshot. |
+| Open | Single reviewed audit snapshot remains the shared safety model for the TypeScript CLI, any future Rust implementation, any on-demand materialization path introduced by [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md), the `backup-and-reinstall` disposition defined by [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md), future `.make-docs/**` tool-resource migration in PRD 21, and MCP writes constrained by [25-revise-cli-separation-and-mcp-boundary.md](./25-revise-cli-separation-and-mcp-boundary.md). PRD 20 may test this as a scenario but cannot loosen it. | Keep backup/uninstall implementation, provider-backed writes, migration backup-and-reinstall, conformance scenarios, tool-directory migration, MCP permissions, and docs aligned around one reviewed audit/classification snapshot. |
 
 **Issue**: Re-auditing between warning, backup, and delete steps can invalidate what the user already approved and break the current safety model.
 
@@ -522,7 +522,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Skill refactor deferred to the no-scripts / CLI-migration wave. | Ship the W16 starter prompts as the interim path; revisit if that wave slips. |
+| Open | Skill refactor deferred to the no-scripts / CLI-migration wave; [25-revise-cli-separation-and-mcp-boundary.md](./25-revise-cli-separation-and-mcp-boundary.md) requires deterministic logic to move into CLI/shared-core operations before MCP exposure and before skills are rewritten to call that boundary. | Ship the W16 starter prompts as the interim path; sequence the skill rewrite with CLI/shared-core parity and revisit if that wave slips. |
 
 **Issue**: The closeout and work skills keep their current script-gated behavior until the no-scripts wave rewrites them to cite the coverage-pass contract.
 
@@ -606,7 +606,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Move deterministic logic into the CLI without stranding skills between TypeScript, future Rust ownership, the provider/cache surfaces introduced by [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md), the migration classifier required by [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md), lab scenarios introduced by [20-revise-agent-harness-model-conformance-lab.md](./20-revise-agent-harness-model-conformance-lab.md), future `.make-docs/scripts/{system,custom}` tiers introduced by PRD 21, generated metadata validation introduced by PRD 23, and config validation introduced by PRD 24; sequence the skill refactor into the same wave. | Avoid rewriting skills, scripts, conformance scenarios, metadata validation, or config validation to cite the contract before the CLI provides their logic and before system assets, migration classification, YAML/body drift checks, and structural-rename checks remain locally recoverable without script helpers. |
+| Open | Move deterministic logic into the CLI without stranding skills between TypeScript, future Rust ownership, the provider/cache surfaces introduced by [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md), the migration classifier required by [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md), lab scenarios introduced by [20-revise-agent-harness-model-conformance-lab.md](./20-revise-agent-harness-model-conformance-lab.md), future `.make-docs/scripts/{system,custom}` tiers introduced by PRD 21, generated metadata validation introduced by PRD 23, config validation introduced by PRD 24, and the CLI/MCP operation boundary introduced by [25-revise-cli-separation-and-mcp-boundary.md](./25-revise-cli-separation-and-mcp-boundary.md); sequence the skill refactor into the same wave. | Avoid rewriting skills, scripts, conformance scenarios, metadata validation, config validation, or MCP tools to cite the contract before the CLI/shared-core provides their logic and before system assets, migration classification, YAML/body drift checks, and structural-rename checks remain locally recoverable without script helpers. |
 
 **Issue**: Moving all script logic into the CLI while skills still reference standalone scripts creates a window where skills could break.
 
@@ -630,6 +630,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 - `docs/prd/22-revise-new-docs-assets-playbooks-persona-model.md`
 - `docs/prd/23-revise-generated-metadata-lifecycle-handoffs.md`
 - `docs/prd/24-revise-configuration-convention-overlay.md`
+- `docs/prd/25-revise-cli-separation-and-mcp-boundary.md`
 - `docs/designs/2026-06-19-package-and-deployment-boundaries.md`
 - `docs/designs/2026-06-19-system-asset-delivery-and-materialization-contract.md`
 - `docs/designs/2026-06-19-compatibility-audit-and-migration-disposition.md`
@@ -639,6 +640,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 - `docs/designs/2026-06-19-new-docs-assets-playbooks-and-persona-model.md`
 - `docs/designs/2026-06-20-generated-metadata-and-lifecycle-handoffs.md`
 - `docs/designs/2026-06-20-configuration-and-convention-overlay.md`
+- `docs/designs/2026-06-20-cli-separation-and-mcp-boundary.md`
 - `docs/plans/2026-06-23-w10-r1-package-and-deployment-boundaries/00-overview.md`
 - `docs/plans/2026-06-23-w10-r2-system-asset-materialization-contract/00-overview.md`
 - `docs/plans/2026-06-23-w10-r3-compatibility-audit-and-migration-disposition/00-overview.md`
@@ -648,6 +650,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 - `docs/plans/2026-06-23-w9-r3-new-docs-assets-playbooks-persona-model/00-overview.md`
 - `docs/plans/2026-06-23-w16-r1-generated-metadata-lifecycle-handoffs/00-overview.md`
 - `docs/plans/2026-06-23-w16-r2-configuration-convention-overlay/00-overview.md`
+- `docs/plans/2026-06-23-w10-r6-cli-separation-and-mcp-boundary/00-overview.md`
 - `packages/docs/README.md:50-121`
 - `packages/skills/README.md`
 - `packages/cli/package.json:9-25`
