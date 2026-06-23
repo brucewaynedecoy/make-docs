@@ -72,6 +72,7 @@ System asset boundary:
 - System assets are immutable product-owned resources: shipped contracts, workflow references, templates, prompt starters, instruction routers, and future helper surfaces that the installer owns.
 - Mutable project artifacts are not provider-resolved system assets. This includes designs, plans, PRDs, work backlogs, authored guides, history records, local custom overlays, and local config.
 - Skills and plugins are not system assets for this contract. They remain selected agentic assets with their own delivery, selection, trust, and audit decisions.
+- Conformance-lab scenario specs, result records, raw transcripts, provider logs, and temporary run artifacts are not provider-resolved system assets. [20-revise-agent-harness-model-conformance-lab.md](./20-revise-agent-harness-model-conformance-lab.md) keeps them maintainer-only unless later promoted by design.
 - `.make-docs/` remains runtime state; `docs/assets/` remains readable documentation assets. Manifests, conflicts, caches, and provider state do not move into `docs/assets/`.
 
 Provider and cache provenance:

@@ -100,7 +100,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Manual re-seeding remains intentional for now; [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) requires existing dogfood/template installs to be classified by ownership evidence rather than path alone; [19-revise-template-package-dogfood-source-of-truth-contract.md](./19-revise-template-package-dogfood-source-of-truth-contract.md) requires targeted parity checks for files expected to match exactly. | Add or improve parity and migration-classifier checks that prove dogfood freshness without removing reviewability. |
+| Open | Manual re-seeding remains intentional for now; [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) requires existing dogfood/template installs to be classified by ownership evidence rather than path alone; [19-revise-template-package-dogfood-source-of-truth-contract.md](./19-revise-template-package-dogfood-source-of-truth-contract.md) requires targeted parity checks for files expected to match exactly; [20-revise-agent-harness-model-conformance-lab.md](./20-revise-agent-harness-model-conformance-lab.md) may use dogfood freshness as scenario evidence without replacing parity checks. | Add or improve parity, migration-classifier, and conformance scenario checks that prove dogfood freshness without removing reviewability. |
 
 **Issue**: `packages/docs/README.md:86-121` makes manual re-seeding an intentional maintainer workflow, but no automated check proves repo-root `docs/assets/**` still matches `packages/docs/template/docs/assets/**` after template edits.
 
@@ -306,7 +306,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | [12-revise-cli-skill-selection-simplification.md](./12-revise-cli-skill-selection-simplification.md) resolves selected-skill UX, [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md) constrains command/deployment ownership, [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md) defers remote system asset providers until protocol, pinning, caching, trust, and confirmation policy are resolved, and [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) requires provider/cache evidence before provider-backed or hybrid installs classify as clean. Remote skill source policy remains unresolved. | Define source protocol, pinning, and integrity policy for remote skills and any future remote system asset provider. |
+| Open | [12-revise-cli-skill-selection-simplification.md](./12-revise-cli-skill-selection-simplification.md) resolves selected-skill UX, [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md) constrains command/deployment ownership, [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md) defers remote system asset providers until protocol, pinning, caching, trust, and confirmation policy are resolved, [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) requires provider/cache evidence before provider-backed or hybrid installs classify as clean, and [20-revise-agent-harness-model-conformance-lab.md](./20-revise-agent-harness-model-conformance-lab.md) treats provider-routed model results as evidence for that tuple only. Remote skill source policy remains unresolved. | Define source protocol, pinning, and integrity policy for remote skills and any future remote system asset provider. |
 
 **Question**: How should remote skill sources be constrained?
 
@@ -336,7 +336,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Default personas Agent/Developer/User over primitives agent/maintainer/user; custom personas allowed. | Fix the configuration schema (slug, label, description, primitive) before contracts hard-reference field names. |
+| Open | Default personas Agent/Developer/User over primitives agent/maintainer/user; custom personas allowed. PRD 20 may record persona-sensitive scenarios later, but it does not define the persona schema. | Fix the configuration schema (slug, label, description, primitive) before contracts hard-reference field names or conformance scenarios rely on them. |
 
 **Question**: What are the exact persona primitives, default personas, and configuration fields?
 
@@ -378,7 +378,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md) assigns long-term MCP startup ownership to Rust and preserves one `make-docs` command; [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) requires future Rust/plugin install paths to preserve compatibility classification and migration dispositions, but shared skill/plugin install and config-aware routing remain unresolved. | Define a cross-platform redirection model and how plugins read config relabels. |
+| Open | [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md) assigns long-term MCP startup ownership to Rust and preserves one `make-docs` command; [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) requires future Rust/plugin install paths to preserve compatibility classification and migration dispositions; [20-revise-agent-harness-model-conformance-lab.md](./20-revise-agent-harness-model-conformance-lab.md) can test shared-install behavior only after the product contract exists. Shared skill/plugin install and config-aware routing remain unresolved. | Define a cross-platform redirection model and how plugins read config relabels. |
 
 **Question**: How are skills and plugins installed once and exposed to each harness without duplication, and how does a plugin that guides (for example) requirements → design → plan respect a config that relabels "designs" to "ideas"?
 
@@ -392,7 +392,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | None yet | Resolve request-vs-change, docs visibility, and scaffold exposure. |
+| Open | PRD 20 treats plugin and playbook scenarios as future conformance inputs only after shared agentics install, plugin substrate, and Run Playbook decisions land. | Resolve request-vs-change, docs visibility, scaffold exposure, and which plugin claims require conformance evidence. |
 
 **Question**: Is "file a request" a separate flow from "make a change"? Are generated docs shown, hidden, or toggle-able for non-technical users? Is the scaffold/build entry point user-facing or maintainer-only?
 
@@ -452,7 +452,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Dual dev/packed resolution remains active; [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md) adds the requirement that packed npm and future Rust artifacts preserve the same command and shared contract boundaries; [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md) keeps full-snapshot materialization as the default validation baseline; [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) adds source-state/disposition fixtures to the release-sensitive validation matrix; [19-revise-template-package-dogfood-source-of-truth-contract.md](./19-revise-template-package-dogfood-source-of-truth-contract.md) requires packed validation to exercise generated `packages/cli/template/` after copy/prepack. | Preserve smoke-pack checks for template, package-boundary, system asset materialization, compatibility migration, and package-template copy changes. |
+| Open | Dual dev/packed resolution remains active; [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md) adds the requirement that packed npm and future Rust artifacts preserve the same command and shared contract boundaries; [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md) keeps full-snapshot materialization as the default validation baseline; [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) adds source-state/disposition fixtures to the release-sensitive validation matrix; [19-revise-template-package-dogfood-source-of-truth-contract.md](./19-revise-template-package-dogfood-source-of-truth-contract.md) requires packed validation to exercise generated `packages/cli/template/` after copy/prepack; [20-revise-agent-harness-model-conformance-lab.md](./20-revise-agent-harness-model-conformance-lab.md) may consume smoke-pack as scenario evidence but cannot replace it. | Preserve smoke-pack checks for template, package-boundary, system asset materialization, compatibility migration, package-template copy, and conformance-lab changes. |
 
 **Issue**: Testing only local dev paths can miss failures that appear only after `prepack` copies the template into `packages/cli/template`.
 
@@ -466,7 +466,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Literal path duplication remains accepted but risky; [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md) adds provider/cache provenance and asset identity as future duplication-sensitive surfaces, [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) makes fallback path recognition a mutation gate, and [19-revise-template-package-dogfood-source-of-truth-contract.md](./19-revise-template-package-dogfood-source-of-truth-contract.md) adds template/dogfood/package copy paths to the proof surface. | Add parity, provenance, classifier, and package-template copy checks when moving, adding, or provider-resolving template-owned paths. |
+| Open | Literal path duplication remains accepted but risky; [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md) adds provider/cache provenance and asset identity as future duplication-sensitive surfaces, [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) makes fallback path recognition a mutation gate, [19-revise-template-package-dogfood-source-of-truth-contract.md](./19-revise-template-package-dogfood-source-of-truth-contract.md) adds template/dogfood/package copy paths to the proof surface, and PRD 20 adds conformance scenario/result paths that must stay out of shipped copies by default. | Add parity, provenance, classifier, package-template copy, and conformance asset exclusion checks when moving, adding, or provider-resolving template-owned paths. |
 
 **Issue**: Adding or moving a template-owned path can drift across `rules.ts`, `catalog.ts`, tests, package docs, and dogfood copies.
 
@@ -494,7 +494,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Single reviewed audit snapshot remains the shared safety model for the TypeScript CLI, any future Rust implementation, any on-demand materialization path introduced by [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md), and the `backup-and-reinstall` disposition defined by [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md). | Keep backup/uninstall implementation, provider-backed writes, migration backup-and-reinstall, and docs aligned around one reviewed audit/classification snapshot. |
+| Open | Single reviewed audit snapshot remains the shared safety model for the TypeScript CLI, any future Rust implementation, any on-demand materialization path introduced by [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md), and the `backup-and-reinstall` disposition defined by [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md). PRD 20 may test this as a scenario but cannot loosen it. | Keep backup/uninstall implementation, provider-backed writes, migration backup-and-reinstall, conformance scenarios, and docs aligned around one reviewed audit/classification snapshot. |
 
 **Issue**: Re-auditing between warning, backup, and delete steps can invalidate what the user already approved and break the current safety model.
 
@@ -508,7 +508,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Manual re-seeding remains intentional for reviewability; full-snapshot materialization remains the package validation baseline under [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md); [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) makes dogfood/template ownership evidence part of migration safety; [19-revise-template-package-dogfood-source-of-truth-contract.md](./19-revise-template-package-dogfood-source-of-truth-contract.md) makes reviewed reseeding and targeted parity proof mandatory. | Add proof points for dogfood/template freshness, full-snapshot package parity, package-template copy parity, and classifier behavior. |
+| Open | Manual re-seeding remains intentional for reviewability; full-snapshot materialization remains the package validation baseline under [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md); [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) makes dogfood/template ownership evidence part of migration safety; [19-revise-template-package-dogfood-source-of-truth-contract.md](./19-revise-template-package-dogfood-source-of-truth-contract.md) makes reviewed reseeding and targeted parity proof mandatory; PRD 20 can cite reviewed parity results as lab evidence only when scenario records exist. | Add proof points for dogfood/template freshness, full-snapshot package parity, package-template copy parity, classifier behavior, and conformance result records. |
 
 **Issue**: Because repo-root `docs/` is both a maintainer workspace and a product rehearsal surface, stale dogfood files can make local behavior look correct while the shipped template has drifted.
 
@@ -606,7 +606,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Move deterministic logic into the CLI without stranding skills between TypeScript, future Rust ownership, the provider/cache surfaces introduced by [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md), and the migration classifier required by [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md); sequence the skill refactor into the same wave. | Avoid rewriting skills to cite the contract before the CLI provides their logic and before system assets and migration classification remain locally recoverable without script helpers. |
+| Open | Move deterministic logic into the CLI without stranding skills between TypeScript, future Rust ownership, the provider/cache surfaces introduced by [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md), the migration classifier required by [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md), and lab scenarios introduced by [20-revise-agent-harness-model-conformance-lab.md](./20-revise-agent-harness-model-conformance-lab.md); sequence the skill refactor into the same wave. | Avoid rewriting skills or conformance scenarios to cite the contract before the CLI provides their logic and before system assets and migration classification remain locally recoverable without script helpers. |
 
 **Issue**: Moving all script logic into the CLI while skills still reference standalone scripts creates a window where skills could break.
 
@@ -625,14 +625,17 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 - `docs/prd/17-revise-system-asset-materialization-contract.md`
 - `docs/prd/18-revise-compatibility-audit-and-migration-disposition.md`
 - `docs/prd/19-revise-template-package-dogfood-source-of-truth-contract.md`
+- `docs/prd/20-revise-agent-harness-model-conformance-lab.md`
 - `docs/designs/2026-06-19-package-and-deployment-boundaries.md`
 - `docs/designs/2026-06-19-system-asset-delivery-and-materialization-contract.md`
 - `docs/designs/2026-06-19-compatibility-audit-and-migration-disposition.md`
 - `docs/designs/2026-06-19-template-package-and-dogfood-source-of-truth-contract.md`
+- `docs/designs/2026-06-19-agent-harness-and-model-conformance-lab.md`
 - `docs/plans/2026-06-23-w10-r1-package-and-deployment-boundaries/00-overview.md`
 - `docs/plans/2026-06-23-w10-r2-system-asset-materialization-contract/00-overview.md`
 - `docs/plans/2026-06-23-w10-r3-compatibility-audit-and-migration-disposition/00-overview.md`
 - `docs/plans/2026-06-23-w10-r4-template-package-dogfood-source-of-truth-contract/00-overview.md`
+- `docs/plans/2026-06-23-w10-r5-agent-harness-model-conformance-lab/00-overview.md`
 - `packages/docs/README.md:50-121`
 - `packages/skills/README.md`
 - `packages/cli/package.json:9-25`

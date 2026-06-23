@@ -134,6 +134,7 @@ Validation boundary:
 | `docs/prd/10-packaging-validation-and-release-reference.md` | Enhances validation with the required source-state and disposition fixture matrix. |
 | `docs/prd/16-revise-package-and-deployment-boundaries.md` | Enhances TypeScript/Rust coexistence by requiring a shared compatibility taxonomy. |
 | `docs/prd/17-revise-system-asset-materialization-contract.md` | Enhances materialization modes with clean-state classification requirements. |
+| `docs/prd/20-revise-agent-harness-model-conformance-lab.md` | Uses compatibility classification, fallback, and backup-and-reinstall behavior as evidence scenarios without changing mutation safety semantics. |
 | `docs/prd/03-open-questions-and-risk-register.md` | Updates existing package, skill, remote-source, template, dogfood, lifecycle, no-scripts, and plugin entries without duplicating them. |
 
 The paired delta backlog for implementation work should be generated under `docs/work/2026-06-23-w10-r3-compatibility-audit-and-migration-disposition/` and trace back to this revision, the W10 R3 plan, the accepted compatibility design, W10 R1 package-boundary revision, W10 R2 system asset revision, and current TypeScript CLI lifecycle surfaces.

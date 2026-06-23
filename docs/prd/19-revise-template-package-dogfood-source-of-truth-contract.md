@@ -30,6 +30,7 @@ Source-of-truth order:
 - Root `docs/` is dogfood validation, not the product source of truth.
 - `packages/cli/template/` is a generated package-bundled copy, not an authoring surface.
 - If package validation finds drift, fixes start in `packages/docs/template/` or the copy/package script, then regenerate the bundled copy.
+- Conformance-lab assets from [20-revise-agent-harness-model-conformance-lab.md](./20-revise-agent-harness-model-conformance-lab.md) do not enter `packages/docs/template/`, root dogfood reseeding, or `packages/cli/template/` unless a later accepted design deliberately promotes a subset.
 
 Template-owned assets:
 

@@ -99,6 +99,7 @@ Validation and release boundary:
 - Validation must continue to distinguish local template resolution from packed template resolution.
 - Package/release validation remains dry-run only unless the user separately authorizes irreversible registry, Homebrew, Crates, or npm publish actions.
 - Future Rust package validation must prove command, runtime/version, manifest, audit, backup, uninstall, and MCP startup behavior against the same product contracts.
+- [20-revise-agent-harness-model-conformance-lab.md](./20-revise-agent-harness-model-conformance-lab.md) keeps conformance-lab scenarios, records, and raw artifacts out of shipped npm, Homebrew, Crates, and Rust package surfaces unless a later accepted design deliberately promotes a subset.
 
 ## Impacted Docs and Dependencies
 
