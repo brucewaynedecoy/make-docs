@@ -17,6 +17,8 @@ Define the v2 reader-facing documentation asset model for guides and playbooks, 
 
 This PRD extends PRD 21's `.make-docs/**` tool-resource boundary by assigning `docs/assets/**` to reader-facing reusable documentation assets only. It revises older guide, playbook, archive, and docs-assets assumptions without changing source files in this planning round.
 
+[23-revise-generated-metadata-lifecycle-handoffs.md](23-revise-generated-metadata-lifecycle-handoffs.md) builds on this PRD by using `persona` as the canonical frontmatter field for generated persona-scoped guides and playbooks. PRD 23 does not rename or reopen the persona schema defined here.
+
 ## Requirements
 
 ### Reader-Facing Asset Namespace
@@ -137,6 +139,7 @@ Implementation must audit and update duplicated path knowledge across CLI source
 - [../designs/2026-06-19-new-docs-assets-playbooks-and-persona-model.md](../designs/2026-06-19-new-docs-assets-playbooks-and-persona-model.md)
 - [../plans/2026-06-23-w9-r3-new-docs-assets-playbooks-persona-model/00-overview.md](../plans/2026-06-23-w9-r3-new-docs-assets-playbooks-persona-model/00-overview.md)
 - [../work/2026-06-23-w9-r3-new-docs-assets-playbooks-persona-model/00-index.md](../work/2026-06-23-w9-r3-new-docs-assets-playbooks-persona-model/00-index.md)
+- [23 Revise Generated Metadata Lifecycle Handoffs](23-revise-generated-metadata-lifecycle-handoffs.md)
 - [21 Revise Tool Directory System Custom Resource Tiers](21-revise-tool-directory-system-custom-resource-tiers.md)
 - `packages/cli/src/rules.ts`
 - `packages/cli/src/catalog.ts`

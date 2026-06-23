@@ -42,6 +42,7 @@ The fourth boundary is canonical managed content versus local user modifications
 - Enhanced by [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) for existing-install classification. Runtime mutation paths must classify manifest and fallback state before writing, and TypeScript/Rust implementations must preserve the same source-state and disposition taxonomy.
 - Enhanced by [21-revise-tool-directory-system-custom-resource-tiers.md](./21-revise-tool-directory-system-custom-resource-tiers.md) for the `.make-docs/` tool directory model. Runtime state, system/custom tool resources, local bootstrap, provider/cache provenance, and future agentics surfaces are distinct from reader-facing `docs/assets/**`.
 - Enhanced by [22-revise-new-docs-assets-playbooks-persona-model.md](./22-revise-new-docs-assets-playbooks-persona-model.md) for the reader-facing asset namespace. `docs/assets/guides/**` and `docs/assets/playbooks/**` become the future reusable documentation asset surfaces, `docs/archive/**` becomes the future archive surface, and `persona` frontmatter is authoritative for persona-scoped guide/playbook docs.
+- Enhanced by [23-revise-generated-metadata-lifecycle-handoffs.md](./23-revise-generated-metadata-lifecycle-handoffs.md) for generated document metadata. YAML frontmatter becomes the canonical metadata layer for generated docs, required body handoffs remain the human-readable rendering, and validators should report YAML/body drift without turning advisory follow-ons into gates.
 
 ## Data Flow
 
@@ -103,3 +104,4 @@ The packaging and validation configuration surface is defined by workspace metad
 - `docs/prd/09-dogfood-and-maintainer-operations.md`
 - `docs/prd/10-packaging-validation-and-release-reference.md`
 - `docs/prd/22-revise-new-docs-assets-playbooks-persona-model.md`
+- `docs/prd/23-revise-generated-metadata-lifecycle-handoffs.md`

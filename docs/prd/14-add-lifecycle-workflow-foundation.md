@@ -20,6 +20,7 @@ surface.
 
 - The W15 source-authority reconciliation clarifies the work-backlog handoff: accepted designs, plans, PRDs, and current work contracts drive backlog structure and content before archived examples, installed skill projections, generated harness stubs, or dogfood/package copies are consulted as fallback evidence.
 - Revised by [22-revise-new-docs-assets-playbooks-persona-model.md](./22-revise-new-docs-assets-playbooks-persona-model.md): the W16 `docs/library/playbooks/<persona>/` placement is transitional. The v2 canonical playbook surface is `docs/assets/playbooks/<persona-slug>/`, and `persona` frontmatter is the authoritative audience target.
+- Revised by [23-revise-generated-metadata-lifecycle-handoffs.md](./23-revise-generated-metadata-lifecycle-handoffs.md): generated lifecycle handoffs should carry `follow_on` frontmatter as tooling authority while preserving body `## Intended Follow-On` sections for readers.
 
 ## Capability Addition or Enhancement
 
@@ -41,7 +42,8 @@ surface.
   `docs/assets/playbooks/<persona-slug>/` the v2 canonical target.
 - **Stage follow-on handoffs** — plans, PRDs, and work backlogs gain an
   advisable-default-but-overridable `## Intended Follow-On`, mirroring design
-  docs, so the chain stops breaking between stages.
+  docs, so the chain stops breaking between stages. PRD 23 adds the generated
+  metadata layer for these handoffs.
 - **Optional artifacts seed** — `docs/artifacts/`, a zero-contract home for
   pre-design inputs, accommodating ideation and architecture as an input surface
   rather than contract-bound stages.
@@ -106,3 +108,4 @@ verbs apply.
 - `docs/designs/2026-06-17-make-docs-lifecycle-foundation.md`
 - `docs/prd/03-open-questions-and-risk-register.md`
 - `docs/prd/22-revise-new-docs-assets-playbooks-persona-model.md`
+- `docs/prd/23-revise-generated-metadata-lifecycle-handoffs.md`

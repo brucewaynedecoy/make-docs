@@ -364,7 +364,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Configurability intended; mechanism unresolved. | Decide where convention mappings live and the prefix options. |
+| Open | Configurability intended; mechanism unresolved. PRD 23 allows generated metadata to record known coordinates and lifecycle vocabulary, but it does not make coordinate or prefix conventions configurable. | Decide where convention mappings live and the prefix options. |
 
 **Question**: Should teams redefine structural vocabulary (designs/plans/prd/work), coordinates (wave/revision/phase), and file-prefix style (slug-date vs version-number), and where is that controlled?
 
@@ -466,7 +466,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Literal path duplication remains accepted but risky; [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md) adds provider/cache provenance and asset identity as future duplication-sensitive surfaces, [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) makes fallback path recognition a mutation gate, [19-revise-template-package-dogfood-source-of-truth-contract.md](./19-revise-template-package-dogfood-source-of-truth-contract.md) adds template/dogfood/package copy paths to the proof surface, PRD 20 adds conformance scenario/result paths that must stay out of shipped copies by default, PRD 21 adds `.make-docs/**` tool-resource paths, and PRD 22 adds `docs/assets/guides/**`, `docs/assets/playbooks/**`, and `docs/archive/**`. | Add parity, provenance, classifier, package-template copy, conformance asset exclusion, tool-directory path, and reader-facing asset path checks when moving, adding, or provider-resolving template-owned paths. |
+| Open | Literal path duplication remains accepted but risky; [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md) adds provider/cache provenance and asset identity as future duplication-sensitive surfaces, [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) makes fallback path recognition a mutation gate, [19-revise-template-package-dogfood-source-of-truth-contract.md](./19-revise-template-package-dogfood-source-of-truth-contract.md) adds template/dogfood/package copy paths to the proof surface, PRD 20 adds conformance scenario/result paths that must stay out of shipped copies by default, PRD 21 adds `.make-docs/**` tool-resource paths, PRD 22 adds `docs/assets/guides/**`, `docs/assets/playbooks/**`, and `docs/archive/**`, and PRD 23 adds generated metadata field names, route identifiers, and body-rendered handoff sections as duplication-sensitive surfaces. | Add parity, provenance, classifier, package-template copy, conformance asset exclusion, tool-directory path, reader-facing asset path, generated metadata, and YAML/body handoff drift checks when moving, adding, or provider-resolving template-owned paths. |
 
 **Issue**: Adding or moving a template-owned path can drift across `rules.ts`, `catalog.ts`, tests, package docs, and dogfood copies.
 
@@ -564,7 +564,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | PRD 22 defines the persona schema, default personas, and primitive mapping, so the remaining risk is implementation/configuration drift rather than an undefined schema. | Replace legacy mapping with the configured persona set when personas land and add validation fixtures for default/custom personas, invalid values, and path/frontmatter drift. |
+| Open | PRD 22 defines the persona schema, default personas, and primitive mapping, so the remaining risk is implementation/configuration drift rather than an undefined schema. PRD 23 consumes `persona` as the generated-doc frontmatter field for persona-scoped guides and playbooks. | Replace legacy mapping with the configured persona set when personas land and add validation fixtures for default/custom personas, invalid values, path/frontmatter drift, and generated `persona` frontmatter presence. |
 
 **Issue**: The coverage-pass contract's persona-target axis points at a configuration file that does not yet exist.
 
@@ -592,7 +592,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Authored now at current paths; PRD 22 defines concrete target mappings for guide/playbook/archive assets: `docs/guides/**` to `docs/assets/guides/**`, `docs/library/playbooks/**` to `docs/assets/playbooks/**`, and `docs/assets/archive/**` to `docs/archive/**`. | Record and execute migration mappings for the coverage contract, prompts, guides, playbooks, archive, and history follow-on without breaking links. |
+| Open | Authored now at current paths; PRD 22 defines concrete target mappings for guide/playbook/archive assets: `docs/guides/**` to `docs/assets/guides/**`, `docs/library/playbooks/**` to `docs/assets/playbooks/**`, and `docs/assets/archive/**` to `docs/archive/**`. PRD 23 metadata backfill must avoid broad opportunistic rewrites during relocation and only add metadata to planned template/package/touched-file surfaces. | Record and execute migration mappings for the coverage contract, prompts, guides, playbooks, archive, history follow-on, and metadata backfill without breaking links. |
 
 **Issue**: Assets authored in W16 (the coverage-pass contract, starter prompts, library playbook) will move when `docs/assets/**` migrates into the renamed tool directory.
 
@@ -606,7 +606,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Move deterministic logic into the CLI without stranding skills between TypeScript, future Rust ownership, the provider/cache surfaces introduced by [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md), the migration classifier required by [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md), lab scenarios introduced by [20-revise-agent-harness-model-conformance-lab.md](./20-revise-agent-harness-model-conformance-lab.md), and future `.make-docs/scripts/{system,custom}` tiers introduced by PRD 21; sequence the skill refactor into the same wave. | Avoid rewriting skills, scripts, or conformance scenarios to cite the contract before the CLI provides their logic and before system assets and migration classification remain locally recoverable without script helpers. |
+| Open | Move deterministic logic into the CLI without stranding skills between TypeScript, future Rust ownership, the provider/cache surfaces introduced by [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md), the migration classifier required by [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md), lab scenarios introduced by [20-revise-agent-harness-model-conformance-lab.md](./20-revise-agent-harness-model-conformance-lab.md), future `.make-docs/scripts/{system,custom}` tiers introduced by PRD 21, and generated metadata validation introduced by PRD 23; sequence the skill refactor into the same wave. | Avoid rewriting skills, scripts, conformance scenarios, or metadata validation to cite the contract before the CLI provides their logic and before system assets, migration classification, and YAML/body drift checks remain locally recoverable without script helpers. |
 
 **Issue**: Moving all script logic into the CLI while skills still reference standalone scripts creates a window where skills could break.
 
@@ -628,6 +628,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 - `docs/prd/20-revise-agent-harness-model-conformance-lab.md`
 - `docs/prd/21-revise-tool-directory-system-custom-resource-tiers.md`
 - `docs/prd/22-revise-new-docs-assets-playbooks-persona-model.md`
+- `docs/prd/23-revise-generated-metadata-lifecycle-handoffs.md`
 - `docs/designs/2026-06-19-package-and-deployment-boundaries.md`
 - `docs/designs/2026-06-19-system-asset-delivery-and-materialization-contract.md`
 - `docs/designs/2026-06-19-compatibility-audit-and-migration-disposition.md`
@@ -635,6 +636,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 - `docs/designs/2026-06-19-agent-harness-and-model-conformance-lab.md`
 - `docs/designs/2026-06-19-tool-directory-system-and-custom-resource-tiers.md`
 - `docs/designs/2026-06-19-new-docs-assets-playbooks-and-persona-model.md`
+- `docs/designs/2026-06-20-generated-metadata-and-lifecycle-handoffs.md`
 - `docs/plans/2026-06-23-w10-r1-package-and-deployment-boundaries/00-overview.md`
 - `docs/plans/2026-06-23-w10-r2-system-asset-materialization-contract/00-overview.md`
 - `docs/plans/2026-06-23-w10-r3-compatibility-audit-and-migration-disposition/00-overview.md`
@@ -642,6 +644,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 - `docs/plans/2026-06-23-w10-r5-agent-harness-model-conformance-lab/00-overview.md`
 - `docs/plans/2026-06-23-w9-r2-tool-directory-system-custom-resource-tiers/00-overview.md`
 - `docs/plans/2026-06-23-w9-r3-new-docs-assets-playbooks-persona-model/00-overview.md`
+- `docs/plans/2026-06-23-w16-r1-generated-metadata-lifecycle-handoffs/00-overview.md`
 - `packages/docs/README.md:50-121`
 - `packages/skills/README.md`
 - `packages/cli/package.json:9-25`
