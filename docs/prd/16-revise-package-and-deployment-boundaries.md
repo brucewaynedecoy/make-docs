@@ -93,6 +93,7 @@ Skills and plugin boundary:
 - Bare installs must keep the current no-default-skills behavior.
 - Explicit skills installs must remain opt-in through the skills selection flow until a later accepted design changes that contract.
 - [26-revise-no-scripts-migration-skill-refactor.md](./26-revise-no-scripts-migration-skill-refactor.md) narrows the no-scripts implementation target: TypeScript owns the first CLI/shared-core operation boundary, and deterministic first-party skill behavior must be available from the CLI package rather than only from remote or skill-local script payloads.
+- [27-revise-skill-purpose-registry-alternate-skills-manifest.md](./27-revise-skill-purpose-registry-alternate-skills-manifest.md) narrows skills metadata and source policy: purpose-led selection remains opt-in, alternate manifests are explicit effective-manifest inputs, and unpinned remote manifests or skill payloads are invalid for installation.
 - This revision does not decide remote-fetch versus bundled-local skills delivery, remote source integrity mechanics, or shared plugin/skill install behavior. Those remain open in the risk register.
 
 Validation and release boundary:
@@ -152,8 +153,11 @@ Do not add `Change Notes` to `docs/prd/03-open-questions-and-risk-register.md`; 
 - `docs/prd/12-revise-cli-skill-selection-simplification.md`
 - `docs/prd/25-revise-cli-separation-and-mcp-boundary.md`
 - `docs/prd/26-revise-no-scripts-migration-skill-refactor.md`
+- `docs/prd/27-revise-skill-purpose-registry-alternate-skills-manifest.md`
 - `docs/designs/2026-06-20-no-scripts-migration-and-skill-refactor.md`
+- `docs/designs/2026-06-20-skill-purpose-registry-and-alternate-skills-manifest.md`
 - `docs/plans/2026-06-23-w16-r3-no-scripts-migration-skill-refactor/00-overview.md`
+- `docs/plans/2026-06-23-w17-r1-skill-purpose-registry-alternate-skills-manifest/00-overview.md`
 - `packages/cli/package.json`
 - `packages/cli/src/cli.ts`
 - `packages/cli/src/core/manifest.ts`

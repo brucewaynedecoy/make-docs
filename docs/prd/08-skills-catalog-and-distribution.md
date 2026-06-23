@@ -63,6 +63,7 @@ Code anchors:
 - Enhanced by [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) for skills migration safety. Migration may preserve prior selected skills only when manifest and file evidence are trustworthy, and it must not silently expand `selectedSkills` or install skill files by default.
 - Enhanced by [20-revise-agent-harness-model-conformance-lab.md](./20-revise-agent-harness-model-conformance-lab.md) for future adapter evidence. Lab adapters for future harnesses or model routes do not add current skills install targets or change the `selectedSkills` contract.
 - Enhanced by [26-revise-no-scripts-migration-skill-refactor.md](./26-revise-no-scripts-migration-skill-refactor.md) for first-party skill refactor requirements. Selected skills may still install prose, references, examples, and metadata, but deterministic make-docs logic must be available from the CLI package/shared-core boundary rather than depending on remote or skill-local script payloads as the only executable source.
+- Enhanced by [27-revise-skill-purpose-registry-alternate-skills-manifest.md](./27-revise-skill-purpose-registry-alternate-skills-manifest.md) for purpose-led selection and alternate manifests. The built-in registry becomes the default skills manifest in logical terms, purpose ids become stable selection metadata, alternate manifests are explicit inputs, and `selectedSkills` plus `skillFiles` remain the executable and ownership state.
 
 The skills subsystem hangs off the shared install contract in `packages/cli/src/types.ts:31`. `InstallSelections` carries `harnesses`, `skills`, `skillScope`, and `selectedSkills`, and the skills command mutates only that subset in `packages/cli/src/skills-command.ts:152` and `packages/cli/src/skills-ui.ts:280`. The skill-specific UI state mirrors that reduced surface in `packages/cli/src/skills-ui.ts:28`, which keeps command execution from depending on the broader capability/prompt/template/reference state used by full installs.
 
@@ -93,6 +94,7 @@ Code anchors:
 
 - Superseded by [12-revise-cli-skill-selection-simplification.md](./12-revise-cli-skill-selection-simplification.md) for CLI validation that only accepts formerly optional skill ids. Validation now applies to the selected-skill set over all registry skills.
 - Enhanced by [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md) for shared plugin/skill install boundaries. Long-term MCP startup ownership belongs to Rust, but shared install, per-harness exposure, and config-aware plugin routing remain unresolved under Q-012.
+- Enhanced by [27-revise-skill-purpose-registry-alternate-skills-manifest.md](./27-revise-skill-purpose-registry-alternate-skills-manifest.md) for effective-manifest routing. Future plugin, MCP, or skill surfaces must route by canonical purpose ids and resolved skill names, not configured labels or ambient manifest discovery.
 
 The skills subsystem integrates directly with the main CLI parser and help system in `packages/cli/src/cli.ts`. The parser decides when the top-level command becomes `skills`, lazily loads `packages/cli/src/skills-command.ts`, and validates selected skill ids against the packaged registry before the command runs. This keeps registry contents and command-line affordances synchronized, but it also means every new skill entry changes user-facing validation behavior immediately.
 
@@ -166,7 +168,10 @@ Code anchors:
 - `packages/skills/work-on-wave/`
 - `packages/skills/work-on-phase/`
 - `docs/prd/26-revise-no-scripts-migration-skill-refactor.md`
+- `docs/prd/27-revise-skill-purpose-registry-alternate-skills-manifest.md`
 - `docs/designs/2026-06-20-no-scripts-migration-and-skill-refactor.md`
+- `docs/designs/2026-06-20-skill-purpose-registry-and-alternate-skills-manifest.md`
 - `docs/plans/2026-06-23-w16-r3-no-scripts-migration-skill-refactor/00-overview.md`
+- `docs/plans/2026-06-23-w17-r1-skill-purpose-registry-alternate-skills-manifest/00-overview.md`
 - `docs/assets/archive/designs/2026-04-16-cli-skill-installation.md`
 - `docs/assets/archive/designs/2026-04-21-cli-skills-command.md`
