@@ -113,6 +113,8 @@ Support claims are evidence-bound.
 
 Public language about plugin, bundle, playbook, skill, harness, CLI, MCP, unattended, or model/provider support must cite implementation validation or conformance-lab evidence. Until [20-revise-agent-harness-model-conformance-lab.md](20-revise-agent-harness-model-conformance-lab.md) has scenario records for a plugin/harness/model tuple, support wording for that tuple must remain provisional.
 
+If adversarial review is implemented as a plugin or workflow bundle, it must remain explicit-selection only and must follow [31-revise-coverage-pass-extensions-adversarial-review.md](31-revise-coverage-pass-extensions-adversarial-review.md). Bare install, default sync, generic Run Playbook, and plugin selection do not imply adversarial review.
+
 ### Package and Validation Boundary
 
 Package validation must prove plugin behavior without accidentally shipping the wrong assets.
@@ -129,6 +131,7 @@ Baseline implementation validation should include `npm run build -w packages/cli
 - No skill-selection flag that implicitly selects plugins.
 - No one-plugin-per-playbook requirement.
 - No plugin requirement for playbook validity.
+- No default adversarial-review plugin, workflow bundle, or plugin-selection implication.
 - No symlink-based default behavior.
 - No MCP write surface or Rust parity implementation in this PRD.
 - No closure of per-bundle UX details for request-vs-change, docs visibility, scaffold exposure, or exact non-maintainer flows.
@@ -149,6 +152,7 @@ Baseline implementation validation should include `npm run build -w packages/cli
 - [27 Revise Skill Purpose Registry Alternate Skills Manifest](27-revise-skill-purpose-registry-alternate-skills-manifest.md)
 - [28 Revise Shared Agentics Installation Harness Redirection](28-revise-shared-agentics-installation-harness-redirection.md)
 - [29 Revise Playbook Contract Run Playbook](29-revise-playbook-contract-run-playbook.md)
+- [31 Revise Coverage Pass Extensions Adversarial Review](31-revise-coverage-pass-extensions-adversarial-review.md)
 
 ## Acceptance Criteria
 
@@ -160,6 +164,7 @@ Baseline implementation validation should include `npm run build -w packages/cli
 - Workflow bundle metadata declares audience, exposure boundary, safety mode, and whether the flow captures a request or makes a change.
 - Plugin support claims remain provisional until implementation or conformance evidence exists for the exact tuple claimed.
 - Playbooks remain valid without plugin packaging.
+- Adversarial review remains explicit-selection only if exposed through a plugin or workflow bundle.
 
 ## Source Anchors
 
@@ -172,6 +177,9 @@ Baseline implementation validation should include `npm run build -w packages/cli
 - [25 Revise CLI Separation and MCP Boundary](25-revise-cli-separation-and-mcp-boundary.md)
 - [28 Revise Shared Agentics Installation Harness Redirection](28-revise-shared-agentics-installation-harness-redirection.md)
 - [29 Revise Playbook Contract Run Playbook](29-revise-playbook-contract-run-playbook.md)
+- [31 Revise Coverage Pass Extensions Adversarial Review](31-revise-coverage-pass-extensions-adversarial-review.md)
+- [../designs/2026-06-20-coverage-pass-extensions-and-adversarial-review.md](../designs/2026-06-20-coverage-pass-extensions-and-adversarial-review.md)
+- [../plans/2026-06-23-w18-r3-coverage-pass-extensions-adversarial-review/00-overview.md](../plans/2026-06-23-w18-r3-coverage-pass-extensions-adversarial-review/00-overview.md)
 - `packages/cli/src/types.ts`
 - `packages/cli/src/profile.ts`
 - `packages/cli/src/manifest.ts`

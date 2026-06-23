@@ -94,6 +94,8 @@ The content contract must not require one plugin per playbook and must not requi
 
 [30-revise-harness-plugin-substrate-workflow-bundles.md](30-revise-harness-plugin-substrate-workflow-bundles.md) owns plugin substrate and workflow bundle metadata. Plugins may invoke Run Playbook, but they cannot redefine playbook storage, frontmatter, stack validation, authority order, output routing, or playbook validity.
 
+If adversarial review is implemented as a playbook, it must follow this PRD's playbook content contract and the optional adversarial-review candidate contract from [31-revise-coverage-pass-extensions-adversarial-review.md](31-revise-coverage-pass-extensions-adversarial-review.md). Generic Run Playbook does not imply that adversarial review exists or runs by default.
+
 Support claims for CLI execution, MCP execution, plugin launch, template sync, or unattended operation require validation evidence. Until conformance-lab or implementation evidence exists, support language must remain provisional.
 
 ### Template Package and Migration Boundary
@@ -114,6 +116,7 @@ Manifest, catalog, audit, backup, uninstall, installer, CLI, MCP, and plugin beh
 - No plugin substrate or product workflow bundle contract in this PRD; [30-revise-harness-plugin-substrate-workflow-bundles.md](30-revise-harness-plugin-substrate-workflow-bundles.md) owns that boundary.
 - No public plugin exposure decision.
 - No one-plugin-per-playbook requirement.
+- No adversarial-review playbook by default.
 - No MCP write surface.
 - No unattended execution by default.
 - No broad migration of all current playbook content in this PRD-only round.
@@ -134,6 +137,7 @@ Manifest, catalog, audit, backup, uninstall, installer, CLI, MCP, and plugin beh
 - [25 Revise CLI Separation and MCP Boundary](25-revise-cli-separation-and-mcp-boundary.md)
 - [28 Revise Shared Agentics Installation Harness Redirection](28-revise-shared-agentics-installation-harness-redirection.md)
 - [30 Revise Harness Plugin Substrate Workflow Bundles](30-revise-harness-plugin-substrate-workflow-bundles.md)
+- [31 Revise Coverage Pass Extensions Adversarial Review](31-revise-coverage-pass-extensions-adversarial-review.md)
 
 ## Acceptance Criteria
 
@@ -154,6 +158,7 @@ Manifest, catalog, audit, backup, uninstall, installer, CLI, MCP, and plugin beh
 - [24 Revise Configuration Convention Overlay](24-revise-configuration-convention-overlay.md)
 - [28 Revise Shared Agentics Installation Harness Redirection](28-revise-shared-agentics-installation-harness-redirection.md)
 - [30 Revise Harness Plugin Substrate Workflow Bundles](30-revise-harness-plugin-substrate-workflow-bundles.md)
+- [31 Revise Coverage Pass Extensions Adversarial Review](31-revise-coverage-pass-extensions-adversarial-review.md)
 - `docs/library/playbooks/agent/make-docs-lifecycle.md`
 - `docs/assets/references/coverage-pass-contract.md`
 - `packages/cli/src/rules.ts`
@@ -165,3 +170,5 @@ Manifest, catalog, audit, backup, uninstall, installer, CLI, MCP, and plugin beh
 - `scripts/smoke-pack.mjs`
 - [../designs/2026-06-20-harness-plugin-substrate-and-workflow-bundles.md](../designs/2026-06-20-harness-plugin-substrate-and-workflow-bundles.md)
 - [../plans/2026-06-23-w18-r2-harness-plugin-substrate-workflow-bundles/00-overview.md](../plans/2026-06-23-w18-r2-harness-plugin-substrate-workflow-bundles/00-overview.md)
+- [../designs/2026-06-20-coverage-pass-extensions-and-adversarial-review.md](../designs/2026-06-20-coverage-pass-extensions-and-adversarial-review.md)
+- [../plans/2026-06-23-w18-r3-coverage-pass-extensions-adversarial-review/00-overview.md](../plans/2026-06-23-w18-r3-coverage-pass-extensions-adversarial-review/00-overview.md)

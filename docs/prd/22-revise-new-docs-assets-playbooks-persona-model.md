@@ -23,6 +23,8 @@ This PRD extends PRD 21's `.make-docs/**` tool-resource boundary by assigning `d
 
 [29-revise-playbook-contract-run-playbook.md](29-revise-playbook-contract-run-playbook.md) builds on this PRD by defining the playbook-specific content contract, required `stack` field, body sections, and generic Run Playbook model. It preserves `docs/assets/playbooks/**` and `persona` frontmatter as the reader-facing asset authority.
 
+[31-revise-coverage-pass-extensions-adversarial-review.md](31-revise-coverage-pass-extensions-adversarial-review.md) builds on this PRD by making adversarial-review persona targeting conditional. Adversarial candidates use `persona_target: none` unless the challenge concerns persona-scoped content or audience-specific usability; when they do target an audience, they must use the configured persona slug.
+
 ## Requirements
 
 ### Reader-Facing Asset Namespace
@@ -116,6 +118,7 @@ Implementation must audit and update duplicated path knowledge across CLI source
 
 - This PRD does not implement the file migration.
 - This PRD does not define plugin behavior. [29-revise-playbook-contract-run-playbook.md](29-revise-playbook-contract-run-playbook.md) defines the generic Run Playbook model.
+- This PRD does not make adversarial review a persona-scoped asset by default. [31-revise-coverage-pass-extensions-adversarial-review.md](31-revise-coverage-pass-extensions-adversarial-review.md) owns the optional adversarial-review candidate contract.
 - This PRD does not decide final history-record storage.
 - This PRD does not move tool resources back into `docs/assets/**`.
 - This PRD does not change the local bootstrap or materialization mode contracts from PRD 17 and PRD 21.
@@ -131,6 +134,7 @@ Implementation must audit and update duplicated path knowledge across CLI source
 - [14 Add Lifecycle Workflow Foundation](14-add-lifecycle-workflow-foundation.md)
 - [19 Revise Template Package Dogfood Source of Truth Contract](19-revise-template-package-dogfood-source-of-truth-contract.md)
 - [21 Revise Tool Directory System Custom Resource Tiers](21-revise-tool-directory-system-custom-resource-tiers.md)
+- [31 Revise Coverage Pass Extensions Adversarial Review](31-revise-coverage-pass-extensions-adversarial-review.md)
 
 ## Acceptance Criteria
 
@@ -148,9 +152,12 @@ Implementation must audit and update duplicated path knowledge across CLI source
 - [23 Revise Generated Metadata Lifecycle Handoffs](23-revise-generated-metadata-lifecycle-handoffs.md)
 - [24 Revise Configuration Convention Overlay](24-revise-configuration-convention-overlay.md)
 - [29 Revise Playbook Contract Run Playbook](29-revise-playbook-contract-run-playbook.md)
+- [31 Revise Coverage Pass Extensions Adversarial Review](31-revise-coverage-pass-extensions-adversarial-review.md)
 - [21 Revise Tool Directory System Custom Resource Tiers](21-revise-tool-directory-system-custom-resource-tiers.md)
 - [../designs/2026-06-20-playbook-contract-and-run-playbook.md](../designs/2026-06-20-playbook-contract-and-run-playbook.md)
 - [../plans/2026-06-23-w18-r1-playbook-contract-run-playbook/00-overview.md](../plans/2026-06-23-w18-r1-playbook-contract-run-playbook/00-overview.md)
+- [../designs/2026-06-20-coverage-pass-extensions-and-adversarial-review.md](../designs/2026-06-20-coverage-pass-extensions-and-adversarial-review.md)
+- [../plans/2026-06-23-w18-r3-coverage-pass-extensions-adversarial-review/00-overview.md](../plans/2026-06-23-w18-r3-coverage-pass-extensions-adversarial-review/00-overview.md)
 - `packages/cli/src/rules.ts`
 - `packages/cli/src/catalog.ts`
 - `packages/cli/src/types.ts`

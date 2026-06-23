@@ -35,6 +35,7 @@ Source-of-truth order:
 - Reader-facing guide/playbook defaults from [22-revise-new-docs-assets-playbooks-persona-model.md](./22-revise-new-docs-assets-playbooks-persona-model.md) follow the same source-of-truth order when they are shipped starter assets: author in `packages/docs/template/`, dogfood selected template-owned files under review, and bundle through package copy/prepack.
 - First-party system helper script or wrapper changes from [26-revise-no-scripts-migration-skill-refactor.md](./26-revise-no-scripts-migration-skill-refactor.md) follow the same shipped-resource order when they are template-owned: start in `packages/docs/template/`, dogfood selected files under review, refresh `packages/cli/template/`, and keep registry or skill payload changes scoped to selected-skill assets.
 - Playbook defaults from [29-revise-playbook-contract-run-playbook.md](./29-revise-playbook-contract-run-playbook.md) follow the same source-of-truth order and must preserve minimum playbook frontmatter, path/persona consistency, stack metadata, body contract sections, and package-template parity when shipped.
+- Future adversarial-review prompts, references, playbooks, starter assets, plugins, CLI/MCP affordances, or conformance assets from [31-revise-coverage-pass-extensions-adversarial-review.md](./31-revise-coverage-pass-extensions-adversarial-review.md) follow the same source-of-truth order only when a downstream plan explicitly selects and ships that surface; adversarial review is not dogfooded first and is not shipped by default.
 
 Template-owned assets:
 
@@ -81,6 +82,7 @@ Freshness proof:
 | `docs/prd/18-revise-compatibility-audit-and-migration-disposition.md` | Applies compatibility and managed-file conflict rules to reseeding when local managed files have changed. |
 | `docs/prd/03-open-questions-and-risk-register.md` | Updates D-006, D-007, D-014, Q-005, R-003, R-004, and R-007 without duplicating entries. |
 | `docs/prd/22-revise-new-docs-assets-playbooks-persona-model.md` | Applies template/package/dogfood source-of-truth order to future reader-facing guide and playbook defaults. |
+| `docs/prd/31-revise-coverage-pass-extensions-adversarial-review.md` | Applies template/package/dogfood source-of-truth order to future shipped adversarial-review surfaces without making them default assets. |
 
 The paired delta backlog for implementation work should be generated under `docs/work/2026-06-23-w10-r4-template-package-dogfood-source-of-truth-contract/` and trace back to this revision, the W10 R4 plan, the accepted design, and current TypeScript CLI/package surfaces.
 
@@ -114,7 +116,10 @@ The paired delta backlog for implementation work should be generated under `docs
 - `docs/prd/22-revise-new-docs-assets-playbooks-persona-model.md`
 - `docs/prd/26-revise-no-scripts-migration-skill-refactor.md`
 - `docs/prd/29-revise-playbook-contract-run-playbook.md`
+- `docs/prd/31-revise-coverage-pass-extensions-adversarial-review.md`
 - `docs/designs/2026-06-20-no-scripts-migration-and-skill-refactor.md`
 - `docs/designs/2026-06-20-playbook-contract-and-run-playbook.md`
+- `docs/designs/2026-06-20-coverage-pass-extensions-and-adversarial-review.md`
 - `docs/plans/2026-06-23-w16-r3-no-scripts-migration-skill-refactor/00-overview.md`
 - `docs/plans/2026-06-23-w18-r1-playbook-contract-run-playbook/00-overview.md`
+- `docs/plans/2026-06-23-w18-r3-coverage-pass-extensions-adversarial-review/00-overview.md`

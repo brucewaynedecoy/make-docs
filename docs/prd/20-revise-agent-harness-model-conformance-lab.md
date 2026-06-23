@@ -55,7 +55,7 @@ Support-claim gating:
 - Repeated reviewed runs are required before stronger commendation language.
 - A pass for one model in a harness does not imply support for every model routed through that harness.
 - A pass for one scenario does not imply blanket harness support.
-- Plugin, workflow bundle, playbook, skill, CLI, MCP, unattended, or model/provider support claims must cite evidence for the exact scenario/harness/model/provider/runtime tuple claimed. [30-revise-harness-plugin-substrate-workflow-bundles.md](./30-revise-harness-plugin-substrate-workflow-bundles.md) keeps plugin and bundle wording provisional until implementation or conformance evidence exists.
+- Plugin, workflow bundle, playbook, skill, CLI, MCP, unattended, adversarial-review, or model/provider support claims must cite evidence for the exact scenario/harness/model/provider/runtime tuple claimed. [30-revise-harness-plugin-substrate-workflow-bundles.md](./30-revise-harness-plugin-substrate-workflow-bundles.md) keeps plugin and bundle wording provisional until implementation or conformance evidence exists. [31-revise-coverage-pass-extensions-adversarial-review.md](./31-revise-coverage-pass-extensions-adversarial-review.md) keeps adversarial-review support wording provisional until the exact prompt, playbook, plugin, CLI, MCP, package, harness, model, provider, or unattended surface has implementation validation or conformance records.
 
 Validation relationship:
 
@@ -76,6 +76,7 @@ Validation relationship:
 | `docs/prd/18-revise-compatibility-audit-and-migration-disposition.md` | Reuses migration/audit scenarios as evidence inputs without changing safety semantics. |
 | `docs/prd/19-revise-template-package-dogfood-source-of-truth-contract.md` | Uses template/dogfood/package source-of-truth scenarios as lab inputs without moving lab assets into template copies. |
 | `docs/prd/30-revise-harness-plugin-substrate-workflow-bundles.md` | Adds plugin and workflow-bundle support-claim tuples as future conformance inputs without shipping lab artifacts by default. |
+| `docs/prd/31-revise-coverage-pass-extensions-adversarial-review.md` | Adds adversarial-review support-claim tuples as future conformance inputs only when a downstream plan selects a shipped or executable surface. |
 | `docs/prd/03-open-questions-and-risk-register.md` | Updates existing harness, provider, plugin, dogfood, package, audit, and no-scripts risks without duplicating entries. |
 
 The paired delta backlog should be generated under `docs/work/2026-06-23-w10-r5-agent-harness-model-conformance-lab/`.
@@ -103,8 +104,11 @@ The paired delta backlog should be generated under `docs/work/2026-06-23-w10-r5-
 - `docs/prd/19-revise-template-package-dogfood-source-of-truth-contract.md`
 - `docs/prd/25-revise-cli-separation-and-mcp-boundary.md`
 - `docs/prd/30-revise-harness-plugin-substrate-workflow-bundles.md`
+- `docs/prd/31-revise-coverage-pass-extensions-adversarial-review.md`
 - `docs/designs/2026-06-20-harness-plugin-substrate-and-workflow-bundles.md`
+- `docs/designs/2026-06-20-coverage-pass-extensions-and-adversarial-review.md`
 - `docs/plans/2026-06-23-w18-r2-harness-plugin-substrate-workflow-bundles/00-overview.md`
+- `docs/plans/2026-06-23-w18-r3-coverage-pass-extensions-adversarial-review/00-overview.md`
 - `packages/cli/src/types.ts`
 - `packages/cli/src/wizard.ts`
 - `packages/cli/src/skill-catalog.ts`

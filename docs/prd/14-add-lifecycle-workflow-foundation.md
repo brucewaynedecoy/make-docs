@@ -24,6 +24,7 @@ surface.
 - Revised by [24-revise-configuration-convention-overlay.md](./24-revise-configuration-convention-overlay.md): lifecycle labels may be rendered with project-specific presentation text, but lifecycle routes, handoff fields, departure slugs, and W/R/P lineage remain canonical.
 - Revised by [26-revise-no-scripts-migration-skill-refactor.md](./26-revise-no-scripts-migration-skill-refactor.md): the deferred closeout/work skill refactor must move deterministic lifecycle helpers into CLI/shared-core operations and rewrite affected first-party skills in the same migration window before standalone scripts are removed or downgraded.
 - Revised by [29-revise-playbook-contract-run-playbook.md](./29-revise-playbook-contract-run-playbook.md): persona-scoped playbooks now have a v2 content contract under `docs/assets/playbooks/**`, a required build/run stack discriminator, and a generic Run Playbook model that does not require every lifecycle playbook to become a plugin.
+- Revised by [31-revise-coverage-pass-extensions-adversarial-review.md](./31-revise-coverage-pass-extensions-adversarial-review.md): adversarial review is an optional coverage-pass extension with candidate records and verdict mapping; it is not a mandatory lifecycle gate, release gate, plugin, playbook, CLI command, MCP operation, or conformance scenario by default.
 
 ## Capability Addition or Enhancement
 
@@ -32,7 +33,9 @@ surface.
   semantics (`create`/`update-existing`/`link-only`/`none`) as a spine; named
   surfaces (guide/playbook, history, PRD, testing/UAT); a verdict axis separate
   from a persona-target axis; the history-record idempotency rule; the
-  verdict-and-reason rule; and a validation checklist.
+  verdict-and-reason rule; and a validation checklist. PRD 31 extends this
+  contract with optional adversarial-review candidates and maps adversarial
+  verdicts back to the base spine.
 - **Always-read lifecycle anchor** — an authoritative reference stating the
   lifecycle arc (optional artifacts inputs; Segment 1 plan; Segment 2 build loop
   with the coverage band; Segment 3 release/archival/retrospective), the default
@@ -115,7 +118,10 @@ verbs apply.
 - `docs/prd/24-revise-configuration-convention-overlay.md`
 - `docs/prd/26-revise-no-scripts-migration-skill-refactor.md`
 - `docs/prd/29-revise-playbook-contract-run-playbook.md`
+- `docs/prd/31-revise-coverage-pass-extensions-adversarial-review.md`
 - `docs/designs/2026-06-20-no-scripts-migration-and-skill-refactor.md`
 - `docs/designs/2026-06-20-playbook-contract-and-run-playbook.md`
+- `docs/designs/2026-06-20-coverage-pass-extensions-and-adversarial-review.md`
 - `docs/plans/2026-06-23-w16-r3-no-scripts-migration-skill-refactor/00-overview.md`
 - `docs/plans/2026-06-23-w18-r1-playbook-contract-run-playbook/00-overview.md`
+- `docs/plans/2026-06-23-w18-r3-coverage-pass-extensions-adversarial-review/00-overview.md`

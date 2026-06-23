@@ -87,6 +87,8 @@ Skills that currently depend on standalone scripts must be rewritten in the same
 
 [30-revise-harness-plugin-substrate-workflow-bundles.md](30-revise-harness-plugin-substrate-workflow-bundles.md) supplies the plugin substrate and workflow bundle metadata that future CLI, MCP, plugin, skill, or agent surfaces must reuse. Plugin entrypoints may call accepted CLI/MCP/shared-core operations, but they must not implement independent manifest, config, audit, backup, uninstall, generation, validation, or lifecycle routing behavior.
 
+[31-revise-coverage-pass-extensions-adversarial-review.md](31-revise-coverage-pass-extensions-adversarial-review.md) supplies the optional adversarial-review coverage-pass contract that future CLI, MCP, plugin, skill, or agent surfaces must reuse if they expose adversarial review. Those surfaces must delegate deterministic candidate validation, verdict mapping, history idempotency, and support-claim checks to accepted operation contracts; no CLI or MCP write surface is implied by adversarial review.
+
 ## Non-Requirements
 
 - No immediate Rust implementation.
@@ -94,6 +96,7 @@ Skills that currently depend on standalone scripts must be rewritten in the same
 - No direct MCP asset source policy outside the accepted materialization contract.
 - No replacement of the no-command npm workflow with `init` or `update`.
 - No resolution of remote versus bundled skills, plugin runtime implementation parity, or per-bundle public UX.
+- No CLI or MCP adversarial-review surface unless a later plan explicitly selects it and proves parity.
 
 ## Affected Baseline Docs
 
@@ -108,6 +111,7 @@ Skills that currently depend on standalone scripts must be rewritten in the same
 - [28 Revise Shared Agentics Installation Harness Redirection](28-revise-shared-agentics-installation-harness-redirection.md)
 - [29 Revise Playbook Contract Run Playbook](29-revise-playbook-contract-run-playbook.md)
 - [30 Revise Harness Plugin Substrate Workflow Bundles](30-revise-harness-plugin-substrate-workflow-bundles.md)
+- [31 Revise Coverage Pass Extensions Adversarial Review](31-revise-coverage-pass-extensions-adversarial-review.md)
 
 ## Acceptance Criteria
 
@@ -135,12 +139,15 @@ Skills that currently depend on standalone scripts must be rewritten in the same
 - [28 Revise Shared Agentics Installation Harness Redirection](28-revise-shared-agentics-installation-harness-redirection.md)
 - [29 Revise Playbook Contract Run Playbook](29-revise-playbook-contract-run-playbook.md)
 - [30 Revise Harness Plugin Substrate Workflow Bundles](30-revise-harness-plugin-substrate-workflow-bundles.md)
+- [31 Revise Coverage Pass Extensions Adversarial Review](31-revise-coverage-pass-extensions-adversarial-review.md)
 - [../designs/2026-06-20-shared-agentics-installation-and-harness-redirection.md](../designs/2026-06-20-shared-agentics-installation-and-harness-redirection.md)
 - [../plans/2026-06-23-w17-r2-shared-agentics-installation-harness-redirection/00-overview.md](../plans/2026-06-23-w17-r2-shared-agentics-installation-harness-redirection/00-overview.md)
 - [../designs/2026-06-20-playbook-contract-and-run-playbook.md](../designs/2026-06-20-playbook-contract-and-run-playbook.md)
 - [../plans/2026-06-23-w18-r1-playbook-contract-run-playbook/00-overview.md](../plans/2026-06-23-w18-r1-playbook-contract-run-playbook/00-overview.md)
 - [../designs/2026-06-20-harness-plugin-substrate-and-workflow-bundles.md](../designs/2026-06-20-harness-plugin-substrate-and-workflow-bundles.md)
 - [../plans/2026-06-23-w18-r2-harness-plugin-substrate-workflow-bundles/00-overview.md](../plans/2026-06-23-w18-r2-harness-plugin-substrate-workflow-bundles/00-overview.md)
+- [../designs/2026-06-20-coverage-pass-extensions-and-adversarial-review.md](../designs/2026-06-20-coverage-pass-extensions-and-adversarial-review.md)
+- [../plans/2026-06-23-w18-r3-coverage-pass-extensions-adversarial-review/00-overview.md](../plans/2026-06-23-w18-r3-coverage-pass-extensions-adversarial-review/00-overview.md)
 - `packages/cli/src/cli.ts`
 - `packages/cli/src/profile.ts`
 - `packages/cli/src/manifest.ts`

@@ -1,0 +1,24 @@
+# W18 R3 Coverage Pass Extensions Adversarial Review Work
+
+## Purpose
+
+Implement adversarial review as an optional coverage-pass extension described by PRD 31.
+
+## Source Chain
+
+- Design: [docs/designs/2026-06-20-coverage-pass-extensions-and-adversarial-review.md](../../designs/2026-06-20-coverage-pass-extensions-and-adversarial-review.md)
+- Plan: [docs/plans/2026-06-23-w18-r3-coverage-pass-extensions-adversarial-review/00-overview.md](../../plans/2026-06-23-w18-r3-coverage-pass-extensions-adversarial-review/00-overview.md)
+- PRD: [docs/prd/31-revise-coverage-pass-extensions-adversarial-review.md](../../prd/31-revise-coverage-pass-extensions-adversarial-review.md)
+
+## Phase Map
+
+| Phase | File | Focus |
+| --- | --- | --- |
+| P1 | [01 Requirements and Register Reconciliation](01-requirements-and-register-reconciliation.md) | Keep PRD and risk entries aligned with optional adversarial review. |
+| P2 | [02 Adversarial Pass Contract](02-adversarial-pass-contract.md) | Add candidate record, verdict mapping, persona, and history rules. |
+| P3 | [03 Optional Surface Exposure](03-optional-surface-exposure.md) | Select and implement only the requested prompt, playbook, plugin, CLI, MCP, or conformance surface. |
+| P4 | [04 Template History Validation Closeout](04-template-history-validation-closeout.md) | Prove template/package parity, history idempotency, validation, and support-claim behavior. |
+
+## Acceptance Gate
+
+Do not close W18 R3 while adversarial review is mandatory, while it installs or runs by default, while `covered` or `rejected` candidates can disappear without reasons, or while a selected shipped asset bypasses template-first source-of-truth order.
