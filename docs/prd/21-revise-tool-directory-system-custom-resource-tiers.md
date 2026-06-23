@@ -53,6 +53,8 @@ Directory model:
     plugins/
 ```
 
+PRD 24 defines `config.yaml` as optional project-owned convention configuration. It belongs in `.make-docs/` because it configures the tool's presentation behavior for the project, but it is not make-docs-owned runtime state and must not be overwritten by install, reconfigure, provider refresh, package sync, or cache recovery without an explicit user-approved replacement flow.
+
 Runtime state:
 
 - `manifest.json`, `conflicts/`, provider/cache metadata, audit state, and temporary run state remain runtime state.
@@ -125,6 +127,7 @@ The paired delta backlog should be generated under `docs/work/2026-06-23-w9-r2-t
 - `docs/prd/18-revise-compatibility-audit-and-migration-disposition.md`
 - `docs/prd/19-revise-template-package-dogfood-source-of-truth-contract.md`
 - `docs/prd/22-revise-new-docs-assets-playbooks-persona-model.md`
+- `docs/prd/24-revise-configuration-convention-overlay.md`
 - `packages/cli/src/rules.ts`
 - `packages/cli/src/catalog.ts`
 - `packages/cli/src/planner.ts`

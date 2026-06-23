@@ -19,6 +19,8 @@ This PRD revises W16 lifecycle handoff requirements and adds a generated-documen
 
 Existing active documents remain valid even when they predate this metadata contract. Backfill occurs through planned template, package, or touched-file work, not broad opportunistic rewrites.
 
+[24-revise-configuration-convention-overlay.md](24-revise-configuration-convention-overlay.md) builds on this PRD by allowing configured display labels in generated prose while preserving YAML frontmatter as the canonical metadata layer.
+
 ## Requirements
 
 ### Canonical Metadata Layer
@@ -101,7 +103,7 @@ Later automation may add provider/cache provenance for tool resources, but that 
 
 ### Configuration Boundary
 
-Configuration overlays may change presentation labels in generated prose, but they must not rename canonical frontmatter fields, `kind` values, `persona`, route identifiers, prompt paths, or lifecycle departure slugs unless a later design explicitly supersedes this PRD.
+Configuration overlays may change presentation labels in generated prose, but they must not rename canonical frontmatter fields, `kind` values, `persona`, route identifiers, prompt paths, source type values, lifecycle departure slugs, or `follow_on` keys unless a later design explicitly supersedes this PRD.
 
 ## Non-Requirements
 
@@ -119,6 +121,7 @@ Configuration overlays may change presentation labels in generated prose, but th
 - [10 Packaging Validation and Release Reference](10-packaging-validation-and-release-reference.md)
 - [14 Add Lifecycle Workflow Foundation](14-add-lifecycle-workflow-foundation.md)
 - [22 Revise New Docs Assets Playbooks Persona Model](22-revise-new-docs-assets-playbooks-persona-model.md)
+- [24 Revise Configuration Convention Overlay](24-revise-configuration-convention-overlay.md)
 
 ## Acceptance Criteria
 

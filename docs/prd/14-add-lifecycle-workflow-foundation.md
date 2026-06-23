@@ -21,6 +21,7 @@ surface.
 - The W15 source-authority reconciliation clarifies the work-backlog handoff: accepted designs, plans, PRDs, and current work contracts drive backlog structure and content before archived examples, installed skill projections, generated harness stubs, or dogfood/package copies are consulted as fallback evidence.
 - Revised by [22-revise-new-docs-assets-playbooks-persona-model.md](./22-revise-new-docs-assets-playbooks-persona-model.md): the W16 `docs/library/playbooks/<persona>/` placement is transitional. The v2 canonical playbook surface is `docs/assets/playbooks/<persona-slug>/`, and `persona` frontmatter is the authoritative audience target.
 - Revised by [23-revise-generated-metadata-lifecycle-handoffs.md](./23-revise-generated-metadata-lifecycle-handoffs.md): generated lifecycle handoffs should carry `follow_on` frontmatter as tooling authority while preserving body `## Intended Follow-On` sections for readers.
+- Revised by [24-revise-configuration-convention-overlay.md](./24-revise-configuration-convention-overlay.md): lifecycle labels may be rendered with project-specific presentation text, but lifecycle routes, handoff fields, departure slugs, and W/R/P lineage remain canonical.
 
 ## Capability Addition or Enhancement
 
@@ -109,3 +110,4 @@ verbs apply.
 - `docs/prd/03-open-questions-and-risk-register.md`
 - `docs/prd/22-revise-new-docs-assets-playbooks-persona-model.md`
 - `docs/prd/23-revise-generated-metadata-lifecycle-handoffs.md`
+- `docs/prd/24-revise-configuration-convention-overlay.md`

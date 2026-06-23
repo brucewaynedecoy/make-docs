@@ -71,6 +71,7 @@ For a true first public release, the release state now uses Apache-2.0 licensing
 - Enhanced by [21-revise-tool-directory-system-custom-resource-tiers.md](./21-revise-tool-directory-system-custom-resource-tiers.md) for package proof of future `.make-docs/**` tool resources. Package copy, smoke-pack, and dry-run checks must prove tool-directory resources without moving runtime state into `docs/assets/**`.
 - Enhanced by [22-revise-new-docs-assets-playbooks-persona-model.md](./22-revise-new-docs-assets-playbooks-persona-model.md) for package proof of reader-facing guide/playbook assets. Packed validation must cover template copy, dogfood parity, frontmatter/persona fixtures, and path-hygiene checks for `docs/assets/{guides,playbooks}/` and future `docs/archive/**`.
 - Enhanced by [23-revise-generated-metadata-lifecycle-handoffs.md](./23-revise-generated-metadata-lifecycle-handoffs.md) for package proof of metadata-bearing templates. Packed validation must prove copied templates preserve required frontmatter and YAML/body handoff consistency.
+- Enhanced by [24-revise-configuration-convention-overlay.md](./24-revise-configuration-convention-overlay.md) for package proof of configuration overlays. Packed validation must prove any default config template follows source-first copy rules and install/reconfigure flows preserve local `.make-docs/config.yaml`.
 
 ## Source Anchors
 
@@ -92,3 +93,4 @@ For a true first public release, the release state now uses Apache-2.0 licensing
 - `docs/assets/archive/work/2026-04-16-w5-r2-cli-skill-installation/07-tests-and-validation.md`
 - `docs/prd/22-revise-new-docs-assets-playbooks-persona-model.md`
 - `docs/prd/23-revise-generated-metadata-lifecycle-handoffs.md`
+- `docs/prd/24-revise-configuration-convention-overlay.md`

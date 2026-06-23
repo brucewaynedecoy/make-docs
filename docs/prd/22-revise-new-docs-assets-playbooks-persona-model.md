@@ -19,6 +19,8 @@ This PRD extends PRD 21's `.make-docs/**` tool-resource boundary by assigning `d
 
 [23-revise-generated-metadata-lifecycle-handoffs.md](23-revise-generated-metadata-lifecycle-handoffs.md) builds on this PRD by using `persona` as the canonical frontmatter field for generated persona-scoped guides and playbooks. PRD 23 does not rename or reopen the persona schema defined here.
 
+[24-revise-configuration-convention-overlay.md](24-revise-configuration-convention-overlay.md) defines how projects may add or relabel personas. Config may add persona entries or change display labels, but it must preserve `slug`, `label`, `description`, `primitive`, and the canonical primitive values.
+
 ## Requirements
 
 ### Reader-Facing Asset Namespace
@@ -81,6 +83,8 @@ personas:
 
 Custom personas must use the same schema. A custom `slug` must be lowercase kebab-case and unique in the configured persona set. A custom `primitive` must map to `agent`, `maintainer`, or `user`.
 
+Configuration may relabel persona display text, but generated persona frontmatter stores the persona slug, not the label.
+
 ### Frontmatter Authority
 
 The canonical machine-readable target for persona-scoped guide and playbook docs is YAML frontmatter field `persona`.
@@ -140,6 +144,7 @@ Implementation must audit and update duplicated path knowledge across CLI source
 - [../plans/2026-06-23-w9-r3-new-docs-assets-playbooks-persona-model/00-overview.md](../plans/2026-06-23-w9-r3-new-docs-assets-playbooks-persona-model/00-overview.md)
 - [../work/2026-06-23-w9-r3-new-docs-assets-playbooks-persona-model/00-index.md](../work/2026-06-23-w9-r3-new-docs-assets-playbooks-persona-model/00-index.md)
 - [23 Revise Generated Metadata Lifecycle Handoffs](23-revise-generated-metadata-lifecycle-handoffs.md)
+- [24 Revise Configuration Convention Overlay](24-revise-configuration-convention-overlay.md)
 - [21 Revise Tool Directory System Custom Resource Tiers](21-revise-tool-directory-system-custom-resource-tiers.md)
 - `packages/cli/src/rules.ts`
 - `packages/cli/src/catalog.ts`

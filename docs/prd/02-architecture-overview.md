@@ -43,6 +43,7 @@ The fourth boundary is canonical managed content versus local user modifications
 - Enhanced by [21-revise-tool-directory-system-custom-resource-tiers.md](./21-revise-tool-directory-system-custom-resource-tiers.md) for the `.make-docs/` tool directory model. Runtime state, system/custom tool resources, local bootstrap, provider/cache provenance, and future agentics surfaces are distinct from reader-facing `docs/assets/**`.
 - Enhanced by [22-revise-new-docs-assets-playbooks-persona-model.md](./22-revise-new-docs-assets-playbooks-persona-model.md) for the reader-facing asset namespace. `docs/assets/guides/**` and `docs/assets/playbooks/**` become the future reusable documentation asset surfaces, `docs/archive/**` becomes the future archive surface, and `persona` frontmatter is authoritative for persona-scoped guide/playbook docs.
 - Enhanced by [23-revise-generated-metadata-lifecycle-handoffs.md](./23-revise-generated-metadata-lifecycle-handoffs.md) for generated document metadata. YAML frontmatter becomes the canonical metadata layer for generated docs, required body handoffs remain the human-readable rendering, and validators should report YAML/body drift without turning advisory follow-ons into gates.
+- Enhanced by [24-revise-configuration-convention-overlay.md](./24-revise-configuration-convention-overlay.md) for project-owned configuration. Optional `.make-docs/config.yaml` is a presentation overlay for labels, personas, and generated prose, not routing authority for paths, metadata fields, route identifiers, or coordinate lineage.
 
 ## Data Flow
 
@@ -57,6 +58,8 @@ The fourth boundary is canonical managed content versus local user modifications
 The primary user-facing configuration surface is the CLI itself. `packages/cli/src/cli.ts:488-579` defines capability flags, prompt/template/reference modes, harness toggles, and skill toggles; `packages/cli/src/cli.ts:894-1040` exposes the supported commands and option groupings; and `packages/cli/src/wizard.ts:93-104` plus `packages/cli/src/wizard.ts:838-888` provide the interactive equivalents.
 
 The persisted configuration surface is `.make-docs/manifest.json`. `packages/cli/src/types.ts:87-97` defines its shape, including `schemaVersion`, `profileId`, `selections`, `effectiveCapabilities`, `files`, and `skillFiles`, while `packages/cli/src/manifest.ts:79-101` writes it and `packages/cli/src/manifest.ts:40-77` migrates older selection formats forward.
+
+PRD 24 adds optional `.make-docs/config.yaml` as project-owned convention configuration once implemented. That file is separate from manifest/runtime state and may influence rendering only; canonical path selection, metadata validation, package copy, provider/cache behavior, and agentic routing still use canonical identifiers.
 
 The contract-and-template configuration surface lives in the shipped assets. `packages/docs/template/docs/assets/references/output-contract.md`, `packages/docs/template/docs/assets/references/execution-workflow.md`, `packages/docs/template/docs/assets/references/planning-workflow.md`, and the `packages/docs/template/docs/assets/templates/*.md` files define the structure of generated outputs, while `packages/cli/src/rules.ts:55-182` controls which subset of those assets installs for a given profile.
 
@@ -105,3 +108,4 @@ The packaging and validation configuration surface is defined by workspace metad
 - `docs/prd/10-packaging-validation-and-release-reference.md`
 - `docs/prd/22-revise-new-docs-assets-playbooks-persona-model.md`
 - `docs/prd/23-revise-generated-metadata-lifecycle-handoffs.md`
+- `docs/prd/24-revise-configuration-convention-overlay.md`
