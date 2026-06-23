@@ -77,6 +77,8 @@ The no-scripts migration must move deterministic logic into CLI/shared-core oper
 
 Skills that currently depend on standalone scripts must be rewritten in the same migration window so they call the CLI/MCP boundary instead of carrying independent deterministic logic.
 
+[26-revise-no-scripts-migration-skill-refactor.md](26-revise-no-scripts-migration-skill-refactor.md) is the concrete migration contract for this dependency. It defines the required operation-first sequence, same-window first-party skill rewrites, managed old-script and wrapper classification, and validation gates before standalone helper scripts are removed or downgraded.
+
 ## Non-Requirements
 
 - No immediate Rust implementation.
@@ -117,6 +119,7 @@ Skills that currently depend on standalone scripts must be rewritten in the same
 - [20 Revise Agent Harness Model Conformance Lab](20-revise-agent-harness-model-conformance-lab.md)
 - [21 Revise Tool Directory System Custom Resource Tiers](21-revise-tool-directory-system-custom-resource-tiers.md)
 - [24 Revise Configuration Convention Overlay](24-revise-configuration-convention-overlay.md)
+- [26 Revise No-Scripts Migration Skill Refactor](26-revise-no-scripts-migration-skill-refactor.md)
 - `packages/cli/src/cli.ts`
 - `packages/cli/src/profile.ts`
 - `packages/cli/src/manifest.ts`

@@ -62,6 +62,7 @@ Code anchors:
 - Enhanced by [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md) for the system asset boundary. Skills and plugins remain selected agentic assets with separate delivery and trust decisions; they are not folded into `full-snapshot`, `provider-backed`, or `hybrid-pinned-cache` system asset modes.
 - Enhanced by [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) for skills migration safety. Migration may preserve prior selected skills only when manifest and file evidence are trustworthy, and it must not silently expand `selectedSkills` or install skill files by default.
 - Enhanced by [20-revise-agent-harness-model-conformance-lab.md](./20-revise-agent-harness-model-conformance-lab.md) for future adapter evidence. Lab adapters for future harnesses or model routes do not add current skills install targets or change the `selectedSkills` contract.
+- Enhanced by [26-revise-no-scripts-migration-skill-refactor.md](./26-revise-no-scripts-migration-skill-refactor.md) for first-party skill refactor requirements. Selected skills may still install prose, references, examples, and metadata, but deterministic make-docs logic must be available from the CLI package/shared-core boundary rather than depending on remote or skill-local script payloads as the only executable source.
 
 The skills subsystem hangs off the shared install contract in `packages/cli/src/types.ts:31`. `InstallSelections` carries `harnesses`, `skills`, `skillScope`, and `selectedSkills`, and the skills command mutates only that subset in `packages/cli/src/skills-command.ts:152` and `packages/cli/src/skills-ui.ts:280`. The skill-specific UI state mirrors that reduced surface in `packages/cli/src/skills-ui.ts:28`, which keeps command execution from depending on the broader capability/prompt/template/reference state used by full installs.
 
@@ -160,5 +161,12 @@ Code anchors:
 - `packages/skills/README.md`
 - `packages/skills/archive-docs/`
 - `packages/skills/decompose-codebase/`
+- `packages/skills/closeout-commit/`
+- `packages/skills/closeout-phase/`
+- `packages/skills/work-on-wave/`
+- `packages/skills/work-on-phase/`
+- `docs/prd/26-revise-no-scripts-migration-skill-refactor.md`
+- `docs/designs/2026-06-20-no-scripts-migration-and-skill-refactor.md`
+- `docs/plans/2026-06-23-w16-r3-no-scripts-migration-skill-refactor/00-overview.md`
 - `docs/assets/archive/designs/2026-04-16-cli-skill-installation.md`
 - `docs/assets/archive/designs/2026-04-21-cli-skills-command.md`

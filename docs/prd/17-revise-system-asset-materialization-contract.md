@@ -75,6 +75,7 @@ System asset boundary:
 - Conformance-lab scenario specs, result records, raw transcripts, provider logs, and temporary run artifacts are not provider-resolved system assets. [20-revise-agent-harness-model-conformance-lab.md](./20-revise-agent-harness-model-conformance-lab.md) keeps them maintainer-only unless later promoted by design.
 - `.make-docs/` remains runtime state; `docs/assets/` remains readable documentation assets. Manifests, conflicts, caches, and provider state do not move into `docs/assets/`.
 - [21-revise-tool-directory-system-custom-resource-tiers.md](./21-revise-tool-directory-system-custom-resource-tiers.md) extends this boundary by defining `.make-docs/**` system/custom tool-resource tiers while preserving local bootstrap and keeping runtime state out of `docs/assets/**`.
+- [26-revise-no-scripts-migration-skill-refactor.md](./26-revise-no-scripts-migration-skill-refactor.md) classifies first-party system helper scripts and thin compatibility wrappers as managed system resources only when they are shipped by make-docs; custom user scripts remain custom resources outside the migration.
 
 Provider and cache provenance:
 
@@ -156,6 +157,9 @@ Do not add `Change Notes` to `docs/prd/03-open-questions-and-risk-register.md`; 
 - `docs/prd/16-revise-package-and-deployment-boundaries.md`
 - `docs/prd/03-open-questions-and-risk-register.md`
 - `docs/prd/25-revise-cli-separation-and-mcp-boundary.md`
+- `docs/prd/26-revise-no-scripts-migration-skill-refactor.md`
+- `docs/designs/2026-06-20-no-scripts-migration-and-skill-refactor.md`
+- `docs/plans/2026-06-23-w16-r3-no-scripts-migration-skill-refactor/00-overview.md`
 - `packages/cli/src/rules.ts`
 - `packages/cli/src/catalog.ts`
 - `packages/cli/src/utils.ts`

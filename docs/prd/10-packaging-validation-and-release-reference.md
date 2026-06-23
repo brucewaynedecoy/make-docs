@@ -73,6 +73,7 @@ For a true first public release, the release state now uses Apache-2.0 licensing
 - Enhanced by [23-revise-generated-metadata-lifecycle-handoffs.md](./23-revise-generated-metadata-lifecycle-handoffs.md) for package proof of metadata-bearing templates. Packed validation must prove copied templates preserve required frontmatter and YAML/body handoff consistency.
 - Enhanced by [24-revise-configuration-convention-overlay.md](./24-revise-configuration-convention-overlay.md) for package proof of configuration overlays. Packed validation must prove any default config template follows source-first copy rules and install/reconfigure flows preserve local `.make-docs/config.yaml`.
 - Enhanced by [25-revise-cli-separation-and-mcp-boundary.md](./25-revise-cli-separation-and-mcp-boundary.md) for CLI/MCP package proof. Packed npm validation remains installer-first and must keep the public command taxonomy aligned with TypeScript behavior; future dual-runtime validation must prove runtime/version disclosure, PATH-order supportability, and CLI/MCP operation-contract parity before Rust or MCP surfaces are treated as implementation-ready.
+- Enhanced by [26-revise-no-scripts-migration-skill-refactor.md](./26-revise-no-scripts-migration-skill-refactor.md) for no-scripts package proof. Package validation must prove migrated CLI/shared-core operations, selected-skill install/update/remove behavior, managed old-script and wrapper classification, source-first template/dogfood/package copy, and smoke-pack coverage when shipped helper or skill assets change.
 
 ## Source Anchors
 
@@ -96,5 +97,8 @@ For a true first public release, the release state now uses Apache-2.0 licensing
 - `docs/prd/23-revise-generated-metadata-lifecycle-handoffs.md`
 - `docs/prd/24-revise-configuration-convention-overlay.md`
 - `docs/prd/25-revise-cli-separation-and-mcp-boundary.md`
+- `docs/prd/26-revise-no-scripts-migration-skill-refactor.md`
 - `docs/designs/2026-06-20-cli-separation-and-mcp-boundary.md`
+- `docs/designs/2026-06-20-no-scripts-migration-and-skill-refactor.md`
 - `docs/plans/2026-06-23-w10-r6-cli-separation-and-mcp-boundary/00-overview.md`
+- `docs/plans/2026-06-23-w16-r3-no-scripts-migration-skill-refactor/00-overview.md`

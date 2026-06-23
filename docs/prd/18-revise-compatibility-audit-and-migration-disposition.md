@@ -116,6 +116,7 @@ Dogfood and skills:
 - Shipped template and packed npm template are package validation surfaces; root `docs/` is dogfood validation.
 - Skills remain opt-in. Migration may preserve explicitly selected prior skills only when manifest and file evidence are trustworthy.
 - Bare installs and clean v1-to-v2 migration must not silently expand `selectedSkills` or install skill files by default.
+- [26-revise-no-scripts-migration-skill-refactor.md](./26-revise-no-scripts-migration-skill-refactor.md) extends that migration gate to first-party helper scripts: managed old skill scripts, managed wrapper scripts, modified local files, and custom user scripts must be classified before removal, and no accepted state may leave a selected first-party skill missing both a script and a CLI/shared-core replacement.
 
 Validation boundary:
 
@@ -176,6 +177,9 @@ Do not add `Change Notes` to `docs/prd/03-open-questions-and-risk-register.md`; 
 - `docs/prd/17-revise-system-asset-materialization-contract.md`
 - `docs/prd/03-open-questions-and-risk-register.md`
 - `docs/prd/25-revise-cli-separation-and-mcp-boundary.md`
+- `docs/prd/26-revise-no-scripts-migration-skill-refactor.md`
+- `docs/designs/2026-06-20-no-scripts-migration-and-skill-refactor.md`
+- `docs/plans/2026-06-23-w16-r3-no-scripts-migration-skill-refactor/00-overview.md`
 - `packages/cli/src/manifest.ts`
 - `packages/cli/src/audit.ts`
 - `packages/cli/src/backup.ts`

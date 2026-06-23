@@ -33,6 +33,7 @@ Source-of-truth order:
 - Conformance-lab assets from [20-revise-agent-harness-model-conformance-lab.md](./20-revise-agent-harness-model-conformance-lab.md) do not enter `packages/docs/template/`, root dogfood reseeding, or `packages/cli/template/` unless a later accepted design deliberately promotes a subset.
 - Tool-directory defaults from [21-revise-tool-directory-system-custom-resource-tiers.md](./21-revise-tool-directory-system-custom-resource-tiers.md) follow the same source-of-truth order: author in `packages/docs/template/`, dogfood selected template-owned files under review, and bundle through package copy/prepack.
 - Reader-facing guide/playbook defaults from [22-revise-new-docs-assets-playbooks-persona-model.md](./22-revise-new-docs-assets-playbooks-persona-model.md) follow the same source-of-truth order when they are shipped starter assets: author in `packages/docs/template/`, dogfood selected template-owned files under review, and bundle through package copy/prepack.
+- First-party system helper script or wrapper changes from [26-revise-no-scripts-migration-skill-refactor.md](./26-revise-no-scripts-migration-skill-refactor.md) follow the same shipped-resource order when they are template-owned: start in `packages/docs/template/`, dogfood selected files under review, refresh `packages/cli/template/`, and keep registry or skill payload changes scoped to selected-skill assets.
 
 Template-owned assets:
 
@@ -110,3 +111,6 @@ The paired delta backlog for implementation work should be generated under `docs
 - `scripts/smoke-pack.mjs`
 - `packages/cli/tests/consistency.test.ts`
 - `docs/prd/22-revise-new-docs-assets-playbooks-persona-model.md`
+- `docs/prd/26-revise-no-scripts-migration-skill-refactor.md`
+- `docs/designs/2026-06-20-no-scripts-migration-and-skill-refactor.md`
+- `docs/plans/2026-06-23-w16-r3-no-scripts-migration-skill-refactor/00-overview.md`
