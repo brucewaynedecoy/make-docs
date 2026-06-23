@@ -86,7 +86,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md) makes `packages/cli/package.json`, packed package behavior, and smoke-pack validation authoritative for the npm package boundary; [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md) keeps full-snapshot package validation as the default system asset proof; [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) adds migration/classification docs to the package-facing safety surface. README wording still needs implementation cleanup. | Align package-surface docs with dry-run pack output and the accepted npm/Rust deployment, system asset materialization, and compatibility migration boundaries. |
+| Open | [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md) makes `packages/cli/package.json`, packed package behavior, and smoke-pack validation authoritative for the npm package boundary; [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md) keeps full-snapshot package validation as the default system asset proof; [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) adds migration/classification docs to the package-facing safety surface; [19-revise-template-package-dogfood-source-of-truth-contract.md](./19-revise-template-package-dogfood-source-of-truth-contract.md) makes generated `packages/cli/template/` and source-of-truth wording part of the package surface. README wording still needs implementation cleanup. | Align package-surface docs with dry-run pack output and the accepted npm/Rust deployment, system asset materialization, compatibility migration, and template/package source-of-truth boundaries. |
 
 **Issue**: `packages/cli/package.json:9-15` ships `dist`, `template`, registry files, and `README.md`, but `packages/cli/src/README.md:181-204` and `packages/cli/README.md:91-120` still describe tarball-root `docs/`, `AGENTS.md`, and `CLAUDE.md`.
 
@@ -100,7 +100,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Manual re-seeding remains intentional for now; [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) requires existing dogfood/template installs to be classified by ownership evidence rather than path alone. | Add or improve parity and migration-classifier checks that prove dogfood freshness without removing reviewability. |
+| Open | Manual re-seeding remains intentional for now; [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) requires existing dogfood/template installs to be classified by ownership evidence rather than path alone; [19-revise-template-package-dogfood-source-of-truth-contract.md](./19-revise-template-package-dogfood-source-of-truth-contract.md) requires targeted parity checks for files expected to match exactly. | Add or improve parity and migration-classifier checks that prove dogfood freshness without removing reviewability. |
 
 **Issue**: `packages/docs/README.md:86-121` makes manual re-seeding an intentional maintainer workflow, but no automated check proves repo-root `docs/assets/**` still matches `packages/docs/template/docs/assets/**` after template edits.
 
@@ -202,7 +202,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Closed | W16 R0 product assets were authored in repo-root dogfood `docs/` instead of `packages/docs/template/docs/`; resolved by reverse-seeding the template from the dogfood and restoring parity. | Sync `.make-docs/manifest.json` via reconfigure to track the newly managed template assets. |
+| Closed | W16 R0 product assets were authored in repo-root dogfood `docs/` instead of `packages/docs/template/docs/`; resolved by reverse-seeding the template from the dogfood and restoring parity. [19-revise-template-package-dogfood-source-of-truth-contract.md](./19-revise-template-package-dogfood-source-of-truth-contract.md) makes the template-first correction an active v2 requirement. | Sync `.make-docs/manifest.json` via reconfigure to track the newly managed template assets. |
 
 **Issue**: The W16 R0 plan and work backlog specified building product assets (the coverage-pass contract, `lifecycle.md`, router/contract/template edits, starter prompts, and the artifacts router) directly in repo-root `docs/`. The implementing agent followed those paths, so the source-of-truth template `packages/docs/template/docs/**` was left missing assets that existed only in the dogfood — the dogfood/template parity gap D-007 warns about.
 
@@ -276,7 +276,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Manual re-seeding remains intentional for now; compatibility migration must classify repo-root dogfood and template state conservatively when ownership is not trustworthy. | Add contract-level parity checks for dogfood/template drift and migration classifier coverage. |
+| Open | Manual re-seeding remains intentional for now; compatibility migration must classify repo-root dogfood and template state conservatively when ownership is not trustworthy; PRD 19 requires reviewed reseeding plus targeted dogfood/template parity checks. | Add contract-level parity checks for dogfood/template drift and migration classifier coverage. |
 
 **Question**: How should maintainers prove dogfood freshness if manual re-seeding remains the chosen workflow?
 
@@ -452,7 +452,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Dual dev/packed resolution remains active; [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md) adds the requirement that packed npm and future Rust artifacts preserve the same command and shared contract boundaries; [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md) keeps full-snapshot materialization as the default validation baseline; [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) adds source-state/disposition fixtures to the release-sensitive validation matrix. | Preserve smoke-pack checks for template, package-boundary, system asset materialization, and compatibility migration changes. |
+| Open | Dual dev/packed resolution remains active; [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md) adds the requirement that packed npm and future Rust artifacts preserve the same command and shared contract boundaries; [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md) keeps full-snapshot materialization as the default validation baseline; [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) adds source-state/disposition fixtures to the release-sensitive validation matrix; [19-revise-template-package-dogfood-source-of-truth-contract.md](./19-revise-template-package-dogfood-source-of-truth-contract.md) requires packed validation to exercise generated `packages/cli/template/` after copy/prepack. | Preserve smoke-pack checks for template, package-boundary, system asset materialization, compatibility migration, and package-template copy changes. |
 
 **Issue**: Testing only local dev paths can miss failures that appear only after `prepack` copies the template into `packages/cli/template`.
 
@@ -466,7 +466,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Literal path duplication remains accepted but risky; [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md) adds provider/cache provenance and asset identity as future duplication-sensitive surfaces, and [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) makes fallback path recognition a mutation gate. | Add parity, provenance, and classifier checks when moving, adding, or provider-resolving template-owned paths. |
+| Open | Literal path duplication remains accepted but risky; [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md) adds provider/cache provenance and asset identity as future duplication-sensitive surfaces, [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) makes fallback path recognition a mutation gate, and [19-revise-template-package-dogfood-source-of-truth-contract.md](./19-revise-template-package-dogfood-source-of-truth-contract.md) adds template/dogfood/package copy paths to the proof surface. | Add parity, provenance, classifier, and package-template copy checks when moving, adding, or provider-resolving template-owned paths. |
 
 **Issue**: Adding or moving a template-owned path can drift across `rules.ts`, `catalog.ts`, tests, package docs, and dogfood copies.
 
@@ -508,7 +508,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Manual re-seeding remains intentional for reviewability; full-snapshot materialization remains the package validation baseline under [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md); [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) makes dogfood/template ownership evidence part of migration safety. | Add proof points for dogfood/template freshness, full-snapshot package parity, and classifier behavior. |
+| Open | Manual re-seeding remains intentional for reviewability; full-snapshot materialization remains the package validation baseline under [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md); [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) makes dogfood/template ownership evidence part of migration safety; [19-revise-template-package-dogfood-source-of-truth-contract.md](./19-revise-template-package-dogfood-source-of-truth-contract.md) makes reviewed reseeding and targeted parity proof mandatory. | Add proof points for dogfood/template freshness, full-snapshot package parity, package-template copy parity, and classifier behavior. |
 
 **Issue**: Because repo-root `docs/` is both a maintainer workspace and a product rehearsal surface, stale dogfood files can make local behavior look correct while the shipped template has drifted.
 
@@ -624,12 +624,15 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 - `docs/prd/16-revise-package-and-deployment-boundaries.md`
 - `docs/prd/17-revise-system-asset-materialization-contract.md`
 - `docs/prd/18-revise-compatibility-audit-and-migration-disposition.md`
+- `docs/prd/19-revise-template-package-dogfood-source-of-truth-contract.md`
 - `docs/designs/2026-06-19-package-and-deployment-boundaries.md`
 - `docs/designs/2026-06-19-system-asset-delivery-and-materialization-contract.md`
 - `docs/designs/2026-06-19-compatibility-audit-and-migration-disposition.md`
+- `docs/designs/2026-06-19-template-package-and-dogfood-source-of-truth-contract.md`
 - `docs/plans/2026-06-23-w10-r1-package-and-deployment-boundaries/00-overview.md`
 - `docs/plans/2026-06-23-w10-r2-system-asset-materialization-contract/00-overview.md`
 - `docs/plans/2026-06-23-w10-r3-compatibility-audit-and-migration-disposition/00-overview.md`
+- `docs/plans/2026-06-23-w10-r4-template-package-dogfood-source-of-truth-contract/00-overview.md`
 - `packages/docs/README.md:50-121`
 - `packages/skills/README.md`
 - `packages/cli/package.json:9-25`

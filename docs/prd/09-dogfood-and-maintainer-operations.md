@@ -17,6 +17,7 @@ It also defines the ownership boundary between template-owned files and project-
 ### Change Notes
 
 - Clarified by the W15 source-authority reconciliation: repo-root `docs/` remains a dogfood validation surface for template-owned files and a project-owned home for make-docs lifecycle artifacts. It is not promoted to product source of truth for shipped work-backlog guidance, and archived examples remain fallback lineage rather than active authority.
+- Enhanced by [19-revise-template-package-dogfood-source-of-truth-contract.md](./19-revise-template-package-dogfood-source-of-truth-contract.md) for reviewed dogfood reseeding. Root `docs/` exercises shipped template-owned files but must preserve generated designs, plans, PRDs, work backlogs, local guide content, local history/archive entries, artifact outputs, overlays, config, and other project-owned records unless a later accepted plan deliberately ships them as starter content.
 
 The source-of-truth template is `packages/docs/template/`, which the docs package README describes as the tree that ultimately ships to consumer projects (`packages/docs/README.md:7-37`). In local development, the CLI does not require a pre-copied bundle because `packages/cli/src/utils.ts:33-55` resolves `../docs/template` first and only falls back to `packages/cli/template` when the package has been packed.
 
