@@ -81,13 +81,15 @@ Skills that currently depend on standalone scripts must be rewritten in the same
 
 [27-revise-skill-purpose-registry-alternate-skills-manifest.md](27-revise-skill-purpose-registry-alternate-skills-manifest.md) supplies the skills-manifest metadata contract that future MCP or plugin surfaces must reuse. MCP and plugin tools may present purpose-led choices, but they must use one effective manifest, canonical purpose ids, resolved skill names, and the same source-policy validation as the CLI.
 
+[28-revise-shared-agentics-installation-harness-redirection.md](28-revise-shared-agentics-installation-harness-redirection.md) supplies the selected-agentics store and harness exposure primitive that future MCP or plugin surfaces must reuse. Discovery, dry-run planning, and installed-state inspection can read manifest ownership records and generated stubs without a live CLI process, but deterministic writes still delegate to CLI/shared-core operations.
+
 ## Non-Requirements
 
 - No immediate Rust implementation.
 - No immediate MCP write surface.
 - No direct MCP asset source policy outside the accepted materialization contract.
 - No replacement of the no-command npm workflow with `init` or `update`.
-- No resolution of remote versus bundled skills, alternate skills manifests, or shared plugin/skill install redirection.
+- No resolution of remote versus bundled skills, plugin runtime flow, or public plugin exposure.
 
 ## Affected Baseline Docs
 
@@ -99,6 +101,7 @@ Skills that currently depend on standalone scripts must be rewritten in the same
 - [20 Revise Agent Harness Model Conformance Lab](20-revise-agent-harness-model-conformance-lab.md)
 - [21 Revise Tool Directory System Custom Resource Tiers](21-revise-tool-directory-system-custom-resource-tiers.md)
 - [24 Revise Configuration Convention Overlay](24-revise-configuration-convention-overlay.md)
+- [28 Revise Shared Agentics Installation Harness Redirection](28-revise-shared-agentics-installation-harness-redirection.md)
 
 ## Acceptance Criteria
 
@@ -123,6 +126,9 @@ Skills that currently depend on standalone scripts must be rewritten in the same
 - [24 Revise Configuration Convention Overlay](24-revise-configuration-convention-overlay.md)
 - [26 Revise No-Scripts Migration Skill Refactor](26-revise-no-scripts-migration-skill-refactor.md)
 - [27 Revise Skill Purpose Registry Alternate Skills Manifest](27-revise-skill-purpose-registry-alternate-skills-manifest.md)
+- [28 Revise Shared Agentics Installation Harness Redirection](28-revise-shared-agentics-installation-harness-redirection.md)
+- [../designs/2026-06-20-shared-agentics-installation-and-harness-redirection.md](../designs/2026-06-20-shared-agentics-installation-and-harness-redirection.md)
+- [../plans/2026-06-23-w17-r2-shared-agentics-installation-harness-redirection/00-overview.md](../plans/2026-06-23-w17-r2-shared-agentics-installation-harness-redirection/00-overview.md)
 - `packages/cli/src/cli.ts`
 - `packages/cli/src/profile.ts`
 - `packages/cli/src/manifest.ts`

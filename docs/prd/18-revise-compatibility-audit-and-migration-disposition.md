@@ -118,6 +118,7 @@ Dogfood and skills:
 - Bare installs and clean v1-to-v2 migration must not silently expand `selectedSkills` or install skill files by default.
 - [26-revise-no-scripts-migration-skill-refactor.md](./26-revise-no-scripts-migration-skill-refactor.md) extends that migration gate to first-party helper scripts: managed old skill scripts, managed wrapper scripts, modified local files, and custom user scripts must be classified before removal, and no accepted state may leave a selected first-party skill missing both a script and a CLI/shared-core replacement.
 - [27-revise-skill-purpose-registry-alternate-skills-manifest.md](./27-revise-skill-purpose-registry-alternate-skills-manifest.md) extends selected-skill evidence with optional purpose and manifest provenance. Audit, backup, uninstall, and migration may explain why a skill was selected, but they must still act from resolved `selectedSkills`, `skillFiles`, trusted manifest evidence, and one reviewed audit snapshot.
+- [28-revise-shared-agentics-installation-harness-redirection.md](./28-revise-shared-agentics-installation-harness-redirection.md) extends selected-skill migration with shared payload and generated-stub classification. Migration must distinguish canonical shared payloads, generated harness stubs, old duplicated per-harness payloads, modified/custom harness files, missing ownership records, and ambiguous missing-manifest state before mutation.
 
 Validation boundary:
 
@@ -180,10 +181,13 @@ Do not add `Change Notes` to `docs/prd/03-open-questions-and-risk-register.md`; 
 - `docs/prd/25-revise-cli-separation-and-mcp-boundary.md`
 - `docs/prd/26-revise-no-scripts-migration-skill-refactor.md`
 - `docs/prd/27-revise-skill-purpose-registry-alternate-skills-manifest.md`
+- `docs/prd/28-revise-shared-agentics-installation-harness-redirection.md`
 - `docs/designs/2026-06-20-no-scripts-migration-and-skill-refactor.md`
 - `docs/designs/2026-06-20-skill-purpose-registry-and-alternate-skills-manifest.md`
+- `docs/designs/2026-06-20-shared-agentics-installation-and-harness-redirection.md`
 - `docs/plans/2026-06-23-w16-r3-no-scripts-migration-skill-refactor/00-overview.md`
 - `docs/plans/2026-06-23-w17-r1-skill-purpose-registry-alternate-skills-manifest/00-overview.md`
+- `docs/plans/2026-06-23-w17-r2-shared-agentics-installation-harness-redirection/00-overview.md`
 - `packages/cli/src/manifest.ts`
 - `packages/cli/src/audit.ts`
 - `packages/cli/src/backup.ts`

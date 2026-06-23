@@ -63,6 +63,7 @@ Effective behavior:
 
 - Enhanced by [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md) for package-boundary context. Bare installs must keep no-default-skills behavior while Rust parity is pending, and stable product identity does not add aliases or rename behavior that changes `selectedSkills` manifest semantics.
 - Enhanced by [27-revise-skill-purpose-registry-alternate-skills-manifest.md](./27-revise-skill-purpose-registry-alternate-skills-manifest.md) for purpose-led selection. Purpose ids, alternate manifests, and selection provenance may help users choose skills, but they do not reintroduce required/default skills, and `selectedSkills` remains the resolved executable skill-name set.
+- Enhanced by [28-revise-shared-agentics-installation-harness-redirection.md](./28-revise-shared-agentics-installation-harness-redirection.md) for selected-skill materialization. Shared payloads and generated harness stubs are written only for explicitly selected skills; bare install, default sync, and no-skills selection continue to produce no selected agentic payloads or stubs.
 
 Code anchors:
 
@@ -93,6 +94,7 @@ Impacted docs and artifacts:
 - [07 CLI Command Surface and Lifecycle](./07-cli-command-surface-and-lifecycle.md)
 - [08 Skills Catalog and Distribution](./08-skills-catalog-and-distribution.md)
 - [27 Revise Skill Purpose Registry Alternate Skills Manifest](./27-revise-skill-purpose-registry-alternate-skills-manifest.md)
+- [28 Revise Shared Agentics Installation Harness Redirection](./28-revise-shared-agentics-installation-harness-redirection.md)
 - [2026-04-28 W14 R1 CLI Skill Selection Simplification Plan](../assets/archive/plans/2026-04-28-w14-r1-cli-skill-selection-simplification/00-overview.md)
 - [2026-04-28 W14 R1 CLI Skill Selection Simplification Work](../assets/archive/work/2026-04-28-w14-r1-cli-skill-selection-simplification/00-index.md)
 
@@ -125,8 +127,11 @@ The following baseline PRD docs must carry `### Change Notes` using `Superseded 
 - `docs/prd/07-cli-command-surface-and-lifecycle.md`
 - `docs/prd/08-skills-catalog-and-distribution.md`
 - `docs/prd/27-revise-skill-purpose-registry-alternate-skills-manifest.md`
+- `docs/prd/28-revise-shared-agentics-installation-harness-redirection.md`
 - `docs/designs/2026-06-20-skill-purpose-registry-and-alternate-skills-manifest.md`
+- `docs/designs/2026-06-20-shared-agentics-installation-and-harness-redirection.md`
 - `docs/plans/2026-06-23-w17-r1-skill-purpose-registry-alternate-skills-manifest/00-overview.md`
+- `docs/plans/2026-06-23-w17-r2-shared-agentics-installation-harness-redirection/00-overview.md`
 - `packages/cli/skill-registry.json`
 - `packages/cli/skill-registry.schema.json`
 - `packages/cli/src/skill-registry.ts`

@@ -63,6 +63,7 @@ The install manifest remains behavior-first:
 - `skillFiles` remains the managed-output ownership list.
 - Selection provenance may record selected purpose id, manifest id, candidate skill, source policy class, and source provenance for review, reconfigure, audit, backup, uninstall, and support.
 - Selection provenance does not replace `selectedSkills` or `skillFiles`.
+- [28-revise-shared-agentics-installation-harness-redirection.md](28-revise-shared-agentics-installation-harness-redirection.md) consumes the resolved effective manifest and selection provenance when writing shared payloads and generated stubs. Agentic ownership records should preserve manifest id, purpose id, skill name, source policy, digest/ref, scope, canonical payload path, and generated stub paths without replacing `selectedSkills`.
 
 ### Alternate Manifests
 
@@ -114,7 +115,7 @@ Implementation must prove:
 - No ambient alternate-manifest discovery.
 - No automatic merge of built-in and alternate manifests.
 - No closure of Q-001's bundled-local versus remote-fetch delivery decision.
-- No closure of shared plugin/skill install redirection.
+- No closure of plugin runtime flow, public plugin exposure, or remote-versus-bundled skills delivery.
 - No permission for configured labels to replace canonical purpose ids.
 - No deterministic workflow logic in purpose metadata.
 
@@ -129,6 +130,7 @@ Implementation must prove:
 - [24 Revise Configuration Convention Overlay](24-revise-configuration-convention-overlay.md)
 - [25 Revise CLI Separation and MCP Boundary](25-revise-cli-separation-and-mcp-boundary.md)
 - [26 Revise No-Scripts Migration Skill Refactor](26-revise-no-scripts-migration-skill-refactor.md)
+- [28 Revise Shared Agentics Installation Harness Redirection](28-revise-shared-agentics-installation-harness-redirection.md)
 
 ## Acceptance Criteria
 
@@ -148,6 +150,9 @@ Implementation must prove:
 - [08 Skills Catalog and Distribution](08-skills-catalog-and-distribution.md)
 - [12 Revise CLI Skill Selection Simplification](12-revise-cli-skill-selection-simplification.md)
 - [26 Revise No-Scripts Migration Skill Refactor](26-revise-no-scripts-migration-skill-refactor.md)
+- [28 Revise Shared Agentics Installation Harness Redirection](28-revise-shared-agentics-installation-harness-redirection.md)
+- [../designs/2026-06-20-shared-agentics-installation-and-harness-redirection.md](../designs/2026-06-20-shared-agentics-installation-and-harness-redirection.md)
+- [../plans/2026-06-23-w17-r2-shared-agentics-installation-harness-redirection/00-overview.md](../plans/2026-06-23-w17-r2-shared-agentics-installation-harness-redirection/00-overview.md)
 - `packages/cli/skill-registry.json`
 - `packages/cli/skill-registry.schema.json`
 - `packages/cli/src/cli.ts`

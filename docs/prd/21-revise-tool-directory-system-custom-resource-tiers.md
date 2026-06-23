@@ -53,6 +53,8 @@ Directory model:
     plugins/
 ```
 
+PRD 28 makes `agentics/skills/` the canonical shared payload home for selected skill artifacts and uses generated harness stubs as the exposure layer under supported harness roots. `agentics/plugins/` remains reserved for future plugin payloads, but any later plugin installer should inherit the same shared-store/exposure primitive instead of duplicating authoritative payloads per harness.
+
 PRD 24 defines `config.yaml` as optional project-owned convention configuration. It belongs in `.make-docs/` because it configures the tool's presentation behavior for the project, but it is not make-docs-owned runtime state and must not be overwritten by install, reconfigure, provider refresh, package sync, or cache recovery without an explicit user-approved replacement flow.
 
 Runtime state:
@@ -86,7 +88,7 @@ Migration:
 
 - Current template-owned `docs/assets/{prompts,references,templates}/` content migrates toward `.make-docs/{prompts,references,templates}/system/` only through a later implementation plan.
 - Future reader-facing docs assets such as guides and playbooks belong under `docs/assets/**`; [22-revise-new-docs-assets-playbooks-persona-model.md](./22-revise-new-docs-assets-playbooks-persona-model.md) narrows that target to `docs/assets/{guides,playbooks}/` and assigns archive storage to future `docs/archive/**`.
-- `agentics/skills` and `agentics/plugins` are reserved for later shared skill/plugin delivery decisions.
+- `agentics/skills` is the selected-skill shared payload home under PRD 28; `agentics/plugins` is reserved for later plugin payload decisions that should reuse the same exposure primitive.
 - [25-revise-cli-separation-and-mcp-boundary.md](./25-revise-cli-separation-and-mcp-boundary.md) constrains future `scripts/` and `agentics/` migration work: deterministic script-replacement logic must move into CLI/shared-core operations before MCP exposure, and skills/plugins must call that boundary instead of carrying independent filesystem or routing logic.
 - [26-revise-no-scripts-migration-skill-refactor.md](./26-revise-no-scripts-migration-skill-refactor.md) makes the `.make-docs/scripts/{system,custom}` split concrete for first-party helper migration: system wrappers may remain only as thin delegates after an equivalent CLI/shared-core operation exists, while custom scripts are not migrated unless a later accepted design includes them.
 - Implementation follows PRD 19 source-of-truth order: shipped defaults start in `packages/docs/template/`, dogfood selected files under review, and bundle through `packages/cli/template/` copy/prepack.
@@ -132,10 +134,13 @@ The paired delta backlog should be generated under `docs/work/2026-06-23-w9-r2-t
 - `docs/prd/24-revise-configuration-convention-overlay.md`
 - `docs/prd/25-revise-cli-separation-and-mcp-boundary.md`
 - `docs/prd/26-revise-no-scripts-migration-skill-refactor.md`
+- `docs/prd/28-revise-shared-agentics-installation-harness-redirection.md`
 - `docs/designs/2026-06-20-cli-separation-and-mcp-boundary.md`
 - `docs/designs/2026-06-20-no-scripts-migration-and-skill-refactor.md`
+- `docs/designs/2026-06-20-shared-agentics-installation-and-harness-redirection.md`
 - `docs/plans/2026-06-23-w10-r6-cli-separation-and-mcp-boundary/00-overview.md`
 - `docs/plans/2026-06-23-w16-r3-no-scripts-migration-skill-refactor/00-overview.md`
+- `docs/plans/2026-06-23-w17-r2-shared-agentics-installation-harness-redirection/00-overview.md`
 - `packages/cli/src/rules.ts`
 - `packages/cli/src/catalog.ts`
 - `packages/cli/src/planner.ts`

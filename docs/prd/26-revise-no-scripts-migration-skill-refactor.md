@@ -63,6 +63,8 @@ Explicit selected-skill installs may still install first-party skill prose, refe
 
 [27-revise-skill-purpose-registry-alternate-skills-manifest.md](27-revise-skill-purpose-registry-alternate-skills-manifest.md) may add purpose metadata, alternate manifest provenance, and source-policy display around selected skills, but that metadata must not become a second owner of deterministic workflow behavior.
 
+[28-revise-shared-agentics-installation-harness-redirection.md](28-revise-shared-agentics-installation-harness-redirection.md) may install shared payloads and generated harness stubs that tell agents how to reach CLI/shared-core operations, but those payloads and stubs remain guidance and routing surfaces. They must not become the only owner of deterministic make-docs behavior.
+
 ### Managed Removal Safety
 
 Removed first-party helper scripts must be classified through managed-asset ownership and compatibility rules, not deleted as anonymous files.
@@ -98,6 +100,7 @@ MCP write behavior and Rust parity remain downstream implementation concerns gov
 - [24 Revise Configuration Convention Overlay](24-revise-configuration-convention-overlay.md)
 - [25 Revise CLI Separation and MCP Boundary](25-revise-cli-separation-and-mcp-boundary.md)
 - [27 Revise Skill Purpose Registry Alternate Skills Manifest](27-revise-skill-purpose-registry-alternate-skills-manifest.md)
+- [28 Revise Shared Agentics Installation Harness Redirection](28-revise-shared-agentics-installation-harness-redirection.md)
 
 ## Acceptance Criteria
 
@@ -125,8 +128,11 @@ MCP write behavior and Rust parity remain downstream implementation concerns gov
 - [24 Revise Configuration Convention Overlay](24-revise-configuration-convention-overlay.md)
 - [25 Revise CLI Separation and MCP Boundary](25-revise-cli-separation-and-mcp-boundary.md)
 - [27 Revise Skill Purpose Registry Alternate Skills Manifest](27-revise-skill-purpose-registry-alternate-skills-manifest.md)
+- [28 Revise Shared Agentics Installation Harness Redirection](28-revise-shared-agentics-installation-harness-redirection.md)
 - [../designs/2026-06-20-skill-purpose-registry-and-alternate-skills-manifest.md](../designs/2026-06-20-skill-purpose-registry-and-alternate-skills-manifest.md)
 - [../plans/2026-06-23-w17-r1-skill-purpose-registry-alternate-skills-manifest/00-overview.md](../plans/2026-06-23-w17-r1-skill-purpose-registry-alternate-skills-manifest/00-overview.md)
+- [../designs/2026-06-20-shared-agentics-installation-and-harness-redirection.md](../designs/2026-06-20-shared-agentics-installation-and-harness-redirection.md)
+- [../plans/2026-06-23-w17-r2-shared-agentics-installation-harness-redirection/00-overview.md](../plans/2026-06-23-w17-r2-shared-agentics-installation-harness-redirection/00-overview.md)
 - `packages/cli/skill-registry.json`
 - `packages/cli/src/cli.ts`
 - `packages/cli/src/catalog.ts`
