@@ -14,6 +14,10 @@ It also defines the ownership boundary between template-owned files and project-
 
 ## Component and Capability Map
 
+### Change Notes
+
+- Clarified by the W15 source-authority reconciliation: repo-root `docs/` remains a dogfood validation surface for template-owned files and a project-owned home for make-docs lifecycle artifacts. It is not promoted to product source of truth for shipped work-backlog guidance, and archived examples remain fallback lineage rather than active authority.
+
 The source-of-truth template is `packages/docs/template/`, which the docs package README describes as the tree that ultimately ships to consumer projects (`packages/docs/README.md:7-37`). In local development, the CLI does not require a pre-copied bundle because `packages/cli/src/utils.ts:33-55` resolves `../docs/template` first and only falls back to `packages/cli/template` when the package has been packed.
 
 The repo-root dogfood surface is the checked-in `docs/` tree described in `README.md:16-20`. That surface is expected to mirror template-owned routers, references, and templates while still holding project-specific authored artifacts such as plans, PRDs, and work logs (`packages/docs/README.md:70-76`). This split is why dogfood operations are not just documentation housekeeping: they are the in-repo rehearsal space for the same contracts consumers follow.

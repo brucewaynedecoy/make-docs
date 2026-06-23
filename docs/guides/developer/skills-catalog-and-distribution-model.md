@@ -17,6 +17,8 @@ related:
   - ./release-packaging-validation-and-release-reference.md
   - ../user/skills-installing-and-managing-skills.md
   - ../user/skills-decomposing-an-existing-codebase.md
+  - ../../assets/references/execution-workflow.md
+  - ../../work/AGENTS.md
   - ../../prd/08-skills-catalog-and-distribution.md
 ---
 
@@ -134,12 +136,15 @@ Its distributed payload includes:
 
 When maintainers change that skill, they should validate both catalog metadata and the installed asset set rather than assuming the entrypoint alone is enough.
 
+For source-authority questions inside the `make-docs` repository, the distributed `decompose-codebase` files are projections. Live repo contracts and accepted lifecycle artifacts decide backlog structure first; skill-local references and templates exist so installed skill copies remain self-contained when those live contracts are unavailable or when the task explicitly concerns the installed skill package.
+
 ## Maintainer guidance
 
 When updating the skills model:
 
 - change `packages/cli/skill-registry.json` first when the shipped inventory changes
 - keep registry descriptions aligned with the actual skill contract
+- keep bundled skill references aligned with live repo contracts without treating them as the primary source for make-docs-owned backlog shape
 - verify both harness roots when adding assets
 - verify project and global scope behavior when changing install paths
 - keep user-facing skill lifecycle guidance in `docs/guides/user/skills-*.md`, not in CLI lifecycle guides

@@ -9,7 +9,7 @@ description: Plan and reverse-engineer software repositories into a structured P
 
 Use this skill to turn a repository into a code-first, plain-English documentation set and rebuild backlog. Treat planning and execution as separate capabilities in one skill, with planning-first as the default unless the user explicitly approves direct execution. Treat `docs/prd/` as the single active PRD namespace for the repository and archive earlier PRD sets under `docs/assets/archive/prds/`. Treat decomposition as a delegation-first workflow because single-agent execution degrades quickly on context-heavy repos. When delegation is available, the coordinating agent is coordination-only and must not author or edit output documents.
 
-In this repository, the authoritative lifecycle rules live under `docs/assets/` during source authoring. The installed skill remains self-contained: it ships bundled local copies under `./references/`, `./assets/templates/`, and `./scripts/` so it does not depend on a consumer repo having this repository's root `docs/assets/` tree.
+Inside the make-docs repository, shipped lifecycle assets are authored from the accepted v2 source-of-truth layers: template-owned files start under `packages/docs/template/`, dogfood copies under root `docs/` validate those shipped assets, and project-owned lifecycle artifacts under `docs/designs/`, `docs/plans/`, `docs/prd/`, and `docs/work/` remain local project records. The installed skill remains self-contained: it ships bundled local copies under `./references/`, `./assets/templates/`, and `./scripts/` so it does not depend on a consumer repo having this repository's root source tree.
 
 ## Workflow
 
@@ -21,8 +21,9 @@ In this repository, the authoritative lifecycle rules live under `docs/assets/` 
 
 ## Bundled Assets
 
-- In this repository, `docs/assets/references/` and `docs/assets/templates/` define the authoritative lifecycle contract.
-- The installed skill uses its bundled local projections under `./references/` and `./assets/templates/`.
+- In an installed repository, live repo contracts and accepted lifecycle artifacts take priority over this skill's bundled projections.
+- In the make-docs source repository, template-owned shipped contracts start in `packages/docs/template/`; root `docs/` is dogfood validation or project-owned lifecycle content depending on the file.
+- The installed skill uses its bundled local projections under `./references/` and `./assets/templates/` only when live repo contracts are unavailable or the task explicitly concerns installed skill assets.
 - Paths such as `scripts/probe_environment.py` and `scripts/validate_output.py` refer to bundled skill-local assets, not repo-root utilities.
 
 ## Planning Mode
@@ -78,6 +79,8 @@ In this repository, the authoritative lifecycle rules live under `docs/assets/` 
 - Use flat numbering by default and introduce numbered subfolders only when a subsystem is too large for one file.
 
 ## Templates
+
+Use these templates as skill-local projections. When a repository has live make-docs work contracts or accepted plan/PRD/work artifacts, those live sources decide backlog structure and content before these bundled copies.
 
 - Use [assets/templates/decomposition-plan.md](./assets/templates/decomposition-plan.md) for the plan overview content inside the plan directory.
 - Use [assets/templates/prd-index.md](./assets/templates/prd-index.md) for the PRD index.

@@ -26,6 +26,7 @@ Code anchors:
 ### Change Notes
 
 - Superseded by [12-revise-cli-skill-selection-simplification.md](./12-revise-cli-skill-selection-simplification.md) for required/default skill grouping, selected-by-default behavior, and optional-only selection behavior.
+- Clarified by the W15 source-authority reconciliation: selected skills, skill-local references/templates, generated harness exposure files, and any installed skill copies are secondary workflow surfaces. They may guide agents or provide fallback projections, but they must not be treated as primary backlog-shape authority when live repo contracts and accepted lifecycle artifacts are available.
 
 The top-level CLI exposes `skills` as a first-class command beside `reconfigure`, `backup`, and `uninstall` in `packages/cli/src/cli.ts:27`. The command-specific help in `packages/cli/src/cli.ts:942` limits the surface to target directory, dry run, non-interactive apply, harness selection, removal, skill scope, and selected-skill input; it intentionally avoids the broader content/template/reference flags that belong to initial install and reconfigure flows. Argument validation in `packages/cli/src/cli.ts:641` through `packages/cli/src/cli.ts:719` rejects non-skills selection flags on `make-docs skills`, prevents selected-skill input during `--remove`, and checks requested selected skills against the packaged registry.
 

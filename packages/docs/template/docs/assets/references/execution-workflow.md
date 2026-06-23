@@ -136,6 +136,18 @@ For active-set evolution, prefer these separate write scopes when possible:
 - If the task is full-set generation and an older active PRD set already exists under `docs/prd/`, archive it to `docs/assets/archive/prds/YYYY-MM-DD/` before writing the replacement active PRD set.
 - If the task is active-set evolution, preserve baseline text and add non-destructive annotations unless the user explicitly asks for a cleanup rewrite.
 
+## Work Backlog Source Authority
+
+When generating or revising `docs/work/**`, use this authority order:
+
+1. Explicit user direction plus the accepted design, plan, PRD, and existing work artifacts for the current coordinate.
+2. Live repository contracts: `docs/work/AGENTS.md`, this workflow, `output-contract.md`, `wave-model.md`, and the current work templates.
+3. Product/template source contracts when maintaining make-docs-owned shipped assets; dogfood copies validate those assets but do not replace their source.
+4. Archived backlogs as examples of style or lineage only.
+5. Bundled skill references, generated harness stubs, and mirrored or installed skill copies only when live repo contracts are unavailable or the task explicitly concerns those assets.
+
+If a fallback source is used, record which fallback was used and why.
+
 ## Backlog Rules
 
 - Work is always a directory in v2. Full-set generation writes `docs/work/YYYY-MM-DD-w{W}-r{R}-<slug>/` containing `00-index.md` plus `0N-<phase>.md` phase files.

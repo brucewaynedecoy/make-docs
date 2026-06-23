@@ -16,6 +16,10 @@ design -> plan -> PRD -> work pipeline. It does not alter existing install,
 template, skills, or packaging requirements; it adds a workflow-guidance
 surface.
 
+## Change Notes
+
+- The W15 source-authority reconciliation clarifies the work-backlog handoff: accepted designs, plans, PRDs, and current work contracts drive backlog structure and content before archived examples, installed skill projections, generated harness stubs, or dogfood/package copies are consulted as fallback evidence.
+
 ## Capability Addition or Enhancement
 
 - **Coverage-pass contract** — a single reference owning the decision-frame
