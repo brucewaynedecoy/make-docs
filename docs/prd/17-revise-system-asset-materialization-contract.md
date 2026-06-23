@@ -90,6 +90,7 @@ Manifest provenance:
 - For each materialized or provider-resolved asset set, the manifest needs to record materialization mode, source package or provider, source version or immutable ref, hash algorithm, expected hash set, logical asset id, local path when materialized, materialization class, offline expectation, recovery guidance, and selection trigger.
 - Selection trigger must distinguish install profile, user selection, provider demand, and later config-driven demand.
 - Manifest schema evolution must include compatibility handling for existing schema version 1 installs.
+- [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) makes this provenance evidence part of clean v2 classification: full-snapshot, provider-backed, and hybrid pinned-cache installs are clean only when manifest/provider/cache evidence is trustworthy enough to choose `sync`.
 
 On-demand safety:
 
@@ -115,6 +116,7 @@ Validation boundary:
 | `docs/prd/08-skills-catalog-and-distribution.md` | Clarifies that skills and plugins remain selected agentic assets outside the system asset materialization mode model. |
 | `docs/prd/10-packaging-validation-and-release-reference.md` | Enhances full-snapshot package validation and adds future provider/cache validation requirements. |
 | `docs/prd/16-revise-package-and-deployment-boundaries.md` | Enhances the shared TypeScript/Rust contract by defining how future Rust provider behavior must preserve system asset provenance and local bootstrap readability. |
+| `docs/prd/18-revise-compatibility-audit-and-migration-disposition.md` | Enhances materialization with clean v2 classification rules for full-snapshot, provider-backed, and hybrid pinned-cache installs. |
 | `docs/prd/03-open-questions-and-risk-register.md` | Updates existing asset, skill, remote-source, template, package, dogfood, lifecycle, and no-scripts entries without duplicating them. |
 
 The paired delta backlog for implementation work should be generated under `docs/work/2026-06-23-w10-r2-system-asset-materialization-contract/` and trace back to this revision, the W10 R2 plan, the accepted system asset design, W10 R1 package-boundary revision, and current TypeScript CLI/package surfaces.

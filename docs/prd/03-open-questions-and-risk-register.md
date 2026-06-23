@@ -72,7 +72,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Selected-skill category behavior is superseded by [12-revise-cli-skill-selection-simplification.md](./12-revise-cli-skill-selection-simplification.md), package ownership is narrowed by [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md), and skills are explicitly outside the system asset modes in [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md); the skills delivery model decision remains open. | Decide and document the long-term skills delivery contract. |
+| Open | Selected-skill category behavior is superseded by [12-revise-cli-skill-selection-simplification.md](./12-revise-cli-skill-selection-simplification.md), package ownership is narrowed by [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md), skills are explicitly outside the system asset modes in [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md), and [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) permits preserving selected skills during migration only when manifest/file evidence is trustworthy; the skills delivery model decision remains open. | Decide and document the long-term skills delivery contract. |
 
 **Issue**: Runtime behavior comes from `packages/cli/src/skill-registry.ts:25-134` and `packages/cli/src/skill-resolver.ts:40-226`, which load a packaged registry and fetch skill payloads remotely; earlier design material such as `docs/assets/archive/designs/2026-04-16-cli-skill-installation.md` described bundling skill payloads into the CLI package.
 
@@ -86,7 +86,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md) makes `packages/cli/package.json`, packed package behavior, and smoke-pack validation authoritative for the npm package boundary; [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md) keeps full-snapshot package validation as the default system asset proof. README wording still needs implementation cleanup. | Align package-surface docs with dry-run pack output and the accepted npm/Rust deployment and system asset materialization boundaries. |
+| Open | [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md) makes `packages/cli/package.json`, packed package behavior, and smoke-pack validation authoritative for the npm package boundary; [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md) keeps full-snapshot package validation as the default system asset proof; [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) adds migration/classification docs to the package-facing safety surface. README wording still needs implementation cleanup. | Align package-surface docs with dry-run pack output and the accepted npm/Rust deployment, system asset materialization, and compatibility migration boundaries. |
 
 **Issue**: `packages/cli/package.json:9-15` ships `dist`, `template`, registry files, and `README.md`, but `packages/cli/src/README.md:181-204` and `packages/cli/README.md:91-120` still describe tarball-root `docs/`, `AGENTS.md`, and `CLAUDE.md`.
 
@@ -100,7 +100,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Manual re-seeding remains intentional for now. | Add or improve parity checks that prove dogfood freshness without removing reviewability. |
+| Open | Manual re-seeding remains intentional for now; [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) requires existing dogfood/template installs to be classified by ownership evidence rather than path alone. | Add or improve parity and migration-classifier checks that prove dogfood freshness without removing reviewability. |
 
 **Issue**: `packages/docs/README.md:86-121` makes manual re-seeding an intentional maintainer workflow, but no automated check proves repo-root `docs/assets/**` still matches `packages/docs/template/docs/assets/**` after template edits.
 
@@ -220,7 +220,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Selected-skill UX and the `selectedSkills` manifest requirement are superseded by [12-revise-cli-skill-selection-simplification.md](./12-revise-cli-skill-selection-simplification.md); [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md) preserves no-default-skills and TypeScript npm ownership; [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md) clarifies that skills are not system assets. It still does not choose remote skill delivery. | Choose remote-fetch, bundled-local, or dual-mode fallback for skills. |
+| Open | Selected-skill UX and the `selectedSkills` manifest requirement are superseded by [12-revise-cli-skill-selection-simplification.md](./12-revise-cli-skill-selection-simplification.md); [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md) preserves no-default-skills and TypeScript npm ownership; [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md) clarifies that skills are not system assets; [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) prevents migration from silently expanding `selectedSkills` or installing skills by default. It still does not choose remote skill delivery. | Choose remote-fetch, bundled-local, or dual-mode fallback for skills. |
 
 **Question**: What is the intended long-term skills delivery contract: remote-fetch, bundled-local, or dual-mode fallback?
 
@@ -276,7 +276,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Manual re-seeding remains intentional for now. | Add contract-level parity checks for dogfood/template drift. |
+| Open | Manual re-seeding remains intentional for now; compatibility migration must classify repo-root dogfood and template state conservatively when ownership is not trustworthy. | Add contract-level parity checks for dogfood/template drift and migration classifier coverage. |
 
 **Question**: How should maintainers prove dogfood freshness if manual re-seeding remains the chosen workflow?
 
@@ -306,7 +306,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | [12-revise-cli-skill-selection-simplification.md](./12-revise-cli-skill-selection-simplification.md) resolves selected-skill UX, [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md) constrains command/deployment ownership, and [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md) defers remote system asset providers until protocol, pinning, caching, trust, and confirmation policy are resolved. Remote skill source policy remains unresolved. | Define source protocol, pinning, and integrity policy for remote skills and any future remote system asset provider. |
+| Open | [12-revise-cli-skill-selection-simplification.md](./12-revise-cli-skill-selection-simplification.md) resolves selected-skill UX, [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md) constrains command/deployment ownership, [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md) defers remote system asset providers until protocol, pinning, caching, trust, and confirmation policy are resolved, and [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) requires provider/cache evidence before provider-backed or hybrid installs classify as clean. Remote skill source policy remains unresolved. | Define source protocol, pinning, and integrity policy for remote skills and any future remote system asset provider. |
 
 **Question**: How should remote skill sources be constrained?
 
@@ -378,7 +378,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md) assigns long-term MCP startup ownership to Rust and preserves one `make-docs` command, but shared skill/plugin install and config-aware routing remain unresolved. | Define a cross-platform redirection model and how plugins read config relabels. |
+| Open | [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md) assigns long-term MCP startup ownership to Rust and preserves one `make-docs` command; [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) requires future Rust/plugin install paths to preserve compatibility classification and migration dispositions, but shared skill/plugin install and config-aware routing remain unresolved. | Define a cross-platform redirection model and how plugins read config relabels. |
 
 **Question**: How are skills and plugins installed once and exposed to each harness without duplication, and how does a plugin that guides (for example) requirements → design → plan respect a config that relabels "designs" to "ideas"?
 
@@ -452,7 +452,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Dual dev/packed resolution remains active; [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md) adds the requirement that packed npm and future Rust artifacts preserve the same command and shared contract boundaries; [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md) keeps full-snapshot materialization as the default validation baseline. | Preserve smoke-pack checks for template, package-boundary, and system asset materialization changes. |
+| Open | Dual dev/packed resolution remains active; [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md) adds the requirement that packed npm and future Rust artifacts preserve the same command and shared contract boundaries; [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md) keeps full-snapshot materialization as the default validation baseline; [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) adds source-state/disposition fixtures to the release-sensitive validation matrix. | Preserve smoke-pack checks for template, package-boundary, system asset materialization, and compatibility migration changes. |
 
 **Issue**: Testing only local dev paths can miss failures that appear only after `prepack` copies the template into `packages/cli/template`.
 
@@ -466,7 +466,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Literal path duplication remains accepted but risky; [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md) adds provider/cache provenance and asset identity as future duplication-sensitive surfaces. | Add parity and provenance checks when moving, adding, or provider-resolving template-owned paths. |
+| Open | Literal path duplication remains accepted but risky; [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md) adds provider/cache provenance and asset identity as future duplication-sensitive surfaces, and [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) makes fallback path recognition a mutation gate. | Add parity, provenance, and classifier checks when moving, adding, or provider-resolving template-owned paths. |
 
 **Issue**: Adding or moving a template-owned path can drift across `rules.ts`, `catalog.ts`, tests, package docs, and dogfood copies.
 
@@ -494,7 +494,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Single reviewed audit snapshot remains the shared safety model for the TypeScript CLI, any future Rust implementation, and any on-demand materialization path introduced by [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md). | Keep backup/uninstall implementation, provider-backed writes, and docs aligned around one reviewed audit snapshot. |
+| Open | Single reviewed audit snapshot remains the shared safety model for the TypeScript CLI, any future Rust implementation, any on-demand materialization path introduced by [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md), and the `backup-and-reinstall` disposition defined by [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md). | Keep backup/uninstall implementation, provider-backed writes, migration backup-and-reinstall, and docs aligned around one reviewed audit/classification snapshot. |
 
 **Issue**: Re-auditing between warning, backup, and delete steps can invalidate what the user already approved and break the current safety model.
 
@@ -508,7 +508,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Manual re-seeding remains intentional for reviewability; full-snapshot materialization remains the package validation baseline under [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md). | Add proof points for dogfood/template freshness and full-snapshot package parity. |
+| Open | Manual re-seeding remains intentional for reviewability; full-snapshot materialization remains the package validation baseline under [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md); [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) makes dogfood/template ownership evidence part of migration safety. | Add proof points for dogfood/template freshness, full-snapshot package parity, and classifier behavior. |
 
 **Issue**: Because repo-root `docs/` is both a maintainer workspace and a product rehearsal surface, stale dogfood files can make local behavior look correct while the shipped template has drifted.
 
@@ -606,7 +606,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Move deterministic logic into the CLI without stranding skills between TypeScript, future Rust ownership, and the provider/cache surfaces introduced by [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md); sequence the skill refactor into the same wave. | Avoid rewriting skills to cite the contract before the CLI provides their logic and before system assets remain locally recoverable without script helpers. |
+| Open | Move deterministic logic into the CLI without stranding skills between TypeScript, future Rust ownership, the provider/cache surfaces introduced by [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md), and the migration classifier required by [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md); sequence the skill refactor into the same wave. | Avoid rewriting skills to cite the contract before the CLI provides their logic and before system assets and migration classification remain locally recoverable without script helpers. |
 
 **Issue**: Moving all script logic into the CLI while skills still reference standalone scripts creates a window where skills could break.
 
@@ -623,10 +623,13 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 - `docs/prd/02-architecture-overview.md`
 - `docs/prd/16-revise-package-and-deployment-boundaries.md`
 - `docs/prd/17-revise-system-asset-materialization-contract.md`
+- `docs/prd/18-revise-compatibility-audit-and-migration-disposition.md`
 - `docs/designs/2026-06-19-package-and-deployment-boundaries.md`
 - `docs/designs/2026-06-19-system-asset-delivery-and-materialization-contract.md`
+- `docs/designs/2026-06-19-compatibility-audit-and-migration-disposition.md`
 - `docs/plans/2026-06-23-w10-r1-package-and-deployment-boundaries/00-overview.md`
 - `docs/plans/2026-06-23-w10-r2-system-asset-materialization-contract/00-overview.md`
+- `docs/plans/2026-06-23-w10-r3-compatibility-audit-and-migration-disposition/00-overview.md`
 - `packages/docs/README.md:50-121`
 - `packages/skills/README.md`
 - `packages/cli/package.json:9-25`
