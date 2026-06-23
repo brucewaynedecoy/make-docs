@@ -41,6 +41,7 @@ The fourth boundary is canonical managed content versus local user modifications
 - Enhanced by [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md) for system asset materialization modes. The architecture now distinguishes full-snapshot, provider-backed, and hybrid pinned-cache assets while preserving a non-provider-backed local bootstrap and keeping provider/cache state out of `docs/assets/`.
 - Enhanced by [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) for existing-install classification. Runtime mutation paths must classify manifest and fallback state before writing, and TypeScript/Rust implementations must preserve the same source-state and disposition taxonomy.
 - Enhanced by [21-revise-tool-directory-system-custom-resource-tiers.md](./21-revise-tool-directory-system-custom-resource-tiers.md) for the `.make-docs/` tool directory model. Runtime state, system/custom tool resources, local bootstrap, provider/cache provenance, and future agentics surfaces are distinct from reader-facing `docs/assets/**`.
+- Enhanced by [22-revise-new-docs-assets-playbooks-persona-model.md](./22-revise-new-docs-assets-playbooks-persona-model.md) for the reader-facing asset namespace. `docs/assets/guides/**` and `docs/assets/playbooks/**` become the future reusable documentation asset surfaces, `docs/archive/**` becomes the future archive surface, and `persona` frontmatter is authoritative for persona-scoped guide/playbook docs.
 
 ## Data Flow
 
@@ -101,3 +102,4 @@ The packaging and validation configuration surface is defined by workspace metad
 - `docs/prd/08-skills-catalog-and-distribution.md`
 - `docs/prd/09-dogfood-and-maintainer-operations.md`
 - `docs/prd/10-packaging-validation-and-release-reference.md`
+- `docs/prd/22-revise-new-docs-assets-playbooks-persona-model.md`

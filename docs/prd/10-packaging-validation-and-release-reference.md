@@ -69,6 +69,7 @@ For a true first public release, the release state now uses Apache-2.0 licensing
 - Enhanced by [19-revise-template-package-dogfood-source-of-truth-contract.md](./19-revise-template-package-dogfood-source-of-truth-contract.md) for package-template proof. Packed npm validation must exercise `packages/cli/template/` after copy/prepack, and package README, tarball allowlist wording, maintainer docs, and smoke-pack expectations must agree with the template-first source-of-truth order.
 - Enhanced by [20-revise-agent-harness-model-conformance-lab.md](./20-revise-agent-harness-model-conformance-lab.md) for conformance evidence. Package validation commands can be lab scenario steps, but a green package validation run is not a public harness/model support claim without reviewed conformance result records.
 - Enhanced by [21-revise-tool-directory-system-custom-resource-tiers.md](./21-revise-tool-directory-system-custom-resource-tiers.md) for package proof of future `.make-docs/**` tool resources. Package copy, smoke-pack, and dry-run checks must prove tool-directory resources without moving runtime state into `docs/assets/**`.
+- Enhanced by [22-revise-new-docs-assets-playbooks-persona-model.md](./22-revise-new-docs-assets-playbooks-persona-model.md) for package proof of reader-facing guide/playbook assets. Packed validation must cover template copy, dogfood parity, frontmatter/persona fixtures, and path-hygiene checks for `docs/assets/{guides,playbooks}/` and future `docs/archive/**`.
 
 ## Source Anchors
 
@@ -88,3 +89,4 @@ For a true first public release, the release state now uses Apache-2.0 licensing
 - `scripts/smoke-pack.mjs`
 - `docs/designs/2026-04-15-cli-publishing.md`
 - `docs/assets/archive/work/2026-04-16-w5-r2-cli-skill-installation/07-tests-and-validation.md`
+- `docs/prd/22-revise-new-docs-assets-playbooks-persona-model.md`

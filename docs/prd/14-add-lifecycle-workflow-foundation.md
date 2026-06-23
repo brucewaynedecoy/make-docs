@@ -19,6 +19,7 @@ surface.
 ## Change Notes
 
 - The W15 source-authority reconciliation clarifies the work-backlog handoff: accepted designs, plans, PRDs, and current work contracts drive backlog structure and content before archived examples, installed skill projections, generated harness stubs, or dogfood/package copies are consulted as fallback evidence.
+- Revised by [22-revise-new-docs-assets-playbooks-persona-model.md](./22-revise-new-docs-assets-playbooks-persona-model.md): the W16 `docs/library/playbooks/<persona>/` placement is transitional. The v2 canonical playbook surface is `docs/assets/playbooks/<persona-slug>/`, and `persona` frontmatter is the authoritative audience target.
 
 ## Capability Addition or Enhancement
 
@@ -35,8 +36,9 @@ surface.
   that defaults to the arc while requiring departures to be surfaced rather than
   taken silently. No hard "never skip" gate.
 - **Persona-scoped playbook output type** — playbooks become a procedural output
-  type under `docs/library/playbooks/<persona>/`, parallel to guides;
-  make-docs's own lifecycle playbook is the dogfooded instance.
+  type; W16 places the initial dogfood playbook under
+  `docs/library/playbooks/<persona>/`, but PRD 22 makes
+  `docs/assets/playbooks/<persona-slug>/` the v2 canonical target.
 - **Stage follow-on handoffs** — plans, PRDs, and work backlogs gain an
   advisable-default-but-overridable `## Intended Follow-On`, mirroring design
   docs, so the chain stops breaking between stages.
@@ -103,3 +105,4 @@ verbs apply.
 - `docs/plans/2026-05-28-w16-r0-coverage-pass-contract/00-overview.md`
 - `docs/designs/2026-06-17-make-docs-lifecycle-foundation.md`
 - `docs/prd/03-open-questions-and-risk-register.md`
+- `docs/prd/22-revise-new-docs-assets-playbooks-persona-model.md`

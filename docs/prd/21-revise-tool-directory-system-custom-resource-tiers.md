@@ -83,7 +83,7 @@ Bootstrap and routers:
 Migration:
 
 - Current template-owned `docs/assets/{prompts,references,templates}/` content migrates toward `.make-docs/{prompts,references,templates}/system/` only through a later implementation plan.
-- Future reader-facing docs assets such as guides and playbooks belong under `docs/assets/**`.
+- Future reader-facing docs assets such as guides and playbooks belong under `docs/assets/**`; [22-revise-new-docs-assets-playbooks-persona-model.md](./22-revise-new-docs-assets-playbooks-persona-model.md) narrows that target to `docs/assets/{guides,playbooks}/` and assigns archive storage to future `docs/archive/**`.
 - `agentics/skills` and `agentics/plugins` are reserved for later shared skill/plugin delivery decisions.
 - Implementation follows PRD 19 source-of-truth order: shipped defaults start in `packages/docs/template/`, dogfood selected files under review, and bundle through `packages/cli/template/` copy/prepack.
 
@@ -99,6 +99,7 @@ Migration:
 | `docs/prd/17-revise-system-asset-materialization-contract.md` | Applies materialization-mode rules to local/non-local system tool resources. |
 | `docs/prd/18-revise-compatibility-audit-and-migration-disposition.md` | Applies migration classification and conflict safety to tool-resource moves. |
 | `docs/prd/19-revise-template-package-dogfood-source-of-truth-contract.md` | Applies template/package/dogfood source-of-truth order to `.make-docs/**` defaults. |
+| `docs/prd/22-revise-new-docs-assets-playbooks-persona-model.md` | Complements this PRD by defining the reader-facing `docs/assets/{guides,playbooks}/` namespace and persona frontmatter contract. |
 | `docs/prd/20-revise-agent-harness-model-conformance-lab.md` | Keeps conformance lab artifacts separate from shipped tool resources unless later promoted. |
 | `docs/prd/03-open-questions-and-risk-register.md` | Updates existing docs-assets, dogfood, package, audit, no-scripts, remote-source, and shared-agentics entries. |
 
@@ -123,6 +124,7 @@ The paired delta backlog should be generated under `docs/work/2026-06-23-w9-r2-t
 - `docs/prd/17-revise-system-asset-materialization-contract.md`
 - `docs/prd/18-revise-compatibility-audit-and-migration-disposition.md`
 - `docs/prd/19-revise-template-package-dogfood-source-of-truth-contract.md`
+- `docs/prd/22-revise-new-docs-assets-playbooks-persona-model.md`
 - `packages/cli/src/rules.ts`
 - `packages/cli/src/catalog.ts`
 - `packages/cli/src/planner.ts`

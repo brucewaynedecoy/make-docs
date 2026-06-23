@@ -32,6 +32,7 @@ Source-of-truth order:
 - If package validation finds drift, fixes start in `packages/docs/template/` or the copy/package script, then regenerate the bundled copy.
 - Conformance-lab assets from [20-revise-agent-harness-model-conformance-lab.md](./20-revise-agent-harness-model-conformance-lab.md) do not enter `packages/docs/template/`, root dogfood reseeding, or `packages/cli/template/` unless a later accepted design deliberately promotes a subset.
 - Tool-directory defaults from [21-revise-tool-directory-system-custom-resource-tiers.md](./21-revise-tool-directory-system-custom-resource-tiers.md) follow the same source-of-truth order: author in `packages/docs/template/`, dogfood selected template-owned files under review, and bundle through package copy/prepack.
+- Reader-facing guide/playbook defaults from [22-revise-new-docs-assets-playbooks-persona-model.md](./22-revise-new-docs-assets-playbooks-persona-model.md) follow the same source-of-truth order when they are shipped starter assets: author in `packages/docs/template/`, dogfood selected template-owned files under review, and bundle through package copy/prepack.
 
 Template-owned assets:
 
@@ -77,6 +78,7 @@ Freshness proof:
 | `docs/prd/10-packaging-validation-and-release-reference.md` | Enhances packaging validation with generated package-template and packed-path proof requirements. |
 | `docs/prd/18-revise-compatibility-audit-and-migration-disposition.md` | Applies compatibility and managed-file conflict rules to reseeding when local managed files have changed. |
 | `docs/prd/03-open-questions-and-risk-register.md` | Updates D-006, D-007, D-014, Q-005, R-003, R-004, and R-007 without duplicating entries. |
+| `docs/prd/22-revise-new-docs-assets-playbooks-persona-model.md` | Applies template/package/dogfood source-of-truth order to future reader-facing guide and playbook defaults. |
 
 The paired delta backlog for implementation work should be generated under `docs/work/2026-06-23-w10-r4-template-package-dogfood-source-of-truth-contract/` and trace back to this revision, the W10 R4 plan, the accepted design, and current TypeScript CLI/package surfaces.
 
@@ -107,3 +109,4 @@ The paired delta backlog for implementation work should be generated under `docs
 - `scripts/copy-template-to-cli.mjs`
 - `scripts/smoke-pack.mjs`
 - `packages/cli/tests/consistency.test.ts`
+- `docs/prd/22-revise-new-docs-assets-playbooks-persona-model.md`
