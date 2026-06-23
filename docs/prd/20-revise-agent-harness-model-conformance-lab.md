@@ -26,6 +26,7 @@ Lab scope:
 - The lab is maintainer-only repository tooling and documentation evidence.
 - It is not installed into consumer projects by default.
 - It is not part of shipped templates, npm packages, Rust packages, or provider-backed system asset delivery.
+- It is not part of the `.make-docs/**` tool-directory system defined by [21-revise-tool-directory-system-custom-resource-tiers.md](./21-revise-tool-directory-system-custom-resource-tiers.md) unless a later accepted design deliberately promotes a reviewed subset.
 - Scenario specs and compact reviewed result records may live under a future `docs/assets/conformance/` tree.
 - Raw run artifacts, transcripts, provider logs, and temporary workspaces default to `.make-docs/conformance/` or `.make-docs/runs/conformance/` and are not committed unless deliberately redacted and promoted.
 

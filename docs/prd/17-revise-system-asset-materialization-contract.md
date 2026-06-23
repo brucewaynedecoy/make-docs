@@ -74,6 +74,7 @@ System asset boundary:
 - Skills and plugins are not system assets for this contract. They remain selected agentic assets with their own delivery, selection, trust, and audit decisions.
 - Conformance-lab scenario specs, result records, raw transcripts, provider logs, and temporary run artifacts are not provider-resolved system assets. [20-revise-agent-harness-model-conformance-lab.md](./20-revise-agent-harness-model-conformance-lab.md) keeps them maintainer-only unless later promoted by design.
 - `.make-docs/` remains runtime state; `docs/assets/` remains readable documentation assets. Manifests, conflicts, caches, and provider state do not move into `docs/assets/`.
+- [21-revise-tool-directory-system-custom-resource-tiers.md](./21-revise-tool-directory-system-custom-resource-tiers.md) extends this boundary by defining `.make-docs/**` system/custom tool-resource tiers while preserving local bootstrap and keeping runtime state out of `docs/assets/**`.
 
 Provider and cache provenance:
 

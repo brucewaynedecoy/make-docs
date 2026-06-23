@@ -31,6 +31,7 @@ Source-of-truth order:
 - `packages/cli/template/` is a generated package-bundled copy, not an authoring surface.
 - If package validation finds drift, fixes start in `packages/docs/template/` or the copy/package script, then regenerate the bundled copy.
 - Conformance-lab assets from [20-revise-agent-harness-model-conformance-lab.md](./20-revise-agent-harness-model-conformance-lab.md) do not enter `packages/docs/template/`, root dogfood reseeding, or `packages/cli/template/` unless a later accepted design deliberately promotes a subset.
+- Tool-directory defaults from [21-revise-tool-directory-system-custom-resource-tiers.md](./21-revise-tool-directory-system-custom-resource-tiers.md) follow the same source-of-truth order: author in `packages/docs/template/`, dogfood selected template-owned files under review, and bundle through package copy/prepack.
 
 Template-owned assets:
 
