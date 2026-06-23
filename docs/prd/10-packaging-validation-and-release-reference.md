@@ -64,6 +64,7 @@ For a true first public release, the release state now uses Apache-2.0 licensing
 ### Change Notes
 
 - Enhanced by [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md) for package and release-channel boundaries. The TypeScript npm package owns npm `next` and `latest`, the npm allowlist, packed-package validation, and dry-run release checks; future Homebrew and Crates artifacts must expose the same `make-docs` command while reporting runtime/version clearly, and publish actions remain out of scope unless separately authorized.
+- Enhanced by [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md) for system asset validation boundaries. Current smoke-pack and template parity checks remain the full-snapshot baseline, while future provider/cache work must add provider outage, stale hash, cache miss, on-demand conflict, and TypeScript/Rust manifest compatibility checks before becoming default.
 
 ## Source Anchors
 

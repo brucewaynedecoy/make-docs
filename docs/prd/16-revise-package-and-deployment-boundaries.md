@@ -83,6 +83,7 @@ MCP and shared-contract boundary:
 - The TypeScript and Rust implementations must share durable contracts rather than fork them.
 - `.make-docs/manifest.json`, package metadata needed for installed-project provenance, audit safety expectations, backup/uninstall behavior, and user-visible command semantics are shared product contracts.
 - Until a Rust implementation plan lands, the TypeScript CLI remains the implementation source of truth for those shared contracts.
+- [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md) extends this shared boundary to system asset delivery: a future Rust provider may serve immutable system assets only if local bootstrap readability, pinned provenance, conflict review, audit safety, backup, uninstall, and manifest compatibility are preserved.
 
 Skills and plugin boundary:
 
@@ -109,6 +110,7 @@ Validation and release boundary:
 | `docs/prd/08-skills-catalog-and-distribution.md` | Enhances skills-delivery boundaries while leaving remote/bundled delivery, source integrity, and shared plugin/skill install questions open. |
 | `docs/prd/10-packaging-validation-and-release-reference.md` | Enhances npm allowlist, release-channel, package verification, dry-run publish, and future Rust distribution references. |
 | `docs/prd/12-revise-cli-skill-selection-simplification.md` | Enhances the no-default-skills requirement by tying it to the npm package boundary while Rust parity is pending. |
+| `docs/prd/17-revise-system-asset-materialization-contract.md` | Enhances the package/deployment boundary with explicit full-snapshot, provider-backed, and hybrid pinned-cache system asset requirements. |
 | `docs/prd/03-open-questions-and-risk-register.md` | Closes stale rename question Q-008 and updates package, skill-delivery, audit, template, and no-scripts risks without duplicating entries. |
 
 The paired delta backlog for implementation work should be generated under `docs/work/2026-06-23-w10-r1-package-and-deployment-boundaries/` and trace back to this revision, the W10 R1 plan, the accepted package/deployment design, and current TypeScript CLI/package surfaces.

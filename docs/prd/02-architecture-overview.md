@@ -38,6 +38,7 @@ The fourth boundary is canonical managed content versus local user modifications
 ### Change Notes
 
 - Enhanced by [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md) for deployment ownership and shared runtime contracts. The TypeScript npm package remains the npm/`npx` source of truth for install, manifest, audit, backup, uninstall, conflict, and skills-selection behavior until a Rust parity plan lands; the future Rust distribution must expose the same `make-docs` command and share manifest, provenance, audit, and version-disclosure contracts.
+- Enhanced by [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md) for system asset materialization modes. The architecture now distinguishes full-snapshot, provider-backed, and hybrid pinned-cache assets while preserving a non-provider-backed local bootstrap and keeping provider/cache state out of `docs/assets/`.
 
 ## Data Flow
 
