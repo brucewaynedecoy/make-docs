@@ -114,13 +114,13 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | [21-revise-tool-directory-system-custom-resource-tiers.md](./21-revise-tool-directory-system-custom-resource-tiers.md) makes `.make-docs/**` the explicit tool directory and keeps historical `docs/.references/`, `docs/.templates/`, and `docs/assets/config/manifest.json` paths non-current. | Add clearer historical disclaimers or repair active links that imply hidden-dot paths are live. |
+| Open | [21-revise-tool-directory-system-custom-resource-tiers.md](./21-revise-tool-directory-system-custom-resource-tiers.md) makes `.make-docs/**` the explicit tool directory and keeps historical `docs/.references/`, `docs/.templates/`, and `docs/assets/config/manifest.json` paths non-current; [22-revise-new-docs-assets-playbooks-persona-model.md](./22-revise-new-docs-assets-playbooks-persona-model.md) keeps future reader-facing guides and playbooks under `docs/assets/{guides,playbooks}/` rather than treating all `docs/assets/**` content as tool resources. | Add clearer historical disclaimers or repair active links that imply hidden-dot paths or broad `docs/assets/**` tool-resource ownership are live. |
 
-**Issue**: Current state lives under `docs/assets/**` and root `.make-docs/**` per `README.md:16-46` and `packages/cli/src/manifest.ts:18-20`, yet migration docs still refer to `docs/.references/`, `docs/.templates/`, and `docs/assets/config/manifest.json`.
+**Issue**: Current state is split between transitional docs asset copies and root `.make-docs/**` state per `README.md:16-46` and `packages/cli/src/manifest.ts:18-20`, while migration docs still refer to `docs/.references/`, `docs/.templates/`, and `docs/assets/config/manifest.json`.
 
 **Why it matters**: Contributors can accidentally treat migration history as live contract.
 
-**Recommendation**: Ensure active docs consistently point at `docs/assets/**` and archived docs are clearly historical when linked.
+**Recommendation**: Ensure active docs consistently point tool resources at `.make-docs/**`, reader-facing guides/playbooks at `docs/assets/{guides,playbooks}/`, and archived docs as clearly historical when linked.
 
 **To close**: Active docs no longer imply hidden-dot paths are current; historical links remain only as lineage.
 
@@ -352,7 +352,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 | --- | --- | --- |
 | Open | None yet | Decide the post-restructure home for reusable starter prompts. |
 
-**Question**: After the planned move of `docs/assets/**` into the in-project tool directory, where do reusable starter prompts live?
+**Question**: After PRD 21 moves reusable starter prompts out of reader-facing `docs/assets/**` and into the in-project tool directory model, where do reusable starter prompts live?
 
 **Why it matters**: The planned restructure tree has no prompts directory under either the tool directory or `docs/`, yet W16 ships starter prompts.
 
@@ -592,9 +592,9 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Authored now at current paths; PRD 22 defines concrete target mappings for guide/playbook/archive assets: `docs/guides/**` to `docs/assets/guides/**`, `docs/library/playbooks/**` to `docs/assets/playbooks/**`, and `docs/assets/archive/**` to `docs/archive/**`. PRD 23 metadata backfill must avoid broad opportunistic rewrites during relocation and only add metadata to planned template/package/touched-file surfaces. PRD 24 config backfill must preserve local `.make-docs/config.yaml` and avoid creating alternate path schemas during relocation. PRD 29 adds playbook `stack` metadata and Run Playbook path/persona validation to the migration surface. PRD 31 adds optional adversarial-review prompt, reference, playbook, plugin, CLI, MCP, and conformance assets only if a downstream plan selects those surfaces. | Record and execute migration mappings for the coverage contract, prompts, guides, playbooks, archive, history follow-on, metadata backfill, config template placement, playbook stack metadata, Run Playbook validation, and any selected adversarial-review surface without breaking links. |
+| Open | Authored now at current paths; PRD 21 defines `.make-docs/**` as the future tool-resource namespace, and PRD 22 defines concrete target mappings for reader-facing and lifecycle assets: `docs/guides/**` to `docs/assets/guides/**`, `docs/library/playbooks/**` to `docs/assets/playbooks/**`, and `docs/assets/archive/**` to `docs/archive/**`. PRD 23 metadata backfill must avoid broad opportunistic rewrites during relocation and only add metadata to planned template/package/touched-file surfaces. PRD 24 config backfill must preserve local `.make-docs/config.yaml` and avoid creating alternate path schemas during relocation. PRD 29 adds playbook `stack` metadata and Run Playbook path/persona validation to the migration surface. PRD 31 adds optional adversarial-review prompt, reference, playbook, plugin, CLI, MCP, and conformance assets only if a downstream plan selects those surfaces. | Record and execute migration mappings for the coverage contract, prompts, guides, playbooks, archive, history follow-on, metadata backfill, config template placement, playbook stack metadata, Run Playbook validation, and any selected adversarial-review surface without breaking links. |
 
-**Issue**: Assets authored in W16 (the coverage-pass contract, starter prompts, library playbook) will move when `docs/assets/**` migrates into the renamed tool directory.
+**Issue**: Assets authored in W16 (the coverage-pass contract, starter prompts, library playbook) span tool-resource, reader-facing, and lifecycle-storage targets; treating all of them as a single `docs/assets/**` migration would blur the PRD 21 and PRD 22 namespace split.
 
 **Why it matters**: Links and references authored now can break on the restructure if mappings are not tracked.
 

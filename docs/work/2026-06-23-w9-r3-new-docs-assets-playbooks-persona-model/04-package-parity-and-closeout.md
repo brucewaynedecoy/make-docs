@@ -12,11 +12,11 @@ Prove that the reader-facing asset migration works in local dev, dogfood, and pa
 
 ## Tasks
 
-- [ ] `W9R3-P4-T1` Update `packages/cli/src/rules.ts`, `packages/cli/src/catalog.ts`, and related path lists for canonical guide/playbook paths.
-- [ ] `W9R3-P4-T2` Update install, planner, audit, backup, and manifest behavior only where the new reader-facing paths affect managed-file ownership, conflict handling, or removal safety.
-- [ ] `W9R3-P4-T3` Update `packages/cli/tests/install.test.ts` and `packages/cli/tests/consistency.test.ts` so parity checks include guide/playbook assets and do not misclassify archive or tool resources.
-- [ ] `W9R3-P4-T4` Prove `packages/cli/template/**` reflects the template after copy/prepack.
-- [ ] `W9R3-P4-T5` Update the risk register and history/closeout docs with implementation evidence.
+- [ ] t1: Update `packages/cli/src/rules.ts`, `packages/cli/src/catalog.ts`, and related path lists for canonical guide/playbook paths. (`W9R3-P4-T1`)
+- [ ] t2: Update install, planner, audit, backup, and manifest behavior only where the new reader-facing paths affect managed-file ownership, conflict handling, or removal safety. (`W9R3-P4-T2`)
+- [ ] t3: Update `packages/cli/tests/install.test.ts` and `packages/cli/tests/consistency.test.ts` so parity checks include guide/playbook assets and do not misclassify archive or tool resources. (`W9R3-P4-T3`)
+- [ ] t4: Prove `packages/cli/template/**` reflects the template after copy/prepack. (`W9R3-P4-T4`)
+- [ ] t5: Update the risk register and history/closeout docs with implementation evidence. (`W9R3-P4-T5`)
 
 ## Acceptance Criteria
 
