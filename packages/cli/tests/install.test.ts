@@ -96,9 +96,12 @@ async function syncSkillsOnly(
 const FULL_PROFILE_INSTRUCTION_DIRS = [
   ".",
   "docs",
+  "docs/archive",
   "docs/assets",
   "docs/assets/archive",
+  "docs/assets/guides",
   "docs/assets/history",
+  "docs/assets/playbooks",
   "docs/guides",
   "docs/designs",
   "docs/plans",
@@ -229,8 +232,14 @@ describe("installer integration", () => {
       ).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/assets/templates/guide-developer.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/assets/templates/guide-user.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/assets/guides/AGENTS.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/assets/guides/CLAUDE.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/assets/playbooks/AGENTS.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/assets/playbooks/CLAUDE.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/guides/AGENTS.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/guides/CLAUDE.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/archive/AGENTS.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/archive/CLAUDE.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/assets/AGENTS.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/assets/CLAUDE.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/assets/archive/AGENTS.md"))).toBe(true);
@@ -247,6 +256,10 @@ describe("installer integration", () => {
       expect(guidesRouter).toContain("re-check overlapping guides");
       expect(guidesRouter).toContain("## Future Coverage");
       expect(guidesRouter).not.toContain("docs/guides/agent");
+      const assetsRouter = readFileSync(path.join(targetDir, "docs/assets/AGENTS.md"), "utf8");
+      expect(assetsRouter).toContain("docs/assets/guides/<persona-slug>/");
+      expect(assetsRouter).toContain("docs/assets/playbooks/<persona-slug>/");
+      expect(assetsRouter).toContain("docs/archive/**");
       expect(manifest.files[".make-docs/scripts/check_path_hygiene.py"]?.sourceId).toBe(
         "file:.make-docs/scripts/check_path_hygiene.py",
       );
@@ -801,8 +814,14 @@ describe("installer integration", () => {
       expect(existsSync(path.join(targetDir, "docs/assets/templates/guide-developer.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/assets/templates/guide-user.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/assets/templates/history-record.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/assets/guides/AGENTS.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/assets/guides/CLAUDE.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/assets/playbooks/AGENTS.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/assets/playbooks/CLAUDE.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/guides/AGENTS.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/guides/CLAUDE.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/archive/AGENTS.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/archive/CLAUDE.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/assets/AGENTS.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/assets/CLAUDE.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/assets/history/AGENTS.md"))).toBe(true);

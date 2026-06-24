@@ -39,6 +39,7 @@ Template ownership starts in `packages/docs/template/`.
 
 - `packages/docs/template/docs/assets/references/*.md` holds authoritative workflow and contract files
 - `packages/docs/template/docs/assets/templates/*.md` holds structural starters
+- `packages/docs/template/docs/assets/guides/` and `packages/docs/template/docs/assets/playbooks/` hold the W9 R3 reader-facing guide and playbook namespace routers
 - `packages/docs/template/AGENTS.md` and the per-directory router files define authoring routes inside the shipped tree
 
 `packages/docs/README.md` is explicit about ownership:
@@ -71,8 +72,9 @@ Current buildable families are:
 
 - root instructions: `AGENTS.md`, `CLAUDE.md`
 - `docs/` router instructions
-- `docs/guides/` router instructions
-- `docs/assets/`, `docs/assets/archive/`, `docs/assets/history/`, `docs/assets/references/`, `docs/assets/templates/`, and `docs/assets/prompts/` router instructions
+- `docs/guides/` transition-router instructions
+- `docs/archive/` migration-router instructions
+- `docs/assets/`, `docs/assets/archive/`, `docs/assets/guides/`, `docs/assets/history/`, `docs/assets/playbooks/`, `docs/assets/references/`, `docs/assets/templates/`, and `docs/assets/prompts/` router instructions
 - the design fallback trio:
   - `docs/assets/references/design-workflow.md`
   - `docs/assets/references/design-contract.md`
@@ -100,7 +102,8 @@ The renderer does not broadly rewrite the template package. It only handles thos
 
 Current renderer and PRD boundaries keep runtime state out of the document-resource namespace.
 
-Document resources live under `docs/assets/**`.
+Reader-facing document resources live under `docs/assets/guides/**`, `docs/assets/playbooks/**`, `docs/assets/archive/**`, and `docs/assets/history/**`.
+Tool-resource bootstrap files remain limited to `docs/assets/prompts/**`, `docs/assets/references/**`, and `docs/assets/templates/**` until PRD 21's migration moves them under `.make-docs/**`.
 Runtime state lives under `.make-docs/**`, especially:
 
 - `.make-docs/manifest.json`

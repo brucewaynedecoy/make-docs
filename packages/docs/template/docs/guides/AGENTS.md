@@ -1,7 +1,7 @@
 <!-- make-docs:begin -->
 # Guides for Devs and Users
 
-Use `docs/guides` only as a router. Do not create generated files directly in this directory.
+Use `docs/guides` only as a transition router for existing guide content. Do not create generated files directly in this directory. New shipped reader-facing guide assets belong under `docs/assets/guides/<persona-slug>/`.
 
 - Before writing any guide, read `docs/assets/references/guide-contract.md` and `docs/assets/references/coverage-pass-contract.md`, inspect existing guides for overlap, decide whether the right outcome is `developer`, `user`, `both`, `update-existing`, `link-only`, or `none`, and use the coverage-pass contract to decide the guide/playbook verdict and target persona(s).
 - **User guides** are stored in `docs/guides/user/`. They explain the shipped product from a user's perspective, from novice orientation through advanced workflows. Use `docs/assets/templates/guide-user.md` when creating one.
@@ -12,6 +12,7 @@ Use `docs/guides` only as a router. Do not create generated files directly in th
 - Do not create design docs, architecture decisions, or PRD risk-register items solely to remember future guide work.
 - History records are not guides. Route them through `docs/assets/history/` instead.
 - If the `docs/guides/user` or `docs/guides/developer` directories do not exist, create them ONLY when first writing a guide that belongs in the specific sub-folder.
+- During the W9 R3 transition, keep existing `docs/guides/user` and `docs/guides/developer` links readable until the persona-frontmatter migration moves or maps those files into `docs/assets/guides/<persona-slug>/`.
 
 Documentation must be easy to understand, easy to use, and easy to follow, with links to supporting sections or documents where necessary and where possible.
 <!-- make-docs:end -->

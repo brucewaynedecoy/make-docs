@@ -29,9 +29,12 @@ function addInstructionAssets(
   relativePaths.add(`docs/${activeInstructionKind}`);
   relativePaths.add(`docs/artifacts/${activeInstructionKind}`);
   relativePaths.add(`docs/assets/${activeInstructionKind}`);
+  relativePaths.add(`docs/assets/guides/${activeInstructionKind}`);
+  relativePaths.add(`docs/assets/playbooks/${activeInstructionKind}`);
   relativePaths.add(`docs/assets/history/${activeInstructionKind}`);
   relativePaths.add(`docs/guides/${activeInstructionKind}`);
   relativePaths.add(`docs/assets/archive/${activeInstructionKind}`);
+  relativePaths.add(`docs/archive/${activeInstructionKind}`);
 
   if (profile.capabilityState.designs.effectiveSelection) {
     relativePaths.add(`docs/designs/${activeInstructionKind}`);

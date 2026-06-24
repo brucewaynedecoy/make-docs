@@ -14,6 +14,14 @@ Documentation should be portable across checkouts, machines, and users. Do not w
 - Do not include real checkout paths such as `/Users/<name>/projects/repo/README.md`, `/home/<name>/projects/repo/README.md`, `C:\Users\<name>\projects\repo\README.md`, or `/mnt/c/Users/<name>/projects/repo/README.md`.
 - Do not include machine-local temporary paths such as `/private/var/folders/<id>/...` or `/var/folders/<id>/...` unless they are necessary diagnostic evidence and are sanitized.
 
+## Namespace Hygiene
+
+- Treat `docs/assets/**` as a document-resource namespace, not a catch-all for runtime state or hidden tool resources.
+- Reader-facing guide and playbook assets live under `docs/assets/guides/**` and `docs/assets/playbooks/**`.
+- Current bootstrap tool resources are limited to `docs/assets/prompts/**`, `docs/assets/references/**`, and `docs/assets/templates/**` until the PRD 21 migration moves them under `.make-docs/**`.
+- Runtime state belongs under `.make-docs/**`, especially `.make-docs/manifest.json` and `.make-docs/conflicts/<run-id>/`.
+- Current archive records remain under `docs/assets/archive/**`; the planned lifecycle archive surface is `docs/archive/**`.
+
 ## Allowed Absolute Path Forms
 
 Absolute paths are allowed only when the path is not a repository file path or when the absolute location is the subject of the documentation. Examples include platform storage locations, external tool conventions, or diagnostic evidence that cannot be made relative.

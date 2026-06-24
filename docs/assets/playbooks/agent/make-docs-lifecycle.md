@@ -6,15 +6,13 @@ status: "active"
 
 # Make Docs Lifecycle Playbook
 
-Canonical W9 R3 reader-facing copy:
-[docs/assets/playbooks/agent/make-docs-lifecycle.md](../../../assets/playbooks/agent/make-docs-lifecycle.md).
-Keep this legacy library path readable until references fully migrate.
+This is the canonical W9 R3 reader-facing copy for the `agent` persona. Keep `docs/library/playbooks/agent/make-docs-lifecycle.md` readable until references fully migrate.
 
 This playbook is the agent persona's map for working through the
 make-docs lifecycle.
 It is not automation, does not enforce stage order, and does not gate work.
 Use the lifecycle anchor for ordering defaults:
-[lifecycle.md](../../../assets/references/lifecycle.md).
+[lifecycle.md](../../references/lifecycle.md).
 
 When user direction or repo evidence warrants a skip, reorder, or revisit,
 surface that departure and record the reason in the relevant artifact.

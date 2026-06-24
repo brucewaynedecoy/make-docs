@@ -32,6 +32,10 @@ const GUIDE_TEMPLATE_PARITY_PATHS = [
   "docs/assets/templates/guide-developer.md",
   "docs/assets/templates/guide-user.md",
   "docs/assets/prompts/work-to-guides.prompt.md",
+  "docs/assets/guides/AGENTS.md",
+  "docs/assets/guides/CLAUDE.md",
+  "docs/assets/playbooks/AGENTS.md",
+  "docs/assets/playbooks/CLAUDE.md",
   "docs/guides/AGENTS.md",
   "docs/guides/CLAUDE.md",
 ];
@@ -40,6 +44,8 @@ const PATH_HYGIENE_PARITY_PATHS = [
   ".make-docs/scripts/check_path_hygiene.py",
   "docs/AGENTS.md",
   "docs/CLAUDE.md",
+  "docs/archive/AGENTS.md",
+  "docs/archive/CLAUDE.md",
   "docs/assets/prompts/docs-path-hygiene-cleanup.prompt.md",
   "docs/assets/references/AGENTS.md",
   "docs/assets/references/CLAUDE.md",
@@ -363,6 +369,34 @@ describe("guide generation routing contract", () => {
     }
   });
 
+  test("reader-facing asset routers define guide and playbook namespace boundaries", () => {
+    for (const relativePath of [
+      "docs/assets/guides/AGENTS.md",
+      "docs/assets/guides/CLAUDE.md",
+      "packages/docs/template/docs/assets/guides/AGENTS.md",
+      "packages/docs/template/docs/assets/guides/CLAUDE.md",
+    ]) {
+      const contents = readFileSync(path.join(REPO_ROOT, relativePath), "utf8");
+
+      expect(contents).toContain("docs/assets/guides/<persona-slug>/");
+      expect(contents).toContain("persona");
+      expect(contents).toContain("docs/guides/**");
+    }
+
+    for (const relativePath of [
+      "docs/assets/playbooks/AGENTS.md",
+      "docs/assets/playbooks/CLAUDE.md",
+      "packages/docs/template/docs/assets/playbooks/AGENTS.md",
+      "packages/docs/template/docs/assets/playbooks/CLAUDE.md",
+    ]) {
+      const contents = readFileSync(path.join(REPO_ROOT, relativePath), "utf8");
+
+      expect(contents).toContain("docs/assets/playbooks/<persona-slug>/");
+      expect(contents).toContain("not plugins");
+      expect(contents).toContain("docs/library/playbooks/**");
+    }
+  });
+
   test("closeout workflow requires guide reconciliation decisions", () => {
     for (const relativePath of [
       "packages/skills/closeout-phase/references/closeout-workflow.md",
@@ -416,6 +450,21 @@ describe("path hygiene contract", () => {
       const contents = readFileSync(path.join(REPO_ROOT, relativePath), "utf8");
 
       expect(contents).toContain("path-and-link-hygiene.md");
+    }
+  });
+
+  test("path hygiene separates reader assets from tool resources and runtime state", () => {
+    for (const relativePath of [
+      "docs/assets/references/path-and-link-hygiene.md",
+      "packages/docs/template/docs/assets/references/path-and-link-hygiene.md",
+    ]) {
+      const contents = readFileSync(path.join(REPO_ROOT, relativePath), "utf8");
+
+      expect(contents).toContain("## Namespace Hygiene");
+      expect(contents).toContain("docs/assets/guides/**");
+      expect(contents).toContain("docs/assets/playbooks/**");
+      expect(contents).toContain(".make-docs/manifest.json");
+      expect(contents).toContain("docs/archive/**");
     }
   });
 });
