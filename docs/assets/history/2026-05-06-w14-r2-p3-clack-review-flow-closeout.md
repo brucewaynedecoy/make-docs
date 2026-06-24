@@ -10,7 +10,7 @@ summary: "Closed out W14 R2 P3 Clack review flow implementation for managed-file
 
 ## Changes
 
-Implemented the W14 R2 P3 Clack review flow for [the CLI conflict-resolution work backlog](../../work/2026-05-06-w14-r2-cli-conflict-resolution/03-clack-review-flow.md), replacing the old per-instruction prompt shape with a batch-first managed-file conflict review across agent instructions, references, and templates. The flow now summarizes all reviewable conflicts, offers deterministic `Overwrite all`, `Skip all`, and `Review each` decisions, reviews individual files in group order, and feeds explicit resolutions into the second install plan without applying partial decisions after cancellation.
+Implemented the W14 R2 P3 Clack review flow for [the CLI conflict-resolution work backlog](../archive/work/2026-05-06-w14-r2-cli-conflict-resolution/03-clack-review-flow.md), replacing the old per-instruction prompt shape with a batch-first managed-file conflict review across agent instructions, references, and templates. The flow now summarizes all reviewable conflicts, offers deterministic `Overwrite all`, `Skip all`, and `Review each` decisions, reviews individual files in group order, and feeds explicit resolutions into the second install plan without applying partial decisions after cancellation.
 
 Closeout also refreshed the risk-register consistency test fixture for `D-011`, which already existed in the active PRD register from the W14 R2 P1 closeout and was surfaced by the broader closeout validation command.
 
@@ -47,7 +47,7 @@ Guide decisions:
 
 Validation performed:
 
-- `python3 packages/skills/closeout-phase/scripts/work_phase_state.py docs/work/2026-05-06-w14-r2-cli-conflict-resolution/03-clack-review-flow.md`
+- `python3 packages/skills/closeout-phase/scripts/work_phase_state.py docs/assets/archive/work/2026-05-06-w14-r2-cli-conflict-resolution/03-clack-review-flow.md`
 - `python3 packages/skills/closeout-phase/scripts/closeout_probe.py`
 - `python3 packages/skills/closeout-phase/scripts/guide_coverage_probe.py`
 - `python3 packages/skills/closeout-phase/scripts/closeout_validate.py --repo-root . --probe-json /tmp/make-docs-closeout-probe.json --print-only`
@@ -65,7 +65,7 @@ Validation performed:
 
 | Path | Description |
 | --- | --- |
-| [../../work/2026-05-06-w14-r2-cli-conflict-resolution/03-clack-review-flow.md](../../work/2026-05-06-w14-r2-cli-conflict-resolution/03-clack-review-flow.md) | Marks W14 R2 P3 tasks complete after implementation and validation evidence review. |
+| [docs/assets/archive/work/2026-05-06-w14-r2-cli-conflict-resolution/03-clack-review-flow.md](../archive/work/2026-05-06-w14-r2-cli-conflict-resolution/03-clack-review-flow.md) | Marks W14 R2 P3 tasks complete after implementation and validation evidence review. |
 | [./2026-05-06-w14-r2-p3-clack-review-flow-closeout.md](./2026-05-06-w14-r2-p3-clack-review-flow-closeout.md) | Records the phase closeout, task evidence, guide decisions, gap decision, validation, and commit-message source. |
 
 ### Developer

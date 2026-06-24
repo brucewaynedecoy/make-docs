@@ -4,7 +4,7 @@
 
 This change revises the active CLI installation requirements for handling existing managed files whose local contents differ from the make-docs desired contents.
 
-The change belongs in the active PRD namespace because the current baseline and prior revision docs establish managed installation behavior for selected managed files, but the interactive conflict flow still treats agent instruction conflicts as a special per-file path and leaves divergent prompts, references, templates, desired skill assets, and generic managed files without the same explicit review contract. The revised requirement is captured by the W14 R2 source design, [CLI Conflict Resolution](../designs/2026-05-06-cli-conflict-resolution.md), and the W14 R2 change plan, [CLI Conflict Resolution - Change Plan](../plans/2026-05-06-w14-r2-cli-conflict-resolution/00-overview.md).
+The change belongs in the active PRD namespace because the current baseline and prior revision docs establish managed installation behavior for selected managed files, but the interactive conflict flow still treats agent instruction conflicts as a special per-file path and leaves divergent prompts, references, templates, desired skill assets, and generic managed files without the same explicit review contract. The revised requirement is captured by the W14 R2 source design, [CLI Conflict Resolution](../designs/2026-05-06-cli-conflict-resolution.md), and the W14 R2 change plan, [CLI Conflict Resolution - Change Plan](../assets/archive/plans/2026-05-06-w14-r2-cli-conflict-resolution/00-overview.md).
 
 ## Change Type
 
@@ -77,8 +77,8 @@ This revision affects the CLI install path, wizard conflict prompts, and managed
 Impacted docs and artifacts:
 
 - [2026-05-06 CLI Conflict Resolution Design](../designs/2026-05-06-cli-conflict-resolution.md)
-- [2026-05-06 W14 R2 CLI Conflict Resolution Plan](../plans/2026-05-06-w14-r2-cli-conflict-resolution/00-overview.md)
-- [2026-05-06 W14 R2 P1 PRD Change and Baseline Annotations Work](../work/2026-05-06-w14-r2-cli-conflict-resolution/01-prd-change-and-baseline-annotations.md)
+- [2026-05-06 W14 R2 CLI Conflict Resolution Plan](../assets/archive/plans/2026-05-06-w14-r2-cli-conflict-resolution/00-overview.md)
+- [2026-05-06 W14 R2 P1 PRD Change and Baseline Annotations Work](../assets/archive/work/2026-05-06-w14-r2-cli-conflict-resolution/01-prd-change-and-baseline-annotations.md)
 - [07 CLI Command Surface and Lifecycle](./07-cli-command-surface-and-lifecycle.md)
 - [11 Revise CLI Asset Selection Simplification](./11-revise-cli-asset-selection-simplification.md)
 - [03 Open Questions and Risk Register](./03-open-questions-and-risk-register.md), for closing the PRD 05 conflict-model drift item after reconciliation.
@@ -109,9 +109,9 @@ The following living-register update is required after PRD 05 is current:
 ## Source Anchors
 
 - `docs/designs/2026-05-06-cli-conflict-resolution.md`
-- `docs/plans/2026-05-06-w14-r2-cli-conflict-resolution/00-overview.md`
-- `docs/plans/2026-05-06-w14-r2-cli-conflict-resolution/01-prd-change-and-baseline-annotations.md`
-- `docs/work/2026-05-06-w14-r2-cli-conflict-resolution/01-prd-change-and-baseline-annotations.md`
+- `docs/assets/archive/plans/2026-05-06-w14-r2-cli-conflict-resolution/00-overview.md`
+- `docs/assets/archive/plans/2026-05-06-w14-r2-cli-conflict-resolution/01-prd-change-and-baseline-annotations.md`
+- `docs/assets/archive/work/2026-05-06-w14-r2-cli-conflict-resolution/01-prd-change-and-baseline-annotations.md`
 - `docs/assets/references/prd-change-management.md`
 - `docs/assets/templates/prd-change-revision.md`
 - `docs/prd/07-cli-command-surface-and-lifecycle.md`

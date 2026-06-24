@@ -103,7 +103,7 @@ The next Batch 2 design, Configuration and Convention Overlay, must treat metada
 ## Design Lineage
 
 - Update Mode: `new-doc-related`
-- Prior Design Docs: [Tool Directory System and Custom Resource Tiers](2026-06-19-tool-directory-system-and-custom-resource-tiers.md), [New Docs Assets, Playbooks, and Persona Model](2026-06-19-new-docs-assets-playbooks-and-persona-model.md), [Make Docs Lifecycle Foundation](2026-06-17-make-docs-lifecycle-foundation.md), and [Make Docs Lifecycle Playbook and Terminology Overlay](2026-05-28-make-docs-lifecycle-playbook.md)
+- Prior Design Docs: [Tool Directory System and Custom Resource Tiers](2026-06-19-tool-directory-system-and-custom-resource-tiers.md), [New Docs Assets, Playbooks, and Persona Model](2026-06-19-new-docs-assets-playbooks-and-persona-model.md), [Make Docs Lifecycle Foundation](../assets/archive/designs/2026-06-17-make-docs-lifecycle-foundation.md), and [Make Docs Lifecycle Playbook and Terminology Overlay](../assets/archive/designs/2026-05-28-make-docs-lifecycle-playbook.md)
 - Reason: This design extends the accepted Batch 2 directory and persona decisions, converts the W16 stage handoff work into a v2 generated metadata contract, and preserves the lifecycle straddle rule as explicit metadata rather than prose-only process memory.
 
 ## Intended Follow-On

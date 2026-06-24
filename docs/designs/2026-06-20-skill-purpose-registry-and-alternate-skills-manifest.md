@@ -98,7 +98,7 @@ Prior Design Docs:
 - [Configuration and Convention Overlay](2026-06-20-configuration-and-convention-overlay.md)
 - [Template, Package, and Dogfood Source-of-Truth Contract](2026-06-19-template-package-and-dogfood-source-of-truth-contract.md)
 - [Agentics Ecosystem - Capability Registry, Modules, and Gateway Skill](2026-04-15-agentics-ecosystem.md)
-- [Work Backlog Source Authority](2026-05-06-work-backlog-source-authority.md)
+- [Work Backlog Source Authority](../assets/archive/designs/2026-05-06-work-backlog-source-authority.md)
 - [CLI Skill Installation](../assets/archive/designs/2026-04-16-cli-skill-installation.md)
 - [CLI Skill Installation R2](../assets/archive/designs/2026-04-16-cli-skill-installation-r2.md)
 - [CLI Skills Command](../assets/archive/designs/2026-04-21-cli-skills-command.md)

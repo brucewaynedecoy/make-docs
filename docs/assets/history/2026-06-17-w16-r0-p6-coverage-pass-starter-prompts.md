@@ -43,7 +43,7 @@ place.
 - Aligned guide-router copies under [docs/guides](../../guides/),
   [packages/docs/template/docs/guides](../../../packages/docs/template/docs/guides/),
   and [renderers.ts](../../../packages/cli/src/renderers.ts).
-- Marked [Phase 06](../../work/2026-06-17-w16-r0-lifecycle-workflow-foundation/06-starter-prompts.md)
+- Marked [Phase 06](../archive/work/2026-06-17-w16-r0-lifecycle-workflow-foundation/06-starter-prompts.md)
   tasks complete.
 
 ### Developer

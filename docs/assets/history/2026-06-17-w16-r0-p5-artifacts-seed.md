@@ -30,7 +30,7 @@ input behavior.
 - Updated artifacts routers [AGENTS.md](../../artifacts/AGENTS.md) and
   [CLAUDE.md](../../artifacts/CLAUDE.md) to state the managed/template asset and
   zero-contract purpose.
-- Marked [Phase 05](../../work/2026-06-17-w16-r0-lifecycle-workflow-foundation/05-artifacts-seed.md)
+- Marked [Phase 05](../archive/work/2026-06-17-w16-r0-lifecycle-workflow-foundation/05-artifacts-seed.md)
   tasks complete.
 
 ### Developer

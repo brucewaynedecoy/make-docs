@@ -31,7 +31,7 @@ Validation passed for `npm test -w packages/cli -- managed-block renderers insta
 | [../../prd/00-index.md](../../prd/00-index.md) | Updated the reading order to include PRD 15 with the active revision set. |
 | [../../prd/05-installation-profile-and-manifest-lifecycle.md](../../prd/05-installation-profile-and-manifest-lifecycle.md) | Added PRD 15 supersession notes for root instruction preservation and block-scoped manifest hashing. |
 | [../../prd/06-template-contracts-and-generated-assets.md](../../prd/06-template-contracts-and-generated-assets.md) | Added PRD 15 supersession notes for root instruction rendering and dedicated `.make-docs/` generated assets. |
-| [../../work/2026-06-18-w17-r0-agent-instruction-file-ownership/05-validation.md](../../work/2026-06-18-w17-r0-agent-instruction-file-ownership/05-validation.md) | Marked final validation and PRD reconciliation tasks complete with evidence. |
+| [docs/assets/archive/work/2026-06-18-w17-r0-agent-instruction-file-ownership/05-validation.md](../archive/work/2026-06-18-w17-r0-agent-instruction-file-ownership/05-validation.md) | Marked final validation and PRD reconciliation tasks complete with evidence. |
 
 ### Developer
 

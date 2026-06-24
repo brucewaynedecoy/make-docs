@@ -16,7 +16,7 @@ The work phase checkboxes were marked complete after verifying those sections an
 | --- | --- |
 | Contract | Added [`coverage-pass-contract.md`](../references/coverage-pass-contract.md) as the shared authority for coverage-pass mechanics. |
 | Routers | Linked the contract from docs router mirrors, reference router mirrors, and guide router mirrors instead of restating verdict lists. |
-| Work backlog | Marked all ten tasks complete in [`01-coverage-pass-contract.md`](../../work/2026-06-17-w16-r0-lifecycle-workflow-foundation/01-coverage-pass-contract.md). |
+| Work backlog | Marked all ten tasks complete in [`01-coverage-pass-contract.md`](../archive/work/2026-06-17-w16-r0-lifecycle-workflow-foundation/01-coverage-pass-contract.md). |
 | Managed state | Left `.make-docs/runs/` uncommitted as wave checkpoint state created by the workflow tooling. |
 
 | Surface | Verdict | Rationale |
@@ -48,7 +48,7 @@ Validation for closeout:
 | [`../../CLAUDE.md`](../../CLAUDE.md) | Routes guide-writing coverage decisions through the coverage-pass contract. |
 | [`../../guides/AGENTS.md`](../../guides/AGENTS.md) | Routes guide/playbook verdict and persona-target decisions through the coverage-pass contract. |
 | [`../../guides/CLAUDE.md`](../../guides/CLAUDE.md) | Mirrors the guides router coverage-pass pointer for Claude-based agents. |
-| [`../../work/2026-06-17-w16-r0-lifecycle-workflow-foundation/01-coverage-pass-contract.md`](../../work/2026-06-17-w16-r0-lifecycle-workflow-foundation/01-coverage-pass-contract.md) | Marks Phase 01 task completion after evidence review. |
+| [docs/assets/archive/work/2026-06-17-w16-r0-lifecycle-workflow-foundation/01-coverage-pass-contract.md](../archive/work/2026-06-17-w16-r0-lifecycle-workflow-foundation/01-coverage-pass-contract.md) | Marks Phase 01 task completion after evidence review. |
 
 ### Developer
 

@@ -40,7 +40,7 @@ Guide decisions:
 
 Validation performed:
 
-- `python3 .agents/skills/closeout-phase/scripts/work_phase_state.py docs/work/2026-05-06-w14-r2-cli-conflict-resolution/01-prd-change-and-baseline-annotations.md --json`
+- `python3 .agents/skills/closeout-phase/scripts/work_phase_state.py docs/assets/archive/work/2026-05-06-w14-r2-cli-conflict-resolution/01-prd-change-and-baseline-annotations.md --json`
 - `python3 .agents/skills/closeout-phase/scripts/closeout_probe.py --repo-root . --scope auto --json`
 - `python3 .agents/skills/closeout-phase/scripts/guide_coverage_probe.py --repo-root . --changed-files-json /tmp/make-docs-w14-r2-p1-closeout-probe.json`
 - `python3 .agents/skills/closeout-phase/scripts/closeout_validate.py --repo-root . --probe-json /tmp/make-docs-w14-r2-p1-closeout-probe-final.json --run`
@@ -59,7 +59,7 @@ Validation performed:
 | [../../prd/07-cli-command-surface-and-lifecycle.md](../../prd/07-cli-command-surface-and-lifecycle.md) | Adds the W14 R2 supersession note for batch-first managed-file conflict review. |
 | [../../prd/11-revise-cli-asset-selection-simplification.md](../../prd/11-revise-cli-asset-selection-simplification.md) | Adds the W14 R2 supersession note for explicit reference/template conflict handling. |
 | [../../prd/13-revise-cli-conflict-resolution.md](../../prd/13-revise-cli-conflict-resolution.md) | Captures the active revision contract for overwrite/skip-only conflict resolution across divergent managed agent instructions, references, and templates. |
-| [../../work/2026-05-06-w14-r2-cli-conflict-resolution/01-prd-change-and-baseline-annotations.md](../../work/2026-05-06-w14-r2-cli-conflict-resolution/01-prd-change-and-baseline-annotations.md) | Marks W14 R2 P1 tasks complete after evidence review. |
+| [docs/assets/archive/work/2026-05-06-w14-r2-cli-conflict-resolution/01-prd-change-and-baseline-annotations.md](../archive/work/2026-05-06-w14-r2-cli-conflict-resolution/01-prd-change-and-baseline-annotations.md) | Marks W14 R2 P1 tasks complete after evidence review. |
 | [./2026-05-06-w14-r2-p1-prd-change-and-baseline-annotations-closeout.md](./2026-05-06-w14-r2-p1-prd-change-and-baseline-annotations-closeout.md) | Records the phase closeout, guide decisions, gap decision, validation, and task evidence. |
 
 ### Developer

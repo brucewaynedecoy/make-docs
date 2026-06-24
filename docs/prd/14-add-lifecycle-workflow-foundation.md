@@ -59,8 +59,8 @@ documentation work.
 
 Doc anchors:
 
-- `docs/plans/2026-05-28-w16-r0-coverage-pass-contract/00-overview.md`
-- `docs/designs/2026-06-17-make-docs-lifecycle-foundation.md`
+- `docs/assets/archive/plans/2026-05-28-w16-r0-coverage-pass-contract/00-overview.md`
+- `docs/assets/archive/designs/2026-06-17-make-docs-lifecycle-foundation.md`
 
 ## Affected Baseline Docs
 
@@ -110,8 +110,8 @@ verbs apply.
 
 ## Source Anchors
 
-- `docs/plans/2026-05-28-w16-r0-coverage-pass-contract/00-overview.md`
-- `docs/designs/2026-06-17-make-docs-lifecycle-foundation.md`
+- `docs/assets/archive/plans/2026-05-28-w16-r0-coverage-pass-contract/00-overview.md`
+- `docs/assets/archive/designs/2026-06-17-make-docs-lifecycle-foundation.md`
 - `docs/prd/03-open-questions-and-risk-register.md`
 - `docs/prd/22-revise-new-docs-assets-playbooks-persona-model.md`
 - `docs/prd/23-revise-generated-metadata-lifecycle-handoffs.md`

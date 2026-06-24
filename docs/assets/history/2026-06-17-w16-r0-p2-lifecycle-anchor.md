@@ -36,7 +36,7 @@ links satisfied the acceptance criteria.
 - Updated references routers [AGENTS.md](../references/AGENTS.md) and
   [CLAUDE.md](../references/CLAUDE.md) with the reference-specific lifecycle
   pointer.
-- Marked [Phase 02](../../work/2026-06-17-w16-r0-lifecycle-workflow-foundation/02-lifecycle-anchor.md)
+- Marked [Phase 02](../archive/work/2026-06-17-w16-r0-lifecycle-workflow-foundation/02-lifecycle-anchor.md)
   tasks complete.
 
 ### Developer

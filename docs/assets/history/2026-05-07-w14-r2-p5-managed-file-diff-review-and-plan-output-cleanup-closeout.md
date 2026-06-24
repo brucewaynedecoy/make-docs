@@ -10,7 +10,7 @@ summary: "Recorded managed-file diff review and plan output cleanup closeout."
 
 ## Changes
 
-Created a short W14 R2 P5 history breadcrumb because the session reached a meaningful checkpoint and the known W/R/P coordinate fits the history-record contract. The retroactive [P5 plan phase](../../plans/2026-05-06-w14-r2-cli-conflict-resolution/05-managed-file-diff-review-and-plan-output-cleanup.md) and [P5 work backlog phase](../../work/2026-05-06-w14-r2-cli-conflict-resolution/05-managed-file-diff-review-and-plan-output-cleanup.md) now capture the implementation and validation work that had already landed.
+Created a short W14 R2 P5 history breadcrumb because the session reached a meaningful checkpoint and the known W/R/P coordinate fits the history-record contract. The retroactive [P5 plan phase](../archive/plans/2026-05-06-w14-r2-cli-conflict-resolution/05-managed-file-diff-review-and-plan-output-cleanup.md) and [P5 work backlog phase](../archive/work/2026-05-06-w14-r2-cli-conflict-resolution/05-managed-file-diff-review-and-plan-output-cleanup.md) now capture the implementation and validation work that had already landed.
 
 Root causes fixed in the implementation:
 
@@ -39,8 +39,8 @@ Validation evidence already run by the coordinator:
 
 | Path | Description |
 | --- | --- |
-| [../../plans/2026-05-06-w14-r2-cli-conflict-resolution/05-managed-file-diff-review-and-plan-output-cleanup.md](../../plans/2026-05-06-w14-r2-cli-conflict-resolution/05-managed-file-diff-review-and-plan-output-cleanup.md) | Retroactive P5 plan phase for selected managed-file diff review, non-interactive unresolved-diff failure, and planned operations output cleanup. |
-| [../../work/2026-05-06-w14-r2-cli-conflict-resolution/05-managed-file-diff-review-and-plan-output-cleanup.md](../../work/2026-05-06-w14-r2-cli-conflict-resolution/05-managed-file-diff-review-and-plan-output-cleanup.md) | Completed P5 backlog tasks and evidence for the managed-file diff review and plan output cleanup. |
+| [docs/assets/archive/plans/2026-05-06-w14-r2-cli-conflict-resolution/05-managed-file-diff-review-and-plan-output-cleanup.md](../archive/plans/2026-05-06-w14-r2-cli-conflict-resolution/05-managed-file-diff-review-and-plan-output-cleanup.md) | Retroactive P5 plan phase for selected managed-file diff review, non-interactive unresolved-diff failure, and planned operations output cleanup. |
+| [docs/assets/archive/work/2026-05-06-w14-r2-cli-conflict-resolution/05-managed-file-diff-review-and-plan-output-cleanup.md](../archive/work/2026-05-06-w14-r2-cli-conflict-resolution/05-managed-file-diff-review-and-plan-output-cleanup.md) | Completed P5 backlog tasks and evidence for the managed-file diff review and plan output cleanup. |
 | [./2026-05-07-w14-r2-p5-managed-file-diff-review-and-plan-output-cleanup-closeout.md](./2026-05-07-w14-r2-p5-managed-file-diff-review-and-plan-output-cleanup-closeout.md) | Records the W14 R2 P5 managed-file diff review and plan output cleanup closeout. |
 
 ### Developer

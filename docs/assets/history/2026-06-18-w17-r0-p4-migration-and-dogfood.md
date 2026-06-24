@@ -19,7 +19,7 @@ Phase 04 added migration behavior for existing root instruction files and applie
 | Dogfood dedicated files | Added [`.make-docs/AGENTS.md`](../../../.make-docs/AGENTS.md) and [`.make-docs/CLAUDE.md`](../../../.make-docs/CLAUDE.md), matching the template dedicated instruction files. |
 | Dogfood manifest | Refreshed [`.make-docs/manifest.json`](../../../.make-docs/manifest.json) so the dogfood install tracks root managed-block hashes and the dedicated instruction files. |
 | Validation | Updated [`check-instruction-routers.sh`](../../../scripts/check-instruction-routers.sh) root line budgets for project-specific guidance plus a managed block. |
-| Work backlog | Marked all four tasks complete in [`04-migration-and-dogfood.md`](../../work/2026-06-18-w17-r0-agent-instruction-file-ownership/04-migration-and-dogfood.md). |
+| Work backlog | Marked all four tasks complete in [`04-migration-and-dogfood.md`](../archive/work/2026-06-18-w17-r0-agent-instruction-file-ownership/04-migration-and-dogfood.md). |
 | Managed state | Left `.make-docs/runs/` uncommitted as local wave checkpoint state created by the workflow tooling. |
 
 | Surface | Verdict | Rationale |
@@ -59,7 +59,7 @@ Validation for closeout:
 | [`../../../.make-docs/CLAUDE.md`](../../../.make-docs/CLAUDE.md) | Adds the dogfood dedicated Claude instruction file. |
 | [`../../../.make-docs/manifest.json`](../../../.make-docs/manifest.json) | Tracks the dogfood root block hashes and dedicated instruction files. |
 | [`../../../scripts/check-instruction-routers.sh`](../../../scripts/check-instruction-routers.sh) | Keeps instruction router validation compatible with dogfood root files that include project-specific guidance plus a managed block. |
-| [`../../work/2026-06-18-w17-r0-agent-instruction-file-ownership/04-migration-and-dogfood.md`](../../work/2026-06-18-w17-r0-agent-instruction-file-ownership/04-migration-and-dogfood.md) | Records Phase 04 task completion after evidence review. |
+| [docs/assets/archive/work/2026-06-18-w17-r0-agent-instruction-file-ownership/04-migration-and-dogfood.md](../archive/work/2026-06-18-w17-r0-agent-instruction-file-ownership/04-migration-and-dogfood.md) | Records Phase 04 task completion after evidence review. |
 
 ### Developer
 

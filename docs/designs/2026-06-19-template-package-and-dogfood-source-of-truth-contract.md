@@ -87,7 +87,7 @@ This design does not change package contents, template files, dogfood files, sou
 
 Update Mode: `new-doc-related`
 
-Prior Design Docs: [Package and Deployment Boundaries](2026-06-19-package-and-deployment-boundaries.md), [System Asset Delivery and Materialization Contract](2026-06-19-system-asset-delivery-and-materialization-contract.md), [Compatibility, Audit, and Migration Disposition](2026-06-19-compatibility-audit-and-migration-disposition.md), [Docs Assets Resource Namespace Overhaul](../assets/archive/designs/2026-04-22-docs-assets-resource-namespace.md), [Agent Instruction File Ownership](2026-06-18-agent-instruction-file-ownership.md)
+Prior Design Docs: [Package and Deployment Boundaries](2026-06-19-package-and-deployment-boundaries.md), [System Asset Delivery and Materialization Contract](2026-06-19-system-asset-delivery-and-materialization-contract.md), [Compatibility, Audit, and Migration Disposition](2026-06-19-compatibility-audit-and-migration-disposition.md), [Docs Assets Resource Namespace Overhaul](../assets/archive/designs/2026-04-22-docs-assets-resource-namespace.md), [Agent Instruction File Ownership](../assets/archive/designs/2026-06-18-agent-instruction-file-ownership.md)
 
 Reason: This design is a new v2 Batch 1 contract that formalizes the template-first, dogfood-second direction already present in prior design, maintainer guidance, and W16/W17 corrective history. It does not edit or supersede those docs; it narrows their shared intent into the v2 ownership rule later plans should implement.
 

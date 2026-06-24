@@ -104,7 +104,7 @@ Batch reconciliation must explicitly check that this design, the generated metad
 
 Update Mode: `new-doc-related`
 
-Prior Design Docs: [Tool Directory System and Custom Resource Tiers](2026-06-19-tool-directory-system-and-custom-resource-tiers.md), [Docs Assets Resource Namespace Overhaul](../assets/archive/designs/2026-04-22-docs-assets-resource-namespace.md), [Guide Structure Contract](../assets/archive/designs/2026-04-16-guide-structure-contract.md), [Coverage Pass Contract and Skill Evolution](2026-05-28-coverage-pass-contract-and-skill-evolution.md), [Make Docs Lifecycle Playbook and Terminology Overlay](2026-05-28-make-docs-lifecycle-playbook.md)
+Prior Design Docs: [Tool Directory System and Custom Resource Tiers](2026-06-19-tool-directory-system-and-custom-resource-tiers.md), [Docs Assets Resource Namespace Overhaul](../assets/archive/designs/2026-04-22-docs-assets-resource-namespace.md), [Guide Structure Contract](../assets/archive/designs/2026-04-16-guide-structure-contract.md), [Coverage Pass Contract and Skill Evolution](../assets/archive/designs/2026-05-28-coverage-pass-contract-and-skill-evolution.md), [Make Docs Lifecycle Playbook and Terminology Overlay](../assets/archive/designs/2026-05-28-make-docs-lifecycle-playbook.md)
 
 Reason: This design extends the accepted Batch 2 tool-directory decision into the reader-facing docs asset namespace. It also materially updates older docs-assets, guide, and temporary library/playbook intent by reserving `docs/assets/**` for guides and playbooks, moving archive intent to a separate lifecycle-storage surface, and making persona frontmatter the canonical targeting mechanism.
 

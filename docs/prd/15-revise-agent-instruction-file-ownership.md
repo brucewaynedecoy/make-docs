@@ -98,7 +98,7 @@ Code anchors:
 
 - `packages/cli/src/planner.ts`
 - `packages/cli/src/install.ts`
-- `docs/plans/2026-06-18-w17-r0-agent-instruction-file-ownership/00-overview.md`
+- `docs/assets/archive/plans/2026-06-18-w17-r0-agent-instruction-file-ownership/00-overview.md`
 
 ## Required Baseline Annotations
 
@@ -113,8 +113,8 @@ Code anchors:
 
 ## Source Anchors
 
-- `docs/designs/2026-06-18-agent-instruction-file-ownership.md`
-- `docs/plans/2026-06-18-w17-r0-agent-instruction-file-ownership/00-overview.md`
+- `docs/assets/archive/designs/2026-06-18-agent-instruction-file-ownership.md`
+- `docs/assets/archive/plans/2026-06-18-w17-r0-agent-instruction-file-ownership/00-overview.md`
 - `packages/cli/src/managed-block.ts`
 - `packages/cli/src/catalog.ts`
 - `packages/cli/src/planner.ts`

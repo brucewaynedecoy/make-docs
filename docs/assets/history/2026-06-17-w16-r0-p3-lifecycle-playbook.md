@@ -33,7 +33,7 @@ updates, and Q-014 resolution satisfied the acceptance criteria.
   playbook is discoverable.
 - Closed [Q-014](../../prd/03-open-questions-and-risk-register.md) with the
   W16 R0 decision to create only the playbook subtree now.
-- Marked [Phase 03](../../work/2026-06-17-w16-r0-lifecycle-workflow-foundation/03-lifecycle-playbook.md)
+- Marked [Phase 03](../archive/work/2026-06-17-w16-r0-lifecycle-workflow-foundation/03-lifecycle-playbook.md)
   tasks complete.
 
 ### Developer

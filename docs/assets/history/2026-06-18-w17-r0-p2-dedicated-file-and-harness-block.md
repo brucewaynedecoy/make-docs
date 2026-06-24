@@ -17,7 +17,7 @@ Phase 02 moved root instruction rendering to harness-aware managed blocks backed
 | Template source | Added dedicated managed instruction sources under [`packages/docs/template/.make-docs/`](../../../packages/docs/template/.make-docs/) and converted root template instruction files to managed blocks. |
 | Tests | Added renderer assertions for one root block, Codex fallback routing, Claude import routing, and dedicated-file asset coverage; updated install/uninstall coverage for the new dedicated instruction paths. |
 | Validation | Updated [`check-instruction-routers.sh`](../../../scripts/check-instruction-routers.sh) so parity checks allow harness-aware root blocks when a sibling `.make-docs/` dedicated instruction pair exists. |
-| Work backlog | Marked all five tasks complete in [`02-dedicated-file-and-harness-block.md`](../../work/2026-06-18-w17-r0-agent-instruction-file-ownership/02-dedicated-file-and-harness-block.md). |
+| Work backlog | Marked all five tasks complete in [`02-dedicated-file-and-harness-block.md`](../archive/work/2026-06-18-w17-r0-agent-instruction-file-ownership/02-dedicated-file-and-harness-block.md). |
 | Managed state | Left `.make-docs/runs/` uncommitted as local wave checkpoint state created by the workflow tooling. |
 
 | Surface | Verdict | Rationale |
@@ -58,7 +58,7 @@ Validation for closeout:
 | [`../../../scripts/check-instruction-routers.sh`](../../../scripts/check-instruction-routers.sh) | Allows harness-aware root instruction blocks while continuing to enforce ordinary router pair parity. |
 | [`../../../packages/docs/template/.make-docs/AGENTS.md`](../../../packages/docs/template/.make-docs/AGENTS.md) | Adds the dedicated Codex make-docs instruction source. |
 | [`../../../packages/docs/template/.make-docs/CLAUDE.md`](../../../packages/docs/template/.make-docs/CLAUDE.md) | Adds the dedicated Claude make-docs instruction source. |
-| [`../../work/2026-06-18-w17-r0-agent-instruction-file-ownership/02-dedicated-file-and-harness-block.md`](../../work/2026-06-18-w17-r0-agent-instruction-file-ownership/02-dedicated-file-and-harness-block.md) | Records Phase 02 task completion after evidence review. |
+| [docs/assets/archive/work/2026-06-18-w17-r0-agent-instruction-file-ownership/02-dedicated-file-and-harness-block.md](../archive/work/2026-06-18-w17-r0-agent-instruction-file-ownership/02-dedicated-file-and-harness-block.md) | Records Phase 02 task completion after evidence review. |
 
 ### Developer
 

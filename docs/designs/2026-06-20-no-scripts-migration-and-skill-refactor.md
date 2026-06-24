@@ -95,4 +95,4 @@ Next Prompt: [designs-to-plan-change.prompt.md](../assets/prompts/designs-to-pla
 
 Why: this is a refactor and migration against existing CLI, skill, template, manifest, audit, backup, package, and dogfood behavior, not a greenfield baseline.
 
-Coordinate Handoff: unresolved; planner must resolve before writing. Prior planning evidence includes [W16 R0 coverage-pass contract work](../plans/2026-05-28-w16-r0-coverage-pass-contract/00-overview.md) and the `R-014` risk register entry, but the downstream W/R coordinate for the v2 no-scripts migration must be assigned by the planner.
+Coordinate Handoff: unresolved; planner must resolve before writing. Prior planning evidence includes [W16 R0 coverage-pass contract work](../assets/archive/plans/2026-05-28-w16-r0-coverage-pass-contract/00-overview.md) and the `R-014` risk register entry, but the downstream W/R coordinate for the v2 no-scripts migration must be assigned by the planner.

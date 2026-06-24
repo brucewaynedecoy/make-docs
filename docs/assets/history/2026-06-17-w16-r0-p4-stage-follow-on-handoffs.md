@@ -31,7 +31,7 @@ contracts/templates all carried the advisory follow-on shape.
   work-backlog generation as the next step.
 - Updated [work-index.md](../templates/work-index.md) so work backlog indexes
   recommend the implementation loop as the next step.
-- Marked [Phase 04](../../work/2026-06-17-w16-r0-lifecycle-workflow-foundation/04-stage-follow-on-handoffs.md)
+- Marked [Phase 04](../archive/work/2026-06-17-w16-r0-lifecycle-workflow-foundation/04-stage-follow-on-handoffs.md)
   tasks complete.
 
 ### Developer
