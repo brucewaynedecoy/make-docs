@@ -336,7 +336,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Closed | [22-revise-new-docs-assets-playbooks-persona-model.md](./22-revise-new-docs-assets-playbooks-persona-model.md) defines primitives `agent`, `maintainer`, and `user`; default personas `agent`, `developer`, and `user`; and custom persona fields `slug`, `label`, `description`, and `primitive`. PRD 24 confirms config may add or relabel personas but must preserve that schema and primitive set. PRD 31 confirms adversarial-review candidates use persona targets only when the challenge concerns persona-scoped content or audience-specific usability. PRD 20 may record persona-sensitive scenarios later, but it does not redefine the schema. | Implement the schema in configuration/defaults and validation fixtures without renaming PRD 22's canonical fields; include adversarial-review candidate fixtures for persona-targeted and `none` cases if that extension is implemented. |
+| Closed | [22-revise-new-docs-assets-playbooks-persona-model.md](./22-revise-new-docs-assets-playbooks-persona-model.md) defines primitives `agent`, `maintainer`, and `user`; default personas `agent`, `developer`, and `user`; and custom persona fields `slug`, `label`, `description`, and `primitive`. W9 R3 P3 implements those defaults and validation fixtures in the closeout guide coverage helper. PRD 24 confirms config may add or relabel personas but must preserve that schema and primitive set. PRD 31 confirms adversarial-review candidates use persona targets only when the challenge concerns persona-scoped content or audience-specific usability. PRD 20 may record persona-sensitive scenarios later, but it does not redefine the schema. | Integrate PRD 24 configuration overlays and include adversarial-review candidate fixtures for persona-targeted and `none` cases if that extension is implemented. |
 
 **Question**: What are the exact persona primitives, default personas, and configuration fields?
 
@@ -344,7 +344,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 **Recommendation**: Confirm the schema; until then the contract describes the persona set abstractly with a legacy Developer/User mapping.
 
-**To close**: Closed by PRD 22; implementation must still add configuration/defaults and validation fixtures.
+**To close**: Closed by PRD 22 and W9 R3 P3 schema/default validation. Future configuration overlays and adversarial-review extensions remain separate follow-ons.
 
 ### Q-010 Where Do Starter Prompts Live After the Restructure?
 
@@ -564,15 +564,15 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | PRD 22 defines the persona schema, default personas, and primitive mapping, so the remaining risk is implementation/configuration drift rather than an undefined schema. PRD 23 consumes `persona` as the generated-doc frontmatter field for persona-scoped guides and playbooks. PRD 24 defines how config may add or relabel persona entries without renaming schema keys or primitive values. PRD 29 adds Run Playbook validation that must fail closed on missing or invalid playbook `persona` metadata. PRD 31 keeps adversarial-review persona targeting conditional and requires configured personas when the challenge is persona-scoped. | Replace legacy mapping with the configured persona set when personas land and add validation fixtures for default/custom personas, duplicate slugs, invalid values, path/frontmatter drift, generated `persona` frontmatter presence, Run Playbook persona validation, and adversarial-review candidate records with configured persona targets or `none`. |
+| Open | PRD 22 defines the persona schema, default personas, and primitive mapping, and W9 R3 P3 implements default/custom persona validation plus guide/playbook `persona` frontmatter drift checks. The remaining risk is PRD 24 configuration-overlay integration and downstream consumers, not schema ambiguity. PRD 23 consumes `persona` as the generated-doc frontmatter field for persona-scoped guides and playbooks. PRD 29 adds Run Playbook validation that must fail closed on missing or invalid playbook `persona` metadata. PRD 31 keeps adversarial-review persona targeting conditional and requires configured personas when the challenge is persona-scoped. | Wire PRD 24 configuration overlays into the implemented persona schema and extend downstream fixtures for Run Playbook persona validation and adversarial-review candidate records with configured persona targets or `none`. |
 
-**Issue**: The coverage-pass contract's persona-target axis points at a configuration file that does not yet exist.
+**Issue**: The coverage-pass contract's persona-target axis now has implemented defaults, but future project configuration overlays still need to feed the same schema.
 
-**Why it matters**: A dangling reference could confuse agents before the persona system ships.
+**Why it matters**: Overlay drift could confuse agents if custom personas relabel or extend targets without preserving `slug`, `label`, `description`, `primitive`, and primitive membership.
 
-**Recommendation**: Describe the persona set abstractly and rely on the legacy mapping until configuration exists.
+**Recommendation**: Use the implemented default persona set now, then feed PRD 24 overlays through the same validator before downstream generated metadata or playbook execution consume custom targets.
 
-**To close**: The contract reads from the real persona configuration once available.
+**To close**: The PRD 24 configuration overlay reads from and validates against the implemented persona schema.
 
 ### R-012 Playbooks and Plugins Could Become Overlapping Deliverables
 

@@ -83,6 +83,10 @@
           "installPath": "scripts/work_phase_state.py"
         },
         {
+          "source": "scripts/persona_schema.py",
+          "installPath": "scripts/persona_schema.py"
+        },
+        {
           "source": "scripts/guide_coverage_probe.py",
           "installPath": "scripts/guide_coverage_probe.py"
         }

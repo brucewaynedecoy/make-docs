@@ -467,6 +467,20 @@ describe("path hygiene contract", () => {
       expect(contents).toContain("docs/archive/**");
     }
   });
+
+  test("coverage-pass contract keeps verdict and persona-target axes separate", () => {
+    for (const relativePath of [
+      "docs/assets/references/coverage-pass-contract.md",
+      "packages/docs/template/docs/assets/references/coverage-pass-contract.md",
+    ]) {
+      const contents = readFileSync(path.join(REPO_ROOT, relativePath), "utf8");
+
+      expect(contents).toContain("Verdicts and persona targets are separate axes");
+      expect(contents).toContain("default configured target slugs");
+      expect(contents).toContain("`developer` | `maintainer`");
+      expect(contents).toContain("`slug`, `label`, `description`, and `primitive`");
+    }
+  });
 });
 
 describe("optional skill package consistency", () => {

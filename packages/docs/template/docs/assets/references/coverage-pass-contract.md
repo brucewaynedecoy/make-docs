@@ -74,12 +74,15 @@ Use `create` when the work warrants a new manual-test scenario, runnable validat
 
 Verdicts and persona targets are separate axes. A verdict says what coverage action to take; a target says which configured persona or audience receives that coverage.
 
-When persona configuration exists, read the configured persona set and use its names. Do not hard-code personas in new contracts or prompts. Before persona configuration exists, use the legacy Developer/User mapping:
+Read the configured persona set and use persona slugs, not display labels, in machine-readable coverage output. The default configured target slugs are:
 
-| Legacy target | Use for |
+| Persona target | Primitive | Use for |
 | --- | --- |
-| `Developer` | Contributors, maintainers, integrators, operators, validation owners, and extension authors. |
-| `User` | People using the shipped product, reading task guidance, or adopting a workflow. |
+| `agent` | `agent` | Agents executing make-docs workflows, coverage passes, closeout, and lifecycle tasks. |
+| `developer` | `maintainer` | Contributors, maintainers, integrators, operators, validation owners, and extension authors. |
+| `user` | `user` | People using the shipped product, reading task guidance, or adopting a workflow. |
+
+Custom persona targets use the same schema: `slug`, `label`, `description`, and `primitive`. Do not hard-code display labels in new contracts or prompts.
 
 If both audiences need distinct coverage, record one verdict per target or one verdict with an explicit multi-target reason. Do not collapse different audience needs into one artifact merely because they share a source change.
 

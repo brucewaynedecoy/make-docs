@@ -102,6 +102,7 @@ describe("skill registry", () => {
       { source: "scripts/closeout_validate.py", installPath: "scripts/closeout_validate.py" },
       { source: "scripts/closeout_history.py", installPath: "scripts/closeout_history.py" },
       { source: "scripts/work_phase_state.py", installPath: "scripts/work_phase_state.py" },
+      { source: "scripts/persona_schema.py", installPath: "scripts/persona_schema.py" },
       { source: "scripts/guide_coverage_probe.py", installPath: "scripts/guide_coverage_probe.py" },
     ]);
   });

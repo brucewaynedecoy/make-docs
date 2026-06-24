@@ -12,6 +12,7 @@ import closeout_history
 import closeout_probe
 import closeout_validate
 import guide_coverage_probe
+import persona_schema
 import work_phase_state
 
 
@@ -66,6 +67,47 @@ class WorkPhaseStateTests(unittest.TestCase):
 
 
 class GuideCoverageProbeTests(unittest.TestCase):
+    def test_default_personas_define_coverage_axes(self) -> None:
+        self.assertEqual(persona_schema.validate_personas(persona_schema.DEFAULT_PERSONAS), [])
+        axes = persona_schema.coverage_axes()
+
+        self.assertEqual(axes["verdicts"], ["create", "update-existing", "link-only", "none"])
+        self.assertEqual(axes["personaTargets"], ["agent", "developer", "user"])
+
+    def test_custom_personas_use_same_schema(self) -> None:
+        custom = [
+            {
+                "slug": "support-lead",
+                "label": "Support Lead",
+                "description": "Support leaders reviewing docs for customer-facing workflows.",
+                "primitive": "maintainer",
+            }
+        ]
+
+        self.assertEqual(persona_schema.validate_personas(custom), [])
+
+    def test_invalid_persona_schema_values_fail(self) -> None:
+        invalid = [
+            {
+                "slug": "Support Lead",
+                "label": "Support Lead",
+                "description": "Invalid slug and primitive.",
+                "primitive": "operator",
+            },
+            {
+                "slug": "Support Lead",
+                "label": "Duplicate",
+                "description": "Duplicate invalid slug.",
+                "primitive": "user",
+            },
+        ]
+
+        errors = persona_schema.validate_personas(invalid)
+
+        self.assertTrue(any("lowercase kebab-case" in error for error in errors))
+        self.assertTrue(any("primitive" in error for error in errors))
+        self.assertTrue(any("unique" in error for error in errors))
+
     def test_scores_guides_against_changed_file_terms(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -91,8 +133,62 @@ class GuideCoverageProbeTests(unittest.TestCase):
             guides = guide_coverage_probe.collect_guides(root, terms)
 
         self.assertEqual(guides[0]["path"], "docs/guides/developer/closeout-fast-path.md")
+        self.assertEqual(guides[0]["persona"], "developer")
+        self.assertEqual(guides[0]["primitive"], "maintainer")
         self.assertGreater(guides[0]["score"], 0)
         self.assertEqual(guides[0]["related"], ["../user/closeout.md"])
+
+    def test_scores_persona_scoped_guides_from_assets_tree(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            guide = root / "docs" / "assets" / "guides" / "developer" / "closeout-fast-path.md"
+            guide.parent.mkdir(parents=True)
+            guide.write_text(
+                "---\n"
+                "title: Closeout Fast Path\n"
+                "persona: developer\n"
+                "---\n\n"
+                "# Closeout Fast Path\n\n"
+                "## Validation\n",
+                encoding="utf-8",
+            )
+
+            guides = guide_coverage_probe.collect_guides(root, {"closeout"})
+
+        self.assertEqual(guides[0]["path"], "docs/assets/guides/developer/closeout-fast-path.md")
+        self.assertEqual(guides[0]["persona"], "developer")
+        self.assertEqual(guides[0]["personaValidationErrors"], [])
+
+    def test_missing_persona_frontmatter_fails_for_persona_scoped_docs(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            guide = root / "docs" / "assets" / "guides" / "developer" / "missing-persona.md"
+            guide.parent.mkdir(parents=True)
+            guide.write_text("# Missing Persona\n", encoding="utf-8")
+
+            report = guide_coverage_probe.persona_validation_report(root)
+
+        self.assertEqual(report["status"], "failed")
+        self.assertTrue(any("missing persona frontmatter" in error for item in report["errors"] for error in item["errors"]))
+
+    def test_path_frontmatter_drift_fails_for_persona_scoped_docs(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            playbook = root / "docs" / "assets" / "playbooks" / "agent" / "lifecycle.md"
+            playbook.parent.mkdir(parents=True)
+            playbook.write_text(
+                "---\n"
+                "title: Lifecycle\n"
+                "persona: developer\n"
+                "---\n\n"
+                "# Lifecycle\n",
+                encoding="utf-8",
+            )
+
+            report = guide_coverage_probe.persona_validation_report(root)
+
+        self.assertEqual(report["status"], "failed")
+        self.assertTrue(any("does not match path" in error for item in report["errors"] for error in item["errors"]))
 
 
 class CloseoutProbeTests(unittest.TestCase):

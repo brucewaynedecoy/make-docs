@@ -621,6 +621,7 @@ describe("installer integration", () => {
           "./references/closeout-workflow.md",
           "./scripts/work_phase_state.py",
           "./scripts/closeout_probe.py",
+          "./scripts/persona_schema.py",
           "./scripts/guide_coverage_probe.py",
           "./scripts/closeout_validate.py",
           "./scripts/closeout_history.py",
