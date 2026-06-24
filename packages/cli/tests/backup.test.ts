@@ -191,8 +191,8 @@ describe("backup command", () => {
       });
       expect(events[1]).toMatchObject({
         destinationDir: path.join(targetDir, ".backup/2026-04-18"),
-        filesToCopy: 72,
-        directoriesToMaterialize: 14,
+        filesToCopy: result.copiedFiles.length,
+        directoriesToMaterialize: result.materializedDirectories.length,
         retained: 0,
         skipped: 0,
         destinationExistedAtReview: false,
@@ -203,8 +203,8 @@ describe("backup command", () => {
       expect(events[3]).toMatchObject({
         status: "completed",
         destinationDir: path.join(targetDir, ".backup/2026-04-18"),
-        copiedFiles: 72,
-        materializedDirectories: 14,
+        copiedFiles: result.copiedFiles.length,
+        materializedDirectories: result.materializedDirectories.length,
         retained: 0,
         skipped: 0,
       });
@@ -223,7 +223,9 @@ describe("backup command", () => {
 
     try {
       await installManifest(targetDir, (selections) => {
+        selections.skills = true;
         selections.skillScope = "global";
+        selections.selectedSkills = ["archive-docs"];
       });
 
       const { result } = await captureBackupRun({

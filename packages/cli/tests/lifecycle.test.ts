@@ -185,7 +185,9 @@ describe("lifecycle validation", () => {
 
     try {
       await installMakeDocsTarget(targetDir, (selections) => {
+        selections.skills = true;
         selections.skillScope = "global";
+        selections.selectedSkills = ["archive-docs"];
       });
 
       const result = await captureStdout(() =>
