@@ -269,6 +269,15 @@ describe("installer integration", () => {
       expect(manifest.files["docs/assets/references/path-and-link-hygiene.md"]?.sourceId).toBe(
         "file:docs/assets/references/path-and-link-hygiene.md",
       );
+      expect(manifest.files["docs/assets/guides/AGENTS.md"]?.sourceId).toBe(
+        "file:docs/assets/guides/AGENTS.md",
+      );
+      expect(manifest.files["docs/assets/playbooks/AGENTS.md"]?.sourceId).toBe(
+        "file:docs/assets/playbooks/AGENTS.md",
+      );
+      expect(manifest.files["docs/archive/AGENTS.md"]?.sourceId).toBe(
+        "file:docs/archive/AGENTS.md",
+      );
     } finally {
       cleanupTempDir(targetDir);
     }

@@ -19,6 +19,17 @@ const npmHome = mkdtempSync(path.join(os.tmpdir(), "make-docs-npm-home-"));
 const packOutputDir = mkdtempSync(path.join(os.tmpdir(), "make-docs-pack-output-"));
 const EXPECTED_PACKAGE_NAME = "@brucewaynedecoy/make-docs";
 
+const EXPECTED_READER_ASSET_PATHS = [
+  "docs/archive/AGENTS.md",
+  "docs/archive/CLAUDE.md",
+  "docs/assets/archive/AGENTS.md",
+  "docs/assets/archive/CLAUDE.md",
+  "docs/assets/guides/AGENTS.md",
+  "docs/assets/guides/CLAUDE.md",
+  "docs/assets/playbooks/AGENTS.md",
+  "docs/assets/playbooks/CLAUDE.md",
+];
+
 const EXPECTED_SKILL_PATHS = [
   ".claude/skills/archive-docs/SKILL.md",
   ".claude/skills/archive-docs/agents/openai.yaml",
@@ -103,6 +114,7 @@ try {
   const packedPackage = readPackedPackage(packageRoot);
   assertOnlyMakeDocsBin(packedPackage);
   assertPackedInstructionTemplate(packageRoot);
+  assertPackedReaderFacingTemplate(packageRoot);
   const packedMakeDocs = path.join(packageRoot, packedPackage.bin["make-docs"]);
   const skillsHelp = execFileSync("node", [packedMakeDocs, "skills", "--help"], {
     encoding: "utf8",
@@ -154,6 +166,8 @@ try {
       "Smoke pack bare install did not produce docs/AGENTS.md.",
     );
     assertInstalledInstructionTemplate(targetDir);
+    assertInstalledReaderFacingAssets(targetDir);
+    assertManifestContainsManagedFiles(manifestPath, EXPECTED_READER_ASSET_PATHS);
 
     execFileSync(
       "node",
@@ -252,6 +266,16 @@ try {
 
   const customFilePath = path.join(targetDir, "docs/assets/templates/custom-smoke.md");
   writeFileSync(customFilePath, "preserve this unmanaged smoke fixture\n", "utf8");
+  const customReaderAssetPaths = [
+    "docs/assets/guides/custom-persona/preserve.md",
+    "docs/assets/playbooks/custom-persona/preserve.md",
+    "docs/archive/custom-history.md",
+  ];
+  for (const relativePath of customReaderAssetPaths) {
+    const filePath = path.join(targetDir, relativePath);
+    mkdirSync(path.dirname(filePath), { recursive: true });
+    writeFileSync(filePath, "preserve this unmanaged reader-facing fixture\n", "utf8");
+  }
 
   execFileSync(
     "node",
@@ -280,6 +304,12 @@ try {
     "Smoke pack uninstall left the make-docs manifest behind.",
   );
   assertExists(customFilePath, "Smoke pack uninstall removed an unmanaged custom file.");
+  for (const relativePath of customReaderAssetPaths) {
+    assertExists(
+      path.join(targetDir, relativePath),
+      `Smoke pack uninstall removed unmanaged reader-facing asset ${relativePath}.`,
+    );
+  }
   assertExists(backupRoot, "Smoke pack uninstall removed the .backup directory.");
   assertExists(path.join(backupDir, "AGENTS.md"), "Smoke pack uninstall modified the backup tree.");
 } finally {
@@ -341,6 +371,24 @@ function assertManifestContainsSkillFiles(manifestPath, expectedPaths) {
   }
 }
 
+function assertManifestContainsManagedFiles(manifestPath, expectedPaths) {
+  const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+  const files = manifest.files && typeof manifest.files === "object" ? manifest.files : {};
+
+  for (const expectedPath of expectedPaths) {
+    const entry = files[expectedPath];
+    if (!entry) {
+      throw new Error(`Smoke pack manifest did not track managed file ${expectedPath}.`);
+    }
+
+    if (entry.sourceId !== `file:${expectedPath}`) {
+      throw new Error(
+        `Smoke pack manifest tracked ${expectedPath} with sourceId ${entry.sourceId}.`,
+      );
+    }
+  }
+}
+
 function assertPackedInstructionTemplate(packageRoot) {
   const agentsRoot = path.join(packageRoot, "template/AGENTS.md");
   const claudeRoot = path.join(packageRoot, "template/CLAUDE.md");
@@ -385,6 +433,35 @@ function assertPackedInstructionTemplate(packageRoot) {
   );
 }
 
+function assertPackedReaderFacingTemplate(packageRoot) {
+  for (const relativePath of EXPECTED_READER_ASSET_PATHS) {
+    assertExists(
+      path.join(packageRoot, "template", relativePath),
+      `Packed template omitted ${relativePath}.`,
+    );
+  }
+
+  const assetsRouter = readFileSync(
+    path.join(packageRoot, "template/docs/assets/AGENTS.md"),
+    "utf8",
+  );
+  assertOutputContains(
+    assetsRouter,
+    "docs/assets/guides/<persona-slug>/",
+    "Packed assets router omitted the canonical guide asset namespace.",
+  );
+  assertOutputContains(
+    assetsRouter,
+    "docs/assets/playbooks/<persona-slug>/",
+    "Packed assets router omitted the canonical playbook asset namespace.",
+  );
+  assertOutputContains(
+    assetsRouter,
+    "docs/archive/**",
+    "Packed assets router omitted the archive namespace handoff.",
+  );
+}
+
 function assertInstalledInstructionTemplate(targetDir) {
   const agentsContent = readFileSync(path.join(targetDir, "AGENTS.md"), "utf8");
   const claudeContent = readFileSync(path.join(targetDir, "CLAUDE.md"), "utf8");
@@ -424,6 +501,32 @@ function assertInstalledInstructionTemplate(targetDir) {
     claudeContent,
     "@.make-docs/CLAUDE.md",
     "Smoke pack root CLAUDE.md still includes the dedicated instruction import.",
+  );
+}
+
+function assertInstalledReaderFacingAssets(targetDir) {
+  for (const relativePath of EXPECTED_READER_ASSET_PATHS) {
+    assertExists(
+      path.join(targetDir, relativePath),
+      `Smoke pack install did not produce ${relativePath}.`,
+    );
+  }
+
+  const assetsRouter = readFileSync(path.join(targetDir, "docs/assets/AGENTS.md"), "utf8");
+  assertOutputContains(
+    assetsRouter,
+    "docs/assets/guides/<persona-slug>/",
+    "Smoke pack assets router omitted the canonical guide asset namespace.",
+  );
+  assertOutputContains(
+    assetsRouter,
+    "docs/assets/playbooks/<persona-slug>/",
+    "Smoke pack assets router omitted the canonical playbook asset namespace.",
+  );
+  assertOutputContains(
+    assetsRouter,
+    "docs/archive/**",
+    "Smoke pack assets router omitted the archive namespace handoff.",
   );
 }
 

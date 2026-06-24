@@ -40,6 +40,17 @@ const GUIDE_TEMPLATE_PARITY_PATHS = [
   "docs/guides/CLAUDE.md",
 ];
 
+const READER_ASSET_ROUTER_PATHS = [
+  "docs/archive/AGENTS.md",
+  "docs/archive/CLAUDE.md",
+  "docs/assets/archive/AGENTS.md",
+  "docs/assets/archive/CLAUDE.md",
+  "docs/assets/guides/AGENTS.md",
+  "docs/assets/guides/CLAUDE.md",
+  "docs/assets/playbooks/AGENTS.md",
+  "docs/assets/playbooks/CLAUDE.md",
+];
+
 const PATH_HYGIENE_PARITY_PATHS = [
   ".make-docs/scripts/check_path_hygiene.py",
   "docs/AGENTS.md",
@@ -110,6 +121,16 @@ describe("default profile consistency", () => {
       expect(asset.assetClass).toBe("scoped-static");
       expect(asset.sourceId).toBe(`file:${asset.relativePath}`);
       expect(asset.content).toBe(readPackageFile(asset.relativePath));
+    }
+  });
+
+  test("default scaffold includes canonical reader-facing asset routers", () => {
+    const profile = resolveInstallProfile(defaultSelections());
+    const managedPaths = new Set(getDesiredAssets(profile).map((asset) => asset.relativePath));
+
+    for (const relativePath of READER_ASSET_ROUTER_PATHS) {
+      expect(managedPaths.has(relativePath), relativePath).toBe(true);
+      expect(readPackageFile(relativePath), relativePath).toContain("make-docs:begin");
     }
   });
 });
