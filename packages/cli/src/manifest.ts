@@ -16,12 +16,17 @@ import type {
 } from "./types";
 import { CAPABILITIES, HARNESSES, INSTRUCTION_KINDS } from "./types";
 import { parseManagedBlock } from "./managed-block";
+import {
+  TOOL_DIRECTORY_CONFLICTS_RELATIVE_DIR,
+  TOOL_DIRECTORY_MANIFEST_RELATIVE_PATH,
+  TOOL_DIRECTORY_RELATIVE_PATH,
+} from "./tool-directory";
 import { hashText, normalizeRelativePath, readTextFile, writeTextFile } from "./utils";
 
 export const MANIFEST_SCHEMA_VERSION = 1;
-export const MAKE_DOCS_STATE_RELATIVE_DIR = ".make-docs";
-export const MANIFEST_RELATIVE_PATH = `${MAKE_DOCS_STATE_RELATIVE_DIR}/manifest.json`;
-export const CONFLICTS_RELATIVE_DIR = `${MAKE_DOCS_STATE_RELATIVE_DIR}/conflicts`;
+export const MAKE_DOCS_STATE_RELATIVE_DIR = TOOL_DIRECTORY_RELATIVE_PATH;
+export const MANIFEST_RELATIVE_PATH = TOOL_DIRECTORY_MANIFEST_RELATIVE_PATH;
+export const CONFLICTS_RELATIVE_DIR = TOOL_DIRECTORY_CONFLICTS_RELATIVE_DIR;
 
 export function getManifestPath(targetDir: string): string {
   return path.join(targetDir, MANIFEST_RELATIVE_PATH);
