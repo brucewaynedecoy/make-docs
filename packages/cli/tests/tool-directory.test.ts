@@ -32,8 +32,6 @@ describe("tool directory model", () => {
       ".make-docs/references/custom",
       ".make-docs/templates/system",
       ".make-docs/templates/custom",
-      ".make-docs/prompts/system",
-      ".make-docs/prompts/custom",
       ".make-docs/scripts/system",
       ".make-docs/scripts/custom",
     ]);
@@ -59,7 +57,7 @@ describe("tool directory model", () => {
     expect(isToolDirectoryRuntimeStatePath(".make-docs/conflicts/run/file.md")).toBe(true);
     expect(isToolDirectoryRuntimeStatePath(".make-docs/runs/current/state.json")).toBe(true);
     expect(isToolDirectoryRuntimeStatePath(".make-docs/config.yaml")).toBe(false);
-    expect(isToolDirectoryRuntimeStatePath("docs/assets/templates/work-phase.md")).toBe(false);
+    expect(isToolDirectoryRuntimeStatePath(".make-docs/templates/system/work-phase.md")).toBe(false);
   });
 
   test("reserves agentics paths without treating them as resource tiers", () => {
@@ -98,7 +96,7 @@ describe("tool directory model", () => {
     expect(getLegacyToolResourceFamily("docs/assets/history/session.md")).toBeNull();
     expect(
       getLegacyToolResourceFamily(
-        ".make-docs/prompts/system/work-to-guides.prompt.md",
+        ".make-docs/references/system/prompts/work-to-guides.prompt.md",
       ),
     ).toBeNull();
 
@@ -106,12 +104,17 @@ describe("tool directory model", () => {
       getSystemToolResourceMigrationTarget(
         "docs/assets/prompts/work-to-guides.prompt.md",
       ),
-    ).toBe(".make-docs/prompts/system/work-to-guides.prompt.md");
+    ).toBe(".make-docs/references/system/prompts/work-to-guides.prompt.md");
     expect(
       getSystemToolResourceMigrationTarget(
         "docs/assets/references/lifecycle.md",
       ),
     ).toBe(".make-docs/references/system/lifecycle.md");
+    expect(
+      getSystemToolResourceMigrationTarget(
+        "docs/assets/references/guide-contract.md",
+      ),
+    ).toBe(".make-docs/contracts/system/guide-contract.md");
     expect(
       getSystemToolResourceMigrationTarget("docs/assets/templates/work-phase.md"),
     ).toBe(".make-docs/templates/system/work-phase.md");
@@ -132,7 +135,7 @@ describe("tool directory model", () => {
       {
         currentPath: "docs/assets/prompts/work-to-guides.prompt.md",
         family: "prompts",
-        targetPath: ".make-docs/prompts/system/work-to-guides.prompt.md",
+        targetPath: ".make-docs/references/system/prompts/work-to-guides.prompt.md",
         tier: "system",
       },
       {
@@ -179,7 +182,7 @@ describe("tool directory model", () => {
     );
     expect(
       isToolDirectoryLocalBootstrapPath(
-        ".make-docs/prompts/system/work-to-guides.prompt.md",
+        ".make-docs/references/system/prompts/work-to-guides.prompt.md",
       ),
     ).toBe(false);
   });

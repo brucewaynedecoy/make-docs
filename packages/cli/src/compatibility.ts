@@ -92,15 +92,17 @@ const CANONICAL_FALLBACK_PATHS = [
   "docs/AGENTS.md",
   "docs/CLAUDE.md",
   "docs/assets/AGENTS.md",
-  "docs/assets/references/lifecycle.md",
-  "docs/assets/references/guide-contract.md",
-  "docs/assets/templates/history-record.md",
+  "docs/assets/artifacts/AGENTS.md",
+  "docs/assets/archive/AGENTS.md",
+  "docs/assets/breadcrumbs/AGENTS.md",
+  ".make-docs/references/system/lifecycle.md",
+  ".make-docs/contracts/system/guide-contract.md",
+  ".make-docs/templates/system/history-record.md",
 ] as const;
 
 const OPTIONAL_LOCAL_BOOTSTRAP_PATHS = new Set([
   ".make-docs/config.yaml",
   ".make-docs/contracts/custom",
-  ".make-docs/prompts/custom",
   ".make-docs/references/custom",
   ".make-docs/scripts/custom",
   ".make-docs/templates/custom",
@@ -693,11 +695,11 @@ function looksCanonicalMakeDocsContent(relativePath: string, content: string): b
     return true;
   }
 
-  if (relativePath === "docs/assets/references/lifecycle.md") {
+  if (relativePath === ".make-docs/references/system/lifecycle.md") {
     return content.includes("# Lifecycle Anchor") && content.includes("## Lifecycle Arc");
   }
 
-  if (relativePath === "docs/assets/templates/history-record.md") {
+  if (relativePath === ".make-docs/templates/system/history-record.md") {
     return (
       content.includes("ONE_LINE_SUMMARY") &&
       content.includes("## Changes")

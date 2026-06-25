@@ -20,10 +20,10 @@ This phase handles source-of-truth order. Template-owned defaults must start in 
 
 ### Tasks
 
-- [ ] t1: Update `packages/docs/template/**` with the accepted `.make-docs/**` and `docs/assets/**` router/source layout.
-- [ ] t2: Add or update template router files for `docs/assets/archive/**`, `docs/assets/artifacts/**`, `docs/assets/breadcrumbs/**`, `docs/assets/guides/**`, and `docs/assets/playbooks/**`.
-- [ ] t3: Remove shipped-template assumptions that create or advertise top-level `docs/artifacts/**` or top-level `docs/archive/**`.
-- [ ] t4: Classify existing prompt-starter files into contracts, references, templates, or scripts according to PRD 21.
+- [x] t1: Update `packages/docs/template/**` with the accepted `.make-docs/**` and `docs/assets/**` router/source layout.
+- [x] t2: Add or update template router files for `docs/assets/archive/**`, `docs/assets/artifacts/**`, `docs/assets/breadcrumbs/**`, `docs/assets/guides/**`, and `docs/assets/playbooks/**`.
+- [x] t3: Remove shipped-template assumptions that create or advertise top-level `docs/artifacts/**` or top-level `docs/archive/**`.
+- [x] t4: Classify existing prompt-starter files into contracts, references, templates, or scripts according to PRD 21.
 
 ### Acceptance criteria
 
@@ -35,14 +35,21 @@ This phase handles source-of-truth order. Template-owned defaults must start in 
 
 - Phase 2 contract updates.
 
+### Implementation Evidence
+
+- `packages/docs/template/.make-docs/**` now owns system contracts, workflow references, prompt starters, templates, and helper scripts.
+- `packages/docs/template/docs/assets/{archive,artifacts,breadcrumbs,guides,playbooks}/**` now owns the shipped people-and-agent-managed asset routers.
+- The shipped template no longer contains `docs/archive/**`, `docs/artifacts/**`, `docs/assets/history/**`, or `docs/assets/{prompts,references,templates}/**`.
+- Prompt starters are classified under `.make-docs/references/system/prompts/**`; no shipped `.make-docs/prompts/**` family was introduced.
+
 ## Stage 2 - Package Copy and Dogfood Proof
 
 ### Tasks
 
-- [ ] t5: Regenerate or update `packages/cli/template/**` from the template source using the existing package-copy flow.
-- [ ] t6: Reseed the repo-root dogfood files that are selected template-owned surfaces.
-- [ ] t7: Use current top-level `docs/artifacts/**`, current `docs/assets/history/**`, and other mixed local material as migration-lab inputs, not template source.
-- [ ] t8: Update `.make-docs/manifest.json` only for managed template-owned assets selected by the implementation.
+- [x] t5: Regenerate or update `packages/cli/template/**` from the template source using the existing package-copy flow.
+- [x] t6: Reseed the repo-root dogfood files that are selected template-owned surfaces.
+- [x] t7: Use current top-level `docs/artifacts/**`, current `docs/assets/history/**`, and other mixed local material as migration-lab inputs, not template source.
+- [x] t8: Update `.make-docs/manifest.json` only for managed template-owned assets selected by the implementation.
 
 ### Acceptance criteria
 
@@ -53,3 +60,11 @@ This phase handles source-of-truth order. Template-owned defaults must start in 
 ### Dependencies
 
 - Stage 1 complete.
+
+### Validation Evidence
+
+- `npm run smoke:pack` copied `packages/docs/template/**` into the packed CLI template and passed the W9 R4 package/install/uninstall assertions.
+- Root dogfood now has `docs/assets/artifacts/**` for former top-level artifact material and `docs/assets/breadcrumbs/**` for new breadcrumb records.
+- Root dogfood preserves existing `docs/assets/history/**` as migration evidence rather than using it as the future closeout target.
+- A root dogfood sync updated `.make-docs/manifest.json`; the clean dry-run proof is recorded in Phase 4 closeout.
+- Phase 2 and Phase 3 were validated together because router contracts, template source, package copy, and dogfood manifest hashes must agree for a meaningful installed-state proof.

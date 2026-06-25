@@ -46,7 +46,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 | --- | --- | --- |
 | Confirming | Superseded by [11-revise-cli-asset-selection-simplification.md](./11-revise-cli-asset-selection-simplification.md), which makes prompt/template/reference controls invariant managed assets. | Verify whether the W14 asset-selection simplification fully removed or reworded the public mode surface. |
 
-**Issue**: The wizard exposed `templatesMode` and `referencesMode` choices in `packages/cli/src/wizard.ts:354-889`, but `packages/cli/src/rules.ts:130-194` ignored `templatesMode` and used `referencesMode` only to optionally add `docs/assets/references/harness-capability-matrix.md`.
+**Issue**: The wizard exposed `templatesMode` and `referencesMode` choices in `packages/cli/src/wizard.ts:354-889`, but `packages/cli/src/rules.ts:130-194` ignored `templatesMode` and used `referencesMode` only to optionally add `.make-docs/references/system/harness-capability-matrix.md`.
 
 **Why it matters**: The user-visible control surface was broader than the live implementation.
 
@@ -176,7 +176,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 | --- | --- | --- |
 | Open | Addressed by the W16 R0 lifecycle anchor and stage follow-on handoffs. | Land the anchor and handoffs, then re-evaluate. |
 
-**Issue**: Routers and contracts encode where artifacts live but not the order stages run. The design → plan → PRD → work → implement sequence is stated only in `docs/assets/prompts/` starters, which `docs/assets/prompts/AGENTS.md` marks as non-authoritative, so an agent can land on a plan and jump straight to implementing.
+**Issue**: Routers and contracts encode where artifacts live but not the order stages run. The design → plan → PRD → work → implement sequence is stated only in `.make-docs/references/system/prompts/` starters, which `.make-docs/references/system/prompts/AGENTS.md` marks as non-authoritative, so an agent can land on a plan and jump straight to implementing.
 
 **Why it matters**: Agents silently skip PRD and work-backlog generation, breaking the documentation-first pipeline make-docs exists to enforce.
 
@@ -406,9 +406,9 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Closed | Create only `docs/library/playbooks/` in W16; defer any `docs/guides/` move to the broader restructure. PRD 22 keeps the W16 decision historically valid while making `docs/library/playbooks/**` transitional and `docs/assets/playbooks/**` the v2 canonical target. | Track guide and playbook relocation in the broader restructure; do not retroactively treat W16 R0 as the final path model. |
+| Closed | Create only `docs/library/playbooks/` in W16; defer any `docs/assets/guides/` move to the broader restructure. PRD 22 keeps the W16 decision historically valid while making `docs/library/playbooks/**` transitional and `docs/assets/playbooks/**` the v2 canonical target. | Track guide and playbook relocation in the broader restructure; do not retroactively treat W16 R0 as the final path model. |
 
-**Question**: W16 authors a playbook under `docs/library/playbooks/`, but moving `docs/guides/` to `docs/library/guides/` is part of the broader restructure.
+**Question**: W16 authors a playbook under `docs/library/playbooks/`, but moving `docs/assets/guides/` to `docs/library/guides/` is part of the broader restructure.
 
 **Why it matters**: Creating the playbook home early without the guides move leaves a partial `docs/library/` layout.
 
@@ -592,7 +592,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Authored now at current paths; PRD 21 defines `.make-docs/**` as the future tool-resource namespace, and PRD 22 plus the W9 R4 pivot define concrete target mappings for managed project documentation assets: top-level `docs/artifacts/**` to `docs/assets/artifacts/**`, `docs/guides/**` to `docs/assets/guides/**`, `docs/library/playbooks/**` to `docs/assets/playbooks/**`, `docs/assets/archive/**` staying under `docs/assets/archive/**`, and future breadcrumbs targeting `docs/assets/breadcrumbs/**` instead of current `docs/assets/history/**`. W9 R3 P2 added interim reader-facing/archive routers and W9 R3 P4 proved their local install, prepack/package, manifest, backup, and uninstall preservation behavior through catalog/install assertions and `npm run smoke:pack`. PRD 23 metadata backfill must avoid broad opportunistic rewrites during relocation and only add metadata to planned template/package/touched-file surfaces. PRD 24 config backfill must preserve local `.make-docs/config.yaml` and avoid creating alternate path schemas during relocation. PRD 29 adds playbook `stack` metadata and Run Playbook path/persona validation to the migration surface. PRD 31 adds optional adversarial-review prompt, reference, playbook, plugin, CLI, MCP, and conformance assets only if a downstream plan selects those surfaces. | Execute W9 R4 migration mappings for the coverage contract, prompt-starter classification, artifact hard move, breadcrumb follow-on, metadata backfill, config template placement, playbook stack metadata, Run Playbook validation, and any selected adversarial-review surface without breaking links. |
+| Open | Authored now at current paths; PRD 21 defines `.make-docs/**` as the future tool-resource namespace, and PRD 22 plus the W9 R4 pivot define concrete target mappings for managed project documentation assets: top-level `docs/artifacts/**` to `docs/assets/artifacts/**`, `docs/assets/guides/**` to `docs/assets/guides/**`, `docs/library/playbooks/**` to `docs/assets/playbooks/**`, `docs/assets/archive/**` staying under `docs/assets/archive/**`, and future breadcrumbs targeting `docs/assets/breadcrumbs/**` instead of current `docs/assets/history/**`. W9 R3 P2 added interim reader-facing/archive routers and W9 R3 P4 proved their local install, prepack/package, manifest, backup, and uninstall preservation behavior through catalog/install assertions and `npm run smoke:pack`. PRD 23 metadata backfill must avoid broad opportunistic rewrites during relocation and only add metadata to planned template/package/touched-file surfaces. PRD 24 config backfill must preserve local `.make-docs/config.yaml` and avoid creating alternate path schemas during relocation. PRD 29 adds playbook `stack` metadata and Run Playbook path/persona validation to the migration surface. PRD 31 adds optional adversarial-review prompt, reference, playbook, plugin, CLI, MCP, and conformance assets only if a downstream plan selects those surfaces. | Execute W9 R4 migration mappings for the coverage contract, prompt-starter classification, artifact hard move, breadcrumb follow-on, metadata backfill, config template placement, playbook stack metadata, Run Playbook validation, and any selected adversarial-review surface without breaking links. |
 
 **Issue**: Assets authored in W16 and W9 (the coverage-pass contract, starter prompts, artifact seed material, history records, and library playbook) span tool-resource, managed project asset, and lifecycle-storage targets; treating all of them as a single current-path migration would blur the PRD 21 and PRD 22 namespace split. W9 R3 resolved the interim reader-facing router/package portion, and W9 R4 settles the target mapping, but relocation and validation remain follow-on work.
 
@@ -681,4 +681,4 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 - `packages/cli/src/audit.ts:41-940`
 - `scripts/copy-template-to-cli.mjs:24-32`
 - `scripts/smoke-pack.mjs:60-246`
-- `docs/assets/references/output-contract.md`
+- `.make-docs/contracts/system/output-contract.md`

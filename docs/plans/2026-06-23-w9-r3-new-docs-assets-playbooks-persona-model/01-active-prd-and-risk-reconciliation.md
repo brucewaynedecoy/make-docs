@@ -9,7 +9,7 @@ Define the active PRD edits required for the v2 reader-facing docs asset model b
 Create [../../prd/22-revise-new-docs-assets-playbooks-persona-model.md](../../prd/22-revise-new-docs-assets-playbooks-persona-model.md) because the design introduces new requirements across four axes:
 
 - `docs/assets/guides/**` and `docs/assets/playbooks/**` as the canonical reader-facing reusable documentation asset namespace.
-- `docs/archive/**` as lifecycle storage for archive content, while `docs/assets/archive/**` remains the current historical/transitional shape until migration.
+- `docs/assets/archive/**` as managed archive storage after W9 R4. Earlier W9 R3 wording that pointed future archive storage at top-level `docs/archive/**` is superseded.
 - The persona primitive and configured persona schema.
 - `persona` frontmatter as the machine-readable authority for persona-scoped guides and playbooks.
 
@@ -38,7 +38,7 @@ The reconciliation should update the following entries:
 - `Q-009`: close the persona schema decision by naming primitive values and configured persona fields.
 - `Q-014`: keep the W16 resolution but add that `docs/library/playbooks/**` is transitional and migrates to `docs/assets/playbooks/**`.
 - `R-003`: extend packed-template validation to guide/playbook/package-copy migration.
-- `R-004`: add `docs/assets/guides/**`, `docs/assets/playbooks/**`, and `docs/archive/**` to duplicated path surfaces.
+- `R-004`: add `docs/assets/guides/**`, `docs/assets/playbooks/**`, `docs/assets/archive/**`, `docs/assets/artifacts/**`, and `docs/assets/breadcrumbs/**` to duplicated path surfaces.
 - `R-007`: add reader-facing asset parity to dogfood drift proof.
 - `R-011`: narrow from undefined persona schema to implementation/configuration risk.
 - `R-012`: cite the content-vs-invocation boundary from PRD 22.

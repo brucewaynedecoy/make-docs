@@ -529,14 +529,21 @@ export function classifyReviewableManagedFileConflictPath(
     };
   }
 
-  if (relativePath.startsWith("docs/assets/references/")) {
+  if (
+    relativePath.startsWith(".make-docs/contracts/") ||
+    relativePath.startsWith(".make-docs/references/") ||
+    relativePath.startsWith("docs/assets/references/")
+  ) {
     return {
       group: "references",
       instructionKind: getInstructionKindForPath(relativePath) ?? undefined,
     };
   }
 
-  if (relativePath.startsWith("docs/assets/templates/")) {
+  if (
+    relativePath.startsWith(".make-docs/templates/") ||
+    relativePath.startsWith("docs/assets/templates/")
+  ) {
     return {
       group: "templates",
       instructionKind: getInstructionKindForPath(relativePath) ?? undefined,

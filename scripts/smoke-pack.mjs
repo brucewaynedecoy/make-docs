@@ -20,14 +20,28 @@ const packOutputDir = mkdtempSync(path.join(os.tmpdir(), "make-docs-pack-output-
 const EXPECTED_PACKAGE_NAME = "@brucewaynedecoy/make-docs";
 
 const EXPECTED_READER_ASSET_PATHS = [
-  "docs/archive/AGENTS.md",
-  "docs/archive/CLAUDE.md",
   "docs/assets/archive/AGENTS.md",
   "docs/assets/archive/CLAUDE.md",
+  "docs/assets/artifacts/AGENTS.md",
+  "docs/assets/artifacts/CLAUDE.md",
+  "docs/assets/breadcrumbs/AGENTS.md",
+  "docs/assets/breadcrumbs/CLAUDE.md",
   "docs/assets/guides/AGENTS.md",
   "docs/assets/guides/CLAUDE.md",
   "docs/assets/playbooks/AGENTS.md",
   "docs/assets/playbooks/CLAUDE.md",
+];
+
+const EXPECTED_SYSTEM_RESOURCE_PATHS = [
+  ".make-docs/AGENTS.md",
+  ".make-docs/CLAUDE.md",
+  ".make-docs/contracts/system/commit-message-convention.md",
+  ".make-docs/contracts/system/history-record-contract.md",
+  ".make-docs/references/system/lifecycle.md",
+  ".make-docs/references/system/prompts/request-to-design.prompt.md",
+  ".make-docs/scripts/check_path_hygiene.py",
+  ".make-docs/templates/system/work-index.md",
+  ".make-docs/templates/system/work-phase.md",
 ];
 
 const EXPECTED_SKILL_PATHS = [
@@ -167,7 +181,10 @@ try {
     );
     assertInstalledInstructionTemplate(targetDir);
     assertInstalledReaderFacingAssets(targetDir);
-    assertManifestContainsManagedFiles(manifestPath, EXPECTED_READER_ASSET_PATHS);
+    assertManifestContainsManagedFiles(manifestPath, [
+      ...EXPECTED_READER_ASSET_PATHS,
+      ...EXPECTED_SYSTEM_RESOURCE_PATHS,
+    ]);
 
     execFileSync(
       "node",
@@ -264,12 +281,14 @@ try {
     );
   }
 
-  const customFilePath = path.join(targetDir, "docs/assets/templates/custom-smoke.md");
+  const customFilePath = path.join(targetDir, ".make-docs/templates/custom-smoke.md");
+  mkdirSync(path.dirname(customFilePath), { recursive: true });
   writeFileSync(customFilePath, "preserve this unmanaged smoke fixture\n", "utf8");
   const customReaderAssetPaths = [
+    "docs/assets/artifacts/custom-source/preserve.md",
+    "docs/assets/breadcrumbs/custom-history.md",
     "docs/assets/guides/custom-persona/preserve.md",
     "docs/assets/playbooks/custom-persona/preserve.md",
-    "docs/archive/custom-history.md",
   ];
   for (const relativePath of customReaderAssetPaths) {
     const filePath = path.join(targetDir, relativePath);
@@ -394,14 +413,15 @@ function assertPackedInstructionTemplate(packageRoot) {
   const claudeRoot = path.join(packageRoot, "template/CLAUDE.md");
   const agentsContent = readFileSync(agentsRoot, "utf8");
   const claudeContent = readFileSync(claudeRoot, "utf8");
+  const makeDocsAgentsPath = path.join(packageRoot, "template/.make-docs/AGENTS.md");
+  const makeDocsClaudePath = path.join(packageRoot, "template/.make-docs/CLAUDE.md");
 
-  assertMissing(
-    path.join(packageRoot, "template/.make-docs/AGENTS.md"),
-    "Packed template still includes template/.make-docs/AGENTS.md.",
-  );
-  assertMissing(
-    path.join(packageRoot, "template/.make-docs/CLAUDE.md"),
-    "Packed template still includes template/.make-docs/CLAUDE.md.",
+  assertExists(makeDocsAgentsPath, "Packed template omitted template/.make-docs/AGENTS.md.");
+  assertExists(makeDocsClaudePath, "Packed template omitted template/.make-docs/CLAUDE.md.");
+  assertOutputContains(
+    readFileSync(makeDocsAgentsPath, "utf8"),
+    ".make-docs/contracts/system/",
+    "Packed .make-docs router omitted system contract routing.",
   );
   assertOutputContains(
     agentsContent,
@@ -415,7 +435,7 @@ function assertPackedInstructionTemplate(packageRoot) {
   );
   assertOutputContains(
     agentsContent,
-    "read `docs/assets/references/lifecycle.md`",
+    "read `.make-docs/references/system/lifecycle.md`",
     "Packed AGENTS.md template omitted the inline lifecycle routing.",
   );
   if (claudeContent !== agentsContent) {
@@ -457,22 +477,38 @@ function assertPackedReaderFacingTemplate(packageRoot) {
   );
   assertOutputContains(
     assetsRouter,
-    "docs/archive/**",
+    "docs/assets/archive/**",
     "Packed assets router omitted the archive namespace handoff.",
+  );
+  assertOutputContains(
+    assetsRouter,
+    "docs/assets/artifacts/**",
+    "Packed assets router omitted the artifact namespace handoff.",
+  );
+  assertOutputContains(
+    assetsRouter,
+    "docs/assets/breadcrumbs/**",
+    "Packed assets router omitted the breadcrumb namespace handoff.",
+  );
+  assertOutputExcludes(
+    assetsRouter,
+    "belong in `docs/archive/**`",
+    "Packed assets router still advertises top-level docs/archive as a target.",
   );
 }
 
 function assertInstalledInstructionTemplate(targetDir) {
   const agentsContent = readFileSync(path.join(targetDir, "AGENTS.md"), "utf8");
   const claudeContent = readFileSync(path.join(targetDir, "CLAUDE.md"), "utf8");
+  const makeDocsAgentsPath = path.join(targetDir, ".make-docs/AGENTS.md");
+  const makeDocsClaudePath = path.join(targetDir, ".make-docs/CLAUDE.md");
 
-  assertMissing(
-    path.join(targetDir, ".make-docs/AGENTS.md"),
-    "Smoke pack install produced stale .make-docs/AGENTS.md.",
-  );
-  assertMissing(
-    path.join(targetDir, ".make-docs/CLAUDE.md"),
-    "Smoke pack install produced stale .make-docs/CLAUDE.md.",
+  assertExists(makeDocsAgentsPath, "Smoke pack install omitted .make-docs/AGENTS.md.");
+  assertExists(makeDocsClaudePath, "Smoke pack install omitted .make-docs/CLAUDE.md.");
+  assertOutputContains(
+    readFileSync(makeDocsAgentsPath, "utf8"),
+    ".make-docs/contracts/system/",
+    "Smoke pack .make-docs router omitted system contract routing.",
   );
   assertOutputContains(
     agentsContent,
@@ -486,7 +522,7 @@ function assertInstalledInstructionTemplate(targetDir) {
   );
   assertOutputContains(
     agentsContent,
-    "read `docs/assets/references/lifecycle.md`",
+    "read `.make-docs/references/system/lifecycle.md`",
     "Smoke pack root AGENTS.md omitted the inline lifecycle routing.",
   );
   if (claudeContent !== agentsContent) {
@@ -525,8 +561,23 @@ function assertInstalledReaderFacingAssets(targetDir) {
   );
   assertOutputContains(
     assetsRouter,
-    "docs/archive/**",
+    "docs/assets/archive/**",
     "Smoke pack assets router omitted the archive namespace handoff.",
+  );
+  assertOutputContains(
+    assetsRouter,
+    "docs/assets/artifacts/**",
+    "Smoke pack assets router omitted the artifact namespace handoff.",
+  );
+  assertOutputContains(
+    assetsRouter,
+    "docs/assets/breadcrumbs/**",
+    "Smoke pack assets router omitted the breadcrumb namespace handoff.",
+  );
+  assertOutputExcludes(
+    assetsRouter,
+    "belong in `docs/archive/**`",
+    "Smoke pack assets router still advertises top-level docs/archive as a target.",
   );
 }
 

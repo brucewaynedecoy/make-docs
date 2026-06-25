@@ -80,7 +80,7 @@ addition and are limited to cross-link awareness.
 ## Contracts and Data
 
 - The coverage-pass contract (to be authored at
-  `docs/assets/references/coverage-pass-contract.md`) owns decision-frame
+  `.make-docs/contracts/system/coverage-pass-contract.md`) owns decision-frame
   mechanics only; it defers content to `guide-contract.md`,
   `prd-change-management.md`, `history-record-contract.md`, and
   `output-contract.md`.

@@ -57,11 +57,11 @@ docs/
 - `docs/assets/guides/**`: persona-scoped living guides.
 - `docs/assets/playbooks/**`: persona-scoped repeatable process documents.
 
-Existing `docs/assets/history/**` remains the current live closeout surface until a planned migration changes the contract. New design, PRD, plan, and work documents should describe `docs/assets/breadcrumbs/**` as the target. They should describe `docs/assets/history/**` only as current-state or migration evidence.
+Existing `docs/assets/history/**` remains historical migration evidence. New design, PRD, plan, work, and closeout breadcrumb records should describe `docs/assets/breadcrumbs/**` as the target. They should describe `docs/assets/history/**` only as pre-migration or preservation evidence.
 
 The current top-level `docs/artifacts/**` material is seed input. It should be moved to `docs/assets/artifacts/**` by a planned migration, not preserved as a product-level alias. After migration, future Make Docs templates and generated routers must point to `docs/assets/artifacts/**` when they need optional pre-design source material.
 
-Top-level `docs/archive/**` is rejected as a future shipped v2 target. Archive storage belongs under `docs/assets/archive/**`, so lifecycle references, output contracts, package templates, and migration rules should stop treating `docs/archive/**` as the planned archive destination.
+Top-level `docs/assets/archive/**` is rejected as a future shipped v2 target. Archive storage belongs under `docs/assets/archive/**`, so lifecycle references, output contracts, package templates, and migration rules should stop treating `docs/assets/archive/**` as the planned archive destination.
 
 The make-docs repo's active `docs/` tree is a dogfood and migration-lab surface. Migration logic should be tested against this repo's mixed state, including already-dogfooded files, historical references, and unmanaged local material. That evidence must not redefine the shipped template contract. The template source, package copy, and CLI install surfaces must continue to distinguish product-owned shipped defaults from this repo's local cleanup needs.
 
@@ -89,7 +89,7 @@ Rejected. The pivot changes future structure, migration semantics, and authority
 
 The next lifecycle step is PRD reconciliation against this design. PRD 21 and PRD 22 are the primary owners, with supporting updates in the active index, overview, architecture, risk register, template/generated-assets, CLI lifecycle, dogfood operations, packaging validation, materialization, source-of-truth, metadata handoffs, configuration overlay, playbook/run-playbook, harness bundle, and coverage/adversarial-review PRDs.
 
-The downstream plan should use W9 R4 because this design pivots the completed W9 R2 tool-directory work and W9 R3 docs-assets work. The downstream plan and work backlog must not ask implementers to decide whether `docs/artifacts/**` is a hard move, whether `docs/archive/**` remains a target, whether breadcrumbs live under `docs/assets/breadcrumbs/**`, or whether the local dogfood tree defines shipped structure. Those decisions are made here.
+The downstream plan should use W9 R4 because this design pivots the completed W9 R2 tool-directory work and W9 R3 docs-assets work. The downstream plan and work backlog must not ask implementers to decide whether `docs/assets/artifacts/**` is a hard move, whether `docs/assets/archive/**` remains a target, whether breadcrumbs live under `docs/assets/breadcrumbs/**`, or whether the local dogfood tree defines shipped structure. Those decisions are made here.
 
 Migration work must separate three classes of content:
 
@@ -107,7 +107,7 @@ Prior Design Docs: [Tool Directory System and Custom Resource Tiers](2026-06-19-
 
 Source Inputs: [evolution-direction-structure.md](../artifacts/evolution-direction-structure.md), [v2 Proposed Design and Roadmap](../artifacts/v2-proposed-design-and-roadmap.md)
 
-Reason: This design materially updates prior Batch 2 information-architecture intent by making `docs/artifacts/**` a hard move, rejecting top-level `docs/archive/**` as a shipped target, naming `docs/assets/breadcrumbs/**` as the future breadcrumb location, and defining the current make-docs `docs/` tree as dogfood and migration-lab evidence rather than shipped product contract.
+Reason: This design materially updates prior Batch 2 information-architecture intent by making `docs/assets/artifacts/**` a hard move, rejecting top-level `docs/archive/**` as a shipped target, naming `docs/assets/breadcrumbs/**` as the future breadcrumb location, and defining the current make-docs `docs/` tree as dogfood and migration-lab evidence rather than shipped product contract.
 
 ## Intended Follow-On
 

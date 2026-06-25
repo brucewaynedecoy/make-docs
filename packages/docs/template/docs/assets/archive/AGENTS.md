@@ -3,7 +3,7 @@
 
 This directory is the current consolidated archive for all artifact types and mirrors the structure of `docs/`. It is the authority for current archival rules; other routers and contracts defer here.
 
-W9 R3 defines `docs/archive/**` as the planned lifecycle archive surface. Keep existing `docs/assets/archive/**` links readable until an explicit archive migration phase moves or maps archived content.
+W9 R4 defines `docs/assets/archive/**` as the managed lifecycle archive surface. Keep archived content in place unless an explicit archive migration phase moves or maps it with lineage-preserving links.
 
 ## Sub-directory mapping
 
@@ -11,7 +11,7 @@ W9 R3 defines `docs/archive/**` as the planned lifecycle archive surface. Keep e
 - `docs/assets/archive/plans/` — archived plan directories (mirrors `docs/plans/`).
 - `docs/assets/archive/work/` — archived work directories (mirrors `docs/work/`).
 - `docs/assets/archive/prds/` — archived PRD sets grouped by date: `docs/assets/archive/prds/YYYY-MM-DD/`; use `-XX` increment suffix when the same date repeats.
-- `docs/assets/archive/history/` — archived history records (mirrors `docs/assets/history/`).
+- `docs/assets/archive/breadcrumbs/` — archived breadcrumb records (mirrors `docs/assets/breadcrumbs/`; pre-migration records may remain under `docs/assets/history/`).
 - `docs/assets/archive/guides/developer/` — archived developer guides.
 - `docs/assets/archive/guides/user/` — archived user guides.
 
@@ -21,5 +21,5 @@ Sub-directories are created only when an artifact is explicitly archived. Do not
 
 - HARD RULE: never move anything into `docs/assets/archive/` unless the user explicitly asks. Archiving can break relative links and obscure lineage.
 - Archived artifacts are referenced in place via relative links to `docs/assets/archive/...`; they are not moved back to their original location.
-- Do not move current archive records to `docs/archive/**` without a dedicated migration plan that preserves lineage links.
+- Do not move current archive records to `docs/assets/archive/**` without a dedicated migration plan that preserves lineage links.
 <!-- make-docs:end -->

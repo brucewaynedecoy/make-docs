@@ -112,8 +112,8 @@ The following living-register update is required after PRD 05 is current:
 - `docs/assets/archive/plans/2026-05-06-w14-r2-cli-conflict-resolution/00-overview.md`
 - `docs/assets/archive/plans/2026-05-06-w14-r2-cli-conflict-resolution/01-prd-change-and-baseline-annotations.md`
 - `docs/assets/archive/work/2026-05-06-w14-r2-cli-conflict-resolution/01-prd-change-and-baseline-annotations.md`
-- `docs/assets/references/prd-change-management.md`
-- `docs/assets/templates/prd-change-revision.md`
+- `.make-docs/references/system/prd-change-management.md`
+- `.make-docs/templates/system/prd-change-revision.md`
 - `docs/prd/07-cli-command-surface-and-lifecycle.md`
 - `docs/prd/11-revise-cli-asset-selection-simplification.md`
 - `docs/prd/05-installation-profile-and-manifest-lifecycle.md`

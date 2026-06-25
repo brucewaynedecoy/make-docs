@@ -16,35 +16,35 @@ const CLOSEOUT_COMMIT_PACKAGE_ROOT = path.join(
 const CLOSEOUT_PACKAGE_ROOT = path.join(REPO_ROOT, "packages", "skills", "closeout-phase");
 
 const RISK_REGISTER_TEMPLATE_PATHS = [
-  "docs/assets/templates/prd-risk-register.md",
-  "packages/docs/template/docs/assets/templates/prd-risk-register.md",
+  ".make-docs/templates/system/prd-risk-register.md",
+  "packages/docs/template/.make-docs/templates/system/prd-risk-register.md",
   "packages/skills/decompose-codebase/assets/templates/prd-risk-register.md",
 ];
 
 const DOGFOOD_TEMPLATE_PARITY_PATHS = [
-  "docs/assets/templates/prd-risk-register.md",
-  "docs/assets/references/output-contract.md",
-  "docs/assets/references/prd-change-management.md",
+  ".make-docs/templates/system/prd-risk-register.md",
+  ".make-docs/contracts/system/output-contract.md",
+  ".make-docs/references/system/prd-change-management.md",
 ];
 
 const GUIDE_TEMPLATE_PARITY_PATHS = [
-  "docs/assets/references/guide-contract.md",
-  "docs/assets/templates/guide-developer.md",
-  "docs/assets/templates/guide-user.md",
-  "docs/assets/prompts/work-to-guides.prompt.md",
+  ".make-docs/contracts/system/guide-contract.md",
+  ".make-docs/templates/system/guide-developer.md",
+  ".make-docs/templates/system/guide-user.md",
+  ".make-docs/references/system/prompts/work-to-guides.prompt.md",
   "docs/assets/guides/AGENTS.md",
   "docs/assets/guides/CLAUDE.md",
   "docs/assets/playbooks/AGENTS.md",
   "docs/assets/playbooks/CLAUDE.md",
-  "docs/guides/AGENTS.md",
-  "docs/guides/CLAUDE.md",
 ];
 
 const READER_ASSET_ROUTER_PATHS = [
-  "docs/archive/AGENTS.md",
-  "docs/archive/CLAUDE.md",
   "docs/assets/archive/AGENTS.md",
   "docs/assets/archive/CLAUDE.md",
+  "docs/assets/artifacts/AGENTS.md",
+  "docs/assets/artifacts/CLAUDE.md",
+  "docs/assets/breadcrumbs/AGENTS.md",
+  "docs/assets/breadcrumbs/CLAUDE.md",
   "docs/assets/guides/AGENTS.md",
   "docs/assets/guides/CLAUDE.md",
   "docs/assets/playbooks/AGENTS.md",
@@ -55,28 +55,28 @@ const PATH_HYGIENE_PARITY_PATHS = [
   ".make-docs/scripts/check_path_hygiene.py",
   "docs/AGENTS.md",
   "docs/CLAUDE.md",
-  "docs/archive/AGENTS.md",
-  "docs/archive/CLAUDE.md",
-  "docs/assets/prompts/docs-path-hygiene-cleanup.prompt.md",
-  "docs/assets/references/AGENTS.md",
-  "docs/assets/references/CLAUDE.md",
-  "docs/assets/references/design-contract.md",
-  "docs/assets/references/guide-contract.md",
-  "docs/assets/references/history-record-contract.md",
-  "docs/assets/references/output-contract.md",
-  "docs/assets/references/path-and-link-hygiene.md",
+  "docs/assets/archive/AGENTS.md",
+  "docs/assets/archive/CLAUDE.md",
+  ".make-docs/references/system/prompts/docs-path-hygiene-cleanup.prompt.md",
+  ".make-docs/references/system/AGENTS.md",
+  ".make-docs/references/system/CLAUDE.md",
+  ".make-docs/contracts/system/design-contract.md",
+  ".make-docs/contracts/system/guide-contract.md",
+  ".make-docs/contracts/system/history-record-contract.md",
+  ".make-docs/contracts/system/output-contract.md",
+  ".make-docs/references/system/path-and-link-hygiene.md",
 ];
 
 const WORK_PHASE_TEMPLATE_PATHS = [
-  "docs/assets/templates/work-phase.md",
-  "packages/docs/template/docs/assets/templates/work-phase.md",
+  ".make-docs/templates/system/work-phase.md",
+  "packages/docs/template/.make-docs/templates/system/work-phase.md",
   "packages/skills/decompose-codebase/assets/templates/rebuild-backlog-phase.md",
 ];
 
 const COMMIT_MESSAGE_CONVENTION_PATHS = [
-  "docs/assets/references/commit-message-convention.md",
-  "packages/docs/template/docs/assets/references/commit-message-convention.md",
-  "packages/cli/template/docs/assets/references/commit-message-convention.md",
+  ".make-docs/contracts/system/commit-message-convention.md",
+  "packages/docs/template/.make-docs/contracts/system/commit-message-convention.md",
+  "packages/cli/template/.make-docs/contracts/system/commit-message-convention.md",
 ];
 
 function sectionBetween(contents: string, startHeading: string, endHeading: string): string {
@@ -188,7 +188,7 @@ describe("commit message convention contract", () => {
 
   test("requires full fenced subject and body output", () => {
     const contents = readFileSync(
-      path.join(REPO_ROOT, "docs/assets/references/commit-message-convention.md"),
+      path.join(REPO_ROOT, ".make-docs/contracts/system/commit-message-convention.md"),
       "utf8",
     );
 
@@ -219,10 +219,10 @@ describe("work backlog task contract", () => {
 
   test("work backlog references document task IDs and plain acceptance criteria", () => {
     for (const relativePath of [
-      "docs/assets/references/output-contract.md",
-      "docs/assets/references/execution-workflow.md",
-      "packages/docs/template/docs/assets/references/output-contract.md",
-      "packages/docs/template/docs/assets/references/execution-workflow.md",
+      ".make-docs/contracts/system/output-contract.md",
+      ".make-docs/references/system/execution-workflow.md",
+      "packages/docs/template/.make-docs/contracts/system/output-contract.md",
+      "packages/docs/template/.make-docs/references/system/execution-workflow.md",
       "packages/skills/decompose-codebase/references/output-contract.md",
       "packages/skills/decompose-codebase/references/execution-workflow.md",
     ]) {
@@ -271,8 +271,8 @@ describe("risk register routing contract", () => {
 
   test("risk-register references disallow change notes inside the register", () => {
     for (const relativePath of [
-      "docs/assets/references/prd-change-management.md",
-      "packages/docs/template/docs/assets/references/prd-change-management.md",
+      ".make-docs/references/system/prd-change-management.md",
+      "packages/docs/template/.make-docs/references/system/prd-change-management.md",
     ]) {
       const contents = readFileSync(path.join(REPO_ROOT, relativePath), "utf8");
 
@@ -359,10 +359,10 @@ describe("risk register routing contract", () => {
 describe("guide generation routing contract", () => {
   test("guide routers require audience decisions and future coverage notes", () => {
     for (const relativePath of [
-      "docs/guides/AGENTS.md",
-      "docs/guides/CLAUDE.md",
-      "packages/docs/template/docs/guides/AGENTS.md",
-      "packages/docs/template/docs/guides/CLAUDE.md",
+      "docs/assets/guides/AGENTS.md",
+      "docs/assets/guides/CLAUDE.md",
+      "packages/docs/template/docs/assets/guides/AGENTS.md",
+      "packages/docs/template/docs/assets/guides/CLAUDE.md",
     ]) {
       const contents = readFileSync(path.join(REPO_ROOT, relativePath), "utf8");
 
@@ -376,8 +376,8 @@ describe("guide generation routing contract", () => {
 
   test("guide contract defines audience intent and future coverage handling", () => {
     for (const relativePath of [
-      "docs/assets/references/guide-contract.md",
-      "packages/docs/template/docs/assets/references/guide-contract.md",
+      ".make-docs/contracts/system/guide-contract.md",
+      "packages/docs/template/.make-docs/contracts/system/guide-contract.md",
     ]) {
       const contents = readFileSync(path.join(REPO_ROOT, relativePath), "utf8");
 
@@ -401,7 +401,7 @@ describe("guide generation routing contract", () => {
 
       expect(contents).toContain("docs/assets/guides/<persona-slug>/");
       expect(contents).toContain("persona");
-      expect(contents).toContain("docs/guides/**");
+      expect(contents).toContain("docs/assets/guides/**");
     }
 
     for (const relativePath of [
@@ -461,12 +461,12 @@ describe("path hygiene contract", () => {
     for (const relativePath of [
       "docs/AGENTS.md",
       "docs/CLAUDE.md",
-      "docs/assets/references/AGENTS.md",
-      "docs/assets/references/CLAUDE.md",
-      "docs/assets/references/design-contract.md",
-      "docs/assets/references/guide-contract.md",
-      "docs/assets/references/history-record-contract.md",
-      "docs/assets/references/output-contract.md",
+      ".make-docs/references/system/AGENTS.md",
+      ".make-docs/references/system/CLAUDE.md",
+      ".make-docs/contracts/system/design-contract.md",
+      ".make-docs/contracts/system/guide-contract.md",
+      ".make-docs/contracts/system/history-record-contract.md",
+      ".make-docs/contracts/system/output-contract.md",
     ]) {
       const contents = readFileSync(path.join(REPO_ROOT, relativePath), "utf8");
 
@@ -476,8 +476,8 @@ describe("path hygiene contract", () => {
 
   test("path hygiene separates reader assets from tool resources and runtime state", () => {
     for (const relativePath of [
-      "docs/assets/references/path-and-link-hygiene.md",
-      "packages/docs/template/docs/assets/references/path-and-link-hygiene.md",
+      ".make-docs/references/system/path-and-link-hygiene.md",
+      "packages/docs/template/.make-docs/references/system/path-and-link-hygiene.md",
     ]) {
       const contents = readFileSync(path.join(REPO_ROOT, relativePath), "utf8");
 
@@ -485,14 +485,14 @@ describe("path hygiene contract", () => {
       expect(contents).toContain("docs/assets/guides/**");
       expect(contents).toContain("docs/assets/playbooks/**");
       expect(contents).toContain(".make-docs/manifest.json");
-      expect(contents).toContain("docs/archive/**");
+      expect(contents).toContain("docs/assets/archive/**");
     }
   });
 
   test("coverage-pass contract keeps verdict and persona-target axes separate", () => {
     for (const relativePath of [
-      "docs/assets/references/coverage-pass-contract.md",
-      "packages/docs/template/docs/assets/references/coverage-pass-contract.md",
+      ".make-docs/contracts/system/coverage-pass-contract.md",
+      "packages/docs/template/.make-docs/contracts/system/coverage-pass-contract.md",
     ]) {
       const contents = readFileSync(path.join(REPO_ROOT, relativePath), "utf8");
 

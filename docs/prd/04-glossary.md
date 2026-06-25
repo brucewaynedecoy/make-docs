@@ -8,7 +8,7 @@ This glossary defines the typed and operational vocabulary used across the activ
 
 | Term | Meaning | Key anchors |
 | --- | --- | --- |
-| Active PRD set | The current live PRD namespace rooted at `docs/prd/`, with a fixed core of `00` through `04` plus adaptive subsystem/reference docs `05+` as required by `docs/assets/references/output-contract.md`. | `docs/assets/references/output-contract.md`, `README.md:8068-8609` |
+| Active PRD set | The current live PRD namespace rooted at `docs/prd/`, with a fixed core of `00` through `04` plus adaptive subsystem/reference docs `05+` as required by `.make-docs/contracts/system/output-contract.md`. | `.make-docs/contracts/system/output-contract.md`, `README.md:8068-8609` |
 | Capability | One of `designs`, `plans`, `prd`, or `work`. Capabilities are the top-level docs families the installer can enable or disable. | `packages/cli/src/types.ts:1-3` |
 | Effective capability | The runtime-enabled form of a capability after prerequisite enforcement. A capability can remain selected but ineffective when its dependencies are disabled. | `packages/cli/src/profile.ts:10-15`, `packages/cli/src/profile.ts:42-65` |
 | Harness | One of `claude-code` or `codex`. Harness selection controls which root instruction file is active and which skill install roots are used. | `packages/cli/src/types.ts:9-18`, `packages/cli/src/skill-catalog.ts:18-46` |
@@ -33,7 +33,7 @@ This glossary defines the typed and operational vocabulary used across the activ
 
 ## Source Anchors
 
-- `docs/assets/references/output-contract.md`
+- `.make-docs/contracts/system/output-contract.md`
 - `README.md:313-3056`
 - `packages/cli/src/types.ts:1-271`
 - `packages/cli/src/profile.ts:10-99`

@@ -160,7 +160,7 @@ Manifest, catalog, audit, backup, uninstall, installer, CLI, MCP, and plugin beh
 - [30 Revise Harness Plugin Substrate Workflow Bundles](30-revise-harness-plugin-substrate-workflow-bundles.md)
 - [31 Revise Coverage Pass Extensions Adversarial Review](31-revise-coverage-pass-extensions-adversarial-review.md)
 - `docs/library/playbooks/agent/make-docs-lifecycle.md`
-- `docs/assets/references/coverage-pass-contract.md`
+- `.make-docs/contracts/system/coverage-pass-contract.md`
 - `packages/cli/src/rules.ts`
 - `packages/cli/src/catalog.ts`
 - `packages/cli/src/manifest.ts`

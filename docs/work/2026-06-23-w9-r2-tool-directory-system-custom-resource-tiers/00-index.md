@@ -4,6 +4,10 @@
 
 Sequence implementation work for PRD 21 and the W9 R2 plan.
 
+## W9 R4 Supersession Note
+
+W9 R2 is completed historical implementation evidence. Before using this backlog for follow-on work, apply [W9 R4 v2 Documentation Asset IA Hard Move](../2026-06-25-w9-r4-v2-documentation-asset-ia-hard-move/00-index.md) as the blocking pivot. W9 R4 supersedes older future-facing path assumptions for top-level `docs/artifacts/**`, top-level `docs/archive/**`, future `docs/assets/history/**` writes, and `.make-docs/prompts/**`; do not reintroduce those as shipped v2 targets.
+
 ## Source PRD Docs
 
 - `docs/prd/21-revise-tool-directory-system-custom-resource-tiers.md`

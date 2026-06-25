@@ -41,8 +41,8 @@ This phase verifies the full pivot across docs, templates, package copies, CLI p
 
 - [ ] t6: Update the risk register entry for R-013 with implementation evidence and remaining follow-up, if any.
 - [ ] t7: Reconcile PRD 21 and PRD 22 source anchors or acceptance evidence if implementation differs from the planned path.
-- [ ] t8: Create or update the W9 R4 closeout history record at the current live `docs/assets/history/**` path.
-- [ ] t9: Record that `docs/assets/breadcrumbs/**` is the future breadcrumb target while the current closeout still uses `docs/assets/history/**`.
+- [ ] t8: Create or update the W9 R4 closeout breadcrumb record under `docs/assets/breadcrumbs/**`.
+- [ ] t9: Record that existing `docs/assets/history/**` records are preserved migration evidence and that new closeout breadcrumb records use `docs/assets/breadcrumbs/**`.
 - [ ] t10: Decide whether manual/UAT is worthwhile for the completed W9 R4 implementation and document the decision.
 
 ### Acceptance criteria

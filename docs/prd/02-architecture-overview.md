@@ -41,7 +41,7 @@ The fourth boundary is canonical managed content versus local user modifications
 - Enhanced by [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md) for system asset materialization modes. The architecture now distinguishes full-snapshot, provider-backed, and hybrid pinned-cache assets while preserving a non-provider-backed local bootstrap and keeping provider/cache state out of `docs/assets/`.
 - Enhanced by [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) for existing-install classification. Runtime mutation paths must classify manifest and fallback state before writing, and TypeScript/Rust implementations must preserve the same source-state and disposition taxonomy.
 - Enhanced by [21-revise-tool-directory-system-custom-resource-tiers.md](./21-revise-tool-directory-system-custom-resource-tiers.md) for the `.make-docs/` tool directory model. Runtime state, system/custom tool resources, local bootstrap, provider/cache provenance, and future agentics surfaces are distinct from reader-facing `docs/assets/**`.
-- Enhanced by [22-revise-new-docs-assets-playbooks-persona-model.md](./22-revise-new-docs-assets-playbooks-persona-model.md) for the managed project documentation asset namespace. `docs/assets/archive/**`, `docs/assets/artifacts/**`, `docs/assets/breadcrumbs/**`, `docs/assets/guides/**`, and `docs/assets/playbooks/**` become the future asset surfaces, top-level `docs/archive/**` and `docs/artifacts/**` are hard moves rather than shipped aliases, and `persona` frontmatter is authoritative for persona-scoped guide/playbook docs.
+- Enhanced by [22-revise-new-docs-assets-playbooks-persona-model.md](./22-revise-new-docs-assets-playbooks-persona-model.md) for the managed project documentation asset namespace. `docs/assets/archive/**`, `docs/assets/artifacts/**`, `docs/assets/breadcrumbs/**`, `docs/assets/guides/**`, and `docs/assets/playbooks/**` become the future asset surfaces; top-level `docs/artifacts/**` is a hard move to `docs/assets/artifacts/**`; top-level `docs/archive/**` is not a shipped v2 target; and `persona` frontmatter is authoritative for persona-scoped guide/playbook docs.
 - Enhanced by [23-revise-generated-metadata-lifecycle-handoffs.md](./23-revise-generated-metadata-lifecycle-handoffs.md) for generated document metadata. YAML frontmatter becomes the canonical metadata layer for generated docs, required body handoffs remain the human-readable rendering, and validators should report YAML/body drift without turning advisory follow-ons into gates.
 - Enhanced by [24-revise-configuration-convention-overlay.md](./24-revise-configuration-convention-overlay.md) for project-owned configuration. Optional `.make-docs/config.yaml` is a presentation overlay for labels, personas, and generated prose, not routing authority for paths, metadata fields, route identifiers, or coordinate lineage.
 
@@ -61,7 +61,7 @@ The persisted configuration surface is `.make-docs/manifest.json`. `packages/cli
 
 PRD 24 adds optional `.make-docs/config.yaml` as project-owned convention configuration once implemented. That file is separate from manifest/runtime state and may influence rendering only; canonical path selection, metadata validation, package copy, provider/cache behavior, and agentic routing still use canonical identifiers.
 
-The contract-and-template configuration surface lives in the shipped assets. `packages/docs/template/docs/assets/references/output-contract.md`, `packages/docs/template/docs/assets/references/execution-workflow.md`, `packages/docs/template/docs/assets/references/planning-workflow.md`, and the `packages/docs/template/docs/assets/templates/*.md` files define the structure of generated outputs, while `packages/cli/src/rules.ts:55-182` controls which subset of those assets installs for a given profile.
+The contract-and-template configuration surface lives in the shipped assets. `packages/docs/template/.make-docs/contracts/system/output-contract.md`, `packages/docs/template/.make-docs/references/system/execution-workflow.md`, `packages/docs/template/.make-docs/references/system/planning-workflow.md`, and the `packages/docs/template/.make-docs/templates/system/*.md` files define the structure of generated outputs, while `packages/cli/src/rules.ts:55-182` controls which subset of those assets installs for a given profile.
 
 The skill configuration surface is split between packaged metadata and remote content sources. `packages/cli/skill-registry.json:3-112` defines which skills exist, how they are installed, and which extra assets ship with them; `packages/cli/src/skill-registry.ts:25-114` validates that metadata; and `packages/cli/src/skill-resolver.ts:118-244` normalizes and fetches the remote payloads.
 
@@ -93,9 +93,9 @@ The packaging and validation configuration surface is defined by workspace metad
 - `packages/cli/src/audit.ts`
 - `packages/cli/tests/consistency.test.ts`
 - `packages/docs/README.md`
-- `packages/docs/template/docs/assets/references/output-contract.md`
-- `packages/docs/template/docs/assets/templates/prd-overview.md`
-- `packages/docs/template/docs/assets/templates/prd-architecture.md`
+- `packages/docs/template/.make-docs/contracts/system/output-contract.md`
+- `packages/docs/template/.make-docs/templates/system/prd-overview.md`
+- `packages/docs/template/.make-docs/templates/system/prd-architecture.md`
 - `packages/cli/skill-registry.json`
 - `scripts/copy-template-to-cli.mjs`
 - `scripts/check-instruction-routers.sh`

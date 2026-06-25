@@ -6,6 +6,10 @@ Convert [New Docs Assets, Playbooks, and Persona Model](../../designs/2026-06-19
 
 This plan establishes `docs/assets/{guides,playbooks}/` as the future reader-facing reusable documentation asset surface, keeps make-docs tool resources out of that surface, moves archive intent toward lifecycle storage, and defines the canonical persona schema and `persona` frontmatter contract needed by coverage, generated metadata, and configuration work.
 
+## W9 R4 Supersession Note
+
+W9 R3 has already been implemented under the pre-pivot archive/history model. Before extending any W9 R3 output, apply [W9 R4 v2 Documentation Asset IA Hard Move](../2026-06-25-w9-r4-v2-documentation-asset-ia-hard-move/00-overview.md) as the blocking pivot. W9 R4 changes the archive target from the W9 R3 top-level `docs/archive/**` direction to `docs/assets/archive/**`, changes future history writes to `docs/assets/breadcrumbs/**`, hard-moves top-level `docs/artifacts/**` to `docs/assets/artifacts/**`, and keeps tool resources under `.make-docs/**`.
+
 ## Coordinate Decision
 
 Coordinate: `W9 R3`
@@ -51,7 +55,7 @@ The implementation backlog must preserve the template-first flow from PRD 19 and
 - `npm run smoke:pack`
 - Markdown link checks for migrated guide, playbook, and archive references.
 - Template/dogfood/package parity checks for shipped reader-facing assets.
-- Router and path-hygiene checks for `docs/assets/guides/**`, `docs/assets/playbooks/**`, `docs/archive/**`, and remaining `.make-docs/**` tool-resource paths.
+- Router and path-hygiene checks for `docs/assets/guides/**`, `docs/assets/playbooks/**`, `docs/assets/archive/**`, `docs/assets/breadcrumbs/**`, `docs/assets/artifacts/**`, and remaining `.make-docs/**` tool-resource paths.
 - Persona fixture checks for default and custom personas, including frontmatter/path drift.
 
 ## Phase Map

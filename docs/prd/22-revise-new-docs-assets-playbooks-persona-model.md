@@ -17,7 +17,7 @@ Define the v2 managed project documentation asset model for archive, artifact, b
 
 This PRD extends PRD 21's `.make-docs/**` tool-resource boundary by assigning `docs/assets/**` to managed project documentation assets. It revises older guide, playbook, archive, artifact, breadcrumb, and docs-assets assumptions without changing source files in this planning round.
 
-W9 R4 narrows that sentence: `docs/assets/**` now owns managed project documentation assets, not only reader-facing assets. Its v2 asset families are `archive`, `artifacts`, `breadcrumbs`, `guides`, and `playbooks`. Top-level `docs/artifacts/**` and top-level `docs/archive/**` are hard moves, not shipped alias surfaces.
+W9 R4 narrows that sentence: `docs/assets/**` now owns managed project documentation assets, not only reader-facing assets. Its v2 asset families are `archive`, `artifacts`, `breadcrumbs`, `guides`, and `playbooks`. Top-level `docs/artifacts/**` is a hard move to `docs/assets/artifacts/**`; top-level `docs/archive/**` is not a shipped v2 target.
 
 [23-revise-generated-metadata-lifecycle-handoffs.md](23-revise-generated-metadata-lifecycle-handoffs.md) builds on this PRD by using `persona` as the canonical frontmatter field for generated persona-scoped guides and playbooks. PRD 23 does not rename or reopen the persona schema defined here.
 
@@ -63,10 +63,10 @@ Future implementation must migrate or classify these surfaces deliberately:
 | Current surface | Target surface | Requirement |
 | --- | --- | --- |
 | `docs/artifacts/**` | `docs/assets/artifacts/**` | Hard move; do not preserve top-level `docs/artifacts/**` as a shipped alias. |
-| `docs/guides/**` | `docs/assets/guides/**` | Preserve guide intent, router behavior, and persona targeting. |
+| `docs/assets/guides/**` | `docs/assets/guides/**` | Preserve guide intent, router behavior, and persona targeting. |
 | `docs/library/playbooks/**` | `docs/assets/playbooks/**` | Treat W16 placement as transitional and preserve lineage. |
-| `docs/assets/archive/**` | `docs/assets/archive/**` | Keep archive under `docs/assets/**`; do not move archive storage to top-level `docs/archive/**`. |
-| `docs/assets/history/**` | `docs/assets/breadcrumbs/**` | Use `history` as current-state evidence until migration; future breadcrumbs target `breadcrumbs`. |
+| `docs/archive/**` | `docs/assets/archive/**` | Do not ship top-level archive storage; use the managed archive surface under `docs/assets/archive/**`. Existing `docs/assets/archive/**` content remains the current archive namespace. |
+| `docs/assets/history/**` | `docs/assets/breadcrumbs/**` | Existing history records are migration evidence; new breadcrumb records target `docs/assets/breadcrumbs/**`. |
 | `docs/assets/{prompts,references,templates}/**` | `.make-docs/{contracts,references,templates,scripts}/system/**` or a later equivalent | Governed by PRD 21 tool-resource requirements, not by this project-asset model. |
 
 ### Persona Schema

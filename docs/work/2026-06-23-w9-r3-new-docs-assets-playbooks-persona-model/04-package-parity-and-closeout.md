@@ -36,9 +36,9 @@ Prove that the reader-facing asset migration works in local dev, dogfood, and pa
 
 ## Implementation Notes
 
-- Phase 2 already updated `packages/cli/src/catalog.ts` to manage the new `docs/assets/guides/**`, `docs/assets/playbooks/**`, and `docs/archive/**` router files. No `rules.ts` path-list change was needed because the new reader-facing assets are instruction routers, not prompt/template/reference rule entries.
+- Phase 2 updated `packages/cli/src/catalog.ts` to manage the pre-pivot `docs/assets/guides/**`, `docs/assets/playbooks/**`, and `docs/archive/**` router files. W9 R4 later superseded the top-level `docs/archive/**` target with `docs/assets/archive/**`. No `rules.ts` path-list change was needed because the new reader-facing assets are instruction routers, not prompt/template/reference rule entries.
 - Added consistency coverage that verifies the default scaffold includes the canonical reader-facing router assets and reads them from the local template source.
-- Added install coverage that verifies `docs/assets/guides/AGENTS.md`, `docs/assets/playbooks/AGENTS.md`, and `docs/archive/AGENTS.md` are manifest-tracked with `file:` source IDs.
+- Added install coverage that verified `docs/assets/guides/AGENTS.md`, `docs/assets/playbooks/AGENTS.md`, and the pre-pivot `docs/archive/AGENTS.md` router were manifest-tracked with `file:` source IDs. W9 R4 replaces that archive assertion with `docs/assets/archive/AGENTS.md`.
 - Extended `scripts/smoke-pack.mjs` so prepack/package smoke testing fails when the packed template omits the reader-facing routers, when installed assets do not include them, or when uninstall removes unmanaged custom guide/playbook/archive files.
 - Ran `node scripts/copy-template-to-cli.mjs`; `packages/cli/template/**` is ignored/generated, and `npm run smoke:pack` re-ran prepack before packing the tarball.
 - Updated `R-011` and `R-013` with W9 R3 Phase 4 evidence. `R-011` remains open for PRD 24 configuration-overlay integration. `R-013` remains open for broader restructure relocation, but the PRD 22 reader-facing router package flow is now proven.

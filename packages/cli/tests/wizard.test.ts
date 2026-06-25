@@ -494,9 +494,9 @@ describe("selection wizard", () => {
 
 describe("promptForManagedFileConflictResolutions", () => {
   const conflicts = [
-    managedFileConflict("docs/assets/templates/guide.md", "templates"),
+    managedFileConflict(".make-docs/templates/system/guide.md", "templates"),
     managedFileConflict("AGENTS.md", "agent-instructions"),
-    managedFileConflict("docs/assets/references/style.md", "references"),
+    managedFileConflict(".make-docs/references/system/style.md", "references"),
   ];
 
   test("returns an empty resolution map when there are no conflicts", async () => {
@@ -513,8 +513,8 @@ describe("promptForManagedFileConflictResolutions", () => {
 
     expect(result).toEqual({
       "AGENTS.md": "overwrite",
-      "docs/assets/references/style.md": "overwrite",
-      "docs/assets/templates/guide.md": "overwrite",
+      ".make-docs/references/system/style.md": "overwrite",
+      ".make-docs/templates/system/guide.md": "overwrite",
     });
   });
 
@@ -525,8 +525,8 @@ describe("promptForManagedFileConflictResolutions", () => {
 
     expect(result).toEqual({
       "AGENTS.md": "skip",
-      "docs/assets/references/style.md": "skip",
-      "docs/assets/templates/guide.md": "skip",
+      ".make-docs/references/system/style.md": "skip",
+      ".make-docs/templates/system/guide.md": "skip",
     });
   });
 
@@ -540,11 +540,11 @@ describe("promptForManagedFileConflictResolutions", () => {
       .mockResolvedValueOnce("skip");
 
     const result = await promptForManagedFileConflictResolutions([
-      managedFileConflict("docs/assets/templates/zeta.md", "templates"),
-      managedFileConflict("docs/assets/references/bravo.md", "references"),
-      managedFileConflict("docs/assets/templates/alpha.md", "templates"),
+      managedFileConflict(".make-docs/templates/system/zeta.md", "templates"),
+      managedFileConflict(".make-docs/references/system/bravo.md", "references"),
+      managedFileConflict(".make-docs/templates/system/alpha.md", "templates"),
       managedFileConflict("AGENTS.md", "agent-instructions"),
-      managedFileConflict("docs/assets/references/alpha.md", "references"),
+      managedFileConflict(".make-docs/references/system/alpha.md", "references"),
     ]);
 
     expect(
@@ -552,17 +552,17 @@ describe("promptForManagedFileConflictResolutions", () => {
     ).toEqual([
       "How should make-docs handle these existing files?",
       "How should make-docs handle AGENTS.md?",
-      "How should make-docs handle docs/assets/references/alpha.md?",
-      "How should make-docs handle docs/assets/references/bravo.md?",
-      "How should make-docs handle docs/assets/templates/alpha.md?",
-      "How should make-docs handle docs/assets/templates/zeta.md?",
+      "How should make-docs handle .make-docs/references/system/alpha.md?",
+      "How should make-docs handle .make-docs/references/system/bravo.md?",
+      "How should make-docs handle .make-docs/templates/system/alpha.md?",
+      "How should make-docs handle .make-docs/templates/system/zeta.md?",
     ]);
     expect(result).toEqual({
       "AGENTS.md": "overwrite",
-      "docs/assets/references/alpha.md": "skip",
-      "docs/assets/references/bravo.md": "overwrite",
-      "docs/assets/templates/alpha.md": "skip",
-      "docs/assets/templates/zeta.md": "skip",
+      ".make-docs/references/system/alpha.md": "skip",
+      ".make-docs/references/system/bravo.md": "overwrite",
+      ".make-docs/templates/system/alpha.md": "skip",
+      ".make-docs/templates/system/zeta.md": "skip",
     });
   });
 
@@ -576,11 +576,11 @@ describe("promptForManagedFileConflictResolutions", () => {
       .mockResolvedValueOnce("skip");
 
     await promptForManagedFileConflictResolutions([
-      managedFileConflict("docs/assets/templates/zeta.md", "templates"),
-      managedFileConflict("docs/assets/references/bravo.md", "references"),
-      managedFileConflict("docs/assets/templates/alpha.md", "templates"),
+      managedFileConflict(".make-docs/templates/system/zeta.md", "templates"),
+      managedFileConflict(".make-docs/references/system/bravo.md", "references"),
+      managedFileConflict(".make-docs/templates/system/alpha.md", "templates"),
       managedFileConflict("AGENTS.md", "agent-instructions"),
-      managedFileConflict("docs/assets/references/alpha.md", "references"),
+      managedFileConflict(".make-docs/references/system/alpha.md", "references"),
     ]);
 
     const [summaryMessage, summaryTitle] = clackMocks.note.mock.calls[0] ?? [];
@@ -619,25 +619,25 @@ describe("promptForManagedFileConflictResolutions", () => {
       ].join("\n"),
       [
         "Group: References",
-        "Path: docs/assets/references/alpha.md",
+        "Path: .make-docs/references/system/alpha.md",
         "Conflict: local content differs",
         "File 2 of 5",
       ].join("\n"),
       [
         "Group: References",
-        "Path: docs/assets/references/bravo.md",
+        "Path: .make-docs/references/system/bravo.md",
         "Conflict: local content differs",
         "File 3 of 5",
       ].join("\n"),
       [
         "Group: Templates",
-        "Path: docs/assets/templates/alpha.md",
+        "Path: .make-docs/templates/system/alpha.md",
         "Conflict: local content differs",
         "File 4 of 5",
       ].join("\n"),
       [
         "Group: Templates",
-        "Path: docs/assets/templates/zeta.md",
+        "Path: .make-docs/templates/system/zeta.md",
         "Conflict: local content differs",
         "File 5 of 5",
       ].join("\n"),

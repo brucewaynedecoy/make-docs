@@ -146,9 +146,9 @@ Configuration overlays may change presentation labels in generated prose, but th
 - [29 Revise Playbook Contract Run Playbook](29-revise-playbook-contract-run-playbook.md)
 - [../designs/2026-06-20-playbook-contract-and-run-playbook.md](../designs/2026-06-20-playbook-contract-and-run-playbook.md)
 - [../plans/2026-06-23-w18-r1-playbook-contract-run-playbook/00-overview.md](../plans/2026-06-23-w18-r1-playbook-contract-run-playbook/00-overview.md)
-- `docs/assets/references/design-contract.md`
-- `docs/assets/references/output-contract.md`
-- `docs/assets/references/lifecycle.md`
+- `.make-docs/contracts/system/design-contract.md`
+- `.make-docs/contracts/system/output-contract.md`
+- `.make-docs/references/system/lifecycle.md`
 - `packages/cli/src/rules.ts`
 - `packages/cli/src/manifest.ts`
 - `packages/cli/src/audit.ts`

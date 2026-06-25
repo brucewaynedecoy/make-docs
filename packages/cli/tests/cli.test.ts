@@ -532,12 +532,12 @@ describe("cli interactive flows", () => {
       writeConflictingRootInstruction(targetDir);
       writeCustomManagedFile(
         targetDir,
-        "docs/assets/references/guide-contract.md",
+        ".make-docs/contracts/system/guide-contract.md",
         "custom guide contract\n",
       );
       writeCustomManagedFile(
         targetDir,
-        "docs/assets/templates/guide-user.md",
+        ".make-docs/templates/system/guide-user.md",
         "custom guide template\n",
       );
       runSelectionWizardMock.mockResolvedValue(defaultSelections());
@@ -555,10 +555,10 @@ describe("cli interactive flows", () => {
         `${renderManagedBlock("- Locally edited make-docs routing.\n")}\n`,
       );
       expect(
-        readFileSync(path.join(targetDir, "docs/assets/references/guide-contract.md"), "utf8"),
+        readFileSync(path.join(targetDir, ".make-docs/contracts/system/guide-contract.md"), "utf8"),
       ).toBe("custom guide contract\n");
       expect(
-        readFileSync(path.join(targetDir, "docs/assets/templates/guide-user.md"), "utf8"),
+        readFileSync(path.join(targetDir, ".make-docs/templates/system/guide-user.md"), "utf8"),
       ).toBe("custom guide template\n");
       expect(existsSync(path.join(targetDir, ".make-docs/manifest.json"))).toBe(false);
       expect(listConflictFiles(targetDir)).toEqual([]);
@@ -574,12 +574,12 @@ describe("cli interactive flows", () => {
       writeConflictingRootInstruction(targetDir);
       writeCustomManagedFile(
         targetDir,
-        "docs/assets/references/guide-contract.md",
+        ".make-docs/contracts/system/guide-contract.md",
         "custom guide contract\n",
       );
       writeCustomManagedFile(
         targetDir,
-        "docs/assets/templates/guide-user.md",
+        ".make-docs/templates/system/guide-user.md",
         "custom guide template\n",
       );
       const error = await captureCliError(["--yes", "--target", targetDir]);
@@ -594,10 +594,10 @@ describe("cli interactive flows", () => {
         `${renderManagedBlock("- Locally edited make-docs routing.\n")}\n`,
       );
       expect(
-        readFileSync(path.join(targetDir, "docs/assets/references/guide-contract.md"), "utf8"),
+        readFileSync(path.join(targetDir, ".make-docs/contracts/system/guide-contract.md"), "utf8"),
       ).toBe("custom guide contract\n");
       expect(
-        readFileSync(path.join(targetDir, "docs/assets/templates/guide-user.md"), "utf8"),
+        readFileSync(path.join(targetDir, ".make-docs/templates/system/guide-user.md"), "utf8"),
       ).toBe("custom guide template\n");
       expect(loadManifest(targetDir)).toBeNull();
       expect(listConflictFiles(targetDir)).toEqual([]);
@@ -612,16 +612,16 @@ describe("cli interactive flows", () => {
 
     try {
       await installManifest(targetDir);
-      rmSync(path.join(targetDir, "docs/assets/templates/guide-developer.md"));
+      rmSync(path.join(targetDir, ".make-docs/templates/system/guide-developer.md"));
       writeConflictingRootInstruction(targetDir);
       writeCustomManagedFile(
         targetDir,
-        "docs/assets/references/guide-contract.md",
+        ".make-docs/contracts/system/guide-contract.md",
         "custom guide contract\n",
       );
       promptForManagedFileConflictResolutionsMock.mockResolvedValue({
         "AGENTS.md": "skip",
-        "docs/assets/references/guide-contract.md": "overwrite",
+        ".make-docs/contracts/system/guide-contract.md": "overwrite",
       });
 
       const output = await captureCliOutput([
@@ -637,8 +637,8 @@ describe("cli interactive flows", () => {
         .filter((line) => /^- (generate|update|skip|remove): /.test(line));
 
       expect(output).toContain("Planned file operations");
-      expect(plannedLines).toContain("- generate: docs/assets/templates/guide-developer.md");
-      expect(plannedLines).toContain("- update: docs/assets/references/guide-contract.md");
+      expect(plannedLines).toContain("- generate: .make-docs/templates/system/guide-developer.md");
+      expect(plannedLines).toContain("- update: .make-docs/contracts/system/guide-contract.md");
       expect(plannedLines).toContain("- skip: AGENTS.md");
       expect(plannedLines.some((line) => line.startsWith("- remove: "))).toBe(true);
       expect(plannedLines.every((line) => !line.includes("("))).toBe(true);

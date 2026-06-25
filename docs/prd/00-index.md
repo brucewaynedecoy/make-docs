@@ -41,7 +41,7 @@ The fixed-core overview layer is now present through [01 Product Overview](01-pr
 | `19` | Current | [19-revise-template-package-dogfood-source-of-truth-contract.md](19-revise-template-package-dogfood-source-of-truth-contract.md) | Revision: defines `packages/docs/template/` as the shipped template source, repo-root `docs/` as dogfood validation, and `packages/cli/template/` as the generated package-bundled copy. |
 | `20` | Current | [20-revise-agent-harness-model-conformance-lab.md](20-revise-agent-harness-model-conformance-lab.md) | Revision: defines a maintainer-only conformance lab for scenario/result evidence, harness/model support-claim gating, and future adapter coverage without shipping lab assets by default. |
 | `21` | Current | [21-revise-tool-directory-system-custom-resource-tiers.md](21-revise-tool-directory-system-custom-resource-tiers.md) | Revision: defines `.make-docs/` as the in-project tool directory for make-docs-owned resources, system/custom tiers, local bootstrap, runtime state, and future migration away from tool assets in `docs/assets/**`. |
-| `22` | Current | [22-revise-new-docs-assets-playbooks-persona-model.md](22-revise-new-docs-assets-playbooks-persona-model.md) | Revision: defines `docs/assets/{archive,artifacts,breadcrumbs,guides,playbooks}/` as the managed project documentation asset surface, rejects top-level `docs/archive/**` and `docs/artifacts/**` as shipped v2 targets, and preserves `persona` frontmatter plus default/custom persona schema. |
+| `22` | Current | [22-revise-new-docs-assets-playbooks-persona-model.md](22-revise-new-docs-assets-playbooks-persona-model.md) | Revision: defines `docs/assets/{archive,artifacts,breadcrumbs,guides,playbooks}/` as the managed project documentation asset surface, rejects top-level `docs/archive/**` and top-level `docs/artifacts/**` as shipped v2 targets, and preserves `persona` frontmatter plus default/custom persona schema. |
 | `23` | Current | [23-revise-generated-metadata-lifecycle-handoffs.md](23-revise-generated-metadata-lifecycle-handoffs.md) | Revision: defines YAML frontmatter as the canonical metadata layer for generated make-docs docs, including common fields, conditional source/persona/lifecycle/follow-on metadata, and YAML/body handoff drift validation. |
 | `24` | Current | [24-revise-configuration-convention-overlay.md](24-revise-configuration-convention-overlay.md) | Revision: defines optional `.make-docs/config.yaml` as project-owned presentation configuration for labels, personas, and generated prose while preserving canonical paths, metadata keys, route identifiers, and W/R/P coordinate lineage. |
 | `25` | Current | [25-revise-cli-separation-and-mcp-boundary.md](25-revise-cli-separation-and-mcp-boundary.md) | Revision: defines the v2 boundary between the TypeScript npm installer-maintainer CLI, the future Rust agent-facing CLI, and the first MCP surface while preserving installer-first `npx`, no-command install/sync, shared operation contracts, read-first MCP behavior, and no-scripts migration sequencing. |
@@ -55,8 +55,8 @@ The fixed-core overview layer is now present through [01 Product Overview](01-pr
 ## Source Anchors
 
 - `README.md:6-46`
-- `docs/assets/references/output-contract.md`
-- `docs/assets/references/execution-workflow.md`
+- `.make-docs/contracts/system/output-contract.md`
+- `.make-docs/references/system/execution-workflow.md`
 - `docs/prd/01-product-overview.md`
 - `docs/prd/02-architecture-overview.md`
 - `docs/prd/11-revise-cli-asset-selection-simplification.md`

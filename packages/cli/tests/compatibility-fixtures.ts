@@ -123,7 +123,7 @@ export async function createCompatibilityFixture(
       break;
     case "partial-install":
       await installFixture(targetDir);
-      rmSync(path.join(targetDir, "docs/assets/references"), {
+      rmSync(path.join(targetDir, ".make-docs/references/system"), {
         recursive: true,
         force: true,
       });
@@ -273,21 +273,21 @@ function ensureSystemAssetManifestState(
     sourcePackage: manifest.packageName,
     sourceVersion: manifest.packageVersion,
     localBootstrapPaths: ["AGENTS.md"],
-    deferredSystemAssetPaths: ["docs/assets/references/lifecycle.md"],
+    deferredSystemAssetPaths: [".make-docs/references/system/lifecycle.md"],
     materializationClasses: {
       "AGENTS.md": "always-local-bootstrap",
-      "docs/assets/references/lifecycle.md": "materialized-system-asset",
+      ".make-docs/references/system/lifecycle.md": "materialized-system-asset",
     },
     expectedFiles: {
-      "docs/assets/references/lifecycle.md": {
+      ".make-docs/references/system/lifecycle.md": {
         hash: "fixture-expected-hash",
-        sourceId: "docs/assets/references/lifecycle.md",
+        sourceId: ".make-docs/references/system/lifecycle.md",
       },
     },
     materializedFiles: {
-      "docs/assets/references/lifecycle.md": {
+      ".make-docs/references/system/lifecycle.md": {
         hash: "fixture-expected-hash",
-        sourceId: "docs/assets/references/lifecycle.md",
+        sourceId: ".make-docs/references/system/lifecycle.md",
       },
     },
   });

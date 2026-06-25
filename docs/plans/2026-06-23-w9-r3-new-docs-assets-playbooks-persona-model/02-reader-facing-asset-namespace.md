@@ -33,9 +33,9 @@ Implementation planning should treat these mappings as the canonical migration d
 | --- | --- | --- |
 | `docs/guides/**` | `docs/assets/guides/**` | Preserve persona intent and router behavior; add `persona` frontmatter where missing. |
 | `docs/library/playbooks/**` | `docs/assets/playbooks/**` | Treat W16 placement as transitional; preserve lineage and links. |
-| `docs/assets/archive/**` | `docs/archive/**` | Archive is lifecycle storage, not reader-facing reusable asset content. |
-| `docs/assets/history/**` | unresolved lifecycle storage follow-on | Do not silently leave history under reader-facing assets as a final state. |
-| `docs/assets/{prompts,references,templates}/**` | `.make-docs/{prompts,references,templates}/system/**` or future equivalent | Governed by PRD 21, not this reader-facing asset model. |
+| `docs/assets/archive/**` | `docs/assets/archive/**` | W9 R4 keeps archive storage under managed project assets and rejects top-level `docs/archive/**` as a shipped v2 target. |
+| `docs/assets/history/**` | `docs/assets/breadcrumbs/**` | Existing history records remain pre-migration evidence; new breadcrumb records use `docs/assets/breadcrumbs/**`. |
+| `docs/assets/{prompts,references,templates}/**` | `.make-docs/{contracts,references,templates}/system/**` | Governed by PRD 21 and W9 R4, not this reader-facing asset model. |
 
 ## Source of Truth
 

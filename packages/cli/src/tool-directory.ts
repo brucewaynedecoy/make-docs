@@ -14,7 +14,6 @@ export const TOOL_RESOURCE_FAMILIES = [
   "contracts",
   "references",
   "templates",
-  "prompts",
   "scripts",
 ] as const;
 
@@ -48,7 +47,7 @@ export const LEGACY_TOOL_RESOURCE_FAMILIES = [
   "prompts",
   "references",
   "templates",
-] as const satisfies readonly ToolResourceFamily[];
+] as const;
 
 export type LegacyToolResourceFamily =
   (typeof LEGACY_TOOL_RESOURCE_FAMILIES)[number];
@@ -58,6 +57,15 @@ export const LEGACY_TOOL_RESOURCE_ROOTS = {
   references: "docs/assets/references",
   templates: "docs/assets/templates",
 } as const satisfies Record<LegacyToolResourceFamily, string>;
+
+const LEGACY_REFERENCE_CONTRACT_FILES = new Set([
+  "commit-message-convention.md",
+  "coverage-pass-contract.md",
+  "design-contract.md",
+  "guide-contract.md",
+  "history-record-contract.md",
+  "output-contract.md",
+]);
 
 export type SystemToolResourceMigrationFixture = {
   currentPath: string;
@@ -151,10 +159,29 @@ export function getSystemToolResourceMigrationTarget(
     return null;
   }
 
-  const systemRoot = getToolResourceTierPath(family, "system");
+  const systemRoot = getLegacySystemResourceRoot(family, relativeResourcePath);
   return relativeResourcePath === ""
     ? systemRoot
     : `${systemRoot}/${relativeResourcePath}`;
+}
+
+function getLegacySystemResourceRoot(
+  family: LegacyToolResourceFamily,
+  relativeResourcePath: string,
+): string {
+  if (family === "templates") {
+    return getToolResourceTierPath("templates", "system");
+  }
+
+  if (family === "prompts") {
+    return `${getToolResourceTierPath("references", "system")}/prompts`;
+  }
+
+  if (LEGACY_REFERENCE_CONTRACT_FILES.has(relativeResourcePath)) {
+    return getToolResourceTierPath("contracts", "system");
+  }
+
+  return getToolResourceTierPath("references", "system");
 }
 
 export function createSystemToolResourceMigrationFixture(

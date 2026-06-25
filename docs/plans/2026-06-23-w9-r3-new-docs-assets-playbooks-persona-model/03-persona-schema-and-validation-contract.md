@@ -59,7 +59,7 @@ The later configuration overlay may relabel user-visible presentation vocabulary
 
 - `docs/assets/guides/**`
 - `docs/assets/playbooks/**`
-- `docs/archive/**`
+- `docs/assets/archive/**`
 - `persona`
 - `personas`
 - `slug`

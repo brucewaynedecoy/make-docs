@@ -28,7 +28,7 @@ material as a required stage.
 
 - User requests, design notes, screenshots, transcripts, analysis, or other
   repo-local artifacts.
-- Existing files under `docs/artifacts/`.
+- Existing files under `docs/assets/artifacts/`.
 
 ### Decision Points
 
@@ -38,8 +38,8 @@ material as a required stage.
 
 ### Suggested Assists
 
-- `docs/artifacts/`
-- `docs/assets/references/path-and-link-hygiene.md`
+- `docs/assets/artifacts/`
+- `.make-docs/references/system/path-and-link-hygiene.md`
 
 Suggested assists are optional.
 
@@ -75,9 +75,9 @@ planning.
 
 ### Suggested Assists
 
-- `docs/assets/references/design-workflow.md`
-- `docs/assets/references/design-contract.md`
-- `docs/assets/templates/design.md`
+- `.make-docs/references/system/design-workflow.md`
+- `.make-docs/contracts/system/design-contract.md`
+- `.make-docs/templates/system/design.md`
 
 Suggested assists are optional.
 
@@ -111,8 +111,8 @@ work-shaping strategy.
 
 ### Suggested Assists
 
-- `docs/assets/references/planning-workflow.md`
-- `docs/assets/templates/`
+- `.make-docs/references/system/planning-workflow.md`
+- `.make-docs/templates/system/`
 - `docs/plans/`
 
 Suggested assists are optional.
@@ -148,9 +148,9 @@ implement.
 
 ### Suggested Assists
 
-- `docs/assets/references/execution-workflow.md`
-- `docs/assets/references/output-contract.md`
-- `docs/assets/references/prd-change-management.md`
+- `.make-docs/references/system/execution-workflow.md`
+- `.make-docs/contracts/system/output-contract.md`
+- `.make-docs/references/system/prd-change-management.md`
 - `docs/prd/03-open-questions-and-risk-register.md`
 
 Suggested assists are optional.
@@ -186,8 +186,8 @@ Convert the effective PRD and plan into phase-sized implementation work.
 ### Suggested Assists
 
 - `docs/work/`
-- `docs/assets/templates/`
-- `docs/assets/references/execution-workflow.md`
+- `.make-docs/templates/system/`
+- `.make-docs/references/system/execution-workflow.md`
 
 Suggested assists are optional.
 
@@ -299,7 +299,7 @@ to the next phase.
 
 ### Suggested Assists
 
-- `docs/assets/references/commit-message-convention.md`
+- `.make-docs/contracts/system/commit-message-convention.md`
 - `phase_gate.py`
 - `checkpoint.py`
 
@@ -375,7 +375,7 @@ preserving useful history.
 
 - `archive-docs`
 - `docs/assets/archive/`
-- `docs/assets/references/path-and-link-hygiene.md`
+- `.make-docs/references/system/path-and-link-hygiene.md`
 
 Suggested assists are optional.
 

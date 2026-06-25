@@ -4,6 +4,10 @@
 
 Turn the accepted tool-directory design into the active PRD and work backlog contract for `.make-docs/` tool resources, system/custom resource tiers, runtime state boundaries, and the migration path away from product-owned tool assets in `docs/assets/**`.
 
+## W9 R4 Supersession Note
+
+W9 R2 has already been implemented and remains historical evidence for the first `.make-docs/**` split. Before extending or reimplementing any W9 R2 work, apply [W9 R4 v2 Documentation Asset IA Hard Move](../2026-06-25-w9-r4-v2-documentation-asset-ia-hard-move/00-overview.md) as the blocking pivot. W9 R4 supersedes older future-facing assumptions about top-level `docs/artifacts/**`, top-level `docs/archive/**`, future `docs/assets/history/**` writes, and `.make-docs/prompts/**`; the current targets are `docs/assets/{archive,artifacts,breadcrumbs,guides,playbooks}/**` and `.make-docs/{contracts,references,scripts,templates,agentics}/**`.
+
 ## Coordinate Decision
 
 - Coordinate: `W9 R2`

@@ -24,7 +24,7 @@ This backlog executes the hard move from top-level `docs/artifacts/**` and rejec
 - Do not preserve top-level `docs/artifacts/**` as a shipped alias.
 - Do not introduce top-level `docs/archive/**` as a shipped v2 target.
 - Do not treat repo-root dogfood cleanup as template source of truth.
-- Keep existing `docs/assets/history/**` as the current closeout location until the migration phase changes the live breadcrumb contract.
+- Keep existing `docs/assets/history/**` as historical migration evidence; new closeout breadcrumb records belong under `docs/assets/breadcrumbs/**` once the W9 R4 migration changes the live contract.
 - Skip manual/UAT decisions until the full W9 R4 implementation is complete.
 
 ## Intended Follow-On

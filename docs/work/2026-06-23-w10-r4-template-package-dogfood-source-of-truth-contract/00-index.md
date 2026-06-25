@@ -4,6 +4,10 @@
 
 Sequence implementation work for PRD 19 and the W10 R4 plan.
 
+## W9 R4 Prerequisite
+
+Before executing this backlog, apply [W9 R4 v2 Documentation Asset IA Hard Move](../2026-06-25-w9-r4-v2-documentation-asset-ia-hard-move/00-index.md). W10 R4 should validate template/source-of-truth behavior against the W9 R4 paths, not the pre-pivot `docs/artifacts/**`, top-level `docs/archive/**`, `docs/assets/history/**`, or `docs/assets/{prompts,references,templates}/**` assumptions.
+
 ## Source PRD Docs
 
 - `docs/prd/19-revise-template-package-dogfood-source-of-truth-contract.md`

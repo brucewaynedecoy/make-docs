@@ -85,7 +85,7 @@ Bootstrap and routers:
 Migration:
 
 - Current template-owned `docs/assets/{prompts,references,templates}/` content migrates toward `.make-docs/{contracts,references,templates,scripts}/system/` only through a later implementation plan that classifies each file by function instead of preserving the old directory names.
-- Future project documentation assets belong under `docs/assets/**`; [22-revise-new-docs-assets-playbooks-persona-model.md](./22-revise-new-docs-assets-playbooks-persona-model.md) defines `docs/assets/{archive,artifacts,breadcrumbs,guides,playbooks}/` as the v2 target and rejects top-level `docs/archive/**` and `docs/artifacts/**` as shipped v2 surfaces.
+- Future project documentation assets belong under `docs/assets/**`; [22-revise-new-docs-assets-playbooks-persona-model.md](./22-revise-new-docs-assets-playbooks-persona-model.md) defines `docs/assets/{archive,artifacts,breadcrumbs,guides,playbooks}/` as the v2 target, moves top-level `docs/artifacts/**` to `docs/assets/artifacts/**`, and rejects top-level `docs/archive/**` as a shipped v2 surface.
 - `agentics/skills` is the selected-skill shared payload home under PRD 28; `agentics/plugins` is the selected-plugin shared payload home under PRD 30.
 - [25-revise-cli-separation-and-mcp-boundary.md](./25-revise-cli-separation-and-mcp-boundary.md) constrains future `scripts/` and `agentics/` migration work: deterministic script-replacement logic must move into CLI/shared-core operations before MCP exposure, and skills/plugins must call that boundary instead of carrying independent filesystem or routing logic.
 - [26-revise-no-scripts-migration-skill-refactor.md](./26-revise-no-scripts-migration-skill-refactor.md) makes the `.make-docs/scripts/{system,custom}` split concrete for first-party helper migration: system wrappers may remain only as thin delegates after an equivalent CLI/shared-core operation exists, while custom scripts are not migrated unless a later accepted design includes them.
@@ -103,7 +103,7 @@ Migration:
 | `docs/prd/17-revise-system-asset-materialization-contract.md` | Applies materialization-mode rules to local/non-local system tool resources. |
 | `docs/prd/18-revise-compatibility-audit-and-migration-disposition.md` | Applies migration classification and conflict safety to tool-resource moves. |
 | `docs/prd/19-revise-template-package-dogfood-source-of-truth-contract.md` | Applies template/package/dogfood source-of-truth order to `.make-docs/**` defaults. |
-| `docs/prd/22-revise-new-docs-assets-playbooks-persona-model.md` | Complements this PRD by defining `docs/assets/{archive,artifacts,breadcrumbs,guides,playbooks}/`, rejecting top-level `docs/archive/**` and `docs/artifacts/**` as shipped v2 targets, and preserving the persona frontmatter contract. |
+| `docs/prd/22-revise-new-docs-assets-playbooks-persona-model.md` | Complements this PRD by defining `docs/assets/{archive,artifacts,breadcrumbs,guides,playbooks}/`, moving top-level `docs/artifacts/**` to `docs/assets/artifacts/**`, rejecting top-level `docs/archive/**` as a shipped v2 target, and preserving the persona frontmatter contract. |
 | `docs/prd/20-revise-agent-harness-model-conformance-lab.md` | Keeps conformance lab artifacts separate from shipped tool resources unless later promoted. |
 | `docs/prd/03-open-questions-and-risk-register.md` | Updates existing docs-assets, dogfood, package, audit, no-scripts, remote-source, and shared-agentics entries. |
 

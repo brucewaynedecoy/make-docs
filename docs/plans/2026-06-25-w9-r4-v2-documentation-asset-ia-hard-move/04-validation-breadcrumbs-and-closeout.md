@@ -14,7 +14,7 @@ Define the validation and closeout expectations for W9 R4.
 
 ## Breadcrumb Handling
 
-Use the current `docs/assets/history/**` contract for W9 R4 closeout until the migration work changes the live breadcrumb contract. The closeout record should explicitly state that `docs/assets/breadcrumbs/**` is the future target and that the history entry was written at the current live path for compatibility.
+Use `docs/assets/breadcrumbs/**` for W9 R4 closeout after the migration work changes the live breadcrumb contract. The closeout record should explicitly state that existing `docs/assets/history/**` records were preserved as migration evidence.
 
 ## Closeout Criteria
 

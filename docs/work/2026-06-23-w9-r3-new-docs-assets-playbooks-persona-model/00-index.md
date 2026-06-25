@@ -4,6 +4,10 @@
 
 Implement the requirements planned in [../../plans/2026-06-23-w9-r3-new-docs-assets-playbooks-persona-model/00-overview.md](../../plans/2026-06-23-w9-r3-new-docs-assets-playbooks-persona-model/00-overview.md) and captured in [../../prd/22-revise-new-docs-assets-playbooks-persona-model.md](../../prd/22-revise-new-docs-assets-playbooks-persona-model.md).
 
+## W9 R4 Supersession Note
+
+W9 R3 is completed historical implementation evidence. Before using this backlog for follow-on work, apply [W9 R4 v2 Documentation Asset IA Hard Move](../2026-06-25-w9-r4-v2-documentation-asset-ia-hard-move/00-index.md) as the blocking pivot. W9 R4 supersedes the W9 R3 top-level `docs/archive/**` direction with `docs/assets/archive/**`, changes future history writes to `docs/assets/breadcrumbs/**`, hard-moves top-level `docs/artifacts/**` to `docs/assets/artifacts/**`, and keeps tool resources under `.make-docs/**`.
+
 ## Source Inputs
 
 - Design: [../../designs/2026-06-19-new-docs-assets-playbooks-and-persona-model.md](../../designs/2026-06-19-new-docs-assets-playbooks-and-persona-model.md)
@@ -25,7 +29,7 @@ Implement the requirements planned in [../../plans/2026-06-23-w9-r3-new-docs-ass
 - Preserve `.make-docs/**` as the tool-resource and runtime namespace from PRD 21.
 - Preserve PRD 19 template-first authoring and reviewed dogfood reseeding.
 - Treat `docs/library/playbooks/**` as transitional.
-- Treat `docs/assets/archive/**` as current/historical and `docs/archive/**` as the future lifecycle-storage surface.
+- Treat `docs/assets/archive/**` as the managed archive surface; older W9 R3 references to top-level `docs/archive/**` are superseded by W9 R4.
 - Do not implement Run Playbook execution in this backlog.
 - Do not make directory placement authoritative over `persona` frontmatter.
 

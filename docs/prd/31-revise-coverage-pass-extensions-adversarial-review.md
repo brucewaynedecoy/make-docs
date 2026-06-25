@@ -165,14 +165,14 @@ Baseline implementation validation should include `npm run build -w packages/cli
 - [25 Revise CLI Separation and MCP Boundary](25-revise-cli-separation-and-mcp-boundary.md)
 - [29 Revise Playbook Contract Run Playbook](29-revise-playbook-contract-run-playbook.md)
 - [30 Revise Harness Plugin Substrate Workflow Bundles](30-revise-harness-plugin-substrate-workflow-bundles.md)
-- `docs/assets/prompts/coverage-pass-developer-guide.prompt.md`
-- `docs/assets/prompts/coverage-pass-user-guide.prompt.md`
-- `docs/assets/prompts/coverage-pass-prd-reconciliation.prompt.md`
-- `docs/assets/prompts/coverage-pass-testing-uat.prompt.md`
-- `packages/docs/template/docs/assets/references/coverage-pass-contract.md`
-- `packages/docs/template/docs/assets/prompts/coverage-pass-developer-guide.prompt.md`
-- `packages/docs/template/docs/assets/prompts/coverage-pass-user-guide.prompt.md`
-- `packages/docs/template/docs/assets/prompts/coverage-pass-prd-reconciliation.prompt.md`
-- `packages/docs/template/docs/assets/prompts/coverage-pass-testing-uat.prompt.md`
+- `.make-docs/references/system/prompts/coverage-pass-developer-guide.prompt.md`
+- `.make-docs/references/system/prompts/coverage-pass-user-guide.prompt.md`
+- `.make-docs/references/system/prompts/coverage-pass-prd-reconciliation.prompt.md`
+- `.make-docs/references/system/prompts/coverage-pass-testing-uat.prompt.md`
+- `packages/docs/template/.make-docs/contracts/system/coverage-pass-contract.md`
+- `packages/docs/template/.make-docs/references/system/prompts/coverage-pass-developer-guide.prompt.md`
+- `packages/docs/template/.make-docs/references/system/prompts/coverage-pass-user-guide.prompt.md`
+- `packages/docs/template/.make-docs/references/system/prompts/coverage-pass-prd-reconciliation.prompt.md`
+- `packages/docs/template/.make-docs/references/system/prompts/coverage-pass-testing-uat.prompt.md`
 - `packages/cli/src/rules.ts`
 - `scripts/smoke-pack.mjs`

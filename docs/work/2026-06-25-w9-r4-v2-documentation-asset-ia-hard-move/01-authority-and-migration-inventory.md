@@ -22,7 +22,7 @@ This phase is the implementation safety gate. It verifies that active PRDs, the 
 - [x] t1: Re-read the W9 R4 design, plan, PRD 21, PRD 22, PRD index, and risk register.
 - [x] t2: Confirm the implementation scope uses `docs/assets/{archive,artifacts,breadcrumbs,guides,playbooks}/**` and `.make-docs/{contracts,references,scripts,templates,agentics}/**`.
 - [x] t3: Confirm top-level `docs/artifacts/**` is a hard move and top-level `docs/archive/**` is not a shipped v2 target.
-- [x] t4: Confirm existing `docs/assets/history/**` remains the current closeout path until the breadcrumb contract migration lands.
+- [x] t4: Confirm existing `docs/assets/history/**` remains historical migration evidence and that new closeout breadcrumb records move to `docs/assets/breadcrumbs/**` when the W9 R4 migration changes the live contract.
 
 ### Evidence
 
@@ -32,7 +32,7 @@ This phase is the implementation safety gate. It verifies that active PRDs, the 
 - The settled shipped asset targets are `docs/assets/archive/**`, `docs/assets/artifacts/**`, `docs/assets/breadcrumbs/**`, `docs/assets/guides/**`, and `docs/assets/playbooks/**`.
 - The settled system targets are `.make-docs/contracts/**`, `.make-docs/references/**`, `.make-docs/templates/**`, `.make-docs/scripts/**`, and `.make-docs/agentics/**`.
 - Top-level `docs/artifacts/**` is a hard move to `docs/assets/artifacts/**`; top-level `docs/archive/**` is not a shipped v2 target.
-- `docs/assets/history/**` remains the current closeout path only until Phase 3 migrates the live breadcrumb contract. Phase 4 still writes the W9 R4 closeout record there because that is the current live closeout router during this wave.
+- `docs/assets/history/**` remains historical migration evidence. Phase 4 writes the W9 R4 closeout record under `docs/assets/breadcrumbs/**` after Phase 2 and Phase 3 migrate the live breadcrumb contract.
 
 ### Acceptance criteria
 
@@ -59,11 +59,11 @@ This phase is the implementation safety gate. It verifies that active PRDs, the 
 | --- | --- | --- | --- |
 | `docs/AGENTS.md`, `docs/CLAUDE.md`, root lifecycle/router instructions | Active contract and dogfood router | 2 | Route future artifact, archive, breadcrumb, guide, and playbook work to `docs/assets/{artifacts,archive,breadcrumbs,guides,playbooks}/**`; route system contracts, references, templates, scripts, and agentics to `.make-docs/**`. |
 | `docs/assets/references/*.md` workflow, contract, lifecycle, output, path, history, guide, and coverage references | Active contract and transitional tool resource | 2 | Move product-owned workflow/reference contracts to `.make-docs/references/system/**` or `.make-docs/contracts/system/**` according to function; preserve old links only where historical. |
-| `docs/assets/templates/*.md` | Active contract and transitional tool resource | 2, 3 | Move reusable document skeletons to `.make-docs/templates/system/**`; update routers and selectors to read from the new system template family. |
-| `docs/assets/prompts/*.prompt.md` | Prompt starters and transitional tool resource | 2, 3 | Reclassify process prompts into `.make-docs/references/system/**` unless a file is a reusable document skeleton or deterministic script input. Do not preserve a shipped `.make-docs/prompts/**` family. |
+| `.make-docs/templates/system/*.md` | Active contract and transitional tool resource | 2, 3 | Move reusable document skeletons to `.make-docs/templates/system/**`; update routers and selectors to read from the new system template family. |
+| `.make-docs/references/system/prompts/*.prompt.md` | Prompt starters and transitional tool resource | 2, 3 | Reclassify process prompts into `.make-docs/references/system/**` unless a file is a reusable document skeleton or deterministic script input. Do not preserve a shipped `.make-docs/prompts/**` family. |
 | `docs/artifacts/AGENTS.md`, `docs/artifacts/CLAUDE.md`, and `docs/artifacts/*.md` seed inputs | Dogfood state, unmanaged local material, and optional input evidence | 3 | Move live seed inputs to `docs/assets/artifacts/**`; create/update `docs/assets/artifacts/{AGENTS,CLAUDE}.md`; do not keep top-level `docs/artifacts/**` as a shipped alias. |
 | `docs/archive/**` references in contracts or package code | Old shipped-template assumption | 2, 3 | Remove top-level archive routing and installation; use `docs/assets/archive/**` only. |
-| `docs/assets/history/**` routers and existing records | Current closeout surface and historical evidence | 2, 3, 4 | Migrate template/package/router future path knowledge to `docs/assets/breadcrumbs/**`; preserve existing records under `docs/assets/history/**` until the migration writes or moves them intentionally. |
+| `docs/assets/history/**` routers and existing records | Historical evidence and old closeout surface | 2, 3, 4 | Migrate template/package/router future path knowledge to `docs/assets/breadcrumbs/**`; preserve existing records under `docs/assets/history/**` unless the migration intentionally moves or archives them. |
 | `packages/docs/template/docs/artifacts/{AGENTS,CLAUDE}.md` | Shipped template old artifact router | 3 | Replace with `packages/docs/template/docs/assets/artifacts/{AGENTS,CLAUDE}.md`. |
 | `packages/docs/template/docs/archive/{AGENTS,CLAUDE}.md` | Shipped template rejected archive router | 3 | Remove from shipped template; keep `packages/docs/template/docs/assets/archive/{AGENTS,CLAUDE}.md`. |
 | `packages/docs/template/docs/assets/history/{AGENTS,CLAUDE}.md` | Shipped template current closeout router | 3 | Replace future template router with `packages/docs/template/docs/assets/breadcrumbs/{AGENTS,CLAUDE}.md`; do not move this repo's existing closeout records in Phase 1. |

@@ -12,7 +12,7 @@ The implementation work should update future-facing lifecycle, output, router, c
 
 - `docs/assets/artifacts/**` replaces top-level `docs/artifacts/**` for optional pre-design input material.
 - `docs/assets/archive/**` is the managed archive surface.
-- `docs/assets/breadcrumbs/**` replaces future writes to `docs/assets/history/**`; existing history remains current-state evidence until migrated.
+- `docs/assets/breadcrumbs/**` replaces future writes to `docs/assets/history/**`; existing history remains historical migration evidence unless intentionally moved or archived.
 - `.make-docs/contracts/**`, `.make-docs/references/**`, `.make-docs/scripts/**`, `.make-docs/templates/**`, and `.make-docs/agentics/**` own Make Docs machinery.
 
 ## Required Router Behavior

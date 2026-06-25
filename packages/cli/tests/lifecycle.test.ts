@@ -134,7 +134,7 @@ describe("lifecycle validation", () => {
         selections.skills = false;
       });
       writeFileSync(path.join(targetDir, "AGENTS.md"), "custom agent instructions\n");
-      writeFileSync(path.join(targetDir, "docs/assets/templates/custom.md"), "keep this unmanaged file\n");
+      writeFileSync(path.join(targetDir, ".make-docs/templates/system/custom.md"), "keep this unmanaged file\n");
 
       const result = await captureStdout(() =>
         runUninstallCommand({
@@ -147,12 +147,12 @@ describe("lifecycle validation", () => {
       expect(result.status).toBe("completed");
       expect(result.removedFiles).not.toContain("AGENTS.md");
       expect(result.removedFiles).toContain("CLAUDE.md");
-      expect(result.prunedDirectories).not.toContain("docs/assets/templates");
+      expect(result.prunedDirectories).not.toContain(".make-docs/templates");
       expect(readFileSync(path.join(targetDir, "AGENTS.md"), "utf8")).toBe(
         "custom agent instructions\n",
       );
-      expect(existsSync(path.join(targetDir, "docs/assets/templates/custom.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, ".make-docs"))).toBe(false);
+      expect(existsSync(path.join(targetDir, ".make-docs/templates/system/custom.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, ".make-docs"))).toBe(true);
     } finally {
       cleanupTempDir(targetDir);
     }
