@@ -3,6 +3,8 @@ name: Session to History Record
 description: Instructs the agent to summarize the current session into a new dated history record under `docs/assets/archive/history/`.
 ___
 
+When generating or materially rewriting make-docs documents, include PRD 23 YAML frontmatter: common `title`, `kind`, and `status`; add `coordinate`, `persona`, `source`, `lifecycle`, and `follow_on` only when their conditions apply; omit unknown coordinate levels rather than inserting placeholders.
+
 Please summarize this session into a new history record.
 
 Before writing anything, read `.make-docs/contracts/system/history-record-contract.md`, `.make-docs/contracts/system/coverage-pass-contract.md`, `.make-docs/templates/system/history-record.md`, and the router at `docs/assets/archive/AGENTS.md` (or `CLAUDE.md`). Do not restate their rules — follow them.

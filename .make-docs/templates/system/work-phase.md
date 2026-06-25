@@ -1,3 +1,13 @@
+---
+title: "Phase {{PHASE_NUMBER}}: {{PHASE_TITLE}}"
+kind: "work"
+status: "active"
+coordinate: "W{{W}} R{{R}} P{{PHASE_NUMBER}}"
+# source:
+#   type: "prd"
+#   path: "{{SOURCE_PATH}}"
+---
+
 # Phase {{PHASE_NUMBER}}: {{PHASE_TITLE}}
 
 > Shape for `0N-<phase>.md` files inside a work directory. See `.make-docs/references/system/wave-model.md` for W/R semantics.

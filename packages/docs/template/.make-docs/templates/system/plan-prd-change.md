@@ -1,3 +1,13 @@
+---
+title: "PRD Change Plan"
+kind: "plan"
+status: "draft"
+coordinate: "W{{W}} R{{R}}"
+# source:
+#   type: "design"
+#   path: "{{SOURCE_PATH}}"
+---
+
 # PRD Change Plan
 
 > In v2, plans are directories. Use this template as the shape of the `00-overview.md` file in the plan directory; split additional detail into `0N-<phase>.md` files as needed.

@@ -1,3 +1,13 @@
+---
+title: "03 Open Questions and Risk Register"
+kind: "prd"
+status: "active"
+coordinate: "W{{W}} R{{R}}"
+# source:
+#   type: "plan"
+#   path: "{{SOURCE_PATH}}"
+---
+
 # 03 Open Questions and Risk Register
 
 ## Purpose

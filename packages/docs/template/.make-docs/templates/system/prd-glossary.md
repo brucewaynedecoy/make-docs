@@ -1,3 +1,13 @@
+---
+title: "04 Glossary"
+kind: "prd"
+status: "active"
+coordinate: "W{{W}} R{{R}}"
+# source:
+#   type: "plan"
+#   path: "{{SOURCE_PATH}}"
+---
+
 # 04 Glossary
 
 ## Purpose

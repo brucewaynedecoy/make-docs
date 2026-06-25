@@ -1,3 +1,13 @@
+---
+title: "01 Product Overview"
+kind: "prd"
+status: "active"
+coordinate: "W{{W}} R{{R}}"
+# source:
+#   type: "plan"
+#   path: "{{SOURCE_PATH}}"
+---
+
 # 01 Product Overview
 
 ## Purpose

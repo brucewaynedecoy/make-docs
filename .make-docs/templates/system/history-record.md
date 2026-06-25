@@ -1,4 +1,7 @@
 ---
+title: "{{TITLE}}"
+kind: "history"
+status: "completed"
 date: "{{YYYY-MM-DD}}"
 client: "{{CLIENT}}"
 model: "{{MODEL}}"
@@ -6,7 +9,6 @@ coordinate: "{{COORDINATE}}"
 # provider: "{{PROVIDER}}"
 # repo: "{{REPO}}"
 # branch: "{{BRANCH}}"
-# status: "{{STATUS}}"
 # summary: "{{ONE_LINE_SUMMARY}}"
 ---
 

@@ -1,3 +1,13 @@
+---
+title: "02 Architecture Overview"
+kind: "prd"
+status: "active"
+coordinate: "W{{W}} R{{R}}"
+# source:
+#   type: "plan"
+#   path: "{{SOURCE_PATH}}"
+---
+
 # 02 Architecture Overview
 
 ## Purpose

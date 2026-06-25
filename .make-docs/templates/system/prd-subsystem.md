@@ -1,3 +1,13 @@
+---
+title: "{{NUMBER}} {{TITLE}}"
+kind: "prd"
+status: "active"
+coordinate: "W{{W}} R{{R}}"
+# source:
+#   type: "plan"
+#   path: "{{SOURCE_PATH}}"
+---
+
 # {{NUMBER}} {{TITLE}}
 
 ## Purpose

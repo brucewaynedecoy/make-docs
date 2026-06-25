@@ -3,6 +3,8 @@ name: Designs to Plan Change
 description: Instructs the agent to review one or more design docs and generate a change plan for the active PRD namespace.
 ___
 
+When generating or materially rewriting make-docs documents, include PRD 23 YAML frontmatter: common `title`, `kind`, and `status`; add `coordinate`, `persona`, `source`, `lifecycle`, and `follow_on` only when their conditions apply; omit unknown coordinate levels rather than inserting placeholders.
+
 Please read the design docs {{DESIGN DOCS}} and inspect each doc's `## Intended Follow-On` section before planning. If a design includes `Coordinate Handoff`, use it as the starting point for W/R resolution.
 
 Confirm that the referenced design docs point to the `change-plan` route. If they point to `baseline-plan`, use the baseline planning prompt instead unless the user explicitly instructs otherwise.

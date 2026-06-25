@@ -77,6 +77,47 @@ const COMMIT_MESSAGE_CONVENTION_PATHS = [
   "packages/cli/template/.make-docs/contracts/system/commit-message-convention.md",
 ];
 
+const GENERATED_DOCUMENT_TEMPLATE_METADATA = new Map<
+  string,
+  { kind: string; status: string; coordinate?: boolean; followOn?: boolean; persona?: string }
+>([
+  ["design.md", { kind: "design", status: "draft", followOn: true }],
+  ["guide-developer.md", { kind: "guide", status: "draft", persona: "developer" }],
+  ["guide-user.md", { kind: "guide", status: "draft", persona: "user" }],
+  ["history-record.md", { kind: "history", status: "completed", coordinate: true }],
+  ["plan-overview.md", { kind: "plan", status: "draft", coordinate: true, followOn: true }],
+  ["plan-prd-change.md", { kind: "plan", status: "draft", coordinate: true }],
+  ["plan-prd-decompose.md", { kind: "plan", status: "draft", coordinate: true }],
+  ["plan-prd.md", { kind: "plan", status: "draft", coordinate: true }],
+  ["prd-architecture.md", { kind: "prd", status: "active", coordinate: true }],
+  ["prd-change-addition.md", { kind: "prd", status: "active", coordinate: true }],
+  ["prd-change-revision.md", { kind: "prd", status: "active", coordinate: true }],
+  ["prd-glossary.md", { kind: "prd", status: "active", coordinate: true }],
+  ["prd-index.md", { kind: "prd", status: "active", coordinate: true, followOn: true }],
+  ["prd-overview.md", { kind: "prd", status: "active", coordinate: true }],
+  ["prd-reference.md", { kind: "prd", status: "active", coordinate: true }],
+  ["prd-risk-register.md", { kind: "prd", status: "active", coordinate: true }],
+  ["prd-subsystem.md", { kind: "prd", status: "active", coordinate: true }],
+  ["work-index.md", { kind: "work", status: "active", coordinate: true, followOn: true }],
+  ["work-phase.md", { kind: "work", status: "active", coordinate: true }],
+]);
+
+const GENERATED_DOCUMENT_PROMPT_PATHS = [
+  ".make-docs/references/system/prompts/coverage-pass-developer-guide.prompt.md",
+  ".make-docs/references/system/prompts/coverage-pass-prd-reconciliation.prompt.md",
+  ".make-docs/references/system/prompts/coverage-pass-user-guide.prompt.md",
+  ".make-docs/references/system/prompts/designs-to-plan-change.prompt.md",
+  ".make-docs/references/system/prompts/designs-to-plan.prompt.md",
+  ".make-docs/references/system/prompts/plan-to-prd-change.prompt.md",
+  ".make-docs/references/system/prompts/plan-to-prd-green-field.prompt.md",
+  ".make-docs/references/system/prompts/prd-change-to-work.prompt.md",
+  ".make-docs/references/system/prompts/prd-to-work-full-prd.prompt.md",
+  ".make-docs/references/system/prompts/prd-to-work-prd-feature.prompt.md",
+  ".make-docs/references/system/prompts/request-to-design.prompt.md",
+  ".make-docs/references/system/prompts/session-to-history-record.prompt.md",
+  ".make-docs/references/system/prompts/work-to-guides.prompt.md",
+];
+
 function sectionBetween(contents: string, startHeading: string, endHeading: string): string {
   const start = contents.indexOf(startHeading);
   const end = contents.indexOf(endHeading);
@@ -85,6 +126,24 @@ function sectionBetween(contents: string, startHeading: string, endHeading: stri
   expect(end).toBeGreaterThan(start);
 
   return contents.slice(start, end);
+}
+
+function frontmatterBlock(contents: string, relativePath: string): string {
+  expect(contents.startsWith("---\n"), relativePath).toBe(true);
+
+  const end = contents.indexOf("\n---\n", 4);
+  expect(end, relativePath).toBeGreaterThan(0);
+
+  return contents.slice(4, end);
+}
+
+function expectFrontmatterField(block: string, field: string, value?: string): void {
+  if (value === undefined) {
+    expect(block).toMatch(new RegExp(`^${field}:\\s+`, "m"));
+    return;
+  }
+
+  expect(block).toMatch(new RegExp(`^${field}:\\s+"?${value}"?\\s*$`, "m"));
 }
 
 function itemHeadings(section: string): string[] {
@@ -170,6 +229,56 @@ describe("template completeness", () => {
       expect(parsed.body, relativePath).not.toBeNull();
       expect(parsed.body, relativePath).not.toContain(".make-docs/AGENTS.md");
       expect(parsed.body, relativePath).not.toContain("@.make-docs/CLAUDE.md");
+    }
+  });
+
+  test("generated document templates include PRD 23 metadata frontmatter", () => {
+    for (const templateRoot of [
+      ".make-docs/templates/system",
+      "packages/docs/template/.make-docs/templates/system",
+    ]) {
+      for (const [fileName, expected] of GENERATED_DOCUMENT_TEMPLATE_METADATA) {
+        const relativePath = path.join(templateRoot, fileName);
+        const contents = readFileSync(path.join(REPO_ROOT, relativePath), "utf8");
+        const frontmatter = frontmatterBlock(contents, relativePath);
+
+        expectFrontmatterField(frontmatter, "title");
+        expectFrontmatterField(frontmatter, "kind", expected.kind);
+        expectFrontmatterField(frontmatter, "status", expected.status);
+
+        if (expected.coordinate) {
+          expectFrontmatterField(frontmatter, "coordinate");
+        } else {
+          expect(frontmatter, relativePath).not.toMatch(/^coordinate:\s+/m);
+        }
+
+        if (expected.persona) {
+          expectFrontmatterField(frontmatter, "persona", expected.persona);
+        } else {
+          expect(frontmatter, relativePath).not.toMatch(/^persona:\s+/m);
+        }
+
+        if (expected.followOn) {
+          expect(frontmatter, relativePath).toMatch(/^follow_on:\s*$/m);
+          expect(frontmatter, relativePath).toMatch(/^\s+route:\s+/m);
+          expect(frontmatter, relativePath).toMatch(/^\s+next_prompt:\s+/m);
+          expect(frontmatter, relativePath).toMatch(/^\s+coordinate_handoff:\s+/m);
+        } else {
+          expect(frontmatter, relativePath).not.toMatch(/^follow_on:\s*$/m);
+        }
+      }
+    }
+  });
+
+  test("generated document prompts require PRD 23 metadata frontmatter", () => {
+    for (const relativePath of GENERATED_DOCUMENT_PROMPT_PATHS) {
+      for (const rootPrefix of ["", "packages/docs/template/"]) {
+        const contents = readFileSync(path.join(REPO_ROOT, rootPrefix, relativePath), "utf8");
+
+        expect(contents).toContain("PRD 23 YAML frontmatter");
+        expect(contents).toContain("common `title`, `kind`, and `status`");
+        expect(contents).toContain("omit unknown coordinate levels");
+      }
     }
   });
 });

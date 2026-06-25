@@ -3,6 +3,8 @@ name: Work to Guides
 description: Instructs the agent to create or update developer and user guides from completed work backlog phases.
 ___
 
+When generating or materially rewriting make-docs documents, include PRD 23 YAML frontmatter: common `title`, `kind`, and `status`; add `coordinate`, `persona`, `source`, `lifecycle`, and `follow_on` only when their conditions apply; omit unknown coordinate levels rather than inserting placeholders.
+
 Please review the completed work below and create or update the appropriate developer and/or user guides.
 
 Before writing anything, read `.make-docs/contracts/system/coverage-pass-contract.md`, `.make-docs/contracts/system/guide-contract.md`, the matching guide template in `.make-docs/templates/system/`, and the router in `docs/assets/library/`. Treat those files as the authority for coverage-pass mechanics, audience intent, frontmatter, slug rules, guide coverage decisions, and future coverage handling.

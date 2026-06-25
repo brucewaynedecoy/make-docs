@@ -1,3 +1,22 @@
+---
+title: "{{TITLE}}"
+kind: "design"
+status: "draft"
+follow_on:
+  route: "{{FOLLOW_ON_ROUTE}}"
+  next_prompt: ".make-docs/references/system/prompts/{{PROMPT_FILE}}"
+  why: "{{FOLLOW_ON_WHY}}"
+  coordinate_handoff: "{{COORDINATE_HANDOFF}}"
+# coordinate: "W{{W}} R{{R}}"
+# source:
+#   type: "manual-request"
+#   path: "{{SOURCE_PATH}}"
+# lifecycle:
+#   default_arc: "design -> plan -> PRD -> work -> implementation"
+#   departure: "source-to-design-straddle"
+#   reason: "{{LIFECYCLE_REASON}}"
+---
+
 # {{TITLE}}
 
 > Filename: `YYYY-MM-DD-<slug>.md`. See `.make-docs/contracts/system/design-contract.md` for naming and structural rules.

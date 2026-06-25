@@ -3,6 +3,8 @@ name: Coverage Pass - PRD Reconciliation
 description: Runs the PRD reconciliation coverage pass for completed work using the coverage-pass and PRD change-management contracts.
 ___
 
+When generating or materially rewriting make-docs documents, include PRD 23 YAML frontmatter: common `title`, `kind`, and `status`; add `coordinate`, `persona`, `source`, `lifecycle`, and `follow_on` only when their conditions apply; omit unknown coordinate levels rather than inserting placeholders.
+
 Please run the PRD reconciliation coverage pass for the completed work context supplied with this request.
 
 Before writing anything, read `.make-docs/contracts/system/coverage-pass-contract.md`, `.make-docs/references/system/prd-change-management.md`, `.make-docs/contracts/system/output-contract.md`, `docs/prd/AGENTS.md` (or `CLAUDE.md`), `docs/prd/00-index.md`, and `docs/prd/03-open-questions-and-risk-register.md`. Treat those files as the authority; cite them in your closeout summary but do not restate their shared mechanics.

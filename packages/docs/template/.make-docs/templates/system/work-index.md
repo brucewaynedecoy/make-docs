@@ -1,3 +1,18 @@
+---
+title: "{{TITLE}}"
+kind: "work"
+status: "active"
+coordinate: "W{{W}} R{{R}}"
+follow_on:
+  route: "implementation-loop"
+  next_prompt: ".make-docs/references/system/execution-workflow.md"
+  why: "The backlog is the implementation queue derived from the plan and PRD contract."
+  coordinate_handoff: "Carry this backlog's W/R coordinate into phase history records and commits, adding the active P coordinate for each phase."
+# source:
+#   type: "prd"
+#   path: "{{SOURCE_PATH}}"
+---
+
 # {{TITLE}}
 
 > In v2, work backlogs are directories. This template is the shape of the `00-index.md` entry-point file. Phase detail lives in sibling `0N-<phase>.md` files (see `work-phase.md`). See `.make-docs/references/system/wave-model.md` for W/R semantics.

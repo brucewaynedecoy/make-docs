@@ -1,3 +1,18 @@
+---
+title: "{{TITLE}}"
+kind: "plan"
+status: "draft"
+coordinate: "W{{W}} R{{R}}"
+follow_on:
+  route: "prd-generation"
+  next_prompt: "{{NEXT_PROMPT}}"
+  why: "{{FOLLOW_ON_WHY}}"
+  coordinate_handoff: "Carry W{{W}} R{{R}} into the downstream PRD and work backlog lineage."
+# source:
+#   type: "design"
+#   path: "{{SOURCE_PATH}}"
+---
+
 # {{TITLE}}
 
 ## Purpose

@@ -1,7 +1,9 @@
 ---
 title: "{{TITLE}}"
+kind: "guide"
+status: "draft"
 path: "{{PATH}}"
-status: draft
+persona: "user"
 # version: ""
 # order: 100
 # tags: []
