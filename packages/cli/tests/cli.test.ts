@@ -321,6 +321,32 @@ describe("cli interactive flows", () => {
     }
   });
 
+  test("rejects invalid project config before writing install outputs", async () => {
+    const targetDir = createTempDir();
+
+    try {
+      mkdirSync(path.join(targetDir, ".make-docs"), { recursive: true });
+      writeFileSync(
+        path.join(targetDir, ".make-docs/config.yaml"),
+        `paths:
+  designs: docs/ideas
+`,
+        "utf8",
+      );
+      setTTY(false);
+
+      const error = await captureCliError(["--yes", "--target", targetDir]);
+
+      expect(error.message).toContain("Invalid make-docs config");
+      expect(error.message).toContain(".make-docs/config.yaml");
+      expect(error.message).toContain("paths");
+      expect(error.message).toContain("structural paths");
+      expect(existsSync(path.join(targetDir, ".make-docs/manifest.json"))).toBe(false);
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
   test("allows clean v1 migration and records the compatibility disposition", async () => {
     const fixture = await createCompatibilityFixture(getCompatibilityFixtureCase("clean-v1"));
 

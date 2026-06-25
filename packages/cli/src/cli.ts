@@ -8,6 +8,7 @@ import {
   formatCompatibilityClassification,
   type CompatibilityClassification,
 } from "./compatibility";
+import { loadMakeDocsConfigOrThrow } from "./config";
 import {
   applyInstallPlan,
   findReviewableManagedFileConflicts,
@@ -129,6 +130,7 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
   }
 
   const installIntent = inferInstallIntent(parsed);
+  loadMakeDocsConfigOrThrow(targetDir);
   const compatibilityClassification = await classifyCompatibilityState({
     targetDir,
   });
