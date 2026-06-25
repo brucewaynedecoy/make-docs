@@ -65,6 +65,8 @@ From your project root:
 npx @brucewaynedecoy/make-docs@next
 ```
 
+Use the scoped npm package name for `npx` lookup and installation. The executable exposed by that package is still `make-docs`; future package distributions must expose the same command, and if multiple implementations are installed, shell `PATH` order decides which one runs.
+
 The installer starts in full-install mode:
 
 - all capabilities are selected by default: `designs`, `plans`, `prd`, and `work`

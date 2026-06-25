@@ -40,6 +40,8 @@ npx @brucewaynedecoy/make-docs@next uninstall
 npx @brucewaynedecoy/make-docs@next skills
 ```
 
+Use the scoped npm package name for `npx` lookup and installation. The executable exposed by that package is still `make-docs`; future package distributions must expose the same command, and if multiple implementations are installed, shell `PATH` order decides which one runs.
+
 ## What Gets Installed
 
 The default profile can create:

@@ -1101,6 +1101,9 @@ describe("cli interactive flows", () => {
     expect(output).toContain("uninstall    Remove managed files, with an optional backup first.");
     expect(output).not.toContain("make-docs init");
     expect(output).not.toContain("make-docs update");
+    expect(output).not.toContain("makedocs");
+    expect(output).not.toContain("make-docs-js");
+    expect(output).not.toContain("make-docs-rs");
     expect(output).not.toContain("--reconfigure");
     expect(output).not.toContain("--skills");
     expect(output).toMatch(/--help/i);
@@ -1185,6 +1188,21 @@ describe("cli interactive flows", () => {
       cleanupTempDir(targetDir);
     }
   });
+
+  test.each(["makedocs", "make-docs-js", "make-docs-rs"])(
+    "rejects default compatibility alias %s",
+    async (alias) => {
+      const targetDir = createTempDir();
+
+      try {
+        const error = await captureCliError([alias, "--target", targetDir]);
+
+        expect(error.message).toContain(`Unknown argument: ${alias}`);
+      } finally {
+        cleanupTempDir(targetDir);
+      }
+    },
+  );
 
   test("documents backup help with lifecycle-specific options", async () => {
     setTTY(false);

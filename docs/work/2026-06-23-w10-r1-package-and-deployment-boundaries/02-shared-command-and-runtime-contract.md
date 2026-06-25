@@ -20,11 +20,11 @@ This phase covers user-facing command semantics, no default aliases, runtime/ver
 
 ### Tasks
 
-- [ ] t1: Verify the only primary executable in `packages/cli/package.json` is `make-docs`.
-- [ ] t2: Verify `packages/cli/src/cli.ts` exposes the no-command install/sync path plus `reconfigure`, `skills`, `backup`, and `uninstall` without adding command aliases.
-- [ ] t3: Add or update tests that prevent `makedocs`, `make-docs-js`, `make-docs-rs`, or other default command aliases from becoming accepted public commands.
-- [ ] t4: Review root and package README command examples so they use the scoped npm package plus the installed `make-docs` binary consistently.
-- [ ] t5: Preserve existing removed-command behavior for `init`, `update`, `--reconfigure`, and `--skills` unless a separate accepted design changes it.
+- [x] t1: Verify the only primary executable in `packages/cli/package.json` is `make-docs`.
+- [x] t2: Verify `packages/cli/src/cli.ts` exposes the no-command install/sync path plus `reconfigure`, `skills`, `backup`, and `uninstall` without adding command aliases.
+- [x] t3: Add or update tests that prevent `makedocs`, `make-docs-js`, `make-docs-rs`, or other default command aliases from becoming accepted public commands.
+- [x] t4: Review root and package README command examples so they use the scoped npm package plus the installed `make-docs` binary consistently.
+- [x] t5: Preserve existing removed-command behavior for `init`, `update`, `--reconfigure`, and `--skills` unless a separate accepted design changes it.
 
 ### Acceptance criteria
 
@@ -46,11 +46,11 @@ This phase covers user-facing command semantics, no default aliases, runtime/ver
 
 ### Tasks
 
-- [ ] t6: Review current help/version behavior and decide whether TypeScript runtime/version disclosure needs an immediate update before Rust exists.
-- [ ] t7: If runtime/version disclosure changes, update CLI output and tests so support can distinguish package version and runtime implementation.
-- [ ] t8: Document that npm and future Rust distributions are alternatives selected by PATH order, not commands users should normally chain together.
-- [ ] t9: Keep MCP startup work sequenced behind manifest, audit, backup, and uninstall safety; do not make TypeScript the long-term MCP runtime owner.
-- [ ] t10: Verify manifest provenance and audit-related docs/tests still describe TypeScript as current authority until Rust parity lands.
+- [x] t6: Review current help/version behavior and decide whether TypeScript runtime/version disclosure needs an immediate update before Rust exists.
+- [x] t7: If runtime/version disclosure changes, update CLI output and tests so support can distinguish package version and runtime implementation.
+- [x] t8: Document that npm and future Rust distributions are alternatives selected by PATH order, not commands users should normally chain together.
+- [x] t9: Keep MCP startup work sequenced behind manifest, audit, backup, and uninstall safety; do not make TypeScript the long-term MCP runtime owner.
+- [x] t10: Verify manifest provenance and audit-related docs/tests still describe TypeScript as current authority until Rust parity lands.
 
 ### Acceptance criteria
 
@@ -68,3 +68,13 @@ This phase covers user-facing command semantics, no default aliases, runtime/ver
 - `packages/cli/src/backup.ts`
 - `packages/cli/src/uninstall.ts`
 - [../../prd/05-installation-profile-and-manifest-lifecycle.md](../../prd/05-installation-profile-and-manifest-lifecycle.md)
+
+## Implementation Notes
+
+- `packages/cli/package.json` exposes only the `make-docs` binary for the scoped npm package `@brucewaynedecoy/make-docs`.
+- `packages/cli/src/cli.ts` keeps the current public command taxonomy to the no-command install/sync path plus `reconfigure`, `skills`, `backup`, and `uninstall`; no compatibility aliases were added.
+- `packages/cli/tests/cli.test.ts` now asserts top-level help omits `makedocs`, `make-docs-js`, and `make-docs-rs`, and rejects each alias as an unknown argument.
+- `README.md` and `packages/cli/README.md` now distinguish scoped npm lookup from the installed `make-docs` executable, and record that future npm/Rust implementations are selected by shell `PATH` order rather than chained together.
+- Current TypeScript-only help/version behavior was left unchanged. PRD 16 and PRD 25 require runtime/version disclosure before dual-runtime npm/Rust support is acceptable; no Rust implementation exists in this phase.
+- PRD 16 and PRD 25 keep MCP startup sequenced behind shared manifest, provenance, audit, backup, and uninstall contracts; this phase did not move long-term MCP runtime ownership to TypeScript.
+- UAT/manual testing remains deferred until the full W10 R1 wave is complete.
