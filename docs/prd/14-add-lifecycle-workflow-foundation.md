@@ -19,7 +19,7 @@ surface.
 ## Change Notes
 
 - The W15 source-authority reconciliation clarifies the work-backlog handoff: accepted designs, plans, PRDs, and current work contracts drive backlog structure and content before archived examples, installed skill projections, generated harness stubs, or dogfood/package copies are consulted as fallback evidence.
-- Revised by [22-revise-new-docs-assets-playbooks-persona-model.md](./22-revise-new-docs-assets-playbooks-persona-model.md): the W16 `docs/library/playbooks/<persona>/` placement is transitional. The v2 canonical playbook surface is `docs/assets/playbooks/<persona-slug>/`, and `persona` frontmatter is the authoritative audience target.
+- Revised by [22-revise-new-docs-assets-playbooks-persona-model.md](./22-revise-new-docs-assets-playbooks-persona-model.md): the W16 `docs/library/playbooks/<persona>/` placement was transitional and is migrated by W9 R5. The v2 canonical playbook surface is `docs/assets/playbooks/<persona-slug>/`, and `persona` frontmatter is the authoritative audience target.
 - Revised by [23-revise-generated-metadata-lifecycle-handoffs.md](./23-revise-generated-metadata-lifecycle-handoffs.md): generated lifecycle handoffs should carry `follow_on` frontmatter as tooling authority while preserving body `## Intended Follow-On` sections for readers.
 - Revised by [24-revise-configuration-convention-overlay.md](./24-revise-configuration-convention-overlay.md): lifecycle labels may be rendered with project-specific presentation text, but lifecycle routes, handoff fields, departure slugs, and W/R/P lineage remain canonical.
 - Revised by [26-revise-no-scripts-migration-skill-refactor.md](./26-revise-no-scripts-migration-skill-refactor.md): the deferred closeout/work skill refactor must move deterministic lifecycle helpers into CLI/shared-core operations and rewrite affected first-party skills in the same migration window before standalone scripts are removed or downgraded.
@@ -43,8 +43,8 @@ surface.
   that defaults to the arc while requiring departures to be surfaced rather than
   taken silently. No hard "never skip" gate.
 - **Persona-scoped playbook output type** — playbooks become a procedural output
-  type; W16 places the initial dogfood playbook under
-  `docs/library/playbooks/<persona>/`, but PRD 22 makes
+  type; W16 first placed the initial dogfood playbook under
+  `docs/library/playbooks/<persona>/`, but PRD 22 and W9 R5 make
   `docs/assets/playbooks/<persona-slug>/` the v2 canonical target.
 - **Stage follow-on handoffs** — plans, PRDs, and work backlogs gain an
   advisable-default-but-overridable `## Intended Follow-On`, mirroring design

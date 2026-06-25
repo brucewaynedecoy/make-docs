@@ -27,11 +27,11 @@ Mode detection is intent-based: infer the mode from user phrasing and confirm be
 
 - **Design** — scan `docs/plans/` for overview files linking back to the design.
 - **Plan** — scan `docs/work/` for index files linking back to the plan.
-- **Plan/Work** — scan `docs/assets/history/` for history records whose `coordinate` matches the same wave/revision. If older moved records do not have `coordinate`, fall back to W/R/P filename parsing.
+- **Plan/Work** — scan `docs/assets/archive/history/` for history records whose `coordinate` matches the same wave/revision. If older moved records do not have `coordinate`, fall back to W/R/P filename parsing.
 
 ### Lateral Tracing
 
-- **Any artifact** — scan `docs/guides/developer/` and `docs/guides/user/` for guides with `related` frontmatter pointing to the artifact.
+- **Any artifact** — scan `docs/assets/library/developer/` and `docs/assets/library/user/` for guides with `related` frontmatter pointing to the artifact.
 
 ### Slug-Based Heuristic
 

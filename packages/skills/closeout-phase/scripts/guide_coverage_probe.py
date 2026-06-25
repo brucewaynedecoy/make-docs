@@ -85,13 +85,8 @@ def changed_terms(repo_root: Path, changed_files_json: str | None, explicit_term
 
 def collect_guides(repo_root: Path, query_tokens: set[str]) -> list[dict[str, Any]]:
     guides: list[dict[str, Any]] = []
-    guide_dirs = [
-        repo_root / "docs" / "guides" / "developer",
-        repo_root / "docs" / "guides" / "user",
-    ]
-    asset_guides = repo_root / "docs" / "assets" / "guides"
-    if asset_guides.is_dir():
-        guide_dirs.extend(path for path in sorted(asset_guides.iterdir()) if path.is_dir())
+    asset_guides = repo_root / "docs" / "assets" / "library"
+    guide_dirs = [path for path in sorted(asset_guides.iterdir()) if path.is_dir()] if asset_guides.is_dir() else []
     for subdir in guide_dirs:
         if not subdir.is_dir():
             continue
@@ -106,7 +101,7 @@ def collect_guides(repo_root: Path, query_tokens: set[str]) -> list[dict[str, An
 def collect_persona_scoped_docs(repo_root: Path) -> list[Path]:
     paths: list[Path] = []
     for root in [
-        repo_root / "docs" / "assets" / "guides",
+        repo_root / "docs" / "assets" / "library",
         repo_root / "docs" / "assets" / "playbooks",
     ]:
         if not root.is_dir():

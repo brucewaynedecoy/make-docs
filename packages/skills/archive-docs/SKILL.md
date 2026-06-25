@@ -80,7 +80,7 @@ Archive-mode reminders:
 Use this mode when the user wants advisory analysis without moving or editing files.
 
 1. State `Mode: staleness-check`.
-2. Scan `docs/designs/`, `docs/plans/`, `docs/work/`, `docs/guides/developer/`, `docs/guides/user/`, and `docs/assets/history/`.
+2. Scan `docs/designs/`, `docs/plans/`, `docs/work/`, `docs/assets/library/developer/`, `docs/assets/library/user/`, and `docs/assets/archive/history/`.
 3. Evaluate staleness signals from [`references/archive-workflow.md`](./references/archive-workflow.md), including:
    - downstream completion
    - deprecated status

@@ -6,13 +6,13 @@ status: "active"
 
 # Make Docs Lifecycle Playbook
 
-This is the canonical W9 R3 reader-facing copy for the `agent` persona. Keep `docs/library/playbooks/agent/make-docs-lifecycle.md` readable until references fully migrate.
+This is the canonical reader-facing copy for the `agent` persona under the W9 R5 asset layout.
 
 This playbook is the agent persona's map for working through the
 make-docs lifecycle.
 It is not automation, does not enforce stage order, and does not gate work.
 Use the lifecycle anchor for ordering defaults:
-[lifecycle.md](../../references/lifecycle.md).
+[lifecycle.md](../../../../.make-docs/references/system/lifecycle.md).
 
 When user direction or repo evidence warrants a skip, reorder, or revisit,
 surface that departure and record the reason in the relevant artifact.
@@ -261,7 +261,7 @@ validation, and UAT or manual-test decisions.
 
 ### Suggested Assists
 
-- [coverage-pass-contract.md](../../../assets/references/coverage-pass-contract.md)
+- [coverage-pass-contract.md](../../../../.make-docs/contracts/system/coverage-pass-contract.md)
 - `closeout-phase`
 - `closeout-commit`
 
@@ -413,7 +413,7 @@ work deserves a new lifecycle pass.
 ### Suggested Assists
 
 - `retro`
-- `docs/assets/history/`
+- `docs/assets/archive/history/`
 - `docs/prd/03-open-questions-and-risk-register.md`
 
 Suggested assists are optional.

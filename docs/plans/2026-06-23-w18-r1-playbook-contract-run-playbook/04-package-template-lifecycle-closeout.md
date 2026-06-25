@@ -14,7 +14,7 @@ Implementation must account for:
 
 Manifest, catalog, audit, backup, uninstall, installer, CLI, MCP, and plugin changes are required only when implementation changes how playbooks are shipped, selected, enumerated, or executed.
 
-Any destructive migration from `docs/library/playbooks/**` must use the existing compatibility classification and single-audit safety rules.
+Any future cleanup touching former `docs/library/playbooks/**` evidence must use the existing compatibility classification and single-audit safety rules.
 
 ## Closeout Requirements
 

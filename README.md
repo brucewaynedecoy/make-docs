@@ -45,17 +45,17 @@ AGENTS.md             # Root agent instructions (multi-agent compatible)
 
 Each directory includes its own `CLAUDE.md` and `AGENTS.md` files with context-specific instructions for AI agents generating documentation within that directory.
 
-The support resource namespace under `docs/assets/` contains document resources only: archive records, history records, reusable prompts, references, and templates. Mutable CLI runtime state lives outside `docs/` under root `.make-docs/`.
+The support resource namespace under `docs/assets/` contains document resources only: archive records, optional pre-design artifacts, persona library guides, playbooks, reusable prompts, references, and templates. Mutable CLI runtime state lives outside `docs/` under root `.make-docs/`.
 
 ## Guide Discovery
 
 If you are using or maintaining `make-docs`, start with the guide that matches the job at hand:
 
-- Onboarding: [Installing Make Docs](docs/guides/user/getting-started-installing-make-docs.md) for first install and initial profile choices, then [Managing Installations with the Make Docs CLI](docs/guides/user/cli-lifecycle-managing-installations.md) for apply or sync, reconfigure, backup, uninstall, and recovery.
-- Workflows and concepts: [How Make Docs Stages Fit Together](docs/guides/user/workflows-how-make-docs-stages-fit-together.md), [Understanding W/R/P Coordinates](docs/guides/user/concepts-wave-revision-phase-coordinates.md), [Choosing the Right Route for Your Project](docs/guides/user/workflows-choosing-the-right-route-for-your-project.md), and the developer workflow companions in [`docs/guides/developer/`](docs/guides/developer/).
-- Lifecycle playbook: [Make Docs Lifecycle Playbook](docs/library/playbooks/agent/make-docs-lifecycle.md) for agent phase routing from inputs through retrospective.
-- CLI and skills: [Installing and Managing Skills](docs/guides/user/skills-installing-and-managing-skills.md), [Decomposing an Existing Codebase](docs/guides/user/skills-decomposing-an-existing-codebase.md), [Skills Catalog and Distribution Model](docs/guides/developer/skills-catalog-and-distribution-model.md), and [Building and Installing the CLI Locally](docs/guides/developer/cli-development-local-build-and-install.md).
-- Maintainer and release operations: [Guide Contracts and Authoring for make-docs](docs/guides/developer/template-contracts-guide-authoring.md), [Template Assets and Generated Routers](docs/guides/developer/template-assets-and-generated-routers.md), [Docs Assets and Runtime State Boundaries](docs/guides/developer/maintainer-docs-assets-and-runtime-state-boundaries.md), [Dogfood and Maintainer Operations](docs/guides/developer/maintainer-dogfood-and-maintainer-operations.md), and [Packaging, Validation, and Release Reference](docs/guides/developer/release-packaging-validation-and-release-reference.md).
+- Onboarding: [Installing Make Docs](docs/assets/library/user/getting-started-installing-make-docs.md) for first install and initial profile choices, then [Managing Installations with the Make Docs CLI](docs/assets/library/user/cli-lifecycle-managing-installations.md) for apply or sync, reconfigure, backup, uninstall, and recovery.
+- Workflows and concepts: [How Make Docs Stages Fit Together](docs/assets/library/user/workflows-how-make-docs-stages-fit-together.md), [Understanding W/R/P Coordinates](docs/assets/library/user/concepts-wave-revision-phase-coordinates.md), [Choosing the Right Route for Your Project](docs/assets/library/user/workflows-choosing-the-right-route-for-your-project.md), and the developer workflow companions in [`docs/assets/library/developer/`](docs/assets/library/developer/).
+- Lifecycle playbook: [Make Docs Lifecycle Playbook](docs/assets/playbooks/agent/make-docs-lifecycle.md) for agent phase routing from inputs through retrospective.
+- CLI and skills: [Installing and Managing Skills](docs/assets/library/user/skills-installing-and-managing-skills.md), [Decomposing an Existing Codebase](docs/assets/library/user/skills-decomposing-an-existing-codebase.md), [Skills Catalog and Distribution Model](docs/assets/library/developer/skills-catalog-and-distribution-model.md), and [Building and Installing the CLI Locally](docs/assets/library/developer/cli-development-local-build-and-install.md).
+- Maintainer and release operations: [Guide Contracts and Authoring for make-docs](docs/assets/library/developer/template-contracts-guide-authoring.md), [Template Assets and Generated Routers](docs/assets/library/developer/template-assets-and-generated-routers.md), [Docs Assets and Runtime State Boundaries](docs/assets/library/developer/maintainer-docs-assets-and-runtime-state-boundaries.md), [Dogfood and Maintainer Operations](docs/assets/library/developer/maintainer-dogfood-and-maintainer-operations.md), and [Packaging, Validation, and Release Reference](docs/assets/library/developer/release-packaging-validation-and-release-reference.md).
 
 ## Quick Start
 
@@ -173,7 +173,8 @@ After installing or copying, your project will have:
 - **`docs/`** -- A structured documentation directory with templates and agent instructions ready to use.
 - **`CLAUDE.md` / `AGENTS.md`** -- Root-level agent instructions that point AI agents to the documentation system. The installer can generate these to match the selected capability profile and will not overwrite conflicting files automatically.
 - **`.make-docs/manifest.json`** -- Present when you use the CLI installer. Tracks the selected profile and managed file hashes so future apply/sync runs stay narrow and safe.
-- **`docs/assets/history/`** -- Session history records for point-in-time work breadcrumbs. User and developer guides stay under `docs/guides/`.
+- **`docs/assets/library/`** -- Persona-based guides and related project documentation.
+- **`docs/assets/archive/history/`** -- Session history records for point-in-time work breadcrumbs, created on demand.
 
 The copy commands above scope to `packages/docs/template/`, which intentionally excludes the CLI source, repo-level scripts, and this repo's own dogfood `docs/`.
 

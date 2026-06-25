@@ -6,6 +6,10 @@ Implement the W9 R4 pivot planned in [../../plans/2026-06-25-w9-r4-v2-documentat
 
 This backlog executes the hard move from top-level `docs/artifacts/**` and rejected top-level `docs/archive/**` assumptions into the accepted `docs/assets/{archive,artifacts,breadcrumbs,guides,playbooks}/**` model, while keeping Make Docs machinery under `.make-docs/**`.
 
+## W9 R5 Supersession
+
+W9 R4 remains historical implementation evidence for the top-level artifact/archive hard move and `.make-docs/**` tool-resource split. W9 R5 supersedes W9 R4 for guide/library and history/breadcrumb targets: future work must use `docs/assets/library/**` and `docs/assets/archive/history/**`, not this backlog's `docs/assets/guides/**` or `docs/assets/breadcrumbs/**` targets.
+
 ## Phase Map
 
 | Phase | File | Purpose |
@@ -24,7 +28,7 @@ This backlog executes the hard move from top-level `docs/artifacts/**` and rejec
 - Do not preserve top-level `docs/artifacts/**` as a shipped alias.
 - Do not introduce top-level `docs/archive/**` as a shipped v2 target.
 - Do not treat repo-root dogfood cleanup as template source of truth.
-- Keep existing `docs/assets/history/**` as historical migration evidence; new closeout breadcrumb records belong under `docs/assets/breadcrumbs/**` once the W9 R4 migration changes the live contract.
+- W9 R5 moved preserved history and W9 R4 breadcrumb records under `docs/assets/archive/history/**`; use that location for current closeout records.
 - Skip manual/UAT decisions until the full W9 R4 implementation is complete.
 
 ## Intended Follow-On

@@ -38,7 +38,7 @@ Configuration may affect only presentation:
 
 Configuration must not rename or redirect canonical structure:
 
-- Repository paths such as `docs/designs/`, `docs/assets/archive/`, `docs/assets/artifacts/`, `docs/assets/breadcrumbs/`, `docs/assets/guides/`, `docs/assets/playbooks/`, or `.make-docs/`.
+- Repository paths such as `docs/designs/`, `docs/assets/archive/`, `docs/assets/archive/history/`, `docs/assets/artifacts/`, `docs/assets/library/`, `docs/assets/playbooks/`, or `.make-docs/`.
 - Frontmatter fields such as `title`, `kind`, `status`, `coordinate`, `persona`, `source`, `lifecycle`, or `follow_on`.
 - `kind` values, lifecycle departure slugs, source type values, route identifiers, prompt paths, skill names, contract names, harness names, or manifest keys.
 - Persona schema keys or primitive values.

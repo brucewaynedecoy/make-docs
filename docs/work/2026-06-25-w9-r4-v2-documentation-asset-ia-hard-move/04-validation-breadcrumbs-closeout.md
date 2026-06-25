@@ -58,8 +58,8 @@ This phase verifies the full pivot across docs, templates, package copies, CLI p
 
 - [x] t6: Update the risk register entry for R-013 with implementation evidence and remaining follow-up, if any.
 - [x] t7: Reconcile PRD 21 and PRD 22 source anchors or acceptance evidence if implementation differs from the planned path.
-- [x] t8: Create or update the W9 R4 closeout breadcrumb record under `docs/assets/breadcrumbs/**`.
-- [x] t9: Record that existing `docs/assets/history/**` records are preserved migration evidence and that new closeout breadcrumb records use `docs/assets/breadcrumbs/**`.
+- [x] t8: Create or update the W9 R4 closeout breadcrumb record under the then-current breadcrumb path; W9 R5 later migrated it to `docs/assets/archive/history/**`.
+- [x] t9: Record that existing history records were preserved migration evidence; W9 R5 later migrated preserved history and breadcrumbs to `docs/assets/archive/history/**`.
 - [x] t10: Decide whether manual/UAT is worthwhile for the completed W9 R4 implementation and document the decision.
 
 ### Acceptance criteria
@@ -78,8 +78,8 @@ This phase verifies the full pivot across docs, templates, package copies, CLI p
 - PRD 21 and PRD 22 already describe the implemented W9 R4 target paths, so no new PRD change document was needed.
 - Accepted v2 design and W18 R3 plan/PRD references now point to `docs/assets/artifacts/**`, `.make-docs/contracts/system/**`, and `.make-docs/references/system/prompts/**` where the W9 R4 pivot moved those authority surfaces.
 - Remaining unimplemented v2 work indexes now declare W9 R4 as a prerequisite or supersession gate before package/template/workflow phases use path-sensitive assumptions.
-- The W9 R4 breadcrumb is [../../assets/breadcrumbs/2026-06-25-w9-r4-v2-documentation-asset-ia-hard-move.md](../../assets/breadcrumbs/2026-06-25-w9-r4-v2-documentation-asset-ia-hard-move.md).
-- Existing `docs/assets/history/**` records remain pre-migration evidence. New closeout breadcrumb records use `docs/assets/breadcrumbs/**`.
+- The W9 R4 breadcrumb is [../../assets/archive/history/2026-06-25-w9-r4-v2-documentation-asset-ia-hard-move.md](../../assets/archive/history/2026-06-25-w9-r4-v2-documentation-asset-ia-hard-move.md).
+- Existing history records remain pre-migration evidence, now stored under `docs/assets/archive/history/**` after W9 R5.
 - `./.make-docs/build-process/` was not present in this checkout. The phase work used `docs/AGENTS.md`, `.make-docs/references/system/lifecycle.md`, W9 R4 phase docs, and the active PRD/design/plan authority.
 
 ### Manual/UAT Decision

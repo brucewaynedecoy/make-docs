@@ -25,7 +25,7 @@ Every other reference file, template, and router links here instead of restating
 | Work directory | `docs/work/YYYY-MM-DD-w{W}-r{R}-<slug>/` |
 | Work index file | `docs/work/YYYY-MM-DD-w{W}-r{R}-<slug>/00-index.md` |
 | Work phase file | `docs/work/YYYY-MM-DD-w{W}-r{R}-<slug>/0N-<phase>.md` |
-| Breadcrumb record | `docs/assets/breadcrumbs/YYYY-MM-DD-w{W}-r{R}-p{P}-<slug>.md` when W/R/P is known; see `.make-docs/contracts/system/history-record-contract.md` for fallbacks. |
+| Breadcrumb record | `docs/assets/archive/history/YYYY-MM-DD-w{W}-r{R}-p{P}-<slug>.md` when W/R/P is known; see `.make-docs/contracts/system/history-record-contract.md` for fallbacks. |
 
 `YYYY-MM-DD` is the date the artifact is written. Never backdate.
 

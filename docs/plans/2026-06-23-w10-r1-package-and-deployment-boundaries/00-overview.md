@@ -31,7 +31,7 @@ This plan returns the v2 package-boundary work to the normal lifecycle arc after
 | --- | --- | --- | --- |
 | Package and deployment boundary design | design doc | `docs/designs/2026-06-19-package-and-deployment-boundaries.md` | high |
 | First npm publishing design | design doc | `docs/designs/2026-04-15-cli-publishing.md` | high |
-| Prior package identity work | archived plan/work/history | `docs/assets/archive/plans/2026-04-21-w10-r0-make-docs-rename/`; `docs/assets/archive/work/2026-04-21-w10-r0-make-docs-rename/`; `docs/assets/history/2026-04-21-w10-r0-p1-core-package-and-cli-identity.md` | high |
+| Prior package identity work | archived plan/work/history | `docs/assets/archive/plans/2026-04-21-w10-r0-make-docs-rename/`; `docs/assets/archive/work/2026-04-21-w10-r0-make-docs-rename/`; `docs/assets/archive/history/2026-04-21-w10-r0-p1-core-package-and-cli-identity.md` | high |
 | Active PRD namespace | PRD docs | `docs/prd/00-index.md`; `docs/prd/03-open-questions-and-risk-register.md` | high |
 | Current TypeScript CLI package surface | package/code | `packages/cli/package.json`; `packages/cli/src/cli.ts`; `packages/cli/src/manifest.ts`; `packages/cli/src/audit.ts`; `packages/cli/src/backup.ts`; `packages/cli/src/uninstall.ts`; `scripts/smoke-pack.mjs` | high |
 

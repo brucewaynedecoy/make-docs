@@ -32,7 +32,7 @@ The configuration overlay may affect presentation:
 
 The configuration overlay must not rename structure:
 
-- Repository paths such as `docs/designs/`, `docs/assets/guides/`, `docs/assets/playbooks/`, or `.make-docs/`.
+- Repository paths such as `docs/designs/`, `docs/assets/library/`, `docs/assets/playbooks/`, or `.make-docs/`.
 - Frontmatter fields such as `title`, `kind`, `status`, `coordinate`, `persona`, `source`, `lifecycle`, or `follow_on`.
 - `kind` values, lifecycle departure slugs, source type values, route identifiers, prompt paths, skill names, contract names, harness names, or manifest keys.
 - Persona schema keys or primitive values. `agent`, `maintainer`, and `user` remain canonical primitives.

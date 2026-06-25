@@ -15,7 +15,7 @@ Pattern: `YYYY-MM-DD-w{W}-r{R}-<slug>/`
 ## Agent Instructions
 
 - Before writing, read `.make-docs/references/system/planning-workflow.md` and copy the matching template from `.make-docs/templates/system/` (`plan-overview.md` for `00-overview.md`; `plan-prd.md`, `plan-prd-decompose.md`, or `plan-prd-change.md` for the overview content shape).
-- When updating or executing plans written before W9 R4, apply `docs/plans/2026-06-25-w9-r4-v2-documentation-asset-ia-hard-move/00-overview.md` as the superseding asset-IA authority. Do not carry forward old future-facing targets for top-level `docs/artifacts/**`, top-level `docs/archive/**`, future `docs/assets/history/**` writes, or `docs/assets/{prompts,references,templates}/**` tool resources.
+- When updating or executing plans written before W9 R5, apply `docs/plans/2026-06-25-w9-r5-v2-library-and-archive-history-ia-correction/00-overview.md` as the superseding library/history asset-IA authority. W9 R4 remains historical evidence for top-level artifact/archive and `.make-docs/**` tool-resource moves, but do not carry forward old future-facing targets for `docs/assets/guides/**`, `docs/assets/breadcrumbs/**`, `docs/assets/history/**`, `docs/guides/**`, `docs/library/**`, top-level `docs/artifacts/**`, top-level `docs/archive/**`, or `docs/assets/{prompts,references,templates}/**`.
 - Always create the plan as a directory; even single-phase plans use the same shape with one `0N-<phase>.md` file.
 - Apply the date-slug-W/R naming; do not backdate plans.
 - Plans are written before execution, not retroactively.

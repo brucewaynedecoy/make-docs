@@ -88,7 +88,7 @@ Rules:
 Body:
 
 - Copy the first paragraph under `## Changes` from the matching history record.
-- Prefer `docs/assets/breadcrumbs/`; use `docs/assets/history/` only for pre-migration records.
+- Prefer `docs/assets/archive/history/`.
 - If the repo has not migrated yet, accept legacy history records identified by the legacy router.
 - Do not include tables, documentation sections, verification lists, or extra commentary in the commit body.
 
@@ -97,7 +97,7 @@ Example:
 ```text
 feat: [W8 R0 P5] CLI command simplification - Apply and sync output polish
 
-Implemented a Wave 8 follow-up phase for the `make-docs` apply/sync review output, framed by the command simplification design (`docs/designs/2026-04-20-cli-command-simplification.md`) and the completed Phase 4 validation work in the Phase 4 history record (`docs/assets/history/2026-04-20-w8-r0-p4-cli-command-simplification.md`). This phase focused on making the already-installed no-op sync readout clearer, less redundant, and consistent with Clack-rendered CLI screens.
+Implemented a Wave 8 follow-up phase for the `make-docs` apply/sync review output, framed by the command simplification design (`docs/designs/2026-04-20-cli-command-simplification.md`) and the completed Phase 4 validation work in the Phase 4 history record (`docs/assets/archive/history/2026-04-20-w8-r0-p4-cli-command-simplification.md`). This phase focused on making the already-installed no-op sync readout clearer, less redundant, and consistent with Clack-rendered CLI screens.
 ```
 
 ## Plan Commits

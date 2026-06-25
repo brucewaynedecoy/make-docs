@@ -6,12 +6,12 @@ Define the implementation contract for moving guide and playbook intent into the
 
 ## Canonical Tree
 
-The future reader-facing tree is:
+The future reader-facing tree after W9 R5 is:
 
 ```text
 docs/
   assets/
-    guides/
+    library/
       AGENTS.md
       <persona-slug>/
         <guide-slug>.md
@@ -21,7 +21,7 @@ docs/
         <playbook-slug>.md
 ```
 
-`docs/assets/guides/**` contains explanatory, conceptual, operational, or reference material written for a configured persona. Guides support reader decisions; they are not implementation diaries.
+`docs/assets/library/**` contains explanatory, conceptual, operational, or reference material written for a configured persona. Library docs support reader decisions; they are not implementation diaries.
 
 `docs/assets/playbooks/**` contains persona-scoped repeatable process definitions. A playbook is content. It can be followed manually by an agent or person and may later be consumed by a Run Playbook executor, but it does not invoke tools or become a plugin by existing under this path.
 
@@ -31,10 +31,12 @@ Implementation planning should treat these mappings as the canonical migration d
 
 | Current surface | Target surface | Notes |
 | --- | --- | --- |
-| `docs/guides/**` | `docs/assets/guides/**` | Preserve persona intent and router behavior; add `persona` frontmatter where missing. |
-| `docs/library/playbooks/**` | `docs/assets/playbooks/**` | Treat W16 placement as transitional; preserve lineage and links. |
+| `docs/guides/**` | `docs/assets/library/**` | Preserve persona intent and router behavior; add `persona` frontmatter where missing. |
+| `docs/assets/guides/**` | `docs/assets/library/**` | W9 R5 guide-router correction; preserve lineage and links. |
+| `docs/library/playbooks/**` | `docs/assets/playbooks/**` | Treat W16 placement as migrated transitional evidence; preserve lineage and links. |
 | `docs/assets/archive/**` | `docs/assets/archive/**` | W9 R4 keeps archive storage under managed project assets and rejects top-level `docs/archive/**` as a shipped v2 target. |
-| `docs/assets/history/**` | `docs/assets/breadcrumbs/**` | Existing history records remain pre-migration evidence; new breadcrumb records use `docs/assets/breadcrumbs/**`. |
+| `docs/assets/history/**` | `docs/assets/archive/history/**` | W9 R5 moves history records into managed archive history. |
+| `docs/assets/breadcrumbs/**` | `docs/assets/archive/history/**` | W9 R5 moves W9 R4 breadcrumb records into managed archive history. |
 | `docs/assets/{prompts,references,templates}/**` | `.make-docs/{contracts,references,templates}/system/**` | Governed by PRD 21 and W9 R4, not this reader-facing asset model. |
 
 ## Source of Truth
@@ -70,6 +72,6 @@ The implementation backlog must audit and update:
 ## Non-Goals
 
 - Do not migrate tool resources into `docs/assets/**`; PRD 21 owns `.make-docs/**`.
-- Do not make archive or history content reader-facing reusable assets by default.
+- Do not make archive or archive-history content reader-facing reusable assets by default.
 - Do not implement Run Playbook execution; future Batch 4 work consumes playbook content.
 - Do not make persona directory placement authoritative over frontmatter.

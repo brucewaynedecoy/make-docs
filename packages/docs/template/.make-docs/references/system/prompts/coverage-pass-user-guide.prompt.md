@@ -5,11 +5,11 @@ ___
 
 Please run the user-guide coverage pass for the completed work context supplied with this request.
 
-Before writing anything, read `.make-docs/contracts/system/coverage-pass-contract.md`, `.make-docs/contracts/system/guide-contract.md`, and the router at `docs/assets/guides/AGENTS.md` (or `CLAUDE.md`). Treat those files as the authority; cite them in your closeout summary but do not restate their shared mechanics.
+Before writing anything, read `.make-docs/contracts/system/coverage-pass-contract.md`, `.make-docs/contracts/system/guide-contract.md`, and the router at `docs/assets/library/AGENTS.md` (or `CLAUDE.md`). Treat those files as the authority; cite them in your closeout summary but do not restate their shared mechanics.
 
 Use the guide coverage surface from the coverage-pass contract and the user-guide audience rules from the guide contract. If persona configuration exists, use the configured persona names; otherwise target the legacy `User` persona.
 
-Inspect existing guides under `docs/assets/guides/user/` and related developer guides under `docs/assets/guides/developer/`. Enumerate every candidate user-facing capability, workflow, concept, decision point, prerequisite, expected result, or troubleshooting item from the completed work.
+Inspect existing guides under `docs/assets/library/user/` and related developer guides under `docs/assets/library/developer/`. Enumerate every candidate user-facing capability, workflow, concept, decision point, prerequisite, expected result, or troubleshooting item from the completed work.
 
 Assign exactly one verdict to every candidate: `create`, `update-existing`, `link-only`, or `none`. Include the target persona and a reason for each candidate, including `none`. Prefer updating an existing guide when it owns the topic.
 

@@ -59,7 +59,7 @@ Before writing guide files:
 1. Read `docs/assets/references/guide-contract.md` when it exists.
 2. Read the matching guide templates under `docs/assets/templates/`.
 3. Inspect `guide_coverage_probe.py` output before opening existing guide files.
-4. Inspect only existing guides under `docs/guides/developer/` and `docs/guides/user/` that overlap the phase, changed files, or guide decision.
+4. Inspect only existing library docs under `docs/assets/library/developer/` and `docs/assets/library/user/` that overlap the phase, changed files, or guide decision.
 5. Decide the outcome for each documentation-worthy capability: `developer`, `user`, `both`, `update-existing`, `link-only`, or `none`.
 
 Create or update a developer guide when at least one condition is true:
@@ -121,7 +121,7 @@ When no novel gaps were found, explicitly record `No novel gaps were found` in t
 
 ## Gate 4: History Entry
 
-Always create or update a phase closeout history entry under `docs/assets/history/`.
+Always create or update a phase closeout history entry under `docs/assets/archive/history/`.
 
 The history entry should include:
 

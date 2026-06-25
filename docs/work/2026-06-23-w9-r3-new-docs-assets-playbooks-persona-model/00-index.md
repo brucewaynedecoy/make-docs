@@ -4,9 +4,9 @@
 
 Implement the requirements planned in [../../plans/2026-06-23-w9-r3-new-docs-assets-playbooks-persona-model/00-overview.md](../../plans/2026-06-23-w9-r3-new-docs-assets-playbooks-persona-model/00-overview.md) and captured in [../../prd/22-revise-new-docs-assets-playbooks-persona-model.md](../../prd/22-revise-new-docs-assets-playbooks-persona-model.md).
 
-## W9 R4 Supersession Note
+## W9 R5 Supersession Note
 
-W9 R3 is completed historical implementation evidence. Before using this backlog for follow-on work, apply [W9 R4 v2 Documentation Asset IA Hard Move](../2026-06-25-w9-r4-v2-documentation-asset-ia-hard-move/00-index.md) as the blocking pivot. W9 R4 supersedes the W9 R3 top-level `docs/archive/**` direction with `docs/assets/archive/**`, changes future history writes to `docs/assets/breadcrumbs/**`, hard-moves top-level `docs/artifacts/**` to `docs/assets/artifacts/**`, and keeps tool resources under `.make-docs/**`.
+W9 R3 is completed historical implementation evidence. Before using this backlog for follow-on work, apply [W9 R5 v2 Library and Archive History IA Correction](../2026-06-25-w9-r5-v2-library-and-archive-history-ia-correction/00-index.md) as the blocking pivot. W9 R4 superseded the W9 R3 top-level archive/artifact direction; W9 R5 further changes future guide/persona docs to `docs/assets/library/**` and future history/breadcrumb records to `docs/assets/archive/history/**`.
 
 ## Source Inputs
 
@@ -28,7 +28,7 @@ W9 R3 is completed historical implementation evidence. Before using this backlog
 
 - Preserve `.make-docs/**` as the tool-resource and runtime namespace from PRD 21.
 - Preserve PRD 19 template-first authoring and reviewed dogfood reseeding.
-- Treat `docs/library/playbooks/**` as transitional.
+- Treat `docs/library/playbooks/**` as migrated historical evidence.
 - Treat `docs/assets/archive/**` as the managed archive surface; older W9 R3 references to top-level `docs/archive/**` are superseded by W9 R4.
 - Do not implement Run Playbook execution in this backlog.
 - Do not make directory placement authoritative over `persona` frontmatter.

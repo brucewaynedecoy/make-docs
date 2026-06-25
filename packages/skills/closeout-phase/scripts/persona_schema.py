@@ -31,7 +31,7 @@ DEFAULT_PERSONAS: list[dict[str, str]] = [
     },
 ]
 VERDICTS = ["create", "update-existing", "link-only", "none"]
-PERSONA_SCOPED_ROOTS = ("docs/assets/guides", "docs/assets/playbooks")
+PERSONA_SCOPED_ROOTS = ("docs/assets/library", "docs/assets/playbooks")
 
 
 def validate_personas(personas: list[dict[str, Any]]) -> list[str]:

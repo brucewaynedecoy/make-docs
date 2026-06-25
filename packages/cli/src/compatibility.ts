@@ -94,7 +94,7 @@ const CANONICAL_FALLBACK_PATHS = [
   "docs/assets/AGENTS.md",
   "docs/assets/artifacts/AGENTS.md",
   "docs/assets/archive/AGENTS.md",
-  "docs/assets/breadcrumbs/AGENTS.md",
+  "docs/assets/library/AGENTS.md",
   ".make-docs/references/system/lifecycle.md",
   ".make-docs/contracts/system/guide-contract.md",
   ".make-docs/templates/system/history-record.md",

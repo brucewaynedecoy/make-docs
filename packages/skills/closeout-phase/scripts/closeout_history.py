@@ -151,7 +151,7 @@ def main() -> int:
     parser.add_argument("--phase-json", help="Path to work_phase_state.py JSON output.")
     parser.add_argument("--title", help="History entry title.")
     parser.add_argument("--date", default=dt.date.today().isoformat(), help="Date prefix.")
-    parser.add_argument("--output-dir", default="docs/assets/history", help="History directory.")
+    parser.add_argument("--output-dir", default="docs/assets/archive/history", help="History directory.")
     parser.add_argument("--write", action="store_true", help="Write the skeleton file.")
     args = parser.parse_args()
 

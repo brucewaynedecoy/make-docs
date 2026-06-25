@@ -1,8 +1,8 @@
 # W18 R1 Playbook Contract Run Playbook Work
 
-## W9 R4 Prerequisite
+## W9 R5 Prerequisite
 
-Before executing this backlog, apply [W9 R4 v2 Documentation Asset IA Hard Move](../2026-06-25-w9-r4-v2-documentation-asset-ia-hard-move/00-index.md). W18 R1 playbook behavior must target `docs/assets/playbooks/**`, use `.make-docs/**` for system contracts and prompts, and avoid pre-pivot `docs/library/playbooks/**` or `docs/assets/references/**` assumptions except as migration evidence.
+Before executing this backlog, apply [W9 R5 v2 Library and Archive History IA Correction](../2026-06-25-w9-r5-v2-library-and-archive-history-ia-correction/00-index.md). W18 R1 playbook behavior must target `docs/assets/playbooks/**`, use `.make-docs/**` for system contracts and prompts, and treat `docs/library/playbooks/**` only as historical migration evidence.
 
 ## Purpose
 

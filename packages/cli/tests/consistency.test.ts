@@ -32,8 +32,8 @@ const GUIDE_TEMPLATE_PARITY_PATHS = [
   ".make-docs/templates/system/guide-developer.md",
   ".make-docs/templates/system/guide-user.md",
   ".make-docs/references/system/prompts/work-to-guides.prompt.md",
-  "docs/assets/guides/AGENTS.md",
-  "docs/assets/guides/CLAUDE.md",
+  "docs/assets/library/AGENTS.md",
+  "docs/assets/library/CLAUDE.md",
   "docs/assets/playbooks/AGENTS.md",
   "docs/assets/playbooks/CLAUDE.md",
 ];
@@ -43,10 +43,8 @@ const READER_ASSET_ROUTER_PATHS = [
   "docs/assets/archive/CLAUDE.md",
   "docs/assets/artifacts/AGENTS.md",
   "docs/assets/artifacts/CLAUDE.md",
-  "docs/assets/breadcrumbs/AGENTS.md",
-  "docs/assets/breadcrumbs/CLAUDE.md",
-  "docs/assets/guides/AGENTS.md",
-  "docs/assets/guides/CLAUDE.md",
+  "docs/assets/library/AGENTS.md",
+  "docs/assets/library/CLAUDE.md",
   "docs/assets/playbooks/AGENTS.md",
   "docs/assets/playbooks/CLAUDE.md",
 ];
@@ -323,7 +321,7 @@ describe("risk register routing contract", () => {
       "Q-011 Should Coordinate and Prefix Conventions Be Configurable?",
       "Q-012 How Do Plugins and Skills Share an Install and Respect Config Mapping?",
       "Q-013 What Are the Plugin Flow and Exposure Boundaries?",
-      "Q-014 Does the `docs/library/` Move Land in W16 or the Broader Restructure?",
+      "Q-014 How Did the Transitional `docs/library/` Move Resolve?",
     ]);
     expect(itemHeadings(risks)).toEqual([
       "R-001 Home-Scoped Skills Are Easy to Drop From a Clean-Room Rebuild",
@@ -359,10 +357,10 @@ describe("risk register routing contract", () => {
 describe("guide generation routing contract", () => {
   test("guide routers require audience decisions and future coverage notes", () => {
     for (const relativePath of [
-      "docs/assets/guides/AGENTS.md",
-      "docs/assets/guides/CLAUDE.md",
-      "packages/docs/template/docs/assets/guides/AGENTS.md",
-      "packages/docs/template/docs/assets/guides/CLAUDE.md",
+      "docs/assets/library/AGENTS.md",
+      "docs/assets/library/CLAUDE.md",
+      "packages/docs/template/docs/assets/library/AGENTS.md",
+      "packages/docs/template/docs/assets/library/CLAUDE.md",
     ]) {
       const contents = readFileSync(path.join(REPO_ROOT, relativePath), "utf8");
 
@@ -392,16 +390,16 @@ describe("guide generation routing contract", () => {
 
   test("reader-facing asset routers define guide and playbook namespace boundaries", () => {
     for (const relativePath of [
-      "docs/assets/guides/AGENTS.md",
-      "docs/assets/guides/CLAUDE.md",
-      "packages/docs/template/docs/assets/guides/AGENTS.md",
-      "packages/docs/template/docs/assets/guides/CLAUDE.md",
+      "docs/assets/library/AGENTS.md",
+      "docs/assets/library/CLAUDE.md",
+      "packages/docs/template/docs/assets/library/AGENTS.md",
+      "packages/docs/template/docs/assets/library/CLAUDE.md",
     ]) {
       const contents = readFileSync(path.join(REPO_ROOT, relativePath), "utf8");
 
-      expect(contents).toContain("docs/assets/guides/<persona-slug>/");
+      expect(contents).toContain("docs/assets/library/<persona-slug>/");
       expect(contents).toContain("persona");
-      expect(contents).toContain("docs/assets/guides/**");
+      expect(contents).toContain("docs/assets/library/**");
     }
 
     for (const relativePath of [
@@ -414,7 +412,7 @@ describe("guide generation routing contract", () => {
 
       expect(contents).toContain("docs/assets/playbooks/<persona-slug>/");
       expect(contents).toContain("not plugins");
-      expect(contents).toContain("docs/library/playbooks/**");
+      expect(contents).toContain("docs/assets/archive/history/");
     }
   });
 
@@ -482,7 +480,8 @@ describe("path hygiene contract", () => {
       const contents = readFileSync(path.join(REPO_ROOT, relativePath), "utf8");
 
       expect(contents).toContain("## Namespace Hygiene");
-      expect(contents).toContain("docs/assets/guides/**");
+      expect(contents).toContain("docs/assets/library/**");
+      expect(contents).toContain("docs/assets/archive/history/**");
       expect(contents).toContain("docs/assets/playbooks/**");
       expect(contents).toContain(".make-docs/manifest.json");
       expect(contents).toContain("docs/assets/archive/**");

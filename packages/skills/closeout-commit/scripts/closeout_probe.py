@@ -120,15 +120,15 @@ def classify_path(path: str) -> str:
 def discover_contracts(repo_root: Path) -> dict[str, Any]:
     candidates = {
         "rootAgentInstructions": ["AGENTS.md", "CLAUDE.md"],
-        "historyDir": ["docs/assets/history"],
+        "historyDir": ["docs/assets/archive/history"],
         "riskRegister": ["docs/prd/03-open-questions-and-risk-register.md"],
         "commitConvention": ["docs/assets/references/commit-message-convention.md"],
         "templateCommitConvention": [
             "packages/docs/template/docs/assets/references/commit-message-convention.md"
         ],
-        "guideContract": ["docs/assets/references/guide-contract.md"],
-        "developerGuides": ["docs/guides/developer"],
-        "userGuides": ["docs/guides/user"],
+        "guideContract": [".make-docs/contracts/system/guide-contract.md"],
+        "developerGuides": ["docs/assets/library/developer"],
+        "userGuides": ["docs/assets/library/user"],
     }
     result: dict[str, Any] = {}
     for name, paths in candidates.items():
@@ -170,7 +170,7 @@ def extract_coordinates(paths: list[str]) -> list[dict[str, Any]]:
 
 
 def discover_history_candidates(repo_root: Path, coordinates: list[dict[str, Any]]) -> list[str]:
-    history_dir = repo_root / "docs" / "assets" / "history"
+    history_dir = repo_root / "docs" / "assets" / "archive" / "history"
     if not history_dir.is_dir():
         return []
     terms: set[str] = set()

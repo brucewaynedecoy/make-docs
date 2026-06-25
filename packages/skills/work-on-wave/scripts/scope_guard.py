@@ -23,7 +23,7 @@ def is_allowed(path: str, allowed: list[str], wave_slug: str, phase_path: str) -
     normalized = path.strip("/")
     if normalized == phase_path or normalized.startswith(f"docs/work/{wave_slug}/"):
         return True
-    if normalized.startswith(("docs/assets/history/", "docs/guides/")):
+    if normalized.startswith(("docs/assets/archive/history/", "docs/assets/library/")):
         return True
     for item in allowed:
         clean = item.strip("/")

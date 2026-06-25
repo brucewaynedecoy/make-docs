@@ -111,7 +111,7 @@ class GuideCoverageProbeTests(unittest.TestCase):
     def test_scores_guides_against_changed_file_terms(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
-            guide = root / "docs" / "guides" / "developer" / "closeout-fast-path.md"
+            guide = root / "docs" / "assets" / "library" / "developer" / "closeout-fast-path.md"
             guide.parent.mkdir(parents=True)
             guide.write_text(
                 "---\n"
@@ -132,7 +132,7 @@ class GuideCoverageProbeTests(unittest.TestCase):
             terms = guide_coverage_probe.changed_terms(root, str(probe_json), ["fast"])
             guides = guide_coverage_probe.collect_guides(root, terms)
 
-        self.assertEqual(guides[0]["path"], "docs/guides/developer/closeout-fast-path.md")
+        self.assertEqual(guides[0]["path"], "docs/assets/library/developer/closeout-fast-path.md")
         self.assertEqual(guides[0]["persona"], "developer")
         self.assertEqual(guides[0]["primitive"], "maintainer")
         self.assertGreater(guides[0]["score"], 0)
@@ -141,7 +141,7 @@ class GuideCoverageProbeTests(unittest.TestCase):
     def test_scores_persona_scoped_guides_from_assets_tree(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
-            guide = root / "docs" / "assets" / "guides" / "developer" / "closeout-fast-path.md"
+            guide = root / "docs" / "assets" / "library" / "developer" / "closeout-fast-path.md"
             guide.parent.mkdir(parents=True)
             guide.write_text(
                 "---\n"
@@ -155,14 +155,14 @@ class GuideCoverageProbeTests(unittest.TestCase):
 
             guides = guide_coverage_probe.collect_guides(root, {"closeout"})
 
-        self.assertEqual(guides[0]["path"], "docs/assets/guides/developer/closeout-fast-path.md")
+        self.assertEqual(guides[0]["path"], "docs/assets/library/developer/closeout-fast-path.md")
         self.assertEqual(guides[0]["persona"], "developer")
         self.assertEqual(guides[0]["personaValidationErrors"], [])
 
     def test_missing_persona_frontmatter_fails_for_persona_scoped_docs(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
-            guide = root / "docs" / "assets" / "guides" / "developer" / "missing-persona.md"
+            guide = root / "docs" / "assets" / "library" / "developer" / "missing-persona.md"
             guide.parent.mkdir(parents=True)
             guide.write_text("# Missing Persona\n", encoding="utf-8")
 

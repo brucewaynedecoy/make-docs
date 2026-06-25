@@ -5,9 +5,9 @@ ___
 
 Please review the completed work below and create or update the appropriate developer and/or user guides.
 
-Before writing anything, read `.make-docs/contracts/system/coverage-pass-contract.md`, `.make-docs/contracts/system/guide-contract.md`, the matching guide template in `.make-docs/templates/system/`, and the router in `docs/assets/guides/`. Treat those files as the authority for coverage-pass mechanics, audience intent, frontmatter, slug rules, guide coverage decisions, and future coverage handling.
+Before writing anything, read `.make-docs/contracts/system/coverage-pass-contract.md`, `.make-docs/contracts/system/guide-contract.md`, the matching guide template in `.make-docs/templates/system/`, and the router in `docs/assets/library/`. Treat those files as the authority for coverage-pass mechanics, audience intent, frontmatter, slug rules, guide coverage decisions, and future coverage handling.
 
-Start by inspecting existing guides under `docs/assets/guides/developer/` and `docs/assets/guides/user/`. Decide whether each completed capability should result in `developer`, `user`, `both`, `update-existing`, `link-only`, or `none`.
+Start by inspecting existing guides under `docs/assets/library/developer/` and `docs/assets/library/user/`. Decide whether each completed capability should result in `developer`, `user`, `both`, `update-existing`, `link-only`, or `none`.
 
 When this prompt is used as a coverage pass, apply the history idempotency rule and validation checklist in `coverage-pass-contract.md`, and record a verdict and reason for every candidate, including `none`.
 

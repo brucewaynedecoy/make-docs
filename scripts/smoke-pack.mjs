@@ -24,10 +24,8 @@ const EXPECTED_READER_ASSET_PATHS = [
   "docs/assets/archive/CLAUDE.md",
   "docs/assets/artifacts/AGENTS.md",
   "docs/assets/artifacts/CLAUDE.md",
-  "docs/assets/breadcrumbs/AGENTS.md",
-  "docs/assets/breadcrumbs/CLAUDE.md",
-  "docs/assets/guides/AGENTS.md",
-  "docs/assets/guides/CLAUDE.md",
+  "docs/assets/library/AGENTS.md",
+  "docs/assets/library/CLAUDE.md",
   "docs/assets/playbooks/AGENTS.md",
   "docs/assets/playbooks/CLAUDE.md",
 ];
@@ -286,8 +284,8 @@ try {
   writeFileSync(customFilePath, "preserve this unmanaged smoke fixture\n", "utf8");
   const customReaderAssetPaths = [
     "docs/assets/artifacts/custom-source/preserve.md",
-    "docs/assets/breadcrumbs/custom-history.md",
-    "docs/assets/guides/custom-persona/preserve.md",
+    "docs/assets/archive/history/custom-history.md",
+    "docs/assets/library/custom-persona/preserve.md",
     "docs/assets/playbooks/custom-persona/preserve.md",
   ];
   for (const relativePath of customReaderAssetPaths) {
@@ -460,6 +458,18 @@ function assertPackedReaderFacingTemplate(packageRoot) {
       `Packed template omitted ${relativePath}.`,
     );
   }
+  for (const relativePath of [
+    "docs/assets/breadcrumbs",
+    "docs/assets/history",
+    "docs/assets/guides",
+    "docs/guides",
+    "docs/library",
+  ]) {
+    assertMissing(
+      path.join(packageRoot, "template", relativePath),
+      `Packed template still includes superseded default path ${relativePath}.`,
+    );
+  }
 
   const assetsRouter = readFileSync(
     path.join(packageRoot, "template/docs/assets/AGENTS.md"),
@@ -467,8 +477,8 @@ function assertPackedReaderFacingTemplate(packageRoot) {
   );
   assertOutputContains(
     assetsRouter,
-    "docs/assets/guides/<persona-slug>/",
-    "Packed assets router omitted the canonical guide asset namespace.",
+    "docs/assets/library/<persona-slug>/",
+    "Packed assets router omitted the canonical library asset namespace.",
   );
   assertOutputContains(
     assetsRouter,
@@ -487,8 +497,13 @@ function assertPackedReaderFacingTemplate(packageRoot) {
   );
   assertOutputContains(
     assetsRouter,
+    "docs/assets/archive/history/**",
+    "Packed assets router omitted the archive history namespace handoff.",
+  );
+  assertOutputExcludes(
+    assetsRouter,
     "docs/assets/breadcrumbs/**",
-    "Packed assets router omitted the breadcrumb namespace handoff.",
+    "Packed assets router still advertises the superseded breadcrumb namespace.",
   );
   assertOutputExcludes(
     assetsRouter,
@@ -547,12 +562,24 @@ function assertInstalledReaderFacingAssets(targetDir) {
       `Smoke pack install did not produce ${relativePath}.`,
     );
   }
+  for (const relativePath of [
+    "docs/assets/breadcrumbs",
+    "docs/assets/history",
+    "docs/assets/guides",
+    "docs/guides",
+    "docs/library",
+  ]) {
+    assertMissing(
+      path.join(targetDir, relativePath),
+      `Smoke pack install still produced superseded default path ${relativePath}.`,
+    );
+  }
 
   const assetsRouter = readFileSync(path.join(targetDir, "docs/assets/AGENTS.md"), "utf8");
   assertOutputContains(
     assetsRouter,
-    "docs/assets/guides/<persona-slug>/",
-    "Smoke pack assets router omitted the canonical guide asset namespace.",
+    "docs/assets/library/<persona-slug>/",
+    "Smoke pack assets router omitted the canonical library asset namespace.",
   );
   assertOutputContains(
     assetsRouter,
@@ -571,8 +598,13 @@ function assertInstalledReaderFacingAssets(targetDir) {
   );
   assertOutputContains(
     assetsRouter,
+    "docs/assets/archive/history/**",
+    "Smoke pack assets router omitted the archive history namespace handoff.",
+  );
+  assertOutputExcludes(
+    assetsRouter,
     "docs/assets/breadcrumbs/**",
-    "Smoke pack assets router omitted the breadcrumb namespace handoff.",
+    "Smoke pack assets router still advertises the superseded breadcrumb namespace.",
   );
   assertOutputExcludes(
     assetsRouter,

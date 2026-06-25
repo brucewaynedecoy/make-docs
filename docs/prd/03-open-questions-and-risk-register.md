@@ -114,13 +114,13 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | [21-revise-tool-directory-system-custom-resource-tiers.md](./21-revise-tool-directory-system-custom-resource-tiers.md) makes `.make-docs/**` the explicit tool directory and keeps historical `docs/.references/`, `docs/.templates/`, and `docs/assets/config/manifest.json` paths non-current; [22-revise-new-docs-assets-playbooks-persona-model.md](./22-revise-new-docs-assets-playbooks-persona-model.md) keeps future managed project documentation assets under `docs/assets/{archive,artifacts,breadcrumbs,guides,playbooks}/` rather than treating all `docs/assets/**` content as tool resources. | Add clearer historical disclaimers or repair active links that imply hidden-dot paths, top-level artifact/archive roots, or broad `docs/assets/**` tool-resource ownership are live. |
+| Open | [21-revise-tool-directory-system-custom-resource-tiers.md](./21-revise-tool-directory-system-custom-resource-tiers.md) makes `.make-docs/**` the explicit tool directory and keeps historical `docs/.references/`, `docs/.templates/`, and `docs/assets/config/manifest.json` paths non-current; [22-revise-new-docs-assets-playbooks-persona-model.md](./22-revise-new-docs-assets-playbooks-persona-model.md) keeps future managed project documentation assets under `docs/assets/{archive,artifacts,library,playbooks}/` plus on-demand `docs/assets/archive/history/**` rather than treating all `docs/assets/**` content as tool resources. | Add clearer historical disclaimers or repair active links that imply hidden-dot paths, top-level artifact/archive roots, old guide/breadcrumb/history roots, or broad `docs/assets/**` tool-resource ownership are live. |
 
 **Issue**: Current state is split between transitional docs asset copies and root `.make-docs/**` state per `README.md:16-46` and `packages/cli/src/manifest.ts:18-20`, while migration docs still refer to `docs/.references/`, `docs/.templates/`, and `docs/assets/config/manifest.json`.
 
 **Why it matters**: Contributors can accidentally treat migration history as live contract.
 
-**Recommendation**: Ensure active docs consistently point tool resources at `.make-docs/**`, managed project documentation assets at `docs/assets/{archive,artifacts,breadcrumbs,guides,playbooks}/`, and archived docs as clearly historical when linked.
+**Recommendation**: Ensure active docs consistently point tool resources at `.make-docs/**`, managed project documentation assets at `docs/assets/{archive,artifacts,library,playbooks}/` plus on-demand `docs/assets/archive/history/**`, and archived docs as clearly historical when linked.
 
 **To close**: Active docs no longer imply hidden-dot paths are current; historical links remain only as lineage.
 
@@ -208,7 +208,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 **Why it matters**: `packages/docs/template/docs/**` is what ships to consuming projects. Product assets that exist only in the dogfood are not shipped, and the two layers silently diverge.
 
-**Recommendation**: Author product assets in the template first, then re-seed to the dogfood. Keep repo-root `docs/designs/`, `docs/plans/`, `docs/prd/`, `docs/work/`, and make-docs's own content (the lifecycle playbook, current top-level `docs/artifacts/` seed material, guides, and future `docs/assets/artifacts/**` material) dogfood-only unless a later phase explicitly promotes template-owned bytes.
+**Recommendation**: Author product assets in the template first, then re-seed to the dogfood. Keep repo-root `docs/designs/`, `docs/plans/`, `docs/prd/`, `docs/work/`, and make-docs's own content (the lifecycle playbook, migrated `docs/assets/artifacts/**` seed material, library docs, and archive history records) dogfood-only unless a later phase explicitly promotes template-owned bytes.
 
 **To close**: Template and dogfood agree on the W16 product assets, and the plan and work-backlog specs reflect the template-first flow.
 
@@ -402,19 +402,21 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 **To close**: Each plugin bundle's flow, audience, exposure boundary, gate behavior, support evidence, and docs visibility are specified and validated.
 
-### Q-014 Does the `docs/library/` Move Land in W16 or the Broader Restructure?
+### Q-014 How Did the Transitional `docs/library/` Move Resolve?
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Closed | Create only `docs/library/playbooks/` in W16; defer any `docs/assets/guides/` move to the broader restructure. PRD 22 keeps the W16 decision historically valid while making `docs/library/playbooks/**` transitional and `docs/assets/playbooks/**` the v2 canonical target. | Track guide and playbook relocation in the broader restructure; do not retroactively treat W16 R0 as the final path model. |
+| Closed | W16 created only `docs/library/playbooks/` as transitional dogfood. W9 R5 supersedes the later W9 R4 guide/breadcrumb decisions, migrates guide/persona docs into `docs/assets/library/**`, migrates transitional playbook material into `docs/assets/playbooks/**`, and removes `docs/library/**` as a shipped-current target. | Preserve W16 and W9 R4 references as historical evidence only; future work must use `docs/assets/library/**` and `docs/assets/playbooks/**`. |
 
-**Question**: W16 authors a playbook under `docs/library/playbooks/`, but moving `docs/assets/guides/` to `docs/library/guides/` is part of the broader restructure.
+**Question**: W16 authored a playbook under `docs/library/playbooks/`, while guide/persona docs and the broader v2 asset IA were still being settled.
 
-**Why it matters**: Creating the playbook home early without the guides move leaves a partial `docs/library/` layout.
+**Why it matters**: Creating the playbook home early without the guide/library correction left a partial `docs/library/` layout that could be mistaken for the final v2 contract.
 
-**Recommendation**: Either create only the playbook subtree now and move guides later, or sequence both with the restructure.
+**Recommendation**: Treat `docs/library/**` as completed transitional evidence and route future persona documentation through `docs/assets/library/**` and `docs/assets/playbooks/**`.
 
-**Resolution (2026-06-17)**: W16 R0 creates the playbook subtree only. The broader `docs/library/guides/` move remains out of scope for W16 R0.
+**Resolution (2026-06-17)**: W16 R0 created the playbook subtree only. The broader move remained out of scope for W16 R0.
+
+**Correction (2026-06-25)**: W9 R5 completed the corrective IA decision: `docs/assets/library/**` replaces guide/persona docs, `docs/assets/playbooks/**` remains the playbook home, and `docs/library/**` is removed from shipped-current use.
 
 **To close**: Closed on 2026-06-17 by the W16 R0 Phase 03 lifecycle playbook decision.
 
@@ -466,7 +468,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Literal path duplication remains accepted but risky; [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md) adds provider/cache provenance and asset identity as future duplication-sensitive surfaces, [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) makes fallback path recognition a mutation gate, [19-revise-template-package-dogfood-source-of-truth-contract.md](./19-revise-template-package-dogfood-source-of-truth-contract.md) adds template/dogfood/package copy paths to the proof surface, PRD 20 adds conformance scenario/result paths that must stay out of shipped copies by default, PRD 21 adds `.make-docs/**` tool-resource paths, PRD 22 adds `docs/assets/archive/**`, `docs/assets/artifacts/**`, `docs/assets/breadcrumbs/**`, `docs/assets/guides/**`, and `docs/assets/playbooks/**`, PRD 23 adds generated metadata field names, route identifiers, and body-rendered handoff sections as duplication-sensitive surfaces, PRD 24 adds display-label/config schema surfaces that must not become alternate routing tables, [25-revise-cli-separation-and-mcp-boundary.md](./25-revise-cli-separation-and-mcp-boundary.md) adds CLI/MCP operation-contract names and canonical routing identifiers, and [26-revise-no-scripts-migration-skill-refactor.md](./26-revise-no-scripts-migration-skill-refactor.md) adds first-party operation names plus helper/wrapper script paths across registry, template, dogfood, and package copies. | Add parity, provenance, classifier, package-template copy, conformance asset exclusion, tool-directory path, managed project asset path, generated metadata, YAML/body handoff drift, config structural-rename, CLI/MCP shared-operation, and no-scripts helper/wrapper checks when moving, adding, or provider-resolving template-owned paths. |
+| Open | Literal path duplication remains accepted but risky; [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md) adds provider/cache provenance and asset identity as future duplication-sensitive surfaces, [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) makes fallback path recognition a mutation gate, [19-revise-template-package-dogfood-source-of-truth-contract.md](./19-revise-template-package-dogfood-source-of-truth-contract.md) adds template/dogfood/package copy paths to the proof surface, PRD 20 adds conformance scenario/result paths that must stay out of shipped copies by default, PRD 21 adds `.make-docs/**` tool-resource paths, PRD 22 adds `docs/assets/archive/**`, `docs/assets/archive/history/**`, `docs/assets/artifacts/**`, `docs/assets/library/**`, and `docs/assets/playbooks/**`, PRD 23 adds generated metadata field names, route identifiers, and body-rendered handoff sections as duplication-sensitive surfaces, PRD 24 adds display-label/config schema surfaces that must not become alternate routing tables, [25-revise-cli-separation-and-mcp-boundary.md](./25-revise-cli-separation-and-mcp-boundary.md) adds CLI/MCP operation-contract names and canonical routing identifiers, and [26-revise-no-scripts-migration-skill-refactor.md](./26-revise-no-scripts-migration-skill-refactor.md) adds first-party operation names plus helper/wrapper script paths across registry, template, dogfood, and package copies. | Add parity, provenance, classifier, package-template copy, conformance asset exclusion, tool-directory path, managed project asset path, generated metadata, YAML/body handoff drift, config structural-rename, CLI/MCP shared-operation, and no-scripts helper/wrapper checks when moving, adding, or provider-resolving template-owned paths. |
 
 **Issue**: Adding or moving a template-owned path can drift across `rules.ts`, `catalog.ts`, tests, package docs, and dogfood copies.
 
@@ -592,13 +594,13 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Closed | W9 R4 implemented the pivot mappings that made this a cross-cutting relocation risk: make-docs-owned tool resources now live under `.make-docs/{contracts,references,templates,scripts}/system/**`, top-level `docs/artifacts/**` hard-moved to `docs/assets/artifacts/**`, top-level `docs/archive/**` is not shipped as a v2 target, new closeout breadcrumbs target `docs/assets/breadcrumbs/**`, and existing `docs/assets/history/**` records remain pre-migration evidence. The implementation was closed through W9 R4 P1, P2-3, and P4 evidence, full CLI tests, default validation, build, smoke-pack, path-hygiene, targeted path checks, changed-file link checks, and clean dogfood dry-run proof. | Keep remaining generated metadata, configuration overlay, playbook runner, and adversarial-review work with PRDs 23, 24, 29, and 31. Those follow-ons must consume the settled W9 R4 IA rather than reopen top-level artifact, archive, history, or tool-resource placement. |
+| Closed | W9 R4 implemented the first pivot mappings: make-docs-owned tool resources now live under `.make-docs/{contracts,references,templates,scripts}/system/**`, top-level `docs/artifacts/**` hard-moved to `docs/assets/artifacts/**`, and top-level `docs/archive/**` is not shipped as a v2 target. W9 R5 supersedes W9 R4 for the guide/library and history/breadcrumb decisions: future guide/persona docs target `docs/assets/library/**`, future history/breadcrumb records target `docs/assets/archive/history/**`, and `docs/assets/guides/**`, `docs/assets/breadcrumbs/**`, `docs/assets/history/**`, `docs/guides/**`, and `docs/library/**` are not shipped-current targets. | Keep remaining generated metadata, configuration overlay, playbook runner, and adversarial-review work with PRDs 23, 24, 29, and 31. Those follow-ons must consume W9 R5 for library/history paths and W9 R4 for the hard artifact/archive/tool-resource moves. |
 
 **Issue**: Assets authored in W16 and W9 (the coverage-pass contract, starter prompts, artifact seed material, history records, and library playbook) spanned tool-resource, managed project asset, and lifecycle-storage targets; treating all of them as a single current-path migration would have blurred the PRD 21 and PRD 22 namespace split.
 
 **Why it matters**: Links and references authored before W9 R4 could have broken on the restructure if mappings were not tracked and validated.
 
-**Recommendation**: Treat W9 R4 as the authoritative IA layer for remaining unimplemented v2 work. Historical records and completed pre-W9 R4 backlogs remain evidence; future-facing package, router, PRD, and work references must consume `.make-docs/**` and `docs/assets/{archive,artifacts,breadcrumbs,guides,playbooks}/**`.
+**Recommendation**: Treat W9 R5 as the authoritative IA layer for remaining unimplemented v2 guide/library and history/breadcrumb work, while preserving W9 R4 as the artifact/archive/tool-resource hard-move evidence. Historical records and completed pre-W9 R5 backlogs remain evidence; future-facing package, router, PRD, and work references must consume `.make-docs/**`, `docs/assets/{archive,artifacts,library,playbooks}/**`, and on-demand `docs/assets/archive/history/**`.
 
 **To close**: Closed by W9 R4 implementation and validation. Any later metadata, config, playbook, plugin, or adversarial-review relocation belongs to the owning downstream PRD without reopening the settled W9 R4 path decisions.
 

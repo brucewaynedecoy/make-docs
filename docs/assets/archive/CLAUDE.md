@@ -3,7 +3,7 @@
 
 This directory is the current consolidated archive for all artifact types and mirrors the structure of `docs/`. It is the authority for current archival rules; other routers and contracts defer here.
 
-W9 R4 defines `docs/assets/archive/**` as the managed lifecycle archive surface. Keep archived content in place unless an explicit archive migration phase moves or maps it with lineage-preserving links.
+W9 R4 defines `docs/assets/archive/**` as the managed lifecycle archive surface. W9 R5 adds `history/` as the on-demand home for history and breadcrumb records. Keep archived content in place unless an explicit archive migration phase moves or maps it with lineage-preserving links.
 
 ## Sub-directory mapping
 
@@ -11,7 +11,8 @@ W9 R4 defines `docs/assets/archive/**` as the managed lifecycle archive surface.
 - `docs/assets/archive/plans/` — archived plan directories (mirrors `docs/plans/`).
 - `docs/assets/archive/work/` — archived work directories (mirrors `docs/work/`).
 - `docs/assets/archive/prds/` — archived PRD sets grouped by date: `docs/assets/archive/prds/YYYY-MM-DD/`; use `-XX` increment suffix when the same date repeats.
-- `docs/assets/archive/breadcrumbs/` — archived breadcrumb records (mirrors `docs/assets/breadcrumbs/`; pre-migration records may remain under `docs/assets/history/`).
+- `docs/assets/archive/history/` — history and breadcrumb records created by lifecycle closeout.
+- `docs/assets/archive/breadcrumbs/` — archived historical breadcrumb records only when preserving pre-W9 R5 lineage.
 - `docs/assets/archive/guides/developer/` — archived developer guides.
 - `docs/assets/archive/guides/user/` — archived user guides.
 

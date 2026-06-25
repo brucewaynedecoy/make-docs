@@ -1,8 +1,8 @@
 # W18 R3 Coverage Pass Extensions Adversarial Review Work
 
-## W9 R4 Prerequisite
+## W9 R5 Prerequisite
 
-Before executing this backlog, apply [W9 R4 v2 Documentation Asset IA Hard Move](../2026-06-25-w9-r4-v2-documentation-asset-ia-hard-move/00-index.md). W18 R3 coverage-pass extensions must use `.make-docs/contracts/system/coverage-pass-contract.md`, `.make-docs/references/system/prompts/**`, and `docs/assets/breadcrumbs/**` instead of pre-pivot `docs/assets/references/**`, `docs/assets/prompts/**`, or `docs/assets/history/**` assumptions.
+Before executing this backlog, apply [W9 R5 v2 Library and Archive History IA Correction](../2026-06-25-w9-r5-v2-library-and-archive-history-ia-correction/00-index.md). W18 R3 coverage-pass extensions must use `.make-docs/contracts/system/coverage-pass-contract.md`, `.make-docs/references/system/prompts/**`, and `docs/assets/archive/history/**` instead of W9 R4's superseded `docs/assets/breadcrumbs/**` target or pre-pivot `docs/assets/references/**`, `docs/assets/prompts/**`, or `docs/assets/history/**` assumptions.
 
 ## Purpose
 

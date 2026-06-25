@@ -41,7 +41,7 @@ Template-owned assets:
 
 - Template-owned files include root and docs instruction routers, docs asset routers, shipped workflow references, shipped templates, shipped prompt starters, starter docs structure, and static helper files recorded by the installer as managed assets.
 - Dogfood/project-owned files include generated designs, plans, PRDs, work backlogs, local guide content, local history/archive records, artifact review content, local overlays, and local config.
-- Mixed directories such as `docs/assets/history/` and `docs/assets/archive/` are directory-contract surfaces. Routers and starter structure may be template-owned, but local records inside them remain project-owned unless deliberately shipped as starter content.
+- Mixed directories such as `docs/assets/archive/` and its on-demand `history/` subtree are directory-contract surfaces. Routers and starter structure may be template-owned, but local records inside them remain project-owned unless deliberately shipped as starter content.
 - `.make-docs/` remains mutable runtime state and is not reseeded through `docs/`.
 
 Mutation order:

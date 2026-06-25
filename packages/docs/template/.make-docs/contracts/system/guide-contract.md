@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Use this contract for developer and user guides under `docs/assets/guides/developer/` and `docs/assets/guides/user/`.
+Use this contract for developer and user guides under `docs/assets/library/developer/` and `docs/assets/library/user/`.
 
 This contract does NOT apply to breadcrumb records, which use `.make-docs/contracts/system/history-record-contract.md`.
 
@@ -12,7 +12,7 @@ Guides are living documentation for the current usable or maintainable product s
 
 ### Developer Guides
 
-Developer guides live in `docs/assets/guides/developer/`. Write them for contributors, maintainers, integrators, and operators who need to understand, extend, validate, troubleshoot, or safely change the project.
+Developer guides live in `docs/assets/library/developer/`. Write them for contributors, maintainers, integrators, and operators who need to understand, extend, validate, troubleshoot, or safely change the project.
 
 A developer guide should help a capable developer quickly reach a first useful PR or maintenance action. Prefer:
 
@@ -26,7 +26,7 @@ Avoid writing developer guides as implementation diaries. Historical context bel
 
 ### User Guides
 
-User guides live in `docs/assets/guides/user/`. Write them for people who use what the project ships, including novices who need orientation and advanced users who want to explore deeper workflows.
+User guides live in `docs/assets/library/user/`. Write them for people who use what the project ships, including novices who need orientation and advanced users who want to explore deeper workflows.
 
 A user guide should help the reader understand the product from a user's perspective and complete real tasks. Prefer:
 
@@ -148,7 +148,7 @@ Transitions: `draft` to `published` to `deprecated`. A `deprecated` guide may re
 
 ## Scope
 
-- Applies to `docs/assets/guides/developer/` and `docs/assets/guides/user/` only.
+- Applies to `docs/assets/library/developer/` and `docs/assets/library/user/` only.
 - Does NOT apply to breadcrumb records, which use `.make-docs/contracts/system/history-record-contract.md`.
 
 ## Link Rules

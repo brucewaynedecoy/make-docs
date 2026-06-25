@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "packageName": "@brucewaynedecoy/make-docs",
   "packageVersion": "1.0.0-rc.1",
-  "updatedAt": "2026-06-25T17:36:42.569Z",
+  "updatedAt": "2026-06-25T19:07:52.153Z",
   "profileId": "4757a4e744aa64f9",
   "selections": {
     "capabilities": {
@@ -123,10 +123,8 @@
       "docs/assets/archive/CLAUDE.md": "materialized-system-asset",
       "docs/assets/artifacts/AGENTS.md": "materialized-system-asset",
       "docs/assets/artifacts/CLAUDE.md": "materialized-system-asset",
-      "docs/assets/breadcrumbs/AGENTS.md": "materialized-system-asset",
-      "docs/assets/breadcrumbs/CLAUDE.md": "materialized-system-asset",
-      "docs/assets/guides/AGENTS.md": "materialized-system-asset",
-      "docs/assets/guides/CLAUDE.md": "materialized-system-asset",
+      "docs/assets/library/AGENTS.md": "materialized-system-asset",
+      "docs/assets/library/CLAUDE.md": "materialized-system-asset",
       "docs/assets/playbooks/AGENTS.md": "materialized-system-asset",
       "docs/assets/playbooks/CLAUDE.md": "materialized-system-asset",
       "docs/designs/AGENTS.md": "materialized-system-asset",
@@ -182,7 +180,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "8ad70c15ada3ec52a89dc3ba5006e55c1c9c867d9eb575e3776f575d793127e8"
+          "19f047ea7c83467f289d1b0fc722fd2f36dffe6889cd65bfe6d38d64ba3ad511"
         ],
         "logicalAssetId": "docs/AGENTS.md",
         "localPath": "docs/AGENTS.md",
@@ -199,7 +197,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "8ad70c15ada3ec52a89dc3ba5006e55c1c9c867d9eb575e3776f575d793127e8"
+          "19f047ea7c83467f289d1b0fc722fd2f36dffe6889cd65bfe6d38d64ba3ad511"
         ],
         "logicalAssetId": "docs/CLAUDE.md",
         "localPath": "docs/CLAUDE.md",
@@ -284,7 +282,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "0b13d60b807d3c9289f50ca1bced529308c7c0cc66635e12c8aa7b5f8ddd4369"
+          "e83ab0b4aba3831c44f09bd17496a795f8a6e4ce3fcdd07e6ad35213452a3b07"
         ],
         "logicalAssetId": ".make-docs/contracts/system/commit-message-convention.md",
         "localPath": ".make-docs/contracts/system/commit-message-convention.md",
@@ -335,7 +333,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "e2ab1b0d5738bcd751cb8fe9b5d16356dc60f42001e5ed36a3772da5a377911d"
+          "d1b6fd01e146243d90a8950bf3aa483c7ff316acd1703b474b9f1f4227666dd1"
         ],
         "logicalAssetId": ".make-docs/contracts/system/guide-contract.md",
         "localPath": ".make-docs/contracts/system/guide-contract.md",
@@ -352,7 +350,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "2884feec83aa466380b9545add2a6f8016d226e950c3f6f41ff35eb2d3aab51e"
+          "bcef5ca7982eb1f2215f920390c99fbbd26c6f8fa83e566d63529cd3fc1e7f12"
         ],
         "logicalAssetId": ".make-docs/contracts/system/history-record-contract.md",
         "localPath": ".make-docs/contracts/system/history-record-contract.md",
@@ -369,7 +367,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "d3ffae502a9d46723917db63f5746a2305719780f78bcfa87bb99721e3649ff8"
+          "bbeb577502416970e4af8a7d203a335ae9f180ef6c9b56f845399340d92afb25"
         ],
         "logicalAssetId": ".make-docs/contracts/system/output-contract.md",
         "localPath": ".make-docs/contracts/system/output-contract.md",
@@ -488,7 +486,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "f2f6271717213c93499c1076246314471f8cbe11d08f16edfdf4d814d0cfec07"
+          "20ccd340e8ecb36cd991832d7f16e5cbaa096cc24f55b71c9e550370846ee7c6"
         ],
         "logicalAssetId": ".make-docs/references/system/path-and-link-hygiene.md",
         "localPath": ".make-docs/references/system/path-and-link-hygiene.md",
@@ -573,7 +571,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "3629aa40929282eeac624f1d88913b350f30785a81a63222db73f14bf6e9d363"
+          "447c9175991a2382115d823193fcd85480fa5c3b1be215a57aeb0f101228940b"
         ],
         "logicalAssetId": ".make-docs/references/system/prompts/coverage-pass-developer-guide.prompt.md",
         "localPath": ".make-docs/references/system/prompts/coverage-pass-developer-guide.prompt.md",
@@ -624,7 +622,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "0d37b5fbc1949e315cce9a4f252f46241b8aeaae464c17252e6f8e524f0b5ab3"
+          "dfc98b05f9f4faffa993f9a71ed3efb778bc6058bdb3d559fa3a3315e9ddbeff"
         ],
         "logicalAssetId": ".make-docs/references/system/prompts/coverage-pass-user-guide.prompt.md",
         "localPath": ".make-docs/references/system/prompts/coverage-pass-user-guide.prompt.md",
@@ -794,7 +792,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "75204ab4a5c07f3bf72dd0bca3311c5728904fe892af22ba826126143049584c"
+          "73696e98e58522bea373c5271bd322b85eeee0bc549b64e4254db031e99513f0"
         ],
         "logicalAssetId": ".make-docs/references/system/prompts/session-to-history-record.prompt.md",
         "localPath": ".make-docs/references/system/prompts/session-to-history-record.prompt.md",
@@ -828,7 +826,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "25c6c48026a5b40cfdd3ad3167e828fba24ca71c407bcebe31338ed81b6efede"
+          "3ac9b9e6e208d898988dc6fb06eb718b0de85478ce2a0c1a7d8479b7875cff4d"
         ],
         "logicalAssetId": ".make-docs/references/system/prompts/work-to-commit-message.prompt.md",
         "localPath": ".make-docs/references/system/prompts/work-to-commit-message.prompt.md",
@@ -845,7 +843,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "878a804a62e29c7181d99be8d36518eef8890161bbd77479bc296db0ea306622"
+          "aeb7e833235b1fd9b25ec186caa7e1a778cb4033598525f2abd993cac657432e"
         ],
         "logicalAssetId": ".make-docs/references/system/prompts/work-to-guides.prompt.md",
         "localPath": ".make-docs/references/system/prompts/work-to-guides.prompt.md",
@@ -862,7 +860,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "cca31b35215ee05ad3adb2e2c65a85f93f344fa728ec276bc86e330eb5e08afc"
+          "7e52e049c44a5deac6a2574129f9c045d62a2811707e6d65333ffe73808acee8"
         ],
         "logicalAssetId": ".make-docs/references/system/wave-model.md",
         "localPath": ".make-docs/references/system/wave-model.md",
@@ -981,7 +979,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "b75c6a1522bcf88d3c711ad386713bdabdfbcbc5e0b5234f17d39ab1db51b16e"
+          "aeab1106c9a043e1afcccea30ab725a715827a8f4a29dfe07e650479182ce3cc"
         ],
         "logicalAssetId": ".make-docs/templates/system/history-record.md",
         "localPath": ".make-docs/templates/system/history-record.md",
@@ -1253,7 +1251,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "51c756643fd7790a6c2517aa160017833d0325fe3072fd5eae0e3086e17e35eb"
+          "f8efe1dd9f7b43b10e56569e55345f81dd1fc824e9e25c6b1fa1023eaeb4ff36"
         ],
         "logicalAssetId": "docs/assets/AGENTS.md",
         "localPath": "docs/assets/AGENTS.md",
@@ -1270,7 +1268,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "51c756643fd7790a6c2517aa160017833d0325fe3072fd5eae0e3086e17e35eb"
+          "f8efe1dd9f7b43b10e56569e55345f81dd1fc824e9e25c6b1fa1023eaeb4ff36"
         ],
         "logicalAssetId": "docs/assets/CLAUDE.md",
         "localPath": "docs/assets/CLAUDE.md",
@@ -1287,7 +1285,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "622d0c3ae8b9f3ada2ae3f2d0ed431f65b5891f7640c2a7b13e718a88b77e705"
+          "349d75d9676650f793f7e3bc047af543d95ab01ba140e3efc1a40b03923294f8"
         ],
         "logicalAssetId": "docs/assets/archive/AGENTS.md",
         "localPath": "docs/assets/archive/AGENTS.md",
@@ -1304,7 +1302,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "622d0c3ae8b9f3ada2ae3f2d0ed431f65b5891f7640c2a7b13e718a88b77e705"
+          "349d75d9676650f793f7e3bc047af543d95ab01ba140e3efc1a40b03923294f8"
         ],
         "logicalAssetId": "docs/assets/archive/CLAUDE.md",
         "localPath": "docs/assets/archive/CLAUDE.md",
@@ -1347,7 +1345,7 @@
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
         "selectionTrigger": "profile-selection"
       },
-      "docs/assets/breadcrumbs/AGENTS.md": {
+      "docs/assets/library/AGENTS.md": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
@@ -1355,16 +1353,16 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "64ea4aa62d9ab991f94564737f4e355873e2de45fc8d062561d86087bb9ab3ae"
+          "e08b3144d4d2ad4ff6f92c0bab78ff756fd7597e9e6cf20e299e6454d91e0d70"
         ],
-        "logicalAssetId": "docs/assets/breadcrumbs/AGENTS.md",
-        "localPath": "docs/assets/breadcrumbs/AGENTS.md",
+        "logicalAssetId": "docs/assets/library/AGENTS.md",
+        "localPath": "docs/assets/library/AGENTS.md",
         "materializationClass": "materialized-system-asset",
         "offlineExpectation": "local",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
         "selectionTrigger": "profile-selection"
       },
-      "docs/assets/breadcrumbs/CLAUDE.md": {
+      "docs/assets/library/CLAUDE.md": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
@@ -1372,44 +1370,10 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "64ea4aa62d9ab991f94564737f4e355873e2de45fc8d062561d86087bb9ab3ae"
+          "e08b3144d4d2ad4ff6f92c0bab78ff756fd7597e9e6cf20e299e6454d91e0d70"
         ],
-        "logicalAssetId": "docs/assets/breadcrumbs/CLAUDE.md",
-        "localPath": "docs/assets/breadcrumbs/CLAUDE.md",
-        "materializationClass": "materialized-system-asset",
-        "offlineExpectation": "local",
-        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
-        "selectionTrigger": "profile-selection"
-      },
-      "docs/assets/guides/AGENTS.md": {
-        "materializationMode": "full-snapshot",
-        "sourcePackage": "@brucewaynedecoy/make-docs",
-        "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
-        "hashAlgorithm": "sha256",
-        "expectedHashes": [
-          "d6db041e84c506eea21d77f9e2e49ffd4c1800360c241858171c8e93125f8fa9"
-        ],
-        "logicalAssetId": "docs/assets/guides/AGENTS.md",
-        "localPath": "docs/assets/guides/AGENTS.md",
-        "materializationClass": "materialized-system-asset",
-        "offlineExpectation": "local",
-        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
-        "selectionTrigger": "profile-selection"
-      },
-      "docs/assets/guides/CLAUDE.md": {
-        "materializationMode": "full-snapshot",
-        "sourcePackage": "@brucewaynedecoy/make-docs",
-        "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
-        "hashAlgorithm": "sha256",
-        "expectedHashes": [
-          "d6db041e84c506eea21d77f9e2e49ffd4c1800360c241858171c8e93125f8fa9"
-        ],
-        "logicalAssetId": "docs/assets/guides/CLAUDE.md",
-        "localPath": "docs/assets/guides/CLAUDE.md",
+        "logicalAssetId": "docs/assets/library/CLAUDE.md",
+        "localPath": "docs/assets/library/CLAUDE.md",
         "materializationClass": "materialized-system-asset",
         "offlineExpectation": "local",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
@@ -1423,7 +1387,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "e7c1c2e019d5dd480190470cc8bf4974750ac7f47ab1daad825bbf8d3ed8bac9"
+          "96171d765ab1ad3b7998b3a378897fe12fca1973ef34c9a5ab761f3cae42ad62"
         ],
         "logicalAssetId": "docs/assets/playbooks/AGENTS.md",
         "localPath": "docs/assets/playbooks/AGENTS.md",
@@ -1440,7 +1404,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "e7c1c2e019d5dd480190470cc8bf4974750ac7f47ab1daad825bbf8d3ed8bac9"
+          "96171d765ab1ad3b7998b3a378897fe12fca1973ef34c9a5ab761f3cae42ad62"
         ],
         "logicalAssetId": "docs/assets/playbooks/CLAUDE.md",
         "localPath": "docs/assets/playbooks/CLAUDE.md",
@@ -1491,7 +1455,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "76746114e0157b35d737d566e5046f82475175d6f186360df00ae085b204ab6a"
+          "c542deec2b4844f8695605a49a068b3336df7eab5cf71ec2bb1b91791b759c54"
         ],
         "logicalAssetId": "docs/plans/AGENTS.md",
         "localPath": "docs/plans/AGENTS.md",
@@ -1508,7 +1472,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "76746114e0157b35d737d566e5046f82475175d6f186360df00ae085b204ab6a"
+          "c542deec2b4844f8695605a49a068b3336df7eab5cf71ec2bb1b91791b759c54"
         ],
         "logicalAssetId": "docs/plans/CLAUDE.md",
         "localPath": "docs/plans/CLAUDE.md",
@@ -1559,7 +1523,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "e0e0ae6de21330cbc81b30007205f411705e2745574356d3582efb7f79f2ebc4"
+          "20ef1c509e4b7b9773af9207d0d20ff4a10ca27ff32cef10f974e22e01aa24bc"
         ],
         "logicalAssetId": "docs/work/AGENTS.md",
         "localPath": "docs/work/AGENTS.md",
@@ -1576,7 +1540,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "e0e0ae6de21330cbc81b30007205f411705e2745574356d3582efb7f79f2ebc4"
+          "20ef1c509e4b7b9773af9207d0d20ff4a10ca27ff32cef10f974e22e01aa24bc"
         ],
         "logicalAssetId": "docs/work/CLAUDE.md",
         "localPath": "docs/work/CLAUDE.md",
@@ -1673,7 +1637,7 @@
       }
     },
     ".make-docs/contracts/system/commit-message-convention.md": {
-      "hash": "0b13d60b807d3c9289f50ca1bced529308c7c0cc66635e12c8aa7b5f8ddd4369",
+      "hash": "e83ab0b4aba3831c44f09bd17496a795f8a6e4ce3fcdd07e6ad35213452a3b07",
       "sourceId": "file:.make-docs/contracts/system/commit-message-convention.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
@@ -1683,7 +1647,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "0b13d60b807d3c9289f50ca1bced529308c7c0cc66635e12c8aa7b5f8ddd4369"
+          "e83ab0b4aba3831c44f09bd17496a795f8a6e4ce3fcdd07e6ad35213452a3b07"
         ],
         "logicalAssetId": ".make-docs/contracts/system/commit-message-convention.md",
         "localPath": ".make-docs/contracts/system/commit-message-convention.md",
@@ -1736,7 +1700,7 @@
       }
     },
     ".make-docs/contracts/system/guide-contract.md": {
-      "hash": "e2ab1b0d5738bcd751cb8fe9b5d16356dc60f42001e5ed36a3772da5a377911d",
+      "hash": "d1b6fd01e146243d90a8950bf3aa483c7ff316acd1703b474b9f1f4227666dd1",
       "sourceId": "file:.make-docs/contracts/system/guide-contract.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
@@ -1746,7 +1710,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "e2ab1b0d5738bcd751cb8fe9b5d16356dc60f42001e5ed36a3772da5a377911d"
+          "d1b6fd01e146243d90a8950bf3aa483c7ff316acd1703b474b9f1f4227666dd1"
         ],
         "logicalAssetId": ".make-docs/contracts/system/guide-contract.md",
         "localPath": ".make-docs/contracts/system/guide-contract.md",
@@ -1757,7 +1721,7 @@
       }
     },
     ".make-docs/contracts/system/history-record-contract.md": {
-      "hash": "2884feec83aa466380b9545add2a6f8016d226e950c3f6f41ff35eb2d3aab51e",
+      "hash": "bcef5ca7982eb1f2215f920390c99fbbd26c6f8fa83e566d63529cd3fc1e7f12",
       "sourceId": "file:.make-docs/contracts/system/history-record-contract.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
@@ -1767,7 +1731,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "2884feec83aa466380b9545add2a6f8016d226e950c3f6f41ff35eb2d3aab51e"
+          "bcef5ca7982eb1f2215f920390c99fbbd26c6f8fa83e566d63529cd3fc1e7f12"
         ],
         "logicalAssetId": ".make-docs/contracts/system/history-record-contract.md",
         "localPath": ".make-docs/contracts/system/history-record-contract.md",
@@ -1778,7 +1742,7 @@
       }
     },
     ".make-docs/contracts/system/output-contract.md": {
-      "hash": "d3ffae502a9d46723917db63f5746a2305719780f78bcfa87bb99721e3649ff8",
+      "hash": "bbeb577502416970e4af8a7d203a335ae9f180ef6c9b56f845399340d92afb25",
       "sourceId": "file:.make-docs/contracts/system/output-contract.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
@@ -1788,7 +1752,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "d3ffae502a9d46723917db63f5746a2305719780f78bcfa87bb99721e3649ff8"
+          "bbeb577502416970e4af8a7d203a335ae9f180ef6c9b56f845399340d92afb25"
         ],
         "logicalAssetId": ".make-docs/contracts/system/output-contract.md",
         "localPath": ".make-docs/contracts/system/output-contract.md",
@@ -1925,7 +1889,7 @@
       }
     },
     ".make-docs/references/system/path-and-link-hygiene.md": {
-      "hash": "f2f6271717213c93499c1076246314471f8cbe11d08f16edfdf4d814d0cfec07",
+      "hash": "20ccd340e8ecb36cd991832d7f16e5cbaa096cc24f55b71c9e550370846ee7c6",
       "sourceId": "file:.make-docs/references/system/path-and-link-hygiene.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
@@ -1935,7 +1899,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "f2f6271717213c93499c1076246314471f8cbe11d08f16edfdf4d814d0cfec07"
+          "20ccd340e8ecb36cd991832d7f16e5cbaa096cc24f55b71c9e550370846ee7c6"
         ],
         "logicalAssetId": ".make-docs/references/system/path-and-link-hygiene.md",
         "localPath": ".make-docs/references/system/path-and-link-hygiene.md",
@@ -2030,7 +1994,7 @@
       }
     },
     ".make-docs/references/system/prompts/coverage-pass-developer-guide.prompt.md": {
-      "hash": "3629aa40929282eeac624f1d88913b350f30785a81a63222db73f14bf6e9d363",
+      "hash": "447c9175991a2382115d823193fcd85480fa5c3b1be215a57aeb0f101228940b",
       "sourceId": "file:.make-docs/references/system/prompts/coverage-pass-developer-guide.prompt.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
@@ -2040,7 +2004,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "3629aa40929282eeac624f1d88913b350f30785a81a63222db73f14bf6e9d363"
+          "447c9175991a2382115d823193fcd85480fa5c3b1be215a57aeb0f101228940b"
         ],
         "logicalAssetId": ".make-docs/references/system/prompts/coverage-pass-developer-guide.prompt.md",
         "localPath": ".make-docs/references/system/prompts/coverage-pass-developer-guide.prompt.md",
@@ -2093,7 +2057,7 @@
       }
     },
     ".make-docs/references/system/prompts/coverage-pass-user-guide.prompt.md": {
-      "hash": "0d37b5fbc1949e315cce9a4f252f46241b8aeaae464c17252e6f8e524f0b5ab3",
+      "hash": "dfc98b05f9f4faffa993f9a71ed3efb778bc6058bdb3d559fa3a3315e9ddbeff",
       "sourceId": "file:.make-docs/references/system/prompts/coverage-pass-user-guide.prompt.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
@@ -2103,7 +2067,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "0d37b5fbc1949e315cce9a4f252f46241b8aeaae464c17252e6f8e524f0b5ab3"
+          "dfc98b05f9f4faffa993f9a71ed3efb778bc6058bdb3d559fa3a3315e9ddbeff"
         ],
         "logicalAssetId": ".make-docs/references/system/prompts/coverage-pass-user-guide.prompt.md",
         "localPath": ".make-docs/references/system/prompts/coverage-pass-user-guide.prompt.md",
@@ -2303,7 +2267,7 @@
       }
     },
     ".make-docs/references/system/prompts/session-to-history-record.prompt.md": {
-      "hash": "75204ab4a5c07f3bf72dd0bca3311c5728904fe892af22ba826126143049584c",
+      "hash": "73696e98e58522bea373c5271bd322b85eeee0bc549b64e4254db031e99513f0",
       "sourceId": "file:.make-docs/references/system/prompts/session-to-history-record.prompt.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
@@ -2313,7 +2277,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "75204ab4a5c07f3bf72dd0bca3311c5728904fe892af22ba826126143049584c"
+          "73696e98e58522bea373c5271bd322b85eeee0bc549b64e4254db031e99513f0"
         ],
         "logicalAssetId": ".make-docs/references/system/prompts/session-to-history-record.prompt.md",
         "localPath": ".make-docs/references/system/prompts/session-to-history-record.prompt.md",
@@ -2345,7 +2309,7 @@
       }
     },
     ".make-docs/references/system/prompts/work-to-commit-message.prompt.md": {
-      "hash": "25c6c48026a5b40cfdd3ad3167e828fba24ca71c407bcebe31338ed81b6efede",
+      "hash": "3ac9b9e6e208d898988dc6fb06eb718b0de85478ce2a0c1a7d8479b7875cff4d",
       "sourceId": "file:.make-docs/references/system/prompts/work-to-commit-message.prompt.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
@@ -2355,7 +2319,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "25c6c48026a5b40cfdd3ad3167e828fba24ca71c407bcebe31338ed81b6efede"
+          "3ac9b9e6e208d898988dc6fb06eb718b0de85478ce2a0c1a7d8479b7875cff4d"
         ],
         "logicalAssetId": ".make-docs/references/system/prompts/work-to-commit-message.prompt.md",
         "localPath": ".make-docs/references/system/prompts/work-to-commit-message.prompt.md",
@@ -2366,7 +2330,7 @@
       }
     },
     ".make-docs/references/system/prompts/work-to-guides.prompt.md": {
-      "hash": "878a804a62e29c7181d99be8d36518eef8890161bbd77479bc296db0ea306622",
+      "hash": "aeb7e833235b1fd9b25ec186caa7e1a778cb4033598525f2abd993cac657432e",
       "sourceId": "file:.make-docs/references/system/prompts/work-to-guides.prompt.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
@@ -2376,7 +2340,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "878a804a62e29c7181d99be8d36518eef8890161bbd77479bc296db0ea306622"
+          "aeb7e833235b1fd9b25ec186caa7e1a778cb4033598525f2abd993cac657432e"
         ],
         "logicalAssetId": ".make-docs/references/system/prompts/work-to-guides.prompt.md",
         "localPath": ".make-docs/references/system/prompts/work-to-guides.prompt.md",
@@ -2387,7 +2351,7 @@
       }
     },
     ".make-docs/references/system/wave-model.md": {
-      "hash": "cca31b35215ee05ad3adb2e2c65a85f93f344fa728ec276bc86e330eb5e08afc",
+      "hash": "7e52e049c44a5deac6a2574129f9c045d62a2811707e6d65333ffe73808acee8",
       "sourceId": "file:.make-docs/references/system/wave-model.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
@@ -2397,7 +2361,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "cca31b35215ee05ad3adb2e2c65a85f93f344fa728ec276bc86e330eb5e08afc"
+          "7e52e049c44a5deac6a2574129f9c045d62a2811707e6d65333ffe73808acee8"
         ],
         "logicalAssetId": ".make-docs/references/system/wave-model.md",
         "localPath": ".make-docs/references/system/wave-model.md",
@@ -2534,7 +2498,7 @@
       }
     },
     ".make-docs/templates/system/history-record.md": {
-      "hash": "b75c6a1522bcf88d3c711ad386713bdabdfbcbc5e0b5234f17d39ab1db51b16e",
+      "hash": "aeab1106c9a043e1afcccea30ab725a715827a8f4a29dfe07e650479182ce3cc",
       "sourceId": "file:.make-docs/templates/system/history-record.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
@@ -2544,7 +2508,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "b75c6a1522bcf88d3c711ad386713bdabdfbcbc5e0b5234f17d39ab1db51b16e"
+          "aeab1106c9a043e1afcccea30ab725a715827a8f4a29dfe07e650479182ce3cc"
         ],
         "logicalAssetId": ".make-docs/templates/system/history-record.md",
         "localPath": ".make-docs/templates/system/history-record.md",
@@ -2912,7 +2876,7 @@
       }
     },
     "docs/AGENTS.md": {
-      "hash": "8ad70c15ada3ec52a89dc3ba5006e55c1c9c867d9eb575e3776f575d793127e8",
+      "hash": "19f047ea7c83467f289d1b0fc722fd2f36dffe6889cd65bfe6d38d64ba3ad511",
       "sourceId": "file:docs/AGENTS.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
@@ -2922,7 +2886,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "8ad70c15ada3ec52a89dc3ba5006e55c1c9c867d9eb575e3776f575d793127e8"
+          "19f047ea7c83467f289d1b0fc722fd2f36dffe6889cd65bfe6d38d64ba3ad511"
         ],
         "logicalAssetId": "docs/AGENTS.md",
         "localPath": "docs/AGENTS.md",
@@ -2932,29 +2896,8 @@
         "selectionTrigger": "local-bootstrap"
       }
     },
-    "docs/CLAUDE.md": {
-      "hash": "8ad70c15ada3ec52a89dc3ba5006e55c1c9c867d9eb575e3776f575d793127e8",
-      "sourceId": "file:docs/CLAUDE.md",
-      "systemAsset": {
-        "materializationMode": "full-snapshot",
-        "sourcePackage": "@brucewaynedecoy/make-docs",
-        "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
-        "hashAlgorithm": "sha256",
-        "expectedHashes": [
-          "8ad70c15ada3ec52a89dc3ba5006e55c1c9c867d9eb575e3776f575d793127e8"
-        ],
-        "logicalAssetId": "docs/CLAUDE.md",
-        "localPath": "docs/CLAUDE.md",
-        "materializationClass": "always-local-bootstrap",
-        "offlineExpectation": "local",
-        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
-        "selectionTrigger": "local-bootstrap"
-      }
-    },
     "docs/assets/AGENTS.md": {
-      "hash": "51c756643fd7790a6c2517aa160017833d0325fe3072fd5eae0e3086e17e35eb",
+      "hash": "f8efe1dd9f7b43b10e56569e55345f81dd1fc824e9e25c6b1fa1023eaeb4ff36",
       "sourceId": "file:docs/assets/AGENTS.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
@@ -2964,7 +2907,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "51c756643fd7790a6c2517aa160017833d0325fe3072fd5eae0e3086e17e35eb"
+          "f8efe1dd9f7b43b10e56569e55345f81dd1fc824e9e25c6b1fa1023eaeb4ff36"
         ],
         "logicalAssetId": "docs/assets/AGENTS.md",
         "localPath": "docs/assets/AGENTS.md",
@@ -2974,29 +2917,8 @@
         "selectionTrigger": "profile-selection"
       }
     },
-    "docs/assets/CLAUDE.md": {
-      "hash": "51c756643fd7790a6c2517aa160017833d0325fe3072fd5eae0e3086e17e35eb",
-      "sourceId": "file:docs/assets/CLAUDE.md",
-      "systemAsset": {
-        "materializationMode": "full-snapshot",
-        "sourcePackage": "@brucewaynedecoy/make-docs",
-        "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
-        "hashAlgorithm": "sha256",
-        "expectedHashes": [
-          "51c756643fd7790a6c2517aa160017833d0325fe3072fd5eae0e3086e17e35eb"
-        ],
-        "logicalAssetId": "docs/assets/CLAUDE.md",
-        "localPath": "docs/assets/CLAUDE.md",
-        "materializationClass": "materialized-system-asset",
-        "offlineExpectation": "local",
-        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
-        "selectionTrigger": "profile-selection"
-      }
-    },
     "docs/assets/archive/AGENTS.md": {
-      "hash": "622d0c3ae8b9f3ada2ae3f2d0ed431f65b5891f7640c2a7b13e718a88b77e705",
+      "hash": "349d75d9676650f793f7e3bc047af543d95ab01ba140e3efc1a40b03923294f8",
       "sourceId": "file:docs/assets/archive/AGENTS.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
@@ -3006,7 +2928,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "622d0c3ae8b9f3ada2ae3f2d0ed431f65b5891f7640c2a7b13e718a88b77e705"
+          "349d75d9676650f793f7e3bc047af543d95ab01ba140e3efc1a40b03923294f8"
         ],
         "logicalAssetId": "docs/assets/archive/AGENTS.md",
         "localPath": "docs/assets/archive/AGENTS.md",
@@ -3017,7 +2939,7 @@
       }
     },
     "docs/assets/archive/CLAUDE.md": {
-      "hash": "622d0c3ae8b9f3ada2ae3f2d0ed431f65b5891f7640c2a7b13e718a88b77e705",
+      "hash": "349d75d9676650f793f7e3bc047af543d95ab01ba140e3efc1a40b03923294f8",
       "sourceId": "file:docs/assets/archive/CLAUDE.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
@@ -3027,7 +2949,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "622d0c3ae8b9f3ada2ae3f2d0ed431f65b5891f7640c2a7b13e718a88b77e705"
+          "349d75d9676650f793f7e3bc047af543d95ab01ba140e3efc1a40b03923294f8"
         ],
         "logicalAssetId": "docs/assets/archive/CLAUDE.md",
         "localPath": "docs/assets/archive/CLAUDE.md",
@@ -3079,9 +3001,9 @@
         "selectionTrigger": "profile-selection"
       }
     },
-    "docs/assets/breadcrumbs/AGENTS.md": {
-      "hash": "64ea4aa62d9ab991f94564737f4e355873e2de45fc8d062561d86087bb9ab3ae",
-      "sourceId": "file:docs/assets/breadcrumbs/AGENTS.md",
+    "docs/assets/CLAUDE.md": {
+      "hash": "f8efe1dd9f7b43b10e56569e55345f81dd1fc824e9e25c6b1fa1023eaeb4ff36",
+      "sourceId": "file:docs/assets/CLAUDE.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
@@ -3090,19 +3012,19 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "64ea4aa62d9ab991f94564737f4e355873e2de45fc8d062561d86087bb9ab3ae"
+          "f8efe1dd9f7b43b10e56569e55345f81dd1fc824e9e25c6b1fa1023eaeb4ff36"
         ],
-        "logicalAssetId": "docs/assets/breadcrumbs/AGENTS.md",
-        "localPath": "docs/assets/breadcrumbs/AGENTS.md",
+        "logicalAssetId": "docs/assets/CLAUDE.md",
+        "localPath": "docs/assets/CLAUDE.md",
         "materializationClass": "materialized-system-asset",
         "offlineExpectation": "local",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
         "selectionTrigger": "profile-selection"
       }
     },
-    "docs/assets/breadcrumbs/CLAUDE.md": {
-      "hash": "64ea4aa62d9ab991f94564737f4e355873e2de45fc8d062561d86087bb9ab3ae",
-      "sourceId": "file:docs/assets/breadcrumbs/CLAUDE.md",
+    "docs/assets/library/AGENTS.md": {
+      "hash": "e08b3144d4d2ad4ff6f92c0bab78ff756fd7597e9e6cf20e299e6454d91e0d70",
+      "sourceId": "file:docs/assets/library/AGENTS.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
@@ -3111,19 +3033,19 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "64ea4aa62d9ab991f94564737f4e355873e2de45fc8d062561d86087bb9ab3ae"
+          "e08b3144d4d2ad4ff6f92c0bab78ff756fd7597e9e6cf20e299e6454d91e0d70"
         ],
-        "logicalAssetId": "docs/assets/breadcrumbs/CLAUDE.md",
-        "localPath": "docs/assets/breadcrumbs/CLAUDE.md",
+        "logicalAssetId": "docs/assets/library/AGENTS.md",
+        "localPath": "docs/assets/library/AGENTS.md",
         "materializationClass": "materialized-system-asset",
         "offlineExpectation": "local",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
         "selectionTrigger": "profile-selection"
       }
     },
-    "docs/assets/guides/AGENTS.md": {
-      "hash": "d6db041e84c506eea21d77f9e2e49ffd4c1800360c241858171c8e93125f8fa9",
-      "sourceId": "file:docs/assets/guides/AGENTS.md",
+    "docs/assets/library/CLAUDE.md": {
+      "hash": "e08b3144d4d2ad4ff6f92c0bab78ff756fd7597e9e6cf20e299e6454d91e0d70",
+      "sourceId": "file:docs/assets/library/CLAUDE.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
@@ -3132,31 +3054,10 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "d6db041e84c506eea21d77f9e2e49ffd4c1800360c241858171c8e93125f8fa9"
+          "e08b3144d4d2ad4ff6f92c0bab78ff756fd7597e9e6cf20e299e6454d91e0d70"
         ],
-        "logicalAssetId": "docs/assets/guides/AGENTS.md",
-        "localPath": "docs/assets/guides/AGENTS.md",
-        "materializationClass": "materialized-system-asset",
-        "offlineExpectation": "local",
-        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
-        "selectionTrigger": "profile-selection"
-      }
-    },
-    "docs/assets/guides/CLAUDE.md": {
-      "hash": "d6db041e84c506eea21d77f9e2e49ffd4c1800360c241858171c8e93125f8fa9",
-      "sourceId": "file:docs/assets/guides/CLAUDE.md",
-      "systemAsset": {
-        "materializationMode": "full-snapshot",
-        "sourcePackage": "@brucewaynedecoy/make-docs",
-        "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
-        "hashAlgorithm": "sha256",
-        "expectedHashes": [
-          "d6db041e84c506eea21d77f9e2e49ffd4c1800360c241858171c8e93125f8fa9"
-        ],
-        "logicalAssetId": "docs/assets/guides/CLAUDE.md",
-        "localPath": "docs/assets/guides/CLAUDE.md",
+        "logicalAssetId": "docs/assets/library/CLAUDE.md",
+        "localPath": "docs/assets/library/CLAUDE.md",
         "materializationClass": "materialized-system-asset",
         "offlineExpectation": "local",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
@@ -3164,7 +3065,7 @@
       }
     },
     "docs/assets/playbooks/AGENTS.md": {
-      "hash": "e7c1c2e019d5dd480190470cc8bf4974750ac7f47ab1daad825bbf8d3ed8bac9",
+      "hash": "96171d765ab1ad3b7998b3a378897fe12fca1973ef34c9a5ab761f3cae42ad62",
       "sourceId": "file:docs/assets/playbooks/AGENTS.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
@@ -3174,7 +3075,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "e7c1c2e019d5dd480190470cc8bf4974750ac7f47ab1daad825bbf8d3ed8bac9"
+          "96171d765ab1ad3b7998b3a378897fe12fca1973ef34c9a5ab761f3cae42ad62"
         ],
         "logicalAssetId": "docs/assets/playbooks/AGENTS.md",
         "localPath": "docs/assets/playbooks/AGENTS.md",
@@ -3185,7 +3086,7 @@
       }
     },
     "docs/assets/playbooks/CLAUDE.md": {
-      "hash": "e7c1c2e019d5dd480190470cc8bf4974750ac7f47ab1daad825bbf8d3ed8bac9",
+      "hash": "96171d765ab1ad3b7998b3a378897fe12fca1973ef34c9a5ab761f3cae42ad62",
       "sourceId": "file:docs/assets/playbooks/CLAUDE.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
@@ -3195,7 +3096,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "e7c1c2e019d5dd480190470cc8bf4974750ac7f47ab1daad825bbf8d3ed8bac9"
+          "96171d765ab1ad3b7998b3a378897fe12fca1973ef34c9a5ab761f3cae42ad62"
         ],
         "logicalAssetId": "docs/assets/playbooks/CLAUDE.md",
         "localPath": "docs/assets/playbooks/CLAUDE.md",
@@ -3203,6 +3104,27 @@
         "offlineExpectation": "local",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
         "selectionTrigger": "profile-selection"
+      }
+    },
+    "docs/CLAUDE.md": {
+      "hash": "19f047ea7c83467f289d1b0fc722fd2f36dffe6889cd65bfe6d38d64ba3ad511",
+      "sourceId": "file:docs/CLAUDE.md",
+      "systemAsset": {
+        "materializationMode": "full-snapshot",
+        "sourcePackage": "@brucewaynedecoy/make-docs",
+        "sourceProvider": "package",
+        "sourceVersion": "1.0.0-rc.1",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "hashAlgorithm": "sha256",
+        "expectedHashes": [
+          "19f047ea7c83467f289d1b0fc722fd2f36dffe6889cd65bfe6d38d64ba3ad511"
+        ],
+        "logicalAssetId": "docs/CLAUDE.md",
+        "localPath": "docs/CLAUDE.md",
+        "materializationClass": "always-local-bootstrap",
+        "offlineExpectation": "local",
+        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
+        "selectionTrigger": "local-bootstrap"
       }
     },
     "docs/designs/AGENTS.md": {
@@ -3248,7 +3170,7 @@
       }
     },
     "docs/plans/AGENTS.md": {
-      "hash": "76746114e0157b35d737d566e5046f82475175d6f186360df00ae085b204ab6a",
+      "hash": "c542deec2b4844f8695605a49a068b3336df7eab5cf71ec2bb1b91791b759c54",
       "sourceId": "file:docs/plans/AGENTS.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
@@ -3258,7 +3180,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "76746114e0157b35d737d566e5046f82475175d6f186360df00ae085b204ab6a"
+          "c542deec2b4844f8695605a49a068b3336df7eab5cf71ec2bb1b91791b759c54"
         ],
         "logicalAssetId": "docs/plans/AGENTS.md",
         "localPath": "docs/plans/AGENTS.md",
@@ -3269,7 +3191,7 @@
       }
     },
     "docs/plans/CLAUDE.md": {
-      "hash": "76746114e0157b35d737d566e5046f82475175d6f186360df00ae085b204ab6a",
+      "hash": "c542deec2b4844f8695605a49a068b3336df7eab5cf71ec2bb1b91791b759c54",
       "sourceId": "file:docs/plans/CLAUDE.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
@@ -3279,7 +3201,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "76746114e0157b35d737d566e5046f82475175d6f186360df00ae085b204ab6a"
+          "c542deec2b4844f8695605a49a068b3336df7eab5cf71ec2bb1b91791b759c54"
         ],
         "logicalAssetId": "docs/plans/CLAUDE.md",
         "localPath": "docs/plans/CLAUDE.md",
@@ -3332,7 +3254,7 @@
       }
     },
     "docs/work/AGENTS.md": {
-      "hash": "e0e0ae6de21330cbc81b30007205f411705e2745574356d3582efb7f79f2ebc4",
+      "hash": "20ef1c509e4b7b9773af9207d0d20ff4a10ca27ff32cef10f974e22e01aa24bc",
       "sourceId": "file:docs/work/AGENTS.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
@@ -3342,7 +3264,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "e0e0ae6de21330cbc81b30007205f411705e2745574356d3582efb7f79f2ebc4"
+          "20ef1c509e4b7b9773af9207d0d20ff4a10ca27ff32cef10f974e22e01aa24bc"
         ],
         "logicalAssetId": "docs/work/AGENTS.md",
         "localPath": "docs/work/AGENTS.md",
@@ -3353,7 +3275,7 @@
       }
     },
     "docs/work/CLAUDE.md": {
-      "hash": "e0e0ae6de21330cbc81b30007205f411705e2745574356d3582efb7f79f2ebc4",
+      "hash": "20ef1c509e4b7b9773af9207d0d20ff4a10ca27ff32cef10f974e22e01aa24bc",
       "sourceId": "file:docs/work/CLAUDE.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
@@ -3363,7 +3285,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "e0e0ae6de21330cbc81b30007205f411705e2745574356d3582efb7f79f2ebc4"
+          "20ef1c509e4b7b9773af9207d0d20ff4a10ca27ff32cef10f974e22e01aa24bc"
         ],
         "logicalAssetId": "docs/work/CLAUDE.md",
         "localPath": "docs/work/CLAUDE.md",

@@ -96,16 +96,16 @@
 
 docs/
 ├─ assets/
-│  ├─ archive/ # managed/template asset that ONLY gets created when docs (like designs, plans, work backlogs, etc.) are archived
+│  ├─ archive/ # managed/template asset that ONLY gets created when docs (like designs, plans, work backlogs, etc.) are archived AND/OR when history breadcrumbs/entries are created
+│  │  ├─ history/ # managed/template asset for saving and referencing history breadcrumbs (previously `docs/assets/history/`)
+│  │  │  ├─ AGENTS.md
+│  │  │  └─ CLAUDE.md
 │  │  ├─ AGENTS.md
 │  │  └─ CLAUDE.md
 │  ├─ artifacts/ # managed/template asset (not created by default); an **optional, zero-contract** home for free-form, pre-design inputs.
 │  │  ├─ AGENTS.md
 │  │  └─ CLAUDE.md
-│  ├─ breadcrumbs/ # managed/template asset for saving and referencing history breadcrumbs (used to be `docs/assets/history/`)
-│  │  ├─ AGENTS.md
-│  │  └─ CLAUDE.md
-│  ├─ guides/
+│  ├─ library/ # previously called `docs/assets/guides/`
 │  │  ├─ AGENTS.md
 │  │  └─ CLAUDE.md
 │  ├─ playbooks/

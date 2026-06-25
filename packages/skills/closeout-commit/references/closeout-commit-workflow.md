@@ -28,7 +28,7 @@ Use the local helper scripts before broad manual analysis:
 - `scripts/closeout_validate.py --repo-root . --probe-json /tmp/closeout-probe.json --print-only` lists focused validation commands. Use `--run` only when you are ready to execute them.
 - `scripts/closeout_history.py --mode commit --repo-root . --probe-json /tmp/closeout-probe.json` drafts a history skeleton. Add `--write` only after the gap/history decision is ready.
 
-Only read diffs, docs, guides, or references that the probe identifies as relevant or that remain unresolved after reviewing the JSON. For ordinary commit closeout, do not inspect `docs/guides/` unless the probe shows a `docs/work/` phase in scope, the user requested guide work, or the changed files already touch guides.
+Only read diffs, docs, guides, or references that the probe identifies as relevant or that remain unresolved after reviewing the JSON. For ordinary commit closeout, do not inspect `docs/assets/library/` unless the probe shows a `docs/work/` phase in scope, the user requested guide work, or the changed files already touch library docs.
 
 ## Gate 1: Change Set Discovery
 
@@ -67,7 +67,7 @@ When no novel gaps were found, explicitly record `No novel gaps were found` in t
 
 ## Gate 3: History Entry
 
-Always create or update a history entry under `docs/assets/history/`.
+Always create or update a history entry under `docs/assets/archive/history/`.
 
 The history entry should include:
 

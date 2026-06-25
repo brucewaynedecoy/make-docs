@@ -6,6 +6,10 @@ Reconcile the active Make Docs v2 product requirements and execution path with t
 
 This plan captures the W9 R4 delta work for moving future-facing structure from the older `docs/artifacts/**` and `docs/archive/**` assumptions to the hard target of `docs/assets/{archive,artifacts,breadcrumbs,guides,playbooks}/**`, while keeping `.make-docs/**` as the system machinery namespace.
 
+## W9 R5 Supersession
+
+W9 R4 remains historical implementation evidence for the top-level artifact/archive hard move and `.make-docs/**` system machinery split. W9 R5 supersedes W9 R4 for guide/library and history/breadcrumb targets: future work must use `docs/assets/library/**` and `docs/assets/archive/history/**`, not W9 R4's `docs/assets/guides/**` or `docs/assets/breadcrumbs/**` targets.
+
 ## Coordinate Decision
 
 - Coordinate: `W9 R4`

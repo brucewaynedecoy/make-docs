@@ -57,7 +57,7 @@ Generated metadata may add relationship fields later, but it must not rename `pe
 
 The later configuration overlay may relabel user-visible presentation vocabulary, but it must preserve these automation-facing names:
 
-- `docs/assets/guides/**`
+- `docs/assets/library/**`
 - `docs/assets/playbooks/**`
 - `docs/assets/archive/**`
 - `persona`

@@ -19,8 +19,8 @@ Documentation should be portable across checkouts, machines, and users. Do not w
 - Treat `docs/assets/**` as the managed project documentation asset namespace, not a catch-all for runtime state or hidden tool resources.
 - Optional pre-design source material lives under `docs/assets/artifacts/**`; top-level `docs/artifacts/**` is a hard-move migration source, not a shipped target.
 - Managed archive storage lives under `docs/assets/archive/**`; top-level `docs/archive/**` is not a shipped target.
-- Breadcrumb records live under `docs/assets/breadcrumbs/**`. Existing `docs/assets/history/**` records remain historical migration evidence; do not add new records there unless preserving or explicitly migrating existing history.
-- Reader-facing guide and playbook assets live under `docs/assets/guides/**` and `docs/assets/playbooks/**`.
+- History and breadcrumb records live under `docs/assets/archive/history/**` and are created on demand.
+- Reader-facing library and playbook assets live under `docs/assets/library/**` and `docs/assets/playbooks/**`.
 - System tool resources live under `.make-docs/contracts/system/**`, `.make-docs/references/system/**`, `.make-docs/templates/system/**`, `.make-docs/scripts/system/**`, and `.make-docs/agentics/**`.
 - Reusable prompt starters are classified under `.make-docs/references/system/prompts/**`; do not preserve a shipped `.make-docs/prompts/**` family by default.
 - Runtime state belongs under `.make-docs/**`, especially `.make-docs/manifest.json` and `.make-docs/conflicts/<run-id>/`.

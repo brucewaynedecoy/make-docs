@@ -292,7 +292,7 @@ describe("uninstall command", () => {
       await installManifest(targetDir, (selections) => {
         selections.skills = false;
       });
-      const historyRecordPath = path.join(targetDir, "docs/assets/breadcrumbs/2026-04-20-phase-3.md");
+      const historyRecordPath = path.join(targetDir, "docs/assets/archive/history/2026-04-20-phase-3.md");
       mkdirSync(path.dirname(historyRecordPath), { recursive: true });
       writeFileSync(historyRecordPath, "# Phase 3 history\n", "utf8");
 
@@ -304,11 +304,11 @@ describe("uninstall command", () => {
 
       expect(result.status).toBe("completed");
       expect(result.prunedDirectories).toContain(".make-docs");
-      expect(result.prunedDirectories).not.toContain("docs/assets/breadcrumbs");
+      expect(result.prunedDirectories).not.toContain("docs/assets/archive/history");
       expect(result.prunedDirectories).not.toContain("docs/assets");
       expect(existsSync(path.join(targetDir, ".make-docs"))).toBe(false);
       expect(existsSync(historyRecordPath)).toBe(true);
-      expect(existsSync(path.join(targetDir, "docs/assets/breadcrumbs"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/assets/archive/history"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/assets"))).toBe(true);
     } finally {
       cleanupTempDir(targetDir);

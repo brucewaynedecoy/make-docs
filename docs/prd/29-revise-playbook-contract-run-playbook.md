@@ -30,7 +30,7 @@ docs/assets/playbooks/<persona-slug>/<playbook-slug>.md
 
 The path is part of the contract. A playbook belongs to one owning persona namespace even when another persona consumes it as reference material.
 
-The current `docs/library/playbooks/**` content is transitional dogfood and migration evidence, not the v2 home.
+Former `docs/library/playbooks/**` content is transitional dogfood and migration evidence, not the v2 home; W9 R5 migrates accepted dogfood playbooks into `docs/assets/playbooks/**`.
 
 ### Minimum Frontmatter
 
@@ -107,7 +107,7 @@ Accepted shipped playbook defaults follow source-first template flow:
 3. Generate `packages/cli/template/**` through copy/prepack behavior.
 4. Validate local dev and packed npm behavior.
 
-Implementation planning should move or copy accepted transitional playbooks from `docs/library/playbooks/**` into `docs/assets/playbooks/**` with lineage preserved.
+Implementation planning must treat accepted transitional playbooks as already migrated by W9 R5, and future shipped playbook work must use `docs/assets/playbooks/**` directly.
 
 Manifest, catalog, audit, backup, uninstall, installer, CLI, MCP, and plugin behavior changes are required only when implementation changes how playbooks are shipped, selected, enumerated, or executed.
 
@@ -119,7 +119,7 @@ Manifest, catalog, audit, backup, uninstall, installer, CLI, MCP, and plugin beh
 - No adversarial-review playbook by default.
 - No MCP write surface.
 - No unattended execution by default.
-- No broad migration of all current playbook content in this PRD-only round.
+- No plugin, runner, or public execution migration of all current playbook content in this PRD-only round.
 
 ## Affected Baseline Docs
 
@@ -159,7 +159,7 @@ Manifest, catalog, audit, backup, uninstall, installer, CLI, MCP, and plugin beh
 - [28 Revise Shared Agentics Installation Harness Redirection](28-revise-shared-agentics-installation-harness-redirection.md)
 - [30 Revise Harness Plugin Substrate Workflow Bundles](30-revise-harness-plugin-substrate-workflow-bundles.md)
 - [31 Revise Coverage Pass Extensions Adversarial Review](31-revise-coverage-pass-extensions-adversarial-review.md)
-- `docs/library/playbooks/agent/make-docs-lifecycle.md`
+- `docs/assets/playbooks/agent/make-docs-lifecycle.md`
 - `.make-docs/contracts/system/coverage-pass-contract.md`
 - `packages/cli/src/rules.ts`
 - `packages/cli/src/catalog.ts`

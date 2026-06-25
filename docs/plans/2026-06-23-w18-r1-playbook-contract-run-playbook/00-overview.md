@@ -17,7 +17,7 @@ This plan is derived from [Playbook Contract and Run Playbook](../../designs/202
 
 ## Current Implementation Grounding
 
-- `docs/library/playbooks/agent/make-docs-lifecycle.md` exists as transitional dogfood evidence, not the v2 home.
+- `docs/assets/playbooks/agent/make-docs-lifecycle.md` is the v2 dogfood home; former `docs/library/playbooks/agent/make-docs-lifecycle.md` references are transitional historical evidence after W9 R5.
 - [docs/prd/22-revise-new-docs-assets-playbooks-persona-model.md](../../prd/22-revise-new-docs-assets-playbooks-persona-model.md) already makes `docs/assets/playbooks/**` the future persona-scoped playbook namespace but explicitly does not define Run Playbook execution.
 - `packages/cli/src/rules.ts` and `packages/cli/src/catalog.ts` currently enumerate prompts, references, templates, scripts, and instruction routers; they do not enumerate playbook assets or validate playbook frontmatter.
 - `packages/cli/src/manifest.ts` records generic files and `skillFiles`; it has no playbook catalog, stack, or run-support metadata.

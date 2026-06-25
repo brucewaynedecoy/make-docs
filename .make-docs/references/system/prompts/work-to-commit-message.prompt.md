@@ -12,7 +12,7 @@ Inspect the local context first:
 - `git status --short`
 - recent commit subjects with `git log --format='%h %s' -n 30`
 - the relevant design, plan, work, and history records for the requested coordinate
-- `docs/assets/breadcrumbs/` for current breadcrumb records, falling back to pre-migration `docs/assets/history/` records only when needed
+- `docs/assets/archive/history/` for current breadcrumb records
 
 If the user explicitly asks you to commit, stage only the requested change set, create the commit with the drafted subject/body, and verify it with `git log -1 --format=%B`. Do not stage unrelated edits, do not rewrite user work, and do not create a commit when the request is only to draft a message.
 

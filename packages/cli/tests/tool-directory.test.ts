@@ -93,7 +93,7 @@ describe("tool directory model", () => {
     expect(
       getLegacyToolResourceFamily("docs/assets/templates/work-phase.md"),
     ).toBe("templates");
-    expect(getLegacyToolResourceFamily("docs/assets/history/session.md")).toBeNull();
+    expect(getLegacyToolResourceFamily("docs/assets/archive/history/session.md")).toBeNull();
     expect(
       getLegacyToolResourceFamily(
         ".make-docs/references/system/prompts/work-to-guides.prompt.md",
@@ -127,7 +127,7 @@ describe("tool directory model", () => {
     expect(
       createSystemToolResourceMigrationFixtures([
         "docs/assets/templates/work-phase.md",
-        "docs/assets/history/session.md",
+        "docs/assets/archive/history/session.md",
         "docs/assets/prompts/work-to-guides.prompt.md",
         "docs/assets/references/lifecycle.md",
       ]),

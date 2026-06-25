@@ -24,7 +24,7 @@ PRD 29 should sit after PRD 28 in the active change-doc sequence because it depe
 - Q-013 remains open for public plugin flow and exposure boundaries.
 - R-011 remains open until persona config implementation proves path/frontmatter and generated metadata behavior.
 - R-012 should narrow from confirming to a settled content-vs-invocation boundary: playbooks are persona-scoped content; Run Playbook is the generic invocation model; plugins are optional exposure.
-- R-013 should include the `docs/library/playbooks/**` to `docs/assets/playbooks/**` migration and metadata path updates.
+- R-013 should include W9 R5's completed `docs/library/playbooks/**` to `docs/assets/playbooks/**` migration and metadata path updates.
 - R-014 remains open because shared stubs, scripts, MCP, and Run Playbook surfaces must not cite missing CLI/shared-core deterministic behavior.
 
 ## Acceptance

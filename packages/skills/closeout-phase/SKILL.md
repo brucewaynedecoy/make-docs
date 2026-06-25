@@ -1,6 +1,6 @@
 ---
 name: closeout-phase
-description: Close out a completed work backlog phase. Use when the agent needs to verify unchecked task items in a docs/work phase file, mark completed tasks, use acceptance criteria as evidence, generate or update developer and/or user guides when warranted, capture novel gaps, create a docs/assets/history entry, and draft a commit message from the repo convention.
+description: Close out a completed work backlog phase. Use when the agent needs to verify unchecked task items in a docs/work phase file, mark completed tasks, use acceptance criteria as evidence, generate or update developer and/or user library docs when warranted, capture novel gaps, create a docs/assets/archive/history entry, and draft a commit message from the repo convention.
 ---
 
 # Closeout Phase

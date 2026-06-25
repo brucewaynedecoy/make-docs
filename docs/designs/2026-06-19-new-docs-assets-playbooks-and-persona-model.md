@@ -8,6 +8,10 @@ Define the v2 reader-facing documentation asset model for guides and playbooks, 
 
 This design is the second design in Batch 2, Canonical Information Architecture. It depends on [Tool Directory System and Custom Resource Tiers](2026-06-19-tool-directory-system-and-custom-resource-tiers.md), which reserves `.make-docs/**` for make-docs-owned tool resources and runtime state while leaving `docs/assets/**` available for future reader-facing reusable documentation assets.
 
+## W9 R5 Supersession
+
+[v2 Library and Archive History IA Correction](2026-06-25-v2-library-and-archive-history-ia-correction.md) supersedes this design's `docs/assets/guides/**` and history-placement assumptions. The active v2 guide/persona target is `docs/assets/library/**`, playbooks remain under `docs/assets/playbooks/**`, and history/breadcrumb records live under `docs/assets/archive/history/**`.
+
 ## Context
 
 The v2 roadmap identifies this design as the point where make-docs moves from the older `docs/guides/` plus temporary `docs/library/playbooks/` shape to the canonical `docs/assets/{guides,playbooks}/` model. The same roadmap leaves archive placement open and requires enough persona schema detail to close `Q-009` later. See [v2 Proposed Design and Roadmap](../assets/artifacts/v2-proposed-design-and-roadmap.md).

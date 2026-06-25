@@ -26,7 +26,7 @@ Use this contract to keep plan, PRD, and work document outputs consistent across
 | Risk and gap register | `docs/prd/03-open-questions-and-risk-register.md` |
 | Glossary | `docs/prd/04-glossary.md` |
 | Archived PRD set | `docs/assets/archive/prds/YYYY-MM-DD/` or `docs/assets/archive/prds/YYYY-MM-DD-XX/` |
-| Breadcrumb record | `docs/assets/breadcrumbs/YYYY-MM-DD-w{W}-r{R}-p{P}-<slug>.md` when W/R/P is known; fall back to `docs/assets/breadcrumbs/YYYY-MM-DD-w{W}-r{R}-<slug>.md` when only W/R is known or `docs/assets/breadcrumbs/YYYY-MM-DD-<slug>.md` when no coordinate is known. Existing `docs/assets/history/**` records remain historical migration evidence until intentionally moved or archived. |
+| Breadcrumb record | `docs/assets/archive/history/YYYY-MM-DD-w{W}-r{R}-p{P}-<slug>.md` when W/R/P is known; fall back to `docs/assets/archive/history/YYYY-MM-DD-w{W}-r{R}-<slug>.md` when only W/R is known or `docs/assets/archive/history/YYYY-MM-DD-<slug>.md` when no coordinate is known. |
 
 Plan directories contain `00-overview.md` plus one or more `0N-<phase>.md` files. Work directories contain `00-index.md` plus one or more `0N-<phase>.md` files. See `.make-docs/references/system/wave-model.md` for the full naming pattern and `## Work Phase Structure Rules` below for work content requirements.
 

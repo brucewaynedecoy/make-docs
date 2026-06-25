@@ -1,6 +1,6 @@
 ---
 name: closeout-commit
-description: Close out uncommitted changes before drafting a commit. Use when the agent needs to inspect staged or unstaged changes, capture novel gaps, create or update a docs/assets/history entry, and draft a commit message from the repo convention without assuming there is a docs/work phase to close.
+description: Close out uncommitted changes before drafting a commit. Use when the agent needs to inspect staged or unstaged changes, capture novel gaps, create or update a docs/assets/archive/history entry, and draft a commit message from the repo convention without assuming there is a docs/work phase to close.
 ---
 
 # Closeout Commit

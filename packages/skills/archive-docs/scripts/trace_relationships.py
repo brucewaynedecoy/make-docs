@@ -20,12 +20,12 @@ from typing import Any
 # ---------------------------------------------------------------------------
 
 ARTIFACT_DIRS: dict[str, str] = {
-    "assets/history": "history_record",
+    "assets/archive/history": "history_record",
     "designs": "design",
     "plans": "plan",
     "work": "work",
-    "guides/developer": "developer_guide",
-    "guides/user": "user_guide",
+    "assets/library/developer": "developer_guide",
+    "assets/library/user": "user_guide",
 }
 
 LINK_RE = re.compile(r"\[([^\]]*)\]\(([^)]+)\)")

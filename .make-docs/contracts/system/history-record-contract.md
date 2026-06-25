@@ -2,15 +2,15 @@
 
 ## Purpose
 
-Use this contract for session breadcrumb records under `docs/assets/breadcrumbs/`. Existing records under `docs/assets/history/` remain pre-migration history evidence until they are intentionally moved or archived.
+Use this contract for session breadcrumb records under `docs/assets/archive/history/`.
 
 History records are **breadcrumbs**: concise, point-in-time references for a future auditor. A reader should be able to skim one and know what was touched and why, then follow links to deeper detail. They are not verbose narratives and not live logs.
 
 ## Required Path
 
-- When wave, revision, and phase are known: `docs/assets/breadcrumbs/YYYY-MM-DD-w{W}-r{R}-p{P}-<slug>.md`
-- When only wave and revision are known: `docs/assets/breadcrumbs/YYYY-MM-DD-w{W}-r{R}-<slug>.md`
-- When no coordinate is known: `docs/assets/breadcrumbs/YYYY-MM-DD-<slug>.md`
+- When wave, revision, and phase are known: `docs/assets/archive/history/YYYY-MM-DD-w{W}-r{R}-p{P}-<slug>.md`
+- When only wave and revision are known: `docs/assets/archive/history/YYYY-MM-DD-w{W}-r{R}-<slug>.md`
+- When no coordinate is known: `docs/assets/archive/history/YYYY-MM-DD-<slug>.md`
 
 Use today's date in `YYYY-MM-DD`. Never backdate.
 
@@ -106,7 +106,7 @@ Example:
 
 | Path | Description |
 | --- | --- |
-| [docs/assets/guides/developer/auth-module.md](../guides/developer/auth-module.md) | New developer reference for the auth module. |
+| [docs/assets/library/developer/auth-module.md](../../library/developer/auth-module.md) | New developer reference for the auth module. |
 
 ### User
 

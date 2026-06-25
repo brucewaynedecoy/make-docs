@@ -6,6 +6,10 @@ Capture the Make Docs v2 documentation asset information architecture pivot as d
 
 This design resolves the remaining ambiguity around top-level `docs/artifacts/`, top-level `docs/archive/`, the future breadcrumb namespace, and the difference between this repository's dogfooded `docs/` tree and the shipped Make Docs documentation system.
 
+## W9 R5 Supersession
+
+[v2 Library and Archive History IA Correction](2026-06-25-v2-library-and-archive-history-ia-correction.md) supersedes this design's guide/library and history/breadcrumb targets. This design remains authoritative for the hard move from top-level `docs/artifacts/**` to `docs/assets/artifacts/**`, rejection of top-level `docs/archive/**`, and the `.make-docs/**` system machinery split.
+
 ## Context
 
 Batch 2 previously established the direction that `.make-docs/**` owns tool resources, runtime state, and configuration while `docs/assets/**` remains available for reusable documentation assets. The accepted [Tool Directory System and Custom Resource Tiers](2026-06-19-tool-directory-system-and-custom-resource-tiers.md) design reserved `.make-docs/**` for make-docs-owned system and custom resources. The accepted [New Docs Assets, Playbooks, and Persona Model](2026-06-19-new-docs-assets-playbooks-and-persona-model.md) design then used `docs/assets/**` for reader-facing guides and playbooks, but it left archive placement and lifecycle-storage cleanup as follow-on work.

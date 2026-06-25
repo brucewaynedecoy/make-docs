@@ -104,7 +104,7 @@ Prior Design Docs:
 - [CLI Skills Command](../assets/archive/designs/2026-04-21-cli-skills-command.md)
 - [CLI Skill Selection Simplification](../assets/archive/designs/2026-04-28-cli-skill-selection-simplification.md)
 
-Reason: this design extends accepted Batch 3 CLI and no-scripts boundaries into the skill selection metadata model. It supersedes older required/optional and unpinned remote-selection intent for v2 while preserving the current selected-skill and managed `skillFiles` safety model established by [PRD 12](../prd/12-revise-cli-skill-selection-simplification.md) and the [W17 R0 no-default-skills correction](../assets/history/2026-06-18-w17-r0-static-template-router-skill-correction.md).
+Reason: this design extends accepted Batch 3 CLI and no-scripts boundaries into the skill selection metadata model. It supersedes older required/optional and unpinned remote-selection intent for v2 while preserving the current selected-skill and managed `skillFiles` safety model established by [PRD 12](../prd/12-revise-cli-skill-selection-simplification.md) and the [W17 R0 no-default-skills correction](../assets/archive/history/2026-06-18-w17-r0-static-template-router-skill-correction.md).
 
 ## Intended Follow-On
 

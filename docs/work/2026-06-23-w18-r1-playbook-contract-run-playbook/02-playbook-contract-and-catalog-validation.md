@@ -18,8 +18,8 @@ Implement playbook contract validation for path, frontmatter, body expectations,
 
 - Invalid playbooks cannot be selected or run silently.
 - Build-stack and run-stack metadata are available to selection and handoff messages.
-- Transitional `docs/library/playbooks/**` content is migrated, copied, or classified explicitly.
+- Former `docs/library/playbooks/**` content is treated as migrated historical evidence and is not selected as the v2 playbook home.
 
 ## Validation Notes
 
-Cover valid, missing-frontmatter, invalid-persona, path/persona drift, invalid-stack, and transitional-path fixtures.
+Cover valid, missing-frontmatter, invalid-persona, path/persona drift, invalid-stack, and historical transitional-path fixtures.

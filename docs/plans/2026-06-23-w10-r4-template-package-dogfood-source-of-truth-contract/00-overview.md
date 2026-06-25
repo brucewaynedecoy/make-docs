@@ -4,9 +4,9 @@
 
 Turn the accepted design in `docs/designs/2026-06-19-template-package-and-dogfood-source-of-truth-contract.md` into the active PRD and work backlog contract for template-first authoring, reviewed dogfood reseeding, generated package template copies, and validation across local and packed package paths.
 
-## W9 R4 Prerequisite
+## W9 R5 Prerequisite
 
-This W10 R4 plan remains valid for template/source-of-truth ordering, but any implementation must first apply [W9 R4 v2 Documentation Asset IA Hard Move](../2026-06-25-w9-r4-v2-documentation-asset-ia-hard-move/00-overview.md). W9 R4 fixes the concrete documentation asset locations that W10 R4 must reseed and package: `docs/assets/{archive,artifacts,breadcrumbs,guides,playbooks}/**` for managed project documentation assets and `.make-docs/{contracts,references,scripts,templates,agentics}/**` for make-docs system machinery.
+This W10 R4 plan remains valid for template/source-of-truth ordering, but any implementation must first apply [W9 R5 v2 Library and Archive History IA Correction](../2026-06-25-w9-r5-v2-library-and-archive-history-ia-correction/00-overview.md). W9 R5 fixes the concrete documentation asset locations that W10 R4 must reseed and package: `docs/assets/{archive,artifacts,library,playbooks}/**` plus on-demand `docs/assets/archive/history/**` for managed project documentation assets and `.make-docs/{contracts,references,scripts,templates,agentics}/**` for make-docs system machinery.
 
 ## Coordinate Decision
 
