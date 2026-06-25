@@ -23,15 +23,15 @@ contracts/templates all carried the advisory follow-on shape.
 
 ### Project
 
-- Updated [planning-workflow.md](../references/planning-workflow.md) and
-  [plan-overview.md](../templates/plan-overview.md) so plan `00-overview.md`
+- Updated [planning-workflow.md](../../../../.make-docs/references/system/planning-workflow.md) and
+  [plan-overview.md](../../../../.make-docs/templates/system/plan-overview.md) so plan `00-overview.md`
   files recommend PRD generation as the next step.
-- Updated [output-contract.md](../references/output-contract.md) and
-  [prd-index.md](../templates/prd-index.md) so PRD indexes recommend
+- Updated [output-contract.md](../../../../.make-docs/contracts/system/output-contract.md) and
+  [prd-index.md](../../../../.make-docs/templates/system/prd-index.md) so PRD indexes recommend
   work-backlog generation as the next step.
-- Updated [work-index.md](../templates/work-index.md) so work backlog indexes
+- Updated [work-index.md](../../../../.make-docs/templates/system/work-index.md) so work backlog indexes
   recommend the implementation loop as the next step.
-- Marked [Phase 04](../archive/work/2026-06-17-w16-r0-lifecycle-workflow-foundation/04-stage-follow-on-handoffs.md)
+- Marked [Phase 04](../work/2026-06-17-w16-r0-lifecycle-workflow-foundation/04-stage-follow-on-handoffs.md)
   tasks complete.
 
 ### Developer

@@ -24,13 +24,13 @@ input behavior.
 
 ### Project
 
-- Updated [lifecycle.md](../references/lifecycle.md) and
-  [planning-workflow.md](../references/planning-workflow.md) to cite
+- Updated [lifecycle.md](../../../../.make-docs/references/system/lifecycle.md) and
+  [planning-workflow.md](../../../../.make-docs/references/system/planning-workflow.md) to cite
   `docs/artifacts/` as optional input context.
 - Updated artifacts routers [AGENTS.md](../../artifacts/AGENTS.md) and
   [CLAUDE.md](../../artifacts/CLAUDE.md) to state the managed/template asset and
   zero-contract purpose.
-- Marked [Phase 05](../archive/work/2026-06-17-w16-r0-lifecycle-workflow-foundation/05-artifacts-seed.md)
+- Marked [Phase 05](../work/2026-06-17-w16-r0-lifecycle-workflow-foundation/05-artifacts-seed.md)
   tasks complete.
 
 ### Developer

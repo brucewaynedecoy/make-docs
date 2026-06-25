@@ -7,7 +7,7 @@ coordinate: "W10 R0 P3"
 
 ## Changes
 
-This session completed Wave 10 Phase 3 from [03-docs-history-and-pathnames.md](../archive/work/2026-04-21-w10-r0-make-docs-rename/03-docs-history-and-pathnames.md), based on the source plan at [docs/assets/archive/plans/2026-04-21-w10-r0-make-docs-rename/03-docs-history-and-pathnames.md](../archive/plans/2026-04-21-w10-r0-make-docs-rename/03-docs-history-and-pathnames.md). The phase rewrote repo documentation, package docs, historical records, and tracked Markdown pathnames to use `make-docs`.
+This session completed Wave 10 Phase 3 from [03-docs-history-and-pathnames.md](../work/2026-04-21-w10-r0-make-docs-rename/03-docs-history-and-pathnames.md), based on the source plan at [docs/assets/archive/plans/2026-04-21-w10-r0-make-docs-rename/03-docs-history-and-pathnames.md](../plans/2026-04-21-w10-r0-make-docs-rename/03-docs-history-and-pathnames.md). The phase rewrote repo documentation, package docs, historical records, and tracked Markdown pathnames to use `make-docs`.
 
 | Area | Summary |
 | --- | --- |
@@ -24,25 +24,25 @@ This session completed Wave 10 Phase 3 from [03-docs-history-and-pathnames.md](.
 | Path | Description |
 | --- | --- |
 | [docs/.assets/history/2026-04-21-w10-r0-p3-docs-history-and-pathnames.md](2026-04-21-w10-r0-p3-docs-history-and-pathnames.md) | New history record for the Wave 10 Phase 3 docs, history, and pathname rename. |
-| [README.md](../../../README.md) | Root project README updated for Make Docs package, command, source-install, and contributor examples. |
-| [TODO.md](../../../TODO.md) | Project task list updated for the new product name. |
-| [packages/cli/README.md](../../../packages/cli/README.md) | CLI package README updated for `make-docs` install and source-copy examples. |
-| [packages/docs/README.md](../../../packages/docs/README.md) | Template package README updated for `@make-docs/template` and `make-docs` distribution wording. |
+| [README.md](../../../../README.md) | Root project README updated for Make Docs package, command, source-install, and contributor examples. |
+| TODO.md | Project task list updated for the new product name. |
+| [packages/cli/README.md](../../../../packages/cli/README.md) | CLI package README updated for `make-docs` install and source-copy examples. |
+| [packages/docs/README.md](../../../../packages/docs/README.md) | Template package README updated for `@make-docs/template` and `make-docs` distribution wording. |
 | [docs/.assets/AGENTS.md](../AGENTS.md) | Active assets router updated for make-docs-managed state wording. |
-| [docs/.references/commit-message-convention.md](../references/commit-message-convention.md) | Active reference copy updated for the new product name. |
-| [docs/.references/history-record-contract.md](../references/history-record-contract.md) | Active history contract copy updated for the new product name. |
-| [docs/assets/archive/designs/2026-04-21-make-docs-rename.md](../archive/designs/2026-04-21-make-docs-rename.md) | Wave 10 design updated as part of the docs rename pass. |
-| [docs/assets/archive/work/2026-04-21-w10-r0-make-docs-rename/03-docs-history-and-pathnames.md](../archive/work/2026-04-21-w10-r0-make-docs-rename/03-docs-history-and-pathnames.md) | Phase 3 work item updated during the rename pass. |
+| [docs/.references/commit-message-convention.md](../../../../.make-docs/contracts/system/commit-message-convention.md) | Active reference copy updated for the new product name. |
+| [docs/.references/history-record-contract.md](../../../../.make-docs/contracts/system/history-record-contract.md) | Active history contract copy updated for the new product name. |
+| [docs/assets/archive/designs/2026-04-21-make-docs-rename.md](../designs/2026-04-21-make-docs-rename.md) | Wave 10 design updated as part of the docs rename pass. |
+| [docs/assets/archive/work/2026-04-21-w10-r0-make-docs-rename/03-docs-history-and-pathnames.md](../work/2026-04-21-w10-r0-make-docs-rename/03-docs-history-and-pathnames.md) | Phase 3 work item updated during the rename pass. |
 
 ### Developer
 
 | Path | Description |
 | --- | --- |
-| [docs/guides/developer/cli-development-local-build-and-install.md](../../guides/developer/cli-development-local-build-and-install.md) | Developer build and local install guide updated for `make-docs` commands and package paths. |
-| [docs/guides/developer/roadmap.md](../../guides/developer/roadmap.md) | Developer roadmap copy updated for the new product name. |
+| [docs/guides/developer/cli-development-local-build-and-install.md](../../library/developer/cli-development-local-build-and-install.md) | Developer build and local install guide updated for `make-docs` commands and package paths. |
+| [docs/guides/developer/roadmap.md](../../library/developer/roadmap.md) | Developer roadmap copy updated for the new product name. |
 
 ### User
 
 | Path | Description |
 | --- | --- |
-| [docs/guides/user/getting-started-installing-make-docs.md](../../guides/user/getting-started-installing-make-docs.md) | Renamed user install guide with updated title, examples, and source-install paths. |
+| [docs/guides/user/getting-started-installing-make-docs.md](../../library/user/getting-started-installing-make-docs.md) | Renamed user install guide with updated title, examples, and source-install paths. |

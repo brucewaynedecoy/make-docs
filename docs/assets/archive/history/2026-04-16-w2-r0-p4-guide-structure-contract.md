@@ -42,16 +42,16 @@ All 9 targets verified byte-identical to their template source.
 
 | Path | Description |
 | --- | --- |
-| [docs/assets/archive/work/2026-04-16-w2-r0-guide-structure-contract/04-migration-and-reseed.md](../archive/work/2026-04-16-w2-r0-guide-structure-contract/04-migration-and-reseed.md) | Work backlog phase — acceptance criteria checked off. |
+| [docs/assets/archive/work/2026-04-16-w2-r0-guide-structure-contract/04-migration-and-reseed.md](../work/2026-04-16-w2-r0-guide-structure-contract/04-migration-and-reseed.md) | Work backlog phase — acceptance criteria checked off. |
 
 ### Developer
 
 | Path | Description |
 | --- | --- |
-| [docs/guides/developer/cli-development-local-build-and-install.md](../../guides/developer/cli-development-local-build-and-install.md) | Migrated: renamed and added YAML frontmatter. |
+| [docs/guides/developer/cli-development-local-build-and-install.md](../../library/developer/cli-development-local-build-and-install.md) | Migrated: renamed and added YAML frontmatter. |
 
 ### User
 
 | Path | Description |
 | --- | --- |
-| [docs/guides/user/getting-started-installing-make-docs.md](../../guides/user/getting-started-installing-make-docs.md) | Migrated: renamed and added YAML frontmatter. |
+| [docs/guides/user/getting-started-installing-make-docs.md](../../library/user/getting-started-installing-make-docs.md) | Migrated: renamed and added YAML frontmatter. |

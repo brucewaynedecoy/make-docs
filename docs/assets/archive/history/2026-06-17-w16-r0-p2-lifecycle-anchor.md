@@ -25,7 +25,7 @@ links satisfied the acceptance criteria.
 
 ### Project
 
-- Updated [lifecycle.md](../references/lifecycle.md) with the lifecycle arc,
+- Updated [lifecycle.md](../../../../.make-docs/references/system/lifecycle.md) with the lifecycle arc,
   default ordering, derive-from-backlog principle, straddle behavior, neutral
   release / publish vocabulary, and router-use guidance.
 - Updated root routers
@@ -33,10 +33,10 @@ links satisfied the acceptance criteria.
   always-read lifecycle pointer.
 - Updated docs routers [AGENTS.md](../../AGENTS.md) and
   [CLAUDE.md](../../CLAUDE.md) with the lifecycle pointer.
-- Updated references routers [AGENTS.md](../references/AGENTS.md) and
-  [CLAUDE.md](../references/CLAUDE.md) with the reference-specific lifecycle
+- Updated references routers [AGENTS.md](../../../../.make-docs/references/system/AGENTS.md) and
+  [CLAUDE.md](../../../../.make-docs/references/system/CLAUDE.md) with the reference-specific lifecycle
   pointer.
-- Marked [Phase 02](../archive/work/2026-06-17-w16-r0-lifecycle-workflow-foundation/02-lifecycle-anchor.md)
+- Marked [Phase 02](../work/2026-06-17-w16-r0-lifecycle-workflow-foundation/02-lifecycle-anchor.md)
   tasks complete.
 
 ### Developer

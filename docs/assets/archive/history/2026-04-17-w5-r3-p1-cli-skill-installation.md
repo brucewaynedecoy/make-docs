@@ -11,10 +11,10 @@ Completed `w5-r3` Phase 1 by fixing the wizard screen that previously treated op
 
 | Area | Summary |
 | --- | --- |
-| [packages/cli/src/skill-catalog.ts](../../../packages/cli/src/skill-catalog.ts) | Added a wizard-facing grouped skill helper that derives deterministic `defaultSkills` and `optionalSkills` directly from the current remote registry model. This kept the change scoped to presentation state and avoided any registry, planner, or manifest redesign. |
-| [packages/cli/src/wizard.ts](../../../packages/cli/src/wizard.ts) | Reworked the options step so it builds grouped skill-selection state, retitles the prompt to `Which skills should be installed?`, renders required skills under `Default` as selected read-only rows, renders optional skills under `Optional` as selectable rows, and skips the selection prompt entirely when no optional skills exist. Persisted behavior remains unchanged: only optional ids are stored in `optionalSkills`. |
-| [packages/cli/tests/skill-catalog.test.ts](../../../packages/cli/tests/skill-catalog.test.ts) | Added coverage proving the registry is projected into the expected default-vs-optional grouping for the wizard. |
-| [packages/cli/tests/wizard.test.ts](../../../packages/cli/tests/wizard.test.ts) | Added regression coverage for grouped skill-selection state, the no-optional skip path, and the required-only continuation path where `archive-docs` alone still counts as a valid answer. |
+| [packages/cli/src/skill-catalog.ts](../../../../packages/cli/src/skill-catalog.ts) | Added a wizard-facing grouped skill helper that derives deterministic `defaultSkills` and `optionalSkills` directly from the current remote registry model. This kept the change scoped to presentation state and avoided any registry, planner, or manifest redesign. |
+| [packages/cli/src/wizard.ts](../../../../packages/cli/src/wizard.ts) | Reworked the options step so it builds grouped skill-selection state, retitles the prompt to `Which skills should be installed?`, renders required skills under `Default` as selected read-only rows, renders optional skills under `Optional` as selectable rows, and skips the selection prompt entirely when no optional skills exist. Persisted behavior remains unchanged: only optional ids are stored in `optionalSkills`. |
+| [packages/cli/tests/skill-catalog.test.ts](../../../../packages/cli/tests/skill-catalog.test.ts) | Added coverage proving the registry is projected into the expected default-vs-optional grouping for the wizard. |
+| [packages/cli/tests/wizard.test.ts](../../../../packages/cli/tests/wizard.test.ts) | Added regression coverage for grouped skill-selection state, the no-optional skip path, and the required-only continuation path where `archive-docs` alone still counts as a valid answer. |
 | Validation | Verified with `npm run build -w make-docs`, `npm test -w make-docs`, and a live `npm run dev -w make-docs -- init --dry-run --target /tmp/...` PTY run. The live wizard displayed `archive-docs` under `Default`, `decompose-codebase` under `Optional`, and advanced immediately when `Enter` was pressed with no optional skill selected. |
 
 ### Notes
@@ -29,9 +29,9 @@ Completed `w5-r3` Phase 1 by fixing the wizard screen that previously treated op
 
 | Path | Description |
 | --- | --- |
-| [docs/assets/archive/work/2026-04-17-w5-r3-cli-skill-installation/01-skill-selection-default-and-optional-groups.md](../archive/work/2026-04-17-w5-r3-cli-skill-installation/01-skill-selection-default-and-optional-groups.md) | Active phase backlog that defined the grouped default-and-optional skill-selection implementation completed in this session. |
-| [docs/assets/archive/plans/2026-04-17-w5-r3-cli-skill-installation/01-skill-selection-default-and-optional-groups.md](../archive/plans/2026-04-17-w5-r3-cli-skill-installation/01-skill-selection-default-and-optional-groups.md) | Phase plan for the narrow wizard UX fix and its validation scope. |
-| [docs/assets/archive/designs/2026-04-17-cli-skill-selection-default-and-optional-groups.md](../archive/designs/2026-04-17-cli-skill-selection-default-and-optional-groups.md) | Design source for the grouped skill-selection screen, required/default read-only behavior, and required-only submit semantics. |
+| [docs/assets/archive/work/2026-04-17-w5-r3-cli-skill-installation/01-skill-selection-default-and-optional-groups.md](../work/2026-04-17-w5-r3-cli-skill-installation/01-skill-selection-default-and-optional-groups.md) | Active phase backlog that defined the grouped default-and-optional skill-selection implementation completed in this session. |
+| [docs/assets/archive/plans/2026-04-17-w5-r3-cli-skill-installation/01-skill-selection-default-and-optional-groups.md](../plans/2026-04-17-w5-r3-cli-skill-installation/01-skill-selection-default-and-optional-groups.md) | Phase plan for the narrow wizard UX fix and its validation scope. |
+| [docs/assets/archive/designs/2026-04-17-cli-skill-selection-default-and-optional-groups.md](../designs/2026-04-17-cli-skill-selection-default-and-optional-groups.md) | Design source for the grouped skill-selection screen, required/default read-only behavior, and required-only submit semantics. |
 
 ### Developer
 

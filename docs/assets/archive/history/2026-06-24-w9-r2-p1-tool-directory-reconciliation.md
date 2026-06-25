@@ -15,7 +15,7 @@ Completed the W9 R2 Phase 1 reconciliation for the tool-directory and custom-res
 
 | Area | Summary |
 | --- | --- |
-| Work backlog | Marked Phase 1 trace tasks complete and added requirement, risk, and runtime-state notes to [../../work/2026-06-23-w9-r2-tool-directory-system-custom-resource-tiers/01-requirements-and-register-reconciliation.md](../../work/2026-06-23-w9-r2-tool-directory-system-custom-resource-tiers/01-requirements-and-register-reconciliation.md). |
+| Work backlog | Marked Phase 1 trace tasks complete and added requirement, risk, and runtime-state notes to [../../../work/2026-06-23-w9-r2-tool-directory-system-custom-resource-tiers/01-requirements-and-register-reconciliation.md](../../../work/2026-06-23-w9-r2-tool-directory-system-custom-resource-tiers/01-requirements-and-register-reconciliation.md). |
 | PRD reconciliation | Recorded that PRD 21 already owns the effective requirement and that the live register already covers the affected D/Q/R IDs without needing new risk IDs or a new PRD change doc. |
 | UAT | Deferred manual/UAT coverage until the full W9 R2 wave is complete, per the wave workflow instruction. |
 
@@ -25,9 +25,9 @@ Completed the W9 R2 Phase 1 reconciliation for the tool-directory and custom-res
 
 | Path | Description |
 | --- | --- |
-| [../../work/2026-06-23-w9-r2-tool-directory-system-custom-resource-tiers/01-requirements-and-register-reconciliation.md](../../work/2026-06-23-w9-r2-tool-directory-system-custom-resource-tiers/01-requirements-and-register-reconciliation.md) | Captures Phase 1 trace notes and completed task state. |
-| [../../prd/21-revise-tool-directory-system-custom-resource-tiers.md](../../prd/21-revise-tool-directory-system-custom-resource-tiers.md) | Existing effective requirement confirmed as the source of truth for the phase. |
-| [../../prd/03-open-questions-and-risk-register.md](../../prd/03-open-questions-and-risk-register.md) | Existing affected register entries reviewed and left stable. |
+| [../../../work/2026-06-23-w9-r2-tool-directory-system-custom-resource-tiers/01-requirements-and-register-reconciliation.md](../../../work/2026-06-23-w9-r2-tool-directory-system-custom-resource-tiers/01-requirements-and-register-reconciliation.md) | Captures Phase 1 trace notes and completed task state. |
+| [../../../prd/21-revise-tool-directory-system-custom-resource-tiers.md](../../../prd/21-revise-tool-directory-system-custom-resource-tiers.md) | Existing effective requirement confirmed as the source of truth for the phase. |
+| [../../../prd/03-open-questions-and-risk-register.md](../../../prd/03-open-questions-and-risk-register.md) | Existing affected register entries reviewed and left stable. |
 
 ### Developer
 

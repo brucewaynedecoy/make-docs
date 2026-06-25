@@ -53,7 +53,7 @@ jdocmunch index_local .agents/skills
 jdocmunch index_local .claude/skills
 ```
 
-Commit-message drafting used [docs/assets/references/commit-message-convention.md](../references/commit-message-convention.md). No W/R/P coordinate applies because this was skill workflow maintenance rather than a single work backlog phase.
+Commit-message drafting used [docs/assets/references/commit-message-convention.md](../../../../.make-docs/contracts/system/commit-message-convention.md). No W/R/P coordinate applies because this was skill workflow maintenance rather than a single work backlog phase.
 
 ## Documentation
 
@@ -61,11 +61,11 @@ Commit-message drafting used [docs/assets/references/commit-message-convention.m
 
 | Path | Description |
 | --- | --- |
-| [packages/skills/archive-docs/SKILL.md](../../../packages/skills/archive-docs/SKILL.md) | Packaged archive skill now includes delegation-first coordinator and worker guidance. |
-| [packages/skills/closeout-commit/SKILL.md](../../../packages/skills/closeout-commit/SKILL.md) | Packaged commit-closeout skill now includes delegation-first coordinator and worker guidance. |
-| [packages/skills/closeout-phase/SKILL.md](../../../packages/skills/closeout-phase/SKILL.md) | Packaged phase-closeout skill now includes delegation-first coordinator and worker guidance. |
-| [.agents/skills](../../../.agents/skills) | Codex skill mirrors aligned with the packaged skill changes. |
-| [.claude/skills](../../../.claude/skills) | Claude skill mirrors aligned with the packaged skill changes. |
+| [packages/skills/archive-docs/SKILL.md](../../../../packages/skills/archive-docs/SKILL.md) | Packaged archive skill now includes delegation-first coordinator and worker guidance. |
+| [packages/skills/closeout-commit/SKILL.md](../../../../packages/skills/closeout-commit/SKILL.md) | Packaged commit-closeout skill now includes delegation-first coordinator and worker guidance. |
+| [packages/skills/closeout-phase/SKILL.md](../../../../packages/skills/closeout-phase/SKILL.md) | Packaged phase-closeout skill now includes delegation-first coordinator and worker guidance. |
+| .agents/skills | Codex skill mirrors aligned with the packaged skill changes. |
+| .claude/skills | Claude skill mirrors aligned with the packaged skill changes. |
 | [docs/assets/history/2026-05-05-closeout-skill-delegation-first.md](./2026-05-05-closeout-skill-delegation-first.md) | Closeout breadcrumb for this delegation-first skill maintenance. |
 
 ### Developer

@@ -38,7 +38,7 @@ make-docs/
 
 ### Gap Decisions
 
-No novel gaps were found. The active PRD risk register at [docs/prd/03-open-questions-and-risk-register.md](../../prd/03-open-questions-and-risk-register.md) already covers adjacent skill delivery, dogfood freshness, duplicated path knowledge, and remote skill source concerns, so this closeout did not update the register.
+No novel gaps were found. The active PRD risk register at [docs/prd/03-open-questions-and-risk-register.md](../../../prd/03-open-questions-and-risk-register.md) already covers adjacent skill delivery, dogfood freshness, duplicated path knowledge, and remote skill source concerns, so this closeout did not update the register.
 
 ### Validation
 
@@ -54,7 +54,7 @@ jcodemunch index_folder .
 
 Earlier validation for the `closeout-phase` slice also passed the focused registry, catalog, install, consistency, build, diff-check, and index refresh steps. A full package test run attempted during that slice still had pre-existing environment-sensitive backup/lifecycle failures caused by globally installed home-scope skill files; those failures were outside this closeout change set.
 
-Commit-message drafting used [docs/assets/references/commit-message-convention.md](../references/commit-message-convention.md). No W/R/P coordinate applies because these skills were added as general package-shipped workflows rather than a single work backlog phase.
+Commit-message drafting used [docs/assets/references/commit-message-convention.md](../../../../.make-docs/contracts/system/commit-message-convention.md). No W/R/P coordinate applies because these skills were added as general package-shipped workflows rather than a single work backlog phase.
 
 ## Documentation
 
@@ -62,13 +62,13 @@ Commit-message drafting used [docs/assets/references/commit-message-convention.m
 
 | Path | Description |
 | --- | --- |
-| [packages/skills/closeout-phase/SKILL.md](../../../packages/skills/closeout-phase/SKILL.md) | Phase closeout skill trigger metadata and high-level workflow. |
-| [packages/skills/closeout-phase/references/closeout-workflow.md](../../../packages/skills/closeout-phase/references/closeout-workflow.md) | Deterministic phase closeout gates for acceptance criteria, guides, gaps, history, and commit-message drafts. |
-| [packages/skills/closeout-commit/SKILL.md](../../../packages/skills/closeout-commit/SKILL.md) | Commit closeout skill trigger metadata and high-level workflow. |
-| [packages/skills/closeout-commit/references/closeout-commit-workflow.md](../../../packages/skills/closeout-commit/references/closeout-commit-workflow.md) | Deterministic commit closeout gates for change discovery, gap capture, history entries, convention resolution, and draft-only commit messages. |
-| [packages/cli/skill-registry.json](../../../packages/cli/skill-registry.json) | Registry entries and asset lists for both closeout skills. |
-| [.make-docs/manifest.json](../../../.make-docs/manifest.json) | Dogfood manifest selection and managed-file tracking for the new skill mirrors. |
-| [packages/cli/tests](../../../packages/cli/tests) | Focused test coverage for registry names, catalog assets, default installs, wizard/UI selection behavior, CLI validation, and dogfood mirror consistency. |
+| [packages/skills/closeout-phase/SKILL.md](../../../../packages/skills/closeout-phase/SKILL.md) | Phase closeout skill trigger metadata and high-level workflow. |
+| [packages/skills/closeout-phase/references/closeout-workflow.md](../../../../packages/skills/closeout-phase/references/closeout-workflow.md) | Deterministic phase closeout gates for acceptance criteria, guides, gaps, history, and commit-message drafts. |
+| [packages/skills/closeout-commit/SKILL.md](../../../../packages/skills/closeout-commit/SKILL.md) | Commit closeout skill trigger metadata and high-level workflow. |
+| [packages/skills/closeout-commit/references/closeout-commit-workflow.md](../../../../packages/skills/closeout-commit/references/closeout-commit-workflow.md) | Deterministic commit closeout gates for change discovery, gap capture, history entries, convention resolution, and draft-only commit messages. |
+| [packages/cli/skill-registry.json](../../../../packages/cli/skill-registry.json) | Registry entries and asset lists for both closeout skills. |
+| [.make-docs/manifest.json](../../../../.make-docs/manifest.json) | Dogfood manifest selection and managed-file tracking for the new skill mirrors. |
+| [packages/cli/tests](../../../../packages/cli/tests) | Focused test coverage for registry names, catalog assets, default installs, wizard/UI selection behavior, CLI validation, and dogfood mirror consistency. |
 | [docs/assets/history/2026-05-04-closeout-workflow-skills.md](./2026-05-04-closeout-workflow-skills.md) | Closeout breadcrumb for the new package-shipped closeout skills. |
 
 ### Developer

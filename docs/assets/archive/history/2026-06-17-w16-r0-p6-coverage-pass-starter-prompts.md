@@ -35,15 +35,15 @@ place.
 ### Project
 
 - Added coverage-pass prompt starters under
-  [docs/assets/prompts](../prompts/).
+  [docs/assets/prompts](../../../../.make-docs/references/system/prompts/).
 - Mirrored the prompt starters under
-  [packages/docs/template/docs/assets/prompts](../../../packages/docs/template/docs/assets/prompts/).
-- Updated [rules.ts](../../../packages/cli/src/rules.ts) to include the new
+  [packages/docs/template/.make-docs/references/system/prompts](../../../../packages/docs/template/.make-docs/references/system/prompts/).
+- Updated [rules.ts](../../../../packages/cli/src/rules.ts) to include the new
   prompt assets in `PROMPT_RULES`.
-- Aligned guide-router copies under [docs/guides](../../guides/),
-  [packages/docs/template/docs/guides](../../../packages/docs/template/docs/guides/),
-  and [renderers.ts](../../../packages/cli/src/renderers.ts).
-- Marked [Phase 06](../archive/work/2026-06-17-w16-r0-lifecycle-workflow-foundation/06-starter-prompts.md)
+- Aligned guide-router copies under [docs/guides](../../library/),
+  [packages/docs/template/docs/assets/library](../../../../packages/docs/template/docs/assets/library/),
+  and renderers.ts.
+- Marked [Phase 06](../work/2026-06-17-w16-r0-lifecycle-workflow-foundation/06-starter-prompts.md)
   tasks complete.
 
 ### Developer

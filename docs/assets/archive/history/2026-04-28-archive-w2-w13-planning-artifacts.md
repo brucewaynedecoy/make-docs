@@ -33,15 +33,15 @@ Validation notes:
 
 | Path | Description |
 | --- | --- |
-| [docs/assets/archive/plans/2026-04-23-w13-r0-documentation-coverage-and-guide-orchestration/00-overview.md](../archive/plans/2026-04-23-w13-r0-documentation-coverage-and-guide-orchestration/00-overview.md) | Representative archived plan from the moved W2-W13 plan set. |
-| [docs/assets/archive/work/2026-04-23-w13-r0-documentation-coverage-and-guide-orchestration/00-index.md](../archive/work/2026-04-23-w13-r0-documentation-coverage-and-guide-orchestration/00-index.md) | Representative archived work backlog from the moved W2-W13 work set. |
-| [docs/assets/archive/designs/2026-04-23-documentation-coverage-and-guide-orchestration.md](../archive/designs/2026-04-23-documentation-coverage-and-guide-orchestration.md) | Representative archived design from the moved W2-W13 design set. |
-| [docs/prd/00-index.md](../../prd/00-index.md) | Updated active PRD entry points so the W12 decomposition backlog now resolves through the archive namespace. |
-| [docs/prd/08-skills-catalog-and-distribution.md](../../prd/08-skills-catalog-and-distribution.md) | Updated active skills PRD lineage links to archived skill installation and skills command design docs. |
-| [docs/prd/09-dogfood-and-maintainer-operations.md](../../prd/09-dogfood-and-maintainer-operations.md) | Updated active dogfood and maintainer references to archived W2/W9 migration planning docs. |
-| [docs/designs/2026-04-28-cli-asset-selection-simplification.md](../archive/designs/2026-04-28-cli-asset-selection-simplification.md) | Updated W14 asset-selection lineage links to archived prior design docs. |
-| [docs/assets/archive/designs/2026-04-28-cli-skill-selection-simplification.md](../archive/designs/2026-04-28-cli-skill-selection-simplification.md) | Updated W14 skill-selection lineage links to archived prior skill installation design docs. |
-| [docs/assets/references/commit-message-convention.md](../references/commit-message-convention.md) | Updated the example command-simplification design link to the archive namespace. |
+| [docs/assets/archive/plans/2026-04-23-w13-r0-documentation-coverage-and-guide-orchestration/00-overview.md](../plans/2026-04-23-w13-r0-documentation-coverage-and-guide-orchestration/00-overview.md) | Representative archived plan from the moved W2-W13 plan set. |
+| [docs/assets/archive/work/2026-04-23-w13-r0-documentation-coverage-and-guide-orchestration/00-index.md](../work/2026-04-23-w13-r0-documentation-coverage-and-guide-orchestration/00-index.md) | Representative archived work backlog from the moved W2-W13 work set. |
+| [docs/assets/archive/designs/2026-04-23-documentation-coverage-and-guide-orchestration.md](../designs/2026-04-23-documentation-coverage-and-guide-orchestration.md) | Representative archived design from the moved W2-W13 design set. |
+| [docs/prd/00-index.md](../../../prd/00-index.md) | Updated active PRD entry points so the W12 decomposition backlog now resolves through the archive namespace. |
+| [docs/prd/08-skills-catalog-and-distribution.md](../../../prd/08-skills-catalog-and-distribution.md) | Updated active skills PRD lineage links to archived skill installation and skills command design docs. |
+| [docs/prd/09-dogfood-and-maintainer-operations.md](../../../prd/09-dogfood-and-maintainer-operations.md) | Updated active dogfood and maintainer references to archived W2/W9 migration planning docs. |
+| [docs/designs/2026-04-28-cli-asset-selection-simplification.md](../designs/2026-04-28-cli-asset-selection-simplification.md) | Updated W14 asset-selection lineage links to archived prior design docs. |
+| [docs/assets/archive/designs/2026-04-28-cli-skill-selection-simplification.md](../designs/2026-04-28-cli-skill-selection-simplification.md) | Updated W14 skill-selection lineage links to archived prior skill installation design docs. |
+| [docs/assets/references/commit-message-convention.md](../../../../.make-docs/contracts/system/commit-message-convention.md) | Updated the example command-simplification design link to the archive namespace. |
 | [docs/assets/history/2026-04-23-w13-r0-p6-navigation-assembly-and-validation.md](2026-04-23-w13-r0-p6-navigation-assembly-and-validation.md) | Representative active history breadcrumb updated to point at archived W13 plan/work artifacts. |
 | [docs/assets/history/2026-04-28-archive-w2-w13-planning-artifacts.md](2026-04-28-archive-w2-w13-planning-artifacts.md) | History record for this archive checkpoint. |
 
@@ -49,10 +49,10 @@ Validation notes:
 
 | Path | Description |
 | --- | --- |
-| [docs/guides/developer/roadmap.md](../../guides/developer/roadmap.md) | Updated roadmap frontmatter and related-design links to archived skill and archive-docs design docs. |
+| [docs/guides/developer/roadmap.md](../../library/developer/roadmap.md) | Updated roadmap frontmatter and related-design links to archived skill and archive-docs design docs. |
 
 ### User
 
 | Path | Description |
 | --- | --- |
-| [docs/guides/user/concepts-wave-revision-phase-coordinates.md](../../guides/user/concepts-wave-revision-phase-coordinates.md) | Updated the W13 coordinate example so it points at the archived W13 plan/work locations. |
+| [docs/guides/user/concepts-wave-revision-phase-coordinates.md](../../library/user/concepts-wave-revision-phase-coordinates.md) | Updated the W13 coordinate example so it points at the archived W13 plan/work locations. |

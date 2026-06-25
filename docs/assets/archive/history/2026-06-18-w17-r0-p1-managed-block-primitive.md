@@ -13,9 +13,9 @@ Phase 01 added the reusable managed-block primitive that later W17 R0 phases can
 
 | Area | Summary |
 | --- | --- |
-| CLI source | Added [`managed-block.ts`](../../../packages/cli/src/managed-block.ts) with marker constants, parse/render helpers, append/prepend insertion, and idempotent upsert results. |
-| Tests | Added [`managed-block.test.ts`](../../../packages/cli/tests/managed-block.test.ts) for greenfield insert, update, edited-body replacement, malformed marker reassertion, duplicate markers, missing markers, custom marker validation, and files without trailing newlines. |
-| Work backlog | Marked all four tasks complete in [`01-managed-block-primitive.md`](../archive/work/2026-06-18-w17-r0-agent-instruction-file-ownership/01-managed-block-primitive.md). |
+| CLI source | Added [`managed-block.ts`](../../../../packages/cli/src/managed-block.ts) with marker constants, parse/render helpers, append/prepend insertion, and idempotent upsert results. |
+| Tests | Added [`managed-block.test.ts`](../../../../packages/cli/tests/managed-block.test.ts) for greenfield insert, update, edited-body replacement, malformed marker reassertion, duplicate markers, missing markers, custom marker validation, and files without trailing newlines. |
+| Work backlog | Marked all four tasks complete in [`01-managed-block-primitive.md`](../work/2026-06-18-w17-r0-agent-instruction-file-ownership/01-managed-block-primitive.md). |
 | Managed state | Left `.make-docs/runs/` uncommitted as local wave checkpoint state created by the workflow tooling. |
 
 | Surface | Verdict | Rationale |
@@ -42,9 +42,9 @@ Validation for closeout:
 
 | Path | Description |
 | --- | --- |
-| [`../../../packages/cli/src/managed-block.ts`](../../../packages/cli/src/managed-block.ts) | Adds the reusable managed-block parser, renderer, and idempotent upsert operation. |
-| [`../../../packages/cli/tests/managed-block.test.ts`](../../../packages/cli/tests/managed-block.test.ts) | Locks the primitive's insertion, replacement, reassertion, malformed-marker, and trailing-newline behavior. |
-| [docs/assets/archive/work/2026-06-18-w17-r0-agent-instruction-file-ownership/01-managed-block-primitive.md](../archive/work/2026-06-18-w17-r0-agent-instruction-file-ownership/01-managed-block-primitive.md) | Records Phase 01 task completion after evidence review. |
+| [`../../../../packages/cli/src/managed-block.ts`](../../../../packages/cli/src/managed-block.ts) | Adds the reusable managed-block parser, renderer, and idempotent upsert operation. |
+| [`../../../../packages/cli/tests/managed-block.test.ts`](../../../../packages/cli/tests/managed-block.test.ts) | Locks the primitive's insertion, replacement, reassertion, malformed-marker, and trailing-newline behavior. |
+| [docs/assets/archive/work/2026-06-18-w17-r0-agent-instruction-file-ownership/01-managed-block-primitive.md](../work/2026-06-18-w17-r0-agent-instruction-file-ownership/01-managed-block-primitive.md) | Records Phase 01 task completion after evidence review. |
 
 ### Developer
 

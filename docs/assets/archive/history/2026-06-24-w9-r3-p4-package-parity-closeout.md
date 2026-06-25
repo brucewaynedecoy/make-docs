@@ -28,11 +28,11 @@ Completed W9 R3 Phase 4 by adding catalog/install assertions and packed-package 
 
 | Path | Description |
 | --- | --- |
-| [../../prd/03-open-questions-and-risk-register.md](../../prd/03-open-questions-and-risk-register.md) | Narrows `R-011` and `R-013` after Phase 4 package parity validation. |
-| [../../work/2026-06-23-w9-r3-new-docs-assets-playbooks-persona-model/04-package-parity-and-closeout.md](../../work/2026-06-23-w9-r3-new-docs-assets-playbooks-persona-model/04-package-parity-and-closeout.md) | Records Phase 4 completion evidence, validation, and the final UAT decision. |
-| [../../../packages/cli/tests/consistency.test.ts](../../../packages/cli/tests/consistency.test.ts) | Verifies the default scaffold includes canonical reader-facing router assets. |
-| [../../../packages/cli/tests/install.test.ts](../../../packages/cli/tests/install.test.ts) | Verifies installed manifests track canonical reader-facing routers with `file:` source IDs. |
-| [../../../scripts/smoke-pack.mjs](../../../scripts/smoke-pack.mjs) | Proves packed-template parity and unmanaged reader-facing asset preservation through the packed CLI scenario. |
+| [../../../prd/03-open-questions-and-risk-register.md](../../../prd/03-open-questions-and-risk-register.md) | Narrows `R-011` and `R-013` after Phase 4 package parity validation. |
+| [../../../work/2026-06-23-w9-r3-new-docs-assets-playbooks-persona-model/04-package-parity-and-closeout.md](../../../work/2026-06-23-w9-r3-new-docs-assets-playbooks-persona-model/04-package-parity-and-closeout.md) | Records Phase 4 completion evidence, validation, and the final UAT decision. |
+| [../../../../packages/cli/tests/consistency.test.ts](../../../../packages/cli/tests/consistency.test.ts) | Verifies the default scaffold includes canonical reader-facing router assets. |
+| [../../../../packages/cli/tests/install.test.ts](../../../../packages/cli/tests/install.test.ts) | Verifies installed manifests track canonical reader-facing routers with `file:` source IDs. |
+| [../../../../scripts/smoke-pack.mjs](../../../../scripts/smoke-pack.mjs) | Proves packed-template parity and unmanaged reader-facing asset preservation through the packed CLI scenario. |
 
 ### Developer
 

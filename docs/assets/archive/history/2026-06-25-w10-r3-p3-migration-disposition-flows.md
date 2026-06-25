@@ -32,8 +32,8 @@ Completed W10 R3 Phase 3 by wiring compatibility classification into ordinary in
 
 | Path | Description |
 | --- | --- |
-| [../../work/2026-06-23-w10-r3-compatibility-audit-and-migration-disposition/03-migration-disposition-flows.md](../../work/2026-06-23-w10-r3-compatibility-audit-and-migration-disposition/03-migration-disposition-flows.md) | Marked Phase 3 tasks complete and recorded migration disposition, guide, PRD, and deferred UAT decisions. |
-| [../../prd/18-revise-compatibility-audit-and-migration-disposition.md](../../prd/18-revise-compatibility-audit-and-migration-disposition.md) | Added source anchors for the CLI migration disposition gate and focused CLI tests. |
+| [../../../work/2026-06-23-w10-r3-compatibility-audit-and-migration-disposition/03-migration-disposition-flows.md](../../../work/2026-06-23-w10-r3-compatibility-audit-and-migration-disposition/03-migration-disposition-flows.md) | Marked Phase 3 tasks complete and recorded migration disposition, guide, PRD, and deferred UAT decisions. |
+| [../../../prd/18-revise-compatibility-audit-and-migration-disposition.md](../../../prd/18-revise-compatibility-audit-and-migration-disposition.md) | Added source anchors for the CLI migration disposition gate and focused CLI tests. |
 
 ### Developer
 

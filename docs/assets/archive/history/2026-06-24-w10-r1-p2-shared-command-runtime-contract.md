@@ -26,18 +26,18 @@ Completed W10 R1 Phase 2 by locking the public command boundary to the single `m
 
 | Path | Description |
 | --- | --- |
-| [../../work/2026-06-23-w10-r1-package-and-deployment-boundaries/02-shared-command-and-runtime-contract.md](../../work/2026-06-23-w10-r1-package-and-deployment-boundaries/02-shared-command-and-runtime-contract.md) | Marked Phase 2 tasks complete and recorded implementation notes for the command/runtime boundary. |
+| [../../../work/2026-06-23-w10-r1-package-and-deployment-boundaries/02-shared-command-and-runtime-contract.md](../../../work/2026-06-23-w10-r1-package-and-deployment-boundaries/02-shared-command-and-runtime-contract.md) | Marked Phase 2 tasks complete and recorded implementation notes for the command/runtime boundary. |
 
 ### Developer
 
 | Path | Description |
 | --- | --- |
-| [../../../README.md](../../../README.md) | Clarified scoped npm lookup versus the installed `make-docs` command and future PATH-selected runtime behavior. |
-| [../../../packages/cli/README.md](../../../packages/cli/README.md) | Matched package README command guidance to the root README command/runtime boundary. |
+| [../../../../README.md](../../../../README.md) | Clarified scoped npm lookup versus the installed `make-docs` command and future PATH-selected runtime behavior. |
+| [../../../../packages/cli/README.md](../../../../packages/cli/README.md) | Matched package README command guidance to the root README command/runtime boundary. |
 
 ### User
 
 | Path | Description |
 | --- | --- |
-| [../../../README.md](../../../README.md) | Clarified how users should interpret `npx @brucewaynedecoy/make-docs@next` versus the `make-docs` executable. |
-| [../../../packages/cli/README.md](../../../packages/cli/README.md) | Clarified package lookup and installed command naming for package consumers. |
+| [../../../../README.md](../../../../README.md) | Clarified how users should interpret `npx @brucewaynedecoy/make-docs@next` versus the `make-docs` executable. |
+| [../../../../packages/cli/README.md](../../../../packages/cli/README.md) | Clarified package lookup and installed command naming for package consumers. |

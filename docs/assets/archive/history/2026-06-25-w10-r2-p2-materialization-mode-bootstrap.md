@@ -27,7 +27,7 @@ Completed W10 R2 Phase 2 by adding typed system asset materialization modes, kee
 
 | Path | Description |
 | --- | --- |
-| [../../work/2026-06-23-w10-r2-system-asset-materialization-contract/02-materialization-mode-and-bootstrap.md](../../work/2026-06-23-w10-r2-system-asset-materialization-contract/02-materialization-mode-and-bootstrap.md) | Marked Phase 2 tasks complete and added implementation evidence for the mode model, bootstrap classification, and skills/plugin boundary. |
+| [../../../work/2026-06-23-w10-r2-system-asset-materialization-contract/02-materialization-mode-and-bootstrap.md](../../../work/2026-06-23-w10-r2-system-asset-materialization-contract/02-materialization-mode-and-bootstrap.md) | Marked Phase 2 tasks complete and added implementation evidence for the mode model, bootstrap classification, and skills/plugin boundary. |
 
 ### Developer
 

@@ -30,8 +30,8 @@ Completed W10 R3 Phase 2 by implementing a reusable compatibility classifier tha
 
 | Path | Description |
 | --- | --- |
-| [../../work/2026-06-23-w10-r3-compatibility-audit-and-migration-disposition/02-compatibility-classifier.md](../../work/2026-06-23-w10-r3-compatibility-audit-and-migration-disposition/02-compatibility-classifier.md) | Marked Phase 2 tasks complete and recorded classifier, evidence, fallback, validation, guide, PRD, and UAT decisions. |
-| [../../prd/18-revise-compatibility-audit-and-migration-disposition.md](../../prd/18-revise-compatibility-audit-and-migration-disposition.md) | Added source anchors for the classifier implementation, exported state/disposition types, fixtures, and tests. |
+| [../../../work/2026-06-23-w10-r3-compatibility-audit-and-migration-disposition/02-compatibility-classifier.md](../../../work/2026-06-23-w10-r3-compatibility-audit-and-migration-disposition/02-compatibility-classifier.md) | Marked Phase 2 tasks complete and recorded classifier, evidence, fallback, validation, guide, PRD, and UAT decisions. |
+| [../../../prd/18-revise-compatibility-audit-and-migration-disposition.md](../../../prd/18-revise-compatibility-audit-and-migration-disposition.md) | Added source anchors for the classifier implementation, exported state/disposition types, fixtures, and tests. |
 
 ### Developer
 

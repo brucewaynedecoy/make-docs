@@ -27,7 +27,7 @@ Completed W10 R2 Phase 3 by migrating manifests to schema 2 with system asset pr
 
 | Path | Description |
 | --- | --- |
-| [../../work/2026-06-23-w10-r2-system-asset-materialization-contract/03-provider-cache-manifest-safety.md](../../work/2026-06-23-w10-r2-system-asset-materialization-contract/03-provider-cache-manifest-safety.md) | Marked Phase 3 tasks complete and added implementation evidence for manifest provenance, provider/cache safety checks, and lifecycle safety. |
+| [../../../work/2026-06-23-w10-r2-system-asset-materialization-contract/03-provider-cache-manifest-safety.md](../../../work/2026-06-23-w10-r2-system-asset-materialization-contract/03-provider-cache-manifest-safety.md) | Marked Phase 3 tasks complete and added implementation evidence for manifest provenance, provider/cache safety checks, and lifecycle safety. |
 
 ### Developer
 

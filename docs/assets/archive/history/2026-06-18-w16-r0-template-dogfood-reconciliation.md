@@ -45,9 +45,9 @@ reconfigure.
 
 | Path | Description |
 | --- | --- |
-| [docs/prd/03-open-questions-and-risk-register.md](../../prd/03-open-questions-and-risk-register.md) | Added D-014 recording the dogfood-vs-template layering drift and its resolution. |
-| [docs/assets/archive/plans/2026-05-28-w16-r0-coverage-pass-contract/00-overview.md](../archive/plans/2026-05-28-w16-r0-coverage-pass-contract/00-overview.md) | Added the template-first authoring and re-seed note. |
-| [docs/assets/archive/work/2026-06-17-w16-r0-lifecycle-workflow-foundation/00-index.md](../archive/work/2026-06-17-w16-r0-lifecycle-workflow-foundation/00-index.md) | Added the template-first authoring and re-seed note. |
+| [docs/prd/03-open-questions-and-risk-register.md](../../../prd/03-open-questions-and-risk-register.md) | Added D-014 recording the dogfood-vs-template layering drift and its resolution. |
+| [docs/assets/archive/plans/2026-05-28-w16-r0-coverage-pass-contract/00-overview.md](../plans/2026-05-28-w16-r0-coverage-pass-contract/00-overview.md) | Added the template-first authoring and re-seed note. |
+| [docs/assets/archive/work/2026-06-17-w16-r0-lifecycle-workflow-foundation/00-index.md](../work/2026-06-17-w16-r0-lifecycle-workflow-foundation/00-index.md) | Added the template-first authoring and re-seed note. |
 | `packages/docs/template/docs/**` | Reverse-seeded the W16 product assets into the template source of truth. |
 
 ### Developer

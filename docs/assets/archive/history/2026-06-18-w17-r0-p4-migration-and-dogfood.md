@@ -13,13 +13,13 @@ Phase 04 added migration behavior for existing root instruction files and applie
 
 | Area | Summary |
 | --- | --- |
-| CLI migration | Updated [`planner.ts`](../../../packages/cli/src/planner.ts) to migrate root instruction files with no block, replacing legacy whole-file ownership when the manifest hash proves it and otherwise inserting the block while preserving user content. |
-| Tests | Expanded [`install.test.ts`](../../../packages/cli/tests/install.test.ts) for legacy whole-file migration and existing user-content preservation. |
+| CLI migration | Updated [`planner.ts`](../../../../packages/cli/src/planner.ts) to migrate root instruction files with no block, replacing legacy whole-file ownership when the manifest hash proves it and otherwise inserting the block while preserving user content. |
+| Tests | Expanded [`install.test.ts`](../../../../packages/cli/tests/install.test.ts) for legacy whole-file migration and existing user-content preservation. |
 | Dogfood root | Migrated [`AGENTS.md`](../../../AGENTS.md) and [`CLAUDE.md`](../../../CLAUDE.md) to project-specific lifecycle guidance outside the managed block plus harness-aware make-docs routing inside the block. |
-| Dogfood dedicated files | Added [`.make-docs/AGENTS.md`](../../../.make-docs/AGENTS.md) and [`.make-docs/CLAUDE.md`](../../../.make-docs/CLAUDE.md), matching the template dedicated instruction files. |
-| Dogfood manifest | Refreshed [`.make-docs/manifest.json`](../../../.make-docs/manifest.json) so the dogfood install tracks root managed-block hashes and the dedicated instruction files. |
-| Validation | Updated [`check-instruction-routers.sh`](../../../scripts/check-instruction-routers.sh) root line budgets for project-specific guidance plus a managed block. |
-| Work backlog | Marked all four tasks complete in [`04-migration-and-dogfood.md`](../archive/work/2026-06-18-w17-r0-agent-instruction-file-ownership/04-migration-and-dogfood.md). |
+| Dogfood dedicated files | Added [`.make-docs/AGENTS.md`](../../../../.make-docs/AGENTS.md) and [`.make-docs/CLAUDE.md`](../../../../.make-docs/CLAUDE.md), matching the template dedicated instruction files. |
+| Dogfood manifest | Refreshed [`.make-docs/manifest.json`](../../../../.make-docs/manifest.json) so the dogfood install tracks root managed-block hashes and the dedicated instruction files. |
+| Validation | Updated [`check-instruction-routers.sh`](../../../../scripts/check-instruction-routers.sh) root line budgets for project-specific guidance plus a managed block. |
+| Work backlog | Marked all four tasks complete in [`04-migration-and-dogfood.md`](../work/2026-06-18-w17-r0-agent-instruction-file-ownership/04-migration-and-dogfood.md). |
 | Managed state | Left `.make-docs/runs/` uncommitted as local wave checkpoint state created by the workflow tooling. |
 
 | Surface | Verdict | Rationale |
@@ -51,15 +51,15 @@ Validation for closeout:
 
 | Path | Description |
 | --- | --- |
-| [`../../../packages/cli/src/planner.ts`](../../../packages/cli/src/planner.ts) | Adds root instruction migration for legacy whole-file ownership and existing user-content insertion. |
-| [`../../../packages/cli/tests/install.test.ts`](../../../packages/cli/tests/install.test.ts) | Covers migration from legacy whole-file ownership and preservation of existing user content. |
+| [`../../../../packages/cli/src/planner.ts`](../../../../packages/cli/src/planner.ts) | Adds root instruction migration for legacy whole-file ownership and existing user-content insertion. |
+| [`../../../../packages/cli/tests/install.test.ts`](../../../../packages/cli/tests/install.test.ts) | Covers migration from legacy whole-file ownership and preservation of existing user content. |
 | [`../../../AGENTS.md`](../../../AGENTS.md) | Dogfoods Codex root block ownership with lifecycle guidance outside the block. |
 | [`../../../CLAUDE.md`](../../../CLAUDE.md) | Dogfoods Claude root block ownership with lifecycle guidance outside the block. |
-| [`../../../.make-docs/AGENTS.md`](../../../.make-docs/AGENTS.md) | Adds the dogfood dedicated Codex instruction file. |
-| [`../../../.make-docs/CLAUDE.md`](../../../.make-docs/CLAUDE.md) | Adds the dogfood dedicated Claude instruction file. |
-| [`../../../.make-docs/manifest.json`](../../../.make-docs/manifest.json) | Tracks the dogfood root block hashes and dedicated instruction files. |
-| [`../../../scripts/check-instruction-routers.sh`](../../../scripts/check-instruction-routers.sh) | Keeps instruction router validation compatible with dogfood root files that include project-specific guidance plus a managed block. |
-| [docs/assets/archive/work/2026-06-18-w17-r0-agent-instruction-file-ownership/04-migration-and-dogfood.md](../archive/work/2026-06-18-w17-r0-agent-instruction-file-ownership/04-migration-and-dogfood.md) | Records Phase 04 task completion after evidence review. |
+| [`../../../../.make-docs/AGENTS.md`](../../../../.make-docs/AGENTS.md) | Adds the dogfood dedicated Codex instruction file. |
+| [`../../../../.make-docs/CLAUDE.md`](../../../../.make-docs/CLAUDE.md) | Adds the dogfood dedicated Claude instruction file. |
+| [`../../../../.make-docs/manifest.json`](../../../../.make-docs/manifest.json) | Tracks the dogfood root block hashes and dedicated instruction files. |
+| [`../../../../scripts/check-instruction-routers.sh`](../../../../scripts/check-instruction-routers.sh) | Keeps instruction router validation compatible with dogfood root files that include project-specific guidance plus a managed block. |
+| [docs/assets/archive/work/2026-06-18-w17-r0-agent-instruction-file-ownership/04-migration-and-dogfood.md](../work/2026-06-18-w17-r0-agent-instruction-file-ownership/04-migration-and-dogfood.md) | Records Phase 04 task completion after evidence review. |
 
 ### Developer
 

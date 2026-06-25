@@ -37,11 +37,11 @@ git diff --check
 
 | Path | Description |
 | --- | --- |
-| [packages/skills/work-on-phase](../../../packages/skills/work-on-phase) | New package-shipped single-phase implementation skill. |
-| [.agents/skills/work-on-phase](../../../.agents/skills/work-on-phase) | Codex dogfood mirror for the installable mapped file set. |
-| [.claude/skills/work-on-phase](../../../.claude/skills/work-on-phase) | Claude dogfood mirror for the installable mapped file set. |
-| [packages/skills/README.md](../../../packages/skills/README.md) | New maintainer guidance for adding package-shipped skills. |
-| [docs/prd/03-open-questions-and-risk-register.md](../../prd/03-open-questions-and-risk-register.md) | Closed the skills-authoring guidance drift item. |
+| [packages/skills/work-on-phase](../../../../packages/skills/work-on-phase) | New package-shipped single-phase implementation skill. |
+| .agents/skills/work-on-phase | Codex dogfood mirror for the installable mapped file set. |
+| .claude/skills/work-on-phase | Claude dogfood mirror for the installable mapped file set. |
+| [packages/skills/README.md](../../../../packages/skills/README.md) | New maintainer guidance for adding package-shipped skills. |
+| [docs/prd/03-open-questions-and-risk-register.md](../../../prd/03-open-questions-and-risk-register.md) | Closed the skills-authoring guidance drift item. |
 
 ### Developer
 

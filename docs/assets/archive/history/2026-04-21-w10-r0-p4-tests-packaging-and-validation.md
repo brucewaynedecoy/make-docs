@@ -7,7 +7,7 @@ coordinate: "W10 R0 P4"
 
 ## Changes
 
-This session completed Wave 10 Phase 4 from [04-tests-packaging-and-validation.md](../archive/work/2026-04-21-w10-r0-make-docs-rename/04-tests-packaging-and-validation.md), based on the source plan at [docs/assets/archive/plans/2026-04-21-w10-r0-make-docs-rename/04-tests-packaging-and-validation.md](../archive/plans/2026-04-21-w10-r0-make-docs-rename/04-tests-packaging-and-validation.md). The phase finished the `make-docs` test, packaging, and stale-reference validation pass.
+This session completed Wave 10 Phase 4 from [04-tests-packaging-and-validation.md](../work/2026-04-21-w10-r0-make-docs-rename/04-tests-packaging-and-validation.md), based on the source plan at [docs/assets/archive/plans/2026-04-21-w10-r0-make-docs-rename/04-tests-packaging-and-validation.md](../plans/2026-04-21-w10-r0-make-docs-rename/04-tests-packaging-and-validation.md). The phase finished the `make-docs` test, packaging, and stale-reference validation pass.
 
 | Area | Summary |
 | --- | --- |
@@ -24,12 +24,12 @@ This session completed Wave 10 Phase 4 from [04-tests-packaging-and-validation.m
 | Path | Description |
 | --- | --- |
 | [docs/.assets/history/2026-04-21-w10-r0-p4-tests-packaging-and-validation.md](2026-04-21-w10-r0-p4-tests-packaging-and-validation.md) | New history record for the Wave 10 Phase 4 tests, packaging, and validation rename. |
-| [justfile](../../../justfile) | Default package, workspace, tarball, and validation references updated for `make-docs`. |
-| [scripts/smoke-pack.mjs](../../../scripts/smoke-pack.mjs) | Pack smoke validation updated to exercise and assert the `make-docs` package identity. |
-| [packages/cli/src/renderers.ts](../../../packages/cli/src/renderers.ts) | Remaining generated router wording updated for make-docs-managed config state. |
-| [packages/cli/tests/](../../../packages/cli/tests/) | CLI, install, audit, backup, lifecycle, uninstall, wizard, skill registry, and helper tests updated for the `make-docs` identity. |
-| [packages/docs/template/docs/assets/AGENTS.md](../../../packages/docs/template/docs/assets/AGENTS.md) | Template asset router copy updated for make-docs-managed config state. |
-| [packages/docs/template/docs/assets/CLAUDE.md](../../../packages/docs/template/docs/assets/CLAUDE.md) | Template asset router copy updated for make-docs-managed config state. |
+| [justfile](../../../../justfile) | Default package, workspace, tarball, and validation references updated for `make-docs`. |
+| [scripts/smoke-pack.mjs](../../../../scripts/smoke-pack.mjs) | Pack smoke validation updated to exercise and assert the `make-docs` package identity. |
+| packages/cli/src/renderers.ts | Remaining generated router wording updated for make-docs-managed config state. |
+| [packages/cli/tests/](../../../../packages/cli/tests/) | CLI, install, audit, backup, lifecycle, uninstall, wizard, skill registry, and helper tests updated for the `make-docs` identity. |
+| [packages/docs/template/docs/assets/AGENTS.md](../../../../packages/docs/template/docs/assets/AGENTS.md) | Template asset router copy updated for make-docs-managed config state. |
+| [packages/docs/template/docs/assets/CLAUDE.md](../../../../packages/docs/template/docs/assets/CLAUDE.md) | Template asset router copy updated for make-docs-managed config state. |
 
 ### Developer
 

@@ -28,18 +28,18 @@ Completed W10 R1 Phase 3 by aligning package-surface documentation to dry-run ta
 
 | Path | Description |
 | --- | --- |
-| [../../work/2026-06-23-w10-r1-package-and-deployment-boundaries/03-package-validation-and-release-boundaries.md](../../work/2026-06-23-w10-r1-package-and-deployment-boundaries/03-package-validation-and-release-boundaries.md) | Marked Phase 3 tasks complete and recorded dry-run package, smoke-pack, local-template, publish-dry-run, and risk evidence. |
-| [../../prd/03-open-questions-and-risk-register.md](../../prd/03-open-questions-and-risk-register.md) | Closed D-006 and R-003 with W10 R1 Phase 3 validation evidence. |
+| [../../../work/2026-06-23-w10-r1-package-and-deployment-boundaries/03-package-validation-and-release-boundaries.md](../../../work/2026-06-23-w10-r1-package-and-deployment-boundaries/03-package-validation-and-release-boundaries.md) | Marked Phase 3 tasks complete and recorded dry-run package, smoke-pack, local-template, publish-dry-run, and risk evidence. |
+| [../../../prd/03-open-questions-and-risk-register.md](../../../prd/03-open-questions-and-risk-register.md) | Closed D-006 and R-003 with W10 R1 Phase 3 validation evidence. |
 
 ### Developer
 
 | Path | Description |
 | --- | --- |
-| [../../../README.md](../../../README.md) | Clarified the npm tarball boundary relative to the broader repository layout. |
-| [../../../packages/cli/src/README.md](../../../packages/cli/src/README.md) | Reframed package release guidance around dry-run validation and separately authorized irreversible publish actions. |
+| [../../../../README.md](../../../../README.md) | Clarified the npm tarball boundary relative to the broader repository layout. |
+| [../../../../packages/cli/src/README.md](../../../../packages/cli/src/README.md) | Reframed package release guidance around dry-run validation and separately authorized irreversible publish actions. |
 
 ### User
 
 | Path | Description |
 | --- | --- |
-| [../../../packages/cli/README.md](../../../packages/cli/README.md) | Added package-contents guidance for package consumers and maintainers inspecting the npm tarball. |
+| [../../../../packages/cli/README.md](../../../../packages/cli/README.md) | Added package-contents guidance for package consumers and maintainers inspecting the npm tarball. |

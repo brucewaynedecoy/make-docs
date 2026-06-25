@@ -26,7 +26,7 @@ Completed W10 R2 Phase 1 by verifying PRD 17 as the active system asset material
 
 | Path | Description |
 | --- | --- |
-| [../../work/2026-06-23-w10-r2-system-asset-materialization-contract/01-requirements-and-register-reconciliation.md](../../work/2026-06-23-w10-r2-system-asset-materialization-contract/01-requirements-and-register-reconciliation.md) | Marked Phase 1 tasks complete and added evidence, scope notes, and the Phase 2 through Phase 4 source/test map. |
+| [../../../work/2026-06-23-w10-r2-system-asset-materialization-contract/01-requirements-and-register-reconciliation.md](../../../work/2026-06-23-w10-r2-system-asset-materialization-contract/01-requirements-and-register-reconciliation.md) | Marked Phase 1 tasks complete and added evidence, scope notes, and the Phase 2 through Phase 4 source/test map. |
 
 ### Developer
 

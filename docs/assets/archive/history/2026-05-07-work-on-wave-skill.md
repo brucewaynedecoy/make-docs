@@ -22,7 +22,7 @@ Added a packaged `work-on-wave` skill for driving `docs/work/` waves or phases f
 
 ### Gap Decisions
 
-No novel gaps were found. The active PRD risk register at [docs/prd/03-open-questions-and-risk-register.md](../../prd/03-open-questions-and-risk-register.md) already covers broader skills-delivery and skills-authoring questions, and this closeout did not discover a new open question, confirmed drift item, rebuild risk, or unresolved blocker requiring a register update.
+No novel gaps were found. The active PRD risk register at [docs/prd/03-open-questions-and-risk-register.md](../../../prd/03-open-questions-and-risk-register.md) already covers broader skills-delivery and skills-authoring questions, and this closeout did not discover a new open question, confirmed drift item, rebuild risk, or unresolved blocker requiring a register update.
 
 ### Validation
 
@@ -44,7 +44,7 @@ jdocmunch index_local /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-d
 jcodemunch index_folder /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs
 ```
 
-Commit-message drafting used [docs/assets/references/commit-message-convention.md](../references/commit-message-convention.md) and recent commit history. No W/R/P coordinate applies because this was general skill and CLI registry maintenance rather than a single work backlog phase.
+Commit-message drafting used [docs/assets/references/commit-message-convention.md](../../../../.make-docs/contracts/system/commit-message-convention.md) and recent commit history. No W/R/P coordinate applies because this was general skill and CLI registry maintenance rather than a single work backlog phase.
 
 ## Documentation
 
@@ -52,11 +52,11 @@ Commit-message drafting used [docs/assets/references/commit-message-convention.m
 
 | Path | Description |
 | --- | --- |
-| [packages/skills/work-on-wave](../../../packages/skills/work-on-wave) | Packaged work-on-wave skill added with workflow guidance, helper scripts, agent prompt, and helper tests. |
-| [.agents/skills/work-on-wave](../../../.agents/skills/work-on-wave) | Codex skill mirror added for the installable mapped file set. |
-| [.claude/skills/work-on-wave](../../../.claude/skills/work-on-wave) | Claude skill mirror added for the installable mapped file set. |
-| [packages/cli/skill-registry.json](../../../packages/cli/skill-registry.json) | CLI skill registry updated so `work-on-wave` is selectable and installable. |
-| [packages/cli/tests](../../../packages/cli/tests) | Focused CLI, installer, catalog, registry, UI, wizard, and consistency tests updated for the new skill. |
+| [packages/skills/work-on-wave](../../../../packages/skills/work-on-wave) | Packaged work-on-wave skill added with workflow guidance, helper scripts, agent prompt, and helper tests. |
+| .agents/skills/work-on-wave | Codex skill mirror added for the installable mapped file set. |
+| .claude/skills/work-on-wave | Claude skill mirror added for the installable mapped file set. |
+| [packages/cli/skill-registry.json](../../../../packages/cli/skill-registry.json) | CLI skill registry updated so `work-on-wave` is selectable and installable. |
+| [packages/cli/tests](../../../../packages/cli/tests) | Focused CLI, installer, catalog, registry, UI, wizard, and consistency tests updated for the new skill. |
 | [docs/assets/history/2026-05-07-work-on-wave-skill.md](./2026-05-07-work-on-wave-skill.md) | Closeout breadcrumb for this skill and registry maintenance set. |
 
 ### Developer

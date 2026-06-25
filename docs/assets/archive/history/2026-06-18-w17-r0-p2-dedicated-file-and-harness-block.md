@@ -13,11 +13,11 @@ Phase 02 moved root instruction rendering to harness-aware managed blocks backed
 
 | Area | Summary |
 | --- | --- |
-| CLI source | Updated [`catalog.ts`](../../../packages/cli/src/catalog.ts) and [`renderers.ts`](../../../packages/cli/src/renderers.ts) so selected harnesses include `.make-docs/<harness>.md` and root instruction files render as one managed block. |
-| Template source | Added dedicated managed instruction sources under [`packages/docs/template/.make-docs/`](../../../packages/docs/template/.make-docs/) and converted root template instruction files to managed blocks. |
+| CLI source | Updated [`catalog.ts`](../../../../packages/cli/src/catalog.ts) and `renderers.ts` so selected harnesses include `.make-docs/<harness>.md` and root instruction files render as one managed block. |
+| Template source | Added dedicated managed instruction sources under [`packages/docs/template/.make-docs/`](../../../../packages/docs/template/.make-docs/) and converted root template instruction files to managed blocks. |
 | Tests | Added renderer assertions for one root block, Codex fallback routing, Claude import routing, and dedicated-file asset coverage; updated install/uninstall coverage for the new dedicated instruction paths. |
-| Validation | Updated [`check-instruction-routers.sh`](../../../scripts/check-instruction-routers.sh) so parity checks allow harness-aware root blocks when a sibling `.make-docs/` dedicated instruction pair exists. |
-| Work backlog | Marked all five tasks complete in [`02-dedicated-file-and-harness-block.md`](../archive/work/2026-06-18-w17-r0-agent-instruction-file-ownership/02-dedicated-file-and-harness-block.md). |
+| Validation | Updated [`check-instruction-routers.sh`](../../../../scripts/check-instruction-routers.sh) so parity checks allow harness-aware root blocks when a sibling `.make-docs/` dedicated instruction pair exists. |
+| Work backlog | Marked all five tasks complete in [`02-dedicated-file-and-harness-block.md`](../work/2026-06-18-w17-r0-agent-instruction-file-ownership/02-dedicated-file-and-harness-block.md). |
 | Managed state | Left `.make-docs/runs/` uncommitted as local wave checkpoint state created by the workflow tooling. |
 
 | Surface | Verdict | Rationale |
@@ -50,15 +50,15 @@ Validation for closeout:
 
 | Path | Description |
 | --- | --- |
-| [`../../../packages/cli/src/catalog.ts`](../../../packages/cli/src/catalog.ts) | Adds dedicated `.make-docs/<harness>.md` instruction assets for selected harnesses. |
-| [`../../../packages/cli/src/renderers.ts`](../../../packages/cli/src/renderers.ts) | Renders root instruction files through the managed-block primitive with harness-aware bodies. |
-| [`../../../packages/cli/tests/renderers.test.ts`](../../../packages/cli/tests/renderers.test.ts) | Locks root block shape, Claude import routing, Codex fallback routing, and dedicated-file rendering. |
-| [`../../../packages/cli/tests/install.test.ts`](../../../packages/cli/tests/install.test.ts) | Covers dedicated instruction files during harness install selection. |
-| [`../../../packages/cli/tests/uninstall.test.ts`](../../../packages/cli/tests/uninstall.test.ts) | Keeps uninstall partial-failure coverage aligned with the new dedicated instruction files. |
-| [`../../../scripts/check-instruction-routers.sh`](../../../scripts/check-instruction-routers.sh) | Allows harness-aware root instruction blocks while continuing to enforce ordinary router pair parity. |
-| [`../../../packages/docs/template/.make-docs/AGENTS.md`](../../../packages/docs/template/.make-docs/AGENTS.md) | Adds the dedicated Codex make-docs instruction source. |
-| [`../../../packages/docs/template/.make-docs/CLAUDE.md`](../../../packages/docs/template/.make-docs/CLAUDE.md) | Adds the dedicated Claude make-docs instruction source. |
-| [docs/assets/archive/work/2026-06-18-w17-r0-agent-instruction-file-ownership/02-dedicated-file-and-harness-block.md](../archive/work/2026-06-18-w17-r0-agent-instruction-file-ownership/02-dedicated-file-and-harness-block.md) | Records Phase 02 task completion after evidence review. |
+| [`../../../../packages/cli/src/catalog.ts`](../../../../packages/cli/src/catalog.ts) | Adds dedicated `.make-docs/<harness>.md` instruction assets for selected harnesses. |
+| `../../../../packages/cli/src/renderers.ts` | Renders root instruction files through the managed-block primitive with harness-aware bodies. |
+| `../../../../packages/cli/tests/renderers.test.ts` | Locks root block shape, Claude import routing, Codex fallback routing, and dedicated-file rendering. |
+| [`../../../../packages/cli/tests/install.test.ts`](../../../../packages/cli/tests/install.test.ts) | Covers dedicated instruction files during harness install selection. |
+| [`../../../../packages/cli/tests/uninstall.test.ts`](../../../../packages/cli/tests/uninstall.test.ts) | Keeps uninstall partial-failure coverage aligned with the new dedicated instruction files. |
+| [`../../../../scripts/check-instruction-routers.sh`](../../../../scripts/check-instruction-routers.sh) | Allows harness-aware root instruction blocks while continuing to enforce ordinary router pair parity. |
+| [`../../../../packages/docs/template/.make-docs/AGENTS.md`](../../../../packages/docs/template/.make-docs/AGENTS.md) | Adds the dedicated Codex make-docs instruction source. |
+| [`../../../../packages/docs/template/.make-docs/CLAUDE.md`](../../../../packages/docs/template/.make-docs/CLAUDE.md) | Adds the dedicated Claude make-docs instruction source. |
+| [docs/assets/archive/work/2026-06-18-w17-r0-agent-instruction-file-ownership/02-dedicated-file-and-harness-block.md](../work/2026-06-18-w17-r0-agent-instruction-file-ownership/02-dedicated-file-and-harness-block.md) | Records Phase 02 task completion after evidence review. |
 
 ### Developer
 

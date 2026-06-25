@@ -23,7 +23,7 @@ Added fast-path helper scripts to the packaged `closeout-commit` and `closeout-p
 
 ### Gap Decisions
 
-No novel gaps were found. The active PRD risk register at [docs/prd/03-open-questions-and-risk-register.md](../../prd/03-open-questions-and-risk-register.md) exists, but this closeout did not discover a new open question, confirmed drift item, rebuild risk, or unresolved blocker requiring a register update.
+No novel gaps were found. The active PRD risk register at [docs/prd/03-open-questions-and-risk-register.md](../../../prd/03-open-questions-and-risk-register.md) exists, but this closeout did not discover a new open question, confirmed drift item, rebuild risk, or unresolved blocker requiring a register update.
 
 ### Validation
 
@@ -46,7 +46,7 @@ jdocmunch index_local /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-d
 jcodemunch index_folder /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs
 ```
 
-Commit-message drafting used [docs/assets/references/commit-message-convention.md](../references/commit-message-convention.md) and inspected the aligned shipped-template copy at [packages/docs/template/docs/assets/references/commit-message-convention.md](../../../packages/docs/template/docs/assets/references/commit-message-convention.md). No W/R/P coordinate applies because this was general skill workflow and CLI registry maintenance rather than a single work backlog phase.
+Commit-message drafting used [docs/assets/references/commit-message-convention.md](../../../../.make-docs/contracts/system/commit-message-convention.md) and inspected the aligned shipped-template copy at [packages/docs/template/.make-docs/contracts/system/commit-message-convention.md](../../../../packages/docs/template/.make-docs/contracts/system/commit-message-convention.md). No W/R/P coordinate applies because this was general skill workflow and CLI registry maintenance rather than a single work backlog phase.
 
 ## Documentation
 
@@ -54,12 +54,12 @@ Commit-message drafting used [docs/assets/references/commit-message-convention.m
 
 | Path | Description |
 | --- | --- |
-| [packages/skills/closeout-commit](../../../packages/skills/closeout-commit) | Packaged commit-closeout skill updated with fast-path helper scripts, probe-first workflow guidance, and helper tests. |
-| [packages/skills/closeout-phase](../../../packages/skills/closeout-phase) | Packaged phase-closeout skill updated with shared closeout helpers, phase/guide probes, workflow guidance, and helper tests. |
-| [.agents/skills](../../../.agents/skills) | Codex skill mirrors aligned with the packaged closeout helper scripts and workflow references. |
-| [.claude/skills](../../../.claude/skills) | Claude skill mirrors aligned with the packaged closeout helper scripts and workflow references. |
-| [packages/cli/skill-registry.json](../../../packages/cli/skill-registry.json) | Closeout skill asset lists now include the helper scripts referenced by the packaged skills. |
-| [packages/cli/tests](../../../packages/cli/tests) | Focused registry, install, and consistency tests updated for closeout helper asset and mirror coverage. |
+| [packages/skills/closeout-commit](../../../../packages/skills/closeout-commit) | Packaged commit-closeout skill updated with fast-path helper scripts, probe-first workflow guidance, and helper tests. |
+| [packages/skills/closeout-phase](../../../../packages/skills/closeout-phase) | Packaged phase-closeout skill updated with shared closeout helpers, phase/guide probes, workflow guidance, and helper tests. |
+| .agents/skills | Codex skill mirrors aligned with the packaged closeout helper scripts and workflow references. |
+| .claude/skills | Claude skill mirrors aligned with the packaged closeout helper scripts and workflow references. |
+| [packages/cli/skill-registry.json](../../../../packages/cli/skill-registry.json) | Closeout skill asset lists now include the helper scripts referenced by the packaged skills. |
+| [packages/cli/tests](../../../../packages/cli/tests) | Focused registry, install, and consistency tests updated for closeout helper asset and mirror coverage. |
 | [docs/assets/history/2026-05-06-closeout-fast-path-helpers.md](./2026-05-06-closeout-fast-path-helpers.md) | Closeout breadcrumb for this fast-path helper maintenance set. |
 
 ### Developer

@@ -10,7 +10,7 @@ summary: "Closed out W14 R2 P2 conflict model and planner implementation for man
 
 ## Changes
 
-Implemented the W14 R2 P2 conflict model and planner phase for [the CLI conflict-resolution work backlog](../archive/work/2026-05-06-w14-r2-cli-conflict-resolution/02-conflict-model-and-planner.md), replacing instruction-only conflict resolution with managed-file review across agent instructions, references, and templates. The implementation removes `update` from active review choices, keeps overwrite and skip as deterministic user decisions, and preserves non-reviewable `skip-conflict` behavior for unrelated managed-file cases.
+Implemented the W14 R2 P2 conflict model and planner phase for [the CLI conflict-resolution work backlog](../work/2026-05-06-w14-r2-cli-conflict-resolution/02-conflict-model-and-planner.md), replacing instruction-only conflict resolution with managed-file review across agent instructions, references, and templates. The implementation removes `update` from active review choices, keeps overwrite and skip as deterministic user decisions, and preserves non-reviewable `skip-conflict` behavior for unrelated managed-file cases.
 
 Task completion decisions:
 
@@ -65,7 +65,7 @@ Validation performed:
 
 | Path | Description |
 | --- | --- |
-| [docs/assets/archive/work/2026-05-06-w14-r2-cli-conflict-resolution/02-conflict-model-and-planner.md](../archive/work/2026-05-06-w14-r2-cli-conflict-resolution/02-conflict-model-and-planner.md) | Marks W14 R2 P2 tasks complete after implementation and validation evidence review. |
+| [docs/assets/archive/work/2026-05-06-w14-r2-cli-conflict-resolution/02-conflict-model-and-planner.md](../work/2026-05-06-w14-r2-cli-conflict-resolution/02-conflict-model-and-planner.md) | Marks W14 R2 P2 tasks complete after implementation and validation evidence review. |
 | [./2026-05-06-w14-r2-p2-conflict-model-and-planner-closeout.md](./2026-05-06-w14-r2-p2-conflict-model-and-planner-closeout.md) | Records the phase closeout, task evidence, guide decisions, gap decision, validation, and commit-message source. |
 
 ### Developer

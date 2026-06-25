@@ -18,10 +18,10 @@ Integrated the commit-message convention package by updating the managed convent
 
 | Path | Description |
 | --- | --- |
-| [../references/commit-message-convention.md](../references/commit-message-convention.md) | Requires full subject-plus-body commit-message drafts and documents fallback body generation from the actual diff. |
-| [../../../packages/docs/template/docs/assets/references/commit-message-convention.md](../../../packages/docs/template/docs/assets/references/commit-message-convention.md) | Keeps the shipped docs template convention aligned with the dogfood reference. |
-| [../../../.make-docs/manifest.json](../../../.make-docs/manifest.json) | Refreshes the managed hash for the updated convention while preserving the existing source ID. |
-| [../../../packages/cli/tests/consistency.test.ts](../../../packages/cli/tests/consistency.test.ts) | Adds regression coverage for convention copy parity and required output-format rules. |
+| [../../../../.make-docs/contracts/system/commit-message-convention.md](../../../../.make-docs/contracts/system/commit-message-convention.md) | Requires full subject-plus-body commit-message drafts and documents fallback body generation from the actual diff. |
+| [../../../../packages/docs/template/.make-docs/contracts/system/commit-message-convention.md](../../../../packages/docs/template/.make-docs/contracts/system/commit-message-convention.md) | Keeps the shipped docs template convention aligned with the dogfood reference. |
+| [../../../../.make-docs/manifest.json](../../../../.make-docs/manifest.json) | Refreshes the managed hash for the updated convention while preserving the existing source ID. |
+| [../../../../packages/cli/tests/consistency.test.ts](../../../../packages/cli/tests/consistency.test.ts) | Adds regression coverage for convention copy parity and required output-format rules. |
 
 ### Developer
 

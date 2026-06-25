@@ -7,7 +7,7 @@ coordinate: "W9 R0 P4"
 
 ## Changes
 
-Completed Wave 9 Phase 4, framed by [the Phase 4 plan](../archive/plans/2026-04-20-w9-r0-docs-assets-state-and-history/04-history-and-documentation-migration.md) and [the Phase 4 backlog](../archive/work/2026-04-20-w9-r0-docs-assets-state-and-history/04-history-and-documentation-migration.md). This phase moved current repository history records into `docs/.assets/history/` and updated active documentation surfaces for the new `.assets` model.
+Completed Wave 9 Phase 4, framed by [the Phase 4 plan](../plans/2026-04-20-w9-r0-docs-assets-state-and-history/04-history-and-documentation-migration.md) and [the Phase 4 backlog](../work/2026-04-20-w9-r0-docs-assets-state-and-history/04-history-and-documentation-migration.md). This phase moved current repository history records into `docs/.assets/history/` and updated active documentation surfaces for the new `.assets` model.
 
 | Area | Summary |
 | --- | --- |
@@ -23,29 +23,29 @@ Completed Wave 9 Phase 4, framed by [the Phase 4 plan](../archive/plans/2026-04-
 
 | Path | Description |
 | --- | --- |
-| [docs/assets/archive/work/2026-04-20-w9-r0-docs-assets-state-and-history/04-history-and-documentation-migration.md](../archive/work/2026-04-20-w9-r0-docs-assets-state-and-history/04-history-and-documentation-migration.md) | Phase 4 work item with acceptance criteria marked complete. |
+| [docs/assets/archive/work/2026-04-20-w9-r0-docs-assets-state-and-history/04-history-and-documentation-migration.md](../work/2026-04-20-w9-r0-docs-assets-state-and-history/04-history-and-documentation-migration.md) | Phase 4 work item with acceptance criteria marked complete. |
 | [docs/.assets/history/](./) | New home for moved session history records. |
 | [docs/.assets/history/AGENTS.md](./AGENTS.md) | Updated history router filename guidance. |
 | [docs/.assets/history/CLAUDE.md](./CLAUDE.md) | Updated history router filename guidance. |
-| [docs/.prompts/session-to-history-record.prompt.md](../prompts/session-to-history-record.prompt.md) | Updated prompt instructions for W/R/P-aware history filenames. |
-| [docs/.references/history-record-contract.md](../references/history-record-contract.md) | Updated path, naming, and coordinate rules for phase-scoped history records. |
-| [docs/.references/output-contract.md](../references/output-contract.md) | Updated output path contract for history record filename fallbacks. |
-| [docs/.references/wave-model.md](../references/wave-model.md) | Updated W/R/P naming rules for history record filenames. |
-| [docs/.templates/history-record.md](../templates/history-record.md) | Added filename guidance for W/R/P-scoped history records. |
-| [README.md](../../../README.md) | Updated top-level documentation tree and install output summary for `.assets/history`. |
-| [packages/cli/README.md](../../../packages/cli/README.md) | Updated package README tree and install output summary for `.assets/history`. |
-| [packages/cli/src/renderers.ts](../../../packages/cli/src/renderers.ts) | Updated generated history router text to match the new filename rules. |
-| [packages/docs/README.md](../../../packages/docs/README.md) | Updated template package inventory and router list for `.assets/history` and `.assets/make-docs`. |
-| [packages/docs/template/docs/](../../../packages/docs/template/docs/) | Mirrored the history router, contract, template, prompt, output contract, and wave-model updates into the shippable docs template. |
-| [packages/skills/archive-docs/SKILL.md](../../../packages/skills/archive-docs/SKILL.md) | Updated archive lookup guidance for history records in `.assets/history`. |
-| [packages/skills/archive-docs/references/archive-workflow.md](../../../packages/skills/archive-docs/references/archive-workflow.md) | Updated upstream/downstream history tracing to use `.assets/history` and coordinate frontmatter. |
+| [docs/.prompts/session-to-history-record.prompt.md](../../../../.make-docs/references/system/prompts/session-to-history-record.prompt.md) | Updated prompt instructions for W/R/P-aware history filenames. |
+| [docs/.references/history-record-contract.md](../../../../.make-docs/contracts/system/history-record-contract.md) | Updated path, naming, and coordinate rules for phase-scoped history records. |
+| [docs/.references/output-contract.md](../../../../.make-docs/contracts/system/output-contract.md) | Updated output path contract for history record filename fallbacks. |
+| [docs/.references/wave-model.md](../../../../.make-docs/references/system/wave-model.md) | Updated W/R/P naming rules for history record filenames. |
+| [docs/.templates/history-record.md](../../../../.make-docs/templates/system/history-record.md) | Added filename guidance for W/R/P-scoped history records. |
+| [README.md](../../../../README.md) | Updated top-level documentation tree and install output summary for `.assets/history`. |
+| [packages/cli/README.md](../../../../packages/cli/README.md) | Updated package README tree and install output summary for `.assets/history`. |
+| packages/cli/src/renderers.ts | Updated generated history router text to match the new filename rules. |
+| [packages/docs/README.md](../../../../packages/docs/README.md) | Updated template package inventory and router list for `.assets/history` and `.assets/make-docs`. |
+| [packages/docs/template/docs/](../../../../packages/docs/template/docs/) | Mirrored the history router, contract, template, prompt, output contract, and wave-model updates into the shippable docs template. |
+| [packages/skills/archive-docs/SKILL.md](../../../../packages/skills/archive-docs/SKILL.md) | Updated archive lookup guidance for history records in `.assets/history`. |
+| [packages/skills/archive-docs/references/archive-workflow.md](../../../../packages/skills/archive-docs/references/archive-workflow.md) | Updated upstream/downstream history tracing to use `.assets/history` and coordinate frontmatter. |
 | [docs/.assets/history/2026-04-20-w9-r0-p4-history-and-documentation-migration.md](./2026-04-20-w9-r0-p4-history-and-documentation-migration.md) | History record for the Phase 4 history and documentation migration. |
 
 ### Developer
 
 | Path | Description |
 | --- | --- |
-| [docs/guides/developer/cli-development-local-build-and-install.md](../../guides/developer/cli-development-local-build-and-install.md) | Repaired relative links to CLI utility and smoke scripts after the history migration pass. |
+| [docs/guides/developer/cli-development-local-build-and-install.md](../../library/developer/cli-development-local-build-and-install.md) | Repaired relative links to CLI utility and smoke scripts after the history migration pass. |
 
 ### User
 

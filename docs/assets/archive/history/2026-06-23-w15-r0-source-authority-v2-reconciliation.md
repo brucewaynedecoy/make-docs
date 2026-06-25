@@ -31,8 +31,8 @@ Recommended UAT: build the local CLI, install make-docs into a temporary target,
 
 | Candidate | Outcome | Rationale |
 | --- | --- | --- |
-| Work-backlog source-authority ladder | `update-existing` | [Understanding the Make Docs Stage Model](../../guides/developer/development-workflows-stage-model-and-artifact-relationships.md) owns current artifact relationships and now names the backlog authority order future maintainers should follow. |
-| `decompose-codebase` bundled references and templates as projections | `update-existing` | [Skills Catalog and Distribution Model](../../guides/developer/skills-catalog-and-distribution-model.md) owns distributed skill maintainer guidance and now clarifies that skill-local assets are fallback projections relative to live repo contracts. |
+| Work-backlog source-authority ladder | `update-existing` | [Understanding the Make Docs Stage Model](../../library/developer/development-workflows-stage-model-and-artifact-relationships.md) owns current artifact relationships and now names the backlog authority order future maintainers should follow. |
+| `decompose-codebase` bundled references and templates as projections | `update-existing` | [Skills Catalog and Distribution Model](../../library/developer/skills-catalog-and-distribution-model.md) owns distributed skill maintainer guidance and now clarifies that skill-local assets are fallback projections relative to live repo contracts. |
 | Template/package/dogfood source ownership | `link-only` | Existing maintainer guides already cover this boundary through template assets, dogfood operations, and release validation; no duplicate guide was created. |
 | End-user workflow changes | `none` | The work changes maintainer/source-authority guidance only and does not introduce a new shipped user workflow. |
 
@@ -49,13 +49,13 @@ Recommended UAT: build the local CLI, install make-docs into a temporary target,
 
 | Candidate | Outcome | Rationale |
 | --- | --- | --- |
-| Template-owned work-backlog guidance | `baseline-change-note` | [06-template-contracts-and-generated-assets.md](../../prd/06-template-contracts-and-generated-assets.md) now clarifies that shipped work-backlog guidance is authored template-first before dogfood or installed-skill projections. |
-| Skill-local backlog guidance and installed skill copies | `baseline-change-note` | [08-skills-catalog-and-distribution.md](../../prd/08-skills-catalog-and-distribution.md) now clarifies that selected skills, skill-local references/templates, generated harness exposure files, and installed copies are secondary/fallback surfaces. |
-| Root dogfood, archived examples, and maintainer operations | `baseline-change-note` | [09-dogfood-and-maintainer-operations.md](../../prd/09-dogfood-and-maintainer-operations.md) now clarifies root `docs/` as dogfood/project-owned surface rather than product source of truth for shipped backlog guidance. |
-| Lifecycle work-backlog handoff authority | `baseline-change-note` | [14-add-lifecycle-workflow-foundation.md](../../prd/14-add-lifecycle-workflow-foundation.md) now names the authority order for backlog handoffs before fallback evidence. |
+| Template-owned work-backlog guidance | `baseline-change-note` | [06-template-contracts-and-generated-assets.md](../../../prd/06-template-contracts-and-generated-assets.md) now clarifies that shipped work-backlog guidance is authored template-first before dogfood or installed-skill projections. |
+| Skill-local backlog guidance and installed skill copies | `baseline-change-note` | [08-skills-catalog-and-distribution.md](../../../prd/08-skills-catalog-and-distribution.md) now clarifies that selected skills, skill-local references/templates, generated harness exposure files, and installed copies are secondary/fallback surfaces. |
+| Root dogfood, archived examples, and maintainer operations | `baseline-change-note` | [09-dogfood-and-maintainer-operations.md](../../../prd/09-dogfood-and-maintainer-operations.md) now clarifies root `docs/` as dogfood/project-owned surface rather than product source of truth for shipped backlog guidance. |
+| Lifecycle work-backlog handoff authority | `baseline-change-note` | [14-add-lifecycle-workflow-foundation.md](../../../prd/14-add-lifecycle-workflow-foundation.md) now names the authority order for backlog handoffs before fallback evidence. |
 | New numbered PRD change doc | `none` | The next available slot is `16`, but no new doc was created because W15 reconciles existing accepted v2 requirements in active owners instead of changing the product surface. |
-| Risk register | `none` | No new gap, drift item, open question, decision, or rebuild risk was discovered or resolved beyond the existing dogfood/template and skill-projection risks already tracked in [03-open-questions-and-risk-register.md](../../prd/03-open-questions-and-risk-register.md). |
-| PRD index | `none` | [00-index.md](../../prd/00-index.md) remains accurate because no new PRD file, status change, renumbering, or active-set document kind change occurred. |
+| Risk register | `none` | No new gap, drift item, open question, decision, or rebuild risk was discovered or resolved beyond the existing dogfood/template and skill-projection risks already tracked in [03-open-questions-and-risk-register.md](../../../prd/03-open-questions-and-risk-register.md). |
+| PRD index | `none` | [00-index.md](../../../prd/00-index.md) remains accurate because no new PRD file, status change, renumbering, or active-set document kind change occurred. |
 
 ## Documentation
 
@@ -63,27 +63,27 @@ Recommended UAT: build the local CLI, install make-docs into a temporary target,
 
 | Path | Description |
 | --- | --- |
-| [../../prd/06-template-contracts-and-generated-assets.md](../../prd/06-template-contracts-and-generated-assets.md) | Notes that template-owned work guidance is the shipped source for source-authority rules. |
-| [../../prd/08-skills-catalog-and-distribution.md](../../prd/08-skills-catalog-and-distribution.md) | Clarifies package skills, installed copies, and generated harness files as secondary/fallback surfaces. |
-| [../../prd/09-dogfood-and-maintainer-operations.md](../../prd/09-dogfood-and-maintainer-operations.md) | Clarifies root dogfood docs as validation/project-owned copies rather than shipped product source. |
-| [../../prd/14-add-lifecycle-workflow-foundation.md](../../prd/14-add-lifecycle-workflow-foundation.md) | Records that lifecycle handoffs must name accepted authority before fallback evidence. |
-| [docs/assets/archive/work/2026-05-06-w15-r0-work-backlog-source-authority/00-index.md](../archive/work/2026-05-06-w15-r0-work-backlog-source-authority/00-index.md) | Recasts W15 completion around active PRD owners, template-owned contracts, dogfood copies, skill projections, and generated-harness disposition. |
-| [docs/assets/archive/work/2026-05-06-w15-r0-work-backlog-source-authority/04-tests-work-backlog-and-validation.md](../archive/work/2026-05-06-w15-r0-work-backlog-source-authority/04-tests-work-backlog-and-validation.md) | Captures validation evidence, stale-wording scan results, and baseline validation blockers. |
-| [../references/execution-workflow.md](../references/execution-workflow.md) | Adds the explicit work-backlog source-authority ladder to root dogfood guidance. |
-| [../../work/AGENTS.md](../../work/AGENTS.md) | Adds first-read authority guidance for agents generating work backlogs. |
+| [../../../prd/06-template-contracts-and-generated-assets.md](../../../prd/06-template-contracts-and-generated-assets.md) | Notes that template-owned work guidance is the shipped source for source-authority rules. |
+| [../../../prd/08-skills-catalog-and-distribution.md](../../../prd/08-skills-catalog-and-distribution.md) | Clarifies package skills, installed copies, and generated harness files as secondary/fallback surfaces. |
+| [../../../prd/09-dogfood-and-maintainer-operations.md](../../../prd/09-dogfood-and-maintainer-operations.md) | Clarifies root dogfood docs as validation/project-owned copies rather than shipped product source. |
+| [../../../prd/14-add-lifecycle-workflow-foundation.md](../../../prd/14-add-lifecycle-workflow-foundation.md) | Records that lifecycle handoffs must name accepted authority before fallback evidence. |
+| [docs/assets/archive/work/2026-05-06-w15-r0-work-backlog-source-authority/00-index.md](../work/2026-05-06-w15-r0-work-backlog-source-authority/00-index.md) | Recasts W15 completion around active PRD owners, template-owned contracts, dogfood copies, skill projections, and generated-harness disposition. |
+| [docs/assets/archive/work/2026-05-06-w15-r0-work-backlog-source-authority/04-tests-work-backlog-and-validation.md](../work/2026-05-06-w15-r0-work-backlog-source-authority/04-tests-work-backlog-and-validation.md) | Captures validation evidence, stale-wording scan results, and baseline validation blockers. |
+| [../../../../.make-docs/references/system/execution-workflow.md](../../../../.make-docs/references/system/execution-workflow.md) | Adds the explicit work-backlog source-authority ladder to root dogfood guidance. |
+| [../../../work/AGENTS.md](../../../work/AGENTS.md) | Adds first-read authority guidance for agents generating work backlogs. |
 
 ### Developer
 
 | Path | Description |
 | --- | --- |
-| [../../../packages/docs/template/docs/assets/references/execution-workflow.md](../../../packages/docs/template/docs/assets/references/execution-workflow.md) | Adds the shipped template-owned source-authority ladder. |
-| [../../../packages/docs/template/docs/work/AGENTS.md](../../../packages/docs/template/docs/work/AGENTS.md) | Adds shipped work-router guidance for authority order and fallback evidence. |
-| [../../../packages/docs/template/docs/work/CLAUDE.md](../../../packages/docs/template/docs/work/CLAUDE.md) | Keeps the paired shipped Claude router aligned with the AGENTS router. |
-| [../../../packages/skills/decompose-codebase/SKILL.md](../../../packages/skills/decompose-codebase/SKILL.md) | Reframes bundled skill guidance as a projection/fallback surface relative to live repo contracts. |
-| [../../../packages/skills/decompose-codebase/assets/README.md](../../../packages/skills/decompose-codebase/assets/README.md) | Clarifies bundled skill assets as installed-skill projections. |
-| [../../../packages/skills/decompose-codebase/references/execution-workflow.md](../../../packages/skills/decompose-codebase/references/execution-workflow.md) | Aligns skill-local workflow guidance with the new source-authority ladder. |
-| [../../guides/developer/development-workflows-stage-model-and-artifact-relationships.md](../../guides/developer/development-workflows-stage-model-and-artifact-relationships.md) | Adds maintainer-facing work-backlog source-authority guidance to the stage model guide. |
-| [../../guides/developer/skills-catalog-and-distribution-model.md](../../guides/developer/skills-catalog-and-distribution-model.md) | Clarifies that bundled `decompose-codebase` assets are projections/fallbacks relative to live repo contracts. |
+| [../../../../packages/docs/template/.make-docs/references/system/execution-workflow.md](../../../../packages/docs/template/.make-docs/references/system/execution-workflow.md) | Adds the shipped template-owned source-authority ladder. |
+| [../../../../packages/docs/template/docs/work/AGENTS.md](../../../../packages/docs/template/docs/work/AGENTS.md) | Adds shipped work-router guidance for authority order and fallback evidence. |
+| [../../../../packages/docs/template/docs/work/CLAUDE.md](../../../../packages/docs/template/docs/work/CLAUDE.md) | Keeps the paired shipped Claude router aligned with the AGENTS router. |
+| [../../../../packages/skills/decompose-codebase/SKILL.md](../../../../packages/skills/decompose-codebase/SKILL.md) | Reframes bundled skill guidance as a projection/fallback surface relative to live repo contracts. |
+| [../../../../packages/skills/decompose-codebase/assets/README.md](../../../../packages/skills/decompose-codebase/assets/README.md) | Clarifies bundled skill assets as installed-skill projections. |
+| [../../../../packages/skills/decompose-codebase/references/execution-workflow.md](../../../../packages/skills/decompose-codebase/references/execution-workflow.md) | Aligns skill-local workflow guidance with the new source-authority ladder. |
+| [../../library/developer/development-workflows-stage-model-and-artifact-relationships.md](../../library/developer/development-workflows-stage-model-and-artifact-relationships.md) | Adds maintainer-facing work-backlog source-authority guidance to the stage model guide. |
+| [../../library/developer/skills-catalog-and-distribution-model.md](../../library/developer/skills-catalog-and-distribution-model.md) | Clarifies that bundled `decompose-codebase` assets are projections/fallbacks relative to live repo contracts. |
 
 ### User
 

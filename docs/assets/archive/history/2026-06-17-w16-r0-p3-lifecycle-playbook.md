@@ -25,15 +25,15 @@ updates, and Q-014 resolution satisfied the acceptance criteria.
 
 ### Project
 
-- Added [make-docs-lifecycle.md](../../library/playbooks/agent/make-docs-lifecycle.md)
+- Added [make-docs-lifecycle.md](../../playbooks/agent/make-docs-lifecycle.md)
   with `persona: "agent-maintainer"` frontmatter and uniform per-stage
   playbook sections.
-- Updated [README.md](../../../README.md) and docs routers
+- Updated [README.md](../../../../README.md) and docs routers
   [AGENTS.md](../../AGENTS.md) and [CLAUDE.md](../../CLAUDE.md) so the
   playbook is discoverable.
-- Closed [Q-014](../../prd/03-open-questions-and-risk-register.md) with the
+- Closed [Q-014](../../../prd/03-open-questions-and-risk-register.md) with the
   W16 R0 decision to create only the playbook subtree now.
-- Marked [Phase 03](../archive/work/2026-06-17-w16-r0-lifecycle-workflow-foundation/03-lifecycle-playbook.md)
+- Marked [Phase 03](../work/2026-06-17-w16-r0-lifecycle-workflow-foundation/03-lifecycle-playbook.md)
   tasks complete.
 
 ### Developer

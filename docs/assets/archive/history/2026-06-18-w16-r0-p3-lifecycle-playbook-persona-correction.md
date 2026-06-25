@@ -42,10 +42,10 @@ point-in-time breadcrumbs; only their links were repaired.
 
 | Path | Description |
 | --- | --- |
-| [docs/library/playbooks/agent/make-docs-lifecycle.md](../../library/playbooks/agent/make-docs-lifecycle.md) | Renamed to the `agent` persona; `persona:` frontmatter and prose corrected. |
-| [docs/assets/archive/plans/2026-05-28-w16-r0-coverage-pass-contract/03-lifecycle-playbook.md](../archive/plans/2026-05-28-w16-r0-coverage-pass-contract/03-lifecycle-playbook.md) | Removed the hybrid "agent/maintainer persona" phrasing. |
-| [docs/assets/archive/work/2026-06-17-w16-r0-lifecycle-workflow-foundation/03-lifecycle-playbook.md](../archive/work/2026-06-17-w16-r0-lifecycle-workflow-foundation/03-lifecycle-playbook.md) | Removed the hybrid "agent/maintainer persona" phrasing. |
-| [README.md](../../../README.md) | Updated the lifecycle-playbook link and persona reference. |
+| [docs/library/playbooks/agent/make-docs-lifecycle.md](../../playbooks/agent/make-docs-lifecycle.md) | Renamed to the `agent` persona; `persona:` frontmatter and prose corrected. |
+| [docs/assets/archive/plans/2026-05-28-w16-r0-coverage-pass-contract/03-lifecycle-playbook.md](../plans/2026-05-28-w16-r0-coverage-pass-contract/03-lifecycle-playbook.md) | Removed the hybrid "agent/maintainer persona" phrasing. |
+| [docs/assets/archive/work/2026-06-17-w16-r0-lifecycle-workflow-foundation/03-lifecycle-playbook.md](../work/2026-06-17-w16-r0-lifecycle-workflow-foundation/03-lifecycle-playbook.md) | Removed the hybrid "agent/maintainer persona" phrasing. |
+| [README.md](../../../../README.md) | Updated the lifecycle-playbook link and persona reference. |
 
 ### Developer
 

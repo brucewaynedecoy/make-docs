@@ -30,19 +30,19 @@ files unless the user explicitly selects skills.
 
 | Path | Description |
 | --- | --- |
-| [../../prd/06-template-contracts-and-generated-assets.md](../../prd/06-template-contracts-and-generated-assets.md) | Replaces the old dynamic renderer/buildable-asset model with the static template asset contract. |
-| [../../prd/08-skills-catalog-and-distribution.md](../../prd/08-skills-catalog-and-distribution.md) | Aligns skills delivery with explicit optional selected skills and no default skill files. |
-| [../../prd/12-revise-cli-skill-selection-simplification.md](../../prd/12-revise-cli-skill-selection-simplification.md) | Revises the selected-skill model so fresh defaults install no skills. |
-| [../../prd/15-revise-agent-instruction-file-ownership.md](../../prd/15-revise-agent-instruction-file-ownership.md) | Clarifies static template sourcing plus block-scoped instruction reconciliation. |
-| [../../designs/2026-06-18-agent-instruction-file-ownership.md](../archive/designs/2026-06-18-agent-instruction-file-ownership.md) | Updates W17 design language away from renderer-owned instruction files. |
-| [docs/assets/archive/plans/2026-06-18-w17-r0-agent-instruction-file-ownership/02-dedicated-file-and-harness-block.md](../archive/plans/2026-06-18-w17-r0-agent-instruction-file-ownership/02-dedicated-file-and-harness-block.md) | Recasts Phase 02 as static inline instruction blocks while preserving the existing path. |
-| [docs/assets/archive/work/2026-06-18-w17-r0-agent-instruction-file-ownership/02-dedicated-file-and-harness-block.md](../archive/work/2026-06-18-w17-r0-agent-instruction-file-ownership/02-dedicated-file-and-harness-block.md) | Reconciles Phase 02 tasks and acceptance criteria with the corrected product shape. |
+| [../../../prd/06-template-contracts-and-generated-assets.md](../../../prd/06-template-contracts-and-generated-assets.md) | Replaces the old dynamic renderer/buildable-asset model with the static template asset contract. |
+| [../../../prd/08-skills-catalog-and-distribution.md](../../../prd/08-skills-catalog-and-distribution.md) | Aligns skills delivery with explicit optional selected skills and no default skill files. |
+| [../../../prd/12-revise-cli-skill-selection-simplification.md](../../../prd/12-revise-cli-skill-selection-simplification.md) | Revises the selected-skill model so fresh defaults install no skills. |
+| [../../../prd/15-revise-agent-instruction-file-ownership.md](../../../prd/15-revise-agent-instruction-file-ownership.md) | Clarifies static template sourcing plus block-scoped instruction reconciliation. |
+| [../../../designs/2026-06-18-agent-instruction-file-ownership.md](../designs/2026-06-18-agent-instruction-file-ownership.md) | Updates W17 design language away from renderer-owned instruction files. |
+| [docs/assets/archive/plans/2026-06-18-w17-r0-agent-instruction-file-ownership/02-dedicated-file-and-harness-block.md](../plans/2026-06-18-w17-r0-agent-instruction-file-ownership/02-dedicated-file-and-harness-block.md) | Recasts Phase 02 as static inline instruction blocks while preserving the existing path. |
+| [docs/assets/archive/work/2026-06-18-w17-r0-agent-instruction-file-ownership/02-dedicated-file-and-harness-block.md](../work/2026-06-18-w17-r0-agent-instruction-file-ownership/02-dedicated-file-and-harness-block.md) | Reconciles Phase 02 tasks and acceptance criteria with the corrected product shape. |
 
 ### Developer
 
 | Path | Description |
 | --- | --- |
-| [../../../packages/cli/src/README.md](../../../packages/cli/src/README.md) | Updates maintainer guidance for static asset selection and managed-block validation. |
+| [../../../../packages/cli/src/README.md](../../../../packages/cli/src/README.md) | Updates maintainer guidance for static asset selection and managed-block validation. |
 
 ### User
 

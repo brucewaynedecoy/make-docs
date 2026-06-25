@@ -13,11 +13,11 @@ Phase 03 moved root instruction reconciliation to managed-block scope. Manifest 
 
 | Area | Summary |
 | --- | --- |
-| Manifest | Added [`getManifestFileHash`](../../../packages/cli/src/manifest.ts) so root instruction manifest entries store the block hash and other files keep whole-file hashes. |
-| Planner/audit | Updated [`planner.ts`](../../../packages/cli/src/planner.ts) and [`audit.ts`](../../../packages/cli/src/audit.ts) to compare root instruction blocks instead of whole files where the manifest owns only the block. |
-| Conflict review | Added managed-block conflict scope through [`types.ts`](../../../packages/cli/src/types.ts), [`install.ts`](../../../packages/cli/src/install.ts), and [`wizard.ts`](../../../packages/cli/src/wizard.ts); block conflicts are presented as reassert/keep decisions and default to reassert. |
-| Tests | Expanded [`install.test.ts`](../../../packages/cli/tests/install.test.ts) for outside-block edits, edited-block review, block reassertion with surrounding content preserved, and unchanged non-instruction overwrite/skip behavior. |
-| Work backlog | Marked all five tasks complete in [`03-block-level-reconciliation.md`](../archive/work/2026-06-18-w17-r0-agent-instruction-file-ownership/03-block-level-reconciliation.md). |
+| Manifest | Added [`getManifestFileHash`](../../../../packages/cli/src/manifest.ts) so root instruction manifest entries store the block hash and other files keep whole-file hashes. |
+| Planner/audit | Updated [`planner.ts`](../../../../packages/cli/src/planner.ts) and [`audit.ts`](../../../../packages/cli/src/audit.ts) to compare root instruction blocks instead of whole files where the manifest owns only the block. |
+| Conflict review | Added managed-block conflict scope through [`types.ts`](../../../../packages/cli/src/types.ts), [`install.ts`](../../../../packages/cli/src/install.ts), and [`wizard.ts`](../../../../packages/cli/src/wizard.ts); block conflicts are presented as reassert/keep decisions and default to reassert. |
+| Tests | Expanded [`install.test.ts`](../../../../packages/cli/tests/install.test.ts) for outside-block edits, edited-block review, block reassertion with surrounding content preserved, and unchanged non-instruction overwrite/skip behavior. |
+| Work backlog | Marked all five tasks complete in [`03-block-level-reconciliation.md`](../work/2026-06-18-w17-r0-agent-instruction-file-ownership/03-block-level-reconciliation.md). |
 | Managed state | Left `.make-docs/runs/` uncommitted as local wave checkpoint state created by the workflow tooling. |
 
 | Surface | Verdict | Rationale |
@@ -46,12 +46,12 @@ Validation for closeout:
 
 | Path | Description |
 | --- | --- |
-| [`../../../packages/cli/src/manifest.ts`](../../../packages/cli/src/manifest.ts) | Defines the manifest hash rule for root instruction managed blocks versus whole-file assets. |
-| [`../../../packages/cli/src/planner.ts`](../../../packages/cli/src/planner.ts) | Plans block-scoped noops, conflicts, and in-place block reassertion for root instruction files. |
-| [`../../../packages/cli/src/audit.ts`](../../../packages/cli/src/audit.ts) | Compares manifest-owned root instruction blocks and preserves files with user content outside the block. |
-| [`../../../packages/cli/src/wizard.ts`](../../../packages/cli/src/wizard.ts) | Labels block-scoped review choices as reassert/keep and defaults edited blocks to reassert. |
-| [`../../../packages/cli/tests/install.test.ts`](../../../packages/cli/tests/install.test.ts) | Covers block-scoped reconciliation and unchanged whole-file behavior for non-instruction files. |
-| [docs/assets/archive/work/2026-06-18-w17-r0-agent-instruction-file-ownership/03-block-level-reconciliation.md](../archive/work/2026-06-18-w17-r0-agent-instruction-file-ownership/03-block-level-reconciliation.md) | Records Phase 03 task completion after evidence review. |
+| [`../../../../packages/cli/src/manifest.ts`](../../../../packages/cli/src/manifest.ts) | Defines the manifest hash rule for root instruction managed blocks versus whole-file assets. |
+| [`../../../../packages/cli/src/planner.ts`](../../../../packages/cli/src/planner.ts) | Plans block-scoped noops, conflicts, and in-place block reassertion for root instruction files. |
+| [`../../../../packages/cli/src/audit.ts`](../../../../packages/cli/src/audit.ts) | Compares manifest-owned root instruction blocks and preserves files with user content outside the block. |
+| [`../../../../packages/cli/src/wizard.ts`](../../../../packages/cli/src/wizard.ts) | Labels block-scoped review choices as reassert/keep and defaults edited blocks to reassert. |
+| [`../../../../packages/cli/tests/install.test.ts`](../../../../packages/cli/tests/install.test.ts) | Covers block-scoped reconciliation and unchanged whole-file behavior for non-instruction files. |
+| [docs/assets/archive/work/2026-06-18-w17-r0-agent-instruction-file-ownership/03-block-level-reconciliation.md](../work/2026-06-18-w17-r0-agent-instruction-file-ownership/03-block-level-reconciliation.md) | Records Phase 03 task completion after evidence review. |
 
 ### Developer
 

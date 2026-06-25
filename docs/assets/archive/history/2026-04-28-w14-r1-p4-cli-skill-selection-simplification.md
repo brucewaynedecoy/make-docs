@@ -50,12 +50,12 @@ git diff --check
 
 | Path | Description |
 | --- | --- |
-| [packages/cli/tests/skill-registry.test.ts](../../../packages/cli/tests/skill-registry.test.ts) | Registry tests for recommended skills without required/optional split helpers. |
-| [packages/cli/tests/skill-catalog.test.ts](../../../packages/cli/tests/skill-catalog.test.ts) | Catalog tests for default selected skills and selected-skill asset planning. |
-| [packages/cli/tests/wizard.test.ts](../../../packages/cli/tests/wizard.test.ts) | Wizard tests for one selectable skill list and selected-skill review copy. |
-| [packages/cli/tests/skills-ui.test.ts](../../../packages/cli/tests/skills-ui.test.ts) | Skills UI tests for selected-skill state and summaries. |
-| [packages/cli/tests/cli.test.ts](../../../packages/cli/tests/cli.test.ts) | CLI tests for selected-skill parsing, validation, and removed flag behavior. |
-| [packages/cli/tests/install.test.ts](../../../packages/cli/tests/install.test.ts) | Install tests for selected-skill manifests and stale optionalSkills rejection. |
+| [packages/cli/tests/skill-registry.test.ts](../../../../packages/cli/tests/skill-registry.test.ts) | Registry tests for recommended skills without required/optional split helpers. |
+| [packages/cli/tests/skill-catalog.test.ts](../../../../packages/cli/tests/skill-catalog.test.ts) | Catalog tests for default selected skills and selected-skill asset planning. |
+| [packages/cli/tests/wizard.test.ts](../../../../packages/cli/tests/wizard.test.ts) | Wizard tests for one selectable skill list and selected-skill review copy. |
+| [packages/cli/tests/skills-ui.test.ts](../../../../packages/cli/tests/skills-ui.test.ts) | Skills UI tests for selected-skill state and summaries. |
+| [packages/cli/tests/cli.test.ts](../../../../packages/cli/tests/cli.test.ts) | CLI tests for selected-skill parsing, validation, and removed flag behavior. |
+| [packages/cli/tests/install.test.ts](../../../../packages/cli/tests/install.test.ts) | Install tests for selected-skill manifests and stale optionalSkills rejection. |
 
 ### Developer
 

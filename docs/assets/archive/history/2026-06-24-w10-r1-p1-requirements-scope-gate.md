@@ -25,7 +25,7 @@ Completed W10 R1 Phase 1 by verifying PRD 16 identity and risk-register state, i
 
 | Path | Description |
 | --- | --- |
-| [../../work/2026-06-23-w10-r1-package-and-deployment-boundaries/01-requirements-and-scope-gate.md](../../work/2026-06-23-w10-r1-package-and-deployment-boundaries/01-requirements-and-scope-gate.md) | Marked Phase 1 tasks complete and added evidence notes for the requirements gate and live surface inventory. |
+| [../../../work/2026-06-23-w10-r1-package-and-deployment-boundaries/01-requirements-and-scope-gate.md](../../../work/2026-06-23-w10-r1-package-and-deployment-boundaries/01-requirements-and-scope-gate.md) | Marked Phase 1 tasks complete and added evidence notes for the requirements gate and live surface inventory. |
 
 ### Developer
 

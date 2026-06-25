@@ -32,9 +32,9 @@ Completed W10 R3 Phase 4 by running the CLI validation gates, documenting packag
 
 | Path | Description |
 | --- | --- |
-| [../../work/2026-06-23-w10-r3-compatibility-audit-and-migration-disposition/04-validation-and-closeout.md](../../work/2026-06-23-w10-r3-compatibility-audit-and-migration-disposition/04-validation-and-closeout.md) | Marked Phase 4 tasks complete and recorded validation, parity, UAT, PRD, risk, guide, and no-push decisions. |
-| [../../work/2026-06-23-w10-r3-compatibility-audit-and-migration-disposition/03-migration-disposition-flows.md](../../work/2026-06-23-w10-r3-compatibility-audit-and-migration-disposition/03-migration-disposition-flows.md) | Provides the committed CLI disposition behavior validated by this closeout phase. |
-| [../../prd/18-revise-compatibility-audit-and-migration-disposition.md](../../prd/18-revise-compatibility-audit-and-migration-disposition.md) | Remains the active PRD owner for compatibility audit and migration disposition behavior. |
+| [../../../work/2026-06-23-w10-r3-compatibility-audit-and-migration-disposition/04-validation-and-closeout.md](../../../work/2026-06-23-w10-r3-compatibility-audit-and-migration-disposition/04-validation-and-closeout.md) | Marked Phase 4 tasks complete and recorded validation, parity, UAT, PRD, risk, guide, and no-push decisions. |
+| [../../../work/2026-06-23-w10-r3-compatibility-audit-and-migration-disposition/03-migration-disposition-flows.md](../../../work/2026-06-23-w10-r3-compatibility-audit-and-migration-disposition/03-migration-disposition-flows.md) | Provides the committed CLI disposition behavior validated by this closeout phase. |
+| [../../../prd/18-revise-compatibility-audit-and-migration-disposition.md](../../../prd/18-revise-compatibility-audit-and-migration-disposition.md) | Remains the active PRD owner for compatibility audit and migration disposition behavior. |
 
 ### Developer
 

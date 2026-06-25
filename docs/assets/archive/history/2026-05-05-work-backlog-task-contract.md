@@ -23,7 +23,7 @@ Codified the work backlog task contract so phase tasks are markdown checkbox ite
 
 ### Gap Decisions
 
-No novel gaps were found. The active risk register at [docs/prd/03-open-questions-and-risk-register.md](../../prd/03-open-questions-and-risk-register.md) already exists, but this closeout did not discover a new open question, risk, drift item, or unresolved blocker requiring a register update.
+No novel gaps were found. The active risk register at [docs/prd/03-open-questions-and-risk-register.md](../../../prd/03-open-questions-and-risk-register.md) already exists, but this closeout did not discover a new open question, risk, drift item, or unresolved blocker requiring a register update.
 
 ### Validation
 
@@ -44,7 +44,7 @@ jdocmunch index_local /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-d
 jcodemunch index_folder /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs
 ```
 
-Commit-message drafting used [docs/assets/references/commit-message-convention.md](../references/commit-message-convention.md) and inspected the aligned shipped-template copy at [packages/docs/template/docs/assets/references/commit-message-convention.md](../../../packages/docs/template/docs/assets/references/commit-message-convention.md). No W/R/P coordinate applies because the changed files do not identify a single active phase, plan, or work backlog coordinate.
+Commit-message drafting used [docs/assets/references/commit-message-convention.md](../../../../.make-docs/contracts/system/commit-message-convention.md) and inspected the aligned shipped-template copy at [packages/docs/template/.make-docs/contracts/system/commit-message-convention.md](../../../../packages/docs/template/.make-docs/contracts/system/commit-message-convention.md). No W/R/P coordinate applies because the changed files do not identify a single active phase, plan, or work backlog coordinate.
 
 ## Documentation
 
@@ -53,11 +53,11 @@ Commit-message drafting used [docs/assets/references/commit-message-convention.m
 | Path | Description |
 | --- | --- |
 | [docs/AGENTS.md](../../AGENTS.md) | Dogfood docs router updated with the task-checkbox and plain-acceptance work contract. |
-| [docs/assets/references/execution-workflow.md](../references/execution-workflow.md) | Execution workflow updated with phase-local task ID and acceptance bullet rules. |
-| [docs/assets/references/output-contract.md](../references/output-contract.md) | Output contract updated to make task IDs and plain acceptance criteria explicit. |
-| [docs/assets/references/wave-model.md](../references/wave-model.md) | Wave model updated with the `t{T}` task coordinate and phase-local numbering rule. |
-| [docs/assets/templates/work-phase.md](../templates/work-phase.md) | Dogfood work phase template updated to use task checkboxes and plain acceptance bullets. |
-| [docs/work/AGENTS.md](../../work/AGENTS.md) | Dogfood work router updated with task and acceptance formatting guidance. |
+| [docs/assets/references/execution-workflow.md](../../../../.make-docs/references/system/execution-workflow.md) | Execution workflow updated with phase-local task ID and acceptance bullet rules. |
+| [docs/assets/references/output-contract.md](../../../../.make-docs/contracts/system/output-contract.md) | Output contract updated to make task IDs and plain acceptance criteria explicit. |
+| [docs/assets/references/wave-model.md](../../../../.make-docs/references/system/wave-model.md) | Wave model updated with the `t{T}` task coordinate and phase-local numbering rule. |
+| [docs/assets/templates/work-phase.md](../../../../.make-docs/templates/system/work-phase.md) | Dogfood work phase template updated to use task checkboxes and plain acceptance bullets. |
+| [docs/work/AGENTS.md](../../../work/AGENTS.md) | Dogfood work router updated with task and acceptance formatting guidance. |
 | `packages/docs/template/docs` | Shipped template copies aligned with the dogfood work contract, routers, references, and work phase template. |
 | `packages/cli/src/renderers.ts` | Generated docs router output updated for the work task contract. |
 | `packages/cli/skill-registry.json` | Closeout phase skill description updated to refer to checked tasks and acceptance evidence. |

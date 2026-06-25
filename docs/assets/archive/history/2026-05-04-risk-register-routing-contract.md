@@ -67,14 +67,14 @@ jcodemunch index_folder .
 | Path | Description |
 | --- | --- |
 | [docs/AGENTS.md](../../AGENTS.md) | Dogfood docs router with the canonical gap-capture route. |
-| [docs/prd/AGENTS.md](../../prd/AGENTS.md) | PRD router with living-register and anti-proliferation guidance. |
-| [docs/prd/03-open-questions-and-risk-register.md](../../prd/03-open-questions-and-risk-register.md) | Active risk register migrated to item-level state tracking. |
-| [docs/assets/references/output-contract.md](../references/output-contract.md) | Output contract updated for living risk-register behavior, item schema, and stable section-prefixed item IDs. |
-| [docs/assets/references/prd-change-management.md](../references/prd-change-management.md) | Active-set evolution rules updated for direct numbered risk-register updates and risk-register-local `### Change Notes` deprecation. |
-| [docs/assets/templates/prd-risk-register.md](../templates/prd-risk-register.md) | Template updated with item-level state table, closeout fields, stable item IDs, and the never-renumber rule. |
-| [packages/docs/template/docs](../../../packages/docs/template/docs) | Shipped template copies aligned with the dogfood contract. |
-| [packages/skills](../../../packages/skills) | Closeout and decompose-codebase skill assets updated for the living-register contract. |
-| [packages/cli/tests](../../../packages/cli/tests) | Focused tests updated for router and risk-register contract expectations. |
+| [docs/prd/AGENTS.md](../../../prd/AGENTS.md) | PRD router with living-register and anti-proliferation guidance. |
+| [docs/prd/03-open-questions-and-risk-register.md](../../../prd/03-open-questions-and-risk-register.md) | Active risk register migrated to item-level state tracking. |
+| [docs/assets/references/output-contract.md](../../../../.make-docs/contracts/system/output-contract.md) | Output contract updated for living risk-register behavior, item schema, and stable section-prefixed item IDs. |
+| [docs/assets/references/prd-change-management.md](../../../../.make-docs/references/system/prd-change-management.md) | Active-set evolution rules updated for direct numbered risk-register updates and risk-register-local `### Change Notes` deprecation. |
+| [docs/assets/templates/prd-risk-register.md](../../../../.make-docs/templates/system/prd-risk-register.md) | Template updated with item-level state table, closeout fields, stable item IDs, and the never-renumber rule. |
+| [packages/docs/template/docs](../../../../packages/docs/template/docs) | Shipped template copies aligned with the dogfood contract. |
+| [packages/skills](../../../../packages/skills) | Closeout and decompose-codebase skill assets updated for the living-register contract. |
+| [packages/cli/tests](../../../../packages/cli/tests) | Focused tests updated for router and risk-register contract expectations. |
 
 ### Developer
 

@@ -26,7 +26,7 @@ Completed W10 R1 Phase 4 by running aggregate validation across the wave, record
 
 | Path | Description |
 | --- | --- |
-| [../../work/2026-06-23-w10-r1-package-and-deployment-boundaries/04-closeout-and-risk-validation.md](../../work/2026-06-23-w10-r1-package-and-deployment-boundaries/04-closeout-and-risk-validation.md) | Marked Phase 4 tasks complete and recorded aggregate validation, final UAT, risk, and release-boundary decisions. |
+| [../../../work/2026-06-23-w10-r1-package-and-deployment-boundaries/04-closeout-and-risk-validation.md](../../../work/2026-06-23-w10-r1-package-and-deployment-boundaries/04-closeout-and-risk-validation.md) | Marked Phase 4 tasks complete and recorded aggregate validation, final UAT, risk, and release-boundary decisions. |
 
 ### Developer
 
