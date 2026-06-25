@@ -44,8 +44,11 @@ Local CLI development reads the sibling template first, so template edits are vi
 Re-seed only template-owned files from `packages/docs/template/` back into repo-root `docs/`:
 
 - router files under `docs/`, `docs/assets/`, and capability directories
-- `docs/assets/references/*.md`
-- `docs/assets/templates/*.md`
+- system contracts under `.make-docs/contracts/system/*.md`
+- system references and prompt starters under `.make-docs/references/system/**`
+- system templates under `.make-docs/templates/system/*.md`
+- selected system helper scripts under `.make-docs/scripts/**`
+- managed project-asset routers under `docs/assets/{archive,artifacts,library,playbooks}/`
 
 Do not overwrite authored project docs such as:
 
@@ -53,7 +56,11 @@ Do not overwrite authored project docs such as:
 - `docs/plans/`
 - `docs/prd/`
 - `docs/work/`
-- developer or user guide bodies unless the guide itself is the intended output of your task
+- `docs/assets/library/**` guide bodies unless the guide itself is the intended output of your task
+- `docs/assets/playbooks/**` playbook bodies unless the playbook itself is the intended output of your task
+- `docs/assets/archive/history/**` closeout records
+- `docs/assets/artifacts/**` seed or review material
+- local overlays and project config
 
 ## Standard Re-seed Workflow
 
@@ -76,6 +83,7 @@ node scripts/smoke-pack.mjs
 | Change type | Primary workflow |
 | --- | --- |
 | router or docs-resource wording | template edit -> selective re-seed -> router check |
+| contract, reference, prompt, template, or system helper wording | template edit under `.make-docs/**` -> selective re-seed -> targeted diff and validation |
 | generated asset or profile behavior | template or CLI edit -> `validate:defaults` -> smoke-pack |
 | installer/runtime-state behavior | CLI edit -> tests -> smoke-pack -> boundary review |
 | packaging-sensitive template changes | template edit -> re-seed -> `prepack` or smoke-pack validation |
@@ -85,7 +93,8 @@ For local build and entry-point commands, start with [Building and Installing th
 ## Maintainer Rules
 
 - Template first, dogfood second. Do not patch repo-root dogfood copies as if they were the source of truth for template-owned assets.
-- Keep the runtime-state boundary intact. Dogfood docs live under `docs/`; mutable installer state lives under `.make-docs/`.
+- Keep the runtime-state boundary intact. Dogfood docs live under `docs/`, system machinery lives under `.make-docs/{contracts,references,templates}/system/**` and `.make-docs/scripts/**`, and mutable installer state lives under `.make-docs/manifest.json` plus `.make-docs/conflicts/<run-id>/`.
+- Do not treat direct repo-root dogfood moves as proof of packaged V2 migration behavior. User/project Markdown tree moves need packaged CLI/shared-core migration logic before they can satisfy V2 migration acceptance.
 - Treat manual re-seeding as intentional review work, not an inconvenience to bypass. The manual step is how maintainers catch drift before release.
 - Keep roadmap strategy separate from this guide. This document is about current maintainer operations, not future-direction planning.
 

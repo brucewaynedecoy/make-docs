@@ -71,8 +71,9 @@ Only template-owned files are re-seeded — never project-specific content:
 - **Router files** — `AGENTS.md` / `CLAUDE.md` in `docs/`, `docs/assets/`, `docs/assets/archive/`, `docs/assets/artifacts/`, `docs/assets/library/`, `docs/assets/playbooks/`, and capability directories
 - **System reference files** — `.make-docs/contracts/system/*.md` and `.make-docs/references/system/*.md` (contracts, workflows, wave model)
 - **System template files** — `.make-docs/templates/system/*.md` (structural starters)
+- **System helper scripts** — selected files under `.make-docs/scripts/**`
 
-Project-specific content in `docs/` (designs, plans, work backlogs, guides, PRDs) is **never overwritten** by re-seeding — those are authored artifacts, not template deliverables.
+Project-specific content in `docs/` is **never overwritten** by re-seeding — those are authored artifacts, not template deliverables. That exclusion includes generated designs, plans, PRDs, work backlogs, local library guide bodies, local playbooks, archive history records, artifact review material, overlays, and project config unless a later accepted plan deliberately promotes a specific file into starter content.
 
 ### When to re-seed
 
@@ -102,7 +103,7 @@ diff packages/docs/template/.make-docs/contracts/system/guide-contract.md .make-
 There is no automated re-seed script — it is intentionally manual so contributors review what they are propagating. If the set of changed files is large, a bulk copy with verification works:
 
 ```bash
-# Bulk re-seed all routers and references (use with care)
+# Bulk re-seed all routers and system resources (use with care)
 for f in $(find packages/docs/template/docs -name 'AGENTS.md' -o -name 'CLAUDE.md'); do
   target="docs/${f#packages/docs/template/docs/}"
   cp "$f" "$target"
@@ -110,6 +111,7 @@ done
 cp packages/docs/template/.make-docs/contracts/system/*.md .make-docs/contracts/system/
 cp packages/docs/template/.make-docs/references/system/*.md .make-docs/references/system/
 cp packages/docs/template/.make-docs/templates/system/*.md .make-docs/templates/system/
+cp packages/docs/template/.make-docs/scripts/*.py .make-docs/scripts/
 ```
 
 ### Why not automate it?

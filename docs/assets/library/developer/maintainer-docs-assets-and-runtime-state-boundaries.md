@@ -23,7 +23,7 @@ related:
 
 ## Overview
 
-This guide explains the boundary maintainers need to preserve between shipped document resources and mutable installer state. The short version is stable: `docs/assets/**` is part of the docs system that ships to consumers, while `.make-docs/**` is runtime state created and updated by installer runs.
+This guide explains the boundary maintainers need to preserve between shipped project documentation assets, shipped system machinery, and mutable installer state. The short version is stable: `docs/assets/**` is for people-and-agent-managed project documentation assets, `.make-docs/{contracts,references,templates}/system/**` plus `.make-docs/scripts/**` is for make-docs-owned system machinery, and mutable runtime state is limited to files such as `.make-docs/manifest.json` and `.make-docs/conflicts/<run-id>/`.
 
 That split matters in three places:
 
@@ -35,9 +35,10 @@ That split matters in three places:
 
 | Area | What belongs there | Examples |
 | --- | --- | --- |
-| `docs/assets/**` | Shipped document resources and history records | `docs/assets/references/`, `docs/assets/templates/`, `docs/assets/prompts/`, `docs/assets/archive/history/`, `docs/assets/library/` |
+| `docs/assets/**` | Managed project documentation assets and history records | `docs/assets/archive/history/`, `docs/assets/artifacts/`, `docs/assets/library/`, `docs/assets/playbooks/` |
 | visible docs directories | Authored or managed documentation content | `docs/designs/`, `docs/plans/`, `docs/prd/`, `docs/work/`, `docs/assets/library/` |
-| `.make-docs/**` | Mutable CLI runtime state | `.make-docs/manifest.json`, `.make-docs/conflicts/<run-id>/` |
+| `.make-docs/{contracts,references,templates}/system/**` and `.make-docs/scripts/**` | Shipped system machinery | `.make-docs/contracts/system/output-contract.md`, `.make-docs/references/system/lifecycle.md`, `.make-docs/references/system/prompts/`, `.make-docs/templates/system/`, `.make-docs/scripts/check_path_hygiene.py` |
+| mutable `.make-docs/**` state | CLI runtime state | `.make-docs/manifest.json`, `.make-docs/conflicts/<run-id>/` |
 
 `docs/assets/archive/history/` is part of the shipped docs resource namespace when history records exist. It is not installer state just because it records work history. The runtime state boundary begins at root `.make-docs/`, not inside `docs/`.
 
@@ -47,8 +48,9 @@ Older W9 migration material and intermediate plans described a future where mani
 
 Current truth is:
 
-- document resources and history live under `docs/assets/**`
-- runtime manifest and conflict staging live under `.make-docs/**`
+- managed project documentation assets and history live under `docs/assets/{archive,artifacts,library,playbooks}/**`
+- make-docs-owned system resources live under `.make-docs/{contracts,references,templates}/system/**` and `.make-docs/scripts/**`
+- runtime manifest and conflict staging live under mutable `.make-docs/**` state paths
 - maintainers should treat older `docs/.references`, `docs/.templates`, `docs/.assets`, and `docs/assets/config/*` references as historical lineage only
 
 Do not rewrite guides to erase that mismatch. The mismatch is part of the maintainer story because it explains why some historical artifacts point at paths that the live CLI no longer writes.
@@ -57,10 +59,11 @@ Do not rewrite guides to erase that mismatch. The mismatch is part of the mainta
 
 Follow these ownership rules when touching paths near the boundary:
 
-1. Edit shipped resource contracts, templates, and routers in `packages/docs/template/` first.
-2. Treat repo-root `docs/assets/**` as the dogfood copy of those template-owned resources.
-3. Treat `.make-docs/**` as installer output owned by apply, sync, backup, and uninstall behavior.
-4. Do not move manifest or conflict files into `docs/` to make the tree look tidier. That would collapse authored docs and mutable runtime state back into one namespace.
+1. Edit shipped contracts, references, prompts, templates, helper scripts, and routers in `packages/docs/template/` first.
+2. Treat repo-root `docs/assets/**`, `.make-docs/{contracts,references,templates}/system/**`, and `.make-docs/scripts/**` as dogfood copies only when those files are template-owned.
+3. Treat generated designs, plans, PRDs, work backlogs, local library docs, local playbooks, artifact review content, archive history records, overlays, and project config as project-owned records unless a later accepted plan explicitly promotes a file as starter content.
+4. Treat `.make-docs/manifest.json` and `.make-docs/conflicts/<run-id>/` as installer output owned by apply, sync, backup, and uninstall behavior.
+5. Do not move manifest or conflict files into `docs/` to make the tree look tidier. That would collapse authored docs and mutable runtime state back into one namespace.
 
 ## Planner and Apply Semantics
 

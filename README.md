@@ -26,26 +26,29 @@ The npm package boundary is narrower than the repository layout. The packed `@br
 Consumers of `make-docs` receive the following structure in their project root:
 
 ```
+.make-docs/           # System machinery plus runtime state
+  contracts/system/   # Normative contracts used by agents and workflows
+  references/system/  # Workflow references and reusable prompt starters
+  templates/system/   # Structural starters for generated docs
+  scripts/            # Packaged helper scripts when selected
 docs/
-  assets/             # Document resources used by the docs system
+  assets/             # People-and-agent-managed project documentation assets
     archive/          # Explicitly archived docs artifacts
-    history/          # Session history records
-    prompts/          # Reusable prompt starters for common documentation workflows
-    references/       # Normative rules: output contracts, workflows, capability matrix
-    templates/        # Reusable document templates for PRDs, plans, and backlogs
+      history/        # Session history records, created on demand
+    artifacts/        # Optional pre-design input material
+    library/          # Persona-based guide documentation
+    playbooks/        # Persona-based procedural docs
   designs/            # Architectural decisions and design rationale (ADRs)
-  guides/             # User and developer guides
   plans/              # Approach and strategy documents (created before execution)
   prd/                # Product requirement documents (descriptive: what the product is)
   work/               # Work backlogs and task lists (prescriptive: what to do)
-.make-docs/           # CLI runtime state created by installer runs
 CLAUDE.md             # Root agent instructions
 AGENTS.md             # Root agent instructions (multi-agent compatible)
 ```
 
 Each directory includes its own `CLAUDE.md` and `AGENTS.md` files with context-specific instructions for AI agents generating documentation within that directory.
 
-The support resource namespace under `docs/assets/` contains document resources only: archive records, optional pre-design artifacts, persona library guides, playbooks, reusable prompts, references, and templates. Mutable CLI runtime state lives outside `docs/` under root `.make-docs/`.
+The `docs/assets/` namespace contains project documentation assets only: archive records, optional pre-design artifacts, persona library guides, and playbooks. Make Docs system machinery lives under `.make-docs/{contracts,references,templates}/system/**` and `.make-docs/scripts/**`, with reusable prompt starters under `.make-docs/references/system/prompts/**`. Mutable CLI runtime state also lives outside `docs/` under root `.make-docs/`, especially `.make-docs/manifest.json` and `.make-docs/conflicts/<run-id>/`.
 
 ## Guide Discovery
 
@@ -210,9 +213,10 @@ Additional subsystem documents (`05-*` through `99-*`) are added as needed for f
 
 ## Customization
 
-- **Prompt templates** (`docs/assets/prompts/`) -- Add or refine reusable prompts for common documentation workflows and handoff tasks.
-- **Templates** (`docs/assets/templates/`) -- Modify these to change the structure of generated documents.
-- **Output contract** (`docs/assets/references/output-contract.md`) -- Adjust naming conventions, required sections, and structural rules.
+- **Prompt starters** (`.make-docs/references/system/prompts/`) -- Add or refine reusable prompts for common documentation workflows and handoff tasks.
+- **Templates** (`.make-docs/templates/system/`) -- Modify these to change the structure of generated documents.
+- **Contracts and references** (`.make-docs/contracts/system/` and `.make-docs/references/system/`) -- Adjust naming conventions, required sections, lifecycle rules, and structural guidance.
+- **Library and playbooks** (`docs/assets/library/` and `docs/assets/playbooks/`) -- Maintain persona-scoped reader-facing guides and procedural docs.
 - **Agent instructions** (`CLAUDE.md`, `AGENTS.md`, and per-directory variants) -- Tailor agent behavior to your team's conventions.
 
 If you used the installer, rerun `npx @brucewaynedecoy/make-docs@next reconfigure` after changing which capability families you want managed locally. The installer will regenerate profile-aware router files so they stay aligned with the directories you keep.

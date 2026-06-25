@@ -28,7 +28,7 @@ related:
 This guide explains the current maintainer boundary between:
 
 - template-owned files in `packages/docs/template/`
-- rule-selected managed assets in installed `docs/**`
+- rule-selected managed assets in installed `docs/**` and `.make-docs/**`
 - generated router files and reduced-profile fallbacks rendered by the CLI
 
 The important current-state rule is that the installed docs surface is not a blind copy of the template tree. `packages/cli/src/rules.ts`, `packages/cli/src/catalog.ts`, and `packages/cli/src/renderers.ts` select a profile-valid subset, then render only the narrow set of paths that must change with profile shape.
@@ -39,15 +39,16 @@ Template ownership starts in `packages/docs/template/`.
 
 - `packages/docs/template/.make-docs/contracts/system/*.md` and `packages/docs/template/.make-docs/references/system/*.md` hold authoritative workflow and contract files
 - `packages/docs/template/.make-docs/templates/system/*.md` holds structural starters
-- `packages/docs/template/docs/assets/library/` and `packages/docs/template/docs/assets/playbooks/` hold the reader-facing library and playbook namespace routers
+- `packages/docs/template/.make-docs/scripts/**` holds selected helper scripts when shipped
+- `packages/docs/template/docs/assets/{archive,artifacts,library,playbooks}/` holds the managed project-asset namespace routers
 - `packages/docs/template/AGENTS.md` and the per-directory router files define authoring routes inside the shipped tree
 
 `packages/docs/README.md` is explicit about ownership:
 
 - edit the template package first
 - the repo-root `docs/` tree is only a dogfood copy
-- re-seeding copies template-owned routers, references, and templates back into repo-root `docs/`
-- authored guides, plans, PRDs, work backlogs, and designs are not template-owned re-seed targets
+- re-seeding copies template-owned routers, system contracts, references, prompt starters, templates, and selected helper scripts back into the repo-root dogfood copy
+- generated designs, plans, PRDs, work backlogs, local guide bodies, local playbooks, archive history records, artifact review content, overlays, and project config are not template-owned re-seed targets unless a later accepted plan deliberately promotes a file into starter content
 
 ## Asset Selection Boundaries
 
