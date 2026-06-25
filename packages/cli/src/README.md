@@ -176,30 +176,30 @@ npm run smoke:pack
 
 ## Packaging And Release
 
-The package is published from `packages/cli/` as `@brucewaynedecoy/make-docs` and includes only the entries listed in [`package.json`](../package.json): `dist`, `template`, registry files, and the package README.
+The package is published from `packages/cli/` as `@brucewaynedecoy/make-docs`. The package allowlist in [`package.json`](../package.json) ships `dist`, `template`, `skill-registry.json`, `skill-registry.schema.json`, and the package README; npm also includes package metadata and license files. Repo-root `docs/`, root `AGENTS.md`, root `CLAUDE.md`, source workspaces, scripts, and scratch planning material are not tarball-root package contents.
 
-Recommended release checklist:
+Recommended release-validation checklist:
 
 1. Update the version.
 2. Run `npm test`.
 3. Run `npm run build`.
 4. Run `npm run smoke:pack`.
 5. Run one real `npm exec --package "./<tarball>"` install test.
-6. Inspect the tarball contents with `npm pack --json` if you changed packaging inputs.
-7. Publish with `npm publish --access public --tag next`.
+6. Inspect the tarball contents with `npm pack --dry-run --json --ignore-scripts` if you changed packaging inputs.
+7. Validate registry metadata with `npm publish --dry-run --access public --tag next`.
 
-Example release flow:
+Example dry-run validation flow:
 
 ```bash
 npm version patch
 npm test
 npm run build
 npm run smoke:pack
-npm pack --json
-npm publish --access public --tag next
+npm pack --dry-run --json --ignore-scripts
+npm publish --dry-run --access public --tag next
 ```
 
-The package is scoped, so public publishes must include `--access public`.
+The package is scoped, so public publish validation and any separately authorized real publish must include `--access public`. Do not perform a real publish, registry reservation, tag, or promotion unless that irreversible action is explicitly authorized.
 
 ## Notes For Contributors
 

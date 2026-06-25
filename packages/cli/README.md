@@ -42,6 +42,10 @@ npx @brucewaynedecoy/make-docs@next skills
 
 Use the scoped npm package name for `npx` lookup and installation. The executable exposed by that package is still `make-docs`; future package distributions must expose the same command, and if multiple implementations are installed, shell `PATH` order decides which one runs.
 
+## Package Contents
+
+The published npm tarball contains npm metadata and license files, this README, built CLI output under `dist/`, the bundled `template/`, `skill-registry.json`, and `skill-registry.schema.json`. Repo-root `docs/`, root `AGENTS.md`, root `CLAUDE.md`, source workspaces, scripts, and scratch planning material are not shipped as tarball-root package contents.
+
 ## What Gets Installed
 
 The default profile can create:
