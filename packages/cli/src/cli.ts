@@ -1,7 +1,13 @@
+import { existsSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { stdin as input, stdout as output } from "node:process";
 import { confirm, isCancel, note } from "@clack/prompts";
 import { runBackupCommand } from "./backup";
+import {
+  classifyCompatibilityState,
+  formatCompatibilityClassification,
+  type CompatibilityClassification,
+} from "./compatibility";
 import {
   applyInstallPlan,
   findReviewableManagedFileConflicts,
@@ -122,16 +128,37 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
     return;
   }
 
-  const existingManifest = loadManifest(targetDir);
   const installIntent = inferInstallIntent(parsed);
+  const compatibilityClassification = await classifyCompatibilityState({
+    targetDir,
+  });
+  const existingManifest = compatibilityClassification.evidence.manifestTrust.parseable
+    ? loadManifest(targetDir)
+    : null;
+  const freshInstallTarget = isFreshInstallTarget({
+    targetDir,
+    existingManifest,
+    installIntent,
+    classification: compatibilityClassification,
+  });
 
-  if (installIntent === "reconfigure" && !existingManifest) {
+  if (
+    installIntent === "reconfigure" &&
+    !existingManifest &&
+    !compatibilityClassification.evidence.manifestTrust.present
+  ) {
     throw new Error(
       "No make-docs manifest was found in the target directory. Run `make-docs` first.",
     );
   }
 
   const interactive = !parsed.yes;
+  guardCompatibilityDisposition({
+    classification: compatibilityClassification,
+    interactive,
+    freshInstallTarget,
+  });
+
   if (!interactive && installIntent === "reconfigure" && !hasSelectionOverrides(parsed)) {
     throw new Error(
       "`make-docs reconfigure --yes` requires at least one selection flag. Provide selection flags or run `make-docs reconfigure` interactively.",
@@ -223,6 +250,7 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
     packageVersion: plan.packageVersion,
     selectionSource,
     targetDir,
+    compatibilityClassification: freshInstallTarget ? null : compatibilityClassification,
   });
 
   if (parsed.dryRun) {
@@ -236,6 +264,9 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
       [
         "Non-interactive make-docs runs cannot apply unresolved managed-file diffs.",
         "Run `make-docs` without `--yes` to review the conflicts interactively.",
+        "",
+        ...buildCompatibilitySummaryLines(compatibilityClassification),
+        "",
         "Conflicting managed files:",
         ...unresolvedManagedFileConflicts.map(
           (conflict) => `- ${conflict.relativePath}`,
@@ -703,6 +734,7 @@ function printPlan(options: {
   packageVersion: string;
   selectionSource: string;
   targetDir: string;
+  compatibilityClassification: CompatibilityClassification | null;
 }): void {
   const {
     actions,
@@ -713,6 +745,7 @@ function printPlan(options: {
     packageVersion,
     selectionSource,
     targetDir,
+    compatibilityClassification,
   } = options;
   const nonNoop = actions.filter((action) => action.type !== "noop");
   const renderedActions = getRenderedActions(actions);
@@ -732,6 +765,12 @@ function printPlan(options: {
         ? `Installed version: ${existingManifest.packageVersion}`
         : "Installed version: none detected",
       `Package version: ${packageName} ${packageVersion}`,
+      ...(compatibilityClassification
+        ? [
+            `Compatibility state: ${compatibilityClassification.state}`,
+            `Disposition: ${compatibilityClassification.disposition}`,
+          ]
+        : []),
       `Selection source: ${selectionSource}`,
       `Managed files evaluated: ${actions.length}`,
       `Already current: ${noopCount}`,
@@ -774,6 +813,150 @@ function describeApplyMode(options: {
   }
 
   return options.existingManifest ? "existing install sync" : "first install";
+}
+
+function isFreshInstallTarget(options: {
+  targetDir: string;
+  existingManifest: InstallManifest | null;
+  installIntent: InstallIntent;
+  classification: CompatibilityClassification;
+}): boolean {
+  if (options.installIntent !== "apply" || options.existingManifest) {
+    return false;
+  }
+
+  if (!existsSync(options.targetDir)) {
+    return true;
+  }
+
+  if (readdirSync(options.targetDir).length === 0) {
+    return true;
+  }
+
+  const filesystemTrust = options.classification.evidence.filesystemTrust;
+  return (
+    options.classification.state === "unknown-shape" &&
+    filesystemTrust.recognizableManagedPaths.length === 0 &&
+    filesystemTrust.ambiguousFallbackPaths.length === 0 &&
+    filesystemTrust.nonMakeDocsPathCollisions.length === 0
+  );
+}
+
+function guardCompatibilityDisposition(options: {
+  classification: CompatibilityClassification;
+  interactive: boolean;
+  freshInstallTarget: boolean;
+}): void {
+  const { classification, interactive, freshInstallTarget } = options;
+  if (freshInstallTarget) {
+    return;
+  }
+
+  if (hasUnreviewedOwnershipAmbiguity(classification)) {
+    throw new Error(
+      buildCompatibilityError(
+        "make-docs cannot sync this target until ownership ambiguity is reviewed.",
+        classification,
+        [
+          "Run `make-docs` interactively if the files are reviewable, or back up the target and reinstall into a clean tree.",
+        ],
+      ),
+    );
+  }
+
+  switch (classification.disposition) {
+    case "sync":
+      return;
+    case "migrate":
+      if (classification.state === "clean-v1") {
+        return;
+      }
+      break;
+    case "migrate-with-review":
+      if (interactive) {
+        note(
+          buildCompatibilitySummaryLines(classification).join("\n"),
+          "Compatibility review required",
+        );
+      }
+      return;
+    case "backup-and-reinstall":
+      throw new Error(
+        buildCompatibilityError(
+          "This target requires an explicit backup-and-reinstall migration flow before make-docs can write changes.",
+          classification,
+          [
+            "Bare `make-docs` and `make-docs reconfigure` will not perform destructive backup-and-reinstall implicitly.",
+          ],
+        ),
+      );
+    case "manual-review-required":
+      throw new Error(
+        buildCompatibilityError(
+          "make-docs cannot classify this target safely enough to write changes.",
+          classification,
+          [
+            "Review the failed evidence below, create a manual backup if needed, or install into a clean tree.",
+          ],
+        ),
+      );
+    default: {
+      const exhaustiveCheck: never = classification.disposition;
+      throw new Error(`Unhandled compatibility disposition: ${exhaustiveCheck}`);
+    }
+  }
+
+  throw new Error(
+    buildCompatibilityError(
+      "make-docs cannot migrate this target because the classified state is not a clean trusted v1 install.",
+      classification,
+      ["Review the classification evidence before changing the target."],
+    ),
+  );
+}
+
+function hasUnreviewedOwnershipAmbiguity(
+  classification: CompatibilityClassification,
+): boolean {
+  return (
+    classification.disposition === "sync" &&
+    (classification.evidence.filesystemTrust.ambiguousFallbackPaths.length > 0 ||
+      classification.evidence.filesystemTrust.nonMakeDocsPathCollisions.length > 0)
+  );
+}
+
+function buildCompatibilityError(
+  headline: string,
+  classification: CompatibilityClassification,
+  nextSteps: string[],
+): string {
+  return [
+    headline,
+    "",
+    ...buildCompatibilitySummaryLines(classification),
+    "",
+    "Next steps:",
+    ...nextSteps.map((step) => `- ${step}`),
+  ].join("\n");
+}
+
+function buildCompatibilitySummaryLines(
+  classification: CompatibilityClassification,
+): string[] {
+  const auditReport = classification.auditReport;
+  return [
+    `Compatibility state: ${classification.state}`,
+    `Disposition: ${classification.disposition}`,
+    ...(auditReport
+      ? [
+          `Audit removable files: ${auditReport.removableFiles.length}`,
+          `Audit preserved paths: ${auditReport.preservedPaths.length}`,
+          `Audit skipped paths: ${auditReport.skippedPaths.length}`,
+        ]
+      : ["Audit summary: unavailable"]),
+    "Evidence:",
+    ...formatCompatibilityClassification(classification).map((line) => `- ${line}`),
+  ];
 }
 
 function renderNoopExplanation(options: {

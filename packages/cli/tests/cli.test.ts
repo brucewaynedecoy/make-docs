@@ -7,6 +7,10 @@ import { loadManifest } from "../src/manifest";
 import { renderManagedBlock } from "../src/managed-block";
 import { defaultSelections } from "../src/profile";
 import { createTempDir, cleanupTempDir, mockSkillFetches } from "./helpers";
+import {
+  COMPATIBILITY_FIXTURE_CASES,
+  createCompatibilityFixture,
+} from "./compatibility-fixtures";
 
 const runSelectionWizardMock = vi.fn();
 const promptForManagedFileConflictResolutionsMock = vi.fn();
@@ -123,6 +127,15 @@ function writeConflictingRootInstruction(targetDir: string) {
     "AGENTS.md",
     `${renderManagedBlock("- Locally edited make-docs routing.\n")}\n`,
   );
+}
+
+function getCompatibilityFixtureCase(id: string) {
+  const fixtureCase = COMPATIBILITY_FIXTURE_CASES.find((entry) => entry.id === id);
+  if (!fixtureCase) {
+    throw new Error(`Missing compatibility fixture case: ${id}`);
+  }
+
+  return fixtureCase;
 }
 
 async function captureCliOutput(argv: string[]): Promise<string> {
@@ -308,6 +321,109 @@ describe("cli interactive flows", () => {
     }
   });
 
+  test("allows clean v1 migration and records the compatibility disposition", async () => {
+    const fixture = await createCompatibilityFixture(getCompatibilityFixtureCase("clean-v1"));
+
+    try {
+      setTTY(false);
+
+      const output = await captureCliOutput(["--yes", "--target", fixture.targetDir]);
+
+      expect(output).toContain("Compatibility state: clean-v1");
+      expect(output).toContain("Disposition: migrate");
+      expect(loadManifest(fixture.targetDir)?.schemaVersion).toBe(2);
+    } finally {
+      cleanupTempDir(fixture.targetDir);
+    }
+  });
+
+  test("allows first install into non-empty projects without make-docs ownership evidence", async () => {
+    const targetDir = createTempDir();
+
+    try {
+      writeFileSync(path.join(targetDir, "README.md"), "# Existing project\n");
+      setTTY(false);
+
+      const output = await captureCliOutput(["--yes", "--target", targetDir]);
+
+      expect(output).toContain("Mode: first install");
+      expect(output).not.toContain("Compatibility state:");
+      expect(readFileSync(path.join(targetDir, "README.md"), "utf8")).toBe(
+        "# Existing project\n",
+      );
+      expect(loadManifest(targetDir)?.schemaVersion).toBe(2);
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("fails non-interactive reviewable migration before writing changes", async () => {
+    const fixture = await createCompatibilityFixture(getCompatibilityFixtureCase("modified-v1"));
+    const modifiedPath = path.join(fixture.targetDir, "docs/AGENTS.md");
+
+    try {
+      setTTY(false);
+
+      const error = await captureCliError(["--yes", "--target", fixture.targetDir]);
+
+      expect(error.message).toContain(
+        "Non-interactive make-docs runs cannot apply unresolved managed-file diffs.",
+      );
+      expect(error.message).toContain("Compatibility state: modified-v1");
+      expect(error.message).toContain("Disposition: migrate-with-review");
+      expect(error.message).toContain("filesystem:");
+      expect(readFileSync(modifiedPath, "utf8")).toBe("user modified managed file\n");
+    } finally {
+      cleanupTempDir(fixture.targetDir);
+    }
+  });
+
+  test("blocks backup-and-reinstall disposition from ordinary apply", async () => {
+    const fixture = await createCompatibilityFixture(
+      getCompatibilityFixtureCase("malformed-manifest"),
+    );
+    const manifestPath = path.join(fixture.targetDir, ".make-docs/manifest.json");
+
+    try {
+      setTTY(false);
+
+      const error = await captureCliError(["--yes", "--target", fixture.targetDir]);
+
+      expect(error.message).toContain(
+        "requires an explicit backup-and-reinstall migration flow",
+      );
+      expect(error.message).toContain("Compatibility state: malformed-manifest");
+      expect(error.message).toContain("Disposition: backup-and-reinstall");
+      expect(readFileSync(manifestPath, "utf8")).toBe("{ malformed\n");
+    } finally {
+      cleanupTempDir(fixture.targetDir);
+    }
+  });
+
+  test("blocks manual-review-required disposition for ambiguous first-install collisions", async () => {
+    const fixture = await createCompatibilityFixture(getCompatibilityFixtureCase("unknown-shape"));
+    const notesPath = path.join(fixture.targetDir, "notes/project.md");
+    const collisionPath = path.join(fixture.targetDir, "AGENTS.md");
+
+    try {
+      writeFileSync(collisionPath, "existing agent instructions\n");
+      setTTY(false);
+
+      const error = await captureCliError(["--yes", "--target", fixture.targetDir]);
+
+      expect(error.message).toContain(
+        "make-docs cannot classify this target safely enough to write changes.",
+      );
+      expect(error.message).toContain("Compatibility state: unknown-shape");
+      expect(error.message).toContain("Disposition: manual-review-required");
+      expect(readFileSync(notesPath, "utf8")).toBe("# User notes\n");
+      expect(readFileSync(collisionPath, "utf8")).toBe("existing agent instructions\n");
+      expect(loadManifest(fixture.targetDir)).toBeNull();
+    } finally {
+      cleanupTempDir(fixture.targetDir);
+    }
+  });
+
   test("syncs saved selections on a bare non-interactive apply", async () => {
     const targetDir = createTempDir();
 
@@ -409,7 +525,7 @@ describe("cli interactive flows", () => {
     }
   });
 
-  test("cancels interactive apply with multiple managed file conflicts before applying", async () => {
+  test("blocks ambiguous missing-manifest conflicts before applying", async () => {
     const targetDir = createTempDir();
 
     try {
@@ -427,19 +543,14 @@ describe("cli interactive flows", () => {
       runSelectionWizardMock.mockResolvedValue(defaultSelections());
       promptForManagedFileConflictResolutionsMock.mockResolvedValue(null);
 
-      const output = await captureCliOutput(["--target", targetDir]);
+      const error = await captureCliError(["--target", targetDir]);
 
-      expect(output).toContain("Installer cancelled.");
-      expect(promptForManagedFileConflictResolutionsMock).toHaveBeenCalledTimes(1);
-      expect(
-        promptForManagedFileConflictResolutionsMock.mock.calls[0]?.[0].map(
-          (conflict: { relativePath: string }) => conflict.relativePath,
-        ),
-      ).toEqual([
-        "AGENTS.md",
-        "docs/assets/references/guide-contract.md",
-        "docs/assets/templates/guide-user.md",
-      ]);
+      expect(error.message).toContain(
+        "requires an explicit backup-and-reinstall migration flow",
+      );
+      expect(error.message).toContain("Compatibility state: missing-manifest-recognizable");
+      expect(error.message).toContain("Disposition: backup-and-reinstall");
+      expect(promptForManagedFileConflictResolutionsMock).not.toHaveBeenCalled();
       expect(readFileSync(path.join(targetDir, "AGENTS.md"), "utf8")).toBe(
         `${renderManagedBlock("- Locally edited make-docs routing.\n")}\n`,
       );
@@ -451,13 +562,12 @@ describe("cli interactive flows", () => {
       ).toBe("custom guide template\n");
       expect(existsSync(path.join(targetDir, ".make-docs/manifest.json"))).toBe(false);
       expect(listConflictFiles(targetDir)).toEqual([]);
-      expect(output).not.toContain("Installed make-docs");
     } finally {
       cleanupTempDir(targetDir);
     }
   });
 
-  test("fails non-interactive apply with unresolved managed file conflicts before writing outputs", async () => {
+  test("fails non-interactive ambiguous missing-manifest conflicts before writing outputs", async () => {
     const targetDir = createTempDir();
 
     try {
@@ -476,12 +586,10 @@ describe("cli interactive flows", () => {
 
       expect(promptForManagedFileConflictResolutionsMock).not.toHaveBeenCalled();
       expect(error.message).toContain(
-        "Non-interactive make-docs runs cannot apply unresolved managed-file diffs.",
+        "requires an explicit backup-and-reinstall migration flow",
       );
-      expect(error.message).toContain("Conflicting managed files:");
-      expect(error.message).toContain("- AGENTS.md");
-      expect(error.message).toContain("- docs/assets/references/guide-contract.md");
-      expect(error.message).toContain("- docs/assets/templates/guide-user.md");
+      expect(error.message).toContain("Compatibility state: missing-manifest-recognizable");
+      expect(error.message).toContain("Disposition: backup-and-reinstall");
       expect(readFileSync(path.join(targetDir, "AGENTS.md"), "utf8")).toBe(
         `${renderManagedBlock("- Locally edited make-docs routing.\n")}\n`,
       );
