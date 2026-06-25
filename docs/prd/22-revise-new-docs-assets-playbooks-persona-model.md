@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Define the v2 reader-facing documentation asset model for guides and playbooks, decide how that model relates to archive storage, and define the persona schema that guide and playbook coverage can rely on.
+Define the v2 managed project documentation asset model for archive, artifact, breadcrumb, guide, and playbook surfaces, and define the persona schema that guide and playbook coverage can rely on.
 
 ## Change Type
 
@@ -15,7 +15,9 @@ Define the v2 reader-facing documentation asset model for guides and playbooks, 
 
 ## Change Notes
 
-This PRD extends PRD 21's `.make-docs/**` tool-resource boundary by assigning `docs/assets/**` to reader-facing reusable documentation assets only. It revises older guide, playbook, archive, and docs-assets assumptions without changing source files in this planning round.
+This PRD extends PRD 21's `.make-docs/**` tool-resource boundary by assigning `docs/assets/**` to managed project documentation assets. It revises older guide, playbook, archive, artifact, breadcrumb, and docs-assets assumptions without changing source files in this planning round.
+
+W9 R4 narrows that sentence: `docs/assets/**` now owns managed project documentation assets, not only reader-facing assets. Its v2 asset families are `archive`, `artifacts`, `breadcrumbs`, `guides`, and `playbooks`. Top-level `docs/artifacts/**` and top-level `docs/archive/**` are hard moves, not shipped alias surfaces.
 
 [23-revise-generated-metadata-lifecycle-handoffs.md](23-revise-generated-metadata-lifecycle-handoffs.md) builds on this PRD by using `persona` as the canonical frontmatter field for generated persona-scoped guides and playbooks. PRD 23 does not rename or reopen the persona schema defined here.
 
@@ -27,13 +29,19 @@ This PRD extends PRD 21's `.make-docs/**` tool-resource boundary by assigning `d
 
 ## Requirements
 
-### Reader-Facing Asset Namespace
+### Managed Project Asset Namespace
 
-The canonical v2 reader-facing asset tree is:
+The canonical v2 managed project documentation asset tree is:
 
 ```text
 docs/
   assets/
+    archive/
+      AGENTS.md
+    artifacts/
+      AGENTS.md
+    breadcrumbs/
+      AGENTS.md
     guides/
       AGENTS.md
       <persona-slug>/
@@ -44,9 +52,9 @@ docs/
         <playbook-slug>.md
 ```
 
-`docs/assets/guides/**` is for explanatory, conceptual, operational, or reference material written for a configured persona. `docs/assets/playbooks/**` is for persona-scoped repeatable process definitions. A playbook is content; it may be consumed by future execution tooling, but storage under `docs/assets/playbooks/**` does not make it a plugin or command.
+`docs/assets/archive/**` is managed archive storage. `docs/assets/artifacts/**` is optional zero-contract pre-design input material and is not created by default. `docs/assets/breadcrumbs/**` is the future history breadcrumb surface. `docs/assets/guides/**` is for explanatory, conceptual, operational, or reference material written for a configured persona. `docs/assets/playbooks/**` is for persona-scoped repeatable process definitions. A playbook is content; it may be consumed by future execution tooling, but storage under `docs/assets/playbooks/**` does not make it a plugin or command.
 
-`docs/assets/**` is not a general dumping ground for make-docs tool resources, runtime state, archive storage, or generated planning artifacts.
+`docs/assets/**` is not a general dumping ground for make-docs tool resources, runtime state, or generated planning artifacts.
 
 ### Current-to-Target Mappings
 
@@ -54,11 +62,12 @@ Future implementation must migrate or classify these surfaces deliberately:
 
 | Current surface | Target surface | Requirement |
 | --- | --- | --- |
+| `docs/artifacts/**` | `docs/assets/artifacts/**` | Hard move; do not preserve top-level `docs/artifacts/**` as a shipped alias. |
 | `docs/guides/**` | `docs/assets/guides/**` | Preserve guide intent, router behavior, and persona targeting. |
 | `docs/library/playbooks/**` | `docs/assets/playbooks/**` | Treat W16 placement as transitional and preserve lineage. |
-| `docs/assets/archive/**` | `docs/archive/**` | Treat archive as lifecycle storage, not reader-facing reusable asset content. |
-| `docs/assets/history/**` | follow-on lifecycle storage decision | Do not silently leave history inside reader-facing docs assets as the final state. |
-| `docs/assets/{prompts,references,templates}/**` | `.make-docs/{prompts,references,templates}/system/**` or a later equivalent | Governed by PRD 21 tool-resource requirements, not by this reader-facing asset model. |
+| `docs/assets/archive/**` | `docs/assets/archive/**` | Keep archive under `docs/assets/**`; do not move archive storage to top-level `docs/archive/**`. |
+| `docs/assets/history/**` | `docs/assets/breadcrumbs/**` | Use `history` as current-state evidence until migration; future breadcrumbs target `breadcrumbs`. |
+| `docs/assets/{prompts,references,templates}/**` | `.make-docs/{contracts,references,templates,scripts}/system/**` or a later equivalent | Governed by PRD 21 tool-resource requirements, not by this project-asset model. |
 
 ### Persona Schema
 
@@ -119,7 +128,7 @@ Implementation must audit and update duplicated path knowledge across CLI source
 - This PRD does not implement the file migration.
 - This PRD does not define plugin behavior. [29-revise-playbook-contract-run-playbook.md](29-revise-playbook-contract-run-playbook.md) defines the generic Run Playbook model.
 - This PRD does not make adversarial review a persona-scoped asset by default. [31-revise-coverage-pass-extensions-adversarial-review.md](31-revise-coverage-pass-extensions-adversarial-review.md) owns the optional adversarial-review candidate contract.
-- This PRD does not decide final history-record storage.
+- This PRD does not migrate existing `docs/assets/history/**` files; it does decide that future breadcrumb storage targets `docs/assets/breadcrumbs/**`.
 - This PRD does not move tool resources back into `docs/assets/**`.
 - This PRD does not change the local bootstrap or materialization mode contracts from PRD 17 and PRD 21.
 
@@ -139,7 +148,7 @@ Implementation must audit and update duplicated path knowledge across CLI source
 ## Acceptance Criteria
 
 - The active PRD set makes `docs/assets/guides/**` and `docs/assets/playbooks/**` the future reader-facing asset targets.
-- The active PRD set records `docs/library/playbooks/**` as transitional and `docs/archive/**` as the future archive surface.
+- The active PRD set records `docs/library/playbooks/**` as transitional, `docs/assets/archive/**` as the future archive surface, `docs/assets/artifacts/**` as the optional input surface, and `docs/assets/breadcrumbs/**` as the future breadcrumb surface.
 - `Q-009` is closed or narrowed by the persona schema in this PRD.
 - `R-011`, `R-012`, and `R-013` cite this PRD for the settled persona, playbook/content, and migration target contracts.
 - Future implementation backlog tasks include template-first migration, dogfood reseeding, package-copy proof, path-hygiene checks, and persona validation fixtures.
@@ -147,8 +156,11 @@ Implementation must audit and update duplicated path knowledge across CLI source
 ## Source Anchors
 
 - [../designs/2026-06-19-new-docs-assets-playbooks-and-persona-model.md](../designs/2026-06-19-new-docs-assets-playbooks-and-persona-model.md)
+- [../designs/2026-06-25-v2-documentation-asset-ia-hard-move.md](../designs/2026-06-25-v2-documentation-asset-ia-hard-move.md)
 - [../plans/2026-06-23-w9-r3-new-docs-assets-playbooks-persona-model/00-overview.md](../plans/2026-06-23-w9-r3-new-docs-assets-playbooks-persona-model/00-overview.md)
+- [../plans/2026-06-25-w9-r4-v2-documentation-asset-ia-hard-move/00-overview.md](../plans/2026-06-25-w9-r4-v2-documentation-asset-ia-hard-move/00-overview.md)
 - [../work/2026-06-23-w9-r3-new-docs-assets-playbooks-persona-model/00-index.md](../work/2026-06-23-w9-r3-new-docs-assets-playbooks-persona-model/00-index.md)
+- [../work/2026-06-25-w9-r4-v2-documentation-asset-ia-hard-move/00-index.md](../work/2026-06-25-w9-r4-v2-documentation-asset-ia-hard-move/00-index.md)
 - [23 Revise Generated Metadata Lifecycle Handoffs](23-revise-generated-metadata-lifecycle-handoffs.md)
 - [24 Revise Configuration Convention Overlay](24-revise-configuration-convention-overlay.md)
 - [29 Revise Playbook Contract Run Playbook](29-revise-playbook-contract-run-playbook.md)

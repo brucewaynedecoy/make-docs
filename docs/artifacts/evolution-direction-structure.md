@@ -95,16 +95,25 @@
 └─ manifest.json
 
 docs/
-├─ designs/
-│  ├─ AGENTS.md
-│  └─ CLAUDE.md
-├─ library/
+├─ assets/
+│  ├─ archive/ # managed/template asset that ONLY gets created when docs (like designs, plans, work backlogs, etc.) are archived
+│  │  ├─ AGENTS.md
+│  │  └─ CLAUDE.md
+│  ├─ artifacts/ # managed/template asset (not created by default); an **optional, zero-contract** home for free-form, pre-design inputs.
+│  │  ├─ AGENTS.md
+│  │  └─ CLAUDE.md
+│  ├─ breadcrumbs/ # managed/template asset for saving and referencing history breadcrumbs (used to be `docs/assets/history/`)
+│  │  ├─ AGENTS.md
+│  │  └─ CLAUDE.md
 │  ├─ guides/
 │  │  ├─ AGENTS.md
 │  │  └─ CLAUDE.md
 │  ├─ playbooks/
 │  │  ├─ AGENTS.md
 │  │  └─ CLAUDE.md
+│  ├─ AGENTS.md
+│  └─ CLAUDE.md
+├─ designs/
 │  ├─ AGENTS.md
 │  └─ CLAUDE.md
 ├─ plans/
@@ -116,7 +125,6 @@ docs/
 └─ work/
    ├─ AGENTS.md
    └─ CLAUDE.md
-
 ```
 
 ## Example Manifest

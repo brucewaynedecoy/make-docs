@@ -4,7 +4,7 @@
 
 Define the v2 in-project tool directory model for make-docs-owned resources.
 
-This change decides which product-owned contracts, workflow references, templates, prompt starters, instruction routers, and deterministic helper surfaces belong under `.make-docs/`, how system and custom tiers interact, and how that local shape works with accepted materialization modes.
+This change decides which product-owned contracts, workflow references, templates, instruction routers, deterministic helper surfaces, and shared agentic payloads belong under `.make-docs/`, how system and custom tiers interact, and how that local shape works with accepted materialization modes.
 
 ## Change Type
 
@@ -42,9 +42,6 @@ Directory model:
   templates/
     system/
     custom/
-  prompts/
-    system/
-    custom/
   scripts/
     system/
     custom/
@@ -64,11 +61,12 @@ Runtime state:
 
 Tool resource families:
 
-- `contracts/`, `references/`, `templates/`, `prompts/`, and `scripts/` are tool resource families.
+- `contracts/`, `references/`, `templates/`, `scripts/`, and `agentics/` are tool resource families.
 - `system/` resources are make-docs-owned resources selected by installer profile or resolved through an approved provider/cache.
 - `custom/` resources are project-owned overrides, additions, and overlays.
 - Local edits to `system/` resources are conflicts or overlays, not silent upstream edits.
 - `custom/` resources must not be overwritten by install, reconfigure, provider refresh, or cache rehydration without explicit user-approved replacement.
+- Existing prompt-starter content must be reclassified during migration instead of preserving a separate future `.make-docs/prompts/**` family by default. Process guidance belongs under `.make-docs/references/**`; reusable document skeletons belong under `.make-docs/templates/**`; a later accepted design may reintroduce a prompt family only with explicit source, package, and router semantics.
 
 Materialization:
 
@@ -86,8 +84,8 @@ Bootstrap and routers:
 
 Migration:
 
-- Current template-owned `docs/assets/{prompts,references,templates}/` content migrates toward `.make-docs/{prompts,references,templates}/system/` only through a later implementation plan.
-- Future reader-facing docs assets such as guides and playbooks belong under `docs/assets/**`; [22-revise-new-docs-assets-playbooks-persona-model.md](./22-revise-new-docs-assets-playbooks-persona-model.md) narrows that target to `docs/assets/{guides,playbooks}/` and assigns archive storage to future `docs/archive/**`.
+- Current template-owned `docs/assets/{prompts,references,templates}/` content migrates toward `.make-docs/{contracts,references,templates,scripts}/system/` only through a later implementation plan that classifies each file by function instead of preserving the old directory names.
+- Future project documentation assets belong under `docs/assets/**`; [22-revise-new-docs-assets-playbooks-persona-model.md](./22-revise-new-docs-assets-playbooks-persona-model.md) defines `docs/assets/{archive,artifacts,breadcrumbs,guides,playbooks}/` as the v2 target and rejects top-level `docs/archive/**` and `docs/artifacts/**` as shipped v2 surfaces.
 - `agentics/skills` is the selected-skill shared payload home under PRD 28; `agentics/plugins` is the selected-plugin shared payload home under PRD 30.
 - [25-revise-cli-separation-and-mcp-boundary.md](./25-revise-cli-separation-and-mcp-boundary.md) constrains future `scripts/` and `agentics/` migration work: deterministic script-replacement logic must move into CLI/shared-core operations before MCP exposure, and skills/plugins must call that boundary instead of carrying independent filesystem or routing logic.
 - [26-revise-no-scripts-migration-skill-refactor.md](./26-revise-no-scripts-migration-skill-refactor.md) makes the `.make-docs/scripts/{system,custom}` split concrete for first-party helper migration: system wrappers may remain only as thin delegates after an equivalent CLI/shared-core operation exists, while custom scripts are not migrated unless a later accepted design includes them.
@@ -105,11 +103,11 @@ Migration:
 | `docs/prd/17-revise-system-asset-materialization-contract.md` | Applies materialization-mode rules to local/non-local system tool resources. |
 | `docs/prd/18-revise-compatibility-audit-and-migration-disposition.md` | Applies migration classification and conflict safety to tool-resource moves. |
 | `docs/prd/19-revise-template-package-dogfood-source-of-truth-contract.md` | Applies template/package/dogfood source-of-truth order to `.make-docs/**` defaults. |
-| `docs/prd/22-revise-new-docs-assets-playbooks-persona-model.md` | Complements this PRD by defining the reader-facing `docs/assets/{guides,playbooks}/` namespace and persona frontmatter contract. |
+| `docs/prd/22-revise-new-docs-assets-playbooks-persona-model.md` | Complements this PRD by defining `docs/assets/{archive,artifacts,breadcrumbs,guides,playbooks}/`, rejecting top-level `docs/archive/**` and `docs/artifacts/**` as shipped v2 targets, and preserving the persona frontmatter contract. |
 | `docs/prd/20-revise-agent-harness-model-conformance-lab.md` | Keeps conformance lab artifacts separate from shipped tool resources unless later promoted. |
 | `docs/prd/03-open-questions-and-risk-register.md` | Updates existing docs-assets, dogfood, package, audit, no-scripts, remote-source, and shared-agentics entries. |
 
-The paired delta backlog should be generated under `docs/work/2026-06-23-w9-r2-tool-directory-system-custom-resource-tiers/`.
+The original paired delta backlog was generated under `docs/work/2026-06-23-w9-r2-tool-directory-system-custom-resource-tiers/`. The W9 R4 pivot is tracked under `docs/plans/2026-06-25-w9-r4-v2-documentation-asset-ia-hard-move/` and `docs/work/2026-06-25-w9-r4-v2-documentation-asset-ia-hard-move/`.
 
 ## Required Baseline Annotations
 
@@ -120,8 +118,11 @@ The paired delta backlog should be generated under `docs/work/2026-06-23-w9-r2-t
 ## Source Anchors
 
 - `docs/designs/2026-06-19-tool-directory-system-and-custom-resource-tiers.md`
+- `docs/designs/2026-06-25-v2-documentation-asset-ia-hard-move.md`
 - `docs/plans/2026-06-23-w9-r2-tool-directory-system-custom-resource-tiers/00-overview.md`
+- `docs/plans/2026-06-25-w9-r4-v2-documentation-asset-ia-hard-move/00-overview.md`
 - `docs/work/2026-06-23-w9-r2-tool-directory-system-custom-resource-tiers/00-index.md`
+- `docs/work/2026-06-25-w9-r4-v2-documentation-asset-ia-hard-move/00-index.md`
 - `docs/prd/02-architecture-overview.md`
 - `docs/prd/05-installation-profile-and-manifest-lifecycle.md`
 - `docs/prd/06-template-contracts-and-generated-assets.md`

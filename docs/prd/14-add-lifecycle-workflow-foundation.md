@@ -50,7 +50,7 @@ surface.
   advisable-default-but-overridable `## Intended Follow-On`, mirroring design
   docs, so the chain stops breaking between stages. PRD 23 adds the generated
   metadata layer for these handoffs.
-- **Optional artifacts seed** — `docs/artifacts/`, a zero-contract home for
+- **Optional artifacts seed** — `docs/assets/artifacts/`, a zero-contract home for
   pre-design inputs, accommodating ideation and architecture as an input surface
   rather than contract-bound stages.
 
@@ -86,7 +86,7 @@ addition and are limited to cross-link awareness.
   `output-contract.md`.
 - A persona-target axis that reads the configured persona set; before
   configuration exists, a legacy Developer/User mapping applies.
-- An optional `docs/artifacts/` directory with a light, zero-contract router.
+- An optional `docs/assets/artifacts/` directory with a light, zero-contract router.
 
 ## Integration Impact
 

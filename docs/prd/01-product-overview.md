@@ -35,7 +35,7 @@ Out of scope, the product does not currently publish `packages/docs`, `packages/
 ### Change Notes
 
 - Superseded by [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md) for v2 product/package identity and deployment ownership: `make-docs`, `Make Docs`, and `MakeDocs` remain the active names; the root workspace remains private; TypeScript npm and future Rust distributions expose one `make-docs` command.
-- Enhanced by [21-revise-tool-directory-system-custom-resource-tiers.md](./21-revise-tool-directory-system-custom-resource-tiers.md) and [22-revise-new-docs-assets-playbooks-persona-model.md](./22-revise-new-docs-assets-playbooks-persona-model.md) for the v2 namespace split: `.make-docs/**` is the make-docs-owned tool-resource and runtime namespace, while `docs/assets/{guides,playbooks}/` is the future reader-facing reusable asset surface and current `docs/assets/{prompts,references,templates}/` content is transitional under the PRD 21 migration contract.
+- Enhanced by [21-revise-tool-directory-system-custom-resource-tiers.md](./21-revise-tool-directory-system-custom-resource-tiers.md) and [22-revise-new-docs-assets-playbooks-persona-model.md](./22-revise-new-docs-assets-playbooks-persona-model.md) for the v2 namespace split: `.make-docs/**` is the make-docs-owned tool-resource and runtime namespace, while `docs/assets/{archive,artifacts,breadcrumbs,guides,playbooks}/` is the managed project documentation asset surface and current `docs/assets/{prompts,references,templates}/` content is transitional under the PRD 21 migration contract.
 
 ## Current Limitations
 

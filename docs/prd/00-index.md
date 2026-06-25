@@ -33,7 +33,7 @@ The fixed-core overview layer is now present through [01 Product Overview](01-pr
 | `11` | Current | [11-revise-cli-asset-selection-simplification.md](11-revise-cli-asset-selection-simplification.md) | Revision making prompt, template, and reference assets always managed rather than user-selectable. |
 | `12` | Current | [12-revise-cli-skill-selection-simplification.md](12-revise-cli-skill-selection-simplification.md) | Revision making shipped skills optional explicit selections instead of required/default, selected-by-default, or optional-add-on categories. |
 | `13` | Current | [13-revise-cli-conflict-resolution.md](13-revise-cli-conflict-resolution.md) | Revision making selected managed-file diffs, including instructions, prompts, references, templates, desired skill assets, and generic selected managed files, use batch-first overwrite/skip conflict review. |
-| `14` | Current | [14-add-lifecycle-workflow-foundation.md](14-add-lifecycle-workflow-foundation.md) | Addition: the lifecycle workflow foundation — coverage-pass contract, always-read lifecycle anchor, persona-scoped playbook output type, stage follow-on handoffs, and an optional `docs/artifacts/` seed. |
+| `14` | Current | [14-add-lifecycle-workflow-foundation.md](14-add-lifecycle-workflow-foundation.md) | Addition: the lifecycle workflow foundation — coverage-pass contract, always-read lifecycle anchor, persona-scoped playbook output type, stage follow-on handoffs, and an optional pre-design artifact seed now targeted by W9 R4 to `docs/assets/artifacts/**`. |
 | `15` | Current | [15-revise-agent-instruction-file-ownership.md](15-revise-agent-instruction-file-ownership.md) | Revision: replaces whole-file overwrite/skip ownership of agent instruction files with a delimited managed-block inline-routing model that preserves user and project-specific content. |
 | `16` | Current | [16-revise-package-and-deployment-boundaries.md](16-revise-package-and-deployment-boundaries.md) | Revision: fixes stable v2 product identity, TypeScript npm ownership, future Rust distribution ownership, one `make-docs` command, no default aliases, MCP startup ownership, and shared package/audit/manifest contracts. |
 | `17` | Current | [17-revise-system-asset-materialization-contract.md](17-revise-system-asset-materialization-contract.md) | Revision: defines `full-snapshot`, `provider-backed`, and `hybrid-pinned-cache` system asset modes; preserves a non-provider-backed local bootstrap; and adds manifest provenance, provider/cache pinning, and on-demand safety requirements. |
@@ -41,7 +41,7 @@ The fixed-core overview layer is now present through [01 Product Overview](01-pr
 | `19` | Current | [19-revise-template-package-dogfood-source-of-truth-contract.md](19-revise-template-package-dogfood-source-of-truth-contract.md) | Revision: defines `packages/docs/template/` as the shipped template source, repo-root `docs/` as dogfood validation, and `packages/cli/template/` as the generated package-bundled copy. |
 | `20` | Current | [20-revise-agent-harness-model-conformance-lab.md](20-revise-agent-harness-model-conformance-lab.md) | Revision: defines a maintainer-only conformance lab for scenario/result evidence, harness/model support-claim gating, and future adapter coverage without shipping lab assets by default. |
 | `21` | Current | [21-revise-tool-directory-system-custom-resource-tiers.md](21-revise-tool-directory-system-custom-resource-tiers.md) | Revision: defines `.make-docs/` as the in-project tool directory for make-docs-owned resources, system/custom tiers, local bootstrap, runtime state, and future migration away from tool assets in `docs/assets/**`. |
-| `22` | Current | [22-revise-new-docs-assets-playbooks-persona-model.md](22-revise-new-docs-assets-playbooks-persona-model.md) | Revision: defines `docs/assets/{guides,playbooks}/` as the reader-facing reusable documentation asset surface, `docs/archive/**` as the future archive surface, and `persona` frontmatter plus default/custom persona schema. |
+| `22` | Current | [22-revise-new-docs-assets-playbooks-persona-model.md](22-revise-new-docs-assets-playbooks-persona-model.md) | Revision: defines `docs/assets/{archive,artifacts,breadcrumbs,guides,playbooks}/` as the managed project documentation asset surface, rejects top-level `docs/archive/**` and `docs/artifacts/**` as shipped v2 targets, and preserves `persona` frontmatter plus default/custom persona schema. |
 | `23` | Current | [23-revise-generated-metadata-lifecycle-handoffs.md](23-revise-generated-metadata-lifecycle-handoffs.md) | Revision: defines YAML frontmatter as the canonical metadata layer for generated make-docs docs, including common fields, conditional source/persona/lifecycle/follow-on metadata, and YAML/body handoff drift validation. |
 | `24` | Current | [24-revise-configuration-convention-overlay.md](24-revise-configuration-convention-overlay.md) | Revision: defines optional `.make-docs/config.yaml` as project-owned presentation configuration for labels, personas, and generated prose while preserving canonical paths, metadata keys, route identifiers, and W/R/P coordinate lineage. |
 | `25` | Current | [25-revise-cli-separation-and-mcp-boundary.md](25-revise-cli-separation-and-mcp-boundary.md) | Revision: defines the v2 boundary between the TypeScript npm installer-maintainer CLI, the future Rust agent-facing CLI, and the first MCP surface while preserving installer-first `npx`, no-command install/sync, shared operation contracts, read-first MCP behavior, and no-scripts migration sequencing. |
@@ -85,6 +85,7 @@ The fixed-core overview layer is now present through [01 Product Overview](01-pr
 - `docs/designs/2026-06-19-agent-harness-and-model-conformance-lab.md`
 - `docs/designs/2026-06-19-tool-directory-system-and-custom-resource-tiers.md`
 - `docs/designs/2026-06-19-new-docs-assets-playbooks-and-persona-model.md`
+- `docs/designs/2026-06-25-v2-documentation-asset-ia-hard-move.md`
 - `docs/designs/2026-06-20-generated-metadata-and-lifecycle-handoffs.md`
 - `docs/designs/2026-06-20-configuration-and-convention-overlay.md`
 - `docs/designs/2026-06-20-cli-separation-and-mcp-boundary.md`
@@ -101,6 +102,7 @@ The fixed-core overview layer is now present through [01 Product Overview](01-pr
 - `docs/plans/2026-06-23-w10-r5-agent-harness-model-conformance-lab/00-overview.md`
 - `docs/plans/2026-06-23-w9-r2-tool-directory-system-custom-resource-tiers/00-overview.md`
 - `docs/plans/2026-06-23-w9-r3-new-docs-assets-playbooks-persona-model/00-overview.md`
+- `docs/plans/2026-06-25-w9-r4-v2-documentation-asset-ia-hard-move/00-overview.md`
 - `docs/plans/2026-06-23-w16-r1-generated-metadata-lifecycle-handoffs/00-overview.md`
 - `docs/plans/2026-06-23-w16-r2-configuration-convention-overlay/00-overview.md`
 - `docs/plans/2026-06-23-w10-r6-cli-separation-and-mcp-boundary/00-overview.md`
@@ -148,6 +150,7 @@ Use [04 Glossary](04-glossary.md) first, then read [01](01-product-overview.md),
 - Generate or reconcile the paired delta backlog under `docs/work/2026-06-23-w10-r5-agent-harness-model-conformance-lab/` before conformance-lab implementation begins.
 - Generate or reconcile the paired delta backlog under `docs/work/2026-06-23-w9-r2-tool-directory-system-custom-resource-tiers/` before tool-directory migration implementation begins.
 - Generate or reconcile the paired delta backlog under `docs/work/2026-06-23-w9-r3-new-docs-assets-playbooks-persona-model/` before reader-facing guide/playbook and persona-schema implementation begins.
+- Generate or reconcile the paired delta backlog under `docs/work/2026-06-25-w9-r4-v2-documentation-asset-ia-hard-move/` before hard-moving artifact/archive/breadcrumb targets, router contracts, template package copies, or dogfood migration-lab behavior.
 - Generate or reconcile the paired delta backlog under `docs/work/2026-06-23-w16-r1-generated-metadata-lifecycle-handoffs/` before generated metadata and lifecycle handoff validation implementation begins.
 - Generate or reconcile the paired delta backlog under `docs/work/2026-06-23-w16-r2-configuration-convention-overlay/` before configuration overlay implementation begins.
 - Generate or reconcile the paired delta backlog under `docs/work/2026-06-23-w10-r6-cli-separation-and-mcp-boundary/` before CLI/MCP boundary implementation begins.
