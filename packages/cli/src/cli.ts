@@ -673,6 +673,12 @@ function validateParsedArgs(parsed: ParsedArgs): void {
     );
   }
 
+  if (parsed.dryRun && isLifecycleCommand(parsed.command)) {
+    throw new Error(
+      `\`--dry-run\` is only valid with \`make-docs\`, \`make-docs reconfigure\`, or \`make-docs skills\`, not \`${parsed.command}\`.`,
+    );
+  }
+
   if (parsed.command === "skills") {
     const invalidSkillsFlags = getInvalidSkillsCommandFlags(parsed);
     if (invalidSkillsFlags.length > 0) {

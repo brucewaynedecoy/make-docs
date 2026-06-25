@@ -1189,6 +1189,22 @@ describe("cli interactive flows", () => {
     }
   });
 
+  test.each([
+    ["backup"],
+    ["uninstall"],
+  ])("rejects dry-run on lifecycle command %s", async (command) => {
+    const targetDir = createTempDir();
+
+    try {
+      const error = await captureCliError([command, "--dry-run", "--target", targetDir]);
+
+      expect(error.message).toContain("`--dry-run` is only valid");
+      expect(error.message).toContain(`not \`${command}\``);
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
   test("prints structured top-level help with the public command model", async () => {
     setTTY(false);
 

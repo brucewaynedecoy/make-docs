@@ -1,6 +1,7 @@
 ---
 title: Installing Make Docs
 path: getting-started
+persona: user
 status: draft
 order: 10
 tags:
@@ -76,7 +77,7 @@ The default profile installs:
 - prompt starters
 - all valid templates
 - all valid references
-- skills in project scope, with no optional skills selected by default
+- skills in project scope, with only the default selected skill set unless you explicitly replace it
 
 That gives you a full starter docs system plus the saved manifest needed for later sync and reconfigure runs.
 
@@ -117,7 +118,7 @@ The main choices are:
 - whether to target the Codex harness, the Claude Code harness, or both
 - whether to install skills
 - whether skills should live in the project or global scope
-- whether to add any optional skills
+- whether to replace the selected skill set
 - whether templates and references should be `all` or `required`
 
 Examples:
@@ -129,8 +130,8 @@ npx @brucewaynedecoy/make-docs@next --yes --no-claude
 # Skip skills on the first install
 npx @brucewaynedecoy/make-docs@next --yes --no-skills
 
-# Add an optional skill during install
-npx @brucewaynedecoy/make-docs@next --yes --optional-skills decompose-codebase
+# Select a specific skill during install
+npx @brucewaynedecoy/make-docs@next --yes --selected-skills decompose-codebase
 ```
 
 This guide stops at initial selection. Use [Installing and Managing Skills](./skills-installing-and-managing-skills.md) for ongoing skill changes and [Managing Installations with the Make Docs CLI](./cli-lifecycle-managing-installations.md) for lifecycle operations after the first install.

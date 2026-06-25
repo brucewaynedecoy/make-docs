@@ -1,6 +1,7 @@
 ---
 title: Managing Installations with the Make Docs CLI
 path: cli/lifecycle
+persona: user
 status: draft
 order: 10
 tags:
@@ -18,6 +19,7 @@ related:
   - ../developer/release-packaging-validation-and-release-reference.md
   - ../../../prd/05-installation-profile-and-manifest-lifecycle.md
   - ../../../prd/07-cli-command-surface-and-lifecycle.md
+  - ../../../prd/25-revise-cli-separation-and-mcp-boundary.md
 ---
 
 # Managing Installations with the Make Docs CLI
@@ -43,6 +45,10 @@ The lifecycle surface has three main modes:
 | Work with recovery-oriented lifecycle actions | `make-docs backup` and `make-docs uninstall` |
 
 `make-docs` does not use a separate `sync` command. Running the bare command applies a first install when no manifest exists and performs a sync when one does.
+
+The current runnable product is the npm-delivered TypeScript installer-maintainer CLI. Future Rust CLI or MCP surfaces are not part of the current user command surface and should not be treated as supported until their own runtime/version identity and parity checks are documented.
+
+Historical `init`, `update`, `--reconfigure`, and `--skills` surfaces are not current commands or flags. Use bare `make-docs` for install or sync, `make-docs reconfigure` to change selections, and `make-docs skills` for skills-only work.
 
 For the maintainer-facing explanation of why lifecycle state lives under `.make-docs/` while document resources stay under `docs/assets/`, use [Docs Assets and Runtime State Boundaries](../developer/maintainer-docs-assets-and-runtime-state-boundaries.md).
 
@@ -113,7 +119,7 @@ Typical reconfigure changes include:
 For non-interactive reconfiguration, pair `--yes` with at least one selection flag:
 
 ```bash
-make-docs reconfigure --yes --no-codex --skill-scope global --optional-skills decompose-codebase
+make-docs reconfigure --yes --no-codex --skill-scope global --selected-skills decompose-codebase
 ```
 
 Use `reconfigure` when you intend to change the manifest-backed selection set. Use bare `make-docs` when you want the current selection set applied as-is.
@@ -168,13 +174,9 @@ The backup command uses the same audit engine as uninstall. It inspects managed 
 - before a large reconfigure that removes capabilities or skills
 - before manual cleanup when you are unsure which files are still make-docs-managed
 
-### Preview a backup first
+### Preview backup scope safely
 
-```bash
-make-docs backup --dry-run
-```
-
-If the audit finds nothing that needs backup, the CLI reports that and does not create an empty backup destination.
+`backup` does not currently have a dry-run mode. Run `make-docs backup` interactively when you want to inspect the audit summary before confirming backup creation. If the audit finds nothing that needs backup, the CLI reports that and does not create an empty backup destination.
 
 ## Uninstall managed assets
 
@@ -188,7 +190,6 @@ Useful variants:
 
 ```bash
 make-docs uninstall --backup
-make-docs uninstall --dry-run
 ```
 
 `--backup` runs backup handling as part of the uninstall flow before removable files are deleted.
@@ -208,7 +209,7 @@ That separation is why uninstall and recovery guidance belong together: removal 
 
 If a lifecycle action did not do what you expected, use this order of operations:
 
-1. Run the same command again with `--dry-run` to inspect the current plan.
+1. For install, sync, reconfigure, or skills work, run the same command again with `--dry-run` to inspect the current plan.
 2. Review the project-local `.backup/` tree if you used `backup` or `uninstall --backup`.
 3. Re-run `make-docs reconfigure` if the problem was caused by the wrong selections.
 4. Use command help to confirm the exact flags you intended to use.
@@ -239,8 +240,8 @@ Use `make-docs reconfigure`, not bare `make-docs`.
 
 ### I only want to see what would happen
 
-Add `--dry-run` to the command you plan to run.
+Add `--dry-run` to install, sync, reconfigure, or skills commands. For `backup` or `uninstall`, run the command interactively and stop at the confirmation prompt after reviewing the audit summary.
 
 ### I am not sure whether uninstall will delete too much
 
-Run `make-docs uninstall --dry-run` first. If you want extra safety, use `make-docs uninstall --backup`.
+Run `make-docs uninstall` interactively and stop at the confirmation prompt after reviewing the audit summary. If you want extra safety before removal, use `make-docs uninstall --backup`.

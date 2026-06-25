@@ -72,6 +72,8 @@ npx @brucewaynedecoy/make-docs@next
 
 Use the scoped npm package name for `npx` lookup and installation. The executable exposed by that package is still `make-docs`; future package distributions must expose the same command, and if multiple implementations are installed, shell `PATH` order decides which one runs.
 
+The current `npx` package is the TypeScript installer-maintainer CLI. Future Rust CLI or MCP surfaces are not shipped in this package today; before they are documented as supported, they must expose clear runtime/version identity and preserve the same installer, manifest, audit, backup, uninstall, and dry-run planning contracts.
+
 The installer starts in full-install mode:
 
 - all capabilities are selected by default: `designs`, `plans`, `prd`, and `work`

@@ -1,6 +1,7 @@
 ---
 title: Decomposing an Existing Codebase
 path: skills
+persona: user
 status: draft
 order: 20
 tags:
@@ -20,7 +21,7 @@ related:
 
 # Decomposing an Existing Codebase
 
-This guide covers the user-facing workflow for the optional `decompose-codebase` skill: when to install it, how to invoke it, and what outputs to expect.
+This guide covers the user-facing workflow for the `decompose-codebase` skill: when to install it, how to invoke it, and what outputs to expect.
 
 ## What the skill is for
 
@@ -38,13 +39,13 @@ In normal use, planning happens first and execution starts only after the plan i
 Enable the optional skill through the skills lifecycle:
 
 ```bash
-make-docs skills --yes --optional-skills decompose-codebase
+make-docs skills --yes --selected-skills decompose-codebase
 ```
 
 Preview the installation first if needed:
 
 ```bash
-make-docs skills --dry-run --yes --optional-skills decompose-codebase
+make-docs skills --dry-run --yes --selected-skills decompose-codebase
 ```
 
 For the broader skills model, see [Installing and Managing Skills](./skills-installing-and-managing-skills.md).

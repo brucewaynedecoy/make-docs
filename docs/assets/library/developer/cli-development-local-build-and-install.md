@@ -1,6 +1,7 @@
 ---
 title: Building and Installing the CLI Locally
 path: cli/development
+persona: developer
 status: draft
 order: 10
 tags:
@@ -14,6 +15,7 @@ related:
   - ./maintainer-docs-assets-and-runtime-state-boundaries.md
   - ./maintainer-dogfood-and-maintainer-operations.md
   - ./release-packaging-validation-and-release-reference.md
+  - ../../../prd/25-revise-cli-separation-and-mcp-boundary.md
 ---
 
 # Building and Installing the CLI Locally
@@ -23,6 +25,8 @@ related:
 This guide is the local development entry point for the `make-docs` CLI. It is intentionally narrow: build the CLI, run the test and router-validation paths that matter during development, and exercise local install flows through built or packed artifacts.
 
 For maintainer-specific dogfood work, use [Dogfood and Maintainer Operations](./maintainer-dogfood-and-maintainer-operations.md). For packaging and release procedure, use [Packaging, Validation, and Release Reference](./release-packaging-validation-and-release-reference.md). For path-boundary questions around `docs/assets/**` versus `.make-docs/**`, use [Docs Assets and Runtime State Boundaries](./maintainer-docs-assets-and-runtime-state-boundaries.md).
+
+This guide covers the current TypeScript npm CLI only. Future Rust CLI or MCP runtime work must preserve the same installer, manifest, audit, backup, uninstall, and dry-run planning contracts before maintainers document those surfaces as supported.
 
 ## Prerequisites
 

@@ -1,6 +1,7 @@
 ---
 title: Installing and Managing Skills
 path: skills
+persona: user
 status: draft
 order: 10
 tags:
@@ -20,7 +21,7 @@ related:
 
 # Installing and Managing Skills
 
-This guide explains the current shipped skills model from a user point of view: how to install skills, how required and optional skills behave, how project and global scope differ, and how to manage skills without changing the rest of the installation.
+This guide explains the current shipped skills model from a user point of view: how to install skills, how the selected skill set behaves, how project and global scope differ, and how to manage skills without changing the rest of the installation.
 
 ## Prerequisites
 
@@ -64,28 +65,28 @@ Use dry-run before:
 - adding an optional skill
 - changing harness targets
 
-## Required versus optional skills
+## Selected skills
 
-The current registry separates skills into default required entries and optional add-ons.
+The current registry exposes skills that can be selected explicitly. A skills-enabled install can replace the selected set with a comma-separated list, `all`, or `none`.
 
-### Required skills
+### Default skill
 
-`archive-docs` is the default required skill. If skills are enabled, it is installed automatically for the selected harnesses.
+`archive-docs` is the default selected skill. If skills are enabled and you do not replace the selected set, it is installed for the selected harnesses.
 
-### Optional skills
+### Additional skills
 
-Optional skills are opt-in. Today the optional shipped skill is `decompose-codebase`.
+Today the additional shipped skill is `decompose-codebase`.
 
 To enable it during a skills-only update:
 
 ```bash
-make-docs skills --yes --optional-skills decompose-codebase
+make-docs skills --yes --selected-skills decompose-codebase
 ```
 
-To clear optional skills:
+To clear the selected skill set:
 
 ```bash
-make-docs skills --yes --optional-skills none
+make-docs skills --yes --selected-skills none
 ```
 
 ## Project versus global scope
