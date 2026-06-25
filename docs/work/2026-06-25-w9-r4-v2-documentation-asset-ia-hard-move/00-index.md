@@ -17,6 +17,9 @@ This backlog executes the hard move from top-level `docs/artifacts/**` and rejec
 
 ## Usage Notes
 
+- Treat W9 R4 as a blocking pivot-integration wave for remaining unimplemented v2 work that depends on docs asset locations, templates, compatibility classification, migration behavior, package materialization, or dogfood structure.
+- Do not reorder already-completed W9 R2, W9 R3, W10 R1, W10 R2, or W10 R3 commits. They remain historical evidence produced under the prior IA.
+- Execute W9 R4 before continuing later unimplemented v2 package/template/workflow phases that could otherwise repeat the old path assumptions.
 - Treat [../../designs/2026-06-25-v2-documentation-asset-ia-hard-move.md](../../designs/2026-06-25-v2-documentation-asset-ia-hard-move.md), [../../prd/21-revise-tool-directory-system-custom-resource-tiers.md](../../prd/21-revise-tool-directory-system-custom-resource-tiers.md), and [../../prd/22-revise-new-docs-assets-playbooks-persona-model.md](../../prd/22-revise-new-docs-assets-playbooks-persona-model.md) as the primary authority.
 - Do not preserve top-level `docs/artifacts/**` as a shipped alias.
 - Do not introduce top-level `docs/archive/**` as a shipped v2 target.
