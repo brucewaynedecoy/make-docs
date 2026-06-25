@@ -11,6 +11,7 @@ tags:
 applies-to:
   - cli
 related:
+  - ./cli-mcp-operation-parity-and-permissions.md
   - ../user/cli-lifecycle-managing-installations.md
   - ./maintainer-docs-assets-and-runtime-state-boundaries.md
   - ./maintainer-dogfood-and-maintainer-operations.md
@@ -132,10 +133,12 @@ npm exec --yes --package "./$TARBALL" -- make-docs --target "$TEST_DIR"
 
 - If you are re-seeding repo-root `docs/` from `packages/docs/template/`, move to [Dogfood and Maintainer Operations](./maintainer-dogfood-and-maintainer-operations.md).
 - If you are deciding whether a file belongs in `docs/assets/**` or `.make-docs/**`, move to [Docs Assets and Runtime State Boundaries](./maintainer-docs-assets-and-runtime-state-boundaries.md).
+- If you are planning Rust or MCP work, move to [CLI/MCP Operation Parity and Permissions](./cli-mcp-operation-parity-and-permissions.md) before adding bridge commands, read tools, dry-run planners, or write tools.
 - If you are validating tarball contents, smoke-pack expectations, release checks, or publish procedure, move to [Packaging, Validation, and Release Reference](./release-packaging-validation-and-release-reference.md).
 
 ## Related Resources
 
 - [Docs Assets and Runtime State Boundaries](./maintainer-docs-assets-and-runtime-state-boundaries.md)
 - [Dogfood and Maintainer Operations](./maintainer-dogfood-and-maintainer-operations.md)
+- [CLI/MCP Operation Parity and Permissions](./cli-mcp-operation-parity-and-permissions.md)
 - [Packaging, Validation, and Release Reference](./release-packaging-validation-and-release-reference.md)

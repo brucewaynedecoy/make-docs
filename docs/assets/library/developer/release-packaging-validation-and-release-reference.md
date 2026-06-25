@@ -1,6 +1,7 @@
 ---
 title: Packaging, Validation, and Release Reference
 path: release
+persona: developer
 status: draft
 order: 40
 tags:
@@ -13,6 +14,7 @@ applies-to:
 related:
   - ../user/cli-lifecycle-managing-installations.md
   - ./cli-development-local-build-and-install.md
+  - ./cli-mcp-operation-parity-and-permissions.md
   - ./maintainer-docs-assets-and-runtime-state-boundaries.md
   - ./maintainer-dogfood-and-maintainer-operations.md
   - ./skills-catalog-and-distribution-model.md
@@ -92,9 +94,12 @@ Use this order for release work:
 
 If the issue is still at the local build stage, step back to [Building and Installing the CLI Locally](./cli-development-local-build-and-install.md). If the issue is stale dogfood docs or template propagation, step back to [Dogfood and Maintainer Operations](./maintainer-dogfood-and-maintainer-operations.md).
 
+If the issue involves future Rust or MCP behavior, use [CLI/MCP Operation Parity and Permissions](./cli-mcp-operation-parity-and-permissions.md) before treating package smoke output as MCP support evidence.
+
 ## Related Resources
 
 - [Building and Installing the CLI Locally](./cli-development-local-build-and-install.md)
+- [CLI/MCP Operation Parity and Permissions](./cli-mcp-operation-parity-and-permissions.md)
 - [Docs Assets and Runtime State Boundaries](./maintainer-docs-assets-and-runtime-state-boundaries.md)
 - [Dogfood and Maintainer Operations](./maintainer-dogfood-and-maintainer-operations.md)
 - [10 Packaging, Validation, and Release Reference](../../../prd/10-packaging-validation-and-release-reference.md)
