@@ -91,3 +91,21 @@ This phase proves the classifier and disposition flows preserve current lifecycl
 | PRD and risk coverage | No PRD or risk-register edit was needed in Phase 4. PRD 18 remains the active owner of compatibility audit and migration disposition behavior, with Phase 3 source anchors already added for the CLI gate and tests. |
 | Guide coverage | No developer or user guide update was needed because W10 R3 closes internal safety behavior and test coverage, not a new user-facing migration command or troubleshooting workflow. |
 | Workflow | Closed the wave with local validation and a local commit only; no remote push. |
+
+## Link-Rewrite Hardening Addendum
+
+The original W10 R3 closeout proves compatibility classification and disposition safety, but it does not prove deterministic Markdown link rewriting for documentation tree moves. Future V2 migration acceptance must add full destination-tree validation for every moved Markdown file, not only changed-file or touched-file link checks.
+
+### Required Future Validation
+
+- [ ] t12: Add CLI fixture tests for clean V1 documentation tree migration with deterministic relative-link rewrites.
+- [ ] t13: Add review-flow tests proving modified managed docs and user-authored Markdown are not blindly rewritten.
+- [ ] t14: Add failure tests for deleted targets, unmapped targets, ambiguous missing-manifest trees, and unsafe rewrite plans.
+- [ ] t15: Add full destination-tree Markdown link validation after migration for every moved Markdown file.
+- [ ] t16: Add package smoke or install coverage proving the move/rewrite/validation behavior runs from the packaged CLI.
+
+### Acceptance Criteria
+
+- Validation fails when any moved Markdown file in the destination tree has a broken internal link, image, or reference-style target that should have been rewritten.
+- Review-mode output distinguishes approved rewrites, skipped user content, unresolved targets, and manual-review-required stops.
+- W9 R2 and W9 R5 dogfood moves may seed fixtures, but they are not accepted as product migration proof.

@@ -23,6 +23,7 @@ Implement and document template-first ownership across source files and maintain
 - Maintainer docs and implementation notes do not describe root `docs/` as the source of truth.
 - Project-owned records are protected from blind reseeding.
 - Mixed directory ownership is understandable before a maintainer edits or reseeds.
+- Ownership guidance distinguishes shipped template/package behavior from root dogfood migration evidence; direct dogfood moves do not satisfy packaged V2 user migration acceptance.
 
 ### Dependencies
 

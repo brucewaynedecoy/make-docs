@@ -68,3 +68,7 @@ This phase refreshes manifest evidence, runs package/docs validation, performs t
 
 - Closeout history record: `docs/assets/archive/history/2026-06-25-w9-r5-v2-library-and-archive-history-ia-correction.md`.
 - Manual/UAT decision: no separate manual UAT pass was run for W9 R5. The user-observable surface is fresh install/package layout and closeout-path behavior, which is covered by package smoke, install tests, path scans, and changed-file Markdown checks.
+
+## Migration Link-Rewrite Guardrail
+
+W9 R5 proves this repository's corrected dogfood layout and package/template path behavior. It does not prove V1-to-V2 user migration behavior for moved Markdown trees. Future acceptance must require the packaged CLI/shared core to perform the move/rewrite/review logic and then validate all links in the moved destination tree, including history records under `docs/assets/archive/history/**`.

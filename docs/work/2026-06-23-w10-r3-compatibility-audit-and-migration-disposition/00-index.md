@@ -22,6 +22,7 @@ Implementation must classify the current source state before any managed-file mu
 - Do not implement destructive migration in the ordinary bare `make-docs` or `make-docs reconfigure` path.
 - Do not re-audit between approval, backup, removal, and reinstall.
 - Do not infer repo-root authored docs as product-owned just because they live near managed assets.
+- Do not treat agent-only dogfood moves as shipped migration behavior. Documentation tree moves that relocate Markdown files must be implemented in the packaged CLI/shared core with deterministic move planning, reviewed link rewrites, and full destination-tree link validation.
 - Do not silently expand `selectedSkills` or install skill files by default during migration.
 - Preserve the TypeScript CLI as the implementation source of truth until a Rust parity plan lands.
 

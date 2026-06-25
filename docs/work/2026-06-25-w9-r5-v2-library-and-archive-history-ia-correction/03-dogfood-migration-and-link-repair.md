@@ -58,3 +58,9 @@ This phase moves current local guide, history, breadcrumb, and transitional libr
 
 - Repaired moved guide relative links and active references in README, template README, current designs, W9 R4 supersession notes, and guide content.
 - Changed-file Markdown link check passed across 142 touched Markdown files, excluding fenced-code examples and archived historical records except the W9 R5 closeout.
+
+## Migration Link-Rewrite Guardrail
+
+This dogfood migration is useful evidence and fixture material, but it is not shipped V2 user migration behavior. Future migration work must use the W9 R5 guide/history/archive moves as examples for packaged CLI/shared-core move planning, deterministic Markdown link rewrites, review routing for modified or user-authored docs, and full destination-tree link validation.
+
+The changed-file link check recorded above is not sufficient for V2 migration acceptance when a whole Markdown tree moves. The acceptance bar is a destination-tree check over every moved Markdown file after the CLI applies, reviews, or blocks the planned rewrite.

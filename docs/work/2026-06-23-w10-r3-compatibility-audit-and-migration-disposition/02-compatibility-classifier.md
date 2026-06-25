@@ -88,3 +88,19 @@ Phase 2 adds `packages/cli/src/compatibility.ts` as the reusable source-state cl
 Guide coverage: no developer or user guide change was needed because Phase 2 introduces an internal classifier and test contract, not a new maintainer-operated or user-facing workflow. PRD coverage: no new PRD change doc was needed because Phase 2 implements PRD 18; `docs/prd/18-revise-compatibility-audit-and-migration-disposition.md` was updated with classifier source anchors. Risk-register status is unchanged.
 
 UAT/manual testing remains deferred until full W10 R3 wave closeout. Phase validation so far: `npm test -w packages/cli -- compatibility-fixtures.test.ts compatibility.test.ts --reporter=dot` and `npm run build -w packages/cli`.
+
+## Link-Rewrite Hardening Addendum
+
+Future migration work that moves documentation trees must extend the classifier before any move or rewrite path writes files. The classifier must identify documentation files as one of these ownership classes: manifest-owned, canonical managed, user-authored project docs, modified managed docs, missing-manifest recognizable docs, or ambiguous.
+
+### Required Future Tasks
+
+- [ ] t10: Add classifier evidence for documentation-tree ownership, including manifest records, canonical fingerprints, managed-block state, local modifications, missing manifests, and ambiguous path/content matches.
+- [ ] t11: Ensure user-authored project Markdown never becomes a clean rewrite candidate only because it sits under a recognized docs path.
+- [ ] t12: Route ambiguous documentation trees to `migrate-with-review` or `manual-review-required` before move planning can write files.
+
+### Acceptance Criteria
+
+- Classification output can explain why each moved Markdown file is owned, reviewable, or blocked.
+- Missing-manifest recognizable docs remain reviewable unless ownership is proven from canonical managed content.
+- Ambiguous docs stop before mutation in non-interactive runs.

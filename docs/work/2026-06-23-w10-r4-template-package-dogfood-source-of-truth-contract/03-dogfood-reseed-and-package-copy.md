@@ -24,6 +24,7 @@ Preserve reviewed dogfood reseeding while ensuring `packages/cli/template/` stay
 - No task or helper performs a blind recursive copy into root `docs/`.
 - Hand edits in `packages/cli/template/` are treated as drift, not source changes.
 - Local managed-file conflicts preserve PRD 18 review semantics.
+- Any documentation-tree move or reseed that affects Markdown links depends on CLI/shared-core move planning and reviewed link rewriting; dogfood-only link repair is insufficient.
 
 ### Dependencies
 

@@ -26,6 +26,7 @@ Prove template, dogfood, and package copy alignment before closing implementatio
 - Local development template and packed template paths are both proven.
 - Dogfood freshness checks cover files expected to match exactly.
 - Package validation remains dry-run unless separately authorized.
+- Package/source-of-truth validation proves migration-relevant behavior comes from packaged CLI/shared-core code, or records deterministic Markdown link rewriting and destination-tree validation as a blocking dependency.
 - Closeout records any residual D-006, D-007, D-014, Q-005, R-003, R-004, or R-007 risk.
 
 ### Dependencies

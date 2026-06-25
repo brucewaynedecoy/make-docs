@@ -65,3 +65,19 @@ This phase gates source work on a complete set of state/disposition fixtures so 
 - t1
 - t2
 - t3
+
+## Link-Rewrite Hardening Addendum
+
+This addendum captures required V2 migration hardening that was identified after the original W10 R3 closeout. The existing W10 R3 fixture matrix is not sufficient acceptance for documentation tree moves during V1-to-V2 migration until these cases are added to packaged CLI/shared-core tests.
+
+### Required Future Tasks
+
+- [ ] t7: Add fixtures for moved Markdown trees with relative links, image links, same-file and cross-file anchors, reference-style links, code spans, fenced code blocks, deleted targets, and unmapped targets.
+- [ ] t8: Add fixtures for user-authored project Markdown, modified managed Markdown, manifest-owned Markdown, canonical managed Markdown, missing-manifest recognizable Markdown, and ambiguous Markdown trees.
+- [ ] t9: Add fixtures that prove dogfooded W9 R2 and W9 R5 directory moves are evidence sources for migration tests, not proof that shipped migration behavior exists.
+
+### Acceptance Criteria
+
+- Fixture expected output distinguishes clean managed rewrites, reviewable rewrites, blocked rewrites, deleted-target failures, and manual-review-required ambiguity.
+- Fixtures are reusable by classifier, migration disposition, package-smoke, and destination-tree validation tests.
+- The fixture contract does not infer product ownership from path shape alone.
