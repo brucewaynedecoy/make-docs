@@ -208,6 +208,22 @@ export interface ApplyResult {
 }
 
 export type AuditMode = "manifest-present" | "manifest-missing";
+export type CompatibilitySourceState =
+  | "clean-v1"
+  | "clean-v2-full-snapshot"
+  | "clean-v2-provider-backed"
+  | "clean-v2-hybrid-pinned-cache"
+  | "modified-v1"
+  | "partial-install"
+  | "malformed-manifest"
+  | "missing-manifest-recognizable"
+  | "unknown-shape";
+export type CompatibilityDisposition =
+  | "sync"
+  | "migrate"
+  | "migrate-with-review"
+  | "backup-and-reinstall"
+  | "manual-review-required";
 export type AuditPathKind = "file" | "directory";
 export type AuditPathScope = "project" | "home" | "external";
 export type AuditOwnershipSource =

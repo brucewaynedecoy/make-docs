@@ -20,9 +20,9 @@ The classifier should be callable by install, reconfigure, migration, backup, un
 
 ### Tasks
 
-- [ ] t1: Validate manifest parseability, schema, package identity, selections, managed file records, skill records, and materialization provenance.
-- [ ] t2: Compare managed-file hashes, managed-block state, selected-skill outputs, and required local bootstrap files against the filesystem.
-- [ ] t3: Classify clean and modified v1/v2 states with evidence records.
+- [x] t1: Validate manifest parseability, schema, package identity, selections, managed file records, skill records, and materialization provenance.
+- [x] t2: Compare managed-file hashes, managed-block state, selected-skill outputs, and required local bootstrap files against the filesystem.
+- [x] t3: Classify clean and modified v1/v2 states with evidence records.
 
 ### Acceptance criteria
 
@@ -38,9 +38,9 @@ The classifier should be callable by install, reconfigure, migration, backup, un
 
 ### Tasks
 
-- [ ] t4: Add conservative fallback recognition for known make-docs-managed paths and canonical content.
-- [ ] t5: Classify malformed manifests separately from missing manifests.
-- [ ] t6: Stop before mutation when fallback recognition is ambiguous.
+- [x] t4: Add conservative fallback recognition for known make-docs-managed paths and canonical content.
+- [x] t5: Classify malformed manifests separately from missing manifests.
+- [x] t6: Stop before mutation when fallback recognition is ambiguous.
 
 ### Acceptance criteria
 
@@ -57,9 +57,9 @@ The classifier should be callable by install, reconfigure, migration, backup, un
 
 ### Tasks
 
-- [ ] t7: Return structured evidence for manifest trust, filesystem trust, bootstrap trust, skill trust, and provider/cache trust.
-- [ ] t8: Make classifier evidence printable in future migration UX without exposing internal-only noise.
-- [ ] t9: Add focused tests for source-state evidence.
+- [x] t7: Return structured evidence for manifest trust, filesystem trust, bootstrap trust, skill trust, and provider/cache trust.
+- [x] t8: Make classifier evidence printable in future migration UX without exposing internal-only noise.
+- [x] t9: Add focused tests for source-state evidence.
 
 ### Acceptance criteria
 
@@ -72,3 +72,19 @@ The classifier should be callable by install, reconfigure, migration, backup, un
 - t4
 - t5
 - t6
+
+## Implementation Notes
+
+Phase 2 adds `packages/cli/src/compatibility.ts` as the reusable source-state classifier. The classifier reads `.make-docs/manifest.json` when present, validates loadable manifest shape through the existing manifest parser, compares manifest-managed files and managed instruction blocks to disk, verifies selected skill outputs, checks local bootstrap presence while treating optional project-owned bootstrap scaffolds as non-blocking, and evaluates system asset provider/cache provenance before allowing clean v2 classifications.
+
+| Surface | Implementation |
+| --- | --- |
+| Manifest-present states | `classifyCompatibilityState` distinguishes `clean-v1`, `clean-v2-full-snapshot`, `clean-v2-provider-backed`, `clean-v2-hybrid-pinned-cache`, `modified-v1`, and `partial-install` from manifest and filesystem evidence. Modified managed files, malformed managed blocks, missing managed files, missing selected skill outputs, unavailable providers, and stale pinned cache hashes keep the source out of clean states. |
+| Manifest-missing and malformed states | Missing manifests use conservative fallback recognition for known make-docs paths and path-specific canonical fingerprints. Ambiguous canonical paths route to `backup-and-reinstall`; unknown shapes route to `manual-review-required`; malformed manifests remain distinct from missing manifests. |
+| Evidence model | The classifier returns structured manifest, filesystem, bootstrap, skill, and provider/cache trust evidence plus printable evidence lines for future migration UX. The evidence is derived from disk and manifest contents rather than fixture intent. |
+| Shared types and fixtures | `packages/cli/src/types.ts` exports the accepted compatibility state/disposition unions, and `packages/cli/tests/compatibility-fixtures.ts` continues to provide the fixture matrix consumed by classifier tests. |
+| Validation | `packages/cli/tests/compatibility.test.ts` validates every Phase 1 fixture case against state, disposition, evidence, provider/cache trust, malformed-manifest handling, ambiguous fallback handling, and non-product path collision evidence. |
+
+Guide coverage: no developer or user guide change was needed because Phase 2 introduces an internal classifier and test contract, not a new maintainer-operated or user-facing workflow. PRD coverage: no new PRD change doc was needed because Phase 2 implements PRD 18; `docs/prd/18-revise-compatibility-audit-and-migration-disposition.md` was updated with classifier source anchors. Risk-register status is unchanged.
+
+UAT/manual testing remains deferred until full W10 R3 wave closeout. Phase validation so far: `npm test -w packages/cli -- compatibility-fixtures.test.ts compatibility.test.ts --reporter=dot` and `npm run build -w packages/cli`.

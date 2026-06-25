@@ -106,12 +106,15 @@ export async function createCompatibilityFixture(
       break;
     case "clean-v2-full-snapshot":
       await installFixture(targetDir);
+      ensureSystemAssetManifestState(targetDir, "full-snapshot");
       break;
     case "clean-v2-provider-backed":
       await installFixture(targetDir, undefined, "provider-backed");
+      ensureSystemAssetManifestState(targetDir, "provider-backed");
       break;
     case "clean-v2-hybrid-pinned-cache":
       await installFixture(targetDir, undefined, "hybrid-pinned-cache");
+      ensureSystemAssetManifestState(targetDir, "hybrid-pinned-cache");
       break;
     case "modified-v1":
       await installFixture(targetDir);
@@ -288,6 +291,7 @@ function ensureSystemAssetManifestState(
       },
     },
   });
+  writeManifest(targetDir, manifest as InstallManifest);
   return manifest as InstallManifest & {
     systemAssetMaterialization: SystemAssetManifestState;
   };

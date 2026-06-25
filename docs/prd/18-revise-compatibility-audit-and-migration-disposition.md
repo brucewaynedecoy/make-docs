@@ -200,9 +200,14 @@ Do not add `Change Notes` to `docs/prd/03-open-questions-and-risk-register.md`; 
 - `packages/cli/src/uninstall.ts`
 - `packages/cli/src/install.ts`
 - `packages/cli/src/planner.ts`
+- `packages/cli/src/compatibility.ts`
 - `packages/cli/src/managed-block.ts`
 - `packages/cli/src/skill-catalog.ts`
 - `packages/cli/src/skill-resolver.ts`
+- `packages/cli/src/types.ts`
+- `packages/cli/tests/compatibility-fixtures.ts`
+- `packages/cli/tests/compatibility-fixtures.test.ts`
+- `packages/cli/tests/compatibility.test.ts`
 - `packages/cli/tests/install.test.ts`
 - `packages/cli/tests/audit.test.ts`
 - `packages/cli/tests/backup.test.ts`
