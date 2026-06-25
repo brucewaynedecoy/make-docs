@@ -12,6 +12,8 @@ Before executing this backlog, apply [W9 R5 v2 Library and Archive History IA Co
 
 W10 R4 package/source-of-truth validation must not cite root dogfood cleanup as shipped migration behavior. If source-of-truth or package-copy work depends on moved documentation trees, it must verify that the packaged CLI/shared-core migration flow owns deterministic Markdown link rewriting, review routing, and destination-tree validation, or record that dependency as a blocking gap.
 
+W10 R4 may proceed without implementing deterministic Markdown-tree migration. That implementation belongs to a later dedicated migration-hardening backlog unless a W10 R4 package/source-of-truth change directly depends on moved user Markdown trees.
+
 ## Source PRD Docs
 
 - `docs/prd/19-revise-template-package-dogfood-source-of-truth-contract.md`

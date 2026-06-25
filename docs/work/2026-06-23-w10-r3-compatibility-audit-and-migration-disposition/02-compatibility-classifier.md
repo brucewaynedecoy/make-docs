@@ -93,11 +93,11 @@ UAT/manual testing remains deferred until full W10 R3 wave closeout. Phase valid
 
 Future migration work that moves documentation trees must extend the classifier before any move or rewrite path writes files. The classifier must identify documentation files as one of these ownership classes: manifest-owned, canonical managed, user-authored project docs, modified managed docs, missing-manifest recognizable docs, or ambiguous.
 
-### Required Future Tasks
+### Future Backlog Requirements
 
-- [ ] t10: Add classifier evidence for documentation-tree ownership, including manifest records, canonical fingerprints, managed-block state, local modifications, missing manifests, and ambiguous path/content matches.
-- [ ] t11: Ensure user-authored project Markdown never becomes a clean rewrite candidate only because it sits under a recognized docs path.
-- [ ] t12: Route ambiguous documentation trees to `migrate-with-review` or `manual-review-required` before move planning can write files.
+- Add classifier evidence for documentation-tree ownership, including manifest records, canonical fingerprints, managed-block state, local modifications, missing manifests, and ambiguous path/content matches.
+- Ensure user-authored project Markdown never becomes a clean rewrite candidate only because it sits under a recognized docs path.
+- Route ambiguous documentation trees to `migrate-with-review` or `manual-review-required` before move planning can write files.
 
 ### Acceptance Criteria
 

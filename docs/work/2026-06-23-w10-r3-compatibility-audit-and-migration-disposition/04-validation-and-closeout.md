@@ -96,13 +96,13 @@ This phase proves the classifier and disposition flows preserve current lifecycl
 
 The original W10 R3 closeout proves compatibility classification and disposition safety, but it does not prove deterministic Markdown link rewriting for documentation tree moves. Future V2 migration acceptance must add full destination-tree validation for every moved Markdown file, not only changed-file or touched-file link checks.
 
-### Required Future Validation
+### Future Backlog Requirements
 
-- [ ] t12: Add CLI fixture tests for clean V1 documentation tree migration with deterministic relative-link rewrites.
-- [ ] t13: Add review-flow tests proving modified managed docs and user-authored Markdown are not blindly rewritten.
-- [ ] t14: Add failure tests for deleted targets, unmapped targets, ambiguous missing-manifest trees, and unsafe rewrite plans.
-- [ ] t15: Add full destination-tree Markdown link validation after migration for every moved Markdown file.
-- [ ] t16: Add package smoke or install coverage proving the move/rewrite/validation behavior runs from the packaged CLI.
+- Add CLI fixture tests for clean V1 documentation tree migration with deterministic relative-link rewrites.
+- Add review-flow tests proving modified managed docs and user-authored Markdown are not blindly rewritten.
+- Add failure tests for deleted targets, unmapped targets, ambiguous missing-manifest trees, and unsafe rewrite plans.
+- Add full destination-tree Markdown link validation after migration for every moved Markdown file.
+- Add package smoke or install coverage proving the move/rewrite/validation behavior runs from the packaged CLI.
 
 ### Acceptance Criteria
 

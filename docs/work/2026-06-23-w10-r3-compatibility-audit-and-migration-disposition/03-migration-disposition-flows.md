@@ -93,12 +93,12 @@ This phase wires classification into safe behavior. Ordinary install and reconfi
 
 Documentation tree moves during V1-to-V2 migration must be packaged CLI/shared-core behavior. Direct dogfood cleanup, one-off agent edits, or touched-file link repair do not satisfy this migration contract.
 
-### Required Future Tasks
+### Future Backlog Requirements
 
-- [ ] t11: Build a reviewed documentation move plan before moving or rewriting Markdown. The plan must record old path, new path, ownership class, planned link/image/reference-definition rewrites, skipped links, unresolved targets, and validation scope.
-- [ ] t12: Implement a Markdown rewriter that updates only parseable Markdown links, image links, and reference definitions. It must skip code spans, fenced code blocks, external URLs, `mailto:` links, and anchor-only links.
-- [ ] t13: Rewrite links only for files the CLI owns or files the user explicitly approves in `migrate-with-review`.
-- [ ] t14: Route unresolved targets, deleted/unmapped destinations, ambiguous ownership, and unsafe rewrites to `migrate-with-review` or `manual-review-required`; non-interactive runs must fail before writing.
+- Build a reviewed documentation move plan before moving or rewriting Markdown. The plan must record old path, new path, ownership class, planned link/image/reference-definition rewrites, skipped links, unresolved targets, and validation scope.
+- Implement a Markdown rewriter that updates only parseable Markdown links, image links, and reference definitions. It must skip code spans, fenced code blocks, external URLs, `mailto:` links, and anchor-only links.
+- Rewrite links only for files the CLI owns or files the user explicitly approves in `migrate-with-review`.
+- Route unresolved targets, deleted/unmapped destinations, ambiguous ownership, and unsafe rewrites to `migrate-with-review` or `manual-review-required`; non-interactive runs must fail before writing.
 
 ### Acceptance Criteria
 

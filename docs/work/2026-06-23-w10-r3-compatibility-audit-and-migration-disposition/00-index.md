@@ -19,6 +19,7 @@ Implementation must classify the current source state before any managed-file mu
 
 ## Usage Notes
 
+- W10 R3 is completed and remains closed. The link-rewrite hardening addenda in this backlog are future backlog requirements for a later migration-hardening wave, not open W10 R3 implementation tasks.
 - Do not implement destructive migration in the ordinary bare `make-docs` or `make-docs reconfigure` path.
 - Do not re-audit between approval, backup, removal, and reinstall.
 - Do not infer repo-root authored docs as product-owned just because they live near managed assets.

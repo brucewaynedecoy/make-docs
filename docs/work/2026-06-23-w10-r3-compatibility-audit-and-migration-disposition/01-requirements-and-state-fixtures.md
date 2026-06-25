@@ -70,11 +70,11 @@ This phase gates source work on a complete set of state/disposition fixtures so 
 
 This addendum captures required V2 migration hardening that was identified after the original W10 R3 closeout. The existing W10 R3 fixture matrix is not sufficient acceptance for documentation tree moves during V1-to-V2 migration until these cases are added to packaged CLI/shared-core tests.
 
-### Required Future Tasks
+### Future Backlog Requirements
 
-- [ ] t7: Add fixtures for moved Markdown trees with relative links, image links, same-file and cross-file anchors, reference-style links, code spans, fenced code blocks, deleted targets, and unmapped targets.
-- [ ] t8: Add fixtures for user-authored project Markdown, modified managed Markdown, manifest-owned Markdown, canonical managed Markdown, missing-manifest recognizable Markdown, and ambiguous Markdown trees.
-- [ ] t9: Add fixtures that prove dogfooded W9 R2 and W9 R5 directory moves are evidence sources for migration tests, not proof that shipped migration behavior exists.
+- Add fixtures for moved Markdown trees with relative links, image links, same-file and cross-file anchors, reference-style links, code spans, fenced code blocks, deleted targets, and unmapped targets.
+- Add fixtures for user-authored project Markdown, modified managed Markdown, manifest-owned Markdown, canonical managed Markdown, missing-manifest recognizable Markdown, and ambiguous Markdown trees.
+- Add fixtures that prove dogfooded W9 R2 and W9 R5 directory moves are evidence sources for migration tests, not proof that shipped migration behavior exists.
 
 ### Acceptance Criteria
 
