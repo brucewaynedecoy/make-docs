@@ -14,12 +14,12 @@ Prove template, dogfood, and package copy alignment before closing implementatio
 
 ### Tasks
 
-- [ ] t1: Run `npm test -w packages/cli`.
-- [ ] t2: Run `npm run validate:defaults -w packages/cli`.
-- [ ] t3: Run `npm run smoke:pack`.
-- [ ] t4: Run package dry-run checks when package contents change.
-- [ ] t5: Run targeted dogfood/template parity and instruction-router checks.
-- [ ] t6: Update the risk register and history only with evidence from completed implementation work.
+- [x] t1: Run `npm test -w packages/cli`.
+- [x] t2: Run `npm run validate:defaults -w packages/cli`.
+- [x] t3: Run `npm run smoke:pack`.
+- [x] t4: Run package dry-run checks when package contents change.
+- [x] t5: Run targeted dogfood/template parity and instruction-router checks.
+- [x] t6: Update the risk register and history only with evidence from completed implementation work.
 
 ### Acceptance Criteria
 
@@ -33,3 +33,18 @@ Prove template, dogfood, and package copy alignment before closing implementatio
 ### Dependencies
 
 - Phase 3 reseed and package-copy changes.
+
+## Implementation Notes
+
+| Task | Evidence |
+| --- | --- |
+| t1 | `npm test -w packages/cli` passed all 17 test files and 280 tests. This proves the local development path, compatibility classification, planner/apply behavior, lifecycle commands, skills, backup, uninstall, and current CLI flows still agree with the template/package contract. |
+| t2 | `npm run validate:defaults -w packages/cli` passed all 24 consistency tests. This keeps default assets, generated routers, and static asset selection aligned with the checked-in template source. |
+| t3 | `npm run smoke:pack` passed. The run executed package `prepack`, copied `packages/docs/template/` into `packages/cli/template/`, built `dist/`, packed the CLI, installed from the tarball, verified clean sync, exercised explicit skills, backup, and uninstall, and left the working tree clean. |
+| t4 | `npm pack --dry-run --json --ignore-scripts -w packages/cli` passed after the package README change. The dry-run tarball contains package metadata, `LICENSE`, `README.md`, `dist/`, `template/`, `skill-registry.json`, and `skill-registry.schema.json`; repo-root `docs/`, root routers, source packages, scripts, and scratch material are not tarball-root package contents. |
+| t5 | Targeted dogfood/template parity checked 79 expected files. Seventy-five matched exactly. The only expected exceptions are `docs/plans/{AGENTS,CLAUDE}.md` and `docs/work/{AGENTS,CLAUDE}.md`, which intentionally carry dogfood-only W9 R5 supersession notes and match their same-directory siblings. `bash scripts/check-wave-numbering.sh` passed. `bash scripts/check-instruction-routers.sh` still reports the known root-router baseline: root `AGENTS.md` and `CLAUDE.md` differ, and root `CLAUDE.md` exceeds the current 12-line budget. |
+| t6 | No PRD or risk-register edit was warranted. W10 R4 implemented existing PRD 19 requirements and recorded residual risk in this work file and the W10 R4 closeout history. D-006, D-014, and R-003 are already closed; D-007, Q-005, R-004, and R-007 remain open because W10 R4 adds focused proof and documentation but does not implement full automated parity coverage, path centralization, or V1-to-V2 Markdown-tree migration link rewriting. |
+
+## Manual Test Coverage
+
+No separate manual UAT scenario was added for W10 R4. The user-observable behavior is package/docs source-of-truth and package contents, and `npm run smoke:pack` is the repo's built-in user-runnable scenario with human-readable output for the packaged installer path. A bespoke manual script would only rerun the same package proof less reliably.
