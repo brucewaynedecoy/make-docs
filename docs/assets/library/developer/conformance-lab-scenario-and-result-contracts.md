@@ -14,7 +14,9 @@ applies-to:
 related:
   - ../../../prd/20-revise-agent-harness-model-conformance-lab.md
   - ../../../plans/2026-06-23-w10-r5-agent-harness-model-conformance-lab/02-scenario-and-result-contract.md
+  - ../../../plans/2026-06-23-w10-r5-agent-harness-model-conformance-lab/03-harness-adapter-and-support-claim-gating.md
   - ../../../work/2026-06-23-w10-r5-agent-harness-model-conformance-lab/02-scenario-and-result-schema.md
+  - ../../../work/2026-06-23-w10-r5-agent-harness-model-conformance-lab/03-adapters-and-support-claims.md
   - ./release-packaging-validation-and-release-reference.md
 ---
 
@@ -96,6 +98,28 @@ Use exactly one safety mode:
 
 Never run destructive scenarios against a maintainer working tree. If required credentials, network access, provider accounts, model routing, or harnesses are unavailable, record a `blocked` result instead of inventing evidence.
 
+## Harness Adapter Protocol
+
+The first executable lab coverage is limited to the current make-docs harness ids in `packages/cli/src/types.ts`:
+
+| Adapter id | Current product harness | Instruction file | Status |
+| --- | --- | --- | --- |
+| `codex` | Codex | `AGENTS.md` | Current executable lab target |
+| `claude-code` | Claude Code | `CLAUDE.md` | Current executable lab target |
+
+Adapter ids must stay separate from model names and providers. A Codex run with one OpenAI-routed model, a Claude Code run with one Anthropic-routed model, and a future provider-routed open-weight model are three different support-claim tuples.
+
+Future adapter targets are reserved but not current shipped harnesses:
+
+| Future target | Current status | Required before support wording |
+| --- | --- | --- |
+| OpenCode | Future lab adapter target | Accepted implementation plus reviewed scenario results |
+| Goose | Future lab adapter target | Accepted implementation plus reviewed scenario results |
+| Pi | Future lab adapter target | Accepted implementation plus reviewed scenario results |
+| Future agentic IDEs | Future lab adapter targets | Accepted implementation plus reviewed scenario results |
+
+Do not describe a future target as supported because the scenario protocol can name it. Until an adapter exists and a reviewed result records the exact scenario/harness/model/provider/runtime tuple, runs for that target are `blocked` or unattempted.
+
 ## Result Records
 
 Result records must be compact and tuple-specific. A result for one tuple is not evidence for a different harness, model, provider, runtime, scenario, or scenario version.
@@ -163,6 +187,17 @@ Use exactly one verdict:
 
 One passing run is only the minimum threshold for nominal support wording for the exact tuple it records. Repeated reviewed runs are required before stronger commendations. A green package validation run is not a public harness/model support claim without conformance evidence.
 
+Support-claim wording must follow this gate:
+
+| Claim type | Minimum evidence |
+| --- | --- |
+| No public claim | No reviewed `pass` or `pass-with-caveats` result exists for the tuple. |
+| Nominal tuple support | At least one reviewed `pass` result exists for the exact scenario/harness/model/provider/runtime tuple. |
+| Caveated tuple support | A reviewed `pass-with-caveats` result exists and the caveats are repeated in public wording. |
+| Stronger wording | Repeated reviewed runs exist, the result record uses `supportClaimUse: stronger-claim-candidate`, and any promoted evidence bundle is redacted and linked. |
+
+Do not collapse tuple evidence into blanket wording. A pass for one scenario in Codex does not prove all Codex behavior, a pass for one Claude Code model does not prove every Claude Code model route, and package validation alone does not prove agent-harness support.
+
 ## Raw Artifact Storage
 
 Raw artifacts default to generated local state:
@@ -196,9 +231,23 @@ When changing this guide or adding scenario/result records, run:
 
 When a scenario executes package or CLI behavior, run the normal package validation for that behavior too. The conformance lab may call package validation commands as scenario steps, but it does not replace those commands.
 
+Validation commands can appear in scenario `steps`, for example:
+
+```yaml
+steps:
+  - kind: "command"
+    run: "npm test -w packages/cli"
+  - kind: "command"
+    run: "npm run validate:defaults -w packages/cli"
+```
+
+Those commands remain package validation evidence. They become conformance evidence only after the result record also captures the harness, model, provider or routing layer, runtime distribution, scenario id/version, reviewer status, verdict, reason, and caveats.
+
 ## Related Resources
 
 - [20 Revise Agent Harness Model Conformance Lab](../../../prd/20-revise-agent-harness-model-conformance-lab.md)
 - [Scenario and Result Contract Plan](../../../plans/2026-06-23-w10-r5-agent-harness-model-conformance-lab/02-scenario-and-result-contract.md)
+- [Harness Adapter and Support Claim Gating Plan](../../../plans/2026-06-23-w10-r5-agent-harness-model-conformance-lab/03-harness-adapter-and-support-claim-gating.md)
 - [Scenario and Result Schema Work Phase](../../../work/2026-06-23-w10-r5-agent-harness-model-conformance-lab/02-scenario-and-result-schema.md)
+- [Adapters and Support Claims Work Phase](../../../work/2026-06-23-w10-r5-agent-harness-model-conformance-lab/03-adapters-and-support-claims.md)
 - [Packaging, Validation, and Release Reference](./release-packaging-validation-and-release-reference.md)
