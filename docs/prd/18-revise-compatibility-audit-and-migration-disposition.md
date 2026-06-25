@@ -41,6 +41,8 @@ Code anchors:
 - `packages/cli/src/managed-block.ts`
 - `packages/cli/src/skill-catalog.ts`
 - `packages/cli/src/skill-resolver.ts`
+- `packages/cli/tests/compatibility-fixtures.ts`
+- `packages/cli/tests/compatibility-fixtures.test.ts`
 - `packages/cli/tests/install.test.ts`
 - `packages/cli/tests/audit.test.ts`
 - `packages/cli/tests/backup.test.ts`
