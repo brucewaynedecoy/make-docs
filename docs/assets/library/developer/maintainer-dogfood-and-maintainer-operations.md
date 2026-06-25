@@ -25,7 +25,7 @@ related:
 
 This guide covers the maintainer workflow around the repo's own dogfood docs. The repo-root `docs/` tree is an active dogfood instance of the template and contracts shipped by `make-docs`, while `packages/docs/template/` remains the source of truth for template-owned files.
 
-Use this guide when you are changing template-owned routers, references, or templates; re-seeding those changes into repo-root `docs/`; or verifying the package-template-dogfood relationship before release.
+Use this guide when you are changing template-owned routers, system resources, prompt starters, templates, or helper scripts; re-seeding those changes into repo-root `docs/`; or verifying the package-template-dogfood relationship before release.
 
 ## Template, Package, and Dogfood Relationship
 
@@ -69,6 +69,8 @@ Do not overwrite authored project docs such as:
 3. Diff the copied files so the dogfood update is deliberate.
 4. Run the validation commands that match the change.
 
+Never run a blind recursive copy from `packages/docs/template/docs/` into repo-root `docs/`. Dogfood reseeding is a reviewed propagation of known template-owned files, not a replacement of this repo's project-authored designs, plans, PRDs, work backlogs, guides, playbooks, artifacts, or history records.
+
 Typical checks after a dogfood-sensitive change:
 
 ```bash
@@ -93,6 +95,7 @@ For local build and entry-point commands, start with [Building and Installing th
 ## Maintainer Rules
 
 - Template first, dogfood second. Do not patch repo-root dogfood copies as if they were the source of truth for template-owned assets.
+- Package copy third. Do not hand-edit `packages/cli/template/` as source; refresh it through `scripts/copy-template-to-cli.mjs`, package `prepack`, or smoke-pack validation after the template source is correct.
 - Keep the runtime-state boundary intact. Dogfood docs live under `docs/`, system machinery lives under `.make-docs/{contracts,references,templates}/system/**` and `.make-docs/scripts/**`, and mutable installer state lives under `.make-docs/manifest.json` plus `.make-docs/conflicts/<run-id>/`.
 - Do not treat direct repo-root dogfood moves as proof of packaged V2 migration behavior. User/project Markdown tree moves need packaged CLI/shared-core migration logic before they can satisfy V2 migration acceptance.
 - Treat manual re-seeding as intentional review work, not an inconvenience to bypass. The manual step is how maintainers catch drift before release.

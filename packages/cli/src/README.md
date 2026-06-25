@@ -49,7 +49,7 @@ Use this rule of thumb while changing the package:
 - If you touched wizard UX, CLI copy, or argument handling: test interactively against `dist/index.js`
 - If you touched profile resolution, planning, manifests, or conflict handling: run `npm test`
 - If you touched `package.json`, bundled dependencies, `files`, `bin`, or output structure: run `npm run smoke:pack`
-- If you touched default assets under `docs/`, `packages/docs/template/`, or static asset selection: run `npm run validate:defaults`
+- If you touched default assets under `packages/docs/template/`, generated install docs/system resources, or static asset selection: run `npm run validate:defaults`
 
 ## Build
 
@@ -84,7 +84,7 @@ The interactive wizard should currently walk through:
 4. `Review selections`
 5. `What would you like to do next?`
 
-If the selected install would conflict with existing managed agent instructions, references, or templates, the CLI should present one batch conflict-resolution prompt before any per-file review:
+If the selected install would conflict with existing managed agent instructions, system resources, references, or templates, the CLI should present one batch conflict-resolution prompt before any per-file review:
 
 - `Overwrite all`: replace every conflicting managed file with the make-docs version and manage it
 - `Skip all`: leave every conflicting file alone and stage generated replacements under `.make-docs/conflicts/`
@@ -200,6 +200,8 @@ npm publish --dry-run --access public --tag next
 ```
 
 The package is scoped, so public publish validation and any separately authorized real publish must include `--access public`. Do not perform a real publish, registry reservation, tag, or promotion unless that irreversible action is explicitly authorized.
+
+`packages/cli/template/` is generated package input. Do not hand-edit it as a source change; edit `packages/docs/template/` or the copy/prepack path, then regenerate the package copy with `npm run prepack -w packages/cli` or let `npm run smoke:pack` exercise the same path.
 
 ## Notes For Contributors
 

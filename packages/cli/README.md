@@ -48,15 +48,19 @@ The published npm tarball contains npm metadata and license files, this README, 
 
 ## What Gets Installed
 
-The default profile can create:
+The default profile can create or manage:
 
 - `docs/designs/` for architectural decisions and design rationale
 - `docs/plans/` for approach and strategy documents
 - `docs/prd/` for product requirement documents
 - `docs/work/` for implementation backlogs and task lists
-- `docs/assets/` for prompts, templates, references, archive records, and history records
+- `docs/assets/archive/`, `docs/assets/artifacts/`, `docs/assets/library/`, and `docs/assets/playbooks/` for people-and-agent-managed project documentation assets
+- `.make-docs/contracts/system/`, `.make-docs/references/system/`, `.make-docs/templates/system/`, and `.make-docs/scripts/` for make-docs system resources
 - root and per-directory `AGENTS.md` / `CLAUDE.md` instruction routers
 - `.make-docs/manifest.json` runtime state for future sync, backup, and uninstall operations
+- `.make-docs/conflicts/<run-id>/` review output when existing local files must not be overwritten
+
+History records are created on demand under `docs/assets/archive/history/` by the documentation lifecycle. A blank install does not need preexisting history files.
 
 The installer is intentionally conservative:
 

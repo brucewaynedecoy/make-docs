@@ -100,7 +100,7 @@ Verify the copies match:
 diff packages/docs/template/.make-docs/contracts/system/guide-contract.md .make-docs/contracts/system/guide-contract.md
 ```
 
-There is no automated re-seed script — it is intentionally manual so contributors review what they are propagating. If the set of changed files is large, a bulk copy with verification works:
+There is no automated re-seed script — it is intentionally manual so contributors review what they are propagating. Do not run a blind recursive copy from `packages/docs/template/docs/` into repo-root `docs/`; that would overwrite project-authored dogfood records. If the set of changed files is large, a bulk copy with verification works only when it stays limited to the template-owned surfaces below:
 
 ```bash
 # Bulk re-seed all routers and system resources (use with care)
