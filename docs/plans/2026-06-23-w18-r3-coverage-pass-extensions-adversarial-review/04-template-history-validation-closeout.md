@@ -17,8 +17,8 @@ Define package/template, history, validation, and closeout expectations for adve
 
 - PRD 10 for package validation.
 - PRD 19 for source-of-truth order.
-- [history-record-contract.md](../../assets/references/history-record-contract.md) for history shape.
-- [coverage-pass-contract.md](../../assets/references/coverage-pass-contract.md) for validation checklist.
+- [history-record-contract.md](../../../.make-docs/contracts/system/history-record-contract.md) for history shape.
+- [coverage-pass-contract.md](../../../.make-docs/contracts/system/coverage-pass-contract.md) for validation checklist.
 
 ## Acceptance Criteria
 

@@ -10,7 +10,7 @@ This design resolves the remaining ambiguity around top-level `docs/artifacts/`,
 
 Batch 2 previously established the direction that `.make-docs/**` owns tool resources, runtime state, and configuration while `docs/assets/**` remains available for reusable documentation assets. The accepted [Tool Directory System and Custom Resource Tiers](2026-06-19-tool-directory-system-and-custom-resource-tiers.md) design reserved `.make-docs/**` for make-docs-owned system and custom resources. The accepted [New Docs Assets, Playbooks, and Persona Model](2026-06-19-new-docs-assets-playbooks-and-persona-model.md) design then used `docs/assets/**` for reader-facing guides and playbooks, but it left archive placement and lifecycle-storage cleanup as follow-on work.
 
-The edited seed input in [evolution-direction-structure.md](../artifacts/evolution-direction-structure.md) shows a cleaner future structure than the current generated and dogfooded directory mix. It moves product machinery under `.make-docs/**` and keeps project documentation assets under `docs/assets/**`. It also proposes `docs/assets/artifacts/**` as the future optional pre-design input surface and `docs/assets/breadcrumbs/**` as the future breadcrumb surface.
+The edited seed input in [evolution-direction-structure.md](../assets/artifacts/evolution-direction-structure.md) shows a cleaner future structure than the current generated and dogfooded directory mix. It moves product machinery under `.make-docs/**` and keeps project documentation assets under `docs/assets/**`. It also proposes `docs/assets/artifacts/**` as the future optional pre-design input surface and `docs/assets/breadcrumbs/**` as the future breadcrumb surface.
 
 The current repository state is not the same as the shipped product contract. This repo has already dogfooded several intermediate structures, and it also contains unmanaged or historical material under `docs/`. That makes it useful as a migration laboratory, but dangerous as an accidental source of truth. The shipped template contract must be defined explicitly instead of inferred from whatever exists in this repo's active `docs/` tree today.
 
@@ -105,7 +105,7 @@ Update Mode: `new-doc-related`
 
 Prior Design Docs: [Tool Directory System and Custom Resource Tiers](2026-06-19-tool-directory-system-and-custom-resource-tiers.md), [New Docs Assets, Playbooks, and Persona Model](2026-06-19-new-docs-assets-playbooks-and-persona-model.md), [Template, Package, and Dogfood Source-of-Truth Contract](2026-06-19-template-package-and-dogfood-source-of-truth-contract.md), [System Asset Delivery and Materialization Contract](2026-06-19-system-asset-delivery-and-materialization-contract.md)
 
-Source Inputs: [evolution-direction-structure.md](../artifacts/evolution-direction-structure.md), [v2 Proposed Design and Roadmap](../artifacts/v2-proposed-design-and-roadmap.md)
+Source Inputs: [evolution-direction-structure.md](../assets/artifacts/evolution-direction-structure.md), [v2 Proposed Design and Roadmap](../assets/artifacts/v2-proposed-design-and-roadmap.md)
 
 Reason: This design materially updates prior Batch 2 information-architecture intent by making `docs/assets/artifacts/**` a hard move, rejecting top-level `docs/archive/**` as a shipped target, naming `docs/assets/breadcrumbs/**` as the future breadcrumb location, and defining the current make-docs `docs/` tree as dogfood and migration-lab evidence rather than shipped product contract.
 
@@ -113,7 +113,7 @@ Reason: This design materially updates prior Batch 2 information-architecture in
 
 Route: `change-plan`
 
-Next Prompt: [designs-to-plan-change.prompt.md](../assets/prompts/designs-to-plan-change.prompt.md)
+Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/references/system/prompts/designs-to-plan-change.prompt.md)
 
 Why: This design revises active W9 tool-directory and docs-assets assumptions, then feeds PRD reconciliation and a delta plan/work backlog rather than creating a new baseline.
 

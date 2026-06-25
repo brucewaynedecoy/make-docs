@@ -85,7 +85,7 @@ Reason: This design extends the accepted npm publishing boundary for the current
 
 Route: change-plan
 
-Next Prompt: [designs-to-plan-change.prompt.md](../assets/prompts/designs-to-plan-change.prompt.md)
+Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/references/system/prompts/designs-to-plan-change.prompt.md)
 
 Why: This design changes and extends an existing package publishing and installer surface rather than establishing a fresh baseline. It also constrains later active PRD/risk reconciliation and downstream Batch 1 designs.
 

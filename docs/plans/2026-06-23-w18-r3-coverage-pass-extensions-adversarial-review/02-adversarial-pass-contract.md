@@ -20,7 +20,7 @@ Define the pass-specific contract for adversarial review while preserving the sh
 ## Dependencies
 
 - PRD 14 for the lifecycle workflow foundation.
-- [coverage-pass-contract.md](../../assets/references/coverage-pass-contract.md) for shared mechanics.
+- [coverage-pass-contract.md](../../../.make-docs/contracts/system/coverage-pass-contract.md) for shared mechanics.
 - PRD 22 and PRD 24 for persona schema and config boundary.
 
 ## Acceptance Criteria

@@ -23,7 +23,7 @@ This plan captures the W9 R4 delta work for moving future-facing structure from 
 ## Change Inputs
 
 - [v2 Documentation Asset IA Hard Move](../../designs/2026-06-25-v2-documentation-asset-ia-hard-move.md)
-- [evolution-direction-structure.md](../../artifacts/evolution-direction-structure.md)
+- [evolution-direction-structure.md](../../assets/artifacts/evolution-direction-structure.md)
 - [Tool Directory System and Custom Resource Tiers](../../designs/2026-06-19-tool-directory-system-and-custom-resource-tiers.md)
 - [New Docs Assets, Playbooks, and Persona Model](../../designs/2026-06-19-new-docs-assets-playbooks-and-persona-model.md)
 - [Template, Package, and Dogfood Source-of-Truth Contract](../../designs/2026-06-19-template-package-and-dogfood-source-of-truth-contract.md)

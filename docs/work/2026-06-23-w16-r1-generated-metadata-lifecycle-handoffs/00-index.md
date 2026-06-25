@@ -1,5 +1,9 @@
 # Generated Metadata Lifecycle Handoffs - Work Backlog
 
+## W9 R4 Prerequisite
+
+Before executing this backlog, apply [W9 R4 v2 Documentation Asset IA Hard Move](../2026-06-25-w9-r4-v2-documentation-asset-ia-hard-move/00-index.md). W16 R1 metadata and handoff fields must describe `.make-docs/**` system resources and `docs/assets/{archive,artifacts,breadcrumbs,guides,playbooks}/**` project assets, not pre-pivot `docs/artifacts/**`, top-level `docs/archive/**`, `docs/assets/history/**`, or `docs/assets/{prompts,references,templates}/**` assumptions.
+
 ## Purpose
 
 Implement the requirements planned in [../../plans/2026-06-23-w16-r1-generated-metadata-lifecycle-handoffs/00-overview.md](../../plans/2026-06-23-w16-r1-generated-metadata-lifecycle-handoffs/00-overview.md) and captured in [../../prd/23-revise-generated-metadata-lifecycle-handoffs.md](../../prd/23-revise-generated-metadata-lifecycle-handoffs.md).

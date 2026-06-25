@@ -1,5 +1,9 @@
 # W10 R5 Agent Harness Model Conformance Lab Work Index
 
+## W9 R4 Prerequisite
+
+Before executing this backlog, apply [W9 R4 v2 Documentation Asset IA Hard Move](../2026-06-25-w9-r4-v2-documentation-asset-ia-hard-move/00-index.md). W10 R5 must validate conformance-lab paths against `.make-docs/**` system resources and `docs/assets/{archive,artifacts,breadcrumbs,guides,playbooks}/**` project assets, not pre-pivot `docs/artifacts/**`, top-level `docs/archive/**`, `docs/assets/history/**`, or `docs/assets/{prompts,references,templates}/**` assumptions.
+
 ## Purpose
 
 Sequence implementation work for PRD 20 and the W10 R5 plan.

@@ -1,5 +1,9 @@
 # W16 R3 No-Scripts Migration Skill Refactor Work Backlog
 
+## W9 R4 Prerequisite
+
+Before executing this backlog, apply [W9 R4 v2 Documentation Asset IA Hard Move](../2026-06-25-w9-r4-v2-documentation-asset-ia-hard-move/00-index.md). W16 R3 must treat deterministic helper scripts and prompt starters as `.make-docs/**` system resources, not as `docs/assets/{prompts,references,templates}/**` project assets.
+
 ## Purpose
 
 Implement the requirements captured in [26-revise-no-scripts-migration-skill-refactor.md](../../prd/26-revise-no-scripts-migration-skill-refactor.md) and planned in [W16 R3 No-Scripts Migration Skill Refactor Plan](../../plans/2026-06-23-w16-r3-no-scripts-migration-skill-refactor/00-overview.md).

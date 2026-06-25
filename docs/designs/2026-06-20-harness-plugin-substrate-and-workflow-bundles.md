@@ -8,9 +8,9 @@ This design gives downstream planning one contract for plugin storage, harness e
 
 ## Context
 
-The [v2 roadmap](../artifacts/v2-proposed-design-and-roadmap.md) places this design second in "Batch 4 - Playbooks and Plugins." It follows the accepted [Playbook Contract and Run Playbook](2026-06-20-playbook-contract-and-run-playbook.md) design and the Batch 3 shared agentics decisions. The roadmap asks this design to define plugin packaging, install, update, and uninstall behavior for supported harnesses; separate substrate from productized bundles; and make non-maintainer guardrails explicit.
+The [v2 roadmap](../assets/artifacts/v2-proposed-design-and-roadmap.md) places this design second in "Batch 4 - Playbooks and Plugins." It follows the accepted [Playbook Contract and Run Playbook](2026-06-20-playbook-contract-and-run-playbook.md) design and the Batch 3 shared agentics decisions. The roadmap asks this design to define plugin packaging, install, update, and uninstall behavior for supported harnesses; separate substrate from productized bundles; and make non-maintainer guardrails explicit.
 
-This design intentionally starts from artifact roadmap inputs instead of from an already accepted plan or PRD. That is a lifecycle departure under the [documentation lifecycle](../assets/references/lifecycle.md): v2 planning is using artifact proposals as a source-to-design straddle, then returning to the default design -> plan -> PRD -> work -> implementation sequence for downstream work.
+This design intentionally starts from artifact roadmap inputs instead of from an already accepted plan or PRD. That is a lifecycle departure under the [documentation lifecycle](../../.make-docs/references/system/lifecycle.md): v2 planning is using artifact proposals as a source-to-design straddle, then returning to the default design -> plan -> PRD -> work -> implementation sequence for downstream work.
 
 No existing design owns this exact decision area. This is a new v2 design, not an update to a prior design. It is tightly related to the shared agentics, playbook, configuration, CLI/MCP, no-scripts, conformance-lab, and template/package source-of-truth designs, so it includes lineage.
 
@@ -103,7 +103,7 @@ Reason: This design extends accepted shared-agentics and playbook decisions into
 
 Route: change-plan.
 
-Next Prompt: [designs-to-plan-change.prompt.md](../assets/prompts/designs-to-plan-change.prompt.md).
+Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/references/system/prompts/designs-to-plan-change.prompt.md).
 
 Why: Implementation will revise existing installer, manifest, skill registry/catalog, planner, audit, backup, uninstall, package, and validation behavior rather than create a new repository baseline. Planning must preserve the lifecycle departure noted above by returning from this v2 design to the normal design -> plan -> PRD -> work -> implementation sequence.
 

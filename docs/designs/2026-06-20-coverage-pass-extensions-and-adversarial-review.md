@@ -1,6 +1,6 @@
 # Coverage-Pass Extensions and Adversarial Review
 
-> Filename: `2026-06-20-coverage-pass-extensions-and-adversarial-review.md`. See `docs/assets/references/design-contract.md` for naming and structural rules.
+> Filename: `2026-06-20-coverage-pass-extensions-and-adversarial-review.md`. See `.make-docs/contracts/system/design-contract.md` for naming and structural rules.
 
 ## Purpose
 
@@ -12,7 +12,7 @@ Batch 4 builds the invocation layer after the substrate exists. The accepted Bat
 
 The roadmap asks this design to treat adversarial review as an optional coverage-pass extension, not a blocker for the rest of v2. It also asks for verdicts, persona targeting if applicable, history idempotency, and validation only if adversarial review becomes a real v2 deliverable.
 
-The current coverage-pass baseline already exists. [Coverage Pass Contract and Skill Evolution](../assets/archive/designs/2026-05-28-coverage-pass-contract-and-skill-evolution.md) established the shared pass mechanics, and [coverage-pass-contract.md](../assets/references/coverage-pass-contract.md) now owns the pass skeleton, base verdict spine, persona-target axis, history idempotency, verdict-and-reason rule, validation checklist, and rules for defining new coverage passes. Existing starter prompts for developer guides, user guides, PRD reconciliation, and testing/UAT are already registered in `packages/cli/src/rules.ts` and mirrored through package templates. There is no current adversarial-review prompt, playbook, plugin, CLI command, MCP operation, or manifest field.
+The current coverage-pass baseline already exists. [Coverage Pass Contract and Skill Evolution](../assets/archive/designs/2026-05-28-coverage-pass-contract-and-skill-evolution.md) established the shared pass mechanics, and [coverage-pass-contract.md](../../.make-docs/contracts/system/coverage-pass-contract.md) now owns the pass skeleton, base verdict spine, persona-target axis, history idempotency, verdict-and-reason rule, validation checklist, and rules for defining new coverage passes. Existing starter prompts for developer guides, user guides, PRD reconciliation, and testing/UAT are already registered in `packages/cli/src/rules.ts` and mirrored through package templates. There is no current adversarial-review prompt, playbook, plugin, CLI command, MCP operation, or manifest field.
 
 This v2 design pass is an intentional lifecycle departure. The current source is the artifact roadmap plus accepted earlier v2 designs, so this design is being drafted from artifact inputs before the repo returns to the normal arc: design -> plan -> PRD -> work -> implementation. This file records that departure and does not create or mutate plans, PRDs, risk-register entries, work backlogs, package templates, prompt assets, or source code.
 
@@ -81,7 +81,7 @@ Ignoring adversarial review for v2 was rejected. The roadmap raises it as a Batc
 
 Batch 4 can close without making adversarial review a blocker for playbooks, plugins, or workflow bundles. The batch approval gate should check that this design preserved the playbook/plugin boundary, kept support claims provisional without conformance evidence, and treated adversarial review as optional.
 
-Future implementation planning should be scoped as a change to the existing coverage-pass system. Likely touched surfaces, if the change is accepted, include `docs/assets/references/coverage-pass-contract.md` only if it needs a pointer to the extension, a new adversarial starter prompt if selected, package-template mirrors, `packages/cli/src/rules.ts`, manifest/audit/template parity behavior, package smoke validation, and any chosen playbook or plugin exposure. This design does not authorize those edits by itself.
+Future implementation planning should be scoped as a change to the existing coverage-pass system. Likely touched surfaces, if the change is accepted, include `.make-docs/contracts/system/coverage-pass-contract.md` only if it needs a pointer to the extension, a new adversarial starter prompt if selected, package-template mirrors, `packages/cli/src/rules.ts`, manifest/audit/template parity behavior, package smoke validation, and any chosen playbook or plugin exposure. This design does not authorize those edits by itself.
 
 Template and dogfood source-of-truth decisions matter. If adversarial review becomes a shipped product asset, the plan must decide the template-owned source before adding root-dogfood copies. That prevents repeating the D-014 pattern where W16 R0 product assets were authored first in repo-root dogfood docs.
 
@@ -109,7 +109,7 @@ Reason: This design extends the existing coverage-pass intent with a pass-specif
 
 Route: `change-plan`
 
-Next Prompt: [designs-to-plan-change.prompt.md](../assets/prompts/designs-to-plan-change.prompt.md)
+Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/references/system/prompts/designs-to-plan-change.prompt.md)
 
 Why: The design revises and extends the existing coverage-pass system rather than establishing a fresh baseline. Any future work should plan additive changes to the current contract, prompt, package-template, manifest, and optional playbook/plugin exposure surfaces.
 

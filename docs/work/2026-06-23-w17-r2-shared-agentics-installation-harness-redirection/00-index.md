@@ -1,5 +1,9 @@
 # W17 R2 Shared Agentics Installation Harness Redirection Work Backlog
 
+## W9 R4 Prerequisite
+
+Before executing this backlog, apply [W9 R4 v2 Documentation Asset IA Hard Move](../2026-06-25-w9-r4-v2-documentation-asset-ia-hard-move/00-index.md). W17 R2 must place shared agentic assets under `.make-docs/**` system-resource ownership and avoid deriving harness routing from pre-pivot `docs/assets/{prompts,references,templates}/**` paths.
+
 ## Purpose
 
 Implement the requirements captured in [28-revise-shared-agentics-installation-harness-redirection.md](../../prd/28-revise-shared-agentics-installation-harness-redirection.md) and planned in [W17 R2 Shared Agentics Installation Harness Redirection Plan](../../plans/2026-06-23-w17-r2-shared-agentics-installation-harness-redirection/00-overview.md).

@@ -75,11 +75,11 @@ Persona targeting is conditional.
 
 Most adversarial review is non-persona because it challenges authority, implementation boundaries, or support claims. A candidate gets a persona target only when the challenge concerns persona-scoped content or audience-specific usability, such as a developer playbook, user guide, maintainer-only plugin, or run-stack workflow.
 
-When configuration exists, the pass must use configured personas. Until persona configuration is implemented, the pass may use the legacy Developer/User fallback from [coverage-pass-contract.md](../assets/references/coverage-pass-contract.md), but new assets must not invent additional hard-coded persona schema.
+When configuration exists, the pass must use configured personas. Until persona configuration is implemented, the pass may use the legacy Developer/User fallback from [coverage-pass-contract.md](../../.make-docs/contracts/system/coverage-pass-contract.md), but new assets must not invent additional hard-coded persona schema.
 
 ### History Idempotency
 
-History idempotency follows [coverage-pass-contract.md](../assets/references/coverage-pass-contract.md).
+History idempotency follows [coverage-pass-contract.md](../../.make-docs/contracts/system/coverage-pass-contract.md).
 
 If a pass is part of closeout or explicitly records a session result, it updates the existing current-session history record or creates one if none exists. It does not create duplicate history entries.
 
@@ -156,7 +156,7 @@ Baseline implementation validation should include `npm run build -w packages/cli
 - [../designs/2026-06-20-coverage-pass-extensions-and-adversarial-review.md](../designs/2026-06-20-coverage-pass-extensions-and-adversarial-review.md)
 - [../plans/2026-06-23-w18-r3-coverage-pass-extensions-adversarial-review/00-overview.md](../plans/2026-06-23-w18-r3-coverage-pass-extensions-adversarial-review/00-overview.md)
 - [../work/2026-06-23-w18-r3-coverage-pass-extensions-adversarial-review/00-index.md](../work/2026-06-23-w18-r3-coverage-pass-extensions-adversarial-review/00-index.md)
-- [../assets/references/coverage-pass-contract.md](../assets/references/coverage-pass-contract.md)
+- [../../.make-docs/contracts/system/coverage-pass-contract.md](../../.make-docs/contracts/system/coverage-pass-contract.md)
 - [14 Add Lifecycle Workflow Foundation](14-add-lifecycle-workflow-foundation.md)
 - [19 Revise Template Package Dogfood Source of Truth Contract](19-revise-template-package-dogfood-source-of-truth-contract.md)
 - [20 Revise Agent Harness Model Conformance Lab](20-revise-agent-harness-model-conformance-lab.md)

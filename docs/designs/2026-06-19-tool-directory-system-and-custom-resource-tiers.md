@@ -10,7 +10,7 @@ This design decides which product-owned contracts, workflow references, template
 
 Batch 2 defines the canonical information architecture after Batch 1 settled package, materialization, migration, and source-of-truth boundaries. The active roadmap places this design before reader-facing assets, persona schema, generated metadata, and configuration overlays because those later designs need a stable answer for the current template-owned `docs/assets/**` content.
 
-This design uses artifact roadmap inputs as explicit source material. That is an intentional lifecycle straddle before returning to the default arc documented in `docs/assets/references/lifecycle.md`: design -> plan -> PRD -> work -> implementation. The roadmap inputs are not themselves lifecycle stages or implementation authority.
+This design uses artifact roadmap inputs as explicit source material. That is an intentional lifecycle straddle before returning to the default arc documented in `.make-docs/references/system/lifecycle.md`: design -> plan -> PRD -> work -> implementation. The roadmap inputs are not themselves lifecycle stages or implementation authority.
 
 The accepted Batch 1 materialization contract defines three install modes: `full-snapshot`, `provider-backed`, and `hybrid-pinned-cache`. It also requires a local bootstrap in every mode: selected root/docs instruction routers, `.make-docs/manifest.json`, local config once it exists, local custom overlays, and enough readable guidance for a human or agent to understand the repository without the CLI, MCP server, network, or global cache.
 
@@ -116,7 +116,7 @@ Reason: This design extends the accepted Batch 1 v2 contracts into the concrete 
 
 Route: `change-plan`
 
-Next Prompt: [designs-to-plan-change.prompt.md](../assets/prompts/designs-to-plan-change.prompt.md)
+Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/references/system/prompts/designs-to-plan-change.prompt.md)
 
 Why: This design revises and standardizes existing make-docs installer, template, manifest, docs-assets, managed-router, and dogfood/package behavior rather than starting a fresh baseline. It should feed additive change planning against the active make-docs PRD/risk namespace after the full v2 design set is accepted.
 

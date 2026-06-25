@@ -1,6 +1,6 @@
 # New Docs Assets, Playbooks, and Persona Model
 
-> Filename: `2026-06-19-new-docs-assets-playbooks-and-persona-model.md`. See `docs/assets/references/design-contract.md` for naming and structural rules.
+> Filename: `2026-06-19-new-docs-assets-playbooks-and-persona-model.md`. See `.make-docs/contracts/system/design-contract.md` for naming and structural rules.
 
 ## Purpose
 
@@ -10,9 +10,9 @@ This design is the second design in Batch 2, Canonical Information Architecture.
 
 ## Context
 
-The v2 roadmap identifies this design as the point where make-docs moves from the older `docs/guides/` plus temporary `docs/library/playbooks/` shape to the canonical `docs/assets/{guides,playbooks}/` model. The same roadmap leaves archive placement open and requires enough persona schema detail to close `Q-009` later. See [v2 Proposed Design and Roadmap](../artifacts/v2-proposed-design-and-roadmap.md).
+The v2 roadmap identifies this design as the point where make-docs moves from the older `docs/guides/` plus temporary `docs/library/playbooks/` shape to the canonical `docs/assets/{guides,playbooks}/` model. The same roadmap leaves archive placement open and requires enough persona schema detail to close `Q-009` later. See [v2 Proposed Design and Roadmap](../assets/artifacts/v2-proposed-design-and-roadmap.md).
 
-This design is being produced from artifact roadmap inputs as an intentional source-to-design straddle. That departs from the normal lifecycle only at this design-generation step. After the v2 design set is accepted, work should return to the default arc described by [lifecycle.md](../assets/references/lifecycle.md): design -> plan -> PRD -> work -> implementation.
+This design is being produced from artifact roadmap inputs as an intentional source-to-design straddle. That departs from the normal lifecycle only at this design-generation step. After the v2 design set is accepted, work should return to the default arc described by [lifecycle.md](../../.make-docs/references/system/lifecycle.md): design -> plan -> PRD -> work -> implementation.
 
 Current repo state is mixed by design history. Active guide contracts still point to `docs/guides/developer/` and `docs/guides/user/`. The W16 lifecycle playbook created `docs/library/playbooks/agent/make-docs-lifecycle.md` as a temporary playbook home and uses `persona: "agent"` frontmatter. Older docs-assets work placed archive, history, prompts, references, and templates under `docs/assets/**`; the prior Batch 2 tool-directory design now moves product-owned prompts, references, templates, contracts, and scripts toward `.make-docs/**` instead of treating them as reader-facing docs assets.
 
@@ -112,7 +112,7 @@ Reason: This design extends the accepted Batch 2 tool-directory decision into th
 
 Route: `change-plan`
 
-Next Prompt: [designs-to-plan-change.prompt.md](../assets/prompts/designs-to-plan-change.prompt.md)
+Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/references/system/prompts/designs-to-plan-change.prompt.md)
 
 Why: This design revises active path assumptions, guide/playbook routing, archive placement, coverage persona targeting, template/package/dogfood expectations, and future validation surfaces. It should become a change plan rather than a baseline plan.
 

@@ -19,7 +19,7 @@ Earlier related designs also constrain the lab. [Agent Instruction File Ownershi
 
 Current executable code exposes only `codex` and `claude-code` as product harnesses through `packages/cli/src/types.ts`, `packages/cli/src/wizard.ts`, `packages/cli/src/skill-catalog.ts`, and `packages/cli/src/audit.ts`. OpenCode, Goose, Pi, and later agentic IDEs are future adapter targets for the lab, not current make-docs install harnesses until a later accepted design changes the executable harness model.
 
-This design intentionally starts from `docs/artifacts/v2-proposed-design-and-roadmap.md` and the accepted evidence pass. That is a lifecycle departure at the input step: artifact roadmap material is being used to hydrate this design before the work returns to the normal `design -> plan -> PRD -> work -> implementation` chain described by [Lifecycle Anchor](../assets/references/lifecycle.md). No PRD, risk register, plan, work backlog, package template, guide, source code, or prior design backlink changes are part of this design authoring pass.
+This design intentionally starts from `docs/artifacts/v2-proposed-design-and-roadmap.md` and the accepted evidence pass. That is a lifecycle departure at the input step: artifact roadmap material is being used to hydrate this design before the work returns to the normal `design -> plan -> PRD -> work -> implementation` chain described by [Lifecycle Anchor](../../.make-docs/references/system/lifecycle.md). No PRD, risk register, plan, work backlog, package template, guide, source code, or prior design backlink changes are part of this design authoring pass.
 
 ## Decision
 
@@ -104,7 +104,7 @@ Reason: This is a distinct maintainer infrastructure decision, but it is closely
 
 Route: `change-plan`
 
-Next Prompt: [designs-to-plan-change.prompt.md](../assets/prompts/designs-to-plan-change.prompt.md)
+Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/references/system/prompts/designs-to-plan-change.prompt.md)
 
 Why: This design adds maintainer-only evidence infrastructure around existing make-docs package, template, audit, backup, skills, harness, and support-claim surfaces. It should feed a change plan that introduces the lab while preserving accepted Batch 1 contracts and avoiding shipped-template/package scope creep.
 

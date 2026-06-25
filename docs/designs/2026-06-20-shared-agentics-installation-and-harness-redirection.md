@@ -8,7 +8,7 @@ This design covers the shared installed-state model for skills first, with enoug
 
 ## Context
 
-This design is part of [Batch 3 - CLI, MCP, and Deterministic Automation](../artifacts/v2-proposed-design-and-roadmap.md). The roadmap requires this design to decide whether shared skills and plugins are exposed by symlink, copy, generated harness stubs, CLI routing, or a platform-specific mix. It also requires explicit Windows, macOS, and Linux behavior and a config-overlay reading model for installed skills and plugins.
+This design is part of [Batch 3 - CLI, MCP, and Deterministic Automation](../assets/artifacts/v2-proposed-design-and-roadmap.md). The roadmap requires this design to decide whether shared skills and plugins are exposed by symlink, copy, generated harness stubs, CLI routing, or a platform-specific mix. It also requires explicit Windows, macOS, and Linux behavior and a config-overlay reading model for installed skills and plugins.
 
 The lifecycle departure is intentional. The default lifecycle runs design to plan to PRD to work to implementation, but this v2 planning wave is using artifact roadmap inputs as a source-to-design straddle before returning to that default chain. This design records the departure explicitly and does not mutate PRDs, risk registers, plans, work backlogs, guides, history records, package templates, or source code.
 
@@ -118,7 +118,7 @@ Reason: this design extends the accepted Batch 3 CLI, no-scripts, and purpose-le
 
 Route: change-plan
 
-Next Prompt: [designs-to-plan-change.prompt.md](../assets/prompts/designs-to-plan-change.prompt.md)
+Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/references/system/prompts/designs-to-plan-change.prompt.md)
 
 Why: this revises existing CLI skill installation, manifest, audit, backup, uninstall, package validation, and dogfood behavior while preparing for future plugin installation. It is additive change planning against the active make-docs PRD/risk namespace, not a fresh baseline.
 

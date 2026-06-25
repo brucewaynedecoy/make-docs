@@ -17,9 +17,9 @@ This plan is derived from [Coverage-Pass Extensions and Adversarial Review](../.
 
 ## Current Implementation Grounding
 
-- [docs/assets/references/coverage-pass-contract.md](../../assets/references/coverage-pass-contract.md) already owns the seven-step pass skeleton, base verdict spine, persona-target axis, history idempotency, verdict-and-reason rule, validation checklist, and rules for defining new coverage passes.
-- `packages/docs/template/docs/assets/references/coverage-pass-contract.md` mirrors the shipped template source for the same contract.
-- `docs/assets/prompts/coverage-pass-developer-guide.prompt.md`, `coverage-pass-user-guide.prompt.md`, `coverage-pass-prd-reconciliation.prompt.md`, and `coverage-pass-testing-uat.prompt.md` exist in the dogfood prompt tree and are mirrored in `packages/docs/template/docs/assets/prompts/`.
+- [.make-docs/contracts/system/coverage-pass-contract.md](../../../.make-docs/contracts/system/coverage-pass-contract.md) already owns the seven-step pass skeleton, base verdict spine, persona-target axis, history idempotency, verdict-and-reason rule, validation checklist, and rules for defining new coverage passes.
+- `packages/docs/template/.make-docs/contracts/system/coverage-pass-contract.md` mirrors the shipped template source for the same contract.
+- `.make-docs/references/system/prompts/coverage-pass-developer-guide.prompt.md`, `coverage-pass-user-guide.prompt.md`, `coverage-pass-prd-reconciliation.prompt.md`, and `coverage-pass-testing-uat.prompt.md` exist in the dogfood prompt tree and are mirrored in `packages/docs/template/.make-docs/references/system/prompts/`.
 - `packages/cli/src/rules.ts` registers those four coverage-pass prompts in `PROMPT_RULES`.
 - There is no current adversarial-review prompt, playbook, plugin, CLI command, MCP operation, manifest field, or conformance scenario.
 - [PRD 29](../../prd/29-revise-playbook-contract-run-playbook.md) keeps playbooks valid without plugins, and [PRD 30](../../prd/30-revise-harness-plugin-substrate-workflow-bundles.md) keeps plugins explicit-selection only and evidence-gated.

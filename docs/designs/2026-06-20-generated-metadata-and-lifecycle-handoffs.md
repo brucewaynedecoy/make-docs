@@ -10,9 +10,9 @@ This design exists because Batch 2 needs a single canonical model before configu
 
 The Batch 2 roadmap names this design after the tool directory and persona decisions because metadata depends on both. The accepted [Tool Directory System and Custom Resource Tiers](2026-06-19-tool-directory-system-and-custom-resource-tiers.md) design keeps make-docs tool resources under `.make-docs/**` in the v2 model while reserving `docs/assets/**` for reader-facing reusable documentation assets. The accepted [New Docs Assets, Playbooks, and Persona Model](2026-06-19-new-docs-assets-playbooks-and-persona-model.md) design makes `persona` frontmatter canonical for persona-scoped guides and playbooks, with directory placement secondary.
 
-Current contracts already use metadata unevenly. Guide templates use YAML frontmatter with `title`, `path`, and `status`; history records use flexible YAML with fields such as `date`, `client`, `model`, `coordinate`, `repo`, `branch`, `status`, and `summary`; design, plan, PRD, and work handoffs are currently body sections. The [design contract](../assets/references/design-contract.md) requires design docs to include `## Intended Follow-On`, and the [output contract](../assets/references/output-contract.md) frames downstream handoffs as advisory-default-but-overridable, not gates.
+Current contracts already use metadata unevenly. Guide templates use YAML frontmatter with `title`, `path`, and `status`; history records use flexible YAML with fields such as `date`, `client`, `model`, `coordinate`, `repo`, `branch`, `status`, and `summary`; design, plan, PRD, and work handoffs are currently body sections. The [design contract](../../.make-docs/contracts/system/design-contract.md) requires design docs to include `## Intended Follow-On`, and the [output contract](../../.make-docs/contracts/system/output-contract.md) frames downstream handoffs as advisory-default-but-overridable, not gates.
 
-This v2 design batch is also a deliberate lifecycle straddle. The default lifecycle in [lifecycle.md](../assets/references/lifecycle.md) runs design -> plan -> PRD -> work -> implementation, but these v2 designs are being generated from artifact roadmap inputs, especially [v2-proposed-design-and-roadmap.md](../artifacts/v2-proposed-design-and-roadmap.md), before returning to the normal lifecycle. That departure is intentional and must be visible rather than silently absorbed.
+This v2 design batch is also a deliberate lifecycle straddle. The default lifecycle in [lifecycle.md](../../.make-docs/references/system/lifecycle.md) runs design -> plan -> PRD -> work -> implementation, but these v2 designs are being generated from artifact roadmap inputs, especially [v2-proposed-design-and-roadmap.md](../assets/artifacts/v2-proposed-design-and-roadmap.md), before returning to the normal lifecycle. That departure is intentional and must be visible rather than silently absorbed.
 
 ## Decision
 
@@ -109,6 +109,6 @@ The next Batch 2 design, Configuration and Convention Overlay, must treat metada
 ## Intended Follow-On
 
 - Route: `change-plan`
-- Next Prompt: [designs-to-plan-change.prompt.md](../assets/prompts/designs-to-plan-change.prompt.md)
+- Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/references/system/prompts/designs-to-plan-change.prompt.md)
 - Why: This design changes active contracts, templates, package surfaces, and validation expectations while extending prior lifecycle and handoff work.
 - Coordinate Handoff: Prior related coordinate is W16 R0 P4 for stage follow-on handoffs; recommended downstream coordinate is unresolved; planner must resolve before writing.

@@ -1,5 +1,9 @@
 # W18 R3 Coverage Pass Extensions Adversarial Review Work
 
+## W9 R4 Prerequisite
+
+Before executing this backlog, apply [W9 R4 v2 Documentation Asset IA Hard Move](../2026-06-25-w9-r4-v2-documentation-asset-ia-hard-move/00-index.md). W18 R3 coverage-pass extensions must use `.make-docs/contracts/system/coverage-pass-contract.md`, `.make-docs/references/system/prompts/**`, and `docs/assets/breadcrumbs/**` instead of pre-pivot `docs/assets/references/**`, `docs/assets/prompts/**`, or `docs/assets/history/**` assumptions.
+
 ## Purpose
 
 Implement adversarial review as an optional coverage-pass extension described by PRD 31.

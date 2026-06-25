@@ -8,7 +8,7 @@ This design decides the asset contract before Batch 1 moves into compatibility, 
 
 ## Context
 
-This v2 design is being generated from artifact roadmap inputs as an intentional lifecycle straddle before the repo returns to the normal design -> plan -> PRD -> work -> implementation arc. The governing roadmap, [v2-proposed-design-and-roadmap.md](../artifacts/v2-proposed-design-and-roadmap.md), makes this the second design in Batch 1 because package boundaries must be stable before asset delivery can be decided, and asset delivery must be stable before migration and template ownership can be designed.
+This v2 design is being generated from artifact roadmap inputs as an intentional lifecycle straddle before the repo returns to the normal design -> plan -> PRD -> work -> implementation arc. The governing roadmap, [v2-proposed-design-and-roadmap.md](../assets/artifacts/v2-proposed-design-and-roadmap.md), makes this the second design in Batch 1 because package boundaries must be stable before asset delivery can be decided, and asset delivery must be stable before migration and template ownership can be designed.
 
 The accepted predecessor, [2026-06-19-package-and-deployment-boundaries.md](2026-06-19-package-and-deployment-boundaries.md), is stronger authority than the roadmap where they overlap. It keeps the TypeScript npm package as the npm and `npx` installer, assigns current package contents and manifest/audit/backup/uninstall/skills behavior to that package, and assigns long-term MCP startup ownership to the future Rust CLI. It also requires TypeScript and Rust implementations to share durable manifest and user-facing command contracts rather than fork them.
 
@@ -109,7 +109,7 @@ Reason: This design extends the accepted Batch 1 package boundary into the syste
 
 Route: change-plan
 
-Next Prompt: [designs-to-plan-change.prompt.md](../assets/prompts/designs-to-plan-change.prompt.md)
+Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/references/system/prompts/designs-to-plan-change.prompt.md)
 
 Why: This design changes and extends existing installer, template, manifest, package, and dogfood behavior rather than establishing a fresh baseline. It should feed additive change planning against the active PRD namespace after the complete v2 design set is accepted.
 

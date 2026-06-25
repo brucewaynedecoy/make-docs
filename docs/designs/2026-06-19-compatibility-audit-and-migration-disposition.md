@@ -1,6 +1,6 @@
 # Compatibility, Audit, and Migration Disposition
 
-> Filename: `2026-06-19-compatibility-audit-and-migration-disposition.md`. See `docs/assets/references/design-contract.md` for naming and structural rules.
+> Filename: `2026-06-19-compatibility-audit-and-migration-disposition.md`. See `.make-docs/contracts/system/design-contract.md` for naming and structural rules.
 
 ## Purpose
 
@@ -10,7 +10,7 @@ This design classifies source states, assigns safe dispositions, and records aud
 
 ## Context
 
-This design is the third doc in Batch 1 of the [v2 proposed design and roadmap](../artifacts/v2-proposed-design-and-roadmap.md). It intentionally straddles the normal lifecycle: artifact roadmap inputs are being promoted into design docs before the repo returns to the default design -> plan -> PRD -> work -> implementation arc.
+This design is the third doc in Batch 1 of the [v2 proposed design and roadmap](../assets/artifacts/v2-proposed-design-and-roadmap.md). It intentionally straddles the normal lifecycle: artifact roadmap inputs are being promoted into design docs before the repo returns to the default design -> plan -> PRD -> work -> implementation arc.
 
 Two accepted Batch 1 designs are stronger authority than the roadmap proposal:
 
@@ -118,7 +118,7 @@ This design does not mutate the PRD/risk register, prior designs, plans, work ba
 
 Route: change-plan
 
-Next Prompt: [designs-to-plan-change.prompt.md](../assets/prompts/designs-to-plan-change.prompt.md)
+Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/references/system/prompts/designs-to-plan-change.prompt.md)
 
 Why: This design changes and extends existing installer, manifest, audit, backup, uninstall, conflict-review, package, dogfood, and future Rust compatibility behavior. It should feed additive change planning against the active PRD namespace after the complete v2 design set is accepted.
 

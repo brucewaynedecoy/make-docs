@@ -1,5 +1,9 @@
 # W17 R1 Skill Purpose Registry Alternate Skills Manifest Work Backlog
 
+## W9 R4 Prerequisite
+
+Before executing this backlog, apply [W9 R4 v2 Documentation Asset IA Hard Move](../2026-06-25-w9-r4-v2-documentation-asset-ia-hard-move/00-index.md). W17 R1 must resolve skill registry, manifest, and template paths against `.make-docs/**` system resources and the W9 R4 project-asset families rather than pre-pivot docs-assets tool-resource paths.
+
 ## Purpose
 
 Implement the requirements captured in [27-revise-skill-purpose-registry-alternate-skills-manifest.md](../../prd/27-revise-skill-purpose-registry-alternate-skills-manifest.md) and planned in [W17 R1 Skill Purpose Registry Alternate Skills Manifest Plan](../../plans/2026-06-23-w17-r1-skill-purpose-registry-alternate-skills-manifest/00-overview.md).

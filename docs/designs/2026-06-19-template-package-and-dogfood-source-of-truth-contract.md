@@ -1,6 +1,6 @@
 # Template, Package, and Dogfood Source-of-Truth Contract
 
-> Filename: `2026-06-19-template-package-and-dogfood-source-of-truth-contract.md`. See `docs/assets/references/design-contract.md` for naming and structural rules.
+> Filename: `2026-06-19-template-package-and-dogfood-source-of-truth-contract.md`. See `.make-docs/contracts/system/design-contract.md` for naming and structural rules.
 
 ## Purpose
 
@@ -10,7 +10,7 @@ This design decides where template-owned assets are authored, when root `docs/` 
 
 ## Context
 
-This is the fourth design in Batch 1 of the [v2 proposed design and roadmap](../artifacts/v2-proposed-design-and-roadmap.md). It intentionally straddles the normal lifecycle because roadmap artifacts are being promoted into design docs before the repo returns to the default design -> plan -> PRD -> work -> implementation arc.
+This is the fourth design in Batch 1 of the [v2 proposed design and roadmap](../assets/artifacts/v2-proposed-design-and-roadmap.md). It intentionally straddles the normal lifecycle because roadmap artifacts are being promoted into design docs before the repo returns to the default design -> plan -> PRD -> work -> implementation arc.
 
 The three accepted Batch 1 designs are stronger authority than the roadmap where they overlap. [Package and Deployment Boundaries](2026-06-19-package-and-deployment-boundaries.md) keeps the TypeScript npm package as the current npm and `npx` installer owner. [System Asset Delivery and Materialization Contract](2026-06-19-system-asset-delivery-and-materialization-contract.md) keeps full local materialization as the safe default and states that root `docs/` is not the source of truth for shipped template-owned assets. [Compatibility, Audit, and Migration Disposition](2026-06-19-compatibility-audit-and-migration-disposition.md) classifies root dogfood as validation with a narrower managed-product boundary than the shipped template.
 
@@ -95,7 +95,7 @@ Reason: This design is a new v2 Batch 1 contract that formalizes the template-fi
 
 Route: `change-plan`
 
-Next Prompt: [designs-to-plan-change.prompt.md](../assets/prompts/designs-to-plan-change.prompt.md)
+Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/references/system/prompts/designs-to-plan-change.prompt.md)
 
 Why: The design revises and standardizes existing package/template/dogfood behavior rather than starting a fresh baseline. It should feed a change plan that updates validation, maintainer docs, and implementation surfaces against the active make-docs PRD/risk namespace after Batch 1 is accepted.
 

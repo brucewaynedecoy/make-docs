@@ -1,5 +1,9 @@
 # W18 R2 Harness Plugin Substrate Workflow Bundles Work
 
+## W9 R4 Prerequisite
+
+Before executing this backlog, apply [W9 R4 v2 Documentation Asset IA Hard Move](../2026-06-25-w9-r4-v2-documentation-asset-ia-hard-move/00-index.md). W18 R2 plugin substrate and workflow bundles must consume `.make-docs/**` system-resource ownership and `docs/assets/{archive,artifacts,breadcrumbs,guides,playbooks}/**` project-asset ownership before selecting shipped bundle paths.
+
 ## Purpose
 
 Implement the v2 plugin substrate and productized workflow bundle metadata described by PRD 30.

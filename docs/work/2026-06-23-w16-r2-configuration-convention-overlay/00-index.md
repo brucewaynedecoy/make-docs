@@ -1,5 +1,9 @@
 # W16 R2 Configuration Convention Overlay Work Backlog
 
+## W9 R4 Prerequisite
+
+Before executing this backlog, apply [W9 R4 v2 Documentation Asset IA Hard Move](../2026-06-25-w9-r4-v2-documentation-asset-ia-hard-move/00-index.md). W16 R2 configuration overlays must preserve `.make-docs/**` system-resource ownership and `docs/assets/{archive,artifacts,breadcrumbs,guides,playbooks}/**` project-asset ownership instead of creating pre-pivot path aliases.
+
 ## Source Plan
 
 - [Plan Overview](../../plans/2026-06-23-w16-r2-configuration-convention-overlay/00-overview.md)

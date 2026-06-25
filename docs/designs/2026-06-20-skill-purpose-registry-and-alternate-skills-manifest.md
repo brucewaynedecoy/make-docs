@@ -6,7 +6,7 @@ Decide how make-docs v2 makes skill selection purpose-led without making first-p
 
 ## Context
 
-This design is part of [Batch 3 - CLI, MCP, and Deterministic Automation](../artifacts/v2-proposed-design-and-roadmap.md). It follows [CLI Separation and MCP Boundary](2026-06-20-cli-separation-and-mcp-boundary.md) and [No-Scripts Migration and Skill Refactor](2026-06-20-no-scripts-migration-and-skill-refactor.md), which are stronger authority than the proposal artifact for this batch.
+This design is part of [Batch 3 - CLI, MCP, and Deterministic Automation](../assets/artifacts/v2-proposed-design-and-roadmap.md). It follows [CLI Separation and MCP Boundary](2026-06-20-cli-separation-and-mcp-boundary.md) and [No-Scripts Migration and Skill Refactor](2026-06-20-no-scripts-migration-and-skill-refactor.md), which are stronger authority than the proposal artifact for this batch.
 
 The lifecycle departure is intentional. The default lifecycle runs design to plan to PRD to work to implementation, but this v2 planning wave is using artifact roadmap inputs as a source-to-design straddle before returning to that default chain. This design records the departure explicitly and does not mutate PRDs, risk registers, plans, work backlogs, guides, history records, package templates, or source code.
 
@@ -110,7 +110,7 @@ Reason: this design extends accepted Batch 3 CLI and no-scripts boundaries into 
 
 Route: change-plan
 
-Next Prompt: [designs-to-plan-change.prompt.md](../assets/prompts/designs-to-plan-change.prompt.md)
+Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/references/system/prompts/designs-to-plan-change.prompt.md)
 
 Why: this revises existing CLI skill registry, resolver, selection UI, manifest, audit, backup, uninstall, package, and dogfood behavior rather than creating a greenfield baseline.
 

@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "packageName": "@brucewaynedecoy/make-docs",
   "packageVersion": "1.0.0-rc.1",
-  "updatedAt": "2026-06-25T17:18:43.532Z",
+  "updatedAt": "2026-06-25T17:36:42.569Z",
   "profileId": "4757a4e744aa64f9",
   "selections": {
     "capabilities": {
@@ -182,7 +182,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "deb09f95b223f91d0445c97a90663b5b5ff0930005e9553b8b92bbdc763f22a6"
+          "8ad70c15ada3ec52a89dc3ba5006e55c1c9c867d9eb575e3776f575d793127e8"
         ],
         "logicalAssetId": "docs/AGENTS.md",
         "localPath": "docs/AGENTS.md",
@@ -199,7 +199,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "deb09f95b223f91d0445c97a90663b5b5ff0930005e9553b8b92bbdc763f22a6"
+          "8ad70c15ada3ec52a89dc3ba5006e55c1c9c867d9eb575e3776f575d793127e8"
         ],
         "logicalAssetId": "docs/CLAUDE.md",
         "localPath": "docs/CLAUDE.md",
@@ -2912,7 +2912,7 @@
       }
     },
     "docs/AGENTS.md": {
-      "hash": "deb09f95b223f91d0445c97a90663b5b5ff0930005e9553b8b92bbdc763f22a6",
+      "hash": "8ad70c15ada3ec52a89dc3ba5006e55c1c9c867d9eb575e3776f575d793127e8",
       "sourceId": "file:docs/AGENTS.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
@@ -2922,7 +2922,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "deb09f95b223f91d0445c97a90663b5b5ff0930005e9553b8b92bbdc763f22a6"
+          "8ad70c15ada3ec52a89dc3ba5006e55c1c9c867d9eb575e3776f575d793127e8"
         ],
         "logicalAssetId": "docs/AGENTS.md",
         "localPath": "docs/AGENTS.md",
@@ -2933,7 +2933,7 @@
       }
     },
     "docs/CLAUDE.md": {
-      "hash": "deb09f95b223f91d0445c97a90663b5b5ff0930005e9553b8b92bbdc763f22a6",
+      "hash": "8ad70c15ada3ec52a89dc3ba5006e55c1c9c867d9eb575e3776f575d793127e8",
       "sourceId": "file:docs/CLAUDE.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
@@ -2943,7 +2943,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "deb09f95b223f91d0445c97a90663b5b5ff0930005e9553b8b92bbdc763f22a6"
+          "8ad70c15ada3ec52a89dc3ba5006e55c1c9c867d9eb575e3776f575d793127e8"
         ],
         "logicalAssetId": "docs/CLAUDE.md",
         "localPath": "docs/CLAUDE.md",
