@@ -12,10 +12,24 @@ import type {
   ManifestAuditContext,
   ManifestAuditRecord,
   ManifestFileEntry,
+  ManifestHashAlgorithm,
+  ManifestSystemAssetEntry,
   PackageMeta,
+  SystemAssetManifestState,
+  SystemAssetMaterializationClass,
+  SystemAssetMaterializationMode,
+  SystemAssetOfflineExpectation,
+  SystemAssetSelectionTrigger,
 } from "./types";
-import { CAPABILITIES, HARNESSES, INSTRUCTION_KINDS } from "./types";
+import {
+  CAPABILITIES,
+  HARNESSES,
+  INSTRUCTION_KINDS,
+  SYSTEM_ASSET_MATERIALIZATION_CLASSES,
+  SYSTEM_ASSET_MATERIALIZATION_MODES,
+} from "./types";
 import { parseManagedBlock } from "./managed-block";
+import { createEmptySystemAssetManifestState } from "./system-assets";
 import {
   TOOL_DIRECTORY_CONFLICTS_RELATIVE_DIR,
   TOOL_DIRECTORY_MANIFEST_RELATIVE_PATH,
@@ -23,7 +37,7 @@ import {
 } from "./tool-directory";
 import { hashText, normalizeRelativePath, readTextFile, writeTextFile } from "./utils";
 
-export const MANIFEST_SCHEMA_VERSION = 1;
+export const MANIFEST_SCHEMA_VERSION = 2;
 export const MAKE_DOCS_STATE_RELATIVE_DIR = TOOL_DIRECTORY_RELATIVE_PATH;
 export const MANIFEST_RELATIVE_PATH = TOOL_DIRECTORY_MANIFEST_RELATIVE_PATH;
 export const CONFLICTS_RELATIVE_DIR = TOOL_DIRECTORY_CONFLICTS_RELATIVE_DIR;
@@ -104,6 +118,7 @@ export function createManifest(
   profile: InstallProfile,
   files: Record<string, ManifestFileEntry>,
   skillFiles: string[],
+  systemAssetMaterialization: SystemAssetManifestState,
 ): InstallManifest {
   return {
     schemaVersion: MANIFEST_SCHEMA_VERSION,
@@ -113,6 +128,7 @@ export function createManifest(
     profileId: profile.profileId,
     selections: profile.selections,
     effectiveCapabilities: profile.effectiveCapabilities,
+    systemAssetMaterialization,
     files,
     skillFiles: Array.from(new Set(skillFiles)).sort(),
   };
@@ -260,14 +276,18 @@ function validateAndMigrateManifest(
       value.schemaVersion,
       "manifest.schemaVersion",
     );
-    if (schemaVersion !== MANIFEST_SCHEMA_VERSION) {
+    if (schemaVersion !== 1 && schemaVersion !== MANIFEST_SCHEMA_VERSION) {
       throw new Error(
-        `manifest.schemaVersion must be ${MANIFEST_SCHEMA_VERSION}`,
+        `manifest.schemaVersion must be 1 or ${MANIFEST_SCHEMA_VERSION}`,
       );
     }
+    const systemAssetMaterialization =
+      "systemAssetMaterialization" in value
+        ? validateSystemAssetManifestState(value.systemAssetMaterialization)
+        : createEmptySystemAssetManifestState();
 
     return {
-      schemaVersion,
+      schemaVersion: MANIFEST_SCHEMA_VERSION,
       packageName: validateString(value.packageName, "manifest.packageName"),
       packageVersion: validateString(
         value.packageVersion,
@@ -279,6 +299,7 @@ function validateAndMigrateManifest(
       effectiveCapabilities: validateEffectiveCapabilities(
         value.effectiveCapabilities,
       ),
+      systemAssetMaterialization,
       files,
       skillFiles,
     };
@@ -352,10 +373,178 @@ function validateManifestFiles(
         entry.sourceId,
         `manifest.files.${managedPath}.sourceId`,
       ),
+      ...("systemAsset" in entry
+        ? {
+            systemAsset: validateManifestSystemAssetEntry(
+              entry.systemAsset,
+              `manifest.files.${managedPath}.systemAsset`,
+            ),
+          }
+        : {}),
     };
   }
 
   return files;
+}
+
+function validateSystemAssetManifestState(value: unknown): SystemAssetManifestState {
+  assertPlainObject(value, "manifest.systemAssetMaterialization");
+  const mode = validateSystemAssetMaterializationMode(
+    value.mode,
+    "manifest.systemAssetMaterialization.mode",
+  );
+  const localBootstrapPaths = validateStringArray(
+    value.localBootstrapPaths,
+    "manifest.systemAssetMaterialization.localBootstrapPaths",
+  );
+  const deferredSystemAssetPaths = validateStringArray(
+    value.deferredSystemAssetPaths,
+    "manifest.systemAssetMaterialization.deferredSystemAssetPaths",
+  );
+  const materializationClasses = validateMaterializationClasses(
+    value.materializationClasses,
+  );
+  const assets = validateSystemAssetEntries(value.assets);
+
+  return {
+    mode,
+    ...("sourcePackage" in value
+      ? {
+          sourcePackage: validateString(
+            value.sourcePackage,
+            "manifest.systemAssetMaterialization.sourcePackage",
+          ),
+        }
+      : {}),
+    ...("sourceProvider" in value
+      ? {
+          sourceProvider: validateString(
+            value.sourceProvider,
+            "manifest.systemAssetMaterialization.sourceProvider",
+          ),
+        }
+      : {}),
+    ...("sourceVersion" in value
+      ? {
+          sourceVersion: validateString(
+            value.sourceVersion,
+            "manifest.systemAssetMaterialization.sourceVersion",
+          ),
+        }
+      : {}),
+    ...("sourceImmutableRef" in value
+      ? {
+          sourceImmutableRef: validateString(
+            value.sourceImmutableRef,
+            "manifest.systemAssetMaterialization.sourceImmutableRef",
+          ),
+        }
+      : {}),
+    ...("hashAlgorithm" in value
+      ? {
+          hashAlgorithm: validateHashAlgorithm(
+            value.hashAlgorithm,
+            "manifest.systemAssetMaterialization.hashAlgorithm",
+          ),
+        }
+      : {}),
+    localBootstrapPaths,
+    deferredSystemAssetPaths,
+    materializationClasses,
+    recoveryGuidance: validateString(
+      value.recoveryGuidance,
+      "manifest.systemAssetMaterialization.recoveryGuidance",
+    ),
+    assets,
+  };
+}
+
+function validateSystemAssetEntries(
+  value: unknown,
+): Record<string, ManifestSystemAssetEntry> {
+  assertPlainObject(value, "manifest.systemAssetMaterialization.assets");
+  const assets: Record<string, ManifestSystemAssetEntry> = {};
+
+  for (const [logicalAssetId, entry] of Object.entries(value)) {
+    assets[logicalAssetId] = validateManifestSystemAssetEntry(
+      entry,
+      `manifest.systemAssetMaterialization.assets.${logicalAssetId}`,
+    );
+  }
+
+  return assets;
+}
+
+function validateManifestSystemAssetEntry(
+  value: unknown,
+  label: string,
+): ManifestSystemAssetEntry {
+  assertPlainObject(value, label);
+  const materializationMode = validateSystemAssetMaterializationMode(
+    value.materializationMode,
+    `${label}.materializationMode`,
+  );
+  const hashAlgorithm = validateHashAlgorithm(value.hashAlgorithm, `${label}.hashAlgorithm`);
+  const expectedHashes = validateStringArray(value.expectedHashes, `${label}.expectedHashes`);
+  const materializationClass = validateMaterializationClass(
+    value.materializationClass,
+    `${label}.materializationClass`,
+  );
+  const offlineExpectation = validateOfflineExpectation(
+    value.offlineExpectation,
+    `${label}.offlineExpectation`,
+  );
+  const selectionTrigger = validateSelectionTrigger(
+    value.selectionTrigger,
+    `${label}.selectionTrigger`,
+  );
+
+  return {
+    materializationMode,
+    ...("sourcePackage" in value
+      ? { sourcePackage: validateString(value.sourcePackage, `${label}.sourcePackage`) }
+      : {}),
+    ...("sourceProvider" in value
+      ? { sourceProvider: validateString(value.sourceProvider, `${label}.sourceProvider`) }
+      : {}),
+    ...("sourceVersion" in value
+      ? { sourceVersion: validateString(value.sourceVersion, `${label}.sourceVersion`) }
+      : {}),
+    ...("sourceImmutableRef" in value
+      ? {
+          sourceImmutableRef: validateString(
+            value.sourceImmutableRef,
+            `${label}.sourceImmutableRef`,
+          ),
+        }
+      : {}),
+    hashAlgorithm,
+    expectedHashes,
+    logicalAssetId: validateString(value.logicalAssetId, `${label}.logicalAssetId`),
+    ...("localPath" in value
+      ? { localPath: validateString(value.localPath, `${label}.localPath`) }
+      : {}),
+    materializationClass,
+    offlineExpectation,
+    recoveryGuidance: validateString(value.recoveryGuidance, `${label}.recoveryGuidance`),
+    selectionTrigger,
+  };
+}
+
+function validateMaterializationClasses(
+  value: unknown,
+): Record<string, SystemAssetMaterializationClass> {
+  assertPlainObject(value, "manifest.systemAssetMaterialization.materializationClasses");
+  const classes: Record<string, SystemAssetMaterializationClass> = {};
+
+  for (const [logicalAssetId, materializationClass] of Object.entries(value)) {
+    classes[logicalAssetId] = validateMaterializationClass(
+      materializationClass,
+      `manifest.systemAssetMaterialization.materializationClasses.${logicalAssetId}`,
+    );
+  }
+
+  return classes;
 }
 
 function validateEffectiveCapabilities(value: unknown): Capability[] {
@@ -374,6 +563,84 @@ function validateEffectiveCapabilities(value: unknown): Capability[] {
     }
     return capability as Capability;
   });
+}
+
+function validateSystemAssetMaterializationMode(
+  value: unknown,
+  label: string,
+): SystemAssetMaterializationMode {
+  if (
+    typeof value !== "string" ||
+    !SYSTEM_ASSET_MATERIALIZATION_MODES.includes(
+      value as SystemAssetMaterializationMode,
+    )
+  ) {
+    throw new Error(`${label} must be a valid system asset materialization mode`);
+  }
+
+  return value as SystemAssetMaterializationMode;
+}
+
+function validateMaterializationClass(
+  value: unknown,
+  label: string,
+): SystemAssetMaterializationClass {
+  if (
+    typeof value !== "string" ||
+    !SYSTEM_ASSET_MATERIALIZATION_CLASSES.includes(
+      value as SystemAssetMaterializationClass,
+    )
+  ) {
+    throw new Error(`${label} must be a valid system asset materialization class`);
+  }
+
+  return value as SystemAssetMaterializationClass;
+}
+
+function validateHashAlgorithm(value: unknown, label: string): ManifestHashAlgorithm {
+  if (value !== "sha256") {
+    throw new Error(`${label} must be sha256`);
+  }
+
+  return value;
+}
+
+function validateOfflineExpectation(
+  value: unknown,
+  label: string,
+): SystemAssetOfflineExpectation {
+  if (
+    value !== "local" &&
+    value !== "cache-or-provider" &&
+    value !== "reviewed-full-snapshot-fallback"
+  ) {
+    throw new Error(`${label} must be a valid offline expectation`);
+  }
+
+  return value;
+}
+
+function validateSelectionTrigger(
+  value: unknown,
+  label: string,
+): SystemAssetSelectionTrigger {
+  if (
+    value !== "local-bootstrap" &&
+    value !== "profile-selection" &&
+    value !== "internal-materialization-mode"
+  ) {
+    throw new Error(`${label} must be a valid selection trigger`);
+  }
+
+  return value;
+}
+
+function validateStringArray(value: unknown, label: string): string[] {
+  if (!Array.isArray(value)) {
+    throw new Error(`${label} must be an array`);
+  }
+
+  return value.map((item, index) => validateString(item, `${label}.${index}`));
 }
 
 function validateString(value: unknown, label: string): string {

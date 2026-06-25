@@ -221,6 +221,25 @@ describe("installer integration", () => {
       expect(
         plan.systemAssetMaterialization.materializationClasses["docs/work/AGENTS.md"],
       ).toBe("materialized-system-asset");
+      expect(manifest.schemaVersion).toBe(2);
+      expect(manifest.systemAssetMaterialization.mode).toBe("full-snapshot");
+      expect(manifest.systemAssetMaterialization.sourceProvider).toBe("package");
+      expect(manifest.systemAssetMaterialization.hashAlgorithm).toBe("sha256");
+      expect(manifest.systemAssetMaterialization.assets["docs/work/AGENTS.md"]).toMatchObject({
+        hashAlgorithm: "sha256",
+        logicalAssetId: "docs/work/AGENTS.md",
+        localPath: "docs/work/AGENTS.md",
+        materializationClass: "materialized-system-asset",
+        sourceProvider: "package",
+        selectionTrigger: "profile-selection",
+      });
+      expect(
+        manifest.systemAssetMaterialization.assets["docs/work/AGENTS.md"].expectedHashes,
+      ).toEqual([manifest.files["docs/work/AGENTS.md"].hash]);
+      expect(manifest.files["docs/work/AGENTS.md"].systemAsset).toMatchObject({
+        logicalAssetId: "docs/work/AGENTS.md",
+        localPath: "docs/work/AGENTS.md",
+      });
       expect(manifest.effectiveCapabilities).toEqual(["designs", "plans", "prd", "work"]);
       expect(manifest.selections.skills).toBe(false);
       expect(manifest.selections.selectedSkills).toEqual([]);
@@ -359,6 +378,25 @@ describe("installer integration", () => {
         const result = applyInstallPlan({ targetDir, plan, existingManifest });
         const manifest = result.manifest;
 
+        expect(manifest.schemaVersion).toBe(2);
+        expect(manifest.systemAssetMaterialization.mode).toBe(mode);
+        expect(manifest.systemAssetMaterialization.assets["docs/work/AGENTS.md"]).toMatchObject({
+          logicalAssetId: "docs/work/AGENTS.md",
+          materializationClass: "deferred-system-asset",
+          offlineExpectation: "reviewed-full-snapshot-fallback",
+          selectionTrigger: "internal-materialization-mode",
+        });
+        expect(
+          manifest.systemAssetMaterialization.assets["docs/work/AGENTS.md"].expectedHashes,
+        ).toHaveLength(1);
+        expect(manifest.systemAssetMaterialization.assets["docs/work/AGENTS.md"].localPath).toBe(
+          undefined,
+        );
+        expect(manifest.files["docs/AGENTS.md"].systemAsset).toMatchObject({
+          logicalAssetId: "docs/AGENTS.md",
+          localPath: "docs/AGENTS.md",
+          materializationClass: "always-local-bootstrap",
+        });
         expect(existsSync(path.join(targetDir, "AGENTS.md"))).toBe(true);
         expect(existsSync(path.join(targetDir, "CLAUDE.md"))).toBe(true);
         expect(existsSync(path.join(targetDir, "docs/AGENTS.md"))).toBe(true);
@@ -376,6 +414,63 @@ describe("installer integration", () => {
       }
     },
   );
+
+  test("routes provider-backed local bootstrap refresh conflicts through managed-file review", async () => {
+    const targetDir = createTempDir();
+    try {
+      const selections = defaultSelections();
+      const initialPlan = await planInstall({
+        targetDir,
+        selections,
+        existingManifest: null,
+        systemAssetMaterializationMode: "provider-backed",
+      });
+      const initialResult = applyInstallPlan({
+        targetDir,
+        plan: initialPlan,
+        existingManifest: null,
+      });
+      const rootPath = path.join(targetDir, "AGENTS.md");
+      const installedContent = readFileSync(rootPath, "utf8");
+      writeFileSync(
+        rootPath,
+        installedContent.replace("same-named instruction file", "edited instruction file"),
+        "utf8",
+      );
+
+      const plan = await planInstall({
+        targetDir,
+        selections,
+        existingManifest: initialResult.manifest,
+        systemAssetMaterializationMode: "provider-backed",
+      });
+
+      expect(getPlannedAction(plan, "AGENTS.md")).toMatchObject({
+        type: "skip-conflict",
+        reason:
+          "Existing conflicting make-docs managed block was skipped because no reassert resolution was provided.",
+      });
+      expect(findReviewableManagedFileConflicts(plan)).toEqual([
+        {
+          relativePath: "AGENTS.md",
+          group: "agent-instructions",
+          sourceId: "file:AGENTS.md",
+          reason:
+            "Existing conflicting make-docs managed block was skipped because no reassert resolution was provided.",
+          instructionKind: "AGENTS.md",
+          scope: "managed-block",
+        },
+      ]);
+      expect(() =>
+        applyInstallPlan({ targetDir, plan, existingManifest: initialResult.manifest }),
+      ).toThrow(
+        "Cannot apply install plan with unresolved managed-file conflicts: AGENTS.md.",
+      );
+      expect(readFileSync(rootPath, "utf8")).toContain("edited instruction file");
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
 
   test("rejects manifests with removed asset selection fields", () => {
     const targetDir = createTempDir();
@@ -475,6 +570,59 @@ describe("installer integration", () => {
 
       expect(() => loadManifest(targetDir)).toThrow(
         /selections\.optionalSkills is no longer supported/,
+      );
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("migrates schema 1 manifests without system asset provenance", () => {
+    const targetDir = createTempDir();
+    try {
+      const manifestPath = path.join(targetDir, ".make-docs/manifest.json");
+      mkdirSync(path.dirname(manifestPath), { recursive: true });
+
+      writeFileSync(
+        manifestPath,
+        `${JSON.stringify(
+          {
+            schemaVersion: 1,
+            packageName: "make-docs",
+            packageVersion: "0.1.0",
+            updatedAt: new Date().toISOString(),
+            profileId: "legacy-no-provenance",
+            selections: defaultSelections(),
+            effectiveCapabilities: ["designs", "plans", "prd", "work"],
+            files: {
+              "AGENTS.md": {
+                hash: hashText("legacy"),
+                sourceId: "file:AGENTS.md",
+              },
+            },
+            skillFiles: [],
+          },
+          null,
+          2,
+        )}\n`,
+        "utf8",
+      );
+
+      const manifest = loadManifest(targetDir)!;
+
+      expect(manifest.schemaVersion).toBe(2);
+      expect(manifest.files["AGENTS.md"]).toEqual({
+        hash: hashText("legacy"),
+        sourceId: "file:AGENTS.md",
+      });
+      expect(manifest.systemAssetMaterialization).toMatchObject({
+        mode: "full-snapshot",
+        localBootstrapPaths: [],
+        deferredSystemAssetPaths: [],
+        materializationClasses: {},
+        assets: {},
+      });
+      expect(manifest.systemAssetMaterialization.recoveryGuidance).toContain(
+        "refresh local system asset provenance",
       );
     } finally {
       cleanupTempDir(targetDir);

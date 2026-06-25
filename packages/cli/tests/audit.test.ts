@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { applyInstallPlan, planInstall } from "../src/install";
 import { loadManifest } from "../src/manifest";
 import { defaultSelections } from "../src/profile";
+import type { SystemAssetMaterializationMode } from "../src/types";
 import { readPackageFile } from "../src/utils";
 import { cleanupTempDir, createTempDir, mockSkillFetches } from "./helpers";
 
@@ -105,6 +106,7 @@ const CLASSIFICATION_KEYS = ["classification", "kind", "category", "status", "ty
 async function installWithSelections(
   targetDir: string,
   configure: (selections: ReturnType<typeof defaultSelections>) => void,
+  systemAssetMaterializationMode?: SystemAssetMaterializationMode,
 ) {
   const selections = defaultSelections();
   configure(selections);
@@ -114,6 +116,7 @@ async function installWithSelections(
     targetDir,
     selections,
     existingManifest,
+    systemAssetMaterializationMode,
   });
 
   applyInstallPlan({
@@ -462,6 +465,29 @@ describe("shared audit engine", () => {
       expect(skillEntry?.backupRelativePath ?? skillEntry?.path).toBe(
         ".agents/skills/archive-docs/SKILL.md",
       );
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("does not infer provider-backed deferred assets as removable without local files", async () => {
+    const targetDir = createTempDir();
+
+    try {
+      const manifest = await installWithSelections(targetDir, () => {}, "provider-backed");
+      expect(manifest.systemAssetMaterialization.mode).toBe("provider-backed");
+      expect(manifest.systemAssetMaterialization.deferredSystemAssetPaths).toContain(
+        "docs/work/AGENTS.md",
+      );
+
+      const report = await runAudit({ targetDir, manifest });
+      expectAuditMode(report, "manifest-present");
+
+      const allEntries = collectAllEntries(report);
+      expect(findEntry(allEntries, "docs/work/AGENTS.md")).toBeUndefined();
+
+      const removableEntries = collectEntries(report, REMOVABLE_BUCKETS, ["removable"]);
+      expect(findEntry(removableEntries, "docs/AGENTS.md"), summarizeAudit(report)).toBeDefined();
     } finally {
       cleanupTempDir(targetDir);
     }

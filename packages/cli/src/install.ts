@@ -178,6 +178,9 @@ function applyInstallPlanInternal(options: {
     plan.profile,
     nextFiles,
     Array.from(nextSkillFiles).sort(),
+    options.trackSkillFilesInManifestFiles
+      ? plan.systemAssetMaterialization
+      : (existingManifest?.systemAssetMaterialization ?? plan.systemAssetMaterialization),
   );
   writeManifest(targetDir, manifest);
 

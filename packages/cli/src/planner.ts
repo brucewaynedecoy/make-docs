@@ -7,6 +7,7 @@ import {
 import { getManifestFileHash } from "./manifest";
 import { parseManagedBlock, upsertManagedBlock } from "./managed-block";
 import { getDesiredSkillAssets } from "./skill-catalog";
+import { createSystemAssetManifestState } from "./system-assets";
 import type {
   InstallManifest,
   InstallPlan,
@@ -19,7 +20,7 @@ import type {
   PlannedAction,
   ResolvedAsset,
   SystemAssetMaterializationMode,
-  SystemAssetMaterializationPlan,
+  SystemAssetManifestState,
 } from "./types";
 import { DEFAULT_SYSTEM_ASSET_MATERIALIZATION_MODE, INSTRUCTION_KINDS } from "./types";
 import { hashText, readTextFile, relativePathToTarget, createRunId } from "./utils";
@@ -48,17 +49,50 @@ export async function createInstallPlan(options: {
     profile,
     systemAssetMaterializationMode,
   );
+  const fullSnapshotAssets = getDesiredAssetsForMaterializationMode(
+    profile,
+    DEFAULT_SYSTEM_ASSET_MATERIALIZATION_MODE,
+  );
   const desiredSkillAssets = await getDesiredSkillAssets(profile.selections);
   const desiredSkillFiles = desiredSkillAssets.map((asset) => asset.relativePath);
   const desiredSkillFileSet = new Set(desiredSkillFiles);
   const allDesiredAssets = [...desiredAssets, ...desiredSkillAssets];
-  const desiredFiles = Object.fromEntries(
+  const baseDesiredFiles = Object.fromEntries(
     allDesiredAssets.map((asset) => [
       asset.relativePath,
       {
         hash: getManifestHashForAsset(asset),
         sourceId: asset.sourceId,
       },
+    ]),
+  );
+  const systemAssetManifestState = createSystemAssetManifestState({
+    mode: systemAssetMaterialization.mode,
+    sourcePackage: packageMeta.name,
+    sourceVersion: packageMeta.version,
+    localBootstrapPaths: systemAssetMaterialization.localBootstrapPaths,
+    deferredSystemAssetPaths: systemAssetMaterialization.deferredSystemAssetPaths,
+    materializationClasses: systemAssetMaterialization.materializationClasses,
+    expectedFiles: Object.fromEntries(
+      fullSnapshotAssets.map((asset) => [
+        asset.relativePath,
+        {
+          hash: getManifestHashForAsset(asset),
+          sourceId: asset.sourceId,
+        },
+      ]),
+    ),
+    materializedFiles: baseDesiredFiles,
+  });
+  const desiredFiles = Object.fromEntries(
+    Object.entries(baseDesiredFiles).map(([relativePath, entry]) => [
+      relativePath,
+      systemAssetManifestState.assets[relativePath]
+        ? {
+            ...entry,
+            systemAsset: systemAssetManifestState.assets[relativePath],
+          }
+        : entry,
     ]),
   );
 
@@ -238,7 +272,7 @@ export async function createInstallPlan(options: {
     packageName: packageMeta.name,
     packageVersion: packageMeta.version,
     profile,
-    systemAssetMaterialization,
+    systemAssetMaterialization: systemAssetManifestState,
     actions,
     desiredFiles,
     desiredSkillFiles: desiredSkillFiles.sort(),
@@ -319,12 +353,15 @@ export async function createSkillsOnlyInstallPlan(options: {
   };
 }
 
-function createSkillsOnlySystemAssetMaterializationPlan(): SystemAssetMaterializationPlan {
+function createSkillsOnlySystemAssetMaterializationPlan(): SystemAssetManifestState {
   return {
     mode: DEFAULT_SYSTEM_ASSET_MATERIALIZATION_MODE,
     localBootstrapPaths: [],
     deferredSystemAssetPaths: [],
     materializationClasses: {},
+    recoveryGuidance:
+      "Skills-only sync preserves existing system asset provenance when a manifest is already present.",
+    assets: {},
   };
 }
 

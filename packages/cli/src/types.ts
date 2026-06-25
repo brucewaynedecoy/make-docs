@@ -62,11 +62,49 @@ export const SYSTEM_ASSET_MATERIALIZATION_CLASSES = [
 export type SystemAssetMaterializationClass =
   (typeof SYSTEM_ASSET_MATERIALIZATION_CLASSES)[number];
 
+export type ManifestHashAlgorithm = "sha256";
+
+export type SystemAssetOfflineExpectation =
+  | "local"
+  | "cache-or-provider"
+  | "reviewed-full-snapshot-fallback";
+
+export type SystemAssetSelectionTrigger =
+  | "local-bootstrap"
+  | "profile-selection"
+  | "internal-materialization-mode";
+
 export interface SystemAssetMaterializationPlan {
   mode: SystemAssetMaterializationMode;
   localBootstrapPaths: string[];
   deferredSystemAssetPaths: string[];
   materializationClasses: Record<string, SystemAssetMaterializationClass>;
+}
+
+export interface ManifestSystemAssetEntry {
+  materializationMode: SystemAssetMaterializationMode;
+  sourcePackage?: string;
+  sourceProvider?: string;
+  sourceVersion?: string;
+  sourceImmutableRef?: string;
+  hashAlgorithm: ManifestHashAlgorithm;
+  expectedHashes: string[];
+  logicalAssetId: string;
+  localPath?: string;
+  materializationClass: SystemAssetMaterializationClass;
+  offlineExpectation: SystemAssetOfflineExpectation;
+  recoveryGuidance: string;
+  selectionTrigger: SystemAssetSelectionTrigger;
+}
+
+export interface SystemAssetManifestState extends SystemAssetMaterializationPlan {
+  sourcePackage?: string;
+  sourceProvider?: string;
+  sourceVersion?: string;
+  sourceImmutableRef?: string;
+  hashAlgorithm?: ManifestHashAlgorithm;
+  recoveryGuidance: string;
+  assets: Record<string, ManifestSystemAssetEntry>;
 }
 
 export interface InstallSelections {
@@ -113,6 +151,7 @@ export interface ResolvedAsset {
 export interface ManifestFileEntry {
   hash: string;
   sourceId: string;
+  systemAsset?: ManifestSystemAssetEntry;
 }
 
 export interface InstallManifest {
@@ -123,6 +162,7 @@ export interface InstallManifest {
   profileId: string;
   selections: InstallSelections;
   effectiveCapabilities: Capability[];
+  systemAssetMaterialization: SystemAssetManifestState;
   files: Record<string, ManifestFileEntry>;
   skillFiles: string[];
 }
@@ -149,7 +189,7 @@ export interface InstallPlan {
   packageName: string;
   packageVersion: string;
   profile: InstallProfile;
-  systemAssetMaterialization: SystemAssetMaterializationPlan;
+  systemAssetMaterialization: SystemAssetManifestState;
   actions: PlannedAction[];
   desiredFiles: Record<string, ManifestFileEntry>;
   desiredSkillFiles: string[];

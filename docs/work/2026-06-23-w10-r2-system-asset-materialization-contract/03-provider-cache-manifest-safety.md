@@ -20,9 +20,16 @@ This phase prepares the manifest and safety model for provider-backed and hybrid
 
 ### Tasks
 
-- [ ] t1: Extend manifest planning with fields for materialization mode, source package or provider, source version or immutable ref, hash algorithm, expected hash set, logical asset id, local path when materialized, materialization class, offline expectation, recovery guidance, and selection trigger.
-- [ ] t2: Define schema migration behavior from current schema version 1 manifests.
-- [ ] t3: Add stale-manifest tests that preserve safe behavior when provenance fields are absent.
+- [x] t1: Extend manifest planning with fields for materialization mode, source package or provider, source version or immutable ref, hash algorithm, expected hash set, logical asset id, local path when materialized, materialization class, offline expectation, recovery guidance, and selection trigger.
+- [x] t2: Define schema migration behavior from current schema version 1 manifests.
+- [x] t3: Add stale-manifest tests that preserve safe behavior when provenance fields are absent.
+
+### Evidence
+
+- `packages/cli/src/types.ts`, `packages/cli/src/manifest.ts`, and `packages/cli/src/system-assets.ts` add schema 2 `systemAssetMaterialization` provenance with source package/provider/version/ref, `sha256` hash metadata, logical asset ids, local materialized paths, materialization classes, offline expectations, recovery guidance, and selection triggers.
+- `packages/cli/src/planner.ts` derives expected system asset hashes from the full-snapshot package assets, attaches file-backed provenance to manifest `files` entries, and keeps `skillFiles` ownership separate from docs-file ownership.
+- `packages/cli/src/install.ts` preserves existing system asset provenance during skills-only manifest writes instead of replacing it with the empty skills-only plan.
+- `packages/cli/tests/install.test.ts` verifies schema 1 manifests without system asset provenance migrate to schema 2 with an empty compatibility state and recovery guidance.
 
 ### Acceptance criteria
 
@@ -38,9 +45,16 @@ This phase prepares the manifest and safety model for provider-backed and hybrid
 
 ### Tasks
 
-- [ ] t4: Add internal checks for provider identity, provider version or immutable ref, hash algorithm, and expected hash set.
-- [ ] t5: Add cache-miss and stale-hash handling that rehydrates from an approved provider or falls back to a reviewed materialization path.
-- [ ] t6: Ensure the CLI never silently accepts a different asset version.
+- [x] t4: Add internal checks for provider identity, provider version or immutable ref, hash algorithm, and expected hash set.
+- [x] t5: Add cache-miss and stale-hash handling that rehydrates from an approved provider or falls back to a reviewed materialization path.
+- [x] t6: Ensure the CLI never silently accepts a different asset version.
+
+### Evidence
+
+- `packages/cli/src/system-assets.ts` adds `resolveSystemAssetMaterializationSafety(...)` to require provider identity, provider version or immutable ref, `sha256`, and a non-empty expected hash set before provider/cache materialization can be approved.
+- Provider/cache outage handling fails closed by default and only returns a `reviewed-full-snapshot-fallback` result when a reviewed fallback path is explicitly allowed.
+- Stale provider/cache hashes throw an actionable "different asset version" error instead of accepting unpinned or mismatched content.
+- `packages/cli/tests/system-assets.test.ts` covers provider pin validation, provider/cache outage fallback, fail-closed outage behavior, and stale-hash rejection.
 
 ### Acceptance criteria
 
@@ -57,9 +71,15 @@ This phase prepares the manifest and safety model for provider-backed and hybrid
 
 ### Tasks
 
-- [ ] t7: Route on-demand materialization through the same managed-file review and conflict path as ordinary install.
-- [ ] t8: Verify backup and uninstall still operate from one reviewed audit snapshot and do not depend on provider availability to infer removability.
-- [ ] t9: Add provider-outage and on-demand-conflict tests.
+- [x] t7: Route on-demand materialization through the same managed-file review and conflict path as ordinary install.
+- [x] t8: Verify backup and uninstall still operate from one reviewed audit snapshot and do not depend on provider availability to infer removability.
+- [x] t9: Add provider-outage and on-demand-conflict tests.
+
+### Evidence
+
+- `packages/cli/tests/install.test.ts` proves a provider-backed refresh of an edited local bootstrap instruction block produces the same `skip-conflict` review item and cannot be applied with unresolved conflicts.
+- `packages/cli/tests/audit.test.ts` proves deferred provider-backed system assets are not inferred as removable when no local file exists; backup and uninstall continue to inherit that conservative behavior from the shared manifest-present audit snapshot.
+- `packages/cli/tests/system-assets.test.ts` covers provider outage handling, while the provider-backed refresh conflict test covers the on-demand conflict safety class.
 
 ### Acceptance criteria
 
