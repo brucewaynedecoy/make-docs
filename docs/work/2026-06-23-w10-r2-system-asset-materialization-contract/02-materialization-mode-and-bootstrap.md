@@ -20,9 +20,16 @@ This phase introduces the internal model for materialization modes and local boo
 
 ### Tasks
 
-- [ ] t1: Add typed materialization mode values for `full-snapshot`, `provider-backed`, and `hybrid-pinned-cache`.
-- [ ] t2: Route default install, sync, and reconfigure behavior through `full-snapshot` without changing existing file output.
-- [ ] t3: Reject or hide non-default modes unless the implementation has an explicit internal opt-in path guarded from public default use.
+- [x] t1: Add typed materialization mode values for `full-snapshot`, `provider-backed`, and `hybrid-pinned-cache`.
+- [x] t2: Route default install, sync, and reconfigure behavior through `full-snapshot` without changing existing file output.
+- [x] t3: Reject or hide non-default modes unless the implementation has an explicit internal opt-in path guarded from public default use.
+
+### Evidence
+
+- `packages/cli/src/types.ts` now defines `SystemAssetMaterializationMode`, `DEFAULT_SYSTEM_ASSET_MATERIALIZATION_MODE`, `SystemAssetMaterializationClass`, and `SystemAssetMaterializationPlan`.
+- `packages/cli/src/planner.ts` and `packages/cli/src/install.ts` route the public install/sync/reconfigure path through `full-snapshot` unless a test/internal caller passes `systemAssetMaterializationMode`.
+- `packages/cli/tests/install.test.ts` confirms default installs still materialize the existing full selected docs footprint while recording `full-snapshot` plan metadata.
+- `packages/cli/tests/cli.test.ts` confirms public top-level, reconfigure, and skills help do not expose `full-snapshot`, `provider-backed`, or `hybrid-pinned-cache`.
 
 ### Acceptance criteria
 
@@ -38,9 +45,16 @@ This phase introduces the internal model for materialization modes and local boo
 
 ### Tasks
 
-- [ ] t4: Classify root and docs instruction routers, `.make-docs/manifest.json`, future local config, custom overlays, and project-owned overrides as always-local bootstrap surfaces.
-- [ ] t5: Ensure local bootstrap assets cannot be provider-resolved only.
-- [ ] t6: Add tests proving bootstrap surfaces remain materialized when non-default modes are internally selected.
+- [x] t4: Classify root and docs instruction routers, `.make-docs/manifest.json`, future local config, custom overlays, and project-owned overrides as always-local bootstrap surfaces.
+- [x] t5: Ensure local bootstrap assets cannot be provider-resolved only.
+- [x] t6: Add tests proving bootstrap surfaces remain materialized when non-default modes are internally selected.
+
+### Evidence
+
+- `packages/cli/src/catalog.ts` classifies `.make-docs/manifest.json`, `.make-docs/config.yaml`, `.make-docs/*/custom` overlay roots, and the active root/docs instruction routers as `always-local-bootstrap` for every materialization mode.
+- Internally selected `provider-backed` and `hybrid-pinned-cache` plans defer non-bootstrap system assets but still materialize root/docs routers and write `.make-docs/manifest.json` during apply.
+- Custom overlays and project-owned overrides remain outside `getDesiredSystemAssetPaths(...)`; they are classified as local surfaces rather than immutable product-owned system assets.
+- `packages/cli/tests/install.test.ts` proves both non-default internal modes keep `AGENTS.md`, `CLAUDE.md`, `docs/AGENTS.md`, and `docs/CLAUDE.md` on disk, while deferring non-bootstrap docs assets.
 
 ### Acceptance criteria
 
@@ -57,9 +71,15 @@ This phase introduces the internal model for materialization modes and local boo
 
 ### Tasks
 
-- [ ] t7: Confirm skills-only planning continues through the existing selected-skill path rather than the system asset mode model.
-- [ ] t8: Confirm plugin/shared-agentics work remains outside system asset mode selection.
-- [ ] t9: Add or preserve tests that default installs still write no skill files.
+- [x] t7: Confirm skills-only planning continues through the existing selected-skill path rather than the system asset mode model.
+- [x] t8: Confirm plugin/shared-agentics work remains outside system asset mode selection.
+- [x] t9: Add or preserve tests that default installs still write no skill files.
+
+### Evidence
+
+- `packages/cli/src/planner.ts` leaves `createSkillsOnlyInstallPlan(...)` on the existing selected-skill path and gives skills-only plans an empty system asset materialization plan.
+- `packages/cli/src/tool-directory.ts` keeps reserved `agentics/skills` and `agentics/plugins` paths separate from system/custom tool resource tiers.
+- `packages/cli/tests/install.test.ts` preserves default-install assertions that `skillFiles` is empty and `.claude/skills`, `.agents/skills`, `.claude/skill-assets`, and `.agents/skill-assets` are not created.
 
 ### Acceptance criteria
 

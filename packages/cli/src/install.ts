@@ -17,6 +17,7 @@ import type {
   PackageMeta,
   PlannedAction,
   ReviewableManagedFileConflict,
+  SystemAssetMaterializationMode,
 } from "./types";
 import {
   ensureParentDir,
@@ -32,6 +33,7 @@ export async function planInstall(options: {
   existingManifest: InstallManifest | null;
   packageMeta?: PackageMeta;
   managedFileConflictResolutions?: ManagedFileConflictResolutions;
+  systemAssetMaterializationMode?: SystemAssetMaterializationMode;
 }): Promise<InstallPlan> {
   const packageMeta = options.packageMeta ?? readPackageMeta();
   const profile = resolveInstallProfile(options.selections);
@@ -42,6 +44,7 @@ export async function planInstall(options: {
     profile,
     existingManifest: options.existingManifest,
     managedFileConflictResolutions: options.managedFileConflictResolutions,
+    systemAssetMaterializationMode: options.systemAssetMaterializationMode,
   });
 }
 

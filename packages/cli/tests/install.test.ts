@@ -12,6 +12,11 @@ import {
 import { parseManagedBlock, renderManagedBlock } from "../src/managed-block";
 import { loadManifest } from "../src/manifest";
 import { defaultSelections, resolveInstallProfile } from "../src/profile";
+import {
+  DEFAULT_SYSTEM_ASSET_MATERIALIZATION_MODE,
+  SYSTEM_ASSET_MATERIALIZATION_MODES,
+} from "../src/types";
+import type { SystemAssetMaterializationMode } from "../src/types";
 import { hashText, readPackageFile } from "../src/utils";
 import {
   cleanupTempDir,
@@ -199,8 +204,23 @@ describe("installer integration", () => {
   test("installs the full default profile", async () => {
     const targetDir = createTempDir();
     try {
-      const { manifest } = await installWithSelections(targetDir, () => {});
+      const { manifest, plan } = await installWithSelections(targetDir, () => {});
 
+      expect(plan.systemAssetMaterialization.mode).toBe(
+        DEFAULT_SYSTEM_ASSET_MATERIALIZATION_MODE,
+      );
+      expect(plan.systemAssetMaterialization.deferredSystemAssetPaths).toEqual([]);
+      expect(plan.systemAssetMaterialization.localBootstrapPaths).toEqual(
+        expect.arrayContaining([
+          ".make-docs/manifest.json",
+          ".make-docs/config.yaml",
+          "AGENTS.md",
+          "docs/AGENTS.md",
+        ]),
+      );
+      expect(
+        plan.systemAssetMaterialization.materializationClasses["docs/work/AGENTS.md"],
+      ).toBe("materialized-system-asset");
       expect(manifest.effectiveCapabilities).toEqual(["designs", "plans", "prd", "work"]);
       expect(manifest.selections.skills).toBe(false);
       expect(manifest.selections.selectedSkills).toEqual([]);
@@ -282,6 +302,80 @@ describe("installer integration", () => {
       cleanupTempDir(targetDir);
     }
   });
+
+  test.each(
+    SYSTEM_ASSET_MATERIALIZATION_MODES.filter(
+      (mode) => mode !== DEFAULT_SYSTEM_ASSET_MATERIALIZATION_MODE,
+    ),
+  )(
+    "keeps local bootstrap assets materialized for internal %s mode",
+    async (mode: SystemAssetMaterializationMode) => {
+      const targetDir = createTempDir();
+      try {
+        const selections = defaultSelections();
+        selections.harnesses["claude-code"] = true;
+        selections.harnesses.codex = true;
+
+        const existingManifest = loadManifest(targetDir);
+        const plan = await planInstall({
+          targetDir,
+          selections,
+          existingManifest,
+          systemAssetMaterializationMode: mode,
+        });
+
+        expect(plan.systemAssetMaterialization.mode).toBe(mode);
+        expect(plan.systemAssetMaterialization.localBootstrapPaths).toEqual([
+          ".make-docs/config.yaml",
+          ".make-docs/contracts/custom",
+          ".make-docs/manifest.json",
+          ".make-docs/prompts/custom",
+          ".make-docs/references/custom",
+          ".make-docs/scripts/custom",
+          ".make-docs/templates/custom",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/AGENTS.md",
+          "docs/CLAUDE.md",
+        ]);
+        expect(plan.systemAssetMaterialization.deferredSystemAssetPaths).toContain(
+          "docs/work/AGENTS.md",
+        );
+        expect(plan.systemAssetMaterialization.deferredSystemAssetPaths).toContain(
+          "docs/assets/references/path-and-link-hygiene.md",
+        );
+        expect(
+          plan.systemAssetMaterialization.materializationClasses[
+            ".make-docs/manifest.json"
+          ],
+        ).toBe("always-local-bootstrap");
+        expect(plan.systemAssetMaterialization.materializationClasses["docs/AGENTS.md"]).toBe(
+          "always-local-bootstrap",
+        );
+        expect(
+          plan.systemAssetMaterialization.materializationClasses["docs/work/AGENTS.md"],
+        ).toBe("deferred-system-asset");
+
+        const result = applyInstallPlan({ targetDir, plan, existingManifest });
+        const manifest = result.manifest;
+
+        expect(existsSync(path.join(targetDir, "AGENTS.md"))).toBe(true);
+        expect(existsSync(path.join(targetDir, "CLAUDE.md"))).toBe(true);
+        expect(existsSync(path.join(targetDir, "docs/AGENTS.md"))).toBe(true);
+        expect(existsSync(path.join(targetDir, "docs/CLAUDE.md"))).toBe(true);
+        expect(existsSync(path.join(targetDir, ".make-docs/manifest.json"))).toBe(true);
+        expect(existsSync(path.join(targetDir, "docs/work/AGENTS.md"))).toBe(false);
+        expect(
+          existsSync(path.join(targetDir, "docs/assets/references/path-and-link-hygiene.md")),
+        ).toBe(false);
+        expect(manifest.skillFiles).toEqual([]);
+        expect(existsSync(path.join(targetDir, ".claude/skills"))).toBe(false);
+        expect(existsSync(path.join(targetDir, ".agents/skills"))).toBe(false);
+      } finally {
+        cleanupTempDir(targetDir);
+      }
+    },
+  );
 
   test("rejects manifests with removed asset selection fields", () => {
     const targetDir = createTempDir();

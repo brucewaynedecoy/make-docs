@@ -1109,6 +1109,19 @@ describe("cli interactive flows", () => {
     expect(output).toMatch(/--help/i);
   });
 
+  test.each([["--help"], ["reconfigure", "--help"], ["skills", "--help"]])(
+    "does not expose internal system asset materialization modes in %s help",
+    async (...argv: string[]) => {
+      setTTY(false);
+
+      const output = await captureCliOutput(argv);
+
+      expect(output).not.toContain("full-snapshot");
+      expect(output).not.toContain("provider-backed");
+      expect(output).not.toContain("hybrid-pinned-cache");
+    },
+  );
+
   test("documents reconfigure selection-change behavior", async () => {
     setTTY(false);
 

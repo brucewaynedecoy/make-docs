@@ -7,7 +7,19 @@ import {
   getTemplateDirInstalled,
   getTemplatePaths,
 } from "./rules";
-import type { InstallProfile, InstructionKind, ResolvedAsset } from "./types";
+import {
+  TOOL_RESOURCE_FAMILIES,
+  getLocalBootstrapPathsForMaterializationMode,
+  getToolResourceTierPath,
+} from "./tool-directory";
+import type {
+  InstallProfile,
+  InstructionKind,
+  ResolvedAsset,
+  SystemAssetMaterializationMode,
+  SystemAssetMaterializationPlan,
+} from "./types";
+import { DEFAULT_SYSTEM_ASSET_MATERIALIZATION_MODE } from "./types";
 import { getActiveInstructionKinds } from "./types";
 import { readPackageFile } from "./utils";
 
@@ -66,6 +78,75 @@ function addInstructionAssets(
 }
 
 export function getDesiredAssets(profile: InstallProfile): ResolvedAsset[] {
+  return getDesiredAssetsForMaterializationMode(
+    profile,
+    DEFAULT_SYSTEM_ASSET_MATERIALIZATION_MODE,
+  );
+}
+
+export function getDesiredAssetsForMaterializationMode(
+  profile: InstallProfile,
+  mode: SystemAssetMaterializationMode,
+): ResolvedAsset[] {
+  const relativePaths = getDesiredSystemAssetPaths(profile);
+  const materializedPaths =
+    mode === DEFAULT_SYSTEM_ASSET_MATERIALIZATION_MODE
+      ? relativePaths
+      : filterMaterializedLocalBootstrapAssetPaths(profile, mode, relativePaths);
+
+  return Array.from(materializedPaths)
+    .sort()
+    .map((relativePath) => buildAsset(relativePath));
+}
+
+export function getSystemAssetMaterializationPlan(
+  profile: InstallProfile,
+  mode: SystemAssetMaterializationMode = DEFAULT_SYSTEM_ASSET_MATERIALIZATION_MODE,
+): SystemAssetMaterializationPlan {
+  const allSystemAssetPaths = Array.from(getDesiredSystemAssetPaths(profile)).sort();
+  const localBootstrapPaths = getLocalBootstrapSystemAssetPaths(profile, mode);
+  const localBootstrapPathSet = new Set(localBootstrapPaths);
+  const deferredSystemAssetPaths =
+    mode === DEFAULT_SYSTEM_ASSET_MATERIALIZATION_MODE
+      ? []
+      : allSystemAssetPaths.filter((relativePath) => !localBootstrapPathSet.has(relativePath));
+  const materializationClasses = Object.fromEntries([
+    ...localBootstrapPaths.map((relativePath) => [
+      relativePath,
+      "always-local-bootstrap" as const,
+    ]),
+    ...allSystemAssetPaths
+      .filter((relativePath) => !localBootstrapPathSet.has(relativePath))
+      .map((relativePath) => [
+        relativePath,
+        mode === DEFAULT_SYSTEM_ASSET_MATERIALIZATION_MODE
+          ? ("materialized-system-asset" as const)
+          : ("deferred-system-asset" as const),
+      ]),
+  ]);
+
+  return {
+    mode,
+    localBootstrapPaths,
+    deferredSystemAssetPaths,
+    materializationClasses,
+  };
+}
+
+export function getLocalBootstrapSystemAssetPaths(
+  profile: InstallProfile,
+  mode: SystemAssetMaterializationMode,
+): string[] {
+  return Array.from(
+    new Set([
+      ...getLocalBootstrapPathsForMaterializationMode(mode),
+      ...getLocalCustomOverlayPaths(),
+      ...getLocalBootstrapInstructionRouterPaths(profile),
+    ]),
+  ).sort();
+}
+
+function getDesiredSystemAssetPaths(profile: InstallProfile): Set<string> {
   const relativePaths = new Set<string>();
 
   for (const referencePath of getReferencePaths(profile)) {
@@ -88,7 +169,35 @@ export function getDesiredAssets(profile: InstallProfile): ResolvedAsset[] {
     addInstructionAssets(profile, instructionKind, relativePaths);
   }
 
-  return Array.from(relativePaths)
-    .sort()
-    .map((relativePath) => buildAsset(relativePath));
+  return relativePaths;
+}
+
+function filterMaterializedLocalBootstrapAssetPaths(
+  profile: InstallProfile,
+  mode: SystemAssetMaterializationMode,
+  relativePaths: Set<string>,
+): Set<string> {
+  const localBootstrapPaths = new Set(getLocalBootstrapSystemAssetPaths(profile, mode));
+  return new Set(
+    Array.from(relativePaths).filter((relativePath) =>
+      localBootstrapPaths.has(relativePath),
+    ),
+  );
+}
+
+function getLocalBootstrapInstructionRouterPaths(profile: InstallProfile): string[] {
+  const relativePaths = new Set<string>();
+
+  for (const instructionKind of getActiveInstructionKinds(profile.selections)) {
+    relativePaths.add(instructionKind);
+    relativePaths.add(`docs/${instructionKind}`);
+  }
+
+  return Array.from(relativePaths).sort();
+}
+
+function getLocalCustomOverlayPaths(): string[] {
+  return TOOL_RESOURCE_FAMILIES.map((family) =>
+    getToolResourceTierPath(family, "custom"),
+  ).sort();
 }

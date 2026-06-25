@@ -1,3 +1,7 @@
+import {
+  SYSTEM_ASSET_MATERIALIZATION_MODES,
+  type SystemAssetMaterializationMode,
+} from "./types";
 import { normalizeRelativePath } from "./utils";
 
 export const TOOL_DIRECTORY_RELATIVE_PATH = ".make-docs";
@@ -35,14 +39,10 @@ export const TOOL_DIRECTORY_LOCAL_BOOTSTRAP_PATHS = [
   TOOL_DIRECTORY_CONFIG_RELATIVE_PATH,
 ] as const;
 
-export const TOOL_RESOURCE_MATERIALIZATION_MODES = [
-  "full-snapshot",
-  "provider-backed",
-  "hybrid-pinned-cache",
-] as const;
+export const TOOL_RESOURCE_MATERIALIZATION_MODES =
+  SYSTEM_ASSET_MATERIALIZATION_MODES;
 
-export type ToolResourceMaterializationMode =
-  (typeof TOOL_RESOURCE_MATERIALIZATION_MODES)[number];
+export type ToolResourceMaterializationMode = SystemAssetMaterializationMode;
 
 export const LEGACY_TOOL_RESOURCE_FAMILIES = [
   "prompts",

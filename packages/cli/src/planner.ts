@@ -1,6 +1,9 @@
 import { existsSync } from "node:fs";
 import path from "node:path";
-import { getDesiredAssets } from "./catalog";
+import {
+  getDesiredAssetsForMaterializationMode,
+  getSystemAssetMaterializationPlan,
+} from "./catalog";
 import { getManifestFileHash } from "./manifest";
 import { parseManagedBlock, upsertManagedBlock } from "./managed-block";
 import { getDesiredSkillAssets } from "./skill-catalog";
@@ -15,8 +18,10 @@ import type {
   PackageMeta,
   PlannedAction,
   ResolvedAsset,
+  SystemAssetMaterializationMode,
+  SystemAssetMaterializationPlan,
 } from "./types";
-import { INSTRUCTION_KINDS } from "./types";
+import { DEFAULT_SYSTEM_ASSET_MATERIALIZATION_MODE, INSTRUCTION_KINDS } from "./types";
 import { hashText, readTextFile, relativePathToTarget, createRunId } from "./utils";
 
 export async function createInstallPlan(options: {
@@ -25,6 +30,7 @@ export async function createInstallPlan(options: {
   profile: InstallProfile;
   existingManifest: InstallManifest | null;
   managedFileConflictResolutions?: ManagedFileConflictResolutions;
+  systemAssetMaterializationMode?: SystemAssetMaterializationMode;
 }): Promise<InstallPlan> {
   const {
     targetDir,
@@ -32,8 +38,16 @@ export async function createInstallPlan(options: {
     profile,
     existingManifest,
     managedFileConflictResolutions,
+    systemAssetMaterializationMode = DEFAULT_SYSTEM_ASSET_MATERIALIZATION_MODE,
   } = options;
-  const desiredAssets = getDesiredAssets(profile);
+  const systemAssetMaterialization = getSystemAssetMaterializationPlan(
+    profile,
+    systemAssetMaterializationMode,
+  );
+  const desiredAssets = getDesiredAssetsForMaterializationMode(
+    profile,
+    systemAssetMaterializationMode,
+  );
   const desiredSkillAssets = await getDesiredSkillAssets(profile.selections);
   const desiredSkillFiles = desiredSkillAssets.map((asset) => asset.relativePath);
   const desiredSkillFileSet = new Set(desiredSkillFiles);
@@ -224,6 +238,7 @@ export async function createInstallPlan(options: {
     packageName: packageMeta.name,
     packageVersion: packageMeta.version,
     profile,
+    systemAssetMaterialization,
     actions,
     desiredFiles,
     desiredSkillFiles: desiredSkillFiles.sort(),
@@ -296,10 +311,20 @@ export async function createSkillsOnlyInstallPlan(options: {
     packageName: packageMeta.name,
     packageVersion: packageMeta.version,
     profile,
+    systemAssetMaterialization: createSkillsOnlySystemAssetMaterializationPlan(),
     actions,
     desiredFiles,
     desiredSkillFiles: desiredSkillFiles.sort(),
     conflictsRunId,
+  };
+}
+
+function createSkillsOnlySystemAssetMaterializationPlan(): SystemAssetMaterializationPlan {
+  return {
+    mode: DEFAULT_SYSTEM_ASSET_MATERIALIZATION_MODE,
+    localBootstrapPaths: [],
+    deferredSystemAssetPaths: [],
+    materializationClasses: {},
   };
 }
 

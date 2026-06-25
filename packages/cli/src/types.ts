@@ -41,6 +41,34 @@ export type ActionType =
   | "remove-managed"
   | "generate";
 
+export const SYSTEM_ASSET_MATERIALIZATION_MODES = [
+  "full-snapshot",
+  "provider-backed",
+  "hybrid-pinned-cache",
+] as const;
+
+export type SystemAssetMaterializationMode =
+  (typeof SYSTEM_ASSET_MATERIALIZATION_MODES)[number];
+
+export const DEFAULT_SYSTEM_ASSET_MATERIALIZATION_MODE =
+  "full-snapshot" satisfies SystemAssetMaterializationMode;
+
+export const SYSTEM_ASSET_MATERIALIZATION_CLASSES = [
+  "always-local-bootstrap",
+  "materialized-system-asset",
+  "deferred-system-asset",
+] as const;
+
+export type SystemAssetMaterializationClass =
+  (typeof SYSTEM_ASSET_MATERIALIZATION_CLASSES)[number];
+
+export interface SystemAssetMaterializationPlan {
+  mode: SystemAssetMaterializationMode;
+  localBootstrapPaths: string[];
+  deferredSystemAssetPaths: string[];
+  materializationClasses: Record<string, SystemAssetMaterializationClass>;
+}
+
 export interface InstallSelections {
   capabilities: Record<Capability, boolean>;
   harnesses: Record<Harness, boolean>;
@@ -121,6 +149,7 @@ export interface InstallPlan {
   packageName: string;
   packageVersion: string;
   profile: InstallProfile;
+  systemAssetMaterialization: SystemAssetMaterializationPlan;
   actions: PlannedAction[];
   desiredFiles: Record<string, ManifestFileEntry>;
   desiredSkillFiles: string[];
