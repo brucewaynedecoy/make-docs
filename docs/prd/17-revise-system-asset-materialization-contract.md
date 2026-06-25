@@ -36,15 +36,20 @@ Code anchors:
 
 - `packages/cli/src/rules.ts`
 - `packages/cli/src/catalog.ts`
+- `packages/cli/src/types.ts`
 - `packages/cli/src/utils.ts`
 - `packages/cli/src/planner.ts`
 - `packages/cli/src/install.ts`
 - `packages/cli/src/manifest.ts`
+- `packages/cli/src/system-assets.ts`
 - `packages/cli/src/audit.ts`
 - `packages/cli/src/backup.ts`
 - `packages/cli/src/uninstall.ts`
 - `packages/cli/src/skill-catalog.ts`
 - `packages/cli/src/skill-resolver.ts`
+- `packages/cli/tests/install.test.ts`
+- `packages/cli/tests/audit.test.ts`
+- `packages/cli/tests/system-assets.test.ts`
 - `packages/cli/tests/consistency.test.ts`
 - `scripts/smoke-pack.mjs`
 
