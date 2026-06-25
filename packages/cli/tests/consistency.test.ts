@@ -235,6 +235,7 @@ describe("template completeness", () => {
   test("generated document templates include PRD 23 metadata frontmatter", () => {
     for (const templateRoot of [
       ".make-docs/templates/system",
+      "packages/cli/template/.make-docs/templates/system",
       "packages/docs/template/.make-docs/templates/system",
     ]) {
       for (const [fileName, expected] of GENERATED_DOCUMENT_TEMPLATE_METADATA) {
@@ -270,14 +271,49 @@ describe("template completeness", () => {
     }
   });
 
+  test("metadata-bearing generated template copies match the package source", () => {
+    for (const fileName of GENERATED_DOCUMENT_TEMPLATE_METADATA.keys()) {
+      const sourceContents = readFileSync(
+        path.join(REPO_ROOT, "packages/docs/template/.make-docs/templates/system", fileName),
+        "utf8",
+      );
+
+      for (const templateRoot of [
+        ".make-docs/templates/system",
+        "packages/cli/template/.make-docs/templates/system",
+      ]) {
+        const relativePath = path.join(templateRoot, fileName);
+        expect(readFileSync(path.join(REPO_ROOT, relativePath), "utf8"), relativePath).toBe(
+          sourceContents,
+        );
+      }
+    }
+  });
+
   test("generated document prompts require PRD 23 metadata frontmatter", () => {
     for (const relativePath of GENERATED_DOCUMENT_PROMPT_PATHS) {
-      for (const rootPrefix of ["", "packages/docs/template/"]) {
+      for (const rootPrefix of ["", "packages/cli/template/", "packages/docs/template/"]) {
         const contents = readFileSync(path.join(REPO_ROOT, rootPrefix, relativePath), "utf8");
 
         expect(contents).toContain("PRD 23 YAML frontmatter");
         expect(contents).toContain("common `title`, `kind`, and `status`");
         expect(contents).toContain("omit unknown coordinate levels");
+      }
+    }
+  });
+
+  test("generated document prompt copies match the package source", () => {
+    for (const relativePath of GENERATED_DOCUMENT_PROMPT_PATHS) {
+      const sourceContents = readFileSync(
+        path.join(REPO_ROOT, "packages/docs/template", relativePath),
+        "utf8",
+      );
+
+      for (const rootPrefix of ["", "packages/cli/template/"]) {
+        const promptPath = path.join(rootPrefix, relativePath);
+        expect(readFileSync(path.join(REPO_ROOT, promptPath), "utf8"), promptPath).toBe(
+          sourceContents,
+        );
       }
     }
   });
