@@ -33,14 +33,19 @@ This guide explains the current shipped skills model from a user point of view: 
 
 Skills are managed separately from the rest of the docs template, but they still follow the installation manifest.
 
-The shipped catalog currently has two skill types:
+The first-party catalog currently exposes these selectable skills:
 
-| Skill type | Current shipped entry |
+| Skill | Purpose |
 | --- | --- |
-| Required | `archive-docs` |
-| Optional | `decompose-codebase` |
+| `archive-docs` | Archive management |
+| `decompose-codebase` | Codebase decomposition and plan creation |
+| `cleanup-docs` | Documentation maintenance |
+| `closeout-commit` | Lifecycle closeout |
+| `closeout-phase` | Lifecycle closeout |
+| `work-on-phase` | Workflow execution |
+| `work-on-wave` | Workflow execution |
 
-Required skills are installed whenever skills are enabled. Optional skills are installed only when you select them.
+Skills are installed only when skills are enabled and the skill is in the selected set. The CLI selection UI groups candidates by purpose and shows the candidate skill name, source policy, supported harnesses, and provenance.
 
 ## Install or sync skills
 
@@ -73,14 +78,18 @@ The current registry exposes skills that can be selected explicitly. A skills-en
 
 `archive-docs` is the default selected skill. If skills are enabled and you do not replace the selected set, it is installed for the selected harnesses.
 
-### Additional skills
+### Select one or more skills
 
-Today the additional shipped skill is `decompose-codebase`.
-
-To enable it during a skills-only update:
+To select one skill during a skills-only update:
 
 ```bash
 make-docs skills --yes --selected-skills decompose-codebase
+```
+
+To select every skill in the effective manifest:
+
+```bash
+make-docs skills --yes --selected-skills all
 ```
 
 To clear the selected skill set:
@@ -88,6 +97,18 @@ To clear the selected skill set:
 ```bash
 make-docs skills --yes --selected-skills none
 ```
+
+## Alternate local skills manifest
+
+Use `--skill-manifest` when you want a run to use an explicit local skills manifest instead of the packaged first-party manifest:
+
+```bash
+make-docs skills --yes --skill-manifest ./skills.manifest.json --selected-skills all
+```
+
+With `--selected-skills all`, `all` expands against the effective manifest for that run. The install manifest preserves the selected skill names and records the skills manifest and selection provenance that produced them.
+
+Remote manifest inputs are policy-gated. Unpinned remote manifests and unpinned remote skill payloads stop before install state is written.
 
 ## Project versus global scope
 
@@ -136,9 +157,9 @@ make-docs skills --remove --dry-run
 
 Removing skills updates only the skill-managed part of the installation. It does not uninstall the rest of the docs template.
 
-## `archive-docs` in the default skill set
+## When to use `archive-docs`
 
-`archive-docs` is the required skill that ships by default when skills are enabled.
+`archive-docs` supports archive management workflows.
 
 Use it when you need an agent to:
 
@@ -147,7 +168,7 @@ Use it when you need an agent to:
 - mark docs as deprecated in place
 - produce a dry-run archive impact report
 
-Because it is required, you normally do not select it manually. The main user decision is whether skills are enabled at all and whether they should live in project or global scope.
+Select it when you want Make Docs to install that skill for the enabled harnesses.
 
 ## When to use `decompose-codebase`
 

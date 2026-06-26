@@ -29,6 +29,7 @@ import {
   getRecommendedSkillChoices,
   type WizardSkillChoice,
 } from "./skill-catalog";
+import type { SkillRegistry } from "./skill-registry";
 import {
   CAPABILITIES,
   HARNESSES,
@@ -152,6 +153,7 @@ export interface RunSelectionWizardOptions {
   introTitle: string;
   startStep?: WizardStep;
   config?: MakeDocsConfig;
+  skillRegistry?: SkillRegistry;
 }
 
 export interface CapabilityChecklistOption {
@@ -226,6 +228,7 @@ export interface SkillSelectionPromptOption {
   hint: string;
   disabled: boolean;
   rowKind: "skill";
+  detailLines: string[];
 }
 
 export interface SkillSelectionState {
@@ -286,10 +289,20 @@ export function buildSkillSelectionState(
     .map((skill) => skill.name);
   const promptOptions = skillChoices.map((skill) => ({
     value: skill.name,
-    label: skill.name,
-    hint: skill.description,
+    label: `${formatSkillPurposeLabels(skill)} / ${skill.name}`,
+    hint: formatSkillChoiceHint(skill),
     disabled: false,
     rowKind: "skill" as const,
+    detailLines: [
+      skill.description,
+      "",
+      `Purpose: ${formatSkillPurposeLabels(skill)}`,
+      `Candidate skill: ${skill.name}`,
+      `Source policy: ${skill.sourcePolicyKind}`,
+      `Skill source: ${skill.source}`,
+      `Harness support: ${formatInlineList(skill.supportedHarnesses)}`,
+      `Provenance: ${skill.provenanceLabel} (${skill.provenanceKind})`,
+    ],
   }));
 
   return {
@@ -327,9 +340,10 @@ export function applyHarnessSelections(
 
 function buildOptionsStepState(
   selections: InstallSelections,
+  skillRegistry?: SkillRegistry,
 ): OptionsStepState {
   const options = getWizardOptionSelections(selections);
-  const skillChoices = getRecommendedSkillChoices();
+  const skillChoices = getRecommendedSkillChoices(skillRegistry);
 
   return {
     selections,
@@ -508,7 +522,7 @@ export async function runSelectionWizardWithRenderer(
 
     if (step === "options") {
       const nextOptions = await renderer.editOptions(
-        buildOptionsStepState(selections),
+        buildOptionsStepState(selections, options.skillRegistry),
       );
 
       if (!nextOptions) {
@@ -1013,7 +1027,9 @@ function renderSkillSelectionFrame(
   const detailLines = renderDetailBox(
     focusedOption.label,
     [
-      focusedOption.hint || "No additional description available.",
+      ...(focusedOption.detailLines.length > 0
+        ? focusedOption.detailLines
+        : [focusedOption.hint || "No additional description available."]),
       "",
       `Status: ${
         selectedSkillNames.has(focusedOption.value) ? "Selected" : "Available"
@@ -1125,6 +1141,21 @@ function renderSkillSelectionLines(
   });
 
   return lines;
+}
+
+function formatSkillPurposeLabels(skill: WizardSkillChoice): string {
+  return skill.purposes.length > 0
+    ? skill.purposes.map((purpose) => purpose.label).join(", ")
+    : "Uncategorized";
+}
+
+function formatSkillChoiceHint(skill: WizardSkillChoice): string {
+  return [
+    skill.description,
+    `Source: ${skill.sourcePolicyKind}`,
+    `Harnesses: ${formatInlineList(skill.supportedHarnesses)}`,
+    `Provenance: ${skill.provenanceLabel}`,
+  ].join(" | ");
 }
 
 function renderCapabilitiesFrame(

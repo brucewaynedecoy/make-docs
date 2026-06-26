@@ -21,9 +21,12 @@ import {
 import { loadManifest, MANIFEST_RELATIVE_PATH } from "./manifest";
 import { runOperationsCommand } from "./operations";
 import { cloneSelections, defaultSelections, hasEffectiveCapabilities } from "./profile";
+import { applySkillRegistrySelectionMetadata } from "./skill-catalog";
 import {
   getSkillRegistryNames,
-  loadSkillRegistry,
+  loadEffectiveSkillRegistry,
+  type EffectiveSkillRegistry,
+  type SkillRegistry,
 } from "./skill-registry";
 import type {
   InstallManifest,
@@ -65,6 +68,8 @@ interface ParsedArgs {
   noSkills: boolean;
   skillScope?: InstallSelections["skillScope"];
   selectedSkills?: string[];
+  selectedSkillsValue?: string;
+  skillsManifest?: string;
   operationArgs: string[];
 }
 
@@ -86,6 +91,7 @@ type SkillsCommandOptions = {
   noClaudeCode: boolean;
   skillScope?: InstallSelections["skillScope"];
   selectedSkills?: string[];
+  skillsManifest?: string;
 };
 
 type SkillsCommandRunner = (options: SkillsCommandOptions) => Promise<void>;
@@ -99,6 +105,14 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
     printHelp(parsed.command);
     return;
   }
+
+  validateParsedArgs(parsed);
+  const effectiveSkillRegistry = loadEffectiveSkillRegistry({
+    packageRoot: PACKAGE_ROOT,
+    manifestReference: parsed.skillsManifest,
+  });
+  resolveParsedSelectedSkills(parsed, effectiveSkillRegistry.registry);
+  validateParsedSelectedSkills(parsed, effectiveSkillRegistry.registry);
 
   const targetDir = path.resolve(parsed.targetDir ?? process.cwd());
 
@@ -131,6 +145,7 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
       skillScope: parsed.skillScope,
       selectedSkills:
         parsed.selectedSkills === undefined ? undefined : [...parsed.selectedSkills],
+      skillsManifest: parsed.skillsManifest,
     });
     return;
   }
@@ -189,10 +204,13 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
     throw new Error("Interactive prompts require a TTY. Use --yes for non-interactive runs.");
   }
 
-  let selections = resolveSelections({
-    parsed,
-    existingManifest,
-  });
+  let selections = applySkillRegistrySelectionMetadata(
+    resolveSelections({
+      parsed,
+      existingManifest,
+    }),
+    effectiveSkillRegistry,
+  );
   let selectionSource = describeSelectionSource({
     parsed,
     existingManifest,
@@ -206,12 +224,18 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
         initialSelections: selections,
         introTitle: "Let's configure your make-docs install",
         config: makeDocsConfig,
+        ...(parsed.skillsManifest
+          ? { skillRegistry: effectiveSkillRegistry.registry }
+          : {}),
       });
       if (!wizardSelections) {
         output.write("Installer cancelled.\n");
         return;
       }
-      selections = wizardSelections;
+      selections = applySkillRegistrySelectionMetadata(
+        wizardSelections,
+        effectiveSkillRegistry,
+      );
       selectionSource = "interactive wizard selections";
       skipApplyConfirm = true;
     } else if (installIntent === "reconfigure") {
@@ -219,12 +243,18 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
         initialSelections: selections,
         introTitle: "Let's reconfigure your make-docs install",
         config: makeDocsConfig,
+        ...(parsed.skillsManifest
+          ? { skillRegistry: effectiveSkillRegistry.registry }
+          : {}),
       });
       if (!wizardSelections) {
         output.write("Installer cancelled.\n");
         return;
       }
-      selections = wizardSelections;
+      selections = applySkillRegistrySelectionMetadata(
+        wizardSelections,
+        effectiveSkillRegistry,
+      );
       selectionSource = "interactive reconfigure wizard";
       skipApplyConfirm = true;
     }
@@ -236,6 +266,7 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
     selections,
     existingManifest,
     packageMeta,
+    skillRegistry: effectiveSkillRegistry.registry,
   });
 
   if (interactive) {
@@ -254,6 +285,7 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
         existingManifest,
         packageMeta,
         managedFileConflictResolutions,
+        skillRegistry: effectiveSkillRegistry.registry,
       });
     }
   }
@@ -420,6 +452,7 @@ function hasSelectionOverrides(parsed: ParsedArgs): boolean {
       parsed.noCodex ||
       parsed.noClaudeCode ||
       parsed.noSkills ||
+      parsed.skillsManifest ||
       parsed.skillScope ||
       parsed.selectedSkills !== undefined,
   );
@@ -495,10 +528,13 @@ function getSelectionOverrideFlags(parsed: ParsedArgs): string[] {
   if (parsed.noSkills) {
     flags.push("--no-skills");
   }
+  if (parsed.skillsManifest) {
+    flags.push("--skill-manifest");
+  }
   if (parsed.skillScope) {
     flags.push("--skill-scope");
   }
-  if (parsed.selectedSkills !== undefined) {
+  if (parsed.selectedSkillsValue !== undefined) {
     flags.push("--selected-skills");
   }
 
@@ -599,6 +635,14 @@ function parseArgs(argv: string[]): ParsedArgs {
       case "--no-skills":
         parsed.noSkills = true;
         break;
+      case "--skill-manifest": {
+        const value = args.shift();
+        if (!value) {
+          throw new Error("`--skill-manifest` requires a file path.");
+        }
+        parsed.skillsManifest = value;
+        break;
+      }
       case "--skill-scope": {
         const value = args.shift();
         if (value !== "project" && value !== "global") {
@@ -612,11 +656,7 @@ function parseArgs(argv: string[]): ParsedArgs {
         if (!value) {
           throw new Error("`--selected-skills` requires a comma-separated value, `all`, or `none`.");
         }
-        parsed.selectedSkills = parseSelectedSkillsValue(value);
-
-        if (value !== "none" && value !== "all" && parsed.selectedSkills.length === 0) {
-          throw new Error("`--selected-skills` requires at least one skill id, `all`, or `none`.");
-        }
+        parsed.selectedSkillsValue = value;
         break;
       }
       default:
@@ -624,17 +664,43 @@ function parseArgs(argv: string[]): ParsedArgs {
     }
   }
 
-  validateParsedArgs(parsed);
   return parsed;
 }
 
-function parseSelectedSkillsValue(value: string): string[] {
+function resolveParsedSelectedSkills(
+  parsed: ParsedArgs,
+  registry: SkillRegistry,
+): void {
+  if (parsed.selectedSkillsValue === undefined) {
+    return;
+  }
+
+  parsed.selectedSkills = parseSelectedSkillsValue(
+    parsed.selectedSkillsValue,
+    registry,
+  );
+
+  if (
+    parsed.selectedSkillsValue !== "none" &&
+    parsed.selectedSkillsValue !== "all" &&
+    parsed.selectedSkills.length === 0
+  ) {
+    throw new Error(
+      "`--selected-skills` requires at least one skill id, `all`, or `none`.",
+    );
+  }
+}
+
+function parseSelectedSkillsValue(
+  value: string,
+  registry: SkillRegistry,
+): string[] {
   if (value === "none") {
     return [];
   }
 
   if (value === "all") {
-    return getSkillRegistryNames(loadSkillRegistry(PACKAGE_ROOT));
+    return getSkillRegistryNames(registry);
   }
 
   return Array.from(
@@ -731,7 +797,7 @@ function validateParsedArgs(parsed: ParsedArgs): void {
       );
     }
 
-    if (parsed.remove && parsed.selectedSkills !== undefined) {
+    if (parsed.remove && parsed.selectedSkillsValue !== undefined) {
       throw new Error(
         "`--selected-skills` cannot be combined with `make-docs skills --remove`.",
       );
@@ -750,17 +816,24 @@ function validateParsedArgs(parsed: ParsedArgs): void {
     );
   }
 
-  if (parsed.noSkills && (parsed.skillScope || parsed.selectedSkills !== undefined)) {
+  if (parsed.noSkills && parsed.skillsManifest) {
+    throw new Error(
+      "`--no-skills` cannot be combined with `--skill-manifest`.",
+    );
+  }
+
+  if (parsed.noSkills && (parsed.skillScope || parsed.selectedSkillsValue !== undefined)) {
     throw new Error(
       "`--no-skills` cannot be combined with `--skill-scope` or `--selected-skills`.",
     );
   }
+}
 
+function validateParsedSelectedSkills(parsed: ParsedArgs, registry: SkillRegistry): void {
   if (parsed.selectedSkills === undefined) {
     return;
   }
 
-  const registry = loadSkillRegistry(PACKAGE_ROOT);
   const registrySkills = new Set(getSkillRegistryNames(registry));
 
   for (const skillName of parsed.selectedSkills) {
@@ -1175,6 +1248,7 @@ Harness options:
 
 Skill options:
   --no-skills                    Skip skill installation entirely.
+  --skill-manifest <file>       Use an explicit local skills manifest for this run.
   --skill-scope project|global   Choose whether skills install in the repo or the global Codex home.
   --selected-skills <csv|all|none>
                                   Replace the selected skill set.
@@ -1207,6 +1281,7 @@ Platform options:
 
 Skill options:
   --remove                       Remove managed skills owned by make-docs.
+  --skill-manifest <file>       Use an explicit local skills manifest for this run.
   --skill-scope project|global   Choose whether skills install in the repo or the global Codex home.
   --selected-skills <csv|all|none>
                                   Replace the selected skill set.
@@ -1216,6 +1291,7 @@ Examples:
   make-docs skills --dry-run
   make-docs skills --remove
   make-docs skills --skill-scope global
+  make-docs skills --skill-manifest ./skills.manifest.json --selected-skills all
   make-docs skills --selected-skills all
 `);
       return;
@@ -1332,6 +1408,7 @@ Examples:
   make-docs
   make-docs --yes
   make-docs --target ~/Projects/example --dry-run
+  make-docs --skill-manifest ./skills.manifest.json --selected-skills all --yes
   make-docs reconfigure
   make-docs reconfigure --yes --no-skills
   make-docs skills --dry-run

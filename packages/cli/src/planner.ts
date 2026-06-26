@@ -7,6 +7,7 @@ import {
 import { getManifestFileHash } from "./manifest";
 import { parseManagedBlock, upsertManagedBlock } from "./managed-block";
 import { getDesiredSkillAssets, getRetiredManagedSkillAssets } from "./skill-catalog";
+import type { SkillRegistry } from "./skill-registry";
 import { createSystemAssetManifestState } from "./system-assets";
 import type {
   InstallManifest,
@@ -32,6 +33,7 @@ export async function createInstallPlan(options: {
   existingManifest: InstallManifest | null;
   managedFileConflictResolutions?: ManagedFileConflictResolutions;
   systemAssetMaterializationMode?: SystemAssetMaterializationMode;
+  skillRegistry?: SkillRegistry;
 }): Promise<InstallPlan> {
   const {
     targetDir,
@@ -40,6 +42,7 @@ export async function createInstallPlan(options: {
     existingManifest,
     managedFileConflictResolutions,
     systemAssetMaterializationMode = DEFAULT_SYSTEM_ASSET_MATERIALIZATION_MODE,
+    skillRegistry,
   } = options;
   const systemAssetMaterialization = getSystemAssetMaterializationPlan(
     profile,
@@ -53,7 +56,10 @@ export async function createInstallPlan(options: {
     profile,
     DEFAULT_SYSTEM_ASSET_MATERIALIZATION_MODE,
   );
-  const desiredSkillAssets = await getDesiredSkillAssets(profile.selections);
+  const desiredSkillAssets = await getDesiredSkillAssets(
+    profile.selections,
+    skillRegistry,
+  );
   const desiredSkillFiles = desiredSkillAssets.map((asset) => asset.relativePath);
   const desiredSkillFileSet = new Set(desiredSkillFiles);
   const previousSkillContent = await getPreviousSkillContentByPath(existingManifest);
@@ -292,9 +298,12 @@ export async function createSkillsOnlyInstallPlan(options: {
   profile: InstallProfile;
   existingManifest: InstallManifest | null;
   remove: boolean;
+  skillRegistry?: SkillRegistry;
 }): Promise<InstallPlan> {
-  const { targetDir, packageMeta, profile, existingManifest, remove } = options;
-  const desiredSkillAssets = remove ? [] : await getDesiredSkillAssets(profile.selections);
+  const { targetDir, packageMeta, profile, existingManifest, remove, skillRegistry } = options;
+  const desiredSkillAssets = remove
+    ? []
+    : await getDesiredSkillAssets(profile.selections, skillRegistry);
   const desiredSkillFiles = desiredSkillAssets.map((asset) => asset.relativePath);
   const desiredFiles = Object.fromEntries(
     desiredSkillAssets.map((asset) => [

@@ -42,42 +42,29 @@ describe("skill catalog", () => {
   test("returns one recommended skill list for the wizard", () => {
     const choices = getRecommendedSkillChoices();
 
-    expect(choices).toEqual([
-      {
-        name: "archive-docs",
-        description:
-          "Relationship-aware archival, staleness detection, deprecation, and impact analysis for docs/ artifacts.",
-      },
-      {
-        name: "cleanup-docs",
-        description:
-          "Audit and clean Markdown docs formatting drift, hard-wrapped prose, list spacing, and document-contract issues.",
-      },
-      {
-        name: "closeout-commit",
-        description:
-          "Capture gaps, write history, and draft commit messages for uncommitted changes.",
-      },
-      {
-        name: "closeout-phase",
-        description:
-          "Close out completed work backlog phases with checked tasks, acceptance evidence, guides, gap capture, history, and commit-message drafts.",
-      },
-      {
-        name: "decompose-codebase",
-        description: "Plan and reverse-engineer repos into structured PRDs.",
-      },
-      {
-        name: "work-on-phase",
-        description:
-          "Implement one explicit docs/work phase through planning, validation, closeout, and optional commit.",
-      },
-      {
-        name: "work-on-wave",
-        description:
-          "Work on docs/work waves through implementation, validation, closeout, and phase commits.",
-      },
+    expect(choices.map((choice) => choice.name)).toEqual([
+      "archive-docs",
+      "decompose-codebase",
+      "cleanup-docs",
+      "closeout-commit",
+      "closeout-phase",
+      "work-on-phase",
+      "work-on-wave",
     ]);
+    expect(choices[0]).toMatchObject({
+      name: "archive-docs",
+      displayName: "Archive docs",
+      sourcePolicyKind: "first-party",
+      provenanceKind: "first-party",
+      provenanceLabel: "make-docs first-party skill",
+      supportedHarnesses: ["claude-code", "codex"],
+      purposes: [
+        {
+          id: "archive-management",
+          label: "Archive management",
+        },
+      ],
+    });
   });
 
   test("builds harness-specific skill directories with supporting files", async () => {

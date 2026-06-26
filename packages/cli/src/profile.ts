@@ -80,6 +80,8 @@ export function resolveInstallProfile(
       skills: selections.skills,
       skillScope: selections.skillScope,
       selectedSkills: [...selections.selectedSkills].sort(),
+      skillManifest: selections.skillManifest,
+      skillSelectionProvenance: selections.skillSelectionProvenance ?? [],
     }),
   ).slice(0, 16);
 

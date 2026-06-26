@@ -13,6 +13,8 @@ import type {
   ManifestAuditRecord,
   ManifestFileEntry,
   ManifestHashAlgorithm,
+  SkillManifestSelectionSource,
+  SkillSelectionProvenanceEntry,
   ManifestSystemAssetEntry,
   PackageMeta,
   SystemAssetManifestState,
@@ -78,6 +80,15 @@ export function migrateSelections(selections: unknown): InstallSelections {
     throw new Error("selections.optionalSkills is no longer supported");
   }
   const selectedSkills = validateSelectedSkills(legacy.selectedSkills);
+  const skillManifest =
+    "skillManifest" in legacy && legacy.skillManifest !== undefined
+      ? validateSkillManifestSelectionSource(legacy.skillManifest)
+      : undefined;
+  const skillSelectionProvenance =
+    "skillSelectionProvenance" in legacy &&
+    legacy.skillSelectionProvenance !== undefined
+      ? validateSkillSelectionProvenance(legacy.skillSelectionProvenance)
+      : undefined;
 
   if (legacy.instructionKinds && !legacy.harnesses) {
     assertPlainObject(legacy.instructionKinds, "selections.instructionKinds");
@@ -100,6 +111,10 @@ export function migrateSelections(selections: unknown): InstallSelections {
           : validateBoolean(legacy.skills, "selections.skills"),
       skillScope: validateSkillScope(legacy.skillScope ?? "project"),
       selectedSkills,
+      ...(skillManifest === undefined ? {} : { skillManifest }),
+      ...(skillSelectionProvenance === undefined
+        ? {}
+        : { skillSelectionProvenance }),
     };
     return migrated;
   }
@@ -110,6 +125,10 @@ export function migrateSelections(selections: unknown): InstallSelections {
     skills: validateBoolean(legacy.skills, "selections.skills"),
     skillScope: validateSkillScope(legacy.skillScope ?? "project"),
     selectedSkills,
+    ...(skillManifest === undefined ? {} : { skillManifest }),
+    ...(skillSelectionProvenance === undefined
+      ? {}
+      : { skillSelectionProvenance }),
   };
 }
 
@@ -688,6 +707,174 @@ function validateSelectedSkills(value: unknown): string[] {
       ),
     ),
   ).sort();
+}
+
+function validateSkillManifestSelectionSource(
+  value: unknown,
+): SkillManifestSelectionSource {
+  assertPlainObject(value, "selections.skillManifest");
+  const source = validateString(value.source, "selections.skillManifest.source");
+  if (
+    source !== "built-in" &&
+    source !== "file" &&
+    source !== "remote-pinned"
+  ) {
+    throw new Error(
+      "selections.skillManifest.source must be built-in, file, or remote-pinned",
+    );
+  }
+
+  const sourcePolicyKind = validateString(
+    value.sourcePolicyKind,
+    "selections.skillManifest.sourcePolicyKind",
+  );
+  if (
+    sourcePolicyKind !== "first-party" &&
+    sourcePolicyKind !== "local" &&
+    sourcePolicyKind !== "remote-pinned"
+  ) {
+    throw new Error(
+      "selections.skillManifest.sourcePolicyKind must be first-party, local, or remote-pinned",
+    );
+  }
+
+  return {
+    manifestId: validateString(
+      value.manifestId,
+      "selections.skillManifest.manifestId",
+    ),
+    displayName: validateString(
+      value.displayName,
+      "selections.skillManifest.displayName",
+    ),
+    sourcePolicyKind,
+    source,
+    ...("path" in value
+      ? { path: validateString(value.path, "selections.skillManifest.path") }
+      : {}),
+    ...("digest" in value
+      ? {
+          digest: validateString(
+            value.digest,
+            "selections.skillManifest.digest",
+          ),
+        }
+      : {}),
+  };
+}
+
+function validateSkillSelectionProvenance(
+  value: unknown,
+): SkillSelectionProvenanceEntry[] {
+  if (!Array.isArray(value)) {
+    throw new Error("selections.skillSelectionProvenance must be an array");
+  }
+
+  return value.map((entry, index) => {
+    assertPlainObject(entry, `selections.skillSelectionProvenance.${index}`);
+    const sourcePolicyKind = validateString(
+      entry.sourcePolicyKind,
+      `selections.skillSelectionProvenance.${index}.sourcePolicyKind`,
+    );
+    if (
+      sourcePolicyKind !== "first-party" &&
+      sourcePolicyKind !== "local" &&
+      sourcePolicyKind !== "remote-pinned"
+    ) {
+      throw new Error(
+        `selections.skillSelectionProvenance.${index}.sourcePolicyKind must be first-party, local, or remote-pinned`,
+      );
+    }
+
+    const provenanceKind = validateString(
+      entry.provenanceKind,
+      `selections.skillSelectionProvenance.${index}.provenanceKind`,
+    );
+    if (
+      provenanceKind !== "first-party" &&
+      provenanceKind !== "local" &&
+      provenanceKind !== "remote-pinned" &&
+      provenanceKind !== "third-party"
+    ) {
+      throw new Error(
+        `selections.skillSelectionProvenance.${index}.provenanceKind must be first-party, local, remote-pinned, or third-party`,
+      );
+    }
+
+    const supportedHarnesses = validateStringArray(
+      entry.supportedHarnesses,
+      `selections.skillSelectionProvenance.${index}.supportedHarnesses`,
+    ).map((harness) => {
+      if (harness !== "claude-code" && harness !== "codex") {
+        throw new Error(
+          `selections.skillSelectionProvenance.${index}.supportedHarnesses contains unsupported harness ${harness}`,
+        );
+      }
+      return harness;
+    });
+
+    return {
+      skillName: validateString(
+        entry.skillName,
+        `selections.skillSelectionProvenance.${index}.skillName`,
+      ),
+      displayName: validateString(
+        entry.displayName,
+        `selections.skillSelectionProvenance.${index}.displayName`,
+      ),
+      manifestId: validateString(
+        entry.manifestId,
+        `selections.skillSelectionProvenance.${index}.manifestId`,
+      ),
+      manifestDisplayName: validateString(
+        entry.manifestDisplayName,
+        `selections.skillSelectionProvenance.${index}.manifestDisplayName`,
+      ),
+      sourcePolicyKind,
+      purposeIds: validateStringArray(
+        entry.purposeIds,
+        `selections.skillSelectionProvenance.${index}.purposeIds`,
+      ),
+      purposeLabels: validateStringArray(
+        entry.purposeLabels,
+        `selections.skillSelectionProvenance.${index}.purposeLabels`,
+      ),
+      supportedHarnesses,
+      skillSource: validateString(
+        entry.skillSource,
+        `selections.skillSelectionProvenance.${index}.skillSource`,
+      ),
+      provenanceKind,
+      provenanceLabel: validateString(
+        entry.provenanceLabel,
+        `selections.skillSelectionProvenance.${index}.provenanceLabel`,
+      ),
+      ...("repository" in entry
+        ? {
+            repository: validateString(
+              entry.repository,
+              `selections.skillSelectionProvenance.${index}.repository`,
+            ),
+          }
+        : {}),
+      ...("ref" in entry
+        ? {
+            ref: validateString(
+              entry.ref,
+              `selections.skillSelectionProvenance.${index}.ref`,
+            ),
+          }
+        : {}),
+      ...("digest" in entry
+        ? {
+            digest: validateString(
+              entry.digest,
+              `selections.skillSelectionProvenance.${index}.digest`,
+            ),
+          }
+        : {}),
+    };
+  });
 }
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {

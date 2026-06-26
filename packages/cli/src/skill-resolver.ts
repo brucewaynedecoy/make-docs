@@ -1,4 +1,6 @@
+import { readFile } from "node:fs/promises";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import type { SkillAssetEntry } from "./skill-registry";
 
 const URL_PROTOCOL = "url:";
@@ -66,6 +68,14 @@ export async function resolveSkillSource(
 }
 
 function resolveSourceDirectory(source: string): ResolvedDirectory {
+  if (isFileSource(source)) {
+    const location = normalizeFileSource(source, { directory: true });
+    return {
+      location,
+      virtualPath: toFileVirtualPath(location),
+    };
+  }
+
   if (!isRemoteSource(source)) {
     throw new UnsupportedProtocolError(extractProtocol(source));
   }
@@ -78,6 +88,14 @@ function resolveSourceDirectory(source: string): ResolvedDirectory {
 }
 
 function resolveSourceFile(source: string, baseDir: ResolvedDirectory): ResolvedFile {
+  if (isFileSource(source)) {
+    const location = normalizeFileSource(source, { directory: false });
+    return {
+      location,
+      virtualPath: toFileVirtualPath(location),
+    };
+  }
+
   if (isRemoteSource(source)) {
     const location = normalizeRemoteSource(source, { directory: false });
     return {
@@ -91,19 +109,35 @@ function resolveSourceFile(source: string, baseDir: ResolvedDirectory): Resolved
 
 function resolveRelativeFile(relativePath: string, baseDir: ResolvedDirectory): ResolvedFile {
   const nextUrl = new URL(relativePath, ensureTrailingSlash(baseDir.location)).href;
-  const location = normalizeRemoteSource(nextUrl, { directory: false });
+  const location = isFileSource(nextUrl)
+    ? normalizeFileSource(nextUrl, { directory: false })
+    : normalizeRemoteSource(nextUrl, { directory: false });
   return {
     location,
-    virtualPath: toRemoteVirtualPath(location),
+    virtualPath: isFileSource(location)
+      ? toFileVirtualPath(location)
+      : toRemoteVirtualPath(location),
   };
 }
 
 async function readSourceText(file: ResolvedFile): Promise<string> {
+  if (isFileSource(file.location)) {
+    return readFile(fileURLToPath(file.location), "utf8");
+  }
+
   return fetchRemoteText(file.location);
 }
 
 async function readSourceBinary(file: ResolvedFile): Promise<Buffer> {
+  if (isFileSource(file.location)) {
+    return readFile(fileURLToPath(file.location));
+  }
+
   return fetchRemoteBinary(file.location);
+}
+
+function isFileSource(source: string): boolean {
+  return source.startsWith("file:");
 }
 
 function isRemoteSource(source: string): boolean {
@@ -133,6 +167,11 @@ function normalizeRemoteSource(source: string, options: { directory: boolean }):
     return options.directory ? ensureTrailingSlash(url.href) : stripTrailingSlash(url.href);
   }
 
+  return options.directory ? ensureTrailingSlash(url.href) : stripTrailingSlash(url.href);
+}
+
+function normalizeFileSource(source: string, options: { directory: boolean }): string {
+  const url = new URL(source);
   return options.directory ? ensureTrailingSlash(url.href) : stripTrailingSlash(url.href);
 }
 
@@ -199,6 +238,10 @@ function toRemoteVirtualPath(source: string): string {
   const url = new URL(source);
   const joined = path.posix.join("/", url.host, url.pathname);
   return joined.endsWith("/") ? joined.slice(0, -1) : joined;
+}
+
+function toFileVirtualPath(source: string): string {
+  return fileURLToPath(source);
 }
 
 async function fetchRemoteText(url: string): Promise<string> {

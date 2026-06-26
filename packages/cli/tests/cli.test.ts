@@ -121,6 +121,63 @@ function writeCustomManagedFile(targetDir: string, relativePath: string, content
   writeFileSync(absolutePath, content, "utf8");
 }
 
+function createLocalSkillManifestFixture(
+  sourceOverride: Partial<Record<string, unknown>> = {},
+) {
+  const rootDir = createTempDir("make-docs-skill-manifest-");
+  const skillDir = path.join(rootDir, "skills/acme-release");
+  mkdirSync(skillDir, { recursive: true });
+  writeFileSync(
+    path.join(skillDir, "SKILL.md"),
+    "# Acme release\n\nPrepare Acme release docs.\n",
+    "utf8",
+  );
+
+  const manifestPath = path.join(rootDir, "skills.manifest.json");
+  const manifest = {
+    schemaVersion: 1,
+    manifestId: "acme.local",
+    displayName: "Acme local skills",
+    sourcePolicy: {
+      kind: "local",
+      label: "Local Acme registry",
+    },
+    purposes: [
+      {
+        id: "acme.release-readiness",
+        label: "Release readiness",
+        description: "Prepare releases.",
+        provenance: {
+          kind: "local",
+          label: "Local purpose",
+        },
+      },
+    ],
+    skills: [
+      {
+        name: "acme-release",
+        displayName: "Acme release",
+        source: "local:skills/acme-release",
+        entryPoint: "SKILL.md",
+        installName: "acme-release",
+        description: "Prepare Acme release docs.",
+        purposes: ["acme.release-readiness"],
+        supportedHarnesses: ["codex"],
+        provenance: {
+          kind: "local",
+          label: "Local Acme skill",
+        },
+        assets: [],
+        ...sourceOverride,
+      },
+    ],
+  };
+
+  writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
+
+  return { rootDir, manifestPath };
+}
+
 function writeConflictingRootInstruction(targetDir: string) {
   writeCustomManagedFile(
     targetDir,
@@ -855,6 +912,112 @@ personas:
     }
   });
 
+  test("expands --selected-skills all against an alternate local skills manifest", async () => {
+    const targetDir = createTempDir();
+    const { rootDir: manifestRoot, manifestPath } = createLocalSkillManifestFixture();
+
+    try {
+      const { runCli } = await import("../src/cli");
+
+      await runCli([
+        "--yes",
+        "--skill-manifest",
+        manifestPath,
+        "--selected-skills",
+        "all",
+        "--target",
+        targetDir,
+      ]);
+
+      const manifest = loadManifest(targetDir);
+      expect(manifest?.selections.skills).toBe(true);
+      expect(manifest?.selections.selectedSkills).toEqual(["acme-release"]);
+      expect(manifest?.skillFiles).toContain(".agents/skills/acme-release/SKILL.md");
+      expect(manifest?.skillFiles).not.toContain(".agents/skills/archive-docs/SKILL.md");
+      expect(manifest?.selections.skillManifest).toEqual({
+        manifestId: "acme.local",
+        displayName: "Acme local skills",
+        sourcePolicyKind: "local",
+        source: "file",
+        path: manifestPath,
+      });
+      expect(manifest?.selections.skillSelectionProvenance).toEqual([
+        expect.objectContaining({
+          skillName: "acme-release",
+          displayName: "Acme release",
+          manifestId: "acme.local",
+          manifestDisplayName: "Acme local skills",
+          sourcePolicyKind: "local",
+          purposeIds: ["acme.release-readiness"],
+          purposeLabels: ["Release readiness"],
+          supportedHarnesses: ["codex"],
+          provenanceKind: "local",
+          provenanceLabel: "Local Acme skill",
+        }),
+      ]);
+      expect(manifest?.selections.skillSelectionProvenance?.[0]?.skillSource).toMatch(
+        /^file:\/\//,
+      );
+    } finally {
+      cleanupTempDir(targetDir);
+      cleanupTempDir(manifestRoot);
+    }
+  });
+
+  test("rejects remote skills manifests before writing install state", async () => {
+    const targetDir = createTempDir();
+
+    try {
+      const error = await captureCliError([
+        "--yes",
+        "--skill-manifest",
+        "https://example.com/skills.manifest.json",
+        "--selected-skills",
+        "all",
+        "--target",
+        targetDir,
+      ]);
+
+      expect(error.message).toContain(
+        "Remote skills manifests require an immutable reference plus digest before install.",
+      );
+      expect(loadManifest(targetDir)).toBeNull();
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("rejects unpinned remote skill payloads from alternate manifests before writing install state", async () => {
+    const targetDir = createTempDir();
+    const { rootDir: manifestRoot, manifestPath } = createLocalSkillManifestFixture({
+      source: "https://example.com/acme-release",
+      provenance: {
+        kind: "third-party",
+        label: "Unpinned remote skill",
+      },
+    });
+
+    try {
+      const error = await captureCliError([
+        "--yes",
+        "--skill-manifest",
+        manifestPath,
+        "--selected-skills",
+        "all",
+        "--target",
+        targetDir,
+      ]);
+
+      expect(error.message).toContain(
+        "skill `acme-release` remote source requires remote-pinned provenance with immutable ref and digest",
+      );
+      expect(loadManifest(targetDir)).toBeNull();
+    } finally {
+      cleanupTempDir(targetDir);
+      cleanupTempDir(manifestRoot);
+    }
+  });
+
   test.each(["project", "global"] as const)(
     "supports --skill-scope %s for non-interactive apply",
     async (skillScope) => {
@@ -1176,6 +1339,17 @@ personas:
       ).rejects.toThrow(
         "`--no-skills` cannot be combined with `--skill-scope` or `--selected-skills`.",
       );
+
+      await expect(
+        runCli([
+          "--yes",
+          "--no-skills",
+          "--skill-manifest",
+          "local-skills.json",
+          "--target",
+          targetDir,
+        ]),
+      ).rejects.toThrow("`--no-skills` cannot be combined with `--skill-manifest`.");
 
       await expect(
         runCli([

@@ -8,6 +8,15 @@ import { loadMakeDocsConfigOrThrow, type MakeDocsConfig } from "./config";
 import { loadManifest, MANIFEST_RELATIVE_PATH } from "./manifest";
 import { cloneSelections, defaultSelections } from "./profile";
 import {
+  applySkillRegistrySelectionMetadata,
+  getRecommendedSkillChoices,
+} from "./skill-catalog";
+import {
+  loadEffectiveSkillRegistry,
+  type EffectiveSkillRegistry,
+  type SkillRegistry,
+} from "./skill-registry";
+import {
   applySkillsUiStateToSelections,
   countSkillActions,
   createClackSkillsUiRenderer,
@@ -17,7 +26,7 @@ import {
   type SkillsUiState,
 } from "./skills-ui";
 import type { InstallManifest, InstallPlan, InstallSelections } from "./types";
-import { readPackageMeta } from "./utils";
+import { PACKAGE_ROOT, readPackageMeta } from "./utils";
 
 export type SkillsCommandOptions = {
   targetDir: string;
@@ -28,20 +37,31 @@ export type SkillsCommandOptions = {
   noClaudeCode: boolean;
   skillScope?: InstallSelections["skillScope"];
   selectedSkills?: string[];
+  skillsManifest?: string;
 };
 
 export async function runSkillsCommand(options: SkillsCommandOptions): Promise<void> {
   const loadedConfig = loadMakeDocsConfigOrThrow(options.targetDir);
   const makeDocsConfig = loadedConfig.config;
   const existingManifest = loadManifest(options.targetDir);
-  const initialSelections = resolveSkillsSelections(options, existingManifest);
+  const effectiveSkillRegistry = loadEffectiveSkillRegistry({
+    packageRoot: PACKAGE_ROOT,
+    manifestReference: options.skillsManifest,
+  });
+  const initialSelections = applySkillRegistrySelectionMetadata(
+    resolveSkillsSelections(options, existingManifest),
+    effectiveSkillRegistry,
+  );
   const packageMeta = readPackageMeta();
+  validateSelectedSkills(initialSelections, effectiveSkillRegistry.registry);
   const interactiveState = await resolveInteractiveSkillsState({
     options,
     existingManifest,
     initialSelections,
     packageMeta,
     config: makeDocsConfig,
+    effectiveSkillRegistry,
+    skillChoices: getRecommendedSkillChoices(effectiveSkillRegistry.registry),
   });
 
   if (interactiveState === null) {
@@ -56,13 +76,17 @@ export async function runSkillsCommand(options: SkillsCommandOptions): Promise<v
       targetDir: options.targetDir,
       selections: initialSelections,
     });
-  const selections = applySkillsUiStateToSelections(state, initialSelections);
+  const selections = applySkillRegistrySelectionMetadata(
+    applySkillsUiStateToSelections(state, initialSelections),
+    effectiveSkillRegistry,
+  );
   const plan = await planSkillsOnlyInstall({
     targetDir: options.targetDir,
     selections,
     existingManifest,
     remove: state.action === "remove",
     packageMeta,
+    skillRegistry: effectiveSkillRegistry.registry,
   });
   const hasPlannedChanges = plan.actions.some((action) => action.type !== "noop");
 
@@ -113,6 +137,8 @@ async function resolveInteractiveSkillsState(options: {
   initialSelections: InstallSelections;
   packageMeta: ReturnType<typeof readPackageMeta>;
   config: MakeDocsConfig;
+  effectiveSkillRegistry: EffectiveSkillRegistry;
+  skillChoices: ReturnType<typeof getRecommendedSkillChoices>;
 }): Promise<SkillsUiState | null | undefined> {
   const {
     options: commandOptions,
@@ -120,6 +146,8 @@ async function resolveInteractiveSkillsState(options: {
     initialSelections,
     packageMeta,
     config,
+    effectiveSkillRegistry,
+    skillChoices,
   } = options;
 
   if (commandOptions.yes || !input.isTTY || !output.isTTY) {
@@ -136,14 +164,19 @@ async function resolveInteractiveSkillsState(options: {
     initialState,
     introTitle: "Manage make-docs skills",
     config,
+    skillChoices,
     async buildReviewState(state) {
-      const selections = applySkillsUiStateToSelections(state, initialSelections);
+      const selections = applySkillRegistrySelectionMetadata(
+        applySkillsUiStateToSelections(state, initialSelections),
+        effectiveSkillRegistry,
+      );
       const plan = await planSkillsOnlyInstall({
         targetDir: commandOptions.targetDir,
         selections,
         existingManifest,
         remove: state.action === "remove",
         packageMeta,
+        skillRegistry: effectiveSkillRegistry.registry,
       });
 
       return {
@@ -185,6 +218,21 @@ function resolveSkillsSelections(
   }
 
   return selections;
+}
+
+function validateSelectedSkills(
+  selections: InstallSelections,
+  registry: SkillRegistry,
+): void {
+  const registrySkills = new Set(registry.skills.map((skill) => skill.name));
+  for (const skillName of selections.selectedSkills) {
+    if (!registrySkills.has(skillName)) {
+      const validList = Array.from(registrySkills).sort().join(", ");
+      throw new Error(
+        `Unknown selected skill \`${skillName}\`. Valid skills: ${validList || "(none)"}.`,
+      );
+    }
+  }
 }
 
 function printSkillsPlan(options: {

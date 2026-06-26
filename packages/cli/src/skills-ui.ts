@@ -96,6 +96,7 @@ export interface RunSkillsUiOptions {
   introTitle: string;
   startStep?: SkillsUiStep;
   config?: MakeDocsConfig;
+  skillChoices?: WizardSkillChoice[];
   buildReviewState?: (
     state: SkillsUiState,
   ) => Promise<SkillsReviewStepState> | SkillsReviewStepState;
@@ -162,7 +163,7 @@ export async function runSkillsUiWithRenderer(
 
     if (step === "skills") {
       const selectedSkills = await renderer.chooseSelectedSkills(
-        buildSkillsSelectionStepState(state),
+        buildSkillsSelectionStepState(state, options.skillChoices),
       );
       if (!selectedSkills) {
         return null;
@@ -248,8 +249,8 @@ export function createClackSkillsUiRenderer(): SkillsUiRenderer {
         initialValues: state.selectedSkills,
         options: state.skills.map((skill) => ({
           value: skill.name,
-          label: skill.name,
-          hint: skill.description,
+          label: `${formatSkillPurposeLabels(skill)} / ${skill.name}`,
+          hint: formatSkillChoiceHint(skill),
         })),
       });
 
@@ -501,6 +502,21 @@ function formatHarnesses(harnesses: Harness[]): string {
 
 function formatSelectedSkills(selectedSkills: string[]): string {
   return selectedSkills.length > 0 ? formatInlineList(selectedSkills) : "none";
+}
+
+function formatSkillPurposeLabels(skill: WizardSkillChoice): string {
+  return skill.purposes.length > 0
+    ? skill.purposes.map((purpose) => purpose.label).join(", ")
+    : "Uncategorized";
+}
+
+function formatSkillChoiceHint(skill: WizardSkillChoice): string {
+  return [
+    skill.description,
+    `Source: ${skill.sourcePolicyKind}`,
+    `Harnesses: ${formatInlineList(skill.supportedHarnesses)}`,
+    `Provenance: ${skill.provenanceLabel}`,
+  ].join(" | ");
 }
 
 function formatSkillActionLine(action: PlannedAction): string {

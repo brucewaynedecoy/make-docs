@@ -7,6 +7,7 @@ import {
   createSkillsOnlyInstallPlan,
 } from "./planner";
 import { resolveInstallProfile } from "./profile";
+import type { SkillRegistry } from "./skill-registry";
 import type {
   ApplyResult,
   InstallManifest,
@@ -34,6 +35,7 @@ export async function planInstall(options: {
   packageMeta?: PackageMeta;
   managedFileConflictResolutions?: ManagedFileConflictResolutions;
   systemAssetMaterializationMode?: SystemAssetMaterializationMode;
+  skillRegistry?: SkillRegistry;
 }): Promise<InstallPlan> {
   const packageMeta = options.packageMeta ?? readPackageMeta();
   const profile = resolveInstallProfile(options.selections);
@@ -45,6 +47,7 @@ export async function planInstall(options: {
     existingManifest: options.existingManifest,
     managedFileConflictResolutions: options.managedFileConflictResolutions,
     systemAssetMaterializationMode: options.systemAssetMaterializationMode,
+    skillRegistry: options.skillRegistry,
   });
 }
 
@@ -54,6 +57,7 @@ export async function planSkillsOnlyInstall(options: {
   existingManifest: InstallManifest | null;
   remove: boolean;
   packageMeta?: PackageMeta;
+  skillRegistry?: SkillRegistry;
 }): Promise<InstallPlan> {
   const packageMeta = options.packageMeta ?? readPackageMeta();
   const profile = resolveInstallProfile(options.selections);
@@ -64,6 +68,7 @@ export async function planSkillsOnlyInstall(options: {
     profile,
     existingManifest: options.existingManifest,
     remove: options.remove,
+    skillRegistry: options.skillRegistry,
   });
 }
 

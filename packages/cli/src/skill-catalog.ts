@@ -1,12 +1,19 @@
 import * as os from "node:os";
 import path from "node:path";
 import { resolveSkillSource } from "./skill-resolver";
-import { loadSkillRegistry, type SkillRegistryEntry } from "./skill-registry";
+import {
+  loadSkillRegistry,
+  type EffectiveSkillRegistry,
+  type SkillRegistry,
+  type SkillRegistryEntry,
+} from "./skill-registry";
 import {
   HARNESSES,
   type Harness,
   type InstallSelections,
   type ResolvedAsset,
+  type SkillManifestSelectionSource,
+  type SkillSelectionProvenanceEntry,
 } from "./types";
 import { PACKAGE_ROOT } from "./utils";
 
@@ -48,17 +55,24 @@ const RETIRED_MANAGED_SKILL_ASSETS: Record<string, string[]> = {
 
 export interface WizardSkillChoice {
   name: string;
+  displayName: string;
   description: string;
+  purposes: Array<{ id: string; label: string; description: string }>;
+  source: string;
+  sourcePolicyKind: SkillRegistry["sourcePolicy"]["kind"];
+  supportedHarnesses: Harness[];
+  provenanceLabel: string;
+  provenanceKind: SkillRegistryEntry["provenance"]["kind"];
 }
 
 export async function getDesiredSkillAssets(
   selections: InstallSelections,
+  registry = loadSkillRegistry(PACKAGE_ROOT),
 ): Promise<ResolvedAsset[]> {
   if (!selections.skills) {
     return [];
   }
 
-  const registry = loadSkillRegistry(PACKAGE_ROOT);
   const selectedSkills = new Set(selections.selectedSkills);
   const selectedEntries = registry.skills.filter((entry) =>
     selectedSkills.has(entry.name),
@@ -77,11 +91,13 @@ export async function getDesiredSkillAssets(
         }
 
         return selectedEntries.map((entry) =>
-          buildSkillAssets(entry, harness, installRoot),
+          entry.supportedHarnesses.includes(harness)
+            ? buildSkillAssets(entry, harness, installRoot)
+            : [],
         );
       }),
     )
-  ).flat();
+  ).flat(2);
 
   return desiredAssets.sort((left, right) =>
     left.relativePath.localeCompare(right.relativePath),
@@ -90,12 +106,12 @@ export async function getDesiredSkillAssets(
 
 export async function getRetiredManagedSkillAssets(
   selections: InstallSelections,
+  registry = loadSkillRegistry(PACKAGE_ROOT),
 ): Promise<ResolvedAsset[]> {
   if (!selections.skills) {
     return [];
   }
 
-  const registry = loadSkillRegistry(PACKAGE_ROOT);
   const selectedSkills = new Set(selections.selectedSkills);
   const selectedEntries = registry.skills.filter(
     (entry) =>
@@ -116,30 +132,138 @@ export async function getRetiredManagedSkillAssets(
         }
 
         return selectedEntries.map((entry) =>
-          buildRetiredManagedSkillAssets(entry, harness, installRoot),
+          entry.supportedHarnesses.includes(harness)
+            ? buildRetiredManagedSkillAssets(entry, harness, installRoot)
+            : [],
         );
       }),
     )
-  ).flat();
+  ).flat(2);
 
   return retiredAssets.sort((left, right) =>
     left.relativePath.localeCompare(right.relativePath),
   );
 }
 
-export function getRecommendedSkillChoices(): WizardSkillChoice[] {
-  const registry = loadSkillRegistry(PACKAGE_ROOT);
+export function getRecommendedSkillChoices(
+  registry = loadSkillRegistry(PACKAGE_ROOT),
+): WizardSkillChoice[] {
+  const purposeById = new Map(
+    registry.purposes.map((purpose) => [purpose.id, purpose]),
+  );
+  const purposeOrder = new Map(
+    registry.purposes.map((purpose, index) => [
+      purpose.id,
+      purpose.order ?? index,
+    ]),
+  );
 
-  const toChoice = (
-    entry: Pick<SkillRegistryEntry, "name" | "description">,
-  ): WizardSkillChoice => ({
+  const toChoice = (entry: SkillRegistryEntry): WizardSkillChoice => ({
     name: entry.name,
+    displayName: entry.displayName,
     description: entry.description,
+    purposes: entry.purposes.map((purposeId) => {
+      const purpose = purposeById.get(purposeId);
+      return {
+        id: purposeId,
+        label: purpose?.label ?? purposeId,
+        description: purpose?.description ?? "",
+      };
+    }),
+    source: entry.source,
+    sourcePolicyKind: registry.sourcePolicy.kind,
+    supportedHarnesses: [...entry.supportedHarnesses],
+    provenanceLabel: entry.provenance.label,
+    provenanceKind: entry.provenance.kind,
   });
 
   return registry.skills
     .map(toChoice)
-    .sort((left, right) => left.name.localeCompare(right.name));
+    .sort((left, right) => {
+      const leftPurposeOrder = Math.min(
+        ...left.purposes.map((purpose) => purposeOrder.get(purpose.id) ?? 10_000),
+      );
+      const rightPurposeOrder = Math.min(
+        ...right.purposes.map((purpose) => purposeOrder.get(purpose.id) ?? 10_000),
+      );
+      if (leftPurposeOrder !== rightPurposeOrder) {
+        return leftPurposeOrder - rightPurposeOrder;
+      }
+      return left.name.localeCompare(right.name);
+    });
+}
+
+export function applySkillRegistrySelectionMetadata(
+  selections: InstallSelections,
+  effectiveRegistry: EffectiveSkillRegistry,
+): InstallSelections {
+  const next = structuredClone(selections);
+  if (!next.skills) {
+    delete next.skillManifest;
+    delete next.skillSelectionProvenance;
+    return next;
+  }
+
+  next.skillManifest = createSkillManifestSelectionSource(effectiveRegistry);
+  next.skillSelectionProvenance = createSkillSelectionProvenance(
+    effectiveRegistry.registry,
+    next.selectedSkills,
+  );
+  return next;
+}
+
+function createSkillManifestSelectionSource(
+  effectiveRegistry: EffectiveSkillRegistry,
+): SkillManifestSelectionSource {
+  const { registry, source } = effectiveRegistry;
+
+  return {
+    manifestId: registry.manifestId,
+    displayName: registry.displayName,
+    sourcePolicyKind: registry.sourcePolicy.kind,
+    source:
+      source.kind === "built-in"
+        ? "built-in"
+        : source.kind === "file"
+          ? "file"
+          : "remote-pinned",
+    ...(source.kind === "file" ? { path: source.path } : {}),
+    ...(source.kind === "remote-pinned" ? { digest: source.digest } : {}),
+  };
+}
+
+function createSkillSelectionProvenance(
+  registry: SkillRegistry,
+  selectedSkills: string[],
+): SkillSelectionProvenanceEntry[] {
+  const purposeById = new Map(
+    registry.purposes.map((purpose) => [purpose.id, purpose]),
+  );
+  const selectedSkillSet = new Set(selectedSkills);
+
+  return registry.skills
+    .filter((skill) => selectedSkillSet.has(skill.name))
+    .map((skill) => ({
+      skillName: skill.name,
+      displayName: skill.displayName,
+      manifestId: registry.manifestId,
+      manifestDisplayName: registry.displayName,
+      sourcePolicyKind: registry.sourcePolicy.kind,
+      purposeIds: [...skill.purposes],
+      purposeLabels: skill.purposes.map(
+        (purposeId) => purposeById.get(purposeId)?.label ?? purposeId,
+      ),
+      supportedHarnesses: [...skill.supportedHarnesses],
+      skillSource: skill.source,
+      provenanceKind: skill.provenance.kind,
+      provenanceLabel: skill.provenance.label,
+      ...(skill.provenance.repository
+        ? { repository: skill.provenance.repository }
+        : {}),
+      ...(skill.provenance.ref ? { ref: skill.provenance.ref } : {}),
+      ...(skill.provenance.digest ? { digest: skill.provenance.digest } : {}),
+    }))
+    .sort((left, right) => left.skillName.localeCompare(right.skillName));
 }
 
 async function buildSkillAssets(

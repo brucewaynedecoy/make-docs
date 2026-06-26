@@ -1,4 +1,5 @@
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 import { readTextFile } from "./utils";
 
 export type SkillManifestSourcePolicyKind =
@@ -64,6 +65,16 @@ export interface SkillRegistry {
   skills: SkillRegistryEntry[];
 }
 
+export interface EffectiveSkillRegistry {
+  registry: SkillRegistry;
+  source: EffectiveSkillRegistrySource;
+}
+
+export type EffectiveSkillRegistrySource =
+  | { kind: "built-in" }
+  | { kind: "file"; path: string }
+  | { kind: "remote-pinned"; reference: string; digest: string };
+
 const REGISTRY_FILENAME = "skill-registry.json";
 const FIRST_PARTY_MANIFEST_ID = "make-docs.first-party";
 const FIRST_PARTY_PURPOSE_IDS = new Set([
@@ -96,6 +107,30 @@ export function loadSkillRegistry(packageRoot: string): SkillRegistry {
   return loadSkillRegistryFromPath(registryPath);
 }
 
+export function loadEffectiveSkillRegistry(options: {
+  packageRoot: string;
+  manifestReference?: string;
+}): EffectiveSkillRegistry {
+  if (!options.manifestReference) {
+    return {
+      registry: loadSkillRegistry(options.packageRoot),
+      source: { kind: "built-in" },
+    };
+  }
+
+  if (isRemoteSource(options.manifestReference)) {
+    throw new Error(
+      "Remote skills manifests require an immutable reference plus digest before install. Use a local file manifest for now or provide a future remote-pinned manifest input.",
+    );
+  }
+
+  const registryPath = path.resolve(options.manifestReference);
+  return {
+    registry: loadSkillRegistryFromPath(registryPath),
+    source: { kind: "file", path: registryPath },
+  };
+}
+
 export function loadSkillRegistryFromPath(registryPath: string): SkillRegistry {
   let raw: string;
   try {
@@ -113,7 +148,10 @@ export function loadSkillRegistryFromPath(registryPath: string): SkillRegistry {
     });
   }
 
-  return validateSkillRegistryManifest(parsed, registryPath);
+  return normalizeLocalSkillSources(
+    validateSkillRegistryManifest(parsed, registryPath),
+    registryPath,
+  );
 }
 
 export function validateSkillRegistryManifest(
@@ -146,6 +184,15 @@ export function validateSkillRegistryManifest(
   );
   const description = readOptionalString(parsed, "description", "manifest", errors);
   const sourcePolicy = validateSourcePolicy(parsed.sourcePolicy, errors);
+  if (
+    sourcePolicy.kind === "first-party" &&
+    manifestId !== null &&
+    manifestId !== FIRST_PARTY_MANIFEST_ID
+  ) {
+    errors.push(
+      `first-party source policy is reserved for manifest \`${FIRST_PARTY_MANIFEST_ID}\``,
+    );
+  }
   const purposes = validatePurposes(
     Array.isArray(parsed.purposes) ? parsed.purposes : null,
     sourcePolicy,
@@ -265,6 +312,15 @@ function validateEntry(
     `skill \`${name}\` provenance`,
     errors,
   );
+  if (
+    isRemoteSource(source) &&
+    sourcePolicy.kind !== "first-party" &&
+    !hasRemotePinnedProvenance(provenance)
+  ) {
+    errors.push(
+      `skill \`${name}\` remote source requires remote-pinned provenance with immutable ref and digest`,
+    );
+  }
   const defaultForPurposes =
     entry.defaultForPurposes === undefined
       ? undefined
@@ -591,6 +647,47 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
 
 function isNamespacedPurposeId(id: string): boolean {
   return /^[a-z0-9][a-z0-9-]*\.[a-z0-9][a-z0-9-]*$/.test(id);
+}
+
+function hasRemotePinnedProvenance(provenance: SkillProvenance): boolean {
+  return (
+    provenance.kind === "remote-pinned" &&
+    typeof provenance.ref === "string" &&
+    provenance.ref.length > 0 &&
+    typeof provenance.digest === "string" &&
+    provenance.digest.length > 0
+  );
+}
+
+function normalizeLocalSkillSources(
+  registry: SkillRegistry,
+  registryPath: string,
+): SkillRegistry {
+  if (registry.sourcePolicy.kind !== "local") {
+    return registry;
+  }
+
+  const baseDir = path.dirname(path.resolve(registryPath));
+  return {
+    ...registry,
+    skills: registry.skills.map((skill) => ({
+      ...skill,
+      source: isRemoteSource(skill.source)
+        ? skill.source
+        : normalizeLocalSource(skill.source, baseDir),
+    })),
+  };
+}
+
+function normalizeLocalSource(source: string, baseDir: string): string {
+  if (source.startsWith("file:")) {
+    return source;
+  }
+
+  const rawSource = source.startsWith("local:")
+    ? source.slice("local:".length)
+    : source;
+  return pathToFileURL(path.resolve(baseDir, rawSource)).href;
 }
 
 function isRemoteSource(source: string): boolean {

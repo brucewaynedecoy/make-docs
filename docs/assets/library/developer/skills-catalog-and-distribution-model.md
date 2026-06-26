@@ -30,27 +30,34 @@ This guide explains the current shipped skills system from a maintainer point of
 
 The shipped skill inventory is defined in `packages/cli/skill-registry.json`.
 
-Each registry entry defines:
+The first-party registry is a skills manifest. It defines:
 
-- the skill name
-- the source location
-- the install entrypoint
-- whether the skill is required
-- a short description
+- the manifest id, display name, and source policy
+- canonical purpose ids with labels, ordering, and provenance
+- skill names, display names, source locations, and install entrypoints
+- supported harnesses for each skill
+- skill provenance
 - any extra assets that must be installed alongside the skill
 
-The CLI loads and validates that registry at runtime through `packages/cli/src/skill-registry.ts`.
+The CLI loads and validates the packaged manifest at runtime through `packages/cli/src/skill-registry.ts`. Runs may also provide an explicit local manifest with `--skill-manifest`; local manifest paths are validated with the same schema and normalized into file sources before planning.
+
+Remote manifests and remote skill payloads are intentionally policy-gated. Non-first-party manifests cannot install remote skill payloads unless the skill provenance is `remote-pinned` and includes an immutable ref plus digest. Unpinned remote manifest inputs stop before install state is written.
 
 ## Current shipped catalog
 
-The current catalog has two entries:
+The current first-party catalog has seven entries:
 
-| Skill | Required | Purpose |
-| --- | --- | --- |
-| `archive-docs` | yes | Relationship-aware archival, staleness detection, deprecation, and archive impact analysis for `docs/` artifacts |
-| `decompose-codebase` | no | Reverse-engineer an existing repository into a structured PRD set and rebuild backlog |
+| Skill | Purpose |
+| --- | --- |
+| `archive-docs` | Archive management |
+| `decompose-codebase` | Codebase decomposition and plan creation |
+| `cleanup-docs` | Documentation maintenance |
+| `closeout-commit` | Lifecycle closeout |
+| `closeout-phase` | Lifecycle closeout |
+| `work-on-phase` | Workflow execution |
+| `work-on-wave` | Workflow execution |
 
-`archive-docs` is the default required skill and therefore part of the standard skills-enabled installation profile.
+`all` expands against the effective manifest for the current run, so a local alternate manifest can replace this set without changing the packaged first-party catalog.
 
 ## Required and optional skill grouping
 
@@ -144,9 +151,12 @@ When updating the skills model:
 
 - change `packages/cli/skill-registry.json` first when the shipped inventory changes
 - keep registry descriptions aligned with the actual skill contract
+- keep purpose ids stable once shipped; add new purpose ids only when the existing purpose vocabulary cannot accurately describe the skill
+- require supported harness and provenance metadata for every skill
 - keep bundled skill references aligned with live repo contracts without treating them as the primary source for make-docs-owned backlog shape
 - verify both harness roots when adding assets
 - verify project and global scope behavior when changing install paths
+- verify alternate local manifest behavior when changing registry validation or selection planning
 - keep user-facing skill lifecycle guidance in `docs/assets/library/user/skills-*.md`, not in CLI lifecycle guides
 
 ## Troubleshooting

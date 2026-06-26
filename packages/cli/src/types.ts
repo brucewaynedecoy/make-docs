@@ -113,6 +113,34 @@ export interface InstallSelections {
   skills: boolean;
   skillScope: "project" | "global";
   selectedSkills: string[];
+  skillManifest?: SkillManifestSelectionSource;
+  skillSelectionProvenance?: SkillSelectionProvenanceEntry[];
+}
+
+export interface SkillManifestSelectionSource {
+  manifestId: string;
+  displayName: string;
+  sourcePolicyKind: "first-party" | "local" | "remote-pinned";
+  source: "built-in" | "file" | "remote-pinned";
+  path?: string;
+  digest?: string;
+}
+
+export interface SkillSelectionProvenanceEntry {
+  skillName: string;
+  displayName: string;
+  manifestId: string;
+  manifestDisplayName: string;
+  sourcePolicyKind: "first-party" | "local" | "remote-pinned";
+  purposeIds: string[];
+  purposeLabels: string[];
+  supportedHarnesses: Harness[];
+  skillSource: string;
+  provenanceKind: "first-party" | "local" | "remote-pinned" | "third-party";
+  provenanceLabel: string;
+  repository?: string;
+  ref?: string;
+  digest?: string;
 }
 
 export function getActiveInstructionKinds(
