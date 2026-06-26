@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { createDefaultMakeDocsConfig } from "../src/config";
 import { defaultSelections } from "../src/profile";
+import type { WizardSkillChoice } from "../src/skill-catalog";
 import type {
   Capability,
   Harness,
@@ -103,6 +104,29 @@ function managedFileConflict(
   };
 }
 
+function wizardSkillChoice(
+  name: string,
+  description: string,
+): WizardSkillChoice {
+  return {
+    name,
+    displayName: name,
+    description,
+    purposes: [
+      {
+        id: "test-purpose",
+        label: "Test purpose",
+        description: "Test purpose.",
+      },
+    ],
+    source: `local:${name}`,
+    sourcePolicyKind: "local",
+    supportedHarnesses: ["codex"],
+    provenanceLabel: "Test fixture",
+    provenanceKind: "local",
+  };
+}
+
 beforeEach(() => {
   clackMocks.note.mockReset();
   clackMocks.select.mockReset();
@@ -173,90 +197,81 @@ describe("selection wizard", () => {
         selectedSkills: ["decompose-codebase"],
       },
       [
-        {
-          name: "archive-docs",
-          description: "Relationship-aware archival.",
-        },
-        {
-          name: "cleanup-docs",
-          description: "Clean Markdown docs formatting drift.",
-        },
-        {
-          name: "closeout-commit",
-          description: "Close out uncommitted changes.",
-        },
-        {
-          name: "closeout-phase",
-          description: "Close out completed phases.",
-        },
-        {
-          name: "decompose-codebase",
-          description:
-            "Plan and reverse-engineer repos into structured PRDs.",
-        },
-        {
-          name: "work-on-phase",
-          description: "Implement one docs/work phase.",
-        },
-        {
-          name: "work-on-wave",
-          description: "Implement docs/work waves.",
-        },
+        wizardSkillChoice("archive-docs", "Relationship-aware archival."),
+        wizardSkillChoice(
+          "cleanup-docs",
+          "Clean Markdown docs formatting drift.",
+        ),
+        wizardSkillChoice(
+          "closeout-commit",
+          "Close out uncommitted changes.",
+        ),
+        wizardSkillChoice(
+          "closeout-phase",
+          "Close out completed phases.",
+        ),
+        wizardSkillChoice(
+          "decompose-codebase",
+          "Plan and reverse-engineer repos into structured PRDs.",
+        ),
+        wizardSkillChoice("work-on-phase", "Implement one docs/work phase."),
+        wizardSkillChoice("work-on-wave", "Implement docs/work waves."),
       ],
     );
 
     expect(skillSelection.selectedSkillNames).toEqual(["decompose-codebase"]);
-    expect(skillSelection.promptOptions).toEqual([
+    expect(
+      skillSelection.promptOptions.map((option) => ({
+        value: option.value,
+        disabled: option.disabled,
+        rowKind: option.rowKind,
+      })),
+    ).toEqual([
       {
         value: "archive-docs",
-        label: "archive-docs",
-        hint: "Relationship-aware archival.",
         disabled: false,
         rowKind: "skill",
       },
       {
         value: "cleanup-docs",
-        label: "cleanup-docs",
-        hint: "Clean Markdown docs formatting drift.",
         disabled: false,
         rowKind: "skill",
       },
       {
         value: "closeout-commit",
-        label: "closeout-commit",
-        hint: "Close out uncommitted changes.",
         disabled: false,
         rowKind: "skill",
       },
       {
         value: "closeout-phase",
-        label: "closeout-phase",
-        hint: "Close out completed phases.",
         disabled: false,
         rowKind: "skill",
       },
       {
         value: "decompose-codebase",
-        label: "decompose-codebase",
-        hint: "Plan and reverse-engineer repos into structured PRDs.",
         disabled: false,
         rowKind: "skill",
       },
       {
         value: "work-on-phase",
-        label: "work-on-phase",
-        hint: "Implement one docs/work phase.",
         disabled: false,
         rowKind: "skill",
       },
       {
         value: "work-on-wave",
-        label: "work-on-wave",
-        hint: "Implement docs/work waves.",
         disabled: false,
         rowKind: "skill",
       },
     ]);
+    expect(skillSelection.promptOptions[0]?.hint).toContain(
+      "Source: local",
+    );
+    expect(skillSelection.promptOptions[0]?.label).toBe(
+      "Test purpose / archive-docs",
+    );
+    expect(skillSelection.promptOptions[0]?.detailLines).toContain(
+      "Provenance: Test fixture (local)",
+    );
   });
 
   test("skips the skill prompt when there are no recommended skills", () => {
@@ -384,11 +399,22 @@ describe("selection wizard", () => {
         hint: "Install skills into your home directory for reuse across projects.",
       },
     ]);
-    expect(renderer.seenOptionStates[0]?.skillSelection.skills).toEqual([
+    expect(
+      renderer.seenOptionStates[0]?.skillSelection.skills.map(
+        ({ name, description }) => ({
+          name,
+          description,
+        }),
+      ),
+    ).toEqual([
       {
         name: "archive-docs",
         description:
           "Relationship-aware archival, staleness detection, deprecation, and impact analysis for docs/ artifacts.",
+      },
+      {
+        name: "decompose-codebase",
+        description: "Plan and reverse-engineer repos into structured PRDs.",
       },
       {
         name: "cleanup-docs",
@@ -404,10 +430,6 @@ describe("selection wizard", () => {
         name: "closeout-phase",
         description:
           "Close out completed work backlog phases with checked tasks, acceptance evidence, guides, gap capture, history, and commit-message drafts.",
-      },
-      {
-        name: "decompose-codebase",
-        description: "Plan and reverse-engineer repos into structured PRDs.",
       },
       {
         name: "work-on-phase",

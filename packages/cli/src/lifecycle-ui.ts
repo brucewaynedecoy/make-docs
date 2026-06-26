@@ -6,9 +6,11 @@ import type {
   AuditPrunableDirectory,
   AuditRemovableFile,
   AuditReport,
+  AuditSkillSelectionReview,
   AuditSkippedPath,
   BackupExecutionResult,
   LifecyclePermissionsMode,
+  SkillManifestSelectionSource,
 } from "./types";
 
 type LifecycleRenderableEntry =
@@ -320,6 +322,7 @@ function buildBackupAuditSummaryLines(options: LifecycleAuditSummaryOptions): st
   return [
     `Target: ${auditReport.targetDir}`,
     `Destination: ${destinationDir ?? "(no backup directory will be created)"}`,
+    ...formatSkillSelectionReview(auditReport.skillSelectionReview),
     `Files to copy: ${options.copyableFiles.length}`,
     `Directories to materialize: ${options.materializableDirectories.length}`,
     `Retained: ${auditReport.preservedPaths.length}`,
@@ -334,6 +337,7 @@ function buildUninstallAuditSummaryLines(
   return [
     `Target: ${auditReport.targetDir}`,
     `Backup before removal: ${backupDestinationDir ?? "not requested"}`,
+    ...formatSkillSelectionReview(auditReport.skillSelectionReview),
     `Files to remove: ${auditReport.removableFiles.length}`,
     `Directories to prune: ${auditReport.prunableDirectories.length}`,
     `Preserved: ${auditReport.preservedPaths.length}`,
@@ -388,6 +392,57 @@ function formatBackupStatus(result: BackupExecutionResult | null): string {
   }
 
   return "requested";
+}
+
+function formatSkillSelectionReview(
+  review: AuditSkillSelectionReview | undefined,
+): string[] {
+  if (!review) {
+    return [];
+  }
+
+  if (!review.skillsEnabled) {
+    return ["Skills: disabled"];
+  }
+
+  const provenance =
+    review.skillSelectionProvenance.length === 0
+      ? "(no saved provenance metadata)"
+      : review.skillSelectionProvenance
+          .map(
+            (entry) =>
+              `${entry.skillName}: ${entry.provenanceLabel} (${entry.provenanceKind})`,
+          )
+          .join("; ");
+
+  return [
+    `Skills: enabled (${review.skillScope})`,
+    `Skills manifest: ${formatSkillManifestSource(review.skillManifest)}`,
+    `Selected skills: ${formatSelectedSkills(review.selectedSkills)}`,
+    `Skill provenance: ${provenance}`,
+  ];
+}
+
+function formatSkillManifestSource(
+  source: SkillManifestSelectionSource | undefined,
+): string {
+  if (!source) {
+    return "(legacy selections; no manifest provenance)";
+  }
+
+  if (source.source === "file") {
+    return `${source.displayName} (local file: ${source.path ?? "unknown path"})`;
+  }
+
+  if (source.source === "remote-pinned") {
+    return `${source.displayName} (remote pinned: ${source.digest ?? "missing digest"})`;
+  }
+
+  return `${source.displayName} (built-in)`;
+}
+
+function formatSelectedSkills(selectedSkills: string[]): string {
+  return selectedSkills.length === 0 ? "(none)" : selectedSkills.join(", ");
 }
 
 async function confirmLifecycleCheckpoint(options: {

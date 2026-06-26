@@ -649,6 +649,7 @@ function createClassification(options: {
   const printableEvidence = [
     `state=${options.state}`,
     `disposition=${options.disposition}`,
+    ...formatAuditSkillSelectionEvidence(options.auditReport),
     ...options.evidence.manifestTrust.reasons.map((reason) => `manifest: ${reason}`),
     ...options.evidence.filesystemTrust.reasons.map(
       (reason) => `filesystem: ${reason}`,
@@ -666,6 +667,35 @@ function createClassification(options: {
     ...options,
     printableEvidence,
   };
+}
+
+function formatAuditSkillSelectionEvidence(
+  auditReport: AuditReport | null,
+): string[] {
+  const review = auditReport?.skillSelectionReview;
+  if (!review) {
+    return [];
+  }
+
+  if (!review.skillsEnabled) {
+    return ["selection: skills disabled"];
+  }
+
+  const manifest = review.skillManifest
+    ? `${review.skillManifest.displayName} (${review.skillManifest.sourcePolicyKind})`
+    : "legacy selections without manifest provenance";
+  const selectedSkills =
+    review.selectedSkills.length === 0 ? "(none)" : review.selectedSkills.join(", ");
+  const provenance =
+    review.skillSelectionProvenance.length === 0
+      ? "no saved provenance metadata"
+      : review.skillSelectionProvenance
+          .map((entry) => `${entry.skillName}:${entry.provenanceKind}`)
+          .join(", ");
+
+  return [
+    `selection: skills ${review.skillScope}; manifest ${manifest}; selected ${selectedSkills}; provenance ${provenance}`,
+  ];
 }
 
 function manifestEntryMatches(

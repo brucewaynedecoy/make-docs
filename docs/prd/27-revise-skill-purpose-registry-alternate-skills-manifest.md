@@ -14,7 +14,9 @@ Coordinate: `W17 R1`
 
 ## Change Notes
 
-This PRD turns the purpose-registry and alternate-manifest design into active requirements. It does not implement the schema or UI changes. It does not make first-party skills required or default-installed, and it does not close the broader long-term bundled-local versus remote-fetch skills delivery question.
+This PRD turns the purpose-registry and alternate-manifest design into active requirements. It does not make first-party skills required or default-installed, and it does not close the broader long-term bundled-local versus remote-fetch skills delivery question.
+
+Implementation evidence as of W17 R1 Phase 4: the TypeScript CLI ships the evolved first-party skills manifest and schema, accepts alternate local skills manifests, expands `all` against the effective manifest, rejects unpinned remote manifests and unpinned remote skill payloads before mutation, persists manifest and selected-skill provenance, exposes that provenance through audit, backup, uninstall, and compatibility review surfaces, and validates bare install, explicit first-party skill, alternate local-manifest, and package-smoke behavior through CLI tests and `npm run smoke:pack`.
 
 ## Requirements
 

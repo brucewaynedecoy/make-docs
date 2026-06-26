@@ -10,19 +10,29 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { createAuditReport } from "../src/audit";
 import { resolveBackupDestinationPlan, runBackupCommand } from "../src/backup";
 import {
+  classifyCompatibilityState,
+  formatCompatibilityClassification,
+} from "../src/compatibility";
+import { applyInstallPlan, planInstall } from "../src/install";
+import {
   __setLifecycleRendererForTests,
   createClackLifecycleRenderer,
   type LifecycleRenderer,
 } from "../src/lifecycle-ui";
 import { loadManifest } from "../src/manifest";
+import { defaultSelections } from "../src/profile";
+import { applySkillRegistrySelectionMetadata } from "../src/skill-catalog";
+import { loadEffectiveSkillRegistry } from "../src/skill-registry";
 import { runUninstallCommand } from "../src/uninstall";
 import type {
   AuditPreservedPath,
   AuditPrunableDirectory,
   AuditReport,
   AuditRemovableFile,
+  AuditSkillSelectionReview,
   AuditSkippedPath,
 } from "../src/types";
+import { PACKAGE_ROOT } from "../src/utils";
 import {
   cleanupTempDir,
   createTempDir,
@@ -212,6 +222,71 @@ describe("lifecycle validation", () => {
     }
   });
 
+  test("lifecycle audits preserve alternate skill manifest provenance without default expansion", async () => {
+    const targetDir = createTempDir();
+    const fixture = createLocalSkillManifestFixture();
+
+    try {
+      await installWithSkillManifest(targetDir, fixture.manifestPath);
+
+      const manifest = loadManifest(targetDir);
+      const report = await createAuditReport({
+        targetDir,
+        manifest,
+      });
+      const removablePaths = report.removableFiles.map((entry) => entry.path);
+      const compatibility = await classifyCompatibilityState({ targetDir });
+      const compatibilityEvidence = formatCompatibilityClassification(compatibility);
+
+      expect(report.skillSelectionReview).toMatchObject({
+        skillsEnabled: true,
+        skillScope: "project",
+        selectedSkills: ["acme-release"],
+        skillManifest: {
+          displayName: "Acme local skills",
+          source: "file",
+          sourcePolicyKind: "local",
+          path: fixture.manifestPath,
+        },
+        skillSelectionProvenance: [
+          expect.objectContaining({
+            skillName: "acme-release",
+            provenanceKind: "local",
+            provenanceLabel: "Local Acme skill",
+          }),
+        ],
+      });
+      expect(removablePaths).toContain(".agents/skills/acme-release/SKILL.md");
+      expect(removablePaths).not.toContain(".agents/skills/archive-docs/SKILL.md");
+      expect(compatibilityEvidence).toContain(
+        "selection: skills project; manifest Acme local skills (local); selected acme-release; provenance acme-release:local",
+      );
+
+      const backupResult = await captureStdout(() =>
+        runBackupCommand({
+          targetDir,
+          permissions: "allow-all",
+          now: NOW,
+        }),
+      );
+      expect(backupResult.copiedFiles).toContain(".agents/skills/acme-release/SKILL.md");
+      expect(backupResult.copiedFiles).not.toContain(".agents/skills/archive-docs/SKILL.md");
+
+      const uninstallResult = await captureStdout(() =>
+        runUninstallCommand({
+          targetDir,
+          backup: false,
+          permissions: "allow-all",
+        }),
+      );
+      expect(uninstallResult.removedFiles).toContain(".agents/skills/acme-release/SKILL.md");
+      expect(uninstallResult.removedFiles).not.toContain(".agents/skills/archive-docs/SKILL.md");
+    } finally {
+      cleanupTempDir(targetDir);
+      cleanupTempDir(fixture.rootDir);
+    }
+  });
+
   test("uninstall with backup aborts deletion when backup copying fails", async () => {
     const targetDir = createTempDir();
 
@@ -340,6 +415,14 @@ describe("lifecycle validation", () => {
       );
       expect(getClackNoteBody("make-docs backup")).toContain(
         [
+          "Skills: enabled (project)",
+          "Skills manifest: Acme local skills (local file: /tmp/acme-skills.json)",
+          "Selected skills: acme-release",
+          "Skill provenance: acme-release: Local Acme skill (local)",
+        ].join("\n"),
+      );
+      expect(getClackNoteBody("make-docs backup")).toContain(
+        [
           "Files to copy:",
           "- managed-file.md (Synthetic backup failure fixture.)",
           "",
@@ -368,6 +451,14 @@ describe("lifecycle validation", () => {
       expect(clackMocks.note).toHaveBeenCalledWith(
         expect.stringContaining("Files to remove: 1"),
         "make-docs uninstall",
+      );
+      expect(getClackNoteBody("make-docs uninstall")).toContain(
+        [
+          "Skills: enabled (project)",
+          "Skills manifest: Acme local skills (local file: /tmp/acme-skills.json)",
+          "Selected skills: acme-release",
+          "Skill provenance: acme-release: Local Acme skill (local)",
+        ].join("\n"),
       );
       expect(getClackNoteBody("make-docs uninstall")).toContain(
         [
@@ -505,6 +596,122 @@ function allAuditPaths(report: AuditReport): string[] {
   ].map((entry) => entry.path);
 }
 
+async function installWithSkillManifest(
+  targetDir: string,
+  manifestPath: string,
+): Promise<void> {
+  const effectiveRegistry = loadEffectiveSkillRegistry({
+    packageRoot: PACKAGE_ROOT,
+    manifestReference: manifestPath,
+  });
+  const baseSelections = defaultSelections();
+  baseSelections.skills = true;
+  baseSelections.selectedSkills = ["acme-release"];
+  const selections = applySkillRegistrySelectionMetadata(
+    baseSelections,
+    effectiveRegistry,
+  );
+  const existingManifest = loadManifest(targetDir);
+  const plan = await planInstall({
+    targetDir,
+    selections,
+    existingManifest,
+    skillRegistry: effectiveRegistry.registry,
+  });
+
+  applyInstallPlan({
+    targetDir,
+    plan,
+    existingManifest,
+  });
+}
+
+function createLocalSkillManifestFixture(): {
+  rootDir: string;
+  manifestPath: string;
+} {
+  const rootDir = createTempDir("make-docs-skill-manifest-");
+  const skillDir = path.join(rootDir, "skills/acme-release");
+  mkdirSync(skillDir, { recursive: true });
+  writeFileSync(
+    path.join(skillDir, "SKILL.md"),
+    "# Acme release\n\nPrepare Acme release docs.\n",
+    "utf8",
+  );
+
+  const manifestPath = path.join(rootDir, "acme-skills.json");
+  const manifest = {
+    schemaVersion: 1,
+    manifestId: "acme.local",
+    displayName: "Acme local skills",
+    sourcePolicy: {
+      kind: "local",
+      label: "Local Acme registry",
+    },
+    purposes: [
+      {
+        id: "acme.release-readiness",
+        label: "Release readiness",
+        description: "Prepare releases.",
+        provenance: {
+          kind: "local",
+          label: "Local purpose",
+        },
+      },
+    ],
+    skills: [
+      {
+        name: "acme-release",
+        displayName: "Acme release",
+        source: "local:skills/acme-release",
+        entryPoint: "SKILL.md",
+        installName: "acme-release",
+        description: "Prepare Acme release docs.",
+        purposes: ["acme.release-readiness"],
+        supportedHarnesses: ["codex"],
+        provenance: {
+          kind: "local",
+          label: "Local Acme skill",
+        },
+        assets: [],
+      },
+    ],
+  };
+
+  writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
+  return { rootDir, manifestPath };
+}
+
+function createSyntheticSkillSelectionReview(): AuditSkillSelectionReview {
+  return {
+    skillsEnabled: true,
+    skillScope: "project",
+    selectedSkills: ["acme-release"],
+    skillManifest: {
+      manifestId: "acme.local",
+      displayName: "Acme local skills",
+      sourcePolicyKind: "local",
+      source: "file",
+      path: "/tmp/acme-skills.json",
+    },
+    skillSelectionProvenance: [
+      {
+        skillName: "acme-release",
+        displayName: "Acme release",
+        manifestId: "acme.local",
+        manifestDisplayName: "Acme local skills",
+        sourcePolicyKind: "local",
+        purposeIds: ["acme.release-readiness"],
+        purposeLabels: ["Release readiness"],
+        supportedHarnesses: ["codex"],
+        skillSource: "file:///tmp/skills/acme-release",
+        provenanceKind: "local",
+        provenanceLabel: "Local Acme skill",
+      },
+    ],
+  };
+}
+
 function createSyntheticAuditReport(targetDir: string, absolutePath: string): AuditReport {
   const removableFile: AuditRemovableFile = {
     path: "managed-file.md",
@@ -532,6 +739,7 @@ function createSyntheticAuditReport(targetDir: string, absolutePath: string): Au
     mode: "manifest-present",
     targetDir,
     manifestPath: path.join(targetDir, ".make-docs/manifest.json"),
+    skillSelectionReview: createSyntheticSkillSelectionReview(),
     removableFiles: [removableFile],
     prunableDirectories: [],
     preservedPaths: [],
@@ -617,6 +825,7 @@ function createRendererAuditReport(targetDir: string): AuditReport {
     mode: "manifest-present",
     targetDir,
     manifestPath: path.join(targetDir, ".make-docs/manifest.json"),
+    skillSelectionReview: createSyntheticSkillSelectionReview(),
     removableFiles: [removableFile],
     prunableDirectories: [prunableDirectory],
     preservedPaths: [preservedPath],

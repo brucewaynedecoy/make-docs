@@ -12,6 +12,11 @@ import {
 import { parseManagedBlock } from "./managed-block";
 import { defaultSelections, resolveInstallProfile } from "./profile";
 import { getDesiredSkillAssets, getRetiredManagedSkillAssets } from "./skill-catalog";
+import {
+  loadEffectiveSkillRegistry,
+  loadSkillRegistry,
+  type SkillRegistry,
+} from "./skill-registry";
 import { TOOL_DIRECTORY_CONFIG_RELATIVE_PATH } from "./tool-directory";
 import {
   HARNESSES,
@@ -24,13 +29,14 @@ import {
   type AuditReason,
   type AuditReport,
   type AuditRemovableFile,
+  type AuditSkillSelectionReview,
   type AuditSkippedPath,
   type Harness,
   type InstallManifest,
   type InstallSelections,
   type ManifestAuditRecord,
 } from "./types";
-import { hashText, readTextFile } from "./utils";
+import { hashText, PACKAGE_ROOT, readTextFile } from "./utils";
 
 const PROJECT_BACKUP_DIRNAME = ".backup";
 const HARNESS_SKILL_DIRS: Record<Harness, string> = {
@@ -85,6 +91,13 @@ export async function createAuditReport(options: {
     mode: options.manifest ? "manifest-present" : "manifest-missing",
     targetDir,
     manifestPath: getManifestPath(targetDir),
+    ...(options.manifest
+      ? {
+          skillSelectionReview: createSkillSelectionReview(
+            options.manifest.selections,
+          ),
+        }
+      : {}),
     removableFiles: sortAuditEntries([...removableFiles.values()]),
     prunableDirectories: sortPrunableDirectories(prunableDirectories),
     preservedPaths: sortAuditEntries([...preservedPaths.values()]),
@@ -810,9 +823,10 @@ async function loadCanonicalSkillContentByPath(
   }
 
   try {
+    const skillRegistry = loadSavedSkillRegistry(selections);
     const [assets, retiredAssets] = await Promise.all([
-      getDesiredSkillAssets(selections),
-      getRetiredManagedSkillAssets(selections),
+      getDesiredSkillAssets(selections, skillRegistry),
+      getRetiredManagedSkillAssets(selections, skillRegistry),
     ]);
     return new Map(
       [...assets, ...retiredAssets].map((asset) => {
@@ -829,6 +843,40 @@ async function loadCanonicalSkillContentByPath(
   } catch {
     return null;
   }
+}
+
+function createSkillSelectionReview(
+  selections: InstallSelections,
+): AuditSkillSelectionReview {
+  return {
+    skillsEnabled: selections.skills,
+    skillScope: selections.skillScope,
+    selectedSkills: [...selections.selectedSkills].sort(),
+    ...(selections.skillManifest
+      ? { skillManifest: structuredClone(selections.skillManifest) }
+      : {}),
+    skillSelectionProvenance: [
+      ...(selections.skillSelectionProvenance ?? []),
+    ].sort((left, right) => left.skillName.localeCompare(right.skillName)),
+  };
+}
+
+function loadSavedSkillRegistry(selections: InstallSelections): SkillRegistry {
+  const savedManifest = selections.skillManifest;
+  if (!savedManifest || savedManifest.source === "built-in") {
+    return loadSkillRegistry(PACKAGE_ROOT);
+  }
+
+  if (savedManifest.source === "file" && savedManifest.path) {
+    return loadEffectiveSkillRegistry({
+      packageRoot: PACKAGE_ROOT,
+      manifestReference: savedManifest.path,
+    }).registry;
+  }
+
+  throw new Error(
+    "Saved remote-pinned skill manifests require explicit migration review before lifecycle audit expansion.",
+  );
 }
 
 async function loadFallbackSkillCandidates(options: {

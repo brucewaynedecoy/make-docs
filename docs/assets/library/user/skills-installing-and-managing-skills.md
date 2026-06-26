@@ -67,16 +67,18 @@ Use dry-run before:
 
 - switching from project to global scope
 - removing skills
-- adding an optional skill
+- adding a selected skill
 - changing harness targets
 
 ## Selected skills
 
 The current registry exposes skills that can be selected explicitly. A skills-enabled install can replace the selected set with a comma-separated list, `all`, or `none`.
 
-### Default skill
+### No default skill files
 
-`archive-docs` is the default selected skill. If skills are enabled and you do not replace the selected set, it is installed for the selected harnesses.
+Bare default installs do not write skill files. If skills are enabled and the selected skill set is empty, no first-party skill is installed until you select one explicitly.
+
+To install `archive-docs`, select it by name or use `all` against the effective manifest.
 
 ### Select one or more skills
 
@@ -184,9 +186,9 @@ That workflow has its own guide:
 
 Use `make-docs skills`, not `make-docs reconfigure`.
 
-### I expected an optional skill to be installed automatically
+### I expected a skill to be installed automatically
 
-Optional skills are installed only when explicitly selected.
+Skills are installed only when explicitly selected.
 
 ### I switched to global scope and cannot find the skill in the project
 

@@ -24,7 +24,7 @@ related:
 
 # Skills Catalog and Distribution Model
 
-This guide explains the current shipped skills system from a maintainer point of view: where the catalog lives, how required and optional skills are defined, how the CLI resolves project versus global scope, and how skills-only planning and apply differ from the rest of the installation lifecycle.
+This guide explains the current shipped skills system from a maintainer point of view: where the catalog lives, how purpose-led selected skills are defined, how the CLI resolves project versus global scope, and how skills-only planning and apply differ from the rest of the installation lifecycle.
 
 ## Registry ownership
 
@@ -59,16 +59,15 @@ The current first-party catalog has seven entries:
 
 `all` expands against the effective manifest for the current run, so a local alternate manifest can replace this set without changing the packaged first-party catalog.
 
-## Required and optional skill grouping
+## Purpose-led selected-skill grouping
 
-The grouping model is simple:
+The grouping model is purpose-led and explicit:
 
-- required skills come from `getRequiredSkills(...)`
-- optional skills come from `getOptionalSkills(...)`
+- purpose metadata explains why a skill may be useful
+- `selectedSkills` stores the concrete skill names that should be installed
+- bare default installs keep `selectedSkills` empty and write no skill files
 
-That split drives both the interactive skills UI and the non-interactive command surface.
-
-Required skills are installed whenever skills are enabled. Optional skills are installed only when selected in the manifest-backed `optionalSkills` list.
+Purpose metadata drives selection presentation, but it does not make a skill required. A skills-enabled run installs only the skills named in the resolved selected-skill set for the effective manifest.
 
 ## Harness targets
 
@@ -116,9 +115,9 @@ This is why the user and developer guides stay distinct:
 - the user guide explains when to run `make-docs skills`
 - this guide explains why the registry, selection model, and per-harness asset mapping behave the way they do
 
-## `archive-docs` as the default shipped skill
+## `archive-docs` as a first-party selectable skill
 
-`archive-docs` is the required baseline entry in the current catalog.
+`archive-docs` is a first-party entry in the current catalog.
 
 It ships with:
 
@@ -127,11 +126,11 @@ It ships with:
 - shared references
 - helper scripts used by the skill workflow
 
-Because it is required, changes to `archive-docs` have packaging impact on every skills-enabled install. Treat it as part of the default distribution contract, not as an optional extension.
+Changes to `archive-docs` have packaging impact when the skill is selected explicitly or through `all`. They must not make bare default installs write skill files.
 
-## `decompose-codebase` as an optional distributed skill
+## `decompose-codebase` as a first-party selectable skill
 
-`decompose-codebase` is intentionally optional because it serves a narrower workflow than the default docs-maintenance baseline.
+`decompose-codebase` serves a narrower workflow than the default docs-maintenance baseline, so users select it explicitly when they need that workflow.
 
 Its distributed payload includes:
 

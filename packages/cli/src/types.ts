@@ -359,10 +359,19 @@ export interface AuditSkippedPath extends AuditCandidateMetadata {
   status: AuditSkippedStatus;
 }
 
+export interface AuditSkillSelectionReview {
+  skillsEnabled: boolean;
+  skillScope: InstallSelections["skillScope"];
+  selectedSkills: string[];
+  skillManifest?: SkillManifestSelectionSource;
+  skillSelectionProvenance: SkillSelectionProvenanceEntry[];
+}
+
 export interface AuditReport {
   mode: AuditMode;
   targetDir: string;
   manifestPath: string;
+  skillSelectionReview?: AuditSkillSelectionReview;
   removableFiles: AuditRemovableFile[];
   prunableDirectories: AuditPrunableDirectory[];
   preservedPaths: AuditPreservedPath[];
