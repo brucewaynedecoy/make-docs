@@ -171,6 +171,77 @@ class GuideCoverageProbeTests(unittest.TestCase):
         self.assertEqual(report["status"], "failed")
         self.assertTrue(any("missing persona frontmatter" in error for item in report["errors"] for error in item["errors"]))
 
+    def test_unknown_persona_frontmatter_fails_for_persona_scoped_docs(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            guide = root / "docs" / "assets" / "library" / "developer" / "unknown-persona.md"
+            guide.parent.mkdir(parents=True)
+            guide.write_text(
+                "---\n"
+                "title: Unknown Persona\n"
+                "persona: reviewer\n"
+                "---\n\n"
+                "# Unknown Persona\n",
+                encoding="utf-8",
+            )
+
+            report = guide_coverage_probe.persona_validation_report(root)
+
+        self.assertEqual(report["status"], "failed")
+        self.assertTrue(any("unknown persona" in error for item in report["errors"] for error in item["errors"]))
+
+    def test_custom_persona_frontmatter_passes_for_matching_path(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            guide = root / "docs" / "assets" / "library" / "support-lead" / "handoff.md"
+            guide.parent.mkdir(parents=True)
+            guide.write_text(
+                "---\n"
+                "title: Support Handoff\n"
+                "persona: support-lead\n"
+                "---\n\n"
+                "# Support Handoff\n",
+                encoding="utf-8",
+            )
+            personas = [
+                {
+                    "slug": "support-lead",
+                    "label": "Support Lead",
+                    "description": "Support leaders reviewing user-facing workflow docs.",
+                    "primitive": "maintainer",
+                }
+            ]
+
+            report = guide_coverage_probe.persona_validation_report(root, personas)
+
+        self.assertEqual(report["status"], "passed")
+
+    def test_custom_persona_schema_errors_fail_report(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            personas = [
+                {
+                    "slug": "Support Lead",
+                    "label": "Support Lead",
+                    "description": "Invalid custom persona.",
+                    "primitive": "operator",
+                },
+                {
+                    "slug": "Support Lead",
+                    "label": "Duplicate Support Lead",
+                    "description": "Duplicate custom persona.",
+                    "primitive": "user",
+                },
+            ]
+
+            report = guide_coverage_probe.persona_validation_report(root, personas)
+
+        self.assertEqual(report["status"], "failed")
+        schema_errors = [error for item in report["errors"] for error in item["errors"]]
+        self.assertTrue(any("lowercase kebab-case" in error for error in schema_errors))
+        self.assertTrue(any("primitive" in error for error in schema_errors))
+        self.assertTrue(any("unique" in error for error in schema_errors))
+
     def test_path_frontmatter_drift_fails_for_persona_scoped_docs(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

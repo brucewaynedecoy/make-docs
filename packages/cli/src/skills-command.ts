@@ -4,6 +4,7 @@ import {
   applySkillsOnlyInstallPlan,
   planSkillsOnlyInstall,
 } from "./install";
+import { loadMakeDocsConfigOrThrow, type MakeDocsConfig } from "./config";
 import { loadManifest, MANIFEST_RELATIVE_PATH } from "./manifest";
 import { cloneSelections, defaultSelections } from "./profile";
 import {
@@ -30,6 +31,8 @@ export type SkillsCommandOptions = {
 };
 
 export async function runSkillsCommand(options: SkillsCommandOptions): Promise<void> {
+  const loadedConfig = loadMakeDocsConfigOrThrow(options.targetDir);
+  const makeDocsConfig = loadedConfig.config;
   const existingManifest = loadManifest(options.targetDir);
   const initialSelections = resolveSkillsSelections(options, existingManifest);
   const packageMeta = readPackageMeta();
@@ -38,6 +41,7 @@ export async function runSkillsCommand(options: SkillsCommandOptions): Promise<v
     existingManifest,
     initialSelections,
     packageMeta,
+    config: makeDocsConfig,
   });
 
   if (interactiveState === null) {
@@ -66,6 +70,7 @@ export async function runSkillsCommand(options: SkillsCommandOptions): Promise<v
     dryRun: options.dryRun,
     plan,
     state,
+    config: makeDocsConfig,
   });
 
   if (options.dryRun) {
@@ -107,8 +112,15 @@ async function resolveInteractiveSkillsState(options: {
   existingManifest: InstallManifest | null;
   initialSelections: InstallSelections;
   packageMeta: ReturnType<typeof readPackageMeta>;
+  config: MakeDocsConfig;
 }): Promise<SkillsUiState | null | undefined> {
-  const { options: commandOptions, existingManifest, initialSelections, packageMeta } = options;
+  const {
+    options: commandOptions,
+    existingManifest,
+    initialSelections,
+    packageMeta,
+    config,
+  } = options;
 
   if (commandOptions.yes || !input.isTTY || !output.isTTY) {
     return undefined;
@@ -123,6 +135,7 @@ async function resolveInteractiveSkillsState(options: {
   return runSkillsUiWithRenderer(createClackSkillsUiRenderer(), {
     initialState,
     introTitle: "Manage make-docs skills",
+    config,
     async buildReviewState(state) {
       const selections = applySkillsUiStateToSelections(state, initialSelections);
       const plan = await planSkillsOnlyInstall({
@@ -139,6 +152,7 @@ async function resolveInteractiveSkillsState(options: {
           state,
           actions: plan.actions,
           dryRun: commandOptions.dryRun,
+          config,
         }),
         actions:
           state.action === "sync"
@@ -177,6 +191,7 @@ function printSkillsPlan(options: {
   dryRun: boolean;
   plan: InstallPlan;
   state: SkillsUiState;
+  config: MakeDocsConfig;
 }): void {
   const title =
     options.state.action === "remove" ? "make-docs skills removal plan" : "make-docs skills plan";
@@ -185,6 +200,7 @@ function printSkillsPlan(options: {
       state: options.state,
       actions: options.plan.actions,
       dryRun: options.dryRun,
+      config: options.config,
     }),
     title,
   );

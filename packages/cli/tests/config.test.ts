@@ -180,6 +180,38 @@ labels:
     );
   });
 
+  test("rejects canonical route prompt skill contract and harness rename attempts", () => {
+    const targetDir = createTempDir();
+    writeConfig(
+      targetDir,
+      `routeIds:
+  design: idea-flow
+promptPaths:
+  design: .make-docs/prompts/ideas.md
+skillNames:
+  closeout-phase: finish-step
+contractNames:
+  guide-contract: library-contract
+harnessNames:
+  codex: assistant
+`,
+    );
+
+    const loaded = loadMakeDocsConfig(targetDir);
+
+    expect(loaded.valid).toBe(false);
+    expect(loaded.diagnostics.map((diagnostic) => diagnostic.keyPath)).toEqual([
+      "routeIds",
+      "promptPaths",
+      "skillNames",
+      "contractNames",
+      "harnessNames",
+    ]);
+    expect(loaded.diagnostics.every(
+      (diagnostic) => diagnostic.code === "structural-rename-attempt",
+    )).toBe(true);
+  });
+
   test("rejects invalid persona primitive values", () => {
     const targetDir = createTempDir();
     writeConfig(

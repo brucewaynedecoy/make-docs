@@ -198,6 +198,10 @@ describe("cli interactive flows", () => {
           capabilities: expect.objectContaining({ designs: true, plans: true, prd: true, work: true }),
         }),
         introTitle: "Let's configure your make-docs install",
+        config: expect.objectContaining({
+          labels: expect.any(Object),
+          personas: expect.any(Array),
+        }),
       });
       expect(promptForManagedFileConflictResolutionsMock).not.toHaveBeenCalled();
       expect(confirmMock).not.toHaveBeenCalled();
@@ -229,6 +233,10 @@ describe("cli interactive flows", () => {
           skills: false,
         }),
         introTitle: "Let's reconfigure your make-docs install",
+        config: expect.objectContaining({
+          labels: expect.any(Object),
+          personas: expect.any(Array),
+        }),
       });
     } finally {
       cleanupTempDir(targetDir);
@@ -290,6 +298,48 @@ describe("cli interactive flows", () => {
       expect(output).toContain("Already current:");
       expect(output).toContain("Changes planned: 0");
       expect(output).not.toContain("Resolve managed file conflicts");
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("renders configured labels in CLI summaries without changing selections", async () => {
+    const targetDir = createTempDir();
+
+    try {
+      await installManifest(targetDir, (selections) => {
+        selections.skills = false;
+      });
+      mkdirSync(path.join(targetDir, ".make-docs"), { recursive: true });
+      writeFileSync(
+        path.join(targetDir, ".make-docs/config.yaml"),
+        `labels:
+  documentKinds:
+    design: Idea
+    prd: Requirement
+  coordinates:
+    wave: Batch
+    phase: Step
+personas:
+  - slug: user
+    label: Reader
+    description: People reading generated docs.
+    primitive: user
+`,
+        "utf8",
+      );
+
+      const output = await captureCliOutput(["--yes", "--dry-run", "--target", targetDir]);
+
+      expect(output).toContain("Document kind labels:");
+      expect(output).toContain("design=Idea");
+      expect(output).toContain("prd=Requirement");
+      expect(output).toContain("Coordinate labels:");
+      expect(output).toContain("wave=Batch");
+      expect(output).toContain("phase=Step");
+      expect(output).toContain("Persona labels:");
+      expect(output).toContain("user=Reader");
+      expect(loadManifest(targetDir)?.selections.skills).toBe(false);
     } finally {
       cleanupTempDir(targetDir);
     }

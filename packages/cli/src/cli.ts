@@ -8,7 +8,11 @@ import {
   formatCompatibilityClassification,
   type CompatibilityClassification,
 } from "./compatibility";
-import { loadMakeDocsConfigOrThrow } from "./config";
+import {
+  getConfigRenderingLabels,
+  loadMakeDocsConfigOrThrow,
+  type MakeDocsConfig,
+} from "./config";
 import {
   applyInstallPlan,
   findReviewableManagedFileConflicts,
@@ -130,7 +134,8 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
   }
 
   const installIntent = inferInstallIntent(parsed);
-  loadMakeDocsConfigOrThrow(targetDir);
+  const loadedConfig = loadMakeDocsConfigOrThrow(targetDir);
+  const makeDocsConfig = loadedConfig.config;
   const compatibilityClassification = await classifyCompatibilityState({
     targetDir,
   });
@@ -187,6 +192,7 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
       const wizardSelections = await runSelectionWizard({
         initialSelections: selections,
         introTitle: "Let's configure your make-docs install",
+        config: makeDocsConfig,
       });
       if (!wizardSelections) {
         output.write("Installer cancelled.\n");
@@ -199,6 +205,7 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
       const wizardSelections = await runSelectionWizard({
         initialSelections: selections,
         introTitle: "Let's reconfigure your make-docs install",
+        config: makeDocsConfig,
       });
       if (!wizardSelections) {
         output.write("Installer cancelled.\n");
@@ -253,6 +260,7 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
     selectionSource,
     targetDir,
     compatibilityClassification: freshInstallTarget ? null : compatibilityClassification,
+    config: makeDocsConfig,
   });
 
   if (parsed.dryRun) {
@@ -743,6 +751,7 @@ function printPlan(options: {
   selectionSource: string;
   targetDir: string;
   compatibilityClassification: CompatibilityClassification | null;
+  config: MakeDocsConfig;
 }): void {
   const {
     actions,
@@ -754,6 +763,7 @@ function printPlan(options: {
     selectionSource,
     targetDir,
     compatibilityClassification,
+    config,
   } = options;
   const nonNoop = actions.filter((action) => action.type !== "noop");
   const renderedActions = getRenderedActions(actions);
@@ -761,6 +771,7 @@ function printPlan(options: {
   const counts = countActions(actions);
   const manifestPath = path.join(targetDir, MANIFEST_RELATIVE_PATH);
   const mode = describeApplyMode({ existingManifest, installIntent });
+  const labels = getConfigRenderingLabels(config);
 
   note(
     [
@@ -780,6 +791,10 @@ function printPlan(options: {
           ]
         : []),
       `Selection source: ${selectionSource}`,
+      `Document kind labels: ${labels.documentKinds}`,
+      `Lifecycle labels: ${labels.lifecycle}`,
+      `Coordinate labels: ${labels.coordinates}`,
+      `Persona labels: ${labels.personas}`,
       `Managed files evaluated: ${actions.length}`,
       `Already current: ${noopCount}`,
       `Changes planned: ${nonNoop.length}`,

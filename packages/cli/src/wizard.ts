@@ -20,6 +20,12 @@ import {
   resolveInstallProfile,
 } from "./profile";
 import {
+  createDefaultMakeDocsConfig,
+  getDocumentKindLabel,
+  type DocumentKindLabelKey,
+  type MakeDocsConfig,
+} from "./config";
+import {
   getRecommendedSkillChoices,
   type WizardSkillChoice,
 } from "./skill-catalog";
@@ -126,6 +132,13 @@ const MANAGED_FILE_CONFLICT_GROUP_LABELS: Record<string, string> = {
   other: "Other managed files",
 };
 
+const CAPABILITY_DOCUMENT_KIND_LABELS: Record<Capability, DocumentKindLabelKey> = {
+  designs: "design",
+  plans: "plan",
+  prd: "prd",
+  work: "work",
+};
+
 export type WizardStep = "capabilities" | "harnesses" | "options" | "review";
 export type WizardReviewAction =
   | "apply"
@@ -138,6 +151,7 @@ export interface RunSelectionWizardOptions {
   initialSelections: InstallSelections;
   introTitle: string;
   startStep?: WizardStep;
+  config?: MakeDocsConfig;
 }
 
 export interface CapabilityChecklistOption {
@@ -166,6 +180,7 @@ export interface WizardOptionSelections {
 export interface CapabilityStepState {
   selections: InstallSelections;
   checklist: CapabilityChecklistState;
+  config: MakeDocsConfig;
 }
 
 export interface HarnessSelectionOption {
@@ -351,12 +366,14 @@ export function applyWizardOptionSelections(
 
 export function buildCapabilityChecklistState(
   selections: InstallSelections,
+  config: MakeDocsConfig = createDefaultMakeDocsConfig(),
 ): CapabilityChecklistState {
   const normalizedSelections = normalizeWizardSelections(selections);
   const profile = resolveInstallProfile(normalizedSelections);
 
   const options = CAPABILITIES.map((capability) => {
     const metadata = CAPABILITY_METADATA[capability];
+    const label = getCapabilityLabel(config, capability);
     const state = profile.capabilityState[capability];
     const disabled = state.missingPrerequisites.length > 0;
     const dependencyText =
@@ -371,7 +388,7 @@ export function buildCapabilityChecklistState(
 
     return {
       value: capability,
-      label: metadata.label,
+      label,
       hint: disabled ? (state.disabledReason ?? metadata.hint) : metadata.hint,
       disabled,
       description: metadata.description,
@@ -392,6 +409,7 @@ export function buildCapabilityChecklistState(
 
 export function renderWizardReviewSummary(
   selections: InstallSelections,
+  config: MakeDocsConfig = createDefaultMakeDocsConfig(),
 ): string {
   const normalizedSelections = normalizeWizardSelections(selections);
   const profile = resolveInstallProfile(normalizedSelections);
@@ -414,7 +432,7 @@ export function renderWizardReviewSummary(
     "Document types",
     ...CAPABILITIES.map((capability) => {
       const state = profile.capabilityState[capability];
-      const label = CAPABILITY_METADATA[capability].label;
+      const label = getCapabilityLabel(config, capability);
       const value = state.effectiveSelection
         ? "selected"
         : state.disabledReason
@@ -443,6 +461,7 @@ export async function runSelectionWizardWithRenderer(
 ): Promise<InstallSelections | null> {
   let selections = normalizeWizardSelections(options.initialSelections);
   let step = options.startStep ?? "capabilities";
+  const config = options.config ?? createDefaultMakeDocsConfig();
 
   await renderer.beginSession?.(options.introTitle);
 
@@ -450,7 +469,8 @@ export async function runSelectionWizardWithRenderer(
     if (step === "capabilities") {
       const selectedCapabilities = await renderer.editCapabilities({
         selections,
-        checklist: buildCapabilityChecklistState(selections),
+        checklist: buildCapabilityChecklistState(selections, config),
+        config,
       });
 
       if (!selectedCapabilities) {
@@ -503,7 +523,7 @@ export async function runSelectionWizardWithRenderer(
     const reviewAction = await renderer.review({
       selections,
       profile: resolveInstallProfile(selections),
-      summary: renderWizardReviewSummary(selections),
+      summary: renderWizardReviewSummary(selections, config),
     });
 
     if (reviewAction === "apply") {
@@ -740,6 +760,13 @@ function getManagedFileConflictGroupLabel(
   return MANAGED_FILE_CONFLICT_GROUP_LABELS[group] ?? toTitleCase(group);
 }
 
+function getCapabilityLabel(
+  config: MakeDocsConfig,
+  capability: Capability,
+): string {
+  return getDocumentKindLabel(config, CAPABILITY_DOCUMENT_KIND_LABELS[capability]);
+}
+
 function toTitleCase(value: string): string {
   return value
     .split(/[-_\s]+/)
@@ -754,7 +781,7 @@ function createClackWizardRenderer(): WizardRenderer {
       intro(title);
     },
     async editCapabilities(state) {
-      return promptForCapabilities(state.selections);
+      return promptForCapabilities(state.selections, state.config);
     },
     async editHarnesses(state) {
       return promptForHarnesses(state.selections);
@@ -804,14 +831,15 @@ function createClackWizardRenderer(): WizardRenderer {
 
 async function promptForCapabilities(
   selections: InstallSelections,
+  config: MakeDocsConfig = createDefaultMakeDocsConfig(),
 ): Promise<Capability[] | null> {
   const promptState = {
     selections: normalizeWizardSelections(selections),
   };
 
   const prompt = new MultiSelectPrompt<CapabilityChecklistOption>({
-    options: buildCapabilityChecklistState(promptState.selections).options,
-    initialValues: buildCapabilityChecklistState(promptState.selections)
+    options: buildCapabilityChecklistState(promptState.selections, config).options,
+    initialValues: buildCapabilityChecklistState(promptState.selections, config)
       .selectedCapabilities,
     required: true,
     render(this: MultiSelectPrompt<CapabilityChecklistOption>) {
@@ -830,7 +858,7 @@ async function promptForCapabilities(
       prompt.value ?? [],
     );
 
-    const checklist = buildCapabilityChecklistState(promptState.selections);
+    const checklist = buildCapabilityChecklistState(promptState.selections, config);
     prompt.options = checklist.options;
     prompt.value = checklist.selectedCapabilities;
 
@@ -849,7 +877,7 @@ async function promptForCapabilities(
     return null;
   }
 
-  return buildCapabilityChecklistState(promptState.selections)
+  return buildCapabilityChecklistState(promptState.selections, config)
     .selectedCapabilities;
 }
 

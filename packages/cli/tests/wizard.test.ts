@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
+import { createDefaultMakeDocsConfig } from "../src/config";
 import { defaultSelections } from "../src/profile";
 import type {
   Capability,
@@ -285,6 +286,34 @@ describe("selection wizard", () => {
     expect(summary).toContain("- Selected skills: decompose-codebase");
     expect(summary).not.toContain("- Optional skills:");
     expect(summary).not.toContain("- Agents:");
+  });
+
+  test("renders configured document kind labels without changing capability values", () => {
+    const config = createDefaultMakeDocsConfig();
+    config.labels.documentKinds.design = "Idea";
+    config.labels.documentKinds.plan = "Roadmap";
+    config.labels.documentKinds.prd = "Requirement";
+    config.labels.documentKinds.work = "Task list";
+    const selections = defaultSelections();
+    selections.capabilities.work = false;
+
+    const checklist = buildCapabilityChecklistState(selections, config);
+    const summary = renderWizardReviewSummary(selections, config);
+
+    expect(checklist.options.map((option) => option.value)).toEqual([
+      "designs",
+      "plans",
+      "prd",
+      "work",
+    ]);
+    expect(checklist.options.map((option) => option.label)).toEqual([
+      "Idea",
+      "Roadmap",
+      "Requirement",
+      "Task list",
+    ]);
+    expect(summary).toContain("- Idea: selected");
+    expect(summary).toContain("- Task list: off");
   });
 
   test("renders harness options and applies harness selections", async () => {

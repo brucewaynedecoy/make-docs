@@ -1,3 +1,10 @@
+import {
+  getDocumentKindLabel,
+  getPersonaLabel,
+  type DocumentKindLabelKey,
+  type MakeDocsConfig,
+} from "./config";
+
 export const GENERATED_DOCUMENT_KINDS = [
   "design",
   "plan",
@@ -53,7 +60,10 @@ export interface FollowOnHandoff {
 
 export interface MetadataValidationFinding {
   code:
+    | "configured-kind-label-mismatch"
+    | "configured-persona-label-mismatch"
     | "invalid-kind"
+    | "invalid-persona"
     | "invalid-route"
     | "invalid-source-type"
     | "invalid-lifecycle-departure"
@@ -67,12 +77,17 @@ export interface MetadataValidationFinding {
   message: string;
 }
 
+export interface MetadataValidationOptions {
+  config?: MakeDocsConfig;
+}
+
 const FRONTMATTER_BOUNDARY = "---\n";
 const YAML_OBJECT_RE = /^([A-Za-z_][A-Za-z0-9_]*):\s*$/;
 const YAML_SCALAR_RE = /^([A-Za-z_][A-Za-z0-9_]*):\s*(.+?)\s*$/;
 const YAML_NESTED_SCALAR_RE = /^\s{2}([A-Za-z_][A-Za-z0-9_]*):\s*(.+?)\s*$/;
 const INTENDED_FOLLOW_ON_HEADING_RE = /^## Intended Follow-On\s*$/m;
 const NEXT_PROMPT_LINK_RE = /\[[^\]]+\]\(([^)]+)\)/;
+const BODY_FIELD_RE = /^-\s+([^:]+):\s*(.+)$/gm;
 
 function stripYamlScalar(value: string): string {
   const trimmed = value.trim();
@@ -192,7 +207,10 @@ export function extractIntendedFollowOn(body: string): FollowOnHandoff | null {
   return handoff;
 }
 
-export function validateGeneratedDocumentMetadata(markdown: string): MetadataValidationFinding[] {
+export function validateGeneratedDocumentMetadata(
+  markdown: string,
+  options: MetadataValidationOptions = {},
+): MetadataValidationFinding[] {
   const { body, frontmatter } = parseDocumentMetadata(markdown);
   const findings: MetadataValidationFinding[] = [];
 
@@ -204,6 +222,13 @@ export function validateGeneratedDocumentMetadata(markdown: string): MetadataVal
   if (kind && !GENERATED_DOCUMENT_KINDS.includes(kind as (typeof GENERATED_DOCUMENT_KINDS)[number])) {
     addFinding(findings, "invalid-kind", "kind", `Unsupported generated document kind: ${kind}.`);
   }
+  validateConfiguredRenderedFields({
+    body,
+    config: options.config,
+    findings,
+    frontmatter,
+    kind,
+  });
 
   const source = metadataObject(frontmatter.source);
   const sourceType = source?.type;
@@ -284,4 +309,79 @@ export function validateGeneratedDocumentMetadata(markdown: string): MetadataVal
   }
 
   return findings;
+}
+
+function validateConfiguredRenderedFields(options: {
+  body: string;
+  config?: MakeDocsConfig;
+  findings: MetadataValidationFinding[];
+  frontmatter: MetadataMap;
+  kind?: string;
+}): void {
+  const { body, config, findings, frontmatter, kind } = options;
+  if (!config) {
+    return;
+  }
+
+  const bodyFields = extractBodyFields(body);
+  if (
+    kind &&
+    GENERATED_DOCUMENT_KINDS.includes(kind as (typeof GENERATED_DOCUMENT_KINDS)[number])
+  ) {
+    const renderedKind = bodyFields.get("document kind") ?? bodyFields.get("kind");
+    if (renderedKind) {
+      const expectedKindLabel = getDocumentKindLabel(
+        config,
+        kind as DocumentKindLabelKey,
+      );
+      if (normalizeComparison(renderedKind) !== normalizeComparison(expectedKindLabel)) {
+        addFinding(
+          findings,
+          "configured-kind-label-mismatch",
+          "kind",
+          `Rendered document kind label '${renderedKind}' does not match canonical kind '${kind}' (${expectedKindLabel}).`,
+        );
+      }
+    }
+  }
+
+  const persona =
+    typeof frontmatter.persona === "string" ? frontmatter.persona : undefined;
+  if (!persona) {
+    return;
+  }
+
+  const knownPersonas = new Set(config.personas.map((entry) => entry.slug));
+  if (!knownPersonas.has(persona)) {
+    addFinding(
+      findings,
+      "invalid-persona",
+      "persona",
+      `Unsupported generated document persona: ${persona}.`,
+    );
+    return;
+  }
+
+  const renderedPersona = bodyFields.get("persona");
+  if (!renderedPersona) {
+    return;
+  }
+
+  const expectedPersonaLabel = getPersonaLabel(config, persona);
+  if (normalizeComparison(renderedPersona) !== normalizeComparison(expectedPersonaLabel)) {
+    addFinding(
+      findings,
+      "configured-persona-label-mismatch",
+      "persona",
+      `Rendered persona label '${renderedPersona}' does not match canonical persona '${persona}' (${expectedPersonaLabel}).`,
+    );
+  }
+}
+
+function extractBodyFields(body: string): Map<string, string> {
+  const fields = new Map<string, string>();
+  for (const match of body.matchAll(BODY_FIELD_RE)) {
+    fields.set(match[1].trim().toLowerCase(), normalizeBodyValue(match[2]));
+  }
+  return fields;
 }

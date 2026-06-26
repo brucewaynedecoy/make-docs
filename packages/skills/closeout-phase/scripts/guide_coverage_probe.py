@@ -113,14 +113,23 @@ def collect_persona_scoped_docs(repo_root: Path) -> list[Path]:
     return paths
 
 
-def persona_validation_report(repo_root: Path) -> dict[str, Any]:
+def persona_validation_report(
+    repo_root: Path,
+    personas: list[dict[str, Any]] | None = None,
+) -> dict[str, Any]:
     errors: list[dict[str, Any]] = []
-    schema_errors = persona_schema.validate_personas(persona_schema.DEFAULT_PERSONAS)
+    persona_entries = persona_schema.DEFAULT_PERSONAS if personas is None else personas
+    schema_errors = persona_schema.validate_personas(persona_entries)
     if schema_errors:
         errors.append({"path": None, "errors": schema_errors})
     for path in collect_persona_scoped_docs(repo_root):
         frontmatter = parse_frontmatter(path.read_text(encoding="utf-8", errors="replace"))
-        path_errors = persona_schema.validate_persona_scoped_doc(repo_root, path, frontmatter)
+        path_errors = persona_schema.validate_persona_scoped_doc(
+            repo_root,
+            path,
+            frontmatter,
+            persona_entries,
+        )
         if path_errors:
             errors.append({"path": path.relative_to(repo_root).as_posix(), "errors": path_errors})
     return {

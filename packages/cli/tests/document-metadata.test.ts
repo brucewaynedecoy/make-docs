@@ -5,6 +5,7 @@ import {
   parseDocumentMetadata,
   validateGeneratedDocumentMetadata,
 } from "../src/document-metadata";
+import { createDefaultMakeDocsConfig } from "../src/config";
 
 function documentWith(frontmatter: string, followOnBody: string): string {
   return `---
@@ -72,6 +73,100 @@ describe("generated document metadata validation", () => {
       "follow-on-why-mismatch",
       "follow-on-coordinate-handoff-mismatch",
     ]);
+  });
+
+  test("allows configured labels in body prose while YAML metadata stays canonical", () => {
+    const config = createDefaultMakeDocsConfig();
+    config.labels.documentKinds.design = "Idea";
+    config.personas = config.personas.map((persona) =>
+      persona.slug === "user" ? { ...persona, label: "Reader" } : persona,
+    );
+    const markdown = `---
+title: "Generated Guide"
+kind: "design"
+status: "draft"
+persona: "user"
+${matchingFollowOn}
+---
+
+# Generated Guide
+
+## Summary
+
+- Document kind: Idea
+- Persona: Reader
+
+## Intended Follow-On
+
+${matchingFollowOnBody}
+`;
+
+    const parsed = parseDocumentMetadata(markdown);
+
+    expect(parsed.frontmatter?.kind).toBe("design");
+    expect(parsed.frontmatter?.persona).toBe("user");
+    expect(validateGeneratedDocumentMetadata(markdown, { config })).toEqual([]);
+  });
+
+  test("reports configured label drift against canonical YAML metadata", () => {
+    const config = createDefaultMakeDocsConfig();
+    config.labels.documentKinds.design = "Idea";
+    config.personas = config.personas.map((persona) =>
+      persona.slug === "user" ? { ...persona, label: "Reader" } : persona,
+    );
+    const markdown = `---
+title: "Generated Guide"
+kind: "design"
+status: "draft"
+persona: "user"
+${matchingFollowOn}
+---
+
+# Generated Guide
+
+## Summary
+
+- Document kind: Requirement
+- Persona: Maintainer
+
+## Intended Follow-On
+
+${matchingFollowOnBody}
+`;
+
+    expect(
+      validateGeneratedDocumentMetadata(markdown, { config }).map(
+        (finding) => finding.code,
+      ),
+    ).toEqual([
+      "configured-kind-label-mismatch",
+      "configured-persona-label-mismatch",
+    ]);
+  });
+
+  test("rejects configured display labels as metadata route or persona identifiers", () => {
+    const config = createDefaultMakeDocsConfig();
+    config.personas = config.personas.map((persona) =>
+      persona.slug === "agent" ? { ...persona, label: "Automation Team" } : persona,
+    );
+    const markdown = documentWith(
+      `persona: "Automation Team"
+follow_on:
+  route: "roadmap"
+  next_prompt: ".make-docs/references/system/prompts/designs-to-plan-change.prompt.md"
+  why: "The design revises an active PRD contract."
+  coordinate_handoff: "Carry W16 R1 into the downstream plan."`,
+      `- Route: \`roadmap\`
+- Next Prompt: [Designs to Plan Change](.make-docs/references/system/prompts/designs-to-plan-change.prompt.md)
+- Why: The design revises an active PRD contract.
+- Coordinate Handoff: Carry W16 R1 into the downstream plan.`,
+    );
+
+    expect(
+      validateGeneratedDocumentMetadata(markdown, { config }).map(
+        (finding) => finding.code,
+      ),
+    ).toEqual(["invalid-persona", "invalid-route"]);
   });
 
   test("accepts every configured lifecycle departure value as machine-readable metadata", () => {

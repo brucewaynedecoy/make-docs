@@ -8,6 +8,11 @@ import {
 import { getRecommendedSkillChoices } from "./skill-catalog";
 import type { WizardSkillChoice } from "./skill-catalog";
 import {
+  createDefaultMakeDocsConfig,
+  getConfigRenderingLabels,
+  type MakeDocsConfig,
+} from "./config";
+import {
   HARNESSES,
   type Harness,
   type InstallSelections,
@@ -90,6 +95,7 @@ export interface RunSkillsUiOptions {
   initialState: SkillsUiState;
   introTitle: string;
   startStep?: SkillsUiStep;
+  config?: MakeDocsConfig;
   buildReviewState?: (
     state: SkillsUiState,
   ) => Promise<SkillsReviewStepState> | SkillsReviewStepState;
@@ -299,12 +305,19 @@ export function renderSkillsPlanSummary(options: {
   state: SkillsUiState;
   actions: PlannedAction[];
   dryRun: boolean;
+  config?: MakeDocsConfig;
 }): string {
   const counts = countSkillActions(options.actions);
+  const labels = getConfigRenderingLabels(
+    options.config ?? createDefaultMakeDocsConfig(),
+  );
   const lines = [
     `Target: ${options.state.targetDir}`,
     `Action: ${options.state.action === "remove" ? "remove managed skills" : "sync skills"}`,
     `Mode: ${options.dryRun ? "dry run" : "apply"}`,
+    `Document kind labels: ${labels.documentKinds}`,
+    `Coordinate labels: ${labels.coordinates}`,
+    `Persona labels: ${labels.personas}`,
   ];
 
   if (options.state.action === "sync") {
@@ -432,6 +445,7 @@ async function buildReviewState(
       state,
       actions: [],
       dryRun: false,
+      config: options.config,
     }),
     actions: reviewActionsForState(state),
   };

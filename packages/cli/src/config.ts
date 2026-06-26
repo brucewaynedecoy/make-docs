@@ -75,6 +75,13 @@ export interface LoadedMakeDocsConfig {
   valid: boolean;
 }
 
+export interface ConfigRenderingLabels {
+  documentKinds: string;
+  lifecycle: string;
+  coordinates: string;
+  personas: string;
+}
+
 const TOP_LEVEL_KEYS = new Set(["labels", "personas", "generatedProse"]);
 const LABEL_GROUP_KEYS = new Set(["lifecycle", "documentKinds", "coordinates"]);
 const PERSONA_KEYS = new Set(["slug", "label", "description", "primitive"]);
@@ -183,6 +190,44 @@ export function createDefaultMakeDocsConfig(): MakeDocsConfig {
       },
     ],
   };
+}
+
+export function getConfigRenderingLabels(
+  config: MakeDocsConfig = createDefaultMakeDocsConfig(),
+): ConfigRenderingLabels {
+  return {
+    documentKinds: formatLabelEntries(config.labels.documentKinds),
+    lifecycle: formatLabelEntries(config.labels.lifecycle),
+    coordinates: formatLabelEntries(config.labels.coordinates),
+    personas: config.personas
+      .map((persona) => `${persona.slug}=${persona.label}`)
+      .join(", "),
+  };
+}
+
+export function getDocumentKindLabel(
+  config: MakeDocsConfig,
+  key: DocumentKindLabelKey,
+): string {
+  return config.labels.documentKinds[key];
+}
+
+export function getLifecycleLabel(
+  config: MakeDocsConfig,
+  key: LifecycleLabelKey,
+): string {
+  return config.labels.lifecycle[key];
+}
+
+export function getCoordinateLabel(
+  config: MakeDocsConfig,
+  key: CoordinateLabelKey,
+): string {
+  return config.labels.coordinates[key];
+}
+
+export function getPersonaLabel(config: MakeDocsConfig, slug: string): string {
+  return config.personas.find((persona) => persona.slug === slug)?.label ?? slug;
 }
 
 export function loadMakeDocsConfig(targetDir: string): LoadedMakeDocsConfig {
@@ -605,4 +650,10 @@ function isStructuralRenameKey(key: string): boolean {
 
 function joinKeyPath(parent: string, key: string): string {
   return parent ? `${parent}.${key}` : key;
+}
+
+function formatLabelEntries(labels: Record<string, string>): string {
+  return Object.entries(labels)
+    .map(([key, value]) => `${key}=${value}`)
+    .join(", ");
 }

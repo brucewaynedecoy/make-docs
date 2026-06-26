@@ -1,4 +1,5 @@
 import { describe, expect, test } from "vitest";
+import { createDefaultMakeDocsConfig } from "../src/config";
 import type { Harness, PlannedAction } from "../src/types";
 import type {
   SkillsReviewAction,
@@ -256,5 +257,33 @@ describe("skills-only UI", () => {
     expect(summary).not.toContain("docs/assets/prompts");
     expect(summary).not.toContain("templates");
     expect(summary).not.toContain("references");
+  });
+
+  test("renders configured labels in skills summaries without changing canonical ids", () => {
+    const config = createDefaultMakeDocsConfig();
+    config.labels.documentKinds.guide = "Handbook";
+    config.labels.coordinates.wave = "Batch";
+    config.personas = config.personas.map((persona) =>
+      persona.slug === "agent" ? { ...persona, label: "Automation" } : persona,
+    );
+
+    const summary = renderSkillsPlanSummary({
+      state: {
+        ...initialState,
+        selectedSkills: ["decompose-codebase"],
+      },
+      actions: sampleActions,
+      dryRun: true,
+      config,
+    });
+
+    expect(summary).toContain("Document kind labels:");
+    expect(summary).toContain("guide=Handbook");
+    expect(summary).toContain("Coordinate labels:");
+    expect(summary).toContain("wave=Batch");
+    expect(summary).toContain("Persona labels:");
+    expect(summary).toContain("agent=Automation");
+    expect(summary).toContain("Selected skills: decompose-codebase");
+    expect(summary).toContain(".agents/skills/archive-docs/SKILL.md");
   });
 });
