@@ -19,6 +19,7 @@ import {
   planInstall,
 } from "./install";
 import { loadManifest, MANIFEST_RELATIVE_PATH } from "./manifest";
+import { runOperationsCommand } from "./operations";
 import { cloneSelections, defaultSelections, hasEffectiveCapabilities } from "./profile";
 import {
   getSkillRegistryNames,
@@ -36,7 +37,7 @@ import {
   runSelectionWizard,
 } from "./wizard";
 
-type Command = "reconfigure" | "skills" | "backup" | "uninstall";
+type Command = "reconfigure" | "skills" | "backup" | "uninstall" | "operations";
 type InstallIntent = "apply" | "reconfigure";
 type RenderedActionKind = "generate" | "update" | "skip" | "remove";
 
@@ -64,6 +65,7 @@ interface ParsedArgs {
   noSkills: boolean;
   skillScope?: InstallSelections["skillScope"];
   selectedSkills?: string[];
+  operationArgs: string[];
 }
 
 type UninstallCommandOptions = {
@@ -130,6 +132,11 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
       selectedSkills:
         parsed.selectedSkills === undefined ? undefined : [...parsed.selectedSkills],
     });
+    return;
+  }
+
+  if (parsed.command === "operations") {
+    await runOperationsCommand(parsed.operationArgs);
     return;
   }
 
@@ -506,6 +513,7 @@ function parseArgs(argv: string[]): ParsedArgs {
     noCodex: false,
     noClaudeCode: false,
     noSkills: false,
+    operationArgs: [],
   };
 
   const args = [...argv];
@@ -517,9 +525,15 @@ function parseArgs(argv: string[]): ParsedArgs {
     args[0] === "reconfigure" ||
     args[0] === "skills" ||
     args[0] === "backup" ||
-    args[0] === "uninstall"
+    args[0] === "uninstall" ||
+    args[0] === "operations"
   ) {
     parsed.command = args.shift() as Command;
+  }
+
+  if (parsed.command === "operations") {
+    parsed.operationArgs = args;
+    return parsed;
   }
 
   while (args.length > 0) {
@@ -1228,6 +1242,32 @@ Examples:
   make-docs uninstall --target ~/Projects/example --yes
 `);
       return;
+    case "operations":
+      output.write(`make-docs operations
+
+Run deterministic make-docs shared-core operations for lifecycle skills and future automation surfaces.
+
+Usage:
+  make-docs operations <operation> [options]
+
+Operations:
+  closeout-probe       Summarize changed files, contracts, coordinates, risks, and validation hints.
+  closeout-validate    Select or run closeout validation commands from probe JSON.
+  closeout-history     Draft or write a closeout history skeleton.
+  work-phase-state     Parse one docs/work phase into task and acceptance JSON.
+  wave-resolve         Resolve a W/R or W/R/P coordinate or docs/work path.
+  wave-status          Report phase completion state for a wave.
+  phase-plan           Render a deterministic phase implementation brief.
+  checkpoint           Create or update .make-docs/runs wave checkpoint state.
+  scope-guard          Detect changed files outside the current phase scope.
+  phase-gate           Check whether a phase has validation, closeout, review, and commit evidence.
+
+Examples:
+  make-docs operations wave-status 'W16 R3' --json
+  make-docs operations phase-plan 'W16 R3 P2'
+  make-docs operations closeout-probe --repo-root . --scope auto --json
+`);
+      return;
     default:
       output.write(`make-docs
 
@@ -1239,6 +1279,7 @@ Usage:
   make-docs skills [options]
   make-docs backup [options]
   make-docs uninstall [options]
+  make-docs operations <operation> [options]
 
 Primary workflow:
   Run make-docs with no command to install into a new target or sync an existing manifest using saved selections.
@@ -1248,6 +1289,7 @@ Commands:
   skills       Sync or remove managed skills.
   backup       Create a backup of managed files.
   uninstall    Remove managed files, with an optional backup first.
+  operations   Run deterministic lifecycle operations for skills and automation.
 
 Examples:
   make-docs
@@ -1258,6 +1300,7 @@ Examples:
   make-docs skills --dry-run
   make-docs backup --yes
   make-docs uninstall --backup
+  make-docs operations wave-status 'W16 R3' --json
 
 Use --help or -h with any command for command-specific options and examples.
 `);

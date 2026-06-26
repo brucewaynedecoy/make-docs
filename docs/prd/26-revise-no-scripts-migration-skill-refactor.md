@@ -135,6 +135,7 @@ MCP write behavior and Rust parity remain downstream implementation concerns gov
 - [../plans/2026-06-23-w17-r2-shared-agentics-installation-harness-redirection/00-overview.md](../plans/2026-06-23-w17-r2-shared-agentics-installation-harness-redirection/00-overview.md)
 - `packages/cli/skill-registry.json`
 - `packages/cli/src/cli.ts`
+- `packages/cli/src/operations.ts`
 - `packages/cli/src/catalog.ts`
 - `packages/cli/src/rules.ts`
 - `packages/cli/src/manifest.ts`
@@ -143,6 +144,7 @@ MCP write behavior and Rust parity remain downstream implementation concerns gov
 - `packages/cli/src/audit.ts`
 - `packages/cli/src/backup.ts`
 - `packages/cli/src/uninstall.ts`
+- `packages/cli/tests/operations.test.ts`
 - `packages/docs/template/.make-docs/scripts/check_path_hygiene.py`
 - `packages/cli/template/.make-docs/scripts/check_path_hygiene.py`
 - `packages/skills/closeout-commit/`
