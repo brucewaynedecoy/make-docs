@@ -2,11 +2,11 @@
 
 ## Tasks
 
-- [ ] Update audit, backup, uninstall, and migration behavior so selected skill provenance is reviewable.
-- [ ] Add fixture coverage for default installs, first-party explicit installs, alternate file-manifest installs, rejected unpinned URL manifests, and remote-pinned manifests if implemented.
-- [ ] Update package validation and smoke-pack expectations for the evolved registry schema.
-- [ ] Confirm no-default-skills behavior with bare install and saved-selection sync coverage.
-- [ ] Update closeout records, PRD/risk entries, and package docs with implementation evidence.
+- [ ] t1: Update audit, backup, uninstall, and migration behavior so selected skill provenance is reviewable.
+- [ ] t2: Add fixture coverage for default installs, first-party explicit installs, alternate file-manifest installs, rejected unpinned URL manifests, and remote-pinned manifests if implemented.
+- [ ] t3: Update package validation and smoke-pack expectations for the evolved registry schema.
+- [ ] t4: Confirm no-default-skills behavior with bare install and saved-selection sync coverage.
+- [ ] t5: Update closeout records, PRD/risk entries, and package docs with implementation evidence.
 
 ## Acceptance Criteria
 

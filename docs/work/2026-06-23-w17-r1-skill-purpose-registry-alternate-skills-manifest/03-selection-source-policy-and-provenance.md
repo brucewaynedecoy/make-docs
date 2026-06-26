@@ -2,12 +2,12 @@
 
 ## Tasks
 
-- [ ] Add explicit alternate file-manifest input to the skills command or selection pipeline.
-- [ ] Update interactive skills UI to group by purpose and show candidate skill, source, harness support, trust, and provenance.
-- [ ] Update non-interactive selected-skill parsing so `all` expands against the effective manifest.
-- [ ] Enforce remote manifest policy: immutable ref plus digest before install.
-- [ ] Enforce remote skill payload policy: immutable ref plus integrity metadata before install.
-- [ ] Preserve `selectedSkills` as resolved skill names and add selection provenance without replacing `skillFiles`.
+- [ ] t1: Add explicit alternate file-manifest input to the skills command or selection pipeline.
+- [ ] t2: Update interactive skills UI to group by purpose and show candidate skill, source, harness support, trust, and provenance.
+- [ ] t3: Update non-interactive selected-skill parsing so `all` expands against the effective manifest.
+- [ ] t4: Enforce remote manifest policy: immutable ref plus digest before install.
+- [ ] t5: Enforce remote skill payload policy: immutable ref plus integrity metadata before install.
+- [ ] t6: Preserve `selectedSkills` as resolved skill names and add selection provenance without replacing `skillFiles`.
 
 ## Acceptance Criteria
 
