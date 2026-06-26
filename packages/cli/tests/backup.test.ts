@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
@@ -157,6 +157,44 @@ describe("backup command", () => {
       expect(output).toContain("Backup complete");
       expect(confirmMock).not.toHaveBeenCalled();
       expect(createAuditReportMock).toHaveBeenCalledTimes(1);
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("preserves project config without copying it as managed backup content", async () => {
+    const targetDir = createTempDir();
+    const configContents = "labels:\n  documentKinds:\n    design: Idea\n";
+
+    try {
+      await installManifest(targetDir, (selections) => {
+        selections.skills = false;
+      });
+      writeFileSync(path.join(targetDir, ".make-docs/config.yaml"), configContents, "utf8");
+
+      const { result } = await captureBackupRun({
+        targetDir,
+        permissions: "allow-all",
+      });
+
+      expect(result.status).toBe("completed");
+      expect(result.auditReport.preservedPaths).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            path: ".make-docs/config.yaml",
+            ownershipSource: "project-config",
+            reasonCode: "project-config-preserved",
+          }),
+        ]),
+      );
+      expect(result.copiedFiles).not.toContain(".make-docs/config.yaml");
+      expect(existsSync(path.join(targetDir, ".make-docs/config.yaml"))).toBe(true);
+      expect(readFileSync(path.join(targetDir, ".make-docs/config.yaml"), "utf8")).toBe(
+        configContents,
+      );
+      expect(
+        existsSync(path.join(targetDir, ".backup/2026-04-18/.make-docs/config.yaml")),
+      ).toBe(false);
     } finally {
       cleanupTempDir(targetDir);
     }

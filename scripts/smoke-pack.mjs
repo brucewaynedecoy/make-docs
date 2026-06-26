@@ -127,6 +127,10 @@ try {
   assertOnlyMakeDocsBin(packedPackage);
   assertPackedInstructionTemplate(packageRoot);
   assertPackedReaderFacingTemplate(packageRoot);
+  assertMissing(
+    path.join(packageRoot, "template/.make-docs/config.yaml"),
+    "Packed template should not ship a default project config file.",
+  );
   const packedMakeDocs = path.join(packageRoot, packedPackage.bin["make-docs"]);
   const skillsHelp = execFileSync("node", [packedMakeDocs, "skills", "--help"], {
     encoding: "utf8",
@@ -173,6 +177,10 @@ try {
       path.join(targetDir, ".make-docs/manifest.json"),
       "Smoke pack bare install did not produce a manifest.",
     );
+    assertMissing(
+      path.join(targetDir, ".make-docs/config.yaml"),
+      "Smoke pack bare install should not materialize an optional project config.",
+    );
     assertExists(
       path.join(targetDir, "docs/AGENTS.md"),
       "Smoke pack bare install did not produce docs/AGENTS.md.",
@@ -183,6 +191,7 @@ try {
       ...EXPECTED_READER_ASSET_PATHS,
       ...EXPECTED_SYSTEM_RESOURCE_PATHS,
     ]);
+    assertManifestOmitsProjectConfig(manifestPath);
 
     execFileSync(
       "node",
@@ -215,6 +224,7 @@ try {
 
   assertExists(manifestPath, "Smoke pack install did not produce a manifest.");
   assertManifestPackageName(manifestPath, EXPECTED_PACKAGE_NAME);
+  assertManifestOmitsProjectConfig(manifestPath);
   assertExists(
     path.join(targetDir, "docs/AGENTS.md"),
     "Smoke pack install did not produce docs/AGENTS.md.",
@@ -223,6 +233,10 @@ try {
   assertManifestContainsSkillFiles(manifestPath, EXPECTED_SKILL_PATHS);
   assertDirectoryEntries(path.join(targetDir, ".claude/skills"), EXPECTED_ALL_SKILLS);
   assertDirectoryEntries(path.join(targetDir, ".agents/skills"), EXPECTED_ALL_SKILLS);
+  assertMissing(
+    path.join(targetDir, ".make-docs/config.yaml"),
+    "Smoke pack skills sync should not materialize an optional project config.",
+  );
 
   for (const relativePath of EXPECTED_SKILL_PATHS) {
     assertExists(
@@ -280,8 +294,10 @@ try {
   }
 
   const customFilePath = path.join(targetDir, ".make-docs/templates/custom-smoke.md");
+  const customConfigPath = path.join(targetDir, ".make-docs/config.yaml");
   mkdirSync(path.dirname(customFilePath), { recursive: true });
   writeFileSync(customFilePath, "preserve this unmanaged smoke fixture\n", "utf8");
+  writeFileSync(customConfigPath, "labels:\n  documentKinds:\n    design: Idea\n", "utf8");
   const customReaderAssetPaths = [
     "docs/assets/artifacts/custom-source/preserve.md",
     "docs/assets/archive/history/custom-history.md",
@@ -321,6 +337,11 @@ try {
     "Smoke pack uninstall left the make-docs manifest behind.",
   );
   assertExists(customFilePath, "Smoke pack uninstall removed an unmanaged custom file.");
+  assertExists(customConfigPath, "Smoke pack uninstall removed project-owned config.");
+  assertMissing(
+    path.join(backupDir, ".make-docs/config.yaml"),
+    "Smoke pack backup copied project-owned config as managed backup content.",
+  );
   for (const relativePath of customReaderAssetPaths) {
     assertExists(
       path.join(targetDir, relativePath),
@@ -403,6 +424,24 @@ function assertManifestContainsManagedFiles(manifestPath, expectedPaths) {
         `Smoke pack manifest tracked ${expectedPath} with sourceId ${entry.sourceId}.`,
       );
     }
+  }
+}
+
+function assertManifestOmitsProjectConfig(manifestPath) {
+  const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+  const files = manifest.files && typeof manifest.files === "object" ? manifest.files : {};
+  const assets =
+    manifest.systemAssetMaterialization?.assets &&
+    typeof manifest.systemAssetMaterialization.assets === "object"
+      ? manifest.systemAssetMaterialization.assets
+      : {};
+
+  if (files[".make-docs/config.yaml"]) {
+    throw new Error("Smoke pack manifest tracked project config as a managed file.");
+  }
+
+  if (assets[".make-docs/config.yaml"]) {
+    throw new Error("Smoke pack manifest tracked project config as a system asset.");
   }
 }
 

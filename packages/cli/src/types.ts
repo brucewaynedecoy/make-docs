@@ -230,6 +230,7 @@ export type AuditOwnershipSource =
   | "manifest-file"
   | "manifest-skill-file"
   | "managed-state"
+  | "project-config"
   | "fallback";
 export type AuditSkippedStatus = "already-absent" | "excluded";
 export type AuditReasonCode =
@@ -249,6 +250,7 @@ export type AuditReasonCode =
   | "manifest-skill-file-content-mismatch"
   | "fallback-root-fingerprint-mismatch"
   | "fallback-ambiguous"
+  | "project-config-preserved"
   | "directory-contains-unmanaged-descendants"
   | "directory-contains-preserved-descendants";
 

@@ -12,6 +12,7 @@ import {
 import { parseManagedBlock } from "./managed-block";
 import { defaultSelections, resolveInstallProfile } from "./profile";
 import { getDesiredSkillAssets } from "./skill-catalog";
+import { TOOL_DIRECTORY_CONFIG_RELATIVE_PATH } from "./tool-directory";
 import {
   HARNESSES,
   type AuditCandidateMetadata,
@@ -66,6 +67,11 @@ export async function createAuditReport(options: {
       skippedPaths,
     });
   }
+  classifyProjectConfig({
+    targetDir,
+    homeDir,
+    preservedPaths,
+  });
 
   const prunableDirectories = classifyPrunableDirectories({
     targetDir,
@@ -764,6 +770,33 @@ function getCandidateParentDirectories(
   }
 
   return directories;
+}
+
+function classifyProjectConfig(options: {
+  targetDir: string;
+  homeDir: string;
+  preservedPaths: Map<string, AuditPreservedPath>;
+}): void {
+  const { targetDir, homeDir, preservedPaths } = options;
+  const absolutePath = path.join(targetDir, TOOL_DIRECTORY_CONFIG_RELATIVE_PATH);
+  if (!existsSync(absolutePath)) {
+    return;
+  }
+
+  addPreserved(
+    preservedPaths,
+    createCandidatePathRecord(
+      targetDir,
+      homeDir,
+      TOOL_DIRECTORY_CONFIG_RELATIVE_PATH,
+      getExistingPathKind(absolutePath),
+      "project-config",
+    ),
+    createReason(
+      "project-config-preserved",
+      "The make-docs config file is project-owned local configuration and is preserved separately from managed files, conflicts, provider state, and cache state.",
+    ),
+  );
 }
 
 async function loadCanonicalSkillContentByPath(

@@ -493,6 +493,33 @@ describe("shared audit engine", () => {
     }
   });
 
+  test("classifies project config as preserved local configuration", async () => {
+    const targetDir = createTempDir();
+
+    try {
+      const manifest = await installWithSelections(targetDir, () => {});
+      const configPath = path.join(targetDir, ".make-docs/config.yaml");
+      writeFileSync(configPath, "labels:\n  documentKinds:\n    design: Idea\n", "utf8");
+
+      const report = await runAudit({ targetDir, manifest });
+      expectAuditMode(report, "manifest-present");
+
+      const configEntry = report.preservedPaths.find(
+        (entry) => entry.path === ".make-docs/config.yaml",
+      );
+      expect(configEntry, summarizeAudit(report)).toMatchObject({
+        ownershipSource: "project-config",
+        reasonCode: "project-config-preserved",
+      });
+      expect(findEntry(report.removableFiles, ".make-docs/config.yaml")).toBeUndefined();
+      expect(findEntry(report.skippedPaths, ".make-docs/config.yaml")).toBeUndefined();
+      expect(manifest.files[".make-docs/config.yaml"]).toBeUndefined();
+      expect(manifest.systemAssetMaterialization.assets[".make-docs/config.yaml"]).toBeUndefined();
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
   test("covers manifest-missing fallback conservatively and ignores unrelated lookalike paths", async () => {
     const targetDir = createTempDir();
 

@@ -189,6 +189,44 @@ describe("uninstall command", () => {
     }
   });
 
+  test("preserves project config during allow-all uninstall", async () => {
+    const targetDir = createTempDir();
+    const configContents = "labels:\n  documentKinds:\n    design: Idea\n";
+
+    try {
+      await installManifest(targetDir, (selections) => {
+        selections.skills = false;
+      });
+      writeFileSync(path.join(targetDir, ".make-docs/config.yaml"), configContents, "utf8");
+
+      const { result } = await captureUninstallRun({
+        targetDir,
+        backup: false,
+        permissions: "allow-all",
+      });
+
+      expect(result.status).toBe("completed");
+      expect(result.removedFiles).toContain(".make-docs/manifest.json");
+      expect(result.removedFiles).not.toContain(".make-docs/config.yaml");
+      expect(result.prunedDirectories).not.toContain(".make-docs");
+      expect(result.plan.auditReport.preservedPaths).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            path: ".make-docs/config.yaml",
+            ownershipSource: "project-config",
+            reasonCode: "project-config-preserved",
+          }),
+        ]),
+      );
+      expect(existsSync(path.join(targetDir, ".make-docs/config.yaml"))).toBe(true);
+      expect(readFileSync(path.join(targetDir, ".make-docs/config.yaml"), "utf8")).toBe(
+        configContents,
+      );
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
   test("routes successful uninstall lifecycle states through the renderer", async () => {
     const targetDir = createTempDir();
     const events: UninstallRendererEvent[] = [];

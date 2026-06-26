@@ -248,6 +248,9 @@ describe("installer integration", () => {
       expect(existsSync(path.join(targetDir, ".agents/skills"))).toBe(false);
       expect(existsSync(path.join(targetDir, ".claude/skill-assets"))).toBe(false);
       expect(existsSync(path.join(targetDir, ".agents/skill-assets"))).toBe(false);
+      expect(existsSync(path.join(targetDir, ".make-docs/config.yaml"))).toBe(false);
+      expect(manifest.files[".make-docs/config.yaml"]).toBeUndefined();
+      expect(manifest.systemAssetMaterialization.assets[".make-docs/config.yaml"]).toBeUndefined();
       expect(existsSync(path.join(targetDir, "docs/work/AGENTS.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/assets/artifacts/AGENTS.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/assets/artifacts/CLAUDE.md"))).toBe(true);
@@ -320,6 +323,57 @@ describe("installer integration", () => {
       expect(manifest.files["docs/assets/archive/AGENTS.md"]?.sourceId).toBe(
         "file:docs/assets/archive/AGENTS.md",
       );
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("preserves project config across install and reconfigure without manifest ownership", async () => {
+    const targetDir = createTempDir();
+    const configPath = path.join(targetDir, ".make-docs/config.yaml");
+    const configContents = [
+      "labels:",
+      "  documentKinds:",
+      "    design: Idea",
+      "personas:",
+      "  - slug: support-lead",
+      "    label: Support Lead",
+      "    description: Support leaders reviewing generated documentation.",
+      "    primitive: maintainer",
+      "",
+    ].join("\n");
+
+    try {
+      mkdirSync(path.dirname(configPath), { recursive: true });
+      writeFileSync(configPath, configContents, "utf8");
+
+      const { manifest } = await installWithSelections(targetDir, () => {});
+
+      expect(readFileSync(configPath, "utf8")).toBe(configContents);
+      expect(manifest.files[".make-docs/config.yaml"]).toBeUndefined();
+      expect(manifest.systemAssetMaterialization.assets[".make-docs/config.yaml"]).toBeUndefined();
+
+      const reconfigureSelections = structuredClone(manifest.selections);
+      reconfigureSelections.capabilities.work = false;
+      const reconfigurePlan = await planInstall({
+        targetDir,
+        selections: reconfigureSelections,
+        existingManifest: manifest,
+      });
+
+      expect(reconfigurePlan.actions.some((action) => action.relativePath === ".make-docs/config.yaml")).toBe(false);
+
+      const reconfigureResult = applyInstallPlan({
+        targetDir,
+        plan: reconfigurePlan,
+        existingManifest: manifest,
+      });
+
+      expect(readFileSync(configPath, "utf8")).toBe(configContents);
+      expect(reconfigureResult.manifest.files[".make-docs/config.yaml"]).toBeUndefined();
+      expect(
+        reconfigureResult.manifest.systemAssetMaterialization.assets[".make-docs/config.yaml"],
+      ).toBeUndefined();
     } finally {
       cleanupTempDir(targetDir);
     }
@@ -404,10 +458,13 @@ describe("installer integration", () => {
         expect(existsSync(path.join(targetDir, "docs/AGENTS.md"))).toBe(true);
         expect(existsSync(path.join(targetDir, "docs/CLAUDE.md"))).toBe(true);
         expect(existsSync(path.join(targetDir, ".make-docs/manifest.json"))).toBe(true);
+        expect(existsSync(path.join(targetDir, ".make-docs/config.yaml"))).toBe(false);
         expect(existsSync(path.join(targetDir, "docs/work/AGENTS.md"))).toBe(false);
         expect(
           existsSync(path.join(targetDir, ".make-docs/references/system/path-and-link-hygiene.md")),
         ).toBe(false);
+        expect(manifest.files[".make-docs/config.yaml"]).toBeUndefined();
+        expect(manifest.systemAssetMaterialization.assets[".make-docs/config.yaml"]).toBeUndefined();
         expect(manifest.skillFiles).toEqual([]);
         expect(existsSync(path.join(targetDir, ".claude/skills"))).toBe(false);
         expect(existsSync(path.join(targetDir, ".agents/skills"))).toBe(false);
