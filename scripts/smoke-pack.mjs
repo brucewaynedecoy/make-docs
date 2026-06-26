@@ -47,18 +47,35 @@ const EXPECTED_SKILL_PATHS = [
   ".claude/skills/archive-docs/agents/openai.yaml",
   ".claude/skills/archive-docs/references/archive-workflow.md",
   ".claude/skills/archive-docs/scripts/trace_relationships.py",
+  ".claude/skills/closeout-commit/SKILL.md",
+  ".claude/skills/closeout-commit/agents/openai.yaml",
+  ".claude/skills/closeout-commit/references/closeout-commit-workflow.md",
   ".claude/skills/work-on-phase/SKILL.md",
   ".claude/skills/work-on-phase/agents/openai.yaml",
   ".claude/skills/work-on-phase/references/phase-implementation-workflow.md",
-  ".claude/skills/work-on-phase/scripts/phase_gate.py",
   ".agents/skills/archive-docs/SKILL.md",
   ".agents/skills/archive-docs/agents/openai.yaml",
   ".agents/skills/archive-docs/references/archive-workflow.md",
   ".agents/skills/archive-docs/scripts/trace_relationships.py",
+  ".agents/skills/closeout-commit/SKILL.md",
+  ".agents/skills/closeout-commit/agents/openai.yaml",
+  ".agents/skills/closeout-commit/references/closeout-commit-workflow.md",
   ".agents/skills/work-on-phase/SKILL.md",
   ".agents/skills/work-on-phase/agents/openai.yaml",
   ".agents/skills/work-on-phase/references/phase-implementation-workflow.md",
+];
+
+const EXPECTED_RETIRED_SKILL_PATHS = [
+  ".claude/skills/closeout-commit/scripts/closeout_probe.py",
+  ".claude/skills/closeout-commit/scripts/closeout_validate.py",
+  ".claude/skills/closeout-commit/scripts/closeout_history.py",
+  ".claude/skills/work-on-phase/scripts/phase_gate.py",
+  ".claude/skills/work-on-phase/scripts/scope_guard.py",
+  ".agents/skills/closeout-commit/scripts/closeout_probe.py",
+  ".agents/skills/closeout-commit/scripts/closeout_validate.py",
+  ".agents/skills/closeout-commit/scripts/closeout_history.py",
   ".agents/skills/work-on-phase/scripts/phase_gate.py",
+  ".agents/skills/work-on-phase/scripts/scope_guard.py",
 ];
 
 const EXPECTED_ALL_SKILLS = [
@@ -231,6 +248,7 @@ try {
   );
 
   assertManifestContainsSkillFiles(manifestPath, EXPECTED_SKILL_PATHS);
+  assertManifestOmitsSkillFiles(manifestPath, EXPECTED_RETIRED_SKILL_PATHS);
   assertDirectoryEntries(path.join(targetDir, ".claude/skills"), EXPECTED_ALL_SKILLS);
   assertDirectoryEntries(path.join(targetDir, ".agents/skills"), EXPECTED_ALL_SKILLS);
   assertMissing(
@@ -242,6 +260,12 @@ try {
     assertExists(
       path.join(targetDir, relativePath),
       `Smoke pack install did not produce ${relativePath}.`,
+    );
+  }
+  for (const relativePath of EXPECTED_RETIRED_SKILL_PATHS) {
+    assertMissing(
+      path.join(targetDir, relativePath),
+      `Smoke pack install should not produce retired helper script ${relativePath}.`,
     );
   }
 
@@ -405,6 +429,17 @@ function assertManifestContainsSkillFiles(manifestPath, expectedPaths) {
   for (const expectedPath of expectedPaths) {
     if (!skillFiles.includes(expectedPath)) {
       throw new Error(`Smoke pack manifest did not track skill file ${expectedPath}.`);
+    }
+  }
+}
+
+function assertManifestOmitsSkillFiles(manifestPath, expectedPaths) {
+  const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+  const skillFiles = Array.isArray(manifest.skillFiles) ? manifest.skillFiles : [];
+
+  for (const expectedPath of expectedPaths) {
+    if (skillFiles.includes(expectedPath)) {
+      throw new Error(`Smoke pack manifest unexpectedly tracked skill file ${expectedPath}.`);
     }
   }
 }

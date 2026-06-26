@@ -154,6 +154,8 @@ MCP write behavior and Rust parity remain downstream implementation concerns gov
 - `packages/cli/tests/uninstall.test.ts`
 - `packages/docs/template/.make-docs/scripts/check_path_hygiene.py`
 - `packages/cli/template/.make-docs/scripts/check_path_hygiene.py`
+- `scripts/smoke-pack.mjs`
+- `docs/prd/03-open-questions-and-risk-register.md`
 - `packages/skills/closeout-commit/`
 - `packages/skills/closeout-phase/`
 - `packages/skills/work-on-wave/`
