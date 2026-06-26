@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Define a maintainer-only conformance lab that can exercise make-docs behavior across agent harnesses and harness-selected models before the project publishes support claims. The lab provides evidence for claims; it does not become part of shipped make-docs installs, templates, npm packages, Rust packages, or provider-backed system asset delivery.
+Define a maintainer-only conformance lab that can exercise make-docs behavior across agent harnesses and harness-selected models before the project publishes support claims. The lab provides evidence for claims; it does not become part of shipped make-docs installs, templates, npm packages, MCP package surfaces, or provider-backed system asset delivery.
 
 ## Change Type
 
@@ -25,7 +25,7 @@ Lab scope:
 
 - The lab is maintainer-only repository tooling and documentation evidence.
 - It is not installed into consumer projects by default.
-- It is not part of shipped templates, npm packages, Rust packages, or provider-backed system asset delivery.
+- It is not part of shipped templates, npm packages, MCP package surfaces, or provider-backed system asset delivery.
 - It is not part of the `.make-docs/**` tool-directory system defined by [21-revise-tool-directory-system-custom-resource-tiers.md](./21-revise-tool-directory-system-custom-resource-tiers.md) unless a later accepted design deliberately promotes a reviewed subset.
 - Scenario specs and compact reviewed result records may live under a future `docs/assets/conformance/` tree.
 - Raw run artifacts, transcripts, provider logs, and temporary workspaces default to `.make-docs/conformance/` or `.make-docs/runs/conformance/` and are not committed unless deliberately redacted and promoted.
@@ -71,7 +71,7 @@ Validation relationship:
 | `docs/prd/07-cli-command-surface-and-lifecycle.md` | Clarifies that current shipped harness behavior remains Codex and Claude Code until another accepted design changes it. |
 | `docs/prd/08-skills-catalog-and-distribution.md` | Clarifies that future lab adapters are not current skills install targets. |
 | `docs/prd/10-packaging-validation-and-release-reference.md` | Adds conformance evidence as support-claim proof without replacing package validation. |
-| `docs/prd/16-revise-package-and-deployment-boundaries.md` | Keeps lab assets out of shipped packages and future Rust packages by default. |
+| `docs/prd/16-revise-package-and-deployment-boundaries.md` | Keeps lab assets out of shipped packages and MCP package surfaces by default. |
 | `docs/prd/17-revise-system-asset-materialization-contract.md` | Keeps lab evidence out of provider-backed system asset delivery. |
 | `docs/prd/18-revise-compatibility-audit-and-migration-disposition.md` | Reuses migration/audit scenarios as evidence inputs without changing safety semantics. |
 | `docs/prd/19-revise-template-package-dogfood-source-of-truth-contract.md` | Uses template/dogfood/package source-of-truth scenarios as lab inputs without moving lab assets into template copies. |

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Decide how make-docs v2 removes standalone deterministic script dependencies from shipped system resources and first-party skills without breaking installed workflows. The migration target is a CLI/shared-core operation boundary that ordinary CLI commands and future MCP tools can expose consistently, while skills become guidance and routing layers instead of carrying make-docs-owned deterministic logic.
+Decide how make-docs v2 removes standalone deterministic script dependencies from shipped system resources and first-party skills without breaking installed workflows. The migration target is a modular TypeScript CLI/shared-core operation boundary that ordinary CLI commands and required MCP tools expose consistently, while skills become guidance and routing layers instead of carrying make-docs-owned deterministic logic.
 
 ## Change Type
 
@@ -14,23 +14,27 @@ Coordinate: `W16 R3`
 
 ## Change Notes
 
-This PRD turns the no-scripts design into active requirements. It does not delete scripts, rewrite skills, implement Rust, or implement MCP. It defines the required migration order and safety gates for later implementation.
+This PRD turns the no-scripts design into active requirements. W16 R3 implemented the lifecycle-critical first slice by moving closeout/work deterministic behavior into the packaged TypeScript CLI, but that implementation is operation-boundary proof rather than final source organization.
+
+W10 R7 supersedes the earlier Rust/MCP-deferred posture: Rust is shelved indefinitely, MCP is required for v2, and TypeScript owns both CLI and MCP operation behavior. W10 R8 owns the follow-on modularization and TypeScript MCP implementation work.
 
 ## Requirements
 
-### CLI Shared-Core Operations
+### Modular TypeScript Operation Domains
 
-Deterministic make-docs-owned behavior must move behind CLI/shared-core operations before first-party scripts are removed or downgraded.
+Deterministic make-docs-owned behavior must move behind modular TypeScript CLI/shared-core operation domains before first-party scripts are removed or downgraded.
 
-The current TypeScript CLI is the first implementation target because it owns the shipped installer, template, manifest, audit, backup, uninstall, skill selection, and package validation behavior.
+The TypeScript package CLI is the v2 implementation target because it owns the shipped installer, template, manifest, audit, backup, uninstall, migration, skill selection, package validation, deterministic operation, and MCP behavior.
 
-Each migrated operation must expose deterministic inputs, outputs, dry-run or read-only behavior where applicable, provenance, and error semantics that ordinary CLI commands and future MCP tools can share.
+Each migrated operation must expose deterministic inputs, outputs, dry-run or read-only behavior where applicable, provenance, and error semantics that ordinary CLI commands and MCP tools can share.
+
+Operation modules should mirror CLI/MCP command domains as closely as practical. Public command dispatch may remain thin, but domain logic must be testable without invoking the full CLI parser or MCP transport.
 
 ### Script Classification
 
 Script-shaped behavior falls into three categories:
 
-- Core deterministic operations belong in CLI/shared-core operations with focused tests.
+- Core deterministic operations belong in modular TypeScript CLI/shared-core operation domains with focused tests.
 - Skill guidance and reference content may remain installed skill assets when selected, but must not own deterministic make-docs behavior.
 - Thin compatibility wrappers may remain only after an equivalent CLI/shared-core operation exists.
 
@@ -40,7 +44,7 @@ Custom user scripts remain custom and are outside this migration unless a later 
 
 1. Add the CLI/shared-core operation and focused tests.
 2. Update manifest, planner, audit, backup, uninstall, and installer handling for the old and new asset shape.
-3. Rewrite affected first-party skills in the same implementation window so they call the CLI/MCP boundary instead of skill-local helper scripts.
+3. Rewrite affected first-party skills in the same implementation window so they call the CLI/MCP operation boundary instead of skill-local helper scripts.
 4. Remove a first-party helper script from the skill registry, package template, dogfood tree, or mirrored harness only after the corresponding CLI operation and skill rewrite are both present.
 5. Validate install, selected-skills, audit, package, and template synchronization before accepting the migration.
 
@@ -59,7 +63,7 @@ The same change plan may include archive tracing, markdown cleanup/style checkin
 
 The no-default-skills contract still holds. Default installs must not install skills or skill scripts.
 
-Explicit selected-skill installs may still install first-party skill prose, references, examples, agent metadata, and prompt routing. Deterministic make-docs logic must be available from the CLI package rather than depending on remote or skill-local script payloads as the only executable source.
+Explicit selected-skill installs may still install first-party skill prose, references, examples, agent metadata, and prompt routing. Deterministic make-docs logic must be available from the TypeScript package rather than depending on remote or skill-local script payloads as the only executable source.
 
 [27-revise-skill-purpose-registry-alternate-skills-manifest.md](27-revise-skill-purpose-registry-alternate-skills-manifest.md) may add purpose metadata, alternate manifest provenance, and source-policy display around selected skills, but that metadata must not become a second owner of deterministic workflow behavior.
 
@@ -73,15 +77,16 @@ Audit, backup, uninstall, and migration flows must distinguish managed old skill
 
 ### MCP Shape
 
-No immediate MCP implementation is required. The migration must shape each operation so a future MCP tool can expose the same contract without a second behavior model.
+MCP is required for v2 and is TypeScript-owned under [25-revise-cli-separation-and-mcp-boundary.md](25-revise-cli-separation-and-mcp-boundary.md). W16 R3 and W10 R7 do not implement the MCP server, but W10 R8 must expose MCP tools through the same modular operation domains rather than a second behavior model.
 
-MCP write behavior and Rust parity remain downstream implementation concerns governed by [25-revise-cli-separation-and-mcp-boundary.md](25-revise-cli-separation-and-mcp-boundary.md).
+MCP write behavior remains gated by explicit permission and parity proof. Rust parity is no longer a v2 requirement.
 
 ## Non-Requirements
 
 - No immediate script deletion.
-- No immediate Rust implementation.
-- No immediate MCP implementation or MCP write surface.
+- No Rust implementation, Rust parity plan, or PATH-order runtime model.
+- No MCP implementation in W16 R3 or W10 R7; W10 R8 owns the required TypeScript MCP implementation backlog.
+- No MCP write surface without explicit permission and parity proof.
 - No resolution of remote versus bundled skills.
 - No resolution of remote skill pinning, alternate skill manifests, or shared plugin/skill install redirection.
 - No migration of custom user scripts.
@@ -106,16 +111,23 @@ MCP write behavior and Rust parity remain downstream implementation concerns gov
 
 - No selected first-party skill requires a missing script or missing CLI replacement at any acceptance checkpoint.
 - Each migrated operation has focused tests and deterministic CLI/shared-core semantics.
+- Operation-domain logic is modular enough to be tested without the full CLI parser or MCP transport.
 - Selected-skill install/update/remove tests cover rewritten skills and removed or wrapper script assets.
 - Audit, backup, uninstall, and migration tests distinguish managed old scripts, managed wrappers, modified local files, and custom scripts.
 - Package/template validation covers source-first edits, dogfood reseeding, `packages/cli/template/` refresh, and packed npm behavior when shipped files change.
 - Risk register entries for R-008 and R-014 remain open until implementation proves parity or are explicitly updated with evidence.
+- W16 R3 is cited as lifecycle-critical operation-boundary evidence, not as final `operations.ts` source organization.
 
 ## Source Anchors
 
 - [../designs/2026-06-20-no-scripts-migration-and-skill-refactor.md](../designs/2026-06-20-no-scripts-migration-and-skill-refactor.md)
+- [../designs/2026-06-26-typescript-cli-and-mcp-runtime-pivot.md](../designs/2026-06-26-typescript-cli-and-mcp-runtime-pivot.md)
 - [../plans/2026-06-23-w16-r3-no-scripts-migration-skill-refactor/00-overview.md](../plans/2026-06-23-w16-r3-no-scripts-migration-skill-refactor/00-overview.md)
+- [../plans/2026-06-26-w10-r7-typescript-cli-mcp-runtime-pivot/00-overview.md](../plans/2026-06-26-w10-r7-typescript-cli-mcp-runtime-pivot/00-overview.md)
+- [../plans/2026-06-26-w10-r8-typescript-cli-operation-domains-and-mcp-runtime/00-overview.md](../plans/2026-06-26-w10-r8-typescript-cli-operation-domains-and-mcp-runtime/00-overview.md)
 - [../work/2026-06-23-w16-r3-no-scripts-migration-skill-refactor/00-index.md](../work/2026-06-23-w16-r3-no-scripts-migration-skill-refactor/00-index.md)
+- [../work/2026-06-26-w10-r7-typescript-cli-mcp-runtime-pivot/00-index.md](../work/2026-06-26-w10-r7-typescript-cli-mcp-runtime-pivot/00-index.md)
+- [../work/2026-06-26-w10-r8-typescript-cli-operation-domains-and-mcp-runtime/00-index.md](../work/2026-06-26-w10-r8-typescript-cli-operation-domains-and-mcp-runtime/00-index.md)
 - [07 CLI Command Surface and Lifecycle](07-cli-command-surface-and-lifecycle.md)
 - [08 Skills Catalog and Distribution](08-skills-catalog-and-distribution.md)
 - [10 Packaging Validation and Release Reference](10-packaging-validation-and-release-reference.md)

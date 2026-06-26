@@ -50,7 +50,7 @@ This phase covers user-facing command semantics, no default aliases, runtime/ver
 - [x] t7: If runtime/version disclosure changes, update CLI output and tests so support can distinguish package version and runtime implementation.
 - [x] t8: Document that npm and future Rust distributions are alternatives selected by PATH order, not commands users should normally chain together.
 - [x] t9: Keep MCP startup work sequenced behind manifest, audit, backup, and uninstall safety; do not make TypeScript the long-term MCP runtime owner.
-- [x] t10: Verify manifest provenance and audit-related docs/tests still describe TypeScript as current authority until Rust parity lands.
+- [x] t10: Verify manifest provenance and audit-related docs/tests still describe TypeScript as current authority. W10 R7 later superseded the Rust parity target with TypeScript CLI/MCP ownership.
 
 ### Acceptance criteria
 

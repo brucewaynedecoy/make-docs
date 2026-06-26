@@ -2,21 +2,21 @@
 
 ## Purpose
 
-This revision records the effective compatibility, audit, and migration disposition contract for v2 Make Docs. It reconciles the accepted compatibility design and the W10 R3 plan into the active PRD set so future installer, package, dogfood, system asset, Rust, and MCP work classify existing installs before mutating them.
+This revision records the effective compatibility, audit, and migration disposition contract for v2 Make Docs. It reconciles the accepted compatibility design, the W10 R3 plan, and the W10 R7 runtime pivot into the active PRD set so future installer, package, dogfood, system asset, TypeScript CLI, and MCP work classify existing installs before mutating them.
 
-The change keeps the current TypeScript npm implementation as the executable source of truth while defining the taxonomy a future Rust CLI must share before it can sync, migrate, back up, uninstall, or provider-resolve existing Make Docs installs.
+The change keeps the TypeScript package implementation as the executable source of truth and defines the taxonomy TypeScript CLI and MCP paths must share before they can sync, migrate, back up, uninstall, or provider-resolve existing Make Docs installs.
 
 ## Change Type
 
 Revision.
 
-This document enhances active manifest, audit, backup, uninstall, conflict-review, package, dogfood, skills, system asset, and future Rust compatibility requirements.
+This document enhances active manifest, audit, backup, uninstall, conflict-review, package, dogfood, skills, system asset, and TypeScript CLI/MCP compatibility requirements.
 
 ## Baseline Being Revised or Removed
 
 This revision updates these baseline assumptions:
 
-- Every install, reconfigure, migration, backup, uninstall, and future Rust execution path must classify source state before writing managed files.
+- Every install, reconfigure, migration, backup, uninstall, and TypeScript CLI/MCP execution path must classify source state before writing managed files.
 - Compatibility is state-classification first, not command-path first.
 - Ordinary install and reconfigure may recommend migration but must not perform destructive backup-and-reinstall implicitly.
 - Unsupported recognizable shapes use backup-and-reinstall only through an explicit migration flow or equivalent explicit confirmation path.
@@ -26,7 +26,7 @@ This revision updates these baseline assumptions:
 
 ## Rationale
 
-The accepted compatibility design closes the safety gap between W10 R1 package ownership and W10 R2 system asset materialization. Existing installs can be clean, modified, partial, malformed, provider-backed, cache-backed, or unknown. Treating all of those states as ordinary install targets would either overwrite local changes, trust malformed manifests, or strand users between TypeScript and future Rust behavior.
+The accepted compatibility design closes the safety gap between W10 R1 package ownership and W10 R2 system asset materialization. Existing installs can be clean, modified, partial, malformed, provider-backed, cache-backed, or unknown. Treating all of those states as ordinary install targets would either overwrite local changes, trust malformed manifests, or strand users between package-runner and MCP behavior.
 
 The current implementation has useful safety primitives already. `packages/cli/src/manifest.ts` validates schema version 1, tracks file hashes, records selected skills and skill files, and builds manifest audit context. `packages/cli/src/audit.ts` separates manifest-present from manifest-missing audits. `packages/cli/src/backup.ts` and `packages/cli/src/uninstall.ts` execute from reviewed audit results. `packages/cli/src/planner.ts` and `packages/cli/src/managed-block.ts` support managed-file and managed-block conflict review. The PRD set should preserve those primitives while requiring a classifier above them.
 
@@ -104,12 +104,12 @@ Rollback:
 - Rollback is restore-from-backup, not an implicit inverse migration.
 - If rollback automation is added later, it must consume the same backup manifest and path metadata that backup created.
 
-TypeScript/Rust compatibility:
+TypeScript CLI/MCP compatibility:
 
-- The TypeScript npm implementation remains the current executable source of truth.
-- A future Rust CLI may classify, sync, migrate, backup, uninstall, or provider-resolve only after it preserves this taxonomy, manifest compatibility, and single-audit safety model.
-- When both TypeScript and Rust distributions are installed, PATH order may choose the runtime, but the selected runtime must not fork the installed-project compatibility contract.
-- [25-revise-cli-separation-and-mcp-boundary.md](./25-revise-cli-separation-and-mcp-boundary.md) applies the same requirement to MCP and no-scripts replacement paths: every install, reconfigure, migration, backup, uninstall, Rust, or MCP write path must classify source state before mutation and reuse the same disposition and audit-snapshot contract.
+- The TypeScript package implementation remains the executable source of truth.
+- TypeScript CLI and MCP paths may classify, sync, migrate, backup, uninstall, or provider-resolve only through this taxonomy, manifest compatibility model, and single-audit safety model.
+- Package-runner and persistent-install execution must not fork installed-project compatibility semantics.
+- [25-revise-cli-separation-and-mcp-boundary.md](./25-revise-cli-separation-and-mcp-boundary.md) applies the same requirement to MCP and no-scripts replacement paths: every install, reconfigure, migration, backup, uninstall, CLI, or MCP write path must classify source state before mutation and reuse the same disposition and audit-snapshot contract.
 
 Dogfood and skills:
 
@@ -139,7 +139,7 @@ Validation boundary:
 | `docs/prd/07-cli-command-surface-and-lifecycle.md` | Enhances lifecycle UX with dedicated migration flow expectations and forbids implicit destructive migration during ordinary install/reconfigure. |
 | `docs/prd/08-skills-catalog-and-distribution.md` | Enhances selected-skill preservation rules during migration and preserves no-default-skills behavior. |
 | `docs/prd/10-packaging-validation-and-release-reference.md` | Enhances validation with the required source-state and disposition fixture matrix. |
-| `docs/prd/16-revise-package-and-deployment-boundaries.md` | Enhances TypeScript/Rust coexistence by requiring a shared compatibility taxonomy. |
+| `docs/prd/16-revise-package-and-deployment-boundaries.md` | Enhances TypeScript CLI/MCP coexistence by requiring a shared compatibility taxonomy. |
 | `docs/prd/17-revise-system-asset-materialization-contract.md` | Enhances materialization modes with clean-state classification requirements. |
 | `docs/prd/20-revise-agent-harness-model-conformance-lab.md` | Uses compatibility classification, fallback, and backup-and-reinstall behavior as evidence scenarios without changing mutation safety semantics. |
 | `docs/prd/21-revise-tool-directory-system-custom-resource-tiers.md` | Applies migration classification and managed-file conflict safety to future `.make-docs/**` tool-resource moves. |
@@ -159,7 +159,7 @@ The following active PRD docs must carry `Change Notes` backlinks to this revisi
 | `docs/prd/07-cli-command-surface-and-lifecycle.md` | Enhanced by | Migration flow, backup-and-reinstall recommendation, review UX, and no implicit destructive conversion. |
 | `docs/prd/08-skills-catalog-and-distribution.md` | Enhanced by | Trusted selected-skill preservation only; no default skill expansion during migration. |
 | `docs/prd/10-packaging-validation-and-release-reference.md` | Enhanced by | Source-state and disposition fixture matrix. |
-| `docs/prd/16-revise-package-and-deployment-boundaries.md` | Enhanced by | Shared TypeScript/Rust classifier and disposition contract. |
+| `docs/prd/16-revise-package-and-deployment-boundaries.md` | Enhanced by | Shared TypeScript CLI/MCP classifier and disposition contract. |
 | `docs/prd/17-revise-system-asset-materialization-contract.md` | Enhanced by | Clean v2 materialization states require trusted provenance and provider/cache evidence. |
 
 Do not add `Change Notes` to `docs/prd/03-open-questions-and-risk-register.md`; update its existing numbered D/Q/R items directly.

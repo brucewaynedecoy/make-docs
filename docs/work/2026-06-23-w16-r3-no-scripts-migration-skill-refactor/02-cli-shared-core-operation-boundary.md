@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Create the deterministic operation surface that first-party skills and future MCP tools can call before helper scripts are removed.
+Create the deterministic operation surface that first-party skills can call before helper scripts are removed. W10 R7/W10 R8 later require the same operation surface to be modularized and exposed through TypeScript MCP tools.
 
 ## Tasks
 
@@ -31,4 +31,4 @@ Create the deterministic operation surface that first-party skills and future MC
 
 - Each targeted helper has an equivalent CLI/shared-core operation.
 - Focused tests prove operation parity before registry or skill assets are changed.
-- No Rust or MCP implementation is required for this phase.
+- No MCP implementation was required for W16 R3 itself; W10 R8 owns the required TypeScript MCP implementation.

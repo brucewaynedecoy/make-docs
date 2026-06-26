@@ -2,7 +2,11 @@
 
 ## Purpose
 
-Define the v2 boundary between the current TypeScript npm installer-maintainer CLI, the future standalone Rust agent-facing CLI, and the first MCP surface before deterministic scripts and skills are rewired.
+Define the v2 boundary between the TypeScript package CLI, modular operation-domain behavior, and the required MCP surface before deterministic scripts and skills are rewired.
+
+## W10 R7 Runtime Pivot
+
+W10 R7 supersedes this plan's Rust runtime ownership, same-command npm/Rust, PATH-order, and optional/deferred MCP assumptions. Future work must treat TypeScript as the v2 runtime authority, MCP as required and TypeScript-owned, and W16 R3 as operation-boundary proof to be modularized by W10 R8.
 
 ## Source Design
 
@@ -17,13 +21,13 @@ Define the v2 boundary between the current TypeScript npm installer-maintainer C
 - The no-command workflow installs or syncs depending on manifest presence.
 - Explicit TypeScript CLI commands are `reconfigure`, `skills`, `backup`, and `uninstall`.
 - Removed `init`, `update`, `--reconfigure`, and `--skills` paths remain intentionally rejected.
-- There is no Rust CLI or MCP runtime in the active implementation.
+- The completed W10 R6 implementation did not ship MCP runtime behavior; W10 R7/W10 R8 now own the required TypeScript MCP surface.
 
 ## Target State
 
 - `npx @brucewaynedecoy/make-docs` remains installer-first and must not become an `init`/`update` command-router-first interface.
-- TypeScript remains owner for installer-maintainer behavior until an accepted Rust parity plan proves shared contracts.
-- Rust becomes the long-term owner for the standalone agent-facing command surface and MCP runtime.
+- TypeScript remains owner for installer-maintainer, deterministic-operation, package-runner, and MCP behavior in v2.
+- W10 R8 modularizes operation domains and adds the required TypeScript MCP runtime.
 - MCP tools delegate to the same deterministic operation contracts used by ordinary CLI commands or shared core operations.
 - The first MCP surface is read-first and plan-first; writes require a later explicit permission model.
 - Config overlays are rendering inputs only across CLI, MCP, plugin, and skill surfaces.

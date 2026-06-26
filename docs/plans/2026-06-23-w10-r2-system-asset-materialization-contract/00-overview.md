@@ -8,9 +8,13 @@
 
 **Purpose:** Produce a reviewable active-set evolution plan for system asset delivery, materialization modes, provider-backed resolution, and manifest provenance.
 
+## W10 R7 Runtime Pivot
+
+W10 R7 supersedes this plan's future-facing Rust provider and TypeScript/Rust split assumptions. Future provider/cache work must treat TypeScript CLI/MCP as the v2 runtime authority, MCP as required, and W10 R8 as the implementation backlog for modular operation domains and MCP runtime behavior.
+
 ## Objective
 
-Revise the active PRD namespace so Make Docs has one explicit system asset materialization contract across the current TypeScript npm installer, the future Rust CLI/MCP provider surface, and later provider or cache-backed asset sources. Completion means the follow-on PRD pass can add one numbered revision doc, annotate affected baseline docs, update the living risk register, and generate a scoped delta backlog without reopening the W10 R1 package identity and deployment ownership decisions.
+Revise the active PRD namespace so Make Docs has one explicit system asset materialization contract across the TypeScript package CLI, required TypeScript MCP provider surface, and later provider or cache-backed asset sources. Completion means the follow-on PRD pass can add one numbered revision doc, annotate affected baseline docs, update the living risk register, and generate a scoped delta backlog without reopening the W10 R1 package identity and deployment ownership decisions.
 
 This plan follows the default lifecycle arc after the upstream roadmap-driven design batch: accepted design -> plan -> PRD reconciliation -> work backlog. The upstream departure was the batch design generation from roadmap artifacts; this plan resumes the normal artifact sequence.
 
@@ -32,7 +36,7 @@ This change revises the active asset, manifest, packaging, and lifecycle contrac
 - `provider-backed`
 - `hybrid-pinned-cache`
 
-It enhances the manifest contract with asset-set provenance and preserves TypeScript npm as the full-snapshot source of truth until provider-backed behavior has implementation evidence across npm and future Rust-installed environments.
+It enhances the manifest contract with asset-set provenance and preserves the TypeScript package as the full-snapshot source of truth until provider-backed behavior has implementation evidence across package-runner and TypeScript MCP environments.
 
 ## Change Inputs
 
@@ -87,7 +91,7 @@ Do not create separate PRDs for provider-backed mode, hybrid cache mode, manifes
 | `docs/prd/07-cli-command-surface-and-lifecycle.md` | Enhanced by | User-visible mode selection, outage messaging, dry-run/review behavior, and managed-file safety for on-demand writes. |
 | `docs/prd/08-skills-catalog-and-distribution.md` | Enhanced by | Skills remain selected agentic assets and are not folded into system asset materialization modes. |
 | `docs/prd/10-packaging-validation-and-release-reference.md` | Enhanced by | Full-snapshot package validation baseline plus future provider/cache validation checks. |
-| `docs/prd/16-revise-package-and-deployment-boundaries.md` | Enhanced by | Future Rust provider role must preserve the same manifest, audit, backup, uninstall, and command contracts. |
+| `docs/prd/16-revise-package-and-deployment-boundaries.md` | Enhanced by | TypeScript CLI/MCP provider behavior must preserve the same manifest, audit, backup, uninstall, and command contracts. |
 
 Update `docs/prd/03-open-questions-and-risk-register.md` directly for existing D/Q/R entries. Do not add `Change Notes` inside the register.
 

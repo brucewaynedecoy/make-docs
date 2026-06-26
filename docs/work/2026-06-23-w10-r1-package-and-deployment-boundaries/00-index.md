@@ -4,7 +4,11 @@
 
 ## Purpose
 
-This delta backlog turns the accepted W10 R1 plan and PRD 16 requirements into dependency-ordered implementation work. It covers the stable `make-docs` identity, one-command TypeScript/Rust boundary, runtime/version disclosure review, dry-run package validation, package README/tarball reconciliation, and closeout evidence.
+This delta backlog turns the accepted W10 R1 plan and PRD 16 requirements into dependency-ordered implementation work. It covers the stable `make-docs` identity, TypeScript package runtime boundary, runtime/version disclosure review, dry-run package validation, package README/tarball reconciliation, and closeout evidence.
+
+## W10 R7 Runtime Pivot
+
+W10 R7 supersedes future-facing TypeScript/Rust boundary, same-command dual-runtime, and PATH-order runtime requirements in this completed backlog. Treat W10 R1 as historical package-boundary evidence; future implementation must follow [W10 R7](../2026-06-26-w10-r7-typescript-cli-mcp-runtime-pivot/00-index.md) and the W10 R8 implementation backlog.
 
 The backlog assumes PRD reconciliation is already complete. Phase 01 is therefore a scope and requirements gate for implementation, not a request to recreate PRD 16 or rewrite the active PRD set.
 
@@ -19,7 +23,7 @@ Primary authority:
 | Phase | File | Builds |
 | --- | --- | --- |
 | 01 | [01-requirements-and-scope-gate.md](01-requirements-and-scope-gate.md) | Confirms PRD 16, risk-register state, no-go scope, and live TypeScript package/CLI surfaces before implementation starts. |
-| 02 | [02-shared-command-and-runtime-contract.md](02-shared-command-and-runtime-contract.md) | Implements or verifies the one `make-docs` command boundary, no default aliases, runtime/version disclosure, and MCP/Rust safety sequencing. |
+| 02 | [02-shared-command-and-runtime-contract.md](02-shared-command-and-runtime-contract.md) | Historical phase for the one `make-docs` command boundary, no default aliases, runtime/version disclosure, and superseded MCP/Rust safety sequencing. |
 | 03 | [03-package-validation-and-release-boundaries.md](03-package-validation-and-release-boundaries.md) | Reconciles package README/tarball guidance and strengthens dry-run package, smoke-pack, no-default-skills, and release-channel validation. |
 | 04 | [04-closeout-and-risk-validation.md](04-closeout-and-risk-validation.md) | Runs aggregate validation, updates PRD/risk/history only with evidence, records manual-test guidance, and keeps real publish actions blocked. |
 

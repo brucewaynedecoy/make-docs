@@ -2,29 +2,29 @@
 
 ## Purpose
 
-Define the implementation-ready contract for one user-facing `make-docs` command across npm and future Rust distributions, including runtime/version disclosure and the ownership transition for MCP startup behavior.
+Define the implementation-ready contract for one user-facing `make-docs` package binary, package-runner execution, runtime/version disclosure, and required TypeScript MCP ownership.
 
 ## What to Build
 
-- Specify the shared command semantics that both TypeScript and Rust implementations must honor.
-- Require both implementations to identify runtime and version in help/version output once both exist.
-- Preserve the current npm package as the canonical `npx` and npm entry point: `@brucewaynedecoy/make-docs` with the installed `make-docs` binary.
-- Define the Rust CLI as the future standalone deployment artifact for Homebrew and Crates while keeping the installed command name `make-docs`.
+- Specify the shared command semantics that TypeScript CLI and MCP surfaces must honor.
+- Require package-runner and persistent-install paths to identify package/runtime and version clearly enough for support.
+- Preserve the npm package as the canonical package entry point: `@brucewaynedecoy/make-docs` with the `make-docs` binary.
+- Treat `npx`, `pnpm dlx`, and `bunx` / `bun x` as first-class remote execution targets.
 - Keep secondary command aliases out of scope unless a future registry constraint requires a lookup-only package alias.
-- Document the MCP startup transition: TypeScript may bootstrap, configure, or bridge during transition; Rust owns long-term startup runtime without bypassing manifest, audit, backup, or uninstall safety.
+- Document the required MCP surface as TypeScript-owned and constrained by manifest, audit, backup, and uninstall safety.
 
 ## Key Decisions
 
-- PATH order is an accepted user environment concern when both distributions are installed. The mitigation is clear runtime/version disclosure and documentation that npm and Rust distributions are alternatives, not chained commands.
-- The TypeScript implementation remains the current source of truth for manifest, audit, backup, uninstall, conflict, and skills-selection behavior until a later implementation plan lands Rust parity.
+- Persistent installs and package-runner execution must not create separate behavior models. The mitigation is shared operation-domain behavior and clear package/runtime disclosure.
+- The TypeScript implementation remains the v2 source of truth for manifest, audit, backup, uninstall, conflict, deterministic operation, MCP, and skills-selection behavior.
 - Shared contracts include `.make-docs/manifest.json`, package metadata needed for installed-project provenance, and user-visible command semantics.
 
 ## Acceptance Criteria
 
-- The PRD change doc names one primary executable, `make-docs`, for both implementations.
+- The PRD change doc names one primary package binary, `make-docs`, for TypeScript package execution.
 - The downstream backlog includes tasks to review and, if needed, update CLI help/version output and tests for runtime/version disclosure.
 - No plan or backlog task introduces `makedocs`, `make-docs-js`, `make-docs-rs`, or another primary command alias.
-- MCP startup ownership work is sequenced behind shared safety contracts, not ahead of them.
+- MCP implementation work is sequenced behind shared safety contracts, not ahead of them.
 
 ## Dependencies
 

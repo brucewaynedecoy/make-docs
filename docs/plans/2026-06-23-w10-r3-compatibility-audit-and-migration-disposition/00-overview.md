@@ -6,11 +6,15 @@
 
 **Repository:** `make-docs`
 
-**Purpose:** Produce a reviewable active-set evolution plan for v2 compatibility classification, audit-backed migration dispositions, backup-and-reinstall safety, rollback expectations, and TypeScript/Rust coexistence.
+**Purpose:** Produce a reviewable active-set evolution plan for v2 compatibility classification, audit-backed migration dispositions, backup-and-reinstall safety, rollback expectations, and TypeScript CLI/MCP compatibility.
+
+## W10 R7 Runtime Pivot
+
+W10 R7 supersedes this plan's TypeScript/Rust coexistence and PATH-order assumptions. Future compatibility and migration work must classify TypeScript CLI/MCP paths against one shared taxonomy, with no Rust prerequisite for v2.
 
 ## Objective
 
-Revise the active PRD namespace so Make Docs has one compatibility classifier and one disposition model for existing installs while package, asset materialization, dogfood, and future Rust work are in flight. Completion means the follow-on PRD pass can add one numbered revision doc, annotate affected baseline docs, update the living risk register, and generate a scoped delta backlog without weakening the W10 R1 package-boundary or W10 R2 system asset contracts.
+Revise the active PRD namespace so Make Docs has one compatibility classifier and one disposition model for existing installs while package, asset materialization, dogfood, TypeScript CLI, and MCP work are in flight. Completion means the follow-on PRD pass can add one numbered revision doc, annotate affected baseline docs, update the living risk register, and generate a scoped delta backlog without weakening the W10 R1 package-boundary or W10 R2 system asset contracts.
 
 This plan resumes the normal lifecycle arc after the upstream roadmap-driven design batch: accepted design -> plan -> PRD reconciliation -> work backlog.
 
@@ -26,7 +30,7 @@ This plan resumes the normal lifecycle arc after the upstream roadmap-driven des
 
 Revision and enhancement.
 
-This change revises install, manifest, audit, backup, uninstall, conflict-review, package, dogfood, and future Rust compatibility requirements by making state classification mandatory before mutation and by naming allowed dispositions for each source state.
+This change revises install, manifest, audit, backup, uninstall, conflict-review, package, dogfood, and TypeScript CLI/MCP compatibility requirements by making state classification mandatory before mutation and by naming allowed dispositions for each source state.
 
 ## Change Inputs
 
@@ -60,7 +64,7 @@ This plan depends on the active revisions that already define the adjacent contr
 
 ## Change Doc Strategy
 
-Create one revision doc because the classifier and disposition model are one safety contract. The classifier states, disposition meanings, backup-and-reinstall rules, rollback expectations, and TypeScript/Rust compatibility requirements must be read together.
+Create one revision doc because the classifier and disposition model are one safety contract. The classifier states, disposition meanings, backup-and-reinstall rules, rollback expectations, and TypeScript CLI/MCP compatibility requirements must be read together.
 
 Do not split clean states, malformed manifest handling, missing-manifest fallback, or backup-and-reinstall into separate PRDs.
 
@@ -74,7 +78,7 @@ Do not split clean states, malformed manifest handling, missing-manifest fallbac
 | `docs/prd/07-cli-command-surface-and-lifecycle.md` | Enhanced by | Dedicated migration flow, no implicit destructive migration in ordinary install/reconfigure, and review-first disposition UX. |
 | `docs/prd/08-skills-catalog-and-distribution.md` | Enhanced by | Preserve prior selected skills only when manifest and file evidence are trustworthy; no default skill expansion during migration. |
 | `docs/prd/10-packaging-validation-and-release-reference.md` | Enhanced by | Fixture matrix for every source-state and disposition pair. |
-| `docs/prd/16-revise-package-and-deployment-boundaries.md` | Enhanced by | TypeScript/Rust runtime coexistence must share the classifier and disposition taxonomy. |
+| `docs/prd/16-revise-package-and-deployment-boundaries.md` | Enhanced by | TypeScript CLI/MCP runtime paths must share the classifier and disposition taxonomy. |
 | `docs/prd/17-revise-system-asset-materialization-contract.md` | Enhanced by | Clean v2 full-snapshot, provider-backed, and hybrid pinned-cache states depend on materialization provenance. |
 
 Update `docs/prd/03-open-questions-and-risk-register.md` directly for existing D/Q/R entries. Do not add `Change Notes` inside the register.

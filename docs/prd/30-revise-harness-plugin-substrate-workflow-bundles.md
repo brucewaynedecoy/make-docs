@@ -62,9 +62,9 @@ Plugin installation requires a future accepted plugin selection flow, an effecti
 
 ### Lifecycle and Operation Ownership
 
-Plugin lifecycle behavior follows the installer-maintainer surface until a later plan proves another runtime has parity.
+Plugin lifecycle behavior follows the TypeScript package runtime and modular operation-domain surface.
 
-Install, update, sync, reconfigure, backup, audit, uninstall, migration review, package validation, and conflict handling remain TypeScript CLI-owned in the near term. A plugin may call Rust CLI, MCP, or shared-core operations only through accepted operation contracts.
+Install, update, sync, reconfigure, backup, audit, uninstall, migration review, package validation, and conflict handling remain TypeScript CLI-owned. A plugin may call MCP or shared-core operations only through accepted operation contracts.
 
 A plugin must not carry independent deterministic logic that bypasses no-scripts migration or creates a second implementation of manifest, configuration, audit, backup, uninstall, generation, validation, or lifecycle routing behavior.
 
@@ -133,7 +133,7 @@ Baseline implementation validation should include `npm run build -w packages/cli
 - No plugin requirement for playbook validity.
 - No default adversarial-review plugin, workflow bundle, or plugin-selection implication.
 - No symlink-based default behavior.
-- No MCP write surface or Rust parity implementation in this PRD.
+- No MCP write surface implementation in this PRD.
 - No closure of per-bundle UX details for request-vs-change, docs visibility, scaffold exposure, or exact non-maintainer flows.
 - No remote-versus-bundled skills delivery decision.
 

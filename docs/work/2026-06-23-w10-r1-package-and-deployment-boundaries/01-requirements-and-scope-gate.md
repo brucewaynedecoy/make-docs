@@ -51,7 +51,7 @@ This phase is a gate, not a PRD-authoring phase. PRD 16 and the baseline annotat
 
 - [x] t6: Inspect `packages/cli/package.json` for package name, `bin.make-docs`, `files`, release metadata, and npm workspace ownership.
 - [x] t7: Inspect `packages/cli/src/cli.ts` for the public command model, removed-command rejection, help/version behavior, and alias absence.
-- [x] t8: Inspect `packages/cli/src/manifest.ts`, `packages/cli/src/audit.ts`, `packages/cli/src/backup.ts`, and `packages/cli/src/uninstall.ts` for manifest, audit, backup, and uninstall contracts that future Rust work must preserve.
+- [x] t8: Inspect `packages/cli/src/manifest.ts`, `packages/cli/src/audit.ts`, `packages/cli/src/backup.ts`, and `packages/cli/src/uninstall.ts` for manifest, audit, backup, and uninstall contracts that later runtime work must preserve. W10 R7 superseded the then-planned Rust target with TypeScript CLI/MCP ownership.
 - [x] t9: Inspect `scripts/smoke-pack.mjs` and existing package tests to identify the minimum validation stack for later phases.
 
 ### Acceptance criteria

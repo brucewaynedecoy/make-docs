@@ -6,9 +6,13 @@
 
 **Purpose:** Produce a reviewable change plan for turning [2026-06-19-package-and-deployment-boundaries.md](../../designs/2026-06-19-package-and-deployment-boundaries.md) into an active PRD evolution, scoped delta backlog, and validation path for the Make Docs package, command, release-channel, and deployment-ownership boundary.
 
+## W10 R7 Runtime Pivot
+
+W10 R7 supersedes this plan's future-facing Rust, same-command npm/Rust, and PATH-order runtime assumptions. Future work must use [W10 R7 TypeScript CLI and MCP Runtime Pivot](../2026-06-26-w10-r7-typescript-cli-mcp-runtime-pivot/00-overview.md) as the active runtime authority: TypeScript owns v2 CLI/MCP behavior, MCP is required, and W10 R8 owns modular operation-domain implementation.
+
 ## Objective
 
-Revise the active PRD namespace so Make Docs has one stable product and command contract across the TypeScript npm package and future standalone Rust deployment artifacts. Completion means the follow-on PRD pass can add one numbered change doc, annotate affected baseline docs, reconcile the open questions and risk register, and generate a scoped delta backlog without reopening unrelated v2 package/materialization decisions.
+Revise the active PRD namespace so Make Docs has one stable product, command, package-runner, and TypeScript runtime contract. Completion means the follow-on PRD pass can add one numbered change doc, annotate affected baseline docs, reconcile the open questions and risk register, and generate a scoped delta backlog without reopening unrelated v2 package/materialization decisions.
 
 This plan returns the v2 package-boundary work to the normal lifecycle arc after the roadmap-driven design batch. The departure has already happened upstream: the design was generated from roadmap artifacts before this plan stage. This plan resumes the default design -> plan -> PRD -> work order.
 
@@ -42,7 +46,7 @@ Open questions from the design should be promoted or updated in `docs/prd/03-ope
 - Active `docs/prd/` status: active namespace, slots `00`-`15`.
 - Impacted baseline docs: `01`, `02`, `03`, `05`, `07`, `08`, `10`, and `12`.
 - Discovery pass required: yes, light.
-- Discovery scope if required: confirm the current package metadata and `make-docs` binary surface, the CLI runtime/version disclosure behavior, manifest and audit safety anchors, smoke-pack validation coverage, package README/tarball drift, and whether any existing PRD baseline text conflicts with the design's no-alias and Rust-as-long-term-MCP-owner decisions.
+- Discovery scope if required: confirm the current package metadata and `make-docs` binary surface, the CLI runtime/version disclosure behavior, manifest and audit safety anchors, smoke-pack validation coverage, package README/tarball drift, and whether any existing PRD baseline text conflicts with the active no-alias, TypeScript runtime, and required-MCP decisions.
 
 ## Output Contract
 
@@ -56,7 +60,7 @@ Open questions from the design should be promoted or updated in `docs/prd/03-ope
 
 | New doc | Kind | Why it exists | Affected baseline docs |
 | --- | --- | --- | --- |
-| `16-revise-package-and-deployment-boundaries.md` | revision | Records the effective v2 package identity, command, release-channel, TypeScript/Rust deployment ownership, no-alias, MCP startup, and shared-contract requirements that supersede or extend prior package-identity and npm-only assumptions. | `01`, `02`, `05`, `07`, `08`, `10`, `12`, `03` |
+| `16-revise-package-and-deployment-boundaries.md` | revision | Records the effective v2 package identity, command, release-channel, TypeScript runtime ownership, remote package-runner, required MCP, no-alias, and shared-contract requirements that supersede or extend prior package-identity and npm-only assumptions. | `01`, `02`, `05`, `07`, `08`, `10`, `12`, `03` |
 
 Do not split this into multiple PRD change docs unless the execution pass discovers materially separate requirement areas that need independent rationale or sequencing. The design intentionally resolves one boundary first so later Batch 1 designs can stay constrained.
 
@@ -82,7 +86,7 @@ Execution is delegation-first when workers are available; the coordinator's writ
 | --- | --- | --- | --- | --- |
 | PRD reconciler | Phase 01 | `docs/prd/` | this plan | PRD change doc, index update, baseline annotations, risk register updates |
 | Command contract worker | Phase 02 | CLI contract docs and tests, plus work backlog detail | Phase 01 | shared command/name/runtime disclosure requirements and implementation tasks |
-| Package validation worker | Phase 03 | package/release docs and validation tasks | Phase 01 | npm/Rust/Homebrew/Crates validation and no-publish guardrails |
+| Package validation worker | Phase 03 | package/release docs and validation tasks | Phase 01 | npm/pnpm/Bun package-runner validation and no-publish guardrails |
 | Backlog and closeout worker | Phase 04 | `docs/work/` plus touched-doc validation | Phases 01-03 | scoped delta backlog and validation/closeout checklist |
 
 ## MCP Strategy
@@ -97,13 +101,13 @@ Execution is delegation-first when workers are available; the coordinator's writ
 - Every affected baseline doc has the required `### Change Notes` backlink, and no active PRD doc is renumbered.
 - `docs/prd/03-open-questions-and-risk-register.md` updates D-005, D-006, Q-001, Q-007, Q-008, Q-012, R-003, R-006, and R-014 without duplicating existing items.
 - The delta backlog traces to the new change doc, affected baseline docs, package/deployment design, and current TypeScript CLI/package surfaces.
-- Package/release validation remains dry-run only unless the user separately authorizes irreversible registry, Homebrew, Crates, or npm publish actions.
+- Package/release validation remains dry-run only unless the user separately authorizes irreversible registry or npm publish actions.
 
 ## Phase Map
 
 | Phase | File | Builds |
 | --- | --- | --- |
 | 01 | [01-active-prd-and-risk-reconciliation.md](01-active-prd-and-risk-reconciliation.md) | Active PRD change doc, baseline notes, index update, and risk-register reconciliation. |
-| 02 | [02-shared-command-and-runtime-contract.md](02-shared-command-and-runtime-contract.md) | The shared `make-docs` command, runtime/version disclosure, no-alias, and TypeScript/Rust ownership contract. |
-| 03 | [03-package-validation-and-release-boundaries.md](03-package-validation-and-release-boundaries.md) | npm package validation plus future Rust/Homebrew/Crates release boundary requirements. |
+| 02 | [02-shared-command-and-runtime-contract.md](02-shared-command-and-runtime-contract.md) | The shared `make-docs` package binary, runtime/version disclosure, no-alias, TypeScript runtime, and required MCP contract. |
+| 03 | [03-package-validation-and-release-boundaries.md](03-package-validation-and-release-boundaries.md) | npm package validation plus first-class `npx`, `pnpm dlx`, and `bunx` / `bun x` release-boundary requirements. |
 | 04 | [04-delta-backlog-and-closeout.md](04-delta-backlog-and-closeout.md) | Scoped delta backlog, validation commands, and closeout rules. |

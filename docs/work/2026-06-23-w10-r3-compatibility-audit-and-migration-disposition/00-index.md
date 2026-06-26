@@ -4,7 +4,11 @@
 
 ## Purpose
 
-This backlog implements the W10 R3 compatibility classifier and migration disposition contract. It turns the accepted design, W10 R3 plan, and PRD 18 revision into dependency-ordered work for state classification, migration safety, backup-and-reinstall, rollback expectations, and TypeScript/Rust coexistence.
+This backlog implements the W10 R3 compatibility classifier and migration disposition contract. It turns the accepted design, W10 R3 plan, and PRD 18 revision into dependency-ordered work for state classification, migration safety, backup-and-reinstall, rollback expectations, and TypeScript CLI/MCP compatibility.
+
+## W10 R7 Runtime Pivot
+
+W10 R7 supersedes future-facing TypeScript/Rust coexistence and PATH-order assumptions in this completed backlog. W10 R3 remains closed; future migration-hardening work must apply the W10 R7 TypeScript CLI/MCP runtime contract and cite W10 R3 only for classifier/disposition requirements.
 
 Implementation must classify the current source state before any managed-file mutation.
 
@@ -25,7 +29,7 @@ Implementation must classify the current source state before any managed-file mu
 - Do not infer repo-root authored docs as product-owned just because they live near managed assets.
 - Do not treat agent-only dogfood moves as shipped migration behavior. Documentation tree moves that relocate Markdown files must be implemented in the packaged CLI/shared core with deterministic move planning, reviewed link rewrites, and full destination-tree link validation.
 - Do not silently expand `selectedSkills` or install skill files by default during migration.
-- Preserve the TypeScript CLI as the implementation source of truth until a Rust parity plan lands.
+- Preserve the TypeScript package CLI as the implementation source of truth for CLI and MCP paths.
 
 ## Intended Follow-On
 

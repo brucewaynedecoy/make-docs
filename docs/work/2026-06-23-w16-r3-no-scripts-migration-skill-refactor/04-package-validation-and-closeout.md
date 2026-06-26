@@ -18,7 +18,7 @@ Prove the migrated operation and skill assets remain consistent across source te
 - No `packages/docs/template/` source edits were required because W16 R3 changed CLI operations, selected-skill registry/prose, selected-skill install/audit behavior, package smoke assertions, PRD source anchors, and risk evidence rather than template-owned system helper or docs assets.
 - `packages/cli/template/` refresh was exercised through `npm run smoke:pack`, whose `prepack` step copied `packages/docs/template/` into `packages/cli/template/`; no persistent template diff remained.
 - Updated `scripts/smoke-pack.mjs` so packed selected-skill validation expects current migrated skill assets and asserts retired lifecycle helper scripts are absent from disk and manifest tracking.
-- Updated R-008 and R-014 with W16 R3 implementation evidence while keeping both open for remaining helper scripts, purpose metadata, future MCP/Rust parity, plugin/shared-agentics surfaces, and broader delivery-model work.
+- Updated R-008 and R-014 with W16 R3 implementation evidence while keeping both open for remaining helper scripts, purpose metadata, required TypeScript MCP parity, plugin/shared-agentics surfaces, and broader delivery-model work.
 - Added a final W16 R3 closeout history record for the behavior change.
 - Manual UAT is not worthwhile for this wave because the user-observable surface is selected CLI/package behavior already exercised by focused tests and packed CLI smoke validation; a human would only repeat install/manifest checks covered by automation.
 

@@ -6,6 +6,10 @@ Define the implementation plan for the v2 plugin substrate and productized workf
 
 This plan is derived from [Harness Plugin Substrate and Workflow Bundles](../../designs/2026-06-20-harness-plugin-substrate-and-workflow-bundles.md). It follows W18 R1 by treating playbooks as content and plugins as optional harness-visible invocation packages over accepted lifecycle, manifest, configuration, CLI/MCP, audit, and playbook contracts.
 
+## W10 R7 Runtime Pivot
+
+W10 R7 supersedes any future-facing Rust parity assumption in plugin lifecycle planning. Plugin deterministic behavior must delegate to TypeScript CLI/MCP operation domains, with MCP required and TypeScript-owned.
+
 ## Coordinate
 
 - Wave: W18

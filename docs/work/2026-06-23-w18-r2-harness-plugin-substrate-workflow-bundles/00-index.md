@@ -1,5 +1,9 @@
 # W18 R2 Harness Plugin Substrate Workflow Bundles Work
 
+## W10 R7 Runtime Pivot
+
+Before executing plugin lifecycle or operation delegation work, apply W10 R7: TypeScript owns v2 CLI/MCP runtime behavior, MCP is required, Rust is not a v2 prerequisite, and W10 R8 owns modular operation-domain/MCP implementation.
+
 ## W9 R5 Prerequisite
 
 Before executing this backlog, apply [W9 R5 v2 Library and Archive History IA Correction](../2026-06-25-w9-r5-v2-library-and-archive-history-ia-correction/00-index.md). W18 R2 plugin substrate and workflow bundles must consume `.make-docs/**` system-resource ownership and `docs/assets/{archive,artifacts,library,playbooks}/**` plus on-demand `docs/assets/archive/history/**` project-asset ownership before selecting shipped bundle paths.
