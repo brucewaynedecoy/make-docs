@@ -100,7 +100,7 @@ Validation and release boundary:
 - Package and release validation must prove the packed npm artifact, not only the local development tree.
 - Validation must continue to distinguish local template resolution from packed template resolution.
 - Package/release validation remains dry-run only unless the user separately authorizes irreversible registry or npm publish actions.
-- Package validation must prove `npx`, `pnpm dlx`, and `bunx` / `bun x` behavior where remote package execution changes.
+- Package validation must prove `npx`, `pnpm dlx`, and `bunx` / `bun x` behavior where remote package execution changes. W10 R8 Phase 4 supplies the first packed-tarball proof by running `npx --package`, `pnpm dlx`, and `bun x --package` in isolated temp roots.
 - MCP validation must prove command parity, operation-domain reuse, manifest, audit, backup, uninstall, migration, and permission behavior against the same product contracts. W10 R8 Phase 3 supplies the initial read-first MCP parity proof; future write, provider, plugin, and shared-agentics MCP expansions must add their own proof before support claims broaden.
 - [20-revise-agent-harness-model-conformance-lab.md](./20-revise-agent-harness-model-conformance-lab.md) keeps conformance-lab scenarios, records, and raw artifacts out of shipped package surfaces unless a later accepted design deliberately promotes a subset.
 

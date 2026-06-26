@@ -64,6 +64,8 @@ Parity includes manifest reads, config interpretation, asset provenance, audit c
 
 W10 R8 Phase 3 ships the first TypeScript MCP surface through `make-docs mcp`. That surface is read-first and plan-first: it exposes installed-state inspection, manifest reads, config reads, compatibility classification, dry-run install planning, and closeout/work/lifecycle helpers that call the same TypeScript operation domains and planner/classifier modules used by the CLI.
 
+W10 R8 Phase 4 extends packed-package smoke validation so `npx --package`, `pnpm dlx`, and `bun x --package` execute the generated tarball in isolated temp roots before support claims rely on remote package-runner behavior.
+
 ### First MCP Surface
 
 The first MCP surface is read-first and plan-first. W10 R8 Phase 3 implements:
@@ -89,6 +91,8 @@ Deterministic logic must live in modular TypeScript operation domains, not skill
 Operation modules should mirror CLI/MCP command domains as closely as practical. New deterministic behavior requires focused operation tests and CLI/MCP parity expectations.
 
 W10 R8 implements the follow-on source organization by modularizing the current `operations.ts` boundary while preserving existing `make-docs operations ...` behavior, then exposes the first MCP tools through the same operation domains.
+
+W10 R8 closeout support claims are limited to the validated surfaces: existing `make-docs operations ...` compatibility, modular closeout/work/lifecycle operation domains, read-first and plan-first MCP tools, explicit MCP validation-run approval gating, and packed-package execution through npm, pnpm, and Bun package runners. Future MCP writes, provider-backed asset operations, plugin/shared-agentics parity, playbook execution, adversarial review, and migration link-rewrite behavior must add their own operation-domain, permission, and package validation before support claims broaden.
 
 ### Asset and Config Boundaries
 
