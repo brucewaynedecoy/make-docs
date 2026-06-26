@@ -7,7 +7,6 @@ order: 30
 tags:
   - cli
   - mcp
-  - rust
   - parity
   - permissions
 applies-to:
@@ -23,19 +22,31 @@ related:
   - ../../../prd/28-revise-shared-agentics-installation-harness-redirection.md
   - ../../../prd/29-revise-playbook-contract-run-playbook.md
   - ../../../prd/30-revise-harness-plugin-substrate-workflow-bundles.md
+  - ../../../plans/2026-06-26-w10-r8-typescript-cli-operation-domains-and-mcp-runtime/00-overview.md
+  - ../../../work/2026-06-26-w10-r8-typescript-cli-operation-domains-and-mcp-runtime/00-index.md
 ---
 
 # CLI/MCP Operation Parity and Permissions
 
 ## Overview
 
-This guide is the maintainer contract for future MCP work. It does not describe shipped MCP tools. It defines how an MCP surface must map back to existing CLI or shared-core operations before maintainers can implement, document, package, or claim support for it.
+This guide is the maintainer contract for TypeScript CLI/MCP operation work. It does not describe shipped MCP tools until W10 R8 lands the MCP surface. It defines how an MCP surface must map back to existing TypeScript operation domains before maintainers document, package, or claim support for it.
 
-The current implementation authority is still the TypeScript npm CLI. Rust remains the long-term standalone agent runtime and MCP destination, but future Rust and MCP work must preserve the same manifest, config, asset, audit, compatibility, conflict, dry-run, backup, uninstall, and permission contracts.
+The current implementation authority is the TypeScript package CLI. Rust is shelved indefinitely and is not a v2 prerequisite, package-validation target, MCP owner, or command-runtime peer. Future CLI, MCP, skill, plugin, and playbook surfaces must preserve the same manifest, config, asset, audit, compatibility, conflict, dry-run, backup, uninstall, and permission contracts.
 
 ## Current Boundary
 
 Do not add MCP tools as independent behavior.
+
+Deterministic behavior belongs in modular TypeScript operation domains under `packages/cli/src/operations/<domain>/`. Public CLI dispatch and future MCP tool handlers should parse transport-specific input, call the shared domain function, and render the result. They should not own domain logic.
+
+The initial operation domains are:
+
+| Domain | Owns |
+| --- | --- |
+| `closeout` | closeout probes, validation planning, and history rendering |
+| `work` | work phase parsing, wave resolution, wave status, and phase planning |
+| `lifecycle` | checkpoints, scope guards, and phase gates |
 
 Every planned MCP capability needs:
 
@@ -142,14 +153,14 @@ Required fixture families:
 | Conflict handling | Managed-file diffs, unknown ownership, and unsafe paths stop or route to review exactly like CLI dry-run/apply behavior. |
 | Dry-run output | MCP plans use the same action labels, selection-source wording, and no-write guarantees as CLI dry-run or lifecycle review. |
 | Write permissions | Write attempts fail before mutation unless the later permission model authorizes the exact operation and target. |
-| Runtime identity | When dual-runtime support exists, TypeScript npm and Rust invocations expose runtime and version clearly enough for support triage. |
+| Runtime identity | TypeScript package invocations expose package/runtime version clearly enough for support triage. |
 | Conformance evidence | Support claims cite reviewed scenario/harness/model/provider/runtime evidence when the claim involves agents or harnesses. |
 
 Package smoke tests prove package behavior; they do not prove MCP support by themselves. Conformance records prove only the exact tuple they record.
 
 ## Change Checklist
 
-Before implementing an MCP tool or Rust bridge:
+Before implementing an MCP tool or CLI operation:
 
 1. Identify the CLI/shared-core owner operation.
 2. Define read output and dry-run plan shape.
@@ -157,7 +168,7 @@ Before implementing an MCP tool or Rust bridge:
 4. Keep writes blocked until the permission model exists.
 5. Update package validation only when shipped package files change.
 6. Add conformance scenarios before changing public support language.
-7. Keep docs explicit that unsupported Rust or MCP surfaces are future work.
+7. Keep docs explicit about which MCP surfaces are shipped and which remain planned.
 
 ## Related Resources
 

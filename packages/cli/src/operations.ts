@@ -8,21 +8,10 @@ import {
 } from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
+import { OperationError, type JsonValue } from "./operations/types";
 
-type JsonValue =
-  | null
-  | boolean
-  | number
-  | string
-  | JsonValue[]
-  | { [key: string]: JsonValue };
-
-export class OperationError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = "OperationError";
-  }
-}
+export { OperationError };
+export type { JsonValue };
 
 export interface Coordinate {
   w: number | null;
