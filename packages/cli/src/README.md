@@ -28,7 +28,8 @@ The package is intentionally small. Most changes land in one of these files:
 - [`src/install.ts`](./install.ts): plan application and conflict staging
 - [`src/manifest.ts`](./manifest.ts): managed-file manifest load/write helpers
 - [`src/operations/`](./operations/): modular deterministic operation domains shared by CLI commands and future MCP tools
-- [`src/operations.ts`](./operations.ts): current compatibility dispatch for `make-docs operations ...`; keep this thin as behavior moves into operation domains
+- [`src/operations/cli.ts`](./operations/cli.ts): thin compatibility dispatch for `make-docs operations ...`
+- [`src/operations.ts`](./operations.ts): compatibility facade for callers that still import `src/operations`
 - [`tests/`](../tests): integration, CLI, wizard, managed-block, and consistency coverage
 
 ## Operation Domains
@@ -39,7 +40,7 @@ New deterministic make-docs behavior belongs under `src/operations/<domain>/` be
 - `work`: work phase parsing, wave resolution, wave status, and phase planning.
 - `lifecycle`: checkpoints, scope guards, and phase gates.
 
-Shared operation contracts live in [`src/operations/types.ts`](./operations/types.ts). Keep domain functions callable without the full CLI parser or MCP transport so tests can exercise deterministic behavior directly. Public dispatch files should parse user input, call a domain function, and render the result; they should not become the long-term home for domain logic.
+Shared operation contracts live in [`src/operations/types.ts`](./operations/types.ts). Keep domain functions callable without the full CLI parser or MCP transport so tests can exercise deterministic behavior directly. Public dispatch files such as [`src/operations/cli.ts`](./operations/cli.ts) should parse user input, call a domain function, and render the result; they should not become the long-term home for domain logic.
 
 ## Development Workflow
 

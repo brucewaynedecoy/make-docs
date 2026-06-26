@@ -3,8 +3,11 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { afterEach, describe, expect, test } from "vitest";
 import {
+  gatePhase,
   getOperationDomain,
+  guardPhaseScope,
   listOperationDomains,
+  probeCloseout,
   readWorkPhaseState,
 } from "../src/operations/index";
 import { cleanupTempDir, createTempDir } from "./helpers";
@@ -89,5 +92,65 @@ describe("operation domain modules", () => {
     });
     expect(result.value.coordinate).toEqual({ w: 10, r: 8, p: 1 });
     expect(result.value.uncheckedTasks.map((task) => task.id)).toEqual(["t2"]);
+  });
+
+  test("runs lifecycle domain operations without CLI parser or MCP transport setup", () => {
+    const root = createTempDir("make-docs-lifecycle-domain-");
+    tempRoots.push(root);
+    execFileSync("git", ["init"], { cwd: root, stdio: "ignore" });
+    const phasePath = writeFile(
+      root,
+      "docs/work/2026-06-26-w10-r8-example/01-domain.md",
+      [
+        "# Phase 01: Domain",
+        "",
+        "## Tasks",
+        "",
+        "- [x] t1: Define folders.",
+        "- [ ] t2: Add direct tests.",
+        "",
+        "## Scope",
+        "",
+        "- Touch `packages/cli/src/operations/`.",
+        "",
+      ].join("\n"),
+    );
+
+    const scope = guardPhaseScope({
+      target: path.dirname(phasePath),
+      changed: [
+        "packages/cli/src/operations/work/index.ts",
+        "package-lock.json",
+        "unrelated.txt",
+      ],
+    });
+    const gate = gatePhase({ target: path.dirname(phasePath) });
+
+    expect(scope.provenance.operation).toBe("scope-guard");
+    expect(scope.value.status).toBe("warning");
+    expect(scope.value.outOfScope).toEqual(["package-lock.json", "unrelated.txt"]);
+    expect(gate.provenance.operation).toBe("phase-gate");
+    expect(gate.value.status).toBe("blocked");
+    expect(gate.value.blockers).toContain("1 unchecked task(s) remain in the phase doc");
+  });
+
+  test("runs closeout domain probe without CLI parser or MCP transport setup", () => {
+    const root = createTempDir("make-docs-closeout-domain-");
+    tempRoots.push(root);
+    execFileSync("git", ["init"], { cwd: root, stdio: "ignore" });
+    writeFile(root, "package.json", JSON.stringify({ name: "make-docs" }));
+
+    const result = probeCloseout({ repoRoot: root, scope: "full" });
+
+    expect(result.provenance).toEqual({
+      domain: "closeout",
+      operation: "closeout-probe",
+      source: "shared",
+      target: root,
+    });
+    expect(result.value.files).toEqual([
+      expect.objectContaining({ path: "package.json", category: "config" }),
+    ]);
+    expect(result.value.validationHints).toContain("git diff --check");
   });
 });
