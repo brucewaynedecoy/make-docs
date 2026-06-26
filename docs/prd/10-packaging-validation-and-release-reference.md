@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This reference doc captures the current publishable surface for `make-docs`, the validation commands that guard it, and the maintainer release procedure encoded in the repository today. It stays separate from subsystem narrative docs because the package allowlist in `packages/cli/package.json:9-25`, the prepack copy step in `scripts/copy-template-to-cli.mjs:24-32`, and the smoke-pack assertions in `scripts/smoke-pack.mjs:60-246` are operational facts rather than product-behavior descriptions.
+This reference doc captures the current publishable surface for `make-docs`, the validation commands that guard it, and the maintainer release procedure encoded in the repository today. It stays separate from subsystem narrative docs because the package allowlist in `packages/cli/package.json`, the prepack copy step in `scripts/copy-template-to-cli.mjs`, and the smoke-pack assertions in `scripts/smoke-pack.mjs` are operational facts rather than product-behavior descriptions.
 
 ## Reference
 
@@ -26,11 +26,12 @@ Current package mechanics therefore split into two modes: local development work
 | Prepack entry | `npm run prepack` runs inside `packages/cli`, copies the template, validates `packages/cli/skill-registry.json`, then builds `dist/index.js`. | `packages/cli/package.json:19-25`, `scripts/copy-template-to-cli.mjs:24-47` |
 | Tarball creation | The smoke script executes `npm pack --json --ignore-scripts` only after running `prepack`, so the tarball reflects the already-bundled template and built output. | `scripts/smoke-pack.mjs:60-76` |
 | Bin validation | After unpacking, the script reads the packed `package.json` and asserts the package exposes only the `make-docs` bin before invoking it. | `scripts/smoke-pack.mjs:81-90`, `scripts/smoke-pack.mjs:255-260` |
+| Package-runner validation | Smoke-pack invokes the packed tarball through `npx --package`, `pnpm dlx`, and `bun x --package` into isolated temp working directories, targets, `HOME`, and package-manager cache roots. | `scripts/smoke-pack.mjs` |
 | Skills validation | Smoke-pack rewrites the packed skill registry to a repo-backed fixture server, runs `make-docs skills --dry-run`, installs the base package, verifies project skill directories, and asserts legacy skill artifacts are absent. | `scripts/smoke-pack.mjs:98-213` |
 | Installer validation | The same smoke run verifies `.make-docs/manifest.json`, `docs/AGENTS.md`, a second idempotent `--yes` run with no staged conflicts, and later backup/uninstall behavior. | `scripts/smoke-pack.mjs:122-245` |
 | Backup and uninstall validation | Smoke-pack creates an unmanaged file, runs `backup`, then `uninstall`, and confirms the manifest is removed while the unmanaged file and `.backup` tree survive. | `scripts/smoke-pack.mjs:215-246` |
 
-The smoke script is therefore more than a tarball smoke test. It is the encoded proof that prepack bundling, packaged installation, skill distribution, backup, and uninstall still agree on the same release surface (`scripts/smoke-pack.mjs:60-246`).
+The smoke script is therefore more than a tarball smoke test. It is the encoded proof that prepack bundling, remote package-runner execution, packaged installation, skill distribution, backup, and uninstall still agree on the same release surface (`scripts/smoke-pack.mjs`).
 
 ### Validation Matrix
 
@@ -40,8 +41,8 @@ The smoke script is therefore more than a tarball smoke test. It is the encoded 
 | `npm run validate:defaults` | Default-asset consistency | Runs `packages/cli/tests/consistency.test.ts`, which checks that desired scaffold assets match packaged template bytes, every template file is covered by the static asset pipeline, and every instruction router has managed-block markers. | `package.json:17`, `packages/cli/package.json:23`, `packages/cli/tests/consistency.test.ts` |
 | `bash scripts/check-instruction-routers.sh` | Router integrity | Enforces `AGENTS.md`/`CLAUDE.md` pairing, byte identity, per-directory line budgets, and banned headings. | `scripts/check-instruction-routers.sh:1-58`, `packages/cli/src/README.md:165-176` |
 | `bash scripts/check-wave-numbering.sh` | Docs/work namespace hygiene | Warns on duplicate `wN-rN` coordinates across both repo-root docs and `packages/docs/template/docs`. | `scripts/check-wave-numbering.sh:15-58`, `docs/assets/archive/work/2026-04-16-w5-r2-cli-skill-installation/07-tests-and-validation.md` |
-| `node scripts/smoke-pack.mjs` | Packaged end-to-end validation | Exercises prepack, tarball creation, packaged CLI install, skills, backup, and uninstall in temp directories. | `package.json:18`, `scripts/smoke-pack.mjs:60-246` |
-| `npm exec --yes --package "./$TARBALL" -- make-docs --target "$TEST_DIR"` | Manual packaged run | Provides one real npm launcher pass beyond the automated smoke script before publish. | `packages/cli/src/README.md:135-148` |
+| `node scripts/smoke-pack.mjs` | Packaged end-to-end validation | Exercises prepack, tarball creation, `npx` / `pnpm dlx` / Bun package-runner install, packaged CLI install, skills, backup, and uninstall in isolated temp directories. | `package.json:18`, `scripts/smoke-pack.mjs` |
+| Package-runner spot checks | Manual packaged run | Use only when diagnosing runner-specific behavior beyond smoke-pack. The maintained automated proof is the tarball smoke run, not a persistent local CLI install. | `scripts/smoke-pack.mjs` |
 
 ### Maintainer Release Procedure
 
@@ -49,7 +50,7 @@ The current maintainer runbook is spread across `packages/cli/src/README.md:179-
 
 1. Run the validation chain from the repo root: `npm test`, `npm run validate:defaults`, `npm run build`, `node scripts/smoke-pack.mjs`, and the router/wave checks when docs assets or W/R folders changed (`package.json:13-18`, `packages/cli/src/README.md:165-176`, `scripts/check-instruction-routers.sh:1-58`, `scripts/check-wave-numbering.sh:48-58`).
 2. Create and inspect a tarball with `npm pack --json` or `npm pack --dry-run -w packages/cli` before publish (`packages/cli/src/README.md:183-201`, `designs/2026-04-15-cli-publishing.md`).
-3. Run one manual packaged install with `npm exec --yes --package "./$TARBALL" -- make-docs --target "$TEST_DIR"` if the change was packaging-sensitive (`packages/cli/src/README.md:135-148`).
+3. Treat `node scripts/smoke-pack.mjs` as the maintained package-runner proof for packaging-sensitive changes because it runs the packed tarball through `npx`, `pnpm dlx`, and Bun in isolated temp environments.
 4. Publish from the CLI workspace with `npm publish --access public --tag next -w packages/cli`, not from `packages/docs` or `packages/skills`, because those workspaces remain `private` (`packages/cli/package.json:2-25`, `packages/docs/package.json:2-5`, `packages/skills/package.json:2-5`).
 
 For a true first public release, the release state now uses Apache-2.0 licensing, scoped package identity, repository metadata, version `1.0.0-rc.1`, and the `next` dist-tag strategy (`docs/designs/2026-04-15-cli-publishing.md`, `packages/cli/package.json:2-25`).

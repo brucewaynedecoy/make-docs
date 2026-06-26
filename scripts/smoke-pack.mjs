@@ -18,6 +18,42 @@ const cliPackageDir = path.join(repoRoot, "packages", "cli");
 const npmHome = mkdtempSync(path.join(os.tmpdir(), "make-docs-npm-home-"));
 const packOutputDir = mkdtempSync(path.join(os.tmpdir(), "make-docs-pack-output-"));
 const EXPECTED_PACKAGE_NAME = "@brucewaynedecoy/make-docs";
+const PACKAGE_RUNNER_SMOKES = [
+  {
+    name: "npx",
+    command: "npx",
+    args: (tarballPath, targetDir) => [
+      "--yes",
+      "--package",
+      tarballPath,
+      "make-docs",
+      "--yes",
+      "--target",
+      targetDir,
+    ],
+    envKind: "npm",
+  },
+  {
+    name: "pnpm dlx",
+    command: "pnpm",
+    args: (tarballPath, targetDir) => ["dlx", tarballPath, "--yes", "--target", targetDir],
+    envKind: "pnpm",
+  },
+  {
+    name: "bun x",
+    command: "bun",
+    args: (tarballPath, targetDir) => [
+      "x",
+      "--package",
+      `file:${tarballPath}`,
+      "make-docs",
+      "--yes",
+      "--target",
+      targetDir,
+    ],
+    envKind: "bun",
+  },
+];
 
 const EXPECTED_READER_ASSET_PATHS = [
   "docs/assets/archive/AGENTS.md",
@@ -116,6 +152,106 @@ function npmEnv() {
   };
 }
 
+function runPackageRunnerSmokes(tarballPath) {
+  for (const runner of PACKAGE_RUNNER_SMOKES) {
+    runPackageRunnerSmoke({ runner, tarballPath });
+  }
+}
+
+function runPackageRunnerSmoke(options) {
+  const { runner, tarballPath } = options;
+  const smokeRoot = mkdtempSync(
+    path.join(os.tmpdir(), `make-docs-${runner.envKind}-runner-smoke-`),
+  );
+  const targetDir = path.join(smokeRoot, "target");
+  const workDir = path.join(smokeRoot, "work");
+  mkdirSync(targetDir, { recursive: true });
+  mkdirSync(workDir, { recursive: true });
+
+  try {
+    execFileSync(runner.command, runner.args(tarballPath, targetDir), {
+      cwd: workDir,
+      encoding: "utf8",
+      env: packageRunnerEnv(smokeRoot, runner.envKind),
+      timeout: 120000,
+    });
+
+    const manifestPath = path.join(targetDir, ".make-docs/manifest.json");
+    assertExists(
+      manifestPath,
+      `Smoke pack ${runner.name} install did not produce a manifest.`,
+    );
+    assertExists(
+      path.join(targetDir, "docs/AGENTS.md"),
+      `Smoke pack ${runner.name} install did not produce docs/AGENTS.md.`,
+    );
+    assertMissing(
+      path.join(targetDir, ".make-docs/config.yaml"),
+      `Smoke pack ${runner.name} install should not materialize an optional project config.`,
+    );
+    assertManifestPackageName(manifestPath, EXPECTED_PACKAGE_NAME);
+    assertManifestSkillFiles(manifestPath, 0);
+    assertManifestOmitsProjectConfig(manifestPath);
+    assertManifestContainsManagedFiles(manifestPath, [
+      ...EXPECTED_READER_ASSET_PATHS,
+      ...EXPECTED_SYSTEM_RESOURCE_PATHS,
+    ]);
+    assertInstalledInstructionTemplate(targetDir);
+    assertInstalledReaderFacingAssets(targetDir);
+  } catch (error) {
+    if (error && error.code === "ENOENT") {
+      throw new Error(
+        `Smoke pack package-runner validation requires ${runner.command} for ${runner.name}.`,
+      );
+    }
+
+    throw error;
+  } finally {
+    rmSync(smokeRoot, { recursive: true, force: true });
+  }
+}
+
+function packageRunnerEnv(smokeRoot, envKind) {
+  const homeDir = path.join(smokeRoot, "home");
+  const xdgCacheDir = path.join(smokeRoot, "xdg-cache");
+  const env = {
+    ...process.env,
+    CI: "1",
+    FORCE_COLOR: "0",
+    HOME: homeDir,
+    NO_COLOR: "1",
+    XDG_CACHE_HOME: xdgCacheDir,
+  };
+
+  mkdirSync(homeDir, { recursive: true });
+  mkdirSync(xdgCacheDir, { recursive: true });
+
+  if (envKind === "npm") {
+    return {
+      ...env,
+      npm_config_cache: path.join(smokeRoot, "npm-cache"),
+      npm_config_userconfig: path.join(homeDir, ".npmrc"),
+    };
+  }
+
+  if (envKind === "pnpm") {
+    return {
+      ...env,
+      COREPACK_HOME: path.join(smokeRoot, "corepack"),
+      PNPM_HOME: path.join(smokeRoot, "pnpm-home"),
+      npm_config_cache: path.join(smokeRoot, "pnpm-npm-cache"),
+      npm_config_store_dir: path.join(smokeRoot, "pnpm-store"),
+      npm_config_userconfig: path.join(homeDir, ".npmrc"),
+    };
+  }
+
+  return {
+    ...env,
+    BUN_CACHE_DIR: path.join(smokeRoot, "bun-cache"),
+    BUN_INSTALL_CACHE_DIR: path.join(smokeRoot, "bun-install-cache"),
+  };
+}
+
 execFileSync("npm", ["run", "prepack"], {
   cwd: cliPackageDir,
   stdio: "inherit",
@@ -159,6 +295,7 @@ try {
     "--skill-scope project|global",
     "Smoke pack skills help omitted skill scope option.",
   );
+  runPackageRunnerSmokes(tarballPath);
 
   const manifestPath = path.join(targetDir, ".make-docs/manifest.json");
   const fixtureServer = await startRepoFixtureServer(repoRoot);

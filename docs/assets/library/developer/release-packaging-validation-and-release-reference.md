@@ -55,7 +55,7 @@ Run the validation set that matches the change, then escalate to the full chain 
 | `npm test -w packages/cli` | CLI behavior, planner/install flows, skills behavior, and integration coverage |
 | `npm run validate:defaults -w packages/cli` | profile-aware generated assets still match the checked-in default surface |
 | `bash scripts/check-instruction-routers.sh` | router pairs, byte identity, and line-budget rules still hold |
-| `node scripts/smoke-pack.mjs` | prepack bundling, tarball install, manifest creation, skills, backup, and uninstall still work together |
+| `node scripts/smoke-pack.mjs` | prepack bundling, tarball install, remote package-runner execution, manifest creation, skills, backup, and uninstall still work together |
 
 A release-sensitive run should normally include all four.
 
@@ -65,6 +65,8 @@ A release-sensitive run should normally include all four.
 
 - `prepack` copied the template into `packages/cli/template/`
 - the tarball exposes the expected `make-docs` binary
+- the packed tarball can run through `npx --package`, `pnpm dlx`, and `bun x --package` without a persistent local CLI install
+- each package runner uses an isolated temp target, working directory, `HOME`, and package-manager cache roots
 - packaged installation creates `docs/AGENTS.md` and `.make-docs/manifest.json`
 - default shipped skills are installed and legacy skill artifacts are absent
 - backup and uninstall preserve unmanaged files while removing managed runtime state
@@ -89,7 +91,7 @@ Use this order for release work:
 2. Run `npm run validate:defaults -w packages/cli`.
 3. Run `bash scripts/check-instruction-routers.sh` when router or docs-resource changes are involved.
 4. Run `node scripts/smoke-pack.mjs`.
-5. Inspect a tarball with `npm pack --json -w packages/cli` or run a packaged invocation from the tarball when packaging inputs changed.
+5. Inspect a tarball with `npm pack --json -w packages/cli` when package contents need manual review. The smoke pack already exercises `npx`, `pnpm dlx`, and Bun package-runner installs from the tarball.
 6. Publish from `packages/cli/`, not from `packages/docs` or `packages/skills`.
 
 If the issue is still at the local build stage, step back to [Building and Installing the CLI Locally](./cli-development-local-build-and-install.md). If the issue is stale dogfood docs or template propagation, step back to [Dogfood and Maintainer Operations](./maintainer-dogfood-and-maintainer-operations.md).
