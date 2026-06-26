@@ -1,12 +1,109 @@
 {
   "$schema": "./skill-registry.schema.json",
+  "schemaVersion": 1,
+  "manifestId": "make-docs.first-party",
+  "displayName": "make-docs first-party skills",
+  "description": "First-party make-docs skills grouped by stable purpose ids.",
+  "sourcePolicy": {
+    "kind": "first-party",
+    "label": "First-party make-docs registry",
+    "allowRemoteSkillSources": true
+  },
+  "purposes": [
+    {
+      "id": "archive-management",
+      "label": "Archive management",
+      "description": "Archive, relationship tracing, staleness, and deprecation workflows.",
+      "order": 10,
+      "provenance": {
+        "kind": "first-party",
+        "label": "make-docs canonical purpose",
+        "manifestId": "make-docs.first-party"
+      }
+    },
+    {
+      "id": "codebase-decomposition",
+      "label": "Codebase decomposition",
+      "description": "Repository analysis and implementation-planning inputs.",
+      "order": 20,
+      "provenance": {
+        "kind": "first-party",
+        "label": "make-docs canonical purpose",
+        "manifestId": "make-docs.first-party"
+      }
+    },
+    {
+      "id": "documentation-maintenance",
+      "label": "Documentation maintenance",
+      "description": "Cleanup, style, path, link, and documentation hygiene workflows.",
+      "order": 30,
+      "provenance": {
+        "kind": "first-party",
+        "label": "make-docs canonical purpose",
+        "manifestId": "make-docs.first-party"
+      }
+    },
+    {
+      "id": "lifecycle-closeout",
+      "label": "Lifecycle closeout",
+      "description": "Validation, history, PRD/risk reconciliation, and commit-message preparation.",
+      "order": 40,
+      "provenance": {
+        "kind": "first-party",
+        "label": "make-docs canonical purpose",
+        "manifestId": "make-docs.first-party"
+      }
+    },
+    {
+      "id": "workflow-execution",
+      "label": "Workflow execution",
+      "description": "Wave and phase execution support.",
+      "order": 50,
+      "provenance": {
+        "kind": "first-party",
+        "label": "make-docs canonical purpose",
+        "manifestId": "make-docs.first-party"
+      }
+    },
+    {
+      "id": "plan-creation",
+      "label": "Plan creation",
+      "description": "Design-to-plan and planning-prep workflows.",
+      "order": 60,
+      "provenance": {
+        "kind": "first-party",
+        "label": "make-docs canonical purpose",
+        "manifestId": "make-docs.first-party"
+      }
+    },
+    {
+      "id": "migration-support",
+      "label": "Migration support",
+      "description": "Compatibility, audit, migration, and package-transition support.",
+      "order": 70,
+      "provenance": {
+        "kind": "first-party",
+        "label": "make-docs canonical purpose",
+        "manifestId": "make-docs.first-party"
+      }
+    }
+  ],
   "skills": [
     {
       "name": "archive-docs",
+      "displayName": "Archive docs",
       "source": "https://github.com/brucewaynedecoy/make-docs/tree/main/packages/skills/archive-docs",
       "entryPoint": "SKILL.md",
       "installName": "archive-docs",
       "description": "Relationship-aware archival, staleness detection, deprecation, and impact analysis for docs/ artifacts.",
+      "purposes": ["archive-management"],
+      "supportedHarnesses": ["claude-code", "codex"],
+      "provenance": {
+        "kind": "first-party",
+        "label": "make-docs first-party skill",
+        "repository": "brucewaynedecoy/make-docs",
+        "ref": "main"
+      },
       "assets": [
         {
           "source": "agents/openai.yaml",
@@ -24,10 +121,19 @@
     },
     {
       "name": "closeout-commit",
+      "displayName": "Close out commit",
       "source": "https://github.com/brucewaynedecoy/make-docs/tree/main/packages/skills/closeout-commit",
       "entryPoint": "SKILL.md",
       "installName": "closeout-commit",
       "description": "Capture gaps, write history, and draft commit messages for uncommitted changes.",
+      "purposes": ["lifecycle-closeout"],
+      "supportedHarnesses": ["claude-code", "codex"],
+      "provenance": {
+        "kind": "first-party",
+        "label": "make-docs first-party skill",
+        "repository": "brucewaynedecoy/make-docs",
+        "ref": "main"
+      },
       "assets": [
         {
           "source": "agents/openai.yaml",
@@ -41,10 +147,19 @@
     },
     {
       "name": "closeout-phase",
+      "displayName": "Close out phase",
       "source": "https://github.com/brucewaynedecoy/make-docs/tree/main/packages/skills/closeout-phase",
       "entryPoint": "SKILL.md",
       "installName": "closeout-phase",
       "description": "Close out completed work backlog phases with checked tasks, acceptance evidence, guides, gap capture, history, and commit-message drafts.",
+      "purposes": ["lifecycle-closeout"],
+      "supportedHarnesses": ["claude-code", "codex"],
+      "provenance": {
+        "kind": "first-party",
+        "label": "make-docs first-party skill",
+        "repository": "brucewaynedecoy/make-docs",
+        "ref": "main"
+      },
       "assets": [
         {
           "source": "agents/openai.yaml",
@@ -66,10 +181,19 @@
     },
     {
       "name": "cleanup-docs",
+      "displayName": "Clean up docs",
       "source": "https://github.com/brucewaynedecoy/make-docs/tree/main/packages/skills/cleanup-docs",
       "entryPoint": "SKILL.md",
       "installName": "cleanup-docs",
       "description": "Audit and clean Markdown docs formatting drift, hard-wrapped prose, list spacing, and document-contract issues.",
+      "purposes": ["documentation-maintenance"],
+      "supportedHarnesses": ["claude-code", "codex"],
+      "provenance": {
+        "kind": "first-party",
+        "label": "make-docs first-party skill",
+        "repository": "brucewaynedecoy/make-docs",
+        "ref": "main"
+      },
       "assets": [
         {
           "source": "agents/openai.yaml",
@@ -83,10 +207,19 @@
     },
     {
       "name": "work-on-wave",
+      "displayName": "Work on wave",
       "source": "https://github.com/brucewaynedecoy/make-docs/tree/main/packages/skills/work-on-wave",
       "entryPoint": "SKILL.md",
       "installName": "work-on-wave",
       "description": "Work on docs/work waves through implementation, validation, closeout, and phase commits.",
+      "purposes": ["workflow-execution"],
+      "supportedHarnesses": ["claude-code", "codex"],
+      "provenance": {
+        "kind": "first-party",
+        "label": "make-docs first-party skill",
+        "repository": "brucewaynedecoy/make-docs",
+        "ref": "main"
+      },
       "assets": [
         {
           "source": "agents/openai.yaml",
@@ -100,10 +233,19 @@
     },
     {
       "name": "work-on-phase",
+      "displayName": "Work on phase",
       "source": "https://github.com/brucewaynedecoy/make-docs/tree/main/packages/skills/work-on-phase",
       "entryPoint": "SKILL.md",
       "installName": "work-on-phase",
       "description": "Implement one explicit docs/work phase through planning, validation, closeout, and optional commit.",
+      "purposes": ["workflow-execution"],
+      "supportedHarnesses": ["claude-code", "codex"],
+      "provenance": {
+        "kind": "first-party",
+        "label": "make-docs first-party skill",
+        "repository": "brucewaynedecoy/make-docs",
+        "ref": "main"
+      },
       "assets": [
         {
           "source": "agents/openai.yaml",
@@ -117,10 +259,19 @@
     },
     {
       "name": "decompose-codebase",
+      "displayName": "Decompose codebase",
       "source": "https://github.com/brucewaynedecoy/make-docs/tree/main/packages/skills/decompose-codebase",
       "entryPoint": "SKILL.md",
       "installName": "decompose-codebase",
       "description": "Plan and reverse-engineer repos into structured PRDs.",
+      "purposes": ["codebase-decomposition", "plan-creation"],
+      "supportedHarnesses": ["claude-code", "codex"],
+      "provenance": {
+        "kind": "first-party",
+        "label": "make-docs first-party skill",
+        "repository": "brucewaynedecoy/make-docs",
+        "ref": "main"
+      },
       "assets": [
         {
           "source": "agents/openai.yaml",

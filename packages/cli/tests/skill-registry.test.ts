@@ -5,6 +5,7 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 import {
   getSkillRegistryNames,
   loadSkillRegistry,
+  type SkillRegistry,
 } from "../src/skill-registry";
 import { PACKAGE_ROOT } from "../src/utils";
 
@@ -30,21 +31,37 @@ describe("skill registry", () => {
       readFileSync(path.join(PACKAGE_ROOT, registry.$schema!), "utf8"),
     ) as {
       properties?: {
-        skills?: {
-          items?: {
-            properties?: Record<string, unknown>;
-          };
+        manifestId?: unknown;
+        purposes?: unknown;
+        sourcePolicy?: unknown;
+      };
+      $defs?: {
+        skill?: {
+          properties?: Record<string, unknown>;
         };
       };
     };
-    expect(schema.properties?.skills?.items?.properties).not.toHaveProperty(
-      "required",
-    );
+    expect(schema.properties?.manifestId).toBeDefined();
+    expect(schema.properties?.purposes).toBeDefined();
+    expect(schema.properties?.sourcePolicy).toBeDefined();
+    expect(schema.$defs?.skill?.properties).not.toHaveProperty("required");
   });
 
   test("loads the packaged registry with recommended skills only", () => {
     const registry = loadSkillRegistry(PACKAGE_ROOT);
 
+    expect(registry.schemaVersion).toBe(1);
+    expect(registry.manifestId).toBe("make-docs.first-party");
+    expect(registry.sourcePolicy.kind).toBe("first-party");
+    expect(registry.purposes.map((purpose) => purpose.id)).toEqual([
+      "archive-management",
+      "codebase-decomposition",
+      "documentation-maintenance",
+      "lifecycle-closeout",
+      "workflow-execution",
+      "plan-creation",
+      "migration-support",
+    ]);
     expect(registry.skills.map((skill) => skill.name)).toEqual([
       "archive-docs",
       "closeout-commit",
@@ -65,6 +82,16 @@ describe("skill registry", () => {
     ]);
     expect(
       registry.skills.every((skill) => !("required" in skill)),
+    ).toBe(true);
+    expect(
+      registry.skills.every(
+        (skill) =>
+          skill.displayName &&
+          skill.purposes.length > 0 &&
+          skill.supportedHarnesses.includes("codex") &&
+          skill.supportedHarnesses.includes("claude-code") &&
+          skill.provenance.kind === "first-party",
+      ),
     ).toBe(true);
   });
 
@@ -207,40 +234,219 @@ describe("skill registry", () => {
     ]);
   });
 
-  test("rejects local skill sources", () => {
+  test("rejects local skill sources in first-party manifests", () => {
     const packageRoot = mkdtempSync(path.join(os.tmpdir(), "make-docs-skill-registry-"));
     try {
       mkdirSync(packageRoot, { recursive: true });
       writeFileSync(
         path.join(packageRoot, "skill-registry.json"),
         JSON.stringify(
-          {
+          createManifest({
             skills: [
               {
                 name: "local-only",
+                displayName: "Local only",
                 source: "local:packages/skills/local-only",
                 entryPoint: "SKILL.md",
                 installName: "local-only",
                 description: "invalid",
+                purposes: ["documentation-maintenance"],
+                supportedHarnesses: ["codex"],
+                provenance: {
+                  kind: "first-party",
+                  label: "make-docs first-party skill",
+                },
                 assets: [],
               },
             ],
-          },
+          }),
           null,
           2,
         ),
         "utf8",
       );
 
-      const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
-      const registry = loadSkillRegistry(packageRoot);
-
-      expect(registry.skills).toEqual([]);
-      expect(warnSpy).toHaveBeenCalledWith(
-        "Skill registry entry `local-only` must use a remote source URL; skipping.",
+      expect(() => loadSkillRegistry(packageRoot)).toThrow(
+        "must use a remote source URL unless the manifest source policy is local",
       );
     } finally {
       rmSync(packageRoot, { recursive: true, force: true });
     }
   });
+
+  test("rejects duplicate purpose ids", () => {
+    expect(() =>
+      loadRegistryFromManifest(
+        createManifest({
+          purposes: [
+            createPurpose({ id: "documentation-maintenance" }),
+            createPurpose({ id: "documentation-maintenance" }),
+          ],
+        }),
+      ),
+    ).toThrow("duplicate purpose id `documentation-maintenance`");
+  });
+
+  test("rejects unnamespaced third-party purpose ids", () => {
+    expect(() =>
+      loadRegistryFromManifest(
+        createManifest({
+          sourcePolicy: {
+            kind: "local",
+            label: "Local test registry",
+          },
+          purposes: [
+            createPurpose({
+              id: "release-readiness",
+              provenance: {
+                kind: "local",
+                label: "Local test purpose",
+              },
+            }),
+          ],
+          skills: [
+            createSkill({
+              purposes: ["release-readiness"],
+              provenance: {
+                kind: "local",
+                label: "Local test skill",
+              },
+              source: "local:release-readiness",
+            }),
+          ],
+        }),
+      ),
+    ).toThrow("third-party purpose id `release-readiness` must be namespaced");
+  });
+
+  test("rejects first-party purpose collisions without first-party provenance", () => {
+    expect(() =>
+      loadRegistryFromManifest(
+        createManifest({
+          sourcePolicy: {
+            kind: "local",
+            label: "Local test registry",
+          },
+          purposes: [
+            createPurpose({
+              id: "documentation-maintenance",
+              provenance: {
+                kind: "local",
+                label: "Local test purpose",
+              },
+            }),
+          ],
+          skills: [
+            createSkill({
+              purposes: ["documentation-maintenance"],
+              provenance: {
+                kind: "local",
+                label: "Local test skill",
+              },
+              source: "local:docs-cleanup",
+            }),
+          ],
+        }),
+      ),
+    ).toThrow(
+      "purpose `documentation-maintenance` collides with a first-party purpose id without first-party provenance",
+    );
+  });
+
+  test("rejects skill entries that reference missing purposes", () => {
+    expect(() =>
+      loadRegistryFromManifest(
+        createManifest({
+          skills: [createSkill({ purposes: ["missing-purpose"] })],
+        }),
+      ),
+    ).toThrow("skill `test-skill` references missing purpose `missing-purpose`");
+  });
+
+  test("rejects missing source policy and provenance metadata", () => {
+    const manifest = createManifest();
+    delete (manifest as { sourcePolicy?: unknown }).sourcePolicy;
+    delete (manifest.skills[0] as { provenance?: unknown }).provenance;
+
+    expect(() => loadRegistryFromManifest(manifest)).toThrow(
+      "manifest is missing required `sourcePolicy` metadata",
+    );
+    expect(() => loadRegistryFromManifest(manifest)).toThrow(
+      "skill `test-skill` provenance is missing required provenance metadata",
+    );
+  });
 });
+
+function loadRegistryFromManifest(manifest: SkillRegistry): SkillRegistry {
+  const packageRoot = mkdtempSync(path.join(os.tmpdir(), "make-docs-skill-registry-"));
+  try {
+    mkdirSync(packageRoot, { recursive: true });
+    writeFileSync(
+      path.join(packageRoot, "skill-registry.json"),
+      JSON.stringify(manifest, null, 2),
+      "utf8",
+    );
+    return loadSkillRegistry(packageRoot);
+  } finally {
+    rmSync(packageRoot, { recursive: true, force: true });
+  }
+}
+
+function createManifest(
+  overrides: Partial<SkillRegistry> = {},
+): SkillRegistry {
+  return {
+    schemaVersion: 1,
+    manifestId: "make-docs.first-party",
+    displayName: "Test registry",
+    description: "Test manifest",
+    sourcePolicy: {
+      kind: "first-party",
+      label: "First-party test registry",
+      allowRemoteSkillSources: true,
+    },
+    purposes: [createPurpose()],
+    skills: [createSkill()],
+    ...overrides,
+  };
+}
+
+function createPurpose(
+  overrides: Partial<SkillRegistry["purposes"][number]> = {},
+): SkillRegistry["purposes"][number] {
+  return {
+    id: "documentation-maintenance",
+    label: "Documentation maintenance",
+    description: "Test documentation maintenance purpose.",
+    order: 10,
+    provenance: {
+      kind: "first-party",
+      label: "make-docs canonical purpose",
+      manifestId: "make-docs.first-party",
+    },
+    ...overrides,
+  };
+}
+
+function createSkill(
+  overrides: Partial<SkillRegistry["skills"][number]> = {},
+): SkillRegistry["skills"][number] {
+  return {
+    name: "test-skill",
+    displayName: "Test skill",
+    source: "https://github.com/brucewaynedecoy/make-docs/tree/main/packages/skills/test-skill",
+    entryPoint: "SKILL.md",
+    installName: "test-skill",
+    description: "Test skill.",
+    purposes: ["documentation-maintenance"],
+    supportedHarnesses: ["codex", "claude-code"],
+    provenance: {
+      kind: "first-party",
+      label: "make-docs first-party skill",
+      repository: "brucewaynedecoy/make-docs",
+      ref: "main",
+    },
+    assets: [],
+    ...overrides,
+  };
+}

@@ -1,61 +1,210 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "./skill-registry.schema.json",
-  "title": "make-docs skill registry",
+  "title": "make-docs skill registry manifest",
   "type": "object",
   "additionalProperties": false,
-  "required": ["skills"],
+  "required": [
+    "schemaVersion",
+    "manifestId",
+    "displayName",
+    "purposes",
+    "sourcePolicy",
+    "skills"
+  ],
   "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "schemaVersion": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "manifestId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "displayName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "description": {
+      "type": "string"
+    },
+    "sourcePolicy": {
+      "$ref": "#/$defs/sourcePolicy"
+    },
+    "purposes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/purpose"
+      }
+    },
     "skills": {
       "type": "array",
       "items": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "name",
-          "source",
-          "entryPoint",
-          "installName",
-          "description",
-          "assets"
-        ],
-        "properties": {
-          "name": {
+        "$ref": "#/$defs/skill"
+      }
+    }
+  },
+  "$defs": {
+    "sourcePolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "label"],
+      "properties": {
+        "kind": {
+          "enum": ["first-party", "local", "remote-pinned"]
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "allowRemoteSkillSources": {
+          "type": "boolean"
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "label"],
+      "properties": {
+        "kind": {
+          "enum": ["first-party", "local", "remote-pinned", "third-party"]
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "manifestId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "repository": {
+          "type": "string",
+          "minLength": 1
+        },
+        "ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "digest": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "purpose": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "label", "description", "provenance"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "order": {
+          "type": "integer"
+        },
+        "provenance": {
+          "$ref": "#/$defs/provenance"
+        }
+      }
+    },
+    "asset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "installPath"],
+      "properties": {
+        "source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "installPath": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "skill": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "displayName",
+        "source",
+        "entryPoint",
+        "installName",
+        "description",
+        "purposes",
+        "supportedHarnesses",
+        "provenance",
+        "assets"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "displayName": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "entryPoint": {
+          "type": "string",
+          "minLength": 1
+        },
+        "installName": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "purposes": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
             "type": "string",
             "minLength": 1
-          },
-          "source": {
-            "type": "string",
-            "pattern": "^(https?://|github:|url:).+"
-          },
-          "entryPoint": {
+          }
+        },
+        "supportedHarnesses": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "enum": ["claude-code", "codex"]
+          }
+        },
+        "provenance": {
+          "$ref": "#/$defs/provenance"
+        },
+        "defaultForPurposes": {
+          "type": "array",
+          "items": {
             "type": "string",
             "minLength": 1
-          },
-          "installName": {
-            "type": "string",
-            "minLength": 1
-          },
-          "description": {
-            "type": "string"
-          },
-          "assets": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "additionalProperties": false,
-              "required": ["source", "installPath"],
-              "properties": {
-                "source": {
-                  "type": "string",
-                  "minLength": 1
-                },
-                "installPath": {
-                  "type": "string",
-                  "minLength": 1
-                }
-              }
-            }
+          }
+        },
+        "assets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/asset"
           }
         }
       }
