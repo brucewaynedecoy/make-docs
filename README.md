@@ -70,9 +70,9 @@ From your project root:
 npx @brucewaynedecoy/make-docs@next
 ```
 
-Use the scoped npm package name for `npx` lookup and installation. The executable exposed by that package is still `make-docs`; future package distributions must expose the same command, and if multiple implementations are installed, shell `PATH` order decides which one runs.
+Use the scoped npm package name for `npx` lookup and installation. The executable exposed by that package is `make-docs`, and the same TypeScript package owns install, maintenance, deterministic operation, and MCP behavior.
 
-The current `npx` package is the TypeScript installer-maintainer CLI. Future Rust CLI or MCP surfaces are not shipped in this package today; before they are documented as supported, they must expose clear runtime/version identity and preserve the same installer, manifest, audit, backup, uninstall, and dry-run planning contracts.
+The current `npx` package ships the TypeScript installer-maintainer CLI plus a read-first MCP stdio server available through `make-docs mcp`. MCP tools inspect installed state, read manifest/config state, classify compatibility, build dry-run plans, and delegate closeout/work/lifecycle helpers to the same operation domains used by the CLI.
 
 The installer starts in full-install mode:
 

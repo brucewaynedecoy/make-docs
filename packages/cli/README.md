@@ -38,11 +38,14 @@ npx @brucewaynedecoy/make-docs@next uninstall
 
 # Manage installable skill packs
 npx @brucewaynedecoy/make-docs@next skills
+
+# Run the MCP stdio server
+npx @brucewaynedecoy/make-docs@next mcp
 ```
 
-Use the scoped npm package name for `npx` lookup and installation. The executable exposed by that package is still `make-docs`; future package distributions must expose the same command, and if multiple implementations are installed, shell `PATH` order decides which one runs.
+Use the scoped npm package name for package-runner lookup and installation. The executable exposed by that package is `make-docs`; install, maintenance, deterministic operation, and MCP behavior all live in the TypeScript package.
 
-The current npm package is the TypeScript installer-maintainer CLI. Rust CLI and MCP surfaces are future runtime targets, not shipped command surfaces in this tarball; public support for those runtimes requires clear runtime/version output and parity with the same manifest, audit, backup, uninstall, and dry-run planning contracts.
+The current npm package ships a read-first MCP stdio surface through `make-docs mcp`. The shipped MCP tools inspect installed state, read manifest/config state, classify compatibility, build dry-run plans, and delegate closeout/work/lifecycle helpers to the same operation domains used by the CLI. Mutation-oriented MCP behavior remains gated by explicit approval or outside the first shipped surface.
 
 ## Package Contents
 

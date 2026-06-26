@@ -27,7 +27,7 @@ This guide is the local development entry point for the `make-docs` CLI. It is i
 
 For maintainer-specific dogfood work, use [Dogfood and Maintainer Operations](./maintainer-dogfood-and-maintainer-operations.md). For packaging and release procedure, use [Packaging, Validation, and Release Reference](./release-packaging-validation-and-release-reference.md). For path-boundary questions around `docs/assets/**` versus `.make-docs/**`, use [Docs Assets and Runtime State Boundaries](./maintainer-docs-assets-and-runtime-state-boundaries.md).
 
-This guide covers the current TypeScript npm CLI only. Future Rust CLI or MCP runtime work must preserve the same installer, manifest, audit, backup, uninstall, and dry-run planning contracts before maintainers document those surfaces as supported.
+This guide covers the current TypeScript npm package, including the CLI and the read-first MCP stdio server exposed through `make-docs mcp`. MCP work must preserve the same installer, manifest, audit, backup, uninstall, dry-run planning, and operation-domain contracts before maintainers document any broader support surface.
 
 ## Prerequisites
 

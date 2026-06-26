@@ -62,14 +62,23 @@ MCP tools must not define a second behavior model. Each MCP tool must delegate t
 
 Parity includes manifest reads, config interpretation, asset provenance, audit classification, compatibility classification, conflict handling, dry-run output, and write permissions.
 
+W10 R8 Phase 3 ships the first TypeScript MCP surface through `make-docs mcp`. That surface is read-first and plan-first: it exposes installed-state inspection, manifest reads, config reads, compatibility classification, dry-run install planning, and closeout/work/lifecycle helpers that call the same TypeScript operation domains and planner/classifier modules used by the CLI.
+
 ### First MCP Surface
 
-The first MCP surface is read-first and plan-first:
+The first MCP surface is read-first and plan-first. W10 R8 Phase 3 implements:
 
-- inspect installed project state, manifest provenance, selected harnesses, selected skills, materialization mode, and compatibility classification;
+- inspect installed project state, manifest provenance, package runtime metadata, config labels, operation domains, and compatibility classification;
+- read manifest and config state through the same loaders used by the CLI;
+- produce dry-run install/sync plans from the CLI planner before mutation;
+- delegate closeout, work, and lifecycle helper tools to the modular operation domains introduced by W10 R8 Phase 2;
+- require explicit `allowRun=true` before an MCP closeout validation tool executes validation commands.
+
+Remaining planned MCP expansions must:
+
 - list or resolve immutable system assets only through the accepted materialization contract;
 - run deterministic validators and no-scripts replacement operations only after CLI/shared-core equivalents exist;
-- produce dry-run plans for installer-maintainer operations before mutation.
+- add write behavior only after the permission model and parity proof are explicit.
 
 MCP writes require explicit permission and parity proof in the implementation backlog, but MCP itself is not optional or post-v2.
 
@@ -79,7 +88,7 @@ Deterministic logic must live in modular TypeScript operation domains, not skill
 
 Operation modules should mirror CLI/MCP command domains as closely as practical. New deterministic behavior requires focused operation tests and CLI/MCP parity expectations.
 
-W10 R8 implements the follow-on source organization by modularizing the current `operations.ts` boundary while preserving existing `make-docs operations ...` behavior.
+W10 R8 implements the follow-on source organization by modularizing the current `operations.ts` boundary while preserving existing `make-docs operations ...` behavior, then exposes the first MCP tools through the same operation domains.
 
 ### Asset and Config Boundaries
 

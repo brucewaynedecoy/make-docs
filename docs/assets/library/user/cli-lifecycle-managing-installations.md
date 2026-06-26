@@ -46,7 +46,7 @@ The lifecycle surface has three main modes:
 
 `make-docs` does not use a separate `sync` command. Running the bare command applies a first install when no manifest exists and performs a sync when one does.
 
-The current runnable product is the npm-delivered TypeScript installer-maintainer CLI. Future Rust CLI or MCP surfaces are not part of the current user command surface and should not be treated as supported until their own runtime/version identity and parity checks are documented.
+The current runnable product is the npm-delivered TypeScript installer-maintainer CLI. The same package also ships a read-first MCP stdio server through `make-docs mcp`; it is intended for tool clients that need installed-state inspection, manifest/config reads, compatibility classification, dry-run planning, and closeout/work/lifecycle operation helpers. Ordinary users should keep using the CLI commands below for install, reconfigure, skills, backup, and uninstall work.
 
 Historical `init`, `update`, `--reconfigure`, and `--skills` surfaces are not current commands or flags. Use bare `make-docs` for install or sync, `make-docs reconfigure` to change selections, and `make-docs skills` for skills-only work.
 

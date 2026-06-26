@@ -79,14 +79,14 @@ Command and alias boundary:
 MCP and shared-contract boundary:
 
 - MCP must ship as part of v2 and is TypeScript-owned.
-- [25-revise-cli-separation-and-mcp-boundary.md](./25-revise-cli-separation-and-mcp-boundary.md) defines the required TypeScript MCP surface: MCP tools must delegate to the same modular operation domains as CLI commands, and write behavior requires explicit permission and parity proof.
+- [25-revise-cli-separation-and-mcp-boundary.md](./25-revise-cli-separation-and-mcp-boundary.md) defines the required TypeScript MCP surface: W10 R8 Phase 3 ships the first read-first stdio server through `make-docs mcp`; MCP tools must delegate to the same modular operation domains as CLI commands, and write behavior requires explicit permission and parity proof.
 - `.make-docs/manifest.json`, package metadata needed for installed-project provenance, audit safety expectations, backup/uninstall behavior, migration behavior, deterministic operation semantics, and user-visible command semantics are TypeScript package product contracts.
 - [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md) extends this boundary to system asset delivery: any provider-backed system asset behavior must preserve local bootstrap readability, pinned provenance, conflict review, audit safety, backup, uninstall, and manifest compatibility.
 - [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) extends this boundary to existing-install compatibility: TypeScript CLI and MCP paths must preserve the same classifier, source-state taxonomy, disposition semantics, manifest compatibility, and single-audit safety model.
 
 Skills and plugin boundary:
 
-- The TypeScript package remains responsible for not regressing current install behavior while operation domains and MCP are hardened.
+- The TypeScript package remains responsible for not regressing current install behavior while operation domains and future MCP expansions are hardened.
 - Bare installs must keep the current no-default-skills behavior.
 - Explicit skills installs must remain opt-in through the skills selection flow until a later accepted design changes that contract.
 - [26-revise-no-scripts-migration-skill-refactor.md](./26-revise-no-scripts-migration-skill-refactor.md) narrows the no-scripts implementation target: TypeScript owns the first CLI/shared-core operation boundary, and deterministic first-party skill behavior must be available from the CLI package rather than only from remote or skill-local script payloads.
@@ -101,7 +101,7 @@ Validation and release boundary:
 - Validation must continue to distinguish local template resolution from packed template resolution.
 - Package/release validation remains dry-run only unless the user separately authorizes irreversible registry or npm publish actions.
 - Package validation must prove `npx`, `pnpm dlx`, and `bunx` / `bun x` behavior where remote package execution changes.
-- MCP validation must prove command parity, operation-domain reuse, manifest, audit, backup, uninstall, migration, and permission behavior against the same product contracts.
+- MCP validation must prove command parity, operation-domain reuse, manifest, audit, backup, uninstall, migration, and permission behavior against the same product contracts. W10 R8 Phase 3 supplies the initial read-first MCP parity proof; future write, provider, plugin, and shared-agentics MCP expansions must add their own proof before support claims broaden.
 - [20-revise-agent-harness-model-conformance-lab.md](./20-revise-agent-harness-model-conformance-lab.md) keeps conformance-lab scenarios, records, and raw artifacts out of shipped package surfaces unless a later accepted design deliberately promotes a subset.
 
 ## Impacted Docs and Dependencies

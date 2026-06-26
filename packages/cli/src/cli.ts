@@ -37,7 +37,7 @@ import {
   runSelectionWizard,
 } from "./wizard";
 
-type Command = "reconfigure" | "skills" | "backup" | "uninstall" | "operations";
+type Command = "reconfigure" | "skills" | "backup" | "uninstall" | "operations" | "mcp";
 type InstallIntent = "apply" | "reconfigure";
 type RenderedActionKind = "generate" | "update" | "skip" | "remove";
 
@@ -137,6 +137,12 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
 
   if (parsed.command === "operations") {
     await runOperationsCommand(parsed.operationArgs);
+    return;
+  }
+
+  if (parsed.command === "mcp") {
+    const { runMcpServer } = await import("./mcp/server");
+    await runMcpServer();
     return;
   }
 
@@ -526,13 +532,25 @@ function parseArgs(argv: string[]): ParsedArgs {
     args[0] === "skills" ||
     args[0] === "backup" ||
     args[0] === "uninstall" ||
-    args[0] === "operations"
+    args[0] === "operations" ||
+    args[0] === "mcp"
   ) {
     parsed.command = args.shift() as Command;
   }
 
   if (parsed.command === "operations") {
     parsed.operationArgs = args;
+    return parsed;
+  }
+
+  if (parsed.command === "mcp") {
+    for (const arg of args) {
+      if (arg === "--help" || arg === "-h") {
+        parsed.help = true;
+        continue;
+      }
+      throw new Error(`Unknown argument: ${arg}`);
+    }
     return parsed;
   }
 
@@ -1268,6 +1286,23 @@ Examples:
   make-docs operations closeout-probe --repo-root . --scope auto --json
 `);
       return;
+    case "mcp":
+      output.write(`make-docs mcp
+
+Run the TypeScript-owned make-docs MCP server over stdio.
+
+Usage:
+  make-docs mcp [--help]
+
+Behavior:
+  The MCP server exposes read-first and plan-first tools for installed-state inspection, manifest/config reads, compatibility classification, dry-run install planning, and deterministic operation-domain helpers.
+  MCP tools delegate to the same TypeScript operation domains and planner/classifier modules used by the CLI.
+  Write behavior is not exposed by default; run/write requests are rejected unless the matching tool explicitly requires an approval flag.
+
+Examples:
+  make-docs mcp
+`);
+      return;
     default:
       output.write(`make-docs
 
@@ -1280,6 +1315,7 @@ Usage:
   make-docs backup [options]
   make-docs uninstall [options]
   make-docs operations <operation> [options]
+  make-docs mcp
 
 Primary workflow:
   Run make-docs with no command to install into a new target or sync an existing manifest using saved selections.
@@ -1290,6 +1326,7 @@ Commands:
   backup       Create a backup of managed files.
   uninstall    Remove managed files, with an optional backup first.
   operations   Run deterministic lifecycle operations for skills and automation.
+  mcp          Run the TypeScript MCP server over stdio.
 
 Examples:
   make-docs
@@ -1301,6 +1338,7 @@ Examples:
   make-docs backup --yes
   make-docs uninstall --backup
   make-docs operations wave-status 'W16 R3' --json
+  make-docs mcp
 
 Use --help or -h with any command for command-specific options and examples.
 `);

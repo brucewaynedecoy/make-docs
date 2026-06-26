@@ -30,7 +30,7 @@ related:
 
 ## Overview
 
-This guide is the maintainer contract for TypeScript CLI/MCP operation work. It does not describe shipped MCP tools until W10 R8 lands the MCP surface. It defines how an MCP surface must map back to existing TypeScript operation domains before maintainers document, package, or claim support for it.
+This guide is the maintainer contract for TypeScript CLI/MCP operation work. W10 R8 ships the first read-first MCP stdio surface through `make-docs mcp`; this guide defines how shipped and future MCP tools map back to existing TypeScript operation domains before maintainers document, package, or claim broader support for them.
 
 The current implementation authority is the TypeScript package CLI. Rust is shelved indefinitely and is not a v2 prerequisite, package-validation target, MCP owner, or command-runtime peer. Future CLI, MCP, skill, plugin, and playbook surfaces must preserve the same manifest, config, asset, audit, compatibility, conflict, dry-run, backup, uninstall, and permission contracts.
 
@@ -38,7 +38,7 @@ The current implementation authority is the TypeScript package CLI. Rust is shel
 
 Do not add MCP tools as independent behavior.
 
-Deterministic behavior belongs in modular TypeScript operation domains under `packages/cli/src/operations/<domain>/`. Public CLI dispatch and future MCP tool handlers should parse transport-specific input, call the shared domain function, and render the result. They should not own domain logic.
+Deterministic behavior belongs in modular TypeScript operation domains under `packages/cli/src/operations/<domain>/`. Public CLI dispatch and MCP tool handlers should parse transport-specific input, call the shared domain function, and render the result. They should not own domain logic.
 
 The initial operation domains are:
 
@@ -48,7 +48,7 @@ The initial operation domains are:
 | `work` | work phase parsing, wave resolution, wave status, and phase planning |
 | `lifecycle` | checkpoints, scope guards, and phase gates |
 
-Every planned MCP capability needs:
+Every MCP capability needs:
 
 | Requirement | Meaning |
 | --- | --- |
@@ -60,24 +60,29 @@ Every planned MCP capability needs:
 
 Until those fields exist, the MCP capability remains a planning label, not a tool name or public API.
 
-## Planned MCP Capability Map
+## MCP Capability Map
 
-Use this table when designing the first MCP server. Capability labels are provisional and should not be treated as final tool ids.
+Use this table when extending the first MCP server. Capabilities marked shipped are available through `make-docs mcp`; planned capabilities remain requirements, not public tool ids.
 
-| Planned MCP capability | CLI/shared-core owner | Earliest safe mode | Required proof |
-| --- | --- | --- | --- |
-| Inspect installed state | manifest loader, profile resolver, compatibility classifier | read-only | Manifest, selections, harnesses, skills, materialization mode, package version, and compatibility classification match CLI output. |
-| Inspect selected agentics | selected-agentics manifest records and generated-stub resolver | read-only | Shared payload and generated harness exposure records match CLI install/audit classification. |
-| Resolve system asset | accepted asset materialization resolver | read-only | Provider, immutable ref, hash set, offline expectation, and recovery guidance are visible without hidden provider state. |
-| Validate project state | existing validators after they move behind CLI/shared-core operations | read-only or temp-fixture only | Validator results match CLI/shared-core output and do not mutate the target tree. |
-| Plan install or sync | no-command apply planner | dry-run plan | Planned `generate`, `update`, `skip`, and `remove` operations match CLI dry-run semantics. |
-| Plan reconfigure | reconfigure planner | dry-run plan | Selection-source and dependency behavior match CLI reconfigure dry-run semantics. |
-| Plan skills sync or removal | skills command planner | dry-run plan | Selected-skill, skill-scope, and generated harness-stub behavior match CLI skills dry-run semantics. |
-| Plan backup | backup audit and destination planner | read-first plan | Audit output and backup destination planning match CLI lifecycle review without copying files. |
-| Plan uninstall | uninstall audit and review planner | read-first plan | Removable, preserved, skipped, and prunable path classifications match CLI lifecycle review without deleting files. |
-| Run no-scripts replacement operation | future CLI/shared-core operation introduced by no-scripts migration | dry-run first | The migrated operation exists in the CLI package before MCP exposes it. |
-| Inspect playbooks | playbook contract resolver | read-only | Playbook metadata, persona, stack, authority order, and runnable status match the accepted playbook contract. |
-| Inspect plugin or workflow bundle | plugin substrate and bundle metadata resolver | read-only | Plugin id, bundle id, selected payload, generated exposure, and support-claim status match plugin metadata contracts. |
+| MCP capability | CLI/shared-core owner | Earliest safe mode | Status | Required proof |
+| --- | --- | --- | --- | --- |
+| Inspect operation domains | operation-domain registry | read-only | Shipped | MCP tool list and direct operation-domain registry agree. |
+| Inspect installed state | manifest loader, config loader, package metadata reader, compatibility classifier, operation-domain registry | read-only | Shipped | Manifest, selections, harnesses, skills, materialization mode, package version, config rendering labels, operation domains, and compatibility classification match CLI/shared-core output. |
+| Read manifest | manifest loader | read-only | Shipped | Manifest presence and parsed manifest fields match CLI/shared-core reads. |
+| Read config | config loader | read-only | Shipped | Config labels and diagnostics match CLI/shared-core reads. |
+| Classify compatibility | compatibility classifier | read-only | Shipped | Compatibility state, disposition, evidence, and audit behavior match CLI/shared-core classification. |
+| Plan install or sync | no-command apply planner | dry-run plan | Shipped | Planned file actions are summarized without file content or writes, and conflict review data comes from the CLI planner. |
+| Run closeout/work/lifecycle helpers | closeout, work, and lifecycle operation domains | read-only or plan-first | Shipped | MCP tool outputs match direct operation-domain function outputs. |
+| Inspect selected agentics | selected-agentics manifest records and generated-stub resolver | read-only | Planned | Shared payload and generated harness exposure records match CLI install/audit classification. |
+| Resolve system asset | accepted asset materialization resolver | read-only | Planned | Provider, immutable ref, hash set, offline expectation, and recovery guidance are visible without hidden provider state. |
+| Validate project state | existing validators after they move behind CLI/shared-core operations | read-only or temp-fixture only | Planned | Validator results match CLI/shared-core output and do not mutate the target tree. |
+| Plan reconfigure | reconfigure planner | dry-run plan | Planned | Selection-source and dependency behavior match CLI reconfigure dry-run semantics. |
+| Plan skills sync or removal | skills command planner | dry-run plan | Planned | Selected-skill, skill-scope, and generated harness-stub behavior match CLI skills dry-run semantics. |
+| Plan backup | backup audit and destination planner | read-first plan | Planned | Audit output and backup destination planning match CLI lifecycle review without copying files. |
+| Plan uninstall | uninstall audit and review planner | read-first plan | Planned | Removable, preserved, skipped, and prunable path classifications match CLI lifecycle review without deleting files. |
+| Run no-scripts replacement operation | future CLI/shared-core operation introduced by no-scripts migration | dry-run first | Planned | The migrated operation exists in the CLI package before MCP exposes it. |
+| Inspect playbooks | playbook contract resolver | read-only | Planned | Playbook metadata, persona, stack, authority order, and runnable status match the accepted playbook contract. |
+| Inspect plugin or workflow bundle | plugin substrate and bundle metadata resolver | read-only | Planned | Plugin id, bundle id, selected payload, generated exposure, and support-claim status match plugin metadata contracts. |
 
 If a future MCP capability does not fit the table, add the CLI/shared-core owner first. Do not let a new MCP-only behavior become the source of truth.
 
@@ -99,7 +104,7 @@ MCP output must remain useful when provider-backed or cached assets are unavaila
 
 ## Dry-Run Planning Contract
 
-Future MCP plan tools must use the same plan vocabulary as the CLI surface they represent.
+MCP plan tools must use the same plan vocabulary as the CLI surface they represent.
 
 For install, sync, reconfigure, and skills planning, the plan must group actions by:
 
