@@ -10,9 +10,9 @@ Use this skill to work through a `docs/work/` wave or phase from backlog to veri
 ## Start Here
 
 1. Read the nearest `AGENTS.md` or `CLAUDE.md`.
-2. Resolve the target with [scripts/resolve_wave.py](./scripts/resolve_wave.py). Accept quoted wave coordinates such as `'W14 R2'`, quoted phase coordinates such as `'W14 R2 P1'`, split coordinate tokens such as `W14 R2 P1`, or direct `docs/work/...` paths.
-3. Run [scripts/wave_status.py](./scripts/wave_status.py) to see completed phases, incomplete phases, the next phase, and any existing `.make-docs/runs/` state.
-4. Run [scripts/phase_plan.py](./scripts/phase_plan.py) for the current phase before delegating or editing.
+2. Resolve the target with `make-docs operations wave-resolve TARGET --json`. Accept quoted wave coordinates such as `'W14 R2'`, quoted phase coordinates such as `'W14 R2 P1'`, split coordinate tokens such as `W14 R2 P1`, or direct `docs/work/...` paths.
+3. Run `make-docs operations wave-status TARGET --json` to see completed phases, incomplete phases, the next phase, and any existing `.make-docs/runs/` state.
+4. Run `make-docs operations phase-plan TARGET` for the current phase before delegating or editing.
 5. Read [references/wave-implementation-workflow.md](./references/wave-implementation-workflow.md) for the detailed lifecycle and gate rules.
 
 ## Operating Contract
@@ -21,9 +21,9 @@ Use this skill to work through a `docs/work/` wave or phase from backlog to veri
 - `draft-only` is opt-in: stop after closeout and commit-message draft.
 - In `draft-only`, externally visible tasks such as opening a PR, waiting for CI, merging, or pushing are documented handoffs unless the user explicitly changes the commit policy or authorizes the action.
 - `commit-and-push` is opt-in: require commit and successful push before advancing.
-- Create managed state lazily with [scripts/checkpoint.py](./scripts/checkpoint.py); state belongs under `.make-docs/runs/`, stores project-relative paths only, and must not be staged, committed, or added to templates.
-- Use [scripts/scope_guard.py](./scripts/scope_guard.py) before closeout to detect edits outside the phase scope.
-- Use [scripts/phase_gate.py](./scripts/phase_gate.py) before declaring a phase complete or moving to another phase.
+- Create managed state lazily with `make-docs operations checkpoint`; state belongs under `.make-docs/runs/`, stores project-relative paths only, and must not be staged, committed, or added to templates.
+- Use `make-docs operations scope-guard TARGET` before closeout to detect edits outside the phase scope.
+- Use `make-docs operations phase-gate TARGET` before declaring a phase complete or moving to another phase.
 
 ## Delegation
 
@@ -41,7 +41,7 @@ For each phase:
 4. Run validation from the phase plan and relevant repo contracts.
 5. Run code review when code changed, then resolve or explicitly waive findings. Valid evidence is a delegated review summary, coordinator diff review, or a waiver with the reason.
 6. Invoke `closeout-phase`; do not duplicate its workflow here.
-7. Check phase completion with `phase_gate.py`.
+7. Check phase completion with `make-docs operations phase-gate TARGET`.
 8. Commit the phase unless running in `draft-only`; push only in `commit-and-push`.
 9. Refresh status and continue only when the gate passes.
 

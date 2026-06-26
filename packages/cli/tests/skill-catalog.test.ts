@@ -184,7 +184,7 @@ describe("skill catalog", () => {
       assets.some(
         (asset) =>
           asset.relativePath ===
-          ".claude/skills/work-on-wave/scripts/phase_gate.py",
+          ".claude/skills/work-on-wave/agents/openai.yaml",
       ),
     ).toBe(true);
     expect(
@@ -204,9 +204,29 @@ describe("skill catalog", () => {
       assets.some(
         (asset) =>
           asset.relativePath ===
-          ".claude/skills/work-on-phase/scripts/phase_gate.py",
+          ".claude/skills/work-on-phase/agents/openai.yaml",
       ),
     ).toBe(true);
+    expect(
+      assets.some((asset) =>
+        asset.relativePath.includes("closeout-commit/scripts/closeout_probe.py"),
+      ),
+    ).toBe(false);
+    expect(
+      assets.some((asset) =>
+        asset.relativePath.includes("closeout-phase/scripts/work_phase_state.py"),
+      ),
+    ).toBe(false);
+    expect(
+      assets.some((asset) =>
+        asset.relativePath.includes("work-on-wave/scripts/phase_gate.py"),
+      ),
+    ).toBe(false);
+    expect(
+      assets.some((asset) =>
+        asset.relativePath.includes("work-on-phase/scripts/phase_gate.py"),
+      ),
+    ).toBe(false);
     expect(archiveSkillForClaude?.content).toContain(
       "./references/archive-workflow.md",
     );

@@ -137,6 +137,7 @@ MCP write behavior and Rust parity remain downstream implementation concerns gov
 - `packages/cli/src/cli.ts`
 - `packages/cli/src/operations.ts`
 - `packages/cli/src/catalog.ts`
+- `packages/cli/src/skill-catalog.ts`
 - `packages/cli/src/rules.ts`
 - `packages/cli/src/manifest.ts`
 - `packages/cli/src/planner.ts`
@@ -144,7 +145,13 @@ MCP write behavior and Rust parity remain downstream implementation concerns gov
 - `packages/cli/src/audit.ts`
 - `packages/cli/src/backup.ts`
 - `packages/cli/src/uninstall.ts`
+- `packages/cli/tests/audit.test.ts`
+- `packages/cli/tests/backup.test.ts`
+- `packages/cli/tests/install.test.ts`
 - `packages/cli/tests/operations.test.ts`
+- `packages/cli/tests/skill-catalog.test.ts`
+- `packages/cli/tests/skill-registry.test.ts`
+- `packages/cli/tests/uninstall.test.ts`
 - `packages/docs/template/.make-docs/scripts/check_path_hygiene.py`
 - `packages/cli/template/.make-docs/scripts/check_path_hygiene.py`
 - `packages/skills/closeout-commit/`

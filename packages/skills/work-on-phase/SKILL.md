@@ -11,8 +11,8 @@ Use this skill to implement one explicit `docs/work/` phase. The target phase do
 
 1. Read the nearest `AGENTS.md` or `CLAUDE.md`.
 2. Require an explicit phase target. Accept a quoted coordinate such as `'W14 R2 P1'`, split coordinate tokens such as `W14 R2 P1`, or a direct `docs/work/.../01-*.md` phase path. If the user provides only `W14 R2`, a work directory, or no target, stop and ask for the exact phase.
-3. Run [scripts/resolve_wave.py](./scripts/resolve_wave.py) to resolve the target phase, using `python3 scripts/resolve_wave.py 'W14 R2 P1' --json` in examples.
-4. Run [scripts/phase_plan.py](./scripts/phase_plan.py) before delegating or editing.
+3. Run `make-docs operations wave-resolve TARGET --json` to resolve the target phase, using `make-docs operations wave-resolve 'W14 R2 P1' --json` in examples.
+4. Run `make-docs operations phase-plan TARGET` before delegating or editing.
 5. Read [references/phase-implementation-workflow.md](./references/phase-implementation-workflow.md) for the single-phase lifecycle and gate rules.
 
 ## Operating Contract
@@ -22,9 +22,9 @@ Use this skill to implement one explicit `docs/work/` phase. The target phase do
 - `commit-required` is opt-in: create one local phase commit after closeout.
 - `commit-and-push` is opt-in: create one local phase commit and push it after closeout.
 - Never advance to another phase.
-- Create managed state lazily with [scripts/checkpoint.py](./scripts/checkpoint.py); state belongs under `.make-docs/runs/`, stores project-relative paths only, and must not be staged or committed.
-- Use [scripts/scope_guard.py](./scripts/scope_guard.py) before closeout to detect edits outside the phase scope.
-- Use [scripts/phase_gate.py](./scripts/phase_gate.py) before declaring the phase complete.
+- Create managed state lazily with `make-docs operations checkpoint`; state belongs under `.make-docs/runs/`, stores project-relative paths only, and must not be staged or committed.
+- Use `make-docs operations scope-guard TARGET` before closeout to detect edits outside the phase scope.
+- Use `make-docs operations phase-gate TARGET` before declaring the phase complete.
 
 ## Delegation
 
@@ -40,10 +40,10 @@ If subagents are unavailable, execute the same phase plan serially.
 4. Implement only the resolved phase scope.
 5. Run validation from the phase plan and relevant repo contracts.
 6. Run code review when code changed, then resolve or explicitly waive findings. Valid evidence is a delegated review summary, coordinator diff review, or a waiver with the reason.
-7. Run `scope_guard.py` and handle scope drift before closeout.
+7. Run `make-docs operations scope-guard TARGET` and handle scope drift before closeout.
 8. Invoke `closeout-phase`; do not duplicate its workflow here.
 9. Re-check the risk register after closeout. Close resolved items or add newly discovered gaps/drift in the existing register when present; otherwise capture them in the history entry.
-10. Check phase completion with `phase_gate.py`.
+10. Check phase completion with `make-docs operations phase-gate TARGET`.
 11. Commit or push only when the selected commit policy requires it.
 
 Prefer `jdocmunch` for docs and `jcodemunch` for code when available. If an index is missing or stale, reindex before falling back to direct reads.

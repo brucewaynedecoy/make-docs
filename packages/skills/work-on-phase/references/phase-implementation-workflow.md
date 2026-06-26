@@ -8,9 +8,9 @@ This workflow turns one explicit `docs/work/` phase into a controlled implementa
 
 Run these before implementation:
 
-1. `python3 scripts/resolve_wave.py 'Wn Rn Pn' --json`
-2. `python3 scripts/phase_plan.py 'Wn Rn Pn'`
-3. `python3 scripts/checkpoint.py 'Wn Rn Pn' --mode phase --commit-policy draft-only`
+1. `make-docs operations wave-resolve 'Wn Rn Pn' --json`
+2. `make-docs operations phase-plan 'Wn Rn Pn'`
+3. `make-docs operations checkpoint 'Wn Rn Pn' --mode phase --commit-policy draft-only`
 
 Confirm `closeout-phase` is installed or available in the repo package tree. If it is missing, stop and ask the user to install/select `closeout-phase`.
 
@@ -29,10 +29,10 @@ Confirm `closeout-phase` is installed or available in the repo package tree. If 
 4. Delegate only independent task clusters with disjoint write scopes.
 5. After implementation, run the validation commands listed in the phase plan plus any repo-required checks.
 6. If code changed, run code review and resolve every finding or record an explicit waiver. Valid evidence is a delegated review summary, coordinator diff review, or a waiver with the reason.
-7. Run `scope_guard.py` to identify changed files outside declared phase scope.
+7. Run `make-docs operations scope-guard TARGET` to identify changed files outside declared phase scope.
 8. Run `closeout-phase` for task verification, guide coverage, gap capture, history, and commit-message drafting.
 9. Re-check the risk register. Close resolved items or add newly discovered gaps/drift in the existing register; if no register exists, capture novel gaps in the history entry.
-10. Run `phase_gate.py`; do not declare the phase complete while it reports blockers.
+10. Run `make-docs operations phase-gate TARGET`; do not declare the phase complete while it reports blockers.
 11. In `draft-only`, stop after the commit-message draft and document PR/CI/merge/push tasks as handoffs. In `commit-required`, create one local phase commit. In `commit-and-push`, commit and push once.
 
 ## Commit Policy

@@ -8,10 +8,10 @@ This workflow turns a `docs/work/` wave into a controlled implementation loop. I
 
 Run these before implementation:
 
-1. `python3 scripts/resolve_wave.py 'Wn Rn' --json`
-2. `python3 scripts/wave_status.py 'Wn Rn' --json`
-3. `python3 scripts/phase_plan.py 'Wn Rn Pn'`
-4. `python3 scripts/checkpoint.py 'Wn Rn Pn' --commit-policy commit-required`
+1. `make-docs operations wave-resolve 'Wn Rn' --json`
+2. `make-docs operations wave-status 'Wn Rn' --json`
+3. `make-docs operations phase-plan 'Wn Rn Pn'`
+4. `make-docs operations checkpoint 'Wn Rn Pn' --commit-policy commit-required`
 
 Confirm `closeout-phase` is installed or available in the repo package tree. If it is missing, stop and ask the user to install/select `closeout-phase`.
 
@@ -27,9 +27,9 @@ Confirm `closeout-phase` is installed or available in the repo package tree. If 
 2. Delegate only independent stages or task clusters with disjoint write scopes.
 3. After implementation, run the validation commands listed in the phase plan plus any repo-required checks.
 4. If code changed, run code review and resolve every finding or record an explicit waiver. Valid evidence is a delegated review summary, coordinator diff review, or a waiver with the reason.
-5. Run `scope_guard.py` to identify changed files outside declared phase scope.
+5. Run `make-docs operations scope-guard TARGET` to identify changed files outside declared phase scope.
 6. Run `closeout-phase` for task verification, guide coverage, gap capture, history, and commit-message drafting.
-7. Run `phase_gate.py`; do not move forward while it reports blockers.
+7. Run `make-docs operations phase-gate TARGET`; do not move forward while it reports blockers.
 8. Commit the phase in `commit-required` or `commit-and-push` mode.
 9. Push only when `commit-and-push` was selected by the user or invocation prompt.
 

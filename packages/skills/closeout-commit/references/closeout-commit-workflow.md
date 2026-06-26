@@ -12,7 +12,7 @@ Use this workflow to turn an uncommitted change set or current-session work into
 ## Preflight
 
 1. Read the nearest `AGENTS.md`/`CLAUDE.md` files that apply to every file you expect to touch.
-2. Run `scripts/closeout_probe.py --repo-root . --scope auto --json` before manually reading broad diffs or docs. If the user specified staged, unstaged, or full working tree scope, pass that explicit scope.
+2. Run `make-docs operations closeout-probe --repo-root . --scope auto --json` before manually reading broad diffs or docs. If the user specified staged, unstaged, or full working tree scope, pass that explicit scope.
 3. Treat the probe JSON as the first context boundary: use its file classification, contract paths, candidate coordinates, history candidates, risk-register next IDs, and validation hints before opening files manually.
 4. Inspect `git status --short` only as needed to confirm the probe scope.
 5. If files are staged, treat the staged set as the commit candidate unless the user says otherwise.
@@ -22,11 +22,11 @@ Use this workflow to turn an uncommitted change set or current-session work into
 
 ## Scripted Fast Path
 
-Use the local helper scripts before broad manual analysis:
+Use the packaged operation boundary before broad manual analysis:
 
-- `scripts/closeout_probe.py --repo-root . --scope auto --json > /tmp/closeout-probe.json` summarizes the candidate change set, repo contracts, coordinates, history candidates, risk-register IDs, and validation hints.
-- `scripts/closeout_validate.py --repo-root . --probe-json /tmp/closeout-probe.json --print-only` lists focused validation commands. Use `--run` only when you are ready to execute them.
-- `scripts/closeout_history.py --mode commit --repo-root . --probe-json /tmp/closeout-probe.json` drafts a history skeleton. Add `--write` only after the gap/history decision is ready.
+- `make-docs operations closeout-probe --repo-root . --scope auto --json > /tmp/closeout-probe.json` summarizes the candidate change set, repo contracts, coordinates, history candidates, risk-register IDs, and validation hints.
+- `make-docs operations closeout-validate --repo-root . --probe-json /tmp/closeout-probe.json --print-only` lists focused validation commands. Use `--run` only when you are ready to execute them.
+- `make-docs operations closeout-history --mode commit --repo-root . --probe-json /tmp/closeout-probe.json` drafts a history skeleton. Add `--write` only after the gap/history decision is ready.
 
 Only read diffs, docs, guides, or references that the probe identifies as relevant or that remain unresolved after reviewing the JSON. For ordinary commit closeout, do not inspect `docs/assets/library/` unless the probe shows a `docs/work/` phase in scope, the user requested guide work, or the changed files already touch library docs.
 
@@ -117,7 +117,7 @@ Only create the commit when the user explicitly asks for a commit. If committing
 
 Run validation that matches the files changed. Prefer:
 
-- the focused command list from `scripts/closeout_validate.py`
+- the focused command list from `make-docs operations closeout-validate`
 - focused tests for touched CLI or code behavior
 - markdown link or contract checks when available
 - `git diff --check`

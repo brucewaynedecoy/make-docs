@@ -11,8 +11,8 @@ Use this workflow to close a completed work backlog phase without treating unche
 ## Preflight
 
 1. Read the nearest `AGENTS.md`/`CLAUDE.md` files that apply to every file you expect to touch.
-2. Run `scripts/work_phase_state.py TARGET_PHASE --json` before manually reading phase details. Use the JSON for the phase coordinate, source links, task list, unchecked tasks, acceptance criteria, and syntax warnings.
-3. Run `scripts/closeout_probe.py --repo-root . --scope auto --json` before broad diff or contract discovery. Use explicit staged, unstaged, or full scope if the user specified it.
+2. Run `make-docs operations work-phase-state TARGET_PHASE --json` before manually reading phase details. Use the JSON for the phase coordinate, source links, task list, unchecked tasks, acceptance criteria, and syntax warnings.
+3. Run `make-docs operations closeout-probe --repo-root . --scope auto --json` before broad diff or contract discovery. Use explicit staged, unstaged, or full scope if the user specified it.
 4. Run `scripts/guide_coverage_probe.py --repo-root . --changed-files-json PROBE_JSON` before opening guide files.
 5. Inspect current git status only as needed to confirm the probe scope, and preserve unrelated local changes.
 6. Prefer indexed lookup for code and docs when available. Reindex stale `jdocmunch` or `jcodemunch` indexes before using direct reads.
@@ -21,13 +21,13 @@ Use this workflow to close a completed work backlog phase without treating unche
 
 ## Scripted Fast Path
 
-Use the local helper scripts before broad manual analysis:
+Use the packaged operation boundary before broad manual analysis:
 
-- `scripts/work_phase_state.py TARGET_PHASE --json > /tmp/work-phase-state.json` summarizes phase coordinates, `tN` tasks, unchecked tasks, acceptance criteria bullets, source links, and task-syntax warnings.
-- `scripts/closeout_probe.py --repo-root . --scope auto --json > /tmp/closeout-probe.json` summarizes changed files, repo contracts, history candidates, risk-register IDs, and validation hints.
+- `make-docs operations work-phase-state TARGET_PHASE --json > /tmp/work-phase-state.json` summarizes phase coordinates, `tN` tasks, unchecked tasks, acceptance criteria bullets, source links, and task-syntax warnings.
+- `make-docs operations closeout-probe --repo-root . --scope auto --json > /tmp/closeout-probe.json` summarizes changed files, repo contracts, history candidates, risk-register IDs, and validation hints.
 - `scripts/guide_coverage_probe.py --repo-root . --changed-files-json /tmp/closeout-probe.json > /tmp/guide-coverage.json` lists guide candidates before manual guide reads.
-- `scripts/closeout_validate.py --repo-root . --probe-json /tmp/closeout-probe.json --print-only` lists focused validation commands. Use `--run` only when you are ready to execute them.
-- `scripts/closeout_history.py --mode phase --repo-root . --probe-json /tmp/closeout-probe.json --phase-json /tmp/work-phase-state.json` drafts a phase history skeleton. Add `--write` only after the task, guide, and gap decisions are ready.
+- `make-docs operations closeout-validate --repo-root . --probe-json /tmp/closeout-probe.json --print-only` lists focused validation commands. Use `--run` only when you are ready to execute them.
+- `make-docs operations closeout-history --mode phase --repo-root . --probe-json /tmp/closeout-probe.json --phase-json /tmp/work-phase-state.json` drafts a phase history skeleton. Add `--write` only after the task, guide, and gap decisions are ready.
 
 Only read phase-linked docs, guide files, diffs, or references that the probes identify as relevant or that remain unresolved after reviewing the JSON.
 
@@ -35,7 +35,7 @@ For long closeouts, keep the coordinator or user informed at these boundaries: p
 
 ## Gate 1: Task Completion
 
-For each unchecked `### Tasks` item reported by `work_phase_state.py`:
+For each unchecked `### Tasks` item reported by `make-docs operations work-phase-state`:
 
 1. Determine whether it maps to completed work, unfinished work, failed work, or ambiguous evidence.
 2. Treat these as completion evidence:
@@ -148,7 +148,7 @@ Draft a commit message only; do not commit unless the user explicitly asks.
 
 Run validation that matches the files changed. Prefer:
 
-- the focused command list from `scripts/closeout_validate.py`
+- the focused command list from `make-docs operations closeout-validate`
 - focused tests for touched CLI or code behavior
 - markdown link or contract checks when available
 - `git diff --check`

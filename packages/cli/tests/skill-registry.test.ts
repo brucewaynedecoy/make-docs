@@ -80,9 +80,6 @@ describe("skill registry", () => {
         source: "references/closeout-commit-workflow.md",
         installPath: "references/closeout-commit-workflow.md",
       },
-      { source: "scripts/closeout_probe.py", installPath: "scripts/closeout_probe.py" },
-      { source: "scripts/closeout_validate.py", installPath: "scripts/closeout_validate.py" },
-      { source: "scripts/closeout_history.py", installPath: "scripts/closeout_history.py" },
     ]);
   });
 
@@ -98,10 +95,6 @@ describe("skill registry", () => {
         source: "references/closeout-workflow.md",
         installPath: "references/closeout-workflow.md",
       },
-      { source: "scripts/closeout_probe.py", installPath: "scripts/closeout_probe.py" },
-      { source: "scripts/closeout_validate.py", installPath: "scripts/closeout_validate.py" },
-      { source: "scripts/closeout_history.py", installPath: "scripts/closeout_history.py" },
-      { source: "scripts/work_phase_state.py", installPath: "scripts/work_phase_state.py" },
       { source: "scripts/persona_schema.py", installPath: "scripts/persona_schema.py" },
       { source: "scripts/guide_coverage_probe.py", installPath: "scripts/guide_coverage_probe.py" },
     ]);
@@ -134,16 +127,6 @@ describe("skill registry", () => {
         source: "references/wave-implementation-workflow.md",
         installPath: "references/wave-implementation-workflow.md",
       },
-      {
-        source: "scripts/work_on_wave_common.py",
-        installPath: "scripts/work_on_wave_common.py",
-      },
-      { source: "scripts/resolve_wave.py", installPath: "scripts/resolve_wave.py" },
-      { source: "scripts/wave_status.py", installPath: "scripts/wave_status.py" },
-      { source: "scripts/phase_plan.py", installPath: "scripts/phase_plan.py" },
-      { source: "scripts/checkpoint.py", installPath: "scripts/checkpoint.py" },
-      { source: "scripts/scope_guard.py", installPath: "scripts/scope_guard.py" },
-      { source: "scripts/phase_gate.py", installPath: "scripts/phase_gate.py" },
     ]);
   });
 
@@ -159,15 +142,6 @@ describe("skill registry", () => {
         source: "references/phase-implementation-workflow.md",
         installPath: "references/phase-implementation-workflow.md",
       },
-      {
-        source: "scripts/work_on_wave_common.py",
-        installPath: "scripts/work_on_wave_common.py",
-      },
-      { source: "scripts/resolve_wave.py", installPath: "scripts/resolve_wave.py" },
-      { source: "scripts/phase_plan.py", installPath: "scripts/phase_plan.py" },
-      { source: "scripts/checkpoint.py", installPath: "scripts/checkpoint.py" },
-      { source: "scripts/scope_guard.py", installPath: "scripts/scope_guard.py" },
-      { source: "scripts/phase_gate.py", installPath: "scripts/phase_gate.py" },
     ]);
   });
 

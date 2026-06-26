@@ -11,7 +11,7 @@ import {
 } from "./manifest";
 import { parseManagedBlock } from "./managed-block";
 import { defaultSelections, resolveInstallProfile } from "./profile";
-import { getDesiredSkillAssets } from "./skill-catalog";
+import { getDesiredSkillAssets, getRetiredManagedSkillAssets } from "./skill-catalog";
 import { TOOL_DIRECTORY_CONFIG_RELATIVE_PATH } from "./tool-directory";
 import {
   HARNESSES,
@@ -810,9 +810,12 @@ async function loadCanonicalSkillContentByPath(
   }
 
   try {
-    const assets = await getDesiredSkillAssets(selections);
+    const [assets, retiredAssets] = await Promise.all([
+      getDesiredSkillAssets(selections),
+      getRetiredManagedSkillAssets(selections),
+    ]);
     return new Map(
-      assets.map((asset) => {
+      [...assets, ...retiredAssets].map((asset) => {
         const record = createManagedPathRecord(
           targetDir,
           homeDir,

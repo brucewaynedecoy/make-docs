@@ -1,4 +1,4 @@
-import { mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
@@ -143,6 +143,24 @@ function mockHomeDirectory(homeDir: string): () => void {
 
     process.env.HOME = previousHome;
   };
+}
+
+function readSkillSourceFile(skillName: string, sourcePath: string): string {
+  return readFileSync(
+    new URL(`../../skills/${skillName}/${sourcePath}`, import.meta.url),
+    "utf8",
+  );
+}
+
+function writeManifestJson(
+  targetDir: string,
+  manifest: NonNullable<ReturnType<typeof loadManifest>>,
+): void {
+  writeFileSync(
+    path.join(targetDir, ".make-docs/manifest.json"),
+    `${JSON.stringify(manifest, null, 2)}\n`,
+    "utf8",
+  );
 }
 
 function isRecord(value: unknown): value is UnknownRecord {
@@ -464,6 +482,65 @@ describe("shared audit engine", () => {
       expect(docsEntry?.backupRelativePath ?? docsEntry?.path).toBe("docs/AGENTS.md");
       expect(skillEntry?.backupRelativePath ?? skillEntry?.path).toBe(
         ".agents/skills/archive-docs/SKILL.md",
+      );
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("classifies retired lifecycle helper scripts by managed content", async () => {
+    const targetDir = createTempDir();
+
+    try {
+      await installWithSelections(targetDir, (selections) => {
+        selections.skills = true;
+        selections.selectedSkills = ["closeout-commit"];
+      });
+
+      const removableScript = ".claude/skills/closeout-commit/scripts/closeout_probe.py";
+      const modifiedScript = ".claude/skills/closeout-commit/scripts/closeout_validate.py";
+      const removableScriptPath = path.join(targetDir, removableScript);
+      const modifiedScriptPath = path.join(targetDir, modifiedScript);
+
+      mkdirSync(path.dirname(removableScriptPath), { recursive: true });
+      writeFileSync(
+        removableScriptPath,
+        readSkillSourceFile("closeout-commit", "scripts/closeout_probe.py"),
+        "utf8",
+      );
+      writeFileSync(
+        modifiedScriptPath,
+        `${readSkillSourceFile("closeout-commit", "scripts/closeout_validate.py")}\n# local edit\n`,
+        "utf8",
+      );
+
+      const manifest = loadManifest(targetDir)!;
+      manifest.skillFiles = Array.from(
+        new Set([...manifest.skillFiles, removableScript, modifiedScript]),
+      ).sort();
+      writeManifestJson(targetDir, manifest);
+
+      const report = await runAudit({ targetDir, manifest: loadManifest(targetDir) });
+      const auditReport = report as {
+        removableFiles: Array<{ path: string; reasonCode: string }>;
+        preservedPaths: Array<{ path: string; reasonCode: string }>;
+      };
+
+      expect(auditReport.removableFiles).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            path: removableScript,
+            reasonCode: "managed-skill-file-content-match",
+          }),
+        ]),
+      );
+      expect(auditReport.preservedPaths).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            path: modifiedScript,
+            reasonCode: "manifest-skill-file-content-mismatch",
+          }),
+        ]),
       );
     } finally {
       cleanupTempDir(targetDir);

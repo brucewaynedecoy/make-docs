@@ -6,7 +6,7 @@ import {
 } from "./catalog";
 import { getManifestFileHash } from "./manifest";
 import { parseManagedBlock, upsertManagedBlock } from "./managed-block";
-import { getDesiredSkillAssets } from "./skill-catalog";
+import { getDesiredSkillAssets, getRetiredManagedSkillAssets } from "./skill-catalog";
 import { createSystemAssetManifestState } from "./system-assets";
 import type {
   InstallManifest,
@@ -56,6 +56,7 @@ export async function createInstallPlan(options: {
   const desiredSkillAssets = await getDesiredSkillAssets(profile.selections);
   const desiredSkillFiles = desiredSkillAssets.map((asset) => asset.relativePath);
   const desiredSkillFileSet = new Set(desiredSkillFiles);
+  const previousSkillContent = await getPreviousSkillContentByPath(existingManifest);
   const allDesiredAssets = [...desiredAssets, ...desiredSkillAssets];
   const baseDesiredFiles = Object.fromEntries(
     allDesiredAssets.map((asset) => [
@@ -258,11 +259,16 @@ export async function createInstallPlan(options: {
         continue;
       }
 
-      actions.push({
-        type: "remove-managed",
+      const action = planStaleSkillFile({
+        targetDir,
         relativePath,
-        sourceId: `skill:${relativePath}`,
+        existingManifest,
+        previousSkillContent,
       });
+      if (action.type === "skip-conflict") {
+        conflictsRunId ??= createRunId();
+      }
+      actions.push(action);
     }
   }
 
@@ -493,8 +499,16 @@ async function getPreviousSkillContentByPath(
   const selections = structuredClone(existingManifest.selections);
   selections.skills = true;
   try {
-    const previousAssets = await getDesiredSkillAssets(selections);
-    return new Map(previousAssets.map((asset) => [asset.relativePath, asset.content]));
+    const [previousAssets, retiredAssets] = await Promise.all([
+      getDesiredSkillAssets(selections),
+      getRetiredManagedSkillAssets(selections),
+    ]);
+    return new Map(
+      [...previousAssets, ...retiredAssets].map((asset) => [
+        asset.relativePath,
+        asset.content,
+      ]),
+    );
   } catch {
     return new Map();
   }
