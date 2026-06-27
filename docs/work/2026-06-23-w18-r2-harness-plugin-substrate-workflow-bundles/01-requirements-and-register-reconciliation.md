@@ -11,7 +11,7 @@ Reconcile PRD 30 into the active PRD set and risk register before implementation
 - [ ] Update Q-013 with the bundle boundary while leaving per-bundle UX open.
 - [ ] Update Q-001 and Q-007 only to record plugin provenance/trust requirements; do not close remote skill delivery.
 - [ ] Update R-012 so PRD 30 reinforces the content-vs-invocation boundary.
-- [ ] Update R-014 to include plugin substrate, bundle metadata, and generated exposure in the no-scripts sequencing risk.
+- [ ] Update R-014 to include plugin substrate, bundle metadata, native exposure or plugin-specific adapters in the no-scripts sequencing risk.
 - [ ] Add affected-PRD source anchors and affected-baseline notes where PRD 30 extends an existing requirement.
 
 ## Acceptance Criteria

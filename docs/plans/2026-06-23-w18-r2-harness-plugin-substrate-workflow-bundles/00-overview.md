@@ -10,6 +10,10 @@ This plan is derived from [Harness Plugin Substrate and Workflow Bundles](../../
 
 W10 R7 supersedes any future-facing Rust parity assumption in plugin lifecycle planning. Plugin deterministic behavior must delegate to TypeScript CLI/MCP operation domains, with MCP required and TypeScript-owned.
 
+## W17 R3 Native Exposure Correction
+
+W17 R3 supersedes the W17 R2 generated-stub default for shared-agentics exposure. W18 R2 plugin substrate work may proceed, but plugin harness exposure must inherit W17 R3's native exposure rule: prefer symlinked harness directories when possible, use managed copy mirrors as the compatibility fallback, and treat generated adapters as plugin-specific harness shims rather than the default shared-agentics exposure primitive.
+
 ## Coordinate
 
 - Wave: W18
@@ -26,12 +30,12 @@ W10 R7 supersedes any future-facing Rust parity assumption in plugin lifecycle p
 - `packages/cli/src/manifest.ts` records `files` and `skillFiles`; it has no structured selected-agentics ownership record that can distinguish canonical plugin payloads from generated harness exposure files.
 - `packages/cli/src/skill-catalog.ts`, `packages/cli/src/skill-registry.ts`, `packages/cli/src/skill-resolver.ts`, `packages/cli/src/skills-command.ts`, and `packages/cli/src/skills-ui.ts` are skill-specific and do not define plugin registries, plugin manifests, bundle metadata, or plugin selection flows.
 - `packages/cli/src/audit.ts`, `packages/cli/src/backup.ts`, and `packages/cli/src/uninstall.ts` already use conservative manifest and content evidence, but they do not classify plugin payloads, generated plugin exposures, or user-authored harness plugin files.
-- [PRD 28](../../prd/28-revise-shared-agentics-installation-harness-redirection.md) defines shared selected-agentics storage and generated stubs. [PRD 29](../../prd/29-revise-playbook-contract-run-playbook.md) defines playbook content and the generic Run Playbook model. This plan connects those contracts to plugin substrate and workflow bundle requirements.
+- [PRD 28](../../prd/28-revise-shared-agentics-installation-harness-redirection.md) defines shared selected-agentics storage and native harness exposure. [PRD 29](../../prd/29-revise-playbook-contract-run-playbook.md) defines playbook content and the generic Run Playbook model. This plan connects those contracts to plugin substrate and workflow bundle requirements.
 
 ## Plan Shape
 
 1. Reconcile PRD and risk-register ownership for PRD 30.
-2. Define the plugin substrate, canonical payload store, generated harness exposure, metadata, and manifest records.
+2. Define the plugin substrate, canonical payload store, native harness exposure or plugin-specific adapters, metadata, and manifest records.
 3. Define plugin selection, lifecycle, update, audit, backup, uninstall, migration, and operation-boundary behavior.
 4. Define workflow bundle metadata, playbook invocation boundaries, package validation, and conformance evidence gates.
 
@@ -41,7 +45,7 @@ W10 R7 supersedes any future-facing Rust parity assumption in plugin lifecycle p
 - Do not make `--selected-skills all` or any skill selection affordance imply plugin installation.
 - Do not make one plugin per playbook or require a plugin for a playbook to be valid.
 - Do not implement per-bundle UX details for request-vs-change, scaffold exposure, or docs visibility in this planning round.
-- Do not add MCP writes, Rust parity, symlink defaults, or independent plugin-owned deterministic lifecycle logic.
+- Do not add MCP writes, Rust parity, symlink-only behavior without copy-mirror fallback, or independent plugin-owned deterministic lifecycle logic.
 
 ## Validation Plan
 

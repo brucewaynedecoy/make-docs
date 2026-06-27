@@ -67,7 +67,7 @@ Explicit selected-skill installs may still install first-party skill prose, refe
 
 [27-revise-skill-purpose-registry-alternate-skills-manifest.md](27-revise-skill-purpose-registry-alternate-skills-manifest.md) may add purpose metadata, alternate manifest provenance, and source-policy display around selected skills, but that metadata must not become a second owner of deterministic workflow behavior.
 
-[28-revise-shared-agentics-installation-harness-redirection.md](28-revise-shared-agentics-installation-harness-redirection.md) may install shared payloads and generated harness stubs that tell agents how to reach CLI/shared-core operations, but those payloads and stubs remain guidance and routing surfaces. They must not become the only owner of deterministic make-docs behavior.
+[28-revise-shared-agentics-installation-harness-redirection.md](28-revise-shared-agentics-installation-harness-redirection.md) may install shared payloads and expose them through native harness skill directories that tell agents how to reach CLI/shared-core operations, but those payloads and harness-visible skills remain guidance and routing surfaces. They must not become the only owner of deterministic make-docs behavior.
 
 ### Managed Removal Safety
 

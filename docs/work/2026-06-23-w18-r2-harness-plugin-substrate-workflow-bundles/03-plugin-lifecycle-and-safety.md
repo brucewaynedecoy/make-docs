@@ -10,7 +10,7 @@ Implement explicit plugin selection and lifecycle safety for install, update, sy
 - [ ] Preserve no-default plugin behavior for bare install and default sync.
 - [ ] Preserve existing selected plugins during sync and reconfigure unless the user changes the selection or a reviewed migration plan says otherwise.
 - [ ] Reconcile selected plugin state against an effective plugin manifest.
-- [ ] Classify clean managed payloads, clean generated exposures, modified managed payloads, modified generated exposures, malformed manifest state, missing-manifest ambiguous state, and user-authored harness plugins.
+- [ ] Classify clean managed payloads, symlink exposures, clean copy mirrors, plugin-specific adapters, modified managed payloads, modified exposures, malformed manifest state, missing-manifest ambiguous state, and user-authored harness plugins.
 - [ ] Require review, backup, skip, or manual resolution before mutating ambiguous or modified states.
 - [ ] Consume one reviewed audit snapshot before destructive backup/uninstall.
 - [ ] Prune empty make-docs-owned plugin directories only when audit proves there are no unmanaged descendants.

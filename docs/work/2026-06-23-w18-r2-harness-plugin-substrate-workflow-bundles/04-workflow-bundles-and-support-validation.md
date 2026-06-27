@@ -24,4 +24,4 @@ Add workflow bundle metadata and validation gates for package inclusion, Run Pla
 
 ## Validation Notes
 
-Run the package validation chain when implementation touches shipped plugin payloads, plugin manifests, generated exposure files, bundle metadata defaults, or public support wording.
+Run the package validation chain when implementation touches shipped plugin payloads, plugin manifests, native exposure files, generated adapters, bundle metadata defaults, or public support wording.

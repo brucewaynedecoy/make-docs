@@ -17,7 +17,7 @@ PRD 29 should sit after PRD 28 in the active change-doc sequence because it depe
 - PRD 23 must add playbook minimum frontmatter and stack validation as generated metadata consumers.
 - PRD 24 must keep configuration overlays presentation-only for playbook labels and selection messages.
 - PRD 25 must treat CLI/MCP Run Playbook exposure as a shared-operation consumer, not a second behavior model.
-- PRD 28 must keep generated stubs and plugin payloads separate from the Run Playbook content contract.
+- PRD 28 must keep shared-agentics harness exposure and plugin payloads separate from the Run Playbook content contract.
 
 ## Risk Register Updates
 

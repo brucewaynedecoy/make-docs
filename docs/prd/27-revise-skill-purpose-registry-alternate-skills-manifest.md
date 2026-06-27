@@ -65,7 +65,7 @@ The install manifest remains behavior-first:
 - `skillFiles` remains the managed-output ownership list.
 - Selection provenance may record selected purpose id, manifest id, candidate skill, source policy class, and source provenance for review, reconfigure, audit, backup, uninstall, and support.
 - Selection provenance does not replace `selectedSkills` or `skillFiles`.
-- [28-revise-shared-agentics-installation-harness-redirection.md](28-revise-shared-agentics-installation-harness-redirection.md) consumes the resolved effective manifest and selection provenance when writing shared payloads and generated stubs. Agentic ownership records should preserve manifest id, purpose id, skill name, source policy, digest/ref, scope, canonical payload path, and generated stub paths without replacing `selectedSkills`.
+- [28-revise-shared-agentics-installation-harness-redirection.md](28-revise-shared-agentics-installation-harness-redirection.md) consumes the resolved effective manifest and selection provenance when writing shared payloads and native harness exposures. Agentic ownership records should preserve manifest id, purpose id, skill name, source policy, digest/ref, scope, canonical payload path, symlink exposure paths, copy-mirror paths, and legacy generated stub paths without replacing `selectedSkills`.
 - [30-revise-harness-plugin-substrate-workflow-bundles.md](30-revise-harness-plugin-substrate-workflow-bundles.md) may let future plugin and workflow bundle surfaces present purpose metadata, but plugin selection remains explicit and separate from `selectedSkills`; skills-manifest purpose ids do not become plugin ids or bundle ids.
 
 ### Alternate Manifests

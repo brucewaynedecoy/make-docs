@@ -1,5 +1,9 @@
 # Shared Agentics Installation and Harness Redirection
 
+## W17 R3 Supersession
+
+[Shared Agentics Native Harness Exposure Correction](2026-06-27-shared-agentics-native-harness-exposure-correction.md) supersedes this design's generated-stub default. This design remains historical authority for the W17 R2 shared canonical payload store and lifecycle-classification concerns, but future selected-skill exposure should use native harness directories with symlink preferred and managed copy-mirror fallback.
+
 ## Purpose
 
 Decide how make-docs v2 installs selected agentic artifacts once while exposing them to each supported harness without duplicating authoritative payloads.

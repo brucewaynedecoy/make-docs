@@ -31,9 +31,9 @@ Selected plugin payloads are installed once into the shared make-docs-owned sele
 - project scope: `.make-docs/agentics/plugins/<plugin-id>/`
 - global scope: the user's home-scoped `.make-docs/agentics/plugins/<plugin-id>/`
 
-Supported harnesses receive generated exposure files or adapters, not duplicated authoritative plugin payloads. Codex and Claude Code are the initial supported harness targets because they are the current make-docs harnesses.
+Supported harnesses receive native exposure or generated adapters, not duplicated authoritative plugin payloads. Codex and Claude Code are the initial supported harness targets because they are the current make-docs harnesses.
 
-The generated exposure file is the harness boundary. The canonical plugin payload remains in the shared selected-agentics store. Symlinks are not the v2 default.
+The harness exposure layer is the harness boundary. The canonical plugin payload remains in the shared selected-agentics store. W17 R3 supersedes the generated-stub default for shared agentics: plugin implementation should prefer native harness exposure with symlink support and managed copy-mirror fallback unless a later plugin-specific design supersedes that correction.
 
 ### Plugin Metadata and Manifest Ownership
 
@@ -43,14 +43,14 @@ Plugin records must identify:
 
 - canonical plugin id, title, summary, status, source manifest, source ref or version, digest, provenance, trust policy, supported harnesses, and scope
 - canonical payload files under `.make-docs/agentics/plugins/<plugin-id>/`
-- generated harness exposure files and their target canonical payload
-- exposure mode, with `generated-stub` or an equivalent generated-adapter value as the default
+- native harness exposure paths and their target canonical payload
+- exposure mode, with `symlink` preferred and `copy-mirror` fallback unless a plugin-specific adapter requires a generated exposure file
 - invocation metadata describing whether the plugin wraps a built-in workflow, one or more playbooks, generic Run Playbook, or a CLI/MCP operation
 - bundle metadata when the plugin belongs to a productized workflow bundle
 - permission and safety metadata describing whether the plugin is read-only, request-capture only, plan-first, dry-run first, temp-fixture only, or write-capable after explicit approval
 - support metadata distinguishing `provisional`, `implementation-validated`, and `conformance-validated` claims per harness and, where applicable, model/provider tuple
 
-Until the schema exists, transitional records may be used, but audit, backup, uninstall, dry-run output, and migration diagnostics must preserve the distinction between canonical plugin payloads and generated harness exposure files.
+Until the schema exists, transitional records may be used, but audit, backup, uninstall, dry-run output, and migration diagnostics must preserve the distinction between canonical plugin payloads, symlink exposures, copy mirrors, plugin-specific generated adapters, and legacy generated exposure files.
 
 ### Explicit Plugin Selection
 
@@ -72,11 +72,11 @@ A plugin must not carry independent deterministic logic that bypasses no-scripts
 
 Update behavior reconciles selected plugins against the effective plugin manifest and manifest-owned state.
 
-A clean managed plugin payload or generated exposure file may be updated in place. A modified managed payload, modified generated exposure file, malformed manifest, missing-manifest ambiguous state, or user-authored harness plugin must flow through review, backup, skip, or manual-resolution paths.
+A clean managed plugin payload, symlink exposure, copy mirror, or generated adapter may be updated in place. A modified managed payload, modified copy mirror, modified generated adapter, malformed manifest, missing-manifest ambiguous state, or user-authored harness plugin must flow through review, backup, skip, or manual-resolution paths.
 
 Migration and update must never infer ownership over a user-authored harness file just because its name matches a make-docs plugin id.
 
-Uninstall removes only reviewed, make-docs-owned plugin payloads and generated exposure files. Backup and uninstall must consume one reviewed audit snapshot before destructive removal. Empty make-docs-owned plugin directories may be pruned only when audit proves there are no unmanaged descendants.
+Uninstall removes only reviewed, make-docs-owned plugin payloads and harness exposures. Backup and uninstall must consume one reviewed audit snapshot before destructive removal. Empty make-docs-owned plugin directories may be pruned only when audit proves there are no unmanaged descendants.
 
 ### Configuration Boundary
 
@@ -132,7 +132,8 @@ Baseline implementation validation should include `npm run build -w packages/cli
 - No one-plugin-per-playbook requirement.
 - No plugin requirement for playbook validity.
 - No default adversarial-review plugin, workflow bundle, or plugin-selection implication.
-- No symlink-based default behavior.
+- No generated-stub default behavior inherited from W17 R2.
+- No symlink-only behavior without copy-mirror fallback.
 - No MCP write surface implementation in this PRD.
 - No closure of per-bundle UX details for request-vs-change, docs visibility, scaffold exposure, or exact non-maintainer flows.
 - No remote-versus-bundled skills delivery decision.
@@ -157,8 +158,8 @@ Baseline implementation validation should include `npm run build -w packages/cli
 ## Acceptance Criteria
 
 - Plugin payloads install under `.make-docs/agentics/plugins/<plugin-id>/` per selected scope.
-- Codex and Claude Code receive generated plugin exposure files or adapters rather than duplicated authoritative payloads.
-- Manifest, audit, backup, uninstall, dry-run, and migration output distinguish canonical plugin payloads from generated harness exposures.
+- Codex and Claude Code receive native plugin exposure or explicit plugin-specific adapters rather than duplicated authoritative payloads.
+- Manifest, audit, backup, uninstall, dry-run, and migration output distinguish canonical plugin payloads from symlink exposures, copy mirrors, generated adapters, and legacy generated harness exposures.
 - Bare install, default sync, and selected-skill flows write no plugin files.
 - Modified/custom harness plugin files are preserved or reviewed rather than inferred as make-docs-owned.
 - Workflow bundle metadata declares audience, exposure boundary, safety mode, and whether the flow captures a request or makes a change.

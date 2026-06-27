@@ -50,7 +50,7 @@ Directory model:
     plugins/
 ```
 
-PRD 28 makes `agentics/skills/` the canonical shared payload home for selected skill artifacts and uses generated harness stubs as the exposure layer under supported harness roots. PRD 30 makes `agentics/plugins/` the canonical shared payload home for selected plugin artifacts and applies the same generated-exposure primitive instead of duplicating authoritative payloads per harness.
+PRD 28 makes `agentics/skills/` the canonical shared payload home for selected skill artifacts and uses native harness exposure under supported harness roots, with symlinks preferred and managed copy mirrors as fallback. PRD 30 makes `agentics/plugins/` the canonical shared payload home for selected plugin artifacts and inherits the same native-exposure correction unless a later plugin-specific design supersedes it.
 
 PRD 24 defines `config.yaml` as optional project-owned convention configuration. It belongs in `.make-docs/` because it configures the tool's presentation behavior for the project, but it is not make-docs-owned runtime state and must not be overwritten by install, reconfigure, provider refresh, package sync, or cache recovery without an explicit user-approved replacement flow.
 

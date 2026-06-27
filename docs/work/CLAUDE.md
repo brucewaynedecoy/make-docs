@@ -15,7 +15,7 @@ Output target for implementation backlogs. In v2, every backlog is a **directory
 - Before writing, read `.make-docs/references/system/execution-workflow.md` and copy the matching template from `.make-docs/templates/system/` (`work-index.md` for `00-index.md`; `work-phase.md` for phase files).
 - Use the current repository's accepted design, plan, PRD, and work contracts as backlog authority before consulting archived examples or installed skill projections.
 - Before executing any pre-W9 R5 backlog, read `docs/work/2026-06-25-w9-r5-v2-library-and-archive-history-ia-correction/00-index.md`. W9 R5 supersedes older future-facing path assumptions for `docs/assets/guides/**`, `docs/assets/breadcrumbs/**`, `docs/assets/history/**`, `docs/guides/**`, and `docs/library/**`; W9 R4 remains historical evidence for top-level `docs/artifacts/**`, top-level `docs/archive/**`, and `.make-docs/**` tool-resource moves. Preserve old text only when it is historical evidence.
-- Treat bundled skill assets, generated harness stubs, and archived backlogs as fallback/reference material only; they are not independent backlog-shape authority when live repo contracts are available.
+- Treat bundled skill assets, legacy generated harness stubs, and archived backlogs as fallback/reference material only; they are not independent backlog-shape authority when live repo contracts are available.
 - In phase files, preserve markdown task syntax in `### Tasks` (`- [ ] t1: ...`) and keep `### Acceptance criteria` as plain bullets.
 - Always create work as a directory; never a flat `.md` file.
 - Apply the date-W/R-slug naming; do not backdate.

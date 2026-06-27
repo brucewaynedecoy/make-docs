@@ -1,5 +1,9 @@
 # W17 R2 Shared Agentics Installation Harness Redirection Work Backlog
 
+## W17 R3 Supersession
+
+This completed backlog remains historical implementation evidence for shared selected-skill payload placement, role classification, audit, backup, uninstall, and package validation. [W17 R3](../2026-06-27-w17-r3-shared-agentics-native-harness-exposure-correction/00-index.md) supersedes only the generated-stub default: future selected-skill exposure should use native harness directories with symlink preferred and managed copy-mirror fallback.
+
 ## W9 R5 Prerequisite
 
 Before executing this backlog, apply [W9 R5 v2 Library and Archive History IA Correction](../2026-06-25-w9-r5-v2-library-and-archive-history-ia-correction/00-index.md). W17 R2 must place shared agentic assets under `.make-docs/**` system-resource ownership and avoid deriving harness routing from W9 R4's superseded guide/breadcrumb targets or older `docs/assets/{prompts,references,templates}/**` paths.

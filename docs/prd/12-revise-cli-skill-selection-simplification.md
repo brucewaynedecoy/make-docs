@@ -63,7 +63,7 @@ Effective behavior:
 
 - Enhanced by [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md) for package-boundary context. Bare installs must keep no-default-skills behavior under the TypeScript package runtime, and stable product identity does not add aliases or rename behavior that changes `selectedSkills` manifest semantics.
 - Enhanced by [27-revise-skill-purpose-registry-alternate-skills-manifest.md](./27-revise-skill-purpose-registry-alternate-skills-manifest.md) for purpose-led selection. Purpose ids, alternate manifests, and selection provenance may help users choose skills, but they do not reintroduce required/default skills, and `selectedSkills` remains the resolved executable skill-name set.
-- Enhanced by [28-revise-shared-agentics-installation-harness-redirection.md](./28-revise-shared-agentics-installation-harness-redirection.md) for selected-skill materialization. Shared payloads and generated harness stubs are written only for explicitly selected skills; bare install, default sync, and no-skills selection continue to produce no selected agentic payloads or stubs.
+- Enhanced by [28-revise-shared-agentics-installation-harness-redirection.md](./28-revise-shared-agentics-installation-harness-redirection.md) for selected-skill materialization. Shared payloads and native harness exposures are written only for explicitly selected skills; bare install, default sync, and no-skills selection continue to produce no selected agentic payloads or harness exposures.
 
 Code anchors:
 
