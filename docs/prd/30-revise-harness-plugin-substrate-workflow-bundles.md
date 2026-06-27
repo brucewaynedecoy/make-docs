@@ -8,6 +8,8 @@ Define the v2 plugin substrate for supported agent harnesses and separate that s
 
 Revision. This PRD extends the active shared-agentics, playbook, manifest, skills, configuration, package validation, compatibility, CLI/MCP, no-scripts, and conformance requirements.
 
+W17 R4 extends plugin lifecycle inheritance: selected plugin backup, uninstall, migration, and cleanup must use `.make-docs/backup/**` for new backup writes, protect legacy root `.backup/**`, and prune empty managed `.make-docs/agentics/**` directories only when audit proves no unmanaged descendants remain.
+
 Route: `change-plan`
 
 Coordinate: `W18 R2`
@@ -152,6 +154,7 @@ Baseline implementation validation should include `npm run build -w packages/cli
 - [25 Revise CLI Separation and MCP Boundary](25-revise-cli-separation-and-mcp-boundary.md)
 - [27 Revise Skill Purpose Registry Alternate Skills Manifest](27-revise-skill-purpose-registry-alternate-skills-manifest.md)
 - [28 Revise Shared Agentics Installation Harness Redirection](28-revise-shared-agentics-installation-harness-redirection.md)
+- [32 Revise Lifecycle Backup State and Agentics Pruning](32-revise-lifecycle-backup-state-agentics-pruning.md)
 - [29 Revise Playbook Contract Run Playbook](29-revise-playbook-contract-run-playbook.md)
 - [31 Revise Coverage Pass Extensions Adversarial Review](31-revise-coverage-pass-extensions-adversarial-review.md)
 

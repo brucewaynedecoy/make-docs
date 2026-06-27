@@ -14,6 +14,7 @@ Implement explicit plugin selection and lifecycle safety for install, update, sy
 - [ ] Require review, backup, skip, or manual resolution before mutating ambiguous or modified states.
 - [ ] Consume one reviewed audit snapshot before destructive backup/uninstall.
 - [ ] Prune empty make-docs-owned plugin directories only when audit proves there are no unmanaged descendants.
+- [ ] Apply the W17 R4 lifecycle-state prerequisite before plugin backup, uninstall, migration, or cleanup: new backup writes use `.make-docs/backup/**`, legacy root `.backup/**` is protected, and empty managed `.make-docs/agentics/**` parents are pruned only when safe.
 - [ ] Route deterministic plugin actions through CLI/MCP/shared-core operation contracts rather than plugin-owned filesystem logic.
 
 ## Acceptance Criteria

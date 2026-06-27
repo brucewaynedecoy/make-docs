@@ -29,7 +29,7 @@ Current package mechanics therefore split into two modes: local development work
 | Package-runner validation | Smoke-pack invokes the packed tarball through `npx --package`, `pnpm dlx`, and `bun x --package` into isolated temp working directories, targets, `HOME`, and package-manager cache roots. | `scripts/smoke-pack.mjs` |
 | Skills validation | Smoke-pack rewrites the packed skill registry to a repo-backed fixture server, runs `make-docs skills --dry-run`, installs the base package, verifies shared skill payloads plus native harness exposure, and asserts stale generated stubs, legacy duplicated payloads, or unsafe fallback artifacts are absent. | `scripts/smoke-pack.mjs` |
 | Installer validation | The same smoke run verifies `.make-docs/manifest.json`, `docs/AGENTS.md`, a second idempotent `--yes` run with no staged conflicts, and later backup/uninstall behavior. | `scripts/smoke-pack.mjs:122-245` |
-| Backup and uninstall validation | Smoke-pack creates an unmanaged file, runs `backup`, then `uninstall`, and confirms the manifest is removed while the unmanaged file and `.backup` tree survive. | `scripts/smoke-pack.mjs:215-246` |
+| Backup and uninstall validation | Smoke-pack creates an unmanaged file, runs `backup`, then `uninstall`, and confirms the manifest is removed while the unmanaged file survives and new backup state lands under `.make-docs/backup/**`; legacy root `.backup/**` remains protected when present. | `scripts/smoke-pack.mjs:215-246` |
 
 The smoke script is therefore more than a tarball smoke test. It is the encoded proof that prepack bundling, remote package-runner execution, packaged installation, skill distribution, backup, and uninstall still agree on the same release surface (`scripts/smoke-pack.mjs`).
 
@@ -80,6 +80,7 @@ For a true first public release, the release state now uses Apache-2.0 licensing
 - Enhanced by [29-revise-playbook-contract-run-playbook.md](./29-revise-playbook-contract-run-playbook.md) for playbook package proof. Packed validation must cover shipped playbook defaults when present, including required frontmatter, path/persona consistency, `stack: build | run`, package-template parity, and provisional support-claim labeling for CLI, MCP, plugin, skill, template-sync, or unattended execution surfaces.
 - Enhanced by [30-revise-harness-plugin-substrate-workflow-bundles.md](./30-revise-harness-plugin-substrate-workflow-bundles.md) for plugin package proof. Packed validation must prove no-default plugin behavior, explicit selected plugin payload and native exposure or plugin-specific adapter behavior when implemented, plugin asset inclusion or exclusion rules, and exclusion of conformance-lab records, generated local run artifacts, and unreviewed plugin outputs from shipped template/package surfaces.
 - Enhanced by [31-revise-coverage-pass-extensions-adversarial-review.md](./31-revise-coverage-pass-extensions-adversarial-review.md) for adversarial-review package proof. Packed validation must cover shipped adversarial prompts, references, playbooks, plugins, CLI/MCP affordances, or conformance records only when a downstream plan explicitly selects that surface; package proof must preserve template-first authoring, no-default exposure, prompt-rule coverage when prompts are added, playbook/plugin validation when those surfaces are added, and evidence-bound support claims.
+- Enhanced by [32-revise-lifecycle-backup-state-agentics-pruning.md](./32-revise-lifecycle-backup-state-agentics-pruning.md) for backup and uninstall package proof. Packed validation must prove new backup writes use `.make-docs/backup/**`, fresh installs do not create root `.backup/**`, legacy root `.backup/**` is protected when present, and selected-agentics uninstall prunes empty managed `.make-docs/agentics/**` directories safely.
 
 ## Source Anchors
 
@@ -109,6 +110,7 @@ For a true first public release, the release state now uses Apache-2.0 licensing
 - `docs/prd/29-revise-playbook-contract-run-playbook.md`
 - `docs/prd/30-revise-harness-plugin-substrate-workflow-bundles.md`
 - `docs/prd/31-revise-coverage-pass-extensions-adversarial-review.md`
+- `docs/prd/32-revise-lifecycle-backup-state-agentics-pruning.md`
 - `docs/designs/2026-06-20-cli-separation-and-mcp-boundary.md`
 - `docs/designs/2026-06-20-no-scripts-migration-and-skill-refactor.md`
 - `docs/designs/2026-06-20-skill-purpose-registry-and-alternate-skills-manifest.md`

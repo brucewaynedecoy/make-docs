@@ -26,6 +26,8 @@ W17 R2 Phase 4 validates the completed selected-skill slice through full CLI tes
 
 W17 R3 supersedes the W17 R2 generated-stub default. Manual UAT showed that generic harness stubs create a novel installation paradigm and weaken harness skill discovery because their frontmatter describes Make Docs plumbing rather than the skill's purpose. The corrected v2 target is native harness exposure: selected skills install one canonical shared payload per scope, harness skill roots expose that payload as a normal skill directory through symlinks when available, and managed copy mirrors act as the compatibility fallback when symlink creation is unavailable or disabled. Generated stubs remain legacy migration inputs or explicit diagnostic fallback only.
 
+W17 R4 adds lifecycle cleanup requirements for shared selected-agentics state. Future backup writes move to `.make-docs/backup/**`, legacy root `.backup/**` remains protected backup evidence, and selected-agentics uninstall must prune empty managed `.make-docs/agentics/**` parent directories only when audit proves no unmanaged descendants remain.
+
 ## Requirements
 
 ### Shared Agentics Store
@@ -98,7 +100,7 @@ Plugin installation inherits the shared storage and native harness exposure prim
 
 Selected plugin payloads use `.make-docs/agentics/plugins/<plugin-id>/` per scope and native harness exposure unless a later accepted design supersedes PRD 30.
 
-[29-revise-playbook-contract-run-playbook.md](29-revise-playbook-contract-run-playbook.md) owns the playbook content contract and generic Run Playbook model. PRD 30 allows plugin payloads to expose that model, but this PRD continues to own only shared storage and generated harness exposure primitives.
+[29-revise-playbook-contract-run-playbook.md](29-revise-playbook-contract-run-playbook.md) owns the playbook content contract and generic Run Playbook model. PRD 30 allows plugin payloads to expose that model, but this PRD continues to own only shared storage and native harness exposure primitives.
 
 ### No-Default-Skills
 
@@ -141,6 +143,7 @@ Shared agentics are written only when the user explicitly selects skills or late
 - Manifest/dry-run output distinguishes shared payloads, symlink exposures, copy mirrors, legacy stubs, and migrated duplicated payloads.
 - Modified or custom harness skills are preserved or reviewed rather than inferred as make-docs-owned.
 - Backup and uninstall use one reviewed audit snapshot.
+- Empty managed `.make-docs/agentics/**` parent directories are pruned after selected-agentics removal only when audit proves no unmanaged descendants remain.
 - Cross-platform validation proves symlink-preferred behavior and copy-mirror fallback without relying on generic stubs.
 
 ## Source Anchors
@@ -156,6 +159,7 @@ Shared agentics are written only when the user explicitly selects skills or late
 - [27 Revise Skill Purpose Registry Alternate Skills Manifest](27-revise-skill-purpose-registry-alternate-skills-manifest.md)
 - [29 Revise Playbook Contract Run Playbook](29-revise-playbook-contract-run-playbook.md)
 - [30 Revise Harness Plugin Substrate Workflow Bundles](30-revise-harness-plugin-substrate-workflow-bundles.md)
+- [32 Revise Lifecycle Backup State and Agentics Pruning](32-revise-lifecycle-backup-state-agentics-pruning.md)
 - [../designs/2026-06-20-playbook-contract-and-run-playbook.md](../designs/2026-06-20-playbook-contract-and-run-playbook.md)
 - [../plans/2026-06-23-w18-r1-playbook-contract-run-playbook/00-overview.md](../plans/2026-06-23-w18-r1-playbook-contract-run-playbook/00-overview.md)
 - [../designs/2026-06-20-harness-plugin-substrate-and-workflow-bundles.md](../designs/2026-06-20-harness-plugin-substrate-and-workflow-bundles.md)

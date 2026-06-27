@@ -14,6 +14,10 @@ W10 R7 supersedes any future-facing Rust parity assumption in plugin lifecycle p
 
 W17 R3 supersedes the W17 R2 generated-stub default for shared-agentics exposure. W18 R2 plugin substrate work may proceed, but plugin harness exposure must inherit W17 R3's native exposure rule: prefer symlinked harness directories when possible, use managed copy mirrors as the compatibility fallback, and treat generated adapters as plugin-specific harness shims rather than the default shared-agentics exposure primitive.
 
+## W17 R4 Lifecycle State Prerequisite
+
+Before implementing plugin backup, uninstall, migration, or cleanup behavior, apply W17 R4: new backup writes target `.make-docs/backup/**`, legacy root `.backup/**` remains protected backup state, and empty managed `.make-docs/agentics/**` directories are pruned only when audit proves no unmanaged descendants remain.
+
 ## Coordinate
 
 - Wave: W18
@@ -27,7 +31,7 @@ W17 R3 supersedes the W17 R2 generated-stub default for shared-agentics exposure
 
 - `packages/cli/src/types.ts` recognizes `claude-code` and `codex` harnesses, but no plugin artifact kind exists in the current type model.
 - `packages/cli/src/profile.ts` defaults `skills` to false and records `selectedSkills`; there is no selected-plugin selection state.
-- `packages/cli/src/manifest.ts` records `files` and `skillFiles`; it has no structured selected-agentics ownership record that can distinguish canonical plugin payloads from generated harness exposure files.
+- `packages/cli/src/manifest.ts` records `files` and `skillFiles`; it has no structured selected-agentics ownership record that can distinguish canonical plugin payloads from native harness exposure files or plugin-specific adapters.
 - `packages/cli/src/skill-catalog.ts`, `packages/cli/src/skill-registry.ts`, `packages/cli/src/skill-resolver.ts`, `packages/cli/src/skills-command.ts`, and `packages/cli/src/skills-ui.ts` are skill-specific and do not define plugin registries, plugin manifests, bundle metadata, or plugin selection flows.
 - `packages/cli/src/audit.ts`, `packages/cli/src/backup.ts`, and `packages/cli/src/uninstall.ts` already use conservative manifest and content evidence, but they do not classify plugin payloads, generated plugin exposures, or user-authored harness plugin files.
 - [PRD 28](../../prd/28-revise-shared-agentics-installation-harness-redirection.md) defines shared selected-agentics storage and native harness exposure. [PRD 29](../../prd/29-revise-playbook-contract-run-playbook.md) defines playbook content and the generic Run Playbook model. This plan connects those contracts to plugin substrate and workflow bundle requirements.

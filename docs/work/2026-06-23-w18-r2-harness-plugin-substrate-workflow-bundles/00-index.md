@@ -8,6 +8,10 @@ Before executing plugin lifecycle or operation delegation work, apply W10 R7: Ty
 
 Before executing this backlog, apply [W9 R5 v2 Library and Archive History IA Correction](../2026-06-25-w9-r5-v2-library-and-archive-history-ia-correction/00-index.md). W18 R2 plugin substrate and workflow bundles must consume `.make-docs/**` system-resource ownership and `docs/assets/{archive,artifacts,library,playbooks}/**` plus on-demand `docs/assets/archive/history/**` project-asset ownership before selecting shipped bundle paths.
 
+## W17 R4 Lifecycle State Prerequisite
+
+Before implementing plugin backup, uninstall, migration, or cleanup behavior, apply [W17 R4 Lifecycle Backup State and Agentics Pruning](../2026-06-27-w17-r4-lifecycle-backup-state-and-agentics-pruning/00-index.md). W18 R2 plugin lifecycle work must use `.make-docs/backup/**` for new backup writes, protect legacy root `.backup/**`, and prune empty managed `.make-docs/agentics/**` directories only when audit proves no unmanaged descendants remain.
+
 ## Purpose
 
 Implement the v2 plugin substrate and productized workflow bundle metadata described by PRD 30.
@@ -29,4 +33,4 @@ Implement the v2 plugin substrate and productized workflow bundle metadata descr
 
 ## Acceptance Gate
 
-Do not close W18 R2 while plugin installation is defaulted, while skill selection can imply plugin selection, while playbooks require plugins to be valid, or while plugin payloads and generated harness exposures cannot be distinguished by manifest, audit, backup, uninstall, dry-run, and migration output.
+Do not close W18 R2 while plugin installation is defaulted, while skill selection can imply plugin selection, while playbooks require plugins to be valid, or while plugin payloads, native exposures, and plugin-specific adapters cannot be distinguished by manifest, audit, backup, uninstall, dry-run, and migration output.
