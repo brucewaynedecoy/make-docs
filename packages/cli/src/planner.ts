@@ -603,6 +603,7 @@ function getInstructionKindForPath(relativePath: string): InstructionKind | null
 
 function isSkillAssetPath(relativePath: string): boolean {
   return (
+    relativePath.startsWith(".make-docs/agentics/skills/") ||
     relativePath.startsWith(".claude/skills/") ||
     relativePath.startsWith(".claude/skill-assets/") ||
     relativePath.startsWith(".agents/skills/") ||

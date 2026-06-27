@@ -815,21 +815,39 @@ describe("installer integration", () => {
         selections.selectedSkills = ["decompose-codebase"];
       });
 
+      const sharedSkillRoot = path.join(
+        targetDir,
+        ".make-docs/agentics/skills/decompose-codebase",
+      );
+      expect(existsSync(path.join(sharedSkillRoot, "SKILL.md"))).toBe(true);
+      expect(existsSync(path.join(sharedSkillRoot, "references/mcp-playbook.md"))).toBe(true);
+      expect(existsSync(path.join(sharedSkillRoot, "scripts/validate_output.py"))).toBe(true);
+      expect(
+        existsSync(path.join(sharedSkillRoot, "assets/templates/decomposition-plan.md")),
+      ).toBe(true);
+      expect(
+        existsSync(path.join(sharedSkillRoot, "assets/templates/rebuild-backlog-index.md")),
+      ).toBe(true);
+      expect(
+        existsSync(path.join(sharedSkillRoot, "assets/templates/rebuild-backlog-phase.md")),
+      ).toBe(true);
+      expect(
+        existsSync(path.join(sharedSkillRoot, "assets/templates/rebuild-backlog.md")),
+      ).toBe(false);
+      expect(existsSync(path.join(sharedSkillRoot, "assets/README.md"))).toBe(false);
+      expect(existsSync(path.join(sharedSkillRoot, "scripts/test_validate_output.py"))).toBe(
+        false,
+      );
+
       for (const harnessRoot of [".claude", ".agents"]) {
         const skillRoot = path.join(targetDir, harnessRoot, "skills/decompose-codebase");
 
         expect(existsSync(path.join(skillRoot, "SKILL.md"))).toBe(true);
-        expect(existsSync(path.join(skillRoot, "references/mcp-playbook.md"))).toBe(true);
-        expect(existsSync(path.join(skillRoot, "scripts/validate_output.py"))).toBe(true);
         expect(
-          existsSync(path.join(skillRoot, "assets/templates/decomposition-plan.md")),
-        ).toBe(true);
-        expect(
-          existsSync(path.join(skillRoot, "assets/templates/rebuild-backlog-index.md")),
-        ).toBe(true);
-        expect(
-          existsSync(path.join(skillRoot, "assets/templates/rebuild-backlog-phase.md")),
-        ).toBe(true);
+          readFileSync(path.join(skillRoot, "SKILL.md"), "utf8"),
+        ).toContain(".make-docs/agentics/skills/decompose-codebase/SKILL.md");
+        expect(existsSync(path.join(skillRoot, "references/mcp-playbook.md"))).toBe(false);
+        expect(existsSync(path.join(skillRoot, "scripts/validate_output.py"))).toBe(false);
         expect(existsSync(path.join(skillRoot, "assets/templates/rebuild-backlog.md"))).toBe(
           false,
         );
@@ -850,6 +868,11 @@ describe("installer integration", () => {
           file.endsWith("decompose-codebase/scripts/test_validate_output.py"),
         ),
       ).toBe(false);
+      expect(manifest.skillFiles).toContain(
+        ".make-docs/agentics/skills/decompose-codebase/SKILL.md",
+      );
+      expect(manifest.skillFiles).toContain(".claude/skills/decompose-codebase/SKILL.md");
+      expect(manifest.skillFiles).toContain(".agents/skills/decompose-codebase/SKILL.md");
     } finally {
       cleanupTempDir(targetDir);
     }
@@ -920,13 +943,31 @@ describe("installer integration", () => {
     }
   });
 
-  test("keeps installed skill references valid inside each harness skill directory", async () => {
+  test("keeps installed skill references valid inside the shared skill payloads", async () => {
     const targetDir = createTempDir();
     try {
       await installWithSelections(targetDir, enableAllSkills);
 
       for (const harnessRoot of [".claude", ".agents"]) {
         const skillPath = path.join(targetDir, harnessRoot, "skills/archive-docs/SKILL.md");
+        const contents = readFileSync(skillPath, "utf8");
+
+        expect(contents).toContain(
+          "Canonical payload: `.make-docs/agentics/skills/archive-docs/SKILL.md`",
+        );
+        expect(contents).toContain("Purpose summary: Archive management");
+        expect(
+          existsSync(
+            path.join(targetDir, harnessRoot, "skills/archive-docs/references/archive-workflow.md"),
+          ),
+        ).toBe(false);
+      }
+
+      {
+        const skillPath = path.join(
+          targetDir,
+          ".make-docs/agentics/skills/archive-docs/SKILL.md",
+        );
         const contents = readFileSync(skillPath, "utf8");
 
         for (const relativeLink of [
@@ -937,11 +978,12 @@ describe("installer integration", () => {
           expect(contents).toContain(`(${relativeLink})`);
           expect(existsSync(path.join(path.dirname(skillPath), relativeLink))).toBe(true);
         }
+      }
 
+      {
         const closeoutSkillPath = path.join(
           targetDir,
-          harnessRoot,
-          "skills/closeout-phase/SKILL.md",
+          ".make-docs/agentics/skills/closeout-phase/SKILL.md",
         );
         const closeoutContents = readFileSync(closeoutSkillPath, "utf8");
 
@@ -968,11 +1010,12 @@ describe("installer integration", () => {
         expect(existsSync(path.join(path.dirname(closeoutSkillPath), "./agents/openai.yaml"))).toBe(
           true,
         );
+      }
 
+      {
         const closeoutCommitSkillPath = path.join(
           targetDir,
-          harnessRoot,
-          "skills/closeout-commit/SKILL.md",
+          ".make-docs/agentics/skills/closeout-commit/SKILL.md",
         );
         const closeoutCommitContents = readFileSync(closeoutCommitSkillPath, "utf8");
 
@@ -999,11 +1042,12 @@ describe("installer integration", () => {
         expect(
           existsSync(path.join(path.dirname(closeoutCommitSkillPath), "./agents/openai.yaml")),
         ).toBe(true);
+      }
 
+      {
         const workOnWaveSkillPath = path.join(
           targetDir,
-          harnessRoot,
-          "skills/work-on-wave/SKILL.md",
+          ".make-docs/agentics/skills/work-on-wave/SKILL.md",
         );
         const workOnWaveContents = readFileSync(workOnWaveSkillPath, "utf8");
 
@@ -1037,11 +1081,12 @@ describe("installer integration", () => {
         expect(
           existsSync(path.join(path.dirname(workOnWaveSkillPath), "./agents/openai.yaml")),
         ).toBe(true);
+      }
 
+      {
         const workOnPhaseSkillPath = path.join(
           targetDir,
-          harnessRoot,
-          "skills/work-on-phase/SKILL.md",
+          ".make-docs/agentics/skills/work-on-phase/SKILL.md",
         );
         const workOnPhaseContents = readFileSync(workOnPhaseSkillPath, "utf8");
 

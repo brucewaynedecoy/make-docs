@@ -71,14 +71,15 @@ Purpose metadata drives selection presentation, but it does not make a skill req
 
 ## Harness targets
 
-Skill installation is harness-aware. The current install roots are:
+Skill installation is harness-aware, but authoritative skill payloads are not duplicated into each harness root. The current selected-skill install roots are:
 
-| Harness | Install root |
-| --- | --- |
-| Claude Code | `.claude/skills` |
-| Codex | `.agents/skills` |
+| Surface | Project-scope root | Global-scope root |
+| --- | --- | --- |
+| Canonical shared payload | `.make-docs/agentics/skills/<skill-name>/` | `$HOME/.make-docs/agentics/skills/<skill-name>/` |
+| Claude Code generated stub | `.claude/skills/<skill-name>/SKILL.md` | `$HOME/.claude/skills/<skill-name>/SKILL.md` |
+| Codex generated stub | `.agents/skills/<skill-name>/SKILL.md` | `$HOME/.agents/skills/<skill-name>/SKILL.md` |
 
-The catalog builder resolves skill assets per harness, so a single registry entry can produce the correct installed layout for either or both harnesses.
+The catalog builder resolves each selected skill payload once per scope, then generates a text entrypoint stub for each selected and supported harness. The stub names the canonical payload path, source/provenance, purpose summary, and deterministic operation guidance. Symlinks are not required.
 
 Maintainers should treat harness layout as a catalog concern, not as ad hoc guide logic.
 
@@ -95,8 +96,8 @@ The CLI resolves the base install root from `skillScope` and then applies the ha
 
 Implications:
 
-- project scope keeps skills versioned with the repo
-- global scope keeps skills available across repositories
+- project scope keeps shared skill payloads and harness stubs versioned with the repo
+- global scope keeps shared skill payloads and harness stubs available across repositories
 - scope affects only skill-managed assets, not the rest of the docs template
 
 ## Skills-only planning and apply behavior
@@ -107,7 +108,7 @@ From the implementation side, the skills command:
 
 - loads the current manifest
 - resolves the next `InstallSelections` state for skills only
-- plans asset additions, updates, and removals for skills and skill assets
+- plans additions, updates, and removals for shared skill payloads and generated harness stubs
 - applies those changes without requiring a full docs-capability reconfigure
 
 This is why the user and developer guides stay distinct:
@@ -121,12 +122,12 @@ This is why the user and developer guides stay distinct:
 
 It ships with:
 
-- `SKILL.md` as the entrypoint
+- `SKILL.md` as the canonical shared payload entrypoint
 - harness metadata under `agents/`
 - shared references
 - helper scripts used by the skill workflow
 
-Changes to `archive-docs` have packaging impact when the skill is selected explicitly or through `all`. They must not make bare default installs write skill files.
+Changes to `archive-docs` have packaging impact when the skill is selected explicitly or through `all`. They must not make bare default installs write shared payloads or harness stubs.
 
 ## `decompose-codebase` as a first-party selectable skill
 
@@ -153,7 +154,7 @@ When updating the skills model:
 - keep purpose ids stable once shipped; add new purpose ids only when the existing purpose vocabulary cannot accurately describe the skill
 - require supported harness and provenance metadata for every skill
 - keep bundled skill references aligned with live repo contracts without treating them as the primary source for make-docs-owned backlog shape
-- verify both harness roots when adding assets
+- verify the shared payload root and both generated harness stubs when adding assets
 - verify project and global scope behavior when changing install paths
 - verify alternate local manifest behavior when changing registry validation or selection planning
 - keep user-facing skill lifecycle guidance in `docs/assets/library/user/skills-*.md`, not in CLI lifecycle guides
@@ -166,7 +167,7 @@ Check the registry first. The catalog, not the presence of a directory alone, de
 
 ### A skill change worked for one harness but not the other
 
-Review the per-harness install paths and asset mapping produced by the skill catalog builder.
+Review the shared payload path, generated harness stubs, and asset mapping produced by the skill catalog builder.
 
 ### A user needs to manage only skills, not the full install
 

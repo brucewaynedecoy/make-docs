@@ -79,26 +79,27 @@ const EXPECTED_SYSTEM_RESOURCE_PATHS = [
 ];
 
 const EXPECTED_SKILL_PATHS = [
+  ".make-docs/agentics/skills/archive-docs/SKILL.md",
+  ".make-docs/agentics/skills/archive-docs/agents/openai.yaml",
+  ".make-docs/agentics/skills/archive-docs/references/archive-workflow.md",
+  ".make-docs/agentics/skills/archive-docs/scripts/trace_relationships.py",
+  ".make-docs/agentics/skills/closeout-commit/SKILL.md",
+  ".make-docs/agentics/skills/closeout-commit/agents/openai.yaml",
+  ".make-docs/agentics/skills/closeout-commit/references/closeout-commit-workflow.md",
+  ".make-docs/agentics/skills/decompose-codebase/SKILL.md",
+  ".make-docs/agentics/skills/decompose-codebase/references/mcp-playbook.md",
+  ".make-docs/agentics/skills/decompose-codebase/assets/templates/decomposition-plan.md",
+  ".make-docs/agentics/skills/work-on-phase/SKILL.md",
+  ".make-docs/agentics/skills/work-on-phase/agents/openai.yaml",
+  ".make-docs/agentics/skills/work-on-phase/references/phase-implementation-workflow.md",
   ".claude/skills/archive-docs/SKILL.md",
-  ".claude/skills/archive-docs/agents/openai.yaml",
-  ".claude/skills/archive-docs/references/archive-workflow.md",
-  ".claude/skills/archive-docs/scripts/trace_relationships.py",
   ".claude/skills/closeout-commit/SKILL.md",
-  ".claude/skills/closeout-commit/agents/openai.yaml",
-  ".claude/skills/closeout-commit/references/closeout-commit-workflow.md",
+  ".claude/skills/decompose-codebase/SKILL.md",
   ".claude/skills/work-on-phase/SKILL.md",
-  ".claude/skills/work-on-phase/agents/openai.yaml",
-  ".claude/skills/work-on-phase/references/phase-implementation-workflow.md",
   ".agents/skills/archive-docs/SKILL.md",
-  ".agents/skills/archive-docs/agents/openai.yaml",
-  ".agents/skills/archive-docs/references/archive-workflow.md",
-  ".agents/skills/archive-docs/scripts/trace_relationships.py",
   ".agents/skills/closeout-commit/SKILL.md",
-  ".agents/skills/closeout-commit/agents/openai.yaml",
-  ".agents/skills/closeout-commit/references/closeout-commit-workflow.md",
+  ".agents/skills/decompose-codebase/SKILL.md",
   ".agents/skills/work-on-phase/SKILL.md",
-  ".agents/skills/work-on-phase/agents/openai.yaml",
-  ".agents/skills/work-on-phase/references/phase-implementation-workflow.md",
 ];
 
 const EXPECTED_RETIRED_SKILL_PATHS = [
@@ -112,6 +113,23 @@ const EXPECTED_RETIRED_SKILL_PATHS = [
   ".agents/skills/closeout-commit/scripts/closeout_history.py",
   ".agents/skills/work-on-phase/scripts/phase_gate.py",
   ".agents/skills/work-on-phase/scripts/scope_guard.py",
+];
+
+const EXPECTED_DUPLICATED_SKILL_PAYLOAD_PATHS = [
+  ".claude/skills/archive-docs/agents/openai.yaml",
+  ".claude/skills/archive-docs/references/archive-workflow.md",
+  ".claude/skills/archive-docs/scripts/trace_relationships.py",
+  ".claude/skills/closeout-commit/agents/openai.yaml",
+  ".claude/skills/closeout-commit/references/closeout-commit-workflow.md",
+  ".claude/skills/work-on-phase/agents/openai.yaml",
+  ".claude/skills/work-on-phase/references/phase-implementation-workflow.md",
+  ".agents/skills/archive-docs/agents/openai.yaml",
+  ".agents/skills/archive-docs/references/archive-workflow.md",
+  ".agents/skills/archive-docs/scripts/trace_relationships.py",
+  ".agents/skills/closeout-commit/agents/openai.yaml",
+  ".agents/skills/closeout-commit/references/closeout-commit-workflow.md",
+  ".agents/skills/work-on-phase/agents/openai.yaml",
+  ".agents/skills/work-on-phase/references/phase-implementation-workflow.md",
 ];
 
 const EXPECTED_ALL_SKILLS = [
@@ -366,6 +384,10 @@ try {
       path.join(targetDir, ".agents/skills"),
       "Smoke pack bare install should not produce Codex skill files.",
     );
+    assertMissing(
+      path.join(targetDir, ".make-docs/agentics/skills"),
+      "Smoke pack bare install should not produce shared skill payloads.",
+    );
 
     execFileSync(
       "node",
@@ -386,6 +408,8 @@ try {
 
   assertManifestContainsSkillFiles(manifestPath, EXPECTED_SKILL_PATHS);
   assertManifestOmitsSkillFiles(manifestPath, EXPECTED_RETIRED_SKILL_PATHS);
+  assertManifestOmitsSkillFiles(manifestPath, EXPECTED_DUPLICATED_SKILL_PAYLOAD_PATHS);
+  assertDirectoryEntries(path.join(targetDir, ".make-docs/agentics/skills"), EXPECTED_ALL_SKILLS);
   assertDirectoryEntries(path.join(targetDir, ".claude/skills"), EXPECTED_ALL_SKILLS);
   assertDirectoryEntries(path.join(targetDir, ".agents/skills"), EXPECTED_ALL_SKILLS);
   assertMissing(
@@ -403,6 +427,12 @@ try {
     assertMissing(
       path.join(targetDir, relativePath),
       `Smoke pack install should not produce retired helper script ${relativePath}.`,
+    );
+  }
+  for (const relativePath of EXPECTED_DUPLICATED_SKILL_PAYLOAD_PATHS) {
+    assertMissing(
+      path.join(targetDir, relativePath),
+      `Smoke pack install should not duplicate shared skill payload ${relativePath}.`,
     );
   }
 
@@ -429,14 +459,22 @@ try {
     path.join(targetDir, ".agents/skills/archive-docs/SKILL.md"),
     "Smoke pack skills removal dry run removed Codex skill files.",
   );
+  assertExists(
+    path.join(targetDir, ".make-docs/agentics/skills/archive-docs/SKILL.md"),
+    "Smoke pack skills removal dry run removed shared skill payloads.",
+  );
 
   assertExists(
     path.join(targetDir, ".claude/skills/decompose-codebase/SKILL.md"),
-    "Smoke pack install did not install the default Claude Code decompose-codebase skill.",
+    "Smoke pack install did not install the Claude Code decompose-codebase skill stub.",
   );
   assertExists(
     path.join(targetDir, ".agents/skills/decompose-codebase/SKILL.md"),
-    "Smoke pack install did not install the default Codex decompose-codebase skill.",
+    "Smoke pack install did not install the Codex decompose-codebase skill stub.",
+  );
+  assertExists(
+    path.join(targetDir, ".make-docs/agentics/skills/decompose-codebase/SKILL.md"),
+    "Smoke pack install did not install the shared decompose-codebase skill payload.",
   );
   assertMissing(
     path.join(targetDir, ".claude/skill-assets"),

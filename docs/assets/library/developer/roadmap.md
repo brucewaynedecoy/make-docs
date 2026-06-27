@@ -35,10 +35,10 @@ The governing principle is unchanged: **ship the smallest real abstraction that 
 ### What is shipped now
 
 - A publishable CLI installs docs scaffolding plus harness-aware skills.
-- Skills are distributed through a remote registry, not bundled into the CLI package.
-- Skills install as full directories under `.claude/skills/<name>/` and `.agents/skills/<name>/`.
-- `archive-docs` is a required skill.
-- `decompose-codebase` is an optional skill.
+- Skills are selected explicitly through the packaged registry and resolved payload sources.
+- Selected skills install one canonical shared payload under `.make-docs/agentics/skills/<name>/`.
+- Enabled harnesses receive generated `SKILL.md` stubs under `.claude/skills/<name>/` and `.agents/skills/<name>/`.
+- Bare default installs write no selected skill payloads or harness stubs.
 
 ### What that means strategically
 
@@ -57,15 +57,16 @@ That is enough to keep moving. It does **not** yet justify a more complex plugin
 Use a skill when:
 
 - the capability can be expressed as one root `SKILL.md`
-- sibling references, scripts, and agent files can travel with that skill directory
-- the same logical workflow should install into Claude Code and Codex with minimal harness-specific behavior
+- sibling references, scripts, and agent files can travel with the canonical shared payload
+- the same logical workflow should expose generated entrypoint stubs to Claude Code and Codex with minimal harness-specific behavior
 
-That is the current state of both shipped skills:
+That is the current state of first-party selectable skills:
 
 | Skill | Role | Status |
 | --- | --- | --- |
-| `archive-docs` | Relationship-aware archival, deprecation, staleness checking, and impact analysis | Required, shipped |
-| `decompose-codebase` | Reverse-engineering and PRD/backlog decomposition | Optional, shipped |
+| `archive-docs` | Relationship-aware archival, deprecation, staleness checking, and impact analysis | Selectable, shipped |
+| `decompose-codebase` | Reverse-engineering and PRD/backlog decomposition | Selectable, shipped |
+| `cleanup-docs`, `closeout-*`, `work-on-*` | Documentation hygiene, closeout, and work execution helpers | Selectable, shipped |
 
 ### Agentics remains a future expansion layer
 
@@ -85,17 +86,18 @@ Those should be introduced when there is a concrete need to install and manage t
 
 ### Current rule: one skill source, multiple harness targets
 
-Canonical skill content lives once under `packages/skills/<name>/`. The CLI installs that same logical skill into the selected harness roots:
+Canonical skill content lives once under `packages/skills/<name>/`. The CLI installs the selected payload once into `.make-docs/agentics/skills/<name>/` per scope and then exposes generated entrypoint stubs to the selected harness roots:
 
-| Harness | Skill root | Instruction router |
-| --- | --- | --- |
-| Claude Code | `.claude/skills/<name>/` | `CLAUDE.md` |
-| Codex | `.agents/skills/<name>/` | `AGENTS.md` |
+| Surface | Path |
+| --- | --- |
+| Canonical payload | `.make-docs/agentics/skills/<name>/` |
+| Claude Code stub | `.claude/skills/<name>/SKILL.md` |
+| Codex stub | `.agents/skills/<name>/SKILL.md` |
 
 This is the right level of abstraction today:
 
 - shared content stays shared
-- harness differences stay in the installer and router logic
+- harness differences stay in generated stubs and router logic
 - skills remain easy to author and reason about
 
 ### Why `archive-docs` became one skill

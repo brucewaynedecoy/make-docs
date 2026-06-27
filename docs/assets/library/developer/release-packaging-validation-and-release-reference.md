@@ -68,7 +68,7 @@ A release-sensitive run should normally include all four.
 - the packed tarball can run through `npx --package`, `pnpm dlx`, and `bun x --package` without a persistent local CLI install
 - each package runner uses an isolated temp target, working directory, `HOME`, and package-manager cache roots
 - packaged installation creates `docs/AGENTS.md` and `.make-docs/manifest.json`
-- default shipped skills are installed and legacy skill artifacts are absent
+- bare installs write no skill payloads or stubs, selected skills install one shared payload plus generated harness stubs, and legacy or duplicated skill artifacts are absent
 - backup and uninstall preserve unmanaged files while removing managed runtime state
 
 That makes smoke-pack the bridge between local development, bundled template correctness, and release confidence.

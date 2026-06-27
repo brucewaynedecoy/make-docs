@@ -47,6 +47,8 @@ The first-party catalog currently exposes these selectable skills:
 
 Skills are installed only when skills are enabled and the skill is in the selected set. The CLI selection UI groups candidates by purpose and shows the candidate skill name, source policy, supported harnesses, and provenance.
 
+When a skill is selected, Make Docs installs the canonical skill payload once under `.make-docs/agentics/skills/<skill-name>/` for project scope or under `$HOME/.make-docs/agentics/skills/<skill-name>/` for global scope. Enabled harnesses receive generated `SKILL.md` stubs under `.claude/skills/<skill-name>/` and `.agents/skills/<skill-name>/`; those stubs point back to the canonical payload instead of duplicating the full skill directory.
+
 ## Install or sync skills
 
 Use the dedicated skills command when you want to manage skills without changing the rest of the install:
@@ -118,8 +120,8 @@ Skills can be installed in either project scope or global scope.
 
 | Scope | Result |
 | --- | --- |
-| `project` | Skill files are installed under the current target project. |
-| `global` | Skill files are installed under your home directory for the selected harnesses. |
+| `project` | The shared payload and generated harness stubs are installed under the current target project. |
+| `global` | The shared payload and generated harness stubs are installed under your home directory. |
 
 Set scope explicitly with:
 
@@ -170,7 +172,7 @@ Use it when you need an agent to:
 - mark docs as deprecated in place
 - produce a dry-run archive impact report
 
-Select it when you want Make Docs to install that skill for the enabled harnesses.
+Select it when you want Make Docs to install the canonical skill payload and generated stubs for the enabled harnesses.
 
 ## When to use `decompose-codebase`
 
@@ -192,7 +194,7 @@ Skills are installed only when explicitly selected.
 
 ### I switched to global scope and cannot find the skill in the project
 
-That is expected. Global scope installs skill files in your home directory instead of the target repo.
+That is expected. Global scope installs the shared payload and generated harness stubs in your home directory instead of the target repo.
 
 ### I want to remove skills but keep the rest of the install
 

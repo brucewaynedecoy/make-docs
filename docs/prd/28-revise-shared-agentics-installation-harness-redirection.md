@@ -18,6 +18,8 @@ Coordinate: `W17 R2`
 
 This PRD defines the v2 shared installed-state model for selected skills and reserves the same primitive for future plugins. It does not implement plugin runtime behavior, Run Playbook behavior, symlink mode, or MCP writes.
 
+W17 R2 Phase 2 implements the selected-skill shared payload and generated harness-stub path shape for the current TypeScript CLI. Structured agentic ownership records, migrated duplicated-payload disposition, richer dry-run labeling, and full audit/backup/uninstall classification remain owned by later W17 R2 phases.
+
 ## Requirements
 
 ### Shared Agentics Store

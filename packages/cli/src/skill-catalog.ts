@@ -22,6 +22,8 @@ const HARNESS_SKILL_DIRS: Record<Harness, string> = {
   codex: ".agents/skills",
 };
 
+const SHARED_AGENTICS_SKILL_DIR = ".make-docs/agentics/skills";
+
 const RETIRED_MANAGED_SKILL_ASSETS: Record<string, string[]> = {
   "closeout-commit": [
     "scripts/closeout_probe.py",
@@ -83,21 +85,31 @@ export async function getDesiredSkillAssets(
   }
 
   const installRoot = selections.skillScope === "project" ? "." : os.homedir();
-  const desiredAssets = (
+  const purposeLabelsById = new Map(
+    registry.purposes.map((purpose) => [purpose.id, purpose.label]),
+  );
+  const sharedAssets = (
     await Promise.all(
-      HARNESSES.flatMap((harness) => {
-        if (!selections.harnesses[harness]) {
-          return [];
-        }
-
-        return selectedEntries.map((entry) =>
-          entry.supportedHarnesses.includes(harness)
-            ? buildSkillAssets(entry, harness, installRoot)
-            : [],
-        );
-      }),
+      selectedEntries.map((entry) => buildSharedSkillAssets(entry, installRoot)),
     )
-  ).flat(2);
+  ).flat();
+  const harnessStubs = HARNESSES.flatMap((harness) => {
+    if (!selections.harnesses[harness]) {
+      return [];
+    }
+
+    return selectedEntries
+      .filter((entry) => entry.supportedHarnesses.includes(harness))
+      .map((entry) =>
+        buildHarnessSkillStubAsset(
+          entry,
+          harness,
+          installRoot,
+          purposeLabelsById,
+        ),
+      );
+  });
+  const desiredAssets = [...sharedAssets, ...harnessStubs];
 
   return desiredAssets.sort((left, right) =>
     left.relativePath.localeCompare(right.relativePath),
@@ -266,9 +278,8 @@ function createSkillSelectionProvenance(
     .sort((left, right) => left.skillName.localeCompare(right.skillName));
 }
 
-async function buildSkillAssets(
+async function buildSharedSkillAssets(
   entry: SkillRegistryEntry,
-  harness: Harness,
   installRoot: string,
 ): Promise<ResolvedAsset[]> {
   const resolvedSkill = await resolveSkillSource(
@@ -278,7 +289,7 @@ async function buildSkillAssets(
   );
   const skillInstallRoot = getInstallPath(
     installRoot,
-    HARNESS_SKILL_DIRS[harness],
+    SHARED_AGENTICS_SKILL_DIR,
     entry.installName,
   );
 
@@ -286,7 +297,7 @@ async function buildSkillAssets(
     {
       relativePath: getInstallPath(skillInstallRoot, entry.entryPoint),
       assetClass: "static",
-      sourceId: getSkillSourceId(entry, harness),
+      sourceId: getSharedSkillSourceId(entry),
       content: resolvedSkill.entryPointContent,
     },
   ];
@@ -295,7 +306,7 @@ async function buildSkillAssets(
     desiredAssets.push({
       relativePath: getInstallPath(skillInstallRoot, asset.installPath),
       assetClass: "static",
-      sourceId: getSkillAssetSourceId(harness, entry.name, asset.installPath),
+      sourceId: getSharedSkillAssetSourceId(entry.name, asset.installPath),
       content:
         typeof asset.content === "string"
           ? asset.content
@@ -304,6 +315,61 @@ async function buildSkillAssets(
   });
 
   return desiredAssets;
+}
+
+function buildHarnessSkillStubAsset(
+  entry: SkillRegistryEntry,
+  harness: Harness,
+  installRoot: string,
+  purposeLabelsById: ReadonlyMap<string, string>,
+): ResolvedAsset {
+  const stubInstallRoot = getInstallPath(
+    installRoot,
+    HARNESS_SKILL_DIRS[harness],
+    entry.installName,
+  );
+  const canonicalEntryPointPath = getInstallPath(
+    installRoot,
+    SHARED_AGENTICS_SKILL_DIR,
+    entry.installName,
+    entry.entryPoint,
+  );
+  const purposeSummary = entry.purposes
+    .map((purposeId) => purposeLabelsById.get(purposeId) ?? purposeId)
+    .join(", ");
+  const provenanceDetails = [
+    entry.provenance.label,
+    `kind: ${entry.provenance.kind}`,
+    entry.provenance.repository ? `repository: ${entry.provenance.repository}` : "",
+    entry.provenance.ref ? `ref: ${entry.provenance.ref}` : "",
+    entry.provenance.digest ? `digest: ${entry.provenance.digest}` : "",
+  ].filter(Boolean);
+
+  return {
+    relativePath: getInstallPath(stubInstallRoot, entry.entryPoint),
+    assetClass: "static",
+    sourceId: getSkillStubSourceId(entry, harness),
+    content: [
+      "---",
+      `name: ${entry.installName}`,
+      `description: Generated ${getHarnessLabel(harness)} entrypoint for the shared ${entry.displayName} make-docs skill payload.`,
+      "---",
+      "",
+      `# ${entry.displayName}`,
+      "",
+      "This file is a generated make-docs harness stub. It may be replaced by future `make-docs` skill syncs.",
+      "",
+      `Canonical payload: \`${canonicalEntryPointPath}\``,
+      `Skill source: \`${entry.source}\``,
+      `Purpose summary: ${purposeSummary || "unspecified"}`,
+      `Provenance: ${provenanceDetails.join("; ")}`,
+      "",
+      "Read and follow the canonical payload before executing this skill. Treat that payload and its sibling `references/`, `scripts/`, `assets/`, and `agents/` directories as the skill source of truth.",
+      "",
+      "Deterministic make-docs behavior belongs in the TypeScript CLI/shared-core operation domains. Invoke packaged behavior through `make-docs operations` or the Make Docs MCP surface when available; do not copy deterministic logic into this stub.",
+      "",
+    ].join("\n"),
+  };
 }
 
 async function buildRetiredManagedSkillAssets(
@@ -341,16 +407,22 @@ function getInstallPath(...segments: string[]): string {
   return path.join(...segments);
 }
 
-function getSkillSourceId(entry: SkillRegistryEntry, harness: Harness): string {
-  return `skill:${harness}:${entry.name}`;
+function getSharedSkillSourceId(entry: SkillRegistryEntry): string {
+  return `skill:shared:${entry.name}`;
 }
 
-function getSkillAssetSourceId(
-  harness: Harness,
+function getSharedSkillAssetSourceId(
   skillName: string,
   installPath: string,
 ): string {
-  return `skill-asset:${harness}:${skillName}:${installPath}`;
+  return `skill-shared-asset:${skillName}:${installPath}`;
+}
+
+function getSkillStubSourceId(
+  entry: SkillRegistryEntry,
+  harness: Harness,
+): string {
+  return `skill-stub:${harness}:${entry.name}`;
 }
 
 function getRetiredSkillAssetSourceId(
@@ -359,4 +431,8 @@ function getRetiredSkillAssetSourceId(
   installPath: string,
 ): string {
   return `retired-skill-asset:${harness}:${skillName}:${installPath}`;
+}
+
+function getHarnessLabel(harness: Harness): string {
+  return harness === "claude-code" ? "Claude Code" : "Codex";
 }

@@ -77,7 +77,7 @@ The default profile installs:
 - prompt starters
 - all valid templates
 - all valid references
-- skills in project scope, with only the default selected skill set unless you explicitly replace it
+- no selected skill payloads or harness stubs unless you explicitly select skills
 
 That gives you a full starter docs system plus the saved manifest needed for later sync and reconfigure runs.
 
