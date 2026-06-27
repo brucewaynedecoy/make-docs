@@ -11,7 +11,6 @@ import { createAuditReport } from "./audit";
 import { getLifecycleRenderer } from "./lifecycle-ui";
 import { loadManifest } from "./manifest";
 import type {
-  AuditPrunableDirectory,
   AuditReport,
   AuditRemovableFile,
   BackupCommandOptions,
@@ -26,7 +25,7 @@ type CopyableAuditRemovableFile = AuditRemovableFile & {
   backupRelativePath: string;
 };
 
-type MaterializableAuditPrunableDirectory = AuditPrunableDirectory & {
+type MaterializableAuditDirectory = {
   backupRelativePath: string;
 };
 
@@ -43,7 +42,7 @@ export type PreparedBackupExecution = {
   auditReport: AuditReport;
   destinationPlan: BackupDestinationPlan | null;
   copyableFiles: CopyableAuditRemovableFile[];
-  materializableDirectories: MaterializableAuditPrunableDirectory[];
+  materializableDirectories: MaterializableAuditDirectory[];
 };
 
 export async function runBackupCommand(
@@ -100,8 +99,13 @@ export async function prepareBackupExecution(
   const materializableDirectories = auditReport.prunableDirectories.filter(
     hasBackupRelativePath,
   );
+  const materializableManagedDirectories = auditReport.removableFiles
+    .filter((entry) => entry.kind === "directory")
+    .filter(hasBackupRelativePath);
   const hasCopyableEntries =
-    copyableFiles.length > 0 || materializableDirectories.length > 0;
+    copyableFiles.length > 0 ||
+    materializableDirectories.length > 0 ||
+    materializableManagedDirectories.length > 0;
   const hasProvidedDestinationPlan = Object.hasOwn(options, "destinationPlan");
   const destinationPlan = hasCopyableEntries
     ? hasProvidedDestinationPlan
@@ -119,8 +123,11 @@ export async function prepareBackupExecution(
     targetDir,
     auditReport,
     destinationPlan,
-    copyableFiles,
-    materializableDirectories,
+    copyableFiles: copyableFiles.filter((entry) => entry.kind === "file"),
+    materializableDirectories: [
+      ...materializableDirectories,
+      ...materializableManagedDirectories,
+    ],
   };
 }
 
@@ -273,7 +280,7 @@ function copyAuditedFiles(
 }
 
 function materializePrunableDirectories(
-  prunableDirectories: AuditPrunableDirectory[],
+  prunableDirectories: MaterializableAuditDirectory[],
   destinationDir: string,
 ): string[] {
   const materializedDirectories = new Set<string>();

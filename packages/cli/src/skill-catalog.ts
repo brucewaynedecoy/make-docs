@@ -12,6 +12,8 @@ import {
   type Harness,
   type InstallSelections,
   type ResolvedAsset,
+  type ResolvedInstallAsset,
+  type ResolvedSkillExposureAsset,
   type SkillManifestSelectionSource,
   type SkillSelectionProvenanceEntry,
 } from "./types";
@@ -70,7 +72,7 @@ export interface WizardSkillChoice {
 export async function getDesiredSkillAssets(
   selections: InstallSelections,
   registry = loadSkillRegistry(PACKAGE_ROOT),
-): Promise<ResolvedAsset[]> {
+): Promise<ResolvedInstallAsset[]> {
   if (!selections.skills) {
     return [];
   }
@@ -85,31 +87,32 @@ export async function getDesiredSkillAssets(
   }
 
   const installRoot = selections.skillScope === "project" ? "." : os.homedir();
-  const purposeLabelsById = new Map(
-    registry.purposes.map((purpose) => [purpose.id, purpose.label]),
-  );
-  const sharedAssets = (
+  const desiredAssets = (
     await Promise.all(
-      selectedEntries.map((entry) => buildSharedSkillAssets(entry, installRoot)),
+      selectedEntries.map(async (entry) => {
+        const sharedAssets = await buildSharedSkillAssets(entry, installRoot);
+        const exposureAssets = HARNESSES.flatMap((harness) => {
+          if (
+            !selections.harnesses[harness] ||
+            !entry.supportedHarnesses.includes(harness)
+          ) {
+            return [];
+          }
+
+          return [
+            buildHarnessSkillExposureAsset(
+              entry,
+              harness,
+              installRoot,
+              sharedAssets,
+            ),
+          ];
+        });
+
+        return [...sharedAssets, ...exposureAssets];
+      }),
     )
   ).flat();
-  const harnessStubs = HARNESSES.flatMap((harness) => {
-    if (!selections.harnesses[harness]) {
-      return [];
-    }
-
-    return selectedEntries
-      .filter((entry) => entry.supportedHarnesses.includes(harness))
-      .map((entry) =>
-        buildHarnessSkillStubAsset(
-          entry,
-          harness,
-          installRoot,
-          purposeLabelsById,
-        ),
-      );
-  });
-  const desiredAssets = [...sharedAssets, ...harnessStubs];
 
   return desiredAssets.sort((left, right) =>
     left.relativePath.localeCompare(right.relativePath),
@@ -327,58 +330,53 @@ async function buildSharedSkillAssets(
   return desiredAssets;
 }
 
-function buildHarnessSkillStubAsset(
+function buildHarnessSkillExposureAsset(
   entry: SkillRegistryEntry,
   harness: Harness,
   installRoot: string,
-  purposeLabelsById: ReadonlyMap<string, string>,
-): ResolvedAsset {
-  const stubInstallRoot = getInstallPath(
+  sharedAssets: ResolvedAsset[],
+): ResolvedSkillExposureAsset {
+  const exposureRoot = getInstallPath(
     installRoot,
     HARNESS_SKILL_DIRS[harness],
     entry.installName,
   );
-  const canonicalEntryPointPath = getInstallPath(
+  const canonicalPayloadPath = getInstallPath(
     installRoot,
     SHARED_AGENTICS_SKILL_DIR,
     entry.installName,
-    entry.entryPoint,
   );
-  const purposeSummary = entry.purposes
-    .map((purposeId) => purposeLabelsById.get(purposeId) ?? purposeId)
-    .join(", ");
-  const provenanceDetails = [
-    entry.provenance.label,
-    `kind: ${entry.provenance.kind}`,
-    entry.provenance.repository ? `repository: ${entry.provenance.repository}` : "",
-    entry.provenance.ref ? `ref: ${entry.provenance.ref}` : "",
-    entry.provenance.digest ? `digest: ${entry.provenance.digest}` : "",
-  ].filter(Boolean);
+  const copyMirrorAssets = sharedAssets.map((asset) => {
+    const skillRelativePath = path.relative(canonicalPayloadPath, asset.relativePath);
+
+    return {
+      ...asset,
+      relativePath: getInstallPath(exposureRoot, skillRelativePath),
+      sourceId: getCopyMirrorSkillAssetSourceId(
+        harness,
+        entry.name,
+        skillRelativePath,
+      ),
+    };
+  });
 
   return {
-    relativePath: getInstallPath(stubInstallRoot, entry.entryPoint),
+    kind: "skill-exposure",
+    relativePath: exposureRoot,
     assetClass: "static",
-    sourceId: getSkillStubSourceId(entry, harness),
-    content: [
-      "---",
-      `name: ${entry.installName}`,
-      `description: Generated ${getHarnessLabel(harness)} entrypoint for the shared ${entry.displayName} make-docs skill payload.`,
-      "---",
-      "",
-      `# ${entry.displayName}`,
-      "",
-      "This file is a generated make-docs harness stub. It may be replaced by future `make-docs` skill syncs.",
-      "",
-      `Canonical payload: \`${canonicalEntryPointPath}\``,
-      `Skill source: \`${entry.source}\``,
-      `Purpose summary: ${purposeSummary || "unspecified"}`,
-      `Provenance: ${provenanceDetails.join("; ")}`,
-      "",
-      "Read and follow the canonical payload before executing this skill. Treat that payload and its sibling `references/`, `scripts/`, `assets/`, and `agents/` directories as the skill source of truth.",
-      "",
-      "Deterministic make-docs behavior belongs in the TypeScript CLI/shared-core operation domains. Invoke packaged behavior through `make-docs operations` or the Make Docs MCP surface when available; do not copy deterministic logic into this stub.",
-      "",
-    ].join("\n"),
+    sourceId: getSkillExposureSourceId(entry, harness),
+    copyMirrorAssets,
+    skillExposure: {
+      skillName: entry.name,
+      installName: entry.installName,
+      harness,
+      scope: installRoot === "." ? "project" : "global",
+      canonicalPayloadPath,
+      exposurePath: exposureRoot,
+      symlinkTarget: path.relative(path.dirname(exposureRoot), canonicalPayloadPath),
+      preferredMode: "symlink",
+      copyMirrorSource: canonicalPayloadPath,
+    },
   };
 }
 
@@ -472,11 +470,19 @@ function getSharedSkillAssetSourceId(
   return `skill-shared-asset:${skillName}:${installPath}`;
 }
 
-function getSkillStubSourceId(
+function getSkillExposureSourceId(
   entry: SkillRegistryEntry,
   harness: Harness,
 ): string {
-  return `skill-stub:${harness}:${entry.name}`;
+  return `skill-exposure:${harness}:${entry.name}`;
+}
+
+function getCopyMirrorSkillAssetSourceId(
+  harness: Harness,
+  skillName: string,
+  installPath: string,
+): string {
+  return `skill-copy-mirror-asset:${harness}:${skillName}:${installPath}`;
 }
 
 function getRetiredSkillAssetSourceId(
@@ -500,8 +506,4 @@ function getLegacyDuplicatedSkillAssetSourceId(
   installPath: string,
 ): string {
   return `skill-asset:${harness}:${skillName}:${installPath}`;
-}
-
-function getHarnessLabel(harness: Harness): string {
-  return harness === "claude-code" ? "Claude Code" : "Codex";
 }

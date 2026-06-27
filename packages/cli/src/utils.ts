@@ -122,6 +122,15 @@ export function removeFileIfPresent(filePath: string): boolean {
   return true;
 }
 
+export function removeManagedPathIfPresent(filePath: string): boolean {
+  if (!existsSync(filePath)) {
+    return false;
+  }
+
+  rmSync(filePath, { recursive: true, force: false });
+  return true;
+}
+
 export function pruneDirectoryIfEmpty(directoryPath: string): boolean {
   if (!existsSync(directoryPath)) {
     return false;

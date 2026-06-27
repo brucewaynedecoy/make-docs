@@ -29,6 +29,15 @@ function hasAsset(
   return assets.some((asset) => asset.relativePath === relativePath);
 }
 
+function findExposure(
+  assets: Awaited<ReturnType<typeof getDesiredSkillAssets>>,
+  relativePath: string,
+) {
+  return assets.find(
+    (asset) => asset.kind === "skill-exposure" && asset.relativePath === relativePath,
+  );
+}
+
 describe("skill catalog", () => {
   beforeEach(() => {
     mockSkillFetches();
@@ -74,7 +83,7 @@ describe("skill catalog", () => {
     });
   });
 
-  test("builds shared skill payloads with harness entrypoint stubs", async () => {
+  test("builds shared skill payloads with native harness exposures", async () => {
     const selections = defaultSelections();
     enableAllSkills(selections);
 
@@ -84,10 +93,10 @@ describe("skill catalog", () => {
         asset.relativePath === ".make-docs/agentics/skills/archive-docs/SKILL.md",
     );
     const archiveSkillForClaude = assets.find(
-      (asset) => asset.relativePath === ".claude/skills/archive-docs/SKILL.md",
+      (asset) => asset.relativePath === ".claude/skills/archive-docs",
     );
     const archiveSkillForCodex = assets.find(
-      (asset) => asset.relativePath === ".agents/skills/archive-docs/SKILL.md",
+      (asset) => asset.relativePath === ".agents/skills/archive-docs",
     );
 
     expect(archiveSharedPayload).toBeDefined();
@@ -112,8 +121,8 @@ describe("skill catalog", () => {
         ".make-docs/agentics/skills/archive-docs/agents/openai.yaml",
       ),
     ).toBe(true);
-    expect(hasAsset(assets, ".claude/skills/closeout-phase/SKILL.md")).toBe(true);
-    expect(hasAsset(assets, ".claude/skills/closeout-commit/SKILL.md")).toBe(true);
+    expect(hasAsset(assets, ".claude/skills/closeout-phase")).toBe(true);
+    expect(hasAsset(assets, ".claude/skills/closeout-commit")).toBe(true);
     expect(
       hasAsset(
         assets,
@@ -132,7 +141,7 @@ describe("skill catalog", () => {
         ".make-docs/agentics/skills/closeout-phase/references/closeout-workflow.md",
       ),
     ).toBe(true);
-    expect(hasAsset(assets, ".claude/skills/cleanup-docs/SKILL.md")).toBe(true);
+    expect(hasAsset(assets, ".claude/skills/cleanup-docs")).toBe(true);
     expect(
       hasAsset(
         assets,
@@ -145,7 +154,7 @@ describe("skill catalog", () => {
         ".make-docs/agentics/skills/closeout-phase/agents/openai.yaml",
       ),
     ).toBe(true);
-    expect(hasAsset(assets, ".claude/skills/work-on-wave/SKILL.md")).toBe(true);
+    expect(hasAsset(assets, ".claude/skills/work-on-wave")).toBe(true);
     expect(
       hasAsset(
         assets,
@@ -158,7 +167,7 @@ describe("skill catalog", () => {
         ".make-docs/agentics/skills/work-on-wave/agents/openai.yaml",
       ),
     ).toBe(true);
-    expect(hasAsset(assets, ".claude/skills/work-on-phase/SKILL.md")).toBe(true);
+    expect(hasAsset(assets, ".claude/skills/work-on-phase")).toBe(true);
     expect(
       hasAsset(
         assets,
@@ -209,19 +218,22 @@ describe("skill catalog", () => {
     expect(archiveSharedPayload?.content).toContain(
       "./scripts/trace_relationships.py",
     );
-    expect(archiveSkillForClaude?.content).toContain(
-      "Canonical payload: `.make-docs/agentics/skills/archive-docs/SKILL.md`",
+    expect(archiveSkillForClaude?.kind).toBe("skill-exposure");
+    expect(archiveSkillForClaude?.skillExposure).toMatchObject({
+      harness: "claude-code",
+      canonicalPayloadPath: ".make-docs/agentics/skills/archive-docs",
+      exposurePath: ".claude/skills/archive-docs",
+      symlinkTarget: "../../.make-docs/agentics/skills/archive-docs",
+      preferredMode: "symlink",
+    });
+    expect(archiveSkillForClaude?.copyMirrorAssets.map((asset) => asset.relativePath)).toContain(
+      ".claude/skills/archive-docs/SKILL.md",
     );
-    expect(archiveSkillForClaude?.content).toContain("Purpose summary: Archive management");
-    expect(archiveSkillForClaude?.content).toContain(
-      "Provenance: make-docs first-party skill; kind: first-party",
+    expect(archiveSkillForClaude?.copyMirrorAssets.find((asset) => asset.relativePath.endsWith("SKILL.md"))?.content).toContain(
+      "./references/archive-workflow.md",
     );
-    expect(archiveSkillForClaude?.content).toContain(
-      "Deterministic make-docs behavior belongs in the TypeScript CLI/shared-core operation domains.",
-    );
-    expect(archiveSkillForCodex?.content).toContain(
-      "Canonical payload: `.make-docs/agentics/skills/archive-docs/SKILL.md`",
-    );
+    expect(archiveSkillForCodex?.kind).toBe("skill-exposure");
+    expect(archiveSkillForCodex?.skillExposure.harness).toBe("codex");
   });
 
   test("uses the home directory for global scope and omits deselected harnesses", async () => {
@@ -252,8 +264,15 @@ describe("skill catalog", () => {
 
     for (const skillName of ALL_SKILL_NAMES) {
       expect(hasAsset(assets, `.make-docs/agentics/skills/${skillName}/SKILL.md`)).toBe(true);
-      expect(hasAsset(assets, `.claude/skills/${skillName}/SKILL.md`)).toBe(true);
-      expect(hasAsset(assets, `.agents/skills/${skillName}/SKILL.md`)).toBe(true);
+      expect(hasAsset(assets, `.claude/skills/${skillName}`)).toBe(true);
+      expect(hasAsset(assets, `.agents/skills/${skillName}`)).toBe(true);
+      expect(findExposure(assets, `.claude/skills/${skillName}`)?.copyMirrorAssets).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            relativePath: `.claude/skills/${skillName}/SKILL.md`,
+          }),
+        ]),
+      );
     }
   });
 
@@ -275,13 +294,13 @@ describe("skill catalog", () => {
     expect(
       archiveOnly.some(
         (asset) =>
-          asset.relativePath === ".claude/skills/closeout-phase/SKILL.md",
+          asset.relativePath === ".claude/skills/closeout-phase",
       ),
     ).toBe(false);
     expect(
       archiveOnly.some(
         (asset) =>
-          asset.relativePath === ".claude/skills/closeout-commit/SKILL.md",
+          asset.relativePath === ".claude/skills/closeout-commit",
       ),
     ).toBe(false);
 
@@ -291,7 +310,7 @@ describe("skill catalog", () => {
 
     const withCommit = await getDesiredSkillAssets(commitSelections);
     expect(
-      hasAsset(withCommit, ".claude/skills/closeout-commit/SKILL.md"),
+      hasAsset(withCommit, ".claude/skills/closeout-commit"),
     ).toBe(true);
     expect(
       hasAsset(
@@ -306,7 +325,7 @@ describe("skill catalog", () => {
 
     const withCloseout = await getDesiredSkillAssets(closeoutSelections);
     expect(
-      hasAsset(withCloseout, ".claude/skills/closeout-phase/SKILL.md"),
+      hasAsset(withCloseout, ".claude/skills/closeout-phase"),
     ).toBe(true);
     expect(
       hasAsset(
@@ -321,7 +340,7 @@ describe("skill catalog", () => {
 
     const withDecompose = await getDesiredSkillAssets(selections);
     expect(
-      hasAsset(withDecompose, ".claude/skills/decompose-codebase/SKILL.md"),
+      hasAsset(withDecompose, ".claude/skills/decompose-codebase"),
     ).toBe(true);
     expect(
       hasAsset(
@@ -332,13 +351,13 @@ describe("skill catalog", () => {
     expect(
       withDecompose.some(
         (asset) =>
-          asset.relativePath === ".claude/skills/closeout-phase/SKILL.md",
+          asset.relativePath === ".claude/skills/closeout-phase",
       ),
     ).toBe(false);
     expect(
       withDecompose.some(
         (asset) =>
-          asset.relativePath === ".claude/skills/closeout-commit/SKILL.md",
+          asset.relativePath === ".claude/skills/closeout-commit",
       ),
     ).toBe(false);
     expect(

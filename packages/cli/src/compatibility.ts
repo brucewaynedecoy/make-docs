@@ -331,6 +331,10 @@ function evaluateFilesystemTrust(
       continue;
     }
 
+    if (entry.skillExposure) {
+      continue;
+    }
+
     const content = readFileSync(absolutePath, "utf8");
     const currentHash = getManifestFileHash(relativePath, content);
     if (currentHash === null) {

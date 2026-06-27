@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, rmSync } from "node:fs";
+import { existsSync, mkdirSync, rmSync, symlinkSync } from "node:fs";
 import path from "node:path";
 import { CONFLICTS_RELATIVE_DIR, createManifest, writeManifest } from "./manifest";
 import {
@@ -211,6 +211,19 @@ function applyAction(options: {
     case "create":
     case "update":
     case "generate": {
+      if (action.skillExposure) {
+        if (!desiredEntry) {
+          throw new Error(`Missing desired manifest entry for ${action.relativePath}.`);
+        }
+
+        nextFiles[action.relativePath] = applySkillExposureAction({
+          targetDir,
+          action,
+          desiredEntry,
+        });
+        return;
+      }
+
       if (typeof action.content !== "string" || !desiredEntry) {
         throw new Error(`Missing content for ${action.type} action on ${action.relativePath}.`);
       }
@@ -230,7 +243,12 @@ function applyAction(options: {
     }
     case "noop": {
       if (desiredEntry) {
-        nextFiles[action.relativePath] = desiredEntry;
+        nextFiles[action.relativePath] = action.skillExposure
+          ? {
+              ...desiredEntry,
+              skillExposure: action.skillExposure,
+            }
+          : desiredEntry;
       }
       return;
     }
@@ -239,7 +257,7 @@ function applyAction(options: {
     }
     case "remove-managed": {
       if (existsSync(absolutePath)) {
-        rmSync(absolutePath, { force: true });
+        rmSync(absolutePath, { force: true, recursive: true });
         pruneEmptyDirectories(path.dirname(absolutePath), targetDir);
       }
       delete nextFiles[action.relativePath];
@@ -263,6 +281,66 @@ function applyAction(options: {
       const exhaustiveCheck: never = action.type;
       throw new Error(`Unhandled action type: ${exhaustiveCheck}`);
     }
+  }
+}
+
+function applySkillExposureAction(options: {
+  targetDir: string;
+  action: PlannedAction;
+  desiredEntry: NonNullable<InstallPlan["desiredFiles"][string]>;
+}): NonNullable<InstallPlan["desiredFiles"][string]> {
+  const { targetDir, action, desiredEntry } = options;
+  if (!action.skillExposure || !action.copyMirrorAssets) {
+    throw new Error(`Missing skill exposure metadata for ${action.relativePath}.`);
+  }
+
+  const absolutePath = relativePathToTarget(targetDir, action.relativePath);
+  if (existsSync(absolutePath)) {
+    rmSync(absolutePath, { recursive: true, force: true });
+  }
+  ensureParentDir(absolutePath);
+
+  if (process.env.MAKE_DOCS_DISABLE_SKILL_SYMLINKS !== "1") {
+    try {
+      symlinkSync(action.skillExposure.symlinkTarget, absolutePath, "dir");
+      return {
+        ...desiredEntry,
+        skillExposure: {
+          ...action.skillExposure,
+          mode: "symlink",
+        },
+      };
+    } catch (error) {
+      writeCopyMirror(action.copyMirrorAssets, targetDir);
+      return {
+        ...desiredEntry,
+        skillExposure: {
+          ...action.skillExposure,
+          mode: "copy-mirror",
+          fallbackReason: toErrorMessage(error),
+        },
+      };
+    }
+  }
+
+  writeCopyMirror(action.copyMirrorAssets, targetDir);
+  return {
+    ...desiredEntry,
+    skillExposure: {
+      ...action.skillExposure,
+      mode: "copy-mirror",
+      fallbackReason: "Symlink creation disabled by MAKE_DOCS_DISABLE_SKILL_SYMLINKS=1.",
+    },
+  };
+}
+
+function writeCopyMirror(assets: PlannedAction["copyMirrorAssets"], targetDir: string): void {
+  if (!assets) {
+    return;
+  }
+
+  for (const asset of assets) {
+    writeTextFile(relativePathToTarget(targetDir, asset.relativePath), asset.content);
   }
 }
 
@@ -296,4 +374,8 @@ function toConflictRelativePath(relativePath: string): string {
   }
 
   return path.join(...safeSegments);
+}
+
+function toErrorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
 }

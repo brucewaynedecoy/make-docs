@@ -1,4 +1,4 @@
-import { existsSync } from "node:fs";
+import { existsSync, lstatSync, readdirSync, readlinkSync, statSync } from "node:fs";
 import path from "node:path";
 import {
   getDesiredAssetsForMaterializationMode,
@@ -21,6 +21,8 @@ import type {
   PackageMeta,
   PlannedAction,
   ResolvedAsset,
+  ResolvedInstallAsset,
+  ResolvedSkillExposureAsset,
   SystemAssetMaterializationMode,
   SystemAssetManifestState,
 } from "./types";
@@ -64,13 +66,19 @@ export async function createInstallPlan(options: {
   const desiredSkillFiles = desiredSkillAssets.map((asset) => asset.relativePath);
   const desiredSkillFileSet = new Set(desiredSkillFiles);
   const previousSkillContent = await getPreviousSkillContentByPath(existingManifest);
-  const allDesiredAssets = [...desiredAssets, ...desiredSkillAssets];
+  const allDesiredAssets: ResolvedInstallAsset[] = [
+    ...desiredAssets,
+    ...desiredSkillAssets,
+  ];
   const baseDesiredFiles = Object.fromEntries(
     allDesiredAssets.map((asset) => [
       asset.relativePath,
       {
         hash: getManifestHashForAsset(asset),
         sourceId: asset.sourceId,
+        ...(isSkillExposureAsset(asset)
+          ? { skillExposure: asset.skillExposure }
+          : {}),
       },
     ]),
   );
@@ -87,6 +95,9 @@ export async function createInstallPlan(options: {
         {
           hash: getManifestHashForAsset(asset),
           sourceId: asset.sourceId,
+          ...(isSkillExposureAsset(asset)
+            ? { skillExposure: asset.skillExposure }
+            : {}),
         },
       ]),
     ),
@@ -237,6 +248,32 @@ export async function createInstallPlan(options: {
         continue;
       }
 
+      if (manifestEntry.skillExposure) {
+        const action = planStaleSkillFile({
+          targetDir,
+          relativePath,
+          existingManifest,
+          previousSkillContent,
+        });
+        if (action.type === "skip-conflict") {
+          conflictsRunId ??= createRunId();
+        }
+        actions.push(action);
+        continue;
+      }
+
+      if (!lstatSync(absolutePath).isFile()) {
+        conflictsRunId ??= createRunId();
+        actions.push({
+          type: "skip-conflict",
+          relativePath,
+          sourceId: manifestEntry.sourceId,
+          reason:
+            "Existing managed file path is no longer a regular file and will not be removed automatically.",
+        });
+        continue;
+      }
+
       const currentContent = readTextFile(absolutePath);
       const currentHash = getCurrentManifestHash(relativePath, currentContent);
       const legacyFullFileHash = hashText(currentContent);
@@ -296,7 +333,7 @@ export async function createInstallPlan(options: {
 
   const annotatedActions = actions
     .map(withAgenticRole)
-    .sort((left, right) => left.relativePath.localeCompare(right.relativePath));
+    .sort(comparePlannedActions);
 
   return {
     packageName: packageMeta.name,
@@ -327,8 +364,11 @@ export async function createSkillsOnlyInstallPlan(options: {
     desiredSkillAssets.map((asset) => [
       asset.relativePath,
       {
-        hash: hashText(asset.content),
+        hash: getManifestHashForAsset(asset),
         sourceId: asset.sourceId,
+        ...(isSkillExposureAsset(asset)
+          ? { skillExposure: asset.skillExposure }
+          : {}),
       },
     ]),
   );
@@ -374,7 +414,7 @@ export async function createSkillsOnlyInstallPlan(options: {
 
   const annotatedActions = actions
     .map(withAgenticRole)
-    .sort((left, right) => left.relativePath.localeCompare(right.relativePath));
+    .sort(comparePlannedActions);
 
   return {
     packageName: packageMeta.name,
@@ -389,6 +429,16 @@ export async function createSkillsOnlyInstallPlan(options: {
 }
 
 function withAgenticRole(action: PlannedAction): PlannedAction {
+  if (action.skillExposure) {
+    return {
+      ...action,
+      agenticRole:
+        action.skillExposure.mode === "copy-mirror"
+          ? "copy-mirror"
+          : "native-exposure",
+    };
+  }
+
   const agenticRole = classifyAgenticSkillFileRole({
     relativePath: action.relativePath,
     sourceId: action.sourceId,
@@ -411,13 +461,23 @@ function createSkillsOnlySystemAssetMaterializationPlan(): SystemAssetManifestSt
 
 function planDesiredSkillAsset(options: {
   targetDir: string;
-  asset: ResolvedAsset;
+  asset: ResolvedInstallAsset;
   existingManifest: InstallManifest | null;
   existingSkillFiles: Set<string>;
   previousSkillContent: Map<string, string>;
 }): PlannedAction {
   const { targetDir, asset, existingManifest, existingSkillFiles, previousSkillContent } =
     options;
+
+  if (isSkillExposureAsset(asset)) {
+    return planDesiredSkillExposure({
+      targetDir,
+      asset,
+      existingManifest,
+      previousSkillContent,
+    });
+  }
+
   const absolutePath = relativePathToTarget(targetDir, asset.relativePath);
   const desiredHash = hashText(asset.content);
 
@@ -481,6 +541,90 @@ function planDesiredSkillAsset(options: {
   };
 }
 
+function planDesiredSkillExposure(options: {
+  targetDir: string;
+  asset: ResolvedSkillExposureAsset;
+  existingManifest: InstallManifest | null;
+  previousSkillContent: Map<string, string>;
+}): PlannedAction {
+  const { targetDir, asset, existingManifest, previousSkillContent } = options;
+  const absolutePath = relativePathToTarget(targetDir, asset.relativePath);
+  const desiredHash = getSkillExposureHash(asset);
+  const manifestEntry = existingManifest?.files[asset.relativePath];
+  const baseAction = {
+    relativePath: asset.relativePath,
+    sourceId: asset.sourceId,
+    skillExposure: asset.skillExposure,
+    copyMirrorAssets: asset.copyMirrorAssets,
+    contentHash: desiredHash,
+  };
+
+  if (!existsSync(absolutePath)) {
+    return {
+      ...baseAction,
+      type: "create",
+    };
+  }
+
+  const existingExposure = classifyExistingSkillExposure(targetDir, asset);
+  if (existingExposure === "symlink" || existingExposure === "copy-mirror") {
+    return {
+      ...baseAction,
+      type: "noop",
+      skillExposure: {
+        ...asset.skillExposure,
+        mode: existingExposure,
+      },
+    };
+  }
+
+  if (existingExposure === "legacy-clean-managed") {
+    return {
+      ...baseAction,
+      type: "update",
+      reason: "Clean managed harness stub or duplicated payload will be replaced with a native skill exposure.",
+    };
+  }
+
+  if (manifestEntry?.hash === getSkillExposureHash(asset)) {
+    return {
+      ...baseAction,
+      type: "update",
+      reason: "Managed native skill exposure will be refreshed.",
+    };
+  }
+
+  if (
+    isCleanManifestOwnedLegacySkillExposureDirectory(
+      targetDir,
+      asset.relativePath,
+      existingManifest,
+    )
+  ) {
+    return {
+      ...baseAction,
+      type: "update",
+      reason:
+        "Clean manifest-owned harness stub or duplicated payload will be replaced with a native skill exposure.",
+    };
+  }
+
+  if (isCleanLegacySkillExposureDirectory(targetDir, asset.relativePath, previousSkillContent)) {
+    return {
+      ...baseAction,
+      type: "update",
+      reason: "Clean legacy managed skill directory will be replaced with a native skill exposure.",
+    };
+  }
+
+  return {
+    ...baseAction,
+    type: "skip-conflict",
+    reason:
+      "Existing harness skill path is not a managed native exposure and will not be replaced automatically.",
+  };
+}
+
 function planStaleSkillFile(options: {
   targetDir: string;
   relativePath: string;
@@ -496,6 +640,29 @@ function planStaleSkillFile(options: {
       type: "remove-managed",
       relativePath,
       sourceId: manifestEntry?.sourceId ?? `skill:${relativePath}`,
+    };
+  }
+
+  const stats = lstatSync(absolutePath);
+  if (!stats.isFile()) {
+    if (
+      (manifestEntry?.skillExposure || isSkillExposurePath(relativePath)) &&
+      isManagedSkillExposurePath(absolutePath, targetDir, relativePath, previousSkillContent)
+    ) {
+      return {
+        type: "remove-managed",
+        relativePath,
+        sourceId: manifestEntry?.sourceId ?? `skill:${relativePath}`,
+        skillExposure: manifestEntry?.skillExposure,
+      };
+    }
+
+    return {
+      type: "skip-conflict",
+      relativePath,
+      sourceId: manifestEntry?.sourceId ?? `skill:${relativePath}`,
+      reason:
+        "Existing managed skill path is no longer a regular file and will not be removed automatically.",
     };
   }
 
@@ -542,14 +709,239 @@ async function getPreviousSkillContentByPath(
       getRetiredManagedSkillAssets(selections),
     ]);
     return new Map(
-      [...retiredAssets, ...previousAssets].map((asset) => [
-        asset.relativePath,
-        asset.content,
-      ]),
+      [...retiredAssets, ...previousAssets]
+        .flatMap((asset) =>
+          isSkillExposureAsset(asset) ? asset.copyMirrorAssets : [asset],
+        )
+        .map((asset) => [asset.relativePath, asset.content]),
     );
   } catch {
     return new Map();
   }
+}
+
+function classifyExistingSkillExposure(
+  targetDir: string,
+  asset: ResolvedSkillExposureAsset,
+): "symlink" | "copy-mirror" | "legacy-clean-managed" | "conflict" {
+  const absolutePath = relativePathToTarget(targetDir, asset.relativePath);
+  const stats = lstatSync(absolutePath);
+
+  if (stats.isSymbolicLink()) {
+    const currentTarget = path.resolve(
+      path.dirname(absolutePath),
+      readlinkSync(absolutePath),
+    );
+    const expectedTarget = relativePathToTarget(
+      targetDir,
+      asset.skillExposure.canonicalPayloadPath,
+    );
+    return path.resolve(currentTarget) === path.resolve(expectedTarget)
+      ? "symlink"
+      : "conflict";
+  }
+
+  if (!stats.isDirectory()) {
+    return "conflict";
+  }
+
+  if (copyMirrorMatches(asset.copyMirrorAssets, targetDir, asset.relativePath)) {
+    return "copy-mirror";
+  }
+
+  return "conflict";
+}
+
+function isCleanManifestOwnedLegacySkillExposureDirectory(
+  targetDir: string,
+  relativePath: string,
+  existingManifest: InstallManifest | null,
+): boolean {
+  const absolutePath = relativePathToTarget(targetDir, relativePath);
+  if (!existingManifest || !existsSync(absolutePath) || !lstatSync(absolutePath).isDirectory()) {
+    return false;
+  }
+
+  const descendantPaths = listDescendantFilePaths(absolutePath).map((filePath) =>
+    normalizePlanPath(path.relative(targetDir, filePath)),
+  );
+  if (descendantPaths.length === 0) {
+    return false;
+  }
+
+  return descendantPaths.every((descendantPath) => {
+    const manifestEntry = existingManifest.files[descendantPath];
+    return (
+      manifestEntry !== undefined &&
+      isLegacySkillSourceId(manifestEntry.sourceId) &&
+      getManifestFileHash(
+        descendantPath,
+        readTextFile(relativePathToTarget(targetDir, descendantPath)),
+      ) === manifestEntry.hash
+    );
+  });
+}
+
+function isLegacySkillSourceId(sourceId: string): boolean {
+  return (
+    sourceId.startsWith("skill-stub:") ||
+    sourceId.startsWith("skill:") ||
+    sourceId.startsWith("skill-asset:") ||
+    sourceId.startsWith("retired-skill-asset:")
+  );
+}
+
+function isCleanLegacySkillExposureDirectory(
+  targetDir: string,
+  relativePath: string,
+  previousSkillContent: Map<string, string>,
+): boolean {
+  const absolutePath = relativePathToTarget(targetDir, relativePath);
+  if (!existsSync(absolutePath) || !lstatSync(absolutePath).isDirectory()) {
+    return false;
+  }
+
+  const descendantPaths = listDescendantFilePaths(absolutePath).map((filePath) =>
+    normalizePlanPath(path.relative(targetDir, filePath)),
+  );
+  if (descendantPaths.length === 0) {
+    return true;
+  }
+
+  return descendantPaths.every((descendantPath) => {
+    const expectedContent = previousSkillContent.get(descendantPath);
+    return (
+      expectedContent !== undefined &&
+      readTextFile(relativePathToTarget(targetDir, descendantPath)) === expectedContent
+    );
+  });
+}
+
+function copyMirrorMatches(
+  copyMirrorAssets: ResolvedAsset[],
+  targetDir: string,
+  exposurePath: string,
+): boolean {
+  const absoluteExposurePath = relativePathToTarget(targetDir, exposurePath);
+  if (!existsSync(absoluteExposurePath) || !lstatSync(absoluteExposurePath).isDirectory()) {
+    return false;
+  }
+
+  const expectedContentByPath = new Map(
+    copyMirrorAssets.map((asset) => [normalizePlanPath(asset.relativePath), asset.content]),
+  );
+  const existingFiles = listDescendantFilePaths(absoluteExposurePath).map((filePath) =>
+    normalizePlanPath(path.relative(targetDir, filePath)),
+  );
+
+  if (existingFiles.length !== expectedContentByPath.size) {
+    return false;
+  }
+
+  return existingFiles.every((relativePath) => {
+    const expectedContent = expectedContentByPath.get(relativePath);
+    return (
+      expectedContent !== undefined &&
+      readTextFile(relativePathToTarget(targetDir, relativePath)) === expectedContent
+    );
+  });
+}
+
+function listDescendantFilePaths(root: string): string[] {
+  const entries = readdirSync(root, { withFileTypes: true });
+  return entries.flatMap((entry) => {
+    const entryPath = path.join(root, entry.name);
+    if (entry.isDirectory()) {
+      return listDescendantFilePaths(entryPath);
+    }
+    if (entry.isFile()) {
+      return [entryPath];
+    }
+    return [];
+  });
+}
+
+function isManagedSkillExposurePath(
+  absolutePath: string,
+  targetDir: string,
+  relativePath: string,
+  previousSkillContent: Map<string, string>,
+): boolean {
+  const stats = lstatSync(absolutePath);
+  if (stats.isSymbolicLink()) {
+    return skillExposureDescendantsMatch(targetDir, relativePath, previousSkillContent);
+  }
+  return (
+    stats.isDirectory() &&
+    isCleanLegacySkillExposureDirectory(targetDir, relativePath, previousSkillContent)
+  );
+}
+
+function skillExposureDescendantsMatch(
+  targetDir: string,
+  relativePath: string,
+  previousSkillContent: Map<string, string>,
+): boolean {
+  const absolutePath = relativePathToTarget(targetDir, relativePath);
+  if (!existsSync(absolutePath) || !statSync(absolutePath).isDirectory()) {
+    return false;
+  }
+
+  const descendantPaths = listDescendantFilePaths(absolutePath).map((filePath) =>
+    normalizePlanPath(path.relative(targetDir, filePath)),
+  );
+
+  return descendantPaths.every((descendantPath) => {
+    const expectedContent = previousSkillContent.get(descendantPath);
+    return (
+      expectedContent !== undefined &&
+      readTextFile(relativePathToTarget(targetDir, descendantPath)) === expectedContent
+    );
+  });
+}
+
+function isSkillExposurePath(relativePath: string): boolean {
+  const normalizedPath = normalizePlanPath(relativePath);
+  return (
+    normalizedPath.startsWith(".claude/skills/") ||
+    normalizedPath.startsWith(".agents/skills/") ||
+    normalizedPath.includes("/.claude/skills/") ||
+    normalizedPath.includes("/.agents/skills/")
+  );
+}
+
+function comparePlannedActions(left: PlannedAction, right: PlannedAction): number {
+  if (left.relativePath === right.relativePath) {
+    return getActionOrder(left) - getActionOrder(right);
+  }
+
+  if (isDescendantPath(right.relativePath, left.relativePath)) {
+    return getAncestorActionOrder(left) - getDescendantActionOrder(right);
+  }
+
+  if (isDescendantPath(left.relativePath, right.relativePath)) {
+    return getDescendantActionOrder(left) - getAncestorActionOrder(right);
+  }
+
+  return left.relativePath.localeCompare(right.relativePath);
+}
+
+function getActionOrder(action: PlannedAction): number {
+  return action.type === "remove-managed" ? 0 : 1;
+}
+
+function getAncestorActionOrder(action: PlannedAction): number {
+  return action.skillExposure && action.type !== "remove-managed" ? 2 : 1;
+}
+
+function getDescendantActionOrder(action: PlannedAction): number {
+  return action.type === "remove-managed" ? 0 : 1;
+}
+
+function isDescendantPath(candidate: string, possibleAncestor: string): boolean {
+  const normalizedCandidate = normalizePlanPath(candidate);
+  const normalizedAncestor = normalizePlanPath(possibleAncestor);
+  return normalizedCandidate.startsWith(`${normalizedAncestor}/`);
 }
 
 function getManagedFileConflictResolution(
@@ -710,13 +1102,45 @@ function getManagedFileConflictGroupLabel(group: ManagedFileConflictGroup): stri
   }
 }
 
-function getManifestHashForAsset(asset: ResolvedAsset): string {
+function getManifestHashForAsset(asset: ResolvedInstallAsset): string {
+  if (isSkillExposureAsset(asset)) {
+    return getSkillExposureHash(asset);
+  }
+
   const manifestHash = getManifestFileHash(asset.relativePath, asset.content);
   if (manifestHash === null) {
     throw new Error(`Instruction asset ${asset.relativePath} is missing a valid managed block.`);
   }
 
   return manifestHash;
+}
+
+function getSkillExposureHash(asset: ResolvedSkillExposureAsset): string {
+  return hashText(
+    JSON.stringify({
+      canonicalPayloadPath: normalizePlanPath(asset.skillExposure.canonicalPayloadPath),
+      copyMirrorHashes: asset.copyMirrorAssets.map((copyAsset) => [
+        normalizePlanPath(path.relative(asset.relativePath, copyAsset.relativePath)),
+        hashText(copyAsset.content),
+      ]),
+      exposurePath: normalizePlanPath(asset.skillExposure.exposurePath),
+      harness: asset.skillExposure.harness,
+      installName: asset.skillExposure.installName,
+      preferredMode: asset.skillExposure.preferredMode,
+      skillName: asset.skillExposure.skillName,
+      symlinkTarget: normalizePlanPath(asset.skillExposure.symlinkTarget),
+    }),
+  );
+}
+
+function isSkillExposureAsset(
+  asset: ResolvedInstallAsset,
+): asset is ResolvedSkillExposureAsset {
+  return asset.kind === "skill-exposure";
+}
+
+function normalizePlanPath(relativePath: string): string {
+  return relativePath.replace(/\\/g, "/");
 }
 
 function getCurrentManifestHash(relativePath: string, content: string): string | null {

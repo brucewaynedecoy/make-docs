@@ -1,4 +1,4 @@
-import { existsSync, readdirSync, statSync } from "node:fs";
+import { existsSync, lstatSync, readdirSync, readlinkSync, statSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import {
@@ -40,7 +40,7 @@ import {
   type InstallSelections,
   type ManifestAuditRecord,
 } from "./types";
-import { hashText, PACKAGE_ROOT, readTextFile } from "./utils";
+import { hashText, PACKAGE_ROOT, readTextFile, relativePathToTarget } from "./utils";
 
 const PROJECT_BACKUP_DIRNAME = ".backup";
 const SHARED_AGENTICS_SKILL_DIR = ".make-docs/agentics/skills";
@@ -219,6 +219,17 @@ function classifyManifestRecord(options: {
     return;
   }
 
+  if (record.skillExposure) {
+    classifyManifestSkillExposureRecord({
+      targetDir,
+      record,
+      manifestSkillContentByPath,
+      removableFiles,
+      preservedPaths,
+    });
+    return;
+  }
+
   if (!statSync(record.absolutePath).isFile()) {
     addPreserved(
       preservedPaths,
@@ -361,6 +372,70 @@ function classifyManifestRecord(options: {
     createReason(
       "managed-file-modified",
       "The manifest-tracked file was modified locally and will be preserved.",
+    ),
+  );
+}
+
+function classifyManifestSkillExposureRecord(options: {
+  targetDir: string;
+  record: ManifestAuditRecord;
+  manifestSkillContentByPath: Map<string, string> | null;
+  removableFiles: Map<string, AuditRemovableFile>;
+  preservedPaths: Map<string, AuditPreservedPath>;
+}): void {
+  const { targetDir, record, manifestSkillContentByPath, removableFiles, preservedPaths } =
+    options;
+  const stats = lstatSync(record.absolutePath);
+
+  if (stats.isSymbolicLink()) {
+    const currentTarget = path.resolve(
+      path.dirname(record.absolutePath),
+      readlinkSync(record.absolutePath),
+    );
+    const expectedTarget = relativePathToTarget(
+      targetDir,
+      record.skillExposure?.canonicalPayloadPath ?? "",
+    );
+
+    if (path.resolve(currentTarget) === path.resolve(expectedTarget)) {
+      addRemovable(
+        removableFiles,
+        record,
+        createReason(
+          "managed-skill-exposure-symlink-match",
+          "The managed native harness exposure symlink points at the recorded canonical skill payload.",
+        ),
+        hashText(readlinkSync(record.absolutePath)),
+        record.manifestHash,
+      );
+      return;
+    }
+  }
+
+  if (
+    stats.isDirectory() &&
+    manifestSkillContentByPath &&
+    copyMirrorMatchesCanonicalContent(record, targetDir, manifestSkillContentByPath)
+  ) {
+    addRemovable(
+      removableFiles,
+      record,
+      createReason(
+        "managed-skill-exposure-copy-mirror-match",
+        "The managed copy-mirror exposure exactly matches canonical make-docs skill content.",
+      ),
+      undefined,
+      record.manifestHash,
+    );
+    return;
+  }
+
+  addPreserved(
+    preservedPaths,
+    record,
+    createReason(
+      "manifest-skill-exposure-mismatch",
+      "The manifest-tracked native skill exposure does not match its recorded symlink target or canonical copy-mirror content and will be preserved.",
     ),
   );
 }
@@ -731,6 +806,56 @@ function getRemainingDirectoryEntries(
     .filter((entryPath) => !removableFileSet.has(entryPath) && !prunableDirectories.has(entryPath));
 }
 
+function copyMirrorMatchesCanonicalContent(
+  record: ManifestAuditRecord,
+  targetDir: string,
+  canonicalContentByPath: Map<string, string>,
+): boolean {
+  const expectedEntries = [...canonicalContentByPath.entries()].filter(([candidate]) =>
+    isDescendantAuditPath(candidate, record.path),
+  );
+  if (expectedEntries.length === 0) {
+    return false;
+  }
+
+  const expectedContentByPath = new Map(expectedEntries);
+  const existingFiles = listDescendantFilePaths(record.absolutePath).map((filePath) =>
+    normalizeAuditPath(path.relative(targetDir, filePath)),
+  );
+  if (existingFiles.length !== expectedContentByPath.size) {
+    return false;
+  }
+
+  return existingFiles.every((relativePath) => {
+    const expectedContent = expectedContentByPath.get(relativePath);
+    return (
+      expectedContent !== undefined &&
+      readTextFile(relativePathToTarget(targetDir, relativePath)) === expectedContent
+    );
+  });
+}
+
+function listDescendantFilePaths(root: string): string[] {
+  return readdirSync(root, { withFileTypes: true }).flatMap((entry) => {
+    const entryPath = path.join(root, entry.name);
+    if (entry.isDirectory()) {
+      return listDescendantFilePaths(entryPath);
+    }
+    if (entry.isFile()) {
+      return [entryPath];
+    }
+    return [];
+  });
+}
+
+function isDescendantAuditPath(candidate: string, possibleAncestor: string): boolean {
+  return normalizeAuditPath(candidate).startsWith(`${normalizeAuditPath(possibleAncestor)}/`);
+}
+
+function normalizeAuditPath(relativePath: string): string {
+  return relativePath.replace(/\\/g, "/");
+}
+
 function describeBlockingDescendants(
   targetDir: string,
   homeDir: string,
@@ -839,7 +964,9 @@ async function loadCanonicalSkillContentByPath(
       getRetiredManagedSkillAssets(selections, skillRegistry),
     ]);
     return new Map(
-      [...assets, ...retiredAssets].map((asset) => {
+      [...assets, ...retiredAssets].flatMap((asset) =>
+        asset.kind === "skill-exposure" ? asset.copyMirrorAssets : [asset],
+      ).map((asset) => {
         const record = createManagedPathRecord(
           targetDir,
           homeDir,
@@ -896,16 +1023,20 @@ async function loadFallbackSkillCandidates(options: {
 }): Promise<Array<{ record: AuditManagedPathMetadata; content: string }> | null> {
   try {
     const assets = await getDesiredSkillAssets(options.selections);
-    return assets.map((asset) => ({
-      record: createManagedPathRecord(
-        options.targetDir,
-        options.homeDir,
-        asset.relativePath,
-        "fallback",
-        { sourceId: asset.sourceId },
+    return assets.flatMap((asset) =>
+      (asset.kind === "skill-exposure" ? asset.copyMirrorAssets : [asset]).map(
+        (resolvedAsset) => ({
+          record: createManagedPathRecord(
+            options.targetDir,
+            options.homeDir,
+            resolvedAsset.relativePath,
+            "fallback",
+            { sourceId: resolvedAsset.sourceId },
+          ),
+          content: resolvedAsset.content,
+        }),
       ),
-      content: asset.content,
-    }));
+    );
   } catch {
     return null;
   }
@@ -957,18 +1088,21 @@ function createManagedPathRecord(
   options?: {
     sourceId?: string;
     manifestHash?: string;
+    skillExposure?: ManifestAuditRecord["skillExposure"];
   },
 ): ManifestAuditRecord {
   const agenticRole = classifyAgenticSkillFileRole({
     relativePath: auditPath,
     sourceId: options?.sourceId,
   });
+  const kind = options?.skillExposure ? "directory" : "file";
 
   return {
-    ...createAuditPathMetadata(targetDir, auditPath, "file", homeDir),
+    ...createAuditPathMetadata(targetDir, auditPath, kind, homeDir),
     ownershipSource,
     sourceId: options?.sourceId,
     manifestHash: options?.manifestHash,
+    skillExposure: options?.skillExposure,
     ...(agenticRole ? { agenticRole } : {}),
   };
 }
@@ -998,7 +1132,7 @@ function addRemovable(
 ): void {
   removableFiles.set(record.absolutePath, {
     ...record,
-    kind: "file",
+    kind: record.kind === "directory" ? "directory" : "file",
     reason: reason.message,
     reasonCode: reason.code,
     currentHash,

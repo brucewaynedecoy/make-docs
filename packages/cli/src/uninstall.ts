@@ -136,7 +136,11 @@ export async function runUninstallCommand(
   try {
     for (const removableFile of plan.auditReport.removableFiles) {
       assertNotInsideBackupRoot(plan.targetDir, removableFile.absolutePath);
-      if (fileUtils.removeFileIfPresent(removableFile.absolutePath)) {
+      const removed =
+        removableFile.kind === "directory"
+          ? fileUtils.removeManagedPathIfPresent(removableFile.absolutePath)
+          : fileUtils.removeFileIfPresent(removableFile.absolutePath);
+      if (removed) {
         removedFiles.push(removableFile.path);
       }
     }

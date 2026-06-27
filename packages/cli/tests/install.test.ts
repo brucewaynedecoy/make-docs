@@ -1,4 +1,11 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  lstatSync,
+  mkdirSync,
+  readFileSync,
+  readlinkSync,
+  writeFileSync,
+} from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
@@ -187,6 +194,35 @@ function getPlannedAction(
   const action = plan.actions.find((candidate) => candidate.relativePath === relativePath);
   expect(action).toBeDefined();
   return action!;
+}
+
+function expectNativeSkillExposure(options: {
+  targetDir: string;
+  exposurePath: string;
+  canonicalPath: string;
+  expectedContent: string;
+}): void {
+  const { targetDir, exposurePath, canonicalPath, expectedContent } = options;
+  const absoluteExposurePath = path.isAbsolute(exposurePath)
+    ? exposurePath
+    : path.join(targetDir, exposurePath);
+  const absoluteCanonicalPath = path.isAbsolute(canonicalPath)
+    ? canonicalPath
+    : path.join(targetDir, canonicalPath);
+  const stats = lstatSync(absoluteExposurePath);
+  expect(stats.isSymbolicLink() || stats.isDirectory()).toBe(true);
+
+  if (stats.isSymbolicLink()) {
+    const target = path.resolve(
+      path.dirname(absoluteExposurePath),
+      readlinkSync(absoluteExposurePath),
+    );
+    expect(target).toBe(path.resolve(absoluteCanonicalPath));
+  }
+
+  expect(readFileSync(path.join(absoluteExposurePath, "SKILL.md"), "utf8")).toBe(
+    expectedContent,
+  );
 }
 
 describe("installer integration", () => {
@@ -838,21 +874,18 @@ describe("installer integration", () => {
       expect(existsSync(path.join(sharedSkillRoot, "scripts/test_validate_output.py"))).toBe(
         false,
       );
+      const expectedSkillContent = readFileSync(
+        path.join(sharedSkillRoot, "SKILL.md"),
+        "utf8",
+      );
 
       for (const harnessRoot of [".claude", ".agents"]) {
-        const skillRoot = path.join(targetDir, harnessRoot, "skills/decompose-codebase");
-
-        expect(existsSync(path.join(skillRoot, "SKILL.md"))).toBe(true);
-        expect(
-          readFileSync(path.join(skillRoot, "SKILL.md"), "utf8"),
-        ).toContain(".make-docs/agentics/skills/decompose-codebase/SKILL.md");
-        expect(existsSync(path.join(skillRoot, "references/mcp-playbook.md"))).toBe(false);
-        expect(existsSync(path.join(skillRoot, "scripts/validate_output.py"))).toBe(false);
-        expect(existsSync(path.join(skillRoot, "assets/templates/rebuild-backlog.md"))).toBe(
-          false,
-        );
-        expect(existsSync(path.join(skillRoot, "assets/README.md"))).toBe(false);
-        expect(existsSync(path.join(skillRoot, "scripts/test_validate_output.py"))).toBe(false);
+        expectNativeSkillExposure({
+          targetDir,
+          exposurePath: path.join(harnessRoot, "skills/decompose-codebase"),
+          canonicalPath: ".make-docs/agentics/skills/decompose-codebase",
+          expectedContent: expectedSkillContent,
+        });
       }
 
       expect(
@@ -871,8 +904,50 @@ describe("installer integration", () => {
       expect(manifest.skillFiles).toContain(
         ".make-docs/agentics/skills/decompose-codebase/SKILL.md",
       );
-      expect(manifest.skillFiles).toContain(".claude/skills/decompose-codebase/SKILL.md");
-      expect(manifest.skillFiles).toContain(".agents/skills/decompose-codebase/SKILL.md");
+      expect(manifest.skillFiles).toContain(".claude/skills/decompose-codebase");
+      expect(manifest.skillFiles).toContain(".agents/skills/decompose-codebase");
+      expect(manifest.files[".claude/skills/decompose-codebase"]?.skillExposure).toMatchObject({
+        canonicalPayloadPath: ".make-docs/agentics/skills/decompose-codebase",
+      });
+      expect(["symlink", "copy-mirror"]).toContain(
+        manifest.files[".claude/skills/decompose-codebase"]?.skillExposure?.mode,
+      );
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("uses a managed copy mirror when native skill symlinks are disabled", async () => {
+    const targetDir = createTempDir();
+    try {
+      vi.stubEnv("MAKE_DOCS_DISABLE_SKILL_SYMLINKS", "1");
+
+      const { manifest } = await installWithSelections(targetDir, (selections) => {
+        selections.skills = true;
+        selections.selectedSkills = ["archive-docs"];
+      });
+      const expectedSkillContent = readSkillSourceFile("archive-docs", "SKILL.md");
+
+      for (const exposurePath of [
+        ".claude/skills/archive-docs",
+        ".agents/skills/archive-docs",
+      ]) {
+        const absoluteExposurePath = path.join(targetDir, exposurePath);
+        const stats = lstatSync(absoluteExposurePath);
+        expect(stats.isDirectory()).toBe(true);
+        expect(stats.isSymbolicLink()).toBe(false);
+        expect(readFileSync(path.join(absoluteExposurePath, "SKILL.md"), "utf8")).toBe(
+          expectedSkillContent,
+        );
+        expect(
+          existsSync(path.join(absoluteExposurePath, "references/archive-workflow.md")),
+        ).toBe(true);
+        expect(manifest.files[exposurePath]?.skillExposure).toMatchObject({
+          canonicalPayloadPath: ".make-docs/agentics/skills/archive-docs",
+          fallbackReason: "Symlink creation disabled by MAKE_DOCS_DISABLE_SKILL_SYMLINKS=1.",
+          mode: "copy-mirror",
+        });
+      }
     } finally {
       cleanupTempDir(targetDir);
     }
@@ -947,20 +1022,23 @@ describe("installer integration", () => {
     const targetDir = createTempDir();
     try {
       await installWithSelections(targetDir, enableAllSkills);
+      const expectedArchiveSkill = readFileSync(
+        path.join(targetDir, ".make-docs/agentics/skills/archive-docs/SKILL.md"),
+        "utf8",
+      );
 
       for (const harnessRoot of [".claude", ".agents"]) {
-        const skillPath = path.join(targetDir, harnessRoot, "skills/archive-docs/SKILL.md");
-        const contents = readFileSync(skillPath, "utf8");
-
-        expect(contents).toContain(
-          "Canonical payload: `.make-docs/agentics/skills/archive-docs/SKILL.md`",
-        );
-        expect(contents).toContain("Purpose summary: Archive management");
+        expectNativeSkillExposure({
+          targetDir,
+          exposurePath: path.join(harnessRoot, "skills/archive-docs"),
+          canonicalPath: ".make-docs/agentics/skills/archive-docs",
+          expectedContent: expectedArchiveSkill,
+        });
         expect(
           existsSync(
             path.join(targetDir, harnessRoot, "skills/archive-docs/references/archive-workflow.md"),
           ),
-        ).toBe(false);
+        ).toBe(true);
       }
 
       {
@@ -2090,8 +2168,8 @@ describe("installer integration", () => {
         selections.harnesses.codex = false;
       });
 
-      expect(existsSync(path.join(targetDir, ".claude/skills/archive-docs/SKILL.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, ".agents/skills/archive-docs/SKILL.md"))).toBe(false);
+      expect(existsSync(path.join(targetDir, ".claude/skills/archive-docs"))).toBe(true);
+      expect(existsSync(path.join(targetDir, ".agents/skills/archive-docs"))).toBe(false);
       expect(
         existsSync(
           path.join(targetDir, ".agents/skills/archive-docs/references/archive-workflow.md"),
@@ -2166,15 +2244,15 @@ describe("installer integration", () => {
       expect(existsSync(oldClaudeSkill)).toBe(false);
       expect(existsSync(oldCodexSkill)).toBe(false);
       expect(existsSync(oldAsset)).toBe(false);
-      expect(existsSync(path.join(targetDir, ".claude/skills/archive-docs/SKILL.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, ".agents/skills/archive-docs/SKILL.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, ".claude/skills/archive-docs"))).toBe(true);
+      expect(existsSync(path.join(targetDir, ".agents/skills/archive-docs"))).toBe(true);
       expect(existsSync(path.join(targetDir, ".claude/skill-assets"))).toBe(false);
     } finally {
       cleanupTempDir(targetDir);
     }
   });
 
-  test("migrates clean manifest-owned duplicated skill payloads into shared payloads and stubs", async () => {
+  test("migrates clean manifest-owned duplicated skill payloads into shared payloads and native exposure", async () => {
     const targetDir = createTempDir();
     try {
       const oldSkill = ".claude/skills/archive-docs/SKILL.md";
@@ -2247,9 +2325,13 @@ describe("installer integration", () => {
         existingManifest,
       });
 
-      expect(getPlannedAction(plan, oldSkill)).toMatchObject({
+      expect(getPlannedAction(plan, ".claude/skills/archive-docs")).toMatchObject({
         type: "update",
-        agenticRole: "generated-stub",
+        agenticRole: "native-exposure",
+      });
+      expect(getPlannedAction(plan, oldSkill)).toMatchObject({
+        type: "remove-managed",
+        agenticRole: "legacy-duplicated-payload",
       });
       expect(getPlannedAction(plan, oldSupportFile)).toMatchObject({
         type: "remove-managed",
@@ -2262,17 +2344,204 @@ describe("installer integration", () => {
         agenticRole: "shared-payload",
       });
       expect(existsSync(path.join(targetDir, oldSkill))).toBe(true);
-      expect(readFileSync(path.join(targetDir, oldSkill), "utf8")).toContain(
-        "Canonical payload: `.make-docs/agentics/skills/archive-docs/SKILL.md`",
+      expect(readFileSync(path.join(targetDir, oldSkill), "utf8")).toBe(oldSkillContent);
+      expect(readFileSync(path.join(targetDir, oldSupportFile), "utf8")).toBe(
+        oldSupportContent,
       );
-      expect(existsSync(path.join(targetDir, oldSupportFile))).toBe(false);
       expect(
         existsSync(path.join(targetDir, ".make-docs/agentics/skills/archive-docs/SKILL.md")),
       ).toBe(true);
-      expect(result.manifest.skillFiles).toContain(oldSkill);
+      expect(result.manifest.skillFiles).toContain(".claude/skills/archive-docs");
+      expect(result.manifest.skillFiles).not.toContain(oldSkill);
       expect(result.manifest.skillFiles).not.toContain(oldSupportFile);
       expect(result.manifest.skillFiles).toContain(
         ".make-docs/agentics/skills/archive-docs/SKILL.md",
+      );
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("migrates clean manifest-owned generated skill stubs into native exposure", async () => {
+    const targetDir = createTempDir();
+    try {
+      const legacyStub = ".claude/skills/archive-docs/SKILL.md";
+      const legacyStubContent = [
+        "---",
+        "name: archive-docs",
+        "description: Generated Claude Code entrypoint for the shared Archive docs make-docs skill payload.",
+        "---",
+        "",
+        "# Archive docs",
+        "",
+        "This file is a generated make-docs harness stub.",
+        "",
+        "Canonical payload: `.make-docs/agentics/skills/archive-docs/SKILL.md`",
+        "",
+      ].join("\n");
+      const expectedSkillContent = readSkillSourceFile("archive-docs", "SKILL.md");
+
+      mkdirSync(path.dirname(path.join(targetDir, legacyStub)), { recursive: true });
+      writeFileSync(path.join(targetDir, legacyStub), legacyStubContent, "utf8");
+
+      const selections = defaultSelections();
+      selections.skills = true;
+      selections.selectedSkills = ["archive-docs"];
+      selections.harnesses["claude-code"] = true;
+      selections.harnesses.codex = false;
+
+      const manifestPath = path.join(targetDir, ".make-docs/manifest.json");
+      mkdirSync(path.dirname(manifestPath), { recursive: true });
+      writeFileSync(
+        manifestPath,
+        `${JSON.stringify(
+          {
+            schemaVersion: 2,
+            packageName: "@brucewaynedecoy/make-docs",
+            packageVersion: "1.0.0-rc.1",
+            updatedAt: new Date().toISOString(),
+            profileId: "legacy-stubs",
+            selections,
+            effectiveCapabilities: ["designs", "plans", "prd", "work"],
+            systemAssetMaterialization: {
+              mode: "full-snapshot",
+              localBootstrapPaths: [],
+              deferredSystemAssetPaths: [],
+              materializationClasses: {},
+              recoveryGuidance: "legacy fixture",
+              assets: {},
+            },
+            files: {
+              [legacyStub]: {
+                hash: hashText(legacyStubContent),
+                sourceId: "skill-stub:claude-code:archive-docs",
+              },
+            },
+            skillFiles: [legacyStub],
+          },
+          null,
+          2,
+        )}\n`,
+        "utf8",
+      );
+
+      const existingManifest = loadManifest(targetDir);
+      const plan = await planInstall({
+        targetDir,
+        selections,
+        existingManifest,
+      });
+      const result = applyInstallPlan({
+        targetDir,
+        plan,
+        existingManifest,
+      });
+
+      expect(getPlannedAction(plan, ".claude/skills/archive-docs")).toMatchObject({
+        type: "update",
+        agenticRole: "native-exposure",
+      });
+      expect(getPlannedAction(plan, legacyStub)).toMatchObject({
+        type: "remove-managed",
+        agenticRole: "generated-stub",
+      });
+      expectNativeSkillExposure({
+        targetDir,
+        exposurePath: ".claude/skills/archive-docs",
+        canonicalPath: ".make-docs/agentics/skills/archive-docs",
+        expectedContent: expectedSkillContent,
+      });
+      expect(readFileSync(path.join(targetDir, legacyStub), "utf8")).toBe(
+        expectedSkillContent,
+      );
+      expect(result.manifest.skillFiles).toContain(".claude/skills/archive-docs");
+      expect(result.manifest.skillFiles).not.toContain(legacyStub);
+      expect(result.manifest.files[legacyStub]).toBeUndefined();
+      expect(result.manifest.files[".claude/skills/archive-docs"]?.skillExposure).toMatchObject({
+        canonicalPayloadPath: ".make-docs/agentics/skills/archive-docs",
+        harness: "claude-code",
+      });
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("preserves modified manifest-owned generated skill stubs for review", async () => {
+    const targetDir = createTempDir();
+    try {
+      const legacyStub = ".claude/skills/archive-docs/SKILL.md";
+      const legacyStubContent = [
+        "---",
+        "name: archive-docs",
+        "description: Generated Claude Code entrypoint for the shared Archive docs make-docs skill payload.",
+        "---",
+        "",
+        "# Archive docs",
+        "",
+      ].join("\n");
+      const modifiedStubContent = `${legacyStubContent}\nUser note: keep this local routing.\n`;
+
+      mkdirSync(path.dirname(path.join(targetDir, legacyStub)), { recursive: true });
+      writeFileSync(path.join(targetDir, legacyStub), modifiedStubContent, "utf8");
+
+      const selections = defaultSelections();
+      selections.skills = true;
+      selections.selectedSkills = ["archive-docs"];
+      selections.harnesses["claude-code"] = true;
+      selections.harnesses.codex = false;
+
+      const manifestPath = path.join(targetDir, ".make-docs/manifest.json");
+      mkdirSync(path.dirname(manifestPath), { recursive: true });
+      writeFileSync(
+        manifestPath,
+        `${JSON.stringify(
+          {
+            schemaVersion: 2,
+            packageName: "@brucewaynedecoy/make-docs",
+            packageVersion: "1.0.0-rc.1",
+            updatedAt: new Date().toISOString(),
+            profileId: "legacy-stubs",
+            selections,
+            effectiveCapabilities: ["designs", "plans", "prd", "work"],
+            systemAssetMaterialization: {
+              mode: "full-snapshot",
+              localBootstrapPaths: [],
+              deferredSystemAssetPaths: [],
+              materializationClasses: {},
+              recoveryGuidance: "legacy fixture",
+              assets: {},
+            },
+            files: {
+              [legacyStub]: {
+                hash: hashText(legacyStubContent),
+                sourceId: "skill-stub:claude-code:archive-docs",
+              },
+            },
+            skillFiles: [legacyStub],
+          },
+          null,
+          2,
+        )}\n`,
+        "utf8",
+      );
+
+      const existingManifest = loadManifest(targetDir);
+      const plan = await planInstall({
+        targetDir,
+        selections,
+        existingManifest,
+      });
+
+      expect(getPlannedAction(plan, ".claude/skills/archive-docs")).toMatchObject({
+        type: "skip-conflict",
+        agenticRole: "native-exposure",
+      });
+      expect(getPlannedAction(plan, legacyStub)).toMatchObject({
+        type: "skip-conflict",
+        agenticRole: "generated-stub",
+      });
+      expect(readFileSync(path.join(targetDir, legacyStub), "utf8")).toBe(
+        modifiedStubContent,
       );
     } finally {
       cleanupTempDir(targetDir);
@@ -2289,8 +2558,8 @@ describe("installer integration", () => {
       expect(existsSync(path.join(targetDir, "docs/AGENTS.md"))).toBe(false);
       expect(existsSync(path.join(targetDir, ".make-docs/templates"))).toBe(false);
       expect(manifest.files).toEqual({});
-      expect(manifest.skillFiles).toContain(".claude/skills/archive-docs/SKILL.md");
-      expect(manifest.skillFiles).toContain(".agents/skills/archive-docs/SKILL.md");
+      expect(manifest.skillFiles).toContain(".claude/skills/archive-docs");
+      expect(manifest.skillFiles).toContain(".agents/skills/archive-docs");
     } finally {
       cleanupTempDir(targetDir);
     }
@@ -2311,10 +2580,10 @@ describe("installer integration", () => {
       expect(existsSync(path.join(targetDir, ".claude/skills/archive-docs/SKILL.md"))).toBe(false);
       expect(existsSync(path.join(targetDir, ".agents/skills/archive-docs/SKILL.md"))).toBe(false);
       expect(manifest.skillFiles).toContain(
-        path.join(fakeHome, ".claude/skills/archive-docs/SKILL.md"),
+        path.join(fakeHome, ".claude/skills/archive-docs"),
       );
       expect(manifest.skillFiles).toContain(
-        path.join(fakeHome, ".agents/skills/archive-docs/SKILL.md"),
+        path.join(fakeHome, ".agents/skills/archive-docs"),
       );
     } finally {
       restoreHome();
@@ -2467,7 +2736,7 @@ describe("installer integration", () => {
 
       expect(existsSync(skillPath)).toBe(true);
       expect(readFileSync(skillPath, "utf8")).toBe("local skill edits\n");
-      expect(manifest.skillFiles).toContain(".claude/skills/archive-docs/SKILL.md");
+      expect(manifest.skillFiles).toContain(".claude/skills/archive-docs");
     } finally {
       cleanupTempDir(targetDir);
     }

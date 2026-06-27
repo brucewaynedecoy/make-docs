@@ -15,13 +15,13 @@ Replace selected-skill generated stubs with native harness skill directories.
 
 ## Tasks
 
-- [ ] t1: Update selected-skill planning so harness outputs are exposure records rather than generated `SKILL.md` forwarding stubs.
-- [ ] t2: Add symlink exposure creation for `.claude/skills/<skill-name>/`, `.agents/skills/<skill-name>/`, and matching home-scoped harness roots.
-- [ ] t3: Add managed copy-mirror fallback that copies the full canonical skill payload when symlink creation is unavailable, disabled, or rejected by platform policy.
-- [ ] t4: Ensure harness-visible `SKILL.md` frontmatter and body come from the real selected skill payload.
-- [ ] t5: Add manifest/audit metadata for scope, harness, canonical payload path, exposure path, exposure mode, symlink target, copy-mirror source, fallback reason, and legacy-stub status.
-- [ ] t6: Update dry-run, sync, and skills UI output to display canonical payloads, symlink exposures, copy mirrors, and legacy stubs as distinct roles.
-- [ ] t7: Keep default installs and no-skill profiles free of selected-skill payloads and harness exposures.
+- [x] t1: Update selected-skill planning so harness outputs are exposure records rather than generated `SKILL.md` forwarding stubs.
+- [x] t2: Add symlink exposure creation for `.claude/skills/<skill-name>/`, `.agents/skills/<skill-name>/`, and matching home-scoped harness roots.
+- [x] t3: Add managed copy-mirror fallback that copies the full canonical skill payload when symlink creation is unavailable, disabled, or rejected by platform policy.
+- [x] t4: Ensure harness-visible `SKILL.md` frontmatter and body come from the real selected skill payload.
+- [x] t5: Add manifest/audit metadata for scope, harness, canonical payload path, exposure path, exposure mode, symlink target, copy-mirror source, fallback reason, and legacy-stub status.
+- [x] t6: Update dry-run, sync, and skills UI output to display canonical payloads, symlink exposures, copy mirrors, and legacy stubs as distinct roles.
+- [x] t7: Keep default installs and no-skill profiles free of selected-skill payloads and harness exposures.
 
 ## Acceptance Criteria
 
@@ -33,4 +33,20 @@ Replace selected-skill generated stubs with native harness skill directories.
 
 ## Validation Notes
 
-Add focused tests for project scope, global scope, selected first-party skills, alternate manifest skills, disabled symlink preference, symlink creation failure, and package-runner execution.
+Phase 2 package validation completed:
+
+- `npm test -w packages/cli -- --run tests/install.test.ts`
+- `npm test -w packages/cli -- --reporter=dot`
+
+Coverage added or updated:
+
+- selected project-scope skills expose native `.claude/skills/<skill-name>` and `.agents/skills/<skill-name>` directories;
+- selected global-scope skills expose home-scoped harness directories;
+- symlink mode records `skillExposure.mode: "symlink"` where available;
+- `MAKE_DOCS_DISABLE_SKILL_SYMLINKS=1` forces managed copy-mirror fallback and records fallback metadata;
+- harness-visible `SKILL.md` content comes from the canonical skill payload;
+- clean manifest-owned W17 R2 generated stubs migrate to native exposure;
+- modified generated stubs remain review-only;
+- default installs and disabled-skill profiles do not create selected-skill payloads or harness exposures.
+
+Manual UAT remains deferred until the full W17 R3 wave is complete.

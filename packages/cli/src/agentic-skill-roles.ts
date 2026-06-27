@@ -1,4 +1,3 @@
-import path from "node:path";
 import type { AgenticSkillFileRole } from "./types";
 
 const SHARED_AGENTICS_SKILL_DIR = ".make-docs/agentics/skills";
@@ -19,11 +18,19 @@ export function classifyAgenticSkillFileRole(options: {
     return "shared-payload";
   }
 
+  if (sourceId.startsWith("skill-exposure:")) {
+    return "native-exposure";
+  }
+
+  if (sourceId.startsWith("skill-copy-mirror-asset:")) {
+    return "copy-mirror";
+  }
+
   if (isLegacyDuplicatedSkillSource(sourceId)) {
     return "legacy-duplicated-payload";
   }
 
-  if (sourceId.startsWith("skill-stub:") || isHarnessSkillStubPath(normalizedPath)) {
+  if (sourceId.startsWith("skill-stub:")) {
     return "generated-stub";
   }
 
@@ -40,6 +47,10 @@ export function formatAgenticSkillFileRole(
   switch (role) {
     case "shared-payload":
       return "shared payload";
+    case "native-exposure":
+      return "native harness exposure";
+    case "copy-mirror":
+      return "managed copy mirror";
     case "generated-stub":
       return "generated harness stub";
     case "legacy-duplicated-payload":
@@ -56,10 +67,6 @@ export function isSharedAgenticsSkillPath(relativePath: string): boolean {
 export function isHarnessSkillPath(relativePath: string): boolean {
   const normalizedPath = normalizePath(relativePath);
   return HARNESS_SKILL_DIRS.some((root) => matchesKnownRoot(normalizedPath, root));
-}
-
-function isHarnessSkillStubPath(relativePath: string): boolean {
-  return isHarnessSkillPath(relativePath) && path.posix.basename(relativePath) === "SKILL.md";
 }
 
 function isLegacyDuplicatedSkillSource(sourceId: string): boolean {

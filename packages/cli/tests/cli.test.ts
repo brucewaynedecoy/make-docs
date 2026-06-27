@@ -600,8 +600,8 @@ personas:
 
     try {
       await installManifest(targetDir, enableAllSkills);
-      const claudeSkillPath = path.join(targetDir, ".claude/skills/archive-docs/SKILL.md");
-      const codexSkillPath = path.join(targetDir, ".agents/skills/archive-docs/SKILL.md");
+      const claudeSkillPath = path.join(targetDir, ".claude/skills/archive-docs");
+      const codexSkillPath = path.join(targetDir, ".agents/skills/archive-docs");
       expect(existsSync(claudeSkillPath)).toBe(true);
       expect(existsSync(codexSkillPath)).toBe(true);
       confirmMock.mockResolvedValue(true);
@@ -818,10 +818,10 @@ personas:
       expect(manifest?.selections.skillScope).toBe("global");
       expect(manifest?.selections.selectedSkills).toEqual(["decompose-codebase"]);
       expect(manifest?.skillFiles).toContain(
-        path.join(fakeHome, ".claude/skills/decompose-codebase/SKILL.md"),
+        path.join(fakeHome, ".claude/skills/decompose-codebase"),
       );
       expect(manifest?.skillFiles).not.toContain(
-        path.join(fakeHome, ".agents/skills/decompose-codebase/SKILL.md"),
+        path.join(fakeHome, ".agents/skills/decompose-codebase"),
       );
     } finally {
       restoreHome();
@@ -895,17 +895,13 @@ personas:
         "work-on-phase",
         "work-on-wave",
       ]);
-      expect(manifest?.skillFiles).toContain(".claude/skills/archive-docs/SKILL.md");
-      expect(manifest?.skillFiles).toContain(".claude/skills/cleanup-docs/SKILL.md");
-      expect(manifest?.skillFiles).toContain(
-        ".claude/skills/closeout-commit/SKILL.md",
-      );
-      expect(manifest?.skillFiles).toContain(".claude/skills/closeout-phase/SKILL.md");
-      expect(manifest?.skillFiles).toContain(
-        ".claude/skills/decompose-codebase/SKILL.md",
-      );
-      expect(manifest?.skillFiles).toContain(".claude/skills/work-on-wave/SKILL.md");
-      expect(manifest?.skillFiles).toContain(".claude/skills/work-on-phase/SKILL.md");
+      expect(manifest?.skillFiles).toContain(".claude/skills/archive-docs");
+      expect(manifest?.skillFiles).toContain(".claude/skills/cleanup-docs");
+      expect(manifest?.skillFiles).toContain(".claude/skills/closeout-commit");
+      expect(manifest?.skillFiles).toContain(".claude/skills/closeout-phase");
+      expect(manifest?.skillFiles).toContain(".claude/skills/decompose-codebase");
+      expect(manifest?.skillFiles).toContain(".claude/skills/work-on-wave");
+      expect(manifest?.skillFiles).toContain(".claude/skills/work-on-phase");
     } finally {
       cleanupTempDir(targetDir);
       cleanupTempDir(allTargetDir);
@@ -932,8 +928,8 @@ personas:
       const manifest = loadManifest(targetDir);
       expect(manifest?.selections.skills).toBe(true);
       expect(manifest?.selections.selectedSkills).toEqual(["acme-release"]);
-      expect(manifest?.skillFiles).toContain(".agents/skills/acme-release/SKILL.md");
-      expect(manifest?.skillFiles).not.toContain(".agents/skills/archive-docs/SKILL.md");
+      expect(manifest?.skillFiles).toContain(".agents/skills/acme-release");
+      expect(manifest?.skillFiles).not.toContain(".agents/skills/archive-docs");
       expect(manifest?.selections.skillManifest).toEqual({
         manifestId: "acme.local",
         displayName: "Acme local skills",
@@ -1172,10 +1168,10 @@ personas:
       expect(output).toContain("shared payload:");
       expect(output).toContain(".make-docs/agentics/skills/archive-docs/SKILL.md");
       expect(output).toContain(
-        "generated harness stub: .claude/skills/archive-docs/SKILL.md",
+        "native harness exposure: .claude/skills/archive-docs",
       );
       expect(output).toContain(
-        "generated harness stub: .agents/skills/archive-docs/SKILL.md",
+        "native harness exposure: .agents/skills/archive-docs",
       );
       expect(output).toContain("Installed skills");
       expect(output).not.toContain("Installed make-docs");
@@ -1242,7 +1238,7 @@ personas:
       expect(manifest?.selections.skillScope).toBe("global");
       expect(manifest?.selections.selectedSkills).toEqual([]);
       expect(
-        existsSync(path.join(targetDir, ".claude/skills/decompose-codebase/SKILL.md")),
+        existsSync(path.join(targetDir, ".claude/skills/decompose-codebase")),
       ).toBe(false);
     } finally {
       restoreHome();
@@ -1279,11 +1275,11 @@ personas:
       expect(manifest?.selections.skills).toBe(true);
       expect(manifest?.selections.skillScope).toBe("project");
       expect(manifest?.selections.selectedSkills).toEqual([]);
-      expect(existsSync(path.join(targetDir, ".claude/skills/archive-docs/SKILL.md"))).toBe(
+      expect(existsSync(path.join(targetDir, ".claude/skills/archive-docs"))).toBe(
         false,
       );
       expect(
-        existsSync(path.join(targetDir, ".claude/skills/decompose-codebase/SKILL.md")),
+        existsSync(path.join(targetDir, ".claude/skills/decompose-codebase")),
       ).toBe(false);
     } finally {
       restoreHome();

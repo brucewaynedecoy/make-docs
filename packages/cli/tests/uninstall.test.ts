@@ -486,7 +486,7 @@ describe("uninstall command", () => {
         ),
       ).toBe(true);
       expect(
-        existsSync(path.join(targetDir, ".backup/2026-04-18/_home/.agents/skills/archive-docs/SKILL.md")),
+        existsSync(path.join(targetDir, ".backup/2026-04-18/_home/.agents/skills/archive-docs")),
       ).toBe(true);
       expect(existsSync(path.join(targetDir, "AGENTS.md"))).toBe(false);
       expect(existsSync(path.join(targetDir, "CLAUDE.md"))).toBe(false);

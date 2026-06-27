@@ -15,6 +15,7 @@ import type {
   ManifestHashAlgorithm,
   SkillManifestSelectionSource,
   SkillSelectionProvenanceEntry,
+  SkillExposureMetadata,
   ManifestSystemAssetEntry,
   PackageMeta,
   SystemAssetManifestState,
@@ -393,6 +394,14 @@ function validateManifestFiles(
         entry.sourceId,
         `manifest.files.${managedPath}.sourceId`,
       ),
+      ...("skillExposure" in entry
+        ? {
+            skillExposure: validateSkillExposureMetadata(
+              entry.skillExposure,
+              `manifest.files.${managedPath}.skillExposure`,
+            ),
+          }
+        : {}),
       ...("systemAsset" in entry
         ? {
             systemAsset: validateManifestSystemAssetEntry(
@@ -878,6 +887,72 @@ function validateSkillSelectionProvenance(
   });
 }
 
+function validateSkillExposureMetadata(
+  value: unknown,
+  label: string,
+): SkillExposureMetadata {
+  assertPlainObject(value, label);
+  const harness = validateHarnessValue(value.harness, `${label}.harness`);
+  const scope = validateSkillScope(value.scope);
+  const preferredMode = validateString(value.preferredMode, `${label}.preferredMode`);
+  if (preferredMode !== "symlink") {
+    throw new Error(`${label}.preferredMode must be symlink`);
+  }
+
+  return {
+    skillName: validateString(value.skillName, `${label}.skillName`),
+    installName: validateString(value.installName, `${label}.installName`),
+    harness,
+    scope,
+    canonicalPayloadPath: validateString(
+      value.canonicalPayloadPath,
+      `${label}.canonicalPayloadPath`,
+    ),
+    exposurePath: validateString(value.exposurePath, `${label}.exposurePath`),
+    symlinkTarget: validateString(value.symlinkTarget, `${label}.symlinkTarget`),
+    preferredMode,
+    ...("mode" in value
+      ? { mode: validateSkillExposureMode(value.mode, `${label}.mode`) }
+      : {}),
+    ...("copyMirrorSource" in value
+      ? {
+          copyMirrorSource: validateString(
+            value.copyMirrorSource,
+            `${label}.copyMirrorSource`,
+          ),
+        }
+      : {}),
+    ...("fallbackReason" in value
+      ? {
+          fallbackReason: validateString(
+            value.fallbackReason,
+            `${label}.fallbackReason`,
+          ),
+        }
+      : {}),
+    ...("legacyStub" in value
+      ? { legacyStub: validateBoolean(value.legacyStub, `${label}.legacyStub`) }
+      : {}),
+  };
+}
+
+function validateHarnessValue(value: unknown, label: string): SkillExposureMetadata["harness"] {
+  if (!HARNESSES.includes(value as SkillExposureMetadata["harness"])) {
+    throw new Error(`${label} must be a supported harness`);
+  }
+  return value as SkillExposureMetadata["harness"];
+}
+
+function validateSkillExposureMode(
+  value: unknown,
+  label: string,
+): NonNullable<SkillExposureMetadata["mode"]> {
+  if (value !== "symlink" && value !== "copy-mirror") {
+    throw new Error(`${label} must be symlink or copy-mirror`);
+  }
+  return value;
+}
+
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
@@ -893,12 +968,14 @@ function createManifestAuditRecord(
     relativePath: managedPath,
     sourceId: manifestEntry?.sourceId,
   });
+  const kind = manifestEntry?.skillExposure ? "directory" : "file";
 
   return {
-    ...createAuditPathMetadata(targetDir, managedPath, "file", homeDir),
+    ...createAuditPathMetadata(targetDir, managedPath, kind, homeDir),
     ownershipSource,
     sourceId: manifestEntry?.sourceId,
     manifestHash: manifestEntry?.hash,
+    skillExposure: manifestEntry?.skillExposure,
     ...(agenticRole ? { agenticRole } : {}),
   };
 }

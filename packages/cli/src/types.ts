@@ -170,20 +170,52 @@ export interface InstallProfile {
 }
 
 export interface ResolvedAsset {
+  kind?: "file";
   relativePath: string;
   assetClass: "static" | "scoped-static";
   sourceId: string;
   content: string;
 }
 
+export interface ResolvedSkillExposureAsset {
+  kind: "skill-exposure";
+  relativePath: string;
+  assetClass: "static" | "scoped-static";
+  sourceId: string;
+  skillExposure: SkillExposureMetadata;
+  copyMirrorAssets: ResolvedAsset[];
+}
+
+export type ResolvedInstallAsset = ResolvedAsset | ResolvedSkillExposureAsset;
+
+export type SkillExposureMode = "symlink" | "copy-mirror";
+
+export interface SkillExposureMetadata {
+  skillName: string;
+  installName: string;
+  harness: Harness;
+  scope: "project" | "global";
+  canonicalPayloadPath: string;
+  exposurePath: string;
+  symlinkTarget: string;
+  preferredMode: "symlink";
+  mode?: SkillExposureMode;
+  copyMirrorSource?: string;
+  fallbackReason?: string;
+  legacyStub?: boolean;
+}
+
 export interface ManifestFileEntry {
   hash: string;
   sourceId: string;
   systemAsset?: ManifestSystemAssetEntry;
+  skillExposure?: SkillExposureMetadata;
 }
 
 export type AgenticSkillFileRole =
   | "shared-payload"
+  | "native-exposure"
+  | "copy-mirror"
   | "generated-stub"
   | "legacy-duplicated-payload";
 
@@ -214,6 +246,8 @@ export interface PlannedAction {
   relativePath: string;
   sourceId?: string;
   agenticRole?: AgenticSkillFileRole;
+  skillExposure?: SkillExposureMetadata;
+  copyMirrorAssets?: ResolvedAsset[];
   content?: string;
   contentHash?: string;
   reason?: string;
@@ -271,6 +305,8 @@ export type AuditReasonCode =
   | "instruction-content-match"
   | "managed-file-hash-match"
   | "managed-skill-file-content-match"
+  | "managed-skill-exposure-symlink-match"
+  | "managed-skill-exposure-copy-mirror-match"
   | "managed-state-file"
   | "fallback-canonical-content-match"
   | "fallback-root-fingerprint-match"
@@ -282,6 +318,7 @@ export type AuditReasonCode =
   | "managed-file-modified"
   | "manifest-skill-file-without-metadata"
   | "manifest-skill-file-content-mismatch"
+  | "manifest-skill-exposure-mismatch"
   | "fallback-root-fingerprint-mismatch"
   | "fallback-ambiguous"
   | "project-config-preserved"
@@ -320,12 +357,14 @@ export interface AuditManagedPathMetadata extends AuditPathMetadata {
   ownershipSource: AuditOwnershipSource;
   sourceId?: string;
   agenticRole?: AgenticSkillFileRole;
+  skillExposure?: SkillExposureMetadata;
 }
 
 export interface AuditCandidateMetadata extends AuditPathMetadata {
   ownershipSource?: AuditOwnershipSource;
   sourceId?: string;
   agenticRole?: AgenticSkillFileRole;
+  skillExposure?: SkillExposureMetadata;
 }
 
 export interface ManifestAuditRecord extends AuditManagedPathMetadata {
@@ -340,7 +379,7 @@ export interface ManifestAuditContext {
 }
 
 export interface AuditRemovableFile extends AuditManagedPathMetadata {
-  kind: "file";
+  kind: "file" | "directory";
   reason: string;
   reasonCode: AuditReasonCode;
   expectedHash?: string;

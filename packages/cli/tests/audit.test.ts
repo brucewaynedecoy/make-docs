@@ -475,7 +475,7 @@ describe("shared audit engine", () => {
         removableEntries,
         ".make-docs/agentics/skills/archive-docs/SKILL.md",
       );
-      const skillEntry = findEntry(removableEntries, ".agents/skills/archive-docs/SKILL.md");
+      const skillEntry = findEntry(removableEntries, ".agents/skills/archive-docs");
       const rootAgentsEntry = findEntry(removableEntries, "AGENTS.md");
       const rootClaudeEntry = findEntry(removableEntries, "CLAUDE.md");
 
@@ -489,7 +489,7 @@ describe("shared audit engine", () => {
         ".make-docs/agentics/skills/archive-docs/SKILL.md",
       );
       expect(skillEntry?.backupRelativePath ?? skillEntry?.path).toBe(
-        ".agents/skills/archive-docs/SKILL.md",
+        ".agents/skills/archive-docs",
       );
 
       const auditReport = report as {
@@ -502,8 +502,9 @@ describe("shared audit engine", () => {
             agenticRole: "shared-payload",
           }),
           expect.objectContaining({
-            path: ".agents/skills/archive-docs/SKILL.md",
-            agenticRole: "generated-stub",
+            path: ".agents/skills/archive-docs",
+            agenticRole: "native-exposure",
+            kind: "directory",
           }),
         ]),
       );
@@ -774,7 +775,7 @@ describe("shared audit engine", () => {
 
       const report = await runAudit({ targetDir, manifest });
       const removableEntries = collectEntries(report, REMOVABLE_BUCKETS, ["removable"]);
-      const globalSkillPath = path.join(fakeHome, ".claude/skills/archive-docs/SKILL.md");
+      const globalSkillPath = path.join(fakeHome, ".claude/skills/archive-docs");
       const sharedGlobalSkillPath = path.join(
         fakeHome,
         ".make-docs/agentics/skills/archive-docs/SKILL.md",
@@ -788,7 +789,7 @@ describe("shared audit engine", () => {
         "_home/.make-docs/agentics/skills/archive-docs/SKILL.md",
       )).toBe(true);
       expect(globalSkillEntry?.backupRelativePath, summarizeAudit(report)).toBeDefined();
-      expect(globalSkillEntry?.backupRelativePath?.endsWith("_home/.claude/skills/archive-docs/SKILL.md")).toBe(
+      expect(globalSkillEntry?.backupRelativePath?.endsWith("_home/.claude/skills/archive-docs")).toBe(
         true,
       );
 

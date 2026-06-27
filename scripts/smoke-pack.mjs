@@ -92,14 +92,14 @@ const EXPECTED_SKILL_PATHS = [
   ".make-docs/agentics/skills/work-on-phase/SKILL.md",
   ".make-docs/agentics/skills/work-on-phase/agents/openai.yaml",
   ".make-docs/agentics/skills/work-on-phase/references/phase-implementation-workflow.md",
-  ".claude/skills/archive-docs/SKILL.md",
-  ".claude/skills/closeout-commit/SKILL.md",
-  ".claude/skills/decompose-codebase/SKILL.md",
-  ".claude/skills/work-on-phase/SKILL.md",
-  ".agents/skills/archive-docs/SKILL.md",
-  ".agents/skills/closeout-commit/SKILL.md",
-  ".agents/skills/decompose-codebase/SKILL.md",
-  ".agents/skills/work-on-phase/SKILL.md",
+  ".claude/skills/archive-docs",
+  ".claude/skills/closeout-commit",
+  ".claude/skills/decompose-codebase",
+  ".claude/skills/work-on-phase",
+  ".agents/skills/archive-docs",
+  ".agents/skills/closeout-commit",
+  ".agents/skills/decompose-codebase",
+  ".agents/skills/work-on-phase",
 ];
 
 const EXPECTED_RETIRED_SKILL_PATHS = [
@@ -429,13 +429,6 @@ try {
       `Smoke pack install should not produce retired helper script ${relativePath}.`,
     );
   }
-  for (const relativePath of EXPECTED_DUPLICATED_SKILL_PAYLOAD_PATHS) {
-    assertMissing(
-      path.join(targetDir, relativePath),
-      `Smoke pack install should not duplicate shared skill payload ${relativePath}.`,
-    );
-  }
-
   const skillsRemoveDryRun = execFileSync(
     "node",
     [packedMakeDocs, "skills", "--remove", "--dry-run", "--target", targetDir],
@@ -466,11 +459,11 @@ try {
 
   assertExists(
     path.join(targetDir, ".claude/skills/decompose-codebase/SKILL.md"),
-    "Smoke pack install did not install the Claude Code decompose-codebase skill stub.",
+    "Smoke pack install did not expose the Claude Code decompose-codebase skill.",
   );
   assertExists(
     path.join(targetDir, ".agents/skills/decompose-codebase/SKILL.md"),
-    "Smoke pack install did not install the Codex decompose-codebase skill stub.",
+    "Smoke pack install did not expose the Codex decompose-codebase skill.",
   );
   assertExists(
     path.join(targetDir, ".make-docs/agentics/skills/decompose-codebase/SKILL.md"),
