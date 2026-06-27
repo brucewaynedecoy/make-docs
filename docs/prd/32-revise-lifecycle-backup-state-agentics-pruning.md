@@ -104,6 +104,33 @@ Selected plugin payload backup, uninstall, migration, and cleanup must use `.mak
 - User-authored or ambiguous content under `.make-docs/agentics/**` is preserved or routed to review.
 - Package smoke validation proves the packed CLI uses the corrected backup destination.
 
+## Implementation Closeout
+
+W17 R4 completed the CLI/package lifecycle correction on 2026-06-27.
+
+Shipped behavior:
+
+- New `make-docs backup` and `make-docs uninstall --backup` snapshots write under `.make-docs/backup/<date>` with existing same-day ordinal behavior preserved under the new root.
+- Legacy root `.backup/**` is protected as recovery evidence and is ignored for new `.make-docs/backup/**` ordinal calculation.
+- Audit and uninstall guardrails protect both `.make-docs/backup/**` and root `.backup/**` from removal or pruning.
+- Selected-skill removal and uninstall prune empty managed `.make-docs/agentics/**` parent directories for project and home-scoped canonical payloads after the reviewed audit or manifest-owned removal plan proves no unmanaged descendants remain.
+- Manifest-owned native exposure symlinks are removed as links when they point at the recorded canonical payload; managed copy mirrors are removed only when clean.
+- User-authored, modified, ambiguous, wrong-target, or future agentics content remains preserved for review.
+
+Validation completed:
+
+- `npm test -w packages/cli -- --run tests/backup.test.ts tests/uninstall.test.ts tests/audit.test.ts tests/lifecycle.test.ts tests/install.test.ts tests/skill-catalog.test.ts --reporter=dot --silent`
+- `npm run validate:defaults -w packages/cli`
+- `npm run build -w packages/cli`
+- `npm run smoke:pack`
+- Isolated manual UAT for selected-skill install, `.make-docs/backup/**` creation, root `.backup/**` preservation, selected-skill removal pruning, and uninstall pruning.
+
+Deferred or unchanged:
+
+- Existing root `.backup/**` trees are not automatically migrated.
+- Plugin lifecycle behavior remains downstream W18 R2 work and must consume this backup-state and pruning contract.
+- MCP write behavior, remote skill delivery, and selected-plugin implementation are not part of this correction.
+
 ## Source Anchors
 
 - [../designs/2026-06-27-lifecycle-backup-state-and-agentics-pruning-correction.md](../designs/2026-06-27-lifecycle-backup-state-and-agentics-pruning-correction.md)

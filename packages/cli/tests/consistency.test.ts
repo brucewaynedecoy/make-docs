@@ -483,6 +483,7 @@ describe("risk register routing contract", () => {
       "R-012 Playbooks and Plugins Could Become Overlapping Deliverables",
       "R-013 The Restructure and Rename Will Relocate Newly Authored Assets",
       "R-014 The No-Scripts Migration Has a Transitional Break Window",
+      "R-015 Backup State and Agentics Pruning Could Drift Across Lifecycle Consumers",
     ]);
   });
 

@@ -622,7 +622,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | [32-revise-lifecycle-backup-state-agentics-pruning.md](./32-revise-lifecycle-backup-state-agentics-pruning.md) moves future backup writes to `.make-docs/backup/**`, protects legacy root `.backup/**`, keeps backup and uninstall on one reviewed audit snapshot, and requires empty managed `.make-docs/agentics/**` pruning only when audit proves no unmanaged descendants remain. W18 R2 plugin lifecycle work must inherit this before adding selected-plugin backup, uninstall, migration, or cleanup. | Keep backup, audit, uninstall, lifecycle UI, package smoke, selected-agentics removal, and future plugin lifecycle tests aligned with PRD 32. |
+| Open | [32-revise-lifecycle-backup-state-agentics-pruning.md](./32-revise-lifecycle-backup-state-agentics-pruning.md) moves future backup writes to `.make-docs/backup/**`, protects legacy root `.backup/**`, keeps backup and uninstall on one reviewed audit snapshot, and requires empty managed `.make-docs/agentics/**` pruning only when audit proves no unmanaged descendants remain. W17 R4 Phase 4 implemented and validated the CLI/package portion through backup, audit, uninstall, selected-skill sync, build, default consistency, smoke-pack, and isolated manual UAT coverage. W18 R2 plugin lifecycle work must still inherit this before adding selected-plugin backup, uninstall, migration, or cleanup. | Keep backup, audit, uninstall, lifecycle UI, package smoke, selected-agentics removal, and future plugin lifecycle tests aligned with PRD 32. Close the residual risk only after plugin lifecycle work proves it consumes the same backup-state and pruning contract. |
 
 **Issue**: Backup destination, audit exclusion, uninstall pruning, selected-agentics cleanup, package smoke validation, and future plugin lifecycle work can drift if they each encode backup or agentics paths independently.
 
@@ -630,7 +630,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 **Recommendation**: Treat W17 R4 as the active lifecycle-state prerequisite for any backup, uninstall, selected-agentics cleanup, package-smoke, or plugin lifecycle change.
 
-**To close**: Focused lifecycle and package-smoke tests prove new backups use `.make-docs/backup/**`, root `.backup/**` is protected, selected-agentics pruning is safe, and plugin lifecycle work consumes the same contract.
+**To close**: Focused lifecycle and package-smoke tests prove new backups use `.make-docs/backup/**`, root `.backup/**` is protected, selected-agentics pruning is safe, and plugin lifecycle work consumes the same contract. The CLI/package portion is complete as of W17 R4 Phase 4; the remaining closure condition is downstream plugin lifecycle inheritance.
 
 ## Source Anchors
 
