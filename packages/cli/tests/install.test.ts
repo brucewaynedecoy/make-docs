@@ -2683,6 +2683,59 @@ describe("installer integration", () => {
     }
   });
 
+  test("skills-only sync prunes deselected project skill payloads while preserving siblings", async () => {
+    const targetDir = createTempDir();
+    try {
+      await syncSkillsOnly(targetDir, (selections) => {
+        selections.selectedSkills = ["archive-docs", "decompose-codebase"];
+      });
+
+      const { manifest } = await syncSkillsOnly(targetDir, (selections) => {
+        selections.selectedSkills = ["archive-docs"];
+      });
+
+      expect(
+        existsSync(path.join(targetDir, ".make-docs/agentics/skills/decompose-codebase")),
+      ).toBe(false);
+      expect(
+        existsSync(path.join(targetDir, ".make-docs/agentics/skills/archive-docs/SKILL.md")),
+      ).toBe(true);
+      expect(existsSync(path.join(targetDir, ".make-docs/agentics/skills"))).toBe(true);
+      expect(manifest.skillFiles.some((file) => file.includes("decompose-codebase"))).toBe(false);
+      expect(manifest.skillFiles.some((file) => file.includes("archive-docs"))).toBe(true);
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("skills-only sync prunes empty global selected-agentics parents", async () => {
+    const targetDir = createTempDir();
+    const fakeHome = createTempDir("make-docs-home-");
+    const restoreHome = mockHomeDirectory(fakeHome);
+
+    try {
+      await syncSkillsOnly(targetDir, (selections) => {
+        selections.skillScope = "global";
+        selections.selectedSkills = ["archive-docs"];
+      });
+
+      expect(
+        existsSync(path.join(fakeHome, ".make-docs/agentics/skills/archive-docs/SKILL.md")),
+      ).toBe(true);
+
+      const { manifest } = await syncSkillsOnly(targetDir, (selections) => {
+        selections.selectedSkills = [];
+      });
+
+      expect(existsSync(path.join(fakeHome, ".make-docs/agentics"))).toBe(false);
+      expect(manifest.skillFiles.some((file) => file.includes("archive-docs"))).toBe(false);
+    } finally {
+      restoreHome();
+      cleanupTempDir(targetDir);
+      cleanupTempDir(fakeHome);
+    }
+  });
+
   test("skills-only sync reviews retired lifecycle helper scripts", async () => {
     const targetDir = createTempDir();
     try {
@@ -2760,14 +2813,19 @@ describe("installer integration", () => {
     const targetDir = createTempDir();
     try {
       await syncSkillsOnly(targetDir, enableAllSkills);
-      const skillPath = path.join(targetDir, ".claude/skills/archive-docs/SKILL.md");
+      const skillPath = path.join(
+        targetDir,
+        ".make-docs/agentics/skills/archive-docs/SKILL.md",
+      );
       writeFileSync(skillPath, "local skill edits\n", "utf8");
 
       const { manifest } = await syncSkillsOnly(targetDir, undefined, true);
 
       expect(existsSync(skillPath)).toBe(true);
       expect(readFileSync(skillPath, "utf8")).toBe("local skill edits\n");
-      expect(manifest.skillFiles).toContain(".claude/skills/archive-docs");
+      expect(manifest.skillFiles).toContain(
+        ".make-docs/agentics/skills/archive-docs/SKILL.md",
+      );
     } finally {
       cleanupTempDir(targetDir);
     }

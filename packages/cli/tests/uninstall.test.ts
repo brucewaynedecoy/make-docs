@@ -189,6 +189,35 @@ describe("uninstall command", () => {
     }
   });
 
+  test("allow-all prunes empty project selected-agentics parents after uninstall", async () => {
+    const targetDir = createTempDir();
+
+    try {
+      await installManifest(targetDir, (selections) => {
+        selections.skills = true;
+        selections.selectedSkills = ["archive-docs"];
+      });
+
+      const { result } = await captureUninstallRun({
+        targetDir,
+        backup: false,
+        permissions: "allow-all",
+      });
+
+      expect(result.status).toBe("completed");
+      expect(result.prunedDirectories).toEqual(
+        expect.arrayContaining([
+          ".make-docs/agentics/skills/archive-docs",
+          ".make-docs/agentics/skills",
+          ".make-docs/agentics",
+        ]),
+      );
+      expect(existsSync(path.join(targetDir, ".make-docs/agentics"))).toBe(false);
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
   test("preserves project config during allow-all uninstall", async () => {
     const targetDir = createTempDir();
     const configContents = "labels:\n  documentKinds:\n    design: Idea\n";

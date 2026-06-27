@@ -255,7 +255,7 @@ function applyAction(options: {
     case "remove-managed": {
       if (existsSync(absolutePath)) {
         rmSync(absolutePath, { force: true, recursive: true });
-        pruneEmptyDirectories(path.dirname(absolutePath), targetDir);
+        pruneRemovedManagedPathParents(targetDir, action.relativePath, absolutePath);
       }
       delete nextFiles[action.relativePath];
       return;
@@ -339,6 +339,41 @@ function writeCopyMirror(assets: PlannedAction["copyMirrorAssets"], targetDir: s
   for (const asset of assets) {
     writeTextFile(relativePathToTarget(targetDir, asset.relativePath), asset.content);
   }
+}
+
+function pruneRemovedManagedPathParents(
+  targetDir: string,
+  relativePath: string,
+  absolutePath: string,
+): void {
+  const boundary = getRemoveManagedPruneBoundary(targetDir, relativePath, absolutePath);
+  if (!boundary) {
+    return;
+  }
+
+  pruneEmptyDirectories(path.dirname(absolutePath), boundary);
+}
+
+function getRemoveManagedPruneBoundary(
+  targetDir: string,
+  relativePath: string,
+  absolutePath: string,
+): string | null {
+  if (!path.isAbsolute(relativePath)) {
+    return targetDir;
+  }
+
+  return getGlobalSelectedAgenticsPruneBoundary(absolutePath);
+}
+
+function getGlobalSelectedAgenticsPruneBoundary(absolutePath: string): string | null {
+  const segments = path.resolve(absolutePath).split(path.sep);
+  const agenticsIndex = segments.lastIndexOf("agentics");
+  if (agenticsIndex < 1 || segments[agenticsIndex - 1] !== ".make-docs") {
+    return null;
+  }
+
+  return segments.slice(0, agenticsIndex).join(path.sep) || path.sep;
 }
 
 function compareReviewableManagedFileConflicts(

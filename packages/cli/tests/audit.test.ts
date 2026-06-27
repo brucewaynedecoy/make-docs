@@ -501,6 +501,9 @@ describe("shared audit engine", () => {
       const auditReport = report as {
         removableFiles: Array<{ path: string; agenticRole?: string }>;
       };
+      const prunableDirectories = collectEntries(report, PRUNABLE_DIRECTORY_BUCKETS, [
+        "prunable",
+      ]);
       expect(auditReport.removableFiles).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
@@ -514,6 +517,18 @@ describe("shared audit engine", () => {
           }),
         ]),
       );
+      expect(
+        findEntry(prunableDirectories, ".make-docs/agentics/skills/archive-docs"),
+        summarizeAudit(report),
+      ).toBeDefined();
+      expect(
+        findEntry(prunableDirectories, ".make-docs/agentics/skills"),
+        summarizeAudit(report),
+      ).toBeDefined();
+      expect(
+        findEntry(prunableDirectories, ".make-docs/agentics"),
+        summarizeAudit(report),
+      ).toBeDefined();
     } finally {
       cleanupTempDir(targetDir);
     }
@@ -661,6 +676,47 @@ describe("shared audit engine", () => {
           }),
         ]),
       );
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("preserves selected-agentics directories with unmanaged descendants", async () => {
+    const targetDir = createTempDir();
+
+    try {
+      const manifest = await installWithSelections(targetDir, (selections) => {
+        selections.skills = true;
+        selections.selectedSkills = ["archive-docs"];
+      });
+      const unmanagedDescendant = path.join(
+        targetDir,
+        ".make-docs/agentics/skills/archive-docs/local-notes.md",
+      );
+      writeFileSync(unmanagedDescendant, "keep this local note\n", "utf8");
+
+      const report = await runAudit({ targetDir, manifest });
+      const removableEntries = collectEntries(report, REMOVABLE_BUCKETS, ["removable"]);
+      const preservedEntries = collectEntries(report, PRESERVED_BUCKETS, [
+        "preserved",
+        "retained",
+      ]);
+      const prunableDirectories = collectEntries(report, PRUNABLE_DIRECTORY_BUCKETS, [
+        "prunable",
+      ]);
+
+      expect(
+        findEntry(removableEntries, ".make-docs/agentics/skills/archive-docs/SKILL.md"),
+        summarizeAudit(report),
+      ).toBeDefined();
+      expect(
+        findEntry(prunableDirectories, ".make-docs/agentics/skills/archive-docs"),
+        summarizeAudit(report),
+      ).toBeUndefined();
+      expect(
+        findEntry(preservedEntries, ".make-docs/agentics/skills/archive-docs"),
+        summarizeAudit(report),
+      ).toBeDefined();
     } finally {
       cleanupTempDir(targetDir);
     }

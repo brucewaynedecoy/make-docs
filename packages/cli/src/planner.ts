@@ -645,14 +645,20 @@ function planStaleSkillFile(options: {
 
   const stats = lstatSync(absolutePath);
   if (!stats.isFile()) {
-    if (
-      (manifestEntry?.skillExposure || isSkillExposurePath(relativePath)) &&
-      isManagedSkillExposurePath(absolutePath, targetDir, relativePath, previousSkillContent)
-    ) {
-      return {
-        type: "remove-managed",
-        relativePath,
-        sourceId: manifestEntry?.sourceId ?? `skill:${relativePath}`,
+      if (
+        (manifestEntry?.skillExposure || isSkillExposurePath(relativePath)) &&
+        isManagedSkillExposurePath(
+          absolutePath,
+          targetDir,
+          relativePath,
+          previousSkillContent,
+          manifestEntry?.skillExposure,
+        )
+      ) {
+        return {
+          type: "remove-managed",
+          relativePath,
+          sourceId: manifestEntry?.sourceId ?? `skill:${relativePath}`,
         skillExposure: manifestEntry?.skillExposure,
       };
     }
@@ -763,7 +769,7 @@ function isCleanManifestOwnedLegacySkillExposureDirectory(
   }
 
   const descendantPaths = listDescendantFilePaths(absolutePath).map((filePath) =>
-    normalizePlanPath(path.relative(targetDir, filePath)),
+    normalizeSkillDescendantPath(targetDir, relativePath, filePath),
   );
   if (descendantPaths.length === 0) {
     return false;
@@ -802,7 +808,7 @@ function isCleanLegacySkillExposureDirectory(
   }
 
   const descendantPaths = listDescendantFilePaths(absolutePath).map((filePath) =>
-    normalizePlanPath(path.relative(targetDir, filePath)),
+    normalizeSkillDescendantPath(targetDir, relativePath, filePath),
   );
   if (descendantPaths.length === 0) {
     return true;
@@ -831,7 +837,7 @@ function copyMirrorMatches(
     copyMirrorAssets.map((asset) => [normalizePlanPath(asset.relativePath), asset.content]),
   );
   const existingFiles = listDescendantFilePaths(absoluteExposurePath).map((filePath) =>
-    normalizePlanPath(path.relative(targetDir, filePath)),
+    normalizeSkillDescendantPath(targetDir, exposurePath, filePath),
   );
 
   if (existingFiles.length !== expectedContentByPath.size) {
@@ -866,15 +872,34 @@ function isManagedSkillExposurePath(
   targetDir: string,
   relativePath: string,
   previousSkillContent: Map<string, string>,
+  manifestSkillExposure?: InstallManifest["files"][string]["skillExposure"],
 ): boolean {
   const stats = lstatSync(absolutePath);
   if (stats.isSymbolicLink()) {
+    if (manifestSkillExposure?.canonicalPayloadPath) {
+      return skillExposureSymlinkTargetMatches(
+        absolutePath,
+        targetDir,
+        manifestSkillExposure.canonicalPayloadPath,
+      );
+    }
+
     return skillExposureDescendantsMatch(targetDir, relativePath, previousSkillContent);
   }
   return (
     stats.isDirectory() &&
     isCleanLegacySkillExposureDirectory(targetDir, relativePath, previousSkillContent)
   );
+}
+
+function skillExposureSymlinkTargetMatches(
+  absolutePath: string,
+  targetDir: string,
+  canonicalPayloadPath: string,
+): boolean {
+  const currentTarget = path.resolve(path.dirname(absolutePath), readlinkSync(absolutePath));
+  const expectedTarget = relativePathToTarget(targetDir, canonicalPayloadPath);
+  return path.resolve(currentTarget) === path.resolve(expectedTarget);
 }
 
 function skillExposureDescendantsMatch(
@@ -888,7 +913,7 @@ function skillExposureDescendantsMatch(
   }
 
   const descendantPaths = listDescendantFilePaths(absolutePath).map((filePath) =>
-    normalizePlanPath(path.relative(targetDir, filePath)),
+    normalizeSkillDescendantPath(targetDir, relativePath, filePath),
   );
 
   return descendantPaths.every((descendantPath) => {
@@ -898,6 +923,16 @@ function skillExposureDescendantsMatch(
       readTextFile(relativePathToTarget(targetDir, descendantPath)) === expectedContent
     );
   });
+}
+
+function normalizeSkillDescendantPath(
+  targetDir: string,
+  skillRootPath: string,
+  descendantPath: string,
+): string {
+  return path.isAbsolute(skillRootPath)
+    ? normalizePlanPath(descendantPath)
+    : normalizePlanPath(path.relative(targetDir, descendantPath));
 }
 
 function isSkillExposurePath(relativePath: string): boolean {
