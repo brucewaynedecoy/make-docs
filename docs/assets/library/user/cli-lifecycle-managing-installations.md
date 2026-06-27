@@ -20,6 +20,7 @@ related:
   - ../../../prd/05-installation-profile-and-manifest-lifecycle.md
   - ../../../prd/07-cli-command-surface-and-lifecycle.md
   - ../../../prd/25-revise-cli-separation-and-mcp-boundary.md
+  - ../../../prd/32-revise-lifecycle-backup-state-agentics-pruning.md
 ---
 
 # Managing Installations with the Make Docs CLI
@@ -160,13 +161,13 @@ The command help is the source of truth for:
 
 ## Create a backup before destructive changes
 
-Use `backup` to copy removable managed files into the project-local `.backup/` tree before you uninstall or perform other risky cleanup.
+Use `backup` to copy removable managed files into the project-local `.make-docs/backup/` tree before you uninstall or perform other risky cleanup.
 
 ```bash
 make-docs backup
 ```
 
-The backup command uses the same audit engine as uninstall. It inspects managed files, determines which files are safe to copy, and creates a dated destination under `.backup/` only when there is real backup work to do.
+The backup command uses the same audit engine as uninstall. It inspects managed files, determines which files are safe to copy, and creates a dated destination under `.make-docs/backup/` only when there is real backup work to do. Existing root `.backup/` directories from older Make Docs runs are protected legacy backup state; current backup runs do not create new snapshots there.
 
 ### When to run `backup`
 
@@ -200,7 +201,7 @@ The audit flow distinguishes between:
 
 - removable managed files
 - preserved files that appear user-modified or otherwise unsafe to delete
-- skipped paths such as items inside `.backup/`
+- skipped paths such as items inside `.make-docs/backup/` or legacy `.backup/`
 - directories that become safely prunable only after removable descendants are gone
 
 That separation is why uninstall and recovery guidance belong together: removal decisions depend on audit classification, not just pathname matching.
@@ -210,7 +211,7 @@ That separation is why uninstall and recovery guidance belong together: removal 
 If a lifecycle action did not do what you expected, use this order of operations:
 
 1. For install, sync, reconfigure, or skills work, run the same command again with `--dry-run` to inspect the current plan.
-2. Review the project-local `.backup/` tree if you used `backup` or `uninstall --backup`.
+2. Review the project-local `.make-docs/backup/` tree if you used `backup` or `uninstall --backup`.
 3. Re-run `make-docs reconfigure` if the problem was caused by the wrong selections.
 4. Use command help to confirm the exact flags you intended to use.
 
@@ -226,7 +227,7 @@ or a non-interactive equivalent with the correct flags, then preview with `--dry
 
 ### Recover after uninstall
 
-If you uninstalled with backup enabled, inspect the newest `.backup/` directory in the target project and restore only the files you actually want back. After restoring files, rerun `make-docs` or `make-docs reconfigure` so the manifest-backed install returns to a consistent state.
+If you uninstalled with backup enabled, inspect the newest `.make-docs/backup/` directory in the target project and restore only the files you actually want back. If your project also has a root `.backup/` directory from an older Make Docs run, treat it as legacy recovery evidence and do not delete it blindly. After restoring files, rerun `make-docs` or `make-docs reconfigure` so the manifest-backed install returns to a consistent state.
 
 ## Troubleshooting
 

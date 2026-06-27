@@ -260,7 +260,7 @@ describe("uninstall command", () => {
       });
       expect(events[1]).toMatchObject({
         targetDir,
-        backupDestinationDir: path.join(targetDir, ".backup/2026-04-18"),
+        backupDestinationDir: path.join(targetDir, ".make-docs/backup/2026-04-18"),
         backupDestinationExistsAtWarning: false,
       });
       expect(events[2]).toMatchObject({
@@ -268,7 +268,7 @@ describe("uninstall command", () => {
       });
       expect(events[3]).toMatchObject({
         targetDir,
-        backupDestinationDir: path.join(targetDir, ".backup/2026-04-18"),
+        backupDestinationDir: path.join(targetDir, ".make-docs/backup/2026-04-18"),
         filesToRemove: result.plan.auditReport.removableFiles.length,
         directoriesToPrune: result.plan.auditReport.prunableDirectories.length,
         preserved: result.plan.auditReport.preservedPaths.length,
@@ -285,7 +285,7 @@ describe("uninstall command", () => {
         preserved: result.plan.auditReport.preservedPaths.length,
         skipped: result.plan.auditReport.skippedPaths.length,
         backupStatus: "completed",
-        backupDestinationDir: path.join(targetDir, ".backup/2026-04-18"),
+        backupDestinationDir: path.join(targetDir, ".make-docs/backup/2026-04-18"),
       });
       expect(confirmMock).not.toHaveBeenCalled();
       expect(createAuditReportMock).toHaveBeenCalledTimes(1);
@@ -410,6 +410,7 @@ describe("uninstall command", () => {
       ]);
       expect(createAuditReportMock).not.toHaveBeenCalled();
       expect(existsSync(path.join(targetDir, "AGENTS.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, ".make-docs/backup"))).toBe(false);
       expect(existsSync(path.join(targetDir, ".backup"))).toBe(false);
       expect(confirmMock).not.toHaveBeenCalled();
     } finally {
@@ -449,6 +450,7 @@ describe("uninstall command", () => {
       ]);
       expect(createAuditReportMock).toHaveBeenCalledTimes(1);
       expect(existsSync(path.join(targetDir, "AGENTS.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, ".make-docs/backup"))).toBe(false);
       expect(existsSync(path.join(targetDir, ".backup"))).toBe(false);
       expect(confirmMock).not.toHaveBeenCalled();
     } finally {
@@ -467,6 +469,9 @@ describe("uninstall command", () => {
         selections.selectedSkills = ["archive-docs"];
         selections.skillScope = "global";
       });
+      const legacyBackupFile = path.join(targetDir, ".backup/2026-04-17/AGENTS.md");
+      mkdirSync(path.dirname(legacyBackupFile), { recursive: true });
+      writeFileSync(legacyBackupFile, "legacy backup evidence\n", "utf8");
 
       const { result, output } = await captureUninstallRun({
         targetDir,
@@ -476,24 +481,25 @@ describe("uninstall command", () => {
 
       expect(result.status).toBe("completed");
       expect(createAuditReportMock).toHaveBeenCalledTimes(1);
-      expect(existsSync(path.join(targetDir, ".backup/2026-04-18/AGENTS.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, ".make-docs/backup/2026-04-18/AGENTS.md"))).toBe(true);
       expect(
         existsSync(
           path.join(
             targetDir,
-            ".backup/2026-04-18/_home/.make-docs/agentics/skills/archive-docs/SKILL.md",
+            ".make-docs/backup/2026-04-18/_home/.make-docs/agentics/skills/archive-docs/SKILL.md",
           ),
         ),
       ).toBe(true);
       expect(
-        existsSync(path.join(targetDir, ".backup/2026-04-18/_home/.agents/skills/archive-docs")),
+        existsSync(path.join(targetDir, ".make-docs/backup/2026-04-18/_home/.agents/skills/archive-docs")),
       ).toBe(true);
+      expect(existsSync(legacyBackupFile)).toBe(true);
       expect(existsSync(path.join(targetDir, "AGENTS.md"))).toBe(false);
       expect(existsSync(path.join(targetDir, "CLAUDE.md"))).toBe(false);
       expect(output).toContain("WARNING");
       expect(output).toContain("A backup will be created before removal begins.");
       expect(output).toContain("Backup destination: ");
-      expect(output).toContain(".backup/2026-04-18");
+      expect(output).toContain(".make-docs/backup/2026-04-18");
       expect(output).toContain("Uninstall complete");
       expect(confirmMock).not.toHaveBeenCalled();
     } finally {

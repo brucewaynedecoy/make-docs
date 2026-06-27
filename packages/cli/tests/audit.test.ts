@@ -832,15 +832,20 @@ describe("shared audit engine", () => {
     }
   });
 
-  test("covers .backup exclusion for removable files and prunable directories", async () => {
+  test("covers backup-state exclusion for removable files and prunable directories", async () => {
     const targetDir = createTempDir();
 
     try {
       const manifest = await installWithSelections(targetDir, () => {});
 
-      const backupFile = path.join(targetDir, ".backup/2026-04-18/docs/AGENTS.md");
-      mkdirSync(path.dirname(backupFile), { recursive: true });
-      writeFileSync(backupFile, readPackageFile("AGENTS.md"), "utf8");
+      const backupFiles = [
+        path.join(targetDir, ".make-docs/backup/2026-04-18/docs/AGENTS.md"),
+        path.join(targetDir, ".backup/2026-04-17/docs/AGENTS.md"),
+      ];
+      for (const backupFile of backupFiles) {
+        mkdirSync(path.dirname(backupFile), { recursive: true });
+        writeFileSync(backupFile, readPackageFile("AGENTS.md"), "utf8");
+      }
 
       const report = await runAudit({ targetDir, manifest });
 
@@ -848,7 +853,15 @@ describe("shared audit engine", () => {
       const prunableDirectories = collectEntries(report, PRUNABLE_DIRECTORY_BUCKETS, ["prunable"]);
 
       expect(
+        removableEntries.some((entry) => entry.path.startsWith(".make-docs/backup/")),
+        summarizeAudit(report),
+      ).toBe(false);
+      expect(
         removableEntries.some((entry) => entry.path.startsWith(".backup/")),
+        summarizeAudit(report),
+      ).toBe(false);
+      expect(
+        prunableDirectories.some((entry) => entry.path.startsWith(".make-docs/backup/")),
         summarizeAudit(report),
       ).toBe(false);
       expect(

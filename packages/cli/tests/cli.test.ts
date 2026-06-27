@@ -1604,6 +1604,7 @@ personas:
     expect(output).toContain("Skip confirmation prompts");
     expect(output).toContain("non-destructive");
     expect(output).toContain("source files remain in place");
+    expect(output).toContain(".make-docs/backup/<date>");
     expect(output).toContain("--help");
     expect(output).not.toContain("--no-skills");
   });
@@ -1618,6 +1619,7 @@ personas:
     expect(output).toContain("--backup");
     expect(output).toContain("--yes");
     expect(output).toContain("Skip confirmation prompts");
+    expect(output).toContain(".make-docs/backup/<date>");
     expect(output).toContain("destructive");
     expect(output).toContain("audited managed files are removed");
     expect(output).toContain("--help");

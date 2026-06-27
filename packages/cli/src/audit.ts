@@ -5,6 +5,7 @@ import {
   classifyAgenticSkillFileRole,
   formatAgenticSkillFileRole,
 } from "./agentic-skill-roles";
+import { isInsideProjectBackupStateRoot } from "./backup-paths";
 import { getDesiredAssets } from "./catalog";
 import {
   createAuditPathMetadata,
@@ -42,7 +43,6 @@ import {
 } from "./types";
 import { hashText, PACKAGE_ROOT, readTextFile, relativePathToTarget } from "./utils";
 
-const PROJECT_BACKUP_DIRNAME = ".backup";
 const SHARED_AGENTICS_SKILL_DIR = ".make-docs/agentics/skills";
 const HARNESS_SKILL_DIRS: Record<Harness, string> = {
   "claude-code": ".claude/skills",
@@ -190,7 +190,7 @@ function classifyManifestRecord(options: {
       "excluded",
       createReason(
         "inside-backup-root",
-        "Paths inside the project `.backup/` tree are excluded from removal consideration.",
+        "Paths inside project backup state trees are excluded from removal consideration.",
       ),
     );
     return;
@@ -566,7 +566,7 @@ function classifyFallbackRecord(options: {
       "excluded",
       createReason(
         "inside-backup-root",
-        "Paths inside the project `.backup/` tree are excluded from removal consideration.",
+        "Paths inside project backup state trees are excluded from removal consideration.",
       ),
     );
     return;
@@ -1182,7 +1182,7 @@ function isInstructionPath(auditPath: string): boolean {
 }
 
 function isInsideProjectBackupRoot(targetDir: string, absolutePath: string): boolean {
-  return isWithinRoot(path.join(targetDir, PROJECT_BACKUP_DIRNAME), absolutePath);
+  return isInsideProjectBackupStateRoot(targetDir, absolutePath);
 }
 
 function isWithinRoot(rootPath: string, candidatePath: string): boolean {

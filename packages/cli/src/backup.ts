@@ -8,6 +8,7 @@ import {
 import os from "node:os";
 import path from "node:path";
 import { createAuditReport } from "./audit";
+import { getProjectBackupRoot } from "./backup-paths";
 import { getLifecycleRenderer } from "./lifecycle-ui";
 import { loadManifest } from "./manifest";
 import type {
@@ -18,8 +19,6 @@ import type {
   BackupExecutionResult,
 } from "./types";
 import { ensureParentDir } from "./utils";
-
-const PROJECT_BACKUP_DIRNAME = ".backup";
 
 type CopyableAuditRemovableFile = AuditRemovableFile & {
   backupRelativePath: string;
@@ -168,7 +167,7 @@ export function resolveBackupDestinationPlan(
   targetDir: string,
   now: Date,
 ): BackupDestinationPlan {
-  const backupRoot = path.join(targetDir, PROJECT_BACKUP_DIRNAME);
+  const backupRoot = getProjectBackupRoot(targetDir);
   const dateStamp = formatDateStamp(now);
   const plainDirectory = path.join(backupRoot, dateStamp);
   const existingOrdinals = collectExistingOrdinals(backupRoot, dateStamp);

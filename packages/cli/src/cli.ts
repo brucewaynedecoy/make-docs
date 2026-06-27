@@ -1301,6 +1301,7 @@ Examples:
       output.write(`make-docs backup
 
 Create a backup of the managed make-docs files in the target directory.
+New backups are written under .make-docs/backup/<date>.
 This command is non-destructive: source files remain in place.
 
 Usage:
@@ -1328,7 +1329,7 @@ Usage:
 
 Options:
   --target <dir>                   Uninstall from a different make-docs install directory.
-  --backup                         Create a backup before removing files.
+  --backup                         Create a .make-docs/backup/<date> backup before removing files.
   --yes                            Skip confirmation prompts after showing warnings and the audit summary.
   --help, -h                       Show help for this command.
 

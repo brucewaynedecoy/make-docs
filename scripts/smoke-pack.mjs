@@ -501,6 +501,9 @@ try {
     mkdirSync(path.dirname(filePath), { recursive: true });
     writeFileSync(filePath, "preserve this unmanaged reader-facing fixture\n", "utf8");
   }
+  const legacyBackupFile = path.join(targetDir, ".backup/2026-04-17/AGENTS.md");
+  mkdirSync(path.dirname(legacyBackupFile), { recursive: true });
+  writeFileSync(legacyBackupFile, "legacy backup evidence\n", "utf8");
 
   execFileSync(
     "node",
@@ -508,7 +511,7 @@ try {
     { stdio: "inherit" },
   );
 
-  const backupRoot = path.join(targetDir, ".backup");
+  const backupRoot = path.join(targetDir, ".make-docs/backup");
   const backupDir = getOnlyBackupDirectory(backupRoot);
   assertExists(path.join(backupDir, "AGENTS.md"), "Smoke pack backup did not copy AGENTS.md.");
   assertExists(
@@ -546,8 +549,9 @@ try {
       `Smoke pack uninstall removed unmanaged reader-facing asset ${relativePath}.`,
     );
   }
-  assertExists(backupRoot, "Smoke pack uninstall removed the .backup directory.");
+  assertExists(backupRoot, "Smoke pack uninstall removed the .make-docs/backup directory.");
   assertExists(path.join(backupDir, "AGENTS.md"), "Smoke pack uninstall modified the backup tree.");
+  assertExists(legacyBackupFile, "Smoke pack uninstall removed the legacy .backup directory.");
 } finally {
   rmSync(unpackDir, { recursive: true, force: true });
   rmSync(targetDir, { recursive: true, force: true });
@@ -1033,7 +1037,7 @@ function assertDirectoryEntries(directoryPath, expectedEntries) {
 }
 
 function getOnlyBackupDirectory(backupRoot) {
-  assertExists(backupRoot, "Smoke pack backup did not produce a .backup directory.");
+  assertExists(backupRoot, "Smoke pack backup did not produce a .make-docs/backup directory.");
   const backupEntries = readdirSync(backupRoot).filter((entry) =>
     existsSync(path.join(backupRoot, entry)),
   );

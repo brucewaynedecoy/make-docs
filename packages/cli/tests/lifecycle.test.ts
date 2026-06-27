@@ -89,8 +89,10 @@ describe("lifecycle validation", () => {
       await installMakeDocsTarget(targetDir, (selections) => {
         selections.skills = false;
       });
-      mkdirSync(path.join(targetDir, ".backup/2026-04-18/docs"), { recursive: true });
-      writeFileSync(path.join(targetDir, ".backup/2026-04-18/docs/AGENTS.md"), "old backup\n");
+      mkdirSync(path.join(targetDir, ".make-docs/backup/2026-04-18/docs"), { recursive: true });
+      writeFileSync(path.join(targetDir, ".make-docs/backup/2026-04-18/docs/AGENTS.md"), "old backup\n");
+      mkdirSync(path.join(targetDir, ".backup/2026-04-17/docs"), { recursive: true });
+      writeFileSync(path.join(targetDir, ".backup/2026-04-17/docs/AGENTS.md"), "legacy backup\n");
 
       const report = await createAuditReport({
         targetDir,
@@ -103,7 +105,17 @@ describe("lifecycle validation", () => {
       expect(removablePaths).toContain("AGENTS.md");
       expect(removablePaths).toContain("CLAUDE.md");
       expect(removablePaths).toContain(".make-docs/manifest.json");
-      expect(prunablePaths).toContain(".make-docs");
+      expect(prunablePaths).not.toContain(".make-docs");
+      expect(report.preservedPaths).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            path: ".make-docs",
+            reasonCode: "directory-contains-preserved-descendants",
+            preservedDescendantPaths: [".make-docs/backup"],
+          }),
+        ]),
+      );
+      expect(allAuditPaths(report).some((entryPath) => entryPath.startsWith(".make-docs/backup/"))).toBe(false);
       expect(allAuditPaths(report).some((entryPath) => entryPath.startsWith(".backup/"))).toBe(false);
     } finally {
       cleanupTempDir(targetDir);
@@ -174,15 +186,22 @@ describe("lifecycle validation", () => {
     try {
       const firstPlan = resolveBackupDestinationPlan(targetDir, NOW);
       expect(firstPlan.directoryName).toBe("2026-04-18");
+      expect(firstPlan.destinationDir).toBe(
+        path.join(targetDir, ".make-docs/backup/2026-04-18"),
+      );
 
       for (let ordinal = 1; ordinal <= 9; ordinal += 1) {
-        mkdirSync(path.join(targetDir, ".backup", `2026-04-18-${String(ordinal).padStart(2, "0")}`), {
+        mkdirSync(path.join(targetDir, ".make-docs/backup", `2026-04-18-${String(ordinal).padStart(2, "0")}`), {
           recursive: true,
         });
       }
+      mkdirSync(path.join(targetDir, ".backup/2026-04-18-99"), { recursive: true });
 
       const tenthOrdinalPlan = resolveBackupDestinationPlan(targetDir, NOW);
       expect(tenthOrdinalPlan.directoryName).toBe("2026-04-18-10");
+      expect(tenthOrdinalPlan.destinationDir).toBe(
+        path.join(targetDir, ".make-docs/backup/2026-04-18-10"),
+      );
     } finally {
       cleanupTempDir(targetDir);
     }
@@ -214,10 +233,10 @@ describe("lifecycle validation", () => {
       expect(result.status).toBe("completed");
       expect(result.copiedFiles).toContain(`_home/${sharedHomeSkillPath}`);
       expect(result.materializedDirectories).toContain(`_home/${homeSkillPath}`);
-      expect(existsSync(path.join(targetDir, ".backup/2026-04-18/_home", sharedHomeSkillPath))).toBe(
+      expect(existsSync(path.join(targetDir, ".make-docs/backup/2026-04-18/_home", sharedHomeSkillPath))).toBe(
         true,
       );
-      expect(existsSync(path.join(targetDir, ".backup/2026-04-18/_home", homeSkillPath))).toBe(true);
+      expect(existsSync(path.join(targetDir, ".make-docs/backup/2026-04-18/_home", homeSkillPath))).toBe(true);
       expect(existsSync(path.join(fakeHome, sharedHomeSkillPath))).toBe(true);
       expect(existsSync(path.join(fakeHome, homeSkillPath))).toBe(true);
       expect(existsSync(path.join(targetDir, "AGENTS.md"))).toBe(true);
@@ -373,7 +392,7 @@ describe("lifecycle validation", () => {
     try {
       const renderer = createClackLifecycleRenderer();
       const auditReport = createRendererAuditReport(targetDir);
-      const backupDestinationDir = path.join(targetDir, ".backup/2026-04-18");
+      const backupDestinationDir = path.join(targetDir, ".make-docs/backup/2026-04-18");
 
       renderer.beginWorkflow("make-docs lifecycle");
       renderer.renderBackupAuditSummary({

@@ -5,6 +5,7 @@ import {
   prepareBackupExecution,
   resolveBackupDestinationPlan,
 } from "./backup";
+import { getProjectBackupStateRoots, isWithinRoot } from "./backup-paths";
 import { createAuditReport } from "./audit";
 import {
   getLifecycleRenderer,
@@ -193,12 +194,15 @@ async function loadAuditReport(options: {
 }
 
 function assertNotInsideBackupRoot(targetDir: string, candidatePath: string): void {
-  const backupRoot = path.resolve(targetDir, ".backup");
   const normalizedCandidate = path.resolve(candidatePath);
-  const relativePath = path.relative(backupRoot, normalizedCandidate);
+  const backupRoot = getProjectBackupStateRoots(targetDir).find((root) =>
+    isWithinRoot(root, normalizedCandidate),
+  );
 
-  if (relativePath === "" || (!relativePath.startsWith("..") && !path.isAbsolute(relativePath))) {
-    throw new Error(`Refusing to remove a path inside the project backup root: ${candidatePath}`);
+  if (backupRoot) {
+    throw new Error(
+      `Refusing to remove a path inside project backup state (${backupRoot}): ${candidatePath}`,
+    );
   }
 }
 
