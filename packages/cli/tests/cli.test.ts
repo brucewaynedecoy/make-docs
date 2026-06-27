@@ -1169,8 +1169,14 @@ personas:
 
       expect(output).toContain("make-docs skills plan");
       expect(output).toContain("Planned skill file operations:");
-      expect(output).toContain(".claude/skills/archive-docs/SKILL.md");
-      expect(output).toContain(".agents/skills/archive-docs/SKILL.md");
+      expect(output).toContain("shared payload:");
+      expect(output).toContain(".make-docs/agentics/skills/archive-docs/SKILL.md");
+      expect(output).toContain(
+        "generated harness stub: .claude/skills/archive-docs/SKILL.md",
+      );
+      expect(output).toContain(
+        "generated harness stub: .agents/skills/archive-docs/SKILL.md",
+      );
       expect(output).toContain("Installed skills");
       expect(output).not.toContain("Installed make-docs");
       expect(output).not.toContain("Reconfigured make-docs");

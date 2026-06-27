@@ -2,6 +2,7 @@ import { existsSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { stdin as input, stdout as output } from "node:process";
 import { confirm, isCancel, note } from "@clack/prompts";
+import { formatAgenticSkillFileRole } from "./agentic-skill-roles";
 import { runBackupCommand } from "./backup";
 import {
   classifyCompatibilityState,
@@ -1132,7 +1133,8 @@ function formatActionLine(action: PlannedAction): string {
     throw new Error(`Cannot render no-op action for ${action.relativePath}.`);
   }
 
-  return `- ${kind}: ${action.relativePath}`;
+  const agenticRole = formatAgenticSkillFileRole(action.agenticRole);
+  return `- ${kind}: ${agenticRole ? `${agenticRole}: ` : ""}${action.relativePath}`;
 }
 
 function compareRenderedActions(left: PlannedAction, right: PlannedAction): number {

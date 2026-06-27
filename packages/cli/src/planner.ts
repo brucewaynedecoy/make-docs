@@ -4,6 +4,7 @@ import {
   getDesiredAssetsForMaterializationMode,
   getSystemAssetMaterializationPlan,
 } from "./catalog";
+import { classifyAgenticSkillFileRole } from "./agentic-skill-roles";
 import { getManifestFileHash } from "./manifest";
 import { parseManagedBlock, upsertManagedBlock } from "./managed-block";
 import { getDesiredSkillAssets, getRetiredManagedSkillAssets } from "./skill-catalog";
@@ -108,6 +109,21 @@ export async function createInstallPlan(options: {
   const existingSkillFiles = new Set(existingManifest?.skillFiles ?? []);
 
   for (const asset of allDesiredAssets) {
+    if (desiredSkillFileSet.has(asset.relativePath)) {
+      const action = planDesiredSkillAsset({
+        targetDir,
+        asset,
+        existingManifest,
+        existingSkillFiles,
+        previousSkillContent,
+      });
+      if (action.type === "skip-conflict") {
+        conflictsRunId ??= createRunId();
+      }
+      actions.push(action);
+      continue;
+    }
+
     const absolutePath = relativePathToTarget(targetDir, asset.relativePath);
     const desiredHash = getManifestHashForAsset(asset);
 
@@ -278,14 +294,16 @@ export async function createInstallPlan(options: {
     }
   }
 
-  actions.sort((left, right) => left.relativePath.localeCompare(right.relativePath));
+  const annotatedActions = actions
+    .map(withAgenticRole)
+    .sort((left, right) => left.relativePath.localeCompare(right.relativePath));
 
   return {
     packageName: packageMeta.name,
     packageVersion: packageMeta.version,
     profile,
     systemAssetMaterialization: systemAssetManifestState,
-    actions,
+    actions: annotatedActions,
     desiredFiles,
     desiredSkillFiles: desiredSkillFiles.sort(),
     conflictsRunId,
@@ -354,18 +372,29 @@ export async function createSkillsOnlyInstallPlan(options: {
     }
   }
 
-  actions.sort((left, right) => left.relativePath.localeCompare(right.relativePath));
+  const annotatedActions = actions
+    .map(withAgenticRole)
+    .sort((left, right) => left.relativePath.localeCompare(right.relativePath));
 
   return {
     packageName: packageMeta.name,
     packageVersion: packageMeta.version,
     profile,
     systemAssetMaterialization: createSkillsOnlySystemAssetMaterializationPlan(),
-    actions,
+    actions: annotatedActions,
     desiredFiles,
     desiredSkillFiles: desiredSkillFiles.sort(),
     conflictsRunId,
   };
+}
+
+function withAgenticRole(action: PlannedAction): PlannedAction {
+  const agenticRole = classifyAgenticSkillFileRole({
+    relativePath: action.relativePath,
+    sourceId: action.sourceId,
+  });
+
+  return agenticRole ? { ...action, agenticRole } : action;
 }
 
 function createSkillsOnlySystemAssetMaterializationPlan(): SystemAssetManifestState {
@@ -513,7 +542,7 @@ async function getPreviousSkillContentByPath(
       getRetiredManagedSkillAssets(selections),
     ]);
     return new Map(
-      [...previousAssets, ...retiredAssets].map((asset) => [
+      [...retiredAssets, ...previousAssets].map((asset) => [
         asset.relativePath,
         asset.content,
       ]),

@@ -210,9 +210,15 @@ describe("lifecycle validation", () => {
       );
 
       const homeSkillPath = ".agents/skills/archive-docs/SKILL.md";
+      const sharedHomeSkillPath = ".make-docs/agentics/skills/archive-docs/SKILL.md";
       expect(result.status).toBe("completed");
+      expect(result.copiedFiles).toContain(`_home/${sharedHomeSkillPath}`);
       expect(result.copiedFiles).toContain(`_home/${homeSkillPath}`);
+      expect(existsSync(path.join(targetDir, ".backup/2026-04-18/_home", sharedHomeSkillPath))).toBe(
+        true,
+      );
       expect(existsSync(path.join(targetDir, ".backup/2026-04-18/_home", homeSkillPath))).toBe(true);
+      expect(existsSync(path.join(fakeHome, sharedHomeSkillPath))).toBe(true);
       expect(existsSync(path.join(fakeHome, homeSkillPath))).toBe(true);
       expect(existsSync(path.join(targetDir, "AGENTS.md"))).toBe(true);
     } finally {
@@ -256,6 +262,7 @@ describe("lifecycle validation", () => {
           }),
         ],
       });
+      expect(removablePaths).toContain(".make-docs/agentics/skills/acme-release/SKILL.md");
       expect(removablePaths).toContain(".agents/skills/acme-release/SKILL.md");
       expect(removablePaths).not.toContain(".agents/skills/archive-docs/SKILL.md");
       expect(compatibilityEvidence).toContain(
@@ -269,6 +276,7 @@ describe("lifecycle validation", () => {
           now: NOW,
         }),
       );
+      expect(backupResult.copiedFiles).toContain(".make-docs/agentics/skills/acme-release/SKILL.md");
       expect(backupResult.copiedFiles).toContain(".agents/skills/acme-release/SKILL.md");
       expect(backupResult.copiedFiles).not.toContain(".agents/skills/archive-docs/SKILL.md");
 
@@ -278,6 +286,9 @@ describe("lifecycle validation", () => {
           backup: false,
           permissions: "allow-all",
         }),
+      );
+      expect(uninstallResult.removedFiles).toContain(
+        ".make-docs/agentics/skills/acme-release/SKILL.md",
       );
       expect(uninstallResult.removedFiles).toContain(".agents/skills/acme-release/SKILL.md");
       expect(uninstallResult.removedFiles).not.toContain(".agents/skills/archive-docs/SKILL.md");

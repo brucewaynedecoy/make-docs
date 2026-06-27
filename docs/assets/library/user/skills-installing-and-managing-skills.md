@@ -72,6 +72,8 @@ Use dry-run before:
 - adding a selected skill
 - changing harness targets
 
+Dry-run output labels skill operations as shared payloads, generated harness stubs, or legacy duplicated payloads so you can tell whether Make Docs is installing canonical skill content, exposing it to a harness, or migrating an older duplicated install.
+
 ## Selected skills
 
 The current registry exposes skills that can be selected explicitly. A skills-enabled install can replace the selected set with a comma-separated list, `all`, or `none`.
@@ -199,3 +201,7 @@ That is expected. Global scope installs the shared payload and generated harness
 ### I want to remove skills but keep the rest of the install
 
 Use `make-docs skills --remove`.
+
+### I see legacy duplicated payloads in a plan
+
+That means Make Docs found files from the older per-harness skill layout. Clean manifest-owned files can migrate to the shared payload plus stub model; edited or ambiguous files are preserved or routed to review instead of being removed by path name alone.

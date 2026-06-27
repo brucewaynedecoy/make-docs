@@ -84,14 +84,17 @@ const sampleActions: PlannedAction[] = [
   {
     type: "create",
     relativePath: ".agents/skills/archive-docs/SKILL.md",
+    agenticRole: "generated-stub",
   },
   {
     type: "update",
-    relativePath: ".claude/skills/decompose-codebase/SKILL.md",
+    relativePath: ".make-docs/agentics/skills/decompose-codebase/SKILL.md",
+    agenticRole: "shared-payload",
   },
   {
     type: "noop",
     relativePath: ".claude/skills/archive-docs/SKILL.md",
+    agenticRole: "generated-stub",
   },
 ];
 
@@ -252,8 +255,10 @@ describe("skills-only UI", () => {
     expect(summary).toContain("Selected skills: decompose-codebase");
     expect(summary).not.toContain("Optional skills");
     expect(summary).toContain("Planned skill file operations:");
-    expect(summary).toContain(".agents/skills/archive-docs/SKILL.md");
-    expect(summary).toContain(".claude/skills/decompose-codebase/SKILL.md");
+    expect(summary).toContain("generate: generated harness stub: .agents/skills/archive-docs/SKILL.md");
+    expect(summary).toContain(
+      "update: shared payload: .make-docs/agentics/skills/decompose-codebase/SKILL.md",
+    );
     expect(summary).not.toContain("docs/assets/prompts");
     expect(summary).not.toContain("templates");
     expect(summary).not.toContain("references");

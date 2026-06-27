@@ -1,6 +1,10 @@
 import { existsSync, readdirSync, statSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import {
+  classifyAgenticSkillFileRole,
+  formatAgenticSkillFileRole,
+} from "./agentic-skill-roles";
 import { getDesiredAssets } from "./catalog";
 import {
   createAuditPathMetadata,
@@ -39,6 +43,7 @@ import {
 import { hashText, PACKAGE_ROOT, readTextFile } from "./utils";
 
 const PROJECT_BACKUP_DIRNAME = ".backup";
+const SHARED_AGENTICS_SKILL_DIR = ".make-docs/agentics/skills";
 const HARNESS_SKILL_DIRS: Record<Harness, string> = {
   "claude-code": ".claude/skills",
   codex: ".agents/skills",
@@ -119,7 +124,7 @@ async function classifyManifestPresent(options: {
     manifest,
     removableFiles,
     preservedPaths,
-  skippedPaths,
+    skippedPaths,
   } = options;
   const auditContext = getManifestAuditContext(targetDir, manifest, homeDir);
 
@@ -128,7 +133,10 @@ async function classifyManifestPresent(options: {
     manifestCandidates.set(record.absolutePath, record);
   }
   for (const record of auditContext.skillFiles) {
-    manifestCandidates.set(record.absolutePath, manifestCandidates.get(record.absolutePath) ?? record);
+    manifestCandidates.set(
+      record.absolutePath,
+      manifestCandidates.get(record.absolutePath) ?? record,
+    );
   }
   manifestCandidates.set(
     path.resolve(targetDir, MANIFEST_RELATIVE_PATH),
@@ -141,7 +149,9 @@ async function classifyManifestPresent(options: {
     targetDir,
     homeDir,
     auditContext.priorSelections,
-    [...manifestCandidates.values()].some((record) => record.ownershipSource === "manifest-skill-file"),
+    [...manifestCandidates.values()].some(
+      (record) => record.ownershipSource === "manifest-skill-file",
+    ),
   );
 
   for (const record of sortAuditEntries([...manifestCandidates.values()])) {
@@ -314,7 +324,7 @@ function classifyManifestRecord(options: {
         record,
         createReason(
           "manifest-skill-file-without-metadata",
-          "The skill file is tracked only by the manifest skill list and cannot be proven removable without canonical make-docs content.",
+          `The ${formatAuditAgenticRole(record)} is tracked only by the manifest skill list and cannot be proven removable without canonical make-docs content.`,
         ),
       );
       return;
@@ -326,7 +336,7 @@ function classifyManifestRecord(options: {
         record,
         createReason(
           "managed-skill-file-content-match",
-          "The skill file exactly matches canonical make-docs skill content.",
+          `The ${formatAuditAgenticRole(record)} exactly matches canonical make-docs skill content.`,
         ),
         currentHash,
         hashText(expectedContent),
@@ -339,7 +349,7 @@ function classifyManifestRecord(options: {
       record,
       createReason(
         "manifest-skill-file-content-mismatch",
-        "The manifest-tracked skill file does not match canonical make-docs skill content and will be preserved.",
+        `The manifest-tracked ${formatAuditAgenticRole(record)} does not match canonical make-docs skill content and will be preserved.`,
       ),
     );
     return;
@@ -450,7 +460,7 @@ async function classifyManifestMissing(options: {
         skillRoot,
         createReason(
           "fallback-ambiguous",
-          "The harness skill root exists, but fallback mode cannot prove which contents are make-docs-managed.",
+          "The selected-agentics skill root exists, but fallback mode cannot prove which contents are make-docs-managed.",
         ),
       );
     }
@@ -905,22 +915,38 @@ function getKnownSkillRoots(
   targetDir: string,
   homeDir: string,
 ): Array<AuditCandidateMetadata & { pathScope: "project" | "home" }> {
-  return HARNESSES.flatMap((harness) => [
+  return [
     createCandidatePathRecord(
       targetDir,
       homeDir,
-      path.join(targetDir, HARNESS_SKILL_DIRS[harness]),
+      path.join(targetDir, SHARED_AGENTICS_SKILL_DIR),
       "directory",
       "fallback",
     ) as AuditCandidateMetadata & { pathScope: "project" },
     createCandidatePathRecord(
       targetDir,
       homeDir,
-      path.join(homeDir, HARNESS_SKILL_DIRS[harness]),
+      path.join(homeDir, SHARED_AGENTICS_SKILL_DIR),
       "directory",
       "fallback",
     ) as AuditCandidateMetadata & { pathScope: "home" },
-  ]);
+    ...HARNESSES.flatMap((harness) => [
+      createCandidatePathRecord(
+        targetDir,
+        homeDir,
+        path.join(targetDir, HARNESS_SKILL_DIRS[harness]),
+        "directory",
+        "fallback",
+      ) as AuditCandidateMetadata & { pathScope: "project" },
+      createCandidatePathRecord(
+        targetDir,
+        homeDir,
+        path.join(homeDir, HARNESS_SKILL_DIRS[harness]),
+        "directory",
+        "fallback",
+      ) as AuditCandidateMetadata & { pathScope: "home" },
+    ]),
+  ];
 }
 
 function createManagedPathRecord(
@@ -933,11 +959,17 @@ function createManagedPathRecord(
     manifestHash?: string;
   },
 ): ManifestAuditRecord {
+  const agenticRole = classifyAgenticSkillFileRole({
+    relativePath: auditPath,
+    sourceId: options?.sourceId,
+  });
+
   return {
     ...createAuditPathMetadata(targetDir, auditPath, "file", homeDir),
     ownershipSource,
     sourceId: options?.sourceId,
     manifestHash: options?.manifestHash,
+    ...(agenticRole ? { agenticRole } : {}),
   };
 }
 
@@ -948,9 +980,12 @@ function createCandidatePathRecord(
   kind: AuditPathKind,
   ownershipSource?: AuditOwnershipSource,
 ): AuditCandidateMetadata {
+  const agenticRole = classifyAgenticSkillFileRole({ relativePath: auditPath });
+
   return {
     ...createAuditPathMetadata(targetDir, auditPath, kind, homeDir),
     ownershipSource,
+    ...(agenticRole ? { agenticRole } : {}),
   };
 }
 
@@ -1001,6 +1036,10 @@ function addSkipped(
 
 function createReason(code: AuditReason["code"], message: string): AuditReason {
   return { code, message };
+}
+
+function formatAuditAgenticRole(record: AuditManagedPathMetadata): string {
+  return formatAgenticSkillFileRole(record.agenticRole) ?? "skill file";
 }
 
 function isInstructionPath(auditPath: string): boolean {

@@ -20,6 +20,8 @@ This PRD defines the v2 shared installed-state model for selected skills and res
 
 W17 R2 Phase 2 implements the selected-skill shared payload and generated harness-stub path shape for the current TypeScript CLI. Structured agentic ownership records, migrated duplicated-payload disposition, richer dry-run labeling, and full audit/backup/uninstall classification remain owned by later W17 R2 phases.
 
+W17 R2 Phase 3 implements the transitional classification layer for the current TypeScript CLI: planned actions and audit metadata now distinguish shared payloads, generated harness stubs, and legacy duplicated payloads; dry-run, audit, backup, and uninstall output expose that role distinction; and clean manifest-owned duplicated per-harness payload installs migrate to shared payload plus generated stubs. A future richer manifest schema may replace the interim `skillFiles` representation, but it must preserve these distinctions.
+
 ## Requirements
 
 ### Shared Agentics Store

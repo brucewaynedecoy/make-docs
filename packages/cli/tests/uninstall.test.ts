@@ -478,6 +478,14 @@ describe("uninstall command", () => {
       expect(createAuditReportMock).toHaveBeenCalledTimes(1);
       expect(existsSync(path.join(targetDir, ".backup/2026-04-18/AGENTS.md"))).toBe(true);
       expect(
+        existsSync(
+          path.join(
+            targetDir,
+            ".backup/2026-04-18/_home/.make-docs/agentics/skills/archive-docs/SKILL.md",
+          ),
+        ),
+      ).toBe(true);
+      expect(
         existsSync(path.join(targetDir, ".backup/2026-04-18/_home/.agents/skills/archive-docs/SKILL.md")),
       ).toBe(true);
       expect(existsSync(path.join(targetDir, "AGENTS.md"))).toBe(false);

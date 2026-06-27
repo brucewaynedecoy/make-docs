@@ -182,6 +182,11 @@ export interface ManifestFileEntry {
   systemAsset?: ManifestSystemAssetEntry;
 }
 
+export type AgenticSkillFileRole =
+  | "shared-payload"
+  | "generated-stub"
+  | "legacy-duplicated-payload";
+
 export interface InstallManifest {
   schemaVersion: number;
   packageName: string;
@@ -208,6 +213,7 @@ export interface PlannedAction {
   type: ActionType;
   relativePath: string;
   sourceId?: string;
+  agenticRole?: AgenticSkillFileRole;
   content?: string;
   contentHash?: string;
   reason?: string;
@@ -313,11 +319,13 @@ export interface AuditPathMetadata {
 export interface AuditManagedPathMetadata extends AuditPathMetadata {
   ownershipSource: AuditOwnershipSource;
   sourceId?: string;
+  agenticRole?: AgenticSkillFileRole;
 }
 
 export interface AuditCandidateMetadata extends AuditPathMetadata {
   ownershipSource?: AuditOwnershipSource;
   sourceId?: string;
+  agenticRole?: AgenticSkillFileRole;
 }
 
 export interface ManifestAuditRecord extends AuditManagedPathMetadata {

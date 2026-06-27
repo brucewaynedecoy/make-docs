@@ -109,7 +109,10 @@ From the implementation side, the skills command:
 - loads the current manifest
 - resolves the next `InstallSelections` state for skills only
 - plans additions, updates, and removals for shared skill payloads and generated harness stubs
+- annotates planned skill operations and audit records as shared payloads, generated harness stubs, or legacy duplicated payloads
 - applies those changes without requiring a full docs-capability reconfigure
+
+Clean manifest-owned installs from the older per-harness duplicated payload shape may be migrated into the shared payload plus generated-stub shape. Modified files, custom user skills, malformed state, and ambiguous missing-manifest roots remain review or preservation cases rather than path-name based ownership guesses.
 
 This is why the user and developer guides stay distinct:
 
@@ -168,6 +171,10 @@ Check the registry first. The catalog, not the presence of a directory alone, de
 ### A skill change worked for one harness but not the other
 
 Review the shared payload path, generated harness stubs, and asset mapping produced by the skill catalog builder.
+
+### A dry-run reports legacy duplicated payloads
+
+Treat those paths as migration evidence from the older per-harness payload layout. Clean manifest-owned files can migrate automatically; modified or ambiguous files need review before make-docs removes or rewrites them.
 
 ### A user needs to manage only skills, not the full install
 

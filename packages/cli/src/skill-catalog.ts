@@ -125,10 +125,8 @@ export async function getRetiredManagedSkillAssets(
   }
 
   const selectedSkills = new Set(selections.selectedSkills);
-  const selectedEntries = registry.skills.filter(
-    (entry) =>
-      selectedSkills.has(entry.name) &&
-      RETIRED_MANAGED_SKILL_ASSETS[entry.name]?.length > 0,
+  const selectedEntries = registry.skills.filter((entry) =>
+    selectedSkills.has(entry.name),
   );
 
   if (selectedEntries.length === 0) {
@@ -143,11 +141,23 @@ export async function getRetiredManagedSkillAssets(
           return [];
         }
 
-        return selectedEntries.map((entry) =>
-          entry.supportedHarnesses.includes(harness)
-            ? buildRetiredManagedSkillAssets(entry, harness, installRoot)
-            : [],
-        );
+        return selectedEntries.map(async (entry) => {
+          if (!entry.supportedHarnesses.includes(harness)) {
+            return [];
+          }
+
+          const [duplicatedPayloadAssets, retiredSupportAssets] =
+            await Promise.all([
+              buildRetiredDuplicatedSkillPayloadAssets(
+                entry,
+                harness,
+                installRoot,
+              ),
+              buildRetiredManagedSkillAssets(entry, harness, installRoot),
+            ]);
+
+          return [...duplicatedPayloadAssets, ...retiredSupportAssets];
+        });
       }),
     )
   ).flat(2);
@@ -403,6 +413,50 @@ async function buildRetiredManagedSkillAssets(
   }));
 }
 
+async function buildRetiredDuplicatedSkillPayloadAssets(
+  entry: SkillRegistryEntry,
+  harness: Harness,
+  installRoot: string,
+): Promise<ResolvedAsset[]> {
+  const resolvedSkill = await resolveSkillSource(
+    entry.source,
+    entry.entryPoint,
+    entry.assets,
+  );
+  const skillInstallRoot = getInstallPath(
+    installRoot,
+    HARNESS_SKILL_DIRS[harness],
+    entry.installName,
+  );
+
+  const retiredAssets: ResolvedAsset[] = [
+    {
+      relativePath: getInstallPath(skillInstallRoot, entry.entryPoint),
+      assetClass: "static",
+      sourceId: getLegacyDuplicatedSkillSourceId(entry, harness),
+      content: resolvedSkill.entryPointContent,
+    },
+  ];
+
+  resolvedSkill.assets.forEach((asset) => {
+    retiredAssets.push({
+      relativePath: getInstallPath(skillInstallRoot, asset.installPath),
+      assetClass: "static",
+      sourceId: getLegacyDuplicatedSkillAssetSourceId(
+        harness,
+        entry.name,
+        asset.installPath,
+      ),
+      content:
+        typeof asset.content === "string"
+          ? asset.content
+          : asset.content.toString("utf8"),
+    });
+  });
+
+  return retiredAssets;
+}
+
 function getInstallPath(...segments: string[]): string {
   return path.join(...segments);
 }
@@ -431,6 +485,21 @@ function getRetiredSkillAssetSourceId(
   installPath: string,
 ): string {
   return `retired-skill-asset:${harness}:${skillName}:${installPath}`;
+}
+
+function getLegacyDuplicatedSkillSourceId(
+  entry: SkillRegistryEntry,
+  harness: Harness,
+): string {
+  return `skill:${harness}:${entry.name}`;
+}
+
+function getLegacyDuplicatedSkillAssetSourceId(
+  harness: Harness,
+  skillName: string,
+  installPath: string,
+): string {
+  return `skill-asset:${harness}:${skillName}:${installPath}`;
 }
 
 function getHarnessLabel(harness: Harness): string {

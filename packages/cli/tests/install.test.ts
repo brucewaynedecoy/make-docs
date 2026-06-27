@@ -2174,6 +2174,111 @@ describe("installer integration", () => {
     }
   });
 
+  test("migrates clean manifest-owned duplicated skill payloads into shared payloads and stubs", async () => {
+    const targetDir = createTempDir();
+    try {
+      const oldSkill = ".claude/skills/archive-docs/SKILL.md";
+      const oldSupportFile = ".claude/skills/archive-docs/references/archive-workflow.md";
+      const oldSkillContent = readSkillSourceFile("archive-docs", "SKILL.md");
+      const oldSupportContent = readSkillSourceFile(
+        "archive-docs",
+        "references/archive-workflow.md",
+      );
+
+      mkdirSync(path.dirname(path.join(targetDir, oldSupportFile)), { recursive: true });
+      writeFileSync(path.join(targetDir, oldSkill), oldSkillContent, "utf8");
+      writeFileSync(path.join(targetDir, oldSupportFile), oldSupportContent, "utf8");
+
+      const selections = defaultSelections();
+      selections.skills = true;
+      selections.selectedSkills = ["archive-docs"];
+      selections.harnesses["claude-code"] = true;
+      selections.harnesses.codex = false;
+
+      const manifestPath = path.join(targetDir, ".make-docs/manifest.json");
+      mkdirSync(path.dirname(manifestPath), { recursive: true });
+      writeFileSync(
+        manifestPath,
+        `${JSON.stringify(
+          {
+            schemaVersion: 2,
+            packageName: "@brucewaynedecoy/make-docs",
+            packageVersion: "1.0.0-rc.1",
+            updatedAt: new Date().toISOString(),
+            profileId: "legacy-skills",
+            selections,
+            effectiveCapabilities: ["designs", "plans", "prd", "work"],
+            systemAssetMaterialization: {
+              mode: "full-snapshot",
+              localBootstrapPaths: [],
+              deferredSystemAssetPaths: [],
+              materializationClasses: {},
+              recoveryGuidance: "legacy fixture",
+              assets: {},
+            },
+            files: {
+              [oldSkill]: {
+                hash: hashText(oldSkillContent),
+                sourceId: "skill:claude-code:archive-docs",
+              },
+              [oldSupportFile]: {
+                hash: hashText(oldSupportContent),
+                sourceId:
+                  "skill-asset:claude-code:archive-docs:references/archive-workflow.md",
+              },
+            },
+            skillFiles: [oldSkill, oldSupportFile],
+          },
+          null,
+          2,
+        )}\n`,
+        "utf8",
+      );
+
+      const existingManifest = loadManifest(targetDir);
+      const plan = await planInstall({
+        targetDir,
+        selections,
+        existingManifest,
+      });
+      const result = applyInstallPlan({
+        targetDir,
+        plan,
+        existingManifest,
+      });
+
+      expect(getPlannedAction(plan, oldSkill)).toMatchObject({
+        type: "update",
+        agenticRole: "generated-stub",
+      });
+      expect(getPlannedAction(plan, oldSupportFile)).toMatchObject({
+        type: "remove-managed",
+        agenticRole: "legacy-duplicated-payload",
+      });
+      expect(
+        getPlannedAction(plan, ".make-docs/agentics/skills/archive-docs/SKILL.md"),
+      ).toMatchObject({
+        type: "create",
+        agenticRole: "shared-payload",
+      });
+      expect(existsSync(path.join(targetDir, oldSkill))).toBe(true);
+      expect(readFileSync(path.join(targetDir, oldSkill), "utf8")).toContain(
+        "Canonical payload: `.make-docs/agentics/skills/archive-docs/SKILL.md`",
+      );
+      expect(existsSync(path.join(targetDir, oldSupportFile))).toBe(false);
+      expect(
+        existsSync(path.join(targetDir, ".make-docs/agentics/skills/archive-docs/SKILL.md")),
+      ).toBe(true);
+      expect(result.manifest.skillFiles).toContain(oldSkill);
+      expect(result.manifest.skillFiles).not.toContain(oldSupportFile);
+      expect(result.manifest.skillFiles).toContain(
+        ".make-docs/agentics/skills/archive-docs/SKILL.md",
+      );
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
   test("syncs skills without installing docs scaffold on first run", async () => {
     const targetDir = createTempDir();
     try {

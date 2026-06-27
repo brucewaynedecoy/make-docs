@@ -5,6 +5,7 @@ import {
   note,
   select,
 } from "@clack/prompts";
+import { formatAgenticSkillFileRole } from "./agentic-skill-roles";
 import { getRecommendedSkillChoices } from "./skill-catalog";
 import type { WizardSkillChoice } from "./skill-catalog";
 import {
@@ -525,7 +526,8 @@ function formatSkillActionLine(action: PlannedAction): string {
     throw new Error(`Cannot render no-op action for ${action.relativePath}.`);
   }
 
-  return `${kind}: ${action.relativePath}`;
+  const agenticRole = formatAgenticSkillFileRole(action.agenticRole);
+  return `${kind}: ${agenticRole ? `${agenticRole}: ` : ""}${action.relativePath}`;
 }
 
 function getRenderedSkillActions(actions: PlannedAction[]): PlannedAction[] {

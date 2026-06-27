@@ -23,6 +23,7 @@ import type {
   SystemAssetOfflineExpectation,
   SystemAssetSelectionTrigger,
 } from "./types";
+import { classifyAgenticSkillFileRole } from "./agentic-skill-roles";
 import {
   CAPABILITIES,
   HARNESSES,
@@ -888,11 +889,17 @@ function createManifestAuditRecord(
   ownershipSource: ManifestAuditRecord["ownershipSource"],
   manifestEntry?: ManifestFileEntry,
 ): ManifestAuditRecord {
+  const agenticRole = classifyAgenticSkillFileRole({
+    relativePath: managedPath,
+    sourceId: manifestEntry?.sourceId,
+  });
+
   return {
     ...createAuditPathMetadata(targetDir, managedPath, "file", homeDir),
     ownershipSource,
     sourceId: manifestEntry?.sourceId,
     manifestHash: manifestEntry?.hash,
+    ...(agenticRole ? { agenticRole } : {}),
   };
 }
 

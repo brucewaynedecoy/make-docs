@@ -273,13 +273,24 @@ describe("backup command", () => {
 
       const backupDir = path.join(targetDir, ".backup/2026-04-18");
       expect(result.status).toBe("completed");
+      expect(result.copiedFiles).toContain(
+        "_home/.make-docs/agentics/skills/archive-docs/SKILL.md",
+      );
       expect(result.copiedFiles).toContain("_home/.agents/skills/archive-docs/SKILL.md");
       expect(result.copiedFiles).toContain("_home/.claude/skills/archive-docs/SKILL.md");
+      expect(
+        existsSync(
+          path.join(backupDir, "_home/.make-docs/agentics/skills/archive-docs/SKILL.md"),
+        ),
+      ).toBe(true);
       expect(
         existsSync(path.join(backupDir, "_home/.agents/skills/archive-docs/SKILL.md")),
       ).toBe(true);
       expect(
         existsSync(path.join(backupDir, "_home/.claude/skills/archive-docs/SKILL.md")),
+      ).toBe(true);
+      expect(
+        existsSync(path.join(fakeHome, ".make-docs/agentics/skills/archive-docs/SKILL.md")),
       ).toBe(true);
       expect(existsSync(path.join(fakeHome, ".agents/skills/archive-docs/SKILL.md"))).toBe(true);
       expect(existsSync(path.join(fakeHome, ".claude/skills/archive-docs/SKILL.md"))).toBe(true);

@@ -471,17 +471,41 @@ describe("shared audit engine", () => {
 
       const removableEntries = collectEntries(report, REMOVABLE_BUCKETS, ["removable"]);
       const docsEntry = findEntry(removableEntries, "docs/AGENTS.md");
+      const sharedPayloadEntry = findEntry(
+        removableEntries,
+        ".make-docs/agentics/skills/archive-docs/SKILL.md",
+      );
       const skillEntry = findEntry(removableEntries, ".agents/skills/archive-docs/SKILL.md");
       const rootAgentsEntry = findEntry(removableEntries, "AGENTS.md");
       const rootClaudeEntry = findEntry(removableEntries, "CLAUDE.md");
 
       expect(docsEntry, summarizeAudit(report)).toBeDefined();
+      expect(sharedPayloadEntry, summarizeAudit(report)).toBeDefined();
       expect(skillEntry, summarizeAudit(report)).toBeDefined();
       expect(rootAgentsEntry, summarizeAudit(report)).toBeDefined();
       expect(rootClaudeEntry, summarizeAudit(report)).toBeDefined();
       expect(docsEntry?.backupRelativePath ?? docsEntry?.path).toBe("docs/AGENTS.md");
+      expect(sharedPayloadEntry?.backupRelativePath ?? sharedPayloadEntry?.path).toBe(
+        ".make-docs/agentics/skills/archive-docs/SKILL.md",
+      );
       expect(skillEntry?.backupRelativePath ?? skillEntry?.path).toBe(
         ".agents/skills/archive-docs/SKILL.md",
+      );
+
+      const auditReport = report as {
+        removableFiles: Array<{ path: string; agenticRole?: string }>;
+      };
+      expect(auditReport.removableFiles).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            path: ".make-docs/agentics/skills/archive-docs/SKILL.md",
+            agenticRole: "shared-payload",
+          }),
+          expect.objectContaining({
+            path: ".agents/skills/archive-docs/SKILL.md",
+            agenticRole: "generated-stub",
+          }),
+        ]),
       );
     } finally {
       cleanupTempDir(targetDir);
@@ -530,6 +554,7 @@ describe("shared audit engine", () => {
         expect.arrayContaining([
           expect.objectContaining({
             path: removableScript,
+            agenticRole: "legacy-duplicated-payload",
             reasonCode: "managed-skill-file-content-match",
           }),
         ]),
@@ -538,6 +563,7 @@ describe("shared audit engine", () => {
         expect.arrayContaining([
           expect.objectContaining({
             path: modifiedScript,
+            agenticRole: "legacy-duplicated-payload",
             reasonCode: "manifest-skill-file-content-mismatch",
           }),
         ]),
@@ -618,6 +644,35 @@ describe("shared audit engine", () => {
       expect(findEntry(removableEntries, "AGENTS.md"), summarizeAudit(report)).toBeDefined();
       expect(findEntry(removableEntries, "docs/AGENTS.md"), summarizeAudit(report)).toBeDefined();
       expect(findEntry(allEntries, "notes/AGENTS.md"), summarizeAudit(report)).toBeUndefined();
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("preserves manifest-missing shared agentics roots as ambiguous", async () => {
+    const targetDir = createTempDir();
+
+    try {
+      const sharedSkillRoot = path.join(
+        targetDir,
+        ".make-docs/agentics/skills/archive-docs",
+      );
+      mkdirSync(sharedSkillRoot, { recursive: true });
+      writeFileSync(path.join(sharedSkillRoot, "SKILL.md"), "# Local skill\n", "utf8");
+
+      const report = await runAudit({ targetDir, manifest: null });
+
+      expectAuditMode(report, "manifest-missing");
+      expect(report.preservedPaths).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            path: ".make-docs/agentics/skills",
+            ownershipSource: "fallback",
+            reasonCode: "fallback-ambiguous",
+          }),
+        ]),
+      );
+      expect(findEntry(report.removableFiles, ".make-docs/agentics/skills/archive-docs/SKILL.md")).toBeUndefined();
     } finally {
       cleanupTempDir(targetDir);
     }
@@ -720,9 +775,18 @@ describe("shared audit engine", () => {
       const report = await runAudit({ targetDir, manifest });
       const removableEntries = collectEntries(report, REMOVABLE_BUCKETS, ["removable"]);
       const globalSkillPath = path.join(fakeHome, ".claude/skills/archive-docs/SKILL.md");
+      const sharedGlobalSkillPath = path.join(
+        fakeHome,
+        ".make-docs/agentics/skills/archive-docs/SKILL.md",
+      );
+      const sharedGlobalSkillEntry = findEntry(removableEntries, sharedGlobalSkillPath);
       const globalSkillEntry = findEntry(removableEntries, globalSkillPath);
 
+      expect(sharedGlobalSkillEntry, summarizeAudit(report)).toBeDefined();
       expect(globalSkillEntry, summarizeAudit(report)).toBeDefined();
+      expect(sharedGlobalSkillEntry?.backupRelativePath?.endsWith(
+        "_home/.make-docs/agentics/skills/archive-docs/SKILL.md",
+      )).toBe(true);
       expect(globalSkillEntry?.backupRelativePath, summarizeAudit(report)).toBeDefined();
       expect(globalSkillEntry?.backupRelativePath?.endsWith("_home/.claude/skills/archive-docs/SKILL.md")).toBe(
         true,

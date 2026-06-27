@@ -2,11 +2,11 @@
 
 ## Tasks
 
-- [ ] Add structured agentic ownership records or an interim `skillFiles` representation that still distinguishes shared payloads from stubs.
-- [ ] Update dry-run output to identify shared payloads, generated stubs, and migrated old duplicated payloads.
-- [ ] Update audit, backup, and uninstall classification for shared payloads, stubs, old duplicated payloads, modified files, home-scoped files, and custom user skills.
-- [ ] Add migration behavior for clean manifest-owned duplicated installs.
-- [ ] Preserve modified, custom, malformed, and ambiguous states for review, backup-and-reinstall, or manual review.
+- [x] Add structured agentic ownership records or an interim `skillFiles` representation that still distinguishes shared payloads from stubs.
+- [x] Update dry-run output to identify shared payloads, generated stubs, and migrated old duplicated payloads.
+- [x] Update audit, backup, and uninstall classification for shared payloads, stubs, old duplicated payloads, modified files, home-scoped files, and custom user skills.
+- [x] Add migration behavior for clean manifest-owned duplicated installs.
+- [x] Preserve modified, custom, malformed, and ambiguous states for review, backup-and-reinstall, or manual review.
 
 ## Acceptance Criteria
 
@@ -16,4 +16,13 @@
 
 ## Validation Notes
 
-Use compatibility fixtures from PRD 18 and extend them for shared agentics state.
+Implemented an interim `agenticRole` classification on planned actions and audit metadata so `skillFiles` can still distinguish shared payloads, generated harness stubs, and legacy duplicated payloads until a richer manifest schema lands.
+
+Validation completed:
+
+- `npm test -w packages/cli -- install -t "migrates clean manifest-owned duplicated" --reporter=verbose`
+- `npm test -w packages/cli -- install -t "skills-only sync cleans up deselected skill files" --reporter=verbose`
+- `npm test -w packages/cli -- install -t "skills-only removal removes tracked skills" --reporter=verbose`
+- `npm test -w packages/cli -- cli -t "skills sync output uses skills-specific language" --reporter=verbose`
+- `npm test -w packages/cli -- install audit backup uninstall lifecycle skills-ui cli --reporter=dot`
+- `npm run build -w packages/cli`
