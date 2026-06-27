@@ -2,7 +2,12 @@ import { mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "nod
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
-import { applyInstallPlan, planInstall } from "../src/install";
+import {
+  applyInstallPlan,
+  applySkillsOnlyInstallPlan,
+  planInstall,
+  planSkillsOnlyInstall,
+} from "../src/install";
 import { loadManifest } from "../src/manifest";
 import { defaultSelections } from "../src/profile";
 import type { SystemAssetMaterializationMode } from "../src/types";
@@ -506,6 +511,59 @@ describe("shared audit engine", () => {
             path: ".agents/skills/archive-docs",
             agenticRole: "native-exposure",
             kind: "directory",
+          }),
+        ]),
+      );
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("covers skills-only native exposure metadata during audit", async () => {
+    const targetDir = createTempDir();
+
+    try {
+      const selections = defaultSelections();
+      selections.skills = true;
+      selections.selectedSkills = ["archive-docs"];
+
+      const plan = await planSkillsOnlyInstall({
+        targetDir,
+        selections,
+        existingManifest: null,
+        remove: false,
+      });
+      applySkillsOnlyInstallPlan({
+        targetDir,
+        plan,
+        existingManifest: null,
+      });
+
+      const manifest = loadManifest(targetDir)!;
+      const report = await runAudit({ targetDir, manifest });
+      const auditReport = report as {
+        removableFiles: Array<{ path: string; agenticRole?: string; kind?: string }>;
+      };
+
+      expect(auditReport.removableFiles).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            path: ".agents/skills/archive-docs",
+            agenticRole: "native-exposure",
+            kind: "directory",
+          }),
+          expect.objectContaining({
+            path: ".claude/skills/archive-docs",
+            agenticRole: "native-exposure",
+            kind: "directory",
+          }),
+          expect.objectContaining({
+            path: ".make-docs/agentics/skills/archive-docs/SKILL.md",
+            agenticRole: "shared-payload",
+          }),
+          expect.objectContaining({
+            path: ".make-docs/agentics/skills/archive-docs/references/archive-workflow.md",
+            agenticRole: "shared-payload",
           }),
         ]),
       );

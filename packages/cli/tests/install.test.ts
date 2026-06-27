@@ -2558,7 +2558,22 @@ describe("installer integration", () => {
       expect(existsSync(path.join(targetDir, ".agents/skills/archive-docs/SKILL.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/AGENTS.md"))).toBe(false);
       expect(existsSync(path.join(targetDir, ".make-docs/templates"))).toBe(false);
-      expect(manifest.files).toEqual({});
+      expect(
+        Object.keys(manifest.files).every(
+          (file) =>
+            file.startsWith(".make-docs/agentics/skills/") ||
+            file.startsWith(".claude/skills/") ||
+            file.startsWith(".agents/skills/"),
+        ),
+      ).toBe(true);
+      expect(manifest.files[".claude/skills/archive-docs"]?.skillExposure).toMatchObject({
+        canonicalPayloadPath: ".make-docs/agentics/skills/archive-docs",
+        harness: "claude-code",
+      });
+      expect(manifest.files[".agents/skills/archive-docs"]?.skillExposure).toMatchObject({
+        canonicalPayloadPath: ".make-docs/agentics/skills/archive-docs",
+        harness: "codex",
+      });
       expect(manifest.skillFiles).toContain(".claude/skills/archive-docs");
       expect(manifest.skillFiles).toContain(".agents/skills/archive-docs");
     } finally {
@@ -2586,6 +2601,18 @@ describe("installer integration", () => {
       expect(manifest.skillFiles).toContain(
         path.join(fakeHome, ".agents/skills/archive-docs"),
       );
+      expect(
+        manifest.files[path.join(fakeHome, ".claude/skills/archive-docs")]?.skillExposure,
+      ).toMatchObject({
+        canonicalPayloadPath: path.join(fakeHome, ".make-docs/agentics/skills/archive-docs"),
+        harness: "claude-code",
+      });
+      expect(
+        manifest.files[path.join(fakeHome, ".agents/skills/archive-docs")]?.skillExposure,
+      ).toMatchObject({
+        canonicalPayloadPath: path.join(fakeHome, ".make-docs/agentics/skills/archive-docs"),
+        harness: "codex",
+      });
     } finally {
       restoreHome();
       cleanupTempDir(targetDir);
@@ -2623,6 +2650,9 @@ describe("installer integration", () => {
       expect(manifest.files["docs/AGENTS.md"]).toEqual(before.files["docs/AGENTS.md"]);
       expect(existsSync(path.join(targetDir, "docs/AGENTS.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, ".agents/skills/archive-docs/SKILL.md"))).toBe(false);
+      expect(
+        Object.keys(manifest.files).some((file) => file.startsWith(".agents/skills/")),
+      ).toBe(false);
       expect(manifest.skillFiles.every((file) => !file.startsWith(".agents/"))).toBe(true);
     } finally {
       cleanupTempDir(targetDir);

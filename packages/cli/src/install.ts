@@ -165,9 +165,6 @@ function applyInstallPlanInternal(options: {
         action.type === "noop")
     ) {
       nextSkillFiles.add(action.relativePath);
-      if (!options.trackSkillFilesInManifestFiles) {
-        delete nextFiles[action.relativePath];
-      }
     }
 
     if (action.type === "remove-managed") {

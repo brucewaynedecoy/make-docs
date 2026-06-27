@@ -528,6 +528,12 @@ try {
     path.join(targetDir, ".make-docs/manifest.json"),
     "Smoke pack uninstall left the make-docs manifest behind.",
   );
+  for (const relativePath of EXPECTED_SKILL_PATHS) {
+    assertMissing(
+      path.join(targetDir, relativePath),
+      `Smoke pack uninstall left managed skill artifact ${relativePath} behind.`,
+    );
+  }
   assertExists(customFilePath, "Smoke pack uninstall removed an unmanaged custom file.");
   assertExists(customConfigPath, "Smoke pack uninstall removed project-owned config.");
   assertMissing(
