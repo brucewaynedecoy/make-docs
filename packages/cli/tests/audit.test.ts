@@ -1,4 +1,4 @@
-import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
@@ -454,6 +454,7 @@ describe("shared audit engine", () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
+    vi.unstubAllEnvs();
     vi.unstubAllGlobals();
   });
 
@@ -505,6 +506,100 @@ describe("shared audit engine", () => {
             path: ".agents/skills/archive-docs",
             agenticRole: "native-exposure",
             kind: "directory",
+          }),
+        ]),
+      );
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test.skipIf(process.platform === "win32")(
+    "preserves wrong-target native skill exposure symlinks for review",
+    async () => {
+      const targetDir = createTempDir();
+
+      try {
+        const manifest = await installWithSelections(targetDir, (selections) => {
+          selections.skills = true;
+          selections.selectedSkills = ["archive-docs"];
+        });
+        const exposurePath = ".agents/skills/archive-docs";
+        const absoluteExposurePath = path.join(targetDir, exposurePath);
+        const wrongTargetPath = path.join(targetDir, ".agents/wrong-archive-docs");
+
+        rmSync(absoluteExposurePath, { force: true, recursive: true });
+        mkdirSync(wrongTargetPath, { recursive: true });
+        symlinkSync("../wrong-archive-docs", absoluteExposurePath, "dir");
+
+        const report = await runAudit({ targetDir, manifest });
+        const auditReport = report as {
+          removableFiles: Array<{ path: string }>;
+          preservedPaths: Array<{ path: string; reasonCode: string }>;
+        };
+
+        expect(auditReport.removableFiles).not.toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              path: exposurePath,
+            }),
+          ]),
+        );
+        expect(auditReport.preservedPaths).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              path: exposurePath,
+              reasonCode: "manifest-skill-exposure-mismatch",
+            }),
+          ]),
+        );
+      } finally {
+        cleanupTempDir(targetDir);
+      }
+    },
+  );
+
+  test("preserves modified copy-mirror native skill exposures for review", async () => {
+    const targetDir = createTempDir();
+
+    try {
+      vi.stubEnv("MAKE_DOCS_DISABLE_SKILL_SYMLINKS", "1");
+
+      const manifest = await installWithSelections(targetDir, (selections) => {
+        selections.skills = true;
+        selections.selectedSkills = ["archive-docs"];
+      });
+      const exposurePath = ".agents/skills/archive-docs";
+      const modifiedPath = path.join(
+        targetDir,
+        exposurePath,
+        "references/archive-workflow.md",
+      );
+
+      writeFileSync(
+        modifiedPath,
+        `${readSkillSourceFile("archive-docs", "references/archive-workflow.md")}\n# local edit\n`,
+        "utf8",
+      );
+
+      const report = await runAudit({ targetDir, manifest });
+      const auditReport = report as {
+        removableFiles: Array<{ path: string }>;
+        preservedPaths: Array<{ path: string; reasonCode: string }>;
+      };
+
+      expect(auditReport.removableFiles).not.toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            path: exposurePath,
+          }),
+        ]),
+      );
+      expect(auditReport.preservedPaths).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            path: exposurePath,
+            reasonCode: "manifest-skill-exposure-mismatch",
           }),
         ]),
       );
