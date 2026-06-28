@@ -1,5 +1,9 @@
 # W18 R1 Playbook Contract Run Playbook
 
+## W18 R4 Blocking Correction
+
+Before executing this plan, apply [W18 R4 Run Playbook Orchestration and Harness Capabilities](../2026-06-27-w18-r4-run-playbook-orchestration-and-harness-capabilities/00-overview.md). W18 R4 hardens this plan's runner model with resolver identity, stack disambiguation, reviewed harness capability records, Make Docs-owned run state, nested-playbook permission, and concurrency safety. W18 R1 should implement the playbook contract only after consuming those decisions.
+
 ## Purpose
 
 Define the implementation plan for the v2 playbook content contract and generic Run Playbook execution model.

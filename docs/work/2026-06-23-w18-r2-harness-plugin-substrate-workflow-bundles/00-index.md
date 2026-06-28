@@ -12,6 +12,10 @@ Before executing this backlog, apply [W9 R5 v2 Library and Archive History IA Co
 
 Before implementing plugin backup, uninstall, migration, or cleanup behavior, apply [W17 R4 Lifecycle Backup State and Agentics Pruning](../2026-06-27-w17-r4-lifecycle-backup-state-and-agentics-pruning/00-index.md). W18 R2 plugin lifecycle work must use `.make-docs/backup/**` for new backup writes, protect legacy root `.backup/**`, and prune empty managed `.make-docs/agentics/**` directories only when audit proves no unmanaged descendants remain.
 
+## W18 R4 Run Playbook Prerequisite
+
+Before executing plugin or workflow bundle work that invokes playbooks, apply [W18 R4 Run Playbook Orchestration and Harness Capabilities](../2026-06-27-w18-r4-run-playbook-orchestration-and-harness-capabilities/00-index.md). W18 R2 workers must delegate resolver identity, stack disambiguation, harness capability mediation, Make Docs-owned run state, nested-playbook behavior, and concurrency safety to W18 R4 instead of defining plugin-local semantics.
+
 ## Purpose
 
 Implement the v2 plugin substrate and productized workflow bundle metadata described by PRD 30.

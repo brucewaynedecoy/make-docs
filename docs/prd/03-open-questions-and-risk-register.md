@@ -632,6 +632,20 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 **To close**: Focused lifecycle and package-smoke tests prove new backups use `.make-docs/backup/**`, root `.backup/**` is protected, selected-agentics pruning is safe, and plugin lifecycle work consumes the same contract. The CLI/package portion is complete as of W17 R4 Phase 4; the remaining closure condition is downstream plugin lifecycle inheritance.
 
+### R-016 Run Playbook Orchestration Could Drift Across Runner Surfaces
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | [29-revise-playbook-contract-run-playbook.md](./29-revise-playbook-contract-run-playbook.md) and W18 R4 define one Run Playbook orchestration model: `persona/slug` resolver identity, stack metadata disambiguation, reviewed harness capability records in `.make-docs/config.yaml`, Make Docs-owned run state under `.make-docs/runs/playbooks/**`, explicit nested-playbook permission, and concurrency conflict checks. | Keep W18 R1, W18 R2, W18 R3, CLI, MCP, plugin, conformance, and package validation work aligned with W18 R4 before any public runner or support claim ships. |
+
+**Issue**: CLI, MCP, plugin, skill, and harness-assisted playbook execution could each invent their own resolver, capability, run-state, nested-run, or concurrency behavior.
+
+**Why it matters**: Divergent runner behavior would make playbook selection ambiguous, lose resume state after interruptions, over-trust unknown harness capabilities, and allow parallel child playbooks to edit overlapping output surfaces without review.
+
+**Recommendation**: Treat W18 R4 as the blocking orchestration authority before implementing W18 R1, W18 R2, or W18 R3 runner-related work.
+
+**To close**: Future implementation validation proves one shared resolver, config schema, unknown-capability path, run-state writer, resume flow, nested-playbook guard, concurrency conflict check, and CLI/MCP/plugin parity behavior.
+
 ## Source Anchors
 
 - `README.md:6-46`
@@ -654,6 +668,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 - `docs/prd/30-revise-harness-plugin-substrate-workflow-bundles.md`
 - `docs/prd/31-revise-coverage-pass-extensions-adversarial-review.md`
 - `docs/prd/32-revise-lifecycle-backup-state-agentics-pruning.md`
+- `docs/designs/2026-06-27-run-playbook-orchestration-and-harness-capabilities.md`
 - `docs/designs/2026-06-19-package-and-deployment-boundaries.md`
 - `docs/designs/2026-06-19-system-asset-delivery-and-materialization-contract.md`
 - `docs/designs/2026-06-19-compatibility-audit-and-migration-disposition.md`
@@ -688,6 +703,8 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 - `docs/plans/2026-06-23-w18-r2-harness-plugin-substrate-workflow-bundles/00-overview.md`
 - `docs/plans/2026-06-23-w18-r3-coverage-pass-extensions-adversarial-review/00-overview.md`
 - `docs/plans/2026-06-27-w17-r4-lifecycle-backup-state-and-agentics-pruning/00-overview.md`
+- `docs/plans/2026-06-27-w18-r4-run-playbook-orchestration-and-harness-capabilities/00-overview.md`
+- `docs/work/2026-06-27-w18-r4-run-playbook-orchestration-and-harness-capabilities/00-index.md`
 - `packages/docs/README.md:50-121`
 - `packages/skills/README.md`
 - `packages/cli/package.json:9-25`

@@ -56,6 +56,7 @@ Support-claim gating:
 - A pass for one model in a harness does not imply support for every model routed through that harness.
 - A pass for one scenario does not imply blanket harness support.
 - Plugin, workflow bundle, playbook, skill, CLI, MCP, unattended, adversarial-review, or model/provider support claims must cite evidence for the exact scenario/harness/model/provider/runtime tuple claimed. [30-revise-harness-plugin-substrate-workflow-bundles.md](./30-revise-harness-plugin-substrate-workflow-bundles.md) keeps plugin and bundle wording provisional until implementation or conformance evidence exists. [31-revise-coverage-pass-extensions-adversarial-review.md](./31-revise-coverage-pass-extensions-adversarial-review.md) keeps adversarial-review support wording provisional until the exact prompt, playbook, plugin, CLI, MCP, package, harness, model, provider, or unattended surface has implementation validation or conformance records.
+- [29-revise-playbook-contract-run-playbook.md](./29-revise-playbook-contract-run-playbook.md) and W18 R4 local harness capability records may guide a project run, but they are not public support evidence by themselves. Public claims for Run Playbook, nested playbooks, parallel playbooks, harness-managed goals, resume behavior, CLI execution, MCP execution, plugin launch, or unattended operation still require reviewed conformance evidence for the exact tuple claimed.
 
 Validation relationship:
 
@@ -92,9 +93,12 @@ The paired delta backlog should be generated under `docs/work/2026-06-23-w10-r5-
 
 - `docs/designs/2026-06-19-agent-harness-and-model-conformance-lab.md`
 - `docs/designs/2026-06-20-cli-separation-and-mcp-boundary.md`
+- `docs/designs/2026-06-27-run-playbook-orchestration-and-harness-capabilities.md`
 - `docs/plans/2026-06-23-w10-r5-agent-harness-model-conformance-lab/00-overview.md`
 - `docs/plans/2026-06-23-w10-r6-cli-separation-and-mcp-boundary/00-overview.md`
+- `docs/plans/2026-06-27-w18-r4-run-playbook-orchestration-and-harness-capabilities/00-overview.md`
 - `docs/work/2026-06-23-w10-r5-agent-harness-model-conformance-lab/00-index.md`
+- `docs/work/2026-06-27-w18-r4-run-playbook-orchestration-and-harness-capabilities/00-index.md`
 - `docs/prd/07-cli-command-surface-and-lifecycle.md`
 - `docs/prd/08-skills-catalog-and-distribution.md`
 - `docs/prd/10-packaging-validation-and-release-reference.md`

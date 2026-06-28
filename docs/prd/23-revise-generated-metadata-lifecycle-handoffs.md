@@ -23,6 +23,8 @@ Existing active documents remain valid even when they predate this metadata cont
 
 [29-revise-playbook-contract-run-playbook.md](29-revise-playbook-contract-run-playbook.md) narrows playbook metadata consumers: generated or shipped playbooks must carry `kind: playbook`, `persona`, `stack: build | run`, and summary metadata, and Run Playbook validation must fail closed when those fields are missing or invalid.
 
+W18 R4 extends playbook metadata with an optional `run` block for orchestration hints. That block may declare capability requirements, child-playbook permission, and concurrency intent, but it must not replace the minimum generated-document metadata fields or the `persona/slug` resolver identity.
+
 ## Requirements
 
 ### Canonical Metadata Layer
@@ -57,7 +59,7 @@ Generated documents add conditional metadata when the condition applies:
 | `lifecycle` | Required when a generation step skips, reorders, revisits, or straddles the default lifecycle. |
 | `follow_on` | Required for generated documents that contain an `## Intended Follow-On` section. |
 
-For playbooks, [29-revise-playbook-contract-run-playbook.md](29-revise-playbook-contract-run-playbook.md) also requires `stack: build | run` and `summary`; validators must report invalid stack values and path/persona drift before Run Playbook execution.
+For playbooks, [29-revise-playbook-contract-run-playbook.md](29-revise-playbook-contract-run-playbook.md) also requires `stack: build | run` and `summary`; validators must report invalid stack values and path/persona drift before Run Playbook execution. Playbooks may also include the optional W18 R4 `run` orchestration block, whose known keys are `requires_capabilities`, `prefers_capabilities`, `child_playbooks`, and `concurrency`.
 
 ### Handoff Metadata
 
@@ -145,7 +147,10 @@ Configuration overlays may change presentation labels in generated prose, but th
 - [22 Revise New Docs Assets Playbooks Persona Model](22-revise-new-docs-assets-playbooks-persona-model.md)
 - [29 Revise Playbook Contract Run Playbook](29-revise-playbook-contract-run-playbook.md)
 - [../designs/2026-06-20-playbook-contract-and-run-playbook.md](../designs/2026-06-20-playbook-contract-and-run-playbook.md)
+- [../designs/2026-06-27-run-playbook-orchestration-and-harness-capabilities.md](../designs/2026-06-27-run-playbook-orchestration-and-harness-capabilities.md)
 - [../plans/2026-06-23-w18-r1-playbook-contract-run-playbook/00-overview.md](../plans/2026-06-23-w18-r1-playbook-contract-run-playbook/00-overview.md)
+- [../plans/2026-06-27-w18-r4-run-playbook-orchestration-and-harness-capabilities/00-overview.md](../plans/2026-06-27-w18-r4-run-playbook-orchestration-and-harness-capabilities/00-overview.md)
+- [../work/2026-06-27-w18-r4-run-playbook-orchestration-and-harness-capabilities/00-index.md](../work/2026-06-27-w18-r4-run-playbook-orchestration-and-harness-capabilities/00-index.md)
 - `.make-docs/contracts/system/design-contract.md`
 - `.make-docs/contracts/system/output-contract.md`
 - `.make-docs/references/system/lifecycle.md`

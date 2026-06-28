@@ -16,6 +16,8 @@ Coordinate: `W18 R1`
 
 This PRD turns the Playbook Contract and Run Playbook design into active requirements. It defines the content contract and generic execution model only; it does not define plugin substrate, product workflow bundles, MCP writes, or public plugin exposure.
 
+W18 R4 extends this PRD before W18 R1 implementation. Run Playbook must now include deterministic resolver semantics, reviewed harness capability mediation, Make Docs-owned run state, nested-playbook rules, and concurrency safety before any runner, plugin, MCP tool, skill, or agent surface claims support for long-running or parallel playbook execution.
+
 ## Requirements
 
 ### Canonical Playbook Location
@@ -69,6 +71,24 @@ A v2 playbook must remain readable documentation and must define:
 
 Both stacks use the same playbook contract, but they cannot silently substitute for each other. A runner must surface the stack in selection, validation, and handoff messages when ambiguity exists.
 
+### Resolver Identity
+
+Playbook filesystem paths remain:
+
+```text
+docs/assets/playbooks/<persona-slug>/<playbook-slug>.md
+```
+
+The catalog resolver identity is `persona/slug`. `stack` is required metadata for validation and disambiguation, not an additional directory level.
+
+A Run Playbook surface must resolve candidates in this order:
+
+1. Explicit path selects exactly one file and then validates required metadata.
+2. Qualified `persona/slug` selects the matching playbook and validates `stack`.
+3. Bare slug or title is accepted only when it resolves to exactly one candidate across configured personas and stacks.
+
+Ambiguous bare references fail closed and must request persona and/or stack before authority loading or procedure execution.
+
 ### Generic Run Playbook Model
 
 Run Playbook is a generic execution model, not a plugin packaging rule.
@@ -85,6 +105,36 @@ A Run Playbook surface must:
 8. Record outputs only in the artifact, history, plan, work, or run-log surface named by the playbook or by explicit caller instruction.
 
 Every valid playbook can be run by this generic model.
+
+### Harness Capability Mediation
+
+Playbooks may declare an optional `run` frontmatter block for orchestration hints:
+
+```yaml
+run:
+  requires_capabilities: []
+  prefers_capabilities: []
+  child_playbooks: none | serial | parallel
+  concurrency: serial | parallel-allowed | parallel-required
+```
+
+Initial canonical harness capability ids are `goal_managed_execution`, `long_running_runs`, `resume_after_interrupt`, `parallel_playbook_runs`, `subagent_delegation`, and `user_gate_prompts`.
+
+Reviewed capability records live in `.make-docs/config.yaml` under the PRD 24 configuration boundary. Unknown capabilities must not be guessed. Optional unknown capabilities fall back to serial gated execution; required unknown or unsupported capabilities stop with review/manual-resolution guidance.
+
+### Run State, Nesting, and Concurrency
+
+Make Docs-owned Run Playbook surfaces must write run state under:
+
+```text
+.make-docs/runs/playbooks/<run-id>/state.json
+```
+
+Run state must record run id, root run id, parent run id, playbook ref, stack, harness, capability snapshot, current step or gate, child runs, claimed output surfaces, status, and resume hints.
+
+Harness-native goal, loop, or long-running features are assists. They do not replace Make Docs-owned run state.
+
+Nested playbooks require explicit playbook permission. Parallel child playbooks require explicit permission, known or reviewed parallel capability support, and non-overlapping output-surface claims. If overlap cannot be proven safe, the runner must serialize the work or stop for review.
 
 ### Plugin and Surface Boundary
 
@@ -118,7 +168,7 @@ Manifest, catalog, audit, backup, uninstall, installer, CLI, MCP, and plugin beh
 - No one-plugin-per-playbook requirement.
 - No adversarial-review playbook by default.
 - No MCP write surface.
-- No unattended execution by default.
+- No unattended, parallel, or nested execution by default.
 - No plugin, runner, or public execution migration of all current playbook content in this PRD-only round.
 
 ## Affected Baseline Docs
@@ -142,8 +192,12 @@ Manifest, catalog, audit, backup, uninstall, installer, CLI, MCP, and plugin beh
 ## Acceptance Criteria
 
 - Playbook path, minimum frontmatter, body, and stack rules are documented.
+- Resolver behavior uses `persona/slug` identity and fails closed for ambiguous bare slug/title references.
 - Run Playbook validates frontmatter and fails closed on missing or invalid `kind`, `persona`, or `stack`.
 - Build-stack and run-stack playbooks are selected and messaged distinctly.
+- Harness capabilities are loaded from reviewed config records or treated as unknown with deterministic fallback/stop behavior.
+- Make Docs-owned run state records each playbook run, nested child run, output-surface claim, and resume point.
+- Parallel playbook execution requires explicit permission and non-overlapping output-surface claims.
 - Plugin exposure is treated as additive, not required for playbook validity.
 - Package/template validation covers accepted playbook defaults when shipped files change.
 - Risk register entries keep playbook content separate from plugin invocation and support claims.
@@ -151,8 +205,11 @@ Manifest, catalog, audit, backup, uninstall, installer, CLI, MCP, and plugin beh
 ## Source Anchors
 
 - [../designs/2026-06-20-playbook-contract-and-run-playbook.md](../designs/2026-06-20-playbook-contract-and-run-playbook.md)
+- [../designs/2026-06-27-run-playbook-orchestration-and-harness-capabilities.md](../designs/2026-06-27-run-playbook-orchestration-and-harness-capabilities.md)
 - [../plans/2026-06-23-w18-r1-playbook-contract-run-playbook/00-overview.md](../plans/2026-06-23-w18-r1-playbook-contract-run-playbook/00-overview.md)
+- [../plans/2026-06-27-w18-r4-run-playbook-orchestration-and-harness-capabilities/00-overview.md](../plans/2026-06-27-w18-r4-run-playbook-orchestration-and-harness-capabilities/00-overview.md)
 - [../work/2026-06-23-w18-r1-playbook-contract-run-playbook/00-index.md](../work/2026-06-23-w18-r1-playbook-contract-run-playbook/00-index.md)
+- [../work/2026-06-27-w18-r4-run-playbook-orchestration-and-harness-capabilities/00-index.md](../work/2026-06-27-w18-r4-run-playbook-orchestration-and-harness-capabilities/00-index.md)
 - [22 Revise New Docs Assets Playbooks Persona Model](22-revise-new-docs-assets-playbooks-persona-model.md)
 - [23 Revise Generated Metadata Lifecycle Handoffs](23-revise-generated-metadata-lifecycle-handoffs.md)
 - [24 Revise Configuration Convention Overlay](24-revise-configuration-convention-overlay.md)

@@ -4,6 +4,10 @@
 
 Before executing this backlog, apply [W9 R5 v2 Library and Archive History IA Correction](../2026-06-25-w9-r5-v2-library-and-archive-history-ia-correction/00-index.md). W18 R1 playbook behavior must target `docs/assets/playbooks/**`, use `.make-docs/**` for system contracts and prompts, and treat `docs/library/playbooks/**` only as historical migration evidence.
 
+## W18 R4 Blocking Correction
+
+Before executing this backlog, apply [W18 R4 Run Playbook Orchestration and Harness Capabilities](../2026-06-27-w18-r4-run-playbook-orchestration-and-harness-capabilities/00-index.md). W18 R1 workers must consume W18 R4 resolver identity, stack disambiguation, reviewed harness capability records, Make Docs-owned run state, nested-playbook permission, and concurrency safety rather than implementing the earlier runner model in isolation.
+
 ## Purpose
 
 Implement the v2 playbook content contract and generic Run Playbook model described by PRD 29.

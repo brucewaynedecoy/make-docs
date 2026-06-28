@@ -51,6 +51,7 @@ The public repo docs describe the same subsystem as the installer surface that w
 - Enhanced by [28-revise-shared-agentics-installation-harness-redirection.md](./28-revise-shared-agentics-installation-harness-redirection.md) for selected-agentics ownership. Future manifest schema must distinguish resolved `selectedSkills`, transitional flat `skillFiles`, canonical shared payload paths, generated harness stub paths, exposure mode, scope, source manifest/version/ref/digest/trust metadata, and migrated duplicated-payload disposition before audit, backup, uninstall, or migration treats v2 agentic state as clean.
 - Enhanced by [29-revise-playbook-contract-run-playbook.md](./29-revise-playbook-contract-run-playbook.md) for playbook lifecycle participation. Manifest, audit, backup, uninstall, and migration behavior need playbook-specific records only when implementation starts shipping, selecting, enumerating, or executing playbooks; until then, PRD 29 is a content and runner contract rather than a new managed-file class.
 - Enhanced by [32-revise-lifecycle-backup-state-agentics-pruning.md](./32-revise-lifecycle-backup-state-agentics-pruning.md) for lifecycle backup state and selected-agentics pruning. Future backup writes move from root `.backup/**` to `.make-docs/backup/**`, root `.backup/**` remains protected legacy backup state, and empty managed `.make-docs/agentics/**` directories are pruned only when audit proves no unmanaged descendants remain.
+- Enhanced by W18 R4 for Run Playbook state separation. Playbook run state belongs under `.make-docs/runs/playbooks/**`; `.make-docs/manifest.json` remains managed installation ownership state and `.make-docs/config.yaml` remains project-owned configuration, including reviewed harness capability records.
 
 - User intent is captured by `InstallSelections` in `packages/cli/src/types.ts:38`, which includes capability toggles, prompt/template/reference modes, harness toggles, `skills`, `skillScope`, and `selectedSkills`. Root instruction enablement is derived from harness state by `getActiveInstructionKinds()` in `packages/cli/src/types.ts:49`.
 - Effective capability state is stored per capability in `CapabilityState` at `packages/cli/src/types.ts:61` and aggregated into `InstallProfile` at `packages/cli/src/types.ts:68`. The important invariant is that explicit intent and effective capability can differ, but the manifest stores both the original selections and the final `effectiveCapabilities` via `packages/cli/src/manifest.ts:79-96`.
@@ -111,6 +112,8 @@ The public repo docs describe the same subsystem as the installer surface that w
 - `docs/prd/28-revise-shared-agentics-installation-harness-redirection.md`
 - `docs/prd/29-revise-playbook-contract-run-playbook.md`
 - `docs/prd/32-revise-lifecycle-backup-state-agentics-pruning.md`
+- `docs/designs/2026-06-27-run-playbook-orchestration-and-harness-capabilities.md`
+- `docs/plans/2026-06-27-w18-r4-run-playbook-orchestration-and-harness-capabilities/00-overview.md`
 - `docs/designs/2026-06-20-shared-agentics-installation-and-harness-redirection.md`
 - `docs/designs/2026-06-20-playbook-contract-and-run-playbook.md`
 - `docs/plans/2026-06-23-w17-r2-shared-agentics-installation-harness-redirection/00-overview.md`

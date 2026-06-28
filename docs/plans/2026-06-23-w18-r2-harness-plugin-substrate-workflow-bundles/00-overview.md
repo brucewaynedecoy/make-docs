@@ -18,6 +18,10 @@ W17 R3 supersedes the W17 R2 generated-stub default for shared-agentics exposure
 
 Before implementing plugin backup, uninstall, migration, or cleanup behavior, apply W17 R4: new backup writes target `.make-docs/backup/**`, legacy root `.backup/**` remains protected backup state, and empty managed `.make-docs/agentics/**` directories are pruned only when audit proves no unmanaged descendants remain.
 
+## W18 R4 Run Playbook Prerequisite
+
+Before executing plugin or workflow bundle work that invokes playbooks, apply [W18 R4 Run Playbook Orchestration and Harness Capabilities](../2026-06-27-w18-r4-run-playbook-orchestration-and-harness-capabilities/00-overview.md). W18 R2 must delegate resolver identity, stack disambiguation, harness capability mediation, Make Docs-owned run state, nested-playbook behavior, and concurrency safety to W18 R4 instead of defining plugin-local semantics.
+
 ## Coordinate
 
 - Wave: W18

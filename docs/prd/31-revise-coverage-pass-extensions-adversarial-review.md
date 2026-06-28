@@ -16,6 +16,8 @@ Coordinate: `W18 R3`
 
 This PRD turns the Coverage-Pass Extensions and Adversarial Review design into active requirements. It defines adversarial review as optional coverage-pass behavior only; it does not create a shipped prompt, playbook, plugin, CLI command, MCP operation, conformance scenario, or release gate by itself.
 
+W18 R4 is a prerequisite if adversarial review is later exposed as a playbook, plugin workflow bundle, CLI action, MCP tool, or harness-assisted long-running review. That surface must reuse the W18 R4 Run Playbook resolver, capability mediation, run-state, nested-playbook, and concurrency rules instead of defining adversarial-review-specific execution semantics.
+
 ## Requirements
 
 ### Optional Extension
@@ -95,6 +97,8 @@ If implemented as a playbook, it must follow [29-revise-playbook-contract-run-pl
 
 If implemented as a plugin or workflow bundle, it must follow [30-revise-harness-plugin-substrate-workflow-bundles.md](30-revise-harness-plugin-substrate-workflow-bundles.md) and remain explicit-selection only.
 
+If implemented as a long-running or nested playbook flow, it must also follow the W18 R4 orchestration contract for reviewed harness capabilities, Make Docs-owned run state, resume points, child runs, and output-surface claims.
+
 Bare installs, default sync, generic Run Playbook, and plugin selection do not imply adversarial review.
 
 ### Support Claims
@@ -125,6 +129,7 @@ Baseline implementation validation should include `npm run build -w packages/cli
 - No source-code implementation in this PRD-only round.
 - No public support claim without implementation or conformance evidence.
 - No dogfood-first authoring for shipped adversarial-review assets.
+- No adversarial-review-specific replacement for the W18 R4 Run Playbook orchestration model.
 
 ## Affected Baseline Docs
 
@@ -150,11 +155,15 @@ Baseline implementation validation should include `npm run build -w packages/cli
 - No default prompt, playbook, plugin, CLI command, MCP operation, or conformance scenario is implied.
 - Shipped adversarial assets, if selected later, follow template-first source-of-truth order.
 - Support claims remain provisional until implementation or conformance evidence exists.
+- Any future adversarial-review playbook, plugin, CLI, MCP, or harness-assisted surface consumes W18 R4 resolver, capability, run-state, nested-run, and concurrency behavior.
 
 ## Source Anchors
 
 - [../designs/2026-06-20-coverage-pass-extensions-and-adversarial-review.md](../designs/2026-06-20-coverage-pass-extensions-and-adversarial-review.md)
 - [../plans/2026-06-23-w18-r3-coverage-pass-extensions-adversarial-review/00-overview.md](../plans/2026-06-23-w18-r3-coverage-pass-extensions-adversarial-review/00-overview.md)
+- [../designs/2026-06-27-run-playbook-orchestration-and-harness-capabilities.md](../designs/2026-06-27-run-playbook-orchestration-and-harness-capabilities.md)
+- [../plans/2026-06-27-w18-r4-run-playbook-orchestration-and-harness-capabilities/00-overview.md](../plans/2026-06-27-w18-r4-run-playbook-orchestration-and-harness-capabilities/00-overview.md)
+- [../work/2026-06-27-w18-r4-run-playbook-orchestration-and-harness-capabilities/00-index.md](../work/2026-06-27-w18-r4-run-playbook-orchestration-and-harness-capabilities/00-index.md)
 - [../work/2026-06-23-w18-r3-coverage-pass-extensions-adversarial-review/00-index.md](../work/2026-06-23-w18-r3-coverage-pass-extensions-adversarial-review/00-index.md)
 - [../../.make-docs/contracts/system/coverage-pass-contract.md](../../.make-docs/contracts/system/coverage-pass-contract.md)
 - [14 Add Lifecycle Workflow Foundation](14-add-lifecycle-workflow-foundation.md)

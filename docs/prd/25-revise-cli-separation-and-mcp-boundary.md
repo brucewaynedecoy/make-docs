@@ -114,7 +114,7 @@ Skills that currently depend on standalone scripts must be rewritten in the same
 
 [28-revise-shared-agentics-installation-harness-redirection.md](28-revise-shared-agentics-installation-harness-redirection.md) supplies the selected-agentics store and native harness exposure primitive that MCP or plugin surfaces must reuse. Discovery, dry-run planning, and installed-state inspection can read manifest ownership records, symlink exposures, and copy mirrors without a live CLI process, but deterministic writes still delegate to CLI/shared-core operations.
 
-[29-revise-playbook-contract-run-playbook.md](29-revise-playbook-contract-run-playbook.md) supplies the generic Run Playbook execution model that future CLI, MCP, plugin, skill, or agent surfaces must reuse. MCP tools may inspect, validate, select, and dry-run playbooks under the read-first/plan-first surface, but writes or unattended execution still require a later permission and parity plan.
+[29-revise-playbook-contract-run-playbook.md](29-revise-playbook-contract-run-playbook.md) supplies the generic Run Playbook execution model that future CLI, MCP, plugin, skill, or agent surfaces must reuse. W18 R4 extends that model with resolver identity, stack disambiguation, harness capability mediation, Make Docs-owned run state, nested-playbook rules, and concurrency safety. MCP tools may inspect, validate, select, and dry-run playbooks under the read-first/plan-first surface, but writes, unattended execution, nested execution, parallel execution, or resume behavior still require a later permission and parity plan that delegates to the same operation domain as the CLI.
 
 [30-revise-harness-plugin-substrate-workflow-bundles.md](30-revise-harness-plugin-substrate-workflow-bundles.md) supplies the plugin substrate and workflow bundle metadata that future CLI, MCP, plugin, skill, or agent surfaces must reuse. Plugin entrypoints may call accepted CLI/MCP/shared-core operations, but they must not implement independent manifest, config, audit, backup, uninstall, generation, validation, or lifecycle routing behavior.
 
@@ -129,6 +129,7 @@ Skills that currently depend on standalone scripts must be rewritten in the same
 - No resolution of remote versus bundled skills, plugin runtime implementation parity, or per-bundle public UX.
 - No CLI or MCP adversarial-review surface unless a later plan explicitly selects it and proves parity.
 - No code modularization or MCP implementation in W10 R7 itself; W10 R8 owns that implementation work.
+- No CLI or MCP Run Playbook implementation may invent resolver keys, harness capability ids, run-state shape, nested-run behavior, or concurrency semantics outside the W18 R4 orchestration contract.
 
 ## Affected Baseline Docs
 
@@ -152,6 +153,7 @@ Skills that currently depend on standalone scripts must be rewritten in the same
 - `npx`, `pnpm dlx`, and `bunx` / `bun x` package execution paths are treated as first-class validation targets.
 - MCP tools have one shared operation contract with CLI/shared-core behavior and must ship in v2.
 - MCP writes remain gated by explicit permission and parity planning.
+- Future CLI and MCP Run Playbook surfaces delegate resolver, capability, run-state, nested-run, and concurrency behavior to one shared W18 R4 operation domain.
 - Operation-domain logic is modular, testable without the parser or MCP transport, and mirrored by CLI/MCP command domains where practical.
 - Validation covers CLI/MCP parity, noninteractive/dry-run behavior, provider/cache failure behavior, package-runner behavior, and conformance-lab scenarios before public support claims.
 
@@ -186,6 +188,9 @@ Skills that currently depend on standalone scripts must be rewritten in the same
 - [../plans/2026-06-23-w18-r2-harness-plugin-substrate-workflow-bundles/00-overview.md](../plans/2026-06-23-w18-r2-harness-plugin-substrate-workflow-bundles/00-overview.md)
 - [../designs/2026-06-20-coverage-pass-extensions-and-adversarial-review.md](../designs/2026-06-20-coverage-pass-extensions-and-adversarial-review.md)
 - [../plans/2026-06-23-w18-r3-coverage-pass-extensions-adversarial-review/00-overview.md](../plans/2026-06-23-w18-r3-coverage-pass-extensions-adversarial-review/00-overview.md)
+- [../designs/2026-06-27-run-playbook-orchestration-and-harness-capabilities.md](../designs/2026-06-27-run-playbook-orchestration-and-harness-capabilities.md)
+- [../plans/2026-06-27-w18-r4-run-playbook-orchestration-and-harness-capabilities/00-overview.md](../plans/2026-06-27-w18-r4-run-playbook-orchestration-and-harness-capabilities/00-overview.md)
+- [../work/2026-06-27-w18-r4-run-playbook-orchestration-and-harness-capabilities/00-index.md](../work/2026-06-27-w18-r4-run-playbook-orchestration-and-harness-capabilities/00-index.md)
 - `packages/cli/src/cli.ts`
 - `packages/cli/src/profile.ts`
 - `packages/cli/src/manifest.ts`

@@ -18,6 +18,8 @@ Coordinate: `W18 R2`
 
 This PRD turns the Harness Plugin Substrate and Workflow Bundles design into active requirements. It defines plugin substrate and bundle metadata only; it does not make plugins default, does not make plugin packaging mandatory for playbooks, and does not close per-bundle UX decisions that still need implementation or bundle-specific planning.
 
+W18 R4 is a blocking prerequisite for W18 R2 implementation. Plugins and workflow bundles that invoke playbooks must delegate resolver identity, stack disambiguation, harness capability mediation, run state, nested-playbook behavior, and concurrency rules to the W18 R4 Run Playbook orchestration contract.
+
 ## Requirements
 
 ### Plugin Definition and Boundary
@@ -25,6 +27,8 @@ This PRD turns the Harness Plugin Substrate and Workflow Bundles design into act
 A v2 plugin is a harness-visible invocation package. It is not a playbook, not a lifecycle artifact, and not a substitute behavior model.
 
 A plugin may wrap a built-in workflow, invoke the generic Run Playbook model, expose one or more playbooks, present a guided entrypoint for a productized workflow bundle, or delegate deterministic behavior to CLI/MCP/shared-core operations. The governing contracts remain the accepted docs, lifecycle, manifest, configuration, audit, package, CLI/MCP, conformance, and playbook requirements.
+
+When a plugin invokes a playbook, it must use the W18 R4 resolver and run-state contract rather than defining plugin-local playbook identity or execution state.
 
 ### Canonical Plugin Payload Store
 
@@ -48,6 +52,7 @@ Plugin records must identify:
 - native harness exposure paths and their target canonical payload
 - exposure mode, with `symlink` preferred and `copy-mirror` fallback unless a plugin-specific adapter requires a generated exposure file
 - invocation metadata describing whether the plugin wraps a built-in workflow, one or more playbooks, generic Run Playbook, or a CLI/MCP operation
+- playbook orchestration metadata only by reference to the W18 R4 Run Playbook model; plugin metadata must not redefine resolver keys, stack values, harness capability ids, run-state shape, nested-run behavior, or concurrency safety
 - bundle metadata when the plugin belongs to a productized workflow bundle
 - permission and safety metadata describing whether the plugin is read-only, request-capture only, plan-first, dry-run first, temp-fixture only, or write-capable after explicit approval
 - support metadata distinguishing `provisional`, `implementation-validated`, and `conformance-validated` claims per harness and, where applicable, model/provider tuple
@@ -109,6 +114,8 @@ Playbook requirements remain governed by [29-revise-playbook-contract-run-playbo
 
 A plugin may invoke one playbook, offer a catalog of playbooks, or wrap a built-in workflow that is not authored as a playbook. A playbook remains persona-scoped content under `docs/assets/playbooks/<persona-slug>/<playbook-slug>.md`; it does not become a plugin because a plugin can run it.
 
+Plugins and workflow bundles must reuse the W18 R4 orchestration model for resolver identity, stack validation, harness capability records, unknown-capability behavior, `.make-docs/runs/playbooks/**` state, nested child runs, and concurrency conflict checks.
+
 ### Support Claims
 
 Support claims are evidence-bound.
@@ -138,6 +145,7 @@ Baseline implementation validation should include `npm run build -w packages/cli
 - No symlink-only behavior without copy-mirror fallback.
 - No MCP write surface implementation in this PRD.
 - No closure of per-bundle UX details for request-vs-change, docs visibility, scaffold exposure, or exact non-maintainer flows.
+- No plugin-local replacement for Run Playbook resolver, run-state, harness-capability, nested-run, or concurrency behavior.
 - No remote-versus-bundled skills delivery decision.
 
 ## Affected Baseline Docs
@@ -166,6 +174,7 @@ Baseline implementation validation should include `npm run build -w packages/cli
 - Bare install, default sync, and selected-skill flows write no plugin files.
 - Modified/custom harness plugin files are preserved or reviewed rather than inferred as make-docs-owned.
 - Workflow bundle metadata declares audience, exposure boundary, safety mode, and whether the flow captures a request or makes a change.
+- Workflow bundle metadata delegates playbook execution semantics to the W18 R4 orchestration model.
 - Plugin support claims remain provisional until implementation or conformance evidence exists for the exact tuple claimed.
 - Playbooks remain valid without plugin packaging.
 - Adversarial review remains explicit-selection only if exposed through a plugin or workflow bundle.
@@ -173,8 +182,11 @@ Baseline implementation validation should include `npm run build -w packages/cli
 ## Source Anchors
 
 - [../designs/2026-06-20-harness-plugin-substrate-and-workflow-bundles.md](../designs/2026-06-20-harness-plugin-substrate-and-workflow-bundles.md)
+- [../designs/2026-06-27-run-playbook-orchestration-and-harness-capabilities.md](../designs/2026-06-27-run-playbook-orchestration-and-harness-capabilities.md)
 - [../plans/2026-06-23-w18-r2-harness-plugin-substrate-workflow-bundles/00-overview.md](../plans/2026-06-23-w18-r2-harness-plugin-substrate-workflow-bundles/00-overview.md)
+- [../plans/2026-06-27-w18-r4-run-playbook-orchestration-and-harness-capabilities/00-overview.md](../plans/2026-06-27-w18-r4-run-playbook-orchestration-and-harness-capabilities/00-overview.md)
 - [../work/2026-06-23-w18-r2-harness-plugin-substrate-workflow-bundles/00-index.md](../work/2026-06-23-w18-r2-harness-plugin-substrate-workflow-bundles/00-index.md)
+- [../work/2026-06-27-w18-r4-run-playbook-orchestration-and-harness-capabilities/00-index.md](../work/2026-06-27-w18-r4-run-playbook-orchestration-and-harness-capabilities/00-index.md)
 - [20 Revise Agent Harness Model Conformance Lab](20-revise-agent-harness-model-conformance-lab.md)
 - [21 Revise Tool Directory System Custom Resource Tiers](21-revise-tool-directory-system-custom-resource-tiers.md)
 - [24 Revise Configuration Convention Overlay](24-revise-configuration-convention-overlay.md)

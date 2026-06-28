@@ -4,6 +4,10 @@
 
 Before executing this backlog, apply [W9 R5 v2 Library and Archive History IA Correction](../2026-06-25-w9-r5-v2-library-and-archive-history-ia-correction/00-index.md). W18 R3 coverage-pass extensions must use `.make-docs/contracts/system/coverage-pass-contract.md`, `.make-docs/references/system/prompts/**`, and `docs/assets/archive/history/**` instead of W9 R4's superseded `docs/assets/breadcrumbs/**` target or pre-pivot `docs/assets/references/**`, `docs/assets/prompts/**`, or `docs/assets/history/**` assumptions.
 
+## W18 R4 Run Playbook Prerequisite
+
+Before executing any adversarial-review surface that uses a playbook, plugin workflow bundle, CLI action, MCP tool, or harness-assisted long-running execution, apply [W18 R4 Run Playbook Orchestration and Harness Capabilities](../2026-06-27-w18-r4-run-playbook-orchestration-and-harness-capabilities/00-index.md). W18 R3 remains optional coverage-pass work, but any runner-like exposure must consume W18 R4 resolver, capability, run-state, nested-run, and concurrency behavior.
+
 ## Purpose
 
 Implement adversarial review as an optional coverage-pass extension described by PRD 31.

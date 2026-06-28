@@ -16,6 +16,8 @@ Coordinate: `W16 R2`
 
 This PRD narrows older terminology-overlay intent into a presentation-only configuration boundary. It answers the structural side of Q-011: make-docs may render configured labels, but canonical paths, metadata keys, enum values, route identifiers, prompt paths, skill names, contract names, manifest keys, and W/R/P coordinate lineage remain stable until a later accepted design supersedes them.
 
+W18 R4 adds one reviewed operational-hint surface to `.make-docs/config.yaml`: harness capability records for Run Playbook strategy. These records inform execution choices after canonical resolution; they do not rename paths, playbook refs, stack values, route ids, harness ids, or manifest keys.
+
 ## Requirements
 
 ### Optional Project-Owned Config
@@ -33,6 +35,7 @@ Configuration may affect only presentation:
 - Prompt or CLI wording that describes configured audiences, lifecycle stages, or handoff labels.
 - Persona entries that follow the accepted persona schema.
 - Future generator defaults for prose wording, provided generated files still satisfy their owning contracts.
+- Reviewed harness capability facts used by Run Playbook as execution hints after canonical playbook and harness resolution.
 
 ### Canonical Structure
 
@@ -62,11 +65,19 @@ A configured prefix-style label may influence generated explanations of filename
 
 CLI, MCP, plugin, and skill surfaces consume config as rendering input, not routing authority. Commands, scripts, validators, and package-template checks route through canonical paths and identifiers, then apply configured labels only when producing user-visible text. [25-revise-cli-separation-and-mcp-boundary.md](25-revise-cli-separation-and-mcp-boundary.md) reinforces that TypeScript MCP tools, plugins, and skills must route by canonical paths, manifest keys, route ids, prompt paths, skill names, contract names, and harness names before applying labels. [26-revise-no-scripts-migration-skill-refactor.md](26-revise-no-scripts-migration-skill-refactor.md) extends the same rule to migrated helper behavior: config validation and deterministic script-replacement logic belong in canonical CLI/shared-core operations, not label-driven script routing. [27-revise-skill-purpose-registry-alternate-skills-manifest.md](27-revise-skill-purpose-registry-alternate-skills-manifest.md) applies the rule to purpose-led skills: purpose labels may be presented from config, but purpose ids, manifest ids, skill names, and source-policy classes remain canonical routing values. [28-revise-shared-agentics-installation-harness-redirection.md](28-revise-shared-agentics-installation-harness-redirection.md) applies the same boundary to native harness exposure and shared payloads: config-derived labels may appear in generated diagnostics only after the canonical resolver identifies payload path, harness, skill name, purpose id, and source provenance. [29-revise-playbook-contract-run-playbook.md](29-revise-playbook-contract-run-playbook.md) applies the rule to Run Playbook: configured labels may affect selection and handoff messages, but `kind`, `persona`, `stack`, authority order, output routing, and artifact ownership remain canonical. [30-revise-harness-plugin-substrate-workflow-bundles.md](30-revise-harness-plugin-substrate-workflow-bundles.md) applies the rule to plugins and workflow bundles: configured labels may appear only after canonical plugin id, playbook id, route id, harness, bundle metadata, and manifest ownership records are resolved. [31-revise-coverage-pass-extensions-adversarial-review.md](31-revise-coverage-pass-extensions-adversarial-review.md) applies the rule to adversarial review: configured persona labels may affect candidate display only after the canonical `target`, `persona_target`, surface, verdict, and handoff owner are resolved.
 
+### Harness Capability Records
+
+`harnessCapabilities` is an optional reviewed configuration section for Run Playbook execution strategy. It records local knowledge about active harness support for canonical capability ids such as `goal_managed_execution`, `long_running_runs`, `resume_after_interrupt`, `parallel_playbook_runs`, `subagent_delegation`, and `user_gate_prompts`.
+
+Harness capability records are operational hints, not routing authority. They may influence whether Run Playbook uses a harness goal feature, serial gated execution, subagent delegation, or manual-review stop after the playbook ref, stack, harness, and output surfaces are resolved canonically.
+
+Unknown capabilities must not be guessed. An agent may investigate the active harness and propose a config update, but persistence requires review. Required unknown or unsupported capabilities stop the run; optional unknown capabilities fall back to serial gated execution.
+
 ### Validation
 
 Validation must reject structural rename attempts, including attempts to rename `persona`, redefine `kind` values, replace route identifiers, redirect canonical paths, or change primitive names.
 
-Validation must cover absent config defaults, valid custom personas, invalid primitive values, duplicate persona slugs, invalid structural rename attempts, generated prose that uses configured labels, CLI output that applies labels without changing routing, package-template parity, dogfood parity, local config preservation, and unchanged behavior for canonical metadata readers.
+Validation must cover absent config defaults, valid custom personas, invalid primitive values, duplicate persona slugs, invalid structural rename attempts, valid harness capability records, invalid capability ids, reviewed versus unreviewed capability persistence, generated prose that uses configured labels, CLI output that applies labels without changing routing, package-template parity, dogfood parity, local config preservation, and unchanged behavior for canonical metadata readers.
 
 ### Source-First Templates
 
@@ -78,6 +89,7 @@ If a default config template is introduced, it starts in `packages/docs/template
 - No change to current `make-docs reconfigure` command ownership before the CLI/MCP boundary design decides the public command surface.
 - No requirement to backfill all existing docs with config-rendered prose.
 - No permission for plugins, skills, or MCP surfaces to use configured labels as schema authority.
+- No permission for harness capability records to rename playbook paths, stacks, refs, route ids, harness ids, or manifest keys.
 
 ## Affected Baseline Docs
 
@@ -106,12 +118,15 @@ If a default config template is introduced, it starts in `packages/docs/template
 - Config readers preserve canonical routing and metadata behavior when config is absent, valid, or invalid.
 - Structural rename attempts produce diagnostics rather than alternate schemas.
 - Persona config validation covers defaults, custom entries, duplicate slugs, invalid primitives, and unknown frontmatter persona slugs.
+- Harness capability records validate canonical capability ids and cannot become alternate routing schema.
 - Package and dogfood validation prove any default config template follows source-first copy rules and local config preservation.
 
 ## Source Anchors
 
 - [../designs/2026-06-20-configuration-and-convention-overlay.md](../designs/2026-06-20-configuration-and-convention-overlay.md)
+- [../designs/2026-06-27-run-playbook-orchestration-and-harness-capabilities.md](../designs/2026-06-27-run-playbook-orchestration-and-harness-capabilities.md)
 - [../plans/2026-06-23-w16-r2-configuration-convention-overlay/00-overview.md](../plans/2026-06-23-w16-r2-configuration-convention-overlay/00-overview.md)
+- [../plans/2026-06-27-w18-r4-run-playbook-orchestration-and-harness-capabilities/00-overview.md](../plans/2026-06-27-w18-r4-run-playbook-orchestration-and-harness-capabilities/00-overview.md)
 - [../work/2026-06-23-w16-r2-configuration-convention-overlay/00-index.md](../work/2026-06-23-w16-r2-configuration-convention-overlay/00-index.md)
 - [../designs/2026-06-20-no-scripts-migration-and-skill-refactor.md](../designs/2026-06-20-no-scripts-migration-and-skill-refactor.md)
 - [../plans/2026-06-23-w16-r3-no-scripts-migration-skill-refactor/00-overview.md](../plans/2026-06-23-w16-r3-no-scripts-migration-skill-refactor/00-overview.md)
