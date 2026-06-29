@@ -15,6 +15,24 @@ export const PLAYBOOK_PACKAGE_SUPPORT_STATUSES = [
   "unsupported",
   "provisional",
 ] as const;
+export const PACKAGE_PLAN_FIELD_PROVENANCE = [
+  "deterministic",
+  "user-supplied",
+  "agent-proposed",
+  "unresolved",
+] as const;
+export const PACKAGE_PLAN_STOP_REASONS = [
+  "source-invalid",
+  "unresolved-target",
+  "ambiguous-source",
+  "manual-review-required",
+  "semantic-review-required",
+  "ownership-review-required",
+  "unsafe-rewrite",
+  "unsupported-output-kind",
+  "unsupported-surface",
+  "missing-support-evidence",
+] as const;
 export const GENERATED_OUTPUT_RECORD_KINDS = [
   "source-playbook",
   "generated-plugin",
@@ -38,6 +56,8 @@ export type PlaybookPackageSurface = (typeof PLAYBOOK_PACKAGE_SURFACES)[number];
 export type PlaybookPackageScope = (typeof PLAYBOOK_PACKAGE_SCOPES)[number];
 export type PlaybookPackageReviewStatus = (typeof PLAYBOOK_PACKAGE_REVIEW_STATUSES)[number];
 export type PlaybookPackageSupportStatus = (typeof PLAYBOOK_PACKAGE_SUPPORT_STATUSES)[number];
+export type PackagePlanFieldProvenance = (typeof PACKAGE_PLAN_FIELD_PROVENANCE)[number];
+export type PackagePlanStopReason = (typeof PACKAGE_PLAN_STOP_REASONS)[number];
 export type GeneratedOutputRecordKind = (typeof GENERATED_OUTPUT_RECORD_KINDS)[number];
 export type PackageAdapterExposureMode = (typeof PACKAGE_ADAPTER_EXPOSURE_MODES)[number];
 
@@ -96,6 +116,13 @@ export interface PackagePlanLifecycle {
   preservesUserModifiedFiles: boolean;
 }
 
+export interface PackagePlanStop {
+  reason: PackagePlanStopReason;
+  message: string;
+  ref?: string;
+  path?: string;
+}
+
 export interface PlaybookPackagePlan {
   schemaVersion: 1;
   packageId: string;
@@ -107,10 +134,37 @@ export interface PlaybookPackagePlan {
   deterministicDerivations: Record<string, string>;
   agentAssistedProposals: AgentAssistedProposal[];
   unresolvedDecisions: PackageUnresolvedDecision[];
+  fieldProvenance: Record<string, PackagePlanFieldProvenance>;
   review: PackagePlanReview;
   support: PackagePlanSupport;
   lifecycle: PackagePlanLifecycle;
   validationRequirements: string[];
+}
+
+export interface PackagePlanDryRun {
+  status: "ready" | "review-required" | "manual-review-required";
+  plan: PlaybookPackagePlan;
+  stops: PackagePlanStop[];
+  lines: string[];
+  writesPlanned: false;
+}
+
+export interface PlaybookPackagePlannerInput {
+  repoRoot?: string;
+  refs: string[];
+  requestedStack?: "build" | "run" | null;
+  target: PlaybookPackageTarget;
+  packageId?: string;
+  title?: string;
+  summary?: string;
+  reviewStatus?: PlaybookPackageReviewStatus;
+  reviewedBy?: string;
+  supportEvidenceRefs?: string[];
+  nonInteractive?: boolean;
+  existingGeneratedOutputs?: Array<{
+    path: string;
+    state: "clean-managed" | "modified-managed" | "user-authored" | "legacy-generated";
+  }>;
 }
 
 export interface GeneratedOutputRecord {

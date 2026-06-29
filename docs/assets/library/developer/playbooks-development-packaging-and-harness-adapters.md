@@ -44,15 +44,16 @@ The packaging system should be built as modular TypeScript operation domains:
 
 CLI commands, MCP tools, plugins, skills, and agent-facing surfaces should delegate to these domains. They should not implement independent packaging or lifecycle behavior.
 
-## Current Schema Foundation
+## Current Operation Domain
 
-The current implementation is a schema foundation only. It lives under `packages/cli/src/operations/playbook-packaging/` and exports:
+The current implementation lives under `packages/cli/src/operations/playbook-packaging/` and exports:
 
 - `types.ts` for package-plan, generated-output, and harness-adapter declaration contracts;
 - `validation.ts` for fail-closed validation helpers;
-- `index.ts` for the public operation-domain export and schema helper exports.
+- `planner.ts` for deterministic package-plan generation and dry-run rendering;
+- `index.ts` for the public operation-domain export and helper exports.
 
-`playbookPackagingDomain` is registered in the shared operations registry with no commands. That makes the domain discoverable to the shared CLI/MCP operation model without exposing package planning, output writing, install/sync mutation, migration, or lifecycle mutation before later W18 R5 phases implement those behaviors.
+`playbookPackagingDomain` is registered in the shared operations registry with the read-only `playbook-package-plan` operation. This operation creates reviewable package plans and dry-run output without writing generated package files, mutating install state, or performing lifecycle cleanup. Writers remain deferred until accepted package-plan writer phases land.
 
 Maintainers should import schema helpers from `packages/cli/src/operations/playbook-packaging/` or the operations facade, not duplicate literals in planner, writer, adapter, CLI, or MCP code. When adding fields, update the TypeScript contract, fail-closed validator, and focused schema tests together.
 
@@ -70,7 +71,23 @@ A package plan is the reviewable bridge between source and output. It should be 
 
 Agents may help draft semantic fields such as descriptions, command names, skill grouping, or adapter prose. Those fields are proposals until reviewed. Non-interactive runs must fail before writing when a plan still needs semantic review, ownership review, unsupported-surface resolution, or support-claim evidence.
 
-The current `PlaybookPackagePlan` schema requires a `schemaVersion: 1`, at least one source Playbook, a target, generated artifact inventory, deterministic derivations, agent-assisted proposals, unresolved decisions, review state, support state, lifecycle behavior, and validation requirements. Validation rejects unknown output kinds, unknown surfaces, invalid harness ids, empty source lists, and plans that contain semantic proposals or unresolved decisions without required review state.
+The current `PlaybookPackagePlan` schema requires a `schemaVersion: 1`, at least one source Playbook, a target, generated artifact inventory, deterministic derivations, agent-assisted proposals, unresolved decisions, field provenance, review state, support state, lifecycle behavior, and validation requirements. Validation rejects unknown output kinds, unknown surfaces, invalid harness ids, empty source lists, invalid field-provenance values, and plans that contain semantic proposals or unresolved decisions without required review state.
+
+The package planner currently supports a dry-run plan flow through `make-docs operations playbook-package-plan`. It reuses the Run Playbook resolver for explicit paths, `persona/slug` refs, and unique bare slug/title refs; computes stable source digests; validates relative Markdown links and assets outside code spans/fences; marks deterministic, user-supplied, agent-proposed, and unresolved fields; and returns review stops before any writes can occur.
+
+Use the operation like this during development:
+
+```sh
+make-docs operations playbook-package-plan \
+  --source user/run-stack \
+  --harness codex \
+  --output-kind plugin \
+  --surface native \
+  --scope project \
+  --support-evidence-ref docs/prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md
+```
+
+Non-interactive callers should pass `--non-interactive` when they need fail-before-write behavior. The planner throws before returning a writable result when semantic review, ownership review, unsafe rewrite review, unresolved adapter decisions, unsupported targets, broken source links/assets, ambiguous refs, or missing support evidence would require human review.
 
 ## Harness Adapters
 
@@ -132,11 +149,10 @@ Public support wording should cite evidence for the exact Playbook, package plan
 
 Current focused schema coverage lives in `packages/cli/tests/playbook-packaging.test.ts`. Keep those tests fail-closed: new enum values, ownership classes, support states, surfaces, or lifecycle dispositions should require deliberate test updates rather than passing through as arbitrary strings.
 
+Current package-planner coverage also lives in `packages/cli/tests/playbook-packaging.test.ts`. It covers deterministic single-Playbook plans, multi-Playbook skills-bundle plans that require semantic review, broken relative links and assets, ambiguous source refs, modified generated-output review stops, non-interactive review stops, and CLI dry-run JSON output.
+
 ## Future Coverage
 
-- Blocked by: W18 R5 package-planner implementation.
-  Update when: final CLI and MCP command names are selected.
-  Guide change: add command examples and operation names.
 - Blocked by: W18 R5 adapter implementation.
   Update when: the first validated generated plugin and skills-bundle adapters land.
   Guide change: add adapter file paths, fixtures, and extension steps.

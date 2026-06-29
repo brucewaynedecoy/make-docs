@@ -21,12 +21,17 @@ export {
 export {
   GENERATED_OUTPUT_RECORD_KINDS,
   PACKAGE_ADAPTER_EXPOSURE_MODES,
+  PACKAGE_PLAN_FIELD_PROVENANCE,
+  PACKAGE_PLAN_STOP_REASONS,
   PLAYBOOK_PACKAGE_OUTPUT_KINDS,
   PLAYBOOK_PACKAGE_REVIEW_STATUSES,
   PLAYBOOK_PACKAGE_SCOPES,
   PLAYBOOK_PACKAGE_SUPPORT_STATUSES,
   PLAYBOOK_PACKAGE_SURFACES,
   playbookPackagingDomain,
+  createPlaybookPackagePlan,
+  readPlaybookPackagePlan,
+  renderPackagePlanDryRunLines,
   validateGeneratedOutputRecord,
   validateHarnessAdapterDeclaration,
   validateHarnessId,
@@ -36,7 +41,9 @@ export {
 export type {
   GeneratedOutputRecord,
   HarnessPackageAdapterDeclaration,
+  PackagePlanDryRun,
   PlaybookPackagePlan,
+  PlaybookPackagePlannerInput,
 } from "./operations/playbook-packaging";
 export { OperationError } from "./operations/types";
 export type { JsonValue } from "./operations/types";

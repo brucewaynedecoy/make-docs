@@ -19,9 +19,9 @@ This phase creates package plans but should not require full plugin or skills-bu
 
 ### Tasks
 
-- [ ] t1: Reuse the W18 R4/W18 R1 Playbook resolver and validation path for explicit path, `persona/slug`, and unique bare slug/title source selection.
-- [ ] t2: Validate required Playbook frontmatter, `stack`, persona/path drift, source assets, relative Markdown links, output-surface claims, and run metadata before planning.
-- [ ] t3: Compute source digests and package-source references for all Playbooks included in a plan.
+- [x] t1: Reuse the W18 R4/W18 R1 Playbook resolver and validation path for explicit path, `persona/slug`, and unique bare slug/title source selection.
+- [x] t2: Validate required Playbook frontmatter, `stack`, persona/path drift, source assets, relative Markdown links, output-surface claims, and run metadata before planning.
+- [x] t3: Compute source digests and package-source references for all Playbooks included in a plan.
 
 ### Acceptance criteria
 
@@ -37,10 +37,10 @@ This phase creates package plans but should not require full plugin or skills-bu
 
 ### Tasks
 
-- [ ] t4: Implement package-plan generation for `plugin` and `skills-bundle` output intents.
-- [ ] t5: Mark plan fields as deterministic, user-supplied, agent-proposed, or unresolved.
-- [ ] t6: Add non-interactive stop behavior when semantic interpretation, ownership ambiguity, unsafe rewrite, unsupported surface, or support-claim evidence is missing.
-- [ ] t7: Expose package-plan dry-run output through CLI operation and MCP read-first surfaces without writing generated package outputs.
+- [x] t4: Implement package-plan generation for `plugin` and `skills-bundle` output intents.
+- [x] t5: Mark plan fields as deterministic, user-supplied, agent-proposed, or unresolved.
+- [x] t6: Add non-interactive stop behavior when semantic interpretation, ownership ambiguity, unsafe rewrite, unsupported surface, or support-claim evidence is missing.
+- [x] t7: Expose package-plan dry-run output through CLI operation and MCP read-first surfaces without writing generated package outputs.
 
 ### Acceptance criteria
 
@@ -57,10 +57,10 @@ This phase creates package plans but should not require full plugin or skills-bu
 
 ### Tasks
 
-- [ ] t8: Add fixture coverage for deterministic single-Playbook package plans.
-- [ ] t9: Add fixture coverage for multi-Playbook skills bundles.
-- [ ] t10: Add failure coverage for semantic-review requirements, missing metadata, broken links, missing assets, ambiguous source refs, user-modified generated outputs, unsupported output kinds, and unsupported surfaces.
-- [ ] t11: Add package-plan snapshot or structured-output tests that are stable enough for review without overfitting generated prose.
+- [x] t8: Add fixture coverage for deterministic single-Playbook package plans.
+- [x] t9: Add fixture coverage for multi-Playbook skills bundles.
+- [x] t10: Add failure coverage for semantic-review requirements, missing metadata, broken links, missing assets, ambiguous source refs, user-modified generated outputs, unsupported output kinds, and unsupported surfaces.
+- [x] t11: Add package-plan snapshot or structured-output tests that are stable enough for review without overfitting generated prose.
 
 ### Acceptance criteria
 
@@ -71,3 +71,16 @@ This phase creates package plans but should not require full plugin or skills-bu
 ### Dependencies
 
 - Stages 1 and 2.
+
+## Validation Notes
+
+Validation completed:
+
+- `npm test -w packages/cli -- --run tests/playbook-packaging.test.ts tests/playbook-operations.test.ts --reporter=dot`
+- `npm run build -w packages/cli`
+- `python3 .make-docs/scripts/check_path_hygiene.py --repo-root .`
+- `bash scripts/check-wave-numbering.sh`
+- `git diff --check`
+- Changed-file Markdown link and placeholder check
+
+Manual UAT remains deferred until the full W18 R5 wave is complete.

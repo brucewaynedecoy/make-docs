@@ -2,6 +2,7 @@ import { OperationError, type JsonValue } from "../types";
 import {
   GENERATED_OUTPUT_RECORD_KINDS,
   PACKAGE_ADAPTER_EXPOSURE_MODES,
+  PACKAGE_PLAN_FIELD_PROVENANCE,
   PLAYBOOK_PACKAGE_OUTPUT_KINDS,
   PLAYBOOK_PACKAGE_REVIEW_STATUSES,
   PLAYBOOK_PACKAGE_SCOPES,
@@ -16,6 +17,7 @@ import {
   type PackageAdapterLifecycleRule,
   type PackageAdapterPathTemplate,
   type PackageAdapterPrecondition,
+  type PackagePlanFieldProvenance,
   type PackagePlanLifecycle,
   type PackagePlanReview,
   type PackagePlanSupport,
@@ -47,6 +49,7 @@ export function validatePackagePlan(value: unknown): PlaybookPackagePlan {
       .map(validateAgentAssistedProposal),
     unresolvedDecisions: requireRecordArray(record.unresolvedDecisions, "package plan unresolvedDecisions")
       .map(validateUnresolvedDecision),
+    fieldProvenance: validateFieldProvenance(record.fieldProvenance, "package plan fieldProvenance"),
     review: validatePackagePlanReview(record.review),
     support: validatePackagePlanSupport(record.support),
     lifecycle: validatePackagePlanLifecycle(record.lifecycle),
@@ -192,6 +195,16 @@ function validateUnresolvedDecision(record: Record<string, JsonValue>): PackageU
     id: requireNonEmptyString(record.id, "unresolved decision id"),
     question: requireNonEmptyString(record.question, "unresolved decision question"),
   };
+}
+
+function validateFieldProvenance(value: unknown, label: string): Record<string, PackagePlanFieldProvenance> {
+  const record = requireRecord(value, label);
+  return Object.fromEntries(
+    Object.entries(record).map(([key, item]) => [
+      key,
+      requireEnum(item, PACKAGE_PLAN_FIELD_PROVENANCE, `${label}.${key}`),
+    ]),
+  );
 }
 
 function validatePackagePlanReview(value: unknown): PackagePlanReview {

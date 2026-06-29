@@ -1,5 +1,9 @@
-import { describe, expect, test } from "vitest";
+import { mkdirSync, writeFileSync } from "node:fs";
+import path from "node:path";
+import { afterEach, describe, expect, test, vi } from "vitest";
 import {
+  createPlaybookPackagePlan,
+  runOperationsCommand,
   validateGeneratedOutputRecord,
   validateHarnessAdapterDeclaration,
   validatePackagePlan,
@@ -9,6 +13,79 @@ import type {
   HarnessPackageAdapterDeclaration,
   PlaybookPackagePlan,
 } from "../src/operations";
+import { cleanupTempDir, createTempDir } from "./helpers";
+
+function writeFile(root: string, relativePath: string, content: string): string {
+  const absolutePath = path.join(root, relativePath);
+  mkdirSync(path.dirname(absolutePath), { recursive: true });
+  writeFileSync(absolutePath, content, "utf8");
+  return absolutePath;
+}
+
+function playbookBody(title: string, extra: string[] = []): string {
+  return [
+    `# ${title}`,
+    "",
+    "## Purpose",
+    "",
+    "Use this playbook when the matching workflow goal is active.",
+    "",
+    "## Inputs and Authority",
+    "",
+    "- User request.",
+    "- Repo-local Make Docs contracts.",
+    ...extra,
+    "",
+    "## Procedure",
+    "",
+    "1. Resolve the playbook.",
+    "2. Follow the documented steps in order.",
+    "",
+    "## Gates and Decisions",
+    "",
+    "- Stop when user review is required.",
+    "",
+    "## Assists",
+    "",
+    "- CLI, MCP, plugin, subagent, or skill assists are optional unless the playbook says otherwise.",
+    "",
+    "## Outputs and Handoff",
+    "",
+    "- Record the expected output or handoff artifact.",
+    "",
+    "## Validation",
+    "",
+    "- Confirm the workflow completed or report why it stopped.",
+    "",
+  ].join("\n");
+}
+
+function writePlaybook(
+  root: string,
+  persona: string,
+  slug: string,
+  stack: "build" | "run",
+  title = slug,
+  options: { bodyExtra?: string[]; runMetadata?: string[] } = {},
+): string {
+  return writeFile(
+    root,
+    `docs/assets/playbooks/${persona}/${slug}.md`,
+    [
+      "---",
+      `title: ${title}`,
+      "kind: playbook",
+      "status: accepted",
+      `persona: ${persona}`,
+      `stack: ${stack}`,
+      `summary: ${title} summary.`,
+      ...(options.runMetadata ?? []),
+      "---",
+      "",
+      playbookBody(title, options.bodyExtra),
+    ].join("\n"),
+  );
+}
 
 function validPackagePlan(overrides: Partial<PlaybookPackagePlan> = {}): PlaybookPackagePlan {
   return {
@@ -47,6 +124,15 @@ function validPackagePlan(overrides: Partial<PlaybookPackagePlan> = {}): Playboo
     },
     agentAssistedProposals: [],
     unresolvedDecisions: [],
+    fieldProvenance: {
+      packageId: "deterministic",
+      title: "deterministic",
+      summary: "deterministic",
+      target: "user-supplied",
+      sources: "deterministic",
+      generatedArtifacts: "deterministic",
+      support: "unresolved",
+    },
     review: {
       required: false,
       status: "not-required",
@@ -142,6 +228,15 @@ function validHarnessAdapter(
 }
 
 describe("playbook packaging schema foundation", () => {
+  const tempRoots: string[] = [];
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+    for (const root of tempRoots.splice(0)) {
+      cleanupTempDir(root);
+    }
+  });
+
   test("accepts serializable package plans for plugin outputs", () => {
     const plan = validatePackagePlan(validPackagePlan());
 
@@ -250,5 +345,214 @@ describe("playbook packaging schema foundation", () => {
     expect(() => validateHarnessAdapterDeclaration(validHarnessAdapter({
       supportedSurfaces: ["native"],
     }))).toThrow("unsupported surface `agents-standard`");
+  });
+
+  test("creates deterministic single-Playbook package plans without writes", () => {
+    const root = createTempDir("make-docs-package-plan-");
+    tempRoots.push(root);
+    writeFile(root, ".make-docs/contracts/system/example.md", "# Example\n");
+    writePlaybook(root, "user", "run-stack", "run", "Run Stack", {
+      bodyExtra: ["- Load [Example](../../../../.make-docs/contracts/system/example.md)."],
+      runMetadata: [
+        "run:",
+        "  output_surfaces:",
+        "    - docs/assets/archive/history",
+      ],
+    });
+
+    const first = createPlaybookPackagePlan({
+      repoRoot: root,
+      refs: ["user/run-stack"],
+      requestedStack: "run",
+      target: {
+        harness: "codex",
+        outputKind: "plugin",
+        surface: "native",
+        scope: "project",
+      },
+      supportEvidenceRefs: ["docs/prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md"],
+    });
+    const second = createPlaybookPackagePlan({
+      repoRoot: root,
+      refs: ["Run Stack"],
+      requestedStack: "run",
+      target: {
+        harness: "codex",
+        outputKind: "plugin",
+        surface: "native",
+        scope: "project",
+      },
+      supportEvidenceRefs: ["docs/prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md"],
+    });
+
+    expect(second.plan).toEqual(first.plan);
+    expect(first.status).toBe("ready");
+    expect(first.writesPlanned).toBe(false);
+    expect(first.plan.sources[0]).toMatchObject({
+      ref: "user/run-stack",
+      sourceDigest: expect.stringMatching(/^sha256:/),
+    });
+    expect(first.plan.generatedArtifacts).toEqual([
+      expect.objectContaining({
+        path: ".make-docs/agentics/plugins/run-stack/plugin.json",
+        recordKind: "generated-plugin",
+      }),
+    ]);
+    expect(first.lines).toContain("Writes planned: no");
+  });
+
+  test("creates multi-Playbook skills-bundle plans with semantic review", () => {
+    const root = createTempDir("make-docs-package-plan-");
+    tempRoots.push(root);
+    writePlaybook(root, "user", "run-stack", "run", "Run Stack");
+    writePlaybook(root, "developer", "review-stack", "run", "Review Stack");
+
+    const result = createPlaybookPackagePlan({
+      repoRoot: root,
+      refs: ["user/run-stack", "developer/review-stack"],
+      requestedStack: "run",
+      target: {
+        harness: "claude-code",
+        outputKind: "skills-bundle",
+        surface: "agents-standard",
+        scope: "project",
+      },
+    });
+
+    expect(result.status).toBe("review-required");
+    expect(result.plan.agentAssistedProposals).toEqual([
+      expect.objectContaining({
+        field: "summary",
+      }),
+    ]);
+    expect(result.plan.generatedArtifacts).toEqual([
+      expect.objectContaining({
+        path: ".make-docs/agentics/skills/run-stack-review-stack/SKILL.md",
+        recordKind: "generated-skills-bundle",
+      }),
+    ]);
+    expect(result.plan.fieldProvenance.summary).toBe("agent-proposed");
+  });
+
+  test("fails closed for broken relative Playbook links before writing", () => {
+    const root = createTempDir("make-docs-package-plan-");
+    tempRoots.push(root);
+    writePlaybook(root, "user", "broken-link", "run", "Broken Link", {
+      bodyExtra: ["- Load [Missing](./missing.md)."],
+    });
+
+    const result = createPlaybookPackagePlan({
+      repoRoot: root,
+      refs: ["user/broken-link"],
+      target: {
+        harness: "codex",
+        outputKind: "plugin",
+        surface: "native",
+        scope: "project",
+      },
+    });
+
+    expect(result.status).toBe("manual-review-required");
+    expect(result.stops).toEqual([
+      expect.objectContaining({
+        reason: "unresolved-target",
+        path: "docs/assets/playbooks/user/missing.md",
+      }),
+      expect.objectContaining({
+        reason: "missing-support-evidence",
+      }),
+    ]);
+  });
+
+  test("fails closed for ambiguous source refs and non-interactive review stops", () => {
+    const root = createTempDir("make-docs-package-plan-");
+    tempRoots.push(root);
+    writePlaybook(root, "user", "review", "run", "Review");
+    writePlaybook(root, "developer", "review", "build", "Review");
+
+    expect(() => createPlaybookPackagePlan({
+      repoRoot: root,
+      refs: ["review"],
+      target: {
+        harness: "codex",
+        outputKind: "plugin",
+        surface: "native",
+        scope: "project",
+      },
+    })).toThrow("No valid source Playbooks resolved");
+
+    expect(() => createPlaybookPackagePlan({
+      repoRoot: root,
+      refs: ["user/review"],
+      target: {
+        harness: "codex",
+        outputKind: "plugin",
+        surface: "auto",
+        scope: "project",
+      },
+      nonInteractive: true,
+    })).toThrow("Package planning stopped before writes");
+  });
+
+  test("routes user-modified generated outputs to review", () => {
+    const root = createTempDir("make-docs-package-plan-");
+    tempRoots.push(root);
+    writePlaybook(root, "user", "run-stack", "run", "Run Stack");
+
+    const result = createPlaybookPackagePlan({
+      repoRoot: root,
+      refs: ["user/run-stack"],
+      target: {
+        harness: "codex",
+        outputKind: "plugin",
+        surface: "native",
+        scope: "project",
+      },
+      existingGeneratedOutputs: [
+        {
+          path: ".make-docs/agentics/plugins/run-stack/plugin.json",
+          state: "modified-managed",
+        },
+      ],
+    });
+
+    expect(result.status).toBe("review-required");
+    expect(result.stops).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        reason: "ownership-review-required",
+        path: ".make-docs/agentics/plugins/run-stack/plugin.json",
+      }),
+    ]));
+  });
+
+  test("exposes package-plan dry-run output through the CLI operation", async () => {
+    const root = createTempDir("make-docs-package-plan-");
+    tempRoots.push(root);
+    writePlaybook(root, "user", "run-stack", "run", "Run Stack");
+    const writeSpy = vi.spyOn(process.stdout, "write").mockImplementation(() => true);
+
+    await runOperationsCommand([
+      "playbook-package-plan",
+      "--repo-root",
+      root,
+      "--source",
+      "user/run-stack",
+      "--harness",
+      "codex",
+      "--output-kind",
+      "plugin",
+      "--surface",
+      "native",
+      "--scope",
+      "project",
+      "--support-evidence-ref",
+      "docs/prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md",
+    ]);
+
+    const output = writeSpy.mock.calls.map((call) => String(call[0])).join("");
+    const parsed = JSON.parse(output) as ReturnType<typeof createPlaybookPackagePlan>;
+    expect(parsed.plan.packageId).toBe("run-stack");
+    expect(parsed.writesPlanned).toBe(false);
+    expect(parsed.lines).toContain("Writes planned: no");
   });
 });

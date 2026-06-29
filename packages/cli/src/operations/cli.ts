@@ -17,6 +17,7 @@ import {
   readPlaybookRunState,
   resolvePlaybook,
 } from "./playbook";
+import { createPlaybookPackagePlan } from "./playbook-packaging";
 import { OperationError } from "./types";
 import {
   buildPhasePlan,
@@ -195,6 +196,28 @@ export async function runOperationsCommand(argv: string[]): Promise<void> {
         }),
       );
       return;
+    case "playbook-package-plan":
+      printJson(
+        createPlaybookPackagePlan({
+          repoRoot: path.resolve(options.values["repo-root"] ?? "."),
+          refs: options.arrays.source ?? requiredPositionals(options, operation),
+          requestedStack: parseOptionalStack(options.values.stack),
+          target: {
+            harness: requiredValue(options, "harness", operation),
+            outputKind: requiredValue(options, "output-kind", operation) as Parameters<typeof createPlaybookPackagePlan>[0]["target"]["outputKind"],
+            surface: requiredValue(options, "surface", operation) as Parameters<typeof createPlaybookPackagePlan>[0]["target"]["surface"],
+            scope: requiredValue(options, "scope", operation) as Parameters<typeof createPlaybookPackagePlan>[0]["target"]["scope"],
+          },
+          packageId: options.values["package-id"],
+          title: options.values.title,
+          summary: options.values.summary,
+          reviewStatus: options.values["review-status"] as Parameters<typeof createPlaybookPackagePlan>[0]["reviewStatus"],
+          reviewedBy: options.values["reviewed-by"],
+          supportEvidenceRefs: options.arrays["support-evidence-ref"] ?? [],
+          nonInteractive: options.booleans.has("non-interactive"),
+        }),
+      );
+      return;
     default:
       throw new OperationError(`Unknown make-docs operation: ${operation}`);
   }
@@ -222,6 +245,7 @@ function parseOperationOptions(argv: string[]): OperationOptions {
         "review-required",
         "no-review-required",
         "allow-unattended",
+        "non-interactive",
       ].includes(key)
     ) {
       booleans.add(key);
@@ -240,6 +264,8 @@ function parseOperationOptions(argv: string[]): OperationOptions {
         "prefers-capability",
         "output-surface",
         "resume-hint",
+        "source",
+        "support-evidence-ref",
       ].includes(key)
     ) {
       arrays[key] = [...(arrays[key] ?? []), next];
@@ -273,6 +299,7 @@ function printOperationsHelp(): void {
       "  playbook-run-start",
       "  playbook-run-invoke",
       "  playbook-run-read",
+      "  playbook-package-plan",
       "",
     ].join("\n"),
   );
@@ -322,6 +349,16 @@ function parseExecutionMode(value: string | undefined): "serial" | "parallel" | 
     return value;
   }
   throw new OperationError("Playbook run execution mode must be serial or parallel.");
+}
+
+function parseOptionalStack(value: string | undefined): "build" | "run" | null {
+  if (value === undefined || value === "") {
+    return null;
+  }
+  if (value === "build" || value === "run") {
+    return value;
+  }
+  throw new OperationError("Playbook package stack must be build or run.");
 }
 
 function parseCloseoutMode(value: string): "commit" | "phase" {
