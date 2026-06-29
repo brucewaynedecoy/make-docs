@@ -49,6 +49,10 @@ const READER_ASSET_ROUTER_PATHS = [
   "docs/assets/playbooks/CLAUDE.md",
 ];
 
+const PLAYBOOK_DEFAULT_PARITY_PATHS = [
+  "docs/assets/playbooks/agent/make-docs-lifecycle.md",
+];
+
 const PATH_HYGIENE_PARITY_PATHS = [
   ".make-docs/scripts/check_path_hygiene.py",
   "docs/AGENTS.md",
@@ -188,6 +192,17 @@ describe("default profile consistency", () => {
     for (const relativePath of READER_ASSET_ROUTER_PATHS) {
       expect(managedPaths.has(relativePath), relativePath).toBe(true);
       expect(readPackageFile(relativePath), relativePath).toContain("make-docs:begin");
+    }
+  });
+
+  test("default scaffold includes reviewed playbook defaults", () => {
+    const profile = resolveInstallProfile(defaultSelections());
+    const managedPaths = new Set(getDesiredAssets(profile).map((asset) => asset.relativePath));
+
+    for (const relativePath of PLAYBOOK_DEFAULT_PARITY_PATHS) {
+      expect(managedPaths.has(relativePath), relativePath).toBe(true);
+      expect(readPackageFile(relativePath), relativePath).toContain("kind: \"playbook\"");
+      expect(readPackageFile(relativePath), relativePath).toContain("stack: \"build\"");
     }
   });
 });
@@ -586,6 +601,25 @@ describe("guide generation routing contract", () => {
       );
 
       expect(dogfoodContents).toBe(templateContents);
+    }
+  });
+
+  test("dogfood playbook defaults match the shipped template copies", () => {
+    for (const relativePath of PLAYBOOK_DEFAULT_PARITY_PATHS) {
+      const dogfoodContents = readFileSync(path.join(REPO_ROOT, relativePath), "utf8");
+      const templateContents = readFileSync(
+        path.join(REPO_ROOT, "packages", "docs", "template", relativePath),
+        "utf8",
+      );
+      const generatedContents = readFileSync(
+        path.join(REPO_ROOT, "packages", "cli", "template", relativePath),
+        "utf8",
+      );
+
+      expect(templateContents).toBe(dogfoodContents);
+      expect(generatedContents).toBe(templateContents);
+      expect(templateContents).toContain("status: \"accepted\"");
+      expect(templateContents).toContain("persona: \"agent\"");
     }
   });
 });

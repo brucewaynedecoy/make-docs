@@ -1,5 +1,6 @@
 import {
   getPromptPaths,
+  getPlaybookDefaultPaths,
   getPromptsDirInstalled,
   getReferenceDirInstalled,
   getReferencePaths,
@@ -162,6 +163,10 @@ function getDesiredSystemAssetPaths(profile: InstallProfile): Set<string> {
 
   for (const scriptPath of getScriptPaths(profile)) {
     relativePaths.add(scriptPath);
+  }
+
+  for (const playbookPath of getPlaybookDefaultPaths(profile)) {
+    relativePaths.add(playbookPath);
   }
 
   for (const instructionKind of getActiveInstructionKinds(profile.selections)) {

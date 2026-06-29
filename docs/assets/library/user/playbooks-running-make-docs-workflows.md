@@ -33,6 +33,30 @@ A Playbook is a reusable workflow document that Make Docs can validate, select, 
 
 Playbooks live under `docs/assets/playbooks/<persona>/<slug>.md`. The stable identity is `persona/slug`. A Playbook also declares a required `stack` value so Make Docs can distinguish between build workflows and run workflows.
 
+## Installed Default Playbook
+
+A default Make Docs install includes the Make Docs lifecycle Playbook at:
+
+```text
+docs/assets/playbooks/agent/make-docs-lifecycle.md
+```
+
+This Playbook is a readable workflow for the `agent` persona. It describes how an agent should move through the Make Docs lifecycle from source evidence to design, plan, PRD, work backlog, implementation, validation, closeout, and history.
+
+Users can inspect available Playbooks with:
+
+```sh
+make-docs operations playbook-catalog --repo-root .
+```
+
+They can start the current operation-level invocation model with:
+
+```sh
+make-docs operations playbook-run-invoke agent/make-docs-lifecycle --repo-root . --harness codex --stack build
+```
+
+The command validates the Playbook and creates Make Docs run state. It does not bypass review gates or turn the Playbook into a plugin.
+
 ## What Users Can Do With Playbooks
 
 Users will be able to use Playbooks as repeatable workflows instead of rebuilding Make Docs procedure knowledge from scratch each time.

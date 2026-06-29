@@ -129,6 +129,19 @@ The body must expose the durable runner contract in readable Markdown. Current d
 
 Do not make transitional paths such as `docs/library/playbooks/**` selectable. Historical playbook files are migration evidence only; the v2 runner and resolver should use the canonical `docs/assets/playbooks/**` tree.
 
+## Shipped Default Playbooks
+
+Accepted shipped Playbook defaults use the PRD 19 source-of-truth path:
+
+1. Author the default in `packages/docs/template/docs/assets/playbooks/**`.
+2. Reseed the matching dogfood copy under `docs/assets/playbooks/**`.
+3. Regenerate `packages/cli/template/**` through `npm run prepack -w packages/cli` or `npm run smoke:pack`.
+4. Validate package behavior with `npm run validate:defaults -w packages/cli` and `npm run smoke:pack`.
+
+The Make Docs lifecycle Playbook is the first reviewed shipped default. Its source-template, dogfood, and generated package copies must stay byte-for-byte aligned at `docs/assets/playbooks/agent/make-docs-lifecycle.md`.
+
+Do not add recursive catalog ownership for every file under `docs/assets/playbooks/**`. Shipped defaults should be named explicitly in the catalog rules so user-authored project Playbooks do not become managed package files by accident.
+
 ## Harness Capability Mediation
 
 Harness features are optional execution assists. Make Docs can use features such as goal-managed execution, long-running runs, resume after interrupt, parallel playbook runs, subagent delegation, or user gate prompts when the harness is known to support them.
