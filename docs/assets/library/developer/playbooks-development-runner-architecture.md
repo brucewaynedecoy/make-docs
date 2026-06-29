@@ -26,6 +26,7 @@ related:
   - ../../../prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md
   - ../../../designs/2026-06-27-run-playbook-orchestration-and-harness-capabilities.md
   - ../../../designs/2026-06-29-playbook-packaging-and-harness-adapter-registry.md
+  - ../../../work/2026-06-23-w18-r1-playbook-contract-run-playbook/00-index.md
   - ../../../work/2026-06-27-w18-r4-run-playbook-orchestration-and-harness-capabilities/00-index.md
   - ../../../work/2026-06-29-w18-r5-playbook-packaging-and-harness-adapter-registry/00-index.md
 ---
@@ -109,6 +110,16 @@ The `stack` metadata remains required, but it is not another directory level. It
 Ambiguity fails closed. If two Playbooks can match the same bare slug or title, the runner should ask for a more specific reference instead of choosing one.
 
 The implemented resolver validates stack requests before returning a selected Playbook. If `--stack build` is requested for a run-stack Playbook, the resolver fails before authority loading, procedure execution, or output routing can begin.
+
+## Catalog Contract Validation
+
+The catalog fails closed before selection. A Playbook is catalogable only when it lives directly under `docs/assets/playbooks/<persona>/<slug>.md`, has YAML frontmatter, declares `kind: playbook`, and uses a configured persona slug that matches the path directory.
+
+The required frontmatter fields are `title`, `kind`, `status`, `persona`, `stack`, and `summary`. Accepted `status` values are `proposed`, `accepted`, and `deprecated`; accepted `stack` values are `build` and `run`.
+
+The body must expose the durable runner contract in readable Markdown. Current diagnostics require coverage for purpose, inputs and authority, procedure, gates or decisions, allowed assists, expected outputs or handoff artifacts, and validation or completion expectations.
+
+Do not make transitional paths such as `docs/library/playbooks/**` selectable. Historical playbook files are migration evidence only; the v2 runner and resolver should use the canonical `docs/assets/playbooks/**` tree.
 
 ## Harness Capability Mediation
 
