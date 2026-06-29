@@ -14,6 +14,7 @@ applies-to:
   - mcp
 related:
   - ./cli-development-local-build-and-install.md
+  - ./playbooks-development-runner-architecture.md
   - ./release-packaging-validation-and-release-reference.md
   - ./conformance-lab-scenario-and-result-contracts.md
   - ../../../prd/18-revise-compatibility-audit-and-migration-disposition.md
@@ -178,6 +179,7 @@ Before implementing an MCP tool or CLI operation:
 ## Related Resources
 
 - [Building and Installing the CLI Locally](./cli-development-local-build-and-install.md)
+- [Run Playbook Runner Architecture](./playbooks-development-runner-architecture.md)
 - [Packaging, Validation, and Release Reference](./release-packaging-validation-and-release-reference.md)
 - [Conformance Lab Scenario and Result Contracts](./conformance-lab-scenario-and-result-contracts.md)
 - [25 Revise CLI Separation and MCP Boundary](../../../prd/25-revise-cli-separation-and-mcp-boundary.md)

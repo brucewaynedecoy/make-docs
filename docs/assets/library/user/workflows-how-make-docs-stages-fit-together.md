@@ -13,6 +13,7 @@ applies-to:
   - workflow
 related:
   - ./workflows-choosing-the-right-route-for-your-project.md
+  - ./playbooks-running-make-docs-workflows.md
   - ./concepts-wave-revision-phase-coordinates.md
   - ./getting-started-installing-make-docs.md
   - ../developer/development-workflows-stage-model-and-artifact-relationships.md
@@ -182,5 +183,6 @@ No. Most ongoing product work should use active-set evolution, not full replacem
 ## Related Resources
 
 - Use [Choosing the Right Route for Your Project](./workflows-choosing-the-right-route-for-your-project.md) when you want a route chooser rather than the stage overview.
+- Use [Running Make Docs Playbooks](./playbooks-running-make-docs-workflows.md) when you want to understand planned runnable workflow behavior on top of the stage model.
 - Use [Installing Make Docs](./getting-started-installing-make-docs.md) when you still need to set up the system in a repo.
 - Use the companion developer guide [Understanding the Make Docs Stage Model](../developer/development-workflows-stage-model-and-artifact-relationships.md) for the contributor-facing version of the same model.
