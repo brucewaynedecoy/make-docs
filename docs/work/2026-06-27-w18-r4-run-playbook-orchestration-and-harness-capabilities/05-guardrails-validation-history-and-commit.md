@@ -18,12 +18,12 @@ Add guardrails to W18 R1, W18 R2, and W18 R3, run docs hygiene, create the histo
 
 ### Tasks
 
-- [ ] t1: Add W18 R4 prerequisite notes to W18 R1, W18 R2, and W18 R3 plan/work indexes.
-- [ ] t2: Run changed-file Markdown/link hygiene.
-- [ ] t3: Run `git diff --check`.
-- [ ] t4: Run `bash scripts/check-wave-numbering.sh`.
-- [ ] t5: Create the W18 R4 history record under `docs/assets/archive/history/`.
-- [ ] t6: Draft and create a local-only plan commit.
+- [x] t1: Add W18 R4 prerequisite notes to W18 R1, W18 R2, and W18 R3 plan/work indexes.
+- [x] t2: Run changed-file Markdown/link hygiene.
+- [x] t3: Run `git diff --check`.
+- [x] t4: Run `bash scripts/check-wave-numbering.sh`.
+- [x] t5: Create the W18 R4 history record under `docs/assets/archive/history/`.
+- [x] t6: Draft and create a local-only plan commit.
 
 ### Acceptance criteria
 
