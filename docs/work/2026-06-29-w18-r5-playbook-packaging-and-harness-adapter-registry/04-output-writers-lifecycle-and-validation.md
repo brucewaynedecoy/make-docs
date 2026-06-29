@@ -20,10 +20,10 @@ This phase writes generated plugin and skills-bundle outputs only after package 
 
 ### Tasks
 
-- [ ] t1: Implement plugin output writing through accepted package plans.
-- [ ] t2: Implement skills-bundle output writing through accepted package plans.
-- [ ] t3: Record source Playbook provenance, source digests, package profile, target harness, output kind, surface, scope, adapter id, generated artifact inventory, support status, and review status.
-- [ ] t4: Keep export-only outputs separate from installed selected-agentics state.
+- [x] t1: Implement plugin output writing through accepted package plans.
+- [x] t2: Implement skills-bundle output writing through accepted package plans.
+- [x] t3: Record source Playbook provenance, source digests, package profile, target harness, output kind, surface, scope, adapter id, generated artifact inventory, support status, and review status.
+- [x] t4: Keep export-only outputs separate from installed selected-agentics state.
 
 ### Acceptance criteria
 
@@ -40,10 +40,10 @@ This phase writes generated plugin and skills-bundle outputs only after package 
 
 ### Tasks
 
-- [ ] t5: Integrate generated outputs with manifest, audit, backup, uninstall, migration, and dry-run diagnostics.
-- [ ] t6: Preserve user-modified generated outputs for review instead of overwriting or deleting them blindly.
-- [ ] t7: Remove stale generated outputs only when audit proves Make Docs ownership and backup has captured the reviewed snapshot.
-- [ ] t8: Prune empty managed `.make-docs/agentics/**` directories only under the W17 R4 safety rule.
+- [x] t5: Integrate generated outputs with manifest, audit, backup, uninstall, migration, and dry-run diagnostics.
+- [x] t6: Preserve user-modified generated outputs for review instead of overwriting or deleting them blindly.
+- [x] t7: Remove stale generated outputs only when audit proves Make Docs ownership and backup has captured the reviewed snapshot.
+- [x] t8: Prune empty managed `.make-docs/agentics/**` directories only under the W17 R4 safety rule.
 
 ### Acceptance criteria
 
@@ -60,11 +60,11 @@ This phase writes generated plugin and skills-bundle outputs only after package 
 
 ### Tasks
 
-- [ ] t9: Add unit and integration tests for package plans, adapter resolution, writers, lifecycle safety, and non-interactive review stops.
-- [ ] t10: Extend package smoke or equivalent package validation so generated outputs and local run/conformance artifacts are included or excluded intentionally.
-- [ ] t11: Add conformance scenarios for generated plugin and skills-bundle support claims.
-- [ ] t12: Update user and developer guides with final command names, supported output kinds, adapter behavior, and known limitations.
-- [ ] t13: Create W18 R5 closeout history under `docs/assets/archive/history/**` and run docs/package hygiene checks.
+- [x] t9: Add unit and integration tests for package plans, adapter resolution, writers, lifecycle safety, and non-interactive review stops.
+- [x] t10: Extend package smoke or equivalent package validation so generated outputs and local run/conformance artifacts are included or excluded intentionally.
+- [x] t11: Add conformance scenarios for generated plugin and skills-bundle support claims.
+- [x] t12: Update user and developer guides with final command names, supported output kinds, adapter behavior, and known limitations.
+- [x] t13: Create W18 R5 closeout history under `docs/assets/archive/history/**` and run docs/package hygiene checks.
 
 ### Acceptance criteria
 
@@ -77,3 +77,25 @@ This phase writes generated plugin and skills-bundle outputs only after package 
 ### Dependencies
 
 - Stages 1 and 2.
+
+## Implementation Notes
+
+- Added `packages/cli/src/operations/playbook-packaging/writers.ts` with `playbook-package-write` support for dry-run diagnostics and explicit `--write` mutation.
+- Generated plugin and skills-bundle payloads now write through accepted or deterministic-safe plans, record generated-output provenance, and stop before overwriting modified outputs.
+- Installed outputs update the existing Make Docs manifest so lifecycle audit, backup, uninstall, migration, and diagnostics can classify generated payloads, symlink exposures, and copy mirrors.
+- Export-only packages write under `.make-docs/exports/playbook-packages/**` without becoming installed harness exposure state.
+- Manual UAT is deferred until the full W18 R5 wave closeout decision.
+
+## Validation Notes
+
+- Passed: `npm test -w packages/cli -- --run tests/playbook-packaging.test.ts --reporter=dot`.
+- Passed: `npm test -w packages/cli -- --reporter=dot`.
+- Passed: `npm run validate:defaults -w packages/cli`.
+- Passed: `npm run build -w packages/cli`.
+- Passed: `npm run smoke:pack`.
+- Passed: `git diff --check`.
+- Passed: changed-file Markdown style, changed-file Markdown link, and placeholder checks.
+- Passed: `python3 .make-docs/scripts/check_path_hygiene.py --repo-root .`.
+- Passed: `bash scripts/check-wave-numbering.sh`.
+- Full-doc broken-link scanning still reports unrelated baseline debt in archived/template docs; changed-file link checks passed for the Phase 4 docs touched here.
+- Manual UAT coverage is worthwhile for the completed W18 R5 wave because `make-docs operations playbook-package-write` is user-visible; the recommended scenario is recorded in the W18 R5 P4 closeout history.

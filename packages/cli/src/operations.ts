@@ -36,6 +36,7 @@ export {
   listHarnessPackageAdapters,
   readPackageSurfaceResolution,
   readPlaybookPackagePlan,
+  readPlaybookPackageWrite,
   renderPackagePlanDryRunLines,
   resolvePackageSurface,
   validateGeneratedOutputRecord,
@@ -43,6 +44,7 @@ export {
   validateHarnessId,
   validatePackagePlan,
   validatePackageTarget,
+  writePlaybookPackageOutputs,
 } from "./operations/playbook-packaging";
 export type {
   GeneratedOutputRecord,
@@ -52,6 +54,8 @@ export type {
   PackageSurfaceResolutionInput,
   PlaybookPackagePlan,
   PlaybookPackagePlannerInput,
+  PlaybookPackageWriteInput,
+  PlaybookPackageWriteResult,
 } from "./operations/playbook-packaging";
 export { OperationError } from "./operations/types";
 export type { JsonValue } from "./operations/types";

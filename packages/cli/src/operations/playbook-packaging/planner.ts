@@ -310,11 +310,14 @@ function planGeneratedArtifacts(input: {
   sourceRefs: string[];
   target: PlaybookPackagePlan["target"];
 }): GeneratedArtifactPlan[] {
+  const sharedAgenticsRoot = input.target.scope === "global"
+    ? "<user-home>/.make-docs/agentics"
+    : ".make-docs/agentics";
   const basePath = input.target.scope === "export-only"
     ? `.make-docs/exports/playbook-packages/${input.packageId}`
     : input.target.outputKind === "plugin"
-      ? `.make-docs/agentics/plugins/${input.packageId}`
-      : `.make-docs/agentics/skills/${input.packageId}`;
+      ? `${sharedAgenticsRoot}/plugins/${input.packageId}`
+      : `${sharedAgenticsRoot}/skills/${input.packageId}`;
   const artifactPath = input.target.outputKind === "plugin"
     ? `${basePath}/plugin.json`
     : `${basePath}/SKILL.md`;

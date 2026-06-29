@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import path from "node:path";
 import {
   buildCloseoutProbe,
@@ -17,7 +18,12 @@ import {
   readPlaybookRunState,
   resolvePlaybook,
 } from "./playbook";
-import { createPlaybookPackagePlan, resolvePackageSurface } from "./playbook-packaging";
+import {
+  createPlaybookPackagePlan,
+  resolvePackageSurface,
+  validatePackagePlan,
+  writePlaybookPackageOutputs,
+} from "./playbook-packaging";
 import { OperationError } from "./types";
 import {
   buildPhasePlan,
@@ -234,6 +240,23 @@ export async function runOperationsCommand(argv: string[]): Promise<void> {
         }),
       );
       return;
+    case "playbook-package-write": {
+      const repoRoot = path.resolve(options.values["repo-root"] ?? ".");
+      printJson(
+        writePlaybookPackageOutputs({
+          repoRoot,
+          homeDir: options.values["home-dir"],
+          plan: validatePackagePlan(readJson(requiredValue(options, "plan-json", operation))),
+          platform: options.values.platform as Parameters<typeof writePlaybookPackageOutputs>[0]["platform"],
+          symlinkAvailable: booleanOption(options, "symlink-available"),
+          preconditions: parsePreconditionStates(options.arrays.precondition ?? []),
+          write: options.booleans.has("write"),
+          reviewedOverwrite: options.booleans.has("reviewed-overwrite"),
+          backupSnapshotReviewed: options.booleans.has("backup-snapshot-reviewed"),
+        }),
+      );
+      return;
+    }
     default:
       throw new OperationError(`Unknown make-docs operation: ${operation}`);
   }
@@ -264,6 +287,8 @@ function parseOperationOptions(argv: string[]): OperationOptions {
         "non-interactive",
         "symlink-available",
         "no-symlink-available",
+        "reviewed-overwrite",
+        "backup-snapshot-reviewed",
       ].includes(key)
     ) {
       booleans.add(key);
@@ -320,6 +345,7 @@ function printOperationsHelp(): void {
       "  playbook-run-read",
       "  playbook-package-plan",
       "  playbook-package-surface-resolve",
+      "  playbook-package-write",
       "",
     ].join("\n"),
   );
@@ -327,6 +353,10 @@ function printOperationsHelp(): void {
 
 function printJson(value: unknown): void {
   process.stdout.write(`${JSON.stringify(value, null, 2)}\n`);
+}
+
+function readJson(filePath: string): unknown {
+  return JSON.parse(readFileSync(path.resolve(filePath), "utf8")) as unknown;
 }
 
 function requiredPositionals(options: OperationOptions, operation: string): string[] {

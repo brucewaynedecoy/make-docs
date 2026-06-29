@@ -23,7 +23,7 @@ related:
 
 # Packaging Shareable Playbook Workflows
 
-This guide explains the planned v2 model for turning Make Docs Playbooks into shareable agentic outputs. It is written as planned product behavior, not as a claim that the packaging commands are already available in the current package.
+This guide explains the v2 model for turning Make Docs Playbooks into shareable agentic outputs. The current package exposes the underlying operation commands for package planning, surface resolution, and accepted package writes; broader user-facing packaging workflows may add friendlier prompts or plugin surfaces later.
 
 ## What Packaging Means
 
@@ -80,7 +80,58 @@ This tracking is what lets Make Docs avoid orphaned files, stale generated outpu
 
 Different harnesses may support different places for plugins and skills. Some may prefer their own native folders. Some may also read standard agent skill folders, sometimes only after a project is trusted by the user.
 
-Make Docs plans to handle that through harness adapters. The adapter knows what the harness supports, which locations are valid, what preconditions apply, and whether symlinks or copy mirrors should be used. That keeps future harness support predictable without changing how Playbooks are authored.
+Make Docs handles that through harness adapters. The adapter knows what the harness supports, which locations are valid, what preconditions apply, and whether symlinks or copy mirrors should be used. That keeps future harness support predictable without changing how Playbooks are authored.
+
+## Current Operation Flow
+
+The current low-level flow is:
+
+1. Create a package plan.
+2. Review any stops or semantic proposals.
+3. Resolve the target surface through the harness adapter.
+4. Write only when the package plan is safe or approved.
+
+For example, a maintainer can create a package plan:
+
+```sh
+make-docs operations playbook-package-plan \
+  --source user/run-stack \
+  --harness codex \
+  --output-kind plugin \
+  --surface native \
+  --scope project \
+  --support-evidence-ref docs/prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md
+```
+
+The result is JSON. Save the returned `plan` object and inspect the `status`, `stops`, `review`, and `support` fields before writing.
+
+To check where a package would be exposed for a harness:
+
+```sh
+make-docs operations playbook-package-surface-resolve \
+  --package-id run-stack \
+  --harness codex \
+  --output-kind plugin \
+  --surface native \
+  --scope project \
+  --precondition harness-supported=satisfied \
+  --precondition project-trusted=satisfied \
+  --precondition symlink-or-copy-mirror=satisfied
+```
+
+To dry-run a write:
+
+```sh
+make-docs operations playbook-package-write \
+  --plan-json /path/to/package-plan.json \
+  --precondition harness-supported=satisfied \
+  --precondition project-trusted=satisfied \
+  --precondition symlink-or-copy-mirror=satisfied
+```
+
+To perform the write, add `--write`. The command writes generated plugin or skills-bundle payloads only when the plan is accepted or deterministic and safe. It stops instead of overwriting modified generated files, and installed outputs require an existing Make Docs manifest so backup and uninstall can track the generated files.
+
+Export-only packages are written under `.make-docs/exports/playbook-packages/**`. They are not treated as installed harness exposures.
 
 ## What This Does Not Mean
 
@@ -92,12 +143,8 @@ Support is evidence-bound. A generated package should not claim support for a ha
 
 ## Future Coverage
 
-- Blocked by: W18 R5 implementation.
-  Update when: Make Docs ships the first user-facing packaging commands.
-  Guide change: add exact commands, package-plan examples, and troubleshooting steps.
-- Blocked by: W18 R5 conformance evidence.
-  Update when: the first generated plugin and skills-bundle outputs are validated.
-  Guide change: add supported harness/output combinations and caveats.
+- Blocked by: W18 R5 downstream UX surfaces. Update when: Make Docs ships a friendlier first-class packaging command, MCP tool, or plugin surface beyond the current operation commands. Guide change: replace low-level operation examples with the primary user workflow and keep operation commands as troubleshooting or maintainer detail.
+- Blocked by: W18 R5 conformance evidence. Update when: the first generated plugin and skills-bundle outputs are validated. Guide change: add supported harness/output combinations and caveats.
 
 ## Related Resources
 

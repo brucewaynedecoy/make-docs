@@ -1,6 +1,7 @@
-import { mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, lstatSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { afterEach, describe, expect, test, vi } from "vitest";
+import { createManifest, loadManifest, writeManifest } from "../src/manifest";
 import {
   createPlaybookPackagePlan,
   FIRST_PARTY_HARNESS_PACKAGE_ADAPTERS,
@@ -12,12 +13,15 @@ import {
   validateGeneratedOutputRecord,
   validateHarnessAdapterDeclaration,
   validatePackagePlan,
+  writePlaybookPackageOutputs,
 } from "../src/operations";
 import type {
   GeneratedOutputRecord,
   HarnessPackageAdapterDeclaration,
   PlaybookPackagePlan,
 } from "../src/operations";
+import { defaultSelections, resolveInstallProfile } from "../src/profile";
+import { createEmptySystemAssetManifestState } from "../src/system-assets";
 import { cleanupTempDir, createTempDir } from "./helpers";
 
 function writeFile(root: string, relativePath: string, content: string): string {
@@ -183,6 +187,19 @@ function validGeneratedOutputRecord(
     reviewStatus: "approved",
     ...overrides,
   };
+}
+
+function writeMakeDocsManifest(root: string): void {
+  writeManifest(
+    root,
+    createManifest(
+      { name: "@brucewaynedecoy/make-docs", version: "0.0.0-test" },
+      resolveInstallProfile(defaultSelections()),
+      {},
+      [],
+      createEmptySystemAssetManifestState(),
+    ),
+  );
 }
 
 function validHarnessAdapter(
@@ -738,5 +755,302 @@ describe("playbook packaging schema foundation", () => {
     const parsed = JSON.parse(output) as ReturnType<typeof resolvePackageSurface>;
     expect(parsed.status).toBe("ready");
     expect(parsed.path).toBe(".agents/plugins/run-stack");
+  });
+
+  test("writes accepted plugin packages through shared payloads, symlink exposure, and manifest ownership", () => {
+    const root = createTempDir("make-docs-package-write-");
+    tempRoots.push(root);
+    writeMakeDocsManifest(root);
+    writePlaybook(root, "user", "run-stack", "run", "Run Stack");
+    const plan = createPlaybookPackagePlan({
+      repoRoot: root,
+      refs: ["user/run-stack"],
+      target: {
+        harness: "codex",
+        outputKind: "plugin",
+        surface: "native",
+        scope: "project",
+      },
+      supportEvidenceRefs: ["docs/prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md"],
+    }).plan;
+
+    const result = writePlaybookPackageOutputs({
+      repoRoot: root,
+      plan,
+      write: true,
+      preconditions: {
+        "harness-supported": "satisfied",
+        "project-trusted": "satisfied",
+        "symlink-or-copy-mirror": "satisfied",
+      },
+    });
+
+    expect(result.status).toBe("written");
+    expect(result.manifestUpdated).toBe(true);
+    expect(result.records.map((record) => record.recordKind)).toEqual([
+      "source-playbook",
+      "generated-plugin",
+      "symlink-exposure",
+    ]);
+    expect(readFileSync(
+      path.join(root, ".make-docs/agentics/plugins/run-stack/plugin.json"),
+      "utf8",
+    )).toContain("\"kind\": \"make-docs.playbook-package.plugin\"");
+    expect(lstatSync(path.join(root, ".agents/plugins/run-stack")).isSymbolicLink()).toBe(true);
+    const manifest = loadManifest(root);
+    expect(
+      manifest?.files[".make-docs/agentics/plugins/run-stack/plugin.json"]?.agenticOwnership,
+    ).toMatchObject({
+      artifactKind: "plugin",
+      role: "plugin-payload",
+      id: "run-stack",
+      sourceManifest: "make-docs.playbook-packaging",
+    });
+    expect(manifest?.files[".agents/plugins/run-stack"]?.agenticOwnership).toMatchObject({
+      role: "plugin-native-exposure",
+      exposureMode: "symlink",
+    });
+  });
+
+  test("writes skills-bundle copy mirrors when symlinks are unavailable", () => {
+    const root = createTempDir("make-docs-package-write-");
+    tempRoots.push(root);
+    writeMakeDocsManifest(root);
+    writePlaybook(root, "user", "run-stack", "run", "Run Stack");
+    const plan = createPlaybookPackagePlan({
+      repoRoot: root,
+      refs: ["user/run-stack"],
+      target: {
+        harness: "claude-code",
+        outputKind: "skills-bundle",
+        surface: "agents-standard",
+        scope: "project",
+      },
+      supportEvidenceRefs: ["docs/prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md"],
+    }).plan;
+
+    const result = writePlaybookPackageOutputs({
+      repoRoot: root,
+      plan,
+      write: true,
+      platform: "windows",
+      symlinkAvailable: false,
+      preconditions: {
+        "harness-supported": "satisfied",
+        "plugin-or-skill-support": "satisfied",
+        "symlink-or-copy-mirror": "satisfied",
+      },
+    });
+
+    expect(result.status).toBe("written");
+    expect(result.exposureMode).toBe("copy-mirror");
+    expect(result.records.map((record) => record.recordKind)).toContain("copy-mirror");
+    expect(readFileSync(path.join(root, ".agents/skills/run-stack/SKILL.md"), "utf8")).toContain(
+      "makeDocsGenerated: true",
+    );
+    expect(loadManifest(root)?.files[".agents/skills/run-stack/SKILL.md"]?.agenticOwnership).toMatchObject({
+      artifactKind: "skill",
+      role: "copy-mirror",
+      exposureMode: "copy-mirror",
+    });
+  });
+
+  test("keeps export-only package output out of installed manifest ownership", () => {
+    const root = createTempDir("make-docs-package-write-");
+    tempRoots.push(root);
+    writeMakeDocsManifest(root);
+    writePlaybook(root, "user", "run-stack", "run", "Run Stack");
+    const plan = createPlaybookPackagePlan({
+      repoRoot: root,
+      refs: ["user/run-stack"],
+      target: {
+        harness: "codex",
+        outputKind: "plugin",
+        surface: "native",
+        scope: "export-only",
+      },
+      supportEvidenceRefs: ["docs/prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md"],
+    }).plan;
+
+    const result = writePlaybookPackageOutputs({
+      repoRoot: root,
+      plan,
+      write: true,
+      preconditions: {
+        "harness-supported": "satisfied",
+        "project-trusted": "satisfied",
+        "symlink-or-copy-mirror": "satisfied",
+      },
+    });
+
+    expect(result.status).toBe("exported");
+    expect(result.manifestUpdated).toBe(false);
+    expect(result.records.map((record) => record.recordKind)).toEqual([
+      "source-playbook",
+      "export-only-file",
+    ]);
+    expect(existsSync(path.join(root, ".make-docs/exports/playbook-packages/run-stack/plugin.json"))).toBe(true);
+    expect(Object.keys(loadManifest(root)?.files ?? {})).toEqual([]);
+  });
+
+  test("stops before overwriting modified generated package output", () => {
+    const root = createTempDir("make-docs-package-write-");
+    tempRoots.push(root);
+    writeMakeDocsManifest(root);
+    writePlaybook(root, "user", "run-stack", "run", "Run Stack");
+    writeFile(root, ".make-docs/agentics/plugins/run-stack/plugin.json", "{\"local\":\"edit\"}\n");
+    const plan = createPlaybookPackagePlan({
+      repoRoot: root,
+      refs: ["user/run-stack"],
+      target: {
+        harness: "codex",
+        outputKind: "plugin",
+        surface: "native",
+        scope: "project",
+      },
+      supportEvidenceRefs: ["docs/prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md"],
+    }).plan;
+
+    expect(() => writePlaybookPackageOutputs({
+      repoRoot: root,
+      plan,
+      write: true,
+      preconditions: {
+        "harness-supported": "satisfied",
+        "project-trusted": "satisfied",
+        "symlink-or-copy-mirror": "satisfied",
+      },
+    })).toThrow("Playbook package write stopped");
+
+    const dryRun = writePlaybookPackageOutputs({
+      repoRoot: root,
+      plan,
+      preconditions: {
+        "harness-supported": "satisfied",
+        "project-trusted": "satisfied",
+        "symlink-or-copy-mirror": "satisfied",
+      },
+    });
+    expect(dryRun.status).toBe("review-required");
+    expect(dryRun.stops).toEqual([
+      expect.objectContaining({
+        reason: "ownership-review-required",
+      }),
+    ]);
+  });
+
+  test("requires reviewed backup snapshots before stale generated output removal", () => {
+    const root = createTempDir("make-docs-package-write-");
+    tempRoots.push(root);
+    writeMakeDocsManifest(root);
+    writePlaybook(root, "user", "run-stack", "run", "Run Stack");
+    writeFile(root, ".make-docs/agentics/plugins/old-stack/plugin.json", "{\"old\":true}\n");
+    const stale = validGeneratedOutputRecord({
+      recordKind: "generated-plugin",
+      path: ".make-docs/agentics/plugins/old-stack/plugin.json",
+      target: {
+        harness: "codex",
+        outputKind: "plugin",
+        surface: "native",
+        scope: "project",
+      },
+    });
+    const plan = createPlaybookPackagePlan({
+      repoRoot: root,
+      refs: ["user/run-stack"],
+      target: {
+        harness: "codex",
+        outputKind: "plugin",
+        surface: "native",
+        scope: "project",
+      },
+      supportEvidenceRefs: ["docs/prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md"],
+    }).plan;
+
+    const blocked = writePlaybookPackageOutputs({
+      repoRoot: root,
+      plan,
+      staleOutputs: [stale],
+      preconditions: {
+        "harness-supported": "satisfied",
+        "project-trusted": "satisfied",
+        "symlink-or-copy-mirror": "satisfied",
+      },
+    });
+    expect(blocked.status).toBe("manual-review-required");
+
+    const result = writePlaybookPackageOutputs({
+      repoRoot: root,
+      plan,
+      write: true,
+      backupSnapshotReviewed: true,
+      staleOutputs: [stale],
+      preconditions: {
+        "harness-supported": "satisfied",
+        "project-trusted": "satisfied",
+        "symlink-or-copy-mirror": "satisfied",
+      },
+    });
+    expect(result.staleOutputsRemoved).toEqual([
+      ".make-docs/agentics/plugins/old-stack/plugin.json",
+    ]);
+    expect(existsSync(path.join(root, ".make-docs/agentics/plugins/old-stack/plugin.json"))).toBe(false);
+  });
+
+  test("exposes package writing through a CLI dry-run and explicit write operation", async () => {
+    const root = createTempDir("make-docs-package-write-");
+    tempRoots.push(root);
+    writeMakeDocsManifest(root);
+    writePlaybook(root, "user", "run-stack", "run", "Run Stack");
+    const plan = createPlaybookPackagePlan({
+      repoRoot: root,
+      refs: ["user/run-stack"],
+      target: {
+        harness: "codex",
+        outputKind: "plugin",
+        surface: "native",
+        scope: "project",
+      },
+      supportEvidenceRefs: ["docs/prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md"],
+    }).plan;
+    const planPath = writeFile(root, "plan.json", JSON.stringify(plan, null, 2));
+    const writeSpy = vi.spyOn(process.stdout, "write").mockImplementation(() => true);
+
+    await runOperationsCommand([
+      "playbook-package-write",
+      "--repo-root",
+      root,
+      "--plan-json",
+      planPath,
+      "--precondition",
+      "harness-supported=satisfied",
+      "--precondition",
+      "project-trusted=satisfied",
+      "--precondition",
+      "symlink-or-copy-mirror=satisfied",
+    ]);
+    let parsed = JSON.parse(writeSpy.mock.calls.map((call) => String(call[0])).join("")) as ReturnType<typeof writePlaybookPackageOutputs>;
+    expect(parsed.status).toBe("ready");
+    expect(parsed.filesWritten).toEqual([]);
+    expect(existsSync(path.join(root, ".make-docs/agentics/plugins/run-stack/plugin.json"))).toBe(false);
+
+    writeSpy.mockClear();
+    await runOperationsCommand([
+      "playbook-package-write",
+      "--repo-root",
+      root,
+      "--plan-json",
+      planPath,
+      "--write",
+      "--precondition",
+      "harness-supported=satisfied",
+      "--precondition",
+      "project-trusted=satisfied",
+      "--precondition",
+      "symlink-or-copy-mirror=satisfied",
+    ]);
+    parsed = JSON.parse(writeSpy.mock.calls.map((call) => String(call[0])).join("")) as ReturnType<typeof writePlaybookPackageOutputs>;
+    expect(parsed.status).toBe("written");
+    expect(existsSync(path.join(root, ".make-docs/agentics/plugins/run-stack/plugin.json"))).toBe(true);
   });
 });

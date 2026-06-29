@@ -53,9 +53,10 @@ The current implementation lives under `packages/cli/src/operations/playbook-pac
 - `planner.ts` for deterministic package-plan generation and dry-run rendering;
 - `adapters.ts` for first-party and fixture harness adapter declarations;
 - `surface-resolution.ts` for adapter-owned surface, path, precondition, and exposure-mode resolution;
+- `writers.ts` for accepted package-plan output writing, generated-output records, manifest ownership, and lifecycle stops;
 - `index.ts` for the public operation-domain export and helper exports.
 
-`playbookPackagingDomain` is registered in the shared operations registry with read-only `playbook-package-plan` and `playbook-package-surface-resolve` operations. These operations create reviewable package plans and resolve harness surfaces without writing generated package files, mutating install state, or performing lifecycle cleanup. Writers remain deferred until accepted package-plan writer phases land.
+`playbookPackagingDomain` is registered in the shared operations registry with read-only `playbook-package-plan` and `playbook-package-surface-resolve` operations plus the mutating `playbook-package-write` operation. The write operation dry-runs by default and only mutates when `--write` is passed.
 
 Maintainers should import schema helpers from `packages/cli/src/operations/playbook-packaging/` or the operations facade, not duplicate literals in planner, writer, adapter, CLI, or MCP code. When adding fields, update the TypeScript contract, fail-closed validator, and focused schema tests together.
 
@@ -132,7 +133,7 @@ Cross-platform exposure follows the W17 R3 native-exposure rule: prefer symlink 
 
 ## Output Writers
 
-Output writers should write only after an accepted package plan exists or after the planner proves the output is fully deterministic and safe. Writers should distinguish:
+Output writers write only after an accepted package plan exists or after the planner proves the output is fully deterministic and safe. Writers distinguish:
 
 - source Playbooks;
 - generated plugin payloads;
@@ -146,7 +147,21 @@ Output writers should write only after an accepted package plan exists or after 
 
 Installed generated outputs should reuse the selected-agentics storage and native exposure contracts. Plugin payloads use `.make-docs/agentics/plugins/**`; skill payloads use `.make-docs/agentics/skills/**`. Harness exposures prefer symlinks and use managed copy mirrors as the compatibility fallback.
 
-Generated-output records already distinguish the ownership classes that later manifest, audit, backup, uninstall, migration, and diagnostics code will consume. Until persistence wiring lands, treat these records as validated contract shapes rather than managed state.
+Use the writer operation like this during development:
+
+```sh
+make-docs operations playbook-package-write \
+  --plan-json /path/to/package-plan.json \
+  --precondition harness-supported=satisfied \
+  --precondition project-trusted=satisfied \
+  --precondition symlink-or-copy-mirror=satisfied
+```
+
+Without `--write`, the command returns write diagnostics and generated-output records but does not touch files. With `--write`, installed outputs require an existing Make Docs manifest so audit, backup, uninstall, and migration can see the generated files. Export-only output writes under `.make-docs/exports/playbook-packages/**` and does not add installed harness exposure ownership to the manifest.
+
+The writer records source refs, source digests, target harness, output kind, surface, scope, support status, review status, canonical payload path, exposure path, and exposure mode. It stops before writing when required review is incomplete, an `auto` surface has not been resolved, required adapter preconditions are unknown or unsupported, an existing generated output differs, or stale generated output removal lacks a reviewed backup snapshot.
+
+When symlinks are available, installed plugin and skills-bundle outputs expose the shared payload directory through a harness-native or standard location. When symlinks are unavailable, the writer creates managed copy mirrors and records `copy-mirror` ownership instead of generating generic stubs.
 
 ## Validation
 
@@ -175,11 +190,7 @@ Current package-planner coverage also lives in `packages/cli/tests/playbook-pack
 
 Current adapter and surface-resolution coverage lives in the same test file. It covers first-party adapter lookup, `generic` rejection, native and agents-standard surface resolution, `auto` surface selection, required-precondition review stops, Windows copy-mirror fallback when symlinks are unavailable, future-harness fixture additivity, and CLI surface-resolution JSON output.
 
-## Future Coverage
-
-- Blocked by: W18 R5 adapter implementation.
-  Update when: generated plugin and skills-bundle writers consume adapter-selected surfaces.
-  Guide change: add writer-to-adapter integration steps and accepted-plan persistence details.
+Current writer and lifecycle coverage lives in the same test file. It covers plugin payload writes, skills-bundle writes, symlink exposure, copy-mirror fallback, manifest ownership, export-only separation, modified generated-output review stops, reviewed stale-output cleanup, and CLI dry-run/write JSON output.
 
 ## Related Resources
 

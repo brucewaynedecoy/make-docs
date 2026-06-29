@@ -248,3 +248,33 @@ export interface PackageSurfaceResolution {
   conformanceRequirements: PackageAdapterConformanceRequirement[];
   stops: PackagePlanStop[];
 }
+
+export interface PlaybookPackageWriteInput {
+  repoRoot?: string;
+  homeDir?: string;
+  plan: PlaybookPackagePlan;
+  surfaceResolution?: PackageSurfaceResolution;
+  platform?: "posix" | "windows";
+  symlinkAvailable?: boolean;
+  preconditions?: Record<string, PackageAdapterPreconditionState>;
+  write?: boolean;
+  reviewedOverwrite?: boolean;
+  backupSnapshotReviewed?: boolean;
+  staleOutputs?: GeneratedOutputRecord[];
+}
+
+export interface PlaybookPackageWriteResult {
+  status: "ready" | "written" | "exported" | "review-required" | "manual-review-required";
+  packageId: string;
+  outputKind: PlaybookPackageOutputKind;
+  scope: PlaybookPackageScope;
+  canonicalPath: string;
+  exposurePath?: string;
+  exposureMode: PackageAdapterExposureMode;
+  records: GeneratedOutputRecord[];
+  filesWritten: string[];
+  manifestUpdated: boolean;
+  staleOutputsRemoved: string[];
+  stops: PackagePlanStop[];
+  lines: string[];
+}

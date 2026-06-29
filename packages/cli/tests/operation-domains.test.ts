@@ -110,7 +110,11 @@ describe("operation domain modules", () => {
       }),
       expect.objectContaining({
         name: "playbook-packaging",
-        commands: [],
+        commands: [
+          expect.objectContaining({ name: "playbook-package-plan", mutates: false }),
+          expect.objectContaining({ name: "playbook-package-surface-resolve", mutates: false }),
+          expect.objectContaining({ name: "playbook-package-write", mutates: true }),
+        ],
       }),
     ]);
 

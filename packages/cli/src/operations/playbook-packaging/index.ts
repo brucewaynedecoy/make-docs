@@ -30,6 +30,8 @@ export type {
   PackageSurfacePreconditionResult,
   PackageSurfaceResolution,
   PackageSurfaceResolutionInput,
+  PlaybookPackageWriteInput,
+  PlaybookPackageWriteResult,
   SourcePlaybookRef,
 } from "./types";
 export {
@@ -59,6 +61,10 @@ export {
   resolvePackageSurface,
 } from "./surface-resolution";
 export {
+  readPlaybookPackageWrite,
+  writePlaybookPackageOutputs,
+} from "./writers";
+export {
   validateGeneratedOutputRecord,
   validateHarnessAdapterDeclaration,
   validateHarnessId,
@@ -80,6 +86,12 @@ export const playbookPackagingDomain: OperationDomainDescriptor = {
       name: "playbook-package-surface-resolve",
       summary: "Resolve a Playbook package target through a harness adapter without writing outputs.",
       mutates: false,
+      renderModes: ["json"],
+    },
+    {
+      name: "playbook-package-write",
+      summary: "Write accepted Playbook package outputs and lifecycle-visible records.",
+      mutates: true,
       renderModes: ["json"],
     },
   ],
