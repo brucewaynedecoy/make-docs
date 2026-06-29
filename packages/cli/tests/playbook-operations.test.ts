@@ -17,6 +17,43 @@ function writeFile(root: string, relativePath: string, content: string): string 
   return absolutePath;
 }
 
+function playbookBody(title: string): string {
+  return [
+    `# ${title}`,
+    "",
+    "## Purpose",
+    "",
+    "Use this playbook when the matching workflow goal is active.",
+    "",
+    "## Inputs and Authority",
+    "",
+    "- User request.",
+    "- Repo-local Make Docs contracts.",
+    "",
+    "## Procedure",
+    "",
+    "1. Resolve the playbook.",
+    "2. Follow the documented steps in order.",
+    "",
+    "## Gates and Decisions",
+    "",
+    "- Stop when user review is required.",
+    "",
+    "## Assists",
+    "",
+    "- CLI, MCP, plugin, subagent, or skill assists are optional unless the playbook says otherwise.",
+    "",
+    "## Outputs and Handoff",
+    "",
+    "- Record the expected output or handoff artifact.",
+    "",
+    "## Validation",
+    "",
+    "- Confirm the workflow completed or report why it stopped.",
+    "",
+  ].join("\n");
+}
+
 function writePlaybook(
   root: string,
   persona: string,
@@ -37,8 +74,7 @@ function writePlaybook(
       `summary: ${title} summary.`,
       "---",
       "",
-      `# ${title}`,
-      "",
+      playbookBody(title),
     ].join("\n"),
   );
 }
@@ -71,6 +107,145 @@ describe("playbook operation domain", () => {
       }),
     ]);
     expect(catalog.diagnostics).toEqual([]);
+  });
+
+  test("fails closed when YAML frontmatter is missing", () => {
+    const root = createTempDir("make-docs-playbooks-");
+    tempRoots.push(root);
+    writeFile(root, "docs/assets/playbooks/user/no-frontmatter.md", playbookBody("No Frontmatter"));
+
+    const catalog = buildPlaybookCatalog({ repoRoot: root });
+
+    expect(catalog.entries).toEqual([]);
+    expect(catalog.diagnostics).toEqual([
+      {
+        path: "docs/assets/playbooks/user/no-frontmatter.md",
+        message: "Playbook file is missing YAML frontmatter.",
+      },
+    ]);
+  });
+
+  test("fails closed for invalid kind, persona, and stack metadata", () => {
+    const root = createTempDir("make-docs-playbooks-");
+    tempRoots.push(root);
+    writeFile(
+      root,
+      "docs/assets/playbooks/user/broken.md",
+      [
+        "---",
+        "title: Broken",
+        "kind: guide",
+        "status: accepted",
+        "persona: imaginary-team",
+        "stack: operate",
+        "summary: Broken summary.",
+        "---",
+        "",
+        playbookBody("Broken"),
+      ].join("\n"),
+    );
+
+    const catalog = buildPlaybookCatalog({ repoRoot: root });
+
+    expect(catalog.entries).toEqual([]);
+    expect(catalog.diagnostics.map((diagnostic) => diagnostic.message)).toEqual([
+      "Playbook frontmatter must declare kind: playbook.",
+      "Playbook frontmatter must declare stack: build or stack: run.",
+      "Playbook persona 'imaginary-team' is not a configured persona slug.",
+      "Playbook persona frontmatter must match its directory.",
+    ]);
+  });
+
+  test("fails closed for path persona drift", () => {
+    const root = createTempDir("make-docs-playbooks-");
+    tempRoots.push(root);
+    writeFile(
+      root,
+      "docs/assets/playbooks/user/drift.md",
+      [
+        "---",
+        "title: Drift",
+        "kind: playbook",
+        "status: accepted",
+        "persona: developer",
+        "stack: run",
+        "summary: Drift summary.",
+        "---",
+        "",
+        playbookBody("Drift"),
+      ].join("\n"),
+    );
+
+    const catalog = buildPlaybookCatalog({ repoRoot: root });
+
+    expect(catalog.entries).toEqual([]);
+    expect(catalog.diagnostics.map((diagnostic) => diagnostic.message)).toEqual([
+      "Playbook persona frontmatter must match its directory.",
+    ]);
+  });
+
+  test("fails closed for historical transitional playbook paths", () => {
+    const root = createTempDir("make-docs-playbooks-");
+    tempRoots.push(root);
+    writeFile(
+      root,
+      "docs/library/playbooks/user/legacy.md",
+      [
+        "---",
+        "title: Legacy",
+        "kind: playbook",
+        "status: accepted",
+        "persona: user",
+        "stack: run",
+        "summary: Legacy summary.",
+        "---",
+        "",
+        playbookBody("Legacy"),
+      ].join("\n"),
+    );
+
+    expect(() => resolvePlaybook({
+      repoRoot: root,
+      ref: "docs/library/playbooks/user/legacy.md",
+    })).toThrow("Playbook must live directly under docs/assets/playbooks/<persona>/<slug>.md.");
+  });
+
+  test("reports missing body structure before selection", () => {
+    const root = createTempDir("make-docs-playbooks-");
+    tempRoots.push(root);
+    writeFile(
+      root,
+      "docs/assets/playbooks/user/incomplete.md",
+      [
+        "---",
+        "title: Incomplete",
+        "kind: playbook",
+        "status: accepted",
+        "persona: user",
+        "stack: run",
+        "summary: Incomplete summary.",
+        "---",
+        "",
+        "# Incomplete",
+        "",
+        "## Purpose",
+        "",
+        "Use this playbook for a fixture.",
+        "",
+      ].join("\n"),
+    );
+
+    const catalog = buildPlaybookCatalog({ repoRoot: root });
+
+    expect(catalog.entries).toEqual([]);
+    expect(catalog.diagnostics.map((diagnostic) => diagnostic.message)).toEqual([
+      "Playbook body must define required inputs and authority order.",
+      "Playbook body must define step-by-step procedure.",
+      "Playbook body must define gates, stop conditions, or user-decision points.",
+      "Playbook body must define allowed assists.",
+      "Playbook body must define expected outputs or handoff artifacts.",
+      "Playbook body must define validation or completion expectations.",
+    ]);
   });
 
   test("resolves explicit paths before catalog references", () => {
@@ -263,8 +438,7 @@ describe("playbook operation domain", () => {
         "  concurrency: serial",
         "---",
         "",
-        "# Use System",
-        "",
+        playbookBody("Use System"),
       ].join("\n"),
     );
 
@@ -345,8 +519,7 @@ describe("playbook operation domain", () => {
         "  concurrency: parallel-allowed",
         "---",
         "",
-        "# Parent",
-        "",
+        playbookBody("Parent"),
       ].join("\n"),
     );
     writePlaybook(root, "user", "child-a", "run", "Child A");

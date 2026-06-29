@@ -3,6 +3,7 @@ import path from "node:path";
 import { parseDocument } from "yaml";
 import {
   HARNESS_CAPABILITY_IDS,
+  PERSONA_SLUG_PATTERN,
   loadMakeDocsConfigOrThrow,
   type HarnessCapabilityId,
   type HarnessCapabilityRecord,
@@ -27,8 +28,10 @@ import type {
 
 export const PLAYBOOKS_RELATIVE_DIR = "docs/assets/playbooks";
 export const PLAYBOOK_STACKS = ["build", "run"] as const;
+export const PLAYBOOK_STATUSES = ["proposed", "accepted", "deprecated"] as const;
 
 export type PlaybookStack = (typeof PLAYBOOK_STACKS)[number];
+export type PlaybookStatus = (typeof PLAYBOOK_STATUSES)[number];
 export type PlaybookSelectionMode = "explicit-path" | "qualified-ref" | "bare-ref";
 export type PlaybookChildPolicy = "none" | "serial" | "parallel";
 export type PlaybookConcurrencyPolicy = "serial" | "parallel-allowed" | "parallel-required";
@@ -50,7 +53,7 @@ export interface PlaybookCatalogEntry {
   stack: PlaybookStack;
   title: string;
   summary: string;
-  status: string;
+  status: PlaybookStatus;
   run: PlaybookRunMetadata;
 }
 
@@ -160,6 +163,7 @@ export function buildPlaybookCatalog(input: {
 } = {}): PlaybookCatalog {
   const repoRoot = findRepoRoot(input.repoRoot);
   const playbooksDir = path.join(repoRoot, PLAYBOOKS_RELATIVE_DIR);
+  const knownPersonas = getKnownPersonaSlugs(repoRoot);
   const entries: PlaybookCatalogEntry[] = [];
   const diagnostics: PlaybookCatalog["diagnostics"] = [];
 
@@ -176,7 +180,7 @@ export function buildPlaybookCatalog(input: {
     const personaDir = path.join(playbooksDir, persona);
     for (const fileName of sortedMarkdownFiles(personaDir)) {
       const filePath = path.join(personaDir, fileName);
-      const parsed = parsePlaybookFile(filePath, repoRoot);
+      const parsed = parsePlaybookFile(filePath, repoRoot, knownPersonas);
       if (parsed.entry) {
         entries.push(parsed.entry);
       }
@@ -512,29 +516,38 @@ export function inspectPlaybookRunState(input: {
 function parsePlaybookFile(
   filePath: string,
   repoRoot: string,
+  knownPersonas = getKnownPersonaSlugs(repoRoot),
 ): { entry: PlaybookCatalogEntry | null; diagnostics: Array<{ path: string; message: string }> } {
   const relativePath = repoRelativePath(filePath, repoRoot) ?? normalizeRelativePath(filePath);
   const diagnostics: Array<{ path: string; message: string }> = [];
-  const metadata = parseFrontmatter(readTextFile(filePath));
-  if (!metadata) {
+  const document = parsePlaybookDocument(readTextFile(filePath));
+  if (!document) {
     return {
       entry: null,
       diagnostics: [{ path: relativePath, message: "Playbook file is missing YAML frontmatter." }],
     };
   }
 
+  const { body, metadata } = document;
   const pathParts = normalizeRelativePath(relativePath).split("/");
   const persona = pathParts.at(-2) ?? "";
   const slug = path.basename(filePath, ".md");
+  const metadataPersona = stringField(metadata, "persona");
   const kind = stringField(metadata, "kind");
   const stack = stringField(metadata, "stack");
   const title = stringField(metadata, "title");
   const summary = stringField(metadata, "summary");
-  const status = stringField(metadata, "status") ?? "unknown";
+  const status = stringField(metadata, "status");
   const run = parseRunMetadata(metadata.run, relativePath, diagnostics);
 
   if (kind !== "playbook") {
     diagnostics.push({ path: relativePath, message: "Playbook frontmatter must declare kind: playbook." });
+  }
+  if (!status || !PLAYBOOK_STATUSES.includes(status as PlaybookStatus)) {
+    diagnostics.push({
+      path: relativePath,
+      message: "Playbook frontmatter must declare status: proposed, status: accepted, or status: deprecated.",
+    });
   }
   if (!title) {
     diagnostics.push({ path: relativePath, message: "Playbook frontmatter must include title." });
@@ -545,7 +558,12 @@ function parsePlaybookFile(
   if (!PLAYBOOK_STACKS.includes(stack as PlaybookStack)) {
     diagnostics.push({ path: relativePath, message: "Playbook frontmatter must declare stack: build or stack: run." });
   }
-  if (stringField(metadata, "persona") !== persona) {
+  if (!metadataPersona) {
+    diagnostics.push({ path: relativePath, message: "Playbook frontmatter must include persona." });
+  } else if (!PERSONA_SLUG_PATTERN.test(metadataPersona) || !knownPersonas.has(metadataPersona)) {
+    diagnostics.push({ path: relativePath, message: `Playbook persona '${metadataPersona}' is not a configured persona slug.` });
+  }
+  if (metadataPersona !== persona) {
     diagnostics.push({ path: relativePath, message: "Playbook persona frontmatter must match its directory." });
   }
   if (path.dirname(relativePath) !== `${PLAYBOOKS_RELATIVE_DIR}/${persona}`) {
@@ -554,6 +572,7 @@ function parsePlaybookFile(
       message: `Playbook must live directly under ${PLAYBOOKS_RELATIVE_DIR}/<persona>/<slug>.md.`,
     });
   }
+  diagnostics.push(...validatePlaybookBody(body, relativePath));
 
   if (diagnostics.length > 0 || !run) {
     return { entry: null, diagnostics };
@@ -568,7 +587,7 @@ function parsePlaybookFile(
       stack: stack as PlaybookStack,
       title: title!,
       summary: summary!,
-      status,
+      status: status as PlaybookStatus,
       run,
     },
     diagnostics: [],
@@ -628,7 +647,7 @@ function parseExplicitPlaybookPath(repoRoot: string, value: string): PlaybookCat
   return parsed.entry;
 }
 
-function parseFrontmatter(markdown: string): Record<string, unknown> | null {
+function parsePlaybookDocument(markdown: string): { metadata: Record<string, unknown>; body: string } | null {
   if (!markdown.startsWith("---\n")) {
     return null;
   }
@@ -637,14 +656,43 @@ function parseFrontmatter(markdown: string): Record<string, unknown> | null {
     return null;
   }
   const frontmatterText = markdown.slice("---\n".length, frontmatterEnd);
+  const body = markdown.slice(frontmatterEnd + "\n---\n".length);
   const document = parseDocument(frontmatterText);
   if (document.errors.length > 0) {
     return null;
   }
   const value = document.toJSON();
-  return value && typeof value === "object" && !Array.isArray(value)
-    ? value as Record<string, unknown>
-    : null;
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return null;
+  }
+  return { body, metadata: value as Record<string, unknown> };
+}
+
+function validatePlaybookBody(
+  body: string,
+  relativePath: string,
+): Array<{ path: string; message: string }> {
+  const normalized = body.toLowerCase();
+  const requirements: Array<{ label: string; terms: string[] }> = [
+    { label: "purpose and when to use it", terms: ["purpose"] },
+    { label: "required inputs and authority order", terms: ["input", "authority"] },
+    { label: "step-by-step procedure", terms: ["procedure"] },
+    { label: "gates, stop conditions, or user-decision points", terms: ["gate", "decision"] },
+    { label: "allowed assists", terms: ["assist"] },
+    { label: "expected outputs or handoff artifacts", terms: ["output", "handoff"] },
+    { label: "validation or completion expectations", terms: ["validation"] },
+  ];
+
+  return requirements
+    .filter((requirement) => !requirement.terms.some((term) => normalized.includes(term)))
+    .map((requirement) => ({
+      path: relativePath,
+      message: `Playbook body must define ${requirement.label}.`,
+    }));
+}
+
+function getKnownPersonaSlugs(repoRoot: string): Set<string> {
+  return new Set(loadMakeDocsConfigOrThrow(repoRoot).config.personas.map((persona) => persona.slug));
 }
 
 function sortedDirectoryNames(directory: string): string[] {

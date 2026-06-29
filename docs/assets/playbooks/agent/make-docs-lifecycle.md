@@ -1,7 +1,10 @@
 ---
 title: "Make Docs Lifecycle Playbook"
+kind: "playbook"
 persona: "agent"
-status: "active"
+status: "accepted"
+stack: "build"
+summary: "Guide agents through the Make Docs lifecycle from source evidence to implementation and closeout."
 ---
 
 # Make Docs Lifecycle Playbook
@@ -16,6 +19,33 @@ Use the lifecycle anchor for ordering defaults:
 
 When user direction or repo evidence warrants a skip, reorder, or revisit,
 surface that departure and record the reason in the relevant artifact.
+
+## Authority Order
+
+Use authority in this order:
+
+1. Explicit user direction for the current task.
+2. Repo-local `AGENTS.md` and routed Make Docs instructions.
+3. Active designs, plans, PRDs, work backlogs, and risk-register state.
+4. Current code, docs, manifests, templates, and validation output.
+5. Archived history as evidence of past state, not as current contract.
+
+## Procedure
+
+1. Identify the active lifecycle stage or the stage departure requested by the
+   user.
+2. Read the routed instructions and source artifact for that stage.
+3. Implement or update the required artifact while preserving active authority
+   boundaries.
+4. Run the relevant coverage, validation, and closeout checks for the stage.
+5. Record the handoff, history, or completion evidence requested by the active
+   workflow.
+
+## Validation
+
+The playbook is complete when the current lifecycle stage has a clear output,
+handoff, or documented reason for stopping, and the relevant validators or
+coverage decisions have been recorded.
 
 ## Optional Inputs
 
