@@ -13,8 +13,10 @@ export {
   buildPlaybookCatalog,
   createPlaybookRunState,
   evaluateHarnessCapabilities,
+  invokePlaybook,
   readPlaybookRunState,
   resolvePlaybook,
+  writePlaybookInvocation,
 } from "./operations/playbook";
 export {
   GENERATED_OUTPUT_RECORD_KINDS,

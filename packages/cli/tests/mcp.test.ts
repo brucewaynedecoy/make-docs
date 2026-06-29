@@ -52,6 +52,7 @@ describe("make-docs MCP runtime", () => {
       "make_docs_playbook_resolve",
       "make_docs_playbook_capabilities",
       "make_docs_playbook_run_start",
+      "make_docs_playbook_run_invoke",
       "make_docs_playbook_run_read",
     ]);
   });
@@ -148,6 +149,36 @@ describe("make-docs MCP runtime", () => {
         "",
         "# Use System",
         "",
+        "## Purpose",
+        "",
+        "Use this playbook when the matching workflow goal is active.",
+        "",
+        "## Inputs and Authority",
+        "",
+        "- User request.",
+        "- Repo-local Make Docs contracts.",
+        "",
+        "## Procedure",
+        "",
+        "1. Resolve the playbook.",
+        "2. Follow the documented steps in order.",
+        "",
+        "## Gates and Decisions",
+        "",
+        "- Stop when user review is required.",
+        "",
+        "## Assists",
+        "",
+        "- CLI, MCP, plugin, subagent, or skill assists are optional unless the playbook says otherwise.",
+        "",
+        "## Outputs and Handoff",
+        "",
+        "- Record the expected output or handoff artifact.",
+        "",
+        "## Validation",
+        "",
+        "- Confirm the workflow completed or report why it stopped.",
+        "",
       ].join("\n"),
     );
 
@@ -189,6 +220,16 @@ describe("make-docs MCP runtime", () => {
   test("requires explicit approval before writing playbook run state through MCP", async () => {
     await expect(
       callMakeDocsMcpTool("make_docs_playbook_run_start", {
+        repoRoot: ".",
+        ref: "user/use-system",
+        harness: "codex",
+      }),
+    ).rejects.toThrow("allowWrite=true");
+  });
+
+  test("requires explicit approval before invoking playbook runs through MCP", async () => {
+    await expect(
+      callMakeDocsMcpTool("make_docs_playbook_run_invoke", {
         repoRoot: ".",
         ref: "user/use-system",
         harness: "codex",

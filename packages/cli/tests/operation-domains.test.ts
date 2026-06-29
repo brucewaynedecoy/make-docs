@@ -10,6 +10,7 @@ import {
   readPlaybookCatalog,
   readHarnessCapabilityEvaluation,
   readPlaybookResolution,
+  writePlaybookInvocation,
   writePlaybookRunState,
   probeCloseout,
   readWorkPhaseState,
@@ -21,6 +22,43 @@ function writeFile(root: string, relativePath: string, content: string): string 
   mkdirSync(path.dirname(absolutePath), { recursive: true });
   writeFileSync(absolutePath, content, "utf8");
   return absolutePath;
+}
+
+function playbookBody(title: string): string {
+  return [
+    `# ${title}`,
+    "",
+    "## Purpose",
+    "",
+    "Use this playbook when the matching workflow goal is active.",
+    "",
+    "## Inputs and Authority",
+    "",
+    "- User request.",
+    "- Repo-local Make Docs contracts.",
+    "",
+    "## Procedure",
+    "",
+    "1. Resolve the playbook.",
+    "2. Follow the documented steps in order.",
+    "",
+    "## Gates and Decisions",
+    "",
+    "- Stop when user review is required.",
+    "",
+    "## Assists",
+    "",
+    "- CLI, MCP, plugin, subagent, or skill assists are optional unless the playbook says otherwise.",
+    "",
+    "## Outputs and Handoff",
+    "",
+    "- Record the expected output or handoff artifact.",
+    "",
+    "## Validation",
+    "",
+    "- Confirm the workflow completed or report why it stopped.",
+    "",
+  ].join("\n");
 }
 
 describe("operation domain modules", () => {
@@ -66,6 +104,7 @@ describe("operation domain modules", () => {
           expect.objectContaining({ name: "playbook-resolve", mutates: false }),
           expect.objectContaining({ name: "playbook-capabilities", mutates: false }),
           expect.objectContaining({ name: "playbook-run-start", mutates: true }),
+          expect.objectContaining({ name: "playbook-run-invoke", mutates: true }),
           expect.objectContaining({ name: "playbook-run-read", mutates: false }),
         ],
       }),
@@ -203,8 +242,7 @@ describe("operation domain modules", () => {
         "summary: Use the installed system.",
         "---",
         "",
-        "# Use System",
-        "",
+        playbookBody("Use System"),
       ].join("\n"),
     );
 
@@ -246,6 +284,24 @@ describe("operation domain modules", () => {
           runId: "root-run",
           stateSource: "make-docs",
           harnessAssistsAreSourceOfTruth: false,
+        }),
+      }),
+    );
+    const invocation = writePlaybookInvocation({
+      repoRoot: root,
+      ref: "user/use-system",
+      requestedStack: "run",
+      harness: "codex",
+      runId: "invoke-run",
+      outputSurfaceClaims: ["docs/assets/archive/history"],
+    });
+    expect(invocation.provenance.operation).toBe("playbook-run-invoke");
+    expect(invocation.value).toEqual(
+      expect.objectContaining({
+        status: "paused",
+        state: expect.objectContaining({
+          runId: "invoke-run",
+          currentGate: "gate-1",
         }),
       }),
     );

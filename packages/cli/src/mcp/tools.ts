@@ -17,6 +17,7 @@ import {
   buildPlaybookCatalog,
   createPlaybookRunState,
   evaluateHarnessCapabilities,
+  invokePlaybook,
   readPlaybookRunState,
   resolvePlaybook,
 } from "../operations/playbook";
@@ -50,6 +51,7 @@ type McpToolName =
   | "make_docs_playbook_resolve"
   | "make_docs_playbook_capabilities"
   | "make_docs_playbook_run_start"
+  | "make_docs_playbook_run_invoke"
   | "make_docs_playbook_run_read";
 
 type McpToolInput = Record<string, unknown>;
@@ -235,6 +237,24 @@ export const MAKE_DOCS_MCP_TOOLS: MakeDocsMcpToolDescriptor[] = [
     },
   },
   {
+    name: "make_docs_playbook_run_invoke",
+    title: "Invoke Run Playbook Model",
+    description:
+      "Build a generic Run Playbook invocation plan and create run state. Requires allowWrite=true because it writes .make-docs/runs/playbooks/**.",
+    inputSchema: {
+      repoRoot: repoRootSchema,
+      ref: z.string(),
+      stack: z.enum(["build", "run"]).optional(),
+      harness: z.string(),
+      runId: z.string().optional(),
+      outputSurfaceClaims: z.array(z.string()).optional(),
+      allowUnattended: z.boolean().optional(),
+      requiredCapabilities: z.array(z.string()).optional(),
+      preferredCapabilities: z.array(z.string()).optional(),
+      allowWrite: z.boolean().optional(),
+    },
+  },
+  {
     name: "make_docs_playbook_run_read",
     title: "Read Playbook Run State",
     description: "Read Make Docs-owned Playbook run state for resume or audit.",
@@ -344,6 +364,24 @@ export async function callMakeDocsMcpTool(
           currentGate: optionalString(args, "currentGate"),
           status: optionalString(args, "status") as Parameters<typeof createPlaybookRunState>[0]["status"],
           resumeHints: optionalStringArray(args, "resumeHints"),
+          requiredCapabilities: optionalStringArray(args, "requiredCapabilities"),
+          preferredCapabilities: optionalStringArray(args, "preferredCapabilities"),
+        }),
+      );
+    case "make_docs_playbook_run_invoke":
+      if (args.allowWrite !== true) {
+        throw new Error("`make_docs_playbook_run_invoke` requires allowWrite=true.");
+      }
+      return mcpPayload(
+        name,
+        invokePlaybook({
+          repoRoot: resolveRepoRoot(args),
+          ref: requiredString(args, "ref"),
+          requestedStack: optionalString(args, "stack"),
+          harness: requiredString(args, "harness"),
+          runId: optionalString(args, "runId"),
+          outputSurfaceClaims: optionalStringArray(args, "outputSurfaceClaims"),
+          allowUnattended: args.allowUnattended === true,
           requiredCapabilities: optionalStringArray(args, "requiredCapabilities"),
           preferredCapabilities: optionalStringArray(args, "preferredCapabilities"),
         }),

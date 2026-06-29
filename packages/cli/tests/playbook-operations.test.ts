@@ -5,6 +5,7 @@ import {
   buildPlaybookCatalog,
   createPlaybookRunState,
   evaluateHarnessCapabilities,
+  invokePlaybook,
   readPlaybookRunState,
   resolvePlaybook,
 } from "../src/operations";
@@ -60,6 +61,7 @@ function writePlaybook(
   slug: string,
   stack: "build" | "run",
   title = slug,
+  options: { body?: string; runMetadata?: string[] } = {},
 ): string {
   return writeFile(
     root,
@@ -72,9 +74,10 @@ function writePlaybook(
       `persona: ${persona}`,
       `stack: ${stack}`,
       `summary: ${title} summary.`,
+      ...(options.runMetadata ?? []),
       "---",
       "",
-      playbookBody(title),
+      options.body ?? playbookBody(title),
     ].join("\n"),
   );
 }
@@ -475,6 +478,177 @@ describe("playbook operation domain", () => {
       }),
     );
     expect(readPlaybookRunState({ repoRoot: root, runId: "root-run" }).runId).toBe("root-run");
+  });
+
+  test("invokes the generic run model without requiring plugin packaging", () => {
+    const root = createTempDir("make-docs-playbooks-");
+    tempRoots.push(root);
+    writeFile(root, ".make-docs/contracts/system/example.md", "# Example Authority\n");
+    writePlaybook(root, "user", "use-system", "run", "Use System", {
+      runMetadata: [
+        "run:",
+        "  output_surfaces:",
+        "    - docs/assets/archive/history",
+      ],
+      body: [
+        "# Use System",
+        "",
+        "## Purpose",
+        "",
+        "Use this playbook when the matching workflow goal is active.",
+        "",
+        "## Inputs and Authority",
+        "",
+        "- Load `.make-docs/contracts/system/example.md` first.",
+        "",
+        "## Procedure",
+        "",
+        "1. Resolve the playbook.",
+        "2. Follow the documented steps in order.",
+        "",
+        "## Gates and Decisions",
+        "",
+        "- Stop for user review before writing outputs.",
+        "",
+        "## Assists",
+        "",
+        "- CLI, MCP, plugin, subagent, or skill assists are optional unless the playbook says otherwise.",
+        "",
+        "## Outputs and Handoff",
+        "",
+        "- Record the expected output or handoff artifact.",
+        "",
+        "## Validation",
+        "",
+        "- Confirm the workflow completed or report why it stopped.",
+        "",
+      ].join("\n"),
+    });
+
+    const invocation = invokePlaybook({
+      repoRoot: root,
+      ref: "user/use-system",
+      requestedStack: "run",
+      harness: "codex",
+      runId: "invoke-run",
+    });
+
+    expect(invocation.status).toBe("paused");
+    expect(invocation.stopReason).toContain("gate");
+    expect(invocation.procedure.map((step) => step.text)).toEqual([
+      "Resolve the playbook.",
+      "Follow the documented steps in order.",
+    ]);
+    expect(invocation.authority).toEqual([
+      expect.objectContaining({
+        text: "Load `.make-docs/contracts/system/example.md` first.",
+        pathRefs: [
+          {
+            path: ".make-docs/contracts/system/example.md",
+            exists: true,
+            loaded: true,
+          },
+        ],
+      }),
+    ]);
+    expect(invocation.outputRouting).toEqual({
+      playbookDeclaredSurfaces: ["docs/assets/archive/history"],
+      callerSurfaceClaims: [],
+      effectiveSurfaceClaims: ["docs/assets/archive/history"],
+    });
+    expect(invocation.supportClaims).toEqual(
+      expect.objectContaining({
+        cli: "provisional",
+        mcp: "provisional",
+        plugin: "provisional",
+        skill: "provisional",
+        "template-sync": "provisional",
+        unattended: "provisional",
+      }),
+    );
+    expect(invocation.state).toEqual(
+      expect.objectContaining({
+        runId: "invoke-run",
+        status: "paused",
+        currentStep: "procedure-1",
+        currentGate: "gate-1",
+      }),
+    );
+    expect(readPlaybookRunState({ repoRoot: root, runId: "invoke-run" }).status).toBe("paused");
+  });
+
+  test("blocks invocation when referenced authority is missing", () => {
+    const root = createTempDir("make-docs-playbooks-");
+    tempRoots.push(root);
+    writePlaybook(root, "user", "missing-authority", "run", "Missing Authority", {
+      body: playbookBody("Missing Authority").replace(
+        "- Repo-local Make Docs contracts.",
+        "- `.make-docs/contracts/system/missing.md`.",
+      ),
+    });
+
+    const invocation = invokePlaybook({
+      repoRoot: root,
+      ref: "user/missing-authority",
+      requestedStack: "run",
+      harness: "codex",
+      runId: "missing-authority-run",
+    });
+
+    expect(invocation.status).toBe("blocked");
+    expect(invocation.stopReason).toBe("Missing referenced authority sources: .make-docs/contracts/system/missing.md.");
+    expect(invocation.nextStep).toBeNull();
+    expect(invocation.state.status).toBe("blocked");
+  });
+
+  test("blocks invocation when required assists need review", () => {
+    const root = createTempDir("make-docs-playbooks-");
+    tempRoots.push(root);
+    writePlaybook(root, "user", "needs-assist", "run", "Needs Assist", {
+      runMetadata: [
+        "run:",
+        "  requires_capabilities:",
+        "    - goal_managed_execution",
+      ],
+    });
+
+    const invocation = invokePlaybook({
+      repoRoot: root,
+      ref: "user/needs-assist",
+      requestedStack: "run",
+      harness: "codex",
+      runId: "needs-assist-run",
+    });
+
+    expect(invocation.status).toBe("blocked");
+    expect(invocation.assists.status).toBe("manual-review-required");
+    expect(invocation.stopReason).toBe("Required Playbook assists require manual review before execution.");
+  });
+
+  test("requires explicit playbook permission before unattended gate continuation", () => {
+    const root = createTempDir("make-docs-playbooks-");
+    tempRoots.push(root);
+    writePlaybook(root, "user", "unattended", "run", "Unattended", {
+      runMetadata: [
+        "run:",
+        "  unattended: true",
+      ],
+    });
+
+    const invocation = invokePlaybook({
+      repoRoot: root,
+      ref: "user/unattended",
+      requestedStack: "run",
+      harness: "codex",
+      runId: "unattended-run",
+      allowUnattended: true,
+      outputSurfaceClaims: ["docs/assets/archive/history"],
+    });
+
+    expect(invocation.status).toBe("ready");
+    expect(invocation.state.status).toBe("running");
+    expect(invocation.state.currentGate).toBeNull();
+    expect(invocation.outputRouting.effectiveSurfaceClaims).toEqual(["docs/assets/archive/history"]);
   });
 
   test("requires parent permission before creating child playbook runs", () => {

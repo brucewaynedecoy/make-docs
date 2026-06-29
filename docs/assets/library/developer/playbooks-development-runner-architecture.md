@@ -33,7 +33,7 @@ related:
 
 # Run Playbook Runner Architecture
 
-This guide explains the accepted v2 architecture for Run Playbook after W18 R4, W18 R1, W18 R2, and W18 R3 are implemented. It is a developer guide for contributors and maintainers. The W18 R4 resolver primitives are implemented as `playbook-catalog` and `playbook-resolve`; later runner, state, and bundle command names may still be refined by their implementation phases.
+This guide explains the accepted v2 architecture for Run Playbook after W18 R4, W18 R1, W18 R2, and W18 R3 are implemented. It is a developer guide for contributors and maintainers. The implemented operation primitives include `playbook-catalog`, `playbook-resolve`, `playbook-capabilities`, `playbook-run-start`, `playbook-run-invoke`, and `playbook-run-read`; later plugin and bundle command names may still be refined by their implementation phases.
 
 ## Architectural Shape
 
@@ -73,6 +73,12 @@ W18 R4 Phase 4 adds Make Docs-owned run-state primitives:
 - `make-docs operations playbook-run-read --repo-root <path> --run-id <id>` reads saved run state for resume or audit.
 - MCP exposes `make_docs_playbook_run_start` behind `allowWrite=true` and `make_docs_playbook_run_read` as a read-only state inspection tool.
 
+W18 R1 Phase 3 adds the first generic invocation primitive:
+
+- `make-docs operations playbook-run-invoke <ref> --repo-root <path> --harness <id> [--stack build|run]` resolves a valid Playbook, extracts the authority/procedure/gate/assist/output model, creates run state, and returns the next gated step.
+- MCP exposes the same behavior through `make_docs_playbook_run_invoke` behind `allowWrite=true`.
+- The invocation result labels CLI, MCP, plugin, skill, template-sync, and unattended support claims as `provisional` until each surface has validation evidence.
+
 ## Runner Pipeline
 
 The expected runner pipeline is:
@@ -94,6 +100,8 @@ caller
 ```
 
 The pipeline should be shared by CLI, MCP, plugin, and agent-facing usage. If one surface needs a different permission posture, it should pass policy into the same domain instead of branching into a separate implementation.
+
+The implemented `playbook-run-invoke` operation is still conservative. It does not pretend to be an autonomous LLM runner. It resolves and validates the source, loads referenced authority path facts, evaluates required and preferred assists, creates run state, chooses the next procedure step, and pauses or blocks when gates, missing authority, or required assists require review.
 
 ## Resolver And Catalog Semantics
 

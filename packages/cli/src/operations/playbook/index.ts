@@ -4,6 +4,7 @@ import { parseDocument } from "yaml";
 import {
   HARNESS_CAPABILITY_IDS,
   PERSONA_SLUG_PATTERN,
+  getConfigRenderingLabels,
   loadMakeDocsConfigOrThrow,
   type HarnessCapabilityId,
   type HarnessCapabilityRecord,
@@ -37,12 +38,16 @@ export type PlaybookChildPolicy = "none" | "serial" | "parallel";
 export type PlaybookConcurrencyPolicy = "serial" | "parallel-allowed" | "parallel-required";
 export type PlaybookRunExecutionMode = "serial" | "parallel";
 export type PlaybookRunStatus = "planned" | "running" | "paused" | "blocked" | "completed";
+export type PlaybookInvocationStatus = "ready" | "paused" | "blocked";
+export type PlaybookSupportSurface = "cli" | "mcp" | "plugin" | "skill" | "template-sync" | "unattended";
 
 export interface PlaybookRunMetadata {
   requiresCapabilities: HarnessCapabilityId[];
   prefersCapabilities: HarnessCapabilityId[];
   childPlaybooks: PlaybookChildPolicy;
   concurrency: PlaybookConcurrencyPolicy;
+  outputSurfaces: string[];
+  unattended: boolean;
 }
 
 export interface PlaybookCatalogEntry {
@@ -121,6 +126,51 @@ export interface PlaybookRunState {
   updatedAt: string;
 }
 
+export interface PlaybookInvocationStep {
+  id: string;
+  index: number;
+  text: string;
+  sourceSection: "procedure" | "gate" | "assist" | "output";
+}
+
+export interface PlaybookAuthorityPathRef {
+  path: string;
+  exists: boolean;
+  loaded: boolean;
+}
+
+export interface PlaybookAuthoritySource {
+  index: number;
+  text: string;
+  pathRefs: PlaybookAuthorityPathRef[];
+}
+
+export interface PlaybookInvocationPlan {
+  repoRoot: string;
+  resolution: PlaybookResolution;
+  statePath: string;
+  state: PlaybookRunState;
+  authority: PlaybookAuthoritySource[];
+  configPresentation: ReturnType<typeof getConfigRenderingLabels>;
+  procedure: PlaybookInvocationStep[];
+  gates: PlaybookInvocationStep[];
+  assists: {
+    required: HarnessCapabilityId[];
+    preferred: HarnessCapabilityId[];
+    status: HarnessCapabilityEvaluation["status"];
+    guidance: string[];
+  };
+  outputRouting: {
+    playbookDeclaredSurfaces: string[];
+    callerSurfaceClaims: string[];
+    effectiveSurfaceClaims: string[];
+  };
+  supportClaims: Record<PlaybookSupportSurface, "provisional">;
+  status: PlaybookInvocationStatus;
+  stopReason: string | null;
+  nextStep: PlaybookInvocationStep | null;
+}
+
 export const playbookDomain: OperationDomainDescriptor = {
   name: "playbook",
   summary: "Run Playbook resolver, catalog, capability, and state operations.",
@@ -146,6 +196,12 @@ export const playbookDomain: OperationDomainDescriptor = {
     {
       name: "playbook-run-start",
       summary: "Create Make Docs-owned Playbook run state before execution begins.",
+      mutates: true,
+      renderModes: ["json"],
+    },
+    {
+      name: "playbook-run-invoke",
+      summary: "Build a generic Run Playbook invocation plan without requiring plugin packaging.",
       mutates: true,
       renderModes: ["json"],
     },
@@ -513,6 +569,117 @@ export function inspectPlaybookRunState(input: {
   };
 }
 
+export function invokePlaybook(input: {
+  repoRoot?: string;
+  ref: string;
+  requestedStack?: string | null;
+  harness: string;
+  runId?: string;
+  outputSurfaceClaims?: string[];
+  allowUnattended?: boolean;
+  requiredCapabilities?: string[];
+  preferredCapabilities?: string[];
+}): PlaybookInvocationPlan {
+  const repoRoot = findRepoRoot(input.repoRoot);
+  const resolution = resolvePlaybook({
+    repoRoot,
+    ref: input.ref,
+    requestedStack: input.requestedStack,
+  });
+  const document = loadPlaybookDocumentForEntry(repoRoot, resolution.entry);
+  const authority = extractAuthoritySources(repoRoot, document.body);
+  const missingAuthority = authority
+    .flatMap((source) => source.pathRefs)
+    .filter((ref) => !ref.exists)
+    .map((ref) => ref.path);
+  const procedure = extractSectionSteps(document.body, ["procedure"], "procedure");
+  const gates = extractSectionSteps(document.body, ["gate", "decision"], "gate");
+  const assists = evaluateHarnessCapabilities({
+    repoRoot,
+    harness: input.harness,
+    requiredCapabilities: [
+      ...resolution.entry.run.requiresCapabilities,
+      ...(input.requiredCapabilities ?? []),
+    ],
+    preferredCapabilities: [
+      ...resolution.entry.run.prefersCapabilities,
+      ...(input.preferredCapabilities ?? []),
+    ],
+  });
+  const explicitClaims = normalizeOutputSurfaceClaims(input.outputSurfaceClaims ?? []);
+  const playbookDeclaredSurfaces = resolution.entry.run.outputSurfaces;
+  const effectiveSurfaceClaims = explicitClaims.length > 0 ? explicitClaims : playbookDeclaredSurfaces;
+  const configPresentation = getConfigRenderingLabels(loadMakeDocsConfigOrThrow(repoRoot).config);
+  const unattendedAllowed = input.allowUnattended === true && resolution.entry.run.unattended === true;
+  const gateStop = gates.length > 0 && !unattendedAllowed ? gates[0]! : null;
+  const firstStep = procedure[0] ?? null;
+  let status: PlaybookInvocationStatus = "ready";
+  let stopReason: string | null = null;
+  if (missingAuthority.length > 0) {
+    status = "blocked";
+    stopReason = `Missing referenced authority sources: ${missingAuthority.join(", ")}.`;
+  } else if (assists.status === "manual-review-required") {
+    status = "blocked";
+    stopReason = "Required Playbook assists require manual review before execution.";
+  } else if (gateStop) {
+    status = "paused";
+    stopReason = "Playbook gate or user-decision point requires review before unattended continuation.";
+  }
+
+  const runState = createPlaybookRunState({
+    repoRoot,
+    ref: resolution.entry.ref,
+    requestedStack: resolution.entry.stack,
+    harness: input.harness,
+    runId: input.runId,
+    outputSurfaceClaims: effectiveSurfaceClaims,
+    currentStep: firstStep?.id ?? null,
+    currentGate: gateStop?.id ?? null,
+    status: status === "ready" ? "running" : status,
+    resumeHints: stopReason ? [stopReason] : [],
+    requiredCapabilities: input.requiredCapabilities,
+    preferredCapabilities: input.preferredCapabilities,
+  });
+
+  return {
+    repoRoot,
+    resolution,
+    statePath: runState.statePath,
+    state: runState.state,
+    authority,
+    configPresentation,
+    procedure,
+    gates,
+    assists: {
+      required: assists.requiredCapabilities,
+      preferred: assists.preferredCapabilities,
+      status: assists.status,
+      guidance: assists.guidance,
+    },
+    outputRouting: {
+      playbookDeclaredSurfaces,
+      callerSurfaceClaims: explicitClaims,
+      effectiveSurfaceClaims,
+    },
+    supportClaims: buildProvisionalSupportClaims(),
+    status,
+    stopReason,
+    nextStep: status === "blocked" ? null : firstStep,
+  };
+}
+
+export function writePlaybookInvocation(input: Parameters<typeof invokePlaybook>[0]): OperationResult<JsonValue> {
+  return {
+    value: invokePlaybook(input) as unknown as JsonValue,
+    provenance: {
+      domain: "playbook",
+      operation: "playbook-run-invoke",
+      source: "shared",
+      target: input.ref,
+    },
+  };
+}
+
 function parsePlaybookFile(
   filePath: string,
   repoRoot: string,
@@ -604,6 +771,8 @@ function parseRunMetadata(
     prefersCapabilities: [],
     childPlaybooks: "none",
     concurrency: "serial",
+    outputSurfaces: [],
+    unattended: false,
   };
   if (value === undefined) {
     return defaults;
@@ -618,7 +787,9 @@ function parseRunMetadata(
   const prefersCapabilities = parseRunCapabilityList(record.prefers_capabilities, relativePath, diagnostics, "run.prefers_capabilities");
   const childPlaybooks = parseChildPolicy(record.child_playbooks, relativePath, diagnostics);
   const concurrency = parseConcurrencyPolicy(record.concurrency, relativePath, diagnostics);
-  if (!requiresCapabilities || !prefersCapabilities || !childPlaybooks || !concurrency) {
+  const outputSurfaces = parseOutputSurfaces(record.output_surfaces, relativePath, diagnostics);
+  const unattended = parseUnattended(record.unattended, relativePath, diagnostics);
+  if (!requiresCapabilities || !prefersCapabilities || !childPlaybooks || !concurrency || !outputSurfaces || unattended === null) {
     return null;
   }
 
@@ -627,6 +798,8 @@ function parseRunMetadata(
     prefersCapabilities,
     childPlaybooks,
     concurrency,
+    outputSurfaces,
+    unattended,
   };
 }
 
@@ -803,6 +976,36 @@ function parseRunCapabilityList(
   }
 }
 
+function parseOutputSurfaces(
+  value: unknown,
+  relativePath: string,
+  diagnostics: Array<{ path: string; message: string }>,
+): string[] | null {
+  if (value === undefined) {
+    return [];
+  }
+  if (!Array.isArray(value)) {
+    diagnostics.push({ path: relativePath, message: "run.output_surfaces must be an array of path claims." });
+    return null;
+  }
+  return normalizeOutputSurfaceClaims(value.map(String));
+}
+
+function parseUnattended(
+  value: unknown,
+  relativePath: string,
+  diagnostics: Array<{ path: string; message: string }>,
+): boolean | null {
+  if (value === undefined) {
+    return false;
+  }
+  if (typeof value === "boolean") {
+    return value;
+  }
+  diagnostics.push({ path: relativePath, message: "run.unattended must be a boolean." });
+  return null;
+}
+
 function parseChildPolicy(
   value: unknown,
   relativePath: string,
@@ -881,6 +1084,109 @@ function playbookRunStatePath(repoRoot: string, runId: string): string {
 
 function normalizeOutputSurfaceClaims(claims: string[]): string[] {
   return [...new Set(claims.map((claim) => normalizePath(claim.trim()).replace(/\/+$/, "")).filter(Boolean))];
+}
+
+function loadPlaybookDocumentForEntry(
+  repoRoot: string,
+  entry: PlaybookCatalogEntry,
+): { metadata: Record<string, unknown>; body: string } {
+  const document = parsePlaybookDocument(readTextFile(path.join(repoRoot, entry.path)));
+  if (!document) {
+    throw new OperationError(`Invalid playbook document for \`${entry.ref}\`.`);
+  }
+  return document;
+}
+
+function extractAuthoritySources(repoRoot: string, body: string): PlaybookAuthoritySource[] {
+  const lines = extractSectionLines(body, ["authority"]);
+  const items = extractListItems(lines);
+  return items.map((text, index) => ({
+    index: index + 1,
+    text,
+    pathRefs: extractInlinePathRefs(text).map((pathRef) => {
+      const absolutePath = path.resolve(repoRoot, pathRef);
+      return {
+        path: normalizeRelativePath(pathRef),
+        exists: existsSync(absolutePath),
+        loaded: existsSync(absolutePath) && statSync(absolutePath).isFile(),
+      };
+    }),
+  }));
+}
+
+function extractSectionSteps(
+  body: string,
+  headingTerms: string[],
+  sourceSection: PlaybookInvocationStep["sourceSection"],
+): PlaybookInvocationStep[] {
+  return extractListItems(extractSectionLines(body, headingTerms)).map((text, index) => ({
+    id: `${sourceSection}-${index + 1}`,
+    index: index + 1,
+    text,
+    sourceSection,
+  }));
+}
+
+function extractSectionLines(body: string, headingTerms: string[]): string[] {
+  const lines = body.split(/\r?\n/);
+  const collected: string[] = [];
+  let inSection = false;
+  for (const line of lines) {
+    const heading = line.match(/^(#{2,6})\s+(.+?)\s*$/);
+    if (heading) {
+      const title = heading[2]!.toLowerCase();
+      if (inSection) {
+        break;
+      }
+      inSection = headingTerms.some((term) => title.includes(term));
+      continue;
+    }
+    if (inSection) {
+      collected.push(line);
+    }
+  }
+  return collected;
+}
+
+function extractListItems(lines: string[]): string[] {
+  const items = lines
+    .map((line) => line.match(/^\s*(?:[-*]|\d+[.)])\s+(.+?)\s*$/)?.[1]?.trim() ?? "")
+    .filter(Boolean);
+  if (items.length > 0) {
+    return items;
+  }
+  return lines
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0 && !line.startsWith("#"));
+}
+
+function extractInlinePathRefs(text: string): string[] {
+  const refs: string[] = [];
+  const inlineCodePattern = /`([^`]+)`/g;
+  let match: RegExpExecArray | null;
+  while ((match = inlineCodePattern.exec(text)) !== null) {
+    const value = match[1]!.trim();
+    if (
+      value.startsWith(".make-docs/") ||
+      value.startsWith("docs/") ||
+      value.startsWith("./") ||
+      value.startsWith("../")
+    ) {
+      refs.push(value);
+    }
+  }
+  return [...new Set(refs)];
+}
+
+function buildProvisionalSupportClaims(): Record<PlaybookSupportSurface, "provisional"> {
+  return {
+    cli: "provisional",
+    mcp: "provisional",
+    plugin: "provisional",
+    skill: "provisional",
+    "template-sync": "provisional",
+    unattended: "provisional",
+  };
 }
 
 function validateChildRunRequest(input: {

@@ -22,12 +22,14 @@ export {
   createPlaybookRunState,
   evaluateHarnessCapabilities,
   inspectPlaybookRunState,
+  invokePlaybook,
   playbookDomain,
   readHarnessCapabilityEvaluation,
   readPlaybookCatalog,
   readPlaybookResolution,
   readPlaybookRunState,
   resolvePlaybook,
+  writePlaybookInvocation,
   writePlaybookRunState,
 } from "./playbook";
 export {

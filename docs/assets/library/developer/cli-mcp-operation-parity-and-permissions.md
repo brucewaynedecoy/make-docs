@@ -82,7 +82,8 @@ Use this table when extending the first MCP server. Capabilities marked shipped 
 | Plan backup | backup audit and destination planner | read-first plan | Planned | Audit output and backup destination planning match CLI lifecycle review without copying files. |
 | Plan uninstall | uninstall audit and review planner | read-first plan | Planned | Removable, preserved, skipped, and prunable path classifications match CLI lifecycle review without deleting files. |
 | Run no-scripts replacement operation | future CLI/shared-core operation introduced by no-scripts migration | dry-run first | Planned | The migrated operation exists in the CLI package before MCP exposes it. |
-| Inspect playbooks | playbook contract resolver | read-only | Planned | Playbook metadata, persona, stack, authority order, and runnable status match the accepted playbook contract. |
+| Inspect playbooks | playbook operation domain | read-only | Shipped | Playbook metadata, persona, stack, authority order, and runnable status match the accepted playbook contract. |
+| Invoke Run Playbook model | playbook operation domain | write-gated plan/state | Shipped | MCP invocation requires `allowWrite=true`, creates the same Make Docs run state as the CLI/shared-core operation, and marks support claims provisional until validation exists. |
 | Inspect plugin or workflow bundle | plugin substrate and bundle metadata resolver | read-only | Planned | Plugin id, bundle id, selected payload, generated exposure, and support-claim status match plugin metadata contracts. |
 
 If a future MCP capability does not fit the table, add the CLI/shared-core owner first. Do not let a new MCP-only behavior become the source of truth.

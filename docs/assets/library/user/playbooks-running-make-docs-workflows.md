@@ -48,11 +48,11 @@ A team can also install Playbooks as shared project assets. The Playbook remains
 A Playbook run can start from different surfaces:
 
 - A person can ask an agent to run a Playbook by name, by `persona/slug`, or by an explicit path.
-- A future CLI command can resolve and validate the Playbook before the agent follows it.
-- A future MCP tool can expose the same resolver and validation behavior to an agent harness.
+- `make-docs operations playbook-run-invoke <ref> --harness <id>` can resolve and validate the Playbook, create Make Docs-owned run state, and return the next gated step without requiring a plugin.
+- `make_docs_playbook_run_invoke` exposes the same write-gated behavior to MCP-capable agent harnesses when the caller passes `allowWrite=true`.
 - A plugin or workflow bundle can present a guided entry point that invokes the same Run Playbook behavior underneath.
 
-The exact public command and tool names are intentionally left to the implementation backlogs. The important contract is that these entry points all use the same resolver, validator, run-state model, and safety rules.
+The current operation command is a deterministic Make Docs operation surface, not a polished product shortcut. The important contract is that these entry points all use the same resolver, validator, run-state model, and safety rules.
 
 ## The Simplest Run
 
@@ -102,7 +102,7 @@ Playbooks also do not redefine Make Docs authority. If a Playbook changes PRDs, 
 
 ## Future Coverage
 
-This guide should be refreshed after W18 implementation lands with the final command names, MCP tool names, plugin entry points, packaging commands, package-plan review examples, and a small set of end-user examples that can be run against an installed Make Docs project.
+This guide should be refreshed after W18 implementation lands with plugin entry points, packaging commands, package-plan review examples, and a small set of end-user examples that can be run against an installed Make Docs project.
 
 ## Related Resources
 

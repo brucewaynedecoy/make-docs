@@ -13,6 +13,7 @@ import {
   buildPlaybookCatalog,
   createPlaybookRunState,
   evaluateHarnessCapabilities,
+  invokePlaybook,
   readPlaybookRunState,
   resolvePlaybook,
 } from "./playbook";
@@ -171,6 +172,21 @@ export async function runOperationsCommand(argv: string[]): Promise<void> {
         }),
       );
       return;
+    case "playbook-run-invoke":
+      printJson(
+        invokePlaybook({
+          repoRoot: path.resolve(options.values["repo-root"] ?? "."),
+          ref: requiredPositionals(options, operation).join(" "),
+          requestedStack: options.values.stack,
+          harness: requiredValue(options, "harness", operation),
+          runId: options.values["run-id"],
+          outputSurfaceClaims: options.arrays["output-surface"] ?? [],
+          allowUnattended: options.booleans.has("allow-unattended"),
+          requiredCapabilities: options.arrays["requires-capability"] ?? [],
+          preferredCapabilities: options.arrays["prefers-capability"] ?? [],
+        }),
+      );
+      return;
     case "playbook-run-read":
       printJson(
         readPlaybookRunState({
@@ -205,6 +221,7 @@ function parseOperationOptions(argv: string[]): OperationOptions {
         "write",
         "review-required",
         "no-review-required",
+        "allow-unattended",
       ].includes(key)
     ) {
       booleans.add(key);
@@ -254,6 +271,7 @@ function printOperationsHelp(): void {
       "  playbook-resolve",
       "  playbook-capabilities",
       "  playbook-run-start",
+      "  playbook-run-invoke",
       "  playbook-run-read",
       "",
     ].join("\n"),

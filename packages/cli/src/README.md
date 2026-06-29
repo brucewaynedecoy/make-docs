@@ -40,6 +40,8 @@ New deterministic make-docs behavior belongs under `src/operations/<domain>/` be
 - `closeout`: closeout probes, validation planning, and history rendering.
 - `work`: work phase parsing, wave resolution, wave status, and phase planning.
 - `lifecycle`: checkpoints, scope guards, and phase gates.
+- `playbook`: catalog, resolver, capability, run-state, and generic invocation operations.
+- `playbook-packaging`: package-plan, generated-output, and harness-adapter schema validation.
 
 Shared operation contracts live in [`src/operations/types.ts`](./operations/types.ts). Keep domain functions callable without the full CLI parser or MCP transport so tests can exercise deterministic behavior directly. Public dispatch files such as [`src/operations/cli.ts`](./operations/cli.ts) and MCP handlers under [`src/mcp/`](./mcp/) should parse transport-specific input, call a domain function, and render the result; they should not become the long-term home for domain logic.
 
