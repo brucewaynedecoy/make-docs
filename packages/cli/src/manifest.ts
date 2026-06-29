@@ -2,6 +2,10 @@ import os from "node:os";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import type {
+  AgenticExposureMode,
+  AgenticFileRole,
+  AgenticOwnershipMetadata,
+  AgenticPathKind,
   AuditPathKind,
   AuditPathMetadata,
   Capability,
@@ -18,6 +22,8 @@ import type {
   SkillExposureMetadata,
   ManifestSystemAssetEntry,
   PackageMeta,
+  PluginSupportStatus,
+  PluginTrustPolicy,
   SystemAssetManifestState,
   SystemAssetMaterializationClass,
   SystemAssetMaterializationMode,
@@ -399,6 +405,14 @@ function validateManifestFiles(
             skillExposure: validateSkillExposureMetadata(
               entry.skillExposure,
               `manifest.files.${managedPath}.skillExposure`,
+            ),
+          }
+        : {}),
+      ...("agenticOwnership" in entry
+        ? {
+            agenticOwnership: validateAgenticOwnershipMetadata(
+              entry.agenticOwnership,
+              `manifest.files.${managedPath}.agenticOwnership`,
             ),
           }
         : {}),
@@ -953,6 +967,194 @@ function validateSkillExposureMode(
   return value;
 }
 
+function validateAgenticOwnershipMetadata(
+  value: unknown,
+  label: string,
+): AgenticOwnershipMetadata {
+  assertPlainObject(value, label);
+  const artifactKind = validateAgenticArtifactKind(
+    value.artifactKind,
+    `${label}.artifactKind`,
+  );
+  const role = validateAgenticFileRole(value.role, `${label}.role`);
+  if (artifactKind === "skill" && !isSkillAgenticRole(role)) {
+    throw new Error(`${label}.role must be a skill ownership role`);
+  }
+  if (artifactKind === "plugin" && !isPluginAgenticRole(role)) {
+    throw new Error(`${label}.role must be a plugin ownership role`);
+  }
+
+  return {
+    artifactKind,
+    role,
+    id: validateString(value.id, `${label}.id`),
+    pathKind: validateAgenticPathKind(value.pathKind, `${label}.pathKind`),
+    ...("scope" in value
+      ? { scope: validateSkillScope(value.scope) }
+      : {}),
+    ...("harness" in value
+      ? { harness: validateHarnessValue(value.harness, `${label}.harness`) }
+      : {}),
+    ...("canonicalPayloadPath" in value
+      ? {
+          canonicalPayloadPath: validateString(
+            value.canonicalPayloadPath,
+            `${label}.canonicalPayloadPath`,
+          ),
+        }
+      : {}),
+    ...("exposurePath" in value
+      ? {
+          exposurePath: validateString(value.exposurePath, `${label}.exposurePath`),
+        }
+      : {}),
+    ...("exposureMode" in value
+      ? {
+          exposureMode: validateAgenticExposureMode(
+            value.exposureMode,
+            `${label}.exposureMode`,
+          ),
+        }
+      : {}),
+    ...("sourceManifest" in value
+      ? {
+          sourceManifest: validateString(
+            value.sourceManifest,
+            `${label}.sourceManifest`,
+          ),
+        }
+      : {}),
+    ...("ref" in value ? { ref: validateString(value.ref, `${label}.ref`) } : {}),
+    ...("version" in value
+      ? { version: validateString(value.version, `${label}.version`) }
+      : {}),
+    ...("digest" in value
+      ? { digest: validateString(value.digest, `${label}.digest`) }
+      : {}),
+    ...("provenance" in value
+      ? {
+          provenance: validateString(value.provenance, `${label}.provenance`),
+        }
+      : {}),
+    ...("trustPolicy" in value
+      ? {
+          trustPolicy: validatePluginTrustPolicy(
+            value.trustPolicy,
+            `${label}.trustPolicy`,
+          ),
+        }
+      : {}),
+    ...("supportStatus" in value
+      ? {
+          supportStatus: validatePluginSupportStatus(
+            value.supportStatus,
+            `${label}.supportStatus`,
+          ),
+        }
+      : {}),
+  };
+}
+
+function validateAgenticArtifactKind(value: unknown, label: string): "skill" | "plugin" {
+  if (value !== "skill" && value !== "plugin") {
+    throw new Error(`${label} must be skill or plugin`);
+  }
+  return value;
+}
+
+function validateAgenticFileRole(value: unknown, label: string): AgenticFileRole {
+  if (
+    value !== "shared-payload" &&
+    value !== "native-exposure" &&
+    value !== "copy-mirror" &&
+    value !== "generated-stub" &&
+    value !== "legacy-duplicated-payload" &&
+    value !== "plugin-payload" &&
+    value !== "plugin-native-exposure" &&
+    value !== "plugin-copy-mirror" &&
+    value !== "plugin-generated-adapter" &&
+    value !== "plugin-legacy-generated-output"
+  ) {
+    throw new Error(`${label} must be a supported agentic ownership role`);
+  }
+  return value;
+}
+
+function isSkillAgenticRole(role: AgenticFileRole): boolean {
+  return (
+    role === "shared-payload" ||
+    role === "native-exposure" ||
+    role === "copy-mirror" ||
+    role === "generated-stub" ||
+    role === "legacy-duplicated-payload"
+  );
+}
+
+function isPluginAgenticRole(role: AgenticFileRole): boolean {
+  return (
+    role === "plugin-payload" ||
+    role === "plugin-native-exposure" ||
+    role === "plugin-copy-mirror" ||
+    role === "plugin-generated-adapter" ||
+    role === "plugin-legacy-generated-output"
+  );
+}
+
+function validateAgenticPathKind(value: unknown, label: string): AgenticPathKind {
+  if (value !== "file" && value !== "directory") {
+    throw new Error(`${label} must be file or directory`);
+  }
+  return value;
+}
+
+function validateAgenticExposureMode(
+  value: unknown,
+  label: string,
+): AgenticExposureMode {
+  if (
+    value !== "symlink" &&
+    value !== "copy-mirror" &&
+    value !== "generated-adapter"
+  ) {
+    throw new Error(`${label} must be symlink, copy-mirror, or generated-adapter`);
+  }
+  return value;
+}
+
+function validatePluginTrustPolicy(value: unknown, label: string): PluginTrustPolicy {
+  assertPlainObject(value, label);
+  const kind = value.kind;
+  if (
+    kind !== "first-party" &&
+    kind !== "local-reviewed" &&
+    kind !== "remote-pinned" &&
+    kind !== "manual-review-required"
+  ) {
+    throw new Error(`${label}.kind must be a supported trust policy`);
+  }
+  return {
+    kind,
+    ...("description" in value
+      ? { description: validateString(value.description, `${label}.description`) }
+      : {}),
+  };
+}
+
+function validatePluginSupportStatus(
+  value: unknown,
+  label: string,
+): PluginSupportStatus {
+  if (
+    value !== "provisional" &&
+    value !== "implementation-validated" &&
+    value !== "conformance-validated" &&
+    value !== "unsupported"
+  ) {
+    throw new Error(`${label} must be a supported plugin support status`);
+  }
+  return value;
+}
+
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
@@ -968,7 +1170,9 @@ function createManifestAuditRecord(
     relativePath: managedPath,
     sourceId: manifestEntry?.sourceId,
   });
-  const kind = manifestEntry?.skillExposure ? "directory" : "file";
+  const kind =
+    manifestEntry?.agenticOwnership?.pathKind ??
+    (manifestEntry?.skillExposure ? "directory" : "file");
 
   return {
     ...createAuditPathMetadata(targetDir, managedPath, kind, homeDir),
@@ -976,7 +1180,12 @@ function createManifestAuditRecord(
     sourceId: manifestEntry?.sourceId,
     manifestHash: manifestEntry?.hash,
     skillExposure: manifestEntry?.skillExposure,
-    ...(agenticRole ? { agenticRole } : {}),
+    agenticOwnership: manifestEntry?.agenticOwnership,
+    ...(manifestEntry?.agenticOwnership?.role
+      ? { agenticRole: manifestEntry.agenticOwnership.role }
+      : agenticRole
+        ? { agenticRole }
+        : {}),
   };
 }
 

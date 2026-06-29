@@ -186,7 +186,31 @@ export interface ResolvedSkillExposureAsset {
   copyMirrorAssets: ResolvedAsset[];
 }
 
-export type ResolvedInstallAsset = ResolvedAsset | ResolvedSkillExposureAsset;
+export interface ResolvedPluginPayloadAsset {
+  kind: "plugin-payload";
+  relativePath: string;
+  assetClass: "static" | "scoped-static";
+  sourceId: string;
+  content: string;
+  pluginArtifact: PluginArtifactMetadata;
+  agenticOwnership: AgenticOwnershipMetadata;
+}
+
+export interface ResolvedPluginExposureAsset {
+  kind: "plugin-exposure";
+  relativePath: string;
+  assetClass: "static" | "scoped-static";
+  sourceId: string;
+  pluginArtifact: PluginArtifactMetadata;
+  agenticOwnership: AgenticOwnershipMetadata;
+  pluginExposure: PluginExposureMetadata;
+  copyMirrorAssets: ResolvedPluginPayloadAsset[];
+  generatedAdapterAsset?: ResolvedPluginPayloadAsset;
+}
+
+export type ResolvedInstallAsset =
+  | ResolvedAsset
+  | ResolvedSkillExposureAsset;
 
 export type SkillExposureMode = "symlink" | "copy-mirror";
 
@@ -210,6 +234,7 @@ export interface ManifestFileEntry {
   sourceId: string;
   systemAsset?: ManifestSystemAssetEntry;
   skillExposure?: SkillExposureMetadata;
+  agenticOwnership?: AgenticOwnershipMetadata;
 }
 
 export type AgenticSkillFileRole =
@@ -218,6 +243,95 @@ export type AgenticSkillFileRole =
   | "copy-mirror"
   | "generated-stub"
   | "legacy-duplicated-payload";
+
+export type AgenticPluginFileRole =
+  | "plugin-payload"
+  | "plugin-native-exposure"
+  | "plugin-copy-mirror"
+  | "plugin-generated-adapter"
+  | "plugin-legacy-generated-output";
+
+export type AgenticFileRole = AgenticSkillFileRole | AgenticPluginFileRole;
+
+export type AgenticArtifactKind = "skill" | "plugin";
+export type AgenticPathKind = "file" | "directory";
+export type AgenticScope = "project" | "global";
+export type AgenticExposureMode = "symlink" | "copy-mirror" | "generated-adapter";
+
+export type PluginArtifactStatus = "provisional" | "active" | "deprecated";
+export type PluginSupportStatus =
+  | "provisional"
+  | "implementation-validated"
+  | "conformance-validated"
+  | "unsupported";
+export type PluginTrustPolicyKind =
+  | "first-party"
+  | "local-reviewed"
+  | "remote-pinned"
+  | "manual-review-required";
+export type PluginSourceKind = "built-in" | "file" | "remote-pinned";
+
+export interface PluginTrustPolicy {
+  kind: PluginTrustPolicyKind;
+  description?: string;
+}
+
+export interface PluginSourceManifestMetadata {
+  manifestId: string;
+  displayName: string;
+  source: PluginSourceKind;
+  path?: string;
+}
+
+export interface PluginArtifactMetadata {
+  pluginId: string;
+  title: string;
+  summary: string;
+  status: PluginArtifactStatus;
+  sourceManifest: PluginSourceManifestMetadata;
+  ref?: string;
+  version?: string;
+  digest: string;
+  provenance: string;
+  trustPolicy: PluginTrustPolicy;
+  supportedHarnesses: Harness[];
+  scope: AgenticScope;
+  supportStatus: PluginSupportStatus;
+}
+
+export interface PluginExposureMetadata {
+  pluginId: string;
+  harness: Harness;
+  scope: AgenticScope;
+  canonicalPayloadPath: string;
+  exposurePath: string;
+  preferredMode: "symlink";
+  mode?: AgenticExposureMode;
+  symlinkTarget?: string;
+  copyMirrorSource?: string;
+  generatedAdapterSourceId?: string;
+  generatedAdapterDigest?: string;
+  fallbackReason?: string;
+}
+
+export interface AgenticOwnershipMetadata {
+  artifactKind: AgenticArtifactKind;
+  role: AgenticFileRole;
+  id: string;
+  pathKind: AgenticPathKind;
+  scope?: AgenticScope;
+  harness?: Harness;
+  canonicalPayloadPath?: string;
+  exposurePath?: string;
+  exposureMode?: AgenticExposureMode;
+  sourceManifest?: string;
+  ref?: string;
+  version?: string;
+  digest?: string;
+  provenance?: string;
+  trustPolicy?: PluginTrustPolicy;
+  supportStatus?: PluginSupportStatus;
+}
 
 export interface InstallManifest {
   schemaVersion: number;
@@ -245,7 +359,8 @@ export interface PlannedAction {
   type: ActionType;
   relativePath: string;
   sourceId?: string;
-  agenticRole?: AgenticSkillFileRole;
+  agenticRole?: AgenticFileRole;
+  agenticOwnership?: AgenticOwnershipMetadata;
   skillExposure?: SkillExposureMetadata;
   copyMirrorAssets?: ResolvedAsset[];
   content?: string;
@@ -356,14 +471,16 @@ export interface AuditPathMetadata {
 export interface AuditManagedPathMetadata extends AuditPathMetadata {
   ownershipSource: AuditOwnershipSource;
   sourceId?: string;
-  agenticRole?: AgenticSkillFileRole;
+  agenticRole?: AgenticFileRole;
+  agenticOwnership?: AgenticOwnershipMetadata;
   skillExposure?: SkillExposureMetadata;
 }
 
 export interface AuditCandidateMetadata extends AuditPathMetadata {
   ownershipSource?: AuditOwnershipSource;
   sourceId?: string;
-  agenticRole?: AgenticSkillFileRole;
+  agenticRole?: AgenticFileRole;
+  agenticOwnership?: AgenticOwnershipMetadata;
   skillExposure?: SkillExposureMetadata;
 }
 

@@ -6,14 +6,14 @@ Implement plugin artifact modeling, shared payload storage, native harness expos
 
 ## Tasks
 
-- [ ] Add a plugin artifact kind or equivalent internal model distinct from skills and playbooks.
-- [ ] Add plugin id, title, summary, status, source manifest, ref/version, digest, provenance, trust policy, supported harness, scope, and support-status fields.
-- [ ] Resolve selected project-scope plugin payloads under `.make-docs/agentics/plugins/<plugin-id>/`.
-- [ ] Resolve selected global-scope plugin payloads under the home-scoped `.make-docs/agentics/plugins/<plugin-id>/`.
-- [ ] Expose Codex and Claude Code plugin payloads through W17 R3 native harness exposure, or through plugin-specific generated adapters where a harness requires an adapter.
-- [ ] Record canonical payload files, symlink exposures, managed copy mirrors, and generated adapters as separate ownership records.
-- [ ] Add dry-run output that displays payload and exposure paths separately.
-- [ ] Add fixtures for clean plugin payloads, symlink exposures, copy-mirror fallback, plugin-specific generated adapters, modified payloads, modified exposures, and user-authored harness files.
+- [x] Add a plugin artifact kind or equivalent internal model distinct from skills and playbooks.
+- [x] Add plugin id, title, summary, status, source manifest, ref/version, digest, provenance, trust policy, supported harness, scope, and support-status fields.
+- [x] Resolve selected project-scope plugin payloads under `.make-docs/agentics/plugins/<plugin-id>/`.
+- [x] Resolve selected global-scope plugin payloads under the home-scoped `.make-docs/agentics/plugins/<plugin-id>/`.
+- [x] Expose Codex and Claude Code plugin payloads through W17 R3 native harness exposure, or through plugin-specific generated adapters where a harness requires an adapter.
+- [x] Record canonical payload files, symlink exposures, managed copy mirrors, and generated adapters as separate ownership records.
+- [x] Add dry-run output that displays payload and exposure paths separately.
+- [x] Add fixtures for clean plugin payloads, symlink exposures, copy-mirror fallback, plugin-specific generated adapters, modified payloads, modified exposures, and user-authored harness files.
 
 ## Acceptance Criteria
 
@@ -25,3 +25,11 @@ Implement plugin artifact modeling, shared payload storage, native harness expos
 ## Validation Notes
 
 Cover both project and global scopes and both current harnesses: Codex and Claude Code.
+
+Validation completed:
+
+- `npm test -w packages/cli -- --run tests/plugin-substrate.test.ts --reporter=dot`
+- `npm test -w packages/cli -- --reporter=dot`
+- `npm run build -w packages/cli`
+
+Manual UAT remains deferred until the full W18 R2 wave is complete.
