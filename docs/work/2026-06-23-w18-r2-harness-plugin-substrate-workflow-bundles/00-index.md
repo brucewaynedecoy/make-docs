@@ -42,3 +42,9 @@ Implement the v2 plugin substrate and productized workflow bundle metadata descr
 ## Acceptance Gate
 
 Do not close W18 R2 while plugin installation is defaulted, while skill selection can imply plugin selection, while playbooks require plugins to be valid, or while plugin payloads, native exposures, and plugin-specific adapters cannot be distinguished by manifest, audit, backup, uninstall, dry-run, and migration output.
+
+## Wave Closeout
+
+W18 R2 is implemented through P1-P4. The final manual-test coverage decision is recorded in [2026-06-29-w18-r2-wave-closeout-and-manual-test-coverage.md](../../assets/archive/history/2026-06-29-w18-r2-wave-closeout-and-manual-test-coverage.md).
+
+Manual end-user UAT was not worthwhile for this wave because W18 R2 adds internal and maintainer-facing plugin substrate, manifest, audit, lifecycle, and workflow-bundle validation behavior without exposing a public plugin installation command, workflow-bundle runner, or end-user plugin selection surface. The meaningful verification is automated package validation, smoke packaging, and focused substrate/lifecycle/workflow-bundle tests.

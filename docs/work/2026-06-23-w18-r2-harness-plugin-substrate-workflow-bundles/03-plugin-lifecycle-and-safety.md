@@ -34,4 +34,4 @@ Validation completed:
 - `npm run build -w packages/cli`
 - `git diff --check`
 
-Manual UAT remains deferred until the full W18 R2 wave is complete.
+Manual UAT was deferred during phase execution. The final wave-level coverage decision is recorded in [2026-06-29-w18-r2-wave-closeout-and-manual-test-coverage.md](../../assets/archive/history/2026-06-29-w18-r2-wave-closeout-and-manual-test-coverage.md).
