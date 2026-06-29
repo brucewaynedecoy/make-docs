@@ -63,6 +63,12 @@ W18 R4 Phase 3 adds read-only harness capability evaluation:
 - `make-docs operations playbook-capabilities --repo-root <path> --harness <id> --requires-capability <id> --prefers-capability <id>` evaluates a request without mutating config or starting a run.
 - MCP exposes the same behavior through `make_docs_playbook_capabilities`.
 
+W18 R4 Phase 4 adds Make Docs-owned run-state primitives:
+
+- `make-docs operations playbook-run-start <ref> --repo-root <path> --harness <id> [--run-id <id>]` creates `.make-docs/runs/playbooks/<run-id>/state.json`.
+- `make-docs operations playbook-run-read --repo-root <path> --run-id <id>` reads saved run state for resume or audit.
+- MCP exposes `make_docs_playbook_run_start` behind `allowWrite=true` and `make_docs_playbook_run_read` as a read-only state inspection tool.
+
 ## Runner Pipeline
 
 The expected runner pipeline is:
@@ -127,6 +133,8 @@ State should capture enough information to resume or audit a run:
 
 Manifest state remains for managed installation ownership. It should not become the home for local harness capability knowledge or transient Playbook execution state.
 
+The implemented state creator records `stateSource: "make-docs"` and `harnessAssistsAreSourceOfTruth: false` so harness-native goal or long-running features remain assists rather than the recovery authority.
+
 ## Nested And Parallel Playbooks
 
 Nested Playbooks require explicit permission in the parent Playbook metadata. Parallel child runs require explicit permission and non-overlapping output-surface claims.
@@ -134,6 +142,8 @@ Nested Playbooks require explicit permission in the parent Playbook metadata. Pa
 The runner should treat each child Playbook as its own run with its own state, while the parent records child references and aggregate status. If output claims overlap, or if the runner cannot prove they are separate, execution stops for review.
 
 Default behavior is serial and gated. Parallelism is an opt-in capability, not a default optimization.
+
+The implemented child-run guard reads the parent run state before creating a child state file. Parent Playbooks default to `child_playbooks: none`; serial or parallel children require explicit parent metadata. Parallel child runs also fail when their output-surface claims overlap with the parent run or an existing child run.
 
 ## Plugin And Workflow Bundle Boundary
 

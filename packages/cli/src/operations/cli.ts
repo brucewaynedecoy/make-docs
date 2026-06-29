@@ -11,7 +11,9 @@ import {
 } from "./lifecycle";
 import {
   buildPlaybookCatalog,
+  createPlaybookRunState,
   evaluateHarnessCapabilities,
+  readPlaybookRunState,
   resolvePlaybook,
 } from "./playbook";
 import { OperationError } from "./types";
@@ -149,6 +151,34 @@ export async function runOperationsCommand(argv: string[]): Promise<void> {
         }),
       );
       return;
+    case "playbook-run-start":
+      printJson(
+        createPlaybookRunState({
+          repoRoot: path.resolve(options.values["repo-root"] ?? "."),
+          ref: requiredPositionals(options, operation).join(" "),
+          requestedStack: options.values.stack,
+          harness: requiredValue(options, "harness", operation),
+          runId: options.values["run-id"],
+          parentRunId: options.values["parent-run-id"],
+          executionMode: parseExecutionMode(options.values["execution-mode"]),
+          outputSurfaceClaims: options.arrays["output-surface"] ?? [],
+          currentStep: options.values["current-step"],
+          currentGate: options.values["current-gate"],
+          status: options.values.status as Parameters<typeof createPlaybookRunState>[0]["status"],
+          resumeHints: options.arrays["resume-hint"] ?? [],
+          requiredCapabilities: options.arrays["requires-capability"] ?? [],
+          preferredCapabilities: options.arrays["prefers-capability"] ?? [],
+        }),
+      );
+      return;
+    case "playbook-run-read":
+      printJson(
+        readPlaybookRunState({
+          repoRoot: path.resolve(options.values["repo-root"] ?? "."),
+          runId: requiredValue(options, "run-id", operation),
+        }),
+      );
+      return;
     default:
       throw new OperationError(`Unknown make-docs operation: ${operation}`);
   }
@@ -185,7 +215,16 @@ function parseOperationOptions(argv: string[]): OperationOptions {
       throw new OperationError(`\`${arg}\` requires a value.`);
     }
     index += 1;
-    if (["validation-command", "changed", "requires-capability", "prefers-capability"].includes(key)) {
+    if (
+      [
+        "validation-command",
+        "changed",
+        "requires-capability",
+        "prefers-capability",
+        "output-surface",
+        "resume-hint",
+      ].includes(key)
+    ) {
       arrays[key] = [...(arrays[key] ?? []), next];
     } else {
       values[key] = next;
@@ -214,6 +253,8 @@ function printOperationsHelp(): void {
       "  playbook-catalog",
       "  playbook-resolve",
       "  playbook-capabilities",
+      "  playbook-run-start",
+      "  playbook-run-read",
       "",
     ].join("\n"),
   );
@@ -253,6 +294,16 @@ function parseScope(value: string): "auto" | "staged" | "unstaged" | "full" {
     return value;
   }
   throw new OperationError("`--scope` must be auto, staged, unstaged, or full.");
+}
+
+function parseExecutionMode(value: string | undefined): "serial" | "parallel" | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+  if (value === "serial" || value === "parallel") {
+    return value;
+  }
+  throw new OperationError("Playbook run execution mode must be serial or parallel.");
 }
 
 function parseCloseoutMode(value: string): "commit" | "phase" {

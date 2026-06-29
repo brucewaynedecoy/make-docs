@@ -11,7 +11,9 @@ export {
 } from "./operations/lifecycle";
 export {
   buildPlaybookCatalog,
+  createPlaybookRunState,
   evaluateHarnessCapabilities,
+  readPlaybookRunState,
   resolvePlaybook,
 } from "./operations/playbook";
 export { OperationError } from "./operations/types";

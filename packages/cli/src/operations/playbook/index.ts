@@ -1,4 +1,4 @@
-import { existsSync, readdirSync, statSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { parseDocument } from "yaml";
 import {
@@ -7,8 +7,18 @@ import {
   type HarnessCapabilityId,
   type HarnessCapabilityRecord,
 } from "../../config";
-import { normalizeRelativePath, readTextFile } from "../../utils";
-import { findRepoRoot, repoRelativePath } from "../shared";
+import {
+  createRunId,
+  normalizeRelativePath,
+  readTextFile,
+} from "../../utils";
+import {
+  loadJsonFile,
+  findRepoRoot,
+  normalizePath,
+  repoRelativePath,
+  utcNow,
+} from "../shared";
 import { OperationError, type JsonValue } from "../types";
 import type {
   OperationDomainDescriptor,
@@ -20,6 +30,17 @@ export const PLAYBOOK_STACKS = ["build", "run"] as const;
 
 export type PlaybookStack = (typeof PLAYBOOK_STACKS)[number];
 export type PlaybookSelectionMode = "explicit-path" | "qualified-ref" | "bare-ref";
+export type PlaybookChildPolicy = "none" | "serial" | "parallel";
+export type PlaybookConcurrencyPolicy = "serial" | "parallel-allowed" | "parallel-required";
+export type PlaybookRunExecutionMode = "serial" | "parallel";
+export type PlaybookRunStatus = "planned" | "running" | "paused" | "blocked" | "completed";
+
+export interface PlaybookRunMetadata {
+  requiresCapabilities: HarnessCapabilityId[];
+  prefersCapabilities: HarnessCapabilityId[];
+  childPlaybooks: PlaybookChildPolicy;
+  concurrency: PlaybookConcurrencyPolicy;
+}
 
 export interface PlaybookCatalogEntry {
   path: string;
@@ -30,6 +51,7 @@ export interface PlaybookCatalogEntry {
   title: string;
   summary: string;
   status: string;
+  run: PlaybookRunMetadata;
 }
 
 export interface PlaybookCatalog {
@@ -63,6 +85,39 @@ export interface HarnessCapabilityEvaluation {
   guidance: string[];
 }
 
+export interface PlaybookChildRunRecord {
+  runId: string;
+  playbookRef: string;
+  stack: PlaybookStack;
+  executionMode: PlaybookRunExecutionMode;
+  outputSurfaceClaims: string[];
+  status: PlaybookRunStatus;
+}
+
+export interface PlaybookRunState {
+  schemaVersion: 1;
+  runId: string;
+  rootRunId: string;
+  parentRunId: string | null;
+  playbookRef: string;
+  playbookPath: string;
+  stack: PlaybookStack;
+  harness: string;
+  capabilitySnapshot: HarnessCapabilityEvaluation;
+  currentStep: string | null;
+  currentGate: string | null;
+  childPolicy: PlaybookChildPolicy;
+  concurrencyPolicy: PlaybookConcurrencyPolicy;
+  childRuns: PlaybookChildRunRecord[];
+  outputSurfaceClaims: string[];
+  status: PlaybookRunStatus;
+  resumeHints: string[];
+  stateSource: "make-docs";
+  harnessAssistsAreSourceOfTruth: false;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export const playbookDomain: OperationDomainDescriptor = {
   name: "playbook",
   summary: "Run Playbook resolver, catalog, capability, and state operations.",
@@ -82,6 +137,18 @@ export const playbookDomain: OperationDomainDescriptor = {
     {
       name: "playbook-capabilities",
       summary: "Evaluate reviewed harness capabilities for a playbook execution request.",
+      mutates: false,
+      renderModes: ["json"],
+    },
+    {
+      name: "playbook-run-start",
+      summary: "Create Make Docs-owned Playbook run state before execution begins.",
+      mutates: true,
+      renderModes: ["json"],
+    },
+    {
+      name: "playbook-run-read",
+      summary: "Read Make Docs-owned Playbook run state for resume or audit.",
       mutates: false,
       renderModes: ["json"],
     },
@@ -304,6 +371,144 @@ export function readHarnessCapabilityEvaluation(input: {
   };
 }
 
+export function createPlaybookRunState(input: {
+  repoRoot?: string;
+  ref: string;
+  requestedStack?: string | null;
+  harness: string;
+  requiredCapabilities?: string[];
+  preferredCapabilities?: string[];
+  runId?: string;
+  parentRunId?: string | null;
+  executionMode?: PlaybookRunExecutionMode;
+  outputSurfaceClaims?: string[];
+  currentStep?: string | null;
+  currentGate?: string | null;
+  status?: PlaybookRunStatus;
+  resumeHints?: string[];
+}): { statePath: string; state: PlaybookRunState; parentStatePath: string | null } {
+  const repoRoot = findRepoRoot(input.repoRoot);
+  const resolution = resolvePlaybook({
+    repoRoot,
+    ref: input.ref,
+    requestedStack: input.requestedStack,
+  });
+  const entry = resolution.entry;
+  const runId = input.runId ?? createRunId();
+  const parentRunId = input.parentRunId ?? null;
+  const executionMode = input.executionMode ?? "serial";
+  const outputSurfaceClaims = normalizeOutputSurfaceClaims(input.outputSurfaceClaims ?? []);
+  const parent = parentRunId ? readPlaybookRunState({ repoRoot, runId: parentRunId }) : null;
+  validateChildRunRequest({
+    entry,
+    executionMode,
+    outputSurfaceClaims,
+    parent,
+  });
+  const capabilitySnapshot = evaluateHarnessCapabilities({
+    repoRoot,
+    harness: input.harness,
+    requiredCapabilities: [
+      ...entry.run.requiresCapabilities,
+      ...(input.requiredCapabilities ?? []),
+    ],
+    preferredCapabilities: [
+      ...entry.run.prefersCapabilities,
+      ...(input.preferredCapabilities ?? []),
+    ],
+  });
+  const now = utcNow();
+  const state: PlaybookRunState = {
+    schemaVersion: 1,
+    runId,
+    rootRunId: parent?.rootRunId ?? runId,
+    parentRunId,
+    playbookRef: entry.ref,
+    playbookPath: entry.path,
+    stack: entry.stack,
+    harness: input.harness,
+    capabilitySnapshot,
+    currentStep: input.currentStep ?? null,
+    currentGate: input.currentGate ?? null,
+    childPolicy: entry.run.childPlaybooks,
+    concurrencyPolicy: entry.run.concurrency,
+    childRuns: [],
+    outputSurfaceClaims,
+    status: parseRunStatus(input.status ?? "planned"),
+    resumeHints: input.resumeHints ?? [],
+    stateSource: "make-docs",
+    harnessAssistsAreSourceOfTruth: false,
+    createdAt: now,
+    updatedAt: now,
+  };
+  const statePath = playbookRunStatePath(repoRoot, runId);
+  mkdirSync(path.dirname(statePath), { recursive: true });
+  writeFileSync(statePath, `${JSON.stringify(state, null, 2)}\n`, "utf8");
+
+  let parentStatePath: string | null = null;
+  if (parent) {
+    const updatedParent = {
+      ...parent,
+      childRuns: [
+        ...parent.childRuns.filter((child) => child.runId !== runId),
+        {
+          runId,
+          playbookRef: state.playbookRef,
+          stack: state.stack,
+          executionMode,
+          outputSurfaceClaims,
+          status: state.status,
+        },
+      ],
+      updatedAt: now,
+    };
+    parentStatePath = playbookRunStatePath(repoRoot, parent.runId);
+    writeFileSync(parentStatePath, `${JSON.stringify(updatedParent, null, 2)}\n`, "utf8");
+  }
+
+  return { statePath, state, parentStatePath };
+}
+
+export function readPlaybookRunState(input: {
+  repoRoot?: string;
+  runId: string;
+}): PlaybookRunState {
+  const repoRoot = findRepoRoot(input.repoRoot);
+  const statePath = playbookRunStatePath(repoRoot, input.runId);
+  const value = loadJsonFile(statePath);
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    throw new OperationError(`No Playbook run state found for run id \`${input.runId}\`.`);
+  }
+  return value as unknown as PlaybookRunState;
+}
+
+export function writePlaybookRunState(input: Parameters<typeof createPlaybookRunState>[0]): OperationResult<JsonValue> {
+  return {
+    value: createPlaybookRunState(input) as unknown as JsonValue,
+    provenance: {
+      domain: "playbook",
+      operation: "playbook-run-start",
+      source: "shared",
+      target: input.ref,
+    },
+  };
+}
+
+export function inspectPlaybookRunState(input: {
+  repoRoot?: string;
+  runId: string;
+}): OperationResult<JsonValue> {
+  return {
+    value: readPlaybookRunState(input) as unknown as JsonValue,
+    provenance: {
+      domain: "playbook",
+      operation: "playbook-run-read",
+      source: "shared",
+      target: input.runId,
+    },
+  };
+}
+
 function parsePlaybookFile(
   filePath: string,
   repoRoot: string,
@@ -326,6 +531,7 @@ function parsePlaybookFile(
   const title = stringField(metadata, "title");
   const summary = stringField(metadata, "summary");
   const status = stringField(metadata, "status") ?? "unknown";
+  const run = parseRunMetadata(metadata.run, relativePath, diagnostics);
 
   if (kind !== "playbook") {
     diagnostics.push({ path: relativePath, message: "Playbook frontmatter must declare kind: playbook." });
@@ -349,7 +555,7 @@ function parsePlaybookFile(
     });
   }
 
-  if (diagnostics.length > 0) {
+  if (diagnostics.length > 0 || !run) {
     return { entry: null, diagnostics };
   }
 
@@ -363,8 +569,45 @@ function parsePlaybookFile(
       title: title!,
       summary: summary!,
       status,
+      run,
     },
     diagnostics: [],
+  };
+}
+
+function parseRunMetadata(
+  value: unknown,
+  relativePath: string,
+  diagnostics: Array<{ path: string; message: string }>,
+): PlaybookRunMetadata | null {
+  const defaults: PlaybookRunMetadata = {
+    requiresCapabilities: [],
+    prefersCapabilities: [],
+    childPlaybooks: "none",
+    concurrency: "serial",
+  };
+  if (value === undefined) {
+    return defaults;
+  }
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    diagnostics.push({ path: relativePath, message: "Playbook run metadata must be an object." });
+    return null;
+  }
+
+  const record = value as Record<string, unknown>;
+  const requiresCapabilities = parseRunCapabilityList(record.requires_capabilities, relativePath, diagnostics, "run.requires_capabilities");
+  const prefersCapabilities = parseRunCapabilityList(record.prefers_capabilities, relativePath, diagnostics, "run.prefers_capabilities");
+  const childPlaybooks = parseChildPolicy(record.child_playbooks, relativePath, diagnostics);
+  const concurrency = parseConcurrencyPolicy(record.concurrency, relativePath, diagnostics);
+  if (!requiresCapabilities || !prefersCapabilities || !childPlaybooks || !concurrency) {
+    return null;
+  }
+
+  return {
+    requiresCapabilities,
+    prefersCapabilities,
+    childPlaybooks,
+    concurrency,
   };
 }
 
@@ -488,6 +731,67 @@ function parseCapabilityList(values: string[]): HarnessCapabilityId[] {
   return [...new Set(capabilities)];
 }
 
+function parseRunCapabilityList(
+  value: unknown,
+  relativePath: string,
+  diagnostics: Array<{ path: string; message: string }>,
+  key: string,
+): HarnessCapabilityId[] | null {
+  if (value === undefined) {
+    return [];
+  }
+  if (!Array.isArray(value)) {
+    diagnostics.push({ path: relativePath, message: `${key} must be an array of capability ids.` });
+    return null;
+  }
+  try {
+    return parseCapabilityList(value.map(String));
+  } catch (error) {
+    diagnostics.push({
+      path: relativePath,
+      message: error instanceof Error ? error.message : String(error),
+    });
+    return null;
+  }
+}
+
+function parseChildPolicy(
+  value: unknown,
+  relativePath: string,
+  diagnostics: Array<{ path: string; message: string }>,
+): PlaybookChildPolicy | null {
+  if (value === undefined) {
+    return "none";
+  }
+  if (value === "none" || value === "serial" || value === "parallel") {
+    return value;
+  }
+  diagnostics.push({ path: relativePath, message: "run.child_playbooks must be none, serial, or parallel." });
+  return null;
+}
+
+function parseConcurrencyPolicy(
+  value: unknown,
+  relativePath: string,
+  diagnostics: Array<{ path: string; message: string }>,
+): PlaybookConcurrencyPolicy | null {
+  if (value === undefined) {
+    return "serial";
+  }
+  if (value === "serial" || value === "parallel-allowed" || value === "parallel-required") {
+    return value;
+  }
+  diagnostics.push({ path: relativePath, message: "run.concurrency must be serial, parallel-allowed, or parallel-required." });
+  return null;
+}
+
+function parseRunStatus(value: string): PlaybookRunStatus {
+  if (value === "planned" || value === "running" || value === "paused" || value === "blocked" || value === "completed") {
+    return value;
+  }
+  throw new OperationError("Playbook run status must be planned, running, paused, blocked, or completed.");
+}
+
 function filterCapabilityState(
   capabilities: HarnessCapabilityId[],
   reviewedCapabilities: Partial<Record<HarnessCapabilityId, boolean>>,
@@ -521,4 +825,59 @@ function buildCapabilityGuidance(input: {
     guidance.push("Reviewed harness capability record satisfies this request.");
   }
   return guidance;
+}
+
+function playbookRunStatePath(repoRoot: string, runId: string): string {
+  return path.join(repoRoot, ".make-docs", "runs", "playbooks", runId, "state.json");
+}
+
+function normalizeOutputSurfaceClaims(claims: string[]): string[] {
+  return [...new Set(claims.map((claim) => normalizePath(claim.trim()).replace(/\/+$/, "")).filter(Boolean))];
+}
+
+function validateChildRunRequest(input: {
+  entry: PlaybookCatalogEntry;
+  executionMode: PlaybookRunExecutionMode;
+  outputSurfaceClaims: string[];
+  parent: PlaybookRunState | null;
+}): void {
+  const { executionMode, outputSurfaceClaims, parent } = input;
+  if (!parent) {
+    return;
+  }
+  if (parent.childPolicy === "none") {
+    throw new OperationError(`Parent run \`${parent.runId}\` does not permit child playbooks.`);
+  }
+  if (executionMode === "parallel" && parent.childPolicy !== "parallel") {
+    throw new OperationError(`Parent run \`${parent.runId}\` does not permit parallel child playbooks.`);
+  }
+  if (executionMode === "parallel") {
+    const overlap = findOutputSurfaceOverlap(outputSurfaceClaims, [
+      parent.outputSurfaceClaims,
+      ...parent.childRuns.map((child) => child.outputSurfaceClaims),
+    ].flat());
+    if (overlap) {
+      throw new OperationError(
+        `Parallel child playbook output-surface claims overlap with an existing run: ${overlap[0]} and ${overlap[1]}.`,
+      );
+    }
+  }
+}
+
+function findOutputSurfaceOverlap(
+  proposedClaims: string[],
+  existingClaims: string[],
+): [string, string] | null {
+  for (const proposed of proposedClaims) {
+    for (const existing of existingClaims) {
+      if (claimsOverlap(proposed, existing)) {
+        return [proposed, existing];
+      }
+    }
+  }
+  return null;
+}
+
+function claimsOverlap(left: string, right: string): boolean {
+  return left === right || left.startsWith(`${right}/`) || right.startsWith(`${left}/`);
 }

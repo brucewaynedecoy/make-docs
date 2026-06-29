@@ -3,7 +3,9 @@ import path from "node:path";
 import { afterEach, describe, expect, test } from "vitest";
 import {
   buildPlaybookCatalog,
+  createPlaybookRunState,
   evaluateHarnessCapabilities,
+  readPlaybookRunState,
   resolvePlaybook,
 } from "../src/operations";
 import { cleanupTempDir, createTempDir } from "./helpers";
@@ -226,5 +228,156 @@ describe("playbook operation domain", () => {
         unknownRequired: ["goal_managed_execution"],
       }),
     );
+  });
+
+  test("creates Make Docs-owned run state with resolver and capability snapshots", () => {
+    const root = createTempDir("make-docs-playbooks-");
+    tempRoots.push(root);
+    writeFile(
+      root,
+      ".make-docs/config.yaml",
+      [
+        "harnessCapabilities:",
+        "  - harness: codex",
+        "    reviewStatus: reviewed",
+        "    capabilities:",
+        "      goal_managed_execution: true",
+        "",
+      ].join("\n"),
+    );
+    writeFile(
+      root,
+      "docs/assets/playbooks/user/use-system.md",
+      [
+        "---",
+        "title: Use System",
+        "kind: playbook",
+        "status: accepted",
+        "persona: user",
+        "stack: run",
+        "summary: Use system summary.",
+        "run:",
+        "  requires_capabilities:",
+        "    - goal_managed_execution",
+        "  child_playbooks: serial",
+        "  concurrency: serial",
+        "---",
+        "",
+        "# Use System",
+        "",
+      ].join("\n"),
+    );
+
+    const result = createPlaybookRunState({
+      repoRoot: root,
+      ref: "user/use-system",
+      requestedStack: "run",
+      harness: "codex",
+      runId: "root-run",
+      outputSurfaceClaims: ["docs/assets/archive/history"],
+      currentStep: "start",
+      currentGate: "review",
+      status: "paused",
+      resumeHints: ["Resume after review."],
+    });
+
+    expect(result.statePath).toBe(path.join(root, ".make-docs/runs/playbooks/root-run/state.json"));
+    expect(result.state).toEqual(
+      expect.objectContaining({
+        runId: "root-run",
+        rootRunId: "root-run",
+        parentRunId: null,
+        playbookRef: "user/use-system",
+        stack: "run",
+        harness: "codex",
+        currentStep: "start",
+        currentGate: "review",
+        childPolicy: "serial",
+        outputSurfaceClaims: ["docs/assets/archive/history"],
+        status: "paused",
+        resumeHints: ["Resume after review."],
+        stateSource: "make-docs",
+        harnessAssistsAreSourceOfTruth: false,
+      }),
+    );
+    expect(readPlaybookRunState({ repoRoot: root, runId: "root-run" }).runId).toBe("root-run");
+  });
+
+  test("requires parent permission before creating child playbook runs", () => {
+    const root = createTempDir("make-docs-playbooks-");
+    tempRoots.push(root);
+    writePlaybook(root, "user", "parent", "run", "Parent");
+    writePlaybook(root, "user", "child", "run", "Child");
+    createPlaybookRunState({
+      repoRoot: root,
+      ref: "user/parent",
+      requestedStack: "run",
+      harness: "codex",
+      runId: "parent-run",
+    });
+
+    expect(() => createPlaybookRunState({
+      repoRoot: root,
+      ref: "user/child",
+      requestedStack: "run",
+      harness: "codex",
+      runId: "child-run",
+      parentRunId: "parent-run",
+    })).toThrow("does not permit child playbooks");
+  });
+
+  test("stops parallel child runs with overlapping output-surface claims", () => {
+    const root = createTempDir("make-docs-playbooks-");
+    tempRoots.push(root);
+    writeFile(
+      root,
+      "docs/assets/playbooks/user/parent.md",
+      [
+        "---",
+        "title: Parent",
+        "kind: playbook",
+        "status: accepted",
+        "persona: user",
+        "stack: run",
+        "summary: Parent summary.",
+        "run:",
+        "  child_playbooks: parallel",
+        "  concurrency: parallel-allowed",
+        "---",
+        "",
+        "# Parent",
+        "",
+      ].join("\n"),
+    );
+    writePlaybook(root, "user", "child-a", "run", "Child A");
+    writePlaybook(root, "user", "child-b", "run", "Child B");
+    createPlaybookRunState({
+      repoRoot: root,
+      ref: "user/parent",
+      requestedStack: "run",
+      harness: "codex",
+      runId: "parent-run",
+    });
+    createPlaybookRunState({
+      repoRoot: root,
+      ref: "user/child-a",
+      requestedStack: "run",
+      harness: "codex",
+      runId: "child-a",
+      parentRunId: "parent-run",
+      executionMode: "parallel",
+      outputSurfaceClaims: ["docs/prd"],
+    });
+
+    expect(() => createPlaybookRunState({
+      repoRoot: root,
+      ref: "user/child-b",
+      requestedStack: "run",
+      harness: "codex",
+      runId: "child-b",
+      parentRunId: "parent-run",
+      executionMode: "parallel",
+      outputSurfaceClaims: ["docs/prd/29-revise-playbook-contract-run-playbook.md"],
+    })).toThrow("output-surface claims overlap");
   });
 });

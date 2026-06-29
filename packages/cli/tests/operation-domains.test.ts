@@ -10,6 +10,7 @@ import {
   readPlaybookCatalog,
   readHarnessCapabilityEvaluation,
   readPlaybookResolution,
+  writePlaybookRunState,
   probeCloseout,
   readWorkPhaseState,
 } from "../src/operations/index";
@@ -64,6 +65,8 @@ describe("operation domain modules", () => {
           expect.objectContaining({ name: "playbook-catalog", mutates: false }),
           expect.objectContaining({ name: "playbook-resolve", mutates: false }),
           expect.objectContaining({ name: "playbook-capabilities", mutates: false }),
+          expect.objectContaining({ name: "playbook-run-start", mutates: true }),
+          expect.objectContaining({ name: "playbook-run-read", mutates: false }),
         ],
       }),
     ]);
@@ -221,6 +224,24 @@ describe("operation domain modules", () => {
         status: "serial-gated-fallback",
         satisfiedRequired: ["goal_managed_execution"],
         fallbackPreferred: ["parallel_playbook_runs"],
+      }),
+    );
+    const run = writePlaybookRunState({
+      repoRoot: root,
+      ref: "user/use-system",
+      requestedStack: "run",
+      harness: "codex",
+      runId: "root-run",
+      outputSurfaceClaims: ["docs/assets/archive/history"],
+    });
+    expect(run.provenance.operation).toBe("playbook-run-start");
+    expect(run.value).toEqual(
+      expect.objectContaining({
+        state: expect.objectContaining({
+          runId: "root-run",
+          stateSource: "make-docs",
+          harnessAssistsAreSourceOfTruth: false,
+        }),
       }),
     );
     expect(resolution.value).toEqual(

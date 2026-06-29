@@ -18,11 +18,11 @@ Define Make Docs-owned playbook run state under `.make-docs/runs/playbooks/**`, 
 
 ### Tasks
 
-- [ ] t1: Create `.make-docs/runs/playbooks/<run-id>/state.json` for Make Docs Run Playbook surfaces.
-- [ ] t2: Record root/parent run ids, playbook ref, stack, harness, capability snapshot, step/gate, child runs, output-surface claims, status, and resume hints.
-- [ ] t3: Treat harness goal or long-running features as assists rather than the Make Docs state source of truth.
-- [ ] t4: Permit child playbooks only when the parent playbook explicitly allows them.
-- [ ] t5: Permit parallel child runs only with explicit permission and non-overlapping output-surface claims.
+- [x] t1: Create `.make-docs/runs/playbooks/<run-id>/state.json` for Make Docs Run Playbook surfaces.
+- [x] t2: Record root/parent run ids, playbook ref, stack, harness, capability snapshot, step/gate, child runs, output-surface claims, status, and resume hints.
+- [x] t3: Treat harness goal or long-running features as assists rather than the Make Docs state source of truth.
+- [x] t4: Permit child playbooks only when the parent playbook explicitly allows them.
+- [x] t5: Permit parallel child runs only with explicit permission and non-overlapping output-surface claims.
 
 ### Acceptance criteria
 

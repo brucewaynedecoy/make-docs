@@ -15,7 +15,9 @@ import {
 import { listOperationDomains } from "../operations/index";
 import {
   buildPlaybookCatalog,
+  createPlaybookRunState,
   evaluateHarnessCapabilities,
+  readPlaybookRunState,
   resolvePlaybook,
 } from "../operations/playbook";
 import {
@@ -46,7 +48,9 @@ type McpToolName =
   | "make_docs_phase_gate"
   | "make_docs_playbook_catalog"
   | "make_docs_playbook_resolve"
-  | "make_docs_playbook_capabilities";
+  | "make_docs_playbook_capabilities"
+  | "make_docs_playbook_run_start"
+  | "make_docs_playbook_run_read";
 
 type McpToolInput = Record<string, unknown>;
 
@@ -207,6 +211,38 @@ export const MAKE_DOCS_MCP_TOOLS: MakeDocsMcpToolDescriptor[] = [
       preferredCapabilities: z.array(z.string()).optional(),
     },
   },
+  {
+    name: "make_docs_playbook_run_start",
+    title: "Create Playbook Run State",
+    description:
+      "Create Make Docs-owned Playbook run state. Requires allowWrite=true because it writes .make-docs/runs/playbooks/**.",
+    inputSchema: {
+      repoRoot: repoRootSchema,
+      ref: z.string(),
+      stack: z.enum(["build", "run"]).optional(),
+      harness: z.string(),
+      runId: z.string().optional(),
+      parentRunId: z.string().optional(),
+      executionMode: z.enum(["serial", "parallel"]).optional(),
+      outputSurfaceClaims: z.array(z.string()).optional(),
+      currentStep: z.string().optional(),
+      currentGate: z.string().optional(),
+      status: z.enum(["planned", "running", "paused", "blocked", "completed"]).optional(),
+      resumeHints: z.array(z.string()).optional(),
+      requiredCapabilities: z.array(z.string()).optional(),
+      preferredCapabilities: z.array(z.string()).optional(),
+      allowWrite: z.boolean().optional(),
+    },
+  },
+  {
+    name: "make_docs_playbook_run_read",
+    title: "Read Playbook Run State",
+    description: "Read Make Docs-owned Playbook run state for resume or audit.",
+    inputSchema: {
+      repoRoot: repoRootSchema,
+      runId: z.string(),
+    },
+  },
 ];
 
 export async function callMakeDocsMcpTool(
@@ -287,6 +323,37 @@ export async function callMakeDocsMcpTool(
           harness: requiredString(args, "harness"),
           requiredCapabilities: optionalStringArray(args, "requiredCapabilities"),
           preferredCapabilities: optionalStringArray(args, "preferredCapabilities"),
+        }),
+      );
+    case "make_docs_playbook_run_start":
+      if (args.allowWrite !== true) {
+        throw new Error("`make_docs_playbook_run_start` requires allowWrite=true.");
+      }
+      return mcpPayload(
+        name,
+        createPlaybookRunState({
+          repoRoot: resolveRepoRoot(args),
+          ref: requiredString(args, "ref"),
+          requestedStack: optionalString(args, "stack"),
+          harness: requiredString(args, "harness"),
+          runId: optionalString(args, "runId"),
+          parentRunId: optionalString(args, "parentRunId"),
+          executionMode: optionalString(args, "executionMode") as "serial" | "parallel" | undefined,
+          outputSurfaceClaims: optionalStringArray(args, "outputSurfaceClaims"),
+          currentStep: optionalString(args, "currentStep"),
+          currentGate: optionalString(args, "currentGate"),
+          status: optionalString(args, "status") as Parameters<typeof createPlaybookRunState>[0]["status"],
+          resumeHints: optionalStringArray(args, "resumeHints"),
+          requiredCapabilities: optionalStringArray(args, "requiredCapabilities"),
+          preferredCapabilities: optionalStringArray(args, "preferredCapabilities"),
+        }),
+      );
+    case "make_docs_playbook_run_read":
+      return mcpPayload(
+        name,
+        readPlaybookRunState({
+          repoRoot: resolveRepoRoot(args),
+          runId: requiredString(args, "runId"),
         }),
       );
     default:

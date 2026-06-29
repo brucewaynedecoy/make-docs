@@ -51,6 +51,8 @@ describe("make-docs MCP runtime", () => {
       "make_docs_playbook_catalog",
       "make_docs_playbook_resolve",
       "make_docs_playbook_capabilities",
+      "make_docs_playbook_run_start",
+      "make_docs_playbook_run_read",
     ]);
   });
 
@@ -182,6 +184,16 @@ describe("make-docs MCP runtime", () => {
         satisfiedRequired: ["goal_managed_execution"],
       }),
     );
+  });
+
+  test("requires explicit approval before writing playbook run state through MCP", async () => {
+    await expect(
+      callMakeDocsMcpTool("make_docs_playbook_run_start", {
+        repoRoot: ".",
+        ref: "user/use-system",
+        harness: "codex",
+      }),
+    ).rejects.toThrow("allowWrite=true");
   });
 
   test("requires explicit approval before running closeout validation commands", async () => {
