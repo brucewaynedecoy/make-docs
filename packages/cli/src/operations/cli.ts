@@ -11,6 +11,7 @@ import {
 } from "./lifecycle";
 import {
   buildPlaybookCatalog,
+  evaluateHarnessCapabilities,
   resolvePlaybook,
 } from "./playbook";
 import { OperationError } from "./types";
@@ -138,6 +139,16 @@ export async function runOperationsCommand(argv: string[]): Promise<void> {
         }),
       );
       return;
+    case "playbook-capabilities":
+      printJson(
+        evaluateHarnessCapabilities({
+          repoRoot: path.resolve(options.values["repo-root"] ?? "."),
+          harness: requiredValue(options, "harness", operation),
+          requiredCapabilities: options.arrays["requires-capability"] ?? [],
+          preferredCapabilities: options.arrays["prefers-capability"] ?? [],
+        }),
+      );
+      return;
     default:
       throw new OperationError(`Unknown make-docs operation: ${operation}`);
   }
@@ -174,7 +185,7 @@ function parseOperationOptions(argv: string[]): OperationOptions {
       throw new OperationError(`\`${arg}\` requires a value.`);
     }
     index += 1;
-    if (["validation-command", "changed"].includes(key)) {
+    if (["validation-command", "changed", "requires-capability", "prefers-capability"].includes(key)) {
       arrays[key] = [...(arrays[key] ?? []), next];
     } else {
       values[key] = next;
@@ -202,6 +213,7 @@ function printOperationsHelp(): void {
       "  phase-gate",
       "  playbook-catalog",
       "  playbook-resolve",
+      "  playbook-capabilities",
       "",
     ].join("\n"),
   );

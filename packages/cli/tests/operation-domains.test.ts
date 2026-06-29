@@ -8,6 +8,7 @@ import {
   guardPhaseScope,
   listOperationDomains,
   readPlaybookCatalog,
+  readHarnessCapabilityEvaluation,
   readPlaybookResolution,
   probeCloseout,
   readWorkPhaseState,
@@ -62,6 +63,7 @@ describe("operation domain modules", () => {
         commands: [
           expect.objectContaining({ name: "playbook-catalog", mutates: false }),
           expect.objectContaining({ name: "playbook-resolve", mutates: false }),
+          expect.objectContaining({ name: "playbook-capabilities", mutates: false }),
         ],
       }),
     ]);
@@ -169,6 +171,19 @@ describe("operation domain modules", () => {
     execFileSync("git", ["init"], { cwd: root, stdio: "ignore" });
     writeFile(
       root,
+      ".make-docs/config.yaml",
+      [
+        "harnessCapabilities:",
+        "  - harness: codex",
+        "    reviewStatus: reviewed",
+        "    capabilities:",
+        "      goal_managed_execution: true",
+        "      parallel_playbook_runs: false",
+        "",
+      ].join("\n"),
+    );
+    writeFile(
+      root,
       "docs/assets/playbooks/user/use-system.md",
       [
         "---",
@@ -191,9 +206,23 @@ describe("operation domain modules", () => {
       ref: "user/use-system",
       requestedStack: "run",
     });
+    const capabilities = readHarnessCapabilityEvaluation({
+      repoRoot: root,
+      harness: "codex",
+      requiredCapabilities: ["goal_managed_execution"],
+      preferredCapabilities: ["parallel_playbook_runs"],
+    });
 
     expect(catalog.provenance.operation).toBe("playbook-catalog");
     expect(resolution.provenance.operation).toBe("playbook-resolve");
+    expect(capabilities.provenance.operation).toBe("playbook-capabilities");
+    expect(capabilities.value).toEqual(
+      expect.objectContaining({
+        status: "serial-gated-fallback",
+        satisfiedRequired: ["goal_managed_execution"],
+        fallbackPreferred: ["parallel_playbook_runs"],
+      }),
+    );
     expect(resolution.value).toEqual(
       expect.objectContaining({
         mode: "qualified-ref",

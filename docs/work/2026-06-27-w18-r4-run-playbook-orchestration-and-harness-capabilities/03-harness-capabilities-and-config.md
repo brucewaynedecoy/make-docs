@@ -18,11 +18,11 @@ Add the `harnessCapabilities` config contract, capability ids, unknown-capabilit
 
 ### Tasks
 
-- [ ] t1: Add config schema support for reviewed `harnessCapabilities` records.
-- [ ] t2: Use canonical capability ids for goal management, long-running runs, resume, parallel runs, subagent delegation, and user gate prompts.
-- [ ] t3: Require review before persisting newly discovered capability facts.
-- [ ] t4: Fall back to serial gated execution for optional unknown capabilities.
-- [ ] t5: Stop with manual review when a required capability is unknown or unsupported.
+- [x] t1: Add config schema support for reviewed `harnessCapabilities` records.
+- [x] t2: Use canonical capability ids for goal management, long-running runs, resume, parallel runs, subagent delegation, and user gate prompts.
+- [x] t3: Require review before persisting newly discovered capability facts.
+- [x] t4: Fall back to serial gated execution for optional unknown capabilities.
+- [x] t5: Stop with manual review when a required capability is unknown or unsupported.
 
 ### Acceptance criteria
 

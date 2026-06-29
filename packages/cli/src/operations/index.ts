@@ -18,7 +18,9 @@ export { closeoutDomain, probeCloseout } from "./closeout";
 export { lifecycleDomain, checkpointPhase, gatePhase, guardPhaseScope } from "./lifecycle";
 export {
   buildPlaybookCatalog,
+  evaluateHarnessCapabilities,
   playbookDomain,
+  readHarnessCapabilityEvaluation,
   readPlaybookCatalog,
   readPlaybookResolution,
   resolvePlaybook,

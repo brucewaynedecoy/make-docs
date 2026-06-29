@@ -56,6 +56,13 @@ W18 R4 Phase 2 adds the first read-only playbook operation primitives:
 - `make-docs operations playbook-resolve <ref> --repo-root <path> [--stack build|run]` resolves an explicit path, `persona/slug`, or unique bare slug/title before any execution behavior starts.
 - MCP exposes the same resolver primitives through `make_docs_playbook_catalog` and `make_docs_playbook_resolve`.
 
+W18 R4 Phase 3 adds read-only harness capability evaluation:
+
+- `.make-docs/config.yaml` may include `harnessCapabilities` records with `harness`, `reviewStatus`, `capabilities`, optional `source`, and optional `caveats`.
+- Canonical capability ids are `goal_managed_execution`, `long_running_runs`, `resume_after_interrupt`, `parallel_playbook_runs`, `subagent_delegation`, and `user_gate_prompts`.
+- `make-docs operations playbook-capabilities --repo-root <path> --harness <id> --requires-capability <id> --prefers-capability <id>` evaluates a request without mutating config or starting a run.
+- MCP exposes the same behavior through `make_docs_playbook_capabilities`.
+
 ## Runner Pipeline
 
 The expected runner pipeline is:
@@ -101,6 +108,8 @@ Harness features are optional execution assists. Make Docs can use features such
 Reviewed capability records live in `.make-docs/config.yaml`. The runner must not invent or silently persist a capability record. If a required capability is unknown, the run stops or asks the agent to inspect and request review. If an optional capability is unknown, the runner should fall back to serial gated execution.
 
 The capability model is a mediator between Make Docs and harness-specific behavior. It is not a replacement for Make Docs-owned run state.
+
+The implemented evaluator trusts only `reviewStatus: reviewed` records. Unreviewed records remain visible as evidence, but they are not execution authority. Required unknown or unsupported capabilities return `manual-review-required`; optional unavailable or unknown capabilities return `serial-gated-fallback`.
 
 ## Run State
 

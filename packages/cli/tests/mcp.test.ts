@@ -50,6 +50,7 @@ describe("make-docs MCP runtime", () => {
       "make_docs_phase_gate",
       "make_docs_playbook_catalog",
       "make_docs_playbook_resolve",
+      "make_docs_playbook_capabilities",
     ]);
   });
 
@@ -120,6 +121,18 @@ describe("make-docs MCP runtime", () => {
     tempRoots.push(root);
     writeFile(
       root,
+      ".make-docs/config.yaml",
+      [
+        "harnessCapabilities:",
+        "  - harness: codex",
+        "    reviewStatus: reviewed",
+        "    capabilities:",
+        "      goal_managed_execution: true",
+        "",
+      ].join("\n"),
+    );
+    writeFile(
+      root,
       "docs/assets/playbooks/user/use-system.md",
       [
         "---",
@@ -144,6 +157,11 @@ describe("make-docs MCP runtime", () => {
       ref: "user/use-system",
       stack: "run",
     });
+    const capabilities = await callMakeDocsMcpTool("make_docs_playbook_capabilities", {
+      repoRoot: root,
+      harness: "codex",
+      requiredCapabilities: ["goal_managed_execution"],
+    });
 
     expect(catalog.result).toEqual(
       expect.objectContaining({
@@ -156,6 +174,12 @@ describe("make-docs MCP runtime", () => {
       expect.objectContaining({
         mode: "qualified-ref",
         entry: expect.objectContaining({ ref: "user/use-system" }),
+      }),
+    );
+    expect(capabilities.result).toEqual(
+      expect.objectContaining({
+        status: "ready",
+        satisfiedRequired: ["goal_managed_execution"],
       }),
     );
   });

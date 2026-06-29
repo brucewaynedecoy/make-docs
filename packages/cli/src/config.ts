@@ -32,15 +32,34 @@ export const DOCUMENT_KIND_LABEL_KEYS = [
 
 export const COORDINATE_LABEL_KEYS = ["wave", "revision", "phase"] as const;
 
+export const HARNESS_CAPABILITY_IDS = [
+  "goal_managed_execution",
+  "long_running_runs",
+  "resume_after_interrupt",
+  "parallel_playbook_runs",
+  "subagent_delegation",
+  "user_gate_prompts",
+] as const;
+
 export type LifecycleLabelKey = (typeof LIFECYCLE_LABEL_KEYS)[number];
 export type DocumentKindLabelKey = (typeof DOCUMENT_KIND_LABEL_KEYS)[number];
 export type CoordinateLabelKey = (typeof COORDINATE_LABEL_KEYS)[number];
+export type HarnessCapabilityId = (typeof HARNESS_CAPABILITY_IDS)[number];
+export type HarnessCapabilityReviewStatus = "reviewed" | "unreviewed";
 
 export interface MakeDocsPersonaConfig {
   slug: string;
   label: string;
   description: string;
   primitive: PersonaPrimitive;
+}
+
+export interface HarnessCapabilityRecord {
+  harness: string;
+  reviewStatus: HarnessCapabilityReviewStatus;
+  capabilities: Partial<Record<HarnessCapabilityId, boolean>>;
+  source?: string;
+  caveats: string[];
 }
 
 export interface MakeDocsConfig {
@@ -51,11 +70,15 @@ export interface MakeDocsConfig {
   };
   personas: MakeDocsPersonaConfig[];
   generatedProse: Record<string, string>;
+  harnessCapabilities: HarnessCapabilityRecord[];
 }
 
 export interface MakeDocsConfigDiagnostic {
   code:
     | "duplicate-persona-slug"
+    | "duplicate-harness-capability-record"
+    | "invalid-harness-capability-id"
+    | "invalid-review-status"
     | "invalid-primitive"
     | "invalid-type"
     | "missing-required-key"
@@ -82,9 +105,16 @@ export interface ConfigRenderingLabels {
   personas: string;
 }
 
-const TOP_LEVEL_KEYS = new Set(["labels", "personas", "generatedProse"]);
+const TOP_LEVEL_KEYS = new Set(["labels", "personas", "generatedProse", "harnessCapabilities"]);
 const LABEL_GROUP_KEYS = new Set(["lifecycle", "documentKinds", "coordinates"]);
 const PERSONA_KEYS = new Set(["slug", "label", "description", "primitive"]);
+const HARNESS_CAPABILITY_RECORD_KEYS = new Set([
+  "harness",
+  "reviewStatus",
+  "capabilities",
+  "source",
+  "caveats",
+]);
 
 const STRUCTURAL_RENAME_KEYS = new Set([
   "contractName",
@@ -166,6 +196,7 @@ export function createDefaultMakeDocsConfig(): MakeDocsConfig {
       },
     },
     generatedProse: {},
+    harnessCapabilities: [],
     personas: [
       {
         slug: "agent",
@@ -293,6 +324,7 @@ export function loadMakeDocsConfig(targetDir: string): LoadedMakeDocsConfig {
   applyLabels(parsed.labels, config, configPath, diagnostics);
   applyGeneratedProse(parsed.generatedProse, config, configPath, diagnostics);
   applyPersonas(parsed.personas, config, configPath, diagnostics);
+  applyHarnessCapabilities(parsed.harnessCapabilities, config, configPath, diagnostics);
 
   if (diagnostics.length > 0) {
     return invalidConfigResult(configPath, diagnostics);
@@ -554,6 +586,129 @@ function applyPersonas(
   config.personas = [...personasBySlug.values()];
 }
 
+function applyHarnessCapabilities(
+  value: unknown,
+  config: MakeDocsConfig,
+  filePath: string,
+  diagnostics: MakeDocsConfigDiagnostic[],
+): void {
+  if (value === undefined) {
+    return;
+  }
+
+  if (!Array.isArray(value)) {
+    addInvalidTypeDiagnostic(diagnostics, filePath, "harnessCapabilities", "an array");
+    return;
+  }
+
+  const records: HarnessCapabilityRecord[] = [];
+  const harnesses = new Set<string>();
+  for (const [index, entry] of value.entries()) {
+    const entryPath = `harnessCapabilities[${index}]`;
+    if (!isPlainObject(entry)) {
+      addInvalidTypeDiagnostic(diagnostics, filePath, entryPath, "an object");
+      continue;
+    }
+
+    validateKeys({
+      allowedKeys: HARNESS_CAPABILITY_RECORD_KEYS,
+      diagnostics,
+      filePath,
+      keyPath: entryPath,
+      value: entry,
+    });
+
+    const harness = getRequiredString(entry, "harness", entryPath, filePath, diagnostics);
+    const reviewStatus = getRequiredString(entry, "reviewStatus", entryPath, filePath, diagnostics);
+    const capabilities = parseHarnessCapabilityMap(
+      entry.capabilities,
+      joinKeyPath(entryPath, "capabilities"),
+      filePath,
+      diagnostics,
+    );
+    const source = getOptionalString(entry, "source", entryPath, filePath, diagnostics);
+    const caveats = getOptionalStringArray(entry, "caveats", entryPath, filePath, diagnostics);
+
+    if (!harness || !reviewStatus || capabilities === null || caveats === null) {
+      continue;
+    }
+
+    if (harnesses.has(harness)) {
+      diagnostics.push({
+        code: "duplicate-harness-capability-record",
+        filePath,
+        keyPath: joinKeyPath(entryPath, "harness"),
+        message: `Invalid make-docs config at ${filePath} (${joinKeyPath(entryPath, "harness")}): duplicate harness capability record '${harness}'.`,
+      });
+      continue;
+    }
+    harnesses.add(harness);
+
+    if (reviewStatus !== "reviewed" && reviewStatus !== "unreviewed") {
+      diagnostics.push({
+        code: "invalid-review-status",
+        filePath,
+        keyPath: joinKeyPath(entryPath, "reviewStatus"),
+        message: `Invalid make-docs config at ${filePath} (${joinKeyPath(entryPath, "reviewStatus")}): reviewStatus must be reviewed or unreviewed.`,
+      });
+      continue;
+    }
+
+    records.push({
+      harness,
+      reviewStatus,
+      capabilities,
+      ...(source ? { source } : {}),
+      caveats,
+    });
+  }
+
+  config.harnessCapabilities = records;
+}
+
+function parseHarnessCapabilityMap(
+  value: unknown,
+  keyPath: string,
+  filePath: string,
+  diagnostics: MakeDocsConfigDiagnostic[],
+): HarnessCapabilityRecord["capabilities"] | null {
+  if (value === undefined) {
+    diagnostics.push({
+      code: "missing-required-key",
+      filePath,
+      keyPath,
+      message: `Invalid make-docs config at ${filePath} (${keyPath}): missing required key 'capabilities'.`,
+    });
+    return null;
+  }
+
+  if (!isPlainObject(value)) {
+    addInvalidTypeDiagnostic(diagnostics, filePath, keyPath, "an object");
+    return null;
+  }
+
+  const capabilities: HarnessCapabilityRecord["capabilities"] = {};
+  for (const [key, enabled] of Object.entries(value)) {
+    const capabilityPath = joinKeyPath(keyPath, key);
+    if (!HARNESS_CAPABILITY_IDS.includes(key as HarnessCapabilityId)) {
+      diagnostics.push({
+        code: "invalid-harness-capability-id",
+        filePath,
+        keyPath: capabilityPath,
+        message: `Invalid make-docs config at ${filePath} (${capabilityPath}): unknown harness capability id '${key}'.`,
+      });
+      continue;
+    }
+    if (typeof enabled !== "boolean") {
+      addInvalidTypeDiagnostic(diagnostics, filePath, capabilityPath, "a boolean");
+      continue;
+    }
+    capabilities[key as HarnessCapabilityId] = enabled;
+  }
+
+  return capabilities;
+}
+
 function validateKeys(options: {
   allowedKeys: Set<string>;
   diagnostics: MakeDocsConfigDiagnostic[];
@@ -607,6 +762,55 @@ function getRequiredString(
   }
 
   return candidate.trim();
+}
+
+function getOptionalString(
+  value: Record<string, unknown>,
+  key: string,
+  parentKeyPath: string,
+  filePath: string,
+  diagnostics: MakeDocsConfigDiagnostic[],
+): string | undefined {
+  if (!(key in value)) {
+    return undefined;
+  }
+
+  const candidate = value[key];
+  if (!isNonEmptyString(candidate)) {
+    addInvalidTypeDiagnostic(diagnostics, filePath, joinKeyPath(parentKeyPath, key), "a non-empty string");
+    return undefined;
+  }
+
+  return candidate.trim();
+}
+
+function getOptionalStringArray(
+  value: Record<string, unknown>,
+  key: string,
+  parentKeyPath: string,
+  filePath: string,
+  diagnostics: MakeDocsConfigDiagnostic[],
+): string[] | null {
+  if (!(key in value)) {
+    return [];
+  }
+
+  const candidate = value[key];
+  const keyPath = joinKeyPath(parentKeyPath, key);
+  if (!Array.isArray(candidate)) {
+    addInvalidTypeDiagnostic(diagnostics, filePath, keyPath, "an array of strings");
+    return null;
+  }
+
+  const items: string[] = [];
+  for (const [index, item] of candidate.entries()) {
+    if (!isNonEmptyString(item)) {
+      addInvalidTypeDiagnostic(diagnostics, filePath, `${keyPath}[${index}]`, "a non-empty string");
+      continue;
+    }
+    items.push(item.trim());
+  }
+  return items;
 }
 
 function addInvalidTypeDiagnostic(

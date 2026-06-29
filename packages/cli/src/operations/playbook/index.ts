@@ -1,6 +1,12 @@
 import { existsSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 import { parseDocument } from "yaml";
+import {
+  HARNESS_CAPABILITY_IDS,
+  loadMakeDocsConfigOrThrow,
+  type HarnessCapabilityId,
+  type HarnessCapabilityRecord,
+} from "../../config";
 import { normalizeRelativePath, readTextFile } from "../../utils";
 import { findRepoRoot, repoRelativePath } from "../shared";
 import { OperationError, type JsonValue } from "../types";
@@ -42,6 +48,21 @@ export interface PlaybookResolution {
   candidates: PlaybookCatalogEntry[];
 }
 
+export interface HarnessCapabilityEvaluation {
+  repoRoot: string;
+  harness: string;
+  record: HarnessCapabilityRecord | null;
+  requiredCapabilities: HarnessCapabilityId[];
+  preferredCapabilities: HarnessCapabilityId[];
+  satisfiedRequired: HarnessCapabilityId[];
+  unknownRequired: HarnessCapabilityId[];
+  unsupportedRequired: HarnessCapabilityId[];
+  availablePreferred: HarnessCapabilityId[];
+  fallbackPreferred: HarnessCapabilityId[];
+  status: "ready" | "serial-gated-fallback" | "manual-review-required";
+  guidance: string[];
+}
+
 export const playbookDomain: OperationDomainDescriptor = {
   name: "playbook",
   summary: "Run Playbook resolver, catalog, capability, and state operations.",
@@ -55,6 +76,12 @@ export const playbookDomain: OperationDomainDescriptor = {
     {
       name: "playbook-resolve",
       summary: "Resolve an explicit path, persona/slug, or unique bare playbook reference.",
+      mutates: false,
+      renderModes: ["json"],
+    },
+    {
+      name: "playbook-capabilities",
+      summary: "Evaluate reviewed harness capabilities for a playbook execution request.",
       mutates: false,
       renderModes: ["json"],
     },
@@ -196,6 +223,83 @@ export function readPlaybookResolution(input: {
       operation: "playbook-resolve",
       source: "shared",
       target: input.ref,
+    },
+  };
+}
+
+export function evaluateHarnessCapabilities(input: {
+  repoRoot?: string;
+  harness: string;
+  requiredCapabilities?: string[];
+  preferredCapabilities?: string[];
+}): HarnessCapabilityEvaluation {
+  const repoRoot = findRepoRoot(input.repoRoot);
+  const harness = input.harness.trim();
+  if (!harness) {
+    throw new OperationError("Harness is required for playbook capability evaluation.");
+  }
+
+  const requiredCapabilities = parseCapabilityList(input.requiredCapabilities ?? []);
+  const preferredCapabilities = parseCapabilityList(input.preferredCapabilities ?? []);
+  const loaded = loadMakeDocsConfigOrThrow(repoRoot);
+  const record = loaded.config.harnessCapabilities.find(
+    (candidate) => candidate.harness === harness,
+  ) ?? null;
+  const reviewedCapabilities = record?.reviewStatus === "reviewed" ? record.capabilities : {};
+
+  const satisfiedRequired = filterCapabilityState(requiredCapabilities, reviewedCapabilities, true);
+  const unsupportedRequired = filterCapabilityState(requiredCapabilities, reviewedCapabilities, false);
+  const unknownRequired = requiredCapabilities.filter(
+    (capability) => reviewedCapabilities[capability] === undefined,
+  );
+  const availablePreferred = filterCapabilityState(preferredCapabilities, reviewedCapabilities, true);
+  const fallbackPreferred = preferredCapabilities.filter(
+    (capability) => reviewedCapabilities[capability] !== true,
+  );
+  const manualReviewRequired =
+    record?.reviewStatus === "unreviewed" ||
+    unknownRequired.length > 0 ||
+    unsupportedRequired.length > 0;
+  const status = manualReviewRequired
+    ? "manual-review-required"
+    : fallbackPreferred.length > 0
+      ? "serial-gated-fallback"
+      : "ready";
+
+  return {
+    repoRoot,
+    harness,
+    record,
+    requiredCapabilities,
+    preferredCapabilities,
+    satisfiedRequired,
+    unknownRequired,
+    unsupportedRequired,
+    availablePreferred,
+    fallbackPreferred,
+    status,
+    guidance: buildCapabilityGuidance({
+      fallbackPreferred,
+      record,
+      unknownRequired,
+      unsupportedRequired,
+    }),
+  };
+}
+
+export function readHarnessCapabilityEvaluation(input: {
+  repoRoot?: string;
+  harness: string;
+  requiredCapabilities?: string[];
+  preferredCapabilities?: string[];
+}): OperationResult<JsonValue> {
+  return {
+    value: evaluateHarnessCapabilities(input) as unknown as JsonValue,
+    provenance: {
+      domain: "playbook",
+      operation: "playbook-capabilities",
+      source: "shared",
+      target: input.harness,
     },
   };
 }
@@ -365,4 +469,56 @@ function formatCandidates(candidates: PlaybookCatalogEntry[]): string {
   return candidates
     .map((candidate) => `${candidate.ref} (${candidate.stack})`)
     .join(", ");
+}
+
+function parseCapabilityList(values: string[]): HarnessCapabilityId[] {
+  const capabilities: HarnessCapabilityId[] = [];
+  for (const value of values) {
+    for (const candidate of value.split(",")) {
+      const capability = candidate.trim();
+      if (!capability) {
+        continue;
+      }
+      if (!HARNESS_CAPABILITY_IDS.includes(capability as HarnessCapabilityId)) {
+        throw new OperationError(`Unknown harness capability id: ${capability}`);
+      }
+      capabilities.push(capability as HarnessCapabilityId);
+    }
+  }
+  return [...new Set(capabilities)];
+}
+
+function filterCapabilityState(
+  capabilities: HarnessCapabilityId[],
+  reviewedCapabilities: Partial<Record<HarnessCapabilityId, boolean>>,
+  expected: boolean,
+): HarnessCapabilityId[] {
+  return capabilities.filter((capability) => reviewedCapabilities[capability] === expected);
+}
+
+function buildCapabilityGuidance(input: {
+  record: HarnessCapabilityRecord | null;
+  unknownRequired: HarnessCapabilityId[];
+  unsupportedRequired: HarnessCapabilityId[];
+  fallbackPreferred: HarnessCapabilityId[];
+}): string[] {
+  const guidance: string[] = [];
+  if (!input.record) {
+    guidance.push("No reviewed harness capability record exists; inspect the harness or continue with serial gated execution only when no required capability is missing.");
+  } else if (input.record.reviewStatus !== "reviewed") {
+    guidance.push("Harness capability record is unreviewed; request review before using it as execution authority.");
+  }
+  if (input.unknownRequired.length > 0) {
+    guidance.push(`Required capabilities are unknown: ${input.unknownRequired.join(", ")}.`);
+  }
+  if (input.unsupportedRequired.length > 0) {
+    guidance.push(`Required capabilities are explicitly unsupported: ${input.unsupportedRequired.join(", ")}.`);
+  }
+  if (input.fallbackPreferred.length > 0 && input.unknownRequired.length === 0 && input.unsupportedRequired.length === 0) {
+    guidance.push(`Optional capabilities are unavailable or unknown; fall back to serial gated execution: ${input.fallbackPreferred.join(", ")}.`);
+  }
+  if (guidance.length === 0) {
+    guidance.push("Reviewed harness capability record satisfies this request.");
+  }
+  return guidance;
 }

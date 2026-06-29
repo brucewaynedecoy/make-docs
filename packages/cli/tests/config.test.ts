@@ -66,6 +66,19 @@ describe("make-docs project config", () => {
     phase: Step
 generatedProse:
   welcomeHeading: "Project documentation"
+harnessCapabilities:
+  - harness: codex
+    reviewStatus: reviewed
+    source: manual-test
+    capabilities:
+      goal_managed_execution: true
+      long_running_runs: true
+      resume_after_interrupt: true
+      parallel_playbook_runs: false
+      subagent_delegation: false
+      user_gate_prompts: true
+    caveats:
+      - "Parallel runs require explicit user approval."
 personas:
   - slug: developer
     label: Maintainer
@@ -88,6 +101,22 @@ personas:
     expect(loaded.config.generatedProse).toEqual({
       welcomeHeading: "Project documentation",
     });
+    expect(loaded.config.harnessCapabilities).toEqual([
+      {
+        harness: "codex",
+        reviewStatus: "reviewed",
+        source: "manual-test",
+        capabilities: {
+          goal_managed_execution: true,
+          long_running_runs: true,
+          resume_after_interrupt: true,
+          parallel_playbook_runs: false,
+          subagent_delegation: false,
+          user_gate_prompts: true,
+        },
+        caveats: ["Parallel runs require explicit user approval."],
+      },
+    ]);
     expect(loaded.config.personas).toContainEqual({
       slug: "developer",
       label: "Maintainer",
@@ -260,5 +289,33 @@ harnessNames:
         keyPath: "personas[1].slug",
       }),
     );
+  });
+
+  test("rejects invalid harness capability ids and review statuses", () => {
+    const targetDir = createTempDir();
+    writeConfig(
+      targetDir,
+      `harnessCapabilities:
+  - harness: codex
+    reviewStatus: guessed
+    capabilities:
+      goal_managed_execution: true
+      imaginary_capability: true
+`,
+    );
+
+    const loaded = loadMakeDocsConfig(targetDir);
+
+    expect(loaded.valid).toBe(false);
+    expect(loaded.diagnostics).toEqual([
+      expect.objectContaining({
+        code: "invalid-harness-capability-id",
+        keyPath: "harnessCapabilities[0].capabilities.imaginary_capability",
+      }),
+      expect.objectContaining({
+        code: "invalid-review-status",
+        keyPath: "harnessCapabilities[0].reviewStatus",
+      }),
+    ]);
   });
 });

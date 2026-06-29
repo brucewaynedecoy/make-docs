@@ -15,6 +15,7 @@ import {
 import { listOperationDomains } from "../operations/index";
 import {
   buildPlaybookCatalog,
+  evaluateHarnessCapabilities,
   resolvePlaybook,
 } from "../operations/playbook";
 import {
@@ -44,7 +45,8 @@ type McpToolName =
   | "make_docs_scope_guard"
   | "make_docs_phase_gate"
   | "make_docs_playbook_catalog"
-  | "make_docs_playbook_resolve";
+  | "make_docs_playbook_resolve"
+  | "make_docs_playbook_capabilities";
 
 type McpToolInput = Record<string, unknown>;
 
@@ -193,6 +195,18 @@ export const MAKE_DOCS_MCP_TOOLS: MakeDocsMcpToolDescriptor[] = [
       stack: z.enum(["build", "run"]).optional(),
     },
   },
+  {
+    name: "make_docs_playbook_capabilities",
+    title: "Evaluate Playbook Harness Capabilities",
+    description:
+      "Evaluate reviewed harness capabilities for required/preferred Playbook execution assists.",
+    inputSchema: {
+      repoRoot: repoRootSchema,
+      harness: z.string(),
+      requiredCapabilities: z.array(z.string()).optional(),
+      preferredCapabilities: z.array(z.string()).optional(),
+    },
+  },
 ];
 
 export async function callMakeDocsMcpTool(
@@ -263,6 +277,16 @@ export async function callMakeDocsMcpTool(
           repoRoot: resolveRepoRoot(args),
           ref: requiredString(args, "ref"),
           requestedStack: optionalString(args, "stack"),
+        }),
+      );
+    case "make_docs_playbook_capabilities":
+      return mcpPayload(
+        name,
+        evaluateHarnessCapabilities({
+          repoRoot: resolveRepoRoot(args),
+          harness: requiredString(args, "harness"),
+          requiredCapabilities: optionalStringArray(args, "requiredCapabilities"),
+          preferredCapabilities: optionalStringArray(args, "preferredCapabilities"),
         }),
       );
     default:
@@ -436,6 +460,11 @@ function requiredString(args: McpToolInput, key: string): string {
 function optionalString(args: McpToolInput, key: string): string | undefined {
   const value = args[key];
   return typeof value === "string" && value.length > 0 ? value : undefined;
+}
+
+function optionalStringArray(args: McpToolInput, key: string): string[] {
+  const value = args[key];
+  return Array.isArray(value) ? value.map(String) : [];
 }
 
 function parseScope(value: unknown): "auto" | "staged" | "unstaged" | "full" {
