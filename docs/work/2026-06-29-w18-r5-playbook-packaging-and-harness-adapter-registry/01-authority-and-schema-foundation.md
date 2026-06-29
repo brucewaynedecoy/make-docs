@@ -19,9 +19,9 @@ This phase should be completed before W18 R1, W18 R2, or W18 R3 implementation p
 
 ### Tasks
 
-- [ ] t1: Confirm PRD 33, PRD 29, PRD 30, PRD 25, PRD 28, PRD 20, PRD 32, and the W18 R1/R2/R3 backlogs agree on the W18 R5 packageability guardrails.
-- [ ] t2: Identify the TypeScript operation-domain home for package planning, harness adapters, surface resolution, and output writing without adding monolithic catch-all files.
-- [ ] t3: Add focused architecture notes or code comments only where necessary to make the domain split discoverable.
+- [x] t1: Confirm PRD 33, PRD 29, PRD 30, PRD 25, PRD 28, PRD 20, PRD 32, and the W18 R1/R2/R3 backlogs agree on the W18 R5 packageability guardrails.
+- [x] t2: Identify the TypeScript operation-domain home for package planning, harness adapters, surface resolution, and output writing without adding monolithic catch-all files.
+- [x] t3: Add focused architecture notes or code comments only where necessary to make the domain split discoverable.
 
 ### Acceptance criteria
 
@@ -37,10 +37,10 @@ This phase should be completed before W18 R1, W18 R2, or W18 R3 implementation p
 
 ### Tasks
 
-- [ ] t4: Define package-plan data structures for source Playbook refs, digests, target harness, output kind, surface, scope, generated artifacts, review state, support status, and lifecycle behavior.
-- [ ] t5: Define generated-output ownership records that distinguish source Playbooks, generated plugins, generated skills bundles, generated adapters, symlink exposures, copy mirrors, export-only files, user-authored files, and legacy generated outputs.
-- [ ] t6: Define harness adapter declarations for supported output kinds, surfaces, path templates, preconditions, exposure modes, lifecycle rules, and conformance requirements.
-- [ ] t7: Add schema/unit tests for valid and invalid package plans, generated-output records, adapter declarations, surface profiles, and review-state transitions.
+- [x] t4: Define package-plan data structures for source Playbook refs, digests, target harness, output kind, surface, scope, generated artifacts, review state, support status, and lifecycle behavior.
+- [x] t5: Define generated-output ownership records that distinguish source Playbooks, generated plugins, generated skills bundles, generated adapters, symlink exposures, copy mirrors, export-only files, user-authored files, and legacy generated outputs.
+- [x] t6: Define harness adapter declarations for supported output kinds, surfaces, path templates, preconditions, exposure modes, lifecycle rules, and conformance requirements.
+- [x] t7: Add schema/unit tests for valid and invalid package plans, generated-output records, adapter declarations, surface profiles, and review-state transitions.
 
 ### Acceptance criteria
 

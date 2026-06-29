@@ -69,9 +69,14 @@ describe("operation domain modules", () => {
           expect.objectContaining({ name: "playbook-run-read", mutates: false }),
         ],
       }),
+      expect.objectContaining({
+        name: "playbook-packaging",
+        commands: [],
+      }),
     ]);
 
     expect(getOperationDomain("work").summary).toContain("Wave");
+    expect(getOperationDomain("playbook-packaging").summary).toContain("package-plan");
   });
 
   test("runs a work-domain operation without CLI parser or MCP transport setup", () => {
