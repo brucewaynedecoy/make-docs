@@ -646,6 +646,20 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 **To close**: Future implementation validation proves one shared resolver, config schema, unknown-capability path, run-state writer, resume flow, nested-playbook guard, concurrency conflict check, and CLI/MCP/plugin parity behavior.
 
+### R-017 Playbook Packaging Could Blur Source and Generated Agentic Outputs
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | [33-enhance-playbook-packaging-and-harness-adapter-registry.md](./33-enhance-playbook-packaging-and-harness-adapter-registry.md) makes Playbook packaging a required v2 deliverable while preserving the existing source/invocation boundary: Playbooks remain source under `docs/assets/playbooks/**`, generated plugins and skills bundles are distribution artifacts, and package plans must be reviewed before semantic or ambiguous writes. | Keep W18 R1, W18 R2, W18 R3, W18 R5, CLI, MCP, shared-agentics, package validation, and conformance work aligned so generated outputs carry provenance, lifecycle ownership, support status, and review state without becoming Playbook source. |
+
+**Issue**: A package pipeline can accidentally make generated plugin or skills-bundle outputs look like the authoritative Playbook, or can treat generic standard skill locations as a fake harness instead of a surface selected by a real harness adapter.
+
+**Why it matters**: If source and generated outputs blur, Make Docs may ship stale generated files, delete user-authored harness content, overstate harness support, or make future harness additions require broad package-planner rewrites.
+
+**Recommendation**: Treat package planning as a reviewed bridge. Keep deterministic validation, writes, provenance, lifecycle, and conformance in TypeScript operation domains; allow agents to draft semantic package-plan fields only behind review; and put harness-specific behavior in adapter modules with fixtures and support evidence.
+
+**To close**: W18 R5 implementation proves package-plan generation, adapter registry extension, `plugin` and `skills-bundle` output writers, source digest provenance, review/manual stops, lifecycle safety, package smoke coverage, and conformance tuple evidence.
+
 ## Source Anchors
 
 - `README.md:6-46`
@@ -668,7 +682,9 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 - `docs/prd/30-revise-harness-plugin-substrate-workflow-bundles.md`
 - `docs/prd/31-revise-coverage-pass-extensions-adversarial-review.md`
 - `docs/prd/32-revise-lifecycle-backup-state-agentics-pruning.md`
+- `docs/prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md`
 - `docs/designs/2026-06-27-run-playbook-orchestration-and-harness-capabilities.md`
+- `docs/designs/2026-06-29-playbook-packaging-and-harness-adapter-registry.md`
 - `docs/designs/2026-06-19-package-and-deployment-boundaries.md`
 - `docs/designs/2026-06-19-system-asset-delivery-and-materialization-contract.md`
 - `docs/designs/2026-06-19-compatibility-audit-and-migration-disposition.md`

@@ -18,6 +18,8 @@ This PRD turns the Coverage-Pass Extensions and Adversarial Review design into a
 
 W18 R4 is a prerequisite if adversarial review is later exposed as a playbook, plugin workflow bundle, CLI action, MCP tool, or harness-assisted long-running review. That surface must reuse the W18 R4 Run Playbook resolver, capability mediation, run-state, nested-playbook, and concurrency rules instead of defining adversarial-review-specific execution semantics.
 
+W18 R5 is a prerequisite if adversarial review is later packaged as a generated plugin, generated skills bundle, or harness entry. That output must use the W18 R5 package-plan, source/generated provenance, harness adapter, lifecycle, and conformance model instead of becoming an ad hoc package asset.
+
 ## Requirements
 
 ### Optional Extension
@@ -99,6 +101,8 @@ If implemented as a plugin or workflow bundle, it must follow [30-revise-harness
 
 If implemented as a long-running or nested playbook flow, it must also follow the W18 R4 orchestration contract for reviewed harness capabilities, Make Docs-owned run state, resume points, child runs, and output-surface claims.
 
+If implemented as a generated plugin, generated skills bundle, or harness-specific package, it must follow [33-enhance-playbook-packaging-and-harness-adapter-registry.md](33-enhance-playbook-packaging-and-harness-adapter-registry.md). The package output is a generated distribution artifact with source Playbook provenance, not the authoritative adversarial-review source.
+
 Bare installs, default sync, generic Run Playbook, and plugin selection do not imply adversarial review.
 
 ### Support Claims
@@ -106,6 +110,8 @@ Bare installs, default sync, generic Run Playbook, and plugin selection do not i
 Public support claims remain evidence-bound.
 
 Any claim that adversarial review works in a harness, model, plugin bundle, unattended mode, CLI surface, MCP surface, or package delivery mode must be backed by implementation validation or conformance-lab records. Without that evidence, support language stays provisional.
+
+A package-delivery claim must include the W18 R5 support tuple for source Playbook, package plan, output kind, harness, surface, scope, model provider, and runtime.
 
 ### Template Package and Validation Boundary
 
@@ -130,6 +136,7 @@ Baseline implementation validation should include `npm run build -w packages/cli
 - No public support claim without implementation or conformance evidence.
 - No dogfood-first authoring for shipped adversarial-review assets.
 - No adversarial-review-specific replacement for the W18 R4 Run Playbook orchestration model.
+- No generated adversarial-review plugin, skills bundle, or harness entry outside the W18 R5 package-plan and adapter model.
 
 ## Affected Baseline Docs
 
@@ -144,6 +151,7 @@ Baseline implementation validation should include `npm run build -w packages/cli
 - [25 Revise CLI Separation and MCP Boundary](25-revise-cli-separation-and-mcp-boundary.md)
 - [29 Revise Playbook Contract Run Playbook](29-revise-playbook-contract-run-playbook.md)
 - [30 Revise Harness Plugin Substrate Workflow Bundles](30-revise-harness-plugin-substrate-workflow-bundles.md)
+- [33 Enhance Playbook Packaging and Harness Adapter Registry](33-enhance-playbook-packaging-and-harness-adapter-registry.md)
 
 ## Acceptance Criteria
 
@@ -156,13 +164,16 @@ Baseline implementation validation should include `npm run build -w packages/cli
 - Shipped adversarial assets, if selected later, follow template-first source-of-truth order.
 - Support claims remain provisional until implementation or conformance evidence exists.
 - Any future adversarial-review playbook, plugin, CLI, MCP, or harness-assisted surface consumes W18 R4 resolver, capability, run-state, nested-run, and concurrency behavior.
+- Any future packaged adversarial-review output consumes W18 R5 package-plan, source/generated provenance, harness adapter, lifecycle, and conformance behavior.
 
 ## Source Anchors
 
 - [../designs/2026-06-20-coverage-pass-extensions-and-adversarial-review.md](../designs/2026-06-20-coverage-pass-extensions-and-adversarial-review.md)
 - [../plans/2026-06-23-w18-r3-coverage-pass-extensions-adversarial-review/00-overview.md](../plans/2026-06-23-w18-r3-coverage-pass-extensions-adversarial-review/00-overview.md)
 - [../designs/2026-06-27-run-playbook-orchestration-and-harness-capabilities.md](../designs/2026-06-27-run-playbook-orchestration-and-harness-capabilities.md)
+- [../designs/2026-06-29-playbook-packaging-and-harness-adapter-registry.md](../designs/2026-06-29-playbook-packaging-and-harness-adapter-registry.md)
 - [../plans/2026-06-27-w18-r4-run-playbook-orchestration-and-harness-capabilities/00-overview.md](../plans/2026-06-27-w18-r4-run-playbook-orchestration-and-harness-capabilities/00-overview.md)
+- [../plans/2026-06-29-w18-r5-playbook-packaging-and-harness-adapter-registry/00-overview.md](../plans/2026-06-29-w18-r5-playbook-packaging-and-harness-adapter-registry/00-overview.md)
 - [../work/2026-06-27-w18-r4-run-playbook-orchestration-and-harness-capabilities/00-index.md](../work/2026-06-27-w18-r4-run-playbook-orchestration-and-harness-capabilities/00-index.md)
 - [../work/2026-06-23-w18-r3-coverage-pass-extensions-adversarial-review/00-index.md](../work/2026-06-23-w18-r3-coverage-pass-extensions-adversarial-review/00-index.md)
 - [../../.make-docs/contracts/system/coverage-pass-contract.md](../../.make-docs/contracts/system/coverage-pass-contract.md)
@@ -174,6 +185,7 @@ Baseline implementation validation should include `npm run build -w packages/cli
 - [25 Revise CLI Separation and MCP Boundary](25-revise-cli-separation-and-mcp-boundary.md)
 - [29 Revise Playbook Contract Run Playbook](29-revise-playbook-contract-run-playbook.md)
 - [30 Revise Harness Plugin Substrate Workflow Bundles](30-revise-harness-plugin-substrate-workflow-bundles.md)
+- [33 Enhance Playbook Packaging and Harness Adapter Registry](33-enhance-playbook-packaging-and-harness-adapter-registry.md)
 - `.make-docs/references/system/prompts/coverage-pass-developer-guide.prompt.md`
 - `.make-docs/references/system/prompts/coverage-pass-user-guide.prompt.md`
 - `.make-docs/references/system/prompts/coverage-pass-prd-reconciliation.prompt.md`

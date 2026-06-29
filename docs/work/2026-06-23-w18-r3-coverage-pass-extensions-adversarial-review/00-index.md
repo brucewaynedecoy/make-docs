@@ -8,6 +8,10 @@ Before executing this backlog, apply [W9 R5 v2 Library and Archive History IA Co
 
 Before executing any adversarial-review surface that uses a playbook, plugin workflow bundle, CLI action, MCP tool, or harness-assisted long-running execution, apply [W18 R4 Run Playbook Orchestration and Harness Capabilities](../2026-06-27-w18-r4-run-playbook-orchestration-and-harness-capabilities/00-index.md). W18 R3 remains optional coverage-pass work, but any runner-like exposure must consume W18 R4 resolver, capability, run-state, nested-run, and concurrency behavior.
 
+## W18 R5 Playbook Packaging Prerequisite
+
+Before executing this backlog for any packaged adversarial-review surface, apply [W18 R5 Playbook Packaging and Harness Adapter Registry](../2026-06-29-w18-r5-playbook-packaging-and-harness-adapter-registry/00-index.md). W18 R3 workers must not package adversarial review as a plugin, skills bundle, or generated harness entry without W18 R5 package-plan review, adapter-selected surfaces, source/generated provenance, lifecycle ownership, and conformance evidence.
+
 ## Purpose
 
 Implement adversarial review as an optional coverage-pass extension described by PRD 31.

@@ -20,6 +20,8 @@ This PRD turns the Harness Plugin Substrate and Workflow Bundles design into act
 
 W18 R4 is a blocking prerequisite for W18 R2 implementation. Plugins and workflow bundles that invoke playbooks must delegate resolver identity, stack disambiguation, harness capability mediation, run state, nested-playbook behavior, and concurrency rules to the W18 R4 Run Playbook orchestration contract.
 
+W18 R5 is a blocking prerequisite for W18 R2 implementation. Plugin and workflow bundle implementation must preserve Playbook packaging as a required v2 deliverable, avoid one-bundle-equals-one-plugin assumptions, distinguish output kinds from harness surfaces, and support generated-from-Playbook provenance through [33-enhance-playbook-packaging-and-harness-adapter-registry.md](33-enhance-playbook-packaging-and-harness-adapter-registry.md).
+
 ## Requirements
 
 ### Plugin Definition and Boundary
@@ -52,6 +54,7 @@ Plugin records must identify:
 - native harness exposure paths and their target canonical payload
 - exposure mode, with `symlink` preferred and `copy-mirror` fallback unless a plugin-specific adapter requires a generated exposure file
 - invocation metadata describing whether the plugin wraps a built-in workflow, one or more playbooks, generic Run Playbook, or a CLI/MCP operation
+- generated-from metadata when a plugin is produced by the W18 R5 package planner, including source Playbook refs, source digests, package plan id, target harness, output kind, selected surface, adapter id, review status, and support status
 - playbook orchestration metadata only by reference to the W18 R4 Run Playbook model; plugin metadata must not redefine resolver keys, stack values, harness capability ids, run-state shape, nested-run behavior, or concurrency safety
 - bundle metadata when the plugin belongs to a productized workflow bundle
 - permission and safety metadata describing whether the plugin is read-only, request-capture only, plan-first, dry-run first, temp-fixture only, or write-capable after explicit approval
@@ -97,6 +100,8 @@ A plugin may display configured labels after canonical resolution. It cannot use
 
 Workflow bundles are products on top of the plugin substrate.
 
+Workflow bundles are product capability groupings, not automatic plugin boundaries. A larger first-party plugin may contain multiple bundle families, a bundle may be exposed through generated skills bundles for harnesses without plugin support, and user/project Playbooks may be packaged independently when a reviewed package plan selects that shape.
+
 Initial v2 bundle families are:
 
 - Idea/Brainstorm: captures and refines an idea or request into a lifecycle-ready input. It is request-capture or plan-first by default and must not silently mutate build-stack artifacts.
@@ -116,6 +121,8 @@ A plugin may invoke one playbook, offer a catalog of playbooks, or wrap a built-
 
 Plugins and workflow bundles must reuse the W18 R4 orchestration model for resolver identity, stack validation, harness capability records, unknown-capability behavior, `.make-docs/runs/playbooks/**` state, nested child runs, and concurrency conflict checks.
 
+[33-enhance-playbook-packaging-and-harness-adapter-registry.md](33-enhance-playbook-packaging-and-harness-adapter-registry.md) adds generated plugin and skills-bundle outputs as projections from Playbook source. A generated plugin can carry Playbook provenance, but the generated output remains a distribution artifact and must not redefine Playbook storage or validity.
+
 ### Support Claims
 
 Support claims are evidence-bound.
@@ -130,7 +137,9 @@ Package validation must prove plugin behavior without accidentally shipping the 
 
 If first-party plugin payloads or plugin manifests become shipped assets, implementation must decide their source location and package inclusion rules using the template/package source-of-truth order from [19-revise-template-package-dogfood-source-of-truth-contract.md](19-revise-template-package-dogfood-source-of-truth-contract.md).
 
-Conformance-lab records, generated local run artifacts, and unreviewed local plugin outputs must not be placed into `packages/docs/template/`, `packages/cli/template/`, npm tarballs, or future runtime packages by accident.
+Conformance-lab records, generated local run artifacts, unreviewed local plugin outputs, and unreviewed W18 R5 generated package outputs must not be placed into `packages/docs/template/`, `packages/cli/template/`, npm tarballs, or future runtime packages by accident.
+
+Generated plugin or skills-bundle outputs enter shipped templates or tarballs only when a reviewed first-party package plan explicitly selects them as shipped assets and package validation proves the inclusion rule.
 
 Baseline implementation validation should include `npm run build -w packages/cli`, `npm test -w packages/cli`, `npm run validate:defaults -w packages/cli`, `npm run smoke:pack`, and targeted plugin substrate tests.
 
@@ -139,7 +148,9 @@ Baseline implementation validation should include `npm run build -w packages/cli
 - No default plugin installation.
 - No skill-selection flag that implicitly selects plugins.
 - No one-plugin-per-playbook requirement.
+- No one-workflow-bundle-per-plugin requirement.
 - No plugin requirement for playbook validity.
+- No package output generated without a reviewed or fully deterministic safe package plan.
 - No default adversarial-review plugin, workflow bundle, or plugin-selection implication.
 - No generated-stub default behavior inherited from W17 R2.
 - No symlink-only behavior without copy-mirror fallback.
@@ -165,6 +176,7 @@ Baseline implementation validation should include `npm run build -w packages/cli
 - [32 Revise Lifecycle Backup State and Agentics Pruning](32-revise-lifecycle-backup-state-agentics-pruning.md)
 - [29 Revise Playbook Contract Run Playbook](29-revise-playbook-contract-run-playbook.md)
 - [31 Revise Coverage Pass Extensions Adversarial Review](31-revise-coverage-pass-extensions-adversarial-review.md)
+- [33 Enhance Playbook Packaging and Harness Adapter Registry](33-enhance-playbook-packaging-and-harness-adapter-registry.md)
 
 ## Acceptance Criteria
 
@@ -177,6 +189,8 @@ Baseline implementation validation should include `npm run build -w packages/cli
 - Workflow bundle metadata delegates playbook execution semantics to the W18 R4 orchestration model.
 - Plugin support claims remain provisional until implementation or conformance evidence exists for the exact tuple claimed.
 - Playbooks remain valid without plugin packaging.
+- Generated plugins and skills bundles carry source Playbook provenance and do not replace Playbook source.
+- Workflow bundle metadata does not force bundle families to map one-to-one to plugin ids.
 - Adversarial review remains explicit-selection only if exposed through a plugin or workflow bundle.
 
 ## Source Anchors
@@ -194,6 +208,9 @@ Baseline implementation validation should include `npm run build -w packages/cli
 - [28 Revise Shared Agentics Installation Harness Redirection](28-revise-shared-agentics-installation-harness-redirection.md)
 - [29 Revise Playbook Contract Run Playbook](29-revise-playbook-contract-run-playbook.md)
 - [31 Revise Coverage Pass Extensions Adversarial Review](31-revise-coverage-pass-extensions-adversarial-review.md)
+- [33 Enhance Playbook Packaging and Harness Adapter Registry](33-enhance-playbook-packaging-and-harness-adapter-registry.md)
+- [../designs/2026-06-29-playbook-packaging-and-harness-adapter-registry.md](../designs/2026-06-29-playbook-packaging-and-harness-adapter-registry.md)
+- [../plans/2026-06-29-w18-r5-playbook-packaging-and-harness-adapter-registry/00-overview.md](../plans/2026-06-29-w18-r5-playbook-packaging-and-harness-adapter-registry/00-overview.md)
 - [../designs/2026-06-20-coverage-pass-extensions-and-adversarial-review.md](../designs/2026-06-20-coverage-pass-extensions-and-adversarial-review.md)
 - [../plans/2026-06-23-w18-r3-coverage-pass-extensions-adversarial-review/00-overview.md](../plans/2026-06-23-w18-r3-coverage-pass-extensions-adversarial-review/00-overview.md)
 - `packages/cli/src/types.ts`

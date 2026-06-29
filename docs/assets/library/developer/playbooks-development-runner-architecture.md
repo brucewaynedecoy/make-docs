@@ -23,8 +23,11 @@ related:
   - ../../../prd/25-revise-cli-separation-and-mcp-boundary.md
   - ../../../prd/29-revise-playbook-contract-run-playbook.md
   - ../../../prd/30-revise-harness-plugin-substrate-workflow-bundles.md
+  - ../../../prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md
   - ../../../designs/2026-06-27-run-playbook-orchestration-and-harness-capabilities.md
+  - ../../../designs/2026-06-29-playbook-packaging-and-harness-adapter-registry.md
   - ../../../work/2026-06-27-w18-r4-run-playbook-orchestration-and-harness-capabilities/00-index.md
+  - ../../../work/2026-06-29-w18-r5-playbook-packaging-and-harness-adapter-registry/00-index.md
 ---
 
 # Run Playbook Runner Architecture
@@ -151,6 +154,14 @@ Plugins and workflow bundles are entry points and packaging surfaces. They may p
 
 This keeps bundle behavior aligned with CLI and MCP behavior. A plugin should not invent separate state, separate capability rules, or separate nested-run logic.
 
+## Playbook Packaging Boundary
+
+W18 R5 adds a separate package-planner boundary around Run Playbook. The runner selects, validates, executes, pauses, resumes, and records Playbook runs. The package planner turns accepted Playbook sources into reviewed generated outputs such as harness-specific plugins or skills bundles.
+
+Those outputs may expose a nicer harness-native entry point, but they are not the source Playbook and they are not a second runner. Generated package outputs should call the same Run Playbook operation domain and should carry package-plan provenance, source Playbook refs, source digests, target harness, output kind, selected surface, adapter id, review status, and support status.
+
+Harness-specific packaging behavior belongs in a harness adapter registry. Future harnesses should be added with adapter declarations, fixtures, conformance evidence, and output-writer tests instead of conditionals inside the runner.
+
 ## Permission And Parity Expectations
 
 The CLI, MCP server, and plugin surfaces should preserve the same core decisions:
@@ -165,7 +176,7 @@ When a new runner behavior is added, it needs focused operation tests and parity
 
 ## Future Coverage
 
-This guide should be refreshed when W18 implementation chooses final run-state command names, state schema details, and plugin bundle entry points. It should also be updated with links to additional concrete operation modules and tests as Phases 3 and 4 land.
+This guide should be refreshed when W18 implementation chooses final run-state command names, state schema details, plugin bundle entry points, package-planner commands, harness adapter modules, and generated-output writers. It should also be updated with links to additional concrete operation modules and tests as W18 R1 through W18 R5 land.
 
 ## Related Resources
 
@@ -175,4 +186,7 @@ This guide should be refreshed when W18 implementation chooses final run-state c
 - [25 Revise CLI Separation and MCP Boundary](../../../prd/25-revise-cli-separation-and-mcp-boundary.md)
 - [29 Revise Playbook Contract Run Playbook](../../../prd/29-revise-playbook-contract-run-playbook.md)
 - [30 Revise Harness Plugin Substrate Workflow Bundles](../../../prd/30-revise-harness-plugin-substrate-workflow-bundles.md)
+- [33 Enhance Playbook Packaging and Harness Adapter Registry](../../../prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md)
 - [Run Playbook Orchestration and Harness Capabilities](../../../designs/2026-06-27-run-playbook-orchestration-and-harness-capabilities.md)
+- [Playbook Packaging and Harness Adapter Registry](../../../designs/2026-06-29-playbook-packaging-and-harness-adapter-registry.md)
+- [Playbook Packaging and Harness Adapters](./playbooks-development-packaging-and-harness-adapters.md)

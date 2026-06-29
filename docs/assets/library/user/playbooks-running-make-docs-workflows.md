@@ -18,7 +18,9 @@ related:
   - ../developer/development-workflows-stage-model-and-artifact-relationships.md
   - ../../../prd/29-revise-playbook-contract-run-playbook.md
   - ../../../prd/30-revise-harness-plugin-substrate-workflow-bundles.md
+  - ../../../prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md
   - ../../../designs/2026-06-27-run-playbook-orchestration-and-harness-capabilities.md
+  - ../../../designs/2026-06-29-playbook-packaging-and-harness-adapter-registry.md
 ---
 
 # Running Make Docs Playbooks
@@ -82,6 +84,14 @@ Plugins and workflow bundles are user-facing entry points. A plugin can expose a
 
 When a plugin runs a Playbook, it should invoke the generic Run Playbook model. That keeps CLI, MCP, plugin, and agent-driven runs aligned around the same validation, state, gates, and permission behavior.
 
+## Packaging Playbooks
+
+Make Docs also plans to let reviewed Playbooks become shareable harness-specific outputs. A Playbook can remain a normal Markdown workflow while Make Docs generates a package plan for a plugin or skills bundle that exposes the workflow in a harness-native way.
+
+Packaging is not blind conversion. Make Docs should validate deterministic parts such as Playbook identity, source digest, selected harness, output kind, surface, and lifecycle ownership. Semantic fields such as plugin descriptions, skill grouping, or harness-native wording may be drafted by an agent, but they require review before Make Docs writes generated outputs.
+
+The generated package should point back to the source Playbook and use the same runner model when it is invoked. The packaged output is a distribution artifact; the Playbook remains the editable source.
+
 ## What Playbooks Do Not Do
 
 Playbooks are not hidden automation scripts. They should remain readable and reviewable.
@@ -92,7 +102,7 @@ Playbooks also do not redefine Make Docs authority. If a Playbook changes PRDs, 
 
 ## Future Coverage
 
-This guide should be refreshed after W18 implementation lands with the final command names, MCP tool names, plugin entry points, and a small set of end-user examples that can be run against an installed Make Docs project.
+This guide should be refreshed after W18 implementation lands with the final command names, MCP tool names, plugin entry points, packaging commands, package-plan review examples, and a small set of end-user examples that can be run against an installed Make Docs project.
 
 ## Related Resources
 
@@ -100,4 +110,7 @@ This guide should be refreshed after W18 implementation lands with the final com
 - [Run Playbook Runner Architecture](../developer/playbooks-development-runner-architecture.md)
 - [29 Revise Playbook Contract Run Playbook](../../../prd/29-revise-playbook-contract-run-playbook.md)
 - [30 Revise Harness Plugin Substrate Workflow Bundles](../../../prd/30-revise-harness-plugin-substrate-workflow-bundles.md)
+- [33 Enhance Playbook Packaging and Harness Adapter Registry](../../../prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md)
 - [Run Playbook Orchestration and Harness Capabilities](../../../designs/2026-06-27-run-playbook-orchestration-and-harness-capabilities.md)
+- [Playbook Packaging and Harness Adapter Registry](../../../designs/2026-06-29-playbook-packaging-and-harness-adapter-registry.md)
+- [Packaging Shareable Agent Workflows](./playbooks-packaging-shareable-agent-workflows.md)

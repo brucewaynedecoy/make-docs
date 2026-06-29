@@ -18,6 +18,8 @@ This PRD turns the Playbook Contract and Run Playbook design into active require
 
 W18 R4 extends this PRD before W18 R1 implementation. Run Playbook must now include deterministic resolver semantics, reviewed harness capability mediation, Make Docs-owned run state, nested-playbook rules, and concurrency safety before any runner, plugin, MCP tool, skill, or agent surface claims support for long-running or parallel playbook execution.
 
+W18 R5 extends this PRD before W18 R1 implementation by making Playbook packaging a required v2 deliverable while preserving Playbook validity without packaging. Playbook metadata, validation, asset/link checks, output-surface claims, and run metadata must remain package-plan friendly, but generated plugins and skills bundles remain distribution artifacts governed by [33-enhance-playbook-packaging-and-harness-adapter-registry.md](33-enhance-playbook-packaging-and-harness-adapter-registry.md).
+
 ## Requirements
 
 ### Canonical Playbook Location
@@ -144,6 +146,8 @@ The content contract must not require one plugin per playbook and must not requi
 
 [30-revise-harness-plugin-substrate-workflow-bundles.md](30-revise-harness-plugin-substrate-workflow-bundles.md) owns plugin substrate and workflow bundle metadata. Plugins may invoke Run Playbook, but they cannot redefine playbook storage, frontmatter, stack validation, authority order, output routing, or playbook validity.
 
+[33-enhance-playbook-packaging-and-harness-adapter-registry.md](33-enhance-playbook-packaging-and-harness-adapter-registry.md) owns packaging Playbook source into generated plugin or skills-bundle outputs. Packaging is required for v2, but it is not required for every Playbook instance and does not make generated outputs the Playbook source of truth.
+
 If adversarial review is implemented as a playbook, it must follow this PRD's playbook content contract and the optional adversarial-review candidate contract from [31-revise-coverage-pass-extensions-adversarial-review.md](31-revise-coverage-pass-extensions-adversarial-review.md). Generic Run Playbook does not imply that adversarial review exists or runs by default.
 
 Support claims for CLI execution, MCP execution, plugin launch, template sync, or unattended operation require validation evidence. Until conformance-lab or implementation evidence exists, support language must remain provisional.
@@ -164,8 +168,10 @@ Manifest, catalog, audit, backup, uninstall, installer, CLI, MCP, and plugin beh
 ## Non-Requirements
 
 - No plugin substrate or product workflow bundle contract in this PRD; [30-revise-harness-plugin-substrate-workflow-bundles.md](30-revise-harness-plugin-substrate-workflow-bundles.md) owns that boundary.
-- No public plugin exposure decision.
+- No package-planner, harness-adapter registry, or generated-output writer implementation in this PRD; [33-enhance-playbook-packaging-and-harness-adapter-registry.md](33-enhance-playbook-packaging-and-harness-adapter-registry.md) owns that boundary.
+- No public plugin exposure implementation in this PRD.
 - No one-plugin-per-playbook requirement.
+- No requirement that every valid Playbook be packaged.
 - No adversarial-review playbook by default.
 - No MCP write surface.
 - No unattended, parallel, or nested execution by default.
@@ -188,6 +194,7 @@ Manifest, catalog, audit, backup, uninstall, installer, CLI, MCP, and plugin beh
 - [28 Revise Shared Agentics Installation Harness Redirection](28-revise-shared-agentics-installation-harness-redirection.md)
 - [30 Revise Harness Plugin Substrate Workflow Bundles](30-revise-harness-plugin-substrate-workflow-bundles.md)
 - [31 Revise Coverage Pass Extensions Adversarial Review](31-revise-coverage-pass-extensions-adversarial-review.md)
+- [33 Enhance Playbook Packaging and Harness Adapter Registry](33-enhance-playbook-packaging-and-harness-adapter-registry.md)
 
 ## Acceptance Criteria
 
@@ -199,6 +206,7 @@ Manifest, catalog, audit, backup, uninstall, installer, CLI, MCP, and plugin beh
 - Make Docs-owned run state records each playbook run, nested child run, output-surface claim, and resume point.
 - Parallel playbook execution requires explicit permission and non-overlapping output-surface claims.
 - Plugin exposure is treated as additive, not required for playbook validity.
+- Package exposure is treated as a generated distribution path, not a replacement for Playbook source.
 - Package/template validation covers accepted playbook defaults when shipped files change.
 - Risk register entries keep playbook content separate from plugin invocation and support claims.
 
@@ -216,6 +224,9 @@ Manifest, catalog, audit, backup, uninstall, installer, CLI, MCP, and plugin beh
 - [28 Revise Shared Agentics Installation Harness Redirection](28-revise-shared-agentics-installation-harness-redirection.md)
 - [30 Revise Harness Plugin Substrate Workflow Bundles](30-revise-harness-plugin-substrate-workflow-bundles.md)
 - [31 Revise Coverage Pass Extensions Adversarial Review](31-revise-coverage-pass-extensions-adversarial-review.md)
+- [33 Enhance Playbook Packaging and Harness Adapter Registry](33-enhance-playbook-packaging-and-harness-adapter-registry.md)
+- [../designs/2026-06-29-playbook-packaging-and-harness-adapter-registry.md](../designs/2026-06-29-playbook-packaging-and-harness-adapter-registry.md)
+- [../plans/2026-06-29-w18-r5-playbook-packaging-and-harness-adapter-registry/00-overview.md](../plans/2026-06-29-w18-r5-playbook-packaging-and-harness-adapter-registry/00-overview.md)
 - `docs/assets/playbooks/agent/make-docs-lifecycle.md`
 - `.make-docs/contracts/system/coverage-pass-contract.md`
 - `packages/cli/src/rules.ts`

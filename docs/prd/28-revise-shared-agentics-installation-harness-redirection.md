@@ -64,6 +64,7 @@ Windows behavior must be explicit. The CLI may use symlinks where supported, inc
 - symlink exposure paths, link targets, link type, and fallback status
 - managed copy-mirror paths and their canonical source payload
 - legacy generated stub paths from W17 R2 installs
+- W18 R5 generated plugin and skills-bundle output paths when those outputs are installed through the selected-agentics store
 - exposure mode, with `symlink` preferred and `copy-mirror` fallback
 - harness name and path scope
 - previous per-harness duplicated payloads that were migrated, preserved, or skipped
@@ -101,6 +102,8 @@ Plugin installation inherits the shared storage and native harness exposure prim
 Selected plugin payloads use `.make-docs/agentics/plugins/<plugin-id>/` per scope and native harness exposure unless a later accepted design supersedes PRD 30.
 
 [29-revise-playbook-contract-run-playbook.md](29-revise-playbook-contract-run-playbook.md) owns the playbook content contract and generic Run Playbook model. PRD 30 allows plugin payloads to expose that model, but this PRD continues to own only shared storage and native harness exposure primitives.
+
+[33-enhance-playbook-packaging-and-harness-adapter-registry.md](33-enhance-playbook-packaging-and-harness-adapter-registry.md) owns generated plugin and skills-bundle outputs from Playbooks. When those outputs are installed, they inherit this PRD's shared payload, native exposure, symlink-preferred, copy-mirror fallback, audit, backup, uninstall, migration, and no-default-agentics rules.
 
 ### No-Default-Skills
 
@@ -145,6 +148,7 @@ Shared agentics are written only when the user explicitly selects skills or late
 - Backup and uninstall use one reviewed audit snapshot.
 - Empty managed `.make-docs/agentics/**` parent directories are pruned after selected-agentics removal only when audit proves no unmanaged descendants remain.
 - Cross-platform validation proves symlink-preferred behavior and copy-mirror fallback without relying on generic stubs.
+- Generated plugin and skills-bundle installs reuse shared-agentics ownership records and native exposure rather than creating an unrelated package lifecycle.
 
 ## Source Anchors
 
@@ -160,6 +164,9 @@ Shared agentics are written only when the user explicitly selects skills or late
 - [29 Revise Playbook Contract Run Playbook](29-revise-playbook-contract-run-playbook.md)
 - [30 Revise Harness Plugin Substrate Workflow Bundles](30-revise-harness-plugin-substrate-workflow-bundles.md)
 - [32 Revise Lifecycle Backup State and Agentics Pruning](32-revise-lifecycle-backup-state-agentics-pruning.md)
+- [33 Enhance Playbook Packaging and Harness Adapter Registry](33-enhance-playbook-packaging-and-harness-adapter-registry.md)
+- [../designs/2026-06-29-playbook-packaging-and-harness-adapter-registry.md](../designs/2026-06-29-playbook-packaging-and-harness-adapter-registry.md)
+- [../plans/2026-06-29-w18-r5-playbook-packaging-and-harness-adapter-registry/00-overview.md](../plans/2026-06-29-w18-r5-playbook-packaging-and-harness-adapter-registry/00-overview.md)
 - [../designs/2026-06-20-playbook-contract-and-run-playbook.md](../designs/2026-06-20-playbook-contract-and-run-playbook.md)
 - [../plans/2026-06-23-w18-r1-playbook-contract-run-playbook/00-overview.md](../plans/2026-06-23-w18-r1-playbook-contract-run-playbook/00-overview.md)
 - [../designs/2026-06-20-harness-plugin-substrate-and-workflow-bundles.md](../designs/2026-06-20-harness-plugin-substrate-and-workflow-bundles.md)

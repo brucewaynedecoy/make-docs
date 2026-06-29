@@ -57,6 +57,7 @@ Support-claim gating:
 - A pass for one scenario does not imply blanket harness support.
 - Plugin, workflow bundle, playbook, skill, CLI, MCP, unattended, adversarial-review, or model/provider support claims must cite evidence for the exact scenario/harness/model/provider/runtime tuple claimed. [30-revise-harness-plugin-substrate-workflow-bundles.md](./30-revise-harness-plugin-substrate-workflow-bundles.md) keeps plugin and bundle wording provisional until implementation or conformance evidence exists. [31-revise-coverage-pass-extensions-adversarial-review.md](./31-revise-coverage-pass-extensions-adversarial-review.md) keeps adversarial-review support wording provisional until the exact prompt, playbook, plugin, CLI, MCP, package, harness, model, provider, or unattended surface has implementation validation or conformance records.
 - [29-revise-playbook-contract-run-playbook.md](./29-revise-playbook-contract-run-playbook.md) and W18 R4 local harness capability records may guide a project run, but they are not public support evidence by themselves. Public claims for Run Playbook, nested playbooks, parallel playbooks, harness-managed goals, resume behavior, CLI execution, MCP execution, plugin launch, or unattended operation still require reviewed conformance evidence for the exact tuple claimed.
+- [33-enhance-playbook-packaging-and-harness-adapter-registry.md](./33-enhance-playbook-packaging-and-harness-adapter-registry.md) extends support-claim gating to generated plugin and skills-bundle outputs. A support claim applies only to the exact Playbook source, package plan, output kind, harness, surface, scope, model/provider, and runtime tuple that has reviewed evidence.
 
 Validation relationship:
 
@@ -78,6 +79,7 @@ Validation relationship:
 | `docs/prd/19-revise-template-package-dogfood-source-of-truth-contract.md` | Uses template/dogfood/package source-of-truth scenarios as lab inputs without moving lab assets into template copies. |
 | `docs/prd/30-revise-harness-plugin-substrate-workflow-bundles.md` | Adds plugin and workflow-bundle support-claim tuples as future conformance inputs without shipping lab artifacts by default. |
 | `docs/prd/31-revise-coverage-pass-extensions-adversarial-review.md` | Adds adversarial-review support-claim tuples as future conformance inputs only when a downstream plan selects a shipped or executable surface. |
+| `docs/prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md` | Adds generated plugin and skills-bundle package-output tuples as future conformance inputs. |
 | `docs/prd/03-open-questions-and-risk-register.md` | Updates existing harness, provider, plugin, dogfood, package, audit, and no-scripts risks without duplicating entries. |
 
 The paired delta backlog should be generated under `docs/work/2026-06-23-w10-r5-agent-harness-model-conformance-lab/`.
@@ -109,6 +111,9 @@ The paired delta backlog should be generated under `docs/work/2026-06-23-w10-r5-
 - `docs/prd/25-revise-cli-separation-and-mcp-boundary.md`
 - `docs/prd/30-revise-harness-plugin-substrate-workflow-bundles.md`
 - `docs/prd/31-revise-coverage-pass-extensions-adversarial-review.md`
+- `docs/prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md`
+- `docs/designs/2026-06-29-playbook-packaging-and-harness-adapter-registry.md`
+- `docs/plans/2026-06-29-w18-r5-playbook-packaging-and-harness-adapter-registry/00-overview.md`
 - `docs/designs/2026-06-20-harness-plugin-substrate-and-workflow-bundles.md`
 - `docs/designs/2026-06-20-coverage-pass-extensions-and-adversarial-review.md`
 - `docs/plans/2026-06-23-w18-r2-harness-plugin-substrate-workflow-bundles/00-overview.md`

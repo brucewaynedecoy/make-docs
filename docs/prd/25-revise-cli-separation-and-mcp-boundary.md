@@ -94,6 +94,8 @@ W10 R8 implements the follow-on source organization by modularizing the current 
 
 W10 R8 closeout support claims are limited to the validated surfaces: existing `make-docs operations ...` compatibility, modular closeout/work/lifecycle operation domains, read-first and plan-first MCP tools, explicit MCP validation-run approval gating, and packed-package execution through npm, pnpm, and Bun package runners. Future MCP writes, provider-backed asset operations, plugin/shared-agentics parity, playbook execution, adversarial review, and migration link-rewrite behavior must add their own operation-domain, permission, and package validation before support claims broaden.
 
+W18 R5 extends this development contract to Playbook packaging. Package planning, harness adapter registry, surface resolution, generated plugin writers, generated skills-bundle writers, lifecycle integration, and conformance hooks must live in modular TypeScript operation domains rather than plugin-local scripts, skill-local scripts, or monolithic catch-all files.
+
 ### Asset and Config Boundaries
 
 MCP must not expose hidden provider-backed state as the only way to understand a repository. Local bootstrap remains mandatory.
@@ -118,6 +120,8 @@ Skills that currently depend on standalone scripts must be rewritten in the same
 
 [30-revise-harness-plugin-substrate-workflow-bundles.md](30-revise-harness-plugin-substrate-workflow-bundles.md) supplies the plugin substrate and workflow bundle metadata that future CLI, MCP, plugin, skill, or agent surfaces must reuse. Plugin entrypoints may call accepted CLI/MCP/shared-core operations, but they must not implement independent manifest, config, audit, backup, uninstall, generation, validation, or lifecycle routing behavior.
 
+[33-enhance-playbook-packaging-and-harness-adapter-registry.md](33-enhance-playbook-packaging-and-harness-adapter-registry.md) supplies the Playbook packaging and harness adapter registry contract that future CLI, MCP, plugin, skill, or agent surfaces must reuse. Package-plan drafting, review gates, adapter resolution, output writing, provenance, lifecycle, and conformance behavior must delegate to shared TypeScript operations.
+
 [31-revise-coverage-pass-extensions-adversarial-review.md](31-revise-coverage-pass-extensions-adversarial-review.md) supplies the optional adversarial-review coverage-pass contract that future CLI, MCP, plugin, skill, or agent surfaces must reuse if they expose adversarial review. Those surfaces must delegate deterministic candidate validation, verdict mapping, history idempotency, and support-claim checks to accepted operation contracts; no CLI or MCP write surface is implied by adversarial review.
 
 ## Non-Requirements
@@ -130,6 +134,7 @@ Skills that currently depend on standalone scripts must be rewritten in the same
 - No CLI or MCP adversarial-review surface unless a later plan explicitly selects it and proves parity.
 - No code modularization or MCP implementation in W10 R7 itself; W10 R8 owns that implementation work.
 - No CLI or MCP Run Playbook implementation may invent resolver keys, harness capability ids, run-state shape, nested-run behavior, or concurrency semantics outside the W18 R4 orchestration contract.
+- No CLI or MCP Playbook packaging surface may write generated package outputs without a W18 R5 package plan and shared operation-domain lifecycle behavior.
 
 ## Affected Baseline Docs
 
@@ -145,6 +150,7 @@ Skills that currently depend on standalone scripts must be rewritten in the same
 - [29 Revise Playbook Contract Run Playbook](29-revise-playbook-contract-run-playbook.md)
 - [30 Revise Harness Plugin Substrate Workflow Bundles](30-revise-harness-plugin-substrate-workflow-bundles.md)
 - [31 Revise Coverage Pass Extensions Adversarial Review](31-revise-coverage-pass-extensions-adversarial-review.md)
+- [33 Enhance Playbook Packaging and Harness Adapter Registry](33-enhance-playbook-packaging-and-harness-adapter-registry.md)
 
 ## Acceptance Criteria
 
@@ -154,6 +160,7 @@ Skills that currently depend on standalone scripts must be rewritten in the same
 - MCP tools have one shared operation contract with CLI/shared-core behavior and must ship in v2.
 - MCP writes remain gated by explicit permission and parity planning.
 - Future CLI and MCP Run Playbook surfaces delegate resolver, capability, run-state, nested-run, and concurrency behavior to one shared W18 R4 operation domain.
+- Future CLI and MCP Playbook packaging surfaces delegate package planning, adapter resolution, output writing, provenance, lifecycle, and conformance behavior to shared W18 R5 operation domains.
 - Operation-domain logic is modular, testable without the parser or MCP transport, and mirrored by CLI/MCP command domains where practical.
 - Validation covers CLI/MCP parity, noninteractive/dry-run behavior, provider/cache failure behavior, package-runner behavior, and conformance-lab scenarios before public support claims.
 
@@ -180,6 +187,9 @@ Skills that currently depend on standalone scripts must be rewritten in the same
 - [29 Revise Playbook Contract Run Playbook](29-revise-playbook-contract-run-playbook.md)
 - [30 Revise Harness Plugin Substrate Workflow Bundles](30-revise-harness-plugin-substrate-workflow-bundles.md)
 - [31 Revise Coverage Pass Extensions Adversarial Review](31-revise-coverage-pass-extensions-adversarial-review.md)
+- [33 Enhance Playbook Packaging and Harness Adapter Registry](33-enhance-playbook-packaging-and-harness-adapter-registry.md)
+- [../designs/2026-06-29-playbook-packaging-and-harness-adapter-registry.md](../designs/2026-06-29-playbook-packaging-and-harness-adapter-registry.md)
+- [../plans/2026-06-29-w18-r5-playbook-packaging-and-harness-adapter-registry/00-overview.md](../plans/2026-06-29-w18-r5-playbook-packaging-and-harness-adapter-registry/00-overview.md)
 - [../designs/2026-06-20-shared-agentics-installation-and-harness-redirection.md](../designs/2026-06-20-shared-agentics-installation-and-harness-redirection.md)
 - [../plans/2026-06-23-w17-r2-shared-agentics-installation-harness-redirection/00-overview.md](../plans/2026-06-23-w17-r2-shared-agentics-installation-harness-redirection/00-overview.md)
 - [../designs/2026-06-20-playbook-contract-and-run-playbook.md](../designs/2026-06-20-playbook-contract-and-run-playbook.md)

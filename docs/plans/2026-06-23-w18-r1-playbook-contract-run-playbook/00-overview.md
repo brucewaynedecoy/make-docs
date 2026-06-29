@@ -4,6 +4,10 @@
 
 Before executing this plan, apply [W18 R4 Run Playbook Orchestration and Harness Capabilities](../2026-06-27-w18-r4-run-playbook-orchestration-and-harness-capabilities/00-overview.md). W18 R4 hardens this plan's runner model with resolver identity, stack disambiguation, reviewed harness capability records, Make Docs-owned run state, nested-playbook permission, and concurrency safety. W18 R1 should implement the playbook contract only after consuming those decisions.
 
+## W18 R5 Playbook Packaging Prerequisite
+
+Before executing this plan, apply [W18 R5 Playbook Packaging and Harness Adapter Registry](../2026-06-29-w18-r5-playbook-packaging-and-harness-adapter-registry/00-overview.md). W18 R1 should preserve packageable Playbook metadata, source digest inputs, output-surface claims, review gates, and source-versus-generated boundaries while leaving plugin and skills-bundle package writing to W18 R5-owned implementation.
+
 ## Purpose
 
 Define the implementation plan for the v2 playbook content contract and generic Run Playbook execution model.

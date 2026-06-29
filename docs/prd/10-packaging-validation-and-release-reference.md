@@ -81,6 +81,7 @@ For a true first public release, the release state now uses Apache-2.0 licensing
 - Enhanced by [30-revise-harness-plugin-substrate-workflow-bundles.md](./30-revise-harness-plugin-substrate-workflow-bundles.md) for plugin package proof. Packed validation must prove no-default plugin behavior, explicit selected plugin payload and native exposure or plugin-specific adapter behavior when implemented, plugin asset inclusion or exclusion rules, and exclusion of conformance-lab records, generated local run artifacts, and unreviewed plugin outputs from shipped template/package surfaces.
 - Enhanced by [31-revise-coverage-pass-extensions-adversarial-review.md](./31-revise-coverage-pass-extensions-adversarial-review.md) for adversarial-review package proof. Packed validation must cover shipped adversarial prompts, references, playbooks, plugins, CLI/MCP affordances, or conformance records only when a downstream plan explicitly selects that surface; package proof must preserve template-first authoring, no-default exposure, prompt-rule coverage when prompts are added, playbook/plugin validation when those surfaces are added, and evidence-bound support claims.
 - Enhanced by [32-revise-lifecycle-backup-state-agentics-pruning.md](./32-revise-lifecycle-backup-state-agentics-pruning.md) for backup and uninstall package proof. Packed validation must prove new backup writes use `.make-docs/backup/**`, fresh installs do not create root `.backup/**`, legacy root `.backup/**` is protected when present, and selected-agentics uninstall prunes empty managed `.make-docs/agentics/**` directories safely.
+- Enhanced by [33-enhance-playbook-packaging-and-harness-adapter-registry.md](./33-enhance-playbook-packaging-and-harness-adapter-registry.md) for generated Playbook package proof. Packed validation must prove generated plugin and skills-bundle outputs are included only when a reviewed package plan selects them as shipped assets, while local generated outputs, export-only artifacts, run state, and conformance records stay out of templates and tarballs by default.
 
 ## Source Anchors
 
@@ -111,6 +112,9 @@ For a true first public release, the release state now uses Apache-2.0 licensing
 - `docs/prd/30-revise-harness-plugin-substrate-workflow-bundles.md`
 - `docs/prd/31-revise-coverage-pass-extensions-adversarial-review.md`
 - `docs/prd/32-revise-lifecycle-backup-state-agentics-pruning.md`
+- `docs/prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md`
+- `docs/designs/2026-06-29-playbook-packaging-and-harness-adapter-registry.md`
+- `docs/plans/2026-06-29-w18-r5-playbook-packaging-and-harness-adapter-registry/00-overview.md`
 - `docs/designs/2026-06-20-cli-separation-and-mcp-boundary.md`
 - `docs/designs/2026-06-20-no-scripts-migration-and-skill-refactor.md`
 - `docs/designs/2026-06-20-skill-purpose-registry-and-alternate-skills-manifest.md`

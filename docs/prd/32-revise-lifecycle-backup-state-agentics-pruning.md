@@ -18,6 +18,8 @@ W7 established root `.backup/**` as the backup destination. W9 R2 made `.make-do
 
 This PRD does not require automatic migration of existing root `.backup/**`. Existing root backup trees are protected legacy state and may be migrated only by a later explicit reviewed migration.
 
+W18 R5 generated Playbook package outputs inherit this lifecycle contract when they are installed through selected-agentics or plugin lifecycle surfaces. Generated plugin and skills-bundle outputs must be backed up, audited, uninstalled, and pruned through reviewed ownership state; source Playbooks remain source assets under `docs/assets/playbooks/**`.
+
 ## Requirements
 
 ### Backup Destination
@@ -73,6 +75,8 @@ Plugin lifecycle work inherits this backup and pruning contract.
 
 Selected plugin payload backup, uninstall, migration, and cleanup must use `.make-docs/backup/**`, protect legacy root `.backup/**`, and prune empty Make Docs-owned plugin or agentics directories only after audit proves there are no unmanaged descendants.
 
+Generated Playbook package outputs also inherit this contract. Backup, uninstall, migration, and cleanup must preserve source Playbooks, preserve user-modified generated outputs for review, remove only clean manifest-owned generated artifacts, and avoid pruning parent directories that contain unmanaged harness content.
+
 ## Non-Requirements
 
 - No automatic migration of root `.backup/**`.
@@ -82,6 +86,7 @@ Selected plugin payload backup, uninstall, migration, and cleanup must use `.mak
 - No remote skill delivery decision.
 - No plugin selection or plugin runtime implementation.
 - No MCP write implementation in this correction.
+- No generated Playbook package lifecycle implementation outside the W18 R5 package-plan, manifest/audit, and adapter model.
 
 ## Affected Baseline Docs
 
@@ -92,6 +97,7 @@ Selected plugin payload backup, uninstall, migration, and cleanup must use `.mak
 - [10 Packaging Validation and Release Reference](10-packaging-validation-and-release-reference.md)
 - [28 Revise Shared Agentics Installation Harness Redirection](28-revise-shared-agentics-installation-harness-redirection.md)
 - [30 Revise Harness Plugin Substrate Workflow Bundles](30-revise-harness-plugin-substrate-workflow-bundles.md)
+- [33 Enhance Playbook Packaging and Harness Adapter Registry](33-enhance-playbook-packaging-and-harness-adapter-registry.md)
 
 ## Acceptance Criteria
 
@@ -103,6 +109,7 @@ Selected plugin payload backup, uninstall, migration, and cleanup must use `.mak
 - Removing one selected skill does not prune sibling selected-skill or selected-plugin content.
 - User-authored or ambiguous content under `.make-docs/agentics/**` is preserved or routed to review.
 - Package smoke validation proves the packed CLI uses the corrected backup destination.
+- W18 R5 generated plugin and skills-bundle outputs that enter selected-agentics or plugin lifecycle surfaces inherit `.make-docs/backup/**`, reviewed deletion, user-modification preservation, and safe parent-pruning rules.
 
 ## Implementation Closeout
 
@@ -136,11 +143,14 @@ Deferred or unchanged:
 - [../designs/2026-06-27-lifecycle-backup-state-and-agentics-pruning-correction.md](../designs/2026-06-27-lifecycle-backup-state-and-agentics-pruning-correction.md)
 - [../plans/2026-06-27-w17-r4-lifecycle-backup-state-and-agentics-pruning/00-overview.md](../plans/2026-06-27-w17-r4-lifecycle-backup-state-and-agentics-pruning/00-overview.md)
 - [../work/2026-06-27-w17-r4-lifecycle-backup-state-and-agentics-pruning/00-index.md](../work/2026-06-27-w17-r4-lifecycle-backup-state-and-agentics-pruning/00-index.md)
+- [../designs/2026-06-29-playbook-packaging-and-harness-adapter-registry.md](../designs/2026-06-29-playbook-packaging-and-harness-adapter-registry.md)
+- [../plans/2026-06-29-w18-r5-playbook-packaging-and-harness-adapter-registry/00-overview.md](../plans/2026-06-29-w18-r5-playbook-packaging-and-harness-adapter-registry/00-overview.md)
 - [05 Installation Profile and Manifest Lifecycle](05-installation-profile-and-manifest-lifecycle.md)
 - [07 CLI Command Surface and Lifecycle](07-cli-command-surface-and-lifecycle.md)
 - [10 Packaging Validation and Release Reference](10-packaging-validation-and-release-reference.md)
 - [28 Revise Shared Agentics Installation Harness Redirection](28-revise-shared-agentics-installation-harness-redirection.md)
 - [30 Revise Harness Plugin Substrate Workflow Bundles](30-revise-harness-plugin-substrate-workflow-bundles.md)
+- [33 Enhance Playbook Packaging and Harness Adapter Registry](33-enhance-playbook-packaging-and-harness-adapter-registry.md)
 - `packages/cli/src/backup.ts`
 - `packages/cli/src/audit.ts`
 - `packages/cli/src/uninstall.ts`

@@ -18,6 +18,8 @@ This PRD narrows older terminology-overlay intent into a presentation-only confi
 
 W18 R4 adds one reviewed operational-hint surface to `.make-docs/config.yaml`: harness capability records for Run Playbook strategy. These records inform execution choices after canonical resolution; they do not rename paths, playbook refs, stack values, route ids, harness ids, or manifest keys.
 
+W18 R5 keeps Playbook package planning outside config. Package plans may read reviewed harness capability records after canonical target harness resolution, but `.make-docs/config.yaml` must not define output kinds, harness adapters, generated package paths, source digests, or support claims.
+
 ## Requirements
 
 ### Optional Project-Owned Config
@@ -63,7 +65,7 @@ A configured prefix-style label may influence generated explanations of filename
 
 ### Rendering Surfaces
 
-CLI, MCP, plugin, and skill surfaces consume config as rendering input, not routing authority. Commands, scripts, validators, and package-template checks route through canonical paths and identifiers, then apply configured labels only when producing user-visible text. [25-revise-cli-separation-and-mcp-boundary.md](25-revise-cli-separation-and-mcp-boundary.md) reinforces that TypeScript MCP tools, plugins, and skills must route by canonical paths, manifest keys, route ids, prompt paths, skill names, contract names, and harness names before applying labels. [26-revise-no-scripts-migration-skill-refactor.md](26-revise-no-scripts-migration-skill-refactor.md) extends the same rule to migrated helper behavior: config validation and deterministic script-replacement logic belong in canonical CLI/shared-core operations, not label-driven script routing. [27-revise-skill-purpose-registry-alternate-skills-manifest.md](27-revise-skill-purpose-registry-alternate-skills-manifest.md) applies the rule to purpose-led skills: purpose labels may be presented from config, but purpose ids, manifest ids, skill names, and source-policy classes remain canonical routing values. [28-revise-shared-agentics-installation-harness-redirection.md](28-revise-shared-agentics-installation-harness-redirection.md) applies the same boundary to native harness exposure and shared payloads: config-derived labels may appear in generated diagnostics only after the canonical resolver identifies payload path, harness, skill name, purpose id, and source provenance. [29-revise-playbook-contract-run-playbook.md](29-revise-playbook-contract-run-playbook.md) applies the rule to Run Playbook: configured labels may affect selection and handoff messages, but `kind`, `persona`, `stack`, authority order, output routing, and artifact ownership remain canonical. [30-revise-harness-plugin-substrate-workflow-bundles.md](30-revise-harness-plugin-substrate-workflow-bundles.md) applies the rule to plugins and workflow bundles: configured labels may appear only after canonical plugin id, playbook id, route id, harness, bundle metadata, and manifest ownership records are resolved. [31-revise-coverage-pass-extensions-adversarial-review.md](31-revise-coverage-pass-extensions-adversarial-review.md) applies the rule to adversarial review: configured persona labels may affect candidate display only after the canonical `target`, `persona_target`, surface, verdict, and handoff owner are resolved.
+CLI, MCP, plugin, and skill surfaces consume config as rendering input, not routing authority. Commands, scripts, validators, and package-template checks route through canonical paths and identifiers, then apply configured labels only when producing user-visible text. [25-revise-cli-separation-and-mcp-boundary.md](25-revise-cli-separation-and-mcp-boundary.md) reinforces that TypeScript MCP tools, plugins, and skills must route by canonical paths, manifest keys, route ids, prompt paths, skill names, contract names, and harness names before applying labels. [26-revise-no-scripts-migration-skill-refactor.md](26-revise-no-scripts-migration-skill-refactor.md) extends the same rule to migrated helper behavior: config validation and deterministic script-replacement logic belong in canonical CLI/shared-core operations, not label-driven script routing. [27-revise-skill-purpose-registry-alternate-skills-manifest.md](27-revise-skill-purpose-registry-alternate-skills-manifest.md) applies the rule to purpose-led skills: purpose labels may be presented from config, but purpose ids, manifest ids, skill names, and source-policy classes remain canonical routing values. [28-revise-shared-agentics-installation-harness-redirection.md](28-revise-shared-agentics-installation-harness-redirection.md) applies the same boundary to native harness exposure and shared payloads: config-derived labels may appear in generated diagnostics only after the canonical resolver identifies payload path, harness, skill name, purpose id, and source provenance. [29-revise-playbook-contract-run-playbook.md](29-revise-playbook-contract-run-playbook.md) applies the rule to Run Playbook: configured labels may affect selection and handoff messages, but `kind`, `persona`, `stack`, authority order, output routing, and artifact ownership remain canonical. [30-revise-harness-plugin-substrate-workflow-bundles.md](30-revise-harness-plugin-substrate-workflow-bundles.md) applies the rule to plugins and workflow bundles: configured labels may appear only after canonical plugin id, playbook id, route id, harness, bundle metadata, and manifest ownership records are resolved. [31-revise-coverage-pass-extensions-adversarial-review.md](31-revise-coverage-pass-extensions-adversarial-review.md) applies the rule to adversarial review: configured persona labels may affect candidate display only after the canonical `target`, `persona_target`, surface, verdict, and handoff owner are resolved. [33-enhance-playbook-packaging-and-harness-adapter-registry.md](33-enhance-playbook-packaging-and-harness-adapter-registry.md) applies the rule to Playbook packaging: config may inform display and reviewed capability hints, but output kinds, harness adapter ids, surface profiles, package-plan ids, source digests, generated artifact paths, review states, and support states remain canonical package-planner data.
 
 ### Harness Capability Records
 
@@ -72,6 +74,8 @@ CLI, MCP, plugin, and skill surfaces consume config as rendering input, not rout
 Harness capability records are operational hints, not routing authority. They may influence whether Run Playbook uses a harness goal feature, serial gated execution, subagent delegation, or manual-review stop after the playbook ref, stack, harness, and output surfaces are resolved canonically.
 
 Unknown capabilities must not be guessed. An agent may investigate the active harness and propose a config update, but persistence requires review. Required unknown or unsupported capabilities stop the run; optional unknown capabilities fall back to serial gated execution.
+
+Playbook package planning may consult reviewed harness capability records when choosing safe execution assists for generated outputs, but it must not infer package support from config alone. Generated package support still requires adapter declarations and conformance evidence.
 
 ### Validation
 
@@ -90,6 +94,7 @@ If a default config template is introduced, it starts in `packages/docs/template
 - No requirement to backfill all existing docs with config-rendered prose.
 - No permission for plugins, skills, or MCP surfaces to use configured labels as schema authority.
 - No permission for harness capability records to rename playbook paths, stacks, refs, route ids, harness ids, or manifest keys.
+- No permission for config to define package-plan schemas, output kinds, harness adapters, surface profiles, generated artifact paths, or support claims.
 
 ## Affected Baseline Docs
 
@@ -109,6 +114,7 @@ If a default config template is introduced, it starts in `packages/docs/template
 - [29 Revise Playbook Contract Run Playbook](29-revise-playbook-contract-run-playbook.md)
 - [30 Revise Harness Plugin Substrate Workflow Bundles](30-revise-harness-plugin-substrate-workflow-bundles.md)
 - [31 Revise Coverage Pass Extensions Adversarial Review](31-revise-coverage-pass-extensions-adversarial-review.md)
+- [33 Enhance Playbook Packaging and Harness Adapter Registry](33-enhance-playbook-packaging-and-harness-adapter-registry.md)
 - [../designs/2026-06-20-cli-separation-and-mcp-boundary.md](../designs/2026-06-20-cli-separation-and-mcp-boundary.md)
 - [../plans/2026-06-23-w10-r6-cli-separation-and-mcp-boundary/00-overview.md](../plans/2026-06-23-w10-r6-cli-separation-and-mcp-boundary/00-overview.md)
 
@@ -119,14 +125,17 @@ If a default config template is introduced, it starts in `packages/docs/template
 - Structural rename attempts produce diagnostics rather than alternate schemas.
 - Persona config validation covers defaults, custom entries, duplicate slugs, invalid primitives, and unknown frontmatter persona slugs.
 - Harness capability records validate canonical capability ids and cannot become alternate routing schema.
+- Playbook package planning may consume reviewed harness capability hints without treating config as package-plan, adapter, generated-output, or support-claim authority.
 - Package and dogfood validation prove any default config template follows source-first copy rules and local config preservation.
 
 ## Source Anchors
 
 - [../designs/2026-06-20-configuration-and-convention-overlay.md](../designs/2026-06-20-configuration-and-convention-overlay.md)
 - [../designs/2026-06-27-run-playbook-orchestration-and-harness-capabilities.md](../designs/2026-06-27-run-playbook-orchestration-and-harness-capabilities.md)
+- [../designs/2026-06-29-playbook-packaging-and-harness-adapter-registry.md](../designs/2026-06-29-playbook-packaging-and-harness-adapter-registry.md)
 - [../plans/2026-06-23-w16-r2-configuration-convention-overlay/00-overview.md](../plans/2026-06-23-w16-r2-configuration-convention-overlay/00-overview.md)
 - [../plans/2026-06-27-w18-r4-run-playbook-orchestration-and-harness-capabilities/00-overview.md](../plans/2026-06-27-w18-r4-run-playbook-orchestration-and-harness-capabilities/00-overview.md)
+- [../plans/2026-06-29-w18-r5-playbook-packaging-and-harness-adapter-registry/00-overview.md](../plans/2026-06-29-w18-r5-playbook-packaging-and-harness-adapter-registry/00-overview.md)
 - [../work/2026-06-23-w16-r2-configuration-convention-overlay/00-index.md](../work/2026-06-23-w16-r2-configuration-convention-overlay/00-index.md)
 - [../designs/2026-06-20-no-scripts-migration-and-skill-refactor.md](../designs/2026-06-20-no-scripts-migration-and-skill-refactor.md)
 - [../plans/2026-06-23-w16-r3-no-scripts-migration-skill-refactor/00-overview.md](../plans/2026-06-23-w16-r3-no-scripts-migration-skill-refactor/00-overview.md)
@@ -138,6 +147,7 @@ If a default config template is introduced, it starts in `packages/docs/template
 - [29 Revise Playbook Contract Run Playbook](29-revise-playbook-contract-run-playbook.md)
 - [30 Revise Harness Plugin Substrate Workflow Bundles](30-revise-harness-plugin-substrate-workflow-bundles.md)
 - [31 Revise Coverage Pass Extensions Adversarial Review](31-revise-coverage-pass-extensions-adversarial-review.md)
+- [33 Enhance Playbook Packaging and Harness Adapter Registry](33-enhance-playbook-packaging-and-harness-adapter-registry.md)
 - [21 Revise Tool Directory System Custom Resource Tiers](21-revise-tool-directory-system-custom-resource-tiers.md)
 - [22 Revise New Docs Assets Playbooks Persona Model](22-revise-new-docs-assets-playbooks-persona-model.md)
 - [23 Revise Generated Metadata Lifecycle Handoffs](23-revise-generated-metadata-lifecycle-handoffs.md)

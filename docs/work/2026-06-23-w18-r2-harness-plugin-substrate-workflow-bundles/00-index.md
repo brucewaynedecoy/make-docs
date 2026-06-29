@@ -16,6 +16,10 @@ Before implementing plugin backup, uninstall, migration, or cleanup behavior, ap
 
 Before executing plugin or workflow bundle work that invokes playbooks, apply [W18 R4 Run Playbook Orchestration and Harness Capabilities](../2026-06-27-w18-r4-run-playbook-orchestration-and-harness-capabilities/00-index.md). W18 R2 workers must delegate resolver identity, stack disambiguation, harness capability mediation, Make Docs-owned run state, nested-playbook behavior, and concurrency safety to W18 R4 instead of defining plugin-local semantics.
 
+## W18 R5 Playbook Packaging Prerequisite
+
+Before executing this backlog, apply [W18 R5 Playbook Packaging and Harness Adapter Registry](../2026-06-29-w18-r5-playbook-packaging-and-harness-adapter-registry/00-index.md). W18 R2 workers must implement plugin substrate and workflow bundle behavior in a way that can host W18 R5 generated plugin and skills-bundle outputs, including package-plan provenance, output-kind separation, adapter-selected surfaces, lifecycle ownership, and evidence-bound support claims.
+
 ## Purpose
 
 Implement the v2 plugin substrate and productized workflow bundle metadata described by PRD 30.
