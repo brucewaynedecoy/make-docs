@@ -278,6 +278,12 @@ function createPluginArtifactMetadata(
     supportedHarnesses: [...definition.supportedHarnesses],
     scope: options.scope,
     supportStatus: definition.supportStatus,
+    ...(definition.workflowBundles
+      ? { workflowBundles: structuredClone(definition.workflowBundles) }
+      : {}),
+    ...(definition.packageBoundary
+      ? { packageBoundary: structuredClone(definition.packageBoundary) }
+      : {}),
   };
 }
 

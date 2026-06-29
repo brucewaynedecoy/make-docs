@@ -6,8 +6,10 @@ import type {
   PluginSourceManifestMetadata,
   PluginSupportStatus,
   PluginTrustPolicy,
+  PluginPackageBoundary,
   ResolvedPluginExposureAsset,
   ResolvedPluginPayloadAsset,
+  WorkflowBundleMetadata,
 } from "../types";
 
 export type PluginExposureKind = "native" | "generated-adapter";
@@ -30,6 +32,8 @@ export interface PluginArtifactDefinition {
   trustPolicy: PluginTrustPolicy;
   supportedHarnesses: Harness[];
   supportStatus: PluginSupportStatus;
+  workflowBundles?: WorkflowBundleMetadata[];
+  packageBoundary?: PluginPackageBoundary;
   payload: PluginPayloadFile[];
 }
 

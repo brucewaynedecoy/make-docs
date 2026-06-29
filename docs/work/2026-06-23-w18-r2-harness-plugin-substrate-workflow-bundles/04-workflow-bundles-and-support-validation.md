@@ -6,14 +6,14 @@ Add workflow bundle metadata and validation gates for package inclusion, Run Pla
 
 ## Tasks
 
-- [ ] Add bundle metadata for Idea/Brainstorm, Scaffold, Change Request/Iterate, and Use/Run candidates before implementation surfaces become public.
-- [ ] Require every bundle to declare audience and exposure boundary: maintainer-only, non-maintainer request-capture, non-maintainer guided-change, or end-user run-stack usage.
-- [ ] Require bundle metadata to distinguish request capture from authorized mutation where applicable.
-- [ ] Ensure Use/Run can invoke generic Run Playbook without redefining playbook storage or making plugins mandatory.
-- [ ] Add package validation that proves plugin payloads/manifests are included, excluded, or intentionally deferred.
-- [ ] Keep conformance-lab records and generated local run artifacts out of shipped package/template paths by default.
-- [ ] Add conformance scenario candidates for plugin, bundle, playbook, harness, model/provider, and runtime support claims.
-- [ ] Update public wording to remain provisional until implementation or conformance evidence exists for the exact tuple claimed.
+- [x] Add bundle metadata for Idea/Brainstorm, Scaffold, Change Request/Iterate, and Use/Run candidates before implementation surfaces become public.
+- [x] Require every bundle to declare audience and exposure boundary: maintainer-only, non-maintainer request-capture, non-maintainer guided-change, or end-user run-stack usage.
+- [x] Require bundle metadata to distinguish request capture from authorized mutation where applicable.
+- [x] Ensure Use/Run can invoke generic Run Playbook without redefining playbook storage or making plugins mandatory.
+- [x] Add package validation that proves plugin payloads/manifests are included, excluded, or intentionally deferred.
+- [x] Keep conformance-lab records and generated local run artifacts out of shipped package/template paths by default.
+- [x] Add conformance scenario candidates for plugin, bundle, playbook, harness, model/provider, and runtime support claims.
+- [x] Update public wording to remain provisional until implementation or conformance evidence exists for the exact tuple claimed.
 
 ## Acceptance Criteria
 
@@ -25,3 +25,16 @@ Add workflow bundle metadata and validation gates for package inclusion, Run Pla
 ## Validation Notes
 
 Run the package validation chain when implementation touches shipped plugin payloads, plugin manifests, native exposure files, generated adapters, bundle metadata defaults, or public support wording.
+
+Validation completed:
+
+- `npm test -w packages/cli -- --run tests/workflow-bundles.test.ts tests/plugin-substrate.test.ts tests/plugin-lifecycle.test.ts --reporter=dot`
+- `npm test -w packages/cli -- --reporter=dot`
+- `npm run validate:defaults -w packages/cli`
+- `npm run build -w packages/cli`
+- `npm run smoke:pack`
+- `python3 .make-docs/scripts/check_path_hygiene.py --repo-root .`
+- `bash scripts/check-wave-numbering.sh`
+- `git diff --check`
+
+Manual UAT remains deferred until the full W18 R2 wave is complete.

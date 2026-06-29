@@ -10,7 +10,13 @@ export {
 export {
   validatePluginArtifactDefinition,
   validatePluginHarnessExposureDeclaration,
+  validatePluginConformanceScenarioCandidate,
+  validatePluginPackageBoundary,
+  validatePluginSupportClaim,
+  validateWorkflowBundleCatalog,
+  validateWorkflowBundleMetadata,
 } from "./validation";
+export { FIRST_PARTY_WORKFLOW_BUNDLES } from "./workflow-bundles";
 export type {
   PluginArtifactDefinition,
   PluginDryRunLineOptions,
