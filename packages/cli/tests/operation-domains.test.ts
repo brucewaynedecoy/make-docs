@@ -7,6 +7,8 @@ import {
   getOperationDomain,
   guardPhaseScope,
   listOperationDomains,
+  readPlaybookCatalog,
+  readPlaybookResolution,
   probeCloseout,
   readWorkPhaseState,
 } from "../src/operations/index";
@@ -53,6 +55,13 @@ describe("operation domain modules", () => {
           expect.objectContaining({ name: "checkpoint", mutates: true }),
           expect.objectContaining({ name: "scope-guard", mutates: false }),
           expect.objectContaining({ name: "phase-gate", mutates: false }),
+        ],
+      }),
+      expect.objectContaining({
+        name: "playbook",
+        commands: [
+          expect.objectContaining({ name: "playbook-catalog", mutates: false }),
+          expect.objectContaining({ name: "playbook-resolve", mutates: false }),
         ],
       }),
     ]);
@@ -152,5 +161,48 @@ describe("operation domain modules", () => {
       expect.objectContaining({ path: "package.json", category: "config" }),
     ]);
     expect(result.value.validationHints).toContain("git diff --check");
+  });
+
+  test("runs playbook domain operations without CLI parser or MCP transport setup", () => {
+    const root = createTempDir("make-docs-playbook-domain-");
+    tempRoots.push(root);
+    execFileSync("git", ["init"], { cwd: root, stdio: "ignore" });
+    writeFile(
+      root,
+      "docs/assets/playbooks/user/use-system.md",
+      [
+        "---",
+        "title: Use System",
+        "kind: playbook",
+        "status: accepted",
+        "persona: user",
+        "stack: run",
+        "summary: Use the installed system.",
+        "---",
+        "",
+        "# Use System",
+        "",
+      ].join("\n"),
+    );
+
+    const catalog = readPlaybookCatalog({ repoRoot: root });
+    const resolution = readPlaybookResolution({
+      repoRoot: root,
+      ref: "user/use-system",
+      requestedStack: "run",
+    });
+
+    expect(catalog.provenance.operation).toBe("playbook-catalog");
+    expect(resolution.provenance.operation).toBe("playbook-resolve");
+    expect(resolution.value).toEqual(
+      expect.objectContaining({
+        mode: "qualified-ref",
+        entry: expect.objectContaining({
+          ref: "user/use-system",
+          stack: "run",
+          title: "Use System",
+        }),
+      }),
+    );
   });
 });

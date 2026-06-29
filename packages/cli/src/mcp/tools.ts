@@ -14,6 +14,10 @@ import {
 } from "../operations/lifecycle";
 import { listOperationDomains } from "../operations/index";
 import {
+  buildPlaybookCatalog,
+  resolvePlaybook,
+} from "../operations/playbook";
+import {
   buildPhasePlan,
   buildWaveStatus,
   parseWorkPhase,
@@ -38,7 +42,9 @@ type McpToolName =
   | "make_docs_wave_status"
   | "make_docs_phase_plan"
   | "make_docs_scope_guard"
-  | "make_docs_phase_gate";
+  | "make_docs_phase_gate"
+  | "make_docs_playbook_catalog"
+  | "make_docs_playbook_resolve";
 
 type McpToolInput = Record<string, unknown>;
 
@@ -170,6 +176,23 @@ export const MAKE_DOCS_MCP_TOOLS: MakeDocsMcpToolDescriptor[] = [
       commitPolicy: z.string().optional(),
     },
   },
+  {
+    name: "make_docs_playbook_catalog",
+    title: "Read Playbook Catalog",
+    description: "List valid playbooks and metadata without running a playbook.",
+    inputSchema: { repoRoot: repoRootSchema },
+  },
+  {
+    name: "make_docs_playbook_resolve",
+    title: "Resolve Playbook Reference",
+    description:
+      "Resolve an explicit path, persona/slug, or unique bare playbook reference without executing it.",
+    inputSchema: {
+      repoRoot: repoRootSchema,
+      ref: z.string(),
+      stack: z.enum(["build", "run"]).optional(),
+    },
+  },
 ];
 
 export async function callMakeDocsMcpTool(
@@ -230,6 +253,17 @@ export async function callMakeDocsMcpTool(
           requiredString(args, "target"),
           optionalString(args, "commitPolicy"),
         ),
+      );
+    case "make_docs_playbook_catalog":
+      return mcpPayload(name, buildPlaybookCatalog({ repoRoot: resolveRepoRoot(args) }));
+    case "make_docs_playbook_resolve":
+      return mcpPayload(
+        name,
+        resolvePlaybook({
+          repoRoot: resolveRepoRoot(args),
+          ref: requiredString(args, "ref"),
+          requestedStack: optionalString(args, "stack"),
+        }),
       );
     default:
       throw new Error(`Unknown make-docs MCP tool: ${name}`);

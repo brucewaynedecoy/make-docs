@@ -48,6 +48,8 @@ describe("make-docs MCP runtime", () => {
       "make_docs_phase_plan",
       "make_docs_scope_guard",
       "make_docs_phase_gate",
+      "make_docs_playbook_catalog",
+      "make_docs_playbook_resolve",
     ]);
   });
 
@@ -110,6 +112,51 @@ describe("make-docs MCP runtime", () => {
     expect(workPayload.result).toEqual(parseWorkPhase(phasePath));
     expect(closeoutPayload.result).toEqual(
       buildCloseoutProbe({ repoRoot: root, scope: "full" }),
+    );
+  });
+
+  test("delegates playbook MCP tools to operation-domain functions", async () => {
+    const root = createTempDir("make-docs-mcp-playbooks-");
+    tempRoots.push(root);
+    writeFile(
+      root,
+      "docs/assets/playbooks/user/use-system.md",
+      [
+        "---",
+        "title: Use System",
+        "kind: playbook",
+        "status: accepted",
+        "persona: user",
+        "stack: run",
+        "summary: Use the installed system.",
+        "---",
+        "",
+        "# Use System",
+        "",
+      ].join("\n"),
+    );
+
+    const catalog = await callMakeDocsMcpTool("make_docs_playbook_catalog", {
+      repoRoot: root,
+    });
+    const resolution = await callMakeDocsMcpTool("make_docs_playbook_resolve", {
+      repoRoot: root,
+      ref: "user/use-system",
+      stack: "run",
+    });
+
+    expect(catalog.result).toEqual(
+      expect.objectContaining({
+        entries: [
+          expect.objectContaining({ ref: "user/use-system", stack: "run" }),
+        ],
+      }),
+    );
+    expect(resolution.result).toEqual(
+      expect.objectContaining({
+        mode: "qualified-ref",
+        entry: expect.objectContaining({ ref: "user/use-system" }),
+      }),
     );
   });
 

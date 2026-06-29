@@ -1,5 +1,6 @@
 import { closeoutDomain } from "./closeout";
 import { lifecycleDomain } from "./lifecycle";
+import { playbookDomain } from "./playbook";
 import type { OperationDomainDescriptor, OperationDomainName } from "./types";
 import { workDomain } from "./work";
 
@@ -16,6 +17,13 @@ export { OperationError } from "./types";
 export { closeoutDomain, probeCloseout } from "./closeout";
 export { lifecycleDomain, checkpointPhase, gatePhase, guardPhaseScope } from "./lifecycle";
 export {
+  buildPlaybookCatalog,
+  playbookDomain,
+  readPlaybookCatalog,
+  readPlaybookResolution,
+  resolvePlaybook,
+} from "./playbook";
+export {
   planWorkPhase,
   readWaveStatus,
   readWorkPhaseState,
@@ -23,7 +31,7 @@ export {
   workDomain,
 } from "./work";
 
-const DOMAINS = [closeoutDomain, workDomain, lifecycleDomain] as const;
+const DOMAINS = [closeoutDomain, workDomain, lifecycleDomain, playbookDomain] as const;
 
 export function listOperationDomains(): OperationDomainDescriptor[] {
   return DOMAINS.map((domain) => ({

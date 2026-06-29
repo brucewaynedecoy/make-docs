@@ -9,6 +9,10 @@ export {
   buildPhaseGateReport,
   buildScopeReport,
 } from "./operations/lifecycle";
+export {
+  buildPlaybookCatalog,
+  resolvePlaybook,
+} from "./operations/playbook";
 export { OperationError } from "./operations/types";
 export type { JsonValue } from "./operations/types";
 export {

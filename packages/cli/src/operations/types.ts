@@ -13,7 +13,7 @@ export class OperationError extends Error {
   }
 }
 
-export type OperationDomainName = "closeout" | "work" | "lifecycle";
+export type OperationDomainName = "closeout" | "work" | "lifecycle" | "playbook";
 
 export interface OperationProvenance {
   domain: OperationDomainName;

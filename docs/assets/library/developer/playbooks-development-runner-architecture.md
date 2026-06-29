@@ -29,7 +29,7 @@ related:
 
 # Run Playbook Runner Architecture
 
-This guide explains the accepted v2 architecture for Run Playbook after W18 R4, W18 R1, W18 R2, and W18 R3 are implemented. It is a developer guide for contributors and maintainers. It does not lock final public command names or MCP tool ids.
+This guide explains the accepted v2 architecture for Run Playbook after W18 R4, W18 R1, W18 R2, and W18 R3 are implemented. It is a developer guide for contributors and maintainers. The W18 R4 resolver primitives are implemented as `playbook-catalog` and `playbook-resolve`; later runner, state, and bundle command names may still be refined by their implementation phases.
 
 ## Architectural Shape
 
@@ -49,6 +49,12 @@ Run Playbook can be reached through several surfaces:
 - Direct agent request: an agent can read the Playbook and still use Make Docs contracts, config, and run state as the execution authority.
 
 Each surface should delegate to the same operation module. Public dispatch can stay thin, but the domain logic needs to be testable without invoking the full CLI parser or MCP transport.
+
+W18 R4 Phase 2 adds the first read-only playbook operation primitives:
+
+- `make-docs operations playbook-catalog --repo-root <path>` lists valid playbooks under `docs/assets/playbooks/<persona>/<slug>.md`.
+- `make-docs operations playbook-resolve <ref> --repo-root <path> [--stack build|run]` resolves an explicit path, `persona/slug`, or unique bare slug/title before any execution behavior starts.
+- MCP exposes the same resolver primitives through `make_docs_playbook_catalog` and `make_docs_playbook_resolve`.
 
 ## Runner Pipeline
 
@@ -85,6 +91,8 @@ Selection should follow this order:
 The `stack` metadata remains required, but it is not another directory level. It helps validation and disambiguation after candidate resolution.
 
 Ambiguity fails closed. If two Playbooks can match the same bare slug or title, the runner should ask for a more specific reference instead of choosing one.
+
+The implemented resolver validates stack requests before returning a selected Playbook. If `--stack build` is requested for a run-stack Playbook, the resolver fails before authority loading, procedure execution, or output routing can begin.
 
 ## Harness Capability Mediation
 
@@ -138,7 +146,7 @@ When a new runner behavior is added, it needs focused operation tests and parity
 
 ## Future Coverage
 
-This guide should be refreshed when W18 implementation chooses final command names, MCP tool ids, run-state schema details, and plugin bundle entry points. It should also be updated with links to the concrete operation modules and tests once the runner domain exists in package source.
+This guide should be refreshed when W18 implementation chooses final run-state command names, state schema details, and plugin bundle entry points. It should also be updated with links to additional concrete operation modules and tests as Phases 3 and 4 land.
 
 ## Related Resources
 

@@ -9,6 +9,10 @@ import {
   buildPhaseGateReport,
   buildScopeReport,
 } from "./lifecycle";
+import {
+  buildPlaybookCatalog,
+  resolvePlaybook,
+} from "./playbook";
 import { OperationError } from "./types";
 import {
   buildPhasePlan,
@@ -118,6 +122,22 @@ export async function runOperationsCommand(argv: string[]): Promise<void> {
         ),
       );
       return;
+    case "playbook-catalog":
+      printJson(
+        buildPlaybookCatalog({
+          repoRoot: path.resolve(options.values["repo-root"] ?? "."),
+        }),
+      );
+      return;
+    case "playbook-resolve":
+      printJson(
+        resolvePlaybook({
+          repoRoot: path.resolve(options.values["repo-root"] ?? "."),
+          ref: requiredPositionals(options, operation).join(" "),
+          requestedStack: options.values.stack,
+        }),
+      );
+      return;
     default:
       throw new OperationError(`Unknown make-docs operation: ${operation}`);
   }
@@ -180,6 +200,8 @@ function printOperationsHelp(): void {
       "  checkpoint",
       "  scope-guard",
       "  phase-gate",
+      "  playbook-catalog",
+      "  playbook-resolve",
       "",
     ].join("\n"),
   );
