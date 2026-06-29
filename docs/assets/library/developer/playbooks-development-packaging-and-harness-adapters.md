@@ -51,9 +51,11 @@ The current implementation lives under `packages/cli/src/operations/playbook-pac
 - `types.ts` for package-plan, generated-output, and harness-adapter declaration contracts;
 - `validation.ts` for fail-closed validation helpers;
 - `planner.ts` for deterministic package-plan generation and dry-run rendering;
+- `adapters.ts` for first-party and fixture harness adapter declarations;
+- `surface-resolution.ts` for adapter-owned surface, path, precondition, and exposure-mode resolution;
 - `index.ts` for the public operation-domain export and helper exports.
 
-`playbookPackagingDomain` is registered in the shared operations registry with the read-only `playbook-package-plan` operation. This operation creates reviewable package plans and dry-run output without writing generated package files, mutating install state, or performing lifecycle cleanup. Writers remain deferred until accepted package-plan writer phases land.
+`playbookPackagingDomain` is registered in the shared operations registry with read-only `playbook-package-plan` and `playbook-package-surface-resolve` operations. These operations create reviewable package plans and resolve harness surfaces without writing generated package files, mutating install state, or performing lifecycle cleanup. Writers remain deferred until accepted package-plan writer phases land.
 
 Maintainers should import schema helpers from `packages/cli/src/operations/playbook-packaging/` or the operations facade, not duplicate literals in planner, writer, adapter, CLI, or MCP code. When adding fields, update the TypeScript contract, fail-closed validator, and focused schema tests together.
 
@@ -106,7 +108,27 @@ Each adapter should declare:
 
 `generic` should not be a harness id. Standard locations are surfaces that real harness adapters may support. The schema currently accepts `plugin` and `skills-bundle` as output kinds and `native`, `agents-standard`, and `auto` as surfaces or surface-selection modes.
 
-Adapter declaration validation requires at least one supported output kind and at least one supported surface. Path templates must only reference surfaces and scopes declared by that adapter so future harness support stays additive instead of requiring planner-specific branching.
+Adapter declaration validation requires at least one supported output kind and at least one supported surface. Path templates must only reference output kinds, surfaces, and scopes declared by that adapter so future harness support stays additive instead of requiring planner-specific branching.
+
+Current first-party adapter declarations live in `adapters.ts` for `codex` and `claude-code`. They intentionally model support as internal capability declarations and conformance requirements; public support wording remains provisional unless an exact tuple has evidence. The fixture-only `future-harness` adapter proves new harnesses can add native and agents-standard surfaces without modifying planner code.
+
+Use surface resolution like this during development:
+
+```sh
+make-docs operations playbook-package-surface-resolve \
+  --package-id run-stack \
+  --harness codex \
+  --output-kind plugin \
+  --surface native \
+  --scope project \
+  --precondition harness-supported=satisfied \
+  --precondition project-trusted=satisfied \
+  --precondition symlink-or-copy-mirror=satisfied
+```
+
+The resolver returns the selected concrete surface, package path, precondition states, lifecycle rules, conformance requirements, preferred exposure mode, fallback mode, and stops. Unknown or unsupported required preconditions route to manual review before writes. `auto` is resolved deterministically by adapter ranking to a concrete surface, preferring native when available and then agents-standard.
+
+Cross-platform exposure follows the W17 R3 native-exposure rule: prefer symlink exposures, use managed copy mirrors when symlinks are unavailable, and never silently generate generic stubs as a fallback. Lifecycle rules returned by the adapter must preserve user-authored files, unlink symlink exposures without following targets, and remove copy mirrors only when reviewed Make Docs ownership and backup evidence exist.
 
 ## Output Writers
 
@@ -151,11 +173,13 @@ Current focused schema coverage lives in `packages/cli/tests/playbook-packaging.
 
 Current package-planner coverage also lives in `packages/cli/tests/playbook-packaging.test.ts`. It covers deterministic single-Playbook plans, multi-Playbook skills-bundle plans that require semantic review, broken relative links and assets, ambiguous source refs, modified generated-output review stops, non-interactive review stops, and CLI dry-run JSON output.
 
+Current adapter and surface-resolution coverage lives in the same test file. It covers first-party adapter lookup, `generic` rejection, native and agents-standard surface resolution, `auto` surface selection, required-precondition review stops, Windows copy-mirror fallback when symlinks are unavailable, future-harness fixture additivity, and CLI surface-resolution JSON output.
+
 ## Future Coverage
 
 - Blocked by: W18 R5 adapter implementation.
-  Update when: the first validated generated plugin and skills-bundle adapters land.
-  Guide change: add adapter file paths, fixtures, and extension steps.
+  Update when: generated plugin and skills-bundle writers consume adapter-selected surfaces.
+  Guide change: add writer-to-adapter integration steps and accepted-plan persistence details.
 
 ## Related Resources
 

@@ -129,6 +129,9 @@ export function validateHarnessAdapterDeclaration(value: unknown): HarnessPackag
     throw new OperationError("Harness adapter must support at least one surface.");
   }
   for (const template of adapter.pathTemplates) {
+    if (!adapter.supportedOutputKinds.includes(template.outputKind)) {
+      throw new OperationError(`Harness adapter path template uses unsupported output kind \`${template.outputKind}\`.`);
+    }
     if (!adapter.supportedSurfaces.includes(template.surface)) {
       throw new OperationError(`Harness adapter path template uses unsupported surface \`${template.surface}\`.`);
     }
@@ -244,6 +247,7 @@ function validatePackagePlanLifecycle(value: unknown): PackagePlanLifecycle {
 
 function validateAdapterPathTemplate(record: Record<string, JsonValue>): PackageAdapterPathTemplate {
   return {
+    outputKind: requireEnum(record.outputKind, PLAYBOOK_PACKAGE_OUTPUT_KINDS, "adapter path template outputKind"),
     surface: requireEnum(record.surface, PLAYBOOK_PACKAGE_SURFACES, "adapter path template surface"),
     scope: requireEnum(record.scope, PLAYBOOK_PACKAGE_SCOPES, "adapter path template scope"),
     template: requireNonEmptyString(record.template, "adapter path template template"),

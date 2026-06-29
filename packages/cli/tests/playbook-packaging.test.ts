@@ -3,6 +3,11 @@ import path from "node:path";
 import { afterEach, describe, expect, test, vi } from "vitest";
 import {
   createPlaybookPackagePlan,
+  FIRST_PARTY_HARNESS_PACKAGE_ADAPTERS,
+  FIXTURE_FUTURE_HARNESS_PACKAGE_ADAPTER,
+  getHarnessPackageAdapter,
+  listHarnessPackageAdapters,
+  resolvePackageSurface,
   runOperationsCommand,
   validateGeneratedOutputRecord,
   validateHarnessAdapterDeclaration,
@@ -190,11 +195,13 @@ function validHarnessAdapter(
     supportedScopes: ["project", "global", "export-only"],
     pathTemplates: [
       {
+        outputKind: "plugin",
         surface: "native",
         scope: "project",
         template: ".future/plugins/{packageId}/",
       },
       {
+        outputKind: "skills-bundle",
         surface: "agents-standard",
         scope: "project",
         template: ".agents/skills/{skillName}/",
@@ -345,6 +352,12 @@ describe("playbook packaging schema foundation", () => {
     expect(() => validateHarnessAdapterDeclaration(validHarnessAdapter({
       supportedSurfaces: ["native"],
     }))).toThrow("unsupported surface `agents-standard`");
+  });
+
+  test("rejects adapter path templates for unsupported output kinds", () => {
+    expect(() => validateHarnessAdapterDeclaration(validHarnessAdapter({
+      supportedOutputKinds: ["plugin"],
+    }))).toThrow("unsupported output kind `skills-bundle`");
   });
 
   test("creates deterministic single-Playbook package plans without writes", () => {
@@ -554,5 +567,176 @@ describe("playbook packaging schema foundation", () => {
     expect(parsed.plan.packageId).toBe("run-stack");
     expect(parsed.writesPlanned).toBe(false);
     expect(parsed.lines).toContain("Writes planned: no");
+  });
+
+  test("loads current harness adapters by stable harness id", () => {
+    const adapters = listHarnessPackageAdapters();
+
+    expect(adapters.map((adapter) => adapter.harnessId)).toEqual(["codex", "claude-code"]);
+    expect(getHarnessPackageAdapter({ harnessId: "codex" }).supportedOutputKinds).toEqual([
+      "plugin",
+      "skills-bundle",
+    ]);
+    expect(() => getHarnessPackageAdapter({ harnessId: "generic" })).toThrow("No package adapter registered");
+  });
+
+  test("resolves native and agents-standard surfaces for current harnesses", () => {
+    const codexPlugin = resolvePackageSurface({
+      packageId: "run-stack",
+      target: {
+        harness: "codex",
+        outputKind: "plugin",
+        surface: "native",
+        scope: "project",
+      },
+      preconditions: {
+        "harness-supported": "satisfied",
+        "project-trusted": "satisfied",
+        "symlink-or-copy-mirror": "satisfied",
+      },
+    });
+    const claudeSkill = resolvePackageSurface({
+      packageId: "run-stack",
+      target: {
+        harness: "claude-code",
+        outputKind: "skills-bundle",
+        surface: "agents-standard",
+        scope: "project",
+      },
+      preconditions: {
+        "harness-supported": "satisfied",
+        "plugin-or-skill-support": "satisfied",
+        "symlink-or-copy-mirror": "satisfied",
+      },
+    });
+
+    expect(codexPlugin).toMatchObject({
+      status: "ready",
+      surface: "native",
+      path: ".agents/plugins/run-stack",
+      exposureMode: "symlink",
+    });
+    expect(claudeSkill).toMatchObject({
+      status: "ready",
+      surface: "agents-standard",
+      path: ".agents/skills/run-stack/SKILL.md",
+    });
+  });
+
+  test("resolves auto to a deterministic accepted concrete surface", () => {
+    const result = resolvePackageSurface({
+      packageId: "run-stack",
+      target: {
+        harness: "claude-code",
+        outputKind: "plugin",
+        surface: "auto",
+        scope: "project",
+      },
+      preconditions: {
+        "harness-supported": "satisfied",
+        "plugin-or-skill-support": "satisfied",
+        "symlink-or-copy-mirror": "satisfied",
+      },
+    });
+
+    expect(result.requestedSurface).toBe("auto");
+    expect(result.surface).toBe("native");
+    expect(result.path).toBe(".claude/plugins/run-stack/plugin.json");
+  });
+
+  test("routes unknown preconditions to manual review before writes", () => {
+    const result = resolvePackageSurface({
+      packageId: "run-stack",
+      target: {
+        harness: "codex",
+        outputKind: "plugin",
+        surface: "native",
+        scope: "project",
+      },
+      preconditions: {
+        "harness-supported": "satisfied",
+      },
+    });
+
+    expect(result.status).toBe("manual-review-required");
+    expect(result.stops.map((stop) => stop.message)).toEqual([
+      expect.stringContaining("project-trusted"),
+      expect.stringContaining("symlink-or-copy-mirror"),
+    ]);
+  });
+
+  test("uses managed copy mirrors when Windows symlinks are unavailable", () => {
+    const result = resolvePackageSurface({
+      packageId: "run-stack",
+      platform: "windows",
+      symlinkAvailable: false,
+      target: {
+        harness: "codex",
+        outputKind: "skills-bundle",
+        surface: "agents-standard",
+        scope: "project",
+      },
+      preconditions: {
+        "harness-supported": "satisfied",
+        "project-trusted": "satisfied",
+        "symlink-or-copy-mirror": "satisfied",
+      },
+    });
+
+    expect(result.exposureMode).toBe("copy-mirror");
+    expect(result.fallbackUsed).toBe(true);
+    expect(result.stops).toEqual([]);
+  });
+
+  test("keeps future harness support additive through adapter declarations", () => {
+    const result = resolvePackageSurface({
+      packageId: "run-stack",
+      adapters: [
+        ...FIRST_PARTY_HARNESS_PACKAGE_ADAPTERS,
+        FIXTURE_FUTURE_HARNESS_PACKAGE_ADAPTER,
+      ],
+      target: {
+        harness: "future-harness",
+        outputKind: "skills-bundle",
+        surface: "agents-standard",
+        scope: "project",
+      },
+      preconditions: {
+        "future-project-trusted": "satisfied",
+      },
+    });
+
+    expect(result.status).toBe("ready");
+    expect(result.path).toBe(".agents/skills/run-stack/SKILL.md");
+    expect(result.conformanceRequirements[0]?.id).toBe("future-harness-fixture");
+  });
+
+  test("exposes surface resolution through the CLI operation", async () => {
+    const writeSpy = vi.spyOn(process.stdout, "write").mockImplementation(() => true);
+
+    await runOperationsCommand([
+      "playbook-package-surface-resolve",
+      "--package-id",
+      "run-stack",
+      "--harness",
+      "codex",
+      "--output-kind",
+      "plugin",
+      "--surface",
+      "native",
+      "--scope",
+      "project",
+      "--precondition",
+      "harness-supported=satisfied",
+      "--precondition",
+      "project-trusted=satisfied",
+      "--precondition",
+      "symlink-or-copy-mirror=satisfied",
+    ]);
+
+    const output = writeSpy.mock.calls.map((call) => String(call[0])).join("");
+    const parsed = JSON.parse(output) as ReturnType<typeof resolvePackageSurface>;
+    expect(parsed.status).toBe("ready");
+    expect(parsed.path).toBe(".agents/plugins/run-stack");
   });
 });

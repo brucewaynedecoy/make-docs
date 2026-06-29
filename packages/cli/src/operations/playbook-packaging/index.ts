@@ -26,6 +26,10 @@ export type {
   PlaybookPackageSupportStatus,
   PlaybookPackageSurface,
   PlaybookPackageTarget,
+  PackageAdapterPreconditionState,
+  PackageSurfacePreconditionResult,
+  PackageSurfaceResolution,
+  PackageSurfaceResolutionInput,
   SourcePlaybookRef,
 } from "./types";
 export {
@@ -45,6 +49,16 @@ export {
   renderPackagePlanDryRunLines,
 } from "./planner";
 export {
+  FIRST_PARTY_HARNESS_PACKAGE_ADAPTERS,
+  FIXTURE_FUTURE_HARNESS_PACKAGE_ADAPTER,
+  getHarnessPackageAdapter,
+  listHarnessPackageAdapters,
+} from "./adapters";
+export {
+  readPackageSurfaceResolution,
+  resolvePackageSurface,
+} from "./surface-resolution";
+export {
   validateGeneratedOutputRecord,
   validateHarnessAdapterDeclaration,
   validateHarnessId,
@@ -59,6 +73,12 @@ export const playbookPackagingDomain: OperationDomainDescriptor = {
     {
       name: "playbook-package-plan",
       summary: "Create a reviewable Playbook package plan without writing generated outputs.",
+      mutates: false,
+      renderModes: ["json"],
+    },
+    {
+      name: "playbook-package-surface-resolve",
+      summary: "Resolve a Playbook package target through a harness adapter without writing outputs.",
       mutates: false,
       renderModes: ["json"],
     },

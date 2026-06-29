@@ -17,7 +17,7 @@ import {
   readPlaybookRunState,
   resolvePlaybook,
 } from "./playbook";
-import { createPlaybookPackagePlan } from "./playbook-packaging";
+import { createPlaybookPackagePlan, resolvePackageSurface } from "./playbook-packaging";
 import { OperationError } from "./types";
 import {
   buildPhasePlan,
@@ -218,6 +218,22 @@ export async function runOperationsCommand(argv: string[]): Promise<void> {
         }),
       );
       return;
+    case "playbook-package-surface-resolve":
+      printJson(
+        resolvePackageSurface({
+          target: {
+            harness: requiredValue(options, "harness", operation),
+            outputKind: requiredValue(options, "output-kind", operation) as Parameters<typeof resolvePackageSurface>[0]["target"]["outputKind"],
+            surface: requiredValue(options, "surface", operation) as Parameters<typeof resolvePackageSurface>[0]["target"]["surface"],
+            scope: requiredValue(options, "scope", operation) as Parameters<typeof resolvePackageSurface>[0]["target"]["scope"],
+          },
+          packageId: requiredValue(options, "package-id", operation),
+          platform: options.values.platform as Parameters<typeof resolvePackageSurface>[0]["platform"],
+          symlinkAvailable: booleanOption(options, "symlink-available"),
+          preconditions: parsePreconditionStates(options.arrays.precondition ?? []),
+        }),
+      );
+      return;
     default:
       throw new OperationError(`Unknown make-docs operation: ${operation}`);
   }
@@ -246,6 +262,8 @@ function parseOperationOptions(argv: string[]): OperationOptions {
         "no-review-required",
         "allow-unattended",
         "non-interactive",
+        "symlink-available",
+        "no-symlink-available",
       ].includes(key)
     ) {
       booleans.add(key);
@@ -266,6 +284,7 @@ function parseOperationOptions(argv: string[]): OperationOptions {
         "resume-hint",
         "source",
         "support-evidence-ref",
+        "precondition",
       ].includes(key)
     ) {
       arrays[key] = [...(arrays[key] ?? []), next];
@@ -300,6 +319,7 @@ function printOperationsHelp(): void {
       "  playbook-run-invoke",
       "  playbook-run-read",
       "  playbook-package-plan",
+      "  playbook-package-surface-resolve",
       "",
     ].join("\n"),
   );
@@ -359,6 +379,18 @@ function parseOptionalStack(value: string | undefined): "build" | "run" | null {
     return value;
   }
   throw new OperationError("Playbook package stack must be build or run.");
+}
+
+function parsePreconditionStates(values: string[]): Record<string, "satisfied" | "unknown" | "unsupported"> {
+  const states: Record<string, "satisfied" | "unknown" | "unsupported"> = {};
+  for (const value of values) {
+    const [id, state] = value.split("=");
+    if (!id || (state !== "satisfied" && state !== "unknown" && state !== "unsupported")) {
+      throw new OperationError("Precondition states must use id=satisfied, id=unknown, or id=unsupported.");
+    }
+    states[id] = state;
+  }
+  return states;
 }
 
 function parseCloseoutMode(value: string): "commit" | "phase" {

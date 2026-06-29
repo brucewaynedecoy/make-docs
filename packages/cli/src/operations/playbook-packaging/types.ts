@@ -186,6 +186,7 @@ export interface PackageAdapterPrecondition {
 }
 
 export interface PackageAdapterPathTemplate {
+  outputKind: PlaybookPackageOutputKind;
   surface: PlaybookPackageSurface;
   scope: PlaybookPackageScope;
   template: string;
@@ -214,4 +215,36 @@ export interface HarnessPackageAdapterDeclaration {
   ownershipClasses: GeneratedOutputRecordKind[];
   lifecycleRules: PackageAdapterLifecycleRule[];
   conformanceRequirements: PackageAdapterConformanceRequirement[];
+}
+
+export type PackageAdapterPreconditionState = "satisfied" | "unknown" | "unsupported";
+
+export interface PackageSurfacePreconditionResult extends PackageAdapterPrecondition {
+  state: PackageAdapterPreconditionState;
+}
+
+export interface PackageSurfaceResolutionInput {
+  target: PlaybookPackageTarget;
+  packageId: string;
+  platform?: "posix" | "windows";
+  symlinkAvailable?: boolean;
+  preconditions?: Record<string, PackageAdapterPreconditionState>;
+  adapters?: HarnessPackageAdapterDeclaration[];
+}
+
+export interface PackageSurfaceResolution {
+  status: "ready" | "manual-review-required" | "unsupported";
+  harnessId: string;
+  outputKind: PlaybookPackageOutputKind;
+  requestedSurface: PlaybookPackageSurface;
+  surface: Exclude<PlaybookPackageSurface, "auto">;
+  scope: PlaybookPackageScope;
+  path: string;
+  exposureMode: PackageAdapterExposureMode;
+  fallbackExposureMode: PackageAdapterExposureMode;
+  fallbackUsed: boolean;
+  preconditions: PackageSurfacePreconditionResult[];
+  lifecycleRules: PackageAdapterLifecycleRule[];
+  conformanceRequirements: PackageAdapterConformanceRequirement[];
+  stops: PackagePlanStop[];
 }
