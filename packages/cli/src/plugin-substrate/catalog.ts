@@ -214,8 +214,10 @@ export function createPluginManifestFileEntries(
         sourceId: exposure.sourceId,
         agenticOwnership: exposure.agenticOwnership,
       };
-      for (const mirror of exposure.copyMirrorAssets) {
-        entries[mirror.relativePath] = createPluginManifestEntry(mirror);
+      if (exposure.pluginExposure.mode === "copy-mirror") {
+        for (const mirror of exposure.copyMirrorAssets) {
+          entries[mirror.relativePath] = createPluginManifestEntry(mirror);
+        }
       }
       if (exposure.generatedAdapterAsset) {
         entries[exposure.generatedAdapterAsset.relativePath] =

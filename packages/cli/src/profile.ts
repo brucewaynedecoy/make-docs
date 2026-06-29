@@ -29,6 +29,9 @@ export function defaultSelections(): InstallSelections {
     skills: false,
     skillScope: "project",
     selectedSkills: [],
+    plugins: false,
+    pluginScope: "project",
+    selectedPlugins: [],
   };
 }
 
@@ -82,6 +85,11 @@ export function resolveInstallProfile(
       selectedSkills: [...selections.selectedSkills].sort(),
       skillManifest: selections.skillManifest,
       skillSelectionProvenance: selections.skillSelectionProvenance ?? [],
+      plugins: selections.plugins,
+      pluginScope: selections.pluginScope,
+      selectedPlugins: [...selections.selectedPlugins].sort(),
+      pluginManifest: selections.pluginManifest,
+      pluginSelectionProvenance: selections.pluginSelectionProvenance ?? [],
     }),
   ).slice(0, 16);
 

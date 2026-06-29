@@ -2,6 +2,7 @@ import { stdin as input, stdout as output } from "node:process";
 import { confirm, intro, isCancel, note, outro } from "@clack/prompts";
 import type {
   AuditPathMetadata,
+  AuditPluginSelectionReview,
   AuditPreservedPath,
   AuditPrunableDirectory,
   AuditRemovableFile,
@@ -10,6 +11,7 @@ import type {
   AuditSkippedPath,
   BackupExecutionResult,
   LifecyclePermissionsMode,
+  PluginManifestSelectionSource,
   SkillManifestSelectionSource,
 } from "./types";
 
@@ -323,6 +325,7 @@ function buildBackupAuditSummaryLines(options: LifecycleAuditSummaryOptions): st
     `Target: ${auditReport.targetDir}`,
     `Destination: ${destinationDir ?? "(no backup directory will be created)"}`,
     ...formatSkillSelectionReview(auditReport.skillSelectionReview),
+    ...formatPluginSelectionReview(auditReport.pluginSelectionReview),
     `Files to copy: ${options.copyableFiles.length}`,
     `Directories to materialize: ${options.materializableDirectories.length}`,
     `Retained: ${auditReport.preservedPaths.length}`,
@@ -338,6 +341,7 @@ function buildUninstallAuditSummaryLines(
     `Target: ${auditReport.targetDir}`,
     `Backup before removal: ${backupDestinationDir ?? "not requested"}`,
     ...formatSkillSelectionReview(auditReport.skillSelectionReview),
+    ...formatPluginSelectionReview(auditReport.pluginSelectionReview),
     `Files to remove: ${auditReport.removableFiles.length}`,
     `Directories to prune: ${auditReport.prunableDirectories.length}`,
     `Preserved: ${auditReport.preservedPaths.length}`,
@@ -443,6 +447,57 @@ function formatSkillManifestSource(
 
 function formatSelectedSkills(selectedSkills: string[]): string {
   return selectedSkills.length === 0 ? "(none)" : selectedSkills.join(", ");
+}
+
+function formatPluginSelectionReview(
+  review: AuditPluginSelectionReview | undefined,
+): string[] {
+  if (!review) {
+    return [];
+  }
+
+  if (!review.pluginsEnabled) {
+    return ["Plugins: disabled"];
+  }
+
+  const provenance =
+    review.pluginSelectionProvenance.length === 0
+      ? "(no saved provenance metadata)"
+      : review.pluginSelectionProvenance
+          .map(
+            (entry) =>
+              `${entry.pluginId}: ${entry.provenanceLabel} (${entry.provenanceKind})`,
+          )
+          .join("; ");
+
+  return [
+    `Plugins: enabled (${review.pluginScope})`,
+    `Plugin manifest: ${formatPluginManifestSource(review.pluginManifest)}`,
+    `Selected plugins: ${formatSelectedPlugins(review.selectedPlugins)}`,
+    `Plugin provenance: ${provenance}`,
+  ];
+}
+
+function formatPluginManifestSource(
+  source: PluginManifestSelectionSource | undefined,
+): string {
+  if (!source) {
+    return "(legacy selections; no manifest provenance)";
+  }
+
+  if (source.source === "file") {
+    return `${source.displayName} (local file: ${source.path ?? "unknown path"})`;
+  }
+
+  if (source.source === "remote-pinned") {
+    return `${source.displayName} (remote pinned: ${source.digest ?? "missing digest"})`;
+  }
+
+  return `${source.displayName} (built-in)`;
+}
+
+function formatSelectedPlugins(selectedPlugins: string[]): string {
+  return selectedPlugins.length === 0 ? "(none)" : selectedPlugins.join(", ");
 }
 
 async function confirmLifecycleCheckpoint(options: {

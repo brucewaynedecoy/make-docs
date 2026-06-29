@@ -115,6 +115,11 @@ export interface InstallSelections {
   selectedSkills: string[];
   skillManifest?: SkillManifestSelectionSource;
   skillSelectionProvenance?: SkillSelectionProvenanceEntry[];
+  plugins: boolean;
+  pluginScope: AgenticScope;
+  selectedPlugins: string[];
+  pluginManifest?: PluginManifestSelectionSource;
+  pluginSelectionProvenance?: PluginSelectionProvenanceEntry[];
 }
 
 export interface SkillManifestSelectionSource {
@@ -276,6 +281,31 @@ export interface PluginTrustPolicy {
   description?: string;
 }
 
+export interface PluginManifestSelectionSource {
+  manifestId: string;
+  displayName: string;
+  sourcePolicyKind: PluginTrustPolicyKind;
+  source: PluginSourceKind;
+  path?: string;
+  digest?: string;
+}
+
+export interface PluginSelectionProvenanceEntry {
+  pluginId: string;
+  title: string;
+  manifestId: string;
+  manifestDisplayName: string;
+  sourcePolicyKind: PluginTrustPolicyKind;
+  supportedHarnesses: Harness[];
+  pluginSource: PluginSourceKind;
+  provenanceKind: PluginTrustPolicyKind;
+  provenanceLabel: string;
+  supportStatus: PluginSupportStatus;
+  repository?: string;
+  ref?: string;
+  digest?: string;
+}
+
 export interface PluginSourceManifestMetadata {
   manifestId: string;
   displayName: string;
@@ -422,6 +452,9 @@ export type AuditReasonCode =
   | "managed-skill-file-content-match"
   | "managed-skill-exposure-symlink-match"
   | "managed-skill-exposure-copy-mirror-match"
+  | "managed-plugin-file-content-match"
+  | "managed-plugin-exposure-symlink-match"
+  | "managed-plugin-exposure-copy-mirror-match"
   | "managed-state-file"
   | "fallback-canonical-content-match"
   | "fallback-root-fingerprint-match"
@@ -434,6 +467,8 @@ export type AuditReasonCode =
   | "manifest-skill-file-without-metadata"
   | "manifest-skill-file-content-mismatch"
   | "manifest-skill-exposure-mismatch"
+  | "manifest-plugin-file-content-mismatch"
+  | "manifest-plugin-exposure-mismatch"
   | "fallback-root-fingerprint-mismatch"
   | "fallback-ambiguous"
   | "project-config-preserved"
@@ -531,11 +566,20 @@ export interface AuditSkillSelectionReview {
   skillSelectionProvenance: SkillSelectionProvenanceEntry[];
 }
 
+export interface AuditPluginSelectionReview {
+  pluginsEnabled: boolean;
+  pluginScope: InstallSelections["pluginScope"];
+  selectedPlugins: string[];
+  pluginManifest?: PluginManifestSelectionSource;
+  pluginSelectionProvenance: PluginSelectionProvenanceEntry[];
+}
+
 export interface AuditReport {
   mode: AuditMode;
   targetDir: string;
   manifestPath: string;
   skillSelectionReview?: AuditSkillSelectionReview;
+  pluginSelectionReview?: AuditPluginSelectionReview;
   removableFiles: AuditRemovableFile[];
   prunableDirectories: AuditPrunableDirectory[];
   preservedPaths: AuditPreservedPath[];

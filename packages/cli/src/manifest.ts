@@ -22,8 +22,12 @@ import type {
   SkillExposureMetadata,
   ManifestSystemAssetEntry,
   PackageMeta,
+  PluginManifestSelectionSource,
+  PluginSelectionProvenanceEntry,
+  PluginSourceKind,
   PluginSupportStatus,
   PluginTrustPolicy,
+  PluginTrustPolicyKind,
   SystemAssetManifestState,
   SystemAssetMaterializationClass,
   SystemAssetMaterializationMode,
@@ -83,6 +87,7 @@ export function migrateSelections(selections: unknown): InstallSelections {
     instructionKinds?: Record<string, boolean>;
     optionalSkills?: unknown;
     selectedSkills?: unknown;
+    selectedPlugins?: unknown;
   };
   if ("optionalSkills" in legacy) {
     throw new Error("selections.optionalSkills is no longer supported");
@@ -96,6 +101,21 @@ export function migrateSelections(selections: unknown): InstallSelections {
     "skillSelectionProvenance" in legacy &&
     legacy.skillSelectionProvenance !== undefined
       ? validateSkillSelectionProvenance(legacy.skillSelectionProvenance)
+      : undefined;
+  const plugins =
+    legacy.plugins === undefined
+      ? false
+      : validateBoolean(legacy.plugins, "selections.plugins");
+  const pluginScope = validatePluginScope(legacy.pluginScope ?? "project");
+  const selectedPlugins = validateSelectedPlugins(legacy.selectedPlugins ?? []);
+  const pluginManifest =
+    "pluginManifest" in legacy && legacy.pluginManifest !== undefined
+      ? validatePluginManifestSelectionSource(legacy.pluginManifest)
+      : undefined;
+  const pluginSelectionProvenance =
+    "pluginSelectionProvenance" in legacy &&
+    legacy.pluginSelectionProvenance !== undefined
+      ? validatePluginSelectionProvenance(legacy.pluginSelectionProvenance)
       : undefined;
 
   if (legacy.instructionKinds && !legacy.harnesses) {
@@ -123,6 +143,13 @@ export function migrateSelections(selections: unknown): InstallSelections {
       ...(skillSelectionProvenance === undefined
         ? {}
         : { skillSelectionProvenance }),
+      plugins,
+      pluginScope,
+      selectedPlugins,
+      ...(pluginManifest === undefined ? {} : { pluginManifest }),
+      ...(pluginSelectionProvenance === undefined
+        ? {}
+        : { pluginSelectionProvenance }),
     };
     return migrated;
   }
@@ -137,6 +164,13 @@ export function migrateSelections(selections: unknown): InstallSelections {
     ...(skillSelectionProvenance === undefined
       ? {}
       : { skillSelectionProvenance }),
+    plugins,
+    pluginScope,
+    selectedPlugins,
+    ...(pluginManifest === undefined ? {} : { pluginManifest }),
+    ...(pluginSelectionProvenance === undefined
+      ? {}
+      : { pluginSelectionProvenance }),
   };
 }
 
@@ -381,6 +415,14 @@ function validateHarnesses(value: unknown): InstallSelections["harnesses"] {
 function validateSkillScope(value: unknown): InstallSelections["skillScope"] {
   if (value !== "project" && value !== "global") {
     throw new Error("selections.skillScope must be project or global");
+  }
+
+  return value;
+}
+
+function validatePluginScope(value: unknown): InstallSelections["pluginScope"] {
+  if (value !== "project" && value !== "global") {
+    throw new Error("selections.pluginScope must be project or global");
   }
 
   return value;
@@ -733,6 +775,20 @@ function validateSelectedSkills(value: unknown): string[] {
   ).sort();
 }
 
+function validateSelectedPlugins(value: unknown): string[] {
+  if (!Array.isArray(value)) {
+    throw new Error("selections.selectedPlugins must be an array");
+  }
+
+  return Array.from(
+    new Set(
+      value.map((pluginId, index) =>
+        validateString(pluginId, `selections.selectedPlugins.${index}`),
+      ),
+    ),
+  ).sort();
+}
+
 function validateSkillManifestSelectionSource(
   value: unknown,
 ): SkillManifestSelectionSource {
@@ -894,6 +950,133 @@ function validateSkillSelectionProvenance(
             digest: validateString(
               entry.digest,
               `selections.skillSelectionProvenance.${index}.digest`,
+            ),
+          }
+        : {}),
+    };
+  });
+}
+
+function validatePluginManifestSelectionSource(
+  value: unknown,
+): PluginManifestSelectionSource {
+  assertPlainObject(value, "selections.pluginManifest");
+  const source = validatePluginSourceKind(
+    value.source,
+    "selections.pluginManifest.source",
+  );
+  const sourcePolicyKind = validatePluginTrustPolicyKind(
+    value.sourcePolicyKind,
+    "selections.pluginManifest.sourcePolicyKind",
+  );
+
+  return {
+    manifestId: validateString(
+      value.manifestId,
+      "selections.pluginManifest.manifestId",
+    ),
+    displayName: validateString(
+      value.displayName,
+      "selections.pluginManifest.displayName",
+    ),
+    sourcePolicyKind,
+    source,
+    ...("path" in value
+      ? { path: validateString(value.path, "selections.pluginManifest.path") }
+      : {}),
+    ...("digest" in value
+      ? {
+          digest: validateString(
+            value.digest,
+            "selections.pluginManifest.digest",
+          ),
+        }
+      : {}),
+  };
+}
+
+function validatePluginSelectionProvenance(
+  value: unknown,
+): PluginSelectionProvenanceEntry[] {
+  if (!Array.isArray(value)) {
+    throw new Error("selections.pluginSelectionProvenance must be an array");
+  }
+
+  return value.map((entry, index) => {
+    assertPlainObject(entry, `selections.pluginSelectionProvenance.${index}`);
+    const sourcePolicyKind = validatePluginTrustPolicyKind(
+      entry.sourcePolicyKind,
+      `selections.pluginSelectionProvenance.${index}.sourcePolicyKind`,
+    );
+    const provenanceKind = validatePluginTrustPolicyKind(
+      entry.provenanceKind,
+      `selections.pluginSelectionProvenance.${index}.provenanceKind`,
+    );
+    const supportedHarnesses = validateStringArray(
+      entry.supportedHarnesses,
+      `selections.pluginSelectionProvenance.${index}.supportedHarnesses`,
+    ).map((harness) => {
+      if (harness !== "claude-code" && harness !== "codex") {
+        throw new Error(
+          `selections.pluginSelectionProvenance.${index}.supportedHarnesses contains unsupported harness ${harness}`,
+        );
+      }
+      return harness;
+    });
+
+    return {
+      pluginId: validateString(
+        entry.pluginId,
+        `selections.pluginSelectionProvenance.${index}.pluginId`,
+      ),
+      title: validateString(
+        entry.title,
+        `selections.pluginSelectionProvenance.${index}.title`,
+      ),
+      manifestId: validateString(
+        entry.manifestId,
+        `selections.pluginSelectionProvenance.${index}.manifestId`,
+      ),
+      manifestDisplayName: validateString(
+        entry.manifestDisplayName,
+        `selections.pluginSelectionProvenance.${index}.manifestDisplayName`,
+      ),
+      sourcePolicyKind,
+      supportedHarnesses,
+      pluginSource: validatePluginSourceKind(
+        entry.pluginSource,
+        `selections.pluginSelectionProvenance.${index}.pluginSource`,
+      ),
+      provenanceKind,
+      provenanceLabel: validateString(
+        entry.provenanceLabel,
+        `selections.pluginSelectionProvenance.${index}.provenanceLabel`,
+      ),
+      supportStatus: validatePluginSupportStatus(
+        entry.supportStatus,
+        `selections.pluginSelectionProvenance.${index}.supportStatus`,
+      ),
+      ...("repository" in entry
+        ? {
+            repository: validateString(
+              entry.repository,
+              `selections.pluginSelectionProvenance.${index}.repository`,
+            ),
+          }
+        : {}),
+      ...("ref" in entry
+        ? {
+            ref: validateString(
+              entry.ref,
+              `selections.pluginSelectionProvenance.${index}.ref`,
+            ),
+          }
+        : {}),
+      ...("digest" in entry
+        ? {
+            digest: validateString(
+              entry.digest,
+              `selections.pluginSelectionProvenance.${index}.digest`,
             ),
           }
         : {}),
@@ -1123,21 +1306,35 @@ function validateAgenticExposureMode(
 
 function validatePluginTrustPolicy(value: unknown, label: string): PluginTrustPolicy {
   assertPlainObject(value, label);
-  const kind = value.kind;
-  if (
-    kind !== "first-party" &&
-    kind !== "local-reviewed" &&
-    kind !== "remote-pinned" &&
-    kind !== "manual-review-required"
-  ) {
-    throw new Error(`${label}.kind must be a supported trust policy`);
-  }
+  const kind = validatePluginTrustPolicyKind(value.kind, `${label}.kind`);
   return {
     kind,
     ...("description" in value
       ? { description: validateString(value.description, `${label}.description`) }
       : {}),
   };
+}
+
+function validatePluginTrustPolicyKind(
+  value: unknown,
+  label: string,
+): PluginTrustPolicyKind {
+  if (
+    value !== "first-party" &&
+    value !== "local-reviewed" &&
+    value !== "remote-pinned" &&
+    value !== "manual-review-required"
+  ) {
+    throw new Error(`${label} must be a supported trust policy`);
+  }
+  return value;
+}
+
+function validatePluginSourceKind(value: unknown, label: string): PluginSourceKind {
+  if (value !== "built-in" && value !== "file" && value !== "remote-pinned") {
+    throw new Error(`${label} must be built-in, file, or remote-pinned`);
+  }
+  return value;
 }
 
 function validatePluginSupportStatus(

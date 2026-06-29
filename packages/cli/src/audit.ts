@@ -2,8 +2,8 @@ import { existsSync, lstatSync, readdirSync, readlinkSync, statSync } from "node
 import os from "node:os";
 import path from "node:path";
 import {
-  classifyAgenticSkillFileRole,
-  formatAgenticSkillFileRole,
+  classifyAgenticFileRole,
+  formatAgenticFileRole,
 } from "./agentic-skill-roles";
 import { isInsideProjectBackupStateRoot } from "./backup-paths";
 import { getDesiredAssets } from "./catalog";
@@ -29,6 +29,7 @@ import {
   type AuditManagedPathMetadata,
   type AuditOwnershipSource,
   type AuditPathKind,
+  type AuditPluginSelectionReview,
   type AuditPreservedPath,
   type AuditPrunableDirectory,
   type AuditReason,
@@ -44,9 +45,14 @@ import {
 import { hashText, PACKAGE_ROOT, readTextFile, relativePathToTarget } from "./utils";
 
 const SHARED_AGENTICS_SKILL_DIR = ".make-docs/agentics/skills";
+const SHARED_AGENTICS_PLUGIN_DIR = ".make-docs/agentics/plugins";
 const HARNESS_SKILL_DIRS: Record<Harness, string> = {
   "claude-code": ".claude/skills",
   codex: ".agents/skills",
+};
+const HARNESS_PLUGIN_DIRS: Record<Harness, string> = {
+  "claude-code": ".claude/plugins",
+  codex: ".agents/plugins",
 };
 
 export async function createAuditReport(options: {
@@ -101,6 +107,9 @@ export async function createAuditReport(options: {
           skillSelectionReview: createSkillSelectionReview(
             options.manifest.selections,
           ),
+          pluginSelectionReview: createPluginSelectionReview(
+            options.manifest.selections,
+          ),
         }
       : {}),
     removableFiles: sortAuditEntries([...removableFiles.values()]),
@@ -153,12 +162,16 @@ async function classifyManifestPresent(options: {
       (record) => record.ownershipSource === "manifest-skill-file",
     ),
   );
+  const manifestRecordByPath = new Map(
+    [...manifestCandidates.values()].map((record) => [record.path, record]),
+  );
 
   for (const record of sortAuditEntries([...manifestCandidates.values()])) {
     classifyManifestRecord({
       targetDir,
       record,
       manifestSkillContentByPath,
+      manifestRecordByPath,
       removableFiles,
       preservedPaths,
       skippedPaths,
@@ -170,6 +183,7 @@ function classifyManifestRecord(options: {
   targetDir: string;
   record: ManifestAuditRecord;
   manifestSkillContentByPath: Map<string, string> | null;
+  manifestRecordByPath: Map<string, ManifestAuditRecord>;
   removableFiles: Map<string, AuditRemovableFile>;
   preservedPaths: Map<string, AuditPreservedPath>;
   skippedPaths: Map<string, AuditSkippedPath>;
@@ -178,6 +192,7 @@ function classifyManifestRecord(options: {
     targetDir,
     record,
     manifestSkillContentByPath,
+    manifestRecordByPath,
     removableFiles,
     preservedPaths,
     skippedPaths,
@@ -224,6 +239,17 @@ function classifyManifestRecord(options: {
       targetDir,
       record,
       manifestSkillContentByPath,
+      removableFiles,
+      preservedPaths,
+    });
+    return;
+  }
+
+  if (record.agenticOwnership?.artifactKind === "plugin") {
+    classifyManifestPluginOwnershipRecord({
+      targetDir,
+      record,
+      manifestRecordByPath,
       removableFiles,
       preservedPaths,
     });
@@ -440,6 +466,149 @@ function classifyManifestSkillExposureRecord(options: {
   );
 }
 
+function classifyManifestPluginOwnershipRecord(options: {
+  targetDir: string;
+  record: ManifestAuditRecord;
+  manifestRecordByPath: Map<string, ManifestAuditRecord>;
+  removableFiles: Map<string, AuditRemovableFile>;
+  preservedPaths: Map<string, AuditPreservedPath>;
+}): void {
+  const { targetDir, record, manifestRecordByPath, removableFiles, preservedPaths } =
+    options;
+  const ownership = record.agenticOwnership;
+  if (!ownership || ownership.artifactKind !== "plugin") {
+    return;
+  }
+
+  const symlinkExposureAncestor = findPluginSymlinkExposureAncestor(
+    record,
+    manifestRecordByPath,
+  );
+  if (symlinkExposureAncestor && symlinkExposureAncestor.path !== record.path) {
+    addPreserved(
+      preservedPaths,
+      record,
+      createReason(
+        "manifest-plugin-exposure-mismatch",
+        "The plugin copy-mirror record is nested under a native exposure symlink and will be preserved for review instead of being removed through the symlink.",
+      ),
+    );
+    return;
+  }
+
+  if (ownership.role === "plugin-native-exposure") {
+    classifyManifestPluginExposureRecord({
+      targetDir,
+      record,
+      manifestRecordByPath,
+      removableFiles,
+      preservedPaths,
+    });
+    return;
+  }
+
+  if (!statSync(record.absolutePath).isFile()) {
+    addPreserved(
+      preservedPaths,
+      record,
+      createReason(
+        "manifest-plugin-file-content-mismatch",
+        `The manifest-tracked ${formatAuditAgenticRole(record)} is no longer a regular file and will be preserved.`,
+      ),
+    );
+    return;
+  }
+
+  const currentContent = readTextFile(record.absolutePath);
+  const currentHash = hashText(currentContent);
+  if (record.manifestHash && currentHash === record.manifestHash) {
+    addRemovable(
+      removableFiles,
+      record,
+      createReason(
+        "managed-plugin-file-content-match",
+        `The ${formatAuditAgenticRole(record)} still matches manifest-tracked make-docs plugin content.`,
+      ),
+      currentHash,
+      record.manifestHash,
+    );
+    return;
+  }
+
+  addPreserved(
+    preservedPaths,
+    record,
+    createReason(
+      "manifest-plugin-file-content-mismatch",
+      `The manifest-tracked ${formatAuditAgenticRole(record)} was modified locally and will be preserved.`,
+    ),
+  );
+}
+
+function classifyManifestPluginExposureRecord(options: {
+  targetDir: string;
+  record: ManifestAuditRecord;
+  manifestRecordByPath: Map<string, ManifestAuditRecord>;
+  removableFiles: Map<string, AuditRemovableFile>;
+  preservedPaths: Map<string, AuditPreservedPath>;
+}): void {
+  const { targetDir, record, manifestRecordByPath, removableFiles, preservedPaths } =
+    options;
+  const ownership = record.agenticOwnership;
+  const stats = lstatSync(record.absolutePath);
+
+  if (stats.isSymbolicLink()) {
+    const currentTarget = path.resolve(
+      path.dirname(record.absolutePath),
+      readlinkSync(record.absolutePath),
+    );
+    const expectedTarget = relativePathToTarget(
+      targetDir,
+      ownership?.canonicalPayloadPath ?? "",
+    );
+
+    if (path.resolve(currentTarget) === path.resolve(expectedTarget)) {
+      addRemovable(
+        removableFiles,
+        record,
+        createReason(
+          "managed-plugin-exposure-symlink-match",
+          "The managed plugin native harness exposure symlink points at the recorded canonical plugin payload.",
+        ),
+        hashText(readlinkSync(record.absolutePath)),
+        record.manifestHash,
+      );
+      return;
+    }
+  }
+
+  if (
+    stats.isDirectory() &&
+    pluginCopyMirrorMatchesManifestRecords(record, targetDir, manifestRecordByPath)
+  ) {
+    addRemovable(
+      removableFiles,
+      record,
+      createReason(
+        "managed-plugin-exposure-copy-mirror-match",
+        "The managed plugin copy-mirror exposure exactly matches manifest-tracked plugin payload content.",
+      ),
+      undefined,
+      record.manifestHash,
+    );
+    return;
+  }
+
+  addPreserved(
+    preservedPaths,
+    record,
+    createReason(
+      "manifest-plugin-exposure-mismatch",
+      "The manifest-tracked plugin exposure does not match its recorded symlink target or manifest-tracked copy-mirror content and will be preserved.",
+    ),
+  );
+}
+
 async function classifyManifestMissing(options: {
   targetDir: string;
   homeDir: string;
@@ -468,8 +637,13 @@ async function classifyManifestMissing(options: {
     }),
   );
 
-  const knownSkillRoots = getKnownSkillRoots(targetDir, homeDir);
-  const existingSkillRoots = knownSkillRoots.filter((root) => existsSync(root.absolutePath));
+  const knownAgenticsRoots = getKnownAgenticsRoots(targetDir, homeDir);
+  const existingAgenticsRoots = knownAgenticsRoots.filter((root) =>
+    existsSync(root.absolutePath),
+  );
+  const existingSkillRoots = existingAgenticsRoots.filter(
+    (root) => root.agenticKind === "skill",
+  );
   const scopeRootFetchFailures = new Set<"project" | "home">();
 
   if (existingSkillRoots.some((root) => root.pathScope === "project")) {
@@ -521,21 +695,23 @@ async function classifyManifestMissing(options: {
     });
   }
 
-  for (const skillRoot of existingSkillRoots) {
+  for (const agenticsRoot of existingAgenticsRoots) {
     const hasExistingManagedCandidateDescendant = [...fallbackCandidates.values()].some(
       (record) =>
-        existsSync(record.absolutePath) && isWithinRoot(skillRoot.absolutePath, record.absolutePath),
+        existsSync(record.absolutePath) &&
+        isWithinRoot(agenticsRoot.absolutePath, record.absolutePath),
     );
     if (
-      scopeRootFetchFailures.has(skillRoot.pathScope) ||
+      (agenticsRoot.agenticKind === "skill" &&
+        scopeRootFetchFailures.has(agenticsRoot.pathScope)) ||
       !hasExistingManagedCandidateDescendant
     ) {
       addPreserved(
         preservedPaths,
-        skillRoot,
+        agenticsRoot,
         createReason(
           "fallback-ambiguous",
-          "The selected-agentics skill root exists, but fallback mode cannot prove which contents are make-docs-managed.",
+          "The selected-agentics root exists, but fallback mode cannot prove which contents are make-docs-managed.",
         ),
       );
     }
@@ -835,6 +1011,68 @@ function copyMirrorMatchesCanonicalContent(
   });
 }
 
+function pluginCopyMirrorMatchesManifestRecords(
+  record: ManifestAuditRecord,
+  targetDir: string,
+  manifestRecordByPath: Map<string, ManifestAuditRecord>,
+): boolean {
+  const expectedEntries = [...manifestRecordByPath.values()].filter(
+    (candidate) =>
+      candidate.agenticOwnership?.artifactKind === "plugin" &&
+      candidate.agenticOwnership.role === "plugin-copy-mirror" &&
+      isDescendantAuditPath(candidate.path, record.path),
+  );
+  if (expectedEntries.length === 0) {
+    return false;
+  }
+
+  const expectedRecordsByPath = new Map(
+    expectedEntries.map((candidate) => [candidate.path, candidate]),
+  );
+  const existingFiles = listDescendantFilePaths(record.absolutePath).map((filePath) =>
+    normalizeAuditPath(path.relative(targetDir, filePath)),
+  );
+  if (existingFiles.length !== expectedRecordsByPath.size) {
+    return false;
+  }
+
+  return existingFiles.every((relativePath) => {
+    const expectedRecord = expectedRecordsByPath.get(relativePath);
+    return (
+      expectedRecord?.manifestHash !== undefined &&
+      hashText(readTextFile(relativePathToTarget(targetDir, relativePath))) ===
+        expectedRecord.manifestHash
+    );
+  });
+}
+
+function findPluginSymlinkExposureAncestor(
+  record: ManifestAuditRecord,
+  manifestRecordByPath: Map<string, ManifestAuditRecord>,
+): ManifestAuditRecord | null {
+  for (const candidate of manifestRecordByPath.values()) {
+    if (
+      candidate.path === record.path ||
+      candidate.agenticOwnership?.artifactKind !== "plugin" ||
+      candidate.agenticOwnership.role !== "plugin-native-exposure" ||
+      !isDescendantAuditPath(record.path, candidate.path) ||
+      !existsSync(candidate.absolutePath)
+    ) {
+      continue;
+    }
+
+    try {
+      if (lstatSync(candidate.absolutePath).isSymbolicLink()) {
+        return candidate;
+      }
+    } catch {
+      continue;
+    }
+  }
+
+  return null;
+}
+
 function listDescendantFilePaths(root: string): string[] {
   return readdirSync(root, { withFileTypes: true }).flatMap((entry) => {
     const entryPath = path.join(root, entry.name);
@@ -998,6 +1236,22 @@ function createSkillSelectionReview(
   };
 }
 
+function createPluginSelectionReview(
+  selections: InstallSelections,
+): AuditPluginSelectionReview {
+  return {
+    pluginsEnabled: selections.plugins,
+    pluginScope: selections.pluginScope,
+    selectedPlugins: [...selections.selectedPlugins].sort(),
+    ...(selections.pluginManifest
+      ? { pluginManifest: structuredClone(selections.pluginManifest) }
+      : {}),
+    pluginSelectionProvenance: [
+      ...(selections.pluginSelectionProvenance ?? []),
+    ].sort((left, right) => left.pluginId.localeCompare(right.pluginId)),
+  };
+}
+
 function loadSavedSkillRegistry(selections: InstallSelections): SkillRegistry {
   const savedManifest = selections.skillManifest;
   if (!savedManifest || savedManifest.source === "built-in") {
@@ -1042,40 +1296,105 @@ async function loadFallbackSkillCandidates(options: {
   }
 }
 
-function getKnownSkillRoots(
+function getKnownAgenticsRoots(
   targetDir: string,
   homeDir: string,
-): Array<AuditCandidateMetadata & { pathScope: "project" | "home" }> {
+): Array<
+  AuditCandidateMetadata & {
+    pathScope: "project" | "home";
+    agenticKind: "skill" | "plugin";
+  }
+> {
   return [
-    createCandidatePathRecord(
-      targetDir,
-      homeDir,
-      path.join(targetDir, SHARED_AGENTICS_SKILL_DIR),
-      "directory",
-      "fallback",
-    ) as AuditCandidateMetadata & { pathScope: "project" },
-    createCandidatePathRecord(
-      targetDir,
-      homeDir,
-      path.join(homeDir, SHARED_AGENTICS_SKILL_DIR),
-      "directory",
-      "fallback",
-    ) as AuditCandidateMetadata & { pathScope: "home" },
+    {
+      ...createCandidatePathRecord(
+        targetDir,
+        homeDir,
+        path.join(targetDir, SHARED_AGENTICS_SKILL_DIR),
+        "directory",
+        "fallback",
+      ),
+      pathScope: "project" as const,
+      agenticKind: "skill" as const,
+    },
+    {
+      ...createCandidatePathRecord(
+        targetDir,
+        homeDir,
+        path.join(homeDir, SHARED_AGENTICS_SKILL_DIR),
+        "directory",
+        "fallback",
+      ),
+      pathScope: "home" as const,
+      agenticKind: "skill" as const,
+    },
+    {
+      ...createCandidatePathRecord(
+        targetDir,
+        homeDir,
+        path.join(targetDir, SHARED_AGENTICS_PLUGIN_DIR),
+        "directory",
+        "fallback",
+      ),
+      pathScope: "project" as const,
+      agenticKind: "plugin" as const,
+    },
+    {
+      ...createCandidatePathRecord(
+        targetDir,
+        homeDir,
+        path.join(homeDir, SHARED_AGENTICS_PLUGIN_DIR),
+        "directory",
+        "fallback",
+      ),
+      pathScope: "home" as const,
+      agenticKind: "plugin" as const,
+    },
     ...HARNESSES.flatMap((harness) => [
-      createCandidatePathRecord(
-        targetDir,
-        homeDir,
-        path.join(targetDir, HARNESS_SKILL_DIRS[harness]),
-        "directory",
-        "fallback",
-      ) as AuditCandidateMetadata & { pathScope: "project" },
-      createCandidatePathRecord(
-        targetDir,
-        homeDir,
-        path.join(homeDir, HARNESS_SKILL_DIRS[harness]),
-        "directory",
-        "fallback",
-      ) as AuditCandidateMetadata & { pathScope: "home" },
+      {
+        ...createCandidatePathRecord(
+          targetDir,
+          homeDir,
+          path.join(targetDir, HARNESS_SKILL_DIRS[harness]),
+          "directory",
+          "fallback",
+        ),
+        pathScope: "project" as const,
+        agenticKind: "skill" as const,
+      },
+      {
+        ...createCandidatePathRecord(
+          targetDir,
+          homeDir,
+          path.join(homeDir, HARNESS_SKILL_DIRS[harness]),
+          "directory",
+          "fallback",
+        ),
+        pathScope: "home" as const,
+        agenticKind: "skill" as const,
+      },
+      {
+        ...createCandidatePathRecord(
+          targetDir,
+          homeDir,
+          path.join(targetDir, HARNESS_PLUGIN_DIRS[harness]),
+          "directory",
+          "fallback",
+        ),
+        pathScope: "project" as const,
+        agenticKind: "plugin" as const,
+      },
+      {
+        ...createCandidatePathRecord(
+          targetDir,
+          homeDir,
+          path.join(homeDir, HARNESS_PLUGIN_DIRS[harness]),
+          "directory",
+          "fallback",
+        ),
+        pathScope: "home" as const,
+        agenticKind: "plugin" as const,
+      },
     ]),
   ];
 }
@@ -1091,7 +1410,7 @@ function createManagedPathRecord(
     skillExposure?: ManifestAuditRecord["skillExposure"];
   },
 ): ManifestAuditRecord {
-  const agenticRole = classifyAgenticSkillFileRole({
+  const agenticRole = classifyAgenticFileRole({
     relativePath: auditPath,
     sourceId: options?.sourceId,
   });
@@ -1114,7 +1433,7 @@ function createCandidatePathRecord(
   kind: AuditPathKind,
   ownershipSource?: AuditOwnershipSource,
 ): AuditCandidateMetadata {
-  const agenticRole = classifyAgenticSkillFileRole({ relativePath: auditPath });
+  const agenticRole = classifyAgenticFileRole({ relativePath: auditPath });
 
   return {
     ...createAuditPathMetadata(targetDir, auditPath, kind, homeDir),
@@ -1173,7 +1492,7 @@ function createReason(code: AuditReason["code"], message: string): AuditReason {
 }
 
 function formatAuditAgenticRole(record: AuditManagedPathMetadata): string {
-  return formatAgenticSkillFileRole(record.agenticRole) ?? "skill file";
+  return formatAgenticFileRole(record.agenticRole) ?? "agentic file";
 }
 
 function isInstructionPath(auditPath: string): boolean {
