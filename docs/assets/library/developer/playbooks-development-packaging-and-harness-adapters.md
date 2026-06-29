@@ -27,7 +27,7 @@ related:
 
 # Playbook Packaging and Harness Adapters
 
-This guide explains the v2 architecture Make Docs is planning for packaging Playbooks into harness-specific plugins or skills bundles. It is written for maintainers and contributors who will implement or extend the package planner, harness adapters, output writers, lifecycle behavior, and validation.
+This guide explains the v2 architecture Make Docs uses for packaging Playbooks into harness-specific plugins or skills bundles. It is written for maintainers and contributors who will implement or extend the package planner, harness adapters, output writers, lifecycle behavior, and validation.
 
 ## Architectural Boundary
 
@@ -44,6 +44,18 @@ The packaging system should be built as modular TypeScript operation domains:
 
 CLI commands, MCP tools, plugins, skills, and agent-facing surfaces should delegate to these domains. They should not implement independent packaging or lifecycle behavior.
 
+## Current Schema Foundation
+
+The current implementation is a schema foundation only. It lives under `packages/cli/src/operations/playbook-packaging/` and exports:
+
+- `types.ts` for package-plan, generated-output, and harness-adapter declaration contracts;
+- `validation.ts` for fail-closed validation helpers;
+- `index.ts` for the public operation-domain export and schema helper exports.
+
+`playbookPackagingDomain` is registered in the shared operations registry with no commands. That makes the domain discoverable to the shared CLI/MCP operation model without exposing package planning, output writing, install/sync mutation, migration, or lifecycle mutation before later W18 R5 phases implement those behaviors.
+
+Maintainers should import schema helpers from `packages/cli/src/operations/playbook-packaging/` or the operations facade, not duplicate literals in planner, writer, adapter, CLI, or MCP code. When adding fields, update the TypeScript contract, fail-closed validator, and focused schema tests together.
+
 ## Package Plans
 
 A package plan is the reviewable bridge between source and output. It should be produced before writes and should record:
@@ -57,6 +69,8 @@ A package plan is the reviewable bridge between source and output. It should be 
 - lifecycle behavior for install, update, audit, backup, uninstall, and export-only outputs.
 
 Agents may help draft semantic fields such as descriptions, command names, skill grouping, or adapter prose. Those fields are proposals until reviewed. Non-interactive runs must fail before writing when a plan still needs semantic review, ownership review, unsupported-surface resolution, or support-claim evidence.
+
+The current `PlaybookPackagePlan` schema requires a `schemaVersion: 1`, at least one source Playbook, a target, generated artifact inventory, deterministic derivations, agent-assisted proposals, unresolved decisions, review state, support state, lifecycle behavior, and validation requirements. Validation rejects unknown output kinds, unknown surfaces, invalid harness ids, empty source lists, and plans that contain semantic proposals or unresolved decisions without required review state.
 
 ## Harness Adapters
 
@@ -73,7 +87,9 @@ Each adapter should declare:
 - ownership classes and lifecycle handling;
 - conformance scenarios required before public support claims.
 
-`generic` should not be a harness id. Standard locations are surfaces that real harness adapters may support.
+`generic` should not be a harness id. Standard locations are surfaces that real harness adapters may support. The schema currently accepts `plugin` and `skills-bundle` as output kinds and `native`, `agents-standard`, and `auto` as surfaces or surface-selection modes.
+
+Adapter declaration validation requires at least one supported output kind and at least one supported surface. Path templates must only reference surfaces and scopes declared by that adapter so future harness support stays additive instead of requiring planner-specific branching.
 
 ## Output Writers
 
@@ -91,16 +107,21 @@ Output writers should write only after an accepted package plan exists or after 
 
 Installed generated outputs should reuse the selected-agentics storage and native exposure contracts. Plugin payloads use `.make-docs/agentics/plugins/**`; skill payloads use `.make-docs/agentics/skills/**`. Harness exposures prefer symlinks and use managed copy mirrors as the compatibility fallback.
 
+Generated-output records already distinguish the ownership classes that later manifest, audit, backup, uninstall, migration, and diagnostics code will consume. Until persistence wiring lands, treat these records as validated contract shapes rather than managed state.
+
 ## Validation
 
 Implementation should include focused tests for:
 
 - deterministic package plans;
 - plans requiring semantic review;
+- schema serialization for package plans, generated-output records, and adapter declarations;
 - invalid Playbook sources;
 - broken links and assets;
 - unsupported output kinds and surfaces;
+- invalid harness ids, including `generic`;
 - future-harness adapter fixtures;
+- adapter path templates that reference unsupported surfaces or scopes;
 - symlink and copy-mirror fallback;
 - modified generated-output preservation;
 - stale generated-output cleanup;
@@ -108,6 +129,8 @@ Implementation should include focused tests for:
 - package smoke and conformance support claims.
 
 Public support wording should cite evidence for the exact Playbook, package plan, output kind, harness, surface, scope, model/provider, and runtime tuple.
+
+Current focused schema coverage lives in `packages/cli/tests/playbook-packaging.test.ts`. Keep those tests fail-closed: new enum values, ownership classes, support states, surfaces, or lifecycle dispositions should require deliberate test updates rather than passing through as arbitrary strings.
 
 ## Future Coverage
 
