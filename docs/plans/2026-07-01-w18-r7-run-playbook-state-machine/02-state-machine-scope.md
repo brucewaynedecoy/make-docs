@@ -1,0 +1,28 @@
+# Phase 2: Run-State, Operations, and Runtime Behavior Scope
+
+## Scope
+
+Settle the implementation-shaping decisions the delta backlog must encode so no implementing agent has to re-derive them: what the run-state record carries and where it lives, what each progression operation does and may mutate, how each execution mode behaves, when resume blocks, and where the deterministic seams to other designs sit. This phase produces decisions recorded in the backlog phases, not code.
+
+## Inputs
+
+- Design decisions D0 (scope and boundaries), D1 (preserved prior decisions), D2 (run-state storage and record), D3 (progression operations), D4 (execution by step mode), D5 (digest-aware resume), D6 (run-time guardrails), D7 (portability), D8 (the three tiers in motion), D9 (non-negotiables versus deliberately open choices), and D10 (verification and testability).
+- [Playbook Architecture and Design](../../assets/artifacts/playbook-architecture.md) Section 5 and [Runtime and Global Store](../../assets/artifacts/runtime-and-global-store.md) as source material; the design is the authority where they differ.
+- [PRD 34](../../prd/34-revise-playbook-contract-and-model.md) for the Playbook model, step dimensions, `delegated` default, and the eight-value shared status vocabulary the run state must reuse.
+
+## Outputs
+
+- Storage scope: run state lives in the global store at `~/.make-docs/`, superseding `.make-docs/runs/playbooks/<run-id>/state.json`, and is never written under `.make-docs/runs/` or any repository path (R-STORE-1); it is keyed by the stable project identifier from the project manifest plus a run identifier, never by directory path, and is canonical and relocated with no in-repo copy (R-STORE-2); the store's physical schema, concurrency model, and identifier scheme are consumed by reference from the Runtime and Global Store lineage (R-STORE-3).
+- Record scope: the run-state record carries at least run/root/parent run identifiers, project identifier, playbook ref, source digest, document and workflow schema versions, stack, harness, capability snapshot, routing model, per-step status, gate decisions, dependency availability snapshot, claimed output surfaces, output and evidence references, the current cursor, child run references, resume hints, timestamps, and terminal status (R-STATE-1), and step status values are exactly the shared vocabulary with no parallel vocabulary (R-STATE-2).
+- Operation scope: `playbook.start` (read then write), `playbook.status` (read), `playbook.next` (read, side-effect free), `playbook.advance` (write), `playbook.gate` (write), `playbook.resume` (read then write, digest-checked), and `playbook.close` (write), each a Make Docs operation addressed by a stable registry identifier and surfaced under `run playbook` on the CLI and as MCP tools, honoring the uniform operation-core safety gating (R-OP-1); start/invoke/status map to the capabilities that exist today while next/advance/gate/resume/close must be implemented (R-OP-2); only advance, gate, and close transition state and only start creates it (R-OP-3).
+- Mode scope: `deterministic` resolves and executes the step's `operation` or `command`, captures structured evidence, and auto-transitions, presenting the resolved human CLI form when the CLI is absent; `delegated` presents instructions, sets `waiting-for-user`, and waits for a reported outcome; `manual` records acknowledgment only (R-MODE-1); an unspecified mode is `delegated` (R-MODE-2).
+- Resume scope: digest match resumes at the stored cursor; digest mismatch blocks by default with a diagnostic naming the change and requires an explicit re-plan (R-RESUME-1); step-remapping migration is an optional non-default enhancement (R-RESUME-2).
+- Guardrail scope: nesting requires parent policy permission with linked child/root run identifiers and serial default (R-GUARD-1); parallel children require explicit permission, capability support or reviewed approval, and non-overlapping claimed output surfaces, else serialize or stop (R-GUARD-2); output-surface overlap stops rather than interleaving writes (R-GUARD-3); unattended mode holds every gate that does not permit unattended continuation at `waiting-for-user` (R-GUARD-4).
+- Portability and tier scope: cross-machine handoff is explicit opt-in export/import of the run record and evidence, never repository run state by default (R-PORT-1); the three-tier degradation guarantee holds — hand execution with nothing installed, untracked structured execution with resources but no CLI, and the full engine recording to the global store with the CLI (R-TIER-1).
+- Boundary confirmations: the Playbook model, parser, and validator; the global-store schema, locking, and identifier scheme; the operation registry materialization and CLI tree; and the packaging compiler, adapters, and conformance are owned elsewhere and must not be reinvented (R-SCOPE-1); the W18 R4 resolver, orchestration policy fields, capability identifiers, `harnessCapabilities` surface, and unknown-capability handling are consumed unchanged (R-SCOPE-2, R-KEEP-1).
+- Implementer freedoms preserved per D9: the concrete run-state serialization within the store, the internal engine structure, the exact evidence format sufficient for audit and resume, and the optional migration algorithm details stay open in the backlog and are not over-specified.
+
+## Validation
+
+- Every backlog decision traces to a D-section and R-* requirement, and everything D9 fixes as non-negotiable appears as an acceptance criterion rather than an open choice.
+- No backlog task redefines the Playbook model, the global-store schema, or the CLI registry, and the global-store sequencing dependency is stated wherever storage work is tasked.

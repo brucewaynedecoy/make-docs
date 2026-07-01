@@ -59,6 +59,11 @@ Runtime state:
 - `manifest.json`, `conflicts/`, provider/cache metadata, audit state, and temporary run state remain runtime state.
 - Runtime state must not move into `docs/assets/` for tidiness.
 
+### Change Notes
+
+- Superseded by [35-revise-run-playbook-state-machine.md](./35-revise-run-playbook-state-machine.md).
+- Superseded by [38-revise-global-store-and-project-state.md](./38-revise-global-store-and-project-state.md) for the remaining temporary run state: the work-lifecycle checkpoint state at `.make-docs/runs/<wave-slug>/state.json` relocates to the machine-level global store as work-execution evidence keyed by the manifest-minted project identifier, so temporary run state is no longer in-repo `.make-docs/**` runtime state; `manifest.json`, `conflicts/`, provider/cache metadata, and audit state are unchanged.
+
 Tool resource families:
 
 - `contracts/`, `references/`, `templates/`, `scripts/`, and `agentics/` are tool resource families.

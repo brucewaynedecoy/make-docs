@@ -21,6 +21,10 @@ make-docs needs evidence before claiming support for a harness/model combination
 
 ## Effective Requirement
 
+### Change Notes
+
+- Enhanced by [37-enhance-playbook-and-package-conformance.md](./37-enhance-playbook-and-package-conformance.md). For generated Playbook distributables, the support tuple expands to scenario, harness, surface, scope, output kind, generated-output kind, model or provider, and runtime; tuple statuses live in a queryable registry under `docs/assets/conformance/` with `provisional`, `implementation-validated`, and `conformance-validated` statuses derived from run verdicts; and `conformance-validated` requires the install-discover-invoke-uninstall evidence bar. The lab's maintainer-only nature, verdicts, safety modes, evidence classes, storage boundaries, and one-run threshold remain unchanged.
+
 Lab scope:
 
 - The lab is maintainer-only repository tooling and documentation evidence.

@@ -115,6 +115,11 @@ Non-maintainer plugins are sanctioned entrypoints with explicit gates, not hidde
 
 ### Playbook Boundary
 
+### Change Notes
+
+- Superseded by [34-revise-playbook-contract-and-model.md](./34-revise-playbook-contract-and-model.md).
+- Superseded by [35-revise-run-playbook-state-machine.md](./35-revise-run-playbook-state-machine.md).
+
 Playbook requirements remain governed by [29-revise-playbook-contract-run-playbook.md](29-revise-playbook-contract-run-playbook.md).
 
 A plugin may invoke one playbook, offer a catalog of playbooks, or wrap a built-in workflow that is not authored as a playbook. A playbook remains persona-scoped content under `docs/assets/playbooks/<persona-slug>/<playbook-slug>.md`; it does not become a plugin because a plugin can run it.

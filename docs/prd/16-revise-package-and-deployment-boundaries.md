@@ -46,6 +46,10 @@ Code anchors:
 
 ## Effective Requirement
 
+### Change Notes
+
+- Enhanced by [39-revise-cli-command-reorganization-and-operation-registry.md](./39-revise-cli-command-reorganization-and-operation-registry.md) for tool self-management under the preserved remote-execution posture. W18 R11 keeps the one-command `make-docs` identity, the no-default-aliases boundary, and first-class `npx` / `pnpm dlx` / `bunx` remote execution, and adds machine-footprint self-management defined around that posture: top-level `uninstall` removes the global store at `~/.make-docs/` and the installed binary when one is present (reporting no-binary for remote-execution users), top-level `update` is a detect-and-delegate wrapper over the install manager that reports nothing-persistent for remote execution and applies global-store schema migrations, and neither command guesses before a destructive global change. The install lifecycle moves under `setup`, and the command tree and MCP tool list derive from the operation registry rather than being hand-maintained.
+
 Product identity:
 
 - `make-docs` is the CLI/package identifier and primary executable spelling.

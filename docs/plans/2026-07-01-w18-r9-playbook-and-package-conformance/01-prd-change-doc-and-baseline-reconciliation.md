@@ -1,0 +1,26 @@
+# Phase 1: PRD Change Doc and Baseline Reconciliation
+
+## Scope
+
+Author the numbered enhancement doc that makes the expanded support tuple, the tuple registry, the evidence bar, the required first-pass scenarios, the test-layer separation, the support-claim governance, and the meta-verification checks an effective requirement, add the non-destructive baseline annotations, and reconcile the PRD index and living risk register. This phase mutates only `docs/prd/**`.
+
+## Inputs
+
+- [Playbook and Package Conformance](../../designs/2026-07-01-playbook-and-package-conformance.md), all of D0–D9 and the Design Lineage and Coordinate Handoff sections.
+- The addition/enhancement template at `.make-docs/templates/system/prd-change-addition.md` and the annotation rules in `.make-docs/references/system/prd-change-management.md`.
+- The impacted baselines: [PRD 20](../../prd/20-revise-agent-harness-model-conformance-lab.md) as the lab being extended, [PRD 33](../../prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md) as the carrier of the provisional support claims being gated, and [PRD 36](../../prd/36-revise-playbook-packaging-compiler-and-harness-adapters.md) as the compiler whose outputs conformance verifies, plus [PRD 34](../../prd/34-revise-playbook-contract-and-model.md), [PRD 35](../../prd/35-revise-run-playbook-state-machine.md), [PRD 19](../../prd/19-revise-template-package-dogfood-source-of-truth-contract.md), and [PRD 10](../../prd/10-packaging-validation-and-release-reference.md) as consumed-unchanged constraints.
+
+## Outputs
+
+- `docs/prd/37-enhance-playbook-and-package-conformance.md` from the addition/enhancement template: Purpose, Change Type (`enhancement`), a Capability Addition or Enhancement section carrying the design's R-* IDs — the expanded support tuple of scenario, harness, surface, scope, output kind, generated-output kind, model or provider, and runtime (R-TUPLE-1); the queryable tuple registry under `docs/assets/conformance/` with `provisional`, `implementation-validated`, and `conformance-validated` statuses derived from run verdicts (R-REG-1 through R-REG-3); the install-discover-invoke-uninstall evidence bar (R-BAR-1, R-BAR-2); the required Codex-first first-pass scenarios with blocked reporting for future harnesses (R-SCEN-1, R-SCEN-2); the three named test layers with the internal-tests-are-not-user-outcome-evidence rule (R-LAYER-1, R-LAYER-2); support-claim governance and wording rules (R-GOV-1, R-GOV-2); the maintainer-only not-shipped boundary with packaging/exclusion checks (R-KEEP-1, R-TEST-3); and the meta-verification checks (R-TEST-1 through R-TEST-3) — plus Affected Baseline Docs, Contracts and Data, Integration Impact, Required Baseline Annotations, and Source Anchors.
+- PRD 20 annotation: an `Enhanced by` note under Effective Requirement scoped to the packaging extension — the support tuple for generated outputs expands beyond the lab's scenario/harness/model/provider/runtime tuple, tuple statuses live in the queryable registry under `docs/assets/conformance/`, and `conformance-validated` requires the install-discover-invoke-uninstall bar — with the lab's verdicts, safety modes, evidence classes, storage boundaries, and one-run threshold explicitly unchanged.
+- PRD 33 annotation: an `Enhanced by` note under Integration Impact scoped to the promotion path for its provisional generated-output support claims — a claim advances only when its exact tuple reaches `conformance-validated` through the evidence bar recorded in the tuple registry.
+- PRD 36 annotation: an `Enhanced by` note under Impacted Docs and Dependencies scoped to the landed downstream dependency — the conformance lineage it records as planned W18 R9 is now active, including ownership of the R-PROV-2 backup/uninstall cleanliness scenario and the R-TEST-5 evidence boundary.
+- `docs/prd/00-index.md` updates mirroring how PRDs 34, 35, and 36 were added: a Document Map row for 37, the Reading Order item-3 link and description extension, Source Anchors additions, audience-path mentions, an Apply W18 R9 bullet in Intended Follow-On placed in the W18 sequence, and the W18 R8 bullet's "planned as W18 R9" clause updated to point at the landed lineage.
+- `docs/prd/03-open-questions-and-risk-register.md` updates: advance R-021's Decision, Follow-Up, and To close in place with the landed W18 R9 tuple registry, statuses, and evidence bar, and add one new rebuild risk (next available number R-022) for first-pass conformance scenario availability — real-harness access, faithful simulation limits, and the pressure to substitute internal tests or silently skip unavailable scenarios instead of reporting `blocked`; never renumber existing items.
+
+## Validation
+
+- PRD 37 is the next available number, no existing PRD doc was renumbered, and every baseline annotation uses `Enhanced by` with the newest note last in any existing block.
+- The effective requirement is resolvable by following links from PRD 20, PRD 33, and PRD 36 to PRD 37, and baseline text remains visible unchanged.
+- The register update modifies R-021 in place rather than duplicating it, and the new risk item uses the next available R-* number with the required table and item fields.

@@ -82,6 +82,10 @@ System asset boundary:
 - [21-revise-tool-directory-system-custom-resource-tiers.md](./21-revise-tool-directory-system-custom-resource-tiers.md) extends this boundary by defining `.make-docs/**` system/custom tool-resource tiers while preserving local bootstrap and keeping runtime state out of `docs/assets/**`.
 - [26-revise-no-scripts-migration-skill-refactor.md](./26-revise-no-scripts-migration-skill-refactor.md) classifies first-party system helper scripts and thin compatibility wrappers as managed system resources only when they are shipped by make-docs; custom user scripts remain custom resources outside the migration.
 
+### Change Notes
+
+- Enhanced by [38-revise-global-store-and-project-state.md](./38-revise-global-store-and-project-state.md). W18 R10 introduces the machine-level operational store at `~/.make-docs/`, which is distinct from any provider-backed global asset cache: it holds mutable operational state — the install and directory registry, Playbook run-state, and work-execution evidence — never shipped template assets, is never pinned provider content, and its presence or absence must not weaken the non-optional local repository bootstrap; the materialization modes, cache pinning, and provenance rules here are unchanged.
+
 Provider and cache provenance:
 
 - The npm installer bundle is the current source of truth for full-snapshot materialization.

@@ -20,9 +20,17 @@ W18 R4 extends this PRD before W18 R1 implementation. Run Playbook must now incl
 
 W18 R5 extends this PRD before W18 R1 implementation by making Playbook packaging a required v2 deliverable while preserving Playbook validity without packaging. Playbook metadata, validation, asset/link checks, output-surface claims, and run metadata must remain package-plan friendly, but generated plugins and skills bundles remain distribution artifacts governed by [33-enhance-playbook-packaging-and-harness-adapter-registry.md](33-enhance-playbook-packaging-and-harness-adapter-registry.md).
 
+W18 R6 revises this PRD's playbook content contract. [34-revise-playbook-contract-and-model.md](34-revise-playbook-contract-and-model.md) supersedes the filename form, minimum frontmatter, body contract, and `run:` orchestration-hint declaration location with a deterministic document schema, an embedded workflow contract and step model, a dependency registry, and a single parsed Playbook model with a validator and diagnostic catalog. Resolver identity, stack semantics, the generic Run Playbook model, run state, nesting, concurrency, and the plugin/surface boundary remain governed here and by W18 R4.
+
+W18 R7 revises this PRD's run-state requirements and completes the run engine. [35-revise-run-playbook-state-machine.md](35-revise-run-playbook-state-machine.md) supersedes the `.make-docs/runs/playbooks/<run-id>/state.json` write location with run state in the global store keyed by a stable project identifier plus a run identifier, extends the required run-state field set, and realizes the generic Run Playbook model through the `playbook.start`/`status`/`next`/`advance`/`gate`/`resume`/`close` progression operations with execution by step mode, digest-aware resume, run-time guardrails, and export/import portability. Resolver identity, stack semantics, harness capability mediation, nested-playbook permission, and concurrency rules remain governed here and by W18 R4.
+
 ## Requirements
 
 ### Canonical Playbook Location
+
+### Change Notes
+
+- Superseded by [34-revise-playbook-contract-and-model.md](./34-revise-playbook-contract-and-model.md).
 
 V2 playbooks are persona-scoped docs assets.
 
@@ -37,6 +45,10 @@ The path is part of the contract. A playbook belongs to one owning persona names
 Former `docs/library/playbooks/**` content is transitional dogfood and migration evidence, not the v2 home; W9 R5 migrates accepted dogfood playbooks into `docs/assets/playbooks/**`.
 
 ### Minimum Frontmatter
+
+### Change Notes
+
+- Superseded by [34-revise-playbook-contract-and-model.md](./34-revise-playbook-contract-and-model.md).
 
 Every v2 playbook must declare:
 
@@ -54,6 +66,10 @@ The generic Run Playbook model may depend only on these minimum fields plus norm
 `persona` must follow the persona schema from [22-revise-new-docs-assets-playbooks-persona-model.md](22-revise-new-docs-assets-playbooks-persona-model.md). Validators must report drift when file path and `persona` frontmatter disagree.
 
 ### Body Contract
+
+### Change Notes
+
+- Superseded by [34-revise-playbook-contract-and-model.md](./34-revise-playbook-contract-and-model.md).
 
 A v2 playbook must remain readable documentation and must define:
 
@@ -93,6 +109,10 @@ Ambiguous bare references fail closed and must request persona and/or stack befo
 
 ### Generic Run Playbook Model
 
+### Change Notes
+
+- Enhanced by [35-revise-run-playbook-state-machine.md](./35-revise-run-playbook-state-machine.md).
+
 Run Playbook is a generic execution model, not a plugin packaging rule.
 
 A Run Playbook surface must:
@@ -110,6 +130,10 @@ Every valid playbook can be run by this generic model.
 
 ### Harness Capability Mediation
 
+### Change Notes
+
+- Superseded by [34-revise-playbook-contract-and-model.md](./34-revise-playbook-contract-and-model.md).
+
 Playbooks may declare an optional `run` frontmatter block for orchestration hints:
 
 ```yaml
@@ -125,6 +149,10 @@ Initial canonical harness capability ids are `goal_managed_execution`, `long_run
 Reviewed capability records live in `.make-docs/config.yaml` under the PRD 24 configuration boundary. Unknown capabilities must not be guessed. Optional unknown capabilities fall back to serial gated execution; required unknown or unsupported capabilities stop with review/manual-resolution guidance.
 
 ### Run State, Nesting, and Concurrency
+
+### Change Notes
+
+- Superseded by [35-revise-run-playbook-state-machine.md](./35-revise-run-playbook-state-machine.md).
 
 Make Docs-owned Run Playbook surfaces must write run state under:
 

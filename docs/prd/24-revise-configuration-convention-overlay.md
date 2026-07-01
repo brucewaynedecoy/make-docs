@@ -20,6 +20,8 @@ W18 R4 adds one reviewed operational-hint surface to `.make-docs/config.yaml`: h
 
 W18 R5 keeps Playbook package planning outside config. Package plans may read reviewed harness capability records after canonical target harness resolution, but `.make-docs/config.yaml` must not define output kinds, harness adapters, generated package paths, source digests, or support claims.
 
+Enhanced by [38-revise-global-store-and-project-state.md](38-revise-global-store-and-project-state.md): W18 R10 introduces a machine-level global configuration file inside the global store at `~/.make-docs/` for machine and tool settings such as a self-update preference or the marketplace auto-registration opt-in. That global config is a separate surface with a separate lifecycle — it must not be confused with, override, or be overridden by project `.make-docs/config.yaml`, which remains the optional project-owned presentation overlay defined here, never routing authority and never a structural rename surface.
+
 ## Requirements
 
 ### Optional Project-Owned Config

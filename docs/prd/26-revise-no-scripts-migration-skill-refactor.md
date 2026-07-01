@@ -18,6 +18,8 @@ This PRD turns the no-scripts design into active requirements. W16 R3 implemente
 
 W10 R7 supersedes the earlier Rust/MCP-deferred posture: Rust is shelved indefinitely, MCP is required for v2, and TypeScript owns both CLI and MCP operation behavior. W10 R8 owns the follow-on modularization and TypeScript MCP implementation work.
 
+W18 R11 ([39-revise-cli-command-reorganization-and-operation-registry.md](39-revise-cli-command-reorganization-and-operation-registry.md)) revises this PRD's operation destination. The no-scripts migration correctly moved deterministic logic out of skill-local scripts, but the destination for derivation-heavy behavior is a Playbook, not a CLI operation: only logic passing the NORTHSTAR filter — a fact-of-record, or a fiddly and genuinely reused canonical-identity or parse primitive — is retained as an operation in the append-only registry. The W16 R3 first-migration cluster is accordingly pruned per the migrated-operations inventory disposition: the wave-status, work-phase-state, phase-plan, phase-gate decision, scope-guard, and closeout probe, validate, and history logic are rebuilt as Playbooks, and only a work-item identity resolver plus the work-execution evidence record and read are retained on the `run` surface. The operation-first migration order, same-window skill rewrites, and managed removal safety in this PRD remain active and govern how the pruned operations and their remaining Python originals are retired.
+
 ## Requirements
 
 ### Modular TypeScript Operation Domains
@@ -31,6 +33,10 @@ Each migrated operation must expose deterministic inputs, outputs, dry-run or re
 Operation modules should mirror CLI/MCP command domains as closely as practical. Public command dispatch may remain thin, but domain logic must be testable without invoking the full CLI parser or MCP transport.
 
 ### Script Classification
+
+#### Change Notes
+
+- Superseded by [39-revise-cli-command-reorganization-and-operation-registry.md](39-revise-cli-command-reorganization-and-operation-registry.md) for the first category's destination. Core deterministic behavior belongs in the shared operation core behind the append-only registry only when it passes the NORTHSTAR filter — a fact-of-record, or a fiddly and genuinely reused canonical-identity or parse primitive; derivation, judgment, and generation behavior an agent can perform correctly from contracts and files is rebuilt as a Playbook rather than carried as a CLI/shared-core operation.
 
 Script-shaped behavior falls into three categories:
 

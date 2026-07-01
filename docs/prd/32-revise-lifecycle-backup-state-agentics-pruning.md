@@ -20,6 +20,8 @@ This PRD does not require automatic migration of existing root `.backup/**`. Exi
 
 W18 R5 generated Playbook package outputs inherit this lifecycle contract when they are installed through selected-agentics or plugin lifecycle surfaces. Generated plugin and skills-bundle outputs must be backed up, audited, uninstalled, and pruned through reviewed ownership state; source Playbooks remain source assets under `docs/assets/playbooks/**`.
 
+Enhanced by [38-revise-global-store-and-project-state.md](38-revise-global-store-and-project-state.md): W18 R10 adds machine-level lifecycle obligations for the global store at `~/.make-docs/`. Tool `uninstall`, which removes the CLI itself, must handle the global store explicitly rather than orphaning it — either removing it or prompting — and must not delete repository content, and project `setup remove` must prune only that project's store rows keyed by the manifest-minted project identifier. Repo-level backup destinations under `.make-docs/backup/**`, legacy root `.backup/**` protection, the shared audit snapshot, and the agentics pruning rules defined here are unchanged.
+
 ## Requirements
 
 ### Backup Destination

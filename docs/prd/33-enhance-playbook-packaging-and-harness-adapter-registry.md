@@ -14,6 +14,10 @@ Coordinate: `W18 R5`
 
 ## Capability Addition or Enhancement
 
+### Change Notes
+
+- Superseded by [36-revise-playbook-packaging-compiler-and-harness-adapters.md](./36-revise-playbook-packaging-compiler-and-harness-adapters.md) for the output-kind interpretation and the accepted output shape. `outputKind` `plugin` now means the harness's richest native container (a plugin, an extension, or another container per the harness capability descriptor) and `skills-bundle` means the portable agents-standard skills form, and the accepted output is a real multi-file harness-native distributable, never a Make Docs descriptor. The reviewed pipeline, the `plugin`/`skills-bundle` output kinds themselves, and the `native`/`agents-standard`/`auto` surface model remain active here.
+
 Make Docs must implement a reviewed Playbook packaging pipeline with deterministic rails. The pipeline turns one or more Playbooks into a package plan, routes the plan through a harness adapter, then writes accepted plugin or skills-bundle outputs with manifest ownership, provenance, lifecycle behavior, and validation.
 
 Playbooks remain source artifacts under `docs/assets/playbooks/<persona>/<slug>.md`. Generated plugins, generated skills bundles, generated adapters, symlink exposures, copy mirrors, and export-only packages are distribution artifacts. A Playbook does not become a plugin because it can be packaged, and a Playbook remains valid without packaging.
@@ -47,6 +51,11 @@ The pipeline must also distinguish real harness ids from surface profiles:
 
 ## Contracts and Data
 
+### Change Notes
+
+- Enhanced by [34-revise-playbook-contract-and-model.md](./34-revise-playbook-contract-and-model.md).
+- Superseded by [36-revise-playbook-packaging-compiler-and-harness-adapters.md](./36-revise-playbook-packaging-compiler-and-harness-adapters.md) for the adapter `path templates` declaration and the descriptor-era output writer. Adapter paths, manifest shapes, and registration steps must be verified against the real harness and carried in a harness capability descriptor with a verification reference and status, and the output writer produces the W18 R8 multi-file harness-native distributable inventory with per-kind dependency materialization and a generate-but-do-not-auto-register marketplace seam. The package-plan record, deterministic rails, agent-assistance limits, adapter-registry modularity, provenance, and lifecycle behavior in this section remain active.
+
 The package planner must produce a reviewable package plan before writes. The plan must record source Playbook refs, source digests, package id, title, summary, output kind, target harness, selected surface, scope, generated artifact inventory, deterministic derivations, agent-assisted proposals, unresolved decisions, review status, support status, lifecycle behavior, and validation requirements.
 
 Deterministic rails include source parsing, frontmatter validation, persona/slug resolution, stack validation, asset and relative-link validation, ownership classification, source digest calculation, adapter compatibility checks, output inventory planning, manifest provenance, audit classification, backup-before-destructive-change behavior, safe uninstall behavior, and package/conformance validation.
@@ -58,6 +67,10 @@ The harness adapter registry must make harness support modular. Each adapter dec
 Generated outputs must carry provenance to source Playbook refs and digests. Manifest and audit records must distinguish source Playbooks, generated plugins, generated skills bundles, generated adapters, symlink exposures, copy mirrors, export-only files, user-authored files, and legacy generated outputs.
 
 ## Integration Impact
+
+### Change Notes
+
+- Enhanced by [37-enhance-playbook-and-package-conformance.md](./37-enhance-playbook-and-package-conformance.md). The provisional support claims for generated plugin and skills-bundle outputs are now promotable through the W18 R9 tuple registry under `docs/assets/conformance/`: a public claim may advance only when its exact scenario/harness/surface/scope/output-kind/generated-output-kind/model-or-provider/runtime tuple reaches `conformance-validated` via the install-discover-invoke-uninstall evidence bar, and internal tests never count as harness-recognition evidence.
 
 [29-revise-playbook-contract-run-playbook.md](29-revise-playbook-contract-run-playbook.md) remains the source and runner contract. W18 R5 requires W18 R1 implementation to preserve packaging-ready metadata and validation hooks, but not to make every Playbook packaged by default.
 

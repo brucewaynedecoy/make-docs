@@ -20,6 +20,8 @@ Rust is shelved indefinitely and is not a v2 prerequisite, package-validation ta
 
 W16 R3 remains valid implementation evidence because it moved lifecycle-critical deterministic behavior into the packaged TypeScript CLI. Its consolidated `packages/cli/src/operations.ts` file is first-pass operation-boundary proof, not the final source organization.
 
+W18 R11 ([39-revise-cli-command-reorganization-and-operation-registry.md](39-revise-cli-command-reorganization-and-operation-registry.md)) supersedes this PRD's `make-docs operations ...` command surface and the hand-maintained expectation that CLI and MCP surfaces mirror each other as two maintained lists. The operation surface moves to `run`, the install lifecycle moves under `setup`, top-level `update` and `uninstall` become machine-footprint tool self-management, and a single append-only operation registry becomes the source of truth from which the CLI `run` tree and the MCP tool list are derived or conformance-checked, with MCP tool names derived from the same registry identifiers. This PRD's CLI/MCP boundary, remote-execution posture, installer-first no-command meaning, modular operation-domain development contract, MCP write gating, and config-overlay subordination are preserved unchanged and are carried forward by W18 R11 as R-KEEP-1.
+
 ## Requirements
 
 ### Remote Execution and Installer Posture
@@ -85,6 +87,10 @@ Remaining planned MCP expansions must:
 MCP writes require explicit permission and parity proof in the implementation backlog, but MCP itself is not optional or post-v2.
 
 ### Development Contract
+
+#### Change Notes
+
+- Superseded by [39-revise-cli-command-reorganization-and-operation-registry.md](39-revise-cli-command-reorganization-and-operation-registry.md) for the `make-docs operations ...` compatibility surface and the mirror-by-hand parity expectation. The operations move under `run` with subtrees mapping one-to-one to registry identifiers, and CLI/MCP parity becomes a derived or conformance-checked property of the operation registry rather than a maintained convention; the modular operation-domain requirement itself remains active and is strengthened by the W18 R11 shared operation core with typed contracts, an injected execution context for uniform dry-run, write-permission, and approval gating, and one-way surface-to-core dependencies.
 
 Deterministic logic must live in modular TypeScript operation domains, not skill-local scripts and not monolithic catch-all files.
 

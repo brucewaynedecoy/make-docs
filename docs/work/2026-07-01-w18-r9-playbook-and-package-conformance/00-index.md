@@ -1,0 +1,48 @@
+---
+title: "W18 R9 Playbook and Package Conformance Work"
+kind: "work"
+status: "active"
+coordinate: "W18 R9"
+follow_on:
+  route: "implementation-loop"
+  next_prompt: ".make-docs/references/system/execution-workflow.md"
+  why: "The backlog is the implementation queue derived from the W18 R9 plan and PRD contract."
+  coordinate_handoff: "Carry W18 R9 into phase history records and commits, adding the active P coordinate for each phase."
+source:
+  type: "prd"
+  path: "docs/prd/37-enhance-playbook-and-package-conformance.md"
+---
+
+# W18 R9 Playbook and Package Conformance Work
+
+## Purpose
+
+Implement the conformance extension required by [37 Enhance Playbook and Package Conformance](../../prd/37-enhance-playbook-and-package-conformance.md): the expanded support tuple for generated Playbook distributables, the queryable tuple registry under `docs/assets/conformance/` with `provisional`/`implementation-validated`/`conformance-validated` statuses derived from run verdicts, the install-discover-invoke-uninstall evidence bar, the required Codex-first first-pass scenarios with honest `blocked` reporting, the three-layer test separation with the internal-tests-are-not-evidence rule, the D9 meta-verification checks including the shipped-artifact exclusion check, and support-claim governance. The source chain is [the design](../../designs/2026-07-01-playbook-and-package-conformance.md), [the W18 R9 plan](../../plans/2026-07-01-w18-r9-playbook-and-package-conformance/00-overview.md), and PRD 37, with [PRD 20](../../prd/20-revise-agent-harness-model-conformance-lab.md), [PRD 33](../../prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md), [PRD 36](../../prd/36-revise-playbook-packaging-compiler-and-harness-adapters.md), [PRD 34](../../prd/34-revise-playbook-contract-and-model.md), [PRD 35](../../prd/35-revise-run-playbook-state-machine.md), [PRD 19](../../prd/19-revise-template-package-dogfood-source-of-truth-contract.md), and [PRD 10](../../prd/10-packaging-validation-and-release-reference.md) as still-constraining baselines.
+
+## Phase Map
+
+| File | Purpose |
+| --- | --- |
+| [01-support-tuple-and-tuple-registry.md](./01-support-tuple-and-tuple-registry.md) | Define the expanded support tuple and land the queryable tuple registry data file under `docs/assets/conformance/` with the three statuses and verdict-derived transitions. |
+| [02-evidence-bar-and-first-pass-scenarios.md](./02-evidence-bar-and-first-pass-scenarios.md) | Implement the install-discover-invoke-uninstall evidence bar and author the required Codex-first first-pass scenario specs with `blocked` reporting for unavailable harnesses. |
+| [03-test-layer-separation-and-meta-verification.md](./03-test-layer-separation-and-meta-verification.md) | Organize coverage into the three named layers and land the D9 meta-verification checks, including the shipped-artifact exclusion check. |
+| [04-support-claim-governance.md](./04-support-claim-governance.md) | Wire support-claim governance so public wording is bound to conformance-validated tuples, caveats surface, and the W18 R5 through W18 R8 provisional claims gain their promotion path. |
+
+## Usage Notes
+
+- Read phases in order; they are dependency-ordered and later phases consume earlier deliverables.
+- This lineage extends, never redefines: the lab's verdicts, safety modes, evidence classes, storage boundaries, run-record fields, and model-agnostic scenario protocol stay owned by [PRD 20](../../prd/20-revise-agent-harness-model-conformance-lab.md); the packaging compiler, harness adapters, and capability model stay owned by [PRD 36](../../prd/36-revise-playbook-packaging-compiler-and-harness-adapters.md); the Playbook model stays owned by [PRD 34](../../prd/34-revise-playbook-contract-and-model.md); the run-state machine stays owned by [PRD 35](../../prd/35-revise-run-playbook-state-machine.md); and non-packaging scenario families (install, audit, backup, skills) stay owned by the lab design (R-SCOPE-1).
+- Cross-design sequencing: this work is sequenced last among the core Playbook-architecture lineages — it verifies the W18 R8 distributables as the artifacts under test, executes workflow-driving scenarios via the W18 R7 runner, and consumes the W18 R6 Playbook model unchanged.
+- Maintainer-only exception: conformance assets — scenario specs, the tuple registry, and compact result records — live in-repo under `docs/assets/conformance/` as project content edited in place and are deliberately NOT authored upstream in `packages/docs/template/`; this is a stated exception to the upstream-first rule because conformance is maintainer evidence infrastructure, not shipped product. They MUST stay out of the shipped template, the packaged copy, npm tarballs, and any future package (R-KEEP-1, R-TEST-3). Lab and check code is ordinary source code under the CLI package.
+- Raw transcripts and provider logs default to `.make-docs/conformance/` or `.make-docs/runs/conformance/`, uncommitted unless deliberately redacted and promoted, per PRD 20's evidence classes.
+- Treat the D8 fixed decisions — tuple-bound support claims, the tuple registry with three statuses, the install-discover-invoke-uninstall bar, the three test layers with the internal-tests-are-not-evidence rule, and the maintainer-only not-shipped boundary — as non-substitutable acceptance criteria, and leave the D8 implementer freedoms (registry file format, faithful-simulation mechanics, extra run-record fields, raw-evidence promotion process) open.
+- Keep task checkboxes as `- [ ] tN: ...` with IDs incrementing across each entire phase file and acceptance criteria as plain bullets.
+
+## Intended Follow-On
+
+This handoff is advisory-default-but-overridable: it is authoritative unless the user explicitly overrides it, and it is not a gate or precondition.
+
+- Route: `implementation-loop`
+- Next step: Start with Phase 1 and continue phase-by-phase.
+- Why: The backlog is the implementation queue derived from the W18 R9 plan and PRD contract, and every W18 R5 through W18 R8 provisional support claim can be promoted only through the evidence surface this backlog builds.
+- Coordinate Handoff: Carry `W18 R9` into phase history records and commits, adding the active P coordinate for each phase.

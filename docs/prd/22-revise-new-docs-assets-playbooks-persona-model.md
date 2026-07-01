@@ -33,6 +33,10 @@ W9 R5 supersedes W9 R4 only for the guide/library and history/breadcrumb decisio
 
 ### Managed Project Asset Namespace
 
+### Change Notes
+
+- Superseded by [34-revise-playbook-contract-and-model.md](./34-revise-playbook-contract-and-model.md).
+
 The canonical v2 managed project documentation asset tree is:
 
 ```text

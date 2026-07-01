@@ -30,7 +30,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | [25-revise-cli-separation-and-mcp-boundary.md](./25-revise-cli-separation-and-mcp-boundary.md) preserves the installer-first `npx` posture, meaningful no-command install/sync behavior, accepted lifecycle commands, and removed command rejections; public docs still need implementation cleanup. | Audit public command docs against the live parser, help output, and future runtime/version disclosure language. |
+| Open | [25-revise-cli-separation-and-mcp-boundary.md](./25-revise-cli-separation-and-mcp-boundary.md) preserves the installer-first `npx` posture, meaningful no-command install/sync behavior, accepted lifecycle commands, and removed command rejections; public docs still need implementation cleanup. [39-revise-cli-command-reorganization-and-operation-registry.md](./39-revise-cli-command-reorganization-and-operation-registry.md) now supersedes the shipped taxonomy itself with the five-command tree (`setup`, `run`, `mcp`, `update`, `uninstall`), `setup remove` replacing project-level `uninstall`, context-aware bare invocation, and no back-compatibility aliases, so the documentation target moves from the current parser to the W18 R11 surface, and any template-owned router, guide, or README naming old spellings such as `operations` updates upstream in `packages/docs/template/` first per the maintainer dogfooding rule. | Audit public command docs against the W18 R11 five-command tree, help output, and pre-v2 warning language once the reorganization lands; route template-owned spelling updates upstream before dogfooding. |
 
 **Issue**: `packages/cli/src/cli.ts:894-1019` exposes `skills`, `backup`, and `uninstall`, while `README.md:73`, `packages/cli/README.md:56`, and older docs still frame the product mostly as install/reconfigure/dry-run and still discuss removed `init` or `update` paths rejected by `packages/cli/src/cli.ts:589-612`.
 
@@ -482,7 +482,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | No-command install remains the public default, and [25-revise-cli-separation-and-mcp-boundary.md](./25-revise-cli-separation-and-mcp-boundary.md) explicitly rejects replacing it with an `init`/`update` command-router model for package-runner, persistent-install, or MCP surfaces. | Preserve parser rejection, help-output, and CLI/MCP parity tests. |
+| Open | No-command install remains the public default, and [25-revise-cli-separation-and-mcp-boundary.md](./25-revise-cli-separation-and-mcp-boundary.md) explicitly rejects replacing it with an `init`/`update` command-router model for package-runner, persistent-install, or MCP surfaces. [39-revise-cli-command-reorganization-and-operation-registry.md](./39-revise-cli-command-reorganization-and-operation-registry.md) preserves the installer-first posture while making bare `make-docs` context-aware — guided `setup` with no install present, status and help without auto-sync with one — and reintroduces `update` only as machine-footprint tool self-management, never as an install router; the simplification hazard now includes collapsing context-aware bare into a forced router or blurring `setup remove` with tool `uninstall`. | Preserve context-aware bare behavior, tool-versus-project lifecycle separation, help-output, and registry-derived CLI/MCP parity tests. |
 
 **Issue**: Reintroducing `init`/`update`, collapsing wizard review with generic apply confirmation, or treating lifecycle commands as install flags would break the shipped public UX.
 
@@ -636,7 +636,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | [29-revise-playbook-contract-run-playbook.md](./29-revise-playbook-contract-run-playbook.md) and W18 R4 define one Run Playbook orchestration model: `persona/slug` resolver identity, stack metadata disambiguation, reviewed harness capability records in `.make-docs/config.yaml`, Make Docs-owned run state under `.make-docs/runs/playbooks/**`, explicit nested-playbook permission, and concurrency conflict checks. | Keep W18 R1, W18 R2, W18 R3, CLI, MCP, plugin, conformance, and package validation work aligned with W18 R4 before any public runner or support claim ships. |
+| Open | [29-revise-playbook-contract-run-playbook.md](./29-revise-playbook-contract-run-playbook.md) and W18 R4 define one Run Playbook orchestration model: `persona/slug` resolver identity, stack metadata disambiguation, reviewed harness capability records in `.make-docs/config.yaml`, explicit nested-playbook permission, and concurrency conflict checks. [34-revise-playbook-contract-and-model.md](./34-revise-playbook-contract-and-model.md) adds the W18 R6 single-model rule: every runner surface must consume the parsed Playbook model and its shared step-status vocabulary rather than re-parsing Playbook Markdown or inventing a parallel status set. [35-revise-run-playbook-state-machine.md](./35-revise-run-playbook-state-machine.md) adds the W18 R7 engine rules: Make Docs-owned run state relocates from `.make-docs/runs/playbooks/**` to the global store keyed by project id plus run id, progression happens only through `playbook.start`/`status`/`next`/`advance`/`gate`/`resume`/`close` with `playbook.next` side-effect free, and resume blocks by default on a source-digest mismatch. [39-revise-cli-command-reorganization-and-operation-registry.md](./39-revise-cli-command-reorganization-and-operation-registry.md) adds the W18 R11 surface rules: the progression operations are registry operations with stable append-only identifiers surfaced under `run playbook`, the CLI `run` tree and MCP tool list are derived from or conformance-checked against the same registry so runner surfaces cannot drift as hand-maintained mirrors, and Playbook `operation:` steps reference identifiers rather than command spellings. | Keep W18 R1, W18 R2, W18 R3, CLI, MCP, plugin, conformance, and package validation work aligned with W18 R4, the W18 R6 Playbook model, the W18 R7 state machine, and the W18 R11 registry-derived surfaces before any public runner or support claim ships. |
 
 **Issue**: CLI, MCP, plugin, skill, and harness-assisted playbook execution could each invent their own resolver, capability, run-state, nested-run, or concurrency behavior.
 
@@ -650,7 +650,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | [33-enhance-playbook-packaging-and-harness-adapter-registry.md](./33-enhance-playbook-packaging-and-harness-adapter-registry.md) makes Playbook packaging a required v2 deliverable while preserving the existing source/invocation boundary: Playbooks remain source under `docs/assets/playbooks/**`, generated plugins and skills bundles are distribution artifacts, and package plans must be reviewed before semantic or ambiguous writes. | Keep W18 R1, W18 R2, W18 R3, W18 R5, CLI, MCP, shared-agentics, package validation, and conformance work aligned so generated outputs carry provenance, lifecycle ownership, support status, and review state without becoming Playbook source. |
+| Open | [33-enhance-playbook-packaging-and-harness-adapter-registry.md](./33-enhance-playbook-packaging-and-harness-adapter-registry.md) makes Playbook packaging a required v2 deliverable while preserving the existing source/invocation boundary: Playbooks remain source under `docs/assets/playbooks/**`, generated plugins and skills bundles are distribution artifacts, and package plans must be reviewed before semantic or ambiguous writes. [34-revise-playbook-contract-and-model.md](./34-revise-playbook-contract-and-model.md) additionally requires the packaging rails to compile from the single parsed W18 R6 Playbook model rather than re-parsing Playbook Markdown independently. [36-revise-playbook-packaging-compiler-and-harness-adapters.md](./36-revise-playbook-packaging-compiler-and-harness-adapters.md) adds the W18 R8 compiler rules: the output writer produces a real multi-file harness-native distributable and never a Make Docs descriptor, harness-specific packaging knowledge lives in a capability descriptor, `outputKind` is interpreted through the two-granularities native/portable profile model, and adapter paths, manifest shapes, and registration steps must be verified against the real harness. | Keep W18 R1, W18 R2, W18 R3, W18 R5, W18 R6, W18 R8, CLI, MCP, shared-agentics, package validation, and conformance work aligned so generated outputs carry provenance, lifecycle ownership, support status, and review state without becoming Playbook source. |
 
 **Issue**: A package pipeline can accidentally make generated plugin or skills-bundle outputs look like the authoritative Playbook, or can treat generic standard skill locations as a fake harness instead of a surface selected by a real harness adapter.
 
@@ -659,6 +659,104 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 **Recommendation**: Treat package planning as a reviewed bridge. Keep deterministic validation, writes, provenance, lifecycle, and conformance in TypeScript operation domains; allow agents to draft semantic package-plan fields only behind review; and put harness-specific behavior in adapter modules with fixtures and support evidence.
 
 **To close**: W18 R5 implementation proves package-plan generation, adapter registry extension, `plugin` and `skills-bundle` output writers, source digest provenance, review/manual stops, lifecycle safety, package smoke coverage, and conformance tuple evidence.
+
+### R-018 The Playbook Contract, Validator, and Template Copies Could Drift Out of Parity
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | [34-revise-playbook-contract-and-model.md](./34-revise-playbook-contract-and-model.md) makes `packages/docs/template/.make-docs/contracts/system/playbook-contract.md` the normative Playbook authority, requires strict contract/validator parity so neither carries a requirement the other omits, requires every diagnostic code to have a failing fixture, and requires migrated and shipped default Playbooks to validate with zero errors in both the upstream template and the dogfood instance. | Keep contract edits, validator/diagnostic-catalog changes, default-Playbook changes, and upstream/dogfood reseeding coupled in the same implementation window, with fixture and parity checks proving the coupling. |
+
+**Issue**: The Playbook contract is stated three times — as contract prose, as validator code with a diagnostic catalog, and as upstream template plus dogfood copies — and any of the three can be edited without the others, silently recreating the substring-era gap where a Playbook passes validation while violating the stated contract or vice versa.
+
+**Why it matters**: The runner, packaging compiler, and conformance designs all compile against the W18 R6 model; a contract/validator mismatch or a stale template/dogfood copy would propagate wrong behavior into every downstream W18 surface and into shipped default Playbooks.
+
+**Recommendation**: Treat contract text, validator rules, diagnostic fixtures, and template/dogfood copies as one change unit. Require a failing fixture per diagnostic code, zero-error validation of default Playbooks in both locations, and reviewed reseeding whenever the upstream contract or default Playbooks change.
+
+**To close**: W18 R6 implementation lands the contract, validator, and diagnostic catalog with per-code fixtures, and focused parity checks fail when contract text, validator behavior, or template/dogfood copies diverge.
+
+### R-019 Run-State Relocation Depends on an Unlanded Global Store
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | [35-revise-run-playbook-state-machine.md](./35-revise-run-playbook-state-machine.md) relocates Playbook run state to the global store at `~/.make-docs/`, keyed by a stable project identifier plus a run identifier, with no in-repo copy and a test asserting nothing is written under `.make-docs/runs/` or any repository path. The Runtime and Global Store lineage has now landed as W18 R10: [38-revise-global-store-and-project-state.md](./38-revise-global-store-and-project-state.md) owns the store at `~/.make-docs/` with its global config, global manifest, and SQLite database, the schema version and migration strategy, WAL concurrency and locking discipline, graceful recovery, and the manifest-minted stable project identifier that is never path-keyed, and its unified project-state model carries Playbook run-state and work-execution evidence as two facets of one schema. The requirement contract exists; the store implementation has not landed. | Implement the W18 R10 backlog under [../work/2026-07-01-w18-r10-global-store-and-project-state/00-index.md](../work/2026-07-01-w18-r10-global-store-and-project-state/00-index.md) — store bootstrap, database, and identity phases first — then build W18 R7 run-state storage on that seam; PRD 35 defines only what run state requires of the store, and no interim repository-path fallback is ever shipped. |
+
+**Issue**: The W18 R7 progression engine is specified against a global store that does not exist yet, so implementation pressure could either write run state back into the repository as an interim location, invent a provisional store schema or project-identifier scheme that later conflicts with the Runtime and Global Store design, or stall the engine entirely on store delivery.
+
+**Why it matters**: An interim in-repo location would recreate the exact per-repo operational-noise pattern PRD 35 supersedes, a provisional identifier scheme would orphan run state for clones, moves, and worktrees once the real scheme lands, and either would leak into PRD 30 plugin delegation and W18 R1 runner implementation.
+
+**Recommendation**: Treat the global store, its concurrency model, and the stable project identifier as blocking prerequisites for R-STORE-1 and R-STORE-2 implementation; keep the engine's operation semantics, mode execution, resume, and guardrail work separable so it can land against a storage seam, and never ship a repository-path fallback for run state.
+
+**To close**: The Runtime and Global Store design lands and its implementation provides the store, locking, and identifier scheme; W18 R7 storage work builds on it and the R-TEST-5 no-repo-run-state assertion passes.
+
+### R-020 W18 R3 Adversarial-Review Surface Exposure Predates the New Playbook, CLI, and State Architecture
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Deferred | W18 R3 is unimplemented (all four phases untouched, no history record) and is deferred and split. The adversarial-review contract work is architecture-independent: P2 defines surface-neutral candidate, verdict, persona, and history mechanics and needs no rewrite (PRD 31), and P1's PRD and register reconciliation should fold into the reconciliation pass for the new Playbook, CLI, and state designs rather than run standalone against a shifting PRD set. The surface-exposure and closeout work (P3, P4) depends on the operation registry, the run-playbook state machine, the packaging and adapter pipeline, and conformance defined by the [Run Playbook State Machine](../designs/2026-07-01-run-playbook-state-machine.md), [Packaging Compiler and Harness Adapters](../designs/2026-07-01-playbook-packaging-compiler-and-harness-adapters.md), [Global Store and Project State](../designs/2026-07-01-global-store-and-project-state.md), and [CLI Command Reorganization and Operation Registry](../designs/2026-07-01-cli-command-reorganization-and-operation-registry.md) designs, so it is deferred until those land, and P3 must be rewritten to target the new surfaces, with a Playbook as the recommended surface. Related forward risks: R-016, R-017, R-018, R-019. | After the new architecture is implemented, rewrite P3 and adjust P4 validation to expose adversarial review as a Playbook through the new run, package, and conformance path; fold P1 into the new PRD reconciliation; author P2 whenever convenient. |
+
+**Issue**: W18 R3 P3 "optional surface exposure" and its instruction to delegate deterministic behavior to accepted CLI or shared-core operations predate the CLI reorganization into `setup`, `run`, `mcp`, `update`, and `uninstall`, the operation registry and shared core, the deterministic run-playbook state machine, the packaging and adapter redesign, and the pruning of the wave, phase, and closeout operations. Implementing P3 and P4 as written would build adversarial-review exposure on command shapes, operation names, and a runtime that are being replaced.
+
+**Why it matters**: Building the surface half now would couple new work to superseded surfaces and create immediate rework, while the contract half (P2) is stable and the adversarial-review concept is not deprecated, so its value should not be discarded by retiring the whole backlog.
+
+**Recommendation**: Keep W18 R3 and do not implement it wholesale ahead of the new architecture. Proceed with the contract half independently, folding P1's reconciliation into the new PRD pass, and defer P3 and P4 until the new Playbook, CLI, packaging, and state work lands, rewriting P3 to a Playbook-first surface. Exposing adversarial review as a Playbook also dogfoods the new run, package, and install pipeline.
+
+**To close**: Adversarial review is exposed through the new architecture, as a Playbook and optionally a packaged distributable, with P3 rewritten accordingly and P4 validation updated, or W18 R3 is explicitly retired with its contract intent absorbed elsewhere.
+
+### R-021 Adapter Contracts Can Regress to Assumed Paths and Outrun Conformance Evidence
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | [36-revise-playbook-packaging-compiler-and-harness-adapters.md](./36-revise-playbook-packaging-compiler-and-harness-adapters.md) requires every adapter's paths, manifest shapes, and registration steps to be verified against the real harness, with each adapter declaration carrying a verification reference and status; an unverified adapter may produce only export-only or provisional output and never a support claim. The verified shapes are fixed: Codex plugins are `.codex-plugin/plugin.json` folders registered through a marketplace entry with skills bundles on `.agents/skills/{id}/SKILL.md`, Claude Code lowers to `.claude/plugins/{id}/plugin.json` and `.claude/skills/{id}/SKILL.md`, and Pi's richest container is an extension without hooks. Real-harness recognition, installation, and invocation evidence is owned by the conformance lineage, now active as W18 R9 through [37-enhance-playbook-and-package-conformance.md](./37-enhance-playbook-and-package-conformance.md): support tuples live in a queryable registry under `docs/assets/conformance/` with `provisional`, `implementation-validated`, and `conformance-validated` statuses derived from run verdicts, a tuple may reach `conformance-validated` only through the install-discover-invoke-uninstall evidence bar, verdicts of `inconsistent`, `unsupported`, or `blocked` never advance a tuple, and a meta-verification check asserts no tuple is marked `conformance-validated` without a qualifying recorded run. | Sequence public support wording for any generated-output tuple after the W18 R9 first-pass scenarios produce recorded evidence; until then every W18 R8 adapter support status stays provisional in the tuple registry and unit or integration tests are never cited as harness-recognition evidence per PRD 36 R-TEST-5 and PRD 37 R-LAYER-2. |
+
+**Issue**: The triggering W18 R5 failure came from an assumed path template, and the same regression can recur: a new or edited adapter can declare plausible-looking paths or manifest shapes without re-verification, harness vendors can change their plugin contracts after verification, and passing unit tests can be misread as proof that a harness recognizes the generated output.
+
+**Why it matters**: An unverified or stale adapter contract silently produces distributables no harness recognizes — the exact defect W18 R8 corrects — and a support claim made ahead of conformance evidence would overstate harness support to users while the conformance design that owns the evidence bar has not landed.
+
+**Recommendation**: Treat the verification reference and status on every adapter declaration as mandatory review material, keep the fixture adapter's fail-closed scenarios in the required test suite, keep support statuses provisional and tuple-bound until conformance scenarios exist, and re-verify an adapter's contract whenever its declared paths, manifest shapes, or registration steps change.
+
+**To close**: W18 R8 implementation lands verified Codex, Claude Code, and Pi adapters with verification references, the R-TEST-1 through R-TEST-4 suites pass, and the W18 R9 conformance requirements in [37-enhance-playbook-and-package-conformance.md](./37-enhance-playbook-and-package-conformance.md) are implemented with real-harness recognition scenarios recorded in the tuple registry for the claimed tuples.
+
+### R-022 First-Pass Conformance Scenarios Depend on Real Harness Availability
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | [37-enhance-playbook-and-package-conformance.md](./37-enhance-playbook-and-package-conformance.md) requires the first conformance pass to prove real user outcomes against the current product harnesses, Codex first: a generated skills bundle is discovered and invocable, a generated plugin installs through a marketplace and works in a new thread, generated dependency checks behave correctly in both directions, and uninstall and backup remove managed outputs cleanly. Scenarios that cannot run for a missing precondition report `blocked` rather than inventing evidence, Pi and additional harnesses are future scenarios whose absence must be reported rather than implied as covered, and a meta-verification check asserts the required scenarios exist and are runnable. | Keep the R-SCEN-1 scenarios, harness environments, and any faithful-simulation mechanics reviewed together so `blocked` verdicts stay honest and no unavailable scenario is silently marked as passing or covered. |
+
+**Issue**: The required first-pass scenarios need a real or faithfully simulated harness, working credentials or environments, and marketplace plumbing; schedule pressure could substitute passing internal tests for the evidence bar, quietly narrow a scenario until it no longer proves the user outcome, or leave an unavailable scenario looking covered instead of `blocked`.
+
+**Why it matters**: Any of those substitutions recreates the files-written-equals-works failure at the evidence layer itself — the tuple registry would then certify support that no harness has demonstrated, which is the exact defect the W18 R9 design exists to prevent.
+
+**Recommendation**: Treat harness availability as a scenario precondition that resolves to `blocked` when unmet, document any faithful-simulation mechanics as an implementer choice per D8 with review, keep R-BAR-2 and R-LAYER-2 absolute so internal tests never advance a tuple, and keep the R-TEST-2 runnability check in the required suite.
+
+**To close**: The first pass runs against Codex with recorded runs meeting the install-discover-invoke-uninstall bar for the R-SCEN-1 scenarios, unavailable harness scenarios show `blocked` in the tuple registry, and the R-TEST-2 check passes.
+
+### R-023 The Global Store Could Drift Into a Second Source of Truth or Lose Evidence in the Checkpoint Migration
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | [38-revise-global-store-and-project-state.md](./38-revise-global-store-and-project-state.md) fixes the guards: the install and directory registry is a mirror and index whose canonical source remains each project's `.make-docs/manifest.json` and must not become a second source of truth (R-MIR-1), run-state and work-execution evidence are relocated and canonical in the store with no in-repo copy (R-MIR-2), the two project-state facets share one model rather than becoming parallel stores (R-PS-2), and the per-repo checkpoint JSON is not ported verbatim — its genuine-state fields (validation-passed, review-passed or waived, closeout-approved) become work-execution evidence keyed to the canonical work-item identity while its re-derivable fields are dropped per [../assets/artifacts/migrated-operations-inventory.md](../assets/artifacts/migrated-operations-inventory.md). | Keep the mirror subordinate to project manifests in every registry read path, keep both facets on the shared project-state schema and migration path, and review the checkpoint-to-evidence field mapping so no genuine sign-off is dropped and no re-derivable field is ported. |
+
+**Issue**: The store plays two roles with opposite authority rules — mirror for install records, canonical for operational state — and implementation pressure can blur them: registry reads could start trusting the mirror over the manifest, the run-state and evidence facets could grow separate ad-hoc schemas, or the checkpoint-JSON migration could either drop genuine sign-off evidence or port re-derivable noise the disposition removed.
+
+**Why it matters**: A mirror treated as truth would misreport installs after out-of-band project changes, parallel facet schemas would recreate the two-vocabularies-two-migration-paths problem the unified model exists to prevent, and lost sign-off evidence is unrecoverable by definition — it is exactly the state that cannot be re-derived from the repository or git.
+
+**Recommendation**: Implement the registry as rebuildable cache semantics with the manifest as the always-authoritative source, land both facets against one project-state schema with one migration path, and treat the checkpoint field disposition (keep genuine state, drop derivation) as reviewed mapping work rather than a mechanical port.
+
+**To close**: W18 R10 implementation lands the store with the R-TEST-1 through R-TEST-4 assertions passing, registry rebuild-from-manifests behavior is demonstrated, and the checkpoint-to-evidence migration is reviewed against the inventory's keep/remove disposition with no genuine-state field lost.
+
+### R-024 The Command-Surface Hard Cutover Can Strand Consumers or Leave a Half-Migrated Surface
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | [39-revise-cli-command-reorganization-and-operation-registry.md](./39-revise-cli-command-reorganization-and-operation-registry.md) fixes the guards: there are no back-compatibility aliases, so the old spellings — the flat `operations` and `mcp`-beside-install top level and the project-level `uninstall` — are removed rather than aliased (R-MIG-1); `update`, `setup`, and `setup reconfigure` detect pre-v2 configurations by fingerprint and present a warning-and-backup-or-cancel flow instead of upgrading silently (R-MIG-2); MCP tool names derive from the same registry identifiers so the MCP renames cannot diverge from the CLI renames (R-MIG-3); the operation core, the registry, and the reorganized tree land first with all retained operation logic behind the registry in the same wave so no half-migrated state exists (R-SEQ-1); and `uninstall`'s new machine-footprint meaning is a hard cutover that confirms before removing, never deletes repository content, and never guesses before a destructive global change (R-SELF-1, R-SELF-3). | Keep the no-alias removal, pre-v2 detection, registry-derived MCP renames, same-wave registry migration, and uninstall-confirmation behavior in one implementation wave, and update template-owned routers, guides, and READMEs naming old spellings upstream in `packages/docs/template/` in that same window. |
+
+**Issue**: The reorganization is a hard cutover — old command spellings are removed with no aliases, `uninstall` changes meaning from project removal to machine-footprint removal, and every operation moves behind the registry — so schedule pressure could ship a partial rename where some surfaces speak old spellings and some new, leave MCP tool names on the old hand-maintained list, skip the pre-v2 warning flow, or leave template-owned docs teaching removed commands.
+
+**Why it matters**: A half-migrated surface is exactly the drift the registry exists to end and would strand Playbook steps, MCP consumers, and documentation on spellings the parser no longer accepts; and a user typing the old project-level `uninstall` against the new machine-level meaning without the confirmation guard would face a destructive surprise rather than a rename.
+
+**Recommendation**: Treat R-SEQ-1 as a delivery gate, not a preference: land the core, registry, and tree together, derive or conformance-check both surfaces from the registry in the same change, implement the pre-v2 fingerprint warning before or with the renames, and carry the upstream template spelling updates in the same backlog so no shipped router or README survives with old commands.
+
+**To close**: W18 R11 implementation lands the five-command tree with R-TEST-1 through R-TEST-4 passing — registry parity with no one-surface-only operation, no lifecycle commands under `run`, the pre-v2 warning-and-choice flow, confirmed non-destructive `uninstall`, and the pruned operations absent — and the template-owned command-spelling updates are dogfooded from upstream.
 
 ## Source Anchors
 
@@ -683,8 +781,20 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 - `docs/prd/31-revise-coverage-pass-extensions-adversarial-review.md`
 - `docs/prd/32-revise-lifecycle-backup-state-agentics-pruning.md`
 - `docs/prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md`
+- `docs/prd/34-revise-playbook-contract-and-model.md`
+- `docs/prd/35-revise-run-playbook-state-machine.md`
+- `docs/prd/36-revise-playbook-packaging-compiler-and-harness-adapters.md`
+- `docs/prd/37-enhance-playbook-and-package-conformance.md`
+- `docs/prd/38-revise-global-store-and-project-state.md`
+- `docs/prd/39-revise-cli-command-reorganization-and-operation-registry.md`
 - `docs/designs/2026-06-27-run-playbook-orchestration-and-harness-capabilities.md`
+- `docs/designs/2026-06-30-playbook-contract-and-model.md`
+- `docs/designs/2026-07-01-run-playbook-state-machine.md`
 - `docs/designs/2026-06-29-playbook-packaging-and-harness-adapter-registry.md`
+- `docs/designs/2026-07-01-playbook-packaging-compiler-and-harness-adapters.md`
+- `docs/designs/2026-07-01-playbook-and-package-conformance.md`
+- `docs/designs/2026-07-01-global-store-and-project-state.md`
+- `docs/designs/2026-07-01-cli-command-reorganization-and-operation-registry.md`
 - `docs/designs/2026-06-19-package-and-deployment-boundaries.md`
 - `docs/designs/2026-06-19-system-asset-delivery-and-materialization-contract.md`
 - `docs/designs/2026-06-19-compatibility-audit-and-migration-disposition.md`
