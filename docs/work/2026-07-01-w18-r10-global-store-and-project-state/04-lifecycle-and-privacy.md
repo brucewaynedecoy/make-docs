@@ -28,10 +28,10 @@ Implement the uninstall, setup-remove, and update behaviors for the global store
 
 ### Tasks
 
-- [ ] t1: Implement tool `uninstall` handling for the global store: the store is removed or the user is prompted, it is never silently orphaned, and repository content is never deleted (R-LIFE-1).
-- [ ] t2: Implement project `setup remove` pruning that deletes only the target project's rows, keyed by the project identifier, leaving every other project's rows untouched (R-LIFE-2).
-- [ ] t3: Implement pre-v2 configuration detection in `update`, `setup`, and `setup reconfigure` with the warning-and-backup-or-cancel flow defined by the CLI reorganization, and apply any pending store schema migration during `update` (R-LIFE-3).
-- [ ] t4: Preserve the PRD 32 contract: repo-level backups stay under `.make-docs/backup/**`, legacy root `.backup/**` remains protected, and the agentics pruning rules are unchanged by the store's lifecycle handling.
+- [x] t1: Implement tool `uninstall` handling for the global store: the store is removed or the user is prompted, it is never silently orphaned, and repository content is never deleted (R-LIFE-1).
+- [x] t2: Implement project `setup remove` pruning that deletes only the target project's rows, keyed by the project identifier, leaving every other project's rows untouched (R-LIFE-2).
+- [x] t3: Implement pre-v2 configuration detection in `update`, `setup`, and `setup reconfigure` with the warning-and-backup-or-cancel flow defined by the CLI reorganization, and apply any pending store schema migration during `update` (R-LIFE-3).
+- [x] t4: Preserve the PRD 32 contract: repo-level backups stay under `.make-docs/backup/**`, legacy root `.backup/**` remains protected, and the agentics pruning rules are unchanged by the store's lifecycle handling.
 
 ### Acceptance criteria
 
@@ -48,7 +48,7 @@ Implement the uninstall, setup-remove, and update behaviors for the global store
 
 ### Tasks
 
-- [ ] t5: Enforce the local-only rule for the store's project-path records: no code path transmits them, and any future export or sharing surface is specified as explicit opt-in (R-PRIV-1).
+- [x] t5: Enforce the local-only rule for the store's project-path records: no code path transmits them, and any future export or sharing surface is specified as explicit opt-in (R-PRIV-1).
 
 ### Acceptance criteria
 

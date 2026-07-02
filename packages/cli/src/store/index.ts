@@ -104,6 +104,15 @@ export {
 } from "./project-identity";
 
 export {
+  pruneProjectFromStore,
+  removeGlobalStore,
+  type PruneProjectFromStoreOptions,
+  type PruneProjectFromStoreResult,
+  type RemoveGlobalStoreOptions,
+  type RemoveGlobalStoreResult,
+} from "./lifecycle";
+
+export {
   bootstrapGlobalStore,
   type StoreBootstrapOptions,
   type StoreBootstrapReport,

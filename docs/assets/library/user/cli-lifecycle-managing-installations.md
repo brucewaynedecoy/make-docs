@@ -208,6 +208,17 @@ The audit flow distinguishes between:
 
 That separation is why uninstall and recovery guidance belong together: removal decisions depend on audit classification, not just pathname matching.
 
+### What uninstall reports about the machine-level store
+
+Make Docs keeps a small machine-level store at `~/.make-docs/` that records operational state — which projects are set up and recorded work sign-offs — for every project on the machine. Uninstall handles that store explicitly and prints what it did on every completed run:
+
+- It removes only this project's entries from the store; every other project's state is untouched.
+- It never deletes the store itself, because the store serves all Make Docs projects on the machine. When the project you uninstalled was the last one registered, the report says so and names the location where the store can be safely deleted by hand.
+- When no store exists, or the project never had a recorded identifier, the report says there was nothing to prune.
+- Store handling never deletes files inside your project. Your backups — the project-local `.make-docs/backup/` tree and any legacy root `.backup/` directory — are unaffected.
+
+The store's records, including the project paths it uses for lookup, stay on your machine and are never transmitted anywhere.
+
 ## Recovery guidance
 
 If a lifecycle action did not do what you expected, use this order of operations:
@@ -251,4 +262,4 @@ Run `make-docs uninstall` interactively and stop at the confirmation prompt afte
 
 ## Future Coverage
 
-- Blocked by: W18 R10 Phase 4 and the W18 R11 command reorganization. Update when: the machine-level `~/.make-docs/` store gains its per-project pruning and machine-footprint removal lifecycle, and the reorganized command surface exposes it. Guide change: document how to inspect the machine-level store, what per-project removal prunes from it, how to remove the Make Docs machine footprint entirely, and the privacy note that the store records local project paths as lookup metadata only.
+- Blocked by: the W18 R11 command reorganization. Update when: the reorganized command surface ships the tool-level `uninstall` and `update` self-management commands and `setup remove`. Guide change: document how to inspect the machine-level store, the `setup remove` command name for per-project pruning, and the command that removes the Make Docs machine footprint entirely; today the uninstall report tells you when the store can be safely deleted by hand, and that guidance should be replaced by the real command.
