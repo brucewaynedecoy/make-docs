@@ -21,7 +21,7 @@ import {
 } from "./install";
 import { loadManifest, MANIFEST_RELATIVE_PATH } from "./manifest";
 import { runOperationsCommand } from "./operations";
-import { bootstrapGlobalStore } from "./store";
+import { bootstrapGlobalStore, mirrorProjectManifest, withStoreDatabase } from "./store";
 import { cloneSelections, defaultSelections, hasEffectiveCapabilities } from "./profile";
 import { applySkillRegistrySelectionMetadata } from "./skill-catalog";
 import {
@@ -390,6 +390,28 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
   const storeReport = bootstrapGlobalStore({ packageMeta });
   for (const warning of storeReport.warnings) {
     output.write(`Warning: ${warning}\n`);
+  }
+
+  // Install/directory registry mirror upsert (R-MIR-1), wired at the same
+  // seam as the store bootstrap: refresh this project's mirror row from the
+  // manifest the apply just wrote. The mirror is an index only — the
+  // canonical install record stays `.make-docs/manifest.json` — so any
+  // failure degrades to a warning and never affects the applied install.
+  if (
+    storeReport.databaseStatus === "created" ||
+    storeReport.databaseStatus === "ready" ||
+    storeReport.databaseStatus === "recovered"
+  ) {
+    try {
+      withStoreDatabase(storeReport.storeRoot, (db) => {
+        mirrorProjectManifest(db, { repoRoot: targetDir, manifest: applied.manifest });
+      });
+    } catch (error) {
+      output.write(
+        `Warning: could not refresh the install registry mirror (${error instanceof Error ? error.message : String(error)}). ` +
+          "The project manifest remains the canonical install record; the mirror can be rebuilt from it.\n",
+      );
+    }
   }
 }
 

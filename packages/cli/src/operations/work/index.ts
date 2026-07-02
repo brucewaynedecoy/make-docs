@@ -5,10 +5,17 @@ import {
 } from "node:fs";
 import path from "node:path";
 import {
+  listWaveEvidence,
+  resolveProjectIdentity,
+  resolveStoreRoot,
+  withStoreDatabase,
+} from "../../store";
+import {
   findRepoRoot,
   loadJsonFile,
   normalizePath,
   readText,
+  repoRelativePath,
 } from "../shared";
 import { OperationError, type JsonValue } from "../types";
 import type {
@@ -157,7 +164,7 @@ export const workDomain: OperationDomainDescriptor = {
     },
     {
       name: "wave-status",
-      summary: "Summarize wave phase completion and any saved phase state.",
+      summary: "Summarize wave phase completion and recorded work-execution evidence.",
       mutates: false,
       renderModes: ["json"],
     },
@@ -342,7 +349,17 @@ export function resolveWaveTarget(target: string, repoRoot?: string): WaveResolu
   return buildResolution(root, waveDir, phases, phaseDoc, mode, raw);
 }
 
-export function buildWaveStatus(target: string): Record<string, JsonValue> {
+/**
+ * Wave status over the docs/work phase documents plus the recorded
+ * work-execution evidence for the wave. Evidence is read from the global
+ * store (R-BND-2); a not-yet-migrated legacy checkpoint file under
+ * `.make-docs/runs/<wave-slug>/state.json` is surfaced read-only until the
+ * next checkpoint migrates and removes it. This operation never writes.
+ */
+export function buildWaveStatus(
+  target: string,
+  options: { storeRoot?: string } = {},
+): Record<string, JsonValue> {
   const resolution = resolveWaveTarget(target);
   const phases = resolution.phases.map((item) => {
     const phaseState = parseWorkPhase(item.path);
@@ -353,13 +370,50 @@ export function buildWaveStatus(target: string): Record<string, JsonValue> {
       warnings: phaseState.warnings,
     };
   });
-  const statePath = statePathFor(resolution);
+
+  const warnings: string[] = [];
+  let evidence: JsonValue = [];
+  const identityResolution = resolveProjectIdentity(resolution.repoRoot);
+  if (identityResolution.status === "resolved") {
+    try {
+      evidence = withStoreDatabase(
+        resolveStoreRoot(options.storeRoot ? { storeRoot: options.storeRoot } : {}),
+        (db) =>
+          listWaveEvidence(db, {
+            projectId: identityResolution.projectId,
+            waveSlug: resolution.waveSlug,
+          }),
+      ) as unknown as JsonValue;
+    } catch (error) {
+      warnings.push(
+        `Recorded evidence could not be read from the global store (${error instanceof Error ? error.message : String(error)}).`,
+      );
+    }
+  } else {
+    warnings.push(
+      `Recorded evidence unavailable: project identity is ${identityResolution.status} (evidence is keyed by the manifest-minted project identifier).`,
+    );
+  }
+
+  const legacyStatePath = statePathFor(resolution);
+  const legacyPresent = existsSync(legacyStatePath);
   return {
     resolution: resolution as unknown as JsonValue,
     phases: phases as unknown as JsonValue,
     nextPhasePath: resolution.phasePath,
-    statePath,
-    state: loadJsonFile(statePath) as JsonValue,
+    evidenceSource: "global-store",
+    projectIdentity: {
+      status: identityResolution.status,
+      projectId:
+        identityResolution.status === "resolved" ? identityResolution.projectId : null,
+    },
+    evidence,
+    legacyCheckpoint: {
+      path: repoRelativePath(legacyStatePath, resolution.repoRoot),
+      present: legacyPresent,
+      state: legacyPresent ? (loadJsonFile(legacyStatePath) as JsonValue) : null,
+    } as unknown as JsonValue,
+    warnings,
   };
 }
 
@@ -498,6 +552,14 @@ export function planWorkPhase(target: string): OperationResult<Record<string, Js
   };
 }
 
+/**
+ * Location of the LEGACY per-repo checkpoint file (W18 R10 P3, R-BND-2).
+ * This path is read-and-migrate only: no operation writes work-lifecycle
+ * state here anymore — evidence lives in the global store, keyed by the
+ * manifest-minted project identifier plus the canonical work-item identity.
+ * The mutating checkpoint operation migrates a file found here into evidence
+ * rows and removes it.
+ */
 export function statePathFor(resolution: WaveResolution): string {
   return path.join(resolution.repoRoot, ".make-docs", "runs", resolution.waveSlug, "state.json");
 }

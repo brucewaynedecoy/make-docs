@@ -29,9 +29,9 @@ Implement the unified project-state model keyed by the project identifier, hold 
 
 ### Tasks
 
-- [ ] t1: Implement the project-state model as one schema with two facets keyed by the project identifier — Playbook run-state as defined by the W18 R7 lineage, and work-execution evidence as the recorded sign-offs and decisions that cannot be re-derived from the repository or git (R-PS-1).
-- [ ] t2: Expose the run-state facet as the storage seam PRD 35's R-STORE-1 and R-STORE-2 consume — read, create, and transition records keyed by project identifier plus run identifier — without redefining the run-state record shape or progression semantics owned by the W18 R7 lineage (R-SCOPE-1).
-- [ ] t3: Keep both facets on the shared model and shared migration path; reject any design that gives run-state and work-execution evidence separate ad-hoc stores or parallel vocabularies (R-PS-2).
+- [x] t1: Implement the project-state model as one schema with two facets keyed by the project identifier — Playbook run-state as defined by the W18 R7 lineage, and work-execution evidence as the recorded sign-offs and decisions that cannot be re-derived from the repository or git (R-PS-1).
+- [x] t2: Expose the run-state facet as the storage seam PRD 35's R-STORE-1 and R-STORE-2 consume — read, create, and transition records keyed by project identifier plus run identifier — without redefining the run-state record shape or progression semantics owned by the W18 R7 lineage (R-SCOPE-1).
+- [x] t3: Keep both facets on the shared model and shared migration path; reject any design that gives run-state and work-execution evidence separate ad-hoc stores or parallel vocabularies (R-PS-2).
 
 ### Acceptance criteria
 
@@ -46,10 +46,10 @@ Implement the unified project-state model keyed by the project identifier, hold 
 
 ### Tasks
 
-- [ ] t4: Implement work-execution evidence keyed to the canonical work-item identity — resolved repo root, wave slug, and phase path — produced by the retained work-item identity resolver; the store records evidence against that identity and never re-derives it (R-PS-3).
-- [ ] t5: Migrate the per-repo checkpoint JSON's genuine-state fields — validation-passed, review-passed or waived, closeout-approved, and equivalent recorded decisions — into work-execution evidence, and drop its re-derivable fields per the disposition in [migrated-operations-inventory.md](../../assets/artifacts/migrated-operations-inventory.md); the checkpoint JSON is not ported verbatim (R-PS-2).
-- [ ] t6: Retire `.make-docs/runs/<wave-slug>/state.json` as a write target in `packages/cli/src/operations/lifecycle/index.ts` and its readers, so no work-execution evidence is written to any repository path (R-BND-2).
-- [ ] t7: Review the checkpoint-to-evidence field mapping against the inventory's keep/remove disposition so no genuine sign-off is dropped and no re-derivable field is ported (guards R-023).
+- [x] t4: Implement work-execution evidence keyed to the canonical work-item identity — resolved repo root, wave slug, and phase path — produced by the retained work-item identity resolver; the store records evidence against that identity and never re-derives it (R-PS-3).
+- [x] t5: Migrate the per-repo checkpoint JSON's genuine-state fields — validation-passed, review-passed or waived, closeout-approved, and equivalent recorded decisions — into work-execution evidence, and drop its re-derivable fields per the disposition in [migrated-operations-inventory.md](../../assets/artifacts/migrated-operations-inventory.md); the checkpoint JSON is not ported verbatim (R-PS-2).
+- [x] t6: Retire `.make-docs/runs/<wave-slug>/state.json` as a write target in `packages/cli/src/operations/lifecycle/index.ts` and its readers, so no work-execution evidence is written to any repository path (R-BND-2).
+- [x] t7: Review the checkpoint-to-evidence field mapping against the inventory's keep/remove disposition so no genuine sign-off is dropped and no re-derivable field is ported (guards R-023).
 
 ### Acceptance criteria
 
@@ -65,9 +65,9 @@ Implement the unified project-state model keyed by the project identifier, hold 
 
 ### Tasks
 
-- [ ] t8: Implement the install and directory registry in the store as a mirror and index for cross-project queries and quick access, populated from project manifests (R-MIR-1).
-- [ ] t9: Keep the mirror subordinate: every authoritative read of a project's install record resolves to that project's `.make-docs/manifest.json`, and the registry is rebuildable from manifests rather than being a second source of truth (R-MIR-1).
-- [ ] t10: Encode the mirror-versus-relocated distinction in the model: registry rows are mirror data, project-state rows are relocated canonical data with no in-repo copy (R-MIR-2).
+- [x] t8: Implement the install and directory registry in the store as a mirror and index for cross-project queries and quick access, populated from project manifests (R-MIR-1).
+- [x] t9: Keep the mirror subordinate: every authoritative read of a project's install record resolves to that project's `.make-docs/manifest.json`, and the registry is rebuildable from manifests rather than being a second source of truth (R-MIR-1).
+- [x] t10: Encode the mirror-versus-relocated distinction in the model: registry rows are mirror data, project-state rows are relocated canonical data with no in-repo copy (R-MIR-2).
 
 ### Acceptance criteria
 

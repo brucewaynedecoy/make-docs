@@ -54,6 +54,42 @@ Recorded in `PRAGMA user_version`; DDL lives in `STORE_MIGRATIONS` (`database.ts
 
 Both facets share one model and one migration path (R-PS-2): same database, same keying discipline, same schema version. `deleteProjectRows` prunes all three tables by `project_id` in one transaction — the seam `setup remove` uses (R-LIFE-2).
 
+W18 R10 P3 decision: the unified project-state model **stays on schema version 1**. The v1 layout already carries both facets on one migration path — the run-state seam, the identity-keyed evidence, and the registry mirror are all expressible over the v1 tables — so no v2 migration was warranted. The model layer lives in `project-state.ts`: `PROJECT_STATE_TABLE_ROLES` encodes mirror-versus-relocated per table (R-MIR-2), `WorkItemIdentity` is the canonical work-item identity tuple, and `recordWorkEvidence`/`readWorkItemEvidence`/`listWaveEvidence` accept that tuple verbatim — the store records against the identity the retained work-item identity resolver produced and never re-derives it (R-PS-3).
+
+### Run-state facet seam (create / read / transition)
+
+The storage seam PRD 35's R-STORE-1/R-STORE-2 consume (`state-rows.ts`): `createPlaybookRunRecord` (INSERT; throws `PlaybookRunExistsError` on collision), `readPlaybookRunRecord`, `transitionPlaybookRunRecord` (UPDATE; throws `PlaybookRunNotFoundError` when the run does not exist, so a transition can never silently create state), and `listPlaybookRunRecords`, all keyed `(project_id, run_id)`. The record is opaque JSON end to end: this module defines no status vocabulary, no progression rules, and no record fields beyond what storage needs — the shape and semantics stay owned by the W18 R7 lineage (R-SCOPE-1).
+
+### Checkpoint-to-evidence field mapping (W18 R10 P3, Stage 2)
+
+The per-repo checkpoint JSON at `.make-docs/runs/<wave-slug>/state.json` is retired as a write target (R-BND-2). Its genuine-state fields become work-execution evidence rows keyed by the canonical work-item identity; its re-derivable fields are dropped, per the keep/remove disposition in `docs/assets/artifacts/migrated-operations-inventory.md` (the checkpoint JSON is not ported verbatim, R-PS-2). Evidence writers/readers live in `packages/cli/src/operations/lifecycle/index.ts` (`WORK_EVIDENCE_KINDS`).
+
+| Legacy checkpoint field | Disposition | Evidence kind / rationale |
+| --- | --- | --- |
+| `phases.<p>.validation` (status, commands) | **Kept** | `validation` — recorded validation sign-off (inventory: "validation-passed") |
+| `phases.<p>.review` (status, required) | **Kept** | `review` — recorded review pass/waiver and the explicit required flag (inventory: "review-passed or waived") |
+| `phases.<p>.closeout` (status) | **Kept** | `closeout` — recorded closeout approval (inventory: "closeout-approved") |
+| `phases.<p>.commit` (status, sha) | **Kept** | `commit` — the recorded binding of a phase to its commit; an "equivalent recorded decision" not reliably re-derivable from git |
+| `phases.<p>.push` (status) | **Kept** | `push` — recorded push evidence consumed by the commit policy gate |
+| `phases.<p>.notes` | **Kept** | `notes` — operator-recorded free-text decisions, not re-derivable |
+| `commitPolicy` (wave level) | **Kept** | `commit-policy`, recorded per phase — a recorded gating decision, neither evidence-derivable nor repo-derivable (implementer decision: per-phase keying because the evidence key requires a phase path; an explicit gate parameter still wins) |
+| `phases.<p>.status` | **Dropped** | Re-derivable from the phase document's task checkboxes (`parseWorkPhase().isComplete`); the gate never consumed it |
+| `phases.<p>.phasePath` | **Dropped as a field** | It IS the row key (canonical identity component), not payload |
+| `schemaVersion`, `createdAt`, `updatedAt` | **Dropped** | File-format bookkeeping; store rows carry `recorded_at` |
+| `waveSlug`, `waveDir`, `target`, `coordinate`, `mode`, `nextPhasePath`, `activePhasePath` | **Dropped** | Resolver outputs, re-derivable from `docs/work/` by the retained work-item identity resolver; `waveSlug` survives only as a key component |
+
+### Legacy checkpoint file handling
+
+PRD 38 and the inventory are silent on whether old checkpoint files are removed, so this is a recorded implementer decision: **migrated files are removed**. The mutating `checkpoint` operation migrates a legacy file (read old → write evidence rows for kinds the store does not already hold → delete the file and prune emptied `runs/` directories) because relocated-canonical state must have no in-repo copy (R-MIR-2); evidence already in the store is never overwritten by legacy data. Read-only operations (`phase-gate`, `wave-status`) consult a not-yet-migrated file read-only for kinds missing from the store and never write or delete it, so reads stay side-effect free. Consumer repos migrate lazily at runtime on their next checkpoint; nothing is hand-migrated. Once migrated, no code path writes work-lifecycle state under any repository path; the mutating checkpoint fails explicitly (rather than falling back to a repo write) when the project identity is unresolvable or the store is unavailable, while reads degrade to "no recorded evidence" with a warning (R-DB-4).
+
+### Registry mirror behavior (Stage 3)
+
+`registry-mirror.ts` keeps the `projects` table strictly subordinate to project manifests (R-MIR-1):
+
+- **Upsert hook**: the CLI apply flow (`runCli` in `cli.ts`) calls `mirrorProjectManifest` immediately after `bootstrapGlobalStore`, at the same post-apply seam — refreshing the mirror row from the manifest the apply just wrote. Mirror failures degrade to warnings and never affect the applied install.
+- **Authoritative read**: `readAuthoritativeInstallRecord` always loads `.make-docs/manifest.json` and never consults the registry; a stale mirror row can never override the manifest.
+- **Rebuild**: `rebuildProjectRegistry` drops all mirror rows and re-mirrors the supplied project roots from their manifests in one transaction — lossless by construction, and it never touches the relocated-canonical `playbook_runs`/`work_evidence` rows.
+
 ### Migration strategy
 
 An ordered, append-only list `STORE_MIGRATIONS`, each entry `{ version, description, statements }` (R-DB-2).
@@ -81,4 +117,4 @@ A missing or corrupt database is **recoverable operational-state loss, never pro
 
 ## Not in this module
 
-Project-identifier **minting** lives with the manifest writer (`mintProjectId` in `packages/cli/src/manifest.ts`, invoked by the install apply in `packages/cli/src/install.ts`) because the identifier is manifest-recorded state; this module owns only its **resolution** (`project-identity.ts`). The project-state read/write operations and checkpoint-evidence migration (P3), uninstall/setup-remove lifecycle behavior (P4), the Playbook run-record shape (W18 R7), project `.make-docs/config.yaml` overlay rules (PRD 24), and the pinned global asset cache (PRD 17) are owned elsewhere and only consume this seam.
+Project-identifier **minting** lives with the manifest writer (`mintProjectId` in `packages/cli/src/manifest.ts`, invoked by the install apply in `packages/cli/src/install.ts`) because the identifier is manifest-recorded state; this module owns only its **resolution** (`project-identity.ts`). The checkpoint evidence vocabulary and legacy-file migration live with the lifecycle operations (`packages/cli/src/operations/lifecycle/index.ts`), which consume this module's identity and evidence seams. Uninstall/setup-remove lifecycle behavior (P4), the Playbook run-record shape and progression semantics (W18 R7), the work operations' CLI/registry surfacing (W18 R11), project `.make-docs/config.yaml` overlay rules (PRD 24), and the pinned global asset cache (PRD 17) are owned elsewhere and only consume this seam.

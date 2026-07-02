@@ -97,6 +97,97 @@ export function listProjectRegistryEntries(db: StoreDatabase): ProjectRegistryEn
   return rows.map(toProjectRegistryEntry);
 }
 
+/** Thrown when `createPlaybookRunRecord` collides with an existing run row. */
+export class PlaybookRunExistsError extends Error {
+  constructor(projectId: string, runId: string) {
+    super(
+      `A Playbook run record already exists for project ${projectId} and run ${runId}. ` +
+        "Use transitionPlaybookRunRecord to update an existing run.",
+    );
+    this.name = "PlaybookRunExistsError";
+  }
+}
+
+/** Thrown when `transitionPlaybookRunRecord` targets a run row that does not exist. */
+export class PlaybookRunNotFoundError extends Error {
+  constructor(projectId: string, runId: string) {
+    super(
+      `No Playbook run record exists for project ${projectId} and run ${runId}. ` +
+        "Use createPlaybookRunRecord to create a run before transitioning it.",
+    );
+    this.name = "PlaybookRunNotFoundError";
+  }
+}
+
+/**
+ * Creates a Playbook run-state record (W18 R10 P3, t2). This is the create
+ * half of the storage seam PRD 35's R-STORE-1/R-STORE-2 consume: keyed by
+ * (project identifier, run identifier), record stored as opaque JSON. The
+ * record shape and progression semantics stay owned by the W18 R7 lineage
+ * (R-SCOPE-1); this seam only guarantees create-versus-transition integrity
+ * at the storage level. Fails explicitly when the run already exists.
+ */
+export function createPlaybookRunRecord(
+  db: StoreDatabase,
+  input: { projectId: string; runId: string; record: JsonValue; now?: string },
+): void {
+  const now = input.now ?? new Date().toISOString();
+  try {
+    db.prepare(
+      `INSERT INTO playbook_runs (project_id, run_id, record, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?)`,
+    ).run(input.projectId, input.runId, JSON.stringify(input.record), now, now);
+  } catch (error) {
+    if (error instanceof Error && /UNIQUE constraint failed/i.test(error.message)) {
+      throw new PlaybookRunExistsError(input.projectId, input.runId);
+    }
+    throw error;
+  }
+}
+
+/**
+ * Transitions (replaces) an existing Playbook run-state record. The new
+ * record is opaque to the store — what a valid transition IS (statuses,
+ * cursors, gates) is the W18 R7 runner's business; storage only guarantees
+ * the run exists and the write is atomic. Fails explicitly when the run does
+ * not exist so a transition can never silently create state.
+ */
+export function transitionPlaybookRunRecord(
+  db: StoreDatabase,
+  input: { projectId: string; runId: string; record: JsonValue; now?: string },
+): void {
+  const now = input.now ?? new Date().toISOString();
+  const result = db
+    .prepare(
+      `UPDATE playbook_runs SET record = ?, updated_at = ?
+       WHERE project_id = ? AND run_id = ?`,
+    )
+    .run(JSON.stringify(input.record), now, input.projectId, input.runId);
+  if (Number(result.changes) === 0) {
+    throw new PlaybookRunNotFoundError(input.projectId, input.runId);
+  }
+}
+
+/** Lists a project's Playbook run-state records (records stay opaque JSON). */
+export function listPlaybookRunRecords(
+  db: StoreDatabase,
+  projectId: string,
+): PlaybookRunRow[] {
+  const rows = db
+    .prepare(
+      `SELECT project_id, run_id, record, created_at, updated_at
+       FROM playbook_runs WHERE project_id = ? ORDER BY run_id`,
+    )
+    .all(projectId) as Array<Record<string, unknown>>;
+  return rows.map((row) => ({
+    projectId: String(row.project_id),
+    runId: String(row.run_id),
+    record: JSON.parse(String(row.record)) as JsonValue,
+    createdAt: String(row.created_at),
+    updatedAt: String(row.updated_at),
+  }));
+}
+
 /** Writes a Playbook run-state record (opaque JSON payload; shape owned by W18 R7). */
 export function upsertPlaybookRunRecord(
   db: StoreDatabase,

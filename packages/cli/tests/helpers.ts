@@ -1,10 +1,10 @@
-import { mkdtempSync, readdirSync, readFileSync, rmSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { vi } from "vitest";
 import { applyInstallPlan, planInstall } from "../src/install";
-import { loadManifest } from "../src/manifest";
+import { getManifestPath, loadManifest, mintProjectId } from "../src/manifest";
 import { defaultSelections } from "../src/profile";
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
@@ -60,6 +60,47 @@ export async function installMakeDocsTarget(
     plan,
     existingManifest,
   });
+}
+
+/**
+ * Writes a minimal but fully valid `.make-docs/manifest.json` carrying a
+ * manifest-minted project identifier, without running the full installer.
+ * Fixtures that exercise identity-keyed operations (lifecycle evidence,
+ * registry mirroring) use this to stay fast.
+ */
+export function writeMinimalManifest(targetDir: string, projectId = mintProjectId()): string {
+  const manifestPath = getManifestPath(targetDir);
+  mkdirSync(path.dirname(manifestPath), { recursive: true });
+  writeFileSync(
+    manifestPath,
+    `${JSON.stringify(
+      {
+        schemaVersion: 2,
+        projectId,
+        packageName: "make-docs-test",
+        packageVersion: "0.0.0-test",
+        updatedAt: new Date().toISOString(),
+        profileId: "test",
+        selections: {
+          capabilities: { designs: true, plans: true, prd: true, work: true },
+          harnesses: { "claude-code": true, codex: true },
+          skills: false,
+          skillScope: "project",
+          selectedSkills: [],
+          plugins: false,
+          pluginScope: "project",
+          selectedPlugins: [],
+        },
+        effectiveCapabilities: ["designs", "plans", "prd", "work"],
+        files: {},
+        skillFiles: [],
+      },
+      null,
+      2,
+    )}\n`,
+    "utf8",
+  );
+  return projectId;
 }
 
 export function mockHomeDirectory(homeDir: string): () => void {

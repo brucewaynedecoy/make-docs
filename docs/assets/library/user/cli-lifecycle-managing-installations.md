@@ -251,4 +251,4 @@ Run `make-docs uninstall` interactively and stop at the confirmation prompt afte
 
 ## Future Coverage
 
-- Blocked by: W18 R10 Phases 3 and 4 and the W18 R11 command reorganization. Update when: the machine-level `~/.make-docs/` store gains its per-project pruning and machine-footprint removal lifecycle, and the reorganized command surface exposes it. Guide change: document how to inspect the machine-level store, what per-project removal prunes from it, how to remove the Make Docs machine footprint entirely, and the privacy note that the store records local project paths as lookup metadata only.
+- Blocked by: W18 R10 Phase 4 and the W18 R11 command reorganization. Update when: the machine-level `~/.make-docs/` store gains its per-project pruning and machine-footprint removal lifecycle, and the reorganized command surface exposes it. Guide change: document how to inspect the machine-level store, what per-project removal prunes from it, how to remove the Make Docs machine footprint entirely, and the privacy note that the store records local project paths as lookup metadata only.

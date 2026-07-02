@@ -230,7 +230,7 @@ describe("local bootstrap independence (R-STORE-3, R-KEEP-2)", () => {
     }
   }, 60_000);
 
-  it("bootstraps the store when the CLI applies an install", async () => {
+  it("bootstraps the store and upserts the registry mirror when the CLI applies an install", async () => {
     const targetDir = createTempDir("make-docs-target-");
     const storeRoot = path.join(createTempDir("make-docs-store-"), "store");
     try {
@@ -241,6 +241,18 @@ describe("local bootstrap independence (R-STORE-3, R-KEEP-2)", () => {
       expect(existsSync(path.join(storeRoot, GLOBAL_MANIFEST_FILE))).toBe(true);
       if (sqliteAvailable) {
         expect(existsSync(path.join(storeRoot, STORE_DATABASE_FILE))).toBe(true);
+
+        // The apply flow refreshes the install registry mirror at the same
+        // seam as the store bootstrap (W18 R10 P3 Stage 3, R-MIR-1), keyed by
+        // the manifest-minted identifier with the path as metadata only.
+        const manifest = loadManifest(targetDir);
+        expect(manifest?.projectId).toBeDefined();
+        withStoreDatabase(storeRoot, (db) => {
+          const entry = readProjectRegistryEntry(db, manifest!.projectId!);
+          expect(entry?.rootPath).toBe(path.resolve(targetDir));
+          expect(entry?.packageName).toBe(manifest?.packageName);
+          expect(entry?.packageVersion).toBe(manifest?.packageVersion);
+        });
       }
     } finally {
       cleanupTempDir(targetDir);

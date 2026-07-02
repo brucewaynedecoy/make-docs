@@ -62,11 +62,16 @@ export {
 } from "./database";
 
 export {
+  PlaybookRunExistsError,
+  PlaybookRunNotFoundError,
+  createPlaybookRunRecord,
   deleteProjectRows,
+  listPlaybookRunRecords,
   listProjectRegistryEntries,
   listWorkEvidence,
   readPlaybookRunRecord,
   readProjectRegistryEntry,
+  transitionPlaybookRunRecord,
   upsertPlaybookRunRecord,
   upsertProjectRegistryEntry,
   upsertWorkEvidence,
@@ -74,6 +79,24 @@ export {
   type ProjectRegistryEntry,
   type WorkEvidenceRow,
 } from "./state-rows";
+
+export {
+  PROJECT_STATE_TABLE_ROLES,
+  listWaveEvidence,
+  readWorkItemEvidence,
+  recordWorkEvidence,
+  type ProjectStateTableRole,
+  type WorkItemIdentity,
+} from "./project-state";
+
+export {
+  mirrorProjectManifest,
+  readAuthoritativeInstallRecord,
+  rebuildProjectRegistry,
+  type AuthoritativeInstallRecord,
+  type MirrorProjectResult,
+  type RebuildProjectRegistryResult,
+} from "./registry-mirror";
 
 export {
   resolveProjectIdentity,
