@@ -649,16 +649,8 @@ describe("guide generation routing contract", () => {
     }
   });
 
-  test("every shipped default playbook validates with zero errors", () => {
-    const playbooksRoot = path.join(
-      REPO_ROOT,
-      "packages",
-      "docs",
-      "template",
-      "docs",
-      "assets",
-      "playbooks",
-    );
+  function collectPlaybookPaths(instanceRoot: string): string[] {
+    const playbooksRoot = path.join(instanceRoot, "docs", "assets", "playbooks");
     const playbookPaths: string[] = [];
     for (const persona of readdirSync(playbooksRoot)) {
       const personaDir = path.join(playbooksRoot, persona);
@@ -671,13 +663,14 @@ describe("guide generation routing contract", () => {
         }
       }
     }
+    return playbookPaths;
+  }
 
+  function expectZeroPlaybookErrors(instanceRoot: string): void {
+    const playbookPaths = collectPlaybookPaths(instanceRoot);
     expect(playbookPaths.length).toBeGreaterThan(0);
     for (const playbookPath of playbookPaths) {
-      const relativePath = path.relative(
-        path.join(REPO_ROOT, "packages", "docs", "template"),
-        playbookPath,
-      );
+      const relativePath = path.relative(instanceRoot, playbookPath);
       const { model, diagnostics } = parseAndValidatePlaybook({
         sourcePath: relativePath.split(path.sep).join("/"),
         source: readFileSync(playbookPath, "utf8"),
@@ -686,6 +679,14 @@ describe("guide generation routing contract", () => {
       expect(diagnostics.filter((diagnostic) => diagnostic.severity === "error"), playbookPath).toEqual([]);
       expect(model.runnable, playbookPath).toBe(true);
     }
+  }
+
+  test("every shipped default playbook validates with zero errors", () => {
+    expectZeroPlaybookErrors(path.join(REPO_ROOT, "packages", "docs", "template"));
+  });
+
+  test("every dogfood-instance playbook validates with zero errors", () => {
+    expectZeroPlaybookErrors(REPO_ROOT);
   });
 });
 

@@ -705,6 +705,11 @@ describe("canonical worked example (R-AUTH-3 parity)", () => {
     "../../..",
     ".make-docs/contracts/system/playbook-contract.md",
   );
+  const upstreamContractPath = path.resolve(
+    testDir,
+    "../../..",
+    "packages/docs/template/.make-docs/contracts/system/playbook-contract.md",
+  );
 
   test("validates the contract's worked example with zero errors and zero warnings", () => {
     const contract = readFileSync(contractPath, "utf8");
@@ -770,14 +775,22 @@ None.
   });
 
   test("every contract diagnostic-table code is in the exported catalog with the contract severity", () => {
-    const contract = readFileSync(contractPath, "utf8");
-    const rows = [...contract.matchAll(/\|\s*(PB-[A-Z]+-\d{3})\s*\|\s*(error|warning)\s*\|/g)];
-    expect(rows.length).toBeGreaterThanOrEqual(7);
-    for (const [, code, severity] of rows) {
-      const descriptor =
-        PLAYBOOK_DIAGNOSTIC_CATALOG[code as PlaybookDiagnosticCode];
-      expect(descriptor, `catalog is missing ${code}`).toBeDefined();
-      expect(descriptor.severity).toBe(severity);
+    // Both copies of the contract are machine-checked: the upstream template
+    // source of truth and the dogfood instance copy (R-AUTH-1, R-AUTH-3).
+    for (const authorityPath of [upstreamContractPath, contractPath]) {
+      const contract = readFileSync(authorityPath, "utf8");
+      const rows = [...contract.matchAll(/\|\s*(PB-[A-Z]+-\d{3})\s*\|\s*(error|warning)\s*\|/g)];
+      expect(rows.length, authorityPath).toBeGreaterThanOrEqual(7);
+      for (const [, code, severity] of rows) {
+        const descriptor =
+          PLAYBOOK_DIAGNOSTIC_CATALOG[code as PlaybookDiagnosticCode];
+        expect(descriptor, `catalog is missing ${code}`).toBeDefined();
+        expect(descriptor.severity).toBe(severity);
+      }
     }
+  });
+
+  test("the dogfood contract copy is byte-identical to the upstream template authority", () => {
+    expect(readFileSync(contractPath, "utf8")).toBe(readFileSync(upstreamContractPath, "utf8"));
   });
 });
