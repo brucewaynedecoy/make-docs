@@ -356,6 +356,17 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
     existingManifest,
   });
 
+  // Explicit migration signal for pre-identifier installs (PRD 38 R-ID-1):
+  // when an existing manifest predates the stable project identifier, this
+  // apply minted one, and the user is told rather than it happening silently.
+  if (existingManifest && !existingManifest.projectId && applied.manifest.projectId) {
+    output.write(
+      `Minted stable project identifier ${applied.manifest.projectId} in ${MANIFEST_RELATIVE_PATH} ` +
+        "(this install predated project identifiers; the identifier keys this project's " +
+        "operational state in the global store and never changes).\n",
+    );
+  }
+
   if (hasPlannedChanges) {
     writeApplyCompletionSummary({
       existingManifest,

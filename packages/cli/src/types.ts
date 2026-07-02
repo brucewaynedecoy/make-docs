@@ -500,6 +500,15 @@ export interface AgenticOwnershipMetadata {
 
 export interface InstallManifest {
   schemaVersion: number;
+  /**
+   * Stable project identifier minted once at setup (W18 R10; PRD 38 R-ID-1).
+   * Keys every project-scoped row in the machine-level global store and never
+   * changes for the lifetime of the install — clones, moves, and worktrees
+   * carry it with the manifest. Absent on pre-identifier manifests (installs
+   * written before W18 R10); such manifests remain fully valid and the
+   * identifier is minted on the next `make-docs` apply.
+   */
+  projectId?: string;
   packageName: string;
   packageVersion: string;
   updatedAt: string;

@@ -34,6 +34,16 @@ Both files are pretty-printed JSON, written atomically (temp file + rename, `jso
 - Shape: `config.json` is `{ schemaVersion, settings: { selfUpdate: "prompt" | "auto" | "off", marketplaceAutoRegistration: boolean } }`; unknown or invalid settings degrade to defaults with warnings.
 - `manifest.json` is `{ schemaVersion, createdAt, updatedAt, lastBootstrap: { packageName, packageVersion, nodeVersion, at }, database: { file, schemaVersion, status } }`. It is tool-level state only; each project's `.make-docs/manifest.json` remains the canonical install record (R-MIR-1).
 
+### Project identifier generation: random UUID (v4), minted once at setup
+
+Chosen (W18 R10 P2): the stable project identifier is a random UUID (v4) from `node:crypto`'s `randomUUID()`, minted by `mintProjectId()` (`packages/cli/src/manifest.ts`) exactly once — on the first install apply that writes the project's `.make-docs/manifest.json` — persisted there as `projectId`, and preserved verbatim on every later sync, reconfigure, or skills-only apply. Re-running setup or sync never re-mints or changes an existing identifier (R-ID-1).
+
+- Stability across clones, moves, and worktrees is achieved **by construction, not by derivation**: the identifier is not computed from anything that can change. It travels with the manifest file, so a moved directory, a fresh clone, or a linked worktree that carries the manifest carries the identity. Deriving from the path (changes on move), the git remote (changes on re-host, absent in non-git or pre-remote repos), or machine/environment details (changes per machine) would each violate R-ID-2's rationale.
+- A random UUID was chosen over a hash of any project property because no project property is both universally present and immutable; over ULID/monotonic ids because ordering is meaningless for identity and `randomUUID()` is built-in with zero dependencies; and over shorter random tokens because UUID collision risk is negligible and the format is self-describing in the manifest.
+- Consequence accepted: two clones of one repository share one identity (they carry the same manifest), which is the intended reading of R-TEST-2 — project-scoped state follows the project, not the checkout. A deliberately re-initialized project (manifest removed, setup re-run) is a new project and mints a new identifier.
+- Compatibility (R-ID-1): manifests written before the identifier simply lack `projectId`. They load unchanged and are never rejected; every lifecycle operation (bare sync, reconfigure, audit, backup, uninstall) works with or without the field. The identifier is minted on the next install apply — which already rewrites the manifest — and the CLI prints an explicit migration notice rather than doing it silently.
+- Identity resolution (`project-identity.ts`, exported as `resolveProjectIdentity`) is the only supported way to obtain a repository's `project_id`: it reads the manifest and returns an explicit status (`resolved` / `unminted` / `no-manifest` / `unreadable`). No store table or query resolves identity from a path; the `projects.root_path` column and its index exist solely for secondary lookup and display (R-ID-2), and the schema-audit conclusion stands: every project-scoped table keys by `project_id` plus the row's own key, with paths stored only as metadata columns.
+
 ### SQL schema and table layout (schema version 1)
 
 Recorded in `PRAGMA user_version`; DDL lives in `STORE_MIGRATIONS` (`database.ts`).
@@ -71,4 +81,4 @@ A missing or corrupt database is **recoverable operational-state loss, never pro
 
 ## Not in this module
 
-Project-identifier minting (W18 R10 P2), the project-state read/write operations and checkpoint-evidence migration (P3), uninstall/setup-remove lifecycle behavior (P4), the Playbook run-record shape (W18 R7), project `.make-docs/config.yaml` overlay rules (PRD 24), and the pinned global asset cache (PRD 17) are owned elsewhere and only consume this seam.
+Project-identifier **minting** lives with the manifest writer (`mintProjectId` in `packages/cli/src/manifest.ts`, invoked by the install apply in `packages/cli/src/install.ts`) because the identifier is manifest-recorded state; this module owns only its **resolution** (`project-identity.ts`). The project-state read/write operations and checkpoint-evidence migration (P3), uninstall/setup-remove lifecycle behavior (P4), the Playbook run-record shape (W18 R7), project `.make-docs/config.yaml` overlay rules (PRD 24), and the pinned global asset cache (PRD 17) are owned elsewhere and only consume this seam.

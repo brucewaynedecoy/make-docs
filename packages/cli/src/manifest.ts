@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import os from "node:os";
 import { existsSync } from "node:fs";
 import path from "node:path";
@@ -58,6 +59,24 @@ export const CONFLICTS_RELATIVE_DIR = TOOL_DIRECTORY_CONFLICTS_RELATIVE_DIR;
 
 export function getManifestPath(targetDir: string): string {
   return path.join(targetDir, MANIFEST_RELATIVE_PATH);
+}
+
+/**
+ * Mints a stable project identifier (W18 R10; PRD 38 R-ID-1).
+ *
+ * D10 implementer decision: a random UUID (v4), minted exactly once at setup
+ * and persisted in `.make-docs/manifest.json`. It is deliberately NOT derived
+ * from the directory path, git remote, or any environment detail, so it is
+ * stable across clones, moves, and worktrees by construction — the identifier
+ * travels with the manifest file, and nothing about the machine or location
+ * can change it. The full decision record lives in
+ * `packages/cli/src/store/README.md` (Project identifier generation).
+ *
+ * Callers must never invoke this when a manifest already carries a
+ * `projectId`; re-minting would orphan the project's global-store rows.
+ */
+export function mintProjectId(): string {
+  return randomUUID();
 }
 
 export function getManifestFileHash(relativePath: string, content: string): string | null {
@@ -180,9 +199,11 @@ export function createManifest(
   files: Record<string, ManifestFileEntry>,
   skillFiles: string[],
   systemAssetMaterialization: SystemAssetManifestState,
+  projectId: string,
 ): InstallManifest {
   return {
     schemaVersion: MANIFEST_SCHEMA_VERSION,
+    projectId,
     packageName: packageMeta.name,
     packageVersion: packageMeta.version,
     updatedAt: new Date().toISOString(),
@@ -347,8 +368,20 @@ function validateAndMigrateManifest(
         ? validateSystemAssetManifestState(value.systemAssetMaterialization)
         : createEmptySystemAssetManifestState();
 
+    // Stable project identity (W18 R10; PRD 38 R-ID-1). Manifests written
+    // before the identifier existed simply lack the field: they load
+    // unchanged and stay fully valid — never rejected, never rewritten here.
+    // The identifier is minted for them on the next install apply. A present
+    // identifier is validated and preserved verbatim; it is never
+    // regenerated or normalized.
+    const projectId =
+      "projectId" in value && value.projectId !== undefined
+        ? validateProjectId(value.projectId)
+        : undefined;
+
     return {
       schemaVersion: MANIFEST_SCHEMA_VERSION,
+      ...(projectId === undefined ? {} : { projectId }),
       packageName: validateString(value.packageName, "manifest.packageName"),
       packageVersion: validateString(
         value.packageVersion,
@@ -726,6 +759,16 @@ function validateStringArray(value: unknown, label: string): string[] {
   }
 
   return value.map((item, index) => validateString(item, `${label}.${index}`));
+}
+
+function validateProjectId(value: unknown): string {
+  if (typeof value !== "string" || value.trim().length === 0) {
+    throw new Error(
+      "manifest.projectId must be a non-empty string (the stable project identifier minted at setup)",
+    );
+  }
+
+  return value;
 }
 
 function validateString(value: unknown, label: string): string {

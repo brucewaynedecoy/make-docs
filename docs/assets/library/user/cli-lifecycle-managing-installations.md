@@ -69,6 +69,8 @@ For an existing install, the CLI reads the saved manifest, plans changes against
 - Managed files with local differences are preserved unless you explicitly choose to overwrite them during review.
 - The lifecycle plan reports what would change before anything is written.
 
+If your installation predates the project identifier, the next apply or sync adds a `projectId` field to `.make-docs/manifest.json` and prints a one-time migration notice. That is a routine manifest enhancement, not a conflict: an existing `projectId` is never re-minted or changed, and manifests without one keep working across sync, reconfigure, backup, and uninstall until an apply adds it.
+
 ### Review planned changes and diffs
 
 Before install, sync, or reconfigure writes files, the CLI shows a plan grouped by the operation it intends to perform:
@@ -249,4 +251,4 @@ Run `make-docs uninstall` interactively and stop at the confirmation prompt afte
 
 ## Future Coverage
 
-- Blocked by: W18 R10 Phases 2 through 4 and the W18 R11 command reorganization. Update when: the machine-level `~/.make-docs/` store gains its project-identity, per-project pruning, and machine-footprint removal lifecycle, and the reorganized command surface exposes it. Guide change: document how to inspect the machine-level store, what per-project removal prunes from it, how to remove the Make Docs machine footprint entirely, and the privacy note that the store records local project paths as lookup metadata only.
+- Blocked by: W18 R10 Phases 3 and 4 and the W18 R11 command reorganization. Update when: the machine-level `~/.make-docs/` store gains its per-project pruning and machine-footprint removal lifecycle, and the reorganized command surface exposes it. Guide change: document how to inspect the machine-level store, what per-project removal prunes from it, how to remove the Make Docs machine footprint entirely, and the privacy note that the store records local project paths as lookup metadata only.

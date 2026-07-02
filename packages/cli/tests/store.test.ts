@@ -45,6 +45,11 @@ const sqliteAvailable = driver.available;
 const ISO_TIMESTAMP_RE =
   /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})/g;
 
+// Two independent installs mint two distinct random project identifiers
+// (W18 R10 P2, R-ID-1) — a per-install value like the timestamps, unrelated
+// to the store's presence — so byte-identity comparisons normalize it.
+const PROJECT_ID_LINE_RE = /"projectId": "[0-9a-f-]{36}"/g;
+
 function bootstrapInto(storeRoot: string) {
   return bootstrapGlobalStore({
     storeRoot,
@@ -210,9 +215,11 @@ describe("local bootstrap independence (R-STORE-3, R-KEEP-2)", () => {
 
       for (const relativePath of filesWithout) {
         const left = readFileSync(path.join(targetWithoutStore, relativePath), "utf8")
-          .replace(ISO_TIMESTAMP_RE, "TIMESTAMP");
+          .replace(ISO_TIMESTAMP_RE, "TIMESTAMP")
+          .replace(PROJECT_ID_LINE_RE, '"projectId": "PROJECT_ID"');
         const right = readFileSync(path.join(targetWithStore, relativePath), "utf8")
-          .replace(ISO_TIMESTAMP_RE, "TIMESTAMP");
+          .replace(ISO_TIMESTAMP_RE, "TIMESTAMP")
+          .replace(PROJECT_ID_LINE_RE, '"projectId": "PROJECT_ID"');
         expect(right, `content mismatch for ${relativePath}`).toBe(left);
       }
     } finally {

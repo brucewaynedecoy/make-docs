@@ -1,0 +1,45 @@
+---
+title: "W18 R10 P2 Stable Project Identity and Manifest Minting"
+kind: "history"
+status: "completed"
+date: "2026-07-01"
+client: "Claude Code"
+model: "Fable 5"
+coordinate: "W18 R10 P2"
+repo: "make-docs"
+branch: "make-docs-v2"
+summary: "Landed the manifest-minted stable project identifier and the read-only identity-resolution seam for the global store, then ran the closeout coverage passes."
+---
+
+# W18 R10 P2 Stable Project Identity and Manifest Minting
+
+## Changes
+
+Implemented W18 R10 Phase 2 of [PRD 38](../../../prd/38-revise-global-store-and-project-state.md) — the R-ID-1/R-ID-2 stable project identity plus the [PRD 05](../../../prd/05-installation-profile-and-manifest-lifecycle.md) manifest enhancement — across `packages/cli/`: `src/types.ts` adds the optional `InstallManifest.projectId` field within schema v2 (no version bump), `src/manifest.ts` exports `mintProjectId()` with load-time validation and pre-identifier passthrough, `src/install.ts` mints `existingManifest?.projectId ?? mintProjectId()` during apply so an existing identifier is preserved verbatim and a missing one is minted exactly once, `src/cli.ts` prints an explicit one-time migration notice when a pre-identifier install gains its id, and the new [`src/store/project-identity.ts`](../../../../packages/cli/src/store/project-identity.ts) exposes `resolveProjectIdentity(repoRoot)` — a pure manifest read that never mints and never touches the database, returning `resolved`, `unminted`, `no-manifest`, or `unreadable` with `rootPath` as explicitly secondary metadata — as the resolver seam the W18 R7 run-state storage and W18 R11 work operations consume. The D10 implementer decision recorded in [packages/cli/src/store/README.md](../../../../packages/cli/src/store/README.md) is a random UUID v4 via `randomUUID()`, minted exactly once at the first manifest-writing apply: stability across clones, moves, and worktrees holds by construction because the id is never derived from path, git remote, or environment, clones sharing one identity is the intended R-TEST-2 semantics, and path-hash, git-remote, and ULID alternatives were rejected; a store schema audit confirmed every project-scoped table keys by `project_id` plus the row's own key with `root_path` as secondary lookup metadata only. PRD 05 lifecycle safety is test-verified: bare sync, reconfigure, audit, backup, and uninstall all work with and without the identifier, lifecycle reads never mint, and re-apply preserves the id. Tests landed as `packages/cli/tests/project-identity.test.ts` (16 tests) with the P1 byte-identity test in `packages/cli/tests/store.test.ts` adjusted to normalize the per-install random `projectId`; the full suite passes 30 files / 485 tests. Wiring the install-registry mirror upsert into the CLI apply flow is deliberately deferred to Phase 3. All five tasks in [the Phase 2 backlog file](../../../work/2026-07-01-w18-r10-global-store-and-project-state/02-stable-project-identity-and-manifest-minting.md) are checked off.
+
+Developer-guide coverage was `update-existing` because [the docs assets and runtime state boundaries guide](../../library/developer/maintainer-docs-assets-and-runtime-state-boundaries.md) already owns the Machine-Level Global Store section its P1 Future Coverage bullet gated on P2: it gained one boundary-rules bullet covering the mint-once-on-the-manifest-side versus resolve-read-only-on-the-store-side split, the pre-identifier compatibility and one-time-notice behavior, the four-status resolver vocabulary that the W18 R7/R11 docs should reuse rather than reinvent, and the never-resolve-identity-from-path rule, routing to the store README for the D10 UUID rationale rather than duplicating it; the Future Coverage gate narrowed from Phases 2 through 4 to Phases 3 and 4, with the deferred mirror-upsert wiring noted as P3 scope. No other guide owns the install-manifest schema field-by-field (verified by search: `schemaVersion`/`InstallManifest` mentions elsewhere are the package-plan and conformance schemas), so no second developer artifact was warranted. User-guide coverage was `update-existing` and deliberately small because the user-visible surface is one manifest field plus one notice: [the getting-started install guide](../../library/user/getting-started-installing-make-docs.md) Your First Apply section gained one sentence stating that `.make-docs/manifest.json` records a `projectId` minted once on the first apply, never changed by later syncs, and never path-derived so it survives moving or cloning; [the lifecycle guide](../../library/user/cli-lifecycle-managing-installations.md) gained a short apply-or-sync paragraph explaining that pre-identifier installs gain `projectId` on the next apply with a one-time migration notice — a routine enhancement, not a conflict, with pre-identifier manifests fully operable until then — and its Future Coverage gate narrowed from Phases 2 through 4 to Phases 3 and 4 with the project-identity item removed as landed. PRD coverage was `risk-register-update` because the phase implemented existing PRD 38 requirements (R-ID-1, R-ID-2) and the PRD 05 enhancement already carried by PRD 38's change note without changing the active requirement surface: in [the open questions and risk register](../../../prd/03-open-questions-and-risk-register.md), R-019's Decision cell now records the P2 identity landing and resolver seam with P3 (including the mirror-upsert wiring), P4, and the W18 R7 consumption still open and the Follow-Up retargeted to project-state operations next, and R-023's Decision cell records that identity-resolution paths are now structurally path-free with the registry read paths, rebuild-from-manifests behavior, and checkpoint-to-evidence mapping remaining open for P3; both items keep their numbers, headings, and Open status, so the hardcoded item list in `packages/cli/tests/consistency.test.ts` is unaffected. PRD 05 itself needed no reconciliation (`none`): its Change Notes already carry the identifier enhancement as the "Enhanced by 38" lineage note, whose requirement language still holds now that the requirement is implemented, and Decision-cell updates in the register record the landing. Manual-test/UAT coverage is deferred until wave completion per user instruction; the natural UAT is a fresh install verifying `projectId` appears in `.make-docs/manifest.json`, a re-run confirming it is unchanged, and a pre-identifier manifest sync confirming the one-time notice.
+
+Validation: jdocmunch was reindexed over the docs tree, `check_path_hygiene.py` reports zero errors, every relative link added this session resolves, and `git diff --check` is clean. No template-owned files were touched (this phase has no template deliverable), and the concurrent W18 R6 P3 work under `packages/cli/src/playbook/` and its backlog files were left untouched.
+
+## Documentation
+
+### Project
+
+| Path | Description |
+| --- | --- |
+| [../../../../packages/cli/src/store/README.md](../../../../packages/cli/src/store/README.md) | D10 implementer-decision record extended by the implementation session with the UUID v4 identifier choice, minting discipline, rejected alternatives, and the resolver-only identity rule. |
+| [../../../work/2026-07-01-w18-r10-global-store-and-project-state/02-stable-project-identity-and-manifest-minting.md](../../../work/2026-07-01-w18-r10-global-store-and-project-state/02-stable-project-identity-and-manifest-minting.md) | Marked Phase 2 tasks t1 through t5 complete. |
+| [../../../prd/03-open-questions-and-risk-register.md](../../../prd/03-open-questions-and-risk-register.md) | Updated the R-019 and R-023 Decision cells (and the R-019 Follow-Up) to record the P2 identity landing, the resolver seam, and the structurally path-free identity resolution; numbers, headings, and Open statuses preserved. |
+
+### Developer
+
+| Path | Description |
+| --- | --- |
+| [../../library/developer/maintainer-docs-assets-and-runtime-state-boundaries.md](../../library/developer/maintainer-docs-assets-and-runtime-state-boundaries.md) | Added the project-identity boundary bullet (mint-once manifest side, read-only four-status resolver store side, pre-identifier compatibility, never path-resolved) and narrowed the Future Coverage gate to Phases 3 and 4 with the deferred mirror-upsert wiring noted. |
+
+### User
+
+| Path | Description |
+| --- | --- |
+| [../../library/user/getting-started-installing-make-docs.md](../../library/user/getting-started-installing-make-docs.md) | Added one Your First Apply sentence describing the `projectId` field minted once into `.make-docs/manifest.json` and its move/clone stability. |
+| [../../library/user/cli-lifecycle-managing-installations.md](../../library/user/cli-lifecycle-managing-installations.md) | Added the apply-or-sync note about pre-identifier installs gaining `projectId` with a one-time migration notice and narrowed the Future Coverage gate to Phases 3 and 4. |

@@ -1,6 +1,11 @@
 import { existsSync, mkdirSync, rmSync, symlinkSync } from "node:fs";
 import path from "node:path";
-import { CONFLICTS_RELATIVE_DIR, createManifest, writeManifest } from "./manifest";
+import {
+  CONFLICTS_RELATIVE_DIR,
+  createManifest,
+  mintProjectId,
+  writeManifest,
+} from "./manifest";
 import {
   classifyReviewableManagedFileConflictPath,
   createInstallPlan,
@@ -172,6 +177,14 @@ function applyInstallPlanInternal(options: {
     }
   }
 
+  // Stable project identity (W18 R10; PRD 38 R-ID-1): mint the identifier
+  // exactly once — on the first apply that writes a manifest — and preserve
+  // it verbatim on every later sync, reconfigure, or skills-only apply.
+  // Pre-identifier manifests (no `projectId`) are migrated here explicitly:
+  // the apply already rewrites the manifest, so the minted identifier rides
+  // the same write. An existing identifier is NEVER re-minted or changed.
+  const projectId = existingManifest?.projectId ?? mintProjectId();
+
   const manifest = createManifest(
     {
       name: plan.packageName,
@@ -183,6 +196,7 @@ function applyInstallPlanInternal(options: {
     options.trackSkillFilesInManifestFiles
       ? plan.systemAssetMaterialization
       : (existingManifest?.systemAssetMaterialization ?? plan.systemAssetMaterialization),
+    projectId,
   );
   writeManifest(targetDir, manifest);
 

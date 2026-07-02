@@ -28,9 +28,9 @@ Mint a stable project identifier at setup, record it in the project's `.make-doc
 
 ### Tasks
 
-- [ ] t1: Choose and document the project-identifier generation algorithm as an implementer decision (D10 open choice), verifying it is stable across clones, moves, and worktrees and is manifest-recorded.
-- [ ] t2: Mint the identifier during setup and record it in the project's `.make-docs/manifest.json`, extending the manifest schema with compatibility handling for existing installs that predate the identifier (R-ID-1).
-- [ ] t3: Preserve PRD 05's manifest lifecycle safety: the identifier addition must not break bare sync, reconfigure, audit, backup, or uninstall behavior for manifests with or without an identifier.
+- [x] t1: Choose and document the project-identifier generation algorithm as an implementer decision (D10 open choice), verifying it is stable across clones, moves, and worktrees and is manifest-recorded.
+- [x] t2: Mint the identifier during setup and record it in the project's `.make-docs/manifest.json`, extending the manifest schema with compatibility handling for existing installs that predate the identifier (R-ID-1).
+- [x] t3: Preserve PRD 05's manifest lifecycle safety: the identifier addition must not break bare sync, reconfigure, audit, backup, or uninstall behavior for manifests with or without an identifier.
 
 ### Acceptance criteria
 
@@ -46,8 +46,8 @@ Mint a stable project identifier at setup, record it in the project's `.make-doc
 
 ### Tasks
 
-- [ ] t4: Key every project-scoped row in the store by the project identifier plus the row's own key, and reject any code path that keys project-scoped state by directory path (R-ID-1, R-ID-2).
-- [ ] t5: Record directory path only as secondary lookup metadata — usable for queries and display, never for identity resolution (R-ID-2).
+- [x] t4: Key every project-scoped row in the store by the project identifier plus the row's own key, and reject any code path that keys project-scoped state by directory path (R-ID-1, R-ID-2).
+- [x] t5: Record directory path only as secondary lookup metadata — usable for queries and display, never for identity resolution (R-ID-2).
 
 ### Acceptance criteria
 

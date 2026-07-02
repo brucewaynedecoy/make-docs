@@ -76,6 +76,11 @@ export {
 } from "./state-rows";
 
 export {
+  resolveProjectIdentity,
+  type ProjectIdentityResolution,
+} from "./project-identity";
+
+export {
   bootstrapGlobalStore,
   type StoreBootstrapOptions,
   type StoreBootstrapReport,
