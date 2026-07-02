@@ -29,10 +29,10 @@ This phase builds the core library: the in-memory Playbook model and the fixed-s
 
 ### Tasks
 
-- [ ] t1: Define the Playbook model containing identity (canonical ref, source path, source digest, document and workflow schema versions, persona, stack, status), the typed dependency registry keyed by identifier, the workflow header and fully resolved steps with every dependency reference linked to its registry record, a narrative-section presence map, and source spans for every parsed element (R-MODEL-2).
-- [ ] t2: Model each step with its four dimensions (executor, role, activation, mode with the `delegated` default), conditional `event`, `uses`/`requires` links, `inputs`/`outputs`, the `operation`/`command`/`instructions` invocation split, routing, gate semantics, validation, and safety fields (R-WF-4, R-WF-5).
-- [ ] t3: Encode the shared status vocabulary (`pending`, `running`, `blocked`, `waiting-for-user`, `completed`, `failed`, `skipped`, `cancelled`) once so the runtime cannot invent a parallel set (R-WF-6).
-- [ ] t4: Include a runnable flag derived from diagnostics so the model is marked runnable only when there are zero errors (R-MODEL-3).
+- [x] t1: Define the Playbook model containing identity (canonical ref, source path, source digest, document and workflow schema versions, persona, stack, status), the typed dependency registry keyed by identifier, the workflow header and fully resolved steps with every dependency reference linked to its registry record, a narrative-section presence map, and source spans for every parsed element (R-MODEL-2).
+- [x] t2: Model each step with its four dimensions (executor, role, activation, mode with the `delegated` default), conditional `event`, `uses`/`requires` links, `inputs`/`outputs`, the `operation`/`command`/`instructions` invocation split, routing, gate semantics, validation, and safety fields (R-WF-4, R-WF-5).
+- [x] t3: Encode the shared status vocabulary (`pending`, `running`, `blocked`, `waiting-for-user`, `completed`, `failed`, `skipped`, `cancelled`) once so the runtime cannot invent a parallel set (R-WF-6).
+- [x] t4: Include a runnable flag derived from diagnostics so the model is marked runnable only when there are zero errors (R-MODEL-3).
 
 ### Acceptance criteria
 
@@ -48,11 +48,11 @@ This phase builds the core library: the in-memory Playbook model and the fixed-s
 
 ### Tasks
 
-- [ ] t5: Implement the fixed parsing stages: read and split frontmatter from body; parse frontmatter; locate required headings and verify order; parse the dependency table; locate and parse the single `playbook` workflow block; resolve cross-references; assemble the model (R-MODEL-3).
-- [ ] t6: Make each stage emit diagnostics while continuing where possible, so one error does not mask the rest (fail-soft for diagnostics, fail-closed for execution).
-- [ ] t7: Implement Playbook detection for both the `<slug>.playbook.md` suffix and the deprecated `kind: playbook` plain-file form, emitting PB-FILE-007 for the deprecated form (R-DOC-2).
-- [ ] t8: Ignore unknown `##` sections after the required spine and flag unknown sections before or between required sections as errors (R-DOC-7).
-- [ ] t9: Keep the library pure and modular per the operation-core ownership rules: no presentation, no filesystem effects beyond reading the provided input, and no single monolithic file (R-MODEL-1).
+- [x] t5: Implement the fixed parsing stages: read and split frontmatter from body; parse frontmatter; locate required headings and verify order; parse the dependency table; locate and parse the single `playbook` workflow block; resolve cross-references; assemble the model (R-MODEL-3).
+- [x] t6: Make each stage emit diagnostics while continuing where possible, so one error does not mask the rest (fail-soft for diagnostics, fail-closed for execution).
+- [x] t7: Implement Playbook detection for both the `<slug>.playbook.md` suffix and the deprecated `kind: playbook` plain-file form, emitting PB-FILE-007 for the deprecated form (R-DOC-2).
+- [x] t8: Ignore unknown `##` sections after the required spine and flag unknown sections before or between required sections as errors (R-DOC-7).
+- [x] t9: Keep the library pure and modular per the operation-core ownership rules: no presentation, no filesystem effects beyond reading the provided input, and no single monolithic file (R-MODEL-1).
 
 ### Acceptance criteria
 
