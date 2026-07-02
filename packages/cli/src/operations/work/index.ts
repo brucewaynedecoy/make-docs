@@ -21,10 +21,7 @@ import {
   repoRelativePath,
 } from "../shared";
 import { OperationError, type JsonValue } from "../types";
-import type {
-  OperationDomainDescriptor,
-  OperationResult,
-} from "../types";
+import type { OperationResult } from "../types";
 
 export interface Coordinate {
   w: number | null;
@@ -169,37 +166,6 @@ const NUMBER_WORDS: Record<string, number> = {
 
 const COUNT_RE =
   /\b(\d+|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty)\s+(?:crate\s+)?(?:stub|stubs|task|tasks|phase\s+output|phase\s+outputs)\b/gi;
-
-export const workDomain: OperationDomainDescriptor = {
-  name: "work",
-  summary: "Wave, phase, and work-backlog inspection and planning operations.",
-  commands: [
-    {
-      name: "work-phase-state",
-      summary: "Parse one work phase document into deterministic task and validation state.",
-      mutates: false,
-      renderModes: ["json"],
-    },
-    {
-      name: "wave-resolve",
-      summary: "Resolve a wave or phase coordinate/path to the active work target.",
-      mutates: false,
-      renderModes: ["json"],
-    },
-    {
-      name: "wave-status",
-      summary: "Summarize wave phase completion and recorded work-execution evidence.",
-      mutates: false,
-      renderModes: ["json"],
-    },
-    {
-      name: "phase-plan",
-      summary: "Build the implementation plan for the next incomplete phase.",
-      mutates: false,
-      renderModes: ["json", "markdown"],
-    },
-  ],
-};
 
 export function parseWorkPhase(phasePath: string | path.ParsedPath): PhaseState {
   const phase = typeof phasePath === "string" ? path.resolve(phasePath) : path.format(phasePath);

@@ -20,10 +20,7 @@ import {
   valueAsRecord,
 } from "../shared";
 import { OperationError, type JsonValue } from "../types";
-import type {
-  OperationDomainDescriptor,
-  OperationResult,
-} from "../types";
+import type { OperationResult } from "../types";
 import {
   parseWorkPhase,
   resolveWaveTarget,
@@ -70,32 +67,6 @@ const LEGACY_RECORD_KINDS = [
   "commit",
   "push",
 ] as const;
-
-export const lifecycleDomain: OperationDomainDescriptor = {
-  name: "lifecycle",
-  summary: "Phase checkpoint, scope-guard, and phase-gate lifecycle operations.",
-  commands: [
-    {
-      name: "checkpoint",
-      summary:
-        "Record phase validation, review, closeout, and commit evidence in the global store.",
-      mutates: true,
-      renderModes: ["json"],
-    },
-    {
-      name: "scope-guard",
-      summary: "Compare changed files against declared phase scope and allowed derived files.",
-      mutates: false,
-      renderModes: ["json"],
-    },
-    {
-      name: "phase-gate",
-      summary: "Check whether a phase has task, validation, review, closeout, and commit evidence.",
-      mutates: false,
-      renderModes: ["json"],
-    },
-  ],
-};
 
 /**
  * Records lifecycle evidence for a phase in the global store (R-BND-2,

@@ -30,8 +30,8 @@ Surface the `run playbook` and `run package` subtrees over the Phase 1 registry,
 
 ### Tasks
 
-- [ ] t1: Surface `run playbook` with catalog, resolve, capabilities, start, invoke, status, next, advance, gate, resume, and close over the registry identifiers, delegating all progression semantics to the PRD 35 engine unchanged (R-RUN-1).
-- [ ] t2: Surface `run package` with plan, surface-resolve, and write over the registry identifiers, delegating compiler and adapter behavior to the PRD 36 lineage unchanged (R-RUN-1).
+- [x] t1: Surface `run playbook` with catalog, resolve, capabilities, start, invoke, status, next, advance, gate, resume, and close over the registry identifiers, delegating all progression semantics to the PRD 35 engine unchanged (R-RUN-1).
+- [x] t2: Surface `run package` with plan, surface-resolve, and write over the registry identifiers, delegating compiler and adapter behavior to the PRD 36 lineage unchanged (R-RUN-1).
 
 ### Acceptance criteria
 
@@ -46,8 +46,8 @@ Surface the `run playbook` and `run package` subtrees over the Phase 1 registry,
 
 ### Tasks
 
-- [ ] t3: Implement the work-item identity resolver as a registry operation: coordinate or path to canonical work-item identity (resolved repo root, wave slug, phase path), without the re-derivable next-incomplete-phase selection (R-RUN-1, R-SEQ-3).
-- [ ] t4: Implement the work-execution evidence record and read as registry operations keyed to the canonical work-item identity, storing and reading evidence through the W18 R10 global-store project-state model per PRD 38 R-PS-1 through R-PS-3 (R-RUN-1).
+- [x] t3: Implement the work-item identity resolver as a registry operation: coordinate or path to canonical work-item identity (resolved repo root, wave slug, phase path), without the re-derivable next-incomplete-phase selection (R-RUN-1, R-SEQ-3).
+- [x] t4: Implement the work-execution evidence record and read as registry operations keyed to the canonical work-item identity, storing and reading evidence through the W18 R10 global-store project-state model per PRD 38 R-PS-1 through R-PS-3 (R-RUN-1).
 
 ### Acceptance criteria
 
@@ -62,8 +62,8 @@ Surface the `run playbook` and `run package` subtrees over the Phase 1 registry,
 
 ### Tasks
 
-- [ ] t5: Remove the pruned operations from the command surface and registry: wave-status, work-phase-state, phase-plan, the phase-gate decision, scope-guard, closeout-probe, closeout-validate, and closeout-history do not appear under `run` or as MCP tools (R-RUN-2).
-- [ ] t6: Gate the surface removal on traced invocations per the inventory safeguards and PRD 26 removal safety: confirm which skills, MCP consumers, and code paths invoke the old operations before their spellings disappear, and record the Playbook-rebuild disposition rather than blocking the reorganization on it (R-SEQ-2).
+- [x] t5: Remove the pruned operations from the command surface and registry: wave-status, work-phase-state, phase-plan, the phase-gate decision, scope-guard, closeout-probe, closeout-validate, and closeout-history do not appear under `run` or as MCP tools (R-RUN-2).
+- [x] t6: Gate the surface removal on traced invocations per the inventory safeguards and PRD 26 removal safety: confirm which skills, MCP consumers, and code paths invoke the old operations before their spellings disappear, and record the Playbook-rebuild disposition rather than blocking the reorganization on it (R-SEQ-2).
 
 ### Acceptance criteria
 

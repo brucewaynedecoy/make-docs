@@ -24,16 +24,21 @@ export interface OperationProvenance {
 
 export type OperationRenderMode = "json" | "markdown" | "text";
 
+/**
+ * One registry operation as surfaced by `listOperationDomains()` (R-REG-2):
+ * keyed by its stable registry identifier, with the mutation classification
+ * flattened to a boolean and the registry lifecycle status carried through.
+ */
 export interface OperationCommandDescriptor {
-  name: string;
+  id: string;
   summary: string;
   mutates: boolean;
-  renderModes: OperationRenderMode[];
+  status: "active" | "pending";
 }
 
+/** Registry operations grouped by their identifier's domain segment. */
 export interface OperationDomainDescriptor {
-  name: OperationDomainName;
-  summary: string;
+  name: string;
   commands: OperationCommandDescriptor[];
 }
 

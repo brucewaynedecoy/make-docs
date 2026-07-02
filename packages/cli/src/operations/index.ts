@@ -1,9 +1,5 @@
-import { closeoutDomain } from "./closeout";
-import { lifecycleDomain } from "./lifecycle";
-import { playbookDomain } from "./playbook";
-import { playbookPackagingDomain } from "./playbook-packaging";
-import type { OperationDomainDescriptor, OperationDomainName } from "./types";
-import { workDomain } from "./work";
+import { listOperations } from "./registry";
+import type { OperationDomainDescriptor } from "./types";
 
 export type {
   JsonValue,
@@ -15,8 +11,8 @@ export type {
   OperationResult,
 } from "./types";
 export { OperationError } from "./types";
-export { closeoutDomain, probeCloseout } from "./closeout";
-export { lifecycleDomain, checkpointPhase, gatePhase, guardPhaseScope } from "./lifecycle";
+export { probeCloseout } from "./closeout";
+export { checkpointPhase, gatePhase, guardPhaseScope } from "./lifecycle";
 export {
   buildPlaybookCatalog,
   catalogPlaybooks,
@@ -26,7 +22,6 @@ export {
   invokePlaybook,
   PLAYBOOK_CATALOG_OPERATION_ID,
   PLAYBOOK_VALIDATE_OPERATION_ID,
-  playbookDomain,
   readHarnessCapabilityEvaluation,
   readPlaybookCatalog,
   readPlaybookContractCatalog,
@@ -53,7 +48,6 @@ export {
   PLAYBOOK_PACKAGE_SCOPES,
   PLAYBOOK_PACKAGE_SUPPORT_STATUSES,
   PLAYBOOK_PACKAGE_SURFACES,
-  playbookPackagingDomain,
   validateGeneratedOutputRecord,
   validateHarnessAdapterDeclaration,
   validateHarnessId,
@@ -89,25 +83,28 @@ export {
   readWaveStatus,
   readWorkPhaseState,
   resolveWorkWave,
-  workDomain,
 } from "./work";
 
-const DOMAINS = [closeoutDomain, workDomain, lifecycleDomain, playbookDomain, playbookPackagingDomain] as const;
-
+/**
+ * Domain listing derived from the operation registry (R-REG-2, R-RUN-2):
+ * groups `listOperations()` identifiers by their domain segment so surfaces
+ * such as `make_docs_operation_domains` advertise exactly the registry —
+ * pruned legacy operations never appear here.
+ */
 export function listOperationDomains(): OperationDomainDescriptor[] {
-  return DOMAINS.map((domain) => ({
-    ...domain,
-    commands: domain.commands.map((command) => ({ ...command })),
-  }));
-}
-
-export function getOperationDomain(name: OperationDomainName): OperationDomainDescriptor {
-  const domain = DOMAINS.find((candidate) => candidate.name === name);
-  if (!domain) {
-    throw new Error(`Unknown operation domain: ${name}`);
+  const domains = new Map<string, OperationDomainDescriptor>();
+  for (const operation of listOperations()) {
+    let domain = domains.get(operation.domain);
+    if (!domain) {
+      domain = { name: operation.domain, commands: [] };
+      domains.set(operation.domain, domain);
+    }
+    domain.commands.push({
+      id: operation.id,
+      summary: operation.summary,
+      mutates: operation.mutates === "write",
+      status: operation.status,
+    });
   }
-  return {
-    ...domain,
-    commands: domain.commands.map((command) => ({ ...command })),
-  };
+  return [...domains.values()];
 }

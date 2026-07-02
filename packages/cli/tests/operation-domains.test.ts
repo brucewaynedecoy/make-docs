@@ -4,7 +4,6 @@ import path from "node:path";
 import { afterEach, describe, expect, test } from "vitest";
 import {
   gatePhase,
-  getOperationDomain,
   guardPhaseScope,
   listOperationDomains,
   readPlaybookCatalog,
@@ -70,57 +69,80 @@ describe("operation domain modules", () => {
     }
   });
 
-  test("declare the initial CLI/MCP operation-domain map", () => {
-    expect(listOperationDomains()).toEqual([
-      expect.objectContaining({
-        name: "closeout",
-        commands: [
-          expect.objectContaining({ name: "closeout-probe", mutates: false }),
-          expect.objectContaining({ name: "closeout-validate", mutates: false }),
-          expect.objectContaining({ name: "closeout-history", mutates: true }),
-        ],
-      }),
-      expect.objectContaining({
-        name: "work",
-        commands: [
-          expect.objectContaining({ name: "work-phase-state", mutates: false }),
-          expect.objectContaining({ name: "wave-resolve", mutates: false }),
-          expect.objectContaining({ name: "wave-status", mutates: false }),
-          expect.objectContaining({ name: "phase-plan", mutates: false }),
-        ],
-      }),
-      expect.objectContaining({
-        name: "lifecycle",
-        commands: [
-          expect.objectContaining({ name: "checkpoint", mutates: true }),
-          expect.objectContaining({ name: "scope-guard", mutates: false }),
-          expect.objectContaining({ name: "phase-gate", mutates: false }),
-        ],
-      }),
-      expect.objectContaining({
-        name: "playbook",
-        commands: [
-          expect.objectContaining({ name: "playbook-validate", mutates: false }),
-          expect.objectContaining({ name: "playbook-catalog", mutates: false }),
-          expect.objectContaining({ name: "playbook-resolve", mutates: false }),
-          expect.objectContaining({ name: "playbook-capabilities", mutates: false }),
-          expect.objectContaining({ name: "playbook-run-start", mutates: true }),
-          expect.objectContaining({ name: "playbook-run-invoke", mutates: true }),
-          expect.objectContaining({ name: "playbook-run-read", mutates: false }),
-        ],
-      }),
-      expect.objectContaining({
-        name: "playbook-packaging",
-        commands: [
-          expect.objectContaining({ name: "playbook-package-plan", mutates: false }),
-          expect.objectContaining({ name: "playbook-package-surface-resolve", mutates: false }),
-          expect.objectContaining({ name: "playbook-package-write", mutates: true }),
-        ],
-      }),
+  test("derives the operation-domain map from the operation registry (R-REG-2, R-RUN-2)", () => {
+    const domains = listOperationDomains();
+
+    expect(domains.map((domain) => domain.name)).toEqual(["playbook", "package", "work"]);
+
+    const identifiers = domains.flatMap((domain) => domain.commands.map((command) => command.id));
+    expect(identifiers).toEqual([
+      "playbook.validate",
+      "playbook.catalog",
+      "playbook.resolve",
+      "playbook.capabilities",
+      "playbook.start",
+      "playbook.invoke",
+      "playbook.status",
+      "playbook.next",
+      "playbook.advance",
+      "playbook.gate",
+      "playbook.resume",
+      "playbook.close",
+      "package.plan",
+      "package.surface-resolve",
+      "package.write",
+      "work.item.resolve",
+      "work.evidence.record",
+      "work.evidence.read",
+    ]);
+    expect(identifiers).toHaveLength(18);
+
+    for (const domain of domains) {
+      for (const command of domain.commands) {
+        expect(command).toEqual(
+          expect.objectContaining({
+            id: expect.stringMatching(/^[a-z][a-z0-9-]*(\.[a-z][a-z0-9-]*){1,2}$/),
+            summary: expect.any(String),
+            mutates: expect.any(Boolean),
+            status: expect.stringMatching(/^(active|pending)$/),
+          }),
+        );
+      }
+    }
+    expect(
+      domains
+        .flatMap((domain) => domain.commands)
+        .filter((command) => command.mutates)
+        .map((command) => command.id),
+    ).toEqual([
+      "playbook.start",
+      "playbook.invoke",
+      "playbook.advance",
+      "playbook.gate",
+      "playbook.resume",
+      "playbook.close",
+      "package.write",
+      "work.evidence.record",
     ]);
 
-    expect(getOperationDomain("work").summary).toContain("Wave");
-    expect(getOperationDomain("playbook-packaging").summary).toContain("package-plan");
+    const prunedNames = [
+      "wave-resolve",
+      "wave-status",
+      "work-phase-state",
+      "phase-plan",
+      "phase-gate",
+      "checkpoint",
+      "scope-guard",
+      "closeout-probe",
+      "closeout-validate",
+      "closeout-history",
+    ];
+    const serialized = JSON.stringify(identifiers);
+    for (const pruned of prunedNames) {
+      expect(serialized).not.toContain(pruned);
+    }
+    expect(domains.map((domain) => domain.name)).not.toContain("closeout");
+    expect(domains.map((domain) => domain.name)).not.toContain("lifecycle");
   });
 
   test("runs a work-domain operation without CLI parser or MCP transport setup", () => {

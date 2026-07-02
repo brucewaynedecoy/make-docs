@@ -119,6 +119,16 @@ Method and safeguards:
 
 The filter for what earns a CLI or MCP slot going forward: a deterministic operation earns exposure when it is either a fact-of-record that cannot be re-derived, or a canonical-identity or parse primitive that is both fiddly enough that agent variance is a real correctness risk and genuinely reused. Derivation an agent can do correctly from contracts and files, and that is not correctness-critical, does not earn a slot.
 
+## Invocation Tracing at Surface Removal (W18 R11 P4, 2026-07-02)
+
+The W18 R11 pruning phase removed the cluster's command surface — the legacy `operations` CLI dispatcher and the eight pruned MCP tools — gated on the following invocation trace of the removed spellings across the repository:
+
+- Skill packages: four shipped skill packages instruct agents to invoke the removed `make-docs operations ...` spellings — `work-on-wave` and `work-on-phase` (wave-resolve, wave-status, phase-plan, checkpoint, scope-guard, phase-gate) and `closeout-phase` and `closeout-commit` (closeout-probe, closeout-validate, closeout-history) — across their `SKILL.md` and `references/*.md` files (43 mentions in 8 files), and each still ships the Python originals under `scripts/` as its no-CLI fallback. These skills are the pruned workflows' current instruction surface; they keep functioning through their Python fallbacks, their CLI instructions are stale by design until the Playbook rebuild replaces them, and their retirement or consolidation remains this inventory's tracked follow-up under the PRD 26 removal-safety rules.
+- Shipped default Playbook: `docs/assets/playbooks/agent/make-docs-lifecycle.playbook.md` (and its upstream template copy) lists `phase_gate.py` and `checkpoint.py` only under optional Suggested Assists; no `operation:` step references a pruned identifier, so the Playbook remains runnable.
+- MCP consumers: the only in-repo MCP surface was `packages/cli/src/mcp/tools.ts` itself; no other consumer invokes the removed tool names.
+- Code paths: the legacy dispatcher (`packages/cli/src/operations/cli.ts`, deleted this phase) and its tests were the only remaining CLI paths; the internal domain implementation functions stay in place per the reorganization's surface-only scope and remain the recovery source for the Playbook rebuild alongside version history.
+- Template and docs: `packages/docs/template/` and the dogfood library guides contain no removed spellings (guides were migrated in W18 R11 P2); the remaining mentions live in historical analysis artifacts and archived records, which are deliberately preserved evidence.
+
 ## Relationship to Other Artifacts
 
 The CLI reorganization moves these operations under the `run` namespace and behind the operation core and registry. This inventory is the pruning companion to that reorganization: the reorganization decides where the operations live and how they are surfaced, while this inventory records what each one does so that duplicate and brittle logic can be removed deliberately rather than carried forward unexamined.

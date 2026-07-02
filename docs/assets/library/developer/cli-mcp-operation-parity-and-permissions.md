@@ -53,7 +53,7 @@ The registered domains and identifiers, pinned append-only by `packages/cli/test
 | `package` | `plan`, `surface-resolve`, `write` |
 | `work` | `item.resolve`, `evidence.record`, `evidence.read` — the two retained work-operation slots keyed to the W18 R10 global-store project-state model |
 
-The legacy `closeout`, `work`, and `lifecycle` inspection cluster — wave-status, work-phase-state, phase-plan, phase-gate, scope-guard, checkpoint, and the closeout probe/validate/history operations — is pruned by the [migrated-operations inventory disposition](../../artifacts/migrated-operations-inventory.md). It remains hand-wired on the legacy `operations` command only until the W18 R11 pruning phase removes it, and it must never be added to the registry.
+The legacy `closeout`, `work`, and `lifecycle` inspection cluster — wave-status, work-phase-state, phase-plan, phase-gate, scope-guard, checkpoint, and the closeout probe/validate/history operations — is pruned by the [migrated-operations inventory disposition](../../artifacts/migrated-operations-inventory.md) and, as of W18 R11 P4, has no command surface: the legacy `operations` dispatcher is deleted and the eight pruned MCP tools are removed, with a dependency-direction guard keeping the dispatcher deleted. The internal domain functions remain in place as the recovery source for the Playbook rebuild (their retirement is the inventory's tracked follow-up), and no pruned name may ever be added to the registry — pinned by `registry-contract.test.ts` and the MCP tool-list absence test.
 
 Every MCP capability needs:
 
@@ -73,13 +73,13 @@ Use this table when extending the first MCP server. Capabilities marked shipped 
 
 | MCP capability | CLI/shared-core owner | Earliest safe mode | Status | Required proof |
 | --- | --- | --- | --- | --- |
-| Inspect operation domains | operation-domain registry | read-only | Shipped | MCP tool list and direct operation-domain registry agree. |
+| Inspect operation domains | operation registry | read-only | Shipped | The domains payload is derived from `listOperations()` — domains `playbook`/`package`/`work` with each identifier's summary, mutation classification, and active/pending status. |
 | Inspect installed state | manifest loader, config loader, package metadata reader, compatibility classifier, operation-domain registry | read-only | Shipped | Manifest, selections, harnesses, skills, materialization mode, package version, config rendering labels, operation domains, and compatibility classification match CLI/shared-core output. |
 | Read manifest | manifest loader | read-only | Shipped | Manifest presence and parsed manifest fields match CLI/shared-core reads. |
 | Read config | config loader | read-only | Shipped | Config labels and diagnostics match CLI/shared-core reads. |
 | Classify compatibility | compatibility classifier | read-only | Shipped | Compatibility state, disposition, evidence, and audit behavior match CLI/shared-core classification. |
 | Plan install or sync | no-command apply planner | dry-run plan | Shipped | Planned file actions are summarized without file content or writes, and conflict review data comes from the CLI planner. |
-| Run closeout/work/lifecycle helpers | closeout, work, and lifecycle operation domains | read-only or plan-first | Shipped, pruning in flight | MCP tool outputs match direct operation-domain function outputs; the cluster is pruned by the inventory disposition and leaves this surface during W18 R11 rather than gaining registry identifiers. |
+| Run closeout/work/lifecycle helpers | pruned by the inventory disposition | n/a | Removed (W18 R11 P4) | The eight pruned MCP tools and the legacy `operations` dispatcher are gone; the workflows are rebuilt as Playbooks, with only `run work item resolve` and `run work evidence record\|read` retaining deterministic slots. |
 | Inspect selected agentics | selected-agentics manifest records and generated-stub resolver | read-only | Planned | Shared payload and generated harness exposure records match CLI install/audit classification. |
 | Resolve system asset | accepted asset materialization resolver | read-only | Planned | Provider, immutable ref, hash set, offline expectation, and recovery guidance are visible without hidden provider state. |
 | Validate project state | existing validators after they move behind CLI/shared-core operations | read-only or temp-fixture only | Planned | Validator results match CLI/shared-core output and do not mutate the target tree. |

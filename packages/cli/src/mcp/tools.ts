@@ -4,24 +4,9 @@ import { classifyCompatibilityState } from "../compatibility";
 import { getConfigRenderingLabels, loadMakeDocsConfigOrThrow } from "../config";
 import { findReviewableManagedFileConflicts, planInstall } from "../install";
 import { loadManifest } from "../manifest";
-import {
-  buildCloseoutProbe,
-  runCloseoutValidate,
-} from "../operations/closeout";
-import {
-  buildPhaseGateReport,
-  buildScopeReport,
-} from "../operations/lifecycle";
 import { createExecutionContext } from "../operations/context";
 import { listOperationDomains } from "../operations/index";
 import { invokeOperation } from "../operations/registry";
-import {
-  buildPhasePlan,
-  buildWaveStatus,
-  parseWorkPhase,
-  renderPhasePlan,
-  resolveWaveTarget,
-} from "../operations/work";
 import { cloneSelections, defaultSelections } from "../profile";
 import type { InstallPlan, InstallSelections, PlannedAction } from "../types";
 import { readPackageMeta } from "../utils";
@@ -33,14 +18,6 @@ type McpToolName =
   | "make_docs_config_read"
   | "make_docs_compatibility_classify"
   | "make_docs_install_plan"
-  | "make_docs_closeout_probe"
-  | "make_docs_closeout_validate"
-  | "make_docs_work_phase_state"
-  | "make_docs_wave_resolve"
-  | "make_docs_wave_status"
-  | "make_docs_phase_plan"
-  | "make_docs_scope_guard"
-  | "make_docs_phase_gate"
   | "make_docs_playbook_validate"
   | "make_docs_playbook_catalog"
   | "make_docs_playbook_resolve"
@@ -66,7 +43,6 @@ const repoRootSchema = z
   .string()
   .optional()
   .describe("Repository root to inspect. Defaults to the current working directory.");
-const targetSchema = z.string().describe("Work coordinate, work directory, or work phase path.");
 
 export const MAKE_DOCS_MCP_TOOLS: MakeDocsMcpToolDescriptor[] = [
   {
@@ -111,72 +87,6 @@ export const MAKE_DOCS_MCP_TOOLS: MakeDocsMcpToolDescriptor[] = [
       systemAssetMaterializationMode: z
         .enum(["full-snapshot", "provider-backed", "hybrid-pinned-cache"])
         .optional(),
-    },
-  },
-  {
-    name: "make_docs_closeout_probe",
-    title: "Probe Closeout State",
-    description: "Run the closeout probe operation without invoking the CLI parser.",
-    inputSchema: {
-      repoRoot: repoRootSchema,
-      scope: z.enum(["auto", "staged", "unstaged", "full"]).optional(),
-    },
-  },
-  {
-    name: "make_docs_closeout_validate",
-    title: "Plan Or Run Closeout Validation",
-    description:
-      "Select closeout validation commands from probe JSON; command execution requires allowRun.",
-    inputSchema: {
-      repoRoot: repoRootSchema,
-      probeJson: z.string(),
-      run: z.boolean().optional(),
-      allowRun: z.boolean().optional(),
-    },
-  },
-  {
-    name: "make_docs_work_phase_state",
-    title: "Read Work Phase State",
-    description: "Parse one docs/work phase into task and acceptance JSON.",
-    inputSchema: { phasePath: z.string() },
-  },
-  {
-    name: "make_docs_wave_resolve",
-    title: "Resolve Work Wave",
-    description: "Resolve a W/R or W/R/P coordinate or docs/work path.",
-    inputSchema: { target: targetSchema },
-  },
-  {
-    name: "make_docs_wave_status",
-    title: "Read Work Wave Status",
-    description: "Report phase completion state for a work backlog wave.",
-    inputSchema: { target: targetSchema },
-  },
-  {
-    name: "make_docs_phase_plan",
-    title: "Build Work Phase Plan",
-    description: "Create a deterministic phase implementation brief.",
-    inputSchema: {
-      target: targetSchema,
-      render: z.boolean().optional(),
-    },
-  },
-  {
-    name: "make_docs_scope_guard",
-    title: "Guard Phase Scope",
-    description: "Detect changed files outside the current phase scope.",
-    inputSchema: {
-      target: targetSchema,
-      changed: z.array(z.string()).optional(),
-    },
-  },
-  {
-    name: "make_docs_phase_gate",
-    title: "Check Phase Gate",
-    description: "Check validation, closeout, review, and commit evidence for a phase.",
-    inputSchema: {
-      target: targetSchema,
-      commitPolicy: z.string().optional(),
     },
   },
   {
@@ -296,45 +206,6 @@ export async function callMakeDocsMcpTool(
       );
     case "make_docs_install_plan":
       return mcpPayload(name, await buildInstallPlan(resolveTargetDir(args), args));
-    case "make_docs_closeout_probe":
-      return mcpPayload(
-        name,
-        buildCloseoutProbe({
-          repoRoot: resolveRepoRoot(args),
-          scope: parseScope(args.scope),
-        }),
-      );
-    case "make_docs_closeout_validate":
-      return mcpPayload(name, runCloseoutValidation(args));
-    case "make_docs_work_phase_state":
-      return mcpPayload(name, parseWorkPhase(requiredString(args, "phasePath")));
-    case "make_docs_wave_resolve":
-      return mcpPayload(name, resolveWaveTarget(requiredString(args, "target")));
-    case "make_docs_wave_status":
-      return mcpPayload(name, buildWaveStatus(requiredString(args, "target")));
-    case "make_docs_phase_plan": {
-      const plan = buildPhasePlan(requiredString(args, "target"));
-      return mcpPayload(name, {
-        plan,
-        rendered: args.render === true ? renderPhasePlan(plan) : null,
-      });
-    }
-    case "make_docs_scope_guard":
-      return mcpPayload(
-        name,
-        buildScopeReport(
-          requiredString(args, "target"),
-          Array.isArray(args.changed) ? args.changed.map(String) : [],
-        ),
-      );
-    case "make_docs_phase_gate":
-      return mcpPayload(
-        name,
-        buildPhaseGateReport(
-          requiredString(args, "target"),
-          optionalString(args, "commitPolicy"),
-        ),
-      );
     case "make_docs_playbook_validate":
       return mcpPayload(
         name,
@@ -493,21 +364,6 @@ async function buildInstallPlan(
   return summarizeInstallPlan(plan, conflicts);
 }
 
-function runCloseoutValidation(args: McpToolInput): Record<string, unknown> {
-  const run = args.run === true;
-  if (run && args.allowRun !== true) {
-    throw new Error(
-      "`make_docs_closeout_validate` requires allowRun=true when run=true.",
-    );
-  }
-
-  return runCloseoutValidate({
-    repoRoot: resolveRepoRoot(args),
-    probeJson: requiredString(args, "probeJson"),
-    run,
-  });
-}
-
 function summarizeInstallPlan(
   plan: InstallPlan,
   conflicts: ReturnType<typeof findReviewableManagedFileConflicts>,
@@ -610,17 +466,4 @@ function optionalString(args: McpToolInput, key: string): string | undefined {
 function optionalStringArray(args: McpToolInput, key: string): string[] {
   const value = args[key];
   return Array.isArray(value) ? value.map(String) : [];
-}
-
-function parseScope(value: unknown): "auto" | "staged" | "unstaged" | "full" {
-  if (
-    value === undefined ||
-    value === "auto" ||
-    value === "staged" ||
-    value === "unstaged" ||
-    value === "full"
-  ) {
-    return value ?? "auto";
-  }
-  throw new Error("`scope` must be auto, staged, unstaged, or full.");
 }

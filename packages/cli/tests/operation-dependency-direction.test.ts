@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync, statSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
@@ -7,9 +7,11 @@ import { describe, expect, it } from "vitest";
  * R-CORE-2: dependencies are one-way. Surfaces depend on the operation core;
  * the core never imports a surface, and no surface imports another surface.
  *
- * Surfaces here are the CLI operation adapter (`src/operations/cli.ts`) and
- * the MCP server (`src/mcp/**`). `src/cli.ts` is the binary's composition
- * root — it wires every command together and is exempt by design.
+ * Surfaces here are the MCP server (`src/mcp/**`) and, historically, the
+ * legacy CLI operation adapter (`src/operations/cli.ts`) — deleted by the
+ * W18 R11 Phase 4 pruning; a guard below keeps it deleted. `src/cli.ts` is
+ * the binary's composition root — it wires every command together and is
+ * exempt by design.
  */
 const SRC_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "src");
 const COMPOSITION_ROOT = path.join(SRC_ROOT, "cli.ts");
@@ -91,13 +93,7 @@ describe("operation core dependency direction (R-CORE-2)", () => {
     expect(violations).toEqual([]);
   });
 
-  it("the CLI operation adapter never imports the MCP surface", () => {
-    const violations: string[] = [];
-    for (const target of resolvedImports(CLI_ADAPTER)) {
-      if (isMcpSurface(target) || isCompositionRoot(target)) {
-        violations.push(`operations/cli.ts -> ${path.relative(SRC_ROOT, target)}`);
-      }
-    }
-    expect(violations).toEqual([]);
+  it("the legacy CLI operation adapter stays deleted (R-RUN-2)", () => {
+    expect(existsSync(CLI_ADAPTER)).toBe(false);
   });
 });

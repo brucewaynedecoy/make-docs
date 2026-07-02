@@ -1,4 +1,3 @@
-import type { OperationDomainDescriptor } from "../types";
 export type {
   AgentAssistedProposal,
   GeneratedArtifactPlan,
@@ -71,28 +70,3 @@ export {
   validatePackagePlan,
   validatePackageTarget,
 } from "./validation";
-
-export const playbookPackagingDomain: OperationDomainDescriptor = {
-  name: "playbook-packaging",
-  summary: "Playbook package-plan, generated-output, and harness-adapter operations.",
-  commands: [
-    {
-      name: "playbook-package-plan",
-      summary: "Create a reviewable Playbook package plan without writing generated outputs.",
-      mutates: false,
-      renderModes: ["json"],
-    },
-    {
-      name: "playbook-package-surface-resolve",
-      summary: "Resolve a Playbook package target through a harness adapter without writing outputs.",
-      mutates: false,
-      renderModes: ["json"],
-    },
-    {
-      name: "playbook-package-write",
-      summary: "Write accepted Playbook package outputs and lifecycle-visible records.",
-      mutates: true,
-      renderModes: ["json"],
-    },
-  ],
-};

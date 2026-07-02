@@ -27,10 +27,7 @@ import {
   utcNow,
 } from "../shared";
 import { OperationError, type JsonValue } from "../types";
-import type {
-  OperationDomainDescriptor,
-  OperationResult,
-} from "../types";
+import type { OperationResult } from "../types";
 
 export const PLAYBOOKS_RELATIVE_DIR = "docs/assets/playbooks";
 export const PLAYBOOK_STACKS = ["build", "run"] as const;
@@ -175,57 +172,6 @@ export interface PlaybookInvocationPlan {
   stopReason: string | null;
   nextStep: PlaybookInvocationStep | null;
 }
-
-export const playbookDomain: OperationDomainDescriptor = {
-  name: "playbook",
-  summary: "Playbook contract validate/catalog plus Run Playbook resolver, capability, and state operations.",
-  commands: [
-    {
-      name: "playbook-validate",
-      summary:
-        "Operation `playbook.validate`: parse one or more Playbooks through the Playbook library and report the full diagnostic set with codes, severities, locations, and fix hints.",
-      mutates: false,
-      renderModes: ["json"],
-    },
-    {
-      name: "playbook-catalog",
-      summary:
-        "Operation `playbook.catalog`: enumerate Playbooks by canonical persona/slug reference with frontmatter identity, detecting the `<slug>.playbook.md` suffix form and the deprecated plain form.",
-      mutates: false,
-      renderModes: ["json"],
-    },
-    {
-      name: "playbook-resolve",
-      summary: "Resolve an explicit path, persona/slug, or unique bare playbook reference.",
-      mutates: false,
-      renderModes: ["json"],
-    },
-    {
-      name: "playbook-capabilities",
-      summary: "Evaluate reviewed harness capabilities for a playbook execution request.",
-      mutates: false,
-      renderModes: ["json"],
-    },
-    {
-      name: "playbook-run-start",
-      summary: "Create Make Docs-owned Playbook run state before execution begins.",
-      mutates: true,
-      renderModes: ["json"],
-    },
-    {
-      name: "playbook-run-invoke",
-      summary: "Build a generic Run Playbook invocation plan without requiring plugin packaging.",
-      mutates: true,
-      renderModes: ["json"],
-    },
-    {
-      name: "playbook-run-read",
-      summary: "Read Make Docs-owned Playbook run state for resume or audit.",
-      mutates: false,
-      renderModes: ["json"],
-    },
-  ],
-};
 
 export function buildPlaybookCatalog(input: {
   repoRoot?: string;

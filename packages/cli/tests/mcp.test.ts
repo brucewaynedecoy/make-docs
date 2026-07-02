@@ -1,12 +1,7 @@
-import { execFileSync } from "node:child_process";
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { afterEach, describe, expect, test, vi } from "vitest";
 import { runCli } from "../src/cli";
-import {
-  buildCloseoutProbe,
-  parseWorkPhase,
-} from "../src/operations";
 import { createMakeDocsMcpServer } from "../src/mcp/server";
 import {
   MAKE_DOCS_MCP_TOOLS,
@@ -40,14 +35,6 @@ describe("make-docs MCP runtime", () => {
       "make_docs_config_read",
       "make_docs_compatibility_classify",
       "make_docs_install_plan",
-      "make_docs_closeout_probe",
-      "make_docs_closeout_validate",
-      "make_docs_work_phase_state",
-      "make_docs_wave_resolve",
-      "make_docs_wave_status",
-      "make_docs_phase_plan",
-      "make_docs_scope_guard",
-      "make_docs_phase_gate",
       "make_docs_playbook_validate",
       "make_docs_playbook_catalog",
       "make_docs_playbook_resolve",
@@ -56,6 +43,47 @@ describe("make-docs MCP runtime", () => {
       "make_docs_playbook_run_invoke",
       "make_docs_playbook_run_read",
     ]);
+  });
+
+  test("exposes no pruned operation on the MCP tool list (R-RUN-2, R-TEST-4)", async () => {
+    const toolNames = MAKE_DOCS_MCP_TOOLS.map((tool) => tool.name);
+    const prunedToolNames = [
+      "make_docs_closeout_probe",
+      "make_docs_closeout_validate",
+      "make_docs_work_phase_state",
+      "make_docs_wave_resolve",
+      "make_docs_wave_status",
+      "make_docs_phase_plan",
+      "make_docs_scope_guard",
+      "make_docs_phase_gate",
+    ];
+    for (const pruned of prunedToolNames) {
+      expect(toolNames).not.toContain(pruned);
+    }
+
+    const prunedOperationNames = [
+      "wave-resolve",
+      "wave-status",
+      "work-phase-state",
+      "phase-plan",
+      "phase-gate",
+      "checkpoint",
+      "scope-guard",
+      "closeout-probe",
+      "closeout-validate",
+      "closeout-history",
+    ];
+    for (const operation of prunedOperationNames) {
+      const spelling = operation.replace(/-/g, "_");
+      for (const toolName of toolNames) {
+        expect(toolName).not.toContain(spelling);
+        expect(toolName).not.toContain(operation);
+      }
+    }
+
+    for (const pruned of prunedToolNames) {
+      await expect(callMakeDocsMcpTool(pruned)).rejects.toThrow("Unknown make-docs MCP tool");
+    }
   });
 
   test("exposes make-docs mcp help from the package CLI", async () => {
@@ -85,39 +113,6 @@ describe("make-docs MCP runtime", () => {
     expect(result.writesFiles).toBe(false);
     expect(result.actionCounts.create + result.actionCounts.generate).toBeGreaterThan(0);
     expect(result.actions.map((action) => action.relativePath)).toContain("AGENTS.md");
-  });
-
-  test("delegates work and closeout MCP tools to operation-domain functions", async () => {
-    const root = createTempDir("make-docs-mcp-domains-");
-    tempRoots.push(root);
-    execFileSync("git", ["init"], { cwd: root, stdio: "ignore" });
-    const phasePath = writeFile(
-      root,
-      "docs/work/2026-06-26-w10-r8-example/01-domain.md",
-      [
-        "# Phase 01: Domain",
-        "",
-        "## Tasks",
-        "",
-        "- [x] t1: Define folders.",
-        "- [ ] t2: Add direct tests.",
-        "",
-      ].join("\n"),
-    );
-    writeFile(root, "package.json", JSON.stringify({ name: "make-docs" }));
-
-    const workPayload = await callMakeDocsMcpTool("make_docs_work_phase_state", {
-      phasePath,
-    });
-    const closeoutPayload = await callMakeDocsMcpTool("make_docs_closeout_probe", {
-      repoRoot: root,
-      scope: "full",
-    });
-
-    expect(workPayload.result).toEqual(parseWorkPhase(phasePath));
-    expect(closeoutPayload.result).toEqual(
-      buildCloseoutProbe({ repoRoot: root, scope: "full" }),
-    );
   });
 
   test("delegates playbook MCP tools to operation-domain functions", async () => {
@@ -238,13 +233,4 @@ describe("make-docs MCP runtime", () => {
     ).rejects.toThrow("allowWrite=true");
   });
 
-  test("requires explicit approval before running closeout validation commands", async () => {
-    await expect(
-      callMakeDocsMcpTool("make_docs_closeout_validate", {
-        repoRoot: ".",
-        probeJson: JSON.stringify({ validationHints: ["git diff --check"] }),
-        run: true,
-      }),
-    ).rejects.toThrow("allowRun=true");
-  });
 });

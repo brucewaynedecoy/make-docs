@@ -12,7 +12,6 @@ import {
   parseWorkPhase,
   resolveWaveTarget,
 } from "../src/operations";
-import { runOperationsCommand } from "../src/operations/cli";
 import { listWorkEvidence, loadSqliteDriver, withStoreDatabase } from "../src/store";
 import { cleanupTempDir, createTempDir, writeMinimalManifest } from "./helpers";
 
@@ -435,15 +434,13 @@ describe("make-docs shared operations", () => {
     );
   });
 
-  test("CLI operations command emits structured JSON", async () => {
+  test("buildWaveStatus reports structured wave state directly", () => {
     const fixture = createWaveFixture();
     tempRoots.push(fixture.root);
-    const writeSpy = vi.spyOn(process.stdout, "write").mockImplementation(() => true);
 
-    await runOperationsCommand(["wave-status", fixture.waveDir, "--json"]);
+    const status = buildWaveStatus(fixture.waveDir);
 
-    const output = writeSpy.mock.calls.map(([chunk]) => String(chunk)).join("");
-    expect(JSON.parse(output)).toEqual(
+    expect(status).toEqual(
       expect.objectContaining({
         nextPhasePath: fixture.phaseOne,
       }),

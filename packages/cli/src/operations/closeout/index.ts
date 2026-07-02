@@ -16,7 +16,6 @@ import {
 } from "../shared";
 import type {
   JsonValue,
-  OperationDomainDescriptor,
   OperationResult,
 } from "../types";
 
@@ -24,31 +23,6 @@ const COORDINATE_RE = /w(\d+)-r(\d+)/i;
 const TASK_ID_RE = /\bt([1-9]\d*)\b/i;
 const RISK_HEADING_RE = /^###\s+([DQR])-(\d{3})\b/gm;
 const SLUG_RE = /[^a-z0-9]+/g;
-
-export const closeoutDomain: OperationDomainDescriptor = {
-  name: "closeout",
-  summary: "Closeout probing, validation planning, and history-generation operations.",
-  commands: [
-    {
-      name: "closeout-probe",
-      summary: "Summarize changed files, contracts, coordinates, risks, and validation hints.",
-      mutates: false,
-      renderModes: ["json"],
-    },
-    {
-      name: "closeout-validate",
-      summary: "Build or run closeout validation commands from a closeout probe.",
-      mutates: false,
-      renderModes: ["json"],
-    },
-    {
-      name: "closeout-history",
-      summary: "Render or write the closeout history record for a probe and phase state.",
-      mutates: true,
-      renderModes: ["json", "markdown"],
-    },
-  ],
-};
 
 export function buildCloseoutProbe(options: {
   repoRoot: string;
