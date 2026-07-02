@@ -99,4 +99,4 @@ Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/references/syst
 
 Why: The design revises and standardizes existing package/template/dogfood behavior rather than starting a fresh baseline. It should feed a change plan that updates validation, maintainer docs, and implementation surfaces against the active make-docs PRD/risk namespace after Batch 1 is accepted.
 
-Coordinate Handoff: prior related work includes W9 R1 resource namespace, W16 R0 lifecycle/template reconciliation, and W17 R0 static template/router correction; recommended downstream coordinate unresolved until the Batch 1 reconciliation plan assigns the next W/R slot.
+Coordinate Handoff: prior related work includes W9 R1 resource namespace, W16 R0 lifecycle/template reconciliation, and W17 R0 static template/router correction; reconciled into the active PRD namespace as [PRD 19](../prd/19-revise-template-package-dogfood-source-of-truth-contract.md) and treated as an accepted v2 source-of-truth contract.

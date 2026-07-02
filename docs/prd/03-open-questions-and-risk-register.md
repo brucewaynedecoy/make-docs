@@ -758,6 +758,20 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 **To close**: W18 R11 implementation lands the five-command tree with R-TEST-1 through R-TEST-4 passing — registry parity with no one-surface-only operation, no lifecycle commands under `run`, the pre-v2 warning-and-choice flow, confirmed non-destructive `uninstall`, and the pruned operations absent — and the template-owned command-spelling updates are dogfooded from upstream.
 
+### R-025 Cross-Artifact Coordinate Handoffs Can Drift From Their Assigned Waves and PRDs
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | Design `Coordinate Handoff` lines, plan and work directory coordinates, and PRD frontmatter can fall out of sync because nothing deterministically verifies they agree; the W18 R6-R11 designs kept `unresolved` handoffs after their coordinates were assigned and PRDs 34-39 were generated, and the four predecessor designs likewise required a manual tidy. The proposed mitigation is a deterministic coordinate-consistency check: a `run` validation operation that confirms each design's assigned coordinate and PRD match its downstream plan, PRD, and work backlog, surfaced also as a pre-commit hook so drift fails fast. By the [NORTHSTAR](../assets/artifacts/NORTHSTAR.md) filter this earns a slot, being a fiddly, reused, correctness-critical fact-check rather than agent-derivable prose. | After the operation registry (W18 R11) and the Playbook and agentics surfaces land, add the coordinate-consistency validation operation and a pre-commit hook, and consider shipping it as a first-party Playbook that dogfoods the run and packaging pipeline. |
+
+**Issue**: Nothing deterministically verifies that a design's assigned wave and PRD agree with its downstream plan, PRD, and work artifacts, so coordinate handoffs, directory coordinates, and PRD frontmatter can drift; the W18 R6-R11 designs demonstrated this by keeping `unresolved` handoffs after coordinates were assigned.
+
+**Why it matters**: Coordinate drift misleads implementers about which wave and PRD own a design, which is the class of cross-artifact inconsistency that contributed to the earlier W18 drift, and catching it by hand does not scale.
+
+**Recommendation**: Implement a deterministic coordinate-consistency check as a `run` validation operation over design, plan, PRD, and work artifacts, and enforce it with a pre-commit hook; a first-party Playbook wrapper is a natural early dogfood of the run and packaging pipeline.
+
+**To close**: A coordinate-consistency operation exists, is exposed on the CLI and as a hook, and fails when a design's coordinate or PRD disagrees with its downstream plan and work artifacts.
+
 ## Source Anchors
 
 - `README.md:6-46`
