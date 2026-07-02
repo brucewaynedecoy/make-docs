@@ -178,4 +178,4 @@ Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/references/syst
 
 Why: This is a corrective evolution of the active W18 CLI and operations surface. It formalizes the registry and reorganizes the tree against the active PRD namespace rather than starting a fresh baseline.
 
-Coordinate Handoff: Reorganizes the W18 CLI and operations command surface, formalizes the operation registry and shared core, and reflects the operation pruning. Recommended downstream coordinate unresolved; planner must resolve against the active W18 namespace before writing.
+Coordinate Handoff: Reorganizes the W18 CLI and operations command surface, formalizes the operation registry and shared core, and reflects the operation pruning. Downstream coordinate: W18 R11, planned as [PRD 39](../prd/39-revise-cli-command-reorganization-and-operation-registry.md) with a generated plan and work backlog.

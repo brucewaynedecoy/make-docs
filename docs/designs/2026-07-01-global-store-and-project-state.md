@@ -158,4 +158,4 @@ Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/references/syst
 
 Why: This is a corrective evolution that relocates active runtime state and introduces the global store against the active PRD namespace rather than starting a fresh baseline.
 
-Coordinate Handoff: Introduces the global store and unified project-state model and relocates run-state and work-execution evidence out of the repository, revising the in-repo runtime-state model assumed by W18 R4 and by the checkpoint operations. Recommended downstream coordinate unresolved; planner must resolve against the active W18 namespace before writing.
+Coordinate Handoff: Introduces the global store and unified project-state model and relocates run-state and work-execution evidence out of the repository, revising the in-repo runtime-state model assumed by W18 R4 and by the checkpoint operations. Downstream coordinate: W18 R10, planned as [PRD 38](../prd/38-revise-global-store-and-project-state.md) with a generated plan and work backlog.

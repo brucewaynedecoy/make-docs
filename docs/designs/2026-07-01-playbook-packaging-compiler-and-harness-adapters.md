@@ -178,4 +178,4 @@ Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/references/syst
 
 Why: This is a corrective evolution of active W18 packaging and adapter requirements. It fixes the generated-output and adapter-contract failures against the active PRD namespace rather than starting a fresh baseline.
 
-Coordinate Handoff: Revises W18 R5 (Playbook packaging and harness adapter registry) by correcting the output writer to produce harness-native distributables and requiring verified adapter contracts. Recommended downstream coordinate unresolved; planner must resolve against the active W18 namespace before writing.
+Coordinate Handoff: Revises W18 R5 (Playbook packaging and harness adapter registry) by correcting the output writer to produce harness-native distributables and requiring verified adapter contracts. Downstream coordinate: W18 R8, planned as [PRD 36](../prd/36-revise-playbook-packaging-compiler-and-harness-adapters.md) with a generated plan and work backlog.

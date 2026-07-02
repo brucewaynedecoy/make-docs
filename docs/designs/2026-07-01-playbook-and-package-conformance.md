@@ -146,4 +146,4 @@ Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/references/syst
 
 Why: This is a corrective evolution that carries the active W18 conformance and support-claim requirements into Playbook packaging outputs against the active PRD namespace rather than starting a fresh baseline.
 
-Coordinate Handoff: Extends the W18 conformance and support-claim requirements associated with the conformance lab and PRD 20 to generated Playbook distributables, and gates the provisional support claims introduced by W18 R5 packaging. Recommended downstream coordinate unresolved; planner must resolve against the active W18 namespace before writing.
+Coordinate Handoff: Extends the W18 conformance and support-claim requirements associated with the conformance lab and PRD 20 to generated Playbook distributables, and gates the provisional support claims introduced by W18 R5 packaging. Downstream coordinate: W18 R9, planned as [PRD 37](../prd/37-enhance-playbook-and-package-conformance.md) with a generated plan and work backlog.

@@ -171,4 +171,4 @@ Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/references/syst
 
 Why: This is a corrective evolution of active W18 Run Playbook requirements. It completes the progression engine and relocates run-state storage against the active PRD namespace rather than starting a fresh baseline.
 
-Coordinate Handoff: Revises W18 R4 (run playbook orchestration and harness capabilities), whose on-disk run-state location this design supersedes, and completes the run-progression engine W18 R1 assumed. Recommended downstream coordinate unresolved; planner must resolve against the active W18 namespace before writing.
+Coordinate Handoff: Revises W18 R4 (run playbook orchestration and harness capabilities), whose on-disk run-state location this design supersedes, and completes the run-progression engine W18 R1 assumed. Downstream coordinate: W18 R7, planned as [PRD 35](../prd/35-revise-run-playbook-state-machine.md) with a generated plan and work backlog.
