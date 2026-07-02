@@ -28,9 +28,9 @@ Implement machine-footprint `uninstall` and detect-and-delegate `update`, and th
 
 ### Tasks
 
-- [ ] t1: Implement top-level `uninstall` as machine-footprint removal: it removes the global store at `~/.make-docs/` and the installed binary when one is present, reports that no binary is installed for a remote-execution user, confirms before removing, and honors the PRD 38 R-LIFE-1 rule of never deleting repository content (R-SELF-1).
-- [ ] t2: Implement top-level `update` as a detect-and-delegate wrapper over the install manager: it updates a persistent global install where one exists, prints the exact command when detection is ambiguous, reports that there is nothing persistent to update for remote execution, and applies any global-store schema migration per PRD 38 R-DB-2 (R-SELF-2).
-- [ ] t3: Enforce the no-guessing rule: when the install method or intent is ambiguous, both commands print the exact command and the affected store path rather than executing a destructive global change (R-SELF-3).
+- [x] t1: Implement top-level `uninstall` as machine-footprint removal: it removes the global store at `~/.make-docs/` and the installed binary when one is present, reports that no binary is installed for a remote-execution user, confirms before removing, and honors the PRD 38 R-LIFE-1 rule of never deleting repository content (R-SELF-1).
+- [x] t2: Implement top-level `update` as a detect-and-delegate wrapper over the install manager: it updates a persistent global install where one exists, prints the exact command when detection is ambiguous, reports that there is nothing persistent to update for remote execution, and applies any global-store schema migration per PRD 38 R-DB-2 (R-SELF-2).
+- [x] t3: Enforce the no-guessing rule: when the install method or intent is ambiguous, both commands print the exact command and the affected store path rather than executing a destructive global change (R-SELF-3).
 
 ### Acceptance criteria
 
@@ -46,8 +46,8 @@ Implement machine-footprint `uninstall` and detect-and-delegate `update`, and th
 
 ### Tasks
 
-- [ ] t4: Implement pre-v2 configuration detection by fingerprint in `update`, `setup`, and `setup reconfigure`, presenting a warning that itemizes the changes that could break on upgrade followed by a choice between backing up and installing the latest version (recommended) and cancelling (R-MIG-2).
-- [ ] t5: Complete the no-alias cutover: verify no back-compatibility alias, hidden spelling, or redirect for `operations`, the project-level `uninstall`, or any other removed spelling remains in the parser or help output (R-MIG-1).
+- [x] t4: Implement pre-v2 configuration detection by fingerprint in `update`, `setup`, and `setup reconfigure`, presenting a warning that itemizes the changes that could break on upgrade followed by a choice between backing up and installing the latest version (recommended) and cancelling (R-MIG-2).
+- [x] t5: Complete the no-alias cutover: verify no back-compatibility alias, hidden spelling, or redirect for `operations`, the project-level `uninstall`, or any other removed spelling remains in the parser or help output (R-MIG-1).
 
 ### Acceptance criteria
 

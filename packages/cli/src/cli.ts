@@ -125,8 +125,19 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
     return;
   }
 
-  if (parsed.command === "update" || parsed.command === "uninstall") {
-    throw reservedSelfManagementError(parsed.command);
+  if (parsed.command === "update") {
+    const { runToolUpdateCommand } = await import("./self");
+    await runToolUpdateCommand({
+      yes: parsed.yes,
+      ...(parsed.targetDir ? { targetDir: path.resolve(parsed.targetDir) } : {}),
+    });
+    return;
+  }
+
+  if (parsed.command === "uninstall") {
+    const { runToolUninstallCommand } = await import("./self");
+    await runToolUninstallCommand({ yes: parsed.yes });
+    return;
   }
 
   validateParsedArgs(parsed);
@@ -230,6 +241,32 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
   }
 
   const interactive = !parsed.yes;
+
+  // Pre-v2 detection on `setup` and `setup reconfigure` (R-MIG-2): a
+  // fingerprinted pre-v2 install gets the warning-and-choice flow — back up
+  // and install the latest version (recommended) or cancel — before any
+  // compatibility disposition or write path runs. Cancelling leaves the
+  // install untouched; there are no aliases to fall back to (R-MIG-1).
+  if (!freshInstallTarget) {
+    const { detectPreV2Install, promptPreV2Choice } = await import("./self");
+    const preV2 = detectPreV2Install({
+      targetDir,
+      classification: compatibilityClassification,
+    });
+    if (preV2.preV2) {
+      const choice = await promptPreV2Choice({
+        detection: preV2,
+        interactive,
+        command: installIntent === "reconfigure" ? "setup reconfigure" : "setup",
+      });
+      if (choice === "cancel") {
+        output.write("Setup cancelled. The existing pre-v2 install was left untouched.\n");
+        return;
+      }
+      await runBackupCommand({ targetDir, permissions: "allow-all" });
+    }
+  }
+
   guardCompatibilityDisposition({
     classification: compatibilityClassification,
     interactive,
@@ -457,27 +494,6 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
 
 function inferInstallIntent(parsed: ParsedArgs): InstallIntent {
   return parsed.setupSubcommand === "reconfigure" ? "reconfigure" : "apply";
-}
-
-/**
- * Top-level `update` and `uninstall` are the machine-level tool
- * self-management commands fixed by PRD 39 R-SELF-1 through R-SELF-3; their
- * behavior lands with the W18 R11 tool self-management phase. Until then the
- * names are reserved and refuse to act rather than guessing — and the old
- * project-level `uninstall` meaning is redirected to `setup remove`.
- */
-function reservedSelfManagementError(command: "update" | "uninstall"): Error {
-  if (command === "uninstall") {
-    return new Error(
-      [
-        "`make-docs uninstall` now means machine-level tool removal (the global store and any installed binary) and lands with the W18 R11 tool self-management phase.",
-        "To remove make-docs from a project, use `make-docs setup remove`.",
-      ].join("\n"),
-    );
-  }
-  return new Error(
-    "`make-docs update` manages the installed tool itself and lands with the W18 R11 tool self-management phase. To change a project's install, use `make-docs setup` or `make-docs setup reconfigure`.",
-  );
 }
 
 function printInstallStatus(options: {
@@ -725,9 +741,24 @@ function parseArgs(argv: string[]): ParsedArgs {
   }
 
   if (parsed.command === "update" || parsed.command === "uninstall") {
-    for (const arg of args) {
-      if (arg === "--help" || arg === "-h") {
-        parsed.help = true;
+    while (args.length > 0) {
+      const arg = args.shift();
+      switch (arg) {
+        case "--help":
+        case "-h":
+          parsed.help = true;
+          break;
+        case "--yes":
+          parsed.yes = true;
+          break;
+        case "--target":
+          if (parsed.command !== "update") {
+            throw new Error("`--target` is not valid with `make-docs uninstall`; it removes the machine-level footprint, not a project.");
+          }
+          parsed.targetDir = args.shift();
+          break;
+        default:
+          throw new Error(`Unknown argument: ${arg}`);
       }
     }
     return parsed;
@@ -1599,7 +1630,22 @@ Examples:
       output.write(`make-docs update
 
 Update the installed make-docs tool itself (machine-level self-management).
-This command lands with the W18 R11 tool self-management phase.
+Detects the install manager that owns a persistent global install and
+delegates to it; when detection is ambiguous it prints the exact command
+instead of acting. For remote execution (npx, pnpm dlx, bunx) there is
+nothing persistent to update, since the runner fetches the requested
+version. Every run applies any pending global-store schema migration, and a
+pre-v2 project install in the working directory triggers the
+warning-and-choice migration flow before delegation.
+
+Usage:
+  make-docs update [--target <dir>] [--yes] [--help]
+
+Options:
+  --target <dir>                   Check a different project directory for pre-v2 state.
+  --yes                            Skip interactive prompts where confirmation is not safety-critical.
+  --help, -h                       Show help for this command.
+
 To change a project's install, use \`make-docs setup\` or \`make-docs setup reconfigure\`.
 `);
       return;
@@ -1607,8 +1653,18 @@ To change a project's install, use \`make-docs setup\` or \`make-docs setup reco
       output.write(`make-docs uninstall
 
 Remove make-docs' machine-level footprint: the global store at ~/.make-docs/
-and any installed binary. This command lands with the W18 R11 tool
-self-management phase.
+and the installed binary when one is present. It confirms before removing,
+reports that no binary is installed for remote-execution users, and never
+touches repository content. When the install method is ambiguous it prints
+the exact removal command instead of acting.
+
+Usage:
+  make-docs uninstall [--yes] [--help]
+
+Options:
+  --yes                            Confirm removal without an interactive prompt.
+  --help, -h                       Show help for this command.
+
 To remove make-docs from a project, use \`make-docs setup remove\`.
 `);
       return;

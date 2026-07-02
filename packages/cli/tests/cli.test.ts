@@ -454,17 +454,23 @@ personas:
     }
   });
 
-  test("allows clean v1 migration and records the compatibility disposition", async () => {
+  test("presents the pre-v2 warning-and-choice flow on setup against a v1 install and cancels non-interactively", async () => {
     const fixture = await createCompatibilityFixture(getCompatibilityFixtureCase("clean-v1"));
 
     try {
       setTTY(false);
 
+      // R-MIG-2: a fingerprinted pre-v2 install must never upgrade silently.
+      // Non-interactive runs see the itemized warning and are cancelled with
+      // the install untouched.
       const output = await captureCliOutput(["setup", "--yes", "--target", fixture.targetDir]);
 
-      expect(output).toContain("Compatibility state: clean-v1");
-      expect(output).toContain("Disposition: migrate");
-      expect(loadManifest(fixture.targetDir)?.schemaVersion).toBe(2);
+      expect(output).toContain("pre-v2 make-docs install was detected");
+      expect(output).toContain("Setup cancelled. The existing pre-v2 install was left untouched.");
+      const rawManifest = JSON.parse(
+        readFileSync(path.join(fixture.targetDir, ".make-docs/manifest.json"), "utf8"),
+      ) as { schemaVersion: number };
+      expect(rawManifest.schemaVersion).toBe(1);
     } finally {
       cleanupTempDir(fixture.targetDir);
     }
@@ -490,21 +496,17 @@ personas:
     }
   });
 
-  test("fails non-interactive reviewable migration before writing changes", async () => {
+  test("cancels non-interactive modified-v1 migration at the pre-v2 gate before writing changes", async () => {
     const fixture = await createCompatibilityFixture(getCompatibilityFixtureCase("modified-v1"));
     const modifiedPath = path.join(fixture.targetDir, "docs/AGENTS.md");
 
     try {
       setTTY(false);
 
-      const error = await captureCliError(["setup", "--yes", "--target", fixture.targetDir]);
+      const output = await captureCliOutput(["setup", "--yes", "--target", fixture.targetDir]);
 
-      expect(error.message).toContain(
-        "Non-interactive make-docs runs cannot apply unresolved managed-file diffs.",
-      );
-      expect(error.message).toContain("Compatibility state: modified-v1");
-      expect(error.message).toContain("Disposition: migrate-with-review");
-      expect(error.message).toContain("filesystem:");
+      expect(output).toContain("pre-v2 make-docs install was detected");
+      expect(output).toContain("Setup cancelled. The existing pre-v2 install was left untouched.");
       expect(readFileSync(modifiedPath, "utf8")).toBe("user modified managed file\n");
     } finally {
       cleanupTempDir(fixture.targetDir);
@@ -1917,45 +1919,76 @@ personas:
     expect(error.message).toContain(`make-docs setup ${flag}`);
   });
 
-  test("reserves top-level update for tool self-management", async () => {
-    const error = await captureCliError(["update", "--yes"]);
-
-    expect(error.message).toContain(
-      "`make-docs update` manages the installed tool itself and lands with the W18 R11 tool self-management phase.",
-    );
-    expect(error.message).toContain("use `make-docs setup` or `make-docs setup reconfigure`");
-  });
-
-  test("reserves top-level uninstall and points project removal at setup remove", async () => {
+  test("top-level update reports without executing for remote execution and migrates the temp store", async () => {
+    const storeRoot = createTempDir("make-docs-update-store-");
     const targetDir = createTempDir();
-    const cli = await import("../src/cli");
+    const previousStoreHome = process.env.MAKE_DOCS_HOME;
+    process.env.MAKE_DOCS_HOME = storeRoot;
 
     try {
-      cli.__setUninstallCommandLoaderForTests(async () => runUninstallCommandMock);
+      // The vitest process path matches no persistent install-manager
+      // pattern, so update must degrade to reporting rather than executing a
+      // package-manager command; the store bootstrap targets the temp root.
+      const output = await captureCliOutput(["update", "--yes", "--target", targetDir]);
 
-      const error = await captureCliError(["uninstall", "--yes", "--target", targetDir]);
-
-      expect(error.message).toContain("machine-level tool removal");
-      expect(error.message).toContain("lands with the W18 R11 tool self-management phase");
-      expect(error.message).toContain(
-        "To remove make-docs from a project, use `make-docs setup remove`.",
-      );
+      expect(output.length).toBeGreaterThan(0);
       expect(runUninstallCommandMock).not.toHaveBeenCalled();
+      expect(existsSync(path.join(storeRoot, "store.db"))).toBe(true);
     } finally {
-      cli.__setUninstallCommandLoaderForTests(null);
+      if (previousStoreHome === undefined) {
+        delete process.env.MAKE_DOCS_HOME;
+      } else {
+        process.env.MAKE_DOCS_HOME = previousStoreHome;
+      }
+      cleanupTempDir(storeRoot);
       cleanupTempDir(targetDir);
     }
   });
 
+  test("top-level uninstall refuses without confirmation and never runs project removal", async () => {
+    const storeRoot = createTempDir("make-docs-uninstall-store-");
+    const previousStoreHome = process.env.MAKE_DOCS_HOME;
+    process.env.MAKE_DOCS_HOME = storeRoot;
+    const cli = await import("../src/cli");
+    setTTY(false);
+
+    try {
+      cli.__setUninstallCommandLoaderForTests(async () => runUninstallCommandMock);
+      writeFileSync(path.join(storeRoot, "store.db"), "placeholder\n");
+
+      const output = await captureCliOutput(["uninstall"]);
+
+      // Non-TTY without --yes must refuse; the store survives and the
+      // project-level removal path is never invoked (hard cutover, R-TOP-2).
+      expect(existsSync(path.join(storeRoot, "store.db"))).toBe(true);
+      expect(output).toContain("--yes");
+      expect(runUninstallCommandMock).not.toHaveBeenCalled();
+    } finally {
+      cli.__setUninstallCommandLoaderForTests(null);
+      if (previousStoreHome === undefined) {
+        delete process.env.MAKE_DOCS_HOME;
+      } else {
+        process.env.MAKE_DOCS_HOME = previousStoreHome;
+      }
+      cleanupTempDir(storeRoot);
+    }
+  });
+
+  test("top-level uninstall rejects --target as a project-removal confusion guard", async () => {
+    const error = await captureCliError(["uninstall", "--target", "somewhere"]);
+
+    expect(error.message).toContain("`--target` is not valid with `make-docs uninstall`");
+  });
+
   test.each([["update"], ["uninstall"]])(
-    "prints reserved self-management help for %s without acting",
+    "prints machine-level self-management help for %s without acting",
     async (command) => {
       setTTY(false);
 
       const output = await captureCliOutput([command, "--help"]);
 
       expect(output).toContain(`make-docs ${command}`);
-      expect(output.replace(/\n/g, " ")).toContain("W18 R11 tool self-management phase");
+      expect(output.replace(/\n/g, " ")).toContain("machine-level");
       expect(runUninstallCommandMock).not.toHaveBeenCalled();
     },
   );

@@ -37,13 +37,15 @@ For the first install and initial profile selection, use [Installing Make Docs](
 
 ## Current command model
 
-Installation lifecycle work lives under the `setup` command:
+Installation lifecycle work lives under the `setup` command, and the tool's own machine-level footprint has two top-level self-management commands:
 
 | Need | Command |
 | --- | --- |
 | Apply or sync the current manifest-backed installation | `make-docs setup` |
 | Change managed selections before applying them | `make-docs setup reconfigure` |
 | Work with recovery-oriented lifecycle actions | `make-docs setup backup` and `make-docs setup remove` |
+| Update the installed tool itself | `make-docs update` |
+| Remove the tool's machine-level footprint | `make-docs uninstall` |
 
 `make-docs` does not use a separate `sync` command. Running `make-docs setup` applies a first install when no manifest exists and performs a sync when one does.
 
@@ -51,7 +53,7 @@ Bare `make-docs` is context-aware and never syncs. In a project that already has
 
 The current runnable product is the npm-delivered TypeScript installer-maintainer CLI. The same package also ships a read-first MCP stdio server through `make-docs mcp`; it is intended for tool clients that need installed-state inspection, manifest/config reads, compatibility classification, dry-run planning, and work/lifecycle operation helpers. Ordinary users should keep using the CLI commands below for install, reconfigure, skills, backup, and removal work.
 
-Historical `init`, `update`, `--reconfigure`, and `--skills` surfaces are not current commands or flags, and the pre-reorganization top-level `reconfigure`, `skills`, `backup`, and `uninstall` command spellings no longer exist and have no aliases. Use `make-docs setup` for install or sync, `make-docs setup reconfigure` to change selections, and `make-docs setup skills` for skills-only work.
+Historical `init`, `--reconfigure`, and `--skills` surfaces are not current commands or flags, and the pre-reorganization top-level `reconfigure`, `skills`, `backup`, and `uninstall` command spellings no longer exist and have no aliases. Use `make-docs setup` for install or sync, `make-docs setup reconfigure` to change selections, and `make-docs setup skills` for skills-only work. Note that top-level `update` and `uninstall` now mean tool self-management, not project maintenance.
 
 For the maintainer-facing explanation of why lifecycle state lives under `.make-docs/` while document resources stay under `docs/assets/`, use [Docs Assets and Runtime State Boundaries](../developer/maintainer-docs-assets-and-runtime-state-boundaries.md).
 
@@ -222,6 +224,18 @@ Make Docs keeps a small machine-level store at `~/.make-docs/` that records oper
 
 The store's records, including the project paths it uses for lookup, stay on your machine and are never transmitted anywhere.
 
+## Manage the tool itself
+
+Two top-level commands manage Make Docs' machine-level footprint rather than any single project.
+
+`make-docs update` updates a persistent global install of the tool. It detects which install manager owns the running binary and delegates to it; when detection is ambiguous it prints the exact update command and the affected store path instead of acting. If you run Make Docs through `npx`, `pnpm dlx`, or `bunx` — the primary posture — the command reports that there is nothing persistent to update, because the runner fetches the requested version each time. Every `update` run also applies any pending machine-level store schema migration.
+
+`make-docs uninstall` removes the machine-level footprint: the store at `~/.make-docs/` and the installed binary when one is present. It lists exactly what will be removed and requires confirmation (`--yes` in non-interactive runs); remote-execution users are told that no binary is installed and only the store is removed. It never touches repository content — removing Make Docs from a project is always `make-docs setup remove`.
+
+### Upgrading a pre-v2 installation
+
+`make-docs setup`, `make-docs setup reconfigure`, and `make-docs update` detect an installation created by a pre-v2 version of Make Docs by its fingerprints (a v1 manifest schema). When one is found, the command presents a warning that itemizes what can break on upgrade — the replaced command spellings, the renamed project removal, the relocated run state and work evidence, the renamed MCP tools, and the manifest schema change — followed by a choice between backing up and installing the latest version (recommended) and cancelling. Cancelling leaves the installation untouched, and non-interactive runs never upgrade a pre-v2 installation silently.
+
 ## Recovery guidance
 
 If a lifecycle action did not do what you expected, use this order of operations:
@@ -265,4 +279,4 @@ Run `make-docs setup remove` interactively and stop at the confirmation prompt a
 
 ## Future Coverage
 
-- Blocked by: the W18 R11 tool-level self-management commands, which land later in the same wave as the `setup` reorganization. Update when: the top-level `update` and `uninstall` commands ship as machine-level tool self-management (uninstall covering the global store and the installed binary). Guide change: document how to inspect the machine-level store and the command that removes the Make Docs machine footprint entirely; today the `setup remove` report tells you when the store can be safely deleted by hand, and that guidance should be replaced by the real command.
+- Blocked by: the W18 R11 MCP tool renames, which land later in the same wave. Update when: the MCP tool names are derived from the operation registry identifiers. Guide change: refresh the MCP mention in the command-model section if the read-first tool surface description changes for users.
