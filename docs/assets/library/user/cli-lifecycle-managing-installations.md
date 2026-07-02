@@ -246,3 +246,7 @@ Add `--dry-run` to install, sync, reconfigure, or skills commands. For `backup` 
 ### I am not sure whether uninstall will delete too much
 
 Run `make-docs uninstall` interactively and stop at the confirmation prompt after reviewing the audit summary. If you want extra safety before removal, use `make-docs uninstall --backup`.
+
+## Future Coverage
+
+- Blocked by: W18 R10 Phases 2 through 4 and the W18 R11 command reorganization. Update when: the machine-level `~/.make-docs/` store gains its project-identity, per-project pruning, and machine-footprint removal lifecycle, and the reorganized command surface exposes it. Guide change: document how to inspect the machine-level store, what per-project removal prunes from it, how to remove the Make Docs machine footprint entirely, and the privacy note that the store records local project paths as lookup metadata only.

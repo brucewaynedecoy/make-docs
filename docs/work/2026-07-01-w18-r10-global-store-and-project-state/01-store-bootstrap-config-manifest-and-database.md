@@ -28,10 +28,10 @@ Implement the `~/.make-docs/` bootstrap that creates the global configuration fi
 
 ### Tasks
 
-- [ ] t1: Implement store bootstrap that creates `~/.make-docs/` with a global configuration file for machine-level settings, a global manifest for tool-level state, and a SQLite database for operational data when Make Docs is installed on a system (R-STORE-1).
-- [ ] t2: Define the global config surface for machine and tool settings — such as a self-update preference and the marketplace auto-registration opt-in — keeping it structurally and behaviorally separate from project `.make-docs/config.yaml`, which it must never override or be confused with (R-STORE-2, R-KEEP-1).
-- [ ] t3: Choose and document the global config and global manifest file formats as an implementer decision (D10 open choice), verifying they carry the required machine-level and tool-level content.
-- [ ] t4: Keep the store distinct from any provider-backed global asset cache: it holds operational state and never shipped template assets, and its presence or absence changes nothing about the non-optional local repository bootstrap or cache pinning (R-STORE-3, R-KEEP-2).
+- [x] t1: Implement store bootstrap that creates `~/.make-docs/` with a global configuration file for machine-level settings, a global manifest for tool-level state, and a SQLite database for operational data when Make Docs is installed on a system (R-STORE-1).
+- [x] t2: Define the global config surface for machine and tool settings — such as a self-update preference and the marketplace auto-registration opt-in — keeping it structurally and behaviorally separate from project `.make-docs/config.yaml`, which it must never override or be confused with (R-STORE-2, R-KEEP-1).
+- [x] t3: Choose and document the global config and global manifest file formats as an implementer decision (D10 open choice), verifying they carry the required machine-level and tool-level content.
+- [x] t4: Keep the store distinct from any provider-backed global asset cache: it holds operational state and never shipped template assets, and its presence or absence changes nothing about the non-optional local repository bootstrap or cache pinning (R-STORE-3, R-KEEP-2).
 
 ### Acceptance criteria
 
@@ -47,10 +47,10 @@ Implement the `~/.make-docs/` bootstrap that creates the global configuration fi
 
 ### Tasks
 
-- [ ] t5: Give the database a recorded schema version and a defined migration strategy; `update` applies pending migrations, and a database from a newer schema than the running CLI is detected and handled explicitly rather than read or written blind (R-DB-2, R-LIFE-3).
-- [ ] t6: Implement the concurrency model with write-ahead logging enabled and a defined locking discipline that tolerates concurrent access from the CLI, the MCP server, and agent sessions (R-DB-3).
-- [ ] t7: Implement the recovery path: a missing or corrupt database degrades gracefully — repository reads are never blocked, state can be re-established, and the condition is reported as recoverable operational-state loss, never as project-knowledge data loss (R-DB-4).
-- [ ] t8: Choose and document the concrete SQL schema and table layout and the exact migration and locking implementation as implementer decisions (D10 open choices), verifying they carry the install and directory registry and the project-state model content.
+- [x] t5: Give the database a recorded schema version and a defined migration strategy; `update` applies pending migrations, and a database from a newer schema than the running CLI is detected and handled explicitly rather than read or written blind (R-DB-2, R-LIFE-3).
+- [x] t6: Implement the concurrency model with write-ahead logging enabled and a defined locking discipline that tolerates concurrent access from the CLI, the MCP server, and agent sessions (R-DB-3).
+- [x] t7: Implement the recovery path: a missing or corrupt database degrades gracefully — repository reads are never blocked, state can be re-established, and the condition is reported as recoverable operational-state loss, never as project-knowledge data loss (R-DB-4).
+- [x] t8: Choose and document the concrete SQL schema and table layout and the exact migration and locking implementation as implementer decisions (D10 open choices), verifying they carry the install and directory registry and the project-state model content.
 
 ### Acceptance criteria
 

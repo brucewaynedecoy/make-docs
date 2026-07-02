@@ -17,6 +17,8 @@ related:
   - ./maintainer-dogfood-and-maintainer-operations.md
   - ./release-packaging-validation-and-release-reference.md
   - ../../../prd/06-template-contracts-and-generated-assets.md
+  - ../../../prd/38-revise-global-store-and-project-state.md
+  - ../../../../packages/cli/src/store/README.md
 ---
 
 # Docs Assets and Runtime State Boundaries
@@ -39,8 +41,24 @@ That split matters in three places:
 | visible docs directories | Authored or managed documentation content | `docs/designs/`, `docs/plans/`, `docs/prd/`, `docs/work/`, `docs/assets/library/` |
 | `.make-docs/{contracts,references,templates}/system/**` and `.make-docs/scripts/**` | Shipped system machinery | `.make-docs/contracts/system/output-contract.md`, `.make-docs/references/system/lifecycle.md`, `.make-docs/references/system/prompts/`, `.make-docs/templates/system/`, `.make-docs/scripts/check_path_hygiene.py` |
 | mutable `.make-docs/**` state | CLI runtime state | `.make-docs/manifest.json`, `.make-docs/conflicts/<run-id>/` |
+| machine-level `~/.make-docs/**` | Global store: machine-level operational state | `~/.make-docs/config.json`, `~/.make-docs/manifest.json`, `~/.make-docs/store.db` |
 
 `docs/assets/archive/history/` is part of the shipped docs resource namespace when history records exist. It is not installer state just because it records work history. The runtime state boundary begins at root `.make-docs/`, not inside `docs/`.
+
+## Machine-Level Global Store
+
+W18 R10 adds a fourth layer: a machine-level global store at `~/.make-docs/`, implemented in `packages/cli/src/store/` and bootstrapped at the end of every successful installer apply (fresh install, sync, or reconfigure; skipped on dry-run or cancel). It holds a global config (`config.json`), a global manifest (`manifest.json`), and a SQLite database (`store.db`) for operational state such as an install-registry mirror, Playbook run records, and work-execution evidence rows.
+
+Boundary rules maintainers must preserve:
+
+- The store holds operational state only — never shipped template assets and never project knowledge. Local repository bootstrap behavior is byte-identical with and without the store present.
+- The global config is deliberately JSON so it can never be confused or cross-read with the project-owned YAML overlay at `<repo>/.make-docs/config.yaml`. Neither loader reads the other's directory.
+- Authority is split by table: each project's `.make-docs/manifest.json` remains the canonical install record and the store's `projects` table is a rebuildable mirror keyed by the manifest-minted project identifier, while Playbook run-state and work-execution evidence become canonical in the store as the W18 R7 and W18 R11 lineages land on the seam.
+- `bootstrapGlobalStore` never throws; every store failure (unwritable root, missing `node:sqlite` on Node older than 22.5, newer-schema database, corruption) degrades to a warning so no store condition can block installing or operating on a repository. A corrupt database is quarantined and recreated — recoverable operational-state loss, never project-knowledge loss.
+
+The driver choice, file formats, SQL schema, migration strategy, and WAL locking discipline are D10 implementer decisions recorded in [the store module README](../../../../packages/cli/src/store/README.md); read that before changing anything under `packages/cli/src/store/` rather than restating it here.
+
+When writing CLI tests, never touch the real home directory: the store root resolves as explicit option, then `MAKE_DOCS_HOME`, then `~/.make-docs`, and `packages/cli/tests/setup.ts` plus `packages/cli/vitest.config.ts` point `MAKE_DOCS_HOME` at a per-worker temp directory. New tests that trigger the installer apply path inherit that isolation automatically; standalone scripts or smoke checks that call the CLI outside vitest should set `MAKE_DOCS_HOME` themselves.
 
 ## Historical Mismatch You Must Preserve
 
@@ -102,9 +120,15 @@ If the failure involves local build or packaged entry paths, start with [Buildin
 - Files staged under `.make-docs/conflicts/` are expected conflict output, not docs resources that should be copied back into the template.
 - If a historical doc disagrees with the current path layout, prefer current README, `packages/docs/README.md`, and the live CLI code over migration intent.
 
+## Future Coverage
+
+- Blocked by: W18 R10 Phases 2 through 4 and the W18 R7 and W18 R11 consumers of the store seam. Update when: project-identity minting, the project-state read/write operations with the checkpoint-evidence migration, and the uninstall/`setup remove` lifecycle land, and when run-state storage and the reorganized command surface start consuming `packages/cli/src/store/`. Guide change: extend the Machine-Level Global Store section with the identity scheme, the evidence-migration boundary, the per-project pruning and machine-footprint removal flows, and refreshed maintainer checks for store-touching changes.
+
 ## Related Resources
 
 - [Building and Installing the CLI Locally](./cli-development-local-build-and-install.md)
 - [Dogfood and Maintainer Operations](./maintainer-dogfood-and-maintainer-operations.md)
 - [Packaging, Validation, and Release Reference](./release-packaging-validation-and-release-reference.md)
 - [06 Template Contracts and Generated Assets](../../../prd/06-template-contracts-and-generated-assets.md)
+- [38 Revise Global Store and Project State](../../../prd/38-revise-global-store-and-project-state.md)
+- [Global Store Module README](../../../../packages/cli/src/store/README.md)

@@ -153,6 +153,8 @@ On the first successful apply, `make-docs` writes:
 
 The installer is non-destructive. If it finds a conflicting unmanaged root instruction file, it prompts for a conflict decision. If a managed file has already been modified locally, later generated replacements are staged under `.make-docs/conflicts/` instead of overwriting your copy.
 
+A successful apply also sets up a small machine-level store at `~/.make-docs/` in your home directory: a global config, a global manifest, and a SQLite database for operational state such as run records. It never contains your project content, and store problems never block an install — if the store cannot be created, or your Node.js version is older than 22.5 so the database part is unavailable, the CLI prints a warning and completes the project install normally.
+
 If you need the maintainer-facing explanation for why runtime state lives under `.make-docs/` while document resources live under `docs/assets/`, use [Docs Assets and Runtime State Boundaries](../developer/maintainer-docs-assets-and-runtime-state-boundaries.md).
 
 ## What to Do Next

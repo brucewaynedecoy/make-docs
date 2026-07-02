@@ -21,6 +21,7 @@ import {
 } from "./install";
 import { loadManifest, MANIFEST_RELATIVE_PATH } from "./manifest";
 import { runOperationsCommand } from "./operations";
+import { bootstrapGlobalStore } from "./store";
 import { cloneSelections, defaultSelections, hasEffectiveCapabilities } from "./profile";
 import { applySkillRegistrySelectionMetadata } from "./skill-catalog";
 import {
@@ -369,6 +370,15 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
     for (const conflictFile of applied.conflictFiles) {
       output.write(`- ${conflictFile}\n`);
     }
+  }
+
+  // Machine-level global store bootstrap (R-STORE-1). Runs after the local
+  // repository apply so the store can never influence it, writes only under
+  // the store root, and never throws — store trouble degrades to warnings
+  // because it is recoverable operational state, not project knowledge.
+  const storeReport = bootstrapGlobalStore({ packageMeta });
+  for (const warning of storeReport.warnings) {
+    output.write(`Warning: ${warning}\n`);
   }
 }
 

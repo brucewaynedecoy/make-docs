@@ -215,6 +215,7 @@ When a new runner behavior is added, it needs focused operation tests and parity
 This guide should be refreshed when W18 implementation chooses final run-state command names, state schema details, plugin bundle entry points, package-planner commands, harness adapter modules, and generated-output writers. It should also be updated with links to additional concrete operation modules and tests as W18 R1 through W18 R5 land.
 
 - Blocked by: W18 R6 Phases 2 and 3. Update when: the single parsed Playbook model, the staged parser, and the layered validator with the diagnostic catalog replace the W18 R4 catalog validation described above. Guide change: replace the Catalog Contract Validation section's implemented-behavior description with the model/parser/validator architecture and keep the Playbook contract as the schema authority.
+- Blocked by: W18 R7 run-state relocation onto the W18 R10 global store seam. Update when: run state moves from `.make-docs/runs/playbooks/<run-id>/state.json` to the global store's `playbook_runs` facet, which W18 R10 P1 landed at `packages/cli/src/store/` keyed by project identifier plus run identifier with the record payload stored opaquely (see [the store module README](../../../../packages/cli/src/store/README.md)). Guide change: rewrite the Run State section's storage location and the run-state operation paths around the global store while keeping the run-record shape and progression semantics owned by the runner lineage.
 
 ## Related Resources
 
