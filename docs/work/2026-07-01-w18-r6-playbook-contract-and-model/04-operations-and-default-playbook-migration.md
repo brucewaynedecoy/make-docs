@@ -29,10 +29,10 @@ The operations wrap the Phase 2/3 library without duplicating its logic, consumi
 
 ### Tasks
 
-- [ ] t1: Implement `playbook.validate` as a wrapper over the library that parses one or more Playbooks and reports the full diagnostic set with codes, severities, locations, and fix hints (R-MODEL-6).
-- [ ] t2: Implement `playbook.catalog` as a wrapper over the library that enumerates Playbooks by canonical `persona/slug` reference with their frontmatter identity, detecting both the suffix form and the deprecated plain form (R-MODEL-6, R-DOC-2, R-DOC-4).
-- [ ] t3: Keep both operations inside the modular TypeScript operation-domain boundary so CLI, MCP, plugin, skill, or agent surfaces call the same operations, per PRD 25.
-- [ ] t4: Consume operation identifiers from the operation registry as an external contract; do not mint identifiers locally or hardcode CLI command strings in library or operation code (R-SCOPE-2).
+- [x] t1: Implement `playbook.validate` as a wrapper over the library that parses one or more Playbooks and reports the full diagnostic set with codes, severities, locations, and fix hints (R-MODEL-6).
+- [x] t2: Implement `playbook.catalog` as a wrapper over the library that enumerates Playbooks by canonical `persona/slug` reference with their frontmatter identity, detecting both the suffix form and the deprecated plain form (R-MODEL-6, R-DOC-2, R-DOC-4).
+- [x] t3: Keep both operations inside the modular TypeScript operation-domain boundary so CLI, MCP, plugin, skill, or agent surfaces call the same operations, per PRD 25.
+- [x] t4: Consume operation identifiers from the operation registry as an external contract; do not mint identifiers locally or hardcode CLI command strings in library or operation code (R-SCOPE-2).
 
 ### Acceptance criteria
 
@@ -48,10 +48,10 @@ The operations wrap the Phase 2/3 library without duplicating its logic, consumi
 
 ### Tasks
 
-- [ ] t5: Migrate `packages/docs/template/docs/assets/playbooks/agent/make-docs-lifecycle.md` to the `<slug>.playbook.md` suffix form upstream, restructuring it to the eleven-heading spine with conformant frontmatter, a dependency registry table, and a single `playbook` workflow contract block (R-DOC-2, R-AUTH-5).
-- [ ] t6: Dogfood the migrated default Playbook into `./docs/assets/playbooks/agent/` and remove or supersede the deprecated plain-file form in both locations without stranding links (R-AUTH-1, R-AUTH-5).
-- [ ] t7: Audit and update references to the old default-Playbook filename across routers, contracts, references, tests, and package validation so no live surface points at the deprecated form.
-- [ ] t8: Confirm the build-time copy under `packages/cli/template/` is generated, not hand-edited, and that package validation covers the migrated file (R-AUTH-5).
+- [x] t5: Migrate `packages/docs/template/docs/assets/playbooks/agent/make-docs-lifecycle.md` to the `<slug>.playbook.md` suffix form upstream, restructuring it to the eleven-heading spine with conformant frontmatter, a dependency registry table, and a single `playbook` workflow contract block (R-DOC-2, R-AUTH-5).
+- [x] t6: Dogfood the migrated default Playbook into `./docs/assets/playbooks/agent/` and remove or supersede the deprecated plain-file form in both locations without stranding links (R-AUTH-1, R-AUTH-5).
+- [x] t7: Audit and update references to the old default-Playbook filename across routers, contracts, references, tests, and package validation so no live surface points at the deprecated form.
+- [x] t8: Confirm the build-time copy under `packages/cli/template/` is generated, not hand-edited, and that package validation covers the migrated file (R-AUTH-5).
 
 ### Acceptance criteria
 

@@ -11,12 +11,23 @@ export {
 } from "./operations/lifecycle";
 export {
   buildPlaybookCatalog,
+  catalogPlaybooks,
   createPlaybookRunState,
   evaluateHarnessCapabilities,
   invokePlaybook,
+  PLAYBOOK_CATALOG_OPERATION_ID,
+  PLAYBOOK_VALIDATE_OPERATION_ID,
   readPlaybookRunState,
   resolvePlaybook,
+  validatePlaybooks,
   writePlaybookInvocation,
+} from "./operations/playbook";
+export type {
+  PlaybookContractCatalog,
+  PlaybookContractCatalogEntry,
+  PlaybookValidationDiagnostic,
+  PlaybookValidationReport,
+  PlaybookValidationResult,
 } from "./operations/playbook";
 export {
   GENERATED_OUTPUT_RECORD_KINDS,

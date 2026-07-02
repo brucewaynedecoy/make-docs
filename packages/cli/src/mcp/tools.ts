@@ -14,12 +14,13 @@ import {
 } from "../operations/lifecycle";
 import { listOperationDomains } from "../operations/index";
 import {
-  buildPlaybookCatalog,
+  catalogPlaybooks,
   createPlaybookRunState,
   evaluateHarnessCapabilities,
   invokePlaybook,
   readPlaybookRunState,
   resolvePlaybook,
+  validatePlaybooks,
 } from "../operations/playbook";
 import {
   buildPhasePlan,
@@ -47,6 +48,7 @@ type McpToolName =
   | "make_docs_phase_plan"
   | "make_docs_scope_guard"
   | "make_docs_phase_gate"
+  | "make_docs_playbook_validate"
   | "make_docs_playbook_catalog"
   | "make_docs_playbook_resolve"
   | "make_docs_playbook_capabilities"
@@ -185,9 +187,25 @@ export const MAKE_DOCS_MCP_TOOLS: MakeDocsMcpToolDescriptor[] = [
     },
   },
   {
+    name: "make_docs_playbook_validate",
+    title: "Validate Playbooks",
+    description:
+      "Operation playbook.validate: parse one or more Playbooks through the Playbook library and report the full diagnostic set with codes, severities, locations, and fix hints.",
+    inputSchema: {
+      repoRoot: repoRootSchema,
+      refs: z
+        .array(z.string())
+        .optional()
+        .describe(
+          "Explicit .md paths or canonical persona/slug references. Defaults to every detected Playbook.",
+        ),
+    },
+  },
+  {
     name: "make_docs_playbook_catalog",
     title: "Read Playbook Catalog",
-    description: "List valid playbooks and metadata without running a playbook.",
+    description:
+      "Operation playbook.catalog: enumerate Playbooks by canonical persona/slug reference with frontmatter identity, detecting the suffix and deprecated plain file forms.",
     inputSchema: { repoRoot: repoRootSchema },
   },
   {
@@ -324,8 +342,16 @@ export async function callMakeDocsMcpTool(
           optionalString(args, "commitPolicy"),
         ),
       );
+    case "make_docs_playbook_validate":
+      return mcpPayload(
+        name,
+        validatePlaybooks({
+          repoRoot: resolveRepoRoot(args),
+          refs: optionalStringArray(args, "refs"),
+        }),
+      );
     case "make_docs_playbook_catalog":
-      return mcpPayload(name, buildPlaybookCatalog({ repoRoot: resolveRepoRoot(args) }));
+      return mcpPayload(name, catalogPlaybooks({ repoRoot: resolveRepoRoot(args) }));
     case "make_docs_playbook_resolve":
       return mcpPayload(
         name,

@@ -64,7 +64,7 @@ const EXPECTED_READER_ASSET_PATHS = [
   "docs/assets/library/CLAUDE.md",
   "docs/assets/playbooks/AGENTS.md",
   "docs/assets/playbooks/CLAUDE.md",
-  "docs/assets/playbooks/agent/make-docs-lifecycle.md",
+  "docs/assets/playbooks/agent/make-docs-lifecycle.playbook.md",
 ];
 
 const EXPECTED_SYSTEM_RESOURCE_PATHS = [

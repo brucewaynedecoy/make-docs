@@ -3,11 +3,13 @@ import path from "node:path";
 import { afterEach, describe, expect, test } from "vitest";
 import {
   buildPlaybookCatalog,
+  catalogPlaybooks,
   createPlaybookRunState,
   evaluateHarnessCapabilities,
   invokePlaybook,
   readPlaybookRunState,
   resolvePlaybook,
+  validatePlaybooks,
 } from "../src/operations";
 import { cleanupTempDir, createTempDir } from "./helpers";
 
@@ -726,5 +728,206 @@ describe("playbook operation domain", () => {
       executionMode: "parallel",
       outputSurfaceClaims: ["docs/prd/29-revise-playbook-contract-run-playbook.md"],
     })).toThrow("output-surface claims overlap");
+  });
+});
+
+function conformantPlaybook(persona: string, slug: string, title: string): string {
+  return [
+    "---",
+    `title: "${title}"`,
+    'kind: "playbook"',
+    `persona: "${persona}"`,
+    'status: "accepted"',
+    'stack: "run"',
+    `summary: "${title} summary."`,
+    'schemaVersion: "make-docs.playbook.v1"',
+    'workflowSchemaVersion: "make-docs.workflow.v1"',
+    "---",
+    "",
+    `# ${title}`,
+    "",
+    "## Purpose",
+    "",
+    "Ship the documented workflow.",
+    "",
+    "## When To Use",
+    "",
+    "Use when the workflow goal is active.",
+    "",
+    "## Inputs And Authority",
+    "",
+    "- User direction first, then repo-local Make Docs contracts.",
+    "",
+    "## Dependencies",
+    "",
+    "| ID | Kind | Requirement | Source | Used By | Fallback |",
+    "| --- | --- | --- | --- | --- | --- |",
+    "| make-docs-cli | cli | required | package install | check-catalog | stop with install guidance |",
+    "",
+    "## Workflow Contract",
+    "",
+    "```playbook",
+    "workflow:",
+    `  id: ${slug}`,
+    "  state_model: make-docs.workflow-state.v1",
+    "  routing: linear",
+    "steps:",
+    "  - id: check-catalog",
+    "    title: Check the playbook catalog",
+    "    executor: cli",
+    "    role: check",
+    "    activation: sequential",
+    "    mode: deterministic",
+    "    requires: [make-docs-cli]",
+    "    operation: playbook.catalog",
+    "```",
+    "",
+    "## Step Guidance",
+    "",
+    "Run the catalog check and report the result.",
+    "",
+    "## Gates And Decisions",
+    "",
+    "- Stop when user review is required.",
+    "",
+    "## Outputs And Handoff",
+    "",
+    "- Record the catalog output.",
+    "",
+    "## Validation",
+    "",
+    "- The catalog check exits zero.",
+    "",
+    "## Packaging Notes",
+    "",
+    "No packaging hints.",
+    "",
+  ].join("\n");
+}
+
+describe("playbook.validate and playbook.catalog operations", () => {
+  const tempRoots: string[] = [];
+
+  afterEach(() => {
+    for (const root of tempRoots.splice(0)) {
+      cleanupTempDir(root);
+    }
+  });
+
+  test("catalogs suffix and deprecated plain forms by canonical persona/slug with frontmatter identity", () => {
+    const root = createTempDir("make-docs-playbook-contract-");
+    tempRoots.push(root);
+    writeFile(
+      root,
+      "docs/assets/playbooks/user/ship-docs.playbook.md",
+      conformantPlaybook("user", "ship-docs", "Ship Docs"),
+    );
+    writePlaybook(root, "user", "legacy-flow", "run", "Legacy Flow");
+    writeFile(root, "docs/assets/playbooks/user/notes.md", "# Not a playbook\n");
+
+    const catalog = catalogPlaybooks({ repoRoot: root });
+
+    expect(catalog.playbooksDir).toBe("docs/assets/playbooks");
+    expect(catalog.entries.map((entry) => entry.ref)).toEqual([
+      "user/legacy-flow",
+      "user/ship-docs",
+    ]);
+    const shipDocs = catalog.entries.find((entry) => entry.ref === "user/ship-docs")!;
+    expect(shipDocs).toEqual(
+      expect.objectContaining({
+        persona: "user",
+        slug: "ship-docs",
+        path: "docs/assets/playbooks/user/ship-docs.playbook.md",
+        fileForm: "playbook-suffix",
+        title: "Ship Docs",
+        summary: "Ship Docs summary.",
+        stack: "run",
+        status: "accepted",
+        schemaVersion: "make-docs.playbook.v1",
+        workflowSchemaVersion: "make-docs.workflow.v1",
+        runnable: true,
+        errorCount: 0,
+        warningCount: 0,
+      }),
+    );
+    const legacy = catalog.entries.find((entry) => entry.ref === "user/legacy-flow")!;
+    expect(legacy.fileForm).toBe("deprecated-plain");
+    expect(legacy.runnable).toBe(false);
+    expect(
+      catalog.diagnostics.some(
+        (diagnostic) =>
+          diagnostic.code === "PB-FILE-007" &&
+          diagnostic.severity === "warning" &&
+          diagnostic.path === "docs/assets/playbooks/user/legacy-flow.md",
+      ),
+    ).toBe(true);
+  });
+
+  test("validates playbooks through the library and reports the full diagnostic set", () => {
+    const root = createTempDir("make-docs-playbook-validate-");
+    tempRoots.push(root);
+    writeFile(
+      root,
+      "docs/assets/playbooks/user/ship-docs.playbook.md",
+      conformantPlaybook("user", "ship-docs", "Ship Docs"),
+    );
+    writeFile(
+      root,
+      "docs/assets/playbooks/user/broken.playbook.md",
+      conformantPlaybook("user", "broken", "Broken")
+        .replace('stack: "run"\n', "")
+        .replace("    requires: [make-docs-cli]\n    operation: playbook.catalog\n", ""),
+    );
+
+    const report = validatePlaybooks({ repoRoot: root });
+
+    expect(report.playbookCount).toBe(2);
+    expect(report.valid).toBe(false);
+    const clean = report.results.find((result) => result.ref === "user/ship-docs")!;
+    expect(clean.runnable).toBe(true);
+    expect(clean.diagnostics).toEqual([]);
+    const broken = report.results.find((result) => result.ref === "user/broken")!;
+    expect(broken.runnable).toBe(false);
+    expect(broken.errorCount).toBeGreaterThan(0);
+    const codes = broken.diagnostics.map((diagnostic) => diagnostic.code);
+    expect(codes).toContain("PB-FM-002");
+    expect(codes).toContain("PB-WF-005");
+    for (const diagnostic of broken.diagnostics) {
+      expect(diagnostic.severity === "error" || diagnostic.severity === "warning").toBe(true);
+      expect(diagnostic.message.length).toBeGreaterThan(0);
+      expect(diagnostic.hint.length).toBeGreaterThan(0);
+    }
+    const missingStack = broken.diagnostics.find(
+      (diagnostic) => diagnostic.code === "PB-FM-002" && diagnostic.field === "stack",
+    );
+    expect(missingStack).toBeDefined();
+  });
+
+  test("validates one playbook selected by canonical persona/slug ref", () => {
+    const root = createTempDir("make-docs-playbook-validate-ref-");
+    tempRoots.push(root);
+    writeFile(
+      root,
+      "docs/assets/playbooks/user/ship-docs.playbook.md",
+      conformantPlaybook("user", "ship-docs", "Ship Docs"),
+    );
+    writePlaybook(root, "user", "legacy-flow", "run", "Legacy Flow");
+
+    const report = validatePlaybooks({ repoRoot: root, refs: ["user/ship-docs"] });
+
+    expect(report.playbookCount).toBe(1);
+    expect(report.results[0]).toEqual(
+      expect.objectContaining({
+        ref: "user/ship-docs",
+        path: "docs/assets/playbooks/user/ship-docs.playbook.md",
+        runnable: true,
+        errorCount: 0,
+      }),
+    );
+    expect(report.valid).toBe(true);
+
+    expect(() => validatePlaybooks({ repoRoot: root, refs: ["user/missing"] })).toThrow(
+      "No playbook found",
+    );
   });
 });

@@ -19,6 +19,8 @@ related:
   - ../../../prd/29-revise-playbook-contract-run-playbook.md
   - ../../../prd/30-revise-harness-plugin-substrate-workflow-bundles.md
   - ../../../prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md
+  - ../../../prd/34-revise-playbook-contract-and-model.md
+  - ../../../../.make-docs/contracts/system/playbook-contract.md
   - ../../../designs/2026-06-27-run-playbook-orchestration-and-harness-capabilities.md
   - ../../../designs/2026-06-29-playbook-packaging-and-harness-adapter-registry.md
 ---
@@ -31,14 +33,16 @@ This guide describes the accepted v2 direction for Playbooks after W18 R4, W18 R
 
 A Playbook is a reusable workflow document that Make Docs can validate, select, and run with an agent. It is still readable Markdown, but it has enough structure for Make Docs to know what the workflow is for, what authority it depends on, what inputs it needs, where it may write outputs, and when a human decision is required.
 
-Playbooks live under `docs/assets/playbooks/<persona>/<slug>.md`. The stable identity is `persona/slug`. A Playbook also declares a required `stack` value so Make Docs can distinguish between build workflows and run workflows.
+Playbooks live under `docs/assets/playbooks/<persona>/<slug>.playbook.md`. The stable identity is `persona/slug`. An older plain `<slug>.md` file with `kind: playbook` frontmatter is still recognized, but it is a deprecated form: validation flags it with a warning that asks for a rename to `<slug>.playbook.md`. A Playbook also declares a required `stack` value so Make Docs can distinguish between build workflows and run workflows.
+
+The normative document schema — the filename form, frontmatter, required section order, workflow contract block, and dependency registry — is [the Playbook contract](../../../../.make-docs/contracts/system/playbook-contract.md). This guide covers what users do with Playbooks; the contract is the authority for what a Playbook file must contain.
 
 ## Installed Default Playbook
 
 A default Make Docs install includes the Make Docs lifecycle Playbook at:
 
 ```text
-docs/assets/playbooks/agent/make-docs-lifecycle.md
+docs/assets/playbooks/agent/make-docs-lifecycle.playbook.md
 ```
 
 This Playbook is a readable workflow for the `agent` persona. It describes how an agent should move through the Make Docs lifecycle from source evidence to design, plan, PRD, work backlog, implementation, validation, closeout, and history.
@@ -48,6 +52,18 @@ Users can inspect available Playbooks with:
 ```sh
 make-docs operations playbook-catalog --repo-root .
 ```
+
+The catalog lists each Playbook by its canonical reference — `agent/make-docs-lifecycle` for the default — with its title, summary, stack, status, file form, whether it is currently runnable, and its error and warning counts.
+
+They can validate one Playbook, several, or every installed Playbook with:
+
+```sh
+make-docs operations playbook-validate agent/make-docs-lifecycle --repo-root .
+```
+
+References may be canonical `persona/slug` values or explicit `.md` paths; with no references, every detected Playbook is validated. Each finding carries a stable code such as `PB-FM-002`, a severity of `error` or `warning`, the section and source location where it was found, a message, and a fix hint. A Playbook with zero errors is runnable; warnings do not block it. The most common warning during migration is `PB-FILE-007`, which asks for a rename from the deprecated plain `<slug>.md` name to `<slug>.playbook.md`.
+
+MCP-capable agent harnesses reach the same behavior through the `make_docs_playbook_validate` and `make_docs_playbook_catalog` tools.
 
 They can start the current operation-level invocation model with:
 
@@ -128,7 +144,7 @@ Playbooks also do not redefine Make Docs authority. If a Playbook changes PRDs, 
 
 This guide should be refreshed after W18 implementation lands with plugin entry points, packaging commands, package-plan review examples, and a small set of end-user examples that can be run against an installed Make Docs project.
 
-- Blocked by: W18 R6 Phases 4 and 5. Update when: `playbook.validate` and `playbook.catalog` land over the parsed and validated Playbook model, which W18 R6 Phases 2 and 3 landed as a library (parser, layered validator, and diagnostic catalog) without user-visible surface, and the default Playbook migrates to the `<slug>.playbook.md` form. Guide change: refresh the filename form shown here, add the validate/catalog usage flow, and decide again whether a reader-facing projection of the Playbook contract is warranted as its own guide; W18 R6 Phase 1 deferred that projection because the contract is normative on its own and the user-visible surface had not landed yet, and Phase 3's completed diagnostic catalog and enumerated event set strengthen the case to revisit it once the operations land.
+- Blocked by: W18 R6 Phase 5 and wave completion. Update when: per-code diagnostic fixtures and upstream-copy parity checks land and the W18 R6 wave closes. Guide change: revisit whether a reader-facing projection of the Playbook contract is warranted as its own guide. W18 R6 Phase 4 deferred it again after adding the validate/catalog usage and filename forms here: the contract remains normative and linkable on its own, this guide now covers the user-visible surface, and a projection written before Phase 5's fixture and parity hardening and the W18 R7 runner consumption could describe behavior that is still shifting.
 
 ## Related Resources
 
@@ -137,6 +153,8 @@ This guide should be refreshed after W18 implementation lands with plugin entry 
 - [29 Revise Playbook Contract Run Playbook](../../../prd/29-revise-playbook-contract-run-playbook.md)
 - [30 Revise Harness Plugin Substrate Workflow Bundles](../../../prd/30-revise-harness-plugin-substrate-workflow-bundles.md)
 - [33 Enhance Playbook Packaging and Harness Adapter Registry](../../../prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md)
+- [34 Revise Playbook Contract and Model](../../../prd/34-revise-playbook-contract-and-model.md)
+- [Playbook Contract](../../../../.make-docs/contracts/system/playbook-contract.md)
 - [Run Playbook Orchestration and Harness Capabilities](../../../designs/2026-06-27-run-playbook-orchestration-and-harness-capabilities.md)
 - [Playbook Packaging and Harness Adapter Registry](../../../designs/2026-06-29-playbook-packaging-and-harness-adapter-registry.md)
 - [Packaging Shareable Agent Workflows](./playbooks-packaging-shareable-agent-workflows.md)

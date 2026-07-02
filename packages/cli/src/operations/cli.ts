@@ -11,12 +11,13 @@ import {
   buildScopeReport,
 } from "./lifecycle";
 import {
-  buildPlaybookCatalog,
+  catalogPlaybooks,
   createPlaybookRunState,
   evaluateHarnessCapabilities,
   invokePlaybook,
   readPlaybookRunState,
   resolvePlaybook,
+  validatePlaybooks,
 } from "./playbook";
 import {
   createPlaybookPackagePlan,
@@ -133,9 +134,17 @@ export async function runOperationsCommand(argv: string[]): Promise<void> {
         ),
       );
       return;
+    case "playbook-validate":
+      printJson(
+        validatePlaybooks({
+          repoRoot: path.resolve(options.values["repo-root"] ?? "."),
+          refs: options.positionals,
+        }),
+      );
+      return;
     case "playbook-catalog":
       printJson(
-        buildPlaybookCatalog({
+        catalogPlaybooks({
           repoRoot: path.resolve(options.values["repo-root"] ?? "."),
         }),
       );
@@ -337,6 +346,7 @@ function printOperationsHelp(): void {
       "  checkpoint",
       "  scope-guard",
       "  phase-gate",
+      "  playbook-validate",
       "  playbook-catalog",
       "  playbook-resolve",
       "  playbook-capabilities",

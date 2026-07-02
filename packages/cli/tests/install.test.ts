@@ -334,7 +334,7 @@ describe("installer integration", () => {
       expect(existsSync(path.join(targetDir, "docs/assets/playbooks/AGENTS.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/assets/playbooks/CLAUDE.md"))).toBe(true);
       expect(
-        existsSync(path.join(targetDir, "docs/assets/playbooks/agent/make-docs-lifecycle.md")),
+        existsSync(path.join(targetDir, "docs/assets/playbooks/agent/make-docs-lifecycle.playbook.md")),
       ).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/assets/archive/AGENTS.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/assets/archive/CLAUDE.md"))).toBe(true);
@@ -379,8 +379,8 @@ describe("installer integration", () => {
         "file:docs/assets/playbooks/AGENTS.md",
       );
       expect(
-        manifest.files["docs/assets/playbooks/agent/make-docs-lifecycle.md"]?.sourceId,
-      ).toBe("file:docs/assets/playbooks/agent/make-docs-lifecycle.md");
+        manifest.files["docs/assets/playbooks/agent/make-docs-lifecycle.playbook.md"]?.sourceId,
+      ).toBe("file:docs/assets/playbooks/agent/make-docs-lifecycle.playbook.md");
       expect(manifest.files["docs/assets/archive/AGENTS.md"]?.sourceId).toBe(
         "file:docs/assets/archive/AGENTS.md",
       );
@@ -1310,7 +1310,7 @@ describe("installer integration", () => {
       expect(existsSync(path.join(targetDir, "docs/assets/playbooks/AGENTS.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/assets/playbooks/CLAUDE.md"))).toBe(true);
       expect(
-        existsSync(path.join(targetDir, "docs/assets/playbooks/agent/make-docs-lifecycle.md")),
+        existsSync(path.join(targetDir, "docs/assets/playbooks/agent/make-docs-lifecycle.playbook.md")),
       ).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/assets/archive/AGENTS.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/assets/archive/CLAUDE.md"))).toBe(true);

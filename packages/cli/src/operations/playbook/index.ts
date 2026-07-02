@@ -10,6 +10,11 @@ import {
   type HarnessCapabilityRecord,
 } from "../../config";
 import {
+  parseAndValidatePlaybook,
+  PLAYBOOK_FILE_SUFFIX,
+  playbookSlugFromPath,
+} from "../../playbook";
+import {
   createRunId,
   normalizeRelativePath,
   readTextFile,
@@ -173,11 +178,19 @@ export interface PlaybookInvocationPlan {
 
 export const playbookDomain: OperationDomainDescriptor = {
   name: "playbook",
-  summary: "Run Playbook resolver, catalog, capability, and state operations.",
+  summary: "Playbook contract validate/catalog plus Run Playbook resolver, capability, and state operations.",
   commands: [
     {
+      name: "playbook-validate",
+      summary:
+        "Operation `playbook.validate`: parse one or more Playbooks through the Playbook library and report the full diagnostic set with codes, severities, locations, and fix hints.",
+      mutates: false,
+      renderModes: ["json"],
+    },
+    {
       name: "playbook-catalog",
-      summary: "List valid playbooks with persona, slug, stack, title, and summary metadata.",
+      summary:
+        "Operation `playbook.catalog`: enumerate Playbooks by canonical persona/slug reference with frontmatter identity, detecting the `<slug>.playbook.md` suffix form and the deprecated plain form.",
       mutates: false,
       renderModes: ["json"],
     },
@@ -326,17 +339,29 @@ export function resolvePlaybook(input: {
   };
 }
 
-export function readPlaybookCatalog(input: { repoRoot?: string } = {}): OperationResult<JsonValue> {
-  return {
-    value: buildPlaybookCatalog(input) as unknown as JsonValue,
-    provenance: {
-      domain: "playbook",
-      operation: "playbook-catalog",
-      source: "shared",
-      target: input.repoRoot,
-    },
-  };
-}
+/**
+ * The surfaced `playbook.catalog` operation is the library-backed contract
+ * catalog in `./contract` (W18 R6 P4). `buildPlaybookCatalog` above remains
+ * the W18 R4-era run-resolution catalog consumed internally by
+ * `resolvePlaybook`, the run-state operations, and packaging until the
+ * runner lineage adopts the Playbook model.
+ */
+export {
+  catalogPlaybooks,
+  PLAYBOOK_CATALOG_OPERATION_ID,
+  PLAYBOOK_VALIDATE_OPERATION_ID,
+  readPlaybookContractCatalog,
+  readPlaybookContractCatalog as readPlaybookCatalog,
+  readPlaybookValidation,
+  validatePlaybooks,
+} from "./contract";
+export type {
+  PlaybookContractCatalog,
+  PlaybookContractCatalogEntry,
+  PlaybookValidationDiagnostic,
+  PlaybookValidationReport,
+  PlaybookValidationResult,
+} from "./contract";
 
 export function readPlaybookResolution(input: {
   repoRoot?: string;
@@ -687,7 +712,8 @@ function parsePlaybookFile(
 ): { entry: PlaybookCatalogEntry | null; diagnostics: Array<{ path: string; message: string }> } {
   const relativePath = repoRelativePath(filePath, repoRoot) ?? normalizeRelativePath(filePath);
   const diagnostics: Array<{ path: string; message: string }> = [];
-  const document = parsePlaybookDocument(readTextFile(filePath));
+  const source = readTextFile(filePath);
+  const document = parsePlaybookDocument(source);
   if (!document) {
     return {
       entry: null,
@@ -698,7 +724,7 @@ function parsePlaybookFile(
   const { body, metadata } = document;
   const pathParts = normalizeRelativePath(relativePath).split("/");
   const persona = pathParts.at(-2) ?? "";
-  const slug = path.basename(filePath, ".md");
+  const slug = playbookSlugFromPath(relativePath);
   const metadataPersona = stringField(metadata, "persona");
   const kind = stringField(metadata, "kind");
   const stack = stringField(metadata, "stack");
@@ -739,7 +765,25 @@ function parsePlaybookFile(
       message: `Playbook must live directly under ${PLAYBOOKS_RELATIVE_DIR}/<persona>/<slug>.md.`,
     });
   }
-  diagnostics.push(...validatePlaybookBody(body, relativePath));
+  if (relativePath.endsWith(PLAYBOOK_FILE_SUFFIX)) {
+    // Suffix-form Playbooks are governed by the Playbook contract, so the
+    // run-resolution catalog defers to the library validator instead of the
+    // legacy plain-form body term checks (W18 R6 P4).
+    const { diagnostics: libraryDiagnostics } = parseAndValidatePlaybook({
+      sourcePath: relativePath,
+      source,
+    });
+    diagnostics.push(
+      ...libraryDiagnostics
+        .filter((diagnostic) => diagnostic.severity === "error")
+        .map((diagnostic) => ({
+          path: relativePath,
+          message: `${diagnostic.code}: ${diagnostic.message}`,
+        })),
+    );
+  } else {
+    diagnostics.push(...validatePlaybookBody(body, relativePath));
+  }
 
   if (diagnostics.length > 0 || !run) {
     return { entry: null, diagnostics };

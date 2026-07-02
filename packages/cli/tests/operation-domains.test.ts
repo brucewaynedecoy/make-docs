@@ -100,6 +100,7 @@ describe("operation domain modules", () => {
       expect.objectContaining({
         name: "playbook",
         commands: [
+          expect.objectContaining({ name: "playbook-validate", mutates: false }),
           expect.objectContaining({ name: "playbook-catalog", mutates: false }),
           expect.objectContaining({ name: "playbook-resolve", mutates: false }),
           expect.objectContaining({ name: "playbook-capabilities", mutates: false }),
@@ -263,7 +264,7 @@ describe("operation domain modules", () => {
       preferredCapabilities: ["parallel_playbook_runs"],
     });
 
-    expect(catalog.provenance.operation).toBe("playbook-catalog");
+    expect(catalog.provenance.operation).toBe("playbook.catalog");
     expect(resolution.provenance.operation).toBe("playbook-resolve");
     expect(capabilities.provenance.operation).toBe("playbook-capabilities");
     expect(capabilities.value).toEqual(

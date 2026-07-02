@@ -19,18 +19,31 @@ export { closeoutDomain, probeCloseout } from "./closeout";
 export { lifecycleDomain, checkpointPhase, gatePhase, guardPhaseScope } from "./lifecycle";
 export {
   buildPlaybookCatalog,
+  catalogPlaybooks,
   createPlaybookRunState,
   evaluateHarnessCapabilities,
   inspectPlaybookRunState,
   invokePlaybook,
+  PLAYBOOK_CATALOG_OPERATION_ID,
+  PLAYBOOK_VALIDATE_OPERATION_ID,
   playbookDomain,
   readHarnessCapabilityEvaluation,
   readPlaybookCatalog,
+  readPlaybookContractCatalog,
   readPlaybookResolution,
   readPlaybookRunState,
+  readPlaybookValidation,
   resolvePlaybook,
+  validatePlaybooks,
   writePlaybookInvocation,
   writePlaybookRunState,
+} from "./playbook";
+export type {
+  PlaybookContractCatalog,
+  PlaybookContractCatalogEntry,
+  PlaybookValidationDiagnostic,
+  PlaybookValidationReport,
+  PlaybookValidationResult,
 } from "./playbook";
 export {
   GENERATED_OUTPUT_RECORD_KINDS,

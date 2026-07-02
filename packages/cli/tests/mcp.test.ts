@@ -48,6 +48,7 @@ describe("make-docs MCP runtime", () => {
       "make_docs_phase_plan",
       "make_docs_scope_guard",
       "make_docs_phase_gate",
+      "make_docs_playbook_validate",
       "make_docs_playbook_catalog",
       "make_docs_playbook_resolve",
       "make_docs_playbook_capabilities",

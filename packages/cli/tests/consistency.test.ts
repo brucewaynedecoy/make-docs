@@ -3,6 +3,7 @@ import path from "node:path";
 import { describe, expect, test } from "vitest";
 import { getDesiredAssets } from "../src/catalog";
 import { parseManagedBlock } from "../src/managed-block";
+import { parseAndValidatePlaybook } from "../src/playbook";
 import { defaultSelections, resolveInstallProfile } from "../src/profile";
 import { readPackageFile, TEMPLATE_ROOT } from "../src/utils";
 
@@ -50,7 +51,7 @@ const READER_ASSET_ROUTER_PATHS = [
 ];
 
 const PLAYBOOK_DEFAULT_PARITY_PATHS = [
-  "docs/assets/playbooks/agent/make-docs-lifecycle.md",
+  "docs/assets/playbooks/agent/make-docs-lifecycle.playbook.md",
 ];
 
 const PATH_HYGIENE_PARITY_PATHS = [
@@ -628,6 +629,62 @@ describe("guide generation routing contract", () => {
       expect(generatedContents).toBe(templateContents);
       expect(templateContents).toContain("status: \"accepted\"");
       expect(templateContents).toContain("persona: \"agent\"");
+    }
+  });
+
+  test("the migrated default playbook validates with zero errors upstream and in the dogfood instance", () => {
+    for (const relativePath of PLAYBOOK_DEFAULT_PARITY_PATHS) {
+      for (const root of [path.join(REPO_ROOT, "packages", "docs", "template"), REPO_ROOT]) {
+        const sourcePath = path.join(root, relativePath);
+        const { model, diagnostics } = parseAndValidatePlaybook({
+          sourcePath: relativePath,
+          source: readFileSync(sourcePath, "utf8"),
+        });
+
+        expect(diagnostics.filter((diagnostic) => diagnostic.severity === "error"), sourcePath).toEqual([]);
+        expect(model.runnable, sourcePath).toBe(true);
+        expect(model.identity.fileForm, sourcePath).toBe("playbook-suffix");
+        expect(model.identity.canonicalRef, sourcePath).toBe("agent/make-docs-lifecycle");
+      }
+    }
+  });
+
+  test("every shipped default playbook validates with zero errors", () => {
+    const playbooksRoot = path.join(
+      REPO_ROOT,
+      "packages",
+      "docs",
+      "template",
+      "docs",
+      "assets",
+      "playbooks",
+    );
+    const playbookPaths: string[] = [];
+    for (const persona of readdirSync(playbooksRoot)) {
+      const personaDir = path.join(playbooksRoot, persona);
+      if (!statSync(personaDir).isDirectory()) {
+        continue;
+      }
+      for (const fileName of readdirSync(personaDir)) {
+        if (fileName.endsWith(".md")) {
+          playbookPaths.push(path.join(personaDir, fileName));
+        }
+      }
+    }
+
+    expect(playbookPaths.length).toBeGreaterThan(0);
+    for (const playbookPath of playbookPaths) {
+      const relativePath = path.relative(
+        path.join(REPO_ROOT, "packages", "docs", "template"),
+        playbookPath,
+      );
+      const { model, diagnostics } = parseAndValidatePlaybook({
+        sourcePath: relativePath.split(path.sep).join("/"),
+        source: readFileSync(playbookPath, "utf8"),
+      });
+
+      expect(diagnostics.filter((diagnostic) => diagnostic.severity === "error"), playbookPath).toEqual([]);
+      expect(model.runnable, playbookPath).toBe(true);
     }
   });
 });

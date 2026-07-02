@@ -35,7 +35,7 @@ related:
 
 # Run Playbook Runner Architecture
 
-This guide explains the accepted v2 architecture for Run Playbook after W18 R4, W18 R1, W18 R2, and W18 R3 are implemented. It is a developer guide for contributors and maintainers. The implemented operation primitives include `playbook-catalog`, `playbook-resolve`, `playbook-capabilities`, `playbook-run-start`, `playbook-run-invoke`, and `playbook-run-read`; later plugin and bundle command names may still be refined by their implementation phases.
+This guide explains the accepted v2 architecture for Run Playbook after W18 R4, W18 R1, W18 R2, and W18 R3 are implemented. It is a developer guide for contributors and maintainers. The implemented operation primitives include `playbook-validate`, `playbook-catalog`, `playbook-resolve`, `playbook-capabilities`, `playbook-run-start`, `playbook-run-invoke`, and `playbook-run-read`; later plugin and bundle command names may still be refined by their implementation phases.
 
 ## Architectural Shape
 
@@ -56,11 +56,11 @@ Run Playbook can be reached through several surfaces:
 
 Each surface should delegate to the same operation module. Public dispatch can stay thin, but the domain logic needs to be testable without invoking the full CLI parser or MCP transport.
 
-W18 R4 Phase 2 adds the first read-only playbook operation primitives:
+W18 R4 Phase 2 added the first read-only playbook operation primitives:
 
-- `make-docs operations playbook-catalog --repo-root <path>` lists valid playbooks under `docs/assets/playbooks/<persona>/<slug>.md`.
+- `make-docs operations playbook-catalog --repo-root <path>` lists detected Playbooks under `docs/assets/playbooks/<persona>/`; since W18 R6 Phase 4 it is backed by the library `playbook.catalog` operation described under Catalog Contract Validation below.
 - `make-docs operations playbook-resolve <ref> --repo-root <path> [--stack build|run]` resolves an explicit path, `persona/slug`, or unique bare slug/title before any execution behavior starts.
-- MCP exposes the same resolver primitives through `make_docs_playbook_catalog` and `make_docs_playbook_resolve`.
+- MCP exposes the same primitives through `make_docs_playbook_catalog` and `make_docs_playbook_resolve`.
 
 W18 R4 Phase 3 adds read-only harness capability evaluation:
 
@@ -107,7 +107,7 @@ The implemented `playbook-run-invoke` operation is still conservative. It does n
 
 ## Resolver And Catalog Semantics
 
-Playbooks live under `docs/assets/playbooks/<persona>/<slug>.md`. The stable resolver identity is `persona/slug`.
+Playbooks live under `docs/assets/playbooks/<persona>/<slug>.playbook.md`; a plain `<slug>.md` file with frontmatter `kind: playbook` is still detected as a deprecated form that carries the PB-FILE-007 rename warning. The stable resolver identity is `persona/slug`.
 
 Selection should follow this order:
 
@@ -127,13 +127,14 @@ Contract authority note: since W18 R6 Phase 1, the normative Playbook document s
 
 W18 R6 Phases 2 and 3 landed the contract's executable enforcement as the pure library at `packages/cli/src/playbook/`. `parsePlaybook` produces the single parsed Playbook model, and the validator at `packages/cli/src/playbook/validator/` layers six semantic passes over that model — structural, registry, workflow, cross-reference, consistency, and orchestration-policy shape — with each layer appending diagnostics independently so a registry error never suppresses workflow diagnostics. `parseAndValidatePlaybook` is the canonical parse-then-validate entry point (it re-derives the runnable flag from the combined diagnostics), and `validatePlaybook` validates an already parsed model. Every diagnostic carries a stable code, fixed severity, section/field/span location, message, and fix hint from the exported catalog (PB-DOC-001 through PB-WF-024, twenty-four codes including the seven whose codes and severities the contract fixes), and a focused test machine-checks the contract's diagnostic table against the exported catalog so contract text and validator behavior fail loudly when they drift. Extenders adding a validation rule should add it to the matching layer, register its code in the catalog, reconcile the contract text in the same change, and add a failing fixture, keeping R-AUTH-3 contract/validator parity.
 
-The behavior described below is the implemented W18 R4 catalog validation, which remains what the shipped catalog operation enforces until W18 R6 Phase 4 wires the `playbook.validate` and `playbook.catalog` operations over this library.
+W18 R6 Phase 4 wires that library into the operation surface at `packages/cli/src/operations/playbook/contract.ts`, so the twenty-four-code catalog is now runtime behavior rather than library-only:
 
-The catalog fails closed before selection. A Playbook is catalogable only when it lives directly under `docs/assets/playbooks/<persona>/<slug>.md`, has YAML frontmatter, declares `kind: playbook`, and uses a configured persona slug that matches the path directory.
+- `playbook.validate` parses one or more Playbooks through `parseAndValidatePlaybook` and reports the full diagnostic set. `make-docs operations playbook-validate [refs...] --repo-root <path>` accepts explicit `.md` paths or canonical `persona/slug` references and defaults to every detected Playbook; MCP exposes the same behavior through `make_docs_playbook_validate`. Each result carries the canonical ref, file form, runnable flag, and per-file error and warning counts, and each diagnostic carries its stable code, severity, section/field/span location, message, and fix hint; the report is `valid` only at zero errors.
+- `playbook.catalog` enumerates Playbooks by canonical reference — the frontmatter `id` when present, otherwise `persona/slug` — with frontmatter identity (title, summary, stack, status, and schema versions), file form, runnable flag, and error/warning counts. `make-docs operations playbook-catalog --repo-root <path>` and the repointed `make_docs_playbook_catalog` MCP tool expose it. The catalog also returns per-file diagnostics, so the PB-FILE-007 rename warning for deprecated plain files surfaces directly in catalog output.
 
-The required frontmatter fields are `title`, `kind`, `status`, `persona`, `stack`, and `summary`. Accepted `status` values are `proposed`, `accepted`, and `deprecated`; accepted `stack` values are `build` and `run`.
+Both operations detect the `<slug>.playbook.md` suffix form and the deprecated plain `<slug>.md` form with frontmatter `kind: playbook`; the deprecated form stays catalogable and validatable but carries PB-FILE-007 until it is renamed. Every parsed fact and every diagnostic comes from the library — the operation layer never re-parses Playbook Markdown — so a future language server wrapping the same library produces identical diagnostics, and the machine-check that pins the contract's diagnostic table to the exported catalog also pins what these operations report. The stable operation identifiers `playbook.validate` and `playbook.catalog` are consumed from the operation registry as an external contract; do not mint identifiers or hardcode CLI command strings inside library or operation code.
 
-The body must expose the durable runner contract in readable Markdown. Current diagnostics require coverage for purpose, inputs and authority, procedure, gates or decisions, allowed assists, expected outputs or handoff artifacts, and validation or completion expectations.
+The pre-contract W18 R4 catalog validation is no longer what the catalog operation enforces. Its internal implementation is retained only behind the runner lineage — `playbook-resolve`, run-state, invoke, and packaging still select candidates through it, with minimal suffix-form support — until W18 R7 moves those surfaces onto the parsed Playbook model.
 
 Do not make transitional paths such as `docs/library/playbooks/**` selectable. Historical playbook files are migration evidence only; the v2 runner and resolver should use the canonical `docs/assets/playbooks/**` tree.
 
@@ -146,7 +147,7 @@ Accepted shipped Playbook defaults use the PRD 19 source-of-truth path:
 3. Regenerate `packages/cli/template/**` through `npm run prepack -w packages/cli` or `npm run smoke:pack`.
 4. Validate package behavior with `npm run validate:defaults -w packages/cli` and `npm run smoke:pack`.
 
-The Make Docs lifecycle Playbook is the first reviewed shipped default. Its source-template, dogfood, and generated package copies must stay byte-for-byte aligned at `docs/assets/playbooks/agent/make-docs-lifecycle.md`.
+The Make Docs lifecycle Playbook is the first reviewed shipped default. Its source-template, dogfood, and generated package copies must stay byte-for-byte aligned at `docs/assets/playbooks/agent/make-docs-lifecycle.playbook.md`. Since W18 R6 Phase 4 it uses the contract's `<slug>.playbook.md` suffix form and full document schema, validates with zero errors and zero warnings in both the upstream template and the dogfood instance, and a consistency test asserts that every shipped default Playbook validates clean, so a contract or default change that introduces diagnostics fails the suite.
 
 Do not add recursive catalog ownership for every file under `docs/assets/playbooks/**`. Shipped defaults should be named explicitly in the catalog rules so user-authored project Playbooks do not become managed package files by accident.
 
@@ -218,7 +219,6 @@ When a new runner behavior is added, it needs focused operation tests and parity
 
 This guide should be refreshed when W18 implementation chooses final run-state command names, state schema details, plugin bundle entry points, package-planner commands, harness adapter modules, and generated-output writers. It should also be updated with links to additional concrete operation modules and tests as W18 R1 through W18 R5 land.
 
-- Blocked by: W18 R6 Phase 4. Update when: the `playbook.validate` and `playbook.catalog` operations wrap the model/parser/validator library that W18 R6 Phases 2 and 3 landed at `packages/cli/src/playbook/` (canonical entry point `parseAndValidatePlaybook`), replacing the W18 R4 catalog validation described above as what the operations enforce. Guide change: replace the Catalog Contract Validation section's implemented-behavior description with the operation-level validate and catalog behavior over the library, and keep the Playbook contract as the schema authority.
 - Blocked by: W18 R7 run-state relocation onto the W18 R10 global store seam. Update when: run state moves from `.make-docs/runs/playbooks/<run-id>/state.json` to the global store's `playbook_runs` facet, whose storage seam is now complete at `packages/cli/src/store/` — W18 R10 P1 landed the table keyed by project identifier plus run identifier, and W18 R10 P3 landed the create, read, transition, and list record seam with the payload stored opaquely and the record shape and progression semantics left to this runner lineage (see [the store module README](../../../../packages/cli/src/store/README.md)). Guide change: rewrite the Run State section's storage location and the run-state operation paths around the global store while keeping the run-record shape and progression semantics owned by the runner lineage.
 
 ## Related Resources

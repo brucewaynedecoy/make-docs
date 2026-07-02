@@ -142,7 +142,7 @@ const ALWAYS_REFERENCE_PATHS = [
 const ALWAYS_SCRIPT_PATHS = [".make-docs/scripts/check_path_hygiene.py"];
 
 const ALWAYS_PLAYBOOK_DEFAULT_PATHS = [
-  "docs/assets/playbooks/agent/make-docs-lifecycle.md",
+  "docs/assets/playbooks/agent/make-docs-lifecycle.playbook.md",
 ];
 
 export function profileHasCapabilities(
