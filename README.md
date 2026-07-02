@@ -54,7 +54,7 @@ The `docs/assets/` namespace contains project documentation assets only: archive
 
 If you are using or maintaining `make-docs`, start with the guide that matches the job at hand:
 
-- Onboarding: [Installing Make Docs](docs/assets/library/user/getting-started-installing-make-docs.md) for first install and initial profile choices, then [Managing Installations with the Make Docs CLI](docs/assets/library/user/cli-lifecycle-managing-installations.md) for apply or sync, reconfigure, backup, uninstall, and recovery.
+- Onboarding: [Installing Make Docs](docs/assets/library/user/getting-started-installing-make-docs.md) for first install and initial profile choices, then [Managing Installations with the Make Docs CLI](docs/assets/library/user/cli-lifecycle-managing-installations.md) for apply or sync, reconfigure, backup, removal, and recovery.
 - Workflows and concepts: [How Make Docs Stages Fit Together](docs/assets/library/user/workflows-how-make-docs-stages-fit-together.md), [Understanding W/R/P Coordinates](docs/assets/library/user/concepts-wave-revision-phase-coordinates.md), [Choosing the Right Route for Your Project](docs/assets/library/user/workflows-choosing-the-right-route-for-your-project.md), and the developer workflow companions in [`docs/assets/library/developer/`](docs/assets/library/developer/).
 - Lifecycle playbook: [Make Docs Lifecycle Playbook](docs/assets/playbooks/agent/make-docs-lifecycle.playbook.md) for agent phase routing from inputs through retrospective.
 - CLI and skills: [Installing and Managing Skills](docs/assets/library/user/skills-installing-and-managing-skills.md), [Decomposing an Existing Codebase](docs/assets/library/user/skills-decomposing-an-existing-codebase.md), [Skills Catalog and Distribution Model](docs/assets/library/developer/skills-catalog-and-distribution-model.md), and [Building and Installing the CLI Locally](docs/assets/library/developer/cli-development-local-build-and-install.md).
@@ -72,7 +72,9 @@ npx @brucewaynedecoy/make-docs@next
 
 Use the scoped npm package name for `npx` lookup and installation. The executable exposed by that package is `make-docs`, and the same TypeScript package owns install, maintenance, deterministic operation, and MCP behavior.
 
-The current `npx` package ships the TypeScript installer-maintainer CLI plus a read-first MCP stdio server available through `make-docs mcp`. MCP tools inspect installed state, read manifest/config state, classify compatibility, build dry-run plans, and delegate closeout/work/lifecycle helpers to the same operation domains used by the CLI.
+The current `npx` package ships the TypeScript installer-maintainer CLI plus a read-first MCP stdio server available through `make-docs mcp`. MCP tools inspect installed state, read manifest/config state, classify compatibility, build dry-run plans, and delegate deterministic operations to the same operation registry used by `make-docs run`.
+
+Bare `make-docs` is context-aware: with no install present it starts a guided setup, and with an install present it shows status and help without syncing. Install and sync live under `make-docs setup`.
 
 The installer starts in full-install mode:
 
@@ -93,19 +95,19 @@ Useful non-interactive forms:
 
 ```bash
 # Install everything with defaults
-npx @brucewaynedecoy/make-docs@next --yes
+npx @brucewaynedecoy/make-docs@next setup --yes
 
 # Full install except work docs
-npx @brucewaynedecoy/make-docs@next --yes --no-work
+npx @brucewaynedecoy/make-docs@next setup --yes --no-work
 
 # Sync an existing install using its saved manifest selections
-npx @brucewaynedecoy/make-docs@next
+npx @brucewaynedecoy/make-docs@next setup
 
 # Reconfigure an existing install
-npx @brucewaynedecoy/make-docs@next reconfigure
+npx @brucewaynedecoy/make-docs@next setup reconfigure
 
 # Preview changes without writing files
-npx @brucewaynedecoy/make-docs@next --dry-run
+npx @brucewaynedecoy/make-docs@next setup --dry-run
 ```
 
 ### What the installer writes
@@ -221,7 +223,7 @@ Additional subsystem documents (`05-*` through `99-*`) are added as needed for f
 - **Library and playbooks** (`docs/assets/library/` and `docs/assets/playbooks/`) -- Maintain persona-scoped reader-facing guides and procedural docs.
 - **Agent instructions** (`CLAUDE.md`, `AGENTS.md`, and per-directory variants) -- Tailor agent behavior to your team's conventions.
 
-If you used the installer, rerun `npx @brucewaynedecoy/make-docs@next reconfigure` after changing which capability families you want managed locally. The installer will regenerate profile-aware router files so they stay aligned with the directories you keep.
+If you used the installer, rerun `npx @brucewaynedecoy/make-docs@next setup reconfigure` after changing which capability families you want managed locally. The installer will regenerate profile-aware router files so they stay aligned with the directories you keep.
 
 ## Contributing
 

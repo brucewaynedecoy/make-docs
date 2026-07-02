@@ -279,4 +279,4 @@ Run `make-docs setup remove` interactively and stop at the confirmation prompt a
 
 ## Future Coverage
 
-- Blocked by: the W18 R11 MCP tool renames, which land later in the same wave. Update when: the MCP tool names are derived from the operation registry identifiers. Guide change: refresh the MCP mention in the command-model section if the read-first tool surface description changes for users.
+None currently tracked; the W18 R11 command reorganization triggers recorded here are resolved.

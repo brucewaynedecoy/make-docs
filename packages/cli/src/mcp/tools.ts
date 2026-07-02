@@ -6,45 +6,49 @@ import { findReviewableManagedFileConflicts, planInstall } from "../install";
 import { loadManifest } from "../manifest";
 import { createExecutionContext } from "../operations/context";
 import { listOperationDomains } from "../operations/index";
-import { invokeOperation } from "../operations/registry";
+import {
+  getOperation,
+  invokeOperation,
+  listOperations,
+  type OperationDefinition,
+} from "../operations/registry";
 import { cloneSelections, defaultSelections } from "../profile";
 import type { InstallPlan, InstallSelections, PlannedAction } from "../types";
 import { readPackageMeta } from "../utils";
 
-type McpToolName =
+type HandDefinedMcpToolName =
   | "make_docs_operation_domains"
   | "make_docs_installed_state"
   | "make_docs_manifest_read"
   | "make_docs_config_read"
   | "make_docs_compatibility_classify"
-  | "make_docs_install_plan"
-  | "make_docs_playbook_validate"
-  | "make_docs_playbook_catalog"
-  | "make_docs_playbook_resolve"
-  | "make_docs_playbook_capabilities"
-  | "make_docs_playbook_run_start"
-  | "make_docs_playbook_run_invoke"
-  | "make_docs_playbook_run_read";
+  | "make_docs_install_plan";
 
 type McpToolInput = Record<string, unknown>;
 
 export interface MakeDocsMcpToolDescriptor {
-  name: McpToolName;
+  name: string;
   title: string;
   description: string;
   inputSchema: Record<string, z.ZodType>;
+}
+
+interface DerivedMcpToolDescriptor extends MakeDocsMcpToolDescriptor {
+  /** The registry identifier this tool is derived from. */
+  operation: string;
 }
 
 const targetDirSchema = z
   .string()
   .optional()
   .describe("Project root to inspect. Defaults to the current working directory.");
-const repoRootSchema = z
-  .string()
-  .optional()
-  .describe("Repository root to inspect. Defaults to the current working directory.");
 
-export const MAKE_DOCS_MCP_TOOLS: MakeDocsMcpToolDescriptor[] = [
+/**
+ * The six hand-defined non-operation tools: read-first inspection and
+ * planning surfaces that are not registry operations. Everything else on
+ * the MCP tool list is DERIVED from the operation registry below (R-REG-2).
+ */
+const HAND_DEFINED_MCP_TOOLS: (MakeDocsMcpToolDescriptor & { name: HandDefinedMcpToolName })[] = [
   {
     name: "make_docs_operation_domains",
     title: "List Make Docs Operation Domains",
@@ -89,102 +93,147 @@ export const MAKE_DOCS_MCP_TOOLS: MakeDocsMcpToolDescriptor[] = [
         .optional(),
     },
   },
-  {
-    name: "make_docs_playbook_validate",
-    title: "Validate Playbooks",
-    description:
-      "Operation playbook.validate: parse one or more Playbooks through the Playbook library and report the full diagnostic set with codes, severities, locations, and fix hints.",
-    inputSchema: {
-      repoRoot: repoRootSchema,
-      refs: z
-        .array(z.string())
-        .optional()
-        .describe(
-          "Explicit .md paths or canonical persona/slug references. Defaults to every detected Playbook.",
-        ),
-    },
-  },
-  {
-    name: "make_docs_playbook_catalog",
-    title: "Read Playbook Catalog",
-    description:
-      "Operation playbook.catalog: enumerate Playbooks by canonical persona/slug reference with frontmatter identity, detecting the suffix and deprecated plain file forms.",
-    inputSchema: { repoRoot: repoRootSchema },
-  },
-  {
-    name: "make_docs_playbook_resolve",
-    title: "Resolve Playbook Reference",
-    description:
-      "Resolve an explicit path, persona/slug, or unique bare playbook reference without executing it.",
-    inputSchema: {
-      repoRoot: repoRootSchema,
-      ref: z.string(),
-      stack: z.enum(["build", "run"]).optional(),
-    },
-  },
-  {
-    name: "make_docs_playbook_capabilities",
-    title: "Evaluate Playbook Harness Capabilities",
-    description:
-      "Evaluate reviewed harness capabilities for required/preferred Playbook execution assists.",
-    inputSchema: {
-      repoRoot: repoRootSchema,
-      harness: z.string(),
-      requiredCapabilities: z.array(z.string()).optional(),
-      preferredCapabilities: z.array(z.string()).optional(),
-    },
-  },
-  {
-    name: "make_docs_playbook_run_start",
-    title: "Create Playbook Run State",
-    description:
-      "Create Make Docs-owned Playbook run state. Requires allowWrite=true because it writes .make-docs/runs/playbooks/**.",
-    inputSchema: {
-      repoRoot: repoRootSchema,
-      ref: z.string(),
-      stack: z.enum(["build", "run"]).optional(),
-      harness: z.string(),
-      runId: z.string().optional(),
-      parentRunId: z.string().optional(),
-      executionMode: z.enum(["serial", "parallel"]).optional(),
-      outputSurfaceClaims: z.array(z.string()).optional(),
-      currentStep: z.string().optional(),
-      currentGate: z.string().optional(),
-      status: z.enum(["planned", "running", "paused", "blocked", "completed"]).optional(),
-      resumeHints: z.array(z.string()).optional(),
-      requiredCapabilities: z.array(z.string()).optional(),
-      preferredCapabilities: z.array(z.string()).optional(),
-      allowWrite: z.boolean().optional(),
-    },
-  },
-  {
-    name: "make_docs_playbook_run_invoke",
-    title: "Invoke Run Playbook Model",
-    description:
-      "Build a generic Run Playbook invocation plan and create run state. Requires allowWrite=true because it writes .make-docs/runs/playbooks/**.",
-    inputSchema: {
-      repoRoot: repoRootSchema,
-      ref: z.string(),
-      stack: z.enum(["build", "run"]).optional(),
-      harness: z.string(),
-      runId: z.string().optional(),
-      outputSurfaceClaims: z.array(z.string()).optional(),
-      allowUnattended: z.boolean().optional(),
-      requiredCapabilities: z.array(z.string()).optional(),
-      preferredCapabilities: z.array(z.string()).optional(),
-      allowWrite: z.boolean().optional(),
-    },
-  },
-  {
-    name: "make_docs_playbook_run_read",
-    title: "Read Playbook Run State",
-    description: "Read Make Docs-owned Playbook run state for resume or audit.",
-    inputSchema: {
-      repoRoot: repoRootSchema,
-      runId: z.string(),
-    },
-  },
 ];
+
+/**
+ * MCP tool-name derivation rule (R-MIG-3): `make_docs_` + the registry
+ * identifier with its `.` and `-` separators mapped to `_`
+ * (`playbook.catalog` -> `make_docs_playbook_catalog`,
+ * `package.surface-resolve` -> `make_docs_package_surface_resolve`).
+ */
+export function deriveMcpToolName(operationId: string): string {
+  return `make_docs_${operationId.replace(/[.-]/g, "_")}`;
+}
+
+/**
+ * Context-only tool arguments. They ride the execution context, never the
+ * operation input; the generic dispatch strips them before delegating.
+ */
+const allowWriteSchema = z
+  .boolean()
+  .optional()
+  .describe(
+    "Set true to permit this mutating operation to write. Enforced uniformly by the operation core.",
+  );
+const dryRunSchema = z
+  .boolean()
+  .optional()
+  .describe("Set true to plan rather than write; rides the execution context, not the input.");
+const approvalsSchema = z
+  .array(z.string())
+  .optional()
+  .describe(
+    "Named approval tokens granted to the operation (e.g. reviewed-overwrite); rides the execution context, not the input.",
+  );
+
+/**
+ * Registry input contracts are `z.object` / `z.looseObject`, which expose
+ * `.shape`. Documented fallback: a non-object input schema derives no named
+ * tool arguments — the generic dispatch still passes all non-context args
+ * through as the operation input, and the core's own schema validation
+ * remains authoritative.
+ */
+function operationInputShape(schema: OperationDefinition["inputSchema"]): Record<string, z.ZodType> {
+  if (schema instanceof z.ZodObject) {
+    return { ...(schema.shape as Record<string, z.ZodType>) };
+  }
+  return {};
+}
+
+function deriveToolInputSchema(definition: OperationDefinition): Record<string, z.ZodType> {
+  return {
+    ...operationInputShape(definition.inputSchema),
+    ...(definition.mutates === "write" ? { allowWrite: allowWriteSchema } : {}),
+    dryRun: dryRunSchema,
+    approvals: approvalsSchema,
+  };
+}
+
+function deriveToolDescription(definition: OperationDefinition): string {
+  const parts = [definition.summary];
+  if (definition.status === "pending") {
+    parts.push(
+      `Pending: reserved registry identifier whose semantics land with ${definition.pendingLineage}; invocation is refused until then.`,
+    );
+  }
+  if (definition.mutates === "write") {
+    parts.push("Mutating operation: requires allowWrite=true, enforced by the operation core.");
+  }
+  return parts.join(" ");
+}
+
+/**
+ * The derived operation tool list (R-REG-2, R-MIG-3): every registry
+ * identifier — active and pending — gets exactly one MCP tool, with name,
+ * title, description, and input schema derived from its registry
+ * definition. No operation tool is hand-maintained here.
+ */
+const DERIVED_MCP_OPERATION_TOOLS: DerivedMcpToolDescriptor[] = listOperations().map(
+  (operation) => {
+    const definition = getOperation(operation.id);
+    return {
+      name: deriveMcpToolName(operation.id),
+      operation: operation.id,
+      title: `Make Docs Operation ${operation.id}`,
+      description: deriveToolDescription(definition),
+      inputSchema: deriveToolInputSchema(definition),
+    };
+  },
+);
+
+const DERIVED_TOOLS_BY_NAME = new Map<string, DerivedMcpToolDescriptor>(
+  DERIVED_MCP_OPERATION_TOOLS.map((tool) => [tool.name, tool]),
+);
+
+export const MAKE_DOCS_MCP_TOOLS: MakeDocsMcpToolDescriptor[] = [
+  ...HAND_DEFINED_MCP_TOOLS,
+  ...DERIVED_MCP_OPERATION_TOOLS,
+];
+
+/**
+ * Conformance seam (R-TEST-1): the derived tool-name/operation pairs, for
+ * tests pinning derived-tool/registry parity in both directions.
+ */
+export function listDerivedMcpOperationTools(): { name: string; operation: string }[] {
+  return DERIVED_MCP_OPERATION_TOOLS.map(({ name, operation }) => ({ name, operation }));
+}
+
+/**
+ * Parity check against the LIVE registry (R-TEST-1): every registry
+ * identifier must have exactly one derived MCP tool and every derived tool
+ * must map to a registry identifier with the derived spelling. Returns the
+ * mismatches so tests can assert both the green path and the failure mode
+ * with a stubbed/filtered tool list.
+ */
+export function verifyDerivedMcpToolParity(
+  tools: { name: string; operation: string }[] = listDerivedMcpOperationTools(),
+): {
+  missingOperations: string[];
+  unknownOperations: string[];
+  misderivedNames: string[];
+  duplicateNames: string[];
+} {
+  const registryIds = new Set(listOperations().map((operation) => operation.id));
+  const byOperation = new Map<string, number>();
+  const nameCounts = new Map<string, number>();
+  const unknownOperations: string[] = [];
+  const misderivedNames: string[] = [];
+  for (const tool of tools) {
+    byOperation.set(tool.operation, (byOperation.get(tool.operation) ?? 0) + 1);
+    nameCounts.set(tool.name, (nameCounts.get(tool.name) ?? 0) + 1);
+    if (!registryIds.has(tool.operation)) {
+      unknownOperations.push(tool.operation);
+    }
+    if (tool.name !== deriveMcpToolName(tool.operation)) {
+      misderivedNames.push(tool.name);
+    }
+  }
+  const missingOperations = [...registryIds].filter((id) => (byOperation.get(id) ?? 0) !== 1);
+  const duplicateNames = [...nameCounts.entries()]
+    .filter(([, count]) => count > 1)
+    .map(([name]) => name);
+  return { missingOperations, unknownOperations, misderivedNames, duplicateNames };
+}
 
 export async function callMakeDocsMcpTool(
   name: string,
@@ -206,105 +255,32 @@ export async function callMakeDocsMcpTool(
       );
     case "make_docs_install_plan":
       return mcpPayload(name, await buildInstallPlan(resolveTargetDir(args), args));
-    case "make_docs_playbook_validate":
-      return mcpPayload(
-        name,
-        await invokeRegistryOperation("playbook.validate", args, {
-          repoRoot: resolveRepoRoot(args),
-          refs: optionalStringArray(args, "refs"),
-        }),
-      );
-    case "make_docs_playbook_catalog":
-      return mcpPayload(
-        name,
-        await invokeRegistryOperation("playbook.catalog", args, {
-          repoRoot: resolveRepoRoot(args),
-        }),
-      );
-    case "make_docs_playbook_resolve":
-      return mcpPayload(
-        name,
-        await invokeRegistryOperation("playbook.resolve", args, {
-          repoRoot: resolveRepoRoot(args),
-          ref: requiredString(args, "ref"),
-          requestedStack: optionalString(args, "stack"),
-        }),
-      );
-    case "make_docs_playbook_capabilities":
-      return mcpPayload(
-        name,
-        await invokeRegistryOperation("playbook.capabilities", args, {
-          repoRoot: resolveRepoRoot(args),
-          harness: requiredString(args, "harness"),
-          requiredCapabilities: optionalStringArray(args, "requiredCapabilities"),
-          preferredCapabilities: optionalStringArray(args, "preferredCapabilities"),
-        }),
-      );
-    case "make_docs_playbook_run_start":
-      return mcpPayload(
-        name,
-        await invokeRegistryOperation("playbook.start", args, {
-          repoRoot: resolveRepoRoot(args),
-          ref: requiredString(args, "ref"),
-          requestedStack: optionalString(args, "stack"),
-          harness: requiredString(args, "harness"),
-          runId: optionalString(args, "runId"),
-          parentRunId: optionalString(args, "parentRunId"),
-          executionMode: optionalString(args, "executionMode"),
-          outputSurfaceClaims: optionalStringArray(args, "outputSurfaceClaims"),
-          currentStep: optionalString(args, "currentStep"),
-          currentGate: optionalString(args, "currentGate"),
-          status: optionalString(args, "status"),
-          resumeHints: optionalStringArray(args, "resumeHints"),
-          requiredCapabilities: optionalStringArray(args, "requiredCapabilities"),
-          preferredCapabilities: optionalStringArray(args, "preferredCapabilities"),
-        }),
-      );
-    case "make_docs_playbook_run_invoke":
-      return mcpPayload(
-        name,
-        await invokeRegistryOperation("playbook.invoke", args, {
-          repoRoot: resolveRepoRoot(args),
-          ref: requiredString(args, "ref"),
-          requestedStack: optionalString(args, "stack"),
-          harness: requiredString(args, "harness"),
-          runId: optionalString(args, "runId"),
-          outputSurfaceClaims: optionalStringArray(args, "outputSurfaceClaims"),
-          allowUnattended: args.allowUnattended === true,
-          requiredCapabilities: optionalStringArray(args, "requiredCapabilities"),
-          preferredCapabilities: optionalStringArray(args, "preferredCapabilities"),
-        }),
-      );
-    case "make_docs_playbook_run_read":
-      return mcpPayload(
-        name,
-        await invokeRegistryOperation("playbook.status", args, {
-          repoRoot: resolveRepoRoot(args),
-          runId: requiredString(args, "runId"),
-        }),
-      );
-    default:
-      throw new Error(`Unknown make-docs MCP tool: ${name}`);
   }
+  const derived = DERIVED_TOOLS_BY_NAME.get(name);
+  if (derived === undefined) {
+    throw new Error(`Unknown make-docs MCP tool: ${name}`);
+  }
+  return mcpPayload(name, await invokeDerivedOperationTool(derived.operation, args));
 }
 
 /**
- * Registry seam for MCP tools (R-REG-2, R-CORE-1): the surface adapts MCP
- * arguments into the operation's typed input and delegates; write gating is
- * enforced uniformly by the operation core from the injected context, so
- * this adapter carries no per-tool write checks.
+ * The single generic dispatch path for every derived operation tool
+ * (R-CORE-1): strip the context-only fields (`allowWrite`, `dryRun`,
+ * `approvals`) into the execution context, pass every remaining argument
+ * through as the operation input, and delegate. Input validation, write
+ * gating, named approvals, and pending-lineage refusal are all enforced
+ * uniformly by the operation core; this adapter carries no per-tool checks.
  */
-async function invokeRegistryOperation(
-  id: string,
-  args: McpToolInput,
-  input: Record<string, unknown>,
-): Promise<unknown> {
+async function invokeDerivedOperationTool(id: string, args: McpToolInput): Promise<unknown> {
+  const { allowWrite, dryRun, approvals, ...input } = args;
   const invocation = await invokeOperation(
     id,
     input,
     createExecutionContext({
       surface: "mcp",
-      writesAllowed: args.allowWrite === true,
+      writesAllowed: allowWrite === true,
+      dryRun: dryRun === true,
+      approvals: Array.isArray(approvals) ? approvals.map(String) : [],
     }),
   );
   return invocation.value;
@@ -446,24 +422,7 @@ function resolveTargetDir(args: McpToolInput): string {
   return path.resolve(optionalString(args, "targetDir") ?? process.cwd());
 }
 
-function resolveRepoRoot(args: McpToolInput): string {
-  return path.resolve(optionalString(args, "repoRoot") ?? process.cwd());
-}
-
-function requiredString(args: McpToolInput, key: string): string {
-  const value = args[key];
-  if (typeof value !== "string" || value.length === 0) {
-    throw new Error(`\`${key}\` is required.`);
-  }
-  return value;
-}
-
 function optionalString(args: McpToolInput, key: string): string | undefined {
   const value = args[key];
   return typeof value === "string" && value.length > 0 ? value : undefined;
-}
-
-function optionalStringArray(args: McpToolInput, key: string): string[] {
-  const value = args[key];
-  return Array.isArray(value) ? value.map(String) : [];
 }

@@ -26,22 +26,35 @@ describe("make-docs MCP runtime", () => {
     }
   });
 
-  test("declares a shipped read-first MCP tool surface", () => {
+  test("declares a shipped read-first MCP tool surface (6 hand-defined + 18 derived)", () => {
     expect(createMakeDocsMcpServer()).toBeDefined();
     expect(MAKE_DOCS_MCP_TOOLS.map((tool) => tool.name)).toEqual([
+      // Hand-defined non-operation tools.
       "make_docs_operation_domains",
       "make_docs_installed_state",
       "make_docs_manifest_read",
       "make_docs_config_read",
       "make_docs_compatibility_classify",
       "make_docs_install_plan",
+      // Derived from the operation registry (R-REG-2, R-MIG-3).
       "make_docs_playbook_validate",
       "make_docs_playbook_catalog",
       "make_docs_playbook_resolve",
       "make_docs_playbook_capabilities",
-      "make_docs_playbook_run_start",
-      "make_docs_playbook_run_invoke",
-      "make_docs_playbook_run_read",
+      "make_docs_playbook_start",
+      "make_docs_playbook_invoke",
+      "make_docs_playbook_status",
+      "make_docs_playbook_next",
+      "make_docs_playbook_advance",
+      "make_docs_playbook_gate",
+      "make_docs_playbook_resume",
+      "make_docs_playbook_close",
+      "make_docs_package_plan",
+      "make_docs_package_surface_resolve",
+      "make_docs_package_write",
+      "make_docs_work_item_resolve",
+      "make_docs_work_evidence_record",
+      "make_docs_work_evidence_read",
     ]);
   });
 
@@ -184,7 +197,7 @@ describe("make-docs MCP runtime", () => {
     const resolution = await callMakeDocsMcpTool("make_docs_playbook_resolve", {
       repoRoot: root,
       ref: "user/use-system",
-      stack: "run",
+      requestedStack: "run",
     });
     const capabilities = await callMakeDocsMcpTool("make_docs_playbook_capabilities", {
       repoRoot: root,
@@ -215,22 +228,22 @@ describe("make-docs MCP runtime", () => {
 
   test("requires explicit approval before writing playbook run state through MCP", async () => {
     await expect(
-      callMakeDocsMcpTool("make_docs_playbook_run_start", {
+      callMakeDocsMcpTool("make_docs_playbook_start", {
         repoRoot: ".",
         ref: "user/use-system",
         harness: "codex",
       }),
-    ).rejects.toThrow("allowWrite=true");
+    ).rejects.toThrow("mutates state and requires write permission");
   });
 
   test("requires explicit approval before invoking playbook runs through MCP", async () => {
     await expect(
-      callMakeDocsMcpTool("make_docs_playbook_run_invoke", {
+      callMakeDocsMcpTool("make_docs_playbook_invoke", {
         repoRoot: ".",
         ref: "user/use-system",
         harness: "codex",
       }),
-    ).rejects.toThrow("allowWrite=true");
+    ).rejects.toThrow("mutates state and requires write permission");
   });
 
 });

@@ -1,0 +1,299 @@
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { afterEach, describe, expect, test } from "vitest";
+import {
+  callMakeDocsMcpTool,
+  deriveMcpToolName,
+  listDerivedMcpOperationTools,
+  MAKE_DOCS_MCP_TOOLS,
+  verifyDerivedMcpToolParity,
+} from "../src/mcp/tools";
+import { createPlaybookPackagePlan } from "../src/operations";
+import { listOperations } from "../src/operations/registry";
+import { cleanupTempDir, createTempDir, writeMinimalManifest } from "./helpers";
+
+/**
+ * W18 R11 P5 conformance pins (R-TEST-1): the MCP operation tool list is
+ * DERIVED from the operation registry — parity in both directions, derived
+ * spellings for all identifiers including the renames, core-enforced write
+ * gating and pending refusal, and context-owned approvals.
+ */
+
+const EXPECTED_DERIVED_TOOL_NAMES: Record<string, string> = {
+  "playbook.validate": "make_docs_playbook_validate",
+  "playbook.catalog": "make_docs_playbook_catalog",
+  "playbook.resolve": "make_docs_playbook_resolve",
+  "playbook.capabilities": "make_docs_playbook_capabilities",
+  "playbook.start": "make_docs_playbook_start",
+  "playbook.invoke": "make_docs_playbook_invoke",
+  "playbook.status": "make_docs_playbook_status",
+  "playbook.next": "make_docs_playbook_next",
+  "playbook.advance": "make_docs_playbook_advance",
+  "playbook.gate": "make_docs_playbook_gate",
+  "playbook.resume": "make_docs_playbook_resume",
+  "playbook.close": "make_docs_playbook_close",
+  "package.plan": "make_docs_package_plan",
+  "package.surface-resolve": "make_docs_package_surface_resolve",
+  "package.write": "make_docs_package_write",
+  "work.item.resolve": "make_docs_work_item_resolve",
+  "work.evidence.record": "make_docs_work_evidence_record",
+  "work.evidence.read": "make_docs_work_evidence_read",
+};
+
+const SUPPORT_EVIDENCE_REF =
+  "docs/prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md";
+
+const CODEX_PLUGIN_TARGET = {
+  harness: "codex",
+  outputKind: "plugin",
+  surface: "native",
+  scope: "project",
+} as const;
+
+const CODEX_PLUGIN_PRECONDITIONS = {
+  "harness-supported": "satisfied",
+  "project-trusted": "satisfied",
+  "symlink-or-copy-mirror": "satisfied",
+} as const;
+
+function writeFile(root: string, relativePath: string, content: string): string {
+  const absolutePath = path.join(root, relativePath);
+  mkdirSync(path.dirname(absolutePath), { recursive: true });
+  writeFileSync(absolutePath, content, "utf8");
+  return absolutePath;
+}
+
+function writePlaybook(root: string, persona: string, slug: string, title: string): string {
+  return writeFile(
+    root,
+    `docs/assets/playbooks/${persona}/${slug}.md`,
+    [
+      "---",
+      `title: ${title}`,
+      "kind: playbook",
+      "status: accepted",
+      `persona: ${persona}`,
+      "stack: run",
+      `summary: ${title} summary.`,
+      "---",
+      "",
+      `# ${title}`,
+      "",
+      "## Purpose",
+      "",
+      "Use this playbook when the matching workflow goal is active.",
+      "",
+      "## Inputs and Authority",
+      "",
+      "- User request.",
+      "",
+      "## Procedure",
+      "",
+      "1. Resolve the playbook.",
+      "",
+      "## Gates and Decisions",
+      "",
+      "- Stop when user review is required.",
+      "",
+      "## Assists",
+      "",
+      "- Assists are optional unless the playbook says otherwise.",
+      "",
+      "## Outputs and Handoff",
+      "",
+      "- Record the expected output or handoff artifact.",
+      "",
+      "## Validation",
+      "",
+      "- Confirm the workflow completed or report why it stopped.",
+      "",
+    ].join("\n"),
+  );
+}
+
+describe("MCP derivation parity (R-REG-2, R-MIG-3, R-CORE-1)", () => {
+  const tempRoots: string[] = [];
+
+  afterEach(() => {
+    while (tempRoots.length > 0) {
+      cleanupTempDir(tempRoots.pop()!);
+    }
+  });
+
+  test("every registry identifier has exactly one derived MCP tool and vice versa", () => {
+    const parity = verifyDerivedMcpToolParity();
+    expect(parity).toEqual({
+      missingOperations: [],
+      unknownOperations: [],
+      misderivedNames: [],
+      duplicateNames: [],
+    });
+
+    // The check reads the live registry: a deliberately injected mismatch
+    // must fail in both directions.
+    const derived = listDerivedMcpOperationTools();
+    const filtered = derived.filter((tool) => tool.operation !== "playbook.catalog");
+    expect(verifyDerivedMcpToolParity(filtered).missingOperations).toContain("playbook.catalog");
+
+    const withUnknown = [
+      ...derived,
+      { name: "make_docs_bogus_operation", operation: "bogus.operation" },
+    ];
+    expect(verifyDerivedMcpToolParity(withUnknown).unknownOperations).toContain("bogus.operation");
+
+    const withDuplicate = [...derived, derived[0]!];
+    const duplicateParity = verifyDerivedMcpToolParity(withDuplicate);
+    expect(duplicateParity.duplicateNames).toContain(derived[0]!.name);
+    expect(duplicateParity.missingOperations).toContain(derived[0]!.operation);
+
+    const misspelled = derived.map((tool) =>
+      tool.operation === "playbook.status"
+        ? { ...tool, name: "make_docs_playbook_run_read" }
+        : tool,
+    );
+    expect(verifyDerivedMcpToolParity(misspelled).misderivedNames).toContain(
+      "make_docs_playbook_run_read",
+    );
+  });
+
+  test("tool names are exactly the derived spellings for all 18 identifiers", () => {
+    const registryIds = listOperations().map((operation) => operation.id);
+    expect(registryIds).toHaveLength(18);
+    expect(Object.keys(EXPECTED_DERIVED_TOOL_NAMES).sort()).toEqual([...registryIds].sort());
+
+    const derivedByOperation = new Map(
+      listDerivedMcpOperationTools().map((tool) => [tool.operation, tool.name]),
+    );
+    for (const [operation, expectedName] of Object.entries(EXPECTED_DERIVED_TOOL_NAMES)) {
+      expect(derivedByOperation.get(operation), operation).toBe(expectedName);
+      expect(deriveMcpToolName(operation)).toBe(expectedName);
+    }
+  });
+
+  test("the rename is a hard cutover: old run_* tool names are gone (R-MIG-1)", async () => {
+    const toolNames = MAKE_DOCS_MCP_TOOLS.map((tool) => tool.name);
+    for (const oldName of [
+      "make_docs_playbook_run_start",
+      "make_docs_playbook_run_invoke",
+      "make_docs_playbook_run_read",
+    ]) {
+      expect(toolNames).not.toContain(oldName);
+      await expect(callMakeDocsMcpTool(oldName)).rejects.toThrow("Unknown make-docs MCP tool");
+    }
+  });
+
+  test("write operations without allowWrite are refused by the core, not the tool", async () => {
+    await expect(callMakeDocsMcpTool("make_docs_package_write", {})).rejects.toThrow(
+      "Operation `package.write` mutates state and requires write permission from the calling surface",
+    );
+
+    // No per-tool write conditional survives in the MCP adapter (R-CORE-1).
+    const toolsSource = readFileSync(
+      path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../src/mcp/tools.ts"),
+      "utf8",
+    );
+    expect(toolsSource).not.toContain("allowWrite !== true");
+  });
+
+  test("pending operation tools return the W18 R7 lineage refusal", async () => {
+    for (const pendingId of [
+      "playbook.next",
+      "playbook.advance",
+      "playbook.gate",
+      "playbook.resume",
+      "playbook.close",
+    ]) {
+      await expect(
+        callMakeDocsMcpTool(deriveMcpToolName(pendingId), {}),
+      ).rejects.toThrow(
+        `Operation \`${pendingId}\` is a reserved registry identifier; its semantics land with the W18 R7 run-playbook state machine (PRD 35).`,
+      );
+    }
+  });
+
+  test("named approvals flow through the context to the implementation", async () => {
+    const root = createTempDir("make-docs-mcp-derivation-approvals-");
+    tempRoots.push(root);
+    writeMinimalManifest(root);
+    writePlaybook(root, "user", "run-stack", "Run Stack");
+    const plan = createPlaybookPackagePlan({
+      repoRoot: root,
+      refs: ["user/run-stack"],
+      target: CODEX_PLUGIN_TARGET,
+      supportEvidenceRefs: [SUPPORT_EVIDENCE_REF],
+    }).plan;
+    const artifact = plan.generatedArtifacts.find(
+      (candidate) => candidate.outputKind === plan.target.outputKind,
+    )!;
+    // Pre-existing, differing generated output: the impl stops unless the
+    // caller granted the reviewed-overwrite approval.
+    writeFile(root, artifact.path, "{ \"stale\": true }\n");
+
+    const withoutApproval = await callMakeDocsMcpTool("make_docs_package_write", {
+      repoRoot: root,
+      plan,
+      preconditions: CODEX_PLUGIN_PRECONDITIONS,
+      allowWrite: true,
+      dryRun: true,
+    });
+    const blocked = withoutApproval.result as { stops: Array<{ reason: string }> };
+    expect(blocked.stops.map((stop) => stop.reason)).toContain("ownership-review-required");
+
+    const withApproval = await callMakeDocsMcpTool("make_docs_package_write", {
+      repoRoot: root,
+      plan,
+      preconditions: CODEX_PLUGIN_PRECONDITIONS,
+      allowWrite: true,
+      dryRun: true,
+      approvals: ["reviewed-overwrite"],
+    });
+    const ready = withApproval.result as { stops: Array<{ reason: string }>; status: string };
+    expect(ready.stops).toEqual([]);
+    expect(ready.status).toBe("ready");
+  });
+
+  test("dryRun rides the context: package.write plans without writing", async () => {
+    const root = createTempDir("make-docs-mcp-derivation-dry-run-");
+    tempRoots.push(root);
+    writeMinimalManifest(root);
+    writePlaybook(root, "user", "run-stack", "Run Stack");
+    const plan = createPlaybookPackagePlan({
+      repoRoot: root,
+      refs: ["user/run-stack"],
+      target: CODEX_PLUGIN_TARGET,
+      supportEvidenceRefs: [SUPPORT_EVIDENCE_REF],
+    }).plan;
+
+    const payload = await callMakeDocsMcpTool("make_docs_package_write", {
+      repoRoot: root,
+      plan,
+      preconditions: CODEX_PLUGIN_PRECONDITIONS,
+      allowWrite: true,
+      dryRun: true,
+    });
+    const result = payload.result as { status: string; lines: string[] };
+    expect(result.status).toBe("ready");
+    expect(result.lines).toContain("Writes executed: no");
+  });
+
+  test("derived descriptors mark write and pending operations", () => {
+    const descriptors = new Map(MAKE_DOCS_MCP_TOOLS.map((tool) => [tool.name, tool]));
+    const writeTool = descriptors.get("make_docs_package_write")!;
+    expect(writeTool.description).toContain("allowWrite=true");
+    expect(Object.keys(writeTool.inputSchema)).toEqual(
+      expect.arrayContaining(["allowWrite", "dryRun", "approvals"]),
+    );
+
+    const pendingTool = descriptors.get("make_docs_playbook_next")!;
+    expect(pendingTool.description).toContain(
+      "the W18 R7 run-playbook state machine (PRD 35)",
+    );
+
+    const readTool = descriptors.get("make_docs_playbook_catalog")!;
+    expect(Object.keys(readTool.inputSchema)).not.toContain("allowWrite");
+    expect(Object.keys(readTool.inputSchema)).toEqual(
+      expect.arrayContaining(["repoRoot", "dryRun", "approvals"]),
+    );
+  });
+});

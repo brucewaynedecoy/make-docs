@@ -73,12 +73,12 @@ W18 R4 Phase 4 adds Make Docs-owned run-state primitives:
 
 - `make-docs run playbook start <ref> --repo-root <path> --harness <id> [--run-id <id>]` creates `.make-docs/runs/playbooks/<run-id>/state.json`.
 - `make-docs run playbook status --repo-root <path> --run-id <id>` reads saved run state for resume or audit.
-- MCP exposes `make_docs_playbook_run_start` behind `allowWrite=true` and `make_docs_playbook_run_read` as a read-only state inspection tool.
+- MCP exposes `make_docs_playbook_start` behind `allowWrite=true` and `make_docs_playbook_status` as a read-only state inspection tool; both names derive from the registry identifiers.
 
 W18 R1 Phase 3 adds the first generic invocation primitive:
 
 - `make-docs run playbook invoke <ref> --repo-root <path> --harness <id> [--stack build|run]` resolves a valid Playbook, extracts the authority/procedure/gate/assist/output model, creates run state, and returns the next gated step.
-- MCP exposes the same behavior through `make_docs_playbook_run_invoke` behind `allowWrite=true`.
+- MCP exposes the same behavior through `make_docs_playbook_invoke` behind `allowWrite=true`.
 - The invocation result labels CLI, MCP, plugin, skill, template-sync, and unattended support claims as `provisional` until each surface has validation evidence.
 
 ## Runner Pipeline
@@ -130,7 +130,7 @@ W18 R6 Phases 2 and 3 landed the contract's executable enforcement as the pure l
 W18 R6 Phase 4 wires that library into the operation surface at `packages/cli/src/operations/playbook/contract.ts`, so the twenty-four-code catalog is now runtime behavior rather than library-only:
 
 - `playbook.validate` parses one or more Playbooks through `parseAndValidatePlaybook` and reports the full diagnostic set. `make-docs run playbook validate [refs...] --repo-root <path>` accepts explicit `.md` paths or canonical `persona/slug` references and defaults to every detected Playbook; MCP exposes the same behavior through `make_docs_playbook_validate`. Each result carries the canonical ref, file form, runnable flag, and per-file error and warning counts, and each diagnostic carries its stable code, severity, section/field/span location, message, and fix hint; the report is `valid` only at zero errors.
-- `playbook.catalog` enumerates Playbooks by canonical reference — the frontmatter `id` when present, otherwise `persona/slug` — with frontmatter identity (title, summary, stack, status, and schema versions), file form, runnable flag, and error/warning counts. `make-docs run playbook catalog --repo-root <path>` and the repointed `make_docs_playbook_catalog` MCP tool expose it. The catalog also returns per-file diagnostics, so the PB-FILE-007 rename warning for deprecated plain files surfaces directly in catalog output.
+- `playbook.catalog` enumerates Playbooks by canonical reference — the frontmatter `id` when present, otherwise `persona/slug` — with frontmatter identity (title, summary, stack, status, and schema versions), file form, runnable flag, and error/warning counts. `make-docs run playbook catalog --repo-root <path>` and the registry-derived `make_docs_playbook_catalog` MCP tool expose it. The catalog also returns per-file diagnostics, so the PB-FILE-007 rename warning for deprecated plain files surfaces directly in catalog output.
 
 Both operations detect the `<slug>.playbook.md` suffix form and the deprecated plain `<slug>.md` form with frontmatter `kind: playbook`; the deprecated form stays catalogable and validatable but carries PB-FILE-007 until it is renamed. Every parsed fact and every diagnostic comes from the library — the operation layer never re-parses Playbook Markdown — so a future language server wrapping the same library produces identical diagnostics, and the machine-check that pins the contract's diagnostic table to the exported catalog also pins what these operations report. The stable operation identifiers `playbook.validate` and `playbook.catalog` are consumed from the operation registry as an external contract; do not mint identifiers or hardcode CLI command strings inside library or operation code.
 
@@ -220,7 +220,6 @@ When a new runner behavior is added, it needs focused operation tests and parity
 This guide should be refreshed when W18 implementation chooses final run-state command names, state schema details, plugin bundle entry points, package-planner commands, harness adapter modules, and generated-output writers. It should also be updated with links to additional concrete operation modules and tests as W18 R1 through W18 R5 land.
 
 - Blocked by: W18 R7 run-state relocation onto the W18 R10 global store seam. Update when: run state moves from `.make-docs/runs/playbooks/<run-id>/state.json` to the global store's `playbook_runs` facet, whose storage seam is now complete at `packages/cli/src/store/` — W18 R10 P1 landed the table keyed by project identifier plus run identifier, and W18 R10 P3 landed the create, read, transition, and list record seam with the payload stored opaquely and the record shape and progression semantics left to this runner lineage (see [the store module README](../../../../packages/cli/src/store/README.md)). Guide change: rewrite the Run State section's storage location and the run-state operation paths around the global store while keeping the run-record shape and progression semantics owned by the runner lineage.
-- Blocked by: the W18 R11 MCP tool renames, which land later in the same wave as the `run playbook` command reorganization. Update when: the MCP tool names are renamed to follow the reorganized command families. Guide change: update the quoted `make_docs_playbook_*` tool names to the renamed MCP surface.
 
 ## Related Resources
 

@@ -89,7 +89,7 @@ A Playbook run can start from different surfaces:
 
 - A person can ask an agent to run a Playbook by name, by `persona/slug`, or by an explicit path.
 - `make-docs run playbook invoke <ref> --harness <id>` can resolve and validate the Playbook, create Make Docs-owned run state, and return the next gated step without requiring a plugin.
-- `make_docs_playbook_run_invoke` exposes the same write-gated behavior to MCP-capable agent harnesses when the caller passes `allowWrite=true`.
+- `make_docs_playbook_invoke` exposes the same write-gated behavior to MCP-capable agent harnesses when the caller passes `allowWrite=true`.
 - A plugin or workflow bundle can present a guided entry point that invokes the same Run Playbook behavior underneath.
 
 The current operation command is a deterministic Make Docs operation surface, not a polished product shortcut. The important contract is that these entry points all use the same resolver, validator, run-state model, and safety rules.
@@ -145,7 +145,6 @@ Playbooks also do not redefine Make Docs authority. If a Playbook changes PRDs, 
 This guide should be refreshed after W18 implementation lands with plugin entry points, packaging commands, package-plan review examples, and a small set of end-user examples that can be run against an installed Make Docs project.
 
 - Blocked by: W18 R7 runner consumption of the parsed Playbook model. Update when: W18 R7 moves the runner surfaces onto the W18 R6 model. Guide change: revisit whether a reader-facing projection of the Playbook contract is warranted as its own guide. W18 R6 Phase 5 and wave completion resolved the previous trigger and re-deferred creation: the document schema itself is now hardened and stable — every diagnostic code has a failing fixture and the upstream and dogfood contract copies are machine-checked byte-identical — which removes the earlier stability objection, but the contract remains normative and linkable on its own, this guide already covers the user-visible validate/catalog surface, and a projection authored now would quote pre-runner behavior that W18 R7 changes, so it would need immediate rework for no added reader value. The W18 R11 command reorganization, formerly a second trigger, has landed and this guide now uses the `run playbook` spellings.
-- Blocked by: the W18 R11 MCP tool renames, which land later in the same wave. Update when: the MCP tool names are renamed to follow the reorganized command families. Guide change: update the quoted `make_docs_playbook_*` tool names to the renamed MCP surface.
 
 ## Related Resources
 

@@ -28,9 +28,9 @@ Derive the MCP tool list and tool names from the Phase 1 registry so the renames
 
 ### Tasks
 
-- [ ] t1: Generate the MCP tool list from, or conformance-check it against, the registry so no operation is present in one surface and absent in the other (R-REG-2).
-- [ ] t2: Derive MCP tool names from the registry identifiers so the MCP renames follow the same registry as the CLI (R-MIG-3).
-- [ ] t3: Route MCP write gating through the injected execution context's uniform dry-run, write-permission, and approval enforcement, replacing the per-surface allow-write flag while preserving the PRD 25 delegation rule that each tool shares the equivalent CLI operation's reads, config interpretation, provenance, audit, dry-run, and write permissions (R-CORE-1, R-KEEP-1).
+- [x] t1: Generate the MCP tool list from, or conformance-check it against, the registry so no operation is present in one surface and absent in the other (R-REG-2).
+- [x] t2: Derive MCP tool names from the registry identifiers so the MCP renames follow the same registry as the CLI (R-MIG-3).
+- [x] t3: Route MCP write gating through the injected execution context's uniform dry-run, write-permission, and approval enforcement, replacing the per-surface allow-write flag while preserving the PRD 25 delegation rule that each tool shares the equivalent CLI operation's reads, config interpretation, provenance, audit, dry-run, and write permissions (R-CORE-1, R-KEEP-1).
 
 ### Acceptance criteria
 
@@ -46,8 +46,8 @@ Derive the MCP tool list and tool names from the Phase 1 registry so the renames
 
 ### Tasks
 
-- [ ] t4: Inventory template-owned instruction routers, guides, and READMEs in `packages/docs/template/` (and the package README surfaces that ship) for old command spellings such as `operations`, the project-level `uninstall`, bare-sync descriptions, and `reconfigure`/`skills`/`backup` as top-level commands.
-- [ ] t5: Update those files upstream in `packages/docs/template/` to the five-command tree spellings and the context-aware bare behavior, then dogfood the updates into this repo's `.make-docs/` and `docs/` installed instance per the maintainer dogfooding rule.
+- [x] t4: Inventory template-owned instruction routers, guides, and READMEs in `packages/docs/template/` (and the package README surfaces that ship) for old command spellings such as `operations`, the project-level `uninstall`, bare-sync descriptions, and `reconfigure`/`skills`/`backup` as top-level commands.
+- [x] t5: Update those files upstream in `packages/docs/template/` to the five-command tree spellings and the context-aware bare behavior, then dogfood the updates into this repo's `.make-docs/` and `docs/` installed instance per the maintainer dogfooding rule.
 
 ### Acceptance criteria
 
