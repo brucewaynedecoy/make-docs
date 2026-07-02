@@ -130,6 +130,7 @@ const REQUIRED_REFERENCE_PATHS = {
 
 const ALWAYS_REFERENCE_PATHS = [
   ".make-docs/contracts/system/guide-contract.md",
+  ".make-docs/contracts/system/playbook-contract.md",
   ".make-docs/references/system/wave-model.md",
   ".make-docs/references/system/lifecycle.md",
   ".make-docs/contracts/system/coverage-pass-contract.md",

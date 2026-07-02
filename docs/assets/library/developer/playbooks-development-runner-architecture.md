@@ -24,6 +24,8 @@ related:
   - ../../../prd/29-revise-playbook-contract-run-playbook.md
   - ../../../prd/30-revise-harness-plugin-substrate-workflow-bundles.md
   - ../../../prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md
+  - ../../../prd/34-revise-playbook-contract-and-model.md
+  - ../../../../.make-docs/contracts/system/playbook-contract.md
   - ../../../designs/2026-06-27-run-playbook-orchestration-and-harness-capabilities.md
   - ../../../designs/2026-06-29-playbook-packaging-and-harness-adapter-registry.md
   - ../../../work/2026-06-23-w18-r1-playbook-contract-run-playbook/00-index.md
@@ -121,6 +123,8 @@ The implemented resolver validates stack requests before returning a selected Pl
 
 ## Catalog Contract Validation
 
+Contract authority note: since W18 R6 Phase 1, the normative Playbook document schema is owned by [the Playbook contract](../../../../.make-docs/contracts/system/playbook-contract.md) per [PRD 34](../../../prd/34-revise-playbook-contract-and-model.md). The contract defines the `<slug>.playbook.md` filename form, the eleven-heading spine, the expanded frontmatter enums, the embedded `playbook` workflow contract block, and the dependency registry that the W18 R6 parser and validator will enforce. The behavior described below is the implemented W18 R4 catalog validation, which remains what the code enforces until the W18 R6 parser and validator phases land.
+
 The catalog fails closed before selection. A Playbook is catalogable only when it lives directly under `docs/assets/playbooks/<persona>/<slug>.md`, has YAML frontmatter, declares `kind: playbook`, and uses a configured persona slug that matches the path directory.
 
 The required frontmatter fields are `title`, `kind`, `status`, `persona`, `stack`, and `summary`. Accepted `status` values are `proposed`, `accepted`, and `deprecated`; accepted `stack` values are `build` and `run`.
@@ -210,6 +214,8 @@ When a new runner behavior is added, it needs focused operation tests and parity
 
 This guide should be refreshed when W18 implementation chooses final run-state command names, state schema details, plugin bundle entry points, package-planner commands, harness adapter modules, and generated-output writers. It should also be updated with links to additional concrete operation modules and tests as W18 R1 through W18 R5 land.
 
+- Blocked by: W18 R6 Phases 2 and 3. Update when: the single parsed Playbook model, the staged parser, and the layered validator with the diagnostic catalog replace the W18 R4 catalog validation described above. Guide change: replace the Catalog Contract Validation section's implemented-behavior description with the model/parser/validator architecture and keep the Playbook contract as the schema authority.
+
 ## Related Resources
 
 - [Running Make Docs Playbooks](../user/playbooks-running-make-docs-workflows.md)
@@ -219,6 +225,8 @@ This guide should be refreshed when W18 implementation chooses final run-state c
 - [29 Revise Playbook Contract Run Playbook](../../../prd/29-revise-playbook-contract-run-playbook.md)
 - [30 Revise Harness Plugin Substrate Workflow Bundles](../../../prd/30-revise-harness-plugin-substrate-workflow-bundles.md)
 - [33 Enhance Playbook Packaging and Harness Adapter Registry](../../../prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md)
+- [34 Revise Playbook Contract and Model](../../../prd/34-revise-playbook-contract-and-model.md)
+- [Playbook Contract](../../../../.make-docs/contracts/system/playbook-contract.md)
 - [Run Playbook Orchestration and Harness Capabilities](../../../designs/2026-06-27-run-playbook-orchestration-and-harness-capabilities.md)
 - [Playbook Packaging and Harness Adapter Registry](../../../designs/2026-06-29-playbook-packaging-and-harness-adapter-registry.md)
 - [Playbook Packaging and Harness Adapters](./playbooks-development-packaging-and-harness-adapters.md)

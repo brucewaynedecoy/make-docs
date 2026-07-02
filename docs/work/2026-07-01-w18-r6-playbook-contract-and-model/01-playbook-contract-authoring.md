@@ -29,11 +29,11 @@ This phase authors `playbook-contract.md` in the shipped template and dogfoods i
 
 ### Tasks
 
-- [ ] t1: Author `packages/docs/template/.make-docs/contracts/system/playbook-contract.md` as the normative authority covering the document schema (R-DOC-1 through R-DOC-7), the workflow contract and step model (R-WF-1 through R-WF-8), the dependency registry (R-DEP-1 through R-DEP-5), and the model/validator/diagnostic expectations (R-MODEL-1 through R-MODEL-6), including the eleven-heading spine, the required and optional frontmatter fields with enums, the `playbook` info string, the executor/role/activation/mode dimensions with the `delegated` default, the shared eight-value status vocabulary, and the six-column dependency table with its kind and requirement enums.
-- [ ] t2: State the authoritative-versus-narrative line in the contract: only frontmatter, the dependency registry table, and the single workflow contract block carry machine meaning, and narrative sections are checked only for presence and non-emptiness (R-DOC-6).
-- [ ] t3: State the filename rule in the contract: new Playbooks use `<slug>.playbook.md`, plain `<slug>.md` files with `kind: playbook` are a deprecated form that triggers PB-FILE-007, and the `persona` frontmatter must match the folder (R-DOC-1, R-DOC-2).
-- [ ] t4: Record the contract's boundary statements: standalone workflow files are not required (R-WF-2), the orchestration policy fields are shape-only here with runtime semantics owned by the Run Playbook lineage (R-WF-8), dependency `Kind` materialization is owned by packaging (R-DEP-5), and `operation` references registry identifiers rather than CLI command strings (R-SCOPE-2).
-- [ ] t5: Include or reference the canonical worked example consistent with the architecture artifact Section 2.6 so authors see one conformant `## Workflow Contract` block with a deterministic `operation` step, a `human` `gate` step, and an `event-bound` step (R-WF-7).
+- [x] t1: Author `packages/docs/template/.make-docs/contracts/system/playbook-contract.md` as the normative authority covering the document schema (R-DOC-1 through R-DOC-7), the workflow contract and step model (R-WF-1 through R-WF-8), the dependency registry (R-DEP-1 through R-DEP-5), and the model/validator/diagnostic expectations (R-MODEL-1 through R-MODEL-6), including the eleven-heading spine, the required and optional frontmatter fields with enums, the `playbook` info string, the executor/role/activation/mode dimensions with the `delegated` default, the shared eight-value status vocabulary, and the six-column dependency table with its kind and requirement enums.
+- [x] t2: State the authoritative-versus-narrative line in the contract: only frontmatter, the dependency registry table, and the single workflow contract block carry machine meaning, and narrative sections are checked only for presence and non-emptiness (R-DOC-6).
+- [x] t3: State the filename rule in the contract: new Playbooks use `<slug>.playbook.md`, plain `<slug>.md` files with `kind: playbook` are a deprecated form that triggers PB-FILE-007, and the `persona` frontmatter must match the folder (R-DOC-1, R-DOC-2).
+- [x] t4: Record the contract's boundary statements: standalone workflow files are not required (R-WF-2), the orchestration policy fields are shape-only here with runtime semantics owned by the Run Playbook lineage (R-WF-8), dependency `Kind` materialization is owned by packaging (R-DEP-5), and `operation` references registry identifiers rather than CLI command strings (R-SCOPE-2).
+- [x] t5: Include or reference the canonical worked example consistent with the architecture artifact Section 2.6 so authors see one conformant `## Workflow Contract` block with a deterministic `operation` step, a `human` `gate` step, and an `event-bound` step (R-WF-7).
 
 ### Acceptance criteria
 
@@ -49,9 +49,9 @@ This phase authors `playbook-contract.md` in the shipped template and dogfoods i
 
 ### Tasks
 
-- [ ] t6: Dogfood the contract to `./.make-docs/contracts/system/playbook-contract.md` and confirm the upstream and downstream copies match (R-AUTH-1, R-AUTH-2).
-- [ ] t7: Decide whether to create the optional reader-facing guide under `docs/assets/library/<persona-slug>/`; if created, author it upstream first, dogfood it, and keep it a pure projection that adds no requirements (R-AUTH-4).
-- [ ] t8: Update any system routers or references that must point at the new contract so contract discovery works from `.make-docs/contracts/system/`, without moving or renaming existing contracts.
+- [x] t6: Dogfood the contract to `./.make-docs/contracts/system/playbook-contract.md` and confirm the upstream and downstream copies match (R-AUTH-1, R-AUTH-2).
+- [x] t7: Decide whether to create the optional reader-facing guide under `docs/assets/library/<persona-slug>/`; if created, author it upstream first, dogfood it, and keep it a pure projection that adds no requirements (R-AUTH-4).
+- [x] t8: Update any system routers or references that must point at the new contract so contract discovery works from `.make-docs/contracts/system/`, without moving or renaming existing contracts.
 
 ### Acceptance criteria
 

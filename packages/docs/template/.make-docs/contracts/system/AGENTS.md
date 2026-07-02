@@ -1,7 +1,7 @@
 <!-- make-docs:begin -->
 # System Contracts Router
 
-This directory stores make-docs-owned contracts that define durable output, lifecycle, coverage, guide, design, history/breadcrumb, and commit-message behavior.
+This directory stores make-docs-owned contracts that define durable output, lifecycle, coverage, guide, design, playbook, history/breadcrumb, and commit-message behavior.
 
 - Read only the contract needed for the task.
 - Use `.make-docs/references/system/` for workflow guidance that is not itself a contract.

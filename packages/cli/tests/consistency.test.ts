@@ -501,6 +501,14 @@ describe("risk register routing contract", () => {
       "R-015 Backup State and Agentics Pruning Could Drift Across Lifecycle Consumers",
       "R-016 Run Playbook Orchestration Could Drift Across Runner Surfaces",
       "R-017 Playbook Packaging Could Blur Source and Generated Agentic Outputs",
+      "R-018 The Playbook Contract, Validator, and Template Copies Could Drift Out of Parity",
+      "R-019 Run-State Relocation Depends on an Unlanded Global Store",
+      "R-020 W18 R3 Adversarial-Review Surface Exposure Predates the New Playbook, CLI, and State Architecture",
+      "R-021 Adapter Contracts Can Regress to Assumed Paths and Outrun Conformance Evidence",
+      "R-022 First-Pass Conformance Scenarios Depend on Real Harness Availability",
+      "R-023 The Global Store Could Drift Into a Second Source of Truth or Lose Evidence in the Checkpoint Migration",
+      "R-024 The Command-Surface Hard Cutover Can Strand Consumers or Leave a Half-Migrated Surface",
+      "R-025 Cross-Artifact Coordinate Handoffs Can Drift From Their Assigned Waves and PRDs",
     ]);
   });
 
