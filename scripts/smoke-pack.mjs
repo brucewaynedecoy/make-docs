@@ -21,6 +21,14 @@ const packOutputDir = mkdtempSync(path.join(os.tmpdir(), "make-docs-pack-output-
 // smoke never touches the real `~/.make-docs/` and can assert store behavior.
 const storeRoot = mkdtempSync(path.join(os.tmpdir(), "make-docs-store-root-"));
 const packedCliEnv = { ...process.env, MAKE_DOCS_HOME: storeRoot };
+/** Extra temp directories created by the W18 R11 P6 smokes; removed at exit. */
+const auxSmokeDirs = [];
+
+function registerAuxSmokeDir(prefix) {
+  const dir = mkdtempSync(path.join(os.tmpdir(), prefix));
+  auxSmokeDirs.push(dir);
+  return dir;
+}
 let sqliteAvailable = true;
 try {
   await import("node:sqlite");
@@ -380,6 +388,30 @@ try {
       "Smoke pack setup install did not produce docs/AGENTS.md.",
     );
     assertStoreBootstrapAndNoRepoStateWrites(storeRoot, targetDir, "setup install");
+
+    // Bare invocation, installed context (PRD 39 R-BARE-1 / W18 R11 P6 t5):
+    // status plus guidance, never a sync.
+    const bareInstalled = execFileSync(
+      "node",
+      [packedMakeDocs, "--target", targetDir],
+      { encoding: "utf8", env: packedCliEnv },
+    );
+    assertOutputContains(
+      bareInstalled,
+      `make-docs install detected in ${targetDir}`,
+      "Smoke pack bare invocation (installed) omitted the install status headline.",
+    );
+    assertOutputContains(
+      bareInstalled,
+      "Bare `make-docs` never syncs an existing install.",
+      "Smoke pack bare invocation (installed) omitted the never-syncs guidance.",
+    );
+    assertOutputContains(
+      bareInstalled,
+      `Package: ${EXPECTED_PACKAGE_NAME}@`,
+      "Smoke pack bare invocation (installed) omitted the installed package line.",
+    );
+
     assertInstalledInstructionTemplate(targetDir);
     assertInstalledReaderFacingAssets(targetDir);
     assertManifestContainsManagedFiles(manifestPath, [
@@ -587,7 +619,215 @@ try {
     path.join(storeRoot, "manifest.json"),
     "Smoke pack run lost the global store manifest.",
   );
+
+  // ---- W18 R11 P6 (t5): five-command-tree spellings through the packed
+  // tarball — bare invocation (fresh context), `run playbook status`,
+  // `run package plan`, `update`, and `uninstall`. Every invocation carries
+  // the sandboxed MAKE_DOCS_HOME so the real ~/.make-docs is never touched.
+
+  // Bare invocation, fresh context: guidance only, no writes, non-TTY safe.
+  const bareFreshDir = registerAuxSmokeDir("make-docs-bare-fresh-");
+  const bareFresh = execFileSync(
+    "node",
+    [packedMakeDocs, "--target", bareFreshDir],
+    { encoding: "utf8", env: packedCliEnv },
+  );
+  assertOutputContains(
+    bareFresh,
+    `No make-docs install was detected in ${bareFreshDir}`,
+    "Smoke pack bare invocation (fresh) omitted the no-install detection line.",
+  );
+  assertOutputContains(
+    bareFresh,
+    "Run `make-docs setup` (interactive) or `make-docs setup --yes` (non-interactive) to install.",
+    "Smoke pack bare invocation (fresh) omitted the setup guidance.",
+  );
+  assertMissing(
+    path.join(bareFreshDir, ".make-docs"),
+    "Smoke pack bare invocation (fresh) wrote into the target directory.",
+  );
+
+  // `run playbook start` + `run playbook status` against a playbook fixture
+  // repo (kept separate from targetDir so the no-repo-run-state assertions
+  // above stay meaningful; Playbook run state is repo-local by design).
+  const runFixtureDir = registerAuxSmokeDir("make-docs-run-fixture-");
+  writeRunPlaybookFixture(runFixtureDir);
+  const startOutput = execFileSync(
+    "node",
+    [
+      packedMakeDocs,
+      "run",
+      "playbook",
+      "start",
+      "user/run-stack",
+      "--harness",
+      "codex",
+      "--run-id",
+      "smoke-run",
+      "--repo-root",
+      runFixtureDir,
+    ],
+    { encoding: "utf8", env: packedCliEnv },
+  );
+  const started = JSON.parse(startOutput);
+  if (started?.state?.runId !== "smoke-run" || started?.state?.playbookRef !== "user/run-stack") {
+    throw new Error(`Smoke pack run playbook start returned unexpected state:\n${startOutput}`);
+  }
+  assertExists(
+    path.join(runFixtureDir, ".make-docs/runs/playbooks/smoke-run/state.json"),
+    "Smoke pack run playbook start did not persist run state in the fixture repo.",
+  );
+
+  const statusOutput = execFileSync(
+    "node",
+    [
+      packedMakeDocs,
+      "run",
+      "playbook",
+      "status",
+      "--run-id",
+      "smoke-run",
+      "--repo-root",
+      runFixtureDir,
+    ],
+    { encoding: "utf8", env: packedCliEnv },
+  );
+  const runStatus = JSON.parse(statusOutput);
+  if (runStatus?.runId !== "smoke-run" || runStatus?.playbookRef !== "user/run-stack") {
+    throw new Error(`Smoke pack run playbook status returned unexpected state:\n${statusOutput}`);
+  }
+
+  // A bogus run id fails with the structured operation error, not a crash.
+  const bogusStatus = runPackedCliExpectingFailure(packedMakeDocs, [
+    "run",
+    "playbook",
+    "status",
+    "--run-id",
+    "no-such-run",
+    "--repo-root",
+    runFixtureDir,
+  ]);
+  assertOutputContains(
+    bogusStatus.stderr,
+    "No Playbook run state found for run id `no-such-run`.",
+    "Smoke pack run playbook status did not report the unknown-run error.",
+  );
+
+  // `run package plan` with the codex plugin target (mirrors
+  // tests/registry-package-ops.test.ts fixture shape).
+  const planOutput = execFileSync(
+    "node",
+    [
+      packedMakeDocs,
+      "run",
+      "package",
+      "plan",
+      "user/run-stack",
+      "--harness",
+      "codex",
+      "--output-kind",
+      "plugin",
+      "--surface",
+      "native",
+      "--scope",
+      "project",
+      "--support-evidence-ref",
+      "docs/prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md",
+      "--repo-root",
+      runFixtureDir,
+    ],
+    { encoding: "utf8", env: packedCliEnv },
+  );
+  const packagePlan = JSON.parse(planOutput);
+  if (
+    packagePlan?.plan?.target?.harness !== "codex" ||
+    packagePlan?.plan?.target?.outputKind !== "plugin" ||
+    !Array.isArray(packagePlan?.plan?.generatedArtifacts) ||
+    packagePlan.plan.generatedArtifacts.length === 0
+  ) {
+    throw new Error(`Smoke pack run package plan returned an unexpected plan:\n${planOutput}`);
+  }
+
+  // `update`: the packed direct-node invocation matches no persistent-install
+  // pattern, so the command reports without executing anything and exits 0.
+  const updateTargetDir = registerAuxSmokeDir("make-docs-update-target-");
+  const updateOutput = execFileSync(
+    "node",
+    [packedMakeDocs, "update", "--target", updateTargetDir],
+    { encoding: "utf8", env: packedCliEnv },
+  );
+  assertOutputContains(
+    updateOutput,
+    `Global store at ${storeRoot}`,
+    "Smoke pack update did not report the sandboxed global-store bootstrap.",
+  );
+  assertOutputContains(
+    updateOutput,
+    "Could not determine which install manager owns the make-docs binary",
+    "Smoke pack update did not report ambiguous install ownership.",
+  );
+  assertOutputContains(
+    updateOutput,
+    `Affected store path: ${storeRoot}`,
+    "Smoke pack update did not name the affected store path.",
+  );
+  assertOutputExcludes(
+    updateOutput,
+    "Update delegated",
+    "Smoke pack update executed a package-manager delegation from a packed invocation.",
+  );
+
+  // `uninstall` without --yes in a non-TTY run refuses and removes nothing.
+  const uninstallRefusal = execFileSync(
+    "node",
+    [packedMakeDocs, "uninstall"],
+    { encoding: "utf8", env: packedCliEnv },
+  );
+  assertOutputContains(
+    uninstallRefusal,
+    "Uninstall confirmation requires a TTY. Re-run with `make-docs uninstall --yes`",
+    "Smoke pack uninstall did not refuse without confirmation in a non-TTY run.",
+  );
+  assertOutputContains(
+    uninstallRefusal,
+    "Nothing was removed.",
+    "Smoke pack uninstall refusal did not report that nothing was removed.",
+  );
+  assertExists(
+    path.join(storeRoot, "manifest.json"),
+    "Smoke pack uninstall refusal removed the sandboxed store.",
+  );
+
+  // `uninstall --yes` removes the sandboxed store and never touches
+  // repository content (the ambiguous packed binary is reported, not guessed).
+  const repoContentBeforeUninstall = readFileSync(customFilePath, "utf8");
+  const uninstallOutput = execFileSync(
+    "node",
+    [packedMakeDocs, "uninstall", "--yes"],
+    { encoding: "utf8", env: packedCliEnv },
+  );
+  assertOutputContains(
+    uninstallOutput,
+    `Removed the global store at ${storeRoot}`,
+    "Smoke pack uninstall --yes did not remove the sandboxed store.",
+  );
+  assertOutputContains(
+    uninstallOutput,
+    "make-docs will not guess and run a destructive global change.",
+    "Smoke pack uninstall --yes guessed at ambiguous binary ownership.",
+  );
+  assertMissing(storeRoot, "Smoke pack uninstall --yes left the sandboxed store behind.");
+  if (readFileSync(customFilePath, "utf8") !== repoContentBeforeUninstall) {
+    throw new Error("Smoke pack uninstall --yes modified repository content.");
+  }
+  assertExists(
+    path.join(runFixtureDir, "docs/assets/playbooks/user/run-stack.md"),
+    "Smoke pack uninstall --yes removed playbook fixture repository content.",
+  );
 } finally {
+  for (const dir of auxSmokeDirs) {
+    rmSync(dir, { recursive: true, force: true });
+  }
   rmSync(unpackDir, { recursive: true, force: true });
   rmSync(targetDir, { recursive: true, force: true });
   rmSync(packOutputDir, { recursive: true, force: true });
@@ -1154,4 +1394,78 @@ function getOnlyBackupDirectory(backupRoot) {
 
 function ensureTrailingSlash(value) {
   return value.endsWith("/") ? value : `${value}/`;
+}
+
+/**
+ * Minimal repo fixture for the `run playbook`/`run package` smokes: a
+ * `docs/work/` anchor so repo-root discovery stays inside the fixture, plus
+ * one accepted run-stack playbook (mirrors the tests/registry-package-ops
+ * fixture shape).
+ */
+function writeRunPlaybookFixture(fixtureDir) {
+  mkdirSync(path.join(fixtureDir, "docs/work"), { recursive: true });
+  const playbookPath = path.join(fixtureDir, "docs/assets/playbooks/user/run-stack.md");
+  mkdirSync(path.dirname(playbookPath), { recursive: true });
+  writeFileSync(
+    playbookPath,
+    [
+      "---",
+      "title: Run Stack",
+      "kind: playbook",
+      "status: accepted",
+      "persona: user",
+      "stack: run",
+      "summary: Run Stack summary.",
+      "---",
+      "",
+      "# Run Stack",
+      "",
+      "## Purpose",
+      "",
+      "Use this playbook when the matching workflow goal is active.",
+      "",
+      "## Inputs and Authority",
+      "",
+      "- User request.",
+      "",
+      "## Procedure",
+      "",
+      "1. Resolve the playbook.",
+      "",
+      "## Gates and Decisions",
+      "",
+      "- Stop when user review is required.",
+      "",
+      "## Assists",
+      "",
+      "- Assists are optional unless the playbook says otherwise.",
+      "",
+      "## Outputs and Handoff",
+      "",
+      "- Record the expected output or handoff artifact.",
+      "",
+      "## Validation",
+      "",
+      "- Confirm the workflow completed or report why it stopped.",
+      "",
+    ].join("\n"),
+    "utf8",
+  );
+}
+
+/** Runs the packed CLI expecting a nonzero exit; returns captured output. */
+function runPackedCliExpectingFailure(packedMakeDocs, args) {
+  try {
+    execFileSync("node", [packedMakeDocs, ...args], {
+      encoding: "utf8",
+      env: packedCliEnv,
+    });
+  } catch (error) {
+    if (error && typeof error.status === "number" && error.status !== 0) {
+      return { status: error.status, stdout: String(error.stdout ?? ""), stderr: String(error.stderr ?? "") };
+    }
+    throw error;
+  }
+
+  throw new Error(`Smoke pack expected \`make-docs ${args.join(" ")}\` to fail, but it exited 0.`);
 }

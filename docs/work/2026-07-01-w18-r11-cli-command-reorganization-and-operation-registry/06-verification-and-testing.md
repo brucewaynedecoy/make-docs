@@ -29,10 +29,10 @@ Land the R-TEST-1 through R-TEST-4 assertions as focused tests, extend the packa
 
 ### Tasks
 
-- [ ] t1: Add a test asserting the CLI `run` tree and the MCP tool list are both derived from or conformance-checked against the registry, failing when any operation is present in one surface and absent in the other (R-TEST-1).
-- [ ] t2: Add a test asserting surfaces contain no operation logic by invoking an operation through the core without the CLI parser or MCP transport (R-TEST-2).
-- [ ] t3: Add a test asserting `run` exposes no `setup`, `mcp`, `update`, or `uninstall` operation and that a Playbook step cannot invoke tool lifecycle (R-TEST-3).
-- [ ] t4: Add tests asserting pre-v2 detection triggers the warning-and-choice flow, `uninstall` confirms and does not delete repository content, and the pruned operations are absent from the `run` surface (R-TEST-4).
+- [x] t1: Add a test asserting the CLI `run` tree and the MCP tool list are both derived from or conformance-checked against the registry, failing when any operation is present in one surface and absent in the other (R-TEST-1).
+- [x] t2: Add a test asserting surfaces contain no operation logic by invoking an operation through the core without the CLI parser or MCP transport (R-TEST-2).
+- [x] t3: Add a test asserting `run` exposes no `setup`, `mcp`, `update`, or `uninstall` operation and that a Playbook step cannot invoke tool lifecycle (R-TEST-3).
+- [x] t4: Add tests asserting pre-v2 detection triggers the warning-and-choice flow, `uninstall` confirms and does not delete repository content, and the pruned operations are absent from the `run` surface (R-TEST-4).
 
 ### Acceptance criteria
 
@@ -49,8 +49,8 @@ Land the R-TEST-1 through R-TEST-4 assertions as focused tests, extend the packa
 
 ### Tasks
 
-- [ ] t5: Extend the packaged smoke validation to exercise the new spellings — `setup`, `setup remove`, `run playbook status`, `run package plan`, bare invocation in both contexts, `update`, and `uninstall` — through the packed tarball paths per the PRD 16 validation boundary.
-- [ ] t6: Verify the R-SEQ-1 same-wave property at closure: every retained operation is registry-backed, no hand-wired surface entry remains, and no removed spelling parses anywhere, closing the half-migrated-state exposure recorded as R-024.
+- [x] t5: Extend the packaged smoke validation to exercise the new spellings — `setup`, `setup remove`, `run playbook status`, `run package plan`, bare invocation in both contexts, `update`, and `uninstall` — through the packed tarball paths per the PRD 16 validation boundary.
+- [x] t6: Verify the R-SEQ-1 same-wave property at closure: every retained operation is registry-backed, no hand-wired surface entry remains, and no removed spelling parses anywhere, closing the half-migrated-state exposure recorded as R-024.
 
 ### Acceptance criteria
 
