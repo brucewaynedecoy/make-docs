@@ -1,5 +1,5 @@
 import { beforeEach, afterEach, describe, expect, test, vi } from "vitest";
-import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { applyInstallPlan, planInstall } from "../src/install";
@@ -240,7 +240,7 @@ describe("cli interactive flows", () => {
     vi.unstubAllGlobals();
   });
 
-  test("uses the wizard for interactive apply without an existing manifest", async () => {
+  test("uses the wizard for interactive setup without an existing manifest", async () => {
     const targetDir = createTempDir();
     const writeSpy = vi.spyOn(process.stdout, "write").mockImplementation(() => true);
 
@@ -248,7 +248,7 @@ describe("cli interactive flows", () => {
       runSelectionWizardMock.mockResolvedValue(defaultSelections());
       const { runCli } = await import("../src/cli");
 
-      await runCli(["--target", targetDir]);
+      await runCli(["setup", "--target", targetDir]);
 
       expect(runSelectionWizardMock).toHaveBeenCalledWith({
         initialSelections: expect.objectContaining({
@@ -268,7 +268,7 @@ describe("cli interactive flows", () => {
     }
   });
 
-  test("uses the wizard for reconfigure", async () => {
+  test("uses the wizard for setup reconfigure", async () => {
     const targetDir = createTempDir();
 
     try {
@@ -282,7 +282,7 @@ describe("cli interactive flows", () => {
       runSelectionWizardMock.mockResolvedValue(wizardSelections);
       const { runCli } = await import("../src/cli");
 
-      await runCli(["reconfigure", "--target", targetDir]);
+      await runCli(["setup", "reconfigure", "--target", targetDir]);
 
       expect(runSelectionWizardMock).toHaveBeenCalledWith({
         initialSelections: expect.objectContaining({
@@ -300,7 +300,7 @@ describe("cli interactive flows", () => {
     }
   });
 
-  test("syncs saved selections on a bare interactive apply without opening the wizard", async () => {
+  test("syncs saved selections on an interactive setup without opening the wizard", async () => {
     const targetDir = createTempDir();
     const writeSpy = vi.spyOn(process.stdout, "write").mockImplementation(() => true);
 
@@ -311,7 +311,7 @@ describe("cli interactive flows", () => {
       });
       const { runCli } = await import("../src/cli");
 
-      await runCli(["--target", targetDir]);
+      await runCli(["setup", "--target", targetDir]);
 
       const output = writeSpy.mock.calls.map(([chunk]) => String(chunk)).join("");
       expect(runSelectionWizardMock).not.toHaveBeenCalled();
@@ -348,7 +348,7 @@ describe("cli interactive flows", () => {
         writeFileSync(instructionPath, `# Agent Instructions\n\n${currentContent}`, "utf8");
       }
 
-      const output = await captureCliOutput(["--yes", "--target", targetDir, "--dry-run"]);
+      const output = await captureCliOutput(["setup", "--yes", "--target", targetDir, "--dry-run"]);
 
       expect(promptForManagedFileConflictResolutionsMock).not.toHaveBeenCalled();
       expect(output).toContain("Mode: existing install sync");
@@ -386,7 +386,7 @@ personas:
         "utf8",
       );
 
-      const output = await captureCliOutput(["--yes", "--dry-run", "--target", targetDir]);
+      const output = await captureCliOutput(["setup", "--yes", "--dry-run", "--target", targetDir]);
 
       expect(output).toContain("Document kind labels:");
       expect(output).toContain("design=Idea");
@@ -402,14 +402,14 @@ personas:
     }
   });
 
-  test("installs default selections on a bare non-interactive apply", async () => {
+  test("installs default selections on a non-interactive setup", async () => {
     const targetDir = createTempDir();
 
     try {
       setTTY(false);
       const { runCli } = await import("../src/cli");
 
-      await runCli(["--yes", "--target", targetDir]);
+      await runCli(["setup", "--yes", "--target", targetDir]);
 
       const manifest = loadManifest(targetDir);
       expect(runSelectionWizardMock).not.toHaveBeenCalled();
@@ -442,7 +442,7 @@ personas:
       );
       setTTY(false);
 
-      const error = await captureCliError(["--yes", "--target", targetDir]);
+      const error = await captureCliError(["setup", "--yes", "--target", targetDir]);
 
       expect(error.message).toContain("Invalid make-docs config");
       expect(error.message).toContain(".make-docs/config.yaml");
@@ -460,7 +460,7 @@ personas:
     try {
       setTTY(false);
 
-      const output = await captureCliOutput(["--yes", "--target", fixture.targetDir]);
+      const output = await captureCliOutput(["setup", "--yes", "--target", fixture.targetDir]);
 
       expect(output).toContain("Compatibility state: clean-v1");
       expect(output).toContain("Disposition: migrate");
@@ -477,7 +477,7 @@ personas:
       writeFileSync(path.join(targetDir, "README.md"), "# Existing project\n");
       setTTY(false);
 
-      const output = await captureCliOutput(["--yes", "--target", targetDir]);
+      const output = await captureCliOutput(["setup", "--yes", "--target", targetDir]);
 
       expect(output).toContain("Mode: first install");
       expect(output).not.toContain("Compatibility state:");
@@ -497,7 +497,7 @@ personas:
     try {
       setTTY(false);
 
-      const error = await captureCliError(["--yes", "--target", fixture.targetDir]);
+      const error = await captureCliError(["setup", "--yes", "--target", fixture.targetDir]);
 
       expect(error.message).toContain(
         "Non-interactive make-docs runs cannot apply unresolved managed-file diffs.",
@@ -520,7 +520,7 @@ personas:
     try {
       setTTY(false);
 
-      const error = await captureCliError(["--yes", "--target", fixture.targetDir]);
+      const error = await captureCliError(["setup", "--yes", "--target", fixture.targetDir]);
 
       expect(error.message).toContain(
         "requires an explicit backup-and-reinstall migration flow",
@@ -542,7 +542,7 @@ personas:
       writeFileSync(collisionPath, "existing agent instructions\n");
       setTTY(false);
 
-      const error = await captureCliError(["--yes", "--target", fixture.targetDir]);
+      const error = await captureCliError(["setup", "--yes", "--target", fixture.targetDir]);
 
       expect(error.message).toContain(
         "make-docs cannot classify this target safely enough to write changes.",
@@ -557,7 +557,7 @@ personas:
     }
   });
 
-  test("syncs saved selections on a bare non-interactive apply", async () => {
+  test("syncs saved selections on a non-interactive setup", async () => {
     const targetDir = createTempDir();
 
     try {
@@ -568,7 +568,7 @@ personas:
       setTTY(false);
       const { runCli } = await import("../src/cli");
 
-      await runCli(["--yes", "--target", targetDir]);
+      await runCli(["setup", "--yes", "--target", targetDir]);
 
       expect(runSelectionWizardMock).not.toHaveBeenCalled();
       expect(confirmMock).not.toHaveBeenCalled();
@@ -585,7 +585,7 @@ personas:
     try {
       const { runCli } = await import("../src/cli");
 
-      await runCli(["--yes", "--no-work", "--target", targetDir]);
+      await runCli(["setup", "--yes", "--no-work", "--target", targetDir]);
 
       expect(runSelectionWizardMock).not.toHaveBeenCalled();
       expect(promptForManagedFileConflictResolutionsMock).not.toHaveBeenCalled();
@@ -595,7 +595,7 @@ personas:
     }
   });
 
-  test("applies selection flags on a bare existing install", async () => {
+  test("applies selection flags on setup for an existing install", async () => {
     const targetDir = createTempDir();
 
     try {
@@ -607,7 +607,7 @@ personas:
       confirmMock.mockResolvedValue(true);
       const { runCli } = await import("../src/cli");
 
-      await runCli(["--no-skills", "--target", targetDir]);
+      await runCli(["setup", "--no-skills", "--target", targetDir]);
 
       expect(runSelectionWizardMock).not.toHaveBeenCalled();
       expect(promptForManagedFileConflictResolutionsMock).not.toHaveBeenCalled();
@@ -631,7 +631,7 @@ personas:
       });
       const { runCli } = await import("../src/cli");
 
-      await runCli(["--target", targetDir]);
+      await runCli(["setup", "--target", targetDir]);
 
       expect(promptForManagedFileConflictResolutionsMock).toHaveBeenCalledWith([
         {
@@ -676,7 +676,7 @@ personas:
       runSelectionWizardMock.mockResolvedValue(defaultSelections());
       promptForManagedFileConflictResolutionsMock.mockResolvedValue(null);
 
-      const error = await captureCliError(["--target", targetDir]);
+      const error = await captureCliError(["setup", "--target", targetDir]);
 
       expect(error.message).toContain(
         "requires an explicit backup-and-reinstall migration flow",
@@ -715,7 +715,7 @@ personas:
         ".make-docs/templates/system/guide-user.md",
         "custom guide template\n",
       );
-      const error = await captureCliError(["--yes", "--target", targetDir]);
+      const error = await captureCliError(["setup", "--yes", "--target", targetDir]);
 
       expect(promptForManagedFileConflictResolutionsMock).not.toHaveBeenCalled();
       expect(error.message).toContain(
@@ -758,6 +758,7 @@ personas:
       });
 
       const output = await captureCliOutput([
+        "setup",
         "--dry-run",
         "--no-work",
         "--target",
@@ -799,6 +800,7 @@ personas:
       const { runCli } = await import("../src/cli");
 
       await runCli([
+        "setup",
         "--yes",
         "--no-codex",
         "--skill-scope",
@@ -839,7 +841,7 @@ personas:
     try {
       const { runCli } = await import("../src/cli");
 
-      await runCli(["--yes", flag, "--target", targetDir]);
+      await runCli(["setup", "--yes", flag, "--target", targetDir]);
 
       expect(loadManifest(targetDir)?.selections.harnesses).toEqual(expectedHarnesses);
     } finally {
@@ -853,7 +855,7 @@ personas:
     try {
       const { runCli } = await import("../src/cli");
 
-      await runCli(["--yes", "--no-skills", "--target", targetDir]);
+      await runCli(["setup", "--yes", "--no-skills", "--target", targetDir]);
 
       const manifest = loadManifest(targetDir);
       expect(manifest?.selections.skills).toBe(false);
@@ -871,13 +873,14 @@ personas:
     try {
       const { runCli } = await import("../src/cli");
 
-      await runCli(["--yes", "--selected-skills", "none", "--target", targetDir]);
+      await runCli(["setup", "--yes", "--selected-skills", "none", "--target", targetDir]);
 
       let manifest = loadManifest(targetDir);
       expect(manifest?.selections.selectedSkills).toEqual([]);
       expect(manifest?.skillFiles).toEqual([]);
 
       await runCli([
+        "setup",
         "--selected-skills",
         "all",
         "--yes",
@@ -916,6 +919,7 @@ personas:
       const { runCli } = await import("../src/cli");
 
       await runCli([
+        "setup",
         "--yes",
         "--skill-manifest",
         manifestPath,
@@ -965,6 +969,7 @@ personas:
 
     try {
       const error = await captureCliError([
+        "setup",
         "--yes",
         "--skill-manifest",
         "https://example.com/skills.manifest.json",
@@ -995,6 +1000,7 @@ personas:
 
     try {
       const error = await captureCliError([
+        "setup",
         "--yes",
         "--skill-manifest",
         manifestPath,
@@ -1024,7 +1030,7 @@ personas:
       try {
         const { runCli } = await import("../src/cli");
 
-        await runCli(["--yes", "--skill-scope", skillScope, "--target", targetDir]);
+        await runCli(["setup", "--yes", "--skill-scope", skillScope, "--target", targetDir]);
 
         const manifest = loadManifest(targetDir);
         expect(manifest?.selections.skills).toBe(true);
@@ -1047,6 +1053,7 @@ personas:
       cli.__setSkillsCommandRunnerForTests(runSkillsCommandMock);
 
       await cli.runCli([
+        "setup",
         "skills",
         "--yes",
         "--dry-run",
@@ -1084,6 +1091,7 @@ personas:
       cli.__setSkillsCommandRunnerForTests(runSkillsCommandMock);
 
       await cli.runCli([
+        "setup",
         "skills",
         "--yes",
         "--selected-skills",
@@ -1117,7 +1125,7 @@ personas:
     try {
       const { runCli } = await import("../src/cli");
 
-      await runCli(["skills", "--yes", "--remove", "--target", targetDir]);
+      await runCli(["setup", "skills", "--yes", "--remove", "--target", targetDir]);
 
       const output = writeSpy.mock.calls.map(([chunk]) => String(chunk)).join("");
       expect(output).toContain("No make-docs skill changes are needed.");
@@ -1137,10 +1145,10 @@ personas:
         selections.skills = false;
       });
 
-      const output = await captureCliOutput(["skills", "--yes", "--remove", "--target", targetDir]);
+      const output = await captureCliOutput(["setup", "skills", "--yes", "--remove", "--target", targetDir]);
       const manifest = loadManifest(targetDir);
 
-      expect(output).toContain("make-docs skills removal plan");
+      expect(output).toContain("make-docs setup skills removal plan");
       expect(output).toContain("Removal scope: all manifest-tracked skill files");
       expect(output).toContain("No make-docs skill changes are needed.");
       expect(manifest?.skillFiles).toEqual([]);
@@ -1155,6 +1163,7 @@ personas:
 
     try {
       const output = await captureCliOutput([
+        "setup",
         "skills",
         "--yes",
         "--selected-skills",
@@ -1163,7 +1172,7 @@ personas:
         targetDir,
       ]);
 
-      expect(output).toContain("make-docs skills plan");
+      expect(output).toContain("make-docs setup skills plan");
       expect(output).toContain("Planned skill file operations:");
       expect(output).toContain("shared payload:");
       expect(output).toContain(".make-docs/agentics/skills/archive-docs/SKILL.md");
@@ -1193,7 +1202,7 @@ personas:
     try {
       const { runCli } = await import("../src/cli");
 
-      await runCli(["--yes", flag, "--target", targetDir]);
+      await runCli(["setup", "--yes", flag, "--target", targetDir]);
 
       expect(loadManifest(targetDir)?.selections.harnesses).toEqual(expectedHarnesses);
     } finally {
@@ -1207,7 +1216,7 @@ personas:
     try {
       const { runCli } = await import("../src/cli");
 
-      await runCli(["--yes", "--no-agents", "--no-claude", "--target", targetDir]);
+      await runCli(["setup", "--yes", "--no-agents", "--no-claude", "--target", targetDir]);
 
       expect(loadManifest(targetDir)?.selections.harnesses).toEqual({
         "claude-code": false,
@@ -1231,7 +1240,7 @@ personas:
       });
       const { runCli } = await import("../src/cli");
 
-      await runCli(["reconfigure", "--yes", "--no-skills", "--target", targetDir]);
+      await runCli(["setup", "reconfigure", "--yes", "--no-skills", "--target", targetDir]);
 
       const manifest = loadManifest(targetDir);
       expect(manifest?.selections.skills).toBe(false);
@@ -1261,6 +1270,7 @@ personas:
       const { runCli } = await import("../src/cli");
 
       await runCli([
+        "setup",
         "reconfigure",
         "--yes",
         "--skill-scope",
@@ -1288,13 +1298,14 @@ personas:
     }
   });
 
-  test("rejects non-interactive reconfigure without selection flags", async () => {
+  test("rejects non-interactive setup reconfigure without selection flags", async () => {
     const targetDir = createTempDir();
 
     try {
       await installManifest(targetDir);
 
       const error = await captureCliError([
+        "setup",
         "reconfigure",
         "--yes",
         "--target",
@@ -1302,21 +1313,21 @@ personas:
       ]);
 
       expect(error.message).toContain("requires at least one selection flag");
-      expect(error.message).toContain("make-docs reconfigure");
+      expect(error.message).toContain("make-docs setup reconfigure");
       expect(runSelectionWizardMock).not.toHaveBeenCalled();
     } finally {
       cleanupTempDir(targetDir);
     }
   });
 
-  test("rejects reconfigure without a manifest with first-run guidance", async () => {
+  test("rejects setup reconfigure without a manifest with first-run guidance", async () => {
     const targetDir = createTempDir();
 
     try {
-      const error = await captureCliError(["reconfigure", "--target", targetDir]);
+      const error = await captureCliError(["setup", "reconfigure", "--target", targetDir]);
 
       expect(error.message).toContain("No make-docs manifest");
-      expect(error.message).toContain("Run `make-docs` first");
+      expect(error.message).toContain("Run `make-docs setup` first");
       expect(runSelectionWizardMock).not.toHaveBeenCalled();
     } finally {
       cleanupTempDir(targetDir);
@@ -1331,6 +1342,7 @@ personas:
 
       await expect(
         runCli([
+          "setup",
           "--yes",
           "--no-skills",
           "--skill-scope",
@@ -1344,6 +1356,7 @@ personas:
 
       await expect(
         runCli([
+          "setup",
           "--yes",
           "--no-skills",
           "--skill-manifest",
@@ -1355,6 +1368,7 @@ personas:
 
       await expect(
         runCli([
+          "setup",
           "--yes",
           "--selected-skills",
           "unknown-skill",
@@ -1370,12 +1384,12 @@ personas:
   });
 
   test.each([
-    [["--no-designs"], ["--no-designs", "make-docs skills"]],
-  ])("rejects content selection flags under skills %s", async (argv, messageParts) => {
+    [["--no-designs"], ["--no-designs", "make-docs setup skills"]],
+  ])("rejects content selection flags under setup skills %s", async (argv, messageParts) => {
     const targetDir = createTempDir();
 
     try {
-      const error = await captureCliError(["skills", ...argv, "--target", targetDir]);
+      const error = await captureCliError(["setup", "skills", ...argv, "--target", targetDir]);
 
       for (const part of messageParts) {
         expect(error.message).toContain(part);
@@ -1407,6 +1421,7 @@ personas:
 
     try {
       const error = await captureCliError([
+        "setup",
         "skills",
         "--remove",
         "--selected-skills",
@@ -1416,7 +1431,7 @@ personas:
       ]);
 
       expect(error.message).toContain(
-        "`--selected-skills` cannot be combined with `make-docs skills --remove`.",
+        "`--selected-skills` cannot be combined with `make-docs setup skills --remove`.",
       );
     } finally {
       cleanupTempDir(targetDir);
@@ -1424,8 +1439,8 @@ personas:
   });
 
   test.each([
-    [["--remove"], ["--remove", "no command"]],
-    [["reconfigure", "--remove"], ["--remove", "reconfigure"]],
+    [["--remove"], ["--remove", "Bare `make-docs`", "make-docs setup --remove"]],
+    [["setup", "reconfigure", "--remove"], ["--remove", "make-docs setup reconfigure"]],
     [["--skills"], ["Unknown argument", "--skills"]],
   ])("rejects invalid root and cross-command skills flags for %s", async (argv, messageParts) => {
     const targetDir = createTempDir();
@@ -1443,21 +1458,21 @@ personas:
 
   test.each([
     ["backup"],
-    ["uninstall"],
-  ])("rejects dry-run on lifecycle command %s", async (command) => {
+    ["remove"],
+  ])("rejects dry-run on lifecycle command setup %s", async (command) => {
     const targetDir = createTempDir();
 
     try {
-      const error = await captureCliError([command, "--dry-run", "--target", targetDir]);
+      const error = await captureCliError(["setup", command, "--dry-run", "--target", targetDir]);
 
       expect(error.message).toContain("`--dry-run` is only valid");
-      expect(error.message).toContain(`not \`${command}\``);
+      expect(error.message).toContain(`not \`make-docs setup ${command}\``);
     } finally {
       cleanupTempDir(targetDir);
     }
   });
 
-  test("prints structured top-level help with the public command model", async () => {
+  test("prints structured top-level help with exactly the five public commands", async () => {
     setTTY(false);
 
     const output = await captureCliOutput(["--help"]);
@@ -1465,18 +1480,29 @@ personas:
     expect(output).toMatch(/make-docs/i);
     expect(output).toMatch(/\bCommands\b/i);
     expect(output).toMatch(/\bExamples\b/i);
-    expect(output).toContain("make-docs [options]");
-    expect(output).toContain("install into a new target or sync an existing manifest");
-    expect(output).toContain("make-docs reconfigure");
-    expect(output).toContain("make-docs skills");
-    expect(output).toContain("make-docs backup");
+    expect(output).toContain("make-docs setup [reconfigure|skills|backup|remove] [options]");
+    expect(output).toContain("make-docs run <domain> <verb> [options]");
+    expect(output).toContain("make-docs mcp");
+    expect(output).toContain("make-docs update");
     expect(output).toContain("make-docs uninstall");
-    expect(output).toContain("reconfigure  Change saved selections for an existing install.");
-    expect(output).toContain("skills       Sync or remove managed skills.");
-    expect(output).toContain("backup       Create a backup of managed files.");
-    expect(output).toContain("uninstall    Remove managed files, with an optional backup first.");
+    expect(output).toContain("Bare invocation never syncs.");
+
+    const commandsBlock = output.split("Commands:")[1]?.split("Examples:")[0] ?? "";
+    const commandNames = commandsBlock
+      .split("\n")
+      .map((line) => line.trim())
+      .filter((line) => line.length > 0)
+      .map((line) => line.split(/\s+/)[0]);
+    expect(commandNames).toEqual(["setup", "run", "mcp", "update", "uninstall"]);
+
+    expect(output).toContain(
+      "setup        Install or sync this project; subcommands reconfigure, skills, backup, remove.",
+    );
+    expect(output).toContain("run          Run deterministic registry operations.");
+    expect(output).toContain("mcp          Run the TypeScript MCP server over stdio.");
+    expect(output).toContain("update       Update the installed make-docs tool itself.");
+    expect(output).toContain("uninstall    Remove make-docs' machine-level footprint.");
     expect(output).not.toContain("make-docs init");
-    expect(output).not.toContain("make-docs update");
     expect(output).not.toContain("makedocs");
     expect(output).not.toContain("make-docs-js");
     expect(output).not.toContain("make-docs-rs");
@@ -1485,7 +1511,7 @@ personas:
     expect(output).toMatch(/--help/i);
   });
 
-  test.each([["--help"], ["reconfigure", "--help"], ["skills", "--help"]])(
+  test.each([["--help"], ["setup", "reconfigure", "--help"], ["setup", "skills", "--help"]])(
     "does not expose internal system asset materialization modes in %s help",
     async (...argv: string[]) => {
       setTTY(false);
@@ -1498,16 +1524,17 @@ personas:
     },
   );
 
-  test("documents reconfigure selection-change behavior", async () => {
+  test("documents setup reconfigure selection-change behavior", async () => {
     setTTY(false);
 
-    const output = await captureCliOutput(["reconfigure", "--help"]);
+    const output = await captureCliOutput(["setup", "reconfigure", "--help"]);
 
+    expect(output).toContain("make-docs setup reconfigure");
     expect(output).toContain("Requires an existing .make-docs/manifest.json");
     expect(output).toContain("Interactive runs open the selection wizard");
     expect(output).toContain("Non-interactive runs with --yes must include at least one selection flag");
-    expect(output).toContain("--yes                          Skip interactive prompts; requires a selection flag.");
-    expect(output).toContain("make-docs reconfigure --yes --no-work");
+    expect(output).toContain("--yes                          Skip interactive prompts.");
+    expect(output).toContain("make-docs setup reconfigure --yes --no-work");
     expect(output).toContain("--selected-skills <csv|all|none>");
     expect(output).not.toContain("--optional-skills");
     expect(output).not.toContain("--no-prompts");
@@ -1518,12 +1545,12 @@ personas:
     expect(output).not.toContain("--reconfigure");
   });
 
-  test("documents skills command help with skills-specific options", async () => {
+  test("documents setup skills command help with skills-specific options", async () => {
     setTTY(false);
 
-    const output = await captureCliOutput(["skills", "--help"]);
+    const output = await captureCliOutput(["setup", "skills", "--help"]);
 
-    expect(output).toContain("make-docs skills");
+    expect(output).toContain("make-docs setup skills");
     expect(output).toContain("Sync or remove managed make-docs skills");
     expect(output).toContain("Usage:");
     expect(output).toContain("General options:");
@@ -1533,36 +1560,57 @@ personas:
     expect(output).toContain("--skill-scope project|global");
     expect(output).toContain("--selected-skills <csv|all|none>");
     expect(output).not.toContain("--optional-skills");
-    expect(output).toContain("make-docs skills --dry-run");
-    expect(output).toContain("make-docs skills --remove");
-    expect(output).toContain("make-docs skills --skill-scope global");
+    expect(output).toContain("make-docs setup skills --dry-run");
+    expect(output).toContain("make-docs setup skills --remove");
+    expect(output).toContain("make-docs setup skills --skill-scope global");
     expect(output).not.toContain("--no-designs");
     expect(output).not.toContain("--templates required|all");
     expect(output).not.toContain("--skills");
   });
 
   test.each([
-    ["reconfigure", ["Usage", "Options", "Examples", "make-docs reconfigure"]],
-    ["skills", ["Usage", "Skill options", "Examples", "make-docs skills"]],
-    ["backup", ["Usage", "Options", "Examples", "make-docs backup"]],
-    ["uninstall", ["Usage", "Options", "Examples", "make-docs uninstall"]],
-  ])("prints command-specific help for %s", async (command, snippets) => {
+    ["reconfigure", ["Usage:", "General options:", "Examples:", "make-docs setup reconfigure"]],
+    ["skills", ["Usage:", "Skill options:", "Examples:", "make-docs setup skills"]],
+    ["backup", ["Usage:", "Options:", "Examples:", "make-docs setup backup"]],
+    ["remove", ["Usage:", "Options:", "Examples:", "make-docs setup remove"]],
+  ])("prints command-specific help for setup %s", async (command, snippets) => {
     setTTY(false);
 
-    const output = await captureCliOutput([command, "--help"]);
+    const output = await captureCliOutput(["setup", command, "--help"]);
 
     for (const snippet of snippets) {
       expect(output).toContain(snippet);
     }
   });
 
+  test("prints setup help with the subcommand model", async () => {
+    setTTY(false);
+
+    const output = await captureCliOutput(["setup", "--help"]);
+
+    expect(output).toContain("make-docs setup");
+    expect(output).toContain("Subcommands:");
+    expect(output).toContain("reconfigure  Change saved selections for an existing install.");
+    expect(output).toContain("skills       Sync or remove managed skills.");
+    expect(output).toContain("backup       Create a backup of managed files.");
+    expect(output).toContain(
+      "remove       Remove this project's managed files, with an optional backup first.",
+    );
+  });
+
   test.each([
-    [["init", "--yes"], ["`init` command was removed", "make-docs --yes"]],
-    [["update", "--yes"], ["`update` command was removed", "make-docs --yes"]],
-    [["--reconfigure"], ["`--reconfigure` was removed", "make-docs reconfigure"]],
+    [["init", "--yes"], ["The `init` command was removed", "make-docs setup"]],
+    [["reconfigure"], ["The `reconfigure` command was removed", "make-docs setup reconfigure"]],
+    [["skills", "--dry-run"], ["The `skills` command was removed", "make-docs setup skills"]],
+    [["backup", "--yes"], ["The `backup` command was removed", "make-docs setup backup"]],
+    [
+      ["operations", "closeout", "probe"],
+      ["The `operations` command was removed", "make-docs run <domain> <verb>"],
+    ],
+    [["--reconfigure"], ["`--reconfigure` was removed", "make-docs setup reconfigure"]],
     [
       ["update", "--reconfigure", "--yes"],
-      ["`update --reconfigure` command was removed", "make-docs reconfigure"],
+      ["`update --reconfigure` command was removed", "make-docs setup reconfigure"],
     ],
   ])("reports migration guidance for removed command surface %s", async (argv, messageParts) => {
     const targetDir = createTempDir();
@@ -1593,12 +1641,12 @@ personas:
     },
   );
 
-  test("documents backup help with lifecycle-specific options", async () => {
+  test("documents setup backup help with lifecycle-specific options", async () => {
     setTTY(false);
 
-    const output = await captureCliOutput(["backup", "--help"]);
+    const output = await captureCliOutput(["setup", "backup", "--help"]);
 
-    expect(output).toContain("make-docs backup");
+    expect(output).toContain("make-docs setup backup");
     expect(output).toContain("--target");
     expect(output).toContain("--yes");
     expect(output).toContain("Skip confirmation prompts");
@@ -1609,12 +1657,13 @@ personas:
     expect(output).not.toContain("--no-skills");
   });
 
-  test("documents uninstall help with backup and yes options", async () => {
+  test("documents setup remove help with backup and yes options", async () => {
     setTTY(false);
 
-    const output = await captureCliOutput(["uninstall", "--help"]);
+    const output = await captureCliOutput(["setup", "remove", "--help"]);
 
-    expect(output).toContain("make-docs uninstall");
+    expect(output).toContain("make-docs setup remove");
+    expect(output).toContain("`make-docs uninstall` is the");
     expect(output).toContain("--target");
     expect(output).toContain("--backup");
     expect(output).toContain("--yes");
@@ -1626,12 +1675,12 @@ personas:
     expect(output).not.toContain("--optional-skills");
   });
 
-  test("keeps uninstall help on the help path without dispatching lifecycle work", async () => {
+  test("keeps setup remove help on the help path without dispatching lifecycle work", async () => {
     setTTY(false);
 
-    const output = await captureCliOutput(["uninstall", "--help"]);
+    const output = await captureCliOutput(["setup", "remove", "--help"]);
 
-    expect(output).toContain("make-docs uninstall");
+    expect(output).toContain("make-docs setup remove");
     expect(runUninstallCommandMock).not.toHaveBeenCalled();
   });
 
@@ -1643,13 +1692,14 @@ personas:
     try {
       setTTY(false);
       const output = await captureCliOutput([
+        "setup",
         "backup",
         "--yes",
         "--target",
         targetDir,
       ]);
 
-      expect(output).toContain("make-docs backup");
+      expect(output).toContain("make-docs setup backup");
       expect(output).toContain("No make-docs-managed files required backup.");
     } finally {
       restoreHome();
@@ -1668,7 +1718,7 @@ personas:
       confirmMock.mockResolvedValue(false);
       const { runCli } = await import("../src/cli");
 
-      await runCli(["backup", "--target", targetDir]);
+      await runCli(["setup", "backup", "--target", targetDir]);
 
       expect(confirmMock).toHaveBeenCalledTimes(1);
     } finally {
@@ -1683,7 +1733,7 @@ personas:
       setTTY(false);
       const { runCli } = await import("../src/cli");
 
-      await runCli(["backup", "--yes", "--target", targetDir]);
+      await runCli(["setup", "backup", "--yes", "--target", targetDir]);
 
       expect(confirmMock).not.toHaveBeenCalled();
     } finally {
@@ -1691,7 +1741,7 @@ personas:
     }
   });
 
-  test("routes uninstall through the implemented lifecycle flow", async () => {
+  test("routes setup remove through the implemented lifecycle flow", async () => {
     const targetDir = createTempDir();
     const cli = await import("../src/cli");
 
@@ -1699,7 +1749,8 @@ personas:
       cli.__setUninstallCommandLoaderForTests(async () => runUninstallCommandMock);
 
       await cli.runCli([
-        "uninstall",
+        "setup",
+        "remove",
         "--backup",
         "--yes",
         "--target",
@@ -1718,14 +1769,14 @@ personas:
     }
   });
 
-  test("defaults uninstall to confirmation mode", async () => {
+  test("defaults setup remove to confirmation mode", async () => {
     const targetDir = createTempDir();
     const cli = await import("../src/cli");
 
     try {
       cli.__setUninstallCommandLoaderForTests(async () => runUninstallCommandMock);
 
-      await cli.runCli(["uninstall", "--target", targetDir]);
+      await cli.runCli(["setup", "remove", "--target", targetDir]);
 
       expect(runUninstallCommandMock).toHaveBeenCalledTimes(1);
       expect(runUninstallCommandMock).toHaveBeenCalledWith({
@@ -1739,14 +1790,14 @@ personas:
     }
   });
 
-  test("uses --yes to skip uninstall confirmation prompts", async () => {
+  test("uses --yes to skip setup remove confirmation prompts", async () => {
     const targetDir = createTempDir();
     const cli = await import("../src/cli");
 
     try {
       cli.__setUninstallCommandLoaderForTests(async () => runUninstallCommandMock);
 
-      await cli.runCli(["uninstall", "--yes", "--target", targetDir]);
+      await cli.runCli(["setup", "remove", "--yes", "--target", targetDir]);
 
       expect(runUninstallCommandMock).toHaveBeenCalledTimes(1);
       expect(runUninstallCommandMock).toHaveBeenCalledWith({
@@ -1761,11 +1812,14 @@ personas:
   });
 
   test.each([
-    [["backup", "--no-skills"], ["backup", "--no-skills"]],
-    [["uninstall", "--selected-skills", "decompose-codebase"], ["uninstall", "--selected-skills"]],
+    [["setup", "backup", "--no-skills"], ["make-docs setup backup", "--no-skills"]],
+    [
+      ["setup", "remove", "--selected-skills", "decompose-codebase"],
+      ["make-docs setup remove", "--selected-skills"],
+    ],
     [["--permissions", "confirm"], ["Unknown argument", "--permissions"]],
-    [["--backup"], ["no command", "--backup"]],
-    [["reconfigure", "--backup"], ["reconfigure", "--backup"]],
+    [["--backup"], ["Bare `make-docs`", "make-docs setup --backup"]],
+    [["setup", "reconfigure", "--backup"], ["make-docs setup reconfigure", "--backup"]],
   ])("rejects invalid cross-command flag mixes for %s", async (argv, messageParts) => {
     const targetDir = createTempDir();
 
@@ -1779,4 +1833,130 @@ personas:
       cleanupTempDir(targetDir);
     }
   });
+
+  test("bare invocation with an install prints status and never syncs", async () => {
+    const targetDir = createTempDir();
+
+    try {
+      await installManifest(targetDir, (selections) => {
+        selections.skills = false;
+      });
+      const manifestPath = path.join(targetDir, ".make-docs/manifest.json");
+      const manifestBefore = readFileSync(manifestPath, "utf8");
+      const mtimeBefore = statSync(manifestPath).mtimeMs;
+      const manifest = loadManifest(targetDir);
+
+      const output = await captureCliOutput(["--target", targetDir]);
+
+      expect(output).toContain(`make-docs install detected in ${path.resolve(targetDir)}`);
+      expect(output).toContain(`Package: ${manifest?.packageName}@${manifest?.packageVersion}`);
+      expect(output).toContain("Bare `make-docs` never syncs an existing install.");
+      expect(output).toContain("Use `make-docs setup` to sync");
+      expect(runSelectionWizardMock).not.toHaveBeenCalled();
+      expect(confirmMock).not.toHaveBeenCalled();
+      expect(readFileSync(manifestPath, "utf8")).toBe(manifestBefore);
+      expect(statSync(manifestPath).mtimeMs).toBe(mtimeBefore);
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("bare invocation without an install and no TTY prints guided-setup guidance and writes nothing", async () => {
+    const targetDir = createTempDir();
+
+    try {
+      setTTY(false);
+
+      const output = await captureCliOutput(["--target", targetDir]);
+
+      expect(output).toContain(`No make-docs install was detected in ${path.resolve(targetDir)}`);
+      expect(output).toContain(
+        "Bare `make-docs` starts a guided setup only in an interactive terminal.",
+      );
+      expect(output).toContain(
+        "Run `make-docs setup` (interactive) or `make-docs setup --yes` (non-interactive) to install.",
+      );
+      expect(runSelectionWizardMock).not.toHaveBeenCalled();
+      expect(readdirSync(targetDir)).toEqual([]);
+      expect(loadManifest(targetDir)).toBeNull();
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("bare invocation without an install and a TTY starts the guided setup without writing on cancel", async () => {
+    const targetDir = createTempDir();
+
+    try {
+      runSelectionWizardMock.mockResolvedValue(null);
+
+      const output = await captureCliOutput(["--target", targetDir]);
+
+      expect(runSelectionWizardMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          introTitle: "Let's configure your make-docs install",
+        }),
+      );
+      expect(output).toContain("Installer cancelled.");
+      expect(readdirSync(targetDir)).toEqual([]);
+      expect(loadManifest(targetDir)).toBeNull();
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test.each([
+    [["--yes"], "--yes"],
+    [["--dry-run"], "--dry-run"],
+    [["--no-work"], "--no-work"],
+  ])("bare invocation rejects install and sync flag %s and names make-docs setup", async (argv, flag) => {
+    const error = await captureCliError(argv);
+
+    expect(error.message).toContain("Bare `make-docs`");
+    expect(error.message).toContain("accepts only `--target` and `--help`");
+    expect(error.message).toContain(`make-docs setup ${flag}`);
+  });
+
+  test("reserves top-level update for tool self-management", async () => {
+    const error = await captureCliError(["update", "--yes"]);
+
+    expect(error.message).toContain(
+      "`make-docs update` manages the installed tool itself and lands with the W18 R11 tool self-management phase.",
+    );
+    expect(error.message).toContain("use `make-docs setup` or `make-docs setup reconfigure`");
+  });
+
+  test("reserves top-level uninstall and points project removal at setup remove", async () => {
+    const targetDir = createTempDir();
+    const cli = await import("../src/cli");
+
+    try {
+      cli.__setUninstallCommandLoaderForTests(async () => runUninstallCommandMock);
+
+      const error = await captureCliError(["uninstall", "--yes", "--target", targetDir]);
+
+      expect(error.message).toContain("machine-level tool removal");
+      expect(error.message).toContain("lands with the W18 R11 tool self-management phase");
+      expect(error.message).toContain(
+        "To remove make-docs from a project, use `make-docs setup remove`.",
+      );
+      expect(runUninstallCommandMock).not.toHaveBeenCalled();
+    } finally {
+      cli.__setUninstallCommandLoaderForTests(null);
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test.each([["update"], ["uninstall"]])(
+    "prints reserved self-management help for %s without acting",
+    async (command) => {
+      setTTY(false);
+
+      const output = await captureCliOutput([command, "--help"]);
+
+      expect(output).toContain(`make-docs ${command}`);
+      expect(output.replace(/\n/g, " ")).toContain("W18 R11 tool self-management phase");
+      expect(runUninstallCommandMock).not.toHaveBeenCalled();
+    },
+  );
 });

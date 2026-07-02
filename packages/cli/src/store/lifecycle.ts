@@ -20,7 +20,7 @@ import { deleteProjectRows, listProjectRegistryEntries } from "./state-rows";
  * - {@link pruneProjectFromStore} — project removal. Deletes exactly one
  *   project's rows, keyed by the manifest-minted project identifier, leaving
  *   every other project's rows untouched (R-LIFE-2). Today's repo-level
- *   `make-docs uninstall` calls it; the W18 R11 CLI reorganization's
+ *   `make-docs setup remove` calls it; the W18 R11 CLI reorganization's
  *   `setup remove` surfaces the same function.
  *
  * - {@link removeGlobalStore} — machine-level store removal. The behavior the

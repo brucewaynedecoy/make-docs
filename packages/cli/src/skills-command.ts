@@ -242,7 +242,7 @@ function printSkillsPlan(options: {
   config: MakeDocsConfig;
 }): void {
   const title =
-    options.state.action === "remove" ? "make-docs skills removal plan" : "make-docs skills plan";
+    options.state.action === "remove" ? "make-docs setup skills removal plan" : "make-docs setup skills plan";
   note(
     renderSkillsPlanSummary({
       state: options.state,

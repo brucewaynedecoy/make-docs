@@ -27,7 +27,7 @@ This guide explains the v2 model for turning Make Docs Playbooks into shareable 
 
 ## What Packaging Means
 
-A Playbook is the portable source workflow. It stays under `docs/assets/playbooks/<persona>/<slug>.md` and remains readable Markdown.
+A Playbook is the portable source workflow. It stays under `docs/assets/playbooks/<persona>/<slug>.playbook.md` and remains readable Markdown.
 
 Packaging creates a generated output from that source. Depending on the target harness and user choice, the output can be:
 
@@ -94,7 +94,7 @@ The current low-level flow is:
 For example, a maintainer can create a package plan:
 
 ```sh
-make-docs operations playbook-package-plan \
+make-docs run package plan \
   --source user/run-stack \
   --harness codex \
   --output-kind plugin \
@@ -108,7 +108,7 @@ The result is JSON. Save the returned `plan` object and inspect the `status`, `s
 To check where a package would be exposed for a harness:
 
 ```sh
-make-docs operations playbook-package-surface-resolve \
+make-docs run package surface-resolve \
   --package-id run-stack \
   --harness codex \
   --output-kind plugin \
@@ -122,7 +122,7 @@ make-docs operations playbook-package-surface-resolve \
 To dry-run a write:
 
 ```sh
-make-docs operations playbook-package-write \
+make-docs run package write \
   --plan-json /path/to/package-plan.json \
   --precondition harness-supported=satisfied \
   --precondition project-trusted=satisfied \

@@ -25,7 +25,7 @@ related:
 
 # Installing Make Docs
 
-Use this guide for the first install only: prerequisites, the initial `make-docs` run, your first apply, and the main capability choices. Ongoing sync, reconfigure, backup, uninstall, and recovery flows are covered in [Managing Installations with the Make Docs CLI](./cli-lifecycle-managing-installations.md).
+Use this guide for the first install only: prerequisites, the initial `make-docs setup` run, your first apply, and the main capability choices. Ongoing sync, reconfigure, backup, removal, and recovery flows are covered in [Managing Installations with the Make Docs CLI](./cli-lifecycle-managing-installations.md).
 
 ## Before You Start
 
@@ -34,7 +34,7 @@ You need:
 | Requirement | Why it matters |
 | --- | --- |
 | Node.js 18 or later | The CLI is Node-based. |
-| npm and `npx` | `npx @brucewaynedecoy/make-docs@next` is the main RC install entry point. |
+| npm and `npx` | `npx @brucewaynedecoy/make-docs@next setup` is the main RC install entry point. |
 | A target project directory | The installer writes the selected docs scaffold into that repo. |
 
 Run the installer from the root of the project you want to set up.
@@ -44,29 +44,31 @@ Run the installer from the root of the project you want to set up.
 The standard entry point is:
 
 ```bash
-npx @brucewaynedecoy/make-docs@next
+npx @brucewaynedecoy/make-docs@next setup
 ```
 
-On a first install, `make-docs` opens the selection wizard and walks you through:
+On a first install, `make-docs setup` opens the selection wizard and walks you through:
 
 1. capabilities
 2. harnesses
 3. install options
 4. review and apply
 
+Running bare `make-docs` (or bare `npx @brucewaynedecoy/make-docs@next`) is context-aware: in a project with no install, an interactive run starts the same guided setup; in a project that already has an install, it shows the current installation status and help, and never syncs or writes files. All non-interactive and flag-driven installs go through `setup`.
+
 If you want the default first install without prompts, run:
 
 ```bash
-npx @brucewaynedecoy/make-docs@next --yes
+npx @brucewaynedecoy/make-docs@next setup --yes
 ```
 
 If you want to preview the first install without writing files, run:
 
 ```bash
-npx @brucewaynedecoy/make-docs@next --dry-run
+npx @brucewaynedecoy/make-docs@next setup --dry-run
 ```
 
-`make-docs` treats a run with no existing manifest as a first install. The first successful apply creates `.make-docs/manifest.json`, which becomes the saved state for later lifecycle operations.
+`make-docs setup` treats a run with no existing manifest as a first install. The first successful apply creates `.make-docs/manifest.json`, which becomes the saved state for later lifecycle operations.
 
 ## What the Default First Install Includes
 
@@ -103,10 +105,10 @@ Examples:
 
 ```bash
 # Keep a full install, but skip work backlogs
-npx @brucewaynedecoy/make-docs@next --yes --no-work
+npx @brucewaynedecoy/make-docs@next setup --yes --no-work
 
 # Install only design and planning surfaces
-npx @brucewaynedecoy/make-docs@next --yes --no-prd --no-work
+npx @brucewaynedecoy/make-docs@next setup --yes --no-prd --no-work
 ```
 
 ## Choosing Harnesses and Install Options
@@ -125,13 +127,13 @@ Examples:
 
 ```bash
 # Install only the Codex harness
-npx @brucewaynedecoy/make-docs@next --yes --no-claude
+npx @brucewaynedecoy/make-docs@next setup --yes --no-claude
 
 # Skip skills on the first install
-npx @brucewaynedecoy/make-docs@next --yes --no-skills
+npx @brucewaynedecoy/make-docs@next setup --yes --no-skills
 
 # Select a specific skill during install
-npx @brucewaynedecoy/make-docs@next --yes --selected-skills decompose-codebase
+npx @brucewaynedecoy/make-docs@next setup --yes --selected-skills decompose-codebase
 ```
 
 This guide stops at initial selection. Use [Installing and Managing Skills](./skills-installing-and-managing-skills.md) for ongoing skill changes and [Managing Installations with the Make Docs CLI](./cli-lifecycle-managing-installations.md) for lifecycle operations after the first install.
@@ -165,6 +167,6 @@ After the first install:
 - use [Choosing the Right Route for Your Project](./workflows-choosing-the-right-route-for-your-project.md) to pick the right documentation route
 - use [Understanding W/R/P Coordinates](./concepts-wave-revision-phase-coordinates.md) when you start working with plan and backlog lineage
 - use [Installing and Managing Skills](./skills-installing-and-managing-skills.md) when you want to adjust shipped skills after the first install
-- use [Managing Installations with the Make Docs CLI](./cli-lifecycle-managing-installations.md) for apply or sync, reconfigure, backup, uninstall, and recovery
+- use [Managing Installations with the Make Docs CLI](./cli-lifecycle-managing-installations.md) for apply or sync, reconfigure, backup, removal, and recovery
 
-For ongoing apply or sync, reconfigure, backup, uninstall, and recovery, continue with [Managing Installations with the Make Docs CLI](./cli-lifecycle-managing-installations.md).
+For ongoing apply or sync, reconfigure, backup, removal, and recovery, continue with [Managing Installations with the Make Docs CLI](./cli-lifecycle-managing-installations.md).

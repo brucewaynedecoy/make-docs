@@ -204,10 +204,10 @@ describe("local bootstrap independence (R-STORE-3, R-KEEP-2)", () => {
       }
 
       process.env.MAKE_DOCS_HOME = freshStore;
-      await runCli(["--yes", "--target", targetWithoutStore]);
+      await runCli(["setup", "--yes", "--target", targetWithoutStore]);
 
       process.env.MAKE_DOCS_HOME = populatedStore;
-      await runCli(["--yes", "--target", targetWithStore]);
+      await runCli(["setup", "--yes", "--target", targetWithStore]);
 
       const filesWithout = collectFiles(targetWithoutStore);
       const filesWith = collectFiles(targetWithStore);
@@ -235,7 +235,7 @@ describe("local bootstrap independence (R-STORE-3, R-KEEP-2)", () => {
     const storeRoot = path.join(createTempDir("make-docs-store-"), "store");
     try {
       process.env.MAKE_DOCS_HOME = storeRoot;
-      await runCli(["--yes", "--target", targetDir]);
+      await runCli(["setup", "--yes", "--target", targetDir]);
 
       expect(existsSync(path.join(storeRoot, GLOBAL_CONFIG_FILE))).toBe(true);
       expect(existsSync(path.join(storeRoot, GLOBAL_MANIFEST_FILE))).toBe(true);
@@ -546,7 +546,7 @@ describe.skipIf(!sqliteAvailable)("store recovery (R-DB-4)", () => {
     const targetDir = createTempDir("make-docs-target-");
     try {
       process.env.MAKE_DOCS_HOME = storeRoot;
-      await runCli(["--yes", "--target", targetDir]);
+      await runCli(["setup", "--yes", "--target", targetDir]);
       expect(loadManifest(targetDir)).not.toBeNull();
 
       // Corrupt the store, then read the repository and re-run the installer.
@@ -556,7 +556,7 @@ describe.skipIf(!sqliteAvailable)("store recovery (R-DB-4)", () => {
       writeFileSync(databasePath, "garbage", "utf8");
 
       expect(loadManifest(targetDir)).not.toBeNull();
-      await expect(runCli(["--yes", "--target", targetDir])).resolves.toBeUndefined();
+      await expect(runCli(["setup", "--yes", "--target", targetDir])).resolves.toBeUndefined();
       expect(loadManifest(targetDir)).not.toBeNull();
     } finally {
       process.env.MAKE_DOCS_HOME = originalStoreHome;

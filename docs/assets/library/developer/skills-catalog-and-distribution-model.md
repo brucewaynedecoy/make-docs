@@ -102,7 +102,7 @@ Implications:
 
 ## Skills-only planning and apply behavior
 
-Skills are not maintained exclusively through full reconfigure flows. The dedicated `make-docs skills` command exists so users can change only the skills portion of the install.
+Skills are not maintained exclusively through full reconfigure flows. The dedicated `make-docs setup skills` command exists so users can change only the skills portion of the install.
 
 From the implementation side, the skills command:
 
@@ -116,7 +116,7 @@ Clean manifest-owned installs from the older per-harness duplicated payload shap
 
 This is why the user and developer guides stay distinct:
 
-- the user guide explains when to run `make-docs skills`
+- the user guide explains when to run `make-docs setup skills`
 - this guide explains why the registry, selection model, and per-harness asset mapping behave the way they do
 
 ## `archive-docs` as a first-party selectable skill
@@ -178,4 +178,4 @@ Treat those paths as migration evidence from the older per-harness payload layou
 
 ### A user needs to manage only skills, not the full install
 
-Point them to the dedicated `make-docs skills` workflow instead of the broader install lifecycle.
+Point them to the dedicated `make-docs setup skills` workflow instead of the broader install lifecycle.

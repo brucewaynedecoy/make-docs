@@ -39,13 +39,13 @@ In normal use, planning happens first and execution starts only after the plan i
 Enable the optional skill through the skills lifecycle:
 
 ```bash
-make-docs skills --yes --selected-skills decompose-codebase
+make-docs setup skills --yes --selected-skills decompose-codebase
 ```
 
 Preview the installation first if needed:
 
 ```bash
-make-docs skills --dry-run --yes --selected-skills decompose-codebase
+make-docs setup skills --dry-run --yes --selected-skills decompose-codebase
 ```
 
 For the broader skills model, see [Installing and Managing Skills](./skills-installing-and-managing-skills.md).

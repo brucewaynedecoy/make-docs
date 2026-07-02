@@ -14,7 +14,7 @@ import {
   validatePackagePlan,
   writePlaybookPackageOutputs,
 } from "../src/operations";
-import { runOperationsCommand } from "../src/operations/cli";
+import { runRunCommand } from "../src/run/cli";
 import type {
   GeneratedOutputRecord,
   HarnessPackageAdapterDeclaration,
@@ -561,8 +561,9 @@ describe("playbook packaging schema foundation", () => {
     writePlaybook(root, "user", "run-stack", "run", "Run Stack");
     const writeSpy = vi.spyOn(process.stdout, "write").mockImplementation(() => true);
 
-    await runOperationsCommand([
-      "playbook-package-plan",
+    await runRunCommand([
+      "package",
+      "plan",
       "--repo-root",
       root,
       "--source",
@@ -731,8 +732,9 @@ describe("playbook packaging schema foundation", () => {
   test("exposes surface resolution through the CLI operation", async () => {
     const writeSpy = vi.spyOn(process.stdout, "write").mockImplementation(() => true);
 
-    await runOperationsCommand([
-      "playbook-package-surface-resolve",
+    await runRunCommand([
+      "package",
+      "surface-resolve",
       "--package-id",
       "run-stack",
       "--harness",
@@ -1016,8 +1018,9 @@ describe("playbook packaging schema foundation", () => {
     const planPath = writeFile(root, "plan.json", JSON.stringify(plan, null, 2));
     const writeSpy = vi.spyOn(process.stdout, "write").mockImplementation(() => true);
 
-    await runOperationsCommand([
-      "playbook-package-write",
+    await runRunCommand([
+      "package",
+      "write",
       "--repo-root",
       root,
       "--plan-json",
@@ -1035,8 +1038,9 @@ describe("playbook packaging schema foundation", () => {
     expect(existsSync(path.join(root, ".make-docs/agentics/plugins/run-stack/plugin.json"))).toBe(false);
 
     writeSpy.mockClear();
-    await runOperationsCommand([
-      "playbook-package-write",
+    await runRunCommand([
+      "package",
+      "write",
       "--repo-root",
       root,
       "--plan-json",

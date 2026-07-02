@@ -357,7 +357,7 @@ describe("lifecycle validation", () => {
         now: NOW,
       });
       expect(events).toEqual([
-        "workflow:make-docs backup",
+        "workflow:make-docs setup backup",
         "backup:audit-summary",
         "backup:noop-summary",
       ]);
@@ -371,7 +371,7 @@ describe("lifecycle validation", () => {
         now: NOW,
       });
       expect(events).toEqual([
-        "workflow:make-docs uninstall",
+        "workflow:make-docs setup remove",
         "uninstall:warning",
         "uninstall:warning-confirmation",
         "uninstall:audit-summary",
@@ -441,9 +441,9 @@ describe("lifecycle validation", () => {
       expect(clackMocks.intro).toHaveBeenCalledWith("make-docs lifecycle");
       expect(clackMocks.note).toHaveBeenCalledWith(
         expect.stringContaining("Files to copy: 1"),
-        "make-docs backup",
+        "make-docs setup backup",
       );
-      expect(getClackNoteBody("make-docs backup")).toContain(
+      expect(getClackNoteBody("make-docs setup backup")).toContain(
         [
           "Skills: enabled (project)",
           "Skills manifest: Acme local skills (local file: /tmp/acme-skills.json)",
@@ -451,7 +451,7 @@ describe("lifecycle validation", () => {
           "Skill provenance: acme-release: Local Acme skill (local)",
         ].join("\n"),
       );
-      expect(getClackNoteBody("make-docs backup")).toContain(
+      expect(getClackNoteBody("make-docs setup backup")).toContain(
         [
           "Files to copy:",
           "- managed-file.md (Synthetic backup failure fixture.)",
@@ -471,7 +471,7 @@ describe("lifecycle validation", () => {
         "Backup complete",
       );
       expect(clackMocks.note).toHaveBeenCalledWith(
-        expect.stringContaining("Safer destructive flow: make-docs uninstall --backup"),
+        expect.stringContaining("Safer destructive flow: make-docs setup remove --backup"),
         "WARNING",
       );
       expect(clackMocks.note).toHaveBeenCalledWith(
@@ -480,9 +480,9 @@ describe("lifecycle validation", () => {
       );
       expect(clackMocks.note).toHaveBeenCalledWith(
         expect.stringContaining("Files to remove: 1"),
-        "make-docs uninstall",
+        "make-docs setup remove",
       );
-      expect(getClackNoteBody("make-docs uninstall")).toContain(
+      expect(getClackNoteBody("make-docs setup remove")).toContain(
         [
           "Skills: enabled (project)",
           "Skills manifest: Acme local skills (local file: /tmp/acme-skills.json)",
@@ -490,7 +490,7 @@ describe("lifecycle validation", () => {
           "Skill provenance: acme-release: Local Acme skill (local)",
         ].join("\n"),
       );
-      expect(getClackNoteBody("make-docs uninstall")).toContain(
+      expect(getClackNoteBody("make-docs setup remove")).toContain(
         [
           "Files to remove:",
           "- managed-file.md (Synthetic backup failure fixture.)",
@@ -581,7 +581,7 @@ describe("lifecycle validation", () => {
     const promptCount = clackMocks.confirm.mock.calls.length;
     setTTY(false);
     await expect(renderer.confirmBackupRun("confirm")).rejects.toThrow(
-      "Backup confirmation requires a TTY. Re-run with `make-docs backup --yes`.",
+      "Backup confirmation requires a TTY. Re-run with `make-docs setup backup --yes`.",
     );
     await expect(
       renderer.confirmUninstallRun({
@@ -589,7 +589,7 @@ describe("lifecycle validation", () => {
         backupRequested: false,
       }),
     ).rejects.toThrow(
-      "Uninstall confirmation requires a TTY. Re-run with `make-docs uninstall --yes`.",
+      "Uninstall confirmation requires a TTY. Re-run with `make-docs setup remove --yes`.",
     );
     expect(clackMocks.confirm).toHaveBeenCalledTimes(promptCount);
   });

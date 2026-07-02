@@ -178,9 +178,9 @@ describe("uninstall command", () => {
       expect(existsSync(path.join(targetDir, ".backup"))).toBe(false);
       expect(output).toContain("WARNING");
       expect(output).toContain("This command removes audited make-docs-managed paths");
-      expect(output).toContain("Safer alternative: make-docs backup");
-      expect(output).toContain("Safer destructive flow: make-docs uninstall --backup");
-      expect(output).toContain("make-docs uninstall");
+      expect(output).toContain("Safer alternative: make-docs setup backup");
+      expect(output).toContain("Safer destructive flow: make-docs setup remove --backup");
+      expect(output).toContain("make-docs setup remove");
       expect(output).toContain("Uninstall complete");
       expect(output).toContain("Files removed:");
       expect(confirmMock).not.toHaveBeenCalled();
@@ -285,7 +285,7 @@ describe("uninstall command", () => {
         "uninstall:completion-summary",
       ]);
       expect(events[0]).toMatchObject({
-        title: "make-docs uninstall",
+        title: "make-docs setup remove",
       });
       expect(events[1]).toMatchObject({
         targetDir,

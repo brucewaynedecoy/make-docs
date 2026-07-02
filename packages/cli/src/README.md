@@ -28,22 +28,25 @@ The package is intentionally small. Most changes land in one of these files:
 - [`src/install.ts`](./install.ts): plan application and conflict staging
 - [`src/manifest.ts`](./manifest.ts): managed-file manifest load/write helpers
 - [`src/operations/`](./operations/): modular deterministic operation domains shared by CLI commands and MCP tools
+- [`src/operations/registry.ts`](./operations/registry.ts): the append-only operation registry — the single source of truth for deterministic operations
+- [`src/operations/context.ts`](./operations/context.ts): the injected execution context that gates writes, dry-run, and approvals uniformly
+- [`src/run/cli.ts`](./run/cli.ts): the `make-docs run` surface derived from the registry
 - [`src/mcp/`](./mcp/): read-first MCP stdio server registration and tool handlers
-- [`src/operations/cli.ts`](./operations/cli.ts): thin compatibility dispatch for `make-docs operations ...`
+- [`src/operations/cli.ts`](./operations/cli.ts): legacy dispatch for the pruned operation cluster only (test-reachable; removed by the W18 R11 pruning phase)
 - [`src/operations.ts`](./operations.ts): compatibility facade for callers that still import `src/operations`
 - [`tests/`](../tests): integration, CLI, wizard, managed-block, and consistency coverage
 
 ## Operation Domains
 
-New deterministic make-docs behavior belongs under `src/operations/<domain>/` before it is exposed through a CLI command, MCP tool, skill, or plugin surface. The initial domains mirror the `make-docs operations ...` command families:
+New deterministic make-docs behavior is declared once in the operation registry ([`src/operations/registry.ts`](./operations/registry.ts)) through a per-operation definition module under `src/operations/<domain>/ops/<verb>.ts`, then surfaced on `make-docs run`, the MCP tools, and Playbook `operation:` steps. Identifiers are stable, lowercase, dot-separated, and append-only. The registered domains are:
 
-- `closeout`: closeout probes, validation planning, and history rendering.
-- `work`: work phase parsing, wave resolution, wave status, and phase planning.
-- `lifecycle`: checkpoints, scope guards, and phase gates.
-- `playbook`: catalog, resolver, capability, run-state, and generic invocation operations.
-- `playbook-packaging`: package-plan, generated-output, and harness-adapter schema validation.
+- `playbook`: validate, catalog, resolve, capabilities, and the run-state operations (start, invoke, status; next/advance/gate/resume/close are reserved pending the W18 R7 engine).
+- `package`: package-plan, surface-resolve, and write over the playbook-packaging implementations.
+- `work`: the retained work-item identity resolver and evidence record/read pair over the global store.
 
-Shared operation contracts live in [`src/operations/types.ts`](./operations/types.ts). Keep domain functions callable without the full CLI parser or MCP transport so tests can exercise deterministic behavior directly. Public dispatch files such as [`src/operations/cli.ts`](./operations/cli.ts) and MCP handlers under [`src/mcp/`](./mcp/) should parse transport-specific input, call a domain function, and render the result; they should not become the long-term home for domain logic.
+The legacy `closeout`, `work` inspection, and `lifecycle` domains are pruned by the migrated-operations inventory disposition and must not gain registry identifiers; their dispatcher ([`src/operations/cli.ts`](./operations/cli.ts)) survives only for tests until the pruning phase deletes it.
+
+Shared operation contracts live in [`src/operations/types.ts`](./operations/types.ts), the registry contract in [`src/operations/registry.ts`](./operations/registry.ts), and the execution context in [`src/operations/context.ts`](./operations/context.ts). Every handler is invocable through `invokeOperation` without the CLI parser or MCP transport; surfaces adapt transport input, call the registry, and render the result — they never own operation logic or per-surface write gating.
 
 ## Development Workflow
 
@@ -88,8 +91,8 @@ npm run build
 
 TEST_DIR=$(mktemp -d)
 node dist/index.js --help
-node dist/index.js --dry-run --target "$TEST_DIR"
-node dist/index.js --target "$TEST_DIR"
+node dist/index.js setup --dry-run --target "$TEST_DIR"
+node dist/index.js setup --target "$TEST_DIR"
 ```
 
 The interactive wizard should currently walk through:
@@ -118,23 +121,24 @@ cat "$TEST_DIR/.make-docs/manifest.json"
 1. Default install: accept defaults, confirm `docs/work/AGENTS.md` and the manifest are created.
 2. Dependency logic: deselect `Plans` and confirm `PRD` and `Work` disable automatically.
 3. Review loop: choose `Edit document types` or `Edit options`, change values, and return to review.
-4. Apply/sync: rerun against an installed target with no explicit command.
+4. Apply/sync: rerun `setup` against an installed target, and confirm bare invocation reports status without syncing.
 
 ```bash
+node dist/index.js setup --target "$TEST_DIR"
 node dist/index.js --target "$TEST_DIR"
 ```
 
 5. Reconfigure saved selections:
 
 ```bash
-node dist/index.js reconfigure --target "$TEST_DIR"
+node dist/index.js setup reconfigure --target "$TEST_DIR"
 ```
 
 6. Managed-file conflict staging: modify a managed file, rerun apply/sync, and confirm the replacement is staged instead of overwritten.
 
 ```bash
 printf 'local edit\n' > "$TEST_DIR/docs/AGENTS.md"
-node dist/index.js --target "$TEST_DIR"
+node dist/index.js setup --target "$TEST_DIR"
 find "$TEST_DIR/.make-docs/conflicts" | sort
 ```
 
@@ -143,7 +147,7 @@ find "$TEST_DIR/.make-docs/conflicts" | sort
 ```bash
 CONFLICT_DIR=$(mktemp -d)
 printf 'custom root agents\n' > "$CONFLICT_DIR/AGENTS.md"
-node dist/index.js --target "$CONFLICT_DIR"
+node dist/index.js setup --target "$CONFLICT_DIR"
 ```
 
 ### Packaged `npx` validation
@@ -156,7 +160,7 @@ TARBALL=$(npm pack --silent)
 TEST_DIR=$(mktemp -d)
 
 npm exec --yes --package "./$TARBALL" -- \
-  make-docs --target "$TEST_DIR"
+  make-docs setup --target "$TEST_DIR"
 ```
 
 Important detail: the `--yes` above is for `npm exec`, not the installer. Do not pass installer `--yes` if you want to see the wizard.

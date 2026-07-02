@@ -66,7 +66,7 @@ describe("make-docs MCP runtime", () => {
     const output = writeSpy.mock.calls.map(([chunk]) => String(chunk)).join("");
     expect(output).toContain("make-docs mcp");
     expect(output).toContain("TypeScript-owned make-docs MCP server");
-    expect(output).toContain("same TypeScript operation domains");
+    expect(output).toContain("same operation registry and core used by `make-docs run`");
   });
 
   test("plans install changes without writing files", async () => {

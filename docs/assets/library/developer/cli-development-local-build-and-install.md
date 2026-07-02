@@ -49,7 +49,7 @@ npm run build -w packages/cli
 For fast iteration against source without rebuilding every change:
 
 ```bash
-npm run dev -w packages/cli -- --target "$(mktemp -d)"
+npm run dev -w packages/cli -- setup --target "$(mktemp -d)"
 ```
 
 For built-artifact checks, prefer:
@@ -90,8 +90,8 @@ Best for normal local behavior checks:
 ```bash
 npm run build -w packages/cli
 TEST_DIR="$(mktemp -d)"
-node packages/cli/dist/index.js --dry-run --target "$TEST_DIR"
-node packages/cli/dist/index.js --target "$TEST_DIR"
+node packages/cli/dist/index.js setup --dry-run --target "$TEST_DIR"
+node packages/cli/dist/index.js setup --target "$TEST_DIR"
 ```
 
 ### `npm link`
@@ -126,7 +126,7 @@ Then test one real packaged invocation:
 ```bash
 TARBALL="$(ls brucewaynedecoy-make-docs-*.tgz | tail -n 1)"
 TEST_DIR="$(mktemp -d)"
-npm exec --yes --package "./$TARBALL" -- make-docs --target "$TEST_DIR"
+npm exec --yes --package "./$TARBALL" -- make-docs setup --target "$TEST_DIR"
 ```
 
 ## When To Leave This Guide

@@ -13,7 +13,10 @@ export default defineConfig({
   sourcemap: true,
   clean: true,
   bundle: true,
-  noExternal: ["@clack/core", "@clack/prompts", "yaml"],
+  // `zod` is bundled because the operation registry imports it eagerly at CLI
+  // startup; the packed tarball must keep working when invoked directly with
+  // `node dist/index.js` and no installed node_modules.
+  noExternal: ["@clack/core", "@clack/prompts", "yaml", "zod"],
   esbuildPlugins: [
     {
       name: "yaml-browser-entry",

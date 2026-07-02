@@ -50,7 +50,7 @@ This Playbook is a readable workflow for the `agent` persona. It describes how a
 Users can inspect available Playbooks with:
 
 ```sh
-make-docs operations playbook-catalog --repo-root .
+make-docs run playbook catalog --repo-root .
 ```
 
 The catalog lists each Playbook by its canonical reference — `agent/make-docs-lifecycle` for the default — with its title, summary, stack, status, file form, whether it is currently runnable, and its error and warning counts.
@@ -58,7 +58,7 @@ The catalog lists each Playbook by its canonical reference — `agent/make-docs-
 They can validate one Playbook, several, or every installed Playbook with:
 
 ```sh
-make-docs operations playbook-validate agent/make-docs-lifecycle --repo-root .
+make-docs run playbook validate agent/make-docs-lifecycle --repo-root .
 ```
 
 References may be canonical `persona/slug` values or explicit `.md` paths; with no references, every detected Playbook is validated. Each finding carries a stable code such as `PB-FM-002`, a severity of `error` or `warning`, the section and source location where it was found, a message, and a fix hint. A Playbook with zero errors is runnable; warnings do not block it. The most common warning during migration is `PB-FILE-007`, which asks for a rename from the deprecated plain `<slug>.md` name to `<slug>.playbook.md`.
@@ -68,7 +68,7 @@ MCP-capable agent harnesses reach the same behavior through the `make_docs_playb
 They can start the current operation-level invocation model with:
 
 ```sh
-make-docs operations playbook-run-invoke agent/make-docs-lifecycle --repo-root . --harness codex --stack build
+make-docs run playbook invoke agent/make-docs-lifecycle --repo-root . --harness codex --stack build
 ```
 
 The command validates the Playbook and creates Make Docs run state. It does not bypass review gates or turn the Playbook into a plugin.
@@ -88,7 +88,7 @@ A team can also install Playbooks as shared project assets. The Playbook remains
 A Playbook run can start from different surfaces:
 
 - A person can ask an agent to run a Playbook by name, by `persona/slug`, or by an explicit path.
-- `make-docs operations playbook-run-invoke <ref> --harness <id>` can resolve and validate the Playbook, create Make Docs-owned run state, and return the next gated step without requiring a plugin.
+- `make-docs run playbook invoke <ref> --harness <id>` can resolve and validate the Playbook, create Make Docs-owned run state, and return the next gated step without requiring a plugin.
 - `make_docs_playbook_run_invoke` exposes the same write-gated behavior to MCP-capable agent harnesses when the caller passes `allowWrite=true`.
 - A plugin or workflow bundle can present a guided entry point that invokes the same Run Playbook behavior underneath.
 
@@ -144,7 +144,8 @@ Playbooks also do not redefine Make Docs authority. If a Playbook changes PRDs, 
 
 This guide should be refreshed after W18 implementation lands with plugin entry points, packaging commands, package-plan review examples, and a small set of end-user examples that can be run against an installed Make Docs project.
 
-- Blocked by: W18 R7 runner consumption of the parsed Playbook model, with the W18 R11 command reorganization as a second trigger because it replaces the `operations` command spellings a projection would quote. Update when: W18 R7 moves the runner surfaces onto the W18 R6 model. Guide change: revisit whether a reader-facing projection of the Playbook contract is warranted as its own guide. W18 R6 Phase 5 and wave completion resolved the previous trigger and re-deferred creation: the document schema itself is now hardened and stable — every diagnostic code has a failing fixture and the upstream and dogfood contract copies are machine-checked byte-identical — which removes the earlier stability objection, but the contract remains normative and linkable on its own, this guide already covers the user-visible validate/catalog surface, and a projection authored now would quote command spellings that W18 R11 renames and pre-runner behavior that W18 R7 changes, so it would need immediate rework for no added reader value.
+- Blocked by: W18 R7 runner consumption of the parsed Playbook model. Update when: W18 R7 moves the runner surfaces onto the W18 R6 model. Guide change: revisit whether a reader-facing projection of the Playbook contract is warranted as its own guide. W18 R6 Phase 5 and wave completion resolved the previous trigger and re-deferred creation: the document schema itself is now hardened and stable — every diagnostic code has a failing fixture and the upstream and dogfood contract copies are machine-checked byte-identical — which removes the earlier stability objection, but the contract remains normative and linkable on its own, this guide already covers the user-visible validate/catalog surface, and a projection authored now would quote pre-runner behavior that W18 R7 changes, so it would need immediate rework for no added reader value. The W18 R11 command reorganization, formerly a second trigger, has landed and this guide now uses the `run playbook` spellings.
+- Blocked by: the W18 R11 MCP tool renames, which land later in the same wave. Update when: the MCP tool names are renamed to follow the reorganized command families. Guide change: update the quoted `make_docs_playbook_*` tool names to the renamed MCP surface.
 
 ## Related Resources
 

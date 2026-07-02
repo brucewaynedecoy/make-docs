@@ -37,6 +37,7 @@ const PACKAGE_RUNNER_SMOKES = [
       "--package",
       tarballPath,
       "make-docs",
+      "setup",
       "--yes",
       "--target",
       targetDir,
@@ -46,7 +47,7 @@ const PACKAGE_RUNNER_SMOKES = [
   {
     name: "pnpm dlx",
     command: "pnpm",
-    args: (tarballPath, targetDir) => ["dlx", tarballPath, "--yes", "--target", targetDir],
+    args: (tarballPath, targetDir) => ["dlx", tarballPath, "setup", "--yes", "--target", targetDir],
     envKind: "pnpm",
   },
   {
@@ -57,6 +58,7 @@ const PACKAGE_RUNNER_SMOKES = [
       "--package",
       `file:${tarballPath}`,
       "make-docs",
+      "setup",
       "--yes",
       "--target",
       targetDir,
@@ -322,11 +324,11 @@ try {
     "Packed template should not ship a default project config file.",
   );
   const packedMakeDocs = path.join(packageRoot, packedPackage.bin["make-docs"]);
-  const skillsHelp = execFileSync("node", [packedMakeDocs, "skills", "--help"], {
+  const skillsHelp = execFileSync("node", [packedMakeDocs, "setup", "skills", "--help"], {
     encoding: "utf8",
     env: packedCliEnv,
   });
-  assertOutputContains(skillsHelp, "make-docs skills", "Smoke pack skills help omitted usage.");
+  assertOutputContains(skillsHelp, "make-docs setup skills", "Smoke pack skills help omitted usage.");
   assertOutputContains(skillsHelp, "--remove", "Smoke pack skills help omitted removal option.");
   assertOutputContains(
     skillsHelp,
@@ -342,12 +344,12 @@ try {
     rewritePackedSkillRegistry(packageRoot, fixtureServer.baseUrl);
     const skillsDryRun = execFileSync(
       "node",
-      [packedMakeDocs, "skills", "--dry-run", "--target", targetDir],
+      [packedMakeDocs, "setup", "skills", "--dry-run", "--target", targetDir],
       { encoding: "utf8", env: packedCliEnv },
     );
     assertOutputContains(
       skillsDryRun,
-      "make-docs skills plan",
+      "make-docs setup skills plan",
       "Smoke pack skills dry run omitted the skills plan title.",
     );
     assertOutputContains(
@@ -362,22 +364,22 @@ try {
 
     execFileSync(
       "node",
-      [packedMakeDocs, "--yes", "--target", targetDir],
+      [packedMakeDocs, "setup", "--yes", "--target", targetDir],
       { stdio: "inherit", env: packedCliEnv },
     );
     assertExists(
       path.join(targetDir, ".make-docs/manifest.json"),
-      "Smoke pack bare install did not produce a manifest.",
+      "Smoke pack setup install did not produce a manifest.",
     );
     assertMissing(
       path.join(targetDir, ".make-docs/config.yaml"),
-      "Smoke pack bare install should not materialize an optional project config.",
+      "Smoke pack setup install should not materialize an optional project config.",
     );
     assertExists(
       path.join(targetDir, "docs/AGENTS.md"),
-      "Smoke pack bare install did not produce docs/AGENTS.md.",
+      "Smoke pack setup install did not produce docs/AGENTS.md.",
     );
-    assertStoreBootstrapAndNoRepoStateWrites(storeRoot, targetDir, "bare install");
+    assertStoreBootstrapAndNoRepoStateWrites(storeRoot, targetDir, "setup install");
     assertInstalledInstructionTemplate(targetDir);
     assertInstalledReaderFacingAssets(targetDir);
     assertManifestContainsManagedFiles(manifestPath, [
@@ -388,31 +390,31 @@ try {
 
     execFileSync(
       "node",
-      [packedMakeDocs, "--yes", "--target", targetDir],
+      [packedMakeDocs, "setup", "--yes", "--target", targetDir],
       { stdio: "inherit", env: packedCliEnv },
     );
     assertMissing(
       path.join(targetDir, ".make-docs/conflicts"),
-      "Smoke pack bare sync staged conflicts for an unchanged install.",
+      "Smoke pack setup sync staged conflicts for an unchanged install.",
     );
     assertManifestPackageName(manifestPath, EXPECTED_PACKAGE_NAME);
     assertManifestSkillFiles(manifestPath, 0);
     assertMissing(
       path.join(targetDir, ".claude/skills"),
-      "Smoke pack bare install should not produce Claude Code skill files.",
+      "Smoke pack setup install should not produce Claude Code skill files.",
     );
     assertMissing(
       path.join(targetDir, ".agents/skills"),
-      "Smoke pack bare install should not produce Codex skill files.",
+      "Smoke pack setup install should not produce Codex skill files.",
     );
     assertMissing(
       path.join(targetDir, ".make-docs/agentics/skills"),
-      "Smoke pack bare install should not produce shared skill payloads.",
+      "Smoke pack setup install should not produce shared skill payloads.",
     );
 
     execFileSync(
       "node",
-      [packedMakeDocs, "skills", "--yes", "--selected-skills", "all", "--target", targetDir],
+      [packedMakeDocs, "setup", "skills", "--yes", "--selected-skills", "all", "--target", targetDir],
       { stdio: "inherit", env: packedCliEnv },
     );
   } finally {
@@ -452,12 +454,12 @@ try {
   }
   const skillsRemoveDryRun = execFileSync(
     "node",
-    [packedMakeDocs, "skills", "--remove", "--dry-run", "--target", targetDir],
+    [packedMakeDocs, "setup", "skills", "--remove", "--dry-run", "--target", targetDir],
     { encoding: "utf8", env: packedCliEnv },
   );
   assertOutputContains(
     skillsRemoveDryRun,
-    "make-docs skills removal plan",
+    "make-docs setup skills removal plan",
     "Smoke pack skills removal dry run omitted the removal plan title.",
   );
   assertOutputContains(
@@ -528,7 +530,7 @@ try {
 
   execFileSync(
     "node",
-    [packedMakeDocs, "backup", "--yes", "--target", targetDir],
+    [packedMakeDocs, "setup", "backup", "--yes", "--target", targetDir],
     { stdio: "inherit", env: packedCliEnv },
   );
 
@@ -542,24 +544,24 @@ try {
 
   execFileSync(
     "node",
-    [packedMakeDocs, "uninstall", "--yes", "--target", targetDir],
+    [packedMakeDocs, "setup", "remove", "--yes", "--target", targetDir],
     { stdio: "inherit", env: packedCliEnv },
   );
 
-  assertMissing(path.join(targetDir, "AGENTS.md"), "Smoke pack uninstall left AGENTS.md behind.");
-  assertMissing(path.join(targetDir, "CLAUDE.md"), "Smoke pack uninstall left CLAUDE.md behind.");
+  assertMissing(path.join(targetDir, "AGENTS.md"), "Smoke pack setup remove left AGENTS.md behind.");
+  assertMissing(path.join(targetDir, "CLAUDE.md"), "Smoke pack setup remove left CLAUDE.md behind.");
   assertMissing(
     path.join(targetDir, ".make-docs/manifest.json"),
-    "Smoke pack uninstall left the make-docs manifest behind.",
+    "Smoke pack setup remove left the make-docs manifest behind.",
   );
   for (const relativePath of EXPECTED_SKILL_PATHS) {
     assertMissing(
       path.join(targetDir, relativePath),
-      `Smoke pack uninstall left managed skill artifact ${relativePath} behind.`,
+      `Smoke pack setup remove left managed skill artifact ${relativePath} behind.`,
     );
   }
-  assertExists(customFilePath, "Smoke pack uninstall removed an unmanaged custom file.");
-  assertExists(customConfigPath, "Smoke pack uninstall removed project-owned config.");
+  assertExists(customFilePath, "Smoke pack setup remove removed an unmanaged custom file.");
+  assertExists(customConfigPath, "Smoke pack setup remove removed project-owned config.");
   assertMissing(
     path.join(backupDir, ".make-docs/config.yaml"),
     "Smoke pack backup copied project-owned config as managed backup content.",
@@ -567,12 +569,12 @@ try {
   for (const relativePath of customReaderAssetPaths) {
     assertExists(
       path.join(targetDir, relativePath),
-      `Smoke pack uninstall removed unmanaged reader-facing asset ${relativePath}.`,
+      `Smoke pack setup remove removed unmanaged reader-facing asset ${relativePath}.`,
     );
   }
-  assertExists(backupRoot, "Smoke pack uninstall removed the .make-docs/backup directory.");
-  assertExists(path.join(backupDir, "AGENTS.md"), "Smoke pack uninstall modified the backup tree.");
-  assertExists(legacyBackupFile, "Smoke pack uninstall removed the legacy .backup directory.");
+  assertExists(backupRoot, "Smoke pack setup remove removed the .make-docs/backup directory.");
+  assertExists(path.join(backupDir, "AGENTS.md"), "Smoke pack setup remove modified the backup tree.");
+  assertExists(legacyBackupFile, "Smoke pack setup remove removed the legacy .backup directory.");
 
   // Across every packed-CLI operation above (installs, skills, backup,
   // uninstall), operational state stayed in the sandboxed global store and no

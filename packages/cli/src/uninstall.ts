@@ -76,7 +76,7 @@ export async function runUninstallCommand(
     : null;
   const backupDestinationDir = backupDestinationPlan?.destinationDir ?? null;
 
-  renderer.beginWorkflow("make-docs uninstall");
+  renderer.beginWorkflow("make-docs setup remove");
   renderer.renderUninstallWarning({
     targetDir,
     backupDestinationDir,

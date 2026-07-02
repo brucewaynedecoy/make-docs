@@ -151,7 +151,7 @@ describe("backup command", () => {
       );
       expect(existsSync(path.join(targetDir, "AGENTS.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, ".make-docs/manifest.json"))).toBe(true);
-      expect(output).toContain("make-docs backup");
+      expect(output).toContain("make-docs setup backup");
       expect(output).toContain("Destination:");
       expect(output).toContain(".make-docs/backup/2026-04-18");
       expect(output).toContain("Backup complete");
@@ -225,7 +225,7 @@ describe("backup command", () => {
         "backup:completion-summary",
       ]);
       expect(events[0]).toMatchObject({
-        title: "make-docs backup",
+        title: "make-docs setup backup",
       });
       expect(events[1]).toMatchObject({
         destinationDir: path.join(targetDir, ".make-docs/backup/2026-04-18"),
@@ -433,7 +433,7 @@ describe("backup command", () => {
       expect(confirmMock).not.toHaveBeenCalled();
       expect(existsSync(path.join(targetDir, ".make-docs/backup"))).toBe(false);
       expect(existsSync(path.join(targetDir, ".backup"))).toBe(false);
-      expect(output).toContain("make-docs backup");
+      expect(output).toContain("make-docs setup backup");
       expect(output).toContain("No make-docs-managed files required backup.");
       expect(output).toContain("No backup destination was created.");
     } finally {
@@ -466,7 +466,7 @@ describe("backup command", () => {
         "backup:noop-summary",
       ]);
       expect(events[0]).toMatchObject({
-        title: "make-docs backup",
+        title: "make-docs setup backup",
       });
       expect(events[1]).toMatchObject({
         destinationDir: null,
@@ -498,7 +498,7 @@ describe("backup command", () => {
           permissions: "confirm",
         }),
       ).rejects.toThrow(
-        "Backup confirmation requires a TTY. Re-run with `make-docs backup --yes`.",
+        "Backup confirmation requires a TTY. Re-run with `make-docs setup backup --yes`.",
       );
       expect(existsSync(path.join(targetDir, ".make-docs/backup"))).toBe(false);
       expect(existsSync(path.join(targetDir, ".backup"))).toBe(false);

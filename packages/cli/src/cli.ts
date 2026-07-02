@@ -20,7 +20,7 @@ import {
   planInstall,
 } from "./install";
 import { loadManifest, MANIFEST_RELATIVE_PATH } from "./manifest";
-import { runOperationsCommand } from "./operations/cli";
+import { runRunCommand } from "./run/cli";
 import { bootstrapGlobalStore, mirrorProjectManifest, withStoreDatabase } from "./store";
 import { cloneSelections, defaultSelections, hasEffectiveCapabilities } from "./profile";
 import { applySkillRegistrySelectionMetadata } from "./skill-catalog";
@@ -42,7 +42,12 @@ import {
   runSelectionWizard,
 } from "./wizard";
 
-type Command = "reconfigure" | "skills" | "backup" | "uninstall" | "operations" | "mcp";
+/**
+ * The five-command top level per PRD 39 R-TOP-1, organized as project
+ * (`setup`), run (`run`), serve (`mcp`), and self (`update`, `uninstall`).
+ */
+type Command = "setup" | "run" | "mcp" | "update" | "uninstall";
+type SetupSubcommand = "reconfigure" | "skills" | "backup" | "remove";
 type InstallIntent = "apply" | "reconfigure";
 type RenderedActionKind = "generate" | "update" | "skip" | "remove";
 
@@ -55,6 +60,7 @@ const RENDERED_ACTION_KIND_ORDER: Record<RenderedActionKind, number> = {
 
 interface ParsedArgs {
   command?: Command;
+  setupSubcommand?: SetupSubcommand;
   targetDir?: string;
   dryRun: boolean;
   yes: boolean;
@@ -72,7 +78,7 @@ interface ParsedArgs {
   selectedSkills?: string[];
   selectedSkillsValue?: string;
   skillsManifest?: string;
-  operationArgs: string[];
+  runArgs: string[];
 }
 
 type UninstallCommandOptions = {
@@ -104,8 +110,23 @@ let skillsCommandRunnerOverride: SkillsCommandRunner | null = null;
 export async function runCli(argv = process.argv.slice(2)): Promise<void> {
   const parsed = parseArgs(argv);
   if (parsed.help) {
-    printHelp(parsed.command);
+    printHelp(parsed.command, parsed.setupSubcommand);
     return;
+  }
+
+  if (parsed.command === "run") {
+    await runRunCommand(parsed.runArgs);
+    return;
+  }
+
+  if (parsed.command === "mcp") {
+    const { runMcpServer } = await import("./mcp/server");
+    await runMcpServer();
+    return;
+  }
+
+  if (parsed.command === "update" || parsed.command === "uninstall") {
+    throw reservedSelfManagementError(parsed.command);
   }
 
   validateParsedArgs(parsed);
@@ -118,7 +139,7 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
 
   const targetDir = path.resolve(parsed.targetDir ?? process.cwd());
 
-  if (parsed.command === "backup") {
+  if (parsed.setupSubcommand === "backup") {
     await runBackupCommand({
       targetDir,
       permissions: parsed.yes ? "allow-all" : "confirm",
@@ -126,7 +147,7 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
     return;
   }
 
-  if (parsed.command === "uninstall") {
+  if (parsed.setupSubcommand === "remove") {
     const runUninstallCommand = await loadUninstallCommand();
     await runUninstallCommand({
       targetDir,
@@ -136,7 +157,7 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
     return;
   }
 
-  if (parsed.command === "skills") {
+  if (parsed.setupSubcommand === "skills") {
     await runSkillsCommand({
       targetDir,
       dryRun: parsed.dryRun,
@@ -152,15 +173,34 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
     return;
   }
 
-  if (parsed.command === "operations") {
-    await runOperationsCommand(parsed.operationArgs);
-    return;
-  }
-
-  if (parsed.command === "mcp") {
-    const { runMcpServer } = await import("./mcp/server");
-    await runMcpServer();
-    return;
+  // Context-aware bare invocation (R-BARE-1): with an install present, show
+  // status and help and never auto-sync; with none, continue into the guided
+  // interactive setup below, which asks before writing. The installer-first
+  // posture survives without a forced command-router.
+  if (parsed.command === undefined) {
+    const bareClassification = await classifyCompatibilityState({ targetDir });
+    if (bareClassification.evidence.manifestTrust.present) {
+      const bareManifest = bareClassification.evidence.manifestTrust.parseable
+        ? loadManifest(targetDir)
+        : null;
+      printInstallStatus({
+        targetDir,
+        manifest: bareManifest,
+        classification: bareClassification,
+      });
+      return;
+    }
+    if (!input.isTTY || !output.isTTY) {
+      output.write(
+        [
+          `No make-docs install was detected in ${targetDir}.`,
+          "Bare `make-docs` starts a guided setup only in an interactive terminal.",
+          "Run `make-docs setup` (interactive) or `make-docs setup --yes` (non-interactive) to install.",
+          "",
+        ].join("\n"),
+      );
+      return;
+    }
   }
 
   const installIntent = inferInstallIntent(parsed);
@@ -185,7 +225,7 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
     !compatibilityClassification.evidence.manifestTrust.present
   ) {
     throw new Error(
-      "No make-docs manifest was found in the target directory. Run `make-docs` first.",
+      "No make-docs manifest was found in the target directory. Run `make-docs setup` first.",
     );
   }
 
@@ -198,7 +238,7 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
 
   if (!interactive && installIntent === "reconfigure" && !hasSelectionOverrides(parsed)) {
     throw new Error(
-      "`make-docs reconfigure --yes` requires at least one selection flag. Provide selection flags or run `make-docs reconfigure` interactively.",
+      "`make-docs setup reconfigure --yes` requires at least one selection flag. Provide selection flags or run `make-docs setup reconfigure` interactively.",
     );
   }
 
@@ -320,7 +360,7 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
     throw new Error(
       [
         "Non-interactive make-docs runs cannot apply unresolved managed-file diffs.",
-        "Run `make-docs` without `--yes` to review the conflicts interactively.",
+        "Run `make-docs setup` without `--yes` to review the conflicts interactively.",
         "",
         ...buildCompatibilitySummaryLines(compatibilityClassification),
         "",
@@ -416,7 +456,62 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
 }
 
 function inferInstallIntent(parsed: ParsedArgs): InstallIntent {
-  return parsed.command === "reconfigure" ? "reconfigure" : "apply";
+  return parsed.setupSubcommand === "reconfigure" ? "reconfigure" : "apply";
+}
+
+/**
+ * Top-level `update` and `uninstall` are the machine-level tool
+ * self-management commands fixed by PRD 39 R-SELF-1 through R-SELF-3; their
+ * behavior lands with the W18 R11 tool self-management phase. Until then the
+ * names are reserved and refuse to act rather than guessing — and the old
+ * project-level `uninstall` meaning is redirected to `setup remove`.
+ */
+function reservedSelfManagementError(command: "update" | "uninstall"): Error {
+  if (command === "uninstall") {
+    return new Error(
+      [
+        "`make-docs uninstall` now means machine-level tool removal (the global store and any installed binary) and lands with the W18 R11 tool self-management phase.",
+        "To remove make-docs from a project, use `make-docs setup remove`.",
+      ].join("\n"),
+    );
+  }
+  return new Error(
+    "`make-docs update` manages the installed tool itself and lands with the W18 R11 tool self-management phase. To change a project's install, use `make-docs setup` or `make-docs setup reconfigure`.",
+  );
+}
+
+function printInstallStatus(options: {
+  targetDir: string;
+  manifest: InstallManifest | null;
+  classification: CompatibilityClassification;
+}): void {
+  const { targetDir, manifest, classification } = options;
+  const lines: string[] = [`make-docs install detected in ${targetDir}.`, ""];
+  if (manifest) {
+    const capabilities = Object.entries(manifest.selections.capabilities)
+      .filter(([, enabled]) => enabled)
+      .map(([name]) => name);
+    const harnesses = Object.entries(manifest.selections.harnesses)
+      .filter(([, enabled]) => enabled)
+      .map(([name]) => name);
+    lines.push(
+      `Package: ${manifest.packageName}@${manifest.packageVersion}`,
+      `Last applied: ${manifest.updatedAt}`,
+      `Capabilities: ${capabilities.join(", ") || "none"}`,
+      `Harnesses: ${harnesses.join(", ") || "none"}`,
+      `Skills: ${manifest.selections.skills ? `${manifest.selections.selectedSkills.length} selected (${manifest.selections.skillScope} scope)` : "disabled"}`,
+    );
+  } else {
+    lines.push("A manifest is present but could not be parsed.");
+  }
+  lines.push(...buildCompatibilitySummaryLines(classification));
+  lines.push(
+    "",
+    "Bare `make-docs` never syncs an existing install.",
+    "Use `make-docs setup` to sync, `make-docs setup reconfigure` to change selections, or `make-docs --help` for all commands.",
+    "",
+  );
+  output.write(lines.join("\n"));
 }
 
 function describeSelectionSource(options: {
@@ -502,8 +597,8 @@ function hasSelectionOverrides(parsed: ParsedArgs): boolean {
   );
 }
 
-function isLifecycleCommand(command?: Command): command is "backup" | "uninstall" {
-  return command === "backup" || command === "uninstall";
+function isLifecycleCommand(parsed: ParsedArgs): boolean {
+  return parsed.setupSubcommand === "backup" || parsed.setupSubcommand === "remove";
 }
 
 export function __setUninstallCommandLoaderForTests(
@@ -599,7 +694,7 @@ function parseArgs(argv: string[]): ParsedArgs {
     noCodex: false,
     noClaudeCode: false,
     noSkills: false,
-    operationArgs: [],
+    runArgs: [],
   };
 
   const args = [...argv];
@@ -608,18 +703,33 @@ function parseArgs(argv: string[]): ParsedArgs {
   rejectRemovedCommand(args);
 
   if (
-    args[0] === "reconfigure" ||
-    args[0] === "skills" ||
-    args[0] === "backup" ||
-    args[0] === "uninstall" ||
-    args[0] === "operations" ||
-    args[0] === "mcp"
+    args[0] === "setup" ||
+    args[0] === "run" ||
+    args[0] === "mcp" ||
+    args[0] === "update" ||
+    args[0] === "uninstall"
   ) {
     parsed.command = args.shift() as Command;
   }
 
-  if (parsed.command === "operations") {
-    parsed.operationArgs = args;
+  if (
+    parsed.command === "setup" &&
+    (args[0] === "reconfigure" || args[0] === "skills" || args[0] === "backup" || args[0] === "remove")
+  ) {
+    parsed.setupSubcommand = args.shift() as SetupSubcommand;
+  }
+
+  if (parsed.command === "run") {
+    parsed.runArgs = args;
+    return parsed;
+  }
+
+  if (parsed.command === "update" || parsed.command === "uninstall") {
+    for (const arg of args) {
+      if (arg === "--help" || arg === "-h") {
+        parsed.help = true;
+      }
+    }
     return parsed;
   }
 
@@ -763,21 +873,30 @@ function rejectRemovedUpdateReconfigure(args: string[]): void {
   }
 
   throw new Error(
-    "The `update --reconfigure` command was removed. Use `make-docs reconfigure` instead.",
+    "The `update --reconfigure` command was removed. Use `make-docs setup reconfigure` instead.",
   );
 }
 
+/**
+ * The W18 R11 hard cutover has no back-compatibility aliases (R-MIG-1): the
+ * old top-level spellings fail with the new spelling named rather than
+ * silently mapping onto it.
+ */
 function rejectRemovedCommand(args: string[]): void {
   const command = args[0];
-  if (command !== "init" && command !== "update") {
+  const replacements: Record<string, string> = {
+    init: "make-docs setup",
+    reconfigure: "make-docs setup reconfigure",
+    skills: "make-docs setup skills",
+    backup: "make-docs setup backup",
+    operations: "make-docs run <domain> <verb>",
+  };
+  const replacement = command ? replacements[command] : undefined;
+  if (!replacement) {
     return;
   }
 
-  const suggestedArgs = args.slice(1).join(" ");
-  const suggestedCommand = suggestedArgs ? `make-docs ${suggestedArgs}` : "make-docs";
-  throw new Error(
-    `The \`${command}\` command was removed. Use \`${suggestedCommand}\` instead.`,
-  );
+  throw new Error(`The \`${command}\` command was removed. Use \`${replacement}\` instead.`);
 }
 
 function rejectRemovedReconfigureFlag(args: string[]): void {
@@ -786,7 +905,7 @@ function rejectRemovedReconfigureFlag(args: string[]): void {
   }
 
   throw new Error(
-    "`--reconfigure` was removed. Use `make-docs reconfigure` instead.",
+    "`--reconfigure` was removed. Use `make-docs setup reconfigure` instead.",
   );
 }
 
@@ -812,51 +931,77 @@ function getInvalidSkillsCommandFlags(parsed: ParsedArgs): string[] {
   return flags;
 }
 
+function describeParsedCommand(parsed: ParsedArgs): string {
+  if (!parsed.command) {
+    return "bare `make-docs`";
+  }
+  return parsed.setupSubcommand
+    ? `\`make-docs ${parsed.command} ${parsed.setupSubcommand}\``
+    : `\`make-docs ${parsed.command}\``;
+}
+
 function validateParsedArgs(parsed: ParsedArgs): void {
-  if (parsed.backup && parsed.command !== "uninstall") {
+  // Bare invocation is context-aware status/guided-setup only (R-BARE-1);
+  // install and sync options belong to `setup`.
+  if (parsed.command === undefined) {
+    const bareFlags = [
+      ...(parsed.dryRun ? ["--dry-run"] : []),
+      ...(parsed.yes ? ["--yes"] : []),
+      ...(parsed.backup ? ["--backup"] : []),
+      ...(parsed.remove ? ["--remove"] : []),
+      ...getSelectionOverrideFlags(parsed),
+    ];
+    if (bareFlags.length > 0) {
+      throw new Error(
+        `Bare \`make-docs\` shows status or starts a guided setup and accepts only \`--target\` and \`--help\`. Use \`make-docs setup ${bareFlags.join(" ")}\` for install and sync options.`,
+      );
+    }
+  }
+
+  if (parsed.backup && parsed.setupSubcommand !== "remove") {
     throw new Error(
-      `\`--backup\` is only valid with \`uninstall\`, not \`${parsed.command ?? "no command"}\`.`,
+      `\`--backup\` is only valid with \`make-docs setup remove\`, not ${describeParsedCommand(parsed)}.`,
     );
   }
 
-  if (parsed.remove && parsed.command !== "skills") {
+  if (parsed.remove && parsed.setupSubcommand !== "skills") {
     throw new Error(
-      `\`--remove\` is only valid with \`make-docs skills\`, not \`${parsed.command ?? "no command"}\`.`,
+      `\`--remove\` is only valid with \`make-docs setup skills\`, not ${describeParsedCommand(parsed)}.`,
     );
   }
 
-  if (parsed.dryRun && isLifecycleCommand(parsed.command)) {
+  if (parsed.dryRun && isLifecycleCommand(parsed)) {
     throw new Error(
-      `\`--dry-run\` is only valid with \`make-docs\`, \`make-docs reconfigure\`, or \`make-docs skills\`, not \`${parsed.command}\`.`,
+      `\`--dry-run\` is only valid with \`make-docs setup\`, \`make-docs setup reconfigure\`, or \`make-docs setup skills\`, not ${describeParsedCommand(parsed)}.`,
     );
   }
 
-  if (parsed.command === "skills") {
+  if (parsed.setupSubcommand === "skills") {
     const invalidSkillsFlags = getInvalidSkillsCommandFlags(parsed);
     if (invalidSkillsFlags.length > 0) {
       const label = invalidSkillsFlags.length === 1 ? "flag" : "flags";
       const verb = invalidSkillsFlags.length === 1 ? "is" : "are";
       throw new Error(
-        `Selection ${label} ${invalidSkillsFlags.join(", ")} ${verb} not valid with \`make-docs skills\`. Use skills command options such as \`--remove\`, \`--skill-scope\`, or \`--selected-skills\`.`,
+        `Selection ${label} ${invalidSkillsFlags.join(", ")} ${verb} not valid with \`make-docs setup skills\`. Use skills command options such as \`--remove\`, \`--skill-scope\`, or \`--selected-skills\`.`,
       );
     }
 
     if (parsed.remove && parsed.selectedSkillsValue !== undefined) {
       throw new Error(
-        "`--selected-skills` cannot be combined with `make-docs skills --remove`.",
+        "`--selected-skills` cannot be combined with `make-docs setup skills --remove`.",
       );
     }
   }
 
   const selectionOverrideFlags = getSelectionOverrideFlags(parsed);
   if (
-    isLifecycleCommand(parsed.command) &&
+    isLifecycleCommand(parsed) &&
     selectionOverrideFlags.length > 0
   ) {
     const label = selectionOverrideFlags.length === 1 ? "flag" : "flags";
     const verb = selectionOverrideFlags.length === 1 ? "is" : "are";
     throw new Error(
-      `Selection ${label} ${selectionOverrideFlags.join(", ")} ${verb} only valid with \`make-docs\` or \`make-docs reconfigure\`, not \`${parsed.command}\`.`,
+      `Selection ${label} ${selectionOverrideFlags.join(", ")} ${verb} only valid with \`make-docs setup\` or \`make-docs setup reconfigure\`, not ${describeParsedCommand(parsed)}.`,
     );
   }
 
@@ -1030,7 +1175,7 @@ function guardCompatibilityDisposition(options: {
         "make-docs cannot sync this target until ownership ambiguity is reviewed.",
         classification,
         [
-          "Run `make-docs` interactively if the files are reviewable, or back up the target and reinstall into a clean tree.",
+          "Run `make-docs setup` interactively if the files are reviewable, or back up the target and reinstall into a clean tree.",
         ],
       ),
     );
@@ -1058,7 +1203,7 @@ function guardCompatibilityDisposition(options: {
           "This target requires an explicit backup-and-reinstall migration flow before make-docs can write changes.",
           classification,
           [
-            "Bare `make-docs` and `make-docs reconfigure` will not perform destructive backup-and-reinstall implicitly.",
+            "`make-docs setup` and `make-docs setup reconfigure` will not perform destructive backup-and-reinstall implicitly.",
           ],
         ),
       );
@@ -1157,7 +1302,7 @@ function renderNoopExplanation(options: {
 
   lines.push(
     "Useful next steps:",
-    "- Run `make-docs reconfigure` to change which docs, harnesses, or skills are managed.",
+    "- Run `make-docs setup reconfigure` to change which docs, harnesses, or skills are managed.",
     "- Run `make-docs --dry-run` after upgrading make-docs to preview future changes.",
   );
 
@@ -1258,26 +1403,11 @@ function writeApplyCompletionSummary(options: {
   );
 }
 
-function printHelp(command?: Command): void {
-  switch (command) {
-    case "reconfigure":
-      output.write(`make-docs reconfigure
 
-Change the configured make-docs footprint for an existing install.
-Requires an existing ${MANIFEST_RELATIVE_PATH} in the target directory.
-
-Interactive runs open the selection wizard using the saved manifest selections.
-Non-interactive runs with --yes must include at least one selection flag.
-
-Usage:
-  make-docs reconfigure [options]
-
-Options:
-
-General options:
-  --target <dir>                 Reconfigure a different make-docs install directory.
+const SETUP_SHARED_OPTIONS = `General options:
+  --target <dir>                 Operate on a different make-docs install directory.
   --dry-run                      Show planned changes without writing files.
-  --yes                          Skip interactive prompts; requires a selection flag.
+  --yes                          Skip interactive prompts.
   --help, -h                     Show help for this command.
 
 Content options:
@@ -1296,22 +1426,39 @@ Skill options:
   --skill-manifest <file>       Use an explicit local skills manifest for this run.
   --skill-scope project|global   Choose whether skills install in the repo or the global Codex home.
   --selected-skills <csv|all|none>
-                                  Replace the selected skill set.
+                                  Replace the selected skill set.`;
+
+function printHelp(command?: Command, setupSubcommand?: SetupSubcommand): void {
+  if (command === "setup") {
+    switch (setupSubcommand) {
+      case "reconfigure":
+        output.write(`make-docs setup reconfigure
+
+Change the configured make-docs footprint for an existing install.
+Requires an existing ${MANIFEST_RELATIVE_PATH} in the target directory.
+
+Interactive runs open the selection wizard using the saved manifest selections.
+Non-interactive runs with --yes must include at least one selection flag.
+
+Usage:
+  make-docs setup reconfigure [options]
+
+${SETUP_SHARED_OPTIONS}
 
 Examples:
-  make-docs reconfigure
-  make-docs reconfigure --target ~/Projects/example --dry-run
-  make-docs reconfigure --yes --no-work
-  make-docs reconfigure --yes --no-codex --skill-scope global --selected-skills decompose-codebase
+  make-docs setup reconfigure
+  make-docs setup reconfigure --target ~/Projects/example --dry-run
+  make-docs setup reconfigure --yes --no-work
+  make-docs setup reconfigure --yes --no-codex --skill-scope global --selected-skills decompose-codebase
 `);
-      return;
-    case "skills":
-      output.write(`make-docs skills
+        return;
+      case "skills":
+        output.write(`make-docs setup skills
 
 Sync or remove managed make-docs skills without changing the docs scaffold.
 
 Usage:
-  make-docs skills [options]
+  make-docs setup skills [options]
 
 General options:
   --target <dir>                 Sync skills for a different make-docs install directory.
@@ -1332,23 +1479,22 @@ Skill options:
                                   Replace the selected skill set.
 
 Examples:
-  make-docs skills
-  make-docs skills --dry-run
-  make-docs skills --remove
-  make-docs skills --skill-scope global
-  make-docs skills --skill-manifest ./skills.manifest.json --selected-skills all
-  make-docs skills --selected-skills all
+  make-docs setup skills
+  make-docs setup skills --dry-run
+  make-docs setup skills --remove
+  make-docs setup skills --skill-scope global
+  make-docs setup skills --selected-skills all
 `);
-      return;
-    case "backup":
-      output.write(`make-docs backup
+        return;
+      case "backup":
+        output.write(`make-docs setup backup
 
 Create a backup of the managed make-docs files in the target directory.
 New backups are written under .make-docs/backup/<date>.
 This command is non-destructive: source files remain in place.
 
 Usage:
-  make-docs backup [--target <dir>] [--yes] [--help]
+  make-docs setup backup [--target <dir>] [--yes] [--help]
 
 Options:
   --target <dir>                   Back up a different make-docs install directory.
@@ -1356,56 +1502,81 @@ Options:
   --help, -h                       Show help for this command.
 
 Examples:
-  make-docs backup
-  make-docs backup --target ~/Projects/example
-  make-docs backup --yes
+  make-docs setup backup
+  make-docs setup backup --target ~/Projects/example
+  make-docs setup backup --yes
 `);
-      return;
-    case "uninstall":
-      output.write(`make-docs uninstall
+        return;
+      case "remove":
+        output.write(`make-docs setup remove
 
 Remove the managed make-docs files from the target directory.
 This command is destructive: audited managed files are removed after review.
+It removes this project's install only; \`make-docs uninstall\` is the
+machine-level tool removal.
 
 Usage:
-  make-docs uninstall [--target <dir>] [--backup] [--yes] [--help]
+  make-docs setup remove [--target <dir>] [--backup] [--yes] [--help]
 
 Options:
-  --target <dir>                   Uninstall from a different make-docs install directory.
+  --target <dir>                   Remove from a different make-docs install directory.
   --backup                         Create a .make-docs/backup/<date> backup before removing files.
   --yes                            Skip confirmation prompts after showing warnings and the audit summary.
   --help, -h                       Show help for this command.
 
 Examples:
-  make-docs uninstall
-  make-docs uninstall --backup
-  make-docs uninstall --target ~/Projects/example --yes
+  make-docs setup remove
+  make-docs setup remove --backup
+  make-docs setup remove --target ~/Projects/example --yes
 `);
-      return;
-    case "operations":
-      output.write(`make-docs operations
+        return;
+      default:
+        output.write(`make-docs setup
 
-Run deterministic make-docs shared-core operations for lifecycle skills and future automation surfaces.
+Install make-docs into a new target or sync an existing install using saved selections.
+Interactive fresh installs open the selection wizard; syncs review planned changes first.
 
 Usage:
-  make-docs operations <operation> [options]
+  make-docs setup [options]
+  make-docs setup reconfigure [options]
+  make-docs setup skills [options]
+  make-docs setup backup [options]
+  make-docs setup remove [options]
 
-Operations:
-  closeout-probe       Summarize changed files, contracts, coordinates, risks, and validation hints.
-  closeout-validate    Select or run closeout validation commands from probe JSON.
-  closeout-history     Draft or write a closeout history skeleton.
-  work-phase-state     Parse one docs/work phase into task and acceptance JSON.
-  wave-resolve         Resolve a W/R or W/R/P coordinate or docs/work path.
-  wave-status          Report phase completion state for a wave.
-  phase-plan           Render a deterministic phase implementation brief.
-  checkpoint           Record phase evidence in the machine-level global store.
-  scope-guard          Detect changed files outside the current phase scope.
-  phase-gate           Check whether a phase has validation, closeout, review, and commit evidence.
+Subcommands:
+  reconfigure  Change saved selections for an existing install.
+  skills       Sync or remove managed skills.
+  backup       Create a backup of managed files.
+  remove       Remove this project's managed files, with an optional backup first.
+
+${SETUP_SHARED_OPTIONS}
 
 Examples:
-  make-docs operations wave-status 'W16 R3' --json
-  make-docs operations phase-plan 'W16 R3 P2'
-  make-docs operations closeout-probe --repo-root . --scope auto --json
+  make-docs setup
+  make-docs setup --yes
+  make-docs setup --target ~/Projects/example --dry-run
+  make-docs setup reconfigure --yes --no-skills
+  make-docs setup remove --backup
+`);
+        return;
+    }
+  }
+
+  switch (command) {
+    case "run":
+      output.write(`make-docs run
+
+Run deterministic registry operations. The operation tree is derived from the
+operation registry; use \`make-docs run\` with no arguments to list operations.
+
+Usage:
+  make-docs run <domain> <verb> [options]
+
+Examples:
+  make-docs run playbook catalog --repo-root .
+  make-docs run playbook status --run-id <run-id>
+  make-docs run package plan --harness codex --output-kind plugin --surface native --scope project user/run-stack
+  make-docs run work item resolve 'W18 R11 P2'
 `);
       return;
     case "mcp":
@@ -1417,50 +1588,61 @@ Usage:
   make-docs mcp [--help]
 
 Behavior:
-  The MCP server exposes read-first and plan-first tools for installed-state inspection, manifest/config reads, compatibility classification, dry-run install planning, and deterministic operation-domain helpers.
-  MCP tools delegate to the same TypeScript operation domains and planner/classifier modules used by the CLI.
-  Write behavior is not exposed by default; run/write requests are rejected unless the matching tool explicitly requires an approval flag.
+  The MCP server exposes read-first and plan-first tools for installed-state inspection, manifest/config reads, compatibility classification, dry-run install planning, and deterministic registry operations.
+  MCP tools delegate to the same operation registry and core used by \`make-docs run\`; write operations require allowWrite=true, enforced uniformly by the operation core.
 
 Examples:
   make-docs mcp
 `);
       return;
+    case "update":
+      output.write(`make-docs update
+
+Update the installed make-docs tool itself (machine-level self-management).
+This command lands with the W18 R11 tool self-management phase.
+To change a project's install, use \`make-docs setup\` or \`make-docs setup reconfigure\`.
+`);
+      return;
+    case "uninstall":
+      output.write(`make-docs uninstall
+
+Remove make-docs' machine-level footprint: the global store at ~/.make-docs/
+and any installed binary. This command lands with the W18 R11 tool
+self-management phase.
+To remove make-docs from a project, use \`make-docs setup remove\`.
+`);
+      return;
     default:
       output.write(`make-docs
 
-Apply, sync, reconfigure, back up, and remove make-docs installs.
+Manage make-docs installs, run registry operations, and serve MCP.
 
 Usage:
-  make-docs [options]
-  make-docs reconfigure [options]
-  make-docs skills [options]
-  make-docs backup [options]
-  make-docs uninstall [options]
-  make-docs operations <operation> [options]
+  make-docs
+  make-docs setup [reconfigure|skills|backup|remove] [options]
+  make-docs run <domain> <verb> [options]
   make-docs mcp
+  make-docs update
+  make-docs uninstall
 
-Primary workflow:
-  Run make-docs with no command to install into a new target or sync an existing manifest using saved selections.
+Bare command:
+  Run make-docs with no command to see install status (when installed) or start
+  a guided setup (when not installed). Bare invocation never syncs.
 
 Commands:
-  reconfigure  Change saved selections for an existing install.
-  skills       Sync or remove managed skills.
-  backup       Create a backup of managed files.
-  uninstall    Remove managed files, with an optional backup first.
-  operations   Run deterministic lifecycle operations for skills and automation.
+  setup        Install or sync this project; subcommands reconfigure, skills, backup, remove.
+  run          Run deterministic registry operations.
   mcp          Run the TypeScript MCP server over stdio.
+  update       Update the installed make-docs tool itself.
+  uninstall    Remove make-docs' machine-level footprint.
 
 Examples:
   make-docs
-  make-docs --yes
-  make-docs --target ~/Projects/example --dry-run
-  make-docs --skill-manifest ./skills.manifest.json --selected-skills all --yes
-  make-docs reconfigure
-  make-docs reconfigure --yes --no-skills
-  make-docs skills --dry-run
-  make-docs backup --yes
-  make-docs uninstall --backup
-  make-docs operations wave-status 'W16 R3' --json
+  make-docs setup --yes
+  make-docs setup reconfigure
+  make-docs setup skills --dry-run
+  make-docs setup remove --backup
+  make-docs run playbook catalog
   make-docs mcp
 
 Use --help or -h with any command for command-specific options and examples.

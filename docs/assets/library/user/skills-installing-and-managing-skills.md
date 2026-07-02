@@ -54,7 +54,7 @@ When a skill is selected, Make Docs installs the canonical skill payload once un
 Use the dedicated skills command when you want to manage skills without changing the rest of the install:
 
 ```bash
-make-docs skills
+make-docs setup skills
 ```
 
 This command uses the current installation state and lets you update only the skills portion of the manifest-backed configuration.
@@ -62,7 +62,7 @@ This command uses the current installation state and lets you update only the sk
 ### Preview skill changes
 
 ```bash
-make-docs skills --dry-run
+make-docs setup skills --dry-run
 ```
 
 Use dry-run before:
@@ -89,19 +89,19 @@ To install `archive-docs`, select it by name or use `all` against the effective 
 To select one skill during a skills-only update:
 
 ```bash
-make-docs skills --yes --selected-skills decompose-codebase
+make-docs setup skills --yes --selected-skills decompose-codebase
 ```
 
 To select every skill in the effective manifest:
 
 ```bash
-make-docs skills --yes --selected-skills all
+make-docs setup skills --yes --selected-skills all
 ```
 
 To clear the selected skill set:
 
 ```bash
-make-docs skills --yes --selected-skills none
+make-docs setup skills --yes --selected-skills none
 ```
 
 ## Alternate local skills manifest
@@ -109,7 +109,7 @@ make-docs skills --yes --selected-skills none
 Use `--skill-manifest` when you want a run to use an explicit local skills manifest instead of the packaged first-party manifest:
 
 ```bash
-make-docs skills --yes --skill-manifest ./skills.manifest.json --selected-skills all
+make-docs setup skills --yes --skill-manifest ./skills.manifest.json --selected-skills all
 ```
 
 With `--selected-skills all`, `all` expands against the effective manifest for that run. The install manifest preserves the selected skill names and records the skills manifest and selection provenance that produced them.
@@ -128,8 +128,8 @@ Skills can be installed in either project scope or global scope.
 Set scope explicitly with:
 
 ```bash
-make-docs skills --yes --skill-scope project
-make-docs skills --yes --skill-scope global
+make-docs setup skills --yes --skill-scope project
+make-docs setup skills --yes --skill-scope global
 ```
 
 Choose project scope when the skill should travel with the repository. Choose global scope when you want the harness to reuse the same installed skills across projects.
@@ -141,8 +141,8 @@ Skills are installed only for enabled harnesses. The command accepts the same ha
 Examples:
 
 ```bash
-make-docs skills --yes --no-codex
-make-docs skills --yes --no-claude-code
+make-docs setup skills --yes --no-codex
+make-docs setup skills --yes --no-claude-code
 ```
 
 Use these flags when one harness should keep the skill and the other should not.
@@ -152,13 +152,13 @@ Use these flags when one harness should keep the skill and the other should not.
 Use `--remove` for a skills-only removal flow:
 
 ```bash
-make-docs skills --remove
+make-docs setup skills --remove
 ```
 
 Preview removal first when you are not certain where the current skill files live:
 
 ```bash
-make-docs skills --remove --dry-run
+make-docs setup skills --remove --dry-run
 ```
 
 Removing skills updates only the skill-managed part of the installation. It does not uninstall the rest of the docs template.
@@ -188,7 +188,7 @@ That workflow has its own guide:
 
 ### I want to manage skills without reconfiguring docs capabilities
 
-Use `make-docs skills`, not `make-docs reconfigure`.
+Use `make-docs setup skills`, not `make-docs setup reconfigure`.
 
 ### I expected a skill to be installed automatically
 
@@ -200,7 +200,7 @@ That is expected. Global scope installs the shared payload and generated harness
 
 ### I want to remove skills but keep the rest of the install
 
-Use `make-docs skills --remove`.
+Use `make-docs setup skills --remove`.
 
 ### I see legacy duplicated payloads in a plan
 

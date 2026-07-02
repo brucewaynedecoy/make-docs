@@ -48,7 +48,7 @@ export async function runBackupCommand(
   options: BackupCommandOptions,
 ): Promise<BackupExecutionResult> {
   const renderer = getLifecycleRenderer();
-  renderer.beginWorkflow("make-docs backup");
+  renderer.beginWorkflow("make-docs setup backup");
   const preparedBackup = await prepareBackupExecution(options);
 
   renderer.renderBackupAuditSummary({

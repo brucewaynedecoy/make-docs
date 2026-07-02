@@ -10,10 +10,10 @@ From the root of the project you want to equip:
 npx @brucewaynedecoy/make-docs@next
 ```
 
-For a non-interactive install with the default profile:
+Bare `make-docs` is context-aware: with no install present it starts a guided setup, and with an install present it shows status and help without syncing. For a non-interactive install with the default profile:
 
 ```bash
-npx @brucewaynedecoy/make-docs@next --yes
+npx @brucewaynedecoy/make-docs@next setup --yes
 ```
 
 The installer writes a profile-aware documentation system and records managed files in `.make-docs/manifest.json` so later runs can update generated files without overwriting local edits.
@@ -22,22 +22,25 @@ The installer writes a profile-aware documentation system and records managed fi
 
 ```bash
 # Install the default documentation system
-npx @brucewaynedecoy/make-docs@next --yes
+npx @brucewaynedecoy/make-docs@next setup --yes
 
 # Preview changes without writing files
-npx @brucewaynedecoy/make-docs@next --dry-run
+npx @brucewaynedecoy/make-docs@next setup --dry-run
 
 # Reconfigure an existing installation
-npx @brucewaynedecoy/make-docs@next reconfigure
+npx @brucewaynedecoy/make-docs@next setup reconfigure
 
 # Back up a managed installation
-npx @brucewaynedecoy/make-docs@next backup
+npx @brucewaynedecoy/make-docs@next setup backup
 
-# Remove managed make-docs files while preserving unmanaged files
-npx @brucewaynedecoy/make-docs@next uninstall
+# Remove this project's managed make-docs files while preserving unmanaged files
+npx @brucewaynedecoy/make-docs@next setup remove
 
 # Manage installable skill packs
-npx @brucewaynedecoy/make-docs@next skills
+npx @brucewaynedecoy/make-docs@next setup skills
+
+# Run deterministic registry operations
+npx @brucewaynedecoy/make-docs@next run playbook catalog
 
 # Run the MCP stdio server
 npx @brucewaynedecoy/make-docs@next mcp
@@ -45,7 +48,7 @@ npx @brucewaynedecoy/make-docs@next mcp
 
 Use the scoped npm package name for package-runner lookup and installation. The executable exposed by that package is `make-docs`; install, maintenance, deterministic operation, and MCP behavior all live in the TypeScript package.
 
-The current npm package ships a read-first MCP stdio surface through `make-docs mcp`. The shipped MCP tools inspect installed state, read manifest/config state, classify compatibility, build dry-run plans, and delegate closeout/work/lifecycle helpers to the same operation domains used by the CLI. Mutation-oriented MCP behavior remains gated by explicit approval or outside the first shipped surface.
+The current npm package ships a read-first MCP stdio surface through `make-docs mcp`. The shipped MCP tools inspect installed state, read manifest/config state, classify compatibility, build dry-run plans, and delegate deterministic operations to the same operation registry and core used by `make-docs run`. Mutation-oriented MCP behavior remains gated by explicit approval or outside the first shipped surface.
 
 ## Package Contents
 
@@ -79,10 +82,10 @@ The installer is intentionally conservative:
 The default install includes `designs`, `plans`, `prd`, and `work`. You can opt out of capability families during the interactive wizard or with flags:
 
 ```bash
-npx @brucewaynedecoy/make-docs@next --yes --no-work
-npx @brucewaynedecoy/make-docs@next --yes --no-prd
-npx @brucewaynedecoy/make-docs@next --yes --no-plans
-npx @brucewaynedecoy/make-docs@next --yes --no-designs
+npx @brucewaynedecoy/make-docs@next setup --yes --no-work
+npx @brucewaynedecoy/make-docs@next setup --yes --no-prd
+npx @brucewaynedecoy/make-docs@next setup --yes --no-plans
+npx @brucewaynedecoy/make-docs@next setup --yes --no-designs
 ```
 
 The capability graph is dependency-aware:

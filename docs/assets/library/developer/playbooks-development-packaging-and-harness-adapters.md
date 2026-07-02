@@ -56,7 +56,7 @@ The current implementation lives under `packages/cli/src/operations/playbook-pac
 - `writers.ts` for accepted package-plan output writing, generated-output records, manifest ownership, and lifecycle stops;
 - `index.ts` for the public operation-domain export and helper exports.
 
-`playbookPackagingDomain` is registered in the shared operations registry with read-only `playbook-package-plan` and `playbook-package-surface-resolve` operations plus the mutating `playbook-package-write` operation. The write operation dry-runs by default and only mutates when `--write` is passed.
+`playbookPackagingDomain` is registered in the shared operations registry with read-only plan and surface-resolve operations plus the mutating write operation, exposed on the CLI as `make-docs run package plan|surface-resolve|write`. The write operation dry-runs by default and only mutates when `--write` is passed.
 
 Maintainers should import schema helpers from `packages/cli/src/operations/playbook-packaging/` or the operations facade, not duplicate literals in planner, writer, adapter, CLI, or MCP code. When adding fields, update the TypeScript contract, fail-closed validator, and focused schema tests together.
 
@@ -76,12 +76,12 @@ Agents may help draft semantic fields such as descriptions, command names, skill
 
 The current `PlaybookPackagePlan` schema requires a `schemaVersion: 1`, at least one source Playbook, a target, generated artifact inventory, deterministic derivations, agent-assisted proposals, unresolved decisions, field provenance, review state, support state, lifecycle behavior, and validation requirements. Validation rejects unknown output kinds, unknown surfaces, invalid harness ids, empty source lists, invalid field-provenance values, and plans that contain semantic proposals or unresolved decisions without required review state.
 
-The package planner currently supports a dry-run plan flow through `make-docs operations playbook-package-plan`. It reuses the Run Playbook resolver for explicit paths, `persona/slug` refs, and unique bare slug/title refs; computes stable source digests; validates relative Markdown links and assets outside code spans/fences; marks deterministic, user-supplied, agent-proposed, and unresolved fields; and returns review stops before any writes can occur.
+The package planner currently supports a dry-run plan flow through `make-docs run package plan`. It reuses the Run Playbook resolver for explicit paths, `persona/slug` refs, and unique bare slug/title refs; computes stable source digests; validates relative Markdown links and assets outside code spans/fences; marks deterministic, user-supplied, agent-proposed, and unresolved fields; and returns review stops before any writes can occur.
 
 Use the operation like this during development:
 
 ```sh
-make-docs operations playbook-package-plan \
+make-docs run package plan \
   --source user/run-stack \
   --harness codex \
   --output-kind plugin \
@@ -116,7 +116,7 @@ Current first-party adapter declarations live in `adapters.ts` for `codex` and `
 Use surface resolution like this during development:
 
 ```sh
-make-docs operations playbook-package-surface-resolve \
+make-docs run package surface-resolve \
   --package-id run-stack \
   --harness codex \
   --output-kind plugin \
@@ -150,7 +150,7 @@ Installed generated outputs should reuse the selected-agentics storage and nativ
 Use the writer operation like this during development:
 
 ```sh
-make-docs operations playbook-package-write \
+make-docs run package write \
   --plan-json /path/to/package-plan.json \
   --precondition harness-supported=satisfied \
   --precondition project-trusted=satisfied \

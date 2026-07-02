@@ -29,9 +29,9 @@ Move the install lifecycle under `setup`, rename project uninstall to `setup rem
 
 ### Tasks
 
-- [ ] t1: Implement the `setup` subtree — `setup`, `setup reconfigure`, `setup skills`, `setup backup`, `setup remove` — mapping from the current default install, `reconfigure`, `skills`, `backup`, and project-level `uninstall`, preserving the wizard, review, conflict, permission, and audit-snapshot semantics unchanged (R-TOP-1, R-TOP-2).
-- [ ] t2: Implement the `run` command as the operation surface generated from, or conformance-checked against, the Phase 1 registry, with multi-operation families as subtrees under a domain object mapping one-to-one to registry identifiers and standalone utilities flat (R-TOP-1, R-TOP-3, R-REG-2).
-- [ ] t3: Keep `mcp` as the top-level serve command and reserve top-level `update` and `uninstall` for tool self-management, removing the old top-level `operations` command and the old project-level `uninstall` spelling with no aliases (R-TOP-1, R-MIG-1).
+- [x] t1: Implement the `setup` subtree — `setup`, `setup reconfigure`, `setup skills`, `setup backup`, `setup remove` — mapping from the current default install, `reconfigure`, `skills`, `backup`, and project-level `uninstall`, preserving the wizard, review, conflict, permission, and audit-snapshot semantics unchanged (R-TOP-1, R-TOP-2).
+- [x] t2: Implement the `run` command as the operation surface generated from, or conformance-checked against, the Phase 1 registry, with multi-operation families as subtrees under a domain object mapping one-to-one to registry identifiers and standalone utilities flat (R-TOP-1, R-TOP-3, R-REG-2).
+- [x] t3: Keep `mcp` as the top-level serve command and reserve top-level `update` and `uninstall` for tool self-management, removing the old top-level `operations` command and the old project-level `uninstall` spelling with no aliases (R-TOP-1, R-MIG-1).
 
 ### Acceptance criteria
 
@@ -47,7 +47,7 @@ Move the install lifecycle under `setup`, rename project uninstall to `setup rem
 
 ### Tasks
 
-- [ ] t4: Implement context-aware bare `make-docs`: with no install detected in the working directory, start a guided `setup` that asks before writing; with an install present, show status and help and do not auto-sync (R-BARE-1).
+- [x] t4: Implement context-aware bare `make-docs`: with no install detected in the working directory, start a guided `setup` that asks before writing; with an install present, show status and help and do not auto-sync (R-BARE-1).
 
 ### Acceptance criteria
 

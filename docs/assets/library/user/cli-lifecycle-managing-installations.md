@@ -25,7 +25,7 @@ related:
 
 # Managing Installations with the Make Docs CLI
 
-This guide covers the current lifecycle commands for an existing `make-docs` installation. Use it when you need to sync managed files, change selections, preview changes, create backups, uninstall managed assets, or recover safely from a bad lifecycle change.
+This guide covers the current lifecycle commands for an existing `make-docs` installation. Use it when you need to sync managed files, change selections, preview changes, create backups, remove managed assets, or recover safely from a bad lifecycle change.
 
 For the first install and initial profile selection, use [Installing Make Docs](./getting-started-installing-make-docs.md).
 
@@ -37,28 +37,30 @@ For the first install and initial profile selection, use [Installing Make Docs](
 
 ## Current command model
 
-The lifecycle surface has three main modes:
+Installation lifecycle work lives under the `setup` command:
 
 | Need | Command |
 | --- | --- |
-| Apply or sync the current manifest-backed installation | `make-docs` |
-| Change managed selections before applying them | `make-docs reconfigure` |
-| Work with recovery-oriented lifecycle actions | `make-docs backup` and `make-docs uninstall` |
+| Apply or sync the current manifest-backed installation | `make-docs setup` |
+| Change managed selections before applying them | `make-docs setup reconfigure` |
+| Work with recovery-oriented lifecycle actions | `make-docs setup backup` and `make-docs setup remove` |
 
-`make-docs` does not use a separate `sync` command. Running the bare command applies a first install when no manifest exists and performs a sync when one does.
+`make-docs` does not use a separate `sync` command. Running `make-docs setup` applies a first install when no manifest exists and performs a sync when one does.
 
-The current runnable product is the npm-delivered TypeScript installer-maintainer CLI. The same package also ships a read-first MCP stdio server through `make-docs mcp`; it is intended for tool clients that need installed-state inspection, manifest/config reads, compatibility classification, dry-run planning, and closeout/work/lifecycle operation helpers. Ordinary users should keep using the CLI commands below for install, reconfigure, skills, backup, and uninstall work.
+Bare `make-docs` is context-aware and never syncs. In a project that already has an install, it shows the current installation status and help. In a project with no install, an interactive run starts a guided setup; non-interactive and flag-driven installs must go through `make-docs setup`.
 
-Historical `init`, `update`, `--reconfigure`, and `--skills` surfaces are not current commands or flags. Use bare `make-docs` for install or sync, `make-docs reconfigure` to change selections, and `make-docs skills` for skills-only work.
+The current runnable product is the npm-delivered TypeScript installer-maintainer CLI. The same package also ships a read-first MCP stdio server through `make-docs mcp`; it is intended for tool clients that need installed-state inspection, manifest/config reads, compatibility classification, dry-run planning, and work/lifecycle operation helpers. Ordinary users should keep using the CLI commands below for install, reconfigure, skills, backup, and removal work.
+
+Historical `init`, `update`, `--reconfigure`, and `--skills` surfaces are not current commands or flags, and the pre-reorganization top-level `reconfigure`, `skills`, `backup`, and `uninstall` command spellings no longer exist and have no aliases. Use `make-docs setup` for install or sync, `make-docs setup reconfigure` to change selections, and `make-docs setup skills` for skills-only work.
 
 For the maintainer-facing explanation of why lifecycle state lives under `.make-docs/` while document resources stay under `docs/assets/`, use [Docs Assets and Runtime State Boundaries](../developer/maintainer-docs-assets-and-runtime-state-boundaries.md).
 
 ## Apply or sync an installation
 
-Run the bare command from the target project:
+Run the setup command from the target project:
 
 ```bash
-make-docs
+make-docs setup
 ```
 
 For an existing install, the CLI reads the saved manifest, plans changes against the current package version, and updates only managed files that are still safe to update in place.
@@ -69,7 +71,7 @@ For an existing install, the CLI reads the saved manifest, plans changes against
 - Managed files with local differences are preserved unless you explicitly choose to overwrite them during review.
 - The lifecycle plan reports what would change before anything is written.
 
-If your installation predates the project identifier, the next apply or sync adds a `projectId` field to `.make-docs/manifest.json` and prints a one-time migration notice. That is a routine manifest enhancement, not a conflict: an existing `projectId` is never re-minted or changed, and manifests without one keep working across sync, reconfigure, backup, and uninstall until an apply adds it.
+If your installation predates the project identifier, the next apply or sync adds a `projectId` field to `.make-docs/manifest.json` and prints a one-time migration notice. That is a routine manifest enhancement, not a conflict: an existing `projectId` is never re-minted or changed, and manifests without one keep working across sync, reconfigure, backup, and removal until an apply adds it.
 
 ### Review planned changes and diffs
 
@@ -98,17 +100,17 @@ In non-interactive mode, including `--yes`, the CLI cannot ask you to resolve re
 ### Apply or sync a different directory
 
 ```bash
-make-docs --target ~/Projects/example
+make-docs setup --target ~/Projects/example
 ```
 
 Use `--target` when the project you want to manage is not the current working directory.
 
 ## Reconfigure managed selections
 
-Use `reconfigure` when you want to change the current installation profile rather than merely sync it.
+Use `setup reconfigure` when you want to change the current installation profile rather than merely sync it.
 
 ```bash
-make-docs reconfigure
+make-docs setup reconfigure
 ```
 
 Typical reconfigure changes include:
@@ -122,25 +124,25 @@ Typical reconfigure changes include:
 For non-interactive reconfiguration, pair `--yes` with at least one selection flag:
 
 ```bash
-make-docs reconfigure --yes --no-codex --skill-scope global --selected-skills decompose-codebase
+make-docs setup reconfigure --yes --no-codex --skill-scope global --selected-skills decompose-codebase
 ```
 
-Use `reconfigure` when you intend to change the manifest-backed selection set. Use bare `make-docs` when you want the current selection set applied as-is.
+Use `setup reconfigure` when you intend to change the manifest-backed selection set. Use `make-docs setup` when you want the current selection set applied as-is.
 
 ## Preview changes with `--dry-run`
 
 Use `--dry-run` to render the plan without writing files:
 
 ```bash
-make-docs --dry-run
-make-docs reconfigure --dry-run
+make-docs setup --dry-run
+make-docs setup reconfigure --dry-run
 ```
 
 Dry-run is the safest way to:
 
 - confirm which files would change during sync
 - check whether a reconfigure command is targeting the right harnesses or skills
-- inspect lifecycle work before running `backup` or `uninstall`
+- inspect lifecycle work before running `setup backup` or `setup remove`
 
 If the plan is a no-op, the CLI explains that no managed file changes would be made.
 
@@ -150,9 +152,10 @@ Use command help whenever you need the current flag set rather than historical e
 
 ```bash
 make-docs --help
-make-docs reconfigure --help
-make-docs backup --help
-make-docs uninstall --help
+make-docs setup --help
+make-docs setup reconfigure --help
+make-docs setup backup --help
+make-docs setup remove --help
 ```
 
 The command help is the source of truth for:
@@ -163,41 +166,41 @@ The command help is the source of truth for:
 
 ## Create a backup before destructive changes
 
-Use `backup` to copy removable managed files into the project-local `.make-docs/backup/` tree before you uninstall or perform other risky cleanup.
+Use `setup backup` to copy removable managed files into the project-local `.make-docs/backup/` tree before you remove the installation or perform other risky cleanup.
 
 ```bash
-make-docs backup
+make-docs setup backup
 ```
 
-The backup command uses the same audit engine as uninstall. It inspects managed files, determines which files are safe to copy, and creates a dated destination under `.make-docs/backup/` only when there is real backup work to do. Existing root `.backup/` directories from older Make Docs runs are protected legacy backup state; current backup runs do not create new snapshots there.
+The backup command uses the same audit engine as removal. It inspects managed files, determines which files are safe to copy, and creates a dated destination under `.make-docs/backup/` only when there is real backup work to do. Existing root `.backup/` directories from older Make Docs runs are protected legacy backup state; current backup runs do not create new snapshots there.
 
-### When to run `backup`
+### When to run `setup backup`
 
-- before `make-docs uninstall`
+- before `make-docs setup remove`
 - before a large reconfigure that removes capabilities or skills
 - before manual cleanup when you are unsure which files are still make-docs-managed
 
 ### Preview backup scope safely
 
-`backup` does not currently have a dry-run mode. Run `make-docs backup` interactively when you want to inspect the audit summary before confirming backup creation. If the audit finds nothing that needs backup, the CLI reports that and does not create an empty backup destination.
+`setup backup` does not currently have a dry-run mode. Run `make-docs setup backup` interactively when you want to inspect the audit summary before confirming backup creation. If the audit finds nothing that needs backup, the CLI reports that and does not create an empty backup destination.
 
-## Uninstall managed assets
+## Remove managed assets
 
-Use `uninstall` to remove files that the lifecycle audit classifies as safe to delete.
+Use `setup remove` to remove files that the lifecycle audit classifies as safe to delete.
 
 ```bash
-make-docs uninstall
+make-docs setup remove
 ```
 
 Useful variants:
 
 ```bash
-make-docs uninstall --backup
+make-docs setup remove --backup
 ```
 
-`--backup` runs backup handling as part of the uninstall flow before removable files are deleted.
+`--backup` runs backup handling as part of the removal flow before removable files are deleted.
 
-### What uninstall does not remove blindly
+### What removal does not delete blindly
 
 The audit flow distinguishes between:
 
@@ -206,14 +209,14 @@ The audit flow distinguishes between:
 - skipped paths such as items inside `.make-docs/backup/` or legacy `.backup/`
 - directories that become safely prunable only after removable descendants are gone
 
-That separation is why uninstall and recovery guidance belong together: removal decisions depend on audit classification, not just pathname matching.
+That separation is why removal and recovery guidance belong together: removal decisions depend on audit classification, not just pathname matching.
 
-### What uninstall reports about the machine-level store
+### What removal reports about the machine-level store
 
-Make Docs keeps a small machine-level store at `~/.make-docs/` that records operational state — which projects are set up and recorded work sign-offs — for every project on the machine. Uninstall handles that store explicitly and prints what it did on every completed run:
+Make Docs keeps a small machine-level store at `~/.make-docs/` that records operational state — which projects are set up and recorded work sign-offs — for every project on the machine. `setup remove` handles that store explicitly and prints what it did on every completed run:
 
 - It removes only this project's entries from the store; every other project's state is untouched.
-- It never deletes the store itself, because the store serves all Make Docs projects on the machine. When the project you uninstalled was the last one registered, the report says so and names the location where the store can be safely deleted by hand.
+- It never deletes the store itself, because the store serves all Make Docs projects on the machine. When the project you removed was the last one registered, the report says so and names the location where the store can be safely deleted by hand.
 - When no store exists, or the project never had a recorded identifier, the report says there was nothing to prune.
 - Store handling never deletes files inside your project. Your backups — the project-local `.make-docs/backup/` tree and any legacy root `.backup/` directory — are unaffected.
 
@@ -224,8 +227,8 @@ The store's records, including the project paths it uses for lookup, stay on you
 If a lifecycle action did not do what you expected, use this order of operations:
 
 1. For install, sync, reconfigure, or skills work, run the same command again with `--dry-run` to inspect the current plan.
-2. Review the project-local `.make-docs/backup/` tree if you used `backup` or `uninstall --backup`.
-3. Re-run `make-docs reconfigure` if the problem was caused by the wrong selections.
+2. Review the project-local `.make-docs/backup/` tree if you used `setup backup` or `setup remove --backup`.
+3. Re-run `make-docs setup reconfigure` if the problem was caused by the wrong selections.
 4. Use command help to confirm the exact flags you intended to use.
 
 ### Recover from an incorrect reconfigure
@@ -233,33 +236,33 @@ If a lifecycle action did not do what you expected, use this order of operations
 If the wrong capability, harness, or skill set was selected, rerun:
 
 ```bash
-make-docs reconfigure
+make-docs setup reconfigure
 ```
 
 or a non-interactive equivalent with the correct flags, then preview with `--dry-run` before applying.
 
-### Recover after uninstall
+### Recover after removal
 
-If you uninstalled with backup enabled, inspect the newest `.make-docs/backup/` directory in the target project and restore only the files you actually want back. If your project also has a root `.backup/` directory from an older Make Docs run, treat it as legacy recovery evidence and do not delete it blindly. After restoring files, rerun `make-docs` or `make-docs reconfigure` so the manifest-backed install returns to a consistent state.
+If you removed the installation with backup enabled, inspect the newest `.make-docs/backup/` directory in the target project and restore only the files you actually want back. If your project also has a root `.backup/` directory from an older Make Docs run, treat it as legacy recovery evidence and do not delete it blindly. After restoring files, rerun `make-docs setup` or `make-docs setup reconfigure` so the manifest-backed install returns to a consistent state.
 
 ## Troubleshooting
 
-### `make-docs` shows a plan when I expected a separate sync command
+### Bare `make-docs` shows status instead of syncing
 
-That is current behavior. The bare command is the apply-or-sync entrypoint.
+That is current behavior. With an install present, the bare command reports installation status and help and never syncs. Run `make-docs setup` when you want an apply or sync.
 
 ### I want to change selections, not just update files
 
-Use `make-docs reconfigure`, not bare `make-docs`.
+Use `make-docs setup reconfigure`, not `make-docs setup`.
 
 ### I only want to see what would happen
 
-Add `--dry-run` to install, sync, reconfigure, or skills commands. For `backup` or `uninstall`, run the command interactively and stop at the confirmation prompt after reviewing the audit summary.
+Add `--dry-run` to install, sync, reconfigure, or skills commands. For `setup backup` or `setup remove`, run the command interactively and stop at the confirmation prompt after reviewing the audit summary.
 
-### I am not sure whether uninstall will delete too much
+### I am not sure whether removal will delete too much
 
-Run `make-docs uninstall` interactively and stop at the confirmation prompt after reviewing the audit summary. If you want extra safety before removal, use `make-docs uninstall --backup`.
+Run `make-docs setup remove` interactively and stop at the confirmation prompt after reviewing the audit summary. If you want extra safety before removal, use `make-docs setup remove --backup`.
 
 ## Future Coverage
 
-- Blocked by: the W18 R11 command reorganization. Update when: the reorganized command surface ships the tool-level `uninstall` and `update` self-management commands and `setup remove`. Guide change: document how to inspect the machine-level store, the `setup remove` command name for per-project pruning, and the command that removes the Make Docs machine footprint entirely; today the uninstall report tells you when the store can be safely deleted by hand, and that guidance should be replaced by the real command.
+- Blocked by: the W18 R11 tool-level self-management commands, which land later in the same wave as the `setup` reorganization. Update when: the top-level `update` and `uninstall` commands ship as machine-level tool self-management (uninstall covering the global store and the installed binary). Guide change: document how to inspect the machine-level store and the command that removes the Make Docs machine footprint entirely; today the `setup remove` report tells you when the store can be safely deleted by hand, and that guidance should be replaced by the real command.

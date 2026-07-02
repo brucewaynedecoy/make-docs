@@ -90,7 +90,7 @@ export function createClackLifecycleRenderer(): LifecycleRenderer {
     },
     renderBackupAuditSummary(options) {
       renderAuditNote({
-        title: "make-docs backup",
+        title: "make-docs setup backup",
         lines: buildBackupAuditSummaryLines(options),
         groups: [
           formatEntryGroup(
@@ -120,7 +120,7 @@ export function createClackLifecycleRenderer(): LifecycleRenderer {
         permissions,
         message: "Create this backup?",
         ttyError:
-          "Backup confirmation requires a TTY. Re-run with `make-docs backup --yes`.",
+          "Backup confirmation requires a TTY. Re-run with `make-docs setup backup --yes`.",
       });
     },
     renderBackupNoopSummary() {
@@ -154,8 +154,8 @@ export function createClackLifecycleRenderer(): LifecycleRenderer {
         lines.push("A backup will be created before removal begins.");
         lines.push(`Backup destination: ${options.backupDestinationDir}`);
       } else {
-        lines.push("Safer alternative: make-docs backup");
-        lines.push("Safer destructive flow: make-docs uninstall --backup");
+        lines.push("Safer alternative: make-docs setup backup");
+        lines.push("Safer destructive flow: make-docs setup remove --backup");
       }
 
       note(lines.join("\n"), "WARNING");
@@ -165,12 +165,12 @@ export function createClackLifecycleRenderer(): LifecycleRenderer {
         permissions,
         message: "Continue with uninstall review?",
         ttyError:
-          "Uninstall confirmation requires a TTY. Re-run with `make-docs uninstall --yes`.",
+          "Uninstall confirmation requires a TTY. Re-run with `make-docs setup remove --yes`.",
       });
     },
     renderUninstallAuditSummary(options) {
       renderAuditNote({
-        title: "make-docs uninstall",
+        title: "make-docs setup remove",
         lines: buildUninstallAuditSummaryLines(options),
         groups: [
           formatEntryGroup(
@@ -205,7 +205,7 @@ export function createClackLifecycleRenderer(): LifecycleRenderer {
         permissions: options.permissions,
         message,
         ttyError:
-          "Uninstall confirmation requires a TTY. Re-run with `make-docs uninstall --yes`.",
+          "Uninstall confirmation requires a TTY. Re-run with `make-docs setup remove --yes`.",
       });
     },
     renderUninstallCancelled() {
