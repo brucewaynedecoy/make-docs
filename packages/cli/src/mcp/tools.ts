@@ -12,16 +12,9 @@ import {
   buildPhaseGateReport,
   buildScopeReport,
 } from "../operations/lifecycle";
+import { createExecutionContext } from "../operations/context";
 import { listOperationDomains } from "../operations/index";
-import {
-  catalogPlaybooks,
-  createPlaybookRunState,
-  evaluateHarnessCapabilities,
-  invokePlaybook,
-  readPlaybookRunState,
-  resolvePlaybook,
-  validatePlaybooks,
-} from "../operations/playbook";
+import { invokeOperation } from "../operations/registry";
 import {
   buildPhasePlan,
   buildWaveStatus,
@@ -345,17 +338,22 @@ export async function callMakeDocsMcpTool(
     case "make_docs_playbook_validate":
       return mcpPayload(
         name,
-        validatePlaybooks({
+        await invokeRegistryOperation("playbook.validate", args, {
           repoRoot: resolveRepoRoot(args),
           refs: optionalStringArray(args, "refs"),
         }),
       );
     case "make_docs_playbook_catalog":
-      return mcpPayload(name, catalogPlaybooks({ repoRoot: resolveRepoRoot(args) }));
+      return mcpPayload(
+        name,
+        await invokeRegistryOperation("playbook.catalog", args, {
+          repoRoot: resolveRepoRoot(args),
+        }),
+      );
     case "make_docs_playbook_resolve":
       return mcpPayload(
         name,
-        resolvePlaybook({
+        await invokeRegistryOperation("playbook.resolve", args, {
           repoRoot: resolveRepoRoot(args),
           ref: requiredString(args, "ref"),
           requestedStack: optionalString(args, "stack"),
@@ -364,7 +362,7 @@ export async function callMakeDocsMcpTool(
     case "make_docs_playbook_capabilities":
       return mcpPayload(
         name,
-        evaluateHarnessCapabilities({
+        await invokeRegistryOperation("playbook.capabilities", args, {
           repoRoot: resolveRepoRoot(args),
           harness: requiredString(args, "harness"),
           requiredCapabilities: optionalStringArray(args, "requiredCapabilities"),
@@ -372,35 +370,29 @@ export async function callMakeDocsMcpTool(
         }),
       );
     case "make_docs_playbook_run_start":
-      if (args.allowWrite !== true) {
-        throw new Error("`make_docs_playbook_run_start` requires allowWrite=true.");
-      }
       return mcpPayload(
         name,
-        createPlaybookRunState({
+        await invokeRegistryOperation("playbook.start", args, {
           repoRoot: resolveRepoRoot(args),
           ref: requiredString(args, "ref"),
           requestedStack: optionalString(args, "stack"),
           harness: requiredString(args, "harness"),
           runId: optionalString(args, "runId"),
           parentRunId: optionalString(args, "parentRunId"),
-          executionMode: optionalString(args, "executionMode") as "serial" | "parallel" | undefined,
+          executionMode: optionalString(args, "executionMode"),
           outputSurfaceClaims: optionalStringArray(args, "outputSurfaceClaims"),
           currentStep: optionalString(args, "currentStep"),
           currentGate: optionalString(args, "currentGate"),
-          status: optionalString(args, "status") as Parameters<typeof createPlaybookRunState>[0]["status"],
+          status: optionalString(args, "status"),
           resumeHints: optionalStringArray(args, "resumeHints"),
           requiredCapabilities: optionalStringArray(args, "requiredCapabilities"),
           preferredCapabilities: optionalStringArray(args, "preferredCapabilities"),
         }),
       );
     case "make_docs_playbook_run_invoke":
-      if (args.allowWrite !== true) {
-        throw new Error("`make_docs_playbook_run_invoke` requires allowWrite=true.");
-      }
       return mcpPayload(
         name,
-        invokePlaybook({
+        await invokeRegistryOperation("playbook.invoke", args, {
           repoRoot: resolveRepoRoot(args),
           ref: requiredString(args, "ref"),
           requestedStack: optionalString(args, "stack"),
@@ -415,7 +407,7 @@ export async function callMakeDocsMcpTool(
     case "make_docs_playbook_run_read":
       return mcpPayload(
         name,
-        readPlaybookRunState({
+        await invokeRegistryOperation("playbook.status", args, {
           repoRoot: resolveRepoRoot(args),
           runId: requiredString(args, "runId"),
         }),
@@ -423,6 +415,28 @@ export async function callMakeDocsMcpTool(
     default:
       throw new Error(`Unknown make-docs MCP tool: ${name}`);
   }
+}
+
+/**
+ * Registry seam for MCP tools (R-REG-2, R-CORE-1): the surface adapts MCP
+ * arguments into the operation's typed input and delegates; write gating is
+ * enforced uniformly by the operation core from the injected context, so
+ * this adapter carries no per-tool write checks.
+ */
+async function invokeRegistryOperation(
+  id: string,
+  args: McpToolInput,
+  input: Record<string, unknown>,
+): Promise<unknown> {
+  const invocation = await invokeOperation(
+    id,
+    input,
+    createExecutionContext({
+      surface: "mcp",
+      writesAllowed: args.allowWrite === true,
+    }),
+  );
+  return invocation.value;
 }
 
 async function readInstalledState(targetDir: string): Promise<Record<string, unknown>> {

@@ -20,7 +20,7 @@ import {
   planInstall,
 } from "./install";
 import { loadManifest, MANIFEST_RELATIVE_PATH } from "./manifest";
-import { runOperationsCommand } from "./operations";
+import { runOperationsCommand } from "./operations/cli";
 import { bootstrapGlobalStore, mirrorProjectManifest, withStoreDatabase } from "./store";
 import { cloneSelections, defaultSelections, hasEffectiveCapabilities } from "./profile";
 import { applySkillRegistrySelectionMetadata } from "./skill-catalog";

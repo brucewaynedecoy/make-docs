@@ -23,8 +23,10 @@ related:
   - ../../../prd/28-revise-shared-agentics-installation-harness-redirection.md
   - ../../../prd/29-revise-playbook-contract-run-playbook.md
   - ../../../prd/30-revise-harness-plugin-substrate-workflow-bundles.md
+  - ../../../prd/39-revise-cli-command-reorganization-and-operation-registry.md
   - ../../../plans/2026-06-26-w10-r8-typescript-cli-operation-domains-and-mcp-runtime/00-overview.md
   - ../../../work/2026-06-26-w10-r8-typescript-cli-operation-domains-and-mcp-runtime/00-index.md
+  - ../../../work/2026-07-01-w18-r11-cli-command-reorganization-and-operation-registry/00-index.md
 ---
 
 # CLI/MCP Operation Parity and Permissions
@@ -41,13 +43,17 @@ Do not add MCP tools as independent behavior.
 
 Deterministic behavior belongs in modular TypeScript operation domains under `packages/cli/src/operations/<domain>/`. Public CLI dispatch and MCP tool handlers should parse transport-specific input, call the shared domain function, and render the result. They should not own domain logic.
 
-The initial operation domains are:
+Since W18 R11 Phase 1, the operation registry at `packages/cli/src/operations/registry.ts` is the single source of truth for which deterministic operations exist per [PRD 39](../../../prd/39-revise-cli-command-reorganization-and-operation-registry.md) R-REG-1. Each operation is registered once with a stable, append-only `domain.verb` or `domain.object.verb` identifier, a zod input schema, a `read`/`write` mutation classification, and a handler taking the typed input plus an injected execution context. Per-operation definition modules live under `packages/cli/src/operations/<domain>/ops/<verb>.ts` and delegate to the domain implementation; the definition module owns the identifier and contract, never the logic. Surfaces adapt transport input into the operation's typed input, call `invokeOperation`, and render the result; dry-run, write-permission, and named-approval gating are enforced uniformly by the registry dispatch from the context's `writesAllowed`, `dryRun`, and `approvals` fields, so a surface must not add its own write checks (the MCP `allowWrite` argument now only populates the context). Dependency direction is one-way and mechanically pinned by `packages/cli/tests/operation-dependency-direction.test.ts`: surfaces import the core, the core never imports a surface, and no surface imports another surface (R-CORE-2).
 
-| Domain | Owns |
+The registered domains and identifiers, pinned append-only by `packages/cli/tests/registry-contract.test.ts`:
+
+| Domain | Identifiers |
 | --- | --- |
-| `closeout` | closeout probes, validation planning, and history rendering |
-| `work` | work phase parsing, wave resolution, wave status, and phase planning |
-| `lifecycle` | checkpoints, scope guards, and phase gates |
+| `playbook` | `validate`, `catalog`, `resolve`, `capabilities`, `start`, `invoke`, `status` active; `next`, `advance`, `gate`, `resume`, `close` reserved as `pending` identifiers that refuse invocation until the W18 R7 state-machine engine lands behind them |
+| `package` | `plan`, `surface-resolve`, `write` |
+| `work` | `item.resolve`, `evidence.record`, `evidence.read` — the two retained work-operation slots keyed to the W18 R10 global-store project-state model |
+
+The legacy `closeout`, `work`, and `lifecycle` inspection cluster — wave-status, work-phase-state, phase-plan, phase-gate, scope-guard, checkpoint, and the closeout probe/validate/history operations — is pruned by the [migrated-operations inventory disposition](../../artifacts/migrated-operations-inventory.md). It remains hand-wired on the legacy `operations` command only until the W18 R11 pruning phase removes it, and it must never be added to the registry.
 
 Every MCP capability needs:
 
@@ -73,7 +79,7 @@ Use this table when extending the first MCP server. Capabilities marked shipped 
 | Read config | config loader | read-only | Shipped | Config labels and diagnostics match CLI/shared-core reads. |
 | Classify compatibility | compatibility classifier | read-only | Shipped | Compatibility state, disposition, evidence, and audit behavior match CLI/shared-core classification. |
 | Plan install or sync | no-command apply planner | dry-run plan | Shipped | Planned file actions are summarized without file content or writes, and conflict review data comes from the CLI planner. |
-| Run closeout/work/lifecycle helpers | closeout, work, and lifecycle operation domains | read-only or plan-first | Shipped | MCP tool outputs match direct operation-domain function outputs. |
+| Run closeout/work/lifecycle helpers | closeout, work, and lifecycle operation domains | read-only or plan-first | Shipped, pruning in flight | MCP tool outputs match direct operation-domain function outputs; the cluster is pruned by the inventory disposition and leaves this surface during W18 R11 rather than gaining registry identifiers. |
 | Inspect selected agentics | selected-agentics manifest records and generated-stub resolver | read-only | Planned | Shared payload and generated harness exposure records match CLI install/audit classification. |
 | Resolve system asset | accepted asset materialization resolver | read-only | Planned | Provider, immutable ref, hash set, offline expectation, and recovery guidance are visible without hidden provider state. |
 | Validate project state | existing validators after they move behind CLI/shared-core operations | read-only or temp-fixture only | Planned | Validator results match CLI/shared-core output and do not mutate the target tree. |
@@ -83,7 +89,7 @@ Use this table when extending the first MCP server. Capabilities marked shipped 
 | Plan uninstall | uninstall audit and review planner | read-first plan | Planned | Removable, preserved, skipped, and prunable path classifications match CLI lifecycle review without deleting files. |
 | Run no-scripts replacement operation | future CLI/shared-core operation introduced by no-scripts migration | dry-run first | Planned | The migrated operation exists in the CLI package before MCP exposes it. |
 | Inspect playbooks | playbook operation domain | read-only | Shipped | Playbook metadata, persona, stack, authority order, and runnable status match the accepted playbook contract. |
-| Invoke Run Playbook model | playbook operation domain | write-gated plan/state | Shipped | MCP invocation requires `allowWrite=true`, creates the same Make Docs run state as the CLI/shared-core operation, and marks support claims provisional until validation exists. |
+| Invoke Run Playbook model | playbook operation domain | write-gated plan/state | Shipped | MCP invocation requires `allowWrite=true`, which populates the execution context whose write gate the operation core enforces uniformly; it creates the same Make Docs run state as the CLI/shared-core operation and marks support claims provisional until validation exists. |
 | Inspect plugin or workflow bundle | plugin substrate and bundle metadata resolver | read-only | Planned | Plugin id, bundle id, selected payload, generated exposure, and support-claim status match plugin metadata contracts. |
 
 If a future MCP capability does not fit the table, add the CLI/shared-core owner first. Do not let a new MCP-only behavior become the source of truth.
@@ -169,13 +175,14 @@ Package smoke tests prove package behavior; they do not prove MCP support by the
 
 Before implementing an MCP tool or CLI operation:
 
-1. Identify the CLI/shared-core owner operation.
+1. Identify the CLI/shared-core owner operation, and register it: add a per-operation definition module under `packages/cli/src/operations/<domain>/ops/` with a convention-conforming identifier, input schema, mutation classification, and handler, then extend the identifier pin in `packages/cli/tests/registry-contract.test.ts`. Identifiers are append-only; never rename or remove one.
 2. Define read output and dry-run plan shape.
 3. Add parity fixtures at the operation boundary.
-4. Keep writes blocked until the permission model exists.
-5. Update package validation only when shipped package files change.
-6. Add conformance scenarios before changing public support language.
-7. Keep docs explicit about which MCP surfaces are shipped and which remain planned.
+4. Route every surface through `invokeOperation` with an execution context; never add per-surface write gating.
+5. Keep writes blocked until the permission model exists.
+6. Update package validation only when shipped package files change.
+7. Add conformance scenarios before changing public support language.
+8. Keep docs explicit about which MCP surfaces are shipped and which remain planned.
 
 ## Related Resources
 
@@ -189,3 +196,5 @@ Before implementing an MCP tool or CLI operation:
 - [28 Revise Shared Agentics Installation Harness Redirection](../../../prd/28-revise-shared-agentics-installation-harness-redirection.md)
 - [29 Revise Playbook Contract Run Playbook](../../../prd/29-revise-playbook-contract-run-playbook.md)
 - [30 Revise Harness Plugin Substrate Workflow Bundles](../../../prd/30-revise-harness-plugin-substrate-workflow-bundles.md)
+- [39 Revise CLI Command Reorganization and Operation Registry](../../../prd/39-revise-cli-command-reorganization-and-operation-registry.md)
+- [W18 R11 CLI Command Reorganization and Operation Registry Work](../../../work/2026-07-01-w18-r11-cli-command-reorganization-and-operation-registry/00-index.md)

@@ -6,9 +6,12 @@ import {
 import path from "node:path";
 import {
   listWaveEvidence,
+  readWorkItemEvidence,
+  recordWorkEvidence,
   resolveProjectIdentity,
   resolveStoreRoot,
   withStoreDatabase,
+  type WorkItemIdentity,
 } from "../../store";
 import {
   findRepoRoot,
@@ -78,6 +81,27 @@ export interface WaveResolution {
     isComplete: boolean;
     uncheckedTaskCount: number;
   }>;
+}
+
+/**
+ * Canonical work-item identity resolution (W18 R11; PRD 38 R-PS-3). This is
+ * the tight identity the retained `work.item.resolve` operation returns:
+ * coordinate or path in, canonical identity out, with NO judgment about which
+ * phase to work next. When the target names a wave (no explicit phase),
+ * `phasePath` is null — selecting the next incomplete phase is re-derivable
+ * guidance and deliberately not part of the identity contract.
+ *
+ * `phasePath` is repo-relative, exactly the form the global store keys
+ * work-execution evidence by (`WorkItemIdentity` in the store).
+ */
+export interface WorkItemIdentityResolution {
+  mode: "wave" | "phase";
+  repoRoot: string;
+  waveDir: string;
+  waveSlug: string;
+  /** Repo-relative phase document path; null for a wave-only identity. */
+  phasePath: string | null;
+  coordinate: Coordinate;
 }
 
 const WR_COORD_RE = /\bw\s*(\d+)\s*r\s*(\d+)(?:\s*p\s*(\d+))?\b/i;
@@ -310,43 +334,144 @@ export function resolveWaveTarget(target: string, repoRoot?: string): WaveResolu
     return resolveWavePath(candidate, findRepoRoot(path.dirname(candidate)));
   }
 
-  const coord = WR_COORD_RE.exec(raw);
-  if (!coord) {
-    throw new OperationError(`Could not parse target \`${target}\` as a coordinate or path.`);
-  }
-  const wave = Number(coord[1]);
-  const revision = Number(coord[2]);
-  const phase = coord[3] ? Number(coord[3]) : null;
-  const workRoot = path.join(root, "docs", "work");
-  const matches = readdirSync(workRoot, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory() && new RegExp(`w0*${wave}-r0*${revision}\\b`, "i").test(entry.name))
-    .map((entry) => path.join(workRoot, entry.name))
-    .sort();
-
-  if (matches.length === 0) {
-    throw new OperationError(`No docs/work wave directory found for W${wave} R${revision}.`);
-  }
-  if (matches.length > 1) {
-    throw new OperationError(
-      `Ambiguous wave coordinate; candidates: ${matches.map((item) => normalizePath(path.relative(root, item))).join(", ")}`,
-    );
-  }
-
-  const waveDir = matches[0]!;
+  const coordinate = parseCoordinateTarget(target, raw);
+  const waveDir = matchWaveDirectory(root, coordinate.wave, coordinate.revision);
   const phases = phaseDocs(waveDir);
   let phaseDoc: string | null = null;
   let mode: "wave" | "phase" = "wave";
-  if (phase !== null) {
+  if (coordinate.phase !== null) {
     mode = "phase";
-    phaseDoc = phases.find((item) => phaseNumber(item) === phase) ?? null;
-    if (!phaseDoc) {
-      throw new OperationError(`No phase P${phase} found under ${normalizePath(path.relative(root, waveDir))}.`);
-    }
+    phaseDoc = findPhaseDoc(root, waveDir, phases, coordinate.phase);
   } else {
     phaseDoc = phases.find((item) => !parseWorkPhase(item).isComplete) ?? null;
   }
 
   return buildResolution(root, waveDir, phases, phaseDoc, mode, raw);
+}
+
+/**
+ * Resolves a coordinate (`W18 R11 P1`) or a wave/phase path to the canonical
+ * work-item identity (R-PS-3): repo root, wave slug, and repo-relative phase
+ * path. Unlike `resolveWaveTarget`, a wave-level target resolves with
+ * `phasePath: null` — this resolver never scans phase completion state and
+ * never selects the next incomplete phase (that judgment is re-derivable and
+ * not identity).
+ */
+export function resolveWorkItemIdentity(target: string, repoRoot?: string): WorkItemIdentityResolution {
+  const root = findRepoRoot(repoRoot ? path.resolve(repoRoot) : undefined);
+  const raw = target.trim();
+  const candidate = path.isAbsolute(raw) ? path.resolve(raw) : path.resolve(root, raw);
+  if (existsSync(candidate)) {
+    if (statSync(candidate).isFile()) {
+      const waveDir = path.dirname(candidate);
+      return buildIdentityResolution(findRepoRoot(waveDir), waveDir, candidate, "phase");
+    }
+    if (statSync(candidate).isDirectory()) {
+      return buildIdentityResolution(findRepoRoot(path.dirname(candidate)), candidate, null, "wave");
+    }
+    throw new OperationError(`Path does not resolve to a wave directory or phase file: ${candidate}`);
+  }
+
+  const coordinate = parseCoordinateTarget(target, raw);
+  const waveDir = matchWaveDirectory(root, coordinate.wave, coordinate.revision);
+  if (coordinate.phase === null) {
+    return buildIdentityResolution(root, waveDir, null, "wave");
+  }
+  const phaseDoc = findPhaseDoc(root, waveDir, phaseDocs(waveDir), coordinate.phase);
+  return buildIdentityResolution(root, waveDir, phaseDoc, "phase");
+}
+
+/**
+ * Records one work-execution evidence entry in the global store (R-BND-2,
+ * R-PS-3), keyed by the manifest-minted project identifier plus the canonical
+ * work-item identity. Evidence is phase-scoped: a wave-only target is refused
+ * rather than silently attributed to a guessed phase. The evidence kind and
+ * payload are the caller's vocabulary; the store treats the payload as opaque
+ * JSON (R-SCOPE-1 — the PRD 38 schema is consumed as-is).
+ */
+export function buildWorkEvidenceRecord(input: {
+  target: string;
+  repoRoot?: string;
+  /** Explicit store root override (tests/sandboxes); defaults to the resolved global store. */
+  storeRoot?: string;
+  evidenceKind: string;
+  payload: JsonValue;
+}): Record<string, JsonValue> {
+  const resolution = resolveWorkItemIdentity(input.target, input.repoRoot);
+  if (!resolution.phasePath) {
+    throw new OperationError(
+      `Work-execution evidence requires a phase-level identity, but \`${input.target}\` resolves ` +
+        `to wave ${resolution.waveSlug} with no phase. Name an explicit phase coordinate ` +
+        "(for example `W18 R11 P1`) or pass a phase document path.",
+    );
+  }
+  const identity: WorkItemIdentity = {
+    repoRoot: resolution.repoRoot,
+    waveSlug: resolution.waveSlug,
+    phasePath: resolution.phasePath,
+  };
+  const projectId = requireProjectId(resolution.repoRoot);
+  return withStoreDatabase(
+    resolveStoreRoot(input.storeRoot ? { storeRoot: input.storeRoot } : {}),
+    (db) => {
+      recordWorkEvidence(db, {
+        projectId,
+        identity,
+        evidenceKind: input.evidenceKind,
+        payload: input.payload,
+      });
+      // Mirror what the store row captured (recordedAt is minted by the store).
+      const row = readWorkItemEvidence(db, { projectId, identity }).find(
+        (item) => item.evidenceKind === input.evidenceKind,
+      );
+      return {
+        projectId,
+        identity: identity as unknown as JsonValue,
+        evidenceKind: input.evidenceKind,
+        recordedAt: row?.recordedAt ?? null,
+      };
+    },
+  );
+}
+
+/**
+ * Reads recorded work-execution evidence from the global store for one
+ * canonical work-item identity. A phase-level target returns that phase's
+ * rows; a wave-only target returns every row recorded for the wave.
+ */
+export function buildWorkEvidenceRead(input: {
+  target: string;
+  repoRoot?: string;
+  /** Explicit store root override (tests/sandboxes); defaults to the resolved global store. */
+  storeRoot?: string;
+}): Record<string, JsonValue> {
+  const resolution = resolveWorkItemIdentity(input.target, input.repoRoot);
+  const projectId = requireProjectId(resolution.repoRoot);
+  return withStoreDatabase(
+    resolveStoreRoot(input.storeRoot ? { storeRoot: input.storeRoot } : {}),
+    (db): Record<string, JsonValue> => {
+      if (resolution.phasePath) {
+        const identity: WorkItemIdentity = {
+          repoRoot: resolution.repoRoot,
+          waveSlug: resolution.waveSlug,
+          phasePath: resolution.phasePath,
+        };
+        return {
+          projectId,
+          identity: identity as unknown as JsonValue,
+          evidence: readWorkItemEvidence(db, { projectId, identity }) as unknown as JsonValue,
+        };
+      }
+      return {
+        projectId,
+        waveSlug: resolution.waveSlug,
+        evidence: listWaveEvidence(db, {
+          projectId,
+          waveSlug: resolution.waveSlug,
+        }) as unknown as JsonValue,
+      };
+    },
+  );
 }
 
 /**
@@ -578,6 +703,80 @@ function resolveWavePath(targetPath: string, repoRoot: string): WaveResolution {
     return buildResolution(root, resolvedPath, phases, phaseDoc, "wave", resolvedPath);
   }
   throw new OperationError(`Path does not resolve to a wave directory or phase file: ${resolvedPath}`);
+}
+
+function parseCoordinateTarget(
+  target: string,
+  raw: string,
+): { wave: number; revision: number; phase: number | null } {
+  const coord = WR_COORD_RE.exec(raw);
+  if (!coord) {
+    throw new OperationError(`Could not parse target \`${target}\` as a coordinate or path.`);
+  }
+  return {
+    wave: Number(coord[1]),
+    revision: Number(coord[2]),
+    phase: coord[3] ? Number(coord[3]) : null,
+  };
+}
+
+function matchWaveDirectory(root: string, wave: number, revision: number): string {
+  const workRoot = path.join(root, "docs", "work");
+  const matches = readdirSync(workRoot, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory() && new RegExp(`w0*${wave}-r0*${revision}\\b`, "i").test(entry.name))
+    .map((entry) => path.join(workRoot, entry.name))
+    .sort();
+
+  if (matches.length === 0) {
+    throw new OperationError(`No docs/work wave directory found for W${wave} R${revision}.`);
+  }
+  if (matches.length > 1) {
+    throw new OperationError(
+      `Ambiguous wave coordinate; candidates: ${matches.map((item) => normalizePath(path.relative(root, item))).join(", ")}`,
+    );
+  }
+  return matches[0]!;
+}
+
+function findPhaseDoc(root: string, waveDir: string, phases: string[], phase: number): string {
+  const phaseDoc = phases.find((item) => phaseNumber(item) === phase) ?? null;
+  if (!phaseDoc) {
+    throw new OperationError(`No phase P${phase} found under ${normalizePath(path.relative(root, waveDir))}.`);
+  }
+  return phaseDoc;
+}
+
+function buildIdentityResolution(
+  root: string,
+  waveDir: string,
+  phaseDoc: string | null,
+  mode: "wave" | "phase",
+): WorkItemIdentityResolution {
+  return {
+    mode,
+    repoRoot: root,
+    waveDir,
+    waveSlug: path.basename(waveDir),
+    phasePath: phaseDoc ? repoRelativePath(phaseDoc, root) : null,
+    coordinate: coordinateForPath(phaseDoc ?? waveDir),
+  };
+}
+
+function requireProjectId(repoRoot: string): string {
+  const resolution = resolveProjectIdentity(repoRoot);
+  if (resolution.status === "resolved") {
+    return resolution.projectId;
+  }
+  const guidance =
+    resolution.status === "unminted"
+      ? "this project's manifest predates the stable project identifier; run `make-docs` once to mint it."
+      : resolution.status === "no-manifest"
+        ? "this repository has no .make-docs/manifest.json; run `make-docs` to set up Make Docs first."
+        : "this project's .make-docs/manifest.json is unreadable; repair it and rerun `make-docs`.";
+  throw new OperationError(
+    `Cannot use the global store for work-execution evidence: ${guidance} ` +
+      "Evidence is keyed by the manifest-minted project identifier, never by a repository path.",
+  );
 }
 
 function buildResolution(

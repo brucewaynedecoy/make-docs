@@ -11,8 +11,8 @@ import {
   buildWaveStatus,
   parseWorkPhase,
   resolveWaveTarget,
-  runOperationsCommand,
 } from "../src/operations";
+import { runOperationsCommand } from "../src/operations/cli";
 import { listWorkEvidence, loadSqliteDriver, withStoreDatabase } from "../src/store";
 import { cleanupTempDir, createTempDir, writeMinimalManifest } from "./helpers";
 

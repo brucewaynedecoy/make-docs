@@ -10,21 +10,14 @@ import {
   buildPhaseGateReport,
   buildScopeReport,
 } from "./lifecycle";
-import {
-  catalogPlaybooks,
-  createPlaybookRunState,
-  evaluateHarnessCapabilities,
-  invokePlaybook,
-  readPlaybookRunState,
-  resolvePlaybook,
-  validatePlaybooks,
-} from "./playbook";
-import {
+import { createExecutionContext, type OperationExecutionContext } from "./context";
+import type { createPlaybookRunState } from "./playbook";
+import type {
   createPlaybookPackagePlan,
   resolvePackageSurface,
-  validatePackagePlan,
   writePlaybookPackageOutputs,
 } from "./playbook-packaging";
+import { invokeOperation } from "./registry";
 import { OperationError } from "./types";
 import {
   buildPhasePlan,
@@ -136,7 +129,7 @@ export async function runOperationsCommand(argv: string[]): Promise<void> {
       return;
     case "playbook-validate":
       printJson(
-        validatePlaybooks({
+        await invokeCliOperation("playbook.validate", {
           repoRoot: path.resolve(options.values["repo-root"] ?? "."),
           refs: options.positionals,
         }),
@@ -144,14 +137,14 @@ export async function runOperationsCommand(argv: string[]): Promise<void> {
       return;
     case "playbook-catalog":
       printJson(
-        catalogPlaybooks({
+        await invokeCliOperation("playbook.catalog", {
           repoRoot: path.resolve(options.values["repo-root"] ?? "."),
         }),
       );
       return;
     case "playbook-resolve":
       printJson(
-        resolvePlaybook({
+        await invokeCliOperation("playbook.resolve", {
           repoRoot: path.resolve(options.values["repo-root"] ?? "."),
           ref: requiredPositionals(options, operation).join(" "),
           requestedStack: options.values.stack,
@@ -160,7 +153,7 @@ export async function runOperationsCommand(argv: string[]): Promise<void> {
       return;
     case "playbook-capabilities":
       printJson(
-        evaluateHarnessCapabilities({
+        await invokeCliOperation("playbook.capabilities", {
           repoRoot: path.resolve(options.values["repo-root"] ?? "."),
           harness: requiredValue(options, "harness", operation),
           requiredCapabilities: options.arrays["requires-capability"] ?? [],
@@ -170,7 +163,7 @@ export async function runOperationsCommand(argv: string[]): Promise<void> {
       return;
     case "playbook-run-start":
       printJson(
-        createPlaybookRunState({
+        await invokeCliOperation("playbook.start", {
           repoRoot: path.resolve(options.values["repo-root"] ?? "."),
           ref: requiredPositionals(options, operation).join(" "),
           requestedStack: options.values.stack,
@@ -190,7 +183,7 @@ export async function runOperationsCommand(argv: string[]): Promise<void> {
       return;
     case "playbook-run-invoke":
       printJson(
-        invokePlaybook({
+        await invokeCliOperation("playbook.invoke", {
           repoRoot: path.resolve(options.values["repo-root"] ?? "."),
           ref: requiredPositionals(options, operation).join(" "),
           requestedStack: options.values.stack,
@@ -205,7 +198,7 @@ export async function runOperationsCommand(argv: string[]): Promise<void> {
       return;
     case "playbook-run-read":
       printJson(
-        readPlaybookRunState({
+        await invokeCliOperation("playbook.status", {
           repoRoot: path.resolve(options.values["repo-root"] ?? "."),
           runId: requiredValue(options, "run-id", operation),
         }),
@@ -213,7 +206,7 @@ export async function runOperationsCommand(argv: string[]): Promise<void> {
       return;
     case "playbook-package-plan":
       printJson(
-        createPlaybookPackagePlan({
+        await invokeCliOperation("package.plan", {
           repoRoot: path.resolve(options.values["repo-root"] ?? "."),
           refs: options.arrays.source ?? requiredPositionals(options, operation),
           requestedStack: parseOptionalStack(options.values.stack),
@@ -235,7 +228,7 @@ export async function runOperationsCommand(argv: string[]): Promise<void> {
       return;
     case "playbook-package-surface-resolve":
       printJson(
-        resolvePackageSurface({
+        await invokeCliOperation("package.surface-resolve", {
           target: {
             harness: requiredValue(options, "harness", operation),
             outputKind: requiredValue(options, "output-kind", operation) as Parameters<typeof resolvePackageSurface>[0]["target"]["outputKind"],
@@ -249,26 +242,57 @@ export async function runOperationsCommand(argv: string[]): Promise<void> {
         }),
       );
       return;
-    case "playbook-package-write": {
-      const repoRoot = path.resolve(options.values["repo-root"] ?? ".");
+    case "playbook-package-write":
       printJson(
-        writePlaybookPackageOutputs({
-          repoRoot,
-          homeDir: options.values["home-dir"],
-          plan: validatePackagePlan(readJson(requiredValue(options, "plan-json", operation))),
-          platform: options.values.platform as Parameters<typeof writePlaybookPackageOutputs>[0]["platform"],
-          symlinkAvailable: booleanOption(options, "symlink-available"),
-          preconditions: parsePreconditionStates(options.arrays.precondition ?? []),
-          write: options.booleans.has("write"),
-          reviewedOverwrite: options.booleans.has("reviewed-overwrite"),
-          backupSnapshotReviewed: options.booleans.has("backup-snapshot-reviewed"),
-        }),
+        await invokeCliOperation(
+          "package.write",
+          {
+            repoRoot: path.resolve(options.values["repo-root"] ?? "."),
+            homeDir: options.values["home-dir"],
+            plan: readJson(requiredValue(options, "plan-json", operation)),
+            platform: options.values.platform as Parameters<typeof writePlaybookPackageOutputs>[0]["platform"],
+            symlinkAvailable: booleanOption(options, "symlink-available"),
+            preconditions: parsePreconditionStates(options.arrays.precondition ?? []),
+          },
+          {
+            // The impl treats write=false as plan-only; the context expresses
+            // that as dry-run rather than a per-surface write flag.
+            dryRun: !options.booleans.has("write"),
+            approvals: [
+              ...(options.booleans.has("reviewed-overwrite") ? ["reviewed-overwrite"] : []),
+              ...(options.booleans.has("backup-snapshot-reviewed")
+                ? ["backup-snapshot-reviewed"]
+                : []),
+            ],
+          },
+        ),
       );
       return;
-    }
     default:
       throw new OperationError(`Unknown make-docs operation: ${operation}`);
   }
+}
+
+/**
+ * Registry seam for the CLI operation surface (R-REG-2, R-CORE-1): the
+ * adapter turns argv into the operation's typed input and delegates; an
+ * explicit CLI invocation grants write permission, with dry-run and named
+ * approvals expressed on the injected context instead of per-operation
+ * flags threaded into handlers.
+ */
+async function invokeCliOperation(
+  id: string,
+  input: Record<string, unknown>,
+  contextOverrides: { dryRun?: boolean; approvals?: string[] } = {},
+): Promise<unknown> {
+  const context: OperationExecutionContext = createExecutionContext({
+    surface: "cli",
+    writesAllowed: true,
+    dryRun: contextOverrides.dryRun ?? false,
+    approvals: contextOverrides.approvals ?? [],
+  });
+  const invocation = await invokeOperation(id, input, context);
+  return invocation.value;
 }
 
 function parseOperationOptions(argv: string[]): OperationOptions {

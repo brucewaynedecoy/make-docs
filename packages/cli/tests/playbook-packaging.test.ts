@@ -9,12 +9,12 @@ import {
   getHarnessPackageAdapter,
   listHarnessPackageAdapters,
   resolvePackageSurface,
-  runOperationsCommand,
   validateGeneratedOutputRecord,
   validateHarnessAdapterDeclaration,
   validatePackagePlan,
   writePlaybookPackageOutputs,
 } from "../src/operations";
+import { runOperationsCommand } from "../src/operations/cli";
 import type {
   GeneratedOutputRecord,
   HarnessPackageAdapterDeclaration,

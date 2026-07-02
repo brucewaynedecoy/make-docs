@@ -28,9 +28,9 @@ Create the registry with stable `domain.verb` identifiers and move all retained 
 
 ### Tasks
 
-- [ ] t1: Define the operation registry as the single source of truth for which deterministic operations exist, as a declarative index mapping operation identifiers to handlers and metadata (R-REG-1).
-- [ ] t2: Establish the identifier convention — `domain.verb` or `domain.object.verb`, lowercase, dot-separated, hyphenated multiword segments — and enforce it in the registry with stable, append-only semantics (R-REG-1).
-- [ ] t3: Register every retained operation: the `playbook` domain (catalog, resolve, capabilities, start, invoke, status, next, advance, gate, resume, close per the PRD 35 progression semantics), the `package` domain (plan, surface-resolve, write per PRD 36), and the two retained work operations as identifiers whose exact names are an implementer choice with the fixed shape of one identity resolver and one evidence record-and-read pair (R-RUN-1).
+- [x] t1: Define the operation registry as the single source of truth for which deterministic operations exist, as a declarative index mapping operation identifiers to handlers and metadata (R-REG-1).
+- [x] t2: Establish the identifier convention — `domain.verb` or `domain.object.verb`, lowercase, dot-separated, hyphenated multiword segments — and enforce it in the registry with stable, append-only semantics (R-REG-1).
+- [x] t3: Register every retained operation: the `playbook` domain (catalog, resolve, capabilities, start, invoke, status, next, advance, gate, resume, close per the PRD 35 progression semantics), the `package` domain (plan, surface-resolve, write per PRD 36), and the two retained work operations as identifiers whose exact names are an implementer choice with the fixed shape of one identity resolver and one evidence record-and-read pair (R-RUN-1).
 
 ### Acceptance criteria
 
@@ -46,10 +46,10 @@ Create the registry with stable `domain.verb` identifiers and move all retained 
 
 ### Tasks
 
-- [ ] t4: Implement the shared operation core as modular, per-operation modules grouped by domain — never a monolithic file — with every operation defined by a stable identifier, a typed input, a typed output, a mutation classification, and a handler taking the input and an execution context (R-CORE-1).
-- [ ] t5: Implement the injected execution context so handlers return structured data and perform effects only through the context, which enforces dry-run, write-permission, and approval uniformly across surfaces, replacing per-surface write gating such as the MCP allow-write flag (R-CORE-1).
-- [ ] t6: Enforce one-way dependencies: surfaces depend on the core, the core never imports a surface, and no surface imports another surface (R-CORE-2).
-- [ ] t7: Move all retained operation logic behind the registry and core in this wave, keeping surface adapters free of operation logic and presentation out of handlers (R-SEQ-1, R-CORE-1); track internal modularization of the messiest retained logic as a follow-up where needed rather than blocking (R-SEQ-2).
+- [x] t4: Implement the shared operation core as modular, per-operation modules grouped by domain — never a monolithic file — with every operation defined by a stable identifier, a typed input, a typed output, a mutation classification, and a handler taking the input and an execution context (R-CORE-1).
+- [x] t5: Implement the injected execution context so handlers return structured data and perform effects only through the context, which enforces dry-run, write-permission, and approval uniformly across surfaces, replacing per-surface write gating such as the MCP allow-write flag (R-CORE-1).
+- [x] t6: Enforce one-way dependencies: surfaces depend on the core, the core never imports a surface, and no surface imports another surface (R-CORE-2).
+- [x] t7: Move all retained operation logic behind the registry and core in this wave, keeping surface adapters free of operation logic and presentation out of handlers (R-SEQ-1, R-CORE-1); track internal modularization of the messiest retained logic as a follow-up where needed rather than blocking (R-SEQ-2).
 
 ### Acceptance criteria
 

@@ -1,4 +1,25 @@
-export { runOperationsCommand } from "./operations/cli";
+export {
+  createExecutionContext,
+  OperationApprovalRequiredError,
+  OperationPendingError,
+  OperationWriteDeniedError,
+} from "./operations/context";
+export type { OperationExecutionContext, OperationSurface } from "./operations/context";
+export {
+  getOperation,
+  hasOperation,
+  invokeOperation,
+  listOperations,
+  OPERATION_ID_PATTERN,
+  operationDomain,
+} from "./operations/registry";
+export type {
+  OperationDefinition,
+  OperationDescriptor,
+  OperationInvocation,
+  OperationMutation,
+  OperationStatus,
+} from "./operations/registry";
 export {
   buildCloseoutProbe,
   runCloseoutHistory,
