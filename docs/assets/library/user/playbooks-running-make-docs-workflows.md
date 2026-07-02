@@ -128,7 +128,7 @@ Playbooks also do not redefine Make Docs authority. If a Playbook changes PRDs, 
 
 This guide should be refreshed after W18 implementation lands with plugin entry points, packaging commands, package-plan review examples, and a small set of end-user examples that can be run against an installed Make Docs project.
 
-- Blocked by: W18 R6 Phases 3 through 5. Update when: `playbook.validate` and `playbook.catalog` land over the parsed Playbook model, which W18 R6 Phase 2 landed as a library without user-visible surface, and the default Playbook migrates to the `<slug>.playbook.md` form. Guide change: refresh the filename form shown here, add the validate/catalog usage flow, and decide again whether a reader-facing projection of the Playbook contract is warranted as its own guide; W18 R6 Phase 1 deferred that projection because the contract is normative on its own and the user-visible surface had not landed yet.
+- Blocked by: W18 R6 Phases 4 and 5. Update when: `playbook.validate` and `playbook.catalog` land over the parsed and validated Playbook model, which W18 R6 Phases 2 and 3 landed as a library (parser, layered validator, and diagnostic catalog) without user-visible surface, and the default Playbook migrates to the `<slug>.playbook.md` form. Guide change: refresh the filename form shown here, add the validate/catalog usage flow, and decide again whether a reader-facing projection of the Playbook contract is warranted as its own guide; W18 R6 Phase 1 deferred that projection because the contract is normative on its own and the user-visible surface had not landed yet, and Phase 3's completed diagnostic catalog and enumerated event set strengthen the case to revisit it once the operations land.
 
 ## Related Resources
 

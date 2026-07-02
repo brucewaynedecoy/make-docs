@@ -5,16 +5,15 @@
  * naming the section, field, and source span, a message, and an
  * expected-shape or fix hint (R-MODEL-5).
  *
- * This module declares the codes that parsing itself emits. The layered
- * semantic validator (W18 R6 Phase 3) extends the SAME catalog by adding its
- * entries to `PLAYBOOK_DIAGNOSTIC_CATALOG` below; `PlaybookDiagnosticCode`
- * widens automatically via `keyof`, and `createPlaybookDiagnostic` picks up
- * new codes with no other change. The contract-reserved validator codes
+ * This module declares the full shared catalog: the codes that parsing
+ * itself emits (PB-DOC-001, PB-FM-002, PB-DEP-003, PB-WF-006, PB-FILE-007,
+ * and the parser-structural codes PB-FM-008..PB-WF-011) plus the codes the
+ * layered semantic validator (W18 R6 Phase 3) emits — the contract-reserved
  * PB-DEP-004 (warning, unreferenced dependency) and PB-WF-005 (error,
- * deterministic step without operation or command) belong to Phase 3 and are
- * intentionally not declared here; parser-structural codes continue the
- * numbering from PB-FM-008 so Phase 3 can continue from PB-*-012 onward
- * without collision.
+ * deterministic step without operation or command), and the validator codes
+ * from PB-FM-012 onward. `PlaybookDiagnosticCode` widens automatically via
+ * `keyof`, so the `playbook.validate` operation and a future language server
+ * consume one identical catalog (R-MODEL-6).
  */
 
 import type { SourceSpan } from "./source-span";
@@ -45,6 +44,16 @@ export const PLAYBOOK_DIAGNOSTIC_CATALOG = {
     meaning: "A step references an unknown dependency identifier.",
     hint: "Every `uses` and `requires` entry must name an `ID` declared in the `## Dependencies` registry table; steps never redefine a dependency inline.",
   },
+  "PB-DEP-004": {
+    severity: "warning",
+    meaning: "A declared dependency is never referenced.",
+    hint: "Reference the dependency from a step via `uses` or `requires`, or remove it from the `## Dependencies` registry. A Playbook may keep an environmental prerequisite no single step consumes; this stays a warning, not an error.",
+  },
+  "PB-WF-005": {
+    severity: "error",
+    meaning: "A deterministic step declares neither an operation nor a command.",
+    hint: "A step whose `mode` is `deterministic` must declare either `operation: <registry identifier>` or `command: { run: ... }`.",
+  },
   "PB-WF-006": {
     severity: "error",
     meaning: "A routing target is not a defined step identifier.",
@@ -74,6 +83,71 @@ export const PLAYBOOK_DIAGNOSTIC_CATALOG = {
     severity: "error",
     meaning: "The workflow contract block content is not parseable workflow YAML.",
     hint: "The `playbook` block carries YAML-shaped content with a `workflow` header mapping and a `steps` sequence of step mappings.",
+  },
+  "PB-FM-012": {
+    severity: "error",
+    meaning: "The frontmatter `persona` does not match the containing persona folder.",
+    hint: "A Playbook is persona-scoped: the `persona` frontmatter value must match the `docs/assets/playbooks/<persona-slug>/` folder that contains the file.",
+  },
+  "PB-DOC-013": {
+    severity: "error",
+    meaning: "A required narrative section is empty.",
+    hint: "Every required narrative section (`## Purpose`, `## When To Use`, `## Inputs And Authority`, `## Step Guidance`, `## Gates And Decisions`, `## Outputs And Handoff`, `## Validation`, `## Packaging Notes`) must be present and non-empty.",
+  },
+  "PB-DEP-014": {
+    severity: "error",
+    meaning: "A dependency declares a Kind or Requirement outside the fixed enumeration.",
+    hint: "`Kind` is one of `cli`, `script`, `mcp`, `skill`, `plugin`, `playbook`, `reference`, `package-manager`, `external-service`, or the optional `asset`; `Requirement` is one of `required`, `optional`, `preferred`, `conditional`.",
+  },
+  "PB-DEP-015": {
+    severity: "error",
+    meaning: "A dependency ID is empty or duplicates another registry entry.",
+    hint: "Every registry row declares a non-empty `ID` that is unique within the Playbook.",
+  },
+  "PB-WF-016": {
+    severity: "error",
+    meaning: "The workflow header is missing a required field or has an invalid routing value.",
+    hint: "The workflow header declares `id`, `state_model` (for example `make-docs.workflow-state.v1`), and optionally `routing` of `linear` or `graph` (defaulting to `linear`).",
+  },
+  "PB-WF-017": {
+    severity: "error",
+    meaning: "A step dimension is missing or outside its fixed value set.",
+    hint: "Each step declares `executor` (`cli`, `script`, `agent`, `human`, `mcp`, `child-playbook`), `role` (`activity`, `decision`, `gate`, `check`, `handoff`), and `activation` (`sequential`, `event-bound`); `mode` is `deterministic`, `delegated`, or `manual` and defaults to `delegated`.",
+  },
+  "PB-WF-018": {
+    severity: "error",
+    meaning: "A step is missing a required field.",
+    hint: "Every step declares a stable `id` and a short human-readable `title`; a step whose `activation` is `event-bound` must also declare an `event`.",
+  },
+  "PB-WF-019": {
+    severity: "error",
+    meaning: "A gate step is missing its gate semantics.",
+    hint: "A step whose `role` is `gate` must declare a `gate` block with `resolved_by` (who may resolve the gate), `evidence` (what evidence is required), and `unattended` (whether unattended continuation is allowed).",
+  },
+  "PB-WF-020": {
+    severity: "error",
+    meaning: "A step declares an invalid invocation, such as more than one form or a malformed command.",
+    hint: "A step declares at most one invocation form among `operation` (a stable operation registry identifier), `command: { run: ... }` (external tools only), or `instructions` (agent/human executors).",
+  },
+  "PB-WF-021": {
+    severity: "error",
+    meaning: "A step id duplicates another step in the same workflow.",
+    hint: "Step `id` values are stable and unique within the workflow contract block.",
+  },
+  "PB-DEP-022": {
+    severity: "error",
+    meaning: "A `requires` reference targets an `optional` dependency.",
+    hint: "`requires` is a hard precondition and contradicts a dependency declared with `Requirement` `optional`; use `uses`, or raise the dependency's requirement.",
+  },
+  "PB-WF-023": {
+    severity: "error",
+    meaning: "An event name is not in the known event set.",
+    hint: "`event` names a logical lifecycle event from the known set: `on-session-start`, `on-session-end`, `on-user-prompt-submit`, `on-pre-tool-use`, `on-post-tool-use`, `on-pre-commit`, `on-post-commit`, `on-pre-push`.",
+  },
+  "PB-WF-024": {
+    severity: "error",
+    meaning: "An orchestration policy field has an invalid shape.",
+    hint: "`requires_capabilities` and `prefers_capabilities` are lists of harness-capability identifier strings; `child_playbooks` is one of `none`, `serial`, `parallel`; `concurrency` is one of `serial`, `parallel-allowed`, `parallel-required`. Shape only — runtime semantics are owned by the Run Playbook orchestration lineage.",
   },
 } as const satisfies Record<string, PlaybookDiagnosticDescriptor>;
 

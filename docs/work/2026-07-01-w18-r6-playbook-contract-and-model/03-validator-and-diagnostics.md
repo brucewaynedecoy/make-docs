@@ -28,12 +28,12 @@ Validation is layered so diagnostics are specific, and diagnostics are a first-c
 
 ### Tasks
 
-- [ ] t1: Implement structural validation: heading presence and order for the eleven-heading spine, frontmatter field presence and enum values (including `stack`, `status`, `schemaVersion`, `workflowSchemaVersion`), persona/folder agreement, and the file-naming convention (R-DOC-1, R-DOC-3, R-DOC-5, R-MODEL-4).
-- [ ] t2: Implement registry validation: the exact six-column schema, kind and requirement enums with `asset` as an optional kind, and unique dependency IDs (R-DEP-2, R-DEP-3).
-- [ ] t3: Implement workflow validation: workflow header fields, step schema, the executor/role/activation/mode enums, per-executor and per-mode required fields including `event` for event-bound steps, gate semantics for gate steps, and an `operation` or `command` for deterministic steps (R-WF-3, R-WF-4, R-WF-5).
-- [ ] t4: Implement cross-reference integrity: every `uses`/`requires` resolves to a registry ID, every routing target resolves to a defined step id, and no step id is duplicated (R-DEP-4).
-- [ ] t5: Implement consistency validation: a `requires` may not target an `optional` dependency, event names come from the known set, and unreferenced declared dependencies produce warnings rather than errors (R-DEP-4, R-MODEL-4).
-- [ ] t6: Validate the optional orchestration policy shape (`requires_capabilities`, `prefers_capabilities`, `child_playbooks`, `concurrency`) without evaluating or enforcing its runtime semantics (R-WF-8).
+- [x] t1: Implement structural validation: heading presence and order for the eleven-heading spine, frontmatter field presence and enum values (including `stack`, `status`, `schemaVersion`, `workflowSchemaVersion`), persona/folder agreement, and the file-naming convention (R-DOC-1, R-DOC-3, R-DOC-5, R-MODEL-4).
+- [x] t2: Implement registry validation: the exact six-column schema, kind and requirement enums with `asset` as an optional kind, and unique dependency IDs (R-DEP-2, R-DEP-3).
+- [x] t3: Implement workflow validation: workflow header fields, step schema, the executor/role/activation/mode enums, per-executor and per-mode required fields including `event` for event-bound steps, gate semantics for gate steps, and an `operation` or `command` for deterministic steps (R-WF-3, R-WF-4, R-WF-5).
+- [x] t4: Implement cross-reference integrity: every `uses`/`requires` resolves to a registry ID, every routing target resolves to a defined step id, and no step id is duplicated (R-DEP-4).
+- [x] t5: Implement consistency validation: a `requires` may not target an `optional` dependency, event names come from the known set, and unreferenced declared dependencies produce warnings rather than errors (R-DEP-4, R-MODEL-4).
+- [x] t6: Validate the optional orchestration policy shape (`requires_capabilities`, `prefers_capabilities`, `child_playbooks`, `concurrency`) without evaluating or enforcing its runtime semantics (R-WF-8).
 
 ### Acceptance criteria
 
@@ -49,10 +49,10 @@ Validation is layered so diagnostics are specific, and diagnostics are a first-c
 
 ### Tasks
 
-- [ ] t7: Implement the diagnostic record shape: stable code, severity, precise location with section, field, and source span, message, and expected-shape or fix hint (R-MODEL-5).
-- [ ] t8: Implement at least the seven catalog codes with their fixed severities: PB-DOC-001 (error), PB-FM-002 (error), PB-DEP-003 (error), PB-DEP-004 (warning), PB-WF-005 (error), PB-WF-006 (error), PB-FILE-007 (warning) (R-MODEL-5).
-- [ ] t9: Expose the catalog from the library so the validate operation and a future language server share identical diagnostics (R-MODEL-6).
-- [ ] t10: Reconcile the Phase 1 contract text against the implemented catalog and validator behavior, updating whichever side drifted so parity holds before closeout (R-AUTH-3).
+- [x] t7: Implement the diagnostic record shape: stable code, severity, precise location with section, field, and source span, message, and expected-shape or fix hint (R-MODEL-5).
+- [x] t8: Implement at least the seven catalog codes with their fixed severities: PB-DOC-001 (error), PB-FM-002 (error), PB-DEP-003 (error), PB-DEP-004 (warning), PB-WF-005 (error), PB-WF-006 (error), PB-FILE-007 (warning) (R-MODEL-5).
+- [x] t9: Expose the catalog from the library so the validate operation and a future language server share identical diagnostics (R-MODEL-6).
+- [x] t10: Reconcile the Phase 1 contract text against the implemented catalog and validator behavior, updating whichever side drifted so parity holds before closeout (R-AUTH-3).
 
 ### Acceptance criteria
 

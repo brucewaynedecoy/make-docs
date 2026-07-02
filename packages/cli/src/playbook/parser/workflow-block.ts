@@ -19,6 +19,7 @@ import {
   PLAYBOOK_CONCURRENCY_POLICIES,
   PLAYBOOK_DEFAULT_STEP_MODE,
   PLAYBOOK_DEFAULT_WORKFLOW_ROUTING_MODE,
+  PLAYBOOK_ORCHESTRATION_POLICY_FIELDS,
   PLAYBOOK_STEP_ACTIVATIONS,
   PLAYBOOK_STEP_EXECUTORS,
   PLAYBOOK_STEP_MODES,
@@ -389,29 +390,35 @@ function parseHeader(
     );
   }
   const byKey = entryMap(entries);
-  const policyKeys = [
-    "requires_capabilities",
-    "prefers_capabilities",
-    "child_playbooks",
-    "concurrency",
-  ];
-  const hasPolicy = policyKeys.some((key) => byKey.has(key));
-  const policy: PlaybookOrchestrationPolicy | null = hasPolicy
-    ? {
-        requiresCapabilities: byKey.has("requires_capabilities")
-          ? stringList(byKey.get("requires_capabilities")!.node, base, index)
-          : [],
-        prefersCapabilities: byKey.has("prefers_capabilities")
-          ? stringList(byKey.get("prefers_capabilities")!.node, base, index)
-          : [],
-        childPlaybooks: byKey.has("child_playbooks")
-          ? enumField(byKey.get("child_playbooks"), PLAYBOOK_CHILD_PLAYBOOK_POLICIES, base, index)
-          : null,
-        concurrency: byKey.has("concurrency")
-          ? enumField(byKey.get("concurrency"), PLAYBOOK_CONCURRENCY_POLICIES, base, index)
-          : null,
+  const hasPolicy = PLAYBOOK_ORCHESTRATION_POLICY_FIELDS.some((key) => byKey.has(key));
+  let policy: PlaybookOrchestrationPolicy | null = null;
+  if (hasPolicy) {
+    const raw: PlaybookOrchestrationPolicy["raw"] = {};
+    const fieldSpans: PlaybookOrchestrationPolicy["fieldSpans"] = {};
+    for (const key of PLAYBOOK_ORCHESTRATION_POLICY_FIELDS) {
+      const found = byKey.get(key);
+      if (found) {
+        raw[key] = found.value;
+        fieldSpans[key] = found.span;
       }
-    : null;
+    }
+    policy = {
+      requiresCapabilities: byKey.has("requires_capabilities")
+        ? stringList(byKey.get("requires_capabilities")!.node, base, index)
+        : [],
+      prefersCapabilities: byKey.has("prefers_capabilities")
+        ? stringList(byKey.get("prefers_capabilities")!.node, base, index)
+        : [],
+      childPlaybooks: byKey.has("child_playbooks")
+        ? enumField(byKey.get("child_playbooks"), PLAYBOOK_CHILD_PLAYBOOK_POLICIES, base, index)
+        : null,
+      concurrency: byKey.has("concurrency")
+        ? enumField(byKey.get("concurrency"), PLAYBOOK_CONCURRENCY_POLICIES, base, index)
+        : null,
+      raw,
+      fieldSpans,
+    };
+  }
   return {
     id: stringField(byKey.get("id"), base, index),
     stateModel: stringField(byKey.get("state_model"), base, index),

@@ -64,6 +64,23 @@ export const PLAYBOOK_WORKFLOW_ROUTING_MODES = ["linear", "graph"] as const;
 export type PlaybookWorkflowRoutingMode = (typeof PLAYBOOK_WORKFLOW_ROUTING_MODES)[number];
 export const PLAYBOOK_DEFAULT_WORKFLOW_ROUTING_MODE: PlaybookWorkflowRoutingMode = "linear";
 
+/**
+ * The known event set for `event-bound` steps (consistency layer, R-MODEL-4).
+ * Events are logical lifecycle names; how they bind to harness-native hook
+ * points is owned by the packaging and harness-capability lineage.
+ */
+export const PLAYBOOK_KNOWN_EVENTS = [
+  "on-session-start",
+  "on-session-end",
+  "on-user-prompt-submit",
+  "on-pre-tool-use",
+  "on-post-tool-use",
+  "on-pre-commit",
+  "on-post-commit",
+  "on-pre-push",
+] as const;
+export type PlaybookKnownEvent = (typeof PLAYBOOK_KNOWN_EVENTS)[number];
+
 export const PLAYBOOK_DEPENDENCY_KINDS = [
   "cli",
   "script",
@@ -218,11 +235,24 @@ export interface PlaybookDependencyRegistry {
 // Workflow contract
 // ---------------------------------------------------------------------------
 
+export const PLAYBOOK_ORCHESTRATION_POLICY_FIELDS = [
+  "requires_capabilities",
+  "prefers_capabilities",
+  "child_playbooks",
+  "concurrency",
+] as const;
+export type PlaybookOrchestrationPolicyField =
+  (typeof PLAYBOOK_ORCHESTRATION_POLICY_FIELDS)[number];
+
 export interface PlaybookOrchestrationPolicy {
   requiresCapabilities: Spanned<string>[];
   prefersCapabilities: Spanned<string>[];
   childPlaybooks: SpannedEnum<PlaybookChildPlaybookPolicy> | null;
   concurrency: SpannedEnum<PlaybookConcurrencyPolicy> | null;
+  /** Declared policy fields as plain values, for shape-only validation (R-WF-8). */
+  raw: Partial<Record<PlaybookOrchestrationPolicyField, unknown>>;
+  /** Spans of the declared policy field values, keyed like {@link raw}. */
+  fieldSpans: Partial<Record<PlaybookOrchestrationPolicyField, SourceSpan | null>>;
 }
 
 export interface PlaybookWorkflowHeader {

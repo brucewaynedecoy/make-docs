@@ -153,10 +153,10 @@ Each step record carries the following fields, with the stated conditional requi
 - `id`: stable and unique within the workflow; duplicate step ids are an error.
 - `title`: short human-readable label.
 - `executor`, `role`, `activation`, `mode`: the dimensions above; values outside the fixed sets are workflow-layer validation errors.
-- `event`: required when `activation` is `event-bound`; names a logical lifecycle event drawn from the known event set, for example `on-session-start` or `on-pre-commit`.
+- `event`: required when `activation` is `event-bound`; names a logical lifecycle event drawn from the known event set: `on-session-start`, `on-session-end`, `on-user-prompt-submit`, `on-pre-tool-use`, `on-post-tool-use`, `on-pre-commit`, `on-post-commit`, or `on-pre-push`.
 - `uses` and `requires`: references to dependency identifiers declared in the dependency registry. `requires` is a hard precondition; `uses` is consumed but not gating. Steps reference dependencies by identifier only and never redefine a dependency inline.
 - `inputs` and `outputs`: named input fields with defaults and missing-input behavior, and named output identifiers.
-- Exactly one invocation form among `operation`, `command`, or `instructions`: `operation` references a Make Docs operation by stable registry identifier; `command: { run: ... }` is reserved for external tools Make Docs does not own; `instructions` carries instruction text for `agent` and `human` executors. A step whose `mode` is `deterministic` must declare either an `operation` or a `command` (PB-WF-005).
+- At most one invocation form among `operation`, `command`, or `instructions`; declaring more than one is an error: `operation` references a Make Docs operation by stable registry identifier; `command: { run: ... }` is reserved for external tools Make Docs does not own; `instructions` carries instruction text for `agent` and `human` executors. A step whose `mode` is `deterministic` must declare either an `operation` or a `command` (PB-WF-005); a step that invokes nothing, such as a gate, declares no invocation form.
 - `routing`: `on_success`, `on_failure`, `branch`, and `stop`. Absent routing in a `linear` workflow means proceed to the next step.
 - Gate semantics: required when `role` is `gate`; the step must declare who may resolve the gate, what evidence is required, and whether unattended continuation is allowed.
 - `validation`: deterministic checks, human-review checks, and the expected completion evidence for the step.
