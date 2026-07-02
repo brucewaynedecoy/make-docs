@@ -1398,7 +1398,7 @@ Operations:
   wave-resolve         Resolve a W/R or W/R/P coordinate or docs/work path.
   wave-status          Report phase completion state for a wave.
   phase-plan           Render a deterministic phase implementation brief.
-  checkpoint           Create or update .make-docs/runs wave checkpoint state.
+  checkpoint           Record phase evidence in the machine-level global store.
   scope-guard          Detect changed files outside the current phase scope.
   phase-gate           Check whether a phase has validation, closeout, review, and commit evidence.
 

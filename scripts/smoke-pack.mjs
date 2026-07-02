@@ -17,6 +17,16 @@ const repoRoot = path.resolve(scriptDir, "..");
 const cliPackageDir = path.join(repoRoot, "packages", "cli");
 const npmHome = mkdtempSync(path.join(os.tmpdir(), "make-docs-npm-home-"));
 const packOutputDir = mkdtempSync(path.join(os.tmpdir(), "make-docs-pack-output-"));
+// Sandbox global-store root for every direct packed-CLI invocation, so the
+// smoke never touches the real `~/.make-docs/` and can assert store behavior.
+const storeRoot = mkdtempSync(path.join(os.tmpdir(), "make-docs-store-root-"));
+const packedCliEnv = { ...process.env, MAKE_DOCS_HOME: storeRoot };
+let sqliteAvailable = true;
+try {
+  await import("node:sqlite");
+} catch {
+  sqliteAvailable = false;
+}
 const EXPECTED_PACKAGE_NAME = "@brucewaynedecoy/make-docs";
 const PACKAGE_RUNNER_SMOKES = [
   {
@@ -217,6 +227,13 @@ function runPackageRunnerSmoke(options) {
     ]);
     assertInstalledInstructionTemplate(targetDir);
     assertInstalledReaderFacingAssets(targetDir);
+    // The runner env sandboxes HOME, so the store bootstrap must land under
+    // the sandbox home and never under the repository target.
+    assertStoreBootstrapAndNoRepoStateWrites(
+      path.join(smokeRoot, "home", ".make-docs"),
+      targetDir,
+      `${runner.name} install`,
+    );
   } catch (error) {
     if (error && error.code === "ENOENT") {
       throw new Error(
@@ -298,6 +315,7 @@ try {
   const packedPackage = readPackedPackage(packageRoot);
   assertOnlyMakeDocsBin(packedPackage);
   assertPackedInstructionTemplate(packageRoot);
+  assertPackedRouterGuidanceParity(packageRoot);
   assertPackedReaderFacingTemplate(packageRoot);
   assertMissing(
     path.join(packageRoot, "template/.make-docs/config.yaml"),
@@ -306,6 +324,7 @@ try {
   const packedMakeDocs = path.join(packageRoot, packedPackage.bin["make-docs"]);
   const skillsHelp = execFileSync("node", [packedMakeDocs, "skills", "--help"], {
     encoding: "utf8",
+    env: packedCliEnv,
   });
   assertOutputContains(skillsHelp, "make-docs skills", "Smoke pack skills help omitted usage.");
   assertOutputContains(skillsHelp, "--remove", "Smoke pack skills help omitted removal option.");
@@ -324,7 +343,7 @@ try {
     const skillsDryRun = execFileSync(
       "node",
       [packedMakeDocs, "skills", "--dry-run", "--target", targetDir],
-      { encoding: "utf8" },
+      { encoding: "utf8", env: packedCliEnv },
     );
     assertOutputContains(
       skillsDryRun,
@@ -344,7 +363,7 @@ try {
     execFileSync(
       "node",
       [packedMakeDocs, "--yes", "--target", targetDir],
-      { stdio: "inherit" },
+      { stdio: "inherit", env: packedCliEnv },
     );
     assertExists(
       path.join(targetDir, ".make-docs/manifest.json"),
@@ -358,6 +377,7 @@ try {
       path.join(targetDir, "docs/AGENTS.md"),
       "Smoke pack bare install did not produce docs/AGENTS.md.",
     );
+    assertStoreBootstrapAndNoRepoStateWrites(storeRoot, targetDir, "bare install");
     assertInstalledInstructionTemplate(targetDir);
     assertInstalledReaderFacingAssets(targetDir);
     assertManifestContainsManagedFiles(manifestPath, [
@@ -369,7 +389,7 @@ try {
     execFileSync(
       "node",
       [packedMakeDocs, "--yes", "--target", targetDir],
-      { stdio: "inherit" },
+      { stdio: "inherit", env: packedCliEnv },
     );
     assertMissing(
       path.join(targetDir, ".make-docs/conflicts"),
@@ -393,7 +413,7 @@ try {
     execFileSync(
       "node",
       [packedMakeDocs, "skills", "--yes", "--selected-skills", "all", "--target", targetDir],
-      { stdio: "inherit" },
+      { stdio: "inherit", env: packedCliEnv },
     );
   } finally {
     await fixtureServer.close();
@@ -433,7 +453,7 @@ try {
   const skillsRemoveDryRun = execFileSync(
     "node",
     [packedMakeDocs, "skills", "--remove", "--dry-run", "--target", targetDir],
-    { encoding: "utf8" },
+    { encoding: "utf8", env: packedCliEnv },
   );
   assertOutputContains(
     skillsRemoveDryRun,
@@ -509,7 +529,7 @@ try {
   execFileSync(
     "node",
     [packedMakeDocs, "backup", "--yes", "--target", targetDir],
-    { stdio: "inherit" },
+    { stdio: "inherit", env: packedCliEnv },
   );
 
   const backupRoot = path.join(targetDir, ".make-docs/backup");
@@ -523,7 +543,7 @@ try {
   execFileSync(
     "node",
     [packedMakeDocs, "uninstall", "--yes", "--target", targetDir],
-    { stdio: "inherit" },
+    { stdio: "inherit", env: packedCliEnv },
   );
 
   assertMissing(path.join(targetDir, "AGENTS.md"), "Smoke pack uninstall left AGENTS.md behind.");
@@ -553,11 +573,24 @@ try {
   assertExists(backupRoot, "Smoke pack uninstall removed the .make-docs/backup directory.");
   assertExists(path.join(backupDir, "AGENTS.md"), "Smoke pack uninstall modified the backup tree.");
   assertExists(legacyBackupFile, "Smoke pack uninstall removed the legacy .backup directory.");
+
+  // Across every packed-CLI operation above (installs, skills, backup,
+  // uninstall), operational state stayed in the sandboxed global store and no
+  // run-state landed under the repository (PRD 38 R-BND-2, R-TEST-1).
+  assertMissing(
+    path.join(targetDir, ".make-docs/runs"),
+    "Smoke pack run left work-lifecycle run state under the repository.",
+  );
+  assertExists(
+    path.join(storeRoot, "manifest.json"),
+    "Smoke pack run lost the global store manifest.",
+  );
 } finally {
   rmSync(unpackDir, { recursive: true, force: true });
   rmSync(targetDir, { recursive: true, force: true });
   rmSync(packOutputDir, { recursive: true, force: true });
   rmSync(npmHome, { recursive: true, force: true });
+  rmSync(storeRoot, { recursive: true, force: true });
   rmSync(tarballPath, { force: true });
 }
 
@@ -702,6 +735,71 @@ function assertPackedInstructionTemplate(packageRoot) {
     "@.make-docs/CLAUDE.md",
     "Packed CLAUDE.md template still includes the dedicated instruction import.",
   );
+}
+
+function assertPackedRouterGuidanceParity(packageRoot) {
+  // W18 R10 runtime-state guidance: the packed `.make-docs/` routers must be
+  // byte-identical to this repo's dogfood copies (upstream-first, then
+  // dogfood), must no longer name `.make-docs/runs/` as a runtime-state
+  // location, and must name the machine-level global store.
+  for (const name of ["AGENTS.md", "CLAUDE.md"]) {
+    const packedPath = path.join(packageRoot, "template/.make-docs", name);
+    const dogfoodPath = path.join(repoRoot, ".make-docs", name);
+    const packed = readFileSync(packedPath, "utf8");
+    const dogfood = readFileSync(dogfoodPath, "utf8");
+    if (packed !== dogfood) {
+      throw new Error(
+        `Packed template/.make-docs/${name} does not match the dogfood .make-docs/${name}.`,
+      );
+    }
+    assertOutputExcludes(
+      packed,
+      ".make-docs/runs",
+      `Packed .make-docs/${name} still names .make-docs/runs/ as a runtime-state location.`,
+    );
+    assertOutputContains(
+      packed,
+      "~/.make-docs",
+      `Packed .make-docs/${name} omitted the machine-level global store guidance.`,
+    );
+    assertOutputContains(
+      packed,
+      "work-execution evidence",
+      `Packed .make-docs/${name} omitted the work-execution evidence relocation guidance.`,
+    );
+  }
+}
+
+function assertStoreBootstrapAndNoRepoStateWrites(storeRootDir, installTargetDir, label) {
+  // Store bootstrap (PRD 38 R-STORE-1): global config, global manifest, and —
+  // when node:sqlite is available — the SQLite database exist under the store
+  // root after an install.
+  assertExists(
+    path.join(storeRootDir, "config.json"),
+    `Smoke pack ${label} did not bootstrap the global store config.`,
+  );
+  assertExists(
+    path.join(storeRootDir, "manifest.json"),
+    `Smoke pack ${label} did not bootstrap the global store manifest.`,
+  );
+  if (sqliteAvailable) {
+    assertExists(
+      path.join(storeRootDir, "store.db"),
+      `Smoke pack ${label} did not bootstrap the global store database.`,
+    );
+  }
+
+  // No operational state under any repository path (R-BND-2, R-TEST-1).
+  assertMissing(
+    path.join(installTargetDir, ".make-docs/runs"),
+    `Smoke pack ${label} wrote run state under the repository.`,
+  );
+  for (const storeFile of ["store.db", "store.db-wal", "store.db-shm", "config.json"]) {
+    assertMissing(
+      path.join(installTargetDir, ".make-docs", storeFile),
+      `Smoke pack ${label} wrote global-store file ${storeFile} under the repository.`,
+    );
+  }
 }
 
 function assertPackedReaderFacingTemplate(packageRoot) {

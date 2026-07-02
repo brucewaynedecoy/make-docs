@@ -29,9 +29,9 @@ Update the upstream template's `.make-docs/` routers to reflect that run and wor
 
 ### Tasks
 
-- [ ] t1: Update `packages/docs/template/.make-docs/AGENTS.md` and `packages/docs/template/.make-docs/CLAUDE.md` so the runtime-state guidance no longer names `.make-docs/runs/` as a runtime-state location and instead states that run-state and work-execution evidence live in the machine-level global store while project `.make-docs/` retains `manifest.json`, `conflicts/`, and project config (upstream-first per the maintainer dogfooding rule).
-- [ ] t2: Sweep the upstream template for any other `.make-docs/runs/` runtime-state references and reconcile them the same way, preserving historical lineage text only where it is explicitly historical.
-- [ ] t3: Dogfood the updated guidance into this repo's installed instance — `.make-docs/AGENTS.md` and `.make-docs/CLAUDE.md` — through the reviewed re-seed flow, and confirm template/dogfood parity for the changed files.
+- [x] t1: Update `packages/docs/template/.make-docs/AGENTS.md` and `packages/docs/template/.make-docs/CLAUDE.md` so the runtime-state guidance no longer names `.make-docs/runs/` as a runtime-state location and instead states that run-state and work-execution evidence live in the machine-level global store while project `.make-docs/` retains `manifest.json`, `conflicts/`, and project config (upstream-first per the maintainer dogfooding rule).
+- [x] t2: Sweep the upstream template for any other `.make-docs/runs/` runtime-state references and reconcile them the same way, preserving historical lineage text only where it is explicitly historical.
+- [x] t3: Dogfood the updated guidance into this repo's installed instance — `.make-docs/AGENTS.md` and `.make-docs/CLAUDE.md` — through the reviewed re-seed flow, and confirm template/dogfood parity for the changed files.
 
 ### Acceptance criteria
 
@@ -47,11 +47,11 @@ Update the upstream template's `.make-docs/` routers to reflect that run and wor
 
 ### Tasks
 
-- [ ] t4: Land a test asserting run-state and work-execution evidence are written to the global store and never to a repository path (R-TEST-1).
-- [ ] t5: Land a test asserting project-scoped state survives a simulated directory move or clone because it is keyed by the manifest identifier, not the path (R-TEST-2).
-- [ ] t6: Land a test asserting graceful degradation when the store database is missing or unreadable — the repository remains readable and state can be re-established (R-TEST-3).
-- [ ] t7: Land a test asserting `setup remove` prunes only the target project's rows and tool `uninstall` does not delete repository content (R-TEST-4).
-- [ ] t8: Extend packaged validation so the packed CLI proves store bootstrap, no repository-path state writes, and template/dogfood guidance parity for the changed `.make-docs/` routers.
+- [x] t4: Land a test asserting run-state and work-execution evidence are written to the global store and never to a repository path (R-TEST-1).
+- [x] t5: Land a test asserting project-scoped state survives a simulated directory move or clone because it is keyed by the manifest identifier, not the path (R-TEST-2).
+- [x] t6: Land a test asserting graceful degradation when the store database is missing or unreadable — the repository remains readable and state can be re-established (R-TEST-3).
+- [x] t7: Land a test asserting `setup remove` prunes only the target project's rows and tool `uninstall` does not delete repository content (R-TEST-4).
+- [x] t8: Extend packaged validation so the packed CLI proves store bootstrap, no repository-path state writes, and template/dogfood guidance parity for the changed `.make-docs/` routers.
 
 ### Acceptance criteria
 
