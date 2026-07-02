@@ -85,7 +85,7 @@ R-SURF-1 (MUST). The three surfaces over the registry are the CLI `run` command,
 
 R-RUN-1 (MUST). The `run` surface exposes only registry operations. After pruning it contains:
 
-- `run playbook`: catalog, resolve, capabilities, start, invoke, status, next, advance, gate, resume, close.
+- `run playbook`: validate, catalog, resolve, capabilities, start, invoke, status, next, advance, gate, resume, close. (`validate` and `catalog` are the operations mandated by R-MODEL-6 of the [Playbook Contract and Model](2026-06-30-playbook-contract-and-model.md) design and MUST both appear on the surface.)
 - `run package`: plan, surface-resolve, write.
 - The retained work-execution operations only: a work-item identity resolver and the work-execution evidence record and read, keyed to the global-store project-state model. These replace the removed wave, phase, and closeout cluster.
 
