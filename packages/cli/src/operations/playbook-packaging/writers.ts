@@ -1,4 +1,28 @@
+/**
+ * Package output writer (W18 R5, rebuilt by W18 R8 P2).
+ *
+ * The writer stages the compiler's multi-file, harness-native distributable
+ * tree — never a Make Docs descriptor (R-COMP-1; the descriptor-payload code
+ * path is gone) — through the PRD 28 exposure plumbing unchanged (R-COMP-2):
+ * the canonical payload lives under the staging area
+ * (`.make-docs/agentics/...`), the exposure mirror lands at the harness path
+ * by symlink (directory link to the canonical container) or copy-mirror
+ * (managed per-file mirror of the tree), and manifest ownership records track
+ * both sides. Only the payload content changed relative to W18 R5: one
+ * descriptor file became the compiled inventory, so the canonical side now
+ * records one ownership entry per generated file while the exposure side
+ * keeps its symlink-directory / copy-mirror-file entry shapes.
+ *
+ * Every W18 R5 rail is preserved in order (R-KEEP-1): plan validation,
+ * surface/adapter resolution, fail-before-write stops (review, semantic
+ * proposals, unresolved decisions, ownership conflicts, missing or stale
+ * sources, unsupported surfaces — R-GEN-2), reviewed overwrite, manifest and
+ * provenance records, backup-reviewed stale-output removal, owned-output-only
+ * cleanup, and empty-managed-directory pruning.
+ */
+
 import {
+  chmodSync,
   existsSync,
   lstatSync,
   rmSync,
@@ -12,8 +36,6 @@ import type {
   AgenticArtifactKind,
   AgenticFileRole,
   AgenticOwnershipMetadata,
-  AgenticPathKind,
-  AgenticScope,
   Harness,
   ManifestFileEntry,
   PluginSupportStatus,
@@ -25,8 +47,15 @@ import {
   readTextFile,
   writeTextFile,
 } from "../../utils";
+import { listHarnessRegistryEntries } from "../harness-registry";
 import { findRepoRoot } from "../shared";
 import { OperationError } from "../types";
+import {
+  compilePackageInventory,
+  loadPackageSourcesForWrite,
+  type PackageInventory,
+  type PackageInventoryFile,
+} from "./compiler";
 import { resolvePackageSurface } from "./surface-resolution";
 import type {
   GeneratedArtifactPlan,
@@ -51,7 +80,7 @@ export function writePlaybookPackageOutputs(
   const homeDir = path.resolve(input.homeDir ?? os.homedir());
   const plan = validatePackagePlan(input.plan);
   const artifact = primaryGeneratedArtifact(plan);
-  const canonicalPath = normalizePathForManifest(artifact.path, repoRoot, homeDir);
+  const canonicalRoot = normalizePathForManifest(artifact.path, homeDir);
   const surfaceResolution = input.surfaceResolution ??
     resolvePackageSurface({
       target: plan.target,
@@ -60,15 +89,29 @@ export function writePlaybookPackageOutputs(
       symlinkAvailable: input.symlinkAvailable,
       preconditions: input.preconditions,
     });
+
+  // Compile the harness-native inventory before any write decision: source
+  // staleness, container support, dependency materialization, and semantic
+  // resolution all fail closed here (R-GEN-2, R-SCOPE-1).
+  const descriptor = listHarnessRegistryEntries({ descriptors: input.descriptors })
+    .find((entry) => entry.harnessId === plan.target.harness)?.descriptor ?? null;
+  const loaded = loadPackageSourcesForWrite({ repoRoot, plan });
+  const inventory: PackageInventory = loaded.stops.length === 0
+    ? compilePackageInventory({ repoRoot, plan, descriptor, sources: loaded.sources })
+    : emptyInventory(plan);
+
   const stops = [
     ...planWriteStops(plan),
     ...surfaceResolution.stops,
+    ...loaded.stops,
+    ...inventory.stops,
     ...manifestStops(repoRoot, plan),
     ...existingOutputStops({
       repoRoot,
       homeDir,
       plan,
-      artifact,
+      canonicalRoot,
+      inventory,
       surfaceResolution,
       reviewedOverwrite: input.reviewedOverwrite === true,
     }),
@@ -77,7 +120,7 @@ export function writePlaybookPackageOutputs(
   const records = createGeneratedOutputRecords({
     plan,
     artifact,
-    canonicalPath,
+    canonicalRoot,
     surfaceResolution,
   });
   const canWrite = stops.length === 0;
@@ -89,35 +132,33 @@ export function writePlaybookPackageOutputs(
   const staleOutputsRemoved: string[] = [];
   let manifestUpdated = false;
   if (input.write && canWrite) {
-    const content = renderPackageContent(plan);
-    writeManagedText({
-      repoRoot,
-      homeDir,
-      relativePath: artifact.path,
-      content,
-      reviewedOverwrite: input.reviewedOverwrite === true,
-    });
-    filesWritten.push(canonicalPath);
+    for (const file of inventory.files) {
+      writeManagedFile({
+        repoRoot,
+        homeDir,
+        relativePath: joinRelative(canonicalRoot, file.path),
+        content: file.content,
+        executable: file.executable,
+        reviewedOverwrite: input.reviewedOverwrite === true,
+      });
+      filesWritten.push(joinRelative(canonicalRoot, file.path));
+    }
 
     if (plan.target.scope !== "export-only") {
       writeExposure({
         repoRoot,
         homeDir,
-        plan,
-        artifact,
+        canonicalRoot,
+        inventory,
         surfaceResolution,
-        content,
         reviewedOverwrite: input.reviewedOverwrite === true,
       });
-      if (surfaceResolution.path) {
-        filesWritten.push(exposureManifestPath(plan, surfaceResolution));
-      }
+      filesWritten.push(exposureRootPath(surfaceResolution));
       manifestUpdated = updateInstallManifest({
         repoRoot,
         plan,
-        artifact,
-        content,
-        canonicalPath,
+        canonicalRoot,
+        inventory,
         surfaceResolution,
       });
     }
@@ -137,9 +178,10 @@ export function writePlaybookPackageOutputs(
     packageId: plan.packageId,
     outputKind: plan.target.outputKind,
     scope: plan.target.scope,
-    canonicalPath,
-    ...(surfaceResolution.path ? { exposurePath: exposureManifestPath(plan, surfaceResolution) } : {}),
+    canonicalPath: canonicalRoot,
+    ...(surfaceResolution.path ? { exposurePath: exposureRootPath(surfaceResolution) } : {}),
     exposureMode: surfaceResolution.exposureMode,
+    payloadFiles: inventory.files.map((file) => file.path),
     records,
     filesWritten,
     manifestUpdated,
@@ -147,8 +189,9 @@ export function writePlaybookPackageOutputs(
     stops,
     lines: renderWriteLines({
       plan,
-      canonicalPath,
-      exposurePath: surfaceResolution.path ? exposureManifestPath(plan, surfaceResolution) : undefined,
+      canonicalRoot,
+      inventory,
+      exposurePath: surfaceResolution.path ? exposureRootPath(surfaceResolution) : undefined,
       exposureMode: surfaceResolution.exposureMode,
       stops,
       write: input.write === true,
@@ -185,6 +228,19 @@ function primaryGeneratedArtifact(plan: PlaybookPackagePlan): GeneratedArtifactP
     throw new OperationError("Package plan does not include an artifact for the target output kind.");
   }
   return artifact;
+}
+
+function emptyInventory(plan: PlaybookPackagePlan): PackageInventory {
+  return {
+    containerId: plan.distributable?.containerSelection.containerId ?? null,
+    containerKind: plan.distributable?.containerSelection.containerKind ?? null,
+    profile: plan.distributable?.profile ?? (plan.target.outputKind === "plugin" ? "native" : "portable"),
+    manifestPath: null,
+    skillPaths: {},
+    files: [],
+    dependencies: [],
+    stops: [],
+  };
 }
 
 function planWriteStops(plan: PlaybookPackagePlan): PackagePlanStop[] {
@@ -244,7 +300,8 @@ function existingOutputStops(input: {
   repoRoot: string;
   homeDir: string;
   plan: PlaybookPackagePlan;
-  artifact: GeneratedArtifactPlan;
+  canonicalRoot: string;
+  inventory: PackageInventory;
   surfaceResolution: PackageSurfaceResolution;
   reviewedOverwrite: boolean;
 }): PackagePlanStop[] {
@@ -252,28 +309,42 @@ function existingOutputStops(input: {
     return [];
   }
   const stops: PackagePlanStop[] = [];
-  const content = renderPackageContent(input.plan);
-  const canonicalAbsolutePath = absoluteManagedPath(input.repoRoot, input.homeDir, input.artifact.path);
-  if (existsSync(canonicalAbsolutePath) && readTextFile(canonicalAbsolutePath) !== content) {
-    stops.push({
-      reason: "ownership-review-required",
-      message: `Existing generated package output at ${input.artifact.path} differs and requires reviewed overwrite.`,
-      path: input.artifact.path,
-    });
-  }
-  if (input.plan.target.scope === "export-only") {
-    return stops;
-  }
-  const exposurePath = exposureManifestPath(input.plan, input.surfaceResolution);
-  const exposureAbsolutePath = absoluteManagedPath(input.repoRoot, input.homeDir, exposurePath);
-  if (existsSync(exposureAbsolutePath)) {
-    const stats = lstatSync(exposureAbsolutePath);
-    if (!stats.isSymbolicLink()) {
+  for (const file of input.inventory.files) {
+    const relativePath = joinRelative(input.canonicalRoot, file.path);
+    const absolutePath = absoluteManagedPath(input.repoRoot, input.homeDir, relativePath);
+    if (existsSync(absolutePath) && readTextFile(absolutePath) !== file.content) {
       stops.push({
         reason: "ownership-review-required",
-        message: `Existing harness exposure at ${exposurePath} requires reviewed overwrite.`,
-        path: exposurePath,
+        message: `Existing generated package output at ${relativePath} differs and requires reviewed overwrite.`,
+        path: relativePath,
       });
+    }
+  }
+  if (input.plan.target.scope === "export-only" || input.inventory.files.length === 0) {
+    return stops;
+  }
+  const exposureRoot = exposureRootPath(input.surfaceResolution);
+  if (input.surfaceResolution.exposureMode === "symlink") {
+    const exposureAbsolutePath = absoluteManagedPath(input.repoRoot, input.homeDir, exposureRoot);
+    if (existsSync(exposureAbsolutePath) && !lstatSync(exposureAbsolutePath).isSymbolicLink()) {
+      stops.push({
+        reason: "ownership-review-required",
+        message: `Existing harness exposure at ${exposureRoot} requires reviewed overwrite.`,
+        path: exposureRoot,
+      });
+    }
+  }
+  if (input.surfaceResolution.exposureMode === "copy-mirror") {
+    for (const file of input.inventory.files) {
+      const mirrorPath = joinRelative(exposureRoot, file.path);
+      const absolutePath = absoluteManagedPath(input.repoRoot, input.homeDir, mirrorPath);
+      if (existsSync(absolutePath) && readTextFile(absolutePath) !== file.content) {
+        stops.push({
+          reason: "ownership-review-required",
+          message: `Existing harness exposure at ${mirrorPath} differs and requires reviewed overwrite.`,
+          path: mirrorPath,
+        });
+      }
     }
   }
   return stops;
@@ -293,11 +364,12 @@ function staleOutputStops(
   }));
 }
 
-function writeManagedText(input: {
+function writeManagedFile(input: {
   repoRoot: string;
   homeDir: string;
   relativePath: string;
   content: string;
+  executable: boolean;
   reviewedOverwrite: boolean;
 }): void {
   const absolutePath = absoluteManagedPath(input.repoRoot, input.homeDir, input.relativePath);
@@ -308,37 +380,47 @@ function writeManagedText(input: {
     rmSync(absolutePath, { recursive: true, force: true });
   }
   writeTextFile(absolutePath, input.content);
+  if (input.executable) {
+    chmodSync(absolutePath, 0o755);
+  }
 }
 
+/**
+ * PRD 28 exposure plumbing, unchanged (R-COMP-2): the symlink mode links the
+ * harness path to the canonical container directory; the copy-mirror mode
+ * writes a managed mirror of the payload tree under the harness path.
+ */
 function writeExposure(input: {
   repoRoot: string;
   homeDir: string;
-  plan: PlaybookPackagePlan;
-  artifact: GeneratedArtifactPlan;
+  canonicalRoot: string;
+  inventory: PackageInventory;
   surfaceResolution: PackageSurfaceResolution;
-  content: string;
   reviewedOverwrite: boolean;
 }): void {
+  const exposureRoot = exposureRootPath(input.surfaceResolution);
   if (input.surfaceResolution.exposureMode === "copy-mirror") {
-    writeManagedText({
-      repoRoot: input.repoRoot,
-      homeDir: input.homeDir,
-      relativePath: copyMirrorFilePath(input.surfaceResolution, input.artifact),
-      content: input.content,
-      reviewedOverwrite: input.reviewedOverwrite,
-    });
+    for (const file of input.inventory.files) {
+      writeManagedFile({
+        repoRoot: input.repoRoot,
+        homeDir: input.homeDir,
+        relativePath: joinRelative(exposureRoot, file.path),
+        content: file.content,
+        executable: file.executable,
+        reviewedOverwrite: input.reviewedOverwrite,
+      });
+    }
     return;
   }
   if (input.surfaceResolution.exposureMode !== "symlink") {
     return;
   }
 
-  const exposurePath = exposureManifestPath(input.plan, input.surfaceResolution);
-  const exposureAbsolutePath = absoluteManagedPath(input.repoRoot, input.homeDir, exposurePath);
-  const canonicalDirectory = path.dirname(absoluteManagedPath(input.repoRoot, input.homeDir, input.artifact.path));
+  const exposureAbsolutePath = absoluteManagedPath(input.repoRoot, input.homeDir, exposureRoot);
+  const canonicalDirectory = absoluteManagedPath(input.repoRoot, input.homeDir, input.canonicalRoot);
   if (existsSync(exposureAbsolutePath)) {
     if (!input.reviewedOverwrite && !lstatSync(exposureAbsolutePath).isSymbolicLink()) {
-      throw new OperationError(`Refusing to replace non-symlink exposure at ${exposurePath}.`);
+      throw new OperationError(`Refusing to replace non-symlink exposure at ${exposureRoot}.`);
     }
     rmSync(exposureAbsolutePath, { recursive: true, force: true });
   }
@@ -353,9 +435,8 @@ function writeExposure(input: {
 function updateInstallManifest(input: {
   repoRoot: string;
   plan: PlaybookPackagePlan;
-  artifact: GeneratedArtifactPlan;
-  content: string;
-  canonicalPath: string;
+  canonicalRoot: string;
+  inventory: PackageInventory;
   surfaceResolution: PackageSurfaceResolution;
 }): boolean {
   const manifest = loadManifest(input.repoRoot);
@@ -368,10 +449,12 @@ function updateInstallManifest(input: {
     ...entries,
   };
   if (input.plan.target.outputKind === "skills-bundle") {
+    const exposureRoot = exposureRootPath(input.surfaceResolution);
+    const skillPaths = Object.values(input.inventory.skillPaths);
     manifest.skillFiles = Array.from(new Set([
       ...manifest.skillFiles,
-      input.canonicalPath,
-      exposureManifestPath(input.plan, input.surfaceResolution),
+      ...skillPaths.map((skillPath) => joinRelative(input.canonicalRoot, skillPath)),
+      exposureRoot,
     ])).sort();
   }
   manifest.updatedAt = new Date().toISOString();
@@ -379,60 +462,84 @@ function updateInstallManifest(input: {
   return true;
 }
 
+/**
+ * Manifest ownership records track both the canonical payload and the
+ * exposure mirror (R-COMP-2): one entry per generated payload file plus the
+ * W18 R5 exposure entry shapes — a directory entry for symlink exposure and
+ * per-file entries for copy mirrors.
+ */
 function createManifestEntries(input: {
   plan: PlaybookPackagePlan;
-  artifact: GeneratedArtifactPlan;
-  content: string;
-  canonicalPath: string;
+  canonicalRoot: string;
+  inventory: PackageInventory;
   surfaceResolution: PackageSurfaceResolution;
 }): Record<string, ManifestFileEntry> {
   const artifactKind: AgenticArtifactKind = input.plan.target.outputKind === "plugin" ? "plugin" : "skill";
   const canonicalRole: AgenticFileRole = artifactKind === "plugin" ? "plugin-payload" : "shared-payload";
-  const canonicalEntry: ManifestFileEntry = {
-    hash: hashText(input.content),
-    sourceId: sourceId(input.plan, "payload", input.canonicalPath),
-    agenticOwnership: ownership({
-      plan: input.plan,
-      artifactKind,
-      role: canonicalRole,
-      pathKind: "file",
-      canonicalPayloadPath: input.canonicalPath,
-    }),
-  };
-  const exposurePath = exposureManifestPath(input.plan, input.surfaceResolution);
-  const exposureRole: AgenticFileRole = exposureRoleFor(input.plan, input.surfaceResolution);
-  const exposurePathKind: AgenticPathKind = input.surfaceResolution.exposureMode === "symlink"
-    ? "directory"
-    : "file";
-  return {
-    [input.canonicalPath]: canonicalEntry,
-    [exposurePath]: {
-      hash: input.surfaceResolution.exposureMode === "symlink"
-        ? hashText(JSON.stringify({
-            target: input.canonicalPath,
-            mode: input.surfaceResolution.exposureMode,
-          }))
-        : hashText(input.content),
-      sourceId: sourceId(input.plan, input.surfaceResolution.exposureMode, exposurePath),
+  const entries: Record<string, ManifestFileEntry> = {};
+  for (const file of input.inventory.files) {
+    const canonicalPath = joinRelative(input.canonicalRoot, file.path);
+    entries[canonicalPath] = {
+      hash: hashText(file.content),
+      sourceId: sourceId(input.plan, "payload", canonicalPath),
+      agenticOwnership: ownership({
+        plan: input.plan,
+        artifactKind,
+        role: canonicalRole,
+        pathKind: "file",
+        canonicalPayloadPath: canonicalPath,
+      }),
+    };
+  }
+
+  const exposureRoot = exposureRootPath(input.surfaceResolution);
+  if (input.surfaceResolution.exposureMode === "symlink") {
+    const exposureRole: AgenticFileRole = artifactKind === "plugin"
+      ? "plugin-native-exposure"
+      : "native-exposure";
+    entries[exposureRoot] = {
+      hash: hashText(JSON.stringify({
+        target: input.canonicalRoot,
+        mode: input.surfaceResolution.exposureMode,
+      })),
+      sourceId: sourceId(input.plan, "symlink", exposureRoot),
       agenticOwnership: ownership({
         plan: input.plan,
         artifactKind,
         role: exposureRole,
-        pathKind: exposurePathKind,
-        canonicalPayloadPath: input.canonicalPath,
-        exposurePath,
-        exposureMode: input.surfaceResolution.exposureMode === "export-only"
-          ? undefined
-          : input.surfaceResolution.exposureMode,
+        pathKind: "directory",
+        canonicalPayloadPath: input.canonicalRoot,
+        exposurePath: exposureRoot,
+        exposureMode: "symlink",
       }),
-    },
-  };
+    };
+  }
+  if (input.surfaceResolution.exposureMode === "copy-mirror") {
+    const exposureRole: AgenticFileRole = artifactKind === "plugin" ? "plugin-copy-mirror" : "copy-mirror";
+    for (const file of input.inventory.files) {
+      const mirrorPath = joinRelative(exposureRoot, file.path);
+      entries[mirrorPath] = {
+        hash: hashText(file.content),
+        sourceId: sourceId(input.plan, "copy-mirror", mirrorPath),
+        agenticOwnership: ownership({
+          plan: input.plan,
+          artifactKind,
+          role: exposureRole,
+          pathKind: "file",
+          canonicalPayloadPath: joinRelative(input.canonicalRoot, file.path),
+          exposurePath: mirrorPath,
+          exposureMode: "copy-mirror",
+        }),
+      };
+    }
+  }
+  return entries;
 }
 
 function createGeneratedOutputRecords(input: {
   plan: PlaybookPackagePlan;
   artifact: GeneratedArtifactPlan;
-  canonicalPath: string;
+  canonicalRoot: string;
   surfaceResolution: PackageSurfaceResolution;
 }): GeneratedOutputRecord[] {
   const sourceDigests = input.plan.sources.map((source) => source.sourceDigest);
@@ -458,21 +565,21 @@ function createGeneratedOutputRecords(input: {
     records.push(validateGeneratedOutputRecord({
       ...base,
       recordKind: "export-only-file",
-      path: input.canonicalPath,
+      path: input.canonicalRoot,
     }));
     return records;
   }
   records.push(validateGeneratedOutputRecord({
     ...base,
     recordKind: input.artifact.recordKind,
-    path: input.canonicalPath,
+    path: input.canonicalRoot,
   }));
   records.push(validateGeneratedOutputRecord({
     ...base,
     recordKind: input.surfaceResolution.exposureMode === "copy-mirror"
       ? "copy-mirror"
       : "symlink-exposure",
-    path: exposureManifestPath(input.plan, input.surfaceResolution),
+    path: exposureRootPath(input.surfaceResolution),
   }));
   return records;
 }
@@ -509,52 +616,6 @@ function removeReviewedStaleOutputs(input: {
   return removed;
 }
 
-function renderPackageContent(plan: PlaybookPackagePlan): string {
-  if (plan.target.outputKind === "plugin") {
-    return `${JSON.stringify({
-      schemaVersion: 1,
-      kind: "make-docs.playbook-package.plugin",
-      packageId: plan.packageId,
-      title: plan.title,
-      summary: plan.summary,
-      target: plan.target,
-      sources: plan.sources.map((source) => ({
-        ref: source.ref,
-        path: source.path,
-        digest: source.sourceDigest,
-        stack: source.stack,
-      })),
-      support: plan.support,
-      lifecycle: plan.lifecycle,
-      validationRequirements: plan.validationRequirements,
-      generatedBy: "make-docs",
-    }, null, 2)}\n`;
-  }
-  return [
-    "---",
-    `name: ${plan.packageId}`,
-    `description: ${quoteYaml(plan.summary)}`,
-    "makeDocsGenerated: true",
-    `makeDocsPackageId: ${plan.packageId}`,
-    `makeDocsOutputKind: ${plan.target.outputKind}`,
-    `makeDocsTargetHarness: ${plan.target.harness}`,
-    `makeDocsTargetSurface: ${plan.target.surface}`,
-    `makeDocsTargetScope: ${plan.target.scope}`,
-    "sourcePlaybooks:",
-    ...plan.sources.map((source) => `  - ref: ${source.ref}`),
-    "---",
-    "",
-    `# ${plan.title}`,
-    "",
-    plan.summary,
-    "",
-    "## Source Playbooks",
-    "",
-    ...plan.sources.map((source) => `- ${source.ref} (${source.sourceDigest})`),
-    "",
-  ].join("\n");
-}
-
 function resultStatus(
   plan: PlaybookPackagePlan,
   stops: PackagePlanStop[],
@@ -574,7 +635,8 @@ function resultStatus(
 
 function renderWriteLines(input: {
   plan: PlaybookPackagePlan;
-  canonicalPath: string;
+  canonicalRoot: string;
+  inventory: PackageInventory;
   exposurePath?: string;
   exposureMode: string;
   stops: PackagePlanStop[];
@@ -585,7 +647,9 @@ function renderWriteLines(input: {
     `Package write: ${input.plan.packageId}`,
     `Output kind: ${input.plan.target.outputKind}`,
     `Scope: ${input.plan.target.scope}`,
-    `Canonical output: ${input.canonicalPath}`,
+    `Canonical output: ${input.canonicalRoot}`,
+    `Payload files: ${input.inventory.files.length}`,
+    ...input.inventory.files.map((file) => `- ${file.category}: ${file.path}`),
     ...(input.exposurePath ? [`Harness exposure: ${input.exposurePath} (${input.exposureMode})`] : []),
     `Writes executed: ${input.write && input.stops.length === 0 ? "yes" : "no"}`,
     `Manifest updated: ${input.manifestUpdated ? "yes" : "no"}`,
@@ -593,46 +657,32 @@ function renderWriteLines(input: {
   ];
 }
 
-function exposureManifestPath(
-  plan: PlaybookPackagePlan,
-  surfaceResolution: PackageSurfaceResolution,
-): string {
-  if (surfaceResolution.exposureMode === "copy-mirror") {
-    return copyMirrorFilePath(surfaceResolution, primaryGeneratedArtifact(plan));
+/**
+ * The exposure mirror root at the harness path: placement templates that name
+ * the container's manifest or skill file expose the containing directory,
+ * which the symlink or copy mirror fills with the payload tree.
+ */
+function exposureRootPath(surfaceResolution: PackageSurfaceResolution): string {
+  const exposurePath = surfaceResolution.path;
+  if (
+    exposurePath.endsWith("/SKILL.md") ||
+    exposurePath.endsWith("/plugin.json") ||
+    exposurePath.endsWith("/extension.json")
+  ) {
+    return normalizeRelativePath(path.dirname(exposurePath));
   }
-  if (surfaceResolution.path.endsWith("/SKILL.md") || surfaceResolution.path.endsWith("/plugin.json")) {
-    return normalizeRelativePath(path.dirname(surfaceResolution.path));
-  }
-  return surfaceResolution.path;
+  return exposurePath;
 }
 
-function copyMirrorFilePath(
-  surfaceResolution: PackageSurfaceResolution,
-  artifact: GeneratedArtifactPlan,
-): string {
-  if (surfaceResolution.path.endsWith("/SKILL.md") || surfaceResolution.path.endsWith("/plugin.json")) {
-    return surfaceResolution.path;
-  }
-  return normalizeRelativePath(path.join(surfaceResolution.path, path.basename(artifact.path)));
-}
-
-function exposureRoleFor(
-  plan: PlaybookPackagePlan,
-  surfaceResolution: PackageSurfaceResolution,
-): AgenticFileRole {
-  if (plan.target.outputKind === "plugin") {
-    return surfaceResolution.exposureMode === "copy-mirror"
-      ? "plugin-copy-mirror"
-      : "plugin-native-exposure";
-  }
-  return surfaceResolution.exposureMode === "copy-mirror" ? "copy-mirror" : "native-exposure";
+function joinRelative(root: string, relativePath: string): string {
+  return normalizeRelativePath(`${root}/${relativePath}`);
 }
 
 function ownership(input: {
   plan: PlaybookPackagePlan;
   artifactKind: AgenticArtifactKind;
   role: AgenticFileRole;
-  pathKind: AgenticPathKind;
+  pathKind: AgenticOwnershipMetadata["pathKind"];
   canonicalPayloadPath?: string;
   exposurePath?: string;
   exposureMode?: AgenticOwnershipMetadata["exposureMode"];
@@ -643,7 +693,7 @@ function ownership(input: {
     id: input.plan.packageId,
     pathKind: input.pathKind,
     ...(input.plan.target.scope === "project" || input.plan.target.scope === "global"
-      ? { scope: input.plan.target.scope as AgenticScope }
+      ? { scope: input.plan.target.scope }
       : {}),
     ...(isKnownHarness(input.plan.target.harness) ? { harness: input.plan.target.harness } : {}),
     ...(input.canonicalPayloadPath ? { canonicalPayloadPath: input.canonicalPayloadPath } : {}),
@@ -677,12 +727,9 @@ function sourceId(plan: PlaybookPackagePlan, kind: string, relativePath: string)
   return `playbook-package:${plan.packageId}:${kind}:${relativePath}`;
 }
 
-function normalizePathForManifest(value: string, _repoRoot: string, homeDir: string): string {
+function normalizePathForManifest(value: string, homeDir: string): string {
   if (value.startsWith("<user-home>/")) {
     return normalizeRelativePath(path.join(homeDir, value.slice("<user-home>/".length)));
-  }
-  if (path.isAbsolute(value)) {
-    return normalizeRelativePath(value);
   }
   return normalizeRelativePath(value);
 }
@@ -713,10 +760,6 @@ function pruneEmptyAgenticsDirectories(repoRoot: string, relativePaths: string[]
       current = path.dirname(current);
     }
   }
-}
-
-function quoteYaml(value: string): string {
-  return JSON.stringify(value);
 }
 
 function isKnownHarness(value: string): value is Harness {

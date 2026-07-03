@@ -372,9 +372,11 @@ describe("MCP derivation parity (R-REG-2, R-MIG-3, R-CORE-1)", () => {
     const artifact = plan.generatedArtifacts.find(
       (candidate) => candidate.outputKind === plan.target.outputKind,
     )!;
-    // Pre-existing, differing generated output: the impl stops unless the
-    // caller granted the reviewed-overwrite approval.
-    writeFile(root, artifact.path, "{ \"stale\": true }\n");
+    // Pre-existing, differing generated output inside the canonical payload
+    // tree: the impl stops unless the caller granted the reviewed-overwrite
+    // approval. Since W18 R8 P2 the artifact path is the container root of
+    // the compiled multi-file distributable.
+    writeFile(root, `${artifact.path}/.codex-plugin/plugin.json`, "{ \"stale\": true }\n");
 
     const withoutApproval = await callMakeDocsMcpTool("make_docs_package_write", {
       repoRoot: root,

@@ -44,7 +44,7 @@ Some packaging work is mechanical. Make Docs can validate metadata, check links,
 
 Some packaging work is semantic. A useful plugin or skill description may need a human or agent to summarize what the Playbook does, choose a good title, split a large workflow into skills, or adapt wording for a particular harness. Those semantic decisions are reviewed package-plan fields, not blind automatic writes.
 
-In practice, a user should expect Make Docs to show a package plan before writing generated outputs. If a plan needs review, non-interactive runs should stop before writing.
+In practice, a user should expect Make Docs to show a package plan before writing generated outputs. The plan now lists the exact files the package will contain, so you can see the whole generated tree before anything is written. When a Playbook has no authored summary, Make Docs drafts a skill description for it as a proposal — the draft has no authority until you accept the plan. If a plan needs review, non-interactive runs stop before writing.
 
 ## Output Choices
 
@@ -62,6 +62,20 @@ The planned surface choices are:
 - `auto`: let the harness adapter pick the best valid surface from the user's scope and the harness's rules.
 
 The harness is still a real harness, such as Codex, Claude Code, or a future supported harness. A standard location is a surface that a harness may support, not a separate generic harness.
+
+## What a Generated Package Contains
+
+A written package is a real folder tree in the target harness's own format, not a Make Docs file. Inside it you will find:
+
+- a `SKILL.md` for each packaged Playbook that keeps the workflow's intent, trigger description, step instructions, references, and safety boundaries — the skill is the Playbook restated for the harness, not a summary of it;
+- the manifest file the harness expects, such as a plugin manifest, listing the package's skills;
+- copies of the Playbook's repository reference material under `references/`, with external sources linked instead of copied;
+- runnable dependency checks under `checks/` — small shell scripts you can run yourself (for example `sh checks/<dependency>.sh`) to confirm a required tool is available before using the workflow;
+- hook files when a Playbook step is bound to a harness event the target supports;
+- registration or marketplace files generated for your review — Make Docs writes them into the package but never registers the package anywhere on your behalf;
+- Make Docs tracking records in a `.make-docs/` folder inside the package, covering provenance, dependencies, and lifecycle. These are bookkeeping, not the installable artifact.
+
+Two honest caveats. The harness folder layouts are still provisional: verifying them against the real harnesses is the next W18 R8 phase, so a generated package's support status stays provisional even though its files are real. And Make Docs does not claim a harness actually recognizes a generated package until the W18 R9 conformance work records that evidence against the real harness.
 
 ## What Make Docs Tracks
 
@@ -106,7 +120,7 @@ make-docs run package plan \
   --support-evidence-ref docs/prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md
 ```
 
-The result is JSON. Save the returned `plan` object and inspect the `status`, `stops`, `review`, and `support` fields before writing.
+The result is JSON. Save the returned `plan` object and inspect the `status`, `stops`, `review`, and `support` fields before writing. The plan's deterministic derivations include the planned payload file list, and the dry-run rendering prints it as `Planned payload files:` lines, so the full generated tree is reviewable up front.
 
 To check where a package would be exposed for a harness:
 
@@ -132,7 +146,7 @@ make-docs run package write \
   --precondition symlink-or-copy-mirror=satisfied
 ```
 
-To perform the write, add `--write`. The command writes generated plugin or skills-bundle payloads only when the plan is accepted or deterministic and safe. It stops instead of overwriting modified generated files, and installed outputs require an existing Make Docs manifest so backup and uninstall can track the generated files.
+To perform the write, add `--write`. The command writes generated plugin or skills-bundle payloads only when the plan is accepted or deterministic and safe, and its result lists every payload file it wrote. It stops instead of overwriting modified generated files, it stops when a source Playbook changed after the plan was created (re-run the plan step to review the change), and installed outputs require an existing Make Docs manifest so backup and uninstall can track the generated files.
 
 Export-only packages are written under `.make-docs/exports/playbook-packages/**`. They are not treated as installed harness exposures.
 
@@ -146,7 +160,8 @@ Support is evidence-bound. A generated package should not claim support for a ha
 
 ## Future Coverage
 
-- Blocked by: W18 R8 Phase 2 compiler surfaces. Update when: Make Docs ships a friendlier first-class packaging command, MCP tool, or plugin surface beyond the current operation commands, including the choice between downgrading and stopping on unsupported behavior. Guide change: replace low-level operation examples with the primary user workflow and keep operation commands as troubleshooting or maintainer detail.
+- Blocked by: a first-class packaging surface beyond the current operation commands. The W18 R8 Phase 2 compiler landed — packages are now real harness-native trees and plans list their files — but no friendlier command has shipped, and the downgrade-versus-stop choice on unsupported behavior exists on the underlying plan operation without a CLI flag. Update when: Make Docs ships a first-class packaging command, MCP-guided flow, or plugin surface, including the CLI flag for that choice. Guide change: replace low-level operation examples with the primary user workflow and keep operation commands as troubleshooting or maintainer detail.
+- Blocked by: W18 R8 Phase 3 adapter verification. Update when: the harness folder layouts are verified against the real harnesses and support statuses move past provisional. Guide change: state where each harness's packages land without the provisional caveat.
 - Blocked by: W18 R9 conformance evidence. Update when: the first generated plugin and skills-bundle outputs are validated against real harnesses. Guide change: add supported harness/output combinations and caveats.
 
 ## Related Resources

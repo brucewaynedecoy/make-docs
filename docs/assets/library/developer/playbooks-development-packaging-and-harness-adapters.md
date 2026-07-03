@@ -32,7 +32,7 @@ related:
 
 This guide explains the v2 architecture Make Docs uses for packaging Playbooks into harness-specific plugins or skills bundles. It is written for maintainers and contributors who will implement or extend the package planner, harness capability descriptors, harness adapters, output writers, lifecycle behavior, and validation.
 
-The W18 R8 lineage ([PRD 36](../../../prd/36-revise-playbook-packaging-compiler-and-harness-adapters.md)) revises this surface into a real compiler: harness-specific packaging knowledge moves into capability descriptors, one shared harness registry answers both the packaging-time and run-time capability questions, and one abstract distributable maps onto many concrete harness containers through the two-granularities model. The W18 R5 pipeline, deterministic rails, target model, and adapter registry described below are preserved unchanged around that revision.
+The W18 R8 lineage ([PRD 36](../../../prd/36-revise-playbook-packaging-compiler-and-harness-adapters.md)) revises this surface into a real compiler: harness-specific packaging knowledge moves into capability descriptors, one shared harness registry answers both the packaging-time and run-time capability questions, and one abstract distributable maps onto many concrete harness containers through the two-granularities model. Since W18 R8 Phase 2 that compiler is implemented: the output writer emits a multi-file, harness-native distributable inventory, and the defective code path that emitted a Make Docs descriptor as the installable artifact is deleted. The W18 R5 pipeline, deterministic rails, target model, and adapter registry described below are preserved unchanged around that revision.
 
 ## Architectural Boundary
 
@@ -59,9 +59,11 @@ The current implementation lives under `packages/cli/src/operations/playbook-pac
 - `descriptors.ts` for the first-party and fixture capability descriptor data;
 - `distributable.ts` for the two-granularities distributable model, implied-agentics derivation, and container selection;
 - `planner.ts` for deterministic package-plan generation and dry-run rendering;
+- `compiler.ts` for the packaging compiler: inventory compilation, shared source loading, and digest-verified write-time source loading;
+- `materialization.ts` for per-kind dependency materialization;
 - `adapters.ts` for first-party and fixture harness adapter declarations, derived from the capability descriptors;
 - `surface-resolution.ts` for adapter-owned surface, path, precondition, and exposure-mode resolution;
-- `writers.ts` for accepted package-plan output writing, generated-output records, manifest ownership, and lifecycle stops;
+- `writers.ts` for staging the compiled distributable tree, generated-output records, manifest ownership, and lifecycle stops;
 - `index.ts` for the public operation-domain export and helper exports.
 
 The shared harness registry lives one level up at `packages/cli/src/operations/harness-registry.ts` because it serves both the packaging domain and the Run Playbook runner; see Shared Harness Registry below.
@@ -116,7 +118,7 @@ Authoring granularity and distribution granularity are separate (R-CAP-3), and `
 
 `outputKind` selects the distributable profile: `plugin` resolves to the harness's richest profile-matching native container per descriptor — a plugin for Codex and Claude Code, an extension for Pi — and `skills-bundle` resolves to the portable agents-standard skills form. No code should hardcode `plugin` as the only native container.
 
-`selectPackageContainer` picks the richest container the harness supports for the chosen profile and lowers each implied agentic explicitly (R-CAP-4/R-CAP-5): `native` (with the mapped hook point for event-bound steps), `degraded-skill-instruction` or `degraded-manual-step` under the `degrade` policy, or a fail-closed unsupported-surface stop under the default `fail-closed` policy. The choice is always declared, never silent: the plan records the policy and every lowering in `fieldProvenance` and `deterministicDerivations`, and the dry-run rendering includes distributable, skills, and degradation lines. The plan input accepts `unsupportedPrimitivePolicy` (`degrade` or `fail-closed`, defaulting to `fail-closed`); the CLI does not expose a flag for it yet — W18 R8 Phase 2 wires the surfaces.
+`selectPackageContainer` picks the richest container the harness supports for the chosen profile and lowers each implied agentic explicitly (R-CAP-4/R-CAP-5): `native` (with the mapped hook point for event-bound steps), `degraded-skill-instruction` or `degraded-manual-step` under the `degrade` policy, or a fail-closed unsupported-surface stop under the default `fail-closed` policy. The choice is always declared, never silent: the plan records the policy and every lowering in `fieldProvenance` and `deterministicDerivations`, and the dry-run rendering includes distributable, skills, and degradation lines. The plan input accepts `unsupportedPrimitivePolicy` (`degrade` or `fail-closed`, defaulting to `fail-closed`) on the `package.plan` operation's registry input schema, so the registry-derived MCP tool exposes it; the CLI argument builder in `packages/cli/src/run/cli.ts` does not map a flag for it yet.
 
 Adding a harness stays additive: add a capability descriptor to `descriptors.ts`, an adapter module that derives from it, a registry entry, fixtures, and conformance scenarios. `planner.ts` remains harness-neutral — it delegates to the registry and adapters and contains no per-harness conditionals — and a change that would add one is a design smell to reject in review.
 
@@ -134,7 +136,7 @@ A package plan is the reviewable bridge between source and output. It should be 
 
 Agents may help draft semantic fields such as descriptions, command names, skill grouping, or adapter prose. Those fields are proposals until reviewed. Non-interactive runs must fail before writing when a plan still needs semantic review, ownership review, unsupported-surface resolution, or support-claim evidence.
 
-The current `PlaybookPackagePlan` schema requires a `schemaVersion: 1`, at least one source Playbook, a target, generated artifact inventory, deterministic derivations, agent-assisted proposals, unresolved decisions, field provenance, review state, support state, lifecycle behavior, and validation requirements. Since W18 R8 Phase 1 the plan also carries the deterministic `distributable` — skill projections, implied agentics, and the container selection with its declared degradations — and any unsupported-surface stops from container selection surface as plan stops. Validation rejects unknown output kinds, unknown surfaces, invalid harness ids, empty source lists, invalid field-provenance values, and plans that contain semantic proposals or unresolved decisions without required review state.
+The current `PlaybookPackagePlan` schema requires a `schemaVersion: 1`, at least one source Playbook, a target, generated artifact inventory, deterministic derivations, agent-assisted proposals, unresolved decisions, field provenance, review state, support state, lifecycle behavior, and validation requirements. Since W18 R8 Phase 1 the plan also carries the deterministic `distributable` — skill projections, implied agentics, and the container selection with its declared degradations — and any unsupported-surface stops from container selection surface as plan stops. Since W18 R8 Phase 2 the planner also compiles the full distributable inventory at plan time through the same `compilePackageInventory` the writer uses, so the reviewed plan carries the deterministic file list in `deterministicDerivations.inventory`, the dry-run rendering includes `Planned payload files:` lines, and every container, materialization, or semantic-resolution stop fails the plan closed before any write. When a source Playbook has no authored summary, the planner drafts a review-gated agent-assisted skill-description proposal instead of silently inventing prose; the proposal gains authority only on plan acceptance. Validation rejects unknown output kinds, unknown surfaces, invalid harness ids, empty source lists, invalid field-provenance values, and plans that contain semantic proposals or unresolved decisions without required review state.
 
 The package planner currently supports a dry-run plan flow through `make-docs run package plan`. It reuses the Run Playbook resolver for explicit paths, `persona/slug` refs, and unique bare slug/title refs; computes stable source digests; validates relative Markdown links and assets outside code spans/fences; marks deterministic, user-supplied, agent-proposed, and unresolved fields; and returns review stops before any writes can occur.
 
@@ -193,9 +195,65 @@ The resolver returns the selected concrete surface, package path, precondition s
 
 Cross-platform exposure follows the W17 R3 native-exposure rule: prefer symlink exposures, use managed copy mirrors when symlinks are unavailable, and never silently generate generic stubs as a fallback. Lifecycle rules returned by the adapter must preserve user-authored files, unlink symlink exposures without following targets, and remove copy mirrors only when reviewed Make Docs ownership and backup evidence exist.
 
+## Packaging Compiler
+
+Since W18 R8 Phase 2, `compiler.ts` is the seam that turns models into files. `compilePackageInventory` produces the distributable inventory as a pure function of the parsed W18 R6 Playbook models plus the target's capability descriptor (R-COMP-3): no filesystem writes, no harness conditionals, no re-parsing. The descriptor supplies the container layout — paths, manifest filename, skill file template, registration files, and the lifecycle event map — and the model supplies the rich step, dependency, and narrative content. Given the same models, plan, and descriptor, the inventory is the same files.
+
+The inventory emits, as applicable per target and model:
+
+- a `SKILL.md` per source Playbook that preserves the workflow intent, trigger description, step instructions, references, and safety boundaries from the model rather than summarizing them away;
+- references copied from Playbook authority sources where redistribution is allowed and linked otherwise;
+- deterministic dependency-check and helper scripts;
+- the harness-native manifest named by the descriptor's `manifestFilename` and `skillFileTemplate`;
+- `hooks/hooks.json` from the `native` lifecycle-event lowerings of event-bound steps;
+- `registration/*` files from the descriptor's `registrationFiles` — generated into the distributable, never registered anywhere (R-MKT-1); the opt-in install seam is W18 R8 Phase 4;
+- Make Docs metadata records under `.make-docs/` inside the container: `dependencies.json`, `registration.json`, `provenance.json`, `lifecycle.json`, and `conformance.json`. None of these is the installable artifact, and no emitted file carries a Make Docs `kind` as its manifest type (R-COMP-1).
+
+Source loading is shared: `loadCompiledSource` reads and parses one plan source through the single Playbook parser, and the planner and compiler consume the same parsed models so the source is parsed once and never re-parsed downstream (R-SCOPE-1). At write time, `loadPackageSourcesForWrite` re-reads each plan source and fails closed before any write when a source is missing or its digest no longer matches the reviewed plan (R-GEN-2) — a reviewed plan must describe the sources actually compiled.
+
+### File Organization
+
+The exact organization of generated files within the harness's layout constraints is an implementer decision (D9), recorded in the `compiler.ts` doc comment:
+
+- Containers with a harness manifest place skills at the descriptor's `skillFileTemplate` (`skills/{skillId}/SKILL.md` for the first-party descriptors).
+- A `skills-directory` container is itself the skill directory: a single-skill distributable puts `SKILL.md` at the container root so direct `.agents/skills/{id}/SKILL.md` discovery holds, and a multi-skill portable bundle emits a root index `SKILL.md` plus one `{skillId}/SKILL.md` per member skill.
+- Shared supporting files live at the container root: `references/`, `checks/`, `scripts/`, `hooks/`, and `registration/`.
+- The harness manifest's `version` is a constant `0.1.0` until a versioning policy lands with the lifecycle lineage; every other manifest field derives deterministically from the plan and descriptor.
+
+### Dependency Materialization
+
+`materialization.ts` implements R-DEPMAT-1: the dependency kind declared in the Playbook dependency registry determines exactly how the compiler materializes it.
+
+| Dependency kind | Materialization |
+| --- | --- |
+| `cli`, `package-manager` | Executable `checks/{id}.sh` script plus human instructions in the skill text. |
+| `skill`, `plugin` | Harness-native manifest reference where the selected container carries a manifest that can host the primitive; explicit declared degradation in the skill text where it cannot (R-CAP-4). |
+| `mcp`, `external-service` | `runtimeCheck` metadata in the distributable's dependency declarations plus a runtime availability check script. |
+| `reference` | Copied into `references/{id}/` where redistribution is allowed; linked otherwise. |
+| `playbook` | An additional bundled-skill pointer when the referenced Playbook is in the bundle; a referenced-playbook entry when not. |
+| `script`, `asset` | Documented-only: human instructions plus a dependency-declaration record. R-DEPMAT-1 assigns these W18 R6 kinds no artifact, so the compiler deliberately invents none (D9). |
+
+A `cli` dependency on Make Docs itself references the stable operation identifier, never a CLI command string, so generated outputs survive CLI reorganization: the check script carries `# stable-reference: operation:{id}` as the durable reference, and the human command form shown alongside it is derived from the registry's `operationCliPath` at compile time. The registry is consulted at compile time only, which keeps the registry-to-compiler import safe inside the module cycle.
+
+Two more recorded implementer decisions (D9): the redistribution heuristic treats a reference whose source resolves to a repository-local file as first-party copyable content, while URLs and non-path sources are linked — and a required reference that looks like a repository path but does not resolve is a missing dependency that fails closed before writes. Runtime availability checks for `mcp`/`external-service` cannot probe a harness configuration portably, so the generated script honors an explicit `MAKE_DOCS_DEP_<ID>_AVAILABLE=1` override and otherwise exits `3` (verification required); the authoritative runtime evaluation belongs to the W18 R7 runner, which consumes the metadata record.
+
+### Two-Tier Generation and Provenance
+
+Generation is two-tier with the boundary recorded in field provenance (R-GEN-1). Schema-owned fields — file paths, manifest structure, dependency checks, digests — are always deterministic. Semantic fields — skill descriptions and triggers, bundle grouping, harness-facing prose — are deterministic when they come straight from the source (an authored Playbook summary) and review-gated agent-assisted proposals otherwise, gaining authority only when the package plan is accepted.
+
+The compiled `.make-docs/provenance.json` record carries the boundary explicitly: `generationTiers` groups every field by tier, alongside source refs and digests, the distributable profile, the adapter id, the generated file list, ownership status, and support status. Every `PackageInventoryFile` also carries its own `tier` (`deterministic` or `agent-proposed`) and `sourceRefs`.
+
+### Fail Before Write
+
+The fail-before-write rule (R-GEN-2) is enforced in both the planner and the writer, so a stale or unreviewed plan cannot slip through either surface. Before any write, these conditions stop the operation: unresolved semantic proposals or required review, ownership conflicts, missing dependencies (including unresolvable required references), unsupported surfaces or containers, missing or stale sources (digest mismatch against the reviewed plan), a missing Make Docs manifest for installed outputs, modified existing generated output without reviewed overwrite, and stale-output removal without a reviewed backup snapshot. Non-interactive runs stop before writing.
+
+Unit tests over the compiled inventory assert shape only; real-harness recognition evidence is owned by the W18 R9 conformance lineage (R-TEST-5).
+
 ## Output Writers
 
-Output writers write only after an accepted package plan exists or after the planner proves the output is fully deterministic and safe. Writers distinguish:
+Output writers write only after an accepted package plan exists or after the planner proves the output is fully deterministic and safe. Since W18 R8 Phase 2, `writers.ts` stages the compiled distributable tree from `compilePackageInventory` — it compiles the harness-native inventory before any write decision so source staleness, container support, dependency materialization, and semantic resolution all fail closed first, and its result reports the container-relative `payloadFiles` it staged. The W18 R5-era `renderPackageContent` path, which emitted a descriptor with `kind: make-docs.playbook-package.plugin` as the installable artifact, is deleted: no packaging path emits a Make Docs descriptor as an installable artifact (R-COMP-1).
+
+Writers distinguish:
 
 - source Playbooks;
 - generated plugin payloads;
@@ -209,6 +267,8 @@ Output writers write only after an accepted package plan exists or after the pla
 
 Installed generated outputs should reuse the selected-agentics storage and native exposure contracts. Plugin payloads use `.make-docs/agentics/plugins/**`; skill payloads use `.make-docs/agentics/skills/**`. Harness exposures prefer symlinks and use managed copy mirrors as the compatibility fallback.
 
+The Phase 2 rebuild changed only the payload, not the plumbing (R-COMP-2): the canonical payload under `.make-docs/agentics/{plugins|skills}/{id}`, the symlink or copy-mirror exposure at the harness path, per-file manifest ownership records for both the canonical tree and the mirror, backup-reviewed stale-output removal, and owned-output-only cleanup are all preserved byte-for-byte from the PRD 28 contract. Extenders changing the compiler must not touch the exposure plumbing, and changes to the exposure plumbing belong to the shared-agentics lineage, not here.
+
 Use the writer operation like this during development:
 
 ```sh
@@ -221,7 +281,7 @@ make-docs run package write \
 
 Without `--write`, the command returns write diagnostics and generated-output records but does not touch files. With `--write`, installed outputs require an existing Make Docs manifest so audit, backup, uninstall, and migration can see the generated files. Export-only output writes under `.make-docs/exports/playbook-packages/**` and does not add installed harness exposure ownership to the manifest.
 
-The writer records source refs, source digests, target harness, output kind, surface, scope, support status, review status, canonical payload path, exposure path, and exposure mode. It stops before writing when required review is incomplete, an `auto` surface has not been resolved, required adapter preconditions are unknown or unsupported, an existing generated output differs, or stale generated output removal lacks a reviewed backup snapshot.
+The writer records source refs, source digests, target harness, output kind, surface, scope, support status, review status, canonical payload path, exposure path, and exposure mode. It stops before writing when required review is incomplete, an `auto` surface has not been resolved, required adapter preconditions are unknown or unsupported, an existing generated output differs, a plan source is missing or fails its digest check, the compiled inventory raises a container or materialization stop, or stale generated output removal lacks a reviewed backup snapshot — see Fail Before Write above for the full condition set.
 
 When symlinks are available, installed plugin and skills-bundle outputs expose the shared payload directory through a harness-native or standard location. When symlinks are unavailable, the writer creates managed copy mirrors and records `copy-mirror` ownership instead of generating generic stubs.
 
@@ -254,12 +314,14 @@ Current adapter and surface-resolution coverage lives in the same test file. It 
 
 Current writer and lifecycle coverage lives in the same test file. It covers plugin payload writes, skills-bundle writes, symlink exposure, copy-mirror fallback, manifest ownership, export-only separation, modified generated-output review stops, reviewed stale-output cleanup, and CLI dry-run/write JSON output.
 
+Current compiler and materialization coverage lives in `packages/cli/tests/playbook-packaging-compiler.test.ts`. It covers the multi-file harness-native tree with no Make Docs descriptor payload (R-TEST-1), the Codex `.codex-plugin/plugin.json` and `.agents/skills/{id}/SKILL.md` shape assertions (R-TEST-2), skill-content preservation of intent, triggers, steps, references, and safety boundaries, every dependency kind's R-DEPMAT-1 materialization including bundled-playbook skills and explicit degradation without a hosting manifest, event-bound hook compilation, the two-tier provenance boundary, review-gated skill-description proposals, fail-closed behavior on missing required references and stale sources, per-file PRD 28 ownership records for both exposure modes (R-COMP-2), and generate-but-do-not-register registration files (R-MKT-1). These are shape assertions only, not harness-recognition evidence (R-TEST-5).
+
 Current capability-descriptor, shared-registry, and distributable coverage lives in `packages/cli/tests/playbook-packaging-capability.test.ts`. It covers descriptor invariant validation, the byte-parity of derived adapter declarations with the previous W18 R5 inline shapes, both registry capability questions including unregistered-id passthrough for the runtime record key, one-Playbook-one-skill projection with collision-only persona qualification, implied-agentics derivation from the parsed model, richest-container selection per profile (including Pi's extension), declared degradation versus fail-closed stops under both policies, event-bound hook lowering on harnesses with and without hook support, and the distributable and degradation lines in plan provenance and dry-run output.
 
 ## Future Coverage
 
-- Blocked by: W18 R8 Phase 2 (compiler and output-writer rebuild). Update when: the writer emits multi-file, harness-native distributable trees and the packaging surfaces expose the compiler inputs, including an `unsupportedPrimitivePolicy` flag. Guide change: rewrite the Output Writers section around the distributable inventory (SKILL.md per Playbook, manifests, registration files, dependency checks, hooks), retire the descriptor-payload wording, and document the wired CLI/MCP surfaces.
 - Blocked by: W18 R8 Phase 3 (real-harness verification and verified adapter contracts). Update when: first-party descriptors gain `verified` status, the Pi adapter lands, and the Codex placement roots move from the W18 R5 shapes to the verified locations. Guide change: replace the provisional-verification caveats with the verified contracts and document the Pi adapter alongside `codex` and `claude-code`.
+- Blocked by: W18 R8 Phase 4 (marketplace, registration, provenance, and lifecycle). Update when: the config-gated opt-in registration seam lands against the generated `registration/*` files and `.make-docs/registration.json` seam record. Guide change: document the opt-in install path, its global-store configuration home, and how it consumes the Phase 2 generate-but-do-not-register outputs.
 
 ## Related Resources
 

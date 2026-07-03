@@ -98,6 +98,35 @@ export type {
   UnsupportedPrimitivePolicy,
 } from "./distributable";
 export {
+  compilePackageInventory,
+  digestPlaybookSource,
+  draftSkillDescription,
+  loadCompiledSource,
+  loadPackageSourcesForWrite,
+  PACKAGE_INVENTORY_CATEGORIES,
+  skillDescriptionProposalField,
+} from "./compiler";
+export type {
+  CompiledSourcePlaybook,
+  CompilePackageInventoryInput,
+  PackageGenerationTier,
+  PackageInventory,
+  PackageInventoryCategory,
+  PackageInventoryFile,
+} from "./compiler";
+export {
+  DEPENDENCY_MATERIALIZATION_DISPOSITIONS,
+  dependencyCheckScriptPath,
+  materializeDependency,
+} from "./materialization";
+export type {
+  DependencyManifestReference,
+  DependencyMaterializationContext,
+  DependencyMaterializationDisposition,
+  DependencyMaterializedFile,
+  MaterializedDependency,
+} from "./materialization";
+export {
   createPlaybookPackagePlan,
   readPlaybookPackagePlan,
   renderPackagePlanDryRunLines,

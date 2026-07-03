@@ -1,11 +1,18 @@
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
-import { parseAndValidatePlaybook, type PlaybookModel } from "../../playbook";
 import { listHarnessRegistryEntries } from "../harness-registry";
 import { resolvePlaybook } from "../playbook";
 import { findRepoRoot, repoRelativePath } from "../shared";
 import { OperationError, type JsonValue } from "../types";
+import {
+  compilePackageInventory,
+  draftSkillDescription,
+  loadCompiledSource,
+  skillDescriptionProposalField,
+  type CompiledSourcePlaybook,
+  type PackageInventory,
+} from "./compiler";
 import {
   buildPackageDistributable,
   deriveImpliedAgentics,
@@ -67,12 +74,21 @@ export function createPlaybookPackagePlan(input: PlaybookPackagePlannerInput): P
   // descriptor drives adapter-side container selection, and every degradation
   // or fail-closed stop is declared in the plan — the planner itself stays
   // harness-neutral by delegating through the shared harness registry.
-  const distributable = buildPlanDistributable({ repoRoot, sources, input, target });
-  stops.push(...distributable.containerSelection.stops);
+  const compiledSources = sources.map((source) => loadCompiledSource({ repoRoot, source }));
+  const descriptor = listHarnessRegistryEntries({ descriptors: input.descriptors })
+    .find((entry) => entry.harnessId === target.harness)?.descriptor ?? null;
+  const distributable = buildPlanDistributable({ compiledSources, input, target });
   fieldProvenance.distributable = "deterministic";
   fieldProvenance["distributable.unsupportedPrimitivePolicy"] = input.unsupportedPrimitivePolicy
     ? "user-supplied"
     : "deterministic";
+  // Schema-owned fields are deterministic tier-one generation with the tier
+  // recorded in field provenance (R-GEN-1): paths, manifest structure,
+  // dependency checks, and digests never route through proposals.
+  fieldProvenance.inventory = "deterministic";
+  fieldProvenance.manifestStructure = "deterministic";
+  fieldProvenance.dependencyChecks = "deterministic";
+  fieldProvenance.digests = "deterministic";
   const agentAssistedProposals: AgentAssistedProposal[] = [];
   const unresolvedDecisions: PackageUnresolvedDecision[] = [];
 
@@ -83,6 +99,23 @@ export function createPlaybookPackagePlan(input: PlaybookPackagePlannerInput): P
       reason: "Multi-Playbook package summaries may need semantic review before publication.",
     });
     fieldProvenance.summary = "agent-proposed";
+  }
+  // Skill descriptions are semantic fields (R-GEN-1): when the source
+  // Playbook authored a summary the description is a deterministic extract;
+  // otherwise the planner drafts a review-gated agent-assisted proposal that
+  // gains authority only when the plan is accepted.
+  for (const skill of distributable.skills) {
+    const field = skillDescriptionProposalField(skill.skillId);
+    if (skill.summary) {
+      fieldProvenance[field] = "deterministic";
+      continue;
+    }
+    agentAssistedProposals.push({
+      field,
+      value: draftSkillDescription(skill),
+      reason: `Playbook ${skill.sourceRef} has no authored summary; the proposed skill description requires review before it gains authority.`,
+    });
+    fieldProvenance[field] = "agent-proposed";
   }
   if (target.surface === "auto") {
     unresolvedDecisions.push({
@@ -111,6 +144,43 @@ export function createPlaybookPackagePlan(input: PlaybookPackagePlannerInput): P
     }
   }
 
+  // Compile the distributable inventory at plan time so the reviewed plan
+  // carries the deterministic file list (R-COMP-3, R-GEN-1) and every
+  // container, materialization, or semantic-resolution stop fails the plan
+  // closed before any write (R-GEN-2). The compiler consumes the same parsed
+  // models — the source is never re-parsed downstream (R-SCOPE-1).
+  const inventory = compilePackageInventory({
+    repoRoot,
+    descriptor,
+    sources: compiledSources,
+    plan: {
+      schemaVersion: 1,
+      packageId,
+      title,
+      summary,
+      sources,
+      target,
+      generatedArtifacts,
+      deterministicDerivations: {},
+      agentAssistedProposals,
+      unresolvedDecisions,
+      fieldProvenance,
+      review: {
+        required: true,
+        status: input.reviewStatus ?? "required",
+      },
+      support: buildSupport(input.supportEvidenceRefs),
+      lifecycle: {
+        backupBeforeOverwrite: true,
+        uninstallDisposition: target.scope === "export-only" ? "export-only" : "preserve-for-review",
+        preservesUserModifiedFiles: true,
+      },
+      validationRequirements: [],
+      distributable,
+    },
+  });
+  stops.push(...inventory.stops);
+
   const reviewRequired = stops.length > 0 || agentAssistedProposals.length > 0 || unresolvedDecisions.length > 0;
   const reviewStatus = input.reviewStatus ?? (reviewRequired ? "required" : "not-required");
   const plan = validatePackagePlan({
@@ -121,7 +191,7 @@ export function createPlaybookPackagePlan(input: PlaybookPackagePlannerInput): P
     sources,
     target,
     generatedArtifacts,
-    deterministicDerivations: buildDerivations(sources, packageId, generatedArtifacts, distributable),
+    deterministicDerivations: buildDerivations(sources, packageId, generatedArtifacts, distributable, inventory),
     agentAssistedProposals,
     unresolvedDecisions,
     fieldProvenance,
@@ -190,10 +260,24 @@ export function renderPackagePlanDryRunLines(plan: PlaybookPackagePlan, stops: P
     `Generated artifacts: ${plan.generatedArtifacts.length}`,
     ...plan.generatedArtifacts.map((artifact) => `- ${artifact.recordKind}: ${artifact.path}`),
     ...renderDistributableLines(plan.distributable),
+    ...renderPlannedInventoryLines(plan),
     `Review: ${plan.review.status}${plan.review.required ? " required" : ""}`,
     `Support: ${plan.support.status}`,
     `Writes planned: no`,
     ...(stops.length === 0 ? ["Stops: none"] : ["Stops:", ...stops.map((stop) => `- ${stop.reason}: ${stop.message}`)]),
+  ];
+}
+
+/** The planned multi-file inventory, visible for review before any write (R-COMP-3). */
+function renderPlannedInventoryLines(plan: PlaybookPackagePlan): string[] {
+  const inventory = plan.deterministicDerivations.inventory;
+  if (!inventory) {
+    return [];
+  }
+  const paths = inventory.split(";");
+  return [
+    `Planned payload files: ${paths.length}`,
+    ...paths.map((filePath) => `- ${filePath}`),
   ];
 }
 
@@ -341,6 +425,12 @@ function deriveSummary(sources: SourcePlaybookRef[]): string {
     : `Package ${sources.length} Playbooks for a supported harness.`;
 }
 
+/**
+ * The primary generated artifact is the canonical payload staging root — the
+ * container directory the compiler fills with the multi-file harness-native
+ * tree (R-COMP-1, R-COMP-2). The PRD 28 staging area is unchanged; only the
+ * payload inside it went from one descriptor file to the compiled inventory.
+ */
 function planGeneratedArtifacts(input: {
   packageId: string;
   sourceRefs: string[];
@@ -354,12 +444,9 @@ function planGeneratedArtifacts(input: {
     : input.target.outputKind === "plugin"
       ? `${sharedAgenticsRoot}/plugins/${input.packageId}`
       : `${sharedAgenticsRoot}/skills/${input.packageId}`;
-  const artifactPath = input.target.outputKind === "plugin"
-    ? `${basePath}/plugin.json`
-    : `${basePath}/SKILL.md`;
   return [
     {
-      path: artifactPath,
+      path: basePath,
       recordKind: input.target.scope === "export-only"
         ? "export-only-file"
         : input.target.outputKind === "plugin"
@@ -377,11 +464,17 @@ function buildDerivations(
   packageId: string,
   generatedArtifacts: GeneratedArtifactPlan[],
   distributable: PackageDistributable,
+  inventory: PackageInventory,
 ): Record<string, string> {
   return {
     packageId,
     sourceDigests: sources.map((source) => `${source.ref}=${source.sourceDigest}`).join(";"),
     generatedArtifacts: generatedArtifacts.map((artifact) => artifact.path).join(";"),
+    // The planned multi-file inventory is a deterministic derivation the
+    // reviewed plan surfaces before any write (R-COMP-3, R-GEN-1).
+    ...(inventory.files.length > 0
+      ? { inventory: inventory.files.map((file) => file.path).join(";") }
+      : {}),
     // Container selection and degradation provenance (R-CAP-4): the declared
     // choice is recorded deterministically, never silent.
     distributableProfile: distributable.profile,
@@ -397,37 +490,28 @@ function buildDerivations(
 }
 
 /**
- * Parses each source through the W18 R6 model (fail-soft; the model is never
- * re-derived from ad-hoc Markdown scans, R-SCOPE-1), projects one skill per
- * Playbook, derives the implied agentics, and runs descriptor-driven
+ * Projects one skill per Playbook, derives the implied agentics from the
+ * parsed W18 R6 models (loaded once and shared with inventory compilation —
+ * the source is never re-parsed, R-SCOPE-1), and runs descriptor-driven
  * container selection through the shared harness registry (R-CAP-3, R-CAP-4).
  */
 function buildPlanDistributable(context: {
-  repoRoot: string;
-  sources: SourcePlaybookRef[];
+  compiledSources: CompiledSourcePlaybook[];
   input: PlaybookPackagePlannerInput;
   target: PlaybookPackagePlan["target"];
 }): PackageDistributable {
-  const models = new Map<string, PlaybookModel>();
-  for (const source of context.sources) {
-    const absolutePath = path.join(context.repoRoot, source.path);
-    const { model } = parseAndValidatePlaybook({
-      sourcePath: source.path,
-      source: readFileSync(absolutePath, "utf8"),
-    });
-    models.set(source.ref, model);
-  }
   const descriptor = listHarnessRegistryEntries({ descriptors: context.input.descriptors })
     .find((entry) => entry.harnessId === context.target.harness)?.descriptor ?? null;
   return buildPackageDistributable({
     harnessId: context.target.harness,
     descriptor,
     outputKind: context.target.outputKind,
-    skills: context.sources.map((source) => projectPlaybookToSkill(source, models.get(source.ref))),
-    impliedAgentics: context.sources.flatMap((source) => {
-      const model = models.get(source.ref);
-      return model ? deriveImpliedAgentics({ model, sourceRef: source.ref }) : [];
-    }),
+    skills: context.compiledSources.map((compiled) =>
+      projectPlaybookToSkill(compiled.source, compiled.model),
+    ),
+    impliedAgentics: context.compiledSources.flatMap((compiled) =>
+      deriveImpliedAgentics({ model: compiled.model, sourceRef: compiled.source.ref }),
+    ),
     ...(context.input.unsupportedPrimitivePolicy
       ? { policy: context.input.unsupportedPrimitivePolicy }
       : {}),

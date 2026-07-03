@@ -271,6 +271,8 @@ export interface PlaybookPackageWriteInput {
   homeDir?: string;
   plan: PlaybookPackagePlan;
   surfaceResolution?: PackageSurfaceResolution;
+  /** Capability-descriptor override for tests and additive future harnesses. */
+  descriptors?: HarnessCapabilityDescriptor[];
   platform?: "posix" | "windows";
   symlinkAvailable?: boolean;
   preconditions?: Record<string, PackageAdapterPreconditionState>;
@@ -288,6 +290,8 @@ export interface PlaybookPackageWriteResult {
   canonicalPath: string;
   exposurePath?: string;
   exposureMode: PackageAdapterExposureMode;
+  /** Canonical-root-relative paths of the compiled distributable inventory (R-COMP-3). */
+  payloadFiles: string[];
   records: GeneratedOutputRecord[];
   filesWritten: string[];
   manifestUpdated: boolean;

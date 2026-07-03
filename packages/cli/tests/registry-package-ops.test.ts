@@ -194,7 +194,7 @@ describe("package operation registry entries", () => {
     const result = invocation.value as unknown as ReturnType<typeof writePlaybookPackageOutputs>;
     expect(result.status).toBe("ready");
     expect(result.lines).toContain("Writes executed: no");
-    expect(existsSync(path.join(root, ".make-docs/agentics/plugins/run-stack/plugin.json"))).toBe(
+    expect(existsSync(path.join(root, ".make-docs/agentics/plugins/run-stack/.codex-plugin/plugin.json"))).toBe(
       false,
     );
   });
@@ -223,7 +223,7 @@ describe("package operation registry entries", () => {
 
     const result = invocation.value as unknown as ReturnType<typeof writePlaybookPackageOutputs>;
     expect(result.status).toBe("written");
-    expect(existsSync(path.join(root, ".make-docs/agentics/plugins/run-stack/plugin.json"))).toBe(
+    expect(existsSync(path.join(root, ".make-docs/agentics/plugins/run-stack/.codex-plugin/plugin.json"))).toBe(
       true,
     );
   });

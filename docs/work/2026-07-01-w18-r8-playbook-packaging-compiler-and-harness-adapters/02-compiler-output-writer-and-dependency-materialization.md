@@ -30,9 +30,9 @@ Replace the descriptor payload with a faithful harness-native artifact tree, emi
 
 ### Tasks
 
-- [ ] t1: Rebuild the output writer to produce a real, harness-native, multi-file distributable and remove the code path that emits a Make Docs descriptor as the installable artifact (R-COMP-1).
-- [ ] t2: Write the corrected payload through the existing exposure plumbing unchanged — canonical payload under the staging area, exposure mirror placed at the harness path by symlink or copy-mirror, and manifest ownership records tracking both — so only the payload content changes (R-COMP-2).
-- [ ] t3: Preserve the reviewed pipeline and deterministic rails around the new writer: source validation, package intent, reviewed package plan, adapter resolution, manifest and provenance records, audit, backup before destructive changes, owned-output-only uninstall, and package/lifecycle/conformance validation (R-KEEP-1).
+- [x] t1: Rebuild the output writer to produce a real, harness-native, multi-file distributable and remove the code path that emits a Make Docs descriptor as the installable artifact (R-COMP-1).
+- [x] t2: Write the corrected payload through the existing exposure plumbing unchanged — canonical payload under the staging area, exposure mirror placed at the harness path by symlink or copy-mirror, and manifest ownership records tracking both — so only the payload content changes (R-COMP-2).
+- [x] t3: Preserve the reviewed pipeline and deterministic rails around the new writer: source validation, package intent, reviewed package plan, adapter resolution, manifest and provenance records, audit, backup before destructive changes, owned-output-only uninstall, and package/lifecycle/conformance validation (R-KEEP-1).
 
 ### Acceptance criteria
 
@@ -49,10 +49,10 @@ Replace the descriptor payload with a faithful harness-native artifact tree, emi
 
 ### Tasks
 
-- [ ] t4: Emit a `SKILL.md` per source Playbook preserving workflow intent, trigger description, step instructions, references, and safety boundaries from the rich Playbook model (R-COMP-3).
-- [ ] t5: Emit references extracted or copied from Playbook authority sources where redistribution is allowed, and linked otherwise (R-COMP-3, R-DEPMAT-1).
-- [ ] t6: Emit deterministic helper scripts and dependency-check scripts, each with provenance and lifecycle ownership, only when needed (R-COMP-3).
-- [ ] t7: Emit the harness-native manifest the target requires, hooks from event-bound steps per the Phase 1 mapping, tool and dependency declarations, marketplace or registration files per the Phase 4 seam, lifecycle records, and conformance records, as applicable per target (R-COMP-3, R-CAP-5).
+- [x] t4: Emit a `SKILL.md` per source Playbook preserving workflow intent, trigger description, step instructions, references, and safety boundaries from the rich Playbook model (R-COMP-3).
+- [x] t5: Emit references extracted or copied from Playbook authority sources where redistribution is allowed, and linked otherwise (R-COMP-3, R-DEPMAT-1).
+- [x] t6: Emit deterministic helper scripts and dependency-check scripts, each with provenance and lifecycle ownership, only when needed (R-COMP-3).
+- [x] t7: Emit the harness-native manifest the target requires, hooks from event-bound steps per the Phase 1 mapping, tool and dependency declarations, marketplace or registration files per the Phase 4 seam, lifecycle records, and conformance records, as applicable per target (R-COMP-3, R-CAP-5).
 
 ### Acceptance criteria
 
@@ -69,9 +69,9 @@ Replace the descriptor payload with a faithful harness-native artifact tree, emi
 
 ### Tasks
 
-- [ ] t8: Generate schema-owned fields deterministically — file paths, manifest structure, dependency checks, provenance, and digests — and record the tier boundary in field provenance (R-GEN-1).
-- [ ] t9: Route semantic fields — skill descriptions and triggers, bundle grouping, and harness-facing prose — through review-gated agent-assisted proposals that gain authority only when the package plan is accepted (R-GEN-1, R-KEEP-1).
-- [ ] t10: Fail closed before any write when unresolved semantic decisions, ownership conflicts, missing dependencies, unsupported surfaces, or missing conformance evidence require review, preserving the W18 R5 planner's fail-before-write behavior (R-GEN-2).
+- [x] t8: Generate schema-owned fields deterministically — file paths, manifest structure, dependency checks, provenance, and digests — and record the tier boundary in field provenance (R-GEN-1).
+- [x] t9: Route semantic fields — skill descriptions and triggers, bundle grouping, and harness-facing prose — through review-gated agent-assisted proposals that gain authority only when the package plan is accepted (R-GEN-1, R-KEEP-1).
+- [x] t10: Fail closed before any write when unresolved semantic decisions, ownership conflicts, missing dependencies, unsupported surfaces, or missing conformance evidence require review, preserving the W18 R5 planner's fail-before-write behavior (R-GEN-2).
 
 ### Acceptance criteria
 
@@ -87,10 +87,10 @@ Replace the descriptor payload with a faithful harness-native artifact tree, emi
 
 ### Tasks
 
-- [ ] t11: Materialize `cli` and `package-manager` dependencies as deterministic check scripts plus human instructions, with `cli` dependencies on Make Docs itself referencing stable operation identifiers from the registry rather than CLI command strings (R-DEPMAT-1, R-SCOPE-1).
-- [ ] t12: Materialize `skill` and `plugin` dependencies as harness-native manifest references where the target supports them, and degrade explicitly where it does not (R-DEPMAT-1, R-CAP-4).
-- [ ] t13: Materialize `mcp` and `external-service` dependencies as Make Docs metadata plus a runtime availability check (R-DEPMAT-1).
-- [ ] t14: Materialize `reference` dependencies by copy or extraction where redistribution is allowed and by link otherwise, and `playbook` dependencies as an additional skill when bundled or a reference when not (R-DEPMAT-1).
+- [x] t11: Materialize `cli` and `package-manager` dependencies as deterministic check scripts plus human instructions, with `cli` dependencies on Make Docs itself referencing stable operation identifiers from the registry rather than CLI command strings (R-DEPMAT-1, R-SCOPE-1).
+- [x] t12: Materialize `skill` and `plugin` dependencies as harness-native manifest references where the target supports them, and degrade explicitly where it does not (R-DEPMAT-1, R-CAP-4).
+- [x] t13: Materialize `mcp` and `external-service` dependencies as Make Docs metadata plus a runtime availability check (R-DEPMAT-1).
+- [x] t14: Materialize `reference` dependencies by copy or extraction where redistribution is allowed and by link otherwise, and `playbook` dependencies as an additional skill when bundled or a reference when not (R-DEPMAT-1).
 
 ### Acceptance criteria
 

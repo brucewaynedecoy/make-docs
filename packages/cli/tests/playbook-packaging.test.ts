@@ -198,6 +198,7 @@ function writeMakeDocsManifest(root: string): void {
       {},
       [],
       createEmptySystemAssetManifestState(),
+      "playbook-packaging-test",
     ),
   );
 }
@@ -424,10 +425,14 @@ describe("playbook packaging schema foundation", () => {
     });
     expect(first.plan.generatedArtifacts).toEqual([
       expect.objectContaining({
-        path: ".make-docs/agentics/plugins/run-stack/plugin.json",
+        path: ".make-docs/agentics/plugins/run-stack",
         recordKind: "generated-plugin",
       }),
     ]);
+    // The reviewed plan surfaces the deterministic multi-file inventory the
+    // compiler will stage under the canonical container root (R-COMP-3).
+    expect(first.plan.deterministicDerivations.inventory).toContain(".codex-plugin/plugin.json");
+    expect(first.plan.deterministicDerivations.inventory).toContain("skills/run-stack/SKILL.md");
     expect(first.lines).toContain("Writes planned: no");
   });
 
@@ -457,7 +462,7 @@ describe("playbook packaging schema foundation", () => {
     ]);
     expect(result.plan.generatedArtifacts).toEqual([
       expect.objectContaining({
-        path: ".make-docs/agentics/skills/run-stack-review-stack/SKILL.md",
+        path: ".make-docs/agentics/skills/run-stack-review-stack",
         recordKind: "generated-skills-bundle",
       }),
     ]);
@@ -794,14 +799,24 @@ describe("playbook packaging schema foundation", () => {
       "generated-plugin",
       "symlink-exposure",
     ]);
-    expect(readFileSync(
-      path.join(root, ".make-docs/agentics/plugins/run-stack/plugin.json"),
+    // The staged payload is the harness-native multi-file tree — a Codex
+    // plugin folder with `.codex-plugin/plugin.json` — never a Make Docs
+    // descriptor (R-COMP-1, R-ADAPT-2). Shape only; harness recognition
+    // evidence is owned by the W18 R9 conformance lineage (R-TEST-5).
+    const harnessManifest = readFileSync(
+      path.join(root, ".make-docs/agentics/plugins/run-stack/.codex-plugin/plugin.json"),
       "utf8",
-    )).toContain("\"kind\": \"make-docs.playbook-package.plugin\"");
+    );
+    expect(harnessManifest).toContain("\"name\": \"run-stack\"");
+    expect(harnessManifest).not.toContain("make-docs.playbook-package");
+    expect(readFileSync(
+      path.join(root, ".make-docs/agentics/plugins/run-stack/skills/run-stack/SKILL.md"),
+      "utf8",
+    )).toContain("name: run-stack");
     expect(lstatSync(path.join(root, ".agents/plugins/run-stack")).isSymbolicLink()).toBe(true);
     const manifest = loadManifest(root);
     expect(
-      manifest?.files[".make-docs/agentics/plugins/run-stack/plugin.json"]?.agenticOwnership,
+      manifest?.files[".make-docs/agentics/plugins/run-stack/.codex-plugin/plugin.json"]?.agenticOwnership,
     ).toMatchObject({
       artifactKind: "plugin",
       role: "plugin-payload",
@@ -847,9 +862,9 @@ describe("playbook packaging schema foundation", () => {
     expect(result.status).toBe("written");
     expect(result.exposureMode).toBe("copy-mirror");
     expect(result.records.map((record) => record.recordKind)).toContain("copy-mirror");
-    expect(readFileSync(path.join(root, ".agents/skills/run-stack/SKILL.md"), "utf8")).toContain(
-      "makeDocsGenerated: true",
-    );
+    const skill = readFileSync(path.join(root, ".agents/skills/run-stack/SKILL.md"), "utf8");
+    expect(skill).toContain("name: run-stack");
+    expect(skill).toContain("description:");
     expect(loadManifest(root)?.files[".agents/skills/run-stack/SKILL.md"]?.agenticOwnership).toMatchObject({
       artifactKind: "skill",
       role: "copy-mirror",
@@ -891,7 +906,7 @@ describe("playbook packaging schema foundation", () => {
       "source-playbook",
       "export-only-file",
     ]);
-    expect(existsSync(path.join(root, ".make-docs/exports/playbook-packages/run-stack/plugin.json"))).toBe(true);
+    expect(existsSync(path.join(root, ".make-docs/exports/playbook-packages/run-stack/.codex-plugin/plugin.json"))).toBe(true);
     expect(Object.keys(loadManifest(root)?.files ?? {})).toEqual([]);
   });
 
@@ -900,7 +915,7 @@ describe("playbook packaging schema foundation", () => {
     tempRoots.push(root);
     writeMakeDocsManifest(root);
     writePlaybook(root, "user", "run-stack", "run", "Run Stack");
-    writeFile(root, ".make-docs/agentics/plugins/run-stack/plugin.json", "{\"local\":\"edit\"}\n");
+    writeFile(root, ".make-docs/agentics/plugins/run-stack/.codex-plugin/plugin.json", "{\"local\":\"edit\"}\n");
     const plan = createPlaybookPackagePlan({
       repoRoot: root,
       refs: ["user/run-stack"],
@@ -1035,7 +1050,7 @@ describe("playbook packaging schema foundation", () => {
     let parsed = JSON.parse(writeSpy.mock.calls.map((call) => String(call[0])).join("")) as ReturnType<typeof writePlaybookPackageOutputs>;
     expect(parsed.status).toBe("ready");
     expect(parsed.filesWritten).toEqual([]);
-    expect(existsSync(path.join(root, ".make-docs/agentics/plugins/run-stack/plugin.json"))).toBe(false);
+    expect(existsSync(path.join(root, ".make-docs/agentics/plugins/run-stack/.codex-plugin/plugin.json"))).toBe(false);
 
     writeSpy.mockClear();
     await runRunCommand([
@@ -1055,6 +1070,6 @@ describe("playbook packaging schema foundation", () => {
     ]);
     parsed = JSON.parse(writeSpy.mock.calls.map((call) => String(call[0])).join("")) as ReturnType<typeof writePlaybookPackageOutputs>;
     expect(parsed.status).toBe("written");
-    expect(existsSync(path.join(root, ".make-docs/agentics/plugins/run-stack/plugin.json"))).toBe(true);
+    expect(existsSync(path.join(root, ".make-docs/agentics/plugins/run-stack/.codex-plugin/plugin.json"))).toBe(true);
   });
 });
