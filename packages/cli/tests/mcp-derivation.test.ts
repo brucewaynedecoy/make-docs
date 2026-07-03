@@ -330,10 +330,15 @@ describe("MCP derivation parity (R-REG-2, R-MIG-3, R-CORE-1)", () => {
         evidenceRefs: ["mcp-evidence.md"],
         allowWrite: true,
       });
+      // W18 R7 P3: advance returns the transitioned state plus the
+      // mode-execution report.
       expect(advanced.result).toEqual(
         expect.objectContaining({
-          cursor: { kind: "step", id: "record" },
-          evidenceRefs: ["mcp-evidence.md"],
+          state: expect.objectContaining({
+            cursor: { kind: "step", id: "record" },
+            evidenceRefs: ["mcp-evidence.md"],
+          }),
+          execution: expect.objectContaining({ action: "recorded", outcome: "completed" }),
         }),
       );
 

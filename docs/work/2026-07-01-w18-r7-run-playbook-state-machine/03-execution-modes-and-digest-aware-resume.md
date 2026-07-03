@@ -28,11 +28,11 @@ Implement the deterministic, delegated, and manual behaviors of `playbook.advanc
 
 ### Tasks
 
-- [ ] t1: Implement `deterministic` execution — resolve the step's `operation` or `command`, execute an operation through the operation core and a command through the shell, capture the structured result as run evidence, and transition automatically (R-MODE-1).
-- [ ] t2: Implement the CLI-absent deterministic path — resolve the operation identifier to its human CLI form and present that command for the reader to run by hand (R-MODE-1, R-TIER-1).
-- [ ] t3: Implement `delegated` execution — present the step instructions, set the step to `waiting-for-user`, and wait for a subsequent `playbook.advance` carrying the reported outcome and evidence (R-MODE-1).
-- [ ] t4: Implement `manual` execution — record acknowledgment only, executing nothing (R-MODE-1).
-- [ ] t5: Treat a step with no declared mode as `delegated`, consistent with the W18 R6 default (R-MODE-2).
+- [x] t1: Implement `deterministic` execution — resolve the step's `operation` or `command`, execute an operation through the operation core and a command through the shell, capture the structured result as run evidence, and transition automatically (R-MODE-1).
+- [x] t2: Implement the CLI-absent deterministic path — resolve the operation identifier to its human CLI form and present that command for the reader to run by hand (R-MODE-1, R-TIER-1).
+- [x] t3: Implement `delegated` execution — present the step instructions, set the step to `waiting-for-user`, and wait for a subsequent `playbook.advance` carrying the reported outcome and evidence (R-MODE-1).
+- [x] t4: Implement `manual` execution — record acknowledgment only, executing nothing (R-MODE-1).
+- [x] t5: Treat a step with no declared mode as `delegated`, consistent with the W18 R6 default (R-MODE-2).
 
 ### Acceptance criteria
 
@@ -50,9 +50,9 @@ Implement the deterministic, delegated, and manual behaviors of `playbook.advanc
 
 ### Tasks
 
-- [ ] t6: On `playbook.resume`, compare the stored source digest with the current Playbook digest and resume at the stored cursor when they match (R-RESUME-1).
-- [ ] t7: On mismatch, mark the run stale, block by default, require an explicit re-plan, and emit a diagnostic that names the change; never silently resume against a changed workflow (R-RESUME-1).
-- [ ] t8: If migration is implemented, offer it only as an explicit opt-in enhancement that re-maps still-present step identifiers and flags added or removed steps, never as the default mismatch behavior (R-RESUME-2).
+- [x] t6: On `playbook.resume`, compare the stored source digest with the current Playbook digest and resume at the stored cursor when they match (R-RESUME-1).
+- [x] t7: On mismatch, mark the run stale, block by default, require an explicit re-plan, and emit a diagnostic that names the change; never silently resume against a changed workflow (R-RESUME-1).
+- [x] t8: If migration is implemented, offer it only as an explicit opt-in enhancement that re-maps still-present step identifiers and flags added or removed steps, never as the default mismatch behavior (R-RESUME-2).
 
 ### Acceptance criteria
 

@@ -389,16 +389,20 @@ export type {
   PlaybookRunDependencyAvailability,
   PlaybookRunEvidenceRecord,
   PlaybookRunEvidenceScope,
+  PlaybookRunExecutionEvidence,
   PlaybookRunExecutionMode,
   PlaybookRunGateDecision,
+  PlaybookRunStaleness,
   PlaybookRunState,
   PlaybookRunStepStatusEntry,
   PlaybookRunTerminalStatus,
 } from "./run-state";
+export { PLAYBOOK_RUN_OUTPUT_EVIDENCE_LIMIT } from "./run-state";
 
 /**
- * The W18 R7 P2 progression engine (PRD 35 R-OP-1..3): `playbook.next`,
- * `playbook.advance`, `playbook.gate`, `playbook.resume`, and
+ * The W18 R7 P2/P3 progression engine (PRD 35 R-OP-1..3, R-MODE-1..2,
+ * R-RESUME-1..2): `playbook.next`, the mode-aware `playbook.advance`,
+ * `playbook.gate`, the digest-checked `playbook.resume`, and
  * `playbook.close` semantics over the run-state storage seam.
  */
 export {
@@ -412,7 +416,10 @@ export {
 } from "./progression";
 export type {
   AdvancePlaybookRunInput,
+  AdvancePlaybookRunResult,
   ClosePlaybookRunInput,
+  PlaybookAdvanceAction,
+  PlaybookAdvanceExecutionReport,
   PlaybookAdvanceOutcome,
   PlaybookGateDecisionValue,
   PlaybookRunNextDependencyReport,
@@ -422,6 +429,7 @@ export type {
   RecordPlaybookRunGateInput,
   ResumePlaybookRunInput,
 } from "./progression";
+export { PLAYBOOK_STEP_COMMAND_TIMEOUT_MS } from "./execution";
 
 export function invokePlaybook(input: {
   repoRoot?: string;

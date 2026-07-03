@@ -117,14 +117,24 @@ make-docs run playbook next --repo-root . --run-id <run-id>
 
 `next` never changes the run. It reports the current position — a step to execute, a gate waiting for a decision, `blocked` with the reasons, `closeable` when no workflow position remains, or `closed` after finalization — along with the step's title, mode, and invocation, whether its required dependencies are recorded as available, and what to do about anything in the way. A required dependency recorded as unavailable blocks the position; one with unknown availability comes back as probe-first guidance instead. `make-docs run playbook status --repo-root . --run-id <run-id>` still returns the raw stored record when you want the full state instead of a recommendation.
 
-Do the step's work, then record its outcome:
+Then advance the run. What `advance` does depends on the step's execution mode, which `next` reports:
 
 ```sh
-make-docs run playbook advance --repo-root . --run-id <run-id> --outcome completed \
-  --evidence-ref docs/path/to/proof.md --note "What was done"
+make-docs run playbook advance --repo-root . --run-id <run-id>
 ```
 
-`advance` records `completed` or `failed` for the current step, captures the evidence you cite, and moves the cursor to the next step the Playbook's routing selects. Recording `--outcome failed` holds the run for review unless the Playbook declares an explicit failure route. `--evidence-ref` and `--output-ref` repeat for multiple references, and everything recorded lands in the stored run record for audit and resume.
+- A `deterministic` step executes itself. Make Docs runs the step's declared operation or command, captures what happened — the exit code and output, or the operation's result — as run evidence, and moves the cursor automatically. If you would rather run the command yourself, pass `--present`: Make Docs prints the exact command to run by hand and holds the step; run it, then advance again with `--outcome` and your evidence to report what happened.
+- A `delegated` step — and any step that declares no mode — is work for you or your agent. `advance` presents the step's instructions and holds the run at `waiting-for-user`. Do the work, then advance again with `--outcome completed` or `--outcome failed`, citing evidence:
+
+  ```sh
+  make-docs run playbook advance --repo-root . --run-id <run-id> --outcome completed \
+    --evidence-ref docs/path/to/proof.md --note "What was done"
+  ```
+
+  The run only moves past a delegated step on a reported outcome.
+- A `manual` step is documentation only. Acknowledge that you read it with `--acknowledge`; it takes no outcome and executes nothing.
+
+Recording `--outcome failed` holds the run for review unless the Playbook declares an explicit failure route. `--evidence-ref` and `--output-ref` repeat for multiple references, and everything recorded — including what deterministic steps executed — lands in the stored run record for audit and resume.
 
 When the run is positioned at a gate, record the decision instead of advancing:
 
@@ -140,7 +150,15 @@ If a run is blocked — a failed step, a rejected gate — or you are returning 
 make-docs run playbook resume --repo-root . --run-id <run-id>
 ```
 
-Resume reopens the run at the same position it held; it never skips work or moves the cursor. After resuming, retry the step with `advance`, revisit the gate with `gate`, or finalize instead.
+Resume first checks that the Playbook file has not changed since the run started, by comparing the content digest stored at `start` with the current file. When they match, the run reopens at the same position it held; resume never skips work or moves the cursor. After resuming, retry the step with `advance`, revisit the gate with `gate`, or finalize instead.
+
+If the Playbook file did change, resume refuses: the run is marked stale and blocked, and the error names the file, both digests, and which step identifiers were added or removed. A stale run also refuses `advance` and `gate` — Make Docs never silently continues a run against a changed workflow. From there you have three honest options: start a fresh run against the current Playbook with `start`, revert the Playbook change and resume again (the block clears when the digests match), or explicitly migrate the existing run onto the changed Playbook:
+
+```sh
+make-docs run playbook resume --repo-root . --run-id <run-id> --migrate
+```
+
+`--migrate` is an opt-in, never the default. It keeps the recorded status of every step that still exists in the changed Playbook, treats newly added steps as not yet done, drops steps that no longer exist (naming them in the run's evidence), and re-enters at your surviving position. Use it when the change edited the workflow around your progress; prefer a fresh run when the workflow was redesigned.
 
 When `next` reports the run is `closeable` — or you decide to end it early — finalize it:
 

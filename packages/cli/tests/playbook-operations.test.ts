@@ -562,6 +562,7 @@ describe.skipIf(!sqliteAvailable)("playbook run state in the global store", () =
         "evidenceRefs",
         "evidenceLog",
         "cursor",
+        "staleness",
         "childPolicy",
         "concurrencyPolicy",
         "childRuns",

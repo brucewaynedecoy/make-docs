@@ -1,13 +1,21 @@
 import {
   PLAYBOOK_DEFAULT_STEP_MODE,
+  PLAYBOOK_DEFAULT_WORKFLOW_ROUTING_MODE,
   type PlaybookModel,
   type PlaybookRoutingTarget,
   type PlaybookStep,
   type PlaybookStepMode,
   type PlaybookStepStatus,
 } from "../../playbook";
+import type { OperationExecutionContext } from "../context";
 import { findRepoRoot, utcNow } from "../shared";
 import { OperationError } from "../types";
+import {
+  executeDeterministicCommand,
+  executeDeterministicOperation,
+  playbookStepExecutionContext,
+  resolveOperationCliCommand,
+} from "./execution";
 import {
   PLAYBOOK_RUN_TERMINAL_STATUSES,
   loadPlaybookRunModel,
@@ -16,7 +24,9 @@ import {
   readPlaybookRunState,
   transitionPlaybookRunState,
   type PlaybookRunCursor,
+  type PlaybookRunDependencyAvailability,
   type PlaybookRunEvidenceRecord,
+  type PlaybookRunExecutionEvidence,
   type PlaybookRunState,
   type PlaybookRunStepStatusEntry,
   type PlaybookRunTerminalStatus,
@@ -55,9 +65,28 @@ import {
  * `blocked`; and a run whose reachable steps are all resolved drops its
  * cursor and holds `waiting-for-user` for `playbook.close`, which alone
  * stamps the terminal status. All statuses are the shared W18 R6 vocabulary
- * (R-STATE-2). Step execution by mode (deterministic/delegated/manual) and
- * the digest-checked resume land in W18 R7 Phase 3; Phase 2 records reported
- * outcomes.
+ * (R-STATE-2).
+ *
+ * Step execution by mode (W18 R7 P3; R-MODE-1..2): the W18 R6 step mode
+ * governs what {@link advancePlaybookRun} does. A `deterministic` step
+ * executes its declared `operation` through the operation core or its
+ * `command` through the shell (see `./execution`), captures the structured
+ * result as run evidence, and transitions automatically — and when the
+ * caller cannot execute (the CLI-absent tier, R-TIER-1) it presents the
+ * operation's derived human CLI form instead. A `delegated` step (and a
+ * step with no declared mode, R-MODE-2) presents its instructions, holds at
+ * `waiting-for-user`, and moves only on a later advance carrying the
+ * reported outcome and evidence. A `manual` step records acknowledgment
+ * only and executes nothing.
+ *
+ * Digest-aware resume (W18 R7 P3; R-RESUME-1..2): `playbook.resume`
+ * compares the stored source digest with the current Playbook digest. A
+ * match re-enters at the stored cursor; a mismatch marks the run stale,
+ * blocks by default with a diagnostic naming the change, and requires an
+ * explicit re-plan — or the explicit opt-in migration that re-maps
+ * still-present step identifiers. A stale run also refuses advance and
+ * gate transitions until the marker clears, so the engine never silently
+ * progresses against a changed workflow.
  *
  * The captured-evidence format is documented on `PlaybookRunEvidenceRecord`
  * in `./run-state` (D9 implementer decision).
@@ -229,18 +258,86 @@ export interface AdvancePlaybookRunInput {
   runId: string;
   /** Optional explicit step; must match the current cursor step when given. */
   stepId?: string | null;
-  outcome: PlaybookAdvanceOutcome;
+  /**
+   * Reported outcome. Required to move a delegated step past its hold, and
+   * accepted on a deterministic step as the by-hand execution report (the
+   * loop-closer for the presented command form, R-TIER-1). Absent, the step
+   * mode decides what advance does (R-MODE-1).
+   */
+  outcome?: PlaybookAdvanceOutcome | null;
+  /** Manual-mode acknowledgment (R-MODE-1): records that the step was read; nothing executes. */
+  acknowledge?: boolean;
+  /**
+   * CLI-absent deterministic path (R-MODE-1, R-TIER-1): the calling surface
+   * cannot execute, so present the invocation's human command form for the
+   * reader to run by hand instead of executing it.
+   */
+  present?: boolean;
   evidenceRefs?: string[];
   outputRefs?: string[];
   note?: string | null;
+  /** The advancing surface's context; deterministic `operation:` steps inherit its gating. */
+  operationContext?: OperationExecutionContext;
 }
 
+/** What one `playbook.advance` call did, per the step's execution mode (R-MODE-1). */
+export type PlaybookAdvanceAction =
+  | "recorded"
+  | "executed-operation"
+  | "executed-command"
+  | "presented-command"
+  | "presented-instructions"
+  | "acknowledged";
+
+export interface PlaybookAdvanceExecutionReport {
+  stepId: string;
+  /** Effective mode with the W18 R6 `delegated` default applied (R-MODE-2). */
+  mode: PlaybookStepMode;
+  action: PlaybookAdvanceAction;
+  /** Null while the step holds at `waiting-for-user` for a later report. */
+  outcome: PlaybookAdvanceOutcome | null;
+  /** The derived human CLI form or external command line, when presented (R-TIER-1). */
+  presentedCommand: string | null;
+  /** The step's instruction text, when presented; usable directly without the CLI. */
+  instructions: string | null;
+  /** Structured deterministic-execution result, when the engine executed the step. */
+  executionEvidence: PlaybookRunExecutionEvidence | null;
+}
+
+export interface AdvancePlaybookRunResult {
+  state: PlaybookRunState;
+  execution: PlaybookAdvanceExecutionReport;
+}
+
+/** The two shapes an advance resolves to: a recorded step outcome, or a hold at `waiting-for-user`. */
+type AdvancePlan =
+  | {
+      kind: "outcome";
+      action: "recorded" | "executed-operation" | "executed-command" | "acknowledged";
+      outcome: PlaybookAdvanceOutcome;
+      executionEvidence: PlaybookRunExecutionEvidence | null;
+    }
+  | {
+      kind: "hold";
+      action: "presented-command" | "presented-instructions";
+      presentedCommand: string | null;
+      instructions: string | null;
+      note: string;
+      hint: string;
+    };
+
 /**
- * `playbook.advance` (write, R-OP-1): records completion or failure of the
- * current step, captures its evidence, transitions the step and run status,
- * and computes the next cursor from the model's routing.
+ * `playbook.advance` (write, R-OP-1): advances the current step per its
+ * execution mode (R-MODE-1..2) — executing, presenting, recording a
+ * reported outcome, or recording acknowledgment — captures the evidence,
+ * transitions the step and run status, and computes the next cursor from
+ * the model's routing. Deterministic execution happens BEFORE the state
+ * transition, so a thrown execution refusal leaves the run exactly where it
+ * was; the run never records an outcome the engine did not observe.
  */
-export function advancePlaybookRun(input: AdvancePlaybookRunInput): PlaybookRunState {
+export async function advancePlaybookRun(
+  input: AdvancePlaybookRunInput,
+): Promise<AdvancePlaybookRunResult> {
   const repoRoot = findRepoRoot(input.repoRoot);
   const loaded = readPlaybookRunState({
     repoRoot,
@@ -248,70 +345,261 @@ export function advancePlaybookRun(input: AdvancePlaybookRunInput): PlaybookRunS
     runId: input.runId,
   });
   requireOpenRun(loaded, "advanced");
+  requireFreshRun(loaded, "advanced");
   const model = loadPlaybookRunModel(repoRoot, loaded);
+  const entries = requireWorkflowEntries(loaded, model);
+  const cursor = requireAdvanceStepCursor(loaded, input.stepId ?? null);
+  const entry = requireCursorEntry(loaded, entries, cursor.id);
+  const mode = entry.step.mode.value ?? PLAYBOOK_DEFAULT_STEP_MODE;
+  const plan = await planAdvance({ input, entry, mode, repoRoot });
 
-  return transitionPlaybookRunState({
+  const state = transitionPlaybookRunState({
     repoRoot,
     storeRoot: input.storeRoot,
     runId: input.runId,
-    apply: (state) => {
-      requireOpenRun(state, "advanced");
-      const entries = requireWorkflowEntries(state, model);
-      const cursor = state.cursor;
-      if (!cursor) {
+    apply: (current) => {
+      requireOpenRun(current, "advanced");
+      requireFreshRun(current, "advanced");
+      const currentEntries = requireWorkflowEntries(current, model);
+      const currentCursor = requireAdvanceStepCursor(current, input.stepId ?? null);
+      const currentEntry = requireCursorEntry(current, currentEntries, currentCursor.id);
+      if (currentEntry.id !== entry.id) {
         throw new OperationError(
-          `Playbook run \`${state.runId}\` has no current step cursor; inspect it with \`playbook.next\` or finalize it with \`playbook.close\`.`,
+          `Playbook run \`${current.runId}\` moved to step \`${currentEntry.id}\` while advancing \`${entry.id}\`; retry against the current position.`,
         );
       }
-      if (cursor.kind === "gate") {
-        throw new OperationError(
-          `Playbook run \`${state.runId}\` is positioned at gate \`${cursor.id}\`; record the decision with \`playbook.gate\`, not \`playbook.advance\`.`,
-        );
-      }
-      if (input.stepId && input.stepId !== cursor.id) {
-        throw new OperationError(
-          `Step \`${input.stepId}\` is not the current cursor step \`${cursor.id}\` of run \`${state.runId}\`.`,
-        );
-      }
-      const entry = requireCursorEntry(state, entries, cursor.id);
-      const stepStatuses = withStepStatus(state.stepStatuses, entry.id, input.outcome);
-      const evidence = appendEvidence(state, {
-        scope: "step",
-        subjectId: entry.id,
-        outcome: input.outcome,
-        recordedAt: utcNow(),
-        refs: dedupe(input.evidenceRefs ?? []),
-        note: normalizeNote(input.note),
-      });
-
-      let position: RunPosition;
-      if (input.outcome === "failed") {
-        const failureTarget =
-          state.routingModel === "graph" ? (entry.step.routing?.onFailure ?? null) : null;
-        position = failureTarget
-          ? positionFromTarget(failureTarget, entries, entry)
-          : {
-              cursor,
-              status: "blocked",
-              hint: `Step \`${entry.id}\` failed; resume with \`playbook.resume\` to retry via \`playbook.advance\`, or finalize with \`playbook.close\`.`,
-            };
-      } else {
-        position = positionFromSuccessor(
-          computeSuccessor(state.routingModel, entries, stepStatuses, entry),
-        );
-      }
-
-      return {
-        ...state,
-        stepStatuses,
-        ...evidence,
-        outputRefs: dedupe([...state.outputRefs, ...(input.outputRefs ?? [])]),
-        cursor: position.cursor,
-        status: position.status,
-        resumeHints: withHint(state.resumeHints, position.hint),
-      };
+      return plan.kind === "hold"
+        ? applyAdvanceHold(current, currentEntry, plan, input)
+        : applyAdvanceOutcome(current, currentEntries, currentEntry, currentCursor, plan, input);
     },
   });
+
+  return {
+    state,
+    execution: {
+      stepId: entry.id,
+      mode,
+      action: plan.action,
+      outcome: plan.kind === "outcome" ? plan.outcome : null,
+      presentedCommand: plan.kind === "hold" ? plan.presentedCommand : null,
+      instructions: plan.kind === "hold" ? plan.instructions : null,
+      executionEvidence: plan.kind === "outcome" ? plan.executionEvidence : null,
+    },
+  };
+}
+
+/**
+ * Resolves what this advance does from the effective step mode and the
+ * caller's input (R-MODE-1..2). Deterministic execution side effects happen
+ * here, before any state transition.
+ */
+async function planAdvance(args: {
+  input: AdvancePlaybookRunInput;
+  entry: WorkflowStepEntry;
+  mode: PlaybookStepMode;
+  repoRoot: string;
+}): Promise<AdvancePlan> {
+  const { input, entry, mode, repoRoot } = args;
+  if (input.acknowledge) {
+    if (mode !== "manual") {
+      throw new OperationError(
+        `Step \`${entry.id}\` runs in \`${mode}\` mode; acknowledgment is recorded only for \`manual\` steps (R-MODE-1).`,
+      );
+    }
+    if (input.outcome) {
+      throw new OperationError(
+        `Manual step \`${entry.id}\` records acknowledgment only; it takes no reported outcome (R-MODE-1).`,
+      );
+    }
+    return { kind: "outcome", action: "acknowledged", outcome: "completed", executionEvidence: null };
+  }
+  if (mode === "manual") {
+    throw new OperationError(
+      `Step \`${entry.id}\` is a \`manual\` step: documentation only. Record acknowledgment with \`playbook.advance\` and the acknowledge flag; nothing is executed (R-MODE-1).`,
+    );
+  }
+  if (input.outcome) {
+    if (input.present) {
+      throw new OperationError(
+        `Presenting a command and reporting an outcome are mutually exclusive on step \`${entry.id}\`; report the outcome after running the presented command.`,
+      );
+    }
+    return { kind: "outcome", action: "recorded", outcome: input.outcome, executionEvidence: null };
+  }
+  if (mode === "deterministic") {
+    return planDeterministicAdvance(args);
+  }
+  // `delegated`, including the R-MODE-2 default for an unspecified mode.
+  if (input.present) {
+    throw new OperationError(
+      `Only \`deterministic\` steps present a command form; step \`${entry.id}\` runs in \`${mode}\` mode and already presents its instructions.`,
+    );
+  }
+  const instructions =
+    entry.step.invocations.find((invocation) => invocation.form === "instructions")
+      ?.instructions?.value ?? null;
+  return {
+    kind: "hold",
+    action: "presented-instructions",
+    presentedCommand: null,
+    instructions,
+    note: `Presented the step instructions for delegated execution; awaiting the reported outcome.`,
+    hint: `Delegated step \`${entry.id}\` is waiting for its executor: follow the step instructions, then report the outcome and evidence with \`playbook.advance\`.`,
+  };
+}
+
+/**
+ * Deterministic advance without a reported outcome (R-MODE-1): execute the
+ * step's `operation` through the operation core or its `command` through
+ * the shell, or — on the CLI-absent path — resolve and present the human
+ * command form derived from the operation registry (R-TIER-1).
+ */
+async function planDeterministicAdvance(args: {
+  input: AdvancePlaybookRunInput;
+  entry: WorkflowStepEntry;
+  repoRoot: string;
+}): Promise<AdvancePlan> {
+  const { input, entry, repoRoot } = args;
+  const invocation = entry.step.invocations.find(
+    (candidate) => candidate.form === "operation" || candidate.form === "command",
+  );
+  const operationId = invocation?.operation?.value ?? null;
+  const commandRun = invocation?.commandRun?.value ?? null;
+  if (!invocation || (!operationId && !commandRun)) {
+    throw new OperationError(
+      `Deterministic step \`${entry.id}\` declares no executable \`operation\` or \`command\` invocation; fix the Playbook workflow contract or report an outcome explicitly.`,
+    );
+  }
+  if (input.present) {
+    const presented = operationId ? await resolveOperationCliCommand(operationId) : commandRun!;
+    return {
+      kind: "hold",
+      action: "presented-command",
+      presentedCommand: presented,
+      instructions: null,
+      note: `Presented command \`${presented}\` for by-hand execution (CLI-absent tier).`,
+      hint: `Deterministic step \`${entry.id}\` was presented for by-hand execution: run \`${presented}\`, then report the outcome and evidence with \`playbook.advance\`.`,
+    };
+  }
+  const result = operationId
+    ? await executeDeterministicOperation({
+        operationId,
+        // Step-declared input mapping is a later lineage; the engine supplies
+        // the run's own roots, and each operation's schema strips the rest.
+        operationInput: { repoRoot, storeRoot: input.storeRoot },
+        context: playbookStepExecutionContext(repoRoot, input.operationContext),
+      })
+    : executeDeterministicCommand({ commandRun: commandRun!, repoRoot });
+  return {
+    kind: "outcome",
+    action: operationId ? "executed-operation" : "executed-command",
+    outcome: result.outcome,
+    executionEvidence: result.evidence,
+  };
+}
+
+/** Records a step outcome and moves the cursor (the Phase 2 transition, now mode-fed). */
+function applyAdvanceOutcome(
+  state: PlaybookRunState,
+  entries: WorkflowStepEntry[],
+  entry: WorkflowStepEntry,
+  cursor: PlaybookRunCursor,
+  plan: Extract<AdvancePlan, { kind: "outcome" }>,
+  input: AdvancePlaybookRunInput,
+): PlaybookRunState {
+  const stepStatuses = withStepStatus(state.stepStatuses, entry.id, plan.outcome);
+  const evidence = appendEvidence(state, {
+    scope: "step",
+    subjectId: entry.id,
+    outcome: plan.outcome,
+    recordedAt: utcNow(),
+    refs: dedupe(input.evidenceRefs ?? []),
+    note: normalizeNote(input.note),
+    ...(plan.executionEvidence ? { execution: plan.executionEvidence } : {}),
+  });
+
+  let position: RunPosition;
+  if (plan.outcome === "failed") {
+    const failureTarget =
+      state.routingModel === "graph" ? (entry.step.routing?.onFailure ?? null) : null;
+    position = failureTarget
+      ? positionFromTarget(failureTarget, entries, entry)
+      : {
+          cursor,
+          status: "blocked",
+          hint: `Step \`${entry.id}\` failed; resume with \`playbook.resume\` to retry via \`playbook.advance\`, or finalize with \`playbook.close\`.`,
+        };
+  } else {
+    position = positionFromSuccessor(
+      computeSuccessor(state.routingModel, entries, stepStatuses, entry),
+    );
+  }
+
+  return {
+    ...state,
+    stepStatuses,
+    ...evidence,
+    outputRefs: dedupe([...state.outputRefs, ...(input.outputRefs ?? [])]),
+    cursor: position.cursor,
+    status: position.status,
+    resumeHints: withHint(state.resumeHints, position.hint),
+  };
+}
+
+/**
+ * Holds the step at `waiting-for-user` after a presentation (R-MODE-1): the
+ * cursor stays put, the run waits, and the presentation is recorded as
+ * evidence once (a repeated presentation refreshes nothing).
+ */
+function applyAdvanceHold(
+  state: PlaybookRunState,
+  entry: WorkflowStepEntry,
+  plan: Extract<AdvancePlan, { kind: "hold" }>,
+  input: AdvancePlaybookRunInput,
+): PlaybookRunState {
+  const alreadyWaiting = stepStatusOf(state.stepStatuses, entry.id) === "waiting-for-user";
+  const stepStatuses = withStepStatus(state.stepStatuses, entry.id, "waiting-for-user");
+  const evidence = alreadyWaiting
+    ? {}
+    : appendEvidence(state, {
+        scope: "step",
+        subjectId: entry.id,
+        outcome: "waiting-for-user",
+        recordedAt: utcNow(),
+        refs: dedupe(input.evidenceRefs ?? []),
+        note: normalizeNote(input.note) ?? plan.note,
+      });
+  return {
+    ...state,
+    stepStatuses,
+    ...evidence,
+    status: "waiting-for-user",
+    resumeHints: withHint(state.resumeHints, plan.hint),
+  };
+}
+
+/** The advance-position preconditions, shared by the pre-execution read and the transition. */
+function requireAdvanceStepCursor(
+  state: PlaybookRunState,
+  stepId: string | null,
+): PlaybookRunCursor {
+  const cursor = state.cursor;
+  if (!cursor) {
+    throw new OperationError(
+      `Playbook run \`${state.runId}\` has no current step cursor; inspect it with \`playbook.next\` or finalize it with \`playbook.close\`.`,
+    );
+  }
+  if (cursor.kind === "gate") {
+    throw new OperationError(
+      `Playbook run \`${state.runId}\` is positioned at gate \`${cursor.id}\`; record the decision with \`playbook.gate\`, not \`playbook.advance\`.`,
+    );
+  }
+  if (stepId && stepId !== cursor.id) {
+    throw new OperationError(
+      `Step \`${stepId}\` is not the current cursor step \`${cursor.id}\` of run \`${state.runId}\`.`,
+    );
+  }
+  return cursor;
 }
 
 export interface RecordPlaybookRunGateInput {
@@ -338,6 +626,7 @@ export function recordPlaybookRunGate(input: RecordPlaybookRunGateInput): Playbo
     runId: input.runId,
   });
   requireOpenRun(loaded, "gated");
+  requireFreshRun(loaded, "gated");
   const model = loadPlaybookRunModel(repoRoot, loaded);
 
   return transitionPlaybookRunState({
@@ -346,6 +635,7 @@ export function recordPlaybookRunGate(input: RecordPlaybookRunGateInput): Playbo
     runId: input.runId,
     apply: (state) => {
       requireOpenRun(state, "gated");
+      requireFreshRun(state, "gated");
       const entries = requireWorkflowEntries(state, model);
       const cursor = state.cursor;
       if (!cursor || cursor.kind !== "gate") {
@@ -406,31 +696,113 @@ export interface ResumePlaybookRunInput {
   resumeHints?: string[];
   evidenceRefs?: string[];
   note?: string | null;
+  /**
+   * Explicit opt-in migration (R-RESUME-2): after a digest mismatch, re-map
+   * still-present step identifiers onto the current workflow, flag added and
+   * removed steps, and adopt the current digest. NEVER the default mismatch
+   * behavior — without this flag a mismatch blocks.
+   */
+  migrate?: boolean;
 }
 
 /**
- * `playbook.resume` (read then write, R-OP-1): re-enters a held run at its
- * stored cursor, recomputing the run status from the cursor position and
- * recording the resume as evidence. This is the W18 R7 Phase 2 operation
- * SHELL: it reopens a blocked or waiting run without moving the cursor.
+ * `playbook.resume` (read then write, R-OP-1): the digest-checked re-entry
+ * (R-RESUME-1). The stored source digest is compared with the current
+ * Playbook digest from the single parsed model:
  *
- * PHASE 3 SEAM (R-RESUME-1): the digest-aware resume semantics land with
- * W18 R7 Phase 3. That phase will, at this seam, load the parsed model via
- * `loadPlaybookRunModel`, compare `state.sourceDigest` with the model's
- * `identity.sourceDigest`, resume at the stored cursor on a match, and on a
- * mismatch mark the run stale, block by default, require an explicit
- * re-plan, and emit a diagnostic naming the change. Phase 2 deliberately
- * implements no digest-blocking behavior.
+ * - MATCH: the run re-enters at its stored cursor, recomputing the run
+ *   status from the cursor position and recording the resume as evidence
+ *   (clearing any staleness marker left by a since-reverted change).
+ * - MISMATCH (default): the run is marked stale and blocked, the mismatch
+ *   is recorded as evidence, and the operation throws a diagnostic naming
+ *   the change — both digests plus the step identifiers added and removed —
+ *   and directing the caller to an explicit re-plan (`playbook.start`
+ *   against the current source) or the opt-in migration. The runner never
+ *   silently resumes against a changed workflow.
+ * - MISMATCH with `migrate` (R-RESUME-2, opt-in only): still-present step
+ *   identifiers keep their recorded statuses, added steps seed `pending`,
+ *   removed steps are dropped and named in the evidence, the cursor stays
+ *   at its step when that step survived (falling back to the first pending
+ *   sequential step otherwise), and the run adopts the current digest,
+ *   schema versions, routing model, and dependency registry before
+ *   re-entering.
  */
 export function resumePlaybookRun(input: ResumePlaybookRunInput): PlaybookRunState {
   const repoRoot = findRepoRoot(input.repoRoot);
+  const loaded = readPlaybookRunState({
+    repoRoot,
+    storeRoot: input.storeRoot,
+    runId: input.runId,
+  });
+  requireOpenRun(loaded, "resumed");
+  const model = loadPlaybookRunModel(repoRoot, loaded);
+  const currentDigest = model.identity.sourceDigest;
+  if (currentDigest === loaded.sourceDigest) {
+    return reenterPlaybookRun(input, repoRoot);
+  }
+
+  const entries = workflowStepEntries(model);
+  const storedIds = loaded.stepStatuses.map((entry) => entry.stepId);
+  const currentIds = new Set(entries.map((entry) => entry.id));
+  const addedStepIds = entries
+    .map((entry) => entry.id)
+    .filter((id) => !storedIds.includes(id));
+  const removedStepIds = storedIds.filter((id) => !currentIds.has(id));
+
+  if (input.migrate) {
+    return migratePlaybookRun({
+      input,
+      repoRoot,
+      model,
+      entries,
+      currentDigest,
+      addedStepIds,
+      removedStepIds,
+    });
+  }
+
+  const diagnostic = staleResumeDiagnostic(loaded, currentDigest, addedStepIds, removedStepIds);
+  transitionPlaybookRunState({
+    repoRoot,
+    storeRoot: input.storeRoot,
+    runId: input.runId,
+    apply: (state) => {
+      requireOpenRun(state, "resumed");
+      const detectedAt = utcNow();
+      const evidence = appendEvidence(state, {
+        scope: "resume",
+        subjectId: state.runId,
+        outcome: "blocked",
+        recordedAt: detectedAt,
+        refs: dedupe(input.evidenceRefs ?? []),
+        note: diagnostic,
+      });
+      return {
+        ...state,
+        ...evidence,
+        status: "blocked",
+        staleness: {
+          detectedAt,
+          storedDigest: state.sourceDigest,
+          currentDigest,
+          addedStepIds,
+          removedStepIds,
+        },
+        resumeHints: withHint(state.resumeHints, diagnostic),
+      };
+    },
+  });
+  throw new OperationError(diagnostic);
+}
+
+/** The digest-match re-entry: the Phase 2 semantics, plus clearing staleness. */
+function reenterPlaybookRun(input: ResumePlaybookRunInput, repoRoot: string): PlaybookRunState {
   return transitionPlaybookRunState({
     repoRoot,
     storeRoot: input.storeRoot,
     runId: input.runId,
     apply: (state) => {
       requireOpenRun(state, "resumed");
-      // Phase 3 digest check lands here (see the doc comment above).
       const status: PlaybookStepStatus =
         state.cursor === null || state.cursor.kind === "gate" ? "waiting-for-user" : "running";
       const evidence = appendEvidence(state, {
@@ -451,8 +823,142 @@ export function resumePlaybookRun(input: ResumePlaybookRunInput): PlaybookRunSta
           "No workflow position remains; finalize the run with `playbook.close`.",
         );
       }
-      return { ...state, ...evidence, status, resumeHints };
+      return { ...state, ...evidence, status, resumeHints, staleness: null };
     },
+  });
+}
+
+/**
+ * The opt-in step re-mapping (R-RESUME-2). The algorithm is a D9-style
+ * implementer decision, recorded here: statuses re-key by step identifier,
+ * added steps seed `pending`, removed steps drop (named in evidence), the
+ * cursor survives with its step or falls back to the first pending
+ * sequential step, and the run adopts the current source identity (digest,
+ * schema versions, routing model) plus a merged dependency snapshot that
+ * keeps previously probed availability for still-declared dependencies.
+ */
+function migratePlaybookRun(args: {
+  input: ResumePlaybookRunInput;
+  repoRoot: string;
+  model: PlaybookModel;
+  entries: WorkflowStepEntry[];
+  currentDigest: string;
+  addedStepIds: string[];
+  removedStepIds: string[];
+}): PlaybookRunState {
+  const { input, repoRoot, model, entries, currentDigest, addedStepIds, removedStepIds } = args;
+  return transitionPlaybookRunState({
+    repoRoot,
+    storeRoot: input.storeRoot,
+    runId: input.runId,
+    apply: (state) => {
+      requireOpenRun(state, "resumed");
+      const statusById = new Map(state.stepStatuses.map((entry) => [entry.stepId, entry.status]));
+      const stepStatuses: PlaybookRunStepStatusEntry[] = entries.map((entry) => ({
+        stepId: entry.id,
+        status: statusById.get(entry.id) ?? "pending",
+      }));
+      const survivingCursorEntry = state.cursor
+        ? entries.find((entry) => entry.id === state.cursor?.id)
+        : undefined;
+      const fallbackEntry = entries.find(
+        (entry) =>
+          isSequential(entry.step) && (statusById.get(entry.id) ?? "pending") === "pending",
+      );
+      const cursorEntry = survivingCursorEntry ?? fallbackEntry ?? null;
+      const cursor = cursorEntry
+        ? playbookRunCursorForStep(cursorEntry.step, cursorEntry.index)
+        : null;
+      const status: PlaybookStepStatus =
+        cursor === null || cursor.kind === "gate" ? "waiting-for-user" : "running";
+      const note = migrationNote(state, currentDigest, addedStepIds, removedStepIds);
+      const evidence = appendEvidence(state, {
+        scope: "resume",
+        subjectId: state.runId,
+        outcome: status,
+        recordedAt: utcNow(),
+        refs: dedupe(input.evidenceRefs ?? []),
+        note: normalizeNote(input.note) ?? note,
+      });
+      let resumeHints = withHint(state.resumeHints, note);
+      for (const hint of input.resumeHints ?? []) {
+        resumeHints = withHint(resumeHints, hint);
+      }
+      if (cursor === null) {
+        resumeHints = withHint(
+          resumeHints,
+          "No workflow position remains; finalize the run with `playbook.close`.",
+        );
+      }
+      return {
+        ...state,
+        ...evidence,
+        sourceDigest: currentDigest,
+        documentSchemaVersion: model.identity.schemaVersion,
+        workflowSchemaVersion: model.identity.workflowSchemaVersion,
+        routingModel:
+          model.workflow?.header.routing.value ?? PLAYBOOK_DEFAULT_WORKFLOW_ROUTING_MODE,
+        stepStatuses,
+        dependencyAvailability: mergeDependencyAvailability(state.dependencyAvailability, model),
+        cursor,
+        status,
+        staleness: null,
+        resumeHints,
+      };
+    },
+  });
+}
+
+/** The R-RESUME-1 mismatch diagnostic: names both digests and the step-level change. */
+function staleResumeDiagnostic(
+  state: PlaybookRunState,
+  currentDigest: string,
+  addedStepIds: string[],
+  removedStepIds: string[],
+): string {
+  const stepChange =
+    addedStepIds.length > 0 || removedStepIds.length > 0
+      ? `workflow steps changed (added: ${nameStepIds(addedStepIds)}; removed: ${nameStepIds(removedStepIds)})`
+      : "no workflow step identifiers were added or removed, so the change is inside step definitions or narrative content";
+  return (
+    `Playbook run \`${state.runId}\` is stale: the Playbook source at \`${state.playbookPath}\` changed since the run started — ` +
+    `stored digest \`${state.sourceDigest}\`, current digest \`${currentDigest}\`; ${stepChange}. ` +
+    "Resume blocks by default and never silently re-enters a changed workflow; re-plan with `playbook.start` against the current source, " +
+    "or explicitly opt in to step re-mapping with `playbook.resume` and the migrate flag."
+  );
+}
+
+function migrationNote(
+  state: PlaybookRunState,
+  currentDigest: string,
+  addedStepIds: string[],
+  removedStepIds: string[],
+): string {
+  return (
+    `Playbook run \`${state.runId}\` migrated to the current Playbook source by explicit opt-in: ` +
+    `digest \`${state.sourceDigest}\` -> \`${currentDigest}\`; steps added: ${nameStepIds(addedStepIds)}; ` +
+    `steps removed: ${nameStepIds(removedStepIds)}. Still-present step identifiers keep their recorded statuses.`
+  );
+}
+
+function nameStepIds(ids: string[]): string {
+  return ids.length > 0 ? ids.map((id) => `\`${id}\``).join(", ") : "none";
+}
+
+/** Merges the current dependency registry with previously probed availability. */
+function mergeDependencyAvailability(
+  existing: PlaybookRunDependencyAvailability[],
+  model: PlaybookModel,
+): PlaybookRunDependencyAvailability[] {
+  const byId = new Map(existing.map((dependency) => [dependency.id, dependency]));
+  return model.dependencies.entries.map((dependency) => {
+    const id = dependency.id.value;
+    return {
+      id,
+      kind: dependency.kind.value ?? dependency.kind.raw,
+      requirement: dependency.requirement.value ?? dependency.requirement.raw,
+      availability: byId.get(id)?.availability ?? "unknown",
+    };
   });
 }
 
@@ -692,6 +1198,23 @@ function requireOpenRun(state: PlaybookRunState, verb: string): void {
   if (state.terminalStatus) {
     throw new OperationError(
       `Playbook run \`${state.runId}\` is closed with terminal status \`${state.terminalStatus}\`; a closed run cannot be ${verb}.`,
+    );
+  }
+}
+
+/**
+ * A stale run refuses step and gate transitions (R-RESUME-1 corollary,
+ * recorded implementer decision): once `playbook.resume` detects a digest
+ * mismatch, the engine never progresses against the changed workflow until
+ * an explicit re-plan or the opt-in migration clears the marker.
+ */
+function requireFreshRun(state: PlaybookRunState, verb: string): void {
+  const staleness = state.staleness ?? null;
+  if (staleness) {
+    throw new OperationError(
+      `Playbook run \`${state.runId}\` is stale against its Playbook source (stored digest \`${staleness.storedDigest}\`, ` +
+        `current digest \`${staleness.currentDigest}\` when detected) and cannot be ${verb}. ` +
+        "Re-plan with `playbook.start` against the current source, or opt in to step re-mapping with `playbook.resume` and the migrate flag.",
     );
   }
 }

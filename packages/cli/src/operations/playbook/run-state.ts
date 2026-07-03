@@ -103,6 +103,34 @@ export interface PlaybookRunCursor {
 export type PlaybookRunEvidenceScope = "step" | "gate" | "close" | "resume";
 
 /**
+ * Structured result of a deterministic step execution (W18 R7 P3; PRD 35
+ * R-MODE-1, D9 implementer decision recorded here): when `playbook.advance`
+ * executes a step's `operation` through the operation core or its `command`
+ * through the shell, the captured evidence carries this record. `operation`
+ * or `command` names what ran; `exitCode`/`stdoutTail`/`stderrTail` capture
+ * the shell result (tails keep the last {@link PLAYBOOK_RUN_OUTPUT_EVIDENCE_LIMIT}
+ * characters, where failures usually surface); `resultSummary` is the
+ * operation invocation's JSON value truncated to the same limit; and
+ * `errorMessage` carries the thrown message when execution failed without a
+ * shell exit code. `truncated` is true whenever any captured stream or
+ * summary was cut.
+ */
+export interface PlaybookRunExecutionEvidence {
+  form: "operation" | "command";
+  operation: string | null;
+  command: string | null;
+  exitCode: number | null;
+  stdoutTail: string | null;
+  stderrTail: string | null;
+  resultSummary: string | null;
+  errorMessage: string | null;
+  truncated: boolean;
+}
+
+/** Character cap for captured stdout/stderr tails and operation result summaries. */
+export const PLAYBOOK_RUN_OUTPUT_EVIDENCE_LIMIT = 4000;
+
+/**
  * Captured evidence format (PRD 35 D9 implementer decision, recorded here).
  *
  * Every mutating progression operation appends one structured
@@ -124,6 +152,28 @@ export interface PlaybookRunEvidenceRecord {
   recordedAt: string;
   refs: string[];
   note: string | null;
+  /** Structured deterministic-execution result; present only when the engine executed the step itself (R-MODE-1). */
+  execution?: PlaybookRunExecutionEvidence;
+}
+
+/**
+ * Staleness marker set by the digest-checked `playbook.resume` (W18 R7 P3;
+ * PRD 35 R-RESUME-1, D9 implementer decision recorded here): when the stored
+ * source digest no longer matches the current Playbook digest, the run is
+ * marked stale with both digests and the step-identifier diff computable
+ * from the current model, and it blocks — `playbook.advance` and
+ * `playbook.gate` refuse a stale run until an explicit re-plan
+ * (`playbook.start` against the current source) or the explicit opt-in
+ * migration on `playbook.resume` clears the marker. A `null`/absent marker
+ * means the run has never been detected stale (records created before this
+ * field read as fresh; the next digest-checked resume decides).
+ */
+export interface PlaybookRunStaleness {
+  detectedAt: string;
+  storedDigest: string;
+  currentDigest: string;
+  addedStepIds: string[];
+  removedStepIds: string[];
 }
 
 export interface PlaybookChildRunRecord {
@@ -167,6 +217,8 @@ export interface PlaybookRunState {
   /** Per-event evidence attribution appended by the progression operations. */
   evidenceLog: PlaybookRunEvidenceRecord[];
   cursor: PlaybookRunCursor | null;
+  /** Digest-mismatch marker (R-RESUME-1); null or absent while the run is fresh. */
+  staleness?: PlaybookRunStaleness | null;
   childPolicy: PlaybookChildPolicy;
   concurrencyPolicy: PlaybookConcurrencyPolicy;
   childRuns: PlaybookChildRunRecord[];
@@ -275,6 +327,7 @@ export function createPlaybookRunState(
       cursor:
         cursorFrom(input.currentStep ?? null, input.currentGate ?? null) ??
         initialPlaybookRunCursor(model),
+      staleness: null,
       childPolicy: entry.run.childPlaybooks,
       concurrencyPolicy: entry.run.concurrency,
       childRuns: [],

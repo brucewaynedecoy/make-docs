@@ -245,9 +245,15 @@ describe("make-docs run command (W18 R11, R-REG-2, R-TOP-3)", () => {
     await expect(runRunCommand(["playbook", "advance"])).rejects.toThrow(
       /`playbook advance` requires --run-id/,
     );
+    // --outcome is optional as of W18 R7 P3: without it the step's execution
+    // mode decides what advance does (R-MODE-1), so the adapter passes the
+    // call through to the engine, which then fails on the missing run
+    // identity rather than on a missing flag.
+    const bareRoot = createTempDir("make-docs-run-cli-advance-");
+    tempRoots.push(bareRoot);
     await expect(
-      runRunCommand(["playbook", "advance", "--run-id", "run-1"]),
-    ).rejects.toThrow(/`playbook advance` requires --outcome/);
+      runRunCommand(["playbook", "advance", "--run-id", "run-1", "--repo-root", bareRoot]),
+    ).rejects.toThrow(/Cannot use the global store/);
     await expect(
       runRunCommand(["playbook", "close", "--run-id", "run-1"]),
     ).rejects.toThrow(/`playbook close` requires --terminal-status/);
@@ -297,7 +303,11 @@ describe("make-docs run command (W18 R11, R-REG-2, R-TOP-3)", () => {
         "--evidence-ref",
         "docs/prd/35-revise-run-playbook-state-machine.md",
       ]);
-      expect(advanced.cursor).toEqual({ kind: "gate", id: "review" });
+      expect((advanced.execution as Record<string, unknown>).action).toBe("recorded");
+      expect((advanced.state as Record<string, unknown>).cursor).toEqual({
+        kind: "gate",
+        id: "review",
+      });
 
       const gated = await invoke(["playbook", "gate", "--decision", "approve"]);
       expect(gated.cursor).toEqual({ kind: "step", id: "record" });

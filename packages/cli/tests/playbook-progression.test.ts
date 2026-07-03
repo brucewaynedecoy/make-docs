@@ -100,7 +100,7 @@ function workflowPlaybook(input: {
 /**
  * Linear workflow: `check` (deterministic cli step requiring make-docs-cli),
  * `review` (human gate), `hook` (event-bound, never cursor-eligible), and
- * `record` (delegated agent step).
+ * `record` (agent step with NO declared mode: the R-MODE-2 delegated default).
  */
 const LINEAR_STEPS = [
   "  - id: check",
@@ -137,6 +137,17 @@ const LINEAR_STEPS = [
   "    instructions: Record the handoff artifact.",
 ];
 
+/** LINEAR_STEPS with the trailing `record` step swapped for a new `extra` step (digest-mismatch fixture). */
+const CHANGED_LINEAR_STEPS = [
+  ...LINEAR_STEPS.slice(0, LINEAR_STEPS.indexOf("  - id: record")),
+  "  - id: extra",
+  "    title: Extra follow-up",
+  "    executor: agent",
+  "    role: activity",
+  "    activation: sequential",
+  "    instructions: Perform the extra follow-up.",
+];
+
 /** Graph workflow: `build` routes to `verify` on success and `remediate` on failure. */
 const GRAPH_STEPS = [
   "  - id: build",
@@ -168,7 +179,44 @@ const GRAPH_STEPS = [
   "      stop: true",
 ];
 
-describe.skipIf(!sqliteAvailable)("run playbook progression engine (W18 R7 P2)", () => {
+/** Deterministic external-command steps (R-MODE-1 `command` form). */
+function commandSteps(run: string): string[] {
+  return [
+    "  - id: shell",
+    "    title: Run the shell check",
+    "    executor: script",
+    "    role: check",
+    "    activation: sequential",
+    "    mode: deterministic",
+    "    command:",
+    `      run: ${run}`,
+    "  - id: wrap",
+    "    title: Wrap up",
+    "    executor: agent",
+    "    role: activity",
+    "    activation: sequential",
+    "    instructions: Wrap up the run.",
+  ];
+}
+
+/** A manual (documentation-only) step ahead of a delegated wrap-up step. */
+const MANUAL_STEPS = [
+  "  - id: read-notes",
+  "    title: Read the release notes",
+  "    executor: human",
+  "    role: activity",
+  "    activation: sequential",
+  "    mode: manual",
+  "    instructions: Read the release notes before continuing.",
+  "  - id: wrap",
+  "    title: Wrap up",
+  "    executor: agent",
+  "    role: activity",
+  "    activation: sequential",
+  "    instructions: Wrap up the run.",
+];
+
+describe.skipIf(!sqliteAvailable)("run playbook progression engine (W18 R7 P2/P3)", () => {
   const tempRoots: string[] = [];
 
   afterEach(() => {
@@ -219,6 +267,7 @@ describe.skipIf(!sqliteAvailable)("run playbook progression engine (W18 R7 P2)",
       expect.objectContaining({ id: "make-docs-cli", availability: "unknown" }),
     ]);
     expect(state.evidenceLog).toEqual([]);
+    expect(state.staleness).toBeNull();
   });
 
   test("start skips event-bound steps when seeding the initial cursor", () => {
@@ -287,10 +336,10 @@ describe.skipIf(!sqliteAvailable)("run playbook progression engine (W18 R7 P2)",
     expect(collectFiles(fixture.root)).toEqual(repoFilesBefore);
   });
 
-  test("a step whose mode is unspecified reports the delegated default (R-MODE-2)", () => {
+  test("a step whose mode is unspecified reports the delegated default (R-MODE-2)", async () => {
     const fixture = createFixture({ routing: "linear", steps: LINEAR_STEPS });
     startRun(fixture);
-    advancePlaybookRun({
+    await advancePlaybookRun({
       repoRoot: fixture.root,
       storeRoot: fixture.storeRoot,
       runId: "run-1",
@@ -312,12 +361,12 @@ describe.skipIf(!sqliteAvailable)("run playbook progression engine (W18 R7 P2)",
     expect(report.next?.mode).toBe("delegated");
   });
 
-  test("advance records evidence, transitions the step, and computes the next cursor (t5)", () => {
+  test("advance records a reported outcome with evidence and computes the next cursor (t5, P3 t1/t2 loop-closer)", async () => {
     const fixture = createFixture({ routing: "linear", steps: LINEAR_STEPS });
     startRun(fixture);
     const repoFilesBefore = collectFiles(fixture.root);
 
-    const state = advancePlaybookRun({
+    const { state, execution } = await advancePlaybookRun({
       repoRoot: fixture.root,
       storeRoot: fixture.storeRoot,
       runId: "run-1",
@@ -328,6 +377,17 @@ describe.skipIf(!sqliteAvailable)("run playbook progression engine (W18 R7 P2)",
       note: "Catalog check passed.",
     });
 
+    // A reported outcome on a deterministic step is the by-hand report: the
+    // engine records it instead of executing (R-MODE-1, R-TIER-1).
+    expect(execution).toEqual({
+      stepId: "check",
+      mode: "deterministic",
+      action: "recorded",
+      outcome: "completed",
+      presentedCommand: null,
+      instructions: null,
+      executionEvidence: null,
+    });
     expect(state.stepStatuses).toEqual([
       { stepId: "check", status: "completed" },
       { stepId: "review", status: "pending" },
@@ -357,10 +417,267 @@ describe.skipIf(!sqliteAvailable)("run playbook progression engine (W18 R7 P2)",
     expect(collectFiles(fixture.root)).toEqual(repoFilesBefore);
   });
 
-  test("next reports a gate position with the gate semantics surfaced", () => {
+  test("deterministic advance executes the step operation through the operation core (P3 t1)", async () => {
     const fixture = createFixture({ routing: "linear", steps: LINEAR_STEPS });
     startRun(fixture);
-    advancePlaybookRun({
+
+    const { state, execution } = await advancePlaybookRun({
+      repoRoot: fixture.root,
+      storeRoot: fixture.storeRoot,
+      runId: "run-1",
+    });
+
+    expect(execution.action).toBe("executed-operation");
+    expect(execution.mode).toBe("deterministic");
+    expect(execution.outcome).toBe("completed");
+    expect(execution.executionEvidence).toEqual(
+      expect.objectContaining({
+        form: "operation",
+        operation: "playbook.catalog",
+        command: null,
+        exitCode: null,
+        errorMessage: null,
+      }),
+    );
+    // The structured result of the operation ran against this run's repo.
+    expect(execution.executionEvidence?.resultSummary).toContain("user/flow");
+
+    // The structured result is captured as run evidence and the run
+    // transitions automatically (R-MODE-1).
+    expect(state.stepStatuses).toEqual(
+      expect.arrayContaining([{ stepId: "check", status: "completed" }]),
+    );
+    expect(state.evidenceLog.at(-1)).toEqual(
+      expect.objectContaining({
+        scope: "step",
+        subjectId: "check",
+        outcome: "completed",
+        execution: expect.objectContaining({ form: "operation", operation: "playbook.catalog" }),
+      }),
+    );
+    expect(state.cursor).toEqual({ kind: "gate", id: "review" });
+    expect(state.status).toBe("waiting-for-user");
+  });
+
+  test("deterministic advance executes an external command through the shell (P3 t1)", async () => {
+    const fixture = createFixture({
+      routing: "linear",
+      steps: commandSteps("node -e \"console.log('shell-ok')\""),
+    });
+    startRun(fixture);
+
+    const { state, execution } = await advancePlaybookRun({
+      repoRoot: fixture.root,
+      storeRoot: fixture.storeRoot,
+      runId: "run-1",
+    });
+
+    expect(execution.action).toBe("executed-command");
+    expect(execution.outcome).toBe("completed");
+    expect(execution.executionEvidence).toEqual(
+      expect.objectContaining({
+        form: "command",
+        operation: null,
+        command: "node -e \"console.log('shell-ok')\"",
+        exitCode: 0,
+        errorMessage: null,
+        truncated: false,
+      }),
+    );
+    expect(execution.executionEvidence?.stdoutTail).toContain("shell-ok");
+    expect(state.stepStatuses).toEqual(
+      expect.arrayContaining([{ stepId: "shell", status: "completed" }]),
+    );
+    expect(state.cursor).toEqual({ kind: "step", id: "wrap" });
+    expect(state.status).toBe("running");
+  });
+
+  test("a failing deterministic command records failed evidence and blocks without a failure route (P3 t1)", async () => {
+    const fixture = createFixture({
+      routing: "linear",
+      steps: commandSteps("node -e \"console.error('shell-broke'); process.exit(3)\""),
+    });
+    startRun(fixture);
+
+    const { state, execution } = await advancePlaybookRun({
+      repoRoot: fixture.root,
+      storeRoot: fixture.storeRoot,
+      runId: "run-1",
+    });
+
+    expect(execution.action).toBe("executed-command");
+    expect(execution.outcome).toBe("failed");
+    expect(execution.executionEvidence).toEqual(
+      expect.objectContaining({ form: "command", exitCode: 3 }),
+    );
+    expect(execution.executionEvidence?.stderrTail).toContain("shell-broke");
+    // The failure transitions exactly like a reported failure: no failure
+    // route in a linear workflow means the run blocks at the step.
+    expect(state.stepStatuses).toEqual(
+      expect.arrayContaining([{ stepId: "shell", status: "failed" }]),
+    );
+    expect(state.cursor).toEqual({ kind: "step", id: "shell" });
+    expect(state.status).toBe("blocked");
+    expect(state.evidenceLog.at(-1)).toEqual(
+      expect.objectContaining({
+        outcome: "failed",
+        execution: expect.objectContaining({ exitCode: 3 }),
+      }),
+    );
+  });
+
+  test("the CLI-absent deterministic path presents the derived human command form (P3 t2, R-TIER-1)", async () => {
+    const fixture = createFixture({ routing: "linear", steps: LINEAR_STEPS });
+    startRun(fixture);
+
+    const presented = await advancePlaybookRun({
+      repoRoot: fixture.root,
+      storeRoot: fixture.storeRoot,
+      runId: "run-1",
+      present: true,
+    });
+
+    // The command form derives from the operation registry identifier —
+    // never a hand-maintained string.
+    expect(presented.execution.action).toBe("presented-command");
+    expect(presented.execution.presentedCommand).toBe("make-docs run playbook catalog");
+    expect(presented.execution.outcome).toBeNull();
+    // The step holds for the by-hand execution; the cursor does not move.
+    expect(presented.state.cursor).toEqual({ kind: "step", id: "check" });
+    expect(presented.state.status).toBe("waiting-for-user");
+    expect(presented.state.stepStatuses).toEqual(
+      expect.arrayContaining([{ stepId: "check", status: "waiting-for-user" }]),
+    );
+    expect(presented.state.evidenceLog.at(-1)).toEqual(
+      expect.objectContaining({
+        scope: "step",
+        subjectId: "check",
+        outcome: "waiting-for-user",
+        note: expect.stringContaining("make-docs run playbook catalog"),
+      }),
+    );
+    expect(presented.state.resumeHints.join(" ")).toContain("make-docs run playbook catalog");
+
+    // A repeated presentation holds again without duplicating the evidence.
+    const repeated = await advancePlaybookRun({
+      repoRoot: fixture.root,
+      storeRoot: fixture.storeRoot,
+      runId: "run-1",
+      present: true,
+    });
+    expect(repeated.state.evidenceLog).toHaveLength(presented.state.evidenceLog.length);
+
+    // The reader ran the command by hand; a later advance reports the outcome.
+    const reported = await advancePlaybookRun({
+      repoRoot: fixture.root,
+      storeRoot: fixture.storeRoot,
+      runId: "run-1",
+      outcome: "completed",
+      evidenceRefs: ["by-hand-transcript.txt"],
+    });
+    expect(reported.execution.action).toBe("recorded");
+    expect(reported.state.cursor).toEqual({ kind: "gate", id: "review" });
+  });
+
+  test("delegated advance presents instructions and holds until a reported outcome (P3 t3, t5)", async () => {
+    const fixture = createFixture({ routing: "linear", steps: LINEAR_STEPS });
+    startRun(fixture);
+    await advancePlaybookRun({
+      repoRoot: fixture.root,
+      storeRoot: fixture.storeRoot,
+      runId: "run-1",
+      outcome: "completed",
+    });
+    recordPlaybookRunGate({
+      repoRoot: fixture.root,
+      storeRoot: fixture.storeRoot,
+      runId: "run-1",
+      decision: "approve",
+    });
+
+    // `record` declares no mode: the R-MODE-2 default is delegated.
+    const held = await advancePlaybookRun({
+      repoRoot: fixture.root,
+      storeRoot: fixture.storeRoot,
+      runId: "run-1",
+    });
+    expect(held.execution).toEqual(
+      expect.objectContaining({
+        stepId: "record",
+        mode: "delegated",
+        action: "presented-instructions",
+        outcome: null,
+        presentedCommand: null,
+        // The same instructions are usable directly without the CLI.
+        instructions: "Record the handoff artifact.",
+      }),
+    );
+    expect(held.state.cursor).toEqual({ kind: "step", id: "record" });
+    expect(held.state.status).toBe("waiting-for-user");
+    expect(held.state.stepStatuses).toEqual(
+      expect.arrayContaining([{ stepId: "record", status: "waiting-for-user" }]),
+    );
+
+    // The run advances only on a subsequent advance carrying the reported
+    // outcome and evidence (R-MODE-1).
+    const reported = await advancePlaybookRun({
+      repoRoot: fixture.root,
+      storeRoot: fixture.storeRoot,
+      runId: "run-1",
+      outcome: "completed",
+      evidenceRefs: ["handoff-artifact.md"],
+      note: "Handoff recorded.",
+    });
+    expect(reported.execution.action).toBe("recorded");
+    expect(reported.state.stepStatuses).toEqual(
+      expect.arrayContaining([{ stepId: "record", status: "completed" }]),
+    );
+    expect(reported.state.cursor).toBeNull();
+    expect(reported.state.evidenceLog.at(-1)).toEqual(
+      expect.objectContaining({
+        subjectId: "record",
+        outcome: "completed",
+        refs: ["handoff-artifact.md"],
+      }),
+    );
+  });
+
+  test("manual advance records acknowledgment only and executes nothing (P3 t4)", async () => {
+    const fixture = createFixture({ routing: "linear", steps: MANUAL_STEPS });
+    startRun(fixture);
+    const input = { repoRoot: fixture.root, storeRoot: fixture.storeRoot, runId: "run-1" };
+
+    // Without the acknowledgment flag a manual step refuses to move —
+    // including via a reported outcome, because nothing executes (R-MODE-1).
+    await expect(advancePlaybookRun(input)).rejects.toThrow(/documentation only/);
+    await expect(advancePlaybookRun({ ...input, outcome: "completed" })).rejects.toThrow(
+      /documentation only/,
+    );
+
+    const acknowledged = await advancePlaybookRun({ ...input, acknowledge: true });
+    expect(acknowledged.execution).toEqual({
+      stepId: "read-notes",
+      mode: "manual",
+      action: "acknowledged",
+      outcome: "completed",
+      presentedCommand: null,
+      instructions: null,
+      executionEvidence: null,
+    });
+    expect(acknowledged.state.stepStatuses).toEqual(
+      expect.arrayContaining([{ stepId: "read-notes", status: "completed" }]),
+    );
+    expect(acknowledged.state.cursor).toEqual({ kind: "step", id: "wrap" });
+    // Acknowledgment on a non-manual step is refused.
+    await expect(advancePlaybookRun({ ...input, acknowledge: true })).rejects.toThrow(
+      /acknowledgment is recorded only for `manual` steps/,
+    );
+  });
+
+  test("next reports a gate position with the gate semantics surfaced", async () => {
+    const fixture = createFixture({ routing: "linear", steps: LINEAR_STEPS });
+    startRun(fixture);
+    await advancePlaybookRun({
       repoRoot: fixture.root,
       storeRoot: fixture.storeRoot,
       runId: "run-1",
@@ -382,10 +699,10 @@ describe.skipIf(!sqliteAvailable)("run playbook progression engine (W18 R7 P2)",
     expect(report.guidance.join(" ")).toContain("playbook.gate");
   });
 
-  test("gate approve records the decision with evidence and unblocks past the gate (t6)", () => {
+  test("gate approve records the decision with evidence and unblocks past the gate (t6)", async () => {
     const fixture = createFixture({ routing: "linear", steps: LINEAR_STEPS });
     startRun(fixture);
-    advancePlaybookRun({
+    await advancePlaybookRun({
       repoRoot: fixture.root,
       storeRoot: fixture.storeRoot,
       runId: "run-1",
@@ -421,10 +738,10 @@ describe.skipIf(!sqliteAvailable)("run playbook progression engine (W18 R7 P2)",
     expect(state.status).toBe("running");
   });
 
-  test("gate reject records the decision and stops the run (t6)", () => {
+  test("gate reject records the decision and stops the run (t6)", async () => {
     const fixture = createFixture({ routing: "linear", steps: LINEAR_STEPS });
     startRun(fixture);
-    advancePlaybookRun({
+    await advancePlaybookRun({
       repoRoot: fixture.root,
       storeRoot: fixture.storeRoot,
       runId: "run-1",
@@ -458,24 +775,26 @@ describe.skipIf(!sqliteAvailable)("run playbook progression engine (W18 R7 P2)",
     expect(report.eligible).toBe(false);
   });
 
-  test("a failed step without a failure route blocks and can be retried after resume", () => {
+  test("a failed step without a failure route blocks and can be retried after resume", async () => {
     const fixture = createFixture({ routing: "linear", steps: LINEAR_STEPS });
     startRun(fixture);
 
-    const failed = advancePlaybookRun({
+    const failed = await advancePlaybookRun({
       repoRoot: fixture.root,
       storeRoot: fixture.storeRoot,
       runId: "run-1",
       outcome: "failed",
       evidenceRefs: ["failure-log.txt"],
     });
-    expect(failed.status).toBe("blocked");
-    expect(failed.cursor).toEqual({ kind: "step", id: "check" });
-    expect(failed.stepStatuses).toEqual(
+    expect(failed.state.status).toBe("blocked");
+    expect(failed.state.cursor).toEqual({ kind: "step", id: "check" });
+    expect(failed.state.stepStatuses).toEqual(
       expect.arrayContaining([{ stepId: "check", status: "failed" }]),
     );
-    expect(failed.resumeHints.join(" ")).toContain("failed");
+    expect(failed.state.resumeHints.join(" ")).toContain("failed");
 
+    // The source is unchanged, so the digest-checked resume re-enters at the
+    // stored cursor (R-RESUME-1 match case).
     const resumed = resumePlaybookRun({
       repoRoot: fixture.root,
       storeRoot: fixture.storeRoot,
@@ -484,87 +803,184 @@ describe.skipIf(!sqliteAvailable)("run playbook progression engine (W18 R7 P2)",
     });
     expect(resumed.status).toBe("running");
     expect(resumed.cursor).toEqual({ kind: "step", id: "check" });
+    expect(resumed.staleness).toBeNull();
     expect(resumed.resumeHints).toContain("Retrying after fixing the catalog.");
     expect(resumed.evidenceLog.at(-1)).toEqual(
       expect.objectContaining({ scope: "resume", subjectId: "run-1", outcome: "running" }),
     );
 
-    const retried = advancePlaybookRun({
+    const retried = await advancePlaybookRun({
       repoRoot: fixture.root,
       storeRoot: fixture.storeRoot,
       runId: "run-1",
       outcome: "completed",
     });
-    expect(retried.cursor).toEqual({ kind: "gate", id: "review" });
-    expect(retried.stepStatuses).toEqual(
+    expect(retried.state.cursor).toEqual({ kind: "gate", id: "review" });
+    expect(retried.state.stepStatuses).toEqual(
       expect.arrayContaining([{ stepId: "check", status: "completed" }]),
     );
   });
 
-  test("resume is a Phase 2 shell: it does not block on a changed source digest yet", () => {
+  test("resume with a mismatched digest marks the run stale, blocks, and names the change (P3 t6, t7)", async () => {
+    const fixture = createFixture({ routing: "linear", steps: LINEAR_STEPS });
+    const { state: started } = startRun(fixture);
+    const input = { repoRoot: fixture.root, storeRoot: fixture.storeRoot, runId: "run-1" };
+
+    // Change the Playbook source after the run captured its digest: the
+    // `record` step is removed and an `extra` step is added.
+    writeFile(
+      fixture.root,
+      "docs/assets/playbooks/user/flow.playbook.md",
+      workflowPlaybook({ slug: "flow", title: "Flow", routing: "linear", steps: CHANGED_LINEAR_STEPS }),
+    );
+
+    // The diagnostic names the change: both digests plus the step-level diff.
+    expect(() => resumePlaybookRun(input)).toThrow(/is stale/);
+    let diagnostic = "";
+    try {
+      resumePlaybookRun(input);
+    } catch (error) {
+      diagnostic = (error as Error).message;
+    }
+    expect(diagnostic).toContain(started.sourceDigest);
+    expect(diagnostic).toContain("added: `extra`");
+    expect(diagnostic).toContain("removed: `record`");
+    expect(diagnostic).toContain("never silently re-enters a changed workflow");
+    expect(diagnostic).toContain("playbook.start");
+    expect(diagnostic).toContain("migrate");
+
+    // The run is durably marked stale and blocked; the mismatch is evidence.
+    const stale = readPlaybookRunState(input);
+    expect(stale.status).toBe("blocked");
+    expect(stale.staleness).toEqual({
+      detectedAt: expect.any(String),
+      storedDigest: started.sourceDigest,
+      currentDigest: expect.stringMatching(/^[0-9a-f]{64}$/),
+      addedStepIds: ["extra"],
+      removedStepIds: ["record"],
+    });
+    expect(stale.staleness?.currentDigest).not.toBe(started.sourceDigest);
+    expect(stale.evidenceLog.at(-1)).toEqual(
+      expect.objectContaining({ scope: "resume", outcome: "blocked" }),
+    );
+
+    // A stale run refuses step and gate transitions until re-planned or migrated.
+    await expect(advancePlaybookRun({ ...input, outcome: "completed" })).rejects.toThrow(
+      /is stale against its Playbook source/,
+    );
+    expect(() => recordPlaybookRunGate({ ...input, decision: "approve" })).toThrow(
+      /is stale against its Playbook source/,
+    );
+
+    // Reverting the source restores the digest match: resume clears the marker.
+    writeFile(
+      fixture.root,
+      "docs/assets/playbooks/user/flow.playbook.md",
+      workflowPlaybook({ slug: "flow", title: "Flow", routing: "linear", steps: LINEAR_STEPS }),
+    );
+    const recovered = resumePlaybookRun(input);
+    expect(recovered.staleness).toBeNull();
+    expect(recovered.status).toBe("running");
+    expect(recovered.cursor).toEqual({ kind: "step", id: "check" });
+  });
+
+  test("a prose-only source change still blocks resume and says the step ids are unchanged (P3 t7)", () => {
     const fixture = createFixture({ routing: "linear", steps: LINEAR_STEPS });
     startRun(fixture);
-    advancePlaybookRun({
-      repoRoot: fixture.root,
-      storeRoot: fixture.storeRoot,
-      runId: "run-1",
-      outcome: "failed",
-    });
-    // Change the Playbook source after the run captured its digest. The
-    // digest-checked block is the W18 R7 Phase 3 seam in resumePlaybookRun;
-    // Phase 2 deliberately reopens without comparing digests.
+    const input = { repoRoot: fixture.root, storeRoot: fixture.storeRoot, runId: "run-1" };
     writeFile(
       fixture.root,
       "docs/assets/playbooks/user/flow.playbook.md",
       `${workflowPlaybook({ slug: "flow", title: "Flow", routing: "linear", steps: LINEAR_STEPS })}\n<!-- amended -->\n`,
     );
 
-    const resumed = resumePlaybookRun({
-      repoRoot: fixture.root,
-      storeRoot: fixture.storeRoot,
-      runId: "run-1",
-    });
-    expect(resumed.status).toBe("running");
+    expect(() => resumePlaybookRun(input)).toThrow(
+      /no workflow step identifiers were added or removed/,
+    );
+    const stale = readPlaybookRunState(input);
+    expect(stale.status).toBe("blocked");
+    expect(stale.staleness).toEqual(
+      expect.objectContaining({ addedStepIds: [], removedStepIds: [] }),
+    );
   });
 
-  test("graph routing follows on_failure, on_success, and stop declarations (t2, t5)", () => {
+  test("resume migration is an explicit opt-in that re-maps still-present steps (P3 t8, R-RESUME-2)", async () => {
+    const fixture = createFixture({ routing: "linear", steps: LINEAR_STEPS });
+    const { state: started } = startRun(fixture);
+    const input = { repoRoot: fixture.root, storeRoot: fixture.storeRoot, runId: "run-1" };
+    writeFile(
+      fixture.root,
+      "docs/assets/playbooks/user/flow.playbook.md",
+      workflowPlaybook({ slug: "flow", title: "Flow", routing: "linear", steps: CHANGED_LINEAR_STEPS }),
+    );
+
+    const migrated = resumePlaybookRun({ ...input, migrate: true });
+
+    // Still-present step identifiers keep their statuses; added steps seed
+    // pending; removed steps drop; the surviving cursor stays put.
+    expect(migrated.stepStatuses).toEqual([
+      { stepId: "check", status: "pending" },
+      { stepId: "review", status: "pending" },
+      { stepId: "hook", status: "pending" },
+      { stepId: "extra", status: "pending" },
+    ]);
+    expect(migrated.cursor).toEqual({ kind: "step", id: "check" });
+    expect(migrated.status).toBe("running");
+    expect(migrated.staleness).toBeNull();
+    expect(migrated.sourceDigest).not.toBe(started.sourceDigest);
+    expect(migrated.sourceDigest).toMatch(/^[0-9a-f]{64}$/);
+    expect(migrated.evidenceLog.at(-1)).toEqual(
+      expect.objectContaining({
+        scope: "resume",
+        note: expect.stringContaining("migrated"),
+      }),
+    );
+    expect(migrated.evidenceLog.at(-1)?.note).toContain("added: `extra`");
+    expect(migrated.evidenceLog.at(-1)?.note).toContain("removed: `record`");
+
+    // The migrated run progresses against the current workflow.
+    const advanced = await advancePlaybookRun({ ...input, outcome: "completed" });
+    expect(advanced.state.cursor).toEqual({ kind: "gate", id: "review" });
+  });
+
+  test("graph routing follows on_failure, on_success, and stop declarations (t2, t5)", async () => {
     const fixture = createFixture({ routing: "graph", steps: GRAPH_STEPS });
     const { state } = startRun(fixture);
     expect(state.routingModel).toBe("graph");
     expect(state.cursor).toEqual({ kind: "step", id: "build" });
 
-    const rerouted = advancePlaybookRun({
+    const rerouted = await advancePlaybookRun({
       repoRoot: fixture.root,
       storeRoot: fixture.storeRoot,
       runId: "run-1",
       outcome: "failed",
       evidenceRefs: ["build-log.txt"],
     });
-    expect(rerouted.cursor).toEqual({ kind: "step", id: "remediate" });
-    expect(rerouted.status).toBe("running");
-    expect(rerouted.stepStatuses).toEqual(
+    expect(rerouted.state.cursor).toEqual({ kind: "step", id: "remediate" });
+    expect(rerouted.state.status).toBe("running");
+    expect(rerouted.state.stepStatuses).toEqual(
       expect.arrayContaining([{ stepId: "build", status: "failed" }]),
     );
 
-    const remediated = advancePlaybookRun({
+    const remediated = await advancePlaybookRun({
       repoRoot: fixture.root,
       storeRoot: fixture.storeRoot,
       runId: "run-1",
       outcome: "completed",
     });
-    expect(remediated.cursor).toEqual({ kind: "step", id: "verify" });
+    expect(remediated.state.cursor).toEqual({ kind: "step", id: "verify" });
 
-    const verified = advancePlaybookRun({
+    const verified = await advancePlaybookRun({
       repoRoot: fixture.root,
       storeRoot: fixture.storeRoot,
       runId: "run-1",
       outcome: "completed",
     });
     // `stop: true` drops the cursor; only playbook.close finalizes.
-    expect(verified.cursor).toBeNull();
-    expect(verified.status).toBe("waiting-for-user");
-    expect(verified.terminalStatus).toBeNull();
-    expect(verified.resumeHints.join(" ")).toContain("playbook.close");
+    expect(verified.state.cursor).toBeNull();
+    expect(verified.state.status).toBe("waiting-for-user");
+    expect(verified.state.terminalStatus).toBeNull();
+    expect(verified.state.resumeHints.join(" ")).toContain("playbook.close");
 
     const report = computePlaybookRunNext({
       repoRoot: fixture.root,
@@ -575,7 +991,7 @@ describe.skipIf(!sqliteAvailable)("run playbook progression engine (W18 R7 P2)",
     expect(report.next).toBeNull();
   });
 
-  test("close finalizes with a terminal status and closeout evidence, exactly once (t7)", () => {
+  test("close finalizes with a terminal status and closeout evidence, exactly once (t7)", async () => {
     const fixture = createFixture({ routing: "linear", steps: LINEAR_STEPS });
     startRun(fixture);
 
@@ -605,7 +1021,7 @@ describe.skipIf(!sqliteAvailable)("run playbook progression engine (W18 R7 P2)",
     expect(() => closePlaybookRun({ ...input, terminalStatus: "completed" })).toThrow(
       /closed with terminal status `cancelled`/,
     );
-    expect(() => advancePlaybookRun({ ...input, outcome: "completed" })).toThrow(
+    await expect(advancePlaybookRun({ ...input, outcome: "completed" })).rejects.toThrow(
       /cannot be advanced/,
     );
     expect(() => recordPlaybookRunGate({ ...input, decision: "approve" })).toThrow(
@@ -619,20 +1035,24 @@ describe.skipIf(!sqliteAvailable)("run playbook progression engine (W18 R7 P2)",
     expect(report.next).toBeNull();
   });
 
-  test("advance refuses gate cursors, cursor mismatches, and cursorless runs (t8 hygiene)", () => {
+  test("advance refuses gate cursors, cursor mismatches, and cursorless runs (t8 hygiene)", async () => {
     const fixture = createFixture({ routing: "linear", steps: LINEAR_STEPS });
     startRun(fixture);
     const input = { repoRoot: fixture.root, storeRoot: fixture.storeRoot, runId: "run-1" };
 
-    expect(() => advancePlaybookRun({ ...input, stepId: "record", outcome: "completed" })).toThrow(
-      /not the current cursor step `check`/,
-    );
+    await expect(
+      advancePlaybookRun({ ...input, stepId: "record", outcome: "completed" }),
+    ).rejects.toThrow(/not the current cursor step `check`/);
     expect(() => recordPlaybookRunGate({ ...input, decision: "approve" })).toThrow(
       /not positioned at a gate/,
     );
+    // Presenting and reporting in the same call is refused.
+    await expect(
+      advancePlaybookRun({ ...input, outcome: "completed", present: true }),
+    ).rejects.toThrow(/mutually exclusive/);
 
-    advancePlaybookRun({ ...input, outcome: "completed" });
-    expect(() => advancePlaybookRun({ ...input, outcome: "completed" })).toThrow(
+    await advancePlaybookRun({ ...input, outcome: "completed" });
+    await expect(advancePlaybookRun({ ...input, outcome: "completed" })).rejects.toThrow(
       /record the decision with `playbook\.gate`/,
     );
     expect(() =>
@@ -744,10 +1164,12 @@ describe.skipIf(!sqliteAvailable)("run playbook progression engine (W18 R7 P2)",
       { ...input, outcome: "completed", evidenceRefs: ["registry-evidence.md"] },
       writeContext,
     );
-    expect((advanced.value as { cursor: unknown }).cursor).toEqual({
-      kind: "gate",
-      id: "review",
-    });
+    const advancedResult = advanced.value as {
+      state: { cursor: unknown };
+      execution: { action: string };
+    };
+    expect(advancedResult.execution.action).toBe("recorded");
+    expect(advancedResult.state.cursor).toEqual({ kind: "gate", id: "review" });
     const gated = await invokeOperation(
       "playbook.gate",
       { ...input, decision: "approve" },

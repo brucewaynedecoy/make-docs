@@ -19,6 +19,7 @@ import {
   hasOperation,
   invokeOperation,
   listOperations,
+  operationCliPath,
   type OperationDescriptor,
 } from "../operations/registry";
 import { OperationError, type JsonValue } from "../operations/types";
@@ -41,10 +42,8 @@ interface RunCliInvocation {
 
 type RunCliAdapter = (options: OperationOptions) => RunCliInvocation;
 
-/** CLI display form of an identifier: dot segments as argv tokens. */
-function operationPath(id: string): string {
-  return id.split(".").join(" ");
-}
+/** CLI display form of an identifier, from the registry's single derivation rule. */
+const operationPath = operationCliPath;
 
 function resolveRepoRoot(options: OperationOptions): string {
   return path.resolve(options.values["repo-root"] ?? ".");
@@ -196,7 +195,12 @@ const RUN_CLI_ADAPTERS: Record<string, RunCliAdapter> = {
       ...optionalPathValue(options, "store-root", "storeRoot"),
       runId: requiredValue(options, "run-id", operationPath("playbook.advance")),
       stepId: options.values.step,
-      outcome: requiredValue(options, "outcome", operationPath("playbook.advance")),
+      // Optional: absent, the step's execution mode decides what advance
+      // does (R-MODE-1) — deterministic executes, delegated holds, manual
+      // requires --acknowledge.
+      outcome: options.values.outcome,
+      ...(options.booleans.has("acknowledge") ? { acknowledge: true } : {}),
+      ...(options.booleans.has("present") ? { present: true } : {}),
       evidenceRefs: options.arrays["evidence-ref"] ?? [],
       outputRefs: options.arrays["output-ref"] ?? [],
       note: options.values.note,
@@ -221,6 +225,8 @@ const RUN_CLI_ADAPTERS: Record<string, RunCliAdapter> = {
       resumeHints: options.arrays["resume-hint"] ?? [],
       evidenceRefs: options.arrays["evidence-ref"] ?? [],
       note: options.values.note,
+      // Explicit opt-in step re-mapping after a digest mismatch (R-RESUME-2).
+      ...(options.booleans.has("migrate") ? { migrate: true } : {}),
     },
   }),
   "playbook.close": (options) => ({

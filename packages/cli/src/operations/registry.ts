@@ -69,6 +69,28 @@ export function operationDomain(id: string): string {
   return id.split(".", 1)[0]!;
 }
 
+/**
+ * CLI display path of an identifier: its dot segments as argv tokens under
+ * `make-docs run` (`playbook.catalog` -> `playbook catalog`). This is the
+ * single derivation rule the `run` command tree is built from (R-REG-2);
+ * surfaces and the runner reuse it rather than hand-maintaining command
+ * strings.
+ */
+export function operationCliPath(id: string): string {
+  return id.split(".").join(" ");
+}
+
+/**
+ * The human CLI command form of a registered operation (R-TIER-1): the
+ * command a reader runs by hand when the runner cannot execute the operation
+ * itself. Derived from the registry identifier via {@link operationCliPath};
+ * throws for unknown identifiers so a Playbook step can never present a
+ * command the CLI does not accept.
+ */
+export function operationCliCommand(id: string): string {
+  return `make-docs run ${operationCliPath(getOperation(id).id)}`;
+}
+
 function assembleRegistry(): Map<string, OperationDefinition> {
   const registry = new Map<string, OperationDefinition>();
   const definitions: OperationDefinition[] = [
