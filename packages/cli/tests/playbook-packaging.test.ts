@@ -1,3 +1,13 @@
+/**
+ * W18 R5 playbook packaging rails: package plans, adapter declarations,
+ * surface resolution, and the output writer's review and lifecycle gates.
+ *
+ * EVIDENCE BOUNDARY (R-TEST-5): these are shape and gating assertions only.
+ * Real-harness recognition, installation, and invocation are proven only by
+ * the W18 R9 conformance design; nothing here may be read as evidence that a
+ * harness recognizes the generated output.
+ */
+
 import { existsSync, lstatSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { afterEach, describe, expect, test, vi } from "vitest";
@@ -947,6 +957,12 @@ describe("playbook packaging schema foundation", () => {
         "symlink-or-copy-mirror": "satisfied",
       },
     })).toThrow("Playbook package write stopped");
+    // Fail BEFORE write (R-GEN-2 ownership conflict, W18 R8 P5 t6): the
+    // locally modified generated output survives byte-for-byte.
+    expect(readFileSync(
+      path.join(root, ".make-docs/agentics/plugins/run-stack/.codex-plugin/plugin.json"),
+      "utf8",
+    )).toBe("{\"local\":\"edit\"}\n");
 
     const dryRun = writePlaybookPackageOutputs({
       repoRoot: root,

@@ -1,3 +1,14 @@
+/**
+ * W18 R8 P1 capability-descriptor coverage: the harness capability
+ * descriptors, the distributable model, container selection, and the
+ * skill-projection and implied-agentics derivations.
+ *
+ * EVIDENCE BOUNDARY (R-TEST-5): these are shape and gating assertions only.
+ * Real-harness recognition, installation, and invocation are proven only by
+ * the W18 R9 conformance design; nothing here may be read as evidence that a
+ * harness recognizes the generated output.
+ */
+
 import { execFileSync } from "node:child_process";
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";

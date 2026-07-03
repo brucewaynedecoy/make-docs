@@ -242,9 +242,17 @@ describe("packaging compiler distributable inventory (W18 R8 P2)", () => {
     });
 
     expect(result.status).toBe("written");
-    // Multi-file tree, not a single payload file.
+    // R-TEST-1 (W18 R8 P5 t1): the distributable is a multi-file,
+    // harness-native tree, not a Make Docs descriptor. The descriptor-era
+    // writer this wave deleted (`renderPackageContent`, removed in W18 R8 P2)
+    // emitted a single JSON payload of kind
+    // `make-docs.playbook-package.plugin` that no harness treats as
+    // installable; these assertions fail against that writer and pass against
+    // the Phase 2 compiler.
     expect(result.payloadFiles.length).toBeGreaterThan(5);
     expect(result.canonicalPath).toBe(".make-docs/agentics/plugins/rich-stack");
+    // The payload root is a directory tree, never a single payload file.
+    expect(statSync(path.join(root, result.canonicalPath)).isDirectory()).toBe(true);
     // The verified Codex plugin shape: a folder containing
     // `.codex-plugin/plugin.json` plus a marketplace registration file
     // (R-ADAPT-2; shape only, not recognition evidence — R-TEST-5).
@@ -258,11 +266,13 @@ describe("packaging compiler distributable inventory (W18 R8 P2)", () => {
       ".make-docs/dependencies.json",
       ".make-docs/registration.json",
     ]));
-    // R-COMP-1: no output file is a Make Docs descriptor; nothing carries a
-    // Make Docs kind as its manifest type.
+    // R-COMP-1/R-TEST-1 negative assertion: no emitted file carries a Make
+    // Docs descriptor kind as its manifest type — the exact defect shape the
+    // deleted `renderPackageContent` writer produced.
     for (const relativePath of result.payloadFiles) {
       const content = readFileSync(path.join(root, result.canonicalPath, relativePath), "utf8");
-      expect(content).not.toContain("\"kind\": \"make-docs");
+      expect(content, `${relativePath} must not be a Make Docs descriptor payload`)
+        .not.toContain("\"kind\": \"make-docs");
     }
     const harnessManifest = JSON.parse(readFileSync(
       path.join(root, result.canonicalPath, ".codex-plugin/plugin.json"),

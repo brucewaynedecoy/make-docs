@@ -15,6 +15,11 @@
  *   key, and even a granted opt-in yields generate-only with the withhold
  *   reasons declared — no auto-registration behavior ships enabled pending
  *   the W18 R9 evidence bar.
+ *
+ * EVIDENCE BOUNDARY (R-TEST-5): these are shape and gating assertions only.
+ * Real-harness recognition, installation, and invocation are proven only by
+ * the W18 R9 conformance design; nothing here may be read as evidence that a
+ * harness recognizes the generated output.
  */
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";

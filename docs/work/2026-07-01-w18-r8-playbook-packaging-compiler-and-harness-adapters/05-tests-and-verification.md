@@ -29,9 +29,9 @@ Land the D10 test suite: the harness-native-tree assertion, the Codex shape asse
 
 ### Tasks
 
-- [ ] t1: Assert that a generated distributable is a multi-file, harness-native tree and not a Make Docs descriptor (R-TEST-1).
-- [ ] t2: Assert that generated Codex plugin output contains `.codex-plugin/plugin.json` and a marketplace registration entry (R-TEST-2).
-- [ ] t3: Assert that Codex skills-bundle output uses `.agents/skills/{id}/SKILL.md` (R-TEST-2).
+- [x] t1: Assert that a generated distributable is a multi-file, harness-native tree and not a Make Docs descriptor (R-TEST-1).
+- [x] t2: Assert that generated Codex plugin output contains `.codex-plugin/plugin.json` and a marketplace registration entry (R-TEST-2).
+- [x] t3: Assert that Codex skills-bundle output uses `.agents/skills/{id}/SKILL.md` (R-TEST-2).
 
 ### Acceptance criteria
 
@@ -46,10 +46,10 @@ Land the D10 test suite: the harness-native-tree assertion, the Codex shape asse
 
 ### Tasks
 
-- [ ] t4: Cover adapter fail-closed behavior for an unknown harness, an unsupported output kind, and an unsupported surface, using the fixture adapter (R-TEST-3).
-- [ ] t5: Cover dependency materialization per kind, including that Make Docs `cli` dependency checks reference operation identifiers rather than command strings (R-TEST-4, R-DEPMAT-1).
-- [ ] t6: Cover the deterministic-versus-agent-assisted generation gate, including fail-before-write on unresolved semantic decisions, ownership conflicts, missing dependencies, unsupported surfaces, and missing conformance evidence (R-TEST-4, R-GEN-2).
-- [ ] t7: Cover provenance and ownership records and backup and uninstall cleanliness for generated outputs (R-TEST-4, R-PROV-1, R-PROV-2).
+- [x] t4: Cover adapter fail-closed behavior for an unknown harness, an unsupported output kind, and an unsupported surface, using the fixture adapter (R-TEST-3).
+- [x] t5: Cover dependency materialization per kind, including that Make Docs `cli` dependency checks reference operation identifiers rather than command strings (R-TEST-4, R-DEPMAT-1).
+- [x] t6: Cover the deterministic-versus-agent-assisted generation gate, including fail-before-write on unresolved semantic decisions, ownership conflicts, missing dependencies, unsupported surfaces, and missing conformance evidence (R-TEST-4, R-GEN-2).
+- [x] t7: Cover provenance and ownership records and backup and uninstall cleanliness for generated outputs (R-TEST-4, R-PROV-1, R-PROV-2).
 
 ### Acceptance criteria
 
@@ -64,8 +64,8 @@ Land the D10 test suite: the harness-native-tree assertion, the Codex shape asse
 
 ### Tasks
 
-- [ ] t8: Record in the test suite and its documentation that real-harness recognition, installation, and invocation are proven by the conformance design (planned as W18 R9), and that unit and integration tests here must not be read as evidence that a harness recognizes the output (R-TEST-5).
-- [ ] t9: Verify that no adapter support status advanced beyond provisional on the strength of this suite alone, and that support claims remain bound to the exact tuple (R-PROV-3, R-ADAPT-1).
+- [x] t8: Record in the test suite and its documentation that real-harness recognition, installation, and invocation are proven by the conformance design (planned as W18 R9), and that unit and integration tests here must not be read as evidence that a harness recognizes the output (R-TEST-5).
+- [x] t9: Verify that no adapter support status advanced beyond provisional on the strength of this suite alone, and that support claims remain bound to the exact tuple (R-PROV-3, R-ADAPT-1).
 
 ### Acceptance criteria
 
