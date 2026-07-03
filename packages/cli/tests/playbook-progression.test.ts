@@ -12,10 +12,79 @@ import {
 } from "../src/operations";
 import { createExecutionContext, OperationWriteDeniedError } from "../src/operations/context";
 import { invokeOperation } from "../src/operations/registry";
-import { loadSqliteDriver } from "../src/store";
+import { loadSqliteDriver, withStoreDatabase } from "../src/store";
 import { cleanupTempDir, collectFiles, createTempDir, writeMinimalManifest } from "./helpers";
 
 const sqliteAvailable = loadSqliteDriver().available;
+
+/*
+ * R-TEST-1 coverage matrix (W18 R7 P5 t1) — every progression operation has
+ * success AND failure transition coverage. Tests live in this file unless a
+ * file is named.
+ *
+ * playbook.start
+ * - success: "start seeds the initial cursor…", "start skips event-bound
+ *   steps…"; store keying + R-STATE-1 record content (playbook-operations);
+ *   MCP end-to-end (mcp-derivation).
+ * - failure: duplicate run id, unminted project identity, retired status
+ *   vocabulary (playbook-operations); guardrail stops — closed parent,
+ *   parallel capability, overlap at creation, unattended fail-closed,
+ *   unknown required capability (playbook-run-guardrails); write-permission
+ *   refusal (registry-playbook-ops).
+ *
+ * playbook.status
+ * - success: readPlaybookRunState throughout this file; MCP status read
+ *   (mcp-derivation).
+ * - failure: missing manifest (playbook-operations); missing run id ("every
+ *   progression operation fails closed on a missing run id").
+ *
+ * playbook.next
+ * - success: "next computes the current executable step…", gate/blocked/
+ *   closeable/closed position reports.
+ * - failure: missing run id; pseudo-cursor legacy run without a parsed
+ *   workflow ("progression requires the parsed workflow model…").
+ *
+ * playbook.advance
+ * - success: reported-outcome, deterministic operation/command, presented
+ *   command, delegated hold + report, manual acknowledgment tests.
+ * - failure: failing deterministic command blocks; cursor mismatch, gate
+ *   cursor, mutually exclusive flags; closed run; stale run; manual step
+ *   without acknowledgment; missing run id; output-surface overlap stop and
+ *   capability block (playbook-run-guardrails); write gating
+ *   (registry-playbook-ops).
+ *
+ * playbook.gate
+ * - success: "gate approve records the decision…", "gate reject records the
+ *   decision…", unattended auto-approve (playbook-run-guardrails).
+ * - failure: not positioned at a gate, wrong gate id; closed run; stale run;
+ *   missing run id; write gating (registry-playbook-ops).
+ *
+ * playbook.resume
+ * - success: digest match ("a failed step without a failure route…"),
+ *   explicit migration opt-in.
+ * - failure: digest mismatch blocks with the change named (two tests);
+ *   closed run; capability block (playbook-run-guardrails); missing run id;
+ *   write gating (registry-playbook-ops).
+ *
+ * playbook.close
+ * - success: "close finalizes with a terminal status…"; tier-three closeout
+ *   (playbook-three-tiers).
+ * - failure: already-closed run refuses a second close; missing run id;
+ *   write gating (registry-playbook-ops).
+ */
+
+/** The raw stored run-record row, unparsed, for byte-identical comparisons (t2). */
+function readRawRunRecord(
+  storeRoot: string,
+  projectId: string,
+  runId: string,
+): { record: string; updatedAt: string } | undefined {
+  return withStoreDatabase(storeRoot, (db) =>
+    db
+      .prepare("SELECT record, updated_at AS updatedAt FROM playbook_runs WHERE project_id = ? AND run_id = ?")
+      .get(projectId, runId),
+  ) as { record: string; updatedAt: string } | undefined;
+}
 
 function writeFile(root: string, relativePath: string, content: string): string {
   const absolutePath = path.join(root, relativePath);
@@ -297,6 +366,8 @@ describe.skipIf(!sqliteAvailable)("run playbook progression engine (W18 R7 P2/P3
       storeRoot: fixture.storeRoot,
       runId: "run-1",
     });
+    const rawBefore = readRawRunRecord(fixture.storeRoot, fixture.projectId, "run-1");
+    expect(rawBefore).toBeDefined();
 
     const report = computePlaybookRunNext({
       repoRoot: fixture.root,
@@ -333,7 +404,32 @@ describe.skipIf(!sqliteAvailable)("run playbook progression engine (W18 R7 P2/P3
     expect(
       readPlaybookRunState({ repoRoot: fixture.root, storeRoot: fixture.storeRoot, runId: "run-1" }),
     ).toEqual(stateBefore);
+    // The STORED record is byte-identical, not merely deep-equal after
+    // parsing: the raw JSON text and its updated-at stamp are untouched
+    // (R-OP-3, R-TEST-1).
+    const rawAfter = readRawRunRecord(fixture.storeRoot, fixture.projectId, "run-1");
+    expect(rawAfter?.record).toBe(rawBefore?.record);
+    expect(rawAfter?.updatedAt).toBe(rawBefore?.updatedAt);
     expect(collectFiles(fixture.root)).toEqual(repoFilesBefore);
+  });
+
+  test("every progression operation fails closed on a missing run id (t1, R-TEST-1)", async () => {
+    const fixture = createFixture({ routing: "linear", steps: LINEAR_STEPS });
+    const input = { repoRoot: fixture.root, storeRoot: fixture.storeRoot, runId: "missing-run" };
+    const missing = /No Playbook run state found for run id `missing-run`\./;
+
+    // status
+    expect(() => readPlaybookRunState(input)).toThrow(missing);
+    // next
+    expect(() => computePlaybookRunNext(input)).toThrow(missing);
+    // advance
+    await expect(advancePlaybookRun({ ...input, outcome: "completed" })).rejects.toThrow(missing);
+    // gate
+    expect(() => recordPlaybookRunGate({ ...input, decision: "approve" })).toThrow(missing);
+    // resume
+    expect(() => resumePlaybookRun(input)).toThrow(missing);
+    // close
+    expect(() => closePlaybookRun({ ...input, terminalStatus: "cancelled" })).toThrow(missing);
   });
 
   test("a step whose mode is unspecified reports the delegated default (R-MODE-2)", async () => {

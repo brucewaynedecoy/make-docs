@@ -28,10 +28,10 @@ Cover every progression operation's success and failure transitions, both resume
 
 ### Tasks
 
-- [ ] t1: Test every progression operation for its success and failure transitions — `playbook.start`, `playbook.status`, `playbook.next`, `playbook.advance`, `playbook.gate`, `playbook.resume`, and `playbook.close` (R-TEST-1).
-- [ ] t2: Test that `playbook.next` never mutates state, asserting the run record is byte-identical before and after (R-TEST-1, R-OP-3).
-- [ ] t3: Test resume with a matching digest, which resumes at the stored cursor (R-TEST-2).
-- [ ] t4: Test resume with a mismatched digest, which blocks with a diagnostic naming the change (R-TEST-2).
+- [x] t1: Test every progression operation for its success and failure transitions — `playbook.start`, `playbook.status`, `playbook.next`, `playbook.advance`, `playbook.gate`, `playbook.resume`, and `playbook.close` (R-TEST-1).
+- [x] t2: Test that `playbook.next` never mutates state, asserting the run record is byte-identical before and after (R-TEST-1, R-OP-3).
+- [x] t3: Test resume with a matching digest, which resumes at the stored cursor (R-TEST-2).
+- [x] t4: Test resume with a mismatched digest, which blocks with a diagnostic naming the change (R-TEST-2).
 
 ### Acceptance criteria
 
@@ -47,12 +47,12 @@ Cover every progression operation's success and failure transitions, both resume
 
 ### Tasks
 
-- [ ] t5: Test a deterministic step that executes and auto-transitions with captured structured evidence (R-TEST-3).
-- [ ] t6: Test a delegated step that holds at `waiting-for-user` and advances on a reported outcome with evidence (R-TEST-3).
-- [ ] t7: Test a manual step that records acknowledgment without executing (R-TEST-3).
-- [ ] t8: Test a parallel child run blocked by output-surface overlap (R-TEST-4).
-- [ ] t9: Test an unattended run that holds at a gate requiring a human (R-TEST-4).
-- [ ] t10: Assert that no run state is written under `.make-docs/runs/` or any repository path across the full test suite (R-TEST-5).
+- [x] t5: Test a deterministic step that executes and auto-transitions with captured structured evidence (R-TEST-3).
+- [x] t6: Test a delegated step that holds at `waiting-for-user` and advances on a reported outcome with evidence (R-TEST-3).
+- [x] t7: Test a manual step that records acknowledgment without executing (R-TEST-3).
+- [x] t8: Test a parallel child run blocked by output-surface overlap (R-TEST-4).
+- [x] t9: Test an unattended run that holds at a gate requiring a human (R-TEST-4).
+- [x] t10: Assert that no run state is written under `.make-docs/runs/` or any repository path across the full test suite (R-TEST-5).
 
 ### Acceptance criteria
 

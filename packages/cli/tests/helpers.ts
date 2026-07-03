@@ -6,6 +6,7 @@ import { vi } from "vitest";
 import { applyInstallPlan, planInstall } from "../src/install";
 import { getManifestPath, loadManifest, mintProjectId } from "../src/manifest";
 import { defaultSelections } from "../src/profile";
+import { assertNoRepoRunState, trackTempDir, untrackTempDir } from "./run-state-boundary";
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 const RAW_REPO_PREFIX = "https://raw.githubusercontent.com/brucewaynedecoy/make-docs/main/";
@@ -13,11 +14,19 @@ const RAW_REPO_PREFIX = "https://raw.githubusercontent.com/brucewaynedecoy/make-
 export type TestInstallSelections = ReturnType<typeof defaultSelections>;
 
 export function createTempDir(prefix = "make-docs-test-"): string {
-  return mkdtempSync(path.join(os.tmpdir(), prefix));
+  const tempDir = mkdtempSync(path.join(os.tmpdir(), prefix));
+  // Registered for the suite-wide R-TEST-5 run-state boundary sweep; see
+  // tests/run-state-boundary.ts.
+  trackTempDir(tempDir);
+  return tempDir;
 }
 
 export function cleanupTempDir(targetDir: string): void {
+  // Suite-enforced R-TEST-5 boundary check: fail the owning test if any
+  // Playbook run state landed under `.make-docs/runs/` in this fixture.
+  assertNoRepoRunState(targetDir);
   rmSync(targetDir, { recursive: true, force: true });
+  untrackTempDir(targetDir);
 }
 
 export function collectFiles(rootDir: string): string[] {

@@ -28,7 +28,7 @@ related:
 
 # Running Make Docs Playbooks
 
-This guide describes the accepted v2 direction for Playbooks after W18 R4, W18 R1, W18 R2, and W18 R3 are implemented. It is written as planned product behavior, not as a claim that every runner surface is already available in the current package.
+This guide describes Playbooks in Make Docs v2. The run lifecycle it documents — validating, cataloging, starting, advancing, gating, resuming, moving between machines, and closing a run — is implemented, and every behavior in those sections is verified by the runner's automated test suite. The plugin and packaging sections toward the end still describe accepted direction for surfaces that are landing in later waves.
 
 ## What a Playbook Is
 
@@ -248,7 +248,7 @@ Playbooks also do not redefine Make Docs authority. If a Playbook changes PRDs, 
 
 This guide should be refreshed after W18 implementation lands with plugin entry points, packaging commands, package-plan review examples, and a small set of end-user examples that can be run against an installed Make Docs project.
 
-- Blocked by: W18 R7 runner consumption of the parsed Playbook model. Update when: W18 R7 moves the runner surfaces onto the W18 R6 model. Guide change: revisit whether a reader-facing projection of the Playbook contract is warranted as its own guide. W18 R6 Phase 5 and wave completion resolved the previous trigger and re-deferred creation: the document schema itself is now hardened and stable — every diagnostic code has a failing fixture and the upstream and dogfood contract copies are machine-checked byte-identical — which removes the earlier stability objection, but the contract remains normative and linkable on its own, this guide already covers the user-visible validate/catalog surface, and a projection authored now would quote pre-runner behavior that W18 R7 changes, so it would need immediate rework for no added reader value. The W18 R11 command reorganization, formerly a second trigger, has landed and this guide now uses the `run playbook` spellings.
+- The former bullet on a reader-facing projection of the Playbook contract is resolved with the W18 R7 wave complete: no separate projection guide is warranted. The contract remains the normative, linkable authority for what a Playbook file must contain; this guide owns what users do with Playbooks, including the now-implemented and verified start-to-close run lifecycle; and a prose projection would restate both without giving a reader a task to complete. Revisit only if user-authored Playbooks become a primary authoring surface with questions this guide and the contract do not answer.
 
 ## Related Resources
 
