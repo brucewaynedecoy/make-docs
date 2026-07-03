@@ -26,7 +26,7 @@ describe("make-docs MCP runtime", () => {
     }
   });
 
-  test("declares a shipped read-first MCP tool surface (6 hand-defined + 18 derived)", () => {
+  test("declares a shipped read-first MCP tool surface (6 hand-defined + 20 derived)", () => {
     expect(createMakeDocsMcpServer()).toBeDefined();
     expect(MAKE_DOCS_MCP_TOOLS.map((tool) => tool.name)).toEqual([
       // Hand-defined non-operation tools.
@@ -49,6 +49,8 @@ describe("make-docs MCP runtime", () => {
       "make_docs_playbook_gate",
       "make_docs_playbook_resume",
       "make_docs_playbook_close",
+      "make_docs_playbook_run_export",
+      "make_docs_playbook_run_import",
       "make_docs_package_plan",
       "make_docs_package_surface_resolve",
       "make_docs_package_write",

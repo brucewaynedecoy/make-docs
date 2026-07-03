@@ -30,11 +30,11 @@ Implement the R-GUARD guardrails against the orchestration policy and capability
 
 ### Tasks
 
-- [ ] t1: Allow nested Playbooks only when the parent's orchestration policy permits child Playbooks, link each child run to its parent through child-run references and a shared root run identifier, and default child runs to serial (R-GUARD-1).
-- [ ] t2: Require explicit parent permission, a harness capability or reviewed approval supporting parallel execution, and non-overlapping claimed output surfaces before running children in parallel, serializing or stopping for review when overlap cannot be proven safe (R-GUARD-2).
-- [ ] t3: Stop rather than interleave writes whenever two steps or runs would claim the same output surface (R-GUARD-3).
-- [ ] t4: In unattended mode, let only steps whose gates permit unattended continuation proceed without a human, setting every other gate step to `waiting-for-user` and holding (R-GUARD-4).
-- [ ] t5: Consume the reviewed `harnessCapabilities` records and unknown-capability handling unchanged — never guess unknown capabilities, fall back to serial gated execution for optional ones, and stop with manual-review guidance for required ones (R-SCOPE-2, R-KEEP-1).
+- [x] t1: Allow nested Playbooks only when the parent's orchestration policy permits child Playbooks, link each child run to its parent through child-run references and a shared root run identifier, and default child runs to serial (R-GUARD-1).
+- [x] t2: Require explicit parent permission, a harness capability or reviewed approval supporting parallel execution, and non-overlapping claimed output surfaces before running children in parallel, serializing or stopping for review when overlap cannot be proven safe (R-GUARD-2).
+- [x] t3: Stop rather than interleave writes whenever two steps or runs would claim the same output surface (R-GUARD-3).
+- [x] t4: In unattended mode, let only steps whose gates permit unattended continuation proceed without a human, setting every other gate step to `waiting-for-user` and holding (R-GUARD-4).
+- [x] t5: Consume the reviewed `harnessCapabilities` records and unknown-capability handling unchanged — never guess unknown capabilities, fall back to serial gated execution for optional ones, and stop with manual-review guidance for required ones (R-SCOPE-2, R-KEEP-1).
 
 ### Acceptance criteria
 
@@ -53,11 +53,11 @@ Implement the R-GUARD guardrails against the orchestration policy and capability
 
 ### Tasks
 
-- [ ] t6: Implement explicit run export that serializes the run record and its evidence into a portable artifact, and run import that rehydrates it elsewhere, both opt-in (R-PORT-1).
-- [ ] t7: Ensure export and import never place run state into the repository by default (R-PORT-1).
-- [ ] t8: Verify tier one — with neither Make Docs nor the CLI present the Playbook remains structured documentation a reader executes by hand, with no engine required (R-TIER-1).
-- [ ] t9: Verify tier two — with Make Docs resources present but no CLI, an agent reads the same structure and the operation registry's documented command forms and executes without tracking (R-TIER-1).
-- [ ] t10: Verify tier three — with the CLI present the full engine runs and records state in the global store (R-TIER-1).
+- [x] t6: Implement explicit run export that serializes the run record and its evidence into a portable artifact, and run import that rehydrates it elsewhere, both opt-in (R-PORT-1).
+- [x] t7: Ensure export and import never place run state into the repository by default (R-PORT-1).
+- [x] t8: Verify tier one — with neither Make Docs nor the CLI present the Playbook remains structured documentation a reader executes by hand, with no engine required (R-TIER-1).
+- [x] t9: Verify tier two — with Make Docs resources present but no CLI, an agent reads the same structure and the operation registry's documented command forms and executes without tracking (R-TIER-1).
+- [x] t10: Verify tier three — with the CLI present the full engine runs and records state in the global store (R-TIER-1).
 
 ### Acceptance criteria
 

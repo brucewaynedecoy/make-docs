@@ -15,6 +15,8 @@ const inputSchema = z.object({
   runId: z.string().optional(),
   parentRunId: z.string().nullish(),
   executionMode: z.enum(["serial", "parallel"]).optional(),
+  /** Explicit unattended opt-in; requires the Playbook's `run.unattended: true` (R-GUARD-4). */
+  unattended: z.boolean().optional(),
   outputSurfaceClaims: z.array(z.string()).optional(),
   currentStep: z.string().nullish(),
   currentGate: z.string().nullish(),
@@ -45,6 +47,10 @@ export const playbookStartOperation: OperationDefinition<
       runId: input.runId,
       parentRunId: input.parentRunId,
       executionMode: input.executionMode,
+      unattended: input.unattended,
+      // The R-GUARD-2 "reviewed approval" leg rides the operation core's
+      // named-approval seam, granted by the calling surface.
+      parallelChildrenReviewed: context.approvals.has("parallel-children-reviewed"),
       outputSurfaceClaims: input.outputSurfaceClaims,
       currentStep: input.currentStep,
       currentGate: input.currentGate,

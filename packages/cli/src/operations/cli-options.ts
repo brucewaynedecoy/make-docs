@@ -27,6 +27,13 @@ const BOOLEAN_FLAGS = [
   "no-symlink-available",
   "reviewed-overwrite",
   "backup-snapshot-reviewed",
+  "acknowledge",
+  "present",
+  "migrate",
+  "unattended",
+  "parallel-children-reviewed",
+  "overwrite",
+  "adopt-project",
 ];
 
 const ARRAY_FLAGS = [

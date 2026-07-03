@@ -36,6 +36,8 @@ const EXPECTED_DERIVED_TOOL_NAMES: Record<string, string> = {
   "playbook.gate": "make_docs_playbook_gate",
   "playbook.resume": "make_docs_playbook_resume",
   "playbook.close": "make_docs_playbook_close",
+  "playbook.run.export": "make_docs_playbook_run_export",
+  "playbook.run.import": "make_docs_playbook_run_import",
   "package.plan": "make_docs_package_plan",
   "package.surface-resolve": "make_docs_package_surface_resolve",
   "package.write": "make_docs_package_write",
@@ -160,9 +162,9 @@ describe("MCP derivation parity (R-REG-2, R-MIG-3, R-CORE-1)", () => {
     );
   });
 
-  test("tool names are exactly the derived spellings for all 18 identifiers", () => {
+  test("tool names are exactly the derived spellings for all 20 identifiers", () => {
     const registryIds = listOperations().map((operation) => operation.id);
-    expect(registryIds).toHaveLength(18);
+    expect(registryIds).toHaveLength(20);
     expect(Object.keys(EXPECTED_DERIVED_TOOL_NAMES).sort()).toEqual([...registryIds].sort());
 
     const derivedByOperation = new Map(

@@ -168,6 +168,26 @@ make-docs run playbook close --repo-root . --run-id <run-id> --terminal-status c
 
 `close` is the only operation that stamps the terminal status (`completed`, `failed`, or `cancelled`), and a closed run refuses any further changes. Reaching the end of the workflow does not auto-close a run; the run waits for you so the closeout decision stays explicit.
 
+## Moving a Run to Another Machine
+
+Run state lives in the machine-level global store, so it does not travel with the repository. To hand a run off — say you started it on your desktop and want to finish it on a laptop — export it explicitly on machine A:
+
+```sh
+make-docs run playbook run export --run-id <run-id> --output ~/handoff/<run-id>.json
+```
+
+Export packages the run record and everything it has recorded — step statuses, gate decisions, and the full evidence log — into one portable JSON file. It is strictly opt-in and never touches your repository: without `--output` the artifact is only printed for you to save, and with it the file goes exactly where you named, so no run state ever lands in the project by default.
+
+Move the file to machine B, open the same repository there (a clone works — the project identity travels in `.make-docs/manifest.json`), and import it:
+
+```sh
+make-docs run playbook run import --artifact-json ~/handoff/<run-id>.json
+```
+
+`--artifact-json` accepts a path to the exported file or the JSON itself. Import checks the artifact before writing anything and refuses the situations that would silently lose or misfile work: a malformed or unsupported artifact is rejected outright, a run with the same identifier already in the local store requires an explicit `--overwrite`, and an artifact exported from a different project requires an explicit `--adopt-project` before it is re-keyed to the local project (the run's evidence records where it came from either way). Once imported, the run behaves as if it had always lived there — re-enter it with `resume` and continue with `next`, `advance`, and `gate` as usual.
+
+MCP-capable harnesses reach the same pair through `make_docs_playbook_run_export` and `make_docs_playbook_run_import`, both requiring `allowWrite=true`.
+
 ## The Simplest Run
 
 In the simplest arrangement, an agent or runner performs the Playbook step by step.
@@ -182,13 +202,23 @@ Some agent harnesses can help with long-running work. A harness might support go
 
 Make Docs does not guess that a harness has those capabilities. Reviewed harness capability records belong in `.make-docs/config.yaml`. When a capability is unknown, Make Docs either asks the agent to inspect and request review before recording it, or falls back to serial gated execution.
 
+This is enforced, not advisory: a run whose Playbook requires a capability that is unknown or unsupported is created blocked with guidance, and it refuses `advance`, `gate`, and `resume` until the capability record is reviewed and you start a fresh run (`close` stays available so you can always finalize it). When an optional capability is unavailable, the run proceeds serially and gated, and the fallback guidance is recorded on the run itself.
+
 Harness features are assists. The Playbook contract, resolver, run state, gates, and output-surface rules still belong to Make Docs.
+
+## Unattended Runs
+
+A run is attended by default: every gate waits for a human decision. Unattended operation is a double opt-in — the Playbook's run metadata must declare `unattended: true`, and you must pass `--unattended` when starting the run. Asking for an unattended run of a Playbook that does not permit one fails at start rather than quietly running attended.
+
+Even in an unattended run, only gates the Playbook individually marks as permitting unattended continuation proceed without you. Make Docs records each of those automatic approvals in the run's evidence, so the audit trail shows exactly which gates were passed unattended. Every other gate holds the run at `waiting-for-user` until someone records a real decision with `gate` — an unattended run never bypasses a gate that wants a human.
 
 ## Nested And Parallel Runs
 
-Some Playbooks can call other Playbooks. A parent Playbook can be allowed to run child Playbooks serially or in parallel, but only when that permission is explicit in the Playbook metadata.
+Some Playbooks can call other Playbooks. A parent Playbook must explicitly permit child Playbooks in its metadata — a parent that does not, or one that has already been closed, refuses to start children. Each child run links to its parent and to the root run of the whole tree, so the family stays auditable at any nesting depth, and children run serially by default.
 
-Parallel runs require non-overlapping output-surface claims. If two runs might write to the same files, artifact families, or managed surfaces, Make Docs stops for review instead of letting the runs race.
+Running children in parallel takes three things at once: the parent's explicit parallel permission, evidence that parallel execution is actually safe on your harness (a reviewed capability record, or an explicit reviewed approval passed at start), and output-surface claims that do not overlap the parent or any sibling. When any of those is missing, the child does not start and the error tells you the safe alternative: start it serially, which is always the default.
+
+Overlap protection applies beyond siblings. Starting any run whose claimed output surfaces overlap another open, unrelated run stops with an error naming the conflict, and the block clears once the conflicting run closes. The same check runs during execution: a step that declares output surfaces already claimed by another open run refuses to advance. Make Docs stops rather than letting two runs interleave writes to the same files — a serial child working inside its parent's surfaces is fine, because parent and child never write at the same time.
 
 This allows larger workflows to be composed without making concurrency the default behavior.
 

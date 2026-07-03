@@ -8,6 +8,8 @@ import { playbookInvokeOperation } from "./invoke";
 import { playbookNextOperation } from "./next";
 import { playbookResolveOperation } from "./resolve";
 import { playbookResumeOperation } from "./resume";
+import { playbookRunExportOperation } from "./run-export";
+import { playbookRunImportOperation } from "./run-import";
 import { playbookStartOperation } from "./start";
 import { playbookStatusOperation } from "./status";
 import { playbookValidateOperation } from "./validate";
@@ -30,6 +32,9 @@ export const playbookOperations: OperationDefinition[] = [
   playbookGateOperation as OperationDefinition,
   playbookResumeOperation as OperationDefinition,
   playbookCloseOperation as OperationDefinition,
+  // Run portability (W18 R7 P4; R-PORT-1): opt-in cross-machine handoff.
+  playbookRunExportOperation as OperationDefinition,
+  playbookRunImportOperation as OperationDefinition,
 ];
 
 export {
@@ -42,6 +47,8 @@ export {
   playbookNextOperation,
   playbookResolveOperation,
   playbookResumeOperation,
+  playbookRunExportOperation,
+  playbookRunImportOperation,
   playbookStartOperation,
   playbookStatusOperation,
   playbookValidateOperation,

@@ -563,6 +563,9 @@ describe.skipIf(!sqliteAvailable)("playbook run state in the global store", () =
         "evidenceLog",
         "cursor",
         "staleness",
+        // W18 R7 P4 guardrail fields (R-GUARD-1..2, R-GUARD-4).
+        "executionMode",
+        "unattended",
         "childPolicy",
         "concurrencyPolicy",
         "childRuns",
@@ -727,6 +730,20 @@ describe.skipIf(!sqliteAvailable)("playbook run state in the global store", () =
 
   test("links child runs into the parent record and stops overlapping parallel claims", () => {
     const { root, storeRoot, projectId } = createRunFixture();
+    // Parallel children additionally require parallel-execution support from
+    // a reviewed harnessCapabilities record (R-GUARD-2, W18 R7 P4).
+    writeFile(
+      root,
+      ".make-docs/config.yaml",
+      [
+        "harnessCapabilities:",
+        "  - harness: codex",
+        "    reviewStatus: reviewed",
+        "    capabilities:",
+        "      parallel_playbook_runs: true",
+        "",
+      ].join("\n"),
+    );
     writeFile(
       root,
       "docs/assets/playbooks/user/parent.md",

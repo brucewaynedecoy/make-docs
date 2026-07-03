@@ -85,6 +85,9 @@ const PLAYBOOK_OPERATION_IDS = [
   "playbook.gate",
   "playbook.resume",
   "playbook.close",
+  // W18 R7 P4 run portability (R-PORT-1): opt-in export and import.
+  "playbook.run.export",
+  "playbook.run.import",
 ] as const;
 
 const WRITE_IDS = [
@@ -94,6 +97,10 @@ const WRITE_IDS = [
   "playbook.gate",
   "playbook.resume",
   "playbook.close",
+  // Export can write the artifact file to a caller-named path; import writes
+  // the rehydrated record into the global store.
+  "playbook.run.export",
+  "playbook.run.import",
 ] as const;
 
 describe("playbook operation registry entries", () => {
@@ -105,7 +112,7 @@ describe("playbook operation registry entries", () => {
     }
   });
 
-  test("registers the twelve playbook identifiers with mutation and status classifications", () => {
+  test("registers the fourteen playbook identifiers with mutation and status classifications", () => {
     const playbookIds = listOperations()
       .filter((operation) => operation.domain === "playbook")
       .map((operation) => operation.id)

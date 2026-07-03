@@ -18,8 +18,12 @@ import {
 } from "./execution";
 import {
   PLAYBOOK_RUN_TERMINAL_STATUSES,
+  findOutputSurfaceOverlap,
+  listPlaybookRunStates,
   loadPlaybookRunModel,
+  normalizeOutputSurfaceClaims,
   playbookRunCursorForStep,
+  playbookRunFamilyIds,
   playbookRunStepId,
   readPlaybookRunState,
   transitionPlaybookRunState,
@@ -27,6 +31,7 @@ import {
   type PlaybookRunDependencyAvailability,
   type PlaybookRunEvidenceRecord,
   type PlaybookRunExecutionEvidence,
+  type PlaybookRunGateDecision,
   type PlaybookRunState,
   type PlaybookRunStepStatusEntry,
   type PlaybookRunTerminalStatus,
@@ -87,6 +92,17 @@ import {
  * still-present step identifiers. A stale run also refuses advance and
  * gate transitions until the marker clears, so the engine never silently
  * progresses against a changed workflow.
+ *
+ * Run-time guardrails (W18 R7 P4; R-GUARD-1..4, R-SCOPE-2, R-KEEP-1): the
+ * creation-time nesting, parallelism, and claim guardrails live in
+ * `createPlaybookRunState` (`./run-state`); this engine enforces the rest at
+ * transition time — `requireCapabilityClearance` stops advance/gate/resume on
+ * a `manual-review-required` capability snapshot,
+ * `requireStepOutputSurfacesFree` stops an advance whose step-declared output
+ * surfaces overlap another open run's claims (R-GUARD-3), and
+ * `settleUnattendedGates` realizes R-GUARD-4 by auto-approving only gates
+ * that declare `unattended: true` in an unattended run and holding every
+ * other gate at `waiting-for-user`.
  *
  * The captured-evidence format is documented on `PlaybookRunEvidenceRecord`
  * in `./run-state` (D9 implementer decision).
@@ -346,10 +362,17 @@ export async function advancePlaybookRun(
   });
   requireOpenRun(loaded, "advanced");
   requireFreshRun(loaded, "advanced");
+  requireCapabilityClearance(loaded, "advanced");
   const model = loadPlaybookRunModel(repoRoot, loaded);
   const entries = requireWorkflowEntries(loaded, model);
   const cursor = requireAdvanceStepCursor(loaded, input.stepId ?? null);
   const entry = requireCursorEntry(loaded, entries, cursor.id);
+  requireStepOutputSurfacesFree({
+    repoRoot,
+    storeRoot: input.storeRoot,
+    state: loaded,
+    entry,
+  });
   const mode = entry.step.mode.value ?? PLAYBOOK_DEFAULT_STEP_MODE;
   const plan = await planAdvance({ input, entry, mode, repoRoot });
 
@@ -508,7 +531,7 @@ function applyAdvanceOutcome(
   input: AdvancePlaybookRunInput,
 ): PlaybookRunState {
   const stepStatuses = withStepStatus(state.stepStatuses, entry.id, plan.outcome);
-  const evidence = appendEvidence(state, {
+  const stepRecord: PlaybookRunEvidenceRecord = {
     scope: "step",
     subjectId: entry.id,
     outcome: plan.outcome,
@@ -516,7 +539,7 @@ function applyAdvanceOutcome(
     refs: dedupe(input.evidenceRefs ?? []),
     note: normalizeNote(input.note),
     ...(plan.executionEvidence ? { execution: plan.executionEvidence } : {}),
-  });
+  };
 
   let position: RunPosition;
   if (plan.outcome === "failed") {
@@ -534,15 +557,17 @@ function applyAdvanceOutcome(
       computeSuccessor(state.routingModel, entries, stepStatuses, entry),
     );
   }
+  const settled = settleUnattendedGates(state, entries, stepStatuses, position);
 
   return {
     ...state,
-    stepStatuses,
-    ...evidence,
+    stepStatuses: settled.stepStatuses,
+    gateDecisions: [...state.gateDecisions, ...settled.gateDecisions],
+    ...appendEvidenceRecords(state, [stepRecord, ...settled.evidenceRecords]),
     outputRefs: dedupe([...state.outputRefs, ...(input.outputRefs ?? [])]),
-    cursor: position.cursor,
-    status: position.status,
-    resumeHints: withHint(state.resumeHints, position.hint),
+    cursor: settled.position.cursor,
+    status: settled.position.status,
+    resumeHints: withHint(state.resumeHints, settled.position.hint),
   };
 }
 
@@ -627,6 +652,7 @@ export function recordPlaybookRunGate(input: RecordPlaybookRunGateInput): Playbo
   });
   requireOpenRun(loaded, "gated");
   requireFreshRun(loaded, "gated");
+  requireCapabilityClearance(loaded, "gated");
   const model = loadPlaybookRunModel(repoRoot, loaded);
 
   return transitionPlaybookRunState({
@@ -657,14 +683,14 @@ export function recordPlaybookRunGate(input: RecordPlaybookRunGateInput): Playbo
         entry.id,
         approved ? "completed" : "blocked",
       );
-      const evidence = appendEvidence(state, {
+      const gateRecord: PlaybookRunEvidenceRecord = {
         scope: "gate",
         subjectId: entry.id,
         outcome: input.decision,
         recordedAt: decidedAt,
         refs,
         note: normalizeNote(input.note),
-      });
+      };
       const position: RunPosition = approved
         ? positionFromSuccessor(computeSuccessor(state.routingModel, entries, stepStatuses, entry))
         : {
@@ -672,18 +698,22 @@ export function recordPlaybookRunGate(input: RecordPlaybookRunGateInput): Playbo
             status: "blocked",
             hint: `Gate \`${entry.id}\` was rejected; re-plan, then re-enter with \`playbook.resume\` or finalize with \`playbook.close\`.`,
           };
+      const settled = approved
+        ? settleUnattendedGates(state, entries, stepStatuses, position)
+        : { stepStatuses, gateDecisions: [], evidenceRecords: [], position };
 
       return {
         ...state,
-        stepStatuses,
+        stepStatuses: settled.stepStatuses,
         gateDecisions: [
           ...state.gateDecisions,
           { gateId: entry.id, decision: input.decision, decidedAt, evidenceRefs: refs },
+          ...settled.gateDecisions,
         ],
-        ...evidence,
-        cursor: position.cursor,
-        status: position.status,
-        resumeHints: withHint(state.resumeHints, position.hint),
+        ...appendEvidenceRecords(state, [gateRecord, ...settled.evidenceRecords]),
+        cursor: settled.position.cursor,
+        status: settled.position.status,
+        resumeHints: withHint(state.resumeHints, settled.position.hint),
       };
     },
   });
@@ -735,6 +765,7 @@ export function resumePlaybookRun(input: ResumePlaybookRunInput): PlaybookRunSta
     runId: input.runId,
   });
   requireOpenRun(loaded, "resumed");
+  requireCapabilityClearance(loaded, "resumed");
   const model = loadPlaybookRunModel(repoRoot, loaded);
   const currentDigest = model.identity.sourceDigest;
   if (currentDigest === loaded.sourceDigest) {
@@ -1219,6 +1250,159 @@ function requireFreshRun(state: PlaybookRunState, verb: string): void {
   }
 }
 
+/**
+ * Reviewed-capability clearance (W18 R7 P4; R-SCOPE-2, R-KEEP-1): the
+ * creation-time capability snapshot is consumed unchanged — a run whose
+ * required capabilities were unknown or unsupported (`manual-review-required`)
+ * refuses advance, gate, and resume transitions with the evaluation's own
+ * guidance. The runner never guesses an unknown capability; after the
+ * `harnessCapabilities` record is reviewed, an explicit re-plan
+ * (`playbook.start`) takes a fresh snapshot. `playbook.close` stays available
+ * so a stopped run can always be finalized.
+ */
+function requireCapabilityClearance(state: PlaybookRunState, verb: string): void {
+  if (state.capabilitySnapshot?.status !== "manual-review-required") {
+    return;
+  }
+  throw new OperationError(
+    `Playbook run \`${state.runId}\` requires manual capability review before it can be ${verb}: ` +
+      `${state.capabilitySnapshot.guidance.join(" ")} ` +
+      "Review the harness capability record under `harnessCapabilities` in `.make-docs/config.yaml`, " +
+      "then re-plan with `playbook.start` against the current source, or finalize with `playbook.close`.",
+  );
+}
+
+/**
+ * Output-surface conflict guardrail at step advance (W18 R7 P4; R-GUARD-3):
+ * when the current step declares output surfaces (the W18 R6 step `outputs`
+ * declarations), they are checked against the claims of every other open run
+ * of the project outside this run's serial family before anything executes.
+ * Overlap stops the advance — leaving run state untouched — rather than
+ * risking interleaved writes. The check runs before deterministic execution,
+ * so a refused step never runs.
+ */
+function requireStepOutputSurfacesFree(args: {
+  repoRoot: string;
+  storeRoot?: string;
+  state: PlaybookRunState;
+  entry: WorkflowStepEntry;
+}): void {
+  const declared = args.entry.step.outputs
+    .map((output) => output.name.value)
+    .filter((name): name is string => Boolean(name));
+  const stepClaims = normalizeOutputSurfaceClaims(declared);
+  if (stepClaims.length === 0) {
+    return;
+  }
+  const openRuns = listPlaybookRunStates({
+    repoRoot: args.repoRoot,
+    storeRoot: args.storeRoot,
+  }).filter((run) => !run.terminalStatus);
+  const family = playbookRunFamilyIds({
+    runId: args.state.runId,
+    parentRunId: args.state.parentRunId,
+    executionMode: args.state.executionMode ?? "serial",
+    runsById: new Map(openRuns.map((run) => [run.runId, run])),
+  });
+  for (const other of openRuns) {
+    if (family.has(other.runId)) {
+      continue;
+    }
+    const overlap = findOutputSurfaceOverlap(stepClaims, other.outputSurfaceClaims);
+    if (overlap) {
+      throw new OperationError(
+        `Step \`${args.entry.id}\` of run \`${args.state.runId}\` declares output surface \`${overlap[0]}\`, ` +
+          `which overlaps \`${overlap[1]}\` claimed by open run \`${other.runId}\`; the runner stops rather ` +
+          "than interleaving writes (R-GUARD-3). Close the conflicting run or re-plan with disjoint output surfaces.",
+      );
+    }
+  }
+}
+
+interface UnattendedGateSettlement {
+  stepStatuses: PlaybookRunStepStatusEntry[];
+  gateDecisions: PlaybookRunGateDecision[];
+  evidenceRecords: PlaybookRunEvidenceRecord[];
+  position: RunPosition;
+}
+
+/**
+ * Unattended-mode gate handling (W18 R7 P4; R-GUARD-4), applied wherever a
+ * transition computes a new position — step advance and gate approval. In an
+ * unattended run, a gate whose W18 R6 gate semantics declare
+ * `unattended: true` proceeds without a human: the engine records an
+ * `approve` decision with evidence naming the unattended continuation and
+ * moves on (repeating for consecutive permitting gates, with a visited guard
+ * against routing cycles). Every other gate sets the gate step to
+ * `waiting-for-user` and HOLDS the run there for a human `playbook.gate`
+ * decision. Attended runs are untouched. Recorded scope decision: the
+ * settlement acts at advance and gate transitions; a run created or resumed
+ * directly at a gate holds until its first transition, because creation and
+ * digest-match re-entry do not recompute positions.
+ */
+function settleUnattendedGates(
+  state: PlaybookRunState,
+  entries: WorkflowStepEntry[],
+  stepStatuses: PlaybookRunStepStatusEntry[],
+  position: RunPosition,
+): UnattendedGateSettlement {
+  const settlement: UnattendedGateSettlement = {
+    stepStatuses,
+    gateDecisions: [],
+    evidenceRecords: [],
+    position,
+  };
+  if (state.unattended !== true) {
+    return settlement;
+  }
+  const visited = new Set<string>();
+  while (settlement.position.cursor?.kind === "gate") {
+    const gateId = settlement.position.cursor.id;
+    if (visited.has(gateId)) {
+      break;
+    }
+    visited.add(gateId);
+    const entry = entries.find((candidate) => candidate.id === gateId);
+    if (!entry) {
+      break;
+    }
+    if (entry.step.gate?.unattended?.value === true) {
+      const decidedAt = utcNow();
+      settlement.stepStatuses = withStepStatus(settlement.stepStatuses, entry.id, "completed");
+      settlement.gateDecisions.push({
+        gateId: entry.id,
+        decision: "approve",
+        decidedAt,
+        evidenceRefs: [],
+      });
+      settlement.evidenceRecords.push({
+        scope: "gate",
+        subjectId: entry.id,
+        outcome: "approve",
+        recordedAt: decidedAt,
+        refs: [],
+        note:
+          `Gate \`${entry.id}\` permits unattended continuation; the unattended run proceeded ` +
+          "without a human (R-GUARD-4).",
+      });
+      settlement.position = positionFromSuccessor(
+        computeSuccessor(state.routingModel, entries, settlement.stepStatuses, entry),
+      );
+      continue;
+    }
+    settlement.stepStatuses = withStepStatus(settlement.stepStatuses, entry.id, "waiting-for-user");
+    settlement.position = {
+      cursor: settlement.position.cursor,
+      status: "waiting-for-user",
+      hint:
+        `Unattended run \`${state.runId}\` held at gate \`${entry.id}\`: the gate does not permit ` +
+        "unattended continuation; record a human decision with `playbook.gate` (R-GUARD-4).",
+    };
+    break;
+  }
+  return settlement;
+}
+
 function stepStatusOf(
   stepStatuses: PlaybookRunStepStatusEntry[],
   stepId: string,
@@ -1238,9 +1422,16 @@ function appendEvidence(
   state: PlaybookRunState,
   record: PlaybookRunEvidenceRecord,
 ): Pick<PlaybookRunState, "evidenceLog" | "evidenceRefs"> {
+  return appendEvidenceRecords(state, [record]);
+}
+
+function appendEvidenceRecords(
+  state: PlaybookRunState,
+  records: PlaybookRunEvidenceRecord[],
+): Pick<PlaybookRunState, "evidenceLog" | "evidenceRefs"> {
   return {
-    evidenceLog: [...(state.evidenceLog ?? []), record],
-    evidenceRefs: dedupe([...state.evidenceRefs, ...record.refs]),
+    evidenceLog: [...(state.evidenceLog ?? []), ...records],
+    evidenceRefs: dedupe([...state.evidenceRefs, ...records.flatMap((record) => record.refs)]),
   };
 }
 

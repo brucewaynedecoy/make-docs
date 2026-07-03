@@ -370,14 +370,19 @@ export function readHarnessCapabilityEvaluation(input: {
  */
 export {
   createPlaybookRunState,
+  findOutputSurfaceOverlap,
   initialPlaybookRunCursor,
   inspectPlaybookRunState,
+  listPlaybookRunStates,
   loadPlaybookRunModel,
   normalizeOutputSurfaceClaims,
   PLAYBOOK_RUN_TERMINAL_STATUSES,
   playbookRunCursorForStep,
+  playbookRunFamilyIds,
   playbookRunStepId,
   readPlaybookRunState,
+  requireRunProjectId,
+  resolveRunStoreRoot,
   transitionPlaybookRunState,
   writePlaybookRunState,
 } from "./run-state";
@@ -430,6 +435,27 @@ export type {
   ResumePlaybookRunInput,
 } from "./progression";
 export { PLAYBOOK_STEP_COMMAND_TIMEOUT_MS } from "./execution";
+
+/**
+ * Run portability (W18 R7 P4; PRD 35 R-PORT-1): explicit, opt-in export and
+ * import of a run record plus its evidence as one portable JSON artifact.
+ * Neither operation places run state into the repository by default; the
+ * artifact shape and the identity-on-import decision are documented in
+ * `./portability`.
+ */
+export {
+  exportPlaybookRun,
+  importPlaybookRun,
+  PLAYBOOK_RUN_EXPORT_FORMAT,
+  PLAYBOOK_RUN_EXPORT_FORMAT_VERSION,
+} from "./portability";
+export type {
+  ExportPlaybookRunInput,
+  ExportPlaybookRunResult,
+  ImportPlaybookRunInput,
+  ImportPlaybookRunResult,
+  PlaybookRunExportArtifact,
+} from "./portability";
 
 export function invokePlaybook(input: {
   repoRoot?: string;
@@ -497,6 +523,10 @@ export function invokePlaybook(input: {
     requestedStack: resolution.entry.stack,
     harness: input.harness,
     runId: input.runId,
+    // Unattended only with BOTH the caller's opt-in and the Playbook's
+    // declared permission (R-GUARD-4); the invoke surface degrades to an
+    // attended gate pause instead of failing when permission is missing.
+    unattended: unattendedAllowed,
     outputSurfaceClaims: effectiveSurfaceClaims,
     currentStep: firstStep?.id ?? null,
     currentGate: gateStop?.id ?? null,

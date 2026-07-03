@@ -91,6 +91,8 @@ describe("operation domain modules", () => {
       "playbook.gate",
       "playbook.resume",
       "playbook.close",
+      "playbook.run.export",
+      "playbook.run.import",
       "package.plan",
       "package.surface-resolve",
       "package.write",
@@ -98,7 +100,7 @@ describe("operation domain modules", () => {
       "work.evidence.record",
       "work.evidence.read",
     ]);
-    expect(identifiers).toHaveLength(18);
+    expect(identifiers).toHaveLength(20);
 
     for (const domain of domains) {
       for (const command of domain.commands) {
@@ -124,6 +126,8 @@ describe("operation domain modules", () => {
       "playbook.gate",
       "playbook.resume",
       "playbook.close",
+      "playbook.run.export",
+      "playbook.run.import",
       "package.write",
       "work.evidence.record",
     ]);
@@ -331,7 +335,9 @@ describe("operation domain modules", () => {
         requestedStack: "run",
         harness: "codex",
         runId: "invoke-run",
-        outputSurfaceClaims: ["docs/assets/archive/history"],
+        // Disjoint from the still-open root-run claim: two open runs claiming
+        // the same output surface now stop at creation (R-GUARD-3, W18 R7 P4).
+        outputSurfaceClaims: ["docs/assets/artifacts"],
       });
       expect(invocation.provenance.operation).toBe("playbook-run-invoke");
       expect(invocation.value).toEqual(

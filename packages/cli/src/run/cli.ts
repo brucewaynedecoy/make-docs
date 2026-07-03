@@ -152,6 +152,8 @@ const RUN_CLI_ADAPTERS: Record<string, RunCliAdapter> = {
       runId: options.values["run-id"],
       parentRunId: options.values["parent-run-id"],
       executionMode: parseExecutionMode(options.values["execution-mode"]),
+      // Explicit unattended opt-in; the Playbook must also permit it (R-GUARD-4).
+      ...(options.booleans.has("unattended") ? { unattended: true } : {}),
       outputSurfaceClaims: options.arrays["output-surface"] ?? [],
       currentStep: options.values["current-step"],
       currentGate: options.values["current-gate"],
@@ -159,6 +161,13 @@ const RUN_CLI_ADAPTERS: Record<string, RunCliAdapter> = {
       resumeHints: options.arrays["resume-hint"] ?? [],
       requiredCapabilities: options.arrays["requires-capability"] ?? [],
       preferredCapabilities: options.arrays["prefers-capability"] ?? [],
+    },
+    context: {
+      // The R-GUARD-2 reviewed approval for parallel children rides the
+      // execution context's named-approval seam, not the operation input.
+      approvals: options.booleans.has("parallel-children-reviewed")
+        ? ["parallel-children-reviewed"]
+        : [],
     },
   }),
   "playbook.invoke": (options) => ({
@@ -237,6 +246,28 @@ const RUN_CLI_ADAPTERS: Record<string, RunCliAdapter> = {
       terminalStatus: requiredValue(options, "terminal-status", operationPath("playbook.close")),
       evidenceRefs: options.arrays["evidence-ref"] ?? [],
       note: options.values.note,
+    },
+  }),
+  "playbook.run.export": (options) => ({
+    input: {
+      repoRoot: resolveRepoRoot(options),
+      ...optionalPathValue(options, "store-root", "storeRoot"),
+      runId: requiredValue(options, "run-id", operationPath("playbook.run.export")),
+      // Opt-in file output only (R-PORT-1): without --output the artifact is
+      // printed to stdout and no file is written.
+      ...optionalPathValue(options, "output", "outputPath"),
+    },
+  }),
+  "playbook.run.import": (options) => ({
+    input: {
+      repoRoot: resolveRepoRoot(options),
+      ...optionalPathValue(options, "store-root", "storeRoot"),
+      artifact: parseJsonPayload(
+        requiredValue(options, "artifact-json", operationPath("playbook.run.import")),
+        "artifact-json",
+      ),
+      ...(options.booleans.has("overwrite") ? { overwrite: true } : {}),
+      ...(options.booleans.has("adopt-project") ? { adoptProject: true } : {}),
     },
   }),
   "package.plan": (options) => ({

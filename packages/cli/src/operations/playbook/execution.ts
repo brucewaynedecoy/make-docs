@@ -22,8 +22,24 @@ import {
  * dispatch, the command through the shell — and captures each structured
  * result as a {@link PlaybookRunExecutionEvidence} record. It also resolves
  * the CLI-absent presentation form: the human `make-docs run ...` command a
- * reader runs by hand when the calling surface cannot execute (R-TIER-1
- * groundwork; the full three-tier proof is W18 R7 Phase 4).
+ * reader runs by hand when the calling surface cannot execute.
+ *
+ * Three-tier degradation guarantee (W18 R7 P4; PRD 35 R-TIER-1), realized
+ * against the SAME Playbook source and proven end to end in
+ * `tests/playbook-three-tiers.test.ts`:
+ *
+ * - Tier 1 — neither Make Docs nor the CLI present: there is no engine. The
+ *   Playbook is structured Markdown documentation (narrative sections plus
+ *   the readable workflow contract with per-step instructions) that a reader
+ *   executes by hand, with nothing in this package required.
+ * - Tier 2 — Make Docs resources present, no CLI: an agent reads the same
+ *   structure through the repository's resources and the operation
+ *   registry's documented command forms ({@link resolveOperationCliCommand},
+ *   derived from `operationCliPath`, never hand-maintained) and executes the
+ *   steps itself, without run tracking and without touching the global store.
+ * - Tier 3 — CLI present: the full engine (`./progression`) runs, executes
+ *   deterministic steps through this module, and records every transition in
+ *   the global store keyed by (project id, run id).
  *
  * The execution happens BEFORE the run-state transition in
  * `advancePlaybookRun`, so a thrown execution error leaves the stored run

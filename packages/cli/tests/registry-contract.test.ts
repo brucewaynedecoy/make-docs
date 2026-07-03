@@ -30,6 +30,8 @@ const EXPECTED_IDENTIFIERS = [
   "playbook.gate",
   "playbook.resume",
   "playbook.close",
+  "playbook.run.export",
+  "playbook.run.import",
   "package.plan",
   "package.surface-resolve",
   "package.write",

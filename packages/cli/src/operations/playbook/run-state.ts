@@ -10,6 +10,7 @@ import {
 } from "../../playbook";
 import {
   createPlaybookRunRecord,
+  listPlaybookRunRecords,
   readPlaybookRunRecord,
   resolveProjectIdentity,
   resolveStoreRoot,
@@ -99,8 +100,13 @@ export interface PlaybookRunCursor {
   id: string;
 }
 
-/** What a captured evidence entry attests: a step outcome, a gate decision, a run closeout, or a resume. */
-export type PlaybookRunEvidenceScope = "step" | "gate" | "close" | "resume";
+/**
+ * What a captured evidence entry attests: a step outcome, a gate decision, a
+ * run closeout, a resume, or an explicit cross-machine import (W18 R7 P4;
+ * R-PORT-1 — `playbook.run.import` appends an `import` record so the
+ * rehydrated run carries its own provenance).
+ */
+export type PlaybookRunEvidenceScope = "step" | "gate" | "close" | "resume" | "import";
 
 /**
  * Structured result of a deterministic step execution (W18 R7 P3; PRD 35
@@ -219,6 +225,19 @@ export interface PlaybookRunState {
   cursor: PlaybookRunCursor | null;
   /** Digest-mismatch marker (R-RESUME-1); null or absent while the run is fresh. */
   staleness?: PlaybookRunStaleness | null;
+  /**
+   * This run's own execution mode relative to its parent and siblings
+   * (W18 R7 P4; R-GUARD-1..2). Serial is the default; absent in records
+   * created before this field and read as `serial`.
+   */
+  executionMode?: PlaybookRunExecutionMode;
+  /**
+   * Unattended-mode marker (W18 R7 P4; R-GUARD-4): set only by explicit
+   * caller opt-in on a Playbook whose run metadata declares
+   * `unattended: true`. Absent in records created before this field and read
+   * as attended.
+   */
+  unattended?: boolean;
   childPolicy: PlaybookChildPolicy;
   concurrencyPolicy: PlaybookConcurrencyPolicy;
   childRuns: PlaybookChildRunRecord[];
@@ -245,6 +264,18 @@ export interface CreatePlaybookRunStateInput {
   runId?: string;
   parentRunId?: string | null;
   executionMode?: PlaybookRunExecutionMode;
+  /**
+   * Explicit unattended opt-in (R-GUARD-4). Requires the resolved Playbook's
+   * run metadata to declare `unattended: true`; fails closed otherwise.
+   */
+  unattended?: boolean;
+  /**
+   * Explicit reviewed approval for parallel child execution (R-GUARD-2): the
+   * "reviewed approval" alternative to a reviewed `harnessCapabilities`
+   * record supporting `parallel_playbook_runs`. Surfaces grant it through the
+   * operation core's named-approval seam (`parallel-children-reviewed`).
+   */
+  parallelChildrenReviewed?: boolean;
   outputSurfaceClaims?: string[];
   currentStep?: string | null;
   currentGate?: string | null;
@@ -264,6 +295,26 @@ export interface CreatePlaybookRunStateResult {
  * (project id, run id). A child run is validated against its parent's
  * orchestration policy and linked into the parent's child-run references
  * inside the same store connection.
+ *
+ * W18 R7 P4 guardrails enforced here at creation time:
+ *
+ * - Nesting (R-GUARD-1): the parent's orchestration policy must permit child
+ *   Playbooks, the child links through `parentRunId` plus the shared
+ *   `rootRunId`, and serial execution is the default.
+ * - Parallel children (R-GUARD-2): explicit parent permission
+ *   (`child_playbooks: parallel`), plus a reviewed `harnessCapabilities`
+ *   record supporting `parallel_playbook_runs` or an explicit reviewed
+ *   approval, plus non-overlapping claimed output surfaces.
+ * - Output-surface conflicts (R-GUARD-3): the new run's claims are checked
+ *   against every other open run of the project outside its serial family;
+ *   overlap stops the creation rather than risking interleaved writes.
+ * - Unattended mode (R-GUARD-4): the caller's explicit opt-in is honored only
+ *   when the Playbook's run metadata declares `unattended: true`.
+ * - Capability handling (R-SCOPE-2, R-KEEP-1): the reviewed capability
+ *   evaluation is consumed unchanged — a `manual-review-required` snapshot
+ *   creates the run `blocked` with the evaluation's guidance, and a
+ *   `serial-gated-fallback` snapshot records the serial-gated guidance as
+ *   resume hints.
  */
 export function createPlaybookRunState(
   input: CreatePlaybookRunStateInput,
@@ -280,6 +331,13 @@ export function createPlaybookRunState(
   const runId = input.runId ?? createRunId();
   const parentRunId = input.parentRunId ?? null;
   const executionMode = input.executionMode ?? "serial";
+  const unattended = input.unattended === true;
+  if (unattended && entry.run.unattended !== true) {
+    throw new OperationError(
+      `Playbook \`${entry.ref}\` does not declare unattended support (run metadata \`unattended: true\`); ` +
+        "an unattended run requires the Playbook's explicit permission (R-GUARD-4).",
+    );
+  }
   const outputSurfaceClaims = normalizeOutputSurfaceClaims(input.outputSurfaceClaims ?? []);
   const capabilitySnapshot = evaluateHarnessCapabilities({
     repoRoot,
@@ -293,13 +351,37 @@ export function createPlaybookRunState(
       ...(input.preferredCapabilities ?? []),
     ],
   });
-  const status = parseRunStatus(input.status ?? "pending");
+  // R-SCOPE-2 / R-KEEP-1: without an explicit caller status, the reviewed
+  // capability evaluation decides — required capabilities that are unknown or
+  // unsupported stop the run at `blocked` with manual-review guidance, and
+  // unavailable optional capabilities record the serial-gated-fallback hints.
+  const status =
+    input.status === undefined && capabilitySnapshot.status === "manual-review-required"
+      ? "blocked"
+      : parseRunStatus(input.status ?? "pending");
+  const capabilityHints =
+    input.status === undefined && capabilitySnapshot.status !== "ready"
+      ? capabilitySnapshot.guidance
+      : [];
   const now = utcNow();
   const storeRoot = resolveRunStoreRoot(input.storeRoot);
 
   return withStoreDatabase(storeRoot, (db) => {
     const parent = parentRunId ? readRunRecordOrThrow(db, projectId, parentRunId) : null;
-    validateChildRunRequest({ executionMode, outputSurfaceClaims, parent });
+    validateChildRunRequest({
+      executionMode,
+      outputSurfaceClaims,
+      parent,
+      capabilitySnapshot,
+      parallelChildrenReviewed: input.parallelChildrenReviewed === true,
+    });
+    requireCreationClaimsFree({
+      runId,
+      parentRunId,
+      executionMode,
+      outputSurfaceClaims,
+      openRuns: listOpenRunStates(db, projectId),
+    });
 
     const state: PlaybookRunState = {
       schemaVersion: 2,
@@ -328,10 +410,12 @@ export function createPlaybookRunState(
         cursorFrom(input.currentStep ?? null, input.currentGate ?? null) ??
         initialPlaybookRunCursor(model),
       staleness: null,
+      executionMode,
+      unattended,
       childPolicy: entry.run.childPlaybooks,
       concurrencyPolicy: entry.run.concurrency,
       childRuns: [],
-      resumeHints: input.resumeHints ?? [],
+      resumeHints: mergeHints(input.resumeHints ?? [], capabilityHints),
       status,
       terminalStatus: null,
       stateSource: "make-docs",
@@ -386,6 +470,24 @@ export function readPlaybookRunState(input: {
   const projectId = requireRunProjectId(repoRoot);
   return withStoreDatabase(resolveRunStoreRoot(input.storeRoot), (db) =>
     readRunRecordOrThrow(db, projectId, input.runId),
+  );
+}
+
+/**
+ * Lists every stored run record of the resolved project. The progression
+ * engine consumes this for the R-GUARD-3 concurrent output-surface checks;
+ * records stay the runner-owned {@link PlaybookRunState} shape.
+ */
+export function listPlaybookRunStates(input: {
+  repoRoot?: string;
+  storeRoot?: string;
+}): PlaybookRunState[] {
+  const repoRoot = findRepoRoot(input.repoRoot);
+  const projectId = requireRunProjectId(repoRoot);
+  return withStoreDatabase(resolveRunStoreRoot(input.storeRoot), (db) =>
+    listPlaybookRunRecords(db, projectId).map(
+      (row) => row.record as unknown as PlaybookRunState,
+    ),
   );
 }
 
@@ -459,10 +561,11 @@ export function normalizeOutputSurfaceClaims(claims: string[]): string[] {
 /**
  * Resolves the project identifier that keys run state (R-STORE-2). Every
  * non-resolved identity fails with actionable guidance rather than falling
- * back to path-keyed state; the fuller three-tier degradation story is
- * W18 R7 Phase 4.
+ * back to path-keyed state. Exported for the run portability seam
+ * (`./portability`), which keys imported runs by the importing repository's
+ * own manifest-minted identity (R-PORT-1).
  */
-function requireRunProjectId(repoRoot: string): string {
+export function requireRunProjectId(repoRoot: string): string {
   const resolution = resolveProjectIdentity(repoRoot);
   if (resolution.status === "resolved") {
     return resolution.projectId;
@@ -479,7 +582,7 @@ function requireRunProjectId(repoRoot: string): string {
   );
 }
 
-function resolveRunStoreRoot(storeRoot: string | undefined): string {
+export function resolveRunStoreRoot(storeRoot: string | undefined): string {
   return resolveStoreRoot(storeRoot ? { storeRoot } : {});
 }
 
@@ -597,14 +700,35 @@ function cursorFrom(currentStep: string | null, currentGate: string | null): Pla
   return null;
 }
 
+/**
+ * Nesting and parallelism guardrails at run creation (R-GUARD-1..2).
+ *
+ * A child run requires an open parent whose orchestration policy permits
+ * child Playbooks; serial is the default. Parallel children additionally
+ * require ALL of: explicit parent permission (`child_playbooks: parallel`),
+ * parallel-execution support — a reviewed `harnessCapabilities` record with
+ * `parallel_playbook_runs: true` consumed unchanged from the PRD 24 config
+ * surface, or the explicit `parallel-children-reviewed` approval — and
+ * output-surface claims proven disjoint from the parent and every sibling.
+ * When any leg is missing the creation stops with guidance naming the serial
+ * default, which is the "serialize or stop for review" branch of R-GUARD-2.
+ */
 function validateChildRunRequest(input: {
   executionMode: PlaybookRunExecutionMode;
   outputSurfaceClaims: string[];
   parent: PlaybookRunState | null;
+  capabilitySnapshot: HarnessCapabilityEvaluation;
+  parallelChildrenReviewed: boolean;
 }): void {
   const { executionMode, outputSurfaceClaims, parent } = input;
   if (!parent) {
     return;
+  }
+  if (parent.terminalStatus) {
+    throw new OperationError(
+      `Parent run \`${parent.runId}\` is closed with terminal status \`${parent.terminalStatus}\`; ` +
+        "a closed run cannot orchestrate new child playbook runs (R-GUARD-1).",
+    );
   }
   if (parent.childPolicy === "none") {
     throw new OperationError(`Parent run \`${parent.runId}\` does not permit child playbooks.`);
@@ -613,6 +737,17 @@ function validateChildRunRequest(input: {
     throw new OperationError(`Parent run \`${parent.runId}\` does not permit parallel child playbooks.`);
   }
   if (executionMode === "parallel") {
+    const record = input.capabilitySnapshot.record;
+    const capabilitySupport =
+      record?.reviewStatus === "reviewed" && record.capabilities.parallel_playbook_runs === true;
+    if (!capabilitySupport && !input.parallelChildrenReviewed) {
+      throw new OperationError(
+        "Parallel child playbook runs require parallel-execution support: a reviewed " +
+          "`harnessCapabilities` record with `parallel_playbook_runs: true` in `.make-docs/config.yaml`, " +
+          "or the explicit `parallel-children-reviewed` approval from the calling surface. " +
+          "Start the child serially (the default) instead (R-GUARD-2).",
+      );
+    }
     const overlap = findOutputSurfaceOverlap(outputSurfaceClaims, [
       parent.outputSurfaceClaims,
       ...parent.childRuns.map((child) => child.outputSurfaceClaims),
@@ -625,7 +760,83 @@ function validateChildRunRequest(input: {
   }
 }
 
-function findOutputSurfaceOverlap(
+/**
+ * Output-surface conflict guardrail at run creation (R-GUARD-3): the new
+ * run's claims are checked against every other OPEN run of the project
+ * outside its serial family — overlap stops the creation rather than risking
+ * interleaved writes. The within-family checks for parallel children are
+ * owned by {@link validateChildRunRequest}, which runs first.
+ */
+function requireCreationClaimsFree(input: {
+  runId: string;
+  parentRunId: string | null;
+  executionMode: PlaybookRunExecutionMode;
+  outputSurfaceClaims: string[];
+  openRuns: PlaybookRunState[];
+}): void {
+  if (input.outputSurfaceClaims.length === 0) {
+    return;
+  }
+  const family = playbookRunFamilyIds({
+    runId: input.runId,
+    parentRunId: input.parentRunId,
+    executionMode: input.executionMode,
+    runsById: new Map(input.openRuns.map((run) => [run.runId, run])),
+  });
+  for (const other of input.openRuns) {
+    if (family.has(other.runId)) {
+      continue;
+    }
+    const overlap = findOutputSurfaceOverlap(input.outputSurfaceClaims, other.outputSurfaceClaims);
+    if (overlap) {
+      throw new OperationError(
+        `Run output-surface claim \`${overlap[0]}\` overlaps \`${overlap[1]}\` claimed by open run ` +
+          `\`${other.runId}\`; the runner stops rather than interleaving writes (R-GUARD-3). ` +
+          "Close the conflicting run or claim disjoint output surfaces.",
+      );
+    }
+  }
+}
+
+/** Open (non-terminal) run records of the project, inside one store connection. */
+function listOpenRunStates(db: StoreDatabase, projectId: string): PlaybookRunState[] {
+  return listPlaybookRunRecords(db, projectId)
+    .map((row) => row.record as unknown as PlaybookRunState)
+    .filter((run) => !run.terminalStatus);
+}
+
+/**
+ * The run identifiers a run does NOT execute concurrently with (W18 R7 P4;
+ * recorded R-GUARD-3 implementer decision): the run itself plus its serial
+ * ancestor chain. A serial child suspends the branch it belongs to, so an
+ * overlap with a serial ancestor is the normal delegation pattern, not an
+ * interleaving risk; a parallel run executes alongside its parent, so the
+ * chain stops at the first parallel link. Open descendants and unrelated
+ * open runs stay in the concurrent set — their overlapping claims stop the
+ * runner.
+ */
+export function playbookRunFamilyIds(input: {
+  runId: string;
+  parentRunId: string | null;
+  executionMode: PlaybookRunExecutionMode;
+  runsById: Map<string, PlaybookRunState>;
+}): Set<string> {
+  const family = new Set<string>([input.runId]);
+  let mode: PlaybookRunExecutionMode = input.executionMode;
+  let parentId = input.parentRunId;
+  while (parentId && mode === "serial" && !family.has(parentId)) {
+    family.add(parentId);
+    const parent = input.runsById.get(parentId);
+    if (!parent) {
+      break;
+    }
+    mode = parent.executionMode ?? "serial";
+    parentId = parent.parentRunId;
+  }
+  return family;
+}
+
+export function findOutputSurfaceOverlap(
   proposedClaims: string[],
   existingClaims: string[],
 ): [string, string] | null {
@@ -641,4 +852,14 @@ function findOutputSurfaceOverlap(
 
 function claimsOverlap(left: string, right: string): boolean {
   return left === right || left.startsWith(`${right}/`) || right.startsWith(`${left}/`);
+}
+
+function mergeHints(base: string[], extra: string[]): string[] {
+  const merged = [...base];
+  for (const hint of extra) {
+    if (hint && !merged.includes(hint)) {
+      merged.push(hint);
+    }
+  }
+  return merged;
 }
