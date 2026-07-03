@@ -78,6 +78,14 @@ import {
   materializeDependency,
   type MaterializedDependency,
 } from "./materialization";
+import {
+  MARKETPLACE_AUTO_REGISTRATION_CONFIG_HOME,
+  MARKETPLACE_AUTO_REGISTRATION_CONFIG_KEY,
+} from "./registration-seam";
+import {
+  bindPackageSupportTuple,
+  listUnboundSupportTupleDimensions,
+} from "./support-binding";
 import type {
   PackagePlanStop,
   PlaybookPackagePlan,
@@ -232,6 +240,19 @@ export function compilePackageInventory(input: CompilePackageInventoryInput): Pa
     stops.push({
       reason: "missing-support-evidence",
       message: `Harness \`${descriptor.harnessId}\` has a ${descriptor.verification.status} (unverified) adapter contract and must not carry a support claim; output stays export-only or provisional until the contract is verified and W18 R9 conformance evidence exists (R-ADAPT-1, R-PROV-3).`,
+    });
+  }
+  // Tuple-binding gate (W18 R8 P4, R-PROV-3): every support claim is bound to
+  // the exact tuple of scenario, harness, surface, scope, output kind, model
+  // or provider, and runtime. A `validated` claim whose tuple has unbound
+  // dimensions fails closed before any write — the dimensions bind only
+  // through W18 R9 conformance evidence, never through evidence refs alone.
+  const supportTuple = plan.support.tuple ?? bindPackageSupportTuple({ target: plan.target });
+  const unboundTupleDimensions = listUnboundSupportTupleDimensions(supportTuple);
+  if (plan.support.status === "validated" && unboundTupleDimensions.length > 0) {
+    stops.push({
+      reason: "missing-support-evidence",
+      message: `Support claim is not bound for tuple dimension(s) ${unboundTupleDimensions.join(", ")}; support claims stay provisional until W18 R9 conformance evidence binds the exact tuple (R-PROV-3).`,
     });
   }
   if (!descriptor || !container || selection.status === "unsupported") {
@@ -435,6 +456,15 @@ export function compilePackageInventory(input: CompilePackageInventoryInput): Pa
       schemaVersion: 1,
       autoRegister: false,
       note: "Registration files are generated but never auto-installed (R-MKT-1); the config-gated opt-in seam is owned by the global store (R-MKT-2).",
+      // The R-MKT-2 opt-in seam this record feeds: additive, off by default,
+      // configuration home in the global store owned by the Runtime and
+      // Global Store lineage. Only the key is named here; the store schema is
+      // never defined by packaging (R-SCOPE-1).
+      optInSeam: {
+        configKey: MARKETPLACE_AUTO_REGISTRATION_CONFIG_KEY,
+        configHome: MARKETPLACE_AUTO_REGISTRATION_CONFIG_HOME,
+        default: "off",
+      },
       files: registrationTargets.map((target) => ({
         generatedAt: `registration/${path.posix.basename(target)}`,
         installAt: target,
@@ -448,6 +478,28 @@ export function compilePackageInventory(input: CompilePackageInventoryInput): Pa
     ".make-docs/conformance.json",
   ];
   const generatedFiles = [...files.map((file) => file.path), ...recordPaths];
+  // Per-artifact provenance (R-PROV-1): every generated file — the records
+  // included — is traceable to its source refs, category, and generation
+  // tier, not just the package as a whole.
+  const recordCategories: Record<string, PackageInventoryCategory> = {
+    ".make-docs/provenance.json": "provenance-record",
+    ".make-docs/lifecycle.json": "lifecycle-record",
+    ".make-docs/conformance.json": "conformance-record",
+  };
+  const fileProvenance = [
+    ...files.map((file) => ({
+      path: file.path,
+      category: file.category,
+      tier: file.tier,
+      sourceRefs: file.sourceRefs,
+    })),
+    ...recordPaths.map((recordPath) => ({
+      path: recordPath,
+      category: recordCategories[recordPath]!,
+      tier: "deterministic" as const,
+      sourceRefs: plan.sources.map((source) => source.ref),
+    })),
+  ];
   files.push(recordFile("provenance-record", ".make-docs/provenance.json", {
     record: "make-docs.playbook-package.provenance",
     schemaVersion: 1,
@@ -460,6 +512,9 @@ export function compilePackageInventory(input: CompilePackageInventoryInput): Pa
     containerId: container.containerId,
     sources: plan.sources.map((source) => ({ ref: source.ref, digest: source.sourceDigest })),
     generatedFiles,
+    // R-PROV-1 per-artifact traceability: category, tier, and source refs
+    // for every generated file in the distributable.
+    files: fileProvenance,
     // R-GEN-1: the deterministic/agent-assisted boundary, recorded per field.
     generationTiers: groupGenerationTiers(plan),
     ownershipStatus: "make-docs-managed",
@@ -480,11 +535,21 @@ export function compilePackageInventory(input: CompilePackageInventoryInput): Pa
     schemaVersion: 1,
     supportStatus: plan.support.status,
     evidenceRefs: plan.support.evidenceRefs,
+    // The exact R-PROV-3 tuple this package's support claim binds to.
+    // Evidence-owned dimensions (scenario, model/provider, runtime) stay null
+    // until the W18 R9 conformance lineage binds them.
     tuple: {
-      harness: plan.target.harness,
-      surface: plan.target.surface,
-      scope: plan.target.scope,
-      outputKind: plan.target.outputKind,
+      scenario: supportTuple.scenario,
+      harness: supportTuple.harness,
+      surface: supportTuple.surface,
+      scope: supportTuple.scope,
+      outputKind: supportTuple.outputKind,
+      modelOrProvider: supportTuple.modelOrProvider,
+      runtime: supportTuple.runtime,
+    },
+    tupleBinding: {
+      unboundDimensions: [...unboundTupleDimensions],
+      note: "Unbound dimensions bind only through W18 R9 conformance evidence (PRD 37); the support claim stays provisional until every dimension of the exact tuple is bound (R-PROV-3).",
     },
     // The adapter-contract verification the R-ADAPT-1 gate applied: where the
     // harness contract was confirmed and how far that confirmation goes.
@@ -494,6 +559,14 @@ export function compilePackageInventory(input: CompilePackageInventoryInput): Pa
       ...(descriptor.verification.contractDigest
         ? { contractDigest: descriptor.verification.contractDigest }
         : {}),
+    },
+    // Backup/uninstall cleanliness (R-PROV-2) is PROVEN by a conformance
+    // scenario owned by the W18 R9 conformance design, not by this package's
+    // unit or integration coverage; the dependency is referenced here, never
+    // reimplemented (R-SCOPE-1).
+    cleanlinessScenario: {
+      owner: "W18 R9 conformance lineage (docs/prd/37-enhance-playbook-and-package-conformance.md)",
+      requirement: "R-PROV-2 via PRD 37 R-BAR-1/R-SCEN-1: uninstall and backup remove managed generated outputs without orphaning empty managed directories or deleting user-authored files.",
     },
     note: "Support claims remain provisional until conformance evidence exists for the exact tuple (R-PROV-3); unit and integration tests are not harness-recognition evidence (R-TEST-5).",
   }, plan));
@@ -930,6 +1003,16 @@ function renderHooksFile(input: {
   return `${JSON.stringify({ hooks }, null, 2)}\n`;
 }
 
+/**
+ * Renders one registration/marketplace file into the distributable (R-MKT-1:
+ * generated, never installed; the install seam is the P4 registration seam).
+ * The entry names the concrete install location the marketplace registers —
+ * the Make Docs `<user-home>` marker is lowered to `~` so the generated file
+ * is harness-usable as written, never a Make Docs-typed artifact (R-COMP-1).
+ * The entry field set follows the verified Codex registration model
+ * (R-ADAPT-2); real-harness acceptance of the entry stays W18 R9 evidence
+ * territory (R-TEST-5).
+ */
 function renderRegistrationFile(input: {
   plan: PlaybookPackagePlan;
   descriptor: HarnessCapabilityDescriptor;
@@ -940,13 +1023,16 @@ function renderRegistrationFile(input: {
     input.container.layout.placements.find(
       (candidate) => candidate.scope === input.plan.target.scope,
     ) ?? input.container.layout.placements[0]!;
-  const installPath = placement.pathTemplate.replaceAll("{packageId}", input.plan.packageId);
+  const installPath = placement.pathTemplate
+    .replaceAll("{packageId}", input.plan.packageId)
+    .replace(/^<user-home>\//, "~/");
   return `${JSON.stringify({
     plugins: [
       {
         id: input.plan.packageId,
         name: input.plan.title,
         description: input.plan.summary,
+        version: MANIFEST_VERSION,
         source: { type: "path", path: installPath },
       },
     ],

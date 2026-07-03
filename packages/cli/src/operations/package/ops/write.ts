@@ -45,6 +45,13 @@ const definition: OperationDefinition<PackageWriteInput> = {
       write: context.writesAllowed && !context.dryRun,
       reviewedOverwrite: context.approvals.has("reviewed-overwrite"),
       backupSnapshotReviewed: context.approvals.has("backup-snapshot-reviewed"),
+      // R-MKT-1 (W18 R8 P4): a user's global marketplace surface is never
+      // auto-mutated without explicit global scope AND this named approval;
+      // the default stays generate but do not install. The R-MKT-2 opt-in is
+      // read from the global store inside the writer, never from an input.
+      globalRegistrationApproved: context.approvals.has(
+        "global-marketplace-registration",
+      ),
     };
     return writePlaybookPackageOutputs(request);
   },

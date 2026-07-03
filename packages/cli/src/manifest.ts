@@ -6,6 +6,7 @@ import type {
   AgenticExposureMode,
   AgenticFileRole,
   AgenticOwnershipMetadata,
+  AgenticPackagingProvenance,
   AgenticPathKind,
   AuditPathKind,
   AuditPathMetadata,
@@ -1278,6 +1279,58 @@ function validateAgenticOwnershipMetadata(
           ),
         }
       : {}),
+    ...("packaging" in value
+      ? {
+          packaging: validateAgenticPackagingProvenance(
+            value.packaging,
+            `${label}.packaging`,
+          ),
+        }
+      : {}),
+  };
+}
+
+/**
+ * Per-artifact Playbook-packaging provenance (W18 R8 P4, R-PROV-1): source
+ * refs and digests, package profile, adapter id, output kind, generated file,
+ * category, and generation tier ride on the manifest ownership record so the
+ * manifest and audit surfaces stay the queryable provenance carriers.
+ */
+function validateAgenticPackagingProvenance(
+  value: unknown,
+  label: string,
+): AgenticPackagingProvenance {
+  assertPlainObject(value, label);
+  const profile = value.profile;
+  if (profile !== "native" && profile !== "portable") {
+    throw new Error(`${label}.profile must be native or portable`);
+  }
+  const outputKind = value.outputKind;
+  if (outputKind !== "plugin" && outputKind !== "skills-bundle") {
+    throw new Error(`${label}.outputKind must be plugin or skills-bundle`);
+  }
+  const generationTier = value.generationTier;
+  if (
+    generationTier !== undefined &&
+    generationTier !== "deterministic" &&
+    generationTier !== "agent-proposed"
+  ) {
+    throw new Error(`${label}.generationTier must be deterministic or agent-proposed`);
+  }
+  if (value.ownershipStatus !== "make-docs-managed") {
+    throw new Error(`${label}.ownershipStatus must be make-docs-managed`);
+  }
+  return {
+    packageId: validateString(value.packageId, `${label}.packageId`),
+    profile,
+    adapterId: validateString(value.adapterId, `${label}.adapterId`),
+    outputKind,
+    sourceRefs: validateStringArray(value.sourceRefs, `${label}.sourceRefs`),
+    sourceDigests: validateStringArray(value.sourceDigests, `${label}.sourceDigests`),
+    generatedFile: validateString(value.generatedFile, `${label}.generatedFile`),
+    category: validateString(value.category, `${label}.category`),
+    ...(generationTier !== undefined ? { generationTier } : {}),
+    ownershipStatus: "make-docs-managed",
   };
 }
 

@@ -256,6 +256,25 @@ function classifyManifestRecord(options: {
     return;
   }
 
+  // Skills-bundle exposure directories written by the Playbook packaging
+  // writer (W18 R8) carry skill-kind agentic ownership without W18 R5
+  // `skillExposure` metadata; classify them by their recorded symlink target
+  // so uninstall removes the managed exposure instead of orphaning it
+  // (R-KEEP-1, R-PROV-2).
+  if (
+    record.agenticOwnership?.artifactKind === "skill" &&
+    record.agenticOwnership.role === "native-exposure" &&
+    record.agenticOwnership.pathKind === "directory"
+  ) {
+    classifyPackagingSkillExposureRecord({
+      targetDir,
+      record,
+      removableFiles,
+      preservedPaths,
+    });
+    return;
+  }
+
   if (!statSync(record.absolutePath).isFile()) {
     addPreserved(
       preservedPaths,
@@ -462,6 +481,56 @@ function classifyManifestSkillExposureRecord(options: {
     createReason(
       "manifest-skill-exposure-mismatch",
       "The manifest-tracked native skill exposure does not match its recorded symlink target or canonical copy-mirror content and will be preserved.",
+    ),
+  );
+}
+
+/**
+ * Playbook-packaging skills-bundle exposure (W18 R8): a directory symlink at
+ * the harness path whose ownership record names the canonical payload
+ * directory. Removable only when the on-disk symlink still points at the
+ * recorded canonical payload; anything else is preserved for review.
+ */
+function classifyPackagingSkillExposureRecord(options: {
+  targetDir: string;
+  record: ManifestAuditRecord;
+  removableFiles: Map<string, AuditRemovableFile>;
+  preservedPaths: Map<string, AuditPreservedPath>;
+}): void {
+  const { targetDir, record, removableFiles, preservedPaths } = options;
+  const stats = lstatSync(record.absolutePath);
+
+  if (stats.isSymbolicLink()) {
+    const currentTarget = path.resolve(
+      path.dirname(record.absolutePath),
+      readlinkSync(record.absolutePath),
+    );
+    const expectedTarget = relativePathToTarget(
+      targetDir,
+      record.agenticOwnership?.canonicalPayloadPath ?? "",
+    );
+
+    if (path.resolve(currentTarget) === path.resolve(expectedTarget)) {
+      addRemovable(
+        removableFiles,
+        record,
+        createReason(
+          "managed-skill-exposure-symlink-match",
+          "The managed skills-bundle exposure symlink points at the recorded canonical package payload.",
+        ),
+        hashText(readlinkSync(record.absolutePath)),
+        record.manifestHash,
+      );
+      return;
+    }
+  }
+
+  addPreserved(
+    preservedPaths,
+    record,
+    createReason(
+      "manifest-skill-exposure-mismatch",
+      "The manifest-tracked skills-bundle exposure does not match its recorded symlink target and will be preserved.",
     ),
   );
 }

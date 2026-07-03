@@ -142,6 +142,31 @@ export {
   listHarnessPackageAdapters,
 } from "./adapters";
 export {
+  GLOBAL_MARKETPLACE_REGISTRATION_APPROVAL,
+  globalMarketplaceProtectionStops,
+  MARKETPLACE_AUTO_REGISTRATION_CONFIG_HOME,
+  MARKETPLACE_AUTO_REGISTRATION_CONFIG_KEY,
+  MARKETPLACE_REGISTRATION_WITHHOLD_REASONS,
+  readMarketplaceAutoRegistrationOptIn,
+  resolveMarketplaceRegistrationSeam,
+} from "./registration-seam";
+export type {
+  MarketplaceRegistrationFilePlan,
+  MarketplaceRegistrationSeamDecision,
+  MarketplaceRegistrationWithholdReason,
+} from "./registration-seam";
+export {
+  bindPackageSupportTuple,
+  capSupportStatusForTupleBinding,
+  isPackageSupportTupleBound,
+  listUnboundSupportTupleDimensions,
+  PACKAGE_SUPPORT_TUPLE_DIMENSIONS,
+} from "./support-binding";
+export type {
+  PackageSupportClaimTuple,
+  PackageSupportTupleDimension,
+} from "./support-binding";
+export {
   readPackageSurfaceResolution,
   resolvePackageSurface,
 } from "./surface-resolution";

@@ -375,6 +375,29 @@ export function validateHarnessCapabilityDescriptor(
   if (descriptor.registration.description.length === 0) {
     throw new OperationError(`${label} registration model must carry a description.`);
   }
+  // Registration model / registration file consistency (W18 R8 P4, R-MKT-1,
+  // R-CAP-2): a marketplace-entry model needs a registration file to generate
+  // into the distributable, and direct discovery has no registration surface,
+  // so declaring one would invite an install path no contract verified.
+  const declaredRegistrationFiles = descriptor.containers.flatMap(
+    (container) => container.layout.registrationFiles,
+  );
+  if (
+    descriptor.registration.kind === "marketplace-entry" &&
+    declaredRegistrationFiles.length === 0
+  ) {
+    throw new OperationError(
+      `${label} declares a marketplace-entry registration model but no container declares a registration file to generate (R-MKT-1, R-CAP-2).`,
+    );
+  }
+  if (
+    descriptor.registration.kind === "direct-discovery" &&
+    declaredRegistrationFiles.length > 0
+  ) {
+    throw new OperationError(
+      `${label} declares direct-discovery registration but a container declares registration files; direct discovery has no registration surface (R-CAP-2).`,
+    );
+  }
   for (const precondition of descriptor.preconditions) {
     if (precondition.id.length === 0 || precondition.description.length === 0) {
       throw new OperationError(`${label} preconditions must carry an id and description.`);

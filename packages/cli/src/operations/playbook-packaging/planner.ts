@@ -24,6 +24,10 @@ import {
   type PackageDistributable,
 } from "./distributable";
 import {
+  bindPackageSupportTuple,
+  capSupportStatusForTupleBinding,
+} from "./support-binding";
+import {
   PLAYBOOK_PACKAGE_OUTPUT_KINDS,
   PLAYBOOK_PACKAGE_SCOPES,
   PLAYBOOK_PACKAGE_SURFACES,
@@ -36,6 +40,7 @@ import {
   type PackageUnresolvedDecision,
   type PlaybookPackagePlan,
   type PlaybookPackagePlannerInput,
+  type PlaybookPackageTarget,
   type SourcePlaybookRef,
 } from "./types";
 import { validatePackagePlan, validatePackageTarget } from "./validation";
@@ -87,7 +92,7 @@ export function createPlaybookPackagePlan(input: PlaybookPackagePlannerInput): P
   // planner stays harness-neutral: the status comes from the descriptor
   // through the shared registry, never from a harness conditional.
   const verification = descriptor?.verification ?? null;
-  const support = buildSupport(input.supportEvidenceRefs, verification);
+  const support = buildSupport(input.supportEvidenceRefs, verification, target);
   const distributable = buildPlanDistributable({ compiledSources, input, target });
   fieldProvenance.distributable = "deterministic";
   fieldProvenance["distributable.unsupportedPrimitivePolicy"] = input.unsupportedPrimitivePolicy
@@ -549,21 +554,31 @@ function buildReviewReason(
 }
 
 /**
- * Support-status derivation bound to the R-ADAPT-1 verification gate:
- * evidence refs raise the status to `validated` only when the harness
- * contract verification is `verified`; an unverified adapter's output stays
- * provisional and carries no support claim (R-ADAPT-1, R-PROV-3).
+ * Support-status derivation bound to the R-ADAPT-1 verification gate and the
+ * R-PROV-3 tuple binding (W18 R8 P4): evidence refs can raise a status only
+ * when the harness contract verification is `verified` AND the exact tuple —
+ * scenario, harness, surface, scope, output kind, model or provider, and
+ * runtime — is fully bound. The planner cannot bind the evidence-owned
+ * dimensions (scenario, model/provider, runtime belong to the W18 R9
+ * conformance lineage), so every planner-built claim stays provisional and
+ * carries its tuple with those dimensions declared unbound.
  */
 function buildSupport(
   evidenceRefs: string[] | undefined,
   verification: HarnessDescriptorVerification | null,
+  target: PlaybookPackageTarget,
 ): PackagePlanSupport {
+  const tuple = bindPackageSupportTuple({ target });
   if (!evidenceRefs || evidenceRefs.length === 0) {
-    return { status: "provisional", evidenceRefs: [] };
+    return { status: "provisional", evidenceRefs: [], tuple };
   }
   return {
-    status: capSupportStatusForVerification("validated", verification),
+    status: capSupportStatusForTupleBinding(
+      capSupportStatusForVerification("validated", verification),
+      tuple,
+    ),
     evidenceRefs,
+    tuple,
   };
 }
 

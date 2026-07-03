@@ -36,6 +36,7 @@ import type {
   AgenticArtifactKind,
   AgenticFileRole,
   AgenticOwnershipMetadata,
+  AgenticPackagingProvenance,
   Harness,
   ManifestFileEntry,
   PluginSupportStatus,
@@ -50,12 +51,19 @@ import {
 import { listHarnessRegistryEntries } from "../harness-registry";
 import { findRepoRoot } from "../shared";
 import { OperationError } from "../types";
+import type { HarnessCapabilityDescriptor } from "./capability-descriptor";
 import {
   compilePackageInventory,
   loadPackageSourcesForWrite,
   type PackageInventory,
   type PackageInventoryFile,
 } from "./compiler";
+import {
+  globalMarketplaceProtectionStops,
+  readMarketplaceAutoRegistrationOptIn,
+  resolveMarketplaceRegistrationSeam,
+  type MarketplaceRegistrationSeamDecision,
+} from "./registration-seam";
 import { resolvePackageSurface } from "./surface-resolution";
 import type {
   GeneratedArtifactPlan,
@@ -100,12 +108,34 @@ export function writePlaybookPackageOutputs(
     ? compilePackageInventory({ repoRoot, plan, descriptor, sources: loaded.sources })
     : emptyInventory(plan);
 
+  // Marketplace/registration seam (W18 R8 P4, R-MKT-1/R-MKT-2): registration
+  // files stay generate-only inside the distributable; the R-MKT-2 opt-in is
+  // read from the global store (absent key = off) and recorded on the result,
+  // and no write set may touch a user's marketplace surface without explicit
+  // global scope and the named approval.
+  const globalRegistrationApproved = input.globalRegistrationApproved === true;
+  const registration = resolveMarketplaceRegistrationSeam({
+    scope: plan.target.scope,
+    autoRegistrationOptIn:
+      input.marketplaceAutoRegistration ??
+      readMarketplaceAutoRegistrationOptIn({ storeRoot: input.storeRoot, homeDir }),
+    globalApprovalGranted: globalRegistrationApproved,
+    files: registrationFilePlans(descriptor, inventory),
+  });
+
   const stops = [
     ...planWriteStops(plan),
     ...surfaceResolution.stops,
     ...loaded.stops,
     ...inventory.stops,
     ...manifestStops(repoRoot, plan),
+    ...globalMarketplaceProtectionStops({
+      registrationInstallTargets:
+        descriptor?.containers.flatMap((container) => container.layout.registrationFiles) ?? [],
+      plannedWritePaths: plannedWritePaths({ plan, canonicalRoot, inventory, surfaceResolution }),
+      scope: plan.target.scope,
+      globalApprovalGranted: globalRegistrationApproved,
+    }),
     ...existingOutputStops({
       repoRoot,
       homeDir,
@@ -182,6 +212,7 @@ export function writePlaybookPackageOutputs(
     ...(surfaceResolution.path ? { exposurePath: exposureRootPath(surfaceResolution) } : {}),
     exposureMode: surfaceResolution.exposureMode,
     payloadFiles: inventory.files.map((file) => file.path),
+    registration,
     records,
     filesWritten,
     manifestUpdated,
@@ -193,11 +224,51 @@ export function writePlaybookPackageOutputs(
       inventory,
       exposurePath: surfaceResolution.path ? exposureRootPath(surfaceResolution) : undefined,
       exposureMode: surfaceResolution.exposureMode,
+      registration,
       stops,
       write: input.write === true,
       manifestUpdated,
     }),
   };
+}
+
+/** Registration files generated into the resolved container (R-MKT-1). */
+function registrationFilePlans(
+  descriptor: HarnessCapabilityDescriptor | null,
+  inventory: PackageInventory,
+): MarketplaceRegistrationSeamDecision["files"] {
+  const container = descriptor?.containers.find(
+    (candidate) => candidate.containerId === inventory.containerId,
+  );
+  return (container?.layout.registrationFiles ?? []).map((target) => ({
+    generatedAt: `registration/${path.posix.basename(target)}`,
+    installAt: target,
+  }));
+}
+
+/**
+ * Every path this write would touch — canonical payload files, the exposure
+ * root, and copy-mirror files — audited by the R-MKT-1 marketplace guard.
+ */
+function plannedWritePaths(input: {
+  plan: PlaybookPackagePlan;
+  canonicalRoot: string;
+  inventory: PackageInventory;
+  surfaceResolution: PackageSurfaceResolution;
+}): string[] {
+  const paths = input.inventory.files.map((file) => joinRelative(input.canonicalRoot, file.path));
+  if (
+    input.plan.target.scope !== "export-only" &&
+    input.inventory.files.length > 0 &&
+    input.surfaceResolution.path.length > 0
+  ) {
+    const exposureRoot = exposureRootPath(input.surfaceResolution);
+    paths.push(exposureRoot);
+    if (input.surfaceResolution.exposureMode === "copy-mirror") {
+      paths.push(...input.inventory.files.map((file) => joinRelative(exposureRoot, file.path)));
+    }
+  }
+  return paths;
 }
 
 export function readPlaybookPackageWrite(input: PlaybookPackageWriteInput): {
@@ -488,6 +559,11 @@ function createManifestEntries(input: {
         role: canonicalRole,
         pathKind: "file",
         canonicalPayloadPath: canonicalPath,
+        packaging: packagingProvenance({
+          plan: input.plan,
+          inventory: input.inventory,
+          file,
+        }),
       }),
     };
   }
@@ -511,6 +587,7 @@ function createManifestEntries(input: {
         canonicalPayloadPath: input.canonicalRoot,
         exposurePath: exposureRoot,
         exposureMode: "symlink",
+        packaging: packagingProvenance({ plan: input.plan, inventory: input.inventory }),
       }),
     };
   }
@@ -529,11 +606,48 @@ function createManifestEntries(input: {
           canonicalPayloadPath: joinRelative(input.canonicalRoot, file.path),
           exposurePath: mirrorPath,
           exposureMode: "copy-mirror",
+          packaging: packagingProvenance({
+            plan: input.plan,
+            inventory: input.inventory,
+            file,
+          }),
         }),
       };
     }
   }
   return entries;
+}
+
+/**
+ * Per-artifact Playbook provenance for a manifest ownership record (W18 R8
+ * P4, R-PROV-1): source refs and digests, package profile, adapter id, output
+ * kind, generated file, category, and generation tier — queryable through the
+ * manifest and the audit records that embed it. Exposure entries (no `file`)
+ * carry the plan-level source set with the `exposure` category.
+ */
+function packagingProvenance(input: {
+  plan: PlaybookPackagePlan;
+  inventory: PackageInventory;
+  file?: PackageInventoryFile;
+}): AgenticPackagingProvenance {
+  const digestByRef = new Map(
+    input.plan.sources.map((source) => [source.ref, source.sourceDigest]),
+  );
+  const sourceRefs = input.file?.sourceRefs.length
+    ? input.file.sourceRefs
+    : input.plan.sources.map((source) => source.ref);
+  return {
+    packageId: input.plan.packageId,
+    profile: input.inventory.profile,
+    adapterId: input.plan.target.harness,
+    outputKind: input.plan.target.outputKind,
+    sourceRefs: [...sourceRefs],
+    sourceDigests: sourceRefs.map((ref) => digestByRef.get(ref) ?? "unknown"),
+    generatedFile: input.file?.path ?? ".",
+    category: input.file?.category ?? "exposure",
+    ...(input.file ? { generationTier: input.file.tier } : {}),
+    ownershipStatus: "make-docs-managed",
+  };
 }
 
 function createGeneratedOutputRecords(input: {
@@ -643,6 +757,7 @@ function renderWriteLines(input: {
   inventory: PackageInventory;
   exposurePath?: string;
   exposureMode: string;
+  registration: MarketplaceRegistrationSeamDecision;
   stops: PackagePlanStop[];
   write: boolean;
   manifestUpdated: boolean;
@@ -655,6 +770,14 @@ function renderWriteLines(input: {
     `Payload files: ${input.inventory.files.length}`,
     ...input.inventory.files.map((file) => `- ${file.category}: ${file.path}`),
     ...(input.exposurePath ? [`Harness exposure: ${input.exposurePath} (${input.exposureMode})`] : []),
+    `Registration: ${input.registration.disposition}${
+      input.registration.autoRegistrationOptIn
+        ? ` (auto-registration opt-in recognized; withheld: ${input.registration.withheldBecause.join(", ")})`
+        : " (auto-registration opt-in off; R-MKT-1 default)"
+    }`,
+    ...input.registration.files.map(
+      (file) => `- registration file: ${file.generatedAt} (would install at ${file.installAt}; not installed)`,
+    ),
     `Writes executed: ${input.write && input.stops.length === 0 ? "yes" : "no"}`,
     `Manifest updated: ${input.manifestUpdated ? "yes" : "no"}`,
     ...input.stops.map((stop) => `Stop: ${stop.reason} - ${stop.message}`),
@@ -690,6 +813,7 @@ function ownership(input: {
   canonicalPayloadPath?: string;
   exposurePath?: string;
   exposureMode?: AgenticOwnershipMetadata["exposureMode"];
+  packaging: AgenticPackagingProvenance;
 }): AgenticOwnershipMetadata {
   return {
     artifactKind: input.artifactKind,
@@ -712,6 +836,7 @@ function ownership(input: {
       description: "Generated from a Make Docs Playbook package plan.",
     },
     supportStatus: supportStatus(input.plan.support.status),
+    packaging: input.packaging,
   };
 }
 

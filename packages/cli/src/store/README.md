@@ -32,6 +32,7 @@ Both files are pretty-printed JSON, written atomically (temp file + rename, `jso
 
 - The global config is deliberately **JSON, not YAML**, so it is structurally distinct from the project-owned presentation overlay at `<repo>/.make-docs/config.yaml` and the two can never be confused or cross-read (R-STORE-2, R-KEEP-1). The global config loader takes only a store root and never reads a project directory; no project config loader reads the store.
 - Shape: `config.json` is `{ schemaVersion, settings: { selfUpdate: "prompt" | "auto" | "off", marketplaceAutoRegistration: boolean } }`; unknown or invalid settings degrade to defaults with warnings.
+- `settings.marketplaceAutoRegistration` is the R-MKT-2 auto-registration opt-in seam consumed by Playbook packaging (W18 R8 P4): `packages/cli/src/operations/playbook-packaging/registration-seam.ts` READS the key through `loadGlobalConfig` (absent key = off) and never defines or extends the store schema. Even when opted in, packaging ships generate-only pending W18 R9 conformance evidence; the key's schema and defaults stay owned here by the Runtime and Global Store lineage.
 - `manifest.json` is `{ schemaVersion, createdAt, updatedAt, lastBootstrap: { packageName, packageVersion, nodeVersion, at }, database: { file, schemaVersion, status } }`. It is tool-level state only; each project's `.make-docs/manifest.json` remains the canonical install record (R-MIR-1).
 
 ### Project identifier generation: random UUID (v4), minted once at setup

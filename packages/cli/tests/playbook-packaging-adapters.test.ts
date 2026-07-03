@@ -271,14 +271,31 @@ describe("adapter verification references and status gating (R-ADAPT-1)", () => 
     tempRoots.push(root);
     writeSimplePlaybook(root, "user", "run-stack", "Run Stack");
 
-    // Verified Codex contract: user-supplied evidence refs bind as before.
+    // Verified Codex contract: evidence refs are preserved, but the W18 R8 P4
+    // tuple-binding cap (R-PROV-3) holds the status provisional — the
+    // evidence-owned tuple dimensions (scenario, model/provider, runtime)
+    // bind only through W18 R9 conformance evidence, so no validated support
+    // wording ships from the packaging lineage. The exact tuple rides on the
+    // claim with its unbound dimensions declared.
     const codexPlan = createPlaybookPackagePlan({
       repoRoot: root,
       refs: ["user/run-stack"],
       target: { harness: "codex", outputKind: "plugin", surface: "native", scope: "project" },
       supportEvidenceRefs: [SUPPORT_EVIDENCE_REF],
     }).plan;
-    expect(codexPlan.support).toEqual({ status: "validated", evidenceRefs: [SUPPORT_EVIDENCE_REF] });
+    expect(codexPlan.support).toEqual({
+      status: "provisional",
+      evidenceRefs: [SUPPORT_EVIDENCE_REF],
+      tuple: {
+        scenario: null,
+        harness: "codex",
+        surface: "native",
+        scope: "project",
+        outputKind: "plugin",
+        modelOrProvider: null,
+        runtime: null,
+      },
+    });
 
     // Unverified Claude Code and Pi contracts: the same evidence refs are
     // preserved but the status is capped — no support claim (R-ADAPT-1).
@@ -292,6 +309,15 @@ describe("adapter verification references and status gating (R-ADAPT-1)", () => 
       expect(plan.support).toEqual({
         status: "provisional",
         evidenceRefs: [SUPPORT_EVIDENCE_REF],
+        tuple: {
+          scenario: null,
+          harness,
+          surface: "agents-standard",
+          scope: "project",
+          outputKind: "skills-bundle",
+          modelOrProvider: null,
+          runtime: null,
+        },
       });
       // The gate input is declared in the reviewed plan, never silent.
       expect(plan.deterministicDerivations.adapterVerification).toContain("provisional");
@@ -391,12 +417,18 @@ describe("re-verification requirement via the contract digest (R-ADAPT-1)", () =
       "changed since verification",
     );
 
+    // The drifted registration file stays non-empty so the marketplace-entry
+    // consistency invariant (P4, R-MKT-1) passes and the digest drift itself
+    // is what fails validation.
     const withDriftedRegistration: HarnessCapabilityDescriptor = {
       ...codex,
       containers: [
         {
           ...codex.containers[0]!,
-          layout: { ...codex.containers[0]!.layout, registrationFiles: [] },
+          layout: {
+            ...codex.containers[0]!.layout,
+            registrationFiles: [".agents/plugins/other-marketplace.json"],
+          },
         },
         ...codex.containers.slice(1),
       ],

@@ -479,6 +479,32 @@ export interface PluginExposureMetadata {
   fallbackReason?: string;
 }
 
+/**
+ * Playbook-packaging provenance carried on manifest ownership records (W18 R8
+ * P4, R-PROV-1): every generated artifact stays traceable to its source
+ * Playbook refs and digests, package profile, adapter id, output kind, and
+ * the concrete generated file — queryable through the manifest and the audit
+ * records that embed it, not only through the in-tree
+ * `.make-docs/provenance.json`. `adapterId` is the free-form harness adapter
+ * identifier, so provenance survives adapters (like `pi`) that are not
+ * first-class {@link Harness} values.
+ */
+export interface AgenticPackagingProvenance {
+  packageId: string;
+  profile: "native" | "portable";
+  adapterId: string;
+  outputKind: "plugin" | "skills-bundle";
+  sourceRefs: string[];
+  sourceDigests: string[];
+  /** Container-relative generated file this entry tracks; "." for the exposure root. */
+  generatedFile: string;
+  /** Compiler inventory category (skill, harness-manifest, ...); "exposure" for exposure entries. */
+  category: string;
+  /** R-GEN-1 generation tier of the file's semantic content; absent on exposure entries. */
+  generationTier?: "deterministic" | "agent-proposed";
+  ownershipStatus: "make-docs-managed";
+}
+
 export interface AgenticOwnershipMetadata {
   artifactKind: AgenticArtifactKind;
   role: AgenticFileRole;
@@ -496,6 +522,8 @@ export interface AgenticOwnershipMetadata {
   provenance?: string;
   trustPolicy?: PluginTrustPolicy;
   supportStatus?: PluginSupportStatus;
+  /** Per-artifact Playbook-packaging provenance (W18 R8 P4, R-PROV-1). */
+  packaging?: AgenticPackagingProvenance;
 }
 
 export interface InstallManifest {

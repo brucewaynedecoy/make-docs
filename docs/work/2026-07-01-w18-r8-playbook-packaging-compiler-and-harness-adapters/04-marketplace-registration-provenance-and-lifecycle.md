@@ -30,9 +30,9 @@ Generate marketplace and registration files into the distributable with generate
 
 ### Tasks
 
-- [ ] t1: Generate registration and marketplace files into the distributable per the target's registration model from its capability descriptor (R-MKT-1, R-CAP-2).
-- [ ] t2: Enforce that a user's global marketplace is never auto-mutated without an explicit global scope and approval; the default is generate but do not install (R-MKT-1).
-- [ ] t3: Define the config-gated policy seam through which auto-registration may later be opted into, additive and off by default, with its configuration home in the global store owned by the Runtime and Global Store lineage; define only what the seam requires, never the store schema (R-MKT-2, R-SCOPE-1).
+- [x] t1: Generate registration and marketplace files into the distributable per the target's registration model from its capability descriptor (R-MKT-1, R-CAP-2).
+- [x] t2: Enforce that a user's global marketplace is never auto-mutated without an explicit global scope and approval; the default is generate but do not install (R-MKT-1).
+- [x] t3: Define the config-gated policy seam through which auto-registration may later be opted into, additive and off by default, with its configuration home in the global store owned by the Runtime and Global Store lineage; define only what the seam requires, never the store schema (R-MKT-2, R-SCOPE-1).
 
 ### Acceptance criteria
 
@@ -49,8 +49,8 @@ Generate marketplace and registration files into the distributable with generate
 
 ### Tasks
 
-- [ ] t4: Carry Playbook provenance on every generated artifact: source ref and digest, package profile, adapter id, output kind, generated files, ownership status, and support status (R-PROV-1).
-- [ ] t5: Keep manifest and audit records distinguishing source Playbooks, generated outputs, symlink exposures, copy mirrors, export-only files, user-authored files, and legacy generated outputs, preserving the W18 R5 classification (R-KEEP-1).
+- [x] t4: Carry Playbook provenance on every generated artifact: source ref and digest, package profile, adapter id, output kind, generated files, ownership status, and support status (R-PROV-1).
+- [x] t5: Keep manifest and audit records distinguishing source Playbooks, generated outputs, symlink exposures, copy mirrors, export-only files, user-authored files, and legacy generated outputs, preserving the W18 R5 classification (R-KEEP-1).
 
 ### Acceptance criteria
 
@@ -65,9 +65,9 @@ Generate marketplace and registration files into the distributable with generate
 
 ### Tasks
 
-- [ ] t6: Scope backup and uninstall to Make Docs-owned generated outputs only, without orphaning empty managed directories or deleting user-authored files, inheriting the PRD 32 lifecycle rules (R-PROV-2).
-- [ ] t7: Record that backup/uninstall cleanliness is proven by a conformance scenario owned by the conformance design; reference that scenario rather than defining conformance here (R-PROV-2, R-SCOPE-1).
-- [ ] t8: Bind every support claim to the exact tuple of scenario, harness, surface, scope, output kind, model or provider, and runtime, and hold it provisional until conformance evidence exists (R-PROV-3).
+- [x] t6: Scope backup and uninstall to Make Docs-owned generated outputs only, without orphaning empty managed directories or deleting user-authored files, inheriting the PRD 32 lifecycle rules (R-PROV-2).
+- [x] t7: Record that backup/uninstall cleanliness is proven by a conformance scenario owned by the conformance design; reference that scenario rather than defining conformance here (R-PROV-2, R-SCOPE-1).
+- [x] t8: Bind every support claim to the exact tuple of scenario, harness, surface, scope, output kind, model or provider, and runtime, and hold it provisional until conformance evidence exists (R-PROV-3).
 
 ### Acceptance criteria
 

@@ -4,6 +4,8 @@ import type {
   HarnessDescriptorVerification,
 } from "./capability-descriptor";
 import type { PackageDistributable, UnsupportedPrimitivePolicy } from "./distributable";
+import type { MarketplaceRegistrationSeamDecision } from "./registration-seam";
+import type { PackageSupportClaimTuple } from "./support-binding";
 
 export const PLAYBOOK_PACKAGE_OUTPUT_KINDS = ["plugin", "skills-bundle"] as const;
 export const PLAYBOOK_PACKAGE_SURFACES = ["native", "agents-standard", "auto"] as const;
@@ -113,6 +115,15 @@ export interface PackagePlanReview {
 export interface PackagePlanSupport {
   status: PlaybookPackageSupportStatus;
   evidenceRefs: string[];
+  /**
+   * The exact tuple this support claim binds to (W18 R8 P4, R-PROV-3):
+   * scenario, harness, surface, scope, output kind, model or provider, and
+   * runtime. Evidence-owned dimensions stay `null` until the W18 R9
+   * conformance lineage binds them, and a `validated` status is capped to
+   * `provisional` while any dimension is unbound. Optional so pre-P4 plan
+   * payloads keep validating.
+   */
+  tuple?: PackageSupportClaimTuple;
 }
 
 export interface PackagePlanLifecycle {
@@ -291,6 +302,22 @@ export interface PlaybookPackageWriteInput {
   reviewedOverwrite?: boolean;
   backupSnapshotReviewed?: boolean;
   staleOutputs?: GeneratedOutputRecord[];
+  /**
+   * Explicit global-store root for reading the R-MKT-2 auto-registration
+   * opt-in; defaults to `MAKE_DOCS_HOME` and then `~/.make-docs`.
+   */
+  storeRoot?: string;
+  /**
+   * Explicit override of the R-MKT-2 opt-in for tests and embedders; when
+   * absent the writer reads `settings.marketplaceAutoRegistration` from the
+   * global store (absent key = off).
+   */
+  marketplaceAutoRegistration?: boolean;
+  /**
+   * The named `global-marketplace-registration` approval (R-MKT-1): required
+   * before any write may land on a user's global marketplace surface.
+   */
+  globalRegistrationApproved?: boolean;
 }
 
 export interface PlaybookPackageWriteResult {
@@ -303,6 +330,8 @@ export interface PlaybookPackageWriteResult {
   exposureMode: PackageAdapterExposureMode;
   /** Canonical-root-relative paths of the compiled distributable inventory (R-COMP-3). */
   payloadFiles: string[];
+  /** The R-MKT-1/R-MKT-2 seam decision for this write: always generate-only. */
+  registration: MarketplaceRegistrationSeamDecision;
   records: GeneratedOutputRecord[];
   filesWritten: string[];
   manifestUpdated: boolean;

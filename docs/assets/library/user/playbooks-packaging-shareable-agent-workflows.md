@@ -72,7 +72,7 @@ A written package is a real folder tree in the target harness's own format, not 
 - copies of the Playbook's repository reference material under `references/`, with external sources linked instead of copied;
 - runnable dependency checks under `checks/` — small shell scripts you can run yourself (for example `sh checks/<dependency>.sh`) to confirm a required tool is available before using the workflow;
 - hook files when a Playbook step is bound to a harness event the target supports;
-- registration or marketplace files generated for your review — Make Docs writes them into the package but never registers the package anywhere on your behalf;
+- registration or marketplace files generated for your review — Make Docs writes them into the package but never registers the package anywhere on your behalf (see Registering a Package Is Manual below);
 - Make Docs tracking records in a `.make-docs/` folder inside the package, covering provenance, dependencies, and lifecycle. These are bookkeeping, not the installable artifact.
 
 One honest caveat still applies: Make Docs does not claim a harness actually recognizes a generated package until the W18 R9 conformance work records that evidence against the real harness. See the next section for what each harness's layout verification currently means.
@@ -89,6 +89,26 @@ Each harness has its own install locations, and Make Docs now declares them per 
 These layouts are not all equally confirmed, and Make Docs says so per harness. The Codex layout is verified against the documented Codex contract. The Claude Code and Pi layouts are declared but still provisional: the Claude Code shapes await review against the real Claude Code plugin and skill contract, and the Pi paths are inferred rather than confirmed. Provisional means the files are real and the layout is Make Docs' best declared contract, but you should expect it could still change once checked against the actual harness.
 
 Verification also gates support claims automatically: a package cannot claim validated support for a harness whose contract is not verified — Make Docs caps the claim to provisional and stops a write that asserts otherwise. And even a verified layout is not a recognition claim; that evidence bar belongs to the W18 R9 conformance work.
+
+## Registering a Package Is Manual
+
+Make Docs never registers a package with a harness or a marketplace on your behalf. It generates the registration files into the package and stops there — registering is your step:
+
+- For a **Codex plugin**, the package includes a marketplace entry (the `.agents/plugins/marketplace.json` content) that is usable as written — home-directory paths are already lowered to `~` and the entry carries the package version. You place or merge that entry into your Codex marketplace surface yourself.
+- The package's `registration/` folder holds every registration file the target harness needs, and the `.make-docs/registration.json` record inside the package describes what they are for.
+- Skills-bundle outputs need no registration at all — harnesses discover them directly at the standard skills location.
+
+There is a configuration key for future auto-registration — `settings.marketplaceAutoRegistration` in the machine-level `~/.make-docs/config.json`, off by default — but turning it on does not register anything today. Make Docs recognizes the opt-in and records it, then still refuses: every package write reports the decision and exactly why installation was withheld (opt-in off, scope not global, approval missing, or — always, for now — auto-registration not yet shipped pending conformance evidence). Auto-registration will only ever be possible for global-scope writes you explicitly approve, and it stays disabled until the W18 R9 conformance work proves the install path against real harnesses.
+
+## Uninstalling and Backing Up Installed Packages
+
+Installed packages are tracked in the Make Docs manifest, so removal is safe and scoped:
+
+- Backup copies exactly the generated files Make Docs owns — nothing else is swept up.
+- Uninstall removes the package payload and its harness exposure (the symlink or copy mirror), and cleans up harness directories it emptied without deleting directories that still hold anything else.
+- Your own files are never touched: user-authored files stay, and a generated file you edited locally is preserved rather than deleted.
+
+This behavior is now proven by tests that write real Codex plugin and Claude Code skills-bundle packages and run the actual uninstall against them. As always, that is Make Docs testing its own behavior — it is not evidence that a harness recognizes the package, which remains the W18 R9 bar.
 
 ## What Make Docs Tracks
 
@@ -171,10 +191,12 @@ Packaging also does not mean every workflow bundle becomes its own plugin. A sin
 
 Support is evidence-bound. A generated package should not claim support for a harness until Make Docs has implementation or conformance evidence for that exact output shape, and a validated support claim additionally requires the harness contract itself to be verified — an unverified harness can only produce provisional or export-only packages.
 
+Since the Phase 4 work, every support claim is also bound to an exact combination of scenario, harness, surface, scope, output kind, model or provider, and runtime. Some of those pieces can only be filled in by real conformance evidence, which does not exist yet, so today every claim reads provisional — including for the verified Codex layout. Provisional here means: the package is real, the layout is Make Docs' best verified or declared contract, but no recorded run has yet proven the end-to-end outcome for your exact combination. Earlier builds could show a validated claim on the strength of a cited evidence document alone; that was overstated and is now deliberately capped until the W18 R9 evidence exists.
+
 ## Future Coverage
 
 - Blocked by: a first-class packaging surface beyond the current operation commands. The W18 R8 Phase 2 compiler landed — packages are now real harness-native trees and plans list their files — but no friendlier command has shipped, and the downgrade-versus-stop choice on unsupported behavior exists on the underlying plan operation without a CLI flag. Update when: Make Docs ships a first-class packaging command, MCP-guided flow, or plugin surface, including the CLI flag for that choice. Guide change: replace low-level operation examples with the primary user workflow and keep operation commands as troubleshooting or maintainer detail.
-- Blocked by: W18 R9 conformance evidence and the Claude Code and Pi real-contract reviews. Update when: the first generated plugin and skills-bundle outputs are validated against real harnesses and the Claude Code and Pi layouts move past provisional. Guide change: add supported harness/output combinations with their evidence, and drop the per-harness provisional wording in Where Generated Packages Land as each layout is confirmed.
+- Blocked by: W18 R9 conformance evidence and the Claude Code and Pi real-contract reviews. Update when: the first generated plugin and skills-bundle outputs are validated against real harnesses and the Claude Code and Pi layouts move past provisional. Guide change: add supported harness/output combinations with their evidence, drop the per-harness provisional wording in Where Generated Packages Land as each layout is confirmed, and revise Registering a Package Is Manual if the conformance evidence lets the auto-registration opt-in actually ship.
 
 ## Related Resources
 

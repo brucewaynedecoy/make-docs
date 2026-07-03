@@ -16,6 +16,7 @@ import {
   type PackageDistributable,
   type PlaybookSkillProjection,
 } from "./distributable";
+import type { PackageSupportClaimTuple } from "./support-binding";
 import {
   GENERATED_OUTPUT_RECORD_KINDS,
   PACKAGE_PLAN_STOP_REASONS,
@@ -250,6 +251,30 @@ function validatePackagePlanSupport(value: unknown): PackagePlanSupport {
   return {
     status: requireEnum(record.status, PLAYBOOK_PACKAGE_SUPPORT_STATUSES, "package plan support status"),
     evidenceRefs: requireStringArray(record.evidenceRefs, "package plan support evidenceRefs"),
+    ...(record.tuple !== undefined
+      ? { tuple: validateSupportClaimTuple(record.tuple) }
+      : {}),
+  };
+}
+
+/** The exact R-PROV-3 tuple a support claim binds to (W18 R8 P4). */
+function validateSupportClaimTuple(value: unknown): PackageSupportClaimTuple {
+  const record = requireRecord(value, "package plan support tuple");
+  return {
+    scenario: requireNullableString(record.scenario, "package plan support tuple scenario"),
+    harness: validateHarnessId(record.harness, "package plan support tuple harness"),
+    surface: requireEnum(record.surface, PLAYBOOK_PACKAGE_SURFACES, "package plan support tuple surface"),
+    scope: requireEnum(record.scope, PLAYBOOK_PACKAGE_SCOPES, "package plan support tuple scope"),
+    outputKind: requireEnum(
+      record.outputKind,
+      PLAYBOOK_PACKAGE_OUTPUT_KINDS,
+      "package plan support tuple outputKind",
+    ),
+    modelOrProvider: requireNullableString(
+      record.modelOrProvider,
+      "package plan support tuple modelOrProvider",
+    ),
+    runtime: requireNullableString(record.runtime, "package plan support tuple runtime"),
   };
 }
 
