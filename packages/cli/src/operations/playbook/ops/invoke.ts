@@ -5,6 +5,7 @@ import { invokePlaybook, type PlaybookInvocationPlan } from "../index";
 
 const inputSchema = z.object({
   repoRoot: z.string().optional(),
+  storeRoot: z.string().optional(),
   ref: z.string(),
   requestedStack: z.string().nullish(),
   harness: z.string(),
@@ -28,6 +29,7 @@ export const playbookInvokeOperation: OperationDefinition<
   handler(input, context) {
     return invokePlaybook({
       repoRoot: path.resolve(context.cwd, input.repoRoot ?? "."),
+      storeRoot: input.storeRoot,
       ref: input.ref,
       requestedStack: input.requestedStack,
       harness: input.harness,

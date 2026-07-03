@@ -5,6 +5,7 @@ import { readPlaybookRunState, type PlaybookRunState } from "../index";
 
 const inputSchema = z.object({
   repoRoot: z.string().optional(),
+  storeRoot: z.string().optional(),
   runId: z.string(),
 });
 
@@ -14,13 +15,14 @@ export const playbookStatusOperation: OperationDefinition<
 > = {
   id: "playbook.status",
   summary:
-    "Operation `playbook.status`: read Make Docs-owned Playbook run state for resume or audit.",
+    "Operation `playbook.status`: read Make Docs-owned Playbook run state from the global store for resume or audit.",
   mutates: "read",
   status: "active",
   inputSchema,
   handler(input, context) {
     return readPlaybookRunState({
       repoRoot: path.resolve(context.cwd, input.repoRoot ?? "."),
+      storeRoot: input.storeRoot,
       runId: input.runId,
     });
   },

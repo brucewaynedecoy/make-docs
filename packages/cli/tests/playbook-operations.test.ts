@@ -1,4 +1,4 @@
-import { mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { afterEach, describe, expect, test } from "vitest";
 import {
@@ -7,11 +7,17 @@ import {
   createPlaybookRunState,
   evaluateHarnessCapabilities,
   invokePlaybook,
+  PLAYBOOK_RUN_TERMINAL_STATUSES,
   readPlaybookRunState,
   resolvePlaybook,
+  transitionPlaybookRunState,
   validatePlaybooks,
 } from "../src/operations";
-import { cleanupTempDir, createTempDir } from "./helpers";
+import { PLAYBOOK_STEP_STATUSES } from "../src/playbook";
+import { loadSqliteDriver, readPlaybookRunRecord, withStoreDatabase } from "../src/store";
+import { cleanupTempDir, collectFiles, createTempDir, writeMinimalManifest } from "./helpers";
+
+const sqliteAvailable = loadSqliteDriver().available;
 
 function writeFile(root: string, relativePath: string, content: string): string {
   const absolutePath = path.join(root, relativePath);
@@ -410,9 +416,28 @@ describe("playbook operation domain", () => {
     );
   });
 
-  test("creates Make Docs-owned run state with resolver and capability snapshots", () => {
-    const root = createTempDir("make-docs-playbooks-");
-    tempRoots.push(root);
+});
+
+describe.skipIf(!sqliteAvailable)("playbook run state in the global store", () => {
+  const tempRoots: string[] = [];
+
+  afterEach(() => {
+    for (const root of tempRoots.splice(0)) {
+      cleanupTempDir(root);
+    }
+  });
+
+  /** A repo fixture with a manifest-minted identity plus a sandboxed store root. */
+  function createRunFixture(): { root: string; storeRoot: string; projectId: string } {
+    const root = createTempDir("make-docs-playbook-runs-");
+    const storeRoot = createTempDir("make-docs-playbook-store-");
+    tempRoots.push(root, storeRoot);
+    const projectId = writeMinimalManifest(root);
+    return { root, storeRoot, projectId };
+  }
+
+  test("creates run state in the global store keyed by project id plus run id, never under the repository", () => {
+    const { root, storeRoot, projectId } = createRunFixture();
     writeFile(
       root,
       ".make-docs/config.yaml",
@@ -446,9 +471,11 @@ describe("playbook operation domain", () => {
         playbookBody("Use System"),
       ].join("\n"),
     );
+    const repoFilesBefore = collectFiles(root);
 
     const result = createPlaybookRunState({
       repoRoot: root,
+      storeRoot,
       ref: "user/use-system",
       requestedStack: "run",
       harness: "codex",
@@ -456,35 +483,314 @@ describe("playbook operation domain", () => {
       outputSurfaceClaims: ["docs/assets/archive/history"],
       currentStep: "start",
       currentGate: "review",
-      status: "paused",
+      status: "waiting-for-user",
       resumeHints: ["Resume after review."],
     });
 
-    expect(result.statePath).toBe(path.join(root, ".make-docs/runs/playbooks/root-run/state.json"));
+    expect(result.projectId).toBe(projectId);
     expect(result.state).toEqual(
       expect.objectContaining({
         runId: "root-run",
         rootRunId: "root-run",
         parentRunId: null,
+        projectId,
         playbookRef: "user/use-system",
         stack: "run",
         harness: "codex",
-        currentStep: "start",
-        currentGate: "review",
+        cursor: { kind: "gate", id: "review" },
         childPolicy: "serial",
         outputSurfaceClaims: ["docs/assets/archive/history"],
-        status: "paused",
+        status: "waiting-for-user",
+        terminalStatus: null,
         resumeHints: ["Resume after review."],
         stateSource: "make-docs",
         harnessAssistsAreSourceOfTruth: false,
       }),
     );
-    expect(readPlaybookRunState({ repoRoot: root, runId: "root-run" }).runId).toBe("root-run");
+
+    // The record landed in the store keyed by (projectId, runId)...
+    const row = withStoreDatabase(storeRoot, (db) =>
+      readPlaybookRunRecord(db, projectId, "root-run"),
+    );
+    expect(row).not.toBeNull();
+    expect(row?.record).toEqual(expect.objectContaining({ runId: "root-run", projectId }));
+    expect(readPlaybookRunState({ repoRoot: root, storeRoot, runId: "root-run" }).runId).toBe("root-run");
+
+    // ...and the repository is byte-for-byte untouched (R-STORE-1, R-TEST-5).
+    expect(collectFiles(root)).toEqual(repoFilesBefore);
+    expect(existsSync(path.join(root, ".make-docs", "runs"))).toBe(false);
+  });
+
+  test("carries the full R-STATE-1 record content from the parsed Playbook model", () => {
+    const { root, storeRoot, projectId } = createRunFixture();
+    writeFile(
+      root,
+      "docs/assets/playbooks/user/ship-docs.playbook.md",
+      conformantPlaybook("user", "ship-docs", "Ship Docs"),
+    );
+
+    const { state } = createPlaybookRunState({
+      repoRoot: root,
+      storeRoot,
+      ref: "user/ship-docs",
+      requestedStack: "run",
+      harness: "codex",
+      runId: "record-run",
+    });
+
+    expect(Object.keys(state).sort()).toEqual(
+      [
+        "schemaVersion",
+        "runId",
+        "rootRunId",
+        "parentRunId",
+        "projectId",
+        "playbookRef",
+        "playbookPath",
+        "sourceDigest",
+        "documentSchemaVersion",
+        "workflowSchemaVersion",
+        "stack",
+        "harness",
+        "capabilitySnapshot",
+        "routingModel",
+        "stepStatuses",
+        "gateDecisions",
+        "dependencyAvailability",
+        "outputSurfaceClaims",
+        "outputRefs",
+        "evidenceRefs",
+        "cursor",
+        "childPolicy",
+        "concurrencyPolicy",
+        "childRuns",
+        "resumeHints",
+        "status",
+        "terminalStatus",
+        "stateSource",
+        "harnessAssistsAreSourceOfTruth",
+        "createdAt",
+        "updatedAt",
+      ].sort(),
+    );
+    expect(state.projectId).toBe(projectId);
+    expect(state.sourceDigest).toMatch(/^[0-9a-f]{64}$/);
+    expect(state.documentSchemaVersion).toBe("make-docs.playbook.v1");
+    expect(state.workflowSchemaVersion).toBe("make-docs.workflow.v1");
+    expect(state.routingModel).toBe("linear");
+    expect(state.stepStatuses).toEqual([{ stepId: "check-catalog", status: "pending" }]);
+    expect(state.dependencyAvailability).toEqual([
+      { id: "make-docs-cli", kind: "cli", requirement: "required", availability: "unknown" },
+    ]);
+    expect(state.gateDecisions).toEqual([]);
+    expect(state.outputRefs).toEqual([]);
+    expect(state.evidenceRefs).toEqual([]);
+    expect(state.childRuns).toEqual([]);
+    expect(state.terminalStatus).toBeNull();
+    expect(state.createdAt).toBe(state.updatedAt);
+  });
+
+  test("binds step and run status to exactly the eight shared W18 R6 values", () => {
+    expect(PLAYBOOK_STEP_STATUSES).toEqual([
+      "pending",
+      "running",
+      "blocked",
+      "waiting-for-user",
+      "completed",
+      "failed",
+      "skipped",
+      "cancelled",
+    ]);
+    for (const status of PLAYBOOK_RUN_TERMINAL_STATUSES) {
+      expect(PLAYBOOK_STEP_STATUSES).toContain(status);
+    }
+
+    const { root, storeRoot } = createRunFixture();
+    writePlaybook(root, "user", "use-system", "run", "Use System");
+    expect(() => createPlaybookRunState({
+      repoRoot: root,
+      storeRoot,
+      ref: "user/use-system",
+      harness: "codex",
+      runId: "vocab-run",
+      // The retired W18 R4 vocabulary must be rejected (R-STATE-2).
+      status: "planned" as never,
+    })).toThrow("shared step statuses");
+  });
+
+  test("refuses run-state storage without a manifest-minted project identity", () => {
+    const root = createTempDir("make-docs-playbook-runs-");
+    const storeRoot = createTempDir("make-docs-playbook-store-");
+    tempRoots.push(root, storeRoot);
+    writePlaybook(root, "user", "use-system", "run", "Use System");
+
+    expect(() => createPlaybookRunState({
+      repoRoot: root,
+      storeRoot,
+      ref: "user/use-system",
+      harness: "codex",
+      runId: "orphan-run",
+    })).toThrow("never by a repository path");
+    expect(() => readPlaybookRunState({ repoRoot: root, storeRoot, runId: "orphan-run" })).toThrow(
+      "no .make-docs/manifest.json",
+    );
+  });
+
+  test("create fails on a duplicate run id and transition fails on a missing run", () => {
+    const { root, storeRoot } = createRunFixture();
+    writePlaybook(root, "user", "use-system", "run", "Use System");
+    createPlaybookRunState({
+      repoRoot: root,
+      storeRoot,
+      ref: "user/use-system",
+      harness: "codex",
+      runId: "run-1",
+    });
+
+    expect(() => createPlaybookRunState({
+      repoRoot: root,
+      storeRoot,
+      ref: "user/use-system",
+      harness: "codex",
+      runId: "run-1",
+    })).toThrow("already exists");
+    expect(() => transitionPlaybookRunState({
+      repoRoot: root,
+      storeRoot,
+      runId: "missing-run",
+      apply: (state) => state,
+    })).toThrow("No Playbook run state found for run id `missing-run`.");
+  });
+
+  test("transitions an existing run record in place through the storage seam", () => {
+    const { root, storeRoot, projectId } = createRunFixture();
+    writePlaybook(root, "user", "use-system", "run", "Use System");
+    createPlaybookRunState({
+      repoRoot: root,
+      storeRoot,
+      ref: "user/use-system",
+      harness: "codex",
+      runId: "run-1",
+      status: "running",
+    });
+
+    const next = transitionPlaybookRunState({
+      repoRoot: root,
+      storeRoot,
+      runId: "run-1",
+      apply: (state) => ({
+        ...state,
+        status: "completed",
+        terminalStatus: "completed",
+        cursor: null,
+      }),
+    });
+
+    expect(next.status).toBe("completed");
+    expect(next.terminalStatus).toBe("completed");
+    const stored = withStoreDatabase(storeRoot, (db) =>
+      readPlaybookRunRecord(db, projectId, "run-1"),
+    );
+    expect(stored?.record).toEqual(
+      expect.objectContaining({ status: "completed", terminalStatus: "completed" }),
+    );
+  });
+
+  test("requires parent permission before creating child playbook runs", () => {
+    const { root, storeRoot } = createRunFixture();
+    writePlaybook(root, "user", "parent", "run", "Parent");
+    writePlaybook(root, "user", "child", "run", "Child");
+    createPlaybookRunState({
+      repoRoot: root,
+      storeRoot,
+      ref: "user/parent",
+      requestedStack: "run",
+      harness: "codex",
+      runId: "parent-run",
+    });
+
+    expect(() => createPlaybookRunState({
+      repoRoot: root,
+      storeRoot,
+      ref: "user/child",
+      requestedStack: "run",
+      harness: "codex",
+      runId: "child-run",
+      parentRunId: "parent-run",
+    })).toThrow("does not permit child playbooks");
+  });
+
+  test("links child runs into the parent record and stops overlapping parallel claims", () => {
+    const { root, storeRoot, projectId } = createRunFixture();
+    writeFile(
+      root,
+      "docs/assets/playbooks/user/parent.md",
+      [
+        "---",
+        "title: Parent",
+        "kind: playbook",
+        "status: accepted",
+        "persona: user",
+        "stack: run",
+        "summary: Parent summary.",
+        "run:",
+        "  child_playbooks: parallel",
+        "  concurrency: parallel-allowed",
+        "---",
+        "",
+        playbookBody("Parent"),
+      ].join("\n"),
+    );
+    writePlaybook(root, "user", "child-a", "run", "Child A");
+    writePlaybook(root, "user", "child-b", "run", "Child B");
+    createPlaybookRunState({
+      repoRoot: root,
+      storeRoot,
+      ref: "user/parent",
+      requestedStack: "run",
+      harness: "codex",
+      runId: "parent-run",
+    });
+    const childResult = createPlaybookRunState({
+      repoRoot: root,
+      storeRoot,
+      ref: "user/child-a",
+      requestedStack: "run",
+      harness: "codex",
+      runId: "child-a",
+      parentRunId: "parent-run",
+      executionMode: "parallel",
+      outputSurfaceClaims: ["docs/prd"],
+    });
+
+    expect(childResult.state.rootRunId).toBe("parent-run");
+    expect(childResult.parentState?.childRuns).toEqual([
+      expect.objectContaining({ runId: "child-a", outputSurfaceClaims: ["docs/prd"] }),
+    ]);
+    const parentRow = withStoreDatabase(storeRoot, (db) =>
+      readPlaybookRunRecord(db, projectId, "parent-run"),
+    );
+    expect(parentRow?.record).toEqual(
+      expect.objectContaining({
+        childRuns: [expect.objectContaining({ runId: "child-a" })],
+      }),
+    );
+
+    expect(() => createPlaybookRunState({
+      repoRoot: root,
+      storeRoot,
+      ref: "user/child-b",
+      requestedStack: "run",
+      harness: "codex",
+      runId: "child-b",
+      parentRunId: "parent-run",
+      executionMode: "parallel",
+      outputSurfaceClaims: ["docs/prd/29-revise-playbook-contract-run-playbook.md"],
+    })).toThrow("output-surface claims overlap");
   });
 
   test("invokes the generic run model without requiring plugin packaging", () => {
-    const root = createTempDir("make-docs-playbooks-");
-    tempRoots.push(root);
+    const { root, storeRoot } = createRunFixture();
     writeFile(root, ".make-docs/contracts/system/example.md", "# Example Authority\n");
     writePlaybook(root, "user", "use-system", "run", "Use System", {
       runMetadata: [
@@ -529,6 +835,7 @@ describe("playbook operation domain", () => {
 
     const invocation = invokePlaybook({
       repoRoot: root,
+      storeRoot,
       ref: "user/use-system",
       requestedStack: "run",
       harness: "codex",
@@ -571,17 +878,18 @@ describe("playbook operation domain", () => {
     expect(invocation.state).toEqual(
       expect.objectContaining({
         runId: "invoke-run",
-        status: "paused",
-        currentStep: "procedure-1",
-        currentGate: "gate-1",
+        // A gate pause is `waiting-for-user` in the shared vocabulary (R-STATE-2).
+        status: "waiting-for-user",
+        cursor: { kind: "gate", id: "gate-1" },
       }),
     );
-    expect(readPlaybookRunState({ repoRoot: root, runId: "invoke-run" }).status).toBe("paused");
+    expect(readPlaybookRunState({ repoRoot: root, storeRoot, runId: "invoke-run" }).status).toBe(
+      "waiting-for-user",
+    );
   });
 
   test("blocks invocation when referenced authority is missing", () => {
-    const root = createTempDir("make-docs-playbooks-");
-    tempRoots.push(root);
+    const { root, storeRoot } = createRunFixture();
     writePlaybook(root, "user", "missing-authority", "run", "Missing Authority", {
       body: playbookBody("Missing Authority").replace(
         "- Repo-local Make Docs contracts.",
@@ -591,6 +899,7 @@ describe("playbook operation domain", () => {
 
     const invocation = invokePlaybook({
       repoRoot: root,
+      storeRoot,
       ref: "user/missing-authority",
       requestedStack: "run",
       harness: "codex",
@@ -604,8 +913,7 @@ describe("playbook operation domain", () => {
   });
 
   test("blocks invocation when required assists need review", () => {
-    const root = createTempDir("make-docs-playbooks-");
-    tempRoots.push(root);
+    const { root, storeRoot } = createRunFixture();
     writePlaybook(root, "user", "needs-assist", "run", "Needs Assist", {
       runMetadata: [
         "run:",
@@ -616,6 +924,7 @@ describe("playbook operation domain", () => {
 
     const invocation = invokePlaybook({
       repoRoot: root,
+      storeRoot,
       ref: "user/needs-assist",
       requestedStack: "run",
       harness: "codex",
@@ -628,8 +937,7 @@ describe("playbook operation domain", () => {
   });
 
   test("requires explicit playbook permission before unattended gate continuation", () => {
-    const root = createTempDir("make-docs-playbooks-");
-    tempRoots.push(root);
+    const { root, storeRoot } = createRunFixture();
     writePlaybook(root, "user", "unattended", "run", "Unattended", {
       runMetadata: [
         "run:",
@@ -639,6 +947,7 @@ describe("playbook operation domain", () => {
 
     const invocation = invokePlaybook({
       repoRoot: root,
+      storeRoot,
       ref: "user/unattended",
       requestedStack: "run",
       harness: "codex",
@@ -649,85 +958,8 @@ describe("playbook operation domain", () => {
 
     expect(invocation.status).toBe("ready");
     expect(invocation.state.status).toBe("running");
-    expect(invocation.state.currentGate).toBeNull();
+    expect(invocation.state.cursor).toEqual({ kind: "step", id: "procedure-1" });
     expect(invocation.outputRouting.effectiveSurfaceClaims).toEqual(["docs/assets/archive/history"]);
-  });
-
-  test("requires parent permission before creating child playbook runs", () => {
-    const root = createTempDir("make-docs-playbooks-");
-    tempRoots.push(root);
-    writePlaybook(root, "user", "parent", "run", "Parent");
-    writePlaybook(root, "user", "child", "run", "Child");
-    createPlaybookRunState({
-      repoRoot: root,
-      ref: "user/parent",
-      requestedStack: "run",
-      harness: "codex",
-      runId: "parent-run",
-    });
-
-    expect(() => createPlaybookRunState({
-      repoRoot: root,
-      ref: "user/child",
-      requestedStack: "run",
-      harness: "codex",
-      runId: "child-run",
-      parentRunId: "parent-run",
-    })).toThrow("does not permit child playbooks");
-  });
-
-  test("stops parallel child runs with overlapping output-surface claims", () => {
-    const root = createTempDir("make-docs-playbooks-");
-    tempRoots.push(root);
-    writeFile(
-      root,
-      "docs/assets/playbooks/user/parent.md",
-      [
-        "---",
-        "title: Parent",
-        "kind: playbook",
-        "status: accepted",
-        "persona: user",
-        "stack: run",
-        "summary: Parent summary.",
-        "run:",
-        "  child_playbooks: parallel",
-        "  concurrency: parallel-allowed",
-        "---",
-        "",
-        playbookBody("Parent"),
-      ].join("\n"),
-    );
-    writePlaybook(root, "user", "child-a", "run", "Child A");
-    writePlaybook(root, "user", "child-b", "run", "Child B");
-    createPlaybookRunState({
-      repoRoot: root,
-      ref: "user/parent",
-      requestedStack: "run",
-      harness: "codex",
-      runId: "parent-run",
-    });
-    createPlaybookRunState({
-      repoRoot: root,
-      ref: "user/child-a",
-      requestedStack: "run",
-      harness: "codex",
-      runId: "child-a",
-      parentRunId: "parent-run",
-      executionMode: "parallel",
-      outputSurfaceClaims: ["docs/prd"],
-    });
-
-    expect(() => createPlaybookRunState({
-      repoRoot: root,
-      ref: "user/child-b",
-      requestedStack: "run",
-      harness: "codex",
-      runId: "child-b",
-      parentRunId: "parent-run",
-      executionMode: "parallel",
-      outputSurfaceClaims: ["docs/prd/29-revise-playbook-contract-run-playbook.md"],
-    })).toThrow("output-surface claims overlap");
   });
 });
 

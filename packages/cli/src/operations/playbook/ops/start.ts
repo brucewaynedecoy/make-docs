@@ -1,10 +1,12 @@
 import path from "node:path";
 import { z } from "zod";
+import { PLAYBOOK_STEP_STATUSES } from "../../../playbook";
 import type { OperationDefinition } from "../../registry";
 import { createPlaybookRunState } from "../index";
 
 const inputSchema = z.object({
   repoRoot: z.string().optional(),
+  storeRoot: z.string().optional(),
   ref: z.string(),
   requestedStack: z.string().nullish(),
   harness: z.string(),
@@ -16,7 +18,8 @@ const inputSchema = z.object({
   outputSurfaceClaims: z.array(z.string()).optional(),
   currentStep: z.string().nullish(),
   currentGate: z.string().nullish(),
-  status: z.enum(["planned", "running", "paused", "blocked", "completed"]).optional(),
+  // Run status is the shared W18 R6 step-status vocabulary (R-STATE-2).
+  status: z.enum(PLAYBOOK_STEP_STATUSES).optional(),
   resumeHints: z.array(z.string()).optional(),
 });
 
@@ -26,13 +29,14 @@ export const playbookStartOperation: OperationDefinition<
 > = {
   id: "playbook.start",
   summary:
-    "Operation `playbook.start`: create Make Docs-owned Playbook run state before execution begins.",
+    "Operation `playbook.start`: create Make Docs-owned Playbook run state in the global store before execution begins.",
   mutates: "write",
   status: "active",
   inputSchema,
   handler(input, context) {
     return createPlaybookRunState({
       repoRoot: path.resolve(context.cwd, input.repoRoot ?? "."),
+      storeRoot: input.storeRoot,
       ref: input.ref,
       requestedStack: input.requestedStack,
       harness: input.harness,

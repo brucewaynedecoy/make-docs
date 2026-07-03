@@ -29,9 +29,9 @@ Implement the run-state record content required by R-STATE-1, bind its per-step 
 
 ### Tasks
 
-- [ ] t1: Define the runner's storage interface against the global store — read, create, and transition a run record keyed by project identifier plus run identifier — without defining the store schema, locking, or recovery (R-STORE-1, R-STORE-3).
-- [ ] t2: Source the stable project identifier from the project manifest as minted at setup, and reject any code path that keys run state by directory path (R-STORE-2).
-- [ ] t3: Remove or retarget every code path that writes run state under `.make-docs/runs/` or any other repository path, including the existing create and read capabilities in `packages/cli/src/operations/playbook/index.ts` (R-STORE-1).
+- [x] t1: Define the runner's storage interface against the global store — read, create, and transition a run record keyed by project identifier plus run identifier — without defining the store schema, locking, or recovery (R-STORE-1, R-STORE-3).
+- [x] t2: Source the stable project identifier from the project manifest as minted at setup, and reject any code path that keys run state by directory path (R-STORE-2).
+- [x] t3: Remove or retarget every code path that writes run state under `.make-docs/runs/` or any other repository path, including the existing create and read capabilities in `packages/cli/src/operations/playbook/index.ts` (R-STORE-1).
 
 ### Acceptance criteria
 
@@ -48,9 +48,9 @@ Implement the run-state record content required by R-STATE-1, bind its per-step 
 
 ### Tasks
 
-- [ ] t4: Implement the run-state record carrying at least run identifier, root run identifier, parent run identifier, project identifier, playbook ref, source digest, document and workflow schema versions, stack, harness, capability snapshot, routing model, per-step status, gate decisions, dependency availability snapshot, claimed output surfaces, output and evidence references, the current cursor of step or gate, child run references, resume hints, timestamps, and terminal status (R-STATE-1).
-- [ ] t5: Bind per-step status to exactly the shared vocabulary `pending`, `running`, `blocked`, `waiting-for-user`, `completed`, `failed`, `skipped`, `cancelled` from the W18 R6 Playbook model, with no parallel status vocabulary anywhere in the runner (R-STATE-2).
-- [ ] t6: Choose and document the concrete run-state serialization within the store as an implementer decision, verifying it carries the full R-STATE-1 content (D9 open choice).
+- [x] t4: Implement the run-state record carrying at least run identifier, root run identifier, parent run identifier, project identifier, playbook ref, source digest, document and workflow schema versions, stack, harness, capability snapshot, routing model, per-step status, gate decisions, dependency availability snapshot, claimed output surfaces, output and evidence references, the current cursor of step or gate, child run references, resume hints, timestamps, and terminal status (R-STATE-1).
+- [x] t5: Bind per-step status to exactly the shared vocabulary `pending`, `running`, `blocked`, `waiting-for-user`, `completed`, `failed`, `skipped`, `cancelled` from the W18 R6 Playbook model, with no parallel status vocabulary anywhere in the runner (R-STATE-2).
+- [x] t6: Choose and document the concrete run-state serialization within the store as an implementer decision, verifying it carries the full R-STATE-1 content (D9 open choice).
 
 ### Acceptance criteria
 

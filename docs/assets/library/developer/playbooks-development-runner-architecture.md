@@ -25,12 +25,16 @@ related:
   - ../../../prd/30-revise-harness-plugin-substrate-workflow-bundles.md
   - ../../../prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md
   - ../../../prd/34-revise-playbook-contract-and-model.md
+  - ../../../prd/35-revise-run-playbook-state-machine.md
+  - ../../../prd/38-revise-global-store-and-project-state.md
+  - ../../../../packages/cli/src/store/README.md
   - ../../../../.make-docs/contracts/system/playbook-contract.md
   - ../../../designs/2026-06-27-run-playbook-orchestration-and-harness-capabilities.md
   - ../../../designs/2026-06-29-playbook-packaging-and-harness-adapter-registry.md
   - ../../../work/2026-06-23-w18-r1-playbook-contract-run-playbook/00-index.md
   - ../../../work/2026-06-27-w18-r4-run-playbook-orchestration-and-harness-capabilities/00-index.md
   - ../../../work/2026-06-29-w18-r5-playbook-packaging-and-harness-adapter-registry/00-index.md
+  - ../../../work/2026-07-01-w18-r7-run-playbook-state-machine/00-index.md
 ---
 
 # Run Playbook Runner Architecture
@@ -69,10 +73,10 @@ W18 R4 Phase 3 adds read-only harness capability evaluation:
 - `make-docs run playbook capabilities --repo-root <path> --harness <id> --requires-capability <id> --prefers-capability <id>` evaluates a request without mutating config or starting a run.
 - MCP exposes the same behavior through `make_docs_playbook_capabilities`.
 
-W18 R4 Phase 4 adds Make Docs-owned run-state primitives:
+W18 R4 Phase 4 added Make Docs-owned run-state primitives; since W18 R7 Phase 1 they store to the global store instead of the repository:
 
-- `make-docs run playbook start <ref> --repo-root <path> --harness <id> [--run-id <id>]` creates `.make-docs/runs/playbooks/<run-id>/state.json`.
-- `make-docs run playbook status --repo-root <path> --run-id <id>` reads saved run state for resume or audit.
+- `make-docs run playbook start <ref> --repo-root <path> --harness <id> [--run-id <id>] [--store-root <path>]` creates the run record in the global store's `playbook_runs` facet, keyed by the manifest-minted project identifier plus the run identifier.
+- `make-docs run playbook status --repo-root <path> --run-id <id> [--store-root <path>]` reads the stored run record for resume or audit.
 - MCP exposes `make_docs_playbook_start` behind `allowWrite=true` and `make_docs_playbook_status` as a read-only state inspection tool; both names derive from the registry identifiers.
 
 W18 R1 Phase 3 adds the first generic invocation primitive:
@@ -134,7 +138,7 @@ W18 R6 Phase 4 wires that library into the operation surface at `packages/cli/sr
 
 Both operations detect the `<slug>.playbook.md` suffix form and the deprecated plain `<slug>.md` form with frontmatter `kind: playbook`; the deprecated form stays catalogable and validatable but carries PB-FILE-007 until it is renamed. Every parsed fact and every diagnostic comes from the library — the operation layer never re-parses Playbook Markdown — so a future language server wrapping the same library produces identical diagnostics, and the machine-check that pins the contract's diagnostic table to the exported catalog also pins what these operations report. The stable operation identifiers `playbook.validate` and `playbook.catalog` are consumed from the operation registry as an external contract; do not mint identifiers or hardcode CLI command strings inside library or operation code.
 
-The pre-contract W18 R4 catalog validation is no longer what the catalog operation enforces. Its internal implementation is retained only behind the runner lineage — the resolve operation behind `run playbook resolve`, run-state, invoke, and packaging still select candidates through it, with minimal suffix-form support — until W18 R7 moves those surfaces onto the parsed Playbook model.
+The pre-contract W18 R4 catalog validation is no longer what the catalog operation enforces. Its internal implementation is retained only behind the runner lineage — the resolve operation behind `run playbook resolve`, run-state, invoke, and packaging still select candidates through it, with minimal suffix-form support — until W18 R7 moves those surfaces onto the parsed Playbook model. Since W18 R7 Phase 1, run-state creation already parses the selected Playbook through `parseAndValidatePlaybook` and seeds the run record — source digest, schema versions, routing model, step statuses, and the dependency availability snapshot — from the parsed model; candidate selection still flows through the retained resolver.
 
 Do not make transitional paths such as `docs/library/playbooks/**` selectable. Historical playbook files are migration evidence only; the v2 runner and resolver should use the canonical `docs/assets/playbooks/**` tree.
 
@@ -163,21 +167,17 @@ The implemented evaluator trusts only `reviewStatus: reviewed` records. Unreview
 
 ## Run State
 
-Make Docs-owned run state lives under `.make-docs/runs/playbooks/<run-id>/state.json`.
+Since W18 R7 Phase 1, Make Docs-owned run state lives in the machine-level global store at `~/.make-docs/`, in the `playbook_runs` facet, keyed by the manifest-minted stable project identifier plus a run identifier. It is never written under `.make-docs/runs/` or any other repository path, and it is never keyed by a directory path; the retired `.make-docs/runs/playbooks/<run-id>/state.json` location is the per-repo anti-pattern this relocation removed.
 
-State should capture enough information to resume or audit a run:
+The runner's storage seam is `packages/cli/src/operations/playbook/run-state.ts`: `createPlaybookRunState`, `readPlaybookRunState`, and `transitionPlaybookRunState` wrap the store's record primitives inside `withStoreDatabase`. Project identity comes exclusively from `resolveProjectIdentity`; an `unminted`, `no-manifest`, or `unreadable` identity fails the operation with actionable setup guidance instead of falling back to a path-keyed or in-repo location. The store's schema, locking, and recovery are consumed from `packages/cli/src/store/` and are never redefined in runner code — read [the store module README](../../../../packages/cli/src/store/README.md) before touching that boundary. Tests and sandboxes may pass an explicit store root (`storeRoot` on the operations, `--store-root` on the CLI adapters); the default resolution is explicit option, then `MAKE_DOCS_HOME`, then `~/.make-docs`.
 
-- selected Playbook identity and source path;
-- resolved authority and inputs;
-- runner policy and capability decisions;
-- current step, gate, or blocked reason;
-- declared output surfaces and child-run claims;
-- completed steps and produced outputs;
-- resumability and interrupt metadata.
+The `PlaybookRunState` record (`schemaVersion: 2`) carries the full PRD 35 R-STATE-1 content: run, root-run, and parent-run identifiers, project identifier, playbook ref and path, source digest, document and workflow schema versions, stack, harness, capability snapshot, routing model, per-step statuses, gate decisions, a dependency availability snapshot, claimed output surfaces, output and evidence references, the current step-or-gate cursor, child policy and concurrency policy, child-run references, resume hints, run status, terminal status, and created/updated timestamps. The serialization is a recorded D9 implementer decision: one JSON document per run in the `playbook_runs` record column, versioned by the record's own `schemaVersion`, so the runner lineage can evolve the record shape without store schema migrations.
 
-Manifest state remains for managed installation ownership. It should not become the home for local harness capability knowledge or transient Playbook execution state.
+Per-step status, run status, and terminal status use exactly the shared eight-value W18 R6 vocabulary from `packages/cli/src/playbook/model.ts` — `pending`, `running`, `blocked`, `waiting-for-user`, `completed`, `failed`, `skipped`, `cancelled` — with the terminal statuses a type-checked subset (`completed`, `failed`, `cancelled`). A fail-closed runtime guard rejects anything else, including the retired W18 R4 `planned`/`paused` run-status vocabulary, which is deleted; the invoke flow translates its invocation-plan statuses into shared values (`ready` becomes `running`, a gate pause becomes `waiting-for-user`). Do not introduce a parallel status set anywhere in the runner.
 
-The implemented state creator records `stateSource: "make-docs"` and `harnessAssistsAreSourceOfTruth: false` so harness-native goal or long-running features remain assists rather than the recovery authority.
+Manifest state remains for managed installation ownership. It should not become the home for local harness capability knowledge or transient Playbook execution state. The record keeps `stateSource: "make-docs"` and `harnessAssistsAreSourceOfTruth: false` so harness-native goal or long-running features remain assists rather than the recovery authority.
+
+Transitions go only through `transitionPlaybookRunState`, which reads, applies, stamps `updatedAt`, and replaces the record in one store connection; a transition fails explicitly when the run does not exist, so it can never silently create state, and it must not change the run or project identifier. What a valid transition is — statuses, cursors, gate semantics — belongs to the W18 R7 Phase 2 progression operations; Phase 1 fixes only the record and its storage.
 
 ## Nested And Parallel Playbooks
 
@@ -187,7 +187,7 @@ The runner should treat each child Playbook as its own run with its own state, w
 
 Default behavior is serial and gated. Parallelism is an opt-in capability, not a default optimization.
 
-The implemented child-run guard reads the parent run state before creating a child state file. Parent Playbooks default to `child_playbooks: none`; serial or parallel children require explicit parent metadata. Parallel child runs also fail when their output-surface claims overlap with the parent run or an existing child run.
+The implemented child-run guard reads the parent run record from the store before creating a child record, and links the child into the parent's child-run references in the same store connection, with root-run identity shared through `rootRunId`. Parent Playbooks default to `child_playbooks: none`; serial or parallel children require explicit parent metadata. Parallel child runs also fail when their output-surface claims overlap with the parent run or an existing child run.
 
 ## Plugin And Workflow Bundle Boundary
 
@@ -217,9 +217,9 @@ When a new runner behavior is added, it needs focused operation tests and parity
 
 ## Future Coverage
 
-This guide should be refreshed when W18 implementation chooses final run-state command names, state schema details, plugin bundle entry points, package-planner commands, harness adapter modules, and generated-output writers. It should also be updated with links to additional concrete operation modules and tests as W18 R1 through W18 R5 land.
+This guide should be refreshed when W18 implementation chooses final plugin bundle entry points, package-planner commands, harness adapter modules, and generated-output writers. It should also be updated with links to additional concrete operation modules and tests as W18 R1 through W18 R5 land.
 
-- Blocked by: W18 R7 run-state relocation onto the W18 R10 global store seam. Update when: run state moves from `.make-docs/runs/playbooks/<run-id>/state.json` to the global store's `playbook_runs` facet, whose storage seam is now complete at `packages/cli/src/store/` — W18 R10 P1 landed the table keyed by project identifier plus run identifier, and W18 R10 P3 landed the create, read, transition, and list record seam with the payload stored opaquely and the record shape and progression semantics left to this runner lineage (see [the store module README](../../../../packages/cli/src/store/README.md)). Guide change: rewrite the Run State section's storage location and the run-state operation paths around the global store while keeping the run-record shape and progression semantics owned by the runner lineage.
+- Blocked by: the W18 R7 Phase 2 progression operations (`playbook.next`, `playbook.advance`, `playbook.gate`, `playbook.resume`, `playbook.close`) and the later mode-execution, resume, and guardrail phases. Update when: the progression engine lands over the Phase 1 storage seam and the five pending registry identifiers flip to active handlers. Guide change: document the progression semantics — side-effect-free `next`, evidence-carrying `advance` and `gate`, digest-checked `resume`, terminal `close` — plus execution by step mode and the run-time guardrails, replacing the invoke-centric run description above.
 
 ## Related Resources
 
@@ -231,6 +231,9 @@ This guide should be refreshed when W18 implementation chooses final run-state c
 - [30 Revise Harness Plugin Substrate Workflow Bundles](../../../prd/30-revise-harness-plugin-substrate-workflow-bundles.md)
 - [33 Enhance Playbook Packaging and Harness Adapter Registry](../../../prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md)
 - [34 Revise Playbook Contract and Model](../../../prd/34-revise-playbook-contract-and-model.md)
+- [35 Revise Run Playbook State Machine](../../../prd/35-revise-run-playbook-state-machine.md)
+- [38 Revise Global Store and Project State](../../../prd/38-revise-global-store-and-project-state.md)
+- [Global Store Module README](../../../../packages/cli/src/store/README.md)
 - [Playbook Contract](../../../../.make-docs/contracts/system/playbook-contract.md)
 - [Run Playbook Orchestration and Harness Capabilities](../../../designs/2026-06-27-run-playbook-orchestration-and-harness-capabilities.md)
 - [Playbook Packaging and Harness Adapter Registry](../../../designs/2026-06-29-playbook-packaging-and-harness-adapter-registry.md)

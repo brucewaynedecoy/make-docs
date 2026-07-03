@@ -20,6 +20,7 @@ related:
   - ../../../prd/30-revise-harness-plugin-substrate-workflow-bundles.md
   - ../../../prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md
   - ../../../prd/34-revise-playbook-contract-and-model.md
+  - ../../../prd/35-revise-run-playbook-state-machine.md
   - ../../../../.make-docs/contracts/system/playbook-contract.md
   - ../../../designs/2026-06-27-run-playbook-orchestration-and-harness-capabilities.md
   - ../../../designs/2026-06-29-playbook-packaging-and-harness-adapter-registry.md
@@ -73,6 +74,8 @@ make-docs run playbook invoke agent/make-docs-lifecycle --repo-root . --harness 
 
 The command validates the Playbook and creates Make Docs run state. It does not bypass review gates or turn the Playbook into a plugin.
 
+Run state lives in the machine-level global store at `~/.make-docs/`, not in your repository. Starting or invoking a run writes nothing under the project — there is no `.make-docs/runs/` clutter to commit or ignore — and the run is keyed to the stable project identity Make Docs minted at setup plus a run identifier, so it survives moving or renaming the repository directory. This also means Playbook runs need a set-up project: in a repository without Make Docs installed, or with an older install that predates the project identifier, `run playbook start` and `run playbook invoke` stop with guidance to run `make-docs setup` (or run `make-docs` once to mint the identifier) instead of writing state anywhere. `make-docs run playbook status --run-id <id>` reads the same stored record back for resume or audit.
+
 ## What Users Can Do With Playbooks
 
 Users will be able to use Playbooks as repeatable workflows instead of rebuilding Make Docs procedure knowledge from scratch each time.
@@ -88,7 +91,7 @@ A team can also install Playbooks as shared project assets. The Playbook remains
 A Playbook run can start from different surfaces:
 
 - A person can ask an agent to run a Playbook by name, by `persona/slug`, or by an explicit path.
-- `make-docs run playbook invoke <ref> --harness <id>` can resolve and validate the Playbook, create Make Docs-owned run state, and return the next gated step without requiring a plugin.
+- `make-docs run playbook invoke <ref> --harness <id>` can resolve and validate the Playbook, create Make Docs-owned run state in the global store, and return the next gated step without requiring a plugin.
 - `make_docs_playbook_invoke` exposes the same write-gated behavior to MCP-capable agent harnesses when the caller passes `allowWrite=true`.
 - A plugin or workflow bundle can present a guided entry point that invokes the same Run Playbook behavior underneath.
 
@@ -154,6 +157,7 @@ This guide should be refreshed after W18 implementation lands with plugin entry 
 - [30 Revise Harness Plugin Substrate Workflow Bundles](../../../prd/30-revise-harness-plugin-substrate-workflow-bundles.md)
 - [33 Enhance Playbook Packaging and Harness Adapter Registry](../../../prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md)
 - [34 Revise Playbook Contract and Model](../../../prd/34-revise-playbook-contract-and-model.md)
+- [35 Revise Run Playbook State Machine](../../../prd/35-revise-run-playbook-state-machine.md)
 - [Playbook Contract](../../../../.make-docs/contracts/system/playbook-contract.md)
 - [Run Playbook Orchestration and Harness Capabilities](../../../designs/2026-06-27-run-playbook-orchestration-and-harness-capabilities.md)
 - [Playbook Packaging and Harness Adapter Registry](../../../designs/2026-06-29-playbook-packaging-and-harness-adapter-registry.md)

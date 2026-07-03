@@ -14,7 +14,10 @@ import {
   probeCloseout,
   readWorkPhaseState,
 } from "../src/operations/index";
-import { cleanupTempDir, createTempDir } from "./helpers";
+import { loadSqliteDriver } from "../src/store";
+import { cleanupTempDir, createTempDir, writeMinimalManifest } from "./helpers";
+
+const sqliteAvailable = loadSqliteDriver().available;
 
 function writeFile(root: string, relativePath: string, content: string): string {
   const absolutePath = path.join(root, relativePath);
@@ -296,42 +299,51 @@ describe("operation domain modules", () => {
         fallbackPreferred: ["parallel_playbook_runs"],
       }),
     );
-    const run = writePlaybookRunState({
-      repoRoot: root,
-      ref: "user/use-system",
-      requestedStack: "run",
-      harness: "codex",
-      runId: "root-run",
-      outputSurfaceClaims: ["docs/assets/archive/history"],
-    });
-    expect(run.provenance.operation).toBe("playbook-run-start");
-    expect(run.value).toEqual(
-      expect.objectContaining({
-        state: expect.objectContaining({
-          runId: "root-run",
-          stateSource: "make-docs",
-          harnessAssistsAreSourceOfTruth: false,
+    if (sqliteAvailable) {
+      const projectId = writeMinimalManifest(root);
+      const storeRoot = createTempDir("make-docs-playbook-domain-store-");
+      tempRoots.push(storeRoot);
+      const run = writePlaybookRunState({
+        repoRoot: root,
+        storeRoot,
+        ref: "user/use-system",
+        requestedStack: "run",
+        harness: "codex",
+        runId: "root-run",
+        outputSurfaceClaims: ["docs/assets/archive/history"],
+      });
+      expect(run.provenance.operation).toBe("playbook-run-start");
+      expect(run.value).toEqual(
+        expect.objectContaining({
+          projectId,
+          state: expect.objectContaining({
+            runId: "root-run",
+            projectId,
+            stateSource: "make-docs",
+            harnessAssistsAreSourceOfTruth: false,
+          }),
         }),
-      }),
-    );
-    const invocation = writePlaybookInvocation({
-      repoRoot: root,
-      ref: "user/use-system",
-      requestedStack: "run",
-      harness: "codex",
-      runId: "invoke-run",
-      outputSurfaceClaims: ["docs/assets/archive/history"],
-    });
-    expect(invocation.provenance.operation).toBe("playbook-run-invoke");
-    expect(invocation.value).toEqual(
-      expect.objectContaining({
-        status: "paused",
-        state: expect.objectContaining({
-          runId: "invoke-run",
-          currentGate: "gate-1",
+      );
+      const invocation = writePlaybookInvocation({
+        repoRoot: root,
+        storeRoot,
+        ref: "user/use-system",
+        requestedStack: "run",
+        harness: "codex",
+        runId: "invoke-run",
+        outputSurfaceClaims: ["docs/assets/archive/history"],
+      });
+      expect(invocation.provenance.operation).toBe("playbook-run-invoke");
+      expect(invocation.value).toEqual(
+        expect.objectContaining({
+          status: "paused",
+          state: expect.objectContaining({
+            runId: "invoke-run",
+            cursor: { kind: "gate", id: "gate-1" },
+          }),
         }),
-      }),
-    );
+      );
+    }
     expect(resolution.value).toEqual(
       expect.objectContaining({
         mode: "qualified-ref",

@@ -1,4 +1,5 @@
 import { execFileSync, spawn } from "node:child_process";
+import { randomUUID } from "node:crypto";
 import {
   existsSync,
   mkdirSync,
@@ -648,8 +649,9 @@ try {
   );
 
   // `run playbook start` + `run playbook status` against a playbook fixture
-  // repo (kept separate from targetDir so the no-repo-run-state assertions
-  // above stay meaningful; Playbook run state is repo-local by design).
+  // repo. Run state is relocated-canonical in the sandboxed global store
+  // (PRD 35 R-STORE-1/R-STORE-2), keyed by the fixture's manifest-minted
+  // project identifier; nothing may land under the fixture repository.
   const runFixtureDir = registerAuxSmokeDir("make-docs-run-fixture-");
   writeRunPlaybookFixture(runFixtureDir);
   const startOutput = execFileSync(
@@ -673,9 +675,12 @@ try {
   if (started?.state?.runId !== "smoke-run" || started?.state?.playbookRef !== "user/run-stack") {
     throw new Error(`Smoke pack run playbook start returned unexpected state:\n${startOutput}`);
   }
-  assertExists(
-    path.join(runFixtureDir, ".make-docs/runs/playbooks/smoke-run/state.json"),
-    "Smoke pack run playbook start did not persist run state in the fixture repo.",
+  if (!started?.projectId || started?.state?.projectId !== started.projectId) {
+    throw new Error(`Smoke pack run playbook start did not key run state by project id:\n${startOutput}`);
+  }
+  assertMissing(
+    path.join(runFixtureDir, ".make-docs/runs"),
+    "Smoke pack run playbook start wrote run state under the fixture repository (PRD 35 R-STORE-1).",
   );
 
   const statusOutput = execFileSync(
@@ -1404,6 +1409,39 @@ function ensureTrailingSlash(value) {
  */
 function writeRunPlaybookFixture(fixtureDir) {
   mkdirSync(path.join(fixtureDir, "docs/work"), { recursive: true });
+  // Run state is keyed by the manifest-minted project identifier (PRD 35
+  // R-STORE-2), so the fixture carries a minimal manifest with one.
+  const manifestPath = path.join(fixtureDir, ".make-docs/manifest.json");
+  mkdirSync(path.dirname(manifestPath), { recursive: true });
+  writeFileSync(
+    manifestPath,
+    `${JSON.stringify(
+      {
+        schemaVersion: 2,
+        projectId: randomUUID(),
+        packageName: "make-docs-smoke",
+        packageVersion: "0.0.0-smoke",
+        updatedAt: new Date().toISOString(),
+        profileId: "smoke",
+        selections: {
+          capabilities: { designs: true, plans: true, prd: true, work: true },
+          harnesses: { "claude-code": true, codex: true },
+          skills: false,
+          skillScope: "project",
+          selectedSkills: [],
+          plugins: false,
+          pluginScope: "project",
+          selectedPlugins: [],
+        },
+        effectiveCapabilities: ["designs", "plans", "prd", "work"],
+        files: {},
+        skillFiles: [],
+      },
+      null,
+      2,
+    )}\n`,
+    "utf8",
+  );
   const playbookPath = path.join(fixtureDir, "docs/assets/playbooks/user/run-stack.md");
   mkdirSync(path.dirname(playbookPath), { recursive: true });
   writeFileSync(

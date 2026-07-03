@@ -153,6 +153,7 @@ const RUN_CLI_ADAPTERS: Record<string, RunCliAdapter> = {
   "playbook.start": (options) => ({
     input: {
       repoRoot: resolveRepoRoot(options),
+      ...optionalPathValue(options, "store-root", "storeRoot"),
       ref: requiredPositionals(options, operationPath("playbook.start")).join(" "),
       requestedStack: options.values.stack,
       harness: requiredValue(options, "harness", operationPath("playbook.start")),
@@ -171,6 +172,7 @@ const RUN_CLI_ADAPTERS: Record<string, RunCliAdapter> = {
   "playbook.invoke": (options) => ({
     input: {
       repoRoot: resolveRepoRoot(options),
+      ...optionalPathValue(options, "store-root", "storeRoot"),
       ref: requiredPositionals(options, operationPath("playbook.invoke")).join(" "),
       requestedStack: options.values.stack,
       harness: requiredValue(options, "harness", operationPath("playbook.invoke")),
@@ -184,6 +186,7 @@ const RUN_CLI_ADAPTERS: Record<string, RunCliAdapter> = {
   "playbook.status": (options) => ({
     input: {
       repoRoot: resolveRepoRoot(options),
+      ...optionalPathValue(options, "store-root", "storeRoot"),
       runId: requiredValue(options, "run-id", operationPath("playbook.status")),
     },
   }),

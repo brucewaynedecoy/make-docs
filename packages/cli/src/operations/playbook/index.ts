@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readdirSync, statSync, writeFileSync } from "node:fs";
+import { existsSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 import { parseDocument } from "yaml";
 import {
@@ -14,20 +14,15 @@ import {
   PLAYBOOK_FILE_SUFFIX,
   playbookSlugFromPath,
 } from "../../playbook";
-import {
-  createRunId,
-  normalizeRelativePath,
-  readTextFile,
-} from "../../utils";
-import {
-  loadJsonFile,
-  findRepoRoot,
-  normalizePath,
-  repoRelativePath,
-  utcNow,
-} from "../shared";
+import { normalizeRelativePath, readTextFile } from "../../utils";
+import { findRepoRoot, repoRelativePath } from "../shared";
 import { OperationError, type JsonValue } from "../types";
 import type { OperationResult } from "../types";
+import {
+  createPlaybookRunState,
+  normalizeOutputSurfaceClaims,
+  type PlaybookRunState,
+} from "./run-state";
 
 export const PLAYBOOKS_RELATIVE_DIR = "docs/assets/playbooks";
 export const PLAYBOOK_STACKS = ["build", "run"] as const;
@@ -38,8 +33,6 @@ export type PlaybookStatus = (typeof PLAYBOOK_STATUSES)[number];
 export type PlaybookSelectionMode = "explicit-path" | "qualified-ref" | "bare-ref";
 export type PlaybookChildPolicy = "none" | "serial" | "parallel";
 export type PlaybookConcurrencyPolicy = "serial" | "parallel-allowed" | "parallel-required";
-export type PlaybookRunExecutionMode = "serial" | "parallel";
-export type PlaybookRunStatus = "planned" | "running" | "paused" | "blocked" | "completed";
 export type PlaybookInvocationStatus = "ready" | "paused" | "blocked";
 export type PlaybookSupportSurface = "cli" | "mcp" | "plugin" | "skill" | "template-sync" | "unattended";
 
@@ -95,39 +88,6 @@ export interface HarnessCapabilityEvaluation {
   guidance: string[];
 }
 
-export interface PlaybookChildRunRecord {
-  runId: string;
-  playbookRef: string;
-  stack: PlaybookStack;
-  executionMode: PlaybookRunExecutionMode;
-  outputSurfaceClaims: string[];
-  status: PlaybookRunStatus;
-}
-
-export interface PlaybookRunState {
-  schemaVersion: 1;
-  runId: string;
-  rootRunId: string;
-  parentRunId: string | null;
-  playbookRef: string;
-  playbookPath: string;
-  stack: PlaybookStack;
-  harness: string;
-  capabilitySnapshot: HarnessCapabilityEvaluation;
-  currentStep: string | null;
-  currentGate: string | null;
-  childPolicy: PlaybookChildPolicy;
-  concurrencyPolicy: PlaybookConcurrencyPolicy;
-  childRuns: PlaybookChildRunRecord[];
-  outputSurfaceClaims: string[];
-  status: PlaybookRunStatus;
-  resumeHints: string[];
-  stateSource: "make-docs";
-  harnessAssistsAreSourceOfTruth: false;
-  createdAt: string;
-  updatedAt: string;
-}
-
 export interface PlaybookInvocationStep {
   id: string;
   index: number;
@@ -150,7 +110,8 @@ export interface PlaybookAuthoritySource {
 export interface PlaybookInvocationPlan {
   repoRoot: string;
   resolution: PlaybookResolution;
-  statePath: string;
+  /** Store row key of the created run state (R-STORE-2); no repository state path exists. */
+  projectId: string;
   state: PlaybookRunState;
   authority: PlaybookAuthoritySource[];
   configPresentation: ReturnType<typeof getConfigRenderingLabels>;
@@ -402,146 +363,37 @@ export function readHarnessCapabilityEvaluation(input: {
   };
 }
 
-export function createPlaybookRunState(input: {
-  repoRoot?: string;
-  ref: string;
-  requestedStack?: string | null;
-  harness: string;
-  requiredCapabilities?: string[];
-  preferredCapabilities?: string[];
-  runId?: string;
-  parentRunId?: string | null;
-  executionMode?: PlaybookRunExecutionMode;
-  outputSurfaceClaims?: string[];
-  currentStep?: string | null;
-  currentGate?: string | null;
-  status?: PlaybookRunStatus;
-  resumeHints?: string[];
-}): { statePath: string; state: PlaybookRunState; parentStatePath: string | null } {
-  const repoRoot = findRepoRoot(input.repoRoot);
-  const resolution = resolvePlaybook({
-    repoRoot,
-    ref: input.ref,
-    requestedStack: input.requestedStack,
-  });
-  const entry = resolution.entry;
-  const runId = input.runId ?? createRunId();
-  const parentRunId = input.parentRunId ?? null;
-  const executionMode = input.executionMode ?? "serial";
-  const outputSurfaceClaims = normalizeOutputSurfaceClaims(input.outputSurfaceClaims ?? []);
-  const parent = parentRunId ? readPlaybookRunState({ repoRoot, runId: parentRunId }) : null;
-  validateChildRunRequest({
-    entry,
-    executionMode,
-    outputSurfaceClaims,
-    parent,
-  });
-  const capabilitySnapshot = evaluateHarnessCapabilities({
-    repoRoot,
-    harness: input.harness,
-    requiredCapabilities: [
-      ...entry.run.requiresCapabilities,
-      ...(input.requiredCapabilities ?? []),
-    ],
-    preferredCapabilities: [
-      ...entry.run.prefersCapabilities,
-      ...(input.preferredCapabilities ?? []),
-    ],
-  });
-  const now = utcNow();
-  const state: PlaybookRunState = {
-    schemaVersion: 1,
-    runId,
-    rootRunId: parent?.rootRunId ?? runId,
-    parentRunId,
-    playbookRef: entry.ref,
-    playbookPath: entry.path,
-    stack: entry.stack,
-    harness: input.harness,
-    capabilitySnapshot,
-    currentStep: input.currentStep ?? null,
-    currentGate: input.currentGate ?? null,
-    childPolicy: entry.run.childPlaybooks,
-    concurrencyPolicy: entry.run.concurrency,
-    childRuns: [],
-    outputSurfaceClaims,
-    status: parseRunStatus(input.status ?? "planned"),
-    resumeHints: input.resumeHints ?? [],
-    stateSource: "make-docs",
-    harnessAssistsAreSourceOfTruth: false,
-    createdAt: now,
-    updatedAt: now,
-  };
-  const statePath = playbookRunStatePath(repoRoot, runId);
-  mkdirSync(path.dirname(statePath), { recursive: true });
-  writeFileSync(statePath, `${JSON.stringify(state, null, 2)}\n`, "utf8");
-
-  let parentStatePath: string | null = null;
-  if (parent) {
-    const updatedParent = {
-      ...parent,
-      childRuns: [
-        ...parent.childRuns.filter((child) => child.runId !== runId),
-        {
-          runId,
-          playbookRef: state.playbookRef,
-          stack: state.stack,
-          executionMode,
-          outputSurfaceClaims,
-          status: state.status,
-        },
-      ],
-      updatedAt: now,
-    };
-    parentStatePath = playbookRunStatePath(repoRoot, parent.runId);
-    writeFileSync(parentStatePath, `${JSON.stringify(updatedParent, null, 2)}\n`, "utf8");
-  }
-
-  return { statePath, state, parentStatePath };
-}
-
-export function readPlaybookRunState(input: {
-  repoRoot?: string;
-  runId: string;
-}): PlaybookRunState {
-  const repoRoot = findRepoRoot(input.repoRoot);
-  const statePath = playbookRunStatePath(repoRoot, input.runId);
-  const value = loadJsonFile(statePath);
-  if (!value || typeof value !== "object" || Array.isArray(value)) {
-    throw new OperationError(`No Playbook run state found for run id \`${input.runId}\`.`);
-  }
-  return value as unknown as PlaybookRunState;
-}
-
-export function writePlaybookRunState(input: Parameters<typeof createPlaybookRunState>[0]): OperationResult<JsonValue> {
-  return {
-    value: createPlaybookRunState(input) as unknown as JsonValue,
-    provenance: {
-      domain: "playbook",
-      operation: "playbook-run-start",
-      source: "shared",
-      target: input.ref,
-    },
-  };
-}
-
-export function inspectPlaybookRunState(input: {
-  repoRoot?: string;
-  runId: string;
-}): OperationResult<JsonValue> {
-  return {
-    value: readPlaybookRunState(input) as unknown as JsonValue,
-    provenance: {
-      domain: "playbook",
-      operation: "playbook-run-read",
-      source: "shared",
-      target: input.runId,
-    },
-  };
-}
+/**
+ * Run state lives in the global store keyed by (project id, run id), never
+ * under a repository path (W18 R7 P1; PRD 35 R-STORE-1/R-STORE-2). The
+ * storage seam and the run-state record shape live in `./run-state`.
+ */
+export {
+  createPlaybookRunState,
+  inspectPlaybookRunState,
+  normalizeOutputSurfaceClaims,
+  PLAYBOOK_RUN_TERMINAL_STATUSES,
+  readPlaybookRunState,
+  transitionPlaybookRunState,
+  writePlaybookRunState,
+} from "./run-state";
+export type {
+  CreatePlaybookRunStateInput,
+  CreatePlaybookRunStateResult,
+  PlaybookChildRunRecord,
+  PlaybookRunCursor,
+  PlaybookRunDependencyAvailability,
+  PlaybookRunExecutionMode,
+  PlaybookRunGateDecision,
+  PlaybookRunState,
+  PlaybookRunStepStatusEntry,
+  PlaybookRunTerminalStatus,
+} from "./run-state";
 
 export function invokePlaybook(input: {
   repoRoot?: string;
+  /** Explicit store root override (tests/sandboxes); defaults to the resolved global store. */
+  storeRoot?: string;
   ref: string;
   requestedStack?: string | null;
   harness: string;
@@ -599,6 +451,7 @@ export function invokePlaybook(input: {
 
   const runState = createPlaybookRunState({
     repoRoot,
+    storeRoot: input.storeRoot,
     ref: resolution.entry.ref,
     requestedStack: resolution.entry.stack,
     harness: input.harness,
@@ -606,7 +459,9 @@ export function invokePlaybook(input: {
     outputSurfaceClaims: effectiveSurfaceClaims,
     currentStep: firstStep?.id ?? null,
     currentGate: gateStop?.id ?? null,
-    status: status === "ready" ? "running" : status,
+    // Run status uses only the shared W18 R6 vocabulary (R-STATE-2): a ready
+    // plan is a running run, a gate pause waits for the user.
+    status: status === "ready" ? "running" : status === "paused" ? "waiting-for-user" : "blocked",
     resumeHints: stopReason ? [stopReason] : [],
     requiredCapabilities: input.requiredCapabilities,
     preferredCapabilities: input.preferredCapabilities,
@@ -615,7 +470,7 @@ export function invokePlaybook(input: {
   return {
     repoRoot,
     resolution,
-    statePath: runState.statePath,
+    projectId: runState.projectId,
     state: runState.state,
     authority,
     configPresentation,
@@ -1026,13 +881,6 @@ function parseConcurrencyPolicy(
   return null;
 }
 
-function parseRunStatus(value: string): PlaybookRunStatus {
-  if (value === "planned" || value === "running" || value === "paused" || value === "blocked" || value === "completed") {
-    return value;
-  }
-  throw new OperationError("Playbook run status must be planned, running, paused, blocked, or completed.");
-}
-
 function filterCapabilityState(
   capabilities: HarnessCapabilityId[],
   reviewedCapabilities: Partial<Record<HarnessCapabilityId, boolean>>,
@@ -1066,14 +914,6 @@ function buildCapabilityGuidance(input: {
     guidance.push("Reviewed harness capability record satisfies this request.");
   }
   return guidance;
-}
-
-function playbookRunStatePath(repoRoot: string, runId: string): string {
-  return path.join(repoRoot, ".make-docs", "runs", "playbooks", runId, "state.json");
-}
-
-function normalizeOutputSurfaceClaims(claims: string[]): string[] {
-  return [...new Set(claims.map((claim) => normalizePath(claim.trim()).replace(/\/+$/, "")).filter(Boolean))];
 }
 
 function loadPlaybookDocumentForEntry(
@@ -1177,51 +1017,4 @@ function buildProvisionalSupportClaims(): Record<PlaybookSupportSurface, "provis
     "template-sync": "provisional",
     unattended: "provisional",
   };
-}
-
-function validateChildRunRequest(input: {
-  entry: PlaybookCatalogEntry;
-  executionMode: PlaybookRunExecutionMode;
-  outputSurfaceClaims: string[];
-  parent: PlaybookRunState | null;
-}): void {
-  const { executionMode, outputSurfaceClaims, parent } = input;
-  if (!parent) {
-    return;
-  }
-  if (parent.childPolicy === "none") {
-    throw new OperationError(`Parent run \`${parent.runId}\` does not permit child playbooks.`);
-  }
-  if (executionMode === "parallel" && parent.childPolicy !== "parallel") {
-    throw new OperationError(`Parent run \`${parent.runId}\` does not permit parallel child playbooks.`);
-  }
-  if (executionMode === "parallel") {
-    const overlap = findOutputSurfaceOverlap(outputSurfaceClaims, [
-      parent.outputSurfaceClaims,
-      ...parent.childRuns.map((child) => child.outputSurfaceClaims),
-    ].flat());
-    if (overlap) {
-      throw new OperationError(
-        `Parallel child playbook output-surface claims overlap with an existing run: ${overlap[0]} and ${overlap[1]}.`,
-      );
-    }
-  }
-}
-
-function findOutputSurfaceOverlap(
-  proposedClaims: string[],
-  existingClaims: string[],
-): [string, string] | null {
-  for (const proposed of proposedClaims) {
-    for (const existing of existingClaims) {
-      if (claimsOverlap(proposed, existing)) {
-        return [proposed, existing];
-      }
-    }
-  }
-  return null;
-}
-
-function claimsOverlap(left: string, right: string): boolean {
-  return left === right || left.startsWith(`${right}/`) || right.startsWith(`${left}/`);
 }
