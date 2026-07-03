@@ -3,7 +3,6 @@ import path from "node:path";
 import { afterEach, describe, expect, test } from "vitest";
 import {
   createExecutionContext,
-  OperationPendingError,
   OperationWriteDeniedError,
 } from "../src/operations/context";
 import { getOperation, invokeOperation, listOperations } from "../src/operations/registry";
@@ -88,14 +87,6 @@ const PLAYBOOK_OPERATION_IDS = [
   "playbook.close",
 ] as const;
 
-const PENDING_IDS = [
-  "playbook.next",
-  "playbook.advance",
-  "playbook.gate",
-  "playbook.resume",
-  "playbook.close",
-] as const;
-
 const WRITE_IDS = [
   "playbook.start",
   "playbook.invoke",
@@ -121,17 +112,15 @@ describe("playbook operation registry entries", () => {
       .sort();
     expect(playbookIds).toEqual([...PLAYBOOK_OPERATION_IDS].sort());
 
+    // The W18 R7 P2 progression operations are active with the exact
+    // read-versus-mutate classification of PRD 35 R-OP-1/R-OP-3; no playbook
+    // identifier remains pending.
     for (const id of PLAYBOOK_OPERATION_IDS) {
       const definition = getOperation(id);
       const expectedMutates = (WRITE_IDS as readonly string[]).includes(id) ? "write" : "read";
-      const expectedStatus = (PENDING_IDS as readonly string[]).includes(id)
-        ? "pending"
-        : "active";
       expect(definition.mutates, id).toBe(expectedMutates);
-      expect(definition.status, id).toBe(expectedStatus);
-      if (expectedStatus === "pending") {
-        expect(definition.pendingLineage, id).toContain("W18 R7");
-      }
+      expect(definition.status, id).toBe("active");
+      expect(definition.pendingLineage, id).toBeUndefined();
     }
   });
 
@@ -182,22 +171,30 @@ describe("playbook operation registry entries", () => {
     ).rejects.toBeInstanceOf(OperationWriteDeniedError);
   });
 
-  test("playbook.advance is refused as pending with the W18 R7 lineage named", async () => {
-    const context = createExecutionContext({ surface: "test", writesAllowed: true });
-    const attempt = invokeOperation("playbook.advance", {}, context);
-    await expect(attempt).rejects.toBeInstanceOf(OperationPendingError);
-    await expect(
-      invokeOperation("playbook.advance", {}, context),
-    ).rejects.toThrow(/W18 R7/);
+  test("every mutating progression operation honors the uniform write gating (R-OP-1)", async () => {
+    // t9: advance/gate/resume/close ride the same operation-core safety
+    // gating as every other write; the refusal happens before any handler runs.
+    const context = createExecutionContext({ surface: "test", writesAllowed: false });
+    for (const id of ["playbook.advance", "playbook.gate", "playbook.resume", "playbook.close"]) {
+      await expect(
+        invokeOperation(id, { runId: "run-1", outcome: "completed" }, context),
+        id,
+      ).rejects.toBeInstanceOf(OperationWriteDeniedError);
+    }
   });
 
-  test("pending handlers refuse direct calls with the lineage named", () => {
-    const context = createExecutionContext({ surface: "test", writesAllowed: true });
-    for (const id of PENDING_IDS) {
-      const definition = getOperation(id);
-      expect(() => definition.handler({}, context), id).toThrow(OperationPendingError);
-      expect(() => definition.handler({}, context), id).toThrow(/W18 R7/);
-    }
+  test("progression read operations validate typed input through the core seam", async () => {
+    const context = createExecutionContext({ surface: "test" });
+    await expect(invokeOperation("playbook.next", {}, context)).rejects.toThrow(
+      /Invalid input for operation `playbook\.next`/,
+    );
+    const writeContext = createExecutionContext({ surface: "test", writesAllowed: true });
+    await expect(
+      invokeOperation("playbook.advance", { runId: "run-1", outcome: "waived" }, writeContext),
+    ).rejects.toThrow(/Invalid input for operation `playbook\.advance`/);
+    await expect(
+      invokeOperation("playbook.close", { runId: "run-1", terminalStatus: "running" }, writeContext),
+    ).rejects.toThrow(/Invalid input for operation `playbook\.close`/);
   });
 
   test("typed input validation rejects malformed input before the handler runs", async () => {

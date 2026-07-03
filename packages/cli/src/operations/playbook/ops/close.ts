@@ -1,22 +1,39 @@
+import path from "node:path";
 import { z } from "zod";
-import { OperationPendingError } from "../../context";
 import type { OperationDefinition } from "../../registry";
+import {
+  closePlaybookRun,
+  PLAYBOOK_RUN_TERMINAL_STATUSES,
+  type PlaybookRunState,
+} from "../index";
 
-// Permissive on purpose: the input contract lands with the owning lineage.
-const inputSchema = z.looseObject({});
+const inputSchema = z.object({
+  repoRoot: z.string().optional(),
+  storeRoot: z.string().optional(),
+  runId: z.string(),
+  terminalStatus: z.enum(PLAYBOOK_RUN_TERMINAL_STATUSES),
+  evidenceRefs: z.array(z.string()).optional(),
+  note: z.string().nullish(),
+});
 
-export const playbookCloseOperation: OperationDefinition<z.infer<typeof inputSchema>, never> = {
+export const playbookCloseOperation: OperationDefinition<
+  z.infer<typeof inputSchema>,
+  PlaybookRunState
+> = {
   id: "playbook.close",
   summary:
-    "Operation `playbook.close`: close out a Run Playbook run and finalize its run state (reserved; semantics land with the W18 R7 run-playbook state machine).",
+    "Operation `playbook.close`: finalize a Playbook run with a terminal status and closeout evidence.",
   mutates: "write",
-  status: "pending",
-  pendingLineage: "the W18 R7 run-playbook state machine (PRD 35)",
+  status: "active",
   inputSchema,
-  // Defense for direct handler calls; registry dispatch refuses pending ids first.
-  handler() {
-    throw new OperationPendingError(
-      "Operation `playbook.close` is a reserved registry identifier; its semantics land with the W18 R7 run-playbook state machine (PRD 35).",
-    );
+  handler(input, context) {
+    return closePlaybookRun({
+      repoRoot: path.resolve(context.cwd, input.repoRoot ?? "."),
+      storeRoot: input.storeRoot,
+      runId: input.runId,
+      terminalStatus: input.terminalStatus,
+      evidenceRefs: input.evidenceRefs,
+      note: input.note,
+    });
   },
 };

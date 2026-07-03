@@ -29,9 +29,9 @@ Implement `playbook.start`, `playbook.status`, `playbook.next`, `playbook.advanc
 
 ### Tasks
 
-- [ ] t1: Implement `playbook.status` to read the current run state from the global store without mutating (R-OP-1).
-- [ ] t2: Implement `playbook.next` to compute the next executable step from the current state plus the parsed Playbook model, respecting dependencies, gates, and the routing model, with zero side effects (R-OP-1, R-OP-3).
-- [ ] t3: Consume the validated Playbook model from the W18 R6 library for all dependency, gate, and routing reads; never re-parse Playbook Markdown in the engine (R-SCOPE-1).
+- [x] t1: Implement `playbook.status` to read the current run state from the global store without mutating (R-OP-1).
+- [x] t2: Implement `playbook.next` to compute the next executable step from the current state plus the parsed Playbook model, respecting dependencies, gates, and the routing model, with zero side effects (R-OP-1, R-OP-3).
+- [x] t3: Consume the validated Playbook model from the W18 R6 library for all dependency, gate, and routing reads; never re-parse Playbook Markdown in the engine (R-SCOPE-1).
 
 ### Acceptance criteria
 
@@ -47,12 +47,12 @@ Implement `playbook.start`, `playbook.status`, `playbook.next`, `playbook.advanc
 
 ### Tasks
 
-- [ ] t4: Implement `playbook.start` (read then write) to create a run from a validated Playbook model, capturing the source digest, capability snapshot, dependency availability snapshot, and initial cursor (R-OP-1, R-OP-2).
-- [ ] t5: Implement `playbook.advance` (write) to record completion or failure of the current step, capture its evidence, transition status, and compute the next cursor (R-OP-1).
-- [ ] t6: Implement `playbook.gate` (write) to record a gate decision with its evidence and either unblock or stop (R-OP-1).
-- [ ] t7: Implement `playbook.close` (write) to finalize a run with a terminal status and closeout evidence (R-OP-1).
-- [ ] t8: Enforce that only `playbook.advance`, `playbook.gate`, and `playbook.close` transition state, that only `playbook.start` creates it, and that no other operation writes run state (R-OP-3).
-- [ ] t9: Route every mutating operation through the uniform operation-core safety gating (R-OP-1).
+- [x] t4: Implement `playbook.start` (read then write) to create a run from a validated Playbook model, capturing the source digest, capability snapshot, dependency availability snapshot, and initial cursor (R-OP-1, R-OP-2).
+- [x] t5: Implement `playbook.advance` (write) to record completion or failure of the current step, capture its evidence, transition status, and compute the next cursor (R-OP-1).
+- [x] t6: Implement `playbook.gate` (write) to record a gate decision with its evidence and either unblock or stop (R-OP-1).
+- [x] t7: Implement `playbook.close` (write) to finalize a run with a terminal status and closeout evidence (R-OP-1).
+- [x] t8: Enforce that only `playbook.advance`, `playbook.gate`, and `playbook.close` transition state, that only `playbook.start` creates it, and that no other operation writes run state (R-OP-3).
+- [x] t9: Route every mutating operation through the uniform operation-core safety gating (R-OP-1).
 
 ### Acceptance criteria
 
@@ -69,9 +69,9 @@ Implement `playbook.start`, `playbook.status`, `playbook.next`, `playbook.advanc
 
 ### Tasks
 
-- [ ] t10: Register each operation under its stable operation-registry identifier and surface the set on the CLI under `run playbook`, consuming the registry and command tree owned by the CLI command reorganization lineage without redefining them (R-OP-1, R-SCOPE-1).
-- [ ] t11: Expose the same operations as MCP tools with CLI/MCP behavior parity per the operation-boundary rules in PRD 25 (R-OP-1).
-- [ ] t12: Ensure Playbook steps and downstream surfaces reference the operations by registry identifier, never by hardcoded command strings (R-SCOPE-1).
+- [x] t10: Register each operation under its stable operation-registry identifier and surface the set on the CLI under `run playbook`, consuming the registry and command tree owned by the CLI command reorganization lineage without redefining them (R-OP-1, R-SCOPE-1).
+- [x] t11: Expose the same operations as MCP tools with CLI/MCP behavior parity per the operation-boundary rules in PRD 25 (R-OP-1).
+- [x] t12: Ensure Playbook steps and downstream surfaces reference the operations by registry identifier, never by hardcoded command strings (R-SCOPE-1).
 
 ### Acceptance criteria
 

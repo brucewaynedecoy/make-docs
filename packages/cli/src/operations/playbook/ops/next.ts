@@ -1,22 +1,34 @@
+import path from "node:path";
 import { z } from "zod";
-import { OperationPendingError } from "../../context";
 import type { OperationDefinition } from "../../registry";
+import { computePlaybookRunNext, type PlaybookRunNextReport } from "../index";
 
-// Permissive on purpose: the input contract lands with the owning lineage.
-const inputSchema = z.looseObject({});
+const inputSchema = z.object({
+  repoRoot: z.string().optional(),
+  storeRoot: z.string().optional(),
+  runId: z.string(),
+});
 
-export const playbookNextOperation: OperationDefinition<z.infer<typeof inputSchema>, never> = {
+/**
+ * `playbook.next` is side-effect free (R-OP-3): it computes the next
+ * executable position from run state plus the parsed Playbook model and
+ * never writes run state.
+ */
+export const playbookNextOperation: OperationDefinition<
+  z.infer<typeof inputSchema>,
+  PlaybookRunNextReport
+> = {
   id: "playbook.next",
   summary:
-    "Operation `playbook.next`: report the next runnable step for a Run Playbook run (reserved; semantics land with the W18 R7 run-playbook state machine).",
+    "Operation `playbook.next`: compute the next executable step or gate for a Playbook run from run state plus the parsed Playbook model, without mutating.",
   mutates: "read",
-  status: "pending",
-  pendingLineage: "the W18 R7 run-playbook state machine (PRD 35)",
+  status: "active",
   inputSchema,
-  // Defense for direct handler calls; registry dispatch refuses pending ids first.
-  handler() {
-    throw new OperationPendingError(
-      "Operation `playbook.next` is a reserved registry identifier; its semantics land with the W18 R7 run-playbook state machine (PRD 35).",
-    );
+  handler(input, context) {
+    return computePlaybookRunNext({
+      repoRoot: path.resolve(context.cwd, input.repoRoot ?? "."),
+      storeRoot: input.storeRoot,
+      runId: input.runId,
+    });
   },
 };

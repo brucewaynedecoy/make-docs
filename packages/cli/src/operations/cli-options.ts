@@ -36,6 +36,8 @@ const ARRAY_FLAGS = [
   "prefers-capability",
   "output-surface",
   "resume-hint",
+  "evidence-ref",
+  "output-ref",
   "source",
   "support-evidence-ref",
   "precondition",

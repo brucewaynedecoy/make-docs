@@ -14,8 +14,8 @@ import { playbookValidateOperation } from "./validate";
 
 /**
  * Playbook-domain registry entries (R-OP-1), one module per operation
- * (R-CORE-1). Identifiers are stable and append-only; the pending entries
- * reserve the W18 R7 run-playbook state-machine namespace.
+ * (R-CORE-1). Identifiers are stable and append-only; the W18 R7 progression
+ * identifiers reserved by W18 R11 are active as of W18 R7 P2.
  */
 export const playbookOperations: OperationDefinition[] = [
   playbookValidateOperation as OperationDefinition,

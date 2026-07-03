@@ -76,6 +76,8 @@ The command validates the Playbook and creates Make Docs run state. It does not 
 
 Run state lives in the machine-level global store at `~/.make-docs/`, not in your repository. Starting or invoking a run writes nothing under the project — there is no `.make-docs/runs/` clutter to commit or ignore — and the run is keyed to the stable project identity Make Docs minted at setup plus a run identifier, so it survives moving or renaming the repository directory. This also means Playbook runs need a set-up project: in a repository without Make Docs installed, or with an older install that predates the project identifier, `run playbook start` and `run playbook invoke` stop with guidance to run `make-docs setup` (or run `make-docs` once to mint the identifier) instead of writing state anywhere. `make-docs run playbook status --run-id <id>` reads the same stored record back for resume or audit.
 
+A started run is no longer read-only: the full lifecycle from start to a terminal status can be driven from the CLI or MCP. See Driving a Run from Start to Close below.
+
 ## What Users Can Do With Playbooks
 
 Users will be able to use Playbooks as repeatable workflows instead of rebuilding Make Docs procedure knowledge from scratch each time.
@@ -96,6 +98,57 @@ A Playbook run can start from different surfaces:
 - A plugin or workflow bundle can present a guided entry point that invokes the same Run Playbook behavior underneath.
 
 The current operation command is a deterministic Make Docs operation surface, not a polished product shortcut. The important contract is that these entry points all use the same resolver, validator, run-state model, and safety rules.
+
+## Driving a Run from Start to Close
+
+A run started from the CLI can now be carried all the way to a terminal status. Each step below also works through the matching MCP tool (`make_docs_playbook_next`, `make_docs_playbook_advance`, `make_docs_playbook_gate`, `make_docs_playbook_resume`, `make_docs_playbook_close`) in an MCP-capable harness; the recording tools require the caller to pass `allowWrite=true`, while `next` is read-only.
+
+Start a run against a set-up project and note the run identifier it returns:
+
+```sh
+make-docs run playbook start agent/make-docs-lifecycle --repo-root . --harness codex
+```
+
+Ask where the run stands whenever you need direction:
+
+```sh
+make-docs run playbook next --repo-root . --run-id <run-id>
+```
+
+`next` never changes the run. It reports the current position — a step to execute, a gate waiting for a decision, `blocked` with the reasons, `closeable` when no workflow position remains, or `closed` after finalization — along with the step's title, mode, and invocation, whether its required dependencies are recorded as available, and what to do about anything in the way. A required dependency recorded as unavailable blocks the position; one with unknown availability comes back as probe-first guidance instead. `make-docs run playbook status --repo-root . --run-id <run-id>` still returns the raw stored record when you want the full state instead of a recommendation.
+
+Do the step's work, then record its outcome:
+
+```sh
+make-docs run playbook advance --repo-root . --run-id <run-id> --outcome completed \
+  --evidence-ref docs/path/to/proof.md --note "What was done"
+```
+
+`advance` records `completed` or `failed` for the current step, captures the evidence you cite, and moves the cursor to the next step the Playbook's routing selects. Recording `--outcome failed` holds the run for review unless the Playbook declares an explicit failure route. `--evidence-ref` and `--output-ref` repeat for multiple references, and everything recorded lands in the stored run record for audit and resume.
+
+When the run is positioned at a gate, record the decision instead of advancing:
+
+```sh
+make-docs run playbook gate --repo-root . --run-id <run-id> --decision approve
+```
+
+`approve` moves the run past the gate; `reject` stops it at the gate for re-planning. Gate decisions also accept `--evidence-ref` and `--note`.
+
+If a run is blocked — a failed step, a rejected gate — or you are returning to it after an interruption, re-enter it:
+
+```sh
+make-docs run playbook resume --repo-root . --run-id <run-id>
+```
+
+Resume reopens the run at the same position it held; it never skips work or moves the cursor. After resuming, retry the step with `advance`, revisit the gate with `gate`, or finalize instead.
+
+When `next` reports the run is `closeable` — or you decide to end it early — finalize it:
+
+```sh
+make-docs run playbook close --repo-root . --run-id <run-id> --terminal-status completed
+```
+
+`close` is the only operation that stamps the terminal status (`completed`, `failed`, or `cancelled`), and a closed run refuses any further changes. Reaching the end of the workflow does not auto-close a run; the run waits for you so the closeout decision stays explicit.
 
 ## The Simplest Run
 

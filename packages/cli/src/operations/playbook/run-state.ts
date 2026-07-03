@@ -4,6 +4,7 @@ import {
   PLAYBOOK_STEP_STATUSES,
   parseAndValidatePlaybook,
   type PlaybookModel,
+  type PlaybookStep,
   type PlaybookStepStatus,
   type PlaybookWorkflowRoutingMode,
 } from "../../playbook";
@@ -98,6 +99,33 @@ export interface PlaybookRunCursor {
   id: string;
 }
 
+/** What a captured evidence entry attests: a step outcome, a gate decision, a run closeout, or a resume. */
+export type PlaybookRunEvidenceScope = "step" | "gate" | "close" | "resume";
+
+/**
+ * Captured evidence format (PRD 35 D9 implementer decision, recorded here).
+ *
+ * Every mutating progression operation appends one structured
+ * `PlaybookRunEvidenceRecord` to `evidenceLog`: the scope names the event
+ * kind, `subjectId` names the step or gate (or the run id for `close` and
+ * `resume`), `outcome` is the reported result (a shared-vocabulary step
+ * status for steps, the decision for gates, the terminal status for close),
+ * `refs` carries caller-supplied evidence references (repository paths, run
+ * ids, URLs, command transcripts), and `note` carries a free-form summary
+ * from the reporting surface. The flat `evidenceRefs` field on the run state
+ * remains the deduplicated roll-up of every record's `refs` — that is the
+ * R-STATE-1 "evidence references" field — while `evidenceLog` preserves the
+ * per-event attribution and ordering that audit and resume need.
+ */
+export interface PlaybookRunEvidenceRecord {
+  scope: PlaybookRunEvidenceScope;
+  subjectId: string;
+  outcome: string;
+  recordedAt: string;
+  refs: string[];
+  note: string | null;
+}
+
 export interface PlaybookChildRunRecord {
   runId: string;
   playbookRef: string;
@@ -134,7 +162,10 @@ export interface PlaybookRunState {
   dependencyAvailability: PlaybookRunDependencyAvailability[];
   outputSurfaceClaims: string[];
   outputRefs: string[];
+  /** Deduplicated roll-up of every evidence record's refs (R-STATE-1). */
   evidenceRefs: string[];
+  /** Per-event evidence attribution appended by the progression operations. */
+  evidenceLog: PlaybookRunEvidenceRecord[];
   cursor: PlaybookRunCursor | null;
   childPolicy: PlaybookChildPolicy;
   concurrencyPolicy: PlaybookConcurrencyPolicy;
@@ -240,7 +271,10 @@ export function createPlaybookRunState(
       outputSurfaceClaims,
       outputRefs: [],
       evidenceRefs: [],
-      cursor: cursorFrom(input.currentStep ?? null, input.currentGate ?? null),
+      evidenceLog: [],
+      cursor:
+        cursorFrom(input.currentStep ?? null, input.currentGate ?? null) ??
+        initialPlaybookRunCursor(model),
       childPolicy: entry.run.childPlaybooks,
       concurrencyPolicy: entry.run.concurrency,
       childRuns: [],
@@ -431,10 +465,55 @@ function parsePlaybookModelForEntry(
   }).model;
 }
 
+/**
+ * Loads the single parsed Playbook model for an existing run through the
+ * W18 R6 library parser (R-SCOPE-1): the progression engine consumes this
+ * model for every dependency, gate, and routing read and never re-parses
+ * Playbook Markdown itself.
+ */
+export function loadPlaybookRunModel(repoRoot: string, state: PlaybookRunState): PlaybookModel {
+  const sourcePath = path.isAbsolute(state.playbookPath)
+    ? state.playbookPath
+    : path.resolve(repoRoot, state.playbookPath);
+  return parseAndValidatePlaybook({
+    sourcePath: state.playbookPath,
+    source: readTextFile(sourcePath),
+  }).model;
+}
+
+/** Stable run-facing step identifier, matching the seeded status entries. */
+export function playbookRunStepId(step: PlaybookStep, index: number): string {
+  return step.id?.value ?? `step-${index + 1}`;
+}
+
+/** A cursor pointing at a workflow step, kinded by the step's gate role. */
+export function playbookRunCursorForStep(step: PlaybookStep, index: number): PlaybookRunCursor {
+  return {
+    kind: step.role.value === "gate" ? "gate" : "step",
+    id: playbookRunStepId(step, index),
+  };
+}
+
+/**
+ * The initial cursor for a fresh run (R-OP-2): the first sequentially
+ * activated workflow step. Event-bound steps activate on their event, not by
+ * cursor progression, and plain-form playbooks without a workflow contract
+ * have no cursor.
+ */
+export function initialPlaybookRunCursor(model: PlaybookModel): PlaybookRunCursor | null {
+  const steps = model.workflow?.steps ?? [];
+  for (const [index, step] of steps.entries()) {
+    if ((step.activation.value ?? "sequential") === "sequential") {
+      return playbookRunCursorForStep(step, index);
+    }
+  }
+  return null;
+}
+
 /** Seeds every workflow step at `pending` in declaration order (R-STATE-2). */
 function seedStepStatuses(model: PlaybookModel): PlaybookRunStepStatusEntry[] {
   return (model.workflow?.steps ?? []).map((step, index) => ({
-    stepId: step.id?.value ?? `step-${index + 1}`,
+    stepId: playbookRunStepId(step, index),
     status: "pending",
   }));
 }

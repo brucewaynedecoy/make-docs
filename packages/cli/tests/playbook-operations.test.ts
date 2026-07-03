@@ -560,6 +560,7 @@ describe.skipIf(!sqliteAvailable)("playbook run state in the global store", () =
         "outputSurfaceClaims",
         "outputRefs",
         "evidenceRefs",
+        "evidenceLog",
         "cursor",
         "childPolicy",
         "concurrencyPolicy",
@@ -585,6 +586,9 @@ describe.skipIf(!sqliteAvailable)("playbook run state in the global store", () =
     expect(state.gateDecisions).toEqual([]);
     expect(state.outputRefs).toEqual([]);
     expect(state.evidenceRefs).toEqual([]);
+    expect(state.evidenceLog).toEqual([]);
+    // The initial cursor defaults to the first sequential workflow step (R-OP-2).
+    expect(state.cursor).toEqual({ kind: "step", id: "check-catalog" });
     expect(state.childRuns).toEqual([]);
     expect(state.terminalStatus).toBeNull();
     expect(state.createdAt).toBe(state.updatedAt);

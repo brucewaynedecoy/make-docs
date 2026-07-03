@@ -14,13 +14,18 @@ export { OperationError } from "./types";
 export { probeCloseout } from "./closeout";
 export { checkpointPhase, gatePhase, guardPhaseScope } from "./lifecycle";
 export {
+  advancePlaybookRun,
   buildPlaybookCatalog,
   catalogPlaybooks,
+  closePlaybookRun,
+  computePlaybookRunNext,
   createPlaybookRunState,
   evaluateHarnessCapabilities,
   inspectPlaybookRunState,
   invokePlaybook,
+  PLAYBOOK_ADVANCE_OUTCOMES,
   PLAYBOOK_CATALOG_OPERATION_ID,
+  PLAYBOOK_GATE_DECISION_VALUES,
   PLAYBOOK_RUN_TERMINAL_STATUSES,
   PLAYBOOK_VALIDATE_OPERATION_ID,
   readHarnessCapabilityEvaluation,
@@ -29,7 +34,9 @@ export {
   readPlaybookResolution,
   readPlaybookRunState,
   readPlaybookValidation,
+  recordPlaybookRunGate,
   resolvePlaybook,
+  resumePlaybookRun,
   transitionPlaybookRunState,
   validatePlaybooks,
   writePlaybookInvocation,
@@ -38,6 +45,7 @@ export {
 export type {
   PlaybookContractCatalog,
   PlaybookContractCatalogEntry,
+  PlaybookRunNextReport,
   PlaybookRunState,
   PlaybookRunTerminalStatus,
   PlaybookValidationDiagnostic,

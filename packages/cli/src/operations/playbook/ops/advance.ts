@@ -1,22 +1,43 @@
+import path from "node:path";
 import { z } from "zod";
-import { OperationPendingError } from "../../context";
 import type { OperationDefinition } from "../../registry";
+import {
+  advancePlaybookRun,
+  PLAYBOOK_ADVANCE_OUTCOMES,
+  type PlaybookRunState,
+} from "../index";
 
-// Permissive on purpose: the input contract lands with the owning lineage.
-const inputSchema = z.looseObject({});
+const inputSchema = z.object({
+  repoRoot: z.string().optional(),
+  storeRoot: z.string().optional(),
+  runId: z.string(),
+  stepId: z.string().nullish(),
+  outcome: z.enum(PLAYBOOK_ADVANCE_OUTCOMES),
+  evidenceRefs: z.array(z.string()).optional(),
+  outputRefs: z.array(z.string()).optional(),
+  note: z.string().nullish(),
+});
 
-export const playbookAdvanceOperation: OperationDefinition<z.infer<typeof inputSchema>, never> = {
+export const playbookAdvanceOperation: OperationDefinition<
+  z.infer<typeof inputSchema>,
+  PlaybookRunState
+> = {
   id: "playbook.advance",
   summary:
-    "Operation `playbook.advance`: advance a Run Playbook run past its current step (reserved; semantics land with the W18 R7 run-playbook state machine).",
+    "Operation `playbook.advance`: record completion or failure of the current Playbook run step with its evidence, transition status, and compute the next cursor.",
   mutates: "write",
-  status: "pending",
-  pendingLineage: "the W18 R7 run-playbook state machine (PRD 35)",
+  status: "active",
   inputSchema,
-  // Defense for direct handler calls; registry dispatch refuses pending ids first.
-  handler() {
-    throw new OperationPendingError(
-      "Operation `playbook.advance` is a reserved registry identifier; its semantics land with the W18 R7 run-playbook state machine (PRD 35).",
-    );
+  handler(input, context) {
+    return advancePlaybookRun({
+      repoRoot: path.resolve(context.cwd, input.repoRoot ?? "."),
+      storeRoot: input.storeRoot,
+      runId: input.runId,
+      stepId: input.stepId,
+      outcome: input.outcome,
+      evidenceRefs: input.evidenceRefs,
+      outputRefs: input.outputRefs,
+      note: input.note,
+    });
   },
 };

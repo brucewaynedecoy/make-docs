@@ -112,13 +112,6 @@ function parsePreconditionStates(
 }
 
 /**
- * Pending identifiers take no adapter-shaped input: argv passes through as an
- * empty object so registry dispatch surfaces the OperationPendingError naming
- * the owning lineage.
- */
-const pendingPassThroughAdapter: RunCliAdapter = () => ({ input: {} });
-
-/**
  * Per-identifier argv adapters, keyed by registry identifier. Adapters do
  * argv-to-typed-input adaptation ONLY; validation, write gating, approvals,
  * and execution all happen in the registry dispatch.
@@ -190,11 +183,56 @@ const RUN_CLI_ADAPTERS: Record<string, RunCliAdapter> = {
       runId: requiredValue(options, "run-id", operationPath("playbook.status")),
     },
   }),
-  "playbook.next": pendingPassThroughAdapter,
-  "playbook.advance": pendingPassThroughAdapter,
-  "playbook.gate": pendingPassThroughAdapter,
-  "playbook.resume": pendingPassThroughAdapter,
-  "playbook.close": pendingPassThroughAdapter,
+  "playbook.next": (options) => ({
+    input: {
+      repoRoot: resolveRepoRoot(options),
+      ...optionalPathValue(options, "store-root", "storeRoot"),
+      runId: requiredValue(options, "run-id", operationPath("playbook.next")),
+    },
+  }),
+  "playbook.advance": (options) => ({
+    input: {
+      repoRoot: resolveRepoRoot(options),
+      ...optionalPathValue(options, "store-root", "storeRoot"),
+      runId: requiredValue(options, "run-id", operationPath("playbook.advance")),
+      stepId: options.values.step,
+      outcome: requiredValue(options, "outcome", operationPath("playbook.advance")),
+      evidenceRefs: options.arrays["evidence-ref"] ?? [],
+      outputRefs: options.arrays["output-ref"] ?? [],
+      note: options.values.note,
+    },
+  }),
+  "playbook.gate": (options) => ({
+    input: {
+      repoRoot: resolveRepoRoot(options),
+      ...optionalPathValue(options, "store-root", "storeRoot"),
+      runId: requiredValue(options, "run-id", operationPath("playbook.gate")),
+      gateId: options.values.gate,
+      decision: requiredValue(options, "decision", operationPath("playbook.gate")),
+      evidenceRefs: options.arrays["evidence-ref"] ?? [],
+      note: options.values.note,
+    },
+  }),
+  "playbook.resume": (options) => ({
+    input: {
+      repoRoot: resolveRepoRoot(options),
+      ...optionalPathValue(options, "store-root", "storeRoot"),
+      runId: requiredValue(options, "run-id", operationPath("playbook.resume")),
+      resumeHints: options.arrays["resume-hint"] ?? [],
+      evidenceRefs: options.arrays["evidence-ref"] ?? [],
+      note: options.values.note,
+    },
+  }),
+  "playbook.close": (options) => ({
+    input: {
+      repoRoot: resolveRepoRoot(options),
+      ...optionalPathValue(options, "store-root", "storeRoot"),
+      runId: requiredValue(options, "run-id", operationPath("playbook.close")),
+      terminalStatus: requiredValue(options, "terminal-status", operationPath("playbook.close")),
+      evidenceRefs: options.arrays["evidence-ref"] ?? [],
+      note: options.values.note,
+    },
+  }),
   "package.plan": (options) => ({
     input: {
       repoRoot: resolveRepoRoot(options),

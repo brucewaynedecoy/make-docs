@@ -11,7 +11,10 @@ import {
 } from "../src/mcp/tools";
 import { createPlaybookPackagePlan } from "../src/operations";
 import { listOperations } from "../src/operations/registry";
+import { loadSqliteDriver } from "../src/store";
 import { cleanupTempDir, createTempDir, writeMinimalManifest } from "./helpers";
+
+const sqliteAvailable = loadSqliteDriver().available;
 
 /**
  * W18 R11 P5 conformance pins (R-TEST-1): the MCP operation tool list is
@@ -196,21 +199,157 @@ describe("MCP derivation parity (R-REG-2, R-MIG-3, R-CORE-1)", () => {
     expect(toolsSource).not.toContain("allowWrite !== true");
   });
 
-  test("pending operation tools return the W18 R7 lineage refusal", async () => {
-    for (const pendingId of [
-      "playbook.next",
+  test("the W18 R7 progression write tools are core-gated behind allowWrite", async () => {
+    // The identifiers reserved for the W18 R7 state machine are active; the
+    // mutating ones refuse without allowWrite exactly like every other write.
+    for (const writeId of [
       "playbook.advance",
       "playbook.gate",
       "playbook.resume",
       "playbook.close",
     ]) {
       await expect(
-        callMakeDocsMcpTool(deriveMcpToolName(pendingId), {}),
+        callMakeDocsMcpTool(deriveMcpToolName(writeId), { runId: "run-1" }),
       ).rejects.toThrow(
-        `Operation \`${pendingId}\` is a reserved registry identifier; its semantics land with the W18 R7 run-playbook state machine (PRD 35).`,
+        `Operation \`${writeId}\` mutates state and requires write permission from the calling surface`,
       );
     }
   });
+
+  test.skipIf(!sqliteAvailable)(
+    "the progression operations behave identically through the derived MCP tools (t11)",
+    async () => {
+      const root = createTempDir("make-docs-mcp-progression-");
+      tempRoots.push(root);
+      writeMinimalManifest(root);
+      const storeRoot = path.join(createTempDir("make-docs-mcp-progression-store-"), "store");
+      tempRoots.push(path.dirname(storeRoot));
+      writeFile(
+        root,
+        "docs/assets/playbooks/user/ship.playbook.md",
+        [
+          "---",
+          'title: "Ship"',
+          'kind: "playbook"',
+          'persona: "user"',
+          'status: "accepted"',
+          'stack: "run"',
+          'summary: "Ship summary."',
+          'schemaVersion: "make-docs.playbook.v1"',
+          'workflowSchemaVersion: "make-docs.workflow.v1"',
+          "---",
+          "",
+          "# Ship",
+          "",
+          "## Purpose",
+          "",
+          "Ship the workflow.",
+          "",
+          "## When To Use",
+          "",
+          "Use in MCP parity tests.",
+          "",
+          "## Inputs And Authority",
+          "",
+          "- User direction first.",
+          "",
+          "## Dependencies",
+          "",
+          "| ID | Kind | Requirement | Source | Used By | Fallback |",
+          "| --- | --- | --- | --- | --- | --- |",
+          "| make-docs-cli | cli | required | package install | check | stop with install guidance |",
+          "",
+          "## Workflow Contract",
+          "",
+          "```playbook",
+          "workflow:",
+          "  id: ship",
+          "  state_model: make-docs.workflow-state.v1",
+          "  routing: linear",
+          "steps:",
+          "  - id: check",
+          "    title: Check the playbook catalog",
+          "    executor: cli",
+          "    role: check",
+          "    activation: sequential",
+          "    mode: deterministic",
+          "    requires: [make-docs-cli]",
+          "    operation: playbook.catalog",
+          "  - id: record",
+          "    title: Record the handoff",
+          "    executor: agent",
+          "    role: activity",
+          "    activation: sequential",
+          "    instructions: Record the handoff artifact.",
+          "```",
+          "",
+          "## Step Guidance",
+          "",
+          "Run the steps in order.",
+          "",
+          "## Gates And Decisions",
+          "",
+          "- None.",
+          "",
+          "## Outputs And Handoff",
+          "",
+          "- Record the handoff artifact.",
+          "",
+          "## Validation",
+          "",
+          "- Every step reports an outcome.",
+          "",
+          "## Packaging Notes",
+          "",
+          "No packaging hints.",
+          "",
+        ].join("\n"),
+      );
+      const shared = { repoRoot: root, storeRoot, runId: "mcp-run" };
+
+      const started = await callMakeDocsMcpTool("make_docs_playbook_start", {
+        ...shared,
+        ref: "user/ship",
+        harness: "codex",
+        allowWrite: true,
+      });
+      const startedState = (started.result as { state: Record<string, unknown> }).state;
+      expect(startedState.cursor).toEqual({ kind: "step", id: "check" });
+
+      const next = await callMakeDocsMcpTool("make_docs_playbook_next", shared);
+      expect(next.result).toEqual(
+        expect.objectContaining({
+          position: "step",
+          next: expect.objectContaining({ stepId: "check" }),
+        }),
+      );
+
+      const advanced = await callMakeDocsMcpTool("make_docs_playbook_advance", {
+        ...shared,
+        outcome: "completed",
+        evidenceRefs: ["mcp-evidence.md"],
+        allowWrite: true,
+      });
+      expect(advanced.result).toEqual(
+        expect.objectContaining({
+          cursor: { kind: "step", id: "record" },
+          evidenceRefs: ["mcp-evidence.md"],
+        }),
+      );
+
+      const closed = await callMakeDocsMcpTool("make_docs_playbook_close", {
+        ...shared,
+        terminalStatus: "completed",
+        allowWrite: true,
+      });
+      expect(closed.result).toEqual(
+        expect.objectContaining({ status: "completed", terminalStatus: "completed" }),
+      );
+
+      const status = await callMakeDocsMcpTool("make_docs_playbook_status", shared);
+      expect(status.result).toEqual(expect.objectContaining({ terminalStatus: "completed" }));
+    },
+  );
 
   test("named approvals flow through the context to the implementation", async () => {
     const root = createTempDir("make-docs-mcp-derivation-approvals-");
@@ -277,7 +416,7 @@ describe("MCP derivation parity (R-REG-2, R-MIG-3, R-CORE-1)", () => {
     expect(result.lines).toContain("Writes executed: no");
   });
 
-  test("derived descriptors mark write and pending operations", () => {
+  test("derived descriptors mark write operations and carry operation input schemas", () => {
     const descriptors = new Map(MAKE_DOCS_MCP_TOOLS.map((tool) => [tool.name, tool]));
     const writeTool = descriptors.get("make_docs_package_write")!;
     expect(writeTool.description).toContain("allowWrite=true");
@@ -285,9 +424,18 @@ describe("MCP derivation parity (R-REG-2, R-MIG-3, R-CORE-1)", () => {
       expect.arrayContaining(["allowWrite", "dryRun", "approvals"]),
     );
 
-    const pendingTool = descriptors.get("make_docs_playbook_next")!;
-    expect(pendingTool.description).toContain(
-      "the W18 R7 run-playbook state machine (PRD 35)",
+    // The progression identifiers are active with derived typed inputs:
+    // playbook.next is a read tool with no allowWrite argument, and
+    // playbook.advance is a write tool exposing its typed input contract.
+    const nextTool = descriptors.get("make_docs_playbook_next")!;
+    expect(nextTool.description).not.toContain("Pending");
+    expect(Object.keys(nextTool.inputSchema)).toEqual(
+      expect.arrayContaining(["runId", "dryRun", "approvals"]),
+    );
+    expect(Object.keys(nextTool.inputSchema)).not.toContain("allowWrite");
+    const advanceTool = descriptors.get("make_docs_playbook_advance")!;
+    expect(Object.keys(advanceTool.inputSchema)).toEqual(
+      expect.arrayContaining(["runId", "outcome", "evidenceRefs", "allowWrite"]),
     );
 
     const readTool = descriptors.get("make_docs_playbook_catalog")!;

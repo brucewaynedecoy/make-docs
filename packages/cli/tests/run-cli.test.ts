@@ -1,7 +1,6 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { afterEach, describe, expect, test, vi } from "vitest";
-import { OperationPendingError } from "../src/operations/context";
 import { listOperations } from "../src/operations/registry";
 import { OperationError } from "../src/operations/types";
 import {
@@ -39,6 +38,98 @@ function createWaveFixture(): { root: string; waveDir: string; projectId: string
     ].join("\n"),
   );
   return { root, waveDir, projectId };
+}
+
+/** A conformant W18 R6 playbook with a step, a gate, and a follow-on step. */
+function progressionPlaybook(): string {
+  return [
+    "---",
+    'title: "Ship"',
+    'kind: "playbook"',
+    'persona: "user"',
+    'status: "accepted"',
+    'stack: "run"',
+    'summary: "Ship summary."',
+    'schemaVersion: "make-docs.playbook.v1"',
+    'workflowSchemaVersion: "make-docs.workflow.v1"',
+    "---",
+    "",
+    "# Ship",
+    "",
+    "## Purpose",
+    "",
+    "Ship the documented workflow.",
+    "",
+    "## When To Use",
+    "",
+    "Use when the workflow goal is active.",
+    "",
+    "## Inputs And Authority",
+    "",
+    "- User direction first, then repo-local Make Docs contracts.",
+    "",
+    "## Dependencies",
+    "",
+    "| ID | Kind | Requirement | Source | Used By | Fallback |",
+    "| --- | --- | --- | --- | --- | --- |",
+    "| make-docs-cli | cli | required | package install | check | stop with install guidance |",
+    "",
+    "## Workflow Contract",
+    "",
+    "```playbook",
+    "workflow:",
+    "  id: ship",
+    "  state_model: make-docs.workflow-state.v1",
+    "  routing: linear",
+    "steps:",
+    "  - id: check",
+    "    title: Check the playbook catalog",
+    "    executor: cli",
+    "    role: check",
+    "    activation: sequential",
+    "    mode: deterministic",
+    "    requires: [make-docs-cli]",
+    "    operation: playbook.catalog",
+    "  - id: review",
+    "    title: Review the catalog output",
+    "    executor: human",
+    "    role: gate",
+    "    activation: sequential",
+    "    mode: delegated",
+    "    instructions: Review the catalog output and approve or reject.",
+    "    gate:",
+    "      resolved_by: user",
+    "      evidence: review note",
+    "      unattended: false",
+    "  - id: record",
+    "    title: Record the handoff",
+    "    executor: agent",
+    "    role: activity",
+    "    activation: sequential",
+    "    instructions: Record the handoff artifact.",
+    "```",
+    "",
+    "## Step Guidance",
+    "",
+    "Run the steps in order and report the results.",
+    "",
+    "## Gates And Decisions",
+    "",
+    "- Stop at the review gate until the user decides.",
+    "",
+    "## Outputs And Handoff",
+    "",
+    "- Record the handoff artifact.",
+    "",
+    "## Validation",
+    "",
+    "- The catalog check exits zero.",
+    "",
+    "## Packaging Notes",
+    "",
+    "No packaging hints.",
+    "",
+  ].join("\n");
 }
 
 function captureStdout() {
@@ -150,14 +241,75 @@ describe("make-docs run command (W18 R11, R-REG-2, R-TOP-3)", () => {
     await expect(runRunCommand(["playbook", "fly"])).rejects.toThrow(/work evidence record/);
   });
 
-  test("pending identifiers surface the owning-lineage refusal (playbook.advance)", async () => {
-    await expect(runRunCommand(["playbook", "advance"])).rejects.toBeInstanceOf(
-      OperationPendingError,
-    );
+  test("progression adapters name their required flags (playbook.advance, playbook.close)", async () => {
     await expect(runRunCommand(["playbook", "advance"])).rejects.toThrow(
-      /the W18 R7 run-playbook state machine \(PRD 35\)/,
+      /`playbook advance` requires --run-id/,
     );
+    await expect(
+      runRunCommand(["playbook", "advance", "--run-id", "run-1"]),
+    ).rejects.toThrow(/`playbook advance` requires --outcome/);
+    await expect(
+      runRunCommand(["playbook", "close", "--run-id", "run-1"]),
+    ).rejects.toThrow(/`playbook close` requires --terminal-status/);
   });
+
+  test.skipIf(!sqliteAvailable)(
+    "the progression operations round-trip under `run playbook` (t10)",
+    async () => {
+      const root = createTempDir("make-docs-run-cli-playbook-");
+      tempRoots.push(root);
+      writeMinimalManifest(root);
+      const storeRoot = path.join(createTempDir("make-docs-run-cli-playbook-store-"), "store");
+      tempRoots.push(path.dirname(storeRoot));
+      writeFile(root, "docs/assets/playbooks/user/ship.playbook.md", progressionPlaybook());
+
+      const invoke = async (argv: string[]): Promise<Record<string, unknown>> => {
+        const stdout = captureStdout();
+        await runRunCommand([
+          ...argv,
+          "--repo-root",
+          root,
+          "--store-root",
+          storeRoot,
+          "--run-id",
+          "cli-run",
+        ]);
+        const output = stdout.output();
+        stdout.spy.mockRestore();
+        return JSON.parse(output) as Record<string, unknown>;
+      };
+
+      const started = await invoke(["playbook", "start", "user/ship", "--harness", "codex"]);
+      expect((started.state as Record<string, unknown>).cursor).toEqual({
+        kind: "step",
+        id: "check",
+      });
+
+      const next = await invoke(["playbook", "next"]);
+      expect(next.position).toBe("step");
+      expect((next.next as Record<string, unknown>).stepId).toBe("check");
+
+      const advanced = await invoke([
+        "playbook",
+        "advance",
+        "--outcome",
+        "completed",
+        "--evidence-ref",
+        "docs/prd/35-revise-run-playbook-state-machine.md",
+      ]);
+      expect(advanced.cursor).toEqual({ kind: "gate", id: "review" });
+
+      const gated = await invoke(["playbook", "gate", "--decision", "approve"]);
+      expect(gated.cursor).toEqual({ kind: "step", id: "record" });
+
+      const resumed = await invoke(["playbook", "resume", "--resume-hint", "picked back up"]);
+      expect(resumed.status).toBe("running");
+
+      const closed = await invoke(["playbook", "close", "--terminal-status", "cancelled"]);
+      expect(closed.terminalStatus).toBe("cancelled");
+      expect((await invoke(["playbook", "status"])).terminalStatus).toBe("cancelled");
+    },
+  );
 
   test.skipIf(!sqliteAvailable)(
     "work evidence record/read round-trips through the run command",

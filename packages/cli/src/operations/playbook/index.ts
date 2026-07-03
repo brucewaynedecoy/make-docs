@@ -370,9 +370,13 @@ export function readHarnessCapabilityEvaluation(input: {
  */
 export {
   createPlaybookRunState,
+  initialPlaybookRunCursor,
   inspectPlaybookRunState,
+  loadPlaybookRunModel,
   normalizeOutputSurfaceClaims,
   PLAYBOOK_RUN_TERMINAL_STATUSES,
+  playbookRunCursorForStep,
+  playbookRunStepId,
   readPlaybookRunState,
   transitionPlaybookRunState,
   writePlaybookRunState,
@@ -383,12 +387,41 @@ export type {
   PlaybookChildRunRecord,
   PlaybookRunCursor,
   PlaybookRunDependencyAvailability,
+  PlaybookRunEvidenceRecord,
+  PlaybookRunEvidenceScope,
   PlaybookRunExecutionMode,
   PlaybookRunGateDecision,
   PlaybookRunState,
   PlaybookRunStepStatusEntry,
   PlaybookRunTerminalStatus,
 } from "./run-state";
+
+/**
+ * The W18 R7 P2 progression engine (PRD 35 R-OP-1..3): `playbook.next`,
+ * `playbook.advance`, `playbook.gate`, `playbook.resume`, and
+ * `playbook.close` semantics over the run-state storage seam.
+ */
+export {
+  advancePlaybookRun,
+  closePlaybookRun,
+  computePlaybookRunNext,
+  PLAYBOOK_ADVANCE_OUTCOMES,
+  PLAYBOOK_GATE_DECISION_VALUES,
+  recordPlaybookRunGate,
+  resumePlaybookRun,
+} from "./progression";
+export type {
+  AdvancePlaybookRunInput,
+  ClosePlaybookRunInput,
+  PlaybookAdvanceOutcome,
+  PlaybookGateDecisionValue,
+  PlaybookRunNextDependencyReport,
+  PlaybookRunNextPosition,
+  PlaybookRunNextReport,
+  PlaybookRunNextStepReport,
+  RecordPlaybookRunGateInput,
+  ResumePlaybookRunInput,
+} from "./progression";
 
 export function invokePlaybook(input: {
   repoRoot?: string;
