@@ -1,9 +1,17 @@
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
+import { parseAndValidatePlaybook, type PlaybookModel } from "../../playbook";
+import { listHarnessRegistryEntries } from "../harness-registry";
 import { resolvePlaybook } from "../playbook";
 import { findRepoRoot, repoRelativePath } from "../shared";
 import { OperationError, type JsonValue } from "../types";
+import {
+  buildPackageDistributable,
+  deriveImpliedAgentics,
+  projectPlaybookToSkill,
+  type PackageDistributable,
+} from "./distributable";
 import {
   PLAYBOOK_PACKAGE_OUTPUT_KINDS,
   PLAYBOOK_PACKAGE_SCOPES,
@@ -54,6 +62,17 @@ export function createPlaybookPackagePlan(input: PlaybookPackagePlannerInput): P
     sourceRefs: sources.map((source) => source.ref),
     target,
   });
+  // Two-granularities distributable (W18 R8 P1, R-CAP-3/R-CAP-4): the parsed
+  // W18 R6 model supplies the implied agentics, the harness capability
+  // descriptor drives adapter-side container selection, and every degradation
+  // or fail-closed stop is declared in the plan — the planner itself stays
+  // harness-neutral by delegating through the shared harness registry.
+  const distributable = buildPlanDistributable({ repoRoot, sources, input, target });
+  stops.push(...distributable.containerSelection.stops);
+  fieldProvenance.distributable = "deterministic";
+  fieldProvenance["distributable.unsupportedPrimitivePolicy"] = input.unsupportedPrimitivePolicy
+    ? "user-supplied"
+    : "deterministic";
   const agentAssistedProposals: AgentAssistedProposal[] = [];
   const unresolvedDecisions: PackageUnresolvedDecision[] = [];
 
@@ -102,7 +121,7 @@ export function createPlaybookPackagePlan(input: PlaybookPackagePlannerInput): P
     sources,
     target,
     generatedArtifacts,
-    deterministicDerivations: buildDerivations(sources, packageId, generatedArtifacts),
+    deterministicDerivations: buildDerivations(sources, packageId, generatedArtifacts, distributable),
     agentAssistedProposals,
     unresolvedDecisions,
     fieldProvenance,
@@ -124,6 +143,7 @@ export function createPlaybookPackagePlan(input: PlaybookPackagePlannerInput): P
       "package-plan-review",
       "support-claim-evidence",
     ],
+    distributable,
   });
   const status = reviewRequired
     ? stops.some((stop) => stop.reason === "source-invalid" || stop.reason === "unresolved-target" || stop.reason === "ambiguous-source" || stop.reason === "manual-review-required")
@@ -169,10 +189,26 @@ export function renderPackagePlanDryRunLines(plan: PlaybookPackagePlan, stops: P
     `Sources: ${plan.sources.map((source) => `${source.ref}@${source.sourceDigest}`).join(", ")}`,
     `Generated artifacts: ${plan.generatedArtifacts.length}`,
     ...plan.generatedArtifacts.map((artifact) => `- ${artifact.recordKind}: ${artifact.path}`),
+    ...renderDistributableLines(plan.distributable),
     `Review: ${plan.review.status}${plan.review.required ? " required" : ""}`,
     `Support: ${plan.support.status}`,
     `Writes planned: no`,
     ...(stops.length === 0 ? ["Stops: none"] : ["Stops:", ...stops.map((stop) => `- ${stop.reason}: ${stop.message}`)]),
+  ];
+}
+
+/** Declared container selection and degradations, visible in the reviewed plan (R-CAP-4). */
+function renderDistributableLines(distributable: PackageDistributable | undefined): string[] {
+  if (!distributable) {
+    return [];
+  }
+  const selection = distributable.containerSelection;
+  return [
+    `Distributable: ${distributable.profile} profile via ${selection.containerId ? `${selection.containerKind} \`${selection.containerId}\`` : "no resolved container"}${distributable.bundle ? " (bundle)" : ""}`,
+    `Skills: ${distributable.skills.map((skill) => skill.skillId).join(", ")}`,
+    ...(selection.declaredDegradations.length === 0
+      ? []
+      : ["Declared degradations:", ...selection.declaredDegradations.map((degradation) => `- ${degradation}`)]),
   ];
 }
 
@@ -340,12 +376,62 @@ function buildDerivations(
   sources: SourcePlaybookRef[],
   packageId: string,
   generatedArtifacts: GeneratedArtifactPlan[],
+  distributable: PackageDistributable,
 ): Record<string, string> {
   return {
     packageId,
     sourceDigests: sources.map((source) => `${source.ref}=${source.sourceDigest}`).join(";"),
     generatedArtifacts: generatedArtifacts.map((artifact) => artifact.path).join(";"),
+    // Container selection and degradation provenance (R-CAP-4): the declared
+    // choice is recorded deterministically, never silent.
+    distributableProfile: distributable.profile,
+    distributableSkills: distributable.skills.map((skill) => skill.skillId).join(";"),
+    unsupportedPrimitivePolicy: distributable.containerSelection.policy,
+    ...(distributable.containerSelection.containerId
+      ? { distributableContainer: distributable.containerSelection.containerId }
+      : {}),
+    ...(distributable.containerSelection.declaredDegradations.length > 0
+      ? { declaredDegradations: distributable.containerSelection.declaredDegradations.join(" | ") }
+      : {}),
   };
+}
+
+/**
+ * Parses each source through the W18 R6 model (fail-soft; the model is never
+ * re-derived from ad-hoc Markdown scans, R-SCOPE-1), projects one skill per
+ * Playbook, derives the implied agentics, and runs descriptor-driven
+ * container selection through the shared harness registry (R-CAP-3, R-CAP-4).
+ */
+function buildPlanDistributable(context: {
+  repoRoot: string;
+  sources: SourcePlaybookRef[];
+  input: PlaybookPackagePlannerInput;
+  target: PlaybookPackagePlan["target"];
+}): PackageDistributable {
+  const models = new Map<string, PlaybookModel>();
+  for (const source of context.sources) {
+    const absolutePath = path.join(context.repoRoot, source.path);
+    const { model } = parseAndValidatePlaybook({
+      sourcePath: source.path,
+      source: readFileSync(absolutePath, "utf8"),
+    });
+    models.set(source.ref, model);
+  }
+  const descriptor = listHarnessRegistryEntries({ descriptors: context.input.descriptors })
+    .find((entry) => entry.harnessId === context.target.harness)?.descriptor ?? null;
+  return buildPackageDistributable({
+    harnessId: context.target.harness,
+    descriptor,
+    outputKind: context.target.outputKind,
+    skills: context.sources.map((source) => projectPlaybookToSkill(source, models.get(source.ref))),
+    impliedAgentics: context.sources.flatMap((source) => {
+      const model = models.get(source.ref);
+      return model ? deriveImpliedAgentics({ model, sourceRef: source.ref }) : [];
+    }),
+    ...(context.input.unsupportedPrimitivePolicy
+      ? { policy: context.input.unsupportedPrimitivePolicy }
+      : {}),
+  });
 }
 
 function buildReviewReason(

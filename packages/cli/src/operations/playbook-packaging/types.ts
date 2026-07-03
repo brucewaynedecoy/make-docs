@@ -1,4 +1,6 @@
 import type { JsonValue } from "../types";
+import type { HarnessCapabilityDescriptor } from "./capability-descriptor";
+import type { PackageDistributable, UnsupportedPrimitivePolicy } from "./distributable";
 
 export const PLAYBOOK_PACKAGE_OUTPUT_KINDS = ["plugin", "skills-bundle"] as const;
 export const PLAYBOOK_PACKAGE_SURFACES = ["native", "agents-standard", "auto"] as const;
@@ -139,6 +141,13 @@ export interface PlaybookPackagePlan {
   support: PackagePlanSupport;
   lifecycle: PackagePlanLifecycle;
   validationRequirements: string[];
+  /**
+   * Two-granularities distributable record (W18 R8 P1, R-CAP-3/R-CAP-4):
+   * skills at authoring granularity, implied agentics, and the declared
+   * container selection with any degradations. Optional so pre-W18 R8 plan
+   * payloads keep validating.
+   */
+  distributable?: PackageDistributable;
 }
 
 export interface PackagePlanDryRun {
@@ -161,6 +170,14 @@ export interface PlaybookPackagePlannerInput {
   reviewedBy?: string;
   supportEvidenceRefs?: string[];
   nonInteractive?: boolean;
+  /**
+   * Declared handling for Playbook-implied agentics the harness cannot host:
+   * degrade to documented manual steps/skill instructions or fail closed with
+   * unsupported-surface stops; defaults to fail-closed (R-CAP-4).
+   */
+  unsupportedPrimitivePolicy?: UnsupportedPrimitivePolicy;
+  /** Capability-descriptor override for tests and additive future harnesses. */
+  descriptors?: HarnessCapabilityDescriptor[];
   existingGeneratedOutputs?: Array<{
     path: string;
     state: "clean-managed" | "modified-managed" | "user-authored" | "legacy-generated";

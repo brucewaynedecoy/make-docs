@@ -1,76 +1,31 @@
+/**
+ * Harness package adapter declarations (W18 R5, revised by W18 R8 P1).
+ *
+ * Since W18 R8 P1 the adapters no longer author path templates: the harness
+ * capability descriptor is the carrier of harness paths, manifest shapes,
+ * exposure modes, and preconditions, and each first-party declaration derives
+ * those fields from its descriptor via `deriveAdapterDeclarationCore`
+ * (R-CAP-2, R-ADAPT-1). Ownership classes, lifecycle rules, and conformance
+ * requirements stay declared here because they are Make Docs lifecycle
+ * policy, not harness packaging knowledge.
+ *
+ * Pi has a registered capability descriptor but no adapter declaration yet;
+ * the Pi adapter contract lands with Phase 3 (R-ADAPT-4).
+ */
+
 import { OperationError } from "../types";
+import { deriveAdapterDeclarationCore } from "./capability-descriptor";
+import {
+  CLAUDE_CODE_HARNESS_CAPABILITY_DESCRIPTOR,
+  CODEX_HARNESS_CAPABILITY_DESCRIPTOR,
+  FIXTURE_FUTURE_HARNESS_CAPABILITY_DESCRIPTOR,
+} from "./descriptors";
 import type { HarnessPackageAdapterDeclaration } from "./types";
 import { validateHarnessAdapterDeclaration } from "./validation";
 
 export const FIRST_PARTY_HARNESS_PACKAGE_ADAPTERS: HarnessPackageAdapterDeclaration[] = [
   createAdapter({
-    harnessId: "codex",
-    supportedOutputKinds: ["plugin", "skills-bundle"],
-    supportedSurfaces: ["native", "agents-standard", "auto"],
-    supportedScopes: ["project", "global", "export-only"],
-    pathTemplates: [
-      {
-        outputKind: "plugin",
-        surface: "native",
-        scope: "project",
-        template: ".agents/plugins/{packageId}",
-      },
-      {
-        outputKind: "skills-bundle",
-        surface: "native",
-        scope: "project",
-        template: ".agents/skills/{packageId}/SKILL.md",
-      },
-      {
-        outputKind: "skills-bundle",
-        surface: "agents-standard",
-        scope: "project",
-        template: ".agents/skills/{packageId}/SKILL.md",
-      },
-      {
-        outputKind: "plugin",
-        surface: "native",
-        scope: "global",
-        template: "<user-home>/.codex/plugins/{packageId}",
-      },
-      {
-        outputKind: "skills-bundle",
-        surface: "agents-standard",
-        scope: "global",
-        template: "<user-home>/.agents/skills/{packageId}/SKILL.md",
-      },
-      {
-        outputKind: "plugin",
-        surface: "native",
-        scope: "export-only",
-        template: ".make-docs/exports/playbook-packages/{packageId}/plugin.json",
-      },
-      {
-        outputKind: "skills-bundle",
-        surface: "agents-standard",
-        scope: "export-only",
-        template: ".make-docs/exports/playbook-packages/{packageId}/SKILL.md",
-      },
-    ],
-    preconditions: [
-      {
-        id: "harness-supported",
-        description: "The target harness adapter must be present and selected.",
-        required: true,
-      },
-      {
-        id: "project-trusted",
-        description: "The project must be trusted before project-local standard agentic locations are used.",
-        required: true,
-      },
-      {
-        id: "symlink-or-copy-mirror",
-        description: "Native exposure uses symlinks when available and managed copy mirrors otherwise.",
-        required: true,
-      },
-    ],
-    preferredExposureMode: "symlink",
-    fallbackExposureMode: "copy-mirror",
+    ...deriveAdapterDeclarationCore(CODEX_HARNESS_CAPABILITY_DESCRIPTOR),
     ownershipClasses: ["generated-plugin", "generated-skills-bundle", "symlink-exposure", "copy-mirror"],
     lifecycleRules: [
       {
@@ -91,73 +46,7 @@ export const FIRST_PARTY_HARNESS_PACKAGE_ADAPTERS: HarnessPackageAdapterDeclarat
     ],
   }),
   createAdapter({
-    harnessId: "claude-code",
-    supportedOutputKinds: ["plugin", "skills-bundle"],
-    supportedSurfaces: ["native", "agents-standard", "auto"],
-    supportedScopes: ["project", "global", "export-only"],
-    pathTemplates: [
-      {
-        outputKind: "plugin",
-        surface: "native",
-        scope: "project",
-        template: ".claude/plugins/{packageId}/plugin.json",
-      },
-      {
-        outputKind: "skills-bundle",
-        surface: "native",
-        scope: "project",
-        template: ".claude/skills/{packageId}/SKILL.md",
-      },
-      {
-        outputKind: "skills-bundle",
-        surface: "agents-standard",
-        scope: "project",
-        template: ".agents/skills/{packageId}/SKILL.md",
-      },
-      {
-        outputKind: "plugin",
-        surface: "native",
-        scope: "global",
-        template: "<user-home>/.claude/plugins/{packageId}/plugin.json",
-      },
-      {
-        outputKind: "skills-bundle",
-        surface: "agents-standard",
-        scope: "global",
-        template: "<user-home>/.agents/skills/{packageId}/SKILL.md",
-      },
-      {
-        outputKind: "plugin",
-        surface: "native",
-        scope: "export-only",
-        template: ".make-docs/exports/playbook-packages/{packageId}/plugin.json",
-      },
-      {
-        outputKind: "skills-bundle",
-        surface: "agents-standard",
-        scope: "export-only",
-        template: ".make-docs/exports/playbook-packages/{packageId}/SKILL.md",
-      },
-    ],
-    preconditions: [
-      {
-        id: "harness-supported",
-        description: "The target harness adapter must be present and selected.",
-        required: true,
-      },
-      {
-        id: "plugin-or-skill-support",
-        description: "The target Claude Code surface must support the selected output kind.",
-        required: true,
-      },
-      {
-        id: "symlink-or-copy-mirror",
-        description: "Native exposure uses symlinks when available and managed copy mirrors otherwise.",
-        required: true,
-      },
-    ],
-    preferredExposureMode: "symlink",
-    fallbackExposureMode: "copy-mirror",
+    ...deriveAdapterDeclarationCore(CLAUDE_CODE_HARNESS_CAPABILITY_DESCRIPTOR),
     ownershipClasses: ["generated-plugin", "generated-skills-bundle", "generated-adapter", "symlink-exposure", "copy-mirror"],
     lifecycleRules: [
       {
@@ -180,45 +69,7 @@ export const FIRST_PARTY_HARNESS_PACKAGE_ADAPTERS: HarnessPackageAdapterDeclarat
 ];
 
 export const FIXTURE_FUTURE_HARNESS_PACKAGE_ADAPTER: HarnessPackageAdapterDeclaration = createAdapter({
-  harnessId: "future-harness",
-  supportedOutputKinds: ["plugin", "skills-bundle"],
-  supportedSurfaces: ["native", "agents-standard", "auto"],
-  supportedScopes: ["project", "global", "export-only"],
-  pathTemplates: [
-    {
-      outputKind: "plugin",
-      surface: "native",
-      scope: "project",
-      template: ".future/plugins/{packageId}/plugin.json",
-    },
-    {
-      outputKind: "skills-bundle",
-      surface: "agents-standard",
-      scope: "project",
-      template: ".agents/skills/{packageId}/SKILL.md",
-    },
-    {
-      outputKind: "skills-bundle",
-      surface: "agents-standard",
-      scope: "global",
-      template: "<user-home>/.agents/skills/{packageId}/SKILL.md",
-    },
-    {
-      outputKind: "plugin",
-      surface: "native",
-      scope: "export-only",
-      template: ".make-docs/exports/playbook-packages/{packageId}/plugin.json",
-    },
-  ],
-  preconditions: [
-    {
-      id: "future-project-trusted",
-      description: "Fixture harness project trust must be reviewed before standard surfaces are used.",
-      required: true,
-    },
-  ],
-  preferredExposureMode: "symlink",
-  fallbackExposureMode: "copy-mirror",
+  ...deriveAdapterDeclarationCore(FIXTURE_FUTURE_HARNESS_CAPABILITY_DESCRIPTOR),
   ownershipClasses: ["generated-plugin", "generated-skills-bundle", "symlink-exposure", "copy-mirror"],
   lifecycleRules: [
     {

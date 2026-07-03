@@ -182,6 +182,8 @@ The capability model is a mediator between Make Docs and harness-specific behavi
 
 The implemented evaluator trusts only `reviewStatus: reviewed` records. Unreviewed records remain visible as evidence, but they are not execution authority. Required unknown or unsupported capabilities return `manual-review-required`; optional unavailable or unknown capabilities return `serial-gated-fallback`.
 
+Since W18 R8 Phase 1, the separate packaging-time capability question — can a harness host a given agentic primitive — is answered by the shared harness registry at `packages/cli/src/operations/harness-registry.ts`. The registry links each harness's packaging descriptor to this evaluator's config-record key by identity only: the evaluator now resolves its record key through the registry's `resolveRuntimeCapabilityRecordKey`, unregistered harness ids pass through unchanged, and the run-time semantics in this guide are untouched. The registry and descriptor model are documented in [Playbook Packaging and Harness Adapters](./playbooks-development-packaging-and-harness-adapters.md).
+
 ## Run State
 
 Since W18 R7 Phase 1, Make Docs-owned run state lives in the machine-level global store at `~/.make-docs/`, in the `playbook_runs` facet, keyed by the manifest-minted stable project identifier plus a run identifier. It is never written under `.make-docs/runs/` or any other repository path, and it is never keyed by a directory path; the retired `.make-docs/runs/playbooks/<run-id>/state.json` location is the per-repo anti-pattern this relocation removed.

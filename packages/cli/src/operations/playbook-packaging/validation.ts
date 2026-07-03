@@ -1,6 +1,22 @@
 import { OperationError, type JsonValue } from "../types";
 import {
+  DISTRIBUTABLE_PROFILES,
+  HARNESS_AGENTIC_PRIMITIVES,
+  HARNESS_CONTAINER_KINDS,
+} from "./capability-descriptor";
+import {
+  AGENTIC_LOWERING_DISPOSITIONS,
+  CONTAINER_SELECTION_STATUSES,
+  UNSUPPORTED_PRIMITIVE_POLICIES,
+  type AgenticLowering,
+  type ImpliedAgentic,
+  type PackageContainerSelection,
+  type PackageDistributable,
+  type PlaybookSkillProjection,
+} from "./distributable";
+import {
   GENERATED_OUTPUT_RECORD_KINDS,
+  PACKAGE_PLAN_STOP_REASONS,
   PACKAGE_ADAPTER_EXPOSURE_MODES,
   PACKAGE_PLAN_FIELD_PROVENANCE,
   PLAYBOOK_PACKAGE_OUTPUT_KINDS,
@@ -19,6 +35,7 @@ import {
   type PackageAdapterPrecondition,
   type PackagePlanFieldProvenance,
   type PackagePlanLifecycle,
+  type PackagePlanStop,
   type PackagePlanReview,
   type PackagePlanSupport,
   type PackageUnresolvedDecision,
@@ -35,6 +52,9 @@ import {
 
 export function validatePackagePlan(value: unknown): PlaybookPackagePlan {
   const record = requireRecord(value, "package plan");
+  const distributable = record.distributable === undefined
+    ? undefined
+    : validatePackageDistributable(record.distributable);
   const plan: PlaybookPackagePlan = {
     schemaVersion: requireLiteral(record.schemaVersion, 1, "package plan schemaVersion"),
     packageId: requireNonEmptyString(record.packageId, "package plan packageId"),
@@ -54,6 +74,7 @@ export function validatePackagePlan(value: unknown): PlaybookPackagePlan {
     support: validatePackagePlanSupport(record.support),
     lifecycle: validatePackagePlanLifecycle(record.lifecycle),
     validationRequirements: requireStringArray(record.validationRequirements, "package plan validationRequirements"),
+    ...(distributable ? { distributable } : {}),
   };
 
   if (plan.sources.length === 0) {
@@ -243,6 +264,97 @@ function validatePackagePlanLifecycle(value: unknown): PackagePlanLifecycle {
       "package plan lifecycle preservesUserModifiedFiles",
     ),
   };
+}
+
+/** Validates the two-granularities distributable record on a plan (W18 R8 P1, R-CAP-3/R-CAP-4). */
+export function validatePackageDistributable(value: unknown): PackageDistributable {
+  const record = requireRecord(value, "package distributable");
+  const distributable: PackageDistributable = {
+    profile: requireEnum(record.profile, DISTRIBUTABLE_PROFILES, "package distributable profile"),
+    bundle: requireBoolean(record.bundle, "package distributable bundle"),
+    skills: requireRecordArray(record.skills, "package distributable skills").map(validateSkillProjection),
+    impliedAgentics: requireRecordArray(record.impliedAgentics, "package distributable impliedAgentics")
+      .map(validateImpliedAgentic),
+    containerSelection: validateContainerSelection(record.containerSelection),
+  };
+  if (distributable.skills.length === 0) {
+    throw new OperationError("Package distributable must contain at least one skill (R-CAP-3).");
+  }
+  return distributable;
+}
+
+function validateSkillProjection(record: Record<string, JsonValue>): PlaybookSkillProjection {
+  return {
+    skillId: requireNonEmptyString(record.skillId, "skill projection skillId"),
+    sourceRef: requireNonEmptyString(record.sourceRef, "skill projection sourceRef"),
+    sourceDigest: requireNonEmptyString(record.sourceDigest, "skill projection sourceDigest"),
+    title: requireNonEmptyString(record.title, "skill projection title"),
+    summary: requireNullableString(record.summary, "skill projection summary"),
+  };
+}
+
+function validateImpliedAgentic(record: Record<string, JsonValue>): ImpliedAgentic {
+  return {
+    primitive: requireEnum(record.primitive, HARNESS_AGENTIC_PRIMITIVES, "implied agentic primitive"),
+    sourceRef: requireNonEmptyString(record.sourceRef, "implied agentic sourceRef"),
+    stepId: requireNullableString(record.stepId, "implied agentic stepId"),
+    event: requireNullableString(record.event, "implied agentic event"),
+    reason: requireNonEmptyString(record.reason, "implied agentic reason"),
+  };
+}
+
+function validateAgenticLowering(record: Record<string, JsonValue>): AgenticLowering {
+  return {
+    agentic: validateImpliedAgentic(requireRecord(record.agentic, "agentic lowering agentic")),
+    disposition: requireEnum(
+      record.disposition,
+      AGENTIC_LOWERING_DISPOSITIONS,
+      "agentic lowering disposition",
+    ),
+    hookPoint: requireNullableString(record.hookPoint, "agentic lowering hookPoint"),
+    declaration: requireNonEmptyString(record.declaration, "agentic lowering declaration"),
+  };
+}
+
+function validateContainerSelection(value: unknown): PackageContainerSelection {
+  const record = requireRecord(value, "package container selection");
+  return {
+    status: requireEnum(record.status, CONTAINER_SELECTION_STATUSES, "container selection status"),
+    harnessId: validateHarnessId(record.harnessId, "container selection harnessId"),
+    profile: requireEnum(record.profile, DISTRIBUTABLE_PROFILES, "container selection profile"),
+    outputKind: requireEnum(record.outputKind, PLAYBOOK_PACKAGE_OUTPUT_KINDS, "container selection outputKind"),
+    containerId: requireNullableString(record.containerId, "container selection containerId"),
+    containerKind: record.containerKind === null
+      ? null
+      : requireEnum(record.containerKind, HARNESS_CONTAINER_KINDS, "container selection containerKind"),
+    policy: requireEnum(record.policy, UNSUPPORTED_PRIMITIVE_POLICIES, "container selection policy"),
+    lowerings: requireRecordArray(record.lowerings, "container selection lowerings")
+      .map(validateAgenticLowering),
+    declaredDegradations: requireStringArray(
+      record.declaredDegradations,
+      "container selection declaredDegradations",
+    ),
+    stops: requireRecordArray(record.stops, "container selection stops").map(validatePackagePlanStop),
+  };
+}
+
+function validatePackagePlanStop(record: Record<string, JsonValue>): PackagePlanStop {
+  return {
+    reason: requireEnum(record.reason, PACKAGE_PLAN_STOP_REASONS, "package plan stop reason"),
+    message: requireNonEmptyString(record.message, "package plan stop message"),
+    ...(typeof record.ref === "string" ? { ref: record.ref } : {}),
+    ...(typeof record.path === "string" ? { path: record.path } : {}),
+  };
+}
+
+function requireNullableString(value: unknown, label: string): string | null {
+  if (value === null || value === undefined) {
+    return null;
+  }
+  if (typeof value !== "string" || value.length === 0) {
+    throw new OperationError(`${label} must be a non-empty string or null.`);
+  }
+  return value;
 }
 
 function validateAdapterPathTemplate(record: Record<string, JsonValue>): PackageAdapterPathTemplate {

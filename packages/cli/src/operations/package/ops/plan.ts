@@ -3,6 +3,7 @@ import { z } from "zod";
 import {
   createPlaybookPackagePlan,
   PLAYBOOK_PACKAGE_REVIEW_STATUSES,
+  UNSUPPORTED_PRIMITIVE_POLICIES,
   type PlaybookPackagePlannerInput,
 } from "../../playbook-packaging";
 import type { OperationDefinition } from "../../registry";
@@ -20,6 +21,9 @@ const inputSchema = z.object({
   reviewedBy: z.string().optional(),
   supportEvidenceRefs: z.array(z.string()).optional(),
   nonInteractive: z.boolean().optional(),
+  // Declared unsupported-primitive handling (W18 R8 P1, R-CAP-4): degrade to
+  // documented manual steps/skill instructions or fail closed; default fail-closed.
+  unsupportedPrimitivePolicy: z.enum(UNSUPPORTED_PRIMITIVE_POLICIES).optional(),
 });
 
 type PackagePlanInput = z.infer<typeof inputSchema>;

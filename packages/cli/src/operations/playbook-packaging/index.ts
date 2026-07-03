@@ -45,6 +45,59 @@ export {
   PLAYBOOK_PACKAGE_SURFACES,
 } from "./types";
 export {
+  deriveAdapterDeclarationCore,
+  deriveAdapterPathTemplates,
+  DISTRIBUTABLE_PROFILES,
+  HARNESS_AGENTIC_PRIMITIVES,
+  HARNESS_CONTAINER_KINDS,
+  HARNESS_DESCRIPTOR_VERIFICATION_STATUSES,
+  HARNESS_REGISTRATION_MODEL_KINDS,
+  outputKindForProfile,
+  profileForOutputKind,
+  validateHarnessCapabilityDescriptor,
+} from "./capability-descriptor";
+export type {
+  DistributableProfile,
+  HarnessAgenticPrimitive,
+  HarnessCapabilityDescriptor,
+  HarnessContainerDeclaration,
+  HarnessContainerKind,
+  HarnessContainerLayout,
+  HarnessContainerPlacement,
+  HarnessDescriptorVerification,
+  HarnessDescriptorVerificationStatus,
+  HarnessLifecycleHookBinding,
+  HarnessRegistrationModel,
+  HarnessRegistrationModelKind,
+} from "./capability-descriptor";
+export {
+  CLAUDE_CODE_HARNESS_CAPABILITY_DESCRIPTOR,
+  CODEX_HARNESS_CAPABILITY_DESCRIPTOR,
+  FIRST_PARTY_HARNESS_CAPABILITY_DESCRIPTORS,
+  FIXTURE_FUTURE_HARNESS_CAPABILITY_DESCRIPTOR,
+  PI_HARNESS_CAPABILITY_DESCRIPTOR,
+} from "./descriptors";
+export {
+  AGENTIC_LOWERING_DISPOSITIONS,
+  buildPackageDistributable,
+  CONTAINER_SELECTION_STATUSES,
+  DEFAULT_UNSUPPORTED_PRIMITIVE_POLICY,
+  deriveImpliedAgentics,
+  projectPlaybookToSkill,
+  selectPackageContainer,
+  UNSUPPORTED_PRIMITIVE_POLICIES,
+} from "./distributable";
+export type {
+  AgenticLowering,
+  AgenticLoweringDisposition,
+  ContainerSelectionStatus,
+  ImpliedAgentic,
+  PackageContainerSelection,
+  PackageDistributable,
+  PlaybookSkillProjection,
+  UnsupportedPrimitivePolicy,
+} from "./distributable";
+export {
   createPlaybookPackagePlan,
   readPlaybookPackagePlan,
   renderPackagePlanDryRunLines,
@@ -67,6 +120,7 @@ export {
   validateGeneratedOutputRecord,
   validateHarnessAdapterDeclaration,
   validateHarnessId,
+  validatePackageDistributable,
   validatePackagePlan,
   validatePackageTarget,
 } from "./validation";

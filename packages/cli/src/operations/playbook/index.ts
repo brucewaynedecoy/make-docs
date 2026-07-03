@@ -15,6 +15,7 @@ import {
   playbookSlugFromPath,
 } from "../../playbook";
 import { normalizeRelativePath, readTextFile } from "../../utils";
+import { resolveRuntimeCapabilityRecordKey } from "../harness-registry";
 import { findRepoRoot, repoRelativePath } from "../shared";
 import { OperationError, type JsonValue } from "../types";
 import type { OperationResult } from "../types";
@@ -301,8 +302,14 @@ export function evaluateHarnessCapabilities(input: {
   const requiredCapabilities = parseCapabilityList(input.requiredCapabilities ?? []);
   const preferredCapabilities = parseCapabilityList(input.preferredCapabilities ?? []);
   const loaded = loadMakeDocsConfigOrThrow(repoRoot);
+  // Harness identity resolves through the shared harness registry (W18 R8 P1,
+  // R-CAP-1): the registry links each canonical harness id to its run-time
+  // capability record key. The record itself and the evaluation semantics
+  // below stay owned by this W18 R7 lineage — the registry supplies identity
+  // and enumeration only, and unregistered harness ids pass through unchanged.
+  const recordKey = resolveRuntimeCapabilityRecordKey({ harness });
   const record = loaded.config.harnessCapabilities.find(
-    (candidate) => candidate.harness === harness,
+    (candidate) => candidate.harness === recordKey,
   ) ?? null;
   const reviewedCapabilities = record?.reviewStatus === "reviewed" ? record.capabilities : {};
 

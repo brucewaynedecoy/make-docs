@@ -19,6 +19,7 @@ related:
   - ../developer/playbooks-development-packaging-and-harness-adapters.md
   - ../../../designs/2026-06-29-playbook-packaging-and-harness-adapter-registry.md
   - ../../../prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md
+  - ../../../prd/36-revise-playbook-packaging-compiler-and-harness-adapters.md
 ---
 
 # Packaging Shareable Playbook Workflows
@@ -49,8 +50,10 @@ In practice, a user should expect Make Docs to show a package plan before writin
 
 The planned output kinds are:
 
-- `plugin`: a harness-specific plugin package or plugin payload.
-- `skills-bundle`: a bundle of generated skills for a harness that supports skills.
+- `plugin`: the richest package the target harness natively supports. For most harnesses that is a plugin; for a harness whose richest native form is something else — for example an extension — the adapter uses that form instead.
+- `skills-bundle`: a portable bundle of generated skills using the standard agent skills layout, for sharing across harnesses that consume skills.
+
+Each Playbook in a package becomes exactly one skill. When a Playbook's workflow needs more than a skill — for example a step that should run on a harness event — the package plan says how that behavior is handled on the chosen harness: carried natively, downgraded to a written instruction or documented manual step, or stopped with a clear unsupported-surface message. Nothing is silently dropped; the plan output lists the package's skills and any downgrades so you can review them before writing.
 
 The planned surface choices are:
 
@@ -143,8 +146,8 @@ Support is evidence-bound. A generated package should not claim support for a ha
 
 ## Future Coverage
 
-- Blocked by: W18 R5 downstream UX surfaces. Update when: Make Docs ships a friendlier first-class packaging command, MCP tool, or plugin surface beyond the current operation commands. Guide change: replace low-level operation examples with the primary user workflow and keep operation commands as troubleshooting or maintainer detail.
-- Blocked by: W18 R5 conformance evidence. Update when: the first generated plugin and skills-bundle outputs are validated. Guide change: add supported harness/output combinations and caveats.
+- Blocked by: W18 R8 Phase 2 compiler surfaces. Update when: Make Docs ships a friendlier first-class packaging command, MCP tool, or plugin surface beyond the current operation commands, including the choice between downgrading and stopping on unsupported behavior. Guide change: replace low-level operation examples with the primary user workflow and keep operation commands as troubleshooting or maintainer detail.
+- Blocked by: W18 R9 conformance evidence. Update when: the first generated plugin and skills-bundle outputs are validated against real harnesses. Guide change: add supported harness/output combinations and caveats.
 
 ## Related Resources
 
@@ -152,3 +155,4 @@ Support is evidence-bound. A generated package should not claim support for a ha
 - [Playbook Packaging and Harness Adapters](../developer/playbooks-development-packaging-and-harness-adapters.md)
 - [Playbook Packaging and Harness Adapter Registry](../../../designs/2026-06-29-playbook-packaging-and-harness-adapter-registry.md)
 - [33 Enhance Playbook Packaging and Harness Adapter Registry](../../../prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md)
+- [36 Revise Playbook Packaging Compiler and Harness Adapters](../../../prd/36-revise-playbook-packaging-compiler-and-harness-adapters.md)

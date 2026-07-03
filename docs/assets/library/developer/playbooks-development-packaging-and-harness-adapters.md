@@ -21,13 +21,18 @@ related:
   - ./playbooks-development-runner-architecture.md
   - ../user/playbooks-packaging-shareable-agent-workflows.md
   - ../../../designs/2026-06-29-playbook-packaging-and-harness-adapter-registry.md
+  - ../../../designs/2026-07-01-playbook-packaging-compiler-and-harness-adapters.md
   - ../../../prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md
+  - ../../../prd/36-revise-playbook-packaging-compiler-and-harness-adapters.md
   - ../../../work/2026-06-29-w18-r5-playbook-packaging-and-harness-adapter-registry/00-index.md
+  - ../../../work/2026-07-01-w18-r8-playbook-packaging-compiler-and-harness-adapters/00-index.md
 ---
 
 # Playbook Packaging and Harness Adapters
 
-This guide explains the v2 architecture Make Docs uses for packaging Playbooks into harness-specific plugins or skills bundles. It is written for maintainers and contributors who will implement or extend the package planner, harness adapters, output writers, lifecycle behavior, and validation.
+This guide explains the v2 architecture Make Docs uses for packaging Playbooks into harness-specific plugins or skills bundles. It is written for maintainers and contributors who will implement or extend the package planner, harness capability descriptors, harness adapters, output writers, lifecycle behavior, and validation.
+
+The W18 R8 lineage ([PRD 36](../../../prd/36-revise-playbook-packaging-compiler-and-harness-adapters.md)) revises this surface into a real compiler: harness-specific packaging knowledge moves into capability descriptors, one shared harness registry answers both the packaging-time and run-time capability questions, and one abstract distributable maps onto many concrete harness containers through the two-granularities model. The W18 R5 pipeline, deterministic rails, target model, and adapter registry described below are preserved unchanged around that revision.
 
 ## Architectural Boundary
 
@@ -50,15 +55,70 @@ The current implementation lives under `packages/cli/src/operations/playbook-pac
 
 - `types.ts` for package-plan, generated-output, and harness-adapter declaration contracts;
 - `validation.ts` for fail-closed validation helpers;
+- `capability-descriptor.ts` for the harness capability descriptor shape, its invariant validation, and the adapter-derivation helpers;
+- `descriptors.ts` for the first-party and fixture capability descriptor data;
+- `distributable.ts` for the two-granularities distributable model, implied-agentics derivation, and container selection;
 - `planner.ts` for deterministic package-plan generation and dry-run rendering;
-- `adapters.ts` for first-party and fixture harness adapter declarations;
+- `adapters.ts` for first-party and fixture harness adapter declarations, derived from the capability descriptors;
 - `surface-resolution.ts` for adapter-owned surface, path, precondition, and exposure-mode resolution;
 - `writers.ts` for accepted package-plan output writing, generated-output records, manifest ownership, and lifecycle stops;
 - `index.ts` for the public operation-domain export and helper exports.
 
+The shared harness registry lives one level up at `packages/cli/src/operations/harness-registry.ts` because it serves both the packaging domain and the Run Playbook runner; see Shared Harness Registry below.
+
 `playbookPackagingDomain` is registered in the shared operations registry with read-only plan and surface-resolve operations plus the mutating write operation, exposed on the CLI as `make-docs run package plan|surface-resolve|write`. The write operation dry-runs by default and only mutates when `--write` is passed.
 
 Maintainers should import schema helpers from `packages/cli/src/operations/playbook-packaging/` or the operations facade, not duplicate literals in planner, writer, adapter, CLI, or MCP code. When adding fields, update the TypeScript contract, fail-closed validator, and focused schema tests together.
+
+## Harness Capability Descriptors
+
+Since W18 R8 Phase 1, the harness capability descriptor is the single home of harness-specific packaging knowledge (R-CAP-2). No harness paths, manifest filenames, hook mappings, exposure modes, or registration steps should be declared anywhere except a descriptor in `descriptors.ts` and the adapter that derives from it. If a change needs a new harness path or manifest shape, it belongs in the descriptor, not in planner, resolver, writer, CLI, or MCP code.
+
+Each `HarnessCapabilityDescriptor` declares:
+
+- the canonical `harnessId`;
+- `supportedPrimitives`: the agentic primitives the harness can host (`skill`, `plugin`, `extension`, `hook`, `mcp-server`);
+- `containers[]`: each with a container kind (`plugin`, `extension`, or `skills-directory`), a `native` or `portable` distributable profile, a richness rank used for container selection, the primitives the container can host, a layout of per-surface and per-scope path placements using sanitized placeholders, a manifest filename, a skill file template, and registration files;
+- `lifecycleEventMap`: logical Playbook events mapped to the harness's hook points;
+- supported exposure modes;
+- the registration model, whose `autoRegister` field is typed as `false` so a user's marketplace or global registration surface can never be auto-mutated (R-MKT-1) — registration files are generated into the distributable instead;
+- preconditions;
+- `verification`: a status (`provisional` or `verified`), a reference naming where the contract was confirmed, and provisional notes (R-ADAPT-1).
+
+`validateHarnessCapabilityDescriptor` enforces the shape invariants at construction, so malformed descriptor data fails at module load rather than at packaging time. `deriveAdapterDeclarationCore` and `deriveAdapterPathTemplates` derive an adapter's path templates, preconditions, and exposure modes from the descriptor; the W18 R5 adapter declarations in `adapters.ts` now read that derived data instead of restating paths, and the derived output is byte-identical to the previous inline declarations, so resolver and writer behavior did not change.
+
+First-party descriptors currently exist for:
+
+- `codex`: the verified Codex plugin shape from the design is declared on the container — a `.codex-plugin/plugin.json` manifest plus an `.agents/plugins/marketplace.json` registration file (R-ADAPT-2) — while the placement roots deliberately keep the W18 R5 shapes so the Phase 2 writer rebuild lands against a stable resolver; Phase 3 owns moving the roots to the verified locations.
+- `claude-code`: five session-lifecycle events map to `SessionStart`, `SessionEnd`, `UserPromptSubmit`, `PreToolUse`, and `PostToolUse`; the git events (`on-pre-commit`, `on-post-commit`, `on-pre-push`) have no Claude Code hook points and are deliberately unmapped so event-bound steps on them degrade or fail closed per R-CAP-4/R-CAP-5.
+- `pi`: supports skills, extensions, and MCP servers but not hooks, and its richest native container is an extension (R-ADAPT-4); all of its paths are inferred and flagged in `verification.provisionalNotes`. Pi has a descriptor but deliberately no adapter module yet — the registry can answer both capability questions for Pi while the Pi adapter contract itself lands in Phase 3.
+- the fixture `future-harness` descriptor, which exercises additive registration and the fail-closed paths.
+
+Every first-party descriptor's verification status is `provisional` pending the W18 R8 Phase 3 real-harness verification pass. Until a descriptor is `verified`, its content is never harness-recognition evidence, and unit or integration tests over descriptor data must not be read as proof that a harness recognizes generated output (R-TEST-5).
+
+## Shared Harness Registry
+
+One harness registry answers both capability questions (R-CAP-1). `packages/cli/src/operations/harness-registry.ts` keys entries by canonical harness id; each `HarnessRegistryEntry` carries the packaging capability descriptor plus an identity-only `runtimeCapability.recordKey` link to the runner's reviewed-capability config records.
+
+- The packaging-time question — can this harness host a given agentic primitive — is answered here by `canHarnessHostPrimitive`.
+- The run-time question — can this harness execute a step's required surface — stays entirely owned by the W18 R7 `evaluateHarnessCapabilities` evaluator described in [Run Playbook Runner Architecture](./playbooks-development-runner-architecture.md). The runner now resolves its config-record key through `resolveRuntimeCapabilityRecordKey`, and unregistered harness ids pass through unchanged, so run-time semantics are untouched: the registry shares harness identity, not behavior.
+
+Extenders must keep that split. Do not move run-time evaluation, reviewed capability records, or serial-fallback policy into the registry, and do not let packaging code consult the runner's capability records to make hosting decisions.
+
+## Two-Granularities Distributable Model
+
+Authoring granularity and distribution granularity are separate (R-CAP-3), and `distributable.ts` models both:
+
+- One Playbook projects to exactly one skill: `projectPlaybookToSkill` is the authoring unit, and skill ids are persona-qualified only when two sources' slugs collide, so the skill-density question never arises.
+- The distributable is the distribution unit: a `PackageDistributable` carries the skill projections, the implied agentics, and the container selection. A bundle is multiple Playbooks compiled into one distributable with multiple skills; bundles still do not map one-to-one to plugins.
+
+`deriveImpliedAgentics` reads the parsed W18 R6 Playbook model rather than re-parsing Markdown: event-bound steps imply a `hook`, an `mcp` executor or dependency implies an `mcp-server`, and `plugin`, `skill`, and `playbook` dependencies imply their corresponding primitives.
+
+`outputKind` selects the distributable profile: `plugin` resolves to the harness's richest profile-matching native container per descriptor — a plugin for Codex and Claude Code, an extension for Pi — and `skills-bundle` resolves to the portable agents-standard skills form. No code should hardcode `plugin` as the only native container.
+
+`selectPackageContainer` picks the richest container the harness supports for the chosen profile and lowers each implied agentic explicitly (R-CAP-4/R-CAP-5): `native` (with the mapped hook point for event-bound steps), `degraded-skill-instruction` or `degraded-manual-step` under the `degrade` policy, or a fail-closed unsupported-surface stop under the default `fail-closed` policy. The choice is always declared, never silent: the plan records the policy and every lowering in `fieldProvenance` and `deterministicDerivations`, and the dry-run rendering includes distributable, skills, and degradation lines. The plan input accepts `unsupportedPrimitivePolicy` (`degrade` or `fail-closed`, defaulting to `fail-closed`); the CLI does not expose a flag for it yet — W18 R8 Phase 2 wires the surfaces.
+
+Adding a harness stays additive: add a capability descriptor to `descriptors.ts`, an adapter module that derives from it, a registry entry, fixtures, and conformance scenarios. `planner.ts` remains harness-neutral — it delegates to the registry and adapters and contains no per-harness conditionals — and a change that would add one is a design smell to reject in review.
 
 ## Package Plans
 
@@ -74,7 +134,7 @@ A package plan is the reviewable bridge between source and output. It should be 
 
 Agents may help draft semantic fields such as descriptions, command names, skill grouping, or adapter prose. Those fields are proposals until reviewed. Non-interactive runs must fail before writing when a plan still needs semantic review, ownership review, unsupported-surface resolution, or support-claim evidence.
 
-The current `PlaybookPackagePlan` schema requires a `schemaVersion: 1`, at least one source Playbook, a target, generated artifact inventory, deterministic derivations, agent-assisted proposals, unresolved decisions, field provenance, review state, support state, lifecycle behavior, and validation requirements. Validation rejects unknown output kinds, unknown surfaces, invalid harness ids, empty source lists, invalid field-provenance values, and plans that contain semantic proposals or unresolved decisions without required review state.
+The current `PlaybookPackagePlan` schema requires a `schemaVersion: 1`, at least one source Playbook, a target, generated artifact inventory, deterministic derivations, agent-assisted proposals, unresolved decisions, field provenance, review state, support state, lifecycle behavior, and validation requirements. Since W18 R8 Phase 1 the plan also carries the deterministic `distributable` — skill projections, implied agentics, and the container selection with its declared degradations — and any unsupported-surface stops from container selection surface as plan stops. Validation rejects unknown output kinds, unknown surfaces, invalid harness ids, empty source lists, invalid field-provenance values, and plans that contain semantic proposals or unresolved decisions without required review state.
 
 The package planner currently supports a dry-run plan flow through `make-docs run package plan`. It reuses the Run Playbook resolver for explicit paths, `persona/slug` refs, and unique bare slug/title refs; computes stable source digests; validates relative Markdown links and assets outside code spans/fences; marks deterministic, user-supplied, agent-proposed, and unresolved fields; and returns review stops before any writes can occur.
 
@@ -96,6 +156,8 @@ Non-interactive callers should pass `--non-interactive` when they need fail-befo
 
 Adapters own harness-specific behavior. The core package planner should ask an adapter which outputs and surfaces are valid instead of hard-coding harness rules.
 
+Since W18 R8 Phase 1, adapters no longer restate harness paths, preconditions, or exposure modes inline: those fields are derived from the harness capability descriptor through `deriveAdapterDeclarationCore`, so the descriptor stays the single source and the adapter declaration stays the resolver-facing shape. The derived declarations are byte-identical to the previous W18 R5 inline ones, and the surface resolver and writer consume them unchanged.
+
 Each adapter should declare:
 
 - stable harness id and display metadata;
@@ -111,7 +173,7 @@ Each adapter should declare:
 
 Adapter declaration validation requires at least one supported output kind and at least one supported surface. Path templates must only reference output kinds, surfaces, and scopes declared by that adapter so future harness support stays additive instead of requiring planner-specific branching.
 
-Current first-party adapter declarations live in `adapters.ts` for `codex` and `claude-code`. They intentionally model support as internal capability declarations and conformance requirements; public support wording remains provisional unless an exact tuple has evidence. The fixture-only `future-harness` adapter proves new harnesses can add native and agents-standard surfaces without modifying planner code.
+Current first-party adapter declarations live in `adapters.ts` for `codex` and `claude-code`. They intentionally model support as internal capability declarations and conformance requirements; public support wording remains provisional unless an exact tuple has evidence. The fixture-only `future-harness` adapter proves new harnesses can add native and agents-standard surfaces without modifying planner code. Pi deliberately has a capability descriptor but no adapter declaration until W18 R8 Phase 3 lands its verified contract: the shared registry can already answer both capability questions for Pi and container selection can already pick its extension container, but surface resolution and writes, which require an adapter declaration, fail closed for `pi` today.
 
 Use surface resolution like this during development:
 
@@ -192,10 +254,20 @@ Current adapter and surface-resolution coverage lives in the same test file. It 
 
 Current writer and lifecycle coverage lives in the same test file. It covers plugin payload writes, skills-bundle writes, symlink exposure, copy-mirror fallback, manifest ownership, export-only separation, modified generated-output review stops, reviewed stale-output cleanup, and CLI dry-run/write JSON output.
 
+Current capability-descriptor, shared-registry, and distributable coverage lives in `packages/cli/tests/playbook-packaging-capability.test.ts`. It covers descriptor invariant validation, the byte-parity of derived adapter declarations with the previous W18 R5 inline shapes, both registry capability questions including unregistered-id passthrough for the runtime record key, one-Playbook-one-skill projection with collision-only persona qualification, implied-agentics derivation from the parsed model, richest-container selection per profile (including Pi's extension), declared degradation versus fail-closed stops under both policies, event-bound hook lowering on harnesses with and without hook support, and the distributable and degradation lines in plan provenance and dry-run output.
+
+## Future Coverage
+
+- Blocked by: W18 R8 Phase 2 (compiler and output-writer rebuild). Update when: the writer emits multi-file, harness-native distributable trees and the packaging surfaces expose the compiler inputs, including an `unsupportedPrimitivePolicy` flag. Guide change: rewrite the Output Writers section around the distributable inventory (SKILL.md per Playbook, manifests, registration files, dependency checks, hooks), retire the descriptor-payload wording, and document the wired CLI/MCP surfaces.
+- Blocked by: W18 R8 Phase 3 (real-harness verification and verified adapter contracts). Update when: first-party descriptors gain `verified` status, the Pi adapter lands, and the Codex placement roots move from the W18 R5 shapes to the verified locations. Guide change: replace the provisional-verification caveats with the verified contracts and document the Pi adapter alongside `codex` and `claude-code`.
+
 ## Related Resources
 
 - [Run Playbook Runner Architecture](./playbooks-development-runner-architecture.md)
 - [Packaging Shareable Playbook Workflows](../user/playbooks-packaging-shareable-agent-workflows.md)
 - [Playbook Packaging and Harness Adapter Registry](../../../designs/2026-06-29-playbook-packaging-and-harness-adapter-registry.md)
+- [Playbook Packaging Compiler and Harness Adapters](../../../designs/2026-07-01-playbook-packaging-compiler-and-harness-adapters.md)
 - [33 Enhance Playbook Packaging and Harness Adapter Registry](../../../prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md)
+- [36 Revise Playbook Packaging Compiler and Harness Adapters](../../../prd/36-revise-playbook-packaging-compiler-and-harness-adapters.md)
 - [W18 R5 Work Backlog](../../../work/2026-06-29-w18-r5-playbook-packaging-and-harness-adapter-registry/00-index.md)
+- [W18 R8 Work Backlog](../../../work/2026-07-01-w18-r8-playbook-packaging-compiler-and-harness-adapters/00-index.md)
