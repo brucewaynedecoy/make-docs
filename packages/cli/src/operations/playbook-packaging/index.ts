@@ -45,6 +45,8 @@ export {
   PLAYBOOK_PACKAGE_SURFACES,
 } from "./types";
 export {
+  capSupportStatusForVerification,
+  computeHarnessContractDigest,
   deriveAdapterDeclarationCore,
   deriveAdapterPathTemplates,
   DISTRIBUTABLE_PROFILES,
@@ -75,6 +77,7 @@ export {
   CODEX_HARNESS_CAPABILITY_DESCRIPTOR,
   FIRST_PARTY_HARNESS_CAPABILITY_DESCRIPTORS,
   FIXTURE_FUTURE_HARNESS_CAPABILITY_DESCRIPTOR,
+  FIXTURE_LIMITED_HARNESS_CAPABILITY_DESCRIPTOR,
   PI_HARNESS_CAPABILITY_DESCRIPTOR,
 } from "./descriptors";
 export {
@@ -134,6 +137,7 @@ export {
 export {
   FIRST_PARTY_HARNESS_PACKAGE_ADAPTERS,
   FIXTURE_FUTURE_HARNESS_PACKAGE_ADAPTER,
+  FIXTURE_LIMITED_HARNESS_PACKAGE_ADAPTER,
   getHarnessPackageAdapter,
   listHarnessPackageAdapters,
 } from "./adapters";

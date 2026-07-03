@@ -192,11 +192,20 @@ describe("harness capability descriptors and shared registry", () => {
       expect(descriptor.registration.description.length).toBeGreaterThan(0);
       expect(descriptor.supportedExposureModes.length).toBeGreaterThan(0);
       expect(descriptor.preconditions.length).toBeGreaterThan(0);
-      // Phase 1 descriptors stay provisional until Phase 3 real-harness
-      // verification (R-ADAPT-1); no descriptor is recognition evidence.
-      expect(descriptor.verification.status).toBe("provisional");
+      // Every descriptor carries a verification reference and status
+      // (R-ADAPT-1); no verification status is recognition evidence — that
+      // bar is owned by the W18 R9 conformance lineage (R-TEST-5).
+      expect(["provisional", "verified"]).toContain(descriptor.verification.status);
       expect(descriptor.verification.reference.length).toBeGreaterThan(0);
     }
+    // Phase 3 statuses reflect exactly what the design confirmed: the Codex
+    // contract is verified (R-ADAPT-2), while Claude Code awaits review
+    // against the actual contract (R-ADAPT-3) and every Pi path is inferred
+    // (R-ADAPT-4).
+    expect(CODEX_HARNESS_CAPABILITY_DESCRIPTOR.verification.status).toBe("verified");
+    expect(CLAUDE_CODE_HARNESS_CAPABILITY_DESCRIPTOR.verification.status).toBe("provisional");
+    expect(PI_HARNESS_CAPABILITY_DESCRIPTOR.verification.status).toBe("provisional");
+    expect(FIXTURE_FUTURE_HARNESS_CAPABILITY_DESCRIPTOR.verification.status).toBe("provisional");
   });
 
   test("descriptor validation rejects structural violations", () => {

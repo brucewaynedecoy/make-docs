@@ -27,6 +27,7 @@
 import {
   FIRST_PARTY_HARNESS_CAPABILITY_DESCRIPTORS,
   FIXTURE_FUTURE_HARNESS_CAPABILITY_DESCRIPTOR,
+  FIXTURE_LIMITED_HARNESS_CAPABILITY_DESCRIPTOR,
 } from "./playbook-packaging/descriptors";
 import type {
   HarnessAgenticPrimitive,
@@ -64,6 +65,10 @@ export const FIXTURE_FUTURE_HARNESS_REGISTRY_ENTRY: HarnessRegistryEntry = toReg
   FIXTURE_FUTURE_HARNESS_CAPABILITY_DESCRIPTOR,
 );
 
+export const FIXTURE_LIMITED_HARNESS_REGISTRY_ENTRY: HarnessRegistryEntry = toRegistryEntry(
+  FIXTURE_LIMITED_HARNESS_CAPABILITY_DESCRIPTOR,
+);
+
 export function listHarnessRegistryEntries(input: {
   includeFixtures?: boolean;
   descriptors?: HarnessCapabilityDescriptor[];
@@ -73,7 +78,9 @@ export function listHarnessRegistryEntries(input: {
   }
   return [
     ...FIRST_PARTY_HARNESS_REGISTRY_ENTRIES,
-    ...(input.includeFixtures ? [FIXTURE_FUTURE_HARNESS_REGISTRY_ENTRY] : []),
+    ...(input.includeFixtures
+      ? [FIXTURE_FUTURE_HARNESS_REGISTRY_ENTRY, FIXTURE_LIMITED_HARNESS_REGISTRY_ENTRY]
+      : []),
   ];
 }
 

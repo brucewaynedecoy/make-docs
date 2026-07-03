@@ -29,9 +29,9 @@ Attach a verification reference and status to every adapter declaration, gate ou
 
 ### Tasks
 
-- [ ] t1: Add a verification reference — naming where the harness contract was confirmed — and a verification status to every adapter declaration (R-ADAPT-1).
-- [ ] t2: Gate adapter behavior on verification status: an adapter whose contract is unverified may produce only export-only or provisional output and must not carry a support claim (R-ADAPT-1, R-PROV-3).
-- [ ] t3: Require re-verification whenever an adapter's declared paths, manifest shapes, or registration steps change, keeping the verification reference current in review.
+- [x] t1: Add a verification reference — naming where the harness contract was confirmed — and a verification status to every adapter declaration (R-ADAPT-1).
+- [x] t2: Gate adapter behavior on verification status: an adapter whose contract is unverified may produce only export-only or provisional output and must not carry a support claim (R-ADAPT-1, R-PROV-3).
+- [x] t3: Require re-verification whenever an adapter's declared paths, manifest shapes, or registration steps change, keeping the verification reference current in review.
 
 ### Acceptance criteria
 
@@ -47,9 +47,9 @@ Attach a verification reference and status to every adapter declaration, gate ou
 
 ### Tasks
 
-- [ ] t4: Correct the Codex plugin contract: a plugin is a folder containing `.codex-plugin/plugin.json`, registered through a marketplace entry such as `.agents/plugins/marketplace.json` or a configured marketplace source, replacing the assumed `.agents/plugins/{packageId}` path (R-ADAPT-2).
-- [ ] t5: Correct the Codex plugin payload from the descriptor to the harness-native artifact tree produced by the Phase 2 compiler (R-ADAPT-2, R-COMP-1).
-- [ ] t6: Implement the Codex skills bundle as direct `.agents/skills/{id}/SKILL.md` discovery with symlink or copy-mirror exposure (R-ADAPT-2).
+- [x] t4: Correct the Codex plugin contract: a plugin is a folder containing `.codex-plugin/plugin.json`, registered through a marketplace entry such as `.agents/plugins/marketplace.json` or a configured marketplace source, replacing the assumed `.agents/plugins/{packageId}` path (R-ADAPT-2).
+- [x] t5: Correct the Codex plugin payload from the descriptor to the harness-native artifact tree produced by the Phase 2 compiler (R-ADAPT-2, R-COMP-1).
+- [x] t6: Implement the Codex skills bundle as direct `.agents/skills/{id}/SKILL.md` discovery with symlink or copy-mirror exposure (R-ADAPT-2).
 
 ### Acceptance criteria
 
@@ -65,10 +65,10 @@ Attach a verification reference and status to every adapter declaration, gate ou
 
 ### Tasks
 
-- [ ] t7: Implement the Claude Code adapter lowering a plugin to `.claude/plugins/{id}/plugin.json` and a skill to `.claude/skills/{id}/SKILL.md`, or to agents-standard `.agents/skills` for the portable profile (R-ADAPT-3).
-- [ ] t8: Lower event-bound steps to Claude Code hook points per its descriptor's hook support (R-ADAPT-3, R-CAP-5).
-- [ ] t9: Keep the Claude Code adapter's support status provisional until it is reviewed against the actual Claude Code plugin and skill contract (R-ADAPT-3, R-ADAPT-1).
-- [ ] t10: Implement the Pi adapter with skills, MCP, and extension support but no hooks, selecting an extension bundled with one or more skills as its richest native container, and degrading event-bound steps to a documented manual step or skill instruction or failing closed per R-CAP-4 (R-ADAPT-4).
+- [x] t7: Implement the Claude Code adapter lowering a plugin to `.claude/plugins/{id}/plugin.json` and a skill to `.claude/skills/{id}/SKILL.md`, or to agents-standard `.agents/skills` for the portable profile (R-ADAPT-3).
+- [x] t8: Lower event-bound steps to Claude Code hook points per its descriptor's hook support (R-ADAPT-3, R-CAP-5).
+- [x] t9: Keep the Claude Code adapter's support status provisional until it is reviewed against the actual Claude Code plugin and skill contract (R-ADAPT-3, R-ADAPT-1).
+- [x] t10: Implement the Pi adapter with skills, MCP, and extension support but no hooks, selecting an extension bundled with one or more skills as its richest native container, and degrading event-bound steps to a documented manual step or skill instruction or failing closed per R-CAP-4 (R-ADAPT-4).
 
 ### Acceptance criteria
 
@@ -84,8 +84,8 @@ Attach a verification reference and status to every adapter declaration, gate ou
 
 ### Tasks
 
-- [ ] t11: Fail closed before any write on an unknown harness identifier, an unsupported output kind, an unsupported surface, or a scope the adapter cannot honor, consistent with the existing stop reasons (R-ADAPT-5).
-- [ ] t12: Implement or extend the fixture adapter so it exercises the unsupported path and the fail-closed behavior is itself tested (R-ADAPT-5).
+- [x] t11: Fail closed before any write on an unknown harness identifier, an unsupported output kind, an unsupported surface, or a scope the adapter cannot honor, consistent with the existing stop reasons (R-ADAPT-5).
+- [x] t12: Implement or extend the fixture adapter so it exercises the unsupported path and the fail-closed behavior is itself tested (R-ADAPT-5).
 
 ### Acceptance criteria
 

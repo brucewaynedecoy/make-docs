@@ -1,28 +1,41 @@
 /**
- * First-party harness capability descriptors (W18 R8 P1, R-CAP-2).
+ * First-party harness capability descriptors (W18 R8 P1, revised by P3;
+ * R-CAP-2, R-ADAPT-1..4).
  *
  * These descriptors are the single home of harness-specific packaging
  * knowledge: adapter declarations derive their path templates, preconditions,
- * and exposure modes from here (R-CAP-2, R-ADAPT-1), and the shared harness
- * registry serves them to answer the packaging-time capability question
- * (R-CAP-1).
+ * exposure modes, and verification blocks from here (R-CAP-2, R-ADAPT-1), and
+ * the shared harness registry serves them to answer the packaging-time
+ * capability question (R-CAP-1).
  *
  * Implementer decisions recorded here:
- * - Every descriptor is `provisional` in Phase 1. Phase 3 (W18 R8 P3) owns
- *   real-harness verification and the verified-adapter-contract corrections;
- *   until then no descriptor content is harness-recognition evidence
- *   (R-ADAPT-1, R-TEST-5).
- * - Codex placement roots keep the W18 R5 shapes so the Phase 2 writer
- *   rebuild lands against a stable resolver; the container's manifest
- *   filename and marketplace registration files already declare the verified
- *   Codex shape from the design (`.codex-plugin/plugin.json` inside the
- *   plugin folder plus a marketplace entry, R-ADAPT-2) so Phase 2/3 consume
- *   them from the descriptor rather than re-inventing them.
- * - Pi has a descriptor but no adapter module yet: the registry can answer
- *   both capability questions for Pi (skills, MCP, and extensions but not
- *   hooks; richest native container is an extension, R-ADAPT-4) while the Pi
- *   adapter contract itself lands in Phase 3. Its paths are inferred and
- *   flagged in `verification.provisionalNotes`.
+ * - Verification statuses (W18 R8 P3, R-ADAPT-1): Codex is `verified` — the
+ *   design confirmed the real Codex contract (a plugin is a folder containing
+ *   `.codex-plugin/plugin.json`, registered through a marketplace entry such
+ *   as `.agents/plugins/marketplace.json` or a configured marketplace source;
+ *   a skills bundle uses direct `.agents/skills/{id}/SKILL.md` discovery) and
+ *   its `contractDigest` pins that surface against unreviewed drift; the one
+ *   residual inference (MCP-server hosting inside the plugin container) stays
+ *   flagged in `provisionalNotes`. Claude Code stays `provisional`: R-ADAPT-3
+ *   declares its shapes but requires review against the actual Claude Code
+ *   plugin and skill contract before support moves beyond provisional. Pi
+ *   stays `provisional`: R-ADAPT-4 confirms only its primitives (skills, MCP,
+ *   extensions, no hooks) and its richest container (an extension bundled
+ *   with skills); every Pi path and manifest filename is inferred. No
+ *   verification status is harness-recognition evidence; that bar is owned by
+ *   W18 R9 (R-TEST-5).
+ * - Codex plugin placement roots (W18 R8 P3, R-ADAPT-2): the assumed W18 R5
+ *   `.agents/plugins/{packageId}` root is gone. The verified contract fixes
+ *   the folder shape and the marketplace registration, not a mandatory folder
+ *   location — the marketplace entry names the folder — so the exposure roots
+ *   `.codex/plugins/{packageId}` (project) and
+ *   `<user-home>/.codex/plugins/{packageId}` (global) are Make Docs-chosen
+ *   install locations (D9 implementer freedom) that the generated marketplace
+ *   entry references; `.agents/plugins/` holds only the marketplace file.
+ * - Pi's adapter declaration lands with Phase 3 as descriptor-derived data
+ *   (skills, MCP, and extensions but not hooks; richest native container is
+ *   an extension, R-ADAPT-4). Its paths remain inferred and flagged in
+ *   `verification.provisionalNotes`.
  * - The claude-code lifecycle event map covers the harness-session events;
  *   the git events (`on-pre-commit`, `on-post-commit`, `on-pre-push`) have no
  *   Claude Code hook points and are deliberately absent so event-bound steps
@@ -34,6 +47,7 @@ import { validateHarnessCapabilityDescriptor } from "./capability-descriptor";
 
 const PACKAGING_DESIGN_REF =
   "docs/designs/2026-07-01-playbook-packaging-compiler-and-harness-adapters.md";
+const PLAYBOOK_ARCHITECTURE_REF = "docs/assets/artifacts/playbook-architecture.md";
 
 export const CODEX_HARNESS_CAPABILITY_DESCRIPTOR: HarnessCapabilityDescriptor =
   validateHarnessCapabilityDescriptor({
@@ -48,7 +62,7 @@ export const CODEX_HARNESS_CAPABILITY_DESCRIPTOR: HarnessCapabilityDescriptor =
         hostedPrimitives: ["skill", "plugin", "mcp-server"],
         layout: {
           placements: [
-            { surface: "native", scope: "project", pathTemplate: ".agents/plugins/{packageId}" },
+            { surface: "native", scope: "project", pathTemplate: ".codex/plugins/{packageId}" },
             {
               surface: "native",
               scope: "global",
@@ -57,7 +71,7 @@ export const CODEX_HARNESS_CAPABILITY_DESCRIPTOR: HarnessCapabilityDescriptor =
             {
               surface: "native",
               scope: "export-only",
-              pathTemplate: ".make-docs/exports/playbook-packages/{packageId}/plugin.json",
+              pathTemplate: ".make-docs/exports/playbook-packages/{packageId}",
             },
           ],
           manifestFilename: ".codex-plugin/plugin.json",
@@ -129,13 +143,16 @@ export const CODEX_HARNESS_CAPABILITY_DESCRIPTOR: HarnessCapabilityDescriptor =
       },
     ],
     verification: {
-      status: "provisional",
-      reference: `${PACKAGING_DESIGN_REF} (R-ADAPT-2)`,
+      status: "verified",
+      reference:
+        `Verified Codex contract: a plugin is a folder containing \`.codex-plugin/plugin.json\` registered through a marketplace entry (\`.agents/plugins/marketplace.json\` or a configured marketplace source), and a skills bundle uses direct \`.agents/skills/{id}/SKILL.md\` discovery with symlink or copy-mirror exposure — confirmed in ${PACKAGING_DESIGN_REF} (D6, R-ADAPT-2) and ${PLAYBOOK_ARCHITECTURE_REF} (Section 8). Plugin folder exposure roots are Make Docs-chosen install locations the marketplace entry references (D9 implementer freedom).`,
       provisionalNotes: [
-        "Plugin placement roots keep the W18 R5 shapes pending the Phase 3 R-ADAPT-2 adapter correction against the real Codex harness.",
-        "Codex hook support is undeclared pending Phase 3 verification; event-bound steps degrade or fail closed (R-CAP-5).",
-        "MCP-server hosting inside the plugin container is inferred pending Phase 3 verification.",
+        "MCP-server hosting inside the plugin container remains inferred; only the R-ADAPT-2 plugin-folder, marketplace-registration, and skills-discovery shapes are design-verified, and support stays provisional pending W18 R9 tuple evidence (R-PROV-3).",
       ],
+      // Recorded at verification time; recomputed by descriptor validation so
+      // any change to the declared Codex contract surface demands
+      // re-verification (R-ADAPT-1).
+      contractDigest: "sha256:2033146ce7fa5b71",
     },
   });
 
@@ -258,11 +275,13 @@ export const CLAUDE_CODE_HARNESS_CAPABILITY_DESCRIPTOR: HarnessCapabilityDescrip
     ],
     verification: {
       status: "provisional",
-      reference: `${PACKAGING_DESIGN_REF} (R-ADAPT-3)`,
+      reference:
+        `Declared Claude Code contract — plugin at \`.claude/plugins/{id}/plugin.json\`, skill at \`.claude/skills/{id}/SKILL.md\`, agents-standard \`.agents/skills\` for the portable profile, event-bound steps on Claude Code hook points — stated in ${PACKAGING_DESIGN_REF} (D6, R-ADAPT-3) and ${PLAYBOOK_ARCHITECTURE_REF} (Section 8); unverified until reviewed against the actual Claude Code plugin and skill contract.`,
       provisionalNotes: [
-        "The plugin/skill layout and hook-point names must be reviewed against the actual Claude Code plugin and skill contract before support moves beyond provisional (R-ADAPT-3).",
+        "The plugin/skill layout and hook-point names must be reviewed against the actual Claude Code plugin and skill contract before the support status moves beyond provisional (R-ADAPT-3, R-ADAPT-1).",
         "Git lifecycle events (`on-pre-commit`, `on-post-commit`, `on-pre-push`) are deliberately unmapped; they degrade or fail closed per R-CAP-4.",
       ],
+      contractDigest: null,
     },
   });
 
@@ -350,11 +369,13 @@ export const PI_HARNESS_CAPABILITY_DESCRIPTOR: HarnessCapabilityDescriptor =
     ],
     verification: {
       status: "provisional",
-      reference: `${PACKAGING_DESIGN_REF} (R-ADAPT-4)`,
+      reference:
+        `Declared Pi contract — skills, MCP, and extension support with no hooks, and an extension bundled with one or more skills as the richest native container — stated in ${PACKAGING_DESIGN_REF} (D6, R-ADAPT-4) and ${PLAYBOOK_ARCHITECTURE_REF} (Section 8); every Pi path and manifest filename is inferred and unverified against the real Pi harness.`,
       provisionalNotes: [
-        "All Pi paths, the extension manifest filename, and the skills placement are inferred; the Pi adapter contract lands and is verified in Phase 3 (R-ADAPT-4).",
-        "Pi has no adapter module yet; the registry answers its capability questions while packaging output stays unavailable until Phase 3.",
+        "All Pi paths, the extension manifest filename, and the skills placement are inferred; the design confirms only the primitive set (skills, MCP, extensions, no hooks) and the extension-with-skills container (R-ADAPT-4).",
+        "The Pi adapter therefore produces only export-only or provisional output and carries no support claim until real-harness verification and W18 R9 conformance evidence exist (R-ADAPT-1, R-PROV-3).",
       ],
+      contractDigest: null,
     },
   });
 
@@ -433,6 +454,71 @@ export const FIXTURE_FUTURE_HARNESS_CAPABILITY_DESCRIPTOR: HarnessCapabilityDesc
       status: "provisional",
       reference: "packages/cli/tests/playbook-packaging.test.ts (fixture harness)",
       provisionalNotes: ["Fixture descriptor exists to test additive registration and fail-closed paths."],
+      contractDigest: null,
+    },
+  });
+
+/**
+ * Fixture descriptor whose harness deliberately supports only the native
+ * plugin profile at project or export-only scope, so the unsupported paths —
+ * unsupported output kind, unsupported surface, and a scope the adapter
+ * cannot honor — are exercised and the fail-closed behavior is itself tested
+ * (R-ADAPT-5, R-TEST-3).
+ */
+export const FIXTURE_LIMITED_HARNESS_CAPABILITY_DESCRIPTOR: HarnessCapabilityDescriptor =
+  validateHarnessCapabilityDescriptor({
+    harnessId: "fixture-limited",
+    supportedPrimitives: ["skill", "plugin"],
+    containers: [
+      {
+        containerId: "limited-plugin",
+        kind: "plugin",
+        profile: "native",
+        richness: 1,
+        hostedPrimitives: ["skill", "plugin"],
+        layout: {
+          placements: [
+            {
+              surface: "native",
+              scope: "project",
+              pathTemplate: ".limited/plugins/{packageId}/plugin.json",
+            },
+            {
+              surface: "native",
+              scope: "export-only",
+              pathTemplate: ".make-docs/exports/playbook-packages/{packageId}/plugin.json",
+            },
+          ],
+          manifestFilename: "plugin.json",
+          skillFileTemplate: "skills/{skillId}/SKILL.md",
+          registrationFiles: [],
+        },
+      },
+    ],
+    lifecycleEventMap: {},
+    supportedExposureModes: ["symlink", "copy-mirror", "export-only"],
+    preferredExposureMode: "symlink",
+    fallbackExposureMode: "copy-mirror",
+    registration: {
+      kind: "direct-discovery",
+      description:
+        "Fixture harness discovers native plugins only; it has no portable container, no agents-standard surface, no global scope, and no hooks.",
+      autoRegister: false,
+    },
+    preconditions: [
+      {
+        id: "limited-project-trusted",
+        description: "Fixture harness project trust must be reviewed before native surfaces are used.",
+        required: true,
+      },
+    ],
+    verification: {
+      status: "provisional",
+      reference: "packages/cli/tests/playbook-packaging-adapters.test.ts (fail-closed fixture)",
+      provisionalNotes: [
+        "Fixture descriptor exists to exercise the unsupported-output-kind, unsupported-surface, and un-honorable-scope fail-closed paths (R-ADAPT-5).",
+      ],
+      contractDigest: null,
     },
   });
 

@@ -19,11 +19,29 @@
  *   marketplace files are generated but never auto-installed (R-MKT-1); the
  *   config-gated opt-in seam is owned by the global-store lineage (R-MKT-2)
  *   and is not represented here.
- * - Verification statuses stay `provisional` in Phase 1; Phase 3 (W18 R8 P3)
- *   verifies each contract against the real harness and owns moving a
- *   descriptor beyond provisional (R-ADAPT-1).
+ * - Verification status vocabulary (W18 R8 P3, R-ADAPT-1): `provisional` is
+ *   the unverified state — the declared shapes are not (or not fully)
+ *   confirmed against the real harness — and `verified` means the declared
+ *   contract was confirmed where the verification reference names. Support
+ *   statuses are a separate, tuple-bound axis owned by the W18 R9 conformance
+ *   lineage (R-PROV-3, R-TEST-5); no verification status is
+ *   harness-recognition evidence.
+ * - Re-verification mechanism (W18 R8 P3, R-ADAPT-1): a `verified`
+ *   verification block records a `contractDigest` — a deterministic
+ *   fingerprint of the declared contract surface (placement paths, manifest
+ *   filenames, skill file templates, registration files and model, hosted
+ *   primitives, hook points, and exposure modes) computed by
+ *   {@link computeHarnessContractDigest} and recorded as a literal at
+ *   verification time. Validation recomputes the digest on every load, so any
+ *   change to declared paths, manifest shapes, or registration steps fails
+ *   validation and demands re-verification against the real harness before
+ *   the recorded digest (and its reference) may be updated in review.
+ *   `provisional` contracts carry no digest: they make no verified claim to
+ *   invalidate and are already gated to export-only or provisional output
+ *   without a support claim ({@link capSupportStatusForVerification}).
  */
 
+import { createHash } from "node:crypto";
 import { PLAYBOOK_KNOWN_EVENTS, type PlaybookKnownEvent } from "../../playbook";
 import { OperationError } from "../types";
 import {
@@ -35,6 +53,7 @@ import {
   type PackageAdapterPrecondition,
   type PlaybookPackageOutputKind,
   type PlaybookPackageScope,
+  type PlaybookPackageSupportStatus,
   type PlaybookPackageSurface,
 } from "./types";
 
@@ -129,8 +148,16 @@ export interface HarnessDescriptorVerification {
   status: HarnessDescriptorVerificationStatus;
   /** Where the contract was (or will be) confirmed (R-ADAPT-1). */
   reference: string;
-  /** Fields whose content is inferred and awaits Phase 3 real-harness verification. */
+  /** Declared shapes that remain inferred and await real-harness verification. */
   provisionalNotes: string[];
+  /**
+   * Fingerprint of the declared contract surface recorded at verification
+   * time; required (and revalidated) for `verified` contracts so changing
+   * declared paths, manifest shapes, or registration steps invalidates the
+   * verification and demands re-verification (R-ADAPT-1). `null` for
+   * `provisional` contracts, which make no verified claim to invalidate.
+   */
+  contractDigest: string | null;
 }
 
 export interface HarnessCapabilityDescriptor {
@@ -145,6 +172,61 @@ export interface HarnessCapabilityDescriptor {
   registration: HarnessRegistrationModel;
   preconditions: PackageAdapterPrecondition[];
   verification: HarnessDescriptorVerification;
+}
+
+/**
+ * Computes the fingerprint of a descriptor's declared contract surface — the
+ * placement paths, manifest filenames, skill file templates, registration
+ * files and model kind, hosted primitives, hook points, and exposure modes an
+ * adapter's verification claim covers (R-ADAPT-1). The digest is recorded as
+ * a literal on `verified` contracts and recomputed by validation so a drifted
+ * declaration fails closed demanding re-verification.
+ */
+export function computeHarnessContractDigest(
+  descriptor: Omit<HarnessCapabilityDescriptor, "verification">,
+): string {
+  const contractSurface = {
+    harnessId: descriptor.harnessId,
+    supportedPrimitives: [...descriptor.supportedPrimitives].sort(),
+    containers: descriptor.containers.map((container) => ({
+      containerId: container.containerId,
+      kind: container.kind,
+      profile: container.profile,
+      hostedPrimitives: [...container.hostedPrimitives].sort(),
+      placements: container.layout.placements.map((placement) => ({
+        surface: placement.surface,
+        scope: placement.scope,
+        pathTemplate: placement.pathTemplate,
+      })),
+      manifestFilename: container.layout.manifestFilename,
+      skillFileTemplate: container.layout.skillFileTemplate,
+      registrationFiles: [...container.layout.registrationFiles],
+    })),
+    lifecycleEventMap: Object.entries(descriptor.lifecycleEventMap)
+      .map(([event, binding]) => [event, binding?.hookPoint ?? null] as const)
+      .sort(([left], [right]) => left.localeCompare(right)),
+    registrationModel: descriptor.registration.kind,
+    supportedExposureModes: [...descriptor.supportedExposureModes].sort(),
+  };
+  const digest = createHash("sha256").update(JSON.stringify(contractSurface)).digest("hex");
+  return `sha256:${digest.slice(0, 16)}`;
+}
+
+/**
+ * The R-ADAPT-1 status gate: an adapter whose contract is unverified may
+ * produce only export-only or provisional output and must not carry a support
+ * claim, so a `validated` support claim is capped to `provisional` unless the
+ * harness contract verification is `verified`. Tuple-bound conformance
+ * evidence stays the separate W18 R9 bar (R-PROV-3, R-TEST-5).
+ */
+export function capSupportStatusForVerification(
+  status: PlaybookPackageSupportStatus,
+  verification: HarnessDescriptorVerification | null | undefined,
+): PlaybookPackageSupportStatus {
+  if (status === "validated" && verification?.status !== "verified") {
+    return "provisional";
+  }
+  return status;
 }
 
 export function profileForOutputKind(outputKind: PlaybookPackageOutputKind): DistributableProfile {
@@ -176,7 +258,9 @@ export function deriveAdapterPathTemplates(
  * Derives the descriptor-owned fields of a harness adapter declaration.
  * Ownership classes, lifecycle rules, and conformance requirements stay
  * adapter-side: they are Make Docs lifecycle policy, not harness packaging
- * knowledge.
+ * knowledge. The verification reference and status ride along so every
+ * adapter declaration — not just the descriptor — names where its contract
+ * was confirmed and how far that confirmation goes (R-ADAPT-1).
  */
 export function deriveAdapterDeclarationCore(descriptor: HarnessCapabilityDescriptor): {
   harnessId: string;
@@ -187,6 +271,7 @@ export function deriveAdapterDeclarationCore(descriptor: HarnessCapabilityDescri
   preconditions: PackageAdapterPrecondition[];
   preferredExposureMode: PackageAdapterExposureMode;
   fallbackExposureMode: PackageAdapterExposureMode;
+  verification: HarnessDescriptorVerification;
 } {
   const pathTemplates = deriveAdapterPathTemplates(descriptor);
   const surfaces = new Set(pathTemplates.map((template) => template.surface));
@@ -203,6 +288,7 @@ export function deriveAdapterDeclarationCore(descriptor: HarnessCapabilityDescri
     preconditions: descriptor.preconditions,
     preferredExposureMode: descriptor.preferredExposureMode,
     fallbackExposureMode: descriptor.fallbackExposureMode,
+    verification: descriptor.verification,
   };
 }
 
@@ -297,6 +383,23 @@ export function validateHarnessCapabilityDescriptor(
   if (descriptor.verification.reference.length === 0) {
     throw new OperationError(
       `${label} must carry a verification reference naming where the contract was confirmed (R-ADAPT-1).`,
+    );
+  }
+  if (descriptor.verification.status === "verified") {
+    const expectedDigest = computeHarnessContractDigest(descriptor);
+    if (descriptor.verification.contractDigest === null) {
+      throw new OperationError(
+        `${label} claims a verified contract without a recorded contract digest; record ${expectedDigest} at verification time (R-ADAPT-1).`,
+      );
+    }
+    if (descriptor.verification.contractDigest !== expectedDigest) {
+      throw new OperationError(
+        `${label} declared contract surface changed since verification (recorded ${descriptor.verification.contractDigest}, current ${expectedDigest}); re-verify the paths, manifest shapes, and registration steps against the real harness and update the verification reference and digest (R-ADAPT-1).`,
+      );
+    }
+  } else if (descriptor.verification.provisionalNotes.length === 0) {
+    throw new OperationError(
+      `${label} provisional verification must name what remains unverified in provisionalNotes (R-ADAPT-1).`,
     );
   }
   return descriptor;

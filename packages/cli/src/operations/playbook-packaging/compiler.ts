@@ -219,6 +219,21 @@ export function compilePackageInventory(input: CompilePackageInventoryInput): Pa
     (candidate) => candidate.containerId === selection.containerId,
   ) ?? null;
   const stops: PackagePlanStop[] = [...selection.stops];
+  // Verification-status gate (W18 R8 P3, R-ADAPT-1): a plan carrying a
+  // `validated` support claim against a harness whose contract verification
+  // is not `verified` fails closed before any write — an unverified adapter
+  // may produce only export-only or provisional output and must not carry a
+  // support claim.
+  if (
+    plan.support.status === "validated" &&
+    descriptor &&
+    descriptor.verification.status !== "verified"
+  ) {
+    stops.push({
+      reason: "missing-support-evidence",
+      message: `Harness \`${descriptor.harnessId}\` has a ${descriptor.verification.status} (unverified) adapter contract and must not carry a support claim; output stays export-only or provisional until the contract is verified and W18 R9 conformance evidence exists (R-ADAPT-1, R-PROV-3).`,
+    });
+  }
   if (!descriptor || !container || selection.status === "unsupported") {
     if (stops.length === 0) {
       stops.push({
@@ -470,6 +485,15 @@ export function compilePackageInventory(input: CompilePackageInventoryInput): Pa
       surface: plan.target.surface,
       scope: plan.target.scope,
       outputKind: plan.target.outputKind,
+    },
+    // The adapter-contract verification the R-ADAPT-1 gate applied: where the
+    // harness contract was confirmed and how far that confirmation goes.
+    adapterVerification: {
+      status: descriptor.verification.status,
+      reference: descriptor.verification.reference,
+      ...(descriptor.verification.contractDigest
+        ? { contractDigest: descriptor.verification.contractDigest }
+        : {}),
     },
     note: "Support claims remain provisional until conformance evidence exists for the exact tuple (R-PROV-3); unit and integration tests are not harness-recognition evidence (R-TEST-5).",
   }, plan));

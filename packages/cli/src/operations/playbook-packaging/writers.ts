@@ -574,13 +574,17 @@ function createGeneratedOutputRecords(input: {
     recordKind: input.artifact.recordKind,
     path: input.canonicalRoot,
   }));
-  records.push(validateGeneratedOutputRecord({
-    ...base,
-    recordKind: input.surfaceResolution.exposureMode === "copy-mirror"
-      ? "copy-mirror"
-      : "symlink-exposure",
-    path: exposureRootPath(input.surfaceResolution),
-  }));
+  // An unsupported resolution carries no exposure path: the stop already
+  // fails the write closed (R-ADAPT-5), so no exposure record exists to plan.
+  if (input.surfaceResolution.path.length > 0) {
+    records.push(validateGeneratedOutputRecord({
+      ...base,
+      recordKind: input.surfaceResolution.exposureMode === "copy-mirror"
+        ? "copy-mirror"
+        : "symlink-exposure",
+      path: exposureRootPath(input.surfaceResolution),
+    }));
+  }
   return records;
 }
 

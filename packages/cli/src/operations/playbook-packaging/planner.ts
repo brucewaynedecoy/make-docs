@@ -6,6 +6,10 @@ import { resolvePlaybook } from "../playbook";
 import { findRepoRoot, repoRelativePath } from "../shared";
 import { OperationError, type JsonValue } from "../types";
 import {
+  capSupportStatusForVerification,
+  type HarnessDescriptorVerification,
+} from "./capability-descriptor";
+import {
   compilePackageInventory,
   draftSkillDescription,
   loadCompiledSource,
@@ -77,6 +81,13 @@ export function createPlaybookPackagePlan(input: PlaybookPackagePlannerInput): P
   const compiledSources = sources.map((source) => loadCompiledSource({ repoRoot, source }));
   const descriptor = listHarnessRegistryEntries({ descriptors: input.descriptors })
     .find((entry) => entry.harnessId === target.harness)?.descriptor ?? null;
+  // Verification-status gate (W18 R8 P3, R-ADAPT-1): an adapter whose
+  // contract is unverified must not carry a support claim, so evidence refs
+  // never raise the support status past provisional for such a harness. The
+  // planner stays harness-neutral: the status comes from the descriptor
+  // through the shared registry, never from a harness conditional.
+  const verification = descriptor?.verification ?? null;
+  const support = buildSupport(input.supportEvidenceRefs, verification);
   const distributable = buildPlanDistributable({ compiledSources, input, target });
   fieldProvenance.distributable = "deterministic";
   fieldProvenance["distributable.unsupportedPrimitivePolicy"] = input.unsupportedPrimitivePolicy
@@ -169,7 +180,7 @@ export function createPlaybookPackagePlan(input: PlaybookPackagePlannerInput): P
         required: true,
         status: input.reviewStatus ?? "required",
       },
-      support: buildSupport(input.supportEvidenceRefs),
+      support,
       lifecycle: {
         backupBeforeOverwrite: true,
         uninstallDisposition: target.scope === "export-only" ? "export-only" : "preserve-for-review",
@@ -191,7 +202,7 @@ export function createPlaybookPackagePlan(input: PlaybookPackagePlannerInput): P
     sources,
     target,
     generatedArtifacts,
-    deterministicDerivations: buildDerivations(sources, packageId, generatedArtifacts, distributable, inventory),
+    deterministicDerivations: buildDerivations(sources, packageId, generatedArtifacts, distributable, inventory, verification),
     agentAssistedProposals,
     unresolvedDecisions,
     fieldProvenance,
@@ -201,7 +212,7 @@ export function createPlaybookPackagePlan(input: PlaybookPackagePlannerInput): P
       ...(input.reviewedBy ? { reviewedBy: input.reviewedBy } : {}),
       ...(reviewRequired ? { reason: buildReviewReason(stops, agentAssistedProposals, unresolvedDecisions) } : {}),
     },
-    support: buildSupport(input.supportEvidenceRefs),
+    support,
     lifecycle: {
       backupBeforeOverwrite: true,
       uninstallDisposition: target.scope === "export-only" ? "export-only" : "preserve-for-review",
@@ -465,11 +476,17 @@ function buildDerivations(
   generatedArtifacts: GeneratedArtifactPlan[],
   distributable: PackageDistributable,
   inventory: PackageInventory,
+  verification: HarnessDescriptorVerification | null,
 ): Record<string, string> {
   return {
     packageId,
     sourceDigests: sources.map((source) => `${source.ref}=${source.sourceDigest}`).join(";"),
     generatedArtifacts: generatedArtifacts.map((artifact) => artifact.path).join(";"),
+    // The adapter verification status and reference the R-ADAPT-1 support
+    // gate applied, recorded so the reviewed plan declares the gating input.
+    ...(verification
+      ? { adapterVerification: `${verification.status}: ${verification.reference}` }
+      : {}),
     // The planned multi-file inventory is a deterministic derivation the
     // reviewed plan surfaces before any write (R-COMP-3, R-GEN-1).
     ...(inventory.files.length > 0
@@ -531,10 +548,23 @@ function buildReviewReason(
   return reasons.length === 0 ? "No review required." : `Review required for ${[...new Set(reasons)].join(", ")}.`;
 }
 
-function buildSupport(evidenceRefs: string[] | undefined): PackagePlanSupport {
-  return evidenceRefs && evidenceRefs.length > 0
-    ? { status: "validated", evidenceRefs }
-    : { status: "provisional", evidenceRefs: [] };
+/**
+ * Support-status derivation bound to the R-ADAPT-1 verification gate:
+ * evidence refs raise the status to `validated` only when the harness
+ * contract verification is `verified`; an unverified adapter's output stays
+ * provisional and carries no support claim (R-ADAPT-1, R-PROV-3).
+ */
+function buildSupport(
+  evidenceRefs: string[] | undefined,
+  verification: HarnessDescriptorVerification | null,
+): PackagePlanSupport {
+  if (!evidenceRefs || evidenceRefs.length === 0) {
+    return { status: "provisional", evidenceRefs: [] };
+  }
+  return {
+    status: capSupportStatusForVerification("validated", verification),
+    evidenceRefs,
+  };
 }
 
 export function assertPlannerEnumsAreCurrent(): void {

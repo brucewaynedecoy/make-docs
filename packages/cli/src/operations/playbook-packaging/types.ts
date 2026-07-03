@@ -1,5 +1,8 @@
 import type { JsonValue } from "../types";
-import type { HarnessCapabilityDescriptor } from "./capability-descriptor";
+import type {
+  HarnessCapabilityDescriptor,
+  HarnessDescriptorVerification,
+} from "./capability-descriptor";
 import type { PackageDistributable, UnsupportedPrimitivePolicy } from "./distributable";
 
 export const PLAYBOOK_PACKAGE_OUTPUT_KINDS = ["plugin", "skills-bundle"] as const;
@@ -232,6 +235,14 @@ export interface HarnessPackageAdapterDeclaration {
   ownershipClasses: GeneratedOutputRecordKind[];
   lifecycleRules: PackageAdapterLifecycleRule[];
   conformanceRequirements: PackageAdapterConformanceRequirement[];
+  /**
+   * Where the adapter's declared contract was confirmed and how far that
+   * confirmation goes (W18 R8 P3, R-ADAPT-1): every adapter declaration —
+   * not just its capability descriptor — carries the verification reference
+   * and status, and an unverified adapter is gated to export-only or
+   * provisional output without a support claim.
+   */
+  verification: HarnessDescriptorVerification;
 }
 
 export type PackageAdapterPreconditionState = "satisfied" | "unknown" | "unsupported";

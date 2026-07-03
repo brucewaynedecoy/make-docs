@@ -275,7 +275,7 @@ describe("packaging compiler distributable inventory (W18 R8 P2)", () => {
     // The symlink exposure exposes the whole harness-native folder at the
     // Codex plugin path (R-COMP-2 plumbing unchanged).
     expect(readFileSync(
-      path.join(root, ".agents/plugins/rich-stack/.codex-plugin/plugin.json"),
+      path.join(root, ".codex/plugins/rich-stack/.codex-plugin/plugin.json"),
       "utf8",
     )).toContain("\"name\": \"rich-stack\"");
   });
@@ -770,7 +770,7 @@ describe("packaging compiler distributable inventory (W18 R8 P2)", () => {
       });
     }
     // The symlink exposure keeps the W18 R5 directory-entry shape.
-    expect(manifest.files[".agents/plugins/rich-stack"]?.agenticOwnership).toMatchObject({
+    expect(manifest.files[".codex/plugins/rich-stack"]?.agenticOwnership).toMatchObject({
       role: "plugin-native-exposure",
       pathKind: "directory",
       exposureMode: "symlink",
@@ -792,12 +792,12 @@ describe("packaging compiler distributable inventory (W18 R8 P2)", () => {
     });
     expect(mirrored.exposureMode).toBe("copy-mirror");
     expect(readFileSync(
-      path.join(mirrorRoot, ".agents/plugins/rich-stack/.codex-plugin/plugin.json"),
+      path.join(mirrorRoot, ".codex/plugins/rich-stack/.codex-plugin/plugin.json"),
       "utf8",
     )).toContain("\"name\": \"rich-stack\"");
     const mirrorManifest = loadManifest(mirrorRoot)!;
     expect(
-      mirrorManifest.files[".agents/plugins/rich-stack/.codex-plugin/plugin.json"]?.agenticOwnership,
+      mirrorManifest.files[".codex/plugins/rich-stack/.codex-plugin/plugin.json"]?.agenticOwnership,
     ).toMatchObject({
       role: "plugin-copy-mirror",
       exposureMode: "copy-mirror",

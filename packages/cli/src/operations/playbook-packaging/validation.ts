@@ -3,6 +3,8 @@ import {
   DISTRIBUTABLE_PROFILES,
   HARNESS_AGENTIC_PRIMITIVES,
   HARNESS_CONTAINER_KINDS,
+  HARNESS_DESCRIPTOR_VERIFICATION_STATUSES,
+  type HarnessDescriptorVerification,
 } from "./capability-descriptor";
 import {
   AGENTIC_LOWERING_DISPOSITIONS,
@@ -141,6 +143,7 @@ export function validateHarnessAdapterDeclaration(value: unknown): HarnessPackag
       record.conformanceRequirements,
       "harness adapter conformanceRequirements",
     ).map(validateAdapterConformanceRequirement),
+    verification: validateAdapterVerification(record.verification),
   };
 
   if (adapter.supportedOutputKinds.length === 0) {
@@ -386,6 +389,31 @@ function validateAdapterConformanceRequirement(record: Record<string, JsonValue>
     id: requireNonEmptyString(record.id, "adapter conformance requirement id"),
     description: requireNonEmptyString(record.description, "adapter conformance requirement description"),
     required: requireBoolean(record.required, "adapter conformance requirement required"),
+  };
+}
+
+/**
+ * Every adapter declaration carries a verification reference naming where the
+ * harness contract was confirmed and a verification status (R-ADAPT-1); no
+ * adapter ships without one.
+ */
+function validateAdapterVerification(value: unknown): HarnessDescriptorVerification {
+  const record = requireRecord(value, "harness adapter verification");
+  return {
+    status: requireEnum(
+      record.status,
+      HARNESS_DESCRIPTOR_VERIFICATION_STATUSES,
+      "harness adapter verification status",
+    ),
+    reference: requireNonEmptyString(record.reference, "harness adapter verification reference"),
+    provisionalNotes: requireStringArray(
+      record.provisionalNotes,
+      "harness adapter verification provisionalNotes",
+    ),
+    contractDigest: requireNullableString(
+      record.contractDigest,
+      "harness adapter verification contractDigest",
+    ),
   };
 }
 

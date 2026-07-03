@@ -248,6 +248,12 @@ function validHarnessAdapter(
         required: true,
       },
     ],
+    verification: {
+      status: "provisional",
+      reference: "packages/cli/tests/playbook-packaging.test.ts (declaration fixture)",
+      provisionalNotes: ["Fixture adapter declaration for schema validation tests."],
+      contractDigest: null,
+    },
     ...overrides,
   };
 }
@@ -595,7 +601,7 @@ describe("playbook packaging schema foundation", () => {
   test("loads current harness adapters by stable harness id", () => {
     const adapters = listHarnessPackageAdapters();
 
-    expect(adapters.map((adapter) => adapter.harnessId)).toEqual(["codex", "claude-code"]);
+    expect(adapters.map((adapter) => adapter.harnessId)).toEqual(["codex", "claude-code", "pi"]);
     expect(getHarnessPackageAdapter({ harnessId: "codex" }).supportedOutputKinds).toEqual([
       "plugin",
       "skills-bundle",
@@ -633,10 +639,13 @@ describe("playbook packaging schema foundation", () => {
       },
     });
 
+    // The corrected Codex placement root (R-ADAPT-2): the plugin folder is
+    // exposed at a Make Docs-chosen install location the marketplace entry
+    // references, never at the assumed `.agents/plugins/{packageId}` path.
     expect(codexPlugin).toMatchObject({
       status: "ready",
       surface: "native",
-      path: ".agents/plugins/run-stack",
+      path: ".codex/plugins/run-stack",
       exposureMode: "symlink",
     });
     expect(claudeSkill).toMatchObject({
@@ -761,7 +770,7 @@ describe("playbook packaging schema foundation", () => {
     const output = writeSpy.mock.calls.map((call) => String(call[0])).join("");
     const parsed = JSON.parse(output) as ReturnType<typeof resolvePackageSurface>;
     expect(parsed.status).toBe("ready");
-    expect(parsed.path).toBe(".agents/plugins/run-stack");
+    expect(parsed.path).toBe(".codex/plugins/run-stack");
   });
 
   test("writes accepted plugin packages through shared payloads, symlink exposure, and manifest ownership", () => {
@@ -813,7 +822,7 @@ describe("playbook packaging schema foundation", () => {
       path.join(root, ".make-docs/agentics/plugins/run-stack/skills/run-stack/SKILL.md"),
       "utf8",
     )).toContain("name: run-stack");
-    expect(lstatSync(path.join(root, ".agents/plugins/run-stack")).isSymbolicLink()).toBe(true);
+    expect(lstatSync(path.join(root, ".codex/plugins/run-stack")).isSymbolicLink()).toBe(true);
     const manifest = loadManifest(root);
     expect(
       manifest?.files[".make-docs/agentics/plugins/run-stack/.codex-plugin/plugin.json"]?.agenticOwnership,
@@ -823,7 +832,7 @@ describe("playbook packaging schema foundation", () => {
       id: "run-stack",
       sourceManifest: "make-docs.playbook-packaging",
     });
-    expect(manifest?.files[".agents/plugins/run-stack"]?.agenticOwnership).toMatchObject({
+    expect(manifest?.files[".codex/plugins/run-stack"]?.agenticOwnership).toMatchObject({
       role: "plugin-native-exposure",
       exposureMode: "symlink",
     });

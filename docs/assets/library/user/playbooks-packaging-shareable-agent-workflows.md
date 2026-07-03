@@ -61,7 +61,7 @@ The planned surface choices are:
 - `agents-standard`: use a standard agent skill location when the selected harness supports it.
 - `auto`: let the harness adapter pick the best valid surface from the user's scope and the harness's rules.
 
-The harness is still a real harness, such as Codex, Claude Code, or a future supported harness. A standard location is a surface that a harness may support, not a separate generic harness.
+The harness is still a real harness — Codex, Claude Code, or Pi today, with future harnesses added the same way. A standard location is a surface that a harness may support, not a separate generic harness. Pi is a little different from the other two: it does not support hooks, and its richest native form is an extension rather than a plugin, so a `plugin` output for Pi becomes an extension and any event-bound step is downgraded to a written instruction or stops with a clear message, exactly as the plan shows.
 
 ## What a Generated Package Contains
 
@@ -75,7 +75,20 @@ A written package is a real folder tree in the target harness's own format, not 
 - registration or marketplace files generated for your review — Make Docs writes them into the package but never registers the package anywhere on your behalf;
 - Make Docs tracking records in a `.make-docs/` folder inside the package, covering provenance, dependencies, and lifecycle. These are bookkeeping, not the installable artifact.
 
-Two honest caveats. The harness folder layouts are still provisional: verifying them against the real harnesses is the next W18 R8 phase, so a generated package's support status stays provisional even though its files are real. And Make Docs does not claim a harness actually recognizes a generated package until the W18 R9 conformance work records that evidence against the real harness.
+One honest caveat still applies: Make Docs does not claim a harness actually recognizes a generated package until the W18 R9 conformance work records that evidence against the real harness. See the next section for what each harness's layout verification currently means.
+
+## Where Generated Packages Land
+
+Each harness has its own install locations, and Make Docs now declares them per harness:
+
+- **Codex**: a plugin is a folder containing `.codex-plugin/plugin.json`. It lands at `.codex/plugins/<package-id>` in your project (or `~/.codex/plugins/<package-id>` for global scope), and the package includes a marketplace entry at `.agents/plugins/marketplace.json` that points Codex at that folder — the `.agents/plugins/` directory holds only that marketplace file, never the plugin itself. A skills bundle lands directly at `.agents/skills/<id>/SKILL.md`, where Codex discovers skills.
+- **Claude Code**: a plugin lands at `.claude/plugins/<id>/plugin.json` and a skill at `.claude/skills/<id>/SKILL.md`; the portable skills-bundle form uses the same `.agents/skills/<id>/SKILL.md` standard location.
+- **Pi**: the native form is an extension at `.pi/extensions/<id>` (with an `extension.json` manifest); the portable form is the standard skills location.
+- **Export-only** packages for any harness land under `.make-docs/exports/playbook-packages/` for review or sharing, without touching any harness location.
+
+These layouts are not all equally confirmed, and Make Docs says so per harness. The Codex layout is verified against the documented Codex contract. The Claude Code and Pi layouts are declared but still provisional: the Claude Code shapes await review against the real Claude Code plugin and skill contract, and the Pi paths are inferred rather than confirmed. Provisional means the files are real and the layout is Make Docs' best declared contract, but you should expect it could still change once checked against the actual harness.
+
+Verification also gates support claims automatically: a package cannot claim validated support for a harness whose contract is not verified — Make Docs caps the claim to provisional and stops a write that asserts otherwise. And even a verified layout is not a recognition claim; that evidence bar belongs to the W18 R9 conformance work.
 
 ## What Make Docs Tracks
 
@@ -156,13 +169,12 @@ Packaging is not required for every Playbook. A Playbook can still be run direct
 
 Packaging also does not mean every workflow bundle becomes its own plugin. A single first-party Make Docs plugin might expose several workflow families, while a user-authored Playbook might become a small standalone skills bundle.
 
-Support is evidence-bound. A generated package should not claim support for a harness until Make Docs has implementation or conformance evidence for that exact output shape.
+Support is evidence-bound. A generated package should not claim support for a harness until Make Docs has implementation or conformance evidence for that exact output shape, and a validated support claim additionally requires the harness contract itself to be verified — an unverified harness can only produce provisional or export-only packages.
 
 ## Future Coverage
 
 - Blocked by: a first-class packaging surface beyond the current operation commands. The W18 R8 Phase 2 compiler landed — packages are now real harness-native trees and plans list their files — but no friendlier command has shipped, and the downgrade-versus-stop choice on unsupported behavior exists on the underlying plan operation without a CLI flag. Update when: Make Docs ships a first-class packaging command, MCP-guided flow, or plugin surface, including the CLI flag for that choice. Guide change: replace low-level operation examples with the primary user workflow and keep operation commands as troubleshooting or maintainer detail.
-- Blocked by: W18 R8 Phase 3 adapter verification. Update when: the harness folder layouts are verified against the real harnesses and support statuses move past provisional. Guide change: state where each harness's packages land without the provisional caveat.
-- Blocked by: W18 R9 conformance evidence. Update when: the first generated plugin and skills-bundle outputs are validated against real harnesses. Guide change: add supported harness/output combinations and caveats.
+- Blocked by: W18 R9 conformance evidence and the Claude Code and Pi real-contract reviews. Update when: the first generated plugin and skills-bundle outputs are validated against real harnesses and the Claude Code and Pi layouts move past provisional. Guide change: add supported harness/output combinations with their evidence, and drop the per-harness provisional wording in Where Generated Packages Land as each layout is confirmed.
 
 ## Related Resources
 
