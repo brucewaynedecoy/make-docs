@@ -472,6 +472,8 @@ describe("risk register routing contract", () => {
       "D-017 Shipped Config Blocks Lack Upstream Schema Documentation",
       "D-018 The Global Store Lacks Project Registry Management Operations",
       "D-019 Pre-W18 Tool-Resource Mandates Were Not Implemented (Custom Tiers and No-Scripts Shims)",
+      "D-020 Shipped Lifecycle Skills Instruct the Removed `make-docs operations` Command Surface",
+      "D-021 Pre-W18 Subsystems Landed as Unwired or Partially Wired Libraries (Plugin Substrate, Metadata Drift, Guide Persona Validation)",
     ]);
     expect(itemHeadings(questions)).toEqual([
       "Q-001 What Is the Long-Term Skills Delivery Contract?",
