@@ -29,9 +29,9 @@ Governance is the human-facing half of the registry: wording rules for pre-valid
 
 ### Tasks
 
-- [ ] t1: Encode the wording rule wherever support language appears (docs, README, manifest support status, generated-output provenance): a public claim states only what a `conformance-validated` tuple proves, and until then wording distinguishes a Make Docs generated output from a harness-recognized plugin (R-GOV-1).
-- [ ] t2: Encode caveat surfacing: a `pass-with-caveats` result surfaces its caveats in any claim derived from it (R-GOV-1, R-REG-3).
-- [ ] t3: Preserve the lab thresholds: one passing conformance run per tuple is the minimum for nominal support, and repeated runs with maintainer review are the stronger threshold for a more confident claim (R-GOV-2).
+- [x] t1: Encode the wording rule wherever support language appears (docs, README, manifest support status, generated-output provenance): a public claim states only what a `conformance-validated` tuple proves, and until then wording distinguishes a Make Docs generated output from a harness-recognized plugin (R-GOV-1).
+- [x] t2: Encode caveat surfacing: a `pass-with-caveats` result surfaces its caveats in any claim derived from it (R-GOV-1, R-REG-3).
+- [x] t3: Preserve the lab thresholds: one passing conformance run per tuple is the minimum for nominal support, and repeated runs with maintainer review are the stronger threshold for a more confident claim (R-GOV-2).
 
 ### Acceptance criteria
 
@@ -46,9 +46,9 @@ Governance is the human-facing half of the registry: wording rules for pre-valid
 
 ### Tasks
 
-- [ ] t4: Wire the W18 R5/PRD 33 provisional support claims for generated plugin and skills-bundle outputs to the registry so their promotion is mechanical: claim wording may advance only when the exact tuple advances (R-GOV-1, R-REG-3).
-- [ ] t5: Wire the W18 R8/PRD 36 adapter support statuses to the registry so an adapter's status advances beyond provisional only through tuple evidence, consistent with PRD 36 R-ADAPT-1 and R-PROV-3, and unverified or future harnesses (Pi and later) remain honestly reported (R-SCEN-2).
-- [ ] t6: Confirm end-to-end traceability: following links from a public claim reaches the tuple, its status, and the recorded run that justified it, and the risk-register items R-021 and R-022 reflect the implemented state.
+- [x] t4: Wire the W18 R5/PRD 33 provisional support claims for generated plugin and skills-bundle outputs to the registry so their promotion is mechanical: claim wording may advance only when the exact tuple advances (R-GOV-1, R-REG-3).
+- [x] t5: Wire the W18 R8/PRD 36 adapter support statuses to the registry so an adapter's status advances beyond provisional only through tuple evidence, consistent with PRD 36 R-ADAPT-1 and R-PROV-3, and unverified or future harnesses (Pi and later) remain honestly reported (R-SCEN-2).
+- [x] t6: Confirm end-to-end traceability: following links from a public claim reaches the tuple, its status, and the recorded run that justified it, and the risk-register items R-021 and R-022 reflect the implemented state.
 
 ### Acceptance criteria
 

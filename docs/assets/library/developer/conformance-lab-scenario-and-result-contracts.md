@@ -207,7 +207,7 @@ Support-claim wording must follow this gate:
 
 Do not collapse tuple evidence into blanket wording. A pass for one scenario in Codex does not prove all Codex behavior, a pass for one Claude Code model does not prove every Claude Code model route, and package validation alone does not prove agent-harness support.
 
-For generated Playbook distributables, this gate is realized structurally in the tuple registry described in the next section: a status the recorded evidence does not support fails the registry load.
+For generated Playbook distributables, this gate is realized structurally in the tuple registry described in the next section: a status the recorded evidence does not support fails the registry load. Since W18 R9 Phase 4 the gate's wording half is code as well — see Support-Claim Governance below.
 
 ## Packaging Conformance Tuple and Registry
 
@@ -364,6 +364,20 @@ The R-TEST-3 boundary is enforced on three surfaces, and all three state the sam
 | Package validation | A dedicated describe in `packages/cli/tests/consistency.test.ts` runs the same repo-side check behind `validate:defaults`. |
 | npm tarball | `assertNoConformanceAssetsInTarball` in `scripts/smoke-pack.mjs` sweeps the real unpacked tarball with the same three detectors (dist/ code allowed, assets excluded). |
 
+## Support-Claim Governance
+
+<!-- support-claim-state: conformance-validated=0/20 -->
+
+Since W18 R9 Phase 4 ([the phase backlog](../../../work/2026-07-01-w18-r9-playbook-and-package-conformance/04-support-claim-governance.md)), the claim gate this guide states in Verdicts and Support Claims is encoded in `packages/cli/src/conformance/governance.ts` (PRD 37 R-GOV-1..2) and enforced in the standard suite through `packages/cli/tests/conformance-governance.test.ts`. The rule: a public claim states only what a `conformance-validated` tuple proves; until then wording distinguishes a Make Docs generated output from a harness-recognized plugin, and a `pass-with-caveats` result surfaces its caveats in any claim derived from it.
+
+- **Wording is derived, not authored.** `renderConformanceSupportClaim` is the single seam that turns a registry entry into permitted public wording: below `conformance-validated` it renders the distinguishing wording with the honest status; at `conformance-validated` it states only the exact tuple, the scenario, the bar, and the run metadata, embedding every caveat carried by the reviewed qualifying runs. Hand-authored prose may restate, never exceed, what the derivation permits.
+- **Two gates, not one.** Registry status derivation (R-REG-3) needs a qualifying run; public wording additionally needs maintainer review, preserving this guide's claim-gate table. `deriveSupportClaimStrength` reads each qualifying run's committed result record via its `recordRef` — the same receipts discipline as R-TEST-1 — and fails closed to `no-public-claim` on a missing, invalid, or unreviewed record. One reviewed qualifying run is `nominal` (the lab's minimum, R-GOV-2); repeated reviewed runs with a reviewed `stronger-claim-candidate` record are `stronger`, and stronger commendation language renders only behind that threshold.
+- **Wording advancement is mechanical.** The declared claim surfaces (`CONFORMANCE_CLAIM_SURFACES`: this guide, the packaging guides, and the conformance README) each carry the rule's core phrase, a reference to the registry home, and a `support-claim-state` marker asserting the registry's current conformance-validated count. When a tuple advances, every marker goes stale and `listSupportClaimGovernanceErrors` fails the build until each surface's wording is reviewed and re-marked — claim wording advances only when the exact tuple advances, and it cannot silently fail to advance either. A vocabulary sweep flags support-status language appearing on an undeclared reader-facing surface.
+- **The packaging lineage promotes only through the registry.** `derivePackageSupportStatusCeilingFromRegistry` and `capSupportStatusForConformanceRegistry` hold every W18 R5/PRD 33 generated-output claim and W18 R8/PRD 36 adapter support status at `provisional` unless the exact registry tuple is `conformance-validated`; `listPackagingSupportRegistryAgreementErrors` proves the wiring — every first-party descriptor placement claim has exactly one registry tuple and every registry tuple anchors back to a placement, so no parallel or prose-only support surface exists (R-REG-1). This third cap composes with the W18 R8 verification and tuple-binding caps and is maintainer-side by design: the registry is maintainer-only content, so the cap is enforced by the repository suite, not by shipping the registry.
+- **Traceability is end to end.** Following links from a public claim reaches the tuple (each claim surface names the registry home), the tuple's status (the fail-closed loader), and the recorded run that justified it (the run's `recordRef`, receipt-checked by R-TEST-1). Today the chain ends honestly at "no recorded runs": zero tuples are conformance-validated, so every derived claim reads `no-public-claim` and distinguishes the generated output from a harness-recognized one.
+
+A green governance run proves the wording machinery is honest — never that any harness recognizes any output (R-KEEP-1, R-LAYER-2).
+
 ## Redaction and Promotion
 
 Use redaction and promotion only when the evidence is needed for a disputed result, a stronger support claim, or a cross-harness comparison. The reviewer must confirm that the bundle contains only the evidence needed to justify the claim.
@@ -406,6 +420,7 @@ Those commands remain package validation evidence. They become conformance evide
 - [Support Tuple and Tuple Registry Work Phase](../../../work/2026-07-01-w18-r9-playbook-and-package-conformance/01-support-tuple-and-tuple-registry.md)
 - [Evidence Bar and First-Pass Scenarios Work Phase](../../../work/2026-07-01-w18-r9-playbook-and-package-conformance/02-evidence-bar-and-first-pass-scenarios.md)
 - [Test-Layer Separation and Meta-Verification Work Phase](../../../work/2026-07-01-w18-r9-playbook-and-package-conformance/03-test-layer-separation-and-meta-verification.md)
+- [Support-Claim Governance Work Phase](../../../work/2026-07-01-w18-r9-playbook-and-package-conformance/04-support-claim-governance.md)
 - [Playbook Packaging and Harness Adapters](./playbooks-development-packaging-and-harness-adapters.md)
 - [Scenario and Result Contract Plan](../../../plans/2026-06-23-w10-r5-agent-harness-model-conformance-lab/02-scenario-and-result-contract.md)
 - [Harness Adapter and Support Claim Gating Plan](../../../plans/2026-06-23-w10-r5-agent-harness-model-conformance-lab/03-harness-adapter-and-support-claim-gating.md)
