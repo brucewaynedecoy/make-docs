@@ -3,12 +3,14 @@ import path from "node:path";
 import { afterEach, describe, expect, test } from "vitest";
 import {
   advancePlaybookRun,
+  closePlaybookRun,
   computePlaybookRunNext,
   createPlaybookRunState,
   exportPlaybookRun,
   importPlaybookRun,
   PLAYBOOK_RUN_EXPORT_FORMAT,
   readPlaybookRunState,
+  resumePlaybookRun,
 } from "../src/operations";
 import { createExecutionContext, OperationWriteDeniedError } from "../src/operations/context";
 import { invokeOperation, operationCliCommand } from "../src/operations/registry";
@@ -255,6 +257,50 @@ describe.skipIf(!sqliteAvailable)("run portability: export and import (W18 R7 P4
     expect(next.cursor).toEqual({ kind: "step", id: "record" });
     // Import wrote only to the global store, never into the repository.
     expect(collectFiles(target.root)).toEqual(targetFilesBefore);
+  });
+
+  test("import accepts a pre-W18 R12 artifact without hint subjects and retirement still applies (PRD 41 R-FIX-2)", async () => {
+    const source = createMachine();
+    await startRunWithEvidence(source);
+    const { artifact } = exportPlaybookRun({
+      repoRoot: source.root,
+      storeRoot: source.storeRoot,
+      runId: "run-1",
+    });
+
+    // A pre-change export: legacy hints ride the record with no
+    // `hintSubjects` field (the PRD 38 additive-serialization path).
+    const legacyRun = {
+      ...artifact.run,
+      resumeHints: ["Legacy guidance from the source machine."],
+    } as Record<string, unknown>;
+    delete legacyRun.hintSubjects;
+    const legacyArtifact = { ...artifact, run: legacyRun };
+
+    const target = createMachine(source.projectId);
+    importPlaybookRun({
+      repoRoot: target.root,
+      storeRoot: target.storeRoot,
+      artifact: legacyArtifact,
+    });
+
+    // The legacy hints load as run-scoped guidance and survive resume...
+    const resumed = resumePlaybookRun({
+      repoRoot: target.root,
+      storeRoot: target.storeRoot,
+      runId: "run-1",
+    });
+    expect(resumed.resumeHints).toContain("Legacy guidance from the source machine.");
+    // ...and close retires every guidance hint, so the closed record
+    // carries none (the D-016 close bar).
+    const closed = closePlaybookRun({
+      repoRoot: target.root,
+      storeRoot: target.storeRoot,
+      runId: "run-1",
+      terminalStatus: "cancelled",
+    });
+    expect(closed.resumeHints).toEqual([]);
+    expect(closed.hintSubjects).toEqual({});
   });
 
   test("import refuses an existing run id without the explicit overwrite opt-in (t6)", async () => {

@@ -1,38 +1,66 @@
 /**
- * Per-kind dependency materialization (W18 R8 P2, R-DEPMAT-1).
+ * Per-kind dependency materialization (W18 R8 P2, R-DEPMAT-1; revised by
+ * W18 R12 P2, PRD 40 R-DEP-3/R-FIX-1).
+ *
+ * Probe-only rule (PRD 40 R-DEP-3, the D-015 root fix): the model's resolved
+ * `probe` field — the declared value or the dependency `id` default, fixed at
+ * parse time — is the ONLY dependency field check generation and machine
+ * reference derivation may target. The former `executableToken` scraping of
+ * the first word of `source` prose is removed entirely; `source` is human
+ * provenance that materialization only ever displays verbatim in
+ * human-facing instruction text, never parses.
  *
  * The dependency kind declared in the Playbook dependency registry determines
  * exactly how the compiler materializes it into the distributable:
  *
  * - `cli` and `package-manager` emit deterministic check scripts plus human
- *   instructions. A `cli` dependency on Make Docs itself references the
- *   stable operation identifier from the operation registry — never a CLI
- *   command string — so generated outputs survive CLI reorganization
- *   (R-DEPMAT-1, R-SCOPE-1). The emitted check may additionally include the
+ *   instructions; the probed binary is the resolved `probe`. A `cli`
+ *   dependency on Make Docs itself declares the stable operation identifier
+ *   from the operation registry as its `probe` — never a CLI command string —
+ *   so generated outputs survive CLI reorganization (R-DEPMAT-1, R-SCOPE-1).
+ *   Implementer decision (W18 R12 P2): PRD 40 and the design are silent on
+ *   where the operation identifier moves after the v2 `source`-prose break,
+ *   so per the probe-only rule it lives on `probe`, and `hasOperation(probe)`
+ *   gates the operation path. The emitted check may additionally include the
  *   human command form *derived* from the registry at compile time, but the
  *   identifier is always the stable reference carried in the script.
  * - `skill` and `plugin` emit harness-native manifest references where the
  *   selected container carries a manifest that can host the primitive, and
  *   degrade explicitly — a declared, documented manual step in the skill
- *   text — where it cannot (R-DEPMAT-1, R-CAP-4).
+ *   text — where it cannot (R-DEPMAT-1, R-CAP-4). The manifest reference
+ *   identifier is the resolved `probe` (PRD 40 R-DEP-2).
  * - `mcp` and `external-service` emit Make Docs metadata (a `runtimeCheck`
  *   record in the distributable's dependency declarations) plus a runtime
- *   availability check script.
+ *   availability check script. Implementer decision (W18 R12 P2): the
+ *   runtime-check target is the resolved `probe` per the probe-only rule;
+ *   the human provenance prose rides the instructions text for readers.
  * - `reference` is copied into the distributable where redistribution is
  *   allowed and linked otherwise. Implementer decision (D9): a reference
  *   whose source resolves to a repository-local file is first-party content
  *   and redistribution is allowed; URLs and non-path sources are linked.
  *   A *required* reference that looks like a repository path but does not
  *   resolve is a missing dependency and fails closed before writes (R-GEN-2).
+ *   Implementer decision (W18 R12 P2): a `reference` generates no dependency
+ *   check, so the R-DEP-3 probe-only rule does not bind it, and its locator
+ *   stays the whole declared `source` value — the PRD 40 R-DEP-2
+ *   executable-token pattern on `probe` cannot express dot-led repository
+ *   paths or URLs, and PRD 36's copied/linked reference rule is an unchanged
+ *   baseline. The value is consumed verbatim as the declared provenance
+ *   locator; no token is ever derived from it.
  * - `playbook` is included as an additional skill when the referenced
  *   Playbook is bundled into this distributable, and referenced when not.
+ *   Implementer decision (W18 R12 P2): the referenced-Playbook identifier is
+ *   the resolved `probe` (a canonical ref such as `persona/slug`, or the
+ *   dependency `id` by default) per the probe-only rule; the former
+ *   first-word derivation from `source` is removed with `executableToken`.
  *
  * Implementer decisions recorded here (D9):
  * - `script` and `asset` dependency kinds exist in the W18 R6 vocabulary but
  *   R-DEPMAT-1 assigns them no materialization; they materialize as
  *   documented-only entries (human instructions in the skill text plus a
  *   dependency-declaration record) rather than inventing artifacts the
- *   contract does not call for.
+ *   contract does not call for. Their instructions quote `source` prose for
+ *   the human reader only — display, never parsing (PRD 40 R-DEP-3).
  * - Check scripts are POSIX `sh` files under `checks/` at the container
  *   root; copied references live under `references/{dependencyId}/` so
  *   colliding basenames across dependencies cannot clobber each other.
@@ -85,7 +113,13 @@ export interface MaterializedDependency {
   dependencyId: string;
   kind: PlaybookDependencyKind | null;
   requirement: string | null;
+  /** Human provenance prose, carried for display only; never parsed (PRD 40 R-DEP-3). */
   source: string;
+  /**
+   * The model's resolved probe target (declared `probe` or the `id` default),
+   * the only field checks and machine references derive from (PRD 40 R-DEP-3).
+   */
+  probe: string;
   /** Canonical ref of the source Playbook that declared the dependency. */
   sourceRef: string;
   disposition: DependencyMaterializationDisposition;
@@ -124,6 +158,7 @@ export function materializeDependency(
     kind,
     requirement: dependency.requirement.value,
     source: dependency.source.value,
+    probe: dependency.probe.value,
     sourceRef: context.source.ref,
     disposition: "documented-only",
     files: [],
@@ -181,26 +216,30 @@ function materializeCli(
   base: MaterializedDependency,
   dependency: PlaybookDependency,
 ): MaterializedDependency {
-  const source = dependency.source.value;
-  // A `cli` dependency on Make Docs itself names a stable operation registry
-  // identifier as its source; the identifier — not a CLI command string — is
-  // the reference carried in generated output (R-DEPMAT-1, R-SCOPE-1).
-  if (hasOperation(source)) {
-    const derivedCommand = `make-docs run ${operationCliPath(source)}`;
+  // The resolved probe (declared value or the `id` default) is the only
+  // checkable target; `source` prose never influences the probe (PRD 40
+  // R-DEP-3, R-FIX-1).
+  const probe = dependency.probe.value;
+  // A `cli` dependency on Make Docs itself declares a stable operation
+  // registry identifier as its probe; the identifier — not a CLI command
+  // string — is the reference carried in generated output (R-DEPMAT-1,
+  // R-SCOPE-1; W18 R12 P2 implementer decision recorded in the module doc).
+  if (hasOperation(probe)) {
+    const derivedCommand = `make-docs run ${operationCliPath(probe)}`;
     return {
       ...base,
       disposition: "check-script",
-      operationId: source,
-      metadata: { operation: source },
+      operationId: probe,
+      metadata: { operation: probe },
       instructions:
-        `Requires the Make Docs operation \`${source}\` ` +
+        `Requires the Make Docs operation \`${probe}\` ` +
         `(the current CLI form, derived from the operation registry, is \`${derivedCommand}\`).`,
       files: [
         checkScriptFile(base.dependencyId, [
-          `# stable-reference: operation:${source}`,
+          `# stable-reference: operation:${probe}`,
           `# The command form below is derived from the operation registry at`,
           `# compile time; the operation identifier above is the stable reference.`,
-          `MAKE_DOCS_OPERATION="${source}"`,
+          `MAKE_DOCS_OPERATION="${probe}"`,
           `DERIVED_COMMAND="${derivedCommand}"`,
           `if ! command -v make-docs >/dev/null 2>&1; then`,
           `  echo "missing cli dependency: make-docs (operation $MAKE_DOCS_OPERATION)" >&2`,
@@ -211,7 +250,7 @@ function materializeCli(
       ],
     };
   }
-  const binary = executableToken(source, base.dependencyId);
+  const binary = probe;
   return {
     ...base,
     disposition: "check-script",
@@ -232,7 +271,9 @@ function materializePackageManager(
   base: MaterializedDependency,
   dependency: PlaybookDependency,
 ): MaterializedDependency {
-  const binary = executableToken(dependency.source.value, base.dependencyId);
+  // Probe-only (PRD 40 R-DEP-3): the check binary is the resolved probe; the
+  // `source` prose survives only inside the human install instructions.
+  const binary = dependency.probe.value;
   return {
     ...base,
     disposition: "check-script",
@@ -257,7 +298,9 @@ function materializeHarnessPrimitive(
   kind: "skill" | "plugin",
   context: DependencyMaterializationContext,
 ): MaterializedDependency {
-  const referencedId = executableToken(dependency.source.value, base.dependencyId);
+  // The manifest reference identifier is the resolved probe (PRD 40 R-DEP-2:
+  // for `skill` and `plugin` kinds `probe` is the manifest reference).
+  const referencedId = dependency.probe.value;
   const container = context.container;
   const supported =
     container !== null &&
@@ -294,7 +337,11 @@ function materializeRuntimeChecked(
   dependency: PlaybookDependency,
   kind: "mcp" | "external-service",
 ): MaterializedDependency {
-  const target = dependency.source.value;
+  // Probe-only (PRD 40 R-DEP-3; W18 R12 P2 implementer decision): the
+  // runtime-check target is the resolved probe. The provenance prose rides
+  // the human instructions verbatim so the reader keeps the full context
+  // (for example a service URL) without any machine consumption of it.
+  const target = dependency.probe.value;
   const envToken = envVarToken(base.dependencyId);
   return {
     ...base,
@@ -306,8 +353,8 @@ function materializeRuntimeChecked(
       },
     },
     instructions: kind === "mcp"
-      ? `Requires the \`${target}\` MCP server to be configured in the harness at run time${fallbackNote(dependency)}.`
-      : `Requires the external service \`${target}\` to be reachable at run time${fallbackNote(dependency)}.`,
+      ? `Requires the \`${target}\` MCP server to be configured in the harness at run time (source: ${dependency.source.value})${fallbackNote(dependency)}.`
+      : `Requires the external service \`${target}\` to be reachable at run time (source: ${dependency.source.value})${fallbackNote(dependency)}.`,
     files: [
       checkScriptFile(base.dependencyId, [
         `# Runtime availability check: the authoritative evaluation happens at`,
@@ -330,6 +377,10 @@ function materializeReference(
   dependency: PlaybookDependency,
   context: DependencyMaterializationContext,
 ): MaterializedDependency {
+  // The declared provenance locator is consumed verbatim and whole — never
+  // tokenized or prose-parsed — per the W18 R12 P2 implementer decision in
+  // the module doc: references generate no checks, so R-DEP-3 does not bind
+  // them, and the `probe` token pattern cannot express paths or URLs.
   const source = dependency.source.value;
   if (isExternalUrl(source)) {
     return {
@@ -385,14 +436,17 @@ function materializePlaybook(
   dependency: PlaybookDependency,
   context: DependencyMaterializationContext,
 ): MaterializedDependency {
-  const source = dependency.source.value;
-  const token = executableToken(source, base.dependencyId);
-  const bundled = context.bundledRefs.has(source) || context.bundledRefs.has(token);
+  // The referenced-Playbook identifier is the resolved probe — a canonical
+  // ref (`persona/slug`) or slug, or the `id` default (PRD 40 R-DEP-3;
+  // W18 R12 P2 implementer decision recorded in the module doc).
+  const ref = dependency.probe.value;
+  const bundled =
+    context.bundledRefs.has(ref) ||
+    [...context.bundledRefs].some((bundledRef) => bundledRef.endsWith(`/${ref}`));
   if (bundled) {
-    const skillId = context.skillIdByRef.get(source) ??
-      context.skillIdByRef.get(token) ??
-      [...context.skillIdByRef.entries()].find(([ref]) => ref.endsWith(`/${token}`))?.[1] ??
-      token;
+    const skillId = context.skillIdByRef.get(ref) ??
+      [...context.skillIdByRef.entries()].find(([bundledRef]) => bundledRef.endsWith(`/${ref}`))?.[1] ??
+      ref;
     return {
       ...base,
       disposition: "bundled-skill",
@@ -404,7 +458,7 @@ function materializePlaybook(
     ...base,
     disposition: "referenced-playbook",
     instructions:
-      `Requires the \`${source}\` Playbook, which is not bundled here; ` +
+      `Requires the \`${ref}\` Playbook, which is not bundled here; ` +
       `package it separately or consult the source repository${fallbackNote(dependency)}.`,
   };
 }
@@ -434,11 +488,6 @@ function checkScriptFile(
       "",
     ].join("\n"),
   };
-}
-
-function executableToken(source: string, fallback: string): string {
-  const token = source.trim().split(/\s+/)[0] ?? "";
-  return /^[A-Za-z0-9@][\w@./-]*$/.test(token) ? token : fallback;
 }
 
 function envVarToken(dependencyId: string): string {

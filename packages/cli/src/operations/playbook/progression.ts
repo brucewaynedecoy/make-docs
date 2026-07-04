@@ -104,6 +104,17 @@ import {
  * that declare `unattended: true` in an unattended run and holding every
  * other gate at `waiting-for-user`.
  *
+ * Resume-hint retirement (W18 R12 P2; PRD 41 R-FIX-2, register item D-016):
+ * resume hints are current guidance only, never an audit trail. Every hint
+ * the engine appends is subject-scoped — it records the step or gate it
+ * advises about in the additive `hintSubjects` map — and every mutating
+ * transition (`advance`, `gate`, `resume`) retires hints whose subject has
+ * reached a resolved status through the single `settleGuidanceHints` seam.
+ * `playbook.close` retires all guidance hints, so a closed run's state
+ * carries none. Caller-supplied and capability hints are run-scoped and
+ * retire at close. Historical evidence lives exclusively in the evidence
+ * log, which no hint operation ever touches.
+ *
  * The captured-evidence format is documented on `PlaybookRunEvidenceRecord`
  * in `./run-state` (D9 implementer decision).
  */
@@ -551,6 +562,7 @@ function applyAdvanceOutcome(
           cursor,
           status: "blocked",
           hint: `Step \`${entry.id}\` failed; resume with \`playbook.resume\` to retry via \`playbook.advance\`, or finalize with \`playbook.close\`.`,
+          hintSubject: entry.id,
         };
   } else {
     position = positionFromSuccessor(
@@ -567,7 +579,9 @@ function applyAdvanceOutcome(
     outputRefs: dedupe([...state.outputRefs, ...(input.outputRefs ?? [])]),
     cursor: settled.position.cursor,
     status: settled.position.status,
-    resumeHints: withHint(state.resumeHints, settled.position.hint),
+    ...settleGuidanceHints(state, settled.stepStatuses, [
+      { hint: settled.position.hint, subjectId: settled.position.hintSubject },
+    ]),
   };
 }
 
@@ -599,7 +613,7 @@ function applyAdvanceHold(
     stepStatuses,
     ...evidence,
     status: "waiting-for-user",
-    resumeHints: withHint(state.resumeHints, plan.hint),
+    ...settleGuidanceHints(state, stepStatuses, [{ hint: plan.hint, subjectId: entry.id }]),
   };
 }
 
@@ -697,6 +711,7 @@ export function recordPlaybookRunGate(input: RecordPlaybookRunGateInput): Playbo
             cursor,
             status: "blocked",
             hint: `Gate \`${entry.id}\` was rejected; re-plan, then re-enter with \`playbook.resume\` or finalize with \`playbook.close\`.`,
+            hintSubject: entry.id,
           };
       const settled = approved
         ? settleUnattendedGates(state, entries, stepStatuses, position)
@@ -713,7 +728,9 @@ export function recordPlaybookRunGate(input: RecordPlaybookRunGateInput): Playbo
         ...appendEvidenceRecords(state, [gateRecord, ...settled.evidenceRecords]),
         cursor: settled.position.cursor,
         status: settled.position.status,
-        resumeHints: withHint(state.resumeHints, settled.position.hint),
+        ...settleGuidanceHints(state, settled.stepStatuses, [
+          { hint: settled.position.hint, subjectId: settled.position.hintSubject },
+        ]),
       };
     },
   });
@@ -819,7 +836,9 @@ export function resumePlaybookRun(input: ResumePlaybookRunInput): PlaybookRunSta
           addedStepIds,
           removedStepIds,
         },
-        resumeHints: withHint(state.resumeHints, diagnostic),
+        // The staleness diagnostic advises about the run as a whole, so it
+        // is run-scoped guidance; retirement still sweeps resolved subjects.
+        ...settleGuidanceHints(state, state.stepStatuses, [{ hint: diagnostic }]),
       };
     },
   });
@@ -844,17 +863,21 @@ function reenterPlaybookRun(input: ResumePlaybookRunInput, repoRoot: string): Pl
         refs: dedupe(input.evidenceRefs ?? []),
         note: normalizeNote(input.note),
       });
-      let resumeHints = state.resumeHints;
-      for (const hint of input.resumeHints ?? []) {
-        resumeHints = withHint(resumeHints, hint);
-      }
+      // Caller-supplied resume hints advise about the run, not a single
+      // step, so they are run-scoped (PRD 41 R-FIX-2).
+      const additions: GuidanceHintAddition[] = (input.resumeHints ?? []).map((hint) => ({ hint }));
       if (state.cursor === null) {
-        resumeHints = withHint(
-          resumeHints,
-          "No workflow position remains; finalize the run with `playbook.close`.",
-        );
+        additions.push({
+          hint: "No workflow position remains; finalize the run with `playbook.close`.",
+        });
       }
-      return { ...state, ...evidence, status, resumeHints, staleness: null };
+      return {
+        ...state,
+        ...evidence,
+        status,
+        ...settleGuidanceHints(state, state.stepStatuses, additions),
+        staleness: null,
+      };
     },
   });
 }
@@ -911,15 +934,17 @@ function migratePlaybookRun(args: {
         refs: dedupe(input.evidenceRefs ?? []),
         note: normalizeNote(input.note) ?? note,
       });
-      let resumeHints = withHint(state.resumeHints, note);
-      for (const hint of input.resumeHints ?? []) {
-        resumeHints = withHint(resumeHints, hint);
-      }
+      // The migration note and caller hints are run-scoped; retirement runs
+      // against the RE-MAPPED statuses, so hints about steps the migration
+      // dropped or that resolved earlier retire here (PRD 41 R-FIX-2).
+      const additions: GuidanceHintAddition[] = [
+        { hint: note },
+        ...(input.resumeHints ?? []).map((hint) => ({ hint })),
+      ];
       if (cursor === null) {
-        resumeHints = withHint(
-          resumeHints,
-          "No workflow position remains; finalize the run with `playbook.close`.",
-        );
+        additions.push({
+          hint: "No workflow position remains; finalize the run with `playbook.close`.",
+        });
       }
       return {
         ...state,
@@ -934,7 +959,7 @@ function migratePlaybookRun(args: {
         cursor,
         status,
         staleness: null,
-        resumeHints,
+        ...settleGuidanceHints(state, stepStatuses, additions),
       };
     },
   });
@@ -1034,6 +1059,11 @@ export function closePlaybookRun(input: ClosePlaybookRunInput): PlaybookRunState
         cursor: null,
         status: input.terminalStatus,
         terminalStatus: input.terminalStatus,
+        // Close retires ALL guidance hints — a closed run's state carries
+        // none; the durable audit trail is the evidence log, to which the
+        // close record above was just appended (PRD 41 R-FIX-2, D-016).
+        resumeHints: [],
+        hintSubjects: {},
       };
     },
   });
@@ -1047,6 +1077,12 @@ interface RunPosition {
   cursor: PlaybookRunCursor | null;
   status: PlaybookStepStatus;
   hint: string | null;
+  /**
+   * The step or gate the hint advises about (PRD 41 R-FIX-2); null when the
+   * hint is run-scoped guidance (for example close guidance), which retires
+   * only at `playbook.close`.
+   */
+  hintSubject: string | null;
 }
 
 type Successor = { kind: "step"; entry: WorkflowStepEntry } | { kind: "stop" } | { kind: "end" };
@@ -1152,6 +1188,8 @@ function positionFromSuccessor(successor: Successor): RunPosition {
       successor.kind === "stop"
         ? "Workflow routing stopped the run; finalize it with `playbook.close`."
         : "All reachable workflow steps are resolved; finalize the run with `playbook.close`.",
+    // Close guidance advises about the run as a whole, not a step subject.
+    hintSubject: null,
   };
 }
 
@@ -1172,6 +1210,7 @@ function positionAtEntry(entry: WorkflowStepEntry): RunPosition {
     cursor,
     status: cursor.kind === "gate" ? "waiting-for-user" : "running",
     hint: null,
+    hintSubject: null,
   };
 }
 
@@ -1397,6 +1436,7 @@ function settleUnattendedGates(
       hint:
         `Unattended run \`${state.runId}\` held at gate \`${entry.id}\`: the gate does not permit ` +
         "unattended continuation; record a human decision with `playbook.gate` (R-GUARD-4).",
+      hintSubject: entry.id,
     };
     break;
   }
@@ -1435,11 +1475,73 @@ function appendEvidenceRecords(
   };
 }
 
-function withHint(hints: string[], hint: string | null): string[] {
-  if (!hint || hints.includes(hint)) {
-    return hints;
+/**
+ * Statuses that resolve a hint's step or gate subject (W18 R12 P2; PRD 41
+ * R-FIX-2): the settled step-outcome statuses of the shared vocabulary. A
+ * subject absent from the current step statuses (for example a step dropped
+ * by the opt-in resume migration) is also resolved. Recorded implementer
+ * decision: `failed` counts as resolved because it is a settled outcome —
+ * the transition that records a failure appends its own fresh guidance AFTER
+ * retirement, so the surviving hints always describe the position the latest
+ * transition produced.
+ */
+const HINT_RESOLVED_STEP_STATUSES: readonly PlaybookStepStatus[] = [
+  "completed",
+  "failed",
+  "skipped",
+  "cancelled",
+];
+
+/** One hint appended by a transition, scoped to the step or gate it advises about. */
+interface GuidanceHintAddition {
+  hint: string | null;
+  /** Step or gate subject; null or absent marks run-scoped guidance. */
+  subjectId?: string | null;
+}
+
+/**
+ * The single hint bookkeeping seam (PRD 41 R-FIX-2, the D-016 fix). Against
+ * the post-transition step statuses it first RETIRES every hint whose subject
+ * has reached a resolved status, then appends the transition's own additions,
+ * recording their subject scope. Every mutating transition — `advance` (both
+ * the outcome and hold paths), `gate`, and all three `resume` paths — flows
+ * through here so retirement is uniform; `playbook.close` instead clears all
+ * guidance hints, so a closed run's state carries none. Hints are forward
+ * guidance only and never touch the evidence log.
+ */
+function settleGuidanceHints(
+  state: PlaybookRunState,
+  stepStatuses: PlaybookRunStepStatusEntry[],
+  additions: GuidanceHintAddition[],
+): Pick<PlaybookRunState, "resumeHints" | "hintSubjects"> {
+  const statusById = new Map(stepStatuses.map((entry) => [entry.stepId, entry.status]));
+  const subjects = { ...(state.hintSubjects ?? {}) };
+  let hints = state.resumeHints.filter((hint) => {
+    const subject = subjects[hint];
+    if (!subject) {
+      // Run-scoped guidance (including pre-change persisted hints, which
+      // carry no subject) retires only at `playbook.close`.
+      return true;
+    }
+    const status = statusById.get(subject);
+    return !(status === undefined || HINT_RESOLVED_STEP_STATUSES.includes(status));
+  });
+  for (const addition of additions) {
+    if (!addition.hint || hints.includes(addition.hint)) {
+      continue;
+    }
+    hints = [...hints, addition.hint];
+    if (addition.subjectId) {
+      subjects[addition.hint] = addition.subjectId;
+    }
   }
-  return [...hints, hint];
+  // Keep the subject map exactly aligned with the surviving hints.
+  for (const key of Object.keys(subjects)) {
+    if (!hints.includes(key)) {
+      delete subjects[key];
+    }
+  }
+  return { resumeHints: hints, hintSubjects: subjects };
 }
 
 function dedupe(values: string[]): string[] {

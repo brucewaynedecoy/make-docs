@@ -1285,4 +1285,139 @@ describe.skipIf(!sqliteAvailable)("run playbook progression engine (W18 R7 P2/P3
     );
     expect((closed.value as { terminalStatus: string }).terminalStatus).toBe("completed");
   });
+
+  // -------------------------------------------------------------------------
+  // Resume-hint retirement (W18 R12 P2; PRD 41 R-FIX-2, R-TEST-3, register
+  // item D-016): hints are subject-scoped current guidance retired on every
+  // mutating transition once their subject resolves; close retires them all;
+  // the evidence log is never touched by any hint operation.
+  // -------------------------------------------------------------------------
+
+  test("hints retire as their subjects resolve and close retires them all (R-TEST-3, D-016)", async () => {
+    const fixture = createFixture({ routing: "linear", steps: LINEAR_STEPS });
+    startRun(fixture);
+    const input = { repoRoot: fixture.root, storeRoot: fixture.storeRoot, runId: "run-1" };
+
+    await advancePlaybookRun({ ...input, outcome: "completed" });
+    recordPlaybookRunGate({ ...input, decision: "approve" });
+
+    // The delegated `record` step holds and appends its subject-scoped hint.
+    const held = await advancePlaybookRun(input);
+    const waitingHint = held.state.resumeHints.find((hint) => hint.includes("`record`"));
+    expect(waitingHint).toBeDefined();
+    expect(held.state.hintSubjects).toEqual({ [waitingHint!]: "record" });
+
+    // Advancing past the delegated step retires its waiting hint (the
+    // R-TEST-3 bar) while the evidence log only grows.
+    const evidenceBefore = JSON.stringify(held.state.evidenceLog);
+    const advanced = await advancePlaybookRun({ ...input, outcome: "completed" });
+    expect(advanced.state.resumeHints.some((hint) => hint.includes("`record`"))).toBe(false);
+    // What replaced it is the run-scoped close guidance only.
+    expect(advanced.state.resumeHints).toEqual([
+      "All reachable workflow steps are resolved; finalize the run with `playbook.close`.",
+    ]);
+    expect(advanced.state.hintSubjects).toEqual({});
+    // The pre-retirement evidence log rides unchanged as a byte-identical
+    // prefix, and the step's waiting-for-user record survives as history.
+    expect(
+      JSON.stringify(advanced.state.evidenceLog.slice(0, held.state.evidenceLog.length)),
+    ).toBe(evidenceBefore);
+    expect(
+      advanced.state.evidenceLog.some(
+        (record) => record.subjectId === "record" && record.outcome === "waiting-for-user",
+      ),
+    ).toBe(true);
+
+    // Close retires ALL guidance hints: the closed record carries none, and
+    // the evidence log is untouched except for the appended close record.
+    const closed = closePlaybookRun({ ...input, terminalStatus: "completed" });
+    expect(closed.resumeHints).toEqual([]);
+    expect(closed.hintSubjects).toEqual({});
+    expect(
+      JSON.stringify(closed.evidenceLog.slice(0, advanced.state.evidenceLog.length)),
+    ).toBe(JSON.stringify(advanced.state.evidenceLog));
+    expect(closed.evidenceLog.at(-1)).toEqual(expect.objectContaining({ scope: "close" }));
+  });
+
+  test("a failed delegated step swaps its waiting hint for current failure guidance (R-FIX-2)", async () => {
+    const fixture = createFixture({ routing: "linear", steps: LINEAR_STEPS });
+    startRun(fixture);
+    const input = { repoRoot: fixture.root, storeRoot: fixture.storeRoot, runId: "run-1" };
+    await advancePlaybookRun({ ...input, outcome: "completed" });
+    recordPlaybookRunGate({ ...input, decision: "approve" });
+    const held = await advancePlaybookRun(input);
+    expect(held.state.resumeHints.some((hint) => hint.includes("waiting for its executor"))).toBe(true);
+
+    // The failure resolves the waiting subject: the stale waiting hint
+    // retires and only the fresh failure guidance survives, subject-scoped.
+    const failed = await advancePlaybookRun({ ...input, outcome: "failed" });
+    expect(failed.state.resumeHints.some((hint) => hint.includes("waiting for its executor"))).toBe(false);
+    expect(failed.state.resumeHints).toEqual([
+      "Step `record` failed; resume with `playbook.resume` to retry via `playbook.advance`, or finalize with `playbook.close`.",
+    ]);
+    expect(failed.state.hintSubjects).toEqual({ [failed.state.resumeHints[0]!]: "record" });
+  });
+
+  test("a rejected gate's hint retires when the gate is later approved (R-FIX-2)", async () => {
+    const fixture = createFixture({ routing: "linear", steps: LINEAR_STEPS });
+    startRun(fixture);
+    const input = { repoRoot: fixture.root, storeRoot: fixture.storeRoot, runId: "run-1" };
+    await advancePlaybookRun({ ...input, outcome: "completed" });
+
+    const rejected = recordPlaybookRunGate({ ...input, decision: "reject" });
+    const rejectHint = rejected.resumeHints.find((hint) => hint.includes("rejected"));
+    expect(rejectHint).toBeDefined();
+    expect(rejected.hintSubjects).toEqual({ [rejectHint!]: "review" });
+
+    // Approving the gate resolves the subject; the stale reject hint retires
+    // on the same transition, while the gate decisions and evidence remain.
+    const approved = recordPlaybookRunGate({ ...input, decision: "approve" });
+    expect(approved.resumeHints.some((hint) => hint.includes("rejected"))).toBe(false);
+    expect(approved.gateDecisions.map((decision) => decision.decision)).toEqual([
+      "reject",
+      "approve",
+    ]);
+    expect(
+      approved.evidenceLog.filter((record) => record.scope === "gate").map((record) => record.outcome),
+    ).toEqual(["reject", "approve"]);
+  });
+
+  test("pre-change run records without hint subjects load, resume, and close cleanly (PRD 38 additive migration)", () => {
+    const fixture = createFixture({ routing: "linear", steps: LINEAR_STEPS });
+    const { projectId } = startRun(fixture);
+
+    // Simulate a pre-W18 R12 persisted record: legacy hints, no
+    // `hintSubjects` field (the additive-serialization migration path).
+    withStoreDatabase(fixture.storeRoot, (db) => {
+      const row = db
+        .prepare("SELECT record FROM playbook_runs WHERE project_id = ? AND run_id = ?")
+        .get(projectId, "run-1") as { record: string };
+      const record = JSON.parse(row.record) as Record<string, unknown>;
+      delete record.hintSubjects;
+      record.resumeHints = ["Delegated step `check` is waiting for its executor."];
+      db.prepare("UPDATE playbook_runs SET record = ? WHERE project_id = ? AND run_id = ?").run(
+        JSON.stringify(record),
+        projectId,
+        "run-1",
+      );
+    });
+
+    // The legacy record loads and resumes: its hints carry no subject, so
+    // they read as run-scoped guidance and survive until close.
+    const resumed = resumePlaybookRun({
+      repoRoot: fixture.root,
+      storeRoot: fixture.storeRoot,
+      runId: "run-1",
+    });
+    expect(resumed.resumeHints).toContain("Delegated step `check` is waiting for its executor.");
+
+    const closed = closePlaybookRun({
+      repoRoot: fixture.root,
+      storeRoot: fixture.storeRoot,
+      runId: "run-1",
+      terminalStatus: "cancelled",
+    });
+    expect(closed.resumeHints).toEqual([]);
+    expect(closed.hintSubjects).toEqual({});
+  });
 });

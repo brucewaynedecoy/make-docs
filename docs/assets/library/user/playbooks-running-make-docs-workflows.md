@@ -171,6 +171,8 @@ make-docs run playbook close --repo-root . --run-id <run-id> --terminal-status c
 
 `close` is the only operation that stamps the terminal status (`completed`, `failed`, or `cancelled`), and a closed run refuses any further changes. Reaching the end of the workflow does not auto-close a run; the run waits for you so the closeout decision stays explicit.
 
+The guidance hints a run carries — the "what to do next" advice recorded on it, which `status` returns as part of the stored record — always reflect only unresolved work. Advice about a step or gate that has since completed, failed, been skipped, or been rejected is retired automatically on the next transition, and closing a run clears its guidance hints entirely, so a closed run carries none. Nothing is lost by that: the full history of what happened stays in the run's evidence log, which hint retirement never touches.
+
 ## Moving a Run to Another Machine
 
 Run state lives in the machine-level global store, so it does not travel with the repository. To hand a run off — say you started it on your desktop and want to finish it on a laptop — export it explicitly on machine A:

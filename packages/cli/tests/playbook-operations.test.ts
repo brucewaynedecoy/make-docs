@@ -570,6 +570,9 @@ describe.skipIf(!sqliteAvailable)("playbook run state in the global store", () =
         "concurrencyPolicy",
         "childRuns",
         "resumeHints",
+        // W18 R12 P2 hint-subject scope (PRD 41 R-FIX-2), additive per the
+        // PRD 38 schema-versioning rules.
+        "hintSubjects",
         "status",
         "terminalStatus",
         "stateSource",

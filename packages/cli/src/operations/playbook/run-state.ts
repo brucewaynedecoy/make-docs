@@ -241,7 +241,24 @@ export interface PlaybookRunState {
   childPolicy: PlaybookChildPolicy;
   concurrencyPolicy: PlaybookConcurrencyPolicy;
   childRuns: PlaybookChildRunRecord[];
+  /**
+   * Current-guidance hints only (W18 R12 P2; PRD 41 R-FIX-2): hints are
+   * subject-scoped via {@link hintSubjects} and retired by the progression
+   * engine on every mutating transition once their subject resolves;
+   * `playbook.close` retires them all, so a closed run carries none. The
+   * durable audit trail is the unchanged {@link evidenceLog}.
+   */
   resumeHints: string[];
+  /**
+   * Subject scope per hint, keyed by the exact hint text and naming the step
+   * or gate the hint advises about (PRD 41 R-FIX-2). Hints without an entry
+   * are run-scoped and retire only at `close`. Additive serialization change
+   * per the PRD 38 schema-versioning rules (recorded implementer decision):
+   * the record stays `schemaVersion: 2` because readers default an absent
+   * field to `{}` — pre-change records load unchanged, their legacy hints
+   * read as run-scoped, and no store migration pass is required.
+   */
+  hintSubjects?: Record<string, string>;
   /** Current run status, always a shared-vocabulary value (R-STATE-2). */
   status: PlaybookStepStatus;
   /** Set only by run finalization; null while the run is open. */
@@ -415,7 +432,11 @@ export function createPlaybookRunState(
       childPolicy: entry.run.childPlaybooks,
       concurrencyPolicy: entry.run.concurrency,
       childRuns: [],
+      // Creation-time hints (caller-supplied and capability guidance) advise
+      // about the run as a whole, so they are run-scoped: no hintSubjects
+      // entries, retired only at `close` (PRD 41 R-FIX-2).
       resumeHints: mergeHints(input.resumeHints ?? [], capabilityHints),
+      hintSubjects: {},
       status,
       terminalStatus: null,
       stateSource: "make-docs",

@@ -105,17 +105,21 @@ function richPlaybookDocument(input: {
     "      approval: explicit maintainer approval",
     "      rollback: git checkout the touched files",
   ];
+  // v2 declarations (PRD 40 R-DEP-2..3): machine targets live on `probe`
+  // (declared, or the `id` default) and `source` is provenance prose that —
+  // adversarially, per R-FIX-1/R-TEST-2 — does NOT begin with the probe
+  // token, the exact blind spot that let D-015 through.
   const dependencyRows = input.dependencyRows ?? [
-    ...dependencyEntryLines("make-docs-cli", "cli", "required", "playbook.catalog", "catalog", "none"),
-    ...dependencyEntryLines("ripgrep", "cli", "optional", "rg", "catalog", "grep"),
-    ...dependencyEntryLines("node-packages", "package-manager", "required", "npm", "catalog", "none"),
-    ...dependencyEntryLines("context-server", "mcp", "preferred", "context-mode", "guard-tools", "continue without extra context"),
+    ...dependencyEntryLines("make-docs-cli", "cli", "required", "package install of the make-docs CLI", "catalog", "none", { probe: "playbook.catalog" }),
+    ...dependencyEntryLines("ripgrep", "cli", "optional", "system install of ripgrep", "catalog", "grep", { probe: "rg" }),
+    ...dependencyEntryLines("node-packages", "package-manager", "required", "ships with the Node.js distribution", "catalog", "none", { probe: "npm" }),
+    ...dependencyEntryLines("context-server", "mcp", "preferred", "harness configuration of the context-mode server", "guard-tools", "continue without extra context", { probe: "context-mode" }),
     ...dependencyEntryLines("issue-tracker", "external-service", "optional", "https://example.test/api", "review-gate", "manual updates"),
     ...dependencyEntryLines("review-guide", "reference", "required", ".make-docs/contracts/system/example.md", "review-gate", "none"),
     ...dependencyEntryLines("style-notes", "reference", "preferred", "https://example.test/style-notes", "review-gate", "none"),
-    ...dependencyEntryLines("commit-helper", "skill", "preferred", "commit-helper", "review-gate", "manual commit"),
-    ...dependencyEntryLines("formatter-plugin", "plugin", "optional", "prettier-plugin", "review-gate", "manual formatting"),
-    ...dependencyEntryLines("child-run", "playbook", "optional", "user/child-run", "review-gate", "skip"),
+    ...dependencyEntryLines("commit-helper", "skill", "preferred", "marketplace entry for the commit helper", "review-gate", "manual commit"),
+    ...dependencyEntryLines("formatter-plugin", "plugin", "optional", "marketplace entry for the formatter", "review-gate", "manual formatting", { probe: "prettier-plugin" }),
+    ...dependencyEntryLines("child-run", "playbook", "optional", "the user persona's child-run Playbook", "review-gate", "skip", { probe: "user/child-run" }),
   ];
   return [
     "---",
@@ -368,12 +372,16 @@ describe("packaging compiler distributable inventory (W18 R8 P2)", () => {
       disposition: "metadata-with-runtime-check",
       metadata: { runtimeCheck: { type: "mcp-server-available", target: "context-mode" } },
     });
+    // The runtime-check target is the resolved probe — here the `id`
+    // default, never the URL prose in `source` (PRD 40 R-DEP-3); the URL
+    // survives for humans inside the instructions text.
     expect(byId.get("issue-tracker")).toMatchObject({
       disposition: "metadata-with-runtime-check",
       metadata: {
-        runtimeCheck: { type: "external-service-available", target: "https://example.test/api" },
+        runtimeCheck: { type: "external-service-available", target: "issue-tracker" },
       },
     });
+    expect(String(byId.get("issue-tracker")!.instructions)).toContain("https://example.test/api");
     // skill and plugin: harness-native manifest references where supported.
     expect(byId.get("commit-helper")).toMatchObject({
       disposition: "manifest-reference",
@@ -397,6 +405,11 @@ describe("packaging compiler distributable inventory (W18 R8 P2)", () => {
     expect(byId.get("child-run")).toMatchObject({ disposition: "referenced-playbook" });
     // The stable operation reference also rides the metadata record.
     expect(byId.get("make-docs-cli")).toMatchObject({ operation: "playbook.catalog" });
+    // The resolved probe rides every declaration record additively, so no
+    // consumer ever re-derives a target from prose (PRD 40 R-DEP-3).
+    expect(byId.get("ripgrep")).toMatchObject({ probe: "rg" });
+    expect(byId.get("issue-tracker")).toMatchObject({ probe: "issue-tracker" });
+    expect(byId.get("child-run")).toMatchObject({ probe: "user/child-run" });
   });
 
   test("bundles playbook dependencies as additional skills when bundled (R-DEPMAT-1)", () => {
@@ -414,7 +427,7 @@ describe("packaging compiler distributable inventory (W18 R8 P2)", () => {
         "    uses: [child-run]",
         "    instructions: Run the child playbook.",
       ],
-      dependencyRows: dependencyEntryLines("child-run", "playbook", "required", "user/child-run", "delegate", "none"),
+      dependencyRows: dependencyEntryLines("child-run", "playbook", "required", "the user persona's child-run Playbook", "delegate", "none", { probe: "user/child-run" }),
     });
     writeRichPlaybook(root, "user", "child-run", "Child Run", {
       workflowSteps: [
@@ -477,7 +490,7 @@ describe("packaging compiler distributable inventory (W18 R8 P2)", () => {
         "    instructions: Do the work.",
       ],
       dependencyRows: [
-        ...dependencyEntryLines("commit-helper", "skill", "preferred", "commit-helper", "work", "manual commit"),
+        ...dependencyEntryLines("commit-helper", "skill", "preferred", "marketplace entry for the commit helper", "work", "manual commit"),
       ],
     });
 
@@ -845,5 +858,84 @@ describe("packaging compiler distributable inventory (W18 R8 P2)", () => {
     // The user's marketplace file is never touched: only the generated copy
     // inside the distributable exists (the seam itself is Phase 4).
     expect(existsSync(path.join(root, ".agents/plugins/marketplace.json"))).toBe(false);
+  });
+});
+
+describe("probe-targeted dependency checks (W18 R12 P2; PRD 40 R-DEP-3, R-FIX-1, R-TEST-2)", () => {
+  const tempRoots: string[] = [];
+
+  afterEach(() => {
+    while (tempRoots.length > 0) {
+      cleanupTempDir(tempRoots.pop()!);
+    }
+  });
+
+  test("the D-015 UAT repro passes end to end: source prose never influences the probe", () => {
+    const root = createTempDir("make-docs-compiler-probe-");
+    tempRoots.push(root);
+    writeMakeDocsManifest(root);
+    // Every `source` here is adversarial (R-FIX-1): the prose does not begin
+    // with the probe token, the exact blind spot that let D-015 through.
+    writeRichPlaybook(root, "user", "uat-repro", "Uat Repro", {
+      workflowSteps: [
+        "  - id: check-tools",
+        "    title: Check tools",
+        "    executor: agent",
+        "    role: check",
+        "    activation: sequential",
+        "    uses: [git, github-cli, node-packages]",
+        "    instructions: Verify the tool set before starting.",
+      ],
+      dependencyRows: [
+        // The literal UAT repro (D-015): no probe declared, so the check
+        // probes the `id` default `git` — never `system`.
+        ...dependencyEntryLines("git", "cli", "required", "system install of git", "check-tools", "stop with install guidance"),
+        // Declared probe differing from the id: the declaration wins.
+        ...dependencyEntryLines("github-cli", "cli", "required", "Homebrew install of the GitHub CLI", "check-tools", "stop with install guidance", { probe: "gh" }),
+        // package-manager rides the same probe-only rule.
+        ...dependencyEntryLines("node-packages", "package-manager", "required", "corepack shims manage this package manager", "check-tools", "none", { probe: "pnpm" }),
+      ],
+    });
+
+    const plan = createPlaybookPackagePlan({
+      repoRoot: root,
+      refs: ["user/uat-repro"],
+      target: codexPluginTarget(),
+      supportEvidenceRefs: [SUPPORT_EVIDENCE_REF],
+    }).plan;
+    const result = writePlaybookPackageOutputs({
+      repoRoot: root,
+      plan,
+      write: true,
+      preconditions: CODEX_PLUGIN_PRECONDITIONS,
+    });
+    expect(result.status).toBe("written");
+    const canonical = path.join(root, result.canonicalPath);
+
+    // The id-default path: `git` with source `system install of git`
+    // generates a check probing `git` (the UAT repro's failing shape).
+    const gitCheck = readFileSync(path.join(canonical, "checks/git.sh"), "utf8");
+    expect(gitCheck).toContain("command -v git");
+    expect(gitCheck).not.toContain("command -v system");
+    // The declared-probe path: `github-cli` probes `gh`, not the id and not
+    // any prose token.
+    const ghCheck = readFileSync(path.join(canonical, "checks/github-cli.sh"), "utf8");
+    expect(ghCheck).toContain("command -v gh");
+    expect(ghCheck).not.toContain("command -v github-cli");
+    expect(ghCheck).not.toContain("command -v Homebrew");
+    // package-manager: the declared probe wins over every prose token.
+    const pmCheck = readFileSync(path.join(canonical, "checks/node-packages.sh"), "utf8");
+    expect(pmCheck).toContain("command -v pnpm");
+    expect(pmCheck).not.toContain("command -v corepack");
+
+    // The resolved probes ride the declaration records additively.
+    const declarations = JSON.parse(readFileSync(
+      path.join(canonical, ".make-docs/dependencies.json"),
+      "utf8",
+    )) as { dependencies: Array<Record<string, unknown>> };
+    const byId = new Map(declarations.dependencies.map((entry) => [entry.id, entry]));
+    expect(byId.get("git")).toMatchObject({ probe: "git", disposition: "check-script" });
+    expect(byId.get("github-cli")).toMatchObject({ probe: "gh", disposition: "check-script" });
+    expect(byId.get("node-packages")).toMatchObject({ probe: "pnpm", disposition: "check-script" });
   });
 });

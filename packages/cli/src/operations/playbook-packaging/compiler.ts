@@ -956,7 +956,10 @@ function renderHarnessManifest(input: {
   const mcpServers = input.container.hostedPrimitives.includes("mcp-server")
     ? input.dependencies
         .filter((dependency) => dependency.kind === "mcp")
-        .map((dependency) => ({ id: dependency.dependencyId, source: dependency.source }))
+        // The manifest's server reference is the resolved probe — the only
+        // machine-reference field (PRD 40 R-DEP-3); the manifest key stays
+        // `source` for shape stability with earlier W18 R8 outputs.
+        .map((dependency) => ({ id: dependency.dependencyId, source: dependency.probe }))
     : [];
   const manifest: Record<string, JsonValue> = {
     name: input.plan.packageId,
@@ -1065,6 +1068,9 @@ function dependencyDeclaration(dependency: MaterializedDependency): Record<strin
     kind: dependency.kind,
     requirement: dependency.requirement,
     source: dependency.source,
+    // Additive (W18 R12 P2, PRD 40 R-DEP-3): the resolved probe target rides
+    // the declaration record so consumers never re-derive it from prose.
+    probe: dependency.probe,
     sourceRef: dependency.sourceRef,
     disposition: dependency.disposition,
     files: dependency.files.map((file) => file.path),

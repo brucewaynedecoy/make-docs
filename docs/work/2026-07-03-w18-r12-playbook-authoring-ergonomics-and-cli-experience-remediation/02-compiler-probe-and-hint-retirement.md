@@ -30,9 +30,9 @@ Dependency materialization retargets from `executableToken(source)` to the model
 
 ### Tasks
 
-- [ ] t1: Remove `executableToken` and every `source`-derived probe path from `packages/cli/src/operations/playbook-packaging/materialization.ts`; generated `cli` and `package-manager` checks probe the model's resolved `probe` (declared value or `id` default) via `command -v` (PRD 40 R-DEP-3, R-FIX-1).
-- [ ] t2: Use `probe` as the manifest reference identifier for `skill` and `plugin` kind materialization where the model provides it, preserving every other R-DEPMAT-1 rule — per-kind emission, operation identifiers over CLI strings, explicit degradation (PRD 36 R-DEPMAT-1 as revised by PRD 40).
-- [ ] t3: Verify by search that no code path under `packages/cli/` parses the dependency `source` field for machine meaning (PRD 40 R-DEP-3; D-015 close bar).
+- [x] t1: Remove `executableToken` and every `source`-derived probe path from `packages/cli/src/operations/playbook-packaging/materialization.ts`; generated `cli` and `package-manager` checks probe the model's resolved `probe` (declared value or `id` default) via `command -v` (PRD 40 R-DEP-3, R-FIX-1).
+- [x] t2: Use `probe` as the manifest reference identifier for `skill` and `plugin` kind materialization where the model provides it, preserving every other R-DEPMAT-1 rule — per-kind emission, operation identifiers over CLI strings, explicit degradation (PRD 36 R-DEPMAT-1 as revised by PRD 40).
+- [x] t3: Verify by search that no code path under `packages/cli/` parses the dependency `source` field for machine meaning (PRD 40 R-DEP-3; D-015 close bar).
 
 ### Acceptance criteria
 
@@ -48,7 +48,7 @@ Dependency materialization retargets from `executableToken(source)` to the model
 
 ### Tasks
 
-- [ ] t4: Add compiler fixtures whose `source` prose does not begin with the binary name — including the UAT repro — across `cli` and `package-manager` kinds, and a declared-`probe` fixture where `probe` differs from `id` (PRD 40 R-TEST-2).
+- [x] t4: Add compiler fixtures whose `source` prose does not begin with the binary name — including the UAT repro — across `cli` and `package-manager` kinds, and a declared-`probe` fixture where `probe` differs from `id` (PRD 40 R-TEST-2).
 
 ### Acceptance criteria
 
@@ -63,10 +63,10 @@ Dependency materialization retargets from `executableToken(source)` to the model
 
 ### Tasks
 
-- [ ] t5: Make hints subject-scoped in `packages/cli/src/operations/playbook/progression.ts`: each hint records the step or gate it advises about, extending `withHint` and the run-state record additively (PRD 41 R-FIX-2).
-- [ ] t6: Retire hints on every mutating transition — `advance`, `gate`, `resume`, `close` — for subjects that have reached a resolved status, and retire all guidance hints at `close` so a closed run's state carries none (PRD 41 R-FIX-2; D-016 close bar).
-- [ ] t7: Handle the run-state serialization change additively and migrate per the global store's schema-versioning rules, leaving the evidence log untouched (PRD 38; PRD 41 R-FIX-2).
-- [ ] t8: Land the R-TEST-3 suite: a run advanced past a delegated step no longer carries that step's waiting hint; a closed run carries no guidance hints; the evidence log is byte-identical before and after retirement (PRD 41 R-TEST-3).
+- [x] t5: Make hints subject-scoped in `packages/cli/src/operations/playbook/progression.ts`: each hint records the step or gate it advises about, extending `withHint` and the run-state record additively (PRD 41 R-FIX-2).
+- [x] t6: Retire hints on every mutating transition — `advance`, `gate`, `resume`, `close` — for subjects that have reached a resolved status, and retire all guidance hints at `close` so a closed run's state carries none (PRD 41 R-FIX-2; D-016 close bar).
+- [x] t7: Handle the run-state serialization change additively and migrate per the global store's schema-versioning rules, leaving the evidence log untouched (PRD 38; PRD 41 R-FIX-2).
+- [x] t8: Land the R-TEST-3 suite: a run advanced past a delegated step no longer carries that step's waiting hint; a closed run carries no guidance hints; the evidence log is byte-identical before and after retirement (PRD 41 R-TEST-3).
 
 ### Acceptance criteria
 
