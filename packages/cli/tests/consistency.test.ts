@@ -470,6 +470,8 @@ describe("risk register routing contract", () => {
       "D-015 Generated Dependency Checks Probe the Source Prose Instead of the Dependency",
       "D-016 PlaybookRunState Resume Hints Accumulate Without Retirement",
       "D-017 Shipped Config Blocks Lack Upstream Schema Documentation",
+      "D-018 The Global Store Lacks Project Registry Management Operations",
+      "D-019 Pre-W18 Tool-Resource Mandates Were Not Implemented (Custom Tiers and No-Scripts Shims)",
     ]);
     expect(itemHeadings(questions)).toEqual([
       "Q-001 What Is the Long-Term Skills Delivery Contract?",
@@ -488,6 +490,10 @@ describe("risk register routing contract", () => {
       "Q-014 How Did the Transitional `docs/library/` Move Resolve?",
       "Q-015 When and How Should the Interactive Playbook Run Mode Land?",
       "Q-016 Should Make Docs Grow a Full TUI Over the Store, Runs, and Packaging?",
+      "Q-017 Should Managed System Assets Centralize at the Machine Level Instead of Replicating Per Instance?",
+      "Q-018 What Is the Configuration Information Architecture?",
+      "Q-019 How Should the Persona Model Revise and Gain Interactive Setup?",
+      "Q-020 Should Other Playbook Sections Gain Imposed Structure Beyond Dependencies?",
     ]);
     expect(itemHeadings(risks)).toEqual([
       "R-001 Home-Scoped Skills Are Easy to Drop From a Clean-Room Rebuild",
@@ -516,6 +522,7 @@ describe("risk register routing contract", () => {
       "R-024 The Command-Surface Hard Cutover Can Strand Consumers or Leave a Half-Migrated Surface",
       "R-025 Cross-Artifact Coordinate Handoffs Can Drift From Their Assigned Waves and PRDs",
       "R-026 The W18 R12 UAT Remediation Round Must Land Before W18 R9 Conformance",
+      "R-027 The Pending Playbook and CLI Polish Round Awaits Sequencing Against W18 R9",
     ]);
   });
 
