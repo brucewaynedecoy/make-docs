@@ -491,9 +491,10 @@ describe("risk register routing contract", () => {
       "Q-015 When and How Should the Interactive Playbook Run Mode Land?",
       "Q-016 Should Make Docs Grow a Full TUI Over the Store, Runs, and Packaging?",
       "Q-017 Should Managed System Assets Centralize at the Machine Level Instead of Replicating Per Instance?",
-      "Q-018 What Is the Configuration Information Architecture?",
+      "Q-018 How Should Configuration Be Laid Out, Owned, and Discovered?",
       "Q-019 How Should the Persona Model Revise and Gain Interactive Setup?",
       "Q-020 Should Other Playbook Sections Gain Imposed Structure Beyond Dependencies?",
+      "Q-021 Maintainer-Facing Terminology Needs a Plain-Language Rule and Glossary Backing",
     ]);
     expect(itemHeadings(risks)).toEqual([
       "R-001 Home-Scoped Skills Are Easy to Drop From a Clean-Room Rebuild",
