@@ -72,11 +72,7 @@ const initialState: SkillsUiState = {
   selectedSkills: [
     "archive-docs",
     "cleanup-docs",
-    "closeout-commit",
-    "closeout-phase",
     "decompose-codebase",
-    "work-on-phase",
-    "work-on-wave",
   ],
 };
 
@@ -160,19 +156,11 @@ describe("skills-only UI", () => {
       "archive-docs",
       "decompose-codebase",
       "cleanup-docs",
-      "closeout-commit",
-      "closeout-phase",
-      "work-on-phase",
-      "work-on-wave",
     ]);
     expect(renderer.seenSkillStates[0]?.selectedSkills).toEqual([
       "archive-docs",
       "cleanup-docs",
-      "closeout-commit",
-      "closeout-phase",
       "decompose-codebase",
-      "work-on-phase",
-      "work-on-wave",
     ]);
   });
 

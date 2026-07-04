@@ -20,11 +20,7 @@ const runSkillsCommandMock = vi.fn();
 const ALL_SKILL_NAMES = [
   "archive-docs",
   "cleanup-docs",
-  "closeout-commit",
-  "closeout-phase",
   "decompose-codebase",
-  "work-on-phase",
-  "work-on-wave",
 ];
 
 vi.mock("../src/wizard", () => ({
@@ -894,19 +890,11 @@ personas:
       expect(manifest?.selections.selectedSkills).toEqual([
         "archive-docs",
         "cleanup-docs",
-        "closeout-commit",
-        "closeout-phase",
         "decompose-codebase",
-        "work-on-phase",
-        "work-on-wave",
       ]);
       expect(manifest?.skillFiles).toContain(".claude/skills/archive-docs");
       expect(manifest?.skillFiles).toContain(".claude/skills/cleanup-docs");
-      expect(manifest?.skillFiles).toContain(".claude/skills/closeout-commit");
-      expect(manifest?.skillFiles).toContain(".claude/skills/closeout-phase");
       expect(manifest?.skillFiles).toContain(".claude/skills/decompose-codebase");
-      expect(manifest?.skillFiles).toContain(".claude/skills/work-on-wave");
-      expect(manifest?.skillFiles).toContain(".claude/skills/work-on-phase");
     } finally {
       cleanupTempDir(targetDir);
       cleanupTempDir(allTargetDir);
@@ -1378,7 +1366,7 @@ personas:
           targetDir,
         ]),
       ).rejects.toThrow(
-        "Unknown selected skill `unknown-skill`. Valid skills: archive-docs, cleanup-docs, closeout-commit, closeout-phase, decompose-codebase, work-on-phase, work-on-wave.",
+        "Unknown selected skill `unknown-skill`. Valid skills: archive-docs, cleanup-docs, decompose-codebase.",
       );
     } finally {
       cleanupTempDir(targetDir);

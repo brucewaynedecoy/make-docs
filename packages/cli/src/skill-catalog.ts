@@ -26,36 +26,13 @@ const HARNESS_SKILL_DIRS: Record<Harness, string> = {
 
 const SHARED_AGENTICS_SKILL_DIR = ".make-docs/agentics/skills";
 
-const RETIRED_MANAGED_SKILL_ASSETS: Record<string, string[]> = {
-  "closeout-commit": [
-    "scripts/closeout_probe.py",
-    "scripts/closeout_validate.py",
-    "scripts/closeout_history.py",
-  ],
-  "closeout-phase": [
-    "scripts/closeout_probe.py",
-    "scripts/closeout_validate.py",
-    "scripts/closeout_history.py",
-    "scripts/work_phase_state.py",
-  ],
-  "work-on-phase": [
-    "scripts/work_on_wave_common.py",
-    "scripts/resolve_wave.py",
-    "scripts/phase_plan.py",
-    "scripts/checkpoint.py",
-    "scripts/scope_guard.py",
-    "scripts/phase_gate.py",
-  ],
-  "work-on-wave": [
-    "scripts/work_on_wave_common.py",
-    "scripts/resolve_wave.py",
-    "scripts/wave_status.py",
-    "scripts/phase_plan.py",
-    "scripts/checkpoint.py",
-    "scripts/scope_guard.py",
-    "scripts/phase_gate.py",
-  ],
-};
+// No registry skill currently carries retired managed assets. The map stays
+// as the seam for future skill-asset retirements; the four withdrawn
+// lifecycle skills (closeout-commit, closeout-phase, work-on-phase,
+// work-on-wave) were pulled from the registry entirely (D-020 stopgap), so
+// their retired-script cleanup now flows through the generic stale-skill
+// removal path instead of per-skill retirement entries.
+const RETIRED_MANAGED_SKILL_ASSETS: Record<string, string[]> = {};
 
 export interface WizardSkillChoice {
   name: string;

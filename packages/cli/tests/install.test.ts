@@ -136,11 +136,7 @@ const LEGACY_W17_DEDICATED_CONTENT =
 const ALL_SKILL_NAMES = [
   "archive-docs",
   "cleanup-docs",
-  "closeout-commit",
-  "closeout-phase",
   "decompose-codebase",
-  "work-on-phase",
-  "work-on-wave",
 ];
 
 function getInstructionPaths(instructionKind: "AGENTS.md" | "CLAUDE.md"): string[] {
@@ -1065,144 +1061,20 @@ describe("installer integration", () => {
         }
       }
 
-      {
-        const closeoutSkillPath = path.join(
-          targetDir,
-          ".make-docs/agentics/skills/closeout-phase/SKILL.md",
-        );
-        const closeoutContents = readFileSync(closeoutSkillPath, "utf8");
-
-        for (const relativeLink of [
-          "./references/closeout-workflow.md",
-          "./scripts/persona_schema.py",
-          "./scripts/guide_coverage_probe.py",
-        ]) {
-          expect(closeoutContents).toContain(`(${relativeLink})`);
-          expect(existsSync(path.join(path.dirname(closeoutSkillPath), relativeLink))).toBe(true);
-        }
-        expect(closeoutContents).toContain("make-docs operations work-phase-state");
-        expect(closeoutContents).toContain("make-docs operations closeout-probe");
-        expect(closeoutContents).toContain("make-docs operations closeout-validate");
-        expect(closeoutContents).toContain("make-docs operations closeout-history");
-        for (const removedPath of [
-          "./scripts/work_phase_state.py",
-          "./scripts/closeout_probe.py",
-          "./scripts/closeout_validate.py",
-          "./scripts/closeout_history.py",
-        ]) {
-          expect(existsSync(path.join(path.dirname(closeoutSkillPath), removedPath))).toBe(false);
-        }
-        expect(existsSync(path.join(path.dirname(closeoutSkillPath), "./agents/openai.yaml"))).toBe(
-          true,
-        );
-      }
-
-      {
-        const closeoutCommitSkillPath = path.join(
-          targetDir,
-          ".make-docs/agentics/skills/closeout-commit/SKILL.md",
-        );
-        const closeoutCommitContents = readFileSync(closeoutCommitSkillPath, "utf8");
-
-        for (const relativeLink of [
-          "./references/closeout-commit-workflow.md",
-        ]) {
-          expect(closeoutCommitContents).toContain(`(${relativeLink})`);
-          expect(existsSync(path.join(path.dirname(closeoutCommitSkillPath), relativeLink))).toBe(
-            true,
-          );
-        }
-        expect(closeoutCommitContents).toContain("make-docs operations closeout-probe");
-        expect(closeoutCommitContents).toContain("make-docs operations closeout-validate");
-        expect(closeoutCommitContents).toContain("make-docs operations closeout-history");
-        for (const removedPath of [
-          "./scripts/closeout_probe.py",
-          "./scripts/closeout_validate.py",
-          "./scripts/closeout_history.py",
-        ]) {
-          expect(existsSync(path.join(path.dirname(closeoutCommitSkillPath), removedPath))).toBe(
-            false,
-          );
-        }
+      // The four D-020 lifecycle skills are withdrawn from the shipped
+      // registry; an all-skills install must not materialize any of their
+      // payloads or exposures (regeneration is owned by Q-022).
+      for (const withdrawnSkill of [
+        "closeout-commit",
+        "closeout-phase",
+        "work-on-phase",
+        "work-on-wave",
+      ]) {
         expect(
-          existsSync(path.join(path.dirname(closeoutCommitSkillPath), "./agents/openai.yaml")),
-        ).toBe(true);
-      }
-
-      {
-        const workOnWaveSkillPath = path.join(
-          targetDir,
-          ".make-docs/agentics/skills/work-on-wave/SKILL.md",
-        );
-        const workOnWaveContents = readFileSync(workOnWaveSkillPath, "utf8");
-
-        for (const relativeLink of [
-          "./references/wave-implementation-workflow.md",
-        ]) {
-          expect(workOnWaveContents).toContain(`(${relativeLink})`);
-          expect(existsSync(path.join(path.dirname(workOnWaveSkillPath), relativeLink))).toBe(
-            true,
-          );
-        }
-        expect(workOnWaveContents).toContain("make-docs operations wave-resolve");
-        expect(workOnWaveContents).toContain("make-docs operations wave-status");
-        expect(workOnWaveContents).toContain("make-docs operations phase-plan");
-        expect(workOnWaveContents).toContain("make-docs operations checkpoint");
-        expect(workOnWaveContents).toContain("make-docs operations scope-guard");
-        expect(workOnWaveContents).toContain("make-docs operations phase-gate");
-        for (const removedPath of [
-          "./scripts/work_on_wave_common.py",
-          "./scripts/resolve_wave.py",
-          "./scripts/wave_status.py",
-          "./scripts/phase_plan.py",
-          "./scripts/checkpoint.py",
-          "./scripts/scope_guard.py",
-          "./scripts/phase_gate.py",
-        ]) {
-          expect(existsSync(path.join(path.dirname(workOnWaveSkillPath), removedPath))).toBe(
-            false,
-          );
-        }
-        expect(
-          existsSync(path.join(path.dirname(workOnWaveSkillPath), "./agents/openai.yaml")),
-        ).toBe(true);
-      }
-
-      {
-        const workOnPhaseSkillPath = path.join(
-          targetDir,
-          ".make-docs/agentics/skills/work-on-phase/SKILL.md",
-        );
-        const workOnPhaseContents = readFileSync(workOnPhaseSkillPath, "utf8");
-
-        for (const relativeLink of [
-          "./references/phase-implementation-workflow.md",
-        ]) {
-          expect(workOnPhaseContents).toContain(`(${relativeLink})`);
-          expect(existsSync(path.join(path.dirname(workOnPhaseSkillPath), relativeLink))).toBe(
-            true,
-          );
-        }
-        expect(workOnPhaseContents).toContain("make-docs operations wave-resolve");
-        expect(workOnPhaseContents).toContain("make-docs operations phase-plan");
-        expect(workOnPhaseContents).toContain("make-docs operations checkpoint");
-        expect(workOnPhaseContents).toContain("make-docs operations scope-guard");
-        expect(workOnPhaseContents).toContain("make-docs operations phase-gate");
-        for (const removedPath of [
-          "./scripts/work_on_wave_common.py",
-          "./scripts/resolve_wave.py",
-          "./scripts/phase_plan.py",
-          "./scripts/checkpoint.py",
-          "./scripts/scope_guard.py",
-          "./scripts/phase_gate.py",
-        ]) {
-          expect(existsSync(path.join(path.dirname(workOnPhaseSkillPath), removedPath))).toBe(
-            false,
-          );
-        }
-        expect(
-          existsSync(path.join(path.dirname(workOnPhaseSkillPath), "./agents/openai.yaml")),
-        ).toBe(true);
+          existsSync(path.join(targetDir, `.make-docs/agentics/skills/${withdrawnSkill}`)),
+        ).toBe(false);
+        expect(existsSync(path.join(targetDir, `.claude/skills/${withdrawnSkill}`))).toBe(false);
+        expect(existsSync(path.join(targetDir, `.agents/skills/${withdrawnSkill}`))).toBe(false);
       }
     } finally {
       cleanupTempDir(targetDir);
@@ -2745,33 +2617,63 @@ describe("installer integration", () => {
     }
   });
 
-  test("skills-only sync reviews retired lifecycle helper scripts", async () => {
+  test("skills-only sync removes previously installed skills withdrawn from the registry", async () => {
+    // Simulates an existing install that carries the D-020 withdrawn
+    // lifecycle skills: `make-docs update`/`setup skills` must plan clean
+    // removal for the tracked files (and preserve locally modified copies
+    // for review) now that the registry no longer ships the skills.
     const targetDir = createTempDir();
     try {
       await syncSkillsOnly(targetDir, (selections) => {
-        selections.selectedSkills = ["closeout-commit"];
+        selections.selectedSkills = ["archive-docs"];
       });
 
-      const removableScript = ".claude/skills/closeout-commit/scripts/closeout_probe.py";
-      const modifiedScript = ".claude/skills/closeout-commit/scripts/closeout_validate.py";
-      const removableScriptPath = path.join(targetDir, removableScript);
-      const modifiedScriptPath = path.join(targetDir, modifiedScript);
+      const withdrawnPayload = ".make-docs/agentics/skills/closeout-commit/SKILL.md";
+      const withdrawnReference =
+        ".make-docs/agentics/skills/closeout-commit/references/closeout-commit-workflow.md";
+      const modifiedPayload = ".make-docs/agentics/skills/work-on-wave/SKILL.md";
+      const withdrawnPayloadContent = "# Close out commit\n\nWithdrawn skill payload.\n";
+      const withdrawnReferenceContent = "# Closeout commit workflow\n";
+      const trackedModifiedContent = "# Work on wave\n";
 
-      mkdirSync(path.dirname(removableScriptPath), { recursive: true });
-      writeFileSync(
-        removableScriptPath,
-        readSkillSourceFile("closeout-commit", "scripts/closeout_probe.py"),
-        "utf8",
-      );
-      writeFileSync(
-        modifiedScriptPath,
-        `${readSkillSourceFile("closeout-commit", "scripts/closeout_validate.py")}\n# local edit\n`,
-        "utf8",
-      );
+      for (const [relativePath, content] of [
+        [withdrawnPayload, withdrawnPayloadContent],
+        [withdrawnReference, withdrawnReferenceContent],
+        [modifiedPayload, `${trackedModifiedContent}# local edit\n`],
+      ] as const) {
+        const absolutePath = path.join(targetDir, relativePath);
+        mkdirSync(path.dirname(absolutePath), { recursive: true });
+        writeFileSync(absolutePath, content, "utf8");
+      }
 
       const manifest = loadManifest(targetDir)!;
+      manifest.selections.selectedSkills = Array.from(
+        new Set([
+          ...manifest.selections.selectedSkills,
+          "closeout-commit",
+          "work-on-wave",
+        ]),
+      ).sort();
+      manifest.files[withdrawnPayload] = {
+        hash: hashText(withdrawnPayloadContent),
+        sourceId: "skill:shared:closeout-commit",
+      };
+      manifest.files[withdrawnReference] = {
+        hash: hashText(withdrawnReferenceContent),
+        sourceId:
+          "skill-shared-asset:closeout-commit:references/closeout-commit-workflow.md",
+      };
+      manifest.files[modifiedPayload] = {
+        hash: hashText(trackedModifiedContent),
+        sourceId: "skill:shared:work-on-wave",
+      };
       manifest.skillFiles = Array.from(
-        new Set([...manifest.skillFiles, removableScript, modifiedScript]),
+        new Set([
+          ...manifest.skillFiles,
+          withdrawnPayload,
+          withdrawnReference,
+          modifiedPayload,
+        ]),
       ).sort();
       writeManifestJson(targetDir, manifest);
 
@@ -2781,18 +2683,29 @@ describe("installer integration", () => {
         expect.arrayContaining([
           expect.objectContaining({
             type: "remove-managed",
-            relativePath: removableScript,
+            relativePath: withdrawnPayload,
+          }),
+          expect.objectContaining({
+            type: "remove-managed",
+            relativePath: withdrawnReference,
           }),
           expect.objectContaining({
             type: "skip-conflict",
-            relativePath: modifiedScript,
+            relativePath: modifiedPayload,
           }),
         ]),
       );
-      expect(existsSync(removableScriptPath)).toBe(false);
-      expect(existsSync(modifiedScriptPath)).toBe(true);
-      expect(nextManifest.skillFiles).not.toContain(removableScript);
-      expect(nextManifest.skillFiles).toContain(modifiedScript);
+      expect(existsSync(path.join(targetDir, withdrawnPayload))).toBe(false);
+      expect(existsSync(path.join(targetDir, withdrawnReference))).toBe(false);
+      expect(existsSync(path.join(targetDir, modifiedPayload))).toBe(true);
+      expect(nextManifest.skillFiles).not.toContain(withdrawnPayload);
+      expect(nextManifest.skillFiles).not.toContain(withdrawnReference);
+      expect(nextManifest.skillFiles).toContain(modifiedPayload);
+      expect(
+        existsSync(
+          path.join(targetDir, ".make-docs/agentics/skills/archive-docs/SKILL.md"),
+        ),
+      ).toBe(true);
     } finally {
       cleanupTempDir(targetDir);
     }

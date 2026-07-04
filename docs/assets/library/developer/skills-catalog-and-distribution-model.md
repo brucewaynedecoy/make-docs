@@ -45,17 +45,15 @@ Remote manifests and remote skill payloads are intentionally policy-gated. Non-f
 
 ## Current shipped catalog
 
-The current first-party catalog has seven entries:
+The current first-party catalog has three entries:
 
 | Skill | Purpose |
 | --- | --- |
 | `archive-docs` | Archive management |
 | `decompose-codebase` | Codebase decomposition and plan creation |
 | `cleanup-docs` | Documentation maintenance |
-| `closeout-commit` | Lifecycle closeout |
-| `closeout-phase` | Lifecycle closeout |
-| `work-on-phase` | Workflow execution |
-| `work-on-wave` | Workflow execution |
+
+The canonical purpose registry still declares the `lifecycle-closeout` and `workflow-execution` purposes, but no shipped skill occupies them: the four former lifecycle skills (`closeout-commit`, `closeout-phase`, `work-on-phase`, `work-on-wave`) were withdrawn from the catalog after they were found instructing the removed `make-docs operations` command surface, and their regeneration is owned by the agentics production pipeline lineage.
 
 `all` expands against the effective manifest for the current run, so a local alternate manifest can replace this set without changing the packaged first-party catalog.
 

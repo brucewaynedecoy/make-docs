@@ -10,9 +10,14 @@ import { mockSkillFetches } from "./helpers";
 const ALL_SKILL_NAMES = [
   "archive-docs",
   "cleanup-docs",
+  "decompose-codebase",
+];
+
+// Withdrawn from the shipped registry by the D-020 stopgap; regeneration is
+// owned by the Q-022 agentics production pipeline.
+const WITHDRAWN_SKILL_NAMES = [
   "closeout-commit",
   "closeout-phase",
-  "decompose-codebase",
   "work-on-phase",
   "work-on-wave",
 ];
@@ -62,10 +67,6 @@ describe("skill catalog", () => {
       "archive-docs",
       "decompose-codebase",
       "cleanup-docs",
-      "closeout-commit",
-      "closeout-phase",
-      "work-on-phase",
-      "work-on-wave",
     ]);
     expect(choices[0]).toMatchObject({
       name: "archive-docs",
@@ -121,63 +122,11 @@ describe("skill catalog", () => {
         ".make-docs/agentics/skills/archive-docs/agents/openai.yaml",
       ),
     ).toBe(true);
-    expect(hasAsset(assets, ".claude/skills/closeout-phase")).toBe(true);
-    expect(hasAsset(assets, ".claude/skills/closeout-commit")).toBe(true);
-    expect(
-      hasAsset(
-        assets,
-        ".make-docs/agentics/skills/closeout-commit/references/closeout-commit-workflow.md",
-      ),
-    ).toBe(true);
-    expect(
-      hasAsset(
-        assets,
-        ".make-docs/agentics/skills/closeout-commit/agents/openai.yaml",
-      ),
-    ).toBe(true);
-    expect(
-      hasAsset(
-        assets,
-        ".make-docs/agentics/skills/closeout-phase/references/closeout-workflow.md",
-      ),
-    ).toBe(true);
     expect(hasAsset(assets, ".claude/skills/cleanup-docs")).toBe(true);
     expect(
       hasAsset(
         assets,
         ".make-docs/agentics/skills/cleanup-docs/scripts/check_markdown_style.py",
-      ),
-    ).toBe(true);
-    expect(
-      hasAsset(
-        assets,
-        ".make-docs/agentics/skills/closeout-phase/agents/openai.yaml",
-      ),
-    ).toBe(true);
-    expect(hasAsset(assets, ".claude/skills/work-on-wave")).toBe(true);
-    expect(
-      hasAsset(
-        assets,
-        ".make-docs/agentics/skills/work-on-wave/references/wave-implementation-workflow.md",
-      ),
-    ).toBe(true);
-    expect(
-      hasAsset(
-        assets,
-        ".make-docs/agentics/skills/work-on-wave/agents/openai.yaml",
-      ),
-    ).toBe(true);
-    expect(hasAsset(assets, ".claude/skills/work-on-phase")).toBe(true);
-    expect(
-      hasAsset(
-        assets,
-        ".make-docs/agentics/skills/work-on-phase/references/phase-implementation-workflow.md",
-      ),
-    ).toBe(true);
-    expect(
-      hasAsset(
-        assets,
-        ".make-docs/agentics/skills/work-on-phase/agents/openai.yaml",
       ),
     ).toBe(true);
     expect(
@@ -192,26 +141,14 @@ describe("skill catalog", () => {
         ".agents/skills/archive-docs/scripts/trace_relationships.py",
       ),
     ).toBe(false);
-    expect(
-      assets.some((asset) =>
-        asset.relativePath.includes("closeout-commit/scripts/closeout_probe.py"),
-      ),
-    ).toBe(false);
-    expect(
-      assets.some((asset) =>
-        asset.relativePath.includes("closeout-phase/scripts/work_phase_state.py"),
-      ),
-    ).toBe(false);
-    expect(
-      assets.some((asset) =>
-        asset.relativePath.includes("work-on-wave/scripts/phase_gate.py"),
-      ),
-    ).toBe(false);
-    expect(
-      assets.some((asset) =>
-        asset.relativePath.includes("work-on-phase/scripts/phase_gate.py"),
-      ),
-    ).toBe(false);
+    for (const withdrawnSkill of WITHDRAWN_SKILL_NAMES) {
+      expect(
+        assets.some((asset) =>
+          asset.relativePath.includes(`/${withdrawnSkill}/`) ||
+          asset.relativePath.endsWith(`/${withdrawnSkill}`),
+        ),
+      ).toBe(false);
+    }
     expect(archiveSharedPayload?.content).toContain(
       "./references/archive-workflow.md",
     );
@@ -294,45 +231,18 @@ describe("skill catalog", () => {
     expect(
       archiveOnly.some(
         (asset) =>
-          asset.relativePath === ".claude/skills/closeout-phase",
-      ),
-    ).toBe(false);
-    expect(
-      archiveOnly.some(
-        (asset) =>
-          asset.relativePath === ".claude/skills/closeout-commit",
+          asset.relativePath === ".claude/skills/cleanup-docs",
       ),
     ).toBe(false);
 
-    const commitSelections = defaultSelections();
-    commitSelections.skills = true;
-    commitSelections.selectedSkills = ["closeout-commit"];
+    // Manifests that still select a withdrawn lifecycle skill resolve to no
+    // assets for it: the registry no longer carries the entry (D-020 stopgap).
+    const withdrawnSelections = defaultSelections();
+    withdrawnSelections.skills = true;
+    withdrawnSelections.selectedSkills = [...WITHDRAWN_SKILL_NAMES];
 
-    const withCommit = await getDesiredSkillAssets(commitSelections);
-    expect(
-      hasAsset(withCommit, ".claude/skills/closeout-commit"),
-    ).toBe(true);
-    expect(
-      hasAsset(
-        withCommit,
-        ".make-docs/agentics/skills/closeout-commit/references/closeout-commit-workflow.md",
-      ),
-    ).toBe(true);
-
-    const closeoutSelections = defaultSelections();
-    closeoutSelections.skills = true;
-    closeoutSelections.selectedSkills = ["closeout-phase"];
-
-    const withCloseout = await getDesiredSkillAssets(closeoutSelections);
-    expect(
-      hasAsset(withCloseout, ".claude/skills/closeout-phase"),
-    ).toBe(true);
-    expect(
-      hasAsset(
-        withCloseout,
-        ".make-docs/agentics/skills/closeout-phase/references/closeout-workflow.md",
-      ),
-    ).toBe(true);
+    const withWithdrawn = await getDesiredSkillAssets(withdrawnSelections);
+    expect(withWithdrawn).toEqual([]);
 
     const selections = defaultSelections();
     selections.skills = true;
@@ -351,13 +261,13 @@ describe("skill catalog", () => {
     expect(
       withDecompose.some(
         (asset) =>
-          asset.relativePath === ".claude/skills/closeout-phase",
+          asset.relativePath === ".claude/skills/archive-docs",
       ),
     ).toBe(false);
     expect(
       withDecompose.some(
         (asset) =>
-          asset.relativePath === ".claude/skills/closeout-commit",
+          asset.relativePath === ".claude/skills/cleanup-docs",
       ),
     ).toBe(false);
     expect(

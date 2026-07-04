@@ -203,19 +203,9 @@ describe("selection wizard", () => {
           "Clean Markdown docs formatting drift.",
         ),
         wizardSkillChoice(
-          "closeout-commit",
-          "Close out uncommitted changes.",
-        ),
-        wizardSkillChoice(
-          "closeout-phase",
-          "Close out completed phases.",
-        ),
-        wizardSkillChoice(
           "decompose-codebase",
           "Plan and reverse-engineer repos into structured PRDs.",
         ),
-        wizardSkillChoice("work-on-phase", "Implement one docs/work phase."),
-        wizardSkillChoice("work-on-wave", "Implement docs/work waves."),
       ],
     );
 
@@ -238,27 +228,7 @@ describe("selection wizard", () => {
         rowKind: "skill",
       },
       {
-        value: "closeout-commit",
-        disabled: false,
-        rowKind: "skill",
-      },
-      {
-        value: "closeout-phase",
-        disabled: false,
-        rowKind: "skill",
-      },
-      {
         value: "decompose-codebase",
-        disabled: false,
-        rowKind: "skill",
-      },
-      {
-        value: "work-on-phase",
-        disabled: false,
-        rowKind: "skill",
-      },
-      {
-        value: "work-on-wave",
         disabled: false,
         rowKind: "skill",
       },
@@ -420,26 +390,6 @@ describe("selection wizard", () => {
         name: "cleanup-docs",
         description:
           "Audit and clean Markdown docs formatting drift, hard-wrapped prose, list spacing, and document-contract issues.",
-      },
-      {
-        name: "closeout-commit",
-        description:
-          "Capture gaps, write history, and draft commit messages for uncommitted changes.",
-      },
-      {
-        name: "closeout-phase",
-        description:
-          "Close out completed work backlog phases with checked tasks, acceptance evidence, guides, gap capture, history, and commit-message drafts.",
-      },
-      {
-        name: "work-on-phase",
-        description:
-          "Implement one explicit docs/work phase through planning, validation, closeout, and optional commit.",
-      },
-      {
-        name: "work-on-wave",
-        description:
-          "Work on docs/work waves through implementation, validation, closeout, and phase commits.",
       },
     ]);
     expect(result?.skillScope).toBe("global");

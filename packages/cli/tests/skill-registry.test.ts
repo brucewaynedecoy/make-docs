@@ -64,21 +64,13 @@ describe("skill registry", () => {
     ]);
     expect(registry.skills.map((skill) => skill.name)).toEqual([
       "archive-docs",
-      "closeout-commit",
-      "closeout-phase",
       "cleanup-docs",
-      "work-on-wave",
-      "work-on-phase",
       "decompose-codebase",
     ]);
     expect(getSkillRegistryNames(registry)).toEqual([
       "archive-docs",
       "cleanup-docs",
-      "closeout-commit",
-      "closeout-phase",
       "decompose-codebase",
-      "work-on-phase",
-      "work-on-wave",
     ]);
     expect(
       registry.skills.every((skill) => !("required" in skill)),
@@ -95,36 +87,39 @@ describe("skill registry", () => {
     ).toBe(true);
   });
 
-  test("declares the closeout commit skill asset surface", () => {
+  test("withdraws the D-020 lifecycle skills from the shipped registry", () => {
     const registry = loadSkillRegistry(PACKAGE_ROOT);
-    const closeoutSkill = registry.skills.find(
-      (skill) => skill.name === "closeout-commit",
-    );
+    const withdrawnSkills = [
+      "closeout-commit",
+      "closeout-phase",
+      "work-on-phase",
+      "work-on-wave",
+    ];
 
-    expect(closeoutSkill?.assets).toEqual([
-      { source: "agents/openai.yaml", installPath: "agents/openai.yaml" },
-      {
-        source: "references/closeout-commit-workflow.md",
-        installPath: "references/closeout-commit-workflow.md",
-      },
-    ]);
+    for (const withdrawnSkill of withdrawnSkills) {
+      expect(
+        registry.skills.find((skill) => skill.name === withdrawnSkill),
+      ).toBeUndefined();
+    }
   });
 
-  test("declares the closeout skill asset surface", () => {
+  test("keeps the canonical purpose registry intact after the lifecycle skill withdrawal", () => {
     const registry = loadSkillRegistry(PACKAGE_ROOT);
-    const closeoutSkill = registry.skills.find(
-      (skill) => skill.name === "closeout-phase",
+    const skillPurposeIds = new Set(
+      registry.skills.flatMap((skill) => skill.purposes),
     );
 
-    expect(closeoutSkill?.assets).toEqual([
-      { source: "agents/openai.yaml", installPath: "agents/openai.yaml" },
-      {
-        source: "references/closeout-workflow.md",
-        installPath: "references/closeout-workflow.md",
-      },
-      { source: "scripts/persona_schema.py", installPath: "scripts/persona_schema.py" },
-      { source: "scripts/guide_coverage_probe.py", installPath: "scripts/guide_coverage_probe.py" },
-    ]);
+    // The withdrawn lifecycle skills were the only occupants of these two
+    // canonical purposes; the purposes remain declared (PRD 27 taxonomy) but
+    // ship no skills until the Q-022 pipeline regenerates them.
+    expect(registry.purposes.map((purpose) => purpose.id)).toContain(
+      "lifecycle-closeout",
+    );
+    expect(registry.purposes.map((purpose) => purpose.id)).toContain(
+      "workflow-execution",
+    );
+    expect(skillPurposeIds.has("lifecycle-closeout")).toBe(false);
+    expect(skillPurposeIds.has("workflow-execution")).toBe(false);
   });
 
   test("declares the cleanup docs skill asset surface", () => {
@@ -138,36 +133,6 @@ describe("skill registry", () => {
       {
         source: "scripts/check_markdown_style.py",
         installPath: "scripts/check_markdown_style.py",
-      },
-    ]);
-  });
-
-  test("declares the work on wave skill asset surface", () => {
-    const registry = loadSkillRegistry(PACKAGE_ROOT);
-    const implementSkill = registry.skills.find(
-      (skill) => skill.name === "work-on-wave",
-    );
-
-    expect(implementSkill?.assets).toEqual([
-      { source: "agents/openai.yaml", installPath: "agents/openai.yaml" },
-      {
-        source: "references/wave-implementation-workflow.md",
-        installPath: "references/wave-implementation-workflow.md",
-      },
-    ]);
-  });
-
-  test("declares the work on phase skill asset surface", () => {
-    const registry = loadSkillRegistry(PACKAGE_ROOT);
-    const implementSkill = registry.skills.find(
-      (skill) => skill.name === "work-on-phase",
-    );
-
-    expect(implementSkill?.assets).toEqual([
-      { source: "agents/openai.yaml", installPath: "agents/openai.yaml" },
-      {
-        source: "references/phase-implementation-workflow.md",
-        installPath: "references/phase-implementation-workflow.md",
       },
     ]);
   });

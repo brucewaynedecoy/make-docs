@@ -352,8 +352,6 @@ Make the changes described by the active phase while staying within its scope an
 
 #### Suggested Assists
 
-- `work-on-phase`
-- `work-on-wave`
 - Repo-local validation commands
 
 #### Exit Criteria
@@ -388,8 +386,6 @@ Close the phase across documentation, history, PRD, guide/playbook coverage, val
 #### Suggested Assists
 
 - [coverage-pass-contract.md](../../../../.make-docs/contracts/system/coverage-pass-contract.md)
-- `closeout-phase`
-- `closeout-commit`
 
 #### Exit Criteria
 

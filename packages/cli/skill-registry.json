@@ -120,66 +120,6 @@
       ]
     },
     {
-      "name": "closeout-commit",
-      "displayName": "Close out commit",
-      "source": "https://github.com/brucewaynedecoy/make-docs/tree/main/packages/skills/closeout-commit",
-      "entryPoint": "SKILL.md",
-      "installName": "closeout-commit",
-      "description": "Capture gaps, write history, and draft commit messages for uncommitted changes.",
-      "purposes": ["lifecycle-closeout"],
-      "supportedHarnesses": ["claude-code", "codex"],
-      "provenance": {
-        "kind": "first-party",
-        "label": "make-docs first-party skill",
-        "repository": "brucewaynedecoy/make-docs",
-        "ref": "main"
-      },
-      "assets": [
-        {
-          "source": "agents/openai.yaml",
-          "installPath": "agents/openai.yaml"
-        },
-        {
-          "source": "references/closeout-commit-workflow.md",
-          "installPath": "references/closeout-commit-workflow.md"
-        }
-      ]
-    },
-    {
-      "name": "closeout-phase",
-      "displayName": "Close out phase",
-      "source": "https://github.com/brucewaynedecoy/make-docs/tree/main/packages/skills/closeout-phase",
-      "entryPoint": "SKILL.md",
-      "installName": "closeout-phase",
-      "description": "Close out completed work backlog phases with checked tasks, acceptance evidence, guides, gap capture, history, and commit-message drafts.",
-      "purposes": ["lifecycle-closeout"],
-      "supportedHarnesses": ["claude-code", "codex"],
-      "provenance": {
-        "kind": "first-party",
-        "label": "make-docs first-party skill",
-        "repository": "brucewaynedecoy/make-docs",
-        "ref": "main"
-      },
-      "assets": [
-        {
-          "source": "agents/openai.yaml",
-          "installPath": "agents/openai.yaml"
-        },
-        {
-          "source": "references/closeout-workflow.md",
-          "installPath": "references/closeout-workflow.md"
-        },
-        {
-          "source": "scripts/persona_schema.py",
-          "installPath": "scripts/persona_schema.py"
-        },
-        {
-          "source": "scripts/guide_coverage_probe.py",
-          "installPath": "scripts/guide_coverage_probe.py"
-        }
-      ]
-    },
-    {
       "name": "cleanup-docs",
       "displayName": "Clean up docs",
       "source": "https://github.com/brucewaynedecoy/make-docs/tree/main/packages/skills/cleanup-docs",
@@ -202,58 +142,6 @@
         {
           "source": "scripts/check_markdown_style.py",
           "installPath": "scripts/check_markdown_style.py"
-        }
-      ]
-    },
-    {
-      "name": "work-on-wave",
-      "displayName": "Work on wave",
-      "source": "https://github.com/brucewaynedecoy/make-docs/tree/main/packages/skills/work-on-wave",
-      "entryPoint": "SKILL.md",
-      "installName": "work-on-wave",
-      "description": "Work on docs/work waves through implementation, validation, closeout, and phase commits.",
-      "purposes": ["workflow-execution"],
-      "supportedHarnesses": ["claude-code", "codex"],
-      "provenance": {
-        "kind": "first-party",
-        "label": "make-docs first-party skill",
-        "repository": "brucewaynedecoy/make-docs",
-        "ref": "main"
-      },
-      "assets": [
-        {
-          "source": "agents/openai.yaml",
-          "installPath": "agents/openai.yaml"
-        },
-        {
-          "source": "references/wave-implementation-workflow.md",
-          "installPath": "references/wave-implementation-workflow.md"
-        }
-      ]
-    },
-    {
-      "name": "work-on-phase",
-      "displayName": "Work on phase",
-      "source": "https://github.com/brucewaynedecoy/make-docs/tree/main/packages/skills/work-on-phase",
-      "entryPoint": "SKILL.md",
-      "installName": "work-on-phase",
-      "description": "Implement one explicit docs/work phase through planning, validation, closeout, and optional commit.",
-      "purposes": ["workflow-execution"],
-      "supportedHarnesses": ["claude-code", "codex"],
-      "provenance": {
-        "kind": "first-party",
-        "label": "make-docs first-party skill",
-        "repository": "brucewaynedecoy/make-docs",
-        "ref": "main"
-      },
-      "assets": [
-        {
-          "source": "agents/openai.yaml",
-          "installPath": "agents/openai.yaml"
-        },
-        {
-          "source": "references/phase-implementation-workflow.md",
-          "installPath": "references/phase-implementation-workflow.md"
         }
       ]
     },

@@ -11,7 +11,7 @@ import {
 import { loadManifest } from "../src/manifest";
 import { defaultSelections } from "../src/profile";
 import type { SystemAssetMaterializationMode } from "../src/types";
-import { readPackageFile } from "../src/utils";
+import { hashText, readPackageFile } from "../src/utils";
 import { cleanupTempDir, createTempDir, mockSkillFetches } from "./helpers";
 
 type UnknownRecord = Record<string, unknown>;
@@ -722,35 +722,39 @@ describe("shared audit engine", () => {
     }
   });
 
-  test("classifies retired lifecycle helper scripts by managed content", async () => {
+  test("classifies withdrawn lifecycle skill files left by prior installs", async () => {
+    // The four D-020 lifecycle skills no longer exist in the shipped
+    // registry, so canonical content for them is unresolvable. Files from a
+    // prior install stay auditable: manifest-tracked copies whose hash still
+    // matches are removable, and skill-list-only leftovers are preserved
+    // conservatively because nothing canonical can prove them removable.
     const targetDir = createTempDir();
 
     try {
       await installWithSelections(targetDir, (selections) => {
         selections.skills = true;
-        selections.selectedSkills = ["closeout-commit"];
+        selections.selectedSkills = ["archive-docs"];
       });
 
-      const removableScript = ".claude/skills/closeout-commit/scripts/closeout_probe.py";
-      const modifiedScript = ".claude/skills/closeout-commit/scripts/closeout_validate.py";
-      const removableScriptPath = path.join(targetDir, removableScript);
-      const modifiedScriptPath = path.join(targetDir, modifiedScript);
+      const trackedPayload = ".make-docs/agentics/skills/closeout-commit/SKILL.md";
+      const orphanedScript = ".claude/skills/work-on-wave/scripts/checkpoint.py";
+      const trackedPayloadContent = "# Close out commit\n\nWithdrawn skill payload.\n";
+      const orphanedScriptContent = "print('withdrawn helper')\n";
+      const trackedPayloadPath = path.join(targetDir, trackedPayload);
+      const orphanedScriptPath = path.join(targetDir, orphanedScript);
 
-      mkdirSync(path.dirname(removableScriptPath), { recursive: true });
-      writeFileSync(
-        removableScriptPath,
-        readSkillSourceFile("closeout-commit", "scripts/closeout_probe.py"),
-        "utf8",
-      );
-      writeFileSync(
-        modifiedScriptPath,
-        `${readSkillSourceFile("closeout-commit", "scripts/closeout_validate.py")}\n# local edit\n`,
-        "utf8",
-      );
+      mkdirSync(path.dirname(trackedPayloadPath), { recursive: true });
+      mkdirSync(path.dirname(orphanedScriptPath), { recursive: true });
+      writeFileSync(trackedPayloadPath, trackedPayloadContent, "utf8");
+      writeFileSync(orphanedScriptPath, orphanedScriptContent, "utf8");
 
       const manifest = loadManifest(targetDir)!;
+      manifest.files[trackedPayload] = {
+        hash: hashText(trackedPayloadContent),
+        sourceId: "skill:shared:closeout-commit",
+      };
       manifest.skillFiles = Array.from(
-        new Set([...manifest.skillFiles, removableScript, modifiedScript]),
+        new Set([...manifest.skillFiles, trackedPayload, orphanedScript]),
       ).sort();
       writeManifestJson(targetDir, manifest);
 
@@ -763,18 +767,16 @@ describe("shared audit engine", () => {
       expect(auditReport.removableFiles).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
-            path: removableScript,
-            agenticRole: "legacy-duplicated-payload",
-            reasonCode: "managed-skill-file-content-match",
+            path: trackedPayload,
+            reasonCode: "managed-file-hash-match",
           }),
         ]),
       );
       expect(auditReport.preservedPaths).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
-            path: modifiedScript,
-            agenticRole: "legacy-duplicated-payload",
-            reasonCode: "manifest-skill-file-content-mismatch",
+            path: orphanedScript,
+            reasonCode: "manifest-skill-file-without-metadata",
           }),
         ]),
       );

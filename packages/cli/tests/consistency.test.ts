@@ -8,13 +8,6 @@ import { defaultSelections, resolveInstallProfile } from "../src/profile";
 import { readPackageFile, TEMPLATE_ROOT } from "../src/utils";
 
 const REPO_ROOT = path.resolve(TEMPLATE_ROOT, "..", "..", "..");
-const CLOSEOUT_COMMIT_PACKAGE_ROOT = path.join(
-  REPO_ROOT,
-  "packages",
-  "skills",
-  "closeout-commit",
-);
-const CLOSEOUT_PACKAGE_ROOT = path.join(REPO_ROOT, "packages", "skills", "closeout-phase");
 
 const RISK_REGISTER_TEMPLATE_PATHS = [
   ".make-docs/templates/system/prd-risk-register.md",
@@ -605,19 +598,6 @@ describe("guide generation routing contract", () => {
     }
   });
 
-  test("closeout workflow requires guide reconciliation decisions", () => {
-    for (const relativePath of [
-      "packages/skills/closeout-phase/references/closeout-workflow.md",
-    ]) {
-      const contents = readFileSync(path.join(REPO_ROOT, relativePath), "utf8");
-
-      expect(contents).toContain("re-check overlapping existing guides");
-      expect(contents).toContain("No existing guide enrichment was needed");
-      expect(contents).toContain("For each unchecked `### Tasks` item");
-      expect(contents).toContain("Use `### Acceptance criteria` bullets as evidence");
-    }
-  });
-
   test("dogfood guide contracts match the shipped template copies", () => {
     for (const relativePath of GUIDE_TEMPLATE_PARITY_PATHS) {
       const dogfoodContents = readFileSync(path.join(REPO_ROOT, relativePath), "utf8");
@@ -775,19 +755,19 @@ describe("optional skill package consistency", () => {
     }
   });
 
-  test("shared closeout helper scripts match across closeout skills", () => {
-    for (const relativePath of [
-      "scripts/closeout_history.py",
-      "scripts/closeout_probe.py",
-      "scripts/closeout_validate.py",
+  test("withdrawn lifecycle skill sources are removed from the skills workspace", () => {
+    // D-020 stopgap: the four lifecycle skills were pulled from the shipped
+    // registry and their source directories deleted; regeneration is owned
+    // by the Q-022 agentics production pipeline.
+    for (const withdrawnSkill of [
+      "closeout-commit",
+      "closeout-phase",
+      "work-on-phase",
+      "work-on-wave",
     ]) {
-      const commitContents = readFileSync(
-        path.join(CLOSEOUT_COMMIT_PACKAGE_ROOT, relativePath),
-        "utf8",
-      );
-      const phaseContents = readFileSync(path.join(CLOSEOUT_PACKAGE_ROOT, relativePath), "utf8");
-
-      expect(phaseContents).toBe(commitContents);
+      expect(
+        existsSync(path.join(REPO_ROOT, "packages", "skills", withdrawnSkill)),
+      ).toBe(false);
     }
   });
 });

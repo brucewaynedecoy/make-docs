@@ -105,63 +105,56 @@ const EXPECTED_SKILL_PATHS = [
   ".make-docs/agentics/skills/archive-docs/agents/openai.yaml",
   ".make-docs/agentics/skills/archive-docs/references/archive-workflow.md",
   ".make-docs/agentics/skills/archive-docs/scripts/trace_relationships.py",
-  ".make-docs/agentics/skills/closeout-commit/SKILL.md",
-  ".make-docs/agentics/skills/closeout-commit/agents/openai.yaml",
-  ".make-docs/agentics/skills/closeout-commit/references/closeout-commit-workflow.md",
+  ".make-docs/agentics/skills/cleanup-docs/SKILL.md",
+  ".make-docs/agentics/skills/cleanup-docs/agents/openai.yaml",
+  ".make-docs/agentics/skills/cleanup-docs/scripts/check_markdown_style.py",
   ".make-docs/agentics/skills/decompose-codebase/SKILL.md",
   ".make-docs/agentics/skills/decompose-codebase/references/mcp-playbook.md",
   ".make-docs/agentics/skills/decompose-codebase/assets/templates/decomposition-plan.md",
-  ".make-docs/agentics/skills/work-on-phase/SKILL.md",
-  ".make-docs/agentics/skills/work-on-phase/agents/openai.yaml",
-  ".make-docs/agentics/skills/work-on-phase/references/phase-implementation-workflow.md",
   ".claude/skills/archive-docs",
-  ".claude/skills/closeout-commit",
+  ".claude/skills/cleanup-docs",
   ".claude/skills/decompose-codebase",
-  ".claude/skills/work-on-phase",
   ".agents/skills/archive-docs",
-  ".agents/skills/closeout-commit",
+  ".agents/skills/cleanup-docs",
   ".agents/skills/decompose-codebase",
-  ".agents/skills/work-on-phase",
 ];
 
-const EXPECTED_RETIRED_SKILL_PATHS = [
-  ".claude/skills/closeout-commit/scripts/closeout_probe.py",
-  ".claude/skills/closeout-commit/scripts/closeout_validate.py",
-  ".claude/skills/closeout-commit/scripts/closeout_history.py",
-  ".claude/skills/work-on-phase/scripts/phase_gate.py",
-  ".claude/skills/work-on-phase/scripts/scope_guard.py",
-  ".agents/skills/closeout-commit/scripts/closeout_probe.py",
-  ".agents/skills/closeout-commit/scripts/closeout_validate.py",
-  ".agents/skills/closeout-commit/scripts/closeout_history.py",
-  ".agents/skills/work-on-phase/scripts/phase_gate.py",
-  ".agents/skills/work-on-phase/scripts/scope_guard.py",
+// The four lifecycle skills were withdrawn from the shipped registry by the
+// D-020 stopgap (they instructed the removed `make-docs operations` surface).
+// No install path may produce them until the Q-022 agentics production
+// pipeline regenerates them.
+const WITHDRAWN_SKILL_PATHS = [
+  ".make-docs/agentics/skills/closeout-commit",
+  ".make-docs/agentics/skills/closeout-phase",
+  ".make-docs/agentics/skills/work-on-phase",
+  ".make-docs/agentics/skills/work-on-wave",
+  ".claude/skills/closeout-commit",
+  ".claude/skills/closeout-phase",
+  ".claude/skills/work-on-phase",
+  ".claude/skills/work-on-wave",
+  ".agents/skills/closeout-commit",
+  ".agents/skills/closeout-phase",
+  ".agents/skills/work-on-phase",
+  ".agents/skills/work-on-wave",
 ];
 
 const EXPECTED_DUPLICATED_SKILL_PAYLOAD_PATHS = [
   ".claude/skills/archive-docs/agents/openai.yaml",
   ".claude/skills/archive-docs/references/archive-workflow.md",
   ".claude/skills/archive-docs/scripts/trace_relationships.py",
-  ".claude/skills/closeout-commit/agents/openai.yaml",
-  ".claude/skills/closeout-commit/references/closeout-commit-workflow.md",
-  ".claude/skills/work-on-phase/agents/openai.yaml",
-  ".claude/skills/work-on-phase/references/phase-implementation-workflow.md",
+  ".claude/skills/cleanup-docs/agents/openai.yaml",
+  ".claude/skills/cleanup-docs/scripts/check_markdown_style.py",
   ".agents/skills/archive-docs/agents/openai.yaml",
   ".agents/skills/archive-docs/references/archive-workflow.md",
   ".agents/skills/archive-docs/scripts/trace_relationships.py",
-  ".agents/skills/closeout-commit/agents/openai.yaml",
-  ".agents/skills/closeout-commit/references/closeout-commit-workflow.md",
-  ".agents/skills/work-on-phase/agents/openai.yaml",
-  ".agents/skills/work-on-phase/references/phase-implementation-workflow.md",
+  ".agents/skills/cleanup-docs/agents/openai.yaml",
+  ".agents/skills/cleanup-docs/scripts/check_markdown_style.py",
 ];
 
 const EXPECTED_ALL_SKILLS = [
   "archive-docs",
   "cleanup-docs",
-  "closeout-commit",
-  "closeout-phase",
   "decompose-codebase",
-  "work-on-phase",
-  "work-on-wave",
 ];
 
 const LEGACY_SKILL_PATHS = [
@@ -463,7 +456,7 @@ try {
   );
 
   assertManifestContainsSkillFiles(manifestPath, EXPECTED_SKILL_PATHS);
-  assertManifestOmitsSkillFiles(manifestPath, EXPECTED_RETIRED_SKILL_PATHS);
+  assertManifestOmitsSkillFilePrefixes(manifestPath, WITHDRAWN_SKILL_PATHS);
   assertManifestOmitsSkillFiles(manifestPath, EXPECTED_DUPLICATED_SKILL_PAYLOAD_PATHS);
   assertDirectoryEntries(path.join(targetDir, ".make-docs/agentics/skills"), EXPECTED_ALL_SKILLS);
   assertDirectoryEntries(path.join(targetDir, ".claude/skills"), EXPECTED_ALL_SKILLS);
@@ -479,10 +472,10 @@ try {
       `Smoke pack install did not produce ${relativePath}.`,
     );
   }
-  for (const relativePath of EXPECTED_RETIRED_SKILL_PATHS) {
+  for (const relativePath of WITHDRAWN_SKILL_PATHS) {
     assertMissing(
       path.join(targetDir, relativePath),
-      `Smoke pack install should not produce retired helper script ${relativePath}.`,
+      `Smoke pack install should not produce withdrawn lifecycle skill path ${relativePath}.`,
     );
   }
   const skillsRemoveDryRun = execFileSync(
@@ -899,6 +892,22 @@ function assertManifestOmitsSkillFiles(manifestPath, expectedPaths) {
   for (const expectedPath of expectedPaths) {
     if (skillFiles.includes(expectedPath)) {
       throw new Error(`Smoke pack manifest unexpectedly tracked skill file ${expectedPath}.`);
+    }
+  }
+}
+
+function assertManifestOmitsSkillFilePrefixes(manifestPath, prefixes) {
+  const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+  const skillFiles = Array.isArray(manifest.skillFiles) ? manifest.skillFiles : [];
+
+  for (const prefix of prefixes) {
+    const tracked = skillFiles.find(
+      (skillFile) => skillFile === prefix || skillFile.startsWith(`${prefix}/`),
+    );
+    if (tracked) {
+      throw new Error(
+        `Smoke pack manifest unexpectedly tracked withdrawn skill file ${tracked}.`,
+      );
     }
   }
 }

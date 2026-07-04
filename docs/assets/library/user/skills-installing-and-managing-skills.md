@@ -40,10 +40,8 @@ The first-party catalog currently exposes these selectable skills:
 | `archive-docs` | Archive management |
 | `decompose-codebase` | Codebase decomposition and plan creation |
 | `cleanup-docs` | Documentation maintenance |
-| `closeout-commit` | Lifecycle closeout |
-| `closeout-phase` | Lifecycle closeout |
-| `work-on-phase` | Workflow execution |
-| `work-on-wave` | Workflow execution |
+
+The lifecycle closeout and workflow execution purposes currently ship no skills: the former `closeout-commit`, `closeout-phase`, `work-on-phase`, and `work-on-wave` skills were withdrawn from the catalog because they instructed a removed command surface, and their replacements will be produced by the Make Docs agentics production pipeline.
 
 Skills are installed only when skills are enabled and the skill is in the selected set. The CLI selection UI groups candidates by purpose and shows the candidate skill name, source policy, supported harnesses, and provenance.
 
