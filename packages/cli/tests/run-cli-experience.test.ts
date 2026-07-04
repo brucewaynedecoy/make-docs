@@ -1,3 +1,49 @@
+/**
+ * W18 R12 CLI experience remediation suite (PRD 41 R-TEST-4..6) and the
+ * round's R-TEST coverage matrix (W18 R12 P4 t1, following the W18 R7/R8 P5
+ * precedent). Each W18 R12 verification anchor maps to its owning tests:
+ *
+ * R-TEST-1 (PRD 40) — contract v2 parse/validate; each removed v1 form fails
+ *   with its pointed diagnostic; no v1 form parses to a model
+ *   - playbook-fixtures.test.ts: failing fixtures per old-form code
+ *     (PB-DEP-025 table, PB-FM-026 removed keys, PB-DOC-027 v1 headings,
+ *     PB-FM-028 v1 schema id, PB-DEP-029 misplaced fence, PB-DEP-030 probe
+ *     token) and "pointed old-form diagnostics name the v2 replacement".
+ *   - playbook-parser.test.ts / playbook-validator.test.ts: the v2
+ *     dependencies block, `schema`/`workflowSchema` keys, and heading spine
+ *     parse and validate; the v1 table parser is deleted.
+ *
+ * R-TEST-2 (PRD 40) — generated `cli`/`package-manager` checks probe `probe`
+ *   (or `id` when absent), never `source` prose
+ *   - playbook-packaging-compiler.test.ts: "probe-targeted dependency
+ *     checks" — adversarial fixtures whose `source` does not begin with the
+ *     binary name, including the UAT repro (`git` with source `system
+ *     install of git`).
+ *
+ * R-TEST-3 (PRD 41) — resume-hint retirement (register item D-016)
+ *   - playbook-progression.test.ts: "hints retire as their subjects resolve
+ *     and close retires them all" — advanced-past hints retired, a closed
+ *     run carries no guidance hints, the evidence log byte-identical.
+ *
+ * R-TEST-4 (PRD 41) — render invariance under R-INV-1
+ *   - THIS FILE, "render layer invariance": `--json` and non-TTY output
+ *     byte-identical to the raw operation result; TTY renders text.
+ *   - mcp-derivation.test.ts: MCP derivation parity over the registry,
+ *     including the additive `make_docs_package_ship`.
+ *
+ * R-TEST-5 (PRD 41) — the intent-named grammar
+ *   - THIS FILE, "package grammar": `plan --output` writes the reviewable
+ *     plan, `preview` writes nothing under any input, `write` preserves
+ *     every stop, the retired `--write` names the new grammar.
+ *   - playbook-packaging.test.ts: the grammar over the write pipeline and
+ *     the retired `--write` guidance (R-GRAM-2).
+ *
+ * R-TEST-6 (PRD 41) — the `package.ship` composite
+ *   - THIS FILE, "package.ship composite": registered operation, MCP
+ *     derivation, zero-unresolved end-to-end ship with the classification
+ *     write, first-stop aborts (plan stop, unresolved proposal, preview
+ *     stop) before any disk write with granular-command guidance.
+ */
 import { existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { afterEach, describe, expect, test, vi } from "vitest";
@@ -560,6 +606,58 @@ describe("W18 R12 P3 CLI experience remediation", () => {
       expect(aborted.stage).toBe("plan");
       expect(aborted.guidance).toContain("make-docs run package plan");
       expect(aborted.stops.map((stop) => stop.reason)).toContain("missing-support-evidence");
+      expect(aborted.preview).toBeNull();
+      expect(aborted.write).toBeNull();
+      expect(existsSync(path.join(root, ".make-docs/agentics"))).toBe(false);
+    });
+
+    test("ship aborts on an unresolved proposal with zero stops, before any disk write, naming the plan command", async () => {
+      const root = createTempDir("make-docs-ship-proposal-abort-");
+      tempRoots.push(root);
+      writeMinimalManifest(root);
+      writePackagablePlaybook(root);
+      writePackagablePlaybook(root, "review-stack", "Review Stack");
+
+      // A multi-Playbook package with no `--summary` carries a review-gated
+      // agent-assisted summary proposal and NO stops: the R-TEST-6
+      // "unresolved proposal" abort leg, distinct from the stop legs above.
+      const output = await runCapturing([
+        "package",
+        "ship",
+        "user/run-stack",
+        "user/review-stack",
+        "--harness",
+        "codex",
+        "--output-kind",
+        "plugin",
+        "--surface",
+        "native",
+        "--scope",
+        "project",
+        "--support-evidence-ref",
+        SUPPORT_EVIDENCE_REF,
+        "--repo-root",
+        root,
+        ...SATISFIED_PRECONDITION_FLAGS,
+      ]);
+      const aborted = JSON.parse(output) as {
+        status: string;
+        stage: string;
+        guidance: string;
+        stops: unknown[];
+        plan: { plan: { agentAssistedProposals: Array<{ field: string }> } };
+        preview: unknown;
+        write: unknown;
+        lines: string[];
+      };
+      expect(aborted.status).toBe("aborted");
+      expect(aborted.stage).toBe("plan");
+      expect(aborted.stops).toEqual([]);
+      expect(aborted.plan.plan.agentAssistedProposals.map((proposal) => proposal.field)).toContain(
+        "summary",
+      );
+      expect(aborted.guidance).toContain("make-docs run package plan");
+      expect(aborted.lines.join("\n")).toContain("unresolved proposals or decisions");
       expect(aborted.preview).toBeNull();
       expect(aborted.write).toBeNull();
       expect(existsSync(path.join(root, ".make-docs/agentics"))).toBe(false);

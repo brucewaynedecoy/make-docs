@@ -16,7 +16,7 @@ Make `conformance-validated` earnable: implement the install-discover-invoke-uni
 
 ## Overview
 
-The bar is the four-assertion sequence a real-harness scenario must meet before a tuple may advance: install the generated distributable into the real or a faithfully simulated harness, assert discovery in the harness's listing, assert invocation of a bundled skill or driving of the workflow, and assert clean uninstall. The first pass targets the current product harnesses, Codex first, with the four R-SCEN-1 scenarios; Pi and additional harnesses are future scenarios whose absence is reported, never implied as covered. Scenarios follow the lab's protocol unchanged — model-agnostic, safety-moded, verdict-normalized, `blocked` on missing preconditions — and workflow-driving scenarios execute via the W18 R7 runner against distributables compiled per W18 R8 from the W18 R6 model.
+The bar is the four-assertion sequence a real-harness scenario must meet before a tuple may advance: install the generated distributable into the real or a faithfully simulated harness, assert discovery in the harness's listing, assert invocation of a bundled skill or driving of the workflow, and assert clean uninstall. The first pass targets the current product harnesses, Codex first, with the four R-SCEN-1 scenarios; Pi and additional harnesses are future scenarios whose absence is reported, never implied as covered. Scenarios follow the lab's protocol unchanged — model-agnostic, safety-moded, verdict-normalized, `blocked` on missing preconditions — and workflow-driving scenarios execute via the W18 R7 runner against distributables compiled per W18 R8 from the Playbook model as revised by the W18 R12 v2 authoring contract ([PRD 40](../../prd/40-revise-playbook-authoring-contract-v2.md)). Per the W18 R12 reconciliation (register item R-026): scenario source Playbooks are authored in v2 form, scenario scripts use the `plan`/`preview`/`write`/`ship` grammar from [PRD 41](../../prd/41-revise-cli-human-experience-and-package-grammar.md), and any scenario transcript consumed as evidence pins `--json` (or runs non-TTY) so the render layer never enters evidence.
 
 ## Source PRD Docs
 
@@ -25,6 +25,8 @@ The bar is the four-assertion sequence a real-harness scenario must meet before 
 - [36 Revise Playbook Packaging Compiler and Harness Adapters](../../prd/36-revise-playbook-packaging-compiler-and-harness-adapters.md)
 - [35 Revise Run Playbook State Machine](../../prd/35-revise-run-playbook-state-machine.md)
 - [34 Revise Playbook Contract and Model](../../prd/34-revise-playbook-contract-and-model.md)
+- [40 Revise Playbook Authoring Contract v2](../../prd/40-revise-playbook-authoring-contract-v2.md)
+- [41 Revise CLI Human Experience and Package Grammar](../../prd/41-revise-cli-human-experience-and-package-grammar.md)
 
 ## Stage 1 - Evidence Bar
 
@@ -50,7 +52,7 @@ The bar is the four-assertion sequence a real-harness scenario must meet before 
 
 - [ ] t4: Author the skills-bundle scenario spec: a generated skills bundle appears as a skill in the target harness and can be invoked (R-SCEN-1).
 - [ ] t5: Author the plugin scenario spec: a generated plugin appears through a marketplace, installs, exposes its bundled skills, and is usable in a new thread (R-SCEN-1).
-- [ ] t6: Author the dependency-check scenario spec: generated dependency checks surface missing tools and pass when the dependencies are present (R-SCEN-1).
+- [ ] t6: Author the dependency-check scenario spec: generated dependency checks surface missing tools and pass when the dependencies are present, with expectations bound to the v2 probe-based checks — each generated `cli`/`package-manager` check probes the dependency's resolved `probe` (the declared value or the `id` default), never `source` prose, and the scenario's fixture set includes at least one entry whose `source` prose does not begin with the binary name (R-SCEN-1; PRD 40 R-DEP-3, R-FIX-1).
 - [ ] t7: Author the uninstall-and-backup scenario spec: uninstall and backup remove managed generated outputs without orphaning empty managed directories or deleting user-authored files (R-SCEN-1).
 - [ ] t8: Declare per-scenario safety modes and preconditions per the lab protocol, so scenarios requiring credentials, network access, an unavailable harness, or model routing report `blocked` instead of inventing evidence (R-KEEP-1).
 - [ ] t9: Record Pi and additional harnesses as future scenarios with their absence explicitly reported in the registry, not implied as covered (R-SCEN-2).
@@ -61,7 +63,8 @@ The bar is the four-assertion sequence a real-harness scenario must meet before 
 - Blocked scenarios report `blocked`; no unavailable scenario is marked passing or covered, and future-harness tuples show their unrun status in the registry (R-SCEN-2, R-KEEP-1).
 - Scenarios stay model-agnostic with model, provider, and runtime captured as run metadata, and no destructive scenario runs against a maintainer's working tree (R-KEEP-1).
 - Compact normalized result records are the committed evidence class; raw transcripts stay local unless deliberately redacted and promoted (R-KEEP-1).
+- Scenario scripts use the remediated packaging grammar (`plan`/`preview`/`write`/`ship`; `--write` is retired), scenario source Playbooks are v2-form documents, and every transcript consumed as evidence pins `--json` or runs non-TTY — rendered TTY text never enters evidence (PRD 41 R-SEQ-2; register item R-026).
 
 ### Dependencies
 
-- Stage 1 evidence bar; the W18 R7 progression operations for workflow-driving scenarios; the W18 R6 Playbook model consumed unchanged.
+- Stage 1 evidence bar; the W18 R7 progression operations for workflow-driving scenarios; the Playbook model (the W18 R6 lineage as revised by the W18 R12 v2 contract, PRD 40) consumed unchanged.

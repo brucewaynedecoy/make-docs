@@ -29,9 +29,9 @@ Phases 1–3 each land their own suites; this phase runs them as one bar, adds t
 
 ### Tasks
 
-- [ ] t1: Run the complete W18 R12 test bar in one pass — contract R-TEST-1, probe R-TEST-2, hints R-TEST-3, render invariance R-TEST-4, grammar R-TEST-5, ship R-TEST-6 — plus the full existing suite, and fix regressions before proceeding (PRD 40 R-TEST-1..2; PRD 41 R-TEST-3..6).
-- [ ] t2: Run `npm run validate:defaults` and the package/template validation over the migrated upstream assets, confirming the migrated default Playbook validates with zero errors in `packages/docs/template/`, the packaged copy pipeline, and the dogfood instance, and that consistency pins reflect the `package.ship` registry addition and nothing else (PRD 40 R-MIG-4; PRD 39 R-REG-1).
-- [ ] t3: Run `python3 .make-docs/scripts/check_path_hygiene.py` and a relative-link resolution pass over every document this round touched, and confirm `git diff --check` is clean.
+- [x] t1: Run the complete W18 R12 test bar in one pass — contract R-TEST-1, probe R-TEST-2, hints R-TEST-3, render invariance R-TEST-4, grammar R-TEST-5, ship R-TEST-6 — plus the full existing suite, and fix regressions before proceeding (PRD 40 R-TEST-1..2; PRD 41 R-TEST-3..6).
+- [x] t2: Run `npm run validate:defaults` and the package/template validation over the migrated upstream assets, confirming the migrated default Playbook validates with zero errors in `packages/docs/template/`, the packaged copy pipeline, and the dogfood instance, and that consistency pins reflect the `package.ship` registry addition and nothing else (PRD 40 R-MIG-4; PRD 39 R-REG-1).
+- [x] t3: Run `python3 .make-docs/scripts/check_path_hygiene.py` and a relative-link resolution pass over every document this round touched, and confirm `git diff --check` is clean.
 
 ### Acceptance criteria
 
@@ -47,8 +47,8 @@ Phases 1–3 each land their own suites; this phase runs them as one bar, adds t
 
 ### Tasks
 
-- [ ] t4: Reconcile the [W18 R9 backlog](../../work/2026-07-01-w18-r9-playbook-and-package-conformance/00-index.md) phase files for the invalidated assumptions: dependency-table fixtures and generated-check expectations move to the v2 dependencies block and probe-based checks; `run package` command spellings in scenario scripts move to `plan`/`preview`/`write` (and `ship` where a single-entry flow is exercised); any scenario transcript that consumes CLI output pins `--json` so the render layer never enters evidence (PRD 41 R-SEQ-2).
-- [ ] t5: Verify the PRD 37 R-SCEN change note reflects the reconciled state, and update the register: mark the D-015 and D-016 follow-ups with their closure evidence and update R-026 to `Closed` with a `Resolution` once W18 R9 is genuinely unblocked — never renumbering items (PRD 41 R-SEQ-1..2).
+- [x] t4: Reconcile the [W18 R9 backlog](../../work/2026-07-01-w18-r9-playbook-and-package-conformance/00-index.md) phase files for the invalidated assumptions: dependency-table fixtures and generated-check expectations move to the v2 dependencies block and probe-based checks; `run package` command spellings in scenario scripts move to `plan`/`preview`/`write` (and `ship` where a single-entry flow is exercised); any scenario transcript that consumes CLI output pins `--json` so the render layer never enters evidence (PRD 41 R-SEQ-2).
+- [x] t5: Verify the PRD 37 R-SCEN change note reflects the reconciled state, and update the register: mark the D-015 and D-016 follow-ups with their closure evidence and update R-026 to `Closed` with a `Resolution` once W18 R9 is genuinely unblocked — never renumbering items (PRD 41 R-SEQ-1..2).
 
 ### Acceptance criteria
 
@@ -63,7 +63,7 @@ Phases 1–3 each land their own suites; this phase runs them as one bar, adds t
 
 ### Tasks
 
-- [ ] t6: Write the handoff note for regenerating the hand-run UAT walkthrough against the remediated surfaces — the v2 authoring shapes, the `plan`/`preview`/`write`/`ship` spellings, the TTY render expectations, and the run-id/flag ergonomics — recording it as a breadcrumb history record for this phase per the history-record contract rather than regenerating the UAT document inside this round.
+- [x] t6: Write the handoff note for regenerating the hand-run UAT walkthrough against the remediated surfaces — the v2 authoring shapes, the `plan`/`preview`/`write`/`ship` spellings, the TTY render expectations, and the run-id/flag ergonomics — recording it as a breadcrumb history record for this phase per the history-record contract rather than regenerating the UAT document inside this round.
 
 ### Acceptance criteria
 
