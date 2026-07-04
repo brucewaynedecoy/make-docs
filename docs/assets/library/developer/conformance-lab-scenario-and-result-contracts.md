@@ -19,6 +19,7 @@ related:
   - ../../../work/2026-06-23-w10-r5-agent-harness-model-conformance-lab/02-scenario-and-result-schema.md
   - ../../../work/2026-06-23-w10-r5-agent-harness-model-conformance-lab/03-adapters-and-support-claims.md
   - ../../../work/2026-07-01-w18-r9-playbook-and-package-conformance/01-support-tuple-and-tuple-registry.md
+  - ../../../work/2026-07-01-w18-r9-playbook-and-package-conformance/02-evidence-bar-and-first-pass-scenarios.md
   - ./playbooks-development-packaging-and-harness-adapters.md
   - ./release-packaging-validation-and-release-reference.md
 ---
@@ -31,14 +32,15 @@ The conformance lab is maintainer-only evidence infrastructure. It helps maintai
 
 Use this guide when defining reviewed scenario specs, compact result records, raw artifact storage, and redacted evidence promotion. Keep the lab outside shipped templates and packages unless a later accepted design explicitly promotes a reviewed subset.
 
-Since W18 R9 Phase 1 ([PRD 37](../../../prd/37-enhance-playbook-and-package-conformance.md)), the lab extends into the Playbook packaging domain: support claims for generated distributables bind to an eight-dimension tuple, and every tuple's status lives in one queryable registry data file. The lab core in this guide — verdicts, safety modes, evidence classes, storage boundaries, and the result contract — is consumed by that extension unchanged (R-SCOPE-1, R-KEEP-1). See Packaging Conformance Tuple and Registry below.
+Since W18 R9 Phase 1 ([PRD 37](../../../prd/37-enhance-playbook-and-package-conformance.md)), the lab extends into the Playbook packaging domain: support claims for generated distributables bind to an eight-dimension tuple, and every tuple's status lives in one queryable registry data file. Since W18 R9 Phase 2, the install-discover-invoke-uninstall evidence bar is implemented as the packaging scenario shape, and the four required Codex-first first-pass scenario specs are committed — runnable where their preconditions hold and honestly `blocked` where they do not. The lab core in this guide — verdicts, safety modes, evidence classes, storage boundaries, and the result contract — is consumed by that extension unchanged (R-SCOPE-1, R-KEEP-1). See Packaging Conformance Tuple and Registry and Packaging Conformance Scenarios and the Evidence Bar below.
 
 ## Project Orientation
 
 | Surface | Purpose | Source-control rule |
 | --- | --- | --- |
-| Scenario specs | Define the behavior to exercise, the safety mode, and the expected evidence. | May be committed only when compact and reviewed. |
-| Result records | Capture the exact scenario/harness/model/provider/runtime tuple and reviewed verdict. | May be committed only when compact and reviewed. |
+| Scenario specs | Define the behavior to exercise, the safety mode, and the expected evidence. | May be committed only when compact and reviewed. Packaging scenario specs live at `docs/assets/conformance/scenarios/<scenarioId>.json`. |
+| Result records | Capture the exact scenario/harness/model/provider/runtime tuple and reviewed verdict. | May be committed only when compact and reviewed. Packaging result records land under `docs/assets/conformance/results/`, created with the first recorded run. |
+| Scenario fixture Playbooks | Provide the v2-form source Playbooks packaging scenarios compile, packaged only into disposable fixture workspaces. | Committed under `docs/assets/conformance/fixtures/<persona>/`. |
 | Tuple registry | Carry every packaging support tuple and its evidence-derived status. | Committed queryable data file at `docs/assets/conformance/tuple-registry.json`. |
 | Raw artifacts | Hold transcripts, provider logs, temporary workspaces, raw diffs, and run scratch data. | Generated local state under `.make-docs/conformance/<run-id>/` or `.make-docs/runs/conformance/<run-id>/`; not committed by default. |
 | Redacted evidence bundles | Preserve the minimum evidence needed for disputed or stronger support claims. | Opt-in only after review and redaction. |
@@ -260,7 +262,55 @@ Seeding Pi tuples does not change the adapter-protocol table above: Pi remains a
 
 The registry follows the same maintainer-only boundary as the rest of `docs/assets/conformance/` (R-KEEP-1): it is in-repo project content edited in place, deliberately NOT authored upstream in `packages/docs/template/`. This is a stated exception to the maintainer repo's upstream-first dogfooding rule, recorded in [the W18 R9 backlog index](../../../work/2026-07-01-w18-r9-playbook-and-package-conformance/00-index.md), because conformance is maintainer evidence infrastructure, not shipped product. The registry must stay out of the shipped template, the packaged copy, and npm tarballs; the Phase 3 R-TEST-3 exclusion check enforces that boundary outward.
 
-## Raw Artifact Storage
+## Packaging Conformance Scenarios and the Evidence Bar
+
+Since W18 R9 Phase 2 ([the phase backlog](../../../work/2026-07-01-w18-r9-playbook-and-package-conformance/02-evidence-bar-and-first-pass-scenarios.md)), the D4 install-discover-invoke-uninstall evidence bar is implemented as the packaging scenario shape in `packages/cli/src/conformance/scenario.ts`, with the authored specs as its data under `docs/assets/conformance/scenarios/`. [The conformance assets README](../../conformance/README.md) documents the on-disk formats; this section documents the contracts and seams a maintainer extends.
+
+### The `packagingExtension` Scenario Shape
+
+A packaging scenario spec keeps the lab's `conformance.scenario.v1` schema verbatim — every required field above with its exact name and meaning — and adds one additive `packagingExtension` block, so the extension boundary is visible in the data itself (R-SCOPE-1). Two D8 implementer decisions fix the format: one JSON document per scenario (matching the registry's no-parser-dependency choice), and the filename must equal the `scenarioId` so specs stay addressable without opening them. The extension declares:
+
+- `harness` and `registryTupleIds`: the harness under test and the registry entry ids the scenario's runs may land on;
+- `evidenceBar`: per-stage assertion lists for `install`, `discover`, `invoke`, and `uninstall`;
+- `preconditions`, `harnessExecution`, `transcriptPolicy: "json-or-non-tty"`, and `workspacePolicy: "disposable-fixture-workspace"` (nothing destructive ever runs against a maintainer working tree, R-KEEP-1);
+- `fixturePlaybooks`: repo-relative v2-form source Playbooks the scenario packages;
+- `futureHarnesses`: the harness variants the spec deliberately does not cover (R-SCEN-2);
+- an optional `characterization` preamble (see below).
+
+The schema fails closed on dishonest or stale specs: the retired `--write` flag is rejected anywhere in a command step (scenario scripts use the PRD 41 `plan`/`preview`/`write`/`ship` grammar), a command step tagged `evidence-json` must literally pin `--json` so rendered TTY text never enters evidence (register item R-026), a `destructive` scenario must use the `destructive-temp-fixture-apply` safety mode, and `requiresNetwork`/`requiresCredentials` without a matching precondition kind is invalid.
+
+Bar eligibility is a property of the spec, checked by two helpers: `listUnassertedEvidenceBarStages` returns the stages a spec declares no assertion for, and `scenarioAssertsFullEvidenceBar` is true only when all four stages carry assertions. The bar is exactly install, discover, invoke, and uninstall (R-BAR-1) — a spec asserting anything less can never advance a tuple, because the recording seam below refuses a run claiming a stage its scenario does not assert and qualification requires all four stages.
+
+### Result Records and the Recording Seam
+
+Packaging result records keep the lab's `conformance.result.v1` fields verbatim and add only additive fields: the per-stage `evidenceBar` booleans, `caveatsSurfaced`, `simulated` with `simulationMechanicsRef`, and `transcriptFormat` (`json` or `non-tty`). A `blocked` record must carry `supportClaimUse: "none"` and an all-false evidence bar — blocked is honest absence of evidence, not evidence.
+
+`recordConformanceRunOnRegistryEntry` is the single seam between a result record and a Phase 1 registry entry (R-REG-3, R-BAR-1..2). A qualifying run — verdict `pass`, or `pass-with-caveats` with surfaced caveats, meeting all four bar stages — advances the tuple to `conformance-validated` and binds the evidence-owned tuple dimensions (`scenario`, `modelOrProvider`, `runtime`) from its run metadata through `bindRunMetadataOntoConformanceTuple`; a non-qualifying run (including `blocked`) is appended as honest history and advances nothing, and internal-test evidence stays capped at `implementation-validated` by the Phase 1 derivation this seam reuses rather than reimplements. The seam fails closed on every mismatch that could make a claim broader than its evidence:
+
+- the record must belong to the given scenario, and the scenario must target the entry (`registryTupleIds`) on the same harness — evidence never crosses harnesses (R-TUPLE-1);
+- the record may not claim a bar stage the scenario does not assert, so an incomplete scenario structurally cannot advance a tuple (R-BAR-1);
+- the record's simulation posture must match the scenario's declared harness-execution mode;
+- a qualifying run may not land on an entry already bound to a different scenario.
+
+### Simulation Posture
+
+The faithful-simulation mechanics allowance (D8) is a reviewed spec-level contract, never a per-run improvisation. A spec's `packagingExtension.harnessExecution` declares `real-harness` or `faithful-simulation`; the simulation mode must document its reviewed mechanics in the spec, every result record and recorded run states `simulated` (with a `simulationMechanicsRef` naming the mechanics used), and the recording seam refuses a run whose posture disagrees with its scenario's declared mode. All four first-pass Codex specs declare `real-harness`: no faithful simulation of Codex exists, so simulation never silently substitutes for the real harness, and the registry's embedded verdict-derivation rules carry the simulation clause as drift-checked data.
+
+### Preconditions and Honest Blocked Runs
+
+Every packaging precondition carries a cheap, local, read-only probe and the embedded rule `onUnmet: "blocked"` (R-KEEP-1). `command-succeeds` probes cover harness CLI availability and authentication; `network` and `model-routing` use `operator-attestation`, because they cannot be probed without spending them — an attestation is satisfied only when the operator explicitly names the precondition id at run time, so an unattended probe honestly resolves `blocked` by default. `probePackagingScenarioPreconditions` evaluates the declared set (with an injectable executor for tests), and `blockedPackagingResultRecord` turns an unmet report into a valid `blocked` result record — verdict `blocked`, `supportClaimUse: "none"`, all-false bar, model and provider `unknown` because no run reached a model — which recording on a tuple never advances.
+
+### The Four First-Pass Scenarios and the R-021 Characterization Preamble
+
+The four required R-SCEN-1 scenarios are fixed in `REQUIRED_FIRST_PASS_SCENARIOS`, mapped to the user-visible outcome each must prove, with `listMissingRequiredFirstPassScenarioIds` pre-figuring Phase 3's R-TEST-2 runnability check — absence of any spec is a failure, never a silent gap. All four are authored, Codex-first, `external-provider-run`, non-destructive, bar-complete, and precondition-guarded; none has run yet. The README's scenario table names each spec and outcome; three details matter to maintainers:
+
+- `codex-plugin-marketplace-install` carries the `characterization` preamble — the recorded plan for resolving the negative Codex v0.142.4 recognition probe (register item [R-021](../../../prd/03-open-questions-and-risk-register.md)). Before any bar assertion, the run pins the Codex version, hand-authors a minimal plugin from the Codex docs independent of Make Docs, varies marketplace source shapes until Codex accepts one, records that ground truth, and diffs the generated shapes against it. Divergences are compiler or descriptor defects to fix — never bar relaxations — so a failure distinguishes wrong generated shapes from a harness capability gap.
+- `codex-dependency-check-both-directions` binds its expectations to the v2 probe-based checks (PRD 40 R-DEP-3): its fixture set includes an `rg` dependency whose `source` prose begins with "ripgrep" (a check derived from prose would probe the wrong binary) and a deliberately absent probe target for the missing direction.
+- `codex-uninstall-backup-cleanliness` owns the PRD 36 R-PROV-2 cleanliness scenario this lineage was assigned: backup plus removal with orphan-directory and user-authored-sentinel assertions.
+
+### Planned-Scenario Linkage and Scenario Absence
+
+Registry entries carry a `plannedScenarios[]` field: ids of authored specs that target the tuple. The linkage is forward-looking only — a planned scenario is not evidence, never affects status derivation, and never binds the tuple's `scenario` dimension; only a recorded run does (R-TUPLE-1). An explicitly empty list is itself a statement: no authored scenario targets the tuple, so absence is reported rather than implied as covered (R-SCEN-2) — the six Pi entries additionally carry scenario-absence notes naming Pi as recorded future work. `listConformanceScenarioRegistryLinkageErrors` enforces the linkage bidirectionally: every planned id must resolve to an authored spec that targets the entry back on the same harness, and every spec's `registryTupleIds` must resolve to an entry that plans it.
 
 Raw artifacts default to generated local state:
 
@@ -311,6 +361,7 @@ Those commands remain package validation evidence. They become conformance evide
 - [37 Enhance Playbook and Package Conformance](../../../prd/37-enhance-playbook-and-package-conformance.md)
 - [Conformance Assets README](../../conformance/README.md)
 - [Support Tuple and Tuple Registry Work Phase](../../../work/2026-07-01-w18-r9-playbook-and-package-conformance/01-support-tuple-and-tuple-registry.md)
+- [Evidence Bar and First-Pass Scenarios Work Phase](../../../work/2026-07-01-w18-r9-playbook-and-package-conformance/02-evidence-bar-and-first-pass-scenarios.md)
 - [Playbook Packaging and Harness Adapters](./playbooks-development-packaging-and-harness-adapters.md)
 - [Scenario and Result Contract Plan](../../../plans/2026-06-23-w10-r5-agent-harness-model-conformance-lab/02-scenario-and-result-contract.md)
 - [Harness Adapter and Support Claim Gating Plan](../../../plans/2026-06-23-w10-r5-agent-harness-model-conformance-lab/03-harness-adapter-and-support-claim-gating.md)

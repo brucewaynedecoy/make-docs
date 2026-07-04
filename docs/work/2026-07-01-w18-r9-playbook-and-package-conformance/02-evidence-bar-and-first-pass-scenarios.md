@@ -32,9 +32,9 @@ The bar is the four-assertion sequence a real-harness scenario must meet before 
 
 ### Tasks
 
-- [ ] t1: Implement the install-discover-invoke-uninstall bar as the scenario shape for packaging conformance: install the generated distributable into the real or a faithfully simulated harness, assert discovery via the harness's listing, assert invocation of a bundled skill or driving of the workflow, and assert clean uninstall without orphaned managed directories or deleted user-authored files (R-BAR-1).
-- [ ] t2: Bind bar outcomes to the Phase 1 registry: a qualifying `pass`, or `pass-with-caveats` with surfaced caveats, advances the tuple to `conformance-validated`; `implementation-validated` requires only internal file and structure tests and no harness (R-BAR-2, R-REG-3).
-- [ ] t3: Document any faithful-simulation mechanics used where a real harness cannot run in the lab, as a reviewed implementer choice per D8, and record which scenarios used simulation in their result records.
+- [x] t1: Implement the install-discover-invoke-uninstall bar as the scenario shape for packaging conformance: install the generated distributable into the real or a faithfully simulated harness, assert discovery via the harness's listing, assert invocation of a bundled skill or driving of the workflow, and assert clean uninstall without orphaned managed directories or deleted user-authored files (R-BAR-1).
+- [x] t2: Bind bar outcomes to the Phase 1 registry: a qualifying `pass`, or `pass-with-caveats` with surfaced caveats, advances the tuple to `conformance-validated`; `implementation-validated` requires only internal file and structure tests and no harness (R-BAR-2, R-REG-3).
+- [x] t3: Document any faithful-simulation mechanics used where a real harness cannot run in the lab, as a reviewed implementer choice per D8, and record which scenarios used simulation in their result records.
 
 ### Acceptance criteria
 
@@ -50,12 +50,12 @@ The bar is the four-assertion sequence a real-harness scenario must meet before 
 
 ### Tasks
 
-- [ ] t4: Author the skills-bundle scenario spec: a generated skills bundle appears as a skill in the target harness and can be invoked (R-SCEN-1).
-- [ ] t5: Author the plugin scenario spec: a generated plugin appears through a marketplace, installs, exposes its bundled skills, and is usable in a new thread (R-SCEN-1).
-- [ ] t6: Author the dependency-check scenario spec: generated dependency checks surface missing tools and pass when the dependencies are present, with expectations bound to the v2 probe-based checks — each generated `cli`/`package-manager` check probes the dependency's resolved `probe` (the declared value or the `id` default), never `source` prose, and the scenario's fixture set includes at least one entry whose `source` prose does not begin with the binary name (R-SCEN-1; PRD 40 R-DEP-3, R-FIX-1).
-- [ ] t7: Author the uninstall-and-backup scenario spec: uninstall and backup remove managed generated outputs without orphaning empty managed directories or deleting user-authored files (R-SCEN-1).
-- [ ] t8: Declare per-scenario safety modes and preconditions per the lab protocol, so scenarios requiring credentials, network access, an unavailable harness, or model routing report `blocked` instead of inventing evidence (R-KEEP-1).
-- [ ] t9: Record Pi and additional harnesses as future scenarios with their absence explicitly reported in the registry, not implied as covered (R-SCEN-2).
+- [x] t4: Author the skills-bundle scenario spec: a generated skills bundle appears as a skill in the target harness and can be invoked (R-SCEN-1).
+- [x] t5: Author the plugin scenario spec: a generated plugin appears through a marketplace, installs, exposes its bundled skills, and is usable in a new thread (R-SCEN-1).
+- [x] t6: Author the dependency-check scenario spec: generated dependency checks surface missing tools and pass when the dependencies are present, with expectations bound to the v2 probe-based checks — each generated `cli`/`package-manager` check probes the dependency's resolved `probe` (the declared value or the `id` default), never `source` prose, and the scenario's fixture set includes at least one entry whose `source` prose does not begin with the binary name (R-SCEN-1; PRD 40 R-DEP-3, R-FIX-1).
+- [x] t7: Author the uninstall-and-backup scenario spec: uninstall and backup remove managed generated outputs without orphaning empty managed directories or deleting user-authored files (R-SCEN-1).
+- [x] t8: Declare per-scenario safety modes and preconditions per the lab protocol, so scenarios requiring credentials, network access, an unavailable harness, or model routing report `blocked` instead of inventing evidence (R-KEEP-1).
+- [x] t9: Record Pi and additional harnesses as future scenarios with their absence explicitly reported in the registry, not implied as covered (R-SCEN-2).
 
 ### Acceptance criteria
 

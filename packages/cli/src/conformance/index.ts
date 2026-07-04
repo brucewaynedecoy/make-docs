@@ -7,4 +7,5 @@
  */
 
 export * from "./registry";
+export * from "./scenario";
 export * from "./tuple";

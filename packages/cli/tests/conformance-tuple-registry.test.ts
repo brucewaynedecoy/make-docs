@@ -76,6 +76,7 @@ function qualifyingRun(overrides: Partial<ConformanceRecordedRun> = {}): Conform
     recordRef: "docs/assets/conformance/results/run-0001.json",
     modelOrProvider: "anthropic",
     runtime: "codex-cli",
+    simulated: false,
     ...overrides,
   };
 }
@@ -101,6 +102,7 @@ function entryFixture(
     status: "provisional",
     evidence: [],
     recordedRuns: [],
+    plannedScenarios: [],
     notes: ["Fixture entry."],
     ...overrides,
   };

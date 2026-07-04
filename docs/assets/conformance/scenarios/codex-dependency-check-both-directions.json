@@ -1,0 +1,170 @@
+{
+  "schemaVersion": "conformance.scenario.v1",
+  "scenarioId": "codex-dependency-check-both-directions",
+  "scenarioVersion": "1.0.0",
+  "title": "Codex dependency checks: surface missing tools, pass on present tools, probe-based only",
+  "sourceRequirements": [
+    "docs/prd/37-enhance-playbook-and-package-conformance.md",
+    "docs/prd/20-revise-agent-harness-model-conformance-lab.md",
+    "docs/prd/40-revise-playbook-authoring-contract-v2.md",
+    "docs/work/2026-07-01-w18-r9-playbook-and-package-conformance/02-evidence-bar-and-first-pass-scenarios.md"
+  ],
+  "safetyMode": "external-provider-run",
+  "requiresNetwork": true,
+  "requiresCredentials": true,
+  "destructive": false,
+  "prerequisites": [
+    "Node.js >= 18 and the make-docs CLI built from this repository.",
+    "git, rg, and npm installed in the fixture workspace (the present direction); make-docs-conformance-absent-probe must not exist on PATH (the missing direction).",
+    "A fresh disposable fixture workspace; the scenario never touches a maintainer working tree."
+  ],
+  "steps": [
+    {
+      "kind": "command",
+      "run": "WORKSPACE=$(mktemp -d) && git -C \"$WORKSPACE\" init",
+      "transcript": "context",
+      "notes": "Disposable fixture workspace (workspacePolicy); all later steps run inside it."
+    },
+    {
+      "kind": "command",
+      "run": "mkdir -p \"$WORKSPACE/docs/assets/playbooks/agent\" && cp docs/assets/conformance/fixtures/agent/conformance-dependency-probe.playbook.md \"$WORKSPACE/docs/assets/playbooks/agent/\"",
+      "transcript": "context",
+      "notes": "The fixture's dependency registry includes the rg entry whose source prose does not begin with the binary name (PRD 40 R-FIX-1) and the deliberately absent probe target."
+    },
+    {
+      "kind": "command",
+      "run": "cd \"$WORKSPACE\" && make-docs run package ship --harness codex --output-kind skills-bundle --surface native --scope project --package-id conformance-dependency-probe --json agent/conformance-dependency-probe",
+      "transcript": "evidence-json",
+      "barStage": "install",
+      "notes": "Run once per targeted tuple: --surface native and --surface agents-standard. `ship` runs plan -> preview -> write end-to-end (PRD 41 grammar; --write is retired)."
+    },
+    {
+      "kind": "assertion",
+      "assert": "The ship transcript records the bundle's materialized dependency checks, and every generated cli/package-manager check targets the entry's resolved probe — the declared `probe` value or the `id` default — never `source` prose: the rg entry's check probes `rg`, not `ripgrep` (PRD 40 R-DEP-3).",
+      "barStage": "install"
+    },
+    {
+      "kind": "harness-action",
+      "action": "Launch Codex inside the workspace and confirm the conformance-dependency-probe bundle appears in Codex's skills listing surface.",
+      "barStage": "discover"
+    },
+    {
+      "kind": "harness-action",
+      "action": "Missing direction: with make-docs-conformance-absent-probe absent from PATH, drive the bundle's dependency checks in a Codex thread and capture the transcript.",
+      "barStage": "invoke"
+    },
+    {
+      "kind": "assertion",
+      "assert": "The checks surface the absent dependency by its probe target make-docs-conformance-absent-probe — a named missing-tool report, not a silent pass or a vague failure.",
+      "barStage": "invoke"
+    },
+    {
+      "kind": "harness-action",
+      "action": "Present direction: with git, rg, and npm installed, drive the same dependency checks again and capture the transcript.",
+      "barStage": "invoke"
+    },
+    {
+      "kind": "assertion",
+      "assert": "The checks pass for git, npm, and rg — with rg passing via its declared `rg` probe even though its source prose begins with \"ripgrep\", proving expectations bind to probe-based checks and a source-derived check would have failed.",
+      "barStage": "invoke"
+    },
+    {
+      "kind": "command",
+      "run": "cd \"$WORKSPACE\" && make-docs setup remove --backup < /dev/null",
+      "transcript": "evidence-non-tty",
+      "barStage": "uninstall"
+    },
+    {
+      "kind": "assertion",
+      "assert": "After removal the bundle and its materialized dependency checks are gone, no empty managed directory is orphaned, and every user-authored workspace file survives byte-identical.",
+      "barStage": "uninstall"
+    }
+  ],
+  "expectedEvidence": [
+    "A --json ship transcript recording the bundle and its probe-based materialized dependency checks (install).",
+    "The bundle listed by Codex's own listing surface (discover).",
+    "A transcript surfacing make-docs-conformance-absent-probe as missing by its probe target (invoke, missing direction).",
+    "A transcript with git, rg, and npm checks passing — rg via its declared probe despite source prose naming ripgrep (invoke, present direction).",
+    "A non-TTY removal transcript plus a workspace diff proving clean uninstall (uninstall).",
+    "Model, provider, and runtime captured as run metadata in the result record."
+  ],
+  "artifactPolicy": "local-generated",
+  "supportClaimScope": "scenario-harness-model-provider-runtime",
+  "packagingExtension": {
+    "harness": "codex",
+    "registryTupleIds": [
+      "codex-skills-bundle-native-project",
+      "codex-skills-bundle-agents-standard-project"
+    ],
+    "evidenceBar": {
+      "install": [
+        "make-docs run package ship exits 0 and its --json transcript records the bundle with materialized dependency checks that target each entry's resolved probe, never source prose (PRD 40 R-DEP-3)."
+      ],
+      "discover": [
+        "The generated bundle appears in Codex's own skills listing surface for the workspace."
+      ],
+      "invoke": [
+        "With the absent fixture tool missing, the generated checks surface make-docs-conformance-absent-probe by its probe target.",
+        "With git, rg, and npm present, the generated checks pass — including rg via its declared probe despite source prose that does not begin with the binary name."
+      ],
+      "uninstall": [
+        "After make-docs setup remove --backup, the bundle and its dependency checks are removed, no empty managed directory is orphaned, and user-authored files survive byte-identical."
+      ]
+    },
+    "preconditions": [
+      {
+        "id": "codex-cli-available",
+        "kind": "harness-cli",
+        "description": "The Codex CLI is installed and on PATH.",
+        "probe": { "check": "command-succeeds", "command": "codex", "args": ["--version"] },
+        "onUnmet": "blocked"
+      },
+      {
+        "id": "codex-authenticated",
+        "kind": "harness-auth",
+        "description": "The Codex CLI is signed in with a working account.",
+        "probe": { "check": "command-succeeds", "command": "codex", "args": ["login", "status"] },
+        "onUnmet": "blocked"
+      },
+      {
+        "id": "network-available",
+        "kind": "network",
+        "description": "Outbound network access for the harness is available; attested by the operator at run time because probing it would spend it.",
+        "probe": { "check": "operator-attestation" },
+        "onUnmet": "blocked"
+      },
+      {
+        "id": "model-routing-available",
+        "kind": "model-routing",
+        "description": "The harness can route to a model for the invoke stage; attested by the operator at run time.",
+        "probe": { "check": "operator-attestation" },
+        "onUnmet": "blocked"
+      },
+      {
+        "id": "present-direction-tools",
+        "kind": "fixture",
+        "description": "git and rg are installed for the present direction (npm ships with the Node.js prerequisite).",
+        "probe": { "check": "command-succeeds", "command": "rg", "args": ["--version"] },
+        "onUnmet": "blocked"
+      }
+    ],
+    "harnessExecution": { "mode": "real-harness", "simulationMechanics": null },
+    "transcriptPolicy": "json-or-non-tty",
+    "workspacePolicy": "disposable-fixture-workspace",
+    "fixturePlaybooks": [
+      "docs/assets/conformance/fixtures/agent/conformance-dependency-probe.playbook.md"
+    ],
+    "futureHarnesses": [
+      {
+        "harness": "claude-code",
+        "status": "future",
+        "note": "Current product harness; its variant of this scenario follows the Codex-first pass (R-SCEN-1) and is not covered by this spec."
+      },
+      {
+        "harness": "pi",
+        "status": "future",
+        "note": "Future harness per R-SCEN-2: no Pi variant exists, and the tuple registry reports that absence explicitly rather than implying coverage."
+      }
+    ]
+  }
+}

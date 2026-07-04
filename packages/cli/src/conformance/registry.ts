@@ -132,6 +132,8 @@ export const CONFORMANCE_VERDICT_DERIVATION_RULES = {
     "internal-test evidence refs only; internal tests are never harness-recognition evidence (R-BAR-2, R-LAYER-2)",
   realHarnessProbesNeverAdvance:
     "real-harness-probe evidence refs record observations outside the lab protocol; they never advance a status in either direction",
+  faithfulSimulation:
+    "R-BAR-1 admits a faithfully simulated harness: every recorded run states `simulated`, a simulated run may advance a tuple only when its scenario spec declares reviewed faithful-simulation mechanics (D8), and its result record names the mechanics used",
 } as const;
 
 /**
@@ -157,6 +159,14 @@ export interface ConformanceRecordedRun {
   recordRef: string;
   modelOrProvider: string;
   runtime: string;
+  /**
+   * True when the run executed against a faithfully simulated harness rather
+   * than the real one (R-BAR-1 admits both; W18 R9 P2 t3). A simulated run
+   * may qualify only when its scenario spec declares reviewed
+   * faithful-simulation mechanics per D8 — enforced by the recording seam in
+   * `scenario.ts` — and its result record names the mechanics used.
+   */
+  simulated: boolean;
 }
 
 export const CONFORMANCE_EVIDENCE_REF_KINDS = ["internal-test", "real-harness-probe"] as const;
@@ -183,6 +193,16 @@ export interface ConformanceTupleRegistryEntry {
   status: ConformanceTupleStatus;
   evidence: ConformanceTupleEvidenceRef[];
   recordedRuns: ConformanceRecordedRun[];
+  /**
+   * Ids of authored scenario specs under `docs/assets/conformance/scenarios/`
+   * that target this tuple (W18 R9 P2 t9). Forward-looking linkage only: a
+   * planned scenario is not evidence, never affects status derivation, and
+   * never binds the tuple's `scenario` dimension — only a recorded run does
+   * (R-TUPLE-1). An explicitly empty list is itself a statement: no authored
+   * scenario targets this tuple yet, so its absence is reported rather than
+   * implied as covered (R-SCEN-2).
+   */
+  plannedScenarios: string[];
   notes: string[];
 }
 
@@ -275,6 +295,7 @@ const recordedRunSchema = z.object({
   recordRef: z.string().min(1),
   modelOrProvider: z.string().min(1),
   runtime: z.string().min(1),
+  simulated: z.boolean(),
 });
 
 const evidenceRefSchema = z.object({
@@ -291,6 +312,11 @@ const registryEntrySchema = z.object({
   status: z.enum(CONFORMANCE_TUPLE_STATUSES),
   evidence: z.array(evidenceRefSchema),
   recordedRuns: z.array(recordedRunSchema),
+  plannedScenarios: z.array(
+    z
+      .string()
+      .regex(/^[a-z0-9][a-z0-9-]*$/, "planned scenario ids are lowercase hyphenated slugs"),
+  ),
   notes: z.array(z.string().min(1)),
 });
 
@@ -376,6 +402,11 @@ export function validateConformanceTupleRegistry(document: unknown): Conformance
             `\`${run.scenario}\`; a claim may not be broader than the evidence for its exact tuple (R-TUPLE-1).`,
         );
       }
+    }
+    if (new Set(entry.plannedScenarios).size !== entry.plannedScenarios.length) {
+      throw new OperationError(
+        `${label} lists a planned scenario more than once; the linkage is one id per scenario spec.`,
+      );
     }
     for (const evidenceRef of entry.evidence) {
       if (evidenceRef.kind === "internal-test" && !/\.test\.ts$/.test(evidenceRef.ref)) {

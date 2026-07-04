@@ -1,0 +1,149 @@
+{
+  "schemaVersion": "conformance.scenario.v1",
+  "scenarioId": "codex-skills-bundle-discovery-invocation",
+  "scenarioVersion": "1.0.0",
+  "title": "Codex skills bundle: install, discovery, invocation, and clean uninstall",
+  "sourceRequirements": [
+    "docs/prd/37-enhance-playbook-and-package-conformance.md",
+    "docs/prd/20-revise-agent-harness-model-conformance-lab.md",
+    "docs/work/2026-07-01-w18-r9-playbook-and-package-conformance/02-evidence-bar-and-first-pass-scenarios.md"
+  ],
+  "safetyMode": "external-provider-run",
+  "requiresNetwork": true,
+  "requiresCredentials": true,
+  "destructive": false,
+  "prerequisites": [
+    "Node.js >= 18 and the make-docs CLI built from this repository.",
+    "A fresh disposable fixture workspace; the scenario never touches a maintainer working tree."
+  ],
+  "steps": [
+    {
+      "kind": "command",
+      "run": "WORKSPACE=$(mktemp -d) && git -C \"$WORKSPACE\" init",
+      "transcript": "context",
+      "notes": "Disposable fixture workspace (workspacePolicy); all later steps run inside it."
+    },
+    {
+      "kind": "command",
+      "run": "mkdir -p \"$WORKSPACE/docs/assets/playbooks/agent\" && cp docs/assets/conformance/fixtures/agent/conformance-skill-probe.playbook.md \"$WORKSPACE/docs/assets/playbooks/agent/\"",
+      "transcript": "context",
+      "notes": "The v2-form source Playbook enters the workspace as ordinary project content."
+    },
+    {
+      "kind": "command",
+      "run": "cd \"$WORKSPACE\" && make-docs run package ship --harness codex --output-kind skills-bundle --surface native --scope project --package-id conformance-skill-probe --json agent/conformance-skill-probe",
+      "transcript": "evidence-json",
+      "barStage": "install",
+      "notes": "Run once per targeted tuple: --surface native for codex-skills-bundle-native-project and --surface agents-standard for codex-skills-bundle-agents-standard-project. `ship` runs plan -> preview -> write end-to-end (PRD 41 grammar; --write is retired)."
+    },
+    {
+      "kind": "assertion",
+      "assert": "The ship transcript's generated-output records list the bundle files under .agents/skills/conformance-skill-probe/ and the workspace manifest records Make Docs ownership for every generated file.",
+      "barStage": "install"
+    },
+    {
+      "kind": "harness-action",
+      "action": "Launch Codex inside the workspace and enumerate Codex's own skills listing surface; confirm conformance-skill-probe appears in the harness's listing, not merely on disk.",
+      "barStage": "discover"
+    },
+    {
+      "kind": "harness-action",
+      "action": "In a fresh Codex thread, invoke the conformance-skill-probe skill and capture the transcript.",
+      "barStage": "invoke"
+    },
+    {
+      "kind": "assertion",
+      "assert": "The invocation transcript contains the probe marker MAKE-DOCS-CONFORMANCE-SKILL-PROBE-OK emitted by the bundled skill.",
+      "barStage": "invoke"
+    },
+    {
+      "kind": "command",
+      "run": "cd \"$WORKSPACE\" && make-docs setup remove --backup < /dev/null",
+      "transcript": "evidence-non-tty",
+      "barStage": "uninstall"
+    },
+    {
+      "kind": "assertion",
+      "assert": "After removal the generated bundle files and their exposure links are gone, no empty managed directory is orphaned under .agents/skills/, and every user-authored workspace file survives byte-identical.",
+      "barStage": "uninstall"
+    }
+  ],
+  "expectedEvidence": [
+    "A --json ship transcript recording the generated bundle files and ownership records (install).",
+    "The bundle listed by Codex's own listing surface (discover).",
+    "A fresh-thread invocation transcript containing MAKE-DOCS-CONFORMANCE-SKILL-PROBE-OK (invoke).",
+    "A non-TTY removal transcript plus a workspace diff proving clean uninstall with user files intact (uninstall).",
+    "Model, provider, and runtime captured as run metadata in the result record, never embedded in scenario logic."
+  ],
+  "artifactPolicy": "local-generated",
+  "supportClaimScope": "scenario-harness-model-provider-runtime",
+  "packagingExtension": {
+    "harness": "codex",
+    "registryTupleIds": [
+      "codex-skills-bundle-native-project",
+      "codex-skills-bundle-agents-standard-project"
+    ],
+    "evidenceBar": {
+      "install": [
+        "make-docs run package ship exits 0 and its --json transcript records the generated bundle files and manifest ownership inside the disposable workspace."
+      ],
+      "discover": [
+        "The generated bundle appears in Codex's own skills listing surface for the workspace — harness listing output, not Make Docs output."
+      ],
+      "invoke": [
+        "A fresh Codex thread invokes the bundled skill and the transcript contains the probe marker MAKE-DOCS-CONFORMANCE-SKILL-PROBE-OK."
+      ],
+      "uninstall": [
+        "After make-docs setup remove --backup, managed generated outputs are removed, no empty managed directory is orphaned, and user-authored files survive byte-identical."
+      ]
+    },
+    "preconditions": [
+      {
+        "id": "codex-cli-available",
+        "kind": "harness-cli",
+        "description": "The Codex CLI is installed and on PATH.",
+        "probe": { "check": "command-succeeds", "command": "codex", "args": ["--version"] },
+        "onUnmet": "blocked"
+      },
+      {
+        "id": "codex-authenticated",
+        "kind": "harness-auth",
+        "description": "The Codex CLI is signed in with a working account.",
+        "probe": { "check": "command-succeeds", "command": "codex", "args": ["login", "status"] },
+        "onUnmet": "blocked"
+      },
+      {
+        "id": "network-available",
+        "kind": "network",
+        "description": "Outbound network access for the harness is available; attested by the operator at run time because probing it would spend it.",
+        "probe": { "check": "operator-attestation" },
+        "onUnmet": "blocked"
+      },
+      {
+        "id": "model-routing-available",
+        "kind": "model-routing",
+        "description": "The harness can route to a model for the invoke stage; attested by the operator at run time.",
+        "probe": { "check": "operator-attestation" },
+        "onUnmet": "blocked"
+      }
+    ],
+    "harnessExecution": { "mode": "real-harness", "simulationMechanics": null },
+    "transcriptPolicy": "json-or-non-tty",
+    "workspacePolicy": "disposable-fixture-workspace",
+    "fixturePlaybooks": [
+      "docs/assets/conformance/fixtures/agent/conformance-skill-probe.playbook.md"
+    ],
+    "futureHarnesses": [
+      {
+        "harness": "claude-code",
+        "status": "future",
+        "note": "Current product harness; its variant of this scenario follows the Codex-first pass (R-SCEN-1) and is not covered by this spec."
+      },
+      {
+        "harness": "pi",
+        "status": "future",
+        "note": "Future harness per R-SCEN-2: no Pi variant exists, and the tuple registry reports that absence explicitly rather than implying coverage."
+      }
+    ]
+  }
+}

@@ -1,0 +1,194 @@
+{
+  "schemaVersion": "conformance.scenario.v1",
+  "scenarioId": "codex-plugin-marketplace-install",
+  "scenarioVersion": "1.0.0",
+  "title": "Codex plugin: marketplace discovery, install, skill exposure, and use in a new thread",
+  "sourceRequirements": [
+    "docs/prd/37-enhance-playbook-and-package-conformance.md",
+    "docs/prd/20-revise-agent-harness-model-conformance-lab.md",
+    "docs/prd/03-open-questions-and-risk-register.md",
+    "docs/work/2026-07-01-w18-r9-playbook-and-package-conformance/02-evidence-bar-and-first-pass-scenarios.md"
+  ],
+  "safetyMode": "external-provider-run",
+  "requiresNetwork": true,
+  "requiresCredentials": true,
+  "destructive": false,
+  "prerequisites": [
+    "Node.js >= 18 and the make-docs CLI built from this repository.",
+    "A fresh disposable fixture workspace; the scenario never touches a maintainer working tree.",
+    "The exact Codex CLI version recorded in the result record, since the characterization ground truth is version-specific."
+  ],
+  "steps": [
+    {
+      "kind": "command",
+      "run": "WORKSPACE=$(mktemp -d) && git -C \"$WORKSPACE\" init",
+      "transcript": "context",
+      "notes": "Disposable fixture workspace (workspacePolicy); all later steps run inside it."
+    },
+    {
+      "kind": "command",
+      "run": "mkdir -p \"$WORKSPACE/docs/assets/playbooks/agent\" && cp docs/assets/conformance/fixtures/agent/conformance-skill-probe.playbook.md \"$WORKSPACE/docs/assets/playbooks/agent/\"",
+      "transcript": "context"
+    },
+    {
+      "kind": "command",
+      "run": "cd \"$WORKSPACE\" && make-docs run package ship --harness codex --output-kind plugin --surface native --scope project --package-id conformance-plugin-probe --json agent/conformance-skill-probe",
+      "transcript": "evidence-json",
+      "barStage": "install",
+      "notes": "`ship` runs plan -> preview -> write end-to-end (PRD 41 grammar; --write is retired)."
+    },
+    {
+      "kind": "assertion",
+      "assert": "The ship transcript records the plugin tree at .codex/plugins/conformance-plugin-probe with .codex-plugin/plugin.json, the bundled skill, and the generated marketplace registration file at .agents/plugins/marketplace.json — generated, never auto-registered (R-MKT-1).",
+      "barStage": "install"
+    },
+    {
+      "kind": "harness-action",
+      "action": "Using the marketplace source shape established as ground truth by the characterization preamble, register the generated marketplace entry with Codex's Add Marketplace flow and confirm the plugin appears through the marketplace listing.",
+      "barStage": "discover"
+    },
+    {
+      "kind": "harness-action",
+      "action": "Install the plugin from the marketplace listing and confirm Codex lists it under the workspace's plugins with its bundled skill exposed.",
+      "barStage": "discover"
+    },
+    {
+      "kind": "harness-action",
+      "action": "Start a new Codex thread after installation and invoke the bundled conformance-skill-probe skill.",
+      "barStage": "invoke"
+    },
+    {
+      "kind": "assertion",
+      "assert": "The new-thread transcript contains the probe marker MAKE-DOCS-CONFORMANCE-SKILL-PROBE-OK and the fresh-thread confirmation, proving the plugin is usable in a thread that began after install.",
+      "barStage": "invoke"
+    },
+    {
+      "kind": "command",
+      "run": "cd \"$WORKSPACE\" && make-docs setup remove --backup < /dev/null",
+      "transcript": "evidence-non-tty",
+      "barStage": "uninstall"
+    },
+    {
+      "kind": "assertion",
+      "assert": "After removal the plugin tree, its marketplace registration entry, and all exposure links are gone, no empty managed directory is orphaned under .codex/plugins/ or .agents/plugins/, and every user-authored workspace file survives byte-identical.",
+      "barStage": "uninstall"
+    }
+  ],
+  "expectedEvidence": [
+    "Characterization ground truth: the marketplace source shape and plugin layout the pinned Codex version actually accepts, established with a hand-minimal plugin independent of Make Docs, plus the diff of generated shapes against it.",
+    "A --json ship transcript recording the generated plugin tree and marketplace registration file (install).",
+    "The plugin visible through Codex's marketplace flow and workspace plugin listing (discover).",
+    "A new-thread invocation transcript containing MAKE-DOCS-CONFORMANCE-SKILL-PROBE-OK (invoke).",
+    "A non-TTY removal transcript plus a workspace diff proving clean uninstall (uninstall).",
+    "Model, provider, runtime, and the exact Codex version captured as run metadata in the result record."
+  ],
+  "artifactPolicy": "local-generated",
+  "supportClaimScope": "scenario-harness-model-provider-runtime",
+  "packagingExtension": {
+    "harness": "codex",
+    "registryTupleIds": ["codex-plugin-native-project"],
+    "evidenceBar": {
+      "install": [
+        "make-docs run package ship exits 0 and its --json transcript records the plugin tree at .codex/plugins/conformance-plugin-probe plus the generated .agents/plugins/marketplace.json entry inside the disposable workspace."
+      ],
+      "discover": [
+        "The plugin appears through Codex's Add Marketplace flow using the characterized accepted source shape.",
+        "After marketplace install, Codex lists the plugin under the workspace's plugins with its bundled skill exposed."
+      ],
+      "invoke": [
+        "A Codex thread started after installation invokes the bundled skill and the transcript contains MAKE-DOCS-CONFORMANCE-SKILL-PROBE-OK."
+      ],
+      "uninstall": [
+        "After make-docs setup remove --backup, the plugin tree, marketplace entry, and exposure links are removed, no empty managed directory is orphaned, and user-authored files survive byte-identical."
+      ]
+    },
+    "preconditions": [
+      {
+        "id": "codex-cli-available",
+        "kind": "harness-cli",
+        "description": "The Codex CLI is installed and on PATH.",
+        "probe": { "check": "command-succeeds", "command": "codex", "args": ["--version"] },
+        "onUnmet": "blocked"
+      },
+      {
+        "id": "codex-authenticated",
+        "kind": "harness-auth",
+        "description": "The Codex CLI is signed in with a working account.",
+        "probe": { "check": "command-succeeds", "command": "codex", "args": ["login", "status"] },
+        "onUnmet": "blocked"
+      },
+      {
+        "id": "network-available",
+        "kind": "network",
+        "description": "Outbound network access for the harness is available; attested by the operator at run time because probing it would spend it.",
+        "probe": { "check": "operator-attestation" },
+        "onUnmet": "blocked"
+      },
+      {
+        "id": "model-routing-available",
+        "kind": "model-routing",
+        "description": "The harness can route to a model for the invoke stage; attested by the operator at run time.",
+        "probe": { "check": "operator-attestation" },
+        "onUnmet": "blocked"
+      }
+    ],
+    "harnessExecution": { "mode": "real-harness", "simulationMechanics": null },
+    "transcriptPolicy": "json-or-non-tty",
+    "workspacePolicy": "disposable-fixture-workspace",
+    "fixturePlaybooks": [
+      "docs/assets/conformance/fixtures/agent/conformance-skill-probe.playbook.md"
+    ],
+    "futureHarnesses": [
+      {
+        "harness": "claude-code",
+        "status": "future",
+        "note": "Current product harness; its variant of this scenario follows the Codex-first pass (R-SCEN-1) and is not covered by this spec."
+      },
+      {
+        "harness": "pi",
+        "status": "future",
+        "note": "Future harness per R-SCEN-2: no Pi variant exists, and the tuple registry reports that absence explicitly rather than implying coverage."
+      }
+    ],
+    "characterization": {
+      "purpose": "Before asserting the bar, characterize what the real Codex version accepts as a marketplace source and plugin layout, independent of Make Docs, then diff the generated shapes against that ground truth. This is the recorded plan for resolving the 2026-07-03 negative recognition probe: the generated plugin was neither listed under Codex's workspace plugins nor discovered via Add Marketplace pointed at multiple local roots, so bar assertions run only after ground truth exists and a failure distinguishes wrong generated shapes from a harness capability gap.",
+      "resolvesProbe": {
+        "registerItem": "R-021",
+        "ref": "docs/prd/03-open-questions-and-risk-register.md",
+        "summary": "Negative Codex v0.142.4 recognition probe (2026-07-03): generated plugin not listed under workspace plugins; Add Marketplace pointed at multiple local roots discovered nothing; no discovered-but-broken intermediate state."
+      },
+      "ordering": "before-bar-assertions",
+      "groundTruthSteps": [
+        {
+          "kind": "command",
+          "run": "codex --version",
+          "transcript": "evidence-non-tty",
+          "notes": "Pin the exact Codex version the ground truth belongs to; characterization is version-specific."
+        },
+        {
+          "kind": "human-action",
+          "action": "Author a hand-minimal plugin by following only Codex's own current documentation — a manifest and one trivial skill, no Make Docs involvement — as the recognition ground-truth artifact."
+        },
+        {
+          "kind": "harness-action",
+          "action": "Attempt Codex's Add Marketplace and plugin discovery flows against the hand-minimal plugin, varying the marketplace source shape (project root, marketplace file path, direct plugin folder) until Codex accepts one; record every accepted and rejected shape."
+        },
+        {
+          "kind": "assertion",
+          "assert": "The accepted marketplace source shape, manifest filename and required fields, install root layout, and skill exposure paths are recorded as ground truth in the run's raw artifacts under .make-docs/conformance/<run-id>/."
+        },
+        {
+          "kind": "assertion",
+          "assert": "The generated plugin's shapes are diffed against the ground truth, and every divergence is recorded — each one is a compiler or descriptor defect to file, not a reason to relax the bar."
+        }
+      ],
+      "diffTargets": [
+        "the marketplace source shape Codex's Add Marketplace accepts",
+        "the plugin manifest filename and required fields",
+        "the plugin install root layout",
+        "the skill exposure paths inside the plugin container"
+      ],
+      "recordedIn": "The characterization findings land in the run's result record (reason and caveats) and raw artifacts before any bar assertion is attempted; if characterization itself cannot complete, the run reports blocked or unsupported honestly."
+    }
+  }
+}
