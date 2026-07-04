@@ -30,8 +30,8 @@ const TIER_PLAYBOOK = [
   'status: "accepted"',
   'stack: "run"',
   'summary: "Tier verification playbook."',
-  'schemaVersion: "make-docs.playbook.v1"',
-  'workflowSchemaVersion: "make-docs.workflow.v1"',
+  'schema: "make-docs.playbook.v2"',
+  'workflowSchema: "make-docs.workflow.v1"',
   "---",
   "",
   "# Tiered",
@@ -44,17 +44,23 @@ const TIER_PLAYBOOK = [
   "",
   "Use in tier verification tests.",
   "",
-  "## Inputs And Authority",
+  "## Inputs",
   "",
   "- User direction first, then repo-local Make Docs contracts.",
   "",
   "## Dependencies",
   "",
-  "| ID | Kind | Requirement | Source | Used By | Fallback |",
-  "| --- | --- | --- | --- | --- | --- |",
-  "| make-docs-cli | cli | optional | package install | ship | run the documented command by hand |",
+  "```playbook",
+  "dependencies:",
+  "  - id: make-docs-cli",
+  "    kind: cli",
+  "    requirement: optional",
+  "    source: package install",
+  "    used_by: [ship]",
+  "    fallback: run the documented command by hand",
+  "```",
   "",
-  "## Workflow Contract",
+  "## Workflow",
   "",
   "```playbook",
   "workflow:",
@@ -80,11 +86,11 @@ const TIER_PLAYBOOK = [
   "",
   "Run the steps in order and report each outcome.",
   "",
-  "## Gates And Decisions",
+  "## Gates",
   "",
   "- Stop at gates until a decision is recorded.",
   "",
-  "## Outputs And Handoff",
+  "## Outputs",
   "",
   "- Record the handoff artifact.",
   "",
@@ -128,7 +134,7 @@ describe("three-tier degradation guarantee (W18 R7 P4, R-TIER-1)", () => {
 
     const source = TIER_PLAYBOOK;
     expect(source).toContain("## Step Guidance");
-    expect(source).toContain("## Workflow Contract");
+    expect(source).toContain("## Workflow");
     const shipIndex = source.indexOf("id: ship");
     const recordIndex = source.indexOf("id: record");
     expect(shipIndex).toBeGreaterThan(-1);

@@ -21,6 +21,7 @@ related:
   - ../../../prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md
   - ../../../prd/34-revise-playbook-contract-and-model.md
   - ../../../prd/35-revise-run-playbook-state-machine.md
+  - ../../../prd/40-revise-playbook-authoring-contract-v2.md
   - ../../../../.make-docs/contracts/system/playbook-contract.md
   - ../../../designs/2026-06-27-run-playbook-orchestration-and-harness-capabilities.md
   - ../../../designs/2026-06-29-playbook-packaging-and-harness-adapter-registry.md
@@ -37,6 +38,8 @@ A Playbook is a reusable workflow document that Make Docs can validate, select, 
 Playbooks live under `docs/assets/playbooks/<persona>/<slug>.playbook.md`. The stable identity is `persona/slug`. An older plain `<slug>.md` file with `kind: playbook` frontmatter is still recognized, but it is a deprecated form: validation flags it with a warning that asks for a rename to `<slug>.playbook.md`. A Playbook also declares a required `stack` value so Make Docs can distinguish between build workflows and run workflows.
 
 The normative document schema — the filename form, frontmatter, required section order, workflow contract block, and dependency registry — is [the Playbook contract](../../../../.make-docs/contracts/system/playbook-contract.md). This guide covers what users do with Playbooks; the contract is the authority for what a Playbook file must contain.
+
+Since the W18 R12 revision that contract is schema v2, written for the human author. The frontmatter declares the short version keys `schema: make-docs.playbook.v2` and `workflowSchema: make-docs.workflow.v1`; the required headings use plain words — `## Inputs`, `## Workflow`, `## Gates`, `## Outputs`, alongside the unchanged `## Purpose`, `## When To Use`, `## Dependencies`, `## Step Guidance`, `## Validation`, and `## Packaging Notes` — and dependencies are declared as a small fenced YAML block (info string `playbook`, top-level key `dependencies:`) instead of a positional table. Each dependency entry names an `id`, `kind`, and `requirement`, may declare a `probe` — the actual binary or reference an availability check should verify, defaulting to the `id` — and carries free-text `source` and `fallback` prose that Make Docs never parses for machine meaning, so provenance notes like `system install of git` are safe to write naturally. The break from the earlier v1 shape is clean: an old-form document does not validate, and each old form fails with an error naming the exact v2 replacement — a `## Dependencies` table is pointed at the fenced `dependencies` block, the old `schemaVersion`/`workflowSchemaVersion` keys at `schema`/`workflowSchema`, and an old heading spelling at the v2 heading for its slot — so migrating an old draft is a matter of following the messages. The contract's worked example shows the full v2 shape, and the installed default Playbook below is a complete conformant document to copy from.
 
 ## Installed Default Playbook
 
@@ -259,6 +262,7 @@ This guide should be refreshed after W18 implementation lands with plugin entry 
 - [33 Enhance Playbook Packaging and Harness Adapter Registry](../../../prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md)
 - [34 Revise Playbook Contract and Model](../../../prd/34-revise-playbook-contract-and-model.md)
 - [35 Revise Run Playbook State Machine](../../../prd/35-revise-run-playbook-state-machine.md)
+- [40 Revise Playbook Authoring Contract v2](../../../prd/40-revise-playbook-authoring-contract-v2.md)
 - [Playbook Contract](../../../../.make-docs/contracts/system/playbook-contract.md)
 - [Run Playbook Orchestration and Harness Capabilities](../../../designs/2026-06-27-run-playbook-orchestration-and-harness-capabilities.md)
 - [Playbook Packaging and Harness Adapter Registry](../../../designs/2026-06-29-playbook-packaging-and-harness-adapter-registry.md)

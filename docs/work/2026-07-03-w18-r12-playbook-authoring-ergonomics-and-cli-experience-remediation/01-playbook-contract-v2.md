@@ -28,12 +28,12 @@ The `## Dependencies` Markdown table becomes a fenced `playbook` block with a to
 
 ### Tasks
 
-- [ ] t1: Add a dependencies-block parser in `packages/cli/src/playbook/parser/` that parses the fenced `playbook` block with top-level key `dependencies` in `## Dependencies` into the typed registry — fields `id`, `kind`, `requirement`, optional `probe` defaulting to `id`, `source`, `used_by` (typed list), `fallback` — enforcing exactly one authoritative `playbook` fence per governed section and erroring when a fence's top-level key does not match its section (R-DEP-1, R-DEP-2).
-- [ ] t2: Delete `packages/cli/src/playbook/parser/dependency-table.ts` and every code path that parses the v1 table; wire the parse stage in `parse-playbook.ts` to the dependencies-block parser (R-MIG-1, R-RIPPLE-1).
-- [ ] t3: Rename the required frontmatter keys to `schema` and `workflowSchema` in `packages/cli/src/playbook/parser/frontmatter.ts` with values and semantics unchanged, and remove acceptance of `schemaVersion`/`workflowSchemaVersion` (R-FM-1).
-- [ ] t4: Update the heading spine in `packages/cli/src/playbook/parser/headings.ts` to the v2 spellings — `## Inputs`, `## Workflow`, `## Gates`, `## Outputs` — with order and presence rules unchanged, and remove acceptance of the old spellings (R-HEAD-1).
-- [ ] t5: Advance the document schema identifier to v2 (for example `make-docs.playbook.v2`) and accept only the v2 identifier; validate the `probe` field against the executable-token pattern when present (R-MIG-3, R-DEP-2).
-- [ ] t6: Extend the model's dependency entry type with `probe` (resolved: declared value or `id` default) and `used_by` as a typed list, keeping every other model surface additive so downstream consumers compile (R-DEP-2; PRD 41 R-INV-1).
+- [x] t1: Add a dependencies-block parser in `packages/cli/src/playbook/parser/` that parses the fenced `playbook` block with top-level key `dependencies` in `## Dependencies` into the typed registry — fields `id`, `kind`, `requirement`, optional `probe` defaulting to `id`, `source`, `used_by` (typed list), `fallback` — enforcing exactly one authoritative `playbook` fence per governed section and erroring when a fence's top-level key does not match its section (R-DEP-1, R-DEP-2).
+- [x] t2: Delete `packages/cli/src/playbook/parser/dependency-table.ts` and every code path that parses the v1 table; wire the parse stage in `parse-playbook.ts` to the dependencies-block parser (R-MIG-1, R-RIPPLE-1).
+- [x] t3: Rename the required frontmatter keys to `schema` and `workflowSchema` in `packages/cli/src/playbook/parser/frontmatter.ts` with values and semantics unchanged, and remove acceptance of `schemaVersion`/`workflowSchemaVersion` (R-FM-1).
+- [x] t4: Update the heading spine in `packages/cli/src/playbook/parser/headings.ts` to the v2 spellings — `## Inputs`, `## Workflow`, `## Gates`, `## Outputs` — with order and presence rules unchanged, and remove acceptance of the old spellings (R-HEAD-1).
+- [x] t5: Advance the document schema identifier to v2 (for example `make-docs.playbook.v2`) and accept only the v2 identifier; validate the `probe` field against the executable-token pattern when present (R-MIG-3, R-DEP-2).
+- [x] t6: Extend the model's dependency entry type with `probe` (resolved: declared value or `id` default) and `used_by` as a typed list, keeping every other model surface additive so downstream consumers compile (R-DEP-2; PRD 41 R-INV-1).
 
 ### Acceptance criteria
 
@@ -49,8 +49,8 @@ The `## Dependencies` Markdown table becomes a fenced `playbook` block with a to
 
 ### Tasks
 
-- [ ] t7: Add error diagnostics to the catalog for each removed v1 form, each with stable code, severity, precise location, message, and fix hint naming the v2 replacement shape: a Markdown table under `## Dependencies` names the fenced `playbook` dependencies block; `schemaVersion`/`workflowSchemaVersion` name `schema`/`workflowSchema`; an old heading spelling names the v2 heading for its slot; a v1 schema identifier names the v2 identifier (R-MIG-2).
-- [ ] t8: Confirm the dropped deprecation diagnostics (PB-DEP-008, PB-FM-009, PB-DOC-010) do not exist anywhere — no warning path accepts an old form (R-MIG-1).
+- [x] t7: Add error diagnostics to the catalog for each removed v1 form, each with stable code, severity, precise location, message, and fix hint naming the v2 replacement shape: a Markdown table under `## Dependencies` names the fenced `playbook` dependencies block; `schemaVersion`/`workflowSchemaVersion` name `schema`/`workflowSchema`; an old heading spelling names the v2 heading for its slot; a v1 schema identifier names the v2 identifier (R-MIG-2).
+- [x] t8: Confirm the dropped deprecation diagnostics (PB-DEP-008, PB-FM-009, PB-DOC-010) do not exist anywhere — no warning path accepts an old form (R-MIG-1).
 
 ### Acceptance criteria
 
@@ -65,10 +65,10 @@ The `## Dependencies` Markdown table becomes a fenced `playbook` block with a to
 
 ### Tasks
 
-- [ ] t9: Rewrite the playbook contract upstream at `packages/docs/template/.make-docs/contracts/system/playbook-contract.md` to the v2 forms — the dependencies-block shape and field table, the `schema`/`workflowSchema` keys, the simplified spine, the v2 schema identifier, and a worked example in the v2 shape — folding the authority/precedence guidance into the `## Inputs` section prose and the contract template text per the resolved user decision (R-HEAD-2, R-RIPPLE-2).
-- [ ] t10: Migrate the default Playbook upstream at `packages/docs/template/docs/assets/playbooks/agent/make-docs-lifecycle.playbook.md` to the full v2 shape as the canonical example (R-MIG-4, R-RIPPLE-1).
-- [ ] t11: Re-seed the dogfood instances — `.make-docs/contracts/system/playbook-contract.md` and `docs/assets/playbooks/agent/make-docs-lifecycle.playbook.md` — from the upstream sources, and update dogfood-only playbook-authoring guides in place downstream (R-RIPPLE-2).
-- [ ] t12: Migrate every parser, validator, and compiler fixture under `packages/cli/tests/` to the v2 forms so no v1 document survives in-tree, adding v1-form fixtures only as negative cases pinned to the pointed diagnostics (R-MIG-4, R-TEST-1).
+- [x] t9: Rewrite the playbook contract upstream at `packages/docs/template/.make-docs/contracts/system/playbook-contract.md` to the v2 forms — the dependencies-block shape and field table, the `schema`/`workflowSchema` keys, the simplified spine, the v2 schema identifier, and a worked example in the v2 shape — folding the authority/precedence guidance into the `## Inputs` section prose and the contract template text per the resolved user decision (R-HEAD-2, R-RIPPLE-2).
+- [x] t10: Migrate the default Playbook upstream at `packages/docs/template/docs/assets/playbooks/agent/make-docs-lifecycle.playbook.md` to the full v2 shape as the canonical example (R-MIG-4, R-RIPPLE-1).
+- [x] t11: Re-seed the dogfood instances — `.make-docs/contracts/system/playbook-contract.md` and `docs/assets/playbooks/agent/make-docs-lifecycle.playbook.md` — from the upstream sources, and update dogfood-only playbook-authoring guides in place downstream (R-RIPPLE-2).
+- [x] t12: Migrate every parser, validator, and compiler fixture under `packages/cli/tests/` to the v2 forms so no v1 document survives in-tree, adding v1-form fixtures only as negative cases pinned to the pointed diagnostics (R-MIG-4, R-TEST-1).
 
 ### Acceptance criteria
 
@@ -84,7 +84,7 @@ The `## Dependencies` Markdown table becomes a fenced `playbook` block with a to
 
 ### Tasks
 
-- [ ] t13: Land the R-TEST-1 suite: the v2 dependencies block, frontmatter keys, and headings parse and validate; each removed v1 form fails with its pointed diagnostic; no v1 form parses to a model; per-diagnostic failing fixtures follow the PRD 34 R-TEST-1 convention.
+- [x] t13: Land the R-TEST-1 suite: the v2 dependencies block, frontmatter keys, and headings parse and validate; each removed v1 form fails with its pointed diagnostic; no v1 form parses to a model; per-diagnostic failing fixtures follow the PRD 34 R-TEST-1 convention.
 
 ### Acceptance criteria
 

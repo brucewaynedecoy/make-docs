@@ -30,7 +30,7 @@ import { operationCliPath } from "../src/operations/registry";
 import { parseAndValidatePlaybook } from "../src/playbook";
 import { defaultSelections, resolveInstallProfile } from "../src/profile";
 import { createEmptySystemAssetManifestState } from "../src/system-assets";
-import { cleanupTempDir, createTempDir } from "./helpers";
+import { cleanupTempDir, createTempDir, dependencyEntryLines } from "./helpers";
 
 const SUPPORT_EVIDENCE_REF = "docs/prd/36-revise-playbook-packaging-compiler-and-harness-adapters.md";
 const CODEX_PLUGIN_PRECONDITIONS = {
@@ -106,16 +106,16 @@ function richPlaybookDocument(input: {
     "      rollback: git checkout the touched files",
   ];
   const dependencyRows = input.dependencyRows ?? [
-    "| make-docs-cli | cli | required | playbook.catalog | catalog | none |",
-    "| ripgrep | cli | optional | rg | catalog | grep |",
-    "| node-packages | package-manager | required | npm | catalog | none |",
-    "| context-server | mcp | preferred | context-mode | guard-tools | continue without extra context |",
-    "| issue-tracker | external-service | optional | https://example.test/api | review-gate | manual updates |",
-    "| review-guide | reference | required | .make-docs/contracts/system/example.md | review-gate | none |",
-    "| style-notes | reference | preferred | https://example.test/style-notes | review-gate | none |",
-    "| commit-helper | skill | preferred | commit-helper | review-gate | manual commit |",
-    "| formatter-plugin | plugin | optional | prettier-plugin | review-gate | manual formatting |",
-    "| child-run | playbook | optional | user/child-run | review-gate | skip |",
+    ...dependencyEntryLines("make-docs-cli", "cli", "required", "playbook.catalog", "catalog", "none"),
+    ...dependencyEntryLines("ripgrep", "cli", "optional", "rg", "catalog", "grep"),
+    ...dependencyEntryLines("node-packages", "package-manager", "required", "npm", "catalog", "none"),
+    ...dependencyEntryLines("context-server", "mcp", "preferred", "context-mode", "guard-tools", "continue without extra context"),
+    ...dependencyEntryLines("issue-tracker", "external-service", "optional", "https://example.test/api", "review-gate", "manual updates"),
+    ...dependencyEntryLines("review-guide", "reference", "required", ".make-docs/contracts/system/example.md", "review-gate", "none"),
+    ...dependencyEntryLines("style-notes", "reference", "preferred", "https://example.test/style-notes", "review-gate", "none"),
+    ...dependencyEntryLines("commit-helper", "skill", "preferred", "commit-helper", "review-gate", "manual commit"),
+    ...dependencyEntryLines("formatter-plugin", "plugin", "optional", "prettier-plugin", "review-gate", "manual formatting"),
+    ...dependencyEntryLines("child-run", "playbook", "optional", "user/child-run", "review-gate", "skip"),
   ];
   return [
     "---",
@@ -125,8 +125,8 @@ function richPlaybookDocument(input: {
     `persona: ${input.persona}`,
     "stack: run",
     ...(input.summary === null ? [] : [`summary: ${input.summary ?? `${input.title} summary.`}`]),
-    "schemaVersion: make-docs.playbook.v1",
-    "workflowSchemaVersion: make-docs.workflow.v1",
+    'schema: "make-docs.playbook.v2"',
+    'workflowSchema: make-docs.workflow.v1',
     "---",
     "",
     `# ${input.title}`,
@@ -139,17 +139,18 @@ function richPlaybookDocument(input: {
     "",
     "Use when a reviewed catalog pass is required before packaging.",
     "",
-    "## Inputs And Authority",
+    "## Inputs",
     "",
     "Repository contracts.",
     "",
     "## Dependencies",
     "",
-    "| ID | Kind | Requirement | Source | Used By | Fallback |",
-    "| --- | --- | --- | --- | --- | --- |",
+    "```playbook",
+    "dependencies:",
     ...dependencyRows,
+    "```",
     "",
-    "## Workflow Contract",
+    "## Workflow",
     "",
     "```playbook",
     "workflow:",
@@ -164,11 +165,11 @@ function richPlaybookDocument(input: {
     "",
     "Follow the steps in order.",
     "",
-    "## Gates And Decisions",
+    "## Gates",
     "",
     "Stop at the review gate until the maintainer approves.",
     "",
-    "## Outputs And Handoff",
+    "## Outputs",
     "",
     "A reviewed catalog record.",
     "",
@@ -413,7 +414,7 @@ describe("packaging compiler distributable inventory (W18 R8 P2)", () => {
         "    uses: [child-run]",
         "    instructions: Run the child playbook.",
       ],
-      dependencyRows: ["| child-run | playbook | required | user/child-run | delegate | none |"],
+      dependencyRows: dependencyEntryLines("child-run", "playbook", "required", "user/child-run", "delegate", "none"),
     });
     writeRichPlaybook(root, "user", "child-run", "Child Run", {
       workflowSteps: [
@@ -424,7 +425,7 @@ describe("packaging compiler distributable inventory (W18 R8 P2)", () => {
         "    activation: sequential",
         "    instructions: Do the child work.",
       ],
-      dependencyRows: ["| conventions | reference | optional | contracts | do-work | none |"],
+      dependencyRows: dependencyEntryLines("conventions", "reference", "optional", "contracts", "do-work", "none"),
     });
 
     const plan = createPlaybookPackagePlan({
@@ -476,7 +477,7 @@ describe("packaging compiler distributable inventory (W18 R8 P2)", () => {
         "    instructions: Do the work.",
       ],
       dependencyRows: [
-        "| commit-helper | skill | preferred | commit-helper | work | manual commit |",
+        ...dependencyEntryLines("commit-helper", "skill", "preferred", "commit-helper", "work", "manual commit"),
       ],
     });
 
@@ -698,7 +699,7 @@ describe("packaging compiler distributable inventory (W18 R8 P2)", () => {
         "    uses: [gone-guide]",
         "    instructions: Do the work.",
       ],
-      dependencyRows: ["| gone-guide | reference | required | docs/never/was-here.md | work | none |"],
+      dependencyRows: dependencyEntryLines("gone-guide", "reference", "required", "docs/never/was-here.md", "work", "none"),
     });
     const missing = createPlaybookPackagePlan({
       repoRoot: root,

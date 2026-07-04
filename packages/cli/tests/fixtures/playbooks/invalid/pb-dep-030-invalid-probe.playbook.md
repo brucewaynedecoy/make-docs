@@ -1,8 +1,9 @@
 ---
 kind: playbook
 title: "Demo Playbook"
+summary: "A demo playbook exercising the fixture suite."
 persona: agent
-stack: sideways
+stack: run
 status: accepted
 schema: "make-docs.playbook.v2"
 workflowSchema: make-docs.workflow.v1
@@ -26,18 +27,13 @@ Repository contracts.
 
 ```playbook
 dependencies:
-  - id: tooling
+  - id: git
     kind: cli
     requirement: required
-    source: package install
+    probe: system install of git
+    source: system install of git
     used_by: [check-tools]
     fallback: stop with install guidance
-  - id: conventions
-    kind: reference
-    requirement: preferred
-    source: .make-docs/contracts/system
-    used_by: [review-gate]
-    fallback: continue with reduced guidance
 ```
 
 ## Workflow
@@ -54,30 +50,8 @@ steps:
     role: check
     activation: sequential
     mode: deterministic
-    requires: [tooling]
+    requires: [git]
     operation: playbook.catalog
-    validation:
-      expect: exit-zero
-    routing:
-      on_failure: stop
-  - id: review-gate
-    title: Review before wrap-up
-    executor: human
-    role: gate
-    activation: sequential
-    uses: [conventions]
-    gate:
-      resolved_by: user
-      evidence: review-note
-      unattended: false
-    routing:
-      on_success: wrap-up
-  - id: wrap-up
-    title: Wrap up
-    executor: agent
-    role: activity
-    activation: sequential
-    instructions: Summarize the run.
 ```
 
 ## Step Guidance

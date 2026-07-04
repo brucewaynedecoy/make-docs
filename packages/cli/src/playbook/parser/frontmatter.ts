@@ -1,10 +1,14 @@
 /**
  * Parser stages 1 and 2: split the frontmatter from the body and parse the
- * frontmatter against the Playbook document schema (R-DOC-3, R-DOC-4).
+ * frontmatter against the Playbook document schema (R-DOC-3, R-DOC-4,
+ * PRD 40 R-FM-1, R-MIG-2..3).
  *
  * Fail-soft: a missing or unparseable frontmatter block emits PB-FM-008 and
  * parsing continues over the body; individual field problems emit PB-FM-002
- * without masking each other.
+ * without masking each other. The v2 clean break lives here too: the removed
+ * v1 keys `schemaVersion`/`workflowSchemaVersion` fail with the pointed
+ * PB-FM-026 naming the v2 key, and a document schema identifier other than
+ * `make-docs.playbook.v2` fails with the pointed PB-FM-028.
  */
 
 import { parseDocument } from "yaml";
@@ -14,6 +18,7 @@ import {
   type PlaybookDiagnostic,
 } from "../diagnostics";
 import {
+  PLAYBOOK_DOCUMENT_SCHEMA_ID,
   PLAYBOOK_DOCUMENT_STACKS,
   PLAYBOOK_DOCUMENT_STATUSES,
   type PlaybookFrontmatter,
@@ -203,20 +208,49 @@ export function parseFrontmatterStage(
     singleLine: true,
   });
   const persona = requireString(byKey.get("persona"), "persona", index, split.frontmatterOffset, diagnostics);
-  const schemaVersion = requireString(
-    byKey.get("schemaVersion"),
-    "schemaVersion",
-    index,
-    split.frontmatterOffset,
-    diagnostics,
-  );
-  const workflowSchemaVersion = requireString(
-    byKey.get("workflowSchemaVersion"),
-    "workflowSchemaVersion",
-    index,
-    split.frontmatterOffset,
-    diagnostics,
-  );
+
+  // Clean v2 break (PRD 40 R-FM-1, R-MIG-2): the removed v1 keys fail with
+  // the pointed diagnostic naming the v2 key. When the old key is the only
+  // declaration, the pointed error replaces the generic missing-field
+  // PB-FM-002 so the author sees exactly one actionable message
+  // (implementer decision).
+  const versionKey = (
+    v2Key: "schema" | "workflowSchema",
+    v1Key: "schemaVersion" | "workflowSchemaVersion",
+  ): Spanned<string> | null => {
+    const removed = byKey.get(v1Key);
+    if (removed) {
+      diagnostics.push(
+        createPlaybookDiagnostic("PB-FM-026", {
+          message: `Frontmatter key \`${v1Key}\` was removed in schema v2; declare \`${v2Key}\` instead, value unchanged.`,
+          section: FRONTMATTER_SECTION,
+          field: v1Key,
+          span: removed.keySpan ?? removed.span,
+        }),
+      );
+      if (!byKey.has(v2Key)) {
+        return null;
+      }
+    }
+    return requireString(byKey.get(v2Key), v2Key, index, split.frontmatterOffset, diagnostics);
+  };
+
+  const schemaVersion = versionKey("schema", "schemaVersion");
+  const workflowSchemaVersion = versionKey("workflowSchema", "workflowSchemaVersion");
+
+  // The document schema identifier advanced to v2 (PRD 40 R-MIG-3): only the
+  // v2 identifier is accepted, and anything else — the v1 identifier above
+  // all — fails with the pointed diagnostic naming the v2 identifier.
+  if (schemaVersion && schemaVersion.value !== PLAYBOOK_DOCUMENT_SCHEMA_ID) {
+    diagnostics.push(
+      createPlaybookDiagnostic("PB-FM-028", {
+        message: `Frontmatter \`schema\` declares \`${schemaVersion.value}\`; this parser reads only \`${PLAYBOOK_DOCUMENT_SCHEMA_ID}\`.`,
+        section: FRONTMATTER_SECTION,
+        field: "schema",
+        span: schemaVersion.span,
+      }),
+    );
+  }
 
   const stackField = requireString(byKey.get("stack"), "stack", index, split.frontmatterOffset, diagnostics);
   const stack = spannedEnum(stackField?.value ?? null, PLAYBOOK_DOCUMENT_STACKS, stackField?.span ?? null);

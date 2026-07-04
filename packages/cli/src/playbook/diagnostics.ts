@@ -11,9 +11,13 @@
  * layered semantic validator (W18 R6 Phase 3) emits — the contract-reserved
  * PB-DEP-004 (warning, unreferenced dependency) and PB-WF-005 (error,
  * deterministic step without operation or command), and the validator codes
- * from PB-FM-012 onward. `PlaybookDiagnosticCode` widens automatically via
- * `keyof`, so the `playbook.validate` operation and a future language server
- * consume one identical catalog (R-MODEL-6).
+ * from PB-FM-012 onward. The W18 R12 clean v2 break (PRD 40 R-MIG-1..3)
+ * adds the pointed old-form error diagnostics PB-DEP-025..PB-DEP-030; the
+ * accept-old-warn deprecation codes proposed in earlier drafts (PB-DEP-008,
+ * PB-FM-009, PB-DOC-010) were dropped and have never existed in this
+ * catalog. `PlaybookDiagnosticCode` widens automatically via `keyof`, so the
+ * `playbook.validate` operation and a future language server consume one
+ * identical catalog (R-MODEL-6).
  */
 
 import type { SourceSpan } from "./source-span";
@@ -32,17 +36,17 @@ export const PLAYBOOK_DIAGNOSTIC_CATALOG = {
   "PB-DOC-001": {
     severity: "error",
     meaning: "A required section is missing or out of order.",
-    hint: "The body must carry the eleven-heading spine in order: `# <Title>`, `## Purpose`, `## When To Use`, `## Inputs And Authority`, `## Dependencies`, `## Workflow Contract`, `## Step Guidance`, `## Gates And Decisions`, `## Outputs And Handoff`, `## Validation`, `## Packaging Notes`. Unknown `##` sections are only allowed after the required spine.",
+    hint: "The body must carry the eleven-heading spine in order: `# <Title>`, `## Purpose`, `## When To Use`, `## Inputs`, `## Dependencies`, `## Workflow`, `## Step Guidance`, `## Gates`, `## Outputs`, `## Validation`, `## Packaging Notes`. Unknown `##` sections are only allowed after the required spine.",
   },
   "PB-FM-002": {
     severity: "error",
     meaning: "A frontmatter field is missing or has an invalid enum value.",
-    hint: "Required frontmatter: `kind: playbook`, non-empty `title`, non-empty single-line `summary`, `persona`, `stack` of `build`|`run`, `status` of `proposed`|`accepted`|`deprecated`, `schemaVersion`, and `workflowSchemaVersion`.",
+    hint: "Required frontmatter: `kind: playbook`, non-empty `title`, non-empty single-line `summary`, `persona`, `stack` of `build`|`run`, `status` of `proposed`|`accepted`|`deprecated`, `schema`, and `workflowSchema`.",
   },
   "PB-DEP-003": {
     severity: "error",
     meaning: "A step references an unknown dependency identifier.",
-    hint: "Every `uses` and `requires` entry must name an `ID` declared in the `## Dependencies` registry table; steps never redefine a dependency inline.",
+    hint: "Every `uses` and `requires` entry must name an `id` declared in the `## Dependencies` registry block; steps never redefine a dependency inline.",
   },
   "PB-DEP-004": {
     severity: "warning",
@@ -71,13 +75,13 @@ export const PLAYBOOK_DIAGNOSTIC_CATALOG = {
   },
   "PB-DEP-009": {
     severity: "error",
-    meaning: "The dependency registry table is missing or does not match the six-column schema.",
-    hint: "Declare dependencies in `## Dependencies` as a Markdown table with exactly the columns `ID`, `Kind`, `Requirement`, `Source`, `Used By`, `Fallback`.",
+    meaning: "The dependencies block is missing, not exactly one per section, or malformed.",
+    hint: "Declare dependencies in `## Dependencies` as exactly one fenced block with the info string `playbook` carrying a top-level `dependencies:` list of entries with fields `id`, `kind`, `requirement`, optional `probe`, `source`, `used_by`, `fallback`.",
   },
   "PB-WF-010": {
     severity: "error",
-    meaning: "The workflow contract is not exactly one `playbook` fenced block inside `## Workflow Contract`.",
-    hint: "Declare exactly one fenced block with the info string `playbook` (not `yaml`) inside the `## Workflow Contract` section.",
+    meaning: "The workflow contract is not exactly one `playbook` fenced block inside `## Workflow`.",
+    hint: "Declare exactly one fenced block with the info string `playbook` (not `yaml`) carrying the `workflow` header and `steps` inside the `## Workflow` section.",
   },
   "PB-WF-011": {
     severity: "error",
@@ -92,17 +96,17 @@ export const PLAYBOOK_DIAGNOSTIC_CATALOG = {
   "PB-DOC-013": {
     severity: "error",
     meaning: "A required narrative section is empty.",
-    hint: "Every required narrative section (`## Purpose`, `## When To Use`, `## Inputs And Authority`, `## Step Guidance`, `## Gates And Decisions`, `## Outputs And Handoff`, `## Validation`, `## Packaging Notes`) must be present and non-empty.",
+    hint: "Every required narrative section (`## Purpose`, `## When To Use`, `## Inputs`, `## Step Guidance`, `## Gates`, `## Outputs`, `## Validation`, `## Packaging Notes`) must be present and non-empty.",
   },
   "PB-DEP-014": {
     severity: "error",
-    meaning: "A dependency declares a Kind or Requirement outside the fixed enumeration.",
-    hint: "`Kind` is one of `cli`, `script`, `mcp`, `skill`, `plugin`, `playbook`, `reference`, `package-manager`, `external-service`, or the optional `asset`; `Requirement` is one of `required`, `optional`, `preferred`, `conditional`.",
+    meaning: "A dependency declares a kind or requirement outside the fixed enumeration.",
+    hint: "`kind` is one of `cli`, `script`, `mcp`, `skill`, `plugin`, `playbook`, `reference`, `package-manager`, `external-service`, or the optional `asset`; `requirement` is one of `required`, `optional`, `preferred`, `conditional`.",
   },
   "PB-DEP-015": {
     severity: "error",
-    meaning: "A dependency ID is empty or duplicates another registry entry.",
-    hint: "Every registry row declares a non-empty `ID` that is unique within the Playbook.",
+    meaning: "A dependency id is empty or duplicates another registry entry.",
+    hint: "Every dependency entry declares a non-empty `id` that is unique within the Playbook.",
   },
   "PB-WF-016": {
     severity: "error",
@@ -149,12 +153,47 @@ export const PLAYBOOK_DIAGNOSTIC_CATALOG = {
     meaning: "An orchestration policy field has an invalid shape.",
     hint: "`requires_capabilities` and `prefers_capabilities` are lists of harness-capability identifier strings; `child_playbooks` is one of `none`, `serial`, `parallel`; `concurrency` is one of `serial`, `parallel-allowed`, `parallel-required`. Shape only — runtime semantics are owned by the Run Playbook orchestration lineage.",
   },
+  // -------------------------------------------------------------------------
+  // W18 R12 clean v2 break: pointed old-form errors (PRD 40 R-MIG-2..3) and
+  // the dependencies-block field rules (R-DEP-1..2). No old form parses to a
+  // model; each diagnostic names the exact v2 replacement shape.
+  // -------------------------------------------------------------------------
+  "PB-DEP-025": {
+    severity: "error",
+    meaning: "The removed v1 dependency Markdown table is declared under `## Dependencies`.",
+    hint: "The v1 dependency table was replaced by the `dependencies` YAML block in schema v2; declare dependencies as one fenced `playbook` block with a top-level `dependencies:` list of entries with fields `id`, `kind`, `requirement`, optional `probe` (defaulting to `id`), `source`, `used_by`, `fallback`.",
+  },
+  "PB-FM-026": {
+    severity: "error",
+    meaning: "A removed v1 frontmatter version key is declared.",
+    hint: "The v1 keys were renamed in schema v2: declare `schema` instead of `schemaVersion` and `workflowSchema` instead of `workflowSchemaVersion`, values unchanged.",
+  },
+  "PB-DOC-027": {
+    severity: "error",
+    meaning: "A removed v1 required-heading spelling is used.",
+    hint: "The v1 heading spellings were simplified in schema v2: `## Inputs And Authority` became `## Inputs`, `## Workflow Contract` became `## Workflow`, `## Gates And Decisions` became `## Gates`, and `## Outputs And Handoff` became `## Outputs`.",
+  },
+  "PB-FM-028": {
+    severity: "error",
+    meaning: "The document schema identifier is not the v2 identifier.",
+    hint: "The parser reads only documents declaring `schema: make-docs.playbook.v2`; the v1 identifier `make-docs.playbook.v1` is not accepted.",
+  },
+  "PB-DOC-029": {
+    severity: "error",
+    meaning: "A `playbook` fence's top-level key does not match its governed section.",
+    hint: "The block inside `## Dependencies` declares the top-level key `dependencies`; the block inside `## Workflow` declares the `workflow` header and `steps`.",
+  },
+  "PB-DEP-030": {
+    severity: "error",
+    meaning: "A declared dependency `probe` does not match the executable-token pattern.",
+    hint: "`probe` is the executable or reference target generated dependency checks verify (defaulting to `id`); when declared it must be a single executable token such as `git` or `@scope/tool`, never prose.",
+  },
 } as const satisfies Record<string, PlaybookDiagnosticDescriptor>;
 
 export type PlaybookDiagnosticCode = keyof typeof PLAYBOOK_DIAGNOSTIC_CATALOG;
 
 export interface PlaybookDiagnosticLocation {
-  /** Section label such as `frontmatter`, `## Dependencies`, or `## Workflow Contract`. */
+  /** Section label such as `frontmatter`, `## Dependencies`, or `## Workflow`. */
   section: string | null;
   /** Field path within the section, such as `stack` or `steps[2].requires`. */
   field: string | null;

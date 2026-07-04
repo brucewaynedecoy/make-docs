@@ -3,12 +3,16 @@
  * block (R-WF-1, R-WF-3..R-WF-5, R-WF-8).
  *
  * Exactly one fenced block with the info string `playbook` (a `yaml` info
- * string does not count) must sit inside `## Workflow Contract`; zero or more
- * than one is a PB-WF-010 error. The block content is YAML-shaped: a
- * `workflow` header mapping and a `steps` sequence. Dimension and policy
- * tokens outside the fixed sets are preserved raw for the Phase 3
- * workflow-layer validator; this stage diagnoses only what stops it from
- * producing typed content (PB-WF-011).
+ * string does not count) must sit inside `## Workflow`; zero or more than
+ * one is a PB-WF-010 error. Since the v2 contract (PRD 40 R-DEP-1) the
+ * dependencies block shares the `playbook` info string, so fences inside
+ * `## Dependencies` are excluded here and the governed sections are told
+ * apart by top-level key: a fence in `## Workflow` whose top-level key is
+ * `dependencies` is a PB-DOC-029 section-mismatch error. The block content
+ * is YAML-shaped: a `workflow` header mapping and a `steps` sequence.
+ * Dimension and policy tokens outside the fixed sets are preserved raw for
+ * the Phase 3 workflow-layer validator; this stage diagnoses only what stops
+ * it from producing typed content (PB-WF-011).
  */
 
 import { parseDocument } from "yaml";
@@ -61,7 +65,7 @@ import {
   type YamlEntry,
 } from "./yaml-nodes";
 
-const WORKFLOW_SECTION = "## Workflow Contract";
+const WORKFLOW_SECTION = "## Workflow";
 
 function entryMap(entries: YamlEntry[]): Map<string, YamlEntry> {
   return new Map(entries.map((entry) => [entry.key, entry]));
@@ -439,12 +443,20 @@ export function parseWorkflowBlockStage(
   source: string,
   bodyOffset: number,
   section: BodySection | null,
+  dependenciesSection: BodySection | null,
   fencedBlocks: FencedBlock[],
   index: LineIndex,
   diagnostics: PlaybookDiagnostic[],
 ): PlaybookWorkflow | null {
+  // The dependencies block shares the `playbook` info string (PRD 40
+  // R-DEP-1); fences inside `## Dependencies` belong to stage 4 and never
+  // count as (or against) the workflow contract block.
+  const inDependenciesSection = (block: FencedBlock): boolean =>
+    dependenciesSection !== null &&
+    bodyOffset + block.openStart >= dependenciesSection.contentStart &&
+    bodyOffset + block.openStart < dependenciesSection.contentEnd;
   const playbookBlocks = fencedBlocks.filter(
-    (block) => block.info === PLAYBOOK_WORKFLOW_BLOCK_INFO,
+    (block) => block.info === PLAYBOOK_WORKFLOW_BLOCK_INFO && !inDependenciesSection(block),
   );
   const inSection = (block: FencedBlock): boolean =>
     section !== null &&
@@ -455,7 +467,7 @@ export function parseWorkflowBlockStage(
     diagnostics.push(
       createPlaybookDiagnostic("PB-WF-010", {
         message:
-          "No `playbook` fenced workflow contract block was found; exactly one is required inside `## Workflow Contract` (a `yaml` info string does not count).",
+          "No `playbook` fenced workflow contract block was found; exactly one is required inside `## Workflow` (a `yaml` info string does not count).",
         section: WORKFLOW_SECTION,
         span: section
           ? index.spanBetween(section.contentStart, section.contentEnd)
@@ -479,7 +491,7 @@ export function parseWorkflowBlockStage(
   if (!inSection(block)) {
     diagnostics.push(
       createPlaybookDiagnostic("PB-WF-010", {
-        message: "The `playbook` workflow contract block must sit inside the `## Workflow Contract` section.",
+        message: "The `playbook` workflow contract block must sit inside the `## Workflow` section.",
         section: WORKFLOW_SECTION,
         span: index.spanBetween(bodyOffset + block.openStart, bodyOffset + block.openEnd),
       }),
@@ -517,6 +529,22 @@ export function parseWorkflowBlockStage(
     return null;
   }
   const byKey = entryMap(rootEntries);
+
+  // Fence/section agreement (PRD 40 R-DEP-1): a `playbook` fence in
+  // `## Workflow` carrying the dependencies block's top-level key belongs to
+  // `## Dependencies` — a pointed section-mismatch error, not a malformed
+  // workflow header.
+  if (byKey.has("dependencies") && !byKey.has("workflow") && !byKey.has("steps")) {
+    diagnostics.push(
+      createPlaybookDiagnostic("PB-DOC-029", {
+        message:
+          "The `playbook` fence inside `## Workflow` declares top-level key `dependencies`; this section's block must declare the `workflow` header and `steps`, and the dependencies block belongs inside `## Dependencies`.",
+        section: WORKFLOW_SECTION,
+        span: blockSpan,
+      }),
+    );
+    return null;
+  }
 
   const header = parseHeader(byKey.get("workflow"), contentBase, index, diagnostics, blockSpan);
 

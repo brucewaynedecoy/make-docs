@@ -4,7 +4,7 @@
  * One parser produces one fully resolved Playbook model, and every downstream
  * consumer reads that model instead of re-parsing Markdown. Parsing proceeds
  * in fixed stages — split frontmatter, parse frontmatter, locate and verify
- * headings, parse the dependency table, locate and parse the single
+ * headings, parse the fenced dependencies block, locate and parse the
  * `playbook` workflow block, resolve cross-references, assemble the model —
  * and each stage emits diagnostics while continuing where possible, so one
  * error never masks the rest. Fail-soft for diagnostics, fail-closed for
@@ -30,7 +30,7 @@ import {
 } from "../detection";
 import type { PlaybookIdentity, PlaybookModel } from "../model";
 import { LineIndex } from "../source-span";
-import { parseDependencyTableStage } from "./dependency-table";
+import { parseDependenciesBlockStage } from "./dependencies-block";
 import { parseFrontmatterStage, splitFrontmatter } from "./frontmatter";
 import { scanHeadingsStage } from "./headings";
 import { resolveCrossReferencesStage } from "./resolve";
@@ -75,21 +75,26 @@ export function parsePlaybook(input: ParsePlaybookInput): ParsePlaybookResult {
   // Stage 3: locate the required headings and verify presence and order.
   const headings = scanHeadingsStage(split.body, split.bodyOffset, index, diagnostics);
 
-  // Stage 4: parse the dependency registry table.
-  const dependencies = parseDependencyTableStage(
+  // Stage 4: parse the fenced dependencies block (PRD 40 R-DEP-1..2).
+  const dependenciesSection = headings.requiredSections.get("Dependencies") ?? null;
+  const dependencies = parseDependenciesBlockStage(
+    input.source,
     split.bodyOffset,
-    headings.requiredSections.get("Dependencies") ?? null,
+    dependenciesSection,
     headings.fencedBlocks,
     headings.lines,
     index,
     diagnostics,
   );
 
-  // Stage 5: locate and parse the single `playbook` workflow block.
+  // Stage 5: locate and parse the `playbook` workflow contract block. The
+  // dependencies section is excluded so its own `playbook` fence never
+  // counts against the workflow block (PRD 40 R-DEP-1 fence discipline).
   const workflow = parseWorkflowBlockStage(
     input.source,
     split.bodyOffset,
-    headings.requiredSections.get("Workflow Contract") ?? null,
+    headings.requiredSections.get("Workflow") ?? null,
+    dependenciesSection,
     headings.fencedBlocks,
     index,
     diagnostics,

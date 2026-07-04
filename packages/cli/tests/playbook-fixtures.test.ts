@@ -89,7 +89,10 @@ const FAILING_FIXTURES: Record<PlaybookDiagnosticCode, FixtureCase[]> = {
     { file: "invalid/pb-file-007-legacy-filename.md" },
   ],
   "PB-FM-008": [{ file: "invalid/pb-fm-008-missing-frontmatter.playbook.md" }],
-  "PB-DEP-009": [{ file: "invalid/pb-dep-009-wrong-columns.playbook.md" }],
+  "PB-DEP-009": [
+    { file: "invalid/pb-dep-009-missing-dependencies-block.playbook.md" },
+    { file: "invalid/pb-dep-009-malformed-dependencies-block.playbook.md" },
+  ],
   "PB-WF-010": [
     {
       file: "invalid/pb-wf-010-zero-blocks.playbook.md",
@@ -127,6 +130,20 @@ const FAILING_FIXTURES: Record<PlaybookDiagnosticCode, FixtureCase[]> = {
   "PB-DEP-022": [{ file: "invalid/pb-dep-022-requires-optional-dependency.playbook.md" }],
   "PB-WF-023": [{ file: "invalid/pb-wf-023-unknown-event.playbook.md" }],
   "PB-WF-024": [{ file: "invalid/pb-wf-024-invalid-orchestration-policy.playbook.md" }],
+  // W18 R12 clean v2 break: each removed v1 form fails with its pointed
+  // diagnostic naming the v2 replacement (PRD 40 R-MIG-2..3, R-TEST-1).
+  "PB-DEP-025": [{ file: "invalid/pb-dep-025-v1-dependency-table.playbook.md" }],
+  "PB-FM-026": [{ file: "invalid/pb-fm-026-removed-frontmatter-keys.playbook.md" }],
+  "PB-DOC-027": [
+    {
+      file: "invalid/pb-doc-027-v1-heading-spelling.playbook.md",
+      // The v2 heading the old spelling displaced still reports missing.
+      allowedCoCodes: ["PB-DOC-001"],
+    },
+  ],
+  "PB-FM-028": [{ file: "invalid/pb-fm-028-v1-schema-identifier.playbook.md" }],
+  "PB-DOC-029": [{ file: "invalid/pb-doc-029-fence-section-mismatch.playbook.md" }],
+  "PB-DEP-030": [{ file: "invalid/pb-dep-030-invalid-probe.playbook.md" }],
 };
 
 describe("valid fixtures (t1)", () => {
@@ -252,35 +269,110 @@ describe("required-heading-order coverage (t3)", () => {
   });
 });
 
-describe("dependency-table schema coverage (t4)", () => {
-  test("wrong columns reject the whole table and parse no entries", () => {
+describe("dependencies-block schema coverage (t4)", () => {
+  test("a missing dependencies block rejects the section and parses no entries", () => {
     const { model, diagnostics } = validateFixture({
-      file: "invalid/pb-dep-009-wrong-columns.playbook.md",
+      file: "invalid/pb-dep-009-missing-dependencies-block.playbook.md",
     });
     expect(codesOf(diagnostics)).toEqual(["PB-DEP-009"]);
     expect(model.dependencies.entries).toHaveLength(0);
   });
 
-  test("invalid kind and requirement enums are diagnosed per cell", () => {
+  test("a malformed dependencies block is diagnosed and parses no entries", () => {
+    const { model, diagnostics } = validateFixture({
+      file: "invalid/pb-dep-009-malformed-dependencies-block.playbook.md",
+    });
+    expect(codesOf(diagnostics)).toEqual(["PB-DEP-009"]);
+    expect(diagnostics[0]!.message).toContain("not parseable YAML");
+    expect(model.dependencies.entries).toHaveLength(0);
+  });
+
+  test("invalid kind and requirement enums are diagnosed per field", () => {
     const { diagnostics } = validateFixture({
       file: "invalid/pb-dep-014-invalid-kind-and-requirement.playbook.md",
     });
     const enumErrors = diagnostics.filter((diagnostic) => diagnostic.code === "PB-DEP-014");
     expect(enumErrors.map((diagnostic) => diagnostic.location.field).sort()).toEqual([
-      "tooling.Kind",
-      "tooling.Requirement",
+      "tooling.kind",
+      "tooling.requirement",
     ]);
     expect(enumErrors[0]!.message).toContain("widget");
     expect(enumErrors[1]!.message).toContain("sometimes");
   });
 
-  test("a duplicate dependency ID is diagnosed against the duplicating row", () => {
+  test("a duplicate dependency id is diagnosed against the duplicating entry", () => {
     const { diagnostics } = validateFixture({
       file: "invalid/pb-dep-015-duplicate-dependency-id.playbook.md",
     });
     const duplicates = diagnostics.filter((diagnostic) => diagnostic.code === "PB-DEP-015");
     expect(duplicates).toHaveLength(1);
     expect(duplicates[0]!.message).toContain("tooling");
+  });
+
+  test("a declared prose probe is a PB-DEP-030 error", () => {
+    const { model, diagnostics } = validateFixture({
+      file: "invalid/pb-dep-030-invalid-probe.playbook.md",
+    });
+    expect(codesOf(diagnostics)).toEqual(["PB-DEP-030"]);
+    expect(diagnostics[0]!.message).toContain("system install of git");
+    expect(model.dependencies.byId.get("git")!.probe.value).toBe("system install of git");
+  });
+});
+
+describe("pointed old-form diagnostics name the v2 replacement (PRD 40 R-MIG-2..3)", () => {
+  test("a v1 dependency table names the fenced dependencies block", () => {
+    const { model, diagnostics } = validateFixture({
+      file: "invalid/pb-dep-025-v1-dependency-table.playbook.md",
+    });
+    expect(codesOf(diagnostics)).toEqual(["PB-DEP-025"]);
+    expect(diagnostics[0]!.message).toContain("`dependencies` YAML block");
+    expect(diagnostics[0]!.message).toContain("schema v2");
+    // The old form never parses to a model.
+    expect(model.dependencies.entries).toHaveLength(0);
+    expect(model.runnable).toBe(false);
+  });
+
+  test("the removed v1 frontmatter keys name schema/workflowSchema", () => {
+    const { model, diagnostics } = validateFixture({
+      file: "invalid/pb-fm-026-removed-frontmatter-keys.playbook.md",
+    });
+    expect(codesOf(diagnostics)).toEqual(["PB-FM-026", "PB-FM-026"]);
+    const messages = diagnostics.map((diagnostic) => diagnostic.message).sort();
+    expect(messages[0]).toContain("`schemaVersion` was removed in schema v2");
+    expect(messages[0]).toContain("declare `schema` instead");
+    expect(messages[1]).toContain("`workflowSchemaVersion` was removed in schema v2");
+    expect(messages[1]).toContain("declare `workflowSchema` instead");
+    expect(model.identity.schemaVersion).toBeNull();
+    expect(model.runnable).toBe(false);
+  });
+
+  test("a v1 heading spelling names the v2 heading for its slot", () => {
+    const { diagnostics } = validateFixture({
+      file: "invalid/pb-doc-027-v1-heading-spelling.playbook.md",
+    });
+    const renamed = diagnostics.filter((diagnostic) => diagnostic.code === "PB-DOC-027");
+    expect(renamed).toHaveLength(1);
+    expect(renamed[0]!.message).toContain("`## Gates And Decisions` heading was renamed in schema v2");
+    expect(renamed[0]!.message).toContain("use `## Gates`");
+  });
+
+  test("the v1 schema identifier names the v2 identifier", () => {
+    const { model, diagnostics } = validateFixture({
+      file: "invalid/pb-fm-028-v1-schema-identifier.playbook.md",
+    });
+    expect(codesOf(diagnostics)).toEqual(["PB-FM-028"]);
+    expect(diagnostics[0]!.message).toContain("make-docs.playbook.v1");
+    expect(diagnostics[0]!.message).toContain("reads only `make-docs.playbook.v2`");
+    expect(model.runnable).toBe(false);
+  });
+
+  test("a fence whose top-level key mismatches its section is a PB-DOC-029 error", () => {
+    const { model, diagnostics } = validateFixture({
+      file: "invalid/pb-doc-029-fence-section-mismatch.playbook.md",
+    });
+    expect(codesOf(diagnostics)).toEqual(["PB-DOC-029"]);
+    expect(diagnostics[0]!.message).toContain("must declare `dependencies`");
+    expect(model.dependencies.entries).toHaveLength(0);
   });
 });
 

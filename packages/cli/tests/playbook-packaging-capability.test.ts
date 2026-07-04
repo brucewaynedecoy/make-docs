@@ -40,7 +40,7 @@ import type {
   SourcePlaybookRef,
 } from "../src/operations";
 import { parseAndValidatePlaybook } from "../src/playbook";
-import { cleanupTempDir, createTempDir } from "./helpers";
+import { cleanupTempDir, createTempDir, dependencyEntryLines } from "./helpers";
 
 const SUPPORT_EVIDENCE_REF = "docs/prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md";
 
@@ -79,7 +79,7 @@ function workflowPlaybookDocument(title: string, options: {
     "    instructions: Summarize the run.",
   ];
   const dependencyRows = options.dependencyRows ?? [
-    "| context-server | mcp | preferred | npm install context-server | guard-tools | continue without extra context |",
+    ...dependencyEntryLines("context-server", "mcp", "preferred", "npm install context-server", "guard-tools", "continue without extra context"),
   ];
   return [
     "---",
@@ -89,8 +89,8 @@ function workflowPlaybookDocument(title: string, options: {
     `persona: ${persona}`,
     "stack: run",
     `summary: ${title} summary.`,
-    "schemaVersion: make-docs.playbook.v1",
-    "workflowSchemaVersion: make-docs.workflow.v1",
+    'schema: "make-docs.playbook.v2"',
+    'workflowSchema: make-docs.workflow.v1',
     "---",
     "",
     `# ${title}`,
@@ -103,17 +103,18 @@ function workflowPlaybookDocument(title: string, options: {
     "",
     "Use in packaging capability tests.",
     "",
-    "## Inputs And Authority",
+    "## Inputs",
     "",
     "Repository contracts.",
     "",
     "## Dependencies",
     "",
-    "| ID | Kind | Requirement | Source | Used By | Fallback |",
-    "| --- | --- | --- | --- | --- | --- |",
+    "```playbook",
+    "dependencies:",
     ...dependencyRows,
+    "```",
     "",
-    "## Workflow Contract",
+    "## Workflow",
     "",
     "```playbook",
     "workflow:",
@@ -128,11 +129,11 @@ function workflowPlaybookDocument(title: string, options: {
     "",
     "Follow the steps in order.",
     "",
-    "## Gates And Decisions",
+    "## Gates",
     "",
     "Stop on unresolved review.",
     "",
-    "## Outputs And Handoff",
+    "## Outputs",
     "",
     "A run summary.",
     "",
@@ -523,7 +524,7 @@ describe("implied agentics, container mapping, and declared degradation", () => 
         "    event: on-pre-commit",
         "    instructions: Guard the commit.",
       ],
-      dependencyRows: ["| conventions | reference | preferred | contracts | guard-commit | continue |"],
+      dependencyRows: dependencyEntryLines("conventions", "reference", "preferred", "contracts", "guard-commit", "continue"),
     });
     const gitAgentics = deriveImpliedAgentics({ model: gitEventModel, sourceRef: "user/git-event" });
     const unmapped = selectPackageContainer({

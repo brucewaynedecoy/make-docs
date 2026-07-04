@@ -24,6 +24,7 @@ related:
   - ../../../designs/2026-07-01-playbook-packaging-compiler-and-harness-adapters.md
   - ../../../prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md
   - ../../../prd/36-revise-playbook-packaging-compiler-and-harness-adapters.md
+  - ../../../prd/40-revise-playbook-authoring-contract-v2.md
   - ../../../work/2026-06-29-w18-r5-playbook-packaging-and-harness-adapter-registry/00-index.md
   - ../../../work/2026-07-01-w18-r8-playbook-packaging-compiler-and-harness-adapters/00-index.md
 ---
@@ -255,6 +256,8 @@ The exact organization of generated files within the harness's layout constraint
 
 `materialization.ts` implements R-DEPMAT-1: the dependency kind declared in the Playbook dependency registry determines exactly how the compiler materializes it.
 
+Since W18 R12 Phase 1 the registry the compiler reads is the v2 fenced `dependencies` block, and the parsed model's entries expose a resolved `probe` field — the declared value or the `id` default — that [PRD 40](../../../prd/40-revise-playbook-authoring-contract-v2.md) R-DEP-3 designates as the only field dependency-check generation may target. Materialization does not consume it yet: `executableToken` still derives the check target from the first word of the dependency's `source` prose, which is exactly the confirmed D-015/F1 defect — a `git` dependency whose source reads `system install of git` generates a check probing a binary named `system`. Rebuilding materialization on the model's `probe` and deleting the `source` scraping is W18 R12 backlog Phase 2's scope; until it lands, F1 is not fixed end-to-end, and generated `cli`/`package-manager` checks remain wrong whenever the author's provenance prose does not lead with the binary name.
+
 | Dependency kind | Materialization |
 | --- | --- |
 | `cli`, `package-manager` | Executable `checks/{id}.sh` script plus human instructions in the skill text. |
@@ -385,6 +388,7 @@ The R-TEST-5 boundary is a maintainer rail, not just prose. An enforcing test re
 
 ## Future Coverage
 
+- Blocked by: W18 R12 backlog Phase 2 (PRD 40 R-DEP-3, R-FIX-1, R-TEST-2; register item D-015). Update when: `materialization.ts` generates `cli` and `package-manager` checks that probe the model's resolved `probe` field and the `executableToken` scraping of `source` prose is deleted, with regression fixtures whose `source` does not begin with the binary name (including the UAT repro). Guide change: replace the honest-defect note in Dependency Materialization with the probe-based behavior, and update the materialization table row for `cli`/`package-manager` if the check shape changes.
 - Blocked by: W18 R9 conformance evidence. Update when: real-harness recognition, installation, invocation, and uninstall runs are recorded in the tuple registry for the claimed tuples, when recorded evidence binds the open tuple dimensions (`scenario`, `modelOrProvider`, `runtime`), and when the Claude Code and Pi contract reviews move their verification statuses past `provisional`. Guide change: replace the tuple-bound provisional-support caveats with the recorded support statuses, document the tuple promotion path as exercised, fold the review outcomes into the verification status table, and revisit the registration seam's `auto-registration-unshipped-pending-conformance` withhold reason once the evidence bar allows an actual opt-in install path to ship.
 
 ## Related Resources
@@ -395,5 +399,6 @@ The R-TEST-5 boundary is a maintainer rail, not just prose. An enforcing test re
 - [Playbook Packaging Compiler and Harness Adapters](../../../designs/2026-07-01-playbook-packaging-compiler-and-harness-adapters.md)
 - [33 Enhance Playbook Packaging and Harness Adapter Registry](../../../prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md)
 - [36 Revise Playbook Packaging Compiler and Harness Adapters](../../../prd/36-revise-playbook-packaging-compiler-and-harness-adapters.md)
+- [40 Revise Playbook Authoring Contract v2](../../../prd/40-revise-playbook-authoring-contract-v2.md)
 - [W18 R5 Work Backlog](../../../work/2026-06-29-w18-r5-playbook-packaging-and-harness-adapter-registry/00-index.md)
 - [W18 R8 Work Backlog](../../../work/2026-07-01-w18-r8-playbook-packaging-compiler-and-harness-adapters/00-index.md)

@@ -12,7 +12,7 @@ import { createPlaybookDiagnostic, type PlaybookDiagnostic } from "../diagnostic
 import { PLAYBOOK_KNOWN_EVENTS, type PlaybookModel } from "../model";
 
 const DEPENDENCIES_SECTION = "## Dependencies";
-const WORKFLOW_SECTION = "## Workflow Contract";
+const WORKFLOW_SECTION = "## Workflow";
 
 /** Consistency layer entry point. */
 export function validateConsistencyLayer(
@@ -59,7 +59,7 @@ export function validateConsistencyLayer(
         createPlaybookDiagnostic("PB-DEP-004", {
           message: `Dependency \`${entry.id.value}\` is declared but never referenced by a step's \`uses\` or \`requires\`.`,
           section: DEPENDENCIES_SECTION,
-          field: `${entry.id.value}.ID`,
+          field: `${entry.id.value}.id`,
           span: entry.id.span ?? entry.span,
         }),
       );

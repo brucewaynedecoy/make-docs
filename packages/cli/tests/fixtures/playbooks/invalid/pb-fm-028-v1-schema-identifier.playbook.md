@@ -5,8 +5,8 @@ summary: "A demo playbook exercising the fixture suite."
 persona: agent
 stack: run
 status: accepted
-schemaVersion: make-docs.playbook.v1
-workflowSchemaVersion: make-docs.workflow.v1
+schema: "make-docs.playbook.v1"
+workflowSchema: make-docs.workflow.v1
 ---
 
 # Demo Playbook
@@ -19,17 +19,23 @@ Explains the demo.
 
 Use in fixture tests.
 
-## Inputs And Authority
+## Inputs
 
 Repository contracts.
 
 ## Dependencies
 
-| Name | Type |
-| --- | --- |
-| tooling | cli |
+```playbook
+dependencies:
+  - id: tooling
+    kind: cli
+    requirement: required
+    source: package install
+    used_by: [check-tools]
+    fallback: stop with install guidance
+```
 
-## Workflow Contract
+## Workflow
 
 ```playbook
 workflow:
@@ -43,24 +49,19 @@ steps:
     role: check
     activation: sequential
     mode: deterministic
+    requires: [tooling]
     operation: playbook.catalog
-  - id: wrap-up
-    title: Wrap up
-    executor: agent
-    role: activity
-    activation: sequential
-    instructions: Summarize the run.
 ```
 
 ## Step Guidance
 
 Follow the steps in order.
 
-## Gates And Decisions
+## Gates
 
 The review gate stops unattended runs.
 
-## Outputs And Handoff
+## Outputs
 
 A run summary.
 

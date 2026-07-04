@@ -5,8 +5,8 @@ summary: "A demo playbook exercising the fixture suite."
 persona: agent
 stack: run
 status: accepted
-schemaVersion: make-docs.playbook.v1
-workflowSchemaVersion: make-docs.workflow.v1
+schema: "make-docs.playbook.v2"
+workflowSchema: make-docs.workflow.v1
 ---
 
 # Demo Playbook
@@ -19,19 +19,35 @@ Explains the demo.
 
 Use in fixture tests.
 
-## Inputs And Authority
+## Inputs
 
 Repository contracts.
 
 ## Dependencies
 
-| ID | Kind | Requirement | Source | Used By | Fallback |
-| --- | --- | --- | --- | --- | --- |
-| tooling | cli | required | package install | check-tools | stop with install guidance |
-| conventions | reference | preferred | .make-docs/contracts/system | review-gate | continue with reduced guidance |
-| tooling | cli | required | elsewhere | check-tools | stop |
+```playbook
+dependencies:
+  - id: tooling
+    kind: cli
+    requirement: required
+    source: package install
+    used_by: [check-tools]
+    fallback: stop with install guidance
+  - id: conventions
+    kind: reference
+    requirement: preferred
+    source: .make-docs/contracts/system
+    used_by: [review-gate]
+    fallback: continue with reduced guidance
+  - id: tooling
+    kind: cli
+    requirement: required
+    source: elsewhere
+    used_by: [check-tools]
+    fallback: stop
+```
 
-## Workflow Contract
+## Workflow
 
 ```playbook
 workflow:
@@ -75,11 +91,11 @@ steps:
 
 Follow the steps in order.
 
-## Gates And Decisions
+## Gates
 
 The review gate stops unattended runs.
 
-## Outputs And Handoff
+## Outputs
 
 A run summary.
 

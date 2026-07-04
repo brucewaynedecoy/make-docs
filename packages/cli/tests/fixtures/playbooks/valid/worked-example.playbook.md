@@ -5,8 +5,8 @@ summary: "Standalone fixture equivalent of the contract's canonical worked examp
 persona: agent
 stack: run
 status: accepted
-schemaVersion: make-docs.playbook.v1
-workflowSchemaVersion: make-docs.workflow.v1
+schema: "make-docs.playbook.v2"
+workflowSchema: make-docs.workflow.v1
 ---
 
 # Make Docs Lifecycle
@@ -19,17 +19,24 @@ Exercises the contract's canonical worked example as a standalone fixture.
 
 Whenever the parser must prove R-WF-7 conformance from a fixture file.
 
-## Inputs And Authority
+## Inputs
 
 The Playbook contract is the authority.
 
 ## Dependencies
 
-| ID | Kind | Requirement | Source | Used By | Fallback |
-| --- | --- | --- | --- | --- | --- |
-| make-docs-cli | cli | required | package install | validate-catalog, enforce-commit-convention | stop with install guidance |
+```playbook
+dependencies:
+  - id: make-docs-cli
+    kind: cli
+    requirement: required
+    probe: make-docs
+    source: package install of the make-docs CLI
+    used_by: [validate-catalog, enforce-commit-convention]
+    fallback: stop with install guidance
+```
 
-## Workflow Contract
+## Workflow
 
 ```playbook
 workflow:
@@ -76,11 +83,11 @@ steps:
 
 Follow the workflow contract.
 
-## Gates And Decisions
+## Gates
 
 The review gate requires user resolution.
 
-## Outputs And Handoff
+## Outputs
 
 A validated catalog.
 

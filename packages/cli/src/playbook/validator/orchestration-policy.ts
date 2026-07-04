@@ -19,7 +19,7 @@ import {
 } from "../model";
 import type { SpannedEnum } from "../source-span";
 
-const WORKFLOW_SECTION = "## Workflow Contract";
+const WORKFLOW_SECTION = "## Workflow";
 
 function isCapabilityList(value: unknown): boolean {
   if (typeof value === "string") {

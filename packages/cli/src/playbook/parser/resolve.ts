@@ -20,7 +20,7 @@ import type {
   PlaybookWorkflow,
 } from "../model";
 
-const WORKFLOW_SECTION = "## Workflow Contract";
+const WORKFLOW_SECTION = "## Workflow";
 
 function resolveDependencyReferences(
   references: PlaybookDependencyReference[],

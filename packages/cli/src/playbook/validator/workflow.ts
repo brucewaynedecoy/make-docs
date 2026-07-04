@@ -22,7 +22,7 @@ import {
 } from "../model";
 import type { SourceSpan, SpannedEnum } from "../source-span";
 
-const WORKFLOW_SECTION = "## Workflow Contract";
+const WORKFLOW_SECTION = "## Workflow";
 
 function requireHeaderField(
   value: { value: string } | null,

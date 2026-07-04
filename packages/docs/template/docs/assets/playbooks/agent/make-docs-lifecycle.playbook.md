@@ -5,8 +5,8 @@ persona: "agent"
 status: "accepted"
 stack: "build"
 summary: "Guide agents through the Make Docs lifecycle from source evidence to implementation and closeout."
-schemaVersion: "make-docs.playbook.v1"
-workflowSchemaVersion: "make-docs.workflow.v1"
+schema: "make-docs.playbook.v2"
+workflowSchema: "make-docs.workflow.v1"
 ---
 
 # Make Docs Lifecycle Playbook
@@ -21,9 +21,9 @@ This playbook is the agent persona's map for working through the make-docs lifec
 
 Use this playbook whenever an agent works a Make Docs lifecycle stage, from optional source inputs through design, planning, PRD, work backlog, implementation, coverage pass, commit, release, archival, and retrospective. When user direction or repo evidence warrants a skip, reorder, or revisit, surface that departure and record the reason in the relevant artifact.
 
-## Inputs And Authority
+## Inputs
 
-Use authority in this order:
+Lifecycle inputs arrive with an authority and precedence order; use authority in this order:
 
 1. Explicit user direction for the current task.
 2. Repo-local `AGENTS.md` and routed Make Docs instructions.
@@ -33,17 +33,54 @@ Use authority in this order:
 
 ## Dependencies
 
-| ID | Kind | Requirement | Source | Used By | Fallback |
-| --- | --- | --- | --- | --- | --- |
-| lifecycle-reference | reference | required | `.make-docs/references/system/lifecycle.md` | identify-stage | stop and ask the user for the intended stage order |
-| docs-router | reference | required | `docs/AGENTS.md` and `docs/CLAUDE.md` | read-stage-authority | follow explicit user direction and current repo evidence |
-| system-templates | reference | optional | `.make-docs/templates/system/` | produce-stage-artifact | author the artifact from the matching contract alone |
-| coverage-pass-contract | reference | required | `.make-docs/contracts/system/coverage-pass-contract.md` | run-coverage-pass | record manual coverage verdicts with reasons |
-| make-docs-cli | cli | required | package install (`make-docs`) | validate-playbook-coverage | stop with install guidance |
-| history-record-contract | reference | required | `.make-docs/contracts/system/history-record-contract.md` | record-handoff | summarize the handoff in the final response |
-| commit-message-convention | reference | required | `.make-docs/contracts/system/commit-message-convention.md` | enforce-commit-convention | draft the commit message for user review |
+```playbook
+dependencies:
+  - id: lifecycle-reference
+    kind: reference
+    requirement: required
+    source: .make-docs/references/system/lifecycle.md
+    used_by: [identify-stage]
+    fallback: stop and ask the user for the intended stage order
+  - id: docs-router
+    kind: reference
+    requirement: required
+    source: docs/AGENTS.md and docs/CLAUDE.md
+    used_by: [read-stage-authority]
+    fallback: follow explicit user direction and current repo evidence
+  - id: system-templates
+    kind: reference
+    requirement: optional
+    source: .make-docs/templates/system/
+    used_by: [produce-stage-artifact]
+    fallback: author the artifact from the matching contract alone
+  - id: coverage-pass-contract
+    kind: reference
+    requirement: required
+    source: .make-docs/contracts/system/coverage-pass-contract.md
+    used_by: [run-coverage-pass]
+    fallback: record manual coverage verdicts with reasons
+  - id: make-docs-cli
+    kind: cli
+    requirement: required
+    probe: make-docs
+    source: package install of the make-docs CLI
+    used_by: [validate-playbook-coverage]
+    fallback: stop with install guidance
+  - id: history-record-contract
+    kind: reference
+    requirement: required
+    source: .make-docs/contracts/system/history-record-contract.md
+    used_by: [record-handoff]
+    fallback: summarize the handoff in the final response
+  - id: commit-message-convention
+    kind: reference
+    requirement: required
+    source: .make-docs/contracts/system/commit-message-convention.md
+    used_by: [enforce-commit-convention]
+    fallback: draft the commit message for user review
+```
 
-## Workflow Contract
+## Workflow
 
 ```playbook
 workflow:
@@ -67,7 +104,7 @@ steps:
     activation: sequential
     mode: delegated
     uses: [docs-router]
-    instructions: Read the routed instructions and source artifact for the stage before writing, honoring the authority order in Inputs And Authority.
+    instructions: Read the routed instructions and source artifact for the stage before writing, honoring the authority order in Inputs.
 
   - id: produce-stage-artifact
     title: Produce or update the stage artifact
@@ -501,11 +538,11 @@ Capture what changed, what worked, what should change next, and which follow-up 
 
 The next lifecycle pass inherits any explicit follow-up, risk, or process change.
 
-## Gates And Decisions
+## Gates
 
 Every stage section in Step Guidance carries its own decision points, and stage departures are themselves decisions: surface a skip, reorder, or revisit and record the reason in the relevant artifact. The `closeout-review-gate` step is the one hard gate in the linear walk: the user resolves it against the recorded closeout verdicts, and unattended continuation past it is not allowed. Commit, push, and release remain user decisions; the workflow never assumes commit or push authorization.
 
-## Outputs And Handoff
+## Outputs
 
 Each pass through the workflow leaves the stage artifact it produced, the recorded coverage verdicts, and the handoff evidence for the next stage. The per-stage Handoff notes in Step Guidance describe what the next stage inherits; history and breadcrumb records land under `docs/assets/archive/history/` when the active workflow requests them.
 

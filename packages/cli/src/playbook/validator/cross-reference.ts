@@ -12,7 +12,7 @@
 import { createPlaybookDiagnostic, type PlaybookDiagnostic } from "../diagnostics";
 import type { PlaybookModel } from "../model";
 
-const WORKFLOW_SECTION = "## Workflow Contract";
+const WORKFLOW_SECTION = "## Workflow";
 
 /** Cross-reference layer entry point. */
 export function validateCrossReferenceLayer(

@@ -124,36 +124,76 @@ export type PlaybookConcurrencyPolicy = (typeof PLAYBOOK_CONCURRENCY_POLICIES)[n
 // ---------------------------------------------------------------------------
 
 export const PLAYBOOK_FILE_SUFFIX = ".playbook.md";
-/** Workflow contract fenced-block info string; `yaml` does not count (R-WF-1). */
+/**
+ * Fenced-block info string shared by the two authoritative YAML blocks — the
+ * dependencies block and the workflow contract block — distinguished by their
+ * top-level keys; `yaml` does not count (R-WF-1, PRD 40 R-DEP-1).
+ */
 export const PLAYBOOK_WORKFLOW_BLOCK_INFO = "playbook";
+/** Top-level key of the fenced dependencies block in `## Dependencies` (PRD 40 R-DEP-1). */
+export const PLAYBOOK_DEPENDENCIES_BLOCK_KEY = "dependencies";
 
-/** The ten required `##` headings, in required order (R-DOC-5). */
+/**
+ * The v2 document schema identifier (PRD 40 R-MIG-3). The parser accepts only
+ * this identifier; the v1 identifier fails with the pointed PB-FM-028
+ * diagnostic naming this replacement.
+ */
+export const PLAYBOOK_DOCUMENT_SCHEMA_ID = "make-docs.playbook.v2";
+/**
+ * The workflow contract schema identifier. PRD 40 advances only the document
+ * schema; the workflow block shape is unchanged from W18 R6, so the workflow
+ * schema identifier stays at v1 (implementer decision recorded here).
+ */
+export const PLAYBOOK_WORKFLOW_SCHEMA_ID = "make-docs.workflow.v1";
+
+/**
+ * The executable-token pattern a declared dependency `probe` must match
+ * (PRD 40 R-DEP-2). Shared with the packaging compiler's dependency
+ * materialization, whose generated checks may target only this field
+ * (R-DEP-3).
+ */
+export const PLAYBOOK_PROBE_TOKEN_RE = /^[A-Za-z0-9@][\w@./-]*$/;
+
+/** The ten required `##` headings, in required order (R-DOC-5, PRD 40 R-HEAD-1). */
 export const PLAYBOOK_REQUIRED_H2_HEADINGS = [
   "Purpose",
   "When To Use",
-  "Inputs And Authority",
+  "Inputs",
   "Dependencies",
-  "Workflow Contract",
+  "Workflow",
   "Step Guidance",
-  "Gates And Decisions",
-  "Outputs And Handoff",
+  "Gates",
+  "Outputs",
   "Validation",
   "Packaging Notes",
 ] as const;
 export type PlaybookRequiredH2Heading = (typeof PLAYBOOK_REQUIRED_H2_HEADINGS)[number];
 
 /**
+ * Removed v1 heading spellings mapped to the v2 heading for the same slot
+ * (PRD 40 R-HEAD-1..2, R-MIG-2). Only the v2 spellings parse; an old
+ * spelling fails with the pointed PB-DOC-027 diagnostic naming its
+ * replacement.
+ */
+export const PLAYBOOK_V1_HEADING_RENAMES: Readonly<Record<string, PlaybookRequiredH2Heading>> = {
+  "Inputs And Authority": "Inputs",
+  "Workflow Contract": "Workflow",
+  "Gates And Decisions": "Gates",
+  "Outputs And Handoff": "Outputs",
+};
+
+/**
  * Required narrative sections (everything in the spine except the two
- * authoritative sections `Dependencies` and `Workflow Contract`), keyed by a
+ * authoritative sections `Dependencies` and `Workflow`), keyed by a
  * stable slug for the presence map.
  */
 export const PLAYBOOK_NARRATIVE_SECTIONS = {
   purpose: "Purpose",
   "when-to-use": "When To Use",
-  "inputs-and-authority": "Inputs And Authority",
+  inputs: "Inputs",
   "step-guidance": "Step Guidance",
-  "gates-and-decisions": "Gates And Decisions",
-  "outputs-and-handoff": "Outputs And Handoff",
+  gates: "Gates",
+  outputs: "Outputs",
   validation: "Validation",
   "packaging-notes": "Packaging Notes",
 } as const;
@@ -176,9 +216,14 @@ export interface PlaybookIdentity {
   slug: string;
   /** Which naming form the file uses (R-DOC-2). */
   fileForm: PlaybookFileForm;
-  /** Document schema version string, for example `make-docs.playbook.v1`. */
+  /**
+   * Document schema version string from the `schema` frontmatter key
+   * (`make-docs.playbook.v2`). The model field keeps its descriptive
+   * `schemaVersion` name so downstream consumers stay source-compatible
+   * across the PRD 40 key rename (implementer decision).
+   */
   schemaVersion: string | null;
-  /** Workflow contract schema version string, for example `make-docs.workflow.v1`. */
+  /** Workflow contract schema version string from `workflowSchema`, for example `make-docs.workflow.v1`. */
   workflowSchemaVersion: string | null;
   persona: string | null;
   /** Persona implied by the containing folder, for Phase 3 folder-match checks. */
@@ -195,7 +240,9 @@ export interface PlaybookFrontmatter {
   persona: Spanned<string> | null;
   stack: SpannedEnum<PlaybookDocumentStack>;
   status: SpannedEnum<PlaybookDocumentStatus>;
+  /** Parsed from the v2 `schema` frontmatter key (PRD 40 R-FM-1). */
   schemaVersion: Spanned<string> | null;
+  /** Parsed from the v2 `workflowSchema` frontmatter key (PRD 40 R-FM-1). */
   workflowSchemaVersion: Spanned<string> | null;
   id: Spanned<string> | null;
   /** Non-authoritative packaging hints; they inform, never bind (R-DOC-4). */
@@ -213,21 +260,31 @@ export interface PlaybookDependency {
   id: Spanned<string>;
   kind: SpannedEnum<PlaybookDependencyKind>;
   requirement: SpannedEnum<PlaybookDependencyRequirement>;
+  /**
+   * The resolved probe target dependency checks verify (PRD 40 R-DEP-2..3):
+   * the declared `probe` value when present, else the dependency `id`. This
+   * is the ONLY field dependency-check generation may target; `source` is
+   * never parsed for machine meaning.
+   */
+  probe: Spanned<string>;
+  /** True when the entry declared `probe` explicitly rather than defaulting to `id`. */
+  probeDeclared: boolean;
+  /** Human provenance prose; never parsed for machine meaning by anything (R-DEP-2). */
   source: Spanned<string>;
   usedBy: Spanned<string>[];
   fallback: Spanned<string>;
   /** Step ids that reference this dependency via `uses` or `requires`, filled at resolve time. */
   referencedBy: string[];
-  /** Span of the full table row. */
+  /** Span of the full dependency entry. */
   span: SourceSpan;
 }
 
 export interface PlaybookDependencyRegistry {
   /** Registry records keyed by identifier; first declaration wins on duplicates. */
   byId: Map<string, PlaybookDependency>;
-  /** All parsed rows in declaration order, including duplicates for Phase 3 checks. */
+  /** All parsed entries in declaration order, including duplicates for Phase 3 checks. */
   entries: PlaybookDependency[];
-  /** Span of the parsed table, when one was found. */
+  /** Span of the parsed dependencies block content, when one was found. */
   span: SourceSpan | null;
 }
 

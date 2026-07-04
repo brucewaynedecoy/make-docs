@@ -862,7 +862,7 @@ function renderSafetyBoundaries(input: {
   sourceRef: string;
 }): string[] {
   const lines: string[] = [];
-  const gates = narrativeText(input.compiled, "gates-and-decisions");
+  const gates = narrativeText(input.compiled, "gates");
   if (gates) {
     lines.push(gates, "");
   }

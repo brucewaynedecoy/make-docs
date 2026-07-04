@@ -13,6 +13,36 @@ const RAW_REPO_PREFIX = "https://raw.githubusercontent.com/brucewaynedecoy/make-
 
 export type TestInstallSelections = ReturnType<typeof defaultSelections>;
 
+/**
+ * Renders one entry of the v2 fenced `playbook` dependencies block as builder
+ * lines (PRD 40 R-DEP-2). `usedBy` accepts comma-separated step ids; `probe`
+ * is optional and defaults to `id` at parse time.
+ */
+export function dependencyEntryLines(
+  id: string,
+  kind: string,
+  requirement: string,
+  source: string,
+  usedBy: string,
+  fallback: string,
+  options: { probe?: string } = {},
+): string[] {
+  const usedByList = usedBy
+    .split(",")
+    .map((token) => token.trim())
+    .filter(Boolean)
+    .join(", ");
+  return [
+    `  - id: ${id}`,
+    `    kind: ${kind}`,
+    `    requirement: ${requirement}`,
+    ...(options.probe ? [`    probe: ${options.probe}`] : []),
+    `    source: ${source}`,
+    `    used_by: [${usedByList}]`,
+    `    fallback: ${fallback}`,
+  ];
+}
+
 export function createTempDir(prefix = "make-docs-test-"): string {
   const tempDir = mkdtempSync(path.join(os.tmpdir(), prefix));
   // Registered for the suite-wide R-TEST-5 run-state boundary sweep; see

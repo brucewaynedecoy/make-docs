@@ -8,18 +8,29 @@ Explains the demo.
 
 Use in fixture tests.
 
-## Inputs And Authority
+## Inputs
 
 Repository contracts.
 
 ## Dependencies
 
-| ID | Kind | Requirement | Source | Used By | Fallback |
-| --- | --- | --- | --- | --- | --- |
-| tooling | cli | required | package install | check-tools | stop with install guidance |
-| conventions | reference | preferred | .make-docs/contracts/system | review-gate | continue with reduced guidance |
+```playbook
+dependencies:
+  - id: tooling
+    kind: cli
+    requirement: required
+    source: package install
+    used_by: [check-tools]
+    fallback: stop with install guidance
+  - id: conventions
+    kind: reference
+    requirement: preferred
+    source: .make-docs/contracts/system
+    used_by: [review-gate]
+    fallback: continue with reduced guidance
+```
 
-## Workflow Contract
+## Workflow
 
 ```playbook
 workflow:
@@ -63,11 +74,11 @@ steps:
 
 Follow the steps in order.
 
-## Gates And Decisions
+## Gates
 
 The review gate stops unattended runs.
 
-## Outputs And Handoff
+## Outputs
 
 A run summary.
 

@@ -22,14 +22,37 @@ summary: "A demo playbook exercising the validator."
 persona: agent
 stack: run
 status: accepted
-schemaVersion: make-docs.playbook.v1
-workflowSchemaVersion: make-docs.workflow.v1
+schema: make-docs.playbook.v2
+workflowSchema: make-docs.workflow.v1
 ---`;
 
-const DEPENDENCY_TABLE = `| ID | Kind | Requirement | Source | Used By | Fallback |
-| --- | --- | --- | --- | --- | --- |
-| tooling | cli | required | package install | check-tools | stop with install guidance |
-| conventions | reference | preferred | .make-docs/contracts/system | review-gate | continue with reduced guidance |`;
+const DEPENDENCIES_BLOCK = `\`\`\`playbook
+dependencies:
+  - id: tooling
+    kind: cli
+    requirement: required
+    source: package install
+    used_by: [check-tools]
+    fallback: stop with install guidance
+  - id: conventions
+    kind: reference
+    requirement: preferred
+    source: .make-docs/contracts/system
+    used_by: [review-gate]
+    fallback: continue with reduced guidance
+\`\`\``;
+
+/** An extra, never-referenced dependency entry appended inside the block. */
+const SPARE_DEPENDENCY = `  - id: spare
+    kind: cli
+    requirement: optional
+    source: package install
+    used_by: [nobody]
+    fallback: continue`;
+
+function appendDependency(entry: string): string {
+  return DEPENDENCIES_BLOCK.replace("\n\`\`\`", `\n${entry}\n\`\`\``);
+}
 
 const WORKFLOW_BLOCK = `\`\`\`playbook
 workflow:
@@ -78,12 +101,12 @@ function defaultSections(): SectionSpec[] {
   return [
     { heading: "## Purpose", content: "Explains the demo." },
     { heading: "## When To Use", content: "Use in validator tests." },
-    { heading: "## Inputs And Authority", content: "Repository contracts." },
-    { heading: "## Dependencies", content: DEPENDENCY_TABLE },
-    { heading: "## Workflow Contract", content: WORKFLOW_BLOCK },
+    { heading: "## Inputs", content: "Repository contracts." },
+    { heading: "## Dependencies", content: DEPENDENCIES_BLOCK },
+    { heading: "## Workflow", content: WORKFLOW_BLOCK },
     { heading: "## Step Guidance", content: "Follow the steps in order." },
-    { heading: "## Gates And Decisions", content: "The review gate stops unattended runs." },
-    { heading: "## Outputs And Handoff", content: "A run summary." },
+    { heading: "## Gates", content: "The review gate stops unattended runs." },
+    { heading: "## Outputs", content: "A run summary." },
     { heading: "## Validation", content: "The catalog check must exit zero." },
     { heading: "## Packaging Notes", content: "No packaging hints." },
   ];
@@ -115,7 +138,7 @@ function buildDocument(
 function replaceWorkflow(replacer: (content: string) => string) {
   return (sections: SectionSpec[]): SectionSpec[] =>
     sections.map((section) =>
-      section.heading === "## Workflow Contract"
+      section.heading === "## Workflow"
         ? { ...section, content: replacer(section.content) }
         : section,
     );
@@ -197,7 +220,7 @@ describe("validator entry points", () => {
           content.replace("uses: [conventions]", "requires: [conventions]"),
         )(
           replaceDependencies(
-            DEPENDENCY_TABLE.replace("| conventions | reference | preferred |", "| conventions | reference | optional |"),
+            DEPENDENCIES_BLOCK.replace("requirement: preferred", "requirement: optional"),
           )(sections),
         ),
     });
@@ -212,9 +235,7 @@ describe("validator entry points", () => {
 
   test("a lone warning leaves the model runnable: fail-closed applies to errors only", () => {
     const source = buildDocument({
-      transform: replaceDependencies(
-        `${DEPENDENCY_TABLE}\n| spare | cli | optional | package install | nobody | continue |`,
-      ),
+      transform: replaceDependencies(appendDependency(SPARE_DEPENDENCY)),
     });
     const { model, diagnostics } = validateDocumentAt(source);
     expect(codesOf(diagnostics)).toEqual(["PB-DEP-004"]);
@@ -281,13 +302,11 @@ describe("the seven contract catalog codes (R-MODEL-5)", () => {
   test("PB-DEP-004 (warning): a declared dependency is never referenced", () => {
     const { diagnostics } = validateDocumentAt(
       buildDocument({
-        transform: replaceDependencies(
-          `${DEPENDENCY_TABLE}\n| spare | cli | optional | package install | nobody | continue |`,
-        ),
+        transform: replaceDependencies(appendDependency(SPARE_DEPENDENCY)),
       }),
     );
     const diagnostic = onlyDiagnostic(diagnostics, "PB-DEP-004");
-    expectFullRecord(diagnostic, "PB-DEP-004", "warning", { field: "spare.ID" });
+    expectFullRecord(diagnostic, "PB-DEP-004", "warning", { field: "spare.id" });
     expect(diagnostic.message).toContain("spare");
     expect(diagnostic.location.section).toBe("## Dependencies");
   });
@@ -361,17 +380,17 @@ describe("registry layer", () => {
     const { diagnostics } = validateDocumentAt(
       buildDocument({
         transform: replaceDependencies(
-          `| ID | Kind | Requirement | Source | Used By | Fallback |
-| --- | --- | --- | --- | --- | --- |
-| tooling | widget | sometimes | somewhere | check-tools | stop |
-| conventions | reference | preferred | .make-docs | review-gate | continue |`,
+          DEPENDENCIES_BLOCK.replace("kind: cli", "kind: widget").replace(
+            "requirement: required",
+            "requirement: sometimes",
+          ),
         ),
       }),
     );
     const enumErrors = diagnostics.filter((diagnostic) => diagnostic.code === "PB-DEP-014");
     expect(enumErrors).toHaveLength(2);
-    expectFullRecord(enumErrors[0]!, "PB-DEP-014", "error", { field: "tooling.Kind" });
-    expectFullRecord(enumErrors[1]!, "PB-DEP-014", "error", { field: "tooling.Requirement" });
+    expectFullRecord(enumErrors[0]!, "PB-DEP-014", "error", { field: "tooling.kind" });
+    expectFullRecord(enumErrors[1]!, "PB-DEP-014", "error", { field: "tooling.requirement" });
     expect(enumErrors[0]!.message).toContain("widget");
     expect(enumErrors[1]!.message).toContain("sometimes");
   });
@@ -380,35 +399,76 @@ describe("registry layer", () => {
     const { diagnostics } = validateDocumentAt(
       buildDocument({
         transform: replaceDependencies(
-          DEPENDENCY_TABLE.replace("| conventions | reference |", "| conventions | asset |"),
+          DEPENDENCIES_BLOCK.replace("kind: reference", "kind: asset"),
         ),
       }),
     );
     expect(diagnostics).toEqual([]);
   });
 
-  test("PB-DEP-015: a duplicate dependency ID is an error", () => {
+  test("PB-DEP-015: a duplicate dependency id is an error", () => {
     const { diagnostics } = validateDocumentAt(
       buildDocument({
         transform: replaceDependencies(
-          `${DEPENDENCY_TABLE}\n| tooling | cli | required | elsewhere | check-tools | stop |`,
+          appendDependency(`  - id: tooling
+    kind: cli
+    requirement: required
+    source: elsewhere
+    used_by: [check-tools]
+    fallback: stop`),
         ),
       }),
     );
     const diagnostic = onlyDiagnostic(diagnostics, "PB-DEP-015");
-    expectFullRecord(diagnostic, "PB-DEP-015", "error", { field: "tooling.ID" });
+    expectFullRecord(diagnostic, "PB-DEP-015", "error", { field: "tooling.id" });
     expect(diagnostic.message).toContain("more than once");
   });
 
-  test("PB-DEP-015: an empty dependency ID is an error", () => {
+  test("PB-DEP-015: an empty dependency id is an error", () => {
     const { diagnostics } = validateDocumentAt(
       buildDocument({
         transform: replaceDependencies(
-          `${DEPENDENCY_TABLE}\n|  | cli | optional | somewhere | nobody | continue |`,
+          appendDependency(`  - id: ""
+    kind: cli
+    requirement: optional
+    source: somewhere
+    used_by: [nobody]
+    fallback: continue`),
         ),
       }),
     );
     expect(codesOf(diagnostics)).toContain("PB-DEP-015");
+  });
+
+  test("PB-DEP-030: a declared probe outside the executable-token pattern is an error", () => {
+    const { diagnostics } = validateDocumentAt(
+      buildDocument({
+        transform: replaceDependencies(
+          DEPENDENCIES_BLOCK.replace(
+            "    source: package install",
+            "    probe: not an executable token\n    source: package install",
+          ),
+        ),
+      }),
+    );
+    const diagnostic = onlyDiagnostic(diagnostics, "PB-DEP-030");
+    expectFullRecord(diagnostic, "PB-DEP-030", "error", { field: "tooling.probe" });
+    expect(diagnostic.message).toContain("not an executable token");
+  });
+
+  test("a declared executable-token probe validates cleanly", () => {
+    const { model, diagnostics } = validateDocumentAt(
+      buildDocument({
+        transform: replaceDependencies(
+          DEPENDENCIES_BLOCK.replace(
+            "    source: package install",
+            "    probe: tooling-cli\n    source: package install",
+          ),
+        ),
+      }),
+    );
+    expect(diagnostics).toEqual([]);
+    expect(model.dependencies.byId.get("tooling")!.probe.value).toBe("tooling-cli");
   });
 });
 
@@ -626,10 +686,7 @@ describe("consistency layer", () => {
             content.replace("uses: [conventions]", "requires: [conventions]"),
           )(
             replaceDependencies(
-              DEPENDENCY_TABLE.replace(
-                "| conventions | reference | preferred |",
-                "| conventions | reference | optional |",
-              ),
+              DEPENDENCIES_BLOCK.replace("requirement: preferred", "requirement: optional"),
             )(sections),
           ),
       }),
@@ -682,7 +739,7 @@ describe("layer independence", () => {
             content.replace("    operation: playbook.catalog\n", ""),
           )(
             replaceDependencies(
-              DEPENDENCY_TABLE.replace("| tooling | cli |", "| tooling | widget |"),
+              DEPENDENCIES_BLOCK.replace("kind: cli", "kind: widget"),
             )(
               sections.map((section) =>
                 section.heading === "## Purpose" ? { ...section, content: "" } : section,
@@ -724,8 +781,8 @@ summary: "Canonical worked example from the Playbook contract."
 persona: agent
 stack: run
 status: accepted
-schemaVersion: make-docs.playbook.v1
-workflowSchemaVersion: make-docs.workflow.v1
+schema: make-docs.playbook.v2
+workflowSchema: make-docs.workflow.v1
 ---
 
 # Make Docs Lifecycle
@@ -738,7 +795,7 @@ Exercises the contract's canonical worked example.
 
 Whenever the validator must prove contract parity.
 
-## Inputs And Authority
+## Inputs
 
 The Playbook contract is the authority.
 
@@ -748,11 +805,11 @@ ${example}
 
 Follow the workflow contract.
 
-## Gates And Decisions
+## Gates
 
 The review gate requires user resolution.
 
-## Outputs And Handoff
+## Outputs
 
 A validated catalog.
 

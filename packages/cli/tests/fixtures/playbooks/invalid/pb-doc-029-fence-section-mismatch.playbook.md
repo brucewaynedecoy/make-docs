@@ -26,19 +26,8 @@ Repository contracts.
 ## Dependencies
 
 ```playbook
-dependencies:
-  - id: tooling
-    kind: cli
-    requirement: required
-    source: package install
-    used_by: [check-tools]
-    fallback: stop with install guidance
-  - id: conventions
-    kind: reference
-    requirement: optional
-    source: .make-docs/contracts/system
-    used_by: [review-gate]
-    fallback: continue with reduced guidance
+workflow:
+  id: misplaced
 ```
 
 ## Workflow
@@ -55,30 +44,7 @@ steps:
     role: check
     activation: sequential
     mode: deterministic
-    requires: [tooling]
     operation: playbook.catalog
-    validation:
-      expect: exit-zero
-    routing:
-      on_failure: stop
-  - id: review-gate
-    title: Review before wrap-up
-    executor: human
-    role: gate
-    activation: sequential
-    requires: [conventions]
-    gate:
-      resolved_by: user
-      evidence: review-note
-      unattended: false
-    routing:
-      on_success: wrap-up
-  - id: wrap-up
-    title: Wrap up
-    executor: agent
-    role: activity
-    activation: sequential
-    instructions: Summarize the run.
 ```
 
 ## Step Guidance
