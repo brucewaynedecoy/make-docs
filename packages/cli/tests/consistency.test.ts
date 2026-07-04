@@ -497,6 +497,7 @@ describe("risk register routing contract", () => {
       "Q-019 How Should the Persona Model Revise and Gain Interactive Setup?",
       "Q-020 Should Other Playbook Sections Gain Imposed Structure Beyond Dependencies?",
       "Q-021 Maintainer-Facing Terminology Needs a Plain-Language Rule and Glossary Backing",
+      "Q-022 The Make Docs Agentics Production Pipeline",
     ]);
     expect(itemHeadings(risks)).toEqual([
       "R-001 Home-Scoped Skills Are Easy to Drop From a Clean-Room Rebuild",
