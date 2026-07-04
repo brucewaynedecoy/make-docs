@@ -20,6 +20,7 @@ related:
   - ../../../work/2026-06-23-w10-r5-agent-harness-model-conformance-lab/03-adapters-and-support-claims.md
   - ../../../work/2026-07-01-w18-r9-playbook-and-package-conformance/01-support-tuple-and-tuple-registry.md
   - ../../../work/2026-07-01-w18-r9-playbook-and-package-conformance/02-evidence-bar-and-first-pass-scenarios.md
+  - ../../../work/2026-07-01-w18-r9-playbook-and-package-conformance/03-test-layer-separation-and-meta-verification.md
   - ./playbooks-development-packaging-and-harness-adapters.md
   - ./release-packaging-validation-and-release-reference.md
 ---
@@ -32,7 +33,7 @@ The conformance lab is maintainer-only evidence infrastructure. It helps maintai
 
 Use this guide when defining reviewed scenario specs, compact result records, raw artifact storage, and redacted evidence promotion. Keep the lab outside shipped templates and packages unless a later accepted design explicitly promotes a reviewed subset.
 
-Since W18 R9 Phase 1 ([PRD 37](../../../prd/37-enhance-playbook-and-package-conformance.md)), the lab extends into the Playbook packaging domain: support claims for generated distributables bind to an eight-dimension tuple, and every tuple's status lives in one queryable registry data file. Since W18 R9 Phase 2, the install-discover-invoke-uninstall evidence bar is implemented as the packaging scenario shape, and the four required Codex-first first-pass scenario specs are committed — runnable where their preconditions hold and honestly `blocked` where they do not. The lab core in this guide — verdicts, safety modes, evidence classes, storage boundaries, and the result contract — is consumed by that extension unchanged (R-SCOPE-1, R-KEEP-1). See Packaging Conformance Tuple and Registry and Packaging Conformance Scenarios and the Evidence Bar below.
+Since W18 R9 Phase 1 ([PRD 37](../../../prd/37-enhance-playbook-and-package-conformance.md)), the lab extends into the Playbook packaging domain: support claims for generated distributables bind to an eight-dimension tuple, and every tuple's status lives in one queryable registry data file. Since W18 R9 Phase 2, the install-discover-invoke-uninstall evidence bar is implemented as the packaging scenario shape, and the four required Codex-first first-pass scenario specs are committed — runnable where their preconditions hold and honestly `blocked` where they do not. Since W18 R9 Phase 3, coverage is organized into three named test layers — declared where the tests live and machine-enforced — and the D9 meta-verification checks police the registry, the required scenario set, the layer attribution of cited evidence, and the maintainer-only shipping boundary from the standard repository suite. The lab core in this guide — verdicts, safety modes, evidence classes, storage boundaries, and the result contract — is consumed by that extension unchanged (R-SCOPE-1, R-KEEP-1). See Packaging Conformance Tuple and Registry, Packaging Conformance Scenarios and the Evidence Bar, and Test Layers and Meta-Verification below.
 
 ## Project Orientation
 
@@ -228,7 +229,7 @@ The set of tuples and their statuses lives in one committed data file, `docs/ass
 The file and the code are drift-proofed against each other in both directions:
 
 - The file redundantly embeds the R-REG-2 status meanings and R-REG-3 verdict-derivation rules as data, and validation compares the embedded copies byte-for-byte against the code's canonical constants — an edit to either side alone fails the load.
-- Statuses are stored AND rederived: every entry records its status, and validation recomputes `deriveConformanceTupleStatus` from the entry's evidence, failing closed on any mismatch. A `conformance-validated` status without a qualifying recorded run is therefore structurally impossible, which makes the Phase 3 R-TEST-1 meta-verification assertion true from day one.
+- Statuses are stored AND rederived: every entry records its status, and validation recomputes `deriveConformanceTupleStatus` from the entry's evidence, failing closed on any mismatch. A `conformance-validated` status without a qualifying recorded run is therefore structurally impossible — and since Phase 3 the R-TEST-1 meta-verification check asserts it as an enforcing test with receipts (see Test Layers and Meta-Verification below).
 - Duplicate tuples are refused: the canonical tuple key enforces one entry per exact tuple.
 
 ### Status Derivation Rules
@@ -260,7 +261,7 @@ Seeding Pi tuples does not change the adapter-protocol table above: Pi remains a
 
 ### Registry Boundary and Ownership
 
-The registry follows the same maintainer-only boundary as the rest of `docs/assets/conformance/` (R-KEEP-1): it is in-repo project content edited in place, deliberately NOT authored upstream in `packages/docs/template/`. This is a stated exception to the maintainer repo's upstream-first dogfooding rule, recorded in [the W18 R9 backlog index](../../../work/2026-07-01-w18-r9-playbook-and-package-conformance/00-index.md), because conformance is maintainer evidence infrastructure, not shipped product. The registry must stay out of the shipped template, the packaged copy, and npm tarballs; the Phase 3 R-TEST-3 exclusion check enforces that boundary outward.
+The registry follows the same maintainer-only boundary as the rest of `docs/assets/conformance/` (R-KEEP-1): it is in-repo project content edited in place, deliberately NOT authored upstream in `packages/docs/template/`. This is a stated exception to the maintainer repo's upstream-first dogfooding rule, recorded in [the W18 R9 backlog index](../../../work/2026-07-01-w18-r9-playbook-and-package-conformance/00-index.md), because conformance is maintainer evidence infrastructure, not shipped product. The registry must stay out of the shipped template, the packaged copy, and npm tarballs; since Phase 3 the R-TEST-3 exclusion check enforces that boundary outward on three surfaces (see Test Layers and Meta-Verification below).
 
 ## Packaging Conformance Scenarios and the Evidence Bar
 
@@ -302,7 +303,7 @@ Every packaging precondition carries a cheap, local, read-only probe and the emb
 
 ### The Four First-Pass Scenarios and the R-021 Characterization Preamble
 
-The four required R-SCEN-1 scenarios are fixed in `REQUIRED_FIRST_PASS_SCENARIOS`, mapped to the user-visible outcome each must prove, with `listMissingRequiredFirstPassScenarioIds` pre-figuring Phase 3's R-TEST-2 runnability check — absence of any spec is a failure, never a silent gap. All four are authored, Codex-first, `external-provider-run`, non-destructive, bar-complete, and precondition-guarded; none has run yet. The README's scenario table names each spec and outcome; three details matter to maintainers:
+The four required R-SCEN-1 scenarios are fixed in `REQUIRED_FIRST_PASS_SCENARIOS`, mapped to the user-visible outcome each must prove, with `listMissingRequiredFirstPassScenarioIds` feeding the Phase 3 R-TEST-2 runnability check — absence of any spec is a failure, never a silent gap. All four are authored, Codex-first, `external-provider-run`, non-destructive, bar-complete, and precondition-guarded; none has run yet. The README's scenario table names each spec and outcome; three details matter to maintainers:
 
 - `codex-plugin-marketplace-install` carries the `characterization` preamble — the recorded plan for resolving the negative Codex v0.142.4 recognition probe (register item [R-021](../../../prd/03-open-questions-and-risk-register.md)). Before any bar assertion, the run pins the Codex version, hand-authors a minimal plugin from the Codex docs independent of Make Docs, varies marketplace source shapes until Codex accepts one, records that ground truth, and diffs the generated shapes against it. Divergences are compiler or descriptor defects to fix — never bar relaxations — so a failure distinguishes wrong generated shapes from a harness capability gap.
 - `codex-dependency-check-both-directions` binds its expectations to the v2 probe-based checks (PRD 40 R-DEP-3): its fixture set includes an `rg` dependency whose `source` prose begins with "ripgrep" (a check derived from prose would probe the wrong binary) and a deliberately absent probe target for the missing direction.
@@ -320,6 +321,48 @@ Raw artifacts default to generated local state:
 These locations are for raw transcripts, provider logs, temporary workspaces, raw stdout/stderr captures, and scratch diffs. `.make-docs/conformance/` is ignored in this repository, and `.make-docs/runs/` is already ignored.
 
 Do not commit credentials, unredacted provider logs, full private transcripts, temporary workspaces, or raw local scratch output. If evidence must become durable, create a compact reviewed result record and promote only redacted, minimal supporting material.
+
+## Test Layers and Meta-Verification
+
+Since W18 R9 Phase 3 ([the phase backlog](../../../work/2026-07-01-w18-r9-playbook-and-package-conformance/03-test-layer-separation-and-meta-verification.md)), the evidence honesty this guide describes is policed structurally by two modules in `packages/cli/src/conformance/`: `layers.ts` carries the three-layer vocabulary as data (R-LAYER-1..2), and `meta-verification.ts` carries the D9 checks over the checks (R-TEST-1..3). Both run ENFORCING in the standard suite through `packages/cli/tests/conformance-meta-verification.test.ts`, so a regression in the committed registry, the required scenario set, a suite's layer attribution, or the shipping boundary fails the build. A green meta-verification run proves the evidence machinery is honest — never that any harness recognizes any output (R-KEEP-1, R-LAYER-2).
+
+### The Three Named Test Layers
+
+Coverage is organized into three named layers so one layer's passing never masquerades as another's (R-LAYER-1):
+
+| Layer | Covers | Where it lives |
+| --- | --- | --- |
+| `unit` | The operation core, parser, and validator as pure functions without a CLI. | Automated repository tests under `packages/cli/tests/`. |
+| `integration` | The CLI and MCP surfaces over the core, including the manifest and exposure plumbing. | Automated repository tests under `packages/cli/tests/`. |
+| `conformance` | The real-harness user outcome per tuple through the maintainer lab. | `docs/assets/conformance/` — never an automated repository test. |
+
+The vocabulary is code, not prose: `CONFORMANCE_TEST_LAYERS` and `CONFORMANCE_TEST_LAYER_MEANINGS` fix the names and meanings, `REPOSITORY_TEST_LAYERS` restricts what a repository suite may claim to `unit` and `integration` only, and `TEST_LAYER_BOUNDARY_RULE` carries the R-LAYER-2 boundary verbatim — internal tests passing is never evidence that a harness recognizes or can use the output (PRD 36 R-TEST-5 alignment). The rule is the direct corrective for the failure mode that let the descriptor output look correct while not being recognized.
+
+Layers are declared where the tests live (a recorded D8 decision): each packaging-related repository suite names exactly one layer with a `Test layer: <layer>` marker line in its file-header comment — the text before the first `describe(` — parsed by `listDeclaredTestLayers`, which returns unknown tokens as-is so a typo is flagged rather than ignored. The placement extends the W18 R8 P5 evidence-boundary header precedent, and each marker restates the R-LAYER-2 boundary alongside the layer name. This is a maintainer rail: the meta-verification suite reads every packaging and conformance suite header, so a NEW test file that omits its layer declaration — or any `*.test.ts` file that claims the `conformance` layer — fails the suite. The conformance layer itself is named in [the conformance assets README](../../conformance/README.md), where its assets live.
+
+One recorded judgment call: all eight `playbook-packaging*.test.ts` suites are classified `integration`, because they exercise the packaging rails through the manifest and exposure plumbing per the R-LAYER-1 definition, rather than splitting per file; the conformance-extension suites (`conformance-*.test.ts`) declare `unit` as pure-function tests over the check code and committed assets.
+
+### Cross-Layer Citation Honesty
+
+`listCrossLayerCitationErrors` closes the citation loop over the registry: every `internal-test` evidence ref must cite a repository test file that exists and declares exactly one repository layer (`unit` or `integration`) in its header. Internal-test evidence is therefore always attributable to one named layer, can never be a conformance-layer artifact, and no suite is cited across layers (R-LAYER-1..2). The complementary direction — `plannedScenarios` citing only authored conformance-layer specs — is enforced by the Phase 2 linkage check described above.
+
+### The Three Meta-Verification Checks
+
+Every check in `meta-verification.ts` returns human-readable error strings; empty means the invariant holds.
+
+- **R-TEST-1** — `listConformanceValidatedRunQualificationErrors`: no tuple may read `conformance-validated` without a recorded run meeting the D4 install-discover-invoke-uninstall bar, and drift is flagged in both directions — a qualifying run understated as a lower status is equally dishonest (R-REG-3). With a `repoRoot`, the check demands receipts: every recorded run's `recordRef` must resolve to a committed result record that validates against the lab result contract and projects back byte-equal to the run stored on the registry entry, so a registry run can never drift from, or outlive, the evidence it summarizes.
+- **R-TEST-2** — `listRequiredFirstPassScenarioErrors`: "runnable" is structural plus honest-blocked. Every required first-pass scenario must be authored, bar-eligible with all four stages asserted, bidirectionally linked to the registry tuples it targets, backed by fixture Playbooks that exist on disk, and must carry a probeable `harness-cli` precondition so an unavailable harness resolves to `blocked` instead of silently passing. The dynamic leg is exercised in the meta suite through the Phase 2 seams: a failing probe executor resolves the scenarios not-runnable and yields a valid `blocked` record that advances nothing, while a succeeding executor still leaves the network and model-routing operator attestations unmet — so even a machine with a working harness CLI stays honestly `blocked` until an operator attests at run time.
+- **R-TEST-3** — `listConformanceAssetExclusionViolations`: conformance assets never ship. Detection is relocation-proof by design, three ways — the `docs/assets/conformance` path fragment, the `tuple-registry.json` basename, and the unambiguous schema identifiers (`CONFORMANCE_ASSET_CONTENT_MARKERS`) as content markers — so a renamed or moved copy of an asset still fails. Check CODE shipping is deliberately allowed: the PRD ships lab and check code as ordinary CLI source inside `dist/`; only the ASSETS are maintainer-only.
+
+### Where the Exclusion Check Runs
+
+The R-TEST-3 boundary is enforced on three surfaces, and all three state the same posture: a green run is an exclusion fact, never a support claim (R-KEEP-1).
+
+| Surface | Mechanism |
+| --- | --- |
+| Standard suite | `conformance-meta-verification.test.ts` runs `listShippedConformanceAssetErrors` over `CONFORMANCE_EXCLUSION_CHECKED_ROOTS` — `packages/docs/template/` (required) and the build-generated `packages/cli/template/` copy (checked when present). |
+| Package validation | A dedicated describe in `packages/cli/tests/consistency.test.ts` runs the same repo-side check behind `validate:defaults`. |
+| npm tarball | `assertNoConformanceAssetsInTarball` in `scripts/smoke-pack.mjs` sweeps the real unpacked tarball with the same three detectors (dist/ code allowed, assets excluded). |
 
 ## Redaction and Promotion
 
@@ -362,6 +405,7 @@ Those commands remain package validation evidence. They become conformance evide
 - [Conformance Assets README](../../conformance/README.md)
 - [Support Tuple and Tuple Registry Work Phase](../../../work/2026-07-01-w18-r9-playbook-and-package-conformance/01-support-tuple-and-tuple-registry.md)
 - [Evidence Bar and First-Pass Scenarios Work Phase](../../../work/2026-07-01-w18-r9-playbook-and-package-conformance/02-evidence-bar-and-first-pass-scenarios.md)
+- [Test-Layer Separation and Meta-Verification Work Phase](../../../work/2026-07-01-w18-r9-playbook-and-package-conformance/03-test-layer-separation-and-meta-verification.md)
 - [Playbook Packaging and Harness Adapters](./playbooks-development-packaging-and-harness-adapters.md)
 - [Scenario and Result Contract Plan](../../../plans/2026-06-23-w10-r5-agent-harness-model-conformance-lab/02-scenario-and-result-contract.md)
 - [Harness Adapter and Support Claim Gating Plan](../../../plans/2026-06-23-w10-r5-agent-harness-model-conformance-lab/03-harness-adapter-and-support-claim-gating.md)

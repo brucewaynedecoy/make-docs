@@ -321,6 +321,7 @@ try {
   assertPackedInstructionTemplate(packageRoot);
   assertPackedRouterGuidanceParity(packageRoot);
   assertPackedReaderFacingTemplate(packageRoot);
+  assertNoConformanceAssetsInTarball(packageRoot);
   assertMissing(
     path.join(packageRoot, "template/.make-docs/config.yaml"),
     "Packed template should not ship a default project config file.",
@@ -1117,6 +1118,61 @@ function assertPackedReaderFacingTemplate(packageRoot) {
     "belong in `docs/archive/**`",
     "Packed assets router still advertises top-level docs/archive as a target.",
   );
+}
+
+/**
+ * W18 R9 P3 (PRD 37 R-TEST-3, R-KEEP-1): conformance assets — the tuple
+ * registry, scenario specs, fixtures, and result records under
+ * `docs/assets/conformance/` — are maintainer-only evidence infrastructure
+ * and never ship in the npm tarball. Detection mirrors the repo-side check in
+ * `packages/cli/src/conformance/meta-verification.ts` (the source of truth
+ * for the marker set): the asset directory path, the registry data file's
+ * basename, and the unambiguous schema identifiers as content markers, so a
+ * relocated or renamed asset still fails. Check CODE bundled under `dist/`
+ * is allowed to ship — only the ASSETS are excluded — so the content sweep
+ * covers the packed template tree. A green sweep is an exclusion fact, never
+ * a support claim: it proves the maintainer-only boundary held, not that any
+ * harness recognizes any generated output.
+ */
+function assertNoConformanceAssetsInTarball(packageRoot) {
+  const contentMarkers = [
+    "make-docs.conformance.tuple-registry",
+    "conformance.scenario.v1",
+    "conformance.result.v1",
+  ];
+  const pending = [packageRoot];
+  while (pending.length > 0) {
+    const current = pending.pop();
+    for (const entry of readdirSync(current, { withFileTypes: true })) {
+      const absolute = path.join(current, entry.name);
+      if (entry.isDirectory()) {
+        pending.push(absolute);
+        continue;
+      }
+      const relative = path.relative(packageRoot, absolute).split(path.sep).join("/");
+      if (relative.includes("docs/assets/conformance")) {
+        throw new Error(
+          `Packed tarball ships conformance asset path ${relative} (R-TEST-3, R-KEEP-1).`,
+        );
+      }
+      if (path.basename(relative) === "tuple-registry.json") {
+        throw new Error(
+          `Packed tarball ships conformance asset file ${relative} (R-TEST-3, R-KEEP-1).`,
+        );
+      }
+      if (relative.startsWith("template/")) {
+        const content = readFileSync(absolute, "utf8");
+        for (const marker of contentMarkers) {
+          if (content.includes(marker)) {
+            throw new Error(
+              `Packed template file ${relative} carries conformance schema identifier ` +
+                `\`${marker}\`; relocated conformance assets still may not ship (R-TEST-3, R-KEEP-1).`,
+            );
+          }
+        }
+      }
+    }
+  }
 }
 
 function assertInstalledInstructionTemplate(targetDir) {

@@ -3,9 +3,11 @@
  * tuple registry under `docs/assets/conformance/` with its three statuses
  * and verdict-derived transitions (R-REG-1..3, R-BAR-2).
  *
- * Layer: these are UNIT tests over the conformance module and the committed
- * registry data file. They prove tuple/registry mechanics and the honesty of
- * the seeded statuses — they are NEVER harness-recognition evidence. Real
+ * Test layer: unit (R-LAYER-1) — pure-function tests over the conformance
+ * module and the committed registry data file, no CLI. They prove
+ * tuple/registry mechanics and the honesty of the seeded statuses — they are
+ * NEVER harness-recognition evidence, and internal tests passing is never
+ * evidence that a harness recognizes or can use the output. Real
  * recognition, installation, and invocation evidence comes only from
  * recorded W18 R9 scenario runs meeting the install-discover-invoke-uninstall
  * bar (R-BAR-1, R-LAYER-2, PRD 36 R-TEST-5).

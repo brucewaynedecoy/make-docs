@@ -6,6 +6,8 @@
  * under `docs/assets/conformance/` and are never shipped (R-KEEP-1).
  */
 
+export * from "./layers";
+export * from "./meta-verification";
 export * from "./registry";
 export * from "./scenario";
 export * from "./tuple";

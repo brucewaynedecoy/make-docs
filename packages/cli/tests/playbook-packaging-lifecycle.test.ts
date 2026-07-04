@@ -21,6 +21,11 @@
  *
  * These are SHAPE and lifecycle assertions only; real-harness recognition,
  * installation, and invocation evidence is owned by W18 R9 (R-TEST-5).
+ *
+ * Test layer: integration (R-LAYER-1) — automated repository tests over the
+ * lifecycle surface through the manifest and exposure plumbing. Internal
+ * tests passing is never evidence that a harness recognizes or can use the
+ * output (R-LAYER-2).
  */
 
 import { existsSync, lstatSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";

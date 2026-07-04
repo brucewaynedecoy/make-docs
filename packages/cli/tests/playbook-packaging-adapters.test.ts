@@ -11,6 +11,11 @@
  * installation, and invocation evidence is owned by the W18 R9 conformance
  * lineage, and nothing here may be read as proof that a harness recognizes
  * the output or that a support claim holds (R-TEST-5).
+ *
+ * Test layer: integration (R-LAYER-1) — automated repository tests over the
+ * adapter surface through the manifest and exposure plumbing. Internal tests
+ * passing is never evidence that a harness recognizes or can use the output
+ * (R-LAYER-2).
  */
 
 import { existsSync, lstatSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";

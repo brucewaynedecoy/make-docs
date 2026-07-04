@@ -100,6 +100,11 @@
  * - "no first-party adapter or planner-built claim advances past provisional
  *   on the strength of this suite" and "a validated claim requires both a
  *   verified adapter contract and a fully bound tuple" here.
+ *
+ * Test layer: integration (R-LAYER-1) — automated repository tests auditing
+ * the packaging suite through the manifest and exposure plumbing. Internal
+ * tests passing is never evidence that a harness recognizes or can use the
+ * output (R-LAYER-2).
  */
 
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";

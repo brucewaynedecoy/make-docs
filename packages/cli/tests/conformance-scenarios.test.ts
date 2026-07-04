@@ -7,12 +7,14 @@
  * precondition resolution (t8, R-KEEP-1), and the registry <-> scenario
  * linkage with Pi absence explicit (t9, R-SCEN-2).
  *
- * Layer: these are UNIT tests over the conformance scenario contract and the
- * committed spec/fixture assets. They prove the machinery and the honesty of
- * the authored specs — they are NEVER harness-recognition evidence. Real
- * recognition, installation, and invocation evidence comes only from
- * recorded scenario runs against a real (or declared faithfully simulated)
- * harness meeting the R-BAR-1 bar (R-LAYER-2, PRD 36 R-TEST-5).
+ * Test layer: unit (R-LAYER-1) — pure-function tests over the conformance
+ * scenario contract and the committed spec/fixture assets, no CLI. They
+ * prove the machinery and the honesty of the authored specs — they are NEVER
+ * harness-recognition evidence, and internal tests passing is never evidence
+ * that a harness recognizes or can use the output. Real recognition,
+ * installation, and invocation evidence comes only from recorded scenario
+ * runs against a real (or declared faithfully simulated) harness meeting the
+ * R-BAR-1 bar (R-LAYER-2, PRD 36 R-TEST-5).
  */
 
 import { existsSync, readFileSync } from "node:fs";

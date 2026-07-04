@@ -2,6 +2,7 @@ import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, test } from "vitest";
 import { getDesiredAssets } from "../src/catalog";
+import { listShippedConformanceAssetErrors } from "../src/conformance";
 import { parseManagedBlock } from "../src/managed-block";
 import { parseAndValidatePlaybook } from "../src/playbook";
 import { defaultSelections, resolveInstallProfile } from "../src/profile";
@@ -769,5 +770,15 @@ describe("optional skill package consistency", () => {
         existsSync(path.join(REPO_ROOT, "packages", "skills", withdrawnSkill)),
       ).toBe(false);
     }
+  });
+});
+
+describe("conformance assets stay maintainer-only (W18 R9 P3, R-TEST-3, R-KEEP-1)", () => {
+  test("the shipped template and the packaged copy carry no conformance assets", () => {
+    // Packaging validation surface wiring: this exclusion check runs behind
+    // `validate:defaults` (and again in the standard suite and the
+    // smoke-pack tarball sweep). A green run proves the maintainer-only
+    // boundary held; it is never a support claim for any harness (R-KEEP-1).
+    expect(listShippedConformanceAssetErrors({ repoRoot: REPO_ROOT })).toEqual([]);
   });
 });

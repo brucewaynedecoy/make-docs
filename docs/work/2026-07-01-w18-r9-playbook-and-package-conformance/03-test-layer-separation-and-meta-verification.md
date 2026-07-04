@@ -30,8 +30,8 @@ Unit tests cover the operation core, parser, and validator as pure functions wit
 
 ### Tasks
 
-- [ ] t1: Organize existing and new coverage into the three named layers — unit (operation core, parser, validator as pure functions without a CLI), integration (CLI and MCP surfaces over the core, including manifest and exposure plumbing), and conformance (real-harness user outcome per tuple through the maintainer lab) — and name the layer each suite belongs to where the tests live (R-LAYER-1).
-- [ ] t2: Record the boundary rule where the unit and integration tests live: internal tests passing is never evidence that a harness recognizes or can use the output, aligning with PRD 36 R-TEST-5 (R-LAYER-2).
+- [x] t1: Organize existing and new coverage into the three named layers — unit (operation core, parser, validator as pure functions without a CLI), integration (CLI and MCP surfaces over the core, including manifest and exposure plumbing), and conformance (real-harness user outcome per tuple through the maintainer lab) — and name the layer each suite belongs to where the tests live (R-LAYER-1).
+- [x] t2: Record the boundary rule where the unit and integration tests live: internal tests passing is never evidence that a harness recognizes or can use the output, aligning with PRD 36 R-TEST-5 (R-LAYER-2).
 
 ### Acceptance criteria
 
@@ -46,9 +46,9 @@ Unit tests cover the operation core, parser, and validator as pure functions wit
 
 ### Tasks
 
-- [ ] t3: Land a check asserting that no tuple is marked `conformance-validated` without a recorded run that meets the D4 bar (R-TEST-1).
-- [ ] t4: Land a check asserting that the required first-pass scenarios exist and are runnable, and that unavailable ones report `blocked` rather than silently passing (R-TEST-2).
-- [ ] t5: Land a packaging or exclusion check asserting that conformance assets are absent from the shipped template, the packaged copy, and npm tarballs, wired into the packaging validation surface (R-TEST-3).
+- [x] t3: Land a check asserting that no tuple is marked `conformance-validated` without a recorded run that meets the D4 bar (R-TEST-1).
+- [x] t4: Land a check asserting that the required first-pass scenarios exist and are runnable, and that unavailable ones report `blocked` rather than silently passing (R-TEST-2).
+- [x] t5: Land a packaging or exclusion check asserting that conformance assets are absent from the shipped template, the packaged copy, and npm tarballs, wired into the packaging validation surface (R-TEST-3).
 
 ### Acceptance criteria
 

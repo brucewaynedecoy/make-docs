@@ -7,6 +7,11 @@
  * Real-harness recognition, installation, and invocation are proven only by
  * the W18 R9 conformance design; nothing here may be read as evidence that a
  * harness recognizes the generated output.
+ *
+ * Test layer: integration (R-LAYER-1) — automated repository tests over the
+ * capability and distributable surface on real fixture repositories. Internal
+ * tests passing is never evidence that a harness recognizes or can use the
+ * output (R-LAYER-2).
  */
 
 import { execFileSync } from "node:child_process";
