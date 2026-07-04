@@ -469,6 +469,7 @@ describe("risk register routing contract", () => {
       "D-014 W16 R0 Product Assets Authored in the Dogfood Instead of the Template Source",
       "D-015 Generated Dependency Checks Probe the Source Prose Instead of the Dependency",
       "D-016 PlaybookRunState Resume Hints Accumulate Without Retirement",
+      "D-017 Shipped Config Blocks Lack Upstream Schema Documentation",
     ]);
     expect(itemHeadings(questions)).toEqual([
       "Q-001 What Is the Long-Term Skills Delivery Contract?",

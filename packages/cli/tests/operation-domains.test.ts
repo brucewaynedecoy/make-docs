@@ -96,11 +96,13 @@ describe("operation domain modules", () => {
       "package.plan",
       "package.surface-resolve",
       "package.write",
+      // Appended by W18 R12 P3 (PRD 41 R-GRAM-3).
+      "package.ship",
       "work.item.resolve",
       "work.evidence.record",
       "work.evidence.read",
     ]);
-    expect(identifiers).toHaveLength(20);
+    expect(identifiers).toHaveLength(21);
 
     for (const domain of domains) {
       for (const command of domain.commands) {
@@ -129,6 +131,7 @@ describe("operation domain modules", () => {
       "playbook.run.export",
       "playbook.run.import",
       "package.write",
+      "package.ship",
       "work.evidence.record",
     ]);
 

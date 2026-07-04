@@ -1039,7 +1039,9 @@ describe("playbook packaging schema foundation", () => {
     expect(existsSync(path.join(root, ".make-docs/agentics/plugins/old-stack/plugin.json"))).toBe(false);
   });
 
-  test("exposes package writing through a CLI dry-run and explicit write operation", async () => {
+  // W18 R12 P3 (PRD 41 R-GRAM-1..2): the intent-named grammar — `preview` is
+  // the full pipeline with no writes, `write` writes, `--write` is retired.
+  test("exposes package writing through the preview and write spellings", async () => {
     const root = createTempDir("make-docs-package-write-");
     tempRoots.push(root);
     writeMakeDocsManifest(root);
@@ -1060,7 +1062,7 @@ describe("playbook packaging schema foundation", () => {
 
     await runRunCommand([
       "package",
-      "write",
+      "preview",
       "--repo-root",
       root,
       "--plan-json",
@@ -1085,7 +1087,6 @@ describe("playbook packaging schema foundation", () => {
       root,
       "--plan-json",
       planPath,
-      "--write",
       "--precondition",
       "harness-supported=satisfied",
       "--precondition",
@@ -1096,5 +1097,11 @@ describe("playbook packaging schema foundation", () => {
     parsed = JSON.parse(writeSpy.mock.calls.map((call) => String(call[0])).join("")) as ReturnType<typeof writePlaybookPackageOutputs>;
     expect(parsed.status).toBe("written");
     expect(existsSync(path.join(root, ".make-docs/agentics/plugins/run-stack/.codex-plugin/plugin.json"))).toBe(true);
+
+    // The retired `--write` spelling fails with guidance naming the new
+    // grammar (R-GRAM-2, R-TEST-5).
+    await expect(
+      runRunCommand(["package", "write", "--repo-root", root, "--plan-json", planPath, "--write"]),
+    ).rejects.toThrow(/`--write` is retired[\s\S]*run package preview[\s\S]*run package write[\s\S]*run package ship/);
   });
 });

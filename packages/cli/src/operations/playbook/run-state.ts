@@ -513,6 +513,77 @@ export function listPlaybookRunStates(input: {
 }
 
 /**
+ * Run-id ergonomics (W18 R12 P3; PRD 41 R-RUNID-1): resolves the CLI's
+ * `--run-id`/`--last` selector against the resolved project's stored runs.
+ *
+ * - An exact run id always wins, even when it is also a prefix of others.
+ * - An unambiguous prefix resolves to the single matching run id.
+ * - An ambiguous prefix fails listing every candidate.
+ * - `last: true` selects the most recent run for the project (latest
+ *   `createdAt`, run id as the deterministic tie-break).
+ *
+ * Implementer decision (recorded): a prefix with NO match passes through
+ * unchanged so the operation's own unknown-run error is preserved
+ * byte-for-byte, and any store/manifest failure during prefix listing also
+ * falls back to the raw value — resolution never introduces a new failure
+ * mode for an invocation that worked before (R-INV-1). `--last` has no
+ * pass-through: it cannot resolve without the store, so those errors
+ * propagate.
+ */
+export function resolvePlaybookRunIdSelector(input: {
+  repoRoot?: string;
+  storeRoot?: string;
+  runId?: string;
+  last?: boolean;
+}): string {
+  if (input.last && input.runId) {
+    throw new OperationError("`--last` cannot be combined with `--run-id`; pass one selector.");
+  }
+  if (input.last) {
+    const runs = listPlaybookRunStates({ repoRoot: input.repoRoot, storeRoot: input.storeRoot });
+    const latest = [...runs].sort((left, right) =>
+      left.createdAt === right.createdAt
+        ? left.runId.localeCompare(right.runId)
+        : left.createdAt.localeCompare(right.createdAt),
+    ).pop();
+    if (!latest) {
+      throw new OperationError(
+        "`--last` found no Playbook runs for this project; start one with `make-docs run playbook start`.",
+      );
+    }
+    return latest.runId;
+  }
+  const runId = input.runId;
+  if (!runId) {
+    throw new OperationError("A run selector is required: pass `--run-id <id-or-prefix>` or `--last`.");
+  }
+  let runs: PlaybookRunState[];
+  try {
+    runs = listPlaybookRunStates({ repoRoot: input.repoRoot, storeRoot: input.storeRoot });
+  } catch {
+    return runId;
+  }
+  if (runs.some((run) => run.runId === runId)) {
+    return runId;
+  }
+  const candidates = runs
+    .map((run) => run.runId)
+    .filter((candidate) => candidate.startsWith(runId))
+    .sort();
+  if (candidates.length === 1) {
+    return candidates[0]!;
+  }
+  if (candidates.length > 1) {
+    throw new OperationError(
+      `Run id prefix \`${runId}\` is ambiguous; candidates:\n${candidates
+        .map((candidate) => `  ${candidate}`)
+        .join("\n")}`,
+    );
+  }
+  return runId;
+}
+
+/**
  * Transitions an existing run record: read, apply, stamp `updatedAt`, and
  * replace in one store connection. What a valid transition IS (statuses,
  * cursors, gates) belongs to the W18 R7 Phase 2 progression operations; this

@@ -35,6 +35,9 @@ const EXPECTED_IDENTIFIERS = [
   "package.plan",
   "package.surface-resolve",
   "package.write",
+  // Appended by W18 R12 P3 (PRD 41 R-GRAM-3): the composite single-entry
+  // packaging operation, registered per the append-only rule.
+  "package.ship",
   "work.item.resolve",
   "work.evidence.record",
   "work.evidence.read",

@@ -30,8 +30,8 @@ The packaging surface becomes intent-named — `plan` (with `--output`), `previe
 
 ### Tasks
 
-- [ ] t1: Rename the packaging CLI spellings to `run package plan`, `run package preview` (today's `write` without `--write` — full pipeline, no writes), and `run package write` (today's `write --write`), retiring the `--write` flag with a failure message naming the new grammar; the underlying operations, dry-run inputs, and MCP tools are untouched (R-GRAM-1, R-GRAM-2, R-INV-1).
-- [ ] t2: Add `--output <path>` to `run package plan`, writing the reviewable plan artifact directly, mirroring `run playbook run export --output` (R-GRAM-1).
+- [x] t1: Rename the packaging CLI spellings to `run package plan`, `run package preview` (today's `write` without `--write` — full pipeline, no writes), and `run package write` (today's `write --write`), retiring the `--write` flag with a failure message naming the new grammar; the underlying operations, dry-run inputs, and MCP tools are untouched (R-GRAM-1, R-GRAM-2, R-INV-1).
+- [x] t2: Add `--output <path>` to `run package plan`, writing the reviewable plan artifact directly, mirroring `run playbook run export --output` (R-GRAM-1).
 
 ### Acceptance criteria
 
@@ -47,9 +47,9 @@ The packaging surface becomes intent-named — `plan` (with `--output`), `previe
 
 ### Tasks
 
-- [ ] t3: Register `package.ship` in the operation registry as a composite operation with typed input/output and a mutation classification, per the append-only rule and the W18 R11 parity rule — no CLI-only composites (R-GRAM-3; PRD 39 R-REG-1).
-- [ ] t4: Implement the ship handler in the operation core: execute plan → preview → write through the operation core, aborting at the first stop, unresolved proposal, or warning with guidance naming the granular command (`plan`, `preview`, or `write`) to continue with; perform the classification write; preserve every fail-before-write rail (R-GRAM-3).
-- [ ] t5: Surface `run package ship` on the CLI and derive the MCP tool from the registry identifier like every other operation, updating the derivation/consistency pins only as the registry addition requires (R-GRAM-3; PRD 39 R-REG-2, R-MIG-3).
+- [x] t3: Register `package.ship` in the operation registry as a composite operation with typed input/output and a mutation classification, per the append-only rule and the W18 R11 parity rule — no CLI-only composites (R-GRAM-3; PRD 39 R-REG-1).
+- [x] t4: Implement the ship handler in the operation core: execute plan → preview → write through the operation core, aborting at the first stop, unresolved proposal, or warning with guidance naming the granular command (`plan`, `preview`, or `write`) to continue with; perform the classification write; preserve every fail-before-write rail (R-GRAM-3).
+- [x] t5: Surface `run package ship` on the CLI and derive the MCP tool from the registry identifier like every other operation, updating the derivation/consistency pins only as the registry addition requires (R-GRAM-3; PRD 39 R-REG-2, R-MIG-3).
 
 ### Acceptance criteria
 
@@ -65,9 +65,9 @@ The packaging surface becomes intent-named — `plan` (with `--output`), `previe
 
 ### Tasks
 
-- [ ] t6: Build the render layer at the `printJson(invocation.value)` seam in `packages/cli/src/run/cli.ts`, keyed by the existing `OperationRenderMode` in `packages/cli/src/operations/types.ts`: TTY default renders per-operation human text — what just happened (the execution report), where the run stands (a compact cursor/status line), and what to do next (the next hint and the exact next command) (R-RENDER-1).
-- [ ] t7: Keep `--json` emitting the full operation result byte-identical to today, keep the non-TTY default as full JSON, and leave MCP derivation untouched (R-RENDER-1, R-RENDER-3, R-INV-1).
-- [ ] t8: Render the capability snapshot once at `start` and reference rather than restate it in later text renderings; never repeat the evidence log in text mode — the full record stays reachable via `--json` and `status --json` (R-RENDER-2).
+- [x] t6: Build the render layer at the `printJson(invocation.value)` seam in `packages/cli/src/run/cli.ts`, keyed by the existing `OperationRenderMode` in `packages/cli/src/operations/types.ts`: TTY default renders per-operation human text — what just happened (the execution report), where the run stands (a compact cursor/status line), and what to do next (the next hint and the exact next command) (R-RENDER-1).
+- [x] t7: Keep `--json` emitting the full operation result byte-identical to today, keep the non-TTY default as full JSON, and leave MCP derivation untouched (R-RENDER-1, R-RENDER-3, R-INV-1).
+- [x] t8: Render the capability snapshot once at `start` and reference rather than restate it in later text renderings; never repeat the evidence log in text mode — the full record stays reachable via `--json` and `status --json` (R-RENDER-2).
 
 ### Acceptance criteria
 
@@ -83,10 +83,10 @@ The packaging surface becomes intent-named — `plan` (with `--output`), `previe
 
 ### Tasks
 
-- [ ] t9: Resolve unambiguous run-id prefixes at every `--run-id` acceptor and add `--last` selecting the most recent run for the resolved project; an ambiguous prefix fails listing the candidates (R-RUNID-1).
-- [ ] t10: Default `--repo-root` to the nearest ancestor of the working directory carrying `.make-docs/manifest.json` and `--store-root` to the real global store, keeping both flags as overrides (R-FLAG-1).
-- [ ] t11: Add a packaging-preconditions block to project config (for example in `.make-docs/config.yaml`) absorbed as defaults with explicit `--precondition` flags always overriding — convenience, never authority — and author any config-schema documentation upstream in `packages/docs/template/` first (R-FLAG-2; PRD 24).
-- [ ] t12: Suppress the Node SQLite ExperimentalWarning with a targeted process-warning filter at CLI entry matching only that warning; never a blanket suppression (R-NOISE-1).
+- [x] t9: Resolve unambiguous run-id prefixes at every `--run-id` acceptor and add `--last` selecting the most recent run for the resolved project; an ambiguous prefix fails listing the candidates (R-RUNID-1).
+- [x] t10: Default `--repo-root` to the nearest ancestor of the working directory carrying `.make-docs/manifest.json` and `--store-root` to the real global store, keeping both flags as overrides (R-FLAG-1).
+- [x] t11: Add a packaging-preconditions block to project config (for example in `.make-docs/config.yaml`) absorbed as defaults with explicit `--precondition` flags always overriding — convenience, never authority — and author any config-schema documentation upstream in `packages/docs/template/` first (R-FLAG-2; PRD 24).
+- [x] t12: Suppress the Node SQLite ExperimentalWarning with a targeted process-warning filter at CLI entry matching only that warning; never a blanket suppression (R-NOISE-1).
 
 ### Acceptance criteria
 
@@ -103,8 +103,8 @@ The packaging surface becomes intent-named — `plan` (with `--output`), `previe
 
 ### Tasks
 
-- [ ] t13: Land the R-TEST-5 suite: `plan --output` writes the reviewable plan; `preview` writes nothing under any input; `write` preserves every existing stop; the retired `--write` spelling fails with guidance naming the new grammar (R-TEST-5).
-- [ ] t14: Land the R-TEST-6 suite: ship completes end-to-end on a zero-unresolved plan with the classification write recorded; ship aborts before any disk write at the first stop, unresolved proposal, or warning with granular-command guidance; `package.ship` is present in the registry and derives to MCP (R-TEST-6).
+- [x] t13: Land the R-TEST-5 suite: `plan --output` writes the reviewable plan; `preview` writes nothing under any input; `write` preserves every existing stop; the retired `--write` spelling fails with guidance naming the new grammar (R-TEST-5).
+- [x] t14: Land the R-TEST-6 suite: ship completes end-to-end on a zero-unresolved plan with the classification write recorded; ship aborts before any disk write at the first stop, unresolved proposal, or warning with granular-command guidance; `package.ship` is present in the registry and derives to MCP (R-TEST-6).
 
 ### Acceptance criteria
 

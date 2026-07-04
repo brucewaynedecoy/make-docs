@@ -34,6 +34,9 @@ const BOOLEAN_FLAGS = [
   "parallel-children-reviewed",
   "overwrite",
   "adopt-project",
+  // `--last` selects the project's most recent run at every `--run-id`
+  // acceptor (W18 R12 P3; PRD 41 R-RUNID-1).
+  "last",
 ];
 
 const ARRAY_FLAGS = [

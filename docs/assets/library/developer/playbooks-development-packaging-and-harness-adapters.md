@@ -25,6 +25,7 @@ related:
   - ../../../prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md
   - ../../../prd/36-revise-playbook-packaging-compiler-and-harness-adapters.md
   - ../../../prd/40-revise-playbook-authoring-contract-v2.md
+  - ../../../prd/41-revise-cli-human-experience-and-package-grammar.md
   - ../../../work/2026-06-29-w18-r5-playbook-packaging-and-harness-adapter-registry/00-index.md
   - ../../../work/2026-07-01-w18-r8-playbook-packaging-compiler-and-harness-adapters/00-index.md
 ---
@@ -71,9 +72,25 @@ The current implementation lives under `packages/cli/src/operations/playbook-pac
 
 The shared harness registry lives one level up at `packages/cli/src/operations/harness-registry.ts` because it serves both the packaging domain and the Run Playbook runner; see Shared Harness Registry below.
 
-`playbookPackagingDomain` is registered in the shared operations registry with read-only plan and surface-resolve operations plus the mutating write operation, exposed on the CLI as `make-docs run package plan|surface-resolve|write`. The write operation dry-runs by default and only mutates when `--write` is passed.
+`playbookPackagingDomain` is registered in the shared operations registry with read-only plan and surface-resolve operations plus the mutating write operation and the `package.ship` composite, exposed on the CLI as `make-docs run package plan|surface-resolve|preview|write|ship` (W18 R12). The grammar is intent-named: `preview` is the full write pipeline with no writes (the CLI spelling of `package.write` under the dry-run context), `write` writes, `plan --output <path>` saves the reviewable plan artifact directly, and `ship` runs plan, preview, and write end-to-end, aborting at the first stop, unresolved proposal, or warning. The `--write` flag is retired and fails with guidance naming this grammar; the operations, their dry-run inputs, and the MCP tools are unchanged. The mechanics are documented in CLI Grammar and the Ship Composite below.
 
 Maintainers should import schema helpers from `packages/cli/src/operations/playbook-packaging/` or the operations facade, not duplicate literals in planner, writer, adapter, CLI, or MCP code. When adding fields, update the TypeScript contract, fail-closed validator, and focused schema tests together.
+
+## CLI Grammar and the Ship Composite
+
+Since W18 R12 Phase 3, the packaging CLI grammar is intent-named per [PRD 41](../../../prd/41-revise-cli-human-experience-and-package-grammar.md) R-GRAM-1..3, under the round's governing agent-invariance rule (R-INV-1): operation results, MCP tool output, and the machine-readable CLI output stay byte-identical to the pre-remediation shapes except for additive fields and flags. Two distinct mechanisms realize the grammar, and extenders must keep them distinct.
+
+**CLI spellings.** `run package preview` is a CLI spelling, not an operation: `RUN_CLI_SPELLINGS` in `packages/cli/src/run/cli.ts` maps the spelled path `package.preview` to the unchanged `package.write` registry identifier plus a fixed execution-context overlay (`dryRun: true`). A spelling is presentation-layer routing only — no new registry identifier is minted, the operation's input and dry-run semantics are untouched, and the MCP surface never sees it (R-GRAM-2). This is exactly why preview is a spelling rather than a registered `package.preview` operation: the dry-run-context path through `package.write` already was the full no-writes pipeline, and minting a second identifier for it would change the agent-facing surface the invariance rule freezes. The spelling table participates in path resolution, derived help (rendered inside its domain group), and the unknown-operation listing, and `listRunCliSpellings` is the conformance seam that pins each spelling to its registry identifier. The complement rule is the W18 R11 parity rule restated: composites must be real registered operations — never spellings — and spellings must never compose or alter behavior beyond a declared context overlay.
+
+**The retired `--write` flag.** `run package write` now writes with the default context, with every precondition, digest-mismatch stop, ownership-conflict stop, and fail-before-write rail unchanged (R-GRAM-1); the old `write`-as-dry-run spelling is not aliased, and passing `--write` to `write` or `ship` fails with guidance naming `preview`, `write`, `plan --output`, and `ship` (R-GRAM-2).
+
+**`plan --output <path>`.** The plan artifact handoff (UAT X3) is handled at the CLI surface: after a successful `package.plan` invocation the dispatcher writes the result's `plan` object — exactly what `package.write --plan-json` consumes — to the caller-named path, mirroring `run playbook run export --output`. Stdout is unchanged. This lives at the surface deliberately: `package.plan` stays classified `read` in the registry, because reclassifying it (or adding a write-classified plan variant) would change the agent-facing gating the operation core applies from the mutation classification (R-INV-1).
+
+**`package.ship`.** The composite is a real registered operation in `packages/cli/src/operations/package/ops/ship.ts` — appended to the registry with a zod input contract and `mutates: "write"`, surfaced as `run package ship`, and derived to MCP as `make_docs_package_ship` like every other operation (R-GRAM-3; the registry addition is the only MCP surface diff, with the derivation/consistency pins extended accordingly). It executes plan → preview → write as nested `invokeOperation` calls through the operation core, so validation, write gating, dry-run, and named approvals are enforced uniformly on every leg — ship never widens what `package.write` allows; it only removes ceremony from the zero-unresolved path. The abort contract: any plan stop, agent-assisted proposal, or unresolved decision aborts at the `plan` stage; any preview stop aborts at the `preview` stage before the write leg runs; the result is `{status: "aborted", stage, guidance, stops}` with `guidance` naming the granular command to continue with. A plan with zero unresolved items ships end-to-end with the classification write recorded, and under a dry-run context the composite returns `status: "planned"` without writing. The preview leg is the same `package.write`-under-dry-run the `preview` spelling names, and the write leg recomputes every fail-before-write stop itself, so nothing that changed between preview and write can slip through.
+
+**Precondition config absorption.** The `--precondition k=v` ceremony is absorbable into the project config's `packaging.preconditions` block in `.make-docs/config.yaml` (R-FLAG-2), keyed by adapter precondition id with values from the shared `satisfied`/`unknown`/`unsupported` vocabulary (`PACKAGING_PRECONDITION_STATES` in `packages/cli/src/config.ts`, mirroring `PackageAdapterPreconditionState`). The CLI adapters for `write`, `preview`, and `ship` merge config-supplied defaults under explicit `--precondition` flags, which always win per key; a missing or invalid block contributes nothing and changes no behavior — config stays convenience, never authority, per the `harnessCapabilities` precedent in [PRD 24](../../../prd/24-revise-configuration-convention-overlay.md). The MCP tools are untouched: absorption happens in the CLI argv adapters, and MCP callers pass `preconditions` explicitly as before. The block currently has no shipped template reference documentation — the shipped template documents no config schema at all, a gap tracked as register item [D-017](../../../prd/03-open-questions-and-risk-register.md); the authoritative shape lives on the config loader's doc comments and this section until that documentation is authored upstream.
+
+The Phase 3 grammar, ship, render-invariance, and ergonomics coverage lives in `packages/cli/tests/run-cli-experience.test.ts` (PRD 41 R-TEST-4..6): `plan --output` writes the reviewable plan, `preview` writes nothing under any input (proven with filesystem snapshots), `write` preserves every existing stop, the retired `--write` spelling fails with the grammar guidance, ship completes end-to-end on a zero-unresolved plan and aborts before any disk write at the first stop with granular-command guidance, `package.ship` is present in the registry and derives to MCP, and the `--json`/non-TTY CLI channels stay byte-identical. The TTY render layer over these commands is CLI-only presentation, documented in [Run Playbook Runner Architecture](./playbooks-development-runner-architecture.md) under CLI Render Layer and Ergonomics.
 
 ## Harness Capability Descriptors
 
@@ -312,14 +329,14 @@ The Phase 2 rebuild changed only the payload, not the plumbing (R-COMP-2): the c
 Use the writer operation like this during development:
 
 ```sh
-make-docs run package write \
+make-docs run package preview \
   --plan-json /path/to/package-plan.json \
   --precondition harness-supported=satisfied \
   --precondition project-trusted=satisfied \
   --precondition symlink-or-copy-mirror=satisfied
 ```
 
-Without `--write`, the command returns write diagnostics and generated-output records but does not touch files. With `--write`, installed outputs require an existing Make Docs manifest so audit, backup, uninstall, and migration can see the generated files. Export-only output writes under `.make-docs/exports/playbook-packages/**` and does not add installed harness exposure ownership to the manifest.
+`preview` returns write diagnostics and generated-output records but does not touch files; `make-docs run package write` with the same flags writes. The `--precondition` ceremony can be absorbed into the project config's `packaging.preconditions` block (`.make-docs/config.yaml`), with explicit flags always overriding — config stays convenience, never authority. When writing, installed outputs require an existing Make Docs manifest so audit, backup, uninstall, and migration can see the generated files. Export-only output writes under `.make-docs/exports/playbook-packages/**` and does not add installed harness exposure ownership to the manifest.
 
 The writer records source refs, source digests, target harness, output kind, surface, scope, support status, review status, canonical payload path, exposure path, and exposure mode. It stops before writing when required review is incomplete, an `auto` surface has not been resolved, required adapter preconditions are unknown or unsupported, an existing generated output differs, a plan source is missing or fails its digest check, the compiled inventory raises a container or materialization stop, or stale generated output removal lacks a reviewed backup snapshot — see Fail Before Write above for the full condition set.
 
@@ -401,5 +418,6 @@ The former bullet on the W18 R12 backlog Phase 2 probe rebuild is resolved: Depe
 - [33 Enhance Playbook Packaging and Harness Adapter Registry](../../../prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md)
 - [36 Revise Playbook Packaging Compiler and Harness Adapters](../../../prd/36-revise-playbook-packaging-compiler-and-harness-adapters.md)
 - [40 Revise Playbook Authoring Contract v2](../../../prd/40-revise-playbook-authoring-contract-v2.md)
+- [41 Revise CLI Human Experience and Package Grammar](../../../prd/41-revise-cli-human-experience-and-package-grammar.md)
 - [W18 R5 Work Backlog](../../../work/2026-06-29-w18-r5-playbook-packaging-and-harness-adapter-registry/00-index.md)
 - [W18 R8 Work Backlog](../../../work/2026-07-01-w18-r8-playbook-packaging-compiler-and-harness-adapters/00-index.md)

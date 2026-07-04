@@ -20,6 +20,7 @@ related:
   - ../../../designs/2026-06-29-playbook-packaging-and-harness-adapter-registry.md
   - ../../../prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md
   - ../../../prd/36-revise-playbook-packaging-compiler-and-harness-adapters.md
+  - ../../../prd/41-revise-cli-human-experience-and-package-grammar.md
 ---
 
 # Packaging Shareable Playbook Workflows
@@ -134,7 +135,23 @@ Make Docs handles that through harness adapters. The adapter knows what the harn
 
 ## Current Operation Flow
 
-The current low-level flow is:
+The packaging commands are intent-named: `plan` computes the reviewable plan, `preview` runs the full write pipeline without writing anything, `write` writes, and `ship` runs all three end-to-end. On a terminal each command prints a short summary of its diagnostics with the next command to run; add `--json` (or pipe the output) for the full JSON record.
+
+When there is nothing to review, one command is the whole flow:
+
+```sh
+make-docs run package ship \
+  --source user/run-stack \
+  --harness codex \
+  --output-kind plugin \
+  --surface native \
+  --scope project \
+  --support-evidence-ref docs/prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md
+```
+
+`ship` plans, previews, and writes in one pass — but only when the plan comes back with zero stops, zero unresolved decisions, and zero unreviewed proposals. Anything that needs human judgment aborts the whole pipeline before a single file is written, and the result names the granular command (`plan`, `preview`, or `write`) to continue with. Ship never relaxes a safety check; it only removes the ceremony from the already-clean path.
+
+When a plan does need review, the step-by-step flow is:
 
 1. Create a package plan.
 2. Review any stops or semantic proposals.
@@ -153,7 +170,7 @@ make-docs run package plan \
   --support-evidence-ref docs/prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md
 ```
 
-The result is JSON. Save the returned `plan` object and inspect the `status`, `stops`, `review`, and `support` fields before writing. The plan's deterministic derivations include the planned payload file list, and the dry-run rendering prints it as `Planned payload files:` lines, so the full generated tree is reviewable up front.
+On a terminal the result is a summary with next-step guidance; add `--json` for the full JSON record. Add `--output /path/to/package-plan.json` to save the reviewable `plan` object directly (it is exactly what the write step's `--plan-json` consumes), and inspect the `status`, `stops`, `review`, and `support` fields before writing. The plan's deterministic derivations include the planned payload file list, and the dry-run rendering prints it as `Planned payload files:` lines, so the full generated tree is reviewable up front.
 
 To check where a package would be exposed for a harness:
 
@@ -169,17 +186,29 @@ make-docs run package surface-resolve \
   --precondition symlink-or-copy-mirror=satisfied
 ```
 
-To dry-run a write:
+To run the full write pipeline with no writes — every diagnostic, stop, and generated-output record, nothing on disk:
 
 ```sh
-make-docs run package write \
+make-docs run package preview \
   --plan-json /path/to/package-plan.json \
   --precondition harness-supported=satisfied \
   --precondition project-trusted=satisfied \
   --precondition symlink-or-copy-mirror=satisfied
 ```
 
-To perform the write, add `--write`. The command writes generated plugin or skills-bundle payloads only when the plan is accepted or deterministic and safe, and its result lists every payload file it wrote. It stops instead of overwriting modified generated files, it stops when a source Playbook changed after the plan was created (re-run the plan step to review the change), and installed outputs require an existing Make Docs manifest so backup and uninstall can track the generated files.
+To perform the write, run `make-docs run package write` with the same flags (the old `--write` flag is retired and fails with guidance naming the new commands), or run `make-docs run package ship` with the plan flags to go plan, preview, write end-to-end — ship completes only when the plan has zero unresolved items and aborts at the first stop with the granular command to continue with. The write command writes generated plugin or skills-bundle payloads only when the plan is accepted or deterministic and safe, and its result lists every payload file it wrote.
+
+The repeated `--precondition` flags can be absorbed as defaults by a `packaging.preconditions` block in the project's `.make-docs/config.yaml`, keyed by precondition id with values `satisfied`, `unknown`, or `unsupported`:
+
+```yaml
+packaging:
+  preconditions:
+    harness-supported: satisfied
+    project-trusted: satisfied
+    symlink-or-copy-mirror: satisfied
+```
+
+With the block in place, `preview`, `write`, and `ship` run without the flags. Config is convenience, never authority: an explicit `--precondition` flag always overrides the config value for its key, and a project without the block behaves exactly as before. It stops instead of overwriting modified generated files, it stops when a source Playbook changed after the plan was created (re-run the plan step to review the change), and installed outputs require an existing Make Docs manifest so backup and uninstall can track the generated files.
 
 Export-only packages are written under `.make-docs/exports/playbook-packages/**`. They are not treated as installed harness exposures.
 
@@ -197,7 +226,7 @@ Since the Phase 4 work, every support claim is also bound to an exact combinatio
 
 The former bullet on the W18 R12 Phase 2 compiler probe fix is resolved: the `checks/` bullet in What a Generated Package Contains now states that a check verifies the Playbook's declared probe and how to control it from the dependencies block, and the known-defect caveat is removed.
 
-- Blocked by: a first-class packaging surface beyond the current operation commands. The W18 R8 Phase 2 compiler landed — packages are now real harness-native trees and plans list their files — but no friendlier command has shipped, and the downgrade-versus-stop choice on unsupported behavior exists on the underlying plan operation without a CLI flag. Update when: Make Docs ships a first-class packaging command, MCP-guided flow, or plugin surface, including the CLI flag for that choice. Guide change: replace low-level operation examples with the primary user workflow and keep operation commands as troubleshooting or maintainer detail.
+- Blocked by: a first-class packaging surface beyond the current operation commands. The W18 R8 Phase 2 compiler landed — packages are now real harness-native trees and plans list their files — and the W18 R12 Phase 3 grammar landed the intent-named `plan`/`preview`/`write` commands with `ship` as the one-command path for clean plans, but no guided packaging flow has shipped, and the downgrade-versus-stop choice on unsupported behavior still exists on the underlying plan operation without a CLI flag. Update when: Make Docs ships a first-class packaging command, MCP-guided flow, or plugin surface, including the CLI flag for that choice. Guide change: replace low-level operation examples with the primary user workflow and keep operation commands as troubleshooting or maintainer detail.
 - Blocked by: W18 R9 conformance evidence and the Claude Code and Pi real-contract reviews. Update when: the first generated plugin and skills-bundle outputs are validated against real harnesses and the Claude Code and Pi layouts move past provisional. Guide change: add supported harness/output combinations with their evidence, drop the per-harness provisional wording in Where Generated Packages Land as each layout is confirmed, and revise Registering a Package Is Manual if the conformance evidence lets the auto-registration opt-in actually ship.
 
 ## Related Resources
@@ -207,3 +236,4 @@ The former bullet on the W18 R12 Phase 2 compiler probe fix is resolved: the `ch
 - [Playbook Packaging and Harness Adapter Registry](../../../designs/2026-06-29-playbook-packaging-and-harness-adapter-registry.md)
 - [33 Enhance Playbook Packaging and Harness Adapter Registry](../../../prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md)
 - [36 Revise Playbook Packaging Compiler and Harness Adapters](../../../prd/36-revise-playbook-packaging-compiler-and-harness-adapters.md)
+- [41 Revise CLI Human Experience and Package Grammar](../../../prd/41-revise-cli-human-experience-and-package-grammar.md)

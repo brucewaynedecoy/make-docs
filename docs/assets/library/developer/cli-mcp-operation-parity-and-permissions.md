@@ -24,6 +24,7 @@ related:
   - ../../../prd/29-revise-playbook-contract-run-playbook.md
   - ../../../prd/30-revise-harness-plugin-substrate-workflow-bundles.md
   - ../../../prd/39-revise-cli-command-reorganization-and-operation-registry.md
+  - ../../../prd/41-revise-cli-human-experience-and-package-grammar.md
   - ../../../plans/2026-06-26-w10-r8-typescript-cli-operation-domains-and-mcp-runtime/00-overview.md
   - ../../../work/2026-06-26-w10-r8-typescript-cli-operation-domains-and-mcp-runtime/00-index.md
   - ../../../work/2026-07-01-w18-r11-cli-command-reorganization-and-operation-registry/00-index.md
@@ -49,9 +50,14 @@ The registered domains and identifiers, pinned append-only by `packages/cli/test
 
 | Domain | Identifiers |
 | --- | --- |
-| `playbook` | `validate`, `catalog`, `resolve`, `capabilities`, `start`, `invoke`, `status` active; `next`, `advance`, `gate`, `resume`, `close` reserved as `pending` identifiers that refuse invocation until the W18 R7 state-machine engine lands behind them |
-| `package` | `plan`, `surface-resolve`, `write` |
-| `work` | `item.resolve`, `evidence.record`, `evidence.read` — the two retained work-operation slots keyed to the W18 R10 global-store project-state model |
+| `playbook` | `validate`, `catalog`, `resolve`, `capabilities`, `start`, `invoke`, `status`, `next`, `advance`, `gate`, `resume`, `close` (all active since the W18 R7 state-machine engine landed), plus the W18 R7 Phase 4 portability pair `run.export` and `run.import` |
+| `package` | `plan`, `surface-resolve`, `write`, and — since W18 R12 — the `ship` composite, registered per the no-CLI-only-composites rule below |
+| `work` | `item.resolve`, `evidence.record`, `evidence.read` — the retained work-operation slots keyed to the W18 R10 global-store project-state model |
+
+Since W18 R12 Phase 3, the CLI `run` surface additionally carries two presentation-layer constructs that never reach MCP, governed by the PRD 41 agent-invariance rule (R-INV-1): operation result objects, MCP tool output, and the machine-readable CLI output remain byte-identical to their prior shapes except for additive fields and flags.
+
+- **The render layer** (`packages/cli/src/run/render.ts`): on a TTY the `run` dispatcher renders per-operation human text; `--json` and a non-TTY stdout emit the full operation result byte-identical to before, so scripts and agents observe no change without passing any flag. MCP output derives from the operation result exactly as before — the render layer is CLI-only (R-RENDER-3) and lives in the surface presentation responsibility R-CORE-1 assigns. `packages/cli/tests/run-cli-experience.test.ts` pins the byte-identity of both machine channels, and the MCP derivation parity tests pass unchanged.
+- **Declared CLI spellings** (`RUN_CLI_SPELLINGS` in `packages/cli/src/run/cli.ts`): an intent-named CLI path mapped to an existing registry identifier plus a fixed execution-context overlay — `run package preview` is `package.write` under the dry-run context. A spelling mints no registry identifier and derives no MCP tool; `listRunCliSpellings` is the conformance seam pinning each spelling to its registry identifier. The complement rule stays the W18 R11 parity rule: anything that composes or mutates behavior must be a real registered operation — `package.ship` is the model, registered with a `write` classification and derived to MCP as `make_docs_package_ship` — and a spelling must never be more than declared presentation routing. Never add an MCP tool, registry identifier, or write gate for a spelling, and never let text rendering alter what the machine channels emit.
 
 The legacy `closeout`, `work`, and `lifecycle` inspection cluster — wave-status, work-phase-state, phase-plan, phase-gate, scope-guard, checkpoint, and the closeout probe/validate/history operations — is pruned by the [migrated-operations inventory disposition](../../artifacts/migrated-operations-inventory.md) and, as of W18 R11 P4, has no command surface: the legacy `operations` dispatcher is deleted and the eight pruned MCP tools are removed, with a dependency-direction guard keeping the dispatcher deleted. The internal domain functions remain in place as the recovery source for the Playbook rebuild (their retirement is the inventory's tracked follow-up), and no pruned name may ever be added to the registry — pinned by `registry-contract.test.ts` and the MCP tool-list absence test.
 
@@ -197,4 +203,5 @@ Before implementing an MCP tool or CLI operation:
 - [29 Revise Playbook Contract Run Playbook](../../../prd/29-revise-playbook-contract-run-playbook.md)
 - [30 Revise Harness Plugin Substrate Workflow Bundles](../../../prd/30-revise-harness-plugin-substrate-workflow-bundles.md)
 - [39 Revise CLI Command Reorganization and Operation Registry](../../../prd/39-revise-cli-command-reorganization-and-operation-registry.md)
+- [41 Revise CLI Human Experience and Package Grammar](../../../prd/41-revise-cli-human-experience-and-package-grammar.md)
 - [W18 R11 CLI Command Reorganization and Operation Registry Work](../../../work/2026-07-01-w18-r11-cli-command-reorganization-and-operation-registry/00-index.md)

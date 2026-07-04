@@ -389,6 +389,7 @@ export {
   playbookRunStepId,
   readPlaybookRunState,
   requireRunProjectId,
+  resolvePlaybookRunIdSelector,
   resolveRunStoreRoot,
   transitionPlaybookRunState,
   writePlaybookRunState,

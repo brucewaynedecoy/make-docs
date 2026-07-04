@@ -22,6 +22,7 @@ related:
   - ../../../prd/34-revise-playbook-contract-and-model.md
   - ../../../prd/35-revise-run-playbook-state-machine.md
   - ../../../prd/40-revise-playbook-authoring-contract-v2.md
+  - ../../../prd/41-revise-cli-human-experience-and-package-grammar.md
   - ../../../../.make-docs/contracts/system/playbook-contract.md
   - ../../../designs/2026-06-27-run-playbook-orchestration-and-harness-capabilities.md
   - ../../../designs/2026-06-29-playbook-packaging-and-harness-adapter-registry.md
@@ -102,6 +103,21 @@ A Playbook run can start from different surfaces:
 
 The current operation command is a deterministic Make Docs operation surface, not a polished product shortcut. The important contract is that these entry points all use the same resolver, validator, run-state model, and safety rules.
 
+## Reading Command Output
+
+Since the W18 R12 revision, `make-docs run` commands answer a person and a program differently, without either audience losing anything:
+
+- **On a terminal**, each command prints a short human summary instead of a JSON dump: what just happened (for `advance`, the step that ran, its mode, and its outcome), a one-line picture of where the run stands, the run's current guidance hints, and — as the last line — the exact next command to run. You can drive a whole run by running the last line of each output.
+- **With `--json`, or whenever output is piped or redirected**, the command emits the full operation result as JSON, exactly as before. Scripts, agents, and transcripts need no flag and see no change.
+
+The summaries stay short on purpose. The harness-capability details print once, when `start` reports them; later summaries reference the full record instead of repeating it, and the run's evidence log is never echoed into the terminal. Nothing is hidden by that: `make-docs run playbook status --run-id <run-id> --json` (or `--json` on any command) always returns the complete stored record.
+
+A few everyday conveniences landed in the same revision:
+
+- **Run-id prefixes and `--last`.** Anywhere a command takes `--run-id`, an unambiguous prefix of the id is enough — `--run-id 2026-07-03T09` resolves as long as only one run matches, and an ambiguous prefix fails listing the candidates. `--last` skips the id entirely and selects the project's most recent run, which is usually the one you are driving.
+- **`--repo-root` is optional inside a project.** It defaults to the nearest ancestor directory carrying `.make-docs/manifest.json`, so commands run from anywhere inside a set-up project without the flag; pass it only to point at a different project. The examples below keep `--repo-root .` for explicitness, but you can drop it.
+- **Quieter startup.** The Node SQLite experimental warning no longer prints on every invocation; other warnings still surface.
+
 ## Driving a Run from Start to Close
 
 A run started from the CLI can now be carried all the way to a terminal status. Each step below also works through the matching MCP tool (`make_docs_playbook_next`, `make_docs_playbook_advance`, `make_docs_playbook_gate`, `make_docs_playbook_resume`, `make_docs_playbook_close`) in an MCP-capable harness; the recording tools require the caller to pass `allowWrite=true`, while `next` is read-only.
@@ -118,7 +134,7 @@ Ask where the run stands whenever you need direction:
 make-docs run playbook next --repo-root . --run-id <run-id>
 ```
 
-`next` never changes the run. It reports the current position — a step to execute, a gate waiting for a decision, `blocked` with the reasons, `closeable` when no workflow position remains, or `closed` after finalization — along with the step's title, mode, and invocation, whether its required dependencies are recorded as available, and what to do about anything in the way. A required dependency recorded as unavailable blocks the position; one with unknown availability comes back as probe-first guidance instead. `make-docs run playbook status --repo-root . --run-id <run-id>` still returns the raw stored record when you want the full state instead of a recommendation.
+`next` never changes the run. It reports the current position — a step to execute, a gate waiting for a decision, `blocked` with the reasons, `closeable` when no workflow position remains, or `closed` after finalization — along with the step's title, mode, and invocation, whether its required dependencies are recorded as available, and what to do about anything in the way. A required dependency recorded as unavailable blocks the position; one with unknown availability comes back as probe-first guidance instead. `make-docs run playbook status --repo-root . --run-id <run-id> --json` still returns the raw stored record when you want the full state instead of a recommendation; without `--json` on a terminal, `status` prints the same short summary shape as the other commands.
 
 Then advance the run. What `advance` does depends on the step's execution mode, which `next` reports:
 
@@ -171,7 +187,7 @@ make-docs run playbook close --repo-root . --run-id <run-id> --terminal-status c
 
 `close` is the only operation that stamps the terminal status (`completed`, `failed`, or `cancelled`), and a closed run refuses any further changes. Reaching the end of the workflow does not auto-close a run; the run waits for you so the closeout decision stays explicit.
 
-The guidance hints a run carries — the "what to do next" advice recorded on it, which `status` returns as part of the stored record — always reflect only unresolved work. Advice about a step or gate that has since completed, failed, been skipped, or been rejected is retired automatically on the next transition, and closing a run clears its guidance hints entirely, so a closed run carries none. Nothing is lost by that: the full history of what happened stays in the run's evidence log, which hint retirement never touches.
+The guidance hints a run carries — the "what to do next" advice printed in the terminal summaries and returned by `status --json` as part of the stored record — always reflect only unresolved work. Advice about a step or gate that has since completed, failed, been skipped, or been rejected is retired automatically on the next transition, and closing a run clears its guidance hints entirely, so a closed run carries none. Nothing is lost by that: the full history of what happened stays in the run's evidence log, which hint retirement never touches.
 
 ## Moving a Run to Another Machine
 
@@ -254,6 +270,7 @@ Playbooks also do not redefine Make Docs authority. If a Playbook changes PRDs, 
 This guide should be refreshed after W18 implementation lands with plugin entry points, packaging commands, package-plan review examples, and a small set of end-user examples that can be run against an installed Make Docs project.
 
 - The former bullet on a reader-facing projection of the Playbook contract is resolved with the W18 R7 wave complete: no separate projection guide is warranted. The contract remains the normative, linkable authority for what a Playbook file must contain; this guide owns what users do with Playbooks, including the now-implemented and verified start-to-close run lifecycle; and a prose projection would restate both without giving a reader a task to complete. Revisit only if user-authored Playbooks become a primary authoring surface with questions this guide and the contract do not answer.
+- Blocked by: W18 R12 Phase 4 (the PRD 37/W18 R9 reconciliation) and the W18 R9 conformance wave. The hand-run UAT walkthrough documents were written against the pre-W18 R12 JSON-dump output and old packaging spellings and have not been regenerated; scenario transcripts that consume CLI output must pin `--json` per the reconciliation. Update when: the reconciled scenarios and regenerated walkthroughs exist. Guide change: fold in a validated set of end-user examples with their real terminal output, replacing the illustrative command shapes here.
 
 ## Related Resources
 
@@ -265,6 +282,7 @@ This guide should be refreshed after W18 implementation lands with plugin entry 
 - [34 Revise Playbook Contract and Model](../../../prd/34-revise-playbook-contract-and-model.md)
 - [35 Revise Run Playbook State Machine](../../../prd/35-revise-run-playbook-state-machine.md)
 - [40 Revise Playbook Authoring Contract v2](../../../prd/40-revise-playbook-authoring-contract-v2.md)
+- [41 Revise CLI Human Experience and Package Grammar](../../../prd/41-revise-cli-human-experience-and-package-grammar.md)
 - [Playbook Contract](../../../../.make-docs/contracts/system/playbook-contract.md)
 - [Run Playbook Orchestration and Harness Capabilities](../../../designs/2026-06-27-run-playbook-orchestration-and-harness-capabilities.md)
 - [Playbook Packaging and Harness Adapter Registry](../../../designs/2026-06-29-playbook-packaging-and-harness-adapter-registry.md)

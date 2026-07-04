@@ -41,6 +41,9 @@ const EXPECTED_DERIVED_TOOL_NAMES: Record<string, string> = {
   "package.plan": "make_docs_package_plan",
   "package.surface-resolve": "make_docs_package_surface_resolve",
   "package.write": "make_docs_package_write",
+  // Appended by W18 R12 P3 (PRD 41 R-GRAM-3): ship derives like every other
+  // operation; this is the ONLY agent-facing surface change of the round.
+  "package.ship": "make_docs_package_ship",
   "work.item.resolve": "make_docs_work_item_resolve",
   "work.evidence.record": "make_docs_work_evidence_record",
   "work.evidence.read": "make_docs_work_evidence_read",
@@ -162,9 +165,9 @@ describe("MCP derivation parity (R-REG-2, R-MIG-3, R-CORE-1)", () => {
     );
   });
 
-  test("tool names are exactly the derived spellings for all 20 identifiers", () => {
+  test("tool names are exactly the derived spellings for all 21 identifiers", () => {
     const registryIds = listOperations().map((operation) => operation.id);
-    expect(registryIds).toHaveLength(20);
+    expect(registryIds).toHaveLength(21);
     expect(Object.keys(EXPECTED_DERIVED_TOOL_NAMES).sort()).toEqual([...registryIds].sort());
 
     const derivedByOperation = new Map(
