@@ -214,6 +214,34 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 **Resolution**: The W16 product assets were reverse-seeded from the dogfood into `packages/docs/template/docs/**` (the contract, `lifecycle.md`, the references and templates edits, the root routers, and the artifacts routers); `diff -rq` confirms parity, with only make-docs's own history, archive, guide, playbook, and artifact content remaining dogfood-only. The W16 R0 plan and work-backlog index now state the template-first authoring and re-seed flow.
 
+### D-015 Generated Dependency Checks Probe the Source Prose Instead of the Dependency
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | Confirmed by the 2026-07-03 W18 R8 UAT (Test 2, step 2.1–2.3). The root fix is chosen in [the W18 R12 remediation design](../designs/2026-07-03-playbook-authoring-ergonomics-and-cli-experience-remediation.md) and carried as effective requirements in [40-revise-playbook-authoring-contract-v2.md](./40-revise-playbook-authoring-contract-v2.md): the `## Dependencies` registry becomes a fenced YAML block whose entries carry an explicit optional `probe` field — the executable the generated check verifies — defaulting to the dependency `id`, and `source` returns to pure human provenance prose that nothing parses. The contract revision is a clean v2 break (user decision — nothing built on v1 was ever distributed): the v1 table parser is deleted rather than deprecated, so no legacy-scrape path survives and no legacy-table default is needed; old-form documents fail with pointed diagnostics naming the v2 block shape. | Implement per PRD 40 (R-DEP-3, R-FIX-1, R-TEST-2) via the [W18 R12 backlog](../work/2026-07-03-w18-r12-playbook-authoring-ergonomics-and-cli-experience-remediation/00-index.md); pin the regression with fixtures whose `source` prose does not begin with the binary name, including the UAT repro. |
+
+**Issue**: The generated `cli` and `package-manager` dependency-check scripts probe the first word of the dependency's `Source` column — `executableToken` in `packages/cli/src/operations/playbook-packaging/materialization.ts` — instead of the dependency `ID`. A `git` dependency whose Source reads `system install` generates a check for a binary named `system`, which exits 1 despite git being installed. The unit tests missed it because every fixture's Source text happened to start with the binary name.
+
+**Why it matters**: Generated packages ship dependency checks that fail on installed dependencies whenever the author's provenance prose does not lead with the binary name — a false-negative that blocks package use and erodes trust in generated output. The root cause is structural: machine meaning (the probe target) living in narrative prose, which the playbook contract itself forbids.
+
+**Recommendation**: Land the W18 R12 `probe` field as the root fix within the clean v2 contract break, and require regression fixtures whose `source` prose does not begin with the binary name.
+
+**To close**: Generated `cli` and `package-manager` checks probe the declared `probe` (or the dependency `id` when absent), nothing parses `source` for machine meaning anywhere, and the UAT repro (`git` with source `system install of git`) passes.
+
+### D-016 PlaybookRunState Resume Hints Accumulate Without Retirement
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | Confirmed by the 2026-07-03 W18 R7 UAT: hints from long-completed steps ("Delegated step `prepare` is waiting for its executor") persist through `close` and are still listed on the closed run. [The W18 R12 remediation design](../designs/2026-07-03-playbook-authoring-ergonomics-and-cli-experience-remediation.md) chooses retirement semantics: hints become subject-scoped, each mutating transition (`advance`, `gate`, `resume`, `close`) retires hints whose subject step or gate has since resolved, and `close` retires all guidance hints; the evidence log remains the unchanged durable audit trail. The requirement is carried as R-FIX-2 and R-TEST-3 in [41-revise-cli-human-experience-and-package-grammar.md](./41-revise-cli-human-experience-and-package-grammar.md). | Implement per PRD 41 via the [W18 R12 backlog](../work/2026-07-03-w18-r12-playbook-authoring-ergonomics-and-cli-experience-remediation/00-index.md) Phase 2, with tests proving an advanced-past step's hint is retired and a closed run carries no guidance hints. |
+
+**Issue**: `PlaybookRunState.resumeHints` only accumulates — `withHint` in `packages/cli/src/operations/playbook/progression.ts` appends and never prunes — so guidance for steps that resolved long ago persists across the entire run and survives close.
+
+**Why it matters**: Resume hints exist to tell a re-entering human or agent what to do next; stale hints presented as current guidance are actively misleading, and agents reading a closed run's state can be steered toward steps that no longer wait for anything.
+
+**Recommendation**: Make hints subject-scoped with retirement on each transition per the remediation design, keeping historical detail in the evidence log rather than in `resumeHints`.
+
+**To close**: Hints for resolved subjects are retired on each state transition, a closed run's state carries no guidance hints, and the evidence log is unchanged.
+
 ## Open Questions
 
 ### Q-001 What Is the Long-Term Skills Delivery Contract?
@@ -419,6 +447,34 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 **Correction (2026-06-25)**: W9 R5 completed the corrective IA decision: `docs/assets/library/**` replaces guide/persona docs, `docs/assets/playbooks/**` remains the playbook home, and `docs/library/**` is removed from shipped-current use.
 
 **To close**: Closed on 2026-06-17 by the W16 R0 Phase 03 lifecycle playbook decision.
+
+### Q-015 When and How Should the Interactive Playbook Run Mode Land?
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Deferred | Captured from the 2026-07-03 W18 R7/R8 UAT scoping as deliberately out of scope for the W18 R12 remediation round: a Clack-based interactive mode for driving playbook runs (guided `next`/`advance`/`gate` prompts). Clack is already a CLI dependency via the setup wizard. The user-approved sequencing makes it the natural wave after W18 R12 lands, because an interactive mode built over the pre-remediation grammar and output would wallpaper the problems that round fixes; the remediated render layer, intent-named grammar, and pruned resume hints are the primitives it should consume. | After W18 R12 lands, design the interactive run mode over the remediated CLI surface; do not start it before the render layer and grammar exist. |
+
+**Question**: What is the right design for a Clack-based interactive mode that drives a playbook run — guided next/advance/gate prompting — on top of the remediated run CLI?
+
+**Why it matters**: Hand-driving a run today means re-typing long commands between every step; an interactive mode is the obvious usability step, but building it before the W18 R12 render and grammar remediation would bake the current output and spelling problems into a second surface.
+
+**Recommendation**: Keep it explicitly deferred behind W18 R12 and treat it as its own design and wave when picked up.
+
+**To close**: An interactive run mode design exists that consumes the remediated surface, or the direction is explicitly retired.
+
+### Q-016 Should Make Docs Grow a Full TUI Over the Store, Runs, and Packaging?
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Deferred | Captured from the 2026-07-03 W18 R7/R8 UAT scoping as a named future design lineage — the way Runtime and Global Store was named before it existed: a full TUI (for example OpenTUI-based) over the global store, the run state machine, and the packaging surfaces. This is a product-direction bet deserving its own design lineage, not an increment on the W18 R12 remediation round or on the Q-015 interactive mode. | When the direction is picked up, start a dedicated design lineage for the Make Docs TUI over the store, run, and packaging surfaces; until then this item is the durable capture. |
+
+**Question**: Should Make Docs ship a full terminal UI over the global store, the run state machine, and the packaging surfaces, and if so what is its design lineage?
+
+**Why it matters**: The UAT showed the underlying state and operations are rich enough to deserve a persistent visual surface, but a TUI is a product bet with its own architecture, dependency, and maintenance costs — it must not emerge ad hoc from CLI increments.
+
+**Recommendation**: Hold this as a named future lineage; revisit after W18 R12 and the Q-015 interactive mode establish the human-experience layer it would build on.
+
+**To close**: A dedicated TUI design lineage is started, or the direction is explicitly retired.
 
 ## Rebuild Risks
 
@@ -780,6 +836,20 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 
 **To close**: A coordinate-consistency operation exists, is exposed on the CLI and as a hook, and fails when a design's coordinate or PRD disagrees with its downstream plan and work artifacts.
 
+### R-026 The W18 R12 UAT Remediation Round Must Land Before W18 R9 Conformance
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | The 2026-07-03 hand-run UAT of the built CLI (W18 R7 executed fully, W18 R8 through step 2.3) produced, beyond the D-015/D-016 defects, two remediation families scoped as one round in [the W18 R12 remediation design](../designs/2026-07-03-playbook-authoring-ergonomics-and-cli-experience-remediation.md): the playbook authoring-contract ergonomics revision (C1 dependencies as a fenced YAML block with typed fields including `probe`; C2 `schema`/`workflowSchema` frontmatter keys; C3 required-heading simplification — batched into one contract revision shipped as a clean v2 break, user-approved: nothing built on v1 was ever distributed, so the v1 forms are removed rather than deprecated and old-form documents fail with pointed diagnostics naming the v2 shape, authored upstream in `packages/docs/template/` per the maintainer dogfooding rule) and the CLI human-experience layer (X1 render layer with TTY text and `--json`, X2 intent-named `plan`/`preview`/`write` grammar preserving fail-before-write plus the registered `package.ship` composite operation, X3 `plan --output`, X4 run-id prefix matching and `--last`, X5 flag defaults and precondition config absorption, X6 ExperimentalWarning suppression, X7 capability-snapshot folding) under the explicit agent-invariance rule that operation results and MCP output stay byte-identical. The round is now planned: effective requirements live in [40-revise-playbook-authoring-contract-v2.md](./40-revise-playbook-authoring-contract-v2.md) and [41-revise-cli-human-experience-and-package-grammar.md](./41-revise-cli-human-experience-and-package-grammar.md). The user approved the sequencing decision this item records: the remediation round runs BEFORE the planned W18 R9 conformance wave, because R9's evidence binds to generated-package content (dependency-check scripts) and CLI command spellings that this round changes — evidence minted first would be invalidated immediately. | Implement PRD 40 and PRD 41 via the [W18 R12 backlog](../work/2026-07-03-w18-r12-playbook-authoring-ergonomics-and-cli-experience-remediation/00-index.md) before executing the W18 R9 backlog; backlog Phase 4 reconciles [37-enhance-playbook-and-package-conformance.md](./37-enhance-playbook-and-package-conformance.md) and the existing [W18 R9 backlog](../work/2026-07-01-w18-r9-playbook-and-package-conformance/00-index.md) for the assumptions the round invalidates — dependency-block fixtures and generated-check expectations, command spellings in scenario scripts, and scenario transcripts that consume CLI output (which must pin `--json`). |
+
+**Issue**: The W18 R9 conformance backlog and PRD 37 scenarios were written against the pre-remediation surfaces: they assume the current dependency-table shape and Source-derived check scripts, the `run package plan`/`write --write` spellings, and the current CLI output. The W18 R12 remediation changes all three, so executing R9 first would bind install-discover-invoke-uninstall evidence to content and spellings about to move, and executing R12 without reconciling R9 would leave the conformance backlog silently stale.
+
+**Why it matters**: Conformance evidence is the product's honesty layer — tuples certified against superseded package content would have to be re-minted, and stale scenario spellings would make the first real-harness pass fail for reasons that are not harness findings.
+
+**Recommendation**: Treat the sequencing as a delivery gate: W18 R12 lands first, and its planning includes an explicit PRD 37 and W18 R9 backlog reconciliation pass so the conformance wave starts against the remediated surfaces.
+
+**To close**: The W18 R12 round is implemented per its design, PRD 37 and the W18 R9 backlog are reconciled for the invalidated assumptions, and W18 R9 execution begins only after both.
+
 ## Source Anchors
 
 - `README.md:6-46`
@@ -817,6 +887,7 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 - `docs/designs/2026-07-01-playbook-and-package-conformance.md`
 - `docs/designs/2026-07-01-global-store-and-project-state.md`
 - `docs/designs/2026-07-01-cli-command-reorganization-and-operation-registry.md`
+- `docs/designs/2026-07-03-playbook-authoring-ergonomics-and-cli-experience-remediation.md`
 - `docs/designs/2026-06-19-package-and-deployment-boundaries.md`
 - `docs/designs/2026-06-19-system-asset-delivery-and-materialization-contract.md`
 - `docs/designs/2026-06-19-compatibility-audit-and-migration-disposition.md`

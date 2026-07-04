@@ -66,6 +66,10 @@ The effective requirement set carries the design's requirement IDs so traceabili
 - R-DOC-6 (MUST): exactly three regions are authoritative and parsed for machine meaning — the frontmatter, the dependency registry table, and the single workflow contract block; all other sections are narrative, checked only for presence and non-emptiness, and narrative prose must never carry machine meaning.
 - R-DOC-7 (MAY/MUST): unknown `##` sections after the required spine are allowed and ignored; an unknown section before or between required sections, or a missing or out-of-order required section, is a validation error.
 
+#### Change Notes
+
+- Superseded by [40-revise-playbook-authoring-contract-v2.md](40-revise-playbook-authoring-contract-v2.md). The v2 authoring contract renames the R-DOC-3 version keys to `schema`/`workflowSchema`, simplifies the R-DOC-5 spine spellings to `## Inputs`, `## Workflow`, `## Gates`, and `## Outputs`, and advances the schema version to the v2 identifier as a clean break: the old keys, spellings, and v1 identifiers are removed and fail with pointed diagnostics naming the v2 shape. R-DOC-6's authoritative regions now read the fenced dependencies block in place of the dependency registry table; the narrative-prose rule itself is unchanged and is the stated rationale for the change.
+
 ### Workflow Contract and Step Model (R-WF)
 
 - R-WF-1 (MUST): the workflow contract is exactly one fenced block inside `## Workflow Contract` with info string `playbook` (not `yaml`) and YAML-shaped content; zero or more than one block is a validation error.
@@ -85,6 +89,10 @@ The effective requirement set carries the design's requirement IDs so traceabili
 - R-DEP-4 (MUST): cross-reference integrity is bidirectional — every `uses`/`requires` resolves to a registry `ID` and every routing target resolves to a step `id`; a `requires` targeting an `optional` dependency is an error; an unreferenced declared dependency is a warning.
 - R-DEP-5 (declaration only): dependency `Kind` governs how the packaging compiler later materializes it; that materialization is owned by [33-enhance-playbook-packaging-and-harness-adapter-registry.md](33-enhance-playbook-packaging-and-harness-adapter-registry.md) and is not implemented here.
 
+#### Change Notes
+
+- Superseded by [40-revise-playbook-authoring-contract-v2.md](40-revise-playbook-authoring-contract-v2.md). The Markdown dependency table (R-DEP-1 through R-DEP-3) is replaced by a fenced `playbook` block with a top-level `dependencies` key and typed per-entry fields — `id`, `kind`, `requirement`, optional `probe` defaulting to `id`, `source` as unparsed human provenance prose, `used_by` as a typed list, and `fallback` — with `probe` the only field dependency-check generation may target. The registry-of-record role, identifier uniqueness, the kind and requirement enumerations, and R-DEP-4 cross-reference integrity carry forward unchanged; the v1 table form is removed and fails with a pointed diagnostic naming the block shape.
+
 ### Playbook Model, Parser, Validator, and Diagnostics (R-MODEL)
 
 - R-MODEL-1 (MUST): the parser and validator are a pure, modular core library module — source in, Playbook model plus diagnostics out, no presentation or filesystem effects beyond reading the input, and no monolithic single file.
@@ -93,6 +101,10 @@ The effective requirement set carries the design's requirement IDs so traceabili
 - R-MODEL-4 (MUST): validation is layered — structural, registry, workflow, cross-reference integrity, and consistency.
 - R-MODEL-5 (MUST): every diagnostic carries a stable code, severity, precise location with section/field/source span, message, and fix hint; the set includes at least PB-DOC-001 (error, required section missing or out of order), PB-FM-002 (error, frontmatter field missing or invalid enum), PB-DEP-003 (error, unknown dependency identifier), PB-DEP-004 (warning, unreferenced dependency), PB-WF-005 (error, deterministic step with neither operation nor command), PB-WF-006 (error, routing target not a defined step), and PB-FILE-007 (warning, legacy filename should be renamed to `*.playbook.md`).
 - R-MODEL-6 (MUST): the `playbook.validate` and `playbook.catalog` operations wrap this library, the runner consumes its model, and a future language server can wrap the same library so command-line and editor diagnostics never diverge; the language server itself is out of scope.
+
+#### Change Notes
+
+- Superseded by [40-revise-playbook-authoring-contract-v2.md](40-revise-playbook-authoring-contract-v2.md). The R-MODEL-3 parse-dependency-table stage becomes a dependencies-block parsing stage and the v1 table parser is deleted; the diagnostics catalog gains pointed old-form error diagnostics naming the v2 replacement shapes for the removed table, keys, spellings, and v1 schema identifiers. The model shape, layered validation, and the R-MODEL-5 diagnostic set otherwise remain active.
 
 ### Verification and Testability (R-TEST)
 

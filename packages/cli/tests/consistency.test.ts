@@ -467,6 +467,8 @@ describe("risk register routing contract", () => {
       "D-012 Authoritative Layer Encodes Structure but Not Lifecycle Ordering",
       "D-013 W16 Design Docs Trail the Re-Scoped Plan",
       "D-014 W16 R0 Product Assets Authored in the Dogfood Instead of the Template Source",
+      "D-015 Generated Dependency Checks Probe the Source Prose Instead of the Dependency",
+      "D-016 PlaybookRunState Resume Hints Accumulate Without Retirement",
     ]);
     expect(itemHeadings(questions)).toEqual([
       "Q-001 What Is the Long-Term Skills Delivery Contract?",
@@ -483,6 +485,8 @@ describe("risk register routing contract", () => {
       "Q-012 How Do Plugins and Skills Share an Install and Respect Config Mapping?",
       "Q-013 What Are the Plugin Flow and Exposure Boundaries?",
       "Q-014 How Did the Transitional `docs/library/` Move Resolve?",
+      "Q-015 When and How Should the Interactive Playbook Run Mode Land?",
+      "Q-016 Should Make Docs Grow a Full TUI Over the Store, Runs, and Packaging?",
     ]);
     expect(itemHeadings(risks)).toEqual([
       "R-001 Home-Scoped Skills Are Easy to Drop From a Clean-Room Rebuild",
@@ -510,6 +514,7 @@ describe("risk register routing contract", () => {
       "R-023 The Global Store Could Drift Into a Second Source of Truth or Lose Evidence in the Checkpoint Migration",
       "R-024 The Command-Surface Hard Cutover Can Strand Consumers or Leave a Half-Migrated Surface",
       "R-025 Cross-Artifact Coordinate Handoffs Can Drift From Their Assigned Waves and PRDs",
+      "R-026 The W18 R12 UAT Remediation Round Must Land Before W18 R9 Conformance",
     ]);
   });
 

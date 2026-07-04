@@ -77,11 +77,19 @@ The effective requirement set carries the design's requirement IDs so traceabili
 - R-CORE-2 (MUST): dependencies are one-way — surfaces depend on the core, the core never depends on a surface, and no surface imports another surface.
 - R-SURF-1 (MUST): the three surfaces over the registry are the CLI `run` command, the MCP tools, and Playbook `operation:` steps; `setup`, `mcp`, `update`, and `uninstall` are CLI lifecycle commands, not registry operations, and a Playbook step must not install, serve, update, or uninstall the tool.
 
+#### Change Notes
+
+- Enhanced by [41-revise-cli-human-experience-and-package-grammar.md](41-revise-cli-human-experience-and-package-grammar.md). The registry gains the `package.ship` composite operation per the append-only rule — a real registered operation surfaced as `run package ship` and derived to MCP like every other, executing plan → preview → write through the operation core and aborting at the first stop, unresolved proposal, or warning — and the CLI surface builds its human render layer on the presentation seam R-CORE-1 already assigns to surfaces, keyed by `OperationRenderMode`, with `--json` and non-TTY output byte-identical to the operation result.
+
 ### The Run Surface After Pruning (R-RUN)
 
 - R-RUN-1 (MUST): the `run` surface exposes only registry operations; after pruning it contains `run playbook` (catalog, resolve, capabilities, start, invoke, status, next, advance, gate, resume, close), `run package` (plan, surface-resolve, write), and the retained work-execution operations only — a work-item identity resolver and the work-execution evidence record and read, keyed to the global-store project-state model — which replace the removed wave, phase, and closeout cluster.
 - R-RUN-2 (MUST NOT): the derivation, judgment, and generation operations removed by the pruning disposition — the wave-status, work-phase-state, phase-plan, phase-gate decision, scope-guard, and closeout probe, validate, and history logic — must not be carried into the new `run` surface; they are rebuilt as Playbooks per the inventory disposition.
 - The exact names of the two retained work operations are an implementation detail; their shape is fixed as one identity resolver and one evidence record-and-read pair.
+
+#### Change Notes
+
+- Superseded by [41-revise-cli-human-experience-and-package-grammar.md](41-revise-cli-human-experience-and-package-grammar.md). The `run package` CLI spellings become intent-named — `plan` (gaining `--output`), `preview` (the full dry-run pipeline), `write` (writes, with the `--write` flag retired), and `ship` (the `package.ship` composite) — over unchanged operations and MCP tools; every fail-before-write stop is preserved, and the retired `--write` spelling fails with guidance naming the new grammar. The pruned-surface rule and registry derivation are unchanged.
 
 ### Migration and Upgrade Safety (R-MIG)
 
