@@ -29,8 +29,8 @@ Define the eight-field support tuple that extends the lab's scenario-harness-mod
 
 ### Tasks
 
-- [ ] t1: Define the support tuple record for generated outputs — scenario, harness, surface, scope, output kind, generated-output kind, model or provider, and runtime — as the unit every support claim binds to (R-TUPLE-1).
-- [ ] t2: Map the tuple onto the existing lab result contract so model, provider, and runtime stay run metadata per PRD 20 and the tuple's packaging fields align with the PRD 36 distributable model (surface `native`/`agents-standard`/`auto`, scope `project`/`global`/`export-only`, output kind `plugin`/`skills-bundle`) without redefining either.
+- [x] t1: Define the support tuple record for generated outputs — scenario, harness, surface, scope, output kind, generated-output kind, model or provider, and runtime — as the unit every support claim binds to (R-TUPLE-1).
+- [x] t2: Map the tuple onto the existing lab result contract so model, provider, and runtime stay run metadata per PRD 20 and the tuple's packaging fields align with the PRD 36 distributable model (surface `native`/`agents-standard`/`auto`, scope `project`/`global`/`export-only`, output kind `plugin`/`skills-bundle`) without redefining either.
 
 ### Acceptance criteria
 
@@ -45,10 +45,10 @@ Define the eight-field support tuple that extends the lab's scenario-harness-mod
 
 ### Tasks
 
-- [ ] t3: Create the tuple registry as a queryable data file under `docs/assets/conformance/`, choosing and documenting a concrete format that carries every tuple and its status (R-REG-1, D8).
-- [ ] t4: Encode the three statuses — `provisional`, `implementation-validated`, `conformance-validated` — with their meanings, so each tuple carries exactly one (R-REG-2).
-- [ ] t5: Encode the verdict-derivation rules for status transitions: `conformance-validated` only on a `pass`, or a `pass-with-caveats` whose caveats are surfaced, that meets the D4 evidence bar; `inconsistent`, `unsupported`, and `blocked` never advance a tuple (R-REG-3).
-- [ ] t6: Seed the registry with the current W18 R8 adapter tuples at their honest statuses — `provisional` everywhere no internal or harness evidence exists, `implementation-validated` only where internal file and structure tests actually prove the generated output — and link each status to its evidence.
+- [x] t3: Create the tuple registry as a queryable data file under `docs/assets/conformance/`, choosing and documenting a concrete format that carries every tuple and its status (R-REG-1, D8).
+- [x] t4: Encode the three statuses — `provisional`, `implementation-validated`, `conformance-validated` — with their meanings, so each tuple carries exactly one (R-REG-2).
+- [x] t5: Encode the verdict-derivation rules for status transitions: `conformance-validated` only on a `pass`, or a `pass-with-caveats` whose caveats are surfaced, that meets the D4 evidence bar; `inconsistent`, `unsupported`, and `blocked` never advance a tuple (R-REG-3).
+- [x] t6: Seed the registry with the current W18 R8 adapter tuples at their honest statuses — `provisional` everywhere no internal or harness evidence exists, `implementation-validated` only where internal file and structure tests actually prove the generated output — and link each status to its evidence.
 
 ### Acceptance criteria
 

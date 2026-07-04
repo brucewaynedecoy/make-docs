@@ -13,10 +13,13 @@ applies-to:
   - validation
 related:
   - ../../../prd/20-revise-agent-harness-model-conformance-lab.md
+  - ../../../prd/37-enhance-playbook-and-package-conformance.md
   - ../../../plans/2026-06-23-w10-r5-agent-harness-model-conformance-lab/02-scenario-and-result-contract.md
   - ../../../plans/2026-06-23-w10-r5-agent-harness-model-conformance-lab/03-harness-adapter-and-support-claim-gating.md
   - ../../../work/2026-06-23-w10-r5-agent-harness-model-conformance-lab/02-scenario-and-result-schema.md
   - ../../../work/2026-06-23-w10-r5-agent-harness-model-conformance-lab/03-adapters-and-support-claims.md
+  - ../../../work/2026-07-01-w18-r9-playbook-and-package-conformance/01-support-tuple-and-tuple-registry.md
+  - ./playbooks-development-packaging-and-harness-adapters.md
   - ./release-packaging-validation-and-release-reference.md
 ---
 
@@ -28,12 +31,15 @@ The conformance lab is maintainer-only evidence infrastructure. It helps maintai
 
 Use this guide when defining reviewed scenario specs, compact result records, raw artifact storage, and redacted evidence promotion. Keep the lab outside shipped templates and packages unless a later accepted design explicitly promotes a reviewed subset.
 
+Since W18 R9 Phase 1 ([PRD 37](../../../prd/37-enhance-playbook-and-package-conformance.md)), the lab extends into the Playbook packaging domain: support claims for generated distributables bind to an eight-dimension tuple, and every tuple's status lives in one queryable registry data file. The lab core in this guide — verdicts, safety modes, evidence classes, storage boundaries, and the result contract — is consumed by that extension unchanged (R-SCOPE-1, R-KEEP-1). See Packaging Conformance Tuple and Registry below.
+
 ## Project Orientation
 
 | Surface | Purpose | Source-control rule |
 | --- | --- | --- |
 | Scenario specs | Define the behavior to exercise, the safety mode, and the expected evidence. | May be committed only when compact and reviewed. |
 | Result records | Capture the exact scenario/harness/model/provider/runtime tuple and reviewed verdict. | May be committed only when compact and reviewed. |
+| Tuple registry | Carry every packaging support tuple and its evidence-derived status. | Committed queryable data file at `docs/assets/conformance/tuple-registry.json`. |
 | Raw artifacts | Hold transcripts, provider logs, temporary workspaces, raw diffs, and run scratch data. | Generated local state under `.make-docs/conformance/<run-id>/` or `.make-docs/runs/conformance/<run-id>/`; not committed by default. |
 | Redacted evidence bundles | Preserve the minimum evidence needed for disputed or stronger support claims. | Opt-in only after review and redaction. |
 
@@ -198,6 +204,62 @@ Support-claim wording must follow this gate:
 
 Do not collapse tuple evidence into blanket wording. A pass for one scenario in Codex does not prove all Codex behavior, a pass for one Claude Code model does not prove every Claude Code model route, and package validation alone does not prove agent-harness support.
 
+For generated Playbook distributables, this gate is realized structurally in the tuple registry described in the next section: a status the recorded evidence does not support fails the registry load.
+
+## Packaging Conformance Tuple and Registry
+
+Since W18 R9 Phase 1 ([the phase backlog](../../../work/2026-07-01-w18-r9-playbook-and-package-conformance/01-support-tuple-and-tuple-registry.md)), the packaging conformance extension lives in `packages/cli/src/conformance/` (`tuple.ts`, `registry.ts`) with its data file under `docs/assets/conformance/`. Phase 1 deliberately registered no new operations: the backlog mandates only the queryable data file, its loader, and query helpers, so the registry is consumed as a library seam by the later-phase scenarios, meta-verification checks, and claim governance — not as a CLI or MCP surface.
+
+### The Eight-Dimension Support Tuple
+
+A support claim for a generated Playbook distributable binds to the exact eight-field tuple — `scenario`, `harness`, `surface`, `scope`, `outputKind`, `generatedOutputKind`, `modelOrProvider`, `runtime` (R-TUPLE-1) — defined in `packages/cli/src/conformance/tuple.ts`. The tuple extends two owned shapes and redefines neither:
+
+- The lab's scenario/harness/model/provider/runtime tuple (PRD 20): `scenario`, `modelOrProvider`, and `runtime` remain run metadata exactly as the result contract above defines them. On a registry tuple they are `null` until a recorded run binds them through `bindRunMetadataOntoConformanceTuple` — the only seam allowed to bind the evidence-owned dimensions, so nothing in packaging or registry code can invent them.
+- The packaging lineage's seven-dimension `PackageSupportClaimTuple` (W18 R8 Phase 4, PRD 36 R-PROV-3): the packaging dimensions — harness, surface, scope, output kind — are consumed from that shape through `bindConformanceSupportTuple`, and a parity test pins the dimension relationship so the two lineages cannot drift apart silently. See [Playbook Packaging and Harness Adapters](./playbooks-development-packaging-and-harness-adapters.md) for the claim-tuple side.
+
+The one added dimension is `generatedOutputKind`: the ownership-record kind of the artifact actually generated (`generated-plugin`, `generated-skills-bundle`, and the exposure and export kinds), reusing the packaging vocabulary rather than minting a new one. It separates what was produced from what was requested (`outputKind`), so evidence for a generated plugin never silently covers its exposure or export artifacts. Two implementer decisions (D8 freedoms) are recorded on the module: a registry tuple's `surface` is always concrete — `bindConformanceSupportTuple` refuses an unresolved `auto` surface because a resolution request is not a surface a harness recognizes, making such a claim broader than any evidence (R-TUPLE-1) — and tuple identity is the ordered dimension values joined with `/`, unbound dimensions spelled `~` (`conformanceTupleKey`), so identity is deterministic and queryable without parsing.
+
+### The Tuple Registry Data File
+
+The set of tuples and their statuses lives in one committed data file, `docs/assets/conformance/tuple-registry.json` (R-REG-1) — a single versioned JSON document, an implementer format choice per D8 so any tool can query it without a parser dependency. [The conformance assets README](../../conformance/README.md) documents the entry shape. `packages/cli/src/conformance/registry.ts` owns the schema, the statuses, and the derivation rules, and provides the fail-closed zod loader (`loadConformanceTupleRegistry`) plus the query helpers (`queryConformanceTuples`, `getConformanceTupleEntry`).
+
+The file and the code are drift-proofed against each other in both directions:
+
+- The file redundantly embeds the R-REG-2 status meanings and R-REG-3 verdict-derivation rules as data, and validation compares the embedded copies byte-for-byte against the code's canonical constants — an edit to either side alone fails the load.
+- Statuses are stored AND rederived: every entry records its status, and validation recomputes `deriveConformanceTupleStatus` from the entry's evidence, failing closed on any mismatch. A `conformance-validated` status without a qualifying recorded run is therefore structurally impossible, which makes the Phase 3 R-TEST-1 meta-verification assertion true from day one.
+- Duplicate tuples are refused: the canonical tuple key enforces one entry per exact tuple.
+
+### Status Derivation Rules
+
+Each tuple carries exactly one of three statuses (R-REG-2), derived — never asserted — from its evidence (R-REG-3, R-BAR-2):
+
+| Status | Requires |
+| --- | --- |
+| `conformance-validated` | A recorded run with verdict `pass` — or `pass-with-caveats` whose caveats are surfaced — that asserts all four D4 evidence-bar stages: `install`, `discover`, `invoke`, `uninstall` (R-BAR-1). |
+| `implementation-validated` | `internal-test` evidence refs only: repository test files proving the generated files and structure. Internal tests are never harness-recognition evidence (R-LAYER-2, PRD 36 R-TEST-5). |
+| `provisional` | Everything else — no conformance evidence yet; the output may be generated but its recognition and usability are unverified. |
+
+The lab's five verdicts are consumed unchanged: `inconsistent`, `unsupported`, and `blocked` never advance a tuple, and a scenario that cannot run reports `blocked` — honest absence of evidence, not evidence. A non-qualifying run neither advances nor demotes a tuple; it stays recorded as history.
+
+### Evidence Kinds and Real-Harness Probes
+
+Non-run evidence refs carry one of two kinds. `internal-test` refs are the only support for `implementation-validated` and must name the repository test file that proves the generated output. `real-harness-probe` refs record out-of-protocol real-harness observations — positive or negative — that inform and warn but never move a status in either direction. The first probe on record is negative: the 2026-07-03 hand-run Codex v0.142.4 recognition probe (register item [R-021](../../../prd/03-open-questions-and-risk-register.md)) rides the `codex-plugin-native-project` tuple with a governance note that its subject must never be worded as recognized; it opens the Phase 2 Codex-first scenarios rather than substituting for them.
+
+### Current Seed
+
+The registry is seeded with the exact first-party descriptor placement matrix from W18 R8 — twenty tuples (seven Codex, seven Claude Code, six Pi), parity-tested against `FIRST_PARTY_HARNESS_CAPABILITY_DESCRIPTORS` so the seed cannot silently miss or invent a placement. The honesty posture:
+
+- Zero tuples are `conformance-validated`: no real-harness evidence bar has been met anywhere.
+- Five tuples are `implementation-validated`, each citing the W18 R8 write-path file-and-structure tests with a boundary note that the evidence is never harness recognition.
+- Fifteen tuples are `provisional`, each with a note naming the specific evidence gap.
+- Export-only tuples bind `generatedOutputKind` to the export-only file kind, keeping the requested-versus-produced distinction visible in the tuple itself.
+
+Seeding Pi tuples does not change the adapter-protocol table above: Pi remains a future lab adapter target, and its registry entries exist precisely to state, queryably, that nothing beyond internal structure tests is proven for it.
+
+### Registry Boundary and Ownership
+
+The registry follows the same maintainer-only boundary as the rest of `docs/assets/conformance/` (R-KEEP-1): it is in-repo project content edited in place, deliberately NOT authored upstream in `packages/docs/template/`. This is a stated exception to the maintainer repo's upstream-first dogfooding rule, recorded in [the W18 R9 backlog index](../../../work/2026-07-01-w18-r9-playbook-and-package-conformance/00-index.md), because conformance is maintainer evidence infrastructure, not shipped product. The registry must stay out of the shipped template, the packaged copy, and npm tarballs; the Phase 3 R-TEST-3 exclusion check enforces that boundary outward.
+
 ## Raw Artifact Storage
 
 Raw artifacts default to generated local state:
@@ -246,6 +308,10 @@ Those commands remain package validation evidence. They become conformance evide
 ## Related Resources
 
 - [20 Revise Agent Harness Model Conformance Lab](../../../prd/20-revise-agent-harness-model-conformance-lab.md)
+- [37 Enhance Playbook and Package Conformance](../../../prd/37-enhance-playbook-and-package-conformance.md)
+- [Conformance Assets README](../../conformance/README.md)
+- [Support Tuple and Tuple Registry Work Phase](../../../work/2026-07-01-w18-r9-playbook-and-package-conformance/01-support-tuple-and-tuple-registry.md)
+- [Playbook Packaging and Harness Adapters](./playbooks-development-packaging-and-harness-adapters.md)
 - [Scenario and Result Contract Plan](../../../plans/2026-06-23-w10-r5-agent-harness-model-conformance-lab/02-scenario-and-result-contract.md)
 - [Harness Adapter and Support Claim Gating Plan](../../../plans/2026-06-23-w10-r5-agent-harness-model-conformance-lab/03-harness-adapter-and-support-claim-gating.md)
 - [Scenario and Result Schema Work Phase](../../../work/2026-06-23-w10-r5-agent-harness-model-conformance-lab/02-scenario-and-result-schema.md)

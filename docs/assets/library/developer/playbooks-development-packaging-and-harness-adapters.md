@@ -19,6 +19,7 @@ applies-to:
   - mcp
 related:
   - ./playbooks-development-runner-architecture.md
+  - ./conformance-lab-scenario-and-result-contracts.md
   - ../user/playbooks-packaging-shareable-agent-workflows.md
   - ../../../designs/2026-06-29-playbook-packaging-and-harness-adapter-registry.md
   - ../../../designs/2026-07-01-playbook-packaging-compiler-and-harness-adapters.md
@@ -145,6 +146,8 @@ Re-verification is structural, not procedural. `computeHarnessContractDigest` fi
 Since Phase 4, verification gating has a second, orthogonal cap: tuple binding (R-PROV-3). `support-binding.ts` defines `PackageSupportClaimTuple` with all seven dimensions a support claim binds to — `scenario`, `harness`, `surface`, `scope`, `outputKind`, `modelOrProvider`, and `runtime`. The target-owned dimensions bind from the package target; the evidence-owned dimensions (`scenario`, `modelOrProvider`, `runtime`) stay `null` until W18 R9 conformance evidence binds them, and a `surface` still at `auto` counts as unbound. The tuple is recorded on `PackagePlanSupport.tuple`, and the compiled `.make-docs/conformance.json` carries it as `tupleBinding` with the explicit `unboundDimensions` list.
 
 Enforcement mirrors the verification gate: the planner applies `capSupportStatusForTupleBinding`, which holds any `validated` claim at `provisional` while a dimension is unbound, and the compiler independently fails closed before any write on the same condition, so evidence refs alone never validate a claim. This deliberately corrects a Phase 3 planner behavior — verified-Codex claims had been raised to `validated` on mere evidence refs; they are now capped to `provisional` per R-PROV-3. The promotion path is W18 R9's: a claim moves past `provisional` only when the tuple registry records evidence that fully binds the tuple.
+
+Since W18 R9 Phase 1, the registry end of that promotion path exists. `packages/cli/src/conformance/tuple.ts` extends the seven-dimension claim tuple into the eight-field conformance tuple (PRD 37 R-TUPLE-1) by binding one added dimension, `generatedOutputKind` — the ownership-record kind of what was actually produced, as distinct from the requested `outputKind`: `bindConformanceSupportTuple` consumes the claim tuple as-is, refuses an unresolved `auto` surface as a claim broader than any evidence, and a parity test pins the dimension relationship so the two lineages cannot drift apart silently. `docs/assets/conformance/tuple-registry.json`, loaded fail-closed by `packages/cli/src/conformance/registry.ts`, is the queryable home of tuple statuses: statuses are derived from recorded evidence and a stored status the evidence does not support fails the load, so a claim structurally cannot outrun its evidence at the registry layer either. The registry is seeded with the twenty first-party descriptor-placement tuples at zero `conformance-validated`, matching the provisional caps above. The tuple contracts, registry drift-proofing, derivation rules, and seed posture are documented in [Conformance Lab Scenario and Result Contracts](./conformance-lab-scenario-and-result-contracts.md).
 
 ## Shared Harness Registry
 
@@ -412,6 +415,7 @@ The former bullet on the W18 R12 backlog Phase 2 probe rebuild is resolved: Depe
 ## Related Resources
 
 - [Run Playbook Runner Architecture](./playbooks-development-runner-architecture.md)
+- [Conformance Lab Scenario and Result Contracts](./conformance-lab-scenario-and-result-contracts.md)
 - [Packaging Shareable Playbook Workflows](../user/playbooks-packaging-shareable-agent-workflows.md)
 - [Playbook Packaging and Harness Adapter Registry](../../../designs/2026-06-29-playbook-packaging-and-harness-adapter-registry.md)
 - [Playbook Packaging Compiler and Harness Adapters](../../../designs/2026-07-01-playbook-packaging-compiler-and-harness-adapters.md)
