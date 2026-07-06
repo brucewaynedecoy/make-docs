@@ -468,6 +468,7 @@ describe("risk register routing contract", () => {
       "D-019 Pre-W18 Tool-Resource Mandates Were Not Implemented (Custom Tiers and No-Scripts Shims)",
       "D-020 Shipped Lifecycle Skills Instruct the Removed `make-docs operations` Command Surface",
       "D-021 Pre-W18 Subsystems Landed as Unwired or Partially Wired Libraries (Plugin Substrate, Metadata Drift, Guide Persona Validation)",
+      "D-022 PRD 37 Mandated a Conformance Asset Home the Assets Router Never Admitted",
     ]);
     expect(itemHeadings(questions)).toEqual([
       "Q-001 What Is the Long-Term Skills Delivery Contract?",

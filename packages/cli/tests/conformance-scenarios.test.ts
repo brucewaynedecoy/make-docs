@@ -136,7 +136,7 @@ function specDocument(): SpecDocument {
       transcriptPolicy: "json-or-non-tty",
       workspacePolicy: "disposable-fixture-workspace",
       fixturePlaybooks: [
-        "docs/assets/conformance/fixtures/agent/conformance-skill-probe.playbook.md",
+        "conformance/fixtures/agent/conformance-skill-probe.playbook.md",
       ],
       futureHarnesses: [],
     },
@@ -203,7 +203,7 @@ function entryFixture(
   };
 }
 
-const RECORD_REF = "docs/assets/conformance/results/2026-07-04-fixture-scenario.json";
+const RECORD_REF = "conformance/results/2026-07-04-fixture-scenario.json";
 
 function record(
   entry: ConformanceTupleRegistryEntry,
@@ -462,7 +462,7 @@ describe("bar outcomes bind to the Phase 1 registry (t2, R-BAR-2, R-REG-3)", () 
       entryFixture(),
       {
         simulated: true,
-        simulationMechanicsRef: "docs/assets/conformance/scenarios/fixture-scenario.json",
+        simulationMechanicsRef: "conformance/scenarios/fixture-scenario.json",
       },
       simulationSpec,
     );

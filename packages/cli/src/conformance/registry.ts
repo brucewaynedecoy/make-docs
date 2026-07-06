@@ -3,7 +3,7 @@
  * t3-t6).
  *
  * The set of support tuples and their statuses lives in ONE queryable data
- * file — `docs/assets/conformance/tuple-registry.json` — not in prose, so
+ * file — `conformance/tuple-registry.json` at the repo root — not in prose, so
  * support status cannot drift from documentation (R-REG-1). This module owns
  * the file's schema, the three statuses and their meanings (R-REG-2), the
  * verdict-derivation rules for status transitions (R-REG-3), and the
@@ -16,12 +16,13 @@
  *   unchanged; a scenario that cannot run for a missing precondition reports
  *   `blocked` rather than inventing evidence.
  * - The registry data file is maintainer-only in-repo project content under
- *   `docs/assets/conformance/`, deliberately NOT authored upstream in
- *   `packages/docs/template/` — a stated exception to the upstream-first
- *   rule, because conformance is maintainer evidence infrastructure, not
- *   shipped product. It must stay out of the shipped template, the packaged
- *   copy, and npm tarballs (enforced outward by the Phase 3 R-TEST-3
- *   exclusion check).
+ *   the repo-root `conformance/` directory (relocated from
+ *   `docs/assets/conformance/` per PRD 42), deliberately NOT authored
+ *   upstream in `packages/docs/template/` — a stated exception to the
+ *   upstream-first rule, because conformance is maintainer evidence
+ *   infrastructure, not shipped product. It must stay out of the shipped
+ *   template, the packaged copy, and npm tarballs (enforced outward by the
+ *   Phase 3 R-TEST-3 exclusion check).
  *
  * Implementer decisions recorded here (D8 freedoms):
  * - Registry file format: a single versioned JSON document. JSON keeps the
@@ -194,7 +195,7 @@ export interface ConformanceTupleRegistryEntry {
   evidence: ConformanceTupleEvidenceRef[];
   recordedRuns: ConformanceRecordedRun[];
   /**
-   * Ids of authored scenario specs under `docs/assets/conformance/scenarios/`
+   * Ids of authored scenario specs under `conformance/scenarios/`
    * that target this tuple (W18 R9 P2 t9). Forward-looking linkage only: a
    * planned scenario is not evidence, never affects status derivation, and
    * never binds the tuple's `scenario` dimension — only a recorded run does
@@ -216,8 +217,8 @@ export interface ConformanceTupleRegistry {
   tuples: ConformanceTupleRegistryEntry[];
 }
 
-/** Repo-relative home of the registry data file (R-REG-1). */
-export const CONFORMANCE_TUPLE_REGISTRY_PATH = "docs/assets/conformance/tuple-registry.json";
+/** Repo-relative home of the registry data file (R-REG-1 as revised by PRD 42). */
+export const CONFORMANCE_TUPLE_REGISTRY_PATH = "conformance/tuple-registry.json";
 
 /** A run meets the D4 bar only when every stage was asserted (R-BAR-1). */
 export function runMeetsEvidenceBar(run: ConformanceRecordedRun): boolean {
@@ -354,13 +355,13 @@ export function validateConformanceTupleRegistry(document: unknown): Conformance
   if (stableJson(registry.statuses) !== stableJson(CONFORMANCE_TUPLE_STATUS_MEANINGS)) {
     throw new OperationError(
       "Conformance tuple registry status meanings drifted from the canonical R-REG-2 meanings; " +
-        "update docs/assets/conformance/tuple-registry.json and CONFORMANCE_TUPLE_STATUS_MEANINGS together in review.",
+        "update conformance/tuple-registry.json and CONFORMANCE_TUPLE_STATUS_MEANINGS together in review.",
     );
   }
   if (stableJson(registry.verdictDerivation) !== stableJson(CONFORMANCE_VERDICT_DERIVATION_RULES)) {
     throw new OperationError(
       "Conformance tuple registry verdict-derivation rules drifted from the canonical R-REG-3 rules; " +
-        "update docs/assets/conformance/tuple-registry.json and CONFORMANCE_VERDICT_DERIVATION_RULES together in review.",
+        "update conformance/tuple-registry.json and CONFORMANCE_VERDICT_DERIVATION_RULES together in review.",
     );
   }
   const seenIds = new Set<string>();

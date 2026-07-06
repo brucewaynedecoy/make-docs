@@ -384,7 +384,7 @@
       "plannedScenarios": [],
       "notes": [
         "Every Pi path and manifest filename is inferred: the Pi adapter contract is `provisional` (R-ADAPT-4), and Pi is a FUTURE conformance harness per R-SCEN-2 — its scenarios are not part of the required first pass, and this entry exists so that absence is reported rather than implied as covered.",
-        "W18 R9 P2 scenario-absence linkage (R-SCEN-2): the four first-pass scenario specs under docs/assets/conformance/scenarios/ are Codex-first; no Pi scenario spec exists, this entry's plannedScenarios is deliberately empty, and Pi conformance remains recorded future work rather than implied coverage."
+        "W18 R9 P2 scenario-absence linkage (R-SCEN-2): the four first-pass scenario specs under conformance/scenarios/ are Codex-first; no Pi scenario spec exists, this entry's plannedScenarios is deliberately empty, and Pi conformance remains recorded future work rather than implied coverage."
       ]
     },
     {
@@ -405,7 +405,7 @@
       "plannedScenarios": [],
       "notes": [
         "No internal file-and-structure test and no harness evidence exists; Pi is a future conformance harness whose absence is reported, never implied as covered (R-SCEN-2).",
-        "W18 R9 P2 scenario-absence linkage (R-SCEN-2): the four first-pass scenario specs under docs/assets/conformance/scenarios/ are Codex-first; no Pi scenario spec exists, this entry's plannedScenarios is deliberately empty, and Pi conformance remains recorded future work rather than implied coverage."
+        "W18 R9 P2 scenario-absence linkage (R-SCEN-2): the four first-pass scenario specs under conformance/scenarios/ are Codex-first; no Pi scenario spec exists, this entry's plannedScenarios is deliberately empty, and Pi conformance remains recorded future work rather than implied coverage."
       ]
     },
     {
@@ -426,7 +426,7 @@
       "plannedScenarios": [],
       "notes": [
         "No internal file-and-structure test and no harness evidence exists; Pi is a future conformance harness whose absence is reported, never implied as covered (R-SCEN-2).",
-        "W18 R9 P2 scenario-absence linkage (R-SCEN-2): the four first-pass scenario specs under docs/assets/conformance/scenarios/ are Codex-first; no Pi scenario spec exists, this entry's plannedScenarios is deliberately empty, and Pi conformance remains recorded future work rather than implied coverage."
+        "W18 R9 P2 scenario-absence linkage (R-SCEN-2): the four first-pass scenario specs under conformance/scenarios/ are Codex-first; no Pi scenario spec exists, this entry's plannedScenarios is deliberately empty, and Pi conformance remains recorded future work rather than implied coverage."
       ]
     },
     {
@@ -447,7 +447,7 @@
       "plannedScenarios": [],
       "notes": [
         "Only surface resolution (path lowering to `.agents/skills/{packageId}/SKILL.md`) is asserted for this tuple; no internal test writes and structurally proves a Pi skills bundle, and Pi is a future conformance harness (R-SCEN-2).",
-        "W18 R9 P2 scenario-absence linkage (R-SCEN-2): the four first-pass scenario specs under docs/assets/conformance/scenarios/ are Codex-first; no Pi scenario spec exists, this entry's plannedScenarios is deliberately empty, and Pi conformance remains recorded future work rather than implied coverage."
+        "W18 R9 P2 scenario-absence linkage (R-SCEN-2): the four first-pass scenario specs under conformance/scenarios/ are Codex-first; no Pi scenario spec exists, this entry's plannedScenarios is deliberately empty, and Pi conformance remains recorded future work rather than implied coverage."
       ]
     },
     {
@@ -468,7 +468,7 @@
       "plannedScenarios": [],
       "notes": [
         "No internal file-and-structure test and no harness evidence exists; Pi is a future conformance harness whose absence is reported, never implied as covered (R-SCEN-2).",
-        "W18 R9 P2 scenario-absence linkage (R-SCEN-2): the four first-pass scenario specs under docs/assets/conformance/scenarios/ are Codex-first; no Pi scenario spec exists, this entry's plannedScenarios is deliberately empty, and Pi conformance remains recorded future work rather than implied coverage."
+        "W18 R9 P2 scenario-absence linkage (R-SCEN-2): the four first-pass scenario specs under conformance/scenarios/ are Codex-first; no Pi scenario spec exists, this entry's plannedScenarios is deliberately empty, and Pi conformance remains recorded future work rather than implied coverage."
       ]
     },
     {
@@ -489,7 +489,7 @@
       "plannedScenarios": [],
       "notes": [
         "No internal file-and-structure test and no harness evidence exists; Pi is a future conformance harness whose absence is reported, never implied as covered (R-SCEN-2).",
-        "W18 R9 P2 scenario-absence linkage (R-SCEN-2): the four first-pass scenario specs under docs/assets/conformance/scenarios/ are Codex-first; no Pi scenario spec exists, this entry's plannedScenarios is deliberately empty, and Pi conformance remains recorded future work rather than implied coverage."
+        "W18 R9 P2 scenario-absence linkage (R-SCEN-2): the four first-pass scenario specs under conformance/scenarios/ are Codex-first; no Pi scenario spec exists, this entry's plannedScenarios is deliberately empty, and Pi conformance remains recorded future work rather than implied coverage."
       ]
     }
   ]

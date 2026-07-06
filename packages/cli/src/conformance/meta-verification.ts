@@ -28,12 +28,15 @@
  *   so an unavailable harness resolves to `blocked` instead of silently
  *   passing; the dynamic blocked-never-advances leg is exercised by the meta
  *   suite through the Phase 2 probe and recording seams.
- * - R-TEST-3 detects assets three ways — the asset directory path, the
- *   registry data file's basename, and the unambiguous schema identifiers as
- *   content markers — so a renamed or relocated copy of a conformance asset
- *   still fails the check. Check CODE shipping (this module inside `dist/`)
- *   is deliberately allowed: the PRD ships lab and check code as ordinary CLI
- *   source; only the ASSETS are maintainer-only.
+ * - R-TEST-3 detects assets three ways — the asset directory path (the
+ *   canonical repo-root `conformance/` home per PRD 42, its distinctive
+ *   subtrees at any depth, AND the pre-relocation `docs/assets/conformance`
+ *   home so a copy reappearing there still fails), the registry data file's
+ *   basename, and the unambiguous schema identifiers as content markers — so
+ *   a renamed or relocated copy of a conformance asset still fails the
+ *   check. Check CODE shipping (this module inside `dist/`) is deliberately
+ *   allowed: the PRD ships lab and check code as ordinary CLI source; only
+ *   the ASSETS are maintainer-only.
  */
 
 import { existsSync, readdirSync, readFileSync } from "node:fs";
@@ -242,8 +245,37 @@ export function listCrossLayerCitationErrors(input: {
  * R-TEST-3 (t5): conformance assets never ship.
  * ------------------------------------------------------------------------ */
 
-/** The maintainer-only asset directory, as a path fragment (R-KEEP-1). */
-export const CONFORMANCE_ASSET_PATH_MARKER = "docs/assets/conformance";
+/**
+ * The canonical maintainer-only asset home: the repo-root `conformance/`
+ * directory (R-KEEP-1; relocated from `docs/assets/conformance/` per PRD 42).
+ * In a scanned shipped tree, any file under a root-level `conformance/`
+ * directory is a conformance asset. Compiled check CODE under
+ * `dist/conformance/` deliberately does not match — only the ASSETS are
+ * maintainer-only.
+ */
+export const CONFORMANCE_ASSET_ROOT_DIR = "conformance";
+
+/**
+ * Path fragments that mark conformance assets at ANY depth of a scanned tree
+ * (R-TEST-3): the pre-relocation `docs/assets/conformance` home — anything
+ * reappearing under it still fails — plus the canonical family's distinctive
+ * subtrees, so a nested copy of the relocated home fails too.
+ */
+export const CONFORMANCE_ASSET_PATH_MARKERS = [
+  "docs/assets/conformance",
+  "conformance/tuple-registry.json",
+  "conformance/scenarios/",
+  "conformance/fixtures/",
+  "conformance/results/",
+] as const;
+
+/** True when a tree-relative path (posix separators) is a conformance asset path. */
+export function isConformanceAssetPath(relative: string): boolean {
+  return (
+    relative.startsWith(`${CONFORMANCE_ASSET_ROOT_DIR}/`) ||
+    CONFORMANCE_ASSET_PATH_MARKERS.some((marker) => relative.includes(marker))
+  );
+}
 
 /** Basenames that are conformance assets wherever they appear. */
 export const CONFORMANCE_ASSET_FILE_MARKERS = ["tuple-registry.json"] as const;
@@ -294,10 +326,10 @@ export function listConformanceAssetExclusionViolations(input: {
   }
   for (const absolute of walkFiles(input.root)) {
     const relative = path.relative(input.root, absolute).split(path.sep).join("/");
-    if (relative.includes(CONFORMANCE_ASSET_PATH_MARKER)) {
+    if (isConformanceAssetPath(relative)) {
       violations.push(
         `${input.label} contains conformance asset path \`${relative}\`; ` +
-          `\`${CONFORMANCE_ASSET_PATH_MARKER}/**\` is maintainer-only and never ships (R-TEST-3, R-KEEP-1)`,
+          `the repo-root \`${CONFORMANCE_ASSET_ROOT_DIR}/**\` family is maintainer-only and never ships (R-TEST-3, R-KEEP-1)`,
       );
       continue;
     }

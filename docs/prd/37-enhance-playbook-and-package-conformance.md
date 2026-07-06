@@ -41,6 +41,10 @@ The effective requirement set carries the design's requirement IDs so traceabili
 - R-REG-2 (MUST): each tuple carries one of three statuses, and a status transition requires the corresponding evidence — `provisional` (no conformance evidence yet; the output may be generated but its recognition and usability are unverified), `implementation-validated` (internal unit and integration tests prove the generated files and structure, but no real-harness evidence exists), and `conformance-validated` (a real-harness scenario has met the R-BAR-1 evidence bar).
 - R-REG-3 (MUST): tuple status is derived from run verdicts — a tuple MAY move to `conformance-validated` only on a `pass`, or a `pass-with-caveats` whose caveats are surfaced, that meets the R-BAR-1 bar, and a verdict of `inconsistent`, `unsupported`, or `blocked` MUST NOT advance a tuple to `conformance-validated`.
 
+#### Change Notes
+
+- Superseded by [42-revise-conformance-asset-home-relocation.md](42-revise-conformance-asset-home-relocation.md), location only: the R-REG-1 home revises from `docs/assets/conformance/` to the repo-root `conformance/` directory (executed 2026-07-06, register item D-022 — the original path was never admitted by the `docs/assets/` router, and the family is machine-validated data, executable protocol, and compilation inputs rather than reader documentation). R-REG-1's queryability and anti-drift intent, R-REG-2's statuses, and R-REG-3's derivation rules are unchanged; every other `docs/assets/conformance/` mention in this document, including its code anchors and the Required Baseline Annotations scoping, reads historically.
+
 ### The Evidence Bar (R-BAR)
 
 - R-BAR-1 (MUST): to move a tuple to `conformance-validated`, a scenario installs the generated distributable into the real or a faithfully simulated harness, asserts discovery by confirming the output appears in the harness's listing, asserts invocation by confirming a bundled skill can be invoked or the workflow can be driven, and asserts clean uninstall by confirming managed outputs are removed without orphaning managed directories or deleting user-authored files — the bar is install, discover, invoke, and uninstall.
@@ -89,6 +93,10 @@ Code anchors:
 - [00-index.md](00-index.md) and [03-open-questions-and-risk-register.md](03-open-questions-and-risk-register.md) carry the catalog and register updates.
 
 ## Contracts and Data
+
+### Change Notes
+
+- Superseded by [42-revise-conformance-asset-home-relocation.md](42-revise-conformance-asset-home-relocation.md), location only: the conformance asset family — tuple registry, scenario specs, fixture Playbooks, and future result records — lives at the repo-root `conformance/` directory, not `docs/assets/conformance/`. The maintainer-only, never-shipped, not-authored-upstream boundary and everything else in this section are unchanged; the `docs/assets/conformance/` paths below read historically.
 
 The tuple registry is a queryable data file under `docs/assets/conformance/` recording, per tuple, the eight tuple fields (scenario, harness, surface, scope, output kind, generated-output kind, model or provider, runtime) and one of the three statuses, with status transitions derived from recorded run verdicts per R-REG-3; the concrete file format is implementer-chosen provided it stays queryable and carries every tuple and status. Scenario specs and compact normalized result records live beside it under `docs/assets/conformance/` per PRD 20's lab scope, reusing the lab's result contract (harness, model, provider or routing layer, model version, make-docs version, runtime distribution, scenario id and version, run date, produced files, diffs, exit status, transcript pointer, normalized verdict, reason, caveats, reviewer status) with any additional fields left to the implementer per D8. Raw transcripts and provider logs default to `.make-docs/conformance/` or `.make-docs/runs/conformance/` and are not committed unless deliberately redacted and promoted. Conformance assets are maintainer-only in-repo project content, edited in place, and deliberately not authored upstream in `packages/docs/template/` — a stated exception to the upstream-first rule, enforced outward by the R-TEST-3 exclusion check; the lab and check code are ordinary source code under the CLI package.
 

@@ -71,6 +71,7 @@ Generated outputs must carry provenance to source Playbook refs and digests. Man
 ### Change Notes
 
 - Enhanced by [37-enhance-playbook-and-package-conformance.md](./37-enhance-playbook-and-package-conformance.md). The provisional support claims for generated plugin and skills-bundle outputs are now promotable through the W18 R9 tuple registry under `docs/assets/conformance/`: a public claim may advance only when its exact scenario/harness/surface/scope/output-kind/generated-output-kind/model-or-provider/runtime tuple reaches `conformance-validated` via the install-discover-invoke-uninstall evidence bar, and internal tests never count as harness-recognition evidence.
+- Superseded by [42-revise-conformance-asset-home-relocation.md](./42-revise-conformance-asset-home-relocation.md), registry home only: the tuple registry relocated on 2026-07-06 from `docs/assets/conformance/` to the repo-root `conformance/` directory (register item D-022). The promotion path itself is unchanged.
 
 [29-revise-playbook-contract-run-playbook.md](29-revise-playbook-contract-run-playbook.md) remains the source and runner contract. W18 R5 requires W18 R1 implementation to preserve packaging-ready metadata and validation hooks, but not to make every Playbook packaged by default.
 

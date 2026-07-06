@@ -24,6 +24,7 @@ make-docs needs evidence before claiming support for a harness/model combination
 ### Change Notes
 
 - Enhanced by [37-enhance-playbook-and-package-conformance.md](./37-enhance-playbook-and-package-conformance.md). For generated Playbook distributables, the support tuple expands to scenario, harness, surface, scope, output kind, generated-output kind, model or provider, and runtime; tuple statuses live in a queryable registry under `docs/assets/conformance/` with `provisional`, `implementation-validated`, and `conformance-validated` statuses derived from run verdicts; and `conformance-validated` requires the install-discover-invoke-uninstall evidence bar. The lab's maintainer-only nature, verdicts, safety modes, evidence classes, storage boundaries, and one-run threshold remain unchanged.
+- Superseded by [42-revise-conformance-asset-home-relocation.md](./42-revise-conformance-asset-home-relocation.md), location only: the conformance asset home — the tuple registry, scenario specs, fixtures, and future compact result records — relocated on 2026-07-06 from `docs/assets/conformance/` to the repo-root `conformance/` directory (register item D-022). The lab-scope statement below that these assets "may live under a future `docs/assets/conformance/` tree" reads historically; everything else the lab fixes, including the `.make-docs/conformance/` raw-evidence default, is unchanged.
 
 Lab scope:
 

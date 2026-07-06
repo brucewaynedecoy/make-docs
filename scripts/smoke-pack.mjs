@@ -1122,11 +1122,14 @@ function assertPackedReaderFacingTemplate(packageRoot) {
 
 /**
  * W18 R9 P3 (PRD 37 R-TEST-3, R-KEEP-1): conformance assets — the tuple
- * registry, scenario specs, fixtures, and result records under
- * `docs/assets/conformance/` — are maintainer-only evidence infrastructure
- * and never ship in the npm tarball. Detection mirrors the repo-side check in
+ * registry, scenario specs, fixtures, and result records under the repo-root
+ * `conformance/` directory (relocated from `docs/assets/conformance/` per
+ * PRD 42) — are maintainer-only evidence infrastructure and never ship in
+ * the npm tarball. Detection mirrors the repo-side check in
  * `packages/cli/src/conformance/meta-verification.ts` (the source of truth
- * for the marker set): the asset directory path, the registry data file's
+ * for the marker set): the asset directory path (the canonical root-level
+ * `conformance/` home, its distinctive subtrees at any depth, and the
+ * pre-relocation `docs/assets/conformance` home), the registry data file's
  * basename, and the unambiguous schema identifiers as content markers, so a
  * relocated or renamed asset still fails. Check CODE bundled under `dist/`
  * is allowed to ship — only the ASSETS are excluded — so the content sweep
@@ -1140,6 +1143,15 @@ function assertNoConformanceAssetsInTarball(packageRoot) {
     "conformance.scenario.v1",
     "conformance.result.v1",
   ];
+  // Mirrors CONFORMANCE_ASSET_PATH_MARKERS / isConformanceAssetPath in
+  // packages/cli/src/conformance/meta-verification.ts.
+  const pathMarkers = [
+    "docs/assets/conformance",
+    "conformance/tuple-registry.json",
+    "conformance/scenarios/",
+    "conformance/fixtures/",
+    "conformance/results/",
+  ];
   const pending = [packageRoot];
   while (pending.length > 0) {
     const current = pending.pop();
@@ -1150,7 +1162,10 @@ function assertNoConformanceAssetsInTarball(packageRoot) {
         continue;
       }
       const relative = path.relative(packageRoot, absolute).split(path.sep).join("/");
-      if (relative.includes("docs/assets/conformance")) {
+      if (
+        relative.startsWith("conformance/") ||
+        pathMarkers.some((marker) => relative.includes(marker))
+      ) {
         throw new Error(
           `Packed tarball ships conformance asset path ${relative} (R-TEST-3, R-KEEP-1).`,
         );

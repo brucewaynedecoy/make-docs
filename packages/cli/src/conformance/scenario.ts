@@ -26,7 +26,7 @@
  *
  * Implementer decisions recorded here (D8 freedoms):
  * - Spec format: one JSON document per scenario under
- *   `docs/assets/conformance/scenarios/<scenarioId>.json` (the lab permits
+ *   `conformance/scenarios/<scenarioId>.json` (the lab permits
  *   YAML or JSON; JSON matches the tuple registry's no-parser-dependency
  *   choice, and the filename-equals-scenarioId rule keeps specs addressable
  *   without opening them).
@@ -97,8 +97,8 @@ export const CONFORMANCE_SUPPORT_CLAIM_USES = [
 export const CONFORMANCE_SCENARIO_SCHEMA_VERSION = "conformance.scenario.v1";
 export const CONFORMANCE_RESULT_SCHEMA_VERSION = "conformance.result.v1";
 
-/** Repo-relative home of the packaging scenario specs (R-SCEN-1). */
-export const CONFORMANCE_SCENARIO_SPECS_DIR = "docs/assets/conformance/scenarios";
+/** Repo-relative home of the packaging scenario specs (R-SCEN-1; home revised by PRD 42). */
+export const CONFORMANCE_SCENARIO_SPECS_DIR = "conformance/scenarios";
 
 /**
  * The four required R-SCEN-1 first-pass scenarios, Codex first, mapped to the

@@ -1,6 +1,6 @@
 /**
  * W18 R9 P1 coverage: the eight-field support tuple (R-TUPLE-1) and the
- * tuple registry under `docs/assets/conformance/` with its three statuses
+ * tuple registry under `conformance/` with its three statuses
  * and verdict-derived transitions (R-REG-1..3, R-BAR-2).
  *
  * Test layer: unit (R-LAYER-1) — pure-function tests over the conformance
@@ -75,7 +75,7 @@ function qualifyingRun(overrides: Partial<ConformanceRecordedRun> = {}): Conform
     caveats: [],
     caveatsSurfaced: false,
     evidenceBar: { install: true, discover: true, invoke: true, uninstall: true },
-    recordRef: "docs/assets/conformance/results/run-0001.json",
+    recordRef: "conformance/results/run-0001.json",
     modelOrProvider: "anthropic",
     runtime: "codex-cli",
     simulated: false,
@@ -445,7 +445,7 @@ describe("the seeded W18 R8 adapter registry (t6, R-REG-1..3)", () => {
 
   test("lives at the R-REG-1 home and validates against the fail-closed loader", () => {
     expect(CONFORMANCE_TUPLE_REGISTRY_PATH).toBe(
-      "docs/assets/conformance/tuple-registry.json",
+      "conformance/tuple-registry.json",
     );
     expect(registry.record).toBe("make-docs.conformance.tuple-registry");
     expect(registry.tuples.length).toBeGreaterThan(0);

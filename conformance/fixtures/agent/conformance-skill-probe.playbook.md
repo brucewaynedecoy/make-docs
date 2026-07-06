@@ -32,7 +32,7 @@ dependencies:
   - id: scenario-spec
     kind: reference
     requirement: required
-    source: the invoking scenario spec under docs/assets/conformance/scenarios/
+    source: the invoking scenario spec under conformance/scenarios/
     used_by: [emit-probe-marker]
     fallback: stop; a probe run outside a conformance scenario proves nothing
 ```
@@ -81,4 +81,4 @@ The fixture is valid when `playbook.validate` reports zero errors and the packag
 
 ## Packaging Notes
 
-Packaged only by conformance scenarios, into disposable fixture workspaces, via the `plan`/`preview`/`write`/`ship` grammar. This fixture must stay out of the shipped template, the packaged copy, and npm tarballs with the rest of `docs/assets/conformance/` (R-KEEP-1, R-TEST-3).
+Packaged only by conformance scenarios, into disposable fixture workspaces, via the `plan`/`preview`/`write`/`ship` grammar. This fixture must stay out of the shipped template, the packaged copy, and npm tarballs with the rest of `conformance/` (R-KEEP-1, R-TEST-3).

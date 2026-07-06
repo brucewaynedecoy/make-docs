@@ -73,7 +73,7 @@ function recordedRun(overrides: Partial<ConformanceRecordedRun> = {}): Conforman
     caveats: [],
     caveatsSurfaced: false,
     evidenceBar: { install: true, discover: true, invoke: true, uninstall: true },
-    recordRef: "docs/assets/conformance/results/run-0001.json",
+    recordRef: "conformance/results/run-0001.json",
     modelOrProvider: "anthropic",
     runtime: "codex-cli",
     simulated: false,
@@ -135,9 +135,9 @@ function writeRecords(
   root: string,
   records: PackagingConformanceResultRecord[],
 ): ConformanceRecordedRun[] {
-  mkdirSync(path.join(root, "docs/assets/conformance/results"), { recursive: true });
+  mkdirSync(path.join(root, "conformance/results"), { recursive: true });
   return records.map((record) => {
-    const recordRef = `docs/assets/conformance/results/${record.resultId}.json`;
+    const recordRef = `conformance/results/${record.resultId}.json`;
     writeFileSync(path.join(root, recordRef), JSON.stringify(record, null, 2), "utf8");
     return recordedRun({
       runId: record.resultId,
@@ -383,7 +383,7 @@ describe("mechanical promotion for the W18 R5..R8 provisional claims (t4, t5)", 
       entry,
       spec,
       record,
-      recordRef: "docs/assets/conformance/results/run-promotion-fixture.json",
+      recordRef: "conformance/results/run-promotion-fixture.json",
     });
     // The exact tuple advances and its wording ceiling advances with it —
     // and ONLY this tuple: every other entry's ceiling is untouched.

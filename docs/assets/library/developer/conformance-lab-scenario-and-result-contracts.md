@@ -39,10 +39,10 @@ Since W18 R9 Phase 1 ([PRD 37](../../../prd/37-enhance-playbook-and-package-conf
 
 | Surface | Purpose | Source-control rule |
 | --- | --- | --- |
-| Scenario specs | Define the behavior to exercise, the safety mode, and the expected evidence. | May be committed only when compact and reviewed. Packaging scenario specs live at `docs/assets/conformance/scenarios/<scenarioId>.json`. |
-| Result records | Capture the exact scenario/harness/model/provider/runtime tuple and reviewed verdict. | May be committed only when compact and reviewed. Packaging result records land under `docs/assets/conformance/results/`, created with the first recorded run. |
-| Scenario fixture Playbooks | Provide the v2-form source Playbooks packaging scenarios compile, packaged only into disposable fixture workspaces. | Committed under `docs/assets/conformance/fixtures/<persona>/`. |
-| Tuple registry | Carry every packaging support tuple and its evidence-derived status. | Committed queryable data file at `docs/assets/conformance/tuple-registry.json`. |
+| Scenario specs | Define the behavior to exercise, the safety mode, and the expected evidence. | May be committed only when compact and reviewed. Packaging scenario specs live at `conformance/scenarios/<scenarioId>.json`. |
+| Result records | Capture the exact scenario/harness/model/provider/runtime tuple and reviewed verdict. | May be committed only when compact and reviewed. Packaging result records land under `conformance/results/`, created with the first recorded run. |
+| Scenario fixture Playbooks | Provide the v2-form source Playbooks packaging scenarios compile, packaged only into disposable fixture workspaces. | Committed under `conformance/fixtures/<persona>/`. |
+| Tuple registry | Carry every packaging support tuple and its evidence-derived status. | Committed queryable data file at `conformance/tuple-registry.json`. |
 | Raw artifacts | Hold transcripts, provider logs, temporary workspaces, raw diffs, and run scratch data. | Generated local state under `.make-docs/conformance/<run-id>/` or `.make-docs/runs/conformance/<run-id>/`; not committed by default. |
 | Redacted evidence bundles | Preserve the minimum evidence needed for disputed or stronger support claims. | Opt-in only after review and redaction. |
 
@@ -211,7 +211,7 @@ For generated Playbook distributables, this gate is realized structurally in the
 
 ## Packaging Conformance Tuple and Registry
 
-Since W18 R9 Phase 1 ([the phase backlog](../../../work/2026-07-01-w18-r9-playbook-and-package-conformance/01-support-tuple-and-tuple-registry.md)), the packaging conformance extension lives in `packages/cli/src/conformance/` (`tuple.ts`, `registry.ts`) with its data file under `docs/assets/conformance/`. Phase 1 deliberately registered no new operations: the backlog mandates only the queryable data file, its loader, and query helpers, so the registry is consumed as a library seam by the later-phase scenarios, meta-verification checks, and claim governance — not as a CLI or MCP surface.
+Since W18 R9 Phase 1 ([the phase backlog](../../../work/2026-07-01-w18-r9-playbook-and-package-conformance/01-support-tuple-and-tuple-registry.md)), the packaging conformance extension lives in `packages/cli/src/conformance/` (`tuple.ts`, `registry.ts`) with its data file under the repo-root `conformance/` directory (relocated from `docs/assets/conformance/` on 2026-07-06 per [PRD 42](../../../prd/42-revise-conformance-asset-home-relocation.md)). Phase 1 deliberately registered no new operations: the backlog mandates only the queryable data file, its loader, and query helpers, so the registry is consumed as a library seam by the later-phase scenarios, meta-verification checks, and claim governance — not as a CLI or MCP surface.
 
 ### The Eight-Dimension Support Tuple
 
@@ -224,7 +224,7 @@ The one added dimension is `generatedOutputKind`: the ownership-record kind of t
 
 ### The Tuple Registry Data File
 
-The set of tuples and their statuses lives in one committed data file, `docs/assets/conformance/tuple-registry.json` (R-REG-1) — a single versioned JSON document, an implementer format choice per D8 so any tool can query it without a parser dependency. [The conformance assets README](../../conformance/README.md) documents the entry shape. `packages/cli/src/conformance/registry.ts` owns the schema, the statuses, and the derivation rules, and provides the fail-closed zod loader (`loadConformanceTupleRegistry`) plus the query helpers (`queryConformanceTuples`, `getConformanceTupleEntry`).
+The set of tuples and their statuses lives in one committed data file, `conformance/tuple-registry.json` (R-REG-1) — a single versioned JSON document, an implementer format choice per D8 so any tool can query it without a parser dependency. [The conformance assets README](../../../../conformance/README.md) documents the entry shape. `packages/cli/src/conformance/registry.ts` owns the schema, the statuses, and the derivation rules, and provides the fail-closed zod loader (`loadConformanceTupleRegistry`) plus the query helpers (`queryConformanceTuples`, `getConformanceTupleEntry`).
 
 The file and the code are drift-proofed against each other in both directions:
 
@@ -261,11 +261,11 @@ Seeding Pi tuples does not change the adapter-protocol table above: Pi remains a
 
 ### Registry Boundary and Ownership
 
-The registry follows the same maintainer-only boundary as the rest of `docs/assets/conformance/` (R-KEEP-1): it is in-repo project content edited in place, deliberately NOT authored upstream in `packages/docs/template/`. This is a stated exception to the maintainer repo's upstream-first dogfooding rule, recorded in [the W18 R9 backlog index](../../../work/2026-07-01-w18-r9-playbook-and-package-conformance/00-index.md), because conformance is maintainer evidence infrastructure, not shipped product. The registry must stay out of the shipped template, the packaged copy, and npm tarballs; since Phase 3 the R-TEST-3 exclusion check enforces that boundary outward on three surfaces (see Test Layers and Meta-Verification below).
+The registry follows the same maintainer-only boundary as the rest of the repo-root `conformance/` family (R-KEEP-1): it is in-repo project content edited in place, deliberately NOT authored upstream in `packages/docs/template/`. This is a stated exception to the maintainer repo's upstream-first dogfooding rule, recorded in [the W18 R9 backlog index](../../../work/2026-07-01-w18-r9-playbook-and-package-conformance/00-index.md), because conformance is maintainer evidence infrastructure, not shipped product. The registry must stay out of the shipped template, the packaged copy, and npm tarballs; since Phase 3 the R-TEST-3 exclusion check enforces that boundary outward on three surfaces (see Test Layers and Meta-Verification below).
 
 ## Packaging Conformance Scenarios and the Evidence Bar
 
-Since W18 R9 Phase 2 ([the phase backlog](../../../work/2026-07-01-w18-r9-playbook-and-package-conformance/02-evidence-bar-and-first-pass-scenarios.md)), the D4 install-discover-invoke-uninstall evidence bar is implemented as the packaging scenario shape in `packages/cli/src/conformance/scenario.ts`, with the authored specs as its data under `docs/assets/conformance/scenarios/`. [The conformance assets README](../../conformance/README.md) documents the on-disk formats; this section documents the contracts and seams a maintainer extends.
+Since W18 R9 Phase 2 ([the phase backlog](../../../work/2026-07-01-w18-r9-playbook-and-package-conformance/02-evidence-bar-and-first-pass-scenarios.md)), the D4 install-discover-invoke-uninstall evidence bar is implemented as the packaging scenario shape in `packages/cli/src/conformance/scenario.ts`, with the authored specs as its data under `conformance/scenarios/`. [The conformance assets README](../../../../conformance/README.md) documents the on-disk formats; this section documents the contracts and seams a maintainer extends.
 
 ### The `packagingExtension` Scenario Shape
 
@@ -334,11 +334,11 @@ Coverage is organized into three named layers so one layer's passing never masqu
 | --- | --- | --- |
 | `unit` | The operation core, parser, and validator as pure functions without a CLI. | Automated repository tests under `packages/cli/tests/`. |
 | `integration` | The CLI and MCP surfaces over the core, including the manifest and exposure plumbing. | Automated repository tests under `packages/cli/tests/`. |
-| `conformance` | The real-harness user outcome per tuple through the maintainer lab. | `docs/assets/conformance/` — never an automated repository test. |
+| `conformance` | The real-harness user outcome per tuple through the maintainer lab. | Repo-root `conformance/` — never an automated repository test. |
 
 The vocabulary is code, not prose: `CONFORMANCE_TEST_LAYERS` and `CONFORMANCE_TEST_LAYER_MEANINGS` fix the names and meanings, `REPOSITORY_TEST_LAYERS` restricts what a repository suite may claim to `unit` and `integration` only, and `TEST_LAYER_BOUNDARY_RULE` carries the R-LAYER-2 boundary verbatim — internal tests passing is never evidence that a harness recognizes or can use the output (PRD 36 R-TEST-5 alignment). The rule is the direct corrective for the failure mode that let the descriptor output look correct while not being recognized.
 
-Layers are declared where the tests live (a recorded D8 decision): each packaging-related repository suite names exactly one layer with a `Test layer: <layer>` marker line in its file-header comment — the text before the first `describe(` — parsed by `listDeclaredTestLayers`, which returns unknown tokens as-is so a typo is flagged rather than ignored. The placement extends the W18 R8 P5 evidence-boundary header precedent, and each marker restates the R-LAYER-2 boundary alongside the layer name. This is a maintainer rail: the meta-verification suite reads every packaging and conformance suite header, so a NEW test file that omits its layer declaration — or any `*.test.ts` file that claims the `conformance` layer — fails the suite. The conformance layer itself is named in [the conformance assets README](../../conformance/README.md), where its assets live.
+Layers are declared where the tests live (a recorded D8 decision): each packaging-related repository suite names exactly one layer with a `Test layer: <layer>` marker line in its file-header comment — the text before the first `describe(` — parsed by `listDeclaredTestLayers`, which returns unknown tokens as-is so a typo is flagged rather than ignored. The placement extends the W18 R8 P5 evidence-boundary header precedent, and each marker restates the R-LAYER-2 boundary alongside the layer name. This is a maintainer rail: the meta-verification suite reads every packaging and conformance suite header, so a NEW test file that omits its layer declaration — or any `*.test.ts` file that claims the `conformance` layer — fails the suite. The conformance layer itself is named in [the conformance assets README](../../../../conformance/README.md), where its assets live.
 
 One recorded judgment call: all eight `playbook-packaging*.test.ts` suites are classified `integration`, because they exercise the packaging rails through the manifest and exposure plumbing per the R-LAYER-1 definition, rather than splitting per file; the conformance-extension suites (`conformance-*.test.ts`) declare `unit` as pure-function tests over the check code and committed assets.
 
@@ -352,7 +352,7 @@ Every check in `meta-verification.ts` returns human-readable error strings; empt
 
 - **R-TEST-1** — `listConformanceValidatedRunQualificationErrors`: no tuple may read `conformance-validated` without a recorded run meeting the D4 install-discover-invoke-uninstall bar, and drift is flagged in both directions — a qualifying run understated as a lower status is equally dishonest (R-REG-3). With a `repoRoot`, the check demands receipts: every recorded run's `recordRef` must resolve to a committed result record that validates against the lab result contract and projects back byte-equal to the run stored on the registry entry, so a registry run can never drift from, or outlive, the evidence it summarizes.
 - **R-TEST-2** — `listRequiredFirstPassScenarioErrors`: "runnable" is structural plus honest-blocked. Every required first-pass scenario must be authored, bar-eligible with all four stages asserted, bidirectionally linked to the registry tuples it targets, backed by fixture Playbooks that exist on disk, and must carry a probeable `harness-cli` precondition so an unavailable harness resolves to `blocked` instead of silently passing. The dynamic leg is exercised in the meta suite through the Phase 2 seams: a failing probe executor resolves the scenarios not-runnable and yields a valid `blocked` record that advances nothing, while a succeeding executor still leaves the network and model-routing operator attestations unmet — so even a machine with a working harness CLI stays honestly `blocked` until an operator attests at run time.
-- **R-TEST-3** — `listConformanceAssetExclusionViolations`: conformance assets never ship. Detection is relocation-proof by design, three ways — the `docs/assets/conformance` path fragment, the `tuple-registry.json` basename, and the unambiguous schema identifiers (`CONFORMANCE_ASSET_CONTENT_MARKERS`) as content markers — so a renamed or moved copy of an asset still fails. Check CODE shipping is deliberately allowed: the PRD ships lab and check code as ordinary CLI source inside `dist/`; only the ASSETS are maintainer-only.
+- **R-TEST-3** — `listConformanceAssetExclusionViolations`: conformance assets never ship. Detection is relocation-proof by design, three ways — the asset path (a root-level `conformance/` directory in the scanned tree, the family's distinctive subtree fragments at any depth, and the pre-relocation `docs/assets/conformance` home, which still fails wherever it reappears), the `tuple-registry.json` basename, and the unambiguous schema identifiers (`CONFORMANCE_ASSET_CONTENT_MARKERS`) as content markers — so a renamed or moved copy of an asset still fails. Check CODE shipping is deliberately allowed: the PRD ships lab and check code as ordinary CLI source inside `dist/` (which is also why compiled `dist/conformance/` code does not trip the path detection); only the ASSETS are maintainer-only.
 
 ### Where the Exclusion Check Runs
 
@@ -416,7 +416,7 @@ Those commands remain package validation evidence. They become conformance evide
 
 - [20 Revise Agent Harness Model Conformance Lab](../../../prd/20-revise-agent-harness-model-conformance-lab.md)
 - [37 Enhance Playbook and Package Conformance](../../../prd/37-enhance-playbook-and-package-conformance.md)
-- [Conformance Assets README](../../conformance/README.md)
+- [Conformance Assets README](../../../../conformance/README.md)
 - [Support Tuple and Tuple Registry Work Phase](../../../work/2026-07-01-w18-r9-playbook-and-package-conformance/01-support-tuple-and-tuple-registry.md)
 - [Evidence Bar and First-Pass Scenarios Work Phase](../../../work/2026-07-01-w18-r9-playbook-and-package-conformance/02-evidence-bar-and-first-pass-scenarios.md)
 - [Test-Layer Separation and Meta-Verification Work Phase](../../../work/2026-07-01-w18-r9-playbook-and-package-conformance/03-test-layer-separation-and-meta-verification.md)

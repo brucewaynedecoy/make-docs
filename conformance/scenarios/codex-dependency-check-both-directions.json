@@ -27,7 +27,7 @@
     },
     {
       "kind": "command",
-      "run": "mkdir -p \"$WORKSPACE/docs/assets/playbooks/agent\" && cp docs/assets/conformance/fixtures/agent/conformance-dependency-probe.playbook.md \"$WORKSPACE/docs/assets/playbooks/agent/\"",
+      "run": "mkdir -p \"$WORKSPACE/docs/assets/playbooks/agent\" && cp conformance/fixtures/agent/conformance-dependency-probe.playbook.md \"$WORKSPACE/docs/assets/playbooks/agent/\"",
       "transcript": "context",
       "notes": "The fixture's dependency registry includes the rg entry whose source prose does not begin with the binary name (PRD 40 R-FIX-1) and the deliberately absent probe target."
     },
@@ -152,7 +152,7 @@
     "transcriptPolicy": "json-or-non-tty",
     "workspacePolicy": "disposable-fixture-workspace",
     "fixturePlaybooks": [
-      "docs/assets/conformance/fixtures/agent/conformance-dependency-probe.playbook.md"
+      "conformance/fixtures/agent/conformance-dependency-probe.playbook.md"
     ],
     "futureHarnesses": [
       {

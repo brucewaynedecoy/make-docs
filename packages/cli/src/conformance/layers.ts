@@ -23,7 +23,7 @@
  *   repository suite declares exactly one `Test layer: <layer>` marker line
  *   in its file-header comment, machine-checked by the Phase 3
  *   meta-verification suite; the conformance layer is named in
- *   `docs/assets/conformance/README.md`, where its assets live.
+ *   `conformance/README.md`, where its assets live.
  * - The marker is a plain header line rather than code so the declaration is
  *   the first thing a reader sees, before any test runs — the same placement
  *   rule the W18 R8 P5 evidence boundary uses.

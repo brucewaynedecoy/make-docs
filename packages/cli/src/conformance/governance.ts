@@ -460,7 +460,7 @@ export interface ConformanceClaimSurface {
  */
 export const CONFORMANCE_CLAIM_SURFACES: readonly ConformanceClaimSurface[] = [
   {
-    relativePath: "docs/assets/conformance/README.md",
+    relativePath: "conformance/README.md",
     label: "conformance assets README",
   },
   {
@@ -487,7 +487,7 @@ export const CONFORMANCE_CLAIM_SURFACES: readonly ConformanceClaimSurface[] = [
  */
 export const CONFORMANCE_CLAIM_SURFACE_SWEEP_ROOTS = [
   "docs/assets/library",
-  "docs/assets/conformance",
+  "conformance",
   "README.md",
   "packages/cli/README.md",
 ] as const;
@@ -638,8 +638,8 @@ export function listSupportClaimGovernanceErrors(input: {
   return errors;
 }
 
-/** Repo-relative home of the committed compact result records. */
-export const CONFORMANCE_RESULT_RECORDS_DIR = "docs/assets/conformance/results";
+/** Repo-relative home of the committed compact result records (home revised by PRD 42). */
+export const CONFORMANCE_RESULT_RECORDS_DIR = "conformance/results";
 
 /**
  * The claim-use gates over every committed result record (t2, t3; R-GOV-2):

@@ -102,4 +102,4 @@ The fixture is valid when `playbook.validate` reports zero errors, every generat
 
 ## Packaging Notes
 
-Packaged only by conformance scenarios, into disposable fixture workspaces, via the `plan`/`preview`/`write`/`ship` grammar. This fixture must stay out of the shipped template, the packaged copy, and npm tarballs with the rest of `docs/assets/conformance/` (R-KEEP-1, R-TEST-3).
+Packaged only by conformance scenarios, into disposable fixture workspaces, via the `plan`/`preview`/`write`/`ship` grammar. This fixture must stay out of the shipped template, the packaged copy, and npm tarballs with the rest of the repo-root `conformance/` family (R-KEEP-1, R-TEST-3).

@@ -58,7 +58,7 @@ import { cleanupTempDir, createTempDir } from "./helpers";
 
 const REPO_ROOT = path.resolve(TEMPLATE_ROOT, "..", "..", "..");
 const TESTS_DIR = path.dirname(fileURLToPath(import.meta.url));
-const CONFORMANCE_README_PATH = path.join(REPO_ROOT, "docs/assets/conformance/README.md");
+const CONFORMANCE_README_PATH = path.join(REPO_ROOT, "conformance/README.md");
 
 /** The suites the layer rule is enforced over: the packaging and conformance families. */
 function listEnforcedSuiteFiles(): string[] {
@@ -100,7 +100,7 @@ function qualifyingRun(overrides: Partial<ConformanceRecordedRun> = {}): Conform
     caveats: [],
     caveatsSurfaced: false,
     evidenceBar: { install: true, discover: true, invoke: true, uninstall: true },
-    recordRef: "docs/assets/conformance/results/run-0001.json",
+    recordRef: "conformance/results/run-0001.json",
     modelOrProvider: "anthropic",
     runtime: "codex-cli",
     simulated: false,
@@ -259,7 +259,7 @@ describe("R-TEST-1: no conformance-validated tuple without a qualifying recorded
     const entry = entryFixture({
       tuple: boundTuple,
       status: "conformance-validated",
-      recordedRuns: [qualifyingRun({ recordRef: "docs/assets/conformance/results/missing.json" })],
+      recordedRuns: [qualifyingRun({ recordRef: "conformance/results/missing.json" })],
     });
     // Without a repoRoot the run shape qualifies; with the receipts check the
     // missing committed record is a violation.
@@ -319,7 +319,7 @@ describe("R-TEST-2: required first-pass scenarios exist and are runnable-or-bloc
         entry: targetEntry,
         spec,
         record,
-        recordRef: `docs/assets/conformance/results/${record.resultId}.json`,
+        recordRef: `conformance/results/${record.resultId}.json`,
       });
       expect(updated.status).toBe(targetEntry.status);
       expect(updated.tuple).toEqual(targetEntry.tuple);
@@ -393,6 +393,17 @@ describe("R-TEST-3: conformance assets never ship (t5)", () => {
   test("the walker detects assets by path, basename, and content marker — including relocations", () => {
     const root = createTempDir("make-docs-meta-exclusion-");
     try {
+      // The canonical repo-root home copied into a shipped tree root (PRD 42).
+      mkdirSync(path.join(root, "conformance"), { recursive: true });
+      writeFileSync(path.join(root, "conformance/README.md"), "# Assets\n", "utf8");
+      // A nested copy of the canonical family, caught by its subtree fragment.
+      mkdirSync(path.join(root, "nested/conformance/fixtures/agent"), { recursive: true });
+      writeFileSync(
+        path.join(root, "nested/conformance/fixtures/agent/probe.playbook.md"),
+        "# Fixture\n",
+        "utf8",
+      );
+      // The pre-relocation home still fails wherever it reappears.
       mkdirSync(path.join(root, "docs/assets/conformance/scenarios"), { recursive: true });
       writeFileSync(
         path.join(root, "docs/assets/conformance/scenarios/some-spec.json"),
@@ -411,7 +422,9 @@ describe("R-TEST-3: conformance assets never ship (t5)", () => {
         root,
         label: "fixture tree",
       });
-      expect(violations).toHaveLength(3);
+      expect(violations).toHaveLength(5);
+      expect(violations.join("\n")).toContain("conformance/README.md");
+      expect(violations.join("\n")).toContain("nested/conformance/fixtures/agent/probe.playbook.md");
       expect(violations.join("\n")).toContain("docs/assets/conformance/scenarios/some-spec.json");
       expect(violations.join("\n")).toContain("relocated/tuple-registry.json");
       expect(violations.join("\n")).toContain("relocated/renamed-registry.json");

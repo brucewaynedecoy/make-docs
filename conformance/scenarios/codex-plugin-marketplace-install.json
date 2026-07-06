@@ -27,7 +27,7 @@
     },
     {
       "kind": "command",
-      "run": "mkdir -p \"$WORKSPACE/docs/assets/playbooks/agent\" && cp docs/assets/conformance/fixtures/agent/conformance-skill-probe.playbook.md \"$WORKSPACE/docs/assets/playbooks/agent/\"",
+      "run": "mkdir -p \"$WORKSPACE/docs/assets/playbooks/agent\" && cp conformance/fixtures/agent/conformance-skill-probe.playbook.md \"$WORKSPACE/docs/assets/playbooks/agent/\"",
       "transcript": "context"
     },
     {
@@ -136,7 +136,7 @@
     "transcriptPolicy": "json-or-non-tty",
     "workspacePolicy": "disposable-fixture-workspace",
     "fixturePlaybooks": [
-      "docs/assets/conformance/fixtures/agent/conformance-skill-probe.playbook.md"
+      "conformance/fixtures/agent/conformance-skill-probe.playbook.md"
     ],
     "futureHarnesses": [
       {
