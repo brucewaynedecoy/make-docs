@@ -62,12 +62,12 @@
       ],
       "recordedRuns": [],
       "plannedScenarios": [
-        "codex-plugin-marketplace-install",
-        "codex-uninstall-backup-cleanliness"
+        "packaging/plugin-marketplace-install",
+        "packaging/uninstall-backup-cleanliness"
       ],
       "notes": [
         "Implementation-validated means exactly what it says: internal tests prove the generated files and structure, and the 2026-07-03 real-harness probe recorded above contradicts recognition — this tuple must not be described as Codex-recognized in any wording until a qualifying recorded run exists (R-GOV-1).",
-        "The codex-plugin-marketplace-install scenario carries the characterization preamble that is the recorded plan for resolving the R-021 negative probe: ground truth for what the real Codex version accepts is established first, then the generated shapes are diffed against it, and only then are the bar assertions attempted."
+        "The packaging/plugin-marketplace-install definition's Codex target binding carries the discovery kit that is the recorded plan for resolving the R-021 negative probe: ground truth for what the real Codex version accepts is established first, then the generated shapes are diffed against it, and only then are the bar assertions attempted."
       ]
     },
     {
@@ -132,9 +132,9 @@
       "evidence": [],
       "recordedRuns": [],
       "plannedScenarios": [
-        "codex-skills-bundle-discovery-invocation",
-        "codex-dependency-check-both-directions",
-        "codex-uninstall-backup-cleanliness"
+        "packaging/skills-bundle-discovery-invocation",
+        "packaging/dependency-check-both-directions",
+        "packaging/uninstall-backup-cleanliness"
       ],
       "notes": [
         "Only surface resolution (path lowering to `.agents/skills/{packageId}/SKILL.md`) is asserted for this tuple; no internal test writes and structurally proves a Codex skills bundle, and no harness evidence exists."
@@ -156,8 +156,8 @@
       "evidence": [],
       "recordedRuns": [],
       "plannedScenarios": [
-        "codex-skills-bundle-discovery-invocation",
-        "codex-dependency-check-both-directions"
+        "packaging/skills-bundle-discovery-invocation",
+        "packaging/dependency-check-both-directions"
       ],
       "notes": [
         "Surface resolution and exposure-mode fallback are asserted (symlink and copy-mirror lowering), but no internal test writes and structurally proves a Codex skills bundle end to end, and no harness evidence exists."
@@ -384,7 +384,7 @@
       "plannedScenarios": [],
       "notes": [
         "Every Pi path and manifest filename is inferred: the Pi adapter contract is `provisional` (R-ADAPT-4), and Pi is a FUTURE conformance harness per R-SCEN-2 — its scenarios are not part of the required first pass, and this entry exists so that absence is reported rather than implied as covered.",
-        "W18 R9 P2 scenario-absence linkage (R-SCEN-2): the four first-pass scenario specs under conformance/scenarios/ are Codex-first; no Pi scenario spec exists, this entry's plannedScenarios is deliberately empty, and Pi conformance remains recorded future work rather than implied coverage."
+        "Reported scenario-absence linkage (R-SCEN-2 as re-expressed by PRD 43 R-SCHEMA-2): the four first-pass packaging definitions under conformance/scenarios/packaging/ bind only Codex targets; no definition binds a pi target, this entry's plannedScenarios is deliberately empty, and Pi conformance remains a reported uncovered-target gap rather than implied coverage."
       ]
     },
     {
@@ -405,7 +405,7 @@
       "plannedScenarios": [],
       "notes": [
         "No internal file-and-structure test and no harness evidence exists; Pi is a future conformance harness whose absence is reported, never implied as covered (R-SCEN-2).",
-        "W18 R9 P2 scenario-absence linkage (R-SCEN-2): the four first-pass scenario specs under conformance/scenarios/ are Codex-first; no Pi scenario spec exists, this entry's plannedScenarios is deliberately empty, and Pi conformance remains recorded future work rather than implied coverage."
+        "Reported scenario-absence linkage (R-SCEN-2 as re-expressed by PRD 43 R-SCHEMA-2): the four first-pass packaging definitions under conformance/scenarios/packaging/ bind only Codex targets; no definition binds a pi target, this entry's plannedScenarios is deliberately empty, and Pi conformance remains a reported uncovered-target gap rather than implied coverage."
       ]
     },
     {
@@ -426,7 +426,7 @@
       "plannedScenarios": [],
       "notes": [
         "No internal file-and-structure test and no harness evidence exists; Pi is a future conformance harness whose absence is reported, never implied as covered (R-SCEN-2).",
-        "W18 R9 P2 scenario-absence linkage (R-SCEN-2): the four first-pass scenario specs under conformance/scenarios/ are Codex-first; no Pi scenario spec exists, this entry's plannedScenarios is deliberately empty, and Pi conformance remains recorded future work rather than implied coverage."
+        "Reported scenario-absence linkage (R-SCEN-2 as re-expressed by PRD 43 R-SCHEMA-2): the four first-pass packaging definitions under conformance/scenarios/packaging/ bind only Codex targets; no definition binds a pi target, this entry's plannedScenarios is deliberately empty, and Pi conformance remains a reported uncovered-target gap rather than implied coverage."
       ]
     },
     {
@@ -447,7 +447,7 @@
       "plannedScenarios": [],
       "notes": [
         "Only surface resolution (path lowering to `.agents/skills/{packageId}/SKILL.md`) is asserted for this tuple; no internal test writes and structurally proves a Pi skills bundle, and Pi is a future conformance harness (R-SCEN-2).",
-        "W18 R9 P2 scenario-absence linkage (R-SCEN-2): the four first-pass scenario specs under conformance/scenarios/ are Codex-first; no Pi scenario spec exists, this entry's plannedScenarios is deliberately empty, and Pi conformance remains recorded future work rather than implied coverage."
+        "Reported scenario-absence linkage (R-SCEN-2 as re-expressed by PRD 43 R-SCHEMA-2): the four first-pass packaging definitions under conformance/scenarios/packaging/ bind only Codex targets; no definition binds a pi target, this entry's plannedScenarios is deliberately empty, and Pi conformance remains a reported uncovered-target gap rather than implied coverage."
       ]
     },
     {
@@ -468,7 +468,7 @@
       "plannedScenarios": [],
       "notes": [
         "No internal file-and-structure test and no harness evidence exists; Pi is a future conformance harness whose absence is reported, never implied as covered (R-SCEN-2).",
-        "W18 R9 P2 scenario-absence linkage (R-SCEN-2): the four first-pass scenario specs under conformance/scenarios/ are Codex-first; no Pi scenario spec exists, this entry's plannedScenarios is deliberately empty, and Pi conformance remains recorded future work rather than implied coverage."
+        "Reported scenario-absence linkage (R-SCEN-2 as re-expressed by PRD 43 R-SCHEMA-2): the four first-pass packaging definitions under conformance/scenarios/packaging/ bind only Codex targets; no definition binds a pi target, this entry's plannedScenarios is deliberately empty, and Pi conformance remains a reported uncovered-target gap rather than implied coverage."
       ]
     },
     {
@@ -489,7 +489,7 @@
       "plannedScenarios": [],
       "notes": [
         "No internal file-and-structure test and no harness evidence exists; Pi is a future conformance harness whose absence is reported, never implied as covered (R-SCEN-2).",
-        "W18 R9 P2 scenario-absence linkage (R-SCEN-2): the four first-pass scenario specs under conformance/scenarios/ are Codex-first; no Pi scenario spec exists, this entry's plannedScenarios is deliberately empty, and Pi conformance remains recorded future work rather than implied coverage."
+        "Reported scenario-absence linkage (R-SCEN-2 as re-expressed by PRD 43 R-SCHEMA-2): the four first-pass packaging definitions under conformance/scenarios/packaging/ bind only Codex targets; no definition binds a pi target, this entry's plannedScenarios is deliberately empty, and Pi conformance remains a reported uncovered-target gap rather than implied coverage."
       ]
     }
   ]

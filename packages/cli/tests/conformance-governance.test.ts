@@ -31,6 +31,7 @@ import {
   SUPPORT_CLAIM_WORDING_RULE_CORE,
   bindConformanceSupportTuple,
   capSupportStatusForConformanceRegistry,
+  conformanceResultRecordRelativePath,
   conformanceTupleKey,
   deriveSupportClaimStrength,
   derivePackageSupportStatusCeilingFromRegistry,
@@ -67,13 +68,13 @@ function codexPluginTuple(): ConformanceSupportTuple {
 function recordedRun(overrides: Partial<ConformanceRecordedRun> = {}): ConformanceRecordedRun {
   return {
     runId: "run-0001",
-    scenario: "codex-plugin-marketplace-install",
+    scenario: "packaging/plugin-marketplace-install",
     runDate: "2026-07-04",
     verdict: "pass",
     caveats: [],
     caveatsSurfaced: false,
     evidenceBar: { install: true, discover: true, invoke: true, uninstall: true },
-    recordRef: "conformance/results/run-0001.json",
+    recordRef: "conformance/results/codex/run-0001.json",
     modelOrProvider: "anthropic",
     runtime: "codex-cli",
     simulated: false,
@@ -102,7 +103,7 @@ function resultRecordFixture(
   return validatePackagingConformanceResultRecord({
     schemaVersion: "conformance.result.v1",
     resultId: "run-0001",
-    scenarioId: "codex-plugin-marketplace-install",
+    scenarioId: "packaging/plugin-marketplace-install",
     scenarioVersion: "1.0.0",
     runDate: "2026-07-04",
     makeDocsVersion: "0.0.0-test",
@@ -115,7 +116,7 @@ function resultRecordFixture(
     producedFiles: [],
     relevantDiffs: [],
     exitStatus: 0,
-    transcriptLogPointer: ".make-docs/conformance/run-0001/transcript.log",
+    transcriptLogPointer: "discarded-with-session",
     verdict: "pass",
     reason: "All four bar stages asserted against the real harness.",
     caveats: [],
@@ -135,9 +136,10 @@ function writeRecords(
   root: string,
   records: PackagingConformanceResultRecord[],
 ): ConformanceRecordedRun[] {
-  mkdirSync(path.join(root, "conformance/results"), { recursive: true });
+  // Committed records live under the PRD 43 R-ORG-2 by-target layout.
+  mkdirSync(path.join(root, "conformance/results/codex"), { recursive: true });
   return records.map((record) => {
-    const recordRef = `conformance/results/${record.resultId}.json`;
+    const recordRef = `conformance/results/codex/${record.resultId}.json`;
     writeFileSync(path.join(root, recordRef), JSON.stringify(record, null, 2), "utf8");
     return recordedRun({
       runId: record.resultId,
@@ -255,7 +257,7 @@ describe("R-GOV-1 wording derivation: the single claim-rendering seam (t1, t2)",
       const runs = writeRecords(root, [resultRecordFixture({ reviewerStatus: "unreviewed" })]);
       const boundTuple: ConformanceSupportTuple = {
         ...codexPluginTuple(),
-        scenario: "codex-plugin-marketplace-install",
+        scenario: "packaging/plugin-marketplace-install",
         modelOrProvider: "anthropic",
         runtime: "codex-cli",
       };
@@ -287,7 +289,7 @@ describe("R-GOV-1 wording derivation: the single claim-rendering seam (t1, t2)",
       ]);
       const boundTuple: ConformanceSupportTuple = {
         ...codexPluginTuple(),
-        scenario: "codex-plugin-marketplace-install",
+        scenario: "packaging/plugin-marketplace-install",
         modelOrProvider: "anthropic",
         runtime: "codex-cli",
       };
@@ -301,7 +303,7 @@ describe("R-GOV-1 wording derivation: the single claim-rendering seam (t1, t2)",
       expect(claim.wording).toContain(
         `Conformance-validated for exactly this tuple (\`${conformanceTupleKey(boundTuple)}\`)`,
       );
-      expect(claim.wording).toContain("codex-plugin-marketplace-install");
+      expect(claim.wording).toContain("packaging/plugin-marketplace-install");
       expect(claim.wording).toContain("install-discover-invoke-uninstall");
       // Every caveat rides the wording itself, never a footnote elsewhere.
       expect(claim.caveats).toEqual(caveats);
@@ -329,7 +331,7 @@ describe("R-GOV-1 wording derivation: the single claim-rendering seam (t1, t2)",
       ]);
       const boundTuple: ConformanceSupportTuple = {
         ...codexPluginTuple(),
-        scenario: "codex-plugin-marketplace-install",
+        scenario: "packaging/plugin-marketplace-install",
         modelOrProvider: "anthropic",
         runtime: "codex-cli",
       };
@@ -376,14 +378,14 @@ describe("mechanical promotion for the W18 R5..R8 provisional claims (t4, t5)", 
 
   test("a qualifying recorded run advances the exact tuple, flips its ceiling, and stales every claim surface marker", () => {
     const specs = loadPackagingConformanceScenarioSpecs({ repoRoot: REPO_ROOT });
-    const spec = specs.find((s) => s.scenarioId === "codex-plugin-marketplace-install")!;
+    const spec = specs.find((s) => s.scenarioId === "packaging/plugin-marketplace-install")!;
     const entry = registry.tuples.find((e) => e.id === "codex-plugin-native-project")!;
     const record = resultRecordFixture({ resultId: "run-promotion-fixture" });
     const advanced = recordConformanceRunOnRegistryEntry({
       entry,
       spec,
       record,
-      recordRef: "conformance/results/run-promotion-fixture.json",
+      recordRef: "conformance/results/codex/run-promotion-fixture.json",
     });
     // The exact tuple advances and its wording ceiling advances with it —
     // and ONLY this tuple: every other entry's ceiling is untouched.
@@ -558,6 +560,68 @@ describe("claim surfaces: the wording rule encoded where support language lives 
       expect(claim.wording, entry.id).toContain("Make Docs generated output");
       expect(claim.wording, entry.id).toContain("-recognized");
       expect(claim.tupleKey).toBe(conformanceTupleKey(entry.tuple));
+    }
+  });
+});
+
+describe("the by-target result-record layout (PRD 43 R-ORG-2; W18 R13 P1 t7)", () => {
+  test("the ingest-side path derivation yields conformance/results/<harness>/<date>-<outcome>-<seq>.json", () => {
+    expect(
+      conformanceResultRecordRelativePath({
+        harness: "codex",
+        runDate: "2026-07-06",
+        scenarioId: "packaging/plugin-marketplace-install",
+        sequence: 1,
+      }),
+    ).toBe("conformance/results/codex/2026-07-06-plugin-marketplace-install-001.json");
+    // The outcome slug never carries the domain or a harness token.
+    expect(
+      conformanceResultRecordRelativePath({
+        harness: "claude-code",
+        runDate: "2026-07-06",
+        scenarioId: "packaging/uninstall-backup-cleanliness",
+        sequence: 12,
+      }),
+    ).toBe("conformance/results/claude-code/2026-07-06-uninstall-backup-cleanliness-012.json");
+    expect(() =>
+      conformanceResultRecordRelativePath({
+        harness: "codex",
+        runDate: "2026-07-06",
+        scenarioId: "not-domain-qualified",
+        sequence: 1,
+      }),
+    ).toThrow("domain-qualified");
+    expect(() =>
+      conformanceResultRecordRelativePath({
+        harness: "codex",
+        runDate: "2026-07-06",
+        scenarioId: "packaging/plugin-marketplace-install",
+        sequence: 0,
+      }),
+    ).toThrow("positive integer");
+  });
+
+  test("the claim-use gates walk the nested by-target layout: a nested record cannot dodge them", () => {
+    const root = createTempDir("make-docs-governance-layout-");
+    try {
+      const record = resultRecordFixture({
+        resultId: "nested-0001",
+        supportClaimUse: "stronger-claim-candidate",
+        reviewerStatus: "unreviewed",
+      });
+      const recordRef = conformanceResultRecordRelativePath({
+        harness: "codex",
+        runDate: record.runDate,
+        scenarioId: record.scenarioId,
+        sequence: 1,
+      });
+      mkdirSync(path.dirname(path.join(root, recordRef)), { recursive: true });
+      writeFileSync(path.join(root, recordRef), JSON.stringify(record, null, 2), "utf8");
+      const errors = listCommittedResultRecordClaimUseErrors({ repoRoot: root });
+      expect(errors.join("\n")).toContain(recordRef);
+      expect(errors.join("\n")).toContain("maintainer review");
+    } finally {
+      cleanupTempDir(root);
     }
   });
 });

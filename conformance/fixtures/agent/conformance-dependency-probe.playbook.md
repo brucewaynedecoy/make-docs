@@ -15,7 +15,7 @@ This fixture is maintainer-only conformance input (W18 R9 P2, PRD 37 R-SCEN-1; P
 
 ## Purpose
 
-Give the `codex-dependency-check-both-directions` scenario a fixture set covering both directions and the probe-versus-source distinction: dependencies that are present and must pass, one dependency that is deliberately absent and must be surfaced as missing, and one present dependency whose `source` prose does not begin with its binary name — a `Source`-derived check would probe the wrong token and fail, while the contract-correct probe-based check passes.
+Give the `packaging/dependency-check-both-directions` scenario a fixture set covering both directions and the probe-versus-source distinction: dependencies that are present and must pass, one dependency that is deliberately absent and must be surfaced as missing, and one present dependency whose `source` prose does not begin with its binary name — a `Source`-derived check would probe the wrong token and fail, while the contract-correct probe-based check passes.
 
 ## When To Use
 

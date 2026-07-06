@@ -1,0 +1,154 @@
+{
+  "schemaVersion": "conformance.scenario.v1",
+  "scenarioId": "packaging/skills-bundle-discovery-invocation",
+  "scenarioVersion": "2.0.0",
+  "title": "Skills bundle: install, discovery, invocation, and clean uninstall",
+  "sourceRequirements": [
+    "docs/prd/37-enhance-playbook-and-package-conformance.md",
+    "docs/prd/43-revise-conformance-scenario-model-and-execution-kit.md",
+    "docs/prd/20-revise-agent-harness-model-conformance-lab.md",
+    "docs/work/2026-07-01-w18-r9-playbook-and-package-conformance/02-evidence-bar-and-first-pass-scenarios.md"
+  ],
+  "safetyMode": "external-provider-run",
+  "requiresNetwork": true,
+  "requiresCredentials": true,
+  "destructive": false,
+  "prerequisites": [
+    "Node.js >= 18 and the make-docs CLI built from this repository.",
+    "A fresh disposable fixture workspace; the scenario never touches a maintainer working tree.",
+    "Command steps below are rendered for the Codex first-pass target binding; projecting them for another bound target is owned by kit generation (PRD 43 R-KIT-1), never by hand-editing this definition."
+  ],
+  "steps": [
+    {
+      "kind": "command",
+      "run": "WORKSPACE=$(mktemp -d) && git -C \"$WORKSPACE\" init",
+      "transcript": "context",
+      "notes": "Disposable fixture workspace (workspacePolicy); all later steps run inside it."
+    },
+    {
+      "kind": "command",
+      "run": "mkdir -p \"$WORKSPACE/docs/assets/playbooks/agent\" && cp conformance/fixtures/agent/conformance-skill-probe.playbook.md \"$WORKSPACE/docs/assets/playbooks/agent/\"",
+      "transcript": "context",
+      "notes": "The v2-form source Playbook enters the workspace as ordinary project content."
+    },
+    {
+      "kind": "command",
+      "run": "mkdir -p \"$WORKSPACE/.make-docs\" && printf 'packaging:\\n  preconditions:\\n    harness-supported: satisfied\\n    project-trusted: satisfied\\n    symlink-or-copy-mirror: satisfied\\n' > \"$WORKSPACE/.make-docs/config.yaml\"",
+      "transcript": "context",
+      "notes": "Establishes the packaging precondition attestations the ship step consumes (register item D-023: attestations are supplied by the session's workspace setup, never remembered mid-session; the operator attests the disposable workspace is trusted and the adapter preconditions hold)."
+    },
+    {
+      "kind": "command",
+      "run": "cd \"$WORKSPACE\" && make-docs run package ship --harness codex --output-kind skills-bundle --surface native --scope project --package-id conformance-skill-probe --support-evidence-ref conformance/tuple-registry.json#codex-skills-bundle-native-project --json agent/conformance-skill-probe",
+      "transcript": "evidence-json",
+      "barStage": "install",
+      "notes": "Run once per targeted tuple: --surface native with the codex-skills-bundle-native-project evidence ref, and --surface agents-standard with the codex-skills-bundle-agents-standard-project evidence ref. The evidence ref names the exact registry tuple this session's evidence lands on (D-023: the planner hard-stops without one). `ship` runs plan -> preview -> write end-to-end (PRD 41 grammar; --write is retired)."
+    },
+    {
+      "kind": "assertion",
+      "assert": "The ship transcript's generated-output records list the bundle files under .agents/skills/conformance-skill-probe/ and the workspace manifest records Make Docs ownership for every generated file.",
+      "barStage": "install"
+    },
+    {
+      "kind": "harness-action",
+      "action": "Launch the target harness inside the workspace and enumerate the harness's own skills listing surface; confirm conformance-skill-probe appears in the harness's listing, not merely on disk.",
+      "barStage": "discover"
+    },
+    {
+      "kind": "harness-action",
+      "action": "In a fresh harness thread, invoke the conformance-skill-probe skill and capture the transcript.",
+      "barStage": "invoke"
+    },
+    {
+      "kind": "assertion",
+      "assert": "The invocation transcript contains the probe marker MAKE-DOCS-CONFORMANCE-SKILL-PROBE-OK emitted by the bundled skill.",
+      "barStage": "invoke"
+    },
+    {
+      "kind": "command",
+      "run": "cd \"$WORKSPACE\" && make-docs setup remove --backup --yes < /dev/null",
+      "transcript": "evidence-non-tty",
+      "barStage": "uninstall",
+      "notes": "--yes carries the uninstall confirmation for the non-TTY run (D-023: the TTY confirmation gate refuses a non-TTY run without it)."
+    },
+    {
+      "kind": "assertion",
+      "assert": "After removal the generated bundle files and their exposure links are gone, no empty managed directory is orphaned under .agents/skills/, and every user-authored workspace file survives byte-identical.",
+      "barStage": "uninstall"
+    }
+  ],
+  "expectedEvidence": [
+    "A --json ship transcript recording the generated bundle files and ownership records (install).",
+    "The bundle listed by the target harness's own listing surface (discover).",
+    "A fresh-thread invocation transcript containing MAKE-DOCS-CONFORMANCE-SKILL-PROBE-OK (invoke).",
+    "A non-TTY removal transcript plus a workspace diff proving clean uninstall with user files intact (uninstall).",
+    "Model, provider, and runtime captured as run metadata in the result record, never embedded in scenario logic."
+  ],
+  "artifactPolicy": "local-generated",
+  "supportClaimScope": "scenario-harness-model-provider-runtime",
+  "packagingExtension": {
+    "domain": "packaging",
+    "evidenceBar": {
+      "install": [
+        "make-docs run package ship exits 0 and its --json transcript records the generated bundle files and manifest ownership inside the disposable workspace."
+      ],
+      "discover": [
+        "The generated bundle appears in the target harness's own skills listing surface for the workspace — harness listing output, not Make Docs output."
+      ],
+      "invoke": [
+        "A fresh harness thread invokes the bundled skill and the transcript contains the probe marker MAKE-DOCS-CONFORMANCE-SKILL-PROBE-OK."
+      ],
+      "uninstall": [
+        "After make-docs setup remove --backup --yes, managed generated outputs are removed, no empty managed directory is orphaned, and user-authored files survive byte-identical."
+      ]
+    },
+    "preconditions": [
+      {
+        "id": "harness-cli-available",
+        "kind": "harness-cli",
+        "description": "The target harness CLI is installed and on PATH; the concrete probe command lives on each target binding.",
+        "probe": "command-succeeds",
+        "onUnmet": "blocked"
+      },
+      {
+        "id": "harness-authenticated",
+        "kind": "harness-auth",
+        "description": "The target harness CLI is signed in with a working account; the concrete probe command lives on each target binding.",
+        "probe": "command-succeeds",
+        "onUnmet": "blocked"
+      },
+      {
+        "id": "network-available",
+        "kind": "network",
+        "description": "Outbound network access for the harness is available; attested by the operator at run time because probing it would spend it.",
+        "probe": "operator-attestation",
+        "onUnmet": "blocked"
+      },
+      {
+        "id": "model-routing-available",
+        "kind": "model-routing",
+        "description": "The harness can route to a model for the invoke stage; attested by the operator at run time.",
+        "probe": "operator-attestation",
+        "onUnmet": "blocked"
+      }
+    ],
+    "transcriptPolicy": "json-or-non-tty",
+    "workspacePolicy": "disposable-fixture-workspace",
+    "fixturePlaybooks": [
+      "conformance/fixtures/agent/conformance-skill-probe.playbook.md"
+    ],
+    "targets": {
+      "codex": {
+        "registryTupleIds": [
+          "codex-skills-bundle-native-project",
+          "codex-skills-bundle-agents-standard-project"
+        ],
+        "harnessExecution": { "mode": "real-harness", "simulationMechanics": null },
+        "preconditionProbes": {
+          "harness-cli-available": { "command": "codex", "args": ["--version"] },
+          "harness-authenticated": { "command": "codex", "args": ["login", "status"] }
+        }
+      }
+    }
+  }
+}

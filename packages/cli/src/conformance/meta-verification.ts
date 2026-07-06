@@ -21,13 +21,20 @@
  *   validates against the lab result contract and projects back to exactly
  *   the run stored on the registry entry — so a registry run can never drift
  *   from, or outlive, the evidence it summarizes.
- * - R-TEST-2's "runnable" is structural plus honest-blocked: every required
- *   first-pass scenario must be authored, bar-eligible (all four stages
+ * - R-TEST-2's "runnable" is structural plus honest-blocked (ids and paths
+ *   retargeted by PRD 43 R-SCHEMA-3): every required first-pass scenario must
+ *   be authored as a domain-qualified definition under
+ *   `conformance/scenarios/<domain>/`, bar-eligible (all four stages
  *   asserted), linked bidirectionally to registry tuples, backed by existing
- *   fixture Playbooks, and must carry a probeable `harness-cli` precondition
- *   so an unavailable harness resolves to `blocked` instead of silently
- *   passing; the dynamic blocked-never-advances leg is exercised by the meta
- *   suite through the Phase 2 probe and recording seams.
+ *   fixture Playbooks, bound to the required first-pass target (Codex), and
+ *   must carry a probeable `harness-cli` precondition with a concrete probe
+ *   command on that target binding so an unavailable harness resolves to
+ *   `blocked` instead of silently passing; the dynamic blocked-never-advances
+ *   leg is exercised by the meta suite through the Phase 2 probe and
+ *   recording seams. The D-023 executable-by-construction proof (a
+ *   kit-generation dry-run projecting every required definition to an
+ *   accepted command sequence) lands with the Phase 2 kit generator and the
+ *   Phase 4 bar.
  * - R-TEST-3 detects assets three ways — the asset directory path (the
  *   canonical repo-root `conformance/` home per PRD 42, its distinctive
  *   subtrees at any depth, AND the pre-relocation `docs/assets/conformance`
@@ -51,6 +58,7 @@ import {
   CONFORMANCE_RESULT_SCHEMA_VERSION,
   CONFORMANCE_SCENARIO_SCHEMA_VERSION,
   REQUIRED_FIRST_PASS_SCENARIOS,
+  REQUIRED_FIRST_PASS_TARGET,
   listConformanceScenarioRegistryLinkageErrors,
   listMissingRequiredFirstPassScenarioIds,
   listUnassertedEvidenceBarStages,
@@ -132,14 +140,18 @@ export function listConformanceValidatedRunQualificationErrors(input: {
  * ------------------------------------------------------------------------ */
 
 /**
- * Asserts that every required R-SCEN-1 first-pass scenario exists as an
- * authored spec and is structurally runnable (R-TEST-2): bar-eligible with
- * all four stages asserted, bidirectionally linked to the registry tuples it
- * targets, backed by fixture Playbooks that exist on disk, and carrying a
- * probeable `harness-cli` precondition so an unavailable harness resolves to
- * an honest `blocked` rather than silently passing. The dynamic leg — an
- * unmet probe yielding a `blocked` record that never advances a tuple — is
- * exercised by the meta suite through the Phase 2 seams.
+ * Asserts that every required first-pass scenario exists as an authored
+ * domain-qualified definition and is structurally runnable (R-TEST-2 as
+ * retargeted by PRD 43 R-SCHEMA-3): bar-eligible with all four stages
+ * asserted, bidirectionally linked to the registry tuples its target
+ * bindings declare, backed by fixture Playbooks that exist on disk, bound to
+ * the required first-pass target ({@link REQUIRED_FIRST_PASS_TARGET}), and
+ * carrying a probeable `harness-cli` precondition whose concrete probe
+ * command that binding supplies, so an unavailable harness resolves to an
+ * honest `blocked` rather than silently passing. The dynamic leg — an unmet
+ * probe yielding a `blocked` record that never advances a tuple — is
+ * exercised by the meta suite through the Phase 2 seams; the D-023
+ * executability proof is owned by the Phase 2 kit generator's dry-run.
  */
 export function listRequiredFirstPassScenarioErrors(input: {
   specs: PackagingConformanceScenarioSpec[];
@@ -150,7 +162,7 @@ export function listRequiredFirstPassScenarioErrors(input: {
   for (const missing of listMissingRequiredFirstPassScenarioIds(input.specs)) {
     errors.push(
       `required first-pass scenario \`${missing}\` (${REQUIRED_FIRST_PASS_SCENARIOS[missing]}) ` +
-        "has no authored spec (R-TEST-2, R-SCEN-1)",
+        "has no authored definition under conformance/scenarios/<domain>/ (R-TEST-2, R-SCHEMA-3)",
     );
   }
   for (const linkageError of listConformanceScenarioRegistryLinkageErrors(
@@ -168,7 +180,7 @@ export function listRequiredFirstPassScenarioErrors(input: {
     const unasserted = listUnassertedEvidenceBarStages(spec);
     if (unasserted.length > 0) {
       errors.push(
-        `${label} asserts no ${unasserted.join(", ")} evidence; a spec missing a bar stage ` +
+        `${label} asserts no ${unasserted.join(", ")} evidence; a definition missing a bar stage ` +
           "can never advance a tuple and is not runnable as first-pass evidence (R-TEST-2, R-BAR-1)",
       );
     }
@@ -177,15 +189,31 @@ export function listRequiredFirstPassScenarioErrors(input: {
         errors.push(`${label} references fixture Playbook \`${fixture}\` which does not exist`);
       }
     }
-    const hasProbeableHarnessCli = spec.packagingExtension.preconditions.some(
+    const binding = spec.packagingExtension.targets[REQUIRED_FIRST_PASS_TARGET];
+    if (!binding) {
+      errors.push(
+        `${label} binds no \`${REQUIRED_FIRST_PASS_TARGET}\` target; the required first-pass set ` +
+          "is exactly the four packaging outcomes bound to Codex targets (R-TEST-2, R-SCHEMA-3)",
+      );
+      continue;
+    }
+    const probeableHarnessCli = spec.packagingExtension.preconditions.filter(
       (precondition) =>
-        precondition.kind === "harness-cli" && precondition.probe.check === "command-succeeds",
+        precondition.kind === "harness-cli" && precondition.probe === "command-succeeds",
     );
-    if (!hasProbeableHarnessCli) {
+    if (probeableHarnessCli.length === 0) {
       errors.push(
         `${label} declares no probeable harness-cli precondition; without one an unavailable ` +
           "harness cannot resolve to an honest blocked verdict (R-TEST-2, R-KEEP-1)",
       );
+    }
+    for (const precondition of probeableHarnessCli) {
+      if (!(precondition.id in binding.preconditionProbes)) {
+        errors.push(
+          `${label} target \`${REQUIRED_FIRST_PASS_TARGET}\` carries no probe command for the ` +
+            `harness-cli precondition \`${precondition.id}\` (R-TEST-2, R-SCHEMA-1)`,
+        );
+      }
     }
   }
   return errors;

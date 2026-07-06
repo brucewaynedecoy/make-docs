@@ -1,10 +1,11 @@
 {
   "schemaVersion": "conformance.scenario.v1",
-  "scenarioId": "codex-dependency-check-both-directions",
-  "scenarioVersion": "1.0.0",
-  "title": "Codex dependency checks: surface missing tools, pass on present tools, probe-based only",
+  "scenarioId": "packaging/dependency-check-both-directions",
+  "scenarioVersion": "2.0.0",
+  "title": "Dependency checks: surface missing tools, pass on present tools, probe-based only",
   "sourceRequirements": [
     "docs/prd/37-enhance-playbook-and-package-conformance.md",
+    "docs/prd/43-revise-conformance-scenario-model-and-execution-kit.md",
     "docs/prd/20-revise-agent-harness-model-conformance-lab.md",
     "docs/prd/40-revise-playbook-authoring-contract-v2.md",
     "docs/work/2026-07-01-w18-r9-playbook-and-package-conformance/02-evidence-bar-and-first-pass-scenarios.md"
@@ -16,7 +17,8 @@
   "prerequisites": [
     "Node.js >= 18 and the make-docs CLI built from this repository.",
     "git, rg, and npm installed in the fixture workspace (the present direction); make-docs-conformance-absent-probe must not exist on PATH (the missing direction).",
-    "A fresh disposable fixture workspace; the scenario never touches a maintainer working tree."
+    "A fresh disposable fixture workspace; the scenario never touches a maintainer working tree.",
+    "Command steps below are rendered for the Codex first-pass target binding; projecting them for another bound target is owned by kit generation (PRD 43 R-KIT-1), never by hand-editing this definition."
   ],
   "steps": [
     {
@@ -33,10 +35,16 @@
     },
     {
       "kind": "command",
-      "run": "cd \"$WORKSPACE\" && make-docs run package ship --harness codex --output-kind skills-bundle --surface native --scope project --package-id conformance-dependency-probe --json agent/conformance-dependency-probe",
+      "run": "mkdir -p \"$WORKSPACE/.make-docs\" && printf 'packaging:\\n  preconditions:\\n    harness-supported: satisfied\\n    project-trusted: satisfied\\n    symlink-or-copy-mirror: satisfied\\n' > \"$WORKSPACE/.make-docs/config.yaml\"",
+      "transcript": "context",
+      "notes": "Establishes the packaging precondition attestations the ship step consumes (register item D-023: attestations are supplied by the session's workspace setup, never remembered mid-session; the operator attests the disposable workspace is trusted and the adapter preconditions hold)."
+    },
+    {
+      "kind": "command",
+      "run": "cd \"$WORKSPACE\" && make-docs run package ship --harness codex --output-kind skills-bundle --surface native --scope project --package-id conformance-dependency-probe --support-evidence-ref conformance/tuple-registry.json#codex-skills-bundle-native-project --json agent/conformance-dependency-probe",
       "transcript": "evidence-json",
       "barStage": "install",
-      "notes": "Run once per targeted tuple: --surface native and --surface agents-standard. `ship` runs plan -> preview -> write end-to-end (PRD 41 grammar; --write is retired)."
+      "notes": "Run once per targeted tuple: --surface native with the codex-skills-bundle-native-project evidence ref, and --surface agents-standard with the codex-skills-bundle-agents-standard-project evidence ref. The evidence ref names the exact registry tuple this session's evidence lands on (D-023: the planner hard-stops without one). `ship` runs plan -> preview -> write end-to-end (PRD 41 grammar; --write is retired)."
     },
     {
       "kind": "assertion",
@@ -45,12 +53,12 @@
     },
     {
       "kind": "harness-action",
-      "action": "Launch Codex inside the workspace and confirm the conformance-dependency-probe bundle appears in Codex's skills listing surface.",
+      "action": "Launch the target harness inside the workspace and confirm the conformance-dependency-probe bundle appears in the harness's skills listing surface.",
       "barStage": "discover"
     },
     {
       "kind": "harness-action",
-      "action": "Missing direction: with make-docs-conformance-absent-probe absent from PATH, drive the bundle's dependency checks in a Codex thread and capture the transcript.",
+      "action": "Missing direction: with make-docs-conformance-absent-probe absent from PATH, drive the bundle's dependency checks in a harness thread and capture the transcript.",
       "barStage": "invoke"
     },
     {
@@ -70,9 +78,10 @@
     },
     {
       "kind": "command",
-      "run": "cd \"$WORKSPACE\" && make-docs setup remove --backup < /dev/null",
+      "run": "cd \"$WORKSPACE\" && make-docs setup remove --backup --yes < /dev/null",
       "transcript": "evidence-non-tty",
-      "barStage": "uninstall"
+      "barStage": "uninstall",
+      "notes": "--yes carries the uninstall confirmation for the non-TTY run (D-023: the TTY confirmation gate refuses a non-TTY run without it)."
     },
     {
       "kind": "assertion",
@@ -82,7 +91,7 @@
   ],
   "expectedEvidence": [
     "A --json ship transcript recording the bundle and its probe-based materialized dependency checks (install).",
-    "The bundle listed by Codex's own listing surface (discover).",
+    "The bundle listed by the target harness's own listing surface (discover).",
     "A transcript surfacing make-docs-conformance-absent-probe as missing by its probe target (invoke, missing direction).",
     "A transcript with git, rg, and npm checks passing — rg via its declared probe despite source prose naming ripgrep (invoke, present direction).",
     "A non-TTY removal transcript plus a workspace diff proving clean uninstall (uninstall).",
@@ -91,80 +100,77 @@
   "artifactPolicy": "local-generated",
   "supportClaimScope": "scenario-harness-model-provider-runtime",
   "packagingExtension": {
-    "harness": "codex",
-    "registryTupleIds": [
-      "codex-skills-bundle-native-project",
-      "codex-skills-bundle-agents-standard-project"
-    ],
+    "domain": "packaging",
     "evidenceBar": {
       "install": [
         "make-docs run package ship exits 0 and its --json transcript records the bundle with materialized dependency checks that target each entry's resolved probe, never source prose (PRD 40 R-DEP-3)."
       ],
       "discover": [
-        "The generated bundle appears in Codex's own skills listing surface for the workspace."
+        "The generated bundle appears in the target harness's own skills listing surface for the workspace."
       ],
       "invoke": [
         "With the absent fixture tool missing, the generated checks surface make-docs-conformance-absent-probe by its probe target.",
         "With git, rg, and npm present, the generated checks pass — including rg via its declared probe despite source prose that does not begin with the binary name."
       ],
       "uninstall": [
-        "After make-docs setup remove --backup, the bundle and its dependency checks are removed, no empty managed directory is orphaned, and user-authored files survive byte-identical."
+        "After make-docs setup remove --backup --yes, the bundle and its dependency checks are removed, no empty managed directory is orphaned, and user-authored files survive byte-identical."
       ]
     },
     "preconditions": [
       {
-        "id": "codex-cli-available",
+        "id": "harness-cli-available",
         "kind": "harness-cli",
-        "description": "The Codex CLI is installed and on PATH.",
-        "probe": { "check": "command-succeeds", "command": "codex", "args": ["--version"] },
+        "description": "The target harness CLI is installed and on PATH; the concrete probe command lives on each target binding.",
+        "probe": "command-succeeds",
         "onUnmet": "blocked"
       },
       {
-        "id": "codex-authenticated",
+        "id": "harness-authenticated",
         "kind": "harness-auth",
-        "description": "The Codex CLI is signed in with a working account.",
-        "probe": { "check": "command-succeeds", "command": "codex", "args": ["login", "status"] },
+        "description": "The target harness CLI is signed in with a working account; the concrete probe command lives on each target binding.",
+        "probe": "command-succeeds",
         "onUnmet": "blocked"
       },
       {
         "id": "network-available",
         "kind": "network",
         "description": "Outbound network access for the harness is available; attested by the operator at run time because probing it would spend it.",
-        "probe": { "check": "operator-attestation" },
+        "probe": "operator-attestation",
         "onUnmet": "blocked"
       },
       {
         "id": "model-routing-available",
         "kind": "model-routing",
         "description": "The harness can route to a model for the invoke stage; attested by the operator at run time.",
-        "probe": { "check": "operator-attestation" },
+        "probe": "operator-attestation",
         "onUnmet": "blocked"
       },
       {
         "id": "present-direction-tools",
         "kind": "fixture",
-        "description": "git and rg are installed for the present direction (npm ships with the Node.js prerequisite).",
-        "probe": { "check": "command-succeeds", "command": "rg", "args": ["--version"] },
+        "description": "git and rg are installed for the present direction (npm ships with the Node.js prerequisite); the concrete probe command lives on each target binding.",
+        "probe": "command-succeeds",
         "onUnmet": "blocked"
       }
     ],
-    "harnessExecution": { "mode": "real-harness", "simulationMechanics": null },
     "transcriptPolicy": "json-or-non-tty",
     "workspacePolicy": "disposable-fixture-workspace",
     "fixturePlaybooks": [
       "conformance/fixtures/agent/conformance-dependency-probe.playbook.md"
     ],
-    "futureHarnesses": [
-      {
-        "harness": "claude-code",
-        "status": "future",
-        "note": "Current product harness; its variant of this scenario follows the Codex-first pass (R-SCEN-1) and is not covered by this spec."
-      },
-      {
-        "harness": "pi",
-        "status": "future",
-        "note": "Future harness per R-SCEN-2: no Pi variant exists, and the tuple registry reports that absence explicitly rather than implying coverage."
+    "targets": {
+      "codex": {
+        "registryTupleIds": [
+          "codex-skills-bundle-native-project",
+          "codex-skills-bundle-agents-standard-project"
+        ],
+        "harnessExecution": { "mode": "real-harness", "simulationMechanics": null },
+        "preconditionProbes": {
+          "harness-cli-available": { "command": "codex", "args": ["--version"] },
+          "harness-authenticated": { "command": "codex", "args": ["login", "status"] },
+          "present-direction-tools": { "command": "rg", "args": ["--version"] }
+        }
       }
-    ]
+    }
   }
 }

@@ -65,6 +65,7 @@ import {
   FIRST_PARTY_HARNESS_CAPABILITY_DESCRIPTORS,
 } from "../operations/playbook-packaging/descriptors";
 import { outputKindForProfile } from "../operations/playbook-packaging/capability-descriptor";
+import { OperationError } from "../operations/types";
 import type { PlaybookPackageSupportStatus } from "../operations/playbook-packaging/types";
 import {
   CONFORMANCE_TUPLE_STATUS_MEANINGS,
@@ -74,6 +75,7 @@ import {
   type ConformanceTupleRegistryEntry,
 } from "./registry";
 import {
+  splitConformanceScenarioId,
   validatePackagingConformanceResultRecord,
   type PackagingConformanceResultRecord,
 } from "./scenario";
@@ -638,15 +640,66 @@ export function listSupportClaimGovernanceErrors(input: {
   return errors;
 }
 
-/** Repo-relative home of the committed compact result records (home revised by PRD 42). */
+/**
+ * Repo-relative home of the committed compact result records (home revised
+ * by PRD 42; layout revised by PRD 43 R-ORG-2): evidence organizes by
+ * execution target at `conformance/results/<harness>/`, with the
+ * model-or-provider and runtime dimensions inside each record. No
+ * speculative directory is pre-created — the first `<harness>/` directory
+ * appears with the first committed record.
+ */
 export const CONFORMANCE_RESULT_RECORDS_DIR = "conformance/results";
+
+/**
+ * Derives the committed home of one compact result record (PRD 43 R-ORG-2;
+ * W18 R13 P1 t7): `conformance/results/<harness>/<YYYY-MM-DD>-<outcome-slug>-<seq>.json`.
+ * The ingest step (Phase 3) writes records here; the tuple registry remains
+ * the single queryable index across all targets — this layout is storage,
+ * not a second query surface. Implementer decision: the sequence number is
+ * zero-padded to three digits so records sort stably within a day.
+ */
+export function conformanceResultRecordRelativePath(input: {
+  harness: string;
+  runDate: string;
+  scenarioId: string;
+  sequence: number;
+}): string {
+  if (!Number.isInteger(input.sequence) || input.sequence < 1) {
+    throw new OperationError(
+      `Result record sequence must be a positive integer, got ${String(input.sequence)}.`,
+    );
+  }
+  const { outcome } = splitConformanceScenarioId(input.scenarioId);
+  const sequence = String(input.sequence).padStart(3, "0");
+  return `${CONFORMANCE_RESULT_RECORDS_DIR}/${input.harness}/${input.runDate}-${outcome}-${sequence}.json`;
+}
+
+/** Recursively lists every `.json` under a root, as root-relative posix paths. */
+function listResultRecordFiles(root: string): string[] {
+  const files: string[] = [];
+  const pending: string[] = [""];
+  while (pending.length > 0) {
+    const current = pending.pop()!;
+    for (const dirent of readdirSync(path.join(root, current), { withFileTypes: true })) {
+      const relative = current === "" ? dirent.name : `${current}/${dirent.name}`;
+      if (dirent.isDirectory()) {
+        pending.push(relative);
+      } else if (dirent.name.endsWith(".json")) {
+        files.push(relative);
+      }
+    }
+  }
+  return files.sort();
+}
 
 /**
  * The claim-use gates over every committed result record (t2, t3; R-GOV-2):
  * `stronger-claim-candidate` requires maintainer review, any claim use above
  * `none` requires a qualifying verdict, and a caveated record put to claim
  * use must surface its caveats. The directory may be absent — no run has been
- * recorded — which is honest absence, not an error.
+ * recorded — which is honest absence, not an error. The walk recurses so the
+ * PRD 43 R-ORG-2 `results/<harness>/` layout is fully covered — a committed
+ * record can never sit outside these gates by nesting.
  */
 export function listCommittedResultRecordClaimUseErrors(input: {
   repoRoot: string;
@@ -656,9 +709,7 @@ export function listCommittedResultRecordClaimUseErrors(input: {
   if (!existsSync(resultsDir)) {
     return errors;
   }
-  for (const name of readdirSync(resultsDir)
-    .filter((entry) => entry.endsWith(".json"))
-    .sort()) {
+  for (const name of listResultRecordFiles(resultsDir)) {
     const relative = `${CONFORMANCE_RESULT_RECORDS_DIR}/${name}`;
     let record: PackagingConformanceResultRecord;
     try {

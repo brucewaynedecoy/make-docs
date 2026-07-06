@@ -1,12 +1,13 @@
 /**
- * The W18 R9 packaging conformance scenario contract and evidence bar
- * (PRD 37 R-BAR-1..2, R-SCEN-1..2, R-KEEP-1; W18 R9 P2 t1-t9).
+ * The packaging conformance scenario contract and evidence bar
+ * (PRD 37 R-BAR-1..2 as revised by PRD 43 R-ORG-1, R-SCHEMA-1..3, R-DISC-1;
+ * W18 R9 P2 t1-t9; W18 R13 P1 t1-t3).
  *
  * The install-discover-invoke-uninstall bar is implemented here as the
- * scenario SHAPE for packaging conformance (t1): a packaging scenario spec
- * declares, per bar stage, the assertions a run must prove, and the recording
- * seam ({@link recordConformanceRunOnRegistryEntry}) binds run outcomes onto
- * the Phase 1 tuple registry (t2) — a qualifying `pass`, or
+ * scenario SHAPE for packaging conformance (t1): a packaging scenario
+ * definition declares, per bar stage, the assertions a run must prove, and
+ * the recording seam ({@link recordConformanceRunOnRegistryEntry}) binds run
+ * outcomes onto the Phase 1 tuple registry (t2) — a qualifying `pass`, or
  * `pass-with-caveats` with surfaced caveats, that met every stage advances
  * the tuple to `conformance-validated`; nothing else advances anything, and
  * internal tests stay capped at `implementation-validated` by the Phase 1
@@ -24,31 +25,57 @@
  * carried under the spec's `packagingExtension` key so the extension boundary
  * is visible in the data itself.
  *
- * Implementer decisions recorded here (D8 freedoms):
- * - Spec format: one JSON document per scenario under
- *   `conformance/scenarios/<scenarioId>.json` (the lab permits
- *   YAML or JSON; JSON matches the tuple registry's no-parser-dependency
- *   choice, and the filename-equals-scenarioId rule keeps specs addressable
- *   without opening them).
- * - Faithful-simulation mechanics (t3): a spec's
- *   `packagingExtension.harnessExecution` declares `real-harness` or
- *   `faithful-simulation`; the simulation mode MUST document its reviewed
- *   mechanics in the spec, every result record states `simulated` (with a
- *   `simulationMechanicsRef` naming the mechanics used), and the recording
- *   seam refuses a run whose simulation posture disagrees with its scenario's
- *   declared mode. The four first-pass Codex scenarios all declare
- *   `real-harness`: no faithful simulation of Codex exists yet, so simulation
- *   never silently substitutes for the real harness.
- * - Precondition probes (t8): preconditions carry cheap, local, read-only
- *   probes — `command-succeeds` for harness CLI availability and
- *   authentication, `operator-attestation` for network and model routing,
- *   which cannot be probed without spending them. An unmet precondition
- *   resolves to an honest `blocked` result record
+ * Definitions by domain, evidence by target (PRD 43, register item D-025):
+ * scenario definitions are harness-agnostic. A definition id is
+ * domain-qualified (`<domain>/<outcome>`, e.g.
+ * `packaging/plugin-marketplace-install`) and never carries a harness token;
+ * everything that names an execution target — `harnessExecution`, the
+ * registry tuple linkage, and target-specific precondition probes — lives in
+ * the extension's `targets` map keyed by harness id. The retired
+ * `futureHarnesses` list is replaced structurally (R-SCHEMA-2): a harness
+ * with no entry in a definition's `targets` map is an uncovered target whose
+ * absence the registry's scenario-absence notes report; it is never implied
+ * as covered, and the extension schema is strict so a definition carrying
+ * top-level `harness`, `futureHarnesses`, or the retired `characterization`
+ * spelling fails validation.
+ *
+ * Implementer decisions recorded here (D8 freedoms; W18 R13 P1):
+ * - Spec format: one JSON document per definition under
+ *   `conformance/scenarios/<domain>/<outcome>.json` (the lab permits YAML or
+ *   JSON; JSON matches the tuple registry's no-parser-dependency choice, and
+ *   the path-equals-scenarioId rule keeps definitions addressable without
+ *   opening them). The first and only current domain is `packaging`;
+ *   `playbook-runs` is the named future domain, created only when its first
+ *   definition lands (R-ORG-1).
+ * - Faithful-simulation mechanics (t3): a target binding's `harnessExecution`
+ *   declares `real-harness` or `faithful-simulation`; the simulation mode
+ *   MUST document its reviewed mechanics in the binding, every result record
+ *   states `simulated` (with a `simulationMechanicsRef` naming the mechanics
+ *   used), and the recording seam refuses a run whose simulation posture
+ *   disagrees with its scenario's declared mode. The four first-pass Codex
+ *   bindings all declare `real-harness`: no faithful simulation of Codex
+ *   exists, so simulation never silently substitutes for the real harness.
+ * - Precondition template vs. per-target probes (t1, R-SCHEMA-1): the
+ *   definition-level precondition template declares WHICH preconditions exist
+ *   and which are attestation-only (`command-succeeds` marks a probeable
+ *   precondition; `operator-attestation` marks network and model routing,
+ *   which cannot be probed without spending them), while the concrete probe
+ *   command for every probeable precondition lives on each target binding —
+ *   target knowledge never sits in the definition body. An unmet
+ *   precondition resolves to an honest `blocked` result record
  *   ({@link blockedPackagingResultRecord}) with `supportClaimUse: "none"` and
  *   an all-false evidence bar, which never advances a tuple.
- * - Bar completeness (t1): a spec must assert every one of the four stages to
- *   be bar-eligible ({@link scenarioAssertsFullEvidenceBar}), and the
- *   recording seam refuses a run claiming a stage its scenario does not
+ * - The discovery kit (t2, R-DISC-1): the R-021 characterization preamble is
+ *   renamed and generalized to `discoveryKit`, carried on a target binding
+ *   (the plugin definition's Codex binding carries it) with the
+ *   `resolvesProbe` linkage to register item R-021 preserved verbatim.
+ * - Transcript homes (register item D-024, PRD 44 R-NAME-2): no default ever
+ *   names a repo-local transcript home. A blocked-before-execution record's
+ *   transcript pointer defaults to `discarded-with-session`; retained raw
+ *   evidence belongs to the machine-level store's lab area.
+ * - Bar completeness (t1): a definition must assert every one of the four
+ *   stages to be bar-eligible ({@link scenarioAssertsFullEvidenceBar}), and
+ *   the recording seam refuses a run claiming a stage its scenario does not
  *   assert — so a scenario missing any assertion structurally cannot advance
  *   a tuple (R-BAR-1).
  */
@@ -97,23 +124,36 @@ export const CONFORMANCE_SUPPORT_CLAIM_USES = [
 export const CONFORMANCE_SCENARIO_SCHEMA_VERSION = "conformance.scenario.v1";
 export const CONFORMANCE_RESULT_SCHEMA_VERSION = "conformance.result.v1";
 
-/** Repo-relative home of the packaging scenario specs (R-SCEN-1; home revised by PRD 42). */
+/**
+ * Repo-relative home of the packaging scenario definitions. Definitions are
+ * harness-agnostic and organize by scenario domain under
+ * `conformance/scenarios/<domain>/<outcome>.json` (PRD 43 R-ORG-1; home
+ * revised by PRD 42).
+ */
 export const CONFORMANCE_SCENARIO_SPECS_DIR = "conformance/scenarios";
 
 /**
- * The four required R-SCEN-1 first-pass scenarios, Codex first, mapped to the
- * user-visible outcome each must prove. Phase 3's R-TEST-2 runnability check
- * consumes this constant; absence of any of these specs is a failure, never a
- * silent gap.
+ * The execution target the required first-pass definitions must bind
+ * (PRD 43 R-SCHEMA-3): the required set remains exactly the four packaging
+ * outcomes bound to Codex targets.
+ */
+export const REQUIRED_FIRST_PASS_TARGET = "codex";
+
+/**
+ * The four required first-pass scenario outcomes (PRD 37 R-SCEN-1 as revised
+ * by PRD 43 R-SCHEMA-3), keyed by their domain-qualified, harness-agnostic
+ * ids and mapped to the user-visible outcome each must prove. The R-TEST-2
+ * runnability check consumes this constant; absence of any of these
+ * definitions is a failure, never a silent gap.
  */
 export const REQUIRED_FIRST_PASS_SCENARIOS = {
-  "codex-skills-bundle-discovery-invocation":
+  "packaging/skills-bundle-discovery-invocation":
     "a generated skills bundle appears as a skill in the target harness and can be invoked",
-  "codex-plugin-marketplace-install":
+  "packaging/plugin-marketplace-install":
     "a generated plugin appears through a marketplace, installs, exposes its bundled skills, and is usable in a new thread",
-  "codex-dependency-check-both-directions":
+  "packaging/dependency-check-both-directions":
     "generated dependency checks surface missing tools and pass when the dependencies are present",
-  "codex-uninstall-backup-cleanliness":
+  "packaging/uninstall-backup-cleanliness":
     "uninstall and backup remove managed generated outputs without orphaning empty managed directories or deleting user-authored files",
 } as const;
 export type RequiredFirstPassScenarioId = keyof typeof REQUIRED_FIRST_PASS_SCENARIOS;
@@ -136,6 +176,35 @@ export type ConformanceScenarioPreconditionKind =
 const slugSchema = z
   .string()
   .regex(/^[a-z0-9][a-z0-9-]*$/, "ids are lowercase hyphenated slugs");
+
+/**
+ * A scenario definition id is domain-qualified: `<domain>/<outcome>`, both
+ * parts lowercase hyphenated slugs, no harness token anywhere (PRD 43
+ * R-ORG-1; register item D-025).
+ */
+const scenarioIdSchema = z
+  .string()
+  .regex(
+    /^[a-z0-9][a-z0-9-]*\/[a-z0-9][a-z0-9-]*$/,
+    "scenario ids are domain-qualified (`<domain>/<outcome>`) lowercase hyphenated slugs",
+  );
+
+/** Splits a domain-qualified scenario id into its domain and outcome parts. */
+export function splitConformanceScenarioId(scenarioId: string): {
+  domain: string;
+  outcome: string;
+} {
+  const separator = scenarioId.indexOf("/");
+  if (separator === -1) {
+    throw new OperationError(
+      `Scenario id \`${scenarioId}\` is not domain-qualified; ids are \`<domain>/<outcome>\` (R-ORG-1).`,
+    );
+  }
+  return {
+    domain: scenarioId.slice(0, separator),
+    outcome: scenarioId.slice(separator + 1),
+  };
+}
 
 const barStageSchema = z.enum(CONFORMANCE_EVIDENCE_BAR_STAGES);
 
@@ -180,28 +249,41 @@ const stepSchema = z.discriminatedUnion("kind", [
 ]);
 export type PackagingConformanceScenarioStep = z.infer<typeof stepSchema>;
 
-const preconditionProbeSchema = z.discriminatedUnion("check", [
-  z.object({
-    check: z.literal("command-succeeds"),
+/**
+ * The definition-level precondition TEMPLATE (t8; PRD 43 R-SCHEMA-1): which
+ * preconditions exist and which are attestation-only. `command-succeeds`
+ * marks a probeable precondition whose concrete probe command lives on each
+ * target binding ({@link targetBindingSchema}); `operator-attestation` marks
+ * the expensive preconditions (network, model routing) that cannot be probed
+ * without spending them and require explicit operator attestation at run
+ * time.
+ */
+const preconditionTemplateSchema = z
+  .object({
+    id: slugSchema,
+    kind: z.enum(CONFORMANCE_SCENARIO_PRECONDITION_KINDS),
+    description: z.string().min(1),
+    probe: z.enum(["command-succeeds", "operator-attestation"]),
+    /**
+     * Always `blocked` (R-KEEP-1): the value is embedded so every definition
+     * states, in its own data, that an unmet precondition is honest absence
+     * of evidence, never invented evidence.
+     */
+    onUnmet: z.literal("blocked"),
+  })
+  .strict();
+export type PackagingScenarioPrecondition = z.infer<typeof preconditionTemplateSchema>;
+
+/** A target binding's concrete probe command for one probeable precondition. */
+const preconditionProbeCommandSchema = z
+  .object({
     command: z.string().min(1),
     args: z.array(z.string().min(1)),
-  }),
-  z.object({ check: z.literal("operator-attestation") }),
-]);
-
-const preconditionSchema = z.object({
-  id: slugSchema,
-  kind: z.enum(CONFORMANCE_SCENARIO_PRECONDITION_KINDS),
-  description: z.string().min(1),
-  probe: preconditionProbeSchema,
-  /**
-   * Always `blocked` (R-KEEP-1): the value is embedded so every spec states,
-   * in its own data, that an unmet precondition is honest absence of
-   * evidence, never invented evidence.
-   */
-  onUnmet: z.literal("blocked"),
-});
-export type PackagingScenarioPrecondition = z.infer<typeof preconditionSchema>;
+  })
+  .strict();
+export type PackagingScenarioPreconditionProbeCommand = z.infer<
+  typeof preconditionProbeCommandSchema
+>;
 
 const harnessExecutionSchema = z.discriminatedUnion("mode", [
   z.object({ mode: z.literal("real-harness"), simulationMechanics: z.null() }),
@@ -213,28 +295,59 @@ const harnessExecutionSchema = z.discriminatedUnion("mode", [
 ]);
 
 /**
- * The characterization preamble (t5; register item R-021). Before asserting
- * the bar, a scenario carrying this block first characterizes what the real
+ * The discovery kit (PRD 43 R-DISC-1; register item R-021): the renamed and
+ * generalized characterization preamble. Before asserting the bar, a target
+ * binding carrying this block first records ground truth for what the real
  * harness version accepts — e.g. a hand-minimal plugin independent of Make
- * Docs establishing the marketplace source shape and plugin layout Codex
- * actually recognizes — then diffs the generated shapes against that ground
- * truth. This is the recorded plan for resolving a negative recognition
- * probe: bar assertions run only after ground truth exists, so a failure
- * distinguishes "our shapes are wrong" from "the harness cannot do this".
+ * Docs establishing the marketplace source shape and plugin layout the
+ * harness actually recognizes — then diffs the generated shapes against that
+ * ground truth. This is the recorded plan for resolving a negative
+ * recognition probe: bar assertions run only after ground truth exists, so a
+ * failure distinguishes "our shapes are wrong" from "the harness cannot do
+ * this". Discovery findings feed descriptor corrections, never evidence-bar
+ * relaxations.
  */
-const characterizationSchema = z.object({
-  purpose: z.string().min(1),
-  resolvesProbe: z.object({
-    registerItem: z.string().min(1),
-    ref: z.string().min(1),
-    summary: z.string().min(1),
-  }),
-  ordering: z.literal("before-bar-assertions"),
-  groundTruthSteps: z.array(stepSchema).min(1),
-  diffTargets: z.array(z.string().min(1)).min(1),
-  recordedIn: z.string().min(1),
-});
-export type PackagingScenarioCharacterization = z.infer<typeof characterizationSchema>;
+const discoveryKitSchema = z
+  .object({
+    purpose: z.string().min(1),
+    resolvesProbe: z.object({
+      registerItem: z.string().min(1),
+      ref: z.string().min(1),
+      summary: z.string().min(1),
+    }),
+    ordering: z.literal("before-bar-assertions"),
+    groundTruthSteps: z.array(stepSchema).min(1),
+    diffTargets: z.array(z.string().min(1)).min(1),
+    recordedIn: z.string().min(1),
+  })
+  .strict();
+export type PackagingScenarioDiscoveryKit = z.infer<typeof discoveryKitSchema>;
+
+/**
+ * One execution-target binding (PRD 43 R-SCHEMA-1..2): everything that names
+ * a target lives here, keyed by harness id in the extension's `targets` map.
+ * A harness with no binding is an uncovered target — a reported gap, never
+ * implied coverage (the structural replacement for the retired
+ * `futureHarnesses` list).
+ */
+const targetBindingSchema = z
+  .object({
+    /** Registry entry ids (not tuple keys) this target's runs may land on. */
+    registryTupleIds: z.array(slugSchema).min(1),
+    harnessExecution: harnessExecutionSchema,
+    /**
+     * Concrete probe commands, one per probeable (`command-succeeds`)
+     * precondition in the definition-level template — validated exhaustive
+     * and exact by the spec-level refinement.
+     */
+    preconditionProbes: z.record(z.string(), preconditionProbeCommandSchema),
+    /** Optional target-specific parameters consumed by kit generation. */
+    parameters: z.record(z.string(), z.string()).optional(),
+    /** The first-run discovery kit, when this binding precedes bar assertion (R-DISC-1). */
+    discoveryKit: discoveryKitSchema.optional(),
+  })
+  .strict();
+export type PackagingScenarioTargetBinding = z.infer<typeof targetBindingSchema>;
 
 const evidenceBarAssertionsSchema = z.object({
   install: z.array(z.string().min(1)),
@@ -243,35 +356,36 @@ const evidenceBarAssertionsSchema = z.object({
   uninstall: z.array(z.string().min(1)),
 });
 
-const packagingExtensionSchema = z.object({
-  harness: z.string().min(1),
-  /** Registry entry ids (not tuple keys) this scenario's runs may land on. */
-  registryTupleIds: z.array(slugSchema).min(1),
-  /** Per-stage assertions; all four stages non-empty makes the spec bar-eligible (R-BAR-1). */
-  evidenceBar: evidenceBarAssertionsSchema,
-  preconditions: z.array(preconditionSchema).min(1),
-  harnessExecution: harnessExecutionSchema,
-  /** Evidence transcripts pin `--json` or run non-TTY (R-026, PRD 41 R-SEQ-2). */
-  transcriptPolicy: z.literal("json-or-non-tty"),
-  /** Nothing destructive against a maintainer working tree (R-KEEP-1). */
-  workspacePolicy: z.literal("disposable-fixture-workspace"),
-  /** Repo-relative v2-form source Playbooks the scenario packages. */
-  fixturePlaybooks: z.array(z.string().min(1)).min(1),
-  /** Harness variants deliberately NOT covered by this spec (R-SCEN-2). */
-  futureHarnesses: z.array(
-    z.object({
-      harness: z.string().min(1),
-      status: z.literal("future"),
-      note: z.string().min(1),
-    }),
-  ),
-  characterization: characterizationSchema.optional(),
-});
+/**
+ * The packaging extension (PRD 37, revised by PRD 43 R-SCHEMA-1): the
+ * definition-level, target-independent fields plus the per-target `targets`
+ * map. Strict by design so the superseded spellings — top-level `harness`,
+ * `harnessExecution`, `registryTupleIds`, `futureHarnesses`, and
+ * `characterization` — are rejected rather than silently ignored.
+ */
+const packagingExtensionSchema = z
+  .object({
+    /** The scenario domain this definition belongs to; must equal the id's prefix (R-ORG-1). */
+    domain: slugSchema,
+    /** Per-stage assertions; all four stages non-empty makes the spec bar-eligible (R-BAR-1). */
+    evidenceBar: evidenceBarAssertionsSchema,
+    /** The definition-level precondition template (probeable vs. attestation-only). */
+    preconditions: z.array(preconditionTemplateSchema).min(1),
+    /** Evidence transcripts pin `--json` or run non-TTY (R-026, PRD 41 R-SEQ-2). */
+    transcriptPolicy: z.literal("json-or-non-tty"),
+    /** Nothing destructive against a maintainer working tree (R-KEEP-1). */
+    workspacePolicy: z.literal("disposable-fixture-workspace"),
+    /** Repo-relative v2-form source Playbooks the scenario packages. */
+    fixturePlaybooks: z.array(z.string().min(1)).min(1),
+    /** Execution-target bindings keyed by harness id (R-SCHEMA-1..2). */
+    targets: z.record(slugSchema, targetBindingSchema),
+  })
+  .strict();
 
 const scenarioSpecSchema = z
   .object({
     schemaVersion: z.literal(CONFORMANCE_SCENARIO_SCHEMA_VERSION),
-    scenarioId: slugSchema,
+    scenarioId: scenarioIdSchema,
     scenarioVersion: z.string().min(1),
     title: z.string().min(1),
     sourceRequirements: z.array(z.string().min(1)).min(1),
@@ -295,7 +409,18 @@ const scenarioSpecSchema = z
           "a destructive scenario must use the destructive-temp-fixture-apply safety mode (PRD 20, R-KEEP-1)",
       });
     }
+    const { domain } = splitConformanceScenarioId(spec.scenarioId);
+    if (spec.packagingExtension.domain !== domain) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["packagingExtension", "domain"],
+        message:
+          `domain \`${spec.packagingExtension.domain}\` does not match the scenario id's ` +
+          `domain prefix \`${domain}\` (R-ORG-1)`,
+      });
+    }
     const preconditionIds = new Set<string>();
+    const probeablePreconditionIds = new Set<string>();
     for (const precondition of spec.packagingExtension.preconditions) {
       if (preconditionIds.has(precondition.id)) {
         context.addIssue({
@@ -305,6 +430,9 @@ const scenarioSpecSchema = z
         });
       }
       preconditionIds.add(precondition.id);
+      if (precondition.probe === "command-succeeds") {
+        probeablePreconditionIds.add(precondition.id);
+      }
     }
     const preconditionKinds = new Set(
       spec.packagingExtension.preconditions.map((precondition) => precondition.kind),
@@ -325,9 +453,39 @@ const scenarioSpecSchema = z
           "requiresNetwork is true but no network precondition resolves the missing-network case to blocked (R-KEEP-1)",
       });
     }
+    // Every target binding must carry a concrete probe command for exactly
+    // the probeable preconditions: a probeable precondition without a probe
+    // cannot resolve blocked honestly, and a probe for an attestation-only
+    // or undeclared precondition is target knowledge with no template home.
+    for (const [harness, binding] of Object.entries(spec.packagingExtension.targets)) {
+      for (const preconditionId of probeablePreconditionIds) {
+        if (!(preconditionId in binding.preconditionProbes)) {
+          context.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["packagingExtension", "targets", harness, "preconditionProbes"],
+            message:
+              `target \`${harness}\` carries no probe command for probeable precondition ` +
+              `\`${preconditionId}\` (R-SCHEMA-1)`,
+          });
+        }
+      }
+      for (const preconditionId of Object.keys(binding.preconditionProbes)) {
+        if (!probeablePreconditionIds.has(preconditionId)) {
+          context.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["packagingExtension", "targets", harness, "preconditionProbes"],
+            message:
+              `target \`${harness}\` carries a probe command for \`${preconditionId}\`, which is ` +
+              "not a probeable precondition in the definition's template (R-SCHEMA-1)",
+          });
+        }
+      }
+    }
     const allSteps: PackagingConformanceScenarioStep[] = [
       ...spec.steps,
-      ...(spec.packagingExtension.characterization?.groundTruthSteps ?? []),
+      ...Object.values(spec.packagingExtension.targets).flatMap(
+        (binding) => binding.discoveryKit?.groundTruthSteps ?? [],
+      ),
     ];
     for (const step of allSteps) {
       if (step.kind !== "command") {
@@ -351,6 +509,27 @@ const scenarioSpecSchema = z
     }
   });
 export type PackagingConformanceScenarioSpec = z.infer<typeof scenarioSpecSchema>;
+
+/**
+ * Resolves one execution-target binding, failing closed when the harness has
+ * no entry in the definition's `targets` map: an uncovered target is a
+ * reported gap, never implied coverage (PRD 43 R-SCHEMA-2, PRD 37 R-SCEN-2).
+ */
+export function getScenarioTargetBinding(
+  spec: PackagingConformanceScenarioSpec,
+  harness: string,
+): PackagingScenarioTargetBinding {
+  const binding = spec.packagingExtension.targets[harness];
+  if (!binding) {
+    const covered = Object.keys(spec.packagingExtension.targets).sort();
+    throw new OperationError(
+      `Scenario \`${spec.scenarioId}\` binds no \`${harness}\` target; covered targets: ` +
+        `${covered.length > 0 ? covered.join(", ") : "(none)"}. An uncovered target is a ` +
+        "reported gap, never implied coverage (R-SCHEMA-2, R-SCEN-2).",
+    );
+  }
+  return binding;
+}
 
 /** Bar stages the spec declares no assertion for; non-empty means not bar-eligible. */
 export function listUnassertedEvidenceBarStages(
@@ -387,13 +566,17 @@ export function validatePackagingConformanceScenarioSpec(
   return parsed.data;
 }
 
-/** Loads one spec file; the filename (minus `.json`) must equal its scenarioId. */
+/**
+ * Loads one definition file. The domain-qualified scenario id must equal the
+ * file's `<domain>/<outcome>.json` path tail, so a definition is addressable
+ * from its id without opening it (R-ORG-1).
+ */
 export function loadPackagingConformanceScenarioSpec(
   specPath: string,
 ): PackagingConformanceScenarioSpec {
   if (!existsSync(specPath)) {
     throw new OperationError(
-      `Packaging conformance scenario spec not found at \`${specPath}\` (R-SCEN-1).`,
+      `Packaging conformance scenario definition not found at \`${specPath}\` (R-ORG-1).`,
     );
   }
   let document: unknown;
@@ -401,23 +584,27 @@ export function loadPackagingConformanceScenarioSpec(
     document = JSON.parse(readFileSync(specPath, "utf8")) as unknown;
   } catch (error) {
     throw new OperationError(
-      `Packaging conformance scenario spec at \`${specPath}\` is not valid JSON: ${String(error)}`,
+      `Packaging conformance scenario definition at \`${specPath}\` is not valid JSON: ${String(error)}`,
     );
   }
   const spec = validatePackagingConformanceScenarioSpec(document);
-  const expectedName = `${spec.scenarioId}.json`;
-  if (path.basename(specPath) !== expectedName) {
+  const expectedTail = `${spec.scenarioId}.json`;
+  const normalized = specPath.split(path.sep).join("/");
+  if (!normalized.endsWith(`/${expectedTail}`)) {
     throw new OperationError(
-      `Scenario spec file \`${path.basename(specPath)}\` must be named after its scenarioId: \`${expectedName}\`.`,
+      `Scenario definition at \`${specPath}\` must live at its domain-qualified id path: ` +
+        `\`${CONFORMANCE_SCENARIO_SPECS_DIR}/${expectedTail}\` (R-ORG-1).`,
     );
   }
   return spec;
 }
 
 /**
- * Loads every authored scenario spec from the maintainer repo. Fails closed:
- * a missing directory, an empty directory, or a duplicate scenarioId is an
- * error, so absence can never read as coverage (R-SCEN-2).
+ * Loads every authored scenario definition from the maintainer repo,
+ * recursing into the `scenarios/<domain>/` layout (R-ORG-1). Fails closed: a
+ * missing directory, an empty directory, a definition file outside a domain
+ * subdirectory, or a duplicate scenarioId is an error, so absence can never
+ * read as coverage (R-SCEN-2).
  */
 export function loadPackagingConformanceScenarioSpecs(
   input: { repoRoot?: string } = {},
@@ -428,23 +615,41 @@ export function loadPackagingConformanceScenarioSpecs(
   );
   if (!existsSync(specsDir)) {
     throw new OperationError(
-      `Packaging conformance scenario specs directory not found at \`${specsDir}\`; ` +
-        `specs are maintainer-only in-repo content under ${CONFORMANCE_SCENARIO_SPECS_DIR} (R-SCEN-1).`,
+      `Packaging conformance scenario definitions directory not found at \`${specsDir}\`; ` +
+        `definitions are maintainer-only in-repo content under ${CONFORMANCE_SCENARIO_SPECS_DIR}/<domain>/ (R-ORG-1).`,
     );
   }
-  const files = readdirSync(specsDir)
-    .filter((name) => name.endsWith(".json"))
-    .sort();
-  if (files.length === 0) {
+  const entries = readdirSync(specsDir, { withFileTypes: true }).sort((a, b) =>
+    a.name.localeCompare(b.name),
+  );
+  const strayFiles = entries.filter(
+    (entry) => entry.isFile() && entry.name.endsWith(".json"),
+  );
+  if (strayFiles.length > 0) {
     throw new OperationError(
-      `No packaging conformance scenario specs found under \`${specsDir}\` (R-SCEN-1).`,
+      `Scenario definitions must live under a domain subdirectory (\`${CONFORMANCE_SCENARIO_SPECS_DIR}/<domain>/\`), ` +
+        `found flat file(s): ${strayFiles.map((entry) => entry.name).join(", ")} (R-ORG-1).`,
     );
   }
-  const specs = files.map((name) => loadPackagingConformanceScenarioSpec(path.join(specsDir, name)));
+  const specPaths: string[] = [];
+  for (const domainEntry of entries.filter((entry) => entry.isDirectory())) {
+    const domainDir = path.join(specsDir, domainEntry.name);
+    for (const name of readdirSync(domainDir)
+      .filter((fileName) => fileName.endsWith(".json"))
+      .sort()) {
+      specPaths.push(path.join(domainDir, name));
+    }
+  }
+  if (specPaths.length === 0) {
+    throw new OperationError(
+      `No packaging conformance scenario definitions found under \`${specsDir}\` (R-ORG-1).`,
+    );
+  }
+  const specs = specPaths.map((specPath) => loadPackagingConformanceScenarioSpec(specPath));
   const seen = new Set<string>();
   for (const spec of specs) {
     if (seen.has(spec.scenarioId)) {
-      throw new OperationError(`Duplicate scenario spec id \`${spec.scenarioId}\`.`);
+      throw new OperationError(`Duplicate scenario definition id \`${spec.scenarioId}\`.`);
     }
     seen.add(spec.scenarioId);
   }
@@ -489,30 +694,48 @@ export interface ScenarioPreconditionProbeReport {
 }
 
 /**
- * Probes every declared precondition. `command-succeeds` probes run locally;
- * `operator-attestation` preconditions (network, model routing) are satisfied
- * only when the operator explicitly attests the precondition id — the default
- * is unmet, so an unattended probe honestly resolves `blocked` rather than
- * assuming the expensive preconditions hold.
+ * Probes every declared precondition for one execution target. Probeable
+ * (`command-succeeds`) preconditions run the target binding's concrete probe
+ * command locally; `operator-attestation` preconditions (network, model
+ * routing) are satisfied only when the operator explicitly attests the
+ * precondition id — the default is unmet, so an unattended probe honestly
+ * resolves `blocked` rather than assuming the expensive preconditions hold.
+ * A harness with no target binding fails closed as an uncovered target.
  */
 export function probePackagingScenarioPreconditions(
   spec: PackagingConformanceScenarioSpec,
-  options: { executor: ScenarioPreconditionExecutor; attestations?: string[] },
+  options: {
+    harness: string;
+    executor: ScenarioPreconditionExecutor;
+    attestations?: string[];
+  },
 ): ScenarioPreconditionProbeReport {
+  const binding = getScenarioTargetBinding(spec, options.harness);
   const attestations = new Set(options.attestations ?? []);
   const outcomes = spec.packagingExtension.preconditions.map(
     (precondition): ScenarioPreconditionProbeOutcome => {
-      if (precondition.probe.check === "command-succeeds") {
-        const { command, args } = precondition.probe;
-        const satisfied = options.executor.commandSucceeds(command, args);
+      if (precondition.probe === "command-succeeds") {
+        const probe = binding.preconditionProbes[precondition.id];
+        if (!probe) {
+          // Unreachable for a validated spec (the schema requires exhaustive
+          // probe coverage), kept fail-closed for hand-built inputs.
+          return {
+            id: precondition.id,
+            kind: precondition.kind,
+            description: precondition.description,
+            satisfied: false,
+            reason: `target \`${options.harness}\` declares no probe command for this precondition`,
+          };
+        }
+        const satisfied = options.executor.commandSucceeds(probe.command, probe.args);
         return {
           id: precondition.id,
           kind: precondition.kind,
           description: precondition.description,
           satisfied,
           reason: satisfied
-            ? `\`${command} ${args.join(" ")}\` succeeded`
-            : `\`${command} ${args.join(" ")}\` did not succeed`,
+            ? `\`${probe.command} ${probe.args.join(" ")}\` succeeded`
+            : `\`${probe.command} ${probe.args.join(" ")}\` did not succeed`,
         };
       }
       const satisfied = attestations.has(precondition.id);
@@ -540,7 +763,7 @@ const resultRecordSchema = z
     // The lab result contract (PRD 20), field names preserved verbatim.
     schemaVersion: z.literal(CONFORMANCE_RESULT_SCHEMA_VERSION),
     resultId: z.string().min(1),
-    scenarioId: slugSchema,
+    scenarioId: scenarioIdSchema,
     scenarioVersion: z.string().min(1),
     runDate: z.string().min(1),
     makeDocsVersion: z.string().min(1),
@@ -621,13 +844,27 @@ export function validatePackagingConformanceResultRecord(
 }
 
 /**
+ * The transcript pointer for a session whose raw transcript was discarded
+ * with its disposable lab-session workspace (register item D-024, PRD 44
+ * R-NAME-2): the honest default — nothing repo-local, nothing invented.
+ * Retained raw evidence points into the machine-level store's lab area
+ * instead.
+ */
+export const CONFORMANCE_TRANSCRIPT_DISCARDED_WITH_SESSION = "discarded-with-session";
+
+/**
  * Builds the honest `blocked` result record for a scenario whose
- * preconditions did not resolve (t8): verdict `blocked`, no bar stage
- * asserted, `supportClaimUse: "none"`, model and provider `unknown` because
- * no run reached a model. Recording this run on a tuple never advances it.
+ * preconditions did not resolve on one execution target (t8): verdict
+ * `blocked`, no bar stage asserted, `supportClaimUse: "none"`, model and
+ * provider `unknown` because no run reached a model. Recording this run on a
+ * tuple never advances it. The default transcript pointer states
+ * `discarded-with-session` — a blocked-before-execution session produced no
+ * transcript to keep, and no default ever names a repo-local transcript home
+ * (D-024).
  */
 export function blockedPackagingResultRecord(input: {
   spec: PackagingConformanceScenarioSpec;
+  harness: string;
   unmet: ScenarioPreconditionProbeOutcome[];
   runDate: string;
   makeDocsVersion: string;
@@ -635,22 +872,26 @@ export function blockedPackagingResultRecord(input: {
   runtimeVersion: string;
   transcriptLogPointer?: string;
 }): PackagingConformanceResultRecord {
+  // Fails closed when the harness is uncovered: even a blocked record may
+  // not imply a target binding that does not exist (R-SCHEMA-2).
+  getScenarioTargetBinding(input.spec, input.harness);
   if (input.unmet.length === 0) {
     throw new OperationError(
       "A blocked result record requires at least one unmet precondition; a runnable scenario must run instead.",
     );
   }
+  const { outcome } = splitConformanceScenarioId(input.spec.scenarioId);
   const unmetSummary = input.unmet
-    .map((outcome) => `${outcome.id} (${outcome.reason})`)
+    .map((probeOutcome) => `${probeOutcome.id} (${probeOutcome.reason})`)
     .join("; ");
   return {
     schemaVersion: CONFORMANCE_RESULT_SCHEMA_VERSION,
-    resultId: `${input.runDate}-${input.spec.scenarioId}-blocked`,
+    resultId: `${input.runDate}-${outcome}-blocked`,
     scenarioId: input.spec.scenarioId,
     scenarioVersion: input.spec.scenarioVersion,
     runDate: input.runDate,
     makeDocsVersion: input.makeDocsVersion,
-    harness: input.spec.packagingExtension.harness,
+    harness: input.harness,
     modelName: "unknown",
     providerOrRoutingLayer: "unknown",
     modelVersion: "unknown",
@@ -660,7 +901,7 @@ export function blockedPackagingResultRecord(input: {
     relevantDiffs: [],
     exitStatus: null,
     transcriptLogPointer:
-      input.transcriptLogPointer ?? ".make-docs/conformance/(not-created)/transcript.log",
+      input.transcriptLogPointer ?? CONFORMANCE_TRANSCRIPT_DISCARDED_WITH_SESSION,
     verdict: "blocked",
     reason: `Blocked before execution: unmet preconditions — ${unmetSummary}.`,
     caveats: [],
@@ -710,17 +951,22 @@ export function projectPackagingResultToRecordedRun(
  * the Phase 1 registry, and it fails closed on every mismatch that could
  * make a claim broader than its evidence:
  *
- * - the record must belong to the given scenario, and the scenario must
- *   target the entry (its `registryTupleIds` include the entry id) on the
- *   same harness;
+ * - the record must belong to the given scenario, and the scenario must bind
+ *   the record's harness as a target whose `registryTupleIds` include the
+ *   entry id, on the same harness as the entry's tuple;
  * - the record may not claim a bar stage the scenario does not assert — so a
  *   scenario missing any assertion structurally cannot advance a tuple;
- * - the record's simulation posture must match the scenario's declared
+ * - the record's simulation posture must match the target binding's declared
  *   harness-execution mode (t3);
  * - a qualifying run binds the evidence-owned tuple dimensions from its run
  *   metadata; a non-qualifying run (including `blocked`) is recorded as
  *   honest history and advances nothing. Internal-test evidence continues to
  *   cap at `implementation-validated` via the Phase 1 derivation.
+ *
+ * The seam's SEMANTICS are unchanged by the W18 R13 schema revision (PRD 43
+ * R-ING-2): the same refusals fire for the same reasons; only where the
+ * target knowledge lives moved (the `targets` map instead of a top-level
+ * `harness`).
  */
 export function recordConformanceRunOnRegistryEntry(input: {
   entry: ConformanceTupleRegistryEntry;
@@ -736,18 +982,17 @@ export function recordConformanceRunOnRegistryEntry(input: {
       `Result record \`${record.resultId}\` belongs to scenario \`${record.scenarioId}\`, not \`${spec.scenarioId}\`.`,
     );
   }
-  if (!spec.packagingExtension.registryTupleIds.includes(entry.id)) {
+  const binding = getScenarioTargetBinding(spec, record.harness);
+  if (!binding.registryTupleIds.includes(entry.id)) {
     throw new OperationError(
-      `Scenario \`${spec.scenarioId}\` does not target ${label}; a run may land only on a tuple its scenario declares (R-TUPLE-1).`,
+      `Scenario \`${spec.scenarioId}\` does not target ${label} on harness \`${record.harness}\`; ` +
+        "a run may land only on a tuple its scenario's target binding declares (R-TUPLE-1).",
     );
   }
-  if (
-    entry.tuple.harness !== spec.packagingExtension.harness ||
-    record.harness !== spec.packagingExtension.harness
-  ) {
+  if (entry.tuple.harness !== record.harness) {
     throw new OperationError(
-      `Harness mismatch: ${label} is \`${entry.tuple.harness}\`, scenario \`${spec.scenarioId}\` targets ` +
-        `\`${spec.packagingExtension.harness}\`, and the record ran \`${record.harness}\`; evidence never crosses harnesses (R-TUPLE-1).`,
+      `Harness mismatch: ${label} is \`${entry.tuple.harness}\` but the record ran ` +
+        `\`${record.harness}\`; evidence never crosses harnesses (R-TUPLE-1).`,
     );
   }
   const unasserted = listUnassertedEvidenceBarStages(spec);
@@ -760,11 +1005,11 @@ export function recordConformanceRunOnRegistryEntry(input: {
         `\`${spec.scenarioId}\` declares no assertion for; a scenario missing an assertion cannot advance a tuple (R-BAR-1).`,
     );
   }
-  const specSimulates = spec.packagingExtension.harnessExecution.mode === "faithful-simulation";
+  const specSimulates = binding.harnessExecution.mode === "faithful-simulation";
   if (record.simulated !== specSimulates) {
     throw new OperationError(
       `Result record \`${record.resultId}\` records simulated=${String(record.simulated)} but scenario ` +
-        `\`${spec.scenarioId}\` declares ${spec.packagingExtension.harnessExecution.mode}; ` +
+        `\`${spec.scenarioId}\` declares ${binding.harnessExecution.mode} for target \`${record.harness}\`; ` +
         "simulation is a reviewed spec-level choice, never a per-run improvisation (D8, t3).",
     );
   }
@@ -798,11 +1043,13 @@ export function recordConformanceRunOnRegistryEntry(input: {
 
 /**
  * Verifies the bidirectional linkage between registry entries and authored
- * scenario specs: every `plannedScenarios` id resolves to a loaded spec that
- * targets the entry on the same harness, every spec's `registryTupleIds`
- * resolves to an entry whose `plannedScenarios` carries the spec back, and a
- * planned scenario never pre-binds the tuple's `scenario` dimension. Returns
- * human-readable errors; empty means the linkage holds.
+ * scenario definitions: every `plannedScenarios` id resolves to a loaded
+ * definition that binds the entry's harness as a target whose
+ * `registryTupleIds` include the entry, every target binding's
+ * `registryTupleIds` resolves to an entry on the same harness whose
+ * `plannedScenarios` carries the definition back, and a planned scenario
+ * never pre-binds the tuple's `scenario` dimension. Returns human-readable
+ * errors; empty means the linkage holds.
  */
 export function listConformanceScenarioRegistryLinkageErrors(
   registry: { tuples: ConformanceTupleRegistryEntry[] },
@@ -816,18 +1063,22 @@ export function listConformanceScenarioRegistryLinkageErrors(
       const spec = specsById.get(scenarioId);
       if (!spec) {
         errors.push(
-          `entry \`${entry.id}\` plans scenario \`${scenarioId}\` but no spec with that id is authored under ${CONFORMANCE_SCENARIO_SPECS_DIR}`,
+          `entry \`${entry.id}\` plans scenario \`${scenarioId}\` but no definition with that id is authored under ${CONFORMANCE_SCENARIO_SPECS_DIR}`,
         );
         continue;
       }
-      if (!spec.packagingExtension.registryTupleIds.includes(entry.id)) {
+      const binding = spec.packagingExtension.targets[entry.tuple.harness];
+      if (!binding) {
         errors.push(
-          `entry \`${entry.id}\` plans scenario \`${scenarioId}\` but that spec does not target the entry`,
+          `entry \`${entry.id}\` (harness \`${entry.tuple.harness}\`) plans scenario \`${scenarioId}\` ` +
+            `which binds no \`${entry.tuple.harness}\` target; an uncovered target is a reported gap (R-SCHEMA-2)`,
         );
+        continue;
       }
-      if (spec.packagingExtension.harness !== entry.tuple.harness) {
+      if (!binding.registryTupleIds.includes(entry.id)) {
         errors.push(
-          `entry \`${entry.id}\` (harness \`${entry.tuple.harness}\`) plans scenario \`${scenarioId}\` which targets harness \`${spec.packagingExtension.harness}\``,
+          `entry \`${entry.id}\` plans scenario \`${scenarioId}\` but that definition's ` +
+            `\`${entry.tuple.harness}\` target binding does not target the entry`,
         );
       }
       if (entry.tuple.scenario !== null && entry.recordedRuns.length === 0) {
@@ -841,25 +1092,33 @@ export function listConformanceScenarioRegistryLinkageErrors(
     }
   }
   for (const spec of specs) {
-    for (const entryId of spec.packagingExtension.registryTupleIds) {
-      const entry = entriesById.get(entryId);
-      if (!entry) {
-        errors.push(
-          `scenario \`${spec.scenarioId}\` targets registry entry \`${entryId}\` which does not exist`,
-        );
-        continue;
-      }
-      if (!entry.plannedScenarios.includes(spec.scenarioId)) {
-        errors.push(
-          `scenario \`${spec.scenarioId}\` targets entry \`${entryId}\` but the entry does not plan it back; the linkage is bidirectional (t9)`,
-        );
+    for (const [harness, binding] of Object.entries(spec.packagingExtension.targets)) {
+      for (const entryId of binding.registryTupleIds) {
+        const entry = entriesById.get(entryId);
+        if (!entry) {
+          errors.push(
+            `scenario \`${spec.scenarioId}\` (target \`${harness}\`) targets registry entry \`${entryId}\` which does not exist`,
+          );
+          continue;
+        }
+        if (entry.tuple.harness !== harness) {
+          errors.push(
+            `scenario \`${spec.scenarioId}\` binds target \`${harness}\` onto entry \`${entryId}\` ` +
+              `whose tuple harness is \`${entry.tuple.harness}\`; evidence never crosses harnesses (R-TUPLE-1)`,
+          );
+        }
+        if (!entry.plannedScenarios.includes(spec.scenarioId)) {
+          errors.push(
+            `scenario \`${spec.scenarioId}\` targets entry \`${entryId}\` but the entry does not plan it back; the linkage is bidirectional (t9)`,
+          );
+        }
       }
     }
   }
   return errors;
 }
 
-/** The required first-pass scenario ids not yet authored as specs (R-SCEN-1, pre-figuring R-TEST-2). */
+/** The required first-pass scenario ids not yet authored as definitions (R-SCHEMA-3, pre-figuring R-TEST-2). */
 export function listMissingRequiredFirstPassScenarioIds(
   specs: PackagingConformanceScenarioSpec[],
 ): RequiredFirstPassScenarioId[] {

@@ -1,9 +1,11 @@
 /**
- * W18 R9 P3 coverage: the three named test layers declared where the tests
- * live (t1/t2, R-LAYER-1..2) and the D9 meta-verification checks (t3-t5,
- * R-TEST-1..3), run in the standard suite so a regression in the committed
- * tuple registry, the required scenario set, the layer attribution of cited
- * evidence, or the maintainer-only shipping boundary fails the build. The
+ * W18 R9 P3 coverage, retargeted by W18 R13 P1 (PRD 43 R-SCHEMA-3): the
+ * three named test layers declared where the tests live (t1/t2,
+ * R-LAYER-1..2) and the D9 meta-verification checks (t3-t5, R-TEST-1..3)
+ * over the domain-qualified `scenarios/<domain>/` definitions, run in the
+ * standard suite so a regression in the committed tuple registry, the
+ * required scenario set, the layer attribution of cited evidence, or the
+ * maintainer-only shipping boundary fails the build. The
  * R-TEST-3 exclusion check additionally runs in the packaging validation
  * surface: `tests/consistency.test.ts` (behind `validate:defaults`) for the
  * shipped template trees and `scripts/smoke-pack.mjs` for the npm tarball.
@@ -27,12 +29,14 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, test } from "vitest";
 import {
   CONFORMANCE_ASSET_CONTENT_MARKERS,
+  CONFORMANCE_ASSET_PATH_MARKERS,
   CONFORMANCE_TEST_LAYERS,
   CONFORMANCE_TEST_LAYER_MEANINGS,
   CONFORMANCE_TUPLE_STATUS_MEANINGS,
   CONFORMANCE_VERDICT_DERIVATION_RULES,
   REPOSITORY_TEST_LAYERS,
   REQUIRED_FIRST_PASS_SCENARIOS,
+  REQUIRED_FIRST_PASS_TARGET,
   bindConformanceSupportTuple,
   blockedPackagingResultRecord,
   listConformanceAssetExclusionViolations,
@@ -94,13 +98,13 @@ function unboundCodexTuple(): ConformanceSupportTuple {
 function qualifyingRun(overrides: Partial<ConformanceRecordedRun> = {}): ConformanceRecordedRun {
   return {
     runId: "run-0001",
-    scenario: "codex-plugin-marketplace-install",
+    scenario: "packaging/plugin-marketplace-install",
     runDate: "2026-07-04",
     verdict: "pass",
     caveats: [],
     caveatsSurfaced: false,
     evidenceBar: { install: true, discover: true, invoke: true, uninstall: true },
-    recordRef: "conformance/results/run-0001.json",
+    recordRef: "conformance/results/codex/run-0001.json",
     modelOrProvider: "anthropic",
     runtime: "codex-cli",
     simulated: false,
@@ -235,7 +239,7 @@ describe("R-TEST-1: no conformance-validated tuple without a qualifying recorded
   test("a qualifying run understated as a lower status is flagged in the other direction", () => {
     const boundTuple: ConformanceSupportTuple = {
       ...unboundCodexTuple(),
-      scenario: "codex-plugin-marketplace-install",
+      scenario: "packaging/plugin-marketplace-install",
       modelOrProvider: "anthropic",
       runtime: "codex-cli",
     };
@@ -252,14 +256,14 @@ describe("R-TEST-1: no conformance-validated tuple without a qualifying recorded
   test("a recorded run whose result record is not committed is not evidence", () => {
     const boundTuple: ConformanceSupportTuple = {
       ...unboundCodexTuple(),
-      scenario: "codex-plugin-marketplace-install",
+      scenario: "packaging/plugin-marketplace-install",
       modelOrProvider: "anthropic",
       runtime: "codex-cli",
     };
     const entry = entryFixture({
       tuple: boundTuple,
       status: "conformance-validated",
-      recordedRuns: [qualifyingRun({ recordRef: "conformance/results/missing.json" })],
+      recordedRuns: [qualifyingRun({ recordRef: "conformance/results/codex/missing.json" })],
     });
     // Without a repoRoot the run shape qualifies; with the receipts check the
     // missing committed record is a violation.
@@ -287,11 +291,27 @@ describe("R-TEST-2: required first-pass scenarios exist and are runnable-or-bloc
   test("a missing required scenario is a named failure, never a silent gap", () => {
     const registry = loadConformanceTupleRegistry({ repoRoot: REPO_ROOT });
     const specs = loadPackagingConformanceScenarioSpecs({ repoRoot: REPO_ROOT }).filter(
-      (spec) => spec.scenarioId !== "codex-plugin-marketplace-install",
+      (spec) => spec.scenarioId !== "packaging/plugin-marketplace-install",
     );
     const errors = listRequiredFirstPassScenarioErrors({ specs, registry, repoRoot: REPO_ROOT });
-    expect(errors.join("\n")).toContain("codex-plugin-marketplace-install");
+    expect(errors.join("\n")).toContain("packaging/plugin-marketplace-install");
     expect(errors.join("\n")).toContain("R-TEST-2");
+  });
+
+  test("a required scenario without a Codex target binding is flagged (R-SCHEMA-3)", () => {
+    const registry = loadConformanceTupleRegistry({ repoRoot: REPO_ROOT });
+    const specs = loadPackagingConformanceScenarioSpecs({ repoRoot: REPO_ROOT }).map((spec) =>
+      spec.scenarioId === "packaging/plugin-marketplace-install"
+        ? {
+            ...spec,
+            packagingExtension: { ...spec.packagingExtension, targets: {} },
+          }
+        : spec,
+    );
+    const errors = listRequiredFirstPassScenarioErrors({ specs, registry, repoRoot: REPO_ROOT });
+    expect(errors.join("\n")).toContain(
+      `binds no \`${REQUIRED_FIRST_PASS_TARGET}\` target`,
+    );
   });
 
   test("an unavailable harness resolves every required scenario to blocked, and blocked never advances", () => {
@@ -301,10 +321,14 @@ describe("R-TEST-2: required first-pass scenarios exist and are runnable-or-bloc
     const requiredIds = Object.keys(REQUIRED_FIRST_PASS_SCENARIOS);
     for (const spec of specs.filter((candidate) => requiredIds.includes(candidate.scenarioId))) {
       // No Codex CLI anywhere: the probe honestly reports not-runnable.
-      const report = probePackagingScenarioPreconditions(spec, { executor: failingExecutor });
+      const report = probePackagingScenarioPreconditions(spec, {
+        harness: REQUIRED_FIRST_PASS_TARGET,
+        executor: failingExecutor,
+      });
       expect(report.runnable, spec.scenarioId).toBe(false);
       const record = blockedPackagingResultRecord({
         spec,
+        harness: REQUIRED_FIRST_PASS_TARGET,
         unmet: report.unmet,
         runDate: "2026-07-04",
         makeDocsVersion: "0.0.0-test",
@@ -314,12 +338,13 @@ describe("R-TEST-2: required first-pass scenarios exist and are runnable-or-bloc
       expect(validatePackagingConformanceResultRecord(record).verdict).toBe("blocked");
       // Recording the blocked run is honest history: status and tuple stay
       // exactly as they were — blocked never silently passes (R-KEEP-1).
-      const targetEntry = entriesById.get(spec.packagingExtension.registryTupleIds[0]!)!;
+      const binding = spec.packagingExtension.targets[REQUIRED_FIRST_PASS_TARGET]!;
+      const targetEntry = entriesById.get(binding.registryTupleIds[0]!)!;
       const updated = recordConformanceRunOnRegistryEntry({
         entry: targetEntry,
         spec,
         record,
-        recordRef: `conformance/results/${record.resultId}.json`,
+        recordRef: `conformance/results/${REQUIRED_FIRST_PASS_TARGET}/${record.resultId}.json`,
       });
       expect(updated.status).toBe(targetEntry.status);
       expect(updated.tuple).toEqual(targetEntry.tuple);
@@ -330,7 +355,10 @@ describe("R-TEST-2: required first-pass scenarios exist and are runnable-or-bloc
   test("expensive preconditions require explicit operator attestation even when local probes pass", () => {
     const specs = loadPackagingConformanceScenarioSpecs({ repoRoot: REPO_ROOT });
     for (const spec of specs) {
-      const report = probePackagingScenarioPreconditions(spec, { executor: succeedingExecutor });
+      const report = probePackagingScenarioPreconditions(spec, {
+        harness: REQUIRED_FIRST_PASS_TARGET,
+        executor: succeedingExecutor,
+      });
       expect(report.runnable, spec.scenarioId).toBe(false);
       const unmetKinds = new Set(report.unmet.map((outcome) => outcome.kind));
       expect(unmetKinds).toContain("network");
@@ -429,6 +457,37 @@ describe("R-TEST-3: conformance assets never ship (t5)", () => {
       expect(violations.join("\n")).toContain("relocated/tuple-registry.json");
       expect(violations.join("\n")).toContain("relocated/renamed-registry.json");
       expect(violations.join("\n")).not.toContain("innocent.md");
+    } finally {
+      cleanupTempDir(root);
+    }
+  });
+
+  test("the asset markers match the scenarios/<domain>/ nesting: verified, not assumed (W18 R13 P1 t8)", () => {
+    // The R-TEST-2 layout moved definitions under `scenarios/<domain>/`
+    // (PRD 43 R-ORG-1); the `conformance/scenarios/` subtree marker must keep
+    // matching through that nesting at any depth.
+    expect(CONFORMANCE_ASSET_PATH_MARKERS).toContain("conformance/scenarios/");
+    const root = createTempDir("make-docs-meta-domain-nesting-");
+    try {
+      mkdirSync(path.join(root, "vendored/conformance/scenarios/packaging"), {
+        recursive: true,
+      });
+      writeFileSync(
+        path.join(
+          root,
+          "vendored/conformance/scenarios/packaging/plugin-marketplace-install.json",
+        ),
+        "{}",
+        "utf8",
+      );
+      const violations = listConformanceAssetExclusionViolations({
+        root,
+        label: "fixture tree",
+      });
+      expect(violations).toHaveLength(1);
+      expect(violations[0]).toContain(
+        "vendored/conformance/scenarios/packaging/plugin-marketplace-install.json",
+      );
     } finally {
       cleanupTempDir(root);
     }

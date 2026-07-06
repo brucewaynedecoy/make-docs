@@ -1,10 +1,11 @@
 {
   "schemaVersion": "conformance.scenario.v1",
-  "scenarioId": "codex-uninstall-backup-cleanliness",
-  "scenarioVersion": "1.0.0",
-  "title": "Codex uninstall and backup: managed outputs removed cleanly, user content untouched",
+  "scenarioId": "packaging/uninstall-backup-cleanliness",
+  "scenarioVersion": "2.0.0",
+  "title": "Uninstall and backup: managed outputs removed cleanly, user content untouched",
   "sourceRequirements": [
     "docs/prd/37-enhance-playbook-and-package-conformance.md",
+    "docs/prd/43-revise-conformance-scenario-model-and-execution-kit.md",
     "docs/prd/36-revise-playbook-packaging-compiler-and-harness-adapters.md",
     "docs/prd/20-revise-agent-harness-model-conformance-lab.md",
     "docs/work/2026-07-01-w18-r9-playbook-and-package-conformance/02-evidence-bar-and-first-pass-scenarios.md"
@@ -15,7 +16,8 @@
   "destructive": false,
   "prerequisites": [
     "Node.js >= 18 and the make-docs CLI built from this repository.",
-    "A fresh disposable fixture workspace; the scenario never touches a maintainer working tree. This scenario owns the PRD 36 R-PROV-2 cleanliness proof at the real-harness layer."
+    "A fresh disposable fixture workspace; the scenario never touches a maintainer working tree. This scenario owns the PRD 36 R-PROV-2 cleanliness proof at the real-harness layer.",
+    "Command steps below are rendered for the Codex first-pass target binding; projecting them for another bound target is owned by kit generation (PRD 43 R-KIT-1), never by hand-editing this definition."
   ],
   "steps": [
     {
@@ -32,13 +34,20 @@
     },
     {
       "kind": "command",
-      "run": "cd \"$WORKSPACE\" && make-docs run package ship --harness codex --output-kind plugin --surface native --scope project --package-id conformance-plugin-probe --json agent/conformance-skill-probe",
-      "transcript": "evidence-json",
-      "barStage": "install"
+      "run": "mkdir -p \"$WORKSPACE/.make-docs\" && printf 'packaging:\\n  preconditions:\\n    harness-supported: satisfied\\n    project-trusted: satisfied\\n    symlink-or-copy-mirror: satisfied\\n' > \"$WORKSPACE/.make-docs/config.yaml\"",
+      "transcript": "context",
+      "notes": "Establishes the packaging precondition attestations both ship steps consume (register item D-023: attestations are supplied by the session's workspace setup, never remembered mid-session; the operator attests the disposable workspace is trusted and the adapter preconditions hold)."
     },
     {
       "kind": "command",
-      "run": "cd \"$WORKSPACE\" && make-docs run package ship --harness codex --output-kind skills-bundle --surface native --scope project --package-id conformance-skill-probe --json agent/conformance-skill-probe",
+      "run": "cd \"$WORKSPACE\" && make-docs run package ship --harness codex --output-kind plugin --surface native --scope project --package-id conformance-plugin-probe --support-evidence-ref conformance/tuple-registry.json#codex-plugin-native-project --json agent/conformance-skill-probe",
+      "transcript": "evidence-json",
+      "barStage": "install",
+      "notes": "The evidence ref names the exact registry tuple this session's evidence lands on (D-023: the planner hard-stops without one)."
+    },
+    {
+      "kind": "command",
+      "run": "cd \"$WORKSPACE\" && make-docs run package ship --harness codex --output-kind skills-bundle --surface native --scope project --package-id conformance-skill-probe --support-evidence-ref conformance/tuple-registry.json#codex-skills-bundle-native-project --json agent/conformance-skill-probe",
       "transcript": "evidence-json",
       "barStage": "install",
       "notes": "Both container kinds are installed so uninstall cleanliness is proven across the plugin tree, the skills bundle, and their exposure links in one workspace."
@@ -51,20 +60,20 @@
     },
     {
       "kind": "harness-action",
-      "action": "Launch Codex inside the workspace and confirm both generated outputs appear in Codex's listing surfaces.",
+      "action": "Launch the target harness inside the workspace and confirm both generated outputs appear in the harness's listing surfaces.",
       "barStage": "discover"
     },
     {
       "kind": "harness-action",
-      "action": "In a fresh Codex thread, invoke the bundled probe skill once, confirming the installed outputs are live before removal.",
+      "action": "In a fresh harness thread, invoke the bundled probe skill once, confirming the installed outputs are live before removal.",
       "barStage": "invoke"
     },
     {
       "kind": "command",
-      "run": "cd \"$WORKSPACE\" && make-docs setup backup < /dev/null",
+      "run": "cd \"$WORKSPACE\" && make-docs setup backup --yes < /dev/null",
       "transcript": "evidence-non-tty",
       "barStage": "uninstall",
-      "notes": "The backup half of the R-PROV-2 cleanliness pair."
+      "notes": "The backup half of the R-PROV-2 cleanliness pair. --yes carries the backup confirmation for the non-TTY run (D-023: the TTY confirmation gate refuses a non-TTY run without it)."
     },
     {
       "kind": "assertion",
@@ -73,9 +82,10 @@
     },
     {
       "kind": "command",
-      "run": "cd \"$WORKSPACE\" && make-docs setup remove --backup < /dev/null",
+      "run": "cd \"$WORKSPACE\" && make-docs setup remove --backup --yes < /dev/null",
       "transcript": "evidence-non-tty",
-      "barStage": "uninstall"
+      "barStage": "uninstall",
+      "notes": "--yes carries the uninstall confirmation for the non-TTY run (D-023: the TTY confirmation gate refuses a non-TTY run without it)."
     },
     {
       "kind": "assertion",
@@ -90,7 +100,7 @@
   ],
   "expectedEvidence": [
     "Two --json ship transcripts recording the installed plugin and skills bundle (install).",
-    "Both outputs visible in Codex's listing surfaces (discover).",
+    "Both outputs visible in the target harness's listing surfaces (discover).",
     "A fresh-thread invocation transcript proving the outputs were live before removal (invoke).",
     "Non-TTY backup and removal transcripts plus a git diff against the committed baseline proving managed outputs removed, no orphaned empty managed directories, and user-authored files byte-identical (uninstall).",
     "Model, provider, and runtime captured as run metadata in the result record."
@@ -98,74 +108,70 @@
   "artifactPolicy": "local-generated",
   "supportClaimScope": "scenario-harness-model-provider-runtime",
   "packagingExtension": {
-    "harness": "codex",
-    "registryTupleIds": [
-      "codex-plugin-native-project",
-      "codex-skills-bundle-native-project"
-    ],
+    "domain": "packaging",
     "evidenceBar": {
       "install": [
         "Both ship commands exit 0 with --json transcripts recording the generated plugin tree and skills bundle with their ownership records."
       ],
       "discover": [
-        "Both generated outputs appear in Codex's own listing surfaces for the workspace."
+        "Both generated outputs appear in the target harness's own listing surfaces for the workspace."
       ],
       "invoke": [
-        "A fresh Codex thread invokes the bundled probe skill before removal, proving the outputs under test were live."
+        "A fresh harness thread invokes the bundled probe skill before removal, proving the outputs under test were live."
       ],
       "uninstall": [
-        "make-docs setup backup snapshots the managed state without touching user-authored files.",
-        "make-docs setup remove --backup removes every managed generated output without orphaning an empty managed directory.",
+        "make-docs setup backup --yes snapshots the managed state without touching user-authored files.",
+        "make-docs setup remove --backup --yes removes every managed generated output without orphaning an empty managed directory.",
         "The git diff against the committed baseline shows all user-authored sentinel files byte-identical (PRD 36 R-PROV-2)."
       ]
     },
     "preconditions": [
       {
-        "id": "codex-cli-available",
+        "id": "harness-cli-available",
         "kind": "harness-cli",
-        "description": "The Codex CLI is installed and on PATH.",
-        "probe": { "check": "command-succeeds", "command": "codex", "args": ["--version"] },
+        "description": "The target harness CLI is installed and on PATH; the concrete probe command lives on each target binding.",
+        "probe": "command-succeeds",
         "onUnmet": "blocked"
       },
       {
-        "id": "codex-authenticated",
+        "id": "harness-authenticated",
         "kind": "harness-auth",
-        "description": "The Codex CLI is signed in with a working account.",
-        "probe": { "check": "command-succeeds", "command": "codex", "args": ["login", "status"] },
+        "description": "The target harness CLI is signed in with a working account; the concrete probe command lives on each target binding.",
+        "probe": "command-succeeds",
         "onUnmet": "blocked"
       },
       {
         "id": "network-available",
         "kind": "network",
         "description": "Outbound network access for the harness is available; attested by the operator at run time because probing it would spend it.",
-        "probe": { "check": "operator-attestation" },
+        "probe": "operator-attestation",
         "onUnmet": "blocked"
       },
       {
         "id": "model-routing-available",
         "kind": "model-routing",
         "description": "The harness can route to a model for the invoke stage; attested by the operator at run time.",
-        "probe": { "check": "operator-attestation" },
+        "probe": "operator-attestation",
         "onUnmet": "blocked"
       }
     ],
-    "harnessExecution": { "mode": "real-harness", "simulationMechanics": null },
     "transcriptPolicy": "json-or-non-tty",
     "workspacePolicy": "disposable-fixture-workspace",
     "fixturePlaybooks": [
       "conformance/fixtures/agent/conformance-skill-probe.playbook.md"
     ],
-    "futureHarnesses": [
-      {
-        "harness": "claude-code",
-        "status": "future",
-        "note": "Current product harness; its variant of this scenario follows the Codex-first pass (R-SCEN-1) and is not covered by this spec."
-      },
-      {
-        "harness": "pi",
-        "status": "future",
-        "note": "Future harness per R-SCEN-2: no Pi variant exists, and the tuple registry reports that absence explicitly rather than implying coverage."
+    "targets": {
+      "codex": {
+        "registryTupleIds": [
+          "codex-plugin-native-project",
+          "codex-skills-bundle-native-project"
+        ],
+        "harnessExecution": { "mode": "real-harness", "simulationMechanics": null },
+        "preconditionProbes": {
+          "harness-cli-available": { "command": "codex", "args": ["--version"] },
+          "harness-authenticated": { "command": "codex", "args": ["login", "status"] }
+        }
       }
-    ]
+    }
   }
 }

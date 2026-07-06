@@ -69,13 +69,13 @@ function unboundCodexTuple(): ConformanceSupportTuple {
 function qualifyingRun(overrides: Partial<ConformanceRecordedRun> = {}): ConformanceRecordedRun {
   return {
     runId: "run-0001",
-    scenario: "codex-plugin-marketplace-install",
+    scenario: "packaging/plugin-marketplace-install",
     runDate: "2026-07-04",
     verdict: "pass",
     caveats: [],
     caveatsSurfaced: false,
     evidenceBar: { install: true, discover: true, invoke: true, uninstall: true },
-    recordRef: "conformance/results/run-0001.json",
+    recordRef: "conformance/results/codex/run-0001.json",
     modelOrProvider: "anthropic",
     runtime: "codex-cli",
     simulated: false,
@@ -171,7 +171,7 @@ describe("the eight-field support tuple (t1/t2, R-TUPLE-1)", () => {
 
   test("run metadata is the only seam that binds scenario, model/provider, and runtime (t2)", () => {
     const bound = bindRunMetadataOntoConformanceTuple(unboundCodexTuple(), {
-      scenario: "codex-plugin-marketplace-install",
+      scenario: "packaging/plugin-marketplace-install",
       modelOrProvider: "anthropic",
       runtime: "codex-cli",
     });
@@ -330,7 +330,7 @@ describe("registry validation fails closed (t3/t4, R-REG-1/2)", () => {
     expect(() => validateConformanceTupleRegistry(document)).toThrow("unbound tuple dimensions");
 
     const bound = bindRunMetadataOntoConformanceTuple(unboundCodexTuple(), {
-      scenario: "codex-plugin-marketplace-install",
+      scenario: "packaging/plugin-marketplace-install",
       modelOrProvider: "anthropic",
       runtime: "codex-cli",
     });

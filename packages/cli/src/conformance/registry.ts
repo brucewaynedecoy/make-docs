@@ -195,8 +195,10 @@ export interface ConformanceTupleRegistryEntry {
   evidence: ConformanceTupleEvidenceRef[];
   recordedRuns: ConformanceRecordedRun[];
   /**
-   * Ids of authored scenario specs under `conformance/scenarios/`
-   * that target this tuple (W18 R9 P2 t9). Forward-looking linkage only: a
+   * Domain-qualified ids of authored scenario definitions under
+   * `conformance/scenarios/<domain>/` whose target binding for this entry's
+   * harness targets this tuple (W18 R9 P2 t9; ids revised by PRD 43
+   * R-SCHEMA-3). Forward-looking linkage only: a
    * planned scenario is not evidence, never affects status derivation, and
    * never binds the tuple's `scenario` dimension — only a recorded run does
    * (R-TUPLE-1). An explicitly empty list is itself a statement: no authored
@@ -316,7 +318,10 @@ const registryEntrySchema = z.object({
   plannedScenarios: z.array(
     z
       .string()
-      .regex(/^[a-z0-9][a-z0-9-]*$/, "planned scenario ids are lowercase hyphenated slugs"),
+      .regex(
+        /^[a-z0-9][a-z0-9-]*\/[a-z0-9][a-z0-9-]*$/,
+        "planned scenario ids are domain-qualified (`<domain>/<outcome>`) lowercase hyphenated slugs (PRD 43 R-SCHEMA-3)",
+      ),
   ),
   notes: z.array(z.string().min(1)),
 });
