@@ -469,6 +469,9 @@ describe("risk register routing contract", () => {
       "D-020 Shipped Lifecycle Skills Instruct the Removed `make-docs operations` Command Surface",
       "D-021 Pre-W18 Subsystems Landed as Unwired or Partially Wired Libraries (Plugin Substrate, Metadata Drift, Guide Persona Validation)",
       "D-022 PRD 37 Mandated a Conformance Asset Home the Assets Router Never Admitted",
+      "D-023 The First-Pass Conformance Scenario Specs Were Never Executable as Written",
+      "D-024 The Mandated `.make-docs/conformance/` Transcript Home Contradicts the No-Repo-Run-Residue Principle",
+      "D-025 Harness-Named Scenario Identity Bifurcates the Tuple-Dimension Model",
     ]);
     expect(itemHeadings(questions)).toEqual([
       "Q-001 What Is the Long-Term Skills Delivery Contract?",
@@ -522,6 +525,7 @@ describe("risk register routing contract", () => {
       "R-025 Cross-Artifact Coordinate Handoffs Can Drift From Their Assigned Waves and PRDs",
       "R-026 The W18 R12 UAT Remediation Round Must Land Before W18 R9 Conformance",
       "R-027 The Pending Playbook and CLI Polish Round Awaits Sequencing Against W18 R9",
+      "R-028 The W18 R13 Conformance Execution Redesign Must Reconcile Every Consumer of the Superseded Spec Forms",
     ]);
   });
 

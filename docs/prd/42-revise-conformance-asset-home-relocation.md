@@ -45,6 +45,10 @@ Code anchors:
 
 ## Effective Requirement
 
+### Change Notes
+
+- Superseded by [44-revise-conformance-lab-execution-protocol-and-evidence-homes.md](44-revise-conformance-lab-execution-protocol-and-evidence-homes.md) (W18 R13, register items D-024 and R-028), raw-transcripts clause only: the sentence below preserving "raw transcripts local under `.make-docs/conformance/` per PRD 20's evidence classes" no longer holds — the repo-local transcript home is rejected, evidence scratch lives in the disposable lab-session workspace, and retained raw evidence goes to the machine-level store's lab area. Everything else this revision fixes is explicitly preserved by the W18 R13 round: the repo-root `conformance/` home stands and is not revisited, and [43-revise-conformance-scenario-model-and-execution-kit.md](43-revise-conformance-scenario-model-and-execution-kit.md) nests `scenarios/` by domain within it while verifying the R-TEST-3 markers survive the nesting.
+
 R-REG-1 now reads with the revised location: the set of tuples and their statuses lives in a queryable data file, not in prose, under the repo-root `conformance/` directory, so that support status is queryable and cannot drift from documentation. Concretely:
 
 - The conformance asset family lives at repo-root `conformance/`: `tuple-registry.json`, `scenarios/`, `fixtures/`, `README.md`, and — once real runs exist — `results/`. It is a maintainer-infrastructure peer of `packages/` and `scripts/`, deliberately outside `docs/assets/` (it is not reader documentation) and outside `packages/` (it is not shipped product).
