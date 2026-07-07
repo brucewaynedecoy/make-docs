@@ -86,6 +86,17 @@ describe("lab-session vocabulary and ids (R-NAME-1)", () => {
     ).toThrow(/YYYY-MM-DD/);
     expect(() => validateConformanceLabSessionId("Not A Slug")).toThrow(/lowercase hyphenated slug/);
   });
+
+  test("rejects a non-slug disambiguator with a targeted message (D-028)", () => {
+    expect(() =>
+      mintConformanceLabSessionId({
+        date: "2026-07-06",
+        harness: "codex",
+        outcome: "plugin-marketplace-install",
+        disambiguator: "Round 2",
+      }),
+    ).toThrow(/disambiguator .* must be a lowercase hyphenated slug/);
+  });
 });
 
 describe("evidence homes (R-NAME-2, D-024)", () => {

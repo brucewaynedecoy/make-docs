@@ -474,6 +474,7 @@ describe("risk register routing contract", () => {
       "D-025 Harness-Named Scenario Identity Bifurcates the Tuple-Dimension Model",
       "D-026 The Uninstall Check Flags Make Docs-Managed Scaffolding as User-Authored Removals",
       "D-027 The Conformance Kit Runs Whatever `make-docs` Is on PATH, Not the CLI It Was Generated From",
+      "D-028 Same-Day Kit Regeneration Collides on the Deterministic Session Root With No Ergonomic Reset",
     ]);
     expect(itemHeadings(questions)).toEqual([
       "Q-001 What Is the Long-Term Skills Delivery Contract?",

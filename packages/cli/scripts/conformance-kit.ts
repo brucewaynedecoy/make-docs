@@ -9,8 +9,14 @@
  * revisit seam is recorded on register item Q-022.
  *
  * Usage (from the repo root):
- *   npm run conformance:kit -- --scenario packaging/plugin-marketplace-install [--target codex] [--session-root <dir>]
- *   npm run conformance:kit -- --first-pass-suite [--target codex] [--sessions-root <dir>]
+ *   npm run conformance:kit -- --scenario packaging/plugin-marketplace-install [--target codex] [--session-root <dir>] [--force] [--disambiguator <slug>]
+ *   npm run conformance:kit -- --first-pass-suite [--target codex] [--sessions-root <dir>] [--force] [--disambiguator <slug>]
+ *
+ * Regenerating the same scenario+target on the same day reuses the same
+ * deterministic session id, so the default root collides (R-KIT-2). To iterate
+ * without hand-deleting: `--force` replaces the superseded session in place;
+ * `--disambiguator <slug>` mints a distinct session id so rounds sit side by
+ * side (register item D-028).
  */
 
 import os from "node:os";
@@ -33,6 +39,8 @@ interface CliArguments {
   sessionRoot: string | null;
   sessionsRoot: string | null;
   repoRoot: string;
+  force: boolean;
+  disambiguator: string | null;
 }
 
 /**
@@ -51,6 +59,8 @@ function parseArguments(argv: string[]): CliArguments {
     sessionRoot: null,
     sessionsRoot: null,
     repoRoot: path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", ".."),
+    force: false,
+    disambiguator: null,
   };
   for (let index = 0; index < argv.length; index += 1) {
     const argument = argv[index]!;
@@ -81,6 +91,12 @@ function parseArguments(argv: string[]): CliArguments {
       case "--repo-root":
         parsed.repoRoot = path.resolve(INVOCATION_CWD, next());
         break;
+      case "--force":
+        parsed.force = true;
+        break;
+      case "--disambiguator":
+        parsed.disambiguator = next();
+        break;
       default:
         throw new Error(`Unknown argument: ${argument}`);
     }
@@ -102,6 +118,8 @@ async function main(): Promise<void> {
       harness: args.target,
       repoRoot: args.repoRoot,
       sessionDate,
+      disambiguator: args.disambiguator ?? undefined,
+      force: args.force,
     });
     process.stdout.write(`Generated ${kits.length} first-pass lab-session kit(s) for \`${args.target}\`:\n`);
     for (const kit of kits) {
@@ -111,7 +129,12 @@ async function main(): Promise<void> {
   }
   const scenarioId = args.scenario!;
   const { outcome } = splitConformanceScenarioId(scenarioId);
-  const sessionId = mintConformanceLabSessionId({ date: sessionDate, harness: args.target, outcome });
+  const sessionId = mintConformanceLabSessionId({
+    date: sessionDate,
+    harness: args.target,
+    outcome,
+    disambiguator: args.disambiguator ?? undefined,
+  });
   const spec = loadPackagingConformanceScenarioSpec(
     path.join(args.repoRoot, "conformance", "scenarios", `${scenarioId}.json`),
   );
@@ -121,6 +144,7 @@ async function main(): Promise<void> {
     sessionRoot: args.sessionRoot ?? defaultConformanceSessionRoot({ sessionId }),
     repoRoot: args.repoRoot,
     sessionId,
+    force: args.force,
   });
   process.stdout.write(`Generated lab-session kit \`${kit.sessionId}\`:\n`);
   process.stdout.write(`- session root: ${kit.sessionRoot}\n`);

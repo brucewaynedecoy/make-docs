@@ -77,6 +77,11 @@ export function mintConformanceLabSessionId(input: {
       `Lab-session date must be YYYY-MM-DD, got \`${input.date}\` (R-NAME-1).`,
     );
   }
+  if (input.disambiguator !== undefined && !SESSION_ID_PATTERN.test(input.disambiguator)) {
+    throw new OperationError(
+      `Lab-session disambiguator \`${input.disambiguator}\` must be a lowercase hyphenated slug (R-NAME-1).`,
+    );
+  }
   const parts = [input.date, input.harness, input.outcome, input.disambiguator].filter(
     (part): part is string => part !== undefined,
   );

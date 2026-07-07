@@ -472,6 +472,60 @@ describe("executable-by-construction failure modes (R-KIT-3)", () => {
     expect(existsSync(path.join(REPO_ROOT, "conformance", "never-here"))).toBe(false);
   });
 
+  describe("regenerating into an occupied session root (R-KIT-2, D-028)", () => {
+    const sharedFixtureInput = {
+      spec: FIXTURE_SPEC,
+      harness: "fixture-lab",
+      repoRoot: REPO_ROOT,
+      sessionId: "2026-07-06-fixture-lab-fixture-instrument-outcome",
+      descriptors: [FIXTURE_LAB_DESCRIPTOR],
+      cliVersion: "test",
+    };
+
+    test("without --force, an occupied root fails closed and names both escape hatches", async () => {
+      const sessionRoot = path.join(tempDir("kit-occupied-"), "session");
+      await generateConformanceKit({ ...sharedFixtureInput, sessionRoot });
+      const error = await generateConformanceKit({ ...sharedFixtureInput, sessionRoot }).catch(
+        (caught) => caught,
+      );
+      expect(error).toBeInstanceOf(Error);
+      const message = (error as Error).message;
+      expect(message).toMatch(/already exists and is not empty/);
+      expect(message).toMatch(/R-KIT-2/);
+      expect(message).toMatch(/--force/);
+      expect(message).toMatch(/--disambiguator/);
+      expect(message).toMatch(/D-028/);
+    });
+
+    test("--force replaces a superseded lab session in place, leaving no stale evidence", async () => {
+      const sessionRoot = path.join(tempDir("kit-force-"), "session");
+      await generateConformanceKit({ ...sharedFixtureInput, sessionRoot });
+      // A stray artifact from the prior round must NOT survive the regenerate:
+      // --force starts fresh, it never merges into leftover evidence.
+      const staleMarker = path.join(sessionRoot, "evidence", "stale-from-prior-round.txt");
+      writeFileSync(staleMarker, "stale");
+
+      const regenerated = await generateConformanceKit({
+        ...sharedFixtureInput,
+        sessionRoot,
+        force: true,
+      });
+      expect(existsSync(staleMarker)).toBe(false);
+      expect(regenerated.sessionRoot).toBe(sessionRoot);
+      expect(existsSync(regenerated.manifestPath)).toBe(true);
+    });
+
+    test("--force refuses a directory that is not a lab session (footgun guard)", async () => {
+      const foreign = tempDir("kit-foreign-");
+      writeFileSync(path.join(foreign, "precious.txt"), "do not delete");
+      await expect(
+        generateConformanceKit({ ...sharedFixtureInput, sessionRoot: foreign, force: true }),
+      ).rejects.toThrow(/Refusing to .*force.* remove/);
+      // The guard fired before any deletion: the foreign file survives.
+      expect(existsSync(path.join(foreign, "precious.txt"))).toBe(true);
+    });
+  });
+
   test("a target whose descriptor lacks the interrogation block fails closed (R-HOME-2)", async () => {
     const spec = validatePackagingConformanceScenarioSpec({
       ...(JSON.parse(JSON.stringify(FIXTURE_SPEC)) as Record<string, unknown>),

@@ -229,6 +229,15 @@ export interface GenerateConformanceKitInput {
   descriptors?: HarnessCapabilityDescriptor[];
   /** Recorded in the manifest's generation inputs; derived from the repo when absent. */
   cliVersion?: string;
+  /**
+   * Replace a superseded lab session at this root (register item D-028): when
+   * the root already exists and is demonstrably lab-owned, remove it and
+   * regenerate fresh instead of failing closed on R-KIT-2. This still "always
+   * starts fresh" — it automates the manual delete of a prior session so no
+   * stale evidence survives; it never merges into or reuses an existing tree,
+   * and it refuses any directory that is not a lab session.
+   */
+  force?: boolean;
 }
 
 export interface GeneratedConformanceKit {
@@ -1495,6 +1504,27 @@ function writeKitFile(sessionRoot: string, relative: string, content: string, fi
 }
 
 /**
+ * Guards `--force` session-root removal (register item D-028): a session root
+ * is auto-removed only when it is demonstrably lab-owned — under the default
+ * lab home (`make-docs-conformance-lab/`) or carrying a generated
+ * `kit/manifest.json`. A `--session-root` pointed at an unrelated non-empty
+ * directory is refused, so `--force` can never become a directory-deleting
+ * footgun on a mistyped path. The caller has already asserted the root lies
+ * outside the repository ({@link assertSessionRootOutsideRepo}).
+ */
+function assertSessionRootForceRemovable(sessionRoot: string): void {
+  const underDefaultLabHome = sessionRoot
+    .split(path.sep)
+    .includes("make-docs-conformance-lab");
+  const carriesGeneratedManifest = existsSync(path.join(sessionRoot, "kit", "manifest.json"));
+  if (!underDefaultLabHome && !carriesGeneratedManifest) {
+    throw new OperationError(
+      `Refusing to \`--force\` remove \`${sessionRoot}\`: it is neither under the default lab home (\`make-docs-conformance-lab/\`) nor a prior generated session (no \`kit/manifest.json\`). Remove it by hand if you truly intend to reuse this path (R-KIT-2, register item D-028).`,
+    );
+  }
+}
+
+/**
  * Generates one conformance kit for a (definition, target) pair into a
  * disposable lab-session root (R-KIT-1..2). Fails closed — with any created
  * session artifacts removed — when the definition cannot project to a
@@ -1526,9 +1556,17 @@ export async function generateConformanceKit(
   });
 
   if (existsSync(sessionRoot) && readdirSync(sessionRoot).length > 0) {
-    throw new OperationError(
-      `Lab-session root \`${sessionRoot}\` already exists and is not empty; a session root is disposable and always starts fresh (R-KIT-2).`,
-    );
+    if (!input.force) {
+      throw new OperationError(
+        `Lab-session root \`${sessionRoot}\` already exists and is not empty; a session root is disposable and always starts fresh (R-KIT-2). Re-run with \`--force\` to replace the superseded session in place, or \`--disambiguator <slug>\` to generate a fresh session beside it (register item D-028).`,
+      );
+    }
+    // `--force` still starts fresh (R-KIT-2): it removes a lab-owned prior
+    // session so no stale evidence can survive into the new one — it never
+    // merges into or reuses the existing tree. It refuses any directory that
+    // is not demonstrably a lab session (D-028).
+    assertSessionRootForceRemovable(sessionRoot);
+    rmSync(sessionRoot, { recursive: true, force: true });
   }
   const createdSessionRoot = !existsSync(sessionRoot);
   const kitDir = path.join(sessionRoot, "kit");
@@ -1620,6 +1658,10 @@ export async function generateFirstPassConformanceKitSuite(input: {
   sessionDate?: string;
   descriptors?: HarnessCapabilityDescriptor[];
   cliVersion?: string;
+  /** Distinguishes repeated same-day suites; flows into every session id (D-028). */
+  disambiguator?: string;
+  /** Replace superseded lab-owned session roots in place (D-028). */
+  force?: boolean;
 }): Promise<GeneratedConformanceKit[]> {
   const repoRoot = path.resolve(input.repoRoot ?? ".");
   const harness = input.harness ?? REQUIRED_FIRST_PASS_TARGET;
@@ -1638,6 +1680,7 @@ export async function generateFirstPassConformanceKitSuite(input: {
       date: input.sessionDate ?? new Date().toISOString().slice(0, 10),
       harness,
       outcome,
+      disambiguator: input.disambiguator,
     });
     kits.push(
       await generateConformanceKit({
@@ -1648,6 +1691,7 @@ export async function generateFirstPassConformanceKitSuite(input: {
         sessionId,
         descriptors: input.descriptors,
         cliVersion: input.cliVersion,
+        force: input.force,
       }),
     );
   }
