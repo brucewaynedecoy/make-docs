@@ -35,6 +35,14 @@ interface CliArguments {
   repoRoot: string;
 }
 
+/**
+ * The directory the operator invoked `npm run` from (npm's `INIT_CWD`), so
+ * operator-supplied relative paths resolve against where the operator is —
+ * not the `packages/cli/` working directory the root `-w packages/cli`
+ * passthrough runs this script in.
+ */
+const INVOCATION_CWD = process.env.INIT_CWD ?? process.cwd();
+
 function parseArguments(argv: string[]): CliArguments {
   const parsed: CliArguments = {
     scenario: null,
@@ -65,13 +73,13 @@ function parseArguments(argv: string[]): CliArguments {
         parsed.target = next();
         break;
       case "--session-root":
-        parsed.sessionRoot = path.resolve(next());
+        parsed.sessionRoot = path.resolve(INVOCATION_CWD, next());
         break;
       case "--sessions-root":
-        parsed.sessionsRoot = path.resolve(next());
+        parsed.sessionsRoot = path.resolve(INVOCATION_CWD, next());
         break;
       case "--repo-root":
-        parsed.repoRoot = path.resolve(next());
+        parsed.repoRoot = path.resolve(INVOCATION_CWD, next());
         break;
       default:
         throw new Error(`Unknown argument: ${argument}`);

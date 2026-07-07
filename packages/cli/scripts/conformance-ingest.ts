@@ -48,6 +48,15 @@ interface CliArguments {
   repoRoot: string;
 }
 
+/**
+ * The directory the operator invoked `npm run` from. npm sets `INIT_CWD` to
+ * that directory, so operator-supplied relative paths (`--session-root`,
+ * `--attestations`) resolve against where the operator actually is — not the
+ * `packages/cli/` working directory the root `-w packages/cli` passthrough
+ * runs this script in.
+ */
+const INVOCATION_CWD = process.env.INIT_CWD ?? process.cwd();
+
 function parseArguments(argv: string[]): CliArguments {
   const parsed: CliArguments = {
     sessionRoot: null,
@@ -69,10 +78,10 @@ function parseArguments(argv: string[]): CliArguments {
     };
     switch (argument) {
       case "--session-root":
-        parsed.sessionRoot = path.resolve(next());
+        parsed.sessionRoot = path.resolve(INVOCATION_CWD, next());
         break;
       case "--attestations":
-        parsed.attestations = path.resolve(next());
+        parsed.attestations = path.resolve(INVOCATION_CWD, next());
         break;
       case "--run-date":
         parsed.runDate = next();
@@ -84,7 +93,7 @@ function parseArguments(argv: string[]): CliArguments {
         parsed.write = true;
         break;
       case "--repo-root":
-        parsed.repoRoot = path.resolve(next());
+        parsed.repoRoot = path.resolve(INVOCATION_CWD, next());
         break;
       default:
         throw new Error(`Unknown argument: ${argument}`);
