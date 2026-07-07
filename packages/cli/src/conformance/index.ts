@@ -8,6 +8,7 @@
  */
 
 export * from "./governance";
+export * from "./ingestion";
 export * from "./kit";
 export * from "./lab-session";
 export * from "./layers";

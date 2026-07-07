@@ -1,0 +1,58 @@
+# Operator Modes — How a Lab Session Gets Driven
+
+This is executable protocol content, not a guide. It documents how a maintainer runs a conformance **lab session** end to end, in any of three first-class modes. Every mode produces evidence through the *same* three things — a generated **kit**, its deterministic **instruments**, and the fail-closed **ingestion** step — so the driving mode never changes what counts as evidence. Read [README.md](README.md) first for the tuple registry, the scenario definitions, and the evidence rules; read the [developer conformance-lab guide](../docs/assets/library/developer/conformance-lab-scenario-and-result-contracts.md) for the contracts these commands exercise.
+
+The contracts here are PRD 44 R-EXEC-1..3 and R-MODE-1..2, and PRD 43 R-ING-1..2. The vocabulary is lab-session vocabulary throughout (PRD 44 R-NAME-1): a *session* has a *session workspace*, *session evidence*, and a *session manifest*; "run" survives only as the registry's `recordedRuns` noun and the `run` CLI command, never for a lab operation.
+
+## The one rule every mode restates
+
+**The agent drives, the instruments measure. Self-assessment is never self-attestation.**
+
+An asserted bar stage is confirmed only by its instrument's output, validated at ingestion against the session manifest's expected-evidence table. Whatever the driver — human or agent — *says* happened ("the skill appeared", "Codex listed the plugin") is narrative context. It is recorded, it is useful, and it is **never evidence** (R-EXEC-1). A bar stage with no instrument output is unasserted, full stop; a missing or failed instrument output ingests to `false` with no narrative rescue.
+
+Two honesty corollaries hold in every mode:
+
+- **Blocked is a valid result** (R-EXEC-3). If a precondition is unmet, the session stops and ingests to an honest `blocked` record — `supportClaimUse: none`, every bar stage `false`. Blocked is the honest absence of evidence, never invented evidence.
+- **Failures are evidence; assertions never relax.** A stage that honestly fails is exactly the data a session exists to capture. No divergence between a generated shape and harness ground truth is ever a reason to lower the bar — it is a descriptor or compiler defect to file (that is what the discovery kit is for).
+
+### The discover honesty rule (why "installed" is not "recognized")
+
+The one place this rule bites hardest is the `discover` stage. `install`, `invoke`, and `uninstall` each assert something directly measurable: Make Docs wrote files (install), the harness produced a deterministic marker in its own transcript (invoke), Make Docs removed its files cleanly (uninstall). `discover` asserts something different — that the **harness's own listing surface recognizes the installed package**. A directory listing or manifest read of a path Make Docs itself wrote only re-observes placement; a non-empty `.codex/plugins/` listing proves *we wrote files*, never that the harness *found* them. So ingestion confirms `discover` only from a genuine harness-listing capture (a `command-output` capture — the harness running its own listing command). A target whose descriptor declares no such verified listing surface — Codex today, where the workspace-plugins view is an interactive UI observation that stays narrative context — cannot reach an instrument-confirmed `discover`; the stage ingests to `false` with a caveat naming exactly why, and the tuple's status honestly does not advance on the strength of placement alone (register item R-021). This is deliberate: the whole point of the redesign is that "files were written" never masquerades as "the harness recognized them." See the tuple registry and its status-derivation rules in [README.md](README.md).
+
+## The shared path (all three modes)
+
+Every mode walks the same four steps. Only *who performs each step* changes.
+
+1. **Generate the kit.** From the repo root:
+   ```
+   npm run conformance:kit -- --scenario packaging/plugin-marketplace-install --target codex
+   ```
+   This projects the harness-agnostic definition for the chosen target and writes a disposable lab session **outside the repository** — the fixed layout is `<session-root>/kit/` (the session manifest, the rendered prompts, and the deterministic instruments), `<session-root>/workspace/` (the materialized fixture project the target operates in), and `<session-root>/evidence/` (where instrument outputs land). Generation is executable-by-construction: a definition that cannot project onto the real command surface fails here, before any session starts. Start from `<session-root>/kit/prompts/session-prompt.md`; a binding carrying a discovery kit also writes `discovery-prompt.md`, which precedes bar assertion.
+2. **Establish ground truth first (when a discovery kit is present).** The plugin definition's Codex binding carries a discovery kit: before any bar assertion, record what *this exact harness version* accepts as a marketplace source and plugin layout, using a hand-minimal plugin built from the harness's own docs, independent of Make Docs — then diff the generated shapes against that ground truth. This ordering is what lets a later `discover` failure distinguish "our generated shapes are wrong" (a defect to file) from "the harness cannot do this" (a capability gap). Findings feed descriptor corrections, never bar relaxations.
+3. **Drive the session and run the instruments.** Work through the session prompt's steps. Command steps carrying a bar stage are run *through the instruments* (`node kit/instruments/install.mjs`, `discover.mjs`, `invoke.mjs`, `uninstall.mjs before && … remove`) so exit codes, listings, the invoke marker scan, and the byte-level uninstall diff land under `evidence/`. Harness actions (registering the marketplace source, invoking the bundled skill in a new thread) are performed against the real harness; save the harness transcript verbatim where the prompt says so, then run the invoke instrument to scan it.
+4. **Ingest.** Assemble the compact result record from the session:
+   ```
+   npm run conformance:ingest -- --session-root <dir> --attestations attestations.json
+   ```
+   Ingestion derives each asserted bar-stage boolean *solely* from instrument outputs, records the operator's run metadata and attestations *as attestations* (structurally separate from the measurements), and previews the `conformance.result.v1` record and its measured-vs-attested provenance. Re-run with `--write` to commit the record under `results/<harness>/`. Binding the record to its tuple is a separate reviewed step through `recordConformanceRunOnRegistryEntry` — never automated. The `attestations.json` file is a JSON object: model name, provider or routing layer, model version, runtime, the `attestedPreconditionIds` the operator attests (network, model routing), the honest narrative `reason`, the transcript pointer (a store lab-area path or `discarded-with-session`), and the transcript format.
+
+## Mode 1 — Human-only (the manual fallback)
+
+One maintainer with a real harness install performs every step by hand: generate the kit, read the session prompt, do the characterization, run each instrument, drive the harness actions, and author the attestations file for ingestion. No agent is involved. This is the mode the parked walkthrough at the repo root (`CONFORMANCE-RUN-codex-plugin.md`, untracked and never committed) spells out in full for the Codex plugin outcome — every command, expected result, and honesty checkpoint written for someone with no prior Make Docs context. That walkthrough is this mode's detailed reference and the origin of these instructions; the maintainer retires it once its content is absorbed here, and its boxed defect notes (the ship step's missing `--support-evidence-ref`, the non-TTY `setup remove` missing `--yes`) remain part of D-023's evidence record.
+
+Human-only is the ground truth other modes are measured against: if a step cannot be done by hand, no agent should automate it. It is also the right mode for the discovery kit's open-ended harness exploration, which only a human with the real install can perform.
+
+## Mode 2 — Human plus assisting agent
+
+The work splits along the evidence boundary. The **agent** does the deterministic, non-harness work: it generates the kit, prepares the session workspace, runs the instruments over the evidence the human produces, and performs ingestion. The **human** does what only a human at the real harness can: drives the target harness's own flows (registering the marketplace source, installing from the listing, invoking the skill in a new thread) and narrates what the harness actually did. The agent's prompt-driven job is explicitly *not* to certify any stage — it renders the session, runs the measurements, and assembles the record; the human's observations are narrative the record carries, never a measurement the agent invents. This is the mode the session prompt is written for: it instructs the driving party to perform its own discovery and assessment and states plainly that its claims are not evidence.
+
+## Mode 3 — Agent-multiplexed
+
+An orchestrating agent drives the whole session end to end by using a **terminal-multiplexer tool** — a `tmux`-style capability it consumes from its environment, **never something Make Docs builds or ships**. The agent launches the target harness in a multiplexer pane (using the descriptor's launch command), delivers the session prompt, monitors the harness's responses, saves transcripts, and runs the instruments — all without a human in the loop. Everything the agent observes through the multiplexer is narrative context; only the instrument outputs it captures are evidence (R-EXEC-1 is not relaxed because the driver is now an agent). Blocked honesty and the discover rule apply unchanged: an agent that cannot get the harness to a working state ingests an honest `blocked`, and an agent narrating "the plugin is listed" without a harness-listing instrument still ingests `discover: false`. The multiplexer is an environment capability the agent orchestrates; the kit, instruments, and ingestion path are identical to the other two modes.
+
+## What is the same across all three modes
+
+- The **kit** and its **instruments** are generated once per (definition, target); the mode never changes them.
+- **Ingestion** is byte-identical across modes: same manifest, same expected-evidence table, same fail-closed derivation.
+- The **result record** is the same `conformance.result.v1` shape, written to the same `results/<harness>/` home, bound through the same one seam.
+- The **honesty rules** — blocked is valid, failures are evidence, assertions never relax, and the discover placement-vs-recognition rule — hold identically. The mode is a matter of *who drives*, never of *what counts*.
