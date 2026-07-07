@@ -562,7 +562,7 @@ export function ingestConformanceLabSession(
     | null;
   if (preflight && preflight.ok === false) {
     throw new OperationError(
-      `Conformance ingestion refused: the session's preflight recorded a make-docs CLI mismatch — the kit was generated for \`${String(preflight.expectedVersion)}\` but the session ran \`${String(preflight.actualVersion ?? "unknown")}\`. The Make Docs commands ran a different build than the kit was validated against, so the measurements are meaningless; point \`make-docs\` at the repo build (\`cd packages/cli && npm link\`), regenerate the kit, and re-run (register item D-027).`,
+      `Conformance ingestion refused: the session's preflight recorded a make-docs CLI mismatch — the kit was generated for \`${String(preflight.expectedVersion)}\` but the session ran \`${String(preflight.actualVersion ?? "unknown")}\`. The Make Docs commands ran a different build than the kit was validated against, so the measurements are meaningless; rebuild and reinstall the CLI (\`just install-cli-pack\` from the repo root), regenerate the kit, and re-run (register item D-027).`,
     );
   }
 

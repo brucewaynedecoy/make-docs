@@ -356,7 +356,7 @@ Each asserted bar stage has exactly one instrument script in `kit/instruments/`,
 
 Instruments capture; they never interpret (R-INST-2). No instrument opens a network connection or invokes model routing, any CLI output an instrument consumes pins `--json` (the PRD 41 agent-invariance rule carried into evidence), and interpretation happens only at the Phase 3 ingestion step, which validates instrument outputs against the manifest's expected-evidence table.
 
-A **preflight instrument** (`kit/instruments/preflight.mjs`) runs first, before any setup or bar-stage instrument: it compares `make-docs --version` to the manifest's `generationInputs.cliVersion` and refuses loudly (exit non-zero, npm-link guidance) on a mismatch or error, so a stale or mismatched global `make-docs` cannot silently corrupt a run (register item [D-027](../../../prd/03-open-questions-and-risk-register.md)). The rendered `session-steps.sh` runs it as its first line, and ingestion refuses a session whose preflight recorded `ok:false`.
+A **preflight instrument** (`kit/instruments/preflight.mjs`) runs first, before any setup or bar-stage instrument: it compares `make-docs --version` to the manifest's `generationInputs.cliVersion` and refuses loudly (exit non-zero, with `just install-cli-pack` reinstall guidance) on a mismatch or error, so a stale or mismatched global `make-docs` cannot silently corrupt a run (register item [D-027](../../../prd/03-open-questions-and-risk-register.md)). The rendered `session-steps.sh` runs it as its first line, and ingestion refuses a session whose preflight recorded `ok:false`.
 
 ### The Prompt Set: The Agent Drives, the Instruments Measure
 
