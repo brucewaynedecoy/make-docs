@@ -12,9 +12,18 @@ import { describe, expect, it } from "vitest";
  * W18 R11 Phase 4 pruning; a guard below keeps it deleted. `src/cli.ts` is
  * the binary's composition root — it wires every command together and is
  * exempt by design.
+ *
+ * One declared exemption (W18 R13 P2; PRD 43 R-KIT-3, R-HOME-1): the
+ * maintainer conformance-kit generator (`src/conformance/kit.ts`) MAY import
+ * the composition root. It is lab tooling — never a registered operation,
+ * never on a shipped surface — whose executable-by-construction rule
+ * requires driving the REAL CLI parser and the real `setup` path in-process;
+ * a parallel reimplementation would be exactly the drift D-023 recorded.
+ * The exemption is scoped to that one file, in the driver direction only.
  */
 const SRC_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "src");
 const COMPOSITION_ROOT = path.join(SRC_ROOT, "cli.ts");
+const CONFORMANCE_LAB_DRIVER = path.join(SRC_ROOT, "conformance", "kit.ts");
 /** The binary entry point delegates straight to the composition root. */
 const BIN_ENTRY = path.join(SRC_ROOT, "index.ts");
 const CLI_ADAPTER = path.join(SRC_ROOT, "operations", "cli.ts");
@@ -73,6 +82,11 @@ describe("operation core dependency direction (R-CORE-2)", () => {
     const violations: string[] = [];
     for (const file of coreFiles) {
       for (const target of resolvedImports(file)) {
+        // Declared exemption: the maintainer conformance-lab driver drives
+        // the composition root in-process (see the header note).
+        if (file === CONFORMANCE_LAB_DRIVER && isCompositionRoot(target)) {
+          continue;
+        }
         if (isMcpSurface(target) || isCliAdapterSurface(target) || isCompositionRoot(target)) {
           violations.push(`${path.relative(SRC_ROOT, file)} -> ${path.relative(SRC_ROOT, target)}`);
         }

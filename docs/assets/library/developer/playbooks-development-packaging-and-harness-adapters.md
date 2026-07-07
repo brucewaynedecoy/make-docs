@@ -27,6 +27,7 @@ related:
   - ../../../prd/36-revise-playbook-packaging-compiler-and-harness-adapters.md
   - ../../../prd/40-revise-playbook-authoring-contract-v2.md
   - ../../../prd/41-revise-cli-human-experience-and-package-grammar.md
+  - ../../../prd/43-revise-conformance-scenario-model-and-execution-kit.md
   - ../../../work/2026-06-29-w18-r5-playbook-packaging-and-harness-adapter-registry/00-index.md
   - ../../../work/2026-07-01-w18-r8-playbook-packaging-compiler-and-harness-adapters/00-index.md
 ---
@@ -106,7 +107,8 @@ Each `HarnessCapabilityDescriptor` declares:
 - supported exposure modes;
 - the registration model, whose `autoRegister` field is typed as `false` so a user's marketplace or global registration surface can never be auto-mutated (R-MKT-1) — registration files are generated into the distributable instead; since Phase 4, descriptor validation also enforces the model/file pairing: a `marketplace-entry` registration model must declare `registrationFiles` and a `direct-discovery` model must not, and the `codex`, `claude-code`, and `pi` descriptors all conform;
 - preconditions;
-- `verification`: a status (`provisional` or `verified`), a reference naming where the contract was confirmed, provisional notes, and — since Phase 3 — a `contractDigest` fingerprint of the declared contract surface (R-ADAPT-1).
+- `verification`: a status (`provisional` or `verified`), a reference naming where the contract was confirmed, provisional notes, and — since Phase 3 — a `contractDigest` fingerprint of the declared contract surface (R-ADAPT-1);
+- optionally `labInterrogation` — since W18 R13 Phase 2, the lab-facing interrogation block the conformance kit generator renders from (see Lab-Facing Interrogation Block below); an absent block is the honest statement that no lab interrogation knowledge is claimed for the harness yet.
 
 `validateHarnessCapabilityDescriptor` enforces the shape invariants at construction, so malformed descriptor data fails at module load rather than at packaging time. `deriveAdapterDeclarationCore` and `deriveAdapterPathTemplates` derive an adapter's path templates, preconditions, exposure modes, and — since Phase 3 — the verification block from the descriptor; the adapter declarations in `adapters.ts` read that derived data instead of restating paths, and `validateHarnessAdapterDeclaration` rejects any adapter declaration that lacks a verification reference and status, so no adapter can ship unverifiable (R-ADAPT-1). The Phase 1 derivation was byte-identical to the W18 R5 inline declarations; Phase 3 then deliberately moved the Codex placement roots to the verified locations described below.
 
@@ -140,6 +142,17 @@ A `verified` contract status is still not harness-recognition evidence: it confi
 ### Contract-Digest Re-Verification
 
 Re-verification is structural, not procedural. `computeHarnessContractDigest` fingerprints the declared contract surface — container placements, manifest filenames, skill file templates, registration files and registration model, hosted primitives, lifecycle hook points, and exposure modes. A `verified` descriptor records that digest as a source literal at verification time, and `validateHarnessCapabilityDescriptor` recomputes it on every load: any drift between the declared contract and the recorded digest fails closed at module load with a diagnostic demanding re-verification against the real harness and an updated reference and digest (R-ADAPT-1). A `provisional` contract carries a `null` digest but must state what remains unverified in `provisionalNotes`. This is what prevents the triggering-defect regression — a plausible-looking path edit can no longer ride silently under a stale verification claim.
+
+### Lab-Facing Interrogation Block
+
+Since W18 R13 Phase 2 ([PRD 43](../../../prd/43-revise-conformance-scenario-model-and-execution-kit.md) R-HOME-2, enhancing R-CAP-2), the descriptor's single-home rule extends to conformance-lab knowledge: everything a generated conformance kit needs to know about a harness beyond its packaging contract is authored INTO the descriptor as an optional `HarnessLabInterrogation` block, and a kit-local table of harness facts is prohibited as the R-021 regression vector. The block declares how to pin the harness version (`versionCommand`), how to launch it in a session workspace (`launchCommand`), the listing surfaces the discover instrument captures (`listingCaptures` — command output, directory listing, or manifest read, with workspace-relative paths), where the harness evidences skill invocation (`invocationEvidence`, `null` when no surface is known), workspace conventions rendered into session prompts (`workspaceNotes`), and honest absences (`knownGaps`).
+
+Two rules keep the block as honest as the rest of the descriptor:
+
+- **Every claim is verification-marked.** Each command claim and listing capture carries its own `status` and `reference`, exactly like the contract verification block — and a lab claim may be `verified` only on a descriptor whose packaging-contract verification is itself `verified`, so lab knowledge is never more confirmed than the contract it rides on. Absent knowledge is stated as `null` claims and `knownGaps` entries, never invented; a target whose descriptor lacks the interrogation knowledge a kit needs fails kit generation closed naming the descriptor gap.
+- **The block is deliberately excluded from `computeHarnessContractDigest`.** The digest fingerprints the packaging contract surface an adapter's verification claim covers (R-ADAPT-1); each interrogation claim is individually verification-marked, so folding the lab block into the digest would force contract re-verification ceremony for lab-note edits without adding honesty the per-claim markings do not already carry — a recorded W18 R13 P2 implementer decision on the type.
+
+The current population states the honest knowledge boundary: `codex` carries a populated block — the version command `verified` (exercised by the 2026-07-03 R-021 recognition probe), the interactive launch `provisional`, three listing captures for the skills-discovery root, the generated marketplace manifest, and the plugin install root, `invocationEvidence` honestly `null`, and `knownGaps` naming the unverified plugin-listing command and invocation-logging surfaces. `claude-code` carries a fully `provisional` block whose `knownGaps` states that any Claude Code lab session must begin with a discovery kit, never with bar assertions. `pi` deliberately carries no block — every Pi path is inferred, so no lab knowledge is claimed and kit generation for a Pi target fails closed naming the gap. The consumer is the W18 R13 P2 kit generator (`packages/cli/src/conformance/kit.ts`, maintainer tooling only — see [Conformance Lab Scenario and Result Contracts](./conformance-lab-scenario-and-result-contracts.md) under The Execution Kit and Lab Sessions), which also makes the kit the packaging pipeline's first end-to-end internal consumer: kit generation ships the fixture Playbooks through the same plan/preview/write pipeline, compiler, and descriptors the product ships.
 
 ### Support-Tuple Binding and the W18 R9 Promotion Path
 
@@ -429,5 +442,6 @@ The former bullet on the W18 R12 backlog Phase 2 probe rebuild is resolved: Depe
 - [36 Revise Playbook Packaging Compiler and Harness Adapters](../../../prd/36-revise-playbook-packaging-compiler-and-harness-adapters.md)
 - [40 Revise Playbook Authoring Contract v2](../../../prd/40-revise-playbook-authoring-contract-v2.md)
 - [41 Revise CLI Human Experience and Package Grammar](../../../prd/41-revise-cli-human-experience-and-package-grammar.md)
+- [43 Revise Conformance Scenario Model and Execution Kit](../../../prd/43-revise-conformance-scenario-model-and-execution-kit.md)
 - [W18 R5 Work Backlog](../../../work/2026-06-29-w18-r5-playbook-packaging-and-harness-adapter-registry/00-index.md)
 - [W18 R8 Work Backlog](../../../work/2026-07-01-w18-r8-playbook-packaging-compiler-and-harness-adapters/00-index.md)

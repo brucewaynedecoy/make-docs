@@ -142,8 +142,9 @@ export const CONFORMANCE_VERDICT_DERIVATION_RULES = {
  * contract (PRD 20) the registry needs to derive a status, plus the explicit
  * D4 evidence-bar stage results. `recordRef` points at the compact
  * normalized result record committed beside the registry (the lab's
- * source-control evidence class); raw transcripts stay local under
- * `.make-docs/conformance/` per R-KEEP-1.
+ * source-control evidence class); raw transcripts stay in the disposable
+ * lab-session workspace or the machine-level store's lab area, never
+ * repo-local (PRD 44 R-NAME-2; register item D-024).
  */
 export interface ConformanceRecordedRun {
   runId: string;

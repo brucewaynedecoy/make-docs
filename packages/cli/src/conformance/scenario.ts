@@ -86,6 +86,10 @@ import path from "node:path";
 import { z } from "zod";
 import { OperationError } from "../operations/types";
 import {
+  CONFORMANCE_TRANSCRIPT_DISCARDED_WITH_SESSION,
+  listConformanceTranscriptLogPointerErrors,
+} from "./lab-session";
+import {
   CONFORMANCE_EVIDENCE_BAR_STAGES,
   CONFORMANCE_RUN_VERDICTS,
   deriveConformanceTupleStatus,
@@ -795,6 +799,18 @@ const resultRecordSchema = z
     transcriptFormat: z.enum(["json", "non-tty"]),
   })
   .superRefine((record, context) => {
+    // Evidence-home honesty (PRD 44 R-NAME-2, register item D-024): the
+    // transcript pointer states `discarded-with-session` or points into the
+    // machine-level store's lab area — never a repo-local home.
+    for (const pointerError of listConformanceTranscriptLogPointerErrors(
+      record.transcriptLogPointer,
+    )) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["transcriptLogPointer"],
+        message: pointerError,
+      });
+    }
     if (record.verdict === "blocked") {
       if (record.supportClaimUse !== "none") {
         context.addIssue({
@@ -842,15 +858,6 @@ export function validatePackagingConformanceResultRecord(
   }
   return parsed.data;
 }
-
-/**
- * The transcript pointer for a session whose raw transcript was discarded
- * with its disposable lab-session workspace (register item D-024, PRD 44
- * R-NAME-2): the honest default — nothing repo-local, nothing invented.
- * Retained raw evidence points into the machine-level store's lab area
- * instead.
- */
-export const CONFORMANCE_TRANSCRIPT_DISCARDED_WITH_SESSION = "discarded-with-session";
 
 /**
  * Builds the honest `blocked` result record for a scenario whose

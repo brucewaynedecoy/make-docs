@@ -1,0 +1,126 @@
+/**
+ * Maintainer lab tooling: conformance kit generation entry point (PRD 43
+ * R-HOME-1; W18 R13 P2 t4). Invoked through the `conformance:kit` npm script
+ * — deliberately NOT a registered operation, NOT on the shipped CLI command
+ * tree, and NOT an MCP tool: the kit's required assets (`conformance/**`)
+ * are structurally excluded from every install by R-TEST-3, so a shipped
+ * command could never succeed for a user (the D-022 category error at the
+ * command level). The W18 R11 parity rule is preserved vacuously; the
+ * revisit seam is recorded on register item Q-022.
+ *
+ * Usage (from the repo root):
+ *   npm run conformance:kit -- --scenario packaging/plugin-marketplace-install [--target codex] [--session-root <dir>]
+ *   npm run conformance:kit -- --first-pass-suite [--target codex] [--sessions-root <dir>]
+ */
+
+import os from "node:os";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import {
+  REQUIRED_FIRST_PASS_TARGET,
+  defaultConformanceSessionRoot,
+  generateConformanceKit,
+  generateFirstPassConformanceKitSuite,
+  loadPackagingConformanceScenarioSpec,
+  mintConformanceLabSessionId,
+  splitConformanceScenarioId,
+} from "../src/conformance";
+
+interface CliArguments {
+  scenario: string | null;
+  firstPassSuite: boolean;
+  target: string;
+  sessionRoot: string | null;
+  sessionsRoot: string | null;
+  repoRoot: string;
+}
+
+function parseArguments(argv: string[]): CliArguments {
+  const parsed: CliArguments = {
+    scenario: null,
+    firstPassSuite: false,
+    target: REQUIRED_FIRST_PASS_TARGET,
+    sessionRoot: null,
+    sessionsRoot: null,
+    repoRoot: path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", ".."),
+  };
+  for (let index = 0; index < argv.length; index += 1) {
+    const argument = argv[index]!;
+    const next = (): string => {
+      const value = argv[index + 1];
+      if (!value) {
+        throw new Error(`\`${argument}\` requires a value.`);
+      }
+      index += 1;
+      return value;
+    };
+    switch (argument) {
+      case "--scenario":
+        parsed.scenario = next();
+        break;
+      case "--first-pass-suite":
+        parsed.firstPassSuite = true;
+        break;
+      case "--target":
+        parsed.target = next();
+        break;
+      case "--session-root":
+        parsed.sessionRoot = path.resolve(next());
+        break;
+      case "--sessions-root":
+        parsed.sessionsRoot = path.resolve(next());
+        break;
+      case "--repo-root":
+        parsed.repoRoot = path.resolve(next());
+        break;
+      default:
+        throw new Error(`Unknown argument: ${argument}`);
+    }
+  }
+  if (parsed.firstPassSuite === (parsed.scenario !== null)) {
+    throw new Error("Pass exactly one of --scenario <domain/outcome> or --first-pass-suite.");
+  }
+  return parsed;
+}
+
+async function main(): Promise<void> {
+  const args = parseArguments(process.argv.slice(2));
+  const sessionDate = new Date().toISOString().slice(0, 10);
+  if (args.firstPassSuite) {
+    const sessionsRoot =
+      args.sessionsRoot ?? path.join(os.tmpdir(), "make-docs-conformance-lab", `${sessionDate}-${args.target}-first-pass`);
+    const kits = await generateFirstPassConformanceKitSuite({
+      sessionsRoot,
+      harness: args.target,
+      repoRoot: args.repoRoot,
+      sessionDate,
+    });
+    process.stdout.write(`Generated ${kits.length} first-pass lab-session kit(s) for \`${args.target}\`:\n`);
+    for (const kit of kits) {
+      process.stdout.write(`- ${kit.sessionId}: ${kit.sessionRoot}\n`);
+    }
+    return;
+  }
+  const scenarioId = args.scenario!;
+  const { outcome } = splitConformanceScenarioId(scenarioId);
+  const sessionId = mintConformanceLabSessionId({ date: sessionDate, harness: args.target, outcome });
+  const spec = loadPackagingConformanceScenarioSpec(
+    path.join(args.repoRoot, "conformance", "scenarios", `${scenarioId}.json`),
+  );
+  const kit = await generateConformanceKit({
+    spec,
+    harness: args.target,
+    sessionRoot: args.sessionRoot ?? defaultConformanceSessionRoot({ sessionId }),
+    repoRoot: args.repoRoot,
+    sessionId,
+  });
+  process.stdout.write(`Generated lab-session kit \`${kit.sessionId}\`:\n`);
+  process.stdout.write(`- session root: ${kit.sessionRoot}\n`);
+  process.stdout.write(`- manifest: ${kit.manifestPath}\n`);
+  process.stdout.write(`- start with: ${path.join(kit.kitDir, "prompts", "session-prompt.md")}\n`);
+}
+
+main().catch((error) => {
+  process.stderr.write(`${error instanceof Error ? error.message : String(error)}\n`);
+  process.exit(1);
+});

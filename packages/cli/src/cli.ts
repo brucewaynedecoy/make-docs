@@ -107,6 +107,21 @@ type SkillsCommandRunner = (options: SkillsCommandOptions) => Promise<void>;
 let uninstallCommandLoaderOverride: UninstallCommandLoader | null = null;
 let skillsCommandRunnerOverride: SkillsCommandRunner | null = null;
 
+/**
+ * Parses and validates one make-docs CLI argv WITHOUT executing it, throwing
+ * exactly where {@link runCli} would refuse the invocation (unknown command,
+ * unknown flag, flag/subcommand mismatch). Exposed for the W18 R13
+ * conformance kit generator's executable-by-construction check (PRD 43
+ * R-KIT-3): rendered scenario commands are projected through the REAL parser
+ * — never a kit-local grammar table — so a command the current CLI does not
+ * accept fails kit generation, before any lab session starts. `run` argv is
+ * intentionally not deep-validated here; the run tree's own resolver and
+ * adapters (`adaptRunCliArgv` in src/run/cli.ts) own that surface.
+ */
+export function validateMakeDocsCliArgv(argv: string[]): void {
+  validateParsedArgs(parseArgs(argv));
+}
+
 export async function runCli(argv = process.argv.slice(2)): Promise<void> {
   const parsed = parseArgs(argv);
   if (parsed.help) {

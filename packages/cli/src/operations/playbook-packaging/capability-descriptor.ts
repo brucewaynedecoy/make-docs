@@ -144,6 +144,83 @@ export interface HarnessLifecycleHookBinding {
   description: string;
 }
 
+/**
+ * A lab-facing command claim on the interrogation block (PRD 43 R-HOME-2;
+ * PRD 36 R-CAP-2 as enhanced by PRD 43): a concrete harness command the
+ * conformance lab renders into kits, verification-marked like every other
+ * descriptor claim, with a reference naming where the claim was confirmed or
+ * what remains unverified.
+ */
+export interface HarnessLabCommandClaim {
+  command: string;
+  args: string[];
+  status: HarnessDescriptorVerificationStatus;
+  reference: string;
+}
+
+/**
+ * One listing-capture form the discover instrument renders from (PRD 43
+ * R-INST-1): a capture of the harness's own listing surface as command
+ * output, a directory listing, or a manifest read. Paths are
+ * workspace-relative; `{packageId}` markers are rendered by kit generation.
+ */
+export type HarnessLabListingCaptureForm =
+  | { kind: "command-output"; command: string; args: string[] }
+  | { kind: "directory-listing"; path: string }
+  | { kind: "manifest-read"; path: string };
+
+export interface HarnessLabListingCapture {
+  /** Stable lowercase slug id; the capture's evidence files are named from it. */
+  id: string;
+  /** What the capture shows and how ingestion should read it. */
+  description: string;
+  status: HarnessDescriptorVerificationStatus;
+  reference: string;
+  form: HarnessLabListingCaptureForm;
+}
+
+/**
+ * The lab-facing interrogation block (W18 R13 P2 t1; PRD 43 R-HOME-2,
+ * enhancing PRD 36 R-CAP-2): everything a conformance kit needs to know
+ * about a harness beyond its packaging contract — how to pin its version,
+ * how to launch it, the listing surfaces the discover instrument captures,
+ * where (if anywhere) the harness evidences skill invocation, and the
+ * workspace conventions a lab session should honor. The descriptor is the
+ * single home of this knowledge: a kit-local table of harness facts is the
+ * R-021 regression vector and is prohibited. Absent knowledge is stated
+ * honestly — `null` claims and `knownGaps` entries — never invented.
+ *
+ * Implementer decisions recorded here (W18 R13 P2 t1):
+ * - Every claim carries its own verification marking, and a claim may be
+ *   `verified` only on a descriptor whose packaging-contract verification is
+ *   itself `verified` — lab knowledge is never more confirmed than the
+ *   contract it rides on.
+ * - The block is deliberately EXCLUDED from {@link computeHarnessContractDigest}:
+ *   the digest fingerprints the packaging contract surface an adapter's
+ *   verification claim covers (R-ADAPT-1), while each interrogation claim is
+ *   individually verification-marked; folding the lab block into the digest
+ *   would force contract re-verification ceremony for lab-note edits without
+ *   adding honesty the per-claim markings do not already carry.
+ */
+export interface HarnessLabInterrogation {
+  /** Command printing the harness version (pins a session's harness version); null when unknown. */
+  versionCommand: HarnessLabCommandClaim | null;
+  /** How to launch the harness interactively inside a session workspace; null when unknown. */
+  launchCommand: HarnessLabCommandClaim | null;
+  /** Listing surfaces the discover instrument captures (R-INST-1). */
+  listingCaptures: HarnessLabListingCapture[];
+  /** Where the harness logs or evidences skill invocation; null when no surface is known. */
+  invocationEvidence: {
+    description: string;
+    status: HarnessDescriptorVerificationStatus;
+    reference: string;
+  } | null;
+  /** Workspace conventions lab sessions should honor (rendered into prompts). */
+  workspaceNotes: string[];
+  /** Honest absences: lab knowledge this descriptor deliberately does not claim. */
+  knownGaps: string[];
+}
+
 export interface HarnessDescriptorVerification {
   status: HarnessDescriptorVerificationStatus;
   /** Where the contract was (or will be) confirmed (R-ADAPT-1). */
@@ -172,6 +249,13 @@ export interface HarnessCapabilityDescriptor {
   registration: HarnessRegistrationModel;
   preconditions: PackageAdapterPrecondition[];
   verification: HarnessDescriptorVerification;
+  /**
+   * The lab-facing interrogation block (PRD 43 R-HOME-2). Optional: an
+   * absent block is the honest statement that no lab interrogation knowledge
+   * is claimed for this harness yet, and kit generation for it fails closed
+   * rather than inventing harness facts.
+   */
+  labInterrogation?: HarnessLabInterrogation;
 }
 
 /**
@@ -425,5 +509,95 @@ export function validateHarnessCapabilityDescriptor(
       `${label} provisional verification must name what remains unverified in provisionalNotes (R-ADAPT-1).`,
     );
   }
+  validateHarnessLabInterrogation(descriptor, label);
   return descriptor;
+}
+
+/**
+ * Validates the optional lab-facing interrogation block (W18 R13 P2 t1;
+ * PRD 43 R-HOME-2): every claim carries a non-empty reference, listing
+ * captures use unique slug ids with workspace-relative paths, and no claim
+ * is marked `verified` on a descriptor whose packaging contract is still
+ * `provisional` — lab knowledge never outruns the contract verification.
+ */
+function validateHarnessLabInterrogation(
+  descriptor: HarnessCapabilityDescriptor,
+  label: string,
+): void {
+  const interrogation = descriptor.labInterrogation;
+  if (!interrogation) {
+    return;
+  }
+  const contractVerified = descriptor.verification.status === "verified";
+  const assertClaimStatus = (claimLabel: string, status: HarnessDescriptorVerificationStatus, reference: string): void => {
+    if (reference.length === 0) {
+      throw new OperationError(
+        `${label} lab interrogation ${claimLabel} must carry a reference naming where the claim was confirmed or what remains unverified (R-HOME-2).`,
+      );
+    }
+    if (status === "verified" && !contractVerified) {
+      throw new OperationError(
+        `${label} lab interrogation ${claimLabel} claims verified lab knowledge on a provisional contract; lab claims are never more confirmed than the packaging contract they ride on (R-HOME-2, R-ADAPT-1).`,
+      );
+    }
+  };
+  for (const [name, claim] of [
+    ["versionCommand", interrogation.versionCommand],
+    ["launchCommand", interrogation.launchCommand],
+  ] as const) {
+    if (!claim) {
+      continue;
+    }
+    if (claim.command.length === 0 || claim.args.some((arg) => arg.length === 0)) {
+      throw new OperationError(`${label} lab interrogation ${name} must use non-empty command tokens.`);
+    }
+    assertClaimStatus(name, claim.status, claim.reference);
+  }
+  const captureIds = new Set<string>();
+  for (const capture of interrogation.listingCaptures) {
+    const captureLabel = `listing capture \`${capture.id}\``;
+    if (!/^[a-z0-9][a-z0-9-]*$/.test(capture.id)) {
+      throw new OperationError(`${label} lab interrogation ${captureLabel} must use a lowercase slug id.`);
+    }
+    if (captureIds.has(capture.id)) {
+      throw new OperationError(`${label} lab interrogation declares duplicate ${captureLabel}.`);
+    }
+    captureIds.add(capture.id);
+    if (capture.description.length === 0) {
+      throw new OperationError(`${label} lab interrogation ${captureLabel} must carry a description.`);
+    }
+    assertClaimStatus(captureLabel, capture.status, capture.reference);
+    if (capture.form.kind === "command-output") {
+      if (capture.form.command.length === 0 || capture.form.args.some((arg) => arg.length === 0)) {
+        throw new OperationError(`${label} lab interrogation ${captureLabel} must use non-empty command tokens.`);
+      }
+    } else if (
+      capture.form.path.length === 0 ||
+      capture.form.path.startsWith("/") ||
+      capture.form.path.startsWith("<user-home>") ||
+      capture.form.path.split("/").includes("..")
+    ) {
+      throw new OperationError(
+        `${label} lab interrogation ${captureLabel} must name a workspace-relative path (no absolute paths, no \`..\`, no user-home markers).`,
+      );
+    }
+  }
+  if (interrogation.invocationEvidence) {
+    if (interrogation.invocationEvidence.description.length === 0) {
+      throw new OperationError(`${label} lab interrogation invocationEvidence must carry a description.`);
+    }
+    assertClaimStatus(
+      "invocationEvidence",
+      interrogation.invocationEvidence.status,
+      interrogation.invocationEvidence.reference,
+    );
+  }
+  for (const [family, notes] of [
+    ["workspaceNotes", interrogation.workspaceNotes],
+    ["knownGaps", interrogation.knownGaps],
+  ] as const) {
+    if (notes.some((note) => note.length === 0)) {
+      throw new OperationError(`${label} lab interrogation ${family} entries must be non-empty.`);
+    }
+  }
 }

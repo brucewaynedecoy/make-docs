@@ -1,7 +1,7 @@
 {
   "schemaVersion": "conformance.scenario.v1",
   "scenarioId": "packaging/dependency-check-both-directions",
-  "scenarioVersion": "2.0.0",
+  "scenarioVersion": "2.1.0",
   "title": "Dependency checks: surface missing tools, pass on present tools, probe-based only",
   "sourceRequirements": [
     "docs/prd/37-enhance-playbook-and-package-conformance.md",
@@ -26,6 +26,12 @@
       "run": "WORKSPACE=$(mktemp -d) && git -C \"$WORKSPACE\" init",
       "transcript": "context",
       "notes": "Disposable fixture workspace (workspacePolicy); all later steps run inside it."
+    },
+    {
+      "kind": "command",
+      "run": "cd \"$WORKSPACE\" && make-docs setup --yes < /dev/null",
+      "transcript": "context",
+      "notes": "Installs Make Docs into the disposable workspace: `package write` refuses installed outputs without a Make Docs manifest, and the uninstall stage's `setup remove` presupposes a real install to remove (register item D-023: precondition establishment is a workspace-setup step, never remembered mid-session; this missing step was surfaced by the W18 R13 P2 kit generator's executable-by-construction dry-run)."
     },
     {
       "kind": "command",

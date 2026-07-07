@@ -40,6 +40,18 @@
  *   the git events (`on-pre-commit`, `on-post-commit`, `on-pre-push`) have no
  *   Claude Code hook points and are deliberately absent so event-bound steps
  *   on them degrade or fail closed per R-CAP-4/R-CAP-5.
+ * - Lab-facing interrogation blocks (W18 R13 P2 t1; PRD 43 R-HOME-2,
+ *   enhancing R-CAP-2): Codex carries the block authored from verified
+ *   knowledge plus the R-021 probe context — the version-pin command
+ *   exercised by the 2026-07-03 probe, listing captures derived from the
+ *   R-ADAPT-2 skills-discovery and marketplace-registration contract and the
+ *   D9 Make Docs-chosen plugin exposure root, with the absence of any
+ *   machine-readable plugin-listing command and of a verified
+ *   invocation-logging surface stated as known gaps. Claude Code carries an
+ *   honestly PROVISIONAL block (every claim inferred, marked provisional,
+ *   gaps named). Pi carries NO block: every Pi path is inferred, so no lab
+ *   interrogation knowledge is claimed at all — kit generation for a Pi
+ *   target fails closed instead of inventing harness facts.
  */
 
 import type { HarnessCapabilityDescriptor } from "./capability-descriptor";
@@ -151,8 +163,62 @@ export const CODEX_HARNESS_CAPABILITY_DESCRIPTOR: HarnessCapabilityDescriptor =
       ],
       // Recorded at verification time; recomputed by descriptor validation so
       // any change to the declared Codex contract surface demands
-      // re-verification (R-ADAPT-1).
+      // re-verification (R-ADAPT-1). The lab interrogation block below is
+      // deliberately outside this digest: each lab claim carries its own
+      // verification marking (W18 R13 P2 t1).
       contractDigest: "sha256:2033146ce7fa5b71",
+    },
+    labInterrogation: {
+      versionCommand: {
+        command: "codex",
+        args: ["--version"],
+        status: "verified",
+        reference:
+          "Exercised by the 2026-07-03 R-021 recognition probe, which pinned Codex v0.142.4 with this command; the committed first-pass target bindings use it as the harness-cli precondition probe.",
+      },
+      launchCommand: {
+        command: "codex",
+        args: [],
+        status: "provisional",
+        reference:
+          "Interactive Codex sessions were driven during the 2026-07-03 R-021 probe, but no launch contract (flags, workspace binding) is pinned; treat the bare interactive launch as the working assumption until a lab session records it.",
+      },
+      listingCaptures: [
+        {
+          id: "skills-directory-listing",
+          description:
+            "Recursive listing of the workspace skills-discovery root: Codex discovers skills bundles at `.agents/skills/{id}/SKILL.md`, so what is on this surface is what the harness can discover.",
+          status: "verified",
+          reference: `${PACKAGING_DESIGN_REF} (D6, R-ADAPT-2): direct \`.agents/skills/{id}/SKILL.md\` discovery is the verified Codex skills contract.`,
+          form: { kind: "directory-listing", path: ".agents/skills" },
+        },
+        {
+          id: "marketplace-manifest-read",
+          description:
+            "Byte capture of the generated marketplace registration file the harness's Add Marketplace flow consumes; registration is generated, never auto-installed (R-MKT-1).",
+          status: "verified",
+          reference: `${PACKAGING_DESIGN_REF} (D6, R-ADAPT-2): marketplace registration through \`.agents/plugins/marketplace.json\` is the verified Codex plugin contract.`,
+          form: { kind: "manifest-read", path: ".agents/plugins/marketplace.json" },
+        },
+        {
+          id: "plugin-install-root-listing",
+          description:
+            "Recursive listing of the project-scope plugin exposure root the generated marketplace entry references.",
+          status: "verified",
+          reference:
+            "Make Docs-chosen install location (D9 implementer freedom) declared by this descriptor's placements; the listing captures our own placement surface, not a harness listing.",
+          form: { kind: "directory-listing", path: ".codex/plugins" },
+        },
+      ],
+      invocationEvidence: null,
+      workspaceNotes: [
+        "Run the harness with the lab-session workspace as the working directory so project-scope placements resolve.",
+        "Marketplace registration is generated, never auto-installed (R-MKT-1): registering the generated marketplace entry with the harness is a harness action inside the session, using the source shape the discovery kit establishes as ground truth.",
+      ],
+      knownGaps: [
+        "No machine-readable Codex CLI command for listing installed plugins is verified; the workspace-plugins listing observed in the 2026-07-03 R-021 probe is an interactive UI surface, so the discover instrument captures file surfaces and the harness-UI observation stays narrative context.",
+        "No Codex surface for logging skill invocation is verified; the invoke instrument relies on the fixture probe marker captured from the session transcript instead.",
+      ],
     },
   });
 
@@ -283,6 +349,53 @@ export const CLAUDE_CODE_HARNESS_CAPABILITY_DESCRIPTOR: HarnessCapabilityDescrip
       ],
       contractDigest: null,
     },
+    // Honestly provisional lab interrogation (W18 R13 P2 t1): every claim is
+    // inferred alongside the provisional packaging contract and marked so; no
+    // first-pass kit binds this target, and any Claude Code lab session must
+    // start from discovery, not from these assumptions.
+    labInterrogation: {
+      versionCommand: {
+        command: "claude",
+        args: ["--version"],
+        status: "provisional",
+        reference:
+          "Inferred from the Claude Code CLI's documented conventions; unverified against a real install (R-ADAPT-3).",
+      },
+      launchCommand: {
+        command: "claude",
+        args: [],
+        status: "provisional",
+        reference:
+          "Inferred interactive launch; unverified against a real install (R-ADAPT-3).",
+      },
+      listingCaptures: [
+        {
+          id: "skills-directory-listing",
+          description:
+            "Recursive listing of the declared project-scope skills root; the discovery path itself is still provisional.",
+          status: "provisional",
+          reference:
+            "Declared `.claude/skills/{id}/SKILL.md` contract awaiting review against the actual Claude Code skill contract (R-ADAPT-3).",
+          form: { kind: "directory-listing", path: ".claude/skills" },
+        },
+        {
+          id: "plugins-directory-listing",
+          description:
+            "Recursive listing of the declared project-scope plugins root; the discovery path itself is still provisional.",
+          status: "provisional",
+          reference:
+            "Declared `.claude/plugins/{id}/plugin.json` contract awaiting review against the actual Claude Code plugin contract (R-ADAPT-3).",
+          form: { kind: "directory-listing", path: ".claude/plugins" },
+        },
+      ],
+      invocationEvidence: null,
+      workspaceNotes: [
+        "Run the harness with the lab-session workspace as the working directory so project-scope placements resolve (assumption; unverified).",
+      ],
+      knownGaps: [
+        "No Claude Code listing command, invocation-logging surface, or launch contract is verified; every claim in this block is provisional and a lab session against Claude Code must begin with a discovery kit, never with bar assertions (R-ADAPT-3, R-ADAPT-1).",
+      ],
+    },
   });
 
 export const PI_HARNESS_CAPABILITY_DESCRIPTOR: HarnessCapabilityDescriptor =
@@ -377,6 +490,10 @@ export const PI_HARNESS_CAPABILITY_DESCRIPTOR: HarnessCapabilityDescriptor =
       ],
       contractDigest: null,
     },
+    // No labInterrogation block (W18 R13 P2 t1): every Pi path and manifest
+    // filename is inferred, so no lab interrogation knowledge is claimed —
+    // honest absence; kit generation for a Pi target fails closed naming this
+    // gap rather than inventing harness facts (R-HOME-2).
   });
 
 /** Fixture descriptor proving future-harness support stays additive (R-ADAPT-5). */

@@ -8,6 +8,8 @@
  */
 
 export * from "./governance";
+export * from "./kit";
+export * from "./lab-session";
 export * from "./layers";
 export * from "./meta-verification";
 export * from "./registry";

@@ -630,6 +630,55 @@ function printRunHelp(): void {
 }
 
 /**
+ * The adapted form of one `make-docs run` argv: the spelled id, the registry
+ * identifier it dispatches, the parsed options, and the adapter's invocation
+ * (typed input plus context overlay). Exposed for the W18 R13 conformance kit
+ * generator's executable-by-construction check (PRD 43 R-KIT-3): projecting a
+ * scenario command through the REAL resolver and adapters — never a parallel
+ * parser — proves the current CLI accepts it, without executing anything.
+ */
+export interface AdaptedRunCliInvocation {
+  /** The resolved CLI path id; may be a declared spelling key. */
+  id: string;
+  /** The registry identifier the invocation dispatches. */
+  operationId: string;
+  options: OperationOptions;
+  invocation: RunCliInvocation;
+  /** The spelling's dry-run context overlay, when the id is a spelling. */
+  spellingDryRun: boolean | undefined;
+}
+
+/**
+ * Resolves and adapts one `make-docs run` argv through the registry-derived
+ * path resolver and the per-identifier adapters, throwing exactly where the
+ * real dispatch would (unknown operation, missing required flags, malformed
+ * values) — without invoking the operation. {@link runRunCommand} routes
+ * through this same seam so the validation surface can never drift from the
+ * executing surface.
+ */
+export function adaptRunCliArgv(argv: string[]): AdaptedRunCliInvocation {
+  const { id, rest } = resolveRunOperationPath(argv);
+  const spelling = RUN_CLI_SPELLINGS[id];
+  const operationId = spelling?.operation ?? id;
+  const adapter = RUN_CLI_ADAPTERS[operationId];
+  if (!adapter) {
+    // Registry/adapter drift: the conformance test pins this, but fail loudly
+    // rather than silently for an identifier added without a CLI adapter.
+    throw new OperationError(
+      `Operation \`${operationId}\` is registered but has no \`run\` CLI adapter; add one in src/run/cli.ts.`,
+    );
+  }
+  const options = parseOperationOptions(rest);
+  return {
+    id,
+    operationId,
+    options,
+    invocation: adapter(options),
+    spellingDryRun: spelling?.dryRun,
+  };
+}
+
+/**
  * Injectable seams for the render layer (R-TEST-4): tests simulate a TTY by
  * passing `isTty` since vitest's captured stdout is never one; production
  * reads `process.stdout.isTTY`.
@@ -643,19 +692,8 @@ export async function runRunCommand(argv: string[], seams: RunCommandSeams = {})
     printRunHelp();
     return;
   }
-  const { id, rest } = resolveRunOperationPath(argv);
-  const spelling = RUN_CLI_SPELLINGS[id];
-  const operationId = spelling?.operation ?? id;
-  const adapter = RUN_CLI_ADAPTERS[operationId];
-  if (!adapter) {
-    // Registry/adapter drift: the conformance test pins this, but fail loudly
-    // rather than silently for an identifier added without a CLI adapter.
-    throw new OperationError(
-      `Operation \`${operationId}\` is registered but has no \`run\` CLI adapter; add one in src/run/cli.ts.`,
-    );
-  }
-  const options = parseOperationOptions(rest);
-  const { input, context, artifact } = adapter(options);
+  const { id, operationId, options, invocation: adapted, spellingDryRun } = adaptRunCliArgv(argv);
+  const { input, context, artifact } = adapted;
   const invocation = await invokeOperation(
     operationId,
     input,
@@ -664,7 +702,7 @@ export async function runRunCommand(argv: string[], seams: RunCommandSeams = {})
       writesAllowed: true,
       // The spelling's context overlay wins: `package.preview` is exactly
       // `package.write` under the dry-run context (R-GRAM-1..2).
-      dryRun: spelling?.dryRun ?? context?.dryRun ?? false,
+      dryRun: spellingDryRun ?? context?.dryRun ?? false,
       approvals: context?.approvals ?? [],
     }),
   );

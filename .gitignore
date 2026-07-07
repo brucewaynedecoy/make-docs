@@ -87,5 +87,4 @@ venv/
 python_modules/
 
 # make-docs
-.make-docs/conformance/
 .make-docs/runs/

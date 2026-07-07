@@ -32,7 +32,7 @@ dependencies:
   - id: scenario-spec
     kind: reference
     requirement: required
-    source: the invoking scenario spec under conformance/scenarios/
+    source: the invoking conformance scenario definition, a maintainer lab asset that is never redistributed
     used_by: [emit-probe-marker]
     fallback: stop; a probe run outside a conformance scenario proves nothing
 ```
