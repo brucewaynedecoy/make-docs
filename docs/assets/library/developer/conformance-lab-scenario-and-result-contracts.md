@@ -56,6 +56,8 @@ Do not add lab assets to `packages/docs/template/`, copied `packages/cli/templat
 
 ## Scenario Specs
 
+This section documents the lab-core `conformance.scenario.v1` contract, which is unchanged. Packaging conformance definitions keep this core verbatim and add a harness-agnostic, domain-qualified shape on top of it — a `<domain>/<outcome>` id, a `packagingExtension` block, and a per-target `targets` map that carries everything naming an execution target — documented in Packaging Conformance Scenarios and the Evidence Bar below. Read this section for the shared fields; read that one for how a real packaging definition is organized on disk.
+
 Every scenario spec must be small enough to review and stable enough to rerun. Use YAML or JSON, but preserve the same field names.
 
 ```yaml
@@ -113,27 +115,21 @@ Use exactly one safety mode:
 
 Never run destructive scenarios against a maintainer working tree. If required credentials, network access, provider accounts, model routing, or harnesses are unavailable, record a `blocked` result instead of inventing evidence.
 
-## Harness Adapter Protocol
+## Execution Targets and Uncovered-Target Reporting
 
-The first executable lab coverage is limited to the current make-docs harness ids in `packages/cli/src/types.ts`:
+A scenario definition never names an execution target. A harness becomes a *covered target* for a definition by gaining an entry in that definition's `targets` map (the per-target binding described under The `packagingExtension` Scenario Shape below); a harness with no entry is an *uncovered target*. This target-binding model — since W18 R13 Phase 1 ([PRD 43](../../../prd/43-revise-conformance-scenario-model-and-execution-kit.md); the resolution of register item [D-025](../../../prd/03-open-questions-and-risk-register.md)) — is what replaced the retired copy-per-harness lists: coverage grows by adding target bindings and descriptor knowledge, not by copying a scenario per harness.
 
-| Adapter id | Current product harness | Instruction file | Status |
-| --- | --- | --- | --- |
-| `codex` | Codex | `AGENTS.md` | Current executable lab target |
-| `claude-code` | Claude Code | `CLAUDE.md` | Current executable lab target |
+The current make-docs harness ids live in `packages/cli/src/types.ts`. Today every packaging definition binds exactly one target:
 
-Adapter ids must stay separate from model names and providers. A Codex run with one OpenAI-routed model, a Claude Code run with one Anthropic-routed model, and a future provider-routed open-weight model are three different support-claim tuples.
-
-Future adapter targets are reserved but not current shipped harnesses:
-
-| Future target | Current status | Required before support wording |
+| Harness id | Product harness | Coverage on the four packaging definitions |
 | --- | --- | --- |
-| OpenCode | Future lab adapter target | Accepted implementation plus reviewed scenario results |
-| Goose | Future lab adapter target | Accepted implementation plus reviewed scenario results |
-| Pi | Future lab adapter target | Accepted implementation plus reviewed scenario results |
-| Future agentic IDEs | Future lab adapter targets | Accepted implementation plus reviewed scenario results |
+| `codex` | Codex | Covered target — bound on all four first-pass definitions (no lab session has run yet). |
+| `claude-code` | Claude Code | Uncovered target — no `targets` binding; reported as a gap, not implied coverage. |
+| `pi` | Pi | Uncovered target — no `targets` binding; reported as a gap, not implied coverage. |
 
-Do not describe a future target as supported because the scenario protocol can name it. Until an adapter exists and a reviewed result records the exact scenario/harness/model/provider/runtime tuple, runs for that target are `blocked` or unattempted.
+An uncovered target is *reported*, never silently absent: kit generation for a harness with no binding fails closed naming the gap, `getScenarioTargetBinding` refuses to resolve it, and the registry's scenario-absence notes state the gap queryably (the six Pi tuples carry these notes explicitly). Absence is a statement, not a hole — the structural replacement for the retired `futureHarnesses` list, which implied a hand-maintained copy-per-harness future the tuple model rejects. Do not describe an uncovered target as supported because the scenario names a user outcome the target could one day run: covering Claude Code or Pi means authoring their target bindings and the descriptor lab knowledge those bindings need, then recording real runs — never editing scenario identity.
+
+Adapter ids must stay separate from model names and providers. A Codex run with one OpenAI-routed model, a Claude Code run with one Anthropic-routed model, and a future provider-routed open-weight model are three different support-claim tuples. Until a target has a binding and a reviewed result records the exact scenario/harness/model/provider/runtime tuple that meets the evidence bar, runs for that target are `blocked` or unattempted, and no wording may run ahead of that tuple.
 
 ## Result Records
 
