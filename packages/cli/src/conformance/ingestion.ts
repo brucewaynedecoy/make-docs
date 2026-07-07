@@ -408,7 +408,9 @@ function measureUninstallStage(
   outputs: string[],
   managedRoots: string[],
 ): { measurement: Omit<ConformanceStageMeasurement, "stage" | "asserted">; relevantDiffs: string[] } {
-  const beforeDoc = readSessionJson(sessionRoot, "evidence/uninstall/before-inventory.json");
+  const beforeDoc = readSessionJson(sessionRoot, "evidence/uninstall/before-inventory.json") as
+    | { managedFiles?: string[] }
+    | null;
   const commandsDoc = readSessionJson(sessionRoot, "evidence/uninstall/removal-commands.json") as
     | { commands?: CapturedCommand[] }
     | null;
@@ -431,12 +433,17 @@ function measureUninstallStage(
   const modified = diffDoc.modified ?? [];
   const emptyManagedDirs = diffDoc.emptyManagedDirs ?? [];
   const commandsOk = everyCommandSucceeded(commands);
-  // A removed path is legitimate only if it lies under a managed placement
-  // root or the Make Docs-managed `.make-docs/` root; a removal outside those
-  // is a user-authored deletion — the exact thing uninstall must never do.
+  // A removed path is legitimate when it is Make Docs-managed: a setup-managed
+  // file recorded in the workspace manifest (the uninstall instrument captures
+  // that set before removal — register item D-026), a file under a packaging
+  // placement root, or anything under `.make-docs/`. A removal outside all
+  // three is a user-authored deletion — the exact thing uninstall must never do.
+  const managedFiles = new Set(beforeDoc?.managedFiles ?? []);
   const managedPrefixes = [...managedRoots, ".make-docs"];
   const userAuthoredRemovals = removed.filter(
-    (removedPath) => !managedPrefixes.some((prefix) => removedPath === prefix || removedPath.startsWith(`${prefix}/`)),
+    (removedPath) =>
+      !managedFiles.has(removedPath) &&
+      !managedPrefixes.some((prefix) => removedPath === prefix || removedPath.startsWith(`${prefix}/`)),
   );
   const somethingRemoved = removed.length > 0;
   const noOrphans = emptyManagedDirs.length === 0;
@@ -544,6 +551,21 @@ export function ingestConformanceLabSession(
   }
   const harness = manifest.harness;
   const binding = getScenarioTargetBinding(spec, harness);
+
+  // Refuse a session that ran against the wrong `make-docs` (register item
+  // D-027): if the kit's preflight recorded a CLI-identity mismatch, every Make
+  // Docs command in the session ran a different build than the kit was
+  // generated and validated from, so its measurements are meaningless. Absent
+  // preflight evidence (older kits) is not an error — ingestion proceeds.
+  const preflight = readSessionJson(sessionRoot, "evidence/preflight/preflight.json") as
+    | { ok?: boolean; expectedVersion?: string; actualVersion?: string | null }
+    | null;
+  if (preflight && preflight.ok === false) {
+    throw new OperationError(
+      `Conformance ingestion refused: the session's preflight recorded a make-docs CLI mismatch — the kit was generated for \`${String(preflight.expectedVersion)}\` but the session ran \`${String(preflight.actualVersion ?? "unknown")}\`. The Make Docs commands ran a different build than the kit was validated against, so the measurements are meaningless; point \`make-docs\` at the repo build (\`cd packages/cli && npm link\`), regenerate the kit, and re-run (register item D-027).`,
+    );
+  }
+
   const runDate = input.runDate ?? manifest.sessionId.slice(0, 10);
   const { outcome } = splitConformanceScenarioId(spec.scenarioId);
   const transcriptLogPointer = operator.transcriptLogPointer ?? CONFORMANCE_TRANSCRIPT_DISCARDED_WITH_SESSION;

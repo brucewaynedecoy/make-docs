@@ -868,10 +868,37 @@ function renderUninstallInstrument(projection: ConformanceKitProjection): string
     'const stageDir = path.join(EVIDENCE_DIR, "uninstall");',
     'if (phase === "before") {',
     "  mkdirSync(stageDir, { recursive: true });",
+    "  // Capture the make-docs-managed file set from the workspace manifest",
+    "  // BEFORE removal (register item D-026): `setup remove` deletes the",
+    "  // manifest itself, and it lists every setup-managed file (AGENTS.md /",
+    "  // CLAUDE.md scaffolding, shipped playbooks, .make-docs internals) — so",
+    "  // ingestion can tell a managed removal from a user-authored deletion",
+    "  // instead of flagging managed scaffolding as a user-file violation.",
+    '  const manifestPath = path.join(WORKSPACE_DIR, ".make-docs", "manifest.json");',
+    "  const managedFiles = [];",
+    "  if (existsSync(manifestPath)) {",
+    "    try {",
+    '      const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));',
+    "      for (const managed of Object.keys(manifest.files || {})) {",
+    "        managedFiles.push(managed);",
+    "      }",
+    "      for (const skillFile of manifest.skillFiles || []) {",
+    '        const skillPath = typeof skillFile === "string" ? skillFile : skillFile && skillFile.path;',
+    "        if (skillPath) {",
+    "          managedFiles.push(skillPath);",
+    "        }",
+    "      }",
+    "    } catch {",
+    "      // A malformed manifest leaves managedFiles empty; ingestion then",
+    "      // falls back to the placement roots and flags conservatively.",
+    "    }",
+    "  }",
+    "  managedFiles.sort();",
     '  writeJsonFile(path.join(stageDir, "before-inventory.json"), {',
     "    schemaVersion: OUTPUT_SCHEMA,",
     '    stage: "uninstall",',
     '    phase: "before",',
+    "    managedFiles,",
     '    entries: listInventory(WORKSPACE_DIR, "", EXCLUDED_TOP_LEVEL),',
     "  });",
     '} else if (phase === "remove") {',
@@ -933,6 +960,54 @@ function renderDiscoveryInstrument(projection: ConformanceKitProjection): string
     '  captureCommand(command, path.join(stageDir, "ground-truth-" + (index + 1)), "evidence/discovery/ground-truth-" + (index + 1)),',
     ");",
     'writeJsonFile(path.join(stageDir, "ground-truth-commands.json"), { schemaVersion: OUTPUT_SCHEMA, stage: "discovery", commands });',
+    "",
+  ].join("\n");
+}
+
+/**
+ * Preflight instrument (register item D-027): verifies the `make-docs` on the
+ * operator's PATH is the CLI this kit was generated and validated against. The
+ * kit's commands were projected against the repository CLI at generation time,
+ * so running a different `make-docs` — a stale global install being the common
+ * case — produces meaningless results and misattributes the failure to Make
+ * Docs. Version match is the floor, not a full behavioral fingerprint (two
+ * builds can share an rc version string); a registry-digest fingerprint is the
+ * recorded stronger follow-up on D-027.
+ */
+function renderPreflightInstrument(cliVersion: string): string {
+  return [
+    "#!/usr/bin/env node",
+    INSTRUMENT_HEADER,
+    INSTRUMENT_PRELUDE,
+    "// Run FIRST, before any setup or bar-stage instrument: refuse loudly when",
+    "// the make-docs on PATH is not the build this kit was generated from.",
+    `const EXPECTED_VERSION = ${JSON.stringify(cliVersion)};`,
+    "",
+    'const stageDir = path.join(EVIDENCE_DIR, "preflight");',
+    "mkdirSync(stageDir, { recursive: true });",
+    'const result = spawnSync("make-docs", ["--version"], { encoding: "utf8" });',
+    'const actual = (result.stdout || "").trim();',
+    "const ok = !result.error && result.status === 0 && actual === EXPECTED_VERSION;",
+    'writeJsonFile(path.join(stageDir, "preflight.json"), {',
+    "  schemaVersion: OUTPUT_SCHEMA,",
+    '  stage: "preflight",',
+    "  expectedVersion: EXPECTED_VERSION,",
+    "  actualVersion: actual || null,",
+    "  exitCode: result.status,",
+    "  ok,",
+    "});",
+    "if (!ok) {",
+    "  console.error(",
+    '    "PREFLIGHT FAILED: the `make-docs` on your PATH is not the build this kit was generated from.\\n" +',
+    '      "  expected (kit generation CLI): " + EXPECTED_VERSION + "\\n" +',
+    '      "  actual `make-docs --version`:  " + (actual || "(no output / --version unsupported — an older build)") + "\\n" +',
+    '      "The kit commands were validated against the repository CLI at generation time; running a\\n" +',
+    '      "different make-docs produces meaningless results. Point make-docs at the repo build first,\\n" +',
+    '      "e.g.:  cd <repo>/packages/cli && npm link   (register item D-027).",',
+    "  );",
+    "  process.exit(1);",
+    "}",
+    'console.log("preflight ok: make-docs " + actual + " matches the kit generation CLI.");',
     "",
   ].join("\n");
 }
@@ -1054,6 +1129,7 @@ function renderSessionPrompt(input: {
     "",
     "## When to run each instrument",
     "",
+    "- preflight (FIRST, before anything else): run `node kit/instruments/preflight.mjs` — it fails loudly if the `make-docs` on your PATH is not the build this kit was generated from. Running a different `make-docs` (a stale global install is the common trap) produces meaningless results; fix your PATH before proceeding (register item D-027).",
     `- install: run \`${STAGE_INSTRUMENT_INVOCATIONS.install}\` from the session root — it executes the install commands itself, capturing exit codes, transcripts, and a placement-root inventory. Do not run the install commands by hand; hand-run output is narrative, not evidence.`,
     `- discover: after performing the discovery harness actions, run \`${STAGE_INSTRUMENT_INVOCATIONS.discover}\` to capture the descriptor-declared listing surfaces.`,
     "- invoke: perform the invocation in the harness, save the harness transcript VERBATIM to `evidence/invoke/probe-transcript.txt`, then run `node kit/instruments/invoke.mjs`.",
@@ -1167,6 +1243,11 @@ function renderSessionStepScript(input: {
     'WORKSPACE="$SESSION_ROOT/workspace"',
     "export WORKSPACE",
     'cd "$SESSION_ROOT"',
+    "",
+    "# Preflight (register item D-027): refuse to run against the wrong make-docs.",
+    "# The kit was generated and validated against a specific repository CLI, so a",
+    "# different make-docs on PATH produces meaningless conformance results.",
+    "node kit/instruments/preflight.mjs",
     "",
   ];
   for (const step of input.steps) {
@@ -1482,6 +1563,7 @@ export async function generateConformanceKit(
       kitFiles,
     );
     writeKitFile(sessionRoot, "kit/session-steps.sh", renderSessionStepScript({ projection, sessionId, steps }), kitFiles);
+    writeKitFile(sessionRoot, "kit/instruments/preflight.mjs", renderPreflightInstrument(cliVersion), kitFiles);
     writeKitFile(sessionRoot, "kit/instruments/install.mjs", renderInstallInstrument(projection), kitFiles);
     writeKitFile(sessionRoot, "kit/instruments/discover.mjs", renderDiscoverInstrument(projection), kitFiles);
     writeKitFile(sessionRoot, "kit/instruments/invoke.mjs", renderInvokeInstrument(projection), kitFiles);

@@ -19,7 +19,7 @@
  */
 
 import { spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, test } from "vitest";
@@ -553,6 +553,23 @@ describe("instruments over a synthetic session (R-INST-1..2)", () => {
     // User content untouched: the sentinel survives in the workspace.
     expect(readFileSync(path.join(kit.workspaceDir, "user-note.txt"), "utf8")).toBe("user file\n");
   });
+
+  test("the uninstall `before` phase captures the workspace's make-docs-managed file set (D-026)", async () => {
+    const kit = await generateFixtureKit();
+    // Inject a make-docs install manifest so the instrument can read the
+    // managed-file set before `setup remove` deletes it.
+    mkdirSync(path.join(kit.workspaceDir, ".make-docs"), { recursive: true });
+    writeFileSync(
+      path.join(kit.workspaceDir, ".make-docs", "manifest.json"),
+      JSON.stringify({ files: { "AGENTS.md": {}, "docs/CLAUDE.md": {} }, skillFiles: [] }),
+    );
+    expect(nodeScript(kit, "kit/instruments/uninstall.mjs", ["before"]).status).toBe(0);
+    const before = JSON.parse(readEvidence(kit, "evidence/uninstall/before-inventory.json")) as {
+      managedFiles: string[];
+    };
+    expect(before.managedFiles).toContain("AGENTS.md");
+    expect(before.managedFiles).toContain("docs/CLAUDE.md");
+  });
 });
 
 describe("first-pass suite generation and the shipped-surface boundary (R-KIT-1, R-HOME-1)", () => {
@@ -577,6 +594,53 @@ describe("first-pass suite generation and the shipped-surface boundary (R-KIT-1,
 
   test("kit generation registered nothing: no operation, no run adapter, no MCP tool (parity preserved vacuously)", () => {
     expect(listConformanceLabShippedSurfaceViolations()).toEqual([]);
+  });
+});
+
+describe("preflight instrument (register item D-027)", () => {
+  function runPreflight(kit: GeneratedConformanceKit, fakeMakeDocsVersion: string) {
+    const binDir = tempDir("fake-bin-");
+    const fake = path.join(binDir, "make-docs");
+    writeFileSync(
+      fake,
+      `#!/usr/bin/env bash\nif [ "$1" = "--version" ]; then echo "${fakeMakeDocsVersion}"; exit 0; fi\nexit 1\n`,
+    );
+    chmodSync(fake, 0o755);
+    return spawnSync(process.execPath, [path.join(kit.sessionRoot, "kit/instruments/preflight.mjs")], {
+      encoding: "utf8",
+      env: { ...process.env, PATH: `${binDir}:${process.env.PATH ?? ""}` },
+    });
+  }
+
+  test("the kit emits a preflight that runs first and bakes the generation version", async () => {
+    const kit = await generateFixtureKit();
+    expect(kit.kitFiles).toContain("kit/instruments/preflight.mjs");
+    expect(readEvidence(kit, "kit/instruments/preflight.mjs")).toContain('const EXPECTED_VERSION = "test";');
+    const script = readEvidence(kit, "kit/session-steps.sh");
+    expect(script).toContain("node kit/instruments/preflight.mjs");
+    expect(script.indexOf("preflight.mjs")).toBeLessThan(script.indexOf("install.mjs"));
+  });
+
+  test("refuses (exit 1) when the make-docs on PATH reports a different version", async () => {
+    const kit = await generateFixtureKit();
+    const result = runPreflight(kit, "9.9.9-wrong");
+    expect(result.status).toBe(1);
+    expect(result.stderr).toMatch(/PREFLIGHT FAILED/);
+    const preflight = JSON.parse(readEvidence(kit, "evidence/preflight/preflight.json")) as {
+      ok: boolean;
+      expectedVersion: string;
+      actualVersion: string;
+    };
+    expect(preflight.ok).toBe(false);
+    expect(preflight.expectedVersion).toBe("test");
+    expect(preflight.actualVersion).toBe("9.9.9-wrong");
+  });
+
+  test("passes (exit 0) when the make-docs on PATH matches the generation version", async () => {
+    const kit = await generateFixtureKit();
+    const result = runPreflight(kit, "test");
+    expect(result.status).toBe(0);
+    expect((JSON.parse(readEvidence(kit, "evidence/preflight/preflight.json")) as { ok: boolean }).ok).toBe(true);
   });
 });
 

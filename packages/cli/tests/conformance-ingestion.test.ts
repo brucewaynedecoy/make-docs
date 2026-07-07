@@ -120,6 +120,8 @@ interface EvidenceOptions {
   uninstall?: boolean;
   /** "none" | "placement-only" | "recognition-ok" | "recognition-empty". */
   discover?: "none" | "placement-only" | "recognition-ok" | "recognition-empty";
+  /** Override the uninstall diff's removed list (default: the packaging outputs). */
+  uninstallRemoved?: string[];
 }
 
 function writeJson(sessionRoot: string, relative: string, value: unknown): void {
@@ -187,6 +189,10 @@ function writeSyntheticSession(sessionRoot: string, evidence: EvidenceOptions): 
       schemaVersion: "conformance.instrument-output.v1",
       stage: "uninstall",
       phase: "before",
+      // The make-docs setup-managed file set the instrument captures from the
+      // workspace manifest before removal (register item D-026): scaffolding
+      // removed by `setup remove` is managed, not user-authored.
+      managedFiles: ["AGENTS.md", "CLAUDE.md", "docs/AGENTS.md", "docs/assets/playbooks/agent/make-docs-lifecycle.playbook.md"],
       entries: [{ path: ".codex/plugins/conformance-plugin-probe/.codex-plugin/plugin.json", kind: "file", sha256: "sha256:aa" }],
     });
     writeJson(sessionRoot, "evidence/uninstall/removal-commands.json", {
@@ -198,7 +204,7 @@ function writeSyntheticSession(sessionRoot: string, evidence: EvidenceOptions): 
       schemaVersion: "conformance.instrument-output.v1",
       stage: "uninstall",
       phase: "remove",
-      removed: [".codex/plugins/conformance-plugin-probe/.codex-plugin/plugin.json", ".agents/plugins/marketplace.json"],
+      removed: evidence.uninstallRemoved ?? [".codex/plugins/conformance-plugin-probe/.codex-plugin/plugin.json", ".agents/plugins/marketplace.json"],
       added: [".make-docs/backup/2026-07-06/manifest.json"],
       modified: [],
       unchangedCount: 3,
@@ -382,5 +388,75 @@ describe("manifest / definition cross-checks", () => {
     expect(() =>
       ingestConformanceLabSession({ sessionRoot, spec: PLUGIN_SPEC, operator: runnableOperator(), runDate: "2026-07-06", sequence: 1 }),
     ).toThrow(/scenarioVersion/);
+  });
+});
+
+describe("uninstall managed-file recognition (register item D-026)", () => {
+  test("make-docs-managed scaffolding removed by `setup remove` does not fail uninstall", () => {
+    // AGENTS.md / CLAUDE.md / the lifecycle playbook are make-docs setup-managed
+    // (in the captured managedFiles set), not user-authored — removing them is
+    // correct, so uninstall confirms and the run passes.
+    const result = ingest({
+      discover: "recognition-ok",
+      uninstallRemoved: [
+        ".codex/plugins/conformance-plugin-probe/.codex-plugin/plugin.json",
+        "AGENTS.md",
+        "CLAUDE.md",
+        "docs/assets/playbooks/agent/make-docs-lifecycle.playbook.md",
+      ],
+    });
+    expect(result.record.evidenceBar.uninstall).toBe(true);
+    expect(result.record.evidenceBar).toEqual({ install: true, discover: true, invoke: true, uninstall: true });
+    expect(result.record.verdict).toBe("pass");
+  });
+
+  test("a genuine user-authored file removal still fails uninstall", () => {
+    const result = ingest({
+      discover: "recognition-ok",
+      uninstallRemoved: [
+        ".codex/plugins/conformance-plugin-probe/.codex-plugin/plugin.json",
+        "src/my-notes.md",
+      ],
+    });
+    expect(result.record.evidenceBar.uninstall).toBe(false);
+    expect(result.record.verdict).toBe("unsupported");
+    expect(result.assembly.measured.find((entry) => entry.stage === "uninstall")!.detail).toMatch(
+      /user-authored file\(s\) removed: src\/my-notes\.md/,
+    );
+  });
+});
+
+describe("preflight CLI-identity guard (register item D-027)", () => {
+  function writeSessionWithPreflight(ok: boolean): string {
+    const sessionRoot = path.join(tmpRoot, "session");
+    writeSyntheticSession(sessionRoot, { discover: "recognition-ok" });
+    writeJson(sessionRoot, "evidence/preflight/preflight.json", {
+      schemaVersion: "conformance.instrument-output.v1",
+      stage: "preflight",
+      expectedVersion: "2.0.0-rc",
+      actualVersion: ok ? "2.0.0-rc" : "1.0.0-rc.1",
+      exitCode: 0,
+      ok,
+    });
+    return sessionRoot;
+  }
+
+  test("a preflight CLI mismatch refuses ingestion outright", () => {
+    const sessionRoot = writeSessionWithPreflight(false);
+    expect(() =>
+      ingestConformanceLabSession({ sessionRoot, spec: PLUGIN_SPEC, operator: runnableOperator(), runDate: "2026-07-07", sequence: 1 }),
+    ).toThrow(/make-docs CLI mismatch|D-027/);
+  });
+
+  test("a passing preflight does not block ingestion", () => {
+    const sessionRoot = writeSessionWithPreflight(true);
+    const result = ingestConformanceLabSession({ sessionRoot, spec: PLUGIN_SPEC, operator: runnableOperator(), runDate: "2026-07-07", sequence: 1 });
+    expect(result.record.verdict).toBe("pass");
+  });
+
+  test("absent preflight evidence (older kits) does not block ingestion", () => {
+    // No preflight.json written — backward compatible.
+    const result = ingest({ discover: "recognition-ok" });
+    expect(result.record.verdict).toBe("pass");
   });
 });
