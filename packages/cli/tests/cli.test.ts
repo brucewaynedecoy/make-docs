@@ -1462,6 +1462,16 @@ personas:
     }
   });
 
+  test("`--version` prints the package version and exits", async () => {
+    const { readPackageMeta } = await import("../src/utils");
+    expect((await captureCliOutput(["--version"])).trim()).toBe(readPackageMeta().version);
+  });
+
+  test("`-v` is an alias for `--version`", async () => {
+    const { readPackageMeta } = await import("../src/utils");
+    expect((await captureCliOutput(["-v"])).trim()).toBe(readPackageMeta().version);
+  });
+
   test("prints structured top-level help with exactly the five public commands", async () => {
     setTTY(false);
 

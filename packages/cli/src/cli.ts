@@ -123,6 +123,10 @@ export function validateMakeDocsCliArgv(argv: string[]): void {
 }
 
 export async function runCli(argv = process.argv.slice(2)): Promise<void> {
+  if (argv[0] === "--version" || argv[0] === "-v") {
+    output.write(`${readPackageMeta().version}\n`);
+    return;
+  }
   const parsed = parseArgs(argv);
   if (parsed.help) {
     printHelp(parsed.command, parsed.setupSubcommand);
@@ -1700,6 +1704,10 @@ Bare command:
   Run make-docs with no command to see install status (when installed) or start
   a guided setup (when not installed). Bare invocation never syncs.
 
+Global flags:
+  --version, -v   Print the installed make-docs version and exit.
+  --help, -h      Show help for a command.
+
 Commands:
   setup        Install or sync this project; subcommands reconfigure, skills, backup, remove.
   run          Run deterministic registry operations.
@@ -1709,6 +1717,7 @@ Commands:
 
 Examples:
   make-docs
+  make-docs --version
   make-docs setup --yes
   make-docs setup reconfigure
   make-docs setup skills --dry-run
