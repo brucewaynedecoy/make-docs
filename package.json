@@ -16,6 +16,7 @@
     "test": "npm test -w packages/cli",
     "validate:defaults": "npm run validate:defaults -w packages/cli",
     "conformance:kit": "npm run conformance:kit -w packages/cli --",
+    "conformance:ingest": "npm run conformance:ingest -w packages/cli --",
     "smoke:pack": "node scripts/smoke-pack.mjs"
   }
 }
