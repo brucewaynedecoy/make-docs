@@ -77,6 +77,12 @@ The CLI no longer dynamically renders scaffold documents. What is in `packages/d
 - Static asset selection and materialization are governed by `packages/cli/src/rules.ts`, `packages/cli/src/catalog.ts`, `packages/cli/src/utils.ts`, and the manifest persistence layer in `packages/cli/src/manifest.ts`.
 - The packaged delivery boundary remains `packages/docs/template/` during authoring and `packages/cli/template/` after `scripts/copy-template-to-cli.mjs` prepares the CLI tarball.
 
+## W18 R15 Capability Reconciliation
+
+Deferred-obligation and naive-UAT system resources, once authorized for implementation, belong in the upstream template authority at `packages/docs/template/`. That future work may add or update contracts, templates, prompts, playbooks, and agent instructions, but this PRD reconciliation does not implement those resources. Installed `.make-docs/` and `docs/` copies remain generated projections rather than independent product authorities.
+
+The authority and state boundaries are owned by [R-OBL-AUTH](45-deferred-obligation-governance.md#r-obl-auth-authority-chain-and-backlinks), [R-OBL-STATE](45-deferred-obligation-governance.md#r-obl-state-repository-and-project-state-boundary), and [R-NUAT-FUTURE](46-naive-end-user-acceptance-testing.md#r-nuat-future-documentation-first-and-future-automation). Any future deterministic CLI or validator is explicitly later work and must consume those documentation contracts rather than redefining them.
+
 ## Source Anchors
 
 - `README.md`

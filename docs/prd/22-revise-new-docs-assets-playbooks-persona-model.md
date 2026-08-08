@@ -161,6 +161,12 @@ Implementation must audit and update duplicated path knowledge across CLI source
 - `R-011`, `R-012`, and `R-013` cite this PRD for the settled persona, playbook/content, and migration target contracts.
 - Future implementation backlog tasks include template-first migration, dogfood reseeding, package-copy proof, path-hygiene checks, and persona validation fixtures.
 
+## W18 R15 Capability Reconciliation
+
+[R-NUAT-SCOPE](46-naive-end-user-acceptance-testing.md#r-nuat-scope-qualified-tester-and-installed-product) makes a naive tester a qualification boundary, not a Make Docs documentation persona. The tester has no implementation or architecture knowledge, no private agent context, and only the installed product plus instructions suitable for a real user. [R-NUAT-MODES](46-naive-end-user-acceptance-testing.md#r-nuat-modes-separate-test-and-review-modes) keeps testing/UAT coverage non-persona-scoped, as [R-OBL-AUDIT](45-deferred-obligation-governance.md#r-obl-audit-phase-close-orphan-audit) does for the phase-close orphan audit.
+
+Future playbooks may expose separate tester, facilitator, and developer responsibilities. The facilitator prepares safe setup and captures evidence; the tester receives only the goal-oriented user packet; the developer consumes findings without coaching the run.
+
 ## Source Anchors
 
 - [../designs/2026-06-19-new-docs-assets-playbooks-and-persona-model.md](../designs/2026-06-19-new-docs-assets-playbooks-and-persona-model.md)

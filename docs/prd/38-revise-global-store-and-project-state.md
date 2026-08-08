@@ -149,6 +149,12 @@ Code anchors:
 - [00-index.md](00-index.md): add PRD 38 to the reading order, document map, source anchors, audience paths, and intended follow-on.
 - [03-open-questions-and-risk-register.md](03-open-questions-and-risk-register.md): advance R-019 in place — the global-store dependency this PRD lands — and add the unified project-state model's migration and mirror-drift exposure as a new rebuild risk at the next available number.
 
+## W18 R15 Capability Reconciliation
+
+[R-OBL-STATE](45-deferred-obligation-governance.md#r-obl-state-repository-and-project-state-boundary) and [R-NUAT-STATE](46-naive-end-user-acceptance-testing.md#r-nuat-state-repository-and-evidence-boundary) keep repository artifacts authoritative for obligation meaning, requirement traceability, scenario definitions, terminal rationales, and durable findings. Project State or the Global Store may hold operational execution progress, run identifiers, evidence pointers, timestamps, environment metadata, resumability state, and bounded projections for discovery.
+
+Screenshots, recordings, logs, and other bulky or machine-local evidence may live outside the repository when policy requires it, but repository records must retain stable references and conclusions. Any database projection is non-authoritative and must be rebuildable from repository authority plus preserved evidence; this PRD round introduces no state schema change.
+
 ## Source Anchors
 
 - [../designs/2026-07-01-global-store-and-project-state.md](../designs/2026-07-01-global-store-and-project-state.md)

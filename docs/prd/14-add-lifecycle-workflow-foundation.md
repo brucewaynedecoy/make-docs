@@ -108,6 +108,12 @@ Optional for this addition. Add reciprocal `Related Docs` cross-links from
 to this doc where it aids discoverability; no `Superseded by` or `Deprecated by`
 verbs apply.
 
+## W18 R15 Capability Reconciliation
+
+Every phase-close gate must run the non-persona-scoped [R-OBL-AUDIT](45-deferred-obligation-governance.md#r-obl-audit-phase-close-orphan-audit). [R-OBL-COMPLETE](45-deferred-obligation-governance.md#r-obl-complete-phase-and-capability-status) allows a phase to be `complete` only when accepted outcomes are completed or validly routed; capability reporting must separately use `partial`, `complete`, or `unverified` so a completed phase cannot imply that an entire feature is done.
+
+Testing/UAT coverage also remains non-persona-scoped. Under [R-NUAT-ACTIVATE](46-naive-end-user-acceptance-testing.md#r-nuat-activate-user-observable-slices-and-valid-none) and [R-NUAT-GATE](46-naive-end-user-acceptance-testing.md#r-nuat-gate-phase-gates-and-finding-consumption), a genuinely user-observable slice activates naive UAT. Internal or headless work may record `none` only with the required rationale, evidence, owner, future trigger, target coordinate, and obligation route when later user signal is expected.
+
 ## Source Anchors
 
 - `docs/assets/archive/plans/2026-05-28-w16-r0-coverage-pass-contract/00-overview.md`

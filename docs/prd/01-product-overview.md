@@ -22,6 +22,8 @@ The product also treats maintainer and dogfood workflows as first-class capabili
 - Non-destructive sync and reconfigure: `packages/cli/src/cli.ts:119-219` infers whether the user is syncing saved selections or explicitly reconfiguring; `packages/cli/src/planner.ts:51-189` classifies create, update, generate, remove-managed, and conflict actions; and `packages/cli/src/install.ts:177-223` writes managed files while staging unresolved replacements under `.make-docs/conflicts/<run-id>/`.
 - Harness and skill distribution: `make-docs skills` is a first-class surface in `packages/cli/src/cli.ts:104-116` and `packages/cli/src/skills-command.ts:32-103`, while `packages/cli/skill-registry.json`, `packages/cli/src/skill-catalog.ts`, and `packages/cli/src/skill-resolver.ts` install explicitly selected optional skills once under `.make-docs/agentics/skills/<skill-name>/` per scope and expose them as native harness skill directories under `.claude/skills/<skill-name>/` and `.agents/skills/<skill-name>/` using symlink-preferred behavior with managed copy-mirror fallback.
 - Managed lifecycle operations: `packages/cli/src/backup.ts:49-158`, `packages/cli/src/uninstall.ts:52-177`, and `packages/cli/src/audit.ts:41-87` give the product a safety-first story for backup and uninstall that is separate from install/sync but still driven by manifest and canonical-content auditing.
+- Deferred-obligation governance: [R-OBL-ID](45-deferred-obligation-governance.md#r-obl-id-canonical-register-and-identity) and [R-OBL-AUDIT](45-deferred-obligation-governance.md#r-obl-audit-phase-close-orphan-audit) give every accepted incomplete outcome a durable owner, trigger, target coordinate, exit criteria, lifecycle status, and phase-close orphan audit so later work cannot silently lose it.
+- True naive end-user acceptance testing: [R-NUAT-ACTIVATE](46-naive-end-user-acceptance-testing.md#r-nuat-activate-user-observable-slices-and-valid-none) and [R-NUAT-EVIDENCE](46-naive-end-user-acceptance-testing.md#r-nuat-evidence-setup-outcomes-findings-and-reproducibility) require isolated, goal-oriented UAT when work produces a genuinely user-observable slice, preserve a justified `none` path for internal work, and capture discoverability, interaction, accessibility, and completion evidence without coaching the tester.
 - Packaging and dogfood validation: `packages/cli/package.json:9-25` defines the publishable surface, `scripts/copy-template-to-cli.mjs:24-32` prepares the bundled template, `packages/cli/tests/consistency.test.ts` proves desired scaffold assets match static template bytes, and `scripts/check-instruction-routers.sh` plus `scripts/smoke-pack.mjs` enforce dogfood and tarball integrity.
 
 ## System Boundaries
@@ -50,6 +52,11 @@ Out of scope, the product does not currently publish `packages/docs`, `packages/
 - Superseded by [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md) for stale rename limitations: no broad v2 product rename or default command alias work is active, and Q-008 is closed in favor of the stable `make-docs` / `Make Docs` / `MakeDocs` identity.
 
 ## Source Anchors
+
+- `docs/prd/45-deferred-obligation-governance.md`
+- `docs/prd/46-naive-end-user-acceptance-testing.md`
+- `docs/designs/2026-07-27-deferred-obligations-and-anti-orphan-governance.md`
+- `docs/designs/2026-07-27-true-naive-end-user-acceptance-testing.md`
 
 - `README.md`
 - `package.json`

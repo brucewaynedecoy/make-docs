@@ -238,6 +238,12 @@ Manifest, catalog, audit, backup, uninstall, installer, CLI, MCP, and plugin beh
 - Package/template validation covers accepted playbook defaults when shipped files change.
 - Risk register entries keep playbook content separate from plugin invocation and support claims.
 
+## W18 R15 Capability Reconciliation
+
+Naive UAT requires reusable tester and facilitator playbook surfaces. Under [R-NUAT-GOAL](46-naive-end-user-acceptance-testing.md#r-nuat-goal-real-world-goals-and-anti-coaching) and [R-NUAT-SCENARIO](46-naive-end-user-acceptance-testing.md#r-nuat-scenario-scenario-identity-and-artifact-contract), both remain hand-followable documentation contracts: the tester playbook exposes a real-world goal, permitted user-facing instructions, setup boundaries, and evidence directions; the facilitator playbook owns qualification, isolation, teardown, and routing of pass, fail, revise, or blocked outcomes.
+
+These playbooks do not require a runtime to be useful. Later runtime execution, packaging, or validation must preserve the same anti-coaching and artifact contracts from [PRD 46](46-naive-end-user-acceptance-testing.md).
+
 ## Source Anchors
 
 - [../designs/2026-06-20-playbook-contract-and-run-playbook.md](../designs/2026-06-20-playbook-contract-and-run-playbook.md)

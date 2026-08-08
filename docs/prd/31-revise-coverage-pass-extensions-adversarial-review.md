@@ -166,6 +166,12 @@ Baseline implementation validation should include `npm run build -w packages/cli
 - Any future adversarial-review playbook, plugin, CLI, MCP, or harness-assisted surface consumes W18 R4 resolver, capability, run-state, nested-run, and concurrency behavior.
 - Any future packaged adversarial-review output consumes W18 R5 package-plan, source/generated provenance, harness adapter, lifecycle, and conformance behavior.
 
+## W18 R15 Capability Reconciliation
+
+Testing/UAT coverage is explicitly non-persona-scoped. [R-NUAT-MODES](46-naive-end-user-acceptance-testing.md#r-nuat-modes-separate-test-and-review-modes) requires a coverage pass to evaluate automated tests, owner/architecture review, naive end-user UAT, visual/manual interaction testing, accessibility testing, and visual-regression automation separately, without treating one as proof of another.
+
+Under [R-NUAT-COVERAGE](46-naive-end-user-acceptance-testing.md#r-nuat-coverage-coverage-pass-mechanics), the pass must enumerate every user-observable slice as a naive-UAT candidate and then create, update, or link a `NUAT-###` scenario, or record `none` with the required rationale and future-trigger fields. The same pass must inspect accepted incomplete outcomes for [R-OBL-AUDIT](45-deferred-obligation-governance.md#r-obl-audit-phase-close-orphan-audit).
+
 ## Source Anchors
 
 - [../designs/2026-06-20-coverage-pass-extensions-and-adversarial-review.md](../designs/2026-06-20-coverage-pass-extensions-and-adversarial-review.md)

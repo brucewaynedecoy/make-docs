@@ -146,6 +146,12 @@ Code anchors:
 - [00-index.md](00-index.md): add PRD 34 to the reading order, document map, source anchors, audience paths, and intended follow-on.
 - [03-open-questions-and-risk-register.md](03-open-questions-and-risk-register.md): add the contract/validator/template parity-drift rebuild risk and extend the existing R-016 and R-017 decisions with the single-model rule.
 
+## W18 R15 Capability Reconciliation
+
+Deferred-obligation and naive-UAT playbooks must conform to the existing parsed playbook model; this reconciliation does not introduce a parallel schema. [R-NUAT-SCENARIO](46-naive-end-user-acceptance-testing.md#r-nuat-scenario-scenario-identity-and-artifact-contract) requires tester-visible fields to be separable from facilitator/developer-only fields so internal terminology, expected answers, architecture knowledge, and hidden remediation steps cannot leak into a naive test packet.
+
+[R-NUAT-FUTURE](46-naive-end-user-acceptance-testing.md#r-nuat-future-documentation-first-and-future-automation) permits future deterministic validation of this separation, but the documentation contract remains authoritative until such work is separately designed and approved.
+
 ## Source Anchors
 
 - [../designs/2026-06-30-playbook-contract-and-model.md](../designs/2026-06-30-playbook-contract-and-model.md)

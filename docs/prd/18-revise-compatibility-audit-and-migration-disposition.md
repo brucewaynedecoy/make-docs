@@ -164,6 +164,12 @@ The following active PRD docs must carry `Change Notes` backlinks to this revisi
 
 Do not add `Change Notes` to `docs/prd/03-open-questions-and-risk-register.md`; update its existing numbered D/Q/R items directly.
 
+## W18 R15 Capability Reconciliation
+
+Under [R-OBL-COMPAT](45-deferred-obligation-governance.md#r-obl-compat-existing-project-adoption) and [R-NUAT-COMPAT](46-naive-end-user-acceptance-testing.md#r-nuat-compat-existing-artifact-adoption), existing Make Docs projects adopt the new contracts conservatively at the first qualifying lifecycle, coverage, reconciliation, or phase-close event after upgrade. Historical phases are not retroactively failed, archived artifacts are not rewritten, and existing UAT/manual-test artifacts remain valid evidence unless a later qualifying slice requires them to be supplemented.
+
+Modified managed resources continue to follow the existing conflict-stop and explicit-disposition rules. This documentation-first capability round requires neither a Global Store schema migration nor an automatic database rewrite.
+
 ## Source Anchors
 
 - `docs/designs/2026-06-19-compatibility-audit-and-migration-disposition.md`

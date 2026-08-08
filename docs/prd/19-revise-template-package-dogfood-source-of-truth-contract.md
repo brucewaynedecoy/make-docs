@@ -94,6 +94,12 @@ The paired delta backlog for implementation work should be generated under `docs
 - `docs/prd/10-packaging-validation-and-release-reference.md` must point to PRD 19 from change notes.
 - `docs/prd/03-open-questions-and-risk-register.md` must update the existing relevant entries without creating new register IDs.
 
+## W18 R15 Capability Reconciliation
+
+Under [R-OBL-AUTH](45-deferred-obligation-governance.md#r-obl-auth-authority-chain-and-backlinks) and [R-NUAT-STATE](46-naive-end-user-acceptance-testing.md#r-nuat-state-repository-and-evidence-boundary), future reusable obligation-register, orphan-audit, naive-UAT scenario, tester, facilitator, and evidence resources are Make Docs product assets and therefore must be authored first in `packages/docs/template/`. Their `.make-docs/` and `docs/` counterparts in this repository are dogfood projections; project-specific obligation records, test scenarios, run outcomes, and evidence references remain repository content.
+
+No implementation or projection occurs during this PRD reconciliation.
+
 ## Source Anchors
 
 - `docs/designs/2026-06-19-template-package-and-dogfood-source-of-truth-contract.md`

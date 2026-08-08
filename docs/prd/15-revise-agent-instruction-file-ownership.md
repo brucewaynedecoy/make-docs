@@ -111,6 +111,12 @@ Code anchors:
   (instruction-file managed hash) — `Superseded by` this doc, to be confirmed
   and applied during implementation closeout.
 
+## W18 R15 Capability Reconciliation
+
+Managed agent instructions must route deferred-obligation and naive-UAT work to the authoritative contracts without embedding project-specific conventions. [R-NUAT-GOAL](46-naive-end-user-acceptance-testing.md#r-nuat-goal-real-world-goals-and-anti-coaching) requires tester isolation and anti-coaching: no internal terminology, hidden steps, expected answers, architecture knowledge, or compensating instructions that conceal a discoverability defect.
+
+The instructions may distinguish the facilitator or developer role from the tester role, but [R-NUAT-COVERAGE](46-naive-end-user-acceptance-testing.md#r-nuat-coverage-coverage-pass-mechanics) forbids turning testing/UAT coverage into a persona-scoped pass.
+
 ## Source Anchors
 
 - `docs/assets/archive/designs/2026-06-18-agent-instruction-file-ownership.md`

@@ -30,8 +30,34 @@ This glossary defines the typed and operational vocabulary used across the activ
 | Prepack bundle | The packaged CLI state after `prepack` copies `packages/docs/template/` into `packages/cli/template/` and builds the CLI output. | `packages/cli/package.json:19-25`, `scripts/copy-template-to-cli.mjs:24-32` |
 | Smoke-pack | The end-to-end packaged validation script that proves prepack, tarball creation, installer behavior, skills, backup, and uninstall still agree. | `scripts/smoke-pack.mjs:60-246` |
 | Reserved content package | The future-facing `packages/content/` workspace described in `README.md:10-17`, which still lacks a live selector or release contract. | `README.md:10-17`, `packages/cli/src/catalog.ts:64-85` |
+| Deferred obligation | An accepted required outcome that cannot be completed at its current work coordinate and therefore has an owner, trigger, target coordinate, dependencies, exit criteria, status, and durable `O-###` identity. | [PRD 45](45-deferred-obligation-governance.md) |
+| Orphan finding | An accepted incomplete outcome that is neither completed nor represented by a valid deferred obligation with a future consumption route. | [R-OBL-AUDIT](45-deferred-obligation-governance.md#r-obl-audit-phase-close-orphan-audit) |
+| Orphan audit | The mandatory, non-persona-scoped phase-close classification of accepted incomplete outcomes as completed, obligated, rejected, superseded, or unresolved blockers. | [PRD 45](45-deferred-obligation-governance.md) |
+| Phase complete | The current phase passed its gate and has no orphaned accepted outcomes; this says nothing stronger about the whole capability. | [PRD 45](45-deferred-obligation-governance.md) |
+| Capability partial | Some accepted capability outcomes are delivered while other accepted outcomes remain represented by active or deferred obligations. | [PRD 45](45-deferred-obligation-governance.md) |
+| Capability complete | Every accepted outcome for the capability is fulfilled or intentionally terminated with authoritative rationale. | [PRD 45](45-deferred-obligation-governance.md) |
+| Capability status unverified | The available evidence is insufficient to classify the capability as partial or complete. | [PRD 45](45-deferred-obligation-governance.md) |
+| Naive tester | A person or isolated agent with no implementation or architecture knowledge, no private agent context, and access only to the installed product plus real user-facing instructions. | [PRD 46](46-naive-end-user-acceptance-testing.md) |
+| Naive end-user UAT | Goal-oriented acceptance testing in which a qualified naive tester attempts a real user outcome without coaching, implementation-shaped steps, or hidden knowledge. | [PRD 46](46-naive-end-user-acceptance-testing.md) |
+| Installed product | The product surface a real user would actually receive and use, including its supported setup path and user-facing instructions, rather than source code, internal fixtures, or a developer-only shortcut. | [R-NUAT-SCOPE](46-naive-end-user-acceptance-testing.md#r-nuat-scope-qualified-tester-and-installed-product) |
+| User-observable slice | A product increment that a real user can meaningfully perceive, attempt, understand, or complete through an installed product workflow. | [PRD 46](46-naive-end-user-acceptance-testing.md) |
+| Tester packet | The minimum installed-product access, user-facing instructions, scenario goal, setup, safety boundaries, and evidence-capture directions given to a naive tester. | [PRD 46](46-naive-end-user-acceptance-testing.md) |
+| Operator view | Facilitator/developer-only scenario information such as setup, teardown, safety intervention, evidence handling, and requirement traceability that must not leak expected steps or answers to the tester. | [R-NUAT-SCENARIO](46-naive-end-user-acceptance-testing.md#r-nuat-scenario-scenario-identity-and-artifact-contract) |
+| Anti-coaching | The rule that a tester packet cannot reveal internal terms, architecture, hidden steps, expected answers, or workaround instructions that compensate for product discoverability failures. | [R-NUAT-GOAL](46-naive-end-user-acceptance-testing.md#r-nuat-goal-real-world-goals-and-anti-coaching) |
+| Naive-UAT pass | The qualified tester completed the goal without disqualifying coaching and the evidence supports the scenario's user-facing success criteria. | [R-NUAT-EVIDENCE](46-naive-end-user-acceptance-testing.md#r-nuat-evidence-setup-outcomes-findings-and-reproducibility) |
+| Naive-UAT fail | The product prevented, corrupted, or materially defeated the user goal; the finding must be routed by severity and reproducibility. | [R-NUAT-EVIDENCE](46-naive-end-user-acceptance-testing.md#r-nuat-evidence-setup-outcomes-findings-and-reproducibility) |
+| Naive-UAT revise | The tester exposed confusion, discoverability, mental-model, instruction, or interaction problems that require product or scenario revision before acceptance. | [R-NUAT-EVIDENCE](46-naive-end-user-acceptance-testing.md#r-nuat-evidence-setup-outcomes-findings-and-reproducibility) |
+| Naive-UAT blocked | The run could not produce a valid acceptance verdict because setup, environment, access, safety, or tester-qualification conditions failed. | [R-NUAT-EVIDENCE](46-naive-end-user-acceptance-testing.md#r-nuat-evidence-setup-outcomes-findings-and-reproducibility) |
+| Support-scope cell | One specific product-surface and support-context combination—such as platform, interface, input mode, or accessibility basis—that needs its own evidence when Make Docs makes a support claim for it. | [R-NUAT-SCOPE-MATRIX](46-naive-end-user-acceptance-testing.md#r-nuat-scope-matrix-cross-platform-visual-and-accessibility-scope) |
+| Project State | The operational project-scoped state surface that may hold execution progress and evidence pointers while repository artifacts retain semantic authority. | [PRD 38](38-revise-global-store-and-project-state.md) |
+| Project State evidence reference | A non-authoritative operational pointer, identifier, timestamp, or run record that helps locate execution evidence; repository requirements, scenarios, findings, and terminal rationales remain the product authority. | [R-NUAT-STATE](46-naive-end-user-acceptance-testing.md#r-nuat-state-repository-and-evidence-boundary) |
 
 ## Source Anchors
+
+- `docs/prd/45-deferred-obligation-governance.md`
+- `docs/prd/46-naive-end-user-acceptance-testing.md`
+- `docs/designs/2026-07-27-deferred-obligations-and-anti-orphan-governance.md`
+- `docs/designs/2026-07-27-true-naive-end-user-acceptance-testing.md`
 
 - `.make-docs/contracts/system/output-contract.md`
 - `README.md:313-3056`

@@ -6,9 +6,67 @@ This document centralizes confirmed drift, unresolved product-contract questions
 
 The fixed-core overview layer now exists, but this living register still carries the unresolved cross-cutting gaps those overview docs intentionally call out, especially where current code, current READMEs, packaged artifacts, and future-facing workspace plans do not yet agree. Agents should update this file directly for newly discovered or resolved gaps instead of creating separate questions, decisions, risks, gaps, or architecture-decision files unless the user explicitly asks for a new convention.
 
-Status values are `Open`, `Confirming`, `Deferred`, and `Closed`. `Closed` requires an explicit recorded resolution.
+This file also contains the canonical deferred-obligation register for accepted outcomes that cannot be completed at their current work coordinate. Deferred obligations are governed by [PRD 45](45-deferred-obligation-governance.md); ordinary open questions, options, and unaccepted bets remain in their existing sections and are not obligations.
+
+The existing drift, question, decision, and risk sections use `Open`, `Confirming`, `Deferred`, and `Closed`; `Closed` requires an explicit recorded resolution. The deferred-obligation section uses its separate lifecycle from PRD 45: `Deferred`, `Active`, `Fulfilled`, `Cancelled`, and `Superseded`.
 
 This register also tracks cross-cutting workflow, lifecycle, contract, and product-evolution decisions and risks that reach beyond the CLI, install, and packaging surface, including items not yet scoped to a specific wave.
+
+## Deferred Obligations
+
+This is the authoritative, append-only register for accepted-but-incomplete Make Docs outcomes. IDs use `O-###` and are never reused. Records may be corrected or enriched in place, but terminal records remain present for traceability.
+
+Allowed statuses are `Deferred`, `Active`, `Fulfilled`, `Cancelled`, and `Superseded`. `Fulfilled`, `Cancelled`, and `Superseded` are terminal and require terminal evidence or rationale. A phase cannot be declared complete until every accepted incomplete outcome is either completed or represented here with an owner, trigger, target coordinate, and exit criteria.
+
+### O-001 Adversarial-Review Coverage Contract
+
+| Field | Value |
+|---|---|
+| Capability or outcome | Add adversarial review as an explicit, reusable coverage-pass and execution-contract concern, independent of any one agent harness. |
+| Source authority | [R-020](#r-020-w18-r3-adversarial-review-surface-exposure-predates-the-new-playbook-cli-and-state-architecture), [PRD 31](31-revise-coverage-pass-extensions-adversarial-review.md), and W18 R3 Phase 2. |
+| Owner | Make Docs product and maintainer governance. |
+| Target coordinate | `W18 R3 P2`. |
+| Trigger | Unconditional; active when this register was reconciled at `W18 R15`. |
+| Dependencies | The current coverage-pass contract and the architecture-independent portion of PRD 31. |
+| Exit criteria | The upstream coverage contract defines adversarial-review enumeration and recording, the maintainer dogfood projection is synchronized, and repository-authoritative validation passes. |
+| Related acceptance scenarios | None. This contract work is not itself a user-observable product slice; later user-facing exposure is tracked separately by O-002. |
+| Status | `Active`. |
+| Terminal rationale | Not applicable while active. |
+| Last reviewed | `2026-07-30`, `W18 R15` PRD reconciliation. |
+
+### O-002 Adversarial-Review Playbook Exposure
+
+| Field | Value |
+|---|---|
+| Capability or outcome | Expose adversarial review through the reusable playbook, packaging, conformance, and execution architecture rather than a legacy harness-specific convention. |
+| Source authority | [R-020](#r-020-w18-r3-adversarial-review-surface-exposure-predates-the-new-playbook-cli-and-state-architecture), [PRD 31](31-revise-coverage-pass-extensions-adversarial-review.md), and W18 R3 Phases 3-4. |
+| Owner | Make Docs product and maintainer governance. |
+| Target coordinate | `W18 R3 P3-P4`, to be rewritten against the implemented v2 architecture before execution. |
+| Trigger | The required W18 R4/R5/R6/R7 playbook, packaging, conformance, and execution foundations are complete and the W18 R3 backlog is reconciled and authorized. |
+| Dependencies | O-001 plus the effective playbook and execution authorities in PRDs 29, 33-38, and 40-44. |
+| Exit criteria | A rewritten, owner-approved backlog exposes adversarial review through the current architecture, validates its packaged behavior, and closes the originating R-020 risk with evidence. |
+| Related acceptance scenarios | None yet. The rewritten backlog must classify any user-observable slice and route naive UAT under PRD 46 if one exists. |
+| Status | `Deferred`. |
+| Terminal rationale | Not applicable while deferred. |
+| Last reviewed | `2026-07-30`, `W18 R15` PRD reconciliation. |
+
+### Initial Migration Dispositions
+
+The following conservative review prevents historical register content from being silently reclassified. Only R-020 contains accepted incomplete outcomes that meet the obligation contract today.
+
+| Existing record | Disposition | Rationale |
+|---|---|---|
+| D-009 | Remains a decision record, not migrated. | It reserves a possible future runtime name; it does not commit Make Docs to deliver that runtime. |
+| Q-004 | Remains an open question, not migrated. | It asks for a future selection decision and does not yet establish an accepted required outcome. |
+| Q-015 | Remains an open question, not migrated. | It preserves an unresolved product option rather than accepted delivery work. |
+| Q-016 | Remains an open question, not migrated. | Its outcome and trigger are not yet accepted strongly enough to create an obligation. |
+| Q-017 | Remains an open question, not migrated. | It is a policy decision still awaiting owner resolution. |
+| Q-020 | Remains an open question, not migrated. | It records an unresolved future direction rather than an accepted deliverable. |
+| R-020 | Split into O-001 and O-002. | Its architecture-independent contract work is active; its architecture-dependent exposure work is genuinely deferred behind named foundations. |
+
+New candidates must be classified when they are discovered: create an obligation only when the outcome is required, or record why the candidate remains an option, question, risk, or non-requirement.
+
+Maintainer-dogfood capability status is currently `Capability status unverified`. The first implementation-phase orphan audit must retain that classification until repository records and Project State evidence support `Capability partial` or `Capability complete`.
 
 ## Confirmed Drift
 
@@ -1149,6 +1207,13 @@ This register also tracks cross-cutting workflow, lifecycle, contract, and produ
 **Resolution**: Closed at W18 R13 P4. The reconciliation inventory is exhausted and proven by grep, not review impression — all four completion greps return no live-surface hits, with only the recorded exceptions surviving: (1) `.make-docs/conformance` appears live only in `packages/cli/src/conformance/lab-session.ts`, which REJECTS the old transcript home, plus the retirement docs — the `.make-docs/conformance.json` compiled package record (inventory entry 17) and the dated designs, plans, and history records (entry 18) are the preserved exceptions; (2) the four `codex-*` scenario ids have zero live usage (only the schema-rejection documentation and the tests that prove the rejection); (3) `futureHarnesses` survives only as prose documenting its retirement — the `.strict()` schema rejection in `scenario.ts` and the README's "replaces the retired `futureHarnesses` list" note; (4) `REQUIRED_FIRST_PASS_SCENARIOS` holds exactly the four domain-qualified `packaging/*` ids with no stale `codex-*` key. D-025 closed at P1, D-023 and D-024 closed at P4 on their own bars (executable-by-construction with the enforcing dry-run check; no live surface naming the old transcript home). The PRD 37/PRD 20 revisions are change-managed through PRD 43 (scenario model, execution kit) and PRD 44 (execution protocol, evidence homes). The consumers reconciled in the same round: the scenario schema and ids, the tuple registry `plannedScenarios` (statuses and evidence byte-identical), `REQUIRED_FIRST_PASS_SCENARIOS` and the R-TEST-2 check, the developer conformance-lab guide (rewritten to the domain-qualified `targets` model with lab-session evidence homes, the `discoveryKit` rename, and an operator-modes summary), the four claim surfaces (verified unchanged in wording, markers bound to the registry's 0-of-20 state), the conformance README and router stubs, the `.gitignore` entry, and the code and test references — with the completed W18 R9 backlog index carrying a forward reconciliation note and its phase text and history records preserved historical (never rewritten). The one operational input the round deliberately does not produce — recorded first-pass runs against a real Codex install — is tracked by R-021 and R-022 and handed off to the operator in the W18 R13 P4 history record. The previous attempt's two waste artifacts were removed in this cleanup — the hand-written `CONFORMANCE-RUN-codex-plugin.md` walkthrough for the superseded codex-* spec (its three defect notes preserved in D-023) and its repo-local `.make-docs/conformance/` probe residue — correcting the earlier framing that had recorded them as the maintainer's to retire and clean. Closed with the full CLI suite green (1060 tests across 62 files), `validate:defaults`, `smoke:pack`, and path hygiene green.
 
 ## Source Anchors
+
+- `docs/prd/45-deferred-obligation-governance.md`
+- `docs/prd/46-naive-end-user-acceptance-testing.md`
+- `docs/designs/2026-07-27-deferred-obligations-and-anti-orphan-governance.md`
+- `docs/designs/2026-07-27-true-naive-end-user-acceptance-testing.md`
+- `docs/plans/2026-07-30-w18-r15-deferred-obligations-and-naive-uat-governance/`
+- `docs/assets/archive/history/2026-07-30-w18-r15-p1-prd-reconciliation.md`
 
 - `README.md:6-46`
 - `docs/prd/01-product-overview.md`

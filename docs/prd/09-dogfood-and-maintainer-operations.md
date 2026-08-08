@@ -60,6 +60,12 @@ Candidate items that should also surface in `03-open-questions-and-risk-register
 - Historical docs still reference superseded hidden-dot paths such as `docs/.references/`, `docs/.templates/`, and `docs/assets/config/manifest.json` in migration plans like `docs/assets/archive/plans/2026-04-22-w9-r1-docs-assets-resource-namespace/04-dogfood-docs-migration.md`. Those references are factual history, but easy to mistake for current routing authority.
 - `packages/content/` is described as reserved for future CLI-rendered fragments in `README.md:10-17` and exists as a top-level workspace directory, but this subsystem does not yet define active ownership or dogfood behavior for it.
 
+## W18 R15 Capability Reconciliation
+
+The maintainer repo must dogfood deferred-obligation and naive-UAT resources only after their system versions are authored under `packages/docs/template/`. Maintainers must not make the installed `.make-docs/` or project `docs/` projection the upstream product authority. Project-authored obligation records, scenarios, and evidence remain editable consumer content in their repository-authoritative locations.
+
+Dogfood validation must prove that upstream resources project into this repo without overwriting project-authored records or confusing repository authority with operational evidence in Project State, as required by [R-OBL-AUTH](45-deferred-obligation-governance.md#r-obl-auth-authority-chain-and-backlinks) and [R-NUAT-COMPAT](46-naive-end-user-acceptance-testing.md#r-nuat-compat-existing-artifact-adoption).
+
 ## Source Anchors
 
 - `README.md`
