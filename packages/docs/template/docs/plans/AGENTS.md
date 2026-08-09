@@ -14,7 +14,8 @@ Pattern: `YYYY-MM-DD-w{W}-r{R}-<slug>/`
 
 ## Agent Instructions
 
-- Before writing, read `.make-docs/references/system/planning-workflow.md` and copy the matching template from `.make-docs/templates/system/` (`plan-overview.md` for `00-overview.md`; `plan-prd.md`, `plan-prd-decompose.md`, or `plan-prd-change.md` for the overview content shape).
+- Before writing, read `.make-docs/references/system/planning-workflow.md` and copy the matching template from `.make-docs/templates/system/` (`plan-overview.md` for `00-overview.md`; `plan-prd.md`, `plan-prd-decompose.md`, or `plan-prd-change.md` for the PRD authority-maintenance overview content shape).
+- PRD authority-maintenance plans list existing PRD owners to update, genuinely new product PRDs if any, requirement-history entries, and affected links, risks, plans, and work artifacts. Editorial change and revision language belongs here, not in `docs/prd/`.
 - Always create the plan as a directory; even single-phase plans use the same shape with one `0N-<phase>.md` file.
 - Apply the date-slug-W/R naming; do not backdate plans.
 - Plans are written before execution, not retroactively.

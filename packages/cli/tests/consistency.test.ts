@@ -70,6 +70,13 @@ const WORK_PHASE_TEMPLATE_PATHS = [
   "packages/skills/decompose-codebase/assets/templates/rebuild-backlog-phase.md",
 ];
 
+const RETIRED_PRD_CHANGE_TEMPLATE_PATHS = [
+  "packages/docs/template/.make-docs/templates/system/prd-change-addition.md",
+  "packages/docs/template/.make-docs/templates/system/prd-change-revision.md",
+  "packages/cli/template/.make-docs/templates/system/prd-change-addition.md",
+  "packages/cli/template/.make-docs/templates/system/prd-change-revision.md",
+];
+
 const COMMIT_MESSAGE_CONVENTION_PATHS = [
   ".make-docs/contracts/system/commit-message-convention.md",
   "packages/docs/template/.make-docs/contracts/system/commit-message-convention.md",
@@ -88,15 +95,13 @@ const GENERATED_DOCUMENT_TEMPLATE_METADATA = new Map<
   ["plan-prd-change.md", { kind: "plan", status: "draft", coordinate: true }],
   ["plan-prd-decompose.md", { kind: "plan", status: "draft", coordinate: true }],
   ["plan-prd.md", { kind: "plan", status: "draft", coordinate: true }],
-  ["prd-architecture.md", { kind: "prd", status: "active", coordinate: true }],
-  ["prd-change-addition.md", { kind: "prd", status: "active", coordinate: true }],
-  ["prd-change-revision.md", { kind: "prd", status: "active", coordinate: true }],
-  ["prd-glossary.md", { kind: "prd", status: "active", coordinate: true }],
-  ["prd-index.md", { kind: "prd", status: "active", coordinate: true, followOn: true }],
-  ["prd-overview.md", { kind: "prd", status: "active", coordinate: true }],
-  ["prd-reference.md", { kind: "prd", status: "active", coordinate: true }],
-  ["prd-risk-register.md", { kind: "prd", status: "active", coordinate: true }],
-  ["prd-subsystem.md", { kind: "prd", status: "active", coordinate: true }],
+  ["prd-architecture.md", { kind: "prd", status: "active" }],
+  ["prd-glossary.md", { kind: "prd", status: "active" }],
+  ["prd-index.md", { kind: "prd", status: "active", followOn: true }],
+  ["prd-overview.md", { kind: "prd", status: "active" }],
+  ["prd-reference.md", { kind: "prd", status: "active" }],
+  ["prd-risk-register.md", { kind: "prd", status: "active" }],
+  ["prd-subsystem.md", { kind: "prd", status: "active" }],
   ["work-index.md", { kind: "work", status: "active", coordinate: true, followOn: true }],
   ["work-phase.md", { kind: "work", status: "active", coordinate: true }],
 ]);
@@ -203,6 +208,12 @@ describe("default profile consistency", () => {
 });
 
 describe("template completeness", () => {
+  test("retired editorial PRD templates are absent from source and packaged assets", () => {
+    for (const relativePath of RETIRED_PRD_CHANGE_TEMPLATE_PATHS) {
+      expect(existsSync(path.join(REPO_ROOT, relativePath)), relativePath).toBe(false);
+    }
+  });
+
   test("every file in the template is covered by the asset pipeline", () => {
     const profile = resolveInstallProfile(defaultSelections());
     const managedPaths = new Set(
@@ -413,7 +424,10 @@ describe("risk register routing contract", () => {
       expect(contents).toContain("Q-001");
       expect(contents).toContain("R-001");
       expect(contents).toContain("never renumber existing items");
-      expect(contents).toContain("Do not use `### Change Notes` inside this register");
+      expect(contents).toContain(
+        "Do not use `## Requirement History` as a substitute for unresolved register state",
+      );
+      expect(contents).not.toContain("### Change Notes");
       expect(contents).toContain("| Status | Decision | Follow-Up |");
       expect(contents).toContain("`Open`, `Confirming`, `Deferred`, or `Closed`");
       expect(contents).toContain("**Why it matters**");
@@ -422,14 +436,17 @@ describe("risk register routing contract", () => {
     }
   });
 
-  test("risk-register references disallow change notes inside the register", () => {
+  test("risk-register references keep unresolved state out of requirement history", () => {
     for (const relativePath of [
       ".make-docs/references/system/prd-change-management.md",
       "packages/docs/template/.make-docs/references/system/prd-change-management.md",
     ]) {
       const contents = readFileSync(path.join(REPO_ROOT, relativePath), "utf8");
 
-      expect(contents).toContain("Do not use `### Change Notes` inside `03-open-questions-and-risk-register.md`");
+      expect(contents).toContain(
+        "Do not use `## Requirement History` as a substitute for unresolved risk or decision tracking",
+      );
+      expect(contents).not.toContain("### Change Notes");
       expect(contents).toContain("D-001");
       expect(contents).toContain("Q-001");
       expect(contents).toContain("R-001");

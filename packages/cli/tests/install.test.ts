@@ -232,6 +232,78 @@ describe("installer integration", () => {
     vi.unstubAllGlobals();
   });
 
+  test("fresh installs omit retired editorial PRD templates", async () => {
+    const targetDir = createTempDir();
+    try {
+      await installWithSelections(targetDir, () => {});
+      for (const fileName of ["prd-change-addition.md", "prd-change-revision.md"]) {
+        expect(
+          existsSync(path.join(targetDir, ".make-docs/templates/system", fileName)),
+        ).toBe(false);
+      }
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("sync removes unchanged retired PRD templates but preserves and reports modified copies", async () => {
+    const cleanTarget = createTempDir("make-docs-retired-clean-");
+    const modifiedTarget = createTempDir("make-docs-retired-modified-");
+    const retiredPath = ".make-docs/templates/system/prd-change-revision.md";
+    try {
+      for (const targetDir of [cleanTarget, modifiedTarget]) {
+        await installWithSelections(targetDir, () => {});
+        const manifest = loadManifest(targetDir)!;
+        const recordedContent = "retired managed template\n";
+        const installedContent =
+          targetDir === cleanTarget ? recordedContent : "user modified retired template\n";
+        const absolutePath = path.join(targetDir, retiredPath);
+        mkdirSync(path.dirname(absolutePath), { recursive: true });
+        writeFileSync(absolutePath, installedContent, "utf8");
+        manifest.files[retiredPath] = {
+          hash: hashText(recordedContent),
+          sourceId: `file:${retiredPath}`,
+        };
+        writeManifestJson(targetDir, manifest);
+      }
+
+      const cleanManifest = loadManifest(cleanTarget)!;
+      const cleanPlan = await planInstall({
+        targetDir: cleanTarget,
+        selections: cleanManifest.selections,
+        existingManifest: cleanManifest,
+      });
+      expect(getPlannedAction(cleanPlan, retiredPath)).toMatchObject({
+        type: "remove-managed",
+      });
+      applyInstallPlan({
+        targetDir: cleanTarget,
+        plan: cleanPlan,
+        existingManifest: cleanManifest,
+      });
+      expect(existsSync(path.join(cleanTarget, retiredPath))).toBe(false);
+      expect(loadManifest(cleanTarget)!.files[retiredPath]).toBeUndefined();
+
+      const modifiedManifest = loadManifest(modifiedTarget)!;
+      const modifiedPlan = await planInstall({
+        targetDir: modifiedTarget,
+        selections: modifiedManifest.selections,
+        existingManifest: modifiedManifest,
+      });
+      expect(getPlannedAction(modifiedPlan, retiredPath)).toMatchObject({
+        type: "skip-conflict",
+        reason:
+          "Existing managed file differs from the recorded manifest and will not be removed automatically.",
+      });
+      expect(readFileSync(path.join(modifiedTarget, retiredPath), "utf8")).toBe(
+        "user modified retired template\n",
+      );
+    } finally {
+      cleanupTempDir(cleanTarget);
+      cleanupTempDir(modifiedTarget);
+    }
+  });
+
   test("installs the correct instruction files for both harnesses", async () => {
     const targetDir = createTempDir();
     try {

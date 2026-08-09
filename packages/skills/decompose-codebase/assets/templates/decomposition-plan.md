@@ -34,9 +34,16 @@ State what the decomposition should preserve, who the outputs are for, and what 
 ## Existing PRD Handling
 
 - Active `docs/prd/` status: {{ACTIVE_PRD_STATUS}}
-- Archive step required before execution: {{ARCHIVE_REQUIRED}}
+- Maintenance mode: {{UPDATE_EXISTING_NEW_CAPABILITY_NONE_OR_FULL_REBASELINE}}
+- Existing product PRDs to update surgically: {{EXISTING_PRDS_TO_UPDATE}}
+- Genuinely new capability, subsystem, or product-boundary PRDs: {{NEW_PRODUCT_PRDS_OR_NONE}}
+- Candidates requiring no PRD change: {{NO_PRD_CANDIDATES}}
+- Non-normative requirement-history entries: {{REQUIREMENT_HISTORY_ENTRIES_OR_NONE}}
+- Archive step required before an explicitly authorized full-set re-baseline: {{ARCHIVE_REQUIRED}}
 - Planned archive target if approved: `{{ARCHIVE_TARGET}}`
 - Active root entries to archive: {{ARCHIVE_ENTRIES}}
+
+Never plan editorial PRDs that describe an addition, enhancement, revision, removal, migration, or implementation sequence.
 
 ## Coordinator Policy
 

@@ -30,6 +30,14 @@ The planning segment usually moves in this order:
 This segment establishes the problem, implementation shape, product contract,
 and executable work queue.
 
+The PRD stage maintains one current product authority. `docs/prd/` describes the
+current authoritative shape of the product and never the editorial operation
+used to change that authority. Update an existing owning PRD surgically, create
+a new PRD only for a coherent product subject with no owner, or record why no
+PRD change is needed. Preserve material prior contracts in non-normative
+requirement history; keep maintenance sequencing in plans, work, and history
+records.
+
 ### Segment 2 - Build
 
 The build segment loops per work phase:
@@ -38,7 +46,7 @@ The build segment loops per work phase:
 2. Run the coverage-pass band.
 3. Commit and pass the phase gate.
 
-Use [coverage-pass-contract.md](coverage-pass-contract.md) for the coverage-pass
+Use [coverage-pass-contract.md](../../contracts/system/coverage-pass-contract.md) for the coverage-pass
 band.
 The band covers guide and playbook coverage, history, PRD reconciliation,
 documentation hygiene, validation, and UAT or manual-test decisions.
@@ -65,7 +73,9 @@ project/history coverage so one audience does not quietly substitute for another
 
 Implementation normally derives from a work backlog.
 The work backlog normally derives from a PRD.
-The PRD normally derives from a plan.
+The PRD normally derives from a plan, but the plan's maintenance actions do not
+become standalone PRDs; downstream work reads the resulting current PRD
+authority.
 The plan normally derives from a design or another explicit source input.
 
 When the current request is ambiguous, prefer the next step implied by that

@@ -85,8 +85,6 @@ const PLAN_TEMPLATE_PATHS = [
 
 const PRD_TEMPLATE_PATHS = [
   ".make-docs/templates/system/prd-architecture.md",
-  ".make-docs/templates/system/prd-change-addition.md",
-  ".make-docs/templates/system/prd-change-revision.md",
   ".make-docs/templates/system/prd-glossary.md",
   ".make-docs/templates/system/prd-index.md",
   ".make-docs/templates/system/prd-overview.md",

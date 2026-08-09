@@ -56,6 +56,16 @@ export {
   validatePlaybooks,
   writePlaybookInvocation,
 } from "./operations/playbook";
+export {
+  isActionPrefixedPrdFilename,
+  PRD_AUTHORITY_DIAGNOSTIC_CODES,
+  validatePrdAuthority,
+} from "./operations/prd";
+export type {
+  PrdAuthorityDiagnostic,
+  PrdAuthorityDiagnosticCode,
+  PrdAuthorityValidationReport,
+} from "./operations/prd";
 export type {
   ExportPlaybookRunInput,
   ExportPlaybookRunResult,

@@ -2,7 +2,6 @@
 title: "02 Architecture Overview"
 kind: "prd"
 status: "active"
-coordinate: "W{{W}} R{{R}}"
 # source:
 #   type: "plan"
 #   path: "{{SOURCE_PATH}}"
@@ -53,6 +52,10 @@ Explain manifests, environment variables, config files, and operational switches
 Code anchors:
 
 - `{{CONFIG_PATHS}}`
+
+## Requirement History
+
+Optional and non-normative. Omit this section until a material prior contract needs to remain visible. Current requirements above always win. For each entry, record the date, coordinate when known, affected requirement or section, previous contract, replacement contract, rationale, and source using `.make-docs/references/system/prd-change-management.md`.
 
 ## Source Anchors
 

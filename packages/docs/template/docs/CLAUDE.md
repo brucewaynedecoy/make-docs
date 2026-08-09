@@ -11,4 +11,6 @@ Use `docs/` only as a router. Do not create generated files directly in this dir
 - After guide work, reconcile overlapping guides when useful; use `## Future Coverage` inside guides for downstream-dependent guide updates rather than creating design docs, architecture decisions, or PRD risks solely to remember future guide work.
 - For closeout breadcrumb records, read `.make-docs/contracts/system/history-record-contract.md` and `.make-docs/templates/system/history-record.md`, then continue in `docs/assets/archive/history/`.
 - For reusable prompt starters, read `.make-docs/references/system/prompts/`; prompts are optional starters, not authority.
+- **NEVER** use semantic line breaks when drafting/updating documentation.
+- **NEVER** add YAML front matter to `README.md` files.
 <!-- make-docs:end -->

@@ -274,6 +274,11 @@ function packageWriteApprovals(options: OperationOptions): string[] {
  * and execution all happen in the registry dispatch.
  */
 const RUN_CLI_ADAPTERS: Record<string, RunCliAdapter> = {
+  "prd.authority.validate": (options) => ({
+    input: {
+      targetRoot: path.resolve(options.values["target-root"] ?? "."),
+    },
+  }),
   "playbook.validate": (options) => ({
     input: {
       repoRoot: resolveRepoRoot(options),
@@ -721,8 +726,23 @@ export async function runRunCommand(argv: string[], seams: RunCommandSeams = {})
     const lines = renderRunOperationText(id, invocation.value);
     if (lines) {
       process.stdout.write(`${lines.join("\n")}\n`);
+      setValidationExitCode(operationId, invocation.value);
       return;
     }
   }
   printJson(invocation.value);
+  setValidationExitCode(operationId, invocation.value);
+}
+
+/** Explicit validators report their complete result and then fail the CLI. */
+function setValidationExitCode(operationId: string, value: JsonValue): void {
+  if (
+    operationId === "prd.authority.validate" &&
+    value !== null &&
+    typeof value === "object" &&
+    !Array.isArray(value) &&
+    value.status === "failed"
+  ) {
+    process.exitCode = 1;
+  }
 }

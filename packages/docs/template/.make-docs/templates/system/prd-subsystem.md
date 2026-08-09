@@ -2,7 +2,6 @@
 title: "{{NUMBER}} {{TITLE}}"
 kind: "prd"
 status: "active"
-coordinate: "W{{W}} R{{R}}"
 # source:
 #   type: "plan"
 #   path: "{{SOURCE_PATH}}"
@@ -53,6 +52,10 @@ Explain what a clean-room rebuild would need to preserve and where future implem
 Code anchors:
 
 - `{{REBUILD_PATHS}}`
+
+## Requirement History
+
+Optional and non-normative. Omit this section until a material prior contract needs to remain visible. Current subsystem requirements above always win. For each entry, record the date, coordinate when known, affected requirement or section, previous contract, replacement contract, rationale, and source using `.make-docs/references/system/prd-change-management.md`.
 
 ## Source Anchors
 

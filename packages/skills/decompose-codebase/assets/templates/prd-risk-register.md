@@ -8,7 +8,7 @@ Use this as the active PRD namespace's living register. When agents discover or 
 
 Each item under `## Confirmed Drift`, `## Open Questions`, and `## Rebuild Risks` should use one numbered `###` heading, a state table, and the body fields below. Use `D-001`, `D-002`, etc. under `## Confirmed Drift`; `Q-001`, `Q-002`, etc. under `## Open Questions`; and `R-001`, `R-002`, etc. under `## Rebuild Risks`. Assign the next available number inside the section and never renumber existing items, even when an item moves to `Closed`. Use `Open`, `Confirming`, `Deferred`, or `Closed` for `Status`. Add `Resolution` only when the item is closed.
 
-Do not use `### Change Notes` inside this register. `### Change Notes` remains valid in baseline PRD docs for active-set evolution lineage, but the risk register tracks lineage through item IDs, `Decision`, `Follow-Up`, `Recommendation`, `To close`, and optional `Resolution`.
+Do not use `## Requirement History` as a substitute for unresolved register state. This register tracks lineage through item IDs, `Decision`, `Follow-Up`, `Recommendation`, `To close`, and optional `Resolution`.
 
 ```markdown
 ### D-001 <Gap, Question, Drift, or Risk Title>

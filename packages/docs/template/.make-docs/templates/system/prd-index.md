@@ -2,7 +2,6 @@
 title: "{{PRODUCT_NAME}} PRD Index"
 kind: "prd"
 status: "active"
-coordinate: "W{{W}} R{{R}}"
 follow_on:
   route: "work-backlog-generation"
   next_prompt: ".make-docs/references/system/prompts/prd-to-work-full-prd.prompt.md"
@@ -19,13 +18,15 @@ follow_on:
 
 Explain what this PRD set covers, who it is for, and why it exists.
 
+This index maps the current authoritative shape of the product. It never catalogs the editorial operations used to change that authority.
+
 ## Reading Order
 
 1. [01-product-overview.md](./01-product-overview.md)
 2. [02-architecture-overview.md](./02-architecture-overview.md)
 3. [03-open-questions-and-risk-register.md](./03-open-questions-and-risk-register.md)
 4. [04-glossary.md](./04-glossary.md)
-5. Add the adaptive baseline docs and change docs here in the order that best rebuilds understanding.
+5. Add the adaptive capability, subsystem, and reference authorities here in the order that best rebuilds understanding.
 
 ## Document Map
 
@@ -36,7 +37,7 @@ Explain what this PRD set covers, who it is for, and why it exists.
 | `02-architecture-overview.md` | `core` | `active` | `—` | Explain topology, module map, runtime boundaries, data flow, and config surfaces |
 | `03-open-questions-and-risk-register.md` | `core` | `active` | `—` | Capture drift, gaps, and rebuild risks |
 | `04-glossary.md` | `core` | `active` | `—` | Define canonical terms |
-| `{{ADAPTIVE_DOCS}}` | `baseline` or change kind | `active`, `superseded`, `deprecated`, or `removed` | List linked baseline or change docs | Explain subsystem, reference, or change scope generated for this repo |
+| `{{ADAPTIVE_DOCS}}` | `capability`, `subsystem`, or `reference` | Current product-authority status | List related current authorities | Explain the current product subject owned by this PRD |
 
 ## Source Anchors
 

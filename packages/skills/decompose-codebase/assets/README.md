@@ -92,9 +92,11 @@ Rebuild work belongs in `docs/work/`, not `docs/prd/`.
 
 ## Existing PRD Behavior
 
-`docs/prd/` is treated as the location for exactly one active PRD set.
+`docs/prd/` is treated as the location for exactly one active PRD set. That set describes the current authoritative product shape, never the editorial operation used to change it.
 
-If execution finds active content already present in `docs/prd/`, the skill should:
+For ordinary product changes, the skill should update an existing owning PRD surgically, create a new PRD only for a genuinely new capability, subsystem, or product boundary, or create no PRD when the active authority already covers the decision. Material prior contracts may be recorded in an optional, non-normative `## Requirement History` section. Plans, work backlogs, and history records—not active PRDs—describe revision or migration operations.
+
+If an explicitly authorized full-set decomposition or product-authority re-baseline finds active content already present in `docs/prd/`, the skill should:
 
 - inspect and summarize the existing root entries
 - ask for approval before archiving them
@@ -106,7 +108,7 @@ Archive paths follow this pattern:
 - `docs/assets/archive/prds/YYYY-MM-DD/`
 - `docs/assets/archive/prds/YYYY-MM-DD-XX/`
 
-This keeps `docs/prd/` clean and ensures there is only one current PRD set at a time.
+This keeps `docs/prd/` clean and ensures there is only one current product-authority set at a time.
 
 ## Recommended Session Pattern
 

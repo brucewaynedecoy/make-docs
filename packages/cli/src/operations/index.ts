@@ -148,6 +148,16 @@ export {
   resolveRuntimeCapabilityRecordKey,
 } from "./harness-registry";
 export type { HarnessRegistryEntry } from "./harness-registry";
+export {
+  isActionPrefixedPrdFilename,
+  PRD_AUTHORITY_DIAGNOSTIC_CODES,
+  validatePrdAuthority,
+} from "./prd";
+export type {
+  PrdAuthorityDiagnostic,
+  PrdAuthorityDiagnosticCode,
+  PrdAuthorityValidationReport,
+} from "./prd";
 export type {
   AgentAssistedProposal,
   GeneratedArtifactPlan,

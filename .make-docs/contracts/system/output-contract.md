@@ -6,6 +6,10 @@ See `.make-docs/references/system/wave-model.md` for W/R/P semantics and resolut
 
 Use this contract to keep plan, PRD, and work document outputs consistent across repositories and harnesses. Treat the codebase as authoritative, write in plain English, and keep the PRD set descriptive while keeping implementation work prescriptive.
 
+The governing PRD invariant is:
+
+> `docs/prd/` describes the current authoritative shape of the product. It must never describe the editorial operation used to change that authority.
+
 ## Markdown Source Formatting
 
 - Do not hard-wrap prose paragraphs for visual width; use editor soft-wrap instead. Paragraphs should be one logical source line unless semantic Markdown structure requires otherwise.
@@ -36,9 +40,10 @@ For change-oriented plans and delta backlogs, carry the distinguishing context i
 
 - `docs/prd/` contains one active PRD namespace at a time.
 - Every root entry in `docs/prd/` is part of the active namespace.
-- Active namespaces can be created in two ways:
+- Active namespaces can be established or maintained in two ways:
   - `full-set generation` — generate or replace the active namespace as a set
-  - `active-set evolution` — append change docs and update impacted baseline docs without replacing the namespace
+  - `authoritative PRD maintenance` — surgically update existing product authorities and create a new PRD only for a coherent capability, subsystem, or product boundary with no current owner
+- Editorial operations, migration sequencing, and reconciliation activity belong in plans, work backlogs, and history records, not in the active PRD namespace.
 - `docs/prd/03-open-questions-and-risk-register.md` is the living register for discovered gaps, confirmed drift, open questions, decisions, and rebuild risks in the active namespace.
 - Older namespaces belong under `docs/assets/archive/prds/`, not alongside the active namespace.
 - Archived PRD sets are historical records and are not part of active PRD validation.
@@ -57,17 +62,21 @@ Apply these rules only when writing a fresh active PRD namespace through `full-s
 
 Archive layout and hard rules are authoritative in `docs/assets/archive/AGENTS.md`.
 
-## Active-Set Evolution Rules
+## Authoritative PRD Maintenance Rules
 
-Apply these rules when the user wants to add, enhance, revise, deprecate, or remove requirements inside the current active namespace.
+Apply these rules when a decision, design, implementation, or finding may change the current product authority.
 
-- Do not archive the active namespace.
-- Append new change docs using the next available `NN-` number.
-- Never renumber or reorder existing active PRD docs.
-- Preserve prior baseline text unless the user explicitly asks for a cleanup rewrite.
-- Update impacted baseline docs with `### Change Notes` blocks as defined in `.make-docs/references/system/prd-change-management.md`.
-- Update `docs/prd/03-open-questions-and-risk-register.md` directly for newly discovered or resolved gaps, drift, questions, decisions, and risks. Do not create a new `NN-` change doc solely to track register state.
-- Update `docs/prd/00-index.md` so the effective lineage remains readable.
+- Do not archive the active namespace merely because current authority needs maintenance.
+- Update the existing PRD when its subject owns the changed requirement.
+- Put the current normative requirement inline in the owning PRD.
+- Create a new numbered PRD only for a coherent, wholesale new capability, subsystem, or product boundary with no suitable existing owner.
+- Create no PRD when the current authority already covers the decision; record the rationale in the governing plan, coverage pass, or history record.
+- Preserve material prior iterations in the owning PRD's optional, non-normative `## Requirement History` section as defined in `.make-docs/references/system/prd-change-management.md`.
+- Express removals and deprecations as current scope, non-goal, limitation, status, or boundary text in the owning PRD, then preserve the prior contract in requirement history when useful.
+- Never use active PRD filenames, H1 titles, index kinds, or document identities that describe editorial operations such as additions, enhancements, revisions, removals, migrations, or reconciliation.
+- Never renumber or reorder existing active PRDs merely because authority changed.
+- Update `docs/prd/03-open-questions-and-risk-register.md` directly for newly discovered or resolved gaps, drift, questions, decisions, and risks.
+- Update `docs/prd/00-index.md` so current ownership, status, focus, and navigation remain readable.
 
 ## PRD Tree Rules
 
@@ -85,12 +94,9 @@ Always generate the fixed core first or reserve its numbers:
 
 Use `05` through `99` for:
 
-- baseline subsystem docs
-- baseline reference docs
-- additive change docs
-- enhancement docs
-- revision docs
-- removal docs
+- product capability docs
+- subsystem docs
+- reference docs
 
 Prefer a flat PRD tree by default:
 
@@ -102,9 +108,9 @@ docs/prd/
 ├── 03-open-questions-and-risk-register.md
 ├── 04-glossary.md
 ├── 05-payments.md
-├── 06-notifications-reference.md
-├── 07-enhance-notifications.md
-└── 08-revise-billing-retries.md
+├── 06-notifications.md
+├── 07-notifications-reference.md
+└── 08-billing-reliability.md
 ```
 
 Switch to a numbered subfolder only when one baseline subsystem is too large for one doc:
@@ -123,8 +129,8 @@ docs/prd/
 ├── 06-frontend/
 │   ├── 01-app-framework.md
 │   └── 02-pages.md
-├── 07-enhance-auth-recovery.md
-└── 08-remove-legacy-session-flow.md
+├── 07-account-recovery.md
+└── 08-session-lifecycle.md
 ```
 
 Do not place unnumbered Markdown files directly under `docs/prd/`. Do not place active PRD docs under `docs/assets/archive/prds/`.
@@ -142,12 +148,12 @@ Use the matching template in `.make-docs/templates/system/` and preserve these r
 | `prd-glossary.md` | `## Purpose`, `## Terms`, `## Source Anchors` |
 | `prd-subsystem.md` | `## Purpose`, `## Scope`, `## Component and Capability Map`, `## Contracts and Data`, `## Integrations`, `## Rebuild Notes`, `## Source Anchors` |
 | `prd-reference.md` | `## Purpose`, `## Reference`, `## Source Anchors` |
-| `prd-change-addition.md` | `## Purpose`, `## Change Type`, `## Capability Addition or Enhancement`, `## Affected Baseline Docs`, `## Contracts and Data`, `## Integration Impact`, `## Required Baseline Annotations`, `## Source Anchors` |
-| `prd-change-revision.md` | `## Purpose`, `## Change Type`, `## Baseline Being Revised or Removed`, `## Rationale`, `## Effective Requirement`, `## Impacted Docs and Dependencies`, `## Required Baseline Annotations`, `## Source Anchors` |
 | `work-index.md` | `## Purpose`, `## Phase Map`, `## Usage Notes`, `## Intended Follow-On` |
 | `work-phase.md` | `## Purpose`, `## Overview`, `## Source PRD Docs`, repeatable `## Stage {{STAGE_NUMBER}} - {{STAGE_NAME}}` headings with `### Tasks`, `### Acceptance criteria`, and `### Dependencies` |
 
-Risk-register items under `## Confirmed Drift`, `## Open Questions`, and `## Rebuild Risks` use numbered `###` item headings with a `Status` / `Decision` / `Follow-Up` table. Use `D-001`, `D-002`, etc. for confirmed drift; `Q-001`, `Q-002`, etc. for open questions; and `R-001`, `R-002`, etc. for rebuild risks. Assign the next available number within the section and never renumber existing items, even when they move to `Closed`. Do not use `### Change Notes` inside the risk register; that heading remains for baseline PRD lineage only. Valid item statuses are `Open`, `Confirming`, `Deferred`, and `Closed`. Each item should include `Question` or `Issue`, `Why it matters`, `Recommendation`, and `To close`; include `Resolution` only for closed items.
+Product overview, architecture, subsystem, reference, glossary, and other requirement-owning PRDs may include an optional `## Requirement History` section immediately before `## Source Anchors`. Current normative requirements remain in the main body and always win. History is non-normative and uses the dated entry contract in `.make-docs/references/system/prd-change-management.md`. The PRD index and living risk register use their own navigation and item-history contracts instead.
+
+Risk-register items under `## Confirmed Drift`, `## Open Questions`, and `## Rebuild Risks` use numbered `###` item headings with a `Status` / `Decision` / `Follow-Up` table. Use `D-001`, `D-002`, etc. for confirmed drift; `Q-001`, `Q-002`, etc. for open questions; and `R-001`, `R-002`, etc. for rebuild risks. Assign the next available number within the section and never renumber existing items, even when they move to `Closed`. Valid item statuses are `Open`, `Confirming`, `Deferred`, and `Closed`. Each item should include `Question` or `Issue`, `Why it matters`, `Recommendation`, and `To close`; include `Resolution` only for closed items.
 
 ## Intended Follow-On Handoffs
 
@@ -222,7 +228,7 @@ Use `## Source Anchors` to aggregate the most important files that shaped the do
 - If docs and code disagree, treat the code as authoritative and record the disagreement in `03-open-questions-and-risk-register.md`.
 - Do not create separate questions, decisions, risks, gaps, or architecture-decision files when the active PRD risk register exists unless the user explicitly asks for a new convention.
 - If an older active PRD namespace exists in `docs/prd/` and the task is full-set generation, archive it as a set before writing the new active namespace.
-- If the task is active-set evolution, preserve baseline text and use non-destructive annotations unless the user explicitly asks for a cleanup rewrite.
+- If the task is authoritative PRD maintenance, update the owning current requirement surgically, preserve material prior state in non-normative requirement history, and keep editorial operations outside `docs/prd/`.
 
 ## Work Backlog Rule
 
@@ -231,7 +237,8 @@ Use `## Source Anchors` to aggregate the most important files that shaped the do
 - Organize phases and stages by dependency order, not by implementation convenience.
 - Include markdown task-list items and plain-bullet acceptance criteria in every stage.
 - Use phase-local task IDs (`t1`, `t2`, etc.) on task items so a task can be referenced externally as `w{W} r{R} p{P} t{T}`.
-- For active-set evolution work, use a dated delta work directory with a distinguishing slug (for example `...-<subject>-delta`) instead of rewriting a prior backlog.
+- For PRD authority-maintenance work, use a dated delta work directory with a distinguishing slug (for example `...-<subject>-delta`) instead of rewriting a prior backlog.
+- Treat updated and genuinely new product PRDs as downstream requirement authority. Plans describe sequencing and requirement-history entries preserve provenance; neither overrides the current normative PRD body.
 - Every phase file must include `## Source PRD Docs`.
 - Every work `00-index.md` includes `## Intended Follow-On` recommending the implementation loop as the next step. The handoff is authoritative unless the user explicitly overrides it, and it is not a gate or precondition.
 
@@ -242,3 +249,7 @@ Use `## Source Anchors` to aggregate the most important files that shaped the do
 - Make sure every internal link resolves.
 - Use the PRD index and the work `00-index.md` as navigation entry points.
 - Archived PRD docs do not need to satisfy the active PRD link contract.
+
+## PRD Authority Validation
+
+Run `make-docs run prd authority validate --target-root <project>` before treating an active PRD set as downstream authority. The read-only validator enforces `PRD-AUTH-001` through `PRD-AUTH-008` as defined in `.make-docs/references/system/prd-change-management.md`: filename/H1 editorial stems use the narrow twelve-term set that allows legitimate Update Delivery, Replacement Policy, and Migration Safety subjects; controlled kinds additionally prohibit update/replace/replacement/migrate/migration; and the remaining diagnostics cover retired headings, authority targets, top-level coordinates, invalid target roots, and unsafe or escaping documentation roots. It scans authority-bearing Markdown sections and structured JSON/JSONL/YAML/YML fields, exempts standardized provenance sections/containers, and grants a path-wide provenance exemption only to `docs/assets/archive/**`. Human TTY output summarizes diagnostics and remediation; `--json` and non-TTY output return the complete report. An explicit `failed` report exits nonzero after rendering.

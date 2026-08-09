@@ -1,9 +1,10 @@
 {
   "schemaVersion": 2,
+  "projectId": "831ddb50-b97a-47e2-9f2c-f491b27b8759",
   "packageName": "@brucewaynedecoy/make-docs",
-  "packageVersion": "1.0.0-rc.1",
-  "updatedAt": "2026-06-25T19:07:52.153Z",
-  "profileId": "4757a4e744aa64f9",
+  "packageVersion": "2.0.0-rc",
+  "updatedAt": "2026-08-09T00:06:06.453Z",
+  "profileId": "c56f4ca1277d6e58",
   "selections": {
     "capabilities": {
       "designs": true,
@@ -17,7 +18,10 @@
     },
     "skills": false,
     "skillScope": "project",
-    "selectedSkills": []
+    "selectedSkills": [],
+    "plugins": false,
+    "pluginScope": "project",
+    "selectedPlugins": []
   },
   "effectiveCapabilities": [
     "designs",
@@ -29,8 +33,8 @@
     "mode": "full-snapshot",
     "sourcePackage": "@brucewaynedecoy/make-docs",
     "sourceProvider": "package",
-    "sourceVersion": "1.0.0-rc.1",
-    "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+    "sourceVersion": "2.0.0-rc",
+    "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
     "hashAlgorithm": "sha256",
     "localBootstrapPaths": [
       ".make-docs/config.yaml",
@@ -66,6 +70,7 @@
       ".make-docs/contracts/system/guide-contract.md": "materialized-system-asset",
       ".make-docs/contracts/system/history-record-contract.md": "materialized-system-asset",
       ".make-docs/contracts/system/output-contract.md": "materialized-system-asset",
+      ".make-docs/contracts/system/playbook-contract.md": "materialized-system-asset",
       ".make-docs/references/system/AGENTS.md": "materialized-system-asset",
       ".make-docs/references/system/CLAUDE.md": "materialized-system-asset",
       ".make-docs/references/system/design-workflow.md": "materialized-system-asset",
@@ -107,8 +112,6 @@
       ".make-docs/templates/system/plan-prd-decompose.md": "materialized-system-asset",
       ".make-docs/templates/system/plan-prd.md": "materialized-system-asset",
       ".make-docs/templates/system/prd-architecture.md": "materialized-system-asset",
-      ".make-docs/templates/system/prd-change-addition.md": "materialized-system-asset",
-      ".make-docs/templates/system/prd-change-revision.md": "materialized-system-asset",
       ".make-docs/templates/system/prd-glossary.md": "materialized-system-asset",
       ".make-docs/templates/system/prd-index.md": "materialized-system-asset",
       ".make-docs/templates/system/prd-overview.md": "materialized-system-asset",
@@ -127,6 +130,7 @@
       "docs/assets/library/CLAUDE.md": "materialized-system-asset",
       "docs/assets/playbooks/AGENTS.md": "materialized-system-asset",
       "docs/assets/playbooks/CLAUDE.md": "materialized-system-asset",
+      "docs/assets/playbooks/agent/make-docs-lifecycle.playbook.md": "materialized-system-asset",
       "docs/designs/AGENTS.md": "materialized-system-asset",
       "docs/designs/CLAUDE.md": "materialized-system-asset",
       "docs/plans/AGENTS.md": "materialized-system-asset",
@@ -142,11 +146,11 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "7208acbe3ac913ddc4b34e4b5355a873f97d202694cf36e9fbf1c19d97d08d82"
+          "49f08d5f87f13c1c8bf3ddfe3cf1e772813d768fcb056842bc126d527e02a88c"
         ],
         "logicalAssetId": "AGENTS.md",
         "localPath": "AGENTS.md",
@@ -159,11 +163,11 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "7208acbe3ac913ddc4b34e4b5355a873f97d202694cf36e9fbf1c19d97d08d82"
+          "49f08d5f87f13c1c8bf3ddfe3cf1e772813d768fcb056842bc126d527e02a88c"
         ],
         "logicalAssetId": "CLAUDE.md",
         "localPath": "CLAUDE.md",
@@ -176,11 +180,11 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "19f047ea7c83467f289d1b0fc722fd2f36dffe6889cd65bfe6d38d64ba3ad511"
+          "414191eec5367dae28e5d6dd1e411017237fb97811666d1eaa19b3423e98b695"
         ],
         "logicalAssetId": "docs/AGENTS.md",
         "localPath": "docs/AGENTS.md",
@@ -193,11 +197,11 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "19f047ea7c83467f289d1b0fc722fd2f36dffe6889cd65bfe6d38d64ba3ad511"
+          "414191eec5367dae28e5d6dd1e411017237fb97811666d1eaa19b3423e98b695"
         ],
         "logicalAssetId": "docs/CLAUDE.md",
         "localPath": "docs/CLAUDE.md",
@@ -210,11 +214,11 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "d536e143b0d8c90fd465a7f73469391d8fdd1dbe43c98dea911a3add8c0c1a03"
+          "5f295ff545f1ea5fb393a95fc1cbc63d811cd33b8e41771e09052437d28281bf"
         ],
         "logicalAssetId": ".make-docs/AGENTS.md",
         "localPath": ".make-docs/AGENTS.md",
@@ -227,11 +231,11 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "d536e143b0d8c90fd465a7f73469391d8fdd1dbe43c98dea911a3add8c0c1a03"
+          "5f295ff545f1ea5fb393a95fc1cbc63d811cd33b8e41771e09052437d28281bf"
         ],
         "logicalAssetId": ".make-docs/CLAUDE.md",
         "localPath": ".make-docs/CLAUDE.md",
@@ -244,11 +248,11 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "f5cc6ff6308582d7ac5ddb6a9415671fc4610a850f0d345ecb03ae4377d239b1"
+          "2877a36dc085d7a0d37fb0c64d12ffa9c6ab48eb156734db62be6ad9262af50c"
         ],
         "logicalAssetId": ".make-docs/contracts/system/AGENTS.md",
         "localPath": ".make-docs/contracts/system/AGENTS.md",
@@ -261,11 +265,11 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "f5cc6ff6308582d7ac5ddb6a9415671fc4610a850f0d345ecb03ae4377d239b1"
+          "2877a36dc085d7a0d37fb0c64d12ffa9c6ab48eb156734db62be6ad9262af50c"
         ],
         "logicalAssetId": ".make-docs/contracts/system/CLAUDE.md",
         "localPath": ".make-docs/contracts/system/CLAUDE.md",
@@ -278,11 +282,11 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "e83ab0b4aba3831c44f09bd17496a795f8a6e4ce3fcdd07e6ad35213452a3b07"
+          "2ea2da387054c3ba3a1fe1514315e44391166e782649bb3ce7e2970152f5fc08"
         ],
         "logicalAssetId": ".make-docs/contracts/system/commit-message-convention.md",
         "localPath": ".make-docs/contracts/system/commit-message-convention.md",
@@ -295,11 +299,11 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "fa4aa9b61cee7fa67fb86d11271a27daf374b34a7ed2ea9a651c520b6ee247e8"
+          "30ebca92adb62a969f55e174be0fd517ff0be269839ff72c4bbfa9372ae24291"
         ],
         "logicalAssetId": ".make-docs/contracts/system/coverage-pass-contract.md",
         "localPath": ".make-docs/contracts/system/coverage-pass-contract.md",
@@ -312,8 +316,8 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
           "fa4c107178ddafede04a14c361b89e83af85a891c03dda2c4ad6c673c966c5dd"
@@ -329,8 +333,8 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
           "d1b6fd01e146243d90a8950bf3aa483c7ff316acd1703b474b9f1f4227666dd1"
@@ -346,8 +350,8 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
           "bcef5ca7982eb1f2215f920390c99fbbd26c6f8fa83e566d63529cd3fc1e7f12"
@@ -363,14 +367,31 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "bbeb577502416970e4af8a7d203a335ae9f180ef6c9b56f845399340d92afb25"
+          "8bdb779879575fc3a4e3d404d3b26c47a1a62883cc446adf1ef4d43bcb9cf601"
         ],
         "logicalAssetId": ".make-docs/contracts/system/output-contract.md",
         "localPath": ".make-docs/contracts/system/output-contract.md",
+        "materializationClass": "materialized-system-asset",
+        "offlineExpectation": "local",
+        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
+        "selectionTrigger": "profile-selection"
+      },
+      ".make-docs/contracts/system/playbook-contract.md": {
+        "materializationMode": "full-snapshot",
+        "sourcePackage": "@brucewaynedecoy/make-docs",
+        "sourceProvider": "package",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
+        "hashAlgorithm": "sha256",
+        "expectedHashes": [
+          "3f7a1e18bedfb129ebba712a035dd08be413059b7402a6b29951417c1902ee11"
+        ],
+        "logicalAssetId": ".make-docs/contracts/system/playbook-contract.md",
+        "localPath": ".make-docs/contracts/system/playbook-contract.md",
         "materializationClass": "materialized-system-asset",
         "offlineExpectation": "local",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
@@ -380,8 +401,8 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
           "e83101cf55190f6e1999cdc1b3f6a72d110bebbf7ef87a78e1f04b555daf2053"
@@ -397,8 +418,8 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
           "e83101cf55190f6e1999cdc1b3f6a72d110bebbf7ef87a78e1f04b555daf2053"
@@ -414,8 +435,8 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
           "0ce0f23a0cdda585666141ed0bcd355f74f6d172100160a14d6f5c31105f0fe0"
@@ -431,11 +452,11 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "220924ffb246886cc99c38bf0377ffbd1796f697262f1125131ec5aca1a46b77"
+          "9c43fdfdd714874a878768d3bc29f8d0fd271ba085b075a5327c4fbce46b4e18"
         ],
         "logicalAssetId": ".make-docs/references/system/execution-workflow.md",
         "localPath": ".make-docs/references/system/execution-workflow.md",
@@ -448,8 +469,8 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
           "20bf1ab3931a34f6cc7714376f2236fc44c4d74b4a6265fc2536b482290b44f2"
@@ -465,11 +486,11 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "f53ea079a4bc5d99eb9aea77ccb8cd38899ec0b4a63a2b837bc4e65a5ce87c52"
+          "47639b364ce4a266ed260233658c4ac25c89782657a11061347378b57900f2f4"
         ],
         "logicalAssetId": ".make-docs/references/system/lifecycle.md",
         "localPath": ".make-docs/references/system/lifecycle.md",
@@ -482,8 +503,8 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
           "20ccd340e8ecb36cd991832d7f16e5cbaa096cc24f55b71c9e550370846ee7c6"
@@ -499,11 +520,11 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "681900299cde011af7cc82f45f5bf9b558463045dfc74a9dc3f91510d9d9dc0a"
+          "d3d73334069f86aa38747f6482a04860c42bb76aa8995e372383cc62a1b17626"
         ],
         "logicalAssetId": ".make-docs/references/system/planning-workflow.md",
         "localPath": ".make-docs/references/system/planning-workflow.md",
@@ -516,11 +537,11 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "5f4316d965ad6ff5176cdbff93e48915f50125d9e5295bd79d3b97b6c5937b98"
+          "8e9433b7b6379310b81f9434b58f6f3f84a7ca2bc4c0b7b2b37b125de8c70431"
         ],
         "logicalAssetId": ".make-docs/references/system/prd-change-management.md",
         "localPath": ".make-docs/references/system/prd-change-management.md",
@@ -533,8 +554,8 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
           "0ee2bcd1bbe7243bdfcc33222d2af6adade3b85732054b92f929243773e28e0a"
@@ -550,8 +571,8 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
           "0ee2bcd1bbe7243bdfcc33222d2af6adade3b85732054b92f929243773e28e0a"
@@ -567,11 +588,11 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "447c9175991a2382115d823193fcd85480fa5c3b1be215a57aeb0f101228940b"
+          "be187cdd8a5850504a2573d2c28195c00da3f325b6ceb3b8a2eb4bb3f75b340f"
         ],
         "logicalAssetId": ".make-docs/references/system/prompts/coverage-pass-developer-guide.prompt.md",
         "localPath": ".make-docs/references/system/prompts/coverage-pass-developer-guide.prompt.md",
@@ -584,11 +605,11 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "48f247f1ee92ebf304c03b21ebef098e36c43d28065e11ba823d1a34cd7eb625"
+          "d54a2391fe20d7b1c34afaf32346c6d775c8af0d56f3848a7b37ffb87c52e791"
         ],
         "logicalAssetId": ".make-docs/references/system/prompts/coverage-pass-prd-reconciliation.prompt.md",
         "localPath": ".make-docs/references/system/prompts/coverage-pass-prd-reconciliation.prompt.md",
@@ -601,8 +622,8 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
           "c1127042043abc6a20d5aea316ca6140363ba2ca9ffd1c057dc34b00110f15dc"
@@ -618,11 +639,11 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "dfc98b05f9f4faffa993f9a71ed3efb778bc6058bdb3d559fa3a3315e9ddbeff"
+          "f384d0a6f03bb701b351bf159b66193accba3149866fe48eaa401b474cc8ea6c"
         ],
         "logicalAssetId": ".make-docs/references/system/prompts/coverage-pass-user-guide.prompt.md",
         "localPath": ".make-docs/references/system/prompts/coverage-pass-user-guide.prompt.md",
@@ -635,11 +656,11 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "99c6c3da65749438ddea673a3aa85d65c7500973eb2e8f7024237f235a645244"
+          "6119ab60dcd92a8929cc700a317c47cd6d6382b3ddafd02328e39b255321c62c"
         ],
         "logicalAssetId": ".make-docs/references/system/prompts/designs-to-plan-change.prompt.md",
         "localPath": ".make-docs/references/system/prompts/designs-to-plan-change.prompt.md",
@@ -652,11 +673,11 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "82ba1587fb139e2a9cd70edc294d58adeae7a8852a208321636a1e98200347c3"
+          "03756aa3c05bb8889ed2b8b9fddc6b77b4d6ee8a79584dda4728929167688910"
         ],
         "logicalAssetId": ".make-docs/references/system/prompts/designs-to-plan.prompt.md",
         "localPath": ".make-docs/references/system/prompts/designs-to-plan.prompt.md",
@@ -669,8 +690,8 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
           "05b093f3349089d6e2acca71e1a1f5dac6ded6aeacbc66f883f91a4d0576e3a1"
@@ -686,11 +707,11 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "b4e0d0af9f7f39779254f5fc58e239005a2da6271debf49d62fce6c95ce870e7"
+          "1ab2f2edaea340b28040a67c873b6f5095824a7551767f4d18afb89746c2c66f"
         ],
         "logicalAssetId": ".make-docs/references/system/prompts/plan-to-prd-change.prompt.md",
         "localPath": ".make-docs/references/system/prompts/plan-to-prd-change.prompt.md",
@@ -703,11 +724,11 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "10dfb0396eac2b11fa6d31183852aa880106b0f0a04c92a1010d5b4a4795283f"
+          "dc8a99a88db72626dc9e0ae6bb05aad81a96e5d9fdc2c43d401b731c9e6c3999"
         ],
         "logicalAssetId": ".make-docs/references/system/prompts/plan-to-prd-green-field.prompt.md",
         "localPath": ".make-docs/references/system/prompts/plan-to-prd-green-field.prompt.md",
@@ -720,11 +741,11 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "8b78f0a5b50abd06fd480367c086865aa931b073cc1ae9d4825d305af8741669"
+          "6d68b7447804028272e62258728b45e848b1c6c57edbc497fd25ec5d373d7c5b"
         ],
         "logicalAssetId": ".make-docs/references/system/prompts/prd-change-to-work.prompt.md",
         "localPath": ".make-docs/references/system/prompts/prd-change-to-work.prompt.md",
@@ -737,11 +758,11 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "cb5aa03bf4978043a843f0ad9a1c7301b2472585370f3c14c7fbee0c33721cdf"
+          "aee80bf8b797ba32a03bc2074a323698732d58f6338d735a1d555928445bcef0"
         ],
         "logicalAssetId": ".make-docs/references/system/prompts/prd-to-work-full-prd.prompt.md",
         "localPath": ".make-docs/references/system/prompts/prd-to-work-full-prd.prompt.md",
@@ -754,11 +775,11 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "454efb0cb51c6f162559c3c975be215362b4758ff809591b3e6bdaedbec29c15"
+          "0a158f7d95252d2bb621d2dc062a6bae3c3d80770f8261fe577f70361bede579"
         ],
         "logicalAssetId": ".make-docs/references/system/prompts/prd-to-work-prd-feature.prompt.md",
         "localPath": ".make-docs/references/system/prompts/prd-to-work-prd-feature.prompt.md",
@@ -771,11 +792,11 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "83084876c1c397525613abd9a166865ff4e5417c8d745d3e8708ba98d75f0064"
+          "0130bf77bdac039e26b921495e898d8b2a224bba2477c13721c996c852b90fc3"
         ],
         "logicalAssetId": ".make-docs/references/system/prompts/request-to-design.prompt.md",
         "localPath": ".make-docs/references/system/prompts/request-to-design.prompt.md",
@@ -788,11 +809,11 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "73696e98e58522bea373c5271bd322b85eeee0bc549b64e4254db031e99513f0"
+          "dee4003a29b2ff9425c694e14c015096b9495818fbed25729dfa8052434bf879"
         ],
         "logicalAssetId": ".make-docs/references/system/prompts/session-to-history-record.prompt.md",
         "localPath": ".make-docs/references/system/prompts/session-to-history-record.prompt.md",
@@ -805,8 +826,8 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
           "2f695d40b34cf7d6c484401afc26584f834050d368fe38ba52c45ee3b2544fbf"
@@ -822,8 +843,8 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
           "3ac9b9e6e208d898988dc6fb06eb718b0de85478ce2a0c1a7d8479b7875cff4d"
@@ -839,11 +860,11 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "aeb7e833235b1fd9b25ec186caa7e1a778cb4033598525f2abd993cac657432e"
+          "a38a8e0885e3c100d8f9fca2ad3366cbdc6cbbe26f648f89fc1c7cb913fb8289"
         ],
         "logicalAssetId": ".make-docs/references/system/prompts/work-to-guides.prompt.md",
         "localPath": ".make-docs/references/system/prompts/work-to-guides.prompt.md",
@@ -856,11 +877,11 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "7e52e049c44a5deac6a2574129f9c045d62a2811707e6d65333ffe73808acee8"
+          "f071335f03d922351967536519f423ce790268fde29d734cb88c475ba8dbe6ba"
         ],
         "logicalAssetId": ".make-docs/references/system/wave-model.md",
         "localPath": ".make-docs/references/system/wave-model.md",
@@ -873,8 +894,8 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
           "be2eac13966e77a10d5743b97fc38c6cb60822f0629158007dbe8ab1629f3db4"
@@ -890,8 +911,8 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
           "92862eb76d9a27d3fbb9becd011a9af2965abe3016a6b205a333839303a51f81"
@@ -907,8 +928,8 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
           "92862eb76d9a27d3fbb9becd011a9af2965abe3016a6b205a333839303a51f81"
@@ -924,11 +945,11 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "4915bab87af5f6bc06e95dde76832b10c547a2f1470d2b59747324bfa7f1ebe4"
+          "fd99d0be95d2d5e21c26acea1c8ea1ac8d6bdb5d1f73acb2f590bd0ececab4f7"
         ],
         "logicalAssetId": ".make-docs/templates/system/design.md",
         "localPath": ".make-docs/templates/system/design.md",
@@ -941,11 +962,11 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "33ec699a154844c239c9d98f46784eb6408093d65550e22f6d7b2c6ee701170e"
+          "187a25244e03bac208b5905d6377da608cb1646b2b60036a5d52cee9ae488f72"
         ],
         "logicalAssetId": ".make-docs/templates/system/guide-developer.md",
         "localPath": ".make-docs/templates/system/guide-developer.md",
@@ -958,11 +979,11 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "194c2b596040941e44b3a7e7245e0bed09a7b7995edb89a789aaaf4edd037514"
+          "97a619627e63305c9ff056cbc24cfe6093de07070fd9110dc4394d4a64702013"
         ],
         "logicalAssetId": ".make-docs/templates/system/guide-user.md",
         "localPath": ".make-docs/templates/system/guide-user.md",
@@ -975,11 +996,11 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "aeab1106c9a043e1afcccea30ab725a715827a8f4a29dfe07e650479182ce3cc"
+          "f88984efa1976a7f91a128124a3383367b016323a9addc2bf8af437f45e035c6"
         ],
         "logicalAssetId": ".make-docs/templates/system/history-record.md",
         "localPath": ".make-docs/templates/system/history-record.md",
@@ -992,11 +1013,11 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "988e75915dc09be252a7c94e198b7054a01cdf2c700e34bbbadf4840b4f72f76"
+          "e9d7d6b2b6093790ff93ffadcc7b46a435475de578f26867fcf379206b109085"
         ],
         "logicalAssetId": ".make-docs/templates/system/plan-overview.md",
         "localPath": ".make-docs/templates/system/plan-overview.md",
@@ -1009,11 +1030,11 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "98dafbb3e6046bdde75082eb9601abce71c3d01cfc59d12b3f879938c3cbcabb"
+          "eda2a04cac67d18ecf1cf4d8367ae0ae309a58fd2571396167cb1e16f21d7f7f"
         ],
         "logicalAssetId": ".make-docs/templates/system/plan-prd-change.md",
         "localPath": ".make-docs/templates/system/plan-prd-change.md",
@@ -1026,11 +1047,11 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "1d2f1008e5292132e92a482be6f9c8391c742c3c6bab6a20395e723a698c7051"
+          "cee7240f98df5c502a45e7bd2a8d18304c44dd54babab514171c8eb28227158c"
         ],
         "logicalAssetId": ".make-docs/templates/system/plan-prd-decompose.md",
         "localPath": ".make-docs/templates/system/plan-prd-decompose.md",
@@ -1043,11 +1064,11 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "71208e00bc607c68893d454978a5b9798a7def4d520d2cc4652323a82cde2cc6"
+          "a4f254c517f4d57cd122c263b4afb9183590e5634de2d6256e26311f891d4843"
         ],
         "logicalAssetId": ".make-docs/templates/system/plan-prd.md",
         "localPath": ".make-docs/templates/system/plan-prd.md",
@@ -1060,48 +1081,14 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "5164164db7c057c44768bf7255bb2c29d752bca9194902497149bf112da35f84"
+          "83f01b22121c4399e81fe7cb7d20df159ea2c23581439a08d9c5ac15473c2528"
         ],
         "logicalAssetId": ".make-docs/templates/system/prd-architecture.md",
         "localPath": ".make-docs/templates/system/prd-architecture.md",
-        "materializationClass": "materialized-system-asset",
-        "offlineExpectation": "local",
-        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
-        "selectionTrigger": "profile-selection"
-      },
-      ".make-docs/templates/system/prd-change-addition.md": {
-        "materializationMode": "full-snapshot",
-        "sourcePackage": "@brucewaynedecoy/make-docs",
-        "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
-        "hashAlgorithm": "sha256",
-        "expectedHashes": [
-          "51cc8014437991d47453ffebc968cd18304f2d17af5b652f97cd51e264d9aa57"
-        ],
-        "logicalAssetId": ".make-docs/templates/system/prd-change-addition.md",
-        "localPath": ".make-docs/templates/system/prd-change-addition.md",
-        "materializationClass": "materialized-system-asset",
-        "offlineExpectation": "local",
-        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
-        "selectionTrigger": "profile-selection"
-      },
-      ".make-docs/templates/system/prd-change-revision.md": {
-        "materializationMode": "full-snapshot",
-        "sourcePackage": "@brucewaynedecoy/make-docs",
-        "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
-        "hashAlgorithm": "sha256",
-        "expectedHashes": [
-          "f1faad7030cf6b993eb1da37c68e399829ea906e5e06f84dce99a3464b3673ed"
-        ],
-        "logicalAssetId": ".make-docs/templates/system/prd-change-revision.md",
-        "localPath": ".make-docs/templates/system/prd-change-revision.md",
         "materializationClass": "materialized-system-asset",
         "offlineExpectation": "local",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
@@ -1111,11 +1098,11 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "24f00b9547a61b5fff157563b83e1aa8d457277f5e4d0a9b3297a4bc439428df"
+          "35c2bbc3729df2187d3b80195e96d461469960a72a83e3735b4e40c099ea10d0"
         ],
         "logicalAssetId": ".make-docs/templates/system/prd-glossary.md",
         "localPath": ".make-docs/templates/system/prd-glossary.md",
@@ -1128,11 +1115,11 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "8eeebd267062ed856ff23a19d3681e8201e93f6463d16a29d090e58df0788314"
+          "523cebfb41b283a0148ff2a3f3741d2e41b2cd7649a29bf8235e0478c92f5f52"
         ],
         "logicalAssetId": ".make-docs/templates/system/prd-index.md",
         "localPath": ".make-docs/templates/system/prd-index.md",
@@ -1145,11 +1132,11 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "61eb0cc330b1f71d4a9b9373cd73dc4eddb84099398cf82fa7c1ef29cebb0f3a"
+          "1156339e73772c40172e262849f5c2c7e20b3ab5aec6cab187fda0d6c1943925"
         ],
         "logicalAssetId": ".make-docs/templates/system/prd-overview.md",
         "localPath": ".make-docs/templates/system/prd-overview.md",
@@ -1162,11 +1149,11 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "cc7f5fbd68a186ba307349756638baeb56b65c7346bd0069c9c615fb96379f9d"
+          "7b30d94cbcfc24e394509f6795da406bfc1b9631c5d85a98423c4a338fd08078"
         ],
         "logicalAssetId": ".make-docs/templates/system/prd-reference.md",
         "localPath": ".make-docs/templates/system/prd-reference.md",
@@ -1179,11 +1166,11 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "5e3b7a845f5cc25bbcc118231e146b9a7dc09225e6dc958596c5d2f39b736579"
+          "5377f974e21f59f659ca839732a44e6281ee0300116388ce7ab4da2f36a2accc"
         ],
         "logicalAssetId": ".make-docs/templates/system/prd-risk-register.md",
         "localPath": ".make-docs/templates/system/prd-risk-register.md",
@@ -1196,11 +1183,11 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "0e554252985624713ed3255ed590931fd92dd713cd364479b1bab1478ea9aff7"
+          "16b8266a8fec14863a169dafdadb5db80913cdfc73b24b9559e3db82611e1a8a"
         ],
         "logicalAssetId": ".make-docs/templates/system/prd-subsystem.md",
         "localPath": ".make-docs/templates/system/prd-subsystem.md",
@@ -1213,11 +1200,11 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "e8392e507c10f607cc322010743492130cf759d1823c2acbbdedcda4a0d65c56"
+          "ce4f6f6ca79c7989abe87b7d5c177315ea46cec8a433eb5d8b34f0117f20f937"
         ],
         "logicalAssetId": ".make-docs/templates/system/work-index.md",
         "localPath": ".make-docs/templates/system/work-index.md",
@@ -1230,11 +1217,11 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "95cf66ae65dfc87bc663c618947fd8f4c4fd22afe4dcb3fccbb3513033127a0a"
+          "0f571d99e59d194b03ffb4c59272267c4be72b83c7e8babf239181630a55b6a2"
         ],
         "logicalAssetId": ".make-docs/templates/system/work-phase.md",
         "localPath": ".make-docs/templates/system/work-phase.md",
@@ -1247,8 +1234,8 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
           "f8efe1dd9f7b43b10e56569e55345f81dd1fc824e9e25c6b1fa1023eaeb4ff36"
@@ -1264,8 +1251,8 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
           "f8efe1dd9f7b43b10e56569e55345f81dd1fc824e9e25c6b1fa1023eaeb4ff36"
@@ -1281,8 +1268,8 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
           "349d75d9676650f793f7e3bc047af543d95ab01ba140e3efc1a40b03923294f8"
@@ -1298,8 +1285,8 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
           "349d75d9676650f793f7e3bc047af543d95ab01ba140e3efc1a40b03923294f8"
@@ -1315,8 +1302,8 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
           "1a1e0ae8b09268209ffa9a2b907e6781709730a6f9aed9fa2d664c07853bcba9"
@@ -1332,8 +1319,8 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
           "1a1e0ae8b09268209ffa9a2b907e6781709730a6f9aed9fa2d664c07853bcba9"
@@ -1349,8 +1336,8 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
           "e08b3144d4d2ad4ff6f92c0bab78ff756fd7597e9e6cf20e299e6454d91e0d70"
@@ -1366,8 +1353,8 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
           "e08b3144d4d2ad4ff6f92c0bab78ff756fd7597e9e6cf20e299e6454d91e0d70"
@@ -1383,11 +1370,11 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "96171d765ab1ad3b7998b3a378897fe12fca1973ef34c9a5ab761f3cae42ad62"
+          "aca84c84faf610c76366c3b9fd1dd301d130196221399ee040c3172ce650c385"
         ],
         "logicalAssetId": "docs/assets/playbooks/AGENTS.md",
         "localPath": "docs/assets/playbooks/AGENTS.md",
@@ -1400,14 +1387,31 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "96171d765ab1ad3b7998b3a378897fe12fca1973ef34c9a5ab761f3cae42ad62"
+          "aca84c84faf610c76366c3b9fd1dd301d130196221399ee040c3172ce650c385"
         ],
         "logicalAssetId": "docs/assets/playbooks/CLAUDE.md",
         "localPath": "docs/assets/playbooks/CLAUDE.md",
+        "materializationClass": "materialized-system-asset",
+        "offlineExpectation": "local",
+        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
+        "selectionTrigger": "profile-selection"
+      },
+      "docs/assets/playbooks/agent/make-docs-lifecycle.playbook.md": {
+        "materializationMode": "full-snapshot",
+        "sourcePackage": "@brucewaynedecoy/make-docs",
+        "sourceProvider": "package",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
+        "hashAlgorithm": "sha256",
+        "expectedHashes": [
+          "7254483ecc7f6a5fa19c85ab9b53aafe5ed3c70675b02049f9e47a63cde500b1"
+        ],
+        "logicalAssetId": "docs/assets/playbooks/agent/make-docs-lifecycle.playbook.md",
+        "localPath": "docs/assets/playbooks/agent/make-docs-lifecycle.playbook.md",
         "materializationClass": "materialized-system-asset",
         "offlineExpectation": "local",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
@@ -1417,8 +1421,8 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
           "4362f1ff715413b5e8e740b339a7cf339f3f665e7bc1e9f6951b78f67fa52ba9"
@@ -1434,8 +1438,8 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
           "4362f1ff715413b5e8e740b339a7cf339f3f665e7bc1e9f6951b78f67fa52ba9"
@@ -1451,11 +1455,11 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "c542deec2b4844f8695605a49a068b3336df7eab5cf71ec2bb1b91791b759c54"
+          "995374273d19e74ca3279b30e37398fa7fc769e1343953ec4ef5565fd9855869"
         ],
         "logicalAssetId": "docs/plans/AGENTS.md",
         "localPath": "docs/plans/AGENTS.md",
@@ -1468,11 +1472,11 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "c542deec2b4844f8695605a49a068b3336df7eab5cf71ec2bb1b91791b759c54"
+          "995374273d19e74ca3279b30e37398fa7fc769e1343953ec4ef5565fd9855869"
         ],
         "logicalAssetId": "docs/plans/CLAUDE.md",
         "localPath": "docs/plans/CLAUDE.md",
@@ -1485,11 +1489,11 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "05bd96698361402ee1bb107a49a8b7f4e7a9c52b1a3ec0075cfe71cf2215362f"
+          "e4688e69be8b61b7967367082d13271cd12ad42c85661af1fd880ccead4c4ec0"
         ],
         "logicalAssetId": "docs/prd/AGENTS.md",
         "localPath": "docs/prd/AGENTS.md",
@@ -1502,11 +1506,11 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "05bd96698361402ee1bb107a49a8b7f4e7a9c52b1a3ec0075cfe71cf2215362f"
+          "e4688e69be8b61b7967367082d13271cd12ad42c85661af1fd880ccead4c4ec0"
         ],
         "logicalAssetId": "docs/prd/CLAUDE.md",
         "localPath": "docs/prd/CLAUDE.md",
@@ -1519,8 +1523,8 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
           "20ef1c509e4b7b9773af9207d0d20ff4a10ca27ff32cef10f974e22e01aa24bc"
@@ -1536,8 +1540,8 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
           "20ef1c509e4b7b9773af9207d0d20ff4a10ca27ff32cef10f974e22e01aa24bc"
@@ -1553,17 +1557,17 @@
   },
   "files": {
     ".make-docs/AGENTS.md": {
-      "hash": "d536e143b0d8c90fd465a7f73469391d8fdd1dbe43c98dea911a3add8c0c1a03",
+      "hash": "5f295ff545f1ea5fb393a95fc1cbc63d811cd33b8e41771e09052437d28281bf",
       "sourceId": "file:.make-docs/AGENTS.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "d536e143b0d8c90fd465a7f73469391d8fdd1dbe43c98dea911a3add8c0c1a03"
+          "5f295ff545f1ea5fb393a95fc1cbc63d811cd33b8e41771e09052437d28281bf"
         ],
         "logicalAssetId": ".make-docs/AGENTS.md",
         "localPath": ".make-docs/AGENTS.md",
@@ -1574,17 +1578,17 @@
       }
     },
     ".make-docs/CLAUDE.md": {
-      "hash": "d536e143b0d8c90fd465a7f73469391d8fdd1dbe43c98dea911a3add8c0c1a03",
+      "hash": "5f295ff545f1ea5fb393a95fc1cbc63d811cd33b8e41771e09052437d28281bf",
       "sourceId": "file:.make-docs/CLAUDE.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "d536e143b0d8c90fd465a7f73469391d8fdd1dbe43c98dea911a3add8c0c1a03"
+          "5f295ff545f1ea5fb393a95fc1cbc63d811cd33b8e41771e09052437d28281bf"
         ],
         "logicalAssetId": ".make-docs/CLAUDE.md",
         "localPath": ".make-docs/CLAUDE.md",
@@ -1595,17 +1599,17 @@
       }
     },
     ".make-docs/contracts/system/AGENTS.md": {
-      "hash": "f5cc6ff6308582d7ac5ddb6a9415671fc4610a850f0d345ecb03ae4377d239b1",
+      "hash": "2877a36dc085d7a0d37fb0c64d12ffa9c6ab48eb156734db62be6ad9262af50c",
       "sourceId": "file:.make-docs/contracts/system/AGENTS.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "f5cc6ff6308582d7ac5ddb6a9415671fc4610a850f0d345ecb03ae4377d239b1"
+          "2877a36dc085d7a0d37fb0c64d12ffa9c6ab48eb156734db62be6ad9262af50c"
         ],
         "logicalAssetId": ".make-docs/contracts/system/AGENTS.md",
         "localPath": ".make-docs/contracts/system/AGENTS.md",
@@ -1616,17 +1620,17 @@
       }
     },
     ".make-docs/contracts/system/CLAUDE.md": {
-      "hash": "f5cc6ff6308582d7ac5ddb6a9415671fc4610a850f0d345ecb03ae4377d239b1",
+      "hash": "2877a36dc085d7a0d37fb0c64d12ffa9c6ab48eb156734db62be6ad9262af50c",
       "sourceId": "file:.make-docs/contracts/system/CLAUDE.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "f5cc6ff6308582d7ac5ddb6a9415671fc4610a850f0d345ecb03ae4377d239b1"
+          "2877a36dc085d7a0d37fb0c64d12ffa9c6ab48eb156734db62be6ad9262af50c"
         ],
         "logicalAssetId": ".make-docs/contracts/system/CLAUDE.md",
         "localPath": ".make-docs/contracts/system/CLAUDE.md",
@@ -1637,17 +1641,17 @@
       }
     },
     ".make-docs/contracts/system/commit-message-convention.md": {
-      "hash": "e83ab0b4aba3831c44f09bd17496a795f8a6e4ce3fcdd07e6ad35213452a3b07",
+      "hash": "2ea2da387054c3ba3a1fe1514315e44391166e782649bb3ce7e2970152f5fc08",
       "sourceId": "file:.make-docs/contracts/system/commit-message-convention.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "e83ab0b4aba3831c44f09bd17496a795f8a6e4ce3fcdd07e6ad35213452a3b07"
+          "2ea2da387054c3ba3a1fe1514315e44391166e782649bb3ce7e2970152f5fc08"
         ],
         "logicalAssetId": ".make-docs/contracts/system/commit-message-convention.md",
         "localPath": ".make-docs/contracts/system/commit-message-convention.md",
@@ -1658,17 +1662,17 @@
       }
     },
     ".make-docs/contracts/system/coverage-pass-contract.md": {
-      "hash": "fa4aa9b61cee7fa67fb86d11271a27daf374b34a7ed2ea9a651c520b6ee247e8",
+      "hash": "30ebca92adb62a969f55e174be0fd517ff0be269839ff72c4bbfa9372ae24291",
       "sourceId": "file:.make-docs/contracts/system/coverage-pass-contract.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "fa4aa9b61cee7fa67fb86d11271a27daf374b34a7ed2ea9a651c520b6ee247e8"
+          "30ebca92adb62a969f55e174be0fd517ff0be269839ff72c4bbfa9372ae24291"
         ],
         "logicalAssetId": ".make-docs/contracts/system/coverage-pass-contract.md",
         "localPath": ".make-docs/contracts/system/coverage-pass-contract.md",
@@ -1685,8 +1689,8 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
           "fa4c107178ddafede04a14c361b89e83af85a891c03dda2c4ad6c673c966c5dd"
@@ -1706,8 +1710,8 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
           "d1b6fd01e146243d90a8950bf3aa483c7ff316acd1703b474b9f1f4227666dd1"
@@ -1727,8 +1731,8 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
           "bcef5ca7982eb1f2215f920390c99fbbd26c6f8fa83e566d63529cd3fc1e7f12"
@@ -1742,17 +1746,17 @@
       }
     },
     ".make-docs/contracts/system/output-contract.md": {
-      "hash": "bbeb577502416970e4af8a7d203a335ae9f180ef6c9b56f845399340d92afb25",
+      "hash": "8bdb779879575fc3a4e3d404d3b26c47a1a62883cc446adf1ef4d43bcb9cf601",
       "sourceId": "file:.make-docs/contracts/system/output-contract.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "bbeb577502416970e4af8a7d203a335ae9f180ef6c9b56f845399340d92afb25"
+          "8bdb779879575fc3a4e3d404d3b26c47a1a62883cc446adf1ef4d43bcb9cf601"
         ],
         "logicalAssetId": ".make-docs/contracts/system/output-contract.md",
         "localPath": ".make-docs/contracts/system/output-contract.md",
@@ -1769,8 +1773,8 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
           "e83101cf55190f6e1999cdc1b3f6a72d110bebbf7ef87a78e1f04b555daf2053"
@@ -1790,8 +1794,8 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
           "e83101cf55190f6e1999cdc1b3f6a72d110bebbf7ef87a78e1f04b555daf2053"
@@ -1811,8 +1815,8 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
           "0ce0f23a0cdda585666141ed0bcd355f74f6d172100160a14d6f5c31105f0fe0"
@@ -1826,17 +1830,17 @@
       }
     },
     ".make-docs/references/system/execution-workflow.md": {
-      "hash": "220924ffb246886cc99c38bf0377ffbd1796f697262f1125131ec5aca1a46b77",
+      "hash": "9c43fdfdd714874a878768d3bc29f8d0fd271ba085b075a5327c4fbce46b4e18",
       "sourceId": "file:.make-docs/references/system/execution-workflow.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "220924ffb246886cc99c38bf0377ffbd1796f697262f1125131ec5aca1a46b77"
+          "9c43fdfdd714874a878768d3bc29f8d0fd271ba085b075a5327c4fbce46b4e18"
         ],
         "logicalAssetId": ".make-docs/references/system/execution-workflow.md",
         "localPath": ".make-docs/references/system/execution-workflow.md",
@@ -1853,8 +1857,8 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
           "20bf1ab3931a34f6cc7714376f2236fc44c4d74b4a6265fc2536b482290b44f2"
@@ -1868,17 +1872,17 @@
       }
     },
     ".make-docs/references/system/lifecycle.md": {
-      "hash": "f53ea079a4bc5d99eb9aea77ccb8cd38899ec0b4a63a2b837bc4e65a5ce87c52",
+      "hash": "47639b364ce4a266ed260233658c4ac25c89782657a11061347378b57900f2f4",
       "sourceId": "file:.make-docs/references/system/lifecycle.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "f53ea079a4bc5d99eb9aea77ccb8cd38899ec0b4a63a2b837bc4e65a5ce87c52"
+          "47639b364ce4a266ed260233658c4ac25c89782657a11061347378b57900f2f4"
         ],
         "logicalAssetId": ".make-docs/references/system/lifecycle.md",
         "localPath": ".make-docs/references/system/lifecycle.md",
@@ -1895,8 +1899,8 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
           "20ccd340e8ecb36cd991832d7f16e5cbaa096cc24f55b71c9e550370846ee7c6"
@@ -1910,17 +1914,17 @@
       }
     },
     ".make-docs/references/system/planning-workflow.md": {
-      "hash": "681900299cde011af7cc82f45f5bf9b558463045dfc74a9dc3f91510d9d9dc0a",
+      "hash": "d3d73334069f86aa38747f6482a04860c42bb76aa8995e372383cc62a1b17626",
       "sourceId": "file:.make-docs/references/system/planning-workflow.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "681900299cde011af7cc82f45f5bf9b558463045dfc74a9dc3f91510d9d9dc0a"
+          "d3d73334069f86aa38747f6482a04860c42bb76aa8995e372383cc62a1b17626"
         ],
         "logicalAssetId": ".make-docs/references/system/planning-workflow.md",
         "localPath": ".make-docs/references/system/planning-workflow.md",
@@ -1931,17 +1935,17 @@
       }
     },
     ".make-docs/references/system/prd-change-management.md": {
-      "hash": "5f4316d965ad6ff5176cdbff93e48915f50125d9e5295bd79d3b97b6c5937b98",
+      "hash": "8e9433b7b6379310b81f9434b58f6f3f84a7ca2bc4c0b7b2b37b125de8c70431",
       "sourceId": "file:.make-docs/references/system/prd-change-management.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "5f4316d965ad6ff5176cdbff93e48915f50125d9e5295bd79d3b97b6c5937b98"
+          "8e9433b7b6379310b81f9434b58f6f3f84a7ca2bc4c0b7b2b37b125de8c70431"
         ],
         "logicalAssetId": ".make-docs/references/system/prd-change-management.md",
         "localPath": ".make-docs/references/system/prd-change-management.md",
@@ -1958,8 +1962,8 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
           "0ee2bcd1bbe7243bdfcc33222d2af6adade3b85732054b92f929243773e28e0a"
@@ -1979,8 +1983,8 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
           "0ee2bcd1bbe7243bdfcc33222d2af6adade3b85732054b92f929243773e28e0a"
@@ -1994,17 +1998,17 @@
       }
     },
     ".make-docs/references/system/prompts/coverage-pass-developer-guide.prompt.md": {
-      "hash": "447c9175991a2382115d823193fcd85480fa5c3b1be215a57aeb0f101228940b",
+      "hash": "be187cdd8a5850504a2573d2c28195c00da3f325b6ceb3b8a2eb4bb3f75b340f",
       "sourceId": "file:.make-docs/references/system/prompts/coverage-pass-developer-guide.prompt.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "447c9175991a2382115d823193fcd85480fa5c3b1be215a57aeb0f101228940b"
+          "be187cdd8a5850504a2573d2c28195c00da3f325b6ceb3b8a2eb4bb3f75b340f"
         ],
         "logicalAssetId": ".make-docs/references/system/prompts/coverage-pass-developer-guide.prompt.md",
         "localPath": ".make-docs/references/system/prompts/coverage-pass-developer-guide.prompt.md",
@@ -2015,17 +2019,17 @@
       }
     },
     ".make-docs/references/system/prompts/coverage-pass-prd-reconciliation.prompt.md": {
-      "hash": "48f247f1ee92ebf304c03b21ebef098e36c43d28065e11ba823d1a34cd7eb625",
+      "hash": "d54a2391fe20d7b1c34afaf32346c6d775c8af0d56f3848a7b37ffb87c52e791",
       "sourceId": "file:.make-docs/references/system/prompts/coverage-pass-prd-reconciliation.prompt.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "48f247f1ee92ebf304c03b21ebef098e36c43d28065e11ba823d1a34cd7eb625"
+          "d54a2391fe20d7b1c34afaf32346c6d775c8af0d56f3848a7b37ffb87c52e791"
         ],
         "logicalAssetId": ".make-docs/references/system/prompts/coverage-pass-prd-reconciliation.prompt.md",
         "localPath": ".make-docs/references/system/prompts/coverage-pass-prd-reconciliation.prompt.md",
@@ -2042,8 +2046,8 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
           "c1127042043abc6a20d5aea316ca6140363ba2ca9ffd1c057dc34b00110f15dc"
@@ -2057,17 +2061,17 @@
       }
     },
     ".make-docs/references/system/prompts/coverage-pass-user-guide.prompt.md": {
-      "hash": "dfc98b05f9f4faffa993f9a71ed3efb778bc6058bdb3d559fa3a3315e9ddbeff",
+      "hash": "f384d0a6f03bb701b351bf159b66193accba3149866fe48eaa401b474cc8ea6c",
       "sourceId": "file:.make-docs/references/system/prompts/coverage-pass-user-guide.prompt.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "dfc98b05f9f4faffa993f9a71ed3efb778bc6058bdb3d559fa3a3315e9ddbeff"
+          "f384d0a6f03bb701b351bf159b66193accba3149866fe48eaa401b474cc8ea6c"
         ],
         "logicalAssetId": ".make-docs/references/system/prompts/coverage-pass-user-guide.prompt.md",
         "localPath": ".make-docs/references/system/prompts/coverage-pass-user-guide.prompt.md",
@@ -2078,17 +2082,17 @@
       }
     },
     ".make-docs/references/system/prompts/designs-to-plan-change.prompt.md": {
-      "hash": "99c6c3da65749438ddea673a3aa85d65c7500973eb2e8f7024237f235a645244",
+      "hash": "6119ab60dcd92a8929cc700a317c47cd6d6382b3ddafd02328e39b255321c62c",
       "sourceId": "file:.make-docs/references/system/prompts/designs-to-plan-change.prompt.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "99c6c3da65749438ddea673a3aa85d65c7500973eb2e8f7024237f235a645244"
+          "6119ab60dcd92a8929cc700a317c47cd6d6382b3ddafd02328e39b255321c62c"
         ],
         "logicalAssetId": ".make-docs/references/system/prompts/designs-to-plan-change.prompt.md",
         "localPath": ".make-docs/references/system/prompts/designs-to-plan-change.prompt.md",
@@ -2099,17 +2103,17 @@
       }
     },
     ".make-docs/references/system/prompts/designs-to-plan.prompt.md": {
-      "hash": "82ba1587fb139e2a9cd70edc294d58adeae7a8852a208321636a1e98200347c3",
+      "hash": "03756aa3c05bb8889ed2b8b9fddc6b77b4d6ee8a79584dda4728929167688910",
       "sourceId": "file:.make-docs/references/system/prompts/designs-to-plan.prompt.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "82ba1587fb139e2a9cd70edc294d58adeae7a8852a208321636a1e98200347c3"
+          "03756aa3c05bb8889ed2b8b9fddc6b77b4d6ee8a79584dda4728929167688910"
         ],
         "logicalAssetId": ".make-docs/references/system/prompts/designs-to-plan.prompt.md",
         "localPath": ".make-docs/references/system/prompts/designs-to-plan.prompt.md",
@@ -2126,8 +2130,8 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
           "05b093f3349089d6e2acca71e1a1f5dac6ded6aeacbc66f883f91a4d0576e3a1"
@@ -2141,17 +2145,17 @@
       }
     },
     ".make-docs/references/system/prompts/plan-to-prd-change.prompt.md": {
-      "hash": "b4e0d0af9f7f39779254f5fc58e239005a2da6271debf49d62fce6c95ce870e7",
+      "hash": "1ab2f2edaea340b28040a67c873b6f5095824a7551767f4d18afb89746c2c66f",
       "sourceId": "file:.make-docs/references/system/prompts/plan-to-prd-change.prompt.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "b4e0d0af9f7f39779254f5fc58e239005a2da6271debf49d62fce6c95ce870e7"
+          "1ab2f2edaea340b28040a67c873b6f5095824a7551767f4d18afb89746c2c66f"
         ],
         "logicalAssetId": ".make-docs/references/system/prompts/plan-to-prd-change.prompt.md",
         "localPath": ".make-docs/references/system/prompts/plan-to-prd-change.prompt.md",
@@ -2162,17 +2166,17 @@
       }
     },
     ".make-docs/references/system/prompts/plan-to-prd-green-field.prompt.md": {
-      "hash": "10dfb0396eac2b11fa6d31183852aa880106b0f0a04c92a1010d5b4a4795283f",
+      "hash": "dc8a99a88db72626dc9e0ae6bb05aad81a96e5d9fdc2c43d401b731c9e6c3999",
       "sourceId": "file:.make-docs/references/system/prompts/plan-to-prd-green-field.prompt.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "10dfb0396eac2b11fa6d31183852aa880106b0f0a04c92a1010d5b4a4795283f"
+          "dc8a99a88db72626dc9e0ae6bb05aad81a96e5d9fdc2c43d401b731c9e6c3999"
         ],
         "logicalAssetId": ".make-docs/references/system/prompts/plan-to-prd-green-field.prompt.md",
         "localPath": ".make-docs/references/system/prompts/plan-to-prd-green-field.prompt.md",
@@ -2183,17 +2187,17 @@
       }
     },
     ".make-docs/references/system/prompts/prd-change-to-work.prompt.md": {
-      "hash": "8b78f0a5b50abd06fd480367c086865aa931b073cc1ae9d4825d305af8741669",
+      "hash": "6d68b7447804028272e62258728b45e848b1c6c57edbc497fd25ec5d373d7c5b",
       "sourceId": "file:.make-docs/references/system/prompts/prd-change-to-work.prompt.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "8b78f0a5b50abd06fd480367c086865aa931b073cc1ae9d4825d305af8741669"
+          "6d68b7447804028272e62258728b45e848b1c6c57edbc497fd25ec5d373d7c5b"
         ],
         "logicalAssetId": ".make-docs/references/system/prompts/prd-change-to-work.prompt.md",
         "localPath": ".make-docs/references/system/prompts/prd-change-to-work.prompt.md",
@@ -2204,17 +2208,17 @@
       }
     },
     ".make-docs/references/system/prompts/prd-to-work-full-prd.prompt.md": {
-      "hash": "cb5aa03bf4978043a843f0ad9a1c7301b2472585370f3c14c7fbee0c33721cdf",
+      "hash": "aee80bf8b797ba32a03bc2074a323698732d58f6338d735a1d555928445bcef0",
       "sourceId": "file:.make-docs/references/system/prompts/prd-to-work-full-prd.prompt.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "cb5aa03bf4978043a843f0ad9a1c7301b2472585370f3c14c7fbee0c33721cdf"
+          "aee80bf8b797ba32a03bc2074a323698732d58f6338d735a1d555928445bcef0"
         ],
         "logicalAssetId": ".make-docs/references/system/prompts/prd-to-work-full-prd.prompt.md",
         "localPath": ".make-docs/references/system/prompts/prd-to-work-full-prd.prompt.md",
@@ -2225,17 +2229,17 @@
       }
     },
     ".make-docs/references/system/prompts/prd-to-work-prd-feature.prompt.md": {
-      "hash": "454efb0cb51c6f162559c3c975be215362b4758ff809591b3e6bdaedbec29c15",
+      "hash": "0a158f7d95252d2bb621d2dc062a6bae3c3d80770f8261fe577f70361bede579",
       "sourceId": "file:.make-docs/references/system/prompts/prd-to-work-prd-feature.prompt.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "454efb0cb51c6f162559c3c975be215362b4758ff809591b3e6bdaedbec29c15"
+          "0a158f7d95252d2bb621d2dc062a6bae3c3d80770f8261fe577f70361bede579"
         ],
         "logicalAssetId": ".make-docs/references/system/prompts/prd-to-work-prd-feature.prompt.md",
         "localPath": ".make-docs/references/system/prompts/prd-to-work-prd-feature.prompt.md",
@@ -2246,17 +2250,17 @@
       }
     },
     ".make-docs/references/system/prompts/request-to-design.prompt.md": {
-      "hash": "83084876c1c397525613abd9a166865ff4e5417c8d745d3e8708ba98d75f0064",
+      "hash": "0130bf77bdac039e26b921495e898d8b2a224bba2477c13721c996c852b90fc3",
       "sourceId": "file:.make-docs/references/system/prompts/request-to-design.prompt.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "83084876c1c397525613abd9a166865ff4e5417c8d745d3e8708ba98d75f0064"
+          "0130bf77bdac039e26b921495e898d8b2a224bba2477c13721c996c852b90fc3"
         ],
         "logicalAssetId": ".make-docs/references/system/prompts/request-to-design.prompt.md",
         "localPath": ".make-docs/references/system/prompts/request-to-design.prompt.md",
@@ -2267,17 +2271,17 @@
       }
     },
     ".make-docs/references/system/prompts/session-to-history-record.prompt.md": {
-      "hash": "73696e98e58522bea373c5271bd322b85eeee0bc549b64e4254db031e99513f0",
+      "hash": "dee4003a29b2ff9425c694e14c015096b9495818fbed25729dfa8052434bf879",
       "sourceId": "file:.make-docs/references/system/prompts/session-to-history-record.prompt.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "73696e98e58522bea373c5271bd322b85eeee0bc549b64e4254db031e99513f0"
+          "dee4003a29b2ff9425c694e14c015096b9495818fbed25729dfa8052434bf879"
         ],
         "logicalAssetId": ".make-docs/references/system/prompts/session-to-history-record.prompt.md",
         "localPath": ".make-docs/references/system/prompts/session-to-history-record.prompt.md",
@@ -2294,8 +2298,8 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
           "2f695d40b34cf7d6c484401afc26584f834050d368fe38ba52c45ee3b2544fbf"
@@ -2315,8 +2319,8 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
           "3ac9b9e6e208d898988dc6fb06eb718b0de85478ce2a0c1a7d8479b7875cff4d"
@@ -2330,17 +2334,17 @@
       }
     },
     ".make-docs/references/system/prompts/work-to-guides.prompt.md": {
-      "hash": "aeb7e833235b1fd9b25ec186caa7e1a778cb4033598525f2abd993cac657432e",
+      "hash": "a38a8e0885e3c100d8f9fca2ad3366cbdc6cbbe26f648f89fc1c7cb913fb8289",
       "sourceId": "file:.make-docs/references/system/prompts/work-to-guides.prompt.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "aeb7e833235b1fd9b25ec186caa7e1a778cb4033598525f2abd993cac657432e"
+          "a38a8e0885e3c100d8f9fca2ad3366cbdc6cbbe26f648f89fc1c7cb913fb8289"
         ],
         "logicalAssetId": ".make-docs/references/system/prompts/work-to-guides.prompt.md",
         "localPath": ".make-docs/references/system/prompts/work-to-guides.prompt.md",
@@ -2351,17 +2355,17 @@
       }
     },
     ".make-docs/references/system/wave-model.md": {
-      "hash": "7e52e049c44a5deac6a2574129f9c045d62a2811707e6d65333ffe73808acee8",
+      "hash": "f071335f03d922351967536519f423ce790268fde29d734cb88c475ba8dbe6ba",
       "sourceId": "file:.make-docs/references/system/wave-model.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "7e52e049c44a5deac6a2574129f9c045d62a2811707e6d65333ffe73808acee8"
+          "f071335f03d922351967536519f423ce790268fde29d734cb88c475ba8dbe6ba"
         ],
         "logicalAssetId": ".make-docs/references/system/wave-model.md",
         "localPath": ".make-docs/references/system/wave-model.md",
@@ -2378,8 +2382,8 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
           "be2eac13966e77a10d5743b97fc38c6cb60822f0629158007dbe8ab1629f3db4"
@@ -2399,8 +2403,8 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
           "92862eb76d9a27d3fbb9becd011a9af2965abe3016a6b205a333839303a51f81"
@@ -2420,8 +2424,8 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
           "92862eb76d9a27d3fbb9becd011a9af2965abe3016a6b205a333839303a51f81"
@@ -2435,17 +2439,17 @@
       }
     },
     ".make-docs/templates/system/design.md": {
-      "hash": "4915bab87af5f6bc06e95dde76832b10c547a2f1470d2b59747324bfa7f1ebe4",
+      "hash": "fd99d0be95d2d5e21c26acea1c8ea1ac8d6bdb5d1f73acb2f590bd0ececab4f7",
       "sourceId": "file:.make-docs/templates/system/design.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "4915bab87af5f6bc06e95dde76832b10c547a2f1470d2b59747324bfa7f1ebe4"
+          "fd99d0be95d2d5e21c26acea1c8ea1ac8d6bdb5d1f73acb2f590bd0ececab4f7"
         ],
         "logicalAssetId": ".make-docs/templates/system/design.md",
         "localPath": ".make-docs/templates/system/design.md",
@@ -2456,17 +2460,17 @@
       }
     },
     ".make-docs/templates/system/guide-developer.md": {
-      "hash": "33ec699a154844c239c9d98f46784eb6408093d65550e22f6d7b2c6ee701170e",
+      "hash": "187a25244e03bac208b5905d6377da608cb1646b2b60036a5d52cee9ae488f72",
       "sourceId": "file:.make-docs/templates/system/guide-developer.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "33ec699a154844c239c9d98f46784eb6408093d65550e22f6d7b2c6ee701170e"
+          "187a25244e03bac208b5905d6377da608cb1646b2b60036a5d52cee9ae488f72"
         ],
         "logicalAssetId": ".make-docs/templates/system/guide-developer.md",
         "localPath": ".make-docs/templates/system/guide-developer.md",
@@ -2477,17 +2481,17 @@
       }
     },
     ".make-docs/templates/system/guide-user.md": {
-      "hash": "194c2b596040941e44b3a7e7245e0bed09a7b7995edb89a789aaaf4edd037514",
+      "hash": "97a619627e63305c9ff056cbc24cfe6093de07070fd9110dc4394d4a64702013",
       "sourceId": "file:.make-docs/templates/system/guide-user.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "194c2b596040941e44b3a7e7245e0bed09a7b7995edb89a789aaaf4edd037514"
+          "97a619627e63305c9ff056cbc24cfe6093de07070fd9110dc4394d4a64702013"
         ],
         "logicalAssetId": ".make-docs/templates/system/guide-user.md",
         "localPath": ".make-docs/templates/system/guide-user.md",
@@ -2498,17 +2502,17 @@
       }
     },
     ".make-docs/templates/system/history-record.md": {
-      "hash": "aeab1106c9a043e1afcccea30ab725a715827a8f4a29dfe07e650479182ce3cc",
+      "hash": "f88984efa1976a7f91a128124a3383367b016323a9addc2bf8af437f45e035c6",
       "sourceId": "file:.make-docs/templates/system/history-record.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "aeab1106c9a043e1afcccea30ab725a715827a8f4a29dfe07e650479182ce3cc"
+          "f88984efa1976a7f91a128124a3383367b016323a9addc2bf8af437f45e035c6"
         ],
         "logicalAssetId": ".make-docs/templates/system/history-record.md",
         "localPath": ".make-docs/templates/system/history-record.md",
@@ -2519,17 +2523,17 @@
       }
     },
     ".make-docs/templates/system/plan-overview.md": {
-      "hash": "988e75915dc09be252a7c94e198b7054a01cdf2c700e34bbbadf4840b4f72f76",
+      "hash": "e9d7d6b2b6093790ff93ffadcc7b46a435475de578f26867fcf379206b109085",
       "sourceId": "file:.make-docs/templates/system/plan-overview.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "988e75915dc09be252a7c94e198b7054a01cdf2c700e34bbbadf4840b4f72f76"
+          "e9d7d6b2b6093790ff93ffadcc7b46a435475de578f26867fcf379206b109085"
         ],
         "logicalAssetId": ".make-docs/templates/system/plan-overview.md",
         "localPath": ".make-docs/templates/system/plan-overview.md",
@@ -2540,17 +2544,17 @@
       }
     },
     ".make-docs/templates/system/plan-prd-change.md": {
-      "hash": "98dafbb3e6046bdde75082eb9601abce71c3d01cfc59d12b3f879938c3cbcabb",
+      "hash": "eda2a04cac67d18ecf1cf4d8367ae0ae309a58fd2571396167cb1e16f21d7f7f",
       "sourceId": "file:.make-docs/templates/system/plan-prd-change.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "98dafbb3e6046bdde75082eb9601abce71c3d01cfc59d12b3f879938c3cbcabb"
+          "eda2a04cac67d18ecf1cf4d8367ae0ae309a58fd2571396167cb1e16f21d7f7f"
         ],
         "logicalAssetId": ".make-docs/templates/system/plan-prd-change.md",
         "localPath": ".make-docs/templates/system/plan-prd-change.md",
@@ -2561,17 +2565,17 @@
       }
     },
     ".make-docs/templates/system/plan-prd-decompose.md": {
-      "hash": "1d2f1008e5292132e92a482be6f9c8391c742c3c6bab6a20395e723a698c7051",
+      "hash": "cee7240f98df5c502a45e7bd2a8d18304c44dd54babab514171c8eb28227158c",
       "sourceId": "file:.make-docs/templates/system/plan-prd-decompose.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "1d2f1008e5292132e92a482be6f9c8391c742c3c6bab6a20395e723a698c7051"
+          "cee7240f98df5c502a45e7bd2a8d18304c44dd54babab514171c8eb28227158c"
         ],
         "logicalAssetId": ".make-docs/templates/system/plan-prd-decompose.md",
         "localPath": ".make-docs/templates/system/plan-prd-decompose.md",
@@ -2582,17 +2586,17 @@
       }
     },
     ".make-docs/templates/system/plan-prd.md": {
-      "hash": "71208e00bc607c68893d454978a5b9798a7def4d520d2cc4652323a82cde2cc6",
+      "hash": "a4f254c517f4d57cd122c263b4afb9183590e5634de2d6256e26311f891d4843",
       "sourceId": "file:.make-docs/templates/system/plan-prd.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "71208e00bc607c68893d454978a5b9798a7def4d520d2cc4652323a82cde2cc6"
+          "a4f254c517f4d57cd122c263b4afb9183590e5634de2d6256e26311f891d4843"
         ],
         "logicalAssetId": ".make-docs/templates/system/plan-prd.md",
         "localPath": ".make-docs/templates/system/plan-prd.md",
@@ -2603,17 +2607,17 @@
       }
     },
     ".make-docs/templates/system/prd-architecture.md": {
-      "hash": "5164164db7c057c44768bf7255bb2c29d752bca9194902497149bf112da35f84",
+      "hash": "83f01b22121c4399e81fe7cb7d20df159ea2c23581439a08d9c5ac15473c2528",
       "sourceId": "file:.make-docs/templates/system/prd-architecture.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "5164164db7c057c44768bf7255bb2c29d752bca9194902497149bf112da35f84"
+          "83f01b22121c4399e81fe7cb7d20df159ea2c23581439a08d9c5ac15473c2528"
         ],
         "logicalAssetId": ".make-docs/templates/system/prd-architecture.md",
         "localPath": ".make-docs/templates/system/prd-architecture.md",
@@ -2623,60 +2627,18 @@
         "selectionTrigger": "profile-selection"
       }
     },
-    ".make-docs/templates/system/prd-change-addition.md": {
-      "hash": "51cc8014437991d47453ffebc968cd18304f2d17af5b652f97cd51e264d9aa57",
-      "sourceId": "file:.make-docs/templates/system/prd-change-addition.md",
-      "systemAsset": {
-        "materializationMode": "full-snapshot",
-        "sourcePackage": "@brucewaynedecoy/make-docs",
-        "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
-        "hashAlgorithm": "sha256",
-        "expectedHashes": [
-          "51cc8014437991d47453ffebc968cd18304f2d17af5b652f97cd51e264d9aa57"
-        ],
-        "logicalAssetId": ".make-docs/templates/system/prd-change-addition.md",
-        "localPath": ".make-docs/templates/system/prd-change-addition.md",
-        "materializationClass": "materialized-system-asset",
-        "offlineExpectation": "local",
-        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
-        "selectionTrigger": "profile-selection"
-      }
-    },
-    ".make-docs/templates/system/prd-change-revision.md": {
-      "hash": "f1faad7030cf6b993eb1da37c68e399829ea906e5e06f84dce99a3464b3673ed",
-      "sourceId": "file:.make-docs/templates/system/prd-change-revision.md",
-      "systemAsset": {
-        "materializationMode": "full-snapshot",
-        "sourcePackage": "@brucewaynedecoy/make-docs",
-        "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
-        "hashAlgorithm": "sha256",
-        "expectedHashes": [
-          "f1faad7030cf6b993eb1da37c68e399829ea906e5e06f84dce99a3464b3673ed"
-        ],
-        "logicalAssetId": ".make-docs/templates/system/prd-change-revision.md",
-        "localPath": ".make-docs/templates/system/prd-change-revision.md",
-        "materializationClass": "materialized-system-asset",
-        "offlineExpectation": "local",
-        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
-        "selectionTrigger": "profile-selection"
-      }
-    },
     ".make-docs/templates/system/prd-glossary.md": {
-      "hash": "24f00b9547a61b5fff157563b83e1aa8d457277f5e4d0a9b3297a4bc439428df",
+      "hash": "35c2bbc3729df2187d3b80195e96d461469960a72a83e3735b4e40c099ea10d0",
       "sourceId": "file:.make-docs/templates/system/prd-glossary.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "24f00b9547a61b5fff157563b83e1aa8d457277f5e4d0a9b3297a4bc439428df"
+          "35c2bbc3729df2187d3b80195e96d461469960a72a83e3735b4e40c099ea10d0"
         ],
         "logicalAssetId": ".make-docs/templates/system/prd-glossary.md",
         "localPath": ".make-docs/templates/system/prd-glossary.md",
@@ -2687,17 +2649,17 @@
       }
     },
     ".make-docs/templates/system/prd-index.md": {
-      "hash": "8eeebd267062ed856ff23a19d3681e8201e93f6463d16a29d090e58df0788314",
+      "hash": "523cebfb41b283a0148ff2a3f3741d2e41b2cd7649a29bf8235e0478c92f5f52",
       "sourceId": "file:.make-docs/templates/system/prd-index.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "8eeebd267062ed856ff23a19d3681e8201e93f6463d16a29d090e58df0788314"
+          "523cebfb41b283a0148ff2a3f3741d2e41b2cd7649a29bf8235e0478c92f5f52"
         ],
         "logicalAssetId": ".make-docs/templates/system/prd-index.md",
         "localPath": ".make-docs/templates/system/prd-index.md",
@@ -2708,17 +2670,17 @@
       }
     },
     ".make-docs/templates/system/prd-overview.md": {
-      "hash": "61eb0cc330b1f71d4a9b9373cd73dc4eddb84099398cf82fa7c1ef29cebb0f3a",
+      "hash": "1156339e73772c40172e262849f5c2c7e20b3ab5aec6cab187fda0d6c1943925",
       "sourceId": "file:.make-docs/templates/system/prd-overview.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "61eb0cc330b1f71d4a9b9373cd73dc4eddb84099398cf82fa7c1ef29cebb0f3a"
+          "1156339e73772c40172e262849f5c2c7e20b3ab5aec6cab187fda0d6c1943925"
         ],
         "logicalAssetId": ".make-docs/templates/system/prd-overview.md",
         "localPath": ".make-docs/templates/system/prd-overview.md",
@@ -2729,17 +2691,17 @@
       }
     },
     ".make-docs/templates/system/prd-reference.md": {
-      "hash": "cc7f5fbd68a186ba307349756638baeb56b65c7346bd0069c9c615fb96379f9d",
+      "hash": "7b30d94cbcfc24e394509f6795da406bfc1b9631c5d85a98423c4a338fd08078",
       "sourceId": "file:.make-docs/templates/system/prd-reference.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "cc7f5fbd68a186ba307349756638baeb56b65c7346bd0069c9c615fb96379f9d"
+          "7b30d94cbcfc24e394509f6795da406bfc1b9631c5d85a98423c4a338fd08078"
         ],
         "logicalAssetId": ".make-docs/templates/system/prd-reference.md",
         "localPath": ".make-docs/templates/system/prd-reference.md",
@@ -2750,17 +2712,17 @@
       }
     },
     ".make-docs/templates/system/prd-risk-register.md": {
-      "hash": "5e3b7a845f5cc25bbcc118231e146b9a7dc09225e6dc958596c5d2f39b736579",
+      "hash": "5377f974e21f59f659ca839732a44e6281ee0300116388ce7ab4da2f36a2accc",
       "sourceId": "file:.make-docs/templates/system/prd-risk-register.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "5e3b7a845f5cc25bbcc118231e146b9a7dc09225e6dc958596c5d2f39b736579"
+          "5377f974e21f59f659ca839732a44e6281ee0300116388ce7ab4da2f36a2accc"
         ],
         "logicalAssetId": ".make-docs/templates/system/prd-risk-register.md",
         "localPath": ".make-docs/templates/system/prd-risk-register.md",
@@ -2771,17 +2733,17 @@
       }
     },
     ".make-docs/templates/system/prd-subsystem.md": {
-      "hash": "0e554252985624713ed3255ed590931fd92dd713cd364479b1bab1478ea9aff7",
+      "hash": "16b8266a8fec14863a169dafdadb5db80913cdfc73b24b9559e3db82611e1a8a",
       "sourceId": "file:.make-docs/templates/system/prd-subsystem.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "0e554252985624713ed3255ed590931fd92dd713cd364479b1bab1478ea9aff7"
+          "16b8266a8fec14863a169dafdadb5db80913cdfc73b24b9559e3db82611e1a8a"
         ],
         "logicalAssetId": ".make-docs/templates/system/prd-subsystem.md",
         "localPath": ".make-docs/templates/system/prd-subsystem.md",
@@ -2792,17 +2754,17 @@
       }
     },
     ".make-docs/templates/system/work-index.md": {
-      "hash": "e8392e507c10f607cc322010743492130cf759d1823c2acbbdedcda4a0d65c56",
+      "hash": "ce4f6f6ca79c7989abe87b7d5c177315ea46cec8a433eb5d8b34f0117f20f937",
       "sourceId": "file:.make-docs/templates/system/work-index.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "e8392e507c10f607cc322010743492130cf759d1823c2acbbdedcda4a0d65c56"
+          "ce4f6f6ca79c7989abe87b7d5c177315ea46cec8a433eb5d8b34f0117f20f937"
         ],
         "logicalAssetId": ".make-docs/templates/system/work-index.md",
         "localPath": ".make-docs/templates/system/work-index.md",
@@ -2813,17 +2775,17 @@
       }
     },
     ".make-docs/templates/system/work-phase.md": {
-      "hash": "95cf66ae65dfc87bc663c618947fd8f4c4fd22afe4dcb3fccbb3513033127a0a",
+      "hash": "0f571d99e59d194b03ffb4c59272267c4be72b83c7e8babf239181630a55b6a2",
       "sourceId": "file:.make-docs/templates/system/work-phase.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "95cf66ae65dfc87bc663c618947fd8f4c4fd22afe4dcb3fccbb3513033127a0a"
+          "0f571d99e59d194b03ffb4c59272267c4be72b83c7e8babf239181630a55b6a2"
         ],
         "logicalAssetId": ".make-docs/templates/system/work-phase.md",
         "localPath": ".make-docs/templates/system/work-phase.md",
@@ -2834,17 +2796,17 @@
       }
     },
     "AGENTS.md": {
-      "hash": "7208acbe3ac913ddc4b34e4b5355a873f97d202694cf36e9fbf1c19d97d08d82",
+      "hash": "49f08d5f87f13c1c8bf3ddfe3cf1e772813d768fcb056842bc126d527e02a88c",
       "sourceId": "file:AGENTS.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "7208acbe3ac913ddc4b34e4b5355a873f97d202694cf36e9fbf1c19d97d08d82"
+          "49f08d5f87f13c1c8bf3ddfe3cf1e772813d768fcb056842bc126d527e02a88c"
         ],
         "logicalAssetId": "AGENTS.md",
         "localPath": "AGENTS.md",
@@ -2855,17 +2817,17 @@
       }
     },
     "CLAUDE.md": {
-      "hash": "7208acbe3ac913ddc4b34e4b5355a873f97d202694cf36e9fbf1c19d97d08d82",
+      "hash": "49f08d5f87f13c1c8bf3ddfe3cf1e772813d768fcb056842bc126d527e02a88c",
       "sourceId": "file:CLAUDE.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "7208acbe3ac913ddc4b34e4b5355a873f97d202694cf36e9fbf1c19d97d08d82"
+          "49f08d5f87f13c1c8bf3ddfe3cf1e772813d768fcb056842bc126d527e02a88c"
         ],
         "logicalAssetId": "CLAUDE.md",
         "localPath": "CLAUDE.md",
@@ -2876,17 +2838,17 @@
       }
     },
     "docs/AGENTS.md": {
-      "hash": "19f047ea7c83467f289d1b0fc722fd2f36dffe6889cd65bfe6d38d64ba3ad511",
+      "hash": "414191eec5367dae28e5d6dd1e411017237fb97811666d1eaa19b3423e98b695",
       "sourceId": "file:docs/AGENTS.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "19f047ea7c83467f289d1b0fc722fd2f36dffe6889cd65bfe6d38d64ba3ad511"
+          "414191eec5367dae28e5d6dd1e411017237fb97811666d1eaa19b3423e98b695"
         ],
         "logicalAssetId": "docs/AGENTS.md",
         "localPath": "docs/AGENTS.md",
@@ -2903,8 +2865,8 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
           "f8efe1dd9f7b43b10e56569e55345f81dd1fc824e9e25c6b1fa1023eaeb4ff36"
@@ -2924,8 +2886,8 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
           "349d75d9676650f793f7e3bc047af543d95ab01ba140e3efc1a40b03923294f8"
@@ -2945,8 +2907,8 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
           "349d75d9676650f793f7e3bc047af543d95ab01ba140e3efc1a40b03923294f8"
@@ -2966,8 +2928,8 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
           "1a1e0ae8b09268209ffa9a2b907e6781709730a6f9aed9fa2d664c07853bcba9"
@@ -2987,8 +2949,8 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
           "1a1e0ae8b09268209ffa9a2b907e6781709730a6f9aed9fa2d664c07853bcba9"
@@ -3008,8 +2970,8 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
           "f8efe1dd9f7b43b10e56569e55345f81dd1fc824e9e25c6b1fa1023eaeb4ff36"
@@ -3029,8 +2991,8 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
           "e08b3144d4d2ad4ff6f92c0bab78ff756fd7597e9e6cf20e299e6454d91e0d70"
@@ -3050,8 +3012,8 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
           "e08b3144d4d2ad4ff6f92c0bab78ff756fd7597e9e6cf20e299e6454d91e0d70"
@@ -3065,17 +3027,17 @@
       }
     },
     "docs/assets/playbooks/AGENTS.md": {
-      "hash": "96171d765ab1ad3b7998b3a378897fe12fca1973ef34c9a5ab761f3cae42ad62",
+      "hash": "aca84c84faf610c76366c3b9fd1dd301d130196221399ee040c3172ce650c385",
       "sourceId": "file:docs/assets/playbooks/AGENTS.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "96171d765ab1ad3b7998b3a378897fe12fca1973ef34c9a5ab761f3cae42ad62"
+          "aca84c84faf610c76366c3b9fd1dd301d130196221399ee040c3172ce650c385"
         ],
         "logicalAssetId": "docs/assets/playbooks/AGENTS.md",
         "localPath": "docs/assets/playbooks/AGENTS.md",
@@ -3086,17 +3048,17 @@
       }
     },
     "docs/assets/playbooks/CLAUDE.md": {
-      "hash": "96171d765ab1ad3b7998b3a378897fe12fca1973ef34c9a5ab761f3cae42ad62",
+      "hash": "aca84c84faf610c76366c3b9fd1dd301d130196221399ee040c3172ce650c385",
       "sourceId": "file:docs/assets/playbooks/CLAUDE.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "96171d765ab1ad3b7998b3a378897fe12fca1973ef34c9a5ab761f3cae42ad62"
+          "aca84c84faf610c76366c3b9fd1dd301d130196221399ee040c3172ce650c385"
         ],
         "logicalAssetId": "docs/assets/playbooks/CLAUDE.md",
         "localPath": "docs/assets/playbooks/CLAUDE.md",
@@ -3107,17 +3069,17 @@
       }
     },
     "docs/CLAUDE.md": {
-      "hash": "19f047ea7c83467f289d1b0fc722fd2f36dffe6889cd65bfe6d38d64ba3ad511",
+      "hash": "414191eec5367dae28e5d6dd1e411017237fb97811666d1eaa19b3423e98b695",
       "sourceId": "file:docs/CLAUDE.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "19f047ea7c83467f289d1b0fc722fd2f36dffe6889cd65bfe6d38d64ba3ad511"
+          "414191eec5367dae28e5d6dd1e411017237fb97811666d1eaa19b3423e98b695"
         ],
         "logicalAssetId": "docs/CLAUDE.md",
         "localPath": "docs/CLAUDE.md",
@@ -3134,8 +3096,8 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
           "4362f1ff715413b5e8e740b339a7cf339f3f665e7bc1e9f6951b78f67fa52ba9"
@@ -3155,8 +3117,8 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
           "4362f1ff715413b5e8e740b339a7cf339f3f665e7bc1e9f6951b78f67fa52ba9"
@@ -3170,17 +3132,17 @@
       }
     },
     "docs/plans/AGENTS.md": {
-      "hash": "c542deec2b4844f8695605a49a068b3336df7eab5cf71ec2bb1b91791b759c54",
+      "hash": "995374273d19e74ca3279b30e37398fa7fc769e1343953ec4ef5565fd9855869",
       "sourceId": "file:docs/plans/AGENTS.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "c542deec2b4844f8695605a49a068b3336df7eab5cf71ec2bb1b91791b759c54"
+          "995374273d19e74ca3279b30e37398fa7fc769e1343953ec4ef5565fd9855869"
         ],
         "logicalAssetId": "docs/plans/AGENTS.md",
         "localPath": "docs/plans/AGENTS.md",
@@ -3191,17 +3153,17 @@
       }
     },
     "docs/plans/CLAUDE.md": {
-      "hash": "c542deec2b4844f8695605a49a068b3336df7eab5cf71ec2bb1b91791b759c54",
+      "hash": "995374273d19e74ca3279b30e37398fa7fc769e1343953ec4ef5565fd9855869",
       "sourceId": "file:docs/plans/CLAUDE.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "c542deec2b4844f8695605a49a068b3336df7eab5cf71ec2bb1b91791b759c54"
+          "995374273d19e74ca3279b30e37398fa7fc769e1343953ec4ef5565fd9855869"
         ],
         "logicalAssetId": "docs/plans/CLAUDE.md",
         "localPath": "docs/plans/CLAUDE.md",
@@ -3212,17 +3174,17 @@
       }
     },
     "docs/prd/AGENTS.md": {
-      "hash": "05bd96698361402ee1bb107a49a8b7f4e7a9c52b1a3ec0075cfe71cf2215362f",
+      "hash": "e4688e69be8b61b7967367082d13271cd12ad42c85661af1fd880ccead4c4ec0",
       "sourceId": "file:docs/prd/AGENTS.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "05bd96698361402ee1bb107a49a8b7f4e7a9c52b1a3ec0075cfe71cf2215362f"
+          "e4688e69be8b61b7967367082d13271cd12ad42c85661af1fd880ccead4c4ec0"
         ],
         "logicalAssetId": "docs/prd/AGENTS.md",
         "localPath": "docs/prd/AGENTS.md",
@@ -3233,17 +3195,17 @@
       }
     },
     "docs/prd/CLAUDE.md": {
-      "hash": "05bd96698361402ee1bb107a49a8b7f4e7a9c52b1a3ec0075cfe71cf2215362f",
+      "hash": "e4688e69be8b61b7967367082d13271cd12ad42c85661af1fd880ccead4c4ec0",
       "sourceId": "file:docs/prd/CLAUDE.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "05bd96698361402ee1bb107a49a8b7f4e7a9c52b1a3ec0075cfe71cf2215362f"
+          "e4688e69be8b61b7967367082d13271cd12ad42c85661af1fd880ccead4c4ec0"
         ],
         "logicalAssetId": "docs/prd/CLAUDE.md",
         "localPath": "docs/prd/CLAUDE.md",
@@ -3260,8 +3222,8 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
           "20ef1c509e4b7b9773af9207d0d20ff4a10ca27ff32cef10f974e22e01aa24bc"
@@ -3281,14 +3243,56 @@
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
-        "sourceVersion": "1.0.0-rc.1",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@1.0.0-rc.1",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
           "20ef1c509e4b7b9773af9207d0d20ff4a10ca27ff32cef10f974e22e01aa24bc"
         ],
         "logicalAssetId": "docs/work/CLAUDE.md",
         "localPath": "docs/work/CLAUDE.md",
+        "materializationClass": "materialized-system-asset",
+        "offlineExpectation": "local",
+        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
+        "selectionTrigger": "profile-selection"
+      }
+    },
+    ".make-docs/contracts/system/playbook-contract.md": {
+      "hash": "3f7a1e18bedfb129ebba712a035dd08be413059b7402a6b29951417c1902ee11",
+      "sourceId": "file:.make-docs/contracts/system/playbook-contract.md",
+      "systemAsset": {
+        "materializationMode": "full-snapshot",
+        "sourcePackage": "@brucewaynedecoy/make-docs",
+        "sourceProvider": "package",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
+        "hashAlgorithm": "sha256",
+        "expectedHashes": [
+          "3f7a1e18bedfb129ebba712a035dd08be413059b7402a6b29951417c1902ee11"
+        ],
+        "logicalAssetId": ".make-docs/contracts/system/playbook-contract.md",
+        "localPath": ".make-docs/contracts/system/playbook-contract.md",
+        "materializationClass": "materialized-system-asset",
+        "offlineExpectation": "local",
+        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
+        "selectionTrigger": "profile-selection"
+      }
+    },
+    "docs/assets/playbooks/agent/make-docs-lifecycle.playbook.md": {
+      "hash": "7254483ecc7f6a5fa19c85ab9b53aafe5ed3c70675b02049f9e47a63cde500b1",
+      "sourceId": "file:docs/assets/playbooks/agent/make-docs-lifecycle.playbook.md",
+      "systemAsset": {
+        "materializationMode": "full-snapshot",
+        "sourcePackage": "@brucewaynedecoy/make-docs",
+        "sourceProvider": "package",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
+        "hashAlgorithm": "sha256",
+        "expectedHashes": [
+          "7254483ecc7f6a5fa19c85ab9b53aafe5ed3c70675b02049f9e47a63cde500b1"
+        ],
+        "logicalAssetId": "docs/assets/playbooks/agent/make-docs-lifecycle.playbook.md",
+        "localPath": "docs/assets/playbooks/agent/make-docs-lifecycle.playbook.md",
         "materializationClass": "materialized-system-asset",
         "offlineExpectation": "local",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",

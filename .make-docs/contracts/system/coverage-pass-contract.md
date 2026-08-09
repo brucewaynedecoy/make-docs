@@ -51,18 +51,16 @@ History records remain governed by [history-record-contract.md](history-record-c
 
 ### PRD Reconciliation Coverage
 
-PRD reconciliation is not persona-scoped. Use these verdicts and map them onto the spine:
+PRD reconciliation is not persona-scoped. Use the verdict spine directly: `create`, `update-existing`, `link-only`, or `none`.
 
-| PRD verdict | Spine mapping | Use when |
-| --- | --- | --- |
-| `prd-change-doc` | `create` | The completed work changes the active requirement surface and needs a new numbered change doc. |
-| `baseline-change-note` | `update-existing` | Existing baseline PRD text needs a change-note backlink or lineage update. |
-| `risk-register-update` | `update-existing` | A gap, drift item, open question, decision, or rebuild risk needs to be added, updated, or closed in the active risk register. |
-| `index-only` | `update-existing` | The PRD index needs status, lineage, related-doc, or discoverability maintenance without a new requirement doc. |
-| `link-only` | `link-only` | Existing PRD coverage is sufficient, but a pointer or related-doc link improves discoverability. |
-| `none` | `none` | No PRD or risk-register change is warranted; record why the work implemented existing requirements only. |
+The governing invariant is that `docs/prd/` describes the current authoritative shape of the product and never the editorial operation used to change that authority.
 
-PRD content remains governed by [prd-change-management.md](prd-change-management.md) and [output-contract.md](output-contract.md).
+- Use `update-existing` when an existing PRD owns the changed requirement, when its non-normative requirement history needs a material prior contract recorded, or when the active index or risk register needs maintenance.
+- Use `create` only when completed work establishes a coherent, wholesale new capability, subsystem, or product boundary with no suitable existing PRD owner.
+- Use `link-only` when current product authority is sufficient but a navigation or related-authority pointer improves discoverability.
+- Use `none` when no PRD, risk-register, index, or link change is warranted; record why the completed work implements or confirms existing authority.
+
+Never use `create` for a document that describes an addition, enhancement, revision, removal, migration, reconciliation, or other editorial operation. PRD content remains governed by [prd-change-management.md](../../references/system/prd-change-management.md) and [output-contract.md](output-contract.md).
 
 ### Testing And UAT Coverage
 

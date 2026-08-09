@@ -4,13 +4,13 @@ See `.make-docs/references/system/wave-model.md` for W/R semantics and resolutio
 
 ## Purpose
 
-Use this workflow to produce a reviewable plan before generating or evolving PRD documentation. Planning mode exists to lock the output structure, workstream boundaries, and validation approach before the repo is mutated.
+Use this workflow to produce a reviewable plan before generating or maintaining PRD documentation. Planning mode exists to lock the output structure, workstream boundaries, and validation approach before the repo is mutated.
 
 This workflow supports three planning modes:
 
 1. baseline PRD generation from a new idea or design
 2. decomposition of an existing codebase into a fresh PRD set
-3. active-set evolution through additive change, enhancement, revision, or removal
+3. authoritative PRD maintenance for changed, deprecated, removed, or genuinely new product requirements
 
 ## Preflight
 
@@ -24,7 +24,7 @@ Inspect:
 - any existing plans, PRD docs, and work backlogs
 - any history records for prior phases that the request revises, reworks, corrects, standardizes, or finishes
 - whether `docs/prd/` already contains active content (archives live under `docs/assets/archive/prds/YYYY-MM-DD/`)
-- whether the user request is best classified as baseline generation, decomposition, or active-set evolution
+- whether the user request is best classified as baseline generation, decomposition, or authoritative PRD maintenance
 
 If a referenced design doc includes `## Intended Follow-On`, treat that route as authoritative unless the user explicitly overrides it.
 
@@ -43,19 +43,20 @@ Produce a plan that makes the execution step decision-complete. The plan should 
 
 - the execution mode
 - the doc tree shape
-- the fixed core docs plus adaptive docs or change docs
-- whether execution requires an archive gate or an active-set evolution path
+- the fixed core docs plus adaptive product-authority docs
+- whether execution requires an archive gate or an authoritative-maintenance path
 - the delegation tier and workstream split
 - the coordinator role and write scope
 - the backlog placement under `docs/work/YYYY-MM-DD-w{W}-r{R}-<slug>/`
 - the validation pass and any follow-up review
 
-For active-set evolution, the plan should also settle:
+For authoritative PRD maintenance, the plan should also settle:
 
-- the change taxonomy (`addition`, `enhancement`, `revision`, `removal`)
-- the impacted baseline docs
-- the new numbered change docs that will be created
-- the `### Change Notes` backlinks required in existing PRD docs
+- one `update-existing`, `create`, `link-only`, or `none` decision and reason for every candidate requirement
+- the existing PRD owners and exact current sections to update
+- the genuinely new capability, subsystem, or product-boundary PRDs to create, if any
+- the standardized, non-normative requirement-history entries to add
+- the affected links, risks, plans, work artifacts, and downstream source-authority relationships
 - whether a scoped delta backlog is sufficient or the user explicitly wants a regenerated full backlog
 
 ## User Preference Questions
@@ -64,8 +65,8 @@ Ask the user only when the answer affects the output shape or execution style. T
 
 - whether a large subsystem should split into a numbered folder
 - whether reference-style docs should stay separate from subsystem docs
-- whether a change should stay a scoped delta or force a wider PRD rewrite
-- whether the user explicitly wants a cleanup rewrite of baseline PRD text instead of the default non-destructive annotations
+- whether maintenance should stay a scoped delta or requires coordinated updates across several existing PRD owners
+- whether an apparent new subject is coherent enough for its own product PRD or belongs in an existing owner
 - whether the backlog directory should be scoped to a delta or regenerated as a full backlog
 - whether the user explicitly wants to forbid delegation and force single-agent execution despite the default
 
@@ -79,7 +80,7 @@ Start from the relevant template in `.make-docs/templates/system/`:
 
 - `plan-prd.md` for baseline PRD generation from a new idea or design
 - `plan-prd-decompose.md` for reverse-engineering an existing codebase into a fresh PRD set
-- `plan-prd-change.md` for additive changes, enhancements, revisions, or removals within the active PRD namespace
+- `plan-prd-change.md` for authoritative maintenance of an existing PRD namespace
 
 Every plan should cover:
 
@@ -94,13 +95,13 @@ Every plan should cover:
 - MCP strategy and fallback strategy
 - validation and review steps
 
-Change plans should additionally cover:
+PRD authority-maintenance plans should additionally cover:
 
-- the change classification
-- impacted baseline docs
-- new change docs to be created
-- required baseline annotations
-- delta backlog scope
+- existing PRDs to update
+- genuinely new product PRDs, if any
+- requirement-history entries
+- affected links, risks, plans, and work artifacts
+- delta backlog scope and downstream authority links
 
 ## File Writing Rule
 
@@ -109,7 +110,7 @@ Planning mode should present the plan in chat first.
 Plans are always directories. Write only after approval, using the matching path:
 
 - baseline or decomposition plan: `docs/plans/YYYY-MM-DD-w{W}-r{R}-<slug>/` (with `00-overview.md` as the entry point and `0N-<phase>.md` files for each phase)
-- change plan: same directory pattern — `docs/plans/YYYY-MM-DD-w{W}-r{R}-<slug>/` — using a slug that signals the change intent (for example, `...-notifications-enhancement`). Do not hard-code a `-change-plan` suffix.
+- PRD authority-maintenance plan: same directory pattern — `docs/plans/YYYY-MM-DD-w{W}-r{R}-<slug>/` — using a slug that identifies the maintenance scope (for example, `...-notification-delivery-maintenance`). Do not hard-code a `-change-plan` suffix.
 
 ## Approval Prompt Rule
 
@@ -132,9 +133,9 @@ Do not imply that approving the plan automatically authorizes execution. If the 
 - Keep scopes disjoint so an execution harness can parallelize safely.
 - The coordinator should never appear as the owner of document-writing tasks when delegation is available.
 
-For active-set evolution:
+For authoritative PRD maintenance:
 
-- keep change-doc authoring, baseline annotations, index updates, and delta backlog generation as separate write scopes whenever practical
+- keep existing-owner updates, genuinely new product PRDs, shared index/risk updates, and delta backlog generation as separate write scopes whenever practical
 - route cross-doc status updates and backlink validation to assembly or validation workers rather than the coordinator
 
 ## Flat Vs Nested Decision
@@ -144,7 +145,7 @@ Use a flat PRD tree when:
 - the repo is small or medium
 - the subsystem count is manageable
 - one file per subsystem remains readable
-- change docs can be appended cleanly without creating navigation debt
+- capability, subsystem, and reference authorities remain easy to navigate
 
 Use a numbered subfolder when:
 
@@ -163,7 +164,7 @@ Before leaving planning mode, make the execution prerequisites explicit:
 - execution should use the delegation ladder by default: parallel agents, then subagents, then single-agent fallback
 - if delegation is available, the coordinator write scope is `none`
 - if the task is full-set replacement and `docs/prd/` already has active content, archival approval is required before execution can write the new PRD set
-- if the task is active-set evolution, the plan names the new change docs, impacted baseline docs, annotation targets, and delta backlog scope
+- if the task is authoritative PRD maintenance, the plan names existing owners, any genuinely new product PRDs, requirement-history entries, affected links/risks/plans/work, and delta backlog scope
 - workstreams are disjoint
 - validation is mandatory
 

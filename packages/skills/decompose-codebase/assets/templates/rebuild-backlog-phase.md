@@ -12,6 +12,8 @@ Explain the work covered by this phase and the value it unlocks.
 
 ## Source PRD Docs
 
+Link only the current authoritative product PRDs whose normative requirements govern this phase. Archived PRDs and `## Requirement History` entries are context, not implementation authority.
+
 - [{{DOC_TITLE}}](../../prd/{{DOC_PATH}})
 - [{{DOC_TITLE}}](../../prd/{{DOC_PATH}})
 

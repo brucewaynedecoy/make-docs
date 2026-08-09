@@ -7,7 +7,7 @@ description: Plan and reverse-engineer software repositories into a structured P
 
 ## Overview
 
-Use this skill to turn a repository into a code-first, plain-English documentation set and rebuild backlog. Treat planning and execution as separate capabilities in one skill, with planning-first as the default unless the user explicitly approves direct execution. Treat `docs/prd/` as the single active PRD namespace for the repository and archive earlier PRD sets under `docs/assets/archive/prds/`. Treat decomposition as a delegation-first workflow because single-agent execution degrades quickly on context-heavy repos. When delegation is available, the coordinating agent is coordination-only and must not author or edit output documents.
+Use this skill to turn a repository into a code-first, plain-English documentation set and rebuild backlog. Treat planning and execution as separate capabilities in one skill, with planning-first as the default unless the user explicitly approves direct execution. Treat `docs/prd/` as the single active PRD namespace for the repository and archive earlier PRD sets under `docs/assets/archive/prds/`. The active PRD set describes the current authoritative shape of the product; it must never describe the editorial operation used to change that authority. Treat decomposition as a delegation-first workflow because single-agent execution degrades quickly on context-heavy repos. When delegation is available, the coordinating agent is coordination-only and must not author or edit output documents.
 
 Inside the make-docs repository, shipped lifecycle assets are authored from the accepted v2 source-of-truth layers: template-owned files start under `packages/docs/template/`, dogfood copies under root `docs/` validate those shipped assets, and project-owned lifecycle artifacts under `docs/designs/`, `docs/plans/`, `docs/prd/`, and `docs/work/` remain local project records. The installed skill remains self-contained: it ships bundled local copies under `./references/`, `./assets/templates/`, and `./scripts/` so it does not depend on a consumer repo having this repository's root source tree.
 
@@ -30,7 +30,7 @@ Inside the make-docs repository, shipped lifecycle assets are authored from the 
 
 - Use planning mode when the user wants a decomposition approach, output catalog, workstream design, or wants to review the structure before generating docs.
 - Inspect the repo shape, existing docs, and any current `docs/plans`, `docs/prd`, or `docs/work` artifacts.
-- If `docs/prd/` already contains active root entries, surface that in the reviewed plan and note that execution will require an archive-approval step before writing a new PRD set.
+- If `docs/prd/` already contains active root entries, determine whether the request is an explicit full-set decomposition/re-baseline or ordinary PRD maintenance. Full-set decomposition requires an archive-approval step; ordinary maintenance updates the owning PRD surgically, creates a PRD only for a genuinely new product capability, or records that no PRD change is needed.
 - For very large repositories, use the same delegation ladder during planning when the harness supports it: parallel agents first, subagents next, single-agent planning only as a fallback.
 - Make the reviewed plan explicit about coordinator behavior. If delegated workers are available, the coordinator write scope is `none`, and every output-writing task must belong to a worker.
 - Ask for user preferences only when there is a real structure or tradeoff decision to make.
@@ -47,7 +47,7 @@ Inside the make-docs repository, shipped lifecycle assets are authored from the 
 - If delegation is available, the coordinator is non-authoring. Its responsibilities are limited to preflight checks, approval handling, workstream definition, worker spawning, progress tracking, blocker routing, and final status reporting.
 - If delegation is available, the coordinator must not draft PRD docs, create backlog files, fill shared docs, run assembly sweeps, or perform fix-up edits. Those tasks belong to delegated workers.
 - For context-heavy decomposition, spawn delegated workers before broad repo analysis or document drafting by the coordinator.
-- Before writing a fresh PRD set, inspect `docs/prd/`. If it already contains active root entries, summarize what will be moved and ask for approval to archive those entries under `docs/assets/archive/prds/YYYY-MM-DD` or `docs/assets/archive/prds/YYYY-MM-DD-XX`. If the user declines, stop before writing to `docs/prd/`.
+- Before writing a fresh PRD set, confirm that the user authorized an explicit full-set decomposition/re-baseline and inspect `docs/prd/`. If it already contains active root entries, summarize what will be moved and ask for approval to archive those entries under `docs/assets/archive/prds/YYYY-MM-DD` or `docs/assets/archive/prds/YYYY-MM-DD-XX`. If the user declines, stop before writing to `docs/prd/`. For ordinary changes, preserve the active set and maintain its owning PRDs in place.
 - Generate the PRD core, adaptive subsystem/reference docs, and rebuild backlog using the templates under `assets/templates/`.
 - Always attempt delegated workstreams before single-agent execution when the harness or session policy allows it.
 - When delegation is available, assign shared-doc assembly and validation/fix work to dedicated workers rather than keeping those tasks on the coordinator.
@@ -67,6 +67,8 @@ Inside the make-docs repository, shipped lifecycle assets are authored from the 
 - Follow [references/output-contract.md](./references/output-contract.md) exactly.
 - Write decomposition plans as directories under `docs/plans/YYYY-MM-DD-w{W}-r{R}-<slug>/` with `00-overview.md` plus one or more `0N-<phase>.md` files.
 - Keep exactly one active PRD set under `docs/prd/`.
+- Keep current normative requirements inline in their owning PRDs. Never create editorial PRDs whose filename, title, kind, or purpose is to add, enhance, revise, remove, migrate, or sequence changes.
+- Preserve material prior contracts only in an optional, non-normative `## Requirement History` section; downstream work reads the current requirements, not the history entry.
 - Archive prior PRD sets under `docs/assets/archive/prds/YYYY-MM-DD/` or `docs/assets/archive/prds/YYYY-MM-DD-XX/`.
 - Keep the fixed core under `docs/prd/`:
   - `00-index.md`

@@ -7,6 +7,7 @@ import {
 } from "./context";
 import { packageOperations } from "./package/ops";
 import { playbookOperations } from "./playbook/ops";
+import { prdOperations } from "./prd/ops";
 import { OperationError, type JsonValue } from "./types";
 import { workOperations } from "./work/ops";
 
@@ -96,6 +97,7 @@ function assembleRegistry(): Map<string, OperationDefinition> {
   const definitions: OperationDefinition[] = [
     ...playbookOperations,
     ...packageOperations,
+    ...prdOperations,
     ...workOperations,
   ];
   for (const definition of definitions) {

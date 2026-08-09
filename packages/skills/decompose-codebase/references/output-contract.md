@@ -4,6 +4,8 @@
 
 Use this contract to keep decomposition outputs consistent across repositories and harnesses. Treat the codebase as authoritative, write in plain English, and keep the PRD set descriptive while keeping rebuild work prescriptive.
 
+The governing invariant is: `docs/prd/` describes the current authoritative shape of the product. It must never describe the editorial operation used to change that authority.
+
 ## Markdown Source Formatting
 
 - Do not hard-wrap prose paragraphs for visual width; use editor soft-wrap instead. Paragraphs should be one logical source line unless semantic Markdown structure requires otherwise.
@@ -38,13 +40,19 @@ Work directories contain:
 
 - `docs/prd/` contains one active PRD set only.
 - Every root entry in `docs/prd/` is part of the active PRD namespace.
+- Keep each current normative requirement inline in the product PRD that owns its subject.
+- Update an existing PRD surgically when its subject owns a changed requirement. Create a new PRD only for a coherent, genuinely new capability, subsystem, or product boundary. Create no PRD when the active authority already covers the decision.
+- Do not create active PRDs whose filename, H1, index kind, or purpose represents an editorial action such as addition, enhancement, revision, removal, migration, or implementation sequencing.
+- Preserve a material prior contract only in an optional, non-normative `## Requirement History` section. Record the date, coordinate when known, affected requirement or section, previous contract, replacement contract, rationale, and source. Current requirements always win.
+- Express removals and deprecations in the owning PRD's current scope, non-goals, or status, then preserve material prior state in `## Requirement History` when useful.
 - `docs/prd/03-open-questions-and-risk-register.md` is the living register for discovered gaps, confirmed drift, open questions, decisions, and rebuild risks in the active namespace.
 - Older PRD sets belong under `docs/assets/archive/prds/`, not alongside the active PRD set.
 - Archived PRD sets are historical records and are not part of active PRD validation.
 
 ## Archive Rules
 
-- Before writing a fresh PRD set, inspect `docs/prd/` for active root entries.
+- Use full-set replacement only for an explicitly authorized decomposition or product-authority re-baseline. Ordinary product change follows the in-place maintenance rules above.
+- Before writing an authorized fresh PRD set, inspect `docs/prd/` for active root entries.
 - If no such entries exist, proceed normally.
 - If active root entries exist, summarize them and ask for explicit approval before moving them.
 - On approval, move those entries into `docs/assets/archive/prds/YYYY-MM-DD/`.
@@ -109,16 +117,16 @@ Use the matching template in `assets/templates/` and preserve these required hea
 | Doc type | Required headings |
 | --- | --- |
 | `00-index.md` | `## Purpose`, `## Reading Order`, `## Document Map`, `## Source Anchors`, `## Audience Paths` |
-| `01-product-overview.md` | `## Purpose`, `## Users`, `## Key Capabilities`, `## System Boundaries`, `## Current Limitations`, `## Source Anchors` |
-| `02-architecture-overview.md` | `## Purpose`, `## Topology`, `## Module Map`, `## Runtime Boundaries`, `## Data Flow`, `## Configuration Surfaces`, `## Source Anchors` |
+| `01-product-overview.md` | `## Purpose`, `## Users`, `## Key Capabilities`, `## System Boundaries`, `## Current Limitations`, `## Source Anchors`; optional non-normative `## Requirement History` |
+| `02-architecture-overview.md` | `## Purpose`, `## Topology`, `## Module Map`, `## Runtime Boundaries`, `## Data Flow`, `## Configuration Surfaces`, `## Source Anchors`; optional non-normative `## Requirement History` |
 | `03-open-questions-and-risk-register.md` | `## Purpose`, `## Confirmed Drift`, `## Open Questions`, `## Rebuild Risks`, `## Source Anchors` |
-| `04-glossary.md` | `## Purpose`, `## Terms`, `## Source Anchors` |
-| Subsystem doc | `## Purpose`, `## Scope`, `## Component and Capability Map`, `## Contracts and Data`, `## Integrations`, `## Rebuild Notes`, `## Source Anchors` |
-| Reference doc | `## Purpose`, `## Reference`, `## Source Anchors` |
+| `04-glossary.md` | `## Purpose`, `## Terms`, `## Source Anchors`; optional non-normative `## Requirement History` |
+| Subsystem doc | `## Purpose`, `## Scope`, `## Component and Capability Map`, `## Contracts and Data`, `## Integrations`, `## Rebuild Notes`, `## Source Anchors`; optional non-normative `## Requirement History` |
+| Reference doc | `## Purpose`, `## Reference`, `## Source Anchors`; optional non-normative `## Requirement History` |
 | Work index | `## Purpose`, `## Phase Map`, `## Usage Notes` |
 | Work phase | `## Purpose`, `## Overview`, `## Source PRD Docs`, repeatable stage headings with `### Tasks`, `### Acceptance criteria`, and `### Dependencies` |
 
-Risk-register items under `## Confirmed Drift`, `## Open Questions`, and `## Rebuild Risks` use numbered `###` item headings with a `Status` / `Decision` / `Follow-Up` table. Use `D-001`, `D-002`, etc. for confirmed drift; `Q-001`, `Q-002`, etc. for open questions; and `R-001`, `R-002`, etc. for rebuild risks. Assign the next available number within the section and never renumber existing items, even when they move to `Closed`. Do not use `### Change Notes` inside the risk register; that heading remains for baseline PRD lineage only. Valid item statuses are `Open`, `Confirming`, `Deferred`, and `Closed`. Each item should include `Question` or `Issue`, `Why it matters`, `Recommendation`, and `To close`; include `Resolution` only for closed items.
+Risk-register items under `## Confirmed Drift`, `## Open Questions`, and `## Rebuild Risks` use numbered `###` item headings with a `Status` / `Decision` / `Follow-Up` table. Use `D-001`, `D-002`, etc. for confirmed drift; `Q-001`, `Q-002`, etc. for open questions; and `R-001`, `R-002`, etc. for rebuild risks. Assign the next available number within the section and never renumber existing items, even when they move to `Closed`. Do not use `## Requirement History` as a substitute for unresolved register state; this register preserves lineage through stable item IDs and item resolution fields. Valid item statuses are `Open`, `Confirming`, `Deferred`, and `Closed`. Each item should include `Question` or `Issue`, `Why it matters`, `Recommendation`, and `To close`; include `Resolution` only for closed items.
 
 ## Code Anchor Rules
 
@@ -155,7 +163,7 @@ Use `## Source Anchors` to aggregate the most important files that shaped the do
 - Keep rebuild work out of `docs/prd/`.
 - Every rebuild backlog is a directory under `docs/work/YYYY-MM-DD-w{W}-r{R}-<slug>/`.
 - Use `00-index.md` as the entry point and `0N-<phase>.md` files for dependency-ordered phase detail.
-- Link backlog phases back to the relevant PRD docs.
+- Link backlog phases back to the relevant current authoritative PRD docs. Never treat an archived PRD or a requirement-history entry as the normative source for downstream work.
 - In every stage, write `### Tasks` as markdown task list items using phase-local task IDs (`- [ ] t1: ...`, `- [x] t1: ...`) and write `### Acceptance criteria` as plain unordered bullets only.
 - Increment task IDs across the entire phase file without resetting in later stages. Do not renumber existing task IDs when inserting or completing work.
 

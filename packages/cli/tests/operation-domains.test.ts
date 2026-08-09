@@ -75,7 +75,7 @@ describe("operation domain modules", () => {
   test("derives the operation-domain map from the operation registry (R-REG-2, R-RUN-2)", () => {
     const domains = listOperationDomains();
 
-    expect(domains.map((domain) => domain.name)).toEqual(["playbook", "package", "work"]);
+    expect(domains.map((domain) => domain.name)).toEqual(["playbook", "package", "prd", "work"]);
 
     const identifiers = domains.flatMap((domain) => domain.commands.map((command) => command.id));
     expect(identifiers).toEqual([
@@ -98,11 +98,12 @@ describe("operation domain modules", () => {
       "package.write",
       // Appended by W18 R12 P3 (PRD 41 R-GRAM-3).
       "package.ship",
+      "prd.authority.validate",
       "work.item.resolve",
       "work.evidence.record",
       "work.evidence.read",
     ]);
-    expect(identifiers).toHaveLength(21);
+    expect(identifiers).toHaveLength(22);
 
     for (const domain of domains) {
       for (const command of domain.commands) {

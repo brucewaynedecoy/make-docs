@@ -51,10 +51,12 @@ For work backlog tasks, number task IDs ordinally across the entire phase file, 
 
 ## PRD Exemption
 
-PRDs are intentionally exempt from W/R/P. The PRD namespace evolves in place through active-set evolution and change docs rather than iterating in waves.
+PRDs are intentionally exempt from W/R/P. The PRD namespace is maintained in place as the current product authority rather than iterating in waves.
 
 - PRD docs keep the fixed `NN-<slug>.md` convention described in `.make-docs/contracts/system/output-contract.md`.
-- Change management for PRDs is governed by `.make-docs/references/system/prd-change-management.md`.
+- PRD filenames, H1 titles, kinds, and document-level frontmatter describe product subjects, not maintenance operations or revision coordinates.
+- W/R/P coordinates may appear in a PRD's source links or non-normative `## Requirement History` entries to identify the maintenance event; they are not PRD document identity.
+- Authoritative maintenance for PRDs is governed by `.make-docs/references/system/prd-change-management.md`.
 - Archived PRD sets are grouped by date, not by wave (see `## Archive Integration`).
 
 ## Design Exemption

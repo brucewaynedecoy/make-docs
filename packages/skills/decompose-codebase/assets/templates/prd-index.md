@@ -21,7 +21,7 @@ Explain what this PRD set covers, who it is for, and why it exists.
 | `02-architecture-overview.md` | `core` | `active` | `—` | Explain topology, module map, runtime boundaries, data flow, and config surfaces |
 | `03-open-questions-and-risk-register.md` | `core` | `active` | `—` | Capture drift, gaps, and rebuild risks |
 | `04-glossary.md` | `core` | `active` | `—` | Define canonical terms |
-| `{{ADAPTIVE_DOCS}}` | `baseline` or change kind | `active`, `superseded`, `deprecated`, or `removed` | List linked baseline or change docs | Explain subsystem, reference, or change scope generated for this repo |
+| `{{ADAPTIVE_DOCS}}` | `capability`, `subsystem`, or `reference` | Current product-authority status | List related current authorities | Explain the current product subject owned by this PRD |
 
 ## Source Anchors
 

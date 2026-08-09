@@ -26,7 +26,7 @@ describe("make-docs MCP runtime", () => {
     }
   });
 
-  test("declares a shipped read-first MCP tool surface (6 hand-defined + 21 derived)", () => {
+  test("declares a shipped read-first MCP tool surface (6 hand-defined + 22 derived)", () => {
     expect(createMakeDocsMcpServer()).toBeDefined();
     expect(MAKE_DOCS_MCP_TOOLS.map((tool) => tool.name)).toEqual([
       // Hand-defined non-operation tools.
@@ -57,6 +57,7 @@ describe("make-docs MCP runtime", () => {
       // W18 R12 P3 (R-GRAM-3): the appended `package.ship` composite derives
       // to MCP exactly like every other registry operation.
       "make_docs_package_ship",
+      "make_docs_prd_authority_validate",
       "make_docs_work_item_resolve",
       "make_docs_work_evidence_record",
       "make_docs_work_evidence_read",

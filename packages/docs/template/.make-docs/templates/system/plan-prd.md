@@ -16,11 +16,11 @@ coordinate: "W{{W}} R{{R}}"
 
 **Repository:** `{{REPO_ROOT}}`
 
-**Purpose:** Produce a reviewable plan for translating a new idea or design into a structured PRD set and implementation backlog.
+**Purpose:** Produce a reviewable plan for a greenfield or first active PRD namespace, or for an explicitly approved full-set replacement, and its implementation backlog.
 
 ## Objective
 
-State what the PRD set should capture, who the outputs are for, and what counts as completion. Identify whether the target is a greenfield project or an addition to an existing codebase.
+State what the PRD set should capture, who the outputs are for, and what counts as completion. Use this template only for a greenfield or first namespace, or when the owner explicitly approves full-set replacement. If an active namespace exists and the request adds or changes product authority, use `plan-prd-change.md` for authoritative in-place maintenance instead.
 
 ## Coordinate Decision
 
@@ -63,9 +63,12 @@ Open questions or ambiguities in the inputs should be captured here and promoted
 ## Existing PRD Handling
 
 - Active `docs/prd/` status: {{ACTIVE_PRD_STATUS}}
+- Eligible mode: `first-namespace` or `explicitly-approved-full-set-replacement`
 - Archive step required before execution: {{ARCHIVE_REQUIRED}}
 - Planned archive target if approved: `{{ARCHIVE_TARGET}}`
 - Active root entries to archive: {{ARCHIVE_ENTRIES}}
+
+Do not use this template to route an addition into an existing namespace. Without explicit full-set-replacement approval, stop and use the PRD authority-maintenance plan.
 
 ## Coordinator Policy
 

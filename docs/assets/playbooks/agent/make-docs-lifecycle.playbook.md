@@ -271,7 +271,7 @@ PRD generation or update inherits the route, coordinate lineage, and planned del
 
 #### Purpose
 
-Define the product or documentation contract that the work backlog should implement.
+Define the current product or documentation contract that the work backlog should implement. `docs/prd/` describes the current authoritative shape of the product and never the editorial operation used to change that authority.
 
 #### Inputs
 
@@ -281,9 +281,12 @@ Define the product or documentation contract that the work backlog should implem
 
 #### Decision Points
 
-- Create a new PRD.
-- Update an existing PRD.
-- Record no-new-PRD rationale when the active set already covers the change.
+- Update an existing PRD surgically when its subject owns the changed requirement.
+- Create a new PRD only for a coherent, wholesale new capability, subsystem, or product boundary with no suitable owner.
+- Add a standardized, non-normative requirement-history entry after updating the current normative requirement when a material prior contract should remain visible.
+- Update navigation only when current authority is sufficient but discoverability needs a pointer.
+- Record no-PRD rationale when the active set already covers the decision.
+- Keep implementation sequencing, migration, reconciliation, and editorial change language in plans, work backlogs, and history records rather than standalone PRDs.
 
 #### Suggested Assists
 
@@ -294,11 +297,11 @@ Define the product or documentation contract that the work backlog should implem
 
 #### Exit Criteria
 
-- Requirements, risks, decisions, and unresolved questions are current enough to generate or maintain the work backlog.
+- Current normative requirements are inline in their owning PRDs, any new PRD represents a coherent product authority, history is explicitly non-normative, risks and decisions are current, and `make-docs run prd authority validate --target-root <project>` exits zero before the work backlog consumes the set; invalid or escaping documentation roots block handoff.
 
 #### Handoff
 
-The work backlog inherits the effective PRD contract and any risk-register decisions.
+The work backlog inherits the current normative PRD contract and any risk-register decisions. It may use the maintenance plan for sequencing and history for provenance, but neither overrides the current PRD body.
 
 ### Work Backlog
 
@@ -544,7 +547,7 @@ Each pass through the workflow leaves the stage artifact it produced, the record
 
 ## Validation
 
-The playbook is complete when the current lifecycle stage has a clear output, handoff, or documented reason for stopping, and the relevant validators or coverage decisions have been recorded. The `validate-playbook-coverage` step runs the deterministic `playbook.validate` operation so any playbook coverage output from the stage stays contract-clean.
+The playbook is complete when the current lifecycle stage has a clear output, handoff, or documented reason for stopping, and the relevant validators or coverage decisions have been recorded. The `validate-playbook-coverage` step runs the deterministic `playbook.validate` operation so any playbook coverage output from the stage stays contract-clean. At the PRD stage, the read-only `make-docs run prd authority validate --target-root <project>` operation must pass before handoff to work.
 
 ## Packaging Notes
 

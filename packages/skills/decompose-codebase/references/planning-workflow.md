@@ -8,8 +8,9 @@ Use this workflow to produce a reviewable decomposition plan before generating d
 
 1. Run `scripts/probe_environment.py --format json`.
 2. Inspect the repo root, current doc folders, any existing decomposition artifacts, and whether `docs/prd/` already contains active root entries. Archived PRD sets live under `docs/assets/archive/prds/YYYY-MM-DD/`.
-3. Confirm whether live session MCP access is actually available.
-4. If `jdocmunch` or `jcodemunch` are visible in the session, index docs and code before planning the catalog.
+3. If an active PRD set exists, determine whether the request is an explicit full-set decomposition/re-baseline or ordinary PRD maintenance. Do not infer replacement authority from the presence of existing PRDs.
+4. Confirm whether live session MCP access is actually available.
+5. If `jdocmunch` or `jcodemunch` are visible in the session, index docs and code before planning the catalog.
 
 ## Planning Goals
 
@@ -17,7 +18,9 @@ Produce a plan that makes the execution step decision-complete. The plan should 
 
 - the doc tree shape
 - the fixed core docs plus adaptive docs
-- whether execution will require archiving an existing active PRD set
+- whether the request is an explicit full-set re-baseline or authoritative in-place maintenance
+- for in-place maintenance, which existing PRDs own the change, which genuinely new product PRDs are justified, which candidates require no PRD change, and which requirement-history entries are needed
+- whether an explicitly authorized full-set re-baseline will require archiving an existing active PRD set
 - the delegation tier and workstream split for execution
 - the coordinator role and write scope
 - the backlog placement under `docs/work/YYYY-MM-DD-w{W}-r{R}-<slug>/`
@@ -41,6 +44,7 @@ Start from `assets/templates/decomposition-plan.md` and use it as the overview c
 - repo summary
 - output contract
 - existing PRD handling
+- authoritative-PRD decisions: update existing, genuinely new capability, or none; never editorial change documents
 - coordinator policy and delegation tier
 - adaptive document catalog
 - worker ownership, write scopes, and dependencies

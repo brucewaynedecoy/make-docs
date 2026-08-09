@@ -86,6 +86,24 @@ function command(id: string, ...flags: string[]): string {
   return ["make-docs run", operationCliPath(id), ...flags].join(" ");
 }
 
+function renderPrdAuthorityValidation(value: JsonValue): string[] | null {
+  const report = asRecord(value);
+  if (!report) {
+    return null;
+  }
+  const diagnostics = recordEntries(report.diagnostics);
+  const lines = [
+    `PRD authority validation: ${text(report, "status") ?? "unknown"} (${String(report.prdFilesScanned ?? "?")} PRD files, ${diagnostics.length} errors).`,
+  ];
+  for (const diagnostic of diagnostics) {
+    lines.push(
+      `${text(diagnostic, "code") ?? "PRD-AUTH-?"} ${text(diagnostic, "path") ?? "?"}:${String(diagnostic.line ?? "?")} ${text(diagnostic, "message") ?? "Validation error."}`,
+      `  Fix: ${text(diagnostic, "remediation") ?? "Repair the active PRD authority."}`,
+    );
+  }
+  return lines;
+}
+
 /** Compact cursor/status line — never the full state echo (R-RENDER-1). */
 function runStatusLine(state: JsonRecord): string {
   const cursor = asRecord(state.cursor);
@@ -262,6 +280,7 @@ function renderPackagePipeline(header: string, next?: (record: JsonRecord) => st
 }
 
 const TEXT_RENDERERS: Record<string, (value: JsonValue) => string[] | null> = {
+  "prd.authority.validate": renderPrdAuthorityValidation,
   "playbook.start": renderStart,
   "playbook.advance": renderAdvance,
   "playbook.gate": renderStateValue((state) => {

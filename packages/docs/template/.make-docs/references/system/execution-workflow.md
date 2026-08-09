@@ -4,7 +4,7 @@ See `.make-docs/references/system/wave-model.md` for W/R semantics; archive rule
 
 ## Purpose
 
-Use this workflow to generate or evolve the active PRD namespace and the related backlog in a consistent way. Execution mode is allowed only after the user explicitly authorizes execution, either after plan approval or as direct execution from the start.
+Use this workflow to generate or maintain the active PRD namespace and the related backlog in a consistent way. Execution mode is allowed only after the user explicitly authorizes execution, either after plan approval or as direct execution from the start.
 
 ## Preconditions
 
@@ -20,17 +20,19 @@ If neither exists, switch back to planning mode.
 Classify the task before writing:
 
 1. `full-set generation` — create or replace the active PRD namespace from a plan, design, or decomposition workflow
-2. `active-set evolution` — append change docs and update impacted baseline docs without replacing the namespace
+2. `authoritative PRD maintenance` — update current product authorities in place and create a new PRD only for a coherent product subject with no current owner
 
-Use `active-set evolution` when the user wants to add capability, enhance an existing capability, revise a requirement, or deprecate or remove a requirement that already exists in the active PRD namespace.
+Use `authoritative PRD maintenance` when a decision, design, implementation, or finding may change an existing requirement, establish a genuinely new capability, or deprecate or remove behavior already represented in the active PRD namespace.
+
+In every mode, `docs/prd/` describes the current authoritative shape of the product and never the editorial operation used to change that authority.
 
 ## Preflight
 
 1. Determine the highest usable delegation tier for the current session: parallel agents, then subagents, then single-agent fallback.
 2. Re-check existing docs so you avoid duplicating or clobbering useful material.
 3. Inspect `docs/prd/` and determine whether active root entries already exist outside the archive.
-4. Classify the task as `full-set generation` or `active-set evolution`.
-5. If the task is active-set evolution, identify the impacted baseline docs before spawning authoring work.
+4. Classify the task as `full-set generation` or `authoritative PRD maintenance`.
+5. If the task is authoritative PRD maintenance, identify current owner PRDs and genuinely ownerless product subjects before spawning authoring work.
 
 ## Delegation Ladder
 
@@ -76,16 +78,18 @@ Apply this gate only in `full-set generation` mode:
 - If archival is declined, stop before writing anything into `docs/prd/`.
 - Treat archived PRD sets as historical records, not active output targets.
 
-## Active-Set Evolution Gate
+## Authoritative PRD Maintenance Gate
 
-Apply this gate only in `active-set evolution` mode:
+Apply this gate only in `authoritative PRD maintenance` mode:
 
 - Do not archive the active PRD namespace.
-- Determine the next available `NN-` number before drafting change docs.
-- Choose the relevant change template based on `.make-docs/references/system/prd-change-management.md`.
-- Preserve prior baseline text unless the user explicitly asked for a cleanup rewrite.
-- Update impacted baseline docs with `### Change Notes` backlinks where applicable.
-- Update `docs/prd/00-index.md` so the new change docs and affected baseline docs show accurate status and lineage metadata.
+- Assign `update-existing`, `create`, `link-only`, or `none` with a reason to every candidate requirement.
+- Update current normative requirements inline in their existing owners.
+- Determine the next available `NN-` number only when a coherent, wholesale new capability, subsystem, or product boundary has no suitable owner.
+- Add standardized, non-normative `## Requirement History` entries when a material prior contract needs to remain visible.
+- Express removals and deprecations as current scope, non-goal, limitation, status, or boundary text before recording history.
+- Update `docs/prd/00-index.md` so current product ownership, status, focus, and navigation are accurate.
+- Do not create PRDs whose filename, title, kind, or subject describes an editorial operation.
 
 ## Writing Order
 
@@ -99,14 +103,14 @@ Apply this gate only in `active-set evolution` mode:
 6. Route contract validation and fix-up work to a dedicated validation worker.
 7. Keep the coordinator focused on status, blockers, and final reporting.
 
-### Active-set evolution
+### Authoritative PRD maintenance
 
 1. Determine the delegation tier and spawn workstreams if supported.
-2. Confirm change classification, impacted baseline docs, and next available doc numbers.
-3. Route change-doc authoring to one or more workers.
-4. Route baseline annotation updates and index updates to a dedicated assembly worker when possible.
+2. Confirm candidate decisions, existing owner PRDs, and any genuinely new product subjects.
+3. Route surgical current-requirement updates and requirement-history entries to existing-owner workers.
+4. Route genuinely new product PRDs and shared index/risk updates to disjoint authoring or assembly workers when possible.
 5. Route delta backlog generation to a dedicated worker.
-6. Route backlink, status, and traceability validation to a dedicated validation worker.
+6. Route product-authority, status, link, and traceability validation to a dedicated validation worker.
 7. Keep the coordinator focused on status, blockers, and final reporting.
 
 ## Parallelization Rules
@@ -120,11 +124,11 @@ If the harness supports delegated workers, do not postpone delegation until the 
 - Reserve final assembly, cross-linking, and validation for delegated workers, not the coordinator.
 - Tell each spawned agent to build its own MCP indexes in its own session before deep analysis.
 
-For active-set evolution, prefer these separate write scopes when possible:
+For authoritative PRD maintenance, prefer these separate write scopes when possible:
 
-- new change docs
-- existing baseline annotations
-- PRD index and shared-doc status updates
+- existing owner PRD updates and requirement history
+- genuinely new product-authority PRDs
+- PRD index, risk register, and shared-doc status updates
 - delta backlog generation
 - validation and fix-up
 
@@ -134,7 +138,7 @@ For active-set evolution, prefer these separate write scopes when possible:
 - Do not silently overwrite docs that serve another audience or purpose.
 - If existing docs drift from the code, record the drift in `03-open-questions-and-risk-register.md`.
 - If the task is full-set generation and an older active PRD set already exists under `docs/prd/`, archive it to `docs/assets/archive/prds/YYYY-MM-DD/` before writing the replacement active PRD set.
-- If the task is active-set evolution, preserve baseline text and add non-destructive annotations unless the user explicitly asks for a cleanup rewrite.
+- If the task is authoritative PRD maintenance, update the owning current requirement surgically and preserve material prior state only in non-normative requirement history.
 
 ## Work Backlog Source Authority
 
@@ -151,13 +155,13 @@ If a fallback source is used, record which fallback was used and why.
 ## Backlog Rules
 
 - Work is always a directory in v2. Full-set generation writes `docs/work/YYYY-MM-DD-w{W}-r{R}-<slug>/` containing `00-index.md` plus `0N-<phase>.md` phase files.
-- Active-set evolution writes `docs/work/YYYY-MM-DD-w{W}-r{R}-<slug>/` as a delta backlog directory containing `00-index.md` plus `0N-<phase>.md` phase files.
+- Authoritative PRD maintenance writes `docs/work/YYYY-MM-DD-w{W}-r{R}-<slug>/` as a delta backlog directory containing `00-index.md` plus `0N-<phase>.md` phase files.
 - Plans use the same form: `docs/plans/YYYY-MM-DD-w{W}-r{R}-<slug>/` containing `00-overview.md` plus `0N-<phase>.md` phase files.
 - Keep backlog phases dependency-ordered across the `0N-<phase>.md` files.
 - In every stage, write `### Tasks` as markdown task list items using phase-local task IDs (`- [ ] t1: ...`, `- [x] t1: ...`) and write `### Acceptance criteria` as plain unordered bullets only.
 - Increment task IDs across the entire phase file without resetting in later stages. Do not renumber existing task IDs when inserting or completing work.
 - Include phase-level PRD traceability via `Source PRD Docs`.
-- Delta backlogs should cite both the new change docs and the impacted baseline docs that still constrain implementation.
+- Delta backlogs cite the updated or genuinely new authoritative PRDs that constrain implementation. Maintenance plans provide sequencing and history provides provenance; neither replaces current PRD authority.
 
 ## Final Validation
 
@@ -166,4 +170,4 @@ Before closing the task:
 1. Resolve broken links, missing core docs, missing required headings, or misplaced backlog files.
 2. Confirm the PRD index reflects the final catalog, status, and lineage.
 3. Confirm the backlog links to the relevant PRD docs.
-4. For active-set evolution, confirm every required backlink, supersession or deprecation marker, and delta backlog traceability link is present.
+4. For authoritative PRD maintenance, confirm current requirements are inline, history is non-normative, every new PRD is a coherent product authority, and delta backlog traceability points to current PRDs rather than retired change records.

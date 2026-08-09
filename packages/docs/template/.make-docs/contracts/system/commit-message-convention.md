@@ -24,9 +24,9 @@ Rules:
 Example:
 
 ```text
-feat: [W1 R2 P1] CLI Agent Terminology and Help Flags - Active PRD Contract Revision
+feat: [W1 R2 P1] CLI Agent Terminology and Help Flags - Authority Maintenance
 
-Adds the active PRD revision for REQ02, updates baseline PRD backlinks, and marks W1 R2 P1 complete so downstream parser and documentation phases can cite the effective `--agent`, `-a`, help, and rejected `--harness` contract.
+Updates the owning CLI authority with the current REQ02 contract, records the prior requirement in its non-normative Requirement History, and marks W1 R2 P1 complete so downstream parser and documentation phases cite the effective `--agent`, `-a`, help, and rejected `--harness` requirements.
 ```
 
 ## Document Commits

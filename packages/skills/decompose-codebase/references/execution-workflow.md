@@ -21,6 +21,7 @@ If neither exists, switch back to planning mode.
 4. Determine the highest usable delegation tier for the current session: parallel agents, then subagents, then single-agent fallback.
 5. Re-check existing docs so you avoid duplicating or clobbering useful material.
 6. Inspect `docs/prd/` and determine whether active root entries already exist. Archived PRD sets live under `docs/assets/archive/prds/`.
+7. Confirm whether the approved task is an explicit full-set decomposition/re-baseline or ordinary PRD maintenance. Ordinary maintenance preserves the active set and updates the owning authority in place.
 
 ## Delegation Ladder
 
@@ -57,6 +58,7 @@ If delegation is available, the coordinator must not:
 
 ## Full-Set Replacement Gate
 
+- Apply this gate only when the user has explicitly authorized a full-set decomposition or product-authority re-baseline. Do not use it for an ordinary product change.
 - Treat `docs/prd/` as a single active PRD namespace.
 - If root entries already exist in `docs/prd/`, summarize them and ask for approval before moving them.
 - On approval, archive every root entry into `docs/assets/archive/prds/YYYY-MM-DD/` or `docs/assets/archive/prds/YYYY-MM-DD-XX/`.
@@ -69,12 +71,13 @@ If delegation is available, the coordinator must not:
 Use this order to reduce churn:
 
 1. Determine the delegation tier and spawn workstreams if supported.
-2. Resolve the active-PRD archive gate if one is required.
-3. Determine the final PRD catalog shape.
-4. Route domain and subsystem docs to delegated workers.
-5. Route shared-doc assembly for `00-index.md`, `03-open-questions-and-risk-register.md`, `04-glossary.md`, and the backlog to a dedicated worker.
-6. Route contract validation and fix-up work to a dedicated validation worker.
-7. Keep the coordinator focused on status, blockers, and final reporting.
+2. Classify each PRD candidate as update an existing owner, create a genuinely new capability authority, or none. Never create an editorial change PRD.
+3. Resolve the active-PRD archive gate only for an explicitly authorized full-set re-baseline.
+4. Determine the final PRD catalog shape.
+5. Route domain and subsystem docs to delegated workers.
+6. Route shared-doc assembly for `00-index.md`, `03-open-questions-and-risk-register.md`, `04-glossary.md`, and the backlog to a dedicated worker.
+7. Route contract validation and fix-up work to a dedicated validation worker.
+8. Keep the coordinator focused on status, blockers, and final reporting.
 
 ## Parallelization Rules
 
@@ -101,14 +104,15 @@ If the harness supports delegated workers, do not postpone delegation until the 
 - If existing docs drift from the code, record the drift in `03-open-questions-and-risk-register.md`.
 - Treat `03-open-questions-and-risk-register.md` as the living register for gap state, open questions, resolved decisions, confirmed drift, and rebuild risks.
 - Do not create separate questions, decisions, risks, gaps, or architecture-decision files when the active PRD risk register exists unless the user explicitly asks for a new convention.
-- Risk-register items use one numbered `###` item heading with a `Status` / `Decision` / `Follow-Up` table, then `Question` or `Issue`, `Why it matters`, `Recommendation`, and `To close`; use `D-###`, `Q-###`, or `R-###` prefixes by section, never renumber existing items, and do not use `### Change Notes` inside the register.
-- If an older active PRD set already exists under `docs/prd/`, archive it before writing the replacement active PRD set.
+- Risk-register items use one numbered `###` item heading with a `Status` / `Decision` / `Follow-Up` table, then `Question` or `Issue`, `Why it matters`, `Recommendation`, and `To close`; use `D-###`, `Q-###`, or `R-###` prefixes by section, never renumber existing items, and do not use `## Requirement History` as a substitute for unresolved register state.
+- Current normative requirements belong inline in the owning PRD. Preserve a material prior contract only in an optional, non-normative `## Requirement History` section; plans and work may describe editorial operations, but active PRDs may not.
+- If an explicitly authorized full-set re-baseline replaces an older active PRD set under `docs/prd/`, archive that set before writing the replacement. Otherwise maintain the existing authorities surgically.
 
 ## Work Backlog Source Authority
 
 When generating a rebuild backlog, use this authority order:
 
-1. Explicit user direction plus the accepted design, plan, PRD, and existing work artifacts for the current coordinate.
+1. Explicit user direction plus the accepted design, plan, current authoritative PRDs, and existing work artifacts for the current coordinate. Requirement-history entries and archived PRDs provide context only, not the normative implementation source.
 2. Live repository contracts such as `docs/work/AGENTS.md`, `docs/assets/references/execution-workflow.md`, `output-contract.md`, `wave-model.md`, and current work templates.
 3. This skill's bundled references and templates only when live repo contracts are unavailable or the task explicitly concerns installed skill assets.
 4. Archived backlogs only as examples of style or lineage.
