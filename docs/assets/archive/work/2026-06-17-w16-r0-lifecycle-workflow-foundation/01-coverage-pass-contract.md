@@ -16,7 +16,7 @@ canonical home for the pattern.
 
 ## Source PRD Docs
 
-- [14-add-lifecycle-workflow-foundation.md](../../../../prd/14-add-lifecycle-workflow-foundation.md)
+- [historical design](../../designs/2026-06-17-make-docs-lifecycle-foundation.md) (retired action-PRD: `docs/prd/14-add-lifecycle-workflow-foundation.md`)
 - [06-template-contracts-and-generated-assets.md](../../../../prd/06-template-contracts-and-generated-assets.md)
 
 ## Stage 1 - Author the contract

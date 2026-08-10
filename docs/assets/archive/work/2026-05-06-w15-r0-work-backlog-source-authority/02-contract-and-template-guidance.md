@@ -12,7 +12,7 @@ This phase clarifies the source-priority ladder in the shipped template-owned wo
 
 - [docs/prd/06-template-contracts-and-generated-assets.md](../../../../prd/06-template-contracts-and-generated-assets.md)
 - [docs/prd/09-dogfood-and-maintainer-operations.md](../../../../prd/09-dogfood-and-maintainer-operations.md)
-- [docs/prd/14-add-lifecycle-workflow-foundation.md](../../../../prd/14-add-lifecycle-workflow-foundation.md)
+- [historical design](../../designs/2026-06-17-make-docs-lifecycle-foundation.md) (retired action-PRD: `docs/prd/14-add-lifecycle-workflow-foundation.md`)
 
 ## Stage 1 - Update Work Router Guidance
 

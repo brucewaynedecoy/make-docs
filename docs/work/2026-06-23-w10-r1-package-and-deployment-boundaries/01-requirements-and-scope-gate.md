@@ -10,7 +10,7 @@ This phase is a gate, not a PRD-authoring phase. PRD 16 and the baseline annotat
 
 ## Source PRD Docs
 
-- [../../prd/16-revise-package-and-deployment-boundaries.md](../../prd/16-revise-package-and-deployment-boundaries.md)
+- [../../prd/16-package-runtime-and-deployment-boundaries.md](../../prd/16-package-runtime-and-deployment-boundaries.md)
 - [../../prd/00-index.md](../../prd/00-index.md)
 - [../../prd/01-product-overview.md](../../prd/01-product-overview.md)
 - [../../prd/02-architecture-overview.md](../../prd/02-architecture-overview.md)
@@ -19,13 +19,13 @@ This phase is a gate, not a PRD-authoring phase. PRD 16 and the baseline annotat
 - [../../prd/07-cli-command-surface-and-lifecycle.md](../../prd/07-cli-command-surface-and-lifecycle.md)
 - [../../prd/08-skills-catalog-and-distribution.md](../../prd/08-skills-catalog-and-distribution.md)
 - [../../prd/10-packaging-validation-and-release-reference.md](../../prd/10-packaging-validation-and-release-reference.md)
-- [../../prd/12-revise-cli-skill-selection-simplification.md](../../prd/12-revise-cli-skill-selection-simplification.md)
+- [../../prd/08-skills-catalog-and-distribution.md](../../prd/08-skills-catalog-and-distribution.md#component-and-capability-map)
 
 ## Stage 1 - Active Requirement Gate
 
 ### Tasks
 
-- [x] t1: Verify [../../prd/16-revise-package-and-deployment-boundaries.md](../../prd/16-revise-package-and-deployment-boundaries.md) exists and still records stable `make-docs`, `Make Docs`, and `MakeDocs` identity.
+- [x] t1: Verify [../../prd/16-package-runtime-and-deployment-boundaries.md](../../prd/16-package-runtime-and-deployment-boundaries.md) exists and still records stable `make-docs`, `Make Docs`, and `MakeDocs` identity.
 - [x] t2: Verify [../../prd/00-index.md](../../prd/00-index.md) lists PRD 16 as Current without renumbering existing PRDs.
 - [x] t3: Verify the seven affected baseline PRDs still contain backlinks to PRD 16.
 - [x] t4: Verify [../../prd/03-open-questions-and-risk-register.md](../../prd/03-open-questions-and-risk-register.md) keeps Q-008 Closed and keeps Q-001, Q-007, and Q-012 Open.
@@ -72,8 +72,8 @@ This phase is a gate, not a PRD-authoring phase. PRD 16 and the baseline annotat
 
 ## Implementation Notes
 
-- PRD gate: [../../prd/16-revise-package-and-deployment-boundaries.md](../../prd/16-revise-package-and-deployment-boundaries.md) records `make-docs` as the CLI/package identifier, `Make Docs` as the display name, and `MakeDocs` as the compact identifier. [../../prd/00-index.md](../../prd/00-index.md) lists PRD 16 as Current, and the active PRD sequence remains unrenumbered.
-- Baseline backlinks: the seven baseline/change surfaces named by this phase still link to PRD 16 through indexed Change Notes or effective-requirement references: [../../prd/01-product-overview.md](../../prd/01-product-overview.md), [../../prd/02-architecture-overview.md](../../prd/02-architecture-overview.md), [../../prd/05-installation-profile-and-manifest-lifecycle.md](../../prd/05-installation-profile-and-manifest-lifecycle.md), [../../prd/07-cli-command-surface-and-lifecycle.md](../../prd/07-cli-command-surface-and-lifecycle.md), [../../prd/08-skills-catalog-and-distribution.md](../../prd/08-skills-catalog-and-distribution.md), [../../prd/10-packaging-validation-and-release-reference.md](../../prd/10-packaging-validation-and-release-reference.md), and [../../prd/12-revise-cli-skill-selection-simplification.md](../../prd/12-revise-cli-skill-selection-simplification.md).
+- PRD gate: [../../prd/16-package-runtime-and-deployment-boundaries.md](../../prd/16-package-runtime-and-deployment-boundaries.md) records `make-docs` as the CLI/package identifier, `Make Docs` as the display name, and `MakeDocs` as the compact identifier. [../../prd/00-index.md](../../prd/00-index.md) lists PRD 16 as Current, and the active PRD sequence remains unrenumbered.
+- Baseline backlinks: the seven baseline/change surfaces named by this phase still link to PRD 16 through indexed Change Notes or effective-requirement references: [../../prd/01-product-overview.md](../../prd/01-product-overview.md), [../../prd/02-architecture-overview.md](../../prd/02-architecture-overview.md), [../../prd/05-installation-profile-and-manifest-lifecycle.md](../../prd/05-installation-profile-and-manifest-lifecycle.md), [../../prd/07-cli-command-surface-and-lifecycle.md](../../prd/07-cli-command-surface-and-lifecycle.md), [../../prd/08-skills-catalog-and-distribution.md](../../prd/08-skills-catalog-and-distribution.md), [../../prd/10-packaging-validation-and-release-reference.md](../../prd/10-packaging-validation-and-release-reference.md), and [../../prd/08-skills-catalog-and-distribution.md](../../prd/08-skills-catalog-and-distribution.md#component-and-capability-map).
 - Risk/register gate: [../../prd/03-open-questions-and-risk-register.md](../../prd/03-open-questions-and-risk-register.md) keeps Q-008 Closed and keeps Q-001, Q-007, and Q-012 Open. D-006, R-003, R-006, and R-014 remain open pending later-phase evidence.
 - Out-of-scope gate: no Phase 1-4 task requires real npm publish, registry reservation, Homebrew tap, Crates publish, git tag, or release promotion. The only release-adjacent package command required by this wave is dry-run validation.
 - Live package surface: `packages/cli/package.json` is `@brucewaynedecoy/make-docs` `1.0.0-rc.1`, exposes only `bin.make-docs = dist/index.js`, ships `dist`, `template`, `skill-registry.json`, `skill-registry.schema.json`, and `README.md`, and publishes publicly from the CLI workspace while the root workspace remains private.

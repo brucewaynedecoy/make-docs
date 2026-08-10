@@ -5,7 +5,7 @@ status: "active"
 coordinate: "W18 R6 P3"
 source:
   type: "prd"
-  path: "docs/prd/34-revise-playbook-contract-and-model.md"
+  path: "docs/prd/34-playbook-authoring-contract-and-model.md"
 ---
 
 # Phase 3: Validator and Diagnostics
@@ -20,9 +20,9 @@ Validation is layered so diagnostics are specific, and diagnostics are a first-c
 
 ## Source PRD Docs
 
-- [34 Revise Playbook Contract and Model](../../prd/34-revise-playbook-contract-and-model.md)
-- [29 Revise Playbook Contract Run Playbook](../../prd/29-revise-playbook-contract-run-playbook.md)
-- [22 Revise New Docs Assets Playbooks Persona Model](../../prd/22-revise-new-docs-assets-playbooks-persona-model.md)
+- [34 Revise Playbook Contract and Model](../../prd/34-playbook-authoring-contract-and-model.md)
+- [29 Revise Playbook Contract Run Playbook](../../prd/34-playbook-authoring-contract-and-model.md#requirements)
+- [22 Revise New Docs Assets Playbooks Persona Model](../../prd/22-project-documentation-asset-model.md#requirements)
 
 ## Stage 1 - Layered Validation
 

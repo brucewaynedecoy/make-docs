@@ -17,7 +17,7 @@ Implemented W16 R2 Phase 3 by threading presentation-only configuration labels i
 
 ### Coverage Decisions
 
-- PRD coverage: no new PRD or risk-register text was needed. [PRD 24](../../../prd/24-revise-configuration-convention-overlay.md) already defines the rendering-only overlay boundary, canonical metadata requirement, and persona validation expectations.
+- PRD coverage: no new PRD or risk-register text was needed. [historical closeout](2026-06-25-w16-r2-configuration-convention-overlay-wave-closeout.md) (retired action-PRD: `docs/prd/24-revise-configuration-convention-overlay.md`) already defines the rendering-only overlay boundary, canonical metadata requirement, and persona validation expectations.
 - Developer-guide coverage: no developer guide was needed. Configuration guidance should wait until package parity and closeout establish the shipped config template and preservation behavior.
 - User-guide coverage: no user guide was needed. This phase exposes configured labels in CLI/UI summaries but does not add a complete user-facing configuration editing workflow.
 - UAT: deferred until the full W16 R2 wave is complete, per the active wave instruction.

@@ -1,5 +1,5 @@
 /**
- * Parser stage 4: parse the fenced dependencies block (PRD 40 R-DEP-1..3).
+ * Parser stage 4: parse the fenced dependencies block (PRD 34 R-DEP-1..3).
  *
  * The `## Dependencies` section carries exactly one fenced block with info
  * string `playbook` and top-level key `dependencies` — the same fence
@@ -11,7 +11,7 @@
  * and probe-pattern diagnostics belong to the Phase 3 registry validation
  * layer, so raw tokens are preserved on the records.
  *
- * Clean v2 break (PRD 40 R-MIG-1..2): the v1 Markdown table parser is
+ * Clean v2 break (PRD 34 R-MIG-1..2): the v1 Markdown table parser is
  * deleted; a table under `## Dependencies` fails with the pointed PB-DEP-025
  * naming the fenced block, a fence whose top-level key does not match the
  * section fails with PB-DOC-029, and a missing or malformed block emits
@@ -36,7 +36,7 @@ import { mapEntries, scalarString, seqItems, stringList, type YamlEntry } from "
 
 const DEPENDENCIES_SECTION = "## Dependencies";
 
-/** The complete v2 per-entry field set (PRD 40 R-DEP-2). */
+/** The complete v2 per-entry field set (PRD 34 R-DEP-2). */
 const ENTRY_FIELDS = [
   "id",
   "kind",
@@ -99,7 +99,7 @@ export function parseDependenciesBlockStage(
 
   const sectionSpan = index.spanBetween(section.contentStart, section.contentEnd);
 
-  // Pointed old-form error first (PRD 40 R-MIG-2): a v1 Markdown table names
+  // Pointed old-form error first (PRD 34 R-MIG-2): a v1 Markdown table names
   // its v2 replacement and never parses to registry records.
   const tableSpan = findV1Table(bodyOffset, section, fencedBlocks, lines, index);
   if (tableSpan) {
@@ -169,7 +169,7 @@ export function parseDependenciesBlockStage(
   const byKey = entryMap(rootEntries);
   const dependenciesEntry = byKey.get(PLAYBOOK_DEPENDENCIES_BLOCK_KEY);
 
-  // Fence/section agreement (PRD 40 R-DEP-1): the block in `## Dependencies`
+  // Fence/section agreement (PRD 34 R-DEP-1): the block in `## Dependencies`
   // is distinguished by its top-level `dependencies` key; anything else is a
   // section-mismatch error.
   if (!dependenciesEntry) {
@@ -302,7 +302,7 @@ function parseEntry(
   const fallbackScalar = scalarField("fallback");
   const usedByEntry = byKey.get("used_by");
 
-  // `probe` resolves at parse time (PRD 40 R-DEP-2): the declared value when
+  // `probe` resolves at parse time (PRD 34 R-DEP-2): the declared value when
   // present, else the dependency `id` — downstream check generation reads the
   // resolved value and never re-derives it.
   const probeScalar = scalarField("probe");

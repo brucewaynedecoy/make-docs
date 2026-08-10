@@ -11,7 +11,7 @@ import { getOperation, invokeOperation } from "../src/operations/registry";
 import { OperationError } from "../src/operations/types";
 import { cleanupTempDir, createTempDir, writeMinimalManifest } from "./helpers";
 
-const SUPPORT_EVIDENCE_REF = "docs/prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md";
+const SUPPORT_EVIDENCE_REF = "docs/prd/36-playbook-packaging-compiler-and-harness-adapters.md";
 
 function writeFile(root: string, relativePath: string, content: string): string {
   const absolutePath = path.join(root, relativePath);

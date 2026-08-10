@@ -18,9 +18,9 @@ related:
   - ./playbooks-running-make-docs-workflows.md
   - ../developer/playbooks-development-packaging-and-harness-adapters.md
   - ../../../designs/2026-06-29-playbook-packaging-and-harness-adapter-registry.md
-  - ../../../prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md
-  - ../../../prd/36-revise-playbook-packaging-compiler-and-harness-adapters.md
-  - ../../../prd/41-revise-cli-human-experience-and-package-grammar.md
+  - ../../../prd/36-playbook-packaging-compiler-and-harness-adapters.md
+  - ../../../prd/36-playbook-packaging-compiler-and-harness-adapters.md
+  - ../../../prd/39-cli-command-model-and-operation-registry.md
 ---
 
 # Packaging Shareable Playbook Workflows
@@ -146,7 +146,7 @@ make-docs run package ship \
   --output-kind plugin \
   --surface native \
   --scope project \
-  --support-evidence-ref docs/prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md
+  --support-evidence-ref docs/prd/36-playbook-packaging-compiler-and-harness-adapters.md
 ```
 
 `ship` plans, previews, and writes in one pass — but only when the plan comes back with zero stops, zero unresolved decisions, and zero unreviewed proposals. Anything that needs human judgment aborts the whole pipeline before a single file is written, and the result names the granular command (`plan`, `preview`, or `write`) to continue with. Ship never relaxes a safety check; it only removes the ceremony from the already-clean path.
@@ -167,7 +167,7 @@ make-docs run package plan \
   --output-kind plugin \
   --surface native \
   --scope project \
-  --support-evidence-ref docs/prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md
+  --support-evidence-ref docs/prd/36-playbook-packaging-compiler-and-harness-adapters.md
 ```
 
 On a terminal the result is a summary with next-step guidance; add `--json` for the full JSON record. Add `--output /path/to/package-plan.json` to save the reviewable `plan` object directly (it is exactly what the write step's `--plan-json` consumes), and inspect the `status`, `stops`, `review`, and `support` fields before writing. The plan's deterministic derivations include the planned payload file list, and the dry-run rendering prints it as `Planned payload files:` lines, so the full generated tree is reviewable up front.
@@ -240,6 +240,6 @@ The former bullet on the W18 R12 Phase 2 compiler probe fix is resolved: the `ch
 - [Running Make Docs Playbooks](./playbooks-running-make-docs-workflows.md)
 - [Playbook Packaging and Harness Adapters](../developer/playbooks-development-packaging-and-harness-adapters.md)
 - [Playbook Packaging and Harness Adapter Registry](../../../designs/2026-06-29-playbook-packaging-and-harness-adapter-registry.md)
-- [33 Enhance Playbook Packaging and Harness Adapter Registry](../../../prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md)
-- [36 Revise Playbook Packaging Compiler and Harness Adapters](../../../prd/36-revise-playbook-packaging-compiler-and-harness-adapters.md)
-- [41 Revise CLI Human Experience and Package Grammar](../../../prd/41-revise-cli-human-experience-and-package-grammar.md)
+- [36 Playbook Packaging Compiler and Harness Adapters](../../../prd/36-playbook-packaging-compiler-and-harness-adapters.md)
+- [36 Revise Playbook Packaging Compiler and Harness Adapters](../../../prd/36-playbook-packaging-compiler-and-harness-adapters.md)
+- [39 CLI Command Model and Operation Registry](../../../prd/39-cli-command-model-and-operation-registry.md#package-grammar-and-ship-r-gram)

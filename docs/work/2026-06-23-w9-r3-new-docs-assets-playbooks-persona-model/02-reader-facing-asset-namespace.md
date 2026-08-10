@@ -6,9 +6,9 @@ Implement the canonical guide, playbook, and archive path model without breaking
 
 ## Source PRDs
 
-- [../../prd/22-revise-new-docs-assets-playbooks-persona-model.md](../../prd/22-revise-new-docs-assets-playbooks-persona-model.md)
-- [../../prd/19-revise-template-package-dogfood-source-of-truth-contract.md](../../prd/19-revise-template-package-dogfood-source-of-truth-contract.md)
-- [../../prd/21-revise-tool-directory-system-custom-resource-tiers.md](../../prd/21-revise-tool-directory-system-custom-resource-tiers.md)
+- [../../prd/22-project-documentation-asset-model.md](../../prd/22-project-documentation-asset-model.md#requirements)
+- [../../prd/06-template-contracts-and-generated-assets.md](../../prd/06-template-contracts-and-generated-assets.md#template-source-authority)
+- [../../prd/21-project-tool-directory-and-resource-tiers.md](../../prd/21-project-tool-directory-and-resource-tiers.md)
 
 ## Tasks
 

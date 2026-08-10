@@ -2,241 +2,217 @@
 
 ## Purpose
 
-This subsystem owns the public operator surface for `make-docs`: parsing argv, deciding whether a run is install/sync, reconfigure, skills-only, backup, uninstall, or help, and then routing the user into the correct review and execution flow in `packages/cli/src/cli.ts:77` and `packages/cli/src/cli.ts:894`. It also owns the safety-first lifecycle behavior for backup and uninstall through the shared audit engine in `packages/cli/src/backup.ts:49`, `packages/cli/src/uninstall.ts:52`, and `packages/cli/src/audit.ts:41`.
+This subsystem owns the project-facing review and execution flows behind the current `make-docs` operator surface: context-aware bare setup, `setup`, `setup reconfigure`, `setup skills`, `setup backup`, and `setup remove`. [39-cli-command-model-and-operation-registry.md](./39-cli-command-model-and-operation-registry.md) owns the complete command grammar, registry-derived `run` surface, MCP exposure, and machine-level `update` and `uninstall`; this PRD owns the wizard, selection, plan/apply, and safety-first shared-audit behavior that those project lifecycle commands invoke.
 
-The user-facing contract is broader than a thin command parser. The CLI defines when interactive flows are allowed in `packages/cli/src/cli.ts:135`, what gets reviewed before mutation in `packages/cli/src/cli.ts:210`, how lifecycle commands summarize risk in `packages/cli/src/lifecycle-ui.ts:82`, and which legacy commands are intentionally rejected with migration guidance in `packages/cli/src/cli.ts:589` and `packages/cli/src/cli.ts:599`.
+The user-facing contract is broader than a thin command parser. `runCli`, `validateParsedArgs`, and the removed-command validation helpers in `packages/cli/src/cli.ts` define interactive boundaries, pre-mutation review, and legacy-command rejection; `LifecycleRenderer` and `createClackLifecycleRenderer` in `packages/cli/src/lifecycle-ui.ts` summarize lifecycle risk.
 
 ## Scope
 
 This document covers:
 
-- top-level command parsing, validation, dispatch, and help text in `packages/cli/src/cli.ts:455`, `packages/cli/src/cli.ts:653`, and `packages/cli/src/cli.ts:894`
-- the interactive selection wizard, review loop, and conflict-resolution prompts in `packages/cli/src/wizard.ts:481` and `packages/cli/src/wizard.ts:579`
-- lifecycle rendering and confirmation checkpoints in `packages/cli/src/lifecycle-ui.ts:54`
-- backup and uninstall execution behavior in `packages/cli/src/backup.ts:49` and `packages/cli/src/uninstall.ts:52`
-- the shared audit model that decides removable, preserved, skipped, and prunable paths in `packages/cli/src/audit.ts:41`
-- the public CLI promises captured by tests in `packages/cli/tests/cli.test.ts:121`, `packages/cli/tests/wizard.test.ts:69`, `packages/cli/tests/backup.test.ts:127`, `packages/cli/tests/uninstall.test.ts:155`, and `packages/cli/tests/lifecycle.test.ts:75`
+- top-level command parsing, validation, dispatch, and help text in `Command`, `ParsedArgs`, `parseArgs`, `validateParsedArgs`, `runCli`, and `printHelp` in `packages/cli/src/cli.ts`
+- the interactive selection wizard, review loop, and conflict-resolution prompts in `runSelectionWizard`, `renderWizardReviewSummary`, and `promptForManagedFileConflictResolutions` in `packages/cli/src/wizard.ts`
+- lifecycle rendering and confirmation checkpoints in `LifecycleRenderer` and `createClackLifecycleRenderer` in `packages/cli/src/lifecycle-ui.ts`
+- project backup and removal execution behavior behind `setup backup` and `setup remove` in `runBackupCommand` and `runUninstallCommand` in `packages/cli/src/backup.ts` and `packages/cli/src/uninstall.ts`
+- the shared audit model that decides removable, preserved, skipped, and prunable paths in `createAuditReport` and `classifyPrunableDirectories` in `packages/cli/src/audit.ts`
+- the public CLI promises captured by tests in `packages/cli/tests/cli.test.ts`, `packages/cli/tests/wizard.test.ts`, `packages/cli/tests/backup.test.ts`, `packages/cli/tests/uninstall.test.ts`, and `packages/cli/tests/lifecycle.test.ts`
 
-This document does not re-specify the full install asset catalog, manifest schema, or skill-packaging internals. Those are only covered here where they change the user-visible command surface, selection semantics, or lifecycle safety contract, for example when `runCli` delegates to skills-only mode in `packages/cli/src/cli.ts:104` or when the audit engine consults manifest- and profile-derived expectations in `packages/cli/src/audit.ts:90` and `packages/cli/src/audit.ts:323`.
+This document does not re-specify the full install asset catalog, manifest schema, or skill-packaging internals. Those are only covered here where they change the user-visible command surface, selection semantics, or lifecycle safety contract, for example when `runCli` delegates through `runSkillsCommand` in `packages/cli/src/cli.ts` or when `createAuditReport` in `packages/cli/src/audit.ts` consults manifest- and profile-derived expectations.
 
 Code anchors:
 
-- `packages/cli/src/cli.ts:77`
-- `packages/cli/src/cli.ts:455`
-- `packages/cli/src/cli.ts:653`
-- `packages/cli/src/cli.ts:894`
-- `packages/cli/src/wizard.ts:481`
-- `packages/cli/src/lifecycle-ui.ts:54`
-- `packages/cli/src/backup.ts:49`
-- `packages/cli/src/uninstall.ts:52`
-- `packages/cli/src/audit.ts:41`
+- `packages/cli/src/cli.ts` — `runCli`, `parseArgs`, `validateParsedArgs`, `printHelp`
+- `packages/cli/src/wizard.ts` — `runSelectionWizard`, `renderWizardReviewSummary`, `promptForManagedFileConflictResolutions`
+- `packages/cli/src/lifecycle-ui.ts` — `LifecycleRenderer`, `createClackLifecycleRenderer`
+- `packages/cli/src/backup.ts` — `runBackupCommand`, `prepareBackupExecution`, `executePreparedBackup`
+- `packages/cli/src/uninstall.ts` — `runUninstallCommand`, `UninstallReviewPlan`
+- `packages/cli/src/audit.ts` — `createAuditReport`, `classifyPrunableDirectories`
 
 ## Component and Capability Map
 
 ### Public command model
 
-#### Change Notes
+- The [current command taxonomy](./39-cli-command-model-and-operation-registry.md) has five top-level commands organized as self, project, run, and serve: `setup` with `setup reconfigure`, `setup skills`, `setup backup`, and `setup remove`; `run` for registry operations; `mcp`; and top-level `update` and `uninstall` for machine-footprint tool self-management. Bare `make-docs` starts guided setup when no install is present and otherwise shows status and help without auto-sync. There are no compatibility aliases; review, confirmation, and lifecycle-safety semantics apply under these spellings.
 
-- Superseded by [39-revise-cli-command-reorganization-and-operation-registry.md](./39-revise-cli-command-reorganization-and-operation-registry.md) for the top-level command taxonomy. W18 R11 replaces the flat surface — the no-command install/sync path beside `reconfigure`, `skills`, `backup`, project-level `uninstall`, `operations`, and `mcp` — with five top-level commands organized as self, project, run, and serve: `setup` (with `setup reconfigure`, `setup skills`, `setup backup`, and `setup remove` replacing the project-level `uninstall`), `run` for registry operations, `mcp`, and top-level `update` and `uninstall` as machine-footprint tool self-management. Bare `make-docs` becomes context-aware: guided `setup` when no install is present, status and help without auto-sync when one is. There are no back-compatibility aliases; the review, confirmation, and lifecycle-safety semantics below remain active under the new spellings.
-
-`runCli` resolves the target directory, short-circuits `--help`, and then dispatches lifecycle or skills-specific commands before any install planning happens in `packages/cli/src/cli.ts:79`, `packages/cli/src/cli.ts:86`, `packages/cli/src/cli.ts:94`, and `packages/cli/src/cli.ts:104`. The default no-command path is intentionally meaningful: it behaves as first install when no manifest exists and as saved-selection sync when a manifest is present, while `reconfigure` explicitly switches intent in `packages/cli/src/cli.ts:119` and `packages/cli/src/cli.ts:267`.
-
-The parser recognizes four explicit subcommands, a no-command primary workflow, and a shared flag vocabulary in `packages/cli/src/cli.ts:455`. The implemented public help surface is the top-level help plus command-specific help for `reconfigure`, `skills`, `backup`, and `uninstall` in `packages/cli/src/cli.ts:894`. Tests lock that public taxonomy and explicitly assert that `init`, `update`, `--reconfigure`, and `--skills` are not part of the active surface in `packages/cli/tests/cli.test.ts:790` and `packages/cli/tests/cli.test.ts:868`.
+The root parser and help system must present that taxonomy directly, route only registry-admitted operations below `run`, and reject every noncurrent spelling with guidance naming the accepted command. Implementation and test anchors from the pre-PRD 39 parser are provenance, not command authority; their historical taxonomy is recorded only under Requirement History.
 
 ### Interactive wizard and review flow
 
-#### Change Notes
+- [05-installation-profile-and-manifest-lifecycle.md](./05-installation-profile-and-manifest-lifecycle.md) owns prompt, template, and reference wizard questions and review rows.
+- [08-skills-catalog-and-distribution.md](./08-skills-catalog-and-distribution.md) owns skill selection and review language; no required/default/optional category contract exists.
 
-- Superseded by [11-revise-cli-asset-selection-simplification.md](./11-revise-cli-asset-selection-simplification.md) for prompt/template/reference wizard questions and review rows.
-- Superseded by [12-revise-cli-skill-selection-simplification.md](./12-revise-cli-skill-selection-simplification.md) for default/optional skill grouping, selected-by-default behavior, and selected-skill review language.
+### Interactive Selection Contract
 
-Interactive selection is a first-class capability, not just a prompt wrapper. The CLI opens the wizard only for first install and explicit reconfigure in `packages/cli/src/cli.ts:150` and `packages/cli/src/cli.ts:163`; a bare run against an existing manifest stays on saved selections and does not reopen the wizard, as verified in `packages/cli/tests/cli.test.ts:173`.
+- The setup wizard does not ask `Install starter prompts?`, ask which document templates to install, or ask which reference files to install. Its review summary has no prompt-inclusion, template-mode, or reference-mode decision rows.
+- The public CLI has no `--no-prompts`, `--templates`, or `--references` flags. These spellings are invalid rather than aliases, and setup exposes no replacement flags for partial prompt/template/reference installation.
+- Full-install and skills-only selection surfaces present one explicitly selectable skill list. They do not render `Default`, `Optional`, `Required skills`, or `Optional skills` categories; every skill row is selectable and deselectable; and the highlighted detail panel plus bottom selected-skill summary and instructions remain.
+- Non-interactive opt-in selection, including `--selected-skills all`, may install first-party skills. The CLI has no `--optional-skills` alias and performs no compatibility migration for deprecated skill-selection state.
 
-The wizard is a four-step state machine in `packages/cli/src/wizard.ts:124` and `packages/cli/src/wizard.ts:487`: capabilities, harnesses, options, and review. Capability selection is dependency-aware through `normalizeWizardSelections` and `buildCapabilityChecklistState` in `packages/cli/src/wizard.ts:222` and `packages/cli/src/wizard.ts:396`, so `prd` is disabled without `plans` and `work` is disabled without both `plans` and `prd`; the tests pin those lockouts in `packages/cli/tests/wizard.test.ts:70`.
+### Conflict Review Contract
 
-The options step controls whether skills are installed, skill scope, selected skills, prompt starters, template mode, and reference mode in `packages/cli/src/wizard.ts`. Skills default to disabled; when the user enables skills, the selected-skill list starts from the stored selection state and every listed skill can be selected or deselected. `packages/cli/tests/wizard.test.ts` confirms that the wizard can proceed with every skill deselected.
+- When reviewable selected-file diffs exist, the CLI first asks `How should make-docs handle these existing files?` with exactly `Overwrite all`, `Skip all`, and `Review each`.
+- `Review each` walks `agent instructions`, `references`, `templates`, `prompts`, `skills`, and `managed files` in that order and offers exactly `Overwrite` and `Skip` per file. It never offers `Update`; append-merge is not a non-instruction managed-file resolution.
+- Interactive review produces the complete per-path resolution map before apply. Non-interactive execution fails on unresolved reviewable diffs rather than inferring overwrite or preservation.
 
-Review is a mutable checkpoint, not a final dead end. `renderWizardReviewSummary` composes a human-readable summary in `packages/cli/src/wizard.ts:437`, and the review step can bounce the user back to capabilities, harnesses, or options before apply in `packages/cli/src/wizard.ts:550` and `packages/cli/tests/wizard.test.ts:385`.
+Interactive selection is a first-class capability, not just a prompt wrapper. `runCli` and `inferInstallIntent` in `packages/cli/src/cli.ts` open the wizard only for first install and explicit reconfigure; a bare run against an existing manifest stays on saved selections and does not reopen the wizard, as verified in `packages/cli/tests/cli.test.ts`.
+
+The wizard is a four-step state machine in `WizardStep` and `runSelectionWizardWithRenderer` in `packages/cli/src/wizard.ts`: capabilities, harnesses, options, and review. Capability selection is dependency-aware through `normalizeWizardSelections` and `buildCapabilityChecklistState` in the same module, so `prd` is disabled without `plans` and `work` is disabled without both `plans` and `prd`; the tests pin those lockouts in `packages/cli/tests/wizard.test.ts`.
+
+The options step controls whether skills are installed, skill scope, and explicitly selected skills. It contains no prompt, template, or reference controls. Skills default to disabled; when the user enables skills, the selected-skill list starts from the stored selection state and every listed skill can be selected or deselected. The wizard can proceed with every skill deselected.
+
+Review is a mutable checkpoint, not a final dead end. `renderWizardReviewSummary` composes a human-readable summary in `packages/cli/src/wizard.ts`, and `WizardReviewAction` plus `runSelectionWizardWithRenderer` allow the review step to return to capabilities, harnesses, or options before apply; `packages/cli/tests/wizard.test.ts` pins that loop.
 
 ### Plan review, confirmation, and apply orchestration
 
-#### Change Notes
+- Conflict review is batch-first across divergent selected managed files, with per-file resolution available inside a group; the active conflict flow has no user-facing `Update` action. [05-installation-profile-and-manifest-lifecycle.md](./05-installation-profile-and-manifest-lifecycle.md) owns the planner/apply contract.
+- Agent instruction files use the delimited managed-block inline-routing model owned by [15-agent-instruction-ownership-and-managed-blocks.md](./15-agent-instruction-ownership-and-managed-blocks.md), preserving user and project-specific content outside the block rather than claiming whole-file overwrite/skip ownership.
 
-- Superseded by [13-revise-cli-conflict-resolution.md](./13-revise-cli-conflict-resolution.md) for replacing instruction-specific conflict review with batch-first managed-file conflict review across divergent selected managed files, and for removing instruction-only `Update` from the active conflict flow.
-- Superseded by [15-revise-agent-instruction-file-ownership.md](./15-revise-agent-instruction-file-ownership.md) for replacing whole-file overwrite/skip ownership of agent instruction files with a delimited managed-block inline-routing model that preserves user and project-specific content outside the block.
-
-After selections are resolved, `runCli` computes an install plan, optionally collects managed-file conflict resolutions, rejects plans with no effective capabilities, prints a structured plan, and only then applies writes in `packages/cli/src/cli.ts:178`, `packages/cli/src/cli.ts:185`, `packages/cli/src/cli.ts:205`, `packages/cli/src/cli.ts:210`, and `packages/cli/src/cli.ts:244`. The review summary includes target, mode, manifest state, selection source, and action counts in `packages/cli/src/cli.ts:725`, while noop runs emit mode-specific guidance in `packages/cli/src/cli.ts:805`.
+After selections are resolved, `runCli` in `packages/cli/src/cli.ts` computes an install plan, optionally collects managed-file conflict resolutions, rejects plans with no effective capabilities, calls `printPlan`, and only then applies writes. `printPlan` includes target, mode, manifest state, selection source, and action counts, while `renderNoopExplanation` emits mode-specific guidance for noop runs.
 
 Final user-facing planned operations use four verbs: `generate` means a missing selected file will be created, `update` means an existing selected file will be overwritten from the desired content after any required resolution, `skip` means the user explicitly chose to preserve the existing file, and `remove` means a previously managed file will be removed because it is no longer selected. Review-only conflict states must be resolved before the final plan is presented; they are not surfaced as a separate final operation label.
 
-The generic post-plan confirmation is conditional. When the wizard has already collected review-and-apply intent, `runCli` sets `skipApplyConfirm` in `packages/cli/src/cli.ts:148`, `packages/cli/src/cli.ts:162`, and `packages/cli/src/cli.ts:174`, so the CLI does not immediately ask the user to confirm a second time. For interactive sync flows that did not use the wizard, the CLI still shows the plan and then asks for confirmation in `packages/cli/src/cli.ts:226`.
+The generic post-plan confirmation is conditional. When the wizard has already collected review-and-apply intent, `runCli` sets its local `skipApplyConfirm` state in `packages/cli/src/cli.ts`, so the CLI does not immediately ask the user to confirm a second time. Interactive sync flows that did not use the wizard still show the plan and then use `getApplyConfirmationMessage` for confirmation.
 
 Prompting is also the boundary between interactive and non-interactive conflict handling. Interactive runs may collect batch or per-file overwrite/skip resolutions for reviewable selected managed-file diffs; non-interactive runs fail when such diffs are unresolved instead of guessing a skip or overwrite policy.
 
-When apply succeeds, completion language differs by mode in `packages/cli/src/cli.ts:869`, and staged conflict files are surfaced for manual review in `packages/cli/src/cli.ts:259`. That behavior matches the install/readme promise that conflicting replacements are staged rather than overwritten in `README.md:101` and `packages/cli/README.md:84`.
+When apply succeeds, `writeApplyCompletionSummary` in `packages/cli/src/cli.ts` varies completion language by mode and surfaces staged conflict files for manual review. That behavior matches the install/readme promise that conflicting replacements are staged rather than overwritten in `README.md` and `packages/cli/README.md`.
 
 ### Lifecycle commands
 
-`make-docs backup` starts a named workflow, prepares one audit snapshot, renders a review summary, optionally prompts once, then copies only audited files and materializes prunable directories into a dated backup tree in `packages/cli/src/backup.ts:49`, `packages/cli/src/backup.ts:86`, `packages/cli/src/backup.ts:127`, and `packages/cli/src/backup.ts:160`. PRD 32 revises the future backup root to `.make-docs/backup/**` while protecting legacy root `.backup/**`. Tests verify that originals stay in place, same-day backups promote to ordinal form, and global skill paths land under `_home/` in `packages/cli/tests/backup.test.ts:127`, `packages/cli/tests/backup.test.ts:219`, and `packages/cli/tests/backup.test.ts:253`.
+`make-docs setup backup` starts a named workflow, prepares one audit snapshot, renders a review summary, optionally prompts once, then copies only audited files and materializes prunable directories into a dated backup tree through `runBackupCommand`, `prepareBackupExecution`, `executePreparedBackup`, and `resolveBackupDestinationPlan` in `packages/cli/src/backup.ts`. New backup trees must live under `.make-docs/backup/**`, while legacy root `.backup/**` remains protected state. `packages/cli/tests/backup.test.ts` verifies that originals stay in place, same-day backups promote to ordinal form, and global skill paths land under `_home/`.
 
-`make-docs uninstall` is deliberately two-checkpoint and destructive. It shows a warning, requests warning approval, loads one audit report, renders the audit summary, requests final approval, optionally performs backup using the already-prepared audit, and only then removes files and prunes directories in `packages/cli/src/uninstall.ts:63`, `packages/cli/src/uninstall.ts:69`, `packages/cli/src/uninstall.ts:81`, `packages/cli/src/uninstall.ts:96`, `packages/cli/src/uninstall.ts:101`, and `packages/cli/src/uninstall.ts:116`. Tests verify both warning-stage and final-stage cancellation semantics in `packages/cli/tests/uninstall.test.ts:345` and `packages/cli/tests/uninstall.test.ts:382`.
+`make-docs setup remove` is deliberately two-checkpoint and destructive for the current project. `runUninstallCommand` in `packages/cli/src/uninstall.ts` shows a warning, requests warning approval, loads one audit report, renders the `UninstallReviewPlan`, requests final approval, optionally performs backup from the already-prepared audit, and only then removes files and prunes directories. `packages/cli/tests/uninstall.test.ts` verifies warning-stage and final-stage cancellation semantics. Top-level `make-docs uninstall` is a separate machine-footprint self-management command owned by PRD 39.
 
-Lifecycle presentation is mediated through `LifecycleRenderer` in `packages/cli/src/lifecycle-ui.ts:54`, not hard-coded into backup or uninstall. The clack-backed implementation emits semantic workflow summaries, explicit safer alternatives, and prompt guidance in `packages/cli/src/lifecycle-ui.ts:146`, `packages/cli/src/lifecycle-ui.ts:167`, and `packages/cli/src/lifecycle-ui.ts:393`; the renderer boundary is pinned by `packages/cli/tests/lifecycle.test.ts:238` and `packages/cli/tests/lifecycle.test.ts:278`.
+Lifecycle presentation is mediated through `LifecycleRenderer` in `packages/cli/src/lifecycle-ui.ts`, not hard-coded into backup or uninstall. `createClackLifecycleRenderer` emits semantic workflow summaries, explicit safer alternatives, and prompt guidance; `packages/cli/tests/lifecycle.test.ts` pins the renderer boundary.
 
 ### Shared audit engine
 
-Backup and uninstall share one audit contract. `createAuditReport` returns `removableFiles`, `prunableDirectories`, `preservedPaths`, and `skippedPaths` in `packages/cli/src/audit.ts:41` and `packages/cli/src/audit.ts:79`, and both lifecycle commands build on that same shape in `packages/cli/src/backup.ts:91` and `packages/cli/src/uninstall.ts:81`.
+Backup and uninstall share one audit contract. `createAuditReport` in `packages/cli/src/audit.ts` returns the `AuditReport` shape defined in `packages/cli/src/types.ts`, including `removableFiles`, `prunableDirectories`, `preservedPaths`, and `skippedPaths`; `runBackupCommand` and `runUninstallCommand` build on that same shape.
 
-When a manifest exists, audit is manifest-first in `packages/cli/src/audit.ts:52` and `packages/cli/src/audit.ts:90`: manifest-managed files, manifest skill files, and the CLI state file itself are candidates, but instruction files are removable only when the managed block still matches the manifest and no user content exists outside the block, or when a legacy full-file hash proves the file is clean. When no manifest exists, fallback mode uses the default profile, canonical static template assets, and known project/home skill roots, but preserves ambiguous paths rather than guessing in `packages/cli/src/audit.ts:323`, `packages/cli/src/audit.ts:351`, `packages/cli/src/audit.ts:420`, and `packages/cli/src/audit.ts:567`.
+When a manifest exists, `classifyManifestPresent` and `classifyManifestRecord` in `packages/cli/src/audit.ts` treat manifest-managed files, manifest skill files, and the CLI state file itself as candidates, but remove instruction files only when the managed block still matches the manifest and no user content exists outside the block, or when a legacy full-file hash proves the file is clean. Without a manifest, `classifyManifestMissing` and `classifyFallbackRecord` use the default profile, canonical static template assets, and known project/home skill roots while preserving ambiguous paths rather than guessing.
 
-Directory pruning is leaf-first and conservative. `classifyPrunableDirectories` only proposes directories whose remaining contents can be proven empty after audited removals in `packages/cli/src/audit.ts:577`, while backup-root guardrails prevent lifecycle operations from recursing into backup state. PRD 32 requires both future `.make-docs/backup/**` and legacy root `.backup/**` to be protected, and requires empty managed `.make-docs/agentics/**` parent directories to be pruned only when no unmanaged descendants remain. The preservation tests in `packages/cli/tests/lifecycle.test.ts:129` and `packages/cli/tests/uninstall.test.ts:288` lock down those guarantees.
+Directory pruning is leaf-first and conservative. `classifyPrunableDirectories` only proposes directories whose remaining contents can be proven empty after audited removals in `packages/cli/src/audit.ts`, while backup-root guardrails prevent lifecycle operations from recursing into `.make-docs/backup/**` or legacy root `.backup/**`. Empty managed `.make-docs/agentics/**` parent directories may be pruned only when no unmanaged descendants remain. [28-shared-agentics-installation-and-harness-exposure.md](./28-shared-agentics-installation-and-harness-exposure.md) owns selected-agentics lifecycle safety, [30-plugin-substrate-and-workflow-bundles.md](./30-plugin-substrate-and-workflow-bundles.md) owns plugin cleanup, and [38-global-store-and-project-state.md](./38-global-store-and-project-state.md) owns machine-level state lifecycle. The preservation tests in `packages/cli/tests/lifecycle.test.ts` and `packages/cli/tests/uninstall.test.ts` lock down those guarantees.
 
 Code anchors:
 
-- `packages/cli/src/cli.ts:79`
-- `packages/cli/src/cli.ts:150`
-- `packages/cli/src/cli.ts:178`
-- `packages/cli/src/cli.ts:226`
-- `packages/cli/src/cli.ts:259`
-- `packages/cli/src/cli.ts:894`
-- `packages/cli/src/wizard.ts:222`
-- `packages/cli/src/wizard.ts:487`
-- `packages/cli/src/wizard.ts:550`
-- `packages/cli/src/wizard.ts:761`
-- `packages/cli/src/lifecycle-ui.ts:82`
-- `packages/cli/src/backup.ts:49`
-- `packages/cli/src/backup.ts:160`
-- `packages/cli/src/uninstall.ts:52`
-- `packages/cli/src/uninstall.ts:191`
-- `packages/cli/src/audit.ts:41`
-- `packages/cli/src/audit.ts:323`
-- `packages/cli/src/audit.ts:577`
+- `packages/cli/src/cli.ts` — `runCli`, `printPlan`, `renderNoopExplanation`, `getApplyConfirmationMessage`, `writeApplyCompletionSummary`
+- `packages/cli/src/wizard.ts` — `runSelectionWizardWithRenderer`, `promptForManagedFileConflictResolutions`
+- `packages/cli/src/lifecycle-ui.ts` — `LifecycleRenderer`, `createClackLifecycleRenderer`
+- `packages/cli/src/backup.ts` — `runBackupCommand`, `prepareBackupExecution`, `executePreparedBackup`, `resolveBackupDestinationPlan`
+- `packages/cli/src/uninstall.ts` — `runUninstallCommand`, `UninstallReviewPlan`
+- `packages/cli/src/audit.ts` — `createAuditReport`, `classifyManifestPresent`, `classifyManifestRecord`, `classifyPrunableDirectories`
 
 ## Contracts and Data
 
-### Change Notes
+- Any provider-backed or hybrid pinned-cache path must be explicit, explain provider outage recovery locally, and route on-demand writes through the same review and managed-file conflict safety as ordinary install; [17-system-asset-materialization-and-local-bootstrap.md](./17-system-asset-materialization-and-local-bootstrap.md) owns the mode and provenance details.
+- Ordinary setup/reconfigure may recommend `backup-and-reinstall`, but it must not perform that destructive disposition implicitly. Migration flows surface `sync`, `migrate`, `migrate-with-review`, `backup-and-reinstall`, or `manual-review-required` before apply under [18-compatibility-classification-and-migration-safety.md](./18-compatibility-classification-and-migration-safety.md).
+- Shipped harness behavior remains Codex and Claude Code; OpenCode, Goose, Pi, and future IDEs are lab adapter targets until supported by the evidence contract in [20-agent-harness-conformance-and-support-claims.md](./20-agent-harness-conformance-and-support-claims.md).
+- MCP tools delegate to the same TypeScript operation-domain contracts as CLI surfaces rather than defining a second behavior model; [25-typescript-runtime-cli-mcp-operation-boundaries.md](./25-typescript-runtime-cli-mcp-operation-boundaries.md) owns that runtime boundary.
+- First-party helper behavior moves into tested modular TypeScript CLI/shared-core operations before standalone scripts are removed or reduced to thin wrappers, and CLI commands plus MCP tools share those operation semantics.
+- `setup skills` and every full-install skill-selection surface use one effective skills manifest per run, interpret `all` and `none` against that manifest, preserve resolved `selectedSkills` behavior, and reject untrusted alternate manifests before mutation under [08-skills-catalog-and-distribution.md](./08-skills-catalog-and-distribution.md).
+- `setup skills` command, dry-run, review, `setup backup`, and `setup remove` output distinguish canonical shared payloads, native harness exposures, symlink links, managed copy mirrors, legacy generated stubs, and custom harness files; bare installs remain skill-free, and managed copy-mirror fallback is available when symlink creation is unavailable or disabled under [28-shared-agentics-installation-and-harness-exposure.md](./28-shared-agentics-installation-and-harness-exposure.md).
+- `setup backup` output, `setup remove --backup` behavior, audit exclusions, and smoke-pack proof use `.make-docs/backup/**` for new backup writes, preserve legacy root `.backup/**`, and prune empty managed `.make-docs/agentics/**` directories only when audit proves them safe under [38-global-store-and-project-state.md](./38-global-store-and-project-state.md).
+- The root parser implements the five-command tree: project lifecycle under `setup`, registry operations under `run`, derived MCP tool names, and machine-footprint `update` and `uninstall` that never guess before destructive global change. `update`, `setup`, and `setup reconfigure` detect pre-v2 state and require warning plus backup or cancellation. Selection resolution, wizard behavior, lifecycle permissions, the shared audit snapshot, and backup naming remain active under the [current command model](./39-cli-command-model-and-operation-registry.md).
 
-- Superseded by [11-revise-cli-asset-selection-simplification.md](./11-revise-cli-asset-selection-simplification.md) for prompt/template/reference selection flags as active installer decisions.
-- Superseded by [12-revise-cli-skill-selection-simplification.md](./12-revise-cli-skill-selection-simplification.md) for removing `--optional-skills` and replacing optional-skill CLI validation with selected-skill command behavior.
-- Superseded by [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md) for public package/command identity. The active v2 command surface has one primary package binary name, `make-docs`, no default compatibility aliases, first-class remote execution through `npx`, `pnpm dlx`, and `bunx` / `bun x`, and TypeScript-owned runtime/version disclosure for support.
-- Enhanced by [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md) for future materialization-mode UX. Any provider-backed or hybrid pinned-cache path must be explicit, explain provider outage recovery locally, and route on-demand writes through the same review and managed-file conflict safety as ordinary install.
-- Enhanced by [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) for migration command behavior. Ordinary install/reconfigure may recommend `backup-and-reinstall`, but it must not perform that destructive disposition implicitly; migration flows must surface `sync`, `migrate`, `migrate-with-review`, `backup-and-reinstall`, or `manual-review-required` before apply.
-- Enhanced by [20-revise-agent-harness-model-conformance-lab.md](./20-revise-agent-harness-model-conformance-lab.md) for support-claim evidence. Current shipped harness behavior remains Codex and Claude Code; OpenCode, Goose, Pi, and future IDEs are lab adapter targets until a later accepted design changes the executable harness model.
-- Enhanced by [25-revise-cli-separation-and-mcp-boundary.md](./25-revise-cli-separation-and-mcp-boundary.md) for the TypeScript CLI and required MCP boundary. The package-runner path remains installer-first with meaningful no-command install/sync behavior, explicit `reconfigure`, `skills`, `backup`, and `uninstall` commands, and rejected `init`, `update`, `--reconfigure`, and `--skills` surfaces; MCP tools must delegate to the same TypeScript operation-domain contracts rather than defining a second behavior model.
-- Enhanced by [26-revise-no-scripts-migration-skill-refactor.md](./26-revise-no-scripts-migration-skill-refactor.md) for deterministic helper migration. First-party helper behavior must move into tested modular TypeScript CLI/shared-core operations before standalone scripts are removed or reduced to thin wrappers, and ordinary CLI commands plus MCP tools must share those operation semantics.
-- Enhanced by [27-revise-skill-purpose-registry-alternate-skills-manifest.md](./27-revise-skill-purpose-registry-alternate-skills-manifest.md) for purpose-led skill selection. The `skills` command and any full-install skill-selection surface must use one effective skills manifest per run, interpret `all` and `none` against that manifest, preserve resolved `selectedSkills` behavior, and reject untrusted alternate manifests before mutation.
-- Enhanced by [28-revise-shared-agentics-installation-harness-redirection.md](./28-revise-shared-agentics-installation-harness-redirection.md) for shared selected-agentics output. Skills command, dry-run, review, backup, and uninstall output must distinguish canonical shared payloads, native harness exposures, symlink links, managed copy mirrors, legacy generated stubs, and custom harness files; keep bare installs skill-free; and provide managed copy-mirror fallback when symlink creation is unavailable or disabled.
-- Enhanced by [32-revise-lifecycle-backup-state-agentics-pruning.md](./32-revise-lifecycle-backup-state-agentics-pruning.md) for lifecycle backup state. Backup output, uninstall backup behavior, audit exclusions, and smoke-pack proof must use `.make-docs/backup/**` for future backup writes, preserve legacy root `.backup/**`, and prune empty managed `.make-docs/agentics/**` directories only when audit proves them safe.
-- Superseded by [39-revise-cli-command-reorganization-and-operation-registry.md](./39-revise-cli-command-reorganization-and-operation-registry.md) for the root command contract and parser taxonomy. W18 R11 replaces the `Command`/`InstallIntent` public taxonomy and the flag vocabulary's command spellings with the five-command tree: the install lifecycle moves under `setup`, project uninstall becomes `setup remove`, `run` exposes only registry operations with the CLI tree derived from or conformance-checked against the operation registry, MCP tool names derive from the same registry identifiers, `update` and `uninstall` become machine-footprint tool self-management that never guesses before a destructive global change, and `update`, `setup`, and `setup reconfigure` gain pre-v2 detection with a warning-and-backup-or-cancel flow. The selection-resolution, wizard, lifecycle-permission, shared audit-snapshot, and backup-naming contracts remain active under the new spellings.
+The root command contract must encode the PRD 39 tree and retain the established flag partitions: `--backup` belongs only to `setup remove`, `--remove` belongs only to `setup skills`, selection flags are invalid on other lifecycle commands, and selected skill identifiers must be known registry entries. `Command`, `InstallIntent`, `ParsedArgs`, `parseArgs`, and `validateParsedArgs` in `packages/cli/src/cli.ts` are implementation seams for that contract, not an independent source of command spellings.
 
-The root command contract is encoded in `Command`, `InstallIntent`, and `ParsedArgs` in `packages/cli/src/cli.ts:27`, `packages/cli/src/cli.ts:28`, and `packages/cli/src/cli.ts:30`. `parseArgs` normalizes the public flags in `packages/cli/src/cli.ts:455`, while `validateParsedArgs` enforces cross-command boundaries in `packages/cli/src/cli.ts:653`: `--backup` is uninstall-only, `--remove` is skills-only, selection flags are invalid on lifecycle commands, and selected skill identifiers must be known registry entries in `packages/cli/src/cli.ts:705`.
+The selection-resolution contract is “saved manifest first, then CLI overrides.” `resolveSelections` clones either manifest selections or defaults, and `describeSelectionSource` emits the user-facing provenance string; both live in `packages/cli/src/cli.ts`. A subtle but important rule is that `--no-skills` clears selected skills but does not blindly rewrite stored skill scope, which is preserved across reconfigure.
 
-The selection-resolution contract is “saved manifest first, then CLI overrides.” `resolveSelections` clones either manifest selections or defaults in `packages/cli/src/cli.ts:295`, and `describeSelectionSource` emits the user-facing provenance string in `packages/cli/src/cli.ts:271`. A subtle but important rule is that `--no-skills` clears selected skills but does not blindly rewrite stored skill scope, which is preserved across reconfigure.
+The wizard contract is explicit and testable. `RunSelectionWizardOptions`, `WizardRenderer`, and `WizardReviewAction` separate the state machine from the terminal renderer. Capability selection leaves at least one capability enabled, harness selection leaves at least one harness selected, and the options step carries skill enablement, skill scope, and explicitly selected skills only. Prompt/template/reference selection controls are not part of the current state machine.
 
-The wizard contract is explicit and testable. `RunSelectionWizardOptions`, `WizardRenderer`, and `WizardReviewAction` in `packages/cli/src/wizard.ts:132`, `packages/cli/src/wizard.ts:198`, and `packages/cli/src/wizard.ts:125` separate the state machine from the terminal renderer. Capability selection must leave at least one capability enabled in `packages/cli/src/wizard.ts:703`, harness selection must leave at least one harness selected in practice because the state machine re-prompts if the selection is empty in `packages/cli/src/wizard.ts:527`, and the options step carries skill scope, selected skills, prompt inclusion, template mode, and reference mode in `packages/cli/src/wizard.ts:155`.
+Project lifecycle commands use a shared permission model: `setup backup` and `setup remove` map `--yes` to `"allow-all"` and default to `"confirm"`. Non-interactive `setup` and `setup reconfigure` are also contractual: interactive apply requires a TTY, and lifecycle confirmations throw actionable “re-run with --yes” errors when no TTY is present. The existing CLI and lifecycle tests preserve those permission semantics while the parser adopts the current spellings.
 
-Lifecycle commands use a shared permission model: `runCli` maps `--yes` to `"allow-all"` and the default to `"confirm"` when invoking backup or uninstall in `packages/cli/src/cli.ts:87`, `packages/cli/src/cli.ts:99`, `packages/cli/tests/cli.test.ts:949`, and `packages/cli/tests/cli.test.ts:1009`. Non-interactive install/reconfigure is also contractual: interactive apply requires a TTY in `packages/cli/src/cli.ts:135`, and lifecycle confirmations throw actionable “re-run with --yes” errors when no TTY is present in `packages/cli/src/lifecycle-ui.ts:118`, `packages/cli/src/lifecycle-ui.ts:163`, `packages/cli/src/lifecycle-ui.ts:203`, and `packages/cli/tests/lifecycle.test.ts:401`.
+The shared audit data contract is the backbone of lifecycle safety. `AuditReport` in `packages/cli/src/types.ts` returns `mode`, `targetDir`, `manifestPath`, `removableFiles`, `prunableDirectories`, `preservedPaths`, and `skippedPaths`. `PrepareBackupExecutionOptions` and `PreparedBackupExecution` in `packages/cli/src/backup.ts` freeze the copy plan, while `UninstallReviewPlan` and `runUninstallCommand` in `packages/cli/src/uninstall.ts` freeze and execute project-removal review state. That is what lets `make-docs setup remove --backup` reuse one audit snapshot instead of re-auditing between copy and delete, as enforced by `packages/cli/tests/uninstall.test.ts`.
 
-The shared audit data contract is the backbone of lifecycle safety. `AuditReport` returns `mode`, `targetDir`, `manifestPath`, `removableFiles`, `prunableDirectories`, `preservedPaths`, and `skippedPaths` in `packages/cli/src/audit.ts:79`. `PrepareBackupExecution` and `PreparedBackupExecution` in `packages/cli/src/backup.ts:33` and `packages/cli/src/backup.ts:41` freeze the copy plan, while `UninstallReviewPlan` in `packages/cli/src/uninstall.ts:30` freezes the uninstall review state. That is what lets `make-docs uninstall --backup` reuse one audit snapshot instead of re-auditing between copy and delete, as enforced in `packages/cli/src/uninstall.ts:116` and `packages/cli/tests/uninstall.test.ts:421`.
-
-Backup destination naming is also contractual. `resolveBackupDestinationPlan` in `packages/cli/src/backup.ts:160` currently produces a dated backup root, promotes the plain directory to `-01` when a later same-day run occurs, and keeps incrementing zero-padded ordinals. PRD 32 moves that ordinal sequence under `.make-docs/backup/**` and excludes legacy root `.backup/**` from new ordinal calculation. The determinism is pinned in `packages/cli/tests/backup.test.ts:253` and `packages/cli/tests/lifecycle.test.ts:161`.
+Backup destination naming is also contractual. `resolveBackupDestinationPlan` in `packages/cli/src/backup.ts` produces a dated backup root under `.make-docs/backup/**`, promotes the plain directory to `-01` when a later same-day run occurs, and keeps incrementing zero-padded ordinals. Legacy root `.backup/**` is excluded from new ordinal calculation. The determinism is pinned in `packages/cli/tests/backup.test.ts` and `packages/cli/tests/lifecycle.test.ts`.
 
 Code anchors:
 
-- `packages/cli/src/cli.ts:27`
-- `packages/cli/src/cli.ts:30`
-- `packages/cli/src/cli.ts:271`
-- `packages/cli/src/cli.ts:295`
-- `packages/cli/src/cli.ts:455`
-- `packages/cli/src/cli.ts:653`
-- `packages/cli/src/cli.ts:705`
-- `packages/cli/src/wizard.ts:125`
-- `packages/cli/src/wizard.ts:132`
-- `packages/cli/src/wizard.ts:155`
-- `packages/cli/src/wizard.ts:198`
-- `packages/cli/src/backup.ts:33`
-- `packages/cli/src/backup.ts:41`
-- `packages/cli/src/backup.ts:160`
-- `packages/cli/src/uninstall.ts:30`
-- `packages/cli/src/lifecycle-ui.ts:393`
-- `packages/cli/src/audit.ts:79`
+- `packages/cli/src/cli.ts` — `Command`, `InstallIntent`, `ParsedArgs`, `parseArgs`, `validateParsedArgs`, `resolveSelections`, `describeSelectionSource`
+- `packages/cli/src/wizard.ts` — `RunSelectionWizardOptions`, `WizardRenderer`, `WizardReviewAction`
+- `packages/cli/src/backup.ts` — `PrepareBackupExecutionOptions`, `PreparedBackupExecution`, `resolveBackupDestinationPlan`
+- `packages/cli/src/uninstall.ts` — `UninstallReviewPlan`, `runUninstallCommand`
+- `packages/cli/src/lifecycle-ui.ts` — `LifecycleRenderer`
+- `packages/cli/src/types.ts` — `AuditReport`
 
 ## Integrations
 
-The CLI command surface is tightly integrated with the install pipeline. The no-command and `reconfigure` paths load the manifest in `packages/cli/src/cli.ts:119`, build an install plan with `planInstall` in `packages/cli/src/cli.ts:178`, and then apply it with `applyInstallPlan` in `packages/cli/src/cli.ts:244`. The lifecycle described here therefore depends on manifest fidelity and plan/apply semantics even though those deeper install internals are documented elsewhere.
+The CLI command surface is tightly integrated with the install pipeline. `setup` and `setup reconfigure` load project state, build an install plan with `planInstall`, and then apply it with `applyInstallPlan`. The lifecycle described here therefore depends on manifest fidelity and plan/apply semantics even though those deeper install internals are documented elsewhere; the context-aware bare command invokes guided setup only when no install exists.
 
-Skills are exposed as a separate command boundary rather than mixed into the main apply path. `runCli` routes `skills` through a dedicated loader in `packages/cli/src/cli.ts:104` and `packages/cli/src/cli.ts:400`, and validation consults the skill registry in `packages/cli/src/cli.ts:705`. That separation is what allows `make-docs skills --remove` to operate without creating a new manifest in `packages/cli/tests/cli.test.ts:490` and to use skills-specific output language in `packages/cli/tests/cli.test.ts:530`.
+Skills are exposed through the distinct `setup skills` project-lifecycle boundary rather than mixed into the main apply path. Its dedicated loader and registry validation preserve skills-only planning, so `make-docs setup skills --remove` can operate without creating a new manifest and can use skills-specific output language.
 
-The wizard and audit logic both depend on the profile/capability graph. The capability dependency UI in `packages/cli/src/wizard.ts:396` uses the same normalized selection model that the audit fallback relies on in `packages/cli/src/audit.ts:331`, so “what can be selected” and “what fallback mode considers canonical” are intentionally aligned. If those graphs diverge, both the wizard surface and lifecycle safety would drift.
+The wizard and audit logic both depend on the profile/capability graph. `normalizeWizardSelections` and `buildCapabilityChecklistState` in `packages/cli/src/wizard.ts` use the same normalized selection model that `createAuditReport` in `packages/cli/src/audit.ts` relies on for fallback classification, so “what can be selected” and “what fallback mode considers canonical” are intentionally aligned. If those graphs diverge, both the wizard surface and lifecycle safety would drift.
 
-Terminal UX is implemented through prompt/rendering libraries but intentionally abstracted behind renderer interfaces. The wizard uses the renderer contract in `packages/cli/src/wizard.ts:198` and the clack-backed implementation in `packages/cli/src/wizard.ts:634`, while backup/uninstall use the lifecycle renderer in `packages/cli/src/lifecycle-ui.ts:54`. The tests assert behavior at the renderer boundary in `packages/cli/tests/wizard.test.ts:234` and `packages/cli/tests/lifecycle.test.ts:238`, which keeps prompt-library churn from redefining the subsystem contract.
+Terminal UX is implemented through prompt/rendering libraries but intentionally abstracted behind renderer interfaces. The wizard uses `WizardRenderer` and `createClackWizardRenderer` in `packages/cli/src/wizard.ts`, while backup and uninstall use `LifecycleRenderer` and `createClackLifecycleRenderer` in `packages/cli/src/lifecycle-ui.ts`. The tests assert behavior at the renderer boundary in `packages/cli/tests/wizard.test.ts` and `packages/cli/tests/lifecycle.test.ts`, which keeps prompt-library churn from redefining the subsystem contract.
 
-The command surface also integrates with the README layer, but the code is more current than the prose. Both `README.md:73` and `packages/cli/README.md:56` still teach install/reconfigure/dry-run first, while the canonical public command matrix now lives in `packages/cli/src/cli.ts:1015` and `packages/cli/tests/cli.test.ts:790`. The originating design and implementation-plan docs in `docs/assets/archive/designs/2026-04-18-cli-help-backup-and-uninstall.md` and `docs/assets/archive/plans/2026-04-18-w7-r0-cli-help-backup-and-uninstall/00-overview.md` remain useful lineage, but they now describe some surfaces that the implementation intentionally removed.
+The command surface also integrates with the README and packaged CLI help, but [PRD 39](./39-cli-command-model-and-operation-registry.md) is the spelling and taxonomy authority. README text, help output, parser behavior, and tests must conform to that authority; archived designs, plans, and pre-cutover implementation matrices remain provenance only and cannot restore a noncurrent spelling or alias.
 
-Code anchors:
+Code and documentation anchors:
 
-- `packages/cli/src/cli.ts:104`
-- `packages/cli/src/cli.ts:119`
-- `packages/cli/src/cli.ts:178`
-- `packages/cli/src/cli.ts:244`
-- `packages/cli/src/cli.ts:400`
-- `packages/cli/src/cli.ts:705`
-- `packages/cli/src/cli.ts:1015`
-- `packages/cli/src/wizard.ts:198`
-- `packages/cli/src/wizard.ts:396`
-- `packages/cli/src/wizard.ts:634`
-- `packages/cli/src/lifecycle-ui.ts:54`
-- `packages/cli/src/audit.ts:331`
-- `README.md:73`
-- `packages/cli/README.md:56`
+- `packages/cli/src/cli.ts` — `runCli`, `runSkillsCommand`
+- `packages/cli/src/install.ts` — `planInstall`, `applyInstallPlan`
+- `packages/cli/src/wizard.ts` — `WizardRenderer`, `createClackWizardRenderer`, `buildCapabilityChecklistState`
+- `packages/cli/src/lifecycle-ui.ts` — `LifecycleRenderer`, `createClackLifecycleRenderer`
+- `packages/cli/src/audit.ts` — `createAuditReport`
+- `README.md`
+- `packages/cli/README.md`
 - `docs/assets/archive/designs/2026-04-18-cli-help-backup-and-uninstall.md`
 - `docs/assets/archive/plans/2026-04-18-w7-r0-cli-help-backup-and-uninstall/00-overview.md`
 
 ## Rebuild Notes
 
-### Change Notes
+- Rebuilders must preserve the command and lifecycle boundaries and the current simplified selection surface; legacy wizard option groupings are not part of the current contract.
+- Bare `make-docs` is context-aware: it begins guided `setup` with no install present and otherwise shows status and help without auto-sync. `update` performs detect-and-delegate tool self-management beside machine-footprint `uninstall`; project removal is only `setup remove`. Rebuilders preserve flag partitions, the shared audit snapshot, and conservative ownership rules under these spellings.
 
-- Superseded by [11-revise-cli-asset-selection-simplification.md](./11-revise-cli-asset-selection-simplification.md) and [12-revise-cli-skill-selection-simplification.md](./12-revise-cli-skill-selection-simplification.md) for rebuild guidance around the wizard options step. Rebuilders should preserve the command and lifecycle boundaries while applying the W14 selection-surface simplifications.
-- Superseded by [39-revise-cli-command-reorganization-and-operation-registry.md](./39-revise-cli-command-reorganization-and-operation-registry.md) for the no-command and `init`/`update` rebuild guidance. The meaning of bare `make-docs` is now context-aware rather than install-or-sync — guided `setup` with no install present, status and help without auto-sync with one — and `update` is no longer a rejected surface: it exists as detect-and-delegate tool self-management alongside machine-footprint `uninstall`, while project removal is only `setup remove`. The guidance to preserve the flag partitions, the shared audit snapshot, and conservative ownership rules remains active under the new spellings.
+Any clean-room rebuild must preserve the context-aware bare command and the distinct top-level `update` command. It must not restore the retired install-or-sync bare-command behavior or introduce an `init` alias.
 
-Any clean-room rebuild needs to preserve the meaning of “no command.” The current UX deliberately treats `make-docs` as install-or-sync based on manifest presence in `packages/cli/src/cli.ts:119` and `packages/cli/src/cli.ts:794`, not as a separate `init` or `update` command family. Reintroducing explicit `init` or `update` commands without also revisiting the migration errors in `packages/cli/src/cli.ts:589` and `packages/cli/src/cli.ts:599` would break the shipped public model captured in `packages/cli/tests/cli.test.ts:790`.
+Do not collapse the wizard review and the generic apply confirmation into one unconditional prompt. `runCli` intentionally uses its local `skipApplyConfirm` state in `packages/cli/src/cli.ts` so the wizard review is the apply checkpoint for first install and reconfigure, while `getApplyConfirmationMessage` remains the checkpoint for interactive sync flows that skipped the wizard. `packages/cli/tests/cli.test.ts` pins the no-double-confirm behavior. This is easy to regress if the implementation is simplified without understanding why `skipApplyConfirm` exists.
 
-Do not collapse the wizard review and the generic apply confirmation into one unconditional prompt. The current system intentionally uses the wizard review as the apply checkpoint for first install and reconfigure, then reserves the generic confirmation for interactive sync flows that skipped the wizard in `packages/cli/src/cli.ts:148`, `packages/cli/src/cli.ts:226`, and `packages/cli/tests/cli.test.ts:121`. This is easy to regress if the implementation is simplified without understanding why `skipApplyConfirm` exists.
+Preserve the flag partitions. `setup backup` and `setup remove` are project lifecycle operations, not alternate install modes, so they reject content-selection flags. `setup skills` is a sibling boundary, not a flag on the main `setup` command, so `--remove` and skill selectors stay constrained to that path.
 
-Preserve the flag partitions. `backup` and `uninstall` are lifecycle operations, not alternate install modes, so they must reject content-selection flags through `packages/cli/src/cli.ts:683`. `skills` is a sibling boundary, not a flag on the main apply command, so `--remove` and skill selectors stay constrained by `packages/cli/src/cli.ts:660`, `packages/cli/src/cli.ts:666`, and `packages/cli/tests/cli.test.ts:419`.
+Preserve the shared audit snapshot between project backup and removal. `make-docs setup remove --backup` audits once, backs up from that prepared state, then deletes from the same reviewed snapshot. Re-auditing between those phases would change the reviewed contract after the user has already approved it.
 
-Preserve the shared audit snapshot between backup and uninstall. `make-docs uninstall --backup` currently audits once, backs up from that prepared state, then deletes from the same reviewed snapshot in `packages/cli/src/uninstall.ts:88` and `packages/cli/src/uninstall.ts:116`. Re-auditing between those phases would change the reviewed contract after the user has already approved it and would break the expectation captured in `packages/cli/tests/uninstall.test.ts:421`.
+Preserve conservative ownership rules. `classifyManifestRecord` and `classifyFallbackRecord` in `packages/cli/src/audit.ts` remove root instruction files only on canonical-content or fingerprint match; `.make-docs/backup/**` and legacy root `.backup/**` are always excluded from destructive lifecycle operations; and `classifyPrunableDirectories` proposes parent directories only when they are proven empty. The preservation cases in `packages/cli/tests/lifecycle.test.ts` and `packages/cli/tests/uninstall.test.ts` should be treated as safety invariants, not incidental tests.
 
-Preserve conservative ownership rules. Root instruction files are removable only on canonical-content or fingerprint match in `packages/cli/src/audit.ts:233` and `packages/cli/src/audit.ts:527`; backup roots are always excluded from destructive lifecycle operations; parent directories are pruned only when proven empty in `packages/cli/src/audit.ts:577`. PRD 32 adds `.make-docs/backup/**` as the future backup root while preserving legacy root `.backup/**`. The preservation cases in `packages/cli/tests/lifecycle.test.ts:129` and `packages/cli/tests/uninstall.test.ts:259` should be treated as safety invariants, not incidental tests.
+Command-surface drift belongs in Requirement History and the shared risk register. Active rebuild requirements, README/help guidance, and tests must use the PRD 39 grammar; neither pre-cutover code nor archived design and plan artifacts are command authority.
 
-Factual drift and ambiguity that should also surface in the shared risk register:
+Code and documentation anchors:
 
-- `docs/assets/archive/designs/2026-04-18-cli-help-backup-and-uninstall.md` and `docs/assets/archive/plans/2026-04-18-w7-r0-cli-help-backup-and-uninstall/00-overview.md` still describe help surfaces for `make-docs init` and `make-docs update`, but the shipped CLI rejects those commands and points users to the default command or `reconfigure` in `packages/cli/src/cli.ts:589`, `packages/cli/src/cli.ts:599`, and `packages/cli/tests/cli.test.ts:868`.
-- `README.md:73` and `packages/cli/README.md:56` still teach install/reconfigure/dry-run as the visible workflow and do not document the shipped `skills`, `backup`, or `uninstall` surfaces that appear in `packages/cli/src/cli.ts:1019` and `packages/cli/tests/cli.test.ts:790`.
-- `packages/content/package.json` exists, but there is no content-specific command/help entry in `packages/cli/src/cli.ts:104` or `packages/cli/src/cli.ts:1019`. If `packages/content` becomes a supported downstream artifact, the top-level command taxonomy and help model will need a documented expansion rather than an implicit one.
-
-Code anchors:
-
-- `packages/cli/src/cli.ts:119`
-- `packages/cli/src/cli.ts:148`
-- `packages/cli/src/cli.ts:226`
-- `packages/cli/src/cli.ts:589`
-- `packages/cli/src/cli.ts:599`
-- `packages/cli/src/cli.ts:660`
-- `packages/cli/src/cli.ts:683`
-- `packages/cli/src/cli.ts:1019`
-- `packages/cli/src/uninstall.ts:88`
-- `packages/cli/src/uninstall.ts:116`
-- `packages/cli/src/audit.ts:168`
-- `packages/cli/src/audit.ts:233`
-- `packages/cli/src/audit.ts:451`
-- `packages/cli/src/audit.ts:527`
-- `packages/cli/src/audit.ts:577`
-- `README.md:73`
-- `packages/cli/README.md:56`
+- `packages/cli/src/cli.ts` — `runCli`, local `skipApplyConfirm`, `getApplyConfirmationMessage`
+- `packages/cli/src/uninstall.ts` — `runUninstallCommand`, `UninstallReviewPlan`
+- `packages/cli/src/audit.ts` — `createAuditReport`, `classifyPrunableDirectories`
+- `README.md`
+- `packages/cli/README.md`
 - `docs/assets/archive/designs/2026-04-18-cli-help-backup-and-uninstall.md`
 - `docs/assets/archive/plans/2026-04-18-w7-r0-cli-help-backup-and-uninstall/00-overview.md`
 - `packages/content/package.json`
+
+## Requirement History
+
+### 2026-08-08 — Not assigned
+
+- Affected requirement or section: `Consolidated capability ownership`
+- Previous contract: Current requirements were also represented by standalone editorial PRDs 11, 12.
+- Replacement contract: The applicable current requirements are inline in this authority and its linked product owners; the standalone editorial records are retired from the active set.
+- Rationale: Active PRDs own product subjects and do not preserve editorial operations as product authority.
+- Source: [PRD Authority Maintenance](../../.make-docs/references/system/prd-change-management.md)
+
+### 2026-08-08 — W18 R11
+
+- Affected requirement or section: `Public command model`, `Lifecycle commands`, `Contracts and Data`, `Integrations`, and `Rebuild Notes`
+- Previous contract: The pre-cutover implementation exposed top-level `reconfigure`, `skills`, `backup`, and project-level `uninstall`, rejected top-level `update`, and treated the implementation help/test matrix as canonical.
+- Replacement contract: [PRD 39](./39-cli-command-model-and-operation-registry.md) owns the five-command tree, uses `setup reconfigure`, `setup skills`, `setup backup`, and `setup remove` for project lifecycle, requires top-level `update` and machine-level `uninstall`, derives `run` and MCP exposure from the operation registry, and provides no compatibility aliases.
+- Rationale: Active requirements must teach the clean-break v2 command grammar while preserving the existing wizard, selection, conflict-review, shared-audit, permission, and confirmation invariants under their current command paths.
+- Source: [39 CLI Command Model and Operation Registry](./39-cli-command-model-and-operation-registry.md)
+
+
+### 2026-08-08 — Not assigned
+
+- Affected requirement or section: `Cross-cutting capability annotations`
+- Previous contract: Later capability decisions were recorded as nested Change Notes that pointed to standalone editorial PRDs.
+- Replacement contract: Current requirements remain inline in this owning PRD and related product authorities are linked by product subject.
+- Rationale: The active PRD set must describe current product authority rather than the editorial operation that produced it.
+- Source: [PRD Authority Maintenance](../../.make-docs/references/system/prd-change-management.md)
 
 ## Source Anchors
 
@@ -253,11 +229,10 @@ Code anchors:
 - `packages/cli/tests/lifecycle.test.ts`
 - `README.md`
 - `packages/cli/README.md`
-- `docs/prd/25-revise-cli-separation-and-mcp-boundary.md`
-- `docs/prd/26-revise-no-scripts-migration-skill-refactor.md`
-- `docs/prd/27-revise-skill-purpose-registry-alternate-skills-manifest.md`
-- `docs/prd/28-revise-shared-agentics-installation-harness-redirection.md`
-- `docs/prd/32-revise-lifecycle-backup-state-agentics-pruning.md`
+- `docs/prd/25-typescript-runtime-cli-mcp-operation-boundaries.md`
+- `docs/prd/08-skills-catalog-and-distribution.md`
+- `docs/prd/28-shared-agentics-installation-and-harness-exposure.md`
+- `docs/prd/38-global-store-and-project-state.md`
 - `docs/designs/2026-06-20-cli-separation-and-mcp-boundary.md`
 - `docs/designs/2026-06-20-no-scripts-migration-and-skill-refactor.md`
 - `docs/designs/2026-06-20-skill-purpose-registry-and-alternate-skills-manifest.md`

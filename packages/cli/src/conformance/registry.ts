@@ -1,5 +1,5 @@
 /**
- * The W18 R9 conformance tuple registry (PRD 37 R-REG-1..3; W18 R9 P1
+ * The W18 R9 conformance tuple registry (PRD 20 R-REG-1..3; W18 R9 P1
  * t3-t6).
  *
  * The set of support tuples and their statuses lives in ONE queryable data
@@ -17,7 +17,7 @@
  *   `blocked` rather than inventing evidence.
  * - The registry data file is maintainer-only in-repo project content under
  *   the repo-root `conformance/` directory (relocated from
- *   `docs/assets/conformance/` per PRD 42), deliberately NOT authored
+ *   `docs/assets/conformance/` per PRD 43), deliberately NOT authored
  *   upstream in `packages/docs/template/` — a stated exception to the
  *   upstream-first rule, because conformance is maintainer evidence
  *   infrastructure, not shipped product. It must stay out of the shipped
@@ -220,7 +220,7 @@ export interface ConformanceTupleRegistry {
   tuples: ConformanceTupleRegistryEntry[];
 }
 
-/** Repo-relative home of the registry data file (R-REG-1 as revised by PRD 42). */
+/** Repo-relative registry home (PRD 20 R-REG-1; PRD 43 R-HOME-1). */
 export const CONFORMANCE_TUPLE_REGISTRY_PATH = "conformance/tuple-registry.json";
 
 /** A run meets the D4 bar only when every stage was asserted (R-BAR-1). */

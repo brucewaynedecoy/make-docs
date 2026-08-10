@@ -1,7 +1,7 @@
 /**
  * Parser stages 1 and 2: split the frontmatter from the body and parse the
  * frontmatter against the Playbook document schema (R-DOC-3, R-DOC-4,
- * PRD 40 R-FM-1, R-MIG-2..3).
+ * PRD 34 R-FM-1, R-MIG-2..3).
  *
  * Fail-soft: a missing or unparseable frontmatter block emits PB-FM-008 and
  * parsing continues over the body; individual field problems emit PB-FM-002
@@ -209,7 +209,7 @@ export function parseFrontmatterStage(
   });
   const persona = requireString(byKey.get("persona"), "persona", index, split.frontmatterOffset, diagnostics);
 
-  // Clean v2 break (PRD 40 R-FM-1, R-MIG-2): the removed v1 keys fail with
+  // Clean v2 break (PRD 34 R-FM-1, R-MIG-2): the removed v1 keys fail with
   // the pointed diagnostic naming the v2 key. When the old key is the only
   // declaration, the pointed error replaces the generic missing-field
   // PB-FM-002 so the author sees exactly one actionable message
@@ -238,7 +238,7 @@ export function parseFrontmatterStage(
   const schemaVersion = versionKey("schema", "schemaVersion");
   const workflowSchemaVersion = versionKey("workflowSchema", "workflowSchemaVersion");
 
-  // The document schema identifier advanced to v2 (PRD 40 R-MIG-3): only the
+  // The document schema identifier advanced to v2 (PRD 34 R-MIG-3): only the
   // v2 identifier is accepted, and anything else — the v1 identifier above
   // all — fails with the pointed diagnostic naming the v2 identifier.
   if (schemaVersion && schemaVersion.value !== PLAYBOOK_DOCUMENT_SCHEMA_ID) {

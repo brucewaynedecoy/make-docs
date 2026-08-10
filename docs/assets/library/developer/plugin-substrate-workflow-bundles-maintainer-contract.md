@@ -11,7 +11,7 @@ tags:
 applies-to:
   - cli
 related:
-  - "../../../prd/30-revise-harness-plugin-substrate-workflow-bundles.md"
+  - "../../../prd/30-plugin-substrate-and-workflow-bundles.md"
   - "../../../work/2026-06-23-w18-r2-harness-plugin-substrate-workflow-bundles/04-workflow-bundles-and-support-validation.md"
   - "conformance-lab-scenario-and-result-contracts.md"
   - "playbooks-development-runner-architecture.md"
@@ -34,7 +34,7 @@ The current implementation lives in:
 - [packages/cli/src/plugin-substrate/validation.ts](../../../../packages/cli/src/plugin-substrate/validation.ts) for fail-closed validation.
 - [packages/cli/tests/workflow-bundles.test.ts](../../../../packages/cli/tests/workflow-bundles.test.ts) for focused schema and safety coverage.
 
-The active requirement authority is [PRD 30](../../../prd/30-revise-harness-plugin-substrate-workflow-bundles.md). The implementation phase is [W18 R2 Phase 4](../../../work/2026-06-23-w18-r2-harness-plugin-substrate-workflow-bundles/04-workflow-bundles-and-support-validation.md).
+The active requirement authority is [PRD 30](../../../prd/30-plugin-substrate-and-workflow-bundles.md). The implementation phase is [W18 R2 Phase 4](../../../work/2026-06-23-w18-r2-harness-plugin-substrate-workflow-bundles/04-workflow-bundles-and-support-validation.md).
 
 ## Bundle Metadata Rules
 

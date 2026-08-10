@@ -2,7 +2,6 @@
 title: "46 Naive End-User Acceptance Testing"
 kind: "prd"
 status: "active"
-coordinate: "W18 R15"
 source:
   type: "plan"
   path: "docs/plans/2026-07-30-w18-r15-deferred-obligations-and-naive-uat-governance/00-overview.md"
@@ -14,7 +13,7 @@ source:
 
 Define a reusable Make Docs capability for true naive end-user acceptance testing: black-box attempts by qualified testers against installed products, using only public information a real target user would possess. The capability measures goal completion, discoverability, comprehension, interaction, accessibility observations, confusion, unexpected mental models, and recovery—not merely crashes or coded assertions.
 
-This document is the feature authority for naive end-user UAT. Existing coverage, persona, Playbook, compatibility, template-delivery, lifecycle, and Project State PRDs remain authoritative for their own behavior and are reconciled in place to consume this capability.
+This document is the feature authority for naive end-user UAT. The coverage, persona, Playbook, compatibility, template-delivery, lifecycle, and Project State PRDs own their respective integration behavior and consume the naive-UAT contract defined here.
 
 ## Scope
 
@@ -42,10 +41,10 @@ It does not define market research, beta recruitment, production experimentation
 | Tester qualification | Prove the tester lacks implementation/private context and uses only public product resources | This PRD and the future naive-UAT contract |
 | Activation routing | Require UAT at the first safe user-observable boundary and preserve valid `none` triggers | This PRD and [45 Deferred Obligation Governance](45-deferred-obligation-governance.md) |
 | Scenario authority | Maintain stable `NUAT-###` goal records in the PRD that owns the user outcome | This PRD and owning subsystem PRDs |
-| Coverage enumeration | Keep naive UAT and other testing/review modes as separate non-persona candidates | [31 Coverage Pass Extensions](31-revise-coverage-pass-extensions-adversarial-review.md) |
-| Tester/facilitator workflows | Deliver separate public tester and operator Playbooks without leaking hidden fields | [29 Playbook Contract and Run Playbook](29-revise-playbook-contract-run-playbook.md) and [34 Playbook Contract and Model](34-revise-playbook-contract-and-model.md) |
-| Evidence and findings | Preserve versioned scenario/finding meaning while keeping run progress/raw evidence machine-local | [38 Global Store and Project State](38-revise-global-store-and-project-state.md) |
-| Compatibility | Classify existing manual/UAT artifacts without silently grandfathering or overwriting them | [18 Compatibility Audit and Migration Disposition](18-revise-compatibility-audit-and-migration-disposition.md) |
+| Coverage enumeration | Keep naive UAT and other testing/review modes as separate non-persona candidates | [14 Lifecycle Workflow and Coverage Passes](14-lifecycle-workflow-and-coverage-passes.md) |
+| Tester/facilitator workflows | Deliver separate public tester and operator Playbooks without leaking hidden fields | [34 Playbook Authoring Contract and Model](34-playbook-authoring-contract-and-model.md) and [35 Run Playbook State Machine and Portability](35-run-playbook-state-machine-and-portability.md) |
+| Evidence and findings | Preserve versioned scenario/finding meaning while keeping run progress/raw evidence machine-local | [38 Global Store and Project State](38-global-store-and-project-state.md) |
+| Compatibility | Classify existing manual/UAT artifacts without silently grandfathering or overwriting them | [18 Compatibility Classification and Migration Safety](18-compatibility-classification-and-migration-safety.md) |
 
 ## Requirements
 
@@ -215,20 +214,26 @@ Outcome meanings are:
 | `revise` | Goal completed but discoverability, comprehension, terminology, mental model, recovery, or public instructions require revision |
 | `blocked` | Environment, consent, account, platform, dependency, or setup prevented a valid product attempt |
 
-Severity uses `critical`, `major`, `moderate`, and `minor`, with the meanings fixed by [the design](../designs/2026-07-27-true-naive-end-user-acceptance-testing.md#d6-define-setup-evidence-outcomes-severity-and-reproducibility).
+Severity meanings are:
+
+| Severity | Meaning |
+| --- | --- |
+| `critical` | The workflow creates a credible safety, security, privacy, irreversible-data, unauthorized-external-effect, or severe accessibility risk. |
+| `major` | The intended goal is impossible for the tested scope, requires private coaching or an undocumented workaround, or excludes a required supported user. |
+| `moderate` | The tester eventually completes the goal but experiences substantial confusion, repeated failure, a misleading mental model, or fragile recovery. |
+| `minor` | The issue creates bounded friction or presentation debt without threatening completion or comprehension of the core goal. |
 
 ## Integrations
 
-- [14 Lifecycle Workflow Foundation](14-add-lifecycle-workflow-foundation.md) owns activation at gates and phase/capability status.
-- [15 Agent Instruction File Ownership](15-revise-agent-instruction-file-ownership.md) owns durable anti-coaching and routing instructions in managed blocks.
-- [18 Compatibility Audit and Migration Disposition](18-revise-compatibility-audit-and-migration-disposition.md) owns legacy artifact classification and modified-content protection.
-- [19 Template Package Dogfood Source of Truth](19-revise-template-package-dogfood-source-of-truth-contract.md) owns upstream-first delivery.
-- [22 Docs Assets, Playbooks, and Persona Model](22-revise-new-docs-assets-playbooks-persona-model.md) preserves non-persona testing coverage while tester/facilitator reader assets use configured personas.
-- [29 Playbook Contract and Run Playbook](29-revise-playbook-contract-run-playbook.md) and [34 Playbook Contract and Model](34-revise-playbook-contract-and-model.md) own separate tester/facilitator workflow documents.
-- [31 Coverage Pass Extensions](31-revise-coverage-pass-extensions-adversarial-review.md) owns candidate enumeration and verdict mechanics.
-- [38 Global Store and Project State](38-revise-global-store-and-project-state.md) owns operational evidence storage.
+- [14 Lifecycle Workflow and Coverage Passes](14-lifecycle-workflow-and-coverage-passes.md) owns activation at gates, phase/capability status, candidate enumeration, and verdict mechanics.
+- [15 Agent Instruction Ownership and Managed Blocks](15-agent-instruction-ownership-and-managed-blocks.md) owns durable anti-coaching and routing instructions in managed blocks.
+- [18 Compatibility Classification and Migration Safety](18-compatibility-classification-and-migration-safety.md) owns legacy artifact classification and modified-content protection.
+- [06 Template Contracts and Generated Assets](06-template-contracts-and-generated-assets.md), [09 Dogfood and Maintainer Operations](09-dogfood-and-maintainer-operations.md), and [10 Packaging, Validation, and Release Reference](10-packaging-validation-and-release-reference.md) jointly own upstream-first delivery through reviewed dogfood projection and installed-package proof.
+- [22 Project Documentation Asset Model](22-project-documentation-asset-model.md) owns tester/facilitator reader-asset topology, while [47 Persona Model](47-persona-model.md) owns configured persona metadata and explicitly defers the non-persona testing/UAT exception to this PRD.
+- [34 Playbook Authoring Contract and Model](34-playbook-authoring-contract-and-model.md) and [35 Run Playbook State Machine and Portability](35-run-playbook-state-machine-and-portability.md) own separate tester/facilitator workflow documents and their execution model.
+- [38 Global Store and Project State](38-global-store-and-project-state.md) owns operational evidence storage.
 - [45 Deferred Obligation Governance](45-deferred-obligation-governance.md) owns routed future work and anti-orphan completion.
-- [43 Conformance Scenario Model](43-revise-conformance-scenario-model-and-execution-kit.md) and [44 Conformance Lab Execution Protocol](44-revise-conformance-lab-execution-protocol-and-evidence-homes.md) remain separate maintainer conformance authorities and never count as naive UAT merely because an agent or human executed them.
+- [43 Conformance Scenario Model and Execution Kits](43-conformance-scenario-model-and-execution-kits.md) and [44 Conformance Lab Sessions and Evidence](44-conformance-lab-sessions-and-evidence.md) remain separate maintainer conformance authorities and never count as naive UAT merely because an agent or human executed them.
 
 ## Rebuild Notes
 
@@ -241,7 +246,7 @@ The documentation-first resource set is authored upstream under `packages/docs/t
 - future `docs/assets/playbooks/agent/naive-uat-facilitator.playbook.md`;
 - lifecycle and phase-gate guidance that consumes results and complete `none` records.
 
-The tester and facilitator Playbooks remain separate so operator-only setup and evaluation data cannot coach the tester. This PRD reconciliation does not implement those resources, change Global Store, add migrations, create runtime operations, or modify external consumer repositories.
+Tester and facilitator Playbooks remain separate so operator-only setup and evaluation data cannot coach the tester. The current capability does not require dedicated shipped Playbooks, Global Store changes, migrations, runtime operations, or changes to external consumer repositories.
 
 ## Acceptance Scenarios
 
@@ -262,7 +267,7 @@ The tester and facilitator Playbooks remain separate so operator-only setup and 
 - No substitution by automated tests, architecture review, conformance, visual/manual testing, accessibility testing, or image diffs.
 - No GUI requirement.
 - No mandatory repository storage for raw recordings or screenshots.
-- No dedicated CLI, MCP tool, validator, Global Store schema, evidence kind, or migration in the PRD-only reconciliation.
+- The current capability does not require a dedicated CLI, MCP tool, validator, Global Store schema, evidence kind, or migration.
 - No automated product judgment, tester certification, finding severity, support narrowing, or requirement cancellation.
 
 ## Source Anchors
@@ -271,15 +276,18 @@ The tester and facilitator Playbooks remain separate so operator-only setup and 
 - [Deferred Obligations and Anti-Orphan Governance design](../designs/2026-07-27-deferred-obligations-and-anti-orphan-governance.md)
 - [W18 R15 combined plan](../plans/2026-07-30-w18-r15-deferred-obligations-and-naive-uat-governance/00-overview.md)
 - [W18 R15 P1 reconciliation history](../assets/archive/history/2026-07-30-w18-r15-p1-prd-reconciliation.md)
-- [14 Lifecycle Workflow Foundation](14-add-lifecycle-workflow-foundation.md)
-- [18 Compatibility Audit and Migration Disposition](18-revise-compatibility-audit-and-migration-disposition.md)
-- [22 Docs Assets, Playbooks, and Persona Model](22-revise-new-docs-assets-playbooks-persona-model.md)
-- [29 Playbook Contract and Run Playbook](29-revise-playbook-contract-run-playbook.md)
-- [31 Coverage Pass Extensions](31-revise-coverage-pass-extensions-adversarial-review.md)
-- [34 Playbook Contract and Model](34-revise-playbook-contract-and-model.md)
-- [38 Global Store and Project State](38-revise-global-store-and-project-state.md)
-- [43 Conformance Scenario Model](43-revise-conformance-scenario-model-and-execution-kit.md)
-- [44 Conformance Lab Execution Protocol](44-revise-conformance-lab-execution-protocol-and-evidence-homes.md)
+- [06 Template Contracts and Generated Assets](06-template-contracts-and-generated-assets.md)
+- [09 Dogfood and Maintainer Operations](09-dogfood-and-maintainer-operations.md)
+- [10 Packaging, Validation, and Release Reference](10-packaging-validation-and-release-reference.md)
+- [14 Lifecycle Workflow and Coverage Passes](14-lifecycle-workflow-and-coverage-passes.md)
+- [18 Compatibility Classification and Migration Safety](18-compatibility-classification-and-migration-safety.md)
+- [22 Project Documentation Asset Model](22-project-documentation-asset-model.md)
+- [34 Playbook Authoring Contract and Model](34-playbook-authoring-contract-and-model.md)
+- [35 Run Playbook State Machine and Portability](35-run-playbook-state-machine-and-portability.md)
+- [38 Global Store and Project State](38-global-store-and-project-state.md)
+- [43 Conformance Scenario Model and Execution Kits](43-conformance-scenario-model-and-execution-kits.md)
+- [44 Conformance Lab Sessions and Evidence](44-conformance-lab-sessions-and-evidence.md)
+- [47 Persona Model](47-persona-model.md)
 - [45 Deferred Obligation Governance](45-deferred-obligation-governance.md)
 - [Coverage pass contract](../../.make-docs/contracts/system/coverage-pass-contract.md)
 - [Execution workflow](../../.make-docs/references/system/execution-workflow.md)

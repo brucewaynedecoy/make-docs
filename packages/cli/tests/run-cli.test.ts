@@ -307,7 +307,7 @@ describe("make-docs run command (W18 R11, R-REG-2, R-TOP-3)", () => {
         "--outcome",
         "completed",
         "--evidence-ref",
-        "docs/prd/35-revise-run-playbook-state-machine.md",
+        "docs/prd/35-run-playbook-state-machine-and-portability.md",
       ]);
       expect((advanced.execution as Record<string, unknown>).action).toBe("recorded");
       expect((advanced.state as Record<string, unknown>).cursor).toEqual({

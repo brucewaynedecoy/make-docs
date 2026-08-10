@@ -14,7 +14,7 @@ Shared instruction files no longer load or point to dedicated
 
 ## Source PRD Docs
 
-- [15-revise-agent-instruction-file-ownership.md](../../../../prd/15-revise-agent-instruction-file-ownership.md)
+- [historical design](../../designs/2026-06-18-agent-instruction-file-ownership.md) (retired action-PRD: `docs/prd/15-revise-agent-instruction-file-ownership.md`)
 - [06-template-contracts-and-generated-assets.md](../../../../prd/06-template-contracts-and-generated-assets.md)
 
 ## Stage 1 - Static inline block assets

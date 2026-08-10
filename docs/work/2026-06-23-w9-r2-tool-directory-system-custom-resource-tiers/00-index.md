@@ -14,15 +14,15 @@ W9 R2 path moves and fixtures are migration evidence only. They do not prove V2 
 
 ## Source PRD Docs
 
-- `docs/prd/21-revise-tool-directory-system-custom-resource-tiers.md`
+- `docs/prd/21-project-tool-directory-and-resource-tiers.md`
 - `docs/prd/02-architecture-overview.md`
 - `docs/prd/05-installation-profile-and-manifest-lifecycle.md`
 - `docs/prd/06-template-contracts-and-generated-assets.md`
 - `docs/prd/09-dogfood-and-maintainer-operations.md`
 - `docs/prd/10-packaging-validation-and-release-reference.md`
-- `docs/prd/17-revise-system-asset-materialization-contract.md`
-- `docs/prd/18-revise-compatibility-audit-and-migration-disposition.md`
-- `docs/prd/19-revise-template-package-dogfood-source-of-truth-contract.md`
+- `docs/prd/17-system-asset-materialization-and-local-bootstrap.md`
+- `docs/prd/18-compatibility-classification-and-migration-safety.md`
+- `docs/prd/06-template-contracts-and-generated-assets.md`
 - `docs/prd/03-open-questions-and-risk-register.md`
 
 ## Phase Order

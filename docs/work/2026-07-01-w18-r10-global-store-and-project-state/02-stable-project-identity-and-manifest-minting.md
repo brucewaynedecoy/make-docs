@@ -5,7 +5,7 @@ status: "active"
 coordinate: "W18 R10 P2"
 source:
   type: "prd"
-  path: "docs/prd/38-revise-global-store-and-project-state.md"
+  path: "docs/prd/38-global-store-and-project-state.md"
 ---
 
 # Phase 2: Stable Project Identity and Manifest Minting
@@ -20,9 +20,9 @@ Mint a stable project identifier at setup, record it in the project's `.make-doc
 
 ## Source PRD Docs
 
-- [38 Revise Global Store and Project State](../../prd/38-revise-global-store-and-project-state.md)
+- [38 Revise Global Store and Project State](../../prd/38-global-store-and-project-state.md)
 - [05 Installation Profile and Manifest Lifecycle](../../prd/05-installation-profile-and-manifest-lifecycle.md)
-- [35 Revise Run Playbook State Machine](../../prd/35-revise-run-playbook-state-machine.md)
+- [35 Revise Run Playbook State Machine](../../prd/35-run-playbook-state-machine-and-portability.md)
 
 ## Stage 1 - Identifier Minting and Manifest Recording
 

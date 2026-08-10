@@ -14,7 +14,7 @@ W9 R2 has already been implemented and remains historical evidence for the first
 - Route: `change-plan`
 - Reason: this design materially revises the archived W9 R1 docs-assets resource namespace while depending on the accepted W10 Batch 1 package, materialization, compatibility, and source-of-truth contracts.
 - Plan directory: `docs/plans/2026-06-23-w9-r2-tool-directory-system-custom-resource-tiers/`
-- PRD change doc: `docs/prd/21-revise-tool-directory-system-custom-resource-tiers.md`
+- PRD change doc: `docs/prd/21-project-tool-directory-and-resource-tiers.md`
 - Work backlog: `docs/work/2026-06-23-w9-r2-tool-directory-system-custom-resource-tiers/`
 
 ## Change Inputs

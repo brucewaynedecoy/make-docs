@@ -2,7 +2,7 @@
 
 ## PRD Additions
 
-Create [PRD 30](../../prd/30-revise-harness-plugin-substrate-workflow-bundles.md) as the active owner of the v2 plugin substrate, native harness exposure or plugin-specific adapter requirements, and workflow bundle metadata boundary.
+Create [PRD 30](../../prd/30-plugin-substrate-and-workflow-bundles.md) as the active owner of the v2 plugin substrate, native harness exposure or plugin-specific adapter requirements, and workflow bundle metadata boundary.
 
 PRD 30 should sit after PRD 29 in the active change-doc sequence because it depends on the shared selected-agentics primitive from PRD 28 and the playbook content/execution boundary from PRD 29.
 

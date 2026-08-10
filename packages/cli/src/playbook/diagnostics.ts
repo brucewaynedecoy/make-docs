@@ -11,7 +11,7 @@
  * layered semantic validator (W18 R6 Phase 3) emits — the contract-reserved
  * PB-DEP-004 (warning, unreferenced dependency) and PB-WF-005 (error,
  * deterministic step without operation or command), and the validator codes
- * from PB-FM-012 onward. The W18 R12 clean v2 break (PRD 40 R-MIG-1..3)
+ * from PB-FM-012 onward. The W18 R12 clean v2 break (PRD 34 R-MIG-1..3)
  * adds the pointed old-form error diagnostics PB-DEP-025..PB-DEP-030; the
  * accept-old-warn deprecation codes proposed in earlier drafts (PB-DEP-008,
  * PB-FM-009, PB-DOC-010) were dropped and have never existed in this
@@ -154,7 +154,7 @@ export const PLAYBOOK_DIAGNOSTIC_CATALOG = {
     hint: "`requires_capabilities` and `prefers_capabilities` are lists of harness-capability identifier strings; `child_playbooks` is one of `none`, `serial`, `parallel`; `concurrency` is one of `serial`, `parallel-allowed`, `parallel-required`. Shape only — runtime semantics are owned by the Run Playbook orchestration lineage.",
   },
   // -------------------------------------------------------------------------
-  // W18 R12 clean v2 break: pointed old-form errors (PRD 40 R-MIG-2..3) and
+  // W18 R12 clean v2 break: pointed old-form errors (PRD 34 R-MIG-2..3) and
   // the dependencies-block field rules (R-DEP-1..2). No old form parses to a
   // model; each diagnostic names the exact v2 replacement shape.
   // -------------------------------------------------------------------------

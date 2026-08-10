@@ -2,7 +2,7 @@
 
 ## PRD Additions
 
-Create [PRD 29](../../prd/29-revise-playbook-contract-run-playbook.md) as the active owner of the v2 playbook content contract and generic Run Playbook execution model.
+Create [PRD 34](../../prd/34-playbook-authoring-contract-and-model.md#requirements) as the active owner of the v2 playbook content contract and generic Run Playbook execution model.
 
 PRD 29 should sit after PRD 28 in the active change-doc sequence because it depends on the persona/playbook namespace, metadata, configuration, and shared agentics substrate decisions already captured in PRDs 22, 23, 24, and 28.
 

@@ -6,8 +6,8 @@ Implement the persona schema and frontmatter validation needed by guide/playbook
 
 ## Source PRDs
 
-- [../../prd/22-revise-new-docs-assets-playbooks-persona-model.md](../../prd/22-revise-new-docs-assets-playbooks-persona-model.md)
-- [../../prd/14-add-lifecycle-workflow-foundation.md](../../prd/14-add-lifecycle-workflow-foundation.md)
+- [../../prd/47-persona-model.md](../../prd/47-persona-model.md#persona-schema)
+- [../../prd/14-lifecycle-workflow-and-coverage-passes.md](../../prd/14-lifecycle-workflow-and-coverage-passes.md)
 
 ## Tasks
 

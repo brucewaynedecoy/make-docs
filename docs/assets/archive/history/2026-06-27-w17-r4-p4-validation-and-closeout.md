@@ -39,7 +39,7 @@ Validation run:
 | Path | Description |
 | --- | --- |
 | [docs/work/2026-06-27-w17-r4-lifecycle-backup-state-and-agentics-pruning/04-validation-and-closeout.md](../../../work/2026-06-27-w17-r4-lifecycle-backup-state-and-agentics-pruning/04-validation-and-closeout.md) | Marked Phase 4 complete and recorded aggregate validation, PRD closeout, and UAT evidence. |
-| [docs/prd/32-revise-lifecycle-backup-state-agentics-pruning.md](../../../prd/32-revise-lifecycle-backup-state-agentics-pruning.md) | Added W17 R4 CLI/package implementation closeout evidence and deferred items. |
+| [historical closeout](2026-06-27-w17-r4-lifecycle-backup-state-and-agentics-pruning.md) (retired action-PRD: `docs/prd/32-revise-lifecycle-backup-state-agentics-pruning.md`) | Added W17 R4 CLI/package implementation closeout evidence and deferred items. |
 | [docs/prd/03-open-questions-and-risk-register.md](../../../prd/03-open-questions-and-risk-register.md) | Updated R-015 with completed W17 R4 evidence and residual plugin lifecycle inheritance status. |
 | [docs/assets/archive/history/2026-06-27-w17-r4-p4-validation-and-closeout.md](2026-06-27-w17-r4-p4-validation-and-closeout.md) | Added this phase closeout breadcrumb. |
 

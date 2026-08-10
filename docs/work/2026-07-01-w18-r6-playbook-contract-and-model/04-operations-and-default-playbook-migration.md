@@ -5,7 +5,7 @@ status: "active"
 coordinate: "W18 R6 P4"
 source:
   type: "prd"
-  path: "docs/prd/34-revise-playbook-contract-and-model.md"
+  path: "docs/prd/34-playbook-authoring-contract-and-model.md"
 ---
 
 # Phase 4: Operations Wiring and Default Playbook Migration
@@ -20,10 +20,10 @@ The operations wrap the Phase 2/3 library without duplicating its logic, consumi
 
 ## Source PRD Docs
 
-- [34 Revise Playbook Contract and Model](../../prd/34-revise-playbook-contract-and-model.md)
-- [29 Revise Playbook Contract Run Playbook](../../prd/29-revise-playbook-contract-run-playbook.md)
-- [25 Revise CLI Separation and MCP Boundary](../../prd/25-revise-cli-separation-and-mcp-boundary.md)
-- [33 Enhance Playbook Packaging and Harness Adapter Registry](../../prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md)
+- [34 Revise Playbook Contract and Model](../../prd/34-playbook-authoring-contract-and-model.md)
+- [29 Revise Playbook Contract Run Playbook](../../prd/34-playbook-authoring-contract-and-model.md#requirements)
+- [25 Revise CLI Separation and MCP Boundary](../../prd/25-typescript-runtime-cli-mcp-operation-boundaries.md)
+- [33 Enhance Playbook Packaging and Harness Adapter Registry](../../prd/36-playbook-packaging-compiler-and-harness-adapters.md)
 
 ## Stage 1 - Operations Wiring
 

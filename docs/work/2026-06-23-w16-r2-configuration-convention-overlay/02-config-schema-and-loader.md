@@ -7,7 +7,7 @@ Implement optional `.make-docs/config.yaml` parsing, defaults, and diagnostics w
 ## Inputs
 
 - [Configuration Schema and Loader plan](../../plans/2026-06-23-w16-r2-configuration-convention-overlay/02-configuration-schema-and-loader.md)
-- [PRD 24](../../prd/24-revise-configuration-convention-overlay.md)
+- [PRD 24](../../prd/24-project-configuration-and-convention-overlay.md)
 - [Configuration and Convention Overlay design](../../designs/2026-06-20-configuration-and-convention-overlay.md)
 
 ## Tasks

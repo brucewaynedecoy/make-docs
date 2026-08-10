@@ -5,14 +5,14 @@ status: "active"
 coordinate: "W18 R12 P4"
 source:
   type: "prd"
-  path: "docs/prd/41-revise-cli-human-experience-and-package-grammar.md"
+  path: "docs/prd/39-cli-command-model-and-operation-registry.md"
 ---
 
 # Phase 4: Verification and Conformance Reconciliation
 
 ## Purpose
 
-Prove the round end-to-end and unblock W18 R9: run the full verification sweep across both change docs' test bars, reconcile [PRD 37](../../prd/37-enhance-playbook-and-package-conformance.md) and the [W18 R9 backlog](../../work/2026-07-01-w18-r9-playbook-and-package-conformance/00-index.md) for every assumption this round invalidates, and hand off the UAT-doc regeneration note. This phase implements PRD 40 anchors R-TEST-1..2 (sweep), PRD 41 anchors R-TEST-3..6 (sweep) and R-SEQ-1..2, and closes the follow-ups on register items [D-015](../../prd/03-open-questions-and-risk-register.md), [D-016](../../prd/03-open-questions-and-risk-register.md), and [R-026](../../prd/03-open-questions-and-risk-register.md).
+Prove the round end-to-end and unblock W18 R9: run the full verification sweep across both change docs' test bars, reconcile former PRD 37, now incorporated in [PRD 43](../../prd/43-conformance-scenario-model-and-execution-kits.md#requirements), and the [W18 R9 backlog](../../work/2026-07-01-w18-r9-playbook-and-package-conformance/00-index.md) for every assumption this round invalidates, and hand off the UAT-doc regeneration note. This phase implements former PRD 40 anchors R-TEST-1..2 (sweep), former PRD 41 anchors R-TEST-3..6 (sweep) and R-SEQ-1..2, and closes the follow-ups on register items [D-015](../../prd/03-open-questions-and-risk-register.md), [D-016](../../prd/03-open-questions-and-risk-register.md), and [R-026](../../prd/03-open-questions-and-risk-register.md).
 
 ## Overview
 
@@ -20,9 +20,9 @@ Phases 1–3 each land their own suites; this phase runs them as one bar, adds t
 
 ## Source PRD Docs
 
-- [40 Revise Playbook Authoring Contract v2](../../prd/40-revise-playbook-authoring-contract-v2.md)
-- [41 Revise CLI Human Experience and Package Grammar](../../prd/41-revise-cli-human-experience-and-package-grammar.md)
-- [37 Enhance Playbook and Package Conformance](../../prd/37-enhance-playbook-and-package-conformance.md) (reconciliation target; its tuple registry, evidence bar, test layers, and governance are unchanged)
+- [40 Revise Playbook Authoring Contract v2](../../prd/34-playbook-authoring-contract-and-model.md)
+- [41 Revise CLI Human Experience and Package Grammar](../../prd/39-cli-command-model-and-operation-registry.md#human-experience-and-package-grammar)
+- [37 Enhance Playbook and Package Conformance](../../prd/43-conformance-scenario-model-and-execution-kits.md#requirements) (reconciliation target; its tuple registry, evidence bar, test layers, and governance are unchanged)
 - [03 Open Questions and Risk Register](../../prd/03-open-questions-and-risk-register.md) (D-015, D-016, R-026 closure state)
 
 ## Stage 1 - Full Verification Sweep

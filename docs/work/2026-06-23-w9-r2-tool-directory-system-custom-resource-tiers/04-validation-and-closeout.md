@@ -6,7 +6,7 @@ Validate and close implementation work for the tool-directory model.
 
 ## Source PRD Docs
 
-- `docs/prd/21-revise-tool-directory-system-custom-resource-tiers.md`
+- `docs/prd/21-project-tool-directory-and-resource-tiers.md`
 - `docs/prd/10-packaging-validation-and-release-reference.md`
 
 ## Stage 1 - Validation

@@ -1,5 +1,5 @@
 /**
- * The W18 R9 support tuple for generated Playbook distributables (PRD 37
+ * The W18 R9 support tuple for generated Playbook distributables (PRD 20
  * R-TUPLE-1; W18 R9 P1 t1/t2).
  *
  * A support claim for a generated output binds to the exact eight-field

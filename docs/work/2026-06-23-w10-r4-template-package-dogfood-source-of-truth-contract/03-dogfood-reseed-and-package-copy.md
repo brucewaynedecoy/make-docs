@@ -6,9 +6,9 @@ Preserve reviewed dogfood reseeding while ensuring `packages/cli/template/` stay
 
 ## Source PRD Docs
 
-- `docs/prd/19-revise-template-package-dogfood-source-of-truth-contract.md`
+- `docs/prd/06-template-contracts-and-generated-assets.md`
 - `docs/prd/10-packaging-validation-and-release-reference.md`
-- `docs/prd/18-revise-compatibility-audit-and-migration-disposition.md`
+- `docs/prd/18-compatibility-classification-and-migration-safety.md`
 
 ## Stage 1 - Reseed and Copy Flow
 

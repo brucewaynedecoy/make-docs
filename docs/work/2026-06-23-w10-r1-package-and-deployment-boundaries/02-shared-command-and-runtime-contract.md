@@ -10,7 +10,7 @@ This phase covers user-facing command semantics, no default aliases, runtime/ver
 
 ## Source PRD Docs
 
-- [../../prd/16-revise-package-and-deployment-boundaries.md](../../prd/16-revise-package-and-deployment-boundaries.md)
+- [../../prd/16-package-runtime-and-deployment-boundaries.md](../../prd/16-package-runtime-and-deployment-boundaries.md)
 - [../../prd/02-architecture-overview.md](../../prd/02-architecture-overview.md)
 - [../../prd/05-installation-profile-and-manifest-lifecycle.md](../../prd/05-installation-profile-and-manifest-lifecycle.md)
 - [../../prd/07-cli-command-surface-and-lifecycle.md](../../prd/07-cli-command-surface-and-lifecycle.md)

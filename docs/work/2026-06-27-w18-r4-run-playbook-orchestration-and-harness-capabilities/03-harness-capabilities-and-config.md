@@ -10,9 +10,9 @@ Add the `harnessCapabilities` config contract, capability ids, unknown-capabilit
 
 ## Source PRD Docs
 
-- [24 Revise Configuration Convention Overlay](../../prd/24-revise-configuration-convention-overlay.md)
-- [20 Revise Agent Harness Model Conformance Lab](../../prd/20-revise-agent-harness-model-conformance-lab.md)
-- [29 Revise Playbook Contract Run Playbook](../../prd/29-revise-playbook-contract-run-playbook.md)
+- [24 Revise Configuration Convention Overlay](../../prd/24-project-configuration-and-convention-overlay.md)
+- [20 Revise Agent Harness Model Conformance Lab](../../prd/20-agent-harness-conformance-and-support-claims.md)
+- [29 Revise Playbook Contract Run Playbook](../../prd/35-run-playbook-state-machine-and-portability.md#requirements)
 
 ## Stage 1 - Capability Contract
 

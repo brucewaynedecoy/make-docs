@@ -12,7 +12,7 @@ This plan is derived from [Lifecycle Backup State and Agentics Pruning Correctio
 - Revision: R4
 - Route: change-plan
 - Source design: [docs/designs/2026-06-27-lifecycle-backup-state-and-agentics-pruning-correction.md](../../designs/2026-06-27-lifecycle-backup-state-and-agentics-pruning-correction.md)
-- New PRD: [docs/prd/32-revise-lifecycle-backup-state-agentics-pruning.md](../../prd/32-revise-lifecycle-backup-state-agentics-pruning.md)
+- Current PRD history: [docs/prd/28-shared-agentics-installation-and-harness-exposure.md](../../prd/28-shared-agentics-installation-and-harness-exposure.md#requirement-history)
 - Work backlog: [docs/work/2026-06-27-w17-r4-lifecycle-backup-state-and-agentics-pruning/00-index.md](../../work/2026-06-27-w17-r4-lifecycle-backup-state-and-agentics-pruning/00-index.md)
 
 ## Current Implementation Grounding

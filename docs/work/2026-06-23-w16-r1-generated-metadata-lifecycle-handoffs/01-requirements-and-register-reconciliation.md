@@ -6,7 +6,7 @@ Finalize PRD and risk-register changes before implementation modifies templates 
 
 ## Source PRDs
 
-- [../../prd/23-revise-generated-metadata-lifecycle-handoffs.md](../../prd/23-revise-generated-metadata-lifecycle-handoffs.md)
+- [../../prd/23-generated-document-metadata-and-lifecycle-handoffs.md](../../prd/23-generated-document-metadata-and-lifecycle-handoffs.md)
 - [../../prd/03-open-questions-and-risk-register.md](../../prd/03-open-questions-and-risk-register.md)
 
 ## Tasks
@@ -31,8 +31,8 @@ Finalize PRD and risk-register changes before implementation modifies templates 
 
 | Task | Evidence |
 | --- | --- |
-| t1 | Confirmed [PRD 23](../../prd/23-revise-generated-metadata-lifecycle-handoffs.md) is present in the PRD index reading order, document map, source anchors, audience paths, and intended follow-on list. |
-| t2 | Confirmed affected docs already cite PRD 23 where they discuss architecture metadata, template metadata, package proof, lifecycle handoffs, and persona-scoped metadata. The checked docs were [02 Architecture Overview](../../prd/02-architecture-overview.md), [06 Template Contracts and Generated Assets](../../prd/06-template-contracts-and-generated-assets.md), [10 Packaging Validation and Release Reference](../../prd/10-packaging-validation-and-release-reference.md), [14 Add Lifecycle Workflow Foundation](../../prd/14-add-lifecycle-workflow-foundation.md), [22 Revise New Docs Assets Playbooks Persona Model](../../prd/22-revise-new-docs-assets-playbooks-persona-model.md), [24 Revise Configuration Convention Overlay](../../prd/24-revise-configuration-convention-overlay.md), and [29 Revise Playbook Contract Run Playbook](../../prd/29-revise-playbook-contract-run-playbook.md). |
+| t1 | Confirmed [PRD 23](../../prd/23-generated-document-metadata-and-lifecycle-handoffs.md) is present in the PRD index reading order, document map, source anchors, audience paths, and intended follow-on list. |
+| t2 | Confirmed affected docs already cite PRD 23 where they discuss architecture metadata, template metadata, package proof, lifecycle handoffs, and persona-scoped metadata. The checked docs were [02 Architecture Overview](../../prd/02-architecture-overview.md), [06 Template Contracts and Generated Assets](../../prd/06-template-contracts-and-generated-assets.md), [10 Packaging Validation and Release Reference](../../prd/10-packaging-validation-and-release-reference.md), [14 Add Lifecycle Workflow Foundation](../../prd/14-lifecycle-workflow-and-coverage-passes.md), [22 Revise New Docs Assets Playbooks Persona Model](../../prd/22-project-documentation-asset-model.md#requirements), [24 Revise Configuration Convention Overlay](../../prd/24-project-configuration-and-convention-overlay.md), and [29 Revise Playbook Contract Run Playbook](../../prd/23-generated-document-metadata-and-lifecycle-handoffs.md#requirements). |
 | t3 | Updated [03 Open Questions and Risk Register](../../prd/03-open-questions-and-risk-register.md) for `Q-011`, `R-004`, `R-011`, `R-013`, and `R-014` so settled PRD 23 metadata requirements are separated from remaining configuration, validation, no-scripts, and historical-backfill work. |
 
 ## Coverage Decisions

@@ -10,7 +10,7 @@ This phase records the retroactive work that made selected existing managed-file
 
 ## Source PRD Docs
 
-- [docs/prd/13-revise-cli-conflict-resolution.md](../../../../prd/13-revise-cli-conflict-resolution.md)
+- [historical plan](../../plans/2026-05-06-w14-r2-cli-conflict-resolution/00-overview.md) (retired action-PRD: `docs/prd/13-revise-cli-conflict-resolution.md`)
 - [docs/prd/05-installation-profile-and-manifest-lifecycle.md](../../../../prd/05-installation-profile-and-manifest-lifecycle.md)
 - [docs/prd/07-cli-command-surface-and-lifecycle.md](../../../../prd/07-cli-command-surface-and-lifecycle.md)
 

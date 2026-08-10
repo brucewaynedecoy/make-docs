@@ -5,7 +5,7 @@ status: "active"
 coordinate: "W18 R9 P3"
 source:
   type: "prd"
-  path: "docs/prd/37-enhance-playbook-and-package-conformance.md"
+  path: "docs/prd/20-agent-harness-conformance-and-support-claims.md"
 ---
 
 # Phase 3: Test-Layer Separation and Meta-Verification
@@ -20,11 +20,11 @@ Unit tests cover the operation core, parser, and validator as pure functions wit
 
 ## Source PRD Docs
 
-- [37 Enhance Playbook and Package Conformance](../../prd/37-enhance-playbook-and-package-conformance.md)
-- [20 Revise Agent Harness Model Conformance Lab](../../prd/20-revise-agent-harness-model-conformance-lab.md)
-- [36 Revise Playbook Packaging Compiler and Harness Adapters](../../prd/36-revise-playbook-packaging-compiler-and-harness-adapters.md)
+- [37 Enhance Playbook and Package Conformance](../../prd/20-agent-harness-conformance-and-support-claims.md#support-claim-governance)
+- [20 Revise Agent Harness Model Conformance Lab](../../prd/20-agent-harness-conformance-and-support-claims.md)
+- [36 Revise Playbook Packaging Compiler and Harness Adapters](../../prd/36-playbook-packaging-compiler-and-harness-adapters.md)
 - [10 Packaging Validation and Release Reference](../../prd/10-packaging-validation-and-release-reference.md)
-- [19 Revise Template Package Dogfood Source of Truth Contract](../../prd/19-revise-template-package-dogfood-source-of-truth-contract.md)
+- [19 Revise Template Package Dogfood Source of Truth Contract](../../prd/06-template-contracts-and-generated-assets.md#template-source-authority)
 
 ## Stage 1 - Three Named Test Layers
 

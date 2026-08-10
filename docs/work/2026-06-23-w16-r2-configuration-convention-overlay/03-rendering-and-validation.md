@@ -7,7 +7,7 @@ Apply configuration only at user-visible rendering points and validate generated
 ## Inputs
 
 - [Rendering and Validation Surfaces plan](../../plans/2026-06-23-w16-r2-configuration-convention-overlay/03-rendering-and-validation-surfaces.md)
-- [PRD 24](../../prd/24-revise-configuration-convention-overlay.md)
+- [PRD 24](../../prd/24-project-configuration-and-convention-overlay.md)
 - [Configuration and Convention Overlay design](../../designs/2026-06-20-configuration-and-convention-overlay.md)
 
 ## Tasks

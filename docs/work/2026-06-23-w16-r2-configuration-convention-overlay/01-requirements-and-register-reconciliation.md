@@ -7,7 +7,7 @@ Land the PRD and register updates needed before implementation starts.
 ## Inputs
 
 - [Configuration and Convention Overlay](../../designs/2026-06-20-configuration-and-convention-overlay.md)
-- [PRD 24](../../prd/24-revise-configuration-convention-overlay.md)
+- [PRD 24](../../prd/24-project-configuration-and-convention-overlay.md)
 - [03 Open Questions and Risk Register](../../prd/03-open-questions-and-risk-register.md)
 
 ## Tasks
@@ -26,7 +26,7 @@ Land the PRD and register updates needed before implementation starts.
 
 ## Implementation Notes
 
-- Confirmed [PRD 24](../../prd/24-revise-configuration-convention-overlay.md) is present in [the PRD index](../../prd/00-index.md), reading order, document map, source anchors, audience paths, and intended follow-on list.
+- Confirmed [PRD 24](../../prd/24-project-configuration-and-convention-overlay.md) is present in [the PRD index](../../prd/00-index.md), reading order, document map, source anchors, audience paths, and intended follow-on list.
 - Confirmed affected baseline PRDs already cite PRD 24 or equivalent configuration-overlay language where they discuss project-owned config, presentation-only labels, persona labels, canonical metadata, package proof, agentic surfaces, plugins, playbooks, and adversarial review.
 - Confirmed Q-011 records the structural decision: configuration may relabel presentation prose, but canonical paths, metadata fields, route identifiers, prompt paths, skill names, contract names, and W/R/P lineage remain canonical.
 - Confirmed Q-009, R-010, R-011, R-004, D-014, R-003, R-013, R-014, and Q-012 already include PRD 24 where their residual risk or follow-up depends on configuration overlays.

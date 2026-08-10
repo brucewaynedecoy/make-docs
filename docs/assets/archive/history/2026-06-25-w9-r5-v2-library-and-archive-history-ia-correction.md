@@ -29,7 +29,7 @@ Implemented the W9 R5 corrective wave that supersedes W9 R4 for guide/library an
 | [docs/designs/2026-06-25-v2-library-and-archive-history-ia-correction.md](../../../designs/2026-06-25-v2-library-and-archive-history-ia-correction.md) | W9 R5 corrective design authority. |
 | [docs/plans/2026-06-25-w9-r5-v2-library-and-archive-history-ia-correction/00-overview.md](../../../plans/2026-06-25-w9-r5-v2-library-and-archive-history-ia-correction/00-overview.md) | W9 R5 plan bundle. |
 | [docs/work/2026-06-25-w9-r5-v2-library-and-archive-history-ia-correction/00-index.md](../../../work/2026-06-25-w9-r5-v2-library-and-archive-history-ia-correction/00-index.md) | W9 R5 work backlog and phase evidence. |
-| [docs/prd/22-revise-new-docs-assets-playbooks-persona-model.md](../../../prd/22-revise-new-docs-assets-playbooks-persona-model.md) | Active PRD reconciliation for library, archive, artifacts, playbooks, and archive-history paths. |
+| [historical closeout](2026-06-24-w9-r3-p4-package-parity-closeout.md) (retired action-PRD: `docs/prd/22-revise-new-docs-assets-playbooks-persona-model.md`) | Active PRD reconciliation for library, archive, artifacts, playbooks, and archive-history paths. |
 | [README.md](../../../../README.md) | Updated public guide discovery and asset tree references. |
 | [packages/docs/README.md](../../../../packages/docs/README.md) | Updated template package layout and re-seed instructions. |
 

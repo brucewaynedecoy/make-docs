@@ -35,7 +35,7 @@ const BOOLEAN_FLAGS = [
   "overwrite",
   "adopt-project",
   // `--last` selects the project's most recent run at every `--run-id`
-  // acceptor (W18 R12 P3; PRD 41 R-RUNID-1).
+  // acceptor (W18 R12 P3; PRD 39 R-RUNID-1).
   "last",
 ];
 

@@ -192,7 +192,7 @@ export interface PlaybookChildRunRecord {
 }
 
 /**
- * The run-state record (R-STATE-1). Extends the PRD 29 field set with the
+ * The run-state record (R-STATE-1). Extends the PRD 35 field set with the
  * project identifier, the source digest, the dependency availability
  * snapshot, and output/evidence references.
  */
@@ -242,7 +242,7 @@ export interface PlaybookRunState {
   concurrencyPolicy: PlaybookConcurrencyPolicy;
   childRuns: PlaybookChildRunRecord[];
   /**
-   * Current-guidance hints only (W18 R12 P2; PRD 41 R-FIX-2): hints are
+   * Current-guidance hints only (W18 R12 P2; PRD 39 R-FIX-2): hints are
    * subject-scoped via {@link hintSubjects} and retired by the progression
    * engine on every mutating transition once their subject resolves;
    * `playbook.close` retires them all, so a closed run carries none. The
@@ -251,7 +251,7 @@ export interface PlaybookRunState {
   resumeHints: string[];
   /**
    * Subject scope per hint, keyed by the exact hint text and naming the step
-   * or gate the hint advises about (PRD 41 R-FIX-2). Hints without an entry
+   * or gate the hint advises about (PRD 39 R-FIX-2). Hints without an entry
    * are run-scoped and retire only at `close`. Additive serialization change
    * per the PRD 38 schema-versioning rules (recorded implementer decision):
    * the record stays `schemaVersion: 2` because readers default an absent
@@ -434,7 +434,7 @@ export function createPlaybookRunState(
       childRuns: [],
       // Creation-time hints (caller-supplied and capability guidance) advise
       // about the run as a whole, so they are run-scoped: no hintSubjects
-      // entries, retired only at `close` (PRD 41 R-FIX-2).
+      // entries, retired only at `close` (PRD 39 R-FIX-2).
       resumeHints: mergeHints(input.resumeHints ?? [], capabilityHints),
       hintSubjects: {},
       status,
@@ -513,7 +513,7 @@ export function listPlaybookRunStates(input: {
 }
 
 /**
- * Run-id ergonomics (W18 R12 P3; PRD 41 R-RUNID-1): resolves the CLI's
+ * Run-id ergonomics (W18 R12 P3; PRD 39 R-RUNID-1): resolves the CLI's
  * `--run-id`/`--last` selector against the resolved project's stored runs.
  *
  * - An exact run id always wins, even when it is also a prefix of others.

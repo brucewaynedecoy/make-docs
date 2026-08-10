@@ -68,7 +68,7 @@ import { cleanupTempDir, createTempDir, writeMinimalManifest } from "./helpers";
 const sqliteAvailable = loadSqliteDriver().available;
 
 const SUPPORT_EVIDENCE_REF =
-  "docs/prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md";
+  "docs/prd/36-playbook-packaging-compiler-and-harness-adapters.md";
 
 const SATISFIED_PRECONDITION_FLAGS = [
   "--precondition",

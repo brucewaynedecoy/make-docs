@@ -30,7 +30,7 @@ blocks automatically, and manifest-clean stale dedicated files are removed.
 | Path | Description |
 | --- | --- |
 | [../../../designs/2026-06-18-agent-instruction-file-ownership.md](../designs/2026-06-18-agent-instruction-file-ownership.md) | Corrects the design decision from dedicated instruction files to mirrored inline root managed blocks. |
-| [../../../prd/15-revise-agent-instruction-file-ownership.md](../../../prd/15-revise-agent-instruction-file-ownership.md) | Updates the active requirement to forbid dedicated `.make-docs/AGENTS.md` and `.make-docs/CLAUDE.md` instruction files. |
+| [historical design](../designs/2026-06-18-agent-instruction-file-ownership.md) (retired action-PRD: `docs/prd/15-revise-agent-instruction-file-ownership.md`) | Updates the active requirement to forbid dedicated `.make-docs/AGENTS.md` and `.make-docs/CLAUDE.md` instruction files. |
 | [docs/assets/archive/plans/2026-06-18-w17-r0-agent-instruction-file-ownership/02-dedicated-file-and-harness-block.md](../plans/2026-06-18-w17-r0-agent-instruction-file-ownership/02-dedicated-file-and-harness-block.md) | Recasts Phase 02 as inline root block and harness parity work while preserving the existing path. |
 | [docs/assets/archive/work/2026-06-18-w17-r0-agent-instruction-file-ownership/02-dedicated-file-and-harness-block.md](../work/2026-06-18-w17-r0-agent-instruction-file-ownership/02-dedicated-file-and-harness-block.md) | Reconciles the Phase 02 backlog tasks and acceptance criteria with the inline block implementation. |
 | [../../../AGENTS.md](../../../AGENTS.md) | Dogfoods the mirrored inline root instruction block for Codex. |

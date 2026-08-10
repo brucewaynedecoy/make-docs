@@ -1,8 +1,8 @@
 /**
  * Per-kind dependency materialization (W18 R8 P2, R-DEPMAT-1; revised by
- * W18 R12 P2, PRD 40 R-DEP-3/R-FIX-1).
+ * W18 R12 P2, PRD 34 R-DEP-3/R-FIX-1).
  *
- * Probe-only rule (PRD 40 R-DEP-3, the D-015 root fix): the model's resolved
+ * Probe-only rule (PRD 34 R-DEP-3, the D-015 root fix): the model's resolved
  * `probe` field — the declared value or the dependency `id` default, fixed at
  * parse time — is the ONLY dependency field check generation and machine
  * reference derivation may target. The former `executableToken` scraping of
@@ -18,7 +18,7 @@
  *   dependency on Make Docs itself declares the stable operation identifier
  *   from the operation registry as its `probe` — never a CLI command string —
  *   so generated outputs survive CLI reorganization (R-DEPMAT-1, R-SCOPE-1).
- *   Implementer decision (W18 R12 P2): PRD 40 and the design are silent on
+ *   Implementer decision (W18 R12 P2): PRD 34 is silent on
  *   where the operation identifier moves after the v2 `source`-prose break,
  *   so per the probe-only rule it lives on `probe`, and `hasOperation(probe)`
  *   gates the operation path. The emitted check may additionally include the
@@ -28,7 +28,7 @@
  *   selected container carries a manifest that can host the primitive, and
  *   degrade explicitly — a declared, documented manual step in the skill
  *   text — where it cannot (R-DEPMAT-1, R-CAP-4). The manifest reference
- *   identifier is the resolved `probe` (PRD 40 R-DEP-2).
+ *   identifier is the resolved `probe` (PRD 34 R-DEP-2).
  * - `mcp` and `external-service` emit Make Docs metadata (a `runtimeCheck`
  *   record in the distributable's dependency declarations) plus a runtime
  *   availability check script. Implementer decision (W18 R12 P2): the
@@ -42,7 +42,7 @@
  *   resolve is a missing dependency and fails closed before writes (R-GEN-2).
  *   Implementer decision (W18 R12 P2): a `reference` generates no dependency
  *   check, so the R-DEP-3 probe-only rule does not bind it, and its locator
- *   stays the whole declared `source` value — the PRD 40 R-DEP-2
+ *   stays the whole declared `source` value — the PRD 34 R-DEP-2
  *   executable-token pattern on `probe` cannot express dot-led repository
  *   paths or URLs, and PRD 36's copied/linked reference rule is an unchanged
  *   baseline. The value is consumed verbatim as the declared provenance
@@ -60,7 +60,7 @@
  *   documented-only entries (human instructions in the skill text plus a
  *   dependency-declaration record) rather than inventing artifacts the
  *   contract does not call for. Their instructions quote `source` prose for
- *   the human reader only — display, never parsing (PRD 40 R-DEP-3).
+ *   the human reader only — display, never parsing (PRD 34 R-DEP-3).
  * - Check scripts are POSIX `sh` files under `checks/` at the container
  *   root; copied references live under `references/{dependencyId}/` so
  *   colliding basenames across dependencies cannot clobber each other.
@@ -113,11 +113,11 @@ export interface MaterializedDependency {
   dependencyId: string;
   kind: PlaybookDependencyKind | null;
   requirement: string | null;
-  /** Human provenance prose, carried for display only; never parsed (PRD 40 R-DEP-3). */
+  /** Human provenance prose, carried for display only; never parsed (PRD 34 R-DEP-3). */
   source: string;
   /**
    * The model's resolved probe target (declared `probe` or the `id` default),
-   * the only field checks and machine references derive from (PRD 40 R-DEP-3).
+   * the only field checks and machine references derive from (PRD 34 R-DEP-3).
    */
   probe: string;
   /** Canonical ref of the source Playbook that declared the dependency. */
@@ -217,7 +217,7 @@ function materializeCli(
   dependency: PlaybookDependency,
 ): MaterializedDependency {
   // The resolved probe (declared value or the `id` default) is the only
-  // checkable target; `source` prose never influences the probe (PRD 40
+  // checkable target; `source` prose never influences the probe (PRD 34
   // R-DEP-3, R-FIX-1).
   const probe = dependency.probe.value;
   // A `cli` dependency on Make Docs itself declares a stable operation
@@ -271,7 +271,7 @@ function materializePackageManager(
   base: MaterializedDependency,
   dependency: PlaybookDependency,
 ): MaterializedDependency {
-  // Probe-only (PRD 40 R-DEP-3): the check binary is the resolved probe; the
+  // Probe-only (PRD 34 R-DEP-3): the check binary is the resolved probe; the
   // `source` prose survives only inside the human install instructions.
   const binary = dependency.probe.value;
   return {
@@ -298,7 +298,7 @@ function materializeHarnessPrimitive(
   kind: "skill" | "plugin",
   context: DependencyMaterializationContext,
 ): MaterializedDependency {
-  // The manifest reference identifier is the resolved probe (PRD 40 R-DEP-2:
+  // The manifest reference identifier is the resolved probe (PRD 34 R-DEP-2:
   // for `skill` and `plugin` kinds `probe` is the manifest reference).
   const referencedId = dependency.probe.value;
   const container = context.container;
@@ -337,7 +337,7 @@ function materializeRuntimeChecked(
   dependency: PlaybookDependency,
   kind: "mcp" | "external-service",
 ): MaterializedDependency {
-  // Probe-only (PRD 40 R-DEP-3; W18 R12 P2 implementer decision): the
+  // Probe-only (PRD 34 R-DEP-3; W18 R12 P2 implementer decision): the
   // runtime-check target is the resolved probe. The provenance prose rides
   // the human instructions verbatim so the reader keeps the full context
   // (for example a service URL) without any machine consumption of it.
@@ -437,7 +437,7 @@ function materializePlaybook(
   context: DependencyMaterializationContext,
 ): MaterializedDependency {
   // The referenced-Playbook identifier is the resolved probe — a canonical
-  // ref (`persona/slug`) or slug, or the `id` default (PRD 40 R-DEP-3;
+  // ref (`persona/slug`) or slug, or the `id` default (PRD 34 R-DEP-3;
   // W18 R12 P2 implementer decision recorded in the module doc).
   const ref = dependency.probe.value;
   const bundled =

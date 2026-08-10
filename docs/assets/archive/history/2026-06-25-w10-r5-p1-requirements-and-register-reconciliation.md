@@ -15,7 +15,7 @@ Completed W10 R5 Phase 1 by marking the conformance-lab requirements trace compl
 
 ### Coverage Decisions
 
-- PRD coverage: no PRD files changed. [PRD 20](../../../prd/20-revise-agent-harness-model-conformance-lab.md) already owns the maintainer-only conformance-lab requirement surface, and [the risk register](../../../prd/03-open-questions-and-risk-register.md) already references the relevant `Q-007`, `Q-009`, `Q-012`, `Q-013`, `D-007`, `R-003`, `R-004`, `R-006`, `R-007`, and `R-014` items without requiring duplicate IDs.
+- PRD coverage: no PRD files changed. [historical closeout](2026-06-25-w10-r5-p4-validation-and-closeout.md) (retired action-PRD: `docs/prd/20-revise-agent-harness-model-conformance-lab.md`) already owns the maintainer-only conformance-lab requirement surface, and [the risk register](../../../prd/03-open-questions-and-risk-register.md) already references the relevant `Q-007`, `Q-009`, `Q-012`, `Q-013`, `D-007`, `R-003`, `R-004`, `R-006`, `R-007`, and `R-014` items without requiring duplicate IDs.
 - Developer-guide coverage: no new or updated developer guide was needed. Phase 1 only records the implementation trace; durable maintainer workflow guidance belongs with the concrete scenario/result and adapter implementation in later phases.
 - User-guide coverage: no user guide was needed. The lab is maintainer-only evidence infrastructure and does not change shipped user behavior.
 - UAT: deferred until the full W10 R5 wave is complete, per the active wave instruction.

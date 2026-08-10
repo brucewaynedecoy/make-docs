@@ -111,4 +111,4 @@ Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/references/syst
 
 Why: Implementation will revise existing installer, manifest, skill registry/catalog, planner, audit, backup, uninstall, package, and validation behavior rather than create a new repository baseline. Planning must preserve the lifecycle departure noted above by returning from this v2 design to the normal design -> plan -> PRD -> work -> implementation sequence.
 
-Coordinate Handoff: prior related coordinates include archived W5 R2 CLI skill installation and W7 R1 lifecycle backup/uninstall standardization; downstream coordinate W18 R2 ([PRD 30](../prd/30-revise-harness-plugin-substrate-workflow-bundles.md)), closed.
+Coordinate Handoff: prior related coordinates include archived W5 R2 CLI skill installation and W7 R1 lifecycle backup/uninstall standardization; downstream coordinate W18 R2 ([PRD 30](../prd/30-plugin-substrate-and-workflow-bundles.md)), closed.

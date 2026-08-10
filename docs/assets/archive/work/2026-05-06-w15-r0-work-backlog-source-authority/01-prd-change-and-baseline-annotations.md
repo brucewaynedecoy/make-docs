@@ -6,7 +6,7 @@ Record source authority for plan-derived work backlog generation in the active P
 
 ## Overview
 
-This phase originally planned a new `docs/prd/14-revise-work-backlog-source-authority.md` change doc. The accepted v2 design set and current PRD catalog supersede that target: slot `14` is now [14-add-lifecycle-workflow-foundation.md](../../../../prd/14-add-lifecycle-workflow-foundation.md). W15 is reconciled into existing active owners instead.
+This phase originally planned a new `docs/prd/14-revise-work-backlog-source-authority.md` change doc. The accepted v2 design set and current PRD catalog superseded that target: slot `14` was then represented by the retired action-PRD at `docs/prd/14-add-lifecycle-workflow-foundation.md` ([historical design](../../designs/2026-06-17-make-docs-lifecycle-foundation.md)); [current authority: PRD 14 Lifecycle Workflow and Coverage Passes](../../../../prd/14-lifecycle-workflow-and-coverage-passes.md) now owns the product requirements. W15 is reconciled into existing active owners instead.
 
 ## Source PRD Docs
 
@@ -14,7 +14,7 @@ This phase originally planned a new `docs/prd/14-revise-work-backlog-source-auth
 - [docs/prd/06-template-contracts-and-generated-assets.md](../../../../prd/06-template-contracts-and-generated-assets.md)
 - [docs/prd/08-skills-catalog-and-distribution.md](../../../../prd/08-skills-catalog-and-distribution.md)
 - [docs/prd/09-dogfood-and-maintainer-operations.md](../../../../prd/09-dogfood-and-maintainer-operations.md)
-- [docs/prd/14-add-lifecycle-workflow-foundation.md](../../../../prd/14-add-lifecycle-workflow-foundation.md)
+- retired action-PRD: `docs/prd/14-add-lifecycle-workflow-foundation.md` ([historical design](../../designs/2026-06-17-make-docs-lifecycle-foundation.md); [current authority: PRD 14](../../../../prd/14-lifecycle-workflow-and-coverage-passes.md))
 - [docs/prd/03-open-questions-and-risk-register.md](../../../../prd/03-open-questions-and-risk-register.md)
 
 ## Stage 1 - Resolve PRD Ownership

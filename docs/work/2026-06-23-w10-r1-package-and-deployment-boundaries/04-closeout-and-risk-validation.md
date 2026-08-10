@@ -10,7 +10,7 @@ This phase closes the implementation loop. It should run touched-file validation
 
 ## Source PRD Docs
 
-- [../../prd/16-revise-package-and-deployment-boundaries.md](../../prd/16-revise-package-and-deployment-boundaries.md)
+- [../../prd/16-package-runtime-and-deployment-boundaries.md](../../prd/16-package-runtime-and-deployment-boundaries.md)
 - [../../prd/00-index.md](../../prd/00-index.md)
 - [../../prd/03-open-questions-and-risk-register.md](../../prd/03-open-questions-and-risk-register.md)
 - [../../prd/10-packaging-validation-and-release-reference.md](../../prd/10-packaging-validation-and-release-reference.md)

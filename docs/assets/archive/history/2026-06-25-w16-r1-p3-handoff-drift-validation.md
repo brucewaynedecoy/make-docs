@@ -17,7 +17,7 @@ Completed W16 R1 Phase 3 by adding CLI-owned generated-document metadata validat
 
 ### Coverage Decisions
 
-- PRD coverage: no new PRD update was needed. [PRD 23](../../../prd/23-revise-generated-metadata-lifecycle-handoffs.md) already defines the effective metadata, follow-on, and lifecycle validation behavior.
+- PRD coverage: no new PRD update was needed. [historical closeout](2026-06-25-w16-r1-p4-package-parity-and-closeout.md) (retired action-PRD: `docs/prd/23-revise-generated-metadata-lifecycle-handoffs.md`) already defines the effective metadata, follow-on, and lifecycle validation behavior.
 - Developer-guide coverage: no developer guide was needed. The new validation behavior is small, internal CLI-owned code covered by focused tests.
 - User-guide coverage: no user guide was needed. No current end-user workflow changes in this phase.
 - UAT: deferred until the full W16 R1 wave is complete, per the active wave instruction.

@@ -9,7 +9,7 @@
  * ===========================================================================
  * Real-harness recognition, installation, and invocation are proven ONLY by
  * the conformance design (planned as W18 R9; PRD lineage
- * docs/prd/37-enhance-playbook-and-package-conformance.md) and its
+ * docs/prd/20-agent-harness-conformance-and-support-claims.md) and its
  * tuple-bound evidence bar. Every test in this file and in the other
  * playbook-packaging*.test.ts files asserts SHAPES, GATES, and RECORDS of the
  * compiler and adapters. None of them — individually or together — may be
@@ -136,7 +136,7 @@ import { createEmptySystemAssetManifestState } from "../src/system-assets";
 import { cleanupTempDir, collectFiles, createTempDir } from "./helpers";
 
 const SUPPORT_EVIDENCE_REF =
-  "docs/prd/36-revise-playbook-packaging-compiler-and-harness-adapters.md";
+  "docs/prd/36-playbook-packaging-compiler-and-harness-adapters.md";
 const CODEX_PLUGIN_PRECONDITIONS = {
   "harness-supported": "satisfied",
   "project-trusted": "satisfied",

@@ -15,7 +15,7 @@ Completed W10 R6 Phase 4 by closing the package validation and public-docs bound
 
 ### Coverage Decisions
 
-- PRD coverage: no PRD files changed. [PRD 25](../../../prd/25-revise-cli-separation-and-mcp-boundary.md) already owns the active CLI/MCP separation requirement and the remaining deferred questions.
+- PRD coverage: no PRD files changed. this historical record (retired action-PRD: `docs/prd/25-revise-cli-separation-and-mcp-boundary.md`) already owns the active CLI/MCP separation requirement and the remaining deferred questions.
 - Developer-guide coverage: no additional developer guide was needed beyond the Phase 3 [CLI/MCP Operation Parity and Permissions](../../../assets/library/developer/cli-mcp-operation-parity-and-permissions.md) guide.
 - User-guide coverage: no additional user guide was needed. Phase 2 already updated current user-facing CLI lifecycle and install guidance, while Phase 4 added validation and closeout evidence.
 - UAT: completed at wave closeout with the built CLI in an isolated temp root.

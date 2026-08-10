@@ -4,7 +4,7 @@
  *
  * Exactly one fenced block with the info string `playbook` (a `yaml` info
  * string does not count) must sit inside `## Workflow`; zero or more than
- * one is a PB-WF-010 error. Since the v2 contract (PRD 40 R-DEP-1) the
+ * one is a PB-WF-010 error. Since the v2 contract (PRD 34 R-DEP-1) the
  * dependencies block shares the `playbook` info string, so fences inside
  * `## Dependencies` are excluded here and the governed sections are told
  * apart by top-level key: a fence in `## Workflow` whose top-level key is
@@ -448,7 +448,7 @@ export function parseWorkflowBlockStage(
   index: LineIndex,
   diagnostics: PlaybookDiagnostic[],
 ): PlaybookWorkflow | null {
-  // The dependencies block shares the `playbook` info string (PRD 40
+  // The dependencies block shares the `playbook` info string (PRD 34
   // R-DEP-1); fences inside `## Dependencies` belong to stage 4 and never
   // count as (or against) the workflow contract block.
   const inDependenciesSection = (block: FencedBlock): boolean =>
@@ -530,7 +530,7 @@ export function parseWorkflowBlockStage(
   }
   const byKey = entryMap(rootEntries);
 
-  // Fence/section agreement (PRD 40 R-DEP-1): a `playbook` fence in
+  // Fence/section agreement (PRD 34 R-DEP-1): a `playbook` fence in
   // `## Workflow` carrying the dependencies block's top-level key belongs to
   // `## Dependencies` — a pointed section-mismatch error, not a malformed
   // workflow header.

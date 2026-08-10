@@ -6,7 +6,7 @@ Create the active-set PRD revision for compatibility classification and update a
 
 ## Scope
 
-- Add `docs/prd/18-revise-compatibility-audit-and-migration-disposition.md`.
+- Add `docs/prd/18-compatibility-classification-and-migration-safety.md`.
 - Update `docs/prd/00-index.md`.
 - Add targeted `Change Notes` to impacted baseline docs.
 - Update existing D/Q/R items in `docs/prd/03-open-questions-and-risk-register.md`.
@@ -31,5 +31,5 @@ Create the active-set PRD revision for compatibility classification and update a
 ## Validation
 
 - New PRD doc uses the active change-doc structure.
-- Baseline annotations link back to `18-revise-compatibility-audit-and-migration-disposition.md`.
+- Baseline annotations link back to `18-compatibility-classification-and-migration-safety.md`.
 - PRD index includes the new revision in reading order, document map, source anchors, audience paths, and intended follow-on.

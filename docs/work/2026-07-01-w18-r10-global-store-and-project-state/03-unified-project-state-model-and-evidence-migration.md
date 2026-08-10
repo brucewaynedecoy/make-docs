@@ -5,7 +5,7 @@ status: "active"
 coordinate: "W18 R10 P3"
 source:
   type: "prd"
-  path: "docs/prd/38-revise-global-store-and-project-state.md"
+  path: "docs/prd/38-global-store-and-project-state.md"
 ---
 
 # Phase 3: Unified Project-State Model and Evidence Migration
@@ -20,9 +20,9 @@ Implement the unified project-state model keyed by the project identifier, hold 
 
 ## Source PRD Docs
 
-- [38 Revise Global Store and Project State](../../prd/38-revise-global-store-and-project-state.md)
-- [35 Revise Run Playbook State Machine](../../prd/35-revise-run-playbook-state-machine.md)
-- [21 Revise Tool Directory System Custom Resource Tiers](../../prd/21-revise-tool-directory-system-custom-resource-tiers.md)
+- [38 Revise Global Store and Project State](../../prd/38-global-store-and-project-state.md)
+- [35 Revise Run Playbook State Machine](../../prd/35-run-playbook-state-machine-and-portability.md)
+- [21 Revise Tool Directory System Custom Resource Tiers](../../prd/21-project-tool-directory-and-resource-tiers.md)
 - [05 Installation Profile and Manifest Lifecycle](../../prd/05-installation-profile-and-manifest-lifecycle.md)
 
 ## Stage 1 - The Project-State Model

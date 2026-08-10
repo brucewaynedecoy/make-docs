@@ -474,7 +474,7 @@ describe.skipIf(!sqliteAvailable)("run playbook progression engine (W18 R7 P2/P3
       runId: "run-1",
       stepId: "check",
       outcome: "completed",
-      evidenceRefs: ["docs/prd/35-revise-run-playbook-state-machine.md", "run-log.txt"],
+      evidenceRefs: ["docs/prd/35-run-playbook-state-machine-and-portability.md", "run-log.txt"],
       outputRefs: ["docs/assets/artifacts/flow-report.md"],
       note: "Catalog check passed.",
     });
@@ -502,12 +502,12 @@ describe.skipIf(!sqliteAvailable)("run playbook progression engine (W18 R7 P2/P3
         subjectId: "check",
         outcome: "completed",
         recordedAt: expect.any(String),
-        refs: ["docs/prd/35-revise-run-playbook-state-machine.md", "run-log.txt"],
+        refs: ["docs/prd/35-run-playbook-state-machine-and-portability.md", "run-log.txt"],
         note: "Catalog check passed.",
       },
     ]);
     expect(state.evidenceRefs).toEqual([
-      "docs/prd/35-revise-run-playbook-state-machine.md",
+      "docs/prd/35-run-playbook-state-machine-and-portability.md",
       "run-log.txt",
     ]);
     expect(state.outputRefs).toEqual(["docs/assets/artifacts/flow-report.md"]);

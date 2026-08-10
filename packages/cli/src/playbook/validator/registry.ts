@@ -7,7 +7,7 @@
  * `asset` supported as the optional additional kind (PB-DEP-014), `id`
  * values must be non-empty and unique within the Playbook (PB-DEP-015), and
  * a declared `probe` must match the executable-token pattern (PB-DEP-030,
- * PRD 40 R-DEP-2).
+ * PRD 34 R-DEP-2).
  */
 
 import { createPlaybookDiagnostic, type PlaybookDiagnostic } from "../diagnostics";
@@ -74,7 +74,7 @@ export function validateRegistryLayer(
     }
 
     // A declared probe is the executable target dependency checks verify
-    // (PRD 40 R-DEP-2); prose does not probe. The defaulted-from-id form is
+    // (PRD 34 R-DEP-2); prose does not probe. The defaulted-from-id form is
     // exempt: an id outside the token pattern already fails as a probe
     // target downstream and is not the author's probe declaration.
     if (entry.probeDeclared && !PLAYBOOK_PROBE_TOKEN_RE.test(entry.probe.value)) {

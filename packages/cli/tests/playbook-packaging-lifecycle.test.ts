@@ -48,7 +48,7 @@ import { runUninstallCommand } from "../src/uninstall";
 import { cleanupTempDir, createTempDir, mockSkillFetches } from "./helpers";
 
 const SUPPORT_EVIDENCE_REF =
-  "docs/prd/36-revise-playbook-packaging-compiler-and-harness-adapters.md";
+  "docs/prd/36-playbook-packaging-compiler-and-harness-adapters.md";
 const CODEX_PLUGIN_PRECONDITIONS = {
   "harness-supported": "satisfied",
   "project-trusted": "satisfied",
@@ -671,7 +671,7 @@ describe("support claims bind to the exact tuple (t7, t8, R-PROV-2, R-PROV-3)", 
     ]);
     // t7: the R-PROV-2 cleanliness proof is referenced as W18 R9-owned.
     expect(conformance.cleanlinessScenario.owner).toContain(
-      "37-enhance-playbook-and-package-conformance",
+      "43-conformance-scenario-model-and-execution-kits",
     );
     expect(conformance.cleanlinessScenario.requirement).toContain("without orphaning");
     expect(conformance.note).toContain("not harness-recognition evidence");

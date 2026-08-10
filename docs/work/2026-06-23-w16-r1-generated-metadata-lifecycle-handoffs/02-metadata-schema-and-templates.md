@@ -6,9 +6,9 @@ Add canonical metadata fields to generated document templates and generation gui
 
 ## Source PRDs
 
-- [../../prd/23-revise-generated-metadata-lifecycle-handoffs.md](../../prd/23-revise-generated-metadata-lifecycle-handoffs.md)
+- [../../prd/23-generated-document-metadata-and-lifecycle-handoffs.md](../../prd/23-generated-document-metadata-and-lifecycle-handoffs.md)
 - [../../prd/06-template-contracts-and-generated-assets.md](../../prd/06-template-contracts-and-generated-assets.md)
-- [../../prd/22-revise-new-docs-assets-playbooks-persona-model.md](../../prd/22-revise-new-docs-assets-playbooks-persona-model.md)
+- [../../prd/47-persona-model.md](../../prd/47-persona-model.md#frontmatter-authority)
 
 ## Tasks
 

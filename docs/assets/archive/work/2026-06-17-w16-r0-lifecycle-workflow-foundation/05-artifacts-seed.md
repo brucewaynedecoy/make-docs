@@ -15,7 +15,7 @@ provided as an installable, light router — so consuming projects can use it.
 
 ## Source PRD Docs
 
-- [14-add-lifecycle-workflow-foundation.md](../../../../prd/14-add-lifecycle-workflow-foundation.md)
+- [historical design](../../designs/2026-06-17-make-docs-lifecycle-foundation.md) (retired action-PRD: `docs/prd/14-add-lifecycle-workflow-foundation.md`)
 - [02-architecture-overview.md](../../../../prd/02-architecture-overview.md)
 
 ## Stage 1 - Sanction the seed directory

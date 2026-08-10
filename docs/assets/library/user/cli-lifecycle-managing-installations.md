@@ -19,8 +19,8 @@ related:
   - ../developer/release-packaging-validation-and-release-reference.md
   - ../../../prd/05-installation-profile-and-manifest-lifecycle.md
   - ../../../prd/07-cli-command-surface-and-lifecycle.md
-  - ../../../prd/25-revise-cli-separation-and-mcp-boundary.md
-  - ../../../prd/32-revise-lifecycle-backup-state-agentics-pruning.md
+  - ../../../prd/25-typescript-runtime-cli-mcp-operation-boundaries.md
+  - ../../../prd/38-global-store-and-project-state.md
 ---
 
 # Managing Installations with the Make Docs CLI

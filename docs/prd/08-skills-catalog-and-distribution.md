@@ -2,151 +2,221 @@
 
 ## Purpose
 
-This subsystem defines which agent skills `make-docs` can install, how users select them, how canonical skill payloads land under `.make-docs/agentics/skills/**`, and how native harness exposure makes those payloads available to Claude Code and Codex install roots. The live runtime starts at the top-level `skills` command in `packages/cli/src/cli.ts:27`, dispatches into `packages/cli/src/skills-command.ts:32`, reads the packaged registry in `packages/cli/skill-registry.json`, and resolves skill payloads through `packages/cli/src/skill-resolver.ts:40`.
+This subsystem defines which agent skills `make-docs` can install, how users select them, how canonical skill payloads land under `.make-docs/agentics/skills/**`, and how native harness exposure makes those payloads available to Claude Code and Codex install roots. The public entry is `make-docs setup skills` under [39-cli-command-model-and-operation-registry.md](./39-cli-command-model-and-operation-registry.md); `runSkillsCommand` in `packages/cli/src/skills-command.ts` reads the packaged registry in `packages/cli/skill-registry.json` through `loadEffectiveSkillRegistry` and resolves payloads through `resolveSkillSource` in `packages/cli/src/skill-resolver.ts`.
 
-The authoring source tree for shipped skills lives under `packages/skills/`, with current skill roots at `packages/skills/archive-docs/` and `packages/skills/decompose-codebase/`. The package itself is deliberately narrow today; `packages/skills/package.json` describes it as the agent skills catalog, while `packages/skills/README.md` currently contains only the heading "Document Skills".
+The authoring source tree for shipped skills lives under `packages/skills/`, with the current inventory rooted at `packages/skills/archive-docs/`, `packages/skills/cleanup-docs/`, and `packages/skills/decompose-codebase/`. The package itself is deliberately narrow today; `packages/skills/package.json` describes it as the agent skills catalog, while `packages/skills/README.md` currently contains only the heading "Document Skills".
 
 ## Scope
 
-This doc covers the dedicated `make-docs skills` lifecycle surface, the registry and resolver model, shared payload installation, native harness exposure, project-vs-global skill placement, manifest-backed skill ownership, and the current shipped skills across `packages/cli` and `packages/skills`. The command-specific validation and help surface live in `packages/cli/src/cli.ts:400`, `packages/cli/src/cli.ts:622`, and `packages/cli/src/cli.ts:894`, while the skills-only planner/apply path lives in `packages/cli/src/install.ts:45`, `packages/cli/src/install.ts:96`, and `packages/cli/src/planner.ts:204`.
+This doc covers the dedicated `make-docs setup skills` lifecycle surface, the registry and resolver model, shared payload installation, native harness exposure, project-vs-global skill placement, manifest-backed skill ownership, and the current shipped skills across `packages/cli` and `packages/skills`. Command-specific validation and help must conform to PRD 39, while `planSkillsOnlyInstall` and `applySkillsOnlyInstallPlan` in `packages/cli/src/install.ts` plus `createSkillsOnlyInstallPlan` in `packages/cli/src/planner.ts` implement the skills-only planner/apply path.
 
 This doc does not define the internal behavior of each skill after the harness exposes the canonical shared payload; those behaviors are owned by the skill payloads themselves, such as `packages/skills/archive-docs/SKILL.md` and `packages/skills/decompose-codebase/SKILL.md`. It also does not redefine the broader docs/template catalog handled elsewhere by `packages/cli/src/catalog.ts` and `packages/docs/template/`.
 
 Code anchors:
 
-- `packages/cli/src/cli.ts:27`
-- `packages/cli/src/skills-command.ts:32`
-- `packages/cli/src/install.ts:45`
-- `packages/cli/src/planner.ts:204`
+- `packages/cli/src/cli.ts` — `runSkillsCommand`, `validateParsedArgs`
+- `packages/cli/src/skills-command.ts` — `runSkillsCommand`
+- `packages/cli/src/install.ts` — `planSkillsOnlyInstall`, `applySkillsOnlyInstallPlan`
+- `packages/cli/src/planner.ts` — `createSkillsOnlyInstallPlan`
 - `packages/skills/archive-docs/SKILL.md`
 - `packages/skills/decompose-codebase/SKILL.md`
 
 ## Component and Capability Map
 
-### Change Notes
+The resolver normalizes GitHub protocol and tree/blob URLs into `raw.githubusercontent.com` URLs through `normalizeGithubProtocol`, `normalizeGithubUrl`, and `buildGithubRawUrl` in `packages/cli/src/skill-resolver.ts`. `readSourceText` and `readSourceBinary` read Markdown assets as text and other assets as binary. The shipped registry uses GitHub tree URLs under `packages/skills/...`, so the built-in runtime model today is "packaged remote registry plus remote fetch" rather than "packaged local skill payload".
 
-- Superseded by [12-revise-cli-skill-selection-simplification.md](./12-revise-cli-skill-selection-simplification.md) for required/default skill grouping, selected-by-default behavior, and optional-only selection behavior.
-- Clarified by the W15 source-authority reconciliation and W17 R3 native-exposure correction: selected skills, skill-local references/templates, native harness exposure files, and any installed skill copies are secondary workflow surfaces. They may guide agents or provide fallback projections, but they must not be treated as primary backlog-shape authority when live repo contracts and accepted lifecycle artifacts are available.
-- Enhanced by [28-revise-shared-agentics-installation-harness-redirection.md](./28-revise-shared-agentics-installation-harness-redirection.md) for install shape. Selected skills install one canonical shared payload under `.make-docs/agentics/skills/` per scope and expose harness-native skill directories under `.claude/skills/` and `.agents/skills/`; symlinks are preferred where available, and managed copy mirrors provide the compatibility fallback.
-- Enhanced by [30-revise-harness-plugin-substrate-workflow-bundles.md](./30-revise-harness-plugin-substrate-workflow-bundles.md) for the plugin boundary. Skills and plugins share the selected-agentics store and native-exposure primitive from PRD 28, but plugin selection remains explicit and separate from `selectedSkills`.
-
-The top-level CLI exposes `skills` as a first-class command beside `reconfigure`, `backup`, and `uninstall` in `packages/cli/src/cli.ts:27`. The command-specific help in `packages/cli/src/cli.ts:942` limits the surface to target directory, dry run, non-interactive apply, harness selection, removal, skill scope, and selected-skill input; it intentionally avoids the broader content/template/reference flags that belong to initial install and reconfigure flows. Argument validation in `packages/cli/src/cli.ts:641` through `packages/cli/src/cli.ts:719` rejects non-skills selection flags on `make-docs skills`, prevents selected-skill input during `--remove`, and checks requested selected skills against the packaged registry.
-
-The executor in `packages/cli/src/skills-command.ts:32` is thin on purpose. It loads the existing manifest, derives base selections from either the saved manifest or `defaultSelections()`, optionally runs the dedicated UI, then calls `planSkillsOnlyInstall()` and `applySkillsOnlyInstallPlan()` in `packages/cli/src/install.ts:45` and `packages/cli/src/install.ts:96`. The same module keeps skills output isolated from the main scaffold flow by printing a skills-specific review summary in `packages/cli/src/skills-command.ts:176` and by reporting completion against the manifest path in `packages/cli/src/skills-command.ts:193`.
-
-The interactive UX is a dedicated five-step skills flow, not a filtered version of the full installer. `packages/cli/src/skills-ui.ts:102` drives an action -> platforms -> scope -> skills -> review loop, `packages/cli/src/skills-ui.ts:91` maps harness labels to Claude Code and Codex, and `packages/cli/src/skills-ui.ts:298` renders summaries that enumerate only skill-managed file operations. Removal is intentionally shorter: when the action is `remove`, the flow skips platform, scope, and selected-skill screens and jumps to review. That behavior is locked in by `packages/cli/tests/skills-ui.test.ts`, which also verifies that the review summary excludes docs/template/reference paths.
-
-The catalog layer translates selections into installable assets and exposure records. `packages/cli/src/skill-catalog.ts` reserves `.make-docs/agentics/skills` for canonical shared skill payloads, maps harness-native exposure to `.claude/skills` and `.agents/skills`, and expands explicitly selected skills into concrete project or global-scope installation state. The required tests should confirm the critical behaviors: default selections install no skills, selected skills produce one shared payload plus native exposure for selected harnesses, global scope redirects installs into `os.homedir()`, and explicit all-skill selection includes every registry entry.
-
-The registry is the catalog authority at runtime. `packages/cli/src/skill-registry.ts:25` loads `packages/cli/skill-registry.json`, validates entry structure, and skips malformed entries without aborting the whole registry. The shipped registry contains first-party skill entries, but none are required to make the docs scaffold work. `packages/cli/tests/skill-registry.test.ts` verifies that the packaged registry and schema are both shipped and that local-only sources are rejected.
-
-The resolver in `packages/cli/src/skill-resolver.ts:40` turns registry entries into fetched content. It supports `github:`, `url:`, `https://`, and `http://` sources through `packages/cli/src/skill-resolver.ts:109`, normalizes GitHub tree/blob URLs into `raw.githubusercontent.com` URLs through `packages/cli/src/skill-resolver.ts:118`, `packages/cli/src/skill-resolver.ts:139`, and `packages/cli/src/skill-resolver.ts:159`, and reads Markdown assets as text while treating non-Markdown assets as binary in `packages/cli/src/skill-resolver.ts:50`. The shipped registry uses GitHub tree URLs under `packages/skills/...`, so the runtime model today is "packaged remote registry plus remote fetch" rather than "packaged local skill payload".
-
-The shipped skill inventory is optional. `archive-docs`, `cleanup-docs`, closeout skills, decompose skills, and work-on-wave/work-on-phase skills are tracked in the registry so users can explicitly install, update, back up, or remove them, but a default docs scaffold writes no skill files. `packages/cli/tests/install.test.ts` must keep confirming that the default profile records `skillFiles: []`, while explicit selected-skill runs install the requested shared skill payloads and native harness exposures.
+The shipped skill inventory is optional. The registry tracks exactly `archive-docs`, `cleanup-docs`, and `decompose-codebase` so users can explicitly install, update, back up, or remove them, but a default docs scaffold writes no skill files. `packages/cli/tests/install.test.ts` must keep confirming that the default profile records `skillFiles: []`, while explicit selected-skill runs install the requested shared skill payloads and native harness exposures.
 
 Code anchors:
 
-- `packages/cli/src/cli.ts:27`
-- `packages/cli/src/cli.ts:622`
-- `packages/cli/src/cli.ts:942`
-- `packages/cli/src/skills-command.ts:32`
-- `packages/cli/src/skills-ui.ts:102`
-- `packages/cli/src/skill-catalog.ts:18`
-- `packages/cli/src/skill-registry.ts:25`
-- `packages/cli/src/skill-resolver.ts:40`
+- `packages/cli/src/cli.ts` — `runSkillsCommand`, `resolveSelections`, `validateParsedArgs`
+- `packages/cli/src/skills-command.ts` — `runSkillsCommand`
+- `packages/cli/src/skills-ui.ts` — `renderSkillsPlanSummary`, `getRenderedSkillActions`
+- `packages/cli/src/skill-catalog.ts` — `getDesiredSkillAssets`
+- `packages/cli/src/skill-registry.ts` — `loadEffectiveSkillRegistry`, `validateSkillRegistryManifest`
+- `packages/cli/src/skill-resolver.ts` — `resolveSkillSource`
 
 ## Contracts and Data
 
-### Change Notes
+### Explicit Selected-Skill Model
 
-- Superseded by [12-revise-cli-skill-selection-simplification.md](./12-revise-cli-skill-selection-simplification.md) for the `required` registry field, `optionalSkills` persisted-selection model, and selected-by-default behavior. The effective requirement is an explicit selected-skill set over all registry entries.
-- Enhanced by [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md) for the package-boundary effect on skills delivery. Bare installs keep no-default-skills behavior under the TypeScript package runtime, but remote-fetch versus bundled-local delivery and remote-source integrity remain open under Q-001 and Q-007.
-- Enhanced by [17-revise-system-asset-materialization-contract.md](./17-revise-system-asset-materialization-contract.md) for the system asset boundary. Skills and plugins remain selected agentic assets with separate delivery and trust decisions; they are not folded into `full-snapshot`, `provider-backed`, or `hybrid-pinned-cache` system asset modes.
-- Enhanced by [18-revise-compatibility-audit-and-migration-disposition.md](./18-revise-compatibility-audit-and-migration-disposition.md) for skills migration safety. Migration may preserve prior selected skills only when manifest and file evidence are trustworthy, and it must not silently expand `selectedSkills` or install skill files by default.
-- Enhanced by [20-revise-agent-harness-model-conformance-lab.md](./20-revise-agent-harness-model-conformance-lab.md) for future adapter evidence. Lab adapters for future harnesses or model routes do not add current skills install targets or change the `selectedSkills` contract.
-- Enhanced by [26-revise-no-scripts-migration-skill-refactor.md](./26-revise-no-scripts-migration-skill-refactor.md) for first-party skill refactor requirements. Selected skills may still install prose, references, examples, and metadata, but deterministic make-docs logic must be available from the CLI package/shared-core boundary rather than depending on remote or skill-local script payloads as the only executable source.
-- Enhanced by [27-revise-skill-purpose-registry-alternate-skills-manifest.md](./27-revise-skill-purpose-registry-alternate-skills-manifest.md) for purpose-led selection and alternate manifests. The built-in registry becomes the default skills manifest in logical terms, purpose ids become stable selection metadata, alternate manifests are explicit inputs, and `selectedSkills` plus `skillFiles` remain the executable and ownership state.
-- Enhanced by [28-revise-shared-agentics-installation-harness-redirection.md](./28-revise-shared-agentics-installation-harness-redirection.md) for shared payload and exposure metadata. The executable selected-skill set still comes from `selectedSkills`, but ownership records must connect that selection to the canonical shared payload, symlink exposures, managed copy mirrors, legacy generated stubs, source manifest provenance, exposure mode, scope, and migrated duplicate payload status.
-- Enhanced by [30-revise-harness-plugin-substrate-workflow-bundles.md](./30-revise-harness-plugin-substrate-workflow-bundles.md) for plugin substrate separation. Plugin records may reuse purpose and source metadata concepts, but `--selected-skills all` and existing skills UI flows must not select or install plugins.
+- Registry entries describe installable skills and do not carry a `required` category. Fresh defaults use `skills: false`, `selectedSkills: []`, and inert `skillScope: "project"`; default install and default sync write no skill files.
+- Persisted selections represent one explicit selected-skill set rather than optional additions to an implicit required set. Current state uses `selectedSkills`; `optionalSkills` is not an active manifest or selection field; and desired skill assets are generated only for selected names while skills are enabled.
+- Full-install and skills-only UIs expose no required/default/optional categories. Every row is selectable and deselectable, while the highlighted-skill detail panel and bottom selected-skill summary/instructions remain part of the contract.
+- Non-interactive explicit selection, including `--selected-skills all`, remains supported. Deprecated `optionalSkills`, `required` registry metadata, and `--optional-skills` receive no migration or alias. Older alpha footprints must be reinstalled or regenerated from `selectedSkills`.
+- `skillFiles` remains separate managed-output ownership tracking. Shared payloads and native harness exposures are written only for explicitly selected skills; bare setup, default sync, and no-skills selection produce no selected-agentic payloads or exposures.
 
-The skills subsystem hangs off the shared install contract in `packages/cli/src/types.ts:31`. `InstallSelections` carries `harnesses`, `skills`, `skillScope`, and `selectedSkills`, and the skills command mutates only that subset in `packages/cli/src/skills-command.ts:152` and `packages/cli/src/skills-ui.ts:280`. The skill-specific UI state mirrors that reduced surface in `packages/cli/src/skills-ui.ts:28`, which keeps command execution from depending on the broader capability/prompt/template/reference state used by full installs.
+- Skills and plugins remain selected agentic assets with separate delivery and trust decisions; they are not folded into the `full-snapshot`, `provider-backed`, or `hybrid-pinned-cache` system asset modes defined by [17-system-asset-materialization-and-local-bootstrap.md](./17-system-asset-materialization-and-local-bootstrap.md).
+- Migration may preserve prior selected skills only when manifest and file evidence are trustworthy, and it must not silently expand `selectedSkills` or install skill files by default under [18-compatibility-classification-and-migration-safety.md](./18-compatibility-classification-and-migration-safety.md).
+- Lab adapters for future harnesses or model routes do not add current skills install targets or change the `selectedSkills` contract; [20-agent-harness-conformance-and-support-claims.md](./20-agent-harness-conformance-and-support-claims.md) owns adapter evidence.
+- Selected skills may install prose, references, examples, and metadata, but deterministic make-docs logic must be available from the CLI package/shared-core boundary rather than depending on remote or skill-local script payloads as the only executable source under [25-typescript-runtime-cli-mcp-operation-boundaries.md](./25-typescript-runtime-cli-mcp-operation-boundaries.md).
+- The built-in registry is the default skills manifest, purpose ids are stable selection metadata, alternate manifests are explicit inputs, and `selectedSkills` plus `skillFiles` remain executable and ownership state.
+- The executable selected-skill set comes from `selectedSkills`, while ownership records connect that selection to canonical shared payloads, symlink exposures, managed copy mirrors, legacy generated stubs, source-manifest provenance, exposure mode, scope, and migrated duplicate-payload status under [28-shared-agentics-installation-and-harness-exposure.md](./28-shared-agentics-installation-and-harness-exposure.md).
+- Plugin records may reuse purpose and source metadata concepts, but `--selected-skills all` and skills UI flows must not select or install plugins; [30-plugin-substrate-and-workflow-bundles.md](./30-plugin-substrate-and-workflow-bundles.md) owns plugin selection.
 
-The packaged registry contract is defined in `packages/cli/src/skill-registry.ts:4` through `packages/cli/src/skill-registry.ts:19`. Every `SkillRegistryEntry` needs `name`, `source`, `entryPoint`, `installName`, `description`, and an `assets` array, and `packages/cli/src/skill-registry.ts:83` rejects entries whose `source` is not remote. `packages/cli/skill-registry.json` also declares `$schema: "./skill-registry.schema.json"`, and `packages/cli/tests/skill-registry.test.ts` proves that the schema file is expected to ship with the package. The current registry uses remote GitHub tree URLs, which means the registry is packaged locally but the payload sources remain external.
+The skills subsystem hangs off the shared install contract. `InstallSelections` carries `harnesses`, `skills`, `skillScope`, and `selectedSkills`, and the skills command mutates only that subset. The skill-specific UI mirrors that reduced surface, keeping command execution independent of broader capability and invariant managed-asset state used by full installs.
 
-The resolver contract is defined in `packages/cli/src/skill-resolver.ts:22` and `packages/cli/src/skill-resolver.ts:28`. A resolved skill consists of `entryPointContent` plus supporting assets, and each asset keeps both the final `installPath` and the upstream `sourcePath`. The in-process caches at `packages/cli/src/skill-resolver.ts:19` reduce duplicate remote fetches during a single run, but they do not persist between runs and they do not add integrity pinning beyond the remote URL itself.
+The packaged registry contract is defined by `SkillRegistry`, `SkillRegistryEntry`, `SkillManifestSourcePolicy`, and `validateSkillRegistryManifest` in `packages/cli/src/skill-registry.ts`. A registry declares manifest identity, display metadata, source policy, purposes, and skills; each skill entry carries identity and display fields, source and entry-point data, install name, assets, purpose ids, supported harnesses, and provenance. Validation admits `first-party`, explicit `local`, and `remote-pinned` source policies, normalizes local sources relative to their manifest, and requires pinned provenance for non-first-party remote content. `packages/cli/skill-registry.json` declares `$schema: "./skill-registry.schema.json"`, and `packages/cli/tests/skill-registry.test.ts` proves that the schema file ships with the package. The built-in registry uses remote GitHub tree URLs, so its metadata is packaged locally while its payload sources remain external.
 
-The installable asset contract is defined by `ResolvedAsset` in `packages/cli/src/types.ts:75`, but native exposure requires additional link and copy-mirror planning metadata. The catalog stamps shared payload files with synthetic `skill:shared:<name>` and `skill-shared-asset:<skill>:<installPath>` source ids, while W17 R3 adds ownership for symlink exposures, managed copy mirrors, and legacy `skill-stub:<harness>:<name>` records. Project scope uses repo-relative roots, while global scope switches to `os.homedir()`; the tests in `packages/cli/tests/skill-catalog.test.ts` treat that home-directory redirect as part of the contract.
+The resolver contract is defined by `ResolvedSkill`, `ResolvedSkillAsset`, and `resolveSkillSource` in `packages/cli/src/skill-resolver.ts`. A resolved skill consists of `entryPointContent` plus supporting assets, and each asset keeps both the final `installPath` and upstream `sourcePath`. `readSourceText`, `readSourceBinary`, and `fetchRemote` distinguish explicit local sources from remote fetches; any in-process fetch reuse does not persist between runs or itself establish trust, which remains a registry provenance and source-policy concern.
 
-The skills-only plan is a reduced `InstallPlan`, not a separate data model. `packages/cli/src/planner.ts:204` builds `desiredFiles`, `desiredSkillFiles`, and `PlannedAction[]` only for skill assets. `packages/cli/src/planner.ts:276` chooses internal `create`, `noop`, `update`, or `skip-conflict` actions for desired skill files by comparing live content, manifest hashes, and prior managed content. `packages/cli/src/planner.ts:348` chooses internal `remove-managed` or `skip-conflict` actions for stale skill files. Those internal action types come from `packages/cli/src/types.ts:23` and `packages/cli/src/types.ts:105`, while the review summary in `packages/cli/src/skills-ui.ts:298` deliberately reports only skills-file operations with final user-facing verbs: `generate`, `update`, `skip`, and `remove`.
+The installable asset contract is defined by `ResolvedAsset` in `packages/cli/src/types.ts`, while `ResolvedInstallAsset` carries the link and copy-mirror planning metadata needed for native exposure. `buildSharedSkillAssets`, `buildHarnessSkillExposureAsset`, `getSharedSkillSourceId`, and `getSkillExposureSourceId` in `packages/cli/src/skill-catalog.ts` construct shared payload and exposure records; [PRD 28](28-shared-agentics-installation-and-harness-exposure.md) owns symlink exposures, managed copy mirrors, and legacy `skill-stub:<harness>:<name>` records. Project scope uses repo-relative roots, while global scope switches to `os.homedir()`; `packages/cli/tests/skill-catalog.test.ts` treats that home-directory redirect as part of the contract.
 
-The manifest keeps skill ownership separate from the general scaffold footprint. `InstallManifest` in `packages/cli/src/types.ts:86` stores managed scaffold files in `files` and managed skill paths in `skillFiles`. `packages/cli/src/install.ts:96` calls the shared apply path with `trackSkillFilesInManifestFiles: false`, which preserves that split. `packages/cli/tests/install.test.ts` checks that explicitly installed skill paths land in `manifest.skillFiles`, which is the core ownership boundary used for safe updates and removals.
+The skills-only plan is a reduced `InstallPlan`, not a separate data model. `createSkillsOnlyInstallPlan`, `planDesiredSkillAsset`, and `planDesiredSkillExposure` in `packages/cli/src/planner.ts` build `desiredFiles`, `desiredSkillFiles`, and `PlannedAction[]` only for skill assets; they choose internal desired-file and stale-file actions by comparing live content, manifest hashes, prior managed content, and explicit resolutions. `InstallPlan` and `PlannedAction` are defined in `packages/cli/src/types.ts`, while `renderSkillsPlanSummary` and `getRenderedSkillActions` in `packages/cli/src/skills-ui.ts` report only the final user-facing verbs `generate`, `update`, `skip`, and `remove`.
+
+The manifest keeps skill ownership separate from the general scaffold footprint. `InstallManifest` in `packages/cli/src/types.ts` stores managed scaffold files in `files` and managed skill paths in `skillFiles`. `applySkillsOnlyInstallPlan` in `packages/cli/src/install.ts` calls the shared apply path with its `trackSkillFilesInManifestFiles: false` option, which preserves that split. `packages/cli/tests/install.test.ts` checks that explicitly installed skill paths land in `manifest.skillFiles`, the core ownership boundary used for safe updates and removals.
 
 Code anchors:
 
-- `packages/cli/src/types.ts:31`
-- `packages/cli/src/types.ts:75`
-- `packages/cli/src/types.ts:86`
-- `packages/cli/src/skill-registry.ts:4`
-- `packages/cli/src/skill-resolver.ts:22`
-- `packages/cli/src/planner.ts:204`
-- `packages/cli/src/planner.ts:276`
-- `packages/cli/src/install.ts:96`
+- `packages/cli/src/types.ts` — `InstallSelections`, `ResolvedAsset`, `ResolvedInstallAsset`, `InstallManifest`, `InstallPlan`, `PlannedAction`
+- `packages/cli/src/skill-registry.ts` — `SkillRegistry`, `SkillRegistryEntry`, `SkillManifestSourcePolicy`, `validateSkillRegistryManifest`
+- `packages/cli/src/skill-resolver.ts` — `ResolvedSkill`, `ResolvedSkillAsset`, `resolveSkillSource`
+- `packages/cli/src/skill-catalog.ts` — `buildSharedSkillAssets`, `buildHarnessSkillExposureAsset`
+- `packages/cli/src/planner.ts` — `createSkillsOnlyInstallPlan`, `planDesiredSkillAsset`, `planDesiredSkillExposure`
+- `packages/cli/src/install.ts` — `applySkillsOnlyInstallPlan`, `trackSkillFilesInManifestFiles`
+- `packages/cli/src/skills-ui.ts` — `renderSkillsPlanSummary`, `getRenderedSkillActions`
 
 ## Integrations
 
-### Change Notes
+The skills subsystem integrates directly with `parseArgs`, `validateParsedArgs`, and `runSkillsCommand` in `packages/cli/src/cli.ts`. The parser identifies the skills command, lazily loads `packages/cli/src/skills-command.ts`, and validates selected skill ids against `getSkillRegistryNames` from `packages/cli/src/skill-registry.ts` before the command runs. This keeps registry contents and command-line affordances synchronized, but it also means every new skill entry changes user-facing validation behavior immediately.
 
-- Superseded by [12-revise-cli-skill-selection-simplification.md](./12-revise-cli-skill-selection-simplification.md) for CLI validation that only accepts formerly optional skill ids. Validation now applies to the selected-skill set over all registry skills.
-- Enhanced by [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md) for shared plugin/skill install boundaries. MCP is required and TypeScript-owned, and PRD 30 now owns plugin substrate while implementation proof remains open under Q-012.
-- Enhanced by [27-revise-skill-purpose-registry-alternate-skills-manifest.md](./27-revise-skill-purpose-registry-alternate-skills-manifest.md) for effective-manifest routing. Future plugin, MCP, or skill surfaces must route by canonical purpose ids and resolved skill names, not configured labels or ambient manifest discovery.
-- Enhanced by [28-revise-shared-agentics-installation-harness-redirection.md](./28-revise-shared-agentics-installation-harness-redirection.md) for the selected-agentics store/exposure primitive. Skills use a shared payload store with native harness exposure through symlink-preferred directories and managed copy-mirror fallback.
-- Enhanced by [30-revise-harness-plugin-substrate-workflow-bundles.md](./30-revise-harness-plugin-substrate-workflow-bundles.md) for plugin substrate and workflow bundle metadata. Plugin runtime implementation, public per-bundle UX, and remote delivery remain separate decisions.
-
-The skills subsystem integrates directly with the main CLI parser and help system in `packages/cli/src/cli.ts`. The parser decides when the top-level command becomes `skills`, lazily loads `packages/cli/src/skills-command.ts`, and validates selected skill ids against the packaged registry before the command runs. This keeps registry contents and command-line affordances synchronized, but it also means every new skill entry changes user-facing validation behavior immediately.
-
-The skills subsystem also integrates with the shared planner/apply stack rather than maintaining a parallel installer. `packages/cli/src/install.ts:45` routes the command through `resolveInstallProfile()`, and `packages/cli/src/planner.ts:204` reuses the same `InstallPlan` and `PlannedAction` vocabulary as the broader installer while keeping the action set skills-only. That reuse is important because the same conflict staging and manifest-writing code paths still apply, but the skill command is required to leave non-skill managed files alone; the design intent is recorded in `docs/assets/archive/designs/2026-04-21-cli-skills-command.md` and enforced by `packages/cli/tests/skills-ui.test.ts` and `packages/cli/tests/install.test.ts`.
+The skills subsystem also integrates with the shared planner/apply stack rather than maintaining a parallel installer. `planSkillsOnlyInstall` and `applySkillsOnlyInstallPlan` in `packages/cli/src/install.ts` route through profile resolution and reuse the `InstallPlan` / `PlannedAction` vocabulary from `packages/cli/src/types.ts`, while `createSkillsOnlyInstallPlan` in `packages/cli/src/planner.ts` keeps the action set skills-only. That reuse preserves conflict staging and manifest writing while requiring the skill command to leave non-skill managed files alone; the design intent is recorded in `docs/assets/archive/designs/2026-04-21-cli-skills-command.md` and enforced by `packages/cli/tests/skills-ui.test.ts` and `packages/cli/tests/install.test.ts`.
 
 The delivery path currently spans both `packages/skills/` and `packages/cli/`, but not in the originally designed way. The April 16 design in `docs/assets/archive/designs/2026-04-16-cli-skill-installation.md` proposed copying `packages/skills/` into `packages/cli/skills/` during prepack and shipping those local payloads with the published CLI. The live package metadata in `packages/cli/package.json` instead ships `dist`, `template`, `skill-registry.json`, `skill-registry.schema.json`, and `README.md`, and the current `prepack` script only runs `scripts/copy-template-to-cli.mjs` plus build. That script copies `packages/docs/template/` into `packages/cli/template/` and validates the registry JSON, but it does not copy `packages/skills/`. The practical integration today is therefore "CLI ships registry and resolver, resolver fetches from GitHub sources under `packages/skills/...` at install time."
 
-The subsystem depends on external network and repository layout stability. `packages/cli/src/skill-resolver.ts:6` defaults `github:` sources to the `main` branch when no ref is supplied, and `packages/cli/src/skill-resolver.ts:226` fetches remote content without checksum verification. Because current registry entries point at `https://github.com/brucewaynedecoy/make-docs/tree/main/...` in `packages/cli/skill-registry.json`, any repo move, branch rename, or unavailable network path can block new installs or updates even when the CLI package itself is present locally.
+The built-in skill path depends on external network and repository layout stability. `DEFAULT_GITHUB_REF` in `packages/cli/src/skill-resolver.ts` defaults `github:` sources to `main` when no ref is supplied, and `fetchRemote` retrieves remote content; trust and pinning are validated from registry metadata rather than invented by the fetch layer. Because current registry entries point at GitHub tree URLs under `packages/skills/` in `packages/cli/skill-registry.json`, a repo move, branch rename, or unavailable network path can block built-in installs or updates even when the CLI package itself is present locally.
 
 Code anchors:
 
-- `packages/cli/src/cli.ts:400`
-- `packages/cli/src/install.ts:45`
-- `packages/cli/src/planner.ts:204`
+- `packages/cli/src/cli.ts`
+- `packages/cli/src/install.ts`
+- `packages/cli/src/planner.ts`
 - `packages/cli/package.json`
 - `scripts/copy-template-to-cli.mjs`
 - `docs/assets/archive/designs/2026-04-16-cli-skill-installation.md`
 - `docs/assets/archive/designs/2026-04-21-cli-skills-command.md`
 - `packages/cli/skill-registry.json`
 
-## Rebuild Notes
+## Skill Purpose Registry and Manifest Requirements
 
-### Change Notes
+### Purpose-Led Skill Selection
 
-- Superseded by [12-revise-cli-skill-selection-simplification.md](./12-revise-cli-skill-selection-simplification.md) where rebuild guidance depends on required/default versus optional skill categories. Skill command separation, remote resolver behavior, and `skillFiles` ownership remain active constraints.
+The CLI should let users choose by stable purpose first and concrete skill second. Purpose-led selection is metadata and presentation over the selected-skill model, not a replacement for it.
 
-A clean-room rebuild needs to preserve the hard separation between the full scaffold lifecycle and the skills-only lifecycle. The skills command should continue to behave like a dedicated maintenance surface, not a partial invocation of the broader installer. That means preserving the top-level command split in `packages/cli/src/cli.ts:27`, the isolated UI flow in `packages/cli/src/skills-ui.ts:102`, and the skills-only planner path in `packages/cli/src/planner.ts:204`. Rebuilders should treat the tests in `packages/cli/tests/skills-ui.test.ts`, `packages/cli/tests/skill-catalog.test.ts`, and `packages/cli/tests/install.test.ts` as behavioral guardrails, not just unit coverage.
+The first-party purpose ids are:
 
-A rebuild also needs to keep manifest ownership split across `files` and `skillFiles`. The safe-update logic in `packages/cli/src/planner.ts:276` and the safe-removal logic in `packages/cli/src/planner.ts:348` depend on knowing which skill files were previously managed and whether local edits diverged from the last known managed content. Collapsing skill ownership into the general manifest file map would make `make-docs skills --remove` much harder to reason about and would blur the subsystem boundary that `packages/cli/src/install.ts:96` currently preserves.
+- `archive-management`
+- `codebase-decomposition`
+- `documentation-maintenance`
+- `lifecycle-closeout`
+- `workflow-execution`
+- `plan-creation`
+- `migration-support`
 
-Factual drift note: the current implementation does not match the earlier "bundle skill payloads into the CLI package" design from `docs/assets/archive/designs/2026-04-16-cli-skill-installation.md`. The live package metadata in `packages/cli/package.json`, the current prepack script in `scripts/copy-template-to-cli.mjs`, and the remote GitHub entries in `packages/cli/skill-registry.json` describe a different delivery model. Candidate shared risk-register item: decide whether the intended long-term contract is remote-fetch delivery, bundled local payload delivery, or dual-mode fallback, then align code, docs, and release checks around that single model.
+First-party purpose ids are canonical make-docs ids. Configuration overlays may relabel visible text, but CLI, MCP, plugin, manifest, and skill routing must use canonical purpose ids.
 
-Factual risk note: current source resolution accepts `http://`, `https://`, `github:`, and `url:` in `packages/cli/src/skill-registry.ts:134`, while the resolver defaults GitHub sources to `main` in `packages/cli/src/skill-resolver.ts:6` and performs unauthenticated remote fetches in `packages/cli/src/skill-resolver.ts:226`. Candidate shared risk-register item: tighten allowed source protocols and define whether mutable branch-based URLs are acceptable for production skill delivery.
+Alternate manifests may define additional purpose ids only when they are namespaced, such as `acme.release-readiness`.
 
-Factual documentation gap: `packages/skills/README.md` currently provides almost no release or authoring guidance even though the live registry depends on the structure and naming of `packages/skills/archive-docs/` and `packages/skills/decompose-codebase/`. Candidate shared risk-register item: document the source-of-truth contract for adding, packaging, and releasing skills so the authoring tree, registry, tests, and package metadata do not drift independently.
+### Skills Manifest Shape
 
-Code anchors:
+The built-in first-party registry becomes the default skills manifest in logical terms. The physical file may remain `packages/cli/skill-registry.json` during implementation, but the schema must evolve toward one shape that can describe built-in and alternate manifests.
 
-- `packages/cli/src/cli.ts:27`
-- `packages/cli/src/skills-ui.ts:102`
-- `packages/cli/src/planner.ts:276`
-- `packages/cli/src/planner.ts:348`
-- `packages/cli/src/install.ts:96`
-- `packages/cli/package.json`
-- `scripts/copy-template-to-cli.mjs`
-- `packages/skills/README.md`
+A skills manifest must include:
+
+- `schemaVersion`
+- `manifestId`
+- `displayName` and optional description
+- `purposes` with stable ids, labels, descriptions, and optional ordering
+- `skills` with stable skill name, display metadata, purpose ids, source, entry point, install name, assets, supported harnesses, and provenance metadata
+- `sourcePolicy` declaring whether the manifest is first-party, local, or remote-pinned
+
+One skill may satisfy multiple purposes, and one purpose may offer multiple candidate skills.
+
+### Selection Behavior
+
+Purpose-led selection must show the purpose, each candidate skill, skill source, supported harnesses, and trust/provenance before selection.
+
+If multiple skills satisfy the same purpose, the UI must not silently choose one unless the active manifest marks exactly one default candidate for that purpose and the user has explicitly opted into skills.
+
+The install manifest remains behavior-first:
+
+- `selectedSkills` stores resolved skill names that should be installed.
+- `skillFiles` remains the managed-output ownership list.
+- Selection provenance may record selected purpose id, manifest id, candidate skill, source policy class, and source provenance for review, reconfigure, audit, backup, uninstall, and support.
+- Selection provenance does not replace `selectedSkills` or `skillFiles`.
+- [28-shared-agentics-installation-and-harness-exposure.md](28-shared-agentics-installation-and-harness-exposure.md) consumes the resolved effective manifest and selection provenance when writing shared payloads and native harness exposures. Agentic ownership records should preserve manifest id, purpose id, skill name, source policy, digest/ref, scope, canonical payload path, symlink exposure paths, copy-mirror paths, and legacy generated stub paths without replacing `selectedSkills`.
+- [30-plugin-substrate-and-workflow-bundles.md](30-plugin-substrate-and-workflow-bundles.md) may let future plugin and workflow bundle surfaces present purpose metadata, but plugin selection remains explicit and separate from `selectedSkills`; skills-manifest purpose ids do not become plugin ids or bundle ids.
+
+### Alternate Manifests
+
+Alternate manifests are explicit inputs, not ambient discovery. A run uses one effective skills manifest: the built-in first-party manifest unless the user supplies an alternate manifest.
+
+make-docs does not automatically merge the built-in manifest into an alternate manifest. If an alternate manifest wants first-party skills, it must include entries for them with first-party provenance.
+
+`--selected-skills all` expands to every selectable skill in the effective manifest after validation. It must not mean every known first-party skill when an alternate manifest is active.
+
+`--selected-skills none` remains an empty selected-skill set.
+
+Bare default installs continue to produce no skill files.
+
+### Source and Trust Policy
+
+File-path alternate manifests are the first supported implementation target.
+
+URL manifests are valid for installation only when the source can be treated as remote-pinned: the manifest reference or caller must supply an immutable ref plus a manifest digest.
+
+Mutable branches such as `main`, unauthenticated HTTP, and unpinned remote manifests are invalid for v2 alternate-manifest installation. The CLI may preview rejected manifests enough to explain the policy failure, but it must not install from them.
+
+Remote skill payload sources inside any manifest follow the same trust rule: immutable ref plus integrity metadata before installation.
+
+Local file sources are allowed only when explicitly supplied by the user and must be displayed as local/custom before selection.
+
+Third-party sources must be labeled third-party even when they satisfy a first-party purpose id.
+
+### No-Scripts Boundary
+
+Purpose metadata may explain why a skill is useful, but it must not become a second source of deterministic workflow logic. Deterministic make-docs-owned behavior still belongs behind CLI/shared-core operations under [25-typescript-runtime-cli-mcp-operation-boundaries.md](25-typescript-runtime-cli-mcp-operation-boundaries.md).
+
+### Validation Boundary
+
+Implementation must prove:
+
+- default installs still produce no skill files
+- explicit first-party skill installs still work
+- alternate file-manifest installs work
+- unpinned URL manifests are rejected before installation
+- remote-pinned URL manifests work only if implemented with immutable refs and digest checks
+- remote skill payloads require immutable refs and integrity metadata
+- `--selected-skills all` and `none` are interpreted against the effective manifest
+- audit, backup, uninstall, and migration explain alternate-manifest and selection provenance
+- package contents include the evolved schema and validation fixtures
+
+## Requirement History
+
+### 2026-07-04 — W18 R11 follow-up
+
+- Affected requirement or section: `Current shipped skill inventory`
+- Previous contract: The first-party registry also shipped `closeout-commit`, `closeout-phase`, `work-on-phase`, and `work-on-wave` even though their instructions invoked the retired `make-docs operations` surface.
+- Replacement contract: The four lifecycle skills and their source directories are withdrawn; the current registry ships only `archive-docs`, `cleanup-docs`, and `decompose-codebase`. The Q-022 agentics-production lineage owns any later regeneration of lifecycle skills through the playbook packaging pipeline.
+- Rationale: Current product authority must match the reachable shipped inventory and must not advertise broken or deleted skill payloads.
+- Source: [D-020 lifecycle-skill withdrawal](./03-open-questions-and-risk-register.md#d-020-shipped-lifecycle-skills-instruct-the-removed-make-docs-operations-command-surface)
+
+### 2026-08-08 — Not assigned
+
+- Affected requirement or section: `Consolidated capability ownership`
+- Previous contract: Current requirements were also represented by standalone editorial PRDs 12, 27, 32.
+- Replacement contract: The applicable current requirements are inline in this authority and its linked product owners; the standalone editorial records are retired from the active set.
+- Rationale: Active PRDs own product subjects and do not preserve editorial operations as product authority.
+- Source: [PRD Authority Maintenance](../../.make-docs/references/system/prd-change-management.md)
+
+
+### 2026-08-08 — Not assigned
+
+- Affected requirement or section: `Cross-cutting capability annotations`
+- Previous contract: Later capability decisions were recorded as nested Change Notes that pointed to standalone editorial PRDs.
+- Replacement contract: Current requirements remain inline in this owning PRD and related product authorities are linked by product subject.
+- Rationale: The active PRD set must describe current product authority rather than the editorial operation that produced it.
+- Source: [PRD Authority Maintenance](../../.make-docs/references/system/prd-change-management.md)
 
 ## Source Anchors
 
@@ -167,16 +237,13 @@ Code anchors:
 - `packages/cli/tests/install.test.ts`
 - `packages/skills/package.json`
 - `packages/skills/README.md`
-- `packages/skills/archive-docs/`
-- `packages/skills/decompose-codebase/`
-- `packages/skills/closeout-commit/`
-- `packages/skills/closeout-phase/`
-- `packages/skills/work-on-wave/`
-- `packages/skills/work-on-phase/`
-- `docs/prd/26-revise-no-scripts-migration-skill-refactor.md`
-- `docs/prd/27-revise-skill-purpose-registry-alternate-skills-manifest.md`
-- `docs/prd/28-revise-shared-agentics-installation-harness-redirection.md`
-- `docs/prd/30-revise-harness-plugin-substrate-workflow-bundles.md`
+- `packages/skills/archive-docs/SKILL.md`
+- `packages/skills/cleanup-docs/SKILL.md`
+- `packages/skills/decompose-codebase/SKILL.md`
+- `docs/prd/25-typescript-runtime-cli-mcp-operation-boundaries.md`
+- `docs/prd/08-skills-catalog-and-distribution.md`
+- `docs/prd/28-shared-agentics-installation-and-harness-exposure.md`
+- `docs/prd/30-plugin-substrate-and-workflow-bundles.md`
 - `docs/designs/2026-06-20-no-scripts-migration-and-skill-refactor.md`
 - `docs/designs/2026-06-20-skill-purpose-registry-and-alternate-skills-manifest.md`
 - `docs/designs/2026-06-20-shared-agentics-installation-and-harness-redirection.md`

@@ -5,7 +5,7 @@ status: "active"
 coordinate: "W18 R8 P4"
 source:
   type: "prd"
-  path: "docs/prd/36-revise-playbook-packaging-compiler-and-harness-adapters.md"
+  path: "docs/prd/36-playbook-packaging-compiler-and-harness-adapters.md"
 ---
 
 # Phase 4: Marketplace Seam, Provenance, and Lifecycle
@@ -20,11 +20,11 @@ Generate marketplace and registration files into the distributable with generate
 
 ## Source PRD Docs
 
-- [36 Revise Playbook Packaging Compiler and Harness Adapters](../../prd/36-revise-playbook-packaging-compiler-and-harness-adapters.md)
-- [33 Enhance Playbook Packaging and Harness Adapter Registry](../../prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md)
-- [32 Revise Lifecycle Backup State and Agentics Pruning](../../prd/32-revise-lifecycle-backup-state-agentics-pruning.md)
-- [28 Revise Shared Agentics Installation Harness Redirection](../../prd/28-revise-shared-agentics-installation-harness-redirection.md)
-- [20 Revise Agent Harness Model Conformance Lab](../../prd/20-revise-agent-harness-model-conformance-lab.md)
+- [36 Revise Playbook Packaging Compiler and Harness Adapters](../../prd/36-playbook-packaging-compiler-and-harness-adapters.md)
+- [33 Enhance Playbook Packaging and Harness Adapter Registry](../../prd/36-playbook-packaging-compiler-and-harness-adapters.md)
+- [32 Revise Lifecycle Backup State and Agentics Pruning](../../prd/30-plugin-substrate-and-workflow-bundles.md#update-migration-audit-backup-and-uninstall)
+- [28 Revise Shared Agentics Installation Harness Redirection](../../prd/28-shared-agentics-installation-and-harness-exposure.md)
+- [20 Revise Agent Harness Model Conformance Lab](../../prd/20-agent-harness-conformance-and-support-claims.md)
 
 ## Stage 1 - Marketplace and Registration Seam
 

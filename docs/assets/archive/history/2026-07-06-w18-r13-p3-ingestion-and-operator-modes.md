@@ -15,7 +15,7 @@ summary: "Closed the loop from a driven lab session to the tuple registry: fail-
 
 ## Changes
 
-This session implemented Phase 3 of [the W18 R13 backlog](../../../work/2026-07-06-w18-r13-conformance-execution-and-lab-session-redesign/03-ingestion-and-operator-modes.md) (all seven tasks t1–t7 across the two stages, per [PRD 43](../../../prd/43-revise-conformance-scenario-model-and-execution-kit.md) R-ING-1..2 and [PRD 44](../../../prd/44-revise-conformance-lab-execution-protocol-and-evidence-homes.md) R-EXEC-1..3 and R-MODE-1..2) and ran the phase documentation passes. The implementation was complete and tested at handoff; this session's work was the documentation coverage passes over it.
+This session implemented Phase 3 of [the W18 R13 backlog](../../../work/2026-07-06-w18-r13-conformance-execution-and-lab-session-redesign/03-ingestion-and-operator-modes.md) (all seven tasks t1–t7 across the two stages, per [historical closeout](2026-07-06-w18-r13-conformance-execution-and-lab-session-redesign.md) (retired action-PRD: `docs/prd/43-revise-conformance-scenario-model-and-execution-kit.md`) R-ING-1..2 and [historical closeout](2026-07-06-w18-r13-p4-verification-and-reconciliation.md) (retired action-PRD: `docs/prd/44-revise-conformance-lab-execution-protocol-and-evidence-homes.md`) R-EXEC-1..3 and R-MODE-1..2) and ran the phase documentation passes. The implementation was complete and tested at handoff; this session's work was the documentation coverage passes over it.
 
 ### Implementation
 

@@ -41,7 +41,7 @@ Validation run:
 | Path | Description |
 | --- | --- |
 | [docs/work/2026-06-23-w17-r1-skill-purpose-registry-alternate-skills-manifest/04-lifecycle-package-validation-and-closeout.md](../../../work/2026-06-23-w17-r1-skill-purpose-registry-alternate-skills-manifest/04-lifecycle-package-validation-and-closeout.md) | Marked Phase 4 complete and recorded implementation, coverage, and validation evidence. |
-| [docs/prd/27-revise-skill-purpose-registry-alternate-skills-manifest.md](../../../prd/27-revise-skill-purpose-registry-alternate-skills-manifest.md) | Added W17 R1 Phase 4 implementation evidence for schema, alternate local manifests, provenance, lifecycle review, and package validation. |
+| this historical record (retired action-PRD: `docs/prd/27-revise-skill-purpose-registry-alternate-skills-manifest.md`) | Added W17 R1 Phase 4 implementation evidence for schema, alternate local manifests, provenance, lifecycle review, and package validation. |
 | [docs/prd/03-open-questions-and-risk-register.md](../../../prd/03-open-questions-and-risk-register.md) | Updated Q-001, R-002, and R-006 with concrete W17 R1 evidence while preserving open delivery and lifecycle-removability follow-ups. |
 | [docs/assets/archive/history/2026-06-26-w17-r1-p4-lifecycle-package-validation-and-closeout.md](2026-06-26-w17-r1-p4-lifecycle-package-validation-and-closeout.md) | Added this phase closeout breadcrumb. |
 

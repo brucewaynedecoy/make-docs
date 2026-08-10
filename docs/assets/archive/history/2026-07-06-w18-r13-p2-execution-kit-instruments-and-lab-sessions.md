@@ -15,7 +15,7 @@ summary: "Landed the executable projection of the conformance lab: the per-targe
 
 ## Changes
 
-This session implemented Phase 2 of [the W18 R13 backlog](../../../work/2026-07-06-w18-r13-conformance-execution-and-lab-session-redesign/02-execution-kit-instruments-and-lab-sessions.md) (all twelve tasks t1–t12 across the three stages, per [PRD 43](../../../prd/43-revise-conformance-scenario-model-and-execution-kit.md) R-KIT-1..3, R-INST-1..2, R-PROMPT-1, R-DISC-1, R-HOME-1..2 and [PRD 44](../../../prd/44-revise-conformance-lab-execution-protocol-and-evidence-homes.md) R-NAME-1..2, R-EXEC-1..3) and ran the phase documentation passes.
+This session implemented Phase 2 of [the W18 R13 backlog](../../../work/2026-07-06-w18-r13-conformance-execution-and-lab-session-redesign/02-execution-kit-instruments-and-lab-sessions.md) (all twelve tasks t1–t12 across the three stages, per [historical closeout](2026-07-06-w18-r13-conformance-execution-and-lab-session-redesign.md) (retired action-PRD: `docs/prd/43-revise-conformance-scenario-model-and-execution-kit.md`) R-KIT-1..3, R-INST-1..2, R-PROMPT-1, R-DISC-1, R-HOME-1..2 and [historical closeout](2026-07-06-w18-r13-p4-verification-and-reconciliation.md) (retired action-PRD: `docs/prd/44-revise-conformance-lab-execution-protocol-and-evidence-homes.md`) R-NAME-1..2, R-EXEC-1..3) and ran the phase documentation passes.
 
 ### Implementation
 

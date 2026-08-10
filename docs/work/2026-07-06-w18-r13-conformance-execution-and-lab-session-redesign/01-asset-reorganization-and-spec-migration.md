@@ -5,7 +5,7 @@ status: "active"
 coordinate: "W18 R13 P1"
 source:
   type: "prd"
-  path: "docs/prd/43-revise-conformance-scenario-model-and-execution-kit.md"
+  path: "docs/prd/43-conformance-scenario-model-and-execution-kits.md"
 ---
 
 # Phase 1: Asset Reorganization and Spec Migration
@@ -20,10 +20,10 @@ The four committed `conformance/scenarios/codex-*.json` specs are replaced by fo
 
 ## Source PRD Docs
 
-- [43 Revise Conformance Scenario Model and Execution Kit](../../prd/43-revise-conformance-scenario-model-and-execution-kit.md)
-- [37 Enhance Playbook and Package Conformance](../../prd/37-enhance-playbook-and-package-conformance.md) (revised baseline: R-SCEN identity/absence reporting; registry, bar, statuses, layers, governance unchanged)
-- [42 Revise Conformance Asset Home Relocation](../../prd/42-revise-conformance-asset-home-relocation.md) (still-constraining: the repo-root `conformance/` home stands)
-- [40 Revise Playbook Authoring Contract v2](../../prd/40-revise-playbook-authoring-contract-v2.md) and [41 Revise CLI Human Experience and Package Grammar](../../prd/41-revise-cli-human-experience-and-package-grammar.md) (still-constraining: v2 forms and command spellings in any committed step text)
+- [43 Revise Conformance Scenario Model and Execution Kit](../../prd/43-conformance-scenario-model-and-execution-kits.md)
+- [37 Enhance Playbook and Package Conformance](../../prd/43-conformance-scenario-model-and-execution-kits.md#requirements) (revised baseline: R-SCEN identity/absence reporting; registry, bar, statuses, layers, governance unchanged)
+- [42 Revise Conformance Asset Home Relocation](../../prd/43-conformance-scenario-model-and-execution-kits.md#canonical-conformance-asset-home) (still-constraining: the repo-root `conformance/` home stands)
+- [40 Revise Playbook Authoring Contract v2](../../prd/34-playbook-authoring-contract-and-model.md) and [41 Revise CLI Human Experience and Package Grammar](../../prd/39-cli-command-model-and-operation-registry.md#package-grammar-and-ship-r-gram) (still-constraining: v2 forms and command spellings in any committed step text)
 
 ## Stage 1 - Schema Revision
 

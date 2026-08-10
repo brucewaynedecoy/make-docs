@@ -2,7 +2,7 @@ import { operationCliPath } from "../operations/registry";
 import type { JsonValue, OperationRenderMode } from "../operations/types";
 
 /**
- * The `run` dispatcher's render layer (W18 R12 P3; PRD 41 R-RENDER-1..3),
+ * The `run` dispatcher's render layer (W18 R12 P3; PRD 39 R-RENDER-1..3),
  * built at the seam where `printJson(invocation.value)` sat and keyed by the
  * previously unused {@link OperationRenderMode}.
  *

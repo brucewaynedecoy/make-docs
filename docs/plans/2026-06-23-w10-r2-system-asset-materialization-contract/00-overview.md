@@ -59,19 +59,19 @@ The current manifest records package metadata, selections, effective capabilitie
 
 The PRD set already contains adjacent revisions:
 
-- [11-revise-cli-asset-selection-simplification.md](../../prd/11-revise-cli-asset-selection-simplification.md)
-- [12-revise-cli-skill-selection-simplification.md](../../prd/12-revise-cli-skill-selection-simplification.md)
-- [13-revise-cli-conflict-resolution.md](../../prd/13-revise-cli-conflict-resolution.md)
-- [15-revise-agent-instruction-file-ownership.md](../../prd/15-revise-agent-instruction-file-ownership.md)
-- [16-revise-package-and-deployment-boundaries.md](../../prd/16-revise-package-and-deployment-boundaries.md)
+- [06-template-contracts-and-generated-assets.md](../../prd/06-template-contracts-and-generated-assets.md#component-and-capability-map)
+- [08-skills-catalog-and-distribution.md](../../prd/08-skills-catalog-and-distribution.md#component-and-capability-map)
+- [07-cli-command-surface-and-lifecycle.md](../../prd/07-cli-command-surface-and-lifecycle.md#plan-review-confirmation-and-apply-orchestration)
+- [15-agent-instruction-ownership-and-managed-blocks.md](../../prd/15-agent-instruction-ownership-and-managed-blocks.md)
+- [16-package-runtime-and-deployment-boundaries.md](../../prd/16-package-runtime-and-deployment-boundaries.md)
 
 This plan does not replace those docs. It appends the next revision and annotates only the affected sections.
 
 ## Output Contract
 
 - Plan directory: `docs/plans/2026-06-23-w10-r2-system-asset-materialization-contract/` (this directory).
-- New change doc: `docs/prd/17-revise-system-asset-materialization-contract.md`.
-- Baseline docs to annotate: `docs/prd/02-architecture-overview.md`, `docs/prd/05-installation-profile-and-manifest-lifecycle.md`, `docs/prd/06-template-contracts-and-generated-assets.md`, `docs/prd/07-cli-command-surface-and-lifecycle.md`, `docs/prd/08-skills-catalog-and-distribution.md`, `docs/prd/10-packaging-validation-and-release-reference.md`, and `docs/prd/16-revise-package-and-deployment-boundaries.md`.
+- New change doc: `docs/prd/17-system-asset-materialization-and-local-bootstrap.md`.
+- Baseline docs to annotate: `docs/prd/02-architecture-overview.md`, `docs/prd/05-installation-profile-and-manifest-lifecycle.md`, `docs/prd/06-template-contracts-and-generated-assets.md`, `docs/prd/07-cli-command-surface-and-lifecycle.md`, `docs/prd/08-skills-catalog-and-distribution.md`, `docs/prd/10-packaging-validation-and-release-reference.md`, and `docs/prd/16-package-runtime-and-deployment-boundaries.md`.
 - Risk register updates: `docs/prd/03-open-questions-and-risk-register.md`.
 - Delta backlog: `docs/work/2026-06-23-w10-r2-system-asset-materialization-contract/`.
 
@@ -91,7 +91,7 @@ Do not create separate PRDs for provider-backed mode, hybrid cache mode, manifes
 | `docs/prd/07-cli-command-surface-and-lifecycle.md` | Enhanced by | User-visible mode selection, outage messaging, dry-run/review behavior, and managed-file safety for on-demand writes. |
 | `docs/prd/08-skills-catalog-and-distribution.md` | Enhanced by | Skills remain selected agentic assets and are not folded into system asset materialization modes. |
 | `docs/prd/10-packaging-validation-and-release-reference.md` | Enhanced by | Full-snapshot package validation baseline plus future provider/cache validation checks. |
-| `docs/prd/16-revise-package-and-deployment-boundaries.md` | Enhanced by | TypeScript CLI/MCP provider behavior must preserve the same manifest, audit, backup, uninstall, and command contracts. |
+| `docs/prd/16-package-runtime-and-deployment-boundaries.md` | Enhanced by | TypeScript CLI/MCP provider behavior must preserve the same manifest, audit, backup, uninstall, and command contracts. |
 
 Update `docs/prd/03-open-questions-and-risk-register.md` directly for existing D/Q/R entries. Do not add `Change Notes` inside the register.
 
@@ -117,7 +117,7 @@ Delegation is available in this harness, but this round is intentionally single-
 - `git diff --check`
 - Reindex `jdocmunch` after edits.
 - Verify no duplicate W/R directory in `docs/plans/` or `docs/work/`.
-- Verify PRD index includes `17-revise-system-asset-materialization-contract.md`.
+- Verify PRD index includes `17-system-asset-materialization-and-local-bootstrap.md`.
 - Verify all work phase files include `## Source PRD Docs`, stage-local `### Tasks`, plain-bullet `### Acceptance criteria`, and `### Dependencies`.
 - Source tests are not required for this round because it writes docs only; the generated backlog names the implementation tests that future source work must run.
 

@@ -6,12 +6,12 @@ Replace selected-skill generated stubs with native harness skill directories.
 
 ## Source PRD Docs
 
-- [PRD 28](../../prd/28-revise-shared-agentics-installation-harness-redirection.md)
+- [PRD 28](../../prd/28-shared-agentics-installation-and-harness-exposure.md)
 - [PRD 07](../../prd/07-cli-command-surface-and-lifecycle.md)
 - [PRD 08](../../prd/08-skills-catalog-and-distribution.md)
 - [PRD 10](../../prd/10-packaging-validation-and-release-reference.md)
-- [PRD 16](../../prd/16-revise-package-and-deployment-boundaries.md)
-- [PRD 27](../../prd/27-revise-skill-purpose-registry-alternate-skills-manifest.md)
+- [PRD 16](../../prd/16-package-runtime-and-deployment-boundaries.md)
+- former PRD 27 (incorporated in the current PRD 08 authority above)
 
 ## Tasks
 

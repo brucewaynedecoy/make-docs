@@ -5,7 +5,7 @@ status: "active"
 coordinate: "W18 R11 P6"
 source:
   type: "prd"
-  path: "docs/prd/39-revise-cli-command-reorganization-and-operation-registry.md"
+  path: "docs/prd/39-cli-command-model-and-operation-registry.md"
 ---
 
 # Phase 6: Verification and Testing
@@ -20,10 +20,10 @@ Land the R-TEST-1 through R-TEST-4 assertions as focused tests, extend the packa
 
 ## Source PRD Docs
 
-- [39 Revise CLI Command Reorganization and Operation Registry](../../prd/39-revise-cli-command-reorganization-and-operation-registry.md)
+- [39 Revise CLI Command Reorganization and Operation Registry](../../prd/39-cli-command-model-and-operation-registry.md)
 - [07 CLI Command Surface and Lifecycle](../../prd/07-cli-command-surface-and-lifecycle.md)
-- [25 Revise CLI Separation and MCP Boundary](../../prd/25-revise-cli-separation-and-mcp-boundary.md)
-- [38 Revise Global Store and Project State](../../prd/38-revise-global-store-and-project-state.md)
+- [25 Revise CLI Separation and MCP Boundary](../../prd/25-typescript-runtime-cli-mcp-operation-boundaries.md)
+- [38 Revise Global Store and Project State](../../prd/38-global-store-and-project-state.md)
 
 ## Stage 1 - D10 Test Suite
 

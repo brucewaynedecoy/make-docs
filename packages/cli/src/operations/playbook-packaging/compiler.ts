@@ -549,7 +549,7 @@ export function compilePackageInventory(input: CompilePackageInventoryInput): Pa
     },
     tupleBinding: {
       unboundDimensions: [...unboundTupleDimensions],
-      note: "Unbound dimensions bind only through W18 R9 conformance evidence (PRD 37); the support claim stays provisional until every dimension of the exact tuple is bound (R-PROV-3).",
+      note: "Unbound dimensions bind only through W18 R9 conformance evidence (PRD 20); the support claim stays provisional until every dimension of the exact tuple is bound (PRD 36 R-PROV-3).",
     },
     // The adapter-contract verification the R-ADAPT-1 gate applied: where the
     // harness contract was confirmed and how far that confirmation goes.
@@ -565,8 +565,8 @@ export function compilePackageInventory(input: CompilePackageInventoryInput): Pa
     // unit or integration coverage; the dependency is referenced here, never
     // reimplemented (R-SCOPE-1).
     cleanlinessScenario: {
-      owner: "W18 R9 conformance lineage (docs/prd/37-enhance-playbook-and-package-conformance.md)",
-      requirement: "R-PROV-2 via PRD 37 R-BAR-1/R-SCEN-1: uninstall and backup remove managed generated outputs without orphaning empty managed directories or deleting user-authored files.",
+      owner: "W18 R9 conformance lineage (docs/prd/43-conformance-scenario-model-and-execution-kits.md#requirements)",
+      requirement: "R-PROV-2 via the current conformance-scenario authority's R-BAR-1/R-SCEN-1 lineage: uninstall and backup remove managed generated outputs without orphaning empty managed directories or deleting user-authored files.",
     },
     note: "Support claims remain provisional until conformance evidence exists for the exact tuple (R-PROV-3); unit and integration tests are not harness-recognition evidence (R-TEST-5).",
   }, plan));
@@ -957,7 +957,7 @@ function renderHarnessManifest(input: {
     ? input.dependencies
         .filter((dependency) => dependency.kind === "mcp")
         // The manifest's server reference is the resolved probe — the only
-        // machine-reference field (PRD 40 R-DEP-3); the manifest key stays
+        // machine-reference field (PRD 34 R-DEP-3); the manifest key stays
         // `source` for shape stability with earlier W18 R8 outputs.
         .map((dependency) => ({ id: dependency.dependencyId, source: dependency.probe }))
     : [];
@@ -1068,7 +1068,7 @@ function dependencyDeclaration(dependency: MaterializedDependency): Record<strin
     kind: dependency.kind,
     requirement: dependency.requirement,
     source: dependency.source,
-    // Additive (W18 R12 P2, PRD 40 R-DEP-3): the resolved probe target rides
+    // Additive (W18 R12 P2, PRD 34 R-DEP-3): the resolved probe target rides
     // the declaration record so consumers never re-derive it from prose.
     probe: dependency.probe,
     sourceRef: dependency.sourceRef,

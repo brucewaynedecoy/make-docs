@@ -15,7 +15,7 @@ Completed W10 R4 Phase 4 by running the package, default-asset, smoke-pack, dry-
 
 ### Coverage Decisions
 
-- PRD coverage: no PRD files changed. W10 R4 implemented [PRD 19](../../../prd/19-revise-template-package-dogfood-source-of-truth-contract.md), and the closeout did not change the requirement surface.
+- PRD coverage: no PRD files changed. W10 R4 implemented this historical record (retired action-PRD: `docs/prd/19-revise-template-package-dogfood-source-of-truth-contract.md`), and the closeout did not change the requirement surface.
 - Risk register: no direct edit was needed. D-006, D-014, and R-003 are already closed. D-007, Q-005, R-004, and R-007 remain open because W10 R4 improves focused proof and documentation but does not implement full automated dogfood/template parity coverage, path centralization, or V1-to-V2 Markdown-tree migration link rewriting.
 - Developer-guide coverage: no new guide was required in Phase 4; Phase 2 and Phase 3 already updated the relevant maintainer guides.
 - User-guide coverage: no user guide changed. The package README and maintainer README changes were validated, but no user workflow changed in Phase 4.

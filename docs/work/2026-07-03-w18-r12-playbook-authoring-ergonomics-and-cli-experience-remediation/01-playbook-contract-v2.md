@@ -5,7 +5,7 @@ status: "active"
 coordinate: "W18 R12 P1"
 source:
   type: "prd"
-  path: "docs/prd/40-revise-playbook-authoring-contract-v2.md"
+  path: "docs/prd/34-playbook-authoring-contract-and-model.md"
 ---
 
 # Phase 1: Playbook Contract v2
@@ -20,9 +20,9 @@ The `## Dependencies` Markdown table becomes a fenced `playbook` block with a to
 
 ## Source PRD Docs
 
-- [40 Revise Playbook Authoring Contract v2](../../prd/40-revise-playbook-authoring-contract-v2.md)
-- [34 Revise Playbook Contract and Model](../../prd/34-revise-playbook-contract-and-model.md) (still-constraining baseline: workflow block, step model, model shape, layered validation, unchanged diagnostics)
-- [19 Revise Template Package Dogfood Source of Truth Contract](../../prd/19-revise-template-package-dogfood-source-of-truth-contract.md) (upstream-first authoring order)
+- [40 Revise Playbook Authoring Contract v2](../../prd/34-playbook-authoring-contract-and-model.md)
+- [34 Revise Playbook Contract and Model](../../prd/34-playbook-authoring-contract-and-model.md) (still-constraining baseline: workflow block, step model, model shape, layered validation, unchanged diagnostics)
+- [19 Revise Template Package Dogfood Source of Truth Contract](../../prd/06-template-contracts-and-generated-assets.md#template-source-authority) (upstream-first authoring order)
 
 ## Stage 1 - Parser and Model on the V2 Forms
 

@@ -8,7 +8,7 @@ Settle the implementation-shaping decisions the delta backlog must encode so no 
 
 - Design decisions D0 (scope and boundaries), D1 (preserved prior decisions), D2 (run-state storage and record), D3 (progression operations), D4 (execution by step mode), D5 (digest-aware resume), D6 (run-time guardrails), D7 (portability), D8 (the three tiers in motion), D9 (non-negotiables versus deliberately open choices), and D10 (verification and testability).
 - [Playbook Architecture and Design](../../assets/artifacts/playbook-architecture.md) Section 5 and [Runtime and Global Store](../../assets/artifacts/runtime-and-global-store.md) as source material; the design is the authority where they differ.
-- [PRD 34](../../prd/34-revise-playbook-contract-and-model.md) for the Playbook model, step dimensions, `delegated` default, and the eight-value shared status vocabulary the run state must reuse.
+- [PRD 34](../../prd/34-playbook-authoring-contract-and-model.md) for the Playbook model, step dimensions, `delegated` default, and the eight-value shared status vocabulary the run state must reuse.
 
 ## Outputs
 

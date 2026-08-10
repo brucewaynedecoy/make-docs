@@ -33,6 +33,6 @@ No developer guide or user guide update was needed for Phase 1 because this was 
 
 ## Links
 
-- [PRD 26](../../../prd/26-revise-no-scripts-migration-skill-refactor.md)
+- [historical closeout](2026-06-26-w16-r3-no-scripts-migration-skill-refactor-closeout.md) (retired action-PRD: `docs/prd/26-revise-no-scripts-migration-skill-refactor.md`)
 - [Risk Register](../../../prd/03-open-questions-and-risk-register.md)
 - [W16 R3 Work](../../../work/2026-06-23-w16-r3-no-scripts-migration-skill-refactor/00-index.md)

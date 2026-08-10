@@ -403,7 +403,7 @@ describe("registry validation fails closed (t3/t4, R-REG-1/2)", () => {
         evidence: [
           {
             kind: "internal-test",
-            ref: "docs/prd/36-revise-playbook-packaging-compiler-and-harness-adapters.md",
+            ref: "docs/prd/36-playbook-packaging-compiler-and-harness-adapters.md",
             note: "A PRD is not a test.",
           },
         ],

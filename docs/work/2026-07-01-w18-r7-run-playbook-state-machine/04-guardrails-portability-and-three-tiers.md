@@ -5,7 +5,7 @@ status: "active"
 coordinate: "W18 R7 P4"
 source:
   type: "prd"
-  path: "docs/prd/35-revise-run-playbook-state-machine.md"
+  path: "docs/prd/35-run-playbook-state-machine-and-portability.md"
 ---
 
 # Phase 4: Guardrails, Portability, and Three-Tier Behavior
@@ -20,11 +20,11 @@ Implement the R-GUARD guardrails against the orchestration policy and capability
 
 ## Source PRD Docs
 
-- [35 Revise Run Playbook State Machine](../../prd/35-revise-run-playbook-state-machine.md)
-- [29 Revise Playbook Contract Run Playbook](../../prd/29-revise-playbook-contract-run-playbook.md)
-- [24 Revise Configuration Convention Overlay](../../prd/24-revise-configuration-convention-overlay.md)
-- [30 Revise Harness Plugin Substrate Workflow Bundles](../../prd/30-revise-harness-plugin-substrate-workflow-bundles.md)
-- [34 Revise Playbook Contract and Model](../../prd/34-revise-playbook-contract-and-model.md)
+- [35 Revise Run Playbook State Machine](../../prd/35-run-playbook-state-machine-and-portability.md)
+- [29 Revise Playbook Contract Run Playbook](../../prd/35-run-playbook-state-machine-and-portability.md#requirements)
+- [24 Revise Configuration Convention Overlay](../../prd/24-project-configuration-and-convention-overlay.md)
+- [30 Revise Harness Plugin Substrate Workflow Bundles](../../prd/30-plugin-substrate-and-workflow-bundles.md)
+- [34 Revise Playbook Contract and Model](../../prd/34-playbook-authoring-contract-and-model.md)
 
 ## Stage 1 - Nested, Parallel, and Unattended Guardrails
 

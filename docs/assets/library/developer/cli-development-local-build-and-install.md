@@ -16,7 +16,7 @@ related:
   - ./maintainer-docs-assets-and-runtime-state-boundaries.md
   - ./maintainer-dogfood-and-maintainer-operations.md
   - ./release-packaging-validation-and-release-reference.md
-  - ../../../prd/25-revise-cli-separation-and-mcp-boundary.md
+  - ../../../prd/25-typescript-runtime-cli-mcp-operation-boundaries.md
 ---
 
 # Building and Installing the CLI Locally

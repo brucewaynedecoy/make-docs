@@ -10,8 +10,8 @@ The classifier should be callable by install, reconfigure, migration, backup, un
 
 ## Source PRD Docs
 
-- [18 Revise Compatibility Audit and Migration Disposition](../../prd/18-revise-compatibility-audit-and-migration-disposition.md)
-- [17 Revise System Asset Materialization Contract](../../prd/17-revise-system-asset-materialization-contract.md)
+- [18 Revise Compatibility Audit and Migration Disposition](../../prd/18-compatibility-classification-and-migration-safety.md)
+- [17 Revise System Asset Materialization Contract](../../prd/17-system-asset-materialization-and-local-bootstrap.md)
 - [05 Installation, Profile, and Manifest Lifecycle](../../prd/05-installation-profile-and-manifest-lifecycle.md)
 - [07 CLI Command Surface and Lifecycle](../../prd/07-cli-command-surface-and-lifecycle.md)
 - [03 Open Questions and Risk Register](../../prd/03-open-questions-and-risk-register.md)
@@ -85,7 +85,7 @@ Phase 2 adds `packages/cli/src/compatibility.ts` as the reusable source-state cl
 | Shared types and fixtures | `packages/cli/src/types.ts` exports the accepted compatibility state/disposition unions, and `packages/cli/tests/compatibility-fixtures.ts` continues to provide the fixture matrix consumed by classifier tests. |
 | Validation | `packages/cli/tests/compatibility.test.ts` validates every Phase 1 fixture case against state, disposition, evidence, provider/cache trust, malformed-manifest handling, ambiguous fallback handling, and non-product path collision evidence. |
 
-Guide coverage: no developer or user guide change was needed because Phase 2 introduces an internal classifier and test contract, not a new maintainer-operated or user-facing workflow. PRD coverage: no new PRD change doc was needed because Phase 2 implements PRD 18; `docs/prd/18-revise-compatibility-audit-and-migration-disposition.md` was updated with classifier source anchors. Risk-register status is unchanged.
+Guide coverage: no developer or user guide change was needed because Phase 2 introduces an internal classifier and test contract, not a new maintainer-operated or user-facing workflow. PRD coverage: no new PRD change doc was needed because Phase 2 implements PRD 18; `docs/prd/18-compatibility-classification-and-migration-safety.md` was updated with classifier source anchors. Risk-register status is unchanged.
 
 UAT/manual testing remains deferred until full W10 R3 wave closeout. Phase validation so far: `npm test -w packages/cli -- compatibility-fixtures.test.ts compatibility.test.ts --reporter=dot` and `npm run build -w packages/cli`.
 

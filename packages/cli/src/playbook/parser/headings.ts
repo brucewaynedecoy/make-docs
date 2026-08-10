@@ -9,7 +9,7 @@
  * required section, is a PB-DOC-001 error. The removed v1 spellings
  * (`## Inputs And Authority`, `## Workflow Contract`, `## Gates And
  * Decisions`, `## Outputs And Handoff`) fail with the pointed PB-DOC-027
- * naming the v2 heading for that slot (PRD 40 R-HEAD-1..2, R-MIG-2). This
+ * naming the v2 heading for that slot (PRD 34 R-HEAD-1..2, R-MIG-2). This
  * stage also records the narrative-section presence map; it never extracts
  * meaning from narrative free text (R-DOC-6).
  */
@@ -140,7 +140,7 @@ export function scanHeadingsStage(
   for (const section of h2Sections) {
     const requiredIndex = requiredOrder.indexOf(section.heading as PlaybookRequiredH2Heading);
     if (requiredIndex === -1) {
-      // Clean v2 break (PRD 40 R-MIG-2): a removed v1 spelling is neither a
+      // Clean v2 break (PRD 34 R-MIG-2): a removed v1 spelling is neither a
       // required section nor an unknown one — it fails with the pointed
       // diagnostic naming the v2 heading for its slot. The v2 heading it
       // displaced still reports missing via PB-DOC-001.

@@ -66,7 +66,7 @@ Suggested UAT scenario:
 
 ### PRD Coverage
 
-No PRD changes were warranted during final wave closeout. The completed implementation stayed inside [PRD 24](../../../prd/24-revise-configuration-convention-overlay.md): optional project-owned config, presentation-only rendering, canonical metadata/routing, source-first template rules, and local config preservation.
+No PRD changes were warranted during final wave closeout. The completed implementation stayed inside this historical record (retired action-PRD: `docs/prd/24-revise-configuration-convention-overlay.md`): optional project-owned config, presentation-only rendering, canonical metadata/routing, source-first template rules, and local config preservation.
 
 ### Validation
 

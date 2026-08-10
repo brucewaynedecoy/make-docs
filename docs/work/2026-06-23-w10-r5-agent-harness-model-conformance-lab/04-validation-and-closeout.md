@@ -6,7 +6,7 @@ Validate and close conformance-lab implementation with evidence that lab assets 
 
 ## Source PRD Docs
 
-- `docs/prd/20-revise-agent-harness-model-conformance-lab.md`
+- `docs/prd/20-agent-harness-conformance-and-support-claims.md`
 - `docs/prd/10-packaging-validation-and-release-reference.md`
 
 ## Stage 1 - Validation
@@ -47,7 +47,7 @@ Validate and close conformance-lab implementation with evidence that lab assets 
 
 ## Coverage Decisions
 
-- PRD coverage: no PRD files changed. [PRD 20](../../prd/20-revise-agent-harness-model-conformance-lab.md) already owns the maintainer-only lab boundary, scenario/result record requirements, raw-artifact locality, and support-claim gate.
+- PRD coverage: no PRD files changed. [PRD 20](../../prd/20-agent-harness-conformance-and-support-claims.md) already owns the maintainer-only lab boundary, scenario/result record requirements, raw-artifact locality, and support-claim gate.
 - Developer-guide coverage: no additional guide changes were needed in Phase 4. The Phase 2 and Phase 3 guide updates already captured the durable maintainer workflow.
 - User-guide coverage: no user guide was needed. The wave does not change user-facing install, package, or harness behavior.
 - UAT: no separate hand-run UAT was worthwhile for this closeout. The only shipped behavior to guard is package/template absence, which `npm run smoke:pack`, `npm pack --dry-run`, and direct package/template scans validated with human-readable output.

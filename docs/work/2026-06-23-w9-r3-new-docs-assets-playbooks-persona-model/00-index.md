@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Implement the requirements planned in [../../plans/2026-06-23-w9-r3-new-docs-assets-playbooks-persona-model/00-overview.md](../../plans/2026-06-23-w9-r3-new-docs-assets-playbooks-persona-model/00-overview.md) and captured in [../../prd/22-revise-new-docs-assets-playbooks-persona-model.md](../../prd/22-revise-new-docs-assets-playbooks-persona-model.md).
+Implement the requirements planned in [../../plans/2026-06-23-w9-r3-new-docs-assets-playbooks-persona-model/00-overview.md](../../plans/2026-06-23-w9-r3-new-docs-assets-playbooks-persona-model/00-overview.md) and captured in [../../prd/22-project-documentation-asset-model.md](../../prd/22-project-documentation-asset-model.md#requirements).
 
 ## W9 R5 Supersession Note
 
@@ -12,8 +12,8 @@ W9 R3 is completed historical implementation evidence. Before using this backlog
 
 - Design: [../../designs/2026-06-19-new-docs-assets-playbooks-and-persona-model.md](../../designs/2026-06-19-new-docs-assets-playbooks-and-persona-model.md)
 - Plan: [../../plans/2026-06-23-w9-r3-new-docs-assets-playbooks-persona-model/00-overview.md](../../plans/2026-06-23-w9-r3-new-docs-assets-playbooks-persona-model/00-overview.md)
-- Primary PRD: [../../prd/22-revise-new-docs-assets-playbooks-persona-model.md](../../prd/22-revise-new-docs-assets-playbooks-persona-model.md)
-- Dependency PRDs: [../../prd/19-revise-template-package-dogfood-source-of-truth-contract.md](../../prd/19-revise-template-package-dogfood-source-of-truth-contract.md), [../../prd/21-revise-tool-directory-system-custom-resource-tiers.md](../../prd/21-revise-tool-directory-system-custom-resource-tiers.md)
+- Primary PRD: [../../prd/22-project-documentation-asset-model.md](../../prd/22-project-documentation-asset-model.md#requirements)
+- Dependency PRDs: [../../prd/06-template-contracts-and-generated-assets.md](../../prd/06-template-contracts-and-generated-assets.md#template-source-authority), [../../prd/21-project-tool-directory-and-resource-tiers.md](../../prd/21-project-tool-directory-and-resource-tiers.md)
 
 ## Phase Map
 

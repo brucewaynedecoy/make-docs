@@ -51,8 +51,8 @@ Open questions from the design should be promoted or updated in `docs/prd/03-ope
 ## Output Contract
 
 - Plan directory: `docs/plans/2026-06-23-w10-r1-package-and-deployment-boundaries/` (this directory).
-- New change doc: `docs/prd/16-revise-package-and-deployment-boundaries.md`.
-- Baseline docs to annotate: `docs/prd/01-product-overview.md`, `docs/prd/02-architecture-overview.md`, `docs/prd/05-installation-profile-and-manifest-lifecycle.md`, `docs/prd/07-cli-command-surface-and-lifecycle.md`, `docs/prd/08-skills-catalog-and-distribution.md`, `docs/prd/10-packaging-validation-and-release-reference.md`, and `docs/prd/12-revise-cli-skill-selection-simplification.md`.
+- New change doc: `docs/prd/16-package-runtime-and-deployment-boundaries.md`.
+- Baseline docs to annotate: `docs/prd/01-product-overview.md`, `docs/prd/02-architecture-overview.md`, `docs/prd/05-installation-profile-and-manifest-lifecycle.md`, `docs/prd/07-cli-command-surface-and-lifecycle.md`, `docs/prd/08-skills-catalog-and-distribution.md`, `docs/prd/10-packaging-validation-and-release-reference.md`, and `docs/prd/08-skills-catalog-and-distribution.md`.
 - Risk register updates: `docs/prd/03-open-questions-and-risk-register.md`.
 - Delta backlog: `docs/work/2026-06-23-w10-r1-package-and-deployment-boundaries/`.
 
@@ -60,7 +60,7 @@ Open questions from the design should be promoted or updated in `docs/prd/03-ope
 
 | New doc | Kind | Why it exists | Affected baseline docs |
 | --- | --- | --- | --- |
-| `16-revise-package-and-deployment-boundaries.md` | revision | Records the effective v2 package identity, command, release-channel, TypeScript runtime ownership, remote package-runner, required MCP, no-alias, and shared-contract requirements that supersede or extend prior package-identity and npm-only assumptions. | `01`, `02`, `05`, `07`, `08`, `10`, `12`, `03` |
+| `16-package-runtime-and-deployment-boundaries.md` | revision | Records the effective v2 package identity, command, release-channel, TypeScript runtime ownership, remote package-runner, required MCP, no-alias, and shared-contract requirements that supersede or extend prior package-identity and npm-only assumptions. | `01`, `02`, `05`, `07`, `08`, `10`, `12`, `03` |
 
 Do not split this into multiple PRD change docs unless the execution pass discovers materially separate requirement areas that need independent rationale or sequencing. The design intentionally resolves one boundary first so later Batch 1 designs can stay constrained.
 
@@ -68,13 +68,13 @@ Do not split this into multiple PRD change docs unless the execution pass discov
 
 | Baseline doc | Impacted sections | Note verb | Target change doc |
 | --- | --- | --- | --- |
-| `docs/prd/01-product-overview.md` | product identity, system boundary, current limitations | Superseded by | `16-revise-package-and-deployment-boundaries.md` |
-| `docs/prd/02-architecture-overview.md` | runtime zones, module map, deployment boundaries | Enhanced by | `16-revise-package-and-deployment-boundaries.md` |
-| `docs/prd/05-installation-profile-and-manifest-lifecycle.md` | manifest state, audit safety, install provenance | Enhanced by | `16-revise-package-and-deployment-boundaries.md` |
-| `docs/prd/07-cli-command-surface-and-lifecycle.md` | public command model, help/version behavior, lifecycle routing | Superseded by | `16-revise-package-and-deployment-boundaries.md` |
-| `docs/prd/08-skills-catalog-and-distribution.md` | skills delivery boundary and unresolved shared install questions | Enhanced by | `16-revise-package-and-deployment-boundaries.md` |
-| `docs/prd/10-packaging-validation-and-release-reference.md` | npm allowlist, release channels, package verification, future distribution references | Enhanced by | `16-revise-package-and-deployment-boundaries.md` |
-| `docs/prd/12-revise-cli-skill-selection-simplification.md` | no-default-skills behavior for bare installs | Enhanced by | `16-revise-package-and-deployment-boundaries.md` |
+| `docs/prd/01-product-overview.md` | product identity, system boundary, current limitations | Superseded by | `16-package-runtime-and-deployment-boundaries.md` |
+| `docs/prd/02-architecture-overview.md` | runtime zones, module map, deployment boundaries | Enhanced by | `16-package-runtime-and-deployment-boundaries.md` |
+| `docs/prd/05-installation-profile-and-manifest-lifecycle.md` | manifest state, audit safety, install provenance | Enhanced by | `16-package-runtime-and-deployment-boundaries.md` |
+| `docs/prd/07-cli-command-surface-and-lifecycle.md` | public command model, help/version behavior, lifecycle routing | Superseded by | `16-package-runtime-and-deployment-boundaries.md` |
+| `docs/prd/08-skills-catalog-and-distribution.md` | skills delivery boundary and unresolved shared install questions | Enhanced by | `16-package-runtime-and-deployment-boundaries.md` |
+| `docs/prd/10-packaging-validation-and-release-reference.md` | npm allowlist, release channels, package verification, future distribution references | Enhanced by | `16-package-runtime-and-deployment-boundaries.md` |
+| `docs/prd/08-skills-catalog-and-distribution.md` | no-default-skills behavior for bare installs | Enhanced by | `16-package-runtime-and-deployment-boundaries.md` |
 
 Do not add `### Change Notes` to `docs/prd/03-open-questions-and-risk-register.md`; update its existing numbered D/Q/R items directly.
 
@@ -97,7 +97,7 @@ Execution is delegation-first when workers are available; the coordinator's writ
 ## Validation
 
 - The new change doc uses the revision template and the `revision` change type.
-- `docs/prd/00-index.md` includes `16-revise-package-and-deployment-boundaries.md` with active status and related-doc links.
+- `docs/prd/00-index.md` includes `16-package-runtime-and-deployment-boundaries.md` with active status and related-doc links.
 - Every affected baseline doc has the required `### Change Notes` backlink, and no active PRD doc is renumbered.
 - `docs/prd/03-open-questions-and-risk-register.md` updates D-005, D-006, Q-001, Q-007, Q-008, Q-012, R-003, R-006, and R-014 without duplicating existing items.
 - The delta backlog traces to the new change doc, affected baseline docs, package/deployment design, and current TypeScript CLI/package surfaces.

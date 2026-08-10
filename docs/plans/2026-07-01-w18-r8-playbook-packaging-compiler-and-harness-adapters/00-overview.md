@@ -42,12 +42,12 @@ This plan is complete when the active PRD namespace carries the packaging-compil
 | ----- | ------ | -------- | ---------- |
 | Playbook Packaging Compiler and Harness Adapters design | design doc | [../../designs/2026-07-01-playbook-packaging-compiler-and-harness-adapters.md](../../designs/2026-07-01-playbook-packaging-compiler-and-harness-adapters.md) | High — accepted authority with D0–D10 decisions and R-* requirement IDs |
 | Playbook Architecture and Design, Sections 6–8 | artifact | [../../assets/artifacts/playbook-architecture.md](../../assets/artifacts/playbook-architecture.md) | High as source material; the design is the authority where they differ |
-| PRD 33 Enhance Playbook Packaging and Harness Adapter Registry | change PRD (primary baseline being revised) | [../../prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md](../../prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md) | High — carries the W18 R5 pipeline this design preserves and the descriptor-era output and path-template declarations this design supersedes |
-| PRD 34 Revise Playbook Contract and Model | change PRD | [../../prd/34-revise-playbook-contract-and-model.md](../../prd/34-revise-playbook-contract-and-model.md) | High — the compiler consumes its Playbook model, rich steps, typed dependency registry, and activation content unchanged |
-| PRD 35 Revise Run Playbook State Machine | change PRD | [../../prd/35-revise-run-playbook-state-machine.md](../../prd/35-revise-run-playbook-state-machine.md) | High — the run-time capability question stays with the runner; the shared harness registry answers both questions without contradiction |
-| PRD 28 Revise Shared Agentics Installation Harness Redirection | baseline PRD | [../../prd/28-revise-shared-agentics-installation-harness-redirection.md](../../prd/28-revise-shared-agentics-installation-harness-redirection.md) | High — the exposure plumbing (canonical payload, symlink/copy-mirror mirror, manifest ownership) is reused unchanged; no annotation expected |
-| PRD 30 Revise Harness Plugin Substrate Workflow Bundles | baseline PRD | [../../prd/30-revise-harness-plugin-substrate-workflow-bundles.md](../../prd/30-revise-harness-plugin-substrate-workflow-bundles.md) | High — plugin substrate and workflow bundles keep consuming the packaging contract through PRD 33's change-note chain; no requirement text there is superseded |
-| PRD 20 Revise Agent Harness Model Conformance Lab | baseline PRD | [../../prd/20-revise-agent-harness-model-conformance-lab.md](../../prd/20-revise-agent-harness-model-conformance-lab.md) | High — tuple-bound support-claim gating is preserved unchanged and real-harness recognition evidence stays with the conformance lineage |
+| PRD 33 Enhance Playbook Packaging and Harness Adapter Registry | change PRD (primary baseline being revised) | [../../prd/36-playbook-packaging-compiler-and-harness-adapters.md](../../prd/36-playbook-packaging-compiler-and-harness-adapters.md) | High — carries the W18 R5 pipeline this design preserves and the descriptor-era output and path-template declarations this design supersedes |
+| PRD 34 Revise Playbook Contract and Model | change PRD | [../../prd/34-playbook-authoring-contract-and-model.md](../../prd/34-playbook-authoring-contract-and-model.md) | High — the compiler consumes its Playbook model, rich steps, typed dependency registry, and activation content unchanged |
+| PRD 35 Revise Run Playbook State Machine | change PRD | [../../prd/35-run-playbook-state-machine-and-portability.md](../../prd/35-run-playbook-state-machine-and-portability.md) | High — the run-time capability question stays with the runner; the shared harness registry answers both questions without contradiction |
+| PRD 28 Revise Shared Agentics Installation Harness Redirection | baseline PRD | [../../prd/28-shared-agentics-installation-and-harness-exposure.md](../../prd/28-shared-agentics-installation-and-harness-exposure.md) | High — the exposure plumbing (canonical payload, symlink/copy-mirror mirror, manifest ownership) is reused unchanged; no annotation expected |
+| PRD 30 Revise Harness Plugin Substrate Workflow Bundles | baseline PRD | [../../prd/30-plugin-substrate-and-workflow-bundles.md](../../prd/30-plugin-substrate-and-workflow-bundles.md) | High — plugin substrate and workflow bundles keep consuming the packaging contract through PRD 33's change-note chain; no requirement text there is superseded |
+| PRD 20 Revise Agent Harness Model Conformance Lab | baseline PRD | [../../prd/20-agent-harness-conformance-and-support-claims.md](../../prd/20-agent-harness-conformance-and-support-claims.md) | High — tuple-bound support-claim gating is preserved unchanged and real-harness recognition evidence stays with the conformance lineage |
 
 Open questions and ambiguities discovered during execution are promoted into [../../prd/03-open-questions-and-risk-register.md](../../prd/03-open-questions-and-risk-register.md) per its numbering and status rules.
 
@@ -65,8 +65,8 @@ Open questions and ambiguities discovered during execution are promoted into [..
   - entry point: `docs/plans/2026-07-01-w18-r8-playbook-packaging-compiler-and-harness-adapters/00-overview.md`
   - phase files: `docs/plans/2026-07-01-w18-r8-playbook-packaging-compiler-and-harness-adapters/0N-<phase>.md`
 - New change docs:
-  - `docs/prd/36-revise-playbook-packaging-compiler-and-harness-adapters.md`
-- Baseline docs to annotate: `docs/prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md`
+  - `docs/prd/36-playbook-packaging-compiler-and-harness-adapters.md`
+- Baseline docs to annotate: `docs/prd/36-playbook-packaging-compiler-and-harness-adapters.md`
 - Index and register updates: `docs/prd/00-index.md`, `docs/prd/03-open-questions-and-risk-register.md`
 - Delta backlog:
   - `docs/work/2026-07-01-w18-r8-playbook-packaging-compiler-and-harness-adapters/`
@@ -77,14 +77,14 @@ One change doc carries the whole scope because the design's decision areas (comp
 
 | New doc | Kind | Why it exists | Affected baseline docs |
 | ------- | ---- | ------------- | ---------------------- |
-| [36-revise-playbook-packaging-compiler-and-harness-adapters.md](../../prd/36-revise-playbook-packaging-compiler-and-harness-adapters.md) | revision | Supersedes PRD 33's descriptor-as-payload output and assumed adapter path templates with a harness-native multi-file distributable compiler, the harness capability and distributable model, and verified Codex/Claude Code/Pi adapter contracts, while preserving the reviewed W18 R5 pipeline, rails, target model, adapter-registry model, provenance, and tuple-bound support. | PRD 33, plus the PRD index and risk register. |
+| [36-playbook-packaging-compiler-and-harness-adapters.md](../../prd/36-playbook-packaging-compiler-and-harness-adapters.md) | revision | Supersedes PRD 33's descriptor-as-payload output and assumed adapter path templates with a harness-native multi-file distributable compiler, the harness capability and distributable model, and verified Codex/Claude Code/Pi adapter contracts, while preserving the reviewed W18 R5 pipeline, rails, target model, adapter-registry model, provenance, and tuple-bound support. | PRD 33, plus the PRD index and risk register. |
 
 ## Baseline Annotation Plan
 
 | Baseline doc | Impacted sections | Note verb | Target change doc |
 | ------------ | ----------------- | --------- | ----------------- |
-| [33-enhance-playbook-packaging-and-harness-adapter-registry.md](../../prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md) | Capability Addition or Enhancement | Superseded by | [36-revise-playbook-packaging-compiler-and-harness-adapters.md](../../prd/36-revise-playbook-packaging-compiler-and-harness-adapters.md) |
-| [33-enhance-playbook-packaging-and-harness-adapter-registry.md](../../prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md) | Contracts and Data (appended newest-last after the existing PRD 34 note) | Superseded by | [36-revise-playbook-packaging-compiler-and-harness-adapters.md](../../prd/36-revise-playbook-packaging-compiler-and-harness-adapters.md) |
+| [36-playbook-packaging-compiler-and-harness-adapters.md](../../prd/36-playbook-packaging-compiler-and-harness-adapters.md) | Capability Addition or Enhancement | Superseded by | [36-playbook-packaging-compiler-and-harness-adapters.md](../../prd/36-playbook-packaging-compiler-and-harness-adapters.md) |
+| [36-playbook-packaging-compiler-and-harness-adapters.md](../../prd/36-playbook-packaging-compiler-and-harness-adapters.md) | Contracts and Data (appended newest-last after the existing PRD 34 note) | Superseded by | [36-playbook-packaging-compiler-and-harness-adapters.md](../../prd/36-playbook-packaging-compiler-and-harness-adapters.md) |
 
 ## Worker Ownership
 
@@ -92,8 +92,8 @@ The coordinator write scope is `none` when delegation is available; every output
 
 | Worker | Scope | Write Scope | Dependencies | Deliverables |
 | ------ | ----- | ----------- | ------------ | ------------ |
-| Change doc author | Author PRD 36 from the revision template with the design's R-* requirement IDs | `docs/prd/36-revise-playbook-packaging-compiler-and-harness-adapters.md` | Accepted W18 R8 design | The effective-requirement change doc. |
-| Baseline annotation worker | Add `### Change Notes` backlinks under the genuinely impacted PRD 33 headings, newest note last in existing blocks | `docs/prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md` (annotations only) | PRD 36 exists | Non-destructive supersession annotations. |
+| Change doc author | Author PRD 36 from the revision template with the design's R-* requirement IDs | `docs/prd/36-playbook-packaging-compiler-and-harness-adapters.md` | Accepted W18 R8 design | The effective-requirement change doc. |
+| Baseline annotation worker | Add `### Change Notes` backlinks under the genuinely impacted PRD 33 headings, newest note last in existing blocks | `docs/prd/36-playbook-packaging-compiler-and-harness-adapters.md` (annotations only) | PRD 36 exists | Non-destructive supersession annotations. |
 | Index and register assembler | PRD index row, reading-order and lineage mentions, risk-register updates including R-017 and the adapter-verification risk | `docs/prd/00-index.md`, `docs/prd/03-open-questions-and-risk-register.md` | PRD 36 and annotations | Accurate catalog status, lineage, and register state. |
 | Delta backlog author | Dependency-ordered W18 R8 implementation backlog | `docs/work/2026-07-01-w18-r8-playbook-packaging-compiler-and-harness-adapters/**` | PRD 36 shape settled | Decision-complete delta backlog. |
 | Validation worker | Link, path-hygiene, wave-numbering, annotation, and traceability checks | Changed docs only (fix-up edits) | All writing workers | Validation output and fix-up patches. |
@@ -118,12 +118,12 @@ Execution validates that PRD 36 uses the revision template and carries every des
 ## Dependencies
 
 - [Playbook Packaging Compiler and Harness Adapters](../../designs/2026-07-01-playbook-packaging-compiler-and-harness-adapters.md) is the accepted authority; [Playbook Architecture and Design](../../assets/artifacts/playbook-architecture.md) Sections 6–8 are its source material.
-- The Playbook model, rich step content, typed dependency registry, and step activation are owned by the W18 R6 lineage ([../../prd/34-revise-playbook-contract-and-model.md](../../prd/34-revise-playbook-contract-and-model.md) and [../../designs/2026-06-30-playbook-contract-and-model.md](../../designs/2026-06-30-playbook-contract-and-model.md)); this plan is sequenced after that design, consumes the model unchanged, and must not redefine it per R-SCOPE-1.
-- The run-state machine and run-time execution are owned by the W18 R7 lineage ([../../prd/35-revise-run-playbook-state-machine.md](../../prd/35-revise-run-playbook-state-machine.md)); the shared harness registry answers the packaging-time capability question here and the run-time question there, without either side redefining the other.
+- The Playbook model, rich step content, typed dependency registry, and step activation are owned by the W18 R6 lineage ([../../prd/34-playbook-authoring-contract-and-model.md](../../prd/34-playbook-authoring-contract-and-model.md) and [../../designs/2026-06-30-playbook-contract-and-model.md](../../designs/2026-06-30-playbook-contract-and-model.md)); this plan is sequenced after that design, consumes the model unchanged, and must not redefine it per R-SCOPE-1.
+- The run-state machine and run-time execution are owned by the W18 R7 lineage ([../../prd/35-run-playbook-state-machine-and-portability.md](../../prd/35-run-playbook-state-machine-and-portability.md)); the shared harness registry answers the packaging-time capability question here and the run-time question there, without either side redefining the other.
 - Cross-design sequencing dependency: real-harness recognition, installation, and invocation evidence is owned by the conformance design and its tuple registry (architecture artifact Section 9, planned next as W18 R9); this plan references that evidence bar, keeps support claims provisional until it exists per R-PROV-3 and R-TEST-5, and never redefines conformance.
 - The config-gated auto-registration opt-in seam of R-MKT-2 lives in the global store owned by the [Runtime and Global Store](../../assets/artifacts/runtime-and-global-store.md) lineage (design planned as W18 R10); this plan records the seam as additive and off by default and defines nothing about the store itself.
 - Generated outputs that drive Make Docs reference operation identifiers from the operation registry owned by [CLI Command Reorganization](../../assets/artifacts/cli-command-reorganization.md); the registry and CLI tree are consumed, not redefined, per R-SCOPE-1 and R-DEPMAT-1.
-- The exposure plumbing — canonical payload under the staging area, symlink or copy-mirror exposure mirror, and manifest ownership records — is inherited unchanged from [../../prd/28-revise-shared-agentics-installation-harness-redirection.md](../../prd/28-revise-shared-agentics-installation-harness-redirection.md) per R-COMP-2.
+- The exposure plumbing — canonical payload under the staging area, symlink or copy-mirror exposure mirror, and manifest ownership records — is inherited unchanged from [../../prd/28-shared-agentics-installation-and-harness-exposure.md](../../prd/28-shared-agentics-installation-and-harness-exposure.md) per R-COMP-2.
 - The compiler and adapters are ordinary Make Docs operation-core source code under the CLI package, not dogfooded template assets; any Make Docs-owned documentation, contract, or config-schema resource this change implies is authored upstream in `packages/docs/template/` per the maintainer dogfooding rule, and this planning round writes project planning/PRD/work content only and authors nothing under `packages/`.
 
 ## Intended Follow-On

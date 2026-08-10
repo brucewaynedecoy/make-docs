@@ -14,7 +14,7 @@ This directory is the blocking implementation queue created by the planning corr
 
 - Design: [../../designs/2026-06-27-run-playbook-orchestration-and-harness-capabilities.md](../../designs/2026-06-27-run-playbook-orchestration-and-harness-capabilities.md)
 - Plan: [../../plans/2026-06-27-w18-r4-run-playbook-orchestration-and-harness-capabilities/00-overview.md](../../plans/2026-06-27-w18-r4-run-playbook-orchestration-and-harness-capabilities/00-overview.md)
-- Primary PRDs: [../../prd/29-revise-playbook-contract-run-playbook.md](../../prd/29-revise-playbook-contract-run-playbook.md), [../../prd/30-revise-harness-plugin-substrate-workflow-bundles.md](../../prd/30-revise-harness-plugin-substrate-workflow-bundles.md), [../../prd/24-revise-configuration-convention-overlay.md](../../prd/24-revise-configuration-convention-overlay.md)
+- Primary PRDs: [../../prd/35-run-playbook-state-machine-and-portability.md](../../prd/35-run-playbook-state-machine-and-portability.md#requirements), [../../prd/30-plugin-substrate-and-workflow-bundles.md](../../prd/30-plugin-substrate-and-workflow-bundles.md), [../../prd/24-project-configuration-and-convention-overlay.md](../../prd/24-project-configuration-and-convention-overlay.md)
 
 ## Phase Map
 

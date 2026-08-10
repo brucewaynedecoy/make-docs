@@ -10,13 +10,13 @@ Before executing this backlog, apply [W9 R5 v2 Library and Archive History IA Co
 
 ## Purpose
 
-Implement the requirements captured in [28-revise-shared-agentics-installation-harness-redirection.md](../../prd/28-revise-shared-agentics-installation-harness-redirection.md) and planned in [W17 R2 Shared Agentics Installation Harness Redirection Plan](../../plans/2026-06-23-w17-r2-shared-agentics-installation-harness-redirection/00-overview.md).
+Implement the requirements captured in [28-shared-agentics-installation-and-harness-exposure.md](../../prd/28-shared-agentics-installation-and-harness-exposure.md) and planned in [W17 R2 Shared Agentics Installation Harness Redirection Plan](../../plans/2026-06-23-w17-r2-shared-agentics-installation-harness-redirection/00-overview.md).
 
 ## Source Inputs
 
 - [Shared Agentics Installation and Harness Redirection](../../designs/2026-06-20-shared-agentics-installation-and-harness-redirection.md)
 - [W17 R2 plan overview](../../plans/2026-06-23-w17-r2-shared-agentics-installation-harness-redirection/00-overview.md)
-- [PRD 28](../../prd/28-revise-shared-agentics-installation-harness-redirection.md)
+- [PRD 28](../../prd/28-shared-agentics-installation-and-harness-exposure.md)
 - [Risk register](../../prd/03-open-questions-and-risk-register.md)
 
 ## Phase Map

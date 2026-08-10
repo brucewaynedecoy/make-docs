@@ -14,7 +14,7 @@ deterministic rather than a fragile content match.
 
 ## Source PRD Docs
 
-- [15-revise-agent-instruction-file-ownership.md](../../../../prd/15-revise-agent-instruction-file-ownership.md)
+- [historical design](../../designs/2026-06-18-agent-instruction-file-ownership.md) (retired action-PRD: `docs/prd/15-revise-agent-instruction-file-ownership.md`)
 - [07-cli-command-surface-and-lifecycle.md](../../../../prd/07-cli-command-surface-and-lifecycle.md)
 
 ## Stage 1 - Block parser and writer

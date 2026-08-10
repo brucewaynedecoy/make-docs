@@ -5,7 +5,7 @@ status: "active"
 coordinate: "W18 R12 P3"
 source:
   type: "prd"
-  path: "docs/prd/41-revise-cli-human-experience-and-package-grammar.md"
+  path: "docs/prd/39-cli-command-model-and-operation-registry.md"
 ---
 
 # Phase 3: CLI Grammar, Ship, Render, and Ergonomics
@@ -20,11 +20,11 @@ The packaging surface becomes intent-named — `plan` (with `--output`), `previe
 
 ## Source PRD Docs
 
-- [41 Revise CLI Human Experience and Package Grammar](../../prd/41-revise-cli-human-experience-and-package-grammar.md)
-- [39 Revise CLI Command Reorganization and Operation Registry](../../prd/39-revise-cli-command-reorganization-and-operation-registry.md) (still-constraining baseline: append-only registry, derived surfaces, operation core, one-way dependencies)
-- [36 Revise Playbook Packaging Compiler and Harness Adapters](../../prd/36-revise-playbook-packaging-compiler-and-harness-adapters.md) (still-constraining baseline: every fail-before-write stop, preserved unchanged)
-- [24 Revise Configuration Convention Overlay](../../prd/24-revise-configuration-convention-overlay.md) (still-constraining baseline: config is convenience, never authority)
-- [25 Revise CLI Separation and MCP Boundary](../../prd/25-revise-cli-separation-and-mcp-boundary.md) (still-constraining baseline: the MCP surface is untouched)
+- [41 Revise CLI Human Experience and Package Grammar](../../prd/39-cli-command-model-and-operation-registry.md#human-experience-and-package-grammar)
+- [39 Revise CLI Command Reorganization and Operation Registry](../../prd/39-cli-command-model-and-operation-registry.md) (still-constraining baseline: append-only registry, derived surfaces, operation core, one-way dependencies)
+- [36 Revise Playbook Packaging Compiler and Harness Adapters](../../prd/36-playbook-packaging-compiler-and-harness-adapters.md) (still-constraining baseline: every fail-before-write stop, preserved unchanged)
+- [24 Revise Configuration Convention Overlay](../../prd/24-project-configuration-and-convention-overlay.md) (still-constraining baseline: config is convenience, never authority)
+- [25 Revise CLI Separation and MCP Boundary](../../prd/25-typescript-runtime-cli-mcp-operation-boundaries.md) (still-constraining baseline: the MCP surface is untouched)
 
 ## Stage 1 - Package Grammar
 

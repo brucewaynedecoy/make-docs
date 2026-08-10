@@ -20,14 +20,14 @@ The remediation should first quantify the contract and implementation gaps, then
 ## Current Evidence
 
 - [2026-06-20-playbook-contract-and-run-playbook.md](../../designs/2026-06-20-playbook-contract-and-run-playbook.md) defines Playbooks as persona-scoped docs assets and says a Playbook body must include purpose, inputs or authority, procedure, gates, assists, outputs, and validation expectations.
-- [29-revise-playbook-contract-run-playbook.md](../../prd/29-revise-playbook-contract-run-playbook.md) turns that design into requirements, including resolver identity, generic Run Playbook behavior, harness capability mediation, run state, nested Playbook rules, and the additive boundary between Playbooks and plugins.
+- [35-run-playbook-state-machine-and-portability.md](../../prd/35-run-playbook-state-machine-and-portability.md#requirements) turns that design into requirements, including resolver identity, generic Run Playbook behavior, harness capability mediation, run state, nested Playbook rules, and the additive boundary between Playbooks and plugins.
 - There is no first-class `.make-docs/contracts/system/playbook-contract.md` artifact in the current repository. Existing system contracts include output, design, guide, history, coverage-pass, and commit-message contracts, but not Playbook structure.
 - [packages/cli/src/operations/playbook/index.ts](../../../packages/cli/src/operations/playbook/index.ts) currently models `PlaybookInvocationStep` as `id`, `index`, `text`, and `sourceSection`. It extracts procedure and gate steps from Markdown list items rather than from a structured workflow schema.
 - [2026-06-29-playbook-packaging-and-harness-adapter-registry.md](../../designs/2026-06-29-playbook-packaging-and-harness-adapter-registry.md) describes a required Playbook packaging pipeline that should move from source validation to package intent, reviewed package plan, harness adapter resolution, output writer, manifest/provenance records, and package/lifecycle/conformance validation.
-- [33-enhance-playbook-packaging-and-harness-adapter-registry.md](../../prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md) requires generated plugin and skills-bundle outputs to carry Playbook provenance, reuse shared-agentics storage and lifecycle safety, and keep public support claims evidence-bound to exact tuples.
+- [36-playbook-packaging-compiler-and-harness-adapters.md](../../prd/36-playbook-packaging-compiler-and-harness-adapters.md) requires generated plugin and skills-bundle outputs to carry Playbook provenance, reuse shared-agentics storage and lifecycle safety, and keep public support claims evidence-bound to exact tuples.
 - [packages/cli/src/operations/playbook-packaging/writers.ts](../../../packages/cli/src/operations/playbook-packaging/writers.ts) currently renders plugin output as a Make Docs descriptor with `kind: "make-docs.playbook-package.plugin"` rather than a harness-native plugin package.
 - [packages/cli/src/operations/playbook-packaging/adapters.ts](../../../packages/cli/src/operations/playbook-packaging/adapters.ts) currently declares Codex native project plugin output as `.agents/plugins/{packageId}`, while current Codex plugin documentation describes a plugin folder with `.codex-plugin/plugin.json` plus marketplace registration through `.agents/plugins/marketplace.json` or a configured marketplace source.
-- [20-revise-agent-harness-model-conformance-lab.md](../../prd/20-revise-agent-harness-model-conformance-lab.md) requires support claims to cite evidence for the exact scenario, harness, model/provider, runtime, and generated-output tuple. Current tests validate internal file writing and symlink exposure, not harness recognition or plugin usability.
+- [20-agent-harness-conformance-and-support-claims.md](../../prd/20-agent-harness-conformance-and-support-claims.md) requires support claims to cite evidence for the exact scenario, harness, model/provider, runtime, and generated-output tuple. Current tests validate internal file writing and symlink exposure, not harness recognition or plugin usability.
 
 ## Gap Inventory
 
@@ -258,7 +258,7 @@ Expected outputs:
 - A design doc for the Playbook contract recovery.
 - `.make-docs/contracts/system/playbook-contract.md` after the design is accepted and planned.
 - Template/package parity decisions for the contract artifact.
-- PRD updates to [29-revise-playbook-contract-run-playbook.md](../../prd/29-revise-playbook-contract-run-playbook.md), [33-enhance-playbook-packaging-and-harness-adapter-registry.md](../../prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md), and related support-claim docs.
+- PRD updates to [35-run-playbook-state-machine-and-portability.md](../../prd/35-run-playbook-state-machine-and-portability.md#requirements), [36-playbook-packaging-compiler-and-harness-adapters.md](../../prd/36-playbook-packaging-compiler-and-harness-adapters.md), and related support-claim docs.
 
 ### Phase 2 - Structured Playbook Parser and Validator
 

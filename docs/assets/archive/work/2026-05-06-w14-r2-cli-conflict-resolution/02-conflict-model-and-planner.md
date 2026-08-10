@@ -12,7 +12,7 @@ This phase replaces instruction-specific conflict-resolution types with a manage
 
 - `docs/prd/13-revise-cli-conflict-resolution.md`
 - [docs/prd/07-cli-command-surface-and-lifecycle.md](../../../../prd/07-cli-command-surface-and-lifecycle.md)
-- [docs/prd/11-revise-cli-asset-selection-simplification.md](../../../../prd/11-revise-cli-asset-selection-simplification.md)
+- [historical design](../../designs/2026-04-28-cli-asset-selection-simplification.md) (retired action-PRD: `docs/prd/11-revise-cli-asset-selection-simplification.md`)
 
 ## Stage 1 - Replace Instruction-Only Types
 

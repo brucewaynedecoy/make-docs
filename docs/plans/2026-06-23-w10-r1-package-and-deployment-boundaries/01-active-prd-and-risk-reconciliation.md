@@ -6,7 +6,7 @@ Turn the accepted package and deployment boundary design into the active PRD nam
 
 ## What to Build
 
-- Add `docs/prd/16-revise-package-and-deployment-boundaries.md` as a revision change doc.
+- Add `docs/prd/16-package-runtime-and-deployment-boundaries.md` as a revision change doc.
 - Update `docs/prd/00-index.md` with the new active change doc and related-doc links.
 - Add targeted `### Change Notes` backlinks to affected baseline docs:
   - `docs/prd/01-product-overview.md`
@@ -15,7 +15,7 @@ Turn the accepted package and deployment boundary design into the active PRD nam
   - `docs/prd/07-cli-command-surface-and-lifecycle.md`
   - `docs/prd/08-skills-catalog-and-distribution.md`
   - `docs/prd/10-packaging-validation-and-release-reference.md`
-  - `docs/prd/12-revise-cli-skill-selection-simplification.md`
+  - `docs/prd/08-skills-catalog-and-distribution.md`
 - Update `docs/prd/03-open-questions-and-risk-register.md` in place for D-005, D-006, Q-001, Q-007, Q-008, Q-012, R-003, R-006, and R-014.
 
 ## Key Decisions

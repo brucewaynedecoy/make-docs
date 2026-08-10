@@ -15,7 +15,7 @@ Completed W10 R4 Phase 3 by tightening dogfood reseed guidance, preserving the g
 
 ### Coverage Decisions
 
-- PRD coverage: no PRD files changed. [PRD 19](../../../prd/19-revise-template-package-dogfood-source-of-truth-contract.md) already defines the template, dogfood, and package source-of-truth order; Phase 3 implemented that requirement in maintainer and package documentation.
+- PRD coverage: no PRD files changed. [historical closeout](2026-06-25-w10-r4-p4-validation-and-closeout.md) (retired action-PRD: `docs/prd/19-revise-template-package-dogfood-source-of-truth-contract.md`) already defines the template, dogfood, and package source-of-truth order; Phase 3 implemented that requirement in maintainer and package documentation.
 - Developer-guide coverage: updated the existing dogfood maintainer guide instead of creating a new guide. The current topic already owns reseeding and package-template-dogfood relationship guidance.
 - User-guide coverage: no user guide changed. The package README was corrected because it is part of the published CLI package surface, but no user workflow changed.
 - Gap capture: no risk-register update was needed. The work reinforces existing PRD 18 conflict-review semantics and keeps W10 R3 Markdown-tree migration hardening deferred for a later packaged migration backlog.

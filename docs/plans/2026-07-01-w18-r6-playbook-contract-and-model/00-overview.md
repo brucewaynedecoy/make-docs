@@ -42,10 +42,10 @@ This plan is complete when the active PRD namespace carries the deterministic Pl
 | ----- | ------ | -------- | ---------- |
 | Playbook Contract and Model design | design doc | [../../designs/2026-06-30-playbook-contract-and-model.md](../../designs/2026-06-30-playbook-contract-and-model.md) | High — accepted authority with D0–D7 decisions and R-* requirement IDs |
 | Playbook Architecture and Design, Sections 0–4 | artifact | [../../assets/artifacts/playbook-architecture.md](../../assets/artifacts/playbook-architecture.md) | High as source material; the design is the authority where they differ |
-| PRD 29 Playbook Contract Run Playbook | baseline PRD | [../../prd/29-revise-playbook-contract-run-playbook.md](../../prd/29-revise-playbook-contract-run-playbook.md) | High — the primary baseline being revised |
-| PRD 33 Playbook Packaging and Harness Adapter Registry | baseline PRD | [../../prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md](../../prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md) | High — packaging rails must now consume the single Playbook model |
-| PRD 22 New Docs Assets Playbooks Persona Model | baseline PRD | [../../prd/22-revise-new-docs-assets-playbooks-persona-model.md](../../prd/22-revise-new-docs-assets-playbooks-persona-model.md) | High — the playbook filename form in its namespace tree changes |
-| PRD 30 Harness Plugin Substrate Workflow Bundles | baseline PRD | [../../prd/30-revise-harness-plugin-substrate-workflow-bundles.md](../../prd/30-revise-harness-plugin-substrate-workflow-bundles.md) | High — its Playbook Boundary cites the superseded filename form |
+| PRD 29 Playbook Contract Run Playbook | baseline PRD | [../../prd/34-playbook-authoring-contract-and-model.md](../../prd/34-playbook-authoring-contract-and-model.md#requirements) | High — the primary baseline being revised |
+| PRD 33 Playbook Packaging and Harness Adapter Registry | baseline PRD | [../../prd/36-playbook-packaging-compiler-and-harness-adapters.md](../../prd/36-playbook-packaging-compiler-and-harness-adapters.md) | High — packaging rails must now consume the single Playbook model |
+| PRD 22 New Docs Assets Playbooks Persona Model | baseline PRD | [../../prd/22-project-documentation-asset-model.md](../../prd/22-project-documentation-asset-model.md#requirements) | High — the playbook filename form in its namespace tree changes |
+| PRD 30 Harness Plugin Substrate Workflow Bundles | baseline PRD | [../../prd/30-plugin-substrate-and-workflow-bundles.md](../../prd/30-plugin-substrate-and-workflow-bundles.md) | High — its Playbook Boundary cites the superseded filename form |
 
 Open questions and ambiguities discovered during execution are promoted into [../../prd/03-open-questions-and-risk-register.md](../../prd/03-open-questions-and-risk-register.md) per its numbering and status rules.
 
@@ -62,8 +62,8 @@ Open questions and ambiguities discovered during execution are promoted into [..
   - entry point: `docs/plans/2026-07-01-w18-r6-playbook-contract-and-model/00-overview.md`
   - phase files: `docs/plans/2026-07-01-w18-r6-playbook-contract-and-model/0N-<phase>.md`
 - New change docs:
-  - `docs/prd/34-revise-playbook-contract-and-model.md`
-- Baseline docs to annotate: `docs/prd/29-revise-playbook-contract-run-playbook.md`, `docs/prd/22-revise-new-docs-assets-playbooks-persona-model.md`, `docs/prd/30-revise-harness-plugin-substrate-workflow-bundles.md`, `docs/prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md`
+  - `docs/prd/34-playbook-authoring-contract-and-model.md`
+- Baseline docs to annotate: `docs/prd/35-run-playbook-state-machine-and-portability.md`, `docs/prd/22-project-documentation-asset-model.md`, `docs/prd/30-plugin-substrate-and-workflow-bundles.md`, `docs/prd/36-playbook-packaging-compiler-and-harness-adapters.md`
 - Index and register updates: `docs/prd/00-index.md`, `docs/prd/03-open-questions-and-risk-register.md`
 - Delta backlog:
   - `docs/work/2026-07-01-w18-r6-playbook-contract-and-model/`
@@ -74,16 +74,16 @@ One change doc carries the whole scope because the four decision areas (document
 
 | New doc | Kind | Why it exists | Affected baseline docs |
 | ------- | ---- | ------------- | ---------------------- |
-| [34-revise-playbook-contract-and-model.md](../../prd/34-revise-playbook-contract-and-model.md) | revision | Supersedes the substring-based Playbook contract from the PRD 29 lineage with the deterministic document-and-workflow contract, dependency registry, and single parsed Playbook model. | PRD 29, PRD 22, PRD 30, PRD 33, plus the PRD index and risk register. |
+| [34-playbook-authoring-contract-and-model.md](../../prd/34-playbook-authoring-contract-and-model.md) | revision | Supersedes the substring-based Playbook contract from the PRD 29 lineage with the deterministic document-and-workflow contract, dependency registry, and single parsed Playbook model. | PRD 29, PRD 22, PRD 30, PRD 33, plus the PRD index and risk register. |
 
 ## Baseline Annotation Plan
 
 | Baseline doc | Impacted sections | Note verb | Target change doc |
 | ------------ | ----------------- | --------- | ----------------- |
-| [29-revise-playbook-contract-run-playbook.md](../../prd/29-revise-playbook-contract-run-playbook.md) | Change Notes; Canonical Playbook Location; Minimum Frontmatter; Body Contract; Harness Capability Mediation | Superseded by | [34-revise-playbook-contract-and-model.md](../../prd/34-revise-playbook-contract-and-model.md) |
-| [22-revise-new-docs-assets-playbooks-persona-model.md](../../prd/22-revise-new-docs-assets-playbooks-persona-model.md) | Managed Project Asset Namespace | Superseded by | [34-revise-playbook-contract-and-model.md](../../prd/34-revise-playbook-contract-and-model.md) |
-| [30-revise-harness-plugin-substrate-workflow-bundles.md](../../prd/30-revise-harness-plugin-substrate-workflow-bundles.md) | Playbook Boundary | Superseded by | [34-revise-playbook-contract-and-model.md](../../prd/34-revise-playbook-contract-and-model.md) |
-| [33-enhance-playbook-packaging-and-harness-adapter-registry.md](../../prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md) | Contracts and Data | Enhanced by | [34-revise-playbook-contract-and-model.md](../../prd/34-revise-playbook-contract-and-model.md) |
+| [34-playbook-authoring-contract-and-model.md](../../prd/34-playbook-authoring-contract-and-model.md#requirements) | Change Notes; Canonical Playbook Location; Minimum Frontmatter; Body Contract; Harness Capability Mediation | Superseded by | [34-playbook-authoring-contract-and-model.md](../../prd/34-playbook-authoring-contract-and-model.md) |
+| [22-project-documentation-asset-model.md](../../prd/22-project-documentation-asset-model.md#requirements) | Managed Project Asset Namespace | Superseded by | [34-playbook-authoring-contract-and-model.md](../../prd/34-playbook-authoring-contract-and-model.md) |
+| [30-plugin-substrate-and-workflow-bundles.md](../../prd/30-plugin-substrate-and-workflow-bundles.md) | Playbook Boundary | Superseded by | [34-playbook-authoring-contract-and-model.md](../../prd/34-playbook-authoring-contract-and-model.md) |
+| [36-playbook-packaging-compiler-and-harness-adapters.md](../../prd/36-playbook-packaging-compiler-and-harness-adapters.md) | Contracts and Data | Enhanced by | [34-playbook-authoring-contract-and-model.md](../../prd/34-playbook-authoring-contract-and-model.md) |
 
 ## Worker Ownership
 
@@ -91,7 +91,7 @@ The coordinator write scope is `none` when delegation is available; every output
 
 | Worker | Scope | Write Scope | Dependencies | Deliverables |
 | ------ | ----- | ----------- | ------------ | ------------ |
-| Change doc author | Author PRD 34 from the revision template with the design's R-* requirement IDs | `docs/prd/34-revise-playbook-contract-and-model.md` | Accepted W18 R6 design | The effective-requirement change doc. |
+| Change doc author | Author PRD 34 from the revision template with the design's R-* requirement IDs | `docs/prd/34-playbook-authoring-contract-and-model.md` | Accepted W18 R6 design | The effective-requirement change doc. |
 | Baseline annotation worker | Add `### Change Notes` backlinks under the genuinely impacted headings | `docs/prd/29-*.md`, `docs/prd/22-*.md`, `docs/prd/30-*.md`, `docs/prd/33-*.md` (annotations only) | PRD 34 exists | Non-destructive supersession/enhancement annotations. |
 | Index and register assembler | PRD index row, reading-order and lineage mentions, risk-register updates | `docs/prd/00-index.md`, `docs/prd/03-open-questions-and-risk-register.md` | PRD 34 and annotations | Accurate catalog status, lineage, and register state. |
 | Delta backlog author | Dependency-ordered W18 R6 implementation backlog | `docs/work/2026-07-01-w18-r6-playbook-contract-and-model/**` | PRD 34 shape settled | Decision-complete delta backlog. |

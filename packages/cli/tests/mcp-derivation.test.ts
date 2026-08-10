@@ -51,7 +51,7 @@ const EXPECTED_DERIVED_TOOL_NAMES: Record<string, string> = {
 };
 
 const SUPPORT_EVIDENCE_REF =
-  "docs/prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md";
+  "docs/prd/36-playbook-packaging-compiler-and-harness-adapters.md";
 
 const CODEX_PLUGIN_TARGET = {
   harness: "codex",

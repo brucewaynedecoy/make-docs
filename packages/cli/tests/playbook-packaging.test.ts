@@ -192,7 +192,7 @@ function validGeneratedOutputRecord(
     },
     support: {
       status: "provisional",
-      evidenceRefs: ["docs/prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md"],
+      evidenceRefs: ["docs/prd/36-playbook-packaging-compiler-and-harness-adapters.md"],
     },
     lifecycle: {
       backupBeforeOverwrite: true,
@@ -422,7 +422,7 @@ describe("playbook packaging schema foundation", () => {
         surface: "native",
         scope: "project",
       },
-      supportEvidenceRefs: ["docs/prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md"],
+      supportEvidenceRefs: ["docs/prd/36-playbook-packaging-compiler-and-harness-adapters.md"],
     });
     const second = createPlaybookPackagePlan({
       repoRoot: root,
@@ -434,7 +434,7 @@ describe("playbook packaging schema foundation", () => {
         surface: "native",
         scope: "project",
       },
-      supportEvidenceRefs: ["docs/prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md"],
+      supportEvidenceRefs: ["docs/prd/36-playbook-packaging-compiler-and-harness-adapters.md"],
     });
 
     expect(second.plan).toEqual(first.plan);
@@ -603,7 +603,7 @@ describe("playbook packaging schema foundation", () => {
       "--scope",
       "project",
       "--support-evidence-ref",
-      "docs/prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md",
+      "docs/prd/36-playbook-packaging-compiler-and-harness-adapters.md",
     ]);
 
     const output = writeSpy.mock.calls.map((call) => String(call[0])).join("");
@@ -802,7 +802,7 @@ describe("playbook packaging schema foundation", () => {
         surface: "native",
         scope: "project",
       },
-      supportEvidenceRefs: ["docs/prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md"],
+      supportEvidenceRefs: ["docs/prd/36-playbook-packaging-compiler-and-harness-adapters.md"],
     }).plan;
 
     const result = writePlaybookPackageOutputs({
@@ -867,7 +867,7 @@ describe("playbook packaging schema foundation", () => {
         surface: "agents-standard",
         scope: "project",
       },
-      supportEvidenceRefs: ["docs/prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md"],
+      supportEvidenceRefs: ["docs/prd/36-playbook-packaging-compiler-and-harness-adapters.md"],
     }).plan;
 
     const result = writePlaybookPackageOutputs({
@@ -910,7 +910,7 @@ describe("playbook packaging schema foundation", () => {
         surface: "native",
         scope: "export-only",
       },
-      supportEvidenceRefs: ["docs/prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md"],
+      supportEvidenceRefs: ["docs/prd/36-playbook-packaging-compiler-and-harness-adapters.md"],
     }).plan;
 
     const result = writePlaybookPackageOutputs({
@@ -949,7 +949,7 @@ describe("playbook packaging schema foundation", () => {
         surface: "native",
         scope: "project",
       },
-      supportEvidenceRefs: ["docs/prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md"],
+      supportEvidenceRefs: ["docs/prd/36-playbook-packaging-compiler-and-harness-adapters.md"],
     }).plan;
 
     expect(() => writePlaybookPackageOutputs({
@@ -1011,7 +1011,7 @@ describe("playbook packaging schema foundation", () => {
         surface: "native",
         scope: "project",
       },
-      supportEvidenceRefs: ["docs/prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md"],
+      supportEvidenceRefs: ["docs/prd/36-playbook-packaging-compiler-and-harness-adapters.md"],
     }).plan;
 
     const blocked = writePlaybookPackageOutputs({
@@ -1060,7 +1060,7 @@ describe("playbook packaging schema foundation", () => {
         surface: "native",
         scope: "project",
       },
-      supportEvidenceRefs: ["docs/prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md"],
+      supportEvidenceRefs: ["docs/prd/36-playbook-packaging-compiler-and-harness-adapters.md"],
     }).plan;
     const planPath = writeFile(root, "plan.json", JSON.stringify(plan, null, 2));
     const writeSpy = vi.spyOn(process.stdout, "write").mockImplementation(() => true);

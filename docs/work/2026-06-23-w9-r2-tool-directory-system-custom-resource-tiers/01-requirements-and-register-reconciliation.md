@@ -6,7 +6,7 @@ Trace PRD 21 into implementation surfaces and living risk entries.
 
 ## Source PRD Docs
 
-- `docs/prd/21-revise-tool-directory-system-custom-resource-tiers.md`
+- `docs/prd/21-project-tool-directory-and-resource-tiers.md`
 - `docs/prd/03-open-questions-and-risk-register.md`
 
 ## Stage 1 - Trace and Scope
@@ -31,7 +31,7 @@ Trace PRD 21 into implementation surfaces and living risk entries.
 
 | Surface | PRD 21 requirement trace |
 | --- | --- |
-| Architecture and `.make-docs/**` | `docs/prd/21-revise-tool-directory-system-custom-resource-tiers.md` makes `.make-docs/` the in-project tool directory for runtime state, tool resources, local bootstrap, and the reserved `agentics/` surface. |
+| Architecture and `.make-docs/**` | `docs/prd/21-project-tool-directory-and-resource-tiers.md` makes `.make-docs/` the in-project tool directory for runtime state, tool resources, local bootstrap, and the reserved `agentics/` surface. |
 | Manifest, provider, and cache | `.make-docs/manifest.json`, provider/cache metadata, audit state, temporary run state, and provider provenance stay runtime state and stay outside `docs/assets/**`. Provider-backed and hybrid-pinned-cache modes must preserve provider identity, immutable refs or versions, hash details, offline behavior, and recovery guidance. |
 | Template and package | Shipped defaults still start in `packages/docs/template/`, selected dogfood copies remain review surfaces, and package validation must prove generated `packages/cli/template/` behavior after copy/prepack for `.make-docs/**` tool-resource moves. |
 | Audit, backup, uninstall, and migration | Tool-resource migration must use the existing compatibility/audit safety model: classify source state, preserve custom resources, avoid overwriting custom tiers, and keep backup/uninstall tied to one reviewed audit snapshot. |

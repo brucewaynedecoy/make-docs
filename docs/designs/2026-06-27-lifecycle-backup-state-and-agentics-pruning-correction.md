@@ -56,7 +56,7 @@ W18 R2 plugin lifecycle work inherits this lifecycle-state correction before add
 - [CLI Help Backup and Uninstall](../assets/archive/designs/2026-04-18-cli-help-backup-and-uninstall.md)
 - [Installation Profile and Manifest Lifecycle](../prd/05-installation-profile-and-manifest-lifecycle.md)
 - [CLI Command Surface and Lifecycle](../prd/07-cli-command-surface-and-lifecycle.md)
-- [Shared Agentics Installation Harness Redirection](../prd/28-revise-shared-agentics-installation-harness-redirection.md)
+- [Shared Agentics Installation Harness Redirection](../prd/28-shared-agentics-installation-and-harness-exposure.md)
 
 ## Intended Follow-On
 

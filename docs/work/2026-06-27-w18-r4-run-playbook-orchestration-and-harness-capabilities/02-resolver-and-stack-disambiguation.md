@@ -10,8 +10,8 @@ Implement resolver and catalog requirements that keep `persona/slug` as the iden
 
 ## Source PRD Docs
 
-- [29 Revise Playbook Contract Run Playbook](../../prd/29-revise-playbook-contract-run-playbook.md)
-- [23 Revise Generated Metadata Lifecycle Handoffs](../../prd/23-revise-generated-metadata-lifecycle-handoffs.md)
+- [29 Revise Playbook Contract Run Playbook](../../prd/35-run-playbook-state-machine-and-portability.md#requirements)
+- [23 Revise Generated Metadata Lifecycle Handoffs](../../prd/23-generated-document-metadata-and-lifecycle-handoffs.md)
 
 ## Stage 1 - Resolver Contract
 

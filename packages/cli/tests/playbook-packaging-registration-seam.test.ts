@@ -53,7 +53,7 @@ import { createEmptySystemAssetManifestState } from "../src/system-assets";
 import { cleanupTempDir, createTempDir } from "./helpers";
 
 const SUPPORT_EVIDENCE_REF =
-  "docs/prd/36-revise-playbook-packaging-compiler-and-harness-adapters.md";
+  "docs/prd/36-playbook-packaging-compiler-and-harness-adapters.md";
 const CODEX_PLUGIN_PRECONDITIONS = {
   "harness-supported": "satisfied",
   "project-trusted": "satisfied",

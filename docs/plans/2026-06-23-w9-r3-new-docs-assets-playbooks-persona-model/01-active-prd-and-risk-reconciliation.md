@@ -6,7 +6,7 @@ Define the active PRD edits required for the v2 reader-facing docs asset model b
 
 ## New PRD Change Doc
 
-Create [../../prd/22-revise-new-docs-assets-playbooks-persona-model.md](../../prd/22-revise-new-docs-assets-playbooks-persona-model.md) because the design introduces new requirements across four axes:
+Create [../../prd/22-project-documentation-asset-model.md](../../prd/22-project-documentation-asset-model.md#requirements) because the design introduces new requirements across four axes:
 
 - `docs/assets/library/**` and `docs/assets/playbooks/**` as the canonical reader-facing reusable documentation asset namespace after W9 R5.
 - `docs/assets/archive/**` as managed archive storage after W9 R4, with future history/breadcrumb records under `docs/assets/archive/history/**` after W9 R5. Earlier W9 R3 wording that pointed future archive storage at top-level `docs/archive/**` is superseded.
@@ -24,9 +24,9 @@ Update these active docs:
 - `06-template-contracts-and-generated-assets.md`: require template-first source for shipped guides/playbooks and preserve `docs/assets/**` as reader-facing, not tool-resource, storage.
 - `09-dogfood-and-maintainer-operations.md`: add dogfood reseeding expectations for guides/playbooks and archive migration.
 - `10-packaging-validation-and-release-reference.md`: add packed-template and smoke-pack validation for reader-facing asset migration.
-- `14-add-lifecycle-workflow-foundation.md`: annotate the W16 `docs/library/playbooks/**` placement as migrated transitional evidence under the new canonical model.
-- `19-revise-template-package-dogfood-source-of-truth-contract.md`: extend source-of-truth order to future reader-facing guide/playbook defaults.
-- `21-revise-tool-directory-system-custom-resource-tiers.md`: cross-reference that `docs/assets/**` is now reserved for reader-facing assets while `.make-docs/**` remains the tool-resource namespace.
+- `14-lifecycle-workflow-and-coverage-passes.md`: annotate the W16 `docs/library/playbooks/**` placement as migrated transitional evidence under the new canonical model.
+- `06-template-contracts-and-generated-assets.md`: extend source-of-truth order to future reader-facing guide/playbook defaults.
+- `21-project-tool-directory-and-resource-tiers.md`: cross-reference that `docs/assets/**` is now reserved for reader-facing assets while `.make-docs/**` remains the tool-resource namespace.
 
 ## Risk Register Updates
 

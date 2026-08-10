@@ -31,7 +31,7 @@ Implement adversarial review as an optional coverage-pass extension described by
 
 - Design: [docs/designs/2026-06-20-coverage-pass-extensions-and-adversarial-review.md](../../designs/2026-06-20-coverage-pass-extensions-and-adversarial-review.md)
 - Plan: [docs/plans/2026-06-23-w18-r3-coverage-pass-extensions-adversarial-review/00-overview.md](../../plans/2026-06-23-w18-r3-coverage-pass-extensions-adversarial-review/00-overview.md)
-- PRD: [docs/prd/31-revise-coverage-pass-extensions-adversarial-review.md](../../prd/31-revise-coverage-pass-extensions-adversarial-review.md)
+- PRD: [docs/prd/14-lifecycle-workflow-and-coverage-passes.md](../../prd/14-lifecycle-workflow-and-coverage-passes.md)
 
 ## Phase Map
 

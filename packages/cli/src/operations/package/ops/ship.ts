@@ -20,7 +20,7 @@ import {
 } from "./shared";
 
 /**
- * `package.ship` (W18 R12 P3; PRD 41 R-GRAM-3): the composite single-entry
+ * `package.ship` (W18 R12 P3; PRD 39 R-GRAM-3): the composite single-entry
  * packaging operation. A real registered operation per the W18 R11 parity
  * rule (every CLI path mirrors a registry identifier — no CLI-only
  * composites), surfaced as `run package ship` and derived to MCP like every

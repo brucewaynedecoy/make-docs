@@ -6,7 +6,7 @@ Generate the dependency-ordered W18 R9 delta backlog from PRD 37 and the Phase 2
 
 ## Inputs
 
-- `docs/prd/37-enhance-playbook-and-package-conformance.md` and the annotated baselines from Phase 1.
+- `docs/prd/20-agent-harness-conformance-and-support-claims.md` and the annotated baselines from Phase 1.
 - The settled scope from [02-conformance-scope.md](02-conformance-scope.md).
 - The templates at `.make-docs/templates/system/work-index.md` and `.make-docs/templates/system/work-phase.md`, plus the backlog rules in `.make-docs/references/system/execution-workflow.md`.
 

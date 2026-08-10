@@ -5,7 +5,7 @@ status: "active"
 coordinate: "W18 R9 P2"
 source:
   type: "prd"
-  path: "docs/prd/37-enhance-playbook-and-package-conformance.md"
+  path: "docs/prd/20-agent-harness-conformance-and-support-claims.md"
 ---
 
 # Phase 2: Evidence Bar and First-Pass Scenarios
@@ -16,17 +16,17 @@ Make `conformance-validated` earnable: implement the install-discover-invoke-uni
 
 ## Overview
 
-The bar is the four-assertion sequence a real-harness scenario must meet before a tuple may advance: install the generated distributable into the real or a faithfully simulated harness, assert discovery in the harness's listing, assert invocation of a bundled skill or driving of the workflow, and assert clean uninstall. The first pass targets the current product harnesses, Codex first, with the four R-SCEN-1 scenarios; Pi and additional harnesses are future scenarios whose absence is reported, never implied as covered. Scenarios follow the lab's protocol unchanged — model-agnostic, safety-moded, verdict-normalized, `blocked` on missing preconditions — and workflow-driving scenarios execute via the W18 R7 runner against distributables compiled per W18 R8 from the Playbook model as revised by the W18 R12 v2 authoring contract ([PRD 40](../../prd/40-revise-playbook-authoring-contract-v2.md)). Per the W18 R12 reconciliation (register item R-026): scenario source Playbooks are authored in v2 form, scenario scripts use the `plan`/`preview`/`write`/`ship` grammar from [PRD 41](../../prd/41-revise-cli-human-experience-and-package-grammar.md), and any scenario transcript consumed as evidence pins `--json` (or runs non-TTY) so the render layer never enters evidence.
+The bar is the four-assertion sequence a real-harness scenario must meet before a tuple may advance: install the generated distributable into the real or a faithfully simulated harness, assert discovery in the harness's listing, assert invocation of a bundled skill or driving of the workflow, and assert clean uninstall. The first pass targets the current product harnesses, Codex first, with the four R-SCEN-1 scenarios; Pi and additional harnesses are future scenarios whose absence is reported, never implied as covered. Scenarios follow the lab's protocol unchanged — model-agnostic, safety-moded, verdict-normalized, `blocked` on missing preconditions — and workflow-driving scenarios execute via the W18 R7 runner against distributables compiled per W18 R8 from the Playbook model as revised by the W18 R12 v2 authoring contract ([PRD 34](../../prd/34-playbook-authoring-contract-and-model.md)). Per the W18 R12 reconciliation (register item R-026): scenario source Playbooks are authored in v2 form, scenario scripts use the `plan`/`preview`/`write`/`ship` grammar from [PRD 39](../../prd/39-cli-command-model-and-operation-registry.md#package-grammar-and-ship-r-gram), and any scenario transcript consumed as evidence pins `--json` (or runs non-TTY) so the render layer never enters evidence.
 
 ## Source PRD Docs
 
-- [37 Enhance Playbook and Package Conformance](../../prd/37-enhance-playbook-and-package-conformance.md)
-- [20 Revise Agent Harness Model Conformance Lab](../../prd/20-revise-agent-harness-model-conformance-lab.md)
-- [36 Revise Playbook Packaging Compiler and Harness Adapters](../../prd/36-revise-playbook-packaging-compiler-and-harness-adapters.md)
-- [35 Revise Run Playbook State Machine](../../prd/35-revise-run-playbook-state-machine.md)
-- [34 Revise Playbook Contract and Model](../../prd/34-revise-playbook-contract-and-model.md)
-- [40 Revise Playbook Authoring Contract v2](../../prd/40-revise-playbook-authoring-contract-v2.md)
-- [41 Revise CLI Human Experience and Package Grammar](../../prd/41-revise-cli-human-experience-and-package-grammar.md)
+- [37 Enhance Playbook and Package Conformance](../../prd/43-conformance-scenario-model-and-execution-kits.md#requirements)
+- [20 Revise Agent Harness Model Conformance Lab](../../prd/20-agent-harness-conformance-and-support-claims.md)
+- [36 Revise Playbook Packaging Compiler and Harness Adapters](../../prd/36-playbook-packaging-compiler-and-harness-adapters.md)
+- [35 Revise Run Playbook State Machine](../../prd/35-run-playbook-state-machine-and-portability.md)
+- [34 Revise Playbook Contract and Model](../../prd/34-playbook-authoring-contract-and-model.md)
+- [40 Revise Playbook Authoring Contract v2](../../prd/34-playbook-authoring-contract-and-model.md)
+- [41 Revise CLI Human Experience and Package Grammar](../../prd/39-cli-command-model-and-operation-registry.md#package-grammar-and-ship-r-gram)
 
 ## Stage 1 - Evidence Bar
 

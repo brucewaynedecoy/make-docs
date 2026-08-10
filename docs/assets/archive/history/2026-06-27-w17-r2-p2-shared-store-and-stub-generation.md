@@ -40,7 +40,7 @@ Validation run:
 | [docs/prd/08-skills-catalog-and-distribution.md](../../../prd/08-skills-catalog-and-distribution.md) | Updated the active selected-skill asset contract. |
 | [docs/prd/09-dogfood-and-maintainer-operations.md](../../../prd/09-dogfood-and-maintainer-operations.md) | Updated maintainer validation expectations for default and selected-skill installs. |
 | [docs/prd/10-packaging-validation-and-release-reference.md](../../../prd/10-packaging-validation-and-release-reference.md) | Updated package validation expectations for shared payloads, stubs, and absent duplicated artifacts. |
-| [docs/prd/28-revise-shared-agentics-installation-harness-redirection.md](../../../prd/28-revise-shared-agentics-installation-harness-redirection.md) | Added the Phase 2 implementation note and preserved later-phase ownership for structured classification and migration behavior. |
+| [historical closeout](2026-06-27-w17-r2-p4-package-validation-and-closeout.md) (retired action-PRD: `docs/prd/28-revise-shared-agentics-installation-harness-redirection.md`) | Added the Phase 2 implementation note and preserved later-phase ownership for structured classification and migration behavior. |
 | [docs/assets/archive/history/2026-06-27-w17-r2-p2-shared-store-and-stub-generation.md](2026-06-27-w17-r2-p2-shared-store-and-stub-generation.md) | Added this phase closeout breadcrumb. |
 
 ### Developer

@@ -731,7 +731,7 @@ try {
       "--scope",
       "project",
       "--support-evidence-ref",
-      "docs/prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md",
+      "docs/prd/36-playbook-packaging-compiler-and-harness-adapters.md",
       "--repo-root",
       runFixtureDir,
     ],
@@ -1121,10 +1121,10 @@ function assertPackedReaderFacingTemplate(packageRoot) {
 }
 
 /**
- * W18 R9 P3 (PRD 37 R-TEST-3, R-KEEP-1): conformance assets — the tuple
+ * W18 R9 P3 (PRD 20 R-TEST-3, R-KEEP-1): conformance assets — the tuple
  * registry, scenario specs, fixtures, and result records under the repo-root
  * `conformance/` directory (relocated from `docs/assets/conformance/` per
- * PRD 42) — are maintainer-only evidence infrastructure and never ship in
+ * PRD 43) — are maintainer-only evidence infrastructure and never ship in
  * the npm tarball. Detection mirrors the repo-side check in
  * `packages/cli/src/conformance/meta-verification.ts` (the source of truth
  * for the marker set): the asset directory path (the canonical root-level

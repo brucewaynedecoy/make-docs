@@ -30,7 +30,7 @@ Define MCP parity and permission checks before any MCP write surface is implemen
 
 ## Coverage Decisions
 
-- PRD coverage: no PRD file changed. [PRD 25](../../prd/25-revise-cli-separation-and-mcp-boundary.md) already owns the effective MCP parity and permission boundary.
+- PRD coverage: no PRD file changed. [PRD 25](../../prd/25-typescript-runtime-cli-mcp-operation-boundaries.md) already owns the effective MCP parity and permission boundary.
 - Developer-guide coverage: created [CLI/MCP Operation Parity and Permissions](../../assets/library/developer/cli-mcp-operation-parity-and-permissions.md) and linked it from [Building and Installing the CLI Locally](../../assets/library/developer/cli-development-local-build-and-install.md) plus [Packaging, Validation, and Release Reference](../../assets/library/developer/release-packaging-validation-and-release-reference.md).
 - User-guide coverage: no user guide change was needed. Phase 3 defines future maintainer implementation gates and does not expose current user-facing MCP behavior.
 - UAT: deferred until the full W10 R6 wave is complete, per the active wave instruction.

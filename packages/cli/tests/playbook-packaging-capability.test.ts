@@ -47,7 +47,7 @@ import type {
 import { parseAndValidatePlaybook } from "../src/playbook";
 import { cleanupTempDir, createTempDir, dependencyEntryLines } from "./helpers";
 
-const SUPPORT_EVIDENCE_REF = "docs/prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md";
+const SUPPORT_EVIDENCE_REF = "docs/prd/36-playbook-packaging-compiler-and-harness-adapters.md";
 
 const ALL_DESCRIPTORS: HarnessCapabilityDescriptor[] = [
   ...FIRST_PARTY_HARNESS_CAPABILITY_DESCRIPTORS,

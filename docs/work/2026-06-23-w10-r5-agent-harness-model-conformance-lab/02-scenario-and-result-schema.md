@@ -6,7 +6,7 @@ Implement the compact evidence records needed for maintainer review.
 
 ## Source PRD Docs
 
-- `docs/prd/20-revise-agent-harness-model-conformance-lab.md`
+- `docs/prd/20-agent-harness-conformance-and-support-claims.md`
 
 ## Stage 1 - Schema and Storage
 

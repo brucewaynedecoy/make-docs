@@ -20,7 +20,7 @@ Implement the v2 playbook content contract and generic Run Playbook model descri
 
 - Design: [docs/designs/2026-06-20-playbook-contract-and-run-playbook.md](../../designs/2026-06-20-playbook-contract-and-run-playbook.md)
 - Plan: [docs/plans/2026-06-23-w18-r1-playbook-contract-run-playbook/00-overview.md](../../plans/2026-06-23-w18-r1-playbook-contract-run-playbook/00-overview.md)
-- PRD: [docs/prd/29-revise-playbook-contract-run-playbook.md](../../prd/29-revise-playbook-contract-run-playbook.md)
+- PRD: [docs/prd/34-playbook-authoring-contract-and-model.md](../../prd/34-playbook-authoring-contract-and-model.md#requirements)
 
 ## Phase Map
 

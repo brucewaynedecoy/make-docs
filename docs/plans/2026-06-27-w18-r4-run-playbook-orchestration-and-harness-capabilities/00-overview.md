@@ -27,11 +27,11 @@ This plan is complete when the W18 R4 design is accepted as a blocker, the activ
 ## Dependencies
 
 - [Run Playbook Orchestration and Harness Capabilities](../../designs/2026-06-27-run-playbook-orchestration-and-harness-capabilities.md)
-- [29 Revise Playbook Contract Run Playbook](../../prd/29-revise-playbook-contract-run-playbook.md)
-- [30 Revise Harness Plugin Substrate Workflow Bundles](../../prd/30-revise-harness-plugin-substrate-workflow-bundles.md)
-- [24 Revise Configuration Convention Overlay](../../prd/24-revise-configuration-convention-overlay.md)
-- [25 Revise CLI Separation and MCP Boundary](../../prd/25-revise-cli-separation-and-mcp-boundary.md)
-- [20 Revise Agent Harness Model Conformance Lab](../../prd/20-revise-agent-harness-model-conformance-lab.md)
+- [29 Revise Playbook Contract Run Playbook](../../prd/35-run-playbook-state-machine-and-portability.md#requirements)
+- [30 Revise Harness Plugin Substrate Workflow Bundles](../../prd/30-plugin-substrate-and-workflow-bundles.md)
+- [24 Revise Configuration Convention Overlay](../../prd/24-project-configuration-and-convention-overlay.md)
+- [25 Revise CLI Separation and MCP Boundary](../../prd/25-typescript-runtime-cli-mcp-operation-boundaries.md)
+- [20 Revise Agent Harness Model Conformance Lab](../../prd/20-agent-harness-conformance-and-support-claims.md)
 
 ## Validation
 

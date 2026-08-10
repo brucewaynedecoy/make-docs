@@ -6,13 +6,13 @@ Before executing this backlog, apply [W9 R5 v2 Library and Archive History IA Co
 
 ## Purpose
 
-Implement the requirements captured in [27-revise-skill-purpose-registry-alternate-skills-manifest.md](../../prd/27-revise-skill-purpose-registry-alternate-skills-manifest.md) and planned in [W17 R1 Skill Purpose Registry Alternate Skills Manifest Plan](../../plans/2026-06-23-w17-r1-skill-purpose-registry-alternate-skills-manifest/00-overview.md).
+Implement the requirements captured in [08-skills-catalog-and-distribution.md](../../prd/08-skills-catalog-and-distribution.md) and planned in [W17 R1 Skill Purpose Registry Alternate Skills Manifest Plan](../../plans/2026-06-23-w17-r1-skill-purpose-registry-alternate-skills-manifest/00-overview.md).
 
 ## Source Inputs
 
 - [Skill Purpose Registry and Alternate Skills Manifest](../../designs/2026-06-20-skill-purpose-registry-and-alternate-skills-manifest.md)
 - [W17 R1 plan overview](../../plans/2026-06-23-w17-r1-skill-purpose-registry-alternate-skills-manifest/00-overview.md)
-- [PRD 27](../../prd/27-revise-skill-purpose-registry-alternate-skills-manifest.md)
+- former PRD 27; current authority: [PRD 08](../../prd/08-skills-catalog-and-distribution.md)
 - [Risk register](../../prd/03-open-questions-and-risk-register.md)
 
 ## Phase Map

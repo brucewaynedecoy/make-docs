@@ -40,8 +40,8 @@ Validation run:
 | Path | Description |
 | --- | --- |
 | [docs/work/2026-06-26-w10-r8-typescript-cli-operation-domains-and-mcp-runtime/05-closeout-and-support-evidence.md](../../../work/2026-06-26-w10-r8-typescript-cli-operation-domains-and-mcp-runtime/05-closeout-and-support-evidence.md) | Marked Phase 5 complete and recorded support evidence, remaining MCP limits, validation, and manual/UAT coverage decisions. |
-| [docs/prd/16-revise-package-and-deployment-boundaries.md](../../../prd/16-revise-package-and-deployment-boundaries.md) | Recorded W10 R8 Phase 4 as packed-tarball proof for npm, pnpm, and Bun remote execution. |
-| [docs/prd/25-revise-cli-separation-and-mcp-boundary.md](../../../prd/25-revise-cli-separation-and-mcp-boundary.md) | Recorded the W10 R8 support boundary for validated TypeScript CLI/MCP runtime surfaces and remaining permission limits. |
+| [historical closeout](2026-06-24-w10-r1-p4-closeout-risk-validation.md) (retired action-PRD: `docs/prd/16-revise-package-and-deployment-boundaries.md`) | Recorded W10 R8 Phase 4 as packed-tarball proof for npm, pnpm, and Bun remote execution. |
+| [historical closeout](2026-06-25-w10-r6-p4-package-validation-and-closeout.md) (retired action-PRD: `docs/prd/25-revise-cli-separation-and-mcp-boundary.md`) | Recorded the W10 R8 support boundary for validated TypeScript CLI/MCP runtime surfaces and remaining permission limits. |
 | [docs/prd/03-open-questions-and-risk-register.md](../../../prd/03-open-questions-and-risk-register.md) | Updated no-scripts and skill-refactor risks with W10 R8 Phase 4 release-boundary evidence while leaving broader helper, write, plugin, shared-agentics, and delivery-model work open. |
 | [docs/assets/archive/history/2026-06-26-w10-r8-p5-closeout-and-support-evidence.md](2026-06-26-w10-r8-p5-closeout-and-support-evidence.md) | Added this phase and wave closeout breadcrumb. |
 

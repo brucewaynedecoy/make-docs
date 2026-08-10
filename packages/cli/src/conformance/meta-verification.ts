@@ -1,5 +1,5 @@
 /**
- * The W18 R9 P3 (D9) meta-verification checks (PRD 37 R-TEST-1..3; W18 R9 P3
+ * The W18 R9 P3 (D9) meta-verification checks (PRD 20 R-TEST-1..3; W18 R9 P3
  * t3-t5). These are checks over the checks: they police the committed tuple
  * registry, the authored scenario set, the layer attribution of cited
  * evidence, and the maintainer-only shipping boundary. They run in the
@@ -36,7 +36,7 @@
  *   accepted command sequence) lands with the Phase 2 kit generator and the
  *   Phase 4 bar.
  * - R-TEST-3 detects assets three ways — the asset directory path (the
- *   canonical repo-root `conformance/` home per PRD 42, its distinctive
+ *   canonical repo-root `conformance/` home per PRD 43, its distinctive
  *   subtrees at any depth, AND the pre-relocation `docs/assets/conformance`
  *   home so a copy reappearing there still fails), the registry data file's
  *   basename, and the unambiguous schema identifiers as content markers — so
@@ -275,7 +275,7 @@ export function listCrossLayerCitationErrors(input: {
 
 /**
  * The canonical maintainer-only asset home: the repo-root `conformance/`
- * directory (R-KEEP-1; relocated from `docs/assets/conformance/` per PRD 42).
+ * directory (R-KEEP-1; relocated from `docs/assets/conformance/` per PRD 43).
  * In a scanned shipped tree, any file under a root-level `conformance/`
  * directory is a conformance asset. Compiled check CODE under
  * `dist/conformance/` deliberately does not match — only the ASSETS are

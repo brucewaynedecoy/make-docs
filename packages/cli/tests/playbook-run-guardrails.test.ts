@@ -318,7 +318,7 @@ describe.skipIf(!sqliteAvailable)("run playbook guardrails (W18 R7 P4, R-GUARD-1
     // Overlap includes nested-path claims, not only exact matches.
     expect(() =>
       startRun(fixture, "user/writer-b", "run-b", {
-        outputSurfaceClaims: ["docs/prd/35-revise-run-playbook-state-machine.md"],
+        outputSurfaceClaims: ["docs/prd/35-run-playbook-state-machine-and-portability.md"],
       }),
     ).toThrow(/stops rather than interleaving writes \(R-GUARD-3\)/);
 
@@ -331,7 +331,7 @@ describe.skipIf(!sqliteAvailable)("run playbook guardrails (W18 R7 P4, R-GUARD-1
       terminalStatus: "completed",
     });
     const second = startRun(fixture, "user/writer-b", "run-b", {
-      outputSurfaceClaims: ["docs/prd/35-revise-run-playbook-state-machine.md"],
+      outputSurfaceClaims: ["docs/prd/35-run-playbook-state-machine-and-portability.md"],
     });
     expect(second.state.runId).toBe("run-b");
   });
@@ -345,7 +345,7 @@ describe.skipIf(!sqliteAvailable)("run playbook guardrails (W18 R7 P4, R-GUARD-1
     // A serial child suspends its parent, so the delegated overlap is safe.
     const child = startRun(fixture, "user/child", "child-run", {
       parentRunId: "root-run",
-      outputSurfaceClaims: ["docs/prd/35-revise-run-playbook-state-machine.md"],
+      outputSurfaceClaims: ["docs/prd/35-run-playbook-state-machine-and-portability.md"],
     });
     expect(child.state.rootRunId).toBe("root-run");
   });
@@ -364,7 +364,7 @@ describe.skipIf(!sqliteAvailable)("run playbook guardrails (W18 R7 P4, R-GUARD-1
     writePlainPlaybook(fixture.root, "holder", "Holder");
     startRun(fixture, "user/flow", "flow-run");
     startRun(fixture, "user/holder", "holder-run", {
-      outputSurfaceClaims: ["docs/prd/35-revise-run-playbook-state-machine.md"],
+      outputSurfaceClaims: ["docs/prd/35-run-playbook-state-machine-and-portability.md"],
     });
 
     await expect(

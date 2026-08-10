@@ -22,7 +22,7 @@
  * withhold reasons declared, because R-MKT-2 permits opting into
  * auto-registration only "later": actually installing a registration file
  * requires the install-discover-invoke-uninstall evidence bar owned by the
- * W18 R9 conformance lineage (PRD 37, R-PROV-3/R-TEST-5). The decision record
+ * W18 R9 conformance lineage (PRD 20; PRD 36 R-PROV-3/R-TEST-5). The decision record
  * is the seam future work consumes; nothing here may be widened silently.
  */
 

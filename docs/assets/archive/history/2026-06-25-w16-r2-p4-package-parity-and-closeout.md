@@ -17,7 +17,7 @@ Implemented W16 R2 Phase 4 by keeping `.make-docs/config.yaml` optional and proj
 
 ### Coverage Decisions
 
-- PRD coverage: no new PRD or risk-register text was needed. [PRD 24](../../../prd/24-revise-configuration-convention-overlay.md) already defines optional project-owned config, source-first template rules, local config preservation, and the non-structural boundary.
+- PRD coverage: no new PRD or risk-register text was needed. [historical closeout](2026-06-25-w16-r2-configuration-convention-overlay-wave-closeout.md) (retired action-PRD: `docs/prd/24-revise-configuration-convention-overlay.md`) already defines optional project-owned config, source-first template rules, local config preservation, and the non-structural boundary.
 - Developer-guide coverage: no developer guide was needed. No default config template or public editing workflow was introduced.
 - User-guide coverage: no user guide was needed. The user-observable behavior is preservation and rendering, already covered by automated CLI and smoke-pack validation.
 - UAT: deferred to final W16 R2 wave closeout, per the active wave instruction.

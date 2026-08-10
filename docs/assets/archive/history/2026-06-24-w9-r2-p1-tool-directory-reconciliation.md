@@ -26,7 +26,7 @@ Completed the W9 R2 Phase 1 reconciliation for the tool-directory and custom-res
 | Path | Description |
 | --- | --- |
 | [../../../work/2026-06-23-w9-r2-tool-directory-system-custom-resource-tiers/01-requirements-and-register-reconciliation.md](../../../work/2026-06-23-w9-r2-tool-directory-system-custom-resource-tiers/01-requirements-and-register-reconciliation.md) | Captures Phase 1 trace notes and completed task state. |
-| [../../../prd/21-revise-tool-directory-system-custom-resource-tiers.md](../../../prd/21-revise-tool-directory-system-custom-resource-tiers.md) | Existing effective requirement confirmed as the source of truth for the phase. |
+| [historical closeout](2026-06-24-w9-r2-p4-validation-closeout.md) (retired action-PRD: `docs/prd/21-revise-tool-directory-system-custom-resource-tiers.md`) | Existing effective requirement confirmed as the source of truth for the phase. |
 | [../../../prd/03-open-questions-and-risk-register.md](../../../prd/03-open-questions-and-risk-register.md) | Existing affected register entries reviewed and left stable. |
 
 ### Developer

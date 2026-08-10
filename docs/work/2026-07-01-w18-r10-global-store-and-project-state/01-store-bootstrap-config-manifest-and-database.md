@@ -5,7 +5,7 @@ status: "active"
 coordinate: "W18 R10 P1"
 source:
   type: "prd"
-  path: "docs/prd/38-revise-global-store-and-project-state.md"
+  path: "docs/prd/38-global-store-and-project-state.md"
 ---
 
 # Phase 1: Store Bootstrap, Config, Manifest, and Database
@@ -20,9 +20,9 @@ Implement the `~/.make-docs/` bootstrap that creates the global configuration fi
 
 ## Source PRD Docs
 
-- [38 Revise Global Store and Project State](../../prd/38-revise-global-store-and-project-state.md)
-- [17 Revise System Asset Materialization Contract](../../prd/17-revise-system-asset-materialization-contract.md)
-- [24 Revise Configuration Convention Overlay](../../prd/24-revise-configuration-convention-overlay.md)
+- [38 Revise Global Store and Project State](../../prd/38-global-store-and-project-state.md)
+- [17 Revise System Asset Materialization Contract](../../prd/17-system-asset-materialization-and-local-bootstrap.md)
+- [24 Revise Configuration Convention Overlay](../../prd/24-project-configuration-and-convention-overlay.md)
 
 ## Stage 1 - Store Bootstrap and Contents
 

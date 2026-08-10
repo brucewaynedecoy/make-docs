@@ -6,7 +6,7 @@ Prove template, dogfood, and package copy alignment before closing implementatio
 
 ## Source PRD Docs
 
-- `docs/prd/19-revise-template-package-dogfood-source-of-truth-contract.md`
+- `docs/prd/06-template-contracts-and-generated-assets.md`
 - `docs/prd/10-packaging-validation-and-release-reference.md`
 - `docs/prd/03-open-questions-and-risk-register.md`
 

@@ -10,11 +10,11 @@ This phase captures the corrective design, reconciles active PRDs in place, and 
 
 ## Source PRD Docs
 
-- [22 Revise New Docs Assets Playbooks Persona Model](../../prd/22-revise-new-docs-assets-playbooks-persona-model.md)
+- [22 Revise New Docs Assets Playbooks Persona Model](../../prd/22-project-documentation-asset-model.md#requirements)
 - [03 Open Questions and Risk Register](../../prd/03-open-questions-and-risk-register.md)
 - [09 Dogfood and Maintainer Operations](../../prd/09-dogfood-and-maintainer-operations.md)
-- [19 Revise Template Package Dogfood Source of Truth Contract](../../prd/19-revise-template-package-dogfood-source-of-truth-contract.md)
-- [24 Revise Configuration Convention Overlay](../../prd/24-revise-configuration-convention-overlay.md)
+- [19 Revise Template Package Dogfood Source of Truth Contract](../../prd/06-template-contracts-and-generated-assets.md#template-source-authority)
+- [24 Revise Configuration Convention Overlay](../../prd/24-project-configuration-and-convention-overlay.md)
 
 ## Stage 1 - Authority Capture
 

@@ -5,7 +5,7 @@ status: "active"
 coordinate: "W18 R8 P3"
 source:
   type: "prd"
-  path: "docs/prd/36-revise-playbook-packaging-compiler-and-harness-adapters.md"
+  path: "docs/prd/36-playbook-packaging-compiler-and-harness-adapters.md"
 ---
 
 # Phase 3: Verified Adapter Contracts
@@ -20,10 +20,10 @@ Attach a verification reference and status to every adapter declaration, gate ou
 
 ## Source PRD Docs
 
-- [36 Revise Playbook Packaging Compiler and Harness Adapters](../../prd/36-revise-playbook-packaging-compiler-and-harness-adapters.md)
-- [33 Enhance Playbook Packaging and Harness Adapter Registry](../../prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md)
-- [30 Revise Harness Plugin Substrate Workflow Bundles](../../prd/30-revise-harness-plugin-substrate-workflow-bundles.md)
-- [20 Revise Agent Harness Model Conformance Lab](../../prd/20-revise-agent-harness-model-conformance-lab.md)
+- [36 Revise Playbook Packaging Compiler and Harness Adapters](../../prd/36-playbook-packaging-compiler-and-harness-adapters.md)
+- [33 Enhance Playbook Packaging and Harness Adapter Registry](../../prd/36-playbook-packaging-compiler-and-harness-adapters.md)
+- [30 Revise Harness Plugin Substrate Workflow Bundles](../../prd/30-plugin-substrate-and-workflow-bundles.md)
+- [20 Revise Agent Harness Model Conformance Lab](../../prd/20-agent-harness-conformance-and-support-claims.md)
 
 ## Stage 1 - Verification References and Status Gating
 

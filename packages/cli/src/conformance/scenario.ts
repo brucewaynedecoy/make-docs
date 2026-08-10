@@ -1,6 +1,6 @@
 /**
  * The packaging conformance scenario contract and evidence bar
- * (PRD 37 R-BAR-1..2 as revised by PRD 43 R-ORG-1, R-SCHEMA-1..3, R-DISC-1;
+ * (PRD 43 R-BAR-1..2, R-ORG-1, R-SCHEMA-1..3, R-DISC-1;
  * W18 R9 P2 t1-t9; W18 R13 P1 t1-t3).
  *
  * The install-discover-invoke-uninstall bar is implemented here as the
@@ -132,7 +132,7 @@ export const CONFORMANCE_RESULT_SCHEMA_VERSION = "conformance.result.v1";
  * Repo-relative home of the packaging scenario definitions. Definitions are
  * harness-agnostic and organize by scenario domain under
  * `conformance/scenarios/<domain>/<outcome>.json` (PRD 43 R-ORG-1; home
- * revised by PRD 42).
+ * governed by PRD 43).
  */
 export const CONFORMANCE_SCENARIO_SPECS_DIR = "conformance/scenarios";
 
@@ -144,8 +144,8 @@ export const CONFORMANCE_SCENARIO_SPECS_DIR = "conformance/scenarios";
 export const REQUIRED_FIRST_PASS_TARGET = "codex";
 
 /**
- * The four required first-pass scenario outcomes (PRD 37 R-SCEN-1 as revised
- * by PRD 43 R-SCHEMA-3), keyed by their domain-qualified, harness-agnostic
+ * The four required first-pass scenario outcomes (PRD 43 R-SCEN-1,
+ * R-SCHEMA-3), keyed by their domain-qualified, harness-agnostic
  * ids and mapped to the user-visible outcome each must prove. The R-TEST-2
  * runnability check consumes this constant; absence of any of these
  * definitions is a failure, never a silent gap.
@@ -218,7 +218,7 @@ const barStageSchema = z.enum(CONFORMANCE_EVIDENCE_BAR_STAGES);
  * whose transcript is consumed as evidence must pin `--json`
  * (`transcript: "evidence-json"`) or run non-TTY
  * (`transcript: "evidence-non-tty"`), so the render layer never enters
- * evidence (PRD 41 R-SEQ-2; register item R-026).
+ * evidence (PRD 39 R-SEQ-2; register item R-026).
  */
 const commandStepSchema = z.object({
   kind: z.literal("command"),
@@ -361,7 +361,7 @@ const evidenceBarAssertionsSchema = z.object({
 });
 
 /**
- * The packaging extension (PRD 37, revised by PRD 43 R-SCHEMA-1): the
+ * The packaging extension (PRD 43 R-SCHEMA-1): the
  * definition-level, target-independent fields plus the per-target `targets`
  * map. Strict by design so the superseded spellings — top-level `harness`,
  * `harnessExecution`, `registryTupleIds`, `futureHarnesses`, and
@@ -375,7 +375,7 @@ const packagingExtensionSchema = z
     evidenceBar: evidenceBarAssertionsSchema,
     /** The definition-level precondition template (probeable vs. attestation-only). */
     preconditions: z.array(preconditionTemplateSchema).min(1),
-    /** Evidence transcripts pin `--json` or run non-TTY (R-026, PRD 41 R-SEQ-2). */
+    /** Evidence transcripts pin `--json` or run non-TTY (R-026, PRD 39 R-SEQ-2). */
     transcriptPolicy: z.literal("json-or-non-tty"),
     /** Nothing destructive against a maintainer working tree (R-KEEP-1). */
     workspacePolicy: z.literal("disposable-fixture-workspace"),
@@ -500,7 +500,7 @@ const scenarioSpecSchema = z
           code: z.ZodIssueCode.custom,
           path: ["steps"],
           message:
-            "`--write` is retired; scenario scripts use the plan/preview/write/ship packaging grammar (PRD 41 R-GRAM-2, register item R-026)",
+            "`--write` is retired; scenario scripts use the plan/preview/write/ship packaging grammar (PRD 39 R-GRAM-2, register item R-026)",
         });
       }
       if (step.transcript === "evidence-json" && !step.run.includes("--json")) {
@@ -517,7 +517,7 @@ export type PackagingConformanceScenarioSpec = z.infer<typeof scenarioSpecSchema
 /**
  * Resolves one execution-target binding, failing closed when the harness has
  * no entry in the definition's `targets` map: an uncovered target is a
- * reported gap, never implied coverage (PRD 43 R-SCHEMA-2, PRD 37 R-SCEN-2).
+ * reported gap, never implied coverage (PRD 43 R-SCHEMA-2, R-SCEN-2).
  */
 export function getScenarioTargetBinding(
   spec: PackagingConformanceScenarioSpec,
@@ -786,7 +786,7 @@ const resultRecordSchema = z
     caveats: z.array(z.string().min(1)),
     reviewerStatus: z.enum(CONFORMANCE_REVIEWER_STATUSES),
     supportClaimUse: z.enum(CONFORMANCE_SUPPORT_CLAIM_USES),
-    // The packaging extension (PRD 37): additive fields only.
+    // The packaging extension (PRD 43): additive fields only.
     caveatsSurfaced: z.boolean(),
     evidenceBar: z.object({
       install: z.boolean(),

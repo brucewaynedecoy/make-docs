@@ -33,19 +33,19 @@ This plan is complete when the active PRD set captures Playbook packaging as a r
 ## Dependencies
 
 - [Playbook Packaging and Harness Adapter Registry](../../designs/2026-06-29-playbook-packaging-and-harness-adapter-registry.md)
-- [29 Revise Playbook Contract Run Playbook](../../prd/29-revise-playbook-contract-run-playbook.md)
-- [30 Revise Harness Plugin Substrate Workflow Bundles](../../prd/30-revise-harness-plugin-substrate-workflow-bundles.md)
-- [28 Revise Shared Agentics Installation Harness Redirection](../../prd/28-revise-shared-agentics-installation-harness-redirection.md)
-- [25 Revise CLI Separation and MCP Boundary](../../prd/25-revise-cli-separation-and-mcp-boundary.md)
-- [20 Revise Agent Harness Model Conformance Lab](../../prd/20-revise-agent-harness-model-conformance-lab.md)
-- [32 Revise Lifecycle Backup State and Agentics Pruning](../../prd/32-revise-lifecycle-backup-state-agentics-pruning.md)
+- [29 Revise Playbook Contract Run Playbook](../../prd/36-playbook-packaging-compiler-and-harness-adapters.md#requirements)
+- [30 Revise Harness Plugin Substrate Workflow Bundles](../../prd/30-plugin-substrate-and-workflow-bundles.md)
+- [28 Revise Shared Agentics Installation Harness Redirection](../../prd/28-shared-agentics-installation-and-harness-exposure.md)
+- [25 Revise CLI Separation and MCP Boundary](../../prd/25-typescript-runtime-cli-mcp-operation-boundaries.md)
+- [20 Revise Agent Harness Model Conformance Lab](../../prd/20-agent-harness-conformance-and-support-claims.md)
+- [32 Revise Lifecycle Backup State and Agentics Pruning](../../prd/30-plugin-substrate-and-workflow-bundles.md#update-migration-audit-backup-and-uninstall)
 
 W18 R5 is a prerequisite authority for W18 R1, W18 R2, and W18 R3. Implementation phases may still depend on W18 R1 runner primitives and W18 R2 plugin substrate primitives as they land, but those backlogs must not implement metadata, plugin, or bundle behavior that contradicts W18 R5.
 
 ## Output Contract
 
 - Plan directory: `docs/plans/2026-06-29-w18-r5-playbook-packaging-and-harness-adapter-registry/`
-- PRD change doc: `docs/prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md`
+- PRD change doc: `docs/prd/36-playbook-packaging-compiler-and-harness-adapters.md`
 - Work directory: `docs/work/2026-06-29-w18-r5-playbook-packaging-and-harness-adapter-registry/`
 - User guide: `docs/assets/library/user/playbooks-packaging-shareable-agent-workflows.md`
 - Developer guide: `docs/assets/library/developer/playbooks-development-packaging-and-harness-adapters.md`
@@ -55,18 +55,18 @@ W18 R5 is a prerequisite authority for W18 R1, W18 R2, and W18 R3. Implementatio
 
 | New doc | Kind | Why it exists | Affected baseline docs |
 | ------- | ---- | ------------- | ---------------------- |
-| [33-enhance-playbook-packaging-and-harness-adapter-registry.md](../../prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md) | enhancement | Captures Playbook packaging and harness adapter registry as required v2 behavior. | PRD 20, 25, 28, 29, 30, 31, 32, 10, and the PRD index/risk register. |
+| [36-playbook-packaging-compiler-and-harness-adapters.md](../../prd/36-playbook-packaging-compiler-and-harness-adapters.md) | enhancement | Captures Playbook packaging and harness adapter registry as required v2 behavior. | PRD 20, 25, 28, 29, 30, 31, 32, 10, and the PRD index/risk register. |
 
 ## Baseline Annotation Plan
 
 | Baseline doc | Impacted sections | Note verb | Target change doc |
 | ------------ | ----------------- | --------- | ----------------- |
-| [29-revise-playbook-contract-run-playbook.md](../../prd/29-revise-playbook-contract-run-playbook.md) | Change Notes; Plugin and Surface Boundary; Non-Requirements; Acceptance Criteria | Enhanced by | [33-enhance-playbook-packaging-and-harness-adapter-registry.md](../../prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md) |
-| [30-revise-harness-plugin-substrate-workflow-bundles.md](../../prd/30-revise-harness-plugin-substrate-workflow-bundles.md) | Change Notes; Plugin Metadata and Manifest Ownership; Workflow Bundle Metadata; Playbook Boundary; Package and Validation Boundary | Enhanced by | [33-enhance-playbook-packaging-and-harness-adapter-registry.md](../../prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md) |
-| [25-revise-cli-separation-and-mcp-boundary.md](../../prd/25-revise-cli-separation-and-mcp-boundary.md) | Development Contract; No-Scripts Migration Dependency; Acceptance Criteria | Enhanced by | [33-enhance-playbook-packaging-and-harness-adapter-registry.md](../../prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md) |
-| [28-revise-shared-agentics-installation-harness-redirection.md](../../prd/28-revise-shared-agentics-installation-harness-redirection.md) | Plugin Inheritance; Manifest Ownership; Acceptance Criteria | Enhanced by | [33-enhance-playbook-packaging-and-harness-adapter-registry.md](../../prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md) |
-| [20-revise-agent-harness-model-conformance-lab.md](../../prd/20-revise-agent-harness-model-conformance-lab.md) | Effective Requirement; Support-claim gating | Enhanced by | [33-enhance-playbook-packaging-and-harness-adapter-registry.md](../../prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md) |
-| [10-packaging-validation-and-release-reference.md](../../prd/10-packaging-validation-and-release-reference.md) | Change Notes | Enhanced by | [33-enhance-playbook-packaging-and-harness-adapter-registry.md](../../prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md) |
+| [36-playbook-packaging-compiler-and-harness-adapters.md](../../prd/36-playbook-packaging-compiler-and-harness-adapters.md#requirements) | Change Notes; Plugin and Surface Boundary; Non-Requirements; Acceptance Criteria | Enhanced by | [36-playbook-packaging-compiler-and-harness-adapters.md](../../prd/36-playbook-packaging-compiler-and-harness-adapters.md) |
+| [30-plugin-substrate-and-workflow-bundles.md](../../prd/30-plugin-substrate-and-workflow-bundles.md) | Change Notes; Plugin Metadata and Manifest Ownership; Workflow Bundle Metadata; Playbook Boundary; Package and Validation Boundary | Enhanced by | [36-playbook-packaging-compiler-and-harness-adapters.md](../../prd/36-playbook-packaging-compiler-and-harness-adapters.md) |
+| [25-typescript-runtime-cli-mcp-operation-boundaries.md](../../prd/25-typescript-runtime-cli-mcp-operation-boundaries.md) | Development Contract; No-Scripts Migration Dependency; Acceptance Criteria | Enhanced by | [36-playbook-packaging-compiler-and-harness-adapters.md](../../prd/36-playbook-packaging-compiler-and-harness-adapters.md) |
+| [28-shared-agentics-installation-and-harness-exposure.md](../../prd/28-shared-agentics-installation-and-harness-exposure.md) | Plugin Inheritance; Manifest Ownership; Acceptance Criteria | Enhanced by | [36-playbook-packaging-compiler-and-harness-adapters.md](../../prd/36-playbook-packaging-compiler-and-harness-adapters.md) |
+| [20-agent-harness-conformance-and-support-claims.md](../../prd/20-agent-harness-conformance-and-support-claims.md) | Effective Requirement; Support-claim gating | Enhanced by | [36-playbook-packaging-compiler-and-harness-adapters.md](../../prd/36-playbook-packaging-compiler-and-harness-adapters.md) |
+| [10-packaging-validation-and-release-reference.md](../../prd/10-packaging-validation-and-release-reference.md) | Change Notes | Enhanced by | [36-playbook-packaging-compiler-and-harness-adapters.md](../../prd/36-playbook-packaging-compiler-and-harness-adapters.md) |
 
 ## Worker Ownership
 

@@ -15,7 +15,7 @@ Completed W10 R5 Phase 2 by defining a maintainer-facing conformance-lab scenari
 
 ### Coverage Decisions
 
-- PRD coverage: no PRD files changed. [PRD 20](../../../prd/20-revise-agent-harness-model-conformance-lab.md) already requires versioned scenario specs, compact result records, generated local raw-artifact storage, blocked verdict semantics, and reviewed tuple-specific support evidence.
+- PRD coverage: no PRD files changed. [historical closeout](2026-06-25-w10-r5-p4-validation-and-closeout.md) (retired action-PRD: `docs/prd/20-revise-agent-harness-model-conformance-lab.md`) already requires versioned scenario specs, compact result records, generated local raw-artifact storage, blocked verdict semantics, and reviewed tuple-specific support evidence.
 - Developer-guide coverage: created [Conformance Lab Scenario and Result Contracts](../../../assets/library/developer/conformance-lab-scenario-and-result-contracts.md) because maintainers need durable schema, storage, redaction, and support-claim-use guidance before running the lab.
 - User-guide coverage: no user guide was needed. The conformance lab remains maintainer-only evidence infrastructure and does not change a shipped user workflow.
 - UAT: deferred until the full W10 R5 wave is complete, per the active wave instruction.

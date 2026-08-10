@@ -15,7 +15,7 @@ The backlog assumes PRD reconciliation is already complete. Phase 01 is therefor
 Primary authority:
 
 - [../../plans/2026-06-23-w10-r1-package-and-deployment-boundaries/00-overview.md](../../plans/2026-06-23-w10-r1-package-and-deployment-boundaries/00-overview.md)
-- [../../prd/16-revise-package-and-deployment-boundaries.md](../../prd/16-revise-package-and-deployment-boundaries.md)
+- [../../prd/16-package-runtime-and-deployment-boundaries.md](../../prd/16-package-runtime-and-deployment-boundaries.md)
 - [../../designs/2026-06-19-package-and-deployment-boundaries.md](../../designs/2026-06-19-package-and-deployment-boundaries.md)
 
 ## Phase Map

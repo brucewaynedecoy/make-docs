@@ -5,7 +5,7 @@ status: "active"
 coordinate: "W18 R10 P5"
 source:
   type: "prd"
-  path: "docs/prd/38-revise-global-store-and-project-state.md"
+  path: "docs/prd/38-global-store-and-project-state.md"
 ---
 
 # Phase 5: Runtime-State Guidance and Verification
@@ -20,10 +20,10 @@ Update the upstream template's `.make-docs/` routers to reflect that run and wor
 
 ## Source PRD Docs
 
-- [38 Revise Global Store and Project State](../../prd/38-revise-global-store-and-project-state.md)
-- [21 Revise Tool Directory System Custom Resource Tiers](../../prd/21-revise-tool-directory-system-custom-resource-tiers.md)
-- [17 Revise System Asset Materialization Contract](../../prd/17-revise-system-asset-materialization-contract.md)
-- [35 Revise Run Playbook State Machine](../../prd/35-revise-run-playbook-state-machine.md)
+- [38 Revise Global Store and Project State](../../prd/38-global-store-and-project-state.md)
+- [21 Revise Tool Directory System Custom Resource Tiers](../../prd/21-project-tool-directory-and-resource-tiers.md)
+- [17 Revise System Asset Materialization Contract](../../prd/17-system-asset-materialization-and-local-bootstrap.md)
+- [35 Revise Run Playbook State Machine](../../prd/35-run-playbook-state-machine-and-portability.md)
 
 ## Stage 1 - Template Runtime-State Guidance, Upstream Then Dogfood
 

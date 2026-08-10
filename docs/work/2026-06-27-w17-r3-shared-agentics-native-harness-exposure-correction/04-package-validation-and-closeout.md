@@ -6,10 +6,10 @@ Prove the corrected behavior through package validation and close the W17 R3 wav
 
 ## Source PRD Docs
 
-- [PRD 28](../../prd/28-revise-shared-agentics-installation-harness-redirection.md)
+- [PRD 28](../../prd/28-shared-agentics-installation-and-harness-exposure.md)
 - [PRD 10](../../prd/10-packaging-validation-and-release-reference.md)
-- [PRD 20](../../prd/20-revise-agent-harness-model-conformance-lab.md)
-- [PRD 30](../../prd/30-revise-harness-plugin-substrate-workflow-bundles.md)
+- [PRD 20](../../prd/20-agent-harness-conformance-and-support-claims.md)
+- [PRD 30](../../prd/30-plugin-substrate-and-workflow-bundles.md)
 - [PRD 03](../../prd/03-open-questions-and-risk-register.md)
 
 ## Tasks

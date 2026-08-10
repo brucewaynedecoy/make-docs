@@ -5,7 +5,7 @@ status: "active"
 coordinate: "W18 R8 P2"
 source:
   type: "prd"
-  path: "docs/prd/36-revise-playbook-packaging-compiler-and-harness-adapters.md"
+  path: "docs/prd/36-playbook-packaging-compiler-and-harness-adapters.md"
 ---
 
 # Phase 2: Compiler Output Writer and Dependency Materialization
@@ -20,11 +20,11 @@ Replace the descriptor payload with a faithful harness-native artifact tree, emi
 
 ## Source PRD Docs
 
-- [36 Revise Playbook Packaging Compiler and Harness Adapters](../../prd/36-revise-playbook-packaging-compiler-and-harness-adapters.md)
-- [33 Enhance Playbook Packaging and Harness Adapter Registry](../../prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md)
-- [34 Revise Playbook Contract and Model](../../prd/34-revise-playbook-contract-and-model.md)
-- [28 Revise Shared Agentics Installation Harness Redirection](../../prd/28-revise-shared-agentics-installation-harness-redirection.md)
-- [25 Revise CLI Separation and MCP Boundary](../../prd/25-revise-cli-separation-and-mcp-boundary.md)
+- [36 Revise Playbook Packaging Compiler and Harness Adapters](../../prd/36-playbook-packaging-compiler-and-harness-adapters.md)
+- [33 Enhance Playbook Packaging and Harness Adapter Registry](../../prd/36-playbook-packaging-compiler-and-harness-adapters.md)
+- [34 Revise Playbook Contract and Model](../../prd/34-playbook-authoring-contract-and-model.md)
+- [28 Revise Shared Agentics Installation Harness Redirection](../../prd/28-shared-agentics-installation-and-harness-exposure.md)
+- [25 Revise CLI Separation and MCP Boundary](../../prd/25-typescript-runtime-cli-mcp-operation-boundaries.md)
 
 ## Stage 1 - Output Writer Correction Through Existing Plumbing
 
@@ -43,7 +43,7 @@ Replace the descriptor payload with a faithful harness-native artifact tree, emi
 ### Dependencies
 
 - Phase 1 capability descriptor and distributable model.
-- The exposure plumbing from [PRD 28](../../prd/28-revise-shared-agentics-installation-harness-redirection.md), consumed unchanged.
+- The exposure plumbing from [PRD 28](../../prd/28-shared-agentics-installation-and-harness-exposure.md), consumed unchanged.
 
 ## Stage 2 - Distributable Inventory Emission
 

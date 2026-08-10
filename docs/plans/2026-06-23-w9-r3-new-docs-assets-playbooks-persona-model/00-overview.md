@@ -39,7 +39,7 @@ Current repo state still reflects several earlier decisions:
 This planning round creates:
 
 - This plan bundle under `docs/plans/2026-06-23-w9-r3-new-docs-assets-playbooks-persona-model/`.
-- A new active PRD change doc: [../../prd/22-revise-new-docs-assets-playbooks-persona-model.md](../../prd/22-revise-new-docs-assets-playbooks-persona-model.md).
+- A new active PRD change doc: [../../prd/22-project-documentation-asset-model.md](../../prd/22-project-documentation-asset-model.md#requirements).
 - PRD index, risk-register, and affected baseline/change-doc annotations for the new requirements.
 - A matching implementation backlog under `docs/work/2026-06-23-w9-r3-new-docs-assets-playbooks-persona-model/`.
 

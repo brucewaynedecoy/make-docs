@@ -13,11 +13,11 @@ baseline annotations are confirmed against the now-real implementation.
 
 ## Source PRD Docs
 
-- [15-revise-agent-instruction-file-ownership.md](../../../../prd/15-revise-agent-instruction-file-ownership.md)
+- [historical design](../../designs/2026-06-18-agent-instruction-file-ownership.md) (retired action-PRD: `docs/prd/15-revise-agent-instruction-file-ownership.md`)
 - [05-installation-profile-and-manifest-lifecycle.md](../../../../prd/05-installation-profile-and-manifest-lifecycle.md)
 - [06-template-contracts-and-generated-assets.md](../../../../prd/06-template-contracts-and-generated-assets.md)
 - [07-cli-command-surface-and-lifecycle.md](../../../../prd/07-cli-command-surface-and-lifecycle.md)
-- [13-revise-cli-conflict-resolution.md](../../../../prd/13-revise-cli-conflict-resolution.md)
+- [historical plan](../../plans/2026-05-06-w14-r2-cli-conflict-resolution/00-overview.md) (retired action-PRD: `docs/prd/13-revise-cli-conflict-resolution.md`)
 
 ## Stage 1 - Code and packaging validation
 

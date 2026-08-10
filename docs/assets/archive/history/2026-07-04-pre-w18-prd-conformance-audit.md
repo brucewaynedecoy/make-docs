@@ -33,21 +33,21 @@ This session executed the bounded pre-W18 PRD conformance audit that [D-019](../
 
 | PRD | Verdict |
 | --- | --- |
-| [19](../../../prd/19-revise-template-package-dogfood-source-of-truth-contract.md) | Substantially evidenced. |
-| [20](../../../prd/20-revise-agent-harness-model-conformance-lab.md) | Substantially evidenced; the PRD 20/37 conformance tuple registry is an unexecuted-by-design backlog correctly sequenced behind W18 R9, not drift. |
-| [21](../../../prd/21-revise-tool-directory-system-custom-resource-tiers.md) | Gap (custom tiers never created) — already tracked as D-019; no new drift beyond it. |
-| [22](../../../prd/22-revise-new-docs-assets-playbooks-persona-model.md) | Substantially evidenced, except F4: guide persona drift validation is missing. |
-| [23](../../../prd/23-revise-generated-metadata-lifecycle-handoffs.md) | Gap — F3: drift validator built, never connected. |
-| [24](../../../prd/24-revise-configuration-convention-overlay.md) | Substantially evidenced; the config documentation gap is already D-017/Q-018. |
-| [25](../../../prd/25-revise-cli-separation-and-mcp-boundary.md) | Substantially evidenced (spot-checked against embedded closeout evidence). |
-| [26](../../../prd/26-revise-no-scripts-migration-skill-refactor.md) | Break — F1: the shipped skills fail its own acceptance bar; gaps beyond F1 already tracked as D-019. |
-| [27](../../../prd/27-revise-skill-purpose-registry-alternate-skills-manifest.md) | Substantially evidenced (spot-checked against embedded closeout evidence). |
-| [28](../../../prd/28-revise-shared-agentics-installation-harness-redirection.md) | Substantially evidenced (spot-checked), except its plugin-inheritance leg is stranded by F2. |
-| [29](../../../prd/29-revise-playbook-contract-run-playbook.md) | Substantially evidenced (spot-checked against embedded closeout evidence). |
-| [30](../../../prd/30-revise-harness-plugin-substrate-workflow-bundles.md) | Gap — F2: the substrate landed as unwired dead code; the deferred selection flow itself conforms. |
-| [31](../../../prd/31-revise-coverage-pass-extensions-adversarial-review.md) | Unexecuted-by-design backlog correctly sequenced, not drift. |
-| [32](../../../prd/32-revise-lifecycle-backup-state-agentics-pruning.md) | Substantially evidenced (spot-checked), except its plugin-inheritance leg is stranded by F2. |
-| [33](../../../prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md) | Substantially evidenced (spot-checked), except its plugin-inheritance leg is stranded by F2. |
+| [historical closeout](2026-06-25-w10-r4-p4-validation-and-closeout.md) (retired action-PRD: `docs/prd/19-revise-template-package-dogfood-source-of-truth-contract.md`) | Substantially evidenced. |
+| [historical closeout](2026-06-25-w10-r5-p4-validation-and-closeout.md) (retired action-PRD: `docs/prd/20-revise-agent-harness-model-conformance-lab.md`) | Substantially evidenced; the PRD 20/37 conformance tuple registry is an unexecuted-by-design backlog correctly sequenced behind W18 R9, not drift. |
+| [historical closeout](2026-06-24-w9-r2-p4-validation-closeout.md) (retired action-PRD: `docs/prd/21-revise-tool-directory-system-custom-resource-tiers.md`) | Gap (custom tiers never created) — already tracked as D-019; no new drift beyond it. |
+| [historical closeout](2026-06-24-w9-r3-p4-package-parity-closeout.md) (retired action-PRD: `docs/prd/22-revise-new-docs-assets-playbooks-persona-model.md`) | Substantially evidenced, except F4: guide persona drift validation is missing. |
+| [historical closeout](2026-06-25-w16-r1-p4-package-parity-and-closeout.md) (retired action-PRD: `docs/prd/23-revise-generated-metadata-lifecycle-handoffs.md`) | Gap — F3: drift validator built, never connected. |
+| [historical closeout](2026-06-25-w16-r2-configuration-convention-overlay-wave-closeout.md) (retired action-PRD: `docs/prd/24-revise-configuration-convention-overlay.md`) | Substantially evidenced; the config documentation gap is already D-017/Q-018. |
+| [historical closeout](2026-06-25-w10-r6-p4-package-validation-and-closeout.md) (retired action-PRD: `docs/prd/25-revise-cli-separation-and-mcp-boundary.md`) | Substantially evidenced (spot-checked against embedded closeout evidence). |
+| [historical closeout](2026-06-26-w16-r3-no-scripts-migration-skill-refactor-closeout.md) (retired action-PRD: `docs/prd/26-revise-no-scripts-migration-skill-refactor.md`) | Break — F1: the shipped skills fail its own acceptance bar; gaps beyond F1 already tracked as D-019. |
+| [historical closeout](2026-06-26-w17-r1-p4-lifecycle-package-validation-and-closeout.md) (retired action-PRD: `docs/prd/27-revise-skill-purpose-registry-alternate-skills-manifest.md`) | Substantially evidenced (spot-checked against embedded closeout evidence). |
+| [historical closeout](2026-06-27-w17-r2-p4-package-validation-and-closeout.md) (retired action-PRD: `docs/prd/28-revise-shared-agentics-installation-harness-redirection.md`) | Substantially evidenced (spot-checked), except its plugin-inheritance leg is stranded by F2. |
+| [historical closeout](2026-06-29-w18-r1-p4-template-package-lifecycle-closeout.md) (retired action-PRD: `docs/prd/29-revise-playbook-contract-run-playbook.md`) | Substantially evidenced (spot-checked against embedded closeout evidence). |
+| [historical closeout](2026-06-29-w18-r2-wave-closeout-and-manual-test-coverage.md) (retired action-PRD: `docs/prd/30-revise-harness-plugin-substrate-workflow-bundles.md`) | Gap — F2: the substrate landed as unwired dead code; the deferred selection flow itself conforms. |
+| [historical design](../designs/2026-05-28-coverage-pass-contract-and-skill-evolution.md) (retired action-PRD: `docs/prd/31-revise-coverage-pass-extensions-adversarial-review.md`) | Unexecuted-by-design backlog correctly sequenced, not drift. |
+| [historical closeout](2026-06-27-w17-r4-lifecycle-backup-state-and-agentics-pruning.md) (retired action-PRD: `docs/prd/32-revise-lifecycle-backup-state-agentics-pruning.md`) | Substantially evidenced (spot-checked), except its plugin-inheritance leg is stranded by F2. |
+| 33 (retired action-PRD: `docs/prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md`) | Substantially evidenced (spot-checked), except its plugin-inheritance leg is stranded by F2. |
 
 ### Patterns
 

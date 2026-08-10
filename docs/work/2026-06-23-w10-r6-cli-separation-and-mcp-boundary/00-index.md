@@ -11,7 +11,7 @@ Before executing this backlog, apply [W9 R5 v2 Library and Archive History IA Co
 ## Source Plan
 
 - [Plan Overview](../../plans/2026-06-23-w10-r6-cli-separation-and-mcp-boundary/00-overview.md)
-- [PRD 25](../../prd/25-revise-cli-separation-and-mcp-boundary.md)
+- [PRD 25](../../prd/25-typescript-runtime-cli-mcp-operation-boundaries.md)
 
 ## Work Phases
 

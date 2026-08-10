@@ -15,7 +15,7 @@ Completed W10 R6 Phase 2 by preserving the no-command npm install/sync posture, 
 
 ### Coverage Decisions
 
-- PRD coverage: no PRD files changed. [PRD 25](../../../prd/25-revise-cli-separation-and-mcp-boundary.md) already owns the effective CLI/MCP boundary.
+- PRD coverage: no PRD files changed. [historical closeout](2026-06-25-w10-r6-p4-package-validation-and-closeout.md) (retired action-PRD: `docs/prd/25-revise-cli-separation-and-mcp-boundary.md`) already owns the effective CLI/MCP boundary.
 - Developer-guide coverage: updated [Building and Installing the CLI Locally](../../../assets/library/developer/cli-development-local-build-and-install.md) with the current TypeScript-only boundary and future Rust/MCP parity caveat.
 - User-guide coverage: updated [Managing Installations with the Make Docs CLI](../../../assets/library/user/cli-lifecycle-managing-installations.md), [Installing Make Docs](../../../assets/library/user/getting-started-installing-make-docs.md), [Installing and Managing Skills](../../../assets/library/user/skills-installing-and-managing-skills.md), and [Decomposing an Existing Codebase](../../../assets/library/user/skills-decomposing-an-existing-codebase.md) with corrected `--selected-skills` usage, lifecycle dry-run guidance, current npm/TypeScript scope, and the unsupported Rust/MCP boundary.
 - UAT: deferred until the full W10 R6 wave is complete, per the active wave instruction.

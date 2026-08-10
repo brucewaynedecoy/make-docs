@@ -10,7 +10,7 @@ This phase proves the default full-snapshot path still works, future provider/ca
 
 ## Source PRD Docs
 
-- [17 Revise System Asset Materialization Contract](../../prd/17-revise-system-asset-materialization-contract.md)
+- [17 Revise System Asset Materialization Contract](../../prd/17-system-asset-materialization-and-local-bootstrap.md)
 - [10 Packaging, Validation, and Release Reference](../../prd/10-packaging-validation-and-release-reference.md)
 - [03 Open Questions and Risk Register](../../prd/03-open-questions-and-risk-register.md)
 - [06 Template Contracts and Generated Assets](../../prd/06-template-contracts-and-generated-assets.md)
@@ -81,7 +81,7 @@ This phase proves the default full-snapshot path still works, future provider/ca
 
 ### Evidence
 
-- `docs/prd/17-revise-system-asset-materialization-contract.md` now includes the Phase 2 and Phase 3 implementation/test surfaces in its source anchors.
+- `docs/prd/17-system-asset-materialization-and-local-bootstrap.md` now includes the Phase 2 and Phase 3 implementation/test surfaces in its source anchors.
 - No new guide files were created: provider/cache materialization remains internal, not user-ready, and the durable contract is already captured in PRD 17 plus the W10 R2 work/history records.
 - No risk-register item was closed: R-006 remains broader than this TypeScript implementation because it also covers future Rust/MCP/provider paths, while Phase 3 added local audit-snapshot safety coverage.
 - Manual-test coverage decision: `npm run smoke:pack` was the practical user-runnable scenario for this wave because it exercises the packaged CLI behavior with human-readable output; no extra bespoke UAT script was needed.

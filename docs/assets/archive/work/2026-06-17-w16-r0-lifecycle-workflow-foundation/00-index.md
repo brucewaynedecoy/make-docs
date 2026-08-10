@@ -7,7 +7,7 @@
 ## Purpose
 
 This delta backlog implements the lifecycle workflow foundation added in
-[PRD 14 — Add Lifecycle Workflow Foundation](../../../../prd/14-add-lifecycle-workflow-foundation.md):
+[historical design](../../designs/2026-06-17-make-docs-lifecycle-foundation.md) (retired action-PRD: `docs/prd/14-add-lifecycle-workflow-foundation.md`):
 the coverage-pass contract, the always-read lifecycle anchor, the persona-scoped
 lifecycle playbook, the stage follow-on handoffs, the optional `docs/artifacts/`
 seed, and the coverage-pass starter prompts. It derives from the W16 R0 plan and
@@ -43,7 +43,7 @@ template-first rule. See risk register D-014.
 
 ## Source PRD Docs
 
-- [14-add-lifecycle-workflow-foundation.md](../../../../prd/14-add-lifecycle-workflow-foundation.md) — the new change doc this backlog implements.
+- [historical design](../../designs/2026-06-17-make-docs-lifecycle-foundation.md) (retired action-PRD: `docs/prd/14-add-lifecycle-workflow-foundation.md`) — the new change doc this backlog implements.
 - [01-product-overview.md](../../../../prd/01-product-overview.md), [02-architecture-overview.md](../../../../prd/02-architecture-overview.md), [06-template-contracts-and-generated-assets.md](../../../../prd/06-template-contracts-and-generated-assets.md) — impacted baseline docs.
 
 ## Usage Notes

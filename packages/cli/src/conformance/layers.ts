@@ -1,5 +1,5 @@
 /**
- * The W18 R9 P3 three named test layers (PRD 37 R-LAYER-1..2; W18 R9 P3
+ * The W18 R9 P3 three named test layers (PRD 20 R-LAYER-1..2; W18 R9 P3
  * t1/t2).
  *
  * Coverage is organized into three NAMED layers so one layer's passing never

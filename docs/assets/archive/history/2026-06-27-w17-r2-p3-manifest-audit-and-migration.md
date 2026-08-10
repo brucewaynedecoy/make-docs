@@ -39,7 +39,7 @@ Validation run:
 | Path | Description |
 | --- | --- |
 | [docs/work/2026-06-23-w17-r2-shared-agentics-installation-harness-redirection/03-manifest-audit-and-migration.md](../../../work/2026-06-23-w17-r2-shared-agentics-installation-harness-redirection/03-manifest-audit-and-migration.md) | Marked Phase 3 complete and recorded validation evidence. |
-| [docs/prd/28-revise-shared-agentics-installation-harness-redirection.md](../../../prd/28-revise-shared-agentics-installation-harness-redirection.md) | Added the Phase 3 implementation note for role classification, dry-run/audit output, and clean legacy payload migration. |
+| [historical closeout](2026-06-27-w17-r2-p4-package-validation-and-closeout.md) (retired action-PRD: `docs/prd/28-revise-shared-agentics-installation-harness-redirection.md`) | Added the Phase 3 implementation note for role classification, dry-run/audit output, and clean legacy payload migration. |
 | [docs/assets/archive/history/2026-06-27-w17-r2-p3-manifest-audit-and-migration.md](2026-06-27-w17-r2-p3-manifest-audit-and-migration.md) | Added this phase closeout breadcrumb. |
 
 ### Developer

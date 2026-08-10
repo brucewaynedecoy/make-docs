@@ -15,7 +15,7 @@ summary: "Closed the W18 R13 conformance execution and lab-session redesign wave
 
 ## Changes
 
-This session executed Phase 4 — the final phase — of [the W18 R13 backlog](../../../work/2026-07-06-w18-r13-conformance-execution-and-lab-session-redesign/04-verification-and-reconciliation.md) (all nine tasks t1–t9 across the three stages, per [PRD 43](../../../prd/43-revise-conformance-scenario-model-and-execution-kit.md) design D14/D12 and [PRD 44](../../../prd/44-revise-conformance-lab-execution-protocol-and-evidence-homes.md) R-EXEC/R-NAME closure evidence) and closed the wave. Phase 4 changes no source code: it verifies the round end to end, exhausts the reconciliation surface with grep proof, reconciles the guide and backlog documentation, and closes the register items.
+This session executed Phase 4 — the final phase — of [the W18 R13 backlog](../../../work/2026-07-06-w18-r13-conformance-execution-and-lab-session-redesign/04-verification-and-reconciliation.md) (all nine tasks t1–t9 across the three stages, per [historical closeout](2026-07-06-w18-r13-conformance-execution-and-lab-session-redesign.md) (retired action-PRD: `docs/prd/43-revise-conformance-scenario-model-and-execution-kit.md`) design D14/D12 and this historical record (retired action-PRD: `docs/prd/44-revise-conformance-lab-execution-protocol-and-evidence-homes.md`) R-EXEC/R-NAME closure evidence) and closed the wave. Phase 4 changes no source code: it verifies the round end to end, exhausts the reconciliation surface with grep proof, reconciles the guide and backlog documentation, and closes the register items.
 
 ### Full verification sweep (D14, Stage 1)
 

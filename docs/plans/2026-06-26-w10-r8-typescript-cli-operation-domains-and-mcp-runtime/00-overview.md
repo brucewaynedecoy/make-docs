@@ -8,8 +8,8 @@ Implement the W10 R7 runtime pivot by modularizing the TypeScript operation boun
 
 - [W10 R7 TypeScript CLI and MCP Runtime Pivot](../2026-06-26-w10-r7-typescript-cli-mcp-runtime-pivot/00-overview.md)
 - [TypeScript CLI and MCP Runtime Pivot Design](../../designs/2026-06-26-typescript-cli-and-mcp-runtime-pivot.md)
-- [PRD 25](../../prd/25-revise-cli-separation-and-mcp-boundary.md)
-- [PRD 26](../../prd/26-revise-no-scripts-migration-skill-refactor.md)
+- [PRD 25](../../prd/25-typescript-runtime-cli-mcp-operation-boundaries.md)
+- former PRD 26 (incorporated in [PRD 25](../../prd/25-typescript-runtime-cli-mcp-operation-boundaries.md#no-scripts-migration-dependency))
 
 ## Target State
 

@@ -37,7 +37,7 @@ Coverage decisions:
 
 - Developer guide coverage: none. The wave changed packaged lifecycle behavior and tests but did not introduce a separate maintainer procedure beyond existing backlog and PRD closeout evidence.
 - User guide coverage: complete through Phase 2. The lifecycle user guide already explains the `.make-docs/backup/**` destination and legacy `.backup/**` preservation.
-- PRD coverage: update-existing. [PRD 32](../../prd/32-revise-lifecycle-backup-state-agentics-pruning.md) records implementation closeout, and [PRD 03](../../prd/03-open-questions-and-risk-register.md) records the residual plugin-inheritance risk status.
+- PRD coverage: update-existing. [PRD 28](../../prd/28-shared-agentics-installation-and-harness-exposure.md#requirement-history) records implementation closeout, and [PRD 03](../../prd/03-open-questions-and-risk-register.md) records the residual plugin-inheritance risk status.
 - UAT coverage: complete. Manual UAT passed after the full W17 R4 wave was implemented.
 
 Validation run:

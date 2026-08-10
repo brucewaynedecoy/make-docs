@@ -39,7 +39,7 @@ import { renderRunOperationText, resolveRunRenderMode } from "./render";
  *
  * W18 R12 P3 additions:
  *
- * - Intent-named packaging grammar (PRD 41 R-GRAM-1..2): `run package
+ * - Intent-named packaging grammar (PRD 39 R-GRAM-1..2): `run package
  *   preview` is a CLI SPELLING over the unchanged `package.write` operation
  *   with the dry-run context — declared once in {@link RUN_CLI_SPELLINGS},
  *   never a second registry identifier, so the operation, its dry-run input,

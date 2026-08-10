@@ -75,7 +75,7 @@ export function parsePlaybook(input: ParsePlaybookInput): ParsePlaybookResult {
   // Stage 3: locate the required headings and verify presence and order.
   const headings = scanHeadingsStage(split.body, split.bodyOffset, index, diagnostics);
 
-  // Stage 4: parse the fenced dependencies block (PRD 40 R-DEP-1..2).
+  // Stage 4: parse the fenced dependencies block (PRD 34 R-DEP-1..2).
   const dependenciesSection = headings.requiredSections.get("Dependencies") ?? null;
   const dependencies = parseDependenciesBlockStage(
     input.source,
@@ -89,7 +89,7 @@ export function parsePlaybook(input: ParsePlaybookInput): ParsePlaybookResult {
 
   // Stage 5: locate and parse the `playbook` workflow contract block. The
   // dependencies section is excluded so its own `playbook` fence never
-  // counts against the workflow block (PRD 40 R-DEP-1 fence discipline).
+  // counts against the workflow block (PRD 34 R-DEP-1 fence discipline).
   const workflow = parseWorkflowBlockStage(
     input.source,
     split.bodyOffset,

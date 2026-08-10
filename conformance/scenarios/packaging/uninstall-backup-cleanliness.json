@@ -4,10 +4,10 @@
   "scenarioVersion": "2.1.0",
   "title": "Uninstall and backup: managed outputs removed cleanly, user content untouched",
   "sourceRequirements": [
-    "docs/prd/37-enhance-playbook-and-package-conformance.md",
-    "docs/prd/43-revise-conformance-scenario-model-and-execution-kit.md",
-    "docs/prd/36-revise-playbook-packaging-compiler-and-harness-adapters.md",
-    "docs/prd/20-revise-agent-harness-model-conformance-lab.md",
+    "docs/prd/43-conformance-scenario-model-and-execution-kits.md#requirements",
+    "docs/prd/43-conformance-scenario-model-and-execution-kits.md",
+    "docs/prd/36-playbook-packaging-compiler-and-harness-adapters.md",
+    "docs/prd/43-conformance-scenario-model-and-execution-kits.md#requirements",
     "docs/work/2026-07-01-w18-r9-playbook-and-package-conformance/02-evidence-bar-and-first-pass-scenarios.md"
   ],
   "safetyMode": "external-provider-run",

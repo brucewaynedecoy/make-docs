@@ -7,7 +7,7 @@ import type {
 import { validateWorkflowBundleCatalog } from "./validation";
 
 const BOUNDARY_EVIDENCE = [
-  "docs/prd/30-revise-harness-plugin-substrate-workflow-bundles.md",
+  "docs/prd/30-plugin-substrate-and-workflow-bundles.md",
 ];
 
 function deferredPackageBoundary(): PluginPackageBoundary {
@@ -62,8 +62,8 @@ function conformanceCandidate(input: {
       surface: input.surface,
     },
     evidenceRefs: [
-      "docs/prd/20-revise-agent-harness-model-conformance-lab.md",
-      "docs/prd/30-revise-harness-plugin-substrate-workflow-bundles.md",
+      "docs/prd/20-agent-harness-conformance-and-support-claims.md",
+      "docs/prd/30-plugin-substrate-and-workflow-bundles.md",
     ],
   };
 }

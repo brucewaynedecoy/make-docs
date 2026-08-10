@@ -15,7 +15,7 @@ summary: "Landed the eight-field R-TUPLE-1 support tuple and the drift-proofed t
 
 ## Changes
 
-This session implemented Phase 1 of [the W18 R9 backlog](../../../work/2026-07-01-w18-r9-playbook-and-package-conformance/01-support-tuple-and-tuple-registry.md) (all six tasks, per [PRD 37](../../../prd/37-enhance-playbook-and-package-conformance.md)) and ran the closeout documentation passes.
+This session implemented Phase 1 of [the W18 R9 backlog](../../../work/2026-07-01-w18-r9-playbook-and-package-conformance/01-support-tuple-and-tuple-registry.md) (all six tasks, per PRD 37; retired action-PRD: `docs/prd/37-enhance-playbook-and-package-conformance.md`) and ran the closeout documentation passes.
 
 ### Implementation
 

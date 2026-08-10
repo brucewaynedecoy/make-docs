@@ -5,7 +5,7 @@ status: "active"
 coordinate: "W18 R13 P2"
 source:
   type: "prd"
-  path: "docs/prd/43-revise-conformance-scenario-model-and-execution-kit.md"
+  path: "docs/prd/43-conformance-scenario-model-and-execution-kits.md"
 ---
 
 # Phase 2: Execution Kit, Instruments, and Lab Sessions
@@ -20,11 +20,11 @@ The kit is where executability becomes a generated property: every command it em
 
 ## Source PRD Docs
 
-- [43 Revise Conformance Scenario Model and Execution Kit](../../prd/43-revise-conformance-scenario-model-and-execution-kit.md)
-- [44 Revise Conformance Lab Execution Protocol and Evidence Homes](../../prd/44-revise-conformance-lab-execution-protocol-and-evidence-homes.md)
-- [36 Revise Playbook Packaging Compiler and Harness Adapters](../../prd/36-revise-playbook-packaging-compiler-and-harness-adapters.md) (enhanced baseline: the descriptor interrogation block; compiler and adapters consumed unchanged)
-- [39 Revise CLI Command Reorganization and Operation Registry](../../prd/39-revise-cli-command-reorganization-and-operation-registry.md) (still-constraining: parity preserved vacuously — nothing registered, nothing on the CLI tree or MCP)
-- [38 Revise Global Store and Project State](../../prd/38-revise-global-store-and-project-state.md) (still-constraining: the store's lab area is a named location, not new store schema)
+- [43 Revise Conformance Scenario Model and Execution Kit](../../prd/43-conformance-scenario-model-and-execution-kits.md)
+- [44 Revise Conformance Lab Execution Protocol and Evidence Homes](../../prd/44-conformance-lab-sessions-and-evidence.md)
+- [36 Revise Playbook Packaging Compiler and Harness Adapters](../../prd/36-playbook-packaging-compiler-and-harness-adapters.md) (enhanced baseline: the descriptor interrogation block; compiler and adapters consumed unchanged)
+- [39 Revise CLI Command Reorganization and Operation Registry](../../prd/39-cli-command-model-and-operation-registry.md) (still-constraining: parity preserved vacuously — nothing registered, nothing on the CLI tree or MCP)
+- [38 Revise Global Store and Project State](../../prd/38-global-store-and-project-state.md) (still-constraining: the store's lab area is a named location, not new store schema)
 
 ## Stage 1 - Kit Generator and Descriptor Interrogation Block
 

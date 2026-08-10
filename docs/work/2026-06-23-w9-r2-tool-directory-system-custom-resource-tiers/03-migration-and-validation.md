@@ -6,10 +6,10 @@ Move toward the tool-directory model without breaking Batch 1 safety contracts.
 
 ## Source PRD Docs
 
-- `docs/prd/21-revise-tool-directory-system-custom-resource-tiers.md`
-- `docs/prd/17-revise-system-asset-materialization-contract.md`
-- `docs/prd/18-revise-compatibility-audit-and-migration-disposition.md`
-- `docs/prd/19-revise-template-package-dogfood-source-of-truth-contract.md`
+- `docs/prd/21-project-tool-directory-and-resource-tiers.md`
+- `docs/prd/17-system-asset-materialization-and-local-bootstrap.md`
+- `docs/prd/18-compatibility-classification-and-migration-safety.md`
+- `docs/prd/06-template-contracts-and-generated-assets.md`
 
 ## Stage 1 - Migration Plan
 

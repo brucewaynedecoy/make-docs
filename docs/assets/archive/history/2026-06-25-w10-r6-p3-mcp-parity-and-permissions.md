@@ -15,7 +15,7 @@ Completed W10 R6 Phase 3 by adding a maintainer-facing CLI/MCP parity guide that
 
 ### Coverage Decisions
 
-- PRD coverage: no PRD files changed. [PRD 25](../../../prd/25-revise-cli-separation-and-mcp-boundary.md) already owns the effective MCP parity and permission requirement.
+- PRD coverage: no PRD files changed. [historical closeout](2026-06-25-w10-r6-p4-package-validation-and-closeout.md) (retired action-PRD: `docs/prd/25-revise-cli-separation-and-mcp-boundary.md`) already owns the effective MCP parity and permission requirement.
 - Developer-guide coverage: created [CLI/MCP Operation Parity and Permissions](../../../assets/library/developer/cli-mcp-operation-parity-and-permissions.md) and linked it from adjacent CLI/package maintainer guides.
 - User-guide coverage: no user guide was needed. Phase 3 defines future maintainer implementation gates and does not expose current user-facing MCP behavior.
 - UAT: deferred until the full W10 R6 wave is complete, per the active wave instruction.

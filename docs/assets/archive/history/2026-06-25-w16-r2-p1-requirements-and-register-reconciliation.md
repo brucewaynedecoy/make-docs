@@ -17,7 +17,7 @@ Completed W16 R2 Phase 1 by auditing the active PRD and risk-register authority 
 
 ### Coverage Decisions
 
-- PRD coverage: no new PRD or risk-register text was needed. [PRD 24](../../../prd/24-revise-configuration-convention-overlay.md) is already present in the active PRD index, affected baselines, source anchors, audience paths, intended follow-ons, and named register items.
+- PRD coverage: no new PRD or risk-register text was needed. [historical closeout](2026-06-25-w16-r2-configuration-convention-overlay-wave-closeout.md) (retired action-PRD: `docs/prd/24-revise-configuration-convention-overlay.md`) is already present in the active PRD index, affected baselines, source anchors, audience paths, intended follow-ons, and named register items.
 - Developer-guide coverage: no developer guide was needed. This phase reconciled requirement authority and did not add a maintainer workflow beyond the active PRD/backlog state.
 - User-guide coverage: no user guide was needed. This phase does not expose a current end-user configuration workflow.
 - UAT: deferred until the full W16 R2 wave is complete, per the active wave instruction.

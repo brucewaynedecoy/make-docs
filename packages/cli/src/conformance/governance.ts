@@ -1,5 +1,5 @@
 /**
- * The W18 R9 P4 support-claim governance (PRD 37 R-GOV-1..2; W18 R9 P4
+ * The W18 R9 P4 support-claim governance (PRD 20 R-GOV-1..2; W18 R9 P4
  * t1-t6). This module is the human-facing half of the tuple registry: it owns
  * how support claims may be PHRASED anywhere support language appears — docs,
  * READMEs, guides, registry notes, generated package records — and binds that
@@ -306,7 +306,7 @@ export function renderConformanceSupportClaim(
 
 /**
  * The highest packaging support status the registry permits for a tuple: the
- * W18 R5/PRD 33 generated-output claims and the W18 R8/PRD 36 adapter support
+ * W18 R5/PRD 36 generated-output claims and the W18 R8 adapter support
  * statuses may read `validated` only when the exact registry tuple is
  * `conformance-validated` — an unregistered tuple permits nothing beyond
  * `provisional`, so no parallel or prose-only support surface can exist
@@ -642,7 +642,7 @@ export function listSupportClaimGovernanceErrors(input: {
 
 /**
  * Repo-relative home of the committed compact result records (home revised
- * by PRD 42; layout revised by PRD 43 R-ORG-2): evidence organizes by
+ * by PRD 43; result-record contract owned by PRD 44): evidence organizes by
  * execution target at `conformance/results/<harness>/`, with the
  * model-or-provider and runtime dimensions inside each record. No
  * speculative directory is pre-created — the first `<harness>/` directory

@@ -6,14 +6,14 @@ Generate the W18 R7 delta work backlog from PRD 35 and the still-constraining ba
 
 ## Inputs
 
-- `docs/prd/35-revise-run-playbook-state-machine.md` as the effective requirement, with [PRD 29](../../prd/29-revise-playbook-contract-run-playbook.md), [PRD 34](../../prd/34-revise-playbook-contract-and-model.md), [PRD 30](../../prd/30-revise-harness-plugin-substrate-workflow-bundles.md), [PRD 24](../../prd/24-revise-configuration-convention-overlay.md), and [PRD 25](../../prd/25-revise-cli-separation-and-mcp-boundary.md) as still-constraining baselines.
+- `docs/prd/35-run-playbook-state-machine-and-portability.md` as the effective requirement, with former PRD 29 (now incorporated in [PRD 35](../../prd/35-run-playbook-state-machine-and-portability.md#requirements)), [PRD 34](../../prd/34-playbook-authoring-contract-and-model.md), [PRD 30](../../prd/30-plugin-substrate-and-workflow-bundles.md), [PRD 24](../../prd/24-project-configuration-and-convention-overlay.md), and [PRD 25](../../prd/25-typescript-runtime-cli-mcp-operation-boundaries.md) as still-constraining baselines.
 - The Phase 2 scope decisions and the D10 test requirements.
 - `.make-docs/templates/system/work-index.md` and `.make-docs/templates/system/work-phase.md`.
 
 ## Outputs
 
 - `docs/work/2026-07-01-w18-r7-run-playbook-state-machine/` with `00-index.md` (coordinate `W18 R7`) and dependency-ordered phase files (coordinate `W18 R7 P<N>`), following the arc: run-state record and global-store storage integration, progression operations, execution modes and digest-aware resume, guardrails plus portability plus three-tier behavior, and the D10 test suite including the assertion that no run state is written under `.make-docs/runs/` or any repository path.
-- Every phase cites `../../prd/35-revise-run-playbook-state-machine.md` plus the still-constraining baselines under `## Source PRD Docs`, writes `### Tasks` as `- [ ] tN: ...` items incrementing across the whole file, writes `### Acceptance criteria` as plain bullets derived from the design MUSTs, and lists `### Dependencies`.
+- Every phase cites `../../prd/35-run-playbook-state-machine-and-portability.md` plus the still-constraining baselines under `## Source PRD Docs`, writes `### Tasks` as `- [ ] tN: ...` items incrementing across the whole file, writes `### Acceptance criteria` as plain bullets derived from the design MUSTs, and lists `### Dependencies`.
 - The storage phase records the cross-design sequencing dependency explicitly: run-state storage is gated on the global store, its concurrency model, and the stable project identifier from the Runtime and Global Store lineage (planned as W18 R10), and the backlog defines what run state requires of the store without defining the store.
 
 ## Validation

@@ -20,13 +20,13 @@ This plan is derived from [Playbook Contract and Run Playbook](../../designs/202
 - Revision: R1
 - Route: change-plan
 - Source design: [docs/designs/2026-06-20-playbook-contract-and-run-playbook.md](../../designs/2026-06-20-playbook-contract-and-run-playbook.md)
-- New PRD: [docs/prd/29-revise-playbook-contract-run-playbook.md](../../prd/29-revise-playbook-contract-run-playbook.md)
+- Current PRD authority: [docs/prd/34-playbook-authoring-contract-and-model.md](../../prd/34-playbook-authoring-contract-and-model.md#requirements)
 - Work backlog: [docs/work/2026-06-23-w18-r1-playbook-contract-run-playbook/00-index.md](../../work/2026-06-23-w18-r1-playbook-contract-run-playbook/00-index.md)
 
 ## Current Implementation Grounding
 
 - `docs/assets/playbooks/agent/make-docs-lifecycle.md` is the v2 dogfood home; former `docs/library/playbooks/agent/make-docs-lifecycle.md` references are transitional historical evidence after W9 R5.
-- [docs/prd/22-revise-new-docs-assets-playbooks-persona-model.md](../../prd/22-revise-new-docs-assets-playbooks-persona-model.md) already makes `docs/assets/playbooks/**` the future persona-scoped playbook namespace but explicitly does not define Run Playbook execution.
+- [docs/prd/22-project-documentation-asset-model.md](../../prd/22-project-documentation-asset-model.md#requirements) already makes `docs/assets/playbooks/**` the future persona-scoped playbook namespace but explicitly does not define Run Playbook execution.
 - `packages/cli/src/rules.ts` and `packages/cli/src/catalog.ts` currently enumerate prompts, references, templates, scripts, and instruction routers; they do not enumerate playbook assets or validate playbook frontmatter.
 - `packages/cli/src/manifest.ts` records generic files and `skillFiles`; it has no playbook catalog, stack, or run-support metadata.
 - `scripts/smoke-pack.mjs` validates packed template, skills, backup, and uninstall behavior, but it does not prove playbook metadata, path/persona consistency, build-stack versus run-stack selection, or Run Playbook invocation.

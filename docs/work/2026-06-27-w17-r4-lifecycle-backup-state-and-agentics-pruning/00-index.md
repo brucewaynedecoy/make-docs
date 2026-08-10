@@ -8,7 +8,7 @@ Implement the W17 R4 lifecycle correction: future backups write under `.make-doc
 
 - Design: [docs/designs/2026-06-27-lifecycle-backup-state-and-agentics-pruning-correction.md](../../designs/2026-06-27-lifecycle-backup-state-and-agentics-pruning-correction.md)
 - Plan: [docs/plans/2026-06-27-w17-r4-lifecycle-backup-state-and-agentics-pruning/00-overview.md](../../plans/2026-06-27-w17-r4-lifecycle-backup-state-and-agentics-pruning/00-overview.md)
-- PRD: [docs/prd/32-revise-lifecycle-backup-state-agentics-pruning.md](../../prd/32-revise-lifecycle-backup-state-agentics-pruning.md)
+- PRD history: [docs/prd/28-shared-agentics-installation-and-harness-exposure.md](../../prd/28-shared-agentics-installation-and-harness-exposure.md#requirement-history)
 
 ## Phase Map
 

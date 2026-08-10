@@ -6,7 +6,7 @@ Trace PRD 20 into implementation surfaces and keep existing risk-register IDs st
 
 ## Source PRD Docs
 
-- `docs/prd/20-revise-agent-harness-model-conformance-lab.md`
+- `docs/prd/20-agent-harness-conformance-and-support-claims.md`
 - `docs/prd/03-open-questions-and-risk-register.md`
 
 ## Stage 1 - Trace and Scope

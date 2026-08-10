@@ -6,7 +6,7 @@ Implement and document template-first ownership across source files and maintain
 
 ## Source PRD Docs
 
-- `docs/prd/19-revise-template-package-dogfood-source-of-truth-contract.md`
+- `docs/prd/06-template-contracts-and-generated-assets.md`
 - `docs/prd/06-template-contracts-and-generated-assets.md`
 - `docs/prd/09-dogfood-and-maintainer-operations.md`
 

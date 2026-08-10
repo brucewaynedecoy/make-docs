@@ -1,6 +1,6 @@
 /**
  * Targeted process-warning filter for the Node SQLite ExperimentalWarning
- * (W18 R12 P3; PRD 41 R-NOISE-1).
+ * (W18 R12 P3; PRD 39 R-NOISE-1).
  *
  * `node:sqlite` emits `SQLite is an experimental feature and might change at
  * any time (ExperimentalWarning)` on first use, which printed on every CLI

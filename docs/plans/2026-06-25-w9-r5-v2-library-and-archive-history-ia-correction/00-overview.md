@@ -38,7 +38,7 @@ This plan intentionally departs from the default plan-then-PRD-stop flow because
 
 - Plan directory: `docs/plans/2026-06-25-w9-r5-v2-library-and-archive-history-ia-correction/`
 - Work backlog: `docs/work/2026-06-25-w9-r5-v2-library-and-archive-history-ia-correction/`
-- Active PRDs to reconcile in place: [00 Index](../../prd/00-index.md), [02 Architecture Overview](../../prd/02-architecture-overview.md), [03 Open Questions and Risk Register](../../prd/03-open-questions-and-risk-register.md), [09 Dogfood and Maintainer Operations](../../prd/09-dogfood-and-maintainer-operations.md), [19 Template Package Dogfood Source of Truth Contract](../../prd/19-revise-template-package-dogfood-source-of-truth-contract.md), [22 New Docs Assets Playbooks Persona Model](../../prd/22-revise-new-docs-assets-playbooks-persona-model.md), and [24 Configuration Convention Overlay](../../prd/24-revise-configuration-convention-overlay.md).
+- Active PRDs to reconcile in place: [00 Index](../../prd/00-index.md), [02 Architecture Overview](../../prd/02-architecture-overview.md), [03 Open Questions and Risk Register](../../prd/03-open-questions-and-risk-register.md), [09 Dogfood and Maintainer Operations](../../prd/09-dogfood-and-maintainer-operations.md), [19 Template Package Dogfood Source of Truth Contract](../../prd/06-template-contracts-and-generated-assets.md#template-source-authority), [22 New Docs Assets Playbooks Persona Model](../../prd/22-project-documentation-asset-model.md#requirements), and [24 Configuration Convention Overlay](../../prd/24-project-configuration-and-convention-overlay.md).
 - Do not create a new numbered PRD change doc for this correction.
 - Preserve historical references when they describe completed pre-W9 R5 state.
 

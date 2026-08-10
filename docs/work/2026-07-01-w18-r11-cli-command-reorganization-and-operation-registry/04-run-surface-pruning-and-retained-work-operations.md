@@ -5,7 +5,7 @@ status: "active"
 coordinate: "W18 R11 P4"
 source:
   type: "prd"
-  path: "docs/prd/39-revise-cli-command-reorganization-and-operation-registry.md"
+  path: "docs/prd/39-cli-command-model-and-operation-registry.md"
 ---
 
 # Phase 4: Run Surface Pruning and Retained Work Operations
@@ -20,11 +20,11 @@ Surface the `run playbook` and `run package` subtrees over the Phase 1 registry,
 
 ## Source PRD Docs
 
-- [39 Revise CLI Command Reorganization and Operation Registry](../../prd/39-revise-cli-command-reorganization-and-operation-registry.md)
-- [35 Revise Run Playbook State Machine](../../prd/35-revise-run-playbook-state-machine.md)
-- [36 Revise Playbook Packaging Compiler and Harness Adapters](../../prd/36-revise-playbook-packaging-compiler-and-harness-adapters.md)
-- [38 Revise Global Store and Project State](../../prd/38-revise-global-store-and-project-state.md)
-- [26 Revise No-Scripts Migration Skill Refactor](../../prd/26-revise-no-scripts-migration-skill-refactor.md)
+- [39 Revise CLI Command Reorganization and Operation Registry](../../prd/39-cli-command-model-and-operation-registry.md)
+- [35 Revise Run Playbook State Machine](../../prd/35-run-playbook-state-machine-and-portability.md)
+- [36 Revise Playbook Packaging Compiler and Harness Adapters](../../prd/36-playbook-packaging-compiler-and-harness-adapters.md)
+- [38 Revise Global Store and Project State](../../prd/38-global-store-and-project-state.md)
+- [26 Revise No-Scripts Migration Skill Refactor](../../prd/25-typescript-runtime-cli-mcp-operation-boundaries.md#no-scripts-migration-dependency)
 
 ## Stage 1 - Playbook and Package Subtrees
 

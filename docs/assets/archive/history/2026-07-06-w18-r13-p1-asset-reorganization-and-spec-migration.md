@@ -15,7 +15,7 @@ summary: "Landed the definitions-by-domain, evidence-by-target scenario model: t
 
 ## Changes
 
-This session implemented Phase 1 of [the W18 R13 backlog](../../../work/2026-07-06-w18-r13-conformance-execution-and-lab-session-redesign/01-asset-reorganization-and-spec-migration.md) (all ten tasks, per [PRD 43](../../../prd/43-revise-conformance-scenario-model-and-execution-kit.md) R-ORG-1..3, R-SCHEMA-1..3, and the schema half of R-DISC-1) and ran the phase-closeout documentation passes.
+This session implemented Phase 1 of [the W18 R13 backlog](../../../work/2026-07-06-w18-r13-conformance-execution-and-lab-session-redesign/01-asset-reorganization-and-spec-migration.md) (all ten tasks, per [historical closeout](2026-07-06-w18-r13-conformance-execution-and-lab-session-redesign.md) (retired action-PRD: `docs/prd/43-revise-conformance-scenario-model-and-execution-kit.md`) R-ORG-1..3, R-SCHEMA-1..3, and the schema half of R-DISC-1) and ran the phase-closeout documentation passes.
 
 ### Implementation
 

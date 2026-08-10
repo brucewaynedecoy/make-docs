@@ -10,14 +10,14 @@ follow_on:
   coordinate_handoff: "Carry W18 R6 into phase history records and commits, adding the active P coordinate for each phase."
 source:
   type: "prd"
-  path: "docs/prd/34-revise-playbook-contract-and-model.md"
+  path: "docs/prd/34-playbook-authoring-contract-and-model.md"
 ---
 
 # W18 R6 Playbook Contract and Model Work
 
 ## Purpose
 
-Implement the deterministic Playbook contract and model required by [34 Revise Playbook Contract and Model](../../prd/34-revise-playbook-contract-and-model.md): the first-class contract document authored upstream and dogfooded, the single parsed Playbook model with its staged parser, the layered validator with the diagnostic catalog, the `playbook.validate` and `playbook.catalog` operation wiring, the default-Playbook migration to the `<slug>.playbook.md` form, and the D7 test and fixture coverage. The source chain is [the design](../../designs/2026-06-30-playbook-contract-and-model.md), [the W18 R6 plan](../../plans/2026-07-01-w18-r6-playbook-contract-and-model/00-overview.md), and PRD 34, with [PRD 29](../../prd/29-revise-playbook-contract-run-playbook.md) and [PRD 33](../../prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md) as still-constraining baselines.
+Implement the deterministic Playbook contract and model required by [34 Revise Playbook Contract and Model](../../prd/34-playbook-authoring-contract-and-model.md): the first-class contract document authored upstream and dogfooded, the single parsed Playbook model with its staged parser, the layered validator with the diagnostic catalog, the `playbook.validate` and `playbook.catalog` operation wiring, the default-Playbook migration to the `<slug>.playbook.md` form, and the D7 test and fixture coverage. The source chain is [the design](../../designs/2026-06-30-playbook-contract-and-model.md), [the W18 R6 plan](../../plans/2026-07-01-w18-r6-playbook-contract-and-model/00-overview.md), and PRD 34, with former PRD 29 and former PRD 33 as historical baselines now incorporated in [PRD 34](../../prd/34-playbook-authoring-contract-and-model.md#requirements) and [PRD 36](../../prd/36-playbook-packaging-compiler-and-harness-adapters.md), respectively.
 
 ## Phase Map
 

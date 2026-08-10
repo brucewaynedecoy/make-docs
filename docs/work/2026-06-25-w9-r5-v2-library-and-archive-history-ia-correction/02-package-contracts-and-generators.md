@@ -10,8 +10,8 @@ This phase replaces W9 R4 guide/breadcrumb package surfaces with library/archive
 
 ## Source PRD Docs
 
-- [19 Revise Template Package Dogfood Source of Truth Contract](../../prd/19-revise-template-package-dogfood-source-of-truth-contract.md)
-- [22 Revise New Docs Assets Playbooks Persona Model](../../prd/22-revise-new-docs-assets-playbooks-persona-model.md)
+- [19 Revise Template Package Dogfood Source of Truth Contract](../../prd/06-template-contracts-and-generated-assets.md#template-source-authority)
+- [22 Revise New Docs Assets Playbooks Persona Model](../../prd/22-project-documentation-asset-model.md#requirements)
 - [10 Packaging Validation and Release Reference](../../prd/10-packaging-validation-and-release-reference.md)
 
 ## Stage 1 - Template and Catalog Paths

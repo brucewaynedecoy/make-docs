@@ -5,7 +5,7 @@ status: "active"
 coordinate: "W18 R6 P5"
 source:
   type: "prd"
-  path: "docs/prd/34-revise-playbook-contract-and-model.md"
+  path: "docs/prd/34-playbook-authoring-contract-and-model.md"
 ---
 
 # Phase 5: Tests, Fixtures, and Verification
@@ -20,9 +20,9 @@ This phase lands the unit-test and fixture suite for the library and the closing
 
 ## Source PRD Docs
 
-- [34 Revise Playbook Contract and Model](../../prd/34-revise-playbook-contract-and-model.md)
-- [29 Revise Playbook Contract Run Playbook](../../prd/29-revise-playbook-contract-run-playbook.md)
-- [33 Enhance Playbook Packaging and Harness Adapter Registry](../../prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md)
+- [34 Revise Playbook Contract and Model](../../prd/34-playbook-authoring-contract-and-model.md)
+- [29 Revise Playbook Contract Run Playbook](../../prd/34-playbook-authoring-contract-and-model.md#requirements)
+- [33 Enhance Playbook Packaging and Harness Adapter Registry](../../prd/36-playbook-packaging-compiler-and-harness-adapters.md)
 
 ## Stage 1 - Fixture and Unit-Test Suite
 

@@ -22,7 +22,7 @@ function packageBoundary(
     generatedLocalRunArtifacts: "excluded",
     unreviewedGeneratedOutputs: "excluded",
     decisionEvidence: [
-      "docs/prd/30-revise-harness-plugin-substrate-workflow-bundles.md",
+      "docs/prd/30-plugin-substrate-and-workflow-bundles.md",
     ],
     ...overrides,
   };

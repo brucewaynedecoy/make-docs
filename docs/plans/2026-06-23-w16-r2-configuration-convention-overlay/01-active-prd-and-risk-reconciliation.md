@@ -2,7 +2,7 @@
 
 ## New PRD
 
-- Add [24 Revise Configuration Convention Overlay](../../prd/24-revise-configuration-convention-overlay.md).
+- Add [24 Revise Configuration Convention Overlay](../../prd/24-project-configuration-and-convention-overlay.md).
 - Treat it as a W16 revision because it narrows earlier lifecycle terminology-overlay intent and follows W16 R1 generated metadata handoff work.
 
 ## Existing PRDs to Update
@@ -12,10 +12,10 @@
 - [05-installation-profile-and-manifest-lifecycle.md](../../prd/05-installation-profile-and-manifest-lifecycle.md): require install, reconfigure, backup, audit, provider refresh, and recovery behavior to preserve project-owned config.
 - [06-template-contracts-and-generated-assets.md](../../prd/06-template-contracts-and-generated-assets.md): require template-first handling for any default config template and generated prose labels.
 - [10-packaging-validation-and-release-reference.md](../../prd/10-packaging-validation-and-release-reference.md): add package proof for config template parity and local config preservation.
-- [14-add-lifecycle-workflow-foundation.md](../../prd/14-add-lifecycle-workflow-foundation.md): clarify lifecycle labels can be presented differently but lifecycle contracts and handoffs remain canonical.
-- [21-revise-tool-directory-system-custom-resource-tiers.md](../../prd/21-revise-tool-directory-system-custom-resource-tiers.md): add local project config as a custom/project-owned `.make-docs/` surface.
-- [22-revise-new-docs-assets-playbooks-persona-model.md](../../prd/22-revise-new-docs-assets-playbooks-persona-model.md): add custom persona entries and relabeling without changing schema keys or primitive values.
-- [23-revise-generated-metadata-lifecycle-handoffs.md](../../prd/23-revise-generated-metadata-lifecycle-handoffs.md): make config overlays presentation-only for generated prose, never metadata keys or enum values.
+- [14-lifecycle-workflow-and-coverage-passes.md](../../prd/14-lifecycle-workflow-and-coverage-passes.md): clarify lifecycle labels can be presented differently but lifecycle contracts and handoffs remain canonical.
+- [21-project-tool-directory-and-resource-tiers.md](../../prd/21-project-tool-directory-and-resource-tiers.md): add local project config as a custom/project-owned `.make-docs/` surface.
+- [47-persona-model.md](../../prd/47-persona-model.md#persona-schema): add custom persona entries and relabeling without changing schema keys or primitive values.
+- [23-generated-document-metadata-and-lifecycle-handoffs.md](../../prd/23-generated-document-metadata-and-lifecycle-handoffs.md): make config overlays presentation-only for generated prose, never metadata keys or enum values.
 
 ## Risk Register Updates
 

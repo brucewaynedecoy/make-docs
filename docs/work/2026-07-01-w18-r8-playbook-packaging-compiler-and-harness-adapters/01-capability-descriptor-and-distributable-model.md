@@ -5,7 +5,7 @@ status: "active"
 coordinate: "W18 R8 P1"
 source:
   type: "prd"
-  path: "docs/prd/36-revise-playbook-packaging-compiler-and-harness-adapters.md"
+  path: "docs/prd/36-playbook-packaging-compiler-and-harness-adapters.md"
 ---
 
 # Phase 1: Capability Descriptor and Distributable Model
@@ -20,11 +20,11 @@ Define the harness capability descriptor as the single home of harness-specific 
 
 ## Source PRD Docs
 
-- [36 Revise Playbook Packaging Compiler and Harness Adapters](../../prd/36-revise-playbook-packaging-compiler-and-harness-adapters.md)
-- [33 Enhance Playbook Packaging and Harness Adapter Registry](../../prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md)
-- [34 Revise Playbook Contract and Model](../../prd/34-revise-playbook-contract-and-model.md)
-- [35 Revise Run Playbook State Machine](../../prd/35-revise-run-playbook-state-machine.md)
-- [25 Revise CLI Separation and MCP Boundary](../../prd/25-revise-cli-separation-and-mcp-boundary.md)
+- [36 Revise Playbook Packaging Compiler and Harness Adapters](../../prd/36-playbook-packaging-compiler-and-harness-adapters.md)
+- [33 Enhance Playbook Packaging and Harness Adapter Registry](../../prd/36-playbook-packaging-compiler-and-harness-adapters.md)
+- [34 Revise Playbook Contract and Model](../../prd/34-playbook-authoring-contract-and-model.md)
+- [35 Revise Run Playbook State Machine](../../prd/35-run-playbook-state-machine-and-portability.md)
+- [25 Revise CLI Separation and MCP Boundary](../../prd/25-typescript-runtime-cli-mcp-operation-boundaries.md)
 
 ## Stage 1 - Capability Descriptor and Shared Registry
 
@@ -42,8 +42,8 @@ Define the harness capability descriptor as the single home of harness-specific 
 
 ### Dependencies
 
-- The W18 R6 Playbook model from [PRD 34](../../prd/34-revise-playbook-contract-and-model.md) as the compiler input contract.
-- The existing W18 R5 adapter registry and planner from [PRD 33](../../prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md), preserved unchanged.
+- The W18 R6 Playbook model from [PRD 34](../../prd/34-playbook-authoring-contract-and-model.md) as the compiler input contract.
+- The existing W18 R5 adapter registry and planner from former PRD 33, now incorporated in [PRD 36](../../prd/36-playbook-packaging-compiler-and-harness-adapters.md), preserved unchanged.
 
 ## Stage 2 - Two-Granularities Distributable Model
 

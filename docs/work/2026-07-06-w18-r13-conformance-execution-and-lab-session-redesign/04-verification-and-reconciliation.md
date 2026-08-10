@@ -5,7 +5,7 @@ status: "active"
 coordinate: "W18 R13 P4"
 source:
   type: "prd"
-  path: "docs/prd/43-revise-conformance-scenario-model-and-execution-kit.md"
+  path: "docs/prd/43-conformance-scenario-model-and-execution-kits.md"
 ---
 
 # Phase 4: Verification and Reconciliation
@@ -20,9 +20,9 @@ Phases 1–3 each land their own suites; this phase runs them as one bar, adds t
 
 ## Source PRD Docs
 
-- [43 Revise Conformance Scenario Model and Execution Kit](../../prd/43-revise-conformance-scenario-model-and-execution-kit.md)
-- [44 Revise Conformance Lab Execution Protocol and Evidence Homes](../../prd/44-revise-conformance-lab-execution-protocol-and-evidence-homes.md)
-- [37 Enhance Playbook and Package Conformance](../../prd/37-enhance-playbook-and-package-conformance.md) and [20 Revise Agent Harness Model Conformance Lab](../../prd/20-revise-agent-harness-model-conformance-lab.md) (annotated baselines whose preserved scope the sweep re-verifies)
+- [43 Revise Conformance Scenario Model and Execution Kit](../../prd/43-conformance-scenario-model-and-execution-kits.md)
+- [44 Revise Conformance Lab Execution Protocol and Evidence Homes](../../prd/44-conformance-lab-sessions-and-evidence.md)
+- [37 Enhance Playbook and Package Conformance](../../prd/20-agent-harness-conformance-and-support-claims.md#support-claim-governance) and [20 Revise Agent Harness Model Conformance Lab](../../prd/20-agent-harness-conformance-and-support-claims.md) (annotated baselines whose preserved scope the sweep re-verifies)
 - [03 Open Questions and Risk Register](../../prd/03-open-questions-and-risk-register.md) (D-023, D-024, D-025, R-028, R-021, R-022, Q-022 closure state)
 
 ## Stage 1 - Full Verification Sweep (D14)

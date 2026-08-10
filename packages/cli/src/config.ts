@@ -43,7 +43,7 @@ export const HARNESS_CAPABILITY_IDS = [
 
 /**
  * Packaging-precondition states absorbable from project config (W18 R12 P3;
- * PRD 41 R-FLAG-2). Mirrors `PackageAdapterPreconditionState` in the
+ * PRD 39 R-FLAG-2). Mirrors `PackageAdapterPreconditionState` in the
  * playbook-packaging types; config stays convenience, never authority — the
  * CLI merges these under explicit `--precondition` flags, which always win,
  * and a missing block changes no behavior. This follows the
@@ -693,7 +693,7 @@ function applyHarnessCapabilities(
 }
 
 /**
- * The `packaging` config block (W18 R12 P3; PRD 41 R-FLAG-2): precondition
+ * The `packaging` config block (W18 R12 P3; PRD 39 R-FLAG-2): precondition
  * state defaults absorbed by the CLI packaging adapters. Values are validated
  * against the shared precondition-state vocabulary; keys are adapter
  * precondition identifiers and stay freeform (they name adapter contract

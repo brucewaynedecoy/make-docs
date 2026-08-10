@@ -15,7 +15,7 @@ summary: "Organized coverage into the three named test layers with machine-check
 
 ## Changes
 
-This session implemented Phase 3 of [the W18 R9 backlog](../../../work/2026-07-01-w18-r9-playbook-and-package-conformance/03-test-layer-separation-and-meta-verification.md) (all five tasks, per [PRD 37](../../../prd/37-enhance-playbook-and-package-conformance.md) R-LAYER-1..2 and R-TEST-1..3) and ran the closeout documentation passes.
+This session implemented Phase 3 of [the W18 R9 backlog](../../../work/2026-07-01-w18-r9-playbook-and-package-conformance/03-test-layer-separation-and-meta-verification.md) (all five tasks, per PRD 37 R-LAYER-1..2 and R-TEST-1..3; retired action-PRD: `docs/prd/37-enhance-playbook-and-package-conformance.md`) and ran the closeout documentation passes.
 
 ### Implementation
 

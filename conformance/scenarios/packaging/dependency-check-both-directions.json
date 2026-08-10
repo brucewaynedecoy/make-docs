@@ -4,10 +4,10 @@
   "scenarioVersion": "2.1.0",
   "title": "Dependency checks: surface missing tools, pass on present tools, probe-based only",
   "sourceRequirements": [
-    "docs/prd/37-enhance-playbook-and-package-conformance.md",
-    "docs/prd/43-revise-conformance-scenario-model-and-execution-kit.md",
-    "docs/prd/20-revise-agent-harness-model-conformance-lab.md",
-    "docs/prd/40-revise-playbook-authoring-contract-v2.md",
+    "docs/prd/43-conformance-scenario-model-and-execution-kits.md#requirements",
+    "docs/prd/43-conformance-scenario-model-and-execution-kits.md",
+    "docs/prd/43-conformance-scenario-model-and-execution-kits.md#requirements",
+    "docs/prd/34-playbook-authoring-contract-and-model.md",
     "docs/work/2026-07-01-w18-r9-playbook-and-package-conformance/02-evidence-bar-and-first-pass-scenarios.md"
   ],
   "safetyMode": "external-provider-run",
@@ -37,7 +37,7 @@
       "kind": "command",
       "run": "mkdir -p \"$WORKSPACE/docs/assets/playbooks/agent\" && cp conformance/fixtures/agent/conformance-dependency-probe.playbook.md \"$WORKSPACE/docs/assets/playbooks/agent/\"",
       "transcript": "context",
-      "notes": "The fixture's dependency registry includes the rg entry whose source prose does not begin with the binary name (PRD 40 R-FIX-1) and the deliberately absent probe target."
+      "notes": "The fixture's dependency registry includes the rg entry whose source prose does not begin with the binary name (PRD 34 R-FIX-1) and the deliberately absent probe target."
     },
     {
       "kind": "command",
@@ -50,11 +50,11 @@
       "run": "cd \"$WORKSPACE\" && make-docs run package ship --harness codex --output-kind skills-bundle --surface native --scope project --package-id conformance-dependency-probe --support-evidence-ref conformance/tuple-registry.json#codex-skills-bundle-native-project --json agent/conformance-dependency-probe",
       "transcript": "evidence-json",
       "barStage": "install",
-      "notes": "Run once per targeted tuple: --surface native with the codex-skills-bundle-native-project evidence ref, and --surface agents-standard with the codex-skills-bundle-agents-standard-project evidence ref. The evidence ref names the exact registry tuple this session's evidence lands on (D-023: the planner hard-stops without one). `ship` runs plan -> preview -> write end-to-end (PRD 41 grammar; --write is retired)."
+      "notes": "Run once per targeted tuple: --surface native with the codex-skills-bundle-native-project evidence ref, and --surface agents-standard with the codex-skills-bundle-agents-standard-project evidence ref. The evidence ref names the exact registry tuple this session's evidence lands on (D-023: the planner hard-stops without one). `ship` runs plan -> preview -> write end-to-end (PRD 39 grammar; --write is retired)."
     },
     {
       "kind": "assertion",
-      "assert": "The ship transcript records the bundle's materialized dependency checks, and every generated cli/package-manager check targets the entry's resolved probe — the declared `probe` value or the `id` default — never `source` prose: the rg entry's check probes `rg`, not `ripgrep` (PRD 40 R-DEP-3).",
+      "assert": "The ship transcript records the bundle's materialized dependency checks, and every generated cli/package-manager check targets the entry's resolved probe — the declared `probe` value or the `id` default — never `source` prose: the rg entry's check probes `rg`, not `ripgrep` (PRD 34 R-DEP-3).",
       "barStage": "install"
     },
     {
@@ -109,7 +109,7 @@
     "domain": "packaging",
     "evidenceBar": {
       "install": [
-        "make-docs run package ship exits 0 and its --json transcript records the bundle with materialized dependency checks that target each entry's resolved probe, never source prose (PRD 40 R-DEP-3)."
+        "make-docs run package ship exits 0 and its --json transcript records the bundle with materialized dependency checks that target each entry's resolved probe, never source prose (PRD 34 R-DEP-3)."
       ],
       "discover": [
         "The generated bundle appears in the target harness's own skills listing surface for the workspace."

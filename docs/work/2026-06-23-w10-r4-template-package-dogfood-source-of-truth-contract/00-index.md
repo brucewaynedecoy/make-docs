@@ -16,11 +16,11 @@ W10 R4 may proceed without implementing deterministic Markdown-tree migration. T
 
 ## Source PRD Docs
 
-- `docs/prd/19-revise-template-package-dogfood-source-of-truth-contract.md`
+- `docs/prd/06-template-contracts-and-generated-assets.md`
 - `docs/prd/06-template-contracts-and-generated-assets.md`
 - `docs/prd/09-dogfood-and-maintainer-operations.md`
 - `docs/prd/10-packaging-validation-and-release-reference.md`
-- `docs/prd/18-revise-compatibility-audit-and-migration-disposition.md`
+- `docs/prd/18-compatibility-classification-and-migration-safety.md`
 - `docs/prd/03-open-questions-and-risk-register.md`
 
 ## Phase Order

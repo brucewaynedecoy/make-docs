@@ -5,7 +5,7 @@ status: "active"
 coordinate: "W18 R6 P1"
 source:
   type: "prd"
-  path: "docs/prd/34-revise-playbook-contract-and-model.md"
+  path: "docs/prd/34-playbook-authoring-contract-and-model.md"
 ---
 
 # Phase 1: Playbook Contract Authoring
@@ -20,10 +20,10 @@ This phase authors `playbook-contract.md` in the shipped template and dogfoods i
 
 ## Source PRD Docs
 
-- [34 Revise Playbook Contract and Model](../../prd/34-revise-playbook-contract-and-model.md)
-- [29 Revise Playbook Contract Run Playbook](../../prd/29-revise-playbook-contract-run-playbook.md)
-- [22 Revise New Docs Assets Playbooks Persona Model](../../prd/22-revise-new-docs-assets-playbooks-persona-model.md)
-- [19 Revise Template Package Dogfood Source of Truth Contract](../../prd/19-revise-template-package-dogfood-source-of-truth-contract.md)
+- [34 Revise Playbook Contract and Model](../../prd/34-playbook-authoring-contract-and-model.md)
+- [29 Revise Playbook Contract Run Playbook](../../prd/34-playbook-authoring-contract-and-model.md#requirements)
+- [22 Revise New Docs Assets Playbooks Persona Model](../../prd/22-project-documentation-asset-model.md#requirements)
+- [19 Revise Template Package Dogfood Source of Truth Contract](../../prd/06-template-contracts-and-generated-assets.md#template-source-authority)
 
 ## Stage 1 - Upstream Contract Authoring
 

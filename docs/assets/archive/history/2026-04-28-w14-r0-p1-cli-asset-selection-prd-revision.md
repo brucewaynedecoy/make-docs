@@ -25,7 +25,7 @@ Implemented W14 R0 Phase 1 from [the PRD change backlog](../work/2026-04-28-w14-
 
 | Path | Description |
 | --- | --- |
-| [docs/prd/11-revise-cli-asset-selection-simplification.md](../../../prd/11-revise-cli-asset-selection-simplification.md) | Active PRD revision for treating prompts, templates, and references as managed assets rather than user-selectable groups. |
+| [historical design](../designs/2026-04-28-cli-asset-selection-simplification.md) (retired action-PRD: `docs/prd/11-revise-cli-asset-selection-simplification.md`) | Active PRD revision for treating prompts, templates, and references as managed assets rather than user-selectable groups. |
 | [docs/prd/06-template-contracts-and-generated-assets.md](../../../prd/06-template-contracts-and-generated-assets.md) | Baseline PRD annotated with the superseding asset-selection simplification requirement. |
 | [docs/work/2026-04-28-w14-r0-cli-asset-selection-simplification/01-prd-change-and-baseline-annotations.md](../work/2026-04-28-w14-r0-cli-asset-selection-simplification/01-prd-change-and-baseline-annotations.md) | Phase 1 implementation backlog item completed by the PRD revision and baseline annotation. |
 | [docs/assets/history/2026-04-28-w14-r0-p1-cli-asset-selection-prd-revision.md](2026-04-28-w14-r0-p1-cli-asset-selection-prd-revision.md) | History record for the completed W14 R0 Phase 1 checkpoint. |

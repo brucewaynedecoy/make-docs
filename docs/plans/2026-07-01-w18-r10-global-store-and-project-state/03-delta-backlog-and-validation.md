@@ -6,7 +6,7 @@ Generate the W18 R10 delta work backlog from PRD 38 and the Phase 2 scope decisi
 
 ## Inputs
 
-- `docs/prd/38-revise-global-store-and-project-state.md` as the effective requirement.
+- `docs/prd/38-global-store-and-project-state.md` as the effective requirement.
 - The Phase 2 scope decisions mapping D0–D11 to backlog coverage.
 - The work templates at `.make-docs/templates/system/work-index.md` and `.make-docs/templates/system/work-phase.md` and the backlog rules in `.make-docs/references/system/execution-workflow.md`.
 

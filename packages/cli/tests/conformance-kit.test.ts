@@ -125,7 +125,7 @@ const FIXTURE_SPEC: PackagingConformanceScenarioSpec = validatePackagingConforma
   scenarioId: "packaging/fixture-instrument-outcome",
   scenarioVersion: "1.0.0",
   title: "Fixture: instrument behavior over a synthetic workspace",
-  sourceRequirements: ["docs/prd/43-revise-conformance-scenario-model-and-execution-kit.md"],
+  sourceRequirements: ["docs/prd/43-conformance-scenario-model-and-execution-kits.md"],
   safetyMode: "temp-fixture-apply",
   requiresNetwork: false,
   requiresCredentials: false,

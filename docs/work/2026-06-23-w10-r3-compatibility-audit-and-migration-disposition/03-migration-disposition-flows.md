@@ -10,9 +10,9 @@ This phase wires classification into safe behavior. Ordinary install and reconfi
 
 ## Source PRD Docs
 
-- [18 Revise Compatibility Audit and Migration Disposition](../../prd/18-revise-compatibility-audit-and-migration-disposition.md)
-- [13 Revise CLI Conflict Resolution](../../prd/13-revise-cli-conflict-resolution.md)
-- [15 Revise Agent Instruction File Ownership](../../prd/15-revise-agent-instruction-file-ownership.md)
+- [18 Revise Compatibility Audit and Migration Disposition](../../prd/18-compatibility-classification-and-migration-safety.md)
+- [13 Revise CLI Conflict Resolution](../../prd/07-cli-command-surface-and-lifecycle.md#plan-review-confirmation-and-apply-orchestration)
+- [15 Revise Agent Instruction File Ownership](../../prd/15-agent-instruction-ownership-and-managed-blocks.md)
 - [07 CLI Command Surface and Lifecycle](../../prd/07-cli-command-surface-and-lifecycle.md)
 - [08 Skills Catalog and Distribution](../../prd/08-skills-catalog-and-distribution.md)
 
@@ -84,7 +84,7 @@ This phase wires classification into safe behavior. Ordinary install and reconfi
 - `manual-review-required` stops before mutation and names the failed evidence. Rollback remains the existing restore-from-backup behavior because this phase does not automate backup metadata consumption.
 - Instruction file migration still uses managed-block replacement semantics through the existing planner/install flow; the implementation does not introduce append-merge ownership.
 - Validation coverage includes focused CLI compatibility disposition tests plus the existing compatibility classifier and fixture matrix tests.
-- Phase 3 touched `packages/cli/src/cli.ts`, `packages/cli/tests/cli.test.ts`, `docs/prd/18-revise-compatibility-audit-and-migration-disposition.md`, and `docs/assets/archive/history/2026-06-25-w10-r3-p3-migration-disposition-flows.md`.
+- Phase 3 touched `packages/cli/src/cli.ts`, `packages/cli/tests/cli.test.ts`, `docs/prd/18-compatibility-classification-and-migration-safety.md`, and `docs/assets/archive/history/2026-06-25-w10-r3-p3-migration-disposition-flows.md`.
 - No developer or user guide changed because this phase ships safety behavior and internal audit output rather than a complete documented user migration workflow.
 - PRD coverage stays in PRD 18 with updated source anchors; no new PRD change doc or risk-register entry was needed.
 - UAT/manual testing remains deferred until full W10 R3 wave closeout.

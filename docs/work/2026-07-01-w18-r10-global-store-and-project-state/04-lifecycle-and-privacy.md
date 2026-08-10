@@ -5,7 +5,7 @@ status: "active"
 coordinate: "W18 R10 P4"
 source:
   type: "prd"
-  path: "docs/prd/38-revise-global-store-and-project-state.md"
+  path: "docs/prd/38-global-store-and-project-state.md"
 ---
 
 # Phase 4: Lifecycle and Privacy
@@ -20,8 +20,8 @@ Implement the uninstall, setup-remove, and update behaviors for the global store
 
 ## Source PRD Docs
 
-- [38 Revise Global Store and Project State](../../prd/38-revise-global-store-and-project-state.md)
-- [32 Revise Lifecycle Backup State Agentics Pruning](../../prd/32-revise-lifecycle-backup-state-agentics-pruning.md)
+- [38 Revise Global Store and Project State](../../prd/38-global-store-and-project-state.md)
+- [32 Revise Lifecycle Backup State Agentics Pruning](../../prd/38-global-store-and-project-state.md#backup-uninstall-and-upgrade-r-life)
 - [05 Installation Profile and Manifest Lifecycle](../../prd/05-installation-profile-and-manifest-lifecycle.md)
 
 ## Stage 1 - Uninstall, Setup Remove, and Update

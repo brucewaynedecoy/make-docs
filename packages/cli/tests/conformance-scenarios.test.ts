@@ -74,7 +74,7 @@ function specDocument(): SpecDocument {
     scenarioId: "packaging/fixture-scenario",
     scenarioVersion: "1.0.0",
     title: "Fixture scenario",
-    sourceRequirements: ["docs/prd/37-enhance-playbook-and-package-conformance.md"],
+    sourceRequirements: ["docs/prd/43-conformance-scenario-model-and-execution-kits.md#requirements"],
     safetyMode: "external-provider-run",
     requiresNetwork: true,
     requiresCredentials: true,
@@ -951,7 +951,7 @@ describe("the four first-pass packaging definitions (t4-t7, R-SCHEMA-3)", () => 
   test("the uninstall-and-backup definition owns the PRD 36 R-PROV-2 cleanliness outcome (t7)", () => {
     const spec = specsById.get("packaging/uninstall-backup-cleanliness")!;
     expect(spec.sourceRequirements).toContain(
-      "docs/prd/36-revise-playbook-packaging-compiler-and-harness-adapters.md",
+      "docs/prd/36-playbook-packaging-compiler-and-harness-adapters.md",
     );
     const uninstallAssertions = spec.packagingExtension.evidenceBar.uninstall.join(" ");
     expect(uninstallAssertions).toContain("orphaning");

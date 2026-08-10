@@ -2,7 +2,6 @@
 title: "45 Deferred Obligation Governance"
 kind: "prd"
 status: "active"
-coordinate: "W18 R15"
 source:
   type: "plan"
   path: "docs/plans/2026-07-30-w18-r15-deferred-obligations-and-naive-uat-governance/00-overview.md"
@@ -14,7 +13,7 @@ source:
 
 Define the Make Docs capability that prevents accepted future work, cross-phase outcomes, and remediation findings from disappearing when a bounded phase closes. The capability adds stable deferred-obligation identity, one canonical register, phase-close orphan auditing, honest phase-versus-capability completion language, and lifecycle routing from source authority through later fulfillment.
 
-This document is the feature authority for deferred-obligation governance. It is not a revision ledger. Existing lifecycle, coverage, compatibility, template-delivery, and Project State PRDs remain authoritative for their own behavior and are reconciled in place to consume this capability.
+This document is the feature authority for deferred-obligation governance. It is not a revision ledger. The lifecycle, coverage, compatibility, template-delivery, and Project State PRDs own their respective integration behavior and consume the obligation contract defined here.
 
 ## Scope
 
@@ -36,11 +35,11 @@ It does not make every optional idea, open question, rejected alternative, or un
 | Component | Capability | Primary authority |
 | --- | --- | --- |
 | Deferred-obligation register | Preserve one append-only record for every accepted deferred outcome | [03 Open Questions and Risk Register](03-open-questions-and-risk-register.md) |
-| Orphan audit | Enumerate deferral candidates and assign a complete disposition before phase close | [31 Coverage Pass Extensions](31-revise-coverage-pass-extensions-adversarial-review.md) and the future upstream coverage contract |
-| Lifecycle routing | Carry, activate, reassign, fulfill, cancel, or supersede obligations through plan, PRD, work, history, and gates | [14 Lifecycle Workflow Foundation](14-add-lifecycle-workflow-foundation.md) |
+| Orphan audit | Enumerate deferral candidates and assign a complete disposition before phase close | [14 Lifecycle Workflow and Coverage Passes](14-lifecycle-workflow-and-coverage-passes.md) and the upstream coverage contract |
+| Lifecycle routing | Carry, activate, reassign, fulfill, cancel, or supersede obligations through plan, PRD, work, history, and gates | [14 Lifecycle Workflow and Coverage Passes](14-lifecycle-workflow-and-coverage-passes.md) |
 | Completion semantics | Distinguish bounded phase completion from full capability completion | This PRD and PRD 14 |
-| Operational evidence | Record audit execution, review, and closeout evidence without moving product meaning into SQLite | [38 Global Store and Project State](38-revise-global-store-and-project-state.md) |
-| Compatibility | Introduce the section and links without silently overwriting modified project content or rewriting archives | [18 Compatibility Audit and Migration Disposition](18-revise-compatibility-audit-and-migration-disposition.md) |
+| Operational evidence | Record audit execution, review, and closeout evidence without moving product meaning into SQLite | [38 Global Store and Project State](38-global-store-and-project-state.md) |
+| Compatibility | Introduce the section and links without silently overwriting modified project content or rewriting archives | [18 Compatibility Classification and Migration Safety](18-compatibility-classification-and-migration-safety.md) |
 
 ## Requirements
 
@@ -148,11 +147,10 @@ Storage boundaries are:
 
 ## Integrations
 
-- [14 Lifecycle Workflow Foundation](14-add-lifecycle-workflow-foundation.md) consumes the orphan audit in the coverage band and owns phase/capability completion language.
-- [18 Compatibility Audit and Migration Disposition](18-revise-compatibility-audit-and-migration-disposition.md) owns classification and modified-content safety for existing projects.
-- [19 Template Package Dogfood Source of Truth](19-revise-template-package-dogfood-source-of-truth-contract.md) owns upstream-first delivery from `packages/docs/template/` to dogfood and installed projects.
-- [31 Coverage Pass Extensions](31-revise-coverage-pass-extensions-adversarial-review.md) owns the common enumeration, verdict, history-idempotency, and validation mechanics.
-- [38 Global Store and Project State](38-revise-global-store-and-project-state.md) owns operational evidence storage and the non-authoritative database boundary.
+- [14 Lifecycle Workflow and Coverage Passes](14-lifecycle-workflow-and-coverage-passes.md) consumes the orphan audit in the coverage band and owns phase/capability completion, common enumeration, verdict, history-idempotency, and validation mechanics.
+- [18 Compatibility Classification and Migration Safety](18-compatibility-classification-and-migration-safety.md) owns classification and modified-content safety for existing projects.
+- [06 Template Contracts and Generated Assets](06-template-contracts-and-generated-assets.md), [09 Dogfood and Maintainer Operations](09-dogfood-and-maintainer-operations.md), and [10 Packaging, Validation, and Release Reference](10-packaging-validation-and-release-reference.md) jointly own upstream-first delivery from `packages/docs/template/` through reviewed dogfood projection and installed-package proof.
+- [38 Global Store and Project State](38-global-store-and-project-state.md) owns operational evidence storage and the non-authoritative database boundary.
 - [46 Naive End-User Acceptance Testing](46-naive-end-user-acceptance-testing.md) routes valid testing/UAT `none`, `revise`, `fail`, and `blocked` outcomes through obligations when later product work remains owed.
 
 ## Rebuild Notes
@@ -179,7 +177,7 @@ Future deterministic support may detect missing sections, duplicate IDs, invalid
 - No automatic conversion of every deferred risk, question, option, or requirement into `O-###`.
 - No substitution of backlog tasks for durable obligation identity.
 - No repository copy of operational audit state.
-- No dedicated CLI, MCP tool, validator, evidence kind, table, or migration in the PRD-only reconciliation.
+- The current capability does not require a dedicated CLI, MCP tool, validator, evidence kind, table, or migration.
 - No automatic merge, commit, push, publish, or release gate.
 
 ## Source Anchors
@@ -188,12 +186,13 @@ Future deterministic support may detect missing sections, duplicate IDs, invalid
 - [W18 R15 combined plan](../plans/2026-07-30-w18-r15-deferred-obligations-and-naive-uat-governance/00-overview.md)
 - [W18 R15 P1 reconciliation history](../assets/archive/history/2026-07-30-w18-r15-p1-prd-reconciliation.md)
 - [03 Open Questions and Risk Register](03-open-questions-and-risk-register.md)
-- [14 Lifecycle Workflow Foundation](14-add-lifecycle-workflow-foundation.md)
-- [18 Compatibility Audit and Migration Disposition](18-revise-compatibility-audit-and-migration-disposition.md)
-- [19 Template Package Dogfood Source of Truth](19-revise-template-package-dogfood-source-of-truth-contract.md)
-- [31 Coverage Pass Extensions](31-revise-coverage-pass-extensions-adversarial-review.md)
-- [38 Global Store and Project State](38-revise-global-store-and-project-state.md)
+- [06 Template Contracts and Generated Assets](06-template-contracts-and-generated-assets.md)
+- [09 Dogfood and Maintainer Operations](09-dogfood-and-maintainer-operations.md)
+- [10 Packaging, Validation, and Release Reference](10-packaging-validation-and-release-reference.md)
+- [14 Lifecycle Workflow and Coverage Passes](14-lifecycle-workflow-and-coverage-passes.md)
+- [18 Compatibility Classification and Migration Safety](18-compatibility-classification-and-migration-safety.md)
+- [38 Global Store and Project State](38-global-store-and-project-state.md)
 - [46 Naive End-User Acceptance Testing](46-naive-end-user-acceptance-testing.md)
 - [Coverage pass contract](../../.make-docs/contracts/system/coverage-pass-contract.md)
 - [Output contract](../../.make-docs/contracts/system/output-contract.md)
-- [Legacy PRD change-management rules, overridden by the owner for capability-oriented reconciliation](../../.make-docs/references/system/prd-change-management.md)
+- [PRD authority-maintenance rules](../../.make-docs/references/system/prd-change-management.md)

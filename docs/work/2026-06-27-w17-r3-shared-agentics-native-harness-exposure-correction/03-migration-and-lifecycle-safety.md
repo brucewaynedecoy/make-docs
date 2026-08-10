@@ -6,8 +6,8 @@ Migrate W17 R2 stub installs without damaging user-authored harness skills.
 
 ## Source PRD Docs
 
-- [PRD 28](../../prd/28-revise-shared-agentics-installation-harness-redirection.md)
-- [PRD 18](../../prd/18-revise-compatibility-audit-and-migration-disposition.md)
+- [PRD 28](../../prd/28-shared-agentics-installation-and-harness-exposure.md)
+- [PRD 18](../../prd/18-compatibility-classification-and-migration-safety.md)
 - [PRD 03](../../prd/03-open-questions-and-risk-register.md)
 - [PRD 05](../../prd/05-installation-profile-and-manifest-lifecycle.md)
 - [PRD 07](../../prd/07-cli-command-surface-and-lifecycle.md)

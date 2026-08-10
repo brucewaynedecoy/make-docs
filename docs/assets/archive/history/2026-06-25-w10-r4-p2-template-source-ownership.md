@@ -15,7 +15,7 @@ Completed W10 R4 Phase 2 by documenting template-first ownership across the main
 
 ### Coverage Decisions
 
-- PRD coverage: no PRD files changed. [PRD 19](../../../prd/19-revise-template-package-dogfood-source-of-truth-contract.md), [PRD 06](../../../prd/06-template-contracts-and-generated-assets.md), and [PRD 09](../../../prd/09-dogfood-and-maintainer-operations.md) already carry the source-of-truth and dogfood ownership contract; Phase 2 implemented that contract in maintainer docs and work-backlog notes.
+- PRD coverage: no PRD files changed. [historical closeout](2026-06-25-w10-r4-p4-validation-and-closeout.md) (retired action-PRD: `docs/prd/19-revise-template-package-dogfood-source-of-truth-contract.md`), [PRD 06](../../../prd/06-template-contracts-and-generated-assets.md), and [PRD 09](../../../prd/09-dogfood-and-maintainer-operations.md) already carry the source-of-truth and dogfood ownership contract; Phase 2 implemented that contract in maintainer docs and work-backlog notes.
 - Developer-guide coverage: updated existing developer guides instead of creating new ones. The affected guidance already lived in the dogfood operations, runtime-boundary, and template-assets guides.
 - User-guide coverage: no user guide changed. The root README consumer tree was corrected, but no user-facing task flow, command, or troubleshooting path changed.
 - Gap capture: no novel risk-register item was needed. The work explicitly preserves W10 R3's future packaged migration-hardening requirement rather than claiming direct dogfood moves satisfy V2 migration acceptance.

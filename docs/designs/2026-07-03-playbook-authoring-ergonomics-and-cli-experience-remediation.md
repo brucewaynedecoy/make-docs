@@ -143,7 +143,7 @@ R-FIX-2 (MUST). F2 gains retirement semantics: resume hints become subject-scope
 
 R-SEQ-1 (MUST). This remediation round (W18 R12) lands before the W18 R9 conformance wave executes, because R9's evidence bar binds to generated-package content (dependency-check scripts become probe-based) and to CLI command spellings (`plan`/`preview`/`write`) that this round changes. Running R9 first would mint conformance evidence against surfaces about to move.
 
-R-SEQ-2 (MUST). This round's PRD coverage reconciles [PRD 37](../prd/37-enhance-playbook-and-package-conformance.md) and the existing [W18 R9 backlog](../work/2026-07-01-w18-r9-playbook-and-package-conformance/00-index.md) for every assumption this round invalidates: dependency-table fixtures and generated-check expectations, command spellings in scenario scripts, and any scenario transcript that consumes CLI output (which must pin `--json`). The obligation is tracked as [R-026](../prd/03-open-questions-and-risk-register.md).
+R-SEQ-2 (MUST). This round's PRD coverage reconciles former PRD 37, now incorporated in [PRD 43](../prd/43-conformance-scenario-model-and-execution-kits.md#requirements), and the existing [W18 R9 backlog](../work/2026-07-01-w18-r9-playbook-and-package-conformance/00-index.md) for every assumption this round invalidates: dependency-table fixtures and generated-check expectations, command spellings in scenario scripts, and any scenario transcript that consumes CLI output (which must pin `--json`). The obligation is tracked as [R-026](../prd/03-open-questions-and-risk-register.md).
 
 ### D11. Non-Goals
 

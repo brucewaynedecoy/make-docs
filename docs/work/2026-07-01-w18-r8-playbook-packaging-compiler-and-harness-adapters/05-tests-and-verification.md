@@ -5,7 +5,7 @@ status: "active"
 coordinate: "W18 R8 P5"
 source:
   type: "prd"
-  path: "docs/prd/36-revise-playbook-packaging-compiler-and-harness-adapters.md"
+  path: "docs/prd/36-playbook-packaging-compiler-and-harness-adapters.md"
 ---
 
 # Phase 5: Tests and Verification
@@ -20,10 +20,10 @@ Land the D10 test suite: the harness-native-tree assertion, the Codex shape asse
 
 ## Source PRD Docs
 
-- [36 Revise Playbook Packaging Compiler and Harness Adapters](../../prd/36-revise-playbook-packaging-compiler-and-harness-adapters.md)
-- [33 Enhance Playbook Packaging and Harness Adapter Registry](../../prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md)
-- [20 Revise Agent Harness Model Conformance Lab](../../prd/20-revise-agent-harness-model-conformance-lab.md)
-- [25 Revise CLI Separation and MCP Boundary](../../prd/25-revise-cli-separation-and-mcp-boundary.md)
+- [36 Revise Playbook Packaging Compiler and Harness Adapters](../../prd/36-playbook-packaging-compiler-and-harness-adapters.md)
+- [33 Enhance Playbook Packaging and Harness Adapter Registry](../../prd/36-playbook-packaging-compiler-and-harness-adapters.md)
+- [20 Revise Agent Harness Model Conformance Lab](../../prd/20-agent-harness-conformance-and-support-claims.md)
+- [25 Revise CLI Separation and MCP Boundary](../../prd/25-typescript-runtime-cli-mcp-operation-boundaries.md)
 
 ## Stage 1 - Distributable and Adapter Shape Tests
 

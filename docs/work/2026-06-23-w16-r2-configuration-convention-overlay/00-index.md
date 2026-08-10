@@ -7,7 +7,7 @@ Before executing this backlog, apply [W9 R5 v2 Library and Archive History IA Co
 ## Source Plan
 
 - [Plan Overview](../../plans/2026-06-23-w16-r2-configuration-convention-overlay/00-overview.md)
-- [PRD 24](../../prd/24-revise-configuration-convention-overlay.md)
+- [PRD 24](../../prd/24-project-configuration-and-convention-overlay.md)
 
 ## Work Phases
 

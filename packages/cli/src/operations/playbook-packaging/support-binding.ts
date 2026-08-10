@@ -7,8 +7,8 @@
  * exact tuple. The packaging lineage owns the binding record; the evidence
  * that binds the open dimensions — the conformance scenario, the model or
  * provider, and the runtime — is owned by the W18 R9 conformance lineage
- * (PRD 37) and its tuple registry, never by unit or integration tests here
- * (R-TEST-5). A dimension no evidence has bound yet is `null`, and a
+ * (PRD 20) and its tuple registry, never by unit or integration tests here
+ * (PRD 36 R-TEST-5). A dimension no evidence has bound yet is `null`, and a
  * `validated` status is capped to `provisional` while any dimension is
  * unbound, mirroring the R-ADAPT-1 verification cap.
  */

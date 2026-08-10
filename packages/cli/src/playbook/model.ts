@@ -127,20 +127,20 @@ export const PLAYBOOK_FILE_SUFFIX = ".playbook.md";
 /**
  * Fenced-block info string shared by the two authoritative YAML blocks — the
  * dependencies block and the workflow contract block — distinguished by their
- * top-level keys; `yaml` does not count (R-WF-1, PRD 40 R-DEP-1).
+ * top-level keys; `yaml` does not count (R-WF-1, PRD 34 R-DEP-1).
  */
 export const PLAYBOOK_WORKFLOW_BLOCK_INFO = "playbook";
-/** Top-level key of the fenced dependencies block in `## Dependencies` (PRD 40 R-DEP-1). */
+/** Top-level key of the fenced dependencies block in `## Dependencies` (PRD 34 R-DEP-1). */
 export const PLAYBOOK_DEPENDENCIES_BLOCK_KEY = "dependencies";
 
 /**
- * The v2 document schema identifier (PRD 40 R-MIG-3). The parser accepts only
+ * The v2 document schema identifier (PRD 34 R-MIG-3). The parser accepts only
  * this identifier; the v1 identifier fails with the pointed PB-FM-028
  * diagnostic naming this replacement.
  */
 export const PLAYBOOK_DOCUMENT_SCHEMA_ID = "make-docs.playbook.v2";
 /**
- * The workflow contract schema identifier. PRD 40 advances only the document
+ * The workflow contract schema identifier. PRD 34 advances only the document
  * schema; the workflow block shape is unchanged from W18 R6, so the workflow
  * schema identifier stays at v1 (implementer decision recorded here).
  */
@@ -148,13 +148,13 @@ export const PLAYBOOK_WORKFLOW_SCHEMA_ID = "make-docs.workflow.v1";
 
 /**
  * The executable-token pattern a declared dependency `probe` must match
- * (PRD 40 R-DEP-2). Shared with the packaging compiler's dependency
+ * (PRD 34 R-DEP-2). Shared with the packaging compiler's dependency
  * materialization, whose generated checks may target only this field
  * (R-DEP-3).
  */
 export const PLAYBOOK_PROBE_TOKEN_RE = /^[A-Za-z0-9@][\w@./-]*$/;
 
-/** The ten required `##` headings, in required order (R-DOC-5, PRD 40 R-HEAD-1). */
+/** The ten required `##` headings, in required order (R-DOC-5, PRD 34 R-HEAD-1). */
 export const PLAYBOOK_REQUIRED_H2_HEADINGS = [
   "Purpose",
   "When To Use",
@@ -171,7 +171,7 @@ export type PlaybookRequiredH2Heading = (typeof PLAYBOOK_REQUIRED_H2_HEADINGS)[n
 
 /**
  * Removed v1 heading spellings mapped to the v2 heading for the same slot
- * (PRD 40 R-HEAD-1..2, R-MIG-2). Only the v2 spellings parse; an old
+ * (PRD 34 R-HEAD-1..2, R-MIG-2). Only the v2 spellings parse; an old
  * spelling fails with the pointed PB-DOC-027 diagnostic naming its
  * replacement.
  */
@@ -220,7 +220,7 @@ export interface PlaybookIdentity {
    * Document schema version string from the `schema` frontmatter key
    * (`make-docs.playbook.v2`). The model field keeps its descriptive
    * `schemaVersion` name so downstream consumers stay source-compatible
-   * across the PRD 40 key rename (implementer decision).
+   * across the PRD 34 key rename (implementer decision).
    */
   schemaVersion: string | null;
   /** Workflow contract schema version string from `workflowSchema`, for example `make-docs.workflow.v1`. */
@@ -240,9 +240,9 @@ export interface PlaybookFrontmatter {
   persona: Spanned<string> | null;
   stack: SpannedEnum<PlaybookDocumentStack>;
   status: SpannedEnum<PlaybookDocumentStatus>;
-  /** Parsed from the v2 `schema` frontmatter key (PRD 40 R-FM-1). */
+  /** Parsed from the v2 `schema` frontmatter key (PRD 34 R-FM-1). */
   schemaVersion: Spanned<string> | null;
-  /** Parsed from the v2 `workflowSchema` frontmatter key (PRD 40 R-FM-1). */
+  /** Parsed from the v2 `workflowSchema` frontmatter key (PRD 34 R-FM-1). */
   workflowSchemaVersion: Spanned<string> | null;
   id: Spanned<string> | null;
   /** Non-authoritative packaging hints; they inform, never bind (R-DOC-4). */
@@ -261,7 +261,7 @@ export interface PlaybookDependency {
   kind: SpannedEnum<PlaybookDependencyKind>;
   requirement: SpannedEnum<PlaybookDependencyRequirement>;
   /**
-   * The resolved probe target dependency checks verify (PRD 40 R-DEP-2..3):
+   * The resolved probe target dependency checks verify (PRD 34 R-DEP-2..3):
    * the declared `probe` value when present, else the dependency `id`. This
    * is the ONLY field dependency-check generation may target; `source` is
    * never parsed for machine meaning.

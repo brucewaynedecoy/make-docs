@@ -8,35 +8,24 @@ Internal dogfood operations are a first-class capability because local developme
 
 ## Scope
 
-This doc covers the operational surface formed by the repo-root `docs/`, the manual re-seed workflow from `packages/docs/template/docs/` into `docs/`, and the maintainer checks that keep that surface trustworthy (`packages/docs/README.md:86-121`, `README.md:205-230`, `packages/cli/src/README.md:47-52`).
+This doc covers the operational surface formed by the repo-root `.make-docs/` and `docs/` trees, the reviewed re-seed workflow from `packages/docs/template/.make-docs/` into `.make-docs/` and from `packages/docs/template/docs/` into `docs/`, and the maintainer checks that keep those projections trustworthy (`packages/docs/README.md`, `README.md`, `packages/cli/src/README.md`).
 
-It also defines the ownership boundary between template-owned files and project-authored docs. Template-owned files are the routers, reference docs, and structural templates under `docs/assets/` plus the paired top-level instruction routers; project-authored material such as `docs/designs/`, `docs/plans/`, `docs/prd/`, `docs/work/`, and guides is never supposed to be overwritten by re-seeding (`packages/docs/README.md:68-76`). Packaging mechanics, tarball inspection, and publish commands are referenced here only when they constrain dogfood behavior; the operational checklist lives in [10-packaging-validation-and-release-reference.md](./10-packaging-validation-and-release-reference.md).
-
-## Component and Capability Map
-
-### Change Notes
-
-- Clarified by the W15 source-authority reconciliation: repo-root `docs/` remains a dogfood validation surface for template-owned files and a project-owned home for make-docs lifecycle artifacts. It is not promoted to product source of truth for shipped work-backlog guidance, and archived examples remain fallback lineage rather than active authority.
-- Enhanced by [19-revise-template-package-dogfood-source-of-truth-contract.md](./19-revise-template-package-dogfood-source-of-truth-contract.md) for reviewed dogfood reseeding. Root `docs/` exercises shipped template-owned files but must preserve generated designs, plans, PRDs, work backlogs, local guide content, local history/archive entries, artifact outputs, overlays, config, and other project-owned records unless a later accepted plan deliberately ships them as starter content.
-- Enhanced by [21-revise-tool-directory-system-custom-resource-tiers.md](./21-revise-tool-directory-system-custom-resource-tiers.md) for dogfooding `.make-docs/**` tool resources. Dogfood validation must not treat `.make-docs/` runtime state or custom tiers as reader-facing docs assets.
-- Enhanced by [22-revise-new-docs-assets-playbooks-persona-model.md](./22-revise-new-docs-assets-playbooks-persona-model.md) for dogfooding managed project documentation assets. Future archive, artifact, library, and playbook defaults must be reseeded and parity-checked through `docs/assets/{archive,artifacts,library,playbooks}/`, while history/breadcrumb records are created on demand under `docs/assets/archive/history/**`. Former top-level `docs/artifacts/**`, top-level `docs/archive/**`, `docs/assets/guides/**`, `docs/assets/breadcrumbs/**`, `docs/assets/history/**`, and transitional `docs/library/**` remain historical or migration-lab evidence only after W9 R5.
-- Enhanced by [29-revise-playbook-contract-run-playbook.md](./29-revise-playbook-contract-run-playbook.md) for dogfooding the playbook contract. Accepted playbooks must be validated through the v2 `docs/assets/playbooks/**` path, minimum frontmatter, path/persona consistency, and build/run stack rules before dogfood copies are treated as release evidence.
-
-The source-of-truth template is `packages/docs/template/`, which the docs package README describes as the tree that ultimately ships to consumer projects (`packages/docs/README.md:7-37`). In local development, the CLI does not require a pre-copied bundle because `packages/cli/src/utils.ts:33-55` resolves `../docs/template` first and only falls back to `packages/cli/template` when the package has been packed.
-
-The repo-root dogfood surface is the checked-in `docs/` tree described in `README.md:16-20`. That surface is expected to mirror template-owned routers, references, and templates while still holding project-specific authored artifacts such as plans, PRDs, and work logs (`packages/docs/README.md:70-76`). This split is why dogfood operations are not just documentation housekeeping: they are the in-repo rehearsal space for the same contracts consumers follow.
-
-Maintainer capability gates sit on top of that surface. `scripts/check-instruction-routers.sh:1-58` enforces byte-identical `AGENTS.md` and `CLAUDE.md` pairs plus line-budget and heading rules. `packages/cli/tests/consistency.test.ts:33-77` ensures the default asset pipeline still matches the checked-in full-profile template and that every file under `TEMPLATE_ROOT` is covered by the installer asset catalog. `packages/cli/tests/install.test.ts` should confirm default installs produce the expected docs assets without default skill files and explicit selected-skill runs produce shared payloads plus native harness exposures, while `packages/cli/tests/uninstall.test.ts` verifies managed cleanup without deleting preserved content.
-
-The maintainer runbook for exercising this surface lives in `packages/cli/src/README.md:64-177`. That README treats dogfood-sensitive changes differently depending on what moved: router or packaged-asset changes call for `npm run validate:defaults` and `npm run smoke:pack`, while profile, manifest, or conflict behavior calls for the full test suite (`packages/cli/src/README.md:47-52`).
+It also defines the ownership boundary between template-owned files and project-authored docs. Template-owned system contracts, references, prompts, and templates project into root `.make-docs/**`; template-owned reader-facing assets project into `docs/assets/{archive,artifacts,library,playbooks}/**`; and paired instruction routers project where the template declares them. Project-authored material such as `docs/designs/`, `docs/plans/`, `docs/prd/`, `docs/work/`, and local guides is never overwritten by re-seeding (`packages/docs/README.md`). Packaging mechanics, tarball inspection, and publish commands are referenced here only when they constrain dogfood behavior; the operational checklist lives in [10-packaging-validation-and-release-reference.md](./10-packaging-validation-and-release-reference.md).
 
 ## Contracts and Data
 
 The key boundary is that mutable installer state belongs under root `.make-docs/`, not under `docs/`. The repo README states that `docs/assets/` contains document resources only and that mutable CLI state lives outside the docs tree (`README.md:46`). The installer code makes this concrete by defining `.make-docs`, `.make-docs/manifest.json`, and `.make-docs/conflicts` in `packages/cli/src/manifest.ts:18-20`.
 
-Apply and sync stay intentionally non-destructive. The consumer README explains that changed managed files are skipped and proposed replacements are staged under `.make-docs/conflicts/<run-id>` (`README.md:101-106`), and the install pipeline implements that behavior by routing conflicting replacements through `toConflictRelativePath` in `packages/cli/src/install.ts:166-240`.
+Apply and sync stay intentionally non-destructive. The consumer README explains that changed managed files are skipped and proposed replacements are staged under `.make-docs/conflicts/<run-id>` (`README.md:101-106`), and `applyAction` in `packages/cli/src/install.ts` implements that behavior by routing `skip-conflict` replacements through `toConflictRelativePath`.
 
 Re-seeding is deliberately manual. The docs package README requires maintainers to copy only template-owned files from `packages/docs/template/` back into `docs/`, verify the copies, and avoid bulk automation unless they are deliberately reviewing the change set (`packages/docs/README.md:86-121`). That manual step is part of the contract, not an omission: the same README says the process stays manual for reviewability, selective propagation, and conflict awareness (`packages/docs/README.md:115-121`).
+
+### Scoped Reseed and Freshness Proof
+
+- Reseeding is reviewed and scoped, never a blind recursive copy. It selects only affected template-owned files, skips project-owned files or surfaces them for explicit review, and routes locally changed managed files through compatibility classification and managed-file conflict rules.
+- Any reseed helper must preserve the same ownership boundary. It may not infer ownership solely from directory membership, including inside mixed archive, artifact, library, or playbook directories.
+- Dogfood freshness is proven with targeted parity checks for files expected to match exactly. Router and managed-block checks remain mandatory for instruction surfaces; manual visual inspection alone is insufficient proof for an asset claimed current.
+- A managed ownership manifest or expanded parity allowlist may replace manual file enumeration only when it preserves project-owned exclusions and produces reviewable evidence.
 
 Historical migration docs still matter, but only as background. `docs/assets/archive/plans/2026-04-22-w9-r1-docs-assets-resource-namespace/04-dogfood-docs-migration.md` records the shift from hidden-dot resource paths such as `docs/.references/` and `docs/.templates/` to the former `docs/assets/...` tool-resource tree. Current routing authority is the live README, `.make-docs/{contracts,references,templates}/system/**`, `docs/assets/{archive,artifacts,library,playbooks}/**`, and on-demand `docs/assets/archive/history/**`; old path names should be read as migration history, not active contract.
 
@@ -44,7 +33,7 @@ Historical migration docs still matter, but only as background. `docs/assets/arc
 
 Dogfood operations integrate directly with the packaging pipeline. `scripts/copy-template-to-cli.mjs:24-32` copies `packages/docs/template/` into `packages/cli/template/` during `prepack`, so any template edit that was never re-seeded into repo-root `docs/` can still ship correctly while leaving the maintainers' own working docs stale. That is precisely why the project keeps manual re-seed instructions in `packages/docs/README.md:86-121`.
 
-They also integrate with packaged validation. `scripts/smoke-pack.mjs:60-246` runs `npm run prepack`, packs the CLI, installs it into a temp target, verifies `.make-docs/manifest.json`, checks skill installation and legacy-skill absence, and exercises `backup` and `uninstall` while preserving an unmanaged file. This makes the dogfood surface and the packaged surface meet at the same operational boundary: generated docs plus root runtime state.
+They also integrate with packaged validation. `scripts/smoke-pack.mjs` runs `npm run prepack`, packs the CLI, installs it into a temporary target, verifies `.make-docs/manifest.json`, checks skill installation and legacy-skill absence, exercises project-scoped `setup backup` and `setup remove` while preserving unmanaged files, and separately proves that top-level `uninstall` removes only the sandboxed machine-level footprint. This makes the dogfood surface and the packaged surface meet at the same operational boundary: generated docs plus root runtime state.
 
 Finally, the subsystem integrates with repo hygiene and release prep. The root workspace scripts in `package.json:13-18` wrap `build`, `test`, `validate:defaults`, and `smoke:pack`; `scripts/check-wave-numbering.sh:48-58` audits duplicate `wN-rN` directories across both the repo-root docs tree and `packages/docs/template/docs`; and `packages/cli/src/README.md:179-204` acts as the maintainer-side release checklist that turns dogfood validation into publish readiness.
 
@@ -60,11 +49,34 @@ Candidate items that should also surface in `03-open-questions-and-risk-register
 - Historical docs still reference superseded hidden-dot paths such as `docs/.references/`, `docs/.templates/`, and `docs/assets/config/manifest.json` in migration plans like `docs/assets/archive/plans/2026-04-22-w9-r1-docs-assets-resource-namespace/04-dogfood-docs-migration.md`. Those references are factual history, but easy to mistake for current routing authority.
 - `packages/content/` is described as reserved for future CLI-rendered fragments in `README.md:10-17` and exists as a top-level workspace directory, but this subsystem does not yet define active ownership or dogfood behavior for it.
 
-## W18 R15 Capability Reconciliation
+## Dogfood Evidence and Obligation Boundaries
 
 The maintainer repo must dogfood deferred-obligation and naive-UAT resources only after their system versions are authored under `packages/docs/template/`. Maintainers must not make the installed `.make-docs/` or project `docs/` projection the upstream product authority. Project-authored obligation records, scenarios, and evidence remain editable consumer content in their repository-authoritative locations.
 
 Dogfood validation must prove that upstream resources project into this repo without overwriting project-authored records or confusing repository authority with operational evidence in Project State, as required by [R-OBL-AUTH](45-deferred-obligation-governance.md#r-obl-auth-authority-chain-and-backlinks) and [R-NUAT-COMPAT](46-naive-end-user-acceptance-testing.md#r-nuat-compat-existing-artifact-adoption).
+
+## Dogfood Projection Boundary
+
+Repository-root installed Make Docs resources are dogfood projections of `packages/docs/template/`; project-authored designs, plans, PRDs, work, history, and other local content remain project authority edited in place. Maintainer synchronization must preserve that boundary.
+
+## Requirement History
+
+### 2026-08-08 — Not assigned
+
+- Affected requirement or section: `Consolidated capability ownership`
+- Previous contract: Current requirements were also represented by standalone editorial PRDs 19.
+- Replacement contract: The applicable current requirements are inline in this authority and its linked product owners; the standalone editorial records are retired from the active set.
+- Rationale: Active PRDs own product subjects and do not preserve editorial operations as product authority.
+- Source: [PRD Authority Maintenance](../../.make-docs/references/system/prd-change-management.md)
+
+
+### 2026-08-08 — Not assigned
+
+- Affected requirement or section: `Cross-cutting capability annotations`
+- Previous contract: Later capability decisions were recorded as nested Change Notes that pointed to standalone editorial PRDs.
+- Replacement contract: Current requirements remain inline in this owning PRD and related product authorities are linked by product subject.
+- Rationale: The active PRD set must describe current product authority rather than the editorial operation that produced it.
+- Source: [PRD Authority Maintenance](../../.make-docs/references/system/prd-change-management.md)
 
 ## Source Anchors
 
@@ -85,7 +97,7 @@ Dogfood validation must prove that upstream resources project into this repo wit
 - `scripts/smoke-pack.mjs`
 - `docs/assets/archive/plans/2026-04-16-w2-r0-guide-structure-contract/04-migration-and-reseed.md`
 - `docs/assets/archive/plans/2026-04-22-w9-r1-docs-assets-resource-namespace/04-dogfood-docs-migration.md`
-- `docs/prd/22-revise-new-docs-assets-playbooks-persona-model.md`
-- `docs/prd/29-revise-playbook-contract-run-playbook.md`
+- `docs/prd/22-project-documentation-asset-model.md`
+- `docs/prd/34-playbook-authoring-contract-and-model.md`
 - `docs/designs/2026-06-20-playbook-contract-and-run-playbook.md`
 - `docs/plans/2026-06-23-w18-r1-playbook-contract-run-playbook/00-overview.md`

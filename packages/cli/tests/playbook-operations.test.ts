@@ -810,7 +810,7 @@ describe.skipIf(!sqliteAvailable)("playbook run state in the global store", () =
       runId: "child-b",
       parentRunId: "parent-run",
       executionMode: "parallel",
-      outputSurfaceClaims: ["docs/prd/29-revise-playbook-contract-run-playbook.md"],
+      outputSurfaceClaims: ["docs/prd/35-run-playbook-state-machine-and-portability.md"],
     })).toThrow("output-surface claims overlap");
   });
 

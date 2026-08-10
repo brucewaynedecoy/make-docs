@@ -38,7 +38,7 @@ Existing active docs remain valid even when they predate the v2 metadata contrac
 This planning round creates:
 
 - This plan bundle under `docs/plans/2026-06-23-w16-r1-generated-metadata-lifecycle-handoffs/`.
-- A new active PRD change doc: [../../prd/23-revise-generated-metadata-lifecycle-handoffs.md](../../prd/23-revise-generated-metadata-lifecycle-handoffs.md).
+- A new active PRD change doc: [../../prd/23-generated-document-metadata-and-lifecycle-handoffs.md](../../prd/23-generated-document-metadata-and-lifecycle-handoffs.md).
 - PRD index, risk-register, and affected baseline/change-doc annotations.
 - A matching implementation backlog under `docs/work/2026-06-23-w16-r1-generated-metadata-lifecycle-handoffs/`.
 

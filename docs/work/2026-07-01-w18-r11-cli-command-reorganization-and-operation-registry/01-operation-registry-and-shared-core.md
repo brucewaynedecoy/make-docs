@@ -5,7 +5,7 @@ status: "active"
 coordinate: "W18 R11 P1"
 source:
   type: "prd"
-  path: "docs/prd/39-revise-cli-command-reorganization-and-operation-registry.md"
+  path: "docs/prd/39-cli-command-model-and-operation-registry.md"
 ---
 
 # Phase 1: Operation Registry and Shared Core
@@ -20,9 +20,9 @@ Create the registry with stable `domain.verb` identifiers and move all retained 
 
 ## Source PRD Docs
 
-- [39 Revise CLI Command Reorganization and Operation Registry](../../prd/39-revise-cli-command-reorganization-and-operation-registry.md)
-- [25 Revise CLI Separation and MCP Boundary](../../prd/25-revise-cli-separation-and-mcp-boundary.md)
-- [26 Revise No-Scripts Migration Skill Refactor](../../prd/26-revise-no-scripts-migration-skill-refactor.md)
+- [39 Revise CLI Command Reorganization and Operation Registry](../../prd/39-cli-command-model-and-operation-registry.md)
+- [25 Revise CLI Separation and MCP Boundary](../../prd/25-typescript-runtime-cli-mcp-operation-boundaries.md)
+- [26 Revise No-Scripts Migration Skill Refactor](../../prd/25-typescript-runtime-cli-mcp-operation-boundaries.md#no-scripts-migration-dependency)
 
 ## Stage 1 - Operation Registry
 

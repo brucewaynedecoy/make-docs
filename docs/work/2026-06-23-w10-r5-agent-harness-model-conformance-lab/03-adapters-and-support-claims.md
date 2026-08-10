@@ -6,7 +6,7 @@ Build the first adapter path and support-claim gates without changing shipped ha
 
 ## Source PRD Docs
 
-- `docs/prd/20-revise-agent-harness-model-conformance-lab.md`
+- `docs/prd/20-agent-harness-conformance-and-support-claims.md`
 - `docs/prd/07-cli-command-surface-and-lifecycle.md`
 - `docs/prd/08-skills-catalog-and-distribution.md`
 

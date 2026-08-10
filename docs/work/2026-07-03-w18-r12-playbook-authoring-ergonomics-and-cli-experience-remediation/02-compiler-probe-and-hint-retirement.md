@@ -5,7 +5,7 @@ status: "active"
 coordinate: "W18 R12 P2"
 source:
   type: "prd"
-  path: "docs/prd/40-revise-playbook-authoring-contract-v2.md"
+  path: "docs/prd/34-playbook-authoring-contract-and-model.md"
 ---
 
 # Phase 2: Compiler Probe and Hint Retirement
@@ -20,11 +20,11 @@ Dependency materialization retargets from `executableToken(source)` to the model
 
 ## Source PRD Docs
 
-- [40 Revise Playbook Authoring Contract v2](../../prd/40-revise-playbook-authoring-contract-v2.md)
-- [41 Revise CLI Human Experience and Package Grammar](../../prd/41-revise-cli-human-experience-and-package-grammar.md)
-- [36 Revise Playbook Packaging Compiler and Harness Adapters](../../prd/36-revise-playbook-packaging-compiler-and-harness-adapters.md) (still-constraining baseline: per-kind materialization, fail-before-write, adapter contracts)
-- [35 Revise Run Playbook State Machine](../../prd/35-revise-run-playbook-state-machine.md) (still-constraining baseline: progression semantics, evidence log, status vocabulary)
-- [38 Revise Global Store and Project State](../../prd/38-revise-global-store-and-project-state.md) (still-constraining baseline: schema versioning and migration for any run-state serialization change)
+- [40 Revise Playbook Authoring Contract v2](../../prd/34-playbook-authoring-contract-and-model.md)
+- [41 Revise CLI Human Experience and Package Grammar](../../prd/39-cli-command-model-and-operation-registry.md#hint-retirement-r-fix)
+- [36 Revise Playbook Packaging Compiler and Harness Adapters](../../prd/36-playbook-packaging-compiler-and-harness-adapters.md) (still-constraining baseline: per-kind materialization, fail-before-write, adapter contracts)
+- [35 Revise Run Playbook State Machine](../../prd/35-run-playbook-state-machine-and-portability.md) (still-constraining baseline: progression semantics, evidence log, status vocabulary)
+- [38 Revise Global Store and Project State](../../prd/38-global-store-and-project-state.md) (still-constraining baseline: schema versioning and migration for any run-state serialization change)
 
 ## Stage 1 - Probe-Targeted Dependency Materialization (F1)
 

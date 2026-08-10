@@ -10,7 +10,7 @@ This phase proves the classifier and disposition flows preserve current lifecycl
 
 ## Source PRD Docs
 
-- [18 Revise Compatibility Audit and Migration Disposition](../../prd/18-revise-compatibility-audit-and-migration-disposition.md)
+- [18 Revise Compatibility Audit and Migration Disposition](../../prd/18-compatibility-classification-and-migration-safety.md)
 - [10 Packaging, Validation, and Release Reference](../../prd/10-packaging-validation-and-release-reference.md)
 - [03 Open Questions and Risk Register](../../prd/03-open-questions-and-risk-register.md)
 - [05 Installation, Profile, and Manifest Lifecycle](../../prd/05-installation-profile-and-manifest-lifecycle.md)

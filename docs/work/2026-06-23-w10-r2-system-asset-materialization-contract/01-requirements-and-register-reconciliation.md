@@ -10,8 +10,8 @@ This phase is a guard phase. It ensures implementation starts from PRD 17, the a
 
 ## Source PRD Docs
 
-- [17 Revise System Asset Materialization Contract](../../prd/17-revise-system-asset-materialization-contract.md)
-- [16 Revise Package and Deployment Boundaries](../../prd/16-revise-package-and-deployment-boundaries.md)
+- [17 Revise System Asset Materialization Contract](../../prd/17-system-asset-materialization-and-local-bootstrap.md)
+- [16 Revise Package and Deployment Boundaries](../../prd/16-package-runtime-and-deployment-boundaries.md)
 - [03 Open Questions and Risk Register](../../prd/03-open-questions-and-risk-register.md)
 - [05 Installation, Profile, and Manifest Lifecycle](../../prd/05-installation-profile-and-manifest-lifecycle.md)
 - [06 Template Contracts and Generated Assets](../../prd/06-template-contracts-and-generated-assets.md)
@@ -26,8 +26,8 @@ This phase is a guard phase. It ensures implementation starts from PRD 17, the a
 
 ### Evidence
 
-- [17 Revise System Asset Materialization Contract](../../prd/17-revise-system-asset-materialization-contract.md) remains the source of truth and still defines exactly three materialization modes: `full-snapshot`, `provider-backed`, and `hybrid-pinned-cache`.
-- Required baseline backlinks were verified in `docs/prd/02-architecture-overview.md`, `docs/prd/05-installation-profile-and-manifest-lifecycle.md`, `docs/prd/06-template-contracts-and-generated-assets.md`, `docs/prd/07-cli-command-surface-and-lifecycle.md`, `docs/prd/08-skills-catalog-and-distribution.md`, `docs/prd/10-packaging-validation-and-release-reference.md`, and `docs/prd/16-revise-package-and-deployment-boundaries.md`.
+- [17 Revise System Asset Materialization Contract](../../prd/17-system-asset-materialization-and-local-bootstrap.md) remains the source of truth and still defines exactly three materialization modes: `full-snapshot`, `provider-backed`, and `hybrid-pinned-cache`.
+- Required baseline backlinks were verified in `docs/prd/02-architecture-overview.md`, `docs/prd/05-installation-profile-and-manifest-lifecycle.md`, `docs/prd/06-template-contracts-and-generated-assets.md`, `docs/prd/07-cli-command-surface-and-lifecycle.md`, `docs/prd/08-skills-catalog-and-distribution.md`, `docs/prd/10-packaging-validation-and-release-reference.md`, and `docs/prd/16-package-runtime-and-deployment-boundaries.md`.
 - Existing risk-register items cover the implementation scope: D-005/Q-001 for long-term skills delivery, Q-007 for remote source trust, R-003/R-004 for package/template and path-surface validation, Q-005/R-007/D-014 for dogfood freshness, R-006 for lifecycle safety, and R-014 for the no-scripts transition. No duplicate D/Q/R item was needed.
 - Implementation scope distinguishes immutable system assets from selected skills, plugins, mutable authored docs, custom overlays, local config, runtime state, conformance-lab artifacts, and user-owned project content.
 

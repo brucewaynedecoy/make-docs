@@ -104,7 +104,7 @@ import {
  * that declare `unattended: true` in an unattended run and holding every
  * other gate at `waiting-for-user`.
  *
- * Resume-hint retirement (W18 R12 P2; PRD 41 R-FIX-2, register item D-016):
+ * Resume-hint retirement (W18 R12 P2; PRD 39 R-FIX-2, register item D-016):
  * resume hints are current guidance only, never an audit trail. Every hint
  * the engine appends is subject-scoped — it records the step or gate it
  * advises about in the additive `hintSubjects` map — and every mutating
@@ -864,7 +864,7 @@ function reenterPlaybookRun(input: ResumePlaybookRunInput, repoRoot: string): Pl
         note: normalizeNote(input.note),
       });
       // Caller-supplied resume hints advise about the run, not a single
-      // step, so they are run-scoped (PRD 41 R-FIX-2).
+      // step, so they are run-scoped (PRD 39 R-FIX-2).
       const additions: GuidanceHintAddition[] = (input.resumeHints ?? []).map((hint) => ({ hint }));
       if (state.cursor === null) {
         additions.push({
@@ -936,7 +936,7 @@ function migratePlaybookRun(args: {
       });
       // The migration note and caller hints are run-scoped; retirement runs
       // against the RE-MAPPED statuses, so hints about steps the migration
-      // dropped or that resolved earlier retire here (PRD 41 R-FIX-2).
+      // dropped or that resolved earlier retire here (PRD 39 R-FIX-2).
       const additions: GuidanceHintAddition[] = [
         { hint: note },
         ...(input.resumeHints ?? []).map((hint) => ({ hint })),
@@ -1061,7 +1061,7 @@ export function closePlaybookRun(input: ClosePlaybookRunInput): PlaybookRunState
         terminalStatus: input.terminalStatus,
         // Close retires ALL guidance hints — a closed run's state carries
         // none; the durable audit trail is the evidence log, to which the
-        // close record above was just appended (PRD 41 R-FIX-2, D-016).
+        // close record above was just appended (PRD 39 R-FIX-2, D-016).
         resumeHints: [],
         hintSubjects: {},
       };
@@ -1078,7 +1078,7 @@ interface RunPosition {
   status: PlaybookStepStatus;
   hint: string | null;
   /**
-   * The step or gate the hint advises about (PRD 41 R-FIX-2); null when the
+   * The step or gate the hint advises about (PRD 39 R-FIX-2); null when the
    * hint is run-scoped guidance (for example close guidance), which retires
    * only at `playbook.close`.
    */
@@ -1476,7 +1476,7 @@ function appendEvidenceRecords(
 }
 
 /**
- * Statuses that resolve a hint's step or gate subject (W18 R12 P2; PRD 41
+ * Statuses that resolve a hint's step or gate subject (W18 R12 P2; PRD 39
  * R-FIX-2): the settled step-outcome statuses of the shared vocabulary. A
  * subject absent from the current step statuses (for example a step dropped
  * by the opt-in resume migration) is also resolved. Recorded implementer
@@ -1500,7 +1500,7 @@ interface GuidanceHintAddition {
 }
 
 /**
- * The single hint bookkeeping seam (PRD 41 R-FIX-2, the D-016 fix). Against
+ * The single hint bookkeeping seam (PRD 39 R-FIX-2, the D-016 fix). Against
  * the post-transition step statuses it first RETIRES every hint whose subject
  * has reached a resolved status, then appends the transition's own additions,
  * recording their subject scope. Every mutating transition — `advance` (both

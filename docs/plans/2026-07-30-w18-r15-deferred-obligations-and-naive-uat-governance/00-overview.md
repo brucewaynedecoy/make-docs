@@ -4,10 +4,10 @@ kind: "plan"
 status: "draft"
 coordinate: "W18 R15"
 follow_on:
-  route: "prd-generation"
-  next_prompt: ".make-docs/references/system/prompts/plan-to-prd-change.prompt.md"
-  why: "The two approved designs must become one reconciled active-PRD contract before Make Docs system resources, default Playbooks, dogfood projections, migration guidance, or implementation work are changed."
-  coordinate_handoff: "Carry W18 R15 into the two new capability-authority PRDs, the reconciled existing PRD authorities, and the single downstream delta backlog; preserve W18 R14 as the deferred-obligation design lineage while treating W18 R15 as the owner-selected combined implementation revision."
+  route: "work-generation"
+  next_prompt: ".make-docs/references/system/prompts/prd-change-to-work.prompt.md"
+  why: "PRDs 45 and 46 and the in-place PRD maintenance are complete; the next separately authorized lifecycle step is the W18 R15 delta backlog from current PRD authority."
+  coordinate_handoff: "Carry W18 R15 from current PRDs 45 and 46, the maintained existing PRD authorities, and O-001/O-002 into one downstream delta backlog; preserve W18 R14 as design lineage rather than a separate implementation bundle."
 source:
   type: "design"
   path: "docs/designs/2026-07-27-true-naive-end-user-acceptance-testing.md"
@@ -17,7 +17,7 @@ source:
 
 ## Purpose
 
-Produce one reviewable change plan that reconciles [Deferred Obligations and Anti-Orphan Governance](../../designs/2026-07-27-deferred-obligations-and-anti-orphan-governance.md) with [True Naive End-User Acceptance Testing](../../designs/2026-07-27-true-naive-end-user-acceptance-testing.md). The combined change gives Make Docs a durable way to preserve required future outcomes and an honest way to determine when a real, isolated end user must test an installed product.
+Record the combined W18 R15 plan that reconciles [Deferred Obligations and Anti-Orphan Governance](../../designs/2026-07-27-deferred-obligations-and-anti-orphan-governance.md) with [True Naive End-User Acceptance Testing](../../designs/2026-07-27-true-naive-end-user-acceptance-testing.md), consumes the resulting current authority in [PRD 45](../../prd/45-deferred-obligation-governance.md) and [PRD 46](../../prd/46-naive-end-user-acceptance-testing.md), and hands that authority to the still-pending W18 R15 delta backlog. The combined capability gives Make Docs a durable way to preserve required future outcomes and an honest way to determine when a real, isolated end user must test an installed product.
 
 The two capabilities share the same authority chain:
 
@@ -29,15 +29,18 @@ The two capabilities share the same authority chain:
 
 ## Objective
 
-This plan is complete when it fixes the downstream PRD shape, system-resource catalog, source-versus-projection paths, lifecycle behavior, compatibility policy, and dependency-ordered backlog shape needed to implement both designs without re-deriving their decisions.
+This plan fixes the current PRD authority, system-resource catalog, source-versus-projection paths, lifecycle behavior, compatibility policy, and dependency-ordered backlog shape needed to implement both designs without re-deriving their decisions.
 
-The downstream documentation round is complete when:
+PRD authority maintenance is complete:
 
-- two new capability-authority PRDs carry the genuinely novel anti-orphan and naive-UAT requirements, while existing PRDs are reconciled in place for behavior they already own;
-- every genuinely impacted baseline PRD has a `### Change Notes` backlink;
-- [the active register](../../prd/03-open-questions-and-risk-register.md) has the fixed `## Deferred Obligations` section and a scoped first-migration disposition;
-- the active PRD index and glossary reflect the new authorities and terms;
-- one W18 R15 delta backlog maps every normative design decision to an owned implementation phase;
+- [PRD 45](../../prd/45-deferred-obligation-governance.md) and [PRD 46](../../prd/46-naive-end-user-acceptance-testing.md) carry the genuinely novel anti-orphan and naive-UAT requirements, while existing PRDs retain behavior they already own;
+- the maintained existing PRDs carry requirement-history and source-anchor traceability without standalone revise-only PRDs;
+- [the active register](../../prd/03-open-questions-and-risk-register.md) has the fixed `## Deferred Obligations` section, O-001, O-002, and conservative initial migration dispositions;
+- the active PRD index, product overview, and glossary reflect the capability authorities and terms.
+
+The next separately authorized documentation step is complete when:
+
+- one W18 R15 delta backlog maps every normative requirement in current PRDs 45 and 46 to an owned implementation phase;
 - no runtime, CLI, MCP, database-schema, Global Store, Project State, or automatic migration work is included in the first implementation;
 - validation proves upstream template authority, dogfood/install projection parity, traceability, anti-coaching separation, and conservative compatibility behavior.
 
@@ -45,37 +48,38 @@ The downstream documentation round is complete when:
 
 - Coordinate: `W18 R15`
 - Classification: `revision`
-- Evidence: The anti-orphan design recommends W18 R14 because it revises W16 R0 coverage governance and consumes W18 R10 state boundaries. The naive-UAT design recommends W18 R15, requires explicit reconciliation with the sibling W18 R14 design, and leaves the final combined-versus-split decision to owner approval. The owner requested one plan bundle for both designs. No W18 R14 or W18 R15 plan or work directory exists, while W18 R13 is the latest completed revision. W18 R15 therefore becomes the combined downstream coordinate, and W18 R14 remains source lineage rather than a separate implementation bundle.
+- Evidence: The anti-orphan design recommends W18 R14 because it revises W16 R0 coverage governance and consumes W18 R10 state boundaries. The naive-UAT design recommends W18 R15, requires explicit reconciliation with the sibling W18 R14 design, and leaves the final combined-versus-split decision to owner approval. The owner requested one plan bundle for both designs. This W18 R15 plan and PRDs 45 and 46 now exist, while no W18 R15 work directory exists. W18 R15 is the combined downstream coordinate, and W18 R14 remains source lineage rather than a separate implementation bundle.
 
 ## Lifecycle Position
 
-This request follows the default lifecycle arc: accepted designs -> plan -> reconciled PRD capability authorities -> delta work backlog -> implementation. There is no lifecycle-stage skip.
+This request follows the default lifecycle arc: accepted designs -> plan -> current PRD capability authorities -> delta work backlog -> implementation. There is no lifecycle-stage skip.
 
-The only coordination adjustment is that two sibling design handoffs are merged into one plan revision. The reason is explicit owner direction plus the UAT design's dependency on the anti-orphan trigger, finding, and capability-completion rules. PRD generation and implementation remain separate approval gates.
+The only coordination adjustment is that two sibling design handoffs are merged into one plan revision. The reason is explicit owner direction plus the UAT design's dependency on the anti-orphan trigger, finding, and capability-completion rules. PRD maintenance is complete; backlog generation and implementation remain separate approval gates.
 
-## Change Classification
+## Authority Maintenance Classification
 
 - Requested change type: `revision`
-- Effective execution mode: `active-set evolution`
+- Effective execution mode: `authoritative PRD maintenance`
 - Cleanup rewrite requested: no
 - Full backlog regeneration requested: no
-- PRD strategy: two new numbered revision documents plus scoped baseline annotations
-- Backlog strategy: one W18 R15 delta backlog
+- PRD result: PRDs 45 and 46 are current capability authorities, and existing PRD owners were maintained in place without revise-only PRDs
+- PRD phase status: complete
+- Backlog strategy: one W18 R15 delta backlog, not yet generated
 
-## Change Inputs
+## Maintenance Inputs
 
 | Input | Format | Location | Confidence |
 | --- | --- | --- | --- |
 | Deferred Obligations and Anti-Orphan Governance | design document | [../../designs/2026-07-27-deferred-obligations-and-anti-orphan-governance.md](../../designs/2026-07-27-deferred-obligations-and-anti-orphan-governance.md) | High - owner directed combined planning from this design |
 | True Naive End-User Acceptance Testing | design document | [../../designs/2026-07-27-true-naive-end-user-acceptance-testing.md](../../designs/2026-07-27-true-naive-end-user-acceptance-testing.md) | High - owner directed combined planning and resolved its coordinate question |
-| Active open-question, drift, and risk register | living PRD authority | [../../prd/03-open-questions-and-risk-register.md](../../prd/03-open-questions-and-risk-register.md) | High - canonical current register; it does not yet contain `## Deferred Obligations` |
-| Lifecycle foundation | existing capability authority | [../../prd/14-add-lifecycle-workflow-foundation.md](../../prd/14-add-lifecycle-workflow-foundation.md) | High - owns lifecycle ordering and phase-close behavior |
-| Coverage-pass extensions | existing capability authority | [../../prd/31-revise-coverage-pass-extensions-adversarial-review.md](../../prd/31-revise-coverage-pass-extensions-adversarial-review.md) | High - owns the reusable coverage-pass extension model |
-| Global Store and Project State | existing capability authority | [../../prd/38-revise-global-store-and-project-state.md](../../prd/38-revise-global-store-and-project-state.md) | High - owns operational evidence and repository-state boundaries |
-| Template and dogfood source-of-truth contract | existing capability authority | [../../prd/19-revise-template-package-dogfood-source-of-truth-contract.md](../../prd/19-revise-template-package-dogfood-source-of-truth-contract.md) | High - fixes upstream-first authoring and downstream projection |
-| Compatibility and migration disposition | existing capability authority | [../../prd/18-revise-compatibility-audit-and-migration-disposition.md](../../prd/18-revise-compatibility-audit-and-migration-disposition.md) | High - requires classification before updates and protects modified project content |
-| Playbook and persona authorities | existing capability authorities | [PRD 22](../../prd/22-revise-new-docs-assets-playbooks-persona-model.md), [PRD 29](../../prd/29-revise-playbook-contract-run-playbook.md), and [PRD 34](../../prd/34-revise-playbook-contract-and-model.md) | High - own persona separation, reusable Playbook delivery, and current Playbook structure |
-| Agent-instruction ownership | existing capability authority | [../../prd/15-revise-agent-instruction-file-ownership.md](../../prd/15-revise-agent-instruction-file-ownership.md) | High - constrains managed instruction and router updates |
+| Active open-question, drift, risk, and obligation register | living PRD authority | [../../prd/03-open-questions-and-risk-register.md](../../prd/03-open-questions-and-risk-register.md) | High - canonical current register with `## Deferred Obligations`, O-001, and O-002 |
+| Lifecycle foundation | existing capability authority | [../../prd/14-lifecycle-workflow-and-coverage-passes.md](../../prd/14-lifecycle-workflow-and-coverage-passes.md) | High - owns lifecycle ordering and phase-close behavior |
+| Coverage-pass extensions | existing capability authority | [../../prd/14-lifecycle-workflow-and-coverage-passes.md](../../prd/14-lifecycle-workflow-and-coverage-passes.md) | High - owns the reusable coverage-pass extension model |
+| Global Store and Project State | existing capability authority | [../../prd/38-global-store-and-project-state.md](../../prd/38-global-store-and-project-state.md) | High - owns operational evidence and repository-state boundaries |
+| Template and dogfood source-of-truth contract | existing capability authority | [../../prd/06-template-contracts-and-generated-assets.md](../../prd/06-template-contracts-and-generated-assets.md#template-source-authority) | High - fixes upstream-first authoring and downstream projection |
+| Compatibility and migration disposition | existing capability authority | [../../prd/18-compatibility-classification-and-migration-safety.md](../../prd/18-compatibility-classification-and-migration-safety.md) | High - requires classification before updates and protects modified project content |
+| Playbook and persona authorities | existing capability authorities | [PRD 22](../../prd/22-project-documentation-asset-model.md#requirements), [PRD 35](../../prd/35-run-playbook-state-machine-and-portability.md#requirements), and [PRD 34](../../prd/34-playbook-authoring-contract-and-model.md) | High - own persona separation, reusable Playbook delivery, and current Playbook structure |
+| Agent-instruction ownership | existing capability authority | [../../prd/15-agent-instruction-ownership-and-managed-blocks.md](../../prd/15-agent-instruction-ownership-and-managed-blocks.md) | High - constrains managed instruction and router updates |
 
 ## Resolved Planning Decisions
 
@@ -89,16 +93,19 @@ The UAT design left seven questions for downstream planning. This bundle resolve
 6. **Accessibility declaration:** each scenario records an `accessibility_basis` and the applicable assistive-technology or interaction scope. Projects select standards appropriate to their product surface; no web-only standard is imposed on CLI, API, device, SDK, or non-visual projects. Accessibility remains a separate coverage mode.
 7. **Coordinate:** both designs proceed through this single W18 R15 plan, PRD, and backlog lineage.
 
-## Baseline Context
+## Current Authority Status
 
-- Active `docs/prd/` status: active flat namespace, docs `00` through `44`; next available numbers are `45` and `46`.
-- Active plan/work status: W18 R13 is the latest existing W18 revision; neither W18 R14 nor W18 R15 has a plan or work directory.
-- Current register status: `docs/prd/03-open-questions-and-risk-register.md` contains drift, question, and risk namespaces but no `O-###` namespace or fixed deferred-obligations section.
-- Current reusable-resource status: coverage, lifecycle, PRD, work, history, template, and Playbook resources exist, but no shared deferred-obligation contract, naive-UAT contract, naive-UAT scenario template, tester Playbook, or facilitator Playbook exists.
-- Current execution-state status: W18 R10 already provides stable project identity and work-evidence seams. This round consumes those seams and does not change their runtime implementation.
-- Discovery pass required: yes, but scoped. PRD generation and backlog generation must inventory active deferral language and current UAT/manual-test artifacts relevant to the changed governance behavior. Archive material is read only when an active authority links to it or the new behavior exposes an old deferral.
+- Active PRD status: [PRD 45](../../prd/45-deferred-obligation-governance.md) owns deferred-obligation governance, and [PRD 46](../../prd/46-naive-end-user-acceptance-testing.md) owns naive end-user acceptance testing.
+- PRD maintenance status: complete. The PRD index, product overview, glossary, register, and existing capability owners were maintained in place; no revise-only PRDs were created.
+- Register status: `docs/prd/03-open-questions-and-risk-register.md` contains the fixed `## Deferred Obligations` section, Active O-001, Deferred O-002, and conservative initial migration dispositions.
+- Plan/work status: this W18 R15 plan exists; no W18 R15 work directory exists, so backlog generation is pending a separate approval.
+- System-resource status: the completed step stopped at PRD maintenance. It did not create templates, contracts, Playbooks, skills, installed projections, migrations, or runtime changes.
+- Current execution-state status: W18 R10 already provides stable project identity and work-evidence seams. W18 R15 consumes those seams and does not change their runtime implementation.
+- Discovery still required for the backlog: inventory active deferral language and current UAT/manual-test artifacts relevant to the changed governance behavior. Archive material is read only when a current authority links to it or the new behavior exposes an old deferral.
 
-## Output Contract
+The [W18 R15 P1 history record](../../assets/archive/history/2026-07-30-w18-r15-p1-prd-reconciliation.md) preserves the completed PRD-maintenance evidence and the explicit stop boundary.
+
+## Current Authority And Pending Output
 
 - Plan directory:
   - `docs/plans/2026-07-30-w18-r15-deferred-obligations-and-naive-uat-governance/00-overview.md`
@@ -106,86 +113,77 @@ The UAT design left seven questions for downstream planning. This bundle resolve
   - `docs/plans/2026-07-30-w18-r15-deferred-obligations-and-naive-uat-governance/02-system-contracts-and-scenario-governance.md`
   - `docs/plans/2026-07-30-w18-r15-deferred-obligations-and-naive-uat-governance/03-playbooks-dogfood-and-compatibility.md`
   - `docs/plans/2026-07-30-w18-r15-deferred-obligations-and-naive-uat-governance/04-delta-backlog-and-validation.md`
-- New capability-authority PRDs:
-  - `docs/prd/45-deferred-obligation-governance.md`
-  - `docs/prd/46-naive-end-user-acceptance-testing.md`
-- Direct living-authority updates:
+- Current capability-authority PRDs:
+  - [PRD 45](../../prd/45-deferred-obligation-governance.md)
+  - [PRD 46](../../prd/46-naive-end-user-acceptance-testing.md)
+- Maintained living authorities:
   - `docs/prd/00-index.md`
+  - `docs/prd/01-product-overview.md`
   - `docs/prd/03-open-questions-and-risk-register.md`
   - `docs/prd/04-glossary.md`
-- Baseline annotations: the PRDs listed under `## Baseline Annotation Plan`.
-- Delta backlog:
+- Current capability owners listed under `## Authority Maintenance Record`.
+- Pending delta backlog:
   - `docs/work/2026-07-30-w18-r15-deferred-obligations-and-naive-uat-governance/`
   - `00-index.md` plus five dependency-ordered phase files defined in [Phase 4](./04-delta-backlog-and-validation.md).
 
-## Change Doc Strategy
+## Current Capability Ownership
 
-| New doc | Kind | Why it exists | Primary affected authorities |
+| Current authority | Kind | Ownership | Primary related authorities |
 | --- | --- | --- | --- |
-| `45-deferred-obligation-governance.md` | capability | Defines the `O-###` register, phase-close orphan audit, authority chain, completion language, migration behavior, and repository/Global Store split | PRDs 03, 14, 18, 19, 31, and 38 |
-| `46-naive-end-user-acceptance-testing.md` | capability | Defines qualified naive testing, activation and valid `none`, `NUAT-###` scenarios, anti-coaching, evidence/outcomes, mode separation, finding routing, accessibility, and migration | PRDs 14, 15, 18, 19, 22, 29, 31, 34, and 38; PRD 45 as a sibling dependency |
+| [PRD 45](../../prd/45-deferred-obligation-governance.md) | capability | Defines the `O-###` register, phase-close orphan audit, authority chain, completion language, migration behavior, and repository/Global Store split | PRDs 03, 06, 09, 10, 14, 18, and 38 |
+| [PRD 46](../../prd/46-naive-end-user-acceptance-testing.md) | capability | Defines qualified naive testing, activation and valid `none`, `NUAT-###` scenarios, anti-coaching, evidence/outcomes, mode separation, finding routing, accessibility, and migration | PRDs 06, 09, 10, 14, 15, 18, 22, 34, 35, 38, 43, 44, and 47; PRD 45 as a sibling dependency |
 
-PRD 45 is written first because PRD 46 uses its obligation links, capability-status language, and anti-orphan finding route. Both documents are new capability authorities in one reviewed PRD reconciliation set and cross-link each other.
+PRD 45 was established first because PRD 46 uses its obligation links, capability-status language, and anti-orphan finding route. Both are current capability authorities in one reviewed PRD-maintenance set and cross-link each other.
 
-## Baseline Annotation Plan
+## Authority Maintenance Record
 
-| Existing authority | Impacted sections | Reconciliation action | Target capability authority |
+| Maintained authority | Current relationship | Owning W18 R15 authority |
 | --- | --- | --- | --- |
-| `03-open-questions-and-risk-register.md` | fixed section spine, status semantics, source anchors | revise and extend | PRD 45; link PRD 46 for `none` and findings |
-| `04-glossary.md` | lifecycle, coverage, testing, evidence, and completion terms | add | PRDs 45 and 46 |
-| `06-template-contracts-and-generated-assets.md` | system templates and generated default behavior | revise | PRDs 45 and 46 |
-| `09-dogfood-and-maintainer-operations.md` | upstream-first dogfood delivery and parity verification | revise | PRDs 45 and 46 |
-| `14-add-lifecycle-workflow-foundation.md` | coverage band, phase gate, phase/capability completion | revise | PRDs 45 and 46 |
-| `15-revise-agent-instruction-file-ownership.md` | managed router guidance and anti-coaching instruction ownership | update in place | PRD 46 |
-| `18-revise-compatibility-audit-and-migration-disposition.md` | legacy classification, modified-content protection, first qualifying migration | update in place | PRDs 45 and 46 |
-| `19-revise-template-package-dogfood-source-of-truth-contract.md` | upstream source and installed projection | update in place | PRDs 45 and 46 |
-| `22-revise-new-docs-assets-playbooks-persona-model.md` | non-persona coverage versus persona-targeted reader artifacts | update in place | PRD 46 |
-| `29-revise-playbook-contract-run-playbook.md` | tester/facilitator workflow assets and execution boundary | update in place | PRD 46 |
-| `31-revise-coverage-pass-extensions-adversarial-review.md` | candidate enumeration, verdicts, testing modes, orphan audit | update in place | PRDs 45 and 46 |
-| `34-revise-playbook-contract-and-model.md` | current Playbook v2 resource conformance | update in place | PRD 46 |
-| `38-revise-global-store-and-project-state.md` | operational evidence versus repository authority | update in place without schema change | PRDs 45 and 46 |
+| `00-index.md`, `01-product-overview.md`, and `04-glossary.md` | Catalog and define the current capability authorities and terms | PRDs 45 and 46 |
+| `03-open-questions-and-risk-register.md` | Owns the fixed obligation register, status semantics, O-001/O-002, and migration dispositions | PRD 45; PRD 46 for `none` and findings |
+| PRDs 06, 09, 10, 14, and 18 | Own template/dogfood delivery, packaging validation, lifecycle coverage, and conservative compatibility boundaries | PRDs 45 and 46 |
+| PRDs 15, 22, and 47 | Own managed instruction, documentation-asset, and persona boundaries | PRD 46 |
+| PRDs 34 and 35 | Own Playbook structure, execution, and portability boundaries | PRD 46 |
+| PRD 38 | Owns operational evidence versus repository authority without a W18 R15 schema change | PRDs 45 and 46 |
+| PRDs 43 and 44 | Keep conformance and lab evidence distinct from naive UAT | PRD 46 |
 
-PRDs 20 and 37 are verification-only boundaries: conformance evidence must not be relabeled as naive UAT, but no annotation is required unless PRD execution finds text that currently permits that substitution.
+PRD 20 remains the current conformance/support-claim boundary; former PRD 37 is historical provenance. Conformance evidence and internal testing are not naive UAT.
 
 ## Obligation Disposition
 
-The active PRD register has no `O-###` records yet, so there are no existing obligation IDs to carry, activate, reassign, fulfill, cancel, or supersede during this planning step.
+[The active PRD register](../../prd/03-open-questions-and-risk-register.md#deferred-obligations) now contains two initial obligations with conservative migration dispositions:
 
-The downstream PRD and backlog round must:
+| Obligation | Current status | Current route | Disposition |
+| --- | --- | --- | --- |
+| O-001, Adversarial-Review Coverage Contract | Active | W18 R3 P2; [plan](../2026-06-23-w18-r3-coverage-pass-extensions-adversarial-review/02-adversarial-pass-contract.md) and [work source](../../work/2026-06-23-w18-r3-coverage-pass-extensions-adversarial-review/02-adversarial-pass-contract.md) | Retain as an active architecture-independent contract slice. The current W18 R3 work index remains deferred-and-split, so execution still requires owner authorization; this obligation is not terminally disposed. |
+| O-002, Adversarial-Review Playbook Exposure | Deferred | Future owner-approved rewrite of W18 R3 P3-P4; current [plan P3](../2026-06-23-w18-r3-coverage-pass-extensions-adversarial-review/03-optional-surface-exposure.md), [plan P4](../2026-06-23-w18-r3-coverage-pass-extensions-adversarial-review/04-template-history-validation-closeout.md), [work P3](../../work/2026-06-23-w18-r3-coverage-pass-extensions-adversarial-review/03-optional-surface-exposure.md), and [work P4](../../work/2026-06-23-w18-r3-coverage-pass-extensions-adversarial-review/04-template-history-validation-closeout.md) are source candidates only | Retain as deferred. The existing P3-P4 backlog is explicitly non-executable as written and must be rewritten against the implemented v2 architecture before authorization; the accepted future outcome is not yet satisfied or terminally disposed. |
 
-- inventory active deferral candidates before adding the first `O-###` record;
-- preserve all existing `D-###`, `Q-###`, and `R-###` identities;
-- create an obligation only when accepted authority establishes a required future outcome;
-- classify the designs' optional future validator, CLI, database projection, dedicated evidence kind, and richer evidence-file management as `not-an-obligation` for this documentation-first round unless product authority explicitly accepts one as owed;
-- link every activated naive-UAT `none` decision to an `O-###` record when a future user-observable acceptance outcome remains required;
-- keep capability status unverified until the maintainer dogfood's first scoped migration and orphan audit have valid local evidence.
+Downstream backlog generation must preserve all existing `D-###`, `Q-###`, `R-###`, and `O-###` identities; create another obligation only when accepted authority establishes a required future outcome; and link an activated naive-UAT `none` decision to an obligation when a future user-observable acceptance outcome remains required. The designs' optional future validator, CLI, database projection, dedicated evidence kind, and richer evidence-file management remain `not-an-obligation` for this documentation-first round unless product authority explicitly accepts one as owed. Capability status remains unverified until maintainer-dogfood migration and orphan-audit evidence exists.
 
 ## Plan Phase Map
 
-| Plan phase | File | Result |
-| --- | --- | --- |
-| 1 | [01-prd-capability-authority-and-baseline-reconciliation.md](./01-prd-capability-authority-and-baseline-reconciliation.md) | Fixes PRD 45/46 content, register migration, glossary/index work, in-place authority reconciliation, and cross-links |
-| 2 | [02-system-contracts-and-scenario-governance.md](./02-system-contracts-and-scenario-governance.md) | Fixes exact upstream contract, template, reference, prompt, and router changes |
-| 3 | [03-playbooks-dogfood-and-compatibility.md](./03-playbooks-dogfood-and-compatibility.md) | Fixes tester/facilitator Playbooks, dogfood/install projection, conservative migration, evidence boundaries, and acceptance examples |
-| 4 | [04-delta-backlog-and-validation.md](./04-delta-backlog-and-validation.md) | Fixes the five-phase work backlog, validation bar, and owner handoff |
+| Plan phase | File | Current result | Status |
+| --- | --- | --- | --- |
+| 1 | [01-prd-capability-authority-and-baseline-reconciliation.md](./01-prd-capability-authority-and-baseline-reconciliation.md) | Established PRDs 45/46, O-001/O-002, maintained living authorities, and cross-links | Complete; recorded in [P1 history](../../assets/archive/history/2026-07-30-w18-r15-p1-prd-reconciliation.md) |
+| 2 | [02-system-contracts-and-scenario-governance.md](./02-system-contracts-and-scenario-governance.md) | Defines the pending upstream contract, template, reference, prompt, and router implementation boundary | Not implemented; input to the pending backlog |
+| 3 | [03-playbooks-dogfood-and-compatibility.md](./03-playbooks-dogfood-and-compatibility.md) | Defines the pending Playbook, dogfood/install projection, compatibility, evidence, and acceptance boundary | Not implemented; input to the pending backlog |
+| 4 | [04-delta-backlog-and-validation.md](./04-delta-backlog-and-validation.md) | Defines the required work-bundle shape, validation bar, and owner handoff | Backlog generation pending separate authorization |
 
-Dependency order is strict: Phase 1 defines product authority; Phase 2 encodes that authority in reusable system resources; Phase 3 adds reader workflows and delivery/migration behavior; Phase 4 generates and validates the executable backlog.
+Dependency order remains strict: completed Phase 1 is current product authority; a separately approved Phase 4 work-generation step must map the still-pending Phase 2 and Phase 3 behavior into executable work before implementation begins.
 
 ## Worker Ownership
 
-The future PRD and backlog execution should remain delegation-ready. Worker labels describe responsibilities, not hard-coded agents.
+Pending backlog generation and implementation should remain delegation-ready. Worker labels describe responsibilities, not hard-coded agents.
 
 | Worker | Scope | Write scope | Dependencies | Deliverables |
 | --- | --- | --- | --- | --- |
-| PRD authority worker | PRDs 45/46 and requirement anchors | new capability-authority PRDs only | approved plan | PRD 45 and PRD 46 |
-| Register and baseline worker | living register, glossary, baseline annotations | PRDs 00, 03, 04, 06, 09, 14, 15, 18, 19, 22, 29, 31, 34, 38 | PRD 45/46 draft anchors | fixed register, index, glossary, backlinks |
 | System-resource worker | contracts, templates, references, prompts | `packages/docs/template/.make-docs/**` | PRD 45/46 | upstream documentation system resources |
 | Playbook and router worker | tester/facilitator/lifecycle Playbooks and routers | `packages/docs/template/docs/**` | PRD 46 and system contracts | upstream Playbooks and instruction routing |
 | Projection and compatibility worker | dogfood/install projection and migration fixtures | planned dogfood outputs and compatibility evidence only | upstream resource completion | byte-parity projection and legacy-state dispositions |
-| Backlog worker | W18 R15 work bundle | `docs/work/2026-07-30-w18-r15-deferred-obligations-and-naive-uat-governance/**` | all PRD decisions fixed | dependency-ordered delta backlog |
+| Backlog worker | W18 R15 work bundle | `docs/work/2026-07-30-w18-r15-deferred-obligations-and-naive-uat-governance/**` | current PRDs 45/46 and maintained authorities | dependency-ordered delta backlog |
 | Validation and fix worker | changed-doc and projection verification | changed files only when a fix is required | all outputs | validation evidence and traceability fixes |
 
-When delegation is available, the coordinator has write scope `none`, manages dependencies, and performs the owner-review handoff.
+The PRD-maintenance work is already complete and is not a pending worker assignment. When downstream work is authorized and delegation is available, the coordinator has write scope `none`, manages dependencies, and performs the owner-review handoff.
 
 ## MCP Strategy
 
@@ -196,18 +194,17 @@ When delegation is available, the coordinator has write scope `none`, manages de
 
 ## Validation
 
-The PRD/backlog round must validate:
+The completed PRD-maintenance step recorded that PRDs 45 and 46 use the feature-oriented subsystem contract, link both source designs and each other, maintain the living authorities in place, and add one fixed `## Deferred Obligations` section with unique O-001/O-002 records without converting existing `D-###`, `Q-###`, or `R-###` identities. Its [history record](../../assets/archive/history/2026-07-30-w18-r15-p1-prd-reconciliation.md) reports 1,075 tests passing plus targeted path, link, whitespace, and wave checks; the aggregate validator remained red only for pre-existing root instruction-router parity and line-budget debt. That step stopped before templates, contracts, Playbooks, skills, projections, migrations, runtime work, staging, commit, push, publication, or release.
 
-1. PRDs 45 and 46 use the feature-oriented subsystem contract and link both designs plus each other.
-2. Every baseline listed above contains the required `### Change Notes` backlink, with no silent rewrite or renumbering.
-3. PRD 03 contains exactly one fixed `## Deferred Obligations` section, unique append-only `O-###` IDs, and no automatic conversion of `D-###`, `Q-###`, or `R-###`.
-4. `NUAT-###` ownership is singular, links resolve, and every scenario or valid `none` record traces to requirements, work, and findings.
-5. Upstream system resources are authored only under `packages/docs/template/`; dogfood copies are projected and byte-equivalent where the materialization contract requires it.
-6. Testing/UAT records say `coverage_scope: non-persona`, while tester and facilitator Playbooks carry their own valid persona targets.
-7. Tester packets contain no operator-only setup, success outcomes, internal terminology, expected answers, or hidden steps.
-8. Existing projects without the new sections remain readable; modified or ambiguous project-owned content stops for review.
-9. No new CLI command, MCP operation, store schema, database projection, evidence kind, or automatic migration appears in the delta backlog.
-10. Repository documentation checks, path/link hygiene, wave numbering, template/default validation, and whitespace checks pass.
+The pending backlog and implementation must validate:
+
+1. `NUAT-###` ownership is singular, links resolve, and every scenario or valid `none` record traces to requirements, work, and findings.
+2. Upstream system resources are authored only under `packages/docs/template/`; dogfood copies are projected and byte-equivalent where the materialization contract requires it.
+3. Testing/UAT records say `coverage_scope: non-persona`, while tester and facilitator Playbooks carry their own valid persona targets.
+4. Tester packets contain no operator-only setup, success outcomes, internal terminology, expected answers, or hidden steps.
+5. Existing projects without the new sections remain readable; modified or ambiguous project-owned content stops for review.
+6. No new CLI command, MCP operation, store schema, database projection, evidence kind, or automatic migration appears in the delta backlog.
+7. Repository documentation checks, path/link hygiene, wave numbering, template/default validation, and whitespace checks pass for the authorized delta.
 
 ## Dependencies
 
@@ -216,19 +213,20 @@ The PRD/backlog round must validate:
 - W10 R3 compatibility policy governs all legacy and modified-content handling.
 - W10 R4 template/dogfood authority governs source and projection order.
 - Current Playbook v2 contracts from W18 R12 constrain the new Playbooks.
-- The two untracked design documents remain the accepted source inputs and must not be edited as part of plan creation or downstream implementation unless the owner explicitly requests design revision.
+- The two accepted design documents remain source inputs and must not be edited during downstream implementation unless the owner explicitly requests design revision.
 
 ## Intended Follow-On
 
-- Route: `prd-generation`
-- Next step: generate PRDs 45 and 46, update the scoped baseline authorities, then create the single W18 R15 delta backlog.
-- Why: the PRD set must become the versioned product contract before reusable Make Docs defaults or dogfood copies change.
-- Coordinate Handoff: carry `W18 R15` into PRD source metadata, the work directory, phase files, history breadcrumbs, and Project State evidence.
+- Route: `work-generation`
+- Next prompt: `.make-docs/references/system/prompts/prd-change-to-work.prompt.md`
+- Next step: generate the single W18 R15 delta backlog from current PRDs 45 and 46 plus the maintained existing authorities.
+- Why: versioned product authority is complete; executable work must now be mapped before reusable Make Docs defaults or dogfood copies change.
+- Coordinate Handoff: carry `W18 R15` from current PRD source metadata into the work directory, phase files, history breadcrumbs, and Project State evidence.
 
-Saving or approving this plan does not authorize PRD generation, backlog generation, system-resource edits, dogfood projection, migration, runtime work, commit, push, publication, release, or deployment.
+Saving this reconciled plan does not authorize backlog generation, system-resource edits, dogfood projection, migration, runtime work, commit, push, publication, release, or deployment.
 
 ## Owner Review Gate
 
 Exact approval statement for the next lifecycle step:
 
-> I approve the W18 R15 Deferred Obligations and True Naive UAT Governance plan bundle as the authoritative basis for active PRD evolution and one scoped delta backlog. Proceed with PRDs 45 and 46 and the W18 R15 backlog using the fixed source, projection, migration, non-persona coverage, anti-coaching, evidence, and anti-orphan boundaries in this plan. Do not implement system resources, project migrations, runtime behavior, CLI or MCP operations, Global Store or Project State changes, database changes, dogfood projection, publication, release, commit, or push without separate authorization.
+> I approve generation of the W18 R15 delta backlog from current PRDs 45 and 46 and the maintained existing authorities, using the fixed source, projection, migration, non-persona coverage, anti-coaching, evidence, and anti-orphan boundaries in this plan. Do not implement system resources, project migrations, runtime behavior, CLI or MCP operations, Global Store or Project State changes, database changes, dogfood projection, publication, release, commit, or push without separate authorization.

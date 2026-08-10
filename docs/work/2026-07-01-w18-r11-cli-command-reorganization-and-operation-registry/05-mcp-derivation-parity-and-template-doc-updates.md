@@ -5,7 +5,7 @@ status: "active"
 coordinate: "W18 R11 P5"
 source:
   type: "prd"
-  path: "docs/prd/39-revise-cli-command-reorganization-and-operation-registry.md"
+  path: "docs/prd/39-cli-command-model-and-operation-registry.md"
 ---
 
 # Phase 5: MCP Derivation Parity and Template Doc Updates
@@ -20,8 +20,8 @@ Derive the MCP tool list and tool names from the Phase 1 registry so the renames
 
 ## Source PRD Docs
 
-- [39 Revise CLI Command Reorganization and Operation Registry](../../prd/39-revise-cli-command-reorganization-and-operation-registry.md)
-- [25 Revise CLI Separation and MCP Boundary](../../prd/25-revise-cli-separation-and-mcp-boundary.md)
+- [39 Revise CLI Command Reorganization and Operation Registry](../../prd/39-cli-command-model-and-operation-registry.md)
+- [25 Revise CLI Separation and MCP Boundary](../../prd/25-typescript-runtime-cli-mcp-operation-boundaries.md)
 - [07 CLI Command Surface and Lifecycle](../../prd/07-cli-command-surface-and-lifecycle.md)
 
 ## Stage 1 - MCP Derivation Parity

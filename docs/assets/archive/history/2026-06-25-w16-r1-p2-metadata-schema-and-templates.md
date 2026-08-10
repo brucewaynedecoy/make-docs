@@ -17,7 +17,7 @@ Completed W16 R1 Phase 2 by adding PRD 23 generated-document metadata to the pac
 
 ### Coverage Decisions
 
-- PRD coverage: no new PRD update was needed. [PRD 23](../../../prd/23-revise-generated-metadata-lifecycle-handoffs.md) already owns the generated metadata field contract, and this phase implements that contract in templates and prompt guidance.
+- PRD coverage: no new PRD update was needed. [historical closeout](2026-06-25-w16-r1-p4-package-parity-and-closeout.md) (retired action-PRD: `docs/prd/23-revise-generated-metadata-lifecycle-handoffs.md`) already owns the generated metadata field contract, and this phase implements that contract in templates and prompt guidance.
 - Developer-guide coverage: no developer guide was needed. This phase changes internal template and prompt behavior that is covered by package consistency tests.
 - User-guide coverage: no user guide was needed. No current end-user workflow changes in this phase.
 - UAT: deferred until the full W16 R1 wave is complete, per the active wave instruction.

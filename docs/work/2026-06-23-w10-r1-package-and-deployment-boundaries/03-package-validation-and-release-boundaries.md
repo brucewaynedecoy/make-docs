@@ -10,11 +10,11 @@ This phase handles D-006 and R-003 implementation work: package README/tarball a
 
 ## Source PRD Docs
 
-- [../../prd/16-revise-package-and-deployment-boundaries.md](../../prd/16-revise-package-and-deployment-boundaries.md)
+- [../../prd/16-package-runtime-and-deployment-boundaries.md](../../prd/16-package-runtime-and-deployment-boundaries.md)
 - [../../prd/03-open-questions-and-risk-register.md](../../prd/03-open-questions-and-risk-register.md)
 - [../../prd/08-skills-catalog-and-distribution.md](../../prd/08-skills-catalog-and-distribution.md)
 - [../../prd/10-packaging-validation-and-release-reference.md](../../prd/10-packaging-validation-and-release-reference.md)
-- [../../prd/12-revise-cli-skill-selection-simplification.md](../../prd/12-revise-cli-skill-selection-simplification.md)
+- [../../prd/08-skills-catalog-and-distribution.md](../../prd/08-skills-catalog-and-distribution.md#component-and-capability-map)
 
 ## Stage 1 - Package README and Tarball Alignment
 

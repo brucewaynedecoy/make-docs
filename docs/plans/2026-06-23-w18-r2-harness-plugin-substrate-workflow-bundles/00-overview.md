@@ -32,7 +32,7 @@ Before executing plugin or workflow bundle work, apply [W18 R5 Playbook Packagin
 - Revision: R2
 - Route: change-plan
 - Source design: [docs/designs/2026-06-20-harness-plugin-substrate-and-workflow-bundles.md](../../designs/2026-06-20-harness-plugin-substrate-and-workflow-bundles.md)
-- New PRD: [docs/prd/30-revise-harness-plugin-substrate-workflow-bundles.md](../../prd/30-revise-harness-plugin-substrate-workflow-bundles.md)
+- New PRD: [docs/prd/30-plugin-substrate-and-workflow-bundles.md](../../prd/30-plugin-substrate-and-workflow-bundles.md)
 - Work backlog: [docs/work/2026-06-23-w18-r2-harness-plugin-substrate-workflow-bundles/00-index.md](../../work/2026-06-23-w18-r2-harness-plugin-substrate-workflow-bundles/00-index.md)
 
 ## Current Implementation Grounding
@@ -42,7 +42,7 @@ Before executing plugin or workflow bundle work, apply [W18 R5 Playbook Packagin
 - `packages/cli/src/manifest.ts` records `files` and `skillFiles`; it has no structured selected-agentics ownership record that can distinguish canonical plugin payloads from native harness exposure files or plugin-specific adapters.
 - `packages/cli/src/skill-catalog.ts`, `packages/cli/src/skill-registry.ts`, `packages/cli/src/skill-resolver.ts`, `packages/cli/src/skills-command.ts`, and `packages/cli/src/skills-ui.ts` are skill-specific and do not define plugin registries, plugin manifests, bundle metadata, or plugin selection flows.
 - `packages/cli/src/audit.ts`, `packages/cli/src/backup.ts`, and `packages/cli/src/uninstall.ts` already use conservative manifest and content evidence, but they do not classify plugin payloads, generated plugin exposures, or user-authored harness plugin files.
-- [PRD 28](../../prd/28-revise-shared-agentics-installation-harness-redirection.md) defines shared selected-agentics storage and native harness exposure. [PRD 29](../../prd/29-revise-playbook-contract-run-playbook.md) defines playbook content and the generic Run Playbook model. This plan connects those contracts to plugin substrate and workflow bundle requirements.
+- [PRD 28](../../prd/28-shared-agentics-installation-and-harness-exposure.md) defines shared selected-agentics storage and native harness exposure. [PRD 30](../../prd/30-plugin-substrate-and-workflow-bundles.md#playbook-boundary) defines playbook content and the generic Run Playbook model. This plan connects those contracts to plugin substrate and workflow bundle requirements.
 
 ## Plan Shape
 

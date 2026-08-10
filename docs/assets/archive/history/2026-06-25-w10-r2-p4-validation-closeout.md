@@ -29,7 +29,7 @@ Completed W10 R2 Phase 4 by validating the full-snapshot default, provider/cache
 | Path | Description |
 | --- | --- |
 | [../../../work/2026-06-23-w10-r2-system-asset-materialization-contract/04-validation-and-closeout.md](../../../work/2026-06-23-w10-r2-system-asset-materialization-contract/04-validation-and-closeout.md) | Marked Phase 4 tasks complete and recorded aggregate validation, focused guard validation, docs/PRD closeout, manual-test coverage, and no-push status. |
-| [../../../prd/17-revise-system-asset-materialization-contract.md](../../../prd/17-revise-system-asset-materialization-contract.md) | Added source anchors for the new system asset manifest/provider safety implementation and focused tests. |
+| this historical record (retired action-PRD: `docs/prd/17-revise-system-asset-materialization-contract.md`) | Added source anchors for the new system asset manifest/provider safety implementation and focused tests. |
 
 ### Developer
 

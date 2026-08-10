@@ -10,9 +10,9 @@ This phase gates source work on a complete set of state/disposition fixtures so 
 
 ## Source PRD Docs
 
-- [18 Revise Compatibility Audit and Migration Disposition](../../prd/18-revise-compatibility-audit-and-migration-disposition.md)
-- [17 Revise System Asset Materialization Contract](../../prd/17-revise-system-asset-materialization-contract.md)
-- [16 Revise Package and Deployment Boundaries](../../prd/16-revise-package-and-deployment-boundaries.md)
+- [18 Revise Compatibility Audit and Migration Disposition](../../prd/18-compatibility-classification-and-migration-safety.md)
+- [17 Revise System Asset Materialization Contract](../../prd/17-system-asset-materialization-and-local-bootstrap.md)
+- [16 Revise Package and Deployment Boundaries](../../prd/16-package-runtime-and-deployment-boundaries.md)
 - [05 Installation, Profile, and Manifest Lifecycle](../../prd/05-installation-profile-and-manifest-lifecycle.md)
 - [03 Open Questions and Risk Register](../../prd/03-open-questions-and-risk-register.md)
 
@@ -26,8 +26,8 @@ This phase gates source work on a complete set of state/disposition fixtures so 
 
 ### Evidence
 
-- `docs/prd/18-revise-compatibility-audit-and-migration-disposition.md` lists the nine source states and five dispositions used by the fixture matrix: `clean-v1`, `clean-v2-full-snapshot`, `clean-v2-provider-backed`, `clean-v2-hybrid-pinned-cache`, `modified-v1`, `partial-install`, `malformed-manifest`, `missing-manifest-recognizable`, `unknown-shape`, plus `sync`, `migrate`, `migrate-with-review`, `backup-and-reinstall`, and `manual-review-required`.
-- Required PRD 18 backlinks were verified in `docs/prd/02-architecture-overview.md`, `docs/prd/05-installation-profile-and-manifest-lifecycle.md`, `docs/prd/06-template-contracts-and-generated-assets.md`, `docs/prd/07-cli-command-surface-and-lifecycle.md`, `docs/prd/08-skills-catalog-and-distribution.md`, `docs/prd/10-packaging-validation-and-release-reference.md`, `docs/prd/16-revise-package-and-deployment-boundaries.md`, and `docs/prd/17-revise-system-asset-materialization-contract.md`.
+- `docs/prd/18-compatibility-classification-and-migration-safety.md` lists the nine source states and five dispositions used by the fixture matrix: `clean-v1`, `clean-v2-full-snapshot`, `clean-v2-provider-backed`, `clean-v2-hybrid-pinned-cache`, `modified-v1`, `partial-install`, `malformed-manifest`, `missing-manifest-recognizable`, `unknown-shape`, plus `sync`, `migrate`, `migrate-with-review`, `backup-and-reinstall`, and `manual-review-required`.
+- Required PRD 18 backlinks were verified in `docs/prd/02-architecture-overview.md`, `docs/prd/05-installation-profile-and-manifest-lifecycle.md`, `docs/prd/06-template-contracts-and-generated-assets.md`, `docs/prd/07-cli-command-surface-and-lifecycle.md`, `docs/prd/08-skills-catalog-and-distribution.md`, `docs/prd/10-packaging-validation-and-release-reference.md`, `docs/prd/16-package-runtime-and-deployment-boundaries.md`, and `docs/prd/17-system-asset-materialization-and-local-bootstrap.md`.
 - The existing register entries still cover the relevant risk surfaces without duplicates: D-007/R-007 for dogfood and source-state drift, R-003 for template/package divergence, and PRD 18 plus the downstream skill migration PRDs for one-audit safety and no-default-skills migration.
 
 ### Acceptance criteria

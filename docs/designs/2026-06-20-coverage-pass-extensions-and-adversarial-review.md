@@ -113,4 +113,4 @@ Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/references/syst
 
 Why: The design revises and extends the existing coverage-pass system rather than establishing a fresh baseline. Any future work should plan additive changes to the current contract, prompt, package-template, manifest, and optional playbook/plugin exposure surfaces.
 
-Coordinate Handoff: prior coordinate W16 R0 for coverage-pass contract, lifecycle workflow foundation, and coverage-pass starter prompts; downstream coordinate W18 R3 ([PRD 31](../prd/31-revise-coverage-pass-extensions-adversarial-review.md)), currently deferred and split pending the W18 R6-R11 architecture; see risk-register entry R-020.
+Coordinate Handoff: prior coordinate W16 R0 for coverage-pass contract, lifecycle workflow foundation, and coverage-pass starter prompts; downstream coordinate W18 R3 (former PRD 31, now incorporated in [PRD 14](../prd/14-lifecycle-workflow-and-coverage-passes.md)), currently deferred and split pending the W18 R6-R11 architecture; see risk-register entry R-020.

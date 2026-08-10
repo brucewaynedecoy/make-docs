@@ -5,7 +5,7 @@ status: "active"
 coordinate: "W18 R13 P3"
 source:
   type: "prd"
-  path: "docs/prd/44-revise-conformance-lab-execution-protocol-and-evidence-homes.md"
+  path: "docs/prd/44-conformance-lab-sessions-and-evidence.md"
 ---
 
 # Phase 3: Ingestion and Operator Modes
@@ -20,10 +20,10 @@ Ingestion is where "the agent drives, the instruments measure" becomes enforceab
 
 ## Source PRD Docs
 
-- [43 Revise Conformance Scenario Model and Execution Kit](../../prd/43-revise-conformance-scenario-model-and-execution-kit.md)
-- [44 Revise Conformance Lab Execution Protocol and Evidence Homes](../../prd/44-revise-conformance-lab-execution-protocol-and-evidence-homes.md)
-- [37 Enhance Playbook and Package Conformance](../../prd/37-enhance-playbook-and-package-conformance.md) (still-constraining: the result contract, verdict derivation, blocked-honesty, and R-TEST-1 receipts discipline are consumed unchanged)
-- [20 Revise Agent Harness Model Conformance Lab](../../prd/20-revise-agent-harness-model-conformance-lab.md) (revised baseline: execution protocol; result contract and verdicts unchanged)
+- [43 Revise Conformance Scenario Model and Execution Kit](../../prd/43-conformance-scenario-model-and-execution-kits.md)
+- [44 Revise Conformance Lab Execution Protocol and Evidence Homes](../../prd/44-conformance-lab-sessions-and-evidence.md)
+- [37 Enhance Playbook and Package Conformance](../../prd/20-agent-harness-conformance-and-support-claims.md#support-claim-governance) (still-constraining: the result contract, verdict derivation, blocked-honesty, and R-TEST-1 receipts discipline are consumed unchanged)
+- [20 Revise Agent Harness Model Conformance Lab](../../prd/20-agent-harness-conformance-and-support-claims.md) (revised baseline: execution protocol; result contract and verdicts unchanged)
 
 ## Stage 1 - Fail-Closed Ingestion
 

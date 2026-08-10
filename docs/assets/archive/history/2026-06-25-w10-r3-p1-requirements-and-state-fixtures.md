@@ -29,7 +29,7 @@ Completed W10 R3 Phase 1 by confirming the PRD 18 source-state and disposition c
 | Path | Description |
 | --- | --- |
 | [../../../work/2026-06-23-w10-r3-compatibility-audit-and-migration-disposition/01-requirements-and-state-fixtures.md](../../../work/2026-06-23-w10-r3-compatibility-audit-and-migration-disposition/01-requirements-and-state-fixtures.md) | Marked Phase 1 tasks complete and recorded PRD, risk, fixture, and validation evidence. |
-| [../../../prd/18-revise-compatibility-audit-and-migration-disposition.md](../../../prd/18-revise-compatibility-audit-and-migration-disposition.md) | Added source anchors for the new compatibility fixture module and focused fixture tests. |
+| [historical closeout](2026-06-25-w10-r3-p4-validation-and-closeout.md) (retired action-PRD: `docs/prd/18-revise-compatibility-audit-and-migration-disposition.md`) | Added source anchors for the new compatibility fixture module and focused fixture tests. |
 
 ### Developer
 

@@ -5,7 +5,7 @@ status: "active"
 coordinate: "W18 R9 P4"
 source:
   type: "prd"
-  path: "docs/prd/37-enhance-playbook-and-package-conformance.md"
+  path: "docs/prd/20-agent-harness-conformance-and-support-claims.md"
 ---
 
 # Phase 4: Support-Claim Governance
@@ -20,10 +20,10 @@ Governance is the human-facing half of the registry: wording rules for pre-valid
 
 ## Source PRD Docs
 
-- [37 Enhance Playbook and Package Conformance](../../prd/37-enhance-playbook-and-package-conformance.md)
-- [20 Revise Agent Harness Model Conformance Lab](../../prd/20-revise-agent-harness-model-conformance-lab.md)
-- [33 Enhance Playbook Packaging and Harness Adapter Registry](../../prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md)
-- [36 Revise Playbook Packaging Compiler and Harness Adapters](../../prd/36-revise-playbook-packaging-compiler-and-harness-adapters.md)
+- [37 Enhance Playbook and Package Conformance](../../prd/20-agent-harness-conformance-and-support-claims.md#support-claim-governance)
+- [20 Revise Agent Harness Model Conformance Lab](../../prd/20-agent-harness-conformance-and-support-claims.md)
+- [33 Enhance Playbook Packaging and Harness Adapter Registry](../../prd/36-playbook-packaging-compiler-and-harness-adapters.md)
+- [36 Revise Playbook Packaging Compiler and Harness Adapters](../../prd/36-playbook-packaging-compiler-and-harness-adapters.md)
 
 ## Stage 1 - Claim Wording and Thresholds
 

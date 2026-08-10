@@ -20,13 +20,13 @@ Settle the implementation scope the delta backlog must encode, grounded in the d
 ## Cross-Design Sequencing
 
 - Same-wave rule per R-SEQ-1: the operation core, the registry, and the reorganized command tree land first, with all retained operation logic behind the registry in the same wave, so the backlog orders the registry and core before the tree consumers and never leaves some operations registry-backed while others are hand-wired.
-- Consumes W18 R10: the two retained work operations record and read evidence through the global store's unified project-state model per [PRD 38](../../prd/38-revise-global-store-and-project-state.md), so their implementation is gated on the store, its concurrency model, and the stable project identifier landing per the W18 R10 backlog phases.
-- Consumes W18 R7: the `run playbook` progression verbs and their semantics are owned by [PRD 35](../../prd/35-revise-run-playbook-state-machine.md); this lineage fixes only their command surface and registry identifiers.
+- Consumes W18 R10: the two retained work operations record and read evidence through the global store's unified project-state model per [PRD 38](../../prd/38-global-store-and-project-state.md), so their implementation is gated on the store, its concurrency model, and the stable project identifier landing per the W18 R10 backlog phases.
+- Consumes W18 R7: the `run playbook` progression verbs and their semantics are owned by [PRD 35](../../prd/35-run-playbook-state-machine-and-portability.md); this lineage fixes only their command surface and registry identifiers.
 - Documentation consequence: any template-owned instruction router, guide, or README naming old command spellings such as `operations` or the project-level `uninstall` is updated upstream in `packages/docs/template/` first and then dogfooded per the maintainer dogfooding rule; this is backlog implementation work, not part of this documentation pass.
 
 ## Out of Scope per R-SCOPE-1
 
-The backlog must not redefine the internal logic of the operations or the pruning removals (tracked by [migrated-operations-inventory.md](../../assets/artifacts/migrated-operations-inventory.md)), the Playbook model, runner, packaging, and conformance (owned by the W18 R6 through R9 lineages), the global store schema and project-state model (owned by [PRD 38](../../prd/38-revise-global-store-and-project-state.md)), or the CLI/MCP boundary and TypeScript runtime authority (preserved from the predecessor designs and not reopened).
+The backlog must not redefine the internal logic of the operations or the pruning removals (tracked by [migrated-operations-inventory.md](../../assets/artifacts/migrated-operations-inventory.md)), the Playbook model, runner, packaging, and conformance (owned by the W18 R6 through R9 lineages), the global store schema and project-state model (owned by [PRD 38](../../prd/38-global-store-and-project-state.md)), or the CLI/MCP boundary and TypeScript runtime authority (preserved from the predecessor designs and not reopened).
 
 ## Validation
 

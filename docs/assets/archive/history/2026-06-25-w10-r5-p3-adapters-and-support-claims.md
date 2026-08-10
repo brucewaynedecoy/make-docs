@@ -15,7 +15,7 @@ Completed W10 R5 Phase 3 by limiting executable conformance-lab coverage to the 
 
 ### Coverage Decisions
 
-- PRD coverage: no PRD files changed. [PRD 20](../../../prd/20-revise-agent-harness-model-conformance-lab.md) already owns the current harness boundary, future adapter targets, tuple-scoped support-claim requirement, and validation relationship.
+- PRD coverage: no PRD files changed. [historical closeout](2026-06-25-w10-r5-p4-validation-and-closeout.md) (retired action-PRD: `docs/prd/20-revise-agent-harness-model-conformance-lab.md`) already owns the current harness boundary, future adapter targets, tuple-scoped support-claim requirement, and validation relationship.
 - Developer-guide coverage: updated [Conformance Lab Scenario and Result Contracts](../../../assets/library/developer/conformance-lab-scenario-and-result-contracts.md) because adapter and support-claim gating is durable maintainer workflow.
 - User-guide coverage: no user guide was needed. This phase does not change current user-facing harness behavior or support wording.
 - UAT: deferred until the full W10 R5 wave is complete, per the active wave instruction.

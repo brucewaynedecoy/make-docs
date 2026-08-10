@@ -15,7 +15,7 @@ summary: "Bound public support wording to the tuple registry: landed the R-GOV-1
 
 ## Changes
 
-This session implemented Phase 4 — the final phase — of [the W18 R9 backlog](../../../work/2026-07-01-w18-r9-playbook-and-package-conformance/04-support-claim-governance.md) (all six tasks, per [PRD 37](../../../prd/37-enhance-playbook-and-package-conformance.md) R-GOV-1..2) and ran the wave-closing documentation passes.
+This session implemented Phase 4 — the final phase — of [the W18 R9 backlog](../../../work/2026-07-01-w18-r9-playbook-and-package-conformance/04-support-claim-governance.md) (all six tasks, per PRD 37 R-GOV-1..2; retired action-PRD: `docs/prd/37-enhance-playbook-and-package-conformance.md`) and ran the wave-closing documentation passes.
 
 ### Implementation
 

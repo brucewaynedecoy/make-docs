@@ -46,8 +46,8 @@ Manual/UAT coverage remains deferred until W10 R8 wave closeout per the requeste
 | --- | --- |
 | [docs/work/2026-06-26-w10-r8-typescript-cli-operation-domains-and-mcp-runtime/03-typescript-mcp-runtime.md](../../../work/2026-06-26-w10-r8-typescript-cli-operation-domains-and-mcp-runtime/03-typescript-mcp-runtime.md) | Marked Phase 3 tasks complete and recorded implementation, coverage, and validation evidence. |
 | [docs/prd/03-open-questions-and-risk-register.md](../../../prd/03-open-questions-and-risk-register.md) | Updated R-008 and R-014 with Phase 3 read-first MCP evidence while leaving broader write, plugin, shared-agentics, and skill-delivery risks open. |
-| [docs/prd/16-revise-package-and-deployment-boundaries.md](../../../prd/16-revise-package-and-deployment-boundaries.md) | Recorded `make-docs mcp` as the first shipped read-first TypeScript MCP package surface. |
-| [docs/prd/25-revise-cli-separation-and-mcp-boundary.md](../../../prd/25-revise-cli-separation-and-mcp-boundary.md) | Updated the MCP boundary with the Phase 3 shipped surface and remaining future expansion constraints. |
+| [historical closeout](2026-06-24-w10-r1-p4-closeout-risk-validation.md) (retired action-PRD: `docs/prd/16-revise-package-and-deployment-boundaries.md`) | Recorded `make-docs mcp` as the first shipped read-first TypeScript MCP package surface. |
+| [historical closeout](2026-06-25-w10-r6-p4-package-validation-and-closeout.md) (retired action-PRD: `docs/prd/25-revise-cli-separation-and-mcp-boundary.md`) | Updated the MCP boundary with the Phase 3 shipped surface and remaining future expansion constraints. |
 | [README.md](../../../../README.md) | Updated public package guidance to mention the shipped read-first MCP stdio server. |
 
 ### Developer

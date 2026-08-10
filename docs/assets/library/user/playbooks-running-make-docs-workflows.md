@@ -16,13 +16,13 @@ related:
   - ../developer/playbooks-development-runner-architecture.md
   - ./workflows-how-make-docs-stages-fit-together.md
   - ../developer/development-workflows-stage-model-and-artifact-relationships.md
-  - ../../../prd/29-revise-playbook-contract-run-playbook.md
-  - ../../../prd/30-revise-harness-plugin-substrate-workflow-bundles.md
-  - ../../../prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md
-  - ../../../prd/34-revise-playbook-contract-and-model.md
-  - ../../../prd/35-revise-run-playbook-state-machine.md
-  - ../../../prd/40-revise-playbook-authoring-contract-v2.md
-  - ../../../prd/41-revise-cli-human-experience-and-package-grammar.md
+  - ../../../prd/35-run-playbook-state-machine-and-portability.md
+  - ../../../prd/30-plugin-substrate-and-workflow-bundles.md
+  - ../../../prd/36-playbook-packaging-compiler-and-harness-adapters.md
+  - ../../../prd/34-playbook-authoring-contract-and-model.md
+  - ../../../prd/35-run-playbook-state-machine-and-portability.md
+  - ../../../prd/34-playbook-authoring-contract-and-model.md
+  - ../../../prd/39-cli-command-model-and-operation-registry.md
   - ../../../../.make-docs/contracts/system/playbook-contract.md
   - ../../../designs/2026-06-27-run-playbook-orchestration-and-harness-capabilities.md
   - ../../../designs/2026-06-29-playbook-packaging-and-harness-adapter-registry.md
@@ -270,19 +270,19 @@ Playbooks also do not redefine Make Docs authority. If a Playbook changes PRDs, 
 This guide should be refreshed after W18 implementation lands with plugin entry points, packaging commands, package-plan review examples, and a small set of end-user examples that can be run against an installed Make Docs project.
 
 - The former bullet on a reader-facing projection of the Playbook contract is resolved with the W18 R7 wave complete: no separate projection guide is warranted. The contract remains the normative, linkable authority for what a Playbook file must contain; this guide owns what users do with Playbooks, including the now-implemented and verified start-to-close run lifecycle; and a prose projection would restate both without giving a reader a task to complete. Revisit only if user-authored Playbooks become a primary authoring surface with questions this guide and the contract do not answer.
-- Blocked by: W18 R12 Phase 4 (the PRD 37/W18 R9 reconciliation) and the W18 R9 conformance wave. The hand-run UAT walkthrough documents were written against the pre-W18 R12 JSON-dump output and old packaging spellings and have not been regenerated; scenario transcripts that consume CLI output must pin `--json` per the reconciliation. Update when: the reconciled scenarios and regenerated walkthroughs exist. Guide change: fold in a validated set of end-user examples with their real terminal output, replacing the illustrative command shapes here.
+- Blocked by: W18 R12 Phase 4 (the PRD 43/W18 R9 reconciliation) and the W18 R9 conformance wave. The hand-run UAT walkthrough documents were written against the pre-W18 R12 JSON-dump output and old packaging spellings and have not been regenerated; scenario transcripts that consume CLI output must pin `--json` per the reconciliation. Update when: the reconciled scenarios and regenerated walkthroughs exist. Guide change: fold in a validated set of end-user examples with their real terminal output, replacing the illustrative command shapes here.
 
 ## Related Resources
 
 - [How Make Docs Stages Fit Together](./workflows-how-make-docs-stages-fit-together.md)
 - [Run Playbook Runner Architecture](../developer/playbooks-development-runner-architecture.md)
-- [29 Revise Playbook Contract Run Playbook](../../../prd/29-revise-playbook-contract-run-playbook.md)
-- [30 Revise Harness Plugin Substrate Workflow Bundles](../../../prd/30-revise-harness-plugin-substrate-workflow-bundles.md)
-- [33 Enhance Playbook Packaging and Harness Adapter Registry](../../../prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md)
-- [34 Revise Playbook Contract and Model](../../../prd/34-revise-playbook-contract-and-model.md)
-- [35 Revise Run Playbook State Machine](../../../prd/35-revise-run-playbook-state-machine.md)
-- [40 Revise Playbook Authoring Contract v2](../../../prd/40-revise-playbook-authoring-contract-v2.md)
-- [41 Revise CLI Human Experience and Package Grammar](../../../prd/41-revise-cli-human-experience-and-package-grammar.md)
+- [35 Run Playbook State Machine and Portability](../../../prd/35-run-playbook-state-machine-and-portability.md#requirements)
+- [30 Revise Harness Plugin Substrate Workflow Bundles](../../../prd/30-plugin-substrate-and-workflow-bundles.md)
+- [36 Playbook Packaging Compiler and Harness Adapters](../../../prd/36-playbook-packaging-compiler-and-harness-adapters.md)
+- [34 Revise Playbook Contract and Model](../../../prd/34-playbook-authoring-contract-and-model.md)
+- [35 Revise Run Playbook State Machine](../../../prd/35-run-playbook-state-machine-and-portability.md)
+- [34 Playbook Authoring Contract and Model](../../../prd/34-playbook-authoring-contract-and-model.md)
+- [39 CLI Command Model and Operation Registry](../../../prd/39-cli-command-model-and-operation-registry.md#human-experience-and-package-grammar)
 - [Playbook Contract](../../../../.make-docs/contracts/system/playbook-contract.md)
 - [Run Playbook Orchestration and Harness Capabilities](../../../designs/2026-06-27-run-playbook-orchestration-and-harness-capabilities.md)
 - [Playbook Packaging and Harness Adapter Registry](../../../designs/2026-06-29-playbook-packaging-and-harness-adapter-registry.md)

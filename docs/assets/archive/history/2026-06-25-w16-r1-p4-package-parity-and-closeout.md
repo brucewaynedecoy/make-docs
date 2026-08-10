@@ -17,7 +17,7 @@ Completed W16 R1 Phase 4 by proving generated-document metadata templates and pr
 
 ### Coverage Decisions
 
-- PRD coverage: updated the risk register in place. [PRD 23](../../../prd/23-revise-generated-metadata-lifecycle-handoffs.md) remains the owning requirement source; no new PRD was needed.
+- PRD coverage: updated the risk register in place. this historical record (retired action-PRD: `docs/prd/23-revise-generated-metadata-lifecycle-handoffs.md`) remains the owning requirement source; no new PRD was needed.
 - Developer-guide coverage: no developer guide was needed. The package parity behavior is covered by existing CLI developer commands and targeted tests.
 - User-guide coverage: no user guide was needed. The change affects generated defaults and validators rather than a new direct user workflow.
 - UAT: no manual UAT was worthwhile after the full W16 R1 wave. The observable package/install behavior is covered by `npm run smoke:pack`, and the remaining behavior is internal template parity plus validator logic already covered by automated tests.

@@ -220,4 +220,4 @@ Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/references/syst
 
 Why: This is a corrective evolution of active W18 Playbook requirements. It tightens and recovers the existing Playbook contract namespace rather than starting a fresh baseline, so it should feed additive change planning against the active PRD namespace.
 
-Coordinate Handoff: Revises W18 R1 (Playbook contract and catalog validation) and W18 R4 (resolver and stack disambiguation), because it replaces the substring-based contract those waves established with a deterministic document-and-workflow contract and model. Downstream coordinate: W18 R6, planned as [PRD 34](../prd/34-revise-playbook-contract-and-model.md) with a generated plan and work backlog.
+Coordinate Handoff: Revises W18 R1 (Playbook contract and catalog validation) and W18 R4 (resolver and stack disambiguation), because it replaces the substring-based contract those waves established with a deterministic document-and-workflow contract and model. Downstream coordinate: W18 R6, planned as [PRD 34](../prd/34-playbook-authoring-contract-and-model.md) with a generated plan and work backlog.

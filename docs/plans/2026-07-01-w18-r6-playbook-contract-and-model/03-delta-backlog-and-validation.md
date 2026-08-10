@@ -23,4 +23,4 @@ Generate the W18 R6 delta work backlog from the Phase 2 scope decisions and run 
 ## Validation
 
 - Every design MUST requirement appears as a task or acceptance criterion in exactly one backlog phase; no MUST is silently dropped and no phase implements another design's surface (runner progression, packaging compiler, harness adapters, conformance, CLI reorganization, global store).
-- The backlog cites `../../prd/34-revise-playbook-contract-and-model.md` from every phase, links resolve, paths are repo-relative, task IDs never reset within a phase file, and the closing pass runs the plan-level validation checklist from [00-overview.md](00-overview.md).
+- The backlog cites `../../prd/34-playbook-authoring-contract-and-model.md` from every phase, links resolve, paths are repo-relative, task IDs never reset within a phase file, and the closing pass runs the plan-level validation checklist from [00-overview.md](00-overview.md).

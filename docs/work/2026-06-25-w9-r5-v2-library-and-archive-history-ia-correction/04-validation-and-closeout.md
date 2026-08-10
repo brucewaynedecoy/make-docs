@@ -12,7 +12,7 @@ This phase refreshes manifest evidence, runs package/docs validation, performs t
 
 - [03 Open Questions and Risk Register](../../prd/03-open-questions-and-risk-register.md)
 - [10 Packaging Validation and Release Reference](../../prd/10-packaging-validation-and-release-reference.md)
-- [22 Revise New Docs Assets Playbooks Persona Model](../../prd/22-revise-new-docs-assets-playbooks-persona-model.md)
+- [22 Revise New Docs Assets Playbooks Persona Model](../../prd/22-project-documentation-asset-model.md#requirements)
 
 ## Stage 1 - Validation
 

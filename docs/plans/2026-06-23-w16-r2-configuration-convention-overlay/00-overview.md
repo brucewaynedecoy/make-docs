@@ -28,9 +28,9 @@ Define the v2 configuration overlay boundary for make-docs. The configuration fi
 
 ## Dependencies
 
-- [21 Revise Tool Directory System Custom Resource Tiers](../../prd/21-revise-tool-directory-system-custom-resource-tiers.md) for `.make-docs/` ownership and project-owned local config placement.
-- [22 Revise New Docs Assets Playbooks Persona Model](../../prd/22-revise-new-docs-assets-playbooks-persona-model.md) for persona schema and primitive values.
-- [23 Revise Generated Metadata Lifecycle Handoffs](../../prd/23-revise-generated-metadata-lifecycle-handoffs.md) for canonical generated metadata field names and YAML/body drift validation.
+- [21 Revise Tool Directory System Custom Resource Tiers](../../prd/21-project-tool-directory-and-resource-tiers.md) for `.make-docs/` ownership and project-owned local config placement.
+- [22 Revise New Docs Assets Playbooks Persona Model](../../prd/47-persona-model.md#persona-schema) for persona schema and primitive values.
+- [23 Revise Generated Metadata Lifecycle Handoffs](../../prd/23-generated-document-metadata-and-lifecycle-handoffs.md) for canonical generated metadata field names and YAML/body drift validation.
 - [03 Open Questions and Risk Register](../../prd/03-open-questions-and-risk-register.md) for Q-011, Q-009, R-010, R-011, R-004, R-003, D-014, R-013, R-014, and Q-012.
 
 ## Deliverables

@@ -49,16 +49,16 @@ The current code already distinguishes manifest-present from manifest-missing au
 
 This plan depends on the active revisions that already define the adjacent contracts:
 
-- [13-revise-cli-conflict-resolution.md](../../prd/13-revise-cli-conflict-resolution.md)
-- [15-revise-agent-instruction-file-ownership.md](../../prd/15-revise-agent-instruction-file-ownership.md)
-- [16-revise-package-and-deployment-boundaries.md](../../prd/16-revise-package-and-deployment-boundaries.md)
-- [17-revise-system-asset-materialization-contract.md](../../prd/17-revise-system-asset-materialization-contract.md)
+- [07-cli-command-surface-and-lifecycle.md](../../prd/07-cli-command-surface-and-lifecycle.md#plan-review-confirmation-and-apply-orchestration)
+- [15-agent-instruction-ownership-and-managed-blocks.md](../../prd/15-agent-instruction-ownership-and-managed-blocks.md)
+- [16-package-runtime-and-deployment-boundaries.md](../../prd/16-package-runtime-and-deployment-boundaries.md)
+- [17-system-asset-materialization-and-local-bootstrap.md](../../prd/17-system-asset-materialization-and-local-bootstrap.md)
 
 ## Output Contract
 
 - Plan directory: `docs/plans/2026-06-23-w10-r3-compatibility-audit-and-migration-disposition/` (this directory).
-- New change doc: `docs/prd/18-revise-compatibility-audit-and-migration-disposition.md`.
-- Baseline docs to annotate: `docs/prd/02-architecture-overview.md`, `docs/prd/05-installation-profile-and-manifest-lifecycle.md`, `docs/prd/06-template-contracts-and-generated-assets.md`, `docs/prd/07-cli-command-surface-and-lifecycle.md`, `docs/prd/08-skills-catalog-and-distribution.md`, `docs/prd/10-packaging-validation-and-release-reference.md`, `docs/prd/16-revise-package-and-deployment-boundaries.md`, and `docs/prd/17-revise-system-asset-materialization-contract.md`.
+- New change doc: `docs/prd/18-compatibility-classification-and-migration-safety.md`.
+- Baseline docs to annotate: `docs/prd/02-architecture-overview.md`, `docs/prd/05-installation-profile-and-manifest-lifecycle.md`, `docs/prd/06-template-contracts-and-generated-assets.md`, `docs/prd/07-cli-command-surface-and-lifecycle.md`, `docs/prd/08-skills-catalog-and-distribution.md`, `docs/prd/10-packaging-validation-and-release-reference.md`, `docs/prd/16-package-runtime-and-deployment-boundaries.md`, and `docs/prd/17-system-asset-materialization-and-local-bootstrap.md`.
 - Risk register updates: `docs/prd/03-open-questions-and-risk-register.md`.
 - Delta backlog: `docs/work/2026-06-23-w10-r3-compatibility-audit-and-migration-disposition/`.
 
@@ -78,8 +78,8 @@ Do not split clean states, malformed manifest handling, missing-manifest fallbac
 | `docs/prd/07-cli-command-surface-and-lifecycle.md` | Enhanced by | Dedicated migration flow, no implicit destructive migration in ordinary install/reconfigure, and review-first disposition UX. |
 | `docs/prd/08-skills-catalog-and-distribution.md` | Enhanced by | Preserve prior selected skills only when manifest and file evidence are trustworthy; no default skill expansion during migration. |
 | `docs/prd/10-packaging-validation-and-release-reference.md` | Enhanced by | Fixture matrix for every source-state and disposition pair. |
-| `docs/prd/16-revise-package-and-deployment-boundaries.md` | Enhanced by | TypeScript CLI/MCP runtime paths must share the classifier and disposition taxonomy. |
-| `docs/prd/17-revise-system-asset-materialization-contract.md` | Enhanced by | Clean v2 full-snapshot, provider-backed, and hybrid pinned-cache states depend on materialization provenance. |
+| `docs/prd/16-package-runtime-and-deployment-boundaries.md` | Enhanced by | TypeScript CLI/MCP runtime paths must share the classifier and disposition taxonomy. |
+| `docs/prd/17-system-asset-materialization-and-local-bootstrap.md` | Enhanced by | Clean v2 full-snapshot, provider-backed, and hybrid pinned-cache states depend on materialization provenance. |
 
 Update `docs/prd/03-open-questions-and-risk-register.md` directly for existing D/Q/R entries. Do not add `Change Notes` inside the register.
 
@@ -104,7 +104,7 @@ Delegation is available in this harness, but this round is a single-design activ
 - `git diff --check`
 - Reindex `jdocmunch` after edits.
 - Verify no duplicate W/R directory in `docs/plans/` or `docs/work/`.
-- Verify PRD index includes `18-revise-compatibility-audit-and-migration-disposition.md`.
+- Verify PRD index includes `18-compatibility-classification-and-migration-safety.md`.
 - Verify all work phase files include source PRD links, phase-local task IDs, plain-bullet acceptance criteria, and dependencies.
 - Source tests are not required for this planning round because it writes docs only; the generated backlog names the implementation tests.
 

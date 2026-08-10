@@ -4,9 +4,9 @@
   "scenarioVersion": "2.1.0",
   "title": "Plugin: marketplace discovery, install, skill exposure, and use in a new thread",
   "sourceRequirements": [
-    "docs/prd/37-enhance-playbook-and-package-conformance.md",
-    "docs/prd/43-revise-conformance-scenario-model-and-execution-kit.md",
-    "docs/prd/20-revise-agent-harness-model-conformance-lab.md",
+    "docs/prd/43-conformance-scenario-model-and-execution-kits.md#requirements",
+    "docs/prd/43-conformance-scenario-model-and-execution-kits.md",
+    "docs/prd/43-conformance-scenario-model-and-execution-kits.md#requirements",
     "docs/prd/03-open-questions-and-risk-register.md",
     "docs/work/2026-07-01-w18-r9-playbook-and-package-conformance/02-evidence-bar-and-first-pass-scenarios.md"
   ],
@@ -49,7 +49,7 @@
       "run": "cd \"$WORKSPACE\" && make-docs run package ship --harness codex --output-kind plugin --surface native --scope project --package-id conformance-plugin-probe --support-evidence-ref conformance/tuple-registry.json#codex-plugin-native-project --json agent/conformance-skill-probe",
       "transcript": "evidence-json",
       "barStage": "install",
-      "notes": "The evidence ref names the exact registry tuple this session's evidence lands on (D-023: the planner hard-stops without one). `ship` runs plan -> preview -> write end-to-end (PRD 41 grammar; --write is retired)."
+      "notes": "The evidence ref names the exact registry tuple this session's evidence lands on (D-023: the planner hard-stops without one). `ship` runs plan -> preview -> write end-to-end (PRD 39 grammar; --write is retired)."
     },
     {
       "kind": "assertion",

@@ -28,7 +28,7 @@ Implement the v2 plugin substrate and productized workflow bundle metadata descr
 
 - Design: [docs/designs/2026-06-20-harness-plugin-substrate-and-workflow-bundles.md](../../designs/2026-06-20-harness-plugin-substrate-and-workflow-bundles.md)
 - Plan: [docs/plans/2026-06-23-w18-r2-harness-plugin-substrate-workflow-bundles/00-overview.md](../../plans/2026-06-23-w18-r2-harness-plugin-substrate-workflow-bundles/00-overview.md)
-- PRD: [docs/prd/30-revise-harness-plugin-substrate-workflow-bundles.md](../../prd/30-revise-harness-plugin-substrate-workflow-bundles.md)
+- PRD: [docs/prd/30-plugin-substrate-and-workflow-bundles.md](../../prd/30-plugin-substrate-and-workflow-bundles.md)
 
 ## Phase Map
 

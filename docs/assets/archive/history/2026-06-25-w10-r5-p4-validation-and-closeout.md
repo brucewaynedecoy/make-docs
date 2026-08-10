@@ -15,7 +15,7 @@ Completed W10 R5 Phase 4 by running CLI, default-asset, smoke-pack, dry-run pack
 
 ### Coverage Decisions
 
-- PRD coverage: no PRD files changed. [PRD 20](../../../prd/20-revise-agent-harness-model-conformance-lab.md) already owns the maintainer-only lab boundary, scenario/result record requirements, raw-artifact locality, and support-claim gate.
+- PRD coverage: no PRD files changed. this historical record (retired action-PRD: `docs/prd/20-revise-agent-harness-model-conformance-lab.md`) already owns the maintainer-only lab boundary, scenario/result record requirements, raw-artifact locality, and support-claim gate.
 - Developer-guide coverage: no additional guide changed in Phase 4. [Conformance Lab Scenario and Result Contracts](../../../assets/library/developer/conformance-lab-scenario-and-result-contracts.md) already contains the durable maintainer workflow from earlier W10 R5 phases.
 - User-guide coverage: no user guide was needed. This phase does not change shipped user-facing install, package, or harness behavior.
 - UAT: no separate hand-run UAT was worthwhile. The user-observable shipped behavior to protect is absence from package/template installs, and the package smoke, dry-run tarball, and template scans provide the relevant human-readable proof.

@@ -6,7 +6,7 @@ Create the active-set PRD revision for the system asset materialization contract
 
 ## Scope
 
-- Add `docs/prd/17-revise-system-asset-materialization-contract.md`.
+- Add `docs/prd/17-system-asset-materialization-and-local-bootstrap.md`.
 - Update `docs/prd/00-index.md`.
 - Add targeted `Change Notes` to impacted baseline docs.
 - Update existing D/Q/R items in `docs/prd/03-open-questions-and-risk-register.md`.
@@ -32,5 +32,5 @@ Create the active-set PRD revision for the system asset materialization contract
 ## Validation
 
 - New PRD doc uses the active change-doc structure: purpose, change type, baseline, rationale, effective requirement, impacted docs, required annotations, and source anchors.
-- Baseline annotations link back to `17-revise-system-asset-materialization-contract.md`.
+- Baseline annotations link back to `17-system-asset-materialization-and-local-bootstrap.md`.
 - `docs/prd/00-index.md` lists the new doc in reading order, document map, source anchors, and audience paths.

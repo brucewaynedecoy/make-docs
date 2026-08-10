@@ -10,7 +10,7 @@ This phase prepares the manifest and safety model for provider-backed and hybrid
 
 ## Source PRD Docs
 
-- [17 Revise System Asset Materialization Contract](../../prd/17-revise-system-asset-materialization-contract.md)
+- [17 Revise System Asset Materialization Contract](../../prd/17-system-asset-materialization-and-local-bootstrap.md)
 - [05 Installation, Profile, and Manifest Lifecycle](../../prd/05-installation-profile-and-manifest-lifecycle.md)
 - [07 CLI Command Surface and Lifecycle](../../prd/07-cli-command-surface-and-lifecycle.md)
 - [10 Packaging, Validation, and Release Reference](../../prd/10-packaging-validation-and-release-reference.md)

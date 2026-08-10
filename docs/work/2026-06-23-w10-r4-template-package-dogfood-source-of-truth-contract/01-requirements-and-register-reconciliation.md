@@ -6,7 +6,7 @@ Keep implementation work grounded in PRD 19 and the active risk register before 
 
 ## Source PRD Docs
 
-- `docs/prd/19-revise-template-package-dogfood-source-of-truth-contract.md`
+- `docs/prd/06-template-contracts-and-generated-assets.md`
 - `docs/prd/03-open-questions-and-risk-register.md`
 
 ## Stage 1 - Requirements Trace
@@ -31,7 +31,7 @@ Keep implementation work grounded in PRD 19 and the active risk register before 
 
 ## Implementation Notes
 
-Phase 1 reconciled W10 R4 against the active PRD namespace before source, template, package, or dogfood changes begin. PRD 19 is accepted in [docs/prd/00-index.md](../../prd/00-index.md), defines the effective source-of-truth order in [docs/prd/19-revise-template-package-dogfood-source-of-truth-contract.md](../../prd/19-revise-template-package-dogfood-source-of-truth-contract.md), and is already linked from the baseline PRDs and risk register entries that W10 R4 affects.
+Phase 1 reconciled W10 R4 against the active PRD namespace before source, template, package, or dogfood changes begin. PRD 19 is accepted in [docs/prd/00-index.md](../../prd/00-index.md), defines the effective source-of-truth order in [docs/prd/06-template-contracts-and-generated-assets.md](../../prd/06-template-contracts-and-generated-assets.md#template-source-authority), and is already linked from the baseline PRDs and risk register entries that W10 R4 affects.
 
 ### Requirement Trace
 

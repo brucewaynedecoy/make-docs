@@ -11,8 +11,8 @@ This phase moves current local guide, history, breadcrumb, and transitional libr
 ## Source PRD Docs
 
 - [09 Dogfood and Maintainer Operations](../../prd/09-dogfood-and-maintainer-operations.md)
-- [19 Revise Template Package Dogfood Source of Truth Contract](../../prd/19-revise-template-package-dogfood-source-of-truth-contract.md)
-- [22 Revise New Docs Assets Playbooks Persona Model](../../prd/22-revise-new-docs-assets-playbooks-persona-model.md)
+- [19 Revise Template Package Dogfood Source of Truth Contract](../../prd/09-dogfood-and-maintainer-operations.md#dogfood-projection-boundary)
+- [22 Revise New Docs Assets Playbooks Persona Model](../../prd/22-project-documentation-asset-model.md#requirements)
 
 ## Stage 1 - Directory Migration
 

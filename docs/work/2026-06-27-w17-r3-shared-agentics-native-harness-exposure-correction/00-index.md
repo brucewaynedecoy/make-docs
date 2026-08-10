@@ -10,13 +10,13 @@ W17 R3 preserves the W17 R2 canonical shared payload store and lifecycle classif
 
 - [Shared Agentics Native Harness Exposure Correction](../../designs/2026-06-27-shared-agentics-native-harness-exposure-correction.md)
 - [W17 R3 plan](../../plans/2026-06-27-w17-r3-shared-agentics-native-harness-exposure-correction/00-overview.md)
-- [PRD 28](../../prd/28-revise-shared-agentics-installation-harness-redirection.md)
+- [PRD 28](../../prd/28-shared-agentics-installation-and-harness-exposure.md)
 - [PRD 03](../../prd/03-open-questions-and-risk-register.md)
 - [PRD 07](../../prd/07-cli-command-surface-and-lifecycle.md)
 - [PRD 08](../../prd/08-skills-catalog-and-distribution.md)
 - [PRD 10](../../prd/10-packaging-validation-and-release-reference.md)
-- [PRD 18](../../prd/18-revise-compatibility-audit-and-migration-disposition.md)
-- [PRD 30](../../prd/30-revise-harness-plugin-substrate-workflow-bundles.md)
+- [PRD 18](../../prd/18-compatibility-classification-and-migration-safety.md)
+- [PRD 30](../../prd/30-plugin-substrate-and-workflow-bundles.md)
 
 ## Phase Map
 

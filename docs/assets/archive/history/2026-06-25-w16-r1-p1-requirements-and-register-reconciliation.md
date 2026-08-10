@@ -15,7 +15,7 @@ Completed W16 R1 Phase 1 by confirming PRD 23 is discoverable from the active PR
 
 ### Coverage Decisions
 
-- PRD coverage: updated [03 Open Questions and Risk Register](../../../prd/03-open-questions-and-risk-register.md) in place. No new PRD change doc was needed because [PRD 23](../../../prd/23-revise-generated-metadata-lifecycle-handoffs.md) already owns the effective generated metadata and lifecycle handoff requirements.
+- PRD coverage: updated [03 Open Questions and Risk Register](../../../prd/03-open-questions-and-risk-register.md) in place. No new PRD change doc was needed because [historical closeout](2026-06-25-w16-r1-p4-package-parity-and-closeout.md) (retired action-PRD: `docs/prd/23-revise-generated-metadata-lifecycle-handoffs.md`) already owns the effective generated metadata and lifecycle handoff requirements.
 - Developer-guide coverage: no developer guide was needed. Phase 1 only reconciles active requirements and register scope.
 - User-guide coverage: no user guide was needed. Phase 1 does not change current user-facing product behavior.
 - UAT: deferred until the full W16 R1 wave is complete, per the active wave instruction.

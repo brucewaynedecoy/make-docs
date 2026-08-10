@@ -5,7 +5,7 @@ status: "active"
 coordinate: "W18 R11 P2"
 source:
   type: "prd"
-  path: "docs/prd/39-revise-cli-command-reorganization-and-operation-registry.md"
+  path: "docs/prd/39-cli-command-model-and-operation-registry.md"
 ---
 
 # Phase 2: Command Tree and Bare Command
@@ -20,10 +20,10 @@ Move the install lifecycle under `setup`, rename project uninstall to `setup rem
 
 ## Source PRD Docs
 
-- [39 Revise CLI Command Reorganization and Operation Registry](../../prd/39-revise-cli-command-reorganization-and-operation-registry.md)
+- [39 Revise CLI Command Reorganization and Operation Registry](../../prd/39-cli-command-model-and-operation-registry.md)
 - [07 CLI Command Surface and Lifecycle](../../prd/07-cli-command-surface-and-lifecycle.md)
 - [05 Installation Profile and Manifest Lifecycle](../../prd/05-installation-profile-and-manifest-lifecycle.md)
-- [16 Revise Package and Deployment Boundaries](../../prd/16-revise-package-and-deployment-boundaries.md)
+- [16 Revise Package and Deployment Boundaries](../../prd/16-package-runtime-and-deployment-boundaries.md)
 
 ## Stage 1 - Five-Command Tree
 

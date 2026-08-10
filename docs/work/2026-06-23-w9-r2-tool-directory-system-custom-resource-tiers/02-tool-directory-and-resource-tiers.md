@@ -6,7 +6,7 @@ Implement the `.make-docs/` logical directory model and ownership tiers.
 
 ## Source PRD Docs
 
-- `docs/prd/21-revise-tool-directory-system-custom-resource-tiers.md`
+- `docs/prd/21-project-tool-directory-and-resource-tiers.md`
 
 ## Stage 1 - Directory Model
 

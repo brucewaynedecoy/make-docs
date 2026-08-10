@@ -43,7 +43,7 @@ Validation caveat:
 | Path | Description |
 | --- | --- |
 | [docs/work/2026-06-23-w17-r2-shared-agentics-installation-harness-redirection/04-package-validation-and-closeout.md](../../../work/2026-06-23-w17-r2-shared-agentics-installation-harness-redirection/04-package-validation-and-closeout.md) | Marked Phase 4 complete and recorded validation evidence. |
-| [docs/prd/28-revise-shared-agentics-installation-harness-redirection.md](../../../prd/28-revise-shared-agentics-installation-harness-redirection.md) | Added Phase 4 selected-skill validation evidence and downstream non-requirement boundaries. |
+| this historical record (retired action-PRD: `docs/prd/28-revise-shared-agentics-installation-harness-redirection.md`) | Added Phase 4 selected-skill validation evidence and downstream non-requirement boundaries. |
 | [docs/prd/03-open-questions-and-risk-register.md](../../../prd/03-open-questions-and-risk-register.md) | Added W17 R2 evidence for shared selected skills while keeping broader unresolved risks and questions open. |
 | [docs/assets/archive/history/2026-06-27-w17-r2-p4-package-validation-and-closeout.md](2026-06-27-w17-r2-p4-package-validation-and-closeout.md) | Added this phase closeout breadcrumb. |
 

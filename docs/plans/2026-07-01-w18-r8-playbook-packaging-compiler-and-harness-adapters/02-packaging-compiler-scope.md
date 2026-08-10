@@ -8,7 +8,7 @@ Settle the implementation-shaping decisions the delta backlog must encode so no 
 
 - Design decisions D0 (scope and boundaries), D1 (preserved prior decisions), D2 (packaging is a compiler), D3 (deterministic and agent-assisted generation), D4 (dependency materialization), D5 (harness capability and distributable model), D6 (verified adapter contracts), D7 (marketplace and registration seam), D8 (provenance, lifecycle, and support), D9 (non-negotiables versus deliberately open choices), and D10 (verification and testability).
 - [Playbook Architecture and Design](../../assets/artifacts/playbook-architecture.md) Sections 6–8 as source material; the design is the authority where they differ.
-- [PRD 34](../../prd/34-revise-playbook-contract-and-model.md) for the Playbook model, rich steps, typed dependency registry, and activation content the compiler consumes, and [PRD 28](../../prd/28-revise-shared-agentics-installation-harness-redirection.md) for the exposure plumbing the compiler writes through unchanged.
+- [PRD 34](../../prd/34-playbook-authoring-contract-and-model.md) for the Playbook model, rich steps, typed dependency registry, and activation content the compiler consumes, and [PRD 28](../../prd/28-shared-agentics-installation-and-harness-exposure.md) for the exposure plumbing the compiler writes through unchanged.
 
 ## Outputs
 

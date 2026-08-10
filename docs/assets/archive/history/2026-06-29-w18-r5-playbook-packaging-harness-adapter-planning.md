@@ -31,7 +31,7 @@ Captured W18 R5 as the required v2 authority for packaging portable Playbooks in
 | [../../../designs/2026-06-29-playbook-packaging-and-harness-adapter-registry.md](../../../designs/2026-06-29-playbook-packaging-and-harness-adapter-registry.md) | New W18 R5 design for required v2 Playbook packaging and harness adapter registry behavior. |
 | [../../../plans/2026-06-29-w18-r5-playbook-packaging-and-harness-adapter-registry/00-overview.md](../../../plans/2026-06-29-w18-r5-playbook-packaging-and-harness-adapter-registry/00-overview.md) | New W18 R5 plan bundle overview. |
 | [../../../work/2026-06-29-w18-r5-playbook-packaging-and-harness-adapter-registry/00-index.md](../../../work/2026-06-29-w18-r5-playbook-packaging-and-harness-adapter-registry/00-index.md) | New W18 R5 implementation backlog. |
-| [../../../prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md](../../../prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md) | New PRD enhancement for Playbook packaging and harness adapter registry requirements. |
+| this historical record (retired action-PRD: `docs/prd/33-enhance-playbook-packaging-and-harness-adapter-registry.md`) | New PRD enhancement for Playbook packaging and harness adapter registry requirements. |
 | [../../../prd/00-index.md](../../../prd/00-index.md) | Updated active PRD navigation and W18 follow-on sequencing. |
 | [../../../prd/03-open-questions-and-risk-register.md](../../../prd/03-open-questions-and-risk-register.md) | Added source/generated package boundary risk coverage. |
 

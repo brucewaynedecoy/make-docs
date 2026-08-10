@@ -5,7 +5,7 @@ status: "active"
 coordinate: "W18 R7 P5"
 source:
   type: "prd"
-  path: "docs/prd/35-revise-run-playbook-state-machine.md"
+  path: "docs/prd/35-run-playbook-state-machine-and-portability.md"
 ---
 
 # Phase 5: Tests and Verification
@@ -20,9 +20,9 @@ Cover every progression operation's success and failure transitions, both resume
 
 ## Source PRD Docs
 
-- [35 Revise Run Playbook State Machine](../../prd/35-revise-run-playbook-state-machine.md)
-- [34 Revise Playbook Contract and Model](../../prd/34-revise-playbook-contract-and-model.md)
-- [29 Revise Playbook Contract Run Playbook](../../prd/29-revise-playbook-contract-run-playbook.md)
+- [35 Revise Run Playbook State Machine](../../prd/35-run-playbook-state-machine-and-portability.md)
+- [34 Revise Playbook Contract and Model](../../prd/34-playbook-authoring-contract-and-model.md)
+- [29 Revise Playbook Contract Run Playbook](../../prd/35-run-playbook-state-machine-and-portability.md#requirements)
 
 ## Stage 1 - Operation and Resume Tests
 
