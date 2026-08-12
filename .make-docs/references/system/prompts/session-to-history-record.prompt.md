@@ -15,7 +15,7 @@ Use today's date for `YYYY-MM-DD` and never backdate. If the active plan or work
 
 Create a new file under `docs/assets/archive/history/` (default slug `summary`). If W/R/P is known, name it `YYYY-MM-DD-w{W}-r{R}-p{P}-<slug>.md`. If only W/R is known, name it `YYYY-MM-DD-w{W}-r{R}-<slug>.md`. If no coordinate is known, name it `YYYY-MM-DD-<slug>.md`. Fill only known frontmatter fields; do not invent unknown `client`, `model`, or `provider` values. Follow the required headings exactly: `## Changes`, then `## Documentation` containing `### Project`, `### Developer`, and `### User` tables. State `None this session.` for any empty sub-section.
 
-Keep the summary concise — breadcrumbs for a future auditor, not a verbose narrative. Use relative Markdown links to any touched files, plans, designs, or backlog phases.
+Keep the summary concise — breadcrumbs for a future auditor, not a verbose narrative. Use relative Markdown links to any touched files, plans, designs, or backlog phases. When deferred obligations or naive UAT changed materially, summarize the durable delta once in `## Changes`: name the affected `O-###` or `NUAT-###`, orphan-audit outcome when relevant, and the resulting scenario or finding disposition without copying raw run logs or evidence transcripts.
 
 Optional hints (leave blank to accept defaults):
 

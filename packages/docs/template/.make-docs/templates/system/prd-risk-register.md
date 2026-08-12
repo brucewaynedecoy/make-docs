@@ -59,6 +59,12 @@ Code anchors:
 
 - `{{RISK_PATHS}}`
 
+## Deferred Obligations
+
+Use this fixed section only when accepted required future outcomes are active.
+Each record uses a stable heading `### O-### <title>` and includes status, source authority, owner, target coordinate, future trigger, dependencies, and acceptance exit criteria.
+If no obligations are active, state `None currently.`
+
 ## Source Anchors
 
 - `{{PRIMARY_FILES}}`

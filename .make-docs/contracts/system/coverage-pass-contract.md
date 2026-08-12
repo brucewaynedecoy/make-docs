@@ -39,6 +39,8 @@ The spine is semantic, not a required superset. Surface-specific verdicts may us
 
 Guide and playbook coverage is persona-scoped. Use the verdict spine directly: `create`, `update-existing`, `link-only`, or `none`.
 
+Guides or playbooks that help a tester or facilitator remain persona-scoped artifacts, but they do not turn testing/UAT coverage into a persona axis.
+
 Each verdict must carry target persona information when a persona-specific artifact could be affected. The persona target is separate from the verdict: `create` answers what to do, while the persona target answers who the artifact is for.
 
 Guide content remains governed by [guide-contract.md](guide-contract.md). Future playbook content remains governed by the playbook contract or router that introduces it.
@@ -66,7 +68,18 @@ Never use `create` for a document that describes an addition, enhancement, revis
 
 Testing and UAT coverage is not persona-scoped. Use the verdict spine directly: `create`, `update-existing`, `link-only`, or `none`.
 
-Use `create` when the work warrants a new manual-test scenario, runnable validation command, or acceptance script. Use `update-existing` when an existing scenario or validation note should be revised. Use `link-only` when existing automated or manual coverage is sufficient but should be surfaced. Use `none` when a manual or UAT pass would not add meaningful signal; record the reason, such as an internal-only docs change, behavior already fully covered by automated tests, or a scenario that is not practical to run manually.
+Enumerate separate candidates when applicable for:
+
+- automated tests;
+- owner or architecture review;
+- naive end-user UAT;
+- knowledgeable visual or manual interaction;
+- accessibility testing;
+- visual-regression automation.
+
+One candidate's evidence does not substitute for another candidate's verdict.
+
+Use `create` when the work warrants a new validation command, manual-test scenario, naive-UAT scenario, or acceptance packet. Use `update-existing` when an existing scenario or validation note should be revised. Use `link-only` when existing coverage is sufficient but should be surfaced. Use `none` only when the completed slice cannot yet produce meaningful end-user signal or another explicit no-change rationale applies, and record the concrete reason, still-applicable validation, future observable trigger, durable owner, target coordinate, and linked `O-###` or current register route when later naive UAT remains owed.
 
 ## Persona Targets
 
@@ -109,6 +122,7 @@ At close of pass, confirm:
 7. History idempotency was applied for the current session.
 8. Changed docs have no unresolved placeholders such as `TODO`, `TBD`, or `{{...}}` unless the contract explicitly permits them.
 9. Focused validation was run for the files touched by the pass, including `git diff --check` when files changed.
+10. Testing/UAT output explicitly states `coverage_scope: non-persona` and preserves separate mode verdicts when naive UAT is in scope.
 
 ## Defining A New Coverage Pass
 

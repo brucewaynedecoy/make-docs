@@ -389,6 +389,20 @@ describe("make-docs shared operations", () => {
     writeFile(root, "docs/assets/archive/history/2026-06-26-w16-r3-example.md", "W16 R3\n");
     writeFile(root, ".make-docs/contracts/system/commit-message-convention.md", "# Convention\n");
     writeFile(root, "packages/cli/src/operations.ts", "export {}\n");
+    writeFile(
+      root,
+      "docs/assets/library/user/example-guide.md",
+      [
+        "---",
+        'title: "Example Guide"',
+        "persona: developer",
+        "status: draft",
+        "---",
+        "",
+        "# Example Guide",
+        "",
+      ].join("\n"),
+    );
     execFileSync("git", ["add", "."], { cwd: root, stdio: "ignore" });
     execFileSync(
       "git",
@@ -405,6 +419,21 @@ describe("make-docs shared operations", () => {
     writeFile(root, "docs/assets/archive/history/2026-06-26-w16-r3-example.md", "W16 R3 changed\n");
     writeFile(root, ".make-docs/contracts/system/commit-message-convention.md", "# Convention\n\nChanged\n");
     writeFile(root, "packages/cli/src/operations.ts", "export const changed = true;\n");
+    writeFile(
+      root,
+      "docs/assets/library/user/example-guide.md",
+      [
+        "---",
+        'title: "Example Guide"',
+        "persona: developer",
+        "status: draft",
+        "---",
+        "",
+        "# Example Guide",
+        "",
+        "Changed.",
+      ].join("\n"),
+    );
 
     const probe = buildCloseoutProbe({ repoRoot: root, scope: "full" });
 
@@ -414,6 +443,7 @@ describe("make-docs shared operations", () => {
         category: "other",
       }),
       expect.objectContaining({ path: "docs/assets/archive/history/2026-06-26-w16-r3-example.md", category: "docs" }),
+      expect.objectContaining({ path: "docs/assets/library/user/example-guide.md", category: "docs" }),
       expect.objectContaining({ path: "docs/prd/03-open-questions-and-risk-register.md", category: "docs" }),
       expect.objectContaining({ path: "docs/work/.gitkeep", category: "docs" }),
       expect.objectContaining({ path: "package.json", category: "config" }),
@@ -429,6 +459,19 @@ describe("make-docs shared operations", () => {
         next: { D: "D-006", Q: "Q-013", R: "R-015" },
       }),
     );
+    expect(probe.metadataValidation).toEqual([
+      {
+        path: "docs/assets/library/user/example-guide.md",
+        findings: [
+          {
+            code: "persona-path-mismatch",
+            field: "persona",
+            message:
+              "Persona frontmatter 'developer' does not match library path persona 'user' in docs/assets/library/user/example-guide.md.",
+          },
+        ],
+      },
+    ]);
     expect(probe.validationHints).toEqual(
       expect.arrayContaining(["npm test -w packages/cli -- consistency install skill-catalog skill-registry", "npm run build -w packages/cli", "git diff --check"]),
     );

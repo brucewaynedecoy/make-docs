@@ -46,6 +46,8 @@ const READER_ASSET_ROUTER_PATHS = [
 
 const PLAYBOOK_DEFAULT_PARITY_PATHS = [
   "docs/assets/playbooks/agent/make-docs-lifecycle.playbook.md",
+  "docs/assets/playbooks/agent/naive-uat-facilitator.playbook.md",
+  "docs/assets/playbooks/user/naive-uat-tester.playbook.md",
 ];
 
 const PATH_HYGIENE_PARITY_PATHS = [
@@ -651,7 +653,7 @@ describe("guide generation routing contract", () => {
       expect(templateContents).toBe(dogfoodContents);
       expect(generatedContents).toBe(templateContents);
       expect(templateContents).toContain("status: \"accepted\"");
-      expect(templateContents).toContain("persona: \"agent\"");
+      expect(templateContents).toMatch(/persona:\s+\"(agent|user)\"/);
     }
   });
 
@@ -667,7 +669,9 @@ describe("guide generation routing contract", () => {
         expect(diagnostics.filter((diagnostic) => diagnostic.severity === "error"), sourcePath).toEqual([]);
         expect(model.runnable, sourcePath).toBe(true);
         expect(model.identity.fileForm, sourcePath).toBe("playbook-suffix");
-        expect(model.identity.canonicalRef, sourcePath).toBe("agent/make-docs-lifecycle");
+        const persona = relativePath.split("/").at(-2);
+        const slug = path.basename(relativePath, ".playbook.md");
+        expect(model.identity.canonicalRef, sourcePath).toBe(`${persona}/${slug}`);
       }
     }
   });

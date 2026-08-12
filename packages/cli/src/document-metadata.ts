@@ -1,6 +1,7 @@
 import {
   getDocumentKindLabel,
   getPersonaLabel,
+  PERSONA_SLUG_PATTERN,
   type DocumentKindLabelKey,
   type MakeDocsConfig,
 } from "./config";
@@ -72,13 +73,16 @@ export interface MetadataValidationFinding {
     | "follow-on-route-mismatch"
     | "follow-on-next-prompt-mismatch"
     | "follow-on-why-mismatch"
-    | "follow-on-coordinate-handoff-mismatch";
+    | "follow-on-coordinate-handoff-mismatch"
+    | "missing-persona"
+    | "persona-path-mismatch";
   field: string;
   message: string;
 }
 
 export interface MetadataValidationOptions {
   config?: MakeDocsConfig;
+  sourcePath?: string;
 }
 
 const FRONTMATTER_BOUNDARY = "---\n";
@@ -279,6 +283,7 @@ export function validateGeneratedDocumentMetadata(
   }
 
   if (!metadataFollowOn || !bodyFollowOn) {
+    validatePersonaScope({ findings, frontmatter, config: options.config, sourcePath: options.sourcePath });
     return findings;
   }
 
@@ -308,6 +313,7 @@ export function validateGeneratedDocumentMetadata(
     }
   }
 
+  validatePersonaScope({ findings, frontmatter, config: options.config, sourcePath: options.sourcePath });
   return findings;
 }
 
@@ -376,6 +382,83 @@ function validateConfiguredRenderedFields(options: {
       `Rendered persona label '${renderedPersona}' does not match canonical persona '${persona}' (${expectedPersonaLabel}).`,
     );
   }
+}
+
+function validatePersonaScope(options: {
+  findings: MetadataValidationFinding[];
+  frontmatter: MetadataMap;
+  config?: MakeDocsConfig;
+  sourcePath?: string;
+}): void {
+  const { findings, frontmatter, config, sourcePath } = options;
+  if (!sourcePath) {
+    return;
+  }
+
+  const scope = personaScopeFromPath(sourcePath);
+  if (!scope) {
+    return;
+  }
+
+  const persona =
+    typeof frontmatter.persona === "string" ? frontmatter.persona : undefined;
+  if (!persona) {
+    addFinding(
+      findings,
+      "missing-persona",
+      "persona",
+      `Persona-scoped document ${sourcePath} must declare frontmatter persona.`,
+    );
+    return;
+  }
+
+  if (!PERSONA_SLUG_PATTERN.test(persona)) {
+    addFinding(
+      findings,
+      "invalid-persona",
+      "persona",
+      `Unsupported generated document persona: ${persona}.`,
+    );
+    return;
+  }
+
+  const knownPersonas = config
+    ? new Set(config.personas.map((entry) => entry.slug))
+    : null;
+  if (knownPersonas && !knownPersonas.has(persona)) {
+    addFinding(
+      findings,
+      "invalid-persona",
+      "persona",
+      `Unsupported generated document persona: ${persona}.`,
+    );
+    return;
+  }
+
+  if (persona !== scope.persona) {
+    addFinding(
+      findings,
+      "persona-path-mismatch",
+      "persona",
+      `Persona frontmatter '${persona}' does not match ${scope.surface} path persona '${scope.persona}' in ${sourcePath}.`,
+    );
+  }
+}
+
+function personaScopeFromPath(sourcePath: string): { surface: "library" | "playbook"; persona: string } | null {
+  const normalized = sourcePath.split("\\").join("/");
+  const match = normalized.match(/(?:^|\/)(?:packages\/docs\/template\/)?docs\/assets\/(library|playbooks)\/([^/]+)\/[^/]+\.md$/);
+  if (!match) {
+    return null;
+  }
+  const persona = match[2] ?? "";
+  if (["AGENTS.md", "CLAUDE.md"].includes(normalized.split("/").at(-1) ?? "")) {
+    return null;
+  }
+  return {
+    surface: match[1] === "playbooks" ? "playbook" : "library",
+    persona,
+  };
 }
 
 function extractBodyFields(body: string): Map<string, string> {

@@ -151,9 +151,13 @@ Use the matching template in `.make-docs/templates/system/` and preserve these r
 | `work-index.md` | `## Purpose`, `## Phase Map`, `## Usage Notes`, `## Intended Follow-On` |
 | `work-phase.md` | `## Purpose`, `## Overview`, `## Source PRD Docs`, repeatable `## Stage {{STAGE_NUMBER}} - {{STAGE_NAME}}` headings with `### Tasks`, `### Acceptance criteria`, and `### Dependencies` |
 
+When deferred-obligation or naive-UAT routing is active, work indexes also inventory source `O-###` and `NUAT-###` authorities plus capability-status expectations, and work phases link the applicable obligations, scenarios, findings, separate testing-mode decisions, and phase or capability closeout status without becoming a second authority.
+
 Product overview, architecture, subsystem, reference, glossary, and other requirement-owning PRDs may include an optional `## Requirement History` section immediately before `## Source Anchors`. Current normative requirements remain in the main body and always win. History is non-normative and uses the dated entry contract in `.make-docs/references/system/prd-change-management.md`. The PRD index and living risk register use their own navigation and item-history contracts instead.
 
 Risk-register items under `## Confirmed Drift`, `## Open Questions`, and `## Rebuild Risks` use numbered `###` item headings with a `Status` / `Decision` / `Follow-Up` table. Use `D-001`, `D-002`, etc. for confirmed drift; `Q-001`, `Q-002`, etc. for open questions; and `R-001`, `R-002`, etc. for rebuild risks. Assign the next available number within the section and never renumber existing items, even when they move to `Closed`. Valid item statuses are `Open`, `Confirming`, `Deferred`, and `Closed`. Each item should include `Question` or `Issue`, `Why it matters`, `Recommendation`, and `To close`; include `Resolution` only for closed items.
+
+When deferred-obligation governance is active, `docs/prd/03-open-questions-and-risk-register.md` also carries one fixed `## Deferred Obligations` section with stable append-only `O-###` records. That section is the canonical obligation register and is not duplicated in plans, work, scenarios, or history.
 
 ## Intended Follow-On Handoffs
 
@@ -175,6 +179,7 @@ For PRD indexes, use route `work-backlog-generation` and recommend creating or
 updating the work backlog from the PRD set.
 For work indexes, use route `implementation-loop` and recommend starting with
 the first applicable phase in the backlog.
+When deferred-obligation or naive-UAT routing is active, preserve `O-###`, `NUAT-###`, finding, and capability-status traceability in the coordinate handoff.
 
 ## Work Phase Structure Rules
 

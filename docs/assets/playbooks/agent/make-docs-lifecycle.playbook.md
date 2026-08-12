@@ -59,6 +59,18 @@ dependencies:
     source: .make-docs/contracts/system/coverage-pass-contract.md
     used_by: [run-coverage-pass]
     fallback: record manual coverage verdicts with reasons
+  - id: deferred-obligation-contract
+    kind: reference
+    requirement: required
+    source: .make-docs/contracts/system/deferred-obligation-contract.md
+    used_by: [run-coverage-pass]
+    fallback: stop before claiming future-trigger routing is complete
+  - id: naive-uat-contract
+    kind: reference
+    requirement: required
+    source: .make-docs/contracts/system/naive-uat-contract.md
+    used_by: [run-coverage-pass]
+    fallback: stop before claiming naive-UAT activation, a valid `none`, or acceptance outcomes
   - id: make-docs-cli
     kind: cli
     requirement: required
@@ -121,8 +133,8 @@ steps:
     role: check
     activation: sequential
     mode: delegated
-    uses: [coverage-pass-contract]
-    instructions: Run the relevant coverage, validation, and closeout checks for the stage and record a verdict and reason for each coverage surface.
+    uses: [coverage-pass-contract, deferred-obligation-contract, naive-uat-contract]
+    instructions: Run the relevant coverage, validation, and closeout checks for the stage, record a verdict and reason for each coverage surface, preserve separate testing-mode decisions, and route any activated naive-UAT or future-trigger `none` through the governing contracts.
 
   - id: validate-playbook-coverage
     title: Validate playbook coverage output
@@ -371,13 +383,13 @@ The coverage-pass band inherits the completed diff, validation evidence, and any
 
 #### Purpose
 
-Close the phase across documentation, history, PRD, guide/playbook coverage, validation, and UAT or manual-test decisions.
+Close the phase across documentation, history, PRD, guide/playbook coverage, validation, deferred-obligation consumption, and UAT or manual-test decisions.
 
 #### Inputs
 
 - Completed phase diff.
 - Active phase checklist and acceptance criteria.
-- Existing guides, playbooks, history records, and PRD state.
+- Existing guides, playbooks, history records, PRD state, and any active `O-###` or `NUAT-###` authority.
 
 #### Decision Points
 
@@ -385,6 +397,8 @@ Close the phase across documentation, history, PRD, guide/playbook coverage, val
 - Create or update a history record.
 - Update PRD or risk-register state, or record a no-change rationale.
 - Run, defer, or mark UAT/manual testing not applicable.
+- Record separate automated, review, naive-UAT, accessibility, visual/manual, and visual-regression testing decisions when applicable.
+- Route active future work through `O-###` and active user-observable acceptance through `NUAT-###` or a complete valid `none`.
 
 #### Suggested Assists
 
@@ -395,6 +409,7 @@ Close the phase across documentation, history, PRD, guide/playbook coverage, val
 - Each coverage surface has a verdict and reason.
 - History and PRD reconciliation are complete.
 - Validation evidence is recorded.
+- Phase versus capability status is explicit when obligations or naive-UAT findings remain owed.
 
 #### Handoff
 
@@ -514,7 +529,7 @@ Capture what changed, what worked, what should change next, and which follow-up 
 - Release or handoff results.
 - History records.
 - Validation and UAT outcomes.
-- Deferred questions, risks, and follow-ups.
+- Deferred questions, risks, obligations, scenarios, findings, and follow-ups.
 
 #### Decision Points
 

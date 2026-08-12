@@ -247,4 +247,41 @@ ${matchingFollowOn}
 `).map((finding) => finding.code),
     ).toEqual(["follow-on-body-missing"]);
   });
+
+  test("enforces persona frontmatter on persona-scoped library documents", () => {
+    const markdown = `---
+title: "Guide Without Persona"
+kind: "guide"
+status: "draft"
+---
+
+# Guide Without Persona
+`;
+
+    expect(
+      validateGeneratedDocumentMetadata(markdown, {
+        config: createDefaultMakeDocsConfig(),
+        sourcePath: "docs/assets/library/user/guide-without-persona.md",
+      }).map((finding) => finding.code),
+    ).toEqual(["missing-persona"]);
+  });
+
+  test("reports library path and frontmatter persona drift", () => {
+    const markdown = `---
+title: "Drifted Guide"
+kind: "guide"
+status: "draft"
+persona: "developer"
+---
+
+# Drifted Guide
+`;
+
+    expect(
+      validateGeneratedDocumentMetadata(markdown, {
+        config: createDefaultMakeDocsConfig(),
+        sourcePath: "packages/docs/template/docs/assets/library/user/drifted-guide.md",
+      }).map((finding) => finding.code),
+    ).toEqual(["persona-path-mismatch"]);
+  });
 });

@@ -14,6 +14,8 @@ import {
   safeRunGit,
   valueAsRecord,
 } from "../shared";
+import { loadMakeDocsConfig } from "../../config";
+import { validateGeneratedDocumentMetadata } from "../../document-metadata";
 import type {
   JsonValue,
   OperationResult,
@@ -36,6 +38,9 @@ export function buildCloseoutProbe(options: {
     selectedScope = files.some((file) => file.staged) ? "staged" : "full";
   }
 
+  const { config } = loadMakeDocsConfig(repoRoot);
+  const metadataValidation = validateChangedDocumentMetadata(repoRoot, files, config);
+
   return {
     repoRoot,
     scope: selectedScope,
@@ -48,6 +53,7 @@ export function buildCloseoutProbe(options: {
       extractCoordinates(files.map((file) => file.path)),
     ),
     riskRegister: nextRiskIds(repoRoot) as unknown as JsonValue,
+    metadataValidation: metadataValidation as unknown as JsonValue,
     validationHints: validationHints(files, repoRoot),
   };
 }
@@ -334,6 +340,45 @@ function nextRiskIds(repoRoot: string): Record<string, JsonValue> {
       R: `R-${String(highest.R + 1).padStart(3, "0")}`,
     },
   };
+}
+
+function validateChangedDocumentMetadata(
+  repoRoot: string,
+  files: CloseoutFile[],
+  config: ReturnType<typeof loadMakeDocsConfig>["config"],
+): Array<Record<string, JsonValue>> {
+  const findings: Array<Record<string, JsonValue>> = [];
+  for (const file of files) {
+    if (!isPersonaScopedDocumentPath(file.path)) {
+      continue;
+    }
+    const absolutePath = path.join(repoRoot, file.path);
+    if (!existsSync(absolutePath) || !statSync(absolutePath).isFile()) {
+      continue;
+    }
+    const markdown = readText(absolutePath);
+    const fileFindings = validateGeneratedDocumentMetadata(markdown, {
+      config,
+      sourcePath: file.path,
+    });
+    if (fileFindings.length === 0) {
+      continue;
+    }
+    findings.push({
+      path: file.path,
+      findings: fileFindings.map((finding) => ({
+        code: finding.code,
+        field: finding.field,
+        message: finding.message,
+      })) as unknown as JsonValue,
+    });
+  }
+  return findings;
+}
+
+function isPersonaScopedDocumentPath(filePath: string): boolean {
+  const normalized = normalizePath(filePath);
+  return /^(?:packages\/docs\/template\/)?docs\/assets\/(library|playbooks)\/[^/]+\/[^/]+\.md$/u.test(normalized);
 }
 
 function validationHints(files: CloseoutFile[], repoRoot: string): string[] {

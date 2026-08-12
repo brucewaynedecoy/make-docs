@@ -58,6 +58,7 @@ For authoritative PRD maintenance, the plan should also settle:
 - the standardized, non-normative requirement-history entries to add
 - the affected links, risks, plans, work artifacts, and downstream source-authority relationships
 - whether a scoped delta backlog is sufficient or the user explicitly wants a regenerated full backlog
+- any deferred-obligation dispositions, user-observable slices, proposed `NUAT-###` ownership, and valid future-trigger `none` routing needed before implementation
 
 ## User Preference Questions
 
@@ -102,6 +103,7 @@ PRD authority-maintenance plans should additionally cover:
 - requirement-history entries
 - affected links, risks, plans, and work artifacts
 - delta backlog scope and downstream authority links
+- obligation routing, user-observable-slice planning, and separate testing-mode coverage when naive UAT is implicated
 
 ## File Writing Rule
 

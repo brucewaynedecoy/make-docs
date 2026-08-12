@@ -91,6 +91,7 @@ The source coordinate identifies the maintenance event; it is not the PRD docume
 - Add `Resolution` only when the item is closed.
 - If the item is already documented, update that existing item instead of duplicating it.
 - Do not use `## Requirement History` as a substitute for unresolved risk or decision tracking.
+- When deferred-obligation governance is active, maintain the canonical `## Deferred Obligations` section in this same register and preserve stable `O-###` identities rather than creating a second register.
 
 ## Index And Status Rules
 
@@ -106,6 +107,8 @@ The source coordinate identifies the maintenance event; it is not the PRD docume
 - Related links connect current authorities to one another. Do not link retired editorial change records as product authority.
 
 ## Plans, Work, And History
+
+Changes that activate, defer, narrow, cancel, or supersede user-observable acceptance outcomes must update the owning requirement, the linked `O-###` when future work remains owed, and the canonical `NUAT-###` scenario authority in the same change set. Plans and work route those records; they do not replace them.
 
 - Plans may describe the editorial maintenance operation, including which PRDs to update, which new product authorities to create, and which history entries to add.
 - Work backlogs may use change, revision, migration, reconciliation, or removal language when that language describes implementation work.

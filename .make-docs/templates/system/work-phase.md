@@ -25,6 +25,12 @@ Explain the work covered by this phase and the value it unlocks.
 - [{{DOC_TITLE}}](../../prd/{{DOC_PATH}})
 - [{{DOC_TITLE}}](../../prd/{{DOC_PATH}})
 
+## Source Obligations, Scenarios, And Findings
+
+- `{{O_REF_OR_NONE}}`
+- `{{NUAT_REF_OR_NONE}}`
+- `{{FINDING_REF_OR_NONE}}`
+
 ## Stage {{STAGE_NUMBER}} - {{STAGE_NAME}}
 
 ### Tasks
@@ -40,5 +46,10 @@ Explain the work covered by this phase and the value it unlocks.
 ### Dependencies
 
 - {{DEPENDENCY}}
+
+### Closeout Notes
+
+- Testing-mode decision(s): {{AUTOMATED_REVIEW_NUAT_ACCESSIBILITY_VISUAL_DECISIONS}}
+- Phase / capability status: {{PHASE_AND_CAPABILITY_STATUS}}
 
 <!-- Insert additional STAGES as needed -->
