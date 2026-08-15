@@ -46,14 +46,14 @@ This phase authors reusable system contracts, prompts, references, templates, me
 
 ### Tasks
 
-- [ ] t1: Verify the exact worktree, branch, HEAD, free disk, dirty-state allowlist, and implementation authorization; confirm no prior-phase dependency and stop on unexpected user work or unsafe growth.
-- [ ] t2: Reread the current normative bodies of every Source PRD plus PRD 03 and record each revision or content digest in the phase-entry record.
-- [ ] t3: Reevaluate at minimum Q-021 and R-009, R-010, R-017, and R-025; add any newly relevant item found by the live authority read.
-- [ ] t4: For every relevant `Open`, `Confirming`, `Deferred`, closed regression item, or new gap, record its ID, authority revision or digest, impact, classification (`blocking`, `impacted-nonblocking`, `unrelated`, `closed-regression-check`, or `new-authority-gap`), disposition, and rationale.
-- [ ] t5: If no blocking item or authority gap remains, record an explicit no-blocker determination and the finite phase correction/review budget before unlocking t8.
-- [ ] t6: If a blocker or authority gap exists, stop before implementation writes and present an owner decision package with source anchors, affected phase and PRDs, bounded options and trade-offs, recommendation, consequences, exact PRD/register/history edits, focused validation, and a decision-only commit boundary; do not create a standalone decision file.
-- [ ] t7: After an owner decision, require the canonical PRD/register/history update, focused validation, separate decision commit, and recorded SHA for that decision commit before implementation unlocks; a work task cannot close a question, risk, finding, obligation, scenario, waiver, or capability by implication.
-- [ ] t8: Record the Stage 1 outcome, applicable authority digests, dependency state, and implementation unlock or stop result.
+- [x] t1: Verify the exact worktree, branch, HEAD, free disk, dirty-state allowlist, and implementation authorization; confirm no prior-phase dependency and stop on unexpected user work or unsafe growth.
+- [x] t2: Reread the current normative bodies of every Source PRD plus PRD 03 and record each revision or content digest in the phase-entry record.
+- [x] t3: Reevaluate at minimum Q-021 and R-009, R-010, R-017, and R-025; add any newly relevant item found by the live authority read.
+- [x] t4: For every relevant `Open`, `Confirming`, `Deferred`, closed regression item, or new gap, record its ID, authority revision or digest, impact, classification (`blocking`, `impacted-nonblocking`, `unrelated`, `closed-regression-check`, or `new-authority-gap`), disposition, and rationale.
+- [x] t5: If no blocking item or authority gap remains, record an explicit no-blocker determination and the finite phase correction/review budget before unlocking t8.
+- [x] t6: If a blocker or authority gap exists, stop before implementation writes and present an owner decision package with source anchors, affected phase and PRDs, bounded options and trade-offs, recommendation, consequences, exact PRD/register/history edits, focused validation, and a decision-only commit boundary; do not create a standalone decision file.
+- [x] t7: After an owner decision, require the canonical PRD/register/history update, focused validation, separate decision commit, and recorded SHA for that decision commit before implementation unlocks; a work task cannot close a question, risk, finding, obligation, scenario, waiver, or capability by implication.
+- [x] t8: Record the Stage 1 outcome, applicable authority digests, dependency state, and implementation unlock or stop result.
 
 ### Phase-entry record
 
@@ -66,6 +66,18 @@ Recorded on 2026-08-15. This record does not close any task or Stage 1.
 | Worktree | Clean at coordinator preflight |
 | Upstream position | One commit ahead of `origin/make-docs-v2` |
 | Free disk | 101 GB at coordinator preflight |
+
+The owner later authorized implementation from this clean baseline. This table preserves the earlier decision preflight record above.
+
+| Implementation baseline item | Recorded value |
+| --- | --- |
+| Branch | `make-docs-v2` |
+| HEAD | `f14913f3991ecfbe8d71247e79ce81720e74a365` |
+| Worktree | Clean at implementation authorization |
+| Upstream position | Three commits ahead of `origin/make-docs-v2` |
+| Free disk | 99 GB before implementation writes |
+| Decision commit | `834aef3f339aa8999a60d2ea4619b180349ba65a` |
+| Implementation authorization | Owner approved W19 R1 P1 implementation on 2026-08-15 |
 
 #### Source PRD revisions
 
@@ -87,6 +99,17 @@ These Git blob IDs are from the recorded HEAD.
 | PRD 35 | `2ddbefa3de7c271f1c3d02b6cfe118d2f396ce97` |
 | PRD 36 | `94fb819134fcb24230f391ac0e6154e10161167f` |
 | PRD 03 | `af3afc2ea814703ee3f9c60ed6425b25e53ff4b1` |
+
+#### Implementation authority refresh
+
+The implementation read used HEAD `f14913f3991ecfbe8d71247e79ce81720e74a365`. PRD 03 and PRD 06 changed after the decision preflight. Their current Git blob IDs are:
+
+| Source PRD | Implementation baseline Git blob ID |
+| --- | --- |
+| PRD 03 | `eb5a13ec6c9ebf5d0998e16b63f629d37c2ceaa0` |
+| PRD 06 | `b699269cedf2fd32065bbc852dd64dd9d0899feb` |
+
+All other Source PRD blob IDs match the preserved preflight table.
 
 #### Question, risk, and obligation classifications
 
@@ -115,7 +138,7 @@ The owner approved the bounded Q-021 decision on 2026-08-15:
 - Keep Q-021 open for the wider repository sweep and coverage-pass policy.
 - Create no new `O-###` item because the owner did not accept the wider work as a required future obligation.
 
-The decision commit SHA is `834aef3f339aa8999a60d2ea4619b180349ba65a`. No owner decision package remains. Implementation unlock is blocked only because the owner has not given separate implementation authorization. The finite budget is two correction attempts and two review cycles. This internal document decision creates no Naive UAT scenario, no finding record, and no capability record. Stage 1 remains open.
+The decision commit SHA is `834aef3f339aa8999a60d2ea4619b180349ba65a`. The owner later gave separate W19 R1 P1 implementation authorization. No owner decision blocker or new authority gap remains. The implementation baseline is `f14913f3991ecfbe8d71247e79ce81720e74a365`. The finite budget is two correction attempts and two review cycles. The implementation used one authoring pass. Independent review opened correction pass 1. This internal document decision creates no Naive UAT scenario, no finding record, and no capability record. Stage 1 is complete and Stage 2 was unlocked.
 
 ### Acceptance criteria
 
@@ -131,18 +154,18 @@ The decision commit SHA is `834aef3f339aa8999a60d2ea4619b180349ba65a`. No owner 
 
 ### Closeout Notes
 
-- Testing-mode decision(s): record documentation-contract checks only; naive UAT remains `none` unless a real user-observable slice is activated.
-- Phase / capability status: gate result pending.
+- Testing-mode decision(s): documentation-contract checks only; naive UAT is `none` because this phase changes internal documentation authority and does not activate a user-observable product slice.
+- Phase / capability status: Stage 1 complete; implementation unlocked. No capability status changed.
 
 ## Stage 2 - Author The Upstream Resource Authority
 
 ### Tasks
 
-- [ ] t9: Inventory the current `packages/docs/template/` resource roots, schemas, metadata, catalogs, routers, and active product claims without treating the root dogfood copy or packaged projection as authoring authority.
-- [ ] t10: Author one coherent upstream inventory in which contracts, prompts, references, and templates are peer system-resource types with the stable identities and required metadata defined by the PRDs.
-- [ ] t11: Make prompts first-class across resource catalogs, schemas, authoring guidance, and system-workflow composition without reviving legacy selection fields or requiring local projection.
-- [ ] t12: Author the Naive-UAT system-workflow resources as a composition of governing contracts, prompts, references, and applicable templates; keep reusable UAT policy out of any future Skill shim.
-- [ ] t13: Withdraw affirmative current claims that Playbooks or Protocols are Make Docs product capabilities and replace their current resource-authority expectations with the four peer system-resource types; preserve every existing Playbook/Protocol default asset, catalog entry, payload, and other removal candidate intact for P8's fresh production-consumer trace, backup, lock/quiescence checks, and retirement work.
+- [x] t9: Inventory the current `packages/docs/template/` resource roots, schemas, metadata, catalogs, routers, and active product claims without treating the root dogfood copy or packaged projection as authoring authority.
+- [x] t10: Author one coherent upstream inventory in which contracts, prompts, references, and templates are peer system-resource types with the stable identities and required metadata defined by the PRDs.
+- [x] t11: Make prompts first-class across resource catalogs, schemas, authoring guidance, and system-workflow composition without reviving legacy selection fields or requiring local projection.
+- [x] t12: Author the Naive-UAT system-workflow resources as a composition of governing contracts, prompts, references, and applicable templates; keep reusable UAT policy out of any future Skill shim.
+- [x] t13: Withdraw affirmative current claims that Playbooks or Protocols are Make Docs product capabilities and replace their current resource-authority expectations with the four peer system-resource types; preserve every existing Playbook/Protocol default asset, catalog entry, payload, and other removal candidate intact for P8's fresh production-consumer trace, backup, lock/quiescence checks, and retirement work.
 
 ### Acceptance criteria
 
@@ -159,16 +182,20 @@ The decision commit SHA is `834aef3f339aa8999a60d2ea4619b180349ba65a`. No owner 
 ### Closeout Notes
 
 - Testing-mode decision(s): schema, metadata, catalog, content-boundary, link, and path validation.
-- Phase / capability status: upstream authority authored; confirmation remains open.
+- Changed upstream scope: added `.make-docs/system-resources.catalog.json`, `.make-docs/system-resources.schema.json`, `.make-docs/contracts/system/system-resource-contract.md`, `.make-docs/references/system/naive-uat-workflow.md`, and two Naive-UAT prompts. Moved all 19 existing files from `.make-docs/references/system/prompts/` to `.make-docs/prompts/system/` without renaming them. Changed content in the moved prompt routers and four coverage-pass prompts; the other 13 moved prompt payloads stayed byte-identical. Updated the current contract, reference, template, and documentation routers listed by `git status --short` for four-type authority, current paths, and Persona-based Naive-UAT routing.
+- Exact non-prompt upstream files changed: `.make-docs/AGENTS.md`; `.make-docs/CLAUDE.md`; `.make-docs/system-resources.catalog.json`; `.make-docs/system-resources.schema.json`; `.make-docs/contracts/system/{AGENTS.md,CLAUDE.md,coverage-pass-contract.md,deferred-obligation-contract.md,history-record-contract.md,naive-uat-contract.md,system-resource-contract.md}`; `.make-docs/references/system/{AGENTS.md,CLAUDE.md,design-workflow.md,lifecycle.md,naive-uat-workflow.md,path-and-link-hygiene.md}`; `.make-docs/templates/system/{AGENTS.md,CLAUDE.md,design.md,naive-uat-scenario.md,prd-index.md}`; `docs/{AGENTS.md,CLAUDE.md}`; `docs/assets/{AGENTS.md,CLAUDE.md}`; and `docs/assets/library/{AGENTS.md,CLAUDE.md}`.
+- Exact prompt scope: the 19 baseline files under `.make-docs/references/system/prompts/` moved to `.make-docs/prompts/system/` with the same names. New files are `naive-uat-facilitator.prompt.md` and `naive-uat-tester.prompt.md`. Content changed in `AGENTS.md`, `CLAUDE.md`, `coverage-pass-developer-guide.prompt.md`, `coverage-pass-prd-reconciliation.prompt.md`, `coverage-pass-testing-uat.prompt.md`, and `coverage-pass-user-guide.prompt.md`.
+- Preservation: `.make-docs/contracts/system/playbook-contract.md` and every file under `docs/assets/playbooks/` match the implementation baseline. No package, root dogfood, release, or publication path changed.
+- Phase / capability status: Stage 2 complete. Upstream authority is authored. Independent review is complete.
 
 ## Stage 3 - Validate Documentation Authority
 
 ### Tasks
 
-- [ ] t14: Run focused frontmatter, schema, catalog, relative-link, anchor, and repository path-hygiene checks over the changed upstream documentation resources.
-- [ ] t15: Prove that current reusable authority has no duplicate resource identity, no legacy mode-field authority, no active Playbook/Protocol capability claim, and no copied UAT business logic in a Skill surface.
-- [ ] t16: Obtain an independent review of the upstream resource contract and correct only actionable defects within the finite two-attempt/two-cycle budget.
-- [ ] t17: Record changed-file scope, validation evidence, remaining nonblocking items, and the exact P1 dependency handoff to P2 without projecting, dogfooding, publishing, or releasing.
+- [x] t14: Run focused frontmatter, schema, catalog, relative-link, anchor, and repository path-hygiene checks over the changed upstream documentation resources.
+- [x] t15: Prove that current reusable authority has no duplicate resource identity, no legacy mode-field authority, no active Playbook/Protocol capability claim, and no copied UAT business logic in a Skill surface.
+- [x] t16: Obtain an independent review of the upstream resource contract and correct only actionable defects within the finite two-attempt/two-cycle budget.
+- [x] t17: Record changed-file scope, validation evidence, remaining nonblocking items, and the exact P1 dependency handoff to P2 without projecting, dogfooding, publishing, or releasing.
 
 ### Acceptance criteria
 
@@ -184,4 +211,15 @@ The decision commit SHA is `834aef3f339aa8999a60d2ea4619b180349ba65a`. No owner 
 ### Closeout Notes
 
 - Testing-mode decision(s): documentation authority and static resource-contract validation only.
-- Phase / capability status: P1 may close only with explicit validation evidence; P2 remains separately gated.
+- Review cycle 1 and correction pass 1: independent review found a wrong generated design link and a wrong canonical-scenario versus run-scope split. Correction pass 1 fixed the generated link, moved Persona selection and evidence-root data to the run record, and added the optional canonical `timebox` field.
+- Review cycle 2 and correction pass 2: review cycle 2 found only one key mismatch. The run checklist used `persona` instead of the PRD 46 key `selected_persona`. Correction pass 2 fixed it. The coordinator exact recheck passed all corrected shapes. No material authority conflict remains.
+- Catalog and schema checks: AJV schema validation and negative checks passed. The catalog contains 55 unique resources: 9 contracts, 19 prompts, 9 references, and 18 templates. All workflow URIs resolve.
+- Prompt and router checks: all 19 prompt headers pass. All 16 template `AGENTS.md` and `CLAUDE.md` router pairs match. Only the unchanged repository-root router mismatch and root line-budget debt remain.
+- Link and anchor checks: the repository-wide jdocmunch inventory has 194 unresolved items. The focused upstream-template filter has eight placeholder-based findings. The generated design placeholder is a scanner false positive because the substituted output link resolves. No new concrete link or anchor failed.
+- Naive-UAT checks: the canonical-scenario versus run-field split passes. The optional `timebox` field and its expiration rule pass. The run checklist uses `selected_persona`, `persona_primitive`, and `persona_resolution`.
+- PRD authority check: validation passed with 37 PRDs, 1,028 Markdown files, 36 structured files, 668 links, and zero diagnostics.
+- Path check: path hygiene checked 82 files with zero errors.
+- Preservation and authority checks: legacy Playbook assets match HEAD. Old prompt-root and legacy mode searches return no match. Current Playbook and Protocol mentions outside preserved files are negative claims, preserved-path records, or the generic lowercase word `protocol` in `prd-reference.md`. No upstream `SKILL.md` contains copied UAT policy.
+- Whitespace check: `git diff --check` passed.
+- P2 handoff: P2 must implement the typed identity, installed-provider inventory, resolver, list/read surfaces, and derived origin, provider, package, version, digest, local-path, provenance, and content fields from this catalog and contract. P8 still owns fresh production-consumer tracing and retirement of every preserved Playbook or Protocol candidate.
+- Phase / capability status: P1 implementation is complete and stops before commit for owner review. P2 remains separately gated. No capability status changed.

@@ -2,9 +2,25 @@
 
 ## Purpose
 
-Use this contract for true naive end-user acceptance testing: black-box attempts by qualified testers against installed, user-observable product slices using only public information a real target user could possess.
+Use this contract for true naive end-user acceptance testing. Qualified testers attempt an installed, user-observable product slice without source access or internal product knowledge. They use only public information that a real target user could possess.
 
-Naive UAT is non-persona testing and UAT coverage. A naive tester is an execution and evidence boundary, not a configured persona.
+Each activated run uses one configured Persona whose primitive is `user` or `maintainer`. Use the canonical `user` Persona when none is supplied. The selected Persona controls audience framing and the evidence path. It does not make the tester qualified.
+
+A naive tester is a separate isolation and evidence boundary, not a configured Persona. Selecting a maintainer Persona does not permit source access, private knowledge, or coaching.
+
+## System Workflow Composition
+
+The Naive-UAT workflow is complete through these peer system resources:
+
+- `make-docs://system/contract/naive-uat-contract.md`
+- `make-docs://system/prompt/naive-uat-facilitator.prompt.md`
+- `make-docs://system/prompt/naive-uat-tester.prompt.md`
+- `make-docs://system/reference/naive-uat-workflow.md`
+- `make-docs://system/template/naive-uat-scenario.md`
+
+The installed provider supplies the resources by default. A project-local projection is optional.
+
+Direct CLI, native MCP, system-resource, and future thin-Skill paths must resolve the same Persona, resources, typed operations, and receipts. A typed operation has fixed request and result fields. A Skill must not copy this policy.
 
 ## Qualified Tester Boundary
 
@@ -14,6 +30,13 @@ A valid naive tester:
 - uses only the installed product, ordinary obtainable environment or accounts, and allowed public resources;
 - records isolation controls when the tester is an agent or another mediated environment;
 - is not counted as successful when material coaching or hidden-path assistance occurs.
+
+Every activated execution also records:
+
+- one eligible configured Persona slug;
+- the Persona primitive;
+- whether Persona selection was explicit or defaulted; and
+- `docs/assets/<persona-slug>/testing/` as the evidence root.
 
 ## Activation And Valid `none`
 
@@ -72,7 +95,7 @@ Work files, plans, and history records do not become a second scenario authority
 | Field | Requirement |
 | --- | --- |
 | `scenario_id` | Stable `NUAT-###` identity |
-| `scenario_version` | Monotonic meaningful-change version |
+| `scenario_version` | Version that increases for each meaningful change |
 | `title` | Short product-language title |
 | `user_goal` | Real-world target outcome |
 | `source_requirements` | Owning requirement links |
@@ -90,6 +113,7 @@ Work files, plans, and history records do not become a second scenario authority
 | `setup` / `teardown` | Isolation, consent, capture, cleanup, restoration |
 | `evidence_requirements` | Required interaction, visual, accessibility, and completion evidence |
 | `severity_rules` | Base or project-specific escalation rule |
+| `timebox` | Optional observation window; expiration never silently means success |
 | `finding_route` | Owning PRD, work, and phase-gate route |
 
 ## Tester Packet Safety
@@ -103,7 +127,7 @@ Operator-only fields must remain explicitly marked and must not leak into the te
 
 ## Run And Finding Fields
 
-Every run records exact scenario reference, build and environment, tester qualification evidence, public resources used, interventions, outcome, observations, reproduction details, evidence refs, finding refs, and review disposition.
+Every run records exact scenario reference, selected Persona, Persona primitive, explicit or default Persona resolution, evidence root, build and environment, tester qualification evidence, public resources used, interventions, outcome, observations, reproduction details, evidence refs, finding refs, and review disposition.
 
 Every finding records observed behavior, expected user outcome, severity, reproducibility, support scope, evidence refs, source requirement, owner, and disposition.
 
@@ -140,16 +164,16 @@ Repository-canonical:
 - scenario identity and meaning;
 - target user and supported scope;
 - trigger and obligation routing;
+- selected Persona and evidence path;
+- Persona-specific tester packets, run records, outcomes, findings, dispositions, evidence metadata, and approved evidence under `docs/assets/<persona-slug>/testing/`;
 - finding meaning and disposition.
 
 Operational or machine-local:
 
-- tester qualification attestation;
 - run progress and timestamps;
-- interventions and observations;
-- recordings, screenshots, transcripts, and large evidence refs.
+- bounded Store receipts and sanitized evidence references.
 
-Missing operational evidence makes the acceptance outcome unverified. Repository links alone never imply a pass.
+Large external captures may remain outside the repository when consent, retention, and privacy rules require it. The Persona testing record keeps the approved reference and redaction state. Missing or corrupt evidence makes the acceptance outcome unverified. Repository links alone never imply a pass.
 
 ## Compatibility
 
@@ -157,6 +181,7 @@ Adopt the contract conservatively:
 
 - classify prior manual or UAT artifacts by what they actually prove;
 - do not relabel knowledgeable walkthroughs as naive without qualification and anti-coaching evidence;
+- move prior evidence only when Persona mapping and ownership are proven;
 - preserve historical IDs, work coordinates, and archives;
 - stop instead of overwriting modified active project content.
 
@@ -166,8 +191,8 @@ Future tooling may inventory candidates, render packets, or validate links and r
 
 ## Non-Goals
 
-- No `naive-tester` persona.
+- No `naive-tester` Persona.
 - No implementation-shaped answer scripts for the tester.
-- No runtime automation requirement in this round.
 - No conformance, architecture review, automated tests, or accessibility testing substituted for naive UAT.
-- No new store schema, evidence kind, or CLI/MCP surface required in this round.
+- No Playbook or Protocol workflow, runner, or asset requirement.
+- No copied UAT policy in a Skill, plugin, hook, extension, or harness adapter.

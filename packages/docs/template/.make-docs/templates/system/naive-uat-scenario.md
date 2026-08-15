@@ -26,6 +26,7 @@
 | Teardown | {{CLEANUP_REDACTION_RESTORATION}} |
 | Evidence Requirements | {{INTERACTION_VISUAL_ACCESSIBILITY_COMPLETION_EVIDENCE}} |
 | Severity Rules | {{BASE_OR_PROJECT_SPECIFIC_RULE}} |
+| Timebox | {{OPTIONAL_OBSERVATION_WINDOW_OR_NONE}}; expiration never silently means success |
 | Finding Route | {{OWNING_PRD_WORK_AND_GATE_ROUTE}} |
 
 #### Tester Packet
@@ -44,6 +45,8 @@
 
 - `run_id`
 - `scenario_ref` (ID, version, source digest)
+- `selected_persona` / `persona_primitive` / `persona_resolution`
+- `evidence_root`
 - `work_coordinate`
 - `product_build` / `environment`
 - `tester_qualification`
@@ -68,3 +71,5 @@ Record findings with observed behavior, expected user outcome, severity, reprodu
 - Increment `scenario_version` for meaningful changes to the same goal.
 - Use a new `NUAT-###` only for a materially different goal, audience, platform claim, accessibility condition, or risk.
 - A valid future-trigger `none` still requires the complete trigger and `O-###` routing.
+- Keep Persona-specific packets, run records, outcomes, findings, evidence metadata, and approved evidence under `docs/assets/<persona-slug>/testing/`.
+- Do not store naive-UAT evidence under `.make-docs/archive/` or `docs/artifacts/`.

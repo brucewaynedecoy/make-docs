@@ -48,7 +48,7 @@ The build segment loops per work phase:
 
 Use [coverage-pass-contract.md](../../contracts/system/coverage-pass-contract.md) for the coverage-pass
 band.
-The band covers guide and playbook coverage, history, PRD reconciliation,
+The band covers guide and system-resource coverage, history, PRD reconciliation,
 documentation hygiene, validation, deferred-obligation consumption, and UAT or manual-test decisions.
 
 ### Segment 3 - Release And Beyond
@@ -66,9 +66,9 @@ handing off a report.
 ## Cross-Cutting Lenses
 
 The coverage-pass band is a repeatable lens used during build closeout.
-The persona lens separates developer-facing coverage, user-facing coverage, and
+The Persona lens separates maintainer-facing coverage, user-facing coverage, and
 project/history coverage so one audience does not quietly substitute for another.
-Testing and UAT coverage remains non-persona even when related guides or playbooks target a specific audience.
+Testing modes keep separate verdicts. Each activated Naive-UAT run also selects one eligible configured Persona for audience framing and evidence routing.
 
 ## Default Ordering
 

@@ -16,14 +16,14 @@ Documentation should be portable across checkouts, machines, and users. Do not w
 
 ## Namespace Hygiene
 
-- Treat `docs/assets/**` as the managed project documentation asset namespace, not a catch-all for runtime state or hidden tool resources.
-- Optional pre-design source material lives under `docs/assets/artifacts/**`; top-level `docs/artifacts/**` is a hard-move migration source, not a shipped target.
-- Managed archive storage lives under `docs/assets/archive/**`; top-level `docs/archive/**` is not a shipped target.
-- History and breadcrumb records live under `docs/assets/archive/history/**` and are created on demand.
-- Reader-facing library and playbook assets live under `docs/assets/library/**` and `docs/assets/playbooks/**`.
-- System tool resources live under `.make-docs/contracts/system/**`, `.make-docs/references/system/**`, `.make-docs/templates/system/**`, `.make-docs/scripts/system/**`, and `.make-docs/agentics/**`.
-- Reusable prompt starters are classified under `.make-docs/references/system/prompts/**`; do not preserve a shipped `.make-docs/prompts/**` family by default.
-- Runtime state belongs under `.make-docs/**`, especially `.make-docs/manifest.json` and `.make-docs/conflicts/<run-id>/`.
+- Use `docs/artifacts/**` for optional, non-authoritative source and analysis inputs.
+- Use `.make-docs/archive/**` for Make Docs-managed archive and provenance records.
+- Use `docs/assets/<persona-slug>/**` for Persona-scoped reader assets. Use `docs/assets/<persona-slug>/testing/**` for Naive-UAT packets, runs, findings, and approved evidence.
+- Treat `docs/assets/archive/**`, `docs/assets/artifacts/**`, `docs/assets/library/**`, and `docs/assets/playbooks/**` as legacy migration inputs, not current shipped targets.
+- Current system resources live under `.make-docs/contracts/system/**`, `.make-docs/prompts/system/**`, `.make-docs/references/system/**`, and `.make-docs/templates/system/**`.
+- Routers, scripts, selected agentic payloads, config, manifest, conflicts, and provider state are not content-resource types.
+- Runtime state belongs under `.make-docs/**`, especially `.make-docs/manifest.json` and `.make-docs/conflicts/<run-id>/`. General lifecycle runs and evidence references live in the machine Store.
+- A local `.make-docs/system/**` resource projection is optional. Its absence does not reduce installed-provider availability.
 
 ## Allowed Absolute Path Forms
 

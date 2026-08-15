@@ -4,7 +4,7 @@
 
 Use this contract for closeout-style coverage passes that decide whether a completed change needs follow-on documentation, testing, PRD reconciliation, or history updates.
 
-The contract owns the pass mechanics only: the skeleton, verdict vocabulary, surface mappings, persona targeting, history idempotency, and validation checklist. It does not replace the detailed content contracts for guides, PRDs, work outputs, prompt starters, or history records.
+The contract owns the pass mechanics only: the skeleton, verdict vocabulary, surface mappings, Persona targeting, history idempotency, and validation checklist. It does not replace the detailed content contracts for guides, PRDs, work outputs, system resources, or history records.
 
 ## Pass Skeleton
 
@@ -35,15 +35,15 @@ The spine is semantic, not a required superset. Surface-specific verdicts may us
 
 ## Coverage Surfaces
 
-### Guide And Playbook Coverage
+### Guide And System-Resource Coverage
 
-Guide and playbook coverage is persona-scoped. Use the verdict spine directly: `create`, `update-existing`, `link-only`, or `none`.
+Guide and system-resource coverage uses the verdict spine directly: `create`, `update-existing`, `link-only`, or `none`.
 
-Guides or playbooks that help a tester or facilitator remain persona-scoped artifacts, but they do not turn testing/UAT coverage into a persona axis.
+Guide verdicts carry a configured Persona target when the guide is Persona-bearing. System-resource verdicts carry one of the four peer types: contract, prompt, reference, or template. A system resource does not become Persona-bearing unless its owning contract says so.
 
-Each verdict must carry target persona information when a persona-specific artifact could be affected. The persona target is separate from the verdict: `create` answers what to do, while the persona target answers who the artifact is for.
+The Persona target is separate from the verdict. `create` answers what to do. The Persona target answers who the artifact is for.
 
-Guide content remains governed by [guide-contract.md](guide-contract.md). Future playbook content remains governed by the playbook contract or router that introduces it.
+Guide content remains governed by [guide-contract.md](guide-contract.md). System-resource content remains governed by [system-resource-contract.md](system-resource-contract.md) and its type-specific authority.
 
 ### History Coverage
 
@@ -66,7 +66,7 @@ Never use `create` for a document that describes an addition, enhancement, revis
 
 ### Testing And UAT Coverage
 
-Testing and UAT coverage is not persona-scoped. Use the verdict spine directly: `create`, `update-existing`, `link-only`, or `none`.
+Testing and UAT modes remain separate coverage candidates. Use the verdict spine directly: `create`, `update-existing`, `link-only`, or `none`.
 
 Enumerate separate candidates when applicable for:
 
@@ -77,7 +77,7 @@ Enumerate separate candidates when applicable for:
 - accessibility testing;
 - visual-regression automation.
 
-One candidate's evidence does not substitute for another candidate's verdict.
+One candidate's evidence does not substitute for another candidate's verdict. Every activated Naive-UAT execution selects exactly one eligible configured Persona and defaults to the canonical `user` Persona when none is supplied. Persona selection controls audience framing and evidence routing. It does not replace tester qualification or create a second coverage verdict.
 
 Use `create` when the work warrants a new validation command, manual-test scenario, naive-UAT scenario, or acceptance packet. Use `update-existing` when an existing scenario or validation note should be revised. Use `link-only` when existing coverage is sufficient but should be surfaced. Use `none` only when the completed slice cannot yet produce meaningful end-user signal or another explicit no-change rationale applies, and record the concrete reason, still-applicable validation, future observable trigger, durable owner, target coordinate, and linked `O-###` or current register route when later naive UAT remains owed.
 
@@ -122,7 +122,7 @@ At close of pass, confirm:
 7. History idempotency was applied for the current session.
 8. Changed docs have no unresolved placeholders such as `TODO`, `TBD`, or `{{...}}` unless the contract explicitly permits them.
 9. Focused validation was run for the files touched by the pass, including `git diff --check` when files changed.
-10. Testing/UAT output explicitly states `coverage_scope: non-persona` and preserves separate mode verdicts when naive UAT is in scope.
+10. Testing/UAT output preserves separate mode verdicts and records one eligible configured Persona for each activated Naive-UAT execution.
 
 ## Defining A New Coverage Pass
 

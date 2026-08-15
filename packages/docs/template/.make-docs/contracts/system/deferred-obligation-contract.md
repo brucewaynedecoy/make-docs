@@ -70,7 +70,7 @@ Phase closeout includes a non-persona orphan audit. The audit checks whether acc
 
 An orphan audit does not replace:
 
-- guide or playbook coverage;
+- guide or system-resource coverage;
 - PRD reconciliation;
 - validation;
 - naive UAT;

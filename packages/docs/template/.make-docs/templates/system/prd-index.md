@@ -4,7 +4,7 @@ kind: "prd"
 status: "active"
 follow_on:
   route: "work-backlog-generation"
-  next_prompt: ".make-docs/references/system/prompts/prd-to-work-full-prd.prompt.md"
+  next_prompt: ".make-docs/prompts/system/prd-to-work-full-prd.prompt.md"
   why: "The PRD set should become the effective contract before phase-sized implementation work is queued."
   coordinate_handoff: "Carry the plan or source W/R lineage named by this PRD set into docs/work/."
 # source:
