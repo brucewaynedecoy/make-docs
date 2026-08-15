@@ -55,6 +55,68 @@ This phase authors reusable system contracts, prompts, references, templates, me
 - [ ] t7: After an owner decision, require the canonical PRD/register/history update, focused validation, separate decision commit, and recorded SHA for that decision commit before implementation unlocks; a work task cannot close a question, risk, finding, obligation, scenario, waiver, or capability by implication.
 - [ ] t8: Record the Stage 1 outcome, applicable authority digests, dependency state, and implementation unlock or stop result.
 
+### Phase-entry record
+
+Recorded on 2026-08-15. This record does not close any task or Stage 1.
+
+| Baseline item | Recorded value |
+| --- | --- |
+| Branch | `make-docs-v2` |
+| HEAD | `02002ba23acd2623b430afae39bd6dbef2b2d4f9` |
+| Worktree | Clean at coordinator preflight |
+| Upstream position | One commit ahead of `origin/make-docs-v2` |
+| Free disk | 101 GB at coordinator preflight |
+
+#### Source PRD revisions
+
+These Git blob IDs are from the recorded HEAD.
+
+| Source PRD | Git blob ID |
+| --- | --- |
+| PRD 01 | `5fdd4e6ac49f7dc735c1919a44f97ecd8829281c` |
+| PRD 02 | `7e20f37f2074db7682272bde4e3956b33ceac845` |
+| PRD 04 | `245b82d74f573ecd9d070ac8be87f5d4bb3dbeb2` |
+| PRD 06 | `93198fb9d839b3069a9b99692b132fd5690523fe` |
+| PRD 08 | `9dff96cef3a7cd3d4890efd216d7e9fc528ab9ac` |
+| PRD 09 | `ad5e25e294af23da7d4a6ca82cc9f9273f1c8f02` |
+| PRD 10 | `a1efab51c20e441b9dc6d574e4d75cfb99e2adce` |
+| PRD 16 | `6a5832e4ff380758ec00a4511c86ec05361aa3e3` |
+| PRD 17 | `3b595d2db45380d75f003addaf65b9a06780a32d` |
+| PRD 21 | `ef1f210eb57d2f07e5a7e6e9e1e8964336de41a4` |
+| PRD 34 | `10a577280fe06f8afe011ee5d26bd742bd34e188` |
+| PRD 35 | `2ddbefa3de7c271f1c3d02b6cfe118d2f396ce97` |
+| PRD 36 | `94fb819134fcb24230f391ac0e6154e10161167f` |
+| PRD 03 | `af3afc2ea814703ee3f9c60ed6425b25e53ff4b1` |
+
+#### Question, risk, and obligation classifications
+
+All listed register items use PRD 03 Git blob `af3afc2ea814703ee3f9c60ed6425b25e53ff4b1` from the recorded HEAD.
+
+| ID | Impact | Classification | Disposition and rationale |
+| --- | --- | --- | --- |
+| Q-021 | P1 maintainer-facing document wording | `blocking` | The owner approved the bounded P1 decision on 2026-08-15. The decision-only commit is pending, so implementation stays locked. |
+| R-009 | Lifecycle wording in P1 resources | `impacted-nonblocking` | Lifecycle guidance remains advisory and does not block the four-type authority. |
+| R-010 | Words used for resource and workflow surfaces | `impacted-nonblocking` | P1 uses domain-neutral words and does not add a conflicting domain model. |
+| R-017 | Workflow policy location | `impacted-nonblocking` | System resources own workflow policy. Any Skill remains optional and thin. |
+| R-025 | W19 R1 coordinate use | `impacted-nonblocking` | The current W19 R1 coordinates align. Any future validator is separate work. |
+| O-001 | Separate W18 R3 adversarial review | `unrelated` | The obligation remains separate and is not closed or absorbed here. |
+| O-002 | Prior Playbook or Protocol exposure work | `superseded` | The obligation is superseded and must not be recreated here. |
+| Q-015 | Closed contract question | `closed-regression-check` | Keep the closed decision intact during P1. |
+| Q-020 | Closed product-boundary question | `closed-regression-check` | Keep the closed decision intact during P1. |
+| R-016 | Closed rebuild risk | `closed-regression-check` | Keep the closed decision intact during P1. |
+
+#### Owner decision and gate state
+
+The owner approved the bounded Q-021 decision on 2026-08-15:
+
+- For each maintainer-facing document that W19 R1 P1 creates or changes, use plain words where possible.
+- Explain a necessary special term at first use.
+- Add a term to PRD 04 only when it is stable product vocabulary.
+- Keep Q-021 open for the wider repository sweep and coverage-pass policy.
+- Create no new `O-###` item because the owner did not accept the wider work as a required future obligation.
+
+The decision commit SHA is pending. Implementation unlock is blocked. The owner has not given implementation authorization. The finite budget is two correction attempts and two review cycles. This internal document decision creates no Naive UAT scenario, no finding record, and no capability record. Stage 1 remains open.
+
 ### Acceptance criteria
 
 - Every live-relevant question, risk, closed regression item, and authority gap has the required classification record.

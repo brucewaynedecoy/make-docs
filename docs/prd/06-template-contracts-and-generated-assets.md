@@ -15,6 +15,7 @@ The CLI no longer dynamically renders scaffold documents. What is in `packages/d
 ## Component and Capability Map
 
 - Contracts, prompts, references, and templates are peer system-resource types. Each resource has stable identity `make-docs://system/<type>/<posix-relative-path>` independent of its installed-provider or optional local-projection origin.
+- Maintainer-facing shipped resources that define this four-type authority use plain words where possible. Each necessary special term is explained at first use. A term is also defined in [PRD 04](./04-glossary.md) only when it is stable product vocabulary.
 - Configured root, `.make-docs/`, docs, and on-demand-surface `AGENTS.md` or `CLAUDE.md` routers are template-sourced managed-block files for supported harnesses. [15-agent-instruction-ownership-and-managed-blocks.md](./15-agent-instruction-ownership-and-managed-blocks.md) owns their block-scoped behavior.
 - The product has no dynamic scaffold renderer or `buildable` asset concept. Rebuilders must not introduce generated router, reference, or template content unless a future PRD explicitly changes the product contract.
 - Shipped work-backlog guidance is authored template-first, projected into the package, then dogfooded at the repository root; root `docs/` copies and installed skill projections do not replace `packages/docs/template/` as the source for template-owned work guidance.
@@ -128,6 +129,16 @@ The authority and state boundaries are owned by [R-OBL-AUTH](45-deferred-obligat
 - Replacement contract: Contracts, prompts, references, and templates are peer package-provider resources with stable `make-docs://system/<type>/<posix-relative-path>` identity; local projection and archive/artifact/persona-asset directories are optional and on demand at their accepted targets; Naive UAT uses upstream system resources and a thin optional Skill adapter; Playbooks and Protocols are absent; and `packages/docs/template/` remains upstream of the package and root dogfood projections.
 - Rationale: Template and generated-asset authority must match the accepted v2 product boundary before implementation derives catalogs, manifests, or projection behavior.
 - Source: [Accepted recovery design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md) and [W19 R1 recovery plan](../plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md)
+
+### 2026-08-15 — W19 R1
+
+- Date: 2026-08-15
+- Coordinate: W19 R1
+- Affected requirement or section: `Component and Capability Map`
+- Previous contract: The four peer resource types had no plain-language rule for their maintainer-facing shipped resources.
+- Replacement contract: Maintainer-facing shipped resources that define the four-type authority use plain words where possible, explain each necessary special term at first use, and add a term to PRD 04 only when it is stable product vocabulary.
+- Rationale: Q-021 records the owner's bounded P1 decision. The wider repository sweep and coverage-pass policy remain open.
+- Source: [Q-021 bounded P1 decision](./03-open-questions-and-risk-register.md#q-021-maintainer-facing-terminology-needs-a-plain-language-rule-and-glossary-backing)
 
 ## Source Anchors
 

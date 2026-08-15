@@ -936,15 +936,15 @@ The following pre-W19 R1 discussion is retained as historical context and does n
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Captured from the 2026-07-04 post-UAT scoping discussion: the user reports that jargon such as "information architecture (IA)" has required a follow-up explanation every time it has appeared since the early persona requirements era and remains impenetrable, so maintainer-facing docs need a plain-language rule — a jargon term is either defined in the PRD glossary ([04-glossary.md](./04-glossary.md)) at its first use or replaced with plain wording. The captured future effort has three parts: establish the rule for maintainer-facing docs, run a pass over existing docs and register items for offending terms, and fold glossary maintenance into doc coverage passes so new terms cannot accumulate undefined. The 2026-07-04 Q-018 retitle — from "What Is the Configuration Information Architecture?" to "How Should Configuration Be Laid Out, Owned, and Discovered?" — is the first applied instance of the rule. | Establish the plain-language rule for maintainer-facing docs, sweep existing docs and register items for undefined jargon and retitle or define each offender in [04-glossary.md](./04-glossary.md), and add glossary maintenance to the doc coverage pass obligations. |
+| Open | On 2026-08-15, the owner approved a bounded W19 R1 P1 rule. Each maintainer-facing document that P1 creates or changes uses plain words where possible, explains a necessary special term at first use, and adds the term to [04-glossary.md](./04-glossary.md) only when it is stable product vocabulary. This decision does not settle the wider repository sweep or coverage-pass policy. | Apply the approved rule to P1 documents. Keep the wider repository sweep and coverage-pass policy open for a later owner decision. |
 
 **Question**: What rule keeps maintainer-facing docs free of undefined jargon, and how is the PRD glossary kept current as terms enter the docs?
 
 **Why it matters**: Terminology the maintainer must ask about on every encounter defeats the docs' purpose; jargon that survives repeated explanation without ever landing in the glossary shows the current setup has no mechanism forcing terms to be defined or replaced, and the gap compounds as each new lineage coins vocabulary.
 
-**Recommendation**: Adopt the rule that maintainer-facing docs either define a jargon term in [04-glossary.md](./04-glossary.md) at first use or replace it with plain wording, apply it retroactively in one sweep over existing docs and register items, and keep the glossary current through the doc coverage passes.
+**Recommendation**: Apply the approved bounded rule to W19 R1 P1. Keep the wider repository sweep and coverage-pass policy unresolved until the owner accepts their scope.
 
-**To close**: The plain-language rule is recorded where doc authors will find it, the retroactive sweep is done with each offender defined or reworded, and glossary maintenance is an explicit part of doc coverage passes.
+**To close**: The wider repository sweep is complete with each special term defined or reworded, and glossary maintenance is an explicit part of doc coverage passes.
 
 ### Q-022 The Make Docs Agentics Production Pipeline
 
