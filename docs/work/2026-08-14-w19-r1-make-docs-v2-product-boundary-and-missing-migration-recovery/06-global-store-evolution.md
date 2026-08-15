@@ -1,0 +1,168 @@
+---
+title: "Phase 6: Global Store Evolution"
+kind: "work"
+status: "active"
+coordinate: "W19 R1 P6"
+source:
+  type: "prd"
+  path: "docs/prd/38-global-store-and-project-state.md"
+---
+
+# Phase 6: Global Store Evolution
+
+## Purpose
+
+Add transactional general lifecycle-run state and bounded evidence references while preserving legacy `playbook_runs` data opaquely and keeping repository documents authoritative.
+
+## Overview
+
+This phase implements migration checkpoint 9. The Store receives `runs` and `run_evidence`, optimistic transitions, bounded busy handling, typed receipts, and a nonblocking unavailable outcome. It never stores document bodies, UAT scenario authority, arbitrary evidence payloads, secrets, or inferred legacy Playbook meaning.
+
+## Source PRD Docs
+
+- [PRD 25 — TypeScript Runtime, CLI, and MCP Operation Boundaries](../../prd/25-typescript-runtime-cli-mcp-operation-boundaries.md)
+- [PRD 38 — Global Store and Project State](../../prd/38-global-store-and-project-state.md)
+- [PRD 39 — CLI Command Model and Operation Registry](../../prd/39-cli-command-model-and-operation-registry.md)
+- [PRD 44 — Conformance Lab Sessions and Evidence](../../prd/44-conformance-lab-sessions-and-evidence.md)
+- [PRD 46 — Naive End-User Acceptance Testing](../../prd/46-naive-end-user-acceptance-testing.md)
+- [PRD 03 — Open Questions and Risk Register](../../prd/03-open-questions-and-risk-register.md)
+
+## Source Obligations, Scenarios, And Findings
+
+- O-001 remains separate W18 R3 work; O-002 remains superseded.
+- Q-019 enters only if Persona storage is proposed. This phase does not make the Store the authority for Persona configuration.
+- No `NUAT-###` identity or scenario body is created or stored. Repository scenario and finding records remain authoritative.
+- Task completion cannot close closed-R-023 regression status, findings, obligations, waivers, or capability status.
+
+## Stage 1 - Phase-Entry PRD Question And Risk Gate
+
+### Tasks
+
+- [ ] t1: Verify the exact worktree, branch, HEAD, free disk, dirty-state allowlist, accepted P5 closeout, active lock/quiescence, and implementation authorization; stop on unexpected user work or unsafe growth.
+- [ ] t2: Reread every Source PRD and PRD 03 from the live worktree and record each revision or content digest.
+- [ ] t3: Reevaluate at minimum Q-018, closed R-023 as a regression check, and the receipt-field generalization question; include Q-019 only if Persona storage is proposed and add newly relevant live items.
+- [ ] t4: Record each relevant item's ID or bounded gap label, digest, impact, classification (`blocking`, `impacted-nonblocking`, `unrelated`, `closed-regression-check`, or `new-authority-gap`), disposition, and rationale.
+- [ ] t5: Record an explicit no-blocker determination and finite migration/busy/failure/correction/review budget before unlocking t8 when no blocker or gap remains.
+- [ ] t6: Stop before implementation for any blocker or authority gap and present an owner decision package with source anchors, affected phase and PRDs, bounded options and trade-offs, recommendation, consequences, exact PRD/register/history edits, focused validation, and a decision-only commit boundary; create no standalone decision file.
+- [ ] t7: Require canonical authority updates, focused validation, a separate decision commit, and its recorded SHA before unlock; never infer closure from a schema migration or task.
+- [ ] t8: Record the Stage 1 result, authority digests, P5 checkpoint evidence, receipt-field disposition, and implementation unlock or stop result.
+
+### Acceptance criteria
+
+- Store authority, receipt generalization, and closed R-023 regression have explicit current dispositions.
+- Q-019 remains out of scope unless Persona storage is actually proposed.
+- Checkpoint 9 remains locked until every blocker is canonically resolved.
+
+### Dependencies
+
+- Accepted P5 lock, quiescence, backup, rollback, and migration coordinator.
+- Current PRD authority and separate P6 implementation authorization.
+
+### Closeout Notes
+
+- Testing-mode decision(s): transactional Store proof; no naive-UAT execution or scenario authority is introduced.
+- Phase / capability status: gate result pending.
+
+## Stage 2 - Migrate The Store Transactionally
+
+### Tasks
+
+- [ ] t9: Add ordered idempotent schema migrations for general `runs` and `run_evidence` relations with stable project/run/evidence identities, lifecycle stages, statuses, checkpoints, optimistic versions, bounded metadata, and timestamps defined by PRD 38.
+- [ ] t10: Preserve the existing `playbook_runs` relation and rows byte-semantically opaque and untouched; exclude them from current listings, conversions, inference, deletion, merging, and new foreign-key behavior.
+- [ ] t11: Apply the migration inside the P5 checkpoint-9 transaction/backup envelope with bounded busy handling, schema-version verification, rollback, and typed failure outcomes.
+- [ ] t12: Prove repeat application is idempotent, downgrade/restore behavior is bounded, and an interrupted migration cannot expose a partially upgraded current schema.
+
+### Acceptance criteria
+
+- `runs` and `run_evidence` match current PRD fields and constraints.
+- Legacy `playbook_runs` remains opaque and untouched.
+- Busy, interruption, and schema mismatch fail safely within finite budgets.
+- Migration checkpoint 9 is transactional and recoverable.
+
+### Dependencies
+
+- Stage 1 unlock.
+- P5 frozen snapshot, active lock/quiescence, backup, and rollback.
+
+### Closeout Notes
+
+- Testing-mode decision(s): fresh, existing, repeated, busy, interrupted, corrupt-version, rollback, and legacy-row fixtures.
+- Phase / capability status: schema complete; operations remain open.
+
+## Stage 3 - Implement General Run Operations And Evidence References
+
+### Tasks
+
+- [ ] t13: Implement start, show, list, checkpoint, pause, resume, attach evidence, complete, fail, and abandon with PRD-defined transition validation and optimistic concurrency.
+- [ ] t14: Restrict current `run_type` and lifecycle/status vocabularies to the PRD-defined values; reject unknown values rather than converting them into arbitrary metadata.
+- [ ] t15: Store only bounded evidence references with kind, project-relative path or sanitized external reference, optional digest, and timestamp; reject bodies, screenshots, recordings, logs, prompts, secrets, credentials, and arbitrary payloads.
+- [ ] t16: Keep repository PRDs, work, scenarios, findings, evidence artifacts, gates, and history authoritative; Store rows are rebuildable operational projection and never close those records.
+- [ ] t17: Implement `run-capture-unavailable` as a typed no-repository-mutation, no-automatic-retry outcome that is nonblocking unless a direct Store/run-capture gate explicitly requires success.
+
+### Acceptance criteria
+
+- All transitions enforce optimistic version and legal-state rules.
+- Evidence storage is reference-only, bounded, sanitized, and non-authoritative.
+- Unavailable capture has exact typed semantics and cannot trigger an unbounded retry loop.
+- Legacy rows never appear in current operations.
+
+### Dependencies
+
+- Stage 2 schema.
+- P3 registry and projection contracts.
+
+### Closeout Notes
+
+- Testing-mode decision(s): transition-table, version-conflict, evidence validation, unavailable, and legacy-exclusion fixtures.
+- Phase / capability status: Store operations complete; receipts remain open.
+
+## Stage 4 - Return Typed Mutation Receipts
+
+### Tasks
+
+- [ ] t18: Return a typed receipt for each successful Store mutation containing run identity, operation, Store schema version, resulting optimistic version, and commit time, plus only additional fields explicitly approved by the Stage 1 receipt-generalization disposition.
+- [ ] t19: Make receipt serialization stable across CLI and MCP while preserving the distinction between a Store commit and repository write, validation, publication, external delivery, UAT acceptance, or phase closure.
+- [ ] t20: Prove failed, conflicted, unavailable, and rolled-back mutations cannot emit a success receipt and that retry uses the latest explicit optimistic version rather than hidden repetition.
+
+### Acceptance criteria
+
+- Receipts prove exactly one committed Store mutation and no broader outcome.
+- CLI/MCP receipt projections are semantically identical.
+- Failure paths cannot produce false success receipts.
+- Receipt fields do not silently expand product authority.
+
+### Dependencies
+
+- Stage 3 operations.
+- Stage 1 disposition for any generalized receipt field.
+
+### Closeout Notes
+
+- Testing-mode decision(s): receipt schema, transport parity, false-success, conflict, and rollback tests.
+- Phase / capability status: receipts complete; confirmation remains open.
+
+## Stage 5 - Prove Data Safety And Unlock Checkpoint 10
+
+### Tasks
+
+- [ ] t21: Run focused schema, migration, transition, concurrency, busy, evidence-reference, receipt, CLI/MCP parity, privacy, rollback, and whitespace validation within the finite budget.
+- [ ] t22: Compare pre/post fixtures to prove every legacy `playbook_runs` row and unrelated Store table remains untouched and current listings exclude legacy rows.
+- [ ] t23: Obtain independent review of transactional safety, repository-vs-Store authority, receipt semantics, unavailable behavior, and legacy preservation; correct only actionable defects within budget.
+- [ ] t24: Record checkpoint-9 completion evidence, exact schema/operation versions, remaining nonblocking items, and the locked checkpoint-10/P7 handoff while keeping quiescence active.
+
+### Acceptance criteria
+
+- Focused data-safety and failure-injection validation passes.
+- Independent review finds no unresolved material migration, authority, privacy, or receipt defect.
+- Checkpoint 9 closes without touching legacy Playbook state.
+- Checkpoint 10 remains separately gated and quiescence remains active.
+
+### Dependencies
+
+- Stages 2 through 4 complete.
+- Finite migration/failure/correction/review budget.
+
+### Closeout Notes
+
+- Testing-mode decision(s): deterministic Store fixtures plus independent data-safety review.
+- Phase / capability status: P6/checkpoint 9 may close with evidence; P7/checkpoint 10 remains separately gated.

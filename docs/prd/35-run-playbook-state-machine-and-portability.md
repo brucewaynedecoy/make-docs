@@ -1,5 +1,5 @@
 ---
-title: "35 Run Playbook State Machine and Portability"
+title: "35 Workflow Execution and Legacy Run Boundary"
 kind: "prd"
 status: "active"
 source:
@@ -7,113 +7,85 @@ source:
   path: "docs/designs/2026-07-01-run-playbook-state-machine.md"
 ---
 
-# 35 Run Playbook State Machine and Portability
+# 35 Workflow Execution and Legacy Run Boundary
 
 ## Purpose
 
-This document defines the current product contract for portable playbook execution, resumable state, nesting, and concurrency. Normative requirements are stated in the sections below; Requirement History is provenance only.
+This document defines the current Make Docs boundary between capability-specific workflow execution, general lifecycle run capture, and legacy Playbook run data. Make Docs v2 has no generic Run Playbook or Run Protocol engine; Requirement History and Source Anchors preserve the former execution contract as provenance only.
+
 ## Scope
 
-This authority owns portable playbook execution, resumable state, nesting, and concurrency. Related PRDs own adjacent capabilities and are linked where a cross-boundary contract is required.
+This authority owns the present absence of a Playbook/Protocol runner, state machine, progression API, resume model, nesting model, concurrency model, or portable Playbook-run artifact. It also owns the compatibility rule that legacy Playbook run state remains opaque and untouched.
+
+General lightweight lifecycle run capture is owned by [38-global-store-and-project-state.md](38-global-store-and-project-state.md) and [39-cli-command-model-and-operation-registry.md](39-cli-command-model-and-operation-registry.md). Capability-specific workflow and gate semantics remain with their owning PRDs.
+
 ## Component and Capability Map
 
-The requirements below define the owned components, behaviors, boundaries, and evidence expectations for this capability.
+- Current workflow execution: typed capability-specific operations surfaced through CLI and MCP.
+- Current lifecycle run capture: the closed `lifecycle` run type and evidence references owned by PRDs 38 and 39.
+- Legacy Playbook state: existing `playbook_runs` rows and related historical artifacts preserved opaquely.
+- Migration safety: a quiescence barrier prevents new Playbook/Protocol discovery or writes before retirement and migration classification.
+
 ## Requirements
 
-The requirements below are the normative authority. Their stable identifiers preserve traceability to the originating [run playbook state-machine design](../designs/2026-07-01-run-playbook-state-machine.md), which is provenance rather than product authority.
+### Current Execution Boundary (R-SCOPE)
 
-### Scope, Boundaries, and Execution Invariants (R-SCOPE, R-KEEP)
+- R-SCOPE-1 (MUST): Make Docs defines no generic Run Playbook or Run Protocol engine, resolver, state machine, cursor, per-step status model, gate-decision model, dependency snapshot, nested-run model, concurrency policy, digest-aware resume, or hand-followable engine tier.
+- R-SCOPE-2 (MUST): no `playbook.start`, `playbook.status`, `playbook.next`, `playbook.advance`, `playbook.gate`, `playbook.resume`, `playbook.close`, `playbook.run.export`, `playbook.run.import`, or Protocol equivalent appears in the current operation registry, CLI, or MCP surface.
+- R-SCOPE-3 (MUST): Skills, plugins, hooks, extensions, system workflows, or harness capabilities must not recreate the former generic runner or preserve it as hidden compatibility behavior.
+- R-SCOPE-4 (MUST): current workflow behavior is capability-specific. Its operation, gate, evidence, Persona, and safety semantics are owned by the applicable current product PRD rather than this legacy boundary.
 
-- R-SCOPE-1 (MUST NOT): this authority owns run-state record content, progression operations and semantics, execution by step mode, digest-aware resume, run-time guardrails, and run portability. [34-playbook-authoring-contract-and-model.md](34-playbook-authoring-contract-and-model.md) owns the Playbook document and parsed model; [38-global-store-and-project-state.md](38-global-store-and-project-state.md) owns physical store schema, locking, recovery, and project identity; [39-cli-command-model-and-operation-registry.md](39-cli-command-model-and-operation-registry.md) owns registry materialization and CLI grammar; [36-playbook-packaging-compiler-and-harness-adapters.md](36-playbook-packaging-compiler-and-harness-adapters.md) owns packaging; and PRDs [20](20-agent-harness-conformance-and-support-claims.md), [43](43-conformance-scenario-model-and-execution-kits.md), and [44](44-conformance-lab-sessions-and-evidence.md) own conformance. This authority does not redefine those contracts.
-- R-SCOPE-2 (MUST): PRD 34 owns resolver identity and the orchestration-policy field shape, while [24-project-configuration-and-convention-overlay.md](24-project-configuration-and-convention-overlay.md) owns the `harnessCapabilities` configuration surface. This PRD consumes those declarations and owns their execution semantics.
-- R-KEEP-1 (MUST): `persona/slug` is the resolver identity, `stack` is a required validation discriminator, and ambiguous bare selection fails closed. The workflow header may declare `requires_capabilities`, `prefers_capabilities`, `child_playbooks`, and `concurrency`. Canonical capability identifiers are `goal_managed_execution`, `long_running_runs`, `resume_after_interrupt`, `parallel_playbook_runs`, `subagent_delegation`, and `user_gate_prompts`, with stable ids and configuration-rendered labels. Reviewed `harnessCapabilities` records are hints, never routing authority; unknown capabilities are never guessed, optional unknowns fall back to serial gated execution, and required unknowns stop for manual review. Harness goals and long-running features are assists, while Make Docs-owned run state remains authoritative for recovery, audit, nesting, and overlap checks.
+### General Lifecycle Run Separation (R-RUN)
 
-### Generic Run Playbook Model
+- R-RUN-1 (MUST): the general Store run model is limited to the `lifecycle` run type and the lifecycle stages defined by PRDs 38 and 39. It is not a renamed Playbook/Protocol runner.
+- R-RUN-2 (MUST): general run records contain bounded current state and evidence references only. They do not contain a procedural document model, per-step Playbook state, dependency registry, child-Playbook links, or Playbook resume hints.
+- R-RUN-3 (MUST): a successful general Store receipt proves only the recorded Store mutation. It does not prove a workflow outcome, gate decision, UAT result, or support claim.
 
-Run Playbook is a generic execution model, not a plugin or packaging rule. Every Playbook that validates under [34-playbook-authoring-contract-and-model.md](34-playbook-authoring-contract-and-model.md) can be executed by this model or followed by hand without first being packaged.
+### Legacy Store Compatibility (R-LEGACY)
 
-A Run Playbook surface must:
+- R-LEGACY-1 (MUST): the existing `playbook_runs` table and rows remain opaque historical data. Make Docs stops creating, updating, interpreting, resuming, exporting, importing, or deriving product state from those rows.
+- R-LEGACY-2 (MUST): no table drop, row deletion, semantic conversion, retention-policy change, or migration into the general `runs` model occurs without a future owner-approved data migration that explicitly covers those bytes.
+- R-LEGACY-3 (MUST): migration reports legacy state without treating its presence as current support. Corrupt, unknown, newer, or ambiguous legacy state fails closed and remains untouched.
+- R-LEGACY-4 (MUST): historical exported run artifacts and evidence retain their terminology and bytes as provenance but cannot be imported to activate the former execution engine.
 
-1. Select exactly one Playbook by explicit path, qualified `persona/slug`, unambiguous bare slug or title, or catalog entry, using PRD 34 R-SELECT.
-2. Parse and validate the current document, dependency, and workflow schemas and fail closed before execution when the model has any error or the `kind`, `persona`, `stack`, `schema`, or `workflowSchema` discriminator is missing or invalid.
-3. Load the referenced authority sources in the precedence order declared by the Playbook's `## Inputs` section and dependency model; neither configuration nor a harness adapter may reorder those authorities.
-4. Resolve configuration overlays for labels, defaults, preconditions, and presentation only. Canonical lifecycle routing, artifact ownership, Playbook identity, operation identifiers, and output destinations remain unchanged by configuration.
-5. Execute the parsed procedure step by step using the step mode, dependency, routing, and evidence rules below.
-6. Stop at gates and user-decision points unless that gate explicitly permits unattended continuation and the run satisfies that allowance; a harness prompt capability does not itself grant permission to continue.
-7. Treat CLI, MCP, plugin, skill, subagent, goal-management, and long-running facilities as assists unless the Playbook marks the corresponding dependency or capability as required. Unknown optional capabilities degrade to serial gated execution; unknown or unsupported required capabilities stop with manual-review guidance.
-8. Claim and record outputs only in a surface declared by the Playbook or named by an explicit caller instruction, following [23-generated-document-metadata-and-lifecycle-handoffs.md](23-generated-document-metadata-and-lifecycle-handoffs.md); output claims are established before mutation so the overlap guardrails can serialize or stop unsafe work.
+### Quiescence and Retirement Safety (R-QUIESCE)
 
-Plugin, skill, CLI, and MCP surfaces may invoke these operations, but they do not redefine selection, authority order, configuration precedence, gates, output routing, state ownership, or Playbook validity.
+- R-QUIESCE-1 (MUST): before migration classifies or mutates any affected surface, the migration holds the exclusive project lock and verifies a durable barrier across every public Playbook/Protocol discovery and write boundary.
+- R-QUIESCE-2 (MUST): the barrier remains active through transformation and validation and fails closed when any writer or discovery path can bypass it.
+- R-QUIESCE-3 (MUST): quiescence does not delete legacy Store data or prove an implementation surface safe to remove. Removal still requires the accepted current trace and verified ownership.
 
-### Run-State Storage and Record (R-STORE, R-STATE)
+### Conformance and Support Boundary (R-SUPPORT)
 
-- R-STORE-1 (MUST): run state is stored only in the global store at `~/.make-docs/`; it must not be written under `.make-docs/runs/` or any other repository path.
-- R-STORE-2 (MUST): run state is keyed by the stable project identifier minted at setup and recorded in the project manifest plus a run identifier, never by directory path; for run state the global store is canonical and relocated with no in-repo copy, in contrast to install information, which is mirrored from the project manifest.
-- R-STORE-3 (reference): [PRD 38](38-global-store-and-project-state.md) owns the Global Store's physical schema, concurrency model, and project-identifier scheme; this PRD requires only that run state is stored there and keyed as in R-STORE-2.
-- R-STATE-1 (MUST): the run-state record contains at least run identifier, root run identifier, parent run identifier, project identifier, playbook ref, source digest, document and workflow schema versions, stack, harness, capability snapshot, routing model, per-step status, gate decisions, dependency availability snapshot, claimed output surfaces, output and evidence references, the current cursor of step or gate, child run references, resume hints, timestamps, and terminal status.
-- R-STATE-2 (MUST): step status values are exactly the shared Playbook vocabulary — `pending`, `running`, `blocked`, `waiting-for-user`, `completed`, `failed`, `skipped`, `cancelled` — and the runner must not introduce a parallel vocabulary.
+- R-SUPPORT-1 (MUST): current conformance scenarios and public support claims contain no Playbook/Protocol execution, nesting, parallelism, resume, plugin launch, or unattended-run tuple.
+- R-SUPPORT-2 (MUST): historical results remain provenance and do not advance a current support tuple.
 
-- R-STATE-1 resume hints are subject-scoped: each hint records the step or gate it advises about, every mutating transition retires hints whose subject has reached a resolved status, and `close` retires all guidance hints so a closed run carries none. Hints are current guidance only; the evidence log is the durable audit trail, and serialization changes are additive under the global store's schema-versioning rules.
+## Non-Requirements
 
-### Progression Operations (R-OP)
+- No generic Playbook or Protocol execution model.
+- No Playbook/Protocol progression, resume, nesting, concurrency, export, or import operations.
+- No conversion of legacy `playbook_runs` into current lifecycle runs.
+- No deletion or reinterpretation of legacy run data.
+- No hidden runner inside a Skill, plugin, hook, extension, or harness adapter.
 
-- R-OP-1 (MUST): the runner exposes `playbook.start` (read then write: create a run from a validated Playbook model), `playbook.status` (read: read the current run state), `playbook.next` (read: compute the next executable step from state plus model, respecting dependencies, gates, and routing, without mutating), `playbook.advance` (write: record completion or failure of the current step, capture its evidence, transition status, and compute the next cursor), `playbook.gate` (write: record a gate decision with its evidence and either unblock or stop), `playbook.resume` (read then write: re-enter a run, digest-checked per R-RESUME-1), and `playbook.close` (write: finalize a run with a terminal status and closeout evidence); each is a Make Docs operation addressed by a stable registry identifier, surfaced on the CLI under `run playbook` and as MCP tools, with mutating operations honoring the uniform operation-core safety gating.
-- R-OP-2 (MUST): the complete operation family includes create (`playbook.start`), invoke, read (`playbook.status` and `playbook.next`), progression (`playbook.advance` and `playbook.gate`), re-entry (`playbook.resume`), and finalization (`playbook.close`); every listed operation is available through the registry-derived surfaces.
-- R-OP-3 (MUST): `playbook.next` is side-effect free; only `playbook.advance`, `playbook.gate`, and `playbook.close` may transition state, `playbook.start` may create it, and no other operation may write run state.
+## Acceptance Criteria
 
-### Execution by Step Mode (R-MODE)
+- Current operation, CLI, MCP, Skill, and support surfaces expose no Playbook/Protocol runner behavior.
+- General lifecycle run capture remains bounded, capability-neutral, and separate from legacy Playbook state.
+- Existing `playbook_runs` rows remain opaque and untouched.
+- Migration quiesces every public legacy write/discovery boundary before classification and keeps the barrier active through validation.
+- Historical run artifacts cannot reactivate or imply support for the former engine.
 
-- R-MODE-1 (MUST): the parsed step execution mode governs `playbook.advance` and the degradation guarantee — `deterministic` resolves the step's `operation` or `command`, executes it (an operation through the operation core, a command through the shell), captures the structured result as run evidence, and transitions automatically, and when the CLI is absent resolves the operation identifier to its human CLI form and presents that command for the reader to run by hand; `delegated` presents the step instructions, sets the step to `waiting-for-user`, and waits for a subsequent `playbook.advance` carrying the reported outcome and evidence, with the same instructions usable directly without the CLI; `manual` is documentation only, recording acknowledgment without executing.
-- R-MODE-2 (MUST): a step whose mode is unspecified is treated as `delegated`.
-
-### Digest-Aware Resume (R-RESUME)
-
-- R-RESUME-1 (MUST): on `playbook.resume` the runner compares the stored source digest with the current Playbook digest; a match resumes at the stored cursor, and a mismatch marks the run stale and by default blocks, requires an explicit re-plan, and emits a diagnostic naming the change; the runner must never silently resume against a changed workflow.
-- R-RESUME-2 (MAY): an explicit re-plan may offer optional remapping of still-present step identifiers and flag added or absent steps; remapping is never the default response to a digest mismatch.
-
-### Run-Time Guardrails (R-GUARD)
-
-- R-GUARD-1 (MUST): nested Playbooks are allowed only when the parent's orchestration policy permits child Playbooks; a child run links to its parent through child-run references and a shared root run identifier, and serial child runs are the default.
-- R-GUARD-2 (MUST): parallel child runs require explicit parent permission, a harness capability or reviewed approval supporting parallel execution, and non-overlapping claimed output surfaces; if overlap cannot be proven safe, the runner serializes the work or stops for review.
-- R-GUARD-3 (MUST): when two steps or runs would claim the same output surface, the runner stops rather than interleaving writes.
-- R-GUARD-4 (MUST): in unattended mode, only steps whose gates permit unattended continuation proceed without a human; all other gate steps set `waiting-for-user` and hold.
-
-### Portability (R-PORT)
-
-- R-PORT-1 (MUST): because run state is machine-local, cross-machine handoff is served by explicit export and import of a run, which serializes the run record and its evidence into a portable artifact and rehydrates it elsewhere; export and import are opt-in and must not place run state into the repository by default.
-
-### The Three Tiers in Motion (R-TIER)
-
-- R-TIER-1 (MUST): the runner realizes the three-tier degradation guarantee — with neither Make Docs nor the CLI present there is no engine and the Playbook is structured documentation a reader executes by hand; with Make Docs resources present but no CLI an agent reads the same structure and the operation registry's documented command forms and executes without tracking; with the CLI present the full engine runs and records state in the global store.
-
-### Verification and Testability (R-TEST)
-
-- R-TEST-1 (MUST): each progression operation has tests covering its success and failure transitions, including that `playbook.next` never mutates state.
-- R-TEST-2 (MUST): resume is tested for both a matching digest, which resumes, and a mismatched digest, which blocks with a diagnostic.
-- R-TEST-3 (MUST): each execution mode is tested — a deterministic step that executes and auto-transitions, a delegated step that holds at `waiting-for-user` and advances on a reported outcome, and a manual step that records acknowledgment.
-- R-TEST-4 (MUST): the guardrails are tested — a parallel child run blocked by output-surface overlap, and an unattended run that holds at a gate requiring a human.
-- R-TEST-5 (MUST): a test asserts that no run state is written under `.make-docs/runs/` or any repository path.
-
-Global-store run state, the shared status vocabulary, the read-versus-mutate operation classification, digest-blocked resume, and the execution invariants above are non-substitutable. Implementations may choose the concrete in-store serialization, internal engine structure, captured-evidence encoding sufficient for audit and resume, and any optional explicit re-plan mapping algorithm.
-
-Code anchors:
-
-- `packages/cli/src/operations/playbook/index.ts`
-- `packages/cli/src/cli.ts`
 ## Contracts and Data
 
-The named paths, schemas, state records, metadata fields, and evidence shapes in Requirements are normative contracts for this capability.
+The R-SCOPE, R-RUN, R-LEGACY, R-QUIESCE, and R-SUPPORT requirements are normative. Former Playbook run records and exported artifacts are compatibility data only.
+
 ## Integrations
 
-This capability integrates with the adjacent current authorities linked from Requirements and Source Anchors; those authorities remain owners of their own boundaries.
+PRD 18 owns migration classification, lock, backup, and rollback; PRDs 38 and 39 own the current general lifecycle run model and operations; PRD 25 owns the typed runtime and CLI/MCP projection; PRD 34 owns the adjacent procedural-asset boundary; and PRD 36 owns the adjacent packaging boundary.
+
 ## Rebuild Notes
 
-A rebuild must preserve the requirement identifiers, stable semantic anchors, ownership boundaries, and failure-safe behavior stated here. Implementation evidence does not silently weaken this authority.
-## CLI Portability Boundary
-
-Run identifiers, resume hints, and execution flags must retain stable agent semantics across human-friendly renderings. PRD 39 owns command grammar and rendering; this state-machine authority owns the state transitions those commands invoke.
-
-`playbook.run.export` serializes a run and its evidence to a caller-named portable artifact or returns it inline; it never writes into the repository by default. `playbook.run.import` validates that artifact and rehydrates it into the importing repository's Project State in the machine-level Global Store. Both operations are explicit writes and therefore consume the same permission and dry-run gates as other mutating registry operations.
+A clean-room rebuild must not map former Playbook runner names into the general lifecycle run model. It must keep legacy rows opaque, preserve quiescence before retirement, and leave capability-specific workflow semantics with their current owners.
 
 ## Requirement History
 
@@ -125,16 +97,26 @@ Run identifiers, resume hints, and execution flags must retain stable agent sema
 - Rationale: Active PRDs own product subjects and do not preserve editorial operations as product authority.
 - Source: [PRD Authority Maintenance](../../.make-docs/references/system/prd-change-management.md)
 
-
 ### 2026-08-08 — W18 R7
 
 - Affected requirement or section: `Document identity and current authority`
 - Previous contract: The capability was represented as a standalone editorial change record whose title and structure described how the PRD set was modified.
-- Replacement contract: This document now states the current portable playbook execution, resumable state, nesting, and concurrency requirements inline as product authority.
+- Replacement contract: This document stated portable Playbook execution, resumable state, nesting, concurrency, progression operations, and run import/export as current Make Docs authority.
 - Rationale: Active PRDs describe the current product shape; editorial operations belong in plans, work, and history.
 - Source: [Run Playbook state-machine design](../designs/2026-07-01-run-playbook-state-machine.md)
+
+### 2026-08-14 — W19 R1
+
+- Affected requirement or section: `Purpose; Current Execution Boundary; General Lifecycle Run Separation; Legacy Store Compatibility`
+- Previous contract: Make Docs owned a generic Run Playbook engine with progression, gates, resume, nesting, concurrency, portability, and Playbook-specific Store state, and the unexecuted W19 R0 direction proposed a Protocol successor.
+- Replacement contract: Make Docs has no Playbook/Protocol runner; current workflows use capability-specific typed operations, general run capture is limited to lifecycle state, and legacy `playbook_runs` data remains opaque and untouched behind a quiescent migration boundary.
+- Rationale: The accepted v2 boundary removes the former engine without converting or deleting historical data and without hiding its semantics inside general run capture.
+- Source: [W19 R1 recovery design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md) and [accepted W19 R1 plan](../plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md)
+
 ## Source Anchors
 
+- [W19 R1 recovery design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md)
+- [W19 R1 plan](../plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md)
 - [../designs/2026-07-01-run-playbook-state-machine.md](../designs/2026-07-01-run-playbook-state-machine.md)
 - [../designs/2026-06-27-run-playbook-orchestration-and-harness-capabilities.md](../designs/2026-06-27-run-playbook-orchestration-and-harness-capabilities.md)
 - [../designs/2026-06-30-playbook-contract-and-model.md](../designs/2026-06-30-playbook-contract-and-model.md)
@@ -143,12 +125,11 @@ Run identifiers, resume hints, and execution flags must retain stable agent sema
 - [../assets/artifacts/cli-command-reorganization.md](../assets/artifacts/cli-command-reorganization.md)
 - [../plans/2026-07-01-w18-r7-run-playbook-state-machine/00-overview.md](../plans/2026-07-01-w18-r7-run-playbook-state-machine/00-overview.md)
 - [../work/2026-07-01-w18-r7-run-playbook-state-machine/00-index.md](../work/2026-07-01-w18-r7-run-playbook-state-machine/00-index.md)
-- [34 Playbook Authoring Contract and Model](34-playbook-authoring-contract-and-model.md)
-- [30 Harness Plugin Substrate Workflow Bundles](30-plugin-substrate-and-workflow-bundles.md)
+- [34 Procedural Asset Boundary](34-playbook-authoring-contract-and-model.md)
+- [30 Agentic Extensibility Boundary](30-plugin-substrate-and-workflow-bundles.md)
 - [21 Tool Directory System Custom Resource Tiers](21-project-tool-directory-and-resource-tiers.md)
 - [05 Installation Profile and Manifest Lifecycle](05-installation-profile-and-manifest-lifecycle.md)
 - [10 Packaging Validation and Release Reference](10-packaging-validation-and-release-reference.md)
-- [34 Playbook Contract and Model](34-playbook-authoring-contract-and-model.md)
 - [24 Configuration Convention Overlay](24-project-configuration-and-convention-overlay.md)
 - [25 CLI Separation and MCP Boundary](25-typescript-runtime-cli-mcp-operation-boundaries.md)
 - `packages/cli/src/operations/playbook/index.ts`

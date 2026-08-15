@@ -21,7 +21,6 @@ Selected agentic payloads are installed once into a shared make-docs-owned store
 Within that store, reserve:
 
 - `skills/<skill-name>/` for selected skill payloads
-- `plugins/<plugin-id>/` for future selected plugin payloads
 - `manifests/` or equivalent metadata records for resolved purpose, source, trust, integrity, and provenance data
 
 ### Native Harness Exposure
@@ -45,7 +44,6 @@ Windows behavior must be explicit. The CLI may use symlinks where supported, inc
 - symlink exposure paths, link targets, link type, and fallback status
 - managed copy-mirror paths and their canonical source payload
 - legacy generated stub paths from earlier installs
-- PRD 36 generated plugin and skills-bundle output paths when those outputs are installed through the selected-agentics store
 - exposure mode, with `symlink` preferred and `copy-mirror` fallback
 - harness name and path scope
 - previous per-harness duplicated payloads that were migrated, preserved, or skipped
@@ -68,43 +66,40 @@ The single reviewed audit snapshot rule remains mandatory before destructive mig
 
 After selected-agentics removal, lifecycle operations prune empty managed parents under project- and home-scoped `.make-docs/agentics/**` only when the same reviewed ownership evidence proves there are no unmanaged descendants. Eligible empty parents include `skills/<skill-name>/`, `skills/`, and `agentics/`.
 
-Pruning must preserve sibling selected skills or plugins; in-use manifests or equivalent metadata; user-authored and modified managed files; wrong-target symlinks; ambiguous missing-manifest state; legacy generated stubs or copy mirrors requiring review; and any future agentics content not approved by the reviewed snapshot. Symlink exposures are unlinked without following targets, and copy mirrors are removed only when classified clean.
+Pruning must preserve sibling selected Skills; in-use manifests or equivalent metadata; user-authored and modified managed files; wrong-target symlinks; ambiguous missing-manifest state; legacy generated stubs or copy mirrors requiring review; and any unowned agentics content not approved by the reviewed snapshot. Symlink exposures are unlinked without following targets, and copy mirrors are removed only when classified clean.
 
 ### Config and Behavior Boundary
 
 Config overlays are read through a make-docs config resolver contract, not plugin-specific or skill-specific routing maps.
 
-Installed skills and plugins may render configured labels only after resolving canonical ids, paths, kinds, purpose ids, skill names, plugin ids, and harness names.
+Installed skills may render configured labels only after resolving canonical ids, paths, kinds, purpose ids, skill names, and harness names.
 
 If the config resolver is not yet implemented, shared payloads and harness-exposure diagnostics must preserve canonical wording rather than inventing local config parsing.
 
 Shared payloads may instruct agents to call make-docs CLI or MCP operations for deterministic behavior, but selected artifact discovery must remain native and inspectable without a live CLI process.
 
-### Plugin Inheritance
+### Optional Agentics Boundary
 
-Plugin installation inherits the shared storage and native harness exposure primitive, while [30-plugin-substrate-and-workflow-bundles.md](30-plugin-substrate-and-workflow-bundles.md) owns full plugin substrate and workflow bundle metadata.
+Core Make Docs behavior is complete through project routers, system resources, CLI operations, and MCP surfaces without installed agentics. Selected Skills may improve discovery and sequencing or adapt access for a supported harness, but they must delegate deterministic behavior to the same typed operations and return the same receipts.
 
-Selected plugin payloads use `.make-docs/agentics/plugins/<plugin-id>/` per scope and native harness exposure; [30-plugin-substrate-and-workflow-bundles.md](30-plugin-substrate-and-workflow-bundles.md) owns any authoritative change to that plugin contract.
+The first-party Naive-UAT Skill is a supported optional payload. Its shims follow [08-skills-catalog-and-distribution.md](08-skills-catalog-and-distribution.md): they adapt arguments or receipt formatting only, carry no tester qualification, anti-coaching, scenario, evidence, finding, gate, or run-state policy, and never become a correctness prerequisite.
 
-[34-playbook-authoring-contract-and-model.md](34-playbook-authoring-contract-and-model.md) owns the playbook content contract and generic Run Playbook model. PRD 30 allows plugin payloads to expose that model, but this PRD continues to own only shared storage and native harness exposure primitives.
-
-[36-playbook-packaging-compiler-and-harness-adapters.md](36-playbook-packaging-compiler-and-harness-adapters.md) owns generated plugin and skills-bundle outputs from Playbooks. When those outputs are installed, they inherit this PRD's shared payload, native exposure, symlink-preferred, copy-mirror fallback, audit, backup, uninstall, migration, and no-default-agentics rules.
+Make Docs has no general plugin, hook, extension, workflow-bundle, Playbook-generated Skill, or harness-adapter installation contract. An agentic integration may enter this store only after a traced non-Playbook purpose, an existing owning PRD, real harness capability evidence, explicit selection, and install/uninstall authority exist; [30-plugin-substrate-and-workflow-bundles.md](30-plugin-substrate-and-workflow-bundles.md) owns that admission boundary.
 
 ### No-Default-Skills
 
 Bare install and default sync write no selected skill payloads and no harness exposures.
 
-Shared agentics are written only when the user explicitly selects skills or later explicitly selects plugins through an accepted manifest and selection flow.
+Shared agentics are written only when the user explicitly selects Skills through an accepted manifest and selection flow.
 ## Non-Requirements
 
 - No generated-stub default behavior.
 - No symlink-only behavior without copy-mirror fallback.
 - No silent fallback from native exposure to generic stubs.
-- No full plugin substrate, workflow bundle metadata, or per-bundle UX contract in this shared-agentics PRD; [30-plugin-substrate-and-workflow-bundles.md](30-plugin-substrate-and-workflow-bundles.md) owns the substrate and bundle boundary.
-- No Run Playbook contract in this shared-agentics PRD; [34-playbook-authoring-contract-and-model.md](34-playbook-authoring-contract-and-model.md) owns that contract.
+- No plugin, hook, extension, workflow-bundle, Playbook, Protocol, packaging-compiler, or generated-bundle contract in this shared-agentics PRD.
 - No MCP write surface.
 - No bundled-local versus remote-fetch skills delivery decision.
-- No automatic selected skill or plugin installation.
+- No automatic selected Skill or other agentic installation.
 ## Acceptance Criteria
 
 - Selected project-scope skills install one shared payload plus native harness exposure.
@@ -115,7 +110,8 @@ Shared agentics are written only when the user explicitly selects skills or late
 - Backup and uninstall use one reviewed audit snapshot.
 - Empty managed `.make-docs/agentics/**` parent directories are pruned after selected-agentics removal only when audit proves no unmanaged descendants remain.
 - Cross-platform validation proves symlink-preferred behavior and copy-mirror fallback without relying on generic stubs.
-- Generated plugin and skills-bundle installs reuse shared-agentics ownership records and native exposure rather than creating an unrelated package lifecycle.
+- The optional Naive-UAT Skill remains absent from default installs, delegates only to typed CLI operations, and does not duplicate UAT policy.
+- Core routers, resources, CLI, and MCP remain complete when no Skill is selected or exposed.
 ## Contracts and Data
 
 The named paths, schemas, state records, metadata fields, and evidence shapes in Requirements are normative contracts for this capability.
@@ -143,7 +139,19 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: This document now states the current canonical shared agentic payloads and native harness exposure requirements inline as product authority.
 - Rationale: Active PRDs describe the current product shape; editorial operations belong in plans, work, and history.
 - Source: [Shared agentics design](../designs/2026-06-20-shared-agentics-installation-and-harness-redirection.md)
+
+### 2026-08-14 — W19 R1
+
+- Affected requirement or section: `Shared Agentics Store; Manifest Ownership; Optional Agentics Boundary; No-Default-Skills`
+- Previous contract: The shared store reserved plugin payloads and inherited Playbook-generated plugin and skills-bundle installation while treating general plugin exposure as a future selected-agentics path.
+- Replacement contract: Shared installation and native exposure retain explicitly selected Skills only; core operation is complete without agentics, the first-party Naive-UAT Skill is optional and CLI-delegating, and no plugin, hook, extension, workflow bundle, Playbook-generated output, or untraced adapter is admitted.
+- Rationale: Optional agentics must have a traced non-Playbook purpose and honest harness evidence, while unsupported plugin and Playbook packaging infrastructure must not remain a current product promise.
+- Source: [W19 R1 recovery design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md) and [accepted W19 R1 plan](../plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md)
+
 ## Source Anchors
+
+- [W19 R1 recovery design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md)
+- [W19 R1 plan](../plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md)
 
 - [../designs/2026-06-20-shared-agentics-installation-and-harness-redirection.md](../designs/2026-06-20-shared-agentics-installation-and-harness-redirection.md)
 - [../designs/2026-06-27-shared-agentics-native-harness-exposure-correction.md](../designs/2026-06-27-shared-agentics-native-harness-exposure-correction.md)

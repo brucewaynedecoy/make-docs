@@ -24,14 +24,14 @@ The requirements below are the normative authority. Their stable identifiers pre
 
 ### Scope, Boundaries, and Runtime Invariants (R-SCOPE, R-KEEP)
 
-- R-SCOPE-1 (MUST NOT): this authority owns the top-level command structure, bare-command behavior, tool self-management, operation registry and shared core, `run` surface, compatibility handling, and registry cohesion. The operation inventory owns admission and exclusion dispositions; [34-playbook-authoring-contract-and-model.md](34-playbook-authoring-contract-and-model.md) owns the Playbook model; [35-run-playbook-state-machine-and-portability.md](35-run-playbook-state-machine-and-portability.md) owns runner semantics; [36-playbook-packaging-compiler-and-harness-adapters.md](36-playbook-packaging-compiler-and-harness-adapters.md) owns package-plan and compiler semantics; PRDs [20](20-agent-harness-conformance-and-support-claims.md), [43](43-conformance-scenario-model-and-execution-kits.md), and [44](44-conformance-lab-sessions-and-evidence.md) own conformance; and [38-global-store-and-project-state.md](38-global-store-and-project-state.md) owns global-store and project-state schemas. This authority does not redefine those contracts.
-- R-KEEP-1 (MUST): TypeScript is the v2 runtime authority; Rust is not a design target, distribution, or parity requirement. Remote execution through `npx`, `pnpm dlx`, and `bunx` is the primary posture, with an installed binary available where a package manager requires an entry point. The installer-first no-command posture remains valid and is not replaced by a mandatory command router. MCP tools delegate to the same deterministic operation contract as equivalent CLI commands with identical reads, configuration interpretation, provenance, audit, dry-run, and write permissions. Deterministic logic lives in modular TypeScript operation domains behind thin dispatchers and is testable without CLI or MCP transport. Project `.make-docs/config.yaml` is a presentation overlay applied after canonical routing and is never routing authority.
+- R-SCOPE-1 (MUST NOT): this authority owns the top-level command structure, bare-command behavior, tool self-management, operation registry and shared core, resource, project, and `run` projections, compatibility handling, and registry cohesion. The operation inventory owns admission and exclusion dispositions; PRDs [20](20-agent-harness-conformance-and-support-claims.md), [43](43-conformance-scenario-model-and-execution-kits.md), and [44](44-conformance-lab-sessions-and-evidence.md) own conformance; and [38-global-store-and-project-state.md](38-global-store-and-project-state.md) owns Global Store and project-state schemas. Playbooks and Protocols own no current command, registry, runtime, package, or rendering surface.
+- R-KEEP-1 (MUST): TypeScript is the v2 runtime authority; Rust is not a design target, distribution, or parity requirement. Remote execution through `npx`, `pnpm dlx`, and `bunx` is the primary posture, with an installed binary available where a package manager requires an entry point. The installer-first no-command posture remains valid and is not replaced by a mandatory command router. MCP tools delegate to the same deterministic operation contract as equivalent CLI commands with identical reads, configuration interpretation, provenance, audit, dry-run, and write permissions; native MCP resources use the same resolver as CLI resource list/read where supported. Deterministic logic lives in modular TypeScript operation domains behind thin dispatchers and is testable without CLI or MCP transport. Project `.make-docs/config.yaml` is a presentation overlay applied after canonical routing and is never routing authority.
 
 ### Top-Level Structure (R-TOP)
 
-- R-TOP-1 (MUST): the CLI has five top-level commands, organized as self, project, run, and serve — `setup` for the project install lifecycle (`setup`, `setup reconfigure`, `setup skills`, `setup backup`, `setup remove`), `run` for the operation surface, `mcp` for the MCP server, and `update` and `uninstall` for tool and machine-level self-management.
+- R-TOP-1 (MUST): the CLI has seven top-level commands, organized as setup, project, resource, run, serve, and self-management — `setup` for the project install lifecycle (`setup`, `setup reconfigure`, `setup skills`, `setup backup`, `setup remove`), `project` for project surface operations, `resource` for canonical system-resource list/read, `run` for general lifecycle and retained deterministic operations, `mcp` for the MCP server, and `update` and `uninstall` for tool and machine-level self-management.
 - R-TOP-2 (MUST): `setup remove` is the project-removal command; top-level `uninstall` is reserved for machine-level removal.
-- R-TOP-3 (MUST): multi-operation families under `run` use a subtree under a domain object mapping one-to-one to registry identifiers; standalone utilities are flat.
+- R-TOP-3 (MUST): multi-operation families use a subtree under a domain object mapping one-to-one to registry identifiers. Registry metadata explicitly maps an operation to its canonical CLI projection; no alias or second command grammar is inferred.
 
 ### Bare Command (R-BARE)
 
@@ -45,21 +45,22 @@ The requirements below are the normative authority. Their stable identifiers pre
 
 ### The Operation Registry and Shared Core (R-REG, R-CORE, R-SURF)
 
-- R-REG-1 (MUST): a single operation registry is the source of truth for which deterministic operations exist; identifiers follow a `domain.verb` or `domain.object.verb` convention, lowercase, dot-separated, with hyphenated multiword segments, and are stable and append-only.
-- R-REG-2 (MUST): the CLI `run` command tree and the MCP tool list derive from the registry and are conformance-checked in both directions, so an admitted operation cannot exist on only one surface.
-- R-CORE-1 (MUST): deterministic logic lives in a shared operation core of modular, per-operation modules grouped by domain — never a monolith, because a single shared library does not mean a single shared file. Every operation is a stable identifier, a typed input, a typed output, a mutation classification, and a handler that takes the input and an execution context; surfaces adapt argv, MCP arguments, or Playbook step inputs into that input and adapt the output back and contain no operation logic; handlers return structured data and perform effects only through the injected context, which enforces dry-run, write-permission, and approval uniformly across surfaces; presentation belongs to the surface.
+- R-REG-1 (MUST): a single operation registry is the source of truth for which deterministic operations currently exist; identifiers follow a `domain.verb` or `domain.object.verb` convention, lowercase, dot-separated, with hyphenated multiword segments, and remain stable while admitted. A retired identifier is recorded in compatibility provenance, never reassigned, and absent from the active registry and derived surfaces.
+- R-REG-2 (MUST): canonical CLI projections and the MCP tool list derive from the registry and are conformance-checked in both directions. Native MCP resource discovery/read additionally derive from the same resource inventory and resolver as the `resource` CLI projection where the SDK supports them.
+- R-CORE-1 (MUST): deterministic logic lives in a shared operation core of modular, per-operation modules grouped by domain — never a monolith, because a single shared library does not mean a single shared file. Every operation is a stable identifier, a typed input, a typed output, a mutation classification, and a handler that takes the input and an execution context; surfaces adapt argv, MCP arguments, or native resource requests into that input and adapt the output back and contain no operation logic; handlers return structured data and perform effects only through the injected context, which enforces dry-run, write-permission, and approval uniformly across surfaces; presentation belongs to the surface.
 - R-CORE-2 (MUST): dependencies are one-way — surfaces depend on the core, the core never depends on a surface, and no surface imports another surface.
-- R-SURF-1 (MUST): the three surfaces over the registry are the CLI `run` command, the MCP tools, and Playbook `operation:` steps; `setup`, `mcp`, `update`, and `uninstall` are CLI lifecycle commands, not registry operations, and a Playbook step must not install, serve, update, or uninstall the tool.
+- R-SURF-1 (MUST): registry operations project to the canonical CLI `resource`, `project`, or `run` command and to MCP tools; read-only resource list/read also project to native MCP resources where supported. `setup`, `mcp`, `update`, and `uninstall` are CLI lifecycle commands, not registry operations. Optional skills or plugins call the same public operation contract and do not become registry surfaces.
 
-- The registry includes the append-only `package.ship` composite operation: a registered operation surfaced as `run package ship` and derived to MCP like every other operation. It executes plan → preview → write through the operation core and aborts at the first stop, unresolved proposal, or warning. The CLI builds its human rendering on R-CORE-1's presentation seam, keyed by `OperationRenderMode`, while `--json` and non-TTY output remain byte-identical to the operation result.
+- Retired Playbook and Playbook-package identifiers are removed from public registry admission and command/MCP projection. Historical identifiers and persisted legacy rows are migration evidence only and do not reserve current aliases.
 
 ### Current Run Surface (R-RUN)
 
-- R-RUN-1 (MUST): the `run` surface exposes only registry operations and contains `run playbook` (`validate`, `catalog`, `resolve`, `capabilities`, `start`, `invoke`, `status`, `next`, `advance`, `gate`, `resume`, `close`, `run export`, and `run import`); `run package` (`plan`, `surface-resolve`, `preview`, `write`, and `ship`); `run prd authority validate`; and `run work` (`item resolve`, `evidence record`, and `evidence read`).
-- R-RUN-2 (MUST NOT): wave-status, work-phase-state, phase-plan, phase-gate decision, scope-guard, and closeout probe/validate/history judgment are Playbook behavior and are not registry operations or `run` commands.
+- R-RUN-1 (MUST): the `run` surface exposes only registry operations and contains `run lifecycle` (`start`, `show`, `list`, `checkpoint`, `pause`, `resume`, `attach-evidence`, `complete`, `fail`, and `abandon`), `run prd authority validate`, and `run work` (`item resolve`, `evidence record`, and `evidence read`). The v2 run-type registry is closed to `lifecycle`; lifecycle stages are `design`, `plan`, `prd`, `work`, `implementation`, `release`, `archive`, and `retrospective`; statuses are `active`, `paused`, `completed`, `failed`, and `abandoned`.
+- R-RUN-2 (MUST NOT): wave-status, work-phase-state, phase-plan, phase-gate decision, scope-guard, closeout judgment, generation judgment, and other derivation-heavy workflow policy are not registry operations or `run` commands.
 - The work domain remains bounded to one identity resolver and one evidence record-and-read pair keyed to the global-store Project State model. The PRD domain remains bounded to the read-only active-authority validator unless the owning PRDs are updated.
 
-- The `run package` CLI spellings are intent-named: `plan` accepts `--output`, `preview` runs the full dry-run pipeline, `write` performs writes, and `ship` invokes the `package.ship` composite. The `--write` flag is invalid and fails with guidance naming the current grammar. [36-playbook-packaging-compiler-and-harness-adapters.md](36-playbook-packaging-compiler-and-harness-adapters.md) owns the package plan, compiler, adapter, preview/write behavior, and fail-before-write stops; this PRD owns their CLI spelling and registry-derived exposure.
+- `make-docs resource list [--type <contract|prompt|reference|template>] [--prefix <path>] [--origin <effective|local|installed>] [--format table|json]` is deterministic and URI-sorted. `make-docs resource read <make-docs://system/...> [--origin <effective|local|installed>] [--format raw|json]` emits only bytes in raw mode and the versioned metadata/content envelope in JSON mode. Both are read-only registry operations through one resolver; missing identities, invalid paths, hash mismatch, ambiguous ownership, and unavailable installed providers produce distinct typed failures.
+- `make-docs project surface ensure <archive|artifacts|assets>` is the canonical projection of `project.surface.ensure`. It creates only the selected on-demand directory and configured harness routers through a reviewed plan and does not claim pre-existing content without adoption evidence.
 
 ### PRD Authority Validator (R-PRD-AUTH)
 
@@ -79,7 +80,7 @@ The requirements below are the normative authority. Their stable identifiers pre
   | `PRD-AUTH-008` | `docs/` or `docs/prd/` is a symlink, escapes the target project, or is otherwise unsafe. |
 
 - R-PRD-AUTH-4 (MUST): Markdown authority enforcement applies to the PRD index `Document Map` and sections named `Source PRD Docs`, `Source PRDs`, `Source PRD Documents`, `PRD Authority`, `Product Authority`, `Current PRD Authority`, `Authoritative PRDs`, `Authoritative PRD Docs`, `Source Authority`, `Authority Sources`, or `Active Authority Baseline`. `Requirement History`, `Provenance`, `Lineage`, `Source Anchors`, `Design Provenance`, `Migration Provenance`, `Migration History`, `Historical Provenance`, and `Archive Provenance` are provenance contexts, not current authority.
-- R-PRD-AUTH-5 (MUST): outside the sole path exemption `docs/assets/archive/**`, JSON, JSONL, YAML, and YML authority/source/PRD fields are checked. After camel/snake/hyphen normalization, the controlled fields are `source(s)`, `sourcePath(s)`, `sourcePrd(s)`, `sourcePrdPath(s)`, `sourcePrdDoc(s)`, `authority/authorities`, `authorityPath(s)`, `authorityPrd(s)`, `prd(s)`, `prdPath(s)`, and `prdDoc(s)`, including nested `path(s)` under source, authority, or PRD containers. Standardized provenance containers matching R-PRD-AUTH-4 are exempt. Provenance never exempts an invalid active filename, H1, kind, retired heading, or document-level coordinate.
+- R-PRD-AUTH-5 (MUST): outside the sole managed-archive path exemption `.make-docs/archive/**`, JSON, JSONL, YAML, and YML authority/source/PRD fields are checked. After camel/snake/hyphen normalization, the controlled fields are `source(s)`, `sourcePath(s)`, `sourcePrd(s)`, `sourcePrdPath(s)`, `sourcePrdDoc(s)`, `authority/authorities`, `authorityPath(s)`, `authorityPrd(s)`, `prd(s)`, `prdPath(s)`, and `prdDoc(s)`, including nested `path(s)` under source, authority, or PRD containers. Standardized provenance containers matching R-PRD-AUTH-4 are exempt. Provenance never exempts an invalid active filename, H1, kind, retired heading, or document-level coordinate.
 - R-PRD-AUTH-6 (MUST): invalid or unsafe roots fail closed before scanning. Interactive TTY output presents a human summary plus all diagnostics and remediations; `--json` and non-TTY output emit the complete structured report. Failed reports exit nonzero after printing the full result; passed reports exit zero.
 - R-PRD-AUTH-7 (MUST): tests prove surgical in-place PRD updates, standardized Requirement History, and genuinely new capability PRDs pass; action filenames/H1s/kinds, retired headings, current-authority links to retired records, document-level coordinates, invalid roots, and internal or escaping scan-root symlinks fail. Positive fixtures cover legitimate leading product nouns such as Update, Replacement, and Migration.
 
@@ -93,24 +94,25 @@ The requirements below are the normative authority. Their stable identifiers pre
 
 - R-SEQ-1 (MUST): the operation core, registry, and command tree form one coherent release surface; every retained operation is behind the registry, and no parallel or half-routed dispatcher exists.
 - R-SEQ-2 (SHOULD): internal modularization may be tracked independently, but the current operation-admission and exclusion inventory remains enforced throughout that work.
-- R-SEQ-3 (MUST): derivation-heavy or judgment-shaped behavior belongs in a Playbook, not a CLI operation. The registry admits only a fact of record or a fiddly and genuinely reused canonical-identity or parse primitive; [NORTHSTAR](../assets/artifacts/NORTHSTAR.md) records the provenance and examples for that product rule.
+- R-SEQ-3 (MUST): derivation-heavy or judgment-shaped behavior does not belong in a CLI operation. The registry admits only a fact of record or a fiddly and genuinely reused canonical-identity or parse primitive; contracts, prompts, references, and templates carry durable guidance while agents apply judgment from those resources and project files. [NORTHSTAR](../assets/artifacts/NORTHSTAR.md) records provenance and examples for the product rule.
 
 ### Verification and Testability (R-TEST)
 
-- R-TEST-1 (MUST): a test asserts that the CLI `run` tree and the MCP tool list are both derived from or conformance-checked against the registry, with no operation present in one surface and absent in the other.
+- R-TEST-1 (MUST): a test asserts that canonical CLI projections and the MCP tool list are both derived from or conformance-checked against the registry, with no admitted operation missing its required surface; resource tests additionally assert CLI/native-MCP URI, metadata, byte, and typed-error parity where native resources are supported.
 - R-TEST-2 (MUST): a test asserts that surfaces contain no operation logic, by invoking an operation through the core without the CLI parser or MCP transport.
-- R-TEST-3 (MUST): a test asserts that `run` exposes no `setup`, `mcp`, `update`, or `uninstall` operation, and that a Playbook step cannot invoke tool lifecycle.
-- R-TEST-4 (MUST): a test asserts that pre-v2 detection triggers the warning-and-choice flow, that `uninstall` confirms and does not delete repository content, and that the pruned operations are absent from the `run` surface.
+- R-TEST-3 (MUST): a test asserts that `run` exposes no `setup`, `mcp`, `update`, or `uninstall` operation and that optional agentics cannot invoke private tool lifecycle behavior.
+- R-TEST-4 (MUST): a test asserts that pre-v2 detection triggers the warning-and-choice flow, that `uninstall` confirms and does not delete repository content, and that Playbook- and Protocol-specific operations are absent from every current CLI and MCP surface.
 
-The five-command structure and self/project/run/serve organization, context-aware bare command, machine-footprint `uninstall`, remote-execution-honest self-management, registry-derived surfaces, modular shared core with one-way dependencies, registry-only `run` surface, compatibility rejection, and pre-v2 detection are non-substitutable. Implementations may choose the pre-v2 fingerprint set and warning copy, install-manager detection matrix, and internal operation-core module layout without changing the registered operation identities.
+The seven-command structure, context-aware bare command, machine-footprint `uninstall`, remote-execution-honest self-management, registry-derived surfaces, modular shared core with one-way dependencies, canonical resource grammar, registry-only lifecycle surface, compatibility rejection, and pre-v2 detection are non-substitutable. Implementations may choose the pre-v2 fingerprint set and warning copy, install-manager detection matrix, and internal operation-core module layout without changing registered identities.
 
 Code anchors:
 
 - `packages/cli/src/cli.ts`
 - `packages/cli/src/mcp/tools.ts`
-- `packages/cli/src/operations/playbook/index.ts`
+- `packages/cli/src/operations/registry.ts`
 - `packages/cli/src/operations/lifecycle/index.ts`
-## Human Experience and Package Grammar
+<a id="human-experience-and-package-grammar"></a>
+## Human Experience and Compatibility Grammar
 
 ### Human Rendering and Agent Invariance
 
@@ -118,21 +120,22 @@ Code anchors:
 
 ### Render Layer (R-RENDER)
 
-- R-RENDER-1 (MUST): the `run` dispatcher applies a CLI-only render layer to the canonical operation result, keyed by `OperationRenderMode`. On a TTY, the default rendering is human text per operation: what just happened (the execution report), where the run stands (a compact cursor/status line, not the full state echo), and what to do next (the next hint and the exact next command). `--json` emits the full canonical operation result. When stdout is not a TTY, the default is the same full JSON, so scripts and agents receive the machine contract without a presentation-dependent transformation.
-- R-RENDER-2 (MUST): the evidence log and the capability snapshot are not repeated in text mode — the capability snapshot renders once at `start`, and later text renderings reference rather than restate it; the full record stays available via `--json` and `status --json`.
-- R-RENDER-3 (MUST): MCP output derives directly from the canonical operation result; the human render layer is CLI-only.
+- R-RENDER-1 (MUST): each CLI operation adapter applies a CLI-only render layer to the canonical operation result, keyed by `OperationRenderMode`. On a TTY, the default rendering is human text appropriate to the operation; lifecycle operations report what happened, the compact current state, and any exact next command. `--json` emits the full canonical operation result. When stdout is not a TTY, the default is the same full JSON, so scripts and agents receive the machine contract without a presentation-dependent transformation.
+- R-RENDER-2 (MUST): lifecycle evidence references and run metadata are summarized rather than repeated in text mode; the full bounded run record stays available via `--json` and `show --json`.
+- R-RENDER-3 (MUST): MCP tool output derives directly from the canonical operation result, while native resource responses derive directly from the canonical resource resolver; the human render layer is CLI-only.
 
-### Package Grammar and Ship (R-GRAM)
+<a id="package-grammar-and-ship-r-gram"></a>
+### Retired Package Grammar Boundary (R-GRAM)
 
-- R-GRAM-1 (MUST): the packaging surface is intent-named and preserves every review rail and fail-before-write stop — `run package plan` is pure computation and review and accepts `--output <path>` for the plan artifact, `run package preview` executes the full write pipeline with no disk writes, and `run package write` performs accepted writes without a `--write` flag.
-- R-GRAM-2 (MUST): these are CLI spellings over the shared package operations; dry-run inputs and MCP results follow R-INV-1. `write` is never a dry run, `--write` is invalid and fails with guidance naming the current grammar, and `write` fails closed before mutation whenever a PRD 36 stop applies.
-- R-GRAM-3 (MUST): `package.ship` is a composite single-entry operation registered under the rule that every CLI path mirrors a registry identifier and no CLI-only composite exists. It is surfaced as `run package ship` and derived to MCP like every other operation. It executes plan → preview → write through the operation core, aborting at the first stop, unresolved proposal, or warning with guidance naming the granular command (`plan`, `preview`, or `write`) to continue with; it performs the classification write and preserves every fail-before-write rail. A plan with zero unresolved items proceeds end to end without human judgment; anything needing review stops.
+- R-GRAM-1 (MUST NOT): `run package`, `package.ship`, Playbook compilation, harness-adapter packaging, and generated workflow bundles are not current CLI or MCP surfaces.
+- R-GRAM-2 (MUST): npm package construction and release proof remain package-maintainer behavior under PRDs 10 and 16; they do not reserve registry identifiers or public commands.
+- R-GRAM-3 (MUST): noncurrent package-operation spellings fail with migration guidance and never dispatch hidden compatibility behavior.
 
 ### Run-Id and Flag Ergonomics (R-RUNID, R-FLAG)
 
 - R-RUNID-1 (MUST): run identifiers keep their sortable internal form, but every `--run-id` acceptor resolves an unambiguous prefix, and a `--last` alias selects the most recent run for the resolved project; an ambiguous prefix fails listing the candidates.
 - R-FLAG-1 (MUST): `--repo-root` defaults to the nearest ancestor of the working directory carrying `.make-docs/manifest.json`; `--store-root` defaults to the real global store; both flags remain as overrides.
-- R-FLAG-2 (SHOULD): the packaging preconditions ceremony is absorbable into project config (for example a packaging preconditions block in `.make-docs/config.yaml`), with explicit flags always overriding; config remains convenience, never authority, consistent with the harness-capabilities precedent in [24-project-configuration-and-convention-overlay.md](24-project-configuration-and-convention-overlay.md).
+- R-FLAG-2 (SHOULD): command convenience defaults may come from `.make-docs/config.yaml`, with explicit flags always overriding; config remains presentation and convenience, never resource, operation, lifecycle, or routing authority, consistent with [24-project-configuration-and-convention-overlay.md](24-project-configuration-and-convention-overlay.md).
 
 ### Noise (R-NOISE)
 
@@ -140,25 +143,26 @@ Code anchors:
 
 ### Hint Retirement (R-FIX)
 
-- R-FIX-2 (MUST): CLI rendering and commands consume the current subject-scoped resume hints owned by [35-run-playbook-state-machine-and-portability.md](35-run-playbook-state-machine-and-portability.md). They never render a hint that PRD 35 has retired, never reconstruct hints from the durable evidence log, and render no guidance hints for a closed run. PRD 35 owns hint subjects, retirement transitions, and run-state serialization; this PRD owns their command and presentation projection.
+- R-FIX-2 (MUST): CLI rendering derives resume guidance from the current bounded lifecycle run state. It never reconstructs state from evidence references, never renders guidance for a completed, failed, or abandoned run, and never interprets legacy `playbook_runs`; this PRD owns command and presentation projection while PRD 38 owns Store schemas.
 
 ### Conformance Compatibility (R-SEQ)
 
 - R-SEQ-1 (MUST): conformance executes only against the current generated-package content and CLI grammar; no scenario invokes an incompatible package or command form.
-- R-SEQ-2 (MUST): [43-conformance-scenario-model-and-execution-kits.md](43-conformance-scenario-model-and-execution-kits.md) uses v2 dependency-block fixtures and `probe`-based checks, the `plan`/`preview`/`write`/`ship` grammar, and `--json` for every transcript consumed as machine evidence.
+- R-SEQ-2 (MUST): [43-conformance-scenario-model-and-execution-kits.md](43-conformance-scenario-model-and-execution-kits.md) uses current v2 dependency-block fixtures, canonical resource/lifecycle grammar, `probe`-based checks, and `--json` for every transcript consumed as machine evidence.
 
 ### Verification (R-TEST)
 
-- R-TEST-3 (MUST): a run advanced past a delegated step no longer carries that step's waiting hint; a closed run carries no guidance hints; the evidence log is unchanged.
-- R-TEST-4 (MUST): render invariance — `--json` output and non-TTY default output are byte-identical to the canonical operation results (modulo additive fields); MCP derivation parity holds.
-- R-TEST-5 (MUST): grammar — `plan --output` writes the reviewable plan; `preview` writes nothing under any input; `write` preserves every existing stop; the invalid `--write` spelling fails with guidance naming the current grammar.
-- R-TEST-6 (MUST): ship — `run package ship` on a plan with zero unresolved items completes plan → preview → write end-to-end with the classification write recorded; on the first stop, unresolved proposal, or warning it aborts before any disk write with guidance naming the granular command to continue with; `package.ship` is present in the operation registry and derives to MCP like every other operation.
+- R-TEST-3 (MUST): a paused lifecycle run carries only its current checkpoint guidance; a completed, failed, or abandoned run carries no resume hint; evidence references remain unchanged.
+- R-TEST-4 (MUST): render invariance — `--json` output and non-TTY default output are byte-identical to canonical operation results modulo explicitly additive fields; MCP tool derivation parity holds.
+- R-TEST-5 (MUST): resource grammar — list output is URI-sorted, raw read emits only bytes, JSON read returns the versioned envelope, origin selection is explicit, invalid identities fail without mutation, and native MCP parity holds where supported.
+- R-TEST-6 (MUST): lifecycle grammar — start, show, list, checkpoint, pause, resume, attach-evidence, complete, fail, and abandon return typed results and successful mutation receipts; an unavailable Store returns typed `run-capture-unavailable`, proves no capture, and implies no retry, while the caller's external lifecycle workflow may continue unless its gate directly requires Store capture; Playbook/package identifiers remain absent.
 
 Code anchors:
 
 - `packages/cli/src/run/cli.ts`
 - `packages/cli/src/operations/types.ts`
-- `packages/cli/src/operations/playbook/progression.ts`
+- `packages/cli/src/operations/registry.ts`
+- `packages/cli/src/operations/lifecycle/index.ts`
 - `packages/cli/tests/mcp-derivation.test.ts`
 - `packages/cli/tests/consistency.test.ts`
 
@@ -189,8 +193,21 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: This document now states the current CLI command grammar, reusable operation registry, and human/agent rendering boundary inline as product authority.
 - Rationale: Active PRDs describe the current product shape; editorial operations belong in plans, work, and history.
 - Source: [CLI command model design](../designs/2026-07-01-cli-command-reorganization-and-operation-registry.md)
+
+### 2026-08-14 — W19 R1
+
+- Date: 2026-08-14
+- Coordinate: W19 R1
+- Affected requirement or section: `Scope, Boundaries, and Runtime Invariants`, `Top-Level Structure`, `The Operation Registry and Shared Core`, `Current Run Surface`, `Registry Cohesion and Operation Admission`, `Verification and Testability`, `Human Experience and Compatibility Grammar`, and `Verification`
+- Previous contract: The registry projected every operation through `run`, Playbook steps were a third surface, current grammar included Run Playbook and Playbook package compilation/ship operations, and the PRD authority validator exempted the old documentation archive path.
+- Replacement contract: Canonical registry projections include top-level resource list/read, project surface ensure, and bounded lifecycle run operations; native MCP resource parity shares the resource resolver where supported; Playbook and Protocol operations/packages are absent; lifecycle mutations return typed Store receipts over general run/evidence records; and the validator's managed-archive exemption follows `.make-docs/archive/**`.
+- Rationale: CLI and operation-registry authority must match the accepted smaller v2 product boundary while preserving deterministic human/agent parity.
+- Source: [Accepted recovery design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md) and [W19 R1 recovery plan](../plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md)
+
 ## Source Anchors
 
+- [Accepted recovery design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md)
+- [W19 R1 recovery plan](../plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md)
 - [../designs/2026-07-01-cli-command-reorganization-and-operation-registry.md](../designs/2026-07-01-cli-command-reorganization-and-operation-registry.md)
 - [../designs/2026-06-20-cli-separation-and-mcp-boundary.md](../designs/2026-06-20-cli-separation-and-mcp-boundary.md)
 - [../designs/2026-06-26-typescript-cli-and-mcp-runtime-pivot.md](../designs/2026-06-26-typescript-cli-and-mcp-runtime-pivot.md)
@@ -198,7 +215,6 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - [../assets/artifacts/cli-command-reorganization.md](../assets/artifacts/cli-command-reorganization.md)
 - [../assets/artifacts/migrated-operations-inventory.md](../assets/artifacts/migrated-operations-inventory.md)
 - [../assets/artifacts/NORTHSTAR.md](../assets/artifacts/NORTHSTAR.md)
-- [../assets/artifacts/playbook-architecture.md](../assets/artifacts/playbook-architecture.md)
 - [../plans/2026-07-01-w18-r11-cli-command-reorganization-and-operation-registry/00-overview.md](../plans/2026-07-01-w18-r11-cli-command-reorganization-and-operation-registry/00-overview.md)
 - [../work/2026-07-01-w18-r11-cli-command-reorganization-and-operation-registry/00-index.md](../work/2026-07-01-w18-r11-cli-command-reorganization-and-operation-registry/00-index.md)
 - [07 CLI Command Surface and Lifecycle](07-cli-command-surface-and-lifecycle.md)
@@ -206,12 +222,10 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - [25 TypeScript Runtime CLI MCP Operation Boundaries](25-typescript-runtime-cli-mcp-operation-boundaries.md)
 - [16 Package and Deployment Boundaries](16-package-runtime-and-deployment-boundaries.md)
 - [05 Installation Profile and Manifest Lifecycle](05-installation-profile-and-manifest-lifecycle.md)
-- [35 Run Playbook State Machine](35-run-playbook-state-machine-and-portability.md)
-- [36 Playbook Packaging Compiler and Harness Adapters](36-playbook-packaging-compiler-and-harness-adapters.md)
 - [38 Global Store and Project State](38-global-store-and-project-state.md)
 - `packages/cli/src/cli.ts`
 - `packages/cli/src/mcp/tools.ts`
-- `packages/cli/src/operations/playbook/index.ts`
+- `packages/cli/src/operations/registry.ts`
 - `packages/cli/src/operations/lifecycle/index.ts`
 - `packages/cli/src/operations/prd/authority.ts`
 - `packages/cli/src/operations/prd/ops/authority-validate.ts`

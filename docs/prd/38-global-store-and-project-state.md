@@ -24,24 +24,24 @@ The requirements below are the normative authority. Their stable identifiers pre
 
 ### Scope and Boundaries (R-SCOPE)
 
-- R-SCOPE-1 (MUST NOT): this authority owns exactly the global store location and contents, the boundary principle, the SQLite database and its operational concerns, the stable project identity, the unified project-state model, the mirror-versus-relocated distinction, and the store's backup, uninstall, and privacy behavior. The Playbook run-state record shape and progression semantics are owned by [PRD 35](35-run-playbook-state-machine-and-portability.md); project `.make-docs/config.yaml` and its overlay rules by [PRD 24](24-project-configuration-and-convention-overlay.md); the local bootstrap guarantee and pinned global asset cache by [PRD 17](17-system-asset-materialization-and-local-bootstrap.md); and the CLI command tree, operation registry, and pruned-operation disposition by [PRD 39](39-cli-command-model-and-operation-registry.md). Those product boundaries must not be redefined or reinvented here.
+- R-SCOPE-1 (MUST NOT): this authority owns exactly the global Store location and contents, the boundary principle, the SQLite database and its operational concerns, stable project identity, general lifecycle runs and run evidence, typed Store mutation receipts, the mirror-versus-repository-authority distinction, and Store backup, uninstall, privacy, and platform behavior. Project `.make-docs/config.yaml` and its overlay rules are owned by [PRD 24](24-project-configuration-and-convention-overlay.md), system-resource resolution by [PRD 17](17-system-asset-materialization-and-local-bootstrap.md), and the CLI command tree and operation registry by [PRD 39](39-cli-command-model-and-operation-registry.md). The Store must not define document authority, resurrect Playbook/Protocol product behavior, or reinterpret opaque legacy state.
 
 ### The Boundary Principle (R-BND)
 
 - R-BND-1 (MUST): data placement follows one test — versioned project knowledge stays in the repository; machine-local, tool-operational, or otherwise-duplicative data goes to the global store. The test for a piece of data is whether it is meaningful project knowledge that should be versioned and shared, or operational state that Make Docs uses to do its job.
-- R-BND-2 (MUST): by this test, run-state and work-execution evidence are operational state and must live in the global store, not the repository; designs, plans, PRDs, contracts, guides, Playbooks, and history records are project knowledge and must remain in the repository.
+- R-BND-2 (MUST): by this test, lifecycle run progress and bounded execution-evidence references are operational state and must live in the global Store, not the repository; designs, plans, PRDs, contracts, guides, artifacts, history, and legacy project-authored Playbook/Protocol files are repository knowledge and must remain repository-authoritative.
 
 ### Store Location and Contents (R-STORE)
 
-- R-STORE-1 (MUST): when Make Docs is installed on a system, the CLI creates `~/.make-docs/` containing at least a global configuration file for machine-level settings, a global manifest for tool-level state, and a SQLite database for operational data.
+- R-STORE-1 (MUST): when Make Docs is installed on a system, the CLI resolves the platform-appropriate user data root through supported operating-system APIs and creates the Make Docs Store there, conventionally represented as `~/.make-docs/`; it contains at least a global configuration file for machine-level settings, a global manifest for tool-level state, and a SQLite database for operational data. Implementations must not assume a POSIX home path on Windows or embed an unvalidated user-supplied path.
 - R-STORE-2 (MUST): the global configuration file is machine-level and tool-level — machine settings such as a self-update preference or the marketplace auto-registration opt-in live there — and it must not be confused with, or override, project `.make-docs/config.yaml`, which remains the project-owned presentation overlay defined by [24-project-configuration-and-convention-overlay.md](24-project-configuration-and-convention-overlay.md).
-- R-STORE-3 (MUST): the global store is distinct from any provider-backed global asset cache; it holds operational state, not shipped template assets, and its presence or absence must not weaken the non-optional local repository bootstrap defined by [17-system-asset-materialization-and-local-bootstrap.md](17-system-asset-materialization-and-local-bootstrap.md).
+- R-STORE-3 (MUST): the global Store is distinct from machine-installed system resources and any pinned cache; it holds operational state, not shipped template assets or repository documents, and its presence or absence must not weaken repository authority or the deterministic local-router fallback defined by [17-system-asset-materialization-and-local-bootstrap.md](17-system-asset-materialization-and-local-bootstrap.md).
 
 ### The SQLite Database (R-DB)
 
 - R-DB-1 (MUST): the SQLite database is the operational store; it holds the install and directory registry, the project-state model, and other operational data as needs emerge.
 - R-DB-2 (MUST): the database carries a schema version and a defined migration strategy; `update` applies migrations, and a database from a newer schema than the running CLI is handled explicitly rather than corrupted.
-- R-DB-3 (MUST): the database tolerates concurrent access from the CLI, the MCP server, and agent sessions; the concurrency model uses write-ahead logging and a defined locking discipline.
+- R-DB-3 (MUST): the database tolerates concurrent access from the CLI, the MCP server, and agent sessions through transactions, a defined locking discipline, and bounded busy retry; it must not rely on repository lock files or unsafe network-filesystem assumptions as the sole concurrency control.
 - R-DB-4 (MUST): the database has a defined recovery path; lost or corrupt operational state degrades gracefully — because the store holds operational state and not project knowledge, a missing database must not block reading the repository or re-establishing state, and must not be treated as data loss of project knowledge.
 
 ### Stable Project Identity (R-ID)
@@ -49,53 +49,60 @@ The requirements below are the normative authority. Their stable identifiers pre
 - R-ID-1 (MUST): every project-scoped row in the store is keyed by a stable project identifier plus the row's own key; the identifier is minted at setup and recorded in the project's `.make-docs/manifest.json`.
 - R-ID-2 (MUST NOT): the store must not key project-scoped state by directory path, because paths change under clones, moves, and worktrees; path may be recorded as secondary lookup metadata, but identity is the manifest-minted id.
 
-### The Unified Project-State Model (R-PS)
+### General Lifecycle Runs and Evidence (R-PS)
 
-- R-PS-1 (MUST): project state is one model with two facets, both recorded decisions and evidence for a unit of work, keyed by the project identifier — Playbook run-state, meaning the run records defined by [PRD 35](35-run-playbook-state-machine-and-portability.md), and work-execution evidence, meaning the recorded sign-offs and decisions that cannot be re-derived from the repository or git, such as validation-passed, review-passed or waived, and closeout-approved, for a unit of work-backlog progression.
-- R-PS-2 (MUST): the two facets share the project-state model rather than becoming parallel, ad-hoc state stores. Work-execution evidence includes only non-rederivable sign-offs and decisions; repository or git facts that can be derived again are excluded from stored project state. The [migrated operations inventory](../assets/artifacts/migrated-operations-inventory.md) records the provenance of this boundary but does not define it.
-- R-PS-3 (MUST): work-execution evidence is keyed to a canonical work-item identity — the resolved repo root, wave slug, and phase path — produced by the retained work-item identity resolver; the store records evidence against that identity and does not re-derive the identity.
+- R-PS-1 (MUST): current run state uses a general `runs` relation keyed by stable project id and run id. Each row records `run_type`, `lifecycle_stage`, `status`, checkpoint, optimistic version, start, update, and optional finish timestamps, and bounded metadata; `run_type` is currently `lifecycle` only.
+- R-PS-2 (MUST): lifecycle stages are `design`, `plan`, `prd`, `work`, `implementation`, `release`, `archive`, and `retrospective`; statuses are `active`, `paused`, `completed`, `failed`, and `abandoned`. Supported operations are start, show, list, checkpoint, pause, resume, attach evidence, complete, fail, and abandon, with state-transition validation and optimistic concurrency.
+- R-PS-3 (MUST): bounded evidence references use a separate `run_evidence` relation keyed by run id and evidence id, with evidence kind, a project-relative path or sanitized external reference, optional digest, and timestamp. The Store does not contain document bodies, screenshots, recordings, logs, prompts, secrets, credentials, or arbitrary tool payloads.
+- R-PS-4 (MUST): every successful Store mutation returns a typed receipt containing the run identity, operation, Store schema version, resulting optimistic version, and commit time. A receipt proves only the Store transaction; it does not prove a repository write, validation result, publication, or external delivery.
+- R-PS-5 (MUST): `run-capture-unavailable` is a typed outcome that records no repository mutation and implies no automatic retry. It is non-blocking for repository workflows unless the user invoked a direct Store or run-capture gate that explicitly requires success.
+- R-PS-6 (MUST NOT): legacy `playbook_runs` data remains opaque, untouched, and excluded from current run listings. Setup, update, migration, and lifecycle commands do not convert, delete, infer, or merge it into `runs`; any future adoption requires separate accepted authority and an explicit reviewed migration.
 
 ### Mirror Versus Relocated (R-MIR)
 
-- R-MIR-1 (MUST): the install and directory registry in the store is a mirror and index whose canonical source remains each project's `.make-docs/manifest.json`; it exists for cross-project queries and quick access and must not become a second source of truth for a project's install record.
-- R-MIR-2 (MUST): run-state and work-execution evidence are relocated and canonical in the store, with no in-repo copy; the install registry mirrors, while operational state relocates.
+- R-MIR-1 (MUST): the install and directory registry in the store is a mirror and index whose canonical source remains each project's `.make-docs/manifest.json`; it exists for cross-project queries and discovery and must not become a second source of truth for a project's install record.
+- R-MIR-2 (MUST): current lifecycle progress and bounded `run_evidence` references are canonical operational state in the Store, while the meaning and outcome of designs, plans, PRDs, work, validations, releases, archives, and retrospectives remain repository-authoritative. A Store row or receipt cannot override, synthesize, or replace the corresponding repository record.
+- R-MIR-3 (MAY): when an authorized lifecycle operation captures performance execution, Project State or the Store may retain an optional, rebuildable, non-authoritative projection of run progress, environment fingerprints, observations, attempt or budget ledgers, and evidence references. The repository remains canonical for `PERF-###` identity and meaning, target and waiver authority, findings and dispositions, obligations, and active traceability under [48 Performance Evidence Governance](48-performance-evidence-governance.md). A receipt proves only that projection data was recorded; it does not prove a performance outcome or gate, satisfy conformance, or promote a support claim. This documentation-first boundary adds no run type, evidence kind, table, schema, or write path.
 
 ### Backup, Uninstall, and Upgrade (R-LIFE)
 
-- R-LIFE-1 (MUST): tool `uninstall`, which removes the CLI itself, handles the global store explicitly rather than orphaning it — either removing it or prompting — and must not delete repository content.
-- R-LIFE-2 (MUST): project `setup remove` prunes that project's rows from the store, keyed by the project identifier, without affecting other projects.
-- R-LIFE-3 (MUST): `update`, `setup`, and `setup reconfigure` detect a pre-v2 configuration and present the warning-and-backup-or-cancel flow defined by the CLI reorganization, and `update` applies any store schema migration.
+- R-LIFE-1 (MUST): tool `uninstall`, which removes the CLI itself, handles the global Store through an explicit reviewed preserve-or-remove choice and must not delete repository content. Store deletion is separately authorized from CLI removal, fails closed on unknown or corrupt scope, and preserves opaque legacy tables unless the reviewed action independently and explicitly includes them.
+- R-LIFE-2 (MUST): project `setup remove` does not implicitly delete that project's Store rows. Removing Store state is a separate explicit reviewed action keyed by stable project identifier, must preserve opaque legacy tables, and must not affect other projects.
+- R-LIFE-3 (MUST): `update`, `setup`, and `setup reconfigure` classify Store schema state before mutation. Supported migrations run transactionally after review and backup when destructive; newer-unknown, corrupt, or ambiguous state fails closed without rewriting the database.
 - R-LIFE-4 (MUST): repository backup snapshots remain under project-local `.make-docs/backup/**`; the machine-level store does not absorb those snapshots or legacy root `.backup/**`. Tool `uninstall` handles the store explicitly, while project removal and repository backup use their own reviewed scopes and never delete repository content outside the approved project plan.
 
 ### Privacy (R-PRIV)
 
-- R-PRIV-1 (MUST): the store records the paths of every project where Make Docs is set up; this data is local to the machine and must not be transmitted, and any future feature that would export or share it requires explicit opt-in.
+- R-PRIV-1 (MUST): the Store records project paths only as local secondary lookup metadata. It never uploads them, document content, evidence bodies, prompts, credentials, secrets, or arbitrary payloads; any export is explicit, local, redacted, and relativizes project paths where possible, and any future sharing requires separate opt-in.
+- R-PRIV-2 (MUST): Store paths and external evidence references are treated as data, not executable input. Reads and exports reject traversal and symlink escape, avoid following untrusted links or invoking referenced scripts, and apply platform-canonical comparisons for Windows drive/UNC, macOS case behavior, and Linux permissions.
 
 ### Preserved Prior Decisions (R-KEEP)
 
 - R-KEEP-1 (MUST): project `.make-docs/config.yaml` remains the optional, project-owned presentation overlay that never renames structure and is never routing authority; the global config does not change this.
-- R-KEEP-2 (MUST): the local repository bootstrap remains non-optional and cannot be provider-backed, and any global asset cache remains pinned by provider identity, version, and hash; the operational store is separate from both.
+- R-KEEP-2 (MUST): system resources are machine-served by default with explicit optional provenance-aware project projection; the Store remains separate from the installed resource provider, projected `.make-docs/system/**` files, repository routers, and any pinned cache.
 
 ### Verification and Testability (R-TEST)
 
-- R-TEST-1 (MUST): a test asserts that run-state and work-execution evidence are written to the global store and never to a repository path.
+- R-TEST-1 (MUST): tests assert the `runs` and `run_evidence` schemas, lifecycle stages, statuses, legal transitions, optimistic conflicts, typed receipts, `run-capture-unavailable`, and the absence of Store writes under repository paths.
 - R-TEST-2 (MUST): a test asserts that project-scoped state survives a simulated directory move or clone because it is keyed by the manifest identifier, not the path.
 - R-TEST-3 (MUST): a test asserts graceful degradation when the store database is missing or unreadable, confirming the repository remains readable and state can be re-established.
-- R-TEST-4 (MUST): a test asserts that `setup remove` prunes only the target project's rows and that tool `uninstall` does not delete repository content.
+- R-TEST-4 (MUST): tests assert project removal preserves Store rows unless separately authorized, explicit Store cleanup affects only the selected project, opaque `playbook_runs` remains unchanged and absent from current listings, and tool uninstall does not delete repository content.
+- R-TEST-5 (MUST): tests cover transactional recovery, bounded busy retry, privacy-safe export, path traversal and symlink rejection, Windows drive/UNC and case-collision handling, macOS case behavior, and Linux permissions without persisting secrets or document bodies.
 
-This PRD fixes store-not-repo placement of operational state, the `~/.make-docs/` layout with global config, global manifest, and SQLite database, manifest-minted identity that is never path-keyed, the single project-state model with its two facets, and the mirror-versus-relocated distinction as non-substitutable. The concrete SQL schema and table layout, exact migration and locking implementation, project-identifier generation algorithm, and global config and manifest file formats remain implementation choices within those requirements.
+This PRD fixes Store-not-repo placement of bounded operational state, platform-safe Store resolution, manifest-minted identity that is never path-keyed, the current `runs` and `run_evidence` model, typed receipts, opaque legacy `playbook_runs`, and the repository-authority boundary as non-substitutable. Physical SQL DDL, project-identifier generation, and global config and manifest serialization remain implementation choices within those requirements.
 
 Code anchors:
 
 - `packages/cli/src/manifest.ts`
 - `packages/cli/src/operations/lifecycle/index.ts`
-- `packages/cli/src/operations/playbook/index.ts`
 - `packages/cli/src/uninstall.ts`
 ## Obligation and UAT State Boundaries
 
 [R-OBL-STATE](45-deferred-obligation-governance.md#r-obl-state-repository-and-project-state-boundary) and [R-NUAT-STATE](46-naive-end-user-acceptance-testing.md#r-nuat-state-repository-and-evidence-boundary) keep repository artifacts authoritative for obligation meaning, requirement traceability, scenario definitions, terminal rationales, and durable findings. Project State or the Global Store may hold operational execution progress, run identifiers, evidence pointers, timestamps, environment metadata, resumability state, and bounded projections for discovery.
 
-Screenshots, recordings, logs, and other bulky or machine-local evidence may live outside the repository when policy requires it, but repository records must retain stable references and conclusions. Any database projection is non-authoritative and must be rebuildable from repository authority plus preserved evidence; this PRD round introduces no state schema change.
+Screenshots, recordings, logs, and other bulky or machine-local evidence may live outside the repository when policy requires it, but repository records must retain stable references and conclusions. Any database projection is non-authoritative and must be rebuildable from repository authority plus preserved evidence. Current lifecycle capture uses the general `runs` and `run_evidence` contract above; it never derives authority from opaque legacy `playbook_runs`.
+
+[48 Performance Evidence Governance](48-performance-evidence-governance.md) applies the same state boundary to performance evidence: the repository owns profile meaning, targets, waivers, findings, dispositions, and traceability, while optional machine state may project only operational run/evidence metadata and recording receipts. Missing optional projection cannot rewrite repository authority; when required evidence itself is missing, the performance proof remains unverified.
 ## Contracts and Data
 
 The named paths, schemas, state records, metadata fields, and evidence shapes in Requirements are normative contracts for this capability.
@@ -123,8 +130,21 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: This document now states the current stable project identity, machine-level Global Store state, and repository-state boundaries requirements inline as product authority.
 - Rationale: Active PRDs describe the current product shape; editorial operations belong in plans, work, and history.
 - Source: [Global Store and Project State design](../designs/2026-07-01-global-store-and-project-state.md)
+
+### 2026-08-14 — W19 R1
+
+- Affected requirement or section: `Scope and Boundaries`, `The Boundary Principle`, `Store Location and Contents`, `The SQLite Database`, `General Lifecycle Runs and Evidence`, `Mirror Versus Relocated`, `Backup, Uninstall, and Upgrade`, `Privacy`, and `Verification and Testability`
+- Previous contract: Project operational state centered on Playbook run-state and work-execution evidence, project removal pruned Store rows, legacy Playbook storage was treated as current behavior, and receipt, privacy, and cross-platform requirements were incomplete.
+- Replacement contract: The Store provides general lifecycle `runs` and bounded `run_evidence`, typed mutation receipts, stable manifest-backed project identity, transactional and platform-safe operation, explicit privacy controls, repository authority, separately authorized cleanup, and opaque untouched legacy `playbook_runs` excluded from current listings.
+- Rationale: Recovery requires a product-neutral operational Store that cannot overwrite repository truth, leak project content, or silently reinterpret removed Playbook/Protocol behavior.
+- Source: [Accepted W19 R1 recovery design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md) and [W19 R1 recovery plan](../plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md)
 ## Source Anchors
 
+- [Performance Testing Guardrails design](../designs/2026-08-12-performance-testing-guardrails.md)
+- [W19 R2 performance evidence plan](../plans/2026-08-13-w19-r2-performance-evidence-governance/00-overview.md)
+- [48 Performance Evidence Governance](48-performance-evidence-governance.md)
+- [../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md)
+- [../plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md](../plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md)
 - [../designs/2026-07-01-global-store-and-project-state.md](../designs/2026-07-01-global-store-and-project-state.md)
 - [../designs/2026-07-01-run-playbook-state-machine.md](../designs/2026-07-01-run-playbook-state-machine.md)
 - [../designs/2026-06-20-configuration-and-convention-overlay.md](../designs/2026-06-20-configuration-and-convention-overlay.md)
@@ -143,6 +163,5 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - [25 CLI Separation and MCP Boundary](25-typescript-runtime-cli-mcp-operation-boundaries.md)
 - `packages/cli/src/manifest.ts`
 - `packages/cli/src/operations/lifecycle/index.ts`
-- `packages/cli/src/operations/playbook/index.ts`
 - `packages/cli/src/uninstall.ts`
 - `scripts/smoke-pack.mjs`

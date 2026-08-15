@@ -27,7 +27,7 @@ kind: "<kind>"
 status: "<status>"
 ```
 
-`kind` is one of `design`, `plan`, `prd`, `work`, `history`, `guide`, or `playbook`.
+`kind` is one of `design`, `plan`, `prd`, `work`, `history`, or `guide`.
 
 `status` is a shared field name whose allowed values are narrowed by the owning contract. Current meanings include guide `draft`, `published`, and `deprecated`, history `completed`, and planning-stage `draft`, `active`, `accepted`, `superseded`, or `deprecated` where applicable.
 
@@ -38,12 +38,12 @@ Generated documents add conditional metadata when the condition applies:
 | Field | Requirement |
 | --- | --- |
 | `coordinate` | Required when W/R/P lineage is known or when the document is the authority for a downstream coordinate handoff. Unknown levels are omitted, not filled with dummy values. |
-| `persona` | Required for persona-scoped guides and playbooks; value is the canonical persona slug from the configured persona set in [47-persona-model.md](./47-persona-model.md). |
+| `persona` | Required for persona-scoped guides; value is the canonical persona slug from the configured persona set in [47-persona-model.md](./47-persona-model.md). |
 | `source` | Required when the document derives from an explicit source other than the immediately prior lifecycle artifact. |
 | `lifecycle` | Required when a generation step skips, reorders, revisits, or straddles the default lifecycle. |
 | `follow_on` | Required for generated documents that contain an `## Intended Follow-On` section. |
 
-For playbooks, [34-playbook-authoring-contract-and-model.md](34-playbook-authoring-contract-and-model.md) also requires `stack: build | run` and `summary`; validators must report invalid stack values and path/persona drift before Run Playbook execution. Playbooks may also include the optional workflow orchestration policy whose known keys are `requires_capabilities`, `prefers_capabilities`, `child_playbooks`, and `concurrency`.
+Playbooks and Protocols are not current document kinds and define no frontmatter keys, conditional fields, routing authority, or generated-document validation rules.
 
 ### Handoff Metadata
 
@@ -91,11 +91,13 @@ Allowed base `source.type` values are `design`, `plan`, `prd`, `work`, `history`
 
 Later automation may add provider/cache provenance for tool resources, but that belongs to the `.make-docs/**` resource model and manifest contract rather than reader-facing document metadata.
 
-### Run Playbook Output and Handoff Routing
+<a id="run-playbook-output-and-handoff-routing"></a>
+### Lifecycle Run Output and Handoff Routing
 
-- A Playbook's required `## Outputs` section declares its expected artifacts and handoff surfaces. A Run Playbook surface may record outputs only in the artifact, history, plan, work, or run-log surface named by the Playbook, or in a surface named by an explicit caller instruction; it must not infer a new write destination from presentation labels or harness behavior.
+- A bounded lifecycle run may record outputs only in an artifact, history, plan, work, or run-evidence surface authorized by the invoked operation or an explicit caller instruction; it must not infer a new write destination from presentation labels, optional agentics, or harness behavior.
 - Generated documents created during a run carry the canonical metadata and relationship fields in this PRD. When a generated output includes an `## Intended Follow-On` section, its `follow_on` metadata and body projection must agree as required by Handoff Metadata.
-- Configuration overlays may supply labels, defaults, and presentation, but they never change canonical lifecycle routing, artifact ownership, metadata keys, or output destinations. The runner in [35-run-playbook-state-machine-and-portability.md](35-run-playbook-state-machine-and-portability.md) records these destinations as claimed output surfaces before mutation and applies its overlap guardrails; [34-playbook-authoring-contract-and-model.md](34-playbook-authoring-contract-and-model.md) owns the Playbook declaration that feeds this routing.
+- Lifecycle operations return typed receipts. A completed receipt identifies the run, operation, resulting state, and any authorized output/evidence references; paused and failed receipts preserve the checkpoint or typed failure without inventing document metadata. Mutable `runs` and `run_evidence` remain Store records rather than reader-facing document frontmatter.
+- Configuration overlays may supply labels, defaults, and presentation, but they never change canonical lifecycle routing, artifact ownership, metadata keys, receipt fields, or output destinations.
 
 ### Configuration Boundary
 
@@ -107,6 +109,7 @@ Configuration overlays may change presentation labels in generated prose, but th
 - This PRD does not define provider/cache provenance for tool resources.
 - This PRD does not make lifecycle follow-ons mandatory gates.
 - This PRD does not settle coordinate and prefix configurability beyond recording known coordinate metadata.
+- This PRD does not define Playbook- or Protocol-specific metadata, state, or handoffs.
 ## Acceptance Criteria
 
 - Generated metadata requirements are linked from the PRD index and affected current authorities.
@@ -114,6 +117,7 @@ Configuration overlays may change presentation labels in generated prose, but th
 - Conditional `coordinate`, `persona`, `source`, `lifecycle`, and `follow_on` fields are required only when their conditions apply.
 - YAML/body handoff drift is a validation finding.
 - Historical docs without v2 metadata remain valid until planned backfill or touched-file work applies.
+- Bounded lifecycle outputs preserve canonical generated-document metadata, while typed run receipts and evidence remain operational records.
 ## Contracts and Data
 
 The named paths, schemas, state records, metadata fields, and evidence shapes in Requirements are normative contracts for this capability.
@@ -141,20 +145,30 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: This document now states the current generated-document metadata, relationship fields, and lifecycle handoffs requirements inline as product authority.
 - Rationale: Active PRDs describe the current product shape; editorial operations belong in plans, work, and history.
 - Source: [Generated metadata design](../designs/2026-06-20-generated-metadata-and-lifecycle-handoffs.md)
+
+### 2026-08-14 — W19 R1
+
+- Date: 2026-08-14
+- Coordinate: W19 R1
+- Affected requirement or section: `Common Fields`, `Conditional Fields`, `Lifecycle Run Output and Handoff Routing`, `Configuration Boundary`, `Non-Requirements`, and `Acceptance Criteria`
+- Previous contract: `playbook` was a document kind with dedicated metadata, orchestration fields, output declarations, and Run Playbook handoff authority.
+- Replacement contract: Playbooks and Protocols define no current metadata; generated documents keep general lifecycle metadata, and bounded lifecycle operations route only authorized outputs while returning typed receipts whose run evidence remains operational Store data.
+- Rationale: Generated-document metadata must remain independent of the retired workflow product model and align with the accepted bounded lifecycle recovery contract.
+- Source: [Accepted recovery design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md) and [W19 R1 recovery plan](../plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md)
+
 ## Source Anchors
 
+- [Accepted recovery design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md)
+- [W19 R1 recovery plan](../plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md)
 - [../designs/2026-06-20-generated-metadata-and-lifecycle-handoffs.md](../designs/2026-06-20-generated-metadata-and-lifecycle-handoffs.md)
 - [../plans/2026-06-23-w16-r1-generated-metadata-lifecycle-handoffs/00-overview.md](../plans/2026-06-23-w16-r1-generated-metadata-lifecycle-handoffs/00-overview.md)
 - [../work/2026-06-23-w16-r1-generated-metadata-lifecycle-handoffs/00-index.md](../work/2026-06-23-w16-r1-generated-metadata-lifecycle-handoffs/00-index.md)
 - [14 Lifecycle Workflow and Coverage Passes](14-lifecycle-workflow-and-coverage-passes.md)
 - [22 Project Documentation Asset Model](22-project-documentation-asset-model.md)
 - [47 Persona Model](47-persona-model.md)
-- [34 Playbook Authoring Contract and Model](34-playbook-authoring-contract-and-model.md)
-- [../designs/2026-06-20-playbook-contract-and-run-playbook.md](../designs/2026-06-20-playbook-contract-and-run-playbook.md)
-- [../designs/2026-06-27-run-playbook-orchestration-and-harness-capabilities.md](../designs/2026-06-27-run-playbook-orchestration-and-harness-capabilities.md)
-- [../plans/2026-06-23-w18-r1-playbook-contract-run-playbook/00-overview.md](../plans/2026-06-23-w18-r1-playbook-contract-run-playbook/00-overview.md)
-- [../plans/2026-06-27-w18-r4-run-playbook-orchestration-and-harness-capabilities/00-overview.md](../plans/2026-06-27-w18-r4-run-playbook-orchestration-and-harness-capabilities/00-overview.md)
-- [../work/2026-06-27-w18-r4-run-playbook-orchestration-and-harness-capabilities/00-index.md](../work/2026-06-27-w18-r4-run-playbook-orchestration-and-harness-capabilities/00-index.md)
+- `packages/docs/template/.make-docs/contracts/system/design-contract.md`
+- `packages/docs/template/.make-docs/contracts/system/output-contract.md`
+- `packages/docs/template/.make-docs/references/system/lifecycle.md`
 - `.make-docs/contracts/system/design-contract.md`
 - `.make-docs/contracts/system/output-contract.md`
 - `.make-docs/references/system/lifecycle.md`

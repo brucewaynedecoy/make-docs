@@ -28,12 +28,16 @@ managed block, not the whole shared file:
 - Static template content remains authoritative: instruction file bodies come
   from `packages/docs/template/`; the CLI selects paths and reconciles blocks,
   but does not dynamically assemble alternate router content.
-- Existing installs migrate non-destructively; project-specific content (for
-  make-docs's own repo, the template-first maintainer rules) lives outside the
-  block and persists across reconfigure. Clean W17 dedicated instruction files
-  are removed when their manifest hashes still match.
-- Non-instruction managed files keep the existing whole-file overwrite/skip
-  conflict behavior for non-instruction managed files.
+- Existing installs migrate non-destructively; project-specific content (for make-docs's own repo, the template-first maintainer rules) lives outside the block and persists across reconfigure. Clean W17 dedicated instruction files are removed only when a frozen classification snapshot proves their manifest hashes and provenance still match.
+- Non-instruction files use the same provenance-aware, file-scoped conflict review as the installation lifecycle; directory membership or an old manifest path alone never proves current managed ownership.
+
+### Initialization and Adoption Safety
+
+- Setup and reconfigure classify an existing instruction surface before creating or adopting any block. Classification records the file owner, detected marker shape, managed snapshot and hash, project-owned bytes outside the block, router intent, manifest claim, provenance state, and any competing claims.
+- A fresh project receives the minimal selected router footprint. System resources remain machine-served by default, so initialization does not require eager `.make-docs/system/**` materialization; an explicitly selected local projection is recorded separately with its own provenance.
+- Adoption is explicit and file-scoped. A verified canonical block may be adopted as `managed-snapshot`; existing noncanonical content is `project-owned` unless the user reviews an export-and-replace or proven-managed overwrite plan. Successful adoption records a typed receipt and the exact before/after snapshot in the project manifest.
+- Setup, reconfigure, update, migration, and uninstall acquire the project lifecycle lock before taking the classification snapshot and hold it through block transformation, manifest write, and validation. Missing, malformed, nested, duplicated, ambiguous, or contradictory markers or provenance fail closed before mutation.
+- Instruction and manifest paths are normalized project-relative POSIX paths and resolved beneath the approved repository root. Traversal, absolute substitution, case-collision, or symlink escape is rejected on Windows, macOS, and Linux.
 
 Code anchors:
 
@@ -61,7 +65,7 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 
 ### Managed-Block Conflict Resolution
 
-Managed instruction files are compared and resolved at the managed-block boundary. User-authored text outside the block is preserved; a divergent managed block requires explicit overwrite or preservation, and non-interactive execution must not guess. Whole-file hashing or replacement is not valid for a file that Make Docs owns only by managed block.
+Managed instruction files are compared and resolved at the managed-block boundary. User-authored text outside the block is always preserved. A divergent block requires one explicit disposition: preserve it as project-owned, export it and replace with the selected managed snapshot, overwrite only when clean managed provenance is proven, skip the file, or stop the operation. Non-interactive execution must not guess, append-merge is not ownership evidence, and whole-file hashing or replacement is invalid for a file that Make Docs owns only by managed block. Uninstall removes only a verified clean managed block from the frozen reviewed snapshot; it preserves divergent, project-owned, ambiguous, contradictory, marker-damaged, and surrounding user content and prunes no shared instruction file.
 
 ## Requirement History
 
@@ -72,8 +76,18 @@ Managed instruction files are compared and resolved at the managed-block boundar
 - Replacement contract: This document now states the current agent-instruction ownership, managed blocks, and conflict-safe preservation requirements inline as product authority.
 - Rationale: Active PRDs describe the current product shape; editorial operations belong in plans, work, and history.
 - Source: [Agent instruction ownership design](../assets/archive/designs/2026-06-18-agent-instruction-file-ownership.md)
+
+### 2026-08-14 — W19 R1
+
+- Affected requirement or section: `Requirements`, `Initialization and Adoption Safety`, and `Managed-Block Conflict Resolution`
+- Previous contract: Existing instructions were reconciled primarily by block hash with overwrite or preservation, while initialization, provenance-aware adoption, lifecycle locking, typed adoption evidence, and fail-closed marker states were not fully specified.
+- Replacement contract: Setup and reconfigure classify and lock instruction surfaces, install only the minimal selected router footprint, distinguish `managed-snapshot` from `project-owned` provenance, require explicit file-scoped conflict dispositions, record adoption receipts, reject unsafe paths, and let uninstall remove only verified clean managed blocks.
+- Rationale: Recovery must preserve shared user-authored instruction files and make block ownership provable before any migration, update, or removal.
+- Source: [Accepted W19 R1 recovery design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md) and [W19 R1 recovery plan](../plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md)
 ## Source Anchors
 
+- `docs/designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md`
+- `docs/plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md`
 - `docs/assets/archive/designs/2026-06-18-agent-instruction-file-ownership.md`
 - `docs/assets/archive/plans/2026-06-18-w17-r0-agent-instruction-file-ownership/00-overview.md`
 - `packages/cli/src/managed-block.ts`

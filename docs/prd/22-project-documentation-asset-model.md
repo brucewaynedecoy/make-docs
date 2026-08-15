@@ -13,30 +13,26 @@ The requirements below define the owned components, behaviors, boundaries, and e
 
 ### Managed Project Asset Namespace
 
-The canonical v2 managed project documentation asset tree is:
+The canonical v2 information architecture is:
 
 ```text
+.make-docs/
+  system/
+    contracts/
+    prompts/
+    references/
+    templates/
+  archive/
 docs/
+  artifacts/
   assets/
-    archive/
-      AGENTS.md
-      history/
-        <date>-<slug>.md
-    artifacts/
-      AGENTS.md
-    library/
-      AGENTS.md
-      <persona-slug>/
-        <guide-slug>.md
-    playbooks/
-      AGENTS.md
-      <persona-slug>/
-        <playbook-slug>.playbook.md
+    <persona-slug>/
+      testing/
 ```
 
-`docs/assets/archive/**` is managed archive storage. `docs/assets/archive/history/**` is the on-demand home for history and breadcrumb records, and blank installs do not create it until the first record is written. `docs/assets/artifacts/**` is optional zero-contract pre-design input material and is not created by default. `docs/assets/library/**` is for explanatory, conceptual, operational, or reference material written for a configured persona. `docs/assets/playbooks/**` is for persona-scoped repeatable process definitions. A playbook is content that the PRD 34/35 execution model can consume; storage under `docs/assets/playbooks/**` does not make it a plugin or command.
+`.make-docs/system/**` contains only explicitly selected local projections of machine-served system resources and project overrides; the default provider-backed install does not eagerly materialize the full system-resource snapshot. `.make-docs/archive/**` is Make Docs lifecycle archive storage. `docs/artifacts/**` holds project-owned pre-design or supporting source material. `docs/assets/<persona-slug>/testing/**` is the only current project home for persona-specific UAT rendered tester packets, executions, outcomes, findings, dispositions, evidence metadata, and approved evidence. These directories are on-demand and blank installs must not create empty placeholders.
 
-`docs/assets/**` is not a general dumping ground for make-docs tool resources, runtime state, or generated planning artifacts.
+`docs/**` is repository-authoritative project knowledge, not a home for machine-local operational state. Canonical `NUAT-###` scenario identity and version remain with the active PRD that owns the external outcome, while every current UAT packet, execution, outcome, finding, disposition, evidence record, and approved evidence payload belongs under the selected Persona slug's `docs/assets/<persona-slug>/testing/**` tree and is bound to that canonical scenario version or content digest. `.make-docs/archive/**` and `docs/artifacts/**` are prohibited UAT evidence destinations. Make Docs v2 defines no Library, Playbook, or Protocol target family.
 
 ### Canonical and Legacy Path Rules
 
@@ -44,44 +40,42 @@ The canonical namespace and its treatment of legacy surfaces are:
 
 | Legacy or governed surface | Canonical surface | Current requirement |
 | --- | --- | --- |
-| `docs/artifacts/**` | `docs/assets/artifacts/**` | The top-level path is noncanonical and is not preserved as a shipped alias; compatibility handling treats existing content as migration input and preserves it until a reviewed move succeeds. |
-| `docs/assets/guides/**` | `docs/assets/library/**` | The guide path is noncanonical; compatibility handling preserves guide intent, router behavior, and persona targeting under the library surface. |
-| `docs/guides/**` | `docs/assets/library/**` | The v1 path is noncanonical; compatibility handling preserves its guide/persona content when adopting the managed library surface. |
-| `docs/library/playbooks/**` | `docs/assets/playbooks/**` | The W16 path is transitional and noncanonical; compatibility handling preserves lineage when adopting the managed playbook surface. |
-| `docs/archive/**` | `docs/assets/archive/**` | Do not ship top-level archive storage; use the managed archive surface under `docs/assets/archive/**`. Existing `docs/assets/archive/**` content remains the current archive namespace. |
-| `docs/assets/history/**` | `docs/assets/archive/history/**` | The standalone history path is noncanonical; compatibility handling preserves existing records under the archive history surface. |
-| `docs/assets/breadcrumbs/**` | `docs/assets/archive/history/**` | The breadcrumb path is noncanonical; compatibility handling preserves existing W9 R4 records, while new breadcrumb/history records use archive history. |
-| `docs/assets/{prompts,references,templates}/**` | `.make-docs/{contracts,references,templates,scripts}/system/**` | These are tool resources governed by PRD 21, not project documentation assets governed by this PRD. |
+| `docs/artifacts/**` | `docs/artifacts/**` | This is the canonical project-owned artifact surface; migration preserves existing content and provenance. |
+| `docs/assets/guides/**`, `docs/guides/**`, `docs/assets/library/**` | project-owned location selected during review | These are bounded migration inputs, not v2 managed target families; preserve content and lineage rather than silently relocating or deleting it. |
+| `docs/library/playbooks/**`, `docs/assets/playbooks/**`, Protocol-shaped assets | project-owned location selected during review | Make Docs v2 does not enumerate or execute Playbooks or Protocols; existing assets remain opaque project content unless an independent capability later adopts them. |
+| `docs/archive/**`, `docs/assets/archive/**`, `docs/assets/history/**`, `docs/assets/breadcrumbs/**` | `.make-docs/archive/**` when explicitly adopted | These are bounded legacy archive/history facets. Migration preserves user-owned records and requires reviewed provenance before moving them into the managed lifecycle archive. |
+| `docs/assets/{prompts,references,templates}/**`, `.make-docs/{contracts,references,templates,scripts}/system/**` | `.make-docs/system/{contracts,prompts,references,templates}/**` when explicitly selected | System resources default to machine service; local projection is optional, provenance-aware, and limited to selected resource types and paths. |
+| Persona-specific UAT packets, executions, outcomes, findings, dispositions, and evidence under legacy paths | `docs/assets/<persona-slug>/testing/**` | Migration preserves Persona association and user ownership; only proven material moves, and directory placement does not replace scenario or Persona authority. |
 
 ### Template, Dogfood, and Package Flow
 
-Future shipped reader-facing guide/playbook defaults must follow the upstream-first ownership sequence governed by [06-template-contracts-and-generated-assets.md](./06-template-contracts-and-generated-assets.md), [09-dogfood-and-maintainer-operations.md](./09-dogfood-and-maintainer-operations.md), and [10-packaging-validation-and-release-reference.md](./10-packaging-validation-and-release-reference.md):
+Future shipped defaults must follow the upstream-first ownership sequence governed by [06-template-contracts-and-generated-assets.md](./06-template-contracts-and-generated-assets.md), [09-dogfood-and-maintainer-operations.md](./09-dogfood-and-maintainer-operations.md), and [10-packaging-validation-and-release-reference.md](./10-packaging-validation-and-release-reference.md):
 
-1. Author in `packages/docs/template/docs/**`.
-2. Reseed repo-root dogfood `docs/**` for review.
-3. Generate `packages/cli/template/**` through copy/prepack behavior.
-4. Validate local dev and packed npm behavior.
+1. Author in the applicable `packages/docs/template/.make-docs/**` or `packages/docs/template/docs/**` upstream path.
+2. Generate the package projection and verify its allowlist.
+3. Reseed only the affected repo-root dogfood paths for review.
+4. Validate local development, packed npm behavior, root dogfood parity, and an installed-project fixture in that order.
 
 Implementation must audit and update duplicated path knowledge across CLI source, tests, package docs, routers, path-hygiene checks, and parity checks.
 
 ### Persona Grouping Boundary
 
-Library and playbook paths may group content by the configured persona slug for discovery and publication. [47 Persona Model](47-persona-model.md) owns persona metadata, primitive mapping, frontmatter authority, and path/persona drift; this asset model does not redefine those contracts.
+The actual selected Persona slug controls only the path segment used to organize and route current UAT packets, executions, outcomes, findings, dispositions, and evidence. That grouping is not a second canonical scenario, Persona, outcome, finding, or evidence authority: [46 Naive End-User Acceptance Testing](46-naive-end-user-acceptance-testing.md) owns UAT semantics and scenario binding, and [47 Persona Model](47-persona-model.md) owns eligibility, defaulting, slug resolution, metadata, and path/persona drift.
 ## Non-Requirements
 
 - This PRD does not implement the file migration.
-- This PRD does not define plugin behavior. [34-playbook-authoring-contract-and-model.md](34-playbook-authoring-contract-and-model.md) defines the generic Run Playbook model.
+- This PRD does not define plugin behavior or create a current Playbook or Protocol product surface.
 - This PRD does not make adversarial review a persona-scoped asset by default. [14-lifecycle-workflow-and-coverage-passes.md](14-lifecycle-workflow-and-coverage-passes.md) owns the optional adversarial-review candidate contract.
-- This PRD does not require blank installs to pre-create `docs/assets/archive/history/**`; that directory is on-demand record storage.
+- This PRD does not require blank installs to pre-create `.make-docs/archive/**`, `docs/artifacts/**`, or persona testing directories; those surfaces are on-demand.
 - This PRD does not move tool resources back into `docs/assets/**`.
-- This PRD does not change the local bootstrap or materialization mode contracts from PRD 17 and PRD 21.
+- This PRD does not redefine system-resource resolution mechanics owned by PRD 17 and PRD 21; it owns the project target paths and placement boundaries only.
 ## Acceptance Criteria
 
-- The active PRD set makes `docs/assets/library/**` and `docs/assets/playbooks/**` the canonical reader-facing asset surfaces.
-- The active PRD set treats `docs/library/playbooks/**`, `docs/guides/**`, `docs/assets/history/**`, and `docs/assets/breadcrumbs/**` as noncanonical compatibility inputs; `docs/assets/archive/**` is the canonical archive surface, `docs/assets/artifacts/**` is the optional input surface, and `docs/assets/archive/history/**` is the canonical history/breadcrumb surface.
+- The active PRD set makes `.make-docs/system/{contracts,prompts,references,templates}/**`, `.make-docs/archive/**`, `docs/artifacts/**`, and `docs/assets/<persona-slug>/testing/**` the canonical target surfaces while keeping system-resource projection optional and provenance-aware.
+- The active PRD set treats legacy guide, Library, Playbook, Protocol, archive, history, breadcrumb, and old system-resource paths as bounded compatibility facets whose user-owned contents are preserved until an explicit reviewed disposition succeeds.
 - `Q-009` remains closed by the persona schema owned exclusively by [47-persona-model.md](./47-persona-model.md); this PRD neither defines nor overrides that schema.
-- `R-011` cites PRD 47 for persona authority, `R-012` cites this PRD for playbook storage and the playbook/execution/plugin authorities for behavior, and `R-013` cites this PRD for migration targets.
-- Template-first assets, dogfood projections, and packaged copies agree on the canonical namespace, and validation covers path hygiene, compatibility handling, package-copy proof, and persona fixtures.
+- `R-011` cites PRD 47 for persona authority, and `R-013` cites this PRD for migration targets; no current requirement cites this PRD as Playbook or Protocol storage authority.
+- Template-first assets, generated package projections, dogfood projections, and installed-project fixtures agree on the canonical namespace, and validation covers path hygiene, compatibility handling, package-copy proof, and persona fixtures across Windows, macOS, and Linux.
 ## Contracts and Data
 
 The named paths, schemas, state records, metadata fields, and evidence shapes in Requirements are normative contracts for this capability.
@@ -100,8 +94,18 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: This document now states the current managed project documentation assets, their canonical paths, and template-to-package flow requirements inline as product authority.
 - Rationale: Active PRDs describe the current product shape; editorial operations belong in plans, work, and history.
 - Source: [Documentation assets and persona design](../designs/2026-06-19-new-docs-assets-playbooks-and-persona-model.md)
+
+### 2026-08-14 — W19 R1
+
+- Affected requirement or section: `Managed Project Asset Namespace`, `Canonical and Legacy Path Rules`, `Template, Dogfood, and Package Flow`, `Persona Grouping Boundary`, `Non-Requirements`, and `Acceptance Criteria`
+- Previous contract: The v2 target tree used `docs/assets/{archive,artifacts,library,playbooks}/**`, moved top-level `docs/artifacts/**` and `docs/archive/**` into that tree, and treated Library and Playbook paths as current managed product families.
+- Replacement contract: The target information architecture is `.make-docs/system/{contracts,prompts,references,templates}/**`, `.make-docs/archive/**`, `docs/artifacts/**`, and `docs/assets/<persona-slug>/testing/**`; system resources are machine-served by default with explicit optional projection, and legacy Library, Playbook, Protocol, archive, and guide surfaces are bounded migration inputs whose user-owned contents are preserved.
+- Rationale: Recovery requires one product boundary and migration target model that does not mistake historical or project-owned content for current Make Docs authority.
+- Source: [Accepted W19 R1 recovery design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md) and [W19 R1 recovery plan](../plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md)
 ## Source Anchors
 
+- `docs/designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md`
+- `docs/plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md`
 - [../designs/2026-06-19-new-docs-assets-playbooks-and-persona-model.md](../designs/2026-06-19-new-docs-assets-playbooks-and-persona-model.md)
 - [../designs/2026-06-25-v2-documentation-asset-ia-hard-move.md](../designs/2026-06-25-v2-documentation-asset-ia-hard-move.md)
 - [../designs/2026-06-25-v2-library-and-archive-history-ia-correction.md](../designs/2026-06-25-v2-library-and-archive-history-ia-correction.md)

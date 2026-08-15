@@ -46,13 +46,13 @@ Code anchors:
 - Non-interactive explicit selection, including `--selected-skills all`, remains supported. Deprecated `optionalSkills`, `required` registry metadata, and `--optional-skills` receive no migration or alias. Older alpha footprints must be reinstalled or regenerated from `selectedSkills`.
 - `skillFiles` remains separate managed-output ownership tracking. Shared payloads and native harness exposures are written only for explicitly selected skills; bare setup, default sync, and no-skills selection produce no selected-agentic payloads or exposures.
 
-- Skills and plugins remain selected agentic assets with separate delivery and trust decisions; they are not folded into the `full-snapshot`, `provider-backed`, or `hybrid-pinned-cache` system asset modes defined by [17-system-asset-materialization-and-local-bootstrap.md](./17-system-asset-materialization-and-local-bootstrap.md).
+- Skills remain explicitly selected agentic assets with their own delivery and trust decisions; they are not folded into the `full-snapshot`, `provider-backed`, or `hybrid-pinned-cache` system asset modes defined by [17-system-asset-materialization-and-local-bootstrap.md](./17-system-asset-materialization-and-local-bootstrap.md).
 - Migration may preserve prior selected skills only when manifest and file evidence are trustworthy, and it must not silently expand `selectedSkills` or install skill files by default under [18-compatibility-classification-and-migration-safety.md](./18-compatibility-classification-and-migration-safety.md).
 - Lab adapters for future harnesses or model routes do not add current skills install targets or change the `selectedSkills` contract; [20-agent-harness-conformance-and-support-claims.md](./20-agent-harness-conformance-and-support-claims.md) owns adapter evidence.
 - Selected skills may install prose, references, examples, and metadata, but deterministic make-docs logic must be available from the CLI package/shared-core boundary rather than depending on remote or skill-local script payloads as the only executable source under [25-typescript-runtime-cli-mcp-operation-boundaries.md](./25-typescript-runtime-cli-mcp-operation-boundaries.md).
 - The built-in registry is the default skills manifest, purpose ids are stable selection metadata, alternate manifests are explicit inputs, and `selectedSkills` plus `skillFiles` remain executable and ownership state.
 - The executable selected-skill set comes from `selectedSkills`, while ownership records connect that selection to canonical shared payloads, symlink exposures, managed copy mirrors, legacy generated stubs, source-manifest provenance, exposure mode, scope, and migrated duplicate-payload status under [28-shared-agentics-installation-and-harness-exposure.md](./28-shared-agentics-installation-and-harness-exposure.md).
-- Plugin records may reuse purpose and source metadata concepts, but `--selected-skills all` and skills UI flows must not select or install plugins; [30-plugin-substrate-and-workflow-bundles.md](./30-plugin-substrate-and-workflow-bundles.md) owns plugin selection.
+- `--selected-skills all` and Skills UI flows select only entries in the effective Skills manifest. They never install plugins, hooks, extensions, workflow bundles, or another agentic artifact class; [30-plugin-substrate-and-workflow-bundles.md](./30-plugin-substrate-and-workflow-bundles.md) owns the current extensibility boundary.
 
 The skills subsystem hangs off the shared install contract. `InstallSelections` carries `harnesses`, `skills`, `skillScope`, and `selectedSkills`, and the skills command mutates only that subset. The skill-specific UI mirrors that reduced surface, keeping command execution independent of broader capability and invariant managed-asset state used by full installs.
 
@@ -110,10 +110,11 @@ The first-party purpose ids are:
 - `documentation-maintenance`
 - `lifecycle-closeout`
 - `workflow-execution`
+- `naive-uat`
 - `plan-creation`
 - `migration-support`
 
-First-party purpose ids are canonical make-docs ids. Configuration overlays may relabel visible text, but CLI, MCP, plugin, manifest, and skill routing must use canonical purpose ids.
+First-party purpose ids are canonical make-docs ids. Configuration overlays may relabel visible text, but CLI, MCP, manifest, and Skill routing must use canonical purpose ids.
 
 Alternate manifests may define additional purpose ids only when they are namespaced, such as `acme.release-readiness`.
 
@@ -145,7 +146,7 @@ The install manifest remains behavior-first:
 - Selection provenance may record selected purpose id, manifest id, candidate skill, source policy class, and source provenance for review, reconfigure, audit, backup, uninstall, and support.
 - Selection provenance does not replace `selectedSkills` or `skillFiles`.
 - [28-shared-agentics-installation-and-harness-exposure.md](28-shared-agentics-installation-and-harness-exposure.md) consumes the resolved effective manifest and selection provenance when writing shared payloads and native harness exposures. Agentic ownership records should preserve manifest id, purpose id, skill name, source policy, digest/ref, scope, canonical payload path, symlink exposure paths, copy-mirror paths, and legacy generated stub paths without replacing `selectedSkills`.
-- [30-plugin-substrate-and-workflow-bundles.md](30-plugin-substrate-and-workflow-bundles.md) may let future plugin and workflow bundle surfaces present purpose metadata, but plugin selection remains explicit and separate from `selectedSkills`; skills-manifest purpose ids do not become plugin ids or bundle ids.
+- [30-plugin-substrate-and-workflow-bundles.md](30-plugin-substrate-and-workflow-bundles.md) prohibits Skills-manifest purpose ids and selection from implying a plugin, hook, extension, workflow-bundle, or other agentic artifact.
 
 ### Alternate Manifests
 
@@ -177,6 +178,12 @@ Third-party sources must be labeled third-party even when they satisfy a first-p
 
 Purpose metadata may explain why a skill is useful, but it must not become a second source of deterministic workflow logic. Deterministic make-docs-owned behavior still belongs behind CLI/shared-core operations under [25-typescript-runtime-cli-mcp-operation-boundaries.md](25-typescript-runtime-cli-mcp-operation-boundaries.md).
 
+### First-Party Naive-UAT Skill Boundary
+
+The first-party Naive-UAT Skill is a distributable, explicitly selected adapter for the `naive-uat` purpose. Core Naive-UAT execution remains complete through system workflow resources and the typed CLI/MCP operations owned by [25-typescript-runtime-cli-mcp-operation-boundaries.md](25-typescript-runtime-cli-mcp-operation-boundaries.md) and [46-naive-end-user-acceptance-testing.md](46-naive-end-user-acceptance-testing.md); local Skill installation or harness exposure is optional.
+
+The Skill contains concise discovery and routing instructions plus thin shims only when a supported harness cannot directly issue shell commands or use MCP. Every shim delegates to the same typed Make Docs CLI operations and may adapt arguments or format returned receipts only. It must not duplicate tester qualification, installed-product targeting, anti-coaching rules, Persona resolution, scenario definitions, evidence semantics or destinations, finding and gate policy, prompts, templates, or run-state behavior.
+
 ### Validation Boundary
 
 Implementation must prove:
@@ -190,6 +197,12 @@ Implementation must prove:
 - `--selected-skills all` and `none` are interpreted against the effective manifest
 - audit, backup, uninstall, and migration explain alternate-manifest and selection provenance
 - package contents include the evolved schema and validation fixtures
+- the first-party Naive-UAT Skill is absent from default installs and is installed only through explicit selection
+- every Naive-UAT shim delegates to a typed CLI operation and contains no duplicated UAT policy or business logic
+
+## Rebuild Notes
+
+A rebuild must preserve explicit selected-Skill semantics, manifest provenance and trust, safe ownership and removal, no default Skill installation, and the rule that deterministic Make Docs behavior belongs behind typed CLI/shared-core operations. The first-party Naive-UAT Skill remains an optional routing adapter and must never become a second UAT policy authority.
 
 ## Requirement History
 
@@ -218,7 +231,18 @@ Implementation must prove:
 - Rationale: The active PRD set must describe current product authority rather than the editorial operation that produced it.
 - Source: [PRD Authority Maintenance](../../.make-docs/references/system/prd-change-management.md)
 
+### 2026-08-14 — W19 R1
+
+- Affected requirement or section: `Skill Purpose Registry and Manifest Requirements; Explicit Selected-Skill Model; First-Party Naive-UAT Skill Boundary`
+- Previous contract: The catalog had no first-party Naive-UAT adapter contract, and some agentic cross-links treated plugin or Playbook-derived packaging as a peer selected-asset path.
+- Replacement contract: The general Skills registry and explicit-selection model remain; `naive-uat` identifies an optional first-party Skill whose shims delegate only to typed CLI operations and contain no duplicated UAT policy, while Skills selection admits no plugin, hook, extension, workflow-bundle, or Playbook packaging surface.
+- Rationale: Core Naive-UAT behavior must remain available through system resources and CLI/MCP, with anti-coaching and evidence policy owned by the UAT authority rather than copied into a harness adapter.
+- Source: [W19 R1 recovery design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md) and [accepted W19 R1 plan](../plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md)
+
 ## Source Anchors
+
+- [W19 R1 recovery design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md)
+- [W19 R1 plan](../plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md)
 
 - `packages/cli/src/cli.ts`
 - `packages/cli/src/skills-command.ts`

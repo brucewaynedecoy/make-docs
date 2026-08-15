@@ -10,28 +10,28 @@ Internal dogfood operations are a first-class capability because local developme
 
 This doc covers the operational surface formed by the repo-root `.make-docs/` and `docs/` trees, the reviewed re-seed workflow from `packages/docs/template/.make-docs/` into `.make-docs/` and from `packages/docs/template/docs/` into `docs/`, and the maintainer checks that keep those projections trustworthy (`packages/docs/README.md`, `README.md`, `packages/cli/src/README.md`).
 
-It also defines the ownership boundary between template-owned files and project-authored docs. Template-owned system contracts, references, prompts, and templates project into root `.make-docs/**`; template-owned reader-facing assets project into `docs/assets/{archive,artifacts,library,playbooks}/**`; and paired instruction routers project where the template declares them. Project-authored material such as `docs/designs/`, `docs/plans/`, `docs/prd/`, `docs/work/`, and local guides is never overwritten by re-seeding (`packages/docs/README.md`). Packaging mechanics, tarball inspection, and publish commands are referenced here only when they constrain dogfood behavior; the operational checklist lives in [10-packaging-validation-and-release-reference.md](./10-packaging-validation-and-release-reference.md).
+It also defines the ownership boundary between template-owned files and project-authored docs. Template-owned system resources are authored upstream for machine service and project only when explicitly selected under `.make-docs/system/**`; lifecycle archives use `.make-docs/archive/**`; project artifacts use `docs/artifacts/**`; persona test assets use `docs/assets/<persona-slug>/testing/**`; and paired instruction routers project only where the template declares them. Project-authored material such as `docs/designs/`, `docs/plans/`, `docs/prd/`, `docs/work/`, artifacts, testing assets, and local guides is never overwritten by reseeding. Make Docs v2 has no Library, Playbook, or Protocol dogfood target family.
 
 ## Contracts and Data
 
 The key boundary is that mutable installer state belongs under root `.make-docs/`, not under `docs/`. The repo README states that `docs/assets/` contains document resources only and that mutable CLI state lives outside the docs tree (`README.md:46`). The installer code makes this concrete by defining `.make-docs`, `.make-docs/manifest.json`, and `.make-docs/conflicts` in `packages/cli/src/manifest.ts:18-20`.
 
-Apply and sync stay intentionally non-destructive. The consumer README explains that changed managed files are skipped and proposed replacements are staged under `.make-docs/conflicts/<run-id>` (`README.md:101-106`), and `applyAction` in `packages/cli/src/install.ts` implements that behavior by routing `skip-conflict` replacements through `toConflictRelativePath`.
+Apply and sync stay intentionally non-destructive. Changed paths are classified from manifest, snapshot, hash, and ownership/provenance evidence; review may preserve project ownership, export then replace, overwrite proven clean managed content, skip, or stop, and unresolved or non-verified evidence fails closed. Conflict staging under `.make-docs/conflicts/<run-id>` is a preservation mechanism, not authority to overwrite or infer ownership.
 
 Re-seeding is deliberately manual. The docs package README requires maintainers to copy only template-owned files from `packages/docs/template/` back into `docs/`, verify the copies, and avoid bulk automation unless they are deliberately reviewing the change set (`packages/docs/README.md:86-121`). That manual step is part of the contract, not an omission: the same README says the process stays manual for reviewability, selective propagation, and conflict awareness (`packages/docs/README.md:115-121`).
 
 ### Scoped Reseed and Freshness Proof
 
 - Reseeding is reviewed and scoped, never a blind recursive copy. It selects only affected template-owned files, skips project-owned files or surfaces them for explicit review, and routes locally changed managed files through compatibility classification and managed-file conflict rules.
-- Any reseed helper must preserve the same ownership boundary. It may not infer ownership solely from directory membership, including inside mixed archive, artifact, library, or playbook directories.
+- Any reseed helper must preserve the same ownership boundary. It may not infer ownership solely from directory membership, including inside mixed system-projection, archive, artifact, persona-testing, or legacy Library/Playbook/Protocol paths.
 - Dogfood freshness is proven with targeted parity checks for files expected to match exactly. Router and managed-block checks remain mandatory for instruction surfaces; manual visual inspection alone is insufficient proof for an asset claimed current.
 - A managed ownership manifest or expanded parity allowlist may replace manual file enumeration only when it preserves project-owned exclusions and produces reviewable evidence.
 
-Historical migration docs still matter, but only as background. `docs/assets/archive/plans/2026-04-22-w9-r1-docs-assets-resource-namespace/04-dogfood-docs-migration.md` records the shift from hidden-dot resource paths such as `docs/.references/` and `docs/.templates/` to the former `docs/assets/...` tool-resource tree. Current routing authority is the live README, `.make-docs/{contracts,references,templates}/system/**`, `docs/assets/{archive,artifacts,library,playbooks}/**`, and on-demand `docs/assets/archive/history/**`; old path names should be read as migration history, not active contract.
+Historical migration docs still matter, but only as background. `docs/assets/archive/plans/2026-04-22-w9-r1-docs-assets-resource-namespace/04-dogfood-docs-migration.md` records earlier hidden and `docs/assets/**` resource layouts. Current routing authority is the live PRD set, machine-served system resources with optional `.make-docs/system/{contracts,prompts,references,templates}/**` projection, `.make-docs/archive/**`, `docs/artifacts/**`, and `docs/assets/<persona-slug>/testing/**`; old path names remain migration evidence, not active dogfood authority.
 
 ## Integrations
 
-Dogfood operations integrate directly with the packaging pipeline. `scripts/copy-template-to-cli.mjs:24-32` copies `packages/docs/template/` into `packages/cli/template/` during `prepack`, so any template edit that was never re-seeded into repo-root `docs/` can still ship correctly while leaving the maintainers' own working docs stale. That is precisely why the project keeps manual re-seed instructions in `packages/docs/README.md:86-121`.
+Dogfood operations integrate directly with the packaging pipeline in the fixed order `packages/docs/template/` upstream authority, generated `packages/cli/template/` package projection, reviewed repo-root dogfood projection, then installed-project validation. The generated package copy and root dogfood are downstream evidence, never an alternate source; drift is repaired upstream or in the projection pipeline and never by hand-editing the generated package copy or copying root recovery edits back into upstream authority.
 
 They also integrate with packaged validation. `scripts/smoke-pack.mjs` runs `npm run prepack`, packs the CLI, installs it into a temporary target, verifies `.make-docs/manifest.json`, checks skill installation and legacy-skill absence, exercises project-scoped `setup backup` and `setup remove` while preserving unmanaged files, and separately proves that top-level `uninstall` removes only the sandboxed machine-level footprint. This makes the dogfood surface and the packaged surface meet at the same operational boundary: generated docs plus root runtime state.
 
@@ -45,7 +45,7 @@ Do not move runtime state back under `docs/`. The current contract puts `.make-d
 
 Candidate items that should also surface in `03-open-questions-and-risk-register.md`:
 
-- Manual re-seeding has no automated freshness check. The workflow is intentional, but there is no code path that proves repo-root `docs/` still matches template-owned files after template edits (`packages/docs/README.md:103-121`).
+- Manual reseeding requires a scoped, reviewable freshness proof for every affected template-owned file; missing parity automation remains a release blocker rather than permission to rely on visual inspection alone.
 - Historical docs still reference superseded hidden-dot paths such as `docs/.references/`, `docs/.templates/`, and `docs/assets/config/manifest.json` in migration plans like `docs/assets/archive/plans/2026-04-22-w9-r1-docs-assets-resource-namespace/04-dogfood-docs-migration.md`. Those references are factual history, but easy to mistake for current routing authority.
 - `packages/content/` is described as reserved for future CLI-rendered fragments in `README.md:10-17` and exists as a top-level workspace directory, but this subsystem does not yet define active ownership or dogfood behavior for it.
 
@@ -57,7 +57,7 @@ Dogfood validation must prove that upstream resources project into this repo wit
 
 ## Dogfood Projection Boundary
 
-Repository-root installed Make Docs resources are dogfood projections of `packages/docs/template/`; project-authored designs, plans, PRDs, work, history, and other local content remain project authority edited in place. Maintainer synchronization must preserve that boundary.
+Repository-root installed Make Docs resources are dogfood projections of `packages/docs/template/`; project-authored designs, plans, PRDs, work, history, artifacts, persona testing, and other local content remain project authority edited in place. Maintainer synchronization must preserve that boundary, use manifest provenance and the same conflict review as a consumer install, and prohibit recovery shortcuts that reseed from root into upstream, hand-edit generated package copies, bypass classification, or overwrite project-owned content.
 
 ## Requirement History
 
@@ -80,6 +80,8 @@ Repository-root installed Make Docs resources are dogfood projections of `packag
 
 ## Source Anchors
 
+- `docs/designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md`
+- `docs/plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md`
 - `README.md`
 - `package.json`
 - `packages/docs/README.md`

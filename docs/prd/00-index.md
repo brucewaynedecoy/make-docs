@@ -15,47 +15,48 @@ Numbering gaps are intentional. Existing product authorities retain stable numbe
 1. Start with [01 Product Overview](01-product-overview.md), [02 Architecture Overview](02-architecture-overview.md), [03 Open Questions and Risk Register](03-open-questions-and-risk-register.md), and [04 Glossary](04-glossary.md).
 2. Read the baseline product subsystems in order: [05 Installation, Profile, and Manifest Lifecycle](05-installation-profile-and-manifest-lifecycle.md), [06 Template Contracts and Generated Assets](06-template-contracts-and-generated-assets.md), [07 CLI Command Surface and Lifecycle](07-cli-command-surface-and-lifecycle.md), [08 Skills Catalog and Distribution](08-skills-catalog-and-distribution.md), [09 Dogfood and Maintainer Operations](09-dogfood-and-maintainer-operations.md), and [10 Packaging, Validation, and Release Reference](10-packaging-validation-and-release-reference.md).
 3. Follow the current capability authorities relevant to the work. Use related-authority links in the document map to cross subsystem boundaries.
-4. Read [45 Deferred Obligation Governance](45-deferred-obligation-governance.md) and [46 Naive End-User Acceptance Testing](46-naive-end-user-acceptance-testing.md) for phase-close routing and end-user evidence. Read [47 Persona Model](47-persona-model.md) for documentation-audience metadata; testing/UAT remains non-persona-scoped.
+4. Read [45 Deferred Obligation Governance](45-deferred-obligation-governance.md) and the paired [46 Naive End-User Acceptance Testing](46-naive-end-user-acceptance-testing.md) and [47 Persona Model](47-persona-model.md) authorities for phase-close routing and end-user evidence. Every activated Naive-UAT execution uses a configured eligible `user` or `maintainer` Persona, defaults to the canonical `user` Persona when none is supplied, and still requires a separately qualified tester.
 5. Use plans and work backlogs only after the owning current PRDs establish the product contract.
 
 ## Document Map
 
 | Slot | Document | Kind | Status | Related authorities | Current focus |
 | --- | --- | --- | --- | --- | --- |
-| `00` | [PRD Index](00-index.md) | core | Current | All active PRDs | Navigation and ownership for the active authority set. |
-| `01` | [Product Overview](01-product-overview.md) | core | Current | 02, 05-10, 45-47 | Product purpose, users, capabilities, boundaries, and limitations. |
-| `02` | [Architecture Overview](02-architecture-overview.md) | core | Current | 05-10, 16-25, 28, 30, 34-39 | Runtime zones, modules, data flow, configuration, and authority boundaries. |
+| `00` | [Make Docs PRD Index](00-index.md) | core | Current | All active PRDs | Navigation and ownership for the active authority set. |
+| `01` | [Product Overview](01-product-overview.md) | core | Current | 02, 05-10, 14, 17, 21, 25, 30, 34-39, 45-47 | Product purpose, users, retained resource, Skill, and UAT capabilities, reduced boundaries, and limitations. |
+| `02` | [Architecture Overview](02-architecture-overview.md) | core | Current | 05-10, 16-25, 28, 30, 34-39, 43-47 | Runtime zones, resource providers and typed operations, optional project projection, Global Store, configuration, and authority boundaries. |
 | `03` | [Open Questions and Risk Register](03-open-questions-and-risk-register.md) | core | Current | All active PRDs | Confirmed drift, open questions, deferred obligations, and rebuild risks. |
 | `04` | [Glossary](04-glossary.md) | reference | Current | All active PRDs | Canonical product and lifecycle terminology. |
-| `05` | [Installation, Profile, and Manifest Lifecycle](05-installation-profile-and-manifest-lifecycle.md) | subsystem | Current | 07, 08, 15, 17, 18, 38 | Selection intent, planner/apply behavior, manifest ownership, conflict handling, and lifecycle safety. |
-| `06` | [Template Contracts and Generated Assets](06-template-contracts-and-generated-assets.md) | subsystem | Current | 09, 10, 17, 21-24 | Template authority, selected assets, generated files, and system contract surfaces. |
-| `07` | [CLI Command Surface and Lifecycle](07-cli-command-surface-and-lifecycle.md) | subsystem | Current | 05, 25, 39 | Public commands, interaction flow, review, backup, uninstall, and lifecycle UX. |
-| `08` | [Skills Catalog and Distribution](08-skills-catalog-and-distribution.md) | subsystem | Current | 05, 18, 28, 30, 36 | Purpose-led skill selection, registries, manifests, sources, scope, and distribution. |
-| `09` | [Dogfood and Maintainer Operations](09-dogfood-and-maintainer-operations.md) | subsystem | Current | 06, 10, 16, 17 | Upstream-first authoring, dogfood projection, and maintainer validation. |
-| `10` | [Packaging, Validation, and Release Reference](10-packaging-validation-and-release-reference.md) | reference | Current | 06, 09, 16-18, 20, 36 | Package allowlist, copy/prepack flow, smoke validation, release evidence, and support gates. |
-| `14` | [Lifecycle Workflow and Coverage Passes](14-lifecycle-workflow-and-coverage-passes.md) | capability | Current | 23, 34, 45, 46 | Lifecycle arc, coverage-pass decisions, follow-on routing, and optional adversarial review. |
+| `05` | [Installation, Profile, and Manifest Lifecycle](05-installation-profile-and-manifest-lifecycle.md) | subsystem | Current | 06-09, 15, 17, 18, 21, 24, 38 | Selection identity, resource-projection policy, planner/apply behavior, manifest ownership, conflict handling, and lifecycle safety. |
+| `06` | [Template Contracts and Generated Assets](06-template-contracts-and-generated-assets.md) | subsystem | Current | 05, 09, 10, 17, 21-25, 48 | Upstream template authority, peer contracts/prompts/references/templates, selected assets, generated files, and optional project projections. |
+| `07` | [CLI Command Surface and Lifecycle](07-cli-command-surface-and-lifecycle.md) | subsystem | Current | 05, 17, 21, 25, 39 | Public resource, project-surface, setup, reconfiguration, update, uninstall, and lifecycle command UX. |
+| `08` | [Skills Catalog and Distribution](08-skills-catalog-and-distribution.md) | subsystem | Current | 05, 18, 20, 25, 28, 30, 46 | Purpose-led explicit Skill selection, registries, manifests, trust, distribution, and the thin CLI-delegating Naive-UAT Skill. |
+| `09` | [Dogfood and Maintainer Operations](09-dogfood-and-maintainer-operations.md) | subsystem | Current | 06, 10, 16, 17, 21, 25 | Upstream-first resource authoring, package projection, downstream dogfood, and maintainer validation. |
+| `10` | [Packaging, Validation, and Release Reference](10-packaging-validation-and-release-reference.md) | reference | Current | 06, 09, 16-18, 20, 25, 28, 30, 36, 43, 44, 48 | Package/provider parity, allowlist and prepack flow, smoke validation, release evidence, and evidence-backed support gates. |
+| `14` | [Lifecycle Workflow and Coverage Passes](14-lifecycle-workflow-and-coverage-passes.md) | capability | Current | 23, 25, 38, 45-47, 48 | Lifecycle arc, coverage-pass decisions, follow-on routing, paired UAT/Persona gates, and optional adversarial review. |
 | `15` | [Agent Instruction Ownership and Managed Blocks](15-agent-instruction-ownership-and-managed-blocks.md) | capability | Current | 05, 06, 18 | Block-scoped instruction ownership, preservation, hashing, and conflict review. |
-| `16` | [Package Runtime and Deployment Boundaries](16-package-runtime-and-deployment-boundaries.md) | subsystem | Current | 17, 18, 25, 39 | Package identity, TypeScript runtime ownership, package runners, and deployment boundaries. |
-| `17` | [System Asset Materialization and Local Bootstrap](17-system-asset-materialization-and-local-bootstrap.md) | subsystem | Current | 05, 06, 18, 21, 28 | Materialization modes, provenance, cache/provider safety, and local bootstrap. |
-| `18` | [Compatibility Classification and Migration Safety](18-compatibility-classification-and-migration-safety.md) | subsystem | Current | 05, 15-17, 21, 28, 38 | Existing-install classification, conservative migration, backup, rollback, and safe failure. |
-| `20` | [Agent Harness Conformance and Support Claims](20-agent-harness-conformance-and-support-claims.md) | subsystem | Current | 10, 36, 43, 44 | Harness/model/package conformance evidence, lab boundaries, tuple status, and support claims. |
-| `21` | [Project Tool Directory and Resource Tiers](21-project-tool-directory-and-resource-tiers.md) | subsystem | Current | 17, 18, 22, 24, 28, 38 | `.make-docs/**` tool resources, runtime state, system/custom tiers, and project boundaries. |
-| `22` | [Project Documentation Asset Model](22-project-documentation-asset-model.md) | subsystem | Current | 06, 14, 21, 23, 34, 47 | Managed archive, artifact, library, and playbook paths plus template/dogfood/package flow. |
-| `23` | [Generated Document Metadata and Lifecycle Handoffs](23-generated-document-metadata-and-lifecycle-handoffs.md) | capability | Current | 14, 22, 24, 34, 47 | Generated metadata, source relationships, lifecycle fields, and follow-on handoffs. |
-| `24` | [Project Configuration and Convention Overlay](24-project-configuration-and-convention-overlay.md) | capability | Current | 21-23, 30, 35, 47 | Project-owned presentation configuration over stable paths, identifiers, and semantics. |
-| `25` | [TypeScript Runtime, CLI, MCP, and Operation Boundaries](25-typescript-runtime-cli-mcp-operation-boundaries.md) | subsystem | Current | 07, 16, 30, 35, 39 | Shared TypeScript operation core, CLI/MCP separation, and no-scripts boundary. |
-| `28` | [Shared Agentics Installation and Harness Exposure](28-shared-agentics-installation-and-harness-exposure.md) | subsystem | Current | 08, 17, 18, 30, 36 | Canonical shared payloads, native harness exposure, ownership, and compatibility. |
-| `30` | [Plugin Substrate and Workflow Bundles](30-plugin-substrate-and-workflow-bundles.md) | subsystem | Current | 24, 25, 28, 34-36 | Plugin metadata, workflow bundles, package boundaries, and lifecycle participation. |
-| `34` | [Playbook Authoring Contract and Model](34-playbook-authoring-contract-and-model.md) | subsystem | Current | 22-24, 30, 35, 36 | Playbook schema, dependencies, heading spine, parser/validator model, and authoring contract. |
-| `35` | [Run Playbook State Machine and Portability](35-run-playbook-state-machine-and-portability.md) | subsystem | Current | 24, 25, 34, 36, 38, 39 | Run progression, state, resume, nesting, concurrency, portability, and guardrails. |
-| `36` | [Playbook Packaging Compiler and Harness Adapters](36-playbook-packaging-compiler-and-harness-adapters.md) | subsystem | Current | 20, 28, 30, 34, 35, 43 | Deterministic distributable compilation, dependency materialization, and harness adapters. |
-| `38` | [Global Store and Project State](38-global-store-and-project-state.md) | subsystem | Current | 05, 18, 21, 24, 35, 45, 46 | Stable project identity, machine-level operational state, mirrors, evidence, and cleanup. |
-| `39` | [CLI Command Model and Operation Registry](39-cli-command-model-and-operation-registry.md) | subsystem | Current | 07, 16, 25, 35, 36, 38 | Five-command grammar, operation registry, human rendering, agent invariance, and package grammar. |
-| `43` | [Conformance Scenario Model and Execution Kits](43-conformance-scenario-model-and-execution-kits.md) | subsystem | Current | 20, 36, 44 | Harness-agnostic scenarios, target bindings, execution kits, instruments, and ingestion. |
-| `44` | [Conformance Lab Sessions and Evidence](44-conformance-lab-sessions-and-evidence.md) | subsystem | Current | 20, 38, 43 | Agent-driven lab execution, operator modes, session isolation, and evidence homes. |
-| `45` | [Deferred Obligation Governance](45-deferred-obligation-governance.md) | capability | Current | 03, 14, 38, 46 | Durable obligation identity, routing, triggers, phase-close audit, and anti-orphan governance. |
-| `46` | [Naive End-User Acceptance Testing](46-naive-end-user-acceptance-testing.md) | capability | Current | 14, 38, 45, 47 | Qualified naive testers, activation, anti-coaching, scenarios, evidence, gates, and valid `none`. |
-| `47` | [Persona Model](47-persona-model.md) | capability | Current | 22-24, 46 | Persona primitives, schema, frontmatter authority, path drift, and non-persona-scoped UAT boundary. |
+| `16` | [Package Runtime and Deployment Boundaries](16-package-runtime-and-deployment-boundaries.md) | subsystem | Current | 09, 10, 17, 18, 25, 30, 36 | Package identity, TypeScript runtime ownership, provider projection, package runners, and no untraced agentic payload boundary. |
+| `17` | [System Asset Materialization and Local Bootstrap](17-system-asset-materialization-and-local-bootstrap.md) | subsystem | Current | 05, 06, 18, 21, 24, 25, 28 | Stable resource identity, provider and provenance resolution, optional project projection, materialization, and bootstrap. |
+| `18` | [Compatibility Classification and Migration Safety](18-compatibility-classification-and-migration-safety.md) | subsystem | Current | 05, 15-17, 21, 25, 28, 30, 34-39, 48 | Existing-install classification, quiescence, conservative migration, legacy preservation, backup, rollback, and safe failure. |
+| `20` | [Agent Harness Conformance and Support Claims](20-agent-harness-conformance-and-support-claims.md) | subsystem | Current | 10, 25, 28, 30, 36, 43, 44, 48 | Exact evidence-backed harness/model/resource/Skill claims, lab boundaries, tuple status, and no untraced plugin or package support. |
+| `21` | [Project Tool Directory and Resource Tiers](21-project-tool-directory-and-resource-tiers.md) | subsystem | Current | 06, 17, 18, 22, 24, 25, 28, 38, 48 | Peer system resource tiers, optional `.make-docs/system/**` projection, runtime state, and project boundaries. |
+| `22` | [Project Documentation Asset Model](22-project-documentation-asset-model.md) | subsystem | Current | 06, 14, 21, 23, 24, 46, 47 | Managed archive, non-authoritative artifacts, Persona-scoped assets and testing evidence, and template/dogfood/package flow. |
+| `23` | [Generated Document Metadata and Lifecycle Handoffs](23-generated-document-metadata-and-lifecycle-handoffs.md) | capability | Current | 14, 17, 21, 22, 24, 46, 47 | Current document/resource metadata, source relationships, lifecycle fields, and follow-on handoffs without Playbook or Protocol kinds. |
+| `24` | [Project Configuration and Convention Overlay](24-project-configuration-and-convention-overlay.md) | capability | Current | 17, 21-23, 25, 28, 30, 46, 47 | Project-owned resource, router, selection, presentation, and Persona configuration over stable identities and semantics. |
+| `25` | [TypeScript Runtime, CLI, MCP, and Operation Boundaries](25-typescript-runtime-cli-mcp-operation-boundaries.md) | subsystem | Current | 07, 16, 17, 21, 24, 28, 30, 38, 39, 46 | Shared typed resource, project-surface, general-run, and UAT operations; CLI/MCP parity; and the no-scripts boundary. |
+| `28` | [Shared Agentics Installation and Harness Exposure](28-shared-agentics-installation-and-harness-exposure.md) | subsystem | Current | 08, 17, 18, 20, 25, 30, 36, 46 | Explicitly selected Skills, optional evidence-backed agentics, native harness exposure, ownership, and compatibility. |
+| `30` | [Agentic Extensibility Boundary](30-plugin-substrate-and-workflow-bundles.md) | subsystem | Current | 08, 20, 25, 28, 36, 43, 44 | No general plugin or workflow-bundle product; only explicitly selected, traced optional integrations over the typed core. |
+| `34` | [Procedural Asset Boundary and Legacy Compatibility](34-playbook-authoring-contract-and-model.md) | subsystem | Current | 18, 22-24, 30, 35, 36 | No Playbook or Protocol authoring capability; current reusable procedure authority lives in peer system resources, with legacy inputs classified conservatively. |
+| `35` | [Workflow Execution and Legacy Run Boundary](35-run-playbook-state-machine-and-portability.md) | subsystem | Current | 18, 25, 30, 34, 36, 38, 39 | No Playbook execution state machine; typed general lifecycle runs remain current while legacy Playbook state stays opaque. |
+| `36` | [Agentic Packaging and Adapter Boundary](36-playbook-packaging-compiler-and-harness-adapters.md) | subsystem | Current | 10, 20, 25, 28, 30, 34, 35, 43, 44 | No Playbook packaging compiler; optional Skill/package/adapter behavior requires a traced non-Playbook purpose and exact evidence. |
+| `38` | [Global Store and Project State](38-global-store-and-project-state.md) | subsystem | Current | 05, 18, 21, 24, 25, 35, 39, 45, 46, 48 | Stable project identity, general `runs` and `run_evidence`, typed receipts, opaque legacy `playbook_runs`, and cleanup. |
+| `39` | [CLI Command Model and Operation Registry](39-cli-command-model-and-operation-registry.md) | subsystem | Current | 07, 16, 17, 25, 35, 36, 38, 46 | Command grammar and typed resource, project, general-run, and Naive-UAT operations with invariant human/agent projections. |
+| `43` | [Conformance Scenario Model and Execution Kits](43-conformance-scenario-model-and-execution-kits.md) | subsystem | Current | 20, 25, 28, 30, 36, 44, 46, 48 | Harness-agnostic scenarios for supported resource, Skill, UAT, and retained agentic surfaces; target bindings, kits, instruments, and ingestion. |
+| `44` | [Conformance Lab Sessions and Evidence](44-conformance-lab-sessions-and-evidence.md) | subsystem | Current | 20, 28, 30, 36, 38, 43, 46, 48 | Agent-driven lab execution, operator modes, isolation, evidence homes, and honest support gates for retained surfaces. |
+| `45` | [Deferred Obligation Governance](45-deferred-obligation-governance.md) | capability | Current | 03, 14, 38, 46, 47, 48 | Durable obligation identity, finding routing, triggers, paired UAT/Persona phase-close consumption, and anti-orphan governance. |
+| `46` | [Naive End-User Acceptance Testing](46-naive-end-user-acceptance-testing.md) | capability | Current | 08, 14, 22, 25, 38, 45, 47, 48 | Independently qualified naive testers, configured `user`/`maintainer` Persona execution, anti-coaching, canonical scenarios, evidence, gates, and valid `none`. |
+| `47` | [Persona Model](47-persona-model.md) | capability | Current | 22-24, 46 | Persona primitives and schema, eligible UAT audience resolution with canonical `user` default, evidence-path routing, and the independent tester boundary. |
+| `48` | [Performance Evidence Governance](48-performance-evidence-governance.md) | capability | Current | 06, 10, 14, 18, 20, 21, 38, 43, 44, 45, 46 | Performance applicability, target authority, versioned `PERF-###` profiles, comparable bounded evidence, outcomes, expiry and requalification, and proof-mode boundaries. |
 
 ## Source Anchors
 
@@ -66,12 +67,16 @@ Numbering gaps are intentional. Existing product authorities retain stable numbe
 - [Output Contract](../../.make-docs/contracts/system/output-contract.md)
 - [Lifecycle Anchor](../../.make-docs/references/system/lifecycle.md)
 - [Maintainer template/dogfood source-of-truth contract](../designs/2026-06-19-template-package-and-dogfood-source-of-truth-contract.md)
+- [Accepted W19 R1 product-boundary and migration-recovery design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md)
+- [Accepted W19 R1 PRD reconciliation plan](../plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md)
+- [Accepted W19 R2 performance-testing guardrails design](../designs/2026-08-12-performance-testing-guardrails.md)
+- [Accepted W19 R2 Performance Evidence Governance reconciliation plan](../plans/2026-08-13-w19-r2-performance-evidence-governance/00-overview.md)
 
 ## Audience Paths
 
 ### Maintainer or Release Owner
 
-Read 01-10, then 16-18, 20-25, 28, 30, 34-39, and 43-46. Treat package, dogfood, migration, conformance, store cleanup, and deferred obligations as explicit acceptance boundaries.
+Read 01-10, then 16-18, 20-25, 28, 30, 34-39, and 43-47. Treat package, dogfood, migration, conformance, Store cleanup, paired UAT/Persona behavior, and deferred obligations as explicit acceptance boundaries.
 
 ### New Contributor
 
@@ -79,7 +84,7 @@ Read 01, 02, 04, 05, 06, 07, and 09 first. Then open the capability PRD named by
 
 ### Product or Technical Lead
 
-Read 01-04, then use the document map to identify the owning capability. Review 14, 45, and 46 whenever phase completion, deferred work, or user-observable acceptance is in scope.
+Read 01-04, then use the document map to identify the owning capability. Review 14 and 45-47 whenever phase completion, deferred work, Persona selection, or user-observable acceptance is in scope.
 
 ### AI Coding Assistant
 

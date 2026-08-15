@@ -58,10 +58,12 @@ It does not make every optional idea, open question, rejected alternative, or un
 - R-OBL-AUTH-3 (MUST): a risk owns uncertainty and impact, an open question owns a decision still to be made, and an obligation owns an accepted future outcome. Resolving a question or accepting a risk does not fulfill a linked obligation.
 - R-OBL-AUTH-4 (MUST): cancelling or superseding an obligation requires the owning PRD requirement to be removed, narrowed, or superseded through product authority. An agent, facilitator, implementation session, or evidence row cannot make that decision alone.
 - R-OBL-AUTH-5 (MUST): history records summarize material obligation deltas and link to repository authority. They do not become the live register or duplicate candidate-level audit state.
+- R-OBL-AUTH-6 (MUST): a naive-UAT finding retains its canonical finding identity, scenario/result binding, evidence references, severity, reproducibility, disposition, and gate status under PRD 46. When the finding establishes accepted later work, a linked `O-###` routes that owed outcome without duplicating the finding, replacing its evidence, or changing its gate result.
+- R-OBL-AUTH-7 (MUST): a performance applicability disposition of `defer-required` and remediation that remains owed by a bounded performance waiver route through one stable `O-###` record. The obligation links the governing [48 Performance Evidence Governance](48-performance-evidence-governance.md) authority and applicable profile, result, waiver, or finding without duplicating those records, changing their meaning, or becoming a second performance authority.
 
 ### R-OBL-AUDIT Phase-Close Orphan Audit
 
-- R-OBL-AUDIT-1 (MUST): every phase close runs a mandatory, non-persona orphan-audit surface within the normal coverage band. It does not replace persona coverage, documentation and Playbook coverage, PRD reconciliation, testing/UAT, accessibility, visual/manual testing, automated testing, or validation.
+- R-OBL-AUDIT-1 (MUST): every phase close runs a mandatory, non-persona orphan-audit surface within the normal coverage band. It does not replace persona coverage, documentation coverage, PRD reconciliation, testing/UAT, accessibility, visual/manual testing, automated testing, or validation.
 - R-OBL-AUDIT-2 (MUST): enumeration covers changed deferral language, decisions and risks that create future work, partially represented PRD outcomes, obligations targeted at the current or a completed coordinate, fired triggers, missing owners, changed dependencies, broken source links, produced exit evidence, and cross-phase acceptance paths without owned routing.
 - R-OBL-AUDIT-3 (MUST): every candidate receives exactly one verdict: `register-new`, `update-routing`, `activate`, `fulfill`, `cancel-or-supersede`, `link-existing`, `already-owned`, or `not-an-obligation`.
 - R-OBL-AUDIT-4 (MUST): the audit cannot pass while a candidate lacks a verdict; a record lacks a required field; source and register disagree; a target is unresolved; a triggered obligation is absent from active plan/work authority; a current-or-past-target record lacks a disposition; or fulfillment lacks exit and end-to-end acceptance evidence.
@@ -83,6 +85,8 @@ It does not make every optional idea, open question, rejected alternative, or un
 - R-OBL-FLOW-3 (MUST): backlog generation preserves `O-###` links in source authority, tasks, dependencies, and acceptance criteria. Later-phase obligations remain visible even when no current-phase task is generated.
 - R-OBL-FLOW-4 (MUST): phase gates consume audit status, candidate/verdict totals, evidence references, activated and fulfilled IDs, surviving deferred IDs with next coordinates, unresolved blockers, and the supported capability-status statement.
 - R-OBL-FLOW-5 (MUST): task completion alone does not fulfill an obligation. Fulfillment requires the record’s exit criteria and related end-to-end acceptance evidence.
+- R-OBL-FLOW-6 (MUST): registering, updating, activating, or fulfilling an obligation does not satisfy a naive-UAT gate. The gate consumes the authoritative run outcome and finding disposition from PRD 46; `revise`, `fail`, `blocked`, unrun, and unresolved-finding states remain unsatisfied until the UAT authority records an accepted disposition and any required rerun.
+- R-OBL-FLOW-7 (MUST): registering, updating, activating, or fulfilling an obligation does not rewrite a performance outcome, waive a target, close a performance finding, or satisfy a performance gate. Task and obligation status cannot alter a recorded `PERF-###` result; only an authority-approved disposition and any required separately authorized later result may change current performance acceptance under PRD 48.
 
 ### R-OBL-STATE Repository and Project State Boundary
 
@@ -151,11 +155,11 @@ Storage boundaries are:
 - [18 Compatibility Classification and Migration Safety](18-compatibility-classification-and-migration-safety.md) owns classification and modified-content safety for existing projects.
 - [06 Template Contracts and Generated Assets](06-template-contracts-and-generated-assets.md), [09 Dogfood and Maintainer Operations](09-dogfood-and-maintainer-operations.md), and [10 Packaging, Validation, and Release Reference](10-packaging-validation-and-release-reference.md) jointly own upstream-first delivery from `packages/docs/template/` through reviewed dogfood projection and installed-package proof.
 - [38 Global Store and Project State](38-global-store-and-project-state.md) owns operational evidence storage and the non-authoritative database boundary.
-- [46 Naive End-User Acceptance Testing](46-naive-end-user-acceptance-testing.md) routes valid testing/UAT `none`, `revise`, `fail`, and `blocked` outcomes through obligations when later product work remains owed.
+- [46 Naive End-User Acceptance Testing](46-naive-end-user-acceptance-testing.md) owns canonical scenario outcomes, findings, evidence references, dispositions, and gate consumption. This PRD routes only the accepted later work owed by a valid `none`, `revise`, `fail`, `blocked`, or unresolved-finding state and never changes that state by creating an obligation.
 
 ## Rebuild Notes
 
-Implement this capability documentation-first. The first implementation changes Make Docs contracts, templates, prompts, Playbooks, and lifecycle guidance upstream under `packages/docs/template/`, then projects reviewed copies into the maintainer dogfood and instantiated projects. It does not require runtime commands, validators, a new store schema, or a migration engine.
+Implement this capability documentation-first. The first implementation changes Make Docs contracts, templates, prompts, references, and lifecycle guidance upstream under `packages/docs/template/`, then projects reviewed copies into the maintainer dogfood and instantiated projects. It does not require dedicated obligation runtime commands, validators, a new store schema, or a migration engine.
 
 Future deterministic support may detect missing sections, duplicate IDs, invalid fields/statuses, broken links, unresolved targets, dependency cycles, fired triggers absent from active work, unsupported completion language, and missing evidence. Automation must not invent owners, choose targets, interpret ambiguous triggers, decide optionality, mark exit criteria satisfied, cancel requirements, or overwrite modified user content.
 
@@ -169,6 +173,7 @@ Future deterministic support may detect missing sections, duplicate IDs, invalid
 6. Database loss preserves obligation meaning in Git but makes local audit status unverified until evidence is restored or the audit reruns.
 7. A clone receives the same versioned obligations and either imports explicitly portable evidence or reruns the audit.
 8. A legacy project gains the section through scoped migration without renumbering existing risk/question IDs, rewriting archives, or overwriting modified content.
+9. A naive-UAT `revise` or `fail` finding creates a linked obligation for accepted later remediation; the finding and gate remain unsatisfied until PRD 46 records the authoritative disposition and any required valid rerun, even if the obligation record is routed or fulfilled.
 
 ## Non-Requirements
 
@@ -180,8 +185,21 @@ Future deterministic support may detect missing sections, duplicate IDs, invalid
 - The current capability does not require a dedicated CLI, MCP tool, validator, evidence kind, table, or migration.
 - No automatic merge, commit, push, publish, or release gate.
 
+## Requirement History
+
+### 2026-08-14 — W19 R1
+
+- Affected requirement or section: `R-OBL-AUTH Authority Chain and Backlinks`, `R-OBL-FLOW Lifecycle Consumption`, `Integrations`, and `Rebuild Notes`
+- Previous contract: Naive-UAT outcomes could be described as routed through obligations without an explicit boundary preserving canonical findings, evidence references, dispositions, and gate results; delivery also assumed Playbook resources.
+- Replacement contract: PRD 46 remains authoritative for UAT scenarios, outcomes, findings, evidence, dispositions, and gates, while `O-###` records route only accepted later work and cannot convert an unsatisfied UAT state into acceptance; obligation resources no longer assume Playbook delivery.
+- Rationale: W19 R1 separates authoritative UAT evidence and gate consumption from durable future-work routing while rehoming reusable workflow policy into first-class system resources.
+- Source: [Accepted W19 R1 recovery design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md) and [W19 R1 recovery plan](../plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md)
+
 ## Source Anchors
 
+- [Performance Testing Guardrails design](../designs/2026-08-12-performance-testing-guardrails.md)
+- [W19 R2 performance evidence plan](../plans/2026-08-13-w19-r2-performance-evidence-governance/00-overview.md)
+- [48 Performance Evidence Governance](48-performance-evidence-governance.md)
 - [Deferred Obligations and Anti-Orphan Governance design](../designs/2026-07-27-deferred-obligations-and-anti-orphan-governance.md)
 - [W18 R15 combined plan](../plans/2026-07-30-w18-r15-deferred-obligations-and-naive-uat-governance/00-overview.md)
 - [W18 R15 P1 reconciliation history](../assets/archive/history/2026-07-30-w18-r15-p1-prd-reconciliation.md)

@@ -27,8 +27,10 @@ TypeScript package ownership:
 - The TypeScript package remains the canonical v2 runtime and package entry point.
 - It owns project installation and reconfiguration through `npx @brucewaynedecoy/make-docs@...`, `pnpm dlx @brucewaynedecoy/make-docs@...`, `bunx @brucewaynedecoy/make-docs@...`, `bun x @brucewaynedecoy/make-docs@...`, and package-manager-installed `make-docs` binaries where users choose persistent installation.
 - It owns npm release channels: `next` for release candidates and `latest` for stable releases.
-- It owns npm package contents: built CLI, bundled template, skill registry files, skill registry schema, and package README.
+- It owns npm package contents: built CLI, the installed system-resource provider derived from the bundled template, skill registry files, skill registry schema, and package README.
 - It owns current manifest, audit, backup, uninstall, conflict, migration, deterministic-operation, MCP, and skills-selection safety behavior.
+- `packages/docs/template/` remains the upstream authoring authority for shipped contracts, prompts, references, templates, and default assets. Package preparation derives the CLI provider from that tree; the repository-root `.make-docs/` and `docs/` trees are downstream dogfood projections and never package source authority.
+- The package contains no Playbook or Protocol compiler, registry, asset kind, or runtime surface.
 
 Remote execution and runtime boundary:
 
@@ -46,9 +48,9 @@ Command and alias boundary:
 MCP and shared-contract boundary:
 
 - MCP must ship as part of v2 and is TypeScript-owned.
-- [25-typescript-runtime-cli-mcp-operation-boundaries.md](./25-typescript-runtime-cli-mcp-operation-boundaries.md) defines the required TypeScript MCP surface: `make-docs mcp` exposes hand-defined read/plan tools and registry-derived operation tools; MCP tools delegate to the same modular operation domains as CLI commands, and writes require the shared permission, dry-run, approval, and parity proof.
+- [25-typescript-runtime-cli-mcp-operation-boundaries.md](./25-typescript-runtime-cli-mcp-operation-boundaries.md) defines the required TypeScript MCP surface: `make-docs mcp` exposes hand-defined read/plan tools, registry-derived operation tools, and native MCP resources where the SDK supports them; CLI resource list/read and MCP resource discovery/read share one resolver and stable `make-docs://system/<type>/<posix-relative-path>` identities, and writes require the shared permission, dry-run, approval, and parity proof.
 - `.make-docs/manifest.json`, package metadata needed for installed-project provenance, audit safety expectations, backup/uninstall behavior, migration behavior, deterministic operation semantics, and user-visible command semantics are TypeScript package product contracts.
-- [17-system-asset-materialization-and-local-bootstrap.md](./17-system-asset-materialization-and-local-bootstrap.md) extends this boundary to system asset delivery: any provider-backed system asset behavior must preserve local bootstrap readability, pinned provenance, conflict review, audit safety, backup, uninstall, and manifest compatibility.
+- [17-system-asset-materialization-and-local-bootstrap.md](./17-system-asset-materialization-and-local-bootstrap.md) extends this boundary to system-resource delivery: the installed provider is available without a repository snapshot, while any optional local `.make-docs/system/**` projection must preserve provenance, conflict review, audit safety, backup, uninstall, and manifest compatibility.
 - [18-compatibility-classification-and-migration-safety.md](./18-compatibility-classification-and-migration-safety.md) extends this boundary to existing-install compatibility: TypeScript CLI and MCP paths must preserve the same classifier, source-state taxonomy, disposition semantics, manifest compatibility, and single-audit safety model.
 
 Skills and plugin boundary:
@@ -68,7 +70,7 @@ Validation and release boundary:
 - Validation must continue to distinguish local template resolution from packed template resolution.
 - Package/release validation remains dry-run only unless the user separately authorizes irreversible registry or npm publish actions.
 - Package validation must prove `npx`, `pnpm dlx`, and `bunx` / `bun x` behavior where remote package execution changes by running the generated tarball in isolated temporary roots, as owned by [PRD 10](10-packaging-validation-and-release-reference.md).
-- MCP validation must prove registry parity, operation-domain reuse, manifest, audit, backup, uninstall, migration, write-permission, dry-run, and approval behavior against the same product contracts. New provider-backed, plugin, shared-agentics, or other MCP domains must add their own proof before support claims broaden.
+- MCP validation must prove registry parity, operation-domain reuse, CLI/native-MCP resource identity and byte parity where native resources are supported, manifest, audit, backup, uninstall, migration, write-permission, dry-run, and approval behavior against the same product contracts. New provider-backed, plugin, shared-agentics, or other MCP domains must add their own proof before support claims broaden.
 - [20-agent-harness-conformance-and-support-claims.md](./20-agent-harness-conformance-and-support-claims.md) keeps conformance-lab scenarios, records, and raw artifacts out of shipped package surfaces. Promoting a reviewed subset requires authoritative maintenance of PRDs 20, 43, and 44 plus the applicable package owner before the subset may ship.
 ## Contracts and Data
 
@@ -88,8 +90,21 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: This document now states the current package identity, runtime ownership, and deployment boundaries requirements inline as product authority.
 - Rationale: Active PRDs describe the current product shape; editorial operations belong in plans, work, and history.
 - Source: [Package and deployment boundaries design](../designs/2026-06-19-package-and-deployment-boundaries.md)
+
+### 2026-08-14 — W19 R1
+
+- Date: 2026-08-14
+- Coordinate: W19 R1
+- Affected requirement or section: `TypeScript package ownership`, `MCP and shared-contract boundary`, and `Validation and release boundary`
+- Previous contract: Package ownership treated system assets primarily as local/bootstrap material and did not require one stable resource resolver across CLI and native MCP surfaces or explicitly exclude Playbook and Protocol package behavior.
+- Replacement contract: The TypeScript package ships an installed provider for peer contract, prompt, reference, and template resources; CLI and native MCP access share stable resource identity and one resolver; local projection is optional; package preparation preserves the template-upstream/package/root-dogfood order; and no Playbook or Protocol runtime ships.
+- Rationale: Package and deployment authority must expose the accepted v2 resource boundary without turning generated copies or repository dogfood into competing sources of truth.
+- Source: [Accepted recovery design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md) and [W19 R1 recovery plan](../plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md)
+
 ## Source Anchors
 
+- [Accepted recovery design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md)
+- [W19 R1 recovery plan](../plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md)
 - `docs/designs/2026-06-19-package-and-deployment-boundaries.md`
 - `docs/designs/2026-06-20-cli-separation-and-mcp-boundary.md`
 - `docs/designs/2026-06-26-typescript-cli-and-mcp-runtime-pivot.md`

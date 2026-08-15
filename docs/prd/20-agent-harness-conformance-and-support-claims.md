@@ -11,9 +11,9 @@ This authority owns agent-harness conformance evidence, lab boundaries, and supp
 The requirements below define the owned components, behaviors, boundaries, and evidence expectations for this capability.
 ## Requirements
 
-- Result records must capture scenario id and version, harness, surface, scope, output kind, generated-output kind, model name, provider or routing layer when known, model version or immutable identifier when available, Make Docs version, runtime distribution, run date, produced files, relevant diffs, exit status, transcript/log pointer, normalized verdict, reason, caveats, and reviewer status.
+- Result records must capture scenario id and version, harness, installed-product surface, scope, model name, provider or routing layer when known, model version or immutable identifier when available, Make Docs version, runtime distribution, run date, produced files, relevant diffs, exit status, transcript/log pointer, normalized verdict, reason, caveats, and reviewer status. Scenario-specific output metadata may narrow a claim, but retired Playbook, plugin, workflow-bundle, package-compiler, or generated-output dimensions are not required current tuple dimensions.
 - Verdicts are `pass`, `pass-with-caveats`, `inconsistent`, `unsupported`, and `blocked`.
-- A result applies only to the exact R-TUPLE dimensions and packaging provenance it records.
+- A result applies only to the exact R-TUPLE dimensions and applicable version, distribution, Skill, resource, and execution provenance it records.
 
 Harness and adapter boundary:
 
@@ -27,9 +27,9 @@ Support-claim gating:
 - Repeated reviewed runs are required before stronger commendation language.
 - A pass for one model in a harness does not imply support for every model routed through that harness.
 - A pass for one scenario does not imply blanket harness support.
-- Plugin, workflow bundle, playbook, skill, CLI, MCP, unattended, adversarial-review, or model/provider support claims must cite evidence for the exact scenario/harness/model/provider/runtime tuple claimed. [30-plugin-substrate-and-workflow-bundles.md](./30-plugin-substrate-and-workflow-bundles.md) keeps plugin and bundle wording provisional until implementation or conformance evidence exists. [14-lifecycle-workflow-and-coverage-passes.md](./14-lifecycle-workflow-and-coverage-passes.md) keeps adversarial-review support wording provisional until the exact prompt, playbook, plugin, CLI, MCP, package, harness, model, provider, or unattended surface has implementation validation or conformance records.
-- [34-playbook-authoring-contract-and-model.md](./34-playbook-authoring-contract-and-model.md) and reviewed local `harnessCapabilities` records may guide a project run, but they are not public support evidence by themselves. Public claims for Run Playbook, nested playbooks, parallel playbooks, harness-managed goals, resume behavior, CLI execution, MCP execution, plugin launch, or unattended operation still require reviewed conformance evidence for the exact tuple claimed.
-- [36-playbook-packaging-compiler-and-harness-adapters.md](./36-playbook-packaging-compiler-and-harness-adapters.md) extends support-claim gating to generated plugin and skills-bundle outputs. A support claim applies only to the exact Playbook source, package plan, output kind, harness, surface, scope, model/provider, and runtime tuple that has reviewed evidence.
+- Skill, CLI, MCP, system-resource, installed-product, unattended, adversarial-review, optional-agentics, or model/provider support claims must cite evidence for the exact scenario, harness, surface, scope, model/provider, and runtime tuple claimed. [14-lifecycle-workflow-and-coverage-passes.md](./14-lifecycle-workflow-and-coverage-passes.md) keeps adversarial-review wording provisional until that exact supported surface has implementation validation or conformance records.
+- Configuration and `harnessCapabilities` records may guide a session, but they are not public support evidence by themselves. A declaration of Skill exposure, CLI availability, MCP availability, or optional agentics never proves that a harness discovers or can use the surface.
+- Plugin, workflow-bundle, Playbook, Protocol, packaging-compiler, and generated package-output support are outside the current Make Docs product boundary and must not appear as provisional or validated current support tuples.
 
 Validation relationship:
 
@@ -41,7 +41,7 @@ Validation relationship:
 
 ### Lab Boundary and Verdict Contract
 
-The conformance lab evaluates explicit harness, model, package, and workflow support tuples using isolated scenarios and recorded verdicts. A documentation review alone is not executable conformance evidence.
+The conformance lab evaluates explicit harness, model/provider, runtime, and installed-product surface tuples using isolated scenarios and recorded verdicts. A documentation review alone is not executable conformance evidence.
 
 - R-KEEP-1 (MUST): the lab is maintainer-only and is absent from installed templates, the packaged copy, npm tarballs, and generated product packages. Scenario definitions are model-agnostic; model, provider, routing layer, model version, and runtime are run metadata rather than scenario logic.
 - R-KEEP-2 (MUST): normalized verdicts are exactly `pass`, `pass-with-caveats`, `inconsistent`, `unsupported`, and `blocked`. A scenario that cannot execute because a precondition is missing records `blocked`; it never invents a pass or silently disappears.
@@ -50,31 +50,32 @@ The conformance lab evaluates explicit harness, model, package, and workflow sup
 
 ### The Support Tuple (R-TUPLE)
 
-- R-TUPLE-1 (MUST): every support claim for a generated output binds to the exact eight-dimension tuple of `scenario`, `harness`, `surface`, `scope`, `outputKind`, `generatedOutputKind`, `modelOrProvider`, and `runtime`. Packaging provenance may narrow the claim further to source Playbook refs, source digests, package plan, and adapter version, but no public wording may broaden beyond the recorded tuple and provenance exercised.
-- R-TUPLE-2 (MUST): a pass for one model or provider does not cover other models routed through the same harness; a pass for one scenario, surface, scope, output kind, or runtime does not imply blanket harness support.
+- R-TUPLE-1 (MUST): every support claim binds to the exact six-dimension tuple of `scenario`, `harness`, `surface`, `scope`, `modelOrProvider`, and `runtime`. Scenario version, Make Docs version, distribution identity, selected Skill identity, resource URI, and other applicable provenance narrow the claim further; no public wording may broaden beyond the recorded tuple and provenance exercised.
+- R-TUPLE-2 (MUST): a pass for one model or provider does not cover other models routed through the same harness; a pass for one scenario, surface, scope, Skill, resource, distribution, or runtime does not imply blanket harness support.
 
 ### The Tuple Registry (R-REG)
 
 - R-REG-1 (MUST): [the repo-root tuple registry](../../conformance/tuple-registry.json) is the single queryable index of support tuples and statuses. Support status is data derived from recorded evidence, never a prose assertion; [43-conformance-scenario-model-and-execution-kits.md](43-conformance-scenario-model-and-execution-kits.md) owns the surrounding `conformance/` asset family and scenario organization.
-- R-REG-2 (MUST): every tuple status is one of `provisional` (generation may exist but recognition and usability are unverified), `implementation-validated` (unit/integration evidence proves internal files and structure but no real-harness evidence exists), or `conformance-validated` (a real-harness result meets the full evidence bar).
+- R-REG-2 (MUST): every tuple status is one of `provisional` (the surface may exist but recognition and usability are unverified), `implementation-validated` (unit/integration evidence proves internal behavior or structure but no real-harness evidence exists), or `conformance-validated` (a real-harness result meets the full evidence bar).
 - R-REG-3 (MUST): status is derived from recorded verdicts through the recording seam owned by [44-conformance-lab-sessions-and-evidence.md](44-conformance-lab-sessions-and-evidence.md). Only `pass`, or `pass-with-caveats` with every caveat surfaced and every required evidence-bar stage asserted, may derive `conformance-validated`; `inconsistent`, `unsupported`, and `blocked` never advance a tuple. A tuple cannot skip the real-harness evidence bar merely because internal tests pass.
 
 ### Test Layers (R-LAYER)
 
 - R-LAYER-1 (MUST): conformance coverage has three named layers: unit tests cover operation core, parsers, validators, registry derivation, and other pure functions without a CLI; integration tests cover CLI and MCP surfaces over the same core, including manifest and exposure plumbing; conformance tests cover real-harness user outcomes for exact tuples through the maintainer lab.
-- R-LAYER-2 (MUST): unit and integration tests are automated repository evidence only. Their success may derive `implementation-validated`, but it never proves that a harness discovers, recognizes, invokes, or cleanly uninstalls a generated output and must never be cited as conformance evidence.
+- R-LAYER-2 (MUST): unit and integration tests are automated repository evidence only. Their success may derive `implementation-validated`, but it never proves that a harness discovers, recognizes, invokes, or cleanly removes the claimed installed-product surface and must never be cited as conformance evidence.
 
 ### Support Claim Governance
 
-- R-GOV-1 (MUST): public support claims are projections of the authoritative tuple registry and may state only what a `conformance-validated` tuple proves. Until then, wording distinguishes a Make Docs-generated output from a harness-recognized plugin or skill. A `pass-with-caveats` claim states its caveats wherever the claim appears; missing, stale, non-comparable, or absent evidence cannot be described as support.
+- R-GOV-1 (MUST): public support claims are projections of the authoritative tuple registry and may state only what a `conformance-validated` tuple proves. Until then, wording distinguishes a Make Docs-declared or installed surface from one the harness has actually recognized and exercised. A `pass-with-caveats` claim states its caveats wherever the claim appears; missing, stale, non-comparable, or absent evidence cannot be described as support.
 - R-GOV-2 (MUST): one passing conformance result for an exact tuple is the minimum threshold for nominal support. Stronger recommendation or confidence language requires repeated comparable runs and maintainer review.
-- R-GOV-3 (MUST): plugin, workflow-bundle, Playbook, skill, CLI, MCP, unattended, nested, parallel, adversarial-review, model/provider, and generated-output claims use this same rule. Capability configuration, adapter declarations, documentation, and implementation tests are inputs or lower-layer evidence, never substitutes for the exact conformance result.
+- R-GOV-3 (MUST): Skill, CLI, MCP, system-resource, installed-product, unattended, adversarial-review, optional-agentics, and model/provider claims use this same rule. Capability configuration, exposure declarations, documentation, and implementation tests are inputs or lower-layer evidence, never substitutes for the exact conformance result.
+- R-GOV-4 (MUST): a `PERF-###` profile, performance outcome, characterization result, or waiver is separate evidence under [48 Performance Evidence Governance](48-performance-evidence-governance.md). None can satisfy the PRD 43 evidence bar, derive `conformance-validated`, or promote a support tuple; R-GOV-2's one passing conformance-result minimum remains independently required.
 
 ### Verification and Meta-Verification (R-TEST)
 
 - R-TEST-1 (MUST): an enforcing check proves that no tuple is `conformance-validated` without a recorded result for the same tuple whose verdict is eligible and whose install, discover, invoke, and uninstall assertions satisfy the evidence bar.
-- R-TEST-2 (MUST): an enforcing check proves that all four required first-pass packaging scenarios exist and project to runnable current commands; an unavailable scenario records `blocked` instead of passing or being omitted. PRD 43 owns the exact scenario identifiers and executable-kit check.
-- R-TEST-3 (MUST): packaging and exclusion checks prove that the entire maintainer conformance family is absent from the shipped template, packaged copy, npm tarballs, and generated product packages. PRD 43 owns the canonical root and distinctive path markers, including rejection of the retired `docs/assets/conformance/` home.
+- R-TEST-2 (MUST): an enforcing check proves that every current scenario cited by a support tuple exists and projects to runnable current commands or resource operations; an unavailable scenario records `blocked` instead of passing or being omitted. PRD 43 owns scenario identity and executable-kit checks.
+- R-TEST-3 (MUST): package-exclusion checks prove that the entire maintainer conformance family is absent from the shipped template, packaged copy, npm tarballs, and generated product packages. PRD 43 owns the canonical root and distinctive path markers, including rejection of the retired `docs/assets/conformance/` home.
 
 ## Contracts and Data
 
@@ -103,7 +104,22 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: This document now states the current agent-harness conformance evidence, lab boundaries, and support claims requirements inline as product authority.
 - Rationale: Active PRDs describe the current product shape; editorial operations belong in plans, work, and history.
 - Source: [Agent harness conformance design](../designs/2026-06-19-agent-harness-and-model-conformance-lab.md)
+
+### 2026-08-14 — W19 R1
+
+- Affected requirement or section: `Support-claim gating; The Support Tuple; Support Claim Governance; Verification and Meta-Verification`
+- Previous contract: Support tuples and required scenarios centered generated Playbook packages, plugins, workflow bundles, and package-specific output dimensions.
+- Replacement contract: Conformance and public claims cover current installed-product, Skill, CLI, MCP, system-resource, optional-agentics, and model/provider surfaces through exact six-dimension tuples; retired Playbook, Protocol, plugin, workflow-bundle, compiler, and generated-package claims are absent.
+- Rationale: The support registry must describe only current product capabilities and must not preserve unsupported or untraced extension packaging as a provisional product promise.
+- Source: [W19 R1 recovery design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md) and [accepted W19 R1 plan](../plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md)
+
 ## Source Anchors
+
+- [Performance Testing Guardrails design](../designs/2026-08-12-performance-testing-guardrails.md)
+- [W19 R2 performance evidence plan](../plans/2026-08-13-w19-r2-performance-evidence-governance/00-overview.md)
+- [48 Performance Evidence Governance](48-performance-evidence-governance.md)
+- [W19 R1 recovery design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md)
+- [W19 R1 plan](../plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md)
 
 - `docs/designs/2026-06-19-agent-harness-and-model-conformance-lab.md`
 - `docs/designs/2026-06-20-cli-separation-and-mcp-boundary.md`

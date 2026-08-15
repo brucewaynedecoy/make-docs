@@ -13,7 +13,7 @@ source:
 
 Define a reusable Make Docs capability for true naive end-user acceptance testing: black-box attempts by qualified testers against installed products, using only public information a real target user would possess. The capability measures goal completion, discoverability, comprehension, interaction, accessibility observations, confusion, unexpected mental models, and recovery—not merely crashes or coded assertions.
 
-This document is the feature authority for naive end-user UAT. The coverage, persona, Playbook, compatibility, template-delivery, lifecycle, and Project State PRDs own their respective integration behavior and consume the naive-UAT contract defined here.
+This document is the feature authority for naive end-user UAT. The coverage, Persona, system-resource, runtime-operation, compatibility, template-delivery, lifecycle, and Project State PRDs own their respective integration behavior and consume the naive-UAT contract defined here.
 
 ## Scope
 
@@ -23,7 +23,8 @@ The capability governs:
 
 - tester qualification and isolation;
 - activation at the first genuinely user-observable slice and complete `none` routing for internal/headless work;
-- non-persona testing/UAT coverage;
+- one configured eligible Persona for every activated execution, with canonical `user` as the no-input default;
+- tester qualification and isolation that remain separate from selected Persona identity;
 - separation from automated tests, owner/architecture review, visual/manual interaction, accessibility testing, and visual-regression automation;
 - real-world goal scenarios, tester/operator view separation, and anti-coaching;
 - scenario, run, finding, evidence, severity, reproducibility, setup, teardown, and traceability contracts;
@@ -41,9 +42,9 @@ It does not define market research, beta recruitment, production experimentation
 | Tester qualification | Prove the tester lacks implementation/private context and uses only public product resources | This PRD and the future naive-UAT contract |
 | Activation routing | Require UAT at the first safe user-observable boundary and preserve valid `none` triggers | This PRD and [45 Deferred Obligation Governance](45-deferred-obligation-governance.md) |
 | Scenario authority | Maintain stable `NUAT-###` goal records in the PRD that owns the user outcome | This PRD and owning subsystem PRDs |
-| Coverage enumeration | Keep naive UAT and other testing/review modes as separate non-persona candidates | [14 Lifecycle Workflow and Coverage Passes](14-lifecycle-workflow-and-coverage-passes.md) |
-| Tester/facilitator workflows | Deliver separate public tester and operator Playbooks without leaking hidden fields | [34 Playbook Authoring Contract and Model](34-playbook-authoring-contract-and-model.md) and [35 Run Playbook State Machine and Portability](35-run-playbook-state-machine-and-portability.md) |
-| Evidence and findings | Preserve versioned scenario/finding meaning while keeping run progress/raw evidence machine-local | [38 Global Store and Project State](38-global-store-and-project-state.md) |
+| Coverage enumeration | Keep naive UAT distinct from other testing/review candidates while requiring an eligible Persona for activated execution | [14 Lifecycle Workflow and Coverage Passes](14-lifecycle-workflow-and-coverage-passes.md) and [47 Persona Model](47-persona-model.md) |
+| Tester/facilitator workflow | Compose governing contracts, prompts, references, and templates into a system workflow backed by the same typed operations on every access path | This PRD and [25 TypeScript Runtime, CLI, MCP, and Operation Boundaries](25-typescript-runtime-cli-mcp-operation-boundaries.md) |
+| Evidence and findings | Keep Persona-specific evidence under `docs/assets/<persona-slug>/testing/` while the Store projects only non-authoritative typed receipts | This PRD, [22 Project Documentation Asset Model](22-project-documentation-asset-model.md), [38 Global Store and Project State](38-global-store-and-project-state.md), and [47 Persona Model](47-persona-model.md) |
 | Compatibility | Classify existing manual/UAT artifacts without silently grandfathering or overwriting them | [18 Compatibility Classification and Migration Safety](18-compatibility-classification-and-migration-safety.md) |
 
 ## Requirements
@@ -54,8 +55,9 @@ It does not define market research, beta recruitment, production experimentation
 - R-NUAT-SCOPE-2 (MUST): the tester may access only the installed product, ordinary environment/accounts a real user can obtain, and public user-facing instructions appropriate to the intended audience.
 - R-NUAT-SCOPE-3 (MUST): an agent qualifies only when isolated in a separate context with no repository access, private memory, implementation conversation, or project-specific instructions beyond the tester packet. Self-attestation alone is insufficient; isolation controls are evidence.
 - R-NUAT-SCOPE-4 (MUST): the tested product is a normally consumable release, release candidate, package, application bundle, deployment, device build, CLI, SDK, API, or equivalent user form. A source checkout or development server qualifies only when real target users consume that exact form.
-- R-NUAT-SCOPE-5 (MUST): `target_user` identifies the external audience for the tested goal. It is not automatically the configured Make Docs `user` persona and never means an implementer using private knowledge.
-- R-NUAT-SCOPE-6 (MUST): testing/UAT coverage remains `coverage_scope: non-persona`. Naive tester is an execution/evidence qualification, not a configured persona.
+- R-NUAT-SCOPE-5 (MUST): `target_user` identifies the external audience and public-experience assumptions for the tested goal. It is distinct from the selected configured Persona slug and never authorizes an implementer to use private knowledge.
+- R-NUAT-SCOPE-6 (MUST): every activated execution records exactly one configured Persona whose primitive is `user` or `maintainer`. An explicitly supplied ineligible or unknown Persona fails closed; when no Persona is supplied, resolution uses the canonical `user` Persona.
+- R-NUAT-SCOPE-7 (MUST): selected Persona identity controls audience framing and evidence routing, not tester qualification. The tester must independently satisfy R-NUAT-SCOPE-1 through R-NUAT-SCOPE-4, and a `maintainer` selection never weakens installed-product, public-information, isolation, or anti-coaching rules.
 
 ### R-NUAT-ACTIVATE User-Observable Slices and Valid `none`
 
@@ -73,13 +75,14 @@ Every applicable mode receives a separate candidate and verdict:
 | Mode | Primary question | Does not substitute for |
 | --- | --- | --- |
 | Automated tests | Does deterministic behavior satisfy coded assertions? | Human comprehension, discoverability, real interaction, or naive UAT |
+| Performance evidence | Does a qualified `PERF-###` profile produce comparable evidence for its exact target and support scope? | Naive goal completion, discoverability, comprehension, anti-coaching, or UAT acceptance |
 | Owner/architecture review | Is the design and product boundary acceptable? | Executed user behavior |
 | Naive end-user UAT | Can a target user achieve the goal without private help? | Automated correctness, architecture review, specialist accessibility audit, or visual regression |
 | Visual/manual interaction | Does the rendered/interactive surface behave under knowledgeable exploration? | Naive discoverability or automated visual diffing |
 | Accessibility testing | Can users with relevant access needs perceive, operate, understand, and complete the workflow? | General naive UAT or visual regression |
 | Visual-regression automation | Did rendering change relative to an approved baseline? | Usability, meaning, accessibility, discoverability, or goal completion |
 
-A physical run may contribute evidence to multiple modes, but each mode retains its own sufficiency rules and verdict.
+A physical run may contribute evidence to multiple modes, but each mode retains its own authority, required fields, sufficiency rules, and verdict. Performance remains a separate non-persona mode under [48 Performance Evidence Governance](48-performance-evidence-governance.md); Persona-scoped naive UAT and its tester qualification and anti-coaching rules remain independently required when UAT is activated.
 
 ### R-NUAT-GOAL Real-World Goals and Anti-Coaching
 
@@ -96,7 +99,7 @@ A physical run may contribute evidence to multiple modes, but each mode retains 
 - R-NUAT-SCENARIO-1 (MUST): canonical scenarios use append-only project-wide `NUAT-###` identifiers in the active PRD that owns the primary external user outcome. Cross-subsystem scenarios have one owner and backlinks from contributing PRDs; work files never become a second scenario authority.
 - R-NUAT-SCENARIO-2 (MUST): the same user goal keeps its ID and increments `scenario_version` for meaningful changes. Different goals receive new IDs. Results bind to exact scenario version or content digest.
 - R-NUAT-SCENARIO-3 (MUST): the scenario fields in `## Contracts and Data` are complete before execution.
-- R-NUAT-SCENARIO-4 (MUST): one canonical record renders an operator view and a tester packet. Any future generator or validator fails closed if operator-only content leaks into the tester packet.
+- R-NUAT-SCENARIO-4 (MUST): one canonical record renders an operator view and a Persona-specific tester packet bound to the selected Persona slug. Any generator or validator fails closed if operator-only content leaks into the tester packet.
 - R-NUAT-SCENARIO-5 (MUST): before an active PRD exists, a design or plan may carry a provisional record, but PRD generation migrates it without losing identity.
 
 ### R-NUAT-EVIDENCE Setup, Outcomes, Findings, and Reproducibility
@@ -107,13 +110,14 @@ A physical run may contribute evidence to multiple modes, but each mode retains 
 - R-NUAT-EVIDENCE-4 (MUST): evidence includes completion outcome and, where appropriate, screenshots, recordings, ordered interaction evidence, confusion, hesitation, discoverability failures, unexpected mental models, alternative paths, help requests, recovery, and accessibility observations. Crash-free or assertion-success evidence does not erase user-experience failure.
 - R-NUAT-EVIDENCE-5 (MUST): findings record observed behavior, expected user outcome, severity, reproducibility, support scope, evidence, source requirement, owner, and disposition.
 - R-NUAT-EVIDENCE-6 (MUST): the shared minimum is one valid independent naive run per claimed support-scope cell. Project PRD severity/risk rules may require more. Additional successful runs never override an unresolved critical or major finding.
+- R-NUAT-EVIDENCE-7 (MUST): perceived slowness, hesitation, or responsiveness friction remains a naive-UAT observation or finding. It may trigger performance qualification under PRD 48, but neither the observation nor a naive-UAT outcome certifies a `PERF-###` target, and a performance outcome cannot erase or rewrite the UAT finding or verdict.
 
 ### R-NUAT-COVERAGE Coverage-Pass Mechanics
 
 - R-NUAT-COVERAGE-1 (MUST): the existing verdict spine remains: `create`, `update-existing`, `link-only`, and `none`.
-- R-NUAT-COVERAGE-2 (MUST): each candidate records ID, delivered behavior, user-observable classification, target user/goal, mode, verdict/reason, scenario reference, complete `none` route when applicable, execution status, and finding/disposition links.
+- R-NUAT-COVERAGE-2 (MUST): each candidate records ID, delivered behavior, user-observable classification, target user/goal, mode, verdict/reason, scenario reference, selected or defaulted Persona slug when activated, complete `none` route when applicable, execution status, and finding/disposition links.
 - R-NUAT-COVERAGE-3 (MUST): enumeration includes changed public instructions, installation paths, defaults, errors, terminology, output rendering, accessibility behavior, and workflows assembled from earlier internal phases.
-- R-NUAT-COVERAGE-4 (MUST): one automated-test or conformance row cannot stand in for naive UAT. The testing/UAT pass remains non-persona even when resulting guides or Playbooks are persona-targeted.
+- R-NUAT-COVERAGE-4 (MUST): one automated-test or conformance row cannot stand in for naive UAT. Naive UAT remains a distinct testing/UAT candidate, but every activated execution uses one eligible configured Persona; Persona selection does not create a second coverage authority or substitute for tester qualification.
 - R-NUAT-COVERAGE-5 (MUST): history idempotency remains unchanged. Durable deltas are summarized once; run progress/evidence remains Project State.
 
 ### R-NUAT-GATE Phase Gates and Finding Consumption
@@ -124,15 +128,18 @@ A physical run may contribute evidence to multiple modes, but each mode retains 
 - R-NUAT-GATE-4 (MUST): a valid `none` satisfies only the current internal/headless classification and never fulfills its future trigger.
 - R-NUAT-GATE-5 (MUST): no phase claims `Capability complete` while an activated scenario is failed, revised, blocked, unrun, or bound to unresolved findings.
 - R-NUAT-GATE-6 (MUST): findings link scenario, requirement, PRD disposition, implementation work, obligation when deferred, history breadcrumb, remediation evidence, and later rerun. Completing a task alone does not close a finding.
+- R-NUAT-GATE-7 (MUST): an `O-###` route preserves later owed work but cannot change a run outcome, close a finding, or satisfy a gate. Only the authoritative finding disposition and any required valid rerun can change acceptance status.
+- R-NUAT-GATE-8 (MUST): a performance profile, result, waiver, or gate remains separate from naive-UAT acceptance. A performance pass does not satisfy an activated UAT scenario; a UAT pass does not certify performance; and a perceived-slowness finding remains qualification input until each applicable authority records its own disposition and verdict.
 
 ### R-NUAT-STATE Repository and Evidence Boundary
 
-- R-NUAT-STATE-1 (MUST): goal, scenario identity/version, target user, trigger, requirements, supported scope, public-resource policy, success outcomes, severity rules, findings, disposition, and obligation links are versioned repository knowledge.
-- R-NUAT-STATE-2 (MUST): run progress, tester qualification, timestamps, interventions, observations, completion data, review decisions, sign-offs, and raw evidence references are unified Project State in the machine-level Global Store.
-- R-NUAT-STATE-3 (MUST): screenshots, recordings, and transcripts are machine-local by default or part of an explicitly exported, consent-aware, redacted portable bundle. Exact physical layout, retention, size, and encryption remain downstream decisions.
-- R-NUAT-STATE-4 (MUST): current validation/review/closeout/notes evidence seams are sufficient for the documentation-first round; no new store schema is required.
+- R-NUAT-STATE-1 (MUST): canonical `NUAT-###` goal and scenario identity/version remain in the active PRD owning the primary external outcome. Persona-specific rendered packets, executions, outcomes, findings, dispositions, evidence metadata, and approved evidence are versioned project knowledge under `docs/assets/<persona-slug>/testing/`, bound to the exact scenario version or content digest.
+- R-NUAT-STATE-2 (MUST): the selected Persona slug determines `<persona-slug>`. The testing directory is an execution/evidence home, never a second canonical scenario authority.
+- R-NUAT-STATE-3 (MUST): the Global Store may record or project only non-authoritative typed run/evidence receipts with project-relative or sanitized references. It does not own tester packets, outcomes, findings, evidence payloads, dispositions, or gate truth, and Store loss cannot erase versioned project evidence.
+- R-NUAT-STATE-4 (MUST): naive-UAT evidence never lives under `.make-docs/archive/` or `docs/artifacts/`. Consent, redaction, retention, and external-capture references are recorded from the selected Persona testing directory.
 - R-NUAT-STATE-5 (MUST): missing/corrupt evidence makes the affected acceptance outcome unverified. Repository links alone never imply a pass.
 - R-NUAT-STATE-6 (MUST): database projections are rebuildable and non-authoritative.
+- R-NUAT-STATE-7 (MUST): migration moves evidence only when Persona mapping and ownership are proven. Ambiguous legacy material remains in its historical location with a typed migration finding, is not recognized as current naive-UAT evidence, and cannot satisfy an acceptance gate until reconciled into the selected Persona testing directory.
 
 ### R-NUAT-SCOPE-MATRIX Cross-Platform, Visual, and Accessibility Scope
 
@@ -152,10 +159,11 @@ A physical run may contribute evidence to multiple modes, but each mode retains 
 
 ### R-NUAT-FUTURE Documentation-First and Future Automation
 
-- R-NUAT-FUTURE-1 (MUST): the capability works through repository authority, Playbooks, coverage decisions, and human review before dedicated runtime support exists.
+- R-NUAT-FUTURE-1 (MUST): the capability is exposed as a system workflow composed from governing contracts, prompts, references, and applicable templates. Those resources own qualification, facilitator framing, scenario structure, activation, routing, evidence, and gate policy; no access adapter contains a hidden policy copy.
 - R-NUAT-FUTURE-2 (MAY): future validators may check IDs, versions, fields, links, activation coverage, complete `none` routing, tester-packet isolation, evidence/disposition, phase-gate claims, and repository/runtime-state boundaries.
-- R-NUAT-FUTURE-3 (MAY): future CLI/MCP surfaces may inventory candidates, render packets, start/resume facilitator workflows, record evidence, export/import portable bundles, or build query projections through current operation-core and Project State safety rules.
+- R-NUAT-FUTURE-3 (MUST): the TypeScript operation registry owns deterministic scenario identity/version validation, Persona resolution/defaulting, installed-product target resolution, evidence-reference validation, lifecycle checkpoints, and finding/result receipt validation. Direct CLI, native MCP, system workflow, and Skill-assisted use resolve the same Persona, operations, and typed results.
 - R-NUAT-FUTURE-4 (MUST NOT): automation may not infer observability, certify naivety, decide intervention materiality, assign product severity, interpret confusion, accept a goal, narrow support scope, cancel a requirement, or resolve an obligation.
+- R-NUAT-FUTURE-5 (MAY): an explicitly selected first-party Naive-UAT Skill may provide concise discovery, argument adaptation, receipt formatting, and thin shims for harnesses that cannot issue shell commands or use MCP. Every shim delegates to the same typed CLI operations; the Skill contains no qualification, anti-coaching, scenario, evidence, state-machine, finding, gate, or other business logic and is never required for core correctness.
 
 ## Contracts and Data
 
@@ -193,6 +201,7 @@ Every run records:
 | `scenario_ref` | Scenario ID, version, and source digest |
 | `work_coordinate` | Stage or phase evaluated |
 | `product_build` / `environment` | Exact build and tested support scope |
+| `selected_persona` | Actual configured `user`- or `maintainer`-primitive Persona slug; canonical `user` when defaulted |
 | `tester_qualification` | Attestation plus isolation/context-control evidence |
 | `public_resources_used` | Help actually consulted |
 | `interventions` | Every facilitator, safety, environment, or coaching-like intervention |
@@ -202,7 +211,7 @@ Every run records:
 | `interaction_evidence` / `visual_evidence` / `accessibility_evidence` | Applicable evidence or reasoned `not-applicable` |
 | `finding_ids` | Stable findings |
 | `reproduction` | Conditions and concise reproducibility information |
-| `evidence_refs` | Evidence location plus consent/redaction/retention metadata |
+| `evidence_refs` | References rooted at `docs/assets/<selected-persona-slug>/testing/` plus consent/redaction/retention metadata |
 | `review` | Reviewer, decision, disposition, and gate consumption |
 
 Outcome meanings are:
@@ -225,28 +234,29 @@ Severity meanings are:
 
 ## Integrations
 
-- [14 Lifecycle Workflow and Coverage Passes](14-lifecycle-workflow-and-coverage-passes.md) owns activation at gates, phase/capability status, candidate enumeration, and verdict mechanics.
+- [14 Lifecycle Workflow and Coverage Passes](14-lifecycle-workflow-and-coverage-passes.md) owns activation at gates, phase/capability status, candidate enumeration, and verdict mechanics while treating activated UAT as Persona-executed.
 - [15 Agent Instruction Ownership and Managed Blocks](15-agent-instruction-ownership-and-managed-blocks.md) owns durable anti-coaching and routing instructions in managed blocks.
 - [18 Compatibility Classification and Migration Safety](18-compatibility-classification-and-migration-safety.md) owns legacy artifact classification and modified-content protection.
 - [06 Template Contracts and Generated Assets](06-template-contracts-and-generated-assets.md), [09 Dogfood and Maintainer Operations](09-dogfood-and-maintainer-operations.md), and [10 Packaging, Validation, and Release Reference](10-packaging-validation-and-release-reference.md) jointly own upstream-first delivery through reviewed dogfood projection and installed-package proof.
-- [22 Project Documentation Asset Model](22-project-documentation-asset-model.md) owns tester/facilitator reader-asset topology, while [47 Persona Model](47-persona-model.md) owns configured persona metadata and explicitly defers the non-persona testing/UAT exception to this PRD.
-- [34 Playbook Authoring Contract and Model](34-playbook-authoring-contract-and-model.md) and [35 Run Playbook State Machine and Portability](35-run-playbook-state-machine-and-portability.md) own separate tester/facilitator workflow documents and their execution model.
-- [38 Global Store and Project State](38-global-store-and-project-state.md) owns operational evidence storage.
+- [22 Project Documentation Asset Model](22-project-documentation-asset-model.md) owns `docs/assets/<persona-slug>/testing/` as the project evidence namespace, while [47 Persona Model](47-persona-model.md) owns eligible Persona resolution, canonical `user` defaulting, and the selected-slug path contract.
+- [25 TypeScript Runtime, CLI, MCP, and Operation Boundaries](25-typescript-runtime-cli-mcp-operation-boundaries.md) owns deterministic operation-core and CLI/MCP parity; system workflow resources and any optional Skill adapter delegate to those operations.
+- [08 Skills Catalog and Distribution](08-skills-catalog-and-distribution.md) owns explicit optional selection and distribution of a thin first-party Naive-UAT Skill with no duplicated UAT policy or business logic.
+- [38 Global Store and Project State](38-global-store-and-project-state.md) owns typed, non-authoritative receipt projection and never replaces Persona testing assets or gate truth.
 - [45 Deferred Obligation Governance](45-deferred-obligation-governance.md) owns routed future work and anti-orphan completion.
 - [43 Conformance Scenario Model and Execution Kits](43-conformance-scenario-model-and-execution-kits.md) and [44 Conformance Lab Sessions and Evidence](44-conformance-lab-sessions-and-evidence.md) remain separate maintainer conformance authorities and never count as naive UAT merely because an agent or human executed them.
 
 ## Rebuild Notes
 
-The documentation-first resource set is authored upstream under `packages/docs/template/` before dogfood projection:
+The reusable system-workflow resource set is authored upstream under `packages/docs/template/` before dogfood projection:
 
 - future `.make-docs/contracts/system/naive-uat-contract.md`;
+- future `.make-docs/prompts/system/naive-uat-tester.md` and facilitator framing;
+- future `.make-docs/references/system/naive-uat.md`;
 - future `.make-docs/templates/system/naive-uat-scenario.md`;
 - the existing testing/UAT coverage starter;
-- future `docs/assets/playbooks/user/naive-uat-tester.playbook.md`;
-- future `docs/assets/playbooks/agent/naive-uat-facilitator.playbook.md`;
 - lifecycle and phase-gate guidance that consumes results and complete `none` records.
 
-Tester and facilitator Playbooks remain separate so operator-only setup and evaluation data cannot coach the tester. The current capability does not require dedicated shipped Playbooks, Global Store changes, migrations, runtime operations, or changes to external consumer repositories.
+The operator view and Persona-specific tester packet remain separate renderings of one canonical `NUAT-###` scenario so operator-only setup and evaluation data cannot coach the tester. The same typed registry operations back direct CLI, native MCP, system-workflow, and optional Skill-assisted access. The first-party Skill, when explicitly selected, contains only thin CLI-delegating shims and no policy or business logic.
 
 ## Acceptance Scenarios
 
@@ -258,6 +268,8 @@ Tester and facilitator Playbooks remain separate so operator-only setup and eval
 6. **Legacy walkthrough classification:** a prior knowledgeable manual walkthrough remains useful manual evidence but is not relabeled naive without qualification and anti-coaching proof.
 7. **Evidence loss:** repository scenario/finding meaning survives, but a missing machine-local recording/sign-off makes the outcome unverified until restored or rerun.
 8. **Ursa illustration:** a headless Ursa Core phase may validly record `none`; the first usable shell activates a goal such as creating, closing, relaunching, and finding a note using only public instructions. Ursa illustrates the generic rule and does not define it.
+9. **Persona default and isolation:** an activated run with no supplied Persona resolves canonical `user`; an explicit eligible `maintainer` Persona routes evidence to that slug without granting the qualified tester private implementation context.
+10. **Evidence and access-path parity:** direct CLI, native MCP, system-workflow, and explicitly selected Skill-assisted runs resolve the same Persona and typed operations, bind evidence under that Persona slug’s testing directory, and produce the same gate semantics.
 
 ## Non-Requirements
 
@@ -266,12 +278,27 @@ Tester and facilitator Playbooks remain separate so operator-only setup and eval
 - No naive UAT requirement for internal work that cannot produce user signal, provided `none` is complete and routed.
 - No substitution by automated tests, architecture review, conformance, visual/manual testing, accessibility testing, or image diffs.
 - No GUI requirement.
-- No mandatory repository storage for raw recordings or screenshots.
-- The current capability does not require a dedicated CLI, MCP tool, validator, Global Store schema, evidence kind, or migration.
+- No requirement to commit unredacted raw recordings or screenshots; consent-aware evidence records and any external-capture references remain rooted in the selected Persona testing directory.
+- No Playbook-shaped tester or facilitator document kind.
+- No dedicated alternative state machine, policy implementation, or evidence authority in a Skill, MCP adapter, CLI renderer, or Global Store projection.
+- No requirement to install or expose the optional first-party Skill for core workflow correctness.
 - No automated product judgment, tester certification, finding severity, support narrowing, or requirement cancellation.
+
+## Requirement History
+
+### 2026-08-14 — W19 R1
+
+- Affected requirement or section: `Scope`, `Component and Capability Map`, `R-NUAT-SCOPE`, `R-NUAT-SCENARIO`, `R-NUAT-COVERAGE`, `R-NUAT-GATE`, `R-NUAT-STATE`, `R-NUAT-FUTURE`, `Contracts and Data`, `Integrations`, and `Rebuild Notes`
+- Previous contract: Naive UAT was classified as non-persona, delivered through tester/facilitator Playbooks, allowed evidence to remain machine-local by default, and treated dedicated typed CLI/MCP operations as optional future support.
+- Replacement contract: Every activated run resolves one eligible configured `user` or `maintainer` Persona with canonical `user` as the no-input default; tester qualification remains independent; the capability is a system workflow backed by identical typed CLI/MCP operations; any first-party Skill is explicit, optional, and thin; canonical scenarios remain PRD-owned; and Persona-specific packets, runs, findings, outcomes, and evidence live only under `docs/assets/<persona-slug>/testing/` while the Store projects non-authoritative receipts.
+- Rationale: W19 R1 removes Playbook delivery without weakening installed-product, public-information, anti-coaching, scenario, evidence, finding, gate, or one-valid-run sufficiency semantics.
+- Source: [Accepted W19 R1 recovery design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md) and [W19 R1 recovery plan](../plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md)
 
 ## Source Anchors
 
+- [Performance Testing Guardrails design](../designs/2026-08-12-performance-testing-guardrails.md)
+- [W19 R2 performance evidence plan](../plans/2026-08-13-w19-r2-performance-evidence-governance/00-overview.md)
+- [48 Performance Evidence Governance](48-performance-evidence-governance.md)
 - [True Naive End-User Acceptance Testing design](../designs/2026-07-27-true-naive-end-user-acceptance-testing.md)
 - [Deferred Obligations and Anti-Orphan Governance design](../designs/2026-07-27-deferred-obligations-and-anti-orphan-governance.md)
 - [W18 R15 combined plan](../plans/2026-07-30-w18-r15-deferred-obligations-and-naive-uat-governance/00-overview.md)
@@ -282,8 +309,8 @@ Tester and facilitator Playbooks remain separate so operator-only setup and eval
 - [14 Lifecycle Workflow and Coverage Passes](14-lifecycle-workflow-and-coverage-passes.md)
 - [18 Compatibility Classification and Migration Safety](18-compatibility-classification-and-migration-safety.md)
 - [22 Project Documentation Asset Model](22-project-documentation-asset-model.md)
-- [34 Playbook Authoring Contract and Model](34-playbook-authoring-contract-and-model.md)
-- [35 Run Playbook State Machine and Portability](35-run-playbook-state-machine-and-portability.md)
+- [Accepted W19 R1 recovery design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md)
+- [W19 R1 recovery plan](../plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md)
 - [38 Global Store and Project State](38-global-store-and-project-state.md)
 - [43 Conformance Scenario Model and Execution Kits](43-conformance-scenario-model-and-execution-kits.md)
 - [44 Conformance Lab Sessions and Evidence](44-conformance-lab-sessions-and-evidence.md)

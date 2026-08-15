@@ -32,7 +32,7 @@ Code anchors:
 
 ### Public command model
 
-- The [current command taxonomy](./39-cli-command-model-and-operation-registry.md) has five top-level commands organized as self, project, run, and serve: `setup` with `setup reconfigure`, `setup skills`, `setup backup`, and `setup remove`; `run` for registry operations; `mcp`; and top-level `update` and `uninstall` for machine-footprint tool self-management. Bare `make-docs` starts guided setup when no install is present and otherwise shows status and help without auto-sync. There are no compatibility aliases; review, confirmation, and lifecycle-safety semantics apply under these spellings.
+- The [current command taxonomy](./39-cli-command-model-and-operation-registry.md) has seven top-level commands: `setup` with `setup reconfigure`, `setup skills`, `setup backup`, and `setup remove`; `project` for project-surface operations; read-only `resource list` and `resource read`; `run` for registry operations; `mcp`; and top-level `update` and `uninstall` for machine-footprint tool self-management. Bare `make-docs` starts guided setup when no install is present and otherwise shows status and help without auto-sync. There are no compatibility aliases; review, confirmation, and lifecycle-safety semantics apply under these spellings.
 
 The root parser and help system must present that taxonomy directly, route only registry-admitted operations below `run`, and reject every noncurrent spelling with guidance naming the accepted command. Implementation and test anchors from the pre-PRD 39 parser are provenance, not command authority; their historical taxonomy is recorded only under Requirement History.
 
@@ -43,37 +43,37 @@ The root parser and help system must present that taxonomy directly, route only 
 
 ### Interactive Selection Contract
 
-- The setup wizard does not ask `Install starter prompts?`, ask which document templates to install, or ask which reference files to install. Its review summary has no prompt-inclusion, template-mode, or reference-mode decision rows.
-- The public CLI has no `--no-prompts`, `--templates`, or `--references` flags. These spellings are invalid rather than aliases, and setup exposes no replacement flags for partial prompt/template/reference installation.
+- The setup and reconfigure wizard defaults to machine-served contracts, prompts, references, and templates with no eager project snapshot. It offers an explicit optional local projection choice of none, individual resource types, or all and shows the resulting `.make-docs/system/**` file plan before approval.
+- The retired `--no-prompts`, `--templates`, and `--references` spellings remain invalid rather than aliases. Non-interactive setup/reconfigure accepts only the canonical explicit projection input defined by the command model or the saved manifest selection and never infers or broadens a projection choice.
 - Full-install and skills-only selection surfaces present one explicitly selectable skill list. They do not render `Default`, `Optional`, `Required skills`, or `Optional skills` categories; every skill row is selectable and deselectable; and the highlighted detail panel plus bottom selected-skill summary and instructions remain.
 - Non-interactive opt-in selection, including `--selected-skills all`, may install first-party skills. The CLI has no `--optional-skills` alias and performs no compatibility migration for deprecated skill-selection state.
 
 ### Conflict Review Contract
 
-- When reviewable selected-file diffs exist, the CLI first asks `How should make-docs handle these existing files?` with exactly `Overwrite all`, `Skip all`, and `Review each`.
-- `Review each` walks `agent instructions`, `references`, `templates`, `prompts`, `skills`, and `managed files` in that order and offers exactly `Overwrite` and `Skip` per file. It never offers `Update`; append-merge is not a non-instruction managed-file resolution.
-- Interactive review produces the complete per-path resolution map before apply. Non-interactive execution fails on unresolved reviewable diffs rather than inferring overwrite or preservation.
+- When reviewable selected-file diffs exist, the CLI reports the frozen classification and ownership/provenance evidence for each affected path before collecting a disposition.
+- Review may group paths for navigation, but each file resolves to preserve as project-owned, export then replace, overwrite only when clean managed ownership is proven, skip, or stop. Append-merge is not ownership evidence, and no batch action erases file-scoped provenance.
+- Interactive review produces the complete per-path resolution map and exact mutation plan before apply. Non-interactive execution fails on unresolved, incomplete, ambiguous, or contradictory evidence rather than inferring ownership, overwrite, preservation, or removal.
 
 Interactive selection is a first-class capability, not just a prompt wrapper. `runCli` and `inferInstallIntent` in `packages/cli/src/cli.ts` open the wizard only for first install and explicit reconfigure; a bare run against an existing manifest stays on saved selections and does not reopen the wizard, as verified in `packages/cli/tests/cli.test.ts`.
 
 The wizard is a four-step state machine in `WizardStep` and `runSelectionWizardWithRenderer` in `packages/cli/src/wizard.ts`: capabilities, harnesses, options, and review. Capability selection is dependency-aware through `normalizeWizardSelections` and `buildCapabilityChecklistState` in the same module, so `prd` is disabled without `plans` and `work` is disabled without both `plans` and `prd`; the tests pin those lockouts in `packages/cli/tests/wizard.test.ts`.
 
-The options step controls whether skills are installed, skill scope, and explicitly selected skills. It contains no prompt, template, or reference controls. Skills default to disabled; when the user enables skills, the selected-skill list starts from the stored selection state and every listed skill can be selected or deselected. The wizard can proceed with every skill deselected.
+The options step controls whether skills are installed, skill scope, explicitly selected skills, and the optional local projection of machine-served system-resource types. Skills default to disabled; resource projection defaults to none; reconfigure starts from stored selection state; and every changed selection appears in the review plan before apply.
 
 Review is a mutable checkpoint, not a final dead end. `renderWizardReviewSummary` composes a human-readable summary in `packages/cli/src/wizard.ts`, and `WizardReviewAction` plus `runSelectionWizardWithRenderer` allow the review step to return to capabilities, harnesses, or options before apply; `packages/cli/tests/wizard.test.ts` pins that loop.
 
 ### Plan review, confirmation, and apply orchestration
 
-- Conflict review is batch-first across divergent selected managed files, with per-file resolution available inside a group; the active conflict flow has no user-facing `Update` action. [05-installation-profile-and-manifest-lifecycle.md](./05-installation-profile-and-manifest-lifecycle.md) owns the planner/apply contract.
+- Conflict review is provenance-first across divergent selected paths, with an explicit file-scoped disposition inside any navigation group. The active conflict flow has no generic user-facing `Update` action; [05-installation-profile-and-manifest-lifecycle.md](./05-installation-profile-and-manifest-lifecycle.md) owns the planner/apply contract.
 - Agent instruction files use the delimited managed-block inline-routing model owned by [15-agent-instruction-ownership-and-managed-blocks.md](./15-agent-instruction-ownership-and-managed-blocks.md), preserving user and project-specific content outside the block rather than claiming whole-file overwrite/skip ownership.
 
-After selections are resolved, `runCli` in `packages/cli/src/cli.ts` computes an install plan, optionally collects managed-file conflict resolutions, rejects plans with no effective capabilities, calls `printPlan`, and only then applies writes. `printPlan` includes target, mode, manifest state, selection source, and action counts, while `renderNoopExplanation` emits mode-specific guidance for noop runs.
+After selections are resolved, the CLI freezes compatibility classification, computes an install plan, collects required file-scoped conflict resolutions, rejects plans with no effective capabilities, prints target, mode, manifest and provenance state, selection source, exact actions, backup/rollback boundary, and only then applies writes while holding the lifecycle lock. Apply may proceed only against the approved snapshot.
 
 Final user-facing planned operations use four verbs: `generate` means a missing selected file will be created, `update` means an existing selected file will be overwritten from the desired content after any required resolution, `skip` means the user explicitly chose to preserve the existing file, and `remove` means a previously managed file will be removed because it is no longer selected. Review-only conflict states must be resolved before the final plan is presented; they are not surfaced as a separate final operation label.
 
 The generic post-plan confirmation is conditional. When the wizard has already collected review-and-apply intent, `runCli` sets its local `skipApplyConfirm` state in `packages/cli/src/cli.ts`, so the CLI does not immediately ask the user to confirm a second time. Interactive sync flows that did not use the wizard still show the plan and then use `getApplyConfirmationMessage` for confirmation.
 
-Prompting is also the boundary between interactive and non-interactive conflict handling. Interactive runs may collect batch or per-file overwrite/skip resolutions for reviewable selected managed-file diffs; non-interactive runs fail when such diffs are unresolved instead of guessing a skip or overwrite policy.
+Prompting is also the boundary between interactive and non-interactive conflict handling. Interactive runs may collect the accepted file-scoped dispositions for reviewable diffs; non-interactive runs fail when a disposition or ownership/provenance claim is unresolved instead of guessing.
 
 When apply succeeds, `writeApplyCompletionSummary` in `packages/cli/src/cli.ts` varies completion language by mode and surfaces staged conflict files for manual review. That behavior matches the install/readme promise that conflicting replacements are staged rather than overwritten in `README.md` and `packages/cli/README.md`.
 
@@ -82,6 +82,16 @@ When apply succeeds, `writeApplyCompletionSummary` in `packages/cli/src/cli.ts` 
 `make-docs setup backup` starts a named workflow, prepares one audit snapshot, renders a review summary, optionally prompts once, then copies only audited files and materializes prunable directories into a dated backup tree through `runBackupCommand`, `prepareBackupExecution`, `executePreparedBackup`, and `resolveBackupDestinationPlan` in `packages/cli/src/backup.ts`. New backup trees must live under `.make-docs/backup/**`, while legacy root `.backup/**` remains protected state. `packages/cli/tests/backup.test.ts` verifies that originals stay in place, same-day backups promote to ordinal form, and global skill paths land under `_home/`.
 
 `make-docs setup remove` is deliberately two-checkpoint and destructive for the current project. `runUninstallCommand` in `packages/cli/src/uninstall.ts` shows a warning, requests warning approval, loads one audit report, renders the `UninstallReviewPlan`, requests final approval, optionally performs backup from the already-prepared audit, and only then removes files and prunes directories. `packages/cli/tests/uninstall.test.ts` verifies warning-stage and final-stage cancellation semantics. Top-level `make-docs uninstall` is a separate machine-footprint self-management command owned by PRD 39.
+
+`setup`, `setup reconfigure`, `update`, `setup remove`, and top-level `uninstall` classify before mutation and fail closed on missing, malformed, incomplete, ambiguous, contradictory, newer-unknown, or corrupt authority. Destructive plans acquire the project or machine lifecycle lock, create the required backup and rollback manifest before the first write, remove only verified clean managed assets or blocks, preserve project-owned, modified, mixed, unknown, archive, project-documentation, and opaque legacy state, and prune only proven-empty safe directories. Project removal does not implicitly delete Store rows; Store cleanup is a separate reviewed action.
+
+### System Resource Discovery
+
+- `make-docs resource list [--type <contract|prompt|reference|template>] [--prefix <path>] [--origin <effective|local|installed>] [--format table|json]` lists resources sorted by stable URI. The default effective view applies project overrides first, then verified managed snapshots, then the installed-machine provider, and reports origin as `project-override`, `managed-snapshot`, or `installed-machine`.
+- `make-docs resource read <make-docs://system/...> [--origin <effective|local|installed>] [--format raw|json]` reads exactly one resource. Raw format emits only resource bytes; JSON includes the content plus stable URI, type, origin, provider/package identity, version or immutable ref, digest, local path when applicable, and provenance state.
+- Resource discovery is read-only and deterministic. Invalid URIs, unknown types, not-found resources, unavailable installed providers, and incomplete, ambiguous, or contradictory local provenance have distinct nonzero diagnostics and machine-readable error kinds; there is no network fallback or write side effect.
+- Resource URI and prefix paths use normalized POSIX separators. Local resolution stays beneath the explicit project or installed-provider root, rejects traversal, absolute substitution, Windows drive/UNC ambiguity, platform case collision, and symlink escape, treats bytes as data, and never executes a resource or referenced script.
+- Native MCP exposure, where supported, delegates to the same list/read operation contracts, result envelopes, resolution order, safety checks, and diagnostics rather than defining a second resource model.
 
 Lifecycle presentation is mediated through `LifecycleRenderer` in `packages/cli/src/lifecycle-ui.ts`, not hard-coded into backup or uninstall. `createClackLifecycleRenderer` emits semantic workflow summaries, explicit safer alternatives, and prompt guidance; `packages/cli/tests/lifecycle.test.ts` pins the renderer boundary.
 
@@ -112,13 +122,13 @@ Code anchors:
 - `setup skills` and every full-install skill-selection surface use one effective skills manifest per run, interpret `all` and `none` against that manifest, preserve resolved `selectedSkills` behavior, and reject untrusted alternate manifests before mutation under [08-skills-catalog-and-distribution.md](./08-skills-catalog-and-distribution.md).
 - `setup skills` command, dry-run, review, `setup backup`, and `setup remove` output distinguish canonical shared payloads, native harness exposures, symlink links, managed copy mirrors, legacy generated stubs, and custom harness files; bare installs remain skill-free, and managed copy-mirror fallback is available when symlink creation is unavailable or disabled under [28-shared-agentics-installation-and-harness-exposure.md](./28-shared-agentics-installation-and-harness-exposure.md).
 - `setup backup` output, `setup remove --backup` behavior, audit exclusions, and smoke-pack proof use `.make-docs/backup/**` for new backup writes, preserve legacy root `.backup/**`, and prune empty managed `.make-docs/agentics/**` directories only when audit proves them safe under [38-global-store-and-project-state.md](./38-global-store-and-project-state.md).
-- The root parser implements the five-command tree: project lifecycle under `setup`, registry operations under `run`, derived MCP tool names, and machine-footprint `update` and `uninstall` that never guess before destructive global change. `update`, `setup`, and `setup reconfigure` detect pre-v2 state and require warning plus backup or cancellation. Selection resolution, wizard behavior, lifecycle permissions, the shared audit snapshot, and backup naming remain active under the [current command model](./39-cli-command-model-and-operation-registry.md).
+- The root parser implements the seven-command tree: project lifecycle under `setup`, project-surface operations under `project`, read-only resource discovery under `resource`, registry operations under `run`, MCP serving under `mcp`, and machine-footprint `update` and `uninstall` that never guess before destructive global change. `update`, `setup`, and `setup reconfigure` detect pre-v2 state and require classification plus backup or cancellation. Selection resolution, wizard behavior, lifecycle permissions, the shared audit snapshot, and backup naming remain active under the [current command model](./39-cli-command-model-and-operation-registry.md).
 
 The root command contract must encode the PRD 39 tree and retain the established flag partitions: `--backup` belongs only to `setup remove`, `--remove` belongs only to `setup skills`, selection flags are invalid on other lifecycle commands, and selected skill identifiers must be known registry entries. `Command`, `InstallIntent`, `ParsedArgs`, `parseArgs`, and `validateParsedArgs` in `packages/cli/src/cli.ts` are implementation seams for that contract, not an independent source of command spellings.
 
 The selection-resolution contract is “saved manifest first, then CLI overrides.” `resolveSelections` clones either manifest selections or defaults, and `describeSelectionSource` emits the user-facing provenance string; both live in `packages/cli/src/cli.ts`. A subtle but important rule is that `--no-skills` clears selected skills but does not blindly rewrite stored skill scope, which is preserved across reconfigure.
 
-The wizard contract is explicit and testable. `RunSelectionWizardOptions`, `WizardRenderer`, and `WizardReviewAction` separate the state machine from the terminal renderer. Capability selection leaves at least one capability enabled, harness selection leaves at least one harness selected, and the options step carries skill enablement, skill scope, and explicitly selected skills only. Prompt/template/reference selection controls are not part of the current state machine.
+The wizard contract is explicit and testable. `RunSelectionWizardOptions`, `WizardRenderer`, and `WizardReviewAction` separate the state machine from the terminal renderer. Capability selection leaves at least one capability enabled, harness selection leaves at least one harness selected, and the options step carries skill enablement, skill scope, explicitly selected skills, and optional local system-resource projection. Resource content stays machine-served when no projection is selected.
 
 Project lifecycle commands use a shared permission model: `setup backup` and `setup remove` map `--yes` to `"allow-all"` and default to `"confirm"`. Non-interactive `setup` and `setup reconfigure` are also contractual: interactive apply requires a TTY, and lifecycle confirmations throw actionable “re-run with --yes” errors when no TTY is present. The existing CLI and lifecycle tests preserve those permission semantics while the parser adopts the current spellings.
 
@@ -214,8 +224,18 @@ Code and documentation anchors:
 - Rationale: The active PRD set must describe current product authority rather than the editorial operation that produced it.
 - Source: [PRD Authority Maintenance](../../.make-docs/references/system/prd-change-management.md)
 
+### 2026-08-14 — W19 R1
+
+- Affected requirement or section: `Public command model`, `Interactive Selection Contract`, `Conflict Review Contract`, `Plan review, confirmation, and apply orchestration`, `Lifecycle commands`, `System Resource Discovery`, and `Contracts and Data`
+- Previous contract: The CLI exposed five top-level families, omitted first-party system-resource list/read commands, treated prompt/template/reference assets as nonselectable eager content, and reduced conflicts mainly to overwrite or skip without the recovered provenance and rollback boundary.
+- Replacement contract: The seven-command tree adds `project` operations plus read-only `resource list` and `resource read`, defaults setup to machine-served resources with explicit optional projection during setup/reconfigure, binds file-scoped conflict decisions to one frozen classification snapshot, and makes backup, rollback, update, project removal, and machine uninstall fail closed while preserving uncertain, project-owned, and opaque legacy state.
+- Rationale: Recovery requires one inspectable command surface that exposes installed resources without local duplication and never converts ownership uncertainty into destructive automation.
+- Source: [Accepted W19 R1 recovery design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md) and [W19 R1 recovery plan](../plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md)
+
 ## Source Anchors
 
+- `docs/designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md`
+- `docs/plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md`
 - `packages/cli/src/cli.ts`
 - `packages/cli/src/wizard.ts`
 - `packages/cli/src/lifecycle-ui.ts`
