@@ -94,7 +94,7 @@ All listed register items use PRD 03 Git blob `af3afc2ea814703ee3f9c60ed6425b25e
 
 | ID | Impact | Classification | Disposition and rationale |
 | --- | --- | --- | --- |
-| Q-021 | P1 maintainer-facing document wording | `blocking` | The owner approved the bounded P1 decision on 2026-08-15. The decision-only commit is pending, so implementation stays locked. |
+| Q-021 | P1 maintainer-facing document wording | `blocking` | Q-021 was the blocking phase-entry item. The owner decision is recorded in commit `834aef3f339aa8999a60d2ea4619b180349ba65a`, so no owner decision blocker remains for P1. |
 | R-009 | Lifecycle wording in P1 resources | `impacted-nonblocking` | Lifecycle guidance remains advisory and does not block the four-type authority. |
 | R-010 | Words used for resource and workflow surfaces | `impacted-nonblocking` | P1 uses domain-neutral words and does not add a conflicting domain model. |
 | R-017 | Workflow policy location | `impacted-nonblocking` | System resources own workflow policy. Any Skill remains optional and thin. |
@@ -115,7 +115,7 @@ The owner approved the bounded Q-021 decision on 2026-08-15:
 - Keep Q-021 open for the wider repository sweep and coverage-pass policy.
 - Create no new `O-###` item because the owner did not accept the wider work as a required future obligation.
 
-The decision commit SHA is pending. Implementation unlock is blocked. The owner has not given implementation authorization. The finite budget is two correction attempts and two review cycles. This internal document decision creates no Naive UAT scenario, no finding record, and no capability record. Stage 1 remains open.
+The decision commit SHA is `834aef3f339aa8999a60d2ea4619b180349ba65a`. No owner decision package remains. Implementation unlock is blocked only because the owner has not given separate implementation authorization. The finite budget is two correction attempts and two review cycles. This internal document decision creates no Naive UAT scenario, no finding record, and no capability record. Stage 1 remains open.
 
 ### Acceptance criteria
 
