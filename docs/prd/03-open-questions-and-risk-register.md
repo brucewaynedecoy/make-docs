@@ -726,15 +726,17 @@ The following pre-W19 R1 discussion is retained as non-normative historical cont
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Closed | Reusable starter prompts live at `.make-docs/references/system/prompts/`, authored upstream at `packages/docs/template/.make-docs/references/system/prompts/` and dogfooded into the installed project copy. [06-template-contracts-and-generated-assets.md](./06-template-contracts-and-generated-assets.md) owns the upstream-first materialization flow; [21-project-tool-directory-and-resource-tiers.md](./21-project-tool-directory-and-resource-tiers.md) keeps these managed references separate from reader-facing `docs/assets/**` and project-local custom resources. The installed manifest records the managed prompt files. | None. Preserve the upstream-source, package, and dogfood parity path whenever starter prompts change. |
+| Closed | Prompts are first-class peer system resources. Their upstream source is `packages/docs/template/.make-docs/prompts/system/`, and the installed provider supplies them without requiring a project-local projection. A selected local projection uses `.make-docs/system/prompts/`. Prompts do not live under `.make-docs/references/**` or `docs/assets/**`. The [accepted design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md) defines the resource type and resolution order. The [P1 work record](../work/2026-08-14-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/01-upstream-documentation-authority.md) records the upstream authority. | None. Preserve the upstream source, installed-provider supply, and optional local-projection paths when prompts change. |
 
-**Question**: Resolved: reusable starter prompts live in the managed system-reference prompt namespace, not in reader-facing `docs/assets/**` or project-local custom-resource tiers.
+**Question**: Resolved: prompts use the first-class `prompt` system-resource type. They do not use the reference namespace or reader-facing assets.
 
-**Why it matters**: The planned restructure tree has no prompts directory under either the tool directory or `docs/`, yet W16 ships starter prompts.
+**Why it matters**: Prompt identity, installed-provider supply, and optional local projection must use one product contract. The prior closed text conflicted with the accepted design and the P1 upstream architecture.
 
-**Recommendation**: Keep the managed prompt home stable and author changes upstream before package and dogfood synchronization.
+**Recommendation**: Keep the first-class prompt resource home stable. Author prompt changes upstream before package, provider, and selected projection updates.
 
-**To close**: The restructure defines a prompts location and the prompts move there.
+**To close**: The accepted design defines the prompt resource type and resolution order, and P1 establishes the upstream prompt home.
+
+**Resolution**: On 2026-08-17, the owner approved W19 R1 P2 Decision Package 1 Option A. Q-010 remains `Closed`. The old system-reference prompt path was stale. Prompts now use the upstream source `packages/docs/template/.make-docs/prompts/system/`, installed-provider supply, and optional selected local projection at `.make-docs/system/prompts/`.
 
 ### Q-011 Should Coordinate and Prefix Conventions Be Configurable?
 

@@ -39,8 +39,8 @@ The resolver serves contracts, prompts, references, and templates through one st
 
 ### Tasks
 
-- [ ] t1: Verify the exact worktree, branch, HEAD, free disk, dirty-state allowlist, accepted P1 closeout, and implementation authorization; stop on unexpected user work or unsafe growth.
-- [ ] t2: Reread the current normative bodies of every Source PRD plus PRD 03 and record each revision or content digest.
+- [x] t1: Verify the exact worktree, branch, HEAD, free disk, dirty-state allowlist, accepted P1 closeout, and implementation authorization; stop on unexpected user work or unsafe growth.
+- [x] t2: Reread the current normative bodies of every Source PRD plus PRD 03 and record each revision or content digest.
 - [ ] t3: Reevaluate at minimum Q-003, Q-017, Q-018, R-004, R-017, and R-021; treat Q-017's current per-project resource model as authority unless separately redesigned and add newly relevant live items.
 - [ ] t4: For every relevant `Open`, `Confirming`, `Deferred`, closed regression item, or new gap, record its ID, authority revision or digest, impact, classification (`blocking`, `impacted-nonblocking`, `unrelated`, `closed-regression-check`, or `new-authority-gap`), disposition, and rationale.
 - [ ] t5: Record an explicit no-blocker determination and finite correction/review budget before unlocking t8 when no blocker or gap remains.
@@ -62,7 +62,49 @@ The resolver serves contracts, prompts, references, and templates through one st
 ### Closeout Notes
 
 - Testing-mode decision(s): internal deterministic core; naive UAT remains deferred to a user-observable surface.
-- Phase / capability status: gate result pending.
+- Phase / capability status: Stage 1 remains open. P2 implementation is not authorized and remains locked.
+
+#### 2026-08-17 read-only baseline
+
+- Worktree: repository root (`.`).
+- Branch: `make-docs-v2`.
+- HEAD: `aa6560b8ab89166a0a150838d749fb4fadcb29c6`.
+- Starting worktree state: clean.
+- Dirty-state allowlist: none.
+- Available disk: `95,600,000 KiB`.
+- Accepted P1 evidence: The [P1 work record](./01-upstream-documentation-authority.md) is accepted at the same `aa6560b8ab89166a0a150838d749fb4fadcb29c6` SHA.
+- Authorization: The owner authorized Decision Package 1 documentation correction only. P2 implementation is not authorized and remains locked.
+
+##### Safety recheck
+
+- During validation, free disk fell from the baseline `95,600,000 KiB` to `78,400,000 KiB`. It later recovered.
+- Read-only inspection found `41,682.44 MiB` of swap use and 310 Munch MCP processes across active apps.
+- The owner could not restart Codex because another task was running.
+- The owner approved Option B. Work continues without a restart.
+- The current recheck has `88,000,000 KiB` free, `26,580.56 MiB` of `27,648 MiB` swap in use, and 126 Munch MCP processes.
+- Safety disposition: Continue only through the separate documentation gate.
+- Before any P2 implementation, recheck disk, swap, process count, exact worktree, branch, HEAD, and the dirty-state allowlist.
+- P2 implementation remains locked.
+
+#### Source authority digests
+
+| Source | Revision | SHA-256 digest |
+| --- | --- | --- |
+| PRD 02 | `02002ba` | `9138f2332bc7a93a3f7dcc0d7376ecc7213cce1e37c4e04ed9018dca9612f645` |
+| PRD 06 | `834aef` | `c9191e278fb07707db357995f42dd1f5270d5d75fae9a0a13bbd5c7851c1159d` |
+| PRD 17 | `02002ba` | `4c640f9c8560005e759a3f0314e750df893f9dd923b9cc3020d8bf8211830374` |
+| PRD 18 | `02002ba` | `180a3a89032f8577a7cef7f03fdb6cce9885c90e3f9cf959d4f42e868bd8a4ae` |
+| PRD 21 | `02002ba` | `b044071a6829b7812cad23fc6ade12ab8d703cfb7af2c224f0aae1d928442cf3` |
+| PRD 25 | `02002ba` | `7ae999e5221c09b5e3f40a9f60431f65784f537f602334031a1fd7ddd3e69b90` |
+| PRD 39 | `02002ba` | `9e6267e35bb0e09e2cead9f169f558407ed5cc12c4436ecd8973ee6fabe3a155` |
+| PRD 03 | `834aef` plus the Decision Package 1 working change | Pre-decision digest `35d772d3d0ba08705482f27b8a114ec0e3a7762ac5d05900ff3c0bce9ade8222`; post-correction digest `fe620aed0e149cb2297da3de308eb73877f0dbc3f9ea647ef2da0c960aa296d5` |
+
+#### Decision Package 1 - Q-010 prompt resource root
+
+- Gate classification before correction: Q-010 was a `blocking` `closed-regression-check` because its closed text placed prompts under the reference namespace. This conflicted with the [accepted design](../../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md) and the accepted [P1 work record](./01-upstream-documentation-authority.md).
+- Owner disposition: On 2026-08-17, the owner approved Option A. Q-010 stays `Closed`. Prompts are first-class peer system resources at `.make-docs/prompts/system/`, authored upstream at `packages/docs/template/.make-docs/prompts/system/`, supplied by the installed provider without required local projection, and projected when selected to `.make-docs/system/prompts/`. Prompts do not live under references or `docs/assets/**`.
+- Commit boundary: A separate decision-only commit is pending.
+- Gate state: Stage 1 is not complete. Tasks t3 through t8 remain open. P2 implementation is not authorized and remains locked.
 
 ## Stage 2 - Implement Stable Resource Identity And Types
 
