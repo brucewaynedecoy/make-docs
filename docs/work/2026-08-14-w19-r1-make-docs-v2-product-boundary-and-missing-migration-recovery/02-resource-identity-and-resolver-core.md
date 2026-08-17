@@ -103,7 +103,7 @@ The resolver serves contracts, prompts, references, and templates through one st
 
 - Gate classification before correction: Q-010 was a `blocking` `closed-regression-check` because its closed text placed prompts under the reference namespace. This conflicted with the [accepted design](../../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md) and the accepted [P1 work record](./01-upstream-documentation-authority.md).
 - Owner disposition: On 2026-08-17, the owner approved Option A. Q-010 stays `Closed`. Prompts are first-class peer system resources at `.make-docs/prompts/system/`, authored upstream at `packages/docs/template/.make-docs/prompts/system/`, supplied by the installed provider without required local projection, and projected when selected to `.make-docs/system/prompts/`. Prompts do not live under references or `docs/assets/**`.
-- Commit boundary: A separate decision-only commit is pending.
+- Commit record: The separate decision-only commit is `72ee9b214967346a2e6b1b16531e214d6e2b7b72`. It was pushed to `origin/make-docs-v2`.
 - Gate state: Stage 1 is not complete. Tasks t3 through t8 remain open. P2 implementation is not authorized and remains locked.
 
 ## Stage 2 - Implement Stable Resource Identity And Types
