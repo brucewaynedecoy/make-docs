@@ -78,15 +78,15 @@ This phase implements migration checkpoint 11 under the still-active P5 lock and
 
 ### Tasks
 
-- [ ] t9: Bind the fresh production-consumer/importer trace, manifest hashes, trusted source hashes, package inventory, registry inventory, test inventory, conformance/support surfaces, and affected paths to the P5 frozen snapshot.
+- [ ] t9: Bind the P3 frozen legacy baseline and the P5 stop barrier to a fresh P8 production-consumer/importer trace. Include manifest hashes, trusted source hashes, package inventory, registry inventory, test inventory, conformance/support surfaces, and affected paths.
 - [ ] t10: Classify each candidate as proven current Make Docs-owned removal, retained replacement dependency, ambiguous/user-owned preservation, historical provenance, opaque Store state, or stop-for-decision.
-- [ ] t11: Verify backup and restore coverage for every removal candidate and preserve the quiescence barrier through apply, validation, and rollback.
+- [ ] t11: Create and verify P8 backup and restore coverage for every removal candidate. Remove nothing before the fresh trace and backup are complete. Preserve the quiescence barrier through apply, validation, and rollback.
 - [ ] t12: Reject removal by filename, namespace, historical wording, generated-looking content, directory membership, or absence from the current product model alone.
 
 ### Acceptance criteria
 
 - The removal set is finite, hash/provenance-backed, and bound to the current snapshot.
-- Every candidate has one explicit disposition.
+- Each P3-frozen public surface has an explicit removal record or a stop-for-decision result. A completed P8 cannot preserve a live public route.
 - Backup and rollback cover all proven removal targets.
 - Ambiguous, user-owned, historical, and opaque state is excluded from automatic removal.
 
@@ -104,7 +104,7 @@ This phase implements migration checkpoint 11 under the still-active P5 lock and
 
 ### Tasks
 
-- [ ] t13: Remove traced Playbook/Protocol runtime models, parsers, resolvers, runners, state-machine handlers, public operations, CLI grammar, MCP tools/resources, and live documentation claims only where current ownership and replacement safety are proven.
+- [ ] t13: Remove the P3-frozen Playbook/Protocol registry entries, implementations, CLI surfaces, and MCP surfaces as one traced set only where current ownership and replacement safety are proven. Remove related runtime models, parsers, resolvers, runners, state-machine handlers, and live documentation claims in the same bounded change. Do not leave a partial public route.
 - [ ] t14: Remove traced packaging/compiler, adapter-registry, generated payload, default asset, manifest/catalog, and release expectations for Playbooks/Protocols.
 - [ ] t15: Remove only traced Playbook/Protocol-dependent plugin, hook, extension, workflow-bundle, and harness-adapter surfaces that have no independent accepted authority; preserve generic selected-Skill infrastructure and the thin Naive-UAT Skill.
 - [ ] t16: Remove or retarget current tests, fixtures, conformance scenarios, lab mappings, and support claims only when they assert removed behavior; retain historical evidence and tests for replacement safety, preservation, and absence.
@@ -113,6 +113,7 @@ This phase implements migration checkpoint 11 under the still-active P5 lock and
 ### Acceptance criteria
 
 - No current public Playbook or Protocol runtime, operation, package, default asset, or affirmative support claim remains.
+- Each P3-frozen public registry entry, implementation, CLI surface, and MCP surface has an explicit removal record. A stop-for-decision result blocks P8 completion.
 - Independently authorized resource, run, UAT, Skill, and lifecycle behavior remains intact.
 - Only proven owned bytes/surfaces are removed.
 - Audit/update/uninstall can disposition old managed assets without touching ambiguous or user content.
@@ -157,7 +158,7 @@ This phase implements migration checkpoint 11 under the still-active P5 lock and
 
 ### Tasks
 
-- [ ] t22: Run focused current-code/current-doc/current-package searches proving no affirmative Playbook/Protocol product surface remains while allowing explicit no-capability boundaries and historical provenance.
+- [ ] t22: Compare the final registry, implementation, CLI, and MCP inventories with the P3 frozen baseline. Run focused current-code/current-doc/current-package searches proving no affirmative Playbook/Protocol product surface remains while allowing explicit no-capability boundaries and historical provenance.
 - [ ] t23: Run affected runtime, CLI/MCP, package, lifecycle, Store, UAT, Skill, conformance, support-claim, migration/rollback, path-hygiene, link, and whitespace tests within the finite budget.
 - [ ] t24: Obtain independent adversarial review of trace freshness, removal scope, replacement preservation, historical/user-content preservation, and legacy Store opacity; correct only actionable defects within budget.
 - [ ] t25: Record checkpoint-11 evidence, exact removed/preserved inventories, remaining nonblocking items, and the locked checkpoint-12/P9 handoff while keeping quiescence active.
@@ -165,6 +166,8 @@ This phase implements migration checkpoint 11 under the still-active P5 lock and
 ### Acceptance criteria
 
 - Current product/package surfaces contain no affirmative Playbook or Protocol capability.
+- No P3-frozen public Playbook or Protocol registry entry, implementation, CLI surface, or MCP surface remains.
+- Historical and user-owned content is outside the P3 public-surface baseline and remains preserved.
 - Focused affected tests and preservation comparisons pass.
 - Independent review finds no unresolved material missed-removal or over-removal defect.
 - Checkpoint 12 remains separately gated and quiescence remains active.

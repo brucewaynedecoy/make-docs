@@ -33,6 +33,8 @@ This phase keeps all deterministic policy and state-transition logic in the shar
 
 - O-001 remains separate W18 R3 work; O-002 remains superseded.
 - Q-012 and Q-013 enter this phase only if agentic or plugin scope appears; ordinary CLI/MCP parity does not activate them.
+- Q-023 is closed. P3 freezes every existing legacy Playbook and Protocol registry, implementation, CLI, and MCP surface. P5 is the stop barrier. P8 owns fresh trace, backup, and removal.
+- Q-024 is closed. It fixes the exact active and pending operation inventory, CLI grammar, MCP projections, and later handler owners.
 - No `NUAT-###` identifier is invented. P3 supplies access paths; P7 owns activated scenario execution and evidence.
 - Findings and capability status remain owned by their canonical repository records.
 
@@ -42,7 +44,7 @@ This phase keeps all deterministic policy and state-transition logic in the shar
 
 - [ ] t1: Verify the exact worktree, branch, HEAD, free disk, dirty-state allowlist, accepted P2 closeout, and implementation authorization; stop on unexpected user work or unsafe growth.
 - [ ] t2: Reread all Source PRDs and PRD 03 from the active worktree and record each revision or content digest.
-- [ ] t3: Reevaluate at minimum Q-001, Q-007, R-005, R-017, R-021, and R-025; include Q-012 and Q-013 only if live work introduces agentic or plugin scope, and add newly relevant items from the live reread.
+- [ ] t3: Reevaluate at minimum Q-001, Q-007, Q-023, Q-024, R-005, R-017, R-021, and R-025; include Q-012 and Q-013 only if live work introduces agentic or plugin scope, and add newly relevant items from the live reread.
 - [ ] t4: Record the required ID, digest, impact, classification (`blocking`, `impacted-nonblocking`, `unrelated`, `closed-regression-check`, or `new-authority-gap`), disposition, and rationale for every relevant item.
 - [ ] t5: Record an explicit no-blocker determination and finite correction/review budget before unlocking t8 when no blocker or gap remains.
 - [ ] t6: Stop before implementation for each blocker or authority gap and present an owner decision package with source anchors, affected phase and PRDs, bounded options and trade-offs, recommendation, consequences, exact PRD/register/history edits, focused validation, and a decision-only commit boundary; create no standalone decision file.
@@ -69,14 +71,15 @@ This phase keeps all deterministic policy and state-transition logic in the shar
 
 ### Tasks
 
-- [ ] t9: Add resource list, read, and ensure operations to the canonical registry with stable identifiers, input/output schemas, mutation classification, provenance behavior, and typed errors sourced from P2.
-- [ ] t10: Add the PRD-defined general lifecycle-run and Naive-UAT operation families as typed registry contracts, using P6 and P7 implementations when available rather than embedding state or UAT policy in registry metadata.
+- [ ] t9: Retain the existing active `prd.authority.validate`, `work.item.resolve`, `work.evidence.record`, and `work.evidence.read` identifiers. Activate `resource.list`, `resource.read`, and `resource.ensure` in the canonical registry. Map them to `make-docs resource list`, `make-docs resource read <uri>`, and `make-docs resource ensure <uri>`. Record stable input/output schemas, mutation class, provenance behavior, and typed errors sourced from P2.
+- [ ] t10: Register 17 operations as pending. Register `project.surface.ensure` with `pendingLineage: W19 R1 P4`. Register `lifecycle.start`, `lifecycle.show`, `lifecycle.list`, `lifecycle.checkpoint`, `lifecycle.pause`, `lifecycle.resume`, `lifecycle.attach-evidence`, `lifecycle.complete`, `lifecycle.fail`, and `lifecycle.abandon` with `pendingLineage: W19 R1 P6`. Register `uat.scenario.validate`, `uat.persona.resolve`, `uat.target.validate`, `uat.evidence-reference.validate`, `uat.finding.validate`, and `uat.result.validate` with `pendingLineage: W19 R1 P7`. Do not claim that a pending handler exists.
 - [ ] t11: Do not introduce or reintroduce a Playbook/Protocol registry entry, unapproved plugin/workflow-bundle operation namespace, or affirmative legacy product claim, and fail closed on unknown operation identifiers; preserve every pre-existing Playbook/Protocol registry entry, implementation, and public surface unchanged as a frozen retirement candidate until P5 establishes lock/quiescence and P8 completes a fresh production-consumer trace, backup, and traced retirement.
-- [ ] t12: Prove each P3-added retained or replacement registry entry resolves to one shared-core handler and that registry metadata cannot create a second lifecycle transition, resource type, Persona rule, or support claim; do not alter a frozen legacy entry to satisfy this proof.
+- [ ] t12: Prove each active P3 operation resolves to one shared-core handler. Prove each pending entry returns a typed pending result and does not claim a handler. Prove registry metadata cannot create a second lifecycle transition, resource type, Persona rule, or support claim. Do not alter a frozen legacy entry to satisfy this proof.
 
 ### Acceptance criteria
 
-- Every P3-added retained or replacement operation has one registry identity and one shared-core handler contract.
+- The finite nonlegacy inventory has 24 identifiers. Seven are active. Seventeen are pending with exact P4, P6, or P7 lineage.
+- Each active operation has one registry identity and one shared-core handler. Each pending operation has one identity and one typed pending result without a handler claim.
 - Mutation classification and typed outcomes are explicit.
 - P3 introduces no new or reintroduced Playbook/Protocol registry entry, unapproved plugin/workflow operation, or affirmative legacy product claim; every pre-existing Playbook/Protocol registry, implementation, and public surface remains unchanged and is not treated as current product authority.
 - Registry metadata does not duplicate business logic.
@@ -96,7 +99,7 @@ This phase keeps all deterministic policy and state-transition logic in the shar
 
 ### Tasks
 
-- [ ] t13: Implement the PRD-defined CLI grammar for resource, lifecycle-run, and Naive-UAT operations as thin parsing and rendering adapters over the registry.
+- [ ] t13: Implement the seven CLI roots `setup`, `project`, `resource`, `run`, `mcp`, `update`, and `uninstall`. Preserve the context-aware bare `make-docs` flow. Project the active resource CLI paths, pending `make-docs project surface ensure <archive|artifacts|assets>`, pending `make-docs run lifecycle <operation>`, and the six pending `make-docs run uat` paths from the registry as thin adapters.
 - [ ] t14: Preserve read-only versus mutating distinctions in help, dry-run/review flow, exit status, human output, and stable machine-readable output.
 - [ ] t15: Render provenance, ownership, conflict, unavailable, blocked, and typed receipt outcomes without upgrading a receipt into proof of repository mutation or acceptance.
 - [ ] t16: Verify CLI handlers contain no resolver precedence, Store transition, Persona selection, anti-coaching, finding, or gate business logic.
@@ -104,6 +107,7 @@ This phase keeps all deterministic policy and state-transition logic in the shar
 ### Acceptance criteria
 
 - CLI behavior derives from registered typed operations.
+- Active CLI projections call handlers. Pending CLI projections return typed pending results with exact phase lineage.
 - Read-only commands cannot write and mutating commands preserve review/authorization boundaries.
 - Human and machine-readable output preserve the same semantic outcome.
 - CLI code contains no duplicated core or UAT policy.
@@ -123,14 +127,14 @@ This phase keeps all deterministic policy and state-transition logic in the shar
 ### Tasks
 
 - [ ] t17: Expose system-resource inventory and reads through native MCP resources using the same stable URI, resolver, provenance, and typed not-found/conflict semantics as the CLI.
-- [ ] t18: Expose explicitly mutating resource ensure, lifecycle-run, and Naive-UAT behavior through MCP tools that delegate to the same registry handlers and authorization checks.
+- [ ] t18: Expose one MCP tool for every admitted operation. Route active resource ensure through its shared handler and authorization checks. Route the pending project surface, lifecycle, and Naive-UAT tools only to typed pending results until P4, P6, or P7 activates their handlers.
 - [ ] t19: Keep MCP native-resource reads side-effect free and prevent MCP transport code from defining alternative resource identity, Store transitions, Persona defaulting, UAT policy, or evidence routing.
 - [ ] t20: Normalize CLI/MCP error and receipt projections so transport-specific envelopes do not change operation meaning; preserve every pre-existing Playbook/Protocol transport and public surface unchanged without adding a new legacy route or affirmative product claim.
 
 ### Acceptance criteria
 
-- Native MCP resource and CLI reads resolve identical logical identities and provenance.
-- MCP tools and CLI mutations invoke the same handlers and yield semantically identical typed outcomes.
+- Native MCP `resources/list` and `resources/read` and the matching CLI reads resolve identical logical identities and provenance. No other operation projects to native MCP resources.
+- Each active MCP tool and CLI mutation invokes the same handler. Each pending MCP tool and CLI projection returns the same typed pending outcome.
 - MCP transport contains no product business logic.
 - P3 exposes no new Playbook or Protocol surface or affirmative product claim; any pre-existing public surface remains unchanged as a frozen P8 retirement candidate rather than being required absent during this phase.
 
@@ -150,15 +154,16 @@ This phase keeps all deterministic policy and state-transition logic in the shar
 ### Tasks
 
 - [ ] t21: Add focused conformance tests that inject registry, resolver, authorization, and transport failures and prove CLI/MCP semantic parity without shared test fixtures masking divergence.
-- [ ] t22: Verify native MCP resource discovery/read behavior for all four types and typed-tool behavior for each mutating operation family.
+- [ ] t22: Verify native MCP resource discovery/read behavior for all four types. Verify MCP-tool behavior for the seven active and seventeen pending nonlegacy identifiers.
 - [ ] t23: Run focused CLI, MCP, registry, type, link/path, and whitespace checks; reuse unchanged valid evidence and do not invent performance targets.
 - [ ] t24: Obtain independent review of registry ownership, public grammar, MCP resource/tool selection, policy duplication, new legacy exposure, and premature legacy-surface mutation or removal; correct only actionable defects within budget.
-- [ ] t25: Record exact operation inventories, the frozen pre-existing Playbook/Protocol surface baseline, validation evidence, nonblocking items, the P4/P6/P7 handler handoffs, and the locked P5/P8 quiescence-and-retirement handoff.
+- [ ] t25: Record the exact 24-identifier nonlegacy inventory, its seven active and seventeen pending states, the frozen pre-existing Playbook/Protocol surface baseline, validation evidence, nonblocking items, the P4/P6/P7 handler handoffs, and the locked P5/P8 quiescence-and-retirement handoff.
 
 ### Acceptance criteria
 
 - Focused parity and failure-injection tests pass.
-- Every P3-added public surface maps to one registered operation or native read contract; the separately baselined legacy surfaces remain unchanged pending P5/P8.
+- Each of the 24 nonlegacy identifiers maps to one CLI projection and one MCP tool. Only `resource.list` and `resource.read` also map to native MCP resources. The separately baselined legacy surfaces remain unchanged pending P5/P8.
+- Tests prove the exact active and pending counts, every `pendingLineage` value, typed pending refusal, and no handler claim for pending entries.
 - Independent review finds no unresolved duplicated logic, missing parity, newly introduced legacy exposure or claim, or premature mutation/removal of a pre-existing Playbook/Protocol surface.
 - Downstream lifecycle, Store, and UAT phases can implement handlers without redefining transports.
 

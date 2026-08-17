@@ -32,9 +32,11 @@ Code anchors:
 
 ### Public command model
 
-- The [current command taxonomy](./39-cli-command-model-and-operation-registry.md) has seven top-level commands: `setup` with `setup reconfigure`, `setup skills`, `setup backup`, and `setup remove`; `project` for project-surface operations; read-only `resource list` and `resource read`; `run` for registry operations; `mcp`; and top-level `update` and `uninstall` for machine-footprint tool self-management. Bare `make-docs` starts guided setup when no install is present and otherwise shows status and help without auto-sync. There are no compatibility aliases; review, confirmation, and lifecycle-safety semantics apply under these spellings.
+- The [current command taxonomy](./39-cli-command-model-and-operation-registry.md) has seven top-level commands: `setup` with `setup reconfigure`, `setup skills`, `setup backup`, and `setup remove`; `project` for project-surface operations; `resource` with `resource list`, `resource read`, and `resource ensure`; `run` for registry operations; `mcp`; and top-level `update` and `uninstall` for machine-footprint tool self-management. Bare `make-docs` starts guided setup when no install is present and otherwise shows status and help without auto-sync. There are no compatibility aliases; review, confirmation, and lifecycle-safety semantics apply under these spellings.
 
 The root parser and help system must present that taxonomy directly, route only registry-admitted operations below `run`, and reject every noncurrent spelling with guidance naming the accepted command. Implementation and test anchors from the pre-PRD 39 parser are provenance, not command authority; their historical taxonomy is recorded only under Requirement History.
+
+The existing Playbook and Protocol CLI and MCP surfaces are a staged compatibility exception. P3 freezes those surfaces and adds no legacy behavior or support claim. P5 is the quiescence stop barrier. P8 owns the fresh trace, backup, and removal.
 
 ### Interactive wizard and review flow
 
@@ -89,9 +91,10 @@ When apply succeeds, `writeApplyCompletionSummary` in `packages/cli/src/cli.ts` 
 
 - `make-docs resource list [--type <contract|prompt|reference|template>] [--prefix <path>] [--origin <effective|local|installed>] [--format table|json]` lists resources sorted by stable URI. The default effective view applies project overrides first, then verified managed snapshots, then the installed-machine provider, and reports origin as `project-override`, `managed-snapshot`, or `installed-machine`.
 - `make-docs resource read <make-docs://system/...> [--origin <effective|local|installed>] [--format raw|json]` reads exactly one resource. Raw format emits only resource bytes; JSON includes the content plus stable URI, type, origin, provider/package identity, version or immutable ref, digest, local path when applicable, and provenance state.
-- Resource discovery is read-only and deterministic. Invalid URIs, unknown types, not-found resources, unavailable installed providers, and incomplete, ambiguous, or contradictory local provenance have distinct nonzero diagnostics and machine-readable error kinds; there is no network fallback or write side effect.
+- `make-docs resource ensure <make-docs://system/...>` creates or refreshes the selected local projection for exactly one resource through the reviewed managed-file path. It never broadens the saved projection selection.
+- Resource list and read are read-only and deterministic. Resource ensure is a reviewed mutation. Invalid URIs, unknown types, not-found resources, unavailable installed providers, and incomplete, ambiguous, or contradictory local provenance have distinct nonzero diagnostics and machine-readable error kinds; there is no network fallback.
 - Resource URI and prefix paths use normalized POSIX separators. Local resolution stays beneath the explicit project or installed-provider root, rejects traversal, absolute substitution, Windows drive/UNC ambiguity, platform case collision, and symlink escape, treats bytes as data, and never executes a resource or referenced script.
-- Native MCP exposure, where supported, delegates to the same list/read operation contracts, result envelopes, resolution order, safety checks, and diagnostics rather than defining a second resource model.
+- Each resource operation projects to an MCP tool. Native MCP `resources/list` and `resources/read`, where supported, delegate to `resource.list` and `resource.read`. Native MCP resources do not provide `resource.ensure`.
 
 Lifecycle presentation is mediated through `LifecycleRenderer` in `packages/cli/src/lifecycle-ui.ts`, not hard-coded into backup or uninstall. `createClackLifecycleRenderer` emits semantic workflow summaries, explicit safer alternatives, and prompt guidance; `packages/cli/tests/lifecycle.test.ts` pins the renderer boundary.
 

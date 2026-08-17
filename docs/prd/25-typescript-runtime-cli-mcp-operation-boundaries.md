@@ -49,7 +49,7 @@ MCP must ship as part of v2. It is TypeScript-owned and packaged with the same r
 
 MCP tools must not define a second behavior model. Each MCP tool must delegate to the same deterministic operation domain used by the CLI command or shared core operation it represents.
 
-System-resource discovery and reads are an MCP resource surface, not only a tool surface. The CLI commands `make-docs resource list` and `make-docs resource read` are canonical; native MCP resources expose the same stable `make-docs://system/<type>/<posix-relative-path>` inventory and bytes where the SDK supports native resources. Both surfaces call one resolver, and MCP tools cover resource operations such as projection changes that native discovery/read cannot represent.
+System-resource discovery and reads are an MCP resource surface, not only a tool surface. The CLI commands `make-docs resource list`, `make-docs resource read <uri>`, and `make-docs resource ensure <uri>` are canonical. Each operation projects to an MCP tool. Native MCP `resources/list` and `resources/read` expose the same stable `make-docs://system/<type>/<posix-relative-path>` inventory and bytes as resource list/read where the SDK supports native resources. Native MCP resources do not provide resource ensure.
 
 Parity includes manifest reads, config interpretation, resource identity and provenance, audit classification, compatibility classification, conflict handling, dry-run output, and write permissions.
 
@@ -62,7 +62,7 @@ Packed-package validation executes the generated tarball through `npx --package`
 The current MCP surface must:
 
 - inspect installed project state, manifest provenance, package runtime metadata, config labels, operation domains, and compatibility classification through the same loaders used by the CLI;
-- discover and read peer `contract`, `prompt`, `reference`, and `template` resources with the same URI normalization, local-projection trust checks, installed-provider fallback, bytes, media types, and typed failures as CLI resource list/read;
+- list, read, and ensure peer `contract`, `prompt`, `reference`, and `template` resources with the same URI normalization, local-projection trust checks, installed-provider fallback, bytes, media types, and typed failures as the canonical CLI resource operations;
 - use native MCP resource discovery/read where supported without creating a second registry, resolver, or content representation;
 - produce dry-run install/sync plans from the CLI planner before mutation;
 - derive exactly one MCP tool from every admitted registry operation, with the tool name, description, input shape, mutation classification, and pending status taken from the registry definition;
@@ -98,6 +98,8 @@ Configuration overlays are presentation inputs. CLI commands, MCP tools/resource
 
 - The reusable Naive-UAT system workflow remains available through first-class contracts, prompts, references, and templates. Where that workflow invokes deterministic behavior, it uses canonical typed TypeScript CLI operations; equivalent MCP exposure delegates to the same operation definitions and returns identical typed results rather than a second implementation.
 - The TypeScript registry owns only the deterministic seams required by current authority: scenario identity/version validation, Persona resolution/defaulting, installed-target and evidence-reference validation, lifecycle run/checkpoint operations, and finding/result receipt validation. [PRD 46](46-naive-end-user-acceptance-testing.md) and [PRD 47](47-persona-model.md) remain authoritative for selecting exactly one configured Persona mapped to `user` or `maintainer`, defaulting omitted input to canonical `user`, and governing UAT policy plus scenario/evidence semantics.
+- P3 registers `uat.scenario.validate`, `uat.persona.resolve`, `uat.target.validate`, `uat.evidence-reference.validate`, `uat.finding.validate`, and `uat.result.validate` as pending with `pendingLineage: W19 R1 P7`. Their CLI paths use `make-docs run uat scenario validate`, `make-docs run uat persona resolve`, `make-docs run uat target validate`, `make-docs run uat evidence-reference validate`, `make-docs run uat finding validate`, and `make-docs run uat result validate`. Each operation projects to an MCP tool. A pending entry must return a typed pending result and must not claim that its handler exists.
+- The UAT workflow reuses `lifecycle.start`, `lifecycle.show`, `lifecycle.list`, `lifecycle.checkpoint`, `lifecycle.pause`, `lifecycle.resume`, `lifecycle.attach-evidence`, `lifecycle.complete`, `lifecycle.fail`, and `lifecycle.abandon`. It does not define a second lifecycle operation set.
 - Canonical append-only `NUAT-###` scenario identity and version authority remains in the active PRD that owns the primary external outcome; rendered or executed evidence remains project evidence bound to that exact version or digest and never becomes operation-registry authority.
 - A first-party Naive-UAT Skill, when selected, is an optional access adapter whose shims delegate to the same typed CLI operations and may adapt arguments or receipt formatting only. It contains no UAT policy, scenario authority, evidence semantics, state machine, or correctness-only behavior.
 
@@ -148,7 +150,7 @@ Bounded lifecycle operations use the Store's general `runs` and `run_evidence` r
 - No resolution of remote versus bundled skills, plugin runtime implementation parity, or per-bundle public UX.
 - No CLI or MCP adversarial-review surface unless a later plan explicitly selects it and proves parity.
 - No monolithic or surface-owned operation logic; the current modular shared operation domains serve CLI and MCP adapters, which preserve permission and parity boundaries without importing one another.
-- No CLI, MCP, config, skill, or plugin surface may introduce Playbook- or Protocol-specific metadata, operations, state, packages, or routing authority.
+- No CLI, MCP, config, skill, or plugin surface may introduce new Playbook- or Protocol-specific metadata, operations, state, packages, or routing authority. P3 freezes every existing legacy registry entry, implementation, CLI surface, and MCP surface as a staged compatibility exception. P5 is the quiescence stop barrier. P8 owns the fresh trace, backup, and removal.
 - No MCP resource surface may diverge from canonical CLI resource identity, resolver precedence, bytes, media types, or typed errors.
 ## Acceptance Criteria
 
@@ -156,7 +158,9 @@ Bounded lifecycle operations use the Store's general `runs` and `run_evidence` r
 - TypeScript package CLI behavior remains the v2 implementation authority for install, maintenance, deterministic operations, and MCP.
 - `npx`, `pnpm dlx`, and `bunx` / `bun x` package execution paths are treated as first-class validation targets.
 - MCP tools have one shared operation contract with CLI/shared-core behavior and must ship in v2.
-- CLI resource list/read and native MCP resource discovery/read where supported expose the same stable URI inventory and bytes through one resolver.
+- CLI resource list/read/ensure and their MCP tools use one resolver. Native MCP resource discovery/read where supported expose the same stable URI inventory and bytes as CLI list/read.
+- Pending P4, P6, and P7 registrations carry exact phase lineage and do not claim that handlers exist.
+- Existing legacy Playbook and Protocol registry, implementation, CLI, and MCP surfaces remain unchanged through P3. P3 adds no legacy behavior or support claim.
 - MCP writes require explicit permission and registry-parity proof.
 - Bounded lifecycle operations use general run/evidence records and return surface-neutral typed receipts without Playbook-specific state.
 - Operation-domain logic is modular, testable without the parser or MCP transport, and mirrored by CLI/MCP command domains where practical.

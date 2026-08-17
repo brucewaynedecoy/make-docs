@@ -964,6 +964,50 @@ The following pre-W19 R1 discussion is retained as historical context and does n
 
 **To close**: An accepted agentics production-pipeline decision is incorporated into current PRDs 06, 08, 09, 10, 21, 25, 30, and 36 before implementation starts; the authorized pipeline decides the maintainer playbook home, template withdrawal, and plugin substrate disposition, and the shipped skill registry's contents are regenerated as compiler outputs — or the direction is explicitly retired through current non-goals in those owners.
 
+### Q-023 How must P3 handle the existing legacy Playbook and Protocol surfaces?
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Closed | The owner approved the staged compatibility exception on 2026-08-17. P3 freezes every existing legacy Playbook and Protocol registry entry, implementation, CLI surface, and MCP surface. P5 is the quiescence stop barrier. P8 owns the fresh public-surface removal trace, removal backup, and removal. | Complete the required documentation validation and decision-only commit. Then execute P3, P5, and P8 under the approved phase boundaries. |
+
+**Question**: Must P3 remove the existing legacy Playbook and Protocol surfaces, or must it keep them until the later stop and removal phases?
+
+**Why this matters**: The target product has no Playbook or Protocol product surface. The current rebuild still needs a safe change sequence. An early partial removal can break compatibility before the stop proof and removal backup exist.
+
+**Recommendation**: Use a staged compatibility exception. Freeze each existing legacy Playbook and Protocol registry entry, implementation, CLI surface, and MCP surface in P3. Add no legacy behavior. Make no new legacy support claim. Make P5 the quiescence stop barrier. Make P8 own the fresh public-surface removal trace, removal backup, and removal.
+
+**To close**: Approve the staged compatibility exception and its phase owners.
+
+**Resolution**: Approved. P3 must preserve and freeze every existing legacy Playbook and Protocol registry entry, implementation, CLI surface, and MCP surface. P3 must add no legacy behavior and must make no new legacy support claim. P5 is the quiescence stop barrier. P8 owns the fresh public-surface removal trace, removal backup, and removal. PRDs 07, 25, 34, 35, 36, and 39 and the P3, P5, and P8 work records must use this same staged rule.
+
+### Q-024 What is the finite P3 operation inventory and phase ownership?
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Closed | The owner approved the finite 24-identifier nonlegacy inventory on 2026-08-17. P3 retains four existing active identifiers, activates three resource identifiers, and registers 17 named identifiers as pending for P4, P6, or P7. | Complete the required documentation validation and decision-only commit. Then implement P3 and activate later handlers only in their owner phases. |
+
+**Question**: Which operations must P3 retain or activate, and which operations must P3 register as pending for later phase owners?
+
+**Why this matters**: The registry, CLI, and MCP adapters need one finite inventory. A pending entry must not claim that its handler exists.
+
+**Recommendation**: Retain the four existing active PRD and work operations. Activate the three resource operations in P3. Register the project surface, lifecycle, and naive UAT operations as pending. Give each pending entry its later phase lineage. Keep later handler activation with P4, P6, or P7.
+
+**To close**: Approve the 24 identifiers, active or pending states, CLI paths, MCP projections, native MCP resource projections, and later phase owners.
+
+**Resolution**: Approved. The finite P3 nonlegacy inventory has 24 identifiers. Seven are active. Seventeen are pending.
+
+P3 retains the existing active `prd.authority.validate`, `work.item.resolve`, `work.evidence.record`, and `work.evidence.read` identifiers.
+
+P3 activates `resource.list`, `resource.read`, and `resource.ensure`. Their CLI paths are `make-docs resource list`, `make-docs resource read <uri>`, and `make-docs resource ensure <uri>`. Each operation projects to an MCP tool. `resource.list` and `resource.read` also back native MCP `resources/list` and `resources/read`.
+
+P3 registers `project.surface.ensure` as pending for P4. Its CLI path is `make-docs project surface ensure <archive|artifacts|assets>`. Its `pendingLineage` value is `W19 R1 P4`.
+
+P3 registers `lifecycle.start`, `lifecycle.show`, `lifecycle.list`, `lifecycle.checkpoint`, `lifecycle.pause`, `lifecycle.resume`, `lifecycle.attach-evidence`, `lifecycle.complete`, `lifecycle.fail`, and `lifecycle.abandon` as pending for P6. Their CLI form is `make-docs run lifecycle <operation>`. Their `pendingLineage` value is `W19 R1 P6`.
+
+P3 registers `uat.scenario.validate`, `uat.persona.resolve`, `uat.target.validate`, `uat.evidence-reference.validate`, `uat.finding.validate`, and `uat.result.validate` as pending for P7. Their CLI paths are `make-docs run uat scenario validate`, `make-docs run uat persona resolve`, `make-docs run uat target validate`, `make-docs run uat evidence-reference validate`, `make-docs run uat finding validate`, and `make-docs run uat result validate`. Their `pendingLineage` value is `W19 R1 P7`.
+
+All 24 registry operations project to MCP tools. A pending registration must not claim that its handler exists. The seven CLI roots are `setup`, `project`, `resource`, `run`, `mcp`, `update`, and `uninstall`. The context-aware bare `make-docs` flow remains. This decision adds no agentic or plugin scope. It does not activate Q-012 or Q-013.
+
 ## Rebuild Risks
 
 ### R-001 Home-Scoped Skills Are Easy to Drop From a Clean-Room Rebuild

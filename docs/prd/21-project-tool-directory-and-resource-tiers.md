@@ -44,9 +44,10 @@ Resource tiers and identity:
 Resolution and materialization:
 
 - One canonical resolver serves CLI and MCP. It accepts stable resource URIs, normalizes POSIX paths, rejects traversal and invalid type segments, and resolves a trustworthy selected local projection before the installed provider.
-- CLI `make-docs resource list` and `make-docs resource read` are canonical discovery/read surfaces. Native MCP resources expose the same URI set and bytes where supported; MCP tools cover resource operations that the native protocol cannot represent.
+- CLI `make-docs resource list`, `make-docs resource read <uri>`, and `make-docs resource ensure <uri>` are canonical resource surfaces. Resource ensure creates or refreshes exactly one selected local projection through the managed-file conflict and approval path. Each operation projects to an MCP tool. Native MCP resources expose the same URI set and bytes as resource list/read where supported.
 - Local projection is explicit and selection-scoped. Absence of `.make-docs/system/**` is normal and does not reduce runtime resource availability.
 - Divergent, stale, unowned, or provenance-free local files never silently shadow the provider. Refresh and overwrite use the managed-file conflict and approval path.
+- `project.surface.ensure` is a separate P4 operation for the on-demand `archive`, `artifacts`, and `assets` project surfaces. It does not change system-resource selection.
 
 Runtime state and bootstrap:
 

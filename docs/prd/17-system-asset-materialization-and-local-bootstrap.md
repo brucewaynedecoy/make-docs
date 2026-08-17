@@ -45,7 +45,7 @@ Provider and cache provenance:
 
 - `packages/docs/template/` is upstream authoring authority; package preparation builds the installed provider from it, and the provider is the default runtime source.
 - The canonical resolver applies one precedence rule for both CLI and MCP: a trustworthy selected local projection first, then the installed provider, otherwise a typed unavailable or integrity error. Divergent, untrusted, or stale local files do not silently shadow the provider.
-- CLI `resource list` and `resource read` are canonical. Native MCP discovery/read expose the same URI inventory and bytes where the SDK supports native resources; MCP tools cover resource operations that are not native.
+- CLI `resource list`, `resource read`, and `resource ensure` are canonical. Resource ensure creates or refreshes exactly one selected local projection through the reviewed managed-file path. Each resource operation projects to an MCP tool. Native MCP discovery/read expose the same URI inventory and bytes as resource list/read where the SDK supports native resources.
 - A global cache is allowed only as a cache, not as an unpinned source of truth.
 - A cached or projected resource set must be pinned by provider identity, provider version or immutable ref, hash algorithm, and hash set.
 - If cached or projected hashes do not match, the CLI must resolve from the installed provider or require a reviewed refresh path.
@@ -63,6 +63,7 @@ Manifest provenance:
 On-demand safety:
 
 - On-demand materialization must go through the same safety path as ordinary install.
+- `resource.ensure` must not create a broader projection than the selected resource URI.
 - If an on-demand write would overwrite local changes, it must be handled as a managed-file conflict or migration disposition.
 - Provider refreshes must not overwrite local content invisibly.
 - Backup and uninstall must continue to operate from a reviewed audit snapshot and must not infer removability from provider availability alone.
@@ -70,7 +71,7 @@ On-demand safety:
 Validation boundary:
 
 - Current package validation remains the baseline: `npm test -w packages/cli`, `npm run validate:defaults -w packages/cli`, `npm run build -w packages/cli`, `npm run smoke:pack`, template/package parity checks, bare-install checks proving no default skill files, and explicit selected-skill checks through `make-docs setup skills --selected-skills all`.
-- Resource validation must cover installed-provider availability without projection, all four peer resource types, URI normalization and traversal rejection, trustworthy local-first precedence, stale projection hashes, on-demand conflict handling, CLI/native-MCP parity where supported, and manifest compatibility.
+- Resource validation must cover installed-provider availability without projection, all four peer resource types, URI normalization and traversal rejection, trustworthy local-first precedence, stale projection hashes, `resource.ensure` selection limits, on-demand conflict handling, CLI/MCP-tool parity, native MCP list/read parity where supported, and manifest compatibility.
 ## Contracts and Data
 
 The named paths, schemas, state records, metadata fields, and evidence shapes in Requirements are normative contracts for this capability.

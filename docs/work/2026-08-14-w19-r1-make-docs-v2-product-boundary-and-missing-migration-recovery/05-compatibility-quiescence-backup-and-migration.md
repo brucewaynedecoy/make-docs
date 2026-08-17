@@ -75,15 +75,17 @@ This phase builds the safety envelope and implements migration steps 1 through 8
 
 - [ ] t9: Implement the PRD-defined top-level compatibility states and resource, filesystem, manifest-provenance, Store, legacy-asset, path-safety, and optional-agentics facets with fail-closed typed outcomes.
 - [ ] t10: Acquire a project-scoped migration lock, record the exact repository/manifest identity, inventory affected paths and Store facets, and freeze one reviewed classification snapshot for plan, backup, apply, and rollback.
-- [ ] t11: Refresh the production importer and consumer trace for Playbook/Protocol writers immediately before mutation planning and bind its revision/digest to the snapshot.
-- [ ] t12: Establish the public Playbook/Protocol quiescence barrier so legacy writers cannot start or resume during backup, migration, retirement, rollback, or validation; stop if any writer or unknown consumer remains active.
+- [ ] t11: Bind the P3 frozen Playbook/Protocol baseline and every known writer or discovery path to the reviewed P5 migration snapshot. Complete all P5 snapshot and backup duties for the P5 migration. Leave only the fresh trace and backup for removal of the frozen public surfaces to P8.
+- [ ] t12: Establish the public Playbook/Protocol quiescence stop barrier so legacy writers cannot start or resume. Stop if any writer or unknown consumer can bypass the barrier. Do not remove a frozen legacy registry, implementation, CLI, or MCP surface in P5.
 
 ### Acceptance criteria
 
 - One locked reviewed snapshot governs the complete migration attempt.
 - Classification uncertainty stops rather than choosing a destructive disposition.
-- The production-consumer trace is current at mutation time.
-- No public legacy writer can race migration or rollback.
+- The P3 frozen legacy baseline and all known writer/discovery paths are bound to the P5 migration snapshot.
+- P5 completes its own migration snapshot and backup duties.
+- No public legacy writer can start, resume, or bypass the P5 stop barrier.
+- The frozen legacy public surfaces remain present and unchanged. P8 owns only their fresh removal trace, removal backup, and removal.
 
 ### Dependencies
 
@@ -167,6 +169,7 @@ This phase builds the safety envelope and implements migration steps 1 through 8
 - User-owned, modified, ambiguous, historical, and opaque legacy data remain preserved.
 - Independent review finds no unresolved material safety or ordering defect.
 - The quiescence barrier remains active for P6–P10 and checkpoint 9 remains separately gated.
+- P5 does not remove any P3-frozen Playbook or Protocol registry, implementation, CLI, or MCP surface.
 
 ### Dependencies
 

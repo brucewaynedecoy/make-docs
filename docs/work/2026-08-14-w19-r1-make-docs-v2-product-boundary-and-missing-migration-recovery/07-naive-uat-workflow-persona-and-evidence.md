@@ -78,7 +78,7 @@ This phase implements migration checkpoint 10. Every activated execution resolve
 
 - [ ] t9: Install the P1-authored Naive-UAT contracts, prompts, references, and applicable templates as provider-backed system workflow resources available without local projection.
 - [ ] t10: Compose qualification, facilitator framing, Persona selection, scenario binding, execution, evidence, finding, disposition, and gate behavior from those governing resources without embedding policy in routers or transports.
-- [ ] t11: Connect direct CLI, native MCP, and system-workflow entry paths to the same P3 typed Naive-UAT operations and normalized outcomes.
+- [ ] t11: Activate the P3-pending `uat.scenario.validate`, `uat.persona.resolve`, `uat.target.validate`, `uat.evidence-reference.validate`, `uat.finding.validate`, and `uat.result.validate` handlers. Preserve their six `make-docs run uat` CLI paths and derived MCP tools. Connect system-workflow entry paths to the same operations and normalized outcomes. Reuse the P6 lifecycle operations instead of defining UAT lifecycle duplicates.
 - [ ] t12: Preserve the documentation-first sequence: canonical workflow resources and schemas must validate before runtime automation or optional Skill delivery is enabled.
 
 ### Acceptance criteria
@@ -87,6 +87,7 @@ This phase implements migration checkpoint 10. Every activated execution resolve
 - CLI, MCP, and workflow paths share one operation model.
 - Governing policy has one resource authority and is not duplicated in adapters.
 - Runtime automation cannot precede validated documentation authority.
+- P7 clears `pendingLineage: W19 R1 P7` only after all six handlers, CLI projections, MCP tools, and focused tests pass.
 
 ### Dependencies
 
@@ -195,6 +196,7 @@ This phase implements migration checkpoint 10. Every activated execution resolve
 - Independent review finds no unresolved material Persona, qualification, policy-duplication, evidence, finding, or gate defect.
 - Checkpoint 10 closes without invented scenario IDs or prohibited evidence paths.
 - Checkpoint 11 remains separately gated and quiescence remains active.
+- All six UAT operation identifiers are active without a transport or identifier change. UAT lifecycle actions use the P6 lifecycle identifiers.
 
 ### Dependencies
 

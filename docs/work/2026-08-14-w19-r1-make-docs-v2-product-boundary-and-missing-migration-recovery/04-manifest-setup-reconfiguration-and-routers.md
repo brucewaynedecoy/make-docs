@@ -96,7 +96,7 @@ Provider resources remain available independently of project projection. Setup a
 
 ### Tasks
 
-- [ ] t13: Implement setup and reconfigure dry-run plans that enumerate intended creates, updates, preserves, conflicts, skips, removals, and stops before apply.
+- [ ] t13: Implement setup and reconfigure dry-run plans that enumerate intended creates, updates, preserves, conflicts, skips, removals, and stops before apply. Activate the P3-pending `project.surface.ensure` handler for `make-docs project surface ensure <archive|artifacts|assets>` and its MCP tool. Create only the selected on-demand directory and configured routers through the reviewed plan.
 - [ ] t14: Route managed-file conflicts through explicit review using canonical source and installed digests; never append-merge or overwrite as a substitute for ownership evidence.
 - [ ] t15: Generate or update bounded `AGENTS.md` and `CLAUDE.md` managed blocks only from evidence-backed installed capabilities and canonical CLI/MCP access paths.
 - [ ] t16: Ensure routers identify top-level prompt/system-workflow access without embedding resource bodies, UAT policy, hidden implementation guidance, Playbook/Protocol claims, or optional integration claims that were not selected.
@@ -108,6 +108,7 @@ Provider resources remain available independently of project projection. Setup a
 - Router claims match installed/provider capability evidence and remain thin.
 - User-authored router content is preserved.
 - Setup/reconfigure planning cannot silently overwrite, append-merge, select a Skill, or activate removed capabilities.
+- P4 clears the `W19 R1 P4` pending state only after the `project.surface.ensure` handler, CLI projection, MCP tool, and focused tests pass.
 
 ### Dependencies
 

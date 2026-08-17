@@ -31,7 +31,7 @@ General lightweight lifecycle run capture is owned by [38-global-store-and-proje
 ### Current Execution Boundary (R-SCOPE)
 
 - R-SCOPE-1 (MUST): Make Docs defines no generic Run Playbook or Run Protocol engine, resolver, state machine, cursor, per-step status model, gate-decision model, dependency snapshot, nested-run model, concurrency policy, digest-aware resume, or hand-followable engine tier.
-- R-SCOPE-2 (MUST): no `playbook.start`, `playbook.status`, `playbook.next`, `playbook.advance`, `playbook.gate`, `playbook.resume`, `playbook.close`, `playbook.run.export`, `playbook.run.import`, or Protocol equivalent appears in the current operation registry, CLI, or MCP surface.
+- R-SCOPE-2 (MUST): outside the frozen P3 compatibility set, no `playbook.start`, `playbook.status`, `playbook.next`, `playbook.advance`, `playbook.gate`, `playbook.resume`, `playbook.close`, `playbook.run.export`, `playbook.run.import`, or Protocol equivalent appears in the current operation registry, CLI, or MCP surface.
 - R-SCOPE-3 (MUST): Skills, plugins, hooks, extensions, system workflows, or harness capabilities must not recreate the former generic runner or preserve it as hidden compatibility behavior.
 - R-SCOPE-4 (MUST): current workflow behavior is capability-specific. Its operation, gate, evidence, Persona, and safety semantics are owned by the applicable current product PRD rather than this legacy boundary.
 
@@ -53,6 +53,7 @@ General lightweight lifecycle run capture is owned by [38-global-store-and-proje
 - R-QUIESCE-1 (MUST): before migration classifies or mutates any affected surface, the migration holds the exclusive project lock and verifies a durable barrier across every public Playbook/Protocol discovery and write boundary.
 - R-QUIESCE-2 (MUST): the barrier remains active through transformation and validation and fails closed when any writer or discovery path can bypass it.
 - R-QUIESCE-3 (MUST): quiescence does not delete legacy Store data or prove an implementation surface safe to remove. Removal still requires the accepted current trace and verified ownership.
+- R-QUIESCE-4 (MUST): P3 preserves and freezes every existing legacy Playbook and Protocol registry entry, implementation, CLI surface, and MCP surface. It adds no legacy behavior or support claim. P5 establishes the stop barrier. P8 owns the fresh trace, backup, and removal.
 
 ### Conformance and Support Boundary (R-SUPPORT)
 
@@ -69,7 +70,7 @@ General lightweight lifecycle run capture is owned by [38-global-store-and-proje
 
 ## Acceptance Criteria
 
-- Current operation, CLI, MCP, Skill, and support surfaces expose no Playbook/Protocol runner behavior.
+- Current authority admits no Playbook/Protocol runner behavior. The frozen P3 compatibility set remains unchanged until the P5 stop barrier and the P8 removal.
 - General lifecycle run capture remains bounded, capability-neutral, and separate from legacy Playbook state.
 - Existing `playbook_runs` rows remain opaque and untouched.
 - Migration quiesces every public legacy write/discovery boundary before classification and keeps the barrier active through validation.
@@ -112,6 +113,16 @@ A clean-room rebuild must not map former Playbook runner names into the general 
 - Replacement contract: Make Docs has no Playbook/Protocol runner; current workflows use capability-specific typed operations, general run capture is limited to lifecycle state, and legacy `playbook_runs` data remains opaque and untouched behind a quiescent migration boundary.
 - Rationale: The accepted v2 boundary removes the former engine without converting or deleting historical data and without hiding its semantics inside general run capture.
 - Source: [W19 R1 recovery design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md) and [accepted W19 R1 plan](../plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md)
+
+### 2026-08-17 — W19 R1 P3
+
+- Date: 2026-08-17
+- Coordinate: W19 R1 P3
+- Affected requirement or section: `R-SCOPE-2`, `R-QUIESCE-4`, and `Acceptance Criteria`
+- Previous contract: The target-state absence rule did not state how the current legacy runner surfaces must remain available during safe staged removal.
+- Replacement contract: P3 freezes the existing legacy set without a new support claim. P5 is the stop barrier. P8 owns the fresh trace, backup, and removal.
+- Rationale: The approved staged compatibility exception prevents partial removal before quiescence and backup proof.
+- Source: [W19 R1 P3](../work/2026-08-14-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/03-operation-registry-cli-and-mcp.md)
 
 ## Source Anchors
 

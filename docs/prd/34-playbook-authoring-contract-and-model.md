@@ -31,7 +31,7 @@ General system workflows use first-class contracts, prompts, references, templat
 ### Current Product Boundary (R-SCOPE)
 
 - R-SCOPE-1 (MUST): Make Docs defines no Playbook or Protocol document kind, filename convention, frontmatter schema, dependency registry, workflow block, step model, stack discriminator, catalog identity, parser, validator, diagnostic family, default procedural asset, or generic authoring contract.
-- R-SCOPE-2 (MUST): current templates, routers, manifests, catalogs, CLI/MCP operations, and user guidance must not advertise or require Playbook or Protocol authoring.
+- R-SCOPE-2 (MUST): current templates, routers, manifests, catalogs, CLI/MCP operations, and user guidance must not advertise or require Playbook or Protocol authoring. The frozen P3 legacy surfaces are a staged compatibility exception and do not create a current support claim.
 - R-SCOPE-3 (MUST): generic system workflows are composed from the four peer system-resource types and typed operations. They remain owned by their capability PRDs and do not share a hidden Playbook/Protocol schema.
 - R-SCOPE-4 (MUST): the standalone Playbooks product is independent and optional. Make Docs does not bundle, discover, depend on, or claim interoperability with it.
 
@@ -42,6 +42,7 @@ General system workflows use first-class contracts, prompts, references, templat
 - R-LEGACY-3 (MUST): only clean files with verified Make Docs ownership and a current trusted hash may be transformed or removed automatically under the migration authority in [18-compatibility-classification-and-migration-safety.md](18-compatibility-classification-and-migration-safety.md).
 - R-LEGACY-4 (MUST): preserved/exported legacy content records original path, hash, former classification, disposition, and provenance without claiming current support.
 - R-LEGACY-5 (MUST): no compatibility parser, alias, Protocol placeholder, or automatic conversion recreates the former authoring model. Ambiguous content fails closed for review.
+- R-LEGACY-6 (MUST): P3 preserves and freezes every existing legacy Playbook and Protocol registry entry, implementation, CLI surface, and MCP surface. It adds no legacy behavior. P5 is the quiescence stop barrier. P8 owns the fresh trace, backup, and removal.
 
 ### Capability-Specific Workflow Boundary (R-WORKFLOW)
 
@@ -51,7 +52,7 @@ General system workflows use first-class contracts, prompts, references, templat
 
 ### Public and Internal Surface (R-SURFACE)
 
-- R-SURFACE-1 (MUST): no `playbook.*` or `protocol.*` authoring, catalog, validation, or discovery operation appears in the current operation registry, CLI, or MCP surface.
+- R-SURFACE-1 (MUST): outside the frozen P3 compatibility set, no `playbook.*` or `protocol.*` authoring, catalog, validation, or discovery operation appears in the current operation registry, CLI, or MCP surface.
 - R-SURFACE-2 (MUST): current support claims and conformance scenarios contain no Playbook/Protocol authoring tuple. Historical conformance records may remain only as provenance.
 
 ## Non-Requirements
@@ -64,7 +65,7 @@ General system workflows use first-class contracts, prompts, references, templat
 
 ## Acceptance Criteria
 
-- Current product authority and public surfaces expose no Playbook or Protocol authoring model.
+- Current product authority exposes no Playbook or Protocol authoring model. The frozen P3 compatibility set remains unchanged until the P5 stop barrier and the P8 removal.
 - Current workflows use system resources and typed operations owned by their capability PRDs.
 - User-authored, modified, mixed, unknown, and ambiguous legacy content is preserved and fails closed for review.
 - Only verified clean managed assets are eligible for reviewed migration or removal.
@@ -107,6 +108,16 @@ A clean-room rebuild must not infer a Playbook/Protocol product from historical 
 - Replacement contract: Make Docs owns no Playbook or Protocol authoring capability; current workflows use system resources and typed operations, while historical and ambiguous legacy content is preserved without reinterpretation or support claims.
 - Rationale: The accepted v2 product boundary removes both in-product Playbooks and Protocols while retaining safe migration and useful historical provenance.
 - Source: [W19 R1 recovery design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md) and [accepted W19 R1 plan](../plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md)
+
+### 2026-08-17 — W19 R1 P3
+
+- Date: 2026-08-17
+- Coordinate: W19 R1 P3
+- Affected requirement or section: `R-SCOPE-2`, `R-LEGACY-6`, `R-SURFACE-1`, and `Acceptance Criteria`
+- Previous contract: The target-state absence rule did not state how the current legacy authoring surfaces must remain available during safe staged removal.
+- Replacement contract: P3 freezes the existing legacy set without a new support claim. P5 is the stop barrier. P8 owns the fresh trace, backup, and removal.
+- Rationale: The approved staged compatibility exception prevents partial removal before quiescence and backup proof.
+- Source: [W19 R1 P3](../work/2026-08-14-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/03-operation-registry-cli-and-mcp.md)
 
 ## Source Anchors
 

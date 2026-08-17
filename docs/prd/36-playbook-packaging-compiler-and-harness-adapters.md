@@ -32,7 +32,7 @@ The general Skills catalog and explicitly selected Skill exposure remain current
 ### Current Packaging Boundary (R-SCOPE)
 
 - R-SCOPE-1 (MUST): Make Docs defines no Playbook/Protocol package plan, packaging compiler, `outputKind` profile, generated plugin, generated skills bundle, generated hook, generated extension, marketplace registration output, dependency materializer, or package-intent workflow.
-- R-SCOPE-2 (MUST): no Playbook/Protocol packaging operation, command, MCP tool, manifest field, planner action, writer, adapter declaration, or product support claim appears in the current public or internal registry surface.
+- R-SCOPE-2 (MUST): outside the frozen P3 compatibility set, no Playbook/Protocol packaging operation, command, MCP tool, manifest field, planner action, writer, adapter declaration, or product support claim appears in the current public or internal registry surface.
 - R-SCOPE-3 (MUST): general Skill installation resolves authored Skill payloads from the effective Skills manifest. It does not compile procedural documents or derive agentic payloads from Playbook/Protocol sources.
 - R-SCOPE-4 (MUST): no plugin, workflow bundle, generated package, or adapter surface is retained merely for future compatibility. Admission requires the traced current purpose and authority in PRD 30.
 
@@ -49,6 +49,7 @@ The general Skills catalog and explicitly selected Skill exposure remain current
 - R-LEGACY-2 (MUST): only verified clean Make Docs-owned outputs may be removed under an accepted migration snapshot after backup. Symlink exposure is unlinked without following the target, and no parent with unmanaged descendants is pruned.
 - R-LEGACY-3 (MUST): legacy manifest provenance, source references, digests, and package-plan records remain historical evidence only. They do not establish current validity, installability, recognition, or support.
 - R-LEGACY-4 (MUST): migration does not compile, regenerate, upgrade, or semantically convert a legacy generated output. Preserve/export, verified removal, skip, or stop are the available dispositions.
+- R-LEGACY-5 (MUST): P3 preserves and freezes every existing legacy Playbook and Protocol registry entry, implementation, CLI surface, and MCP surface. It adds no legacy behavior or support claim. P5 is the quiescence stop barrier. P8 owns the fresh trace, backup, and removal.
 
 ### Skill and System Workflow Boundary (R-SKILL)
 
@@ -72,7 +73,7 @@ The general Skills catalog and explicitly selected Skill exposure remain current
 
 ## Acceptance Criteria
 
-- Current registries, commands, MCP tools, manifests, conformance scenarios, and support claims expose no Playbook/Protocol packaging surface.
+- Current authority admits no Playbook/Protocol packaging surface. The frozen P3 compatibility set remains unchanged until the P5 stop barrier and the P8 removal.
 - General selected Skills continue to install from the effective Skills manifest without procedural compilation.
 - Untraced adapters and package importers remain absent or removal candidates, with one current trace required immediately before deletion.
 - User-authored, modified, ambiguous, mixed, and unknown legacy outputs are preserved; only verified clean managed outputs are eligible for backed-up removal.
@@ -115,6 +116,16 @@ A clean-room rebuild must keep authored Skills distinct from former Playbook com
 - Replacement contract: Make Docs has no Playbook/Protocol packaging product or adapter registry; current Skills remain authored and explicitly selected, while legacy generated outputs are preserved or removed only through verified migration and untraced adapters require a current deletion trace.
 - Rationale: The accepted v2 boundary retains useful general Skills and evidence-backed agentics while removing Playbook-only packaging, adapters, scenarios, and support promises.
 - Source: [W19 R1 recovery design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md) and [accepted W19 R1 plan](../plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md)
+
+### 2026-08-17 — W19 R1 P3
+
+- Date: 2026-08-17
+- Coordinate: W19 R1 P3
+- Affected requirement or section: `R-SCOPE-2`, `R-LEGACY-5`, and `Acceptance Criteria`
+- Previous contract: The target-state absence rule did not state how the current legacy packaging surfaces must remain available during safe staged removal.
+- Replacement contract: P3 freezes the existing legacy set without a new support claim. P5 is the stop barrier. P8 owns the fresh trace, backup, and removal.
+- Rationale: The approved staged compatibility exception prevents partial removal before quiescence and backup proof.
+- Source: [W19 R1 P3](../work/2026-08-14-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/03-operation-registry-cli-and-mcp.md)
 
 ## Source Anchors
 
