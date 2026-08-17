@@ -114,19 +114,21 @@ Maintainer-dogfood capability status is currently `Capability status unverified`
 
 **To close**: Current wizard, manifest, rules, README, and tests agree on asset-selection behavior.
 
-### D-004 ResolvedAsset Asset Class May Still Be Wider Than the Catalog
+### D-004 ResolvedAsset Asset Classes Are Both Live
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | None yet | Decide whether `static` is future surface or dead type surface. |
+| Closed | `packages/cli/src/types.ts:180` declares both live legacy values. `packages/cli/src/catalog.ts:30` emits only `scoped-static`. `packages/cli/src/skill-catalog.ts:289`, the reviewed Skill paths, and plugin-substrate records emit `static`. P2 preserves both values and defines a separate system-resource type and URI contract. | None for P2. Q-003 keeps later legacy taxonomy cleanup open. |
 
-**Issue**: `packages/cli/src/types.ts:177-180` allows `"static"`, but `packages/cli/src/catalog.ts:30` currently emits `scoped-static` for scaffold assets.
+**Issue**: The prior drift text treated `static` as unused because it compared only `packages/cli/src/catalog.ts:30`, which emits `scoped-static`, with the full union. The reviewed Skill paths and plugin-substrate records also use `static`, including `packages/cli/src/skill-catalog.ts:289`.
 
-**Why it matters**: Type-level contracts no longer cleanly describe actual asset generation behavior.
+**Why it matters**: Removing either live value in P2 would regress the legacy install catalog. Reusing those values for P2 would also blur the new system-resource identity contract.
 
-**Recommendation**: Shrink the union unless a concrete upcoming feature needs a third live value.
+**Recommendation**: Preserve both legacy values. Use the separate `contract`, `prompt`, `reference`, and `template` system-resource types and stable `make-docs://system/...` URIs for P2.
 
-**To close**: The type union, catalog output, and tests agree on every live asset class.
+**To close**: Closed by current type and catalog evidence that both values are live. Q-003 owns any later cleanup.
+
+**Resolution**: The earlier mismatch was an incomplete catalog reading, not a live type-versus-behavior drift. P2 makes no legacy asset-class change.
 
 ### D-005 Skills Delivery Diverges From Earlier Bundled-Payload Expectations
 
@@ -602,19 +604,19 @@ The following pre-W19 R1 discussion is retained as non-normative historical cont
 
 **To close**: Current wizard, manifest, rules, docs, and tests agree on asset and reference selection.
 
-### Q-003 Should ResolvedAsset Keep a Third Asset Class?
+### Q-003 Should the Legacy ResolvedAsset Asset-Class Taxonomy Be Simplified?
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | None yet | Decide whether `static` should be removed or implemented. |
+| Open | `ResolvedAsset.assetClass` has two live legacy values: `static` and `scoped-static`. P2 does not remove or merge them. P2 uses a separate system-resource type contract with `contract`, `prompt`, `reference`, and `template` identities and stable `make-docs://system/...` URIs. | Treat any legacy asset-class simplification as later taxonomy work outside P2. |
 
-**Question**: Does `ResolvedAsset.assetClass` need a third live value, or should the type shrink to two?
+**Question**: Should a later legacy taxonomy cleanup keep both live `ResolvedAsset.assetClass` values or replace that classification model?
 
-**Why it matters**: `packages/cli/src/types.ts:177-180` and `packages/cli/src/catalog.ts:30` disagree today. This is either an unfinished feature hook or dead type surface.
+**Why it matters**: The prior item text treated `static` as unused. `packages/cli/src/types.ts:180` declares `static` and `scoped-static`. `packages/cli/src/catalog.ts:30` emits only `scoped-static`, while `packages/cli/src/skill-catalog.ts:289`, the reviewed Skill paths, and plugin-substrate records emit `static`. Folding this legacy taxonomy question into P2 would mix install assets with the separate system-resource identity model.
 
-**Recommendation**: Shrink to live values unless a near-term feature needs `static`.
+**Recommendation**: Preserve both live legacy values in P2. Evaluate taxonomy cleanup later under a separate owner and proof surface.
 
-**To close**: Type declarations, catalog behavior, and tests agree.
+**To close**: A later authority decides the legacy taxonomy and aligns type declarations, catalog behavior, and tests without changing the P2 system-resource contract by implication.
 
 ### Q-004 How Should packages/content Participate in the Product?
 
@@ -844,19 +846,19 @@ The following pre-W19 R1 discussion is retained as historical context and does n
 
 **To close**: An accepted TUI design is incorporated into a genuinely new capability PRD before implementation starts, or the direction is explicitly retired through current non-goals in the affected store, run, packaging, and CLI PRDs.
 
-### Q-017 Should Managed System Assets Centralize at the Machine Level Instead of Replicating Per Instance?
+### Q-017 Should the Broader Managed-Asset Layout Centralize at the Machine Level?
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Deferred | Captured from the 2026-07-04 second UAT as a named future design lineage — the way Runtime and Global Store was named before it existed. The proposed direction broadens the original D-019 custom-directories gap into a larger question without superseding current PRD authority: stop replicating the roughly 85 managed system files (contracts, references, templates, prompts, scripts) into every project instance, centralize them under the machine-level `~/.make-docs/` as skills already are, with symlinks into project `.make-docs/` so router links keep resolving, and evaluate the further step of holding system docs as read-only data — for example store-backed with progressive-disclosure reads, or a read-only virtual directory projection — to strengthen immutability. The lineage covers the installer, the manifest, the exposure plumbing, path-and-link hygiene, backup and uninstall, and the template package. It interacts with the Q-018 configuration layout and discovery question; the two should be designed together or in explicit sequence. Two user design inputs recorded 2026-07-04 from the post-UAT scoping discussion for the lineage to evaluate: (a) a user-buy-in model — the machine-level CLI install chooses whether system assets are held as plain files or store-backed with a read-only projection, and each project instance install then chooses whether to read from the machine level or replicate locally — recorded with its counter-tension that each choice point multiplies the layout matrix into four configurations that setup, audit, backup, uninstall, and path hygiene must each handle correctly, and conformance evidence may bind per layout, so the design must weigh full user choice against an opinionated default with an escape hatch; (b) regardless of mode, the replicated-local form should consolidate to a single flat `.make-docs/system/` directory with no per-asset-type `system/` subdirectories and no `custom/` directories. | When picked up, start a dedicated instance-layout and system-asset centralization design lineage covering installer, manifest, exposure plumbing, path-and-link hygiene, backup/uninstall, and the template package, sequenced with or explicitly against Q-018; until an accepted decision is incorporated into the affected current PRDs, the existing per-project model remains authoritative and D-019's custom-tier fix stays behind this question. |
+| Deferred | The accepted W19 design and current PRDs separately redesign the P2 system-resource model. The installed provider is the default. A project can select an optional local projection at `.make-docs/system/{contracts,prompts,references,templates}/`. This accepted P2 scope does not settle the broader machine-store, symlink, replication-choice, configuration-layout, custom-tier, or script-absorption questions. | Keep the broader future design deferred. Do not add those wider layout or migration choices to P2. |
 
-**Question**: Should the managed system assets replicate into every project's `.make-docs/` as they do today, or centralize once at the machine level with per-project links, and should system docs additionally become read-only data rather than writable files?
+**Question**: Beyond the accepted P2 installed-provider and optional-projection model, should a later design move more managed assets or mutable state to one machine-level home with links, replication choices, or read-only projections?
 
-**Why it matters**: Per-instance replication multiplies drift surface, makes immutability advisory rather than structural, and inflates every install, sync, and parity check by the full system-asset count; the skills lineage already proved the centralize-and-link model, and the global store already provides the machine-level home a data-backed projection would need.
+**Why it matters**: The wider lineage can change setup, audit, backup, uninstall, configuration, custom tiers, scripts, and path hygiene. Those choices need their own authority and proof. They must not silently expand the P2 resolver scope.
 
-**Recommendation**: Hold this as a named future design lineage rather than an increment on setup; any interim work on the D-019 custom-tier gap or the Q-018 configuration layout and discovery design should treat this direction as a known successor and avoid entrenching per-instance replication further.
+**Recommendation**: Implement only the accepted P2 provider and optional-projection model. Keep machine-store, symlink, replication-choice, configuration-layout, custom-tier, and script-absorption work in this deferred lineage or its linked owners.
 
-**To close**: An accepted centralization decision is incorporated into current PRDs 05, 06, 17, 21, and 38 before implementation starts, or the direction is explicitly retired in those owners in favor of per-instance replication.
+**To close**: A later accepted design resolves the broader asset and state layout across current owners, or those owners explicitly retire the wider direction. P2 completion does not close this item.
 
 ### Q-018 How Should Configuration Be Laid Out, Owned, and Discovered?
 

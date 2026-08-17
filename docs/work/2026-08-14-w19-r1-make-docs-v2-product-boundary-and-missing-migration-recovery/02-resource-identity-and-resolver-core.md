@@ -41,12 +41,12 @@ The resolver serves contracts, prompts, references, and templates through one st
 
 - [x] t1: Verify the exact worktree, branch, HEAD, free disk, dirty-state allowlist, accepted P1 closeout, and implementation authorization; stop on unexpected user work or unsafe growth.
 - [x] t2: Reread the current normative bodies of every Source PRD plus PRD 03 and record each revision or content digest.
-- [ ] t3: Reevaluate at minimum Q-003, Q-017, Q-018, R-004, R-017, and R-021; treat Q-017's current per-project resource model as authority unless separately redesigned and add newly relevant live items.
-- [ ] t4: For every relevant `Open`, `Confirming`, `Deferred`, closed regression item, or new gap, record its ID, authority revision or digest, impact, classification (`blocking`, `impacted-nonblocking`, `unrelated`, `closed-regression-check`, or `new-authority-gap`), disposition, and rationale.
-- [ ] t5: Record an explicit no-blocker determination and finite correction/review budget before unlocking t8 when no blocker or gap remains.
-- [ ] t6: For any blocker or authority gap, stop before implementation and present an owner decision package with source anchors, affected phase and PRDs, bounded options and trade-offs, recommendation, consequences, exact PRD/register/history edits, focused validation, and a decision-only commit boundary; do not create a standalone decision file.
-- [ ] t7: Require canonical authority updates, focused validation, a separate decision commit, and its recorded SHA before unlock; never infer closure from task completion.
-- [ ] t8: Record the Stage 1 outcome, authority digests, accepted P1 evidence, and implementation unlock or stop result.
+- [x] t3: Reevaluate at minimum Q-003, Q-017, Q-018, R-004, R-017, and R-021; treat Q-017's current per-project resource model as authority unless separately redesigned and add newly relevant live items.
+- [x] t4: For every relevant `Open`, `Confirming`, `Deferred`, closed regression item, or new gap, record its ID, authority revision or digest, impact, classification (`blocking`, `impacted-nonblocking`, `unrelated`, `closed-regression-check`, or `new-authority-gap`), disposition, and rationale.
+- [x] t5: Record an explicit no-blocker determination and finite correction/review budget before unlocking t8 when no blocker or gap remains.
+- [x] t6: For any blocker or authority gap, stop before implementation and present an owner decision package with source anchors, affected phase and PRDs, bounded options and trade-offs, recommendation, consequences, exact PRD/register/history edits, focused validation, and a decision-only commit boundary; do not create a standalone decision file.
+- [x] t7: Require canonical authority updates, focused validation, a separate decision commit, and its recorded SHA before unlock; never infer closure from task completion.
+- [x] t8: Record the Stage 1 outcome, authority digests, accepted P1 evidence, and implementation unlock or stop result.
 
 ### Acceptance criteria
 
@@ -62,7 +62,7 @@ The resolver serves contracts, prompts, references, and templates through one st
 ### Closeout Notes
 
 - Testing-mode decision(s): internal deterministic core; naive UAT remains deferred to a user-observable surface.
-- Phase / capability status: Stage 1 remains open. P2 implementation is not authorized and remains locked.
+- Phase / capability status: Stage 1 is complete. P2 implementation is not authorized and remains locked.
 
 #### 2026-08-17 read-only baseline
 
@@ -104,7 +104,38 @@ The resolver serves contracts, prompts, references, and templates through one st
 - Gate classification before correction: Q-010 was a `blocking` `closed-regression-check` because its closed text placed prompts under the reference namespace. This conflicted with the [accepted design](../../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md) and the accepted [P1 work record](./01-upstream-documentation-authority.md).
 - Owner disposition: On 2026-08-17, the owner approved Option A. Q-010 stays `Closed`. Prompts are first-class peer system resources at `.make-docs/prompts/system/`, authored upstream at `packages/docs/template/.make-docs/prompts/system/`, supplied by the installed provider without required local projection, and projected when selected to `.make-docs/system/prompts/`. Prompts do not live under references or `docs/assets/**`.
 - Commit record: The separate decision-only commit is `72ee9b214967346a2e6b1b16531e214d6e2b7b72`. It was pushed to `origin/make-docs-v2`.
-- Gate state: Stage 1 is not complete. Tasks t3 through t8 remain open. P2 implementation is not authorized and remains locked.
+- Gate state: Decision Package 1 is settled. The independent audit below records Stage 1 completion. P2 implementation is not authorized and remains locked.
+
+#### Independent Stage 1 audit
+
+- Reviewed PRD 03 snapshot `PRD03-AUDIT`: HEAD `d077afe66e417ac731f639b997eb58888798acdc` with SHA-256 digest `fe620aed0e149cb2297da3de308eb73877f0dbc3f9ea647ef2da0c960aa296d5`. This is the traceable snapshot before this factual correction pass.
+- Post-correction final PRD 03 digest: `d39703f532c2a60d71f0028b4f4659569faafebfd223d312ae110d02ee9f65ce`.
+- Audit result: No owner decision remains after Q-010.
+
+| ID | Live status | Authority revision or reviewed digest | Impact | Class | Disposition | Rationale |
+| --- | --- | --- | --- | --- | --- | --- |
+| Q-003 | Open | `PRD03-AUDIT` | Legacy install asset taxonomy | `impacted-nonblocking` | Preserve `static` and `scoped-static`. Use separate P2 system-resource types and URIs. | Both legacy values are live. Cleanup is later work. |
+| Q-017 | Deferred | `PRD03-AUDIT` | Provider and projection boundary | `impacted-nonblocking` | Use the installed provider by default and optional local projection. Exclude the broader layout lineage. | The accepted W19 design and current PRDs separately redesign P2. |
+| Q-018 | Open | `PRD03-AUDIT` | Configuration discovery | `impacted-nonblocking` | Make no configuration-layout change in P2. | The resolver core does not need the wider configuration design. |
+| R-004 | Open | `PRD03-AUDIT` | Path and identity parity | `impacted-nonblocking` | Use focused consistency and parity proof for new resource paths. | P2 adds path-sensitive identity and provider surfaces. |
+| R-017 | Open | `PRD03-AUDIT` | Resource authority | `impacted-nonblocking` | Keep contracts, prompts, references, and templates as the one authority. | Optional adapters must not copy policy. |
+| R-006 | Open | `PRD03-AUDIT` | Lifecycle safety | `impacted-nonblocking` | Do not change backup or uninstall review semantics in P2. | Provider work must not weaken the one-snapshot safety model. |
+| R-014 | Open | `PRD03-AUDIT` | Operation sequencing | `impacted-nonblocking` | Keep deterministic resource logic in the shared core before dependent surfaces. | P2 must not create a script or adapter break window. |
+| D-019 | Open | `PRD03-AUDIT` | Custom tiers and script absorption | `impacted-nonblocking` | Do not implement custom tiers or script absorption in P2. | Those items belong to Q-017 or their later owners. |
+| D-004 | Closed | `PRD03-AUDIT` | Legacy asset classes | `closed-regression-check` | Preserve both live legacy values. Use a separate P2 type and URI contract. | The prior drift was an incomplete catalog reading. |
+| R-021 | Open | `PRD03-AUDIT` | Harness adapter evidence | `unrelated` | Take no P2 action. | Adapter recognition and support claims are outside the resource resolver core. |
+| R-003 | Closed | `PRD03-AUDIT` | Development and packed provider parity | `closed-regression-check` | Preserve focused development-path and packed-path proof. | Provider resolution can differ after package preparation. |
+| D-008 | Closed | `PRD03-AUDIT` | Current path routing | `closed-regression-check` | Use only the current `.make-docs/system/**` target paths. | Historical hidden-dot paths remain lineage or migration inputs only. |
+
+#### No-blocker result and finite review budget
+
+- No-blocker result: No blocking question, risk, drift item, or new authority gap remains for P2 after the Q-010 correction and this factual register pass.
+- Decision-package result: All blocking decision packages are settled. Decision Package 1 commit `72ee9b214967346a2e6b1b16531e214d6e2b7b72` is pushed to `origin/make-docs-v2`.
+- Correction budget: This factual PRD and register correction pass, one independent documentation review, and at most one correction pass for actionable findings.
+- Focused validation: PRD authority validation, path hygiene, relative-link checks, and `git diff --check`.
+- Evidence: The accepted P1 record and the Source authority digests above remain traceable inputs.
+- Stage 1 result: Complete.
+- Implementation gate: Stage 1 completion does not authorize P2 implementation. P2 still requires explicit new owner authorization and a fresh Option B safety preflight. P2 implementation remains locked.
 
 ## Stage 2 - Implement Stable Resource Identity And Types
 
