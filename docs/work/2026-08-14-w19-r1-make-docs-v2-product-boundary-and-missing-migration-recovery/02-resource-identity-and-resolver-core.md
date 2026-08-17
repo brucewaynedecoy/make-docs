@@ -62,7 +62,7 @@ The resolver serves contracts, prompts, references, and templates through one st
 ### Closeout Notes
 
 - Testing-mode decision(s): internal deterministic core; naive UAT remains deferred to a user-observable surface.
-- Phase / capability status: Stage 1 is complete. P2 implementation is not authorized and remains locked.
+- Phase / capability status: Stage 1 is complete. P2 implementation was not authorized at Stage 1 closeout and remained locked at that checkpoint.
 
 #### 2026-08-17 read-only baseline
 
@@ -137,14 +137,23 @@ The resolver serves contracts, prompts, references, and templates through one st
 - Stage 1 result: Complete.
 - Implementation gate: Stage 1 completion does not authorize P2 implementation. P2 still requires explicit new owner authorization and a fresh Option B safety preflight. P2 implementation remains locked.
 
+#### 2026-08-17 implementation authorization and safety override
+
+- The owner authorized W19 R1 P2 product implementation under the approved P8 documents and phase process.
+- The required implementation safety preflight reported `32,110.69 MiB` of `32,768 MiB` swap in use, 162 Munch-related processes, and `79.6 GB` free disk. The repository was clean and synchronized at `f7d118674da5d457488bee5ed297a80867edba97`.
+- The owner could not restart Codex or the Munch services.
+- The owner explicitly directed the coordinator to skip the failed safety preflight and continue implementation.
+- The worker used focused commands only. The worker did not start a background service or run the broad test suite.
+- This owner override unlocks only the approved P2 scope. It does not authorize P3 projection, publication, deployment, or a phase commit.
+
 ## Stage 2 - Implement Stable Resource Identity And Types
 
 ### Tasks
 
-- [ ] t9: Define the closed peer type set `contracts`, `prompts`, `references`, and `templates` and the stable `make-docs://system/<type>/<posix-relative-path>` identity independent of provider or projection path.
-- [ ] t10: Implement canonical POSIX-relative normalization, case and separator handling, duplicate detection, and typed rejection for traversal, absolute paths, empty segments, encoded escapes, and invalid resource types.
-- [ ] t11: Implement provider identity and immutable provider-resource metadata, including source, version or digest, logical URI, and availability without project-local projection.
-- [ ] t12: Model selected managed projection, explicit project-owned override, missing resource, conflict, and provider-only states without allowing path location to imply ownership.
+- [x] t9: Define the closed peer type set `contracts`, `prompts`, `references`, and `templates` and the stable `make-docs://system/<type>/<posix-relative-path>` identity independent of provider or projection path.
+- [x] t10: Implement canonical POSIX-relative normalization, case and separator handling, duplicate detection, and typed rejection for traversal, absolute paths, empty segments, encoded escapes, and invalid resource types.
+- [x] t11: Implement provider identity and immutable provider-resource metadata, including source, version or digest, logical URI, and availability without project-local projection.
+- [x] t12: Model selected managed projection, explicit project-owned override, missing resource, conflict, and provider-only states without allowing path location to imply ownership.
 
 ### Acceptance criteria
 
@@ -161,17 +170,20 @@ The resolver serves contracts, prompts, references, and templates through one st
 ### Closeout Notes
 
 - Testing-mode decision(s): deterministic type, URI, normalization, and metadata fixtures.
-- Phase / capability status: identity layer complete; resolution remains open.
+- Implementation: `packages/cli/src/operations/resource/types.ts`, `identity.ts`, and `provider.ts` define the peer type set, stable identity, typed errors, provider metadata, catalog inventory, exact content digests, and immutable inventory digest.
+- Exact entry points: `createSystemResourceIdentity`, `parseSystemResourceUri`, `canonicalSystemResourcePath`, `loadSystemResourceProvider`, and `loadInstalledSystemResourceProvider`.
+- Evidence: `packages/cli/tests/resource-identity-provider.test.ts` covers the current development provider, a packed-root fixture, all four peer types, invalid identity forms, duplicate catalog types, and provider symlinks.
+- Phase / capability status: identity and provider layers are complete. Public CLI and MCP projection remains P3.
 
 ## Stage 3 - Implement Resolution, Provenance, And Typed Operations
 
 ### Tasks
 
-- [ ] t13: Implement the PRD-defined local-first resolution precedence while keeping project-owned overrides, clean managed projections, and provider resources distinguishable in the result.
-- [ ] t14: Enforce repository-root and approved provider-root path containment, symlink non-following rules, realpath checks, and cross-platform path safety before reads or writes.
-- [ ] t15: Implement deterministic typed list and read operations that return logical identity, resolved source, ownership, provenance, digest where available, and bounded not-found/conflict/error outcomes.
-- [ ] t16: Implement on-demand ensure as an explicitly mutating operation that can create only selected clean managed projection content through the lifecycle conflict/review contract; keep ordinary list/read read-only.
-- [ ] t17: Return provenance that identifies provider, managed projection, or explicit project override without converting an override into package authority or a projection into required runtime state.
+- [x] t13: Implement the PRD-defined local-first resolution precedence while keeping project-owned overrides, clean managed projections, and provider resources distinguishable in the result.
+- [x] t14: Enforce repository-root and approved provider-root path containment, symlink non-following rules, realpath checks, and cross-platform path safety before reads or writes.
+- [x] t15: Implement deterministic typed list and read operations that return logical identity, resolved source, ownership, provenance, digest where available, and bounded not-found/conflict/error outcomes.
+- [x] t16: Implement on-demand ensure as an explicitly mutating operation that can create only selected clean managed projection content through the lifecycle conflict/review contract; keep ordinary list/read read-only.
+- [x] t17: Return provenance that identifies provider, managed projection, or explicit project override without converting an override into package authority or a projection into required runtime state.
 
 ### Acceptance criteria
 
@@ -188,17 +200,21 @@ The resolver serves contracts, prompts, references, and templates through one st
 ### Closeout Notes
 
 - Testing-mode decision(s): provider, projection, override, conflict, missing, path, and symlink fixtures.
-- Phase / capability status: core operations complete; public projections remain P3.
+- Implementation: `packages/cli/src/operations/resource/resolver.ts` provides one local-first resolver and typed list, read, and ensure operations. `packages/cli/src/operations/resource/index.ts` is the bounded shared-core export.
+- Exact entry points: `resolveSystemResource`, `listSystemResources`, `readSystemResource`, and `ensureSystemResource`.
+- Exact result boundary: `SystemResourceResult<T>` returns either a typed value or a `SystemResourceError` code with recovery guidance. `ResolvedSystemResource` reports identity, state, source, media type, digest, bytes, provenance, and reusable digest evidence.
+- Mutation boundary: list and read do not create files. Ensure requires selected managed-projection evidence. A write requires `writesAllowed` and the `resource-projection-write` approval. Dry-run returns a plan without a write. Existing valid content returns `reused`.
+- Phase / capability status: shared core operations are complete. CLI command, MCP resource, registry, and manifest-schema projection remain outside P2.
 
 ## Stage 4 - Prove Resolver Correctness
 
 ### Tasks
 
-- [ ] t18: Add focused fixtures covering all four resource types across provider-only, clean projection, explicit override, conflict, missing, invalid, and cross-platform path cases.
-- [ ] t19: Prove that identical inputs and fingerprints produce identical typed results and that unchanged valid evidence is reused rather than rerun.
-- [ ] t20: Run focused core tests, type checks, path-hygiene checks, and changed-file whitespace validation without inventing performance thresholds or universal sample counts.
-- [ ] t21: Obtain independent review of identity, precedence, mutation boundaries, and provenance; correct only actionable defects within the finite budget.
-- [ ] t22: Record the exact typed interfaces, validation evidence, remaining nonblocking items, and P3 handoff.
+- [x] t18: Add focused fixtures covering all four resource types across provider-only, clean projection, explicit override, conflict, missing, invalid, and cross-platform path cases.
+- [x] t19: Prove that identical inputs and fingerprints produce identical typed results and that unchanged valid evidence is reused rather than rerun.
+- [x] t20: Run focused core tests, type checks, path-hygiene checks, and changed-file whitespace validation without inventing performance thresholds or universal sample counts.
+- [x] t21: Obtain independent review of identity, precedence, mutation boundaries, and provenance; correct only actionable defects within the finite budget.
+- [x] t22: Record the exact typed interfaces, validation evidence, remaining nonblocking items, and P3 handoff.
 
 ### Acceptance criteria
 
@@ -215,4 +231,21 @@ The resolver serves contracts, prompts, references, and templates through one st
 ### Closeout Notes
 
 - Testing-mode decision(s): deterministic unit and fixture testing plus independent contract review.
-- Phase / capability status: P2 may close with evidence; P3 remains separately gated.
+- Focused tests: `./node_modules/.bin/vitest run packages/cli/tests/resource-identity-provider.test.ts packages/cli/tests/resource-resolver.test.ts` passed 2 files and 70 tests.
+- Focused type check: the new source and test files passed strict `tsc --noEmit` with the repository's ESNext and Bundler settings.
+- Build: `npm run build -w packages/cli` passed.
+- Repository-wide type check: `./node_modules/.bin/tsc -p packages/cli/tsconfig.json --noEmit` still reports baseline diagnostics in existing files outside P2. It reports no diagnostic in a P2 source or test file.
+- Path hygiene: `python3 .make-docs/scripts/check_path_hygiene.py` passed with 82 checked files and zero errors.
+- t19 trust behavior: Caller evidence cannot seed trust. The first valid use runs SHA-256. It records a bounded internal proof that binds resource identity, canonical path, all project evidence, provider facts, file fingerprint, and digest. Exact later reuse runs no SHA-256 when the caller evidence matches the proof and the fingerprint is stable before and after the byte read. Changed facts cause a new hash or a typed failure. A process restart safely runs a new hash because the proof is process-local.
+- First independent review: FAIL. Forged caller digest evidence could hide changed managed bytes and could report a digest that did not match the returned bytes. Provider inventory exposed a shared mutable `Uint8Array`. Selected and ownership evidence did not have full runtime checks. A case-only disk path could satisfy a different canonical URI on a case-insensitive file system. `localeCompare` could change URI and provider-reference order by locale.
+- First correction: Provider readers now return byte copies. The resolver verifies provider snapshots. Malformed selected and ownership evidence now fails with `invalid-project-evidence`. Project paths now require exact disk case. Provider inventory and resolved lists now use fixed code-unit order. All five reproductions pass.
+- Second independent review: FAIL for t19 only. The forged-evidence defect was fixed, but the resolver still ran SHA-256 before it reported `digestSource` as `reused`. The test checked only the label and did not prove that the hash did not run again.
+- Second correction: The resolver now uses the bounded internal proof described above. A hash-call observer test proves that the first valid use hashes once, exact reuse adds zero hash calls, and changed facts rehash or fail closed.
+- Final independent review: PASS. No P0, P1, or P2 issue remains. All five first-review reproductions pass. The t19 hash-call proof passes. Focused strict TypeScript, CLI build, path hygiene, diff and whitespace, export, and P2-scope checks pass. The full CLI TypeScript check still reports only existing errors outside P2.
+- Public identity interfaces: `isSystemResourceType(value: unknown): value is SystemResourceType`, `createSystemResourceIdentity(type: unknown, resourcePath: unknown): SystemResourceResult<SystemResourceIdentity>`, `parseSystemResourceUri(uri: unknown): SystemResourceResult<SystemResourceIdentity>`, and `canonicalSystemResourcePath(value: unknown): SystemResourceResult<string>`.
+- Public provider interfaces: `loadSystemResourceProvider(input: LoadSystemResourceProviderInput): SystemResourceResult<SystemResourceProviderInventory>` and `loadInstalledSystemResourceProvider(): SystemResourceResult<SystemResourceProviderInventory>`.
+- Public operation interfaces: `resolveSystemResource(uri: string, provider: SystemResourceProviderInventory, project: SystemResourceProjectContext): SystemResourceResult<ResolvedSystemResource>`, `listSystemResources(provider: SystemResourceProviderInventory, project: SystemResourceProjectContext): SystemResourceResult<SystemResourceList>`, `readSystemResource(uri: string, provider: SystemResourceProviderInventory, project: SystemResourceProjectContext): SystemResourceResult<SystemResourceRead>`, and `ensureSystemResource(input: EnsureSystemResourceInput): SystemResourceResult<SystemResourceEnsure>`. The bounded `packages/cli/src/operations/resource/index.ts` export provides these functions and the public types and constants in `types.ts`.
+- P3 handoff: P3 can project the shared core through CLI and MCP surfaces without new resolver business logic. P3 also owns its registry and manifest-schema projection. This handoff does not authorize P3 implementation.
+- Remaining nonblocking work: Later manifest and setup phases own persisted selection and provenance integration. Remote providers, custom tiers, configuration layout, caches, and migration remain outside P2.
+- Repository state: No P2 file is staged or committed. Owner acceptance, a P2 phase commit, push, release, and P3 implementation are not claimed.
+- Phase / capability status: P2 implementation and independent review are complete. P2 remains active until owner acceptance and phase closeout. P3 remains separately gated.
