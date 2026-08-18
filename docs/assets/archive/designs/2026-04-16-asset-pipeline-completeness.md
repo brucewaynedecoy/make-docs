@@ -110,7 +110,7 @@ The `isFullDefaultProfile()` check in `renderBuildableAsset()` ensures that full
 ## Intended Follow-On
 
 - Route: `baseline-plan`
-- Next Prompt: [designs-to-plan.prompt.md](../.prompts/designs-to-plan.prompt.md)
+- Next Prompt: [designs-to-plan.prompt.md](../../../../.make-docs/system/prompts/designs-to-plan.prompt.md)
 - Why: The changes are small and well-scoped (4 files in `packages/cli/src/`, plus test updates), but should be planned and validated against the full test suite before execution. This work can be sequenced alongside or after the guide-structure-contract plan, since both introduce the "always-installed" pattern — implementing them together avoids duplicate work in `rules.ts`.
 
 ## Design Lineage

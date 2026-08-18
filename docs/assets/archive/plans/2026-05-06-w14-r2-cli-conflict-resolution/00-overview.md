@@ -38,9 +38,9 @@ The completed implementation should:
 - Source design: [2026-05-06-cli-conflict-resolution.md](../../../../designs/2026-05-06-cli-conflict-resolution.md)
 - Related archived design: [2026-04-28-cli-asset-selection-simplification.md](../../designs/2026-04-28-cli-asset-selection-simplification.md)
 - Related archived design: [2026-04-22-cli-lifecycle-clack-standardization.md](../../designs/2026-04-22-cli-lifecycle-clack-standardization.md)
-- Planning contract: [planning-workflow.md](../../../references/planning-workflow.md)
-- W/R coordinate contract: [wave-model.md](../../../references/wave-model.md)
-- PRD change contract: [prd-change-management.md](../../../references/prd-change-management.md)
+- Planning contract: [planning-workflow.md](../../../../../.make-docs/references/system/planning-workflow.md)
+- W/R coordinate contract: [wave-model.md](../../../../../.make-docs/references/system/wave-model.md)
+- PRD change contract: [prd-change-management.md](../../../../../.make-docs/references/system/prd-change-management.md)
 
 ## Baseline Context
 

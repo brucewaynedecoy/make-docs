@@ -129,6 +129,6 @@ Validation should include at least:
 ## Intended Follow-On
 
 - Route: `change-plan`
-- Next Prompt: [designs-to-plan-change.prompt.md](../../prompts/designs-to-plan-change.prompt.md)
+- Next Prompt: [designs-to-plan-change.prompt.md](../../../../.make-docs/system/prompts/designs-to-plan-change.prompt.md)
 - Why: this is a targeted revision to existing CLI wizard and asset-planning behavior, not a new baseline planning track.
 - Coordinate Handoff: related completed coordinates include `W4 R0` for asset pipeline completeness, `W8 R0` for CLI command simplification, and `W9 R1` for docs asset namespace work. Recommended downstream coordinate is `W14 R0`, based on the current latest planned/work coordinate `W13 R0`; planner should confirm the coordinate is still available before writing.

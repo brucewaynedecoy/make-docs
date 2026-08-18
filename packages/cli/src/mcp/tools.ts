@@ -13,7 +13,11 @@ import {
   type OperationDefinition,
 } from "../operations/registry";
 import { cloneSelections, defaultSelections } from "../profile";
-import type { InstallPlan, InstallSelections, PlannedAction } from "../types";
+import type {
+  InstallPlan,
+  InstallSelections,
+  PlannedAction,
+} from "../types";
 import { readPackageMeta } from "../utils";
 
 type HandDefinedMcpToolName =
@@ -42,6 +46,12 @@ const targetDirSchema = z
   .string()
   .optional()
   .describe("Project root to inspect. Defaults to the current working directory.");
+
+const systemAssetMaterializationModeSchema = z.enum([
+  "full-snapshot",
+  "provider-backed",
+  "hybrid-pinned-cache",
+]);
 
 /**
  * The six hand-defined non-operation tools: read-first inspection and
@@ -88,9 +98,8 @@ const HAND_DEFINED_MCP_TOOLS: (MakeDocsMcpToolDescriptor & { name: HandDefinedMc
     inputSchema: {
       targetDir: targetDirSchema,
       selections: z.unknown().optional().describe("Optional InstallSelections override."),
-      systemAssetMaterializationMode: z
-        .enum(["full-snapshot", "provider-backed", "hybrid-pinned-cache"])
-        .optional(),
+      systemAssetMaterializationMode:
+        systemAssetMaterializationModeSchema.optional(),
     },
   },
 ];
@@ -331,9 +340,9 @@ async function buildInstallPlan(
     existingManifest,
     packageMeta: readPackageMeta(),
     systemAssetMaterializationMode:
-      typeof args.systemAssetMaterializationMode === "string"
-        ? args.systemAssetMaterializationMode
-        : undefined,
+      systemAssetMaterializationModeSchema.optional().parse(
+        args.systemAssetMaterializationMode,
+      ),
   });
   const conflicts = findReviewableManagedFileConflicts(plan);
 

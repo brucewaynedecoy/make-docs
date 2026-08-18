@@ -48,6 +48,26 @@ const EXPECTED_DERIVED_TOOL_NAMES: Record<string, string> = {
   "work.item.resolve": "make_docs_work_item_resolve",
   "work.evidence.record": "make_docs_work_evidence_record",
   "work.evidence.read": "make_docs_work_evidence_read",
+  "resource.list": "make_docs_resource_list",
+  "resource.read": "make_docs_resource_read",
+  "resource.ensure": "make_docs_resource_ensure",
+  "project.surface.ensure": "make_docs_project_surface_ensure",
+  "lifecycle.start": "make_docs_lifecycle_start",
+  "lifecycle.show": "make_docs_lifecycle_show",
+  "lifecycle.list": "make_docs_lifecycle_list",
+  "lifecycle.checkpoint": "make_docs_lifecycle_checkpoint",
+  "lifecycle.pause": "make_docs_lifecycle_pause",
+  "lifecycle.resume": "make_docs_lifecycle_resume",
+  "lifecycle.attach-evidence": "make_docs_lifecycle_attach_evidence",
+  "lifecycle.complete": "make_docs_lifecycle_complete",
+  "lifecycle.fail": "make_docs_lifecycle_fail",
+  "lifecycle.abandon": "make_docs_lifecycle_abandon",
+  "uat.scenario.validate": "make_docs_uat_scenario_validate",
+  "uat.persona.resolve": "make_docs_uat_persona_resolve",
+  "uat.target.validate": "make_docs_uat_target_validate",
+  "uat.evidence-reference.validate": "make_docs_uat_evidence_reference_validate",
+  "uat.finding.validate": "make_docs_uat_finding_validate",
+  "uat.result.validate": "make_docs_uat_result_validate",
 };
 
 const SUPPORT_EVIDENCE_REF =
@@ -166,9 +186,9 @@ describe("MCP derivation parity (R-REG-2, R-MIG-3, R-CORE-1)", () => {
     );
   });
 
-  test("tool names are exactly the derived spellings for all 21 identifiers", () => {
+  test("tool names are exactly the derived spellings for all 42 identifiers", () => {
     const registryIds = listOperations().map((operation) => operation.id);
-    expect(registryIds).toHaveLength(22);
+    expect(registryIds).toHaveLength(42);
     expect(Object.keys(EXPECTED_DERIVED_TOOL_NAMES).sort()).toEqual([...registryIds].sort());
 
     const derivedByOperation = new Map(

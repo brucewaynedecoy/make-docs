@@ -72,7 +72,7 @@ Reason: This design hardens the accepted playbook and plugin decisions before th
 
 Route: `change-plan`
 
-Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/references/system/prompts/designs-to-plan-change.prompt.md)
+Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/system/prompts/designs-to-plan-change.prompt.md)
 
 Why: This design corrects and extends active W18 playbook, plugin, configuration, CLI/MCP, conformance, package, and metadata requirements before downstream implementation begins.
 

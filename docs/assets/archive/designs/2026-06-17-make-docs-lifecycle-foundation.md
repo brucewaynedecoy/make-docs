@@ -103,7 +103,7 @@ the anchor is the map that makes the references navigable.
 ## Intended Follow-On
 
 - Route: `baseline-plan`
-- Next Prompt: [designs-to-plan.prompt.md](../../prompts/designs-to-plan.prompt.md)
+- Next Prompt: [designs-to-plan.prompt.md](../../../../.make-docs/system/prompts/designs-to-plan.prompt.md)
 - Why: this is net-new product surface (the lifecycle layer); the matching plan
   is the W16 R0 plan, already drafted at
   [../plans/2026-05-28-w16-r0-coverage-pass-contract/00-overview.md](../plans/2026-05-28-w16-r0-coverage-pass-contract/00-overview.md).

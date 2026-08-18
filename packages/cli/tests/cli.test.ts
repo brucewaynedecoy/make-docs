@@ -1472,7 +1472,7 @@ personas:
     expect((await captureCliOutput(["-v"])).trim()).toBe(readPackageMeta().version);
   });
 
-  test("prints structured top-level help with exactly the five public commands", async () => {
+  test("prints structured top-level help with exactly the seven public commands", async () => {
     setTTY(false);
 
     const output = await captureCliOutput(["--help"]);
@@ -1481,6 +1481,8 @@ personas:
     expect(output).toMatch(/\bCommands\b/i);
     expect(output).toMatch(/\bExamples\b/i);
     expect(output).toContain("make-docs setup [reconfigure|skills|backup|remove] [options]");
+    expect(output).toContain("make-docs project surface ensure <archive|artifacts|assets>");
+    expect(output).toContain("make-docs resource <list|read|ensure> [options]");
     expect(output).toContain("make-docs run <domain> <verb> [options]");
     expect(output).toContain("make-docs mcp");
     expect(output).toContain("make-docs update");
@@ -1493,11 +1495,21 @@ personas:
       .map((line) => line.trim())
       .filter((line) => line.length > 0)
       .map((line) => line.split(/\s+/)[0]);
-    expect(commandNames).toEqual(["setup", "run", "mcp", "update", "uninstall"]);
+    expect(commandNames).toEqual([
+      "setup",
+      "project",
+      "resource",
+      "run",
+      "mcp",
+      "update",
+      "uninstall",
+    ]);
 
     expect(output).toContain(
       "setup        Install or sync this project; subcommands reconfigure, skills, backup, remove.",
     );
+    expect(output).toContain("project      Manage canonical project support surfaces.");
+    expect(output).toContain("resource     List, read, or ensure stable system resources.");
     expect(output).toContain("run          Run deterministic registry operations.");
     expect(output).toContain("mcp          Run the TypeScript MCP server over stdio.");
     expect(output).toContain("update       Update the installed make-docs tool itself.");

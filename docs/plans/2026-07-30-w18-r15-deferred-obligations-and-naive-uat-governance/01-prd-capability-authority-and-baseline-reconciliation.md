@@ -99,7 +99,7 @@ Terms must remain product-neutral and must not assume every Make Docs consumer b
 
 ## Baseline Reconciliation
 
-Reconcile the exact existing-authority set in [the overview](./00-overview.md#baseline-annotation-plan). Each affected PRD:
+Reconcile the exact existing-authority set in [the overview](./00-overview.md#current-authority-status). Each affected PRD:
 
 - updates the requirement text it already owns rather than delegating effective meaning to another `revise-*` document;
 - adds a concise W18 R15 reconciliation note naming PRD 45, PRD 46, or both;

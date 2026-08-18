@@ -35,11 +35,11 @@ The completed implementation should:
 
 - Source design: [2026-05-06-work-backlog-source-authority.md](../../designs/2026-05-06-work-backlog-source-authority.md)
 - Related active design: [2026-05-06-cli-conflict-resolution.md](../../../../designs/2026-05-06-cli-conflict-resolution.md)
-- Planning contract: [planning-workflow.md](../../../references/planning-workflow.md)
-- Execution contract: [execution-workflow.md](../../../references/execution-workflow.md)
-- Output contract: [output-contract.md](../../../references/output-contract.md)
+- Planning contract: [planning-workflow.md](../../../../../.make-docs/references/system/planning-workflow.md)
+- Execution contract: [execution-workflow.md](../../../../../.make-docs/references/system/execution-workflow.md)
+- Output contract: [output-contract.md](../../../../../.make-docs/contracts/system/output-contract.md)
 - Work router: [docs/work/AGENTS.md](../../../../work/AGENTS.md)
-- Work templates: [work-index.md](../../../templates/work-index.md), [work-phase.md](../../../templates/work-phase.md)
+- Work templates: [work-index.md](../../../../../.make-docs/templates/system/work-index.md), [work-phase.md](../../../../../.make-docs/templates/system/work-phase.md)
 
 ## Baseline Context
 

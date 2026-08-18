@@ -59,7 +59,7 @@ describe("compatibility classifier", () => {
         const classification = await classifyCompatibilityState({
           targetDir: fixture.targetDir,
         });
-        const expected = EXPECTED_CLASSIFICATIONS[fixtureCase.id];
+        const expected = getExpectedClassification(fixtureCase.id);
 
         expect([classification.state, classification.disposition]).toEqual(expected);
         expect(classification.evidence.manifestTrust).toHaveProperty("present");
@@ -118,6 +118,18 @@ describe("compatibility classifier", () => {
     );
   });
 });
+
+function getExpectedClassification(
+  fixtureId: string,
+): (typeof EXPECTED_CLASSIFICATIONS)[keyof typeof EXPECTED_CLASSIFICATIONS] {
+  if (!(fixtureId in EXPECTED_CLASSIFICATIONS)) {
+    throw new Error(`Missing expected compatibility classification: ${fixtureId}`);
+  }
+
+  return EXPECTED_CLASSIFICATIONS[
+    fixtureId as keyof typeof EXPECTED_CLASSIFICATIONS
+  ];
+}
 
 async function classifyFixture(id: CompatibilityFixtureCase["id"]) {
   const fixtureCase = COMPATIBILITY_FIXTURE_CASES.find(

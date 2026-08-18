@@ -25,7 +25,7 @@ updates, and Q-014 resolution satisfied the acceptance criteria.
 
 ### Project
 
-- Added [make-docs-lifecycle.md](../../playbooks/agent/make-docs-lifecycle.md)
+- Added make-docs-lifecycle.md (historical path: `../../playbooks/agent/make-docs-lifecycle.md`)
   with `persona: "agent-maintainer"` frontmatter and uniform per-stage
   playbook sections.
 - Updated [README.md](../../../../README.md) and docs routers

@@ -108,7 +108,7 @@ Reason: This design is a new Batch 3 decision doc, but it directly extends the a
 
 Route: change-plan
 
-Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/references/system/prompts/designs-to-plan-change.prompt.md)
+Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/system/prompts/designs-to-plan-change.prompt.md)
 
 Why: This design constrains and extends active CLI/package/install/audit behavior rather than creating a greenfield baseline. It must feed targeted planning for no-scripts migration, CLI/MCP parity, public command documentation, and eventual Rust ownership without disturbing accepted install safety.
 

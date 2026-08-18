@@ -167,5 +167,5 @@ Installed skill files are tracked in `docs/.make-docs/manifest.json` under a `sk
 ## Intended Follow-On
 
 - Route: `baseline-plan`
-- Next Prompt: [designs-to-plan.prompt.md](../.prompts/designs-to-plan.prompt.md)
+- Next Prompt: [designs-to-plan.prompt.md](../../../../.make-docs/system/prompts/designs-to-plan.prompt.md)
 - Why: This is a bug fix / completion of Wave 5 work. The downstream plan should be a **revision of Wave 5** (`w5-r1`) since it fixes an incomplete delivery phase rather than starting a new initiative. The plan should include cleanup of the invalid `.claude/settings.json` and `.agents/README.md` created in Wave 5 Phase 5, plus the CLI changes (prepack, types, catalog, install, wizard, cli, tests), followed by a dogfood validation that confirms skills are actually discoverable by Claude Code.

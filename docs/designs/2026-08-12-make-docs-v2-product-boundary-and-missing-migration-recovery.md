@@ -4,7 +4,7 @@ kind: "design"
 status: "draft"
 follow_on:
   route: "change-plan"
-  next_prompt: ".make-docs/references/system/prompts/designs-to-plan-change.prompt.md"
+  next_prompt: ".make-docs/system/prompts/designs-to-plan-change.prompt.md"
   why: "The design removes active product capabilities and revises existing v2 resource, project-state, information-architecture, migration, and agentics decisions."
   coordinate_handoff: "unresolved; planner must resolve before writing."
 source:
@@ -39,7 +39,7 @@ The current product tree and runtime diverge from the approved v2 boundary in se
 - The current manifest records 83 assets and 46 recorded-hash mismatches, with no recorded files missing. This is stale ownership and package metadata evidence, not permission to run setup or rewrite the manifest.
 - Default materialization remains a full project snapshot. Provider and cache concepts exist in internal types, compatibility checks, and manifest evidence, but the machine-installed CLI does not yet expose a canonical system-resource list/read interface.
 - The MCP server registers tools derived from the operation registry and a small hand-defined tool set. It does not register native MCP `resources/list` or `resources/read` surfaces.
-- System resources still materialize directly under `.make-docs/contracts/`, `.make-docs/references/`, `.make-docs/templates/`, and `.make-docs/scripts/`. Prompts remain nested under `.make-docs/references/system/prompts/` instead of being a top-level system-resource type.
+- System resources still materialize directly under `.make-docs/contracts/`, `.make-docs/references/`, `.make-docs/templates/`, and `.make-docs/scripts/`. Prompts still share the reference namespace instead of being a top-level system-resource type.
 - The first-party Python helper `.make-docs/scripts/check_path_hygiene.py` is still shipped, recorded in the manifest, and asserted by install and consistency tests.
 - Global Store schema v1 creates `projects`, `playbook_runs`, and `work_evidence`. It has no general lightweight run record or evidence-reference model independent of Playbooks.
 - Current PRDs make Playbooks a deep product dependency. PRDs [34](../prd/34-playbook-authoring-contract-and-model.md), [35](../prd/35-run-playbook-state-machine-and-portability.md), and [36](../prd/36-playbook-packaging-compiler-and-harness-adapters.md) directly own Playbook authoring, execution, persistence, portability, packaging, compiler, and harness-adapter behavior, while other active PRDs and register items depend on those owners.
@@ -394,7 +394,7 @@ The resource URI, CLI command shape, resolution precedence, target information a
 ## Intended Follow-On
 
 - Route: `change-plan`
-- Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/references/system/prompts/designs-to-plan-change.prompt.md)
+- Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/system/prompts/designs-to-plan-change.prompt.md)
 - Why: The accepted design will require coordinated removal and revision across active PRDs, existing implementation, migrations, system resources, package and dogfood projections, tests, and preserved historical authority rather than a fresh baseline plan.
 - Coordinate Handoff: unresolved; planner must resolve before writing.
 - Design Approval Gate: The owner accepts this design as design authority only by using the statement below. Review comments, acceptance of the draft file, subagent task completion, approval of individual decisions, or design acceptance itself do not authorize planning.

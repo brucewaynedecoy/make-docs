@@ -122,5 +122,5 @@ Help examples should avoid `init`, `update`, and `--reconfigure`. Generated rout
 ## Intended Follow-On
 
 - Route: `baseline-plan`
-- Next Prompt: [designs-to-plan.prompt.md](../.prompts/designs-to-plan.prompt.md)
+- Next Prompt: [designs-to-plan.prompt.md](../../../../.make-docs/system/prompts/designs-to-plan.prompt.md)
 - Why: this is a new end-to-end CLI surface initiative that should produce its own implementation plan and work backlog before any source changes are made.

@@ -200,6 +200,6 @@ The follow-on implementation should prove at least these scenarios:
 ## Intended Follow-On
 
 - Route: `baseline-plan`
-- Next Prompt: [designs-to-plan.prompt.md](../../prompts/designs-to-plan.prompt.md)
+- Next Prompt: [designs-to-plan.prompt.md](../../../../.make-docs/system/prompts/designs-to-plan.prompt.md)
 - Why: this is a new documentation initiative that needs a decision-complete execution plan for the audit ledger, guide bundles, navigation updates, and delegated workflow before any drafting starts.
 - Coordinate Handoff: start downstream planning at `W13 R0`; treat this as a new documentation initiative rather than a revision because it introduces a new repo-wide coverage-audit and guide-orchestration workflow rather than revising an earlier delivery wave.

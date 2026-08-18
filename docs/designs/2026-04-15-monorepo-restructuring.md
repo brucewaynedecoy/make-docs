@@ -1,6 +1,6 @@
 # Pseudo-Monorepo Restructuring
 
-> Filename: `2026-04-15-monorepo-restructuring.md`. See [../.references/wave-model.md](../.references/wave-model.md) for W/R semantics.
+> Filename: `2026-04-15-monorepo-restructuring.md`. See the [wave model](../../.make-docs/references/system/wave-model.md) for W/R semantics.
 
 ## Purpose
 
@@ -170,5 +170,5 @@ Several early phases of the migration have already been implemented on `main` un
 ## Intended Follow-On
 
 - Route: `baseline-plan`
-- Next Prompt: [designs-to-plan.prompt.md](../.prompts/designs-to-plan.prompt.md)
+- Next Prompt: [designs-to-plan.prompt.md](../../.make-docs/system/prompts/designs-to-plan.prompt.md)
 - Why: Early phases have already landed, but the remaining work — publish dry run, `.archive/` interplay, and finishing the path-reference sweep — can be picked up cleanly by a baseline plan if one is needed.

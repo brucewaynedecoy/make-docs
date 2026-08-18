@@ -212,5 +212,5 @@ Frontmatter will be added to both files. This is a small, low-risk migration sin
 ## Intended Follow-On
 
 - Route: `baseline-plan`
-- Next Prompt: [designs-to-plan.prompt.md](../.prompts/designs-to-plan.prompt.md)
+- Next Prompt: [designs-to-plan.prompt.md](../../../../.make-docs/system/prompts/designs-to-plan.prompt.md)
 - Why: This design defines the contract, templates, router updates, and migration steps needed — a baseline plan should sequence that implementation work.

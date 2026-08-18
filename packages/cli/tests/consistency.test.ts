@@ -26,7 +26,7 @@ const GUIDE_TEMPLATE_PARITY_PATHS = [
   ".make-docs/contracts/system/guide-contract.md",
   ".make-docs/templates/system/guide-developer.md",
   ".make-docs/templates/system/guide-user.md",
-  ".make-docs/references/system/prompts/work-to-guides.prompt.md",
+  ".make-docs/system/prompts/work-to-guides.prompt.md",
   "docs/assets/library/AGENTS.md",
   "docs/assets/library/CLAUDE.md",
   "docs/assets/playbooks/AGENTS.md",
@@ -56,7 +56,7 @@ const PATH_HYGIENE_PARITY_PATHS = [
   "docs/CLAUDE.md",
   "docs/assets/archive/AGENTS.md",
   "docs/assets/archive/CLAUDE.md",
-  ".make-docs/references/system/prompts/docs-path-hygiene-cleanup.prompt.md",
+  ".make-docs/system/prompts/docs-path-hygiene-cleanup.prompt.md",
   ".make-docs/references/system/AGENTS.md",
   ".make-docs/references/system/CLAUDE.md",
   ".make-docs/contracts/system/design-contract.md",
@@ -109,20 +109,39 @@ const GENERATED_DOCUMENT_TEMPLATE_METADATA = new Map<
 ]);
 
 const GENERATED_DOCUMENT_PROMPT_PATHS = [
-  ".make-docs/references/system/prompts/coverage-pass-developer-guide.prompt.md",
-  ".make-docs/references/system/prompts/coverage-pass-prd-reconciliation.prompt.md",
-  ".make-docs/references/system/prompts/coverage-pass-user-guide.prompt.md",
-  ".make-docs/references/system/prompts/designs-to-plan-change.prompt.md",
-  ".make-docs/references/system/prompts/designs-to-plan.prompt.md",
-  ".make-docs/references/system/prompts/plan-to-prd-change.prompt.md",
-  ".make-docs/references/system/prompts/plan-to-prd-green-field.prompt.md",
-  ".make-docs/references/system/prompts/prd-change-to-work.prompt.md",
-  ".make-docs/references/system/prompts/prd-to-work-full-prd.prompt.md",
-  ".make-docs/references/system/prompts/prd-to-work-prd-feature.prompt.md",
-  ".make-docs/references/system/prompts/request-to-design.prompt.md",
-  ".make-docs/references/system/prompts/session-to-history-record.prompt.md",
-  ".make-docs/references/system/prompts/work-to-guides.prompt.md",
+  ".make-docs/system/prompts/coverage-pass-developer-guide.prompt.md",
+  ".make-docs/system/prompts/coverage-pass-prd-reconciliation.prompt.md",
+  ".make-docs/system/prompts/coverage-pass-user-guide.prompt.md",
+  ".make-docs/system/prompts/designs-to-plan-change.prompt.md",
+  ".make-docs/system/prompts/designs-to-plan.prompt.md",
+  ".make-docs/system/prompts/plan-to-prd-change.prompt.md",
+  ".make-docs/system/prompts/plan-to-prd-green-field.prompt.md",
+  ".make-docs/system/prompts/prd-change-to-work.prompt.md",
+  ".make-docs/system/prompts/prd-to-work-full-prd.prompt.md",
+  ".make-docs/system/prompts/prd-to-work-prd-feature.prompt.md",
+  ".make-docs/system/prompts/request-to-design.prompt.md",
+  ".make-docs/system/prompts/session-to-history-record.prompt.md",
+  ".make-docs/system/prompts/work-to-guides.prompt.md",
 ];
+
+const LOCAL_PROMPT_PROJECTION_ROOT = ".make-docs/system/prompts/";
+const INSTALLED_PROMPT_SOURCE_ROOT = ".make-docs/prompts/system/";
+
+function sourcePathForLocalAsset(relativePath: string): string {
+  if (relativePath.startsWith(LOCAL_PROMPT_PROJECTION_ROOT)) {
+    return `${INSTALLED_PROMPT_SOURCE_ROOT}${relativePath.slice(LOCAL_PROMPT_PROJECTION_ROOT.length)}`;
+  }
+
+  return relativePath;
+}
+
+function localPathForPackageSource(relativePath: string): string {
+  if (relativePath.startsWith(INSTALLED_PROMPT_SOURCE_ROOT)) {
+    return `${LOCAL_PROMPT_PROJECTION_ROOT}${relativePath.slice(INSTALLED_PROMPT_SOURCE_ROOT.length)}`;
+  }
+
+  return relativePath;
+}
 
 function sectionBetween(contents: string, startHeading: string, endHeading: string): string {
   const start = contents.indexOf(startHeading);
@@ -181,9 +200,10 @@ describe("default profile consistency", () => {
     const profile = resolveInstallProfile(defaultSelections());
 
     for (const asset of getDesiredAssets(profile)) {
+      const sourcePath = sourcePathForLocalAsset(asset.relativePath);
       expect(asset.assetClass).toBe("scoped-static");
-      expect(asset.sourceId).toBe(`file:${asset.relativePath}`);
-      expect(asset.content).toBe(readPackageFile(asset.relativePath));
+      expect(asset.sourceId).toBe(`file:${sourcePath}`);
+      expect(asset.content).toBe(readPackageFile(sourcePath));
     }
   });
 
@@ -229,7 +249,7 @@ describe("template completeness", () => {
         if (statSync(full).isDirectory()) {
           walk(full);
         } else {
-          templateFiles.push(path.relative(TEMPLATE_ROOT, full));
+          templateFiles.push(localPathForPackageSource(path.relative(TEMPLATE_ROOT, full)));
         }
       }
     };
@@ -313,10 +333,82 @@ describe("template completeness", () => {
     }
   });
 
+  test("link hygiene defines raw-template and generated-document checks", () => {
+    const contents = readFileSync(
+      path.join(
+        REPO_ROOT,
+        "packages/docs/template/.make-docs/references/system/path-and-link-hygiene.md",
+      ),
+      "utf8",
+    );
+
+    expect(contents).toContain("recognized whole-link token");
+    expect(contents).toContain("reject broken concrete links");
+    expect(contents).toContain("reject every unresolved link token");
+    expect(contents).toContain("final target is missing");
+  });
+
+  test("shipped Markdown guidance uses provider-safe prompt identities", () => {
+    const templateRoot = path.join(REPO_ROOT, "packages/docs/template");
+    const markdownFiles: string[] = [];
+    const walk = (directory: string) => {
+      for (const entry of readdirSync(directory)) {
+        const fullPath = path.join(directory, entry);
+        if (statSync(fullPath).isDirectory()) {
+          walk(fullPath);
+        } else if (entry.endsWith(".md")) {
+          markdownFiles.push(fullPath);
+        }
+      }
+    };
+    walk(templateRoot);
+
+    const upstreamAuthorityPath = path.join(
+      templateRoot,
+      ".make-docs/contracts/system/system-resource-contract.md",
+    );
+    for (const filePath of markdownFiles) {
+      const contents = readFileSync(filePath, "utf8");
+      if (filePath === upstreamAuthorityPath) {
+        continue;
+      }
+      expect(contents, filePath).not.toContain(".make-docs/prompts/system/");
+      expect(contents, filePath).not.toContain(".make-docs/system/prompts/");
+    }
+
+    const upstreamAuthority = readFileSync(upstreamAuthorityPath, "utf8");
+    for (const sourceRoot of [
+      "packages/docs/template/.make-docs/contracts/system/",
+      "packages/docs/template/.make-docs/prompts/system/",
+      "packages/docs/template/.make-docs/references/system/",
+      "packages/docs/template/.make-docs/templates/system/",
+    ]) {
+      expect(upstreamAuthority).toContain(sourceRoot);
+    }
+    expect(upstreamAuthority).toContain("## Stable Identity");
+    expect(upstreamAuthority).toContain("make-docs://system/<type>/<posix-relative-path>");
+    const runtimeContract = upstreamAuthority.slice(upstreamAuthority.indexOf("## Stable Identity"));
+    expect(runtimeContract).not.toContain("packages/docs/template/.make-docs/");
+    expect(runtimeContract).not.toContain(".make-docs/prompts/system/");
+    expect(runtimeContract).toContain("A project does not need a local copy of a resource.");
+    expect(runtimeContract).toContain("Local projection is optional.");
+
+    const designTemplate = readFileSync(
+      path.join(templateRoot, ".make-docs/templates/system/design.md"),
+      "utf8",
+    );
+    expect(designTemplate).toContain("make-docs://system/prompt/{{PROMPT_FILE}}");
+    expect(designTemplate).toContain("make-docs resource read");
+  });
+
   test("generated document prompts require PRD 23 metadata frontmatter", () => {
     for (const relativePath of GENERATED_DOCUMENT_PROMPT_PATHS) {
-      for (const rootPrefix of ["", "packages/cli/template/", "packages/docs/template/"]) {
-        const contents = readFileSync(path.join(REPO_ROOT, rootPrefix, relativePath), "utf8");
+      for (const [rootPrefix, promptPath] of [
+        ["", relativePath],
+        ["packages/cli/template/", sourcePathForLocalAsset(relativePath)],
+        ["packages/docs/template/", sourcePathForLocalAsset(relativePath)],
+      ] as const) {
+        const contents = readFileSync(path.join(REPO_ROOT, rootPrefix, promptPath), "utf8");
 
         expect(contents).toContain("PRD 23 YAML frontmatter");
         expect(contents).toContain("common `title`, `kind`, and `status`");
@@ -328,12 +420,15 @@ describe("template completeness", () => {
   test("generated document prompt copies match the package source", () => {
     for (const relativePath of GENERATED_DOCUMENT_PROMPT_PATHS) {
       const sourceContents = readFileSync(
-        path.join(REPO_ROOT, "packages/docs/template", relativePath),
+        path.join(REPO_ROOT, "packages/docs/template", sourcePathForLocalAsset(relativePath)),
         "utf8",
       );
 
-      for (const rootPrefix of ["", "packages/cli/template/"]) {
-        const promptPath = path.join(rootPrefix, relativePath);
+      for (const [rootPrefix, localPath] of [
+        ["", relativePath],
+        ["packages/cli/template/", sourcePathForLocalAsset(relativePath)],
+      ] as const) {
+        const promptPath = path.join(rootPrefix, localPath);
         expect(readFileSync(path.join(REPO_ROOT, promptPath), "utf8"), promptPath).toBe(
           sourceContents,
         );
@@ -469,7 +564,7 @@ describe("risk register routing contract", () => {
       "D-001 README Wording Understates the Live Idempotent Sync Model",
       "D-002 Public Command Guidance Lags the Shipped Command Taxonomy",
       "D-003 Template and Reference Mode Labels Promise More Than the Selector Enforces",
-      "D-004 ResolvedAsset Asset Class May Still Be Wider Than the Catalog",
+      "D-004 ResolvedAsset Asset Classes Are Both Live",
       "D-005 Skills Delivery Diverges From Earlier Bundled-Payload Expectations",
       "D-006 Packaged README and Maintainer README Do Not Match the Current Tarball Allowlist",
       "D-007 Dogfood Re-Seeding Remains Manual Without a Freshness Proof",
@@ -498,7 +593,7 @@ describe("risk register routing contract", () => {
     expect(itemHeadings(questions)).toEqual([
       "Q-001 What Is the Long-Term Skills Delivery Contract?",
       "Q-002 Should Template and Reference Modes Remain Public Options?",
-      "Q-003 Should ResolvedAsset Keep a Third Asset Class?",
+      "Q-003 Should the Legacy ResolvedAsset Asset-Class Taxonomy Be Simplified?",
       "Q-004 How Should packages/content Participate in the Product?",
       "Q-005 How Should Maintainers Prove Dogfood Freshness?",
       "Q-006 What Defines Public Release Readiness?",
@@ -512,12 +607,14 @@ describe("risk register routing contract", () => {
       "Q-014 How Did the Transitional `docs/library/` Move Resolve?",
       "Q-015 When and How Should the Interactive Playbook Run Mode Land?",
       "Q-016 Should Make Docs Grow a Full TUI Over the Store, Runs, and Packaging?",
-      "Q-017 Should Managed System Assets Centralize at the Machine Level Instead of Replicating Per Instance?",
+      "Q-017 Should the Broader Managed-Asset Layout Centralize at the Machine Level?",
       "Q-018 How Should Configuration Be Laid Out, Owned, and Discovered?",
       "Q-019 How Should the Persona Model Evolve and Gain Interactive Setup?",
       "Q-020 Should Other Playbook Sections Gain Imposed Structure Beyond Dependencies?",
       "Q-021 Maintainer-Facing Terminology Needs a Plain-Language Rule and Glossary Backing",
       "Q-022 The Make Docs Agentics Production Pipeline",
+      "Q-023 How must P3 handle the existing legacy Playbook and Protocol surfaces?",
+      "Q-024 What is the finite P3 operation inventory and phase ownership?",
     ]);
     expect(itemHeadings(risks)).toEqual([
       "R-001 Home-Scoped Skills Are Easy to Drop From a Clean-Room Rebuild",
@@ -536,7 +633,7 @@ describe("risk register routing contract", () => {
       "R-014 The No-Scripts Migration Has a Transitional Break Window",
       "R-015 Backup State and Agentics Pruning Could Drift Across Lifecycle Consumers",
       "R-016 Run Playbook Orchestration Could Drift Across Runner Surfaces",
-      "R-017 Playbook Packaging Could Blur Source and Generated Agentic Outputs",
+      "R-017 System Workflow Authority Could Blur Into Skill or Optional Agentic Outputs",
       "R-018 The Playbook Contract, Validator, and Template Copies Could Drift Out of Parity",
       "R-019 Run-State Relocation Depends on an Unlanded Global Store",
       "R-020 W18 R3 Adversarial-Review Surface Exposure Predates the New Playbook, CLI, and State Architecture",
@@ -548,6 +645,10 @@ describe("risk register routing contract", () => {
       "R-026 The W18 R12 UAT Remediation Round Must Land Before W18 R9 Conformance",
       "R-027 The Pending Playbook and CLI Polish Round Awaits Sequencing Against W18 R9",
       "R-028 The W18 R13 Conformance Execution Redesign Must Reconcile Every Consumer of the Superseded Spec Forms",
+      "R-029 Unsupported Performance Targets Could Become De Facto Product Authority",
+      "R-030 Performance Evidence Could Become an Unbounded Rerun Loop",
+      "R-031 Plan or Work Profiles Could Become a Second Performance Authority",
+      "R-032 Expired or Non-Comparable Performance Evidence Could Be Reused as Current Proof",
     ]);
   });
 
@@ -555,7 +656,7 @@ describe("risk register routing contract", () => {
     for (const relativePath of DOGFOOD_TEMPLATE_PARITY_PATHS) {
       const dogfoodContents = readFileSync(path.join(REPO_ROOT, relativePath), "utf8");
       const templateContents = readFileSync(
-        path.join(REPO_ROOT, "packages", "docs", "template", relativePath),
+        path.join(REPO_ROOT, "packages", "docs", "template", sourcePathForLocalAsset(relativePath)),
         "utf8",
       );
 
@@ -630,7 +731,7 @@ describe("guide generation routing contract", () => {
     for (const relativePath of GUIDE_TEMPLATE_PARITY_PATHS) {
       const dogfoodContents = readFileSync(path.join(REPO_ROOT, relativePath), "utf8");
       const templateContents = readFileSync(
-        path.join(REPO_ROOT, "packages", "docs", "template", relativePath),
+        path.join(REPO_ROOT, "packages", "docs", "template", sourcePathForLocalAsset(relativePath)),
         "utf8",
       );
 
@@ -642,7 +743,7 @@ describe("guide generation routing contract", () => {
     for (const relativePath of PLAYBOOK_DEFAULT_PARITY_PATHS) {
       const dogfoodContents = readFileSync(path.join(REPO_ROOT, relativePath), "utf8");
       const templateContents = readFileSync(
-        path.join(REPO_ROOT, "packages", "docs", "template", relativePath),
+        path.join(REPO_ROOT, "packages", "docs", "template", sourcePathForLocalAsset(relativePath)),
         "utf8",
       );
       const generatedContents = readFileSync(
@@ -722,7 +823,13 @@ describe("path hygiene contract", () => {
     for (const relativePath of PATH_HYGIENE_PARITY_PATHS) {
       const dogfoodContents = readFileSync(path.join(REPO_ROOT, relativePath), "utf8");
       const templateContents = readFileSync(
-        path.join(REPO_ROOT, "packages", "docs", "template", relativePath),
+        path.join(
+          REPO_ROOT,
+          "packages",
+          "docs",
+          "template",
+          sourcePathForLocalAsset(relativePath),
+        ),
         "utf8",
       );
 

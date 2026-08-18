@@ -38,7 +38,7 @@ This plan is complete when the active PRD set captures Playbook packaging as a r
 - [28 Revise Shared Agentics Installation Harness Redirection](../../prd/28-shared-agentics-installation-and-harness-exposure.md)
 - [25 Revise CLI Separation and MCP Boundary](../../prd/25-typescript-runtime-cli-mcp-operation-boundaries.md)
 - [20 Revise Agent Harness Model Conformance Lab](../../prd/20-agent-harness-conformance-and-support-claims.md)
-- [32 Revise Lifecycle Backup State and Agentics Pruning](../../prd/30-plugin-substrate-and-workflow-bundles.md#update-migration-audit-backup-and-uninstall)
+- [32 Revise Lifecycle Backup State and Agentics Pruning](../../prd/30-plugin-substrate-and-workflow-bundles.md) (historical section: `update-migration-audit-backup-and-uninstall`)
 
 W18 R5 is a prerequisite authority for W18 R1, W18 R2, and W18 R3. Implementation phases may still depend on W18 R1 runner primitives and W18 R2 plugin substrate primitives as they land, but those backlogs must not implement metadata, plugin, or bundle behavior that contradicts W18 R5.
 

@@ -154,7 +154,7 @@ Reason: This design introduces the machine-level global store and the unified pr
 
 Route: `change-plan`
 
-Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/references/system/prompts/designs-to-plan-change.prompt.md)
+Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/system/prompts/designs-to-plan-change.prompt.md)
 
 Why: This is a corrective evolution that relocates active runtime state and introduces the global store against the active PRD namespace rather than starting a fresh baseline.
 

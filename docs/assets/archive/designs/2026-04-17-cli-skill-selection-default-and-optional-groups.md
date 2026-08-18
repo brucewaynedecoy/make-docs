@@ -146,5 +146,5 @@ The follow-on implementation should add tests that verify:
 ## Intended Follow-On
 
 - Route: `change-plan`
-- Next Prompt: [designs-to-plan-change.prompt.md](../.prompts/designs-to-plan-change.prompt.md)
+- Next Prompt: [designs-to-plan-change.prompt.md](../../../../.make-docs/system/prompts/designs-to-plan-change.prompt.md)
 - Why: this should flow into a small incremental implementation plan against the shipped wizard and test surfaces rather than reopening the baseline `w5-r2` skill-installation design.

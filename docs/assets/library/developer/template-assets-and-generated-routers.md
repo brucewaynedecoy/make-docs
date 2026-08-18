@@ -102,7 +102,7 @@ The renderer does not broadly rewrite the template package. It only handles thos
 Current renderer and PRD boundaries keep runtime state out of the document-resource namespace.
 
 Reader-facing document resources live under `docs/assets/library/**`, `docs/assets/playbooks/**`, `docs/assets/artifacts/**`, and `docs/assets/archive/**`. History and breadcrumb records are created on demand under `docs/assets/archive/history/**`.
-Tool-resource bootstrap files live under `.make-docs/**`, including `.make-docs/references/system/prompts/**`, `.make-docs/contracts/system/**`, and `.make-docs/templates/system/**`.
+Tool-resource bootstrap files live under `.make-docs/**`, including `.make-docs/system/prompts/**`, `.make-docs/contracts/system/**`, and `.make-docs/templates/system/**`.
 Runtime state lives under `.make-docs/**`, especially:
 
 - `.make-docs/manifest.json`

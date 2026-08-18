@@ -95,7 +95,7 @@ Reason: This design is a new v2 Batch 1 contract that formalizes the template-fi
 
 Route: `change-plan`
 
-Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/references/system/prompts/designs-to-plan-change.prompt.md)
+Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/system/prompts/designs-to-plan-change.prompt.md)
 
 Why: The design revises and standardizes existing package/template/dogfood behavior rather than starting a fresh baseline. It should feed a change plan that updates validation, maintainer docs, and implementation surfaces against the active make-docs PRD/risk namespace after Batch 1 is accepted.
 

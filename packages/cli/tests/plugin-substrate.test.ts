@@ -198,6 +198,7 @@ describe("plugin substrate", () => {
       files,
       [],
       createEmptySystemAssetManifestState(),
+      "plugin-substrate-test-project",
     );
 
     writeManifest(targetDir, manifest);

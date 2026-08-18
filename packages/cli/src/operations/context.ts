@@ -62,10 +62,52 @@ export class OperationApprovalRequiredError extends OperationError {
  * behavior arrives behind it.
  */
 export class OperationPendingError extends OperationError {
-  constructor(message: string) {
+  readonly code = "operation-pending";
+  readonly handlerAvailable = false;
+
+  constructor(
+    message: string,
+    readonly operation: string,
+    readonly pendingLineage: string,
+  ) {
     super(message);
     this.name = "OperationPendingError";
   }
+}
+
+export interface SerializedOperationError {
+  [key: string]: unknown;
+  code: string;
+  message: string;
+  operation?: string;
+  pendingLineage?: string;
+  handlerAvailable?: boolean;
+  recovery?: string;
+  uri?: string;
+  path?: string;
+}
+
+/** Stable machine error fields shared by CLI and MCP transport envelopes. */
+export function serializeOperationError(error: unknown): SerializedOperationError {
+  const record =
+    error !== null && typeof error === "object"
+      ? (error as Record<string, unknown>)
+      : {};
+  const message = error instanceof Error ? error.message : String(error);
+  return {
+    code: typeof record.code === "string" ? record.code : "operation-error",
+    message,
+    ...(typeof record.operation === "string" ? { operation: record.operation } : {}),
+    ...(typeof record.pendingLineage === "string"
+      ? { pendingLineage: record.pendingLineage }
+      : {}),
+    ...(typeof record.handlerAvailable === "boolean"
+      ? { handlerAvailable: record.handlerAvailable }
+      : {}),
+    ...(typeof record.recovery === "string" ? { recovery: record.recovery } : {}),
+    ...(typeof record.uri === "string" ? { uri: record.uri } : {}),
+    ...(typeof record.path === "string" ? { path: record.path } : {}),
+  };
 }
 
 export function createExecutionContext(

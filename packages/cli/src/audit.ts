@@ -60,6 +60,9 @@ export async function createAuditReport(options: {
   manifest?: InstallManifest | null;
   homeDir?: string;
 }): Promise<AuditReport> {
+  if (typeof options?.targetDir !== "string" || options.targetDir.trim().length === 0) {
+    throw new TypeError("Audit targetDir must be a non-empty string.");
+  }
   const targetDir = path.resolve(options.targetDir);
   const homeDir = path.resolve(options.homeDir ?? os.homedir());
   const removableFiles = new Map<string, AuditRemovableFile>();
@@ -313,7 +316,7 @@ function classifyManifestRecord(options: {
           preservedPaths,
           record,
           createReason(
-            "instruction-content-mismatch",
+            "instruction-user-content-preserved",
             "The managed block matches the manifest, but user content exists outside the block so the instruction file is preserved.",
           ),
         );

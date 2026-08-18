@@ -8,7 +8,7 @@ source:
   path: "docs/designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md"
 follow_on:
   route: "prd-generation"
-  next_prompt: ".make-docs/references/system/prompts/plan-to-prd-change.prompt.md"
+  next_prompt: ".make-docs/system/prompts/plan-to-prd-change.prompt.md"
   why: "Reconcile the accepted design into current PRD authority before any backlog or implementation stage."
   coordinate_handoff: "Carry W19 R1 into the downstream PRD-maintenance and delta-backlog lineage; neither stage is authorized by this plan."
 ---

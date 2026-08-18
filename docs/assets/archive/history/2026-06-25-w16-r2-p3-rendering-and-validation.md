@@ -45,11 +45,11 @@ Implemented W16 R2 Phase 3 by threading presentation-only configuration labels i
 | [packages/cli/src/skills-command.ts](../../../../packages/cli/src/skills-command.ts) | Loads project config before skills UI summaries render. |
 | [packages/cli/src/skills-ui.ts](../../../../packages/cli/src/skills-ui.ts) | Renders configured labels in skills plan summaries. |
 | [packages/cli/src/document-metadata.ts](../../../../packages/cli/src/document-metadata.ts) | Validates configured body labels against canonical frontmatter and rejects label-as-identifier drift. |
-| [packages/skills/closeout-phase/scripts/guide_coverage_probe.py](../../../../packages/skills/closeout-phase/scripts/guide_coverage_probe.py) | Supports custom persona validation and preserves slug/path drift checks. |
+| packages/skills/closeout-phase/scripts/guide_coverage_probe.py (historical path: `../../../../packages/skills/closeout-phase/scripts/guide_coverage_probe.py`) | Supports custom persona validation and preserves slug/path drift checks. |
 | [packages/cli/tests/document-metadata.test.ts](../../../../packages/cli/tests/document-metadata.test.ts) | Covers configured body labels, canonical YAML, and label drift diagnostics. |
 | [packages/cli/tests/wizard.test.ts](../../../../packages/cli/tests/wizard.test.ts) | Proves configured labels do not change canonical wizard capability values. |
 | [packages/cli/tests/skills-ui.test.ts](../../../../packages/cli/tests/skills-ui.test.ts) | Proves configured labels render in skills summaries. |
-| [packages/skills/closeout-phase/scripts/test_closeout_helpers.py](../../../../packages/skills/closeout-phase/scripts/test_closeout_helpers.py) | Covers custom, unknown, invalid, and path-drift persona cases. |
+| packages/skills/closeout-phase/scripts/test_closeout_helpers.py (historical path: `../../../../packages/skills/closeout-phase/scripts/test_closeout_helpers.py`) | Covers custom, unknown, invalid, and path-drift persona cases. |
 | [docs/work/2026-06-23-w16-r2-configuration-convention-overlay/03-rendering-and-validation.md](../../../work/2026-06-23-w16-r2-configuration-convention-overlay/03-rendering-and-validation.md) | Marks Phase 3 complete and records evidence. |
 | [docs/assets/archive/history/2026-06-25-w16-r2-p3-rendering-and-validation.md](2026-06-25-w16-r2-p3-rendering-and-validation.md) | Adds this phase closeout breadcrumb. |
 

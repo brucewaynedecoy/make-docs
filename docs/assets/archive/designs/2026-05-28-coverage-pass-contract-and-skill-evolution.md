@@ -232,7 +232,7 @@ under a new name.
 ## Intended Follow-On
 
 - Route: `baseline-plan`
-- Next Prompt: [designs-to-plan.prompt.md](../../prompts/designs-to-plan.prompt.md)
+- Next Prompt: [designs-to-plan.prompt.md](../../../../.make-docs/system/prompts/designs-to-plan.prompt.md)
 - Why: This is a net-new contract and skill-evolution surface; no
   active PRD namespace covers it. The matching plan is already in
   draft at

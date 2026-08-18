@@ -122,5 +122,5 @@ Pack and install validation should confirm that the packed package exposes only 
 ## Intended Follow-On
 
 - Route: `change-plan`
-- Next Prompt: [designs-to-plan-change.prompt.md](../.prompts/designs-to-plan-change.prompt.md)
+- Next Prompt: [designs-to-plan-change.prompt.md](../../../../.make-docs/system/prompts/designs-to-plan-change.prompt.md)
 - Why: This design defines a broad rename against the existing CLI, template, docs, and package structure rather than a new baseline docs system.

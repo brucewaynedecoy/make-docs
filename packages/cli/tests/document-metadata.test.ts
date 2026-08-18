@@ -29,12 +29,12 @@ ${followOnBody.trim()}
 
 const matchingFollowOn = `follow_on:
   route: "change-plan"
-  next_prompt: ".make-docs/references/system/prompts/designs-to-plan-change.prompt.md"
+  next_prompt: "make-docs://system/prompt/designs-to-plan-change.prompt.md"
   why: "The design revises an active PRD contract."
   coordinate_handoff: "Carry W16 R1 into the downstream plan."`;
 
 const matchingFollowOnBody = `- Route: \`change-plan\`
-- Next Prompt: [Designs to Plan Change](.make-docs/references/system/prompts/designs-to-plan-change.prompt.md)
+- Next Prompt: [Designs to Plan Change](make-docs://system/prompt/designs-to-plan-change.prompt.md)
 - Why: The design revises an active PRD contract.
 - Coordinate Handoff: Carry W16 R1 into the downstream plan.`;
 
@@ -47,11 +47,11 @@ describe("generated document metadata validation", () => {
     expect(parsed.frontmatter?.kind).toBe("design");
     expect(parsed.frontmatter?.follow_on).toMatchObject({
       route: "change-plan",
-      next_prompt: ".make-docs/references/system/prompts/designs-to-plan-change.prompt.md",
+      next_prompt: "make-docs://system/prompt/designs-to-plan-change.prompt.md",
     });
     expect(handoff).toMatchObject({
       route: "change-plan",
-      next_prompt: ".make-docs/references/system/prompts/designs-to-plan-change.prompt.md",
+      next_prompt: "make-docs://system/prompt/designs-to-plan-change.prompt.md",
       why: "The design revises an active PRD contract.",
       coordinate_handoff: "Carry W16 R1 into the downstream plan.",
     });
@@ -62,7 +62,7 @@ describe("generated document metadata validation", () => {
     const markdown = documentWith(
       matchingFollowOn,
       `- Route: \`baseline-plan\`
-- Next Prompt: [Designs to Plan](.make-docs/references/system/prompts/designs-to-plan.prompt.md)
+- Next Prompt: [Designs to Plan](make-docs://system/prompt/designs-to-plan.prompt.md)
 - Why: The design starts a new PRD contract.
 - Coordinate Handoff: Use W17 R0 for the downstream plan.`,
     );
@@ -153,11 +153,11 @@ ${matchingFollowOnBody}
       `persona: "Automation Team"
 follow_on:
   route: "roadmap"
-  next_prompt: ".make-docs/references/system/prompts/designs-to-plan-change.prompt.md"
+  next_prompt: "make-docs://system/prompt/designs-to-plan-change.prompt.md"
   why: "The design revises an active PRD contract."
   coordinate_handoff: "Carry W16 R1 into the downstream plan."`,
       `- Route: \`roadmap\`
-- Next Prompt: [Designs to Plan Change](.make-docs/references/system/prompts/designs-to-plan-change.prompt.md)
+- Next Prompt: [Designs to Plan Change](make-docs://system/prompt/designs-to-plan-change.prompt.md)
 - Why: The design revises an active PRD contract.
 - Coordinate Handoff: Carry W16 R1 into the downstream plan.`,
     );
@@ -195,11 +195,11 @@ lifecycle:
   reason: "Fixture coverage."
 follow_on:
   route: "improvise"
-  next_prompt: ".make-docs/references/system/prompts/designs-to-plan-change.prompt.md"
+  next_prompt: "make-docs://system/prompt/designs-to-plan-change.prompt.md"
   why: "The design revises an active PRD contract."
   coordinate_handoff: "Carry W16 R1 into the downstream plan."`,
       `- Route: \`improvise\`
-- Next Prompt: [Designs to Plan Change](.make-docs/references/system/prompts/designs-to-plan-change.prompt.md)
+- Next Prompt: [Designs to Plan Change](make-docs://system/prompt/designs-to-plan-change.prompt.md)
 - Why: The design revises an active PRD contract.
 - Coordinate Handoff: Carry W16 R1 into the downstream plan.`,
     );
@@ -216,11 +216,11 @@ follow_on:
     const markdown = documentWith(
       `follow_on:
   route: "change-plan"
-  next_prompt: ".make-docs/references/system/prompts/designs-to-plan-change.prompt.md"
+  next_prompt: "make-docs://system/prompt/designs-to-plan-change.prompt.md"
   why: "Deferred until the active PRD owner is confirmed."
   coordinate_handoff: "unresolved; planner must resolve before writing."`,
       `- Route: \`change-plan\`
-- Next Prompt: [Designs to Plan Change](.make-docs/references/system/prompts/designs-to-plan-change.prompt.md)
+- Next Prompt: [Designs to Plan Change](make-docs://system/prompt/designs-to-plan-change.prompt.md)
 - Why: Deferred until the active PRD owner is confirmed.
 - Coordinate Handoff: unresolved; planner must resolve before writing.`,
     );

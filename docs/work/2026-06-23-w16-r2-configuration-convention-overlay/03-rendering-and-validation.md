@@ -32,7 +32,7 @@ Apply configuration only at user-visible rendering points and validate generated
 - Threaded presentation-only config through [CLI plan rendering](../../../packages/cli/src/cli.ts), [wizard review/checklist rendering](../../../packages/cli/src/wizard.ts), and [skills UI plan summaries](../../../packages/cli/src/skills-ui.ts) after canonical selections resolve.
 - Loaded project config in [the skills command](../../../packages/cli/src/skills-command.ts) before interactive and non-interactive summaries render.
 - Extended [generated document metadata validation](../../../packages/cli/src/document-metadata.ts) so body `Document kind`, `Kind`, and `Persona` labels are checked against canonical YAML frontmatter and configured labels without accepting display labels as identifiers.
-- Extended [persona validation support](../../../packages/skills/closeout-phase/scripts/guide_coverage_probe.py) to accept custom persona entries and validate unknown slugs, invalid primitives, duplicate slugs, and path/frontmatter drift.
+- Extended persona validation support (historical path: `../../../packages/skills/closeout-phase/scripts/guide_coverage_probe.py`) to accept custom persona entries and validate unknown slugs, invalid primitives, duplicate slugs, and path/frontmatter drift.
 - Kept route identifiers, prompt paths, skill names, contract names, harness names, canonical YAML values, and install planning inputs independent from configured display labels.
 
 ## Coverage Decisions

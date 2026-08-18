@@ -1,0 +1,76 @@
+{
+  "$schema": "./system-resources.schema.json",
+  "schemaVersion": 1,
+  "pathBase": "template-root",
+  "identityTemplate": "make-docs://system/{type}/{path}",
+  "defaultMediaType": "text/markdown; charset=utf-8",
+  "resourceTypes": [
+    {
+      "type": "contract",
+      "sourceRoot": ".make-docs/contracts/system",
+      "include": [
+        "*.md"
+      ],
+      "exclude": [
+        "AGENTS.md",
+        "CLAUDE.md",
+        "playbook-contract.md"
+      ]
+    },
+    {
+      "type": "prompt",
+      "sourceRoot": ".make-docs/prompts/system",
+      "include": [
+        "*.md"
+      ],
+      "exclude": [
+        "AGENTS.md",
+        "CLAUDE.md"
+      ]
+    },
+    {
+      "type": "reference",
+      "sourceRoot": ".make-docs/references/system",
+      "include": [
+        "*.md"
+      ],
+      "exclude": [
+        "AGENTS.md",
+        "CLAUDE.md"
+      ]
+    },
+    {
+      "type": "template",
+      "sourceRoot": ".make-docs/templates/system",
+      "include": [
+        "*.md"
+      ],
+      "exclude": [
+        "AGENTS.md",
+        "CLAUDE.md"
+      ]
+    }
+  ],
+  "systemWorkflows": [
+    {
+      "id": "naive-uat",
+      "contracts": [
+        "make-docs://system/contract/naive-uat-contract.md"
+      ],
+      "prompts": [
+        "make-docs://system/prompt/naive-uat-facilitator.prompt.md",
+        "make-docs://system/prompt/naive-uat-tester.prompt.md"
+      ],
+      "references": [
+        "make-docs://system/reference/naive-uat-workflow.md"
+      ],
+      "templates": [
+        "make-docs://system/template/naive-uat-scenario.md"
+      ]
+    }
+  ],
+  "preservedLegacyPaths": [
+    ".make-docs/contracts/system/playbook-contract.md",
+    "docs/assets/playbooks/**"
+  ]
+}

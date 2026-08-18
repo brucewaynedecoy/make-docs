@@ -182,6 +182,6 @@ Validation should include a stale-path search for active files, template complet
 ## Intended Follow-On
 
 - Route: `change-plan`
-- Next Prompt: [designs-to-plan-change.prompt.md](../.prompts/designs-to-plan-change.prompt.md)
+- Next Prompt: [designs-to-plan-change.prompt.md](../../../../.make-docs/system/prompts/designs-to-plan-change.prompt.md)
 - Why: This revises Wave 9's completed docs resource architecture rather than defining a new baseline docs system. The next step should produce a change plan that updates the existing template, CLI, tests, and dogfood docs tree.
 - Coordinate Handoff: prior coordinate `W9 R0`; recommended downstream coordinate `W9 R1` because this is a revision of the Wave 9 resource namespace.

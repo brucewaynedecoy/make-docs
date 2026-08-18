@@ -5,7 +5,7 @@ This directory stores current Make Docs contracts. A contract defines reusable r
 
 - Read `system-resource-contract.md` before you add or change a resource root, catalog entry, identity, or workflow composition.
 - Read only the other contract needed for the task.
-- Use `.make-docs/prompts/system/` for reusable prompts.
+- Read reusable prompts by stable `make-docs://system/prompt/<posix-relative-path>` URI with `make-docs resource read`.
 - Use `.make-docs/references/system/` for explanatory workflow guidance.
 - Use `.make-docs/templates/system/` for reusable output shapes.
 - Use `naive-uat-contract.md` for Naive-UAT policy. Keep that policy out of any Skill.

@@ -27,7 +27,7 @@ Completed Wave 9 Phase 4, framed by [the Phase 4 plan](../plans/2026-04-20-w9-r0
 | [docs/.assets/history/](./) | New home for moved session history records. |
 | [docs/.assets/history/AGENTS.md](./AGENTS.md) | Updated history router filename guidance. |
 | [docs/.assets/history/CLAUDE.md](./CLAUDE.md) | Updated history router filename guidance. |
-| [docs/.prompts/session-to-history-record.prompt.md](../../../../.make-docs/references/system/prompts/session-to-history-record.prompt.md) | Updated prompt instructions for W/R/P-aware history filenames. |
+| [docs/.prompts/session-to-history-record.prompt.md](../../../../.make-docs/system/prompts/session-to-history-record.prompt.md) | Updated prompt instructions for W/R/P-aware history filenames. |
 | [docs/.references/history-record-contract.md](../../../../.make-docs/contracts/system/history-record-contract.md) | Updated path, naming, and coordinate rules for phase-scoped history records. |
 | [docs/.references/output-contract.md](../../../../.make-docs/contracts/system/output-contract.md) | Updated output path contract for history record filename fallbacks. |
 | [docs/.references/wave-model.md](../../../../.make-docs/references/system/wave-model.md) | Updated W/R/P naming rules for history record filenames. |

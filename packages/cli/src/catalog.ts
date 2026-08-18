@@ -24,12 +24,24 @@ import { DEFAULT_SYSTEM_ASSET_MATERIALIZATION_MODE } from "./types";
 import { getActiveInstructionKinds } from "./types";
 import { readPackageFile } from "./utils";
 
+const LOCAL_PROMPT_PROJECTION_ROOT = ".make-docs/system/prompts/";
+const INSTALLED_PROMPT_SOURCE_ROOT = ".make-docs/prompts/system/";
+
+function getPackageSourcePath(relativePath: string): string {
+  if (relativePath.startsWith(LOCAL_PROMPT_PROJECTION_ROOT)) {
+    return `${INSTALLED_PROMPT_SOURCE_ROOT}${relativePath.slice(LOCAL_PROMPT_PROJECTION_ROOT.length)}`;
+  }
+
+  return relativePath;
+}
+
 function buildAsset(relativePath: string): ResolvedAsset {
+  const sourcePath = getPackageSourcePath(relativePath);
   return {
     relativePath,
     assetClass: "scoped-static",
-    sourceId: `file:${relativePath}`,
-    content: readPackageFile(relativePath),
+    sourceId: `file:${sourcePath}`,
+    content: readPackageFile(sourcePath),
   };
 }
 
@@ -73,7 +85,7 @@ function addInstructionAssets(
   }
 
   if (getPromptsDirInstalled(profile)) {
-    relativePaths.add(`.make-docs/references/system/prompts/${activeInstructionKind}`);
+    relativePaths.add(`.make-docs/system/prompts/${activeInstructionKind}`);
   }
 }
 

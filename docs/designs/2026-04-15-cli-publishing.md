@@ -1,6 +1,6 @@
 # CLI Publishing — First npm Release
 
-> Filename: `2026-04-15-cli-publishing.md`. See [../.references/wave-model.md](../.references/wave-model.md) for W/R semantics.
+> Filename: `2026-04-15-cli-publishing.md`. See the [wave model](../../.make-docs/references/system/wave-model.md) for W/R semantics.
 
 ## Purpose
 
@@ -114,5 +114,5 @@ Option B is cleaner for a first-time publisher because it keeps `1.0.0` as the c
 ## Intended Follow-On
 
 - Route: `baseline-plan`
-- Next Prompt: [designs-to-plan.prompt.md](../.prompts/designs-to-plan.prompt.md)
+- Next Prompt: [designs-to-plan.prompt.md](../../.make-docs/system/prompts/designs-to-plan.prompt.md)
 - Why: The publish sequence is concrete enough to drive a baseline plan for future release automation after the first scoped rc lands.

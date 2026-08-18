@@ -110,7 +110,7 @@ Reason: this design extends accepted Batch 3 CLI and no-scripts boundaries into 
 
 Route: change-plan
 
-Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/references/system/prompts/designs-to-plan-change.prompt.md)
+Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/system/prompts/designs-to-plan-change.prompt.md)
 
 Why: this revises existing CLI skill registry, resolver, selection UI, manifest, audit, backup, uninstall, package, and dogfood behavior rather than creating a greenfield baseline.
 

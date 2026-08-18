@@ -167,7 +167,7 @@ Reason: This design adds the run-progression engine that the prior runner design
 
 Route: `change-plan`
 
-Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/references/system/prompts/designs-to-plan-change.prompt.md)
+Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/system/prompts/designs-to-plan-change.prompt.md)
 
 Why: This is a corrective evolution of active W18 Run Playbook requirements. It completes the progression engine and relocates run-state storage against the active PRD namespace rather than starting a fresh baseline.
 

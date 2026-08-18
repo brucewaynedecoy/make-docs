@@ -696,7 +696,8 @@ describe("promptForManagedFileConflictResolutions", () => {
     ]);
     expect(
       clackMocks.select.mock.calls.flatMap(
-        ([options]) => options.options?.map((option) => option.label) ?? [],
+        ([options]) =>
+          options.options?.map((option: { label: string }) => option.label) ?? [],
       ),
     ).not.toContain("Update");
   });

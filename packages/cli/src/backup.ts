@@ -13,6 +13,7 @@ import { getLifecycleRenderer } from "./lifecycle-ui";
 import { loadManifest } from "./manifest";
 import type {
   AuditReport,
+  AuditPrunableDirectory,
   AuditRemovableFile,
   BackupCommandOptions,
   BackupDestinationPlan,
@@ -24,7 +25,7 @@ type CopyableAuditRemovableFile = AuditRemovableFile & {
   backupRelativePath: string;
 };
 
-type MaterializableAuditDirectory = {
+type MaterializableAuditDirectory = AuditPrunableDirectory & {
   backupRelativePath: string;
 };
 
@@ -63,13 +64,20 @@ export async function runBackupCommand(
     return createNoopBackupResult(preparedBackup);
   }
 
+  const destinationPlan = preparedBackup.destinationPlan;
+  if (!destinationPlan) {
+    throw new Error(
+      "Backup destination plan is required when audited entries are copyable.",
+    );
+  }
+
   const shouldProceed = await renderer.confirmBackupRun(options.permissions);
   if (!shouldProceed) {
     renderer.renderBackupCancelled();
     return {
       status: "cancelled",
       targetDir: preparedBackup.targetDir,
-      destinationDir: preparedBackup.destinationPlan.destinationDir,
+      destinationDir: destinationPlan.destinationDir,
       auditReport: preparedBackup.auditReport,
       copiedFiles: [],
       materializedDirectories: [],
@@ -100,7 +108,13 @@ export async function prepareBackupExecution(
   );
   const materializableManagedDirectories = auditReport.removableFiles
     .filter((entry) => entry.kind === "directory")
-    .filter(hasBackupRelativePath);
+    .filter(hasBackupRelativePath)
+    .map((entry): MaterializableAuditDirectory => ({
+      ...entry,
+      kind: "directory",
+      removableDescendantPaths: [],
+      preservedDescendantPaths: [],
+    }));
   const hasCopyableEntries =
     copyableFiles.length > 0 ||
     materializableDirectories.length > 0 ||

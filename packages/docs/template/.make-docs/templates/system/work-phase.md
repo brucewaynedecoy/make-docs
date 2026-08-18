@@ -22,8 +22,8 @@ Explain the work covered by this phase and the value it unlocks.
 
 ## Source PRD Docs
 
-- [{{DOC_TITLE}}](../../prd/{{DOC_PATH}})
-- [{{DOC_TITLE}}](../../prd/{{DOC_PATH}})
+- {{SOURCE_PRD_LINK_ONE}}
+- {{SOURCE_PRD_LINK_TWO}}
 
 ## Source Obligations, Scenarios, And Findings
 

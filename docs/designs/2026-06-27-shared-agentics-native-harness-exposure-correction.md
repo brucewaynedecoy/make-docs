@@ -107,7 +107,7 @@ Reason: This design materially supersedes the W17 R2 generated-stub default afte
 
 Route: `change-plan`
 
-Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/references/system/prompts/designs-to-plan-change.prompt.md)
+Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/system/prompts/designs-to-plan-change.prompt.md)
 
 Why: This correction revises an active v2 implementation decision and must reconcile PRDs, plans, work backlogs, package validation, and migration requirements rather than creating a new baseline.
 

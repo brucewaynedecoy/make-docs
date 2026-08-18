@@ -33,7 +33,7 @@ Validation: full CLI suite 690/690 across 43 files, `npx tsc --noEmit` at the 67
 | --- | --- |
 | [../../../work/2026-07-01-w18-r11-cli-command-reorganization-and-operation-registry/05-mcp-derivation-parity-and-template-doc-updates.md](../../../work/2026-07-01-w18-r11-cli-command-reorganization-and-operation-registry/05-mcp-derivation-parity-and-template-doc-updates.md) | Marked Phase 5 tasks t1 through t5 complete. |
 | [../../../prd/03-open-questions-and-risk-register.md](../../../prd/03-open-questions-and-risk-register.md) | Advanced R-024 in place: MCP derivation landed, template consequence a verified no-op, close conditions narrowed to Phase 6. |
-| [../../../README.md](../../../README.md) | Moved the root quick-start examples to the `setup` spellings and described the context-aware bare command. |
+| [../../../README.md](../../../../README.md) | Moved the root quick-start examples to the `setup` spellings and described the context-aware bare command. |
 
 ### Developer
 

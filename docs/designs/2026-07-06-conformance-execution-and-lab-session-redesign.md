@@ -157,7 +157,7 @@ Reason: This design revises the execution layer and asset organization of the W1
 
 Route: `change-plan`
 
-Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/references/system/prompts/designs-to-plan-change.prompt.md)
+Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/system/prompts/designs-to-plan-change.prompt.md)
 
 Why: This is a corrective evolution of the active PRD 37 (and, for the evidence-home and execution-mode clauses, PRD 20) lineage, not a fresh baseline: it revises how conformance evidence is produced and organized against requirements that otherwise stand.
 

@@ -81,7 +81,7 @@ Reason: This design corrects the v2 runtime boundary established across W10 R1, 
 
 Route: `change-plan`
 
-Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/references/system/prompts/designs-to-plan-change.prompt.md)
+Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/system/prompts/designs-to-plan-change.prompt.md)
 
 Why: This design revises active package, CLI, MCP, deterministic-operation, package-validation, and work-backlog authority rather than establishing a new baseline.
 

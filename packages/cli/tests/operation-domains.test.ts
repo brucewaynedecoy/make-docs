@@ -75,7 +75,16 @@ describe("operation domain modules", () => {
   test("derives the operation-domain map from the operation registry (R-REG-2, R-RUN-2)", () => {
     const domains = listOperationDomains();
 
-    expect(domains.map((domain) => domain.name)).toEqual(["playbook", "package", "prd", "work"]);
+    expect(domains.map((domain) => domain.name)).toEqual([
+      "playbook",
+      "package",
+      "prd",
+      "work",
+      "resource",
+      "project",
+      "lifecycle",
+      "uat",
+    ]);
 
     const identifiers = domains.flatMap((domain) => domain.commands.map((command) => command.id));
     expect(identifiers).toEqual([
@@ -102,8 +111,28 @@ describe("operation domain modules", () => {
       "work.item.resolve",
       "work.evidence.record",
       "work.evidence.read",
+      "resource.list",
+      "resource.read",
+      "resource.ensure",
+      "project.surface.ensure",
+      "lifecycle.start",
+      "lifecycle.show",
+      "lifecycle.list",
+      "lifecycle.checkpoint",
+      "lifecycle.pause",
+      "lifecycle.resume",
+      "lifecycle.attach-evidence",
+      "lifecycle.complete",
+      "lifecycle.fail",
+      "lifecycle.abandon",
+      "uat.scenario.validate",
+      "uat.persona.resolve",
+      "uat.target.validate",
+      "uat.evidence-reference.validate",
+      "uat.finding.validate",
+      "uat.result.validate",
     ]);
-    expect(identifiers).toHaveLength(22);
+    expect(identifiers).toHaveLength(42);
 
     for (const domain of domains) {
       for (const command of domain.commands) {
@@ -134,6 +163,16 @@ describe("operation domain modules", () => {
       "package.write",
       "package.ship",
       "work.evidence.record",
+      "resource.ensure",
+      "project.surface.ensure",
+      "lifecycle.start",
+      "lifecycle.checkpoint",
+      "lifecycle.pause",
+      "lifecycle.resume",
+      "lifecycle.attach-evidence",
+      "lifecycle.complete",
+      "lifecycle.fail",
+      "lifecycle.abandon",
     ]);
 
     const prunedNames = [
@@ -142,7 +181,6 @@ describe("operation domain modules", () => {
       "work-phase-state",
       "phase-plan",
       "phase-gate",
-      "checkpoint",
       "scope-guard",
       "closeout-probe",
       "closeout-validate",
@@ -153,7 +191,6 @@ describe("operation domain modules", () => {
       expect(serialized).not.toContain(pruned);
     }
     expect(domains.map((domain) => domain.name)).not.toContain("closeout");
-    expect(domains.map((domain) => domain.name)).not.toContain("lifecycle");
   });
 
   test("runs a work-domain operation without CLI parser or MCP transport setup", () => {

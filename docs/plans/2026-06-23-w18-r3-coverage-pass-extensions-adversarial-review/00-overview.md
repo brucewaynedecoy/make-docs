@@ -27,10 +27,10 @@ This plan is derived from [Coverage-Pass Extensions and Adversarial Review](../.
 
 - [.make-docs/contracts/system/coverage-pass-contract.md](../../../.make-docs/contracts/system/coverage-pass-contract.md) already owns the seven-step pass skeleton, base verdict spine, persona-target axis, history idempotency, verdict-and-reason rule, validation checklist, and rules for defining new coverage passes.
 - `packages/docs/template/.make-docs/contracts/system/coverage-pass-contract.md` mirrors the shipped template source for the same contract.
-- `.make-docs/references/system/prompts/coverage-pass-developer-guide.prompt.md`, `coverage-pass-user-guide.prompt.md`, `coverage-pass-prd-reconciliation.prompt.md`, and `coverage-pass-testing-uat.prompt.md` exist in the dogfood prompt tree and are mirrored in `packages/docs/template/.make-docs/references/system/prompts/`.
+- The four coverage-pass prompt resources use the stable `make-docs://system/prompt/<file>` identity and resolve through the provider inventory. They do not require a project-local snapshot.
 - `packages/cli/src/rules.ts` registers those four coverage-pass prompts in `PROMPT_RULES`.
 - There is no current adversarial-review prompt, playbook, plugin, CLI command, MCP operation, manifest field, or conformance scenario.
-- [PRD 30](../../prd/30-plugin-substrate-and-workflow-bundles.md#playbook-boundary) keeps playbooks valid without plugins, and [PRD 30](../../prd/30-plugin-substrate-and-workflow-bundles.md) keeps plugins explicit-selection only and evidence-gated.
+- [PRD 30](../../prd/30-plugin-substrate-and-workflow-bundles.md) (historical section: `playbook-boundary`) keeps playbooks valid without plugins, and [PRD 30](../../prd/30-plugin-substrate-and-workflow-bundles.md) keeps plugins explicit-selection only and evidence-gated.
 
 ## Plan Shape
 

@@ -13,7 +13,7 @@ This phase writes generated plugin and skills-bundle outputs only after package 
 - [33 Enhance Playbook Packaging and Harness Adapter Registry](../../prd/36-playbook-packaging-compiler-and-harness-adapters.md)
 - [30 Revise Harness Plugin Substrate Workflow Bundles](../../prd/30-plugin-substrate-and-workflow-bundles.md)
 - [28 Revise Shared Agentics Installation Harness Redirection](../../prd/28-shared-agentics-installation-and-harness-exposure.md)
-- [32 Revise Lifecycle Backup State and Agentics Pruning](../../prd/30-plugin-substrate-and-workflow-bundles.md#update-migration-audit-backup-and-uninstall)
+- [32 Revise Lifecycle Backup State and Agentics Pruning](../../prd/30-plugin-substrate-and-workflow-bundles.md) (historical section: `update-migration-audit-backup-and-uninstall`)
 - [10 Packaging Validation and Release Reference](../../prd/10-packaging-validation-and-release-reference.md)
 
 ## Stage 1 - Output Writers

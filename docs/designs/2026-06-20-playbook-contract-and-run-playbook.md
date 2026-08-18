@@ -95,7 +95,7 @@ Reason: This design extends prior playbook and lifecycle intent into a v2 conten
 
 Route: change-plan.
 
-Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/references/system/prompts/designs-to-plan-change.prompt.md).
+Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/system/prompts/designs-to-plan-change.prompt.md).
 
 Why: The implementation will revise existing docs asset, template, manifest, audit, backup, uninstall, installer, and catalog behavior rather than create a brand-new repository baseline. Planning must preserve the lifecycle departure noted above by returning from this v2 design to the normal design -> plan -> PRD -> work -> implementation sequence.
 

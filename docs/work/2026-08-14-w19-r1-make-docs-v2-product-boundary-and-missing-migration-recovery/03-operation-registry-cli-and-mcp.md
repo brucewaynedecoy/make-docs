@@ -71,10 +71,10 @@ This phase keeps all deterministic policy and state-transition logic in the shar
 
 ### Tasks
 
-- [ ] t9: Retain the existing active `prd.authority.validate`, `work.item.resolve`, `work.evidence.record`, and `work.evidence.read` identifiers. Activate `resource.list`, `resource.read`, and `resource.ensure` in the canonical registry. Map them to `make-docs resource list`, `make-docs resource read <uri>`, and `make-docs resource ensure <uri>`. Record stable input/output schemas, mutation class, provenance behavior, and typed errors sourced from P2.
-- [ ] t10: Register 17 operations as pending. Register `project.surface.ensure` with `pendingLineage: W19 R1 P4`. Register `lifecycle.start`, `lifecycle.show`, `lifecycle.list`, `lifecycle.checkpoint`, `lifecycle.pause`, `lifecycle.resume`, `lifecycle.attach-evidence`, `lifecycle.complete`, `lifecycle.fail`, and `lifecycle.abandon` with `pendingLineage: W19 R1 P6`. Register `uat.scenario.validate`, `uat.persona.resolve`, `uat.target.validate`, `uat.evidence-reference.validate`, `uat.finding.validate`, and `uat.result.validate` with `pendingLineage: W19 R1 P7`. Do not claim that a pending handler exists.
-- [ ] t11: Do not introduce or reintroduce a Playbook/Protocol registry entry, unapproved plugin/workflow-bundle operation namespace, or affirmative legacy product claim, and fail closed on unknown operation identifiers; preserve every pre-existing Playbook/Protocol registry entry, implementation, and public surface unchanged as a frozen retirement candidate until P5 establishes lock/quiescence and P8 completes a fresh production-consumer trace, backup, and traced retirement.
-- [ ] t12: Prove each active P3 operation resolves to one shared-core handler. Prove each pending entry returns a typed pending result and does not claim a handler. Prove registry metadata cannot create a second lifecycle transition, resource type, Persona rule, or support claim. Do not alter a frozen legacy entry to satisfy this proof.
+- [x] t9: Retain the existing active `prd.authority.validate`, `work.item.resolve`, `work.evidence.record`, and `work.evidence.read` identifiers. Activate `resource.list`, `resource.read`, and `resource.ensure` in the canonical registry. Map them to `make-docs resource list`, `make-docs resource read <uri>`, and `make-docs resource ensure <uri>`. Record stable input/output schemas, mutation class, provenance behavior, and typed errors sourced from P2.
+- [x] t10: Register 17 operations as pending. Register `project.surface.ensure` with `pendingLineage: W19 R1 P4`. Register `lifecycle.start`, `lifecycle.show`, `lifecycle.list`, `lifecycle.checkpoint`, `lifecycle.pause`, `lifecycle.resume`, `lifecycle.attach-evidence`, `lifecycle.complete`, `lifecycle.fail`, and `lifecycle.abandon` with `pendingLineage: W19 R1 P6`. Register `uat.scenario.validate`, `uat.persona.resolve`, `uat.target.validate`, `uat.evidence-reference.validate`, `uat.finding.validate`, and `uat.result.validate` with `pendingLineage: W19 R1 P7`. Do not claim that a pending handler exists.
+- [x] t11: Do not introduce or reintroduce a Playbook/Protocol registry entry, unapproved plugin/workflow-bundle operation namespace, or affirmative legacy product claim, and fail closed on unknown operation identifiers; preserve every pre-existing Playbook/Protocol registry entry, implementation, and public surface unchanged as a frozen retirement candidate until P5 establishes lock/quiescence and P8 completes a fresh production-consumer trace, backup, and traced retirement.
+- [x] t12: Prove each active P3 operation resolves to one shared-core handler. Prove each pending entry returns a typed pending result and does not claim a handler. Prove registry metadata cannot create a second lifecycle transition, resource type, Persona rule, or support claim. Do not alter a frozen legacy entry to satisfy this proof.
 
 ### Acceptance criteria
 
@@ -92,17 +92,19 @@ This phase keeps all deterministic policy and state-transition logic in the shar
 
 ### Closeout Notes
 
-- Testing-mode decision(s): registry completeness, uniqueness, handler resolution, and unknown-operation failure tests.
-- Phase / capability status: registry contract complete; projections remain open.
+- Testing-mode decision(s): registry tests pin the literal inventory, counts, mutation classes, handlers, pending refusal, lineage, and unknown-identifier failure.
+- Exact nonlegacy inventory: seven active identifiers are `prd.authority.validate`, `work.item.resolve`, `work.evidence.record`, `work.evidence.read`, `resource.list`, `resource.read`, and `resource.ensure`. The P4 pending identifier is `project.surface.ensure`. The ten P6 pending identifiers are `lifecycle.start`, `lifecycle.show`, `lifecycle.list`, `lifecycle.checkpoint`, `lifecycle.pause`, `lifecycle.resume`, `lifecycle.attach-evidence`, `lifecycle.complete`, `lifecycle.fail`, and `lifecycle.abandon`. The six P7 pending identifiers are `uat.scenario.validate`, `uat.persona.resolve`, `uat.target.validate`, `uat.evidence-reference.validate`, `uat.finding.validate`, and `uat.result.validate`.
+- Frozen registry baseline: the 14 literal Playbook identifiers are `playbook.validate`, `playbook.catalog`, `playbook.resolve`, `playbook.capabilities`, `playbook.start`, `playbook.invoke`, `playbook.status`, `playbook.next`, `playbook.advance`, `playbook.gate`, `playbook.resume`, `playbook.close`, `playbook.run.export`, and `playbook.run.import`. The four literal Playbook-package identifiers are `package.plan`, `package.surface-resolve`, `package.write`, and `package.ship`. No pre-P3 `protocol.*` registry identifier exists. P3 did not change a Playbook or Protocol implementation or focused legacy test path.
+- Phase / capability status: the registry contract and frozen-baseline proof are complete.
 
 ## Stage 3 - Project The CLI Surface
 
 ### Tasks
 
-- [ ] t13: Implement the seven CLI roots `setup`, `project`, `resource`, `run`, `mcp`, `update`, and `uninstall`. Preserve the context-aware bare `make-docs` flow. Project the active resource CLI paths, pending `make-docs project surface ensure <archive|artifacts|assets>`, pending `make-docs run lifecycle <operation>`, and the six pending `make-docs run uat` paths from the registry as thin adapters.
-- [ ] t14: Preserve read-only versus mutating distinctions in help, dry-run/review flow, exit status, human output, and stable machine-readable output.
-- [ ] t15: Render provenance, ownership, conflict, unavailable, blocked, and typed receipt outcomes without upgrading a receipt into proof of repository mutation or acceptance.
-- [ ] t16: Verify CLI handlers contain no resolver precedence, Store transition, Persona selection, anti-coaching, finding, or gate business logic.
+- [x] t13: Implement the seven CLI roots `setup`, `project`, `resource`, `run`, `mcp`, `update`, and `uninstall`. Preserve the context-aware bare `make-docs` flow. Project the active resource CLI paths, pending `make-docs project surface ensure <archive|artifacts|assets>`, pending `make-docs run lifecycle <operation>`, and the six pending `make-docs run uat` paths from the registry as thin adapters.
+- [x] t14: Preserve read-only versus mutating distinctions in help, dry-run/review flow, exit status, human output, and stable machine-readable output.
+- [x] t15: Render provenance, ownership, conflict, unavailable, blocked, and typed receipt outcomes without upgrading a receipt into proof of repository mutation or acceptance.
+- [x] t16: Verify CLI handlers contain no resolver precedence, Store transition, Persona selection, anti-coaching, finding, or gate business logic.
 
 ### Acceptance criteria
 
@@ -119,17 +121,17 @@ This phase keeps all deterministic policy and state-transition logic in the shar
 
 ### Closeout Notes
 
-- Testing-mode decision(s): parser, rendering, exit-status, dry-run, and machine-output tests.
-- Phase / capability status: CLI projection complete; MCP parity remains open.
+- Testing-mode decision(s): CLI tests cover the seven roots, canonical spellings, JSON meaning, read-only behavior, write permission, approval, dry-run flow, pending lineage, and typed failures.
+- Phase / capability status: CLI projection is complete. The bare command flow and pre-existing setup, run, MCP, update, and uninstall behavior remain in place.
 
 ## Stage 4 - Project Native MCP Resources And Tools
 
 ### Tasks
 
-- [ ] t17: Expose system-resource inventory and reads through native MCP resources using the same stable URI, resolver, provenance, and typed not-found/conflict semantics as the CLI.
-- [ ] t18: Expose one MCP tool for every admitted operation. Route active resource ensure through its shared handler and authorization checks. Route the pending project surface, lifecycle, and Naive-UAT tools only to typed pending results until P4, P6, or P7 activates their handlers.
-- [ ] t19: Keep MCP native-resource reads side-effect free and prevent MCP transport code from defining alternative resource identity, Store transitions, Persona defaulting, UAT policy, or evidence routing.
-- [ ] t20: Normalize CLI/MCP error and receipt projections so transport-specific envelopes do not change operation meaning; preserve every pre-existing Playbook/Protocol transport and public surface unchanged without adding a new legacy route or affirmative product claim.
+- [x] t17: Expose system-resource inventory and reads through native MCP resources using the same stable URI, resolver, provenance, and typed not-found/conflict semantics as the CLI.
+- [x] t18: Expose one MCP tool for every admitted operation. Route active resource ensure through its shared handler and authorization checks. Route the pending project surface, lifecycle, and Naive-UAT tools only to typed pending results until P4, P6, or P7 activates their handlers.
+- [x] t19: Keep MCP native-resource reads side-effect free and prevent MCP transport code from defining alternative resource identity, Store transitions, Persona defaulting, UAT policy, or evidence routing.
+- [x] t20: Normalize CLI/MCP error and receipt projections so transport-specific envelopes do not change operation meaning; preserve every pre-existing Playbook/Protocol transport and public surface unchanged without adding a new legacy route or affirmative product claim.
 
 ### Acceptance criteria
 
@@ -146,18 +148,18 @@ This phase keeps all deterministic policy and state-transition logic in the shar
 
 ### Closeout Notes
 
-- Testing-mode decision(s): cross-surface parity, side-effect, schema, and error/receipt conformance tests.
-- Phase / capability status: public projections complete; confirmation remains open.
+- Testing-mode decision(s): in-memory protocol tests compare CLI, derived MCP tools, and native MCP resources across contract, prompt, reference, and template types. They compare the URI, exact base64 bytes, media type, provenance, typed failure data, and write controls.
+- Phase / capability status: all 24 admitted identifiers have one derived MCP tool. Only `resource.list` and `resource.read` have native MCP resource projections. `resource.ensure` remains a tool-only write operation.
 
 ## Stage 5 - Validate Surface Parity
 
 ### Tasks
 
-- [ ] t21: Add focused conformance tests that inject registry, resolver, authorization, and transport failures and prove CLI/MCP semantic parity without shared test fixtures masking divergence.
-- [ ] t22: Verify native MCP resource discovery/read behavior for all four types. Verify MCP-tool behavior for the seven active and seventeen pending nonlegacy identifiers.
-- [ ] t23: Run focused CLI, MCP, registry, type, link/path, and whitespace checks; reuse unchanged valid evidence and do not invent performance targets.
-- [ ] t24: Obtain independent review of registry ownership, public grammar, MCP resource/tool selection, policy duplication, new legacy exposure, and premature legacy-surface mutation or removal; correct only actionable defects within budget.
-- [ ] t25: Record the exact 24-identifier nonlegacy inventory, its seven active and seventeen pending states, the frozen pre-existing Playbook/Protocol surface baseline, validation evidence, nonblocking items, the P4/P6/P7 handler handoffs, and the locked P5/P8 quiescence-and-retirement handoff.
+- [x] t21: Add focused conformance tests that inject registry, resolver, authorization, and transport failures and prove CLI/MCP semantic parity without shared test fixtures masking divergence.
+- [x] t22: Verify native MCP resource discovery/read behavior for all four types. Verify MCP-tool behavior for the seven active and seventeen pending nonlegacy identifiers.
+- [x] t23: Run focused CLI, MCP, registry, type, link/path, and whitespace checks; reuse unchanged valid evidence and do not invent performance targets.
+- [x] t24: Obtain independent review of registry ownership, public grammar, MCP resource/tool selection, policy duplication, new legacy exposure, and premature legacy-surface mutation or removal; correct only actionable defects within budget.
+- [x] t25: Record the exact 24-identifier nonlegacy inventory, its seven active and seventeen pending states, the frozen pre-existing Playbook/Protocol surface baseline, validation evidence, nonblocking items, the P4/P6/P7 handler handoffs, and the locked P5/P8 quiescence-and-retirement handoff.
 
 ### Acceptance criteria
 
@@ -175,5 +177,53 @@ This phase keeps all deterministic policy and state-transition logic in the shar
 
 ### Closeout Notes
 
-- Testing-mode decision(s): deterministic CLI/MCP conformance and independent surface review.
-- Phase / capability status: P3 may close with evidence; P4 remains separately gated.
+- Testing-mode decision(s): `npm test -w packages/cli -- --run tests/p3-operation-surfaces.test.ts tests/registry-contract.test.ts tests/run-cli.test.ts tests/mcp-derivation.test.ts tests/resource-identity-provider.test.ts tests/resource-resolver.test.ts` passed 106 of 106 tests. `npm test -w packages/cli -- --run tests/mcp.test.ts -t '^(?!.*plans install changes).*'` passed six tests and skipped the one known install-plan baseline test. `npm test -w packages/cli -- --run tests/cli.test.ts -t 'seven public commands'` passed its one selected test. `npm run build -w packages/cli` passed. `bash scripts/check-wave-numbering.sh`, `python3 .make-docs/scripts/check_path_hygiene.py --repo-root . --format json`, and `git diff --check` passed.
+- Review-cycle evidence: the P2 resolver now accepts the typed `effective`, `local`, or `installed` origin mode. Effective remains the default. Resolver tests prove all three modes. The resource CLI proves type, prefix, and origin filters. It also proves the default table and raw modes, JSON identity and provenance, exact raw bytes, and invalid flag refusal. The derived MCP tools accept the same semantic resource inputs and do not accept the CLI-only format input.
+- Pending transport evidence: tests exercise every canonical CLI projection through the real CLI entry envelope. Tests also exercise every derived MCP pending tool through an in-memory SDK client. All 17 results preserve `code: operation-pending`, the exact operation, the exact pending lineage, and `handlerAvailable: false`.
+- Historical pre-rejection evidence: `npm test -w packages/cli -- --reporter=json --outputFile=/tmp/make-docs-p3-full-test.json` passed 963 of 1,176 tests and failed 213 tests outside the focused P3 contract. The touched CLI test file passed 60 tests and had 41 setup failures. The touched MCP test file passed six tests and had one install-plan failure. These failures used the then-missing `packages/docs/template/.make-docs/references/system/prompts/AGENTS.md` file. The focused P3 files passed. `npm run validate:defaults -w packages/cli` passed 21 tests and failed 13 tests on template and dogfood drift. `npm run smoke:pack` built the package and then failed on template and dogfood router parity. `npx tsc -p packages/cli/tsconfig.json --noEmit --pretty false` reported 66 type errors. `bash scripts/check-instruction-routers.sh` reported root `AGENTS.md` and `CLAUDE.md` drift and line-budget debt. This bullet preserves what the earlier gate observed. It does not state the current acceptance status.
+- Failure corrections: the resource projection path now uses the P2 `.make-docs/system/<type-directory>/...` contract. Resource errors now preserve their stable code and recovery data through native MCP errors. The real CLI machine error envelope and SDK MCP tool error result now preserve typed pending fields. Pending entries have no handler. Active entries must have one handler. CLI metadata includes each exact canonical command and placeholder. One review test first treated shared MCP execution-control fields as resource fields. The corrected test now requires the semantic resource fields and excludes the CLI-only format field. A new MCP error serializer type first lacked an index signature. The corrected type now satisfies the SDK structured-content contract.
+- Nonblocking item: `resource.ensure` returns the P2 `projection-not-selected` failure when the project manifest does not contain selected managed-projection evidence. This behavior prevents an adapter from inventing setup state.
+- Handler handoff: P4 owns `project.surface.ensure`. P6 owns all ten `lifecycle.*` handlers. P7 owns all six `uat.*` handlers. These phases can activate the reserved entries without changing CLI or MCP transport grammar.
+- Locked legacy handoff: P5 must establish lock and quiescence before a legacy mutation. P8 must complete a fresh production-consumer trace, backup, and traced retirement before it removes a frozen Playbook or Protocol surface.
+- Historical independent coordinator gate: the coordinator independently reran the 106 focused tests, the package build, the selected MCP and seven-root CLI tests, policy, wave numbering, path hygiene, whitespace, PRD authority, changed-document link, and legacy-freeze checks. That gate passed the then-selected checks. The owner later rejected P3 acceptance and expanded the required gate to include the full remediation inventory in Stage 6.
+- Superseded classification: the earlier broad-repository-debt and nonblocking classification is superseded. The owner directed P3 to revisit the build stage under the lifecycle straddle rule. This explicit revisit departs from the default lifecycle arc because acceptance was rejected after the earlier focused gate.
+- Phase / capability status: P3 implementation and the independent quality gate pass after the explicit Stage 6 build-stage revisit. Independent review t24 is closed again. Owner acceptance is a separate gate and has not been granted. No commit or push is claimed. P4 remains separately gated.
+
+## Stage 6 - Revisit Build-Stage Acceptance Debt
+
+### Tasks
+
+- [x] t26: Correct the four P3 regressions found by the expanded review: the `run/entry.ts` dependency-direction violation, the stale four-domain expectation, parity logic that was not canonical-root-aware, and the assertion that treated pending `lifecycle.checkpoint` as pruned.
+- [x] t27: Complete the prompt path migration from the retired nested prompt path to the selected system-resource projection. Remove stale prompt-path assumptions without restoring a second source of truth.
+- [x] t28: Correct the audit `paths[0]` undefined crash. Prove invalid input fails before path resolution and valid manifest-present and manifest-missing audit flows retain their typed results.
+- [x] t29: Correct the verified 66 TypeScript errors across 15 files. Rerun the package TypeScript check without broad casts or weaker contracts.
+- [x] t30: Reconcile template, dogfood, and instruction-router drift. Prove upstream-first template authority and the installed dogfood projection agree where the current contracts require parity.
+- [x] t31: Correct all findings from the refreshed full broken-link index, including archive, template/generated, artifact, design, plan/work, and CLI README findings. Rerun the full index with `.make-docs` included.
+- [x] t32: Run a new full independent gate across the complete P3 surface and remediation inventory. Record exact commands and results. Keep owner acceptance separate from implementation and validation evidence.
+
+### Acceptance criteria
+
+- The four P3 regressions are corrected without weakening operation, CLI, MCP, or dependency-direction contracts.
+- Prompt paths use the selected system-resource projection and do not restore the retired nested prompt authority.
+- The audit crash is absent and focused audit tests pass.
+- The package TypeScript check reports no error.
+- Template, dogfood, and instruction-router checks pass under upstream-first authority.
+- A refreshed full broken-link index with `.make-docs` included reports no unresolved finding from the verified starting inventory.
+- The full test suite and all focused P3 checks pass. A new independent gate confirms the result before t24 can close again.
+
+### Dependencies
+
+- Owner rejection of P3 acceptance on 2026-08-18 and the direction to remediate the complete finding set.
+- The lifecycle straddle rule permits this explicit build-stage revisit and requires this record to state the reason.
+- Historical Stage 5 evidence remains provenance only. It does not satisfy the new full gate.
+
+### Closeout Notes
+
+- Starting evidence: remediation started from a verified full-suite baseline of 966 passed and 214 failed, 66 TypeScript errors across 15 files, and 194 broken-link findings with `.make-docs` included: 123 archive, 31 template/generated, 14 artifact, 13 design, 11 plan/work, and 2 CLI README findings.
+- Correction evidence: the revisit corrected the four P3 dependency/domain/parity/checkpoint regressions, the audit `targetDir` crash, all 66 TypeScript errors, the prompt migration, executable two-stage template-link validation, bounded URI validation, the root managed-block parser, upstream/dogfood/manifest drift, backup descendant metadata, the derived uninstall count, and all current link findings.
+- Independent review evidence: separate review cycles checked the P3 dependency direction, eight-domain inventory, canonical-root-aware parity, pending `lifecycle.checkpoint`, audit `targetDir` handling, TypeScript discriminated unions and runtime contracts, prompt migration, template and dogfood reconciliation, executable template-link validation, bounded URI validation, root managed-block parsing, upstream and generated-copy parity, manifest hashes, backup descendant metadata, derived uninstall count, and link repair. Actionable findings were corrected and reviewed again.
+- Full package evidence: `npm test -w packages/cli -- --run` passed all 67 test files and all 1,197 tests. `npx tsc -p packages/cli/tsconfig.json --noEmit --pretty false` reported zero errors. `npm run validate:defaults -w packages/cli` passed 48 of 48 tests. `npm run build -w packages/cli` passed. `npm run smoke:pack` passed with network-enabled `npx` runners.
+- Repository gate evidence: `bash scripts/check-instruction-routers.sh`, `bash scripts/check-wave-numbering.sh`, and `git diff --check` passed. `python3 .make-docs/scripts/check_path_hygiene.py --repo-root . --format json` checked 86 files with zero errors. The PRD authority gate checked 37 PRDs, 1,028 Markdown files, 40 structured files, and 668 links with zero diagnostics.
+- Documentation and path evidence: the refreshed jdocmunch index contains 1,375 documents and 18,008 sections with zero broken links. The live retired prompt-root scan returned zero matches.
+- Manifest and audit evidence: the compiled audit reports zero `instruction-content-mismatch` paths and zero `managed-file-modified` paths. It preserves only the two root instruction files because they contain valid user content outside matching managed blocks, plus their 16 parent paths. All 89 manifest entries and their nested hashes match current bytes.
+- Phase / capability status: remediation tasks t26 through t32 are complete. P3 implementation and the independent quality gate pass, and t24 is closed again. The owner tested and accepted W19 R1 P3 on 2026-08-18. The owner explicitly authorized commit and push on 2026-08-18. No commit or push is claimed by this record yet.

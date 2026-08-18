@@ -31,8 +31,8 @@ Completed W9 R3 Phase 3 by adding the default persona schema and validator for c
 | [../../../../.make-docs/contracts/system/coverage-pass-contract.md](../../../../.make-docs/contracts/system/coverage-pass-contract.md) | Defines configured persona target slugs and keeps verdict and persona-target axes separate. |
 | [../../../prd/03-open-questions-and-risk-register.md](../../../prd/03-open-questions-and-risk-register.md) | Reconciles `Q-009` and `R-011` after schema validation landed. |
 | [../../../work/2026-06-23-w9-r3-new-docs-assets-playbooks-persona-model/03-persona-schema-and-validation.md](../../../work/2026-06-23-w9-r3-new-docs-assets-playbooks-persona-model/03-persona-schema-and-validation.md) | Records Phase 3 completion evidence and changed path scope. |
-| [../../../../packages/skills/closeout-phase/scripts/persona_schema.py](../../../../packages/skills/closeout-phase/scripts/persona_schema.py) | Provides the reusable persona schema and validation helper. |
-| [../../../../packages/skills/closeout-phase/scripts/guide_coverage_probe.py](../../../../packages/skills/closeout-phase/scripts/guide_coverage_probe.py) | Applies persona validation to guide/playbook coverage discovery. |
+| `../../../../packages/skills/closeout-phase/scripts/persona_schema.py` (historical path) | Provides the reusable persona schema and validation helper. |
+| `../../../../packages/skills/closeout-phase/scripts/guide_coverage_probe.py` (historical path) | Applies persona validation to guide/playbook coverage discovery. |
 
 ### Developer
 

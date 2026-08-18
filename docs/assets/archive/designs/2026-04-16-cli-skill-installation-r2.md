@@ -176,5 +176,5 @@ The schema file exists so editor tooling and the packaged tarball can resolve th
 ## Intended Follow-On
 
 - Route: `change-plan`
-- Next Prompt: [designs-to-plan-change.prompt.md](../.prompts/designs-to-plan-change.prompt.md)
+- Next Prompt: [designs-to-plan-change.prompt.md](../../../../.make-docs/system/prompts/designs-to-plan-change.prompt.md)
 - Why: future work from here should be incremental to the shipped remote single-skill model, not a regeneration of the original `w5-r2` baseline plan.

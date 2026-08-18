@@ -290,7 +290,7 @@ The following pre-W19 R1 discussion is retained as historical context and does n
 | --- | --- | --- |
 | Closed | Resolved by the installed [lifecycle anchor](../../.make-docs/references/system/lifecycle.md), its explicit default ordering and departure rules, and the current lifecycle and handoff authority in [14-lifecycle-workflow-and-coverage-passes.md](./14-lifecycle-workflow-and-coverage-passes.md). The shipped routers and stage outputs direct agents through the documentation-first arc without making it an inflexible runtime gate. | None. Preserve the lifecycle anchor, stage handoffs, and explicit departure recording through normal PRD and template maintenance. |
 
-**Issue**: Routers and contracts encode where artifacts live but not the order stages run. The design → plan → PRD → work → implement sequence is stated only in `.make-docs/references/system/prompts/` starters, which `.make-docs/references/system/prompts/AGENTS.md` marks as non-authoritative, so an agent can land on a plan and jump straight to implementing.
+**Issue**: Routers and contracts encode where artifacts live but not the order stages run. The design → plan → PRD → work → implement sequence was stated only in projected `.make-docs/system/prompts/` starters, which `.make-docs/system/prompts/AGENTS.md` marks as non-authoritative, so an agent could land on a plan and jump straight to implementing.
 
 **Why it matters**: Agents silently skip PRD and work-backlog generation, breaking the documentation-first pipeline make-docs exists to enforce.
 

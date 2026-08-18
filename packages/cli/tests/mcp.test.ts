@@ -26,7 +26,7 @@ describe("make-docs MCP runtime", () => {
     }
   });
 
-  test("declares a shipped read-first MCP tool surface (6 hand-defined + 22 derived)", () => {
+  test("declares a shipped MCP tool surface (6 hand-defined + 42 derived)", () => {
     expect(createMakeDocsMcpServer()).toBeDefined();
     expect(MAKE_DOCS_MCP_TOOLS.map((tool) => tool.name)).toEqual([
       // Hand-defined non-operation tools.
@@ -61,6 +61,26 @@ describe("make-docs MCP runtime", () => {
       "make_docs_work_item_resolve",
       "make_docs_work_evidence_record",
       "make_docs_work_evidence_read",
+      "make_docs_resource_list",
+      "make_docs_resource_read",
+      "make_docs_resource_ensure",
+      "make_docs_project_surface_ensure",
+      "make_docs_lifecycle_start",
+      "make_docs_lifecycle_show",
+      "make_docs_lifecycle_list",
+      "make_docs_lifecycle_checkpoint",
+      "make_docs_lifecycle_pause",
+      "make_docs_lifecycle_resume",
+      "make_docs_lifecycle_attach_evidence",
+      "make_docs_lifecycle_complete",
+      "make_docs_lifecycle_fail",
+      "make_docs_lifecycle_abandon",
+      "make_docs_uat_scenario_validate",
+      "make_docs_uat_persona_resolve",
+      "make_docs_uat_target_validate",
+      "make_docs_uat_evidence_reference_validate",
+      "make_docs_uat_finding_validate",
+      "make_docs_uat_result_validate",
     ]);
   });
 
@@ -86,7 +106,6 @@ describe("make-docs MCP runtime", () => {
       "work-phase-state",
       "phase-plan",
       "phase-gate",
-      "checkpoint",
       "scope-guard",
       "closeout-probe",
       "closeout-validate",

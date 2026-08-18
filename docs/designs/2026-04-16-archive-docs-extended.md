@@ -14,7 +14,7 @@ This follow-on design addresses the capabilities that were deferred from the bas
 
 ### Relationship to the agentics ecosystem
 
-The [agentics ecosystem design](2026-04-15-w2-r0-agentics-ecosystem.md) proposes a registry, gateway skill, and module system for distributing skills, hooks, agents, and workflows as installable units. Several capabilities in this design — particularly completion hooks, template-level distribution, and workflow integration — depend on that infrastructure. Where dependencies exist, this design notes them and proposes interim solutions that work without the full ecosystem.
+The [agentics ecosystem design](2026-04-15-agentics-ecosystem.md) proposes a registry, gateway skill, and module system for distributing skills, hooks, agents, and workflows as installable units. Several capabilities in this design — particularly completion hooks, template-level distribution, and workflow integration — depend on that infrastructure. Where dependencies exist, this design notes them and proposes interim solutions that work without the full ecosystem.
 
 ## Decision
 
@@ -234,5 +234,5 @@ packages/skills/archive-docs/
 ## Intended Follow-On
 
 - Route: `baseline-plan`
-- Next Prompt: [designs-to-plan.prompt.md](../.prompts/designs-to-plan.prompt.md)
+- Next Prompt: [designs-to-plan.prompt.md](../../.make-docs/system/prompts/designs-to-plan.prompt.md)
 - Why: The extended capabilities should be planned after the base plugin is implemented and validated. The plan should sequence the skills by dependency (provenance first since other skills write to it, then search, then wave/PRD/completion in any order, then template distribution last since it depends on the agentics ecosystem).

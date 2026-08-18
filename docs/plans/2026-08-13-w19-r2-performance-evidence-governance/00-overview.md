@@ -5,7 +5,7 @@ status: "draft"
 coordinate: "W19 R2"
 follow_on:
   route: "prd-generation"
-  next_prompt: ".make-docs/references/system/prompts/prd-change-to-work.prompt.md"
+  next_prompt: ".make-docs/system/prompts/prd-change-to-work.prompt.md"
   why: "Performance Evidence Governance must become current PRD authority before implementation work can create governance resources, execute profiles, or admit an optional validator."
   coordinate_handoff: "Carry W19 R2 into maintained PRD requirement history, source links, and one downstream W19 R2 delta backlog."
 ---

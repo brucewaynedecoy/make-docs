@@ -86,7 +86,9 @@ export function getManifestFileHash(relativePath: string, content: string): stri
   }
 
   const parsed = parseManagedBlock(content);
-  return parsed.state === "valid" ? hashText(parsed.body) : null;
+  return parsed.state === "valid" && parsed.body !== null
+    ? hashText(parsed.body)
+    : null;
 }
 
 export function loadManifest(targetDir: string): InstallManifest | null {
@@ -103,12 +105,7 @@ export function migrateSelections(selections: unknown): InstallSelections {
   assertPlainObject(selections, "selections");
   assertNoRemovedAssetFields(selections, "selections");
 
-  const legacy = selections as InstallSelections & {
-    instructionKinds?: Record<string, boolean>;
-    optionalSkills?: unknown;
-    selectedSkills?: unknown;
-    selectedPlugins?: unknown;
-  };
+  const legacy = selections;
   if ("optionalSkills" in legacy) {
     throw new Error("selections.optionalSkills is no longer supported");
   }

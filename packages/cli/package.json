@@ -32,7 +32,7 @@
     "build": "tsup",
     "dev": "tsx src/index.ts",
     "test": "vitest run",
-    "validate:defaults": "vitest run tests/consistency.test.ts",
+    "validate:defaults": "vitest run tests/consistency.test.ts tests/template-links.test.ts",
     "conformance:kit": "tsx scripts/conformance-kit.ts",
     "conformance:ingest": "tsx scripts/conformance-ingest.ts",
     "prepack": "node ../../scripts/copy-template-to-cli.mjs && npm run build"

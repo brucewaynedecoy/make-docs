@@ -7,71 +7,79 @@ export interface PromptRule {
 
 export const PROMPT_RULES: PromptRule[] = [
   {
-    relativePath: ".make-docs/references/system/prompts/docs-path-hygiene-cleanup.prompt.md",
+    relativePath: ".make-docs/system/prompts/docs-path-hygiene-cleanup.prompt.md",
     requires: [],
   },
   {
-    relativePath: ".make-docs/references/system/prompts/request-to-design.prompt.md",
+    relativePath: ".make-docs/system/prompts/request-to-design.prompt.md",
     requires: ["designs"],
   },
   {
-    relativePath: ".make-docs/references/system/prompts/designs-to-plan.prompt.md",
+    relativePath: ".make-docs/system/prompts/designs-to-plan.prompt.md",
     requires: ["designs", "plans"],
   },
   {
-    relativePath: ".make-docs/references/system/prompts/designs-to-plan-change.prompt.md",
+    relativePath: ".make-docs/system/prompts/designs-to-plan-change.prompt.md",
     requires: ["designs", "plans"],
   },
   {
-    relativePath: ".make-docs/references/system/prompts/plan-to-prd-change.prompt.md",
+    relativePath: ".make-docs/system/prompts/plan-to-prd-change.prompt.md",
     requires: ["plans", "prd"],
   },
   {
-    relativePath: ".make-docs/references/system/prompts/plan-to-prd-green-field.prompt.md",
+    relativePath: ".make-docs/system/prompts/plan-to-prd-green-field.prompt.md",
     requires: ["plans", "prd"],
   },
   {
-    relativePath: ".make-docs/references/system/prompts/prd-change-to-work.prompt.md",
+    relativePath: ".make-docs/system/prompts/prd-change-to-work.prompt.md",
     requires: ["prd", "work"],
   },
   {
-    relativePath: ".make-docs/references/system/prompts/prd-to-work-full-prd.prompt.md",
+    relativePath: ".make-docs/system/prompts/prd-to-work-full-prd.prompt.md",
     requires: ["prd", "work"],
   },
   {
-    relativePath: ".make-docs/references/system/prompts/prd-to-work-prd-feature.prompt.md",
+    relativePath: ".make-docs/system/prompts/prd-to-work-prd-feature.prompt.md",
     requires: ["prd", "work"],
   },
   {
-    relativePath: ".make-docs/references/system/prompts/coverage-pass-developer-guide.prompt.md",
+    relativePath: ".make-docs/system/prompts/coverage-pass-developer-guide.prompt.md",
     requires: ["work"],
   },
   {
-    relativePath: ".make-docs/references/system/prompts/coverage-pass-user-guide.prompt.md",
+    relativePath: ".make-docs/system/prompts/coverage-pass-user-guide.prompt.md",
     requires: ["work"],
   },
   {
-    relativePath: ".make-docs/references/system/prompts/coverage-pass-prd-reconciliation.prompt.md",
+    relativePath: ".make-docs/system/prompts/coverage-pass-prd-reconciliation.prompt.md",
     requires: ["work"],
   },
   {
-    relativePath: ".make-docs/references/system/prompts/coverage-pass-testing-uat.prompt.md",
+    relativePath: ".make-docs/system/prompts/coverage-pass-testing-uat.prompt.md",
     requires: ["work"],
   },
   {
-    relativePath: ".make-docs/references/system/prompts/work-to-guides.prompt.md",
+    relativePath: ".make-docs/system/prompts/naive-uat-facilitator.prompt.md",
     requires: ["work"],
   },
   {
-    relativePath: ".make-docs/references/system/prompts/update-readme-green-field.prompt.md",
+    relativePath: ".make-docs/system/prompts/naive-uat-tester.prompt.md",
+    requires: ["work"],
+  },
+  {
+    relativePath: ".make-docs/system/prompts/work-to-guides.prompt.md",
+    requires: ["work"],
+  },
+  {
+    relativePath: ".make-docs/system/prompts/update-readme-green-field.prompt.md",
     requires: ["designs", "plans"],
   },
   {
-    relativePath: ".make-docs/references/system/prompts/session-to-history-record.prompt.md",
+    relativePath: ".make-docs/system/prompts/session-to-history-record.prompt.md",
     requires: [],
   },
   {
-    relativePath: ".make-docs/references/system/prompts/work-to-commit-message.prompt.md",
+    relativePath: ".make-docs/system/prompts/work-to-commit-message.prompt.md",
     requires: [],
   },
 ];
@@ -137,7 +145,11 @@ const ALWAYS_REFERENCE_PATHS = [
   ".make-docs/contracts/system/coverage-pass-contract.md",
   ".make-docs/contracts/system/history-record-contract.md",
   ".make-docs/contracts/system/commit-message-convention.md",
+  ".make-docs/contracts/system/system-resource-contract.md",
   ".make-docs/references/system/path-and-link-hygiene.md",
+  ".make-docs/references/system/naive-uat-workflow.md",
+  ".make-docs/system-resources.catalog.json",
+  ".make-docs/system-resources.schema.json",
 ];
 
 const ALWAYS_SCRIPT_PATHS = [".make-docs/scripts/check_path_hygiene.py"];

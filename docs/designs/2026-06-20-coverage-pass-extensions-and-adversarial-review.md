@@ -109,7 +109,7 @@ Reason: This design extends the existing coverage-pass intent with a pass-specif
 
 Route: `change-plan`
 
-Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/references/system/prompts/designs-to-plan-change.prompt.md)
+Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/system/prompts/designs-to-plan-change.prompt.md)
 
 Why: The design revises and extends the existing coverage-pass system rather than establishing a fresh baseline. Any future work should plan additive changes to the current contract, prompt, package-template, manifest, and optional playbook/plugin exposure surfaces.
 

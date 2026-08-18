@@ -120,7 +120,7 @@ const FULL_PROFILE_INSTRUCTION_DIRS = [
   ".make-docs",
   ".make-docs/contracts/system",
   ".make-docs/references/system",
-  ".make-docs/references/system/prompts",
+  ".make-docs/system/prompts",
   ".make-docs/templates/system",
 ] as const;
 
@@ -382,11 +382,11 @@ describe("installer integration", () => {
       ).toBe(true);
       expect(
         existsSync(
-          path.join(targetDir, ".make-docs/references/system/prompts/docs-path-hygiene-cleanup.prompt.md"),
+          path.join(targetDir, ".make-docs/system/prompts/docs-path-hygiene-cleanup.prompt.md"),
         ),
       ).toBe(true);
-      expect(existsSync(path.join(targetDir, ".make-docs/references/system/prompts/designs-to-plan.prompt.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, ".make-docs/references/system/prompts/work-to-guides.prompt.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, ".make-docs/system/prompts/designs-to-plan.prompt.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, ".make-docs/system/prompts/work-to-guides.prompt.md"))).toBe(true);
       expect(
         existsSync(path.join(targetDir, ".make-docs/references/system/harness-capability-matrix.md")),
       ).toBe(true);
@@ -435,8 +435,8 @@ describe("installer integration", () => {
         "file:.make-docs/scripts/check_path_hygiene.py",
       );
       expect(
-        manifest.files[".make-docs/references/system/prompts/docs-path-hygiene-cleanup.prompt.md"]?.sourceId,
-      ).toBe("file:.make-docs/references/system/prompts/docs-path-hygiene-cleanup.prompt.md");
+        manifest.files[".make-docs/system/prompts/docs-path-hygiene-cleanup.prompt.md"]?.sourceId,
+      ).toBe("file:.make-docs/prompts/system/docs-path-hygiene-cleanup.prompt.md");
       expect(manifest.files[".make-docs/references/system/path-and-link-hygiene.md"]?.sourceId).toBe(
         "file:.make-docs/references/system/path-and-link-hygiene.md",
       );
@@ -1207,10 +1207,10 @@ describe("installer integration", () => {
       expect(existsSync(path.join(targetDir, "docs/prd/AGENTS.md"))).toBe(false);
       expect(existsSync(path.join(targetDir, "docs/work/AGENTS.md"))).toBe(false);
       expect(
-        existsSync(path.join(targetDir, ".make-docs/references/system/prompts/request-to-design.prompt.md")),
+        existsSync(path.join(targetDir, ".make-docs/system/prompts/request-to-design.prompt.md")),
       ).toBe(true);
       expect(
-        existsSync(path.join(targetDir, ".make-docs/references/system/prompts/designs-to-plan.prompt.md")),
+        existsSync(path.join(targetDir, ".make-docs/system/prompts/designs-to-plan.prompt.md")),
       ).toBe(false);
     } finally {
       cleanupTempDir(targetDir);
@@ -1270,7 +1270,7 @@ describe("installer integration", () => {
       expect(existsSync(path.join(targetDir, "docs/assets/library/agent"))).toBe(false);
       expect(existsSync(path.join(targetDir, "docs/assets/archive/AGENTS.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/assets/archive/CLAUDE.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, ".make-docs/references/system/prompts/session-to-history-record.prompt.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, ".make-docs/system/prompts/session-to-history-record.prompt.md"))).toBe(true);
     } finally {
       cleanupTempDir(targetDir);
     }
@@ -1293,7 +1293,7 @@ describe("installer integration", () => {
 
       expect(workflow).toBe(readPackageFile(".make-docs/references/system/design-workflow.md"));
       expect(
-        existsSync(path.join(targetDir, ".make-docs/references/system/prompts/designs-to-plan.prompt.md")),
+        existsSync(path.join(targetDir, ".make-docs/system/prompts/designs-to-plan.prompt.md")),
       ).toBe(false);
       expect(docsRouter).toContain("docs/designs/");
     } finally {
@@ -1312,13 +1312,13 @@ describe("installer integration", () => {
 
       expect(existsSync(path.join(targetDir, "docs/plans/AGENTS.md"))).toBe(true);
       expect(
-        existsSync(path.join(targetDir, ".make-docs/references/system/prompts/session-to-history-record.prompt.md")),
+        existsSync(path.join(targetDir, ".make-docs/system/prompts/session-to-history-record.prompt.md")),
       ).toBe(true);
       expect(
-        existsSync(path.join(targetDir, ".make-docs/references/system/prompts/plan-to-prd-green-field.prompt.md")),
+        existsSync(path.join(targetDir, ".make-docs/system/prompts/plan-to-prd-green-field.prompt.md")),
       ).toBe(false);
       expect(
-        existsSync(path.join(targetDir, ".make-docs/references/system/prompts/prd-to-work-full-prd.prompt.md")),
+        existsSync(path.join(targetDir, ".make-docs/system/prompts/prd-to-work-full-prd.prompt.md")),
       ).toBe(false);
     } finally {
       cleanupTempDir(targetDir);
@@ -1337,10 +1337,10 @@ describe("installer integration", () => {
       expect(existsSync(path.join(targetDir, "docs/prd/AGENTS.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/work/AGENTS.md"))).toBe(false);
       expect(
-        existsSync(path.join(targetDir, ".make-docs/references/system/prompts/plan-to-prd-green-field.prompt.md")),
+        existsSync(path.join(targetDir, ".make-docs/system/prompts/plan-to-prd-green-field.prompt.md")),
       ).toBe(true);
       expect(
-        existsSync(path.join(targetDir, ".make-docs/references/system/prompts/prd-to-work-full-prd.prompt.md")),
+        existsSync(path.join(targetDir, ".make-docs/system/prompts/prd-to-work-full-prd.prompt.md")),
       ).toBe(false);
     } finally {
       cleanupTempDir(targetDir);
@@ -1477,6 +1477,14 @@ describe("installer integration", () => {
         profileId: profile.profileId,
         selections,
         effectiveCapabilities: profile.effectiveCapabilities,
+        systemAssetMaterialization: {
+          mode: "full-snapshot" as const,
+          localBootstrapPaths: [],
+          deferredSystemAssetPaths: [],
+          materializationClasses: {},
+          recoveryGuidance: "legacy instruction fixture",
+          assets: {},
+        },
         files: {
           "AGENTS.md": {
             hash: hashText(legacyContent),
@@ -1554,6 +1562,14 @@ describe("installer integration", () => {
         profileId: profile.profileId,
         selections,
         effectiveCapabilities: profile.effectiveCapabilities,
+        systemAssetMaterialization: {
+          mode: "full-snapshot" as const,
+          localBootstrapPaths: [],
+          deferredSystemAssetPaths: [],
+          materializationClasses: {},
+          recoveryGuidance: "legacy instruction fixture",
+          assets: {},
+        },
         files: {
           "AGENTS.md": {
             hash: hashText(LEGACY_W17_AGENTS_BODY),
@@ -2094,17 +2110,17 @@ describe("installer integration", () => {
       });
 
       expect(existsSync(path.join(targetDir, "docs/work/AGENTS.md"))).toBe(false);
-      expect(existsSync(path.join(targetDir, ".make-docs/references/system/prompts/designs-to-plan.prompt.md"))).toBe(
+      expect(existsSync(path.join(targetDir, ".make-docs/system/prompts/designs-to-plan.prompt.md"))).toBe(
         true,
       );
-      expect(existsSync(path.join(targetDir, ".make-docs/references/system/prompts/prd-to-work-full-prd.prompt.md"))).toBe(
+      expect(existsSync(path.join(targetDir, ".make-docs/system/prompts/prd-to-work-full-prd.prompt.md"))).toBe(
         false,
       );
 
       await installWithSelections(targetDir, () => {});
 
       expect(existsSync(path.join(targetDir, "docs/work/AGENTS.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, ".make-docs/references/system/prompts/designs-to-plan.prompt.md"))).toBe(
+      expect(existsSync(path.join(targetDir, ".make-docs/system/prompts/designs-to-plan.prompt.md"))).toBe(
         true,
       );
     } finally {

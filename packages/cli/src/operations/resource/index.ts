@@ -1,4 +1,5 @@
 export * from "./identity";
+export * from "./ops";
 export * from "./provider";
 export {
   ensureSystemResource,

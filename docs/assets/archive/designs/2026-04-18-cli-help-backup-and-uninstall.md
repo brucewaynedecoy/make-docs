@@ -190,5 +190,5 @@ The goal is not ornamental UI. The goal is to make destructive and semi-destruct
 ## Intended Follow-On
 
 - Route: `baseline-plan`
-- Next Prompt: [designs-to-plan.prompt.md](../.prompts/designs-to-plan.prompt.md)
+- Next Prompt: [designs-to-plan.prompt.md](../../../../.make-docs/system/prompts/designs-to-plan.prompt.md)
 - Why: this is a new end-to-end initiative with new commands, a new shared audit subsystem, and a broader CLI UX surface that should be planned as a fresh baseline rather than as an incremental change to the prior skill-installation wave.

@@ -169,7 +169,7 @@ export async function createCompatibilityFixture(
       writeFixtureFile(targetDir, "notes/AGENTS.md", "# Local notes agent file\n");
       break;
     default:
-      fixtureCase.id satisfies never;
+      throw new Error(`Unsupported compatibility fixture: ${fixtureCase.id}`);
   }
 
   return {
@@ -240,7 +240,6 @@ function markFirstSystemAssetProviderUnavailable(targetDir: string): void {
   const firstEntry = Object.values(manifest.systemAssetMaterialization.assets)[0];
   if (firstEntry !== undefined) {
     firstEntry.sourceProvider = "unavailable-test-provider";
-    firstEntry.recoveryBehavior = "fail-closed";
   }
   writeManifest(targetDir, manifest);
 }

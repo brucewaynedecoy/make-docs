@@ -141,6 +141,10 @@ export type SystemResourceResolvedSource =
   | "managed-projection"
   | "project-override";
 
+export const SYSTEM_RESOURCE_ORIGINS = ["effective", "local", "installed"] as const;
+
+export type SystemResourceOrigin = (typeof SYSTEM_RESOURCE_ORIGINS)[number];
+
 export interface SystemResourceProvenance {
   source: SystemResourceResolvedSource;
   provider: SystemResourceProviderIdentity | null;

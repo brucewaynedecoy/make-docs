@@ -96,7 +96,7 @@ describe("tool directory model", () => {
     expect(getLegacyToolResourceFamily("docs/assets/archive/history/session.md")).toBeNull();
     expect(
       getLegacyToolResourceFamily(
-        ".make-docs/references/system/prompts/work-to-guides.prompt.md",
+        ".make-docs/system/prompts/work-to-guides.prompt.md",
       ),
     ).toBeNull();
 
@@ -104,7 +104,7 @@ describe("tool directory model", () => {
       getSystemToolResourceMigrationTarget(
         "docs/assets/prompts/work-to-guides.prompt.md",
       ),
-    ).toBe(".make-docs/references/system/prompts/work-to-guides.prompt.md");
+    ).toBe(".make-docs/system/prompts/work-to-guides.prompt.md");
     expect(
       getSystemToolResourceMigrationTarget(
         "docs/assets/references/lifecycle.md",
@@ -135,7 +135,7 @@ describe("tool directory model", () => {
       {
         currentPath: "docs/assets/prompts/work-to-guides.prompt.md",
         family: "prompts",
-        targetPath: ".make-docs/references/system/prompts/work-to-guides.prompt.md",
+        targetPath: ".make-docs/system/prompts/work-to-guides.prompt.md",
         tier: "system",
       },
       {
@@ -182,7 +182,7 @@ describe("tool directory model", () => {
     );
     expect(
       isToolDirectoryLocalBootstrapPath(
-        ".make-docs/references/system/prompts/work-to-guides.prompt.md",
+        ".make-docs/system/prompts/work-to-guides.prompt.md",
       ),
     ).toBe(false);
   });

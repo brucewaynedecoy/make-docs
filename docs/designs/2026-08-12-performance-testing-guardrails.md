@@ -4,7 +4,7 @@ kind: "design"
 status: "draft"
 follow_on:
   route: "change-plan"
-  next_prompt: ".make-docs/references/system/prompts/designs-to-plan-change.prompt.md"
+  next_prompt: ".make-docs/system/prompts/designs-to-plan-change.prompt.md"
   why: "The design establishes a new product capability while requiring coordinated maintenance of existing lifecycle, template, state, compatibility, CLI, conformance, UAT, and support-claim authorities."
   coordinate_handoff: "unresolved; planner must resolve before writing."
 source:
@@ -341,7 +341,7 @@ The exact number in an individual target, statistical treatment, sample approach
 ## Intended Follow-On
 
 - Route: `change-plan`
-- Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/references/system/prompts/designs-to-plan-change.prompt.md)
+- Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/system/prompts/designs-to-plan-change.prompt.md)
 - Why: The accepted design would establish a new coherent capability PRD and surgically reconcile existing PRD consumers, lifecycle resources, templates, prompts, routers, compatibility guidance, state boundaries, and optional future TypeScript validation against the active product namespace.
 - Coordinate Handoff: unresolved; planner must resolve before writing.
 - Design Approval Gate: The owner accepts this document as design authority only by using the exact statement below. Review comments, draft-file acceptance, Orca task completion, approval of individual decisions, or acceptance of the sibling recovery design do not authorize planning.

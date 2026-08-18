@@ -2,6 +2,7 @@ import { mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "nod
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+import { createAuditReport } from "../src/audit";
 import {
   applyInstallPlan,
   applySkillsOnlyInstallPlan,
@@ -10,7 +11,11 @@ import {
 } from "../src/install";
 import { loadManifest } from "../src/manifest";
 import { defaultSelections } from "../src/profile";
-import type { SystemAssetMaterializationMode } from "../src/types";
+import type {
+  AuditReport,
+  InstallManifest,
+  SystemAssetMaterializationMode,
+} from "../src/types";
 import { hashText, readPackageFile } from "../src/utils";
 import { cleanupTempDir, createTempDir, mockSkillFetches } from "./helpers";
 
@@ -23,14 +28,6 @@ type AuditEntryView = {
   reason?: string;
   scope?: string;
 };
-
-const AUDIT_FUNCTION_NAMES = [
-  "createAuditReport",
-  "createSharedAuditReport",
-  "runAudit",
-  "auditMakeDocs",
-  "auditLifecyclePaths",
-] as const;
 
 const REMOVABLE_BUCKETS = [
   "removableFiles",
@@ -372,7 +369,10 @@ function collectAllEntries(report: unknown): AuditEntryView[] {
   return entries;
 }
 
-function findEntry(entries: AuditEntryView[], expectedPath: string): AuditEntryView | undefined {
+function findEntry<T extends { path: string }>(
+  entries: readonly T[],
+  expectedPath: string,
+): T | undefined {
   const normalizedExpectedPath = normalizePath(expectedPath);
   return entries.find((entry) => entry.path === normalizedExpectedPath);
 }
@@ -421,35 +421,14 @@ function expectAuditMode(report: unknown, expectedMode: "manifest-present" | "ma
   expect(actualMode?.toLowerCase()).toContain(expectedMode);
 }
 
-async function runAudit(options: { targetDir: string; manifest?: unknown | null }): Promise<unknown> {
-  const modulePath = "../src/audit";
-  const auditModule = (await import(modulePath)) as UnknownRecord;
-  const auditFn = AUDIT_FUNCTION_NAMES.map((name) => auditModule[name]).find(
-    (candidate): candidate is (...args: unknown[]) => unknown => typeof candidate === "function",
-  );
-
-  expect(
-    auditFn,
-    `expected ${modulePath} to export one of ${AUDIT_FUNCTION_NAMES.join(", ")}`,
-  ).toBeTypeOf("function");
-
-  const attempts = [
-    () => auditFn!({ targetDir: options.targetDir, manifest: options.manifest ?? null }),
-    () => auditFn!({ targetDir: options.targetDir }),
-    () => auditFn!(options.targetDir, options.manifest ?? null),
-    () => auditFn!(options.targetDir),
-  ];
-
-  let lastError: unknown;
-  for (const attempt of attempts) {
-    try {
-      return await attempt();
-    } catch (error) {
-      lastError = error;
-    }
-  }
-
-  throw lastError;
+async function runAudit(options: {
+  targetDir: string;
+  manifest?: InstallManifest | null;
+}): Promise<AuditReport> {
+  return createAuditReport({
+    targetDir: options.targetDir,
+    manifest: options.manifest ?? null,
+  });
 }
 
 describe("shared audit engine", () => {
@@ -461,6 +440,12 @@ describe("shared audit engine", () => {
     vi.restoreAllMocks();
     vi.unstubAllEnvs();
     vi.unstubAllGlobals();
+  });
+
+  test("rejects a missing target directory before path resolution", async () => {
+    await expect(
+      createAuditReport({ targetDir: undefined } as unknown as { targetDir: string }),
+    ).rejects.toThrow("Audit targetDir must be a non-empty string.");
   });
 
   test("covers manifest-present audit with managed docs files, skill files, and exact-match root instructions", async () => {
@@ -953,6 +938,39 @@ describe("shared audit engine", () => {
       expect(preservedClaude, summarizeAudit(report)).toBeDefined();
       expect(typeof preservedAgents?.reason, summarizeAudit(report)).toBe("string");
       expect(typeof preservedClaude?.reason, summarizeAudit(report)).toBe("string");
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("preserves user text outside a matching instruction managed block without a mismatch", async () => {
+    const targetDir = createTempDir();
+
+    try {
+      const manifest = await installWithSelections(targetDir, () => {});
+      const agentsPath = path.join(targetDir, "AGENTS.md");
+      writeFileSync(
+        agentsPath,
+        `${readFileSync(agentsPath, "utf8")}\n# Project Instructions\n\nKeep this text.\n`,
+        "utf8",
+      );
+
+      const report = await runAudit({ targetDir, manifest });
+
+      expect(report.preservedPaths).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            path: "AGENTS.md",
+            reasonCode: "instruction-user-content-preserved",
+          }),
+        ]),
+      );
+      expect(
+        report.preservedPaths.some(
+          (entry) =>
+            entry.path === "AGENTS.md" && entry.reasonCode === "instruction-content-mismatch",
+        ),
+      ).toBe(false);
     } finally {
       cleanupTempDir(targetDir);
     }

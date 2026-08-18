@@ -146,6 +146,6 @@ Existing installed projects should remain understandable after upgrade. Migratio
 ## Intended Follow-On
 
 - Route: `change-plan`
-- Next Prompt: [designs-to-plan-change.prompt.md](../../prompts/designs-to-plan-change.prompt.md)
+- Next Prompt: [designs-to-plan-change.prompt.md](../../../../.make-docs/system/prompts/designs-to-plan-change.prompt.md)
 - Why: this is a targeted revision to existing CLI skill installation, registry, manifest, and wizard behavior rather than a new baseline planning track.
 - Coordinate Handoff: related completed coordinate is `W5 R2` for CLI-managed skill installation. Recommended downstream coordinate is `W14 R0` if planned together with the CLI asset-selection simplification work, otherwise the next available `W14` revision; planner should confirm coordinate availability before writing.

@@ -23,7 +23,10 @@ import { loadManifest } from "../src/manifest";
 import { defaultSelections } from "../src/profile";
 import { applySkillRegistrySelectionMetadata } from "../src/skill-catalog";
 import { loadEffectiveSkillRegistry } from "../src/skill-registry";
-import { runUninstallCommand } from "../src/uninstall";
+import {
+  runUninstallCommand,
+  type UninstallExecutionResult,
+} from "../src/uninstall";
 import type {
   AuditPreservedPath,
   AuditPrunableDirectory,
@@ -166,7 +169,7 @@ describe("lifecycle validation", () => {
         }),
       );
 
-      expect(result.status).toBe("completed");
+      expectCompletedUninstall(result);
       expect(result.removedFiles).not.toContain("AGENTS.md");
       expect(result.removedFiles).toContain("CLAUDE.md");
       expect(result.prunedDirectories).not.toContain(".make-docs/templates");
@@ -306,6 +309,7 @@ describe("lifecycle validation", () => {
           permissions: "allow-all",
         }),
       );
+      expectCompletedUninstall(uninstallResult);
       expect(uninstallResult.removedFiles).toContain(
         ".make-docs/agentics/skills/acme-release/SKILL.md",
       );
@@ -908,4 +912,13 @@ function createRecordingLifecycleRenderer(events: string[]): LifecycleRenderer {
       events.push("uninstall:failure-summary");
     },
   };
+}
+
+function expectCompletedUninstall(
+  result: UninstallExecutionResult,
+): asserts result is Extract<UninstallExecutionResult, { status: "completed" }> {
+  expect(result.status).toBe("completed");
+  if (result.status !== "completed") {
+    throw new Error(`Expected completed uninstall, received ${result.status}.`);
+  }
 }

@@ -3,7 +3,7 @@
   "projectId": "831ddb50-b97a-47e2-9f2c-f491b27b8759",
   "packageName": "@brucewaynedecoy/make-docs",
   "packageVersion": "2.0.0-rc",
-  "updatedAt": "2026-08-09T00:06:06.453Z",
+  "updatedAt": "2026-08-18T20:01:54.465Z",
   "profileId": "c56f4ca1277d6e58",
   "selections": {
     "capabilities": {
@@ -80,25 +80,25 @@
       ".make-docs/references/system/path-and-link-hygiene.md": "materialized-system-asset",
       ".make-docs/references/system/planning-workflow.md": "materialized-system-asset",
       ".make-docs/references/system/prd-change-management.md": "materialized-system-asset",
-      ".make-docs/references/system/prompts/AGENTS.md": "materialized-system-asset",
-      ".make-docs/references/system/prompts/CLAUDE.md": "materialized-system-asset",
-      ".make-docs/references/system/prompts/coverage-pass-developer-guide.prompt.md": "materialized-system-asset",
-      ".make-docs/references/system/prompts/coverage-pass-prd-reconciliation.prompt.md": "materialized-system-asset",
-      ".make-docs/references/system/prompts/coverage-pass-testing-uat.prompt.md": "materialized-system-asset",
-      ".make-docs/references/system/prompts/coverage-pass-user-guide.prompt.md": "materialized-system-asset",
-      ".make-docs/references/system/prompts/designs-to-plan-change.prompt.md": "materialized-system-asset",
-      ".make-docs/references/system/prompts/designs-to-plan.prompt.md": "materialized-system-asset",
-      ".make-docs/references/system/prompts/docs-path-hygiene-cleanup.prompt.md": "materialized-system-asset",
-      ".make-docs/references/system/prompts/plan-to-prd-change.prompt.md": "materialized-system-asset",
-      ".make-docs/references/system/prompts/plan-to-prd-green-field.prompt.md": "materialized-system-asset",
-      ".make-docs/references/system/prompts/prd-change-to-work.prompt.md": "materialized-system-asset",
-      ".make-docs/references/system/prompts/prd-to-work-full-prd.prompt.md": "materialized-system-asset",
-      ".make-docs/references/system/prompts/prd-to-work-prd-feature.prompt.md": "materialized-system-asset",
-      ".make-docs/references/system/prompts/request-to-design.prompt.md": "materialized-system-asset",
-      ".make-docs/references/system/prompts/session-to-history-record.prompt.md": "materialized-system-asset",
-      ".make-docs/references/system/prompts/update-readme-green-field.prompt.md": "materialized-system-asset",
-      ".make-docs/references/system/prompts/work-to-commit-message.prompt.md": "materialized-system-asset",
-      ".make-docs/references/system/prompts/work-to-guides.prompt.md": "materialized-system-asset",
+      ".make-docs/system/prompts/AGENTS.md": "materialized-system-asset",
+      ".make-docs/system/prompts/CLAUDE.md": "materialized-system-asset",
+      ".make-docs/system/prompts/coverage-pass-developer-guide.prompt.md": "materialized-system-asset",
+      ".make-docs/system/prompts/coverage-pass-prd-reconciliation.prompt.md": "materialized-system-asset",
+      ".make-docs/system/prompts/coverage-pass-testing-uat.prompt.md": "materialized-system-asset",
+      ".make-docs/system/prompts/coverage-pass-user-guide.prompt.md": "materialized-system-asset",
+      ".make-docs/system/prompts/designs-to-plan-change.prompt.md": "materialized-system-asset",
+      ".make-docs/system/prompts/designs-to-plan.prompt.md": "materialized-system-asset",
+      ".make-docs/system/prompts/docs-path-hygiene-cleanup.prompt.md": "materialized-system-asset",
+      ".make-docs/system/prompts/plan-to-prd-change.prompt.md": "materialized-system-asset",
+      ".make-docs/system/prompts/plan-to-prd-green-field.prompt.md": "materialized-system-asset",
+      ".make-docs/system/prompts/prd-change-to-work.prompt.md": "materialized-system-asset",
+      ".make-docs/system/prompts/prd-to-work-full-prd.prompt.md": "materialized-system-asset",
+      ".make-docs/system/prompts/prd-to-work-prd-feature.prompt.md": "materialized-system-asset",
+      ".make-docs/system/prompts/request-to-design.prompt.md": "materialized-system-asset",
+      ".make-docs/system/prompts/session-to-history-record.prompt.md": "materialized-system-asset",
+      ".make-docs/system/prompts/update-readme-green-field.prompt.md": "materialized-system-asset",
+      ".make-docs/system/prompts/work-to-commit-message.prompt.md": "materialized-system-asset",
+      ".make-docs/system/prompts/work-to-guides.prompt.md": "materialized-system-asset",
       ".make-docs/references/system/wave-model.md": "materialized-system-asset",
       ".make-docs/scripts/check_path_hygiene.py": "materialized-system-asset",
       ".make-docs/templates/system/AGENTS.md": "materialized-system-asset",
@@ -138,7 +138,13 @@
       "docs/prd/AGENTS.md": "materialized-system-asset",
       "docs/prd/CLAUDE.md": "materialized-system-asset",
       "docs/work/AGENTS.md": "materialized-system-asset",
-      "docs/work/CLAUDE.md": "materialized-system-asset"
+      "docs/work/CLAUDE.md": "materialized-system-asset",
+      ".make-docs/contracts/system/system-resource-contract.md": "materialized-system-asset",
+      ".make-docs/references/system/naive-uat-workflow.md": "materialized-system-asset",
+      ".make-docs/system-resources.catalog.json": "materialized-system-asset",
+      ".make-docs/system-resources.schema.json": "materialized-system-asset",
+      ".make-docs/system/prompts/naive-uat-facilitator.prompt.md": "materialized-system-asset",
+      ".make-docs/system/prompts/naive-uat-tester.prompt.md": "materialized-system-asset"
     },
     "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
     "assets": {
@@ -184,7 +190,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "414191eec5367dae28e5d6dd1e411017237fb97811666d1eaa19b3423e98b695"
+          "403eadf26cd7e102353cbc7e23d9cb748e3eec6bab0d80e93d3bf6b9bd411610"
         ],
         "logicalAssetId": "docs/AGENTS.md",
         "localPath": "docs/AGENTS.md",
@@ -201,7 +207,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "414191eec5367dae28e5d6dd1e411017237fb97811666d1eaa19b3423e98b695"
+          "403eadf26cd7e102353cbc7e23d9cb748e3eec6bab0d80e93d3bf6b9bd411610"
         ],
         "logicalAssetId": "docs/CLAUDE.md",
         "localPath": "docs/CLAUDE.md",
@@ -218,7 +224,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "5f295ff545f1ea5fb393a95fc1cbc63d811cd33b8e41771e09052437d28281bf"
+          "f9f2f86653666d46bb35674f58cbe85240b07026095b2a5eaf560e45354052ba"
         ],
         "logicalAssetId": ".make-docs/AGENTS.md",
         "localPath": ".make-docs/AGENTS.md",
@@ -235,7 +241,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "5f295ff545f1ea5fb393a95fc1cbc63d811cd33b8e41771e09052437d28281bf"
+          "f9f2f86653666d46bb35674f58cbe85240b07026095b2a5eaf560e45354052ba"
         ],
         "logicalAssetId": ".make-docs/CLAUDE.md",
         "localPath": ".make-docs/CLAUDE.md",
@@ -252,7 +258,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "2877a36dc085d7a0d37fb0c64d12ffa9c6ab48eb156734db62be6ad9262af50c"
+          "7dd0c6bd125417443b5d067a2ddb32757554a83fa7f034c02ba4e8ecf6a7f06d"
         ],
         "logicalAssetId": ".make-docs/contracts/system/AGENTS.md",
         "localPath": ".make-docs/contracts/system/AGENTS.md",
@@ -269,7 +275,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "2877a36dc085d7a0d37fb0c64d12ffa9c6ab48eb156734db62be6ad9262af50c"
+          "7dd0c6bd125417443b5d067a2ddb32757554a83fa7f034c02ba4e8ecf6a7f06d"
         ],
         "logicalAssetId": ".make-docs/contracts/system/CLAUDE.md",
         "localPath": ".make-docs/contracts/system/CLAUDE.md",
@@ -303,7 +309,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "30ebca92adb62a969f55e174be0fd517ff0be269839ff72c4bbfa9372ae24291"
+          "625c43c8ea96bca63dd2566850a6aa3ee28e91a363cb7cd8d65aad16f91f27d3"
         ],
         "logicalAssetId": ".make-docs/contracts/system/coverage-pass-contract.md",
         "localPath": ".make-docs/contracts/system/coverage-pass-contract.md",
@@ -354,7 +360,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "bcef5ca7982eb1f2215f920390c99fbbd26c6f8fa83e566d63529cd3fc1e7f12"
+          "48896d629dcbd6450c5fbc8d80ebdc64c16a8289ca7c5184bb55a01c3678a36e"
         ],
         "logicalAssetId": ".make-docs/contracts/system/history-record-contract.md",
         "localPath": ".make-docs/contracts/system/history-record-contract.md",
@@ -371,7 +377,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "8bdb779879575fc3a4e3d404d3b26c47a1a62883cc446adf1ef4d43bcb9cf601"
+          "5b9e8474c5450ed759d452052cf9cd4a38914a5b8f292ead7ce9e76e6f0111be"
         ],
         "logicalAssetId": ".make-docs/contracts/system/output-contract.md",
         "localPath": ".make-docs/contracts/system/output-contract.md",
@@ -405,7 +411,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "e83101cf55190f6e1999cdc1b3f6a72d110bebbf7ef87a78e1f04b555daf2053"
+          "382aa4623aa5f8cff67d86d38a947145a6e9c5e4bfb1de4f63825070bbe6126f"
         ],
         "logicalAssetId": ".make-docs/references/system/AGENTS.md",
         "localPath": ".make-docs/references/system/AGENTS.md",
@@ -422,7 +428,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "e83101cf55190f6e1999cdc1b3f6a72d110bebbf7ef87a78e1f04b555daf2053"
+          "382aa4623aa5f8cff67d86d38a947145a6e9c5e4bfb1de4f63825070bbe6126f"
         ],
         "logicalAssetId": ".make-docs/references/system/CLAUDE.md",
         "localPath": ".make-docs/references/system/CLAUDE.md",
@@ -439,7 +445,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "0ce0f23a0cdda585666141ed0bcd355f74f6d172100160a14d6f5c31105f0fe0"
+          "c1e15f8641677f193b3cb6787bb0417deb159daa51db0a24ea7fecb9171fd9be"
         ],
         "logicalAssetId": ".make-docs/references/system/design-workflow.md",
         "localPath": ".make-docs/references/system/design-workflow.md",
@@ -456,7 +462,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "9c43fdfdd714874a878768d3bc29f8d0fd271ba085b075a5327c4fbce46b4e18"
+          "dfaead44de0391fdba62bdcdd162d85fe21280d7fca1831327d482d9b9ced4cd"
         ],
         "logicalAssetId": ".make-docs/references/system/execution-workflow.md",
         "localPath": ".make-docs/references/system/execution-workflow.md",
@@ -490,7 +496,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "47639b364ce4a266ed260233658c4ac25c89782657a11061347378b57900f2f4"
+          "933d30e33e04f78fcb875b4cc44cc185fd45b5913ffcc821539e331a6d0e8156"
         ],
         "logicalAssetId": ".make-docs/references/system/lifecycle.md",
         "localPath": ".make-docs/references/system/lifecycle.md",
@@ -507,7 +513,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "20ccd340e8ecb36cd991832d7f16e5cbaa096cc24f55b71c9e550370846ee7c6"
+          "e062cb77ade8c6a86662499d56f59a2e1d744e8aff86e91f2db520a7b56feb2e"
         ],
         "logicalAssetId": ".make-docs/references/system/path-and-link-hygiene.md",
         "localPath": ".make-docs/references/system/path-and-link-hygiene.md",
@@ -524,7 +530,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "d3d73334069f86aa38747f6482a04860c42bb76aa8995e372383cc62a1b17626"
+          "efcc2f549cf0ac073cd37c8ce95e7914af0255a5ba84ce3d8fb53ac57636639b"
         ],
         "logicalAssetId": ".make-docs/references/system/planning-workflow.md",
         "localPath": ".make-docs/references/system/planning-workflow.md",
@@ -541,7 +547,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "8e9433b7b6379310b81f9434b58f6f3f84a7ca2bc4c0b7b2b37b125de8c70431"
+          "76b899f02fdd6f8bb73a1fbc60cf95b825836a96d758fa4cdc99815939cec773"
         ],
         "logicalAssetId": ".make-docs/references/system/prd-change-management.md",
         "localPath": ".make-docs/references/system/prd-change-management.md",
@@ -550,7 +556,7 @@
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
         "selectionTrigger": "profile-selection"
       },
-      ".make-docs/references/system/prompts/AGENTS.md": {
+      ".make-docs/system/prompts/AGENTS.md": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
@@ -558,16 +564,16 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "0ee2bcd1bbe7243bdfcc33222d2af6adade3b85732054b92f929243773e28e0a"
+          "53f3dd8d885745422b2ad21e047671c2355edfc936fd7a3dab810ab8cfd377f3"
         ],
-        "logicalAssetId": ".make-docs/references/system/prompts/AGENTS.md",
-        "localPath": ".make-docs/references/system/prompts/AGENTS.md",
+        "logicalAssetId": ".make-docs/system/prompts/AGENTS.md",
+        "localPath": ".make-docs/system/prompts/AGENTS.md",
         "materializationClass": "materialized-system-asset",
         "offlineExpectation": "local",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
         "selectionTrigger": "profile-selection"
       },
-      ".make-docs/references/system/prompts/CLAUDE.md": {
+      ".make-docs/system/prompts/CLAUDE.md": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
@@ -575,16 +581,16 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "0ee2bcd1bbe7243bdfcc33222d2af6adade3b85732054b92f929243773e28e0a"
+          "53f3dd8d885745422b2ad21e047671c2355edfc936fd7a3dab810ab8cfd377f3"
         ],
-        "logicalAssetId": ".make-docs/references/system/prompts/CLAUDE.md",
-        "localPath": ".make-docs/references/system/prompts/CLAUDE.md",
+        "logicalAssetId": ".make-docs/system/prompts/CLAUDE.md",
+        "localPath": ".make-docs/system/prompts/CLAUDE.md",
         "materializationClass": "materialized-system-asset",
         "offlineExpectation": "local",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
         "selectionTrigger": "profile-selection"
       },
-      ".make-docs/references/system/prompts/coverage-pass-developer-guide.prompt.md": {
+      ".make-docs/system/prompts/coverage-pass-developer-guide.prompt.md": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
@@ -592,16 +598,16 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "be187cdd8a5850504a2573d2c28195c00da3f325b6ceb3b8a2eb4bb3f75b340f"
+          "76b40838cabec13f8f25532bda6f1928f60596b29d8e7437b7cf030bd2bf64c2"
         ],
-        "logicalAssetId": ".make-docs/references/system/prompts/coverage-pass-developer-guide.prompt.md",
-        "localPath": ".make-docs/references/system/prompts/coverage-pass-developer-guide.prompt.md",
+        "logicalAssetId": ".make-docs/system/prompts/coverage-pass-developer-guide.prompt.md",
+        "localPath": ".make-docs/system/prompts/coverage-pass-developer-guide.prompt.md",
         "materializationClass": "materialized-system-asset",
         "offlineExpectation": "local",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
         "selectionTrigger": "profile-selection"
       },
-      ".make-docs/references/system/prompts/coverage-pass-prd-reconciliation.prompt.md": {
+      ".make-docs/system/prompts/coverage-pass-prd-reconciliation.prompt.md": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
@@ -609,16 +615,16 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "d54a2391fe20d7b1c34afaf32346c6d775c8af0d56f3848a7b37ffb87c52e791"
+          "53ca36a8bf4ae188db80b4cc371dd8c0cc2f88963cb34010c41a133b968c546f"
         ],
-        "logicalAssetId": ".make-docs/references/system/prompts/coverage-pass-prd-reconciliation.prompt.md",
-        "localPath": ".make-docs/references/system/prompts/coverage-pass-prd-reconciliation.prompt.md",
+        "logicalAssetId": ".make-docs/system/prompts/coverage-pass-prd-reconciliation.prompt.md",
+        "localPath": ".make-docs/system/prompts/coverage-pass-prd-reconciliation.prompt.md",
         "materializationClass": "materialized-system-asset",
         "offlineExpectation": "local",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
         "selectionTrigger": "profile-selection"
       },
-      ".make-docs/references/system/prompts/coverage-pass-testing-uat.prompt.md": {
+      ".make-docs/system/prompts/coverage-pass-testing-uat.prompt.md": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
@@ -626,16 +632,16 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "c1127042043abc6a20d5aea316ca6140363ba2ca9ffd1c057dc34b00110f15dc"
+          "ed9aaa6b3e9377199f74f75075ab46be584124fdd9d18ce82fb3ffd94eab09a8"
         ],
-        "logicalAssetId": ".make-docs/references/system/prompts/coverage-pass-testing-uat.prompt.md",
-        "localPath": ".make-docs/references/system/prompts/coverage-pass-testing-uat.prompt.md",
+        "logicalAssetId": ".make-docs/system/prompts/coverage-pass-testing-uat.prompt.md",
+        "localPath": ".make-docs/system/prompts/coverage-pass-testing-uat.prompt.md",
         "materializationClass": "materialized-system-asset",
         "offlineExpectation": "local",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
         "selectionTrigger": "profile-selection"
       },
-      ".make-docs/references/system/prompts/coverage-pass-user-guide.prompt.md": {
+      ".make-docs/system/prompts/coverage-pass-user-guide.prompt.md": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
@@ -643,16 +649,16 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "f384d0a6f03bb701b351bf159b66193accba3149866fe48eaa401b474cc8ea6c"
+          "cfdd644f05872163dd7db397327b500e2557def42156b4e8ceb5441b9e6f74e8"
         ],
-        "logicalAssetId": ".make-docs/references/system/prompts/coverage-pass-user-guide.prompt.md",
-        "localPath": ".make-docs/references/system/prompts/coverage-pass-user-guide.prompt.md",
+        "logicalAssetId": ".make-docs/system/prompts/coverage-pass-user-guide.prompt.md",
+        "localPath": ".make-docs/system/prompts/coverage-pass-user-guide.prompt.md",
         "materializationClass": "materialized-system-asset",
         "offlineExpectation": "local",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
         "selectionTrigger": "profile-selection"
       },
-      ".make-docs/references/system/prompts/designs-to-plan-change.prompt.md": {
+      ".make-docs/system/prompts/designs-to-plan-change.prompt.md": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
@@ -662,14 +668,14 @@
         "expectedHashes": [
           "6119ab60dcd92a8929cc700a317c47cd6d6382b3ddafd02328e39b255321c62c"
         ],
-        "logicalAssetId": ".make-docs/references/system/prompts/designs-to-plan-change.prompt.md",
-        "localPath": ".make-docs/references/system/prompts/designs-to-plan-change.prompt.md",
+        "logicalAssetId": ".make-docs/system/prompts/designs-to-plan-change.prompt.md",
+        "localPath": ".make-docs/system/prompts/designs-to-plan-change.prompt.md",
         "materializationClass": "materialized-system-asset",
         "offlineExpectation": "local",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
         "selectionTrigger": "profile-selection"
       },
-      ".make-docs/references/system/prompts/designs-to-plan.prompt.md": {
+      ".make-docs/system/prompts/designs-to-plan.prompt.md": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
@@ -679,14 +685,14 @@
         "expectedHashes": [
           "03756aa3c05bb8889ed2b8b9fddc6b77b4d6ee8a79584dda4728929167688910"
         ],
-        "logicalAssetId": ".make-docs/references/system/prompts/designs-to-plan.prompt.md",
-        "localPath": ".make-docs/references/system/prompts/designs-to-plan.prompt.md",
+        "logicalAssetId": ".make-docs/system/prompts/designs-to-plan.prompt.md",
+        "localPath": ".make-docs/system/prompts/designs-to-plan.prompt.md",
         "materializationClass": "materialized-system-asset",
         "offlineExpectation": "local",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
         "selectionTrigger": "profile-selection"
       },
-      ".make-docs/references/system/prompts/docs-path-hygiene-cleanup.prompt.md": {
+      ".make-docs/system/prompts/docs-path-hygiene-cleanup.prompt.md": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
@@ -696,14 +702,14 @@
         "expectedHashes": [
           "05b093f3349089d6e2acca71e1a1f5dac6ded6aeacbc66f883f91a4d0576e3a1"
         ],
-        "logicalAssetId": ".make-docs/references/system/prompts/docs-path-hygiene-cleanup.prompt.md",
-        "localPath": ".make-docs/references/system/prompts/docs-path-hygiene-cleanup.prompt.md",
+        "logicalAssetId": ".make-docs/system/prompts/docs-path-hygiene-cleanup.prompt.md",
+        "localPath": ".make-docs/system/prompts/docs-path-hygiene-cleanup.prompt.md",
         "materializationClass": "materialized-system-asset",
         "offlineExpectation": "local",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
         "selectionTrigger": "profile-selection"
       },
-      ".make-docs/references/system/prompts/plan-to-prd-change.prompt.md": {
+      ".make-docs/system/prompts/plan-to-prd-change.prompt.md": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
@@ -713,14 +719,14 @@
         "expectedHashes": [
           "1ab2f2edaea340b28040a67c873b6f5095824a7551767f4d18afb89746c2c66f"
         ],
-        "logicalAssetId": ".make-docs/references/system/prompts/plan-to-prd-change.prompt.md",
-        "localPath": ".make-docs/references/system/prompts/plan-to-prd-change.prompt.md",
+        "logicalAssetId": ".make-docs/system/prompts/plan-to-prd-change.prompt.md",
+        "localPath": ".make-docs/system/prompts/plan-to-prd-change.prompt.md",
         "materializationClass": "materialized-system-asset",
         "offlineExpectation": "local",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
         "selectionTrigger": "profile-selection"
       },
-      ".make-docs/references/system/prompts/plan-to-prd-green-field.prompt.md": {
+      ".make-docs/system/prompts/plan-to-prd-green-field.prompt.md": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
@@ -730,14 +736,14 @@
         "expectedHashes": [
           "dc8a99a88db72626dc9e0ae6bb05aad81a96e5d9fdc2c43d401b731c9e6c3999"
         ],
-        "logicalAssetId": ".make-docs/references/system/prompts/plan-to-prd-green-field.prompt.md",
-        "localPath": ".make-docs/references/system/prompts/plan-to-prd-green-field.prompt.md",
+        "logicalAssetId": ".make-docs/system/prompts/plan-to-prd-green-field.prompt.md",
+        "localPath": ".make-docs/system/prompts/plan-to-prd-green-field.prompt.md",
         "materializationClass": "materialized-system-asset",
         "offlineExpectation": "local",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
         "selectionTrigger": "profile-selection"
       },
-      ".make-docs/references/system/prompts/prd-change-to-work.prompt.md": {
+      ".make-docs/system/prompts/prd-change-to-work.prompt.md": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
@@ -747,14 +753,14 @@
         "expectedHashes": [
           "6d68b7447804028272e62258728b45e848b1c6c57edbc497fd25ec5d373d7c5b"
         ],
-        "logicalAssetId": ".make-docs/references/system/prompts/prd-change-to-work.prompt.md",
-        "localPath": ".make-docs/references/system/prompts/prd-change-to-work.prompt.md",
+        "logicalAssetId": ".make-docs/system/prompts/prd-change-to-work.prompt.md",
+        "localPath": ".make-docs/system/prompts/prd-change-to-work.prompt.md",
         "materializationClass": "materialized-system-asset",
         "offlineExpectation": "local",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
         "selectionTrigger": "profile-selection"
       },
-      ".make-docs/references/system/prompts/prd-to-work-full-prd.prompt.md": {
+      ".make-docs/system/prompts/prd-to-work-full-prd.prompt.md": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
@@ -764,14 +770,14 @@
         "expectedHashes": [
           "aee80bf8b797ba32a03bc2074a323698732d58f6338d735a1d555928445bcef0"
         ],
-        "logicalAssetId": ".make-docs/references/system/prompts/prd-to-work-full-prd.prompt.md",
-        "localPath": ".make-docs/references/system/prompts/prd-to-work-full-prd.prompt.md",
+        "logicalAssetId": ".make-docs/system/prompts/prd-to-work-full-prd.prompt.md",
+        "localPath": ".make-docs/system/prompts/prd-to-work-full-prd.prompt.md",
         "materializationClass": "materialized-system-asset",
         "offlineExpectation": "local",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
         "selectionTrigger": "profile-selection"
       },
-      ".make-docs/references/system/prompts/prd-to-work-prd-feature.prompt.md": {
+      ".make-docs/system/prompts/prd-to-work-prd-feature.prompt.md": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
@@ -781,14 +787,14 @@
         "expectedHashes": [
           "0a158f7d95252d2bb621d2dc062a6bae3c3d80770f8261fe577f70361bede579"
         ],
-        "logicalAssetId": ".make-docs/references/system/prompts/prd-to-work-prd-feature.prompt.md",
-        "localPath": ".make-docs/references/system/prompts/prd-to-work-prd-feature.prompt.md",
+        "logicalAssetId": ".make-docs/system/prompts/prd-to-work-prd-feature.prompt.md",
+        "localPath": ".make-docs/system/prompts/prd-to-work-prd-feature.prompt.md",
         "materializationClass": "materialized-system-asset",
         "offlineExpectation": "local",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
         "selectionTrigger": "profile-selection"
       },
-      ".make-docs/references/system/prompts/request-to-design.prompt.md": {
+      ".make-docs/system/prompts/request-to-design.prompt.md": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
@@ -798,14 +804,14 @@
         "expectedHashes": [
           "0130bf77bdac039e26b921495e898d8b2a224bba2477c13721c996c852b90fc3"
         ],
-        "logicalAssetId": ".make-docs/references/system/prompts/request-to-design.prompt.md",
-        "localPath": ".make-docs/references/system/prompts/request-to-design.prompt.md",
+        "logicalAssetId": ".make-docs/system/prompts/request-to-design.prompt.md",
+        "localPath": ".make-docs/system/prompts/request-to-design.prompt.md",
         "materializationClass": "materialized-system-asset",
         "offlineExpectation": "local",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
         "selectionTrigger": "profile-selection"
       },
-      ".make-docs/references/system/prompts/session-to-history-record.prompt.md": {
+      ".make-docs/system/prompts/session-to-history-record.prompt.md": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
@@ -813,16 +819,16 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "dee4003a29b2ff9425c694e14c015096b9495818fbed25729dfa8052434bf879"
+          "3c43b89101a714b2f2e2a0a1d536886322ad015279b966c91d113b06ce529655"
         ],
-        "logicalAssetId": ".make-docs/references/system/prompts/session-to-history-record.prompt.md",
-        "localPath": ".make-docs/references/system/prompts/session-to-history-record.prompt.md",
+        "logicalAssetId": ".make-docs/system/prompts/session-to-history-record.prompt.md",
+        "localPath": ".make-docs/system/prompts/session-to-history-record.prompt.md",
         "materializationClass": "materialized-system-asset",
         "offlineExpectation": "local",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
         "selectionTrigger": "profile-selection"
       },
-      ".make-docs/references/system/prompts/update-readme-green-field.prompt.md": {
+      ".make-docs/system/prompts/update-readme-green-field.prompt.md": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
@@ -832,14 +838,14 @@
         "expectedHashes": [
           "2f695d40b34cf7d6c484401afc26584f834050d368fe38ba52c45ee3b2544fbf"
         ],
-        "logicalAssetId": ".make-docs/references/system/prompts/update-readme-green-field.prompt.md",
-        "localPath": ".make-docs/references/system/prompts/update-readme-green-field.prompt.md",
+        "logicalAssetId": ".make-docs/system/prompts/update-readme-green-field.prompt.md",
+        "localPath": ".make-docs/system/prompts/update-readme-green-field.prompt.md",
         "materializationClass": "materialized-system-asset",
         "offlineExpectation": "local",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
         "selectionTrigger": "profile-selection"
       },
-      ".make-docs/references/system/prompts/work-to-commit-message.prompt.md": {
+      ".make-docs/system/prompts/work-to-commit-message.prompt.md": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
@@ -849,14 +855,14 @@
         "expectedHashes": [
           "3ac9b9e6e208d898988dc6fb06eb718b0de85478ce2a0c1a7d8479b7875cff4d"
         ],
-        "logicalAssetId": ".make-docs/references/system/prompts/work-to-commit-message.prompt.md",
-        "localPath": ".make-docs/references/system/prompts/work-to-commit-message.prompt.md",
+        "logicalAssetId": ".make-docs/system/prompts/work-to-commit-message.prompt.md",
+        "localPath": ".make-docs/system/prompts/work-to-commit-message.prompt.md",
         "materializationClass": "materialized-system-asset",
         "offlineExpectation": "local",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
         "selectionTrigger": "profile-selection"
       },
-      ".make-docs/references/system/prompts/work-to-guides.prompt.md": {
+      ".make-docs/system/prompts/work-to-guides.prompt.md": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
         "sourceProvider": "package",
@@ -866,8 +872,8 @@
         "expectedHashes": [
           "a38a8e0885e3c100d8f9fca2ad3366cbdc6cbbe26f648f89fc1c7cb913fb8289"
         ],
-        "logicalAssetId": ".make-docs/references/system/prompts/work-to-guides.prompt.md",
-        "localPath": ".make-docs/references/system/prompts/work-to-guides.prompt.md",
+        "logicalAssetId": ".make-docs/system/prompts/work-to-guides.prompt.md",
+        "localPath": ".make-docs/system/prompts/work-to-guides.prompt.md",
         "materializationClass": "materialized-system-asset",
         "offlineExpectation": "local",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
@@ -915,7 +921,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "92862eb76d9a27d3fbb9becd011a9af2965abe3016a6b205a333839303a51f81"
+          "8046eb57271fe52d5f4804e3980120d004a5ccc0681cedaa7fb6f774d476769d"
         ],
         "logicalAssetId": ".make-docs/templates/system/AGENTS.md",
         "localPath": ".make-docs/templates/system/AGENTS.md",
@@ -932,7 +938,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "92862eb76d9a27d3fbb9becd011a9af2965abe3016a6b205a333839303a51f81"
+          "8046eb57271fe52d5f4804e3980120d004a5ccc0681cedaa7fb6f774d476769d"
         ],
         "logicalAssetId": ".make-docs/templates/system/CLAUDE.md",
         "localPath": ".make-docs/templates/system/CLAUDE.md",
@@ -949,7 +955,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "fd99d0be95d2d5e21c26acea1c8ea1ac8d6bdb5d1f73acb2f590bd0ececab4f7"
+          "14895b5db078b5afb34bc92dcfa1e17ad707b1a0b29e7aa06021333845f02ca0"
         ],
         "logicalAssetId": ".make-docs/templates/system/design.md",
         "localPath": ".make-docs/templates/system/design.md",
@@ -1000,7 +1006,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "f88984efa1976a7f91a128124a3383367b016323a9addc2bf8af437f45e035c6"
+          "1ce7627e56454563a12b9dac3528183ebd09a221fe9ed2201e4ebc32bfbd5bcf"
         ],
         "logicalAssetId": ".make-docs/templates/system/history-record.md",
         "localPath": ".make-docs/templates/system/history-record.md",
@@ -1119,7 +1125,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "523cebfb41b283a0148ff2a3f3741d2e41b2cd7649a29bf8235e0478c92f5f52"
+          "db8b9fc117dd0272dd2dbab541e0d5bcf22558da982ebcc27e4e10c59998feeb"
         ],
         "logicalAssetId": ".make-docs/templates/system/prd-index.md",
         "localPath": ".make-docs/templates/system/prd-index.md",
@@ -1170,7 +1176,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "5377f974e21f59f659ca839732a44e6281ee0300116388ce7ab4da2f36a2accc"
+          "9987df368071d8bf27daf6599a567fc4a63aa6d2dc88796faf7d80c93cf83628"
         ],
         "logicalAssetId": ".make-docs/templates/system/prd-risk-register.md",
         "localPath": ".make-docs/templates/system/prd-risk-register.md",
@@ -1204,7 +1210,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "ce4f6f6ca79c7989abe87b7d5c177315ea46cec8a433eb5d8b34f0117f20f937"
+          "37bab9084c037f60a7f22c82124cf60ea53f1ebe0965dc1fcd4ebb43fbcf9a9d"
         ],
         "logicalAssetId": ".make-docs/templates/system/work-index.md",
         "localPath": ".make-docs/templates/system/work-index.md",
@@ -1221,7 +1227,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "0f571d99e59d194b03ffb4c59272267c4be72b83c7e8babf239181630a55b6a2"
+          "9afaa13559872ef08313cee38354e1ad90284c91300a6d0a8afeda6682da7d4b"
         ],
         "logicalAssetId": ".make-docs/templates/system/work-phase.md",
         "localPath": ".make-docs/templates/system/work-phase.md",
@@ -1238,7 +1244,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "f8efe1dd9f7b43b10e56569e55345f81dd1fc824e9e25c6b1fa1023eaeb4ff36"
+          "718bc88490f3de521d9d7f1db5f7634642665f560b8ff0187018ec0aaaef16df"
         ],
         "logicalAssetId": "docs/assets/AGENTS.md",
         "localPath": "docs/assets/AGENTS.md",
@@ -1255,7 +1261,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "f8efe1dd9f7b43b10e56569e55345f81dd1fc824e9e25c6b1fa1023eaeb4ff36"
+          "718bc88490f3de521d9d7f1db5f7634642665f560b8ff0187018ec0aaaef16df"
         ],
         "logicalAssetId": "docs/assets/CLAUDE.md",
         "localPath": "docs/assets/CLAUDE.md",
@@ -1340,7 +1346,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "e08b3144d4d2ad4ff6f92c0bab78ff756fd7597e9e6cf20e299e6454d91e0d70"
+          "27540c738bf897da55d7d4f342f761169789a11fdb86155039813e9b64452703"
         ],
         "logicalAssetId": "docs/assets/library/AGENTS.md",
         "localPath": "docs/assets/library/AGENTS.md",
@@ -1357,7 +1363,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "e08b3144d4d2ad4ff6f92c0bab78ff756fd7597e9e6cf20e299e6454d91e0d70"
+          "27540c738bf897da55d7d4f342f761169789a11fdb86155039813e9b64452703"
         ],
         "logicalAssetId": "docs/assets/library/CLAUDE.md",
         "localPath": "docs/assets/library/CLAUDE.md",
@@ -1374,7 +1380,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "aca84c84faf610c76366c3b9fd1dd301d130196221399ee040c3172ce650c385"
+          "fb341d7cdc407a0c8f6fe763475ec74a134dfb10c765ccbdd71f3f6cf1f427fc"
         ],
         "logicalAssetId": "docs/assets/playbooks/AGENTS.md",
         "localPath": "docs/assets/playbooks/AGENTS.md",
@@ -1391,7 +1397,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "aca84c84faf610c76366c3b9fd1dd301d130196221399ee040c3172ce650c385"
+          "fb341d7cdc407a0c8f6fe763475ec74a134dfb10c765ccbdd71f3f6cf1f427fc"
         ],
         "logicalAssetId": "docs/assets/playbooks/CLAUDE.md",
         "localPath": "docs/assets/playbooks/CLAUDE.md",
@@ -1408,7 +1414,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "7254483ecc7f6a5fa19c85ab9b53aafe5ed3c70675b02049f9e47a63cde500b1"
+          "85ffd84276528a5b93bcfed5aa48947162b1d0668f44ec2af1f4e6102a2615c4"
         ],
         "logicalAssetId": "docs/assets/playbooks/agent/make-docs-lifecycle.playbook.md",
         "localPath": "docs/assets/playbooks/agent/make-docs-lifecycle.playbook.md",
@@ -1552,12 +1558,114 @@
         "offlineExpectation": "local",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
         "selectionTrigger": "profile-selection"
+      },
+      ".make-docs/contracts/system/system-resource-contract.md": {
+        "materializationMode": "full-snapshot",
+        "sourcePackage": "@brucewaynedecoy/make-docs",
+        "sourceProvider": "package",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
+        "hashAlgorithm": "sha256",
+        "expectedHashes": [
+          "e3e438ff4870bbb81824265bed027bd760e382f179ac85522325f019947ce78a"
+        ],
+        "logicalAssetId": ".make-docs/contracts/system/system-resource-contract.md",
+        "localPath": ".make-docs/contracts/system/system-resource-contract.md",
+        "materializationClass": "materialized-system-asset",
+        "offlineExpectation": "local",
+        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
+        "selectionTrigger": "profile-selection"
+      },
+      ".make-docs/references/system/naive-uat-workflow.md": {
+        "materializationMode": "full-snapshot",
+        "sourcePackage": "@brucewaynedecoy/make-docs",
+        "sourceProvider": "package",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
+        "hashAlgorithm": "sha256",
+        "expectedHashes": [
+          "14208efb7ead73f35f191c1fb20ba1f1bed6033329bbab060efb44107cebf50d"
+        ],
+        "logicalAssetId": ".make-docs/references/system/naive-uat-workflow.md",
+        "localPath": ".make-docs/references/system/naive-uat-workflow.md",
+        "materializationClass": "materialized-system-asset",
+        "offlineExpectation": "local",
+        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
+        "selectionTrigger": "profile-selection"
+      },
+      ".make-docs/system-resources.catalog.json": {
+        "materializationMode": "full-snapshot",
+        "sourcePackage": "@brucewaynedecoy/make-docs",
+        "sourceProvider": "package",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
+        "hashAlgorithm": "sha256",
+        "expectedHashes": [
+          "0f6d15c48f21018c08bf50a640d5efca775d35946f30130db6e7e6d97b143954"
+        ],
+        "logicalAssetId": ".make-docs/system-resources.catalog.json",
+        "localPath": ".make-docs/system-resources.catalog.json",
+        "materializationClass": "materialized-system-asset",
+        "offlineExpectation": "local",
+        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
+        "selectionTrigger": "profile-selection"
+      },
+      ".make-docs/system-resources.schema.json": {
+        "materializationMode": "full-snapshot",
+        "sourcePackage": "@brucewaynedecoy/make-docs",
+        "sourceProvider": "package",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
+        "hashAlgorithm": "sha256",
+        "expectedHashes": [
+          "ebb5d4e866897b599c056abd21a5e990f8105e94de3be9f52f4c416e5f363122"
+        ],
+        "logicalAssetId": ".make-docs/system-resources.schema.json",
+        "localPath": ".make-docs/system-resources.schema.json",
+        "materializationClass": "materialized-system-asset",
+        "offlineExpectation": "local",
+        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
+        "selectionTrigger": "profile-selection"
+      },
+      ".make-docs/system/prompts/naive-uat-facilitator.prompt.md": {
+        "materializationMode": "full-snapshot",
+        "sourcePackage": "@brucewaynedecoy/make-docs",
+        "sourceProvider": "package",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
+        "hashAlgorithm": "sha256",
+        "expectedHashes": [
+          "52a8121acea998634e9f8d461f720efee9bcffc489e906be3f528332b04d5e8e"
+        ],
+        "logicalAssetId": ".make-docs/system/prompts/naive-uat-facilitator.prompt.md",
+        "localPath": ".make-docs/system/prompts/naive-uat-facilitator.prompt.md",
+        "materializationClass": "materialized-system-asset",
+        "offlineExpectation": "local",
+        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
+        "selectionTrigger": "profile-selection"
+      },
+      ".make-docs/system/prompts/naive-uat-tester.prompt.md": {
+        "materializationMode": "full-snapshot",
+        "sourcePackage": "@brucewaynedecoy/make-docs",
+        "sourceProvider": "package",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
+        "hashAlgorithm": "sha256",
+        "expectedHashes": [
+          "ebb793ad335012a7207b880a11d15f238b0931cb7bfb5569427967e426ce50cf"
+        ],
+        "logicalAssetId": ".make-docs/system/prompts/naive-uat-tester.prompt.md",
+        "localPath": ".make-docs/system/prompts/naive-uat-tester.prompt.md",
+        "materializationClass": "materialized-system-asset",
+        "offlineExpectation": "local",
+        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
+        "selectionTrigger": "profile-selection"
       }
     }
   },
   "files": {
     ".make-docs/AGENTS.md": {
-      "hash": "5f295ff545f1ea5fb393a95fc1cbc63d811cd33b8e41771e09052437d28281bf",
+      "hash": "f9f2f86653666d46bb35674f58cbe85240b07026095b2a5eaf560e45354052ba",
       "sourceId": "file:.make-docs/AGENTS.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
@@ -1567,7 +1675,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "5f295ff545f1ea5fb393a95fc1cbc63d811cd33b8e41771e09052437d28281bf"
+          "f9f2f86653666d46bb35674f58cbe85240b07026095b2a5eaf560e45354052ba"
         ],
         "logicalAssetId": ".make-docs/AGENTS.md",
         "localPath": ".make-docs/AGENTS.md",
@@ -1578,7 +1686,7 @@
       }
     },
     ".make-docs/CLAUDE.md": {
-      "hash": "5f295ff545f1ea5fb393a95fc1cbc63d811cd33b8e41771e09052437d28281bf",
+      "hash": "f9f2f86653666d46bb35674f58cbe85240b07026095b2a5eaf560e45354052ba",
       "sourceId": "file:.make-docs/CLAUDE.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
@@ -1588,7 +1696,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "5f295ff545f1ea5fb393a95fc1cbc63d811cd33b8e41771e09052437d28281bf"
+          "f9f2f86653666d46bb35674f58cbe85240b07026095b2a5eaf560e45354052ba"
         ],
         "logicalAssetId": ".make-docs/CLAUDE.md",
         "localPath": ".make-docs/CLAUDE.md",
@@ -1599,7 +1707,7 @@
       }
     },
     ".make-docs/contracts/system/AGENTS.md": {
-      "hash": "2877a36dc085d7a0d37fb0c64d12ffa9c6ab48eb156734db62be6ad9262af50c",
+      "hash": "7dd0c6bd125417443b5d067a2ddb32757554a83fa7f034c02ba4e8ecf6a7f06d",
       "sourceId": "file:.make-docs/contracts/system/AGENTS.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
@@ -1609,7 +1717,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "2877a36dc085d7a0d37fb0c64d12ffa9c6ab48eb156734db62be6ad9262af50c"
+          "7dd0c6bd125417443b5d067a2ddb32757554a83fa7f034c02ba4e8ecf6a7f06d"
         ],
         "logicalAssetId": ".make-docs/contracts/system/AGENTS.md",
         "localPath": ".make-docs/contracts/system/AGENTS.md",
@@ -1620,7 +1728,7 @@
       }
     },
     ".make-docs/contracts/system/CLAUDE.md": {
-      "hash": "2877a36dc085d7a0d37fb0c64d12ffa9c6ab48eb156734db62be6ad9262af50c",
+      "hash": "7dd0c6bd125417443b5d067a2ddb32757554a83fa7f034c02ba4e8ecf6a7f06d",
       "sourceId": "file:.make-docs/contracts/system/CLAUDE.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
@@ -1630,7 +1738,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "2877a36dc085d7a0d37fb0c64d12ffa9c6ab48eb156734db62be6ad9262af50c"
+          "7dd0c6bd125417443b5d067a2ddb32757554a83fa7f034c02ba4e8ecf6a7f06d"
         ],
         "logicalAssetId": ".make-docs/contracts/system/CLAUDE.md",
         "localPath": ".make-docs/contracts/system/CLAUDE.md",
@@ -1662,7 +1770,7 @@
       }
     },
     ".make-docs/contracts/system/coverage-pass-contract.md": {
-      "hash": "30ebca92adb62a969f55e174be0fd517ff0be269839ff72c4bbfa9372ae24291",
+      "hash": "625c43c8ea96bca63dd2566850a6aa3ee28e91a363cb7cd8d65aad16f91f27d3",
       "sourceId": "file:.make-docs/contracts/system/coverage-pass-contract.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
@@ -1672,7 +1780,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "30ebca92adb62a969f55e174be0fd517ff0be269839ff72c4bbfa9372ae24291"
+          "625c43c8ea96bca63dd2566850a6aa3ee28e91a363cb7cd8d65aad16f91f27d3"
         ],
         "logicalAssetId": ".make-docs/contracts/system/coverage-pass-contract.md",
         "localPath": ".make-docs/contracts/system/coverage-pass-contract.md",
@@ -1725,7 +1833,7 @@
       }
     },
     ".make-docs/contracts/system/history-record-contract.md": {
-      "hash": "bcef5ca7982eb1f2215f920390c99fbbd26c6f8fa83e566d63529cd3fc1e7f12",
+      "hash": "48896d629dcbd6450c5fbc8d80ebdc64c16a8289ca7c5184bb55a01c3678a36e",
       "sourceId": "file:.make-docs/contracts/system/history-record-contract.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
@@ -1735,7 +1843,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "bcef5ca7982eb1f2215f920390c99fbbd26c6f8fa83e566d63529cd3fc1e7f12"
+          "48896d629dcbd6450c5fbc8d80ebdc64c16a8289ca7c5184bb55a01c3678a36e"
         ],
         "logicalAssetId": ".make-docs/contracts/system/history-record-contract.md",
         "localPath": ".make-docs/contracts/system/history-record-contract.md",
@@ -1746,7 +1854,7 @@
       }
     },
     ".make-docs/contracts/system/output-contract.md": {
-      "hash": "8bdb779879575fc3a4e3d404d3b26c47a1a62883cc446adf1ef4d43bcb9cf601",
+      "hash": "5b9e8474c5450ed759d452052cf9cd4a38914a5b8f292ead7ce9e76e6f0111be",
       "sourceId": "file:.make-docs/contracts/system/output-contract.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
@@ -1756,7 +1864,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "8bdb779879575fc3a4e3d404d3b26c47a1a62883cc446adf1ef4d43bcb9cf601"
+          "5b9e8474c5450ed759d452052cf9cd4a38914a5b8f292ead7ce9e76e6f0111be"
         ],
         "logicalAssetId": ".make-docs/contracts/system/output-contract.md",
         "localPath": ".make-docs/contracts/system/output-contract.md",
@@ -1767,7 +1875,7 @@
       }
     },
     ".make-docs/references/system/AGENTS.md": {
-      "hash": "e83101cf55190f6e1999cdc1b3f6a72d110bebbf7ef87a78e1f04b555daf2053",
+      "hash": "382aa4623aa5f8cff67d86d38a947145a6e9c5e4bfb1de4f63825070bbe6126f",
       "sourceId": "file:.make-docs/references/system/AGENTS.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
@@ -1777,7 +1885,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "e83101cf55190f6e1999cdc1b3f6a72d110bebbf7ef87a78e1f04b555daf2053"
+          "382aa4623aa5f8cff67d86d38a947145a6e9c5e4bfb1de4f63825070bbe6126f"
         ],
         "logicalAssetId": ".make-docs/references/system/AGENTS.md",
         "localPath": ".make-docs/references/system/AGENTS.md",
@@ -1788,7 +1896,7 @@
       }
     },
     ".make-docs/references/system/CLAUDE.md": {
-      "hash": "e83101cf55190f6e1999cdc1b3f6a72d110bebbf7ef87a78e1f04b555daf2053",
+      "hash": "382aa4623aa5f8cff67d86d38a947145a6e9c5e4bfb1de4f63825070bbe6126f",
       "sourceId": "file:.make-docs/references/system/CLAUDE.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
@@ -1798,7 +1906,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "e83101cf55190f6e1999cdc1b3f6a72d110bebbf7ef87a78e1f04b555daf2053"
+          "382aa4623aa5f8cff67d86d38a947145a6e9c5e4bfb1de4f63825070bbe6126f"
         ],
         "logicalAssetId": ".make-docs/references/system/CLAUDE.md",
         "localPath": ".make-docs/references/system/CLAUDE.md",
@@ -1809,7 +1917,7 @@
       }
     },
     ".make-docs/references/system/design-workflow.md": {
-      "hash": "0ce0f23a0cdda585666141ed0bcd355f74f6d172100160a14d6f5c31105f0fe0",
+      "hash": "c1e15f8641677f193b3cb6787bb0417deb159daa51db0a24ea7fecb9171fd9be",
       "sourceId": "file:.make-docs/references/system/design-workflow.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
@@ -1819,7 +1927,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "0ce0f23a0cdda585666141ed0bcd355f74f6d172100160a14d6f5c31105f0fe0"
+          "c1e15f8641677f193b3cb6787bb0417deb159daa51db0a24ea7fecb9171fd9be"
         ],
         "logicalAssetId": ".make-docs/references/system/design-workflow.md",
         "localPath": ".make-docs/references/system/design-workflow.md",
@@ -1830,7 +1938,7 @@
       }
     },
     ".make-docs/references/system/execution-workflow.md": {
-      "hash": "9c43fdfdd714874a878768d3bc29f8d0fd271ba085b075a5327c4fbce46b4e18",
+      "hash": "dfaead44de0391fdba62bdcdd162d85fe21280d7fca1831327d482d9b9ced4cd",
       "sourceId": "file:.make-docs/references/system/execution-workflow.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
@@ -1840,7 +1948,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "9c43fdfdd714874a878768d3bc29f8d0fd271ba085b075a5327c4fbce46b4e18"
+          "dfaead44de0391fdba62bdcdd162d85fe21280d7fca1831327d482d9b9ced4cd"
         ],
         "logicalAssetId": ".make-docs/references/system/execution-workflow.md",
         "localPath": ".make-docs/references/system/execution-workflow.md",
@@ -1872,7 +1980,7 @@
       }
     },
     ".make-docs/references/system/lifecycle.md": {
-      "hash": "47639b364ce4a266ed260233658c4ac25c89782657a11061347378b57900f2f4",
+      "hash": "933d30e33e04f78fcb875b4cc44cc185fd45b5913ffcc821539e331a6d0e8156",
       "sourceId": "file:.make-docs/references/system/lifecycle.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
@@ -1882,7 +1990,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "47639b364ce4a266ed260233658c4ac25c89782657a11061347378b57900f2f4"
+          "933d30e33e04f78fcb875b4cc44cc185fd45b5913ffcc821539e331a6d0e8156"
         ],
         "logicalAssetId": ".make-docs/references/system/lifecycle.md",
         "localPath": ".make-docs/references/system/lifecycle.md",
@@ -1893,7 +2001,7 @@
       }
     },
     ".make-docs/references/system/path-and-link-hygiene.md": {
-      "hash": "20ccd340e8ecb36cd991832d7f16e5cbaa096cc24f55b71c9e550370846ee7c6",
+      "hash": "e062cb77ade8c6a86662499d56f59a2e1d744e8aff86e91f2db520a7b56feb2e",
       "sourceId": "file:.make-docs/references/system/path-and-link-hygiene.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
@@ -1903,7 +2011,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "20ccd340e8ecb36cd991832d7f16e5cbaa096cc24f55b71c9e550370846ee7c6"
+          "e062cb77ade8c6a86662499d56f59a2e1d744e8aff86e91f2db520a7b56feb2e"
         ],
         "logicalAssetId": ".make-docs/references/system/path-and-link-hygiene.md",
         "localPath": ".make-docs/references/system/path-and-link-hygiene.md",
@@ -1914,7 +2022,7 @@
       }
     },
     ".make-docs/references/system/planning-workflow.md": {
-      "hash": "d3d73334069f86aa38747f6482a04860c42bb76aa8995e372383cc62a1b17626",
+      "hash": "efcc2f549cf0ac073cd37c8ce95e7914af0255a5ba84ce3d8fb53ac57636639b",
       "sourceId": "file:.make-docs/references/system/planning-workflow.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
@@ -1924,7 +2032,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "d3d73334069f86aa38747f6482a04860c42bb76aa8995e372383cc62a1b17626"
+          "efcc2f549cf0ac073cd37c8ce95e7914af0255a5ba84ce3d8fb53ac57636639b"
         ],
         "logicalAssetId": ".make-docs/references/system/planning-workflow.md",
         "localPath": ".make-docs/references/system/planning-workflow.md",
@@ -1935,7 +2043,7 @@
       }
     },
     ".make-docs/references/system/prd-change-management.md": {
-      "hash": "8e9433b7b6379310b81f9434b58f6f3f84a7ca2bc4c0b7b2b37b125de8c70431",
+      "hash": "76b899f02fdd6f8bb73a1fbc60cf95b825836a96d758fa4cdc99815939cec773",
       "sourceId": "file:.make-docs/references/system/prd-change-management.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
@@ -1945,7 +2053,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "8e9433b7b6379310b81f9434b58f6f3f84a7ca2bc4c0b7b2b37b125de8c70431"
+          "76b899f02fdd6f8bb73a1fbc60cf95b825836a96d758fa4cdc99815939cec773"
         ],
         "logicalAssetId": ".make-docs/references/system/prd-change-management.md",
         "localPath": ".make-docs/references/system/prd-change-management.md",
@@ -1955,9 +2063,9 @@
         "selectionTrigger": "profile-selection"
       }
     },
-    ".make-docs/references/system/prompts/AGENTS.md": {
-      "hash": "0ee2bcd1bbe7243bdfcc33222d2af6adade3b85732054b92f929243773e28e0a",
-      "sourceId": "file:.make-docs/references/system/prompts/AGENTS.md",
+    ".make-docs/system/prompts/AGENTS.md": {
+      "hash": "53f3dd8d885745422b2ad21e047671c2355edfc936fd7a3dab810ab8cfd377f3",
+      "sourceId": "file:.make-docs/prompts/system/AGENTS.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
@@ -1966,19 +2074,19 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "0ee2bcd1bbe7243bdfcc33222d2af6adade3b85732054b92f929243773e28e0a"
+          "53f3dd8d885745422b2ad21e047671c2355edfc936fd7a3dab810ab8cfd377f3"
         ],
-        "logicalAssetId": ".make-docs/references/system/prompts/AGENTS.md",
-        "localPath": ".make-docs/references/system/prompts/AGENTS.md",
+        "logicalAssetId": ".make-docs/system/prompts/AGENTS.md",
+        "localPath": ".make-docs/system/prompts/AGENTS.md",
         "materializationClass": "materialized-system-asset",
         "offlineExpectation": "local",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
         "selectionTrigger": "profile-selection"
       }
     },
-    ".make-docs/references/system/prompts/CLAUDE.md": {
-      "hash": "0ee2bcd1bbe7243bdfcc33222d2af6adade3b85732054b92f929243773e28e0a",
-      "sourceId": "file:.make-docs/references/system/prompts/CLAUDE.md",
+    ".make-docs/system/prompts/CLAUDE.md": {
+      "hash": "53f3dd8d885745422b2ad21e047671c2355edfc936fd7a3dab810ab8cfd377f3",
+      "sourceId": "file:.make-docs/prompts/system/CLAUDE.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
@@ -1987,19 +2095,19 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "0ee2bcd1bbe7243bdfcc33222d2af6adade3b85732054b92f929243773e28e0a"
+          "53f3dd8d885745422b2ad21e047671c2355edfc936fd7a3dab810ab8cfd377f3"
         ],
-        "logicalAssetId": ".make-docs/references/system/prompts/CLAUDE.md",
-        "localPath": ".make-docs/references/system/prompts/CLAUDE.md",
+        "logicalAssetId": ".make-docs/system/prompts/CLAUDE.md",
+        "localPath": ".make-docs/system/prompts/CLAUDE.md",
         "materializationClass": "materialized-system-asset",
         "offlineExpectation": "local",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
         "selectionTrigger": "profile-selection"
       }
     },
-    ".make-docs/references/system/prompts/coverage-pass-developer-guide.prompt.md": {
-      "hash": "be187cdd8a5850504a2573d2c28195c00da3f325b6ceb3b8a2eb4bb3f75b340f",
-      "sourceId": "file:.make-docs/references/system/prompts/coverage-pass-developer-guide.prompt.md",
+    ".make-docs/system/prompts/coverage-pass-developer-guide.prompt.md": {
+      "hash": "76b40838cabec13f8f25532bda6f1928f60596b29d8e7437b7cf030bd2bf64c2",
+      "sourceId": "file:.make-docs/prompts/system/coverage-pass-developer-guide.prompt.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
@@ -2008,19 +2116,19 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "be187cdd8a5850504a2573d2c28195c00da3f325b6ceb3b8a2eb4bb3f75b340f"
+          "76b40838cabec13f8f25532bda6f1928f60596b29d8e7437b7cf030bd2bf64c2"
         ],
-        "logicalAssetId": ".make-docs/references/system/prompts/coverage-pass-developer-guide.prompt.md",
-        "localPath": ".make-docs/references/system/prompts/coverage-pass-developer-guide.prompt.md",
+        "logicalAssetId": ".make-docs/system/prompts/coverage-pass-developer-guide.prompt.md",
+        "localPath": ".make-docs/system/prompts/coverage-pass-developer-guide.prompt.md",
         "materializationClass": "materialized-system-asset",
         "offlineExpectation": "local",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
         "selectionTrigger": "profile-selection"
       }
     },
-    ".make-docs/references/system/prompts/coverage-pass-prd-reconciliation.prompt.md": {
-      "hash": "d54a2391fe20d7b1c34afaf32346c6d775c8af0d56f3848a7b37ffb87c52e791",
-      "sourceId": "file:.make-docs/references/system/prompts/coverage-pass-prd-reconciliation.prompt.md",
+    ".make-docs/system/prompts/coverage-pass-prd-reconciliation.prompt.md": {
+      "hash": "53ca36a8bf4ae188db80b4cc371dd8c0cc2f88963cb34010c41a133b968c546f",
+      "sourceId": "file:.make-docs/prompts/system/coverage-pass-prd-reconciliation.prompt.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
@@ -2029,19 +2137,19 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "d54a2391fe20d7b1c34afaf32346c6d775c8af0d56f3848a7b37ffb87c52e791"
+          "53ca36a8bf4ae188db80b4cc371dd8c0cc2f88963cb34010c41a133b968c546f"
         ],
-        "logicalAssetId": ".make-docs/references/system/prompts/coverage-pass-prd-reconciliation.prompt.md",
-        "localPath": ".make-docs/references/system/prompts/coverage-pass-prd-reconciliation.prompt.md",
+        "logicalAssetId": ".make-docs/system/prompts/coverage-pass-prd-reconciliation.prompt.md",
+        "localPath": ".make-docs/system/prompts/coverage-pass-prd-reconciliation.prompt.md",
         "materializationClass": "materialized-system-asset",
         "offlineExpectation": "local",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
         "selectionTrigger": "profile-selection"
       }
     },
-    ".make-docs/references/system/prompts/coverage-pass-testing-uat.prompt.md": {
-      "hash": "c1127042043abc6a20d5aea316ca6140363ba2ca9ffd1c057dc34b00110f15dc",
-      "sourceId": "file:.make-docs/references/system/prompts/coverage-pass-testing-uat.prompt.md",
+    ".make-docs/system/prompts/coverage-pass-testing-uat.prompt.md": {
+      "hash": "ed9aaa6b3e9377199f74f75075ab46be584124fdd9d18ce82fb3ffd94eab09a8",
+      "sourceId": "file:.make-docs/prompts/system/coverage-pass-testing-uat.prompt.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
@@ -2050,19 +2158,19 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "c1127042043abc6a20d5aea316ca6140363ba2ca9ffd1c057dc34b00110f15dc"
+          "ed9aaa6b3e9377199f74f75075ab46be584124fdd9d18ce82fb3ffd94eab09a8"
         ],
-        "logicalAssetId": ".make-docs/references/system/prompts/coverage-pass-testing-uat.prompt.md",
-        "localPath": ".make-docs/references/system/prompts/coverage-pass-testing-uat.prompt.md",
+        "logicalAssetId": ".make-docs/system/prompts/coverage-pass-testing-uat.prompt.md",
+        "localPath": ".make-docs/system/prompts/coverage-pass-testing-uat.prompt.md",
         "materializationClass": "materialized-system-asset",
         "offlineExpectation": "local",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
         "selectionTrigger": "profile-selection"
       }
     },
-    ".make-docs/references/system/prompts/coverage-pass-user-guide.prompt.md": {
-      "hash": "f384d0a6f03bb701b351bf159b66193accba3149866fe48eaa401b474cc8ea6c",
-      "sourceId": "file:.make-docs/references/system/prompts/coverage-pass-user-guide.prompt.md",
+    ".make-docs/system/prompts/coverage-pass-user-guide.prompt.md": {
+      "hash": "cfdd644f05872163dd7db397327b500e2557def42156b4e8ceb5441b9e6f74e8",
+      "sourceId": "file:.make-docs/prompts/system/coverage-pass-user-guide.prompt.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
@@ -2071,19 +2179,19 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "f384d0a6f03bb701b351bf159b66193accba3149866fe48eaa401b474cc8ea6c"
+          "cfdd644f05872163dd7db397327b500e2557def42156b4e8ceb5441b9e6f74e8"
         ],
-        "logicalAssetId": ".make-docs/references/system/prompts/coverage-pass-user-guide.prompt.md",
-        "localPath": ".make-docs/references/system/prompts/coverage-pass-user-guide.prompt.md",
+        "logicalAssetId": ".make-docs/system/prompts/coverage-pass-user-guide.prompt.md",
+        "localPath": ".make-docs/system/prompts/coverage-pass-user-guide.prompt.md",
         "materializationClass": "materialized-system-asset",
         "offlineExpectation": "local",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
         "selectionTrigger": "profile-selection"
       }
     },
-    ".make-docs/references/system/prompts/designs-to-plan-change.prompt.md": {
+    ".make-docs/system/prompts/designs-to-plan-change.prompt.md": {
       "hash": "6119ab60dcd92a8929cc700a317c47cd6d6382b3ddafd02328e39b255321c62c",
-      "sourceId": "file:.make-docs/references/system/prompts/designs-to-plan-change.prompt.md",
+      "sourceId": "file:.make-docs/prompts/system/designs-to-plan-change.prompt.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
@@ -2094,17 +2202,17 @@
         "expectedHashes": [
           "6119ab60dcd92a8929cc700a317c47cd6d6382b3ddafd02328e39b255321c62c"
         ],
-        "logicalAssetId": ".make-docs/references/system/prompts/designs-to-plan-change.prompt.md",
-        "localPath": ".make-docs/references/system/prompts/designs-to-plan-change.prompt.md",
+        "logicalAssetId": ".make-docs/system/prompts/designs-to-plan-change.prompt.md",
+        "localPath": ".make-docs/system/prompts/designs-to-plan-change.prompt.md",
         "materializationClass": "materialized-system-asset",
         "offlineExpectation": "local",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
         "selectionTrigger": "profile-selection"
       }
     },
-    ".make-docs/references/system/prompts/designs-to-plan.prompt.md": {
+    ".make-docs/system/prompts/designs-to-plan.prompt.md": {
       "hash": "03756aa3c05bb8889ed2b8b9fddc6b77b4d6ee8a79584dda4728929167688910",
-      "sourceId": "file:.make-docs/references/system/prompts/designs-to-plan.prompt.md",
+      "sourceId": "file:.make-docs/prompts/system/designs-to-plan.prompt.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
@@ -2115,17 +2223,17 @@
         "expectedHashes": [
           "03756aa3c05bb8889ed2b8b9fddc6b77b4d6ee8a79584dda4728929167688910"
         ],
-        "logicalAssetId": ".make-docs/references/system/prompts/designs-to-plan.prompt.md",
-        "localPath": ".make-docs/references/system/prompts/designs-to-plan.prompt.md",
+        "logicalAssetId": ".make-docs/system/prompts/designs-to-plan.prompt.md",
+        "localPath": ".make-docs/system/prompts/designs-to-plan.prompt.md",
         "materializationClass": "materialized-system-asset",
         "offlineExpectation": "local",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
         "selectionTrigger": "profile-selection"
       }
     },
-    ".make-docs/references/system/prompts/docs-path-hygiene-cleanup.prompt.md": {
+    ".make-docs/system/prompts/docs-path-hygiene-cleanup.prompt.md": {
       "hash": "05b093f3349089d6e2acca71e1a1f5dac6ded6aeacbc66f883f91a4d0576e3a1",
-      "sourceId": "file:.make-docs/references/system/prompts/docs-path-hygiene-cleanup.prompt.md",
+      "sourceId": "file:.make-docs/prompts/system/docs-path-hygiene-cleanup.prompt.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
@@ -2136,17 +2244,17 @@
         "expectedHashes": [
           "05b093f3349089d6e2acca71e1a1f5dac6ded6aeacbc66f883f91a4d0576e3a1"
         ],
-        "logicalAssetId": ".make-docs/references/system/prompts/docs-path-hygiene-cleanup.prompt.md",
-        "localPath": ".make-docs/references/system/prompts/docs-path-hygiene-cleanup.prompt.md",
+        "logicalAssetId": ".make-docs/system/prompts/docs-path-hygiene-cleanup.prompt.md",
+        "localPath": ".make-docs/system/prompts/docs-path-hygiene-cleanup.prompt.md",
         "materializationClass": "materialized-system-asset",
         "offlineExpectation": "local",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
         "selectionTrigger": "profile-selection"
       }
     },
-    ".make-docs/references/system/prompts/plan-to-prd-change.prompt.md": {
+    ".make-docs/system/prompts/plan-to-prd-change.prompt.md": {
       "hash": "1ab2f2edaea340b28040a67c873b6f5095824a7551767f4d18afb89746c2c66f",
-      "sourceId": "file:.make-docs/references/system/prompts/plan-to-prd-change.prompt.md",
+      "sourceId": "file:.make-docs/prompts/system/plan-to-prd-change.prompt.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
@@ -2157,17 +2265,17 @@
         "expectedHashes": [
           "1ab2f2edaea340b28040a67c873b6f5095824a7551767f4d18afb89746c2c66f"
         ],
-        "logicalAssetId": ".make-docs/references/system/prompts/plan-to-prd-change.prompt.md",
-        "localPath": ".make-docs/references/system/prompts/plan-to-prd-change.prompt.md",
+        "logicalAssetId": ".make-docs/system/prompts/plan-to-prd-change.prompt.md",
+        "localPath": ".make-docs/system/prompts/plan-to-prd-change.prompt.md",
         "materializationClass": "materialized-system-asset",
         "offlineExpectation": "local",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
         "selectionTrigger": "profile-selection"
       }
     },
-    ".make-docs/references/system/prompts/plan-to-prd-green-field.prompt.md": {
+    ".make-docs/system/prompts/plan-to-prd-green-field.prompt.md": {
       "hash": "dc8a99a88db72626dc9e0ae6bb05aad81a96e5d9fdc2c43d401b731c9e6c3999",
-      "sourceId": "file:.make-docs/references/system/prompts/plan-to-prd-green-field.prompt.md",
+      "sourceId": "file:.make-docs/prompts/system/plan-to-prd-green-field.prompt.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
@@ -2178,17 +2286,17 @@
         "expectedHashes": [
           "dc8a99a88db72626dc9e0ae6bb05aad81a96e5d9fdc2c43d401b731c9e6c3999"
         ],
-        "logicalAssetId": ".make-docs/references/system/prompts/plan-to-prd-green-field.prompt.md",
-        "localPath": ".make-docs/references/system/prompts/plan-to-prd-green-field.prompt.md",
+        "logicalAssetId": ".make-docs/system/prompts/plan-to-prd-green-field.prompt.md",
+        "localPath": ".make-docs/system/prompts/plan-to-prd-green-field.prompt.md",
         "materializationClass": "materialized-system-asset",
         "offlineExpectation": "local",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
         "selectionTrigger": "profile-selection"
       }
     },
-    ".make-docs/references/system/prompts/prd-change-to-work.prompt.md": {
+    ".make-docs/system/prompts/prd-change-to-work.prompt.md": {
       "hash": "6d68b7447804028272e62258728b45e848b1c6c57edbc497fd25ec5d373d7c5b",
-      "sourceId": "file:.make-docs/references/system/prompts/prd-change-to-work.prompt.md",
+      "sourceId": "file:.make-docs/prompts/system/prd-change-to-work.prompt.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
@@ -2199,17 +2307,17 @@
         "expectedHashes": [
           "6d68b7447804028272e62258728b45e848b1c6c57edbc497fd25ec5d373d7c5b"
         ],
-        "logicalAssetId": ".make-docs/references/system/prompts/prd-change-to-work.prompt.md",
-        "localPath": ".make-docs/references/system/prompts/prd-change-to-work.prompt.md",
+        "logicalAssetId": ".make-docs/system/prompts/prd-change-to-work.prompt.md",
+        "localPath": ".make-docs/system/prompts/prd-change-to-work.prompt.md",
         "materializationClass": "materialized-system-asset",
         "offlineExpectation": "local",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
         "selectionTrigger": "profile-selection"
       }
     },
-    ".make-docs/references/system/prompts/prd-to-work-full-prd.prompt.md": {
+    ".make-docs/system/prompts/prd-to-work-full-prd.prompt.md": {
       "hash": "aee80bf8b797ba32a03bc2074a323698732d58f6338d735a1d555928445bcef0",
-      "sourceId": "file:.make-docs/references/system/prompts/prd-to-work-full-prd.prompt.md",
+      "sourceId": "file:.make-docs/prompts/system/prd-to-work-full-prd.prompt.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
@@ -2220,17 +2328,17 @@
         "expectedHashes": [
           "aee80bf8b797ba32a03bc2074a323698732d58f6338d735a1d555928445bcef0"
         ],
-        "logicalAssetId": ".make-docs/references/system/prompts/prd-to-work-full-prd.prompt.md",
-        "localPath": ".make-docs/references/system/prompts/prd-to-work-full-prd.prompt.md",
+        "logicalAssetId": ".make-docs/system/prompts/prd-to-work-full-prd.prompt.md",
+        "localPath": ".make-docs/system/prompts/prd-to-work-full-prd.prompt.md",
         "materializationClass": "materialized-system-asset",
         "offlineExpectation": "local",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
         "selectionTrigger": "profile-selection"
       }
     },
-    ".make-docs/references/system/prompts/prd-to-work-prd-feature.prompt.md": {
+    ".make-docs/system/prompts/prd-to-work-prd-feature.prompt.md": {
       "hash": "0a158f7d95252d2bb621d2dc062a6bae3c3d80770f8261fe577f70361bede579",
-      "sourceId": "file:.make-docs/references/system/prompts/prd-to-work-prd-feature.prompt.md",
+      "sourceId": "file:.make-docs/prompts/system/prd-to-work-prd-feature.prompt.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
@@ -2241,17 +2349,17 @@
         "expectedHashes": [
           "0a158f7d95252d2bb621d2dc062a6bae3c3d80770f8261fe577f70361bede579"
         ],
-        "logicalAssetId": ".make-docs/references/system/prompts/prd-to-work-prd-feature.prompt.md",
-        "localPath": ".make-docs/references/system/prompts/prd-to-work-prd-feature.prompt.md",
+        "logicalAssetId": ".make-docs/system/prompts/prd-to-work-prd-feature.prompt.md",
+        "localPath": ".make-docs/system/prompts/prd-to-work-prd-feature.prompt.md",
         "materializationClass": "materialized-system-asset",
         "offlineExpectation": "local",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
         "selectionTrigger": "profile-selection"
       }
     },
-    ".make-docs/references/system/prompts/request-to-design.prompt.md": {
+    ".make-docs/system/prompts/request-to-design.prompt.md": {
       "hash": "0130bf77bdac039e26b921495e898d8b2a224bba2477c13721c996c852b90fc3",
-      "sourceId": "file:.make-docs/references/system/prompts/request-to-design.prompt.md",
+      "sourceId": "file:.make-docs/prompts/system/request-to-design.prompt.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
@@ -2262,17 +2370,17 @@
         "expectedHashes": [
           "0130bf77bdac039e26b921495e898d8b2a224bba2477c13721c996c852b90fc3"
         ],
-        "logicalAssetId": ".make-docs/references/system/prompts/request-to-design.prompt.md",
-        "localPath": ".make-docs/references/system/prompts/request-to-design.prompt.md",
+        "logicalAssetId": ".make-docs/system/prompts/request-to-design.prompt.md",
+        "localPath": ".make-docs/system/prompts/request-to-design.prompt.md",
         "materializationClass": "materialized-system-asset",
         "offlineExpectation": "local",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
         "selectionTrigger": "profile-selection"
       }
     },
-    ".make-docs/references/system/prompts/session-to-history-record.prompt.md": {
-      "hash": "dee4003a29b2ff9425c694e14c015096b9495818fbed25729dfa8052434bf879",
-      "sourceId": "file:.make-docs/references/system/prompts/session-to-history-record.prompt.md",
+    ".make-docs/system/prompts/session-to-history-record.prompt.md": {
+      "hash": "3c43b89101a714b2f2e2a0a1d536886322ad015279b966c91d113b06ce529655",
+      "sourceId": "file:.make-docs/prompts/system/session-to-history-record.prompt.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
@@ -2281,19 +2389,19 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "dee4003a29b2ff9425c694e14c015096b9495818fbed25729dfa8052434bf879"
+          "3c43b89101a714b2f2e2a0a1d536886322ad015279b966c91d113b06ce529655"
         ],
-        "logicalAssetId": ".make-docs/references/system/prompts/session-to-history-record.prompt.md",
-        "localPath": ".make-docs/references/system/prompts/session-to-history-record.prompt.md",
+        "logicalAssetId": ".make-docs/system/prompts/session-to-history-record.prompt.md",
+        "localPath": ".make-docs/system/prompts/session-to-history-record.prompt.md",
         "materializationClass": "materialized-system-asset",
         "offlineExpectation": "local",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
         "selectionTrigger": "profile-selection"
       }
     },
-    ".make-docs/references/system/prompts/update-readme-green-field.prompt.md": {
+    ".make-docs/system/prompts/update-readme-green-field.prompt.md": {
       "hash": "2f695d40b34cf7d6c484401afc26584f834050d368fe38ba52c45ee3b2544fbf",
-      "sourceId": "file:.make-docs/references/system/prompts/update-readme-green-field.prompt.md",
+      "sourceId": "file:.make-docs/prompts/system/update-readme-green-field.prompt.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
@@ -2304,17 +2412,17 @@
         "expectedHashes": [
           "2f695d40b34cf7d6c484401afc26584f834050d368fe38ba52c45ee3b2544fbf"
         ],
-        "logicalAssetId": ".make-docs/references/system/prompts/update-readme-green-field.prompt.md",
-        "localPath": ".make-docs/references/system/prompts/update-readme-green-field.prompt.md",
+        "logicalAssetId": ".make-docs/system/prompts/update-readme-green-field.prompt.md",
+        "localPath": ".make-docs/system/prompts/update-readme-green-field.prompt.md",
         "materializationClass": "materialized-system-asset",
         "offlineExpectation": "local",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
         "selectionTrigger": "profile-selection"
       }
     },
-    ".make-docs/references/system/prompts/work-to-commit-message.prompt.md": {
+    ".make-docs/system/prompts/work-to-commit-message.prompt.md": {
       "hash": "3ac9b9e6e208d898988dc6fb06eb718b0de85478ce2a0c1a7d8479b7875cff4d",
-      "sourceId": "file:.make-docs/references/system/prompts/work-to-commit-message.prompt.md",
+      "sourceId": "file:.make-docs/prompts/system/work-to-commit-message.prompt.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
@@ -2325,17 +2433,17 @@
         "expectedHashes": [
           "3ac9b9e6e208d898988dc6fb06eb718b0de85478ce2a0c1a7d8479b7875cff4d"
         ],
-        "logicalAssetId": ".make-docs/references/system/prompts/work-to-commit-message.prompt.md",
-        "localPath": ".make-docs/references/system/prompts/work-to-commit-message.prompt.md",
+        "logicalAssetId": ".make-docs/system/prompts/work-to-commit-message.prompt.md",
+        "localPath": ".make-docs/system/prompts/work-to-commit-message.prompt.md",
         "materializationClass": "materialized-system-asset",
         "offlineExpectation": "local",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
         "selectionTrigger": "profile-selection"
       }
     },
-    ".make-docs/references/system/prompts/work-to-guides.prompt.md": {
+    ".make-docs/system/prompts/work-to-guides.prompt.md": {
       "hash": "a38a8e0885e3c100d8f9fca2ad3366cbdc6cbbe26f648f89fc1c7cb913fb8289",
-      "sourceId": "file:.make-docs/references/system/prompts/work-to-guides.prompt.md",
+      "sourceId": "file:.make-docs/prompts/system/work-to-guides.prompt.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
         "sourcePackage": "@brucewaynedecoy/make-docs",
@@ -2346,8 +2454,8 @@
         "expectedHashes": [
           "a38a8e0885e3c100d8f9fca2ad3366cbdc6cbbe26f648f89fc1c7cb913fb8289"
         ],
-        "logicalAssetId": ".make-docs/references/system/prompts/work-to-guides.prompt.md",
-        "localPath": ".make-docs/references/system/prompts/work-to-guides.prompt.md",
+        "logicalAssetId": ".make-docs/system/prompts/work-to-guides.prompt.md",
+        "localPath": ".make-docs/system/prompts/work-to-guides.prompt.md",
         "materializationClass": "materialized-system-asset",
         "offlineExpectation": "local",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
@@ -2397,7 +2505,7 @@
       }
     },
     ".make-docs/templates/system/AGENTS.md": {
-      "hash": "92862eb76d9a27d3fbb9becd011a9af2965abe3016a6b205a333839303a51f81",
+      "hash": "8046eb57271fe52d5f4804e3980120d004a5ccc0681cedaa7fb6f774d476769d",
       "sourceId": "file:.make-docs/templates/system/AGENTS.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
@@ -2407,7 +2515,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "92862eb76d9a27d3fbb9becd011a9af2965abe3016a6b205a333839303a51f81"
+          "8046eb57271fe52d5f4804e3980120d004a5ccc0681cedaa7fb6f774d476769d"
         ],
         "logicalAssetId": ".make-docs/templates/system/AGENTS.md",
         "localPath": ".make-docs/templates/system/AGENTS.md",
@@ -2418,7 +2526,7 @@
       }
     },
     ".make-docs/templates/system/CLAUDE.md": {
-      "hash": "92862eb76d9a27d3fbb9becd011a9af2965abe3016a6b205a333839303a51f81",
+      "hash": "8046eb57271fe52d5f4804e3980120d004a5ccc0681cedaa7fb6f774d476769d",
       "sourceId": "file:.make-docs/templates/system/CLAUDE.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
@@ -2428,7 +2536,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "92862eb76d9a27d3fbb9becd011a9af2965abe3016a6b205a333839303a51f81"
+          "8046eb57271fe52d5f4804e3980120d004a5ccc0681cedaa7fb6f774d476769d"
         ],
         "logicalAssetId": ".make-docs/templates/system/CLAUDE.md",
         "localPath": ".make-docs/templates/system/CLAUDE.md",
@@ -2439,7 +2547,7 @@
       }
     },
     ".make-docs/templates/system/design.md": {
-      "hash": "fd99d0be95d2d5e21c26acea1c8ea1ac8d6bdb5d1f73acb2f590bd0ececab4f7",
+      "hash": "14895b5db078b5afb34bc92dcfa1e17ad707b1a0b29e7aa06021333845f02ca0",
       "sourceId": "file:.make-docs/templates/system/design.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
@@ -2449,7 +2557,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "fd99d0be95d2d5e21c26acea1c8ea1ac8d6bdb5d1f73acb2f590bd0ececab4f7"
+          "14895b5db078b5afb34bc92dcfa1e17ad707b1a0b29e7aa06021333845f02ca0"
         ],
         "logicalAssetId": ".make-docs/templates/system/design.md",
         "localPath": ".make-docs/templates/system/design.md",
@@ -2502,7 +2610,7 @@
       }
     },
     ".make-docs/templates/system/history-record.md": {
-      "hash": "f88984efa1976a7f91a128124a3383367b016323a9addc2bf8af437f45e035c6",
+      "hash": "1ce7627e56454563a12b9dac3528183ebd09a221fe9ed2201e4ebc32bfbd5bcf",
       "sourceId": "file:.make-docs/templates/system/history-record.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
@@ -2512,7 +2620,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "f88984efa1976a7f91a128124a3383367b016323a9addc2bf8af437f45e035c6"
+          "1ce7627e56454563a12b9dac3528183ebd09a221fe9ed2201e4ebc32bfbd5bcf"
         ],
         "logicalAssetId": ".make-docs/templates/system/history-record.md",
         "localPath": ".make-docs/templates/system/history-record.md",
@@ -2649,7 +2757,7 @@
       }
     },
     ".make-docs/templates/system/prd-index.md": {
-      "hash": "523cebfb41b283a0148ff2a3f3741d2e41b2cd7649a29bf8235e0478c92f5f52",
+      "hash": "db8b9fc117dd0272dd2dbab541e0d5bcf22558da982ebcc27e4e10c59998feeb",
       "sourceId": "file:.make-docs/templates/system/prd-index.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
@@ -2659,7 +2767,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "523cebfb41b283a0148ff2a3f3741d2e41b2cd7649a29bf8235e0478c92f5f52"
+          "db8b9fc117dd0272dd2dbab541e0d5bcf22558da982ebcc27e4e10c59998feeb"
         ],
         "logicalAssetId": ".make-docs/templates/system/prd-index.md",
         "localPath": ".make-docs/templates/system/prd-index.md",
@@ -2712,7 +2820,7 @@
       }
     },
     ".make-docs/templates/system/prd-risk-register.md": {
-      "hash": "5377f974e21f59f659ca839732a44e6281ee0300116388ce7ab4da2f36a2accc",
+      "hash": "9987df368071d8bf27daf6599a567fc4a63aa6d2dc88796faf7d80c93cf83628",
       "sourceId": "file:.make-docs/templates/system/prd-risk-register.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
@@ -2722,7 +2830,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "5377f974e21f59f659ca839732a44e6281ee0300116388ce7ab4da2f36a2accc"
+          "9987df368071d8bf27daf6599a567fc4a63aa6d2dc88796faf7d80c93cf83628"
         ],
         "logicalAssetId": ".make-docs/templates/system/prd-risk-register.md",
         "localPath": ".make-docs/templates/system/prd-risk-register.md",
@@ -2754,7 +2862,7 @@
       }
     },
     ".make-docs/templates/system/work-index.md": {
-      "hash": "ce4f6f6ca79c7989abe87b7d5c177315ea46cec8a433eb5d8b34f0117f20f937",
+      "hash": "37bab9084c037f60a7f22c82124cf60ea53f1ebe0965dc1fcd4ebb43fbcf9a9d",
       "sourceId": "file:.make-docs/templates/system/work-index.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
@@ -2764,7 +2872,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "ce4f6f6ca79c7989abe87b7d5c177315ea46cec8a433eb5d8b34f0117f20f937"
+          "37bab9084c037f60a7f22c82124cf60ea53f1ebe0965dc1fcd4ebb43fbcf9a9d"
         ],
         "logicalAssetId": ".make-docs/templates/system/work-index.md",
         "localPath": ".make-docs/templates/system/work-index.md",
@@ -2775,7 +2883,7 @@
       }
     },
     ".make-docs/templates/system/work-phase.md": {
-      "hash": "0f571d99e59d194b03ffb4c59272267c4be72b83c7e8babf239181630a55b6a2",
+      "hash": "9afaa13559872ef08313cee38354e1ad90284c91300a6d0a8afeda6682da7d4b",
       "sourceId": "file:.make-docs/templates/system/work-phase.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
@@ -2785,7 +2893,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "0f571d99e59d194b03ffb4c59272267c4be72b83c7e8babf239181630a55b6a2"
+          "9afaa13559872ef08313cee38354e1ad90284c91300a6d0a8afeda6682da7d4b"
         ],
         "logicalAssetId": ".make-docs/templates/system/work-phase.md",
         "localPath": ".make-docs/templates/system/work-phase.md",
@@ -2838,7 +2946,7 @@
       }
     },
     "docs/AGENTS.md": {
-      "hash": "414191eec5367dae28e5d6dd1e411017237fb97811666d1eaa19b3423e98b695",
+      "hash": "403eadf26cd7e102353cbc7e23d9cb748e3eec6bab0d80e93d3bf6b9bd411610",
       "sourceId": "file:docs/AGENTS.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
@@ -2848,7 +2956,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "414191eec5367dae28e5d6dd1e411017237fb97811666d1eaa19b3423e98b695"
+          "403eadf26cd7e102353cbc7e23d9cb748e3eec6bab0d80e93d3bf6b9bd411610"
         ],
         "logicalAssetId": "docs/AGENTS.md",
         "localPath": "docs/AGENTS.md",
@@ -2859,7 +2967,7 @@
       }
     },
     "docs/assets/AGENTS.md": {
-      "hash": "f8efe1dd9f7b43b10e56569e55345f81dd1fc824e9e25c6b1fa1023eaeb4ff36",
+      "hash": "718bc88490f3de521d9d7f1db5f7634642665f560b8ff0187018ec0aaaef16df",
       "sourceId": "file:docs/assets/AGENTS.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
@@ -2869,7 +2977,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "f8efe1dd9f7b43b10e56569e55345f81dd1fc824e9e25c6b1fa1023eaeb4ff36"
+          "718bc88490f3de521d9d7f1db5f7634642665f560b8ff0187018ec0aaaef16df"
         ],
         "logicalAssetId": "docs/assets/AGENTS.md",
         "localPath": "docs/assets/AGENTS.md",
@@ -2964,7 +3072,7 @@
       }
     },
     "docs/assets/CLAUDE.md": {
-      "hash": "f8efe1dd9f7b43b10e56569e55345f81dd1fc824e9e25c6b1fa1023eaeb4ff36",
+      "hash": "718bc88490f3de521d9d7f1db5f7634642665f560b8ff0187018ec0aaaef16df",
       "sourceId": "file:docs/assets/CLAUDE.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
@@ -2974,7 +3082,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "f8efe1dd9f7b43b10e56569e55345f81dd1fc824e9e25c6b1fa1023eaeb4ff36"
+          "718bc88490f3de521d9d7f1db5f7634642665f560b8ff0187018ec0aaaef16df"
         ],
         "logicalAssetId": "docs/assets/CLAUDE.md",
         "localPath": "docs/assets/CLAUDE.md",
@@ -2985,7 +3093,7 @@
       }
     },
     "docs/assets/library/AGENTS.md": {
-      "hash": "e08b3144d4d2ad4ff6f92c0bab78ff756fd7597e9e6cf20e299e6454d91e0d70",
+      "hash": "27540c738bf897da55d7d4f342f761169789a11fdb86155039813e9b64452703",
       "sourceId": "file:docs/assets/library/AGENTS.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
@@ -2995,7 +3103,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "e08b3144d4d2ad4ff6f92c0bab78ff756fd7597e9e6cf20e299e6454d91e0d70"
+          "27540c738bf897da55d7d4f342f761169789a11fdb86155039813e9b64452703"
         ],
         "logicalAssetId": "docs/assets/library/AGENTS.md",
         "localPath": "docs/assets/library/AGENTS.md",
@@ -3006,7 +3114,7 @@
       }
     },
     "docs/assets/library/CLAUDE.md": {
-      "hash": "e08b3144d4d2ad4ff6f92c0bab78ff756fd7597e9e6cf20e299e6454d91e0d70",
+      "hash": "27540c738bf897da55d7d4f342f761169789a11fdb86155039813e9b64452703",
       "sourceId": "file:docs/assets/library/CLAUDE.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
@@ -3016,7 +3124,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "e08b3144d4d2ad4ff6f92c0bab78ff756fd7597e9e6cf20e299e6454d91e0d70"
+          "27540c738bf897da55d7d4f342f761169789a11fdb86155039813e9b64452703"
         ],
         "logicalAssetId": "docs/assets/library/CLAUDE.md",
         "localPath": "docs/assets/library/CLAUDE.md",
@@ -3027,7 +3135,7 @@
       }
     },
     "docs/assets/playbooks/AGENTS.md": {
-      "hash": "aca84c84faf610c76366c3b9fd1dd301d130196221399ee040c3172ce650c385",
+      "hash": "fb341d7cdc407a0c8f6fe763475ec74a134dfb10c765ccbdd71f3f6cf1f427fc",
       "sourceId": "file:docs/assets/playbooks/AGENTS.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
@@ -3037,7 +3145,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "aca84c84faf610c76366c3b9fd1dd301d130196221399ee040c3172ce650c385"
+          "fb341d7cdc407a0c8f6fe763475ec74a134dfb10c765ccbdd71f3f6cf1f427fc"
         ],
         "logicalAssetId": "docs/assets/playbooks/AGENTS.md",
         "localPath": "docs/assets/playbooks/AGENTS.md",
@@ -3048,7 +3156,7 @@
       }
     },
     "docs/assets/playbooks/CLAUDE.md": {
-      "hash": "aca84c84faf610c76366c3b9fd1dd301d130196221399ee040c3172ce650c385",
+      "hash": "fb341d7cdc407a0c8f6fe763475ec74a134dfb10c765ccbdd71f3f6cf1f427fc",
       "sourceId": "file:docs/assets/playbooks/CLAUDE.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
@@ -3058,7 +3166,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "aca84c84faf610c76366c3b9fd1dd301d130196221399ee040c3172ce650c385"
+          "fb341d7cdc407a0c8f6fe763475ec74a134dfb10c765ccbdd71f3f6cf1f427fc"
         ],
         "logicalAssetId": "docs/assets/playbooks/CLAUDE.md",
         "localPath": "docs/assets/playbooks/CLAUDE.md",
@@ -3069,7 +3177,7 @@
       }
     },
     "docs/CLAUDE.md": {
-      "hash": "414191eec5367dae28e5d6dd1e411017237fb97811666d1eaa19b3423e98b695",
+      "hash": "403eadf26cd7e102353cbc7e23d9cb748e3eec6bab0d80e93d3bf6b9bd411610",
       "sourceId": "file:docs/CLAUDE.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
@@ -3079,7 +3187,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "414191eec5367dae28e5d6dd1e411017237fb97811666d1eaa19b3423e98b695"
+          "403eadf26cd7e102353cbc7e23d9cb748e3eec6bab0d80e93d3bf6b9bd411610"
         ],
         "logicalAssetId": "docs/CLAUDE.md",
         "localPath": "docs/CLAUDE.md",
@@ -3279,7 +3387,7 @@
       }
     },
     "docs/assets/playbooks/agent/make-docs-lifecycle.playbook.md": {
-      "hash": "7254483ecc7f6a5fa19c85ab9b53aafe5ed3c70675b02049f9e47a63cde500b1",
+      "hash": "85ffd84276528a5b93bcfed5aa48947162b1d0668f44ec2af1f4e6102a2615c4",
       "sourceId": "file:docs/assets/playbooks/agent/make-docs-lifecycle.playbook.md",
       "systemAsset": {
         "materializationMode": "full-snapshot",
@@ -3289,10 +3397,136 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "7254483ecc7f6a5fa19c85ab9b53aafe5ed3c70675b02049f9e47a63cde500b1"
+          "85ffd84276528a5b93bcfed5aa48947162b1d0668f44ec2af1f4e6102a2615c4"
         ],
         "logicalAssetId": "docs/assets/playbooks/agent/make-docs-lifecycle.playbook.md",
         "localPath": "docs/assets/playbooks/agent/make-docs-lifecycle.playbook.md",
+        "materializationClass": "materialized-system-asset",
+        "offlineExpectation": "local",
+        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
+        "selectionTrigger": "profile-selection"
+      }
+    },
+    ".make-docs/contracts/system/system-resource-contract.md": {
+      "hash": "e3e438ff4870bbb81824265bed027bd760e382f179ac85522325f019947ce78a",
+      "sourceId": "file:.make-docs/contracts/system/system-resource-contract.md",
+      "systemAsset": {
+        "materializationMode": "full-snapshot",
+        "sourcePackage": "@brucewaynedecoy/make-docs",
+        "sourceProvider": "package",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
+        "hashAlgorithm": "sha256",
+        "expectedHashes": [
+          "e3e438ff4870bbb81824265bed027bd760e382f179ac85522325f019947ce78a"
+        ],
+        "logicalAssetId": ".make-docs/contracts/system/system-resource-contract.md",
+        "localPath": ".make-docs/contracts/system/system-resource-contract.md",
+        "materializationClass": "materialized-system-asset",
+        "offlineExpectation": "local",
+        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
+        "selectionTrigger": "profile-selection"
+      }
+    },
+    ".make-docs/references/system/naive-uat-workflow.md": {
+      "hash": "14208efb7ead73f35f191c1fb20ba1f1bed6033329bbab060efb44107cebf50d",
+      "sourceId": "file:.make-docs/references/system/naive-uat-workflow.md",
+      "systemAsset": {
+        "materializationMode": "full-snapshot",
+        "sourcePackage": "@brucewaynedecoy/make-docs",
+        "sourceProvider": "package",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
+        "hashAlgorithm": "sha256",
+        "expectedHashes": [
+          "14208efb7ead73f35f191c1fb20ba1f1bed6033329bbab060efb44107cebf50d"
+        ],
+        "logicalAssetId": ".make-docs/references/system/naive-uat-workflow.md",
+        "localPath": ".make-docs/references/system/naive-uat-workflow.md",
+        "materializationClass": "materialized-system-asset",
+        "offlineExpectation": "local",
+        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
+        "selectionTrigger": "profile-selection"
+      }
+    },
+    ".make-docs/system-resources.catalog.json": {
+      "hash": "0f6d15c48f21018c08bf50a640d5efca775d35946f30130db6e7e6d97b143954",
+      "sourceId": "file:.make-docs/system-resources.catalog.json",
+      "systemAsset": {
+        "materializationMode": "full-snapshot",
+        "sourcePackage": "@brucewaynedecoy/make-docs",
+        "sourceProvider": "package",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
+        "hashAlgorithm": "sha256",
+        "expectedHashes": [
+          "0f6d15c48f21018c08bf50a640d5efca775d35946f30130db6e7e6d97b143954"
+        ],
+        "logicalAssetId": ".make-docs/system-resources.catalog.json",
+        "localPath": ".make-docs/system-resources.catalog.json",
+        "materializationClass": "materialized-system-asset",
+        "offlineExpectation": "local",
+        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
+        "selectionTrigger": "profile-selection"
+      }
+    },
+    ".make-docs/system-resources.schema.json": {
+      "hash": "ebb5d4e866897b599c056abd21a5e990f8105e94de3be9f52f4c416e5f363122",
+      "sourceId": "file:.make-docs/system-resources.schema.json",
+      "systemAsset": {
+        "materializationMode": "full-snapshot",
+        "sourcePackage": "@brucewaynedecoy/make-docs",
+        "sourceProvider": "package",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
+        "hashAlgorithm": "sha256",
+        "expectedHashes": [
+          "ebb5d4e866897b599c056abd21a5e990f8105e94de3be9f52f4c416e5f363122"
+        ],
+        "logicalAssetId": ".make-docs/system-resources.schema.json",
+        "localPath": ".make-docs/system-resources.schema.json",
+        "materializationClass": "materialized-system-asset",
+        "offlineExpectation": "local",
+        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
+        "selectionTrigger": "profile-selection"
+      }
+    },
+    ".make-docs/system/prompts/naive-uat-facilitator.prompt.md": {
+      "hash": "52a8121acea998634e9f8d461f720efee9bcffc489e906be3f528332b04d5e8e",
+      "sourceId": "file:.make-docs/prompts/system/naive-uat-facilitator.prompt.md",
+      "systemAsset": {
+        "materializationMode": "full-snapshot",
+        "sourcePackage": "@brucewaynedecoy/make-docs",
+        "sourceProvider": "package",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
+        "hashAlgorithm": "sha256",
+        "expectedHashes": [
+          "52a8121acea998634e9f8d461f720efee9bcffc489e906be3f528332b04d5e8e"
+        ],
+        "logicalAssetId": ".make-docs/system/prompts/naive-uat-facilitator.prompt.md",
+        "localPath": ".make-docs/system/prompts/naive-uat-facilitator.prompt.md",
+        "materializationClass": "materialized-system-asset",
+        "offlineExpectation": "local",
+        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
+        "selectionTrigger": "profile-selection"
+      }
+    },
+    ".make-docs/system/prompts/naive-uat-tester.prompt.md": {
+      "hash": "ebb793ad335012a7207b880a11d15f238b0931cb7bfb5569427967e426ce50cf",
+      "sourceId": "file:.make-docs/prompts/system/naive-uat-tester.prompt.md",
+      "systemAsset": {
+        "materializationMode": "full-snapshot",
+        "sourcePackage": "@brucewaynedecoy/make-docs",
+        "sourceProvider": "package",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
+        "hashAlgorithm": "sha256",
+        "expectedHashes": [
+          "ebb793ad335012a7207b880a11d15f238b0931cb7bfb5569427967e426ce50cf"
+        ],
+        "logicalAssetId": ".make-docs/system/prompts/naive-uat-tester.prompt.md",
+        "localPath": ".make-docs/system/prompts/naive-uat-tester.prompt.md",
         "materializationClass": "materialized-system-asset",
         "offlineExpectation": "local",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",

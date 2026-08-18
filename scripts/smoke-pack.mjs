@@ -94,7 +94,7 @@ const EXPECTED_SYSTEM_RESOURCE_PATHS = [
   ".make-docs/contracts/system/commit-message-convention.md",
   ".make-docs/contracts/system/history-record-contract.md",
   ".make-docs/references/system/lifecycle.md",
-  ".make-docs/references/system/prompts/request-to-design.prompt.md",
+  ".make-docs/system/prompts/request-to-design.prompt.md",
   ".make-docs/scripts/check_path_hygiene.py",
   ".make-docs/templates/system/work-index.md",
   ".make-docs/templates/system/work-phase.md",
@@ -923,7 +923,10 @@ function assertManifestContainsManagedFiles(manifestPath, expectedPaths) {
       throw new Error(`Smoke pack manifest did not track managed file ${expectedPath}.`);
     }
 
-    if (entry.sourceId !== `file:${expectedPath}`) {
+    const sourcePath = expectedPath.startsWith(".make-docs/system/prompts/")
+      ? `.make-docs/prompts/system/${expectedPath.slice(".make-docs/system/prompts/".length)}`
+      : expectedPath;
+    if (entry.sourceId !== `file:${sourcePath}`) {
       throw new Error(
         `Smoke pack manifest tracked ${expectedPath} with sourceId ${entry.sourceId}.`,
       );

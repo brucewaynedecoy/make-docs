@@ -10,8 +10,8 @@ Describe what this work directory covers and how to navigate its phase files.
 
 | File | Purpose |
 | --- | --- |
-| [01-{{PHASE_SLUG}}.md](./01-{{PHASE_SLUG}}.md) | {{PHASE_ONE_PURPOSE}} |
-| [02-{{PHASE_SLUG}}.md](./02-{{PHASE_SLUG}}.md) | {{PHASE_TWO_PURPOSE}} |
+| {{PHASE_ONE_LINK}} | {{PHASE_ONE_PURPOSE}} |
+| {{PHASE_TWO_LINK}} | {{PHASE_TWO_PURPOSE}} |
 
 ## Usage Notes
 

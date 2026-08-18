@@ -25,6 +25,7 @@ import {
   type SystemResourceError,
   type SystemResourceFileFingerprint,
   type SystemResourceList,
+  type SystemResourceOrigin,
   type SystemResourceProjectContext,
   type SystemResourceProjectEvidence,
   type SystemResourceProviderEntry,
@@ -74,6 +75,7 @@ export function resolveSystemResource(
   uri: string,
   provider: SystemResourceProviderInventory,
   project: SystemResourceProjectContext,
+  origin: SystemResourceOrigin = "effective",
 ): SystemResourceResult<ResolvedSystemResource> {
   const identity = parseSystemResourceUri(uri);
   if (!identity.ok) {
@@ -83,12 +85,22 @@ export function resolveSystemResource(
   if (!providerEntries.ok) {
     return providerEntries;
   }
+  const providerEntry = providerEntries.value.get(uri) ?? null;
+  if (origin === "installed") {
+    if (!providerEntry) {
+      return failure(
+        "resource-not-found",
+        `System resource ${uri} is not available from the installed provider.`,
+        "Check the resource URI or restore the installed provider.",
+        uri,
+      );
+    }
+    return { ok: true, value: fromProvider(provider, providerEntry) };
+  }
   const validatedProject = validateProjectContext(project);
   if (!validatedProject.ok) {
     return validatedProject;
   }
-
-  const providerEntry = providerEntries.value.get(uri) ?? null;
   const projectEvidence = validatedProject.value.evidenceByUri.get(uri) ?? null;
   const localRelativePath = projectionRelativePath(identity.value.type, identity.value.path);
   if (projectEvidence?.localPath && projectEvidence.localPath !== localRelativePath) {
@@ -106,11 +118,15 @@ export function resolveSystemResource(
     return local;
   }
   if (local.value.status === "absent") {
-    if (!providerEntry) {
+    if (origin === "local" || !providerEntry) {
       return failure(
         "resource-not-found",
-        `System resource ${uri} is not available from the project or installed provider.`,
-        "Check the resource URI or restore the installed provider.",
+        origin === "local"
+          ? `System resource ${uri} is not available from the project.`
+          : `System resource ${uri} is not available from the project or installed provider.`,
+        origin === "local"
+          ? "Select a trusted local projection or project override."
+          : "Check the resource URI or restore the installed provider.",
         uri,
         local.value.path,
       );
@@ -209,29 +225,34 @@ export function resolveSystemResource(
 export function listSystemResources(
   provider: SystemResourceProviderInventory,
   project: SystemResourceProjectContext,
+  origin: SystemResourceOrigin = "effective",
 ): SystemResourceResult<SystemResourceList> {
   const providerEntries = providerEntryMap(provider);
   if (!providerEntries.ok) {
     return providerEntries;
   }
-  const validatedProject = validateProjectContext(project);
-  if (!validatedProject.ok) {
-    return validatedProject;
+  let uris: Set<string>;
+  if (origin === "installed") {
+    uris = new Set(providerEntries.value.keys());
+  } else {
+    const validatedProject = validateProjectContext(project);
+    if (!validatedProject.ok) {
+      return validatedProject;
+    }
+    const localUris = listProjectedUris(validatedProject.value.root);
+    if (!localUris.ok) {
+      return localUris;
+    }
+    uris = new Set([
+      ...(origin === "effective" ? providerEntries.value.keys() : []),
+      ...validatedProject.value.evidenceByUri.keys(),
+      ...localUris.value,
+    ]);
   }
-  const localUris = listProjectedUris(validatedProject.value.root);
-  if (!localUris.ok) {
-    return localUris;
-  }
-
-  const uris = new Set<string>([
-    ...providerEntries.value.keys(),
-    ...validatedProject.value.evidenceByUri.keys(),
-    ...localUris.value,
-  ]);
   const resources: ListedSystemResource[] = [...uris]
     .sort(compareCodeUnits)
     .map((uri) => {
-      const result = resolveSystemResource(uri, provider, project);
+      const result = resolveSystemResource(uri, provider, project, origin);
       if (!result.ok) {
         return { uri, result };
       }
@@ -244,8 +265,9 @@ export function readSystemResource(
   uri: string,
   provider: SystemResourceProviderInventory,
   project: SystemResourceProjectContext,
+  origin: SystemResourceOrigin = "effective",
 ): SystemResourceResult<SystemResourceRead> {
-  const result = resolveSystemResource(uri, provider, project);
+  const result = resolveSystemResource(uri, provider, project, origin);
   return result.ok ? { ok: true, value: { resource: result.value } } : result;
 }
 

@@ -117,7 +117,7 @@ Reason: This design materially updates prior Batch 2 information-architecture in
 
 Route: `change-plan`
 
-Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/references/system/prompts/designs-to-plan-change.prompt.md)
+Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/system/prompts/designs-to-plan-change.prompt.md)
 
 Why: This design revises active W9 tool-directory and docs-assets assumptions, then feeds PRD reconciliation and a delta plan/work backlog rather than creating a new baseline.
 

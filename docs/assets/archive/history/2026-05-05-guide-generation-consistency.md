@@ -67,12 +67,12 @@ Commit-message drafting used [docs/assets/references/commit-message-convention.m
 | [docs/assets/references/guide-contract.md](../../../../.make-docs/contracts/system/guide-contract.md) | Shared guide-generation contract with audience, coverage, and future-coverage rules. |
 | [docs/assets/templates/guide-developer.md](../../../../.make-docs/templates/system/guide-developer.md) | Developer guide template updated for contributor, maintainer, validation, and future-coverage use. |
 | [docs/assets/templates/guide-user.md](../../../../.make-docs/templates/system/guide-user.md) | User guide template updated for novice orientation, task workflows, advanced usage, and future coverage. |
-| [docs/assets/prompts/work-to-guides.prompt.md](../../../../.make-docs/references/system/prompts/work-to-guides.prompt.md) | Reusable prompt starter for completed-work-to-guides generation. |
+| [docs/assets/prompts/work-to-guides.prompt.md](../../../../.make-docs/system/prompts/work-to-guides.prompt.md) | Reusable prompt starter for completed-work-to-guides generation. |
 | [docs/guides/AGENTS.md](../../library/AGENTS.md) | Dogfood guide router updated with audience decisions, update-first routing, and future-coverage handling. |
 | [packages/docs/template/docs](../../../../packages/docs/template/docs) | Shipped template copies aligned with the dogfood guide contracts and routers. |
 | packages/cli/src/renderers.ts | Generated docs and guide router output updated for guide-generation consistency. |
 | [packages/cli/src/rules.ts](../../../../packages/cli/src/rules.ts) | Prompt registry updated to include `work-to-guides.prompt.md` for work-enabled installs. |
-| [packages/skills/closeout-phase](../../../../packages/skills/closeout-phase) | Closeout workflow updated to handle developer and user guides. |
+| packages/skills/closeout-phase (historical path: `../../../../packages/skills/closeout-phase`) | Closeout workflow updated to handle developer and user guides. |
 | [packages/cli/tests](../../../../packages/cli/tests) | Regression tests added or updated for guide routing, parity, prompt install, and backup lifecycle counts. |
 | [docs/assets/history/2026-05-05-guide-generation-consistency.md](./2026-05-05-guide-generation-consistency.md) | Closeout breadcrumb for this guide-generation consistency work. |
 

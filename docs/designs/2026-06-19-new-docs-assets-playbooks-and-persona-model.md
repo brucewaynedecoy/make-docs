@@ -116,7 +116,7 @@ Reason: This design extends the accepted Batch 2 tool-directory decision into th
 
 Route: `change-plan`
 
-Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/references/system/prompts/designs-to-plan-change.prompt.md)
+Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/system/prompts/designs-to-plan-change.prompt.md)
 
 Why: This design revises active path assumptions, guide/playbook routing, archive placement, coverage persona targeting, template/package/dogfood expectations, and future validation surfaces. It should become a change plan rather than a baseline plan.
 

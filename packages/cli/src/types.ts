@@ -634,6 +634,7 @@ export type AuditReasonCode =
   | "already-absent"
   | "inside-backup-root"
   | "outside-supported-roots"
+  | "instruction-user-content-preserved"
   | "instruction-content-mismatch"
   | "managed-file-modified"
   | "manifest-skill-file-without-metadata"

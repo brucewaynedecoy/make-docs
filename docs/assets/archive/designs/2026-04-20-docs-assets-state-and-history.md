@@ -157,5 +157,5 @@ Existing historical records under `docs/guides/agent/` should be moved by the fo
 ## Intended Follow-On
 
 - Route: `change-plan`
-- Next Prompt: [designs-to-plan-change.prompt.md](../.prompts/designs-to-plan-change.prompt.md)
+- Next Prompt: [designs-to-plan-change.prompt.md](../../../../.make-docs/system/prompts/designs-to-plan-change.prompt.md)
 - Why: This design changes an existing docs contract and make-docs state path rather than defining a brand-new baseline system. The next step should derive an implementation plan that updates the current CLI, template, docs, and tests from the existing state.

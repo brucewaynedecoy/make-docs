@@ -156,9 +156,9 @@ describe("make-docs run command (W18 R11, R-REG-2, R-TOP-3)", () => {
     }
   });
 
-  test("every registry identifier resolves through its derived token path", () => {
-    for (const operation of listOperations()) {
-      const tokens = operation.id.split(".");
+  test("every run projection resolves through its canonical token path", () => {
+    for (const operation of listOperations().filter((entry) => entry.cli.root === "run")) {
+      const tokens = operation.cli.path.split(" ");
       const resolved = resolveRunOperationPath([...tokens, "--repo-root", "."]);
       expect(resolved.id, operation.id).toBe(operation.id);
       expect(resolved.rest, operation.id).toEqual(["--repo-root", "."]);
@@ -181,7 +181,9 @@ describe("make-docs run command (W18 R11, R-REG-2, R-TOP-3)", () => {
   });
 
   test("adapter map and registry identifiers agree exactly in both directions", () => {
-    const registryIds = listOperations().map((operation) => operation.id);
+    const registryIds = listOperations()
+      .filter((operation) => operation.cli.root === "run")
+      .map((operation) => operation.id);
     const adapterIds = listRunCliAdapters();
     expect([...adapterIds].sort()).toEqual([...registryIds].sort());
   });
@@ -221,10 +223,10 @@ describe("make-docs run command (W18 R11, R-REG-2, R-TOP-3)", () => {
     await runRunCommand([]);
 
     const output = stdout.output();
-    for (const operation of listOperations()) {
+    for (const operation of listOperations().filter((entry) => entry.cli.root === "run")) {
       const line = output
         .split("\n")
-        .find((candidate) => candidate.trim().startsWith(operation.id.split(".").join(" ")));
+        .find((candidate) => candidate.trim().startsWith(operation.cli.path));
       expect(line, operation.id).toBeDefined();
       if (operation.mutates === "write") {
         expect(line, operation.id).toContain("[write]");

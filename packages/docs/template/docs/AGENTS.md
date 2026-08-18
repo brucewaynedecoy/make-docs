@@ -13,7 +13,7 @@ Use `docs/` only as a router. Do not create generated files directly in this dir
 - Playbooks and Protocols are not current Make Docs product capabilities. Treat existing Playbook- or Protocol-shaped paths as legacy migration inputs.
 - After guide work, reconcile overlapping guides when useful; use `## Future Coverage` inside guides for downstream-dependent guide updates rather than creating design docs, architecture decisions, or PRD risks solely to remember future guide work.
 - For closeout history records, read `.make-docs/contracts/system/history-record-contract.md` and `.make-docs/templates/system/history-record.md`, then use the current archive path owned by project authority.
-- For reusable prompts, read `.make-docs/prompts/system/`. Prompts are first-class system resources. Their governing contracts own reusable rules.
+- Read prompts by stable `make-docs://system/prompt/<posix-relative-path>` URI with `make-docs resource read`. Prompts are first-class system resources. A local projection is optional. Their governing contracts own reusable rules.
 - **NEVER** use semantic line breaks when drafting/updating documentation.
 - **NEVER** add YAML front matter to `README.md` files.
 <!-- make-docs:end -->

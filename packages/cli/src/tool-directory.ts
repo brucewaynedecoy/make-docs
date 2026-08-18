@@ -174,7 +174,7 @@ function getLegacySystemResourceRoot(
   }
 
   if (family === "prompts") {
-    return `${getToolResourceTierPath("references", "system")}/prompts`;
+    return `${TOOL_DIRECTORY_RELATIVE_PATH}/system/prompts`;
   }
 
   if (LEGACY_REFERENCE_CONTRACT_FILES.has(relativeResourcePath)) {

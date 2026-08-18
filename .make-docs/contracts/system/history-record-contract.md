@@ -93,7 +93,7 @@ If a sub-section has no entries, state `None this session.` in place of the tabl
 
 When deferred obligations or naive UAT changed materially, summarize the durable delta once in `## Changes`: name the affected `O-###` or `NUAT-###`, the orphan-audit result when one matters, and the resulting scenario or finding disposition with links back to authority. Do not duplicate raw run logs, transcripts, or evidence payloads in history.
 
-Testing/UAT and obligation history remains non-persona at the coverage layer even when related tester or facilitator documents are persona-targeted.
+History coverage remains one project record. When Naive UAT changed materially, it links the selected-Persona testing records without copying their packets, findings, or evidence.
 
 Example:
 

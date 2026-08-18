@@ -142,7 +142,7 @@ Reason: This design extends the maintainer conformance lab to the Playbook packa
 
 Route: `change-plan`
 
-Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/references/system/prompts/designs-to-plan-change.prompt.md)
+Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/system/prompts/designs-to-plan-change.prompt.md)
 
 Why: This is a corrective evolution that carries the active W18 conformance and support-claim requirements into Playbook packaging outputs against the active PRD namespace rather than starting a fresh baseline.
 

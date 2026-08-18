@@ -39,7 +39,7 @@ Completed W16 R1 Phase 2 by adding PRD 23 generated-document metadata to the pac
 | Path | Description |
 | --- | --- |
 | [.make-docs/templates/system/](../../../../.make-docs/templates/system/) | Added PRD 23 frontmatter to root dogfood generated-document templates. |
-| [.make-docs/references/system/prompts/](../../../../.make-docs/references/system/prompts/) | Added generated-document metadata guidance to root dogfood prompt starters. |
+| [.make-docs/references/system/prompts/](../../../../.make-docs/system/prompts/) | Added generated-document metadata guidance to root dogfood prompt starters. |
 | [docs/work/2026-06-23-w16-r1-generated-metadata-lifecycle-handoffs/02-metadata-schema-and-templates.md](../../../work/2026-06-23-w16-r1-generated-metadata-lifecycle-handoffs/02-metadata-schema-and-templates.md) | Marked Phase 2 complete and recorded implementation evidence. |
 | [docs/assets/archive/history/2026-06-25-w16-r1-p2-metadata-schema-and-templates.md](2026-06-25-w16-r1-p2-metadata-schema-and-templates.md) | Added this phase closeout breadcrumb. |
 
@@ -48,7 +48,7 @@ Completed W16 R1 Phase 2 by adding PRD 23 generated-document metadata to the pac
 | Path | Description |
 | --- | --- |
 | [packages/docs/template/.make-docs/templates/system/](../../../../packages/docs/template/.make-docs/templates/system/) | Added PRD 23 frontmatter to package-source generated-document templates. |
-| [packages/docs/template/.make-docs/references/system/prompts/](../../../../packages/docs/template/.make-docs/references/system/prompts/) | Added prompt guidance requiring PRD 23 metadata for generated make-docs documents. |
+| [packages/docs/template/.make-docs/references/system/prompts/](../../../../packages/docs/template/.make-docs/prompts/system/) | Added prompt guidance requiring PRD 23 metadata for generated make-docs documents. |
 | [packages/cli/tests/consistency.test.ts](../../../../packages/cli/tests/consistency.test.ts) | Added metadata fixture coverage for generated templates and prompt guidance. |
 
 ### User

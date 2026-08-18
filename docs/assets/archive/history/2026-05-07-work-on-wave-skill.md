@@ -52,7 +52,7 @@ Commit-message drafting used [docs/assets/references/commit-message-convention.m
 
 | Path | Description |
 | --- | --- |
-| [packages/skills/work-on-wave](../../../../packages/skills/work-on-wave) | Packaged work-on-wave skill added with workflow guidance, helper scripts, agent prompt, and helper tests. |
+| packages/skills/work-on-wave (historical path: `../../../../packages/skills/work-on-wave`) | Packaged work-on-wave skill added with workflow guidance, helper scripts, agent prompt, and helper tests. |
 | .agents/skills/work-on-wave | Codex skill mirror added for the installable mapped file set. |
 | .claude/skills/work-on-wave | Claude skill mirror added for the installable mapped file set. |
 | [packages/cli/skill-registry.json](../../../../packages/cli/skill-registry.json) | CLI skill registry updated so `work-on-wave` is selectable and installable. |

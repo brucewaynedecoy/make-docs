@@ -140,7 +140,7 @@ without introducing auxiliary instruction files.
 ## Intended Follow-On
 
 - Route: `change-plan`
-- Next Prompt: [designs-to-plan-change.prompt.md](../../prompts/designs-to-plan-change.prompt.md)
+- Next Prompt: [designs-to-plan-change.prompt.md](../../../../.make-docs/system/prompts/designs-to-plan-change.prompt.md)
 - Why: this revises an implemented capability — the CLI's instruction-file
   rendering and conflict handling across PRD `05`, `07`, `08`, and the W14 R2
   conflict-resolution revision — so it feeds change planning against the active

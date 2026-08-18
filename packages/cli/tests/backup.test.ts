@@ -298,6 +298,44 @@ describe("backup command", () => {
     }
   });
 
+  test("does not classify a managed directory as its own removable descendant", async () => {
+    const targetDir = createTempDir();
+    const fakeHome = createTempDir("make-docs-home-");
+    const restoreHome = mockHomeDirectory(fakeHome);
+
+    try {
+      await installManifest(targetDir, (selections) => {
+        selections.skills = true;
+        selections.skillScope = "global";
+        selections.selectedSkills = ["archive-docs"];
+      });
+
+      const { prepareBackupExecution } = await import("../src/backup");
+      const prepared = await prepareBackupExecution({
+        targetDir,
+        homeDir: fakeHome,
+        now: new Date("2026-04-18T12:00:00Z"),
+      });
+      const managedDirectory = prepared.materializableDirectories.find(
+        (entry) =>
+          entry.backupRelativePath === "_home/.agents/skills/archive-docs",
+      );
+
+      expect(managedDirectory).toBeDefined();
+      if (!managedDirectory) {
+        throw new Error("Expected the managed native skill directory in the backup plan.");
+      }
+      expect(managedDirectory.removableDescendantPaths).toEqual([]);
+      expect(managedDirectory.removableDescendantPaths).not.toContain(
+        managedDirectory.path,
+      );
+    } finally {
+      restoreHome();
+      cleanupTempDir(targetDir);
+      cleanupTempDir(fakeHome);
+    }
+  });
+
   test("promotes plain same-day backups into ordinals and keeps incrementing", async () => {
     const targetDir = createTempDir();
 

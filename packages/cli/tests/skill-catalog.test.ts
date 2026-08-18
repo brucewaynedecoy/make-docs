@@ -5,6 +5,10 @@ import {
   getRecommendedSkillChoices,
 } from "../src/skill-catalog";
 import { defaultSelections } from "../src/profile";
+import type {
+  ResolvedAsset,
+  ResolvedSkillExposureAsset,
+} from "../src/types";
 import { mockSkillFetches } from "./helpers";
 
 const ALL_SKILL_NAMES = [
@@ -37,9 +41,20 @@ function hasAsset(
 function findExposure(
   assets: Awaited<ReturnType<typeof getDesiredSkillAssets>>,
   relativePath: string,
-) {
+): ResolvedSkillExposureAsset | undefined {
   return assets.find(
-    (asset) => asset.kind === "skill-exposure" && asset.relativePath === relativePath,
+    (asset): asset is ResolvedSkillExposureAsset =>
+      asset.kind === "skill-exposure" && asset.relativePath === relativePath,
+  );
+}
+
+function findFileAsset(
+  assets: Awaited<ReturnType<typeof getDesiredSkillAssets>>,
+  relativePath: string,
+): ResolvedAsset | undefined {
+  return assets.find(
+    (asset): asset is ResolvedAsset =>
+      asset.kind !== "skill-exposure" && asset.relativePath === relativePath,
   );
 }
 
@@ -89,15 +104,17 @@ describe("skill catalog", () => {
     enableAllSkills(selections);
 
     const assets = await getDesiredSkillAssets(selections);
-    const archiveSharedPayload = assets.find(
-      (asset) =>
-        asset.relativePath === ".make-docs/agentics/skills/archive-docs/SKILL.md",
+    const archiveSharedPayload = findFileAsset(
+      assets,
+      ".make-docs/agentics/skills/archive-docs/SKILL.md",
     );
-    const archiveSkillForClaude = assets.find(
-      (asset) => asset.relativePath === ".claude/skills/archive-docs",
+    const archiveSkillForClaude = findExposure(
+      assets,
+      ".claude/skills/archive-docs",
     );
-    const archiveSkillForCodex = assets.find(
-      (asset) => asset.relativePath === ".agents/skills/archive-docs",
+    const archiveSkillForCodex = findExposure(
+      assets,
+      ".agents/skills/archive-docs",
     );
 
     expect(archiveSharedPayload).toBeDefined();

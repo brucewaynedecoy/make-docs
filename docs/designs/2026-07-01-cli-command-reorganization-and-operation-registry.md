@@ -174,7 +174,7 @@ Reason: This design reorganizes the command tree into self, project, run, and se
 
 Route: `change-plan`
 
-Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/references/system/prompts/designs-to-plan-change.prompt.md)
+Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/system/prompts/designs-to-plan-change.prompt.md)
 
 Why: This is a corrective evolution of the active W18 CLI and operations surface. It formalizes the registry and reorganizes the tree against the active PRD namespace rather than starting a fresh baseline.
 

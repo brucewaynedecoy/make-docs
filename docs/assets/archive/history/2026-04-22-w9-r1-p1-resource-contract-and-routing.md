@@ -30,7 +30,7 @@ Implemented W9 R1 Phase 1 for the docs assets resource namespace overhaul, frame
 | --- | --- |
 | [docs/AGENTS.md](../../AGENTS.md) and [docs/CLAUDE.md](../../CLAUDE.md) | Active root docs routers updated for the `docs/assets/` resource namespace and `.make-docs/` state split. |
 | [.make-docs/references/system/](../../../../.make-docs/references/system/) | Active workflow, output, wave, guide, design, planning, PRD-change, history, and commit-message references updated to the target path contract. |
-| [docs/.templates/](../../../../.make-docs/templates/system/) and [docs/.prompts/](../../../../.make-docs/references/system/prompts/) | Template comments and prompt bodies updated to route future generated docs through `docs/assets/` resources. |
+| [docs/.templates/](../../../../.make-docs/templates/system/) and [docs/.prompts/](../../../../.make-docs/system/prompts/) | Template comments and prompt bodies updated to route future generated docs through `docs/assets/` resources. |
 | [docs/.archive/](../) and [docs/.assets/](../) | Existing router files updated with target archive, history, resource, and retired-state wording ahead of physical migration. |
 | [packages/docs/template/docs/](../../../../packages/docs/template/docs/) | Shippable template copy updated with matching Phase 1 routing language. |
 | [docs/assets/archive/work/2026-04-22-w9-r1-docs-assets-resource-namespace/01-resource-contract-and-routing.md](../work/2026-04-22-w9-r1-docs-assets-resource-namespace/01-resource-contract-and-routing.md) | Phase 1 backlog marked complete. |

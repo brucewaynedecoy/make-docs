@@ -4,7 +4,7 @@ kind: "design"
 status: "draft"
 follow_on:
   route: "change-plan"
-  next_prompt: "../../.make-docs/references/system/prompts/designs-to-plan-change.prompt.md"
+  next_prompt: ".make-docs/system/prompts/designs-to-plan-change.prompt.md"
   why: "This feature revises the active PRD, coverage-pass, lifecycle, work-evidence, history, phase-gate, template, and compatibility contracts."
   coordinate_handoff: "Revises W16 R0 coverage governance and W18 R10 global-store state boundaries; recommended downstream coordinate W18 R14."
 # coordinate: "W18 R14"
@@ -297,6 +297,6 @@ No runtime, CLI, schema, contract, template, PRD, plan, work, history, or phase-
 ## Intended Follow-On
 
 - Route: `change-plan`
-- Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/references/system/prompts/designs-to-plan-change.prompt.md)
+- Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/system/prompts/designs-to-plan-change.prompt.md)
 - Why: This feature revises the active PRD, coverage-pass, lifecycle, work-evidence, history, phase-gate, template, and compatibility contracts.
 - Coordinate Handoff: Revises W16 R0 coverage governance and W18 R10 global-store state boundaries; recommended downstream coordinate W18 R14.

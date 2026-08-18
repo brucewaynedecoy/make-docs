@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Fix a bug in `validate_output.py` where the `LINK_RE` regex matches programming syntax that resembles Markdown links — most notably bracket-paren patterns like `salt['pillar.get'](..., merge=True)`. These false positives cause the validator to report "broken link" errors on valid PRD content, which in turn causes the LLM running the decomposition to "fix" the source material by rewriting functioning code snippets to satisfy the validator. This is a data-corruption bug: the validator's false signal leads to destructive edits of the codebase documentation it is supposed to preserve.
+Fix a bug in `validate_output.py` where the `LINK_RE` regex matches programming syntax that resembles Markdown links — most notably bracket-paren patterns like <code>salt['pillar.get']<!-- -->(..., merge=True)</code>. These false positives cause the validator to report "broken link" errors on valid PRD content, which in turn causes the LLM running the decomposition to "fix" the source material by rewriting functioning code snippets to satisfy the validator. This is a data-corruption bug: the validator's false signal leads to destructive edits of the codebase documentation it is supposed to preserve.
 
 ## Context
 
@@ -18,7 +18,7 @@ The decompose-codebase skill generates PRD documents that quote source code to a
 
 | Pattern | Language/Context | False match target |
 |---|---|---|
-| `salt['pillar.get'](..., merge=True)` | SaltStack | `..., merge=True` |
+| <code>salt['pillar.get']<!-- -->(..., merge=True)</code> | SaltStack | `..., merge=True` |
 | `obj['method.name'](arg1, arg2)` | Python/JS dict call | `arg1, arg2` |
 | `hash['config.get'](default)` | Ruby/Python | `default` |
 | `{{ salt['grains.get']('os_family') }}` | Jinja2 | `'os_family'` |
@@ -39,7 +39,7 @@ Apply a layered filtering strategy in `validate_links` to reject matches that ar
 
 ### 1. Skip matches inside inline code spans
 
-Before running `LINK_RE` over the document text, strip or skip content inside backtick-delimited code spans. A match like `` `salt['pillar.get'](..., merge=True)` `` should never be evaluated as a link.
+Before running `LINK_RE` over the document text, strip or skip content inside backtick-delimited code spans. A match like <code>salt['pillar.get']<!-- -->(..., merge=True)</code> should never be evaluated as a link.
 
 **Approach:** Pre-process each line to mask inline code spans (`` `...` ``) before applying `LINK_RE`. This is simpler and more robust than trying to exclude them via a negative lookbehind in the regex itself, because code spans can contain arbitrary characters including nested brackets.
 
@@ -80,7 +80,7 @@ Add test cases to cover:
 
 **Use a negative lookbehind/lookahead in the regex to exclude backtick-wrapped matches.** For example, `` (?<!`)LINK_RE(?!`) ``. Rejected because: backtick spans can be arbitrarily nested (`` ` `` vs ``` `` ```), and lookbehind assertions cannot handle variable-length patterns. The pre-processing approach (mask code spans, then match) is more reliable.
 
-**Only validate links that look like file paths (e.g., must contain `/` or end in a known extension).** This would filter out most false positives but would also reject valid Markdown links to files without extensions or in the same directory (e.g., `[index](00-index)`). Rejected because: it trades false positives for false negatives, which defeats the purpose of link validation.
+**Only validate links that look like file paths (e.g., must contain `/` or end in a known extension).** This would filter out most false positives but would also reject valid Markdown links to files without extensions or in the same directory (e.g., <code>[index]<!-- -->(00-index)</code>). Rejected because: it trades false positives for false negatives, which defeats the purpose of link validation.
 
 **Do nothing and instruct the LLM not to "fix" broken-link errors in code snippets.** Rejected because: the validator's error output is consumed programmatically by the decompose skill, and relying on prompt-level instructions to override a hard validation error is fragile. The validator should not report false errors in the first place.
 
@@ -106,5 +106,5 @@ Add test cases to cover:
 ## Intended Follow-On
 
 - Route: `baseline-plan`
-- Next Prompt: [designs-to-plan.prompt.md](../.prompts/designs-to-plan.prompt.md)
+- Next Prompt: [designs-to-plan.prompt.md](../../../../.make-docs/system/prompts/designs-to-plan.prompt.md)
 - Why: The fix is scoped to a single file with clear test requirements, but the layered approach (code-span masking, fence tracking, heuristic filters, tests) benefits from a sequenced plan to avoid regressions during implementation.

@@ -32,7 +32,7 @@ The package is intentionally small. Most changes land in one of these files:
 - [`src/operations/context.ts`](./operations/context.ts): the injected execution context that gates writes, dry-run, and approvals uniformly
 - [`src/run/cli.ts`](./run/cli.ts): the `make-docs run` surface derived from the registry
 - [`src/mcp/`](./mcp/): read-first MCP stdio server registration and tool handlers
-- [`src/operations/cli.ts`](./operations/cli.ts): legacy dispatch for the pruned operation cluster only (test-reachable; removed by the W18 R11 pruning phase)
+- Historical path `src/operations/cli.ts`: legacy dispatch for the pruned operation cluster, removed by the W18 R11 pruning phase
 - [`src/operations.ts`](./operations.ts): compatibility facade for callers that still import `src/operations`
 - [`tests/`](../tests): integration, CLI, wizard, managed-block, and consistency coverage
 
@@ -44,7 +44,7 @@ New deterministic make-docs behavior is declared once in the operation registry 
 - `package`: package-plan, surface-resolve, and write over the playbook-packaging implementations.
 - `work`: the retained work-item identity resolver and evidence record/read pair over the global store.
 
-The legacy `closeout`, `work` inspection, and `lifecycle` domains are pruned by the migrated-operations inventory disposition and must not gain registry identifiers; their dispatcher ([`src/operations/cli.ts`](./operations/cli.ts)) survives only for tests until the pruning phase deletes it.
+The migrated-operations inventory pruned the legacy `closeout`, `work` inspection, and `lifecycle` dispatcher. The former dispatcher path was `src/operations/cli.ts`; W18 R11 removed that file.
 
 Shared operation contracts live in [`src/operations/types.ts`](./operations/types.ts), the registry contract in [`src/operations/registry.ts`](./operations/registry.ts), and the execution context in [`src/operations/context.ts`](./operations/context.ts). Every handler is invocable through `invokeOperation` without the CLI parser or MCP transport; surfaces adapt transport input, call the registry, and render the result — they never own operation logic or per-surface write gating.
 

@@ -1,6 +1,6 @@
 # Agentics Ecosystem — Capability Registry, Modules, and Gateway Skill
 
-> Filename: `2026-04-15-agentics-ecosystem.md`. See [../.references/wave-model.md](../.references/wave-model.md) for W/R semantics.
+> Filename: `2026-04-15-agentics-ecosystem.md`. See the [wave model](../../.make-docs/references/system/wave-model.md) for W/R semantics.
 
 ## Purpose
 
@@ -279,5 +279,5 @@ Out of scope for this design:
 ## Intended Follow-On
 
 - Route: `baseline-plan`
-- Next Prompt: [designs-to-plan.prompt.md](../.prompts/designs-to-plan.prompt.md)
+- Next Prompt: [designs-to-plan.prompt.md](../../.make-docs/system/prompts/designs-to-plan.prompt.md)
 - Why: None of this is implemented yet; the design should flow into a baseline plan that sequences the registry and gateway skill first, then proves the pipeline end-to-end with a single real skill such as `docs-healthcheck` before expanding the catalog.

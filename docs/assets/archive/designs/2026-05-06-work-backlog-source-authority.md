@@ -122,6 +122,6 @@ The change should reduce unnecessary reads from `.agents/` or `.claude/` mirrors
 ## Intended Follow-On
 
 - Route: `change-plan`
-- Next Prompt: [designs-to-plan-change.prompt.md](../../prompts/designs-to-plan-change.prompt.md)
+- Next Prompt: [designs-to-plan-change.prompt.md](../../../../.make-docs/system/prompts/designs-to-plan-change.prompt.md)
 - Why: this is a targeted documentation and skill-guidance revision to the existing plan-to-work backlog workflow, not a new baseline planning track.
 - Coordinate Handoff: unresolved; planner must resolve before writing.

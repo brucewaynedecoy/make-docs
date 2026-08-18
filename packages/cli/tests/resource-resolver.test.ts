@@ -54,6 +54,49 @@ describe("system-resource resolver", () => {
     expect(existsSync(path.join(project, ".make-docs"))).toBe(false);
   });
 
+  it("selects effective, local, and installed origins in the shared resolver", () => {
+    const provider = createProvider();
+    const project = createProject();
+    const entry = providerEntry(provider, "contract");
+    const override = Buffer.from("local contract override\n");
+    writeProjection(project, entry, override);
+    const projectContext = context(project, [{
+      uri: entry.identity.uri,
+      selected: true,
+      ownership: "project-override",
+      expectedDigest: digest(override),
+      localPath: projectionPath(entry),
+    }]);
+
+    const effective = readSystemResource(entry.identity.uri, provider, projectContext);
+    const local = readSystemResource(entry.identity.uri, provider, projectContext, "local");
+    const installed = readSystemResource(entry.identity.uri, provider, projectContext, "installed");
+    expect(effective.ok && effective.value.resource.source).toBe("project-override");
+    expect(local.ok && local.value.resource.source).toBe("project-override");
+    expect(installed.ok && installed.value.resource.source).toBe("provider");
+    if (installed.ok) {
+      expect(Buffer.from(installed.value.resource.content).toString("utf8")).toBe(
+        "contract content\n",
+      );
+    }
+
+    const effectiveList = listSystemResources(provider, projectContext, "effective");
+    const localList = listSystemResources(provider, projectContext, "local");
+    const installedList = listSystemResources(provider, projectContext, "installed");
+    expect(effectiveList.ok && effectiveList.value.resources).toHaveLength(4);
+    expect(localList.ok && localList.value.resources.map((item) => item.uri)).toEqual([
+      entry.identity.uri,
+    ]);
+    expect(installedList.ok && installedList.value.resources).toHaveLength(4);
+    if (installedList.ok) {
+      expect(
+        installedList.value.resources.every(
+          (item) => item.result.ok && item.result.value.source === "provider",
+        ),
+      ).toBe(true);
+    }
+  });
+
   it("isolates provider inventory bytes from read-result mutation and ensure output", () => {
     const provider = createProvider();
     const entry = provider.resources[0];

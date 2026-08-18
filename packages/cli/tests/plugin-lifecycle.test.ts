@@ -135,6 +135,7 @@ function createPluginManifest(
     files,
     [],
     createEmptySystemAssetManifestState(),
+    "plugin-lifecycle-test-project",
   );
   writeManifest(targetDir, manifest);
   return loadManifest(targetDir)!;

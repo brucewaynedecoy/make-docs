@@ -5,9 +5,12 @@ import {
   OperationWriteDeniedError,
 } from "../src/operations/context";
 import {
+  ADMITTED_OPERATION_IDS,
   getOperation,
   hasOperation,
   invokeOperation,
+  LEGACY_COMPATIBILITY_OPERATION_IDS,
+  listAdmittedOperations,
   listOperations,
   OPERATION_ID_PATTERN,
 } from "../src/operations/registry";
@@ -17,7 +20,7 @@ import {
  * adding an identifier extends EXPECTED_IDENTIFIERS; removing or renaming an
  * existing identifier is a contract break and must fail here.
  */
-const EXPECTED_IDENTIFIERS = [
+const LITERAL_LEGACY_COMPATIBILITY_IDENTIFIERS = [
   "playbook.validate",
   "playbook.catalog",
   "playbook.resolve",
@@ -38,10 +41,33 @@ const EXPECTED_IDENTIFIERS = [
   // Appended by W18 R12 P3 (PRD 41 R-GRAM-3): the composite single-entry
   // packaging operation, registered per the append-only rule.
   "package.ship",
+] as const;
+
+const LITERAL_ADMITTED_IDENTIFIERS = [
   "prd.authority.validate",
   "work.item.resolve",
   "work.evidence.record",
   "work.evidence.read",
+  "resource.list",
+  "resource.read",
+  "resource.ensure",
+  "project.surface.ensure",
+  "lifecycle.start",
+  "lifecycle.show",
+  "lifecycle.list",
+  "lifecycle.checkpoint",
+  "lifecycle.pause",
+  "lifecycle.resume",
+  "lifecycle.attach-evidence",
+  "lifecycle.complete",
+  "lifecycle.fail",
+  "lifecycle.abandon",
+  "uat.scenario.validate",
+  "uat.persona.resolve",
+  "uat.target.validate",
+  "uat.evidence-reference.validate",
+  "uat.finding.validate",
+  "uat.result.validate",
 ] as const;
 
 /** Pruned per the migrated-operations inventory disposition (R-RUN-2). */
@@ -51,7 +77,6 @@ const PRUNED_SEGMENTS = [
   "work-phase-state",
   "phase-plan",
   "phase-gate",
-  "checkpoint",
   "scope-guard",
   "closeout-probe",
   "closeout-validate",
@@ -59,11 +84,24 @@ const PRUNED_SEGMENTS = [
 ];
 
 describe("operation registry contract", () => {
-  it("registers exactly the retained identifier set", () => {
+  it("keeps the literal frozen baseline and admits exactly the 24 P3 identifiers", () => {
     const ids = listOperations()
       .map((operation) => operation.id)
       .sort();
-    expect(ids).toEqual([...EXPECTED_IDENTIFIERS].sort());
+    expect([...LEGACY_COMPATIBILITY_OPERATION_IDS]).toEqual(
+      LITERAL_LEGACY_COMPATIBILITY_IDENTIFIERS,
+    );
+    expect([...ADMITTED_OPERATION_IDS]).toEqual(LITERAL_ADMITTED_IDENTIFIERS);
+    expect(listAdmittedOperations().map((entry) => entry.id)).toEqual(
+      LITERAL_ADMITTED_IDENTIFIERS,
+    );
+    expect(ids).toEqual(
+      [
+        ...LITERAL_LEGACY_COMPATIBILITY_IDENTIFIERS,
+        ...LITERAL_ADMITTED_IDENTIFIERS,
+      ].sort(),
+    );
+    expect(ids).toHaveLength(42);
   });
 
   it("every identifier follows the domain.verb / domain.object.verb convention", () => {
@@ -73,10 +111,12 @@ describe("operation registry contract", () => {
     }
   });
 
-  it("every identifier resolves to a handler with a mutation classification", () => {
+  it("gives active identifiers one handler and pending identifiers no handler claim", () => {
     for (const operation of listOperations()) {
       const definition = getOperation(operation.id);
-      expect(typeof definition.handler, operation.id).toBe("function");
+      expect(typeof definition.handler, operation.id).toBe(
+        operation.status === "active" ? "function" : "undefined",
+      );
       expect(["read", "write"], operation.id).toContain(definition.mutates);
       expect(definition.inputSchema, operation.id).toBeDefined();
     }
@@ -91,7 +131,7 @@ describe("operation registry contract", () => {
         ).toBe(false);
       }
     }
-    expect(hasOperation("lifecycle.checkpoint")).toBe(false);
+    expect(hasOperation("lifecycle.checkpoint")).toBe(true);
     expect(hasOperation("closeout.probe")).toBe(false);
   });
 
@@ -119,9 +159,14 @@ describe("operation registry contract", () => {
     const context = createExecutionContext({ surface: "test", writesAllowed: true });
     for (const operation of listOperations()) {
       if (operation.status !== "pending") continue;
-      await expect(invokeOperation(operation.id, {}, context), operation.id).rejects.toThrow(
-        /W18 R7/,
-      );
+      const attempt = invokeOperation(operation.id, {}, context);
+      await expect(attempt, operation.id).rejects.toBeInstanceOf(OperationPendingError);
+      await expect(attempt, operation.id).rejects.toMatchObject({
+        code: "operation-pending",
+        operation: operation.id,
+        pendingLineage: operation.pendingLineage,
+        handlerAvailable: false,
+      });
     }
   });
 });

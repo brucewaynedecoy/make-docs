@@ -13,4 +13,4 @@ Assign exactly one verdict to every candidate: `create`, `update-existing`, `lin
 
 Apply the history idempotency rule in `coverage-pass-contract.md` for this session and follow `history-record-contract.md` for any history breadcrumb. Reference the validation checklist in `coverage-pass-contract.md` instead of restating it, and run focused validation for any changed files.
 
-Close with a concise pass summary: verdict table, artifacts changed, validation run, no-test or no-UAT rationales, any activated `NUAT-###` or valid future-trigger `none` routing, and remaining handoffs. If commit-message work is needed, use the existing `.make-docs/prompts/system/work-to-commit-message.prompt.md`; do not create a duplicate commit-message starter.
+Close with a concise pass summary: verdict table, artifacts changed, validation run, no-test or no-UAT rationales, any activated `NUAT-###` or valid future-trigger `none` routing, and remaining handoffs. If commit-message work is needed, read `make-docs://system/prompt/work-to-commit-message.prompt.md` with `make-docs resource read`; do not create a duplicate commit-message starter.

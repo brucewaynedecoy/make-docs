@@ -95,9 +95,6 @@ export async function createInstallPlan(options: {
         {
           hash: getManifestHashForAsset(asset),
           sourceId: asset.sourceId,
-          ...(isSkillExposureAsset(asset)
-            ? { skillExposure: asset.skillExposure }
-            : {}),
         },
       ]),
     ),
@@ -133,6 +130,12 @@ export async function createInstallPlan(options: {
       }
       actions.push(action);
       continue;
+    }
+
+    if (isSkillExposureAsset(asset)) {
+      throw new Error(
+        `Skill exposure asset ${asset.relativePath} is missing from the desired skill file set.`,
+      );
     }
 
     const absolutePath = relativePathToTarget(targetDir, asset.relativePath);

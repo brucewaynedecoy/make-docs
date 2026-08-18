@@ -36,7 +36,7 @@ git diff --check
 | [docs/assets/archive/work/2026-04-20-w9-r0-docs-assets-state-and-history/01-contracts-and-history-namespace.md](../work/2026-04-20-w9-r0-docs-assets-state-and-history/01-contracts-and-history-namespace.md) | Phase 1 work item with all acceptance criteria marked complete. |
 | [docs/.references/history-record-contract.md](../../../../.make-docs/contracts/system/history-record-contract.md) | Updated history record contract for the future `.assets/history` namespace. |
 | [docs/.templates/history-record.md](../../../../.make-docs/templates/system/history-record.md) | Added the flexible frontmatter scaffold for history records. |
-| [docs/.prompts/session-to-history-record.prompt.md](../../../../.make-docs/references/system/prompts/session-to-history-record.prompt.md) | Rerouted session summaries to `docs/.assets/history/`. |
+| [docs/.prompts/session-to-history-record.prompt.md](../../../../.make-docs/system/prompts/session-to-history-record.prompt.md) | Rerouted session summaries to `docs/.assets/history/`. |
 | [docs/.assets/AGENTS.md](../AGENTS.md) | New top-level operational assets router. |
 | [docs/.assets/history/AGENTS.md](AGENTS.md) | New history-specific router. |
 | `docs/.assets/make-docs/AGENTS.md` | New make-docs CLI state router. |

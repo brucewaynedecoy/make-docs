@@ -48,7 +48,6 @@ const PRUNED_OPERATIONS = [
   "work-phase-state",
   "phase-plan",
   "phase-gate",
-  "checkpoint",
   "scope-guard",
   "closeout-probe",
   "closeout-validate",
@@ -170,15 +169,37 @@ function diffIdentifierSets(
 
 describe("R-TEST-1: CLI run tree and MCP tool list are registry-derived with full parity", () => {
   test("registry, run adapters, and derived MCP tools describe the same identifier set in all directions", () => {
-    const registryIds = listOperations().map((operation) => operation.id);
+    const registryOperations = listOperations();
+    const registryIds = registryOperations.map((operation) => operation.id);
+    const runRegistryIds = registryOperations
+      .filter((operation) => operation.cli.command.startsWith("make-docs run "))
+      .map((operation) => operation.id);
+    const nonRunRegistryIds = registryOperations
+      .filter((operation) => !operation.cli.command.startsWith("make-docs run "))
+      .map((operation) => operation.id)
+      .sort();
     const runIds = listRunCliAdapters();
     const mcpIds = listDerivedMcpOperationTools().map((tool) => tool.operation);
 
     expect(registryIds.length).toBeGreaterThan(0);
-    // Pairwise, both directions: no one-surface-only operation anywhere.
-    expect(diffIdentifierSets(registryIds, runIds)).toEqual({ onlyInLeft: [], onlyInRight: [] });
+    expect(nonRunRegistryIds).toEqual([
+      "project.surface.ensure",
+      "resource.ensure",
+      "resource.list",
+      "resource.read",
+    ]);
+    // The run adapter covers only registry entries whose canonical CLI root
+    // is `run`. Resource and project entries use their own canonical roots.
+    expect(diffIdentifierSets(runRegistryIds, runIds)).toEqual({
+      onlyInLeft: [],
+      onlyInRight: [],
+    });
+    // MCP still covers the full registry in both directions.
     expect(diffIdentifierSets(registryIds, mcpIds)).toEqual({ onlyInLeft: [], onlyInRight: [] });
-    expect(diffIdentifierSets(runIds, mcpIds)).toEqual({ onlyInLeft: [], onlyInRight: [] });
+    expect(diffIdentifierSets(runIds, mcpIds)).toEqual({
+      onlyInLeft: [],
+      onlyInRight: nonRunRegistryIds,
+    });
 
     // The MCP conformance helper agrees against the live registry.
     expect(verifyDerivedMcpToolParity()).toEqual({
@@ -190,17 +211,19 @@ describe("R-TEST-1: CLI run tree and MCP tool list are registry-derived with ful
   });
 
   test("an injected one-surface-only mismatch is reported in both directions (failing mode)", () => {
-    const registryIds = listOperations().map((operation) => operation.id);
+    const runRegistryIds = listOperations()
+      .filter((operation) => operation.cli.command.startsWith("make-docs run "))
+      .map((operation) => operation.id);
 
     // CLI side: the same comparison the parity assertion performs must
     // report an identifier filtered out of a copy of the adapter list...
     const runIdsMissingOne = listRunCliAdapters().filter((id) => id !== "playbook.catalog");
-    expect(diffIdentifierSets(registryIds, runIdsMissingOne).onlyInLeft).toContain(
+    expect(diffIdentifierSets(runRegistryIds, runIdsMissingOne).onlyInLeft).toContain(
       "playbook.catalog",
     );
     // ...and an identifier present on the surface but absent from the registry.
     const runIdsWithExtra = [...listRunCliAdapters(), "bogus.operation"];
-    expect(diffIdentifierSets(registryIds, runIdsWithExtra).onlyInRight).toContain(
+    expect(diffIdentifierSets(runRegistryIds, runIdsWithExtra).onlyInRight).toContain(
       "bogus.operation",
     );
 
@@ -527,6 +550,26 @@ describe("R-TEST-4: pre-v2 migration safety, uninstall confirmation, and pruned 
       expect(readFileSync(path.join(repoDir, relativePath), "utf8"), relativePath).toBe(content);
     }
     expect(exec).not.toHaveBeenCalled();
+  });
+
+  test("lifecycle.checkpoint remains a typed pending P6 operation", async () => {
+    expect(
+      listOperations().find((operation) => operation.id === "lifecycle.checkpoint"),
+    ).toMatchObject({
+      status: "pending",
+      pendingLineage: "W19 R1 P6",
+      cli: { command: "make-docs run lifecycle checkpoint" },
+    });
+    expect(hasOperation("lifecycle.checkpoint")).toBe(true);
+    expect(
+      MAKE_DOCS_MCP_TOOLS.some((tool) => tool.name === "make_docs_lifecycle_checkpoint"),
+    ).toBe(true);
+    await expect(runRunCommand(["lifecycle", "checkpoint"])).rejects.toMatchObject({
+      code: "operation-pending",
+      operation: "lifecycle.checkpoint",
+      pendingLineage: "W19 R1 P6",
+      handlerAvailable: false,
+    });
   });
 
   test.each([...PRUNED_OPERATIONS])(

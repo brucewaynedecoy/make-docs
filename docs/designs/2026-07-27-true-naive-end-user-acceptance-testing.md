@@ -4,7 +4,7 @@ kind: "design"
 status: "draft"
 follow_on:
   route: "change-plan"
-  next_prompt: ".make-docs/references/system/prompts/designs-to-plan-change.prompt.md"
+  next_prompt: ".make-docs/system/prompts/designs-to-plan-change.prompt.md"
   why: "This capability revises the active testing and UAT coverage, lifecycle, Playbook, PRD, work, history, phase-gate, Project State, template, and compatibility contracts."
   coordinate_handoff: "Revises W16 R0 testing and UAT coverage and consumes W18 R10 Global Store boundaries; recommended downstream coordinate W18 R15, contingent on owner disposition of the sibling W18 R14 anti-orphan design."
 # coordinate: "W18 R15"
@@ -31,7 +31,7 @@ This design is documentation-first. It stops at the owner-review gate and does n
 
 ## Context
 
-The current [coverage-pass contract](../../.make-docs/contracts/system/coverage-pass-contract.md) correctly makes testing and UAT a non-persona-scoped coverage surface and requires every candidate to receive `create`, `update-existing`, `link-only`, or `none` with a reason. The current [testing and UAT starter prompt](../../.make-docs/references/system/prompts/coverage-pass-testing-uat.prompt.md) enumerates automated validation, manual scenarios, UAT passes, acceptance scripts, smoke tests, no-test decisions, and discoverability pointers. Neither authority defines a qualified naive tester, an anti-coaching boundary, a real-world scenario contract, an evidence schema, or a trigger that turns a user-observable slice into required naive UAT.
+The current [coverage-pass contract](../../.make-docs/contracts/system/coverage-pass-contract.md) correctly makes testing and UAT a non-persona-scoped coverage surface and requires every candidate to receive `create`, `update-existing`, `link-only`, or `none` with a reason. The current [testing and UAT starter prompt](../../.make-docs/system/prompts/coverage-pass-testing-uat.prompt.md) enumerates automated validation, manual scenarios, UAT passes, acceptance scripts, smoke tests, no-test decisions, and discoverability pointers. Neither authority defines a qualified naive tester, an anti-coaching boundary, a real-world scenario contract, an evidence schema, or a trigger that turns a user-observable slice into required naive UAT.
 
 That gap has practical consequences. The hand-run W18 R7/R8 UAT found functional defects, misleading state, authoring friction, and CLI mental-model mismatches that automated validation had not exposed; the durable record is [W18 R7/R8 UAT Findings and Remediation Scoping](../assets/archive/history/2026-07-03-w18-r7-r8-uat-findings-and-remediation-scoping.md). The walkthrough was useful, but it was an uncommitted implementation-shaped working file operated with extensive project knowledge. It is evidence that human use matters, not evidence that Make Docs already has a reusable true naive-UAT capability.
 
@@ -508,6 +508,6 @@ Exact owner-approval statement:
 ## Intended Follow-On
 
 - Route: `change-plan`
-- Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/references/system/prompts/designs-to-plan-change.prompt.md)
+- Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/system/prompts/designs-to-plan-change.prompt.md)
 - Why: This capability revises the active testing and UAT coverage, lifecycle, Playbook, PRD, work, history, phase-gate, Project State, template, and compatibility contracts rather than creating a fresh product baseline.
 - Coordinate Handoff: Revises W16 R0 testing/UAT coverage and lifecycle closeout, consumes W18 R10 Global Store and Project State boundaries, and must reconcile the sibling W18 R14 anti-orphan design; recommended downstream coordinate W18 R15, with final coordinate ownership resolved at owner approval.

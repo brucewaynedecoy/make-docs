@@ -119,5 +119,5 @@ The seven existing `w2-r0` designs in `docs/designs/` are not renamed. They were
 ## Intended Follow-On
 
 - Route: `baseline-plan`
-- Next Prompt: [designs-to-plan.prompt.md](../.prompts/designs-to-plan.prompt.md)
+- Next Prompt: [designs-to-plan.prompt.md](../../../../.make-docs/system/prompts/designs-to-plan.prompt.md)
 - Why: The change touches template references, the design contract, the design workflow, renderers, and tests — a baseline plan should sequence the implementation work and identify parallelism opportunities.

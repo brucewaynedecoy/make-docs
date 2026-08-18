@@ -54,8 +54,8 @@ Commit-message drafting used [docs/assets/references/commit-message-convention.m
 
 | Path | Description |
 | --- | --- |
-| [packages/skills/closeout-commit](../../../../packages/skills/closeout-commit) | Packaged commit-closeout skill updated with fast-path helper scripts, probe-first workflow guidance, and helper tests. |
-| [packages/skills/closeout-phase](../../../../packages/skills/closeout-phase) | Packaged phase-closeout skill updated with shared closeout helpers, phase/guide probes, workflow guidance, and helper tests. |
+| packages/skills/closeout-commit (historical path: `../../../../packages/skills/closeout-commit`) | Packaged commit-closeout skill updated with fast-path helper scripts, probe-first workflow guidance, and helper tests. |
+| packages/skills/closeout-phase (historical path: `../../../../packages/skills/closeout-phase`) | Packaged phase-closeout skill updated with shared closeout helpers, phase/guide probes, workflow guidance, and helper tests. |
 | .agents/skills | Codex skill mirrors aligned with the packaged closeout helper scripts and workflow references. |
 | .claude/skills | Claude skill mirrors aligned with the packaged closeout helper scripts and workflow references. |
 | [packages/cli/skill-registry.json](../../../../packages/cli/skill-registry.json) | Closeout skill asset lists now include the helper scripts referenced by the packaged skills. |

@@ -321,5 +321,5 @@ This change should be made in the template package and re-seeded to the dogfood 
 ## Intended Follow-On
 
 - Route: `baseline-plan`
-- Next Prompt: [designs-to-plan.prompt.md](../.prompts/designs-to-plan.prompt.md)
+- Next Prompt: [designs-to-plan.prompt.md](../../../../.make-docs/system/prompts/designs-to-plan.prompt.md)
 - Why: The plugin requires implementing four SKILL.md files, a shared archive-workflow reference, a relationship tracing script, archive router updates, agent configuration, and dogfood validation — a baseline plan should sequence this work. The follow-on design ([2026-04-16-archive-docs-extended.md](../../../designs/2026-04-16-archive-docs-extended.md)) captures additional capabilities to be planned separately.

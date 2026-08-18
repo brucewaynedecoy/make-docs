@@ -19,8 +19,10 @@ import type {
 } from "../operations/playbook-packaging";
 import {
   hasOperation,
+  getOperation,
   invokeOperation,
   listOperations,
+  operationCliProjection,
   operationCliPath,
   type OperationDescriptor,
 } from "../operations/registry";
@@ -532,6 +534,19 @@ const RUN_CLI_ADAPTERS: Record<string, RunCliAdapter> = {
   }),
 };
 
+// Pending run projections have no semantics to adapt. They still resolve to
+// their reserved identifiers and the registry returns the typed lineage
+// refusal before input validation. Active adapters remain explicit above.
+for (const operation of listOperations()) {
+  if (
+    operation.status === "pending" &&
+    operation.cli.root === "run" &&
+    RUN_CLI_ADAPTERS[operation.id] === undefined
+  ) {
+    RUN_CLI_ADAPTERS[operation.id] = () => ({ input: {} });
+  }
+}
+
 /**
  * Conformance seam (R-TEST-1, CLI side): tests pin the adapter-map keys to
  * the registry identifier set in both directions.
@@ -551,7 +566,10 @@ export function listRunCliSpellings(): { spelling: string; operation: string }[]
 const MAX_IDENTIFIER_SEGMENTS = 3;
 
 function isDispatchablePath(id: string): boolean {
-  return hasOperation(id) || id in RUN_CLI_SPELLINGS;
+  return (
+    (hasOperation(id) && operationCliProjection(getOperation(id).id).root === "run") ||
+    id in RUN_CLI_SPELLINGS
+  );
 }
 
 /**
@@ -577,7 +595,9 @@ export function resolveRunOperationPath(argv: string[]): { id: string; rest: str
   }
   const attempted = leading.join(" ") || argv.join(" ");
   const known = [
-    ...listOperations().map((operation) => operationPath(operation.id)),
+    ...listOperations()
+      .filter((operation) => operation.cli.root === "run")
+      .map((operation) => operationPath(operation.id)),
     ...Object.keys(RUN_CLI_SPELLINGS).map((spelling) => operationPath(spelling)),
   ]
     .sort()
@@ -596,7 +616,7 @@ function summaryTail(summary: string): string {
 
 function printRunHelp(): void {
   const byDomain = new Map<string, OperationDescriptor[]>();
-  for (const operation of listOperations()) {
+  for (const operation of listOperations().filter((entry) => entry.cli.root === "run")) {
     const group = byDomain.get(operation.domain) ?? [];
     group.push(operation);
     byDomain.set(operation.domain, group);

@@ -16,14 +16,14 @@ Documentation should be portable across checkouts, machines, and users. Do not w
 
 ## Namespace Hygiene
 
-- Treat `docs/assets/**` as the managed project documentation asset namespace, not a catch-all for runtime state or hidden tool resources.
-- Optional pre-design source material lives under `docs/assets/artifacts/**`; top-level `docs/artifacts/**` is a hard-move migration source, not a shipped target.
-- Managed archive storage lives under `docs/assets/archive/**`; top-level `docs/archive/**` is not a shipped target.
-- History and breadcrumb records live under `docs/assets/archive/history/**` and are created on demand.
-- Reader-facing library and playbook assets live under `docs/assets/library/**` and `docs/assets/playbooks/**`.
-- System tool resources live under `.make-docs/contracts/system/**`, `.make-docs/references/system/**`, `.make-docs/templates/system/**`, `.make-docs/scripts/system/**`, and `.make-docs/agentics/**`.
-- Reusable prompt starters are classified under `.make-docs/references/system/prompts/**`; do not preserve a shipped `.make-docs/prompts/**` family by default.
-- Runtime state belongs under `.make-docs/**`, especially `.make-docs/manifest.json` and `.make-docs/conflicts/<run-id>/`.
+- Use `docs/artifacts/**` for optional, non-authoritative source and analysis inputs.
+- Use `.make-docs/archive/**` for Make Docs-managed archive and provenance records.
+- Use `docs/assets/<persona-slug>/**` for Persona-scoped reader assets. Use `docs/assets/<persona-slug>/testing/**` for Naive-UAT packets, runs, findings, and approved evidence.
+- Treat `docs/assets/archive/**`, `docs/assets/archive/history/**`, `docs/assets/artifacts/**`, `docs/assets/library/**`, and `docs/assets/playbooks/**` as legacy migration inputs, not current shipped targets.
+- Current selected local resource projections live under `.make-docs/system/<resource-type>/**`. Installed-provider resources remain available without a local projection.
+- Routers, scripts, selected agentic payloads, config, manifest, conflicts, and provider state are not content-resource types.
+- Runtime state belongs under `.make-docs/**`, especially `.make-docs/manifest.json` and `.make-docs/conflicts/<run-id>/`. General lifecycle runs and evidence references live in the machine Store.
+- A local `.make-docs/system/**` resource projection is optional. Its absence does not reduce installed-provider availability.
 
 ## Allowed Absolute Path Forms
 
@@ -54,6 +54,20 @@ Use the allow comment sparingly. The reason must explain why a project-relative 
 - Convert user-home examples to placeholders such as `<user-home>`, `$HOME`, or `~` when the exact username is not meaningful.
 - Convert temporary path examples to `<temp-dir>/...` when the exact machine-local path is not meaningful.
 - Preserve absolute paths only when they describe external behavior or required evidence, and document the exception with the allow comment.
+
+## Template Link Placeholders
+
+- Use a recognized whole-link token such as `{{SOURCE_PRD_LINK_ONE}}` when a raw template cannot know the final relative target.
+- Replace the token with one complete Markdown link such as `[Product Overview](../../prd/01-product-overview.md)` during generation.
+- A raw-template check may defer only recognized whole-link tokens. It must still reject broken concrete links and malformed partial-link placeholders.
+- A generated-document check must reject every unresolved link token and every link whose final target is missing.
+
+## Approved URI Schemes
+
+- Use `https:` or `http:` only for an external web resource.
+- Use `mailto:` only for an external email address.
+- Use `make-docs:` only for a cataloged `make-docs://system/<type>/<posix-relative-path>` resource identity.
+- Reject all other URI schemes in generated documentation.
 
 ## Validation
 

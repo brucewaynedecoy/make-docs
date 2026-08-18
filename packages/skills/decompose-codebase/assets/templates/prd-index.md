@@ -6,22 +6,22 @@ Explain what this PRD set covers, who it is for, and why it exists.
 
 ## Reading Order
 
-1. [01-product-overview.md](./01-product-overview.md)
-2. [02-architecture-overview.md](./02-architecture-overview.md)
-3. [03-open-questions-and-risk-register.md](./03-open-questions-and-risk-register.md)
-4. [04-glossary.md](./04-glossary.md)
+1. {{PRODUCT_OVERVIEW_LINK}}
+2. {{ARCHITECTURE_OVERVIEW_LINK}}
+3. {{RISK_REGISTER_LINK}}
+4. {{GLOSSARY_LINK}}
 5. Add the adaptive baseline docs and change docs here in the order that best rebuilds understanding.
 
 ## Document Map
 
 | Document | Kind | Status | Related Docs | Focus |
 | --- | --- | --- | --- | --- |
-| `00-index.md` | `core` | `active` | `—` | Explain the PRD set and how to read it |
-| `01-product-overview.md` | `core` | `active` | `—` | Explain product purpose, users, capabilities, boundaries, and limitations |
-| `02-architecture-overview.md` | `core` | `active` | `—` | Explain topology, module map, runtime boundaries, data flow, and config surfaces |
-| `03-open-questions-and-risk-register.md` | `core` | `active` | `—` | Capture drift, gaps, and rebuild risks |
-| `04-glossary.md` | `core` | `active` | `—` | Define canonical terms |
-| `{{ADAPTIVE_DOCS}}` | `capability`, `subsystem`, or `reference` | Current product-authority status | List related current authorities | Explain the current product subject owned by this PRD |
+| {{INDEX_LINK}} | `core` | `active` | `—` | Explain the PRD set and how to read it |
+| {{PRODUCT_OVERVIEW_LINK}} | `core` | `active` | `—` | Explain product purpose, users, capabilities, boundaries, and limitations |
+| {{ARCHITECTURE_OVERVIEW_LINK}} | `core` | `active` | `—` | Explain topology, module map, runtime boundaries, data flow, and config surfaces |
+| {{RISK_REGISTER_LINK}} | `core` | `active` | `—` | Capture drift, gaps, and rebuild risks |
+| {{GLOSSARY_LINK}} | `core` | `active` | `—` | Define canonical terms |
+| {{ADAPTIVE_DOC_LINKS}} | `capability`, `subsystem`, or `reference` | Current product-authority status | List related current authorities | Explain the current product subject owned by this PRD |
 
 ## Source Anchors
 

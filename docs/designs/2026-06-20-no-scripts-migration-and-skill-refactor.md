@@ -91,7 +91,7 @@ Reason: this design extends the accepted CLI/MCP boundary into the concrete scri
 
 Route: change-plan
 
-Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/references/system/prompts/designs-to-plan-change.prompt.md)
+Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/system/prompts/designs-to-plan-change.prompt.md)
 
 Why: this is a refactor and migration against existing CLI, skill, template, manifest, audit, backup, package, and dogfood behavior, not a greenfield baseline.
 

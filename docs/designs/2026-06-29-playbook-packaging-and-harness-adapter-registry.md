@@ -107,7 +107,7 @@ Reason: This design captures a required v2 packaging and adapter-registry delive
 
 Route: `change-plan`
 
-Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/references/system/prompts/designs-to-plan-change.prompt.md)
+Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/system/prompts/designs-to-plan-change.prompt.md)
 
 Why: This is an active-set evolution that enhances W18 Playbook, plugin, shared-agentics, CLI/MCP, conformance, package, and guide requirements without replacing the active PRD namespace.
 

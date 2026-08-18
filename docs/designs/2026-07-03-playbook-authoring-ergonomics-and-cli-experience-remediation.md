@@ -208,7 +208,7 @@ Reason: This design revises the W18 R6 authoring contract's dependency registry,
 
 Route: `change-plan`
 
-Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/references/system/prompts/designs-to-plan-change.prompt.md)
+Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/system/prompts/designs-to-plan-change.prompt.md)
 
 Why: This is a corrective evolution of active W18 requirements across the PRD 34/35/36/39 lineage, not a fresh baseline: it revises the shipped authoring contract, run state, packaging materialization, and CLI surface against the active PRD namespace.
 

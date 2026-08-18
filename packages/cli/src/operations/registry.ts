@@ -6,8 +6,10 @@ import {
   type OperationExecutionContext,
 } from "./context";
 import { packageOperations } from "./package/ops";
+import { pendingOperations } from "./pending/ops";
 import { playbookOperations } from "./playbook/ops";
 import { prdOperations } from "./prd/ops";
+import { resourceOperations } from "./resource/ops";
 import { OperationError, type JsonValue } from "./types";
 import { workOperations } from "./work/ops";
 
@@ -29,6 +31,21 @@ export type OperationMutation = "read" | "write";
  */
 export type OperationStatus = "active" | "pending";
 
+export type OperationCliRoot =
+  | "setup"
+  | "project"
+  | "resource"
+  | "run"
+  | "mcp"
+  | "update"
+  | "uninstall";
+
+export interface OperationCliProjection {
+  root: OperationCliRoot;
+  path: string;
+  command: string;
+}
+
 export interface OperationDefinition<TInput = unknown, TOutput = unknown> {
   /** Stable registry identifier, e.g. `playbook.catalog`. */
   id: string;
@@ -41,7 +58,8 @@ export interface OperationDefinition<TInput = unknown, TOutput = unknown> {
   requiredApprovals?: string[];
   /** Typed input contract; surfaces adapt argv/MCP args/step inputs into this. */
   inputSchema: ZodType<TInput>;
-  handler(input: TInput, context: OperationExecutionContext): TOutput | Promise<TOutput>;
+  /** Active operations have one handler. Pending reservations have none. */
+  handler?(input: TInput, context: OperationExecutionContext): TOutput | Promise<TOutput>;
 }
 
 export interface OperationDescriptor {
@@ -51,6 +69,7 @@ export interface OperationDescriptor {
   mutates: OperationMutation;
   status: OperationStatus;
   pendingLineage?: string;
+  cli: OperationCliProjection;
 }
 
 export interface OperationInvocation<TOutput = JsonValue> {
@@ -66,6 +85,88 @@ export interface OperationInvocation<TOutput = JsonValue> {
 const SEGMENT = "[a-z][a-z0-9]*(?:-[a-z0-9]+)*";
 export const OPERATION_ID_PATTERN = new RegExp(`^${SEGMENT}\\.${SEGMENT}(?:\\.${SEGMENT})?$`);
 
+export const ADMITTED_OPERATION_IDS = [
+  "prd.authority.validate",
+  "work.item.resolve",
+  "work.evidence.record",
+  "work.evidence.read",
+  "resource.list",
+  "resource.read",
+  "resource.ensure",
+  "project.surface.ensure",
+  "lifecycle.start",
+  "lifecycle.show",
+  "lifecycle.list",
+  "lifecycle.checkpoint",
+  "lifecycle.pause",
+  "lifecycle.resume",
+  "lifecycle.attach-evidence",
+  "lifecycle.complete",
+  "lifecycle.fail",
+  "lifecycle.abandon",
+  "uat.scenario.validate",
+  "uat.persona.resolve",
+  "uat.target.validate",
+  "uat.evidence-reference.validate",
+  "uat.finding.validate",
+  "uat.result.validate",
+] as const;
+
+export const LEGACY_COMPATIBILITY_OPERATION_IDS = [
+  "playbook.validate",
+  "playbook.catalog",
+  "playbook.resolve",
+  "playbook.capabilities",
+  "playbook.start",
+  "playbook.invoke",
+  "playbook.status",
+  "playbook.next",
+  "playbook.advance",
+  "playbook.gate",
+  "playbook.resume",
+  "playbook.close",
+  "playbook.run.export",
+  "playbook.run.import",
+  "package.plan",
+  "package.surface-resolve",
+  "package.write",
+  "package.ship",
+] as const;
+
+const ADMITTED_CLI_PATHS: Record<(typeof ADMITTED_OPERATION_IDS)[number], [OperationCliRoot, string]> = {
+  "prd.authority.validate": ["run", "prd authority validate"],
+  "work.item.resolve": ["run", "work item resolve"],
+  "work.evidence.record": ["run", "work evidence record"],
+  "work.evidence.read": ["run", "work evidence read"],
+  "resource.list": ["resource", "list"],
+  "resource.read": ["resource", "read"],
+  "resource.ensure": ["resource", "ensure"],
+  "project.surface.ensure": ["project", "surface ensure"],
+  "lifecycle.start": ["run", "lifecycle start"],
+  "lifecycle.show": ["run", "lifecycle show"],
+  "lifecycle.list": ["run", "lifecycle list"],
+  "lifecycle.checkpoint": ["run", "lifecycle checkpoint"],
+  "lifecycle.pause": ["run", "lifecycle pause"],
+  "lifecycle.resume": ["run", "lifecycle resume"],
+  "lifecycle.attach-evidence": ["run", "lifecycle attach-evidence"],
+  "lifecycle.complete": ["run", "lifecycle complete"],
+  "lifecycle.fail": ["run", "lifecycle fail"],
+  "lifecycle.abandon": ["run", "lifecycle abandon"],
+  "uat.scenario.validate": ["run", "uat scenario validate"],
+  "uat.persona.resolve": ["run", "uat persona resolve"],
+  "uat.target.validate": ["run", "uat target validate"],
+  "uat.evidence-reference.validate": ["run", "uat evidence-reference validate"],
+  "uat.finding.validate": ["run", "uat finding validate"],
+  "uat.result.validate": ["run", "uat result validate"],
+};
+
+const ADMITTED_CLI_USAGES: Partial<Record<(typeof ADMITTED_OPERATION_IDS)[number], string>> = {
+  "resource.read": "make-docs resource read <uri>",
+  "resource.ensure": "make-docs resource ensure <uri>",
+  "project.surface.ensure":
+    "make-docs project surface ensure <archive|artifacts|assets>",
+};
+
 export function operationDomain(id: string): string {
   return id.split(".", 1)[0]!;
 }
@@ -78,7 +179,22 @@ export function operationDomain(id: string): string {
  * strings.
  */
 export function operationCliPath(id: string): string {
-  return id.split(".").join(" ");
+  return ADMITTED_CLI_PATHS[id as keyof typeof ADMITTED_CLI_PATHS]?.[1] ?? id.split(".").join(" ");
+}
+
+export function operationCliProjection(id: string): OperationCliProjection {
+  getOperation(id);
+  const [root, cliPath] = ADMITTED_CLI_PATHS[id as keyof typeof ADMITTED_CLI_PATHS] ?? [
+    "run",
+    id.split(".").join(" "),
+  ];
+  return {
+    root,
+    path: cliPath,
+    command:
+      ADMITTED_CLI_USAGES[id as keyof typeof ADMITTED_CLI_USAGES] ??
+      `make-docs ${root} ${cliPath}`,
+  };
 }
 
 /**
@@ -89,7 +205,7 @@ export function operationCliPath(id: string): string {
  * command the CLI does not accept.
  */
 export function operationCliCommand(id: string): string {
-  return `make-docs run ${operationCliPath(getOperation(id).id)}`;
+  return operationCliProjection(id).command;
 }
 
 function assembleRegistry(): Map<string, OperationDefinition> {
@@ -99,6 +215,8 @@ function assembleRegistry(): Map<string, OperationDefinition> {
     ...packageOperations,
     ...prdOperations,
     ...workOperations,
+    ...resourceOperations,
+    ...pendingOperations,
   ];
   for (const definition of definitions) {
     if (!OPERATION_ID_PATTERN.test(definition.id)) {
@@ -112,6 +230,12 @@ function assembleRegistry(): Map<string, OperationDefinition> {
     }
     if (definition.status === "pending" && !definition.pendingLineage) {
       throw new Error(`Pending operation \`${definition.id}\` must name its owning lineage.`);
+    }
+    if (definition.status === "pending" && definition.handler !== undefined) {
+      throw new Error(`Pending operation \`${definition.id}\` must not claim a handler.`);
+    }
+    if (definition.status === "active" && definition.handler === undefined) {
+      throw new Error(`Active operation \`${definition.id}\` must claim exactly one handler.`);
     }
     registry.set(definition.id, definition);
   }
@@ -127,8 +251,30 @@ export function listOperations(): OperationDescriptor[] {
     summary: definition.summary,
     mutates: definition.mutates,
     status: definition.status,
+    cli: operationCliProjection(definition.id),
     ...(definition.pendingLineage ? { pendingLineage: definition.pendingLineage } : {}),
   }));
+}
+
+export function listAdmittedOperations(): OperationDescriptor[] {
+  return ADMITTED_OPERATION_IDS.map((id) => describeOperation(id));
+}
+
+export function listLegacyCompatibilityOperations(): OperationDescriptor[] {
+  return LEGACY_COMPATIBILITY_OPERATION_IDS.map((id) => describeOperation(id));
+}
+
+function describeOperation(id: string): OperationDescriptor {
+  const definition = getOperation(id);
+  return {
+    id: definition.id,
+    domain: operationDomain(definition.id),
+    summary: definition.summary,
+    mutates: definition.mutates,
+    status: definition.status,
+    cli: operationCliProjection(definition.id),
+    ...(definition.pendingLineage ? { pendingLineage: definition.pendingLineage } : {}),
+  };
 }
 
 export function hasOperation(id: string): boolean {
@@ -160,6 +306,8 @@ export async function invokeOperation(
   if (definition.status === "pending") {
     throw new OperationPendingError(
       `Operation \`${id}\` is a reserved registry identifier; its semantics land with ${definition.pendingLineage}.`,
+      id,
+      definition.pendingLineage!,
     );
   }
   if (definition.mutates === "write" && !context.writesAllowed) {
@@ -182,7 +330,11 @@ export async function invokeOperation(
       .join("; ");
     throw new OperationError(`Invalid input for operation \`${id}\`: ${issues}`);
   }
-  const value = (await definition.handler(parsed.data, context)) as JsonValue;
+  const handler = definition.handler;
+  if (!handler) {
+    throw new OperationError(`Active operation \`${id}\` has no handler.`);
+  }
+  const value = (await handler(parsed.data, context)) as JsonValue;
   return {
     operation: id,
     value,

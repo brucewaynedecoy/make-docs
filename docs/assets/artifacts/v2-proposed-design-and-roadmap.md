@@ -13,19 +13,19 @@ Primary seed inputs:
 - [evolution-direction.md](evolution-direction.md)
 - [evolution-direction-structure.md](evolution-direction-structure.md)
 - [lifecycle-and-coverage.md](lifecycle-and-coverage.md)
-- [../../.backup/PLANNED_CHANGES.md](../../.backup/PLANNED_CHANGES.md)
-- [../../.backup/PLANNED_PLUGINS.md](../../.backup/PLANNED_PLUGINS.md)
-- [../../.backup/PLANNED_RESTRUCTURE.md](../../.backup/PLANNED_RESTRUCTURE.md)
+- `../../.backup/PLANNED_CHANGES.md` (historical path)
+- `../../.backup/PLANNED_PLUGINS.md` (historical path)
+- `../../.backup/PLANNED_RESTRUCTURE.md` (historical path)
 
 Current project constraints:
 
-- [../assets/references/lifecycle.md](../assets/references/lifecycle.md) says implementation normally derives from work, work derives from PRD, PRD derives from plan, and plan derives from design or another explicit source input. Departures are allowed, but must be surfaced.
-- [../guides/developer/maintainer-dogfood-and-maintainer-operations.md](../guides/developer/maintainer-dogfood-and-maintainer-operations.md) defines the live ownership layers: `packages/docs/template/` is the shipped template source, root `docs/` is the dogfood copy, and `packages/cli/template/` is the package bundle.
-- [../assets/archive/designs/2026-04-22-docs-assets-resource-namespace.md](../assets/archive/designs/2026-04-22-docs-assets-resource-namespace.md) records the template-first, dogfood-second rule.
-- [../prd/03-open-questions-and-risk-register.md](../prd/03-open-questions-and-risk-register.md) contains v2-relevant constraints, especially `Q-009`, `Q-012`, and `R-014`.
-- Current code still has harness-specific skill directories in [../../packages/cli/src/skill-catalog.ts](../../packages/cli/src/skill-catalog.ts) and [../../packages/cli/src/audit.ts](../../packages/cli/src/audit.ts); install planning and manifest logic live in [../../packages/cli/src/planner.ts](../../packages/cli/src/planner.ts) and [../../packages/cli/src/manifest.ts](../../packages/cli/src/manifest.ts); managed instruction blocks live in [../../packages/cli/src/managed-block.ts](../../packages/cli/src/managed-block.ts).
-- Backup and audit behavior already have source surfaces in [../../packages/cli/src/backup.ts](../../packages/cli/src/backup.ts) and [../../packages/cli/src/audit.ts](../../packages/cli/src/audit.ts); v2 migration should build on those rather than inventing a separate destructive cleanup path.
-- [../assets/references/harness-capability-matrix.md](../assets/references/harness-capability-matrix.md) is the current support-reference surface for harness behavior, but it is static; v2 needs a maintainer-only evidence loop before claiming support across harnesses and models.
+- The [lifecycle reference](../../../.make-docs/references/system/lifecycle.md) says implementation normally derives from work, work derives from PRD, PRD derives from plan, and plan derives from design or another explicit source input. Departures are allowed, but must be surfaced.
+- The [maintainer dogfood and operations guide](../library/developer/maintainer-dogfood-and-maintainer-operations.md) defines the live ownership layers: `packages/docs/template/` is the shipped template source, root `docs/` is the dogfood copy, and `packages/cli/template/` is the package bundle.
+- The [Docs Assets Resource Namespace design](../archive/designs/2026-04-22-docs-assets-resource-namespace.md) records the template-first, dogfood-second rule.
+- [PRD 03: Open Questions and Risk Register](../../prd/03-open-questions-and-risk-register.md) contains v2-relevant constraints, especially `Q-009`, `Q-012`, and `R-014`.
+- Current code still has harness-specific skill directories in [skill-catalog.ts](../../../packages/cli/src/skill-catalog.ts) and [audit.ts](../../../packages/cli/src/audit.ts); install planning and manifest logic live in [planner.ts](../../../packages/cli/src/planner.ts) and [manifest.ts](../../../packages/cli/src/manifest.ts); managed instruction blocks live in [managed-block.ts](../../../packages/cli/src/managed-block.ts).
+- Backup and audit behavior already have source surfaces in [backup.ts](../../../packages/cli/src/backup.ts) and [audit.ts](../../../packages/cli/src/audit.ts); v2 migration should build on those rather than inventing a separate destructive cleanup path.
+- The [harness capability matrix](../../../.make-docs/references/system/harness-capability-matrix.md) is the current support-reference surface for harness behavior, but it is static; v2 needs a maintainer-only evidence loop before claiming support across harnesses and models.
 
 New decisions to incorporate:
 

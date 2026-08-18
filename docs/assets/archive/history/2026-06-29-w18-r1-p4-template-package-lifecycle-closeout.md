@@ -33,8 +33,8 @@ Validation completed with `npm run validate:defaults -w packages/cli`, `npm test
 | Path | Description |
 | --- | --- |
 | [../../../work/2026-06-23-w18-r1-playbook-contract-run-playbook/04-template-package-lifecycle-closeout.md](../../../work/2026-06-23-w18-r1-playbook-contract-run-playbook/04-template-package-lifecycle-closeout.md) | Marked Phase 4 complete and recorded validation plus coverage decisions. |
-| [../../playbooks/agent/make-docs-lifecycle.md](../../playbooks/agent/make-docs-lifecycle.md) | Reviewed dogfood Playbook now treated as the shipped default parity source. |
-| [../../../../packages/docs/template/docs/assets/playbooks/agent/make-docs-lifecycle.md](../../../../packages/docs/template/docs/assets/playbooks/agent/make-docs-lifecycle.md) | Source-template copy for the shipped default lifecycle Playbook. |
+| `../../playbooks/agent/make-docs-lifecycle.md` (historical path) | Reviewed dogfood Playbook now treated as the shipped default parity source. |
+| `../../../../packages/docs/template/docs/assets/playbooks/agent/make-docs-lifecycle.md` (historical path) | Source-template copy for the shipped default lifecycle Playbook. |
 | [./2026-06-29-w18-r1-p4-template-package-lifecycle-closeout.md](./2026-06-29-w18-r1-p4-template-package-lifecycle-closeout.md) | Phase 4 closeout breadcrumb and coverage decisions. |
 
 ### Developer

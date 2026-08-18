@@ -118,7 +118,7 @@ This design does not mutate the PRD/risk register, prior designs, plans, work ba
 
 Route: change-plan
 
-Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/references/system/prompts/designs-to-plan-change.prompt.md)
+Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/system/prompts/designs-to-plan-change.prompt.md)
 
 Why: This design changes and extends existing installer, manifest, audit, backup, uninstall, conflict-review, package, dogfood, and future Rust compatibility behavior. It should feed additive change planning against the active PRD namespace after the complete v2 design set is accepted.
 

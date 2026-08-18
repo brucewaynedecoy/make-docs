@@ -109,6 +109,6 @@ The next Batch 2 design, Configuration and Convention Overlay, must treat metada
 ## Intended Follow-On
 
 - Route: `change-plan`
-- Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/references/system/prompts/designs-to-plan-change.prompt.md)
+- Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/system/prompts/designs-to-plan-change.prompt.md)
 - Why: This design changes active contracts, templates, package surfaces, and validation expectations while extending prior lifecycle and handoff work.
 - Coordinate Handoff: Prior related coordinate is W16 R0 P4 for stage follow-on handoffs; recommended downstream coordinate is unresolved; planner must resolve before writing.

@@ -5,7 +5,7 @@ status: "draft"
 coordinate: "W18 R15"
 follow_on:
   route: "work-generation"
-  next_prompt: ".make-docs/references/system/prompts/prd-change-to-work.prompt.md"
+  next_prompt: ".make-docs/system/prompts/prd-change-to-work.prompt.md"
   why: "PRDs 45 and 46 and the in-place PRD maintenance are complete; the next separately authorized lifecycle step is the W18 R15 delta backlog from current PRD authority."
   coordinate_handoff: "Carry W18 R15 from current PRDs 45 and 46, the maintained existing PRD authorities, and O-001/O-002 into one downstream delta backlog; preserve W18 R14 as design lineage rather than a separate implementation bundle."
 source:
@@ -218,7 +218,7 @@ The pending backlog and implementation must validate:
 ## Intended Follow-On
 
 - Route: `work-generation`
-- Next prompt: `.make-docs/references/system/prompts/prd-change-to-work.prompt.md`
+- Next prompt: `.make-docs/system/prompts/prd-change-to-work.prompt.md`
 - Next step: generate the single W18 R15 delta backlog from current PRDs 45 and 46 plus the maintained existing authorities.
 - Why: versioned product authority is complete; executable work must now be mapped before reusable Make Docs defaults or dogfood copies change.
 - Coordinate Handoff: carry `W18 R15` from current PRD source metadata into the work directory, phase files, history breadcrumbs, and Project State evidence.

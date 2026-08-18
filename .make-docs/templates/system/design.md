@@ -4,7 +4,7 @@ kind: "design"
 status: "draft"
 follow_on:
   route: "{{FOLLOW_ON_ROUTE}}"
-  next_prompt: ".make-docs/references/system/prompts/{{PROMPT_FILE}}"
+  next_prompt: "make-docs://system/prompt/{{PROMPT_FILE}}"
   why: "{{FOLLOW_ON_WHY}}"
   coordinate_handoff: "{{COORDINATE_HANDOFF}}"
 # coordinate: "W{{W}} R{{R}}"
@@ -44,6 +44,6 @@ Describe outcomes, trade-offs, risks, and follow-on implications.
 ## Intended Follow-On
 
 - Route: `baseline-plan` or `change-plan`
-- Next Prompt: [{{PROMPT_LABEL}}](../prompts/{{PROMPT_FILE}})
+- Next Prompt: {{NEXT_PROMPT_LINK}}. Read `make-docs://system/prompt/{{PROMPT_FILE}}` with `make-docs resource read`.
 - Why: Explain why this design should flow into that planning path.
 - Coordinate Handoff: For `change-plan`, identify the related completed coordinate and recommended downstream W/R coordinate when known; otherwise state `unresolved; planner must resolve before writing.`

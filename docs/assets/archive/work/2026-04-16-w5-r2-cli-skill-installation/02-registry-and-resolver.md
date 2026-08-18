@@ -6,7 +6,7 @@
 
 Create the data layer that all later phases consume: a static skill registry, a typed loader, and a `local:` protocol resolver. This phase has no dependency on Phase 1 and can execute in parallel with it.
 
-> Implemented divergence: the shipped registry is remote-only, contains two skills (`archive-docs` and `decompose-codebase`), and no longer uses `plugin` fields or `local:` sources. See the [updated design](../../designs/2026-04-16-cli-skill-installation-r2.md) and [phase-5 agent guide](../../guides/agent/2026-04-17-w5-r2-p5-cli-skill-installation.md).
+> Implemented divergence: the shipped registry is remote-only, contains two skills (`archive-docs` and `decompose-codebase`), and no longer uses `plugin` fields or `local:` sources. See the [updated design](../../designs/2026-04-16-cli-skill-installation-r2.md) and phase-5 agent guide (historical path: `../../guides/agent/2026-04-17-w5-r2-p5-cli-skill-installation.md`).
 
 ## Overview
 

@@ -9,7 +9,7 @@
 > playbook is the dogfooded instance. The stage list and gap-analysis
 > intent below remain useful as historical context; for the current
 > direction on personas, configuration, the restructure, and the overlay,
-> see [docs/artifacts/evolution-direction.md](../../../artifacts/evolution-direction.md).
+> see [docs/artifacts/evolution-direction.md](../../artifacts/evolution-direction.md).
 
 ## Purpose
 
@@ -255,7 +255,7 @@ the playbook shape before the contract has informed it.
 ## Intended Follow-On
 
 - Route: `baseline-plan`
-- Next Prompt: [designs-to-plan.prompt.md](../../prompts/designs-to-plan.prompt.md)
+- Next Prompt: [designs-to-plan.prompt.md](../../../../.make-docs/system/prompts/designs-to-plan.prompt.md)
 - Why: This is net-new product surface (playbook + future overlay)
   not covered by any active PRD namespace; baseline planning is the
   correct downstream workflow. The planning doc should sequence

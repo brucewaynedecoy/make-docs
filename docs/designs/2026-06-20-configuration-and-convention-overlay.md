@@ -80,7 +80,7 @@ Reason: This design is a new v2 Batch 2 decision that extends the accepted tool-
 
 Route: `change-plan`
 
-Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/references/system/prompts/designs-to-plan-change.prompt.md)
+Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/system/prompts/designs-to-plan-change.prompt.md)
 
 Why: This design changes future CLI, MCP, template, manifest, package, validation, plugin, skill, and dogfood behavior while preserving canonical paths and metadata. It should become additive change planning against the active make-docs PRD/risk namespace after Batch 2 reconciliation.
 

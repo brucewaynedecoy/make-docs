@@ -25,7 +25,7 @@ This session completed Wave 10 Phase 2 from [02-template-renderers-and-assets.md
 | --- | --- |
 | [docs/.assets/history/2026-04-21-w10-r0-p2-template-renderers-and-assets.md](2026-04-21-w10-r0-p2-template-renderers-and-assets.md) | New history record for the Wave 10 Phase 2 template and renderer rename. |
 | `packages/docs/template/docs/.assets/config/AGENTS.md` | Template router copy updated to identify make-docs-managed config state. |
-| [packages/docs/template/.make-docs/references/system/prompts/work-to-commit-message.prompt.md](../../../../packages/docs/template/.make-docs/references/system/prompts/work-to-commit-message.prompt.md) | Template prompt copy updated for the new product name. |
+| [packages/docs/template/.make-docs/references/system/prompts/work-to-commit-message.prompt.md](../../../../packages/docs/template/.make-docs/prompts/system/work-to-commit-message.prompt.md) | Template prompt copy updated for the new product name. |
 | [packages/docs/template/.make-docs/contracts/system/commit-message-convention.md](../../../../packages/docs/template/.make-docs/contracts/system/commit-message-convention.md) | Template reference copy updated for the new product name. |
 | [packages/docs/template/.make-docs/contracts/system/guide-contract.md](../../../../packages/docs/template/.make-docs/contracts/system/guide-contract.md) | Template guide contract copy updated for the new product name. |
 | [packages/docs/template/.make-docs/contracts/system/history-record-contract.md](../../../../packages/docs/template/.make-docs/contracts/system/history-record-contract.md) | Template history contract copy updated for the new product name. |

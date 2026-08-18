@@ -174,6 +174,6 @@ Downstream docs and tests should use the term `diff` or `conflict` consistently.
 ## Intended Follow-On
 
 - Route: `change-plan`
-- Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/references/system/prompts/designs-to-plan-change.prompt.md)
+- Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/system/prompts/designs-to-plan-change.prompt.md)
 - Why: this is a targeted correction to existing CLI planning and interactive install behavior, not a new baseline planning track.
 - Coordinate Handoff: related completed coordinates include `W7 R1` for CLI lifecycle Clack standardization and `W14 R0` for CLI asset-selection simplification. Recommended downstream coordinate is unresolved; planner must confirm the next active W/R coordinate before writing.

@@ -197,5 +197,5 @@ Planning should treat this as an incremental change to the shipped remote skill 
 ## Intended Follow-On
 
 - Route: `change-plan`
-- Next Prompt: [designs-to-plan-change.prompt.md](../.prompts/designs-to-plan-change.prompt.md)
+- Next Prompt: [designs-to-plan-change.prompt.md](../../../../.make-docs/system/prompts/designs-to-plan-change.prompt.md)
 - Why: this is an additive CLI enhancement against the existing skill installation behavior, so downstream work should plan a focused change rather than regenerate the baseline docs installation design.

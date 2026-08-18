@@ -48,7 +48,7 @@ AGENTS.md             # Root agent instructions (multi-agent compatible)
 
 Each directory includes its own `CLAUDE.md` and `AGENTS.md` files with context-specific instructions for AI agents generating documentation within that directory.
 
-The `docs/assets/` namespace contains project documentation assets only: archive records, optional pre-design artifacts, persona library guides, and playbooks. Make Docs system machinery lives under `.make-docs/{contracts,references,templates}/system/**` and `.make-docs/scripts/**`, with reusable prompt starters under `.make-docs/references/system/prompts/**`. Mutable CLI runtime state also lives outside `docs/` under root `.make-docs/`, especially `.make-docs/manifest.json` and `.make-docs/conflicts/<run-id>/`.
+The `docs/assets/` namespace contains project documentation assets only: archive records, optional pre-design artifacts, persona library guides, and playbooks. Make Docs system machinery lives under `.make-docs/{contracts,references,templates}/system/**` and `.make-docs/scripts/**`. Reusable prompts are first-class provider resources with stable `make-docs://system/prompt/<posix-relative-path>` identities. Read them with `make-docs resource read`; a project-local projection is optional. Mutable CLI runtime state also lives outside `docs/` under root `.make-docs/`, especially `.make-docs/manifest.json` and `.make-docs/conflicts/<run-id>/`.
 
 ## Guide Discovery
 
@@ -217,7 +217,7 @@ Additional subsystem documents (`05-*` through `99-*`) are added as needed for f
 
 ## Customization
 
-- **Prompt starters** (`.make-docs/references/system/prompts/`) -- Add or refine reusable prompts for common documentation workflows and handoff tasks.
+- **Prompt resources** (`make-docs://system/prompt/<posix-relative-path>`) -- Read installed prompt bytes with `make-docs resource read`. Select a local projection only when the project needs one.
 - **Templates** (`.make-docs/templates/system/`) -- Modify these to change the structure of generated documents.
 - **Contracts and references** (`.make-docs/contracts/system/` and `.make-docs/references/system/`) -- Adjust naming conventions, required sections, lifecycle rules, and structural guidance.
 - **Library and playbooks** (`docs/assets/library/` and `docs/assets/playbooks/`) -- Maintain persona-scoped reader-facing guides and procedural docs.

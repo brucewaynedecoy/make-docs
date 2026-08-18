@@ -216,7 +216,7 @@ Reason: This design recovers and supersedes the Playbook contract intent that wa
 
 Route: `change-plan`
 
-Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/references/system/prompts/designs-to-plan-change.prompt.md)
+Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/system/prompts/designs-to-plan-change.prompt.md)
 
 Why: This is a corrective evolution of active W18 Playbook requirements. It tightens and recovers the existing Playbook contract namespace rather than starting a fresh baseline, so it should feed additive change planning against the active PRD namespace.
 

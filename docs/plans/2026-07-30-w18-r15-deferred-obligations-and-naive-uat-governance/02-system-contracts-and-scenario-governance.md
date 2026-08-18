@@ -132,7 +132,7 @@ Update the upstream `AGENTS.md` and mirrored `CLAUDE.md` routers only where need
 
 - `.make-docs/contracts/system/`;
 - `.make-docs/references/system/`;
-- `.make-docs/references/system/prompts/`;
+- `.make-docs/system/prompts/`;
 - `.make-docs/templates/system/`;
 - `docs/prd/`;
 - `docs/work/`;

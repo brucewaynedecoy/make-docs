@@ -5,7 +5,7 @@ status: "draft"
 coordinate: "W19 R0"
 follow_on:
   route: "prd-generation"
-  next_prompt: ".make-docs/references/system/prompts/prd-change-to-work.prompt.md"
+  next_prompt: ".make-docs/system/prompts/prd-change-to-work.prompt.md"
   why: "The Playbook capability boundary is product authority spread across PRDs 34, 35, 36, 30, 39, and their dependents; the narrowed Protocol boundary must become current PRD authority before any code, template, or dogfood surface is retired."
   coordinate_handoff: "Carry W19 R0 into the maintained PRD authorities and into one downstream W19 R0 delta backlog; preserve W18 R6 through W18 R13 as requirement history rather than reopening those waves."
 ---

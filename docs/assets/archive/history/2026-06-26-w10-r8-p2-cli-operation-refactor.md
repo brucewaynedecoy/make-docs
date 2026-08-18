@@ -49,7 +49,7 @@ Manual/UAT coverage remains deferred until W10 R8 wave closeout per the requeste
 | --- | --- |
 | [packages/cli/src/README.md](../../../../packages/cli/src/README.md) | Updated maintainer guidance for the operation dispatcher, compatibility facade, and domain modules. |
 | [packages/cli/src/operations.ts](../../../../packages/cli/src/operations.ts) | Reduced the former monolithic operations implementation to a compatibility facade. |
-| [packages/cli/src/operations/cli.ts](../../../../packages/cli/src/operations/cli.ts) | Added the thin CLI operation dispatcher. |
+| packages/cli/src/operations/cli.ts (historical path: `../../../../packages/cli/src/operations/cli.ts`) | Added the thin CLI operation dispatcher. |
 | [packages/cli/src/operations/shared.ts](../../../../packages/cli/src/operations/shared.ts) | Added shared helper functions for operation domains. |
 | [packages/cli/src/operations/closeout/index.ts](../../../../packages/cli/src/operations/closeout/index.ts) | Moved closeout operation behavior into the closeout domain. |
 | [packages/cli/src/operations/work/index.ts](../../../../packages/cli/src/operations/work/index.ts) | Moved wave and phase operation behavior into the work domain. |

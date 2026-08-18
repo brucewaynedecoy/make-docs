@@ -62,8 +62,8 @@ Commit-message drafting used [docs/assets/references/commit-message-convention.m
 | Path | Description |
 | --- | --- |
 | [packages/skills/archive-docs/SKILL.md](../../../../packages/skills/archive-docs/SKILL.md) | Packaged archive skill now includes delegation-first coordinator and worker guidance. |
-| [packages/skills/closeout-commit/SKILL.md](../../../../packages/skills/closeout-commit/SKILL.md) | Packaged commit-closeout skill now includes delegation-first coordinator and worker guidance. |
-| [packages/skills/closeout-phase/SKILL.md](../../../../packages/skills/closeout-phase/SKILL.md) | Packaged phase-closeout skill now includes delegation-first coordinator and worker guidance. |
+| packages/skills/closeout-commit/SKILL.md (historical path: `../../../../packages/skills/closeout-commit/SKILL.md`) | Packaged commit-closeout skill now includes delegation-first coordinator and worker guidance. |
+| packages/skills/closeout-phase/SKILL.md (historical path: `../../../../packages/skills/closeout-phase/SKILL.md`) | Packaged phase-closeout skill now includes delegation-first coordinator and worker guidance. |
 | .agents/skills | Codex skill mirrors aligned with the packaged skill changes. |
 | .claude/skills | Claude skill mirrors aligned with the packaged skill changes. |
 | [docs/assets/history/2026-05-05-closeout-skill-delegation-first.md](./2026-05-05-closeout-skill-delegation-first.md) | Closeout breadcrumb for this delegation-first skill maintenance. |

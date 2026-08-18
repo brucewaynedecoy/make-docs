@@ -107,7 +107,7 @@ Reason: This design extends accepted shared-agentics and playbook decisions into
 
 Route: change-plan.
 
-Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/references/system/prompts/designs-to-plan-change.prompt.md).
+Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/system/prompts/designs-to-plan-change.prompt.md).
 
 Why: Implementation will revise existing installer, manifest, skill registry/catalog, planner, audit, backup, uninstall, package, and validation behavior rather than create a new repository baseline. Planning must preserve the lifecycle departure noted above by returning from this v2 design to the normal design -> plan -> PRD -> work -> implementation sequence.
 

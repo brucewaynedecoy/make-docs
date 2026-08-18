@@ -1,6 +1,6 @@
 # Docs Contract v2 — Execution Plan
 
-> Filename: `2026-04-15-docs-contract-v2-execution.md`. See [`../.references/wave-model.md`](../.references/wave-model.md) for W/R semantics.
+> Filename: `2026-04-15-docs-contract-v2-execution.md`. See the [wave model](../../.make-docs/references/system/wave-model.md) for W/R semantics.
 
 ## Purpose
 
@@ -122,7 +122,7 @@ Phases 2, 3, and 4 edit disjoint file sets and collapse into a single wide dispa
 ## Design Lineage
 
 - Update Mode: `new-doc-related`
-- Prior Design Docs: [2026-04-15-w2-r0-docs-contract-v2-planning.md](2026-04-15-w2-r0-docs-contract-v2-planning.md)
+- Prior Design Docs: [Docs Contract v2 — Planning Proposals](2026-04-15-docs-contract-v2-planning.md)
 - Reason: This design captures the execution plan for items 1–4 of the proposals enumerated in the planning design.
 
 ## Alternatives Considered
@@ -144,5 +144,5 @@ Phases 2, 3, and 4 edit disjoint file sets and collapse into a single wide dispa
 ## Intended Follow-On
 
 - Route: `baseline-plan`
-- Next Prompt: [designs-to-plan.prompt.md](../.prompts/designs-to-plan.prompt.md)
+- Next Prompt: [designs-to-plan.prompt.md](../../.make-docs/system/prompts/designs-to-plan.prompt.md)
 - Why: Per recent commits the execution plan has already been carried out; any remaining cleanup or follow-on work should flow through baseline planning rather than a change plan.

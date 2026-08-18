@@ -122,7 +122,7 @@ Reason: this design extends the accepted Batch 3 CLI, no-scripts, and purpose-le
 
 Route: change-plan
 
-Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/references/system/prompts/designs-to-plan-change.prompt.md)
+Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/system/prompts/designs-to-plan-change.prompt.md)
 
 Why: this revises existing CLI skill installation, manifest, audit, backup, uninstall, package validation, and dogfood behavior while preparing for future plugin installation. It is additive change planning against the active make-docs PRD/risk namespace, not a fresh baseline.
 

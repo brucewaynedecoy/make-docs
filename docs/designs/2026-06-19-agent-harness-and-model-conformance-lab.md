@@ -104,7 +104,7 @@ Reason: This is a distinct maintainer infrastructure decision, but it is closely
 
 Route: `change-plan`
 
-Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/references/system/prompts/designs-to-plan-change.prompt.md)
+Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/system/prompts/designs-to-plan-change.prompt.md)
 
 Why: This design adds maintainer-only evidence infrastructure around existing make-docs package, template, audit, backup, skills, harness, and support-claim surfaces. It should feed a change plan that introduces the lab while preserving accepted Batch 1 contracts and avoiding shipped-template/package scope creep.
 

@@ -174,7 +174,7 @@ Reason: This design turns the packaging output writer into a real multi-file, ha
 
 Route: `change-plan`
 
-Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/references/system/prompts/designs-to-plan-change.prompt.md)
+Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/system/prompts/designs-to-plan-change.prompt.md)
 
 Why: This is a corrective evolution of active W18 packaging and adapter requirements. It fixes the generated-output and adapter-contract failures against the active PRD namespace rather than starting a fresh baseline.
 

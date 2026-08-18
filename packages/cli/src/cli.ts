@@ -21,6 +21,7 @@ import {
 } from "./install";
 import { loadManifest, MANIFEST_RELATIVE_PATH } from "./manifest";
 import { runRunCommand } from "./run/cli";
+import { runProjectCommand, runResourceCommand } from "./run/root-operations";
 import { bootstrapGlobalStore, mirrorProjectManifest, withStoreDatabase } from "./store";
 import { cloneSelections, defaultSelections, hasEffectiveCapabilities } from "./profile";
 import { applySkillRegistrySelectionMetadata } from "./skill-catalog";
@@ -43,10 +44,16 @@ import {
 } from "./wizard";
 
 /**
- * The five-command top level per PRD 39 R-TOP-1, organized as project
- * (`setup`), run (`run`), serve (`mcp`), and self (`update`, `uninstall`).
+ * The seven-command top level per PRD 39 R-TOP-1.
  */
-type Command = "setup" | "run" | "mcp" | "update" | "uninstall";
+type Command =
+  | "setup"
+  | "project"
+  | "resource"
+  | "run"
+  | "mcp"
+  | "update"
+  | "uninstall";
 type SetupSubcommand = "reconfigure" | "skills" | "backup" | "remove";
 type InstallIntent = "apply" | "reconfigure";
 type RenderedActionKind = "generate" | "update" | "skip" | "remove";
@@ -87,7 +94,7 @@ type UninstallCommandOptions = {
   permissions: LifecyclePermissionsMode;
 };
 
-type UninstallCommandRunner = (options: UninstallCommandOptions) => Promise<void>;
+type UninstallCommandRunner = (options: UninstallCommandOptions) => Promise<unknown>;
 type UninstallCommandLoader = () => Promise<UninstallCommandRunner>;
 
 type SkillsCommandOptions = {
@@ -135,6 +142,16 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
 
   if (parsed.command === "run") {
     await runRunCommand(parsed.runArgs);
+    return;
+  }
+
+  if (parsed.command === "resource") {
+    await runResourceCommand(parsed.runArgs);
+    return;
+  }
+
+  if (parsed.command === "project") {
+    await runProjectCommand(parsed.runArgs);
     return;
   }
 
@@ -739,6 +756,8 @@ function parseArgs(argv: string[]): ParsedArgs {
 
   if (
     args[0] === "setup" ||
+    args[0] === "project" ||
+    args[0] === "resource" ||
     args[0] === "run" ||
     args[0] === "mcp" ||
     args[0] === "update" ||
@@ -754,7 +773,11 @@ function parseArgs(argv: string[]): ParsedArgs {
     parsed.setupSubcommand = args.shift() as SetupSubcommand;
   }
 
-  if (parsed.command === "run") {
+  if (
+    parsed.command === "run" ||
+    parsed.command === "resource" ||
+    parsed.command === "project"
+  ) {
     parsed.runArgs = args;
     return parsed;
   }
@@ -1613,6 +1636,28 @@ Examples:
   }
 
   switch (command) {
+    case "project":
+      output.write(`make-docs project
+
+Manage canonical project support surfaces.
+
+Usage:
+  make-docs project surface ensure <archive|artifacts|assets>
+
+The reserved ensure operation is pending and names W19 R1 P4 when invoked.
+`);
+      return;
+    case "resource":
+      output.write(`make-docs resource
+
+List, read, or explicitly ensure stable system resources.
+
+Usage:
+  make-docs resource list [--type <contract|prompt|reference|template>] [--prefix <path>] [--origin <effective|local|installed>] [--format table|json] [--target <dir>]
+  make-docs resource read <uri> [--origin <effective|local|installed>] [--format raw|json] [--target <dir>]
+  make-docs resource ensure <uri> --allow-write --approve resource-projection-write [--dry-run] [--target <dir>]
+`);
+      return;
     case "run":
       output.write(`make-docs run
 
@@ -1695,6 +1740,8 @@ Manage make-docs installs, run registry operations, and serve MCP.
 Usage:
   make-docs
   make-docs setup [reconfigure|skills|backup|remove] [options]
+  make-docs project surface ensure <archive|artifacts|assets>
+  make-docs resource <list|read|ensure> [options]
   make-docs run <domain> <verb> [options]
   make-docs mcp
   make-docs update
@@ -1710,6 +1757,8 @@ Global flags:
 
 Commands:
   setup        Install or sync this project; subcommands reconfigure, skills, backup, remove.
+  project      Manage canonical project support surfaces.
+  resource     List, read, or ensure stable system resources.
   run          Run deterministic registry operations.
   mcp          Run the TypeScript MCP server over stdio.
   update       Update the installed make-docs tool itself.
@@ -1722,6 +1771,7 @@ Examples:
   make-docs setup reconfigure
   make-docs setup skills --dry-run
   make-docs setup remove --backup
+  make-docs resource list
   make-docs run playbook catalog
   make-docs mcp
 

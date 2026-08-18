@@ -1,6 +1,6 @@
 # Docs Contract v2 — Planning Proposals
 
-> Filename: `2026-04-15-docs-contract-v2-planning.md`. See [`docs/.references/wave-model.md`](../.references/wave-model.md) for W/R semantics.
+> Filename: `2026-04-15-docs-contract-v2-planning.md`. See the [wave model](../../.make-docs/references/system/wave-model.md) for W/R semantics.
 
 ## Purpose
 
@@ -138,5 +138,5 @@ Each alternative below was surfaced in the original scratchpad as an open questi
 ## Intended Follow-On
 
 - Route: `baseline-plan`
-- Next Prompt: [designs-to-plan.prompt.md](../.prompts/designs-to-plan.prompt.md)
+- Next Prompt: [designs-to-plan.prompt.md](../../.make-docs/system/prompts/designs-to-plan.prompt.md)
 - Why: This design sets the v2 contract surface; its execution plan is captured separately in `2026-04-15-w2-r0-docs-contract-v2-execution.md`, and baseline planning is the correct downstream route for turning these proposals into sequenced phases.

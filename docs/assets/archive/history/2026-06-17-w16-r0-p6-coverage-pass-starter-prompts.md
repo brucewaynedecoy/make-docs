@@ -35,9 +35,9 @@ place.
 ### Project
 
 - Added coverage-pass prompt starters under
-  [docs/assets/prompts](../../../../.make-docs/references/system/prompts/).
+  [docs/assets/prompts](../../../../.make-docs/system/prompts/).
 - Mirrored the prompt starters under
-  [packages/docs/template/.make-docs/references/system/prompts](../../../../packages/docs/template/.make-docs/references/system/prompts/).
+  [packages/docs/template/.make-docs/references/system/prompts](../../../../packages/docs/template/.make-docs/prompts/system/).
 - Updated [rules.ts](../../../../packages/cli/src/rules.ts) to include the new
   prompt assets in `PROMPT_RULES`.
 - Aligned guide-router copies under [docs/guides](../../library/),
