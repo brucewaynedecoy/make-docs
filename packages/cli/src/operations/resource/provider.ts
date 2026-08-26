@@ -14,6 +14,7 @@ import {
   SYSTEM_RESOURCE_TYPES,
   SYSTEM_RESOURCE_TYPE_DIRECTORIES,
   type LoadSystemResourceProviderInput,
+  type SystemResourceCatalogRule,
   type SystemResourceError,
   type SystemResourceProviderEntry,
   type SystemResourceProviderInventory,
@@ -153,6 +154,11 @@ export function loadSystemResourceProvider(
     identity: providerIdentity,
     root: root.value,
     catalogPath: catalogPath.value,
+    catalogRules: Object.freeze(catalogTypes.value.resourceTypes.map((entry) => Object.freeze({
+      type: entry.type,
+      include: Object.freeze([...entry.include]),
+      exclude: Object.freeze([...entry.exclude]),
+    }))),
     inventoryDigest,
   });
   const inventory = Object.freeze({
@@ -174,6 +180,7 @@ export function loadInstalledSystemResourceProvider(): SystemResourceResult<Syst
       root: TEMPLATE_ROOT,
       packageName: packageMeta.name,
       version: packageMeta.version,
+      immutableRef: `package:${packageMeta.name}@${packageMeta.version}`,
       source,
     });
   } catch (error) {
@@ -185,6 +192,38 @@ export function loadInstalledSystemResourceProvider(): SystemResourceResult<Syst
       TEMPLATE_ROOT,
     );
   }
+}
+
+export function matchesSystemResourceCatalogPath(
+  provider: SystemResourceProviderInventory,
+  type: SystemResourceType,
+  resourcePath: string,
+): SystemResourceResult<boolean> {
+  const rules = provider?.provider?.catalogRules;
+  if (
+    !Array.isArray(rules) ||
+    rules.length !== SYSTEM_RESOURCE_TYPES.length ||
+    !SYSTEM_RESOURCE_TYPES.every(
+      (expectedType) => rules.filter((rule) => rule?.type === expectedType).length === 1,
+    )
+  ) {
+    return invalidCatalogType("Provider inventory catalog rules are incomplete or duplicated.");
+  }
+  const rule = rules.find((candidate) => candidate.type === type) as
+    | SystemResourceCatalogRule
+    | undefined;
+  if (
+    !rule ||
+    !isStringArray(rule.include) ||
+    rule.include.length === 0 ||
+    !isStringArray(rule.exclude)
+  ) {
+    return invalidCatalogType(`Provider inventory catalog rules for ${type} are invalid.`);
+  }
+  return {
+    ok: true,
+    value: matchesAny(resourcePath, rule.include) && !matchesAny(resourcePath, rule.exclude),
+  };
 }
 
 function validateCatalog(

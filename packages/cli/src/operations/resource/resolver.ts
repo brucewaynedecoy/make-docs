@@ -12,6 +12,7 @@ import {
 import type { Stats } from "node:fs";
 import path from "node:path";
 import { createSystemResourceIdentity, parseSystemResourceUri } from "./identity";
+import { matchesSystemResourceCatalogPath } from "./provider";
 import {
   SYSTEM_RESOURCE_ENSURE_APPROVAL,
   SYSTEM_RESOURCE_TYPES,
@@ -86,15 +87,23 @@ export function resolveSystemResource(
     return providerEntries;
   }
   const providerEntry = providerEntries.value.get(uri) ?? null;
+  const cataloged = matchesSystemResourceCatalogPath(
+    provider,
+    identity.value.type,
+    identity.value.path,
+  );
+  if (!cataloged.ok) {
+    return cataloged;
+  }
+  if (!cataloged.value || !providerEntry) {
+    return failure(
+      "resource-not-found",
+      `System resource ${uri} is not available from the installed provider inventory.`,
+      "Check the cataloged resource URI or restore the installed provider.",
+      uri,
+    );
+  }
   if (origin === "installed") {
-    if (!providerEntry) {
-      return failure(
-        "resource-not-found",
-        `System resource ${uri} is not available from the installed provider.`,
-        "Check the resource URI or restore the installed provider.",
-        uri,
-      );
-    }
     return { ok: true, value: fromProvider(provider, providerEntry) };
   }
   const validatedProject = validateProjectContext(project);
@@ -231,21 +240,22 @@ export function listSystemResources(
   if (!providerEntries.ok) {
     return providerEntries;
   }
+  const providerUris = new Set(providerEntries.value.keys());
   let uris: Set<string>;
   if (origin === "installed") {
-    uris = new Set(providerEntries.value.keys());
+    uris = providerUris;
   } else {
     const validatedProject = validateProjectContext(project);
     if (!validatedProject.ok) {
       return validatedProject;
     }
-    const localUris = listProjectedUris(validatedProject.value.root);
+    const localUris = listProjectedUris(validatedProject.value.root, provider, providerUris);
     if (!localUris.ok) {
       return localUris;
     }
     uris = new Set([
       ...(origin === "effective" ? providerEntries.value.keys() : []),
-      ...validatedProject.value.evidenceByUri.keys(),
+      ...[...validatedProject.value.evidenceByUri.keys()].filter((uri) => providerUris.has(uri)),
       ...localUris.value,
     ]);
   }
@@ -823,7 +833,11 @@ function readLocalFile(
   }
 }
 
-function listProjectedUris(root: string): SystemResourceResult<Set<string>> {
+function listProjectedUris(
+  root: string,
+  provider: SystemResourceProviderInventory,
+  providerUris: ReadonlySet<string>,
+): SystemResourceResult<Set<string>> {
   const uris = new Set<string>();
   for (const type of SYSTEM_RESOURCE_TYPES) {
     const relativeRoot = `.make-docs/system/${SYSTEM_RESOURCE_TYPE_DIRECTORIES[type]}`;
@@ -836,8 +850,12 @@ function listProjectedUris(root: string): SystemResourceResult<Set<string>> {
     if (!files.ok) return files;
     for (const file of files.value) {
       const relative = path.relative(inspected.value, file).split(path.sep).join("/");
+      const cataloged = matchesSystemResourceCatalogPath(provider, type, relative);
+      if (!cataloged.ok) return cataloged;
+      if (!cataloged.value) continue;
       const identity = createSystemResourceIdentity(type, relative);
       if (!identity.ok) return identity;
+      if (!providerUris.has(identity.value.uri)) continue;
       uris.add(identity.value.uri);
     }
   }

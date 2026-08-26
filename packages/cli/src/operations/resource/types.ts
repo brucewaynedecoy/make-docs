@@ -16,6 +16,12 @@ export const SYSTEM_RESOURCE_TYPE_DIRECTORIES: Record<SystemResourceType, string
   template: "templates",
 };
 
+export interface SystemResourceCatalogRule {
+  readonly type: SystemResourceType;
+  readonly include: readonly string[];
+  readonly exclude: readonly string[];
+}
+
 export const SYSTEM_RESOURCE_ERROR_CODES = [
   "invalid-resource-type",
   "invalid-resource-uri",
@@ -70,6 +76,7 @@ export interface SystemResourceProviderMetadata {
   identity: SystemResourceProviderIdentity;
   root: string;
   catalogPath: string;
+  catalogRules: readonly SystemResourceCatalogRule[];
   inventoryDigest: string;
 }
 

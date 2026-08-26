@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import {
   mkdirSync,
   mkdtempSync,
@@ -77,6 +78,23 @@ describe("system-resource provider inventory", () => {
     if (!result.ok) return;
     for (const type of SYSTEM_RESOURCE_TYPES) {
       expect(result.value.resources.some((entry) => entry.identity.type === type)).toBe(true);
+    }
+    expect(result.value.provider.identity.immutableRef).toBe(
+      `package:${result.value.provider.identity.packageName}@${result.value.provider.identity.version}`,
+    );
+    expect(result.value.provider.inventoryDigest).toBe(
+      createHash("sha256")
+        .update(
+          Buffer.from(
+            result.value.resources
+              .map((entry) => `${entry.identity.uri}\0${entry.digest}`)
+              .join("\n"),
+          ),
+        )
+        .digest("hex"),
+    );
+    for (const entry of result.value.resources) {
+      expect(entry.digest).toBe(createHash("sha256").update(entry.readContent()).digest("hex"));
     }
   });
 

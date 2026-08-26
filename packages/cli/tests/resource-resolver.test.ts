@@ -240,10 +240,11 @@ describe("system-resource resolver", () => {
   it("does not resolve a projection through a case-only path alias", () => {
     const provider = createProvider();
     const project = createProject();
-    const uri = "make-docs://system/contract/case.md";
+    const entry = providerEntry(provider, "contract");
+    const uri = entry.identity.uri;
     const content = Buffer.from("case-sensitive override\n");
-    const wrongCasePath = path.join(project, ".make-docs/system/contracts/Case.md");
-    const requestedPath = path.join(project, ".make-docs/system/contracts/case.md");
+    const wrongCasePath = path.join(project, ".make-docs/system/contracts/Contract.md");
+    const requestedPath = path.join(project, ".make-docs/system/contracts/contract.md");
     mkdirSync(path.dirname(wrongCasePath), { recursive: true });
     writeFileSync(wrongCasePath, content);
     const aliasesOnThisFileSystem = existsSync(requestedPath);
@@ -255,8 +256,9 @@ describe("system-resource resolver", () => {
         selected: true,
         ownership: "project-override",
         expectedDigest: digest(content),
-        localPath: ".make-docs/system/contracts/case.md",
+        localPath: ".make-docs/system/contracts/contract.md",
       }]),
+      "local",
     );
     expect(result.ok).toBe(false);
     if (!result.ok) {
