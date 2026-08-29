@@ -14,6 +14,8 @@ The CLI no longer dynamically renders scaffold documents. What is in `packages/d
 
 ## Component and Capability Map
 
+- The Human Experience Contract and Human Experience Reference are peer system resources that carry the canonical standard and its application guidance. See [PRD 49](49-human-experience-standard-and-intent.md).
+
 - Contracts, prompts, references, and templates are peer system-resource types. Each resource has stable identity `make-docs://system/<type>/<posix-relative-path>` independent of its installed-provider or optional local-projection origin.
 - Maintainer-facing shipped resources that define this four-type authority use plain words where possible. Each necessary special term is explained at first use. A term is also defined in [PRD 04](./04-glossary.md) only when it is stable product vocabulary.
 - Configured root, `.make-docs/`, docs, and on-demand-surface `AGENTS.md` or `CLAUDE.md` routers are template-sourced managed-block files for supported harnesses. [15-agent-instruction-ownership-and-managed-blocks.md](./15-agent-instruction-ownership-and-managed-blocks.md) owns their block-scoped behavior.
@@ -33,6 +35,8 @@ The CLI no longer dynamically renders scaffold documents. What is in `packages/d
 
 ### Template Ownership and Mutation Order
 
+Human Experience resources and every changed design, plan, PRD, work, coverage, and UAT resource follow the same upstream-first order, package projection, affected dogfood reseed, and installed-package proof.
+
 - Template-owned files include root, `.make-docs/`, docs, and on-demand-surface instruction routers, shipped workflow references, shipped templates, shipped prompt starters, starter documentation structure, and static helper files recorded by the installer as managed assets.
 - Project-owned files include generated designs, plans, PRDs, work backlogs, persona-scoped reader assets, history records, artifact review content, overlays, and local config. Repo-root location does not convert them into template-owned assets.
 - On-demand `.make-docs/archive/`, `docs/artifacts/`, and `docs/assets/<persona-slug>/` paths are directory-contract surfaces: routers may be template-owned, while local records remain project-owned or explicitly managed according to the owning contract. `.make-docs/` runtime state and archive/provenance records are never reseeded through `docs/`.
@@ -49,6 +53,8 @@ The CLI no longer dynamically renders scaffold documents. What is in `packages/d
 - Validation is built into the subsystem. `packages/cli/tests/consistency.test.ts` asserts that desired scaffold assets match packaged template bytes, that every template file is covered by the static asset pipeline, and that every template `AGENTS.md` / `CLAUDE.md` has a valid managed block.
 
 ## Contracts and Data
+
+The Human Experience Contract uses stable URI `make-docs://system/contract/human-experience-contract.md`. The Human Experience Reference uses stable URI `make-docs://system/reference/human-experience.md`. Both use the existing stable URI and optional projection model. They do not create a new resource type or a mandatory project projection.
 
 - Root, `.make-docs/`, and docs instruction routers remain always-local bootstrap surfaces. The installed provider supplies content resources without local snapshots, and any selected projection must retain trustworthy provenance rather than silently replacing package bytes; [17-system-asset-materialization-and-local-bootstrap.md](./17-system-asset-materialization-and-local-bootstrap.md) owns the detailed contract.
 - Repo-root authored docs are not product-owned merely because they live under `docs/`; existing dogfood/template installs use reviewed migration dispositions rather than path-only ownership assumptions under [18-compatibility-classification-and-migration-safety.md](./18-compatibility-classification-and-migration-safety.md).
@@ -70,6 +76,8 @@ The CLI no longer dynamically renders scaffold documents. What is in `packages/d
 
 ## Integrations
 
+- [PRD 49](49-human-experience-standard-and-intent.md) owns Human Experience semantics. This PRD owns the upstream resources, package projection, affected dogfood reseed, and installed parity.
+
 - Packaging integration is deliberate and two-stage. `packages/docs/README.md` describes `packages/docs/template/` as the shippable docs package, `scripts/copy-template-to-cli.mjs` copies that tree into `packages/cli/template`, and `packages/cli/package.json` includes the bundled `template/` directory in published CLI artifacts.
 - Consumer-install integration uses the same static asset catalog for first install, sync, and reconfigure. The planner decides create, update, noop, removal, and conflict behavior; it does not ask the catalog to synthesize alternate content.
 - Dogfood integration is manual by design. Repository-root `.make-docs/` and `docs/` are downstream dogfood instances of the template, but `packages/docs/template/` remains the source of truth for template-owned files.
@@ -87,6 +95,8 @@ The CLI no longer dynamically renders scaffold documents. What is in `packages/d
 
 ## Reference
 
+The Human Experience Reference is a peer system reference. It explains the canonical standard, principles, impact choices, evidence modes, examples, and common errors without creating a second normative source.
+
 - The authoritative system-resource files for this subsystem live under `packages/docs/template/`; the package provider exposes peer contract, prompt, reference, and template inventories, while explicitly selected projections and managed project-asset routers are installed through the planner/apply pipeline.
 - Static asset selection and materialization are governed by `packages/cli/src/rules.ts`, `packages/cli/src/catalog.ts`, `packages/cli/src/utils.ts`, and the manifest persistence layer in `packages/cli/src/manifest.ts`.
 - The packaged delivery boundary remains `packages/docs/template/` during authoring and `packages/cli/template/` after `scripts/copy-template-to-cli.mjs` prepares the CLI tarball.
@@ -99,7 +109,26 @@ The authority and state boundaries are owned by [R-OBL-AUTH](45-deferred-obligat
 
 ## Template Source Authority
 
+The Human Experience Contract and Reference are authored under `packages/docs/template/.make-docs/`. Package, install, upgrade, reconfigure, manifest, and dogfood behavior must preserve existing ownership and conflict rules. Installed-product evidence must prove that packaged resources, generated artifacts, and agent discovery match upstream authority.
+
 `packages/docs/template/` is the upstream authoring authority for shipped Make Docs system resources and default assets. Generated package copies and the repository dogfood instance are downstream projections and must not become competing sources of truth.
+
+## Proportionate Testing Resource Authority
+
+The upstream template must ship one common testing contract and reference, body-record guidance, lifecycle and prompt routing, and concise managed-router discovery for [PRD 50](50-proportionate-testing-and-human-centered-validation.md).
+
+The resource set must:
+
+- expose exactly four core testing types without activating all four by default;
+- carry current-decision, maturity, scope, executor, gate, effort, stop, evidence, and rerun semantics;
+- preserve PRD 48 as the detailed Performance Testing owner;
+- preserve PRD 46 as the detailed Unassisted Goal Testing owner;
+- preserve PRD 49 as the built-result Human Experience owner and review lens;
+- support short non-gate Guided Progress Review instructions;
+- keep testing decisions in document bodies for the first release; and
+- require neither a Skill nor a new runtime command.
+
+Author these resources first under `packages/docs/template/`. Then use the reviewed dogfood and installed-package paths. Routers must point to authority instead of copying it.
 
 ## Requirement History
 
@@ -140,7 +169,27 @@ The authority and state boundaries are owned by [R-OBL-AUTH](45-deferred-obligat
 - Rationale: Q-021 records the owner's bounded P1 decision. The wider repository sweep and coverage-pass policy remain open.
 - Source: [Q-021 bounded P1 decision](./03-open-questions-and-risk-register.md#q-021-maintainer-facing-terminology-needs-a-plain-language-rule-and-glossary-backing)
 
+### 2026-08-28 — W20 R0
+
+- Affected requirement or section: `Component and Capability Map`, `Contracts and Data`, `Integrations`, and `Human Experience Resource Authority`.
+- Previous contract: The template package delivered peer contracts, references, prompts, and templates, but it did not own Human Experience resources.
+- Replacement contract: The template package now owns stable Human Experience Contract and Reference resources, optional projection, upstream-first delivery, dogfood parity, and installed-resource proof.
+- Rationale: A product-wide standard must have one stable authority and must reach installed agents without policy copies or package drift.
+- Source: [W20 R0 Human Experience Standard and Intent plan](../plans/2026-08-28-w20-r0-human-experience-standard-and-intent/00-overview.md)
+
+### 2026-08-28 — W21 R0
+
+- Affected requirement or section: component map, contracts and data, integrations, and testing resource authority.
+- Previous contract: The template package delivered specialist naive-UAT and performance resources, but it did not own one common testing standard or Guided Progress Review resource path.
+- Replacement contract: The upstream template must deliver the PRD 50 testing contract, reference, body-record guidance, prompts, templates, and thin router pointers while preserving specialized PRD 46, PRD 48, and PRD 49 resources.
+- Rationale: Agents need one normal discovery path for proportionate testing without requiring a Skill or copying policy into routers.
+- Source: [W21 R0 Proportionate Testing and Human-Centered Validation plan](../plans/2026-08-28-w21-r0-proportionate-testing-and-human-centered-validation/00-overview.md)
+
 ## Source Anchors
+
+- [Human Experience Standard and Intent design](../designs/2026-08-28-human-experience-standard-and-intent.md)
+- [W20 R0 Human Experience Standard and Intent plan](../plans/2026-08-28-w20-r0-human-experience-standard-and-intent/00-overview.md)
+- [Human Experience Standard and Intent](49-human-experience-standard-and-intent.md)
 
 - [Accepted recovery design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md)
 - [W19 R1 recovery plan](../plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md)

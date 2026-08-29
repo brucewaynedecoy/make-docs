@@ -43,6 +43,13 @@ It does not make every optional idea, open question, rejected alternative, or un
 
 ## Requirements
 
+### R-OBL-TEST Testing Deferral Boundary
+
+- R-OBL-TEST-1 (MUST): a testing activity creates a durable obligation only when accepted current authority establishes a future outcome that remains owed and the record has an owner, activation trigger, target, exit criteria, and reason.
+- R-OBL-TEST-2 (MUST NOT): `not-needed-now`, `not-applicable`, a declined Guided Progress Review, skipped advisory testing, or “test later” without accepted future authority cannot create an `O-###` record.
+- R-OBL-TEST-3 (MUST): an advisory finding creates later work only when the owner accepts remediation as a required future outcome.
+- R-OBL-TEST-4 (MUST): an obligation preserves owed work. It cannot turn a non-blocking activity into a gate, rewrite a test result, or imply product acceptance.
+
 ### R-OBL-ID Canonical Register and Identity
 
 - R-OBL-ID-1 (MUST): the active `docs/prd/03-open-questions-and-risk-register.md` contains one fixed `## Deferred Obligations` section. It extends the existing living register and does not create a new fixed-core file, parallel backlog, or database-owned product contract.
@@ -85,7 +92,7 @@ It does not make every optional idea, open question, rejected alternative, or un
 - R-OBL-FLOW-3 (MUST): backlog generation preserves `O-###` links in source authority, tasks, dependencies, and acceptance criteria. Later-phase obligations remain visible even when no current-phase task is generated.
 - R-OBL-FLOW-4 (MUST): phase gates consume audit status, candidate/verdict totals, evidence references, activated and fulfilled IDs, surviving deferred IDs with next coordinates, unresolved blockers, and the supported capability-status statement.
 - R-OBL-FLOW-5 (MUST): task completion alone does not fulfill an obligation. Fulfillment requires the record’s exit criteria and related end-to-end acceptance evidence.
-- R-OBL-FLOW-6 (MUST): registering, updating, activating, or fulfilling an obligation does not satisfy a naive-UAT gate. The gate consumes the authoritative run outcome and finding disposition from PRD 46; `revise`, `fail`, `blocked`, unrun, and unresolved-finding states remain unsatisfied until the UAT authority records an accepted disposition and any required rerun.
+- R-OBL-FLOW-6 (MUST): registering, updating, activating, or fulfilling an obligation does not alter an Unassisted Goal Test result, finding, rerun trigger, or gate effect. PRD 46 owns the authoritative result and disposition. `not-needed-now` creates no obligation unless separate accepted future authority establishes an outcome that remains owed.
 - R-OBL-FLOW-7 (MUST): registering, updating, activating, or fulfilling an obligation does not rewrite a performance outcome, waive a target, close a performance finding, or satisfy a performance gate. Task and obligation status cannot alter a recorded `PERF-###` result; only an authority-approved disposition and any required separately authorized later result may change current performance acceptance under PRD 48.
 
 ### R-OBL-STATE Repository and Project State Boundary
@@ -155,7 +162,8 @@ Storage boundaries are:
 - [18 Compatibility Classification and Migration Safety](18-compatibility-classification-and-migration-safety.md) owns classification and modified-content safety for existing projects.
 - [06 Template Contracts and Generated Assets](06-template-contracts-and-generated-assets.md), [09 Dogfood and Maintainer Operations](09-dogfood-and-maintainer-operations.md), and [10 Packaging, Validation, and Release Reference](10-packaging-validation-and-release-reference.md) jointly own upstream-first delivery from `packages/docs/template/` through reviewed dogfood projection and installed-package proof.
 - [38 Global Store and Project State](38-global-store-and-project-state.md) owns operational evidence storage and the non-authoritative database boundary.
-- [46 Naive End-User Acceptance Testing](46-naive-end-user-acceptance-testing.md) owns canonical scenario outcomes, findings, evidence references, dispositions, and gate consumption. This PRD routes only the accepted later work owed by a valid `none`, `revise`, `fail`, `blocked`, or unresolved-finding state and never changes that state by creating an obligation.
+- [46 Unassisted Goal Testing](46-naive-end-user-acceptance-testing.md) owns canonical scenario results, findings, evidence references, dispositions, and any explicit gate effect. This PRD routes only accepted later work and never converts `not-needed-now`, a non-blocking result, or a declined activity into an obligation.
+- [50 Proportionate Testing and Human-Centered Validation](50-proportionate-testing-and-human-centered-validation.md) owns the common gate, evidence, stop, rerun, and testing-deferral rules.
 
 ## Rebuild Notes
 
@@ -173,7 +181,9 @@ Future deterministic support may detect missing sections, duplicate IDs, invalid
 6. Database loss preserves obligation meaning in Git but makes local audit status unverified until evidence is restored or the audit reruns.
 7. A clone receives the same versioned obligations and either imports explicitly portable evidence or reruns the audit.
 8. A legacy project gains the section through scoped migration without renumbering existing risk/question IDs, rewriting archives, or overwriting modified content.
-9. A naive-UAT `revise` or `fail` finding creates a linked obligation for accepted later remediation; the finding and gate remain unsatisfied until PRD 46 records the authoritative disposition and any required valid rerun, even if the obligation record is routed or fulfilled.
+9. An Unassisted Goal Test `friction` finding creates a linked obligation only when the owner accepts later remediation as required. The obligation does not rewrite the finding, change its gate effect, or require a rerun without a current rerun trigger.
+10. A Guided Progress Review is declined; the phase remains valid and no obligation is created.
+11. A testing decision records `not-needed-now`; the orphan audit accepts the disposition because no future outcome is owed.
 
 ## Non-Requirements
 
@@ -195,11 +205,20 @@ Future deterministic support may detect missing sections, duplicate IDs, invalid
 - Rationale: W19 R1 separates authoritative UAT evidence and gate consumption from durable future-work routing while rehoming reusable workflow policy into first-class system resources.
 - Source: [Accepted W19 R1 recovery design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md) and [W19 R1 recovery plan](../plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md)
 
+### 2026-08-28 — W21 R0
+
+- Affected requirement or section: requirements, integrations, and acceptance scenarios.
+- Previous contract: UAT `none`, blocked, failed, revised, and unresolved states commonly routed future work and could imply an unsatisfied gate.
+- Replacement contract: Testing creates an obligation only for an accepted future outcome with complete routing. `not-needed-now`, declined guided review, and skipped advisory testing do not create obligations or gates.
+- Rationale: Anti-orphan governance must preserve real owed work without manufacturing procedural debt.
+- Source: [W21 R0 Proportionate Testing and Human-Centered Validation plan](../plans/2026-08-28-w21-r0-proportionate-testing-and-human-centered-validation/00-overview.md)
+
 ## Source Anchors
 
 - [Performance Testing Guardrails design](../designs/2026-08-12-performance-testing-guardrails.md)
 - [W19 R2 performance evidence plan](../plans/2026-08-13-w19-r2-performance-evidence-governance/00-overview.md)
 - [48 Performance Evidence Governance](48-performance-evidence-governance.md)
+- [50 Proportionate Testing and Human-Centered Validation](50-proportionate-testing-and-human-centered-validation.md)
 - [Deferred Obligations and Anti-Orphan Governance design](../designs/2026-07-27-deferred-obligations-and-anti-orphan-governance.md)
 - [W18 R15 combined plan](../plans/2026-07-30-w18-r15-deferred-obligations-and-naive-uat-governance/00-overview.md)
 - [W18 R15 P1 reconciliation history](../assets/archive/history/2026-07-30-w18-r15-p1-prd-reconciliation.md)

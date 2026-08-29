@@ -1596,7 +1596,39 @@ The following pre-W19 R1 discussion is retained as historical context and does n
 
 **To close**: Shipped governance resources and consuming gates reject expired evidence as a current pass, reject silent comparison across mismatched fingerprints, preserve prior results as history, and require separately authorized bounded requalification when current proof is needed.
 
+### R-033 Human Experience Structure Could Become Checklist Compliance
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | The accepted [Human Experience Standard and Intent design](../designs/2026-08-28-human-experience-standard-and-intent.md), accepted [W20 R0 plan](../plans/2026-08-28-w20-r0-human-experience-standard-and-intent/00-overview.md), and current [PRD 49](49-human-experience-standard-and-intent.md) make Human Experience Intent and structural validation necessary but not sufficient. Real human-surface evidence, separate review verdicts, and bounded completion claims remain required. | Carry the limit into the contract, reference, prompts, templates, validators, agent conformance, review records, installed-product flow, and phase-close gates. Reject any claim that a complete section or passing structure check proves beauty, intuition, usefulness, or joy. |
+
+**Issue**: Agents and reviewers can complete every required field, repeat the right principles, and pass structural checks while the actual result remains confusing, dense, discontinuous, or shaped around the internal model.
+
+**Why it matters**: The enhancement would reproduce the original failure in a more formal form. Make Docs would appear to govern human quality while still accepting technically correct results that are difficult for people to understand or use.
+
+**Recommendation**: Treat structure as a prompt and traceability aid. Require proportionate evidence from the real surface, keep Human Experience Review distinct, record friction even after technical completion, and prevent agents from self-certifying lived human experience.
+
+**To close**: Shipped resources, validators, conformance scenarios, review workflows, and at least one installed-product flow all preserve the difference between correct form and demonstrated human quality. No completion or release path treats structural conformance alone as sufficient proof.
+
+### R-034 Testing Proportionality, Gate, and Human-Burden Drift
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | The current [testing design](../designs/2026-08-28-proportionate-testing-and-human-centered-validation.md), [W21 R0 plan](../plans/2026-08-28-w21-r0-proportionate-testing-and-human-centered-validation/00-overview.md), and [PRD 50](50-proportionate-testing-and-human-centered-validation.md) establish a four-type current-decision model. Testing must reveal both insufficient proof and excessive, early, duplicate, unauthorized, or needlessly difficult work. | Carry selection, effort budget, stop condition, evidence reuse, human testing experience, and explicit gate effects through PRDs 14, 20, 43-50, system resources, conformance, installed-product proof, and later W20 R0 revision. |
+
+**Issue**: Agents can under-test a material current risk or over-test an unstable or low-risk increment. They can also turn advisory human activity into a phase gate, ask people to repeat automated checks, or create false obligations for testing that is not useful now.
+
+**Why it matters**: Under-testing weakens correctness and support claims. Over-testing wastes time and money, slows learning, and makes Make Docs unpleasant for owners and maintainers. False gates and obligations hide the actual product decision behind procedure.
+
+**Recommendation**: Require the common testing decision record, affected-first automated proof, maturity-qualified performance evidence, non-gate Guided Progress Review, conditional Unassisted Goal Testing, Human Experience Review as a lens, and failure-revealing conformance for both failure directions.
+
+**To close**: Implement and validate the W21 R0 resource set. Show that supported agents select the smallest useful test, stop at sufficient evidence, reject unsupported gates, reuse valid evidence, and give a person one short installed-product testing experience that is easier and more meaningful than the prior technical walkthrough pattern.
+
 ## Source Anchors
+
+- `docs/designs/2026-08-28-human-experience-standard-and-intent.md`
+- `docs/plans/2026-08-28-w20-r0-human-experience-standard-and-intent/00-overview.md`
+- `docs/prd/49-human-experience-standard-and-intent.md`
 
 - `docs/prd/45-deferred-obligation-governance.md`
 - `docs/prd/46-naive-end-user-acceptance-testing.md`

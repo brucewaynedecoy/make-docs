@@ -11,6 +11,14 @@ This authority owns agent-harness conformance evidence, lab boundaries, and supp
 The requirements below define the owned components, behaviors, boundaries, and evidence expectations for this capability.
 ## Requirements
 
+### R-CONF-TEST Proportionate Testing Support Claim
+
+1. A supported agent must select only the testing types that can change the current decision.
+2. The agent must state the reason, maturity, scope, executor, gate effect, effort budget, stop condition, evidence, and rerun trigger in plain language when the decision record applies.
+3. Support evidence must include both insufficient-testing and excessive-testing failure cases.
+4. A passing happy path is not sufficient when the agent invents a gate, repeats unchanged proof, asks a person to duplicate automated assertions, or applies production-grade work without current authority.
+5. Guided Progress Review and Unassisted Goal Testing must preserve their different executors, purposes, and default gate effects.
+
 - Result records must capture scenario id and version, harness, installed-product surface, scope, model name, provider or routing layer when known, model version or immutable identifier when available, Make Docs version, runtime distribution, run date, produced files, relevant diffs, exit status, transcript/log pointer, normalized verdict, reason, caveats, and reviewer status. Scenario-specific output metadata may narrow a claim, but retired Playbook, plugin, workflow-bundle, package-compiler, or generated-output dimensions are not required current tuple dimensions.
 - Verdicts are `pass`, `pass-with-caveats`, `inconsistent`, `unsupported`, and `blocked`.
 - A result applies only to the exact R-TUPLE dimensions and applicable version, distribution, Skill, resource, and execution provenance it records.
@@ -112,6 +120,14 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: Conformance and public claims cover current installed-product, Skill, CLI, MCP, system-resource, optional-agentics, and model/provider surfaces through exact six-dimension tuples; retired Playbook, Protocol, plugin, workflow-bundle, compiler, and generated-package claims are absent.
 - Rationale: The support registry must describe only current product capabilities and must not preserve unsupported or untraced extension packaging as a provisional product promise.
 - Source: [W19 R1 recovery design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md) and [accepted W19 R1 plan](../plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md)
+
+### 2026-08-28 — W21 R0
+
+- Affected requirement or section: requirements, lab and support governance, integrations, and support-claim evidence.
+- Previous contract: Support claims required exact harness and model evidence but did not require conformance for proportionate testing decisions or the human testing experience.
+- Replacement contract: Supported agents must apply the PRD 50 decision model and fail conformance for under-testing, over-testing, false gates, duplicate human work, and poor human instructions.
+- Rationale: Technical execution support is incomplete when an agent applies testing in a costly, confusing, or unauthorized way.
+- Source: [W21 R0 Proportionate Testing and Human-Centered Validation plan](../plans/2026-08-28-w21-r0-proportionate-testing-and-human-centered-validation/00-overview.md)
 
 ## Source Anchors
 

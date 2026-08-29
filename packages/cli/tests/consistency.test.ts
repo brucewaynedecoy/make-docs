@@ -649,6 +649,8 @@ describe("risk register routing contract", () => {
       "R-030 Performance Evidence Could Become an Unbounded Rerun Loop",
       "R-031 Plan or Work Profiles Could Become a Second Performance Authority",
       "R-032 Expired or Non-Comparable Performance Evidence Could Be Reused as Current Proof",
+      "R-033 Human Experience Structure Could Become Checklist Compliance",
+      "R-034 Testing Proportionality, Gate, and Human-Burden Drift",
     ]);
   });
 

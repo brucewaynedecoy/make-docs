@@ -2,6 +2,8 @@
 
 ## Purpose
 
+Make Docs preserves technical rigor and also requires coherent human outcomes. A result is not complete only because its contracts and operations are correct. People must be able to understand and use the result for a real goal.
+
 `make-docs` is a TypeScript/Node installer, lifecycle CLI, and MCP server that turns a target repository into an AI-friendly documentation workspace with opinionated structure, stable system-resource identities, router instructions, and optional agent skills. Contracts, prompts, references, and templates are peer system-resource types identified as `make-docs://system/<type>/<posix-relative-path>` and served by the installed CLI without requiring a project-local resource snapshot.
 
 The product is not only a file copier. A shared TypeScript operation registry owns deterministic resource resolution, list/read behavior, lifecycle operations, and typed receipts for CLI and MCP projections. `resolveInstallProfile` in `packages/cli/src/profile.ts` converts `InstallSelections` into the dependency-aware `InstallProfile` defined in `packages/cli/src/types.ts`; planning and apply behavior preserve manifest-backed ownership and provenance; and optional `.make-docs/system/{contracts,prompts,references,templates}/` projection is selected explicitly rather than required for core operation.
@@ -17,17 +19,22 @@ The product also treats maintainer and dogfood workflows as first-class capabili
 
 ## Key Capabilities
 
+- **Human Experience Standard and Intent**: Make Docs provides one product-wide standard for human quality. Governed work classifies its human impact, states the intended human outcome, and carries observable experience promises into evidence and acceptance. See [PRD 49](49-human-experience-standard-and-intent.md).
+- **Proportionate testing and human-centered validation**: Make Docs selects only the testing that can change a current decision. It separates Automated Implementation Testing, Performance Testing, Guided Progress Review, and Unassisted Goal Testing; applies explicit effort, stop, evidence, and gate rules; and makes every request to a person short, goal-led, and non-redundant. See [PRD 50](50-proportionate-testing-and-human-centered-validation.md).
+
 - Profile-scoped scaffold installation: `defaultSelections` in `packages/cli/src/profile.ts` enables `designs`, `plans`, `prd`, and `work`, while `CAPABILITY_DEPENDENCIES` ensures `prd` depends on `plans` and `work` depends on both `plans` and `prd`. This gives the product a single install model for both full and partial documentation systems.
 - Contract-aware resource delivery: `packages/docs/template/` is the upstream authoring source of truth for contracts, prompts, references, templates, routers, and default structure. The installed CLI exposes deterministic `resource list` and `resource read` behavior over stable `make-docs://system/...` identities, native MCP resources expose the same effective URI set and bytes where supported, and optional local projection preserves explicit ownership and provenance without rewriting source content.
 - Non-destructive sync and reconfigure: `inferInstallIntent` and `resolveSelections` in `packages/cli/src/cli.ts` distinguish saved-selection sync from explicit reconfiguration; `createInstallPlan` in `packages/cli/src/planner.ts` classifies create, update, generate, remove-managed, and conflict actions; and `applyInstallPlan` in `packages/cli/src/install.ts` writes managed files while staging unresolved replacements under `.make-docs/conflicts/<run-id>/`.
 - Harness and skill distribution: `make-docs setup skills` is the project-lifecycle surface defined by [39-cli-command-model-and-operation-registry.md](./39-cli-command-model-and-operation-registry.md), while `packages/cli/skill-registry.json`, `packages/cli/src/skill-catalog.ts`, and `packages/cli/src/skill-resolver.ts` install explicitly selected skills once under `.make-docs/agentics/skills/<skill-name>/` per scope and expose them as native harness skill directories under `.claude/skills/<skill-name>/` and `.agents/skills/<skill-name>/` using symlink-preferred behavior with managed copy-mirror fallback.
 - Managed lifecycle operations: `runBackupCommand`, `runUninstallCommand`, and `createAuditReport` in `packages/cli/src/backup.ts`, `packages/cli/src/uninstall.ts`, and `packages/cli/src/audit.ts` give the product a safety-first story for backup and uninstall that is separate from install/sync but still driven by manifest and canonical-content auditing.
 - Deferred-obligation governance: [R-OBL-ID](45-deferred-obligation-governance.md#r-obl-id-canonical-register-and-identity) and [R-OBL-AUDIT](45-deferred-obligation-governance.md#r-obl-audit-phase-close-orphan-audit) give every accepted incomplete outcome a durable owner, trigger, target coordinate, exit criteria, lifecycle status, and phase-close orphan audit so later work cannot silently lose it.
-- True naive end-user acceptance testing: [R-NUAT-ACTIVATE](46-naive-end-user-acceptance-testing.md#r-nuat-activate-user-observable-slices-and-valid-none) and [R-NUAT-EVIDENCE](46-naive-end-user-acceptance-testing.md#r-nuat-evidence-setup-outcomes-findings-and-reproducibility) require isolated, goal-oriented UAT when work produces a genuinely user-observable slice and preserve a justified `none` path for internal work. Execution resolves one configured `user`- or `maintainer`-primitive persona, defaults to canonical `user`, delivers the workflow through system resources plus an optional thin Skill adapter, and writes evidence under `docs/assets/<persona-slug>/testing/` without coaching the tester.
+- Conditional Unassisted Goal Testing: [R-NUAT-ACTIVATE](46-naive-end-user-acceptance-testing.md#r-nuat-activate-user-observable-slices-and-valid-none) activates a qualified, anti-coached human attempt only when it can reveal a material current uncertainty or explicit authority requires it. The result is advisory by default, preserves existing `NUAT-###` compatibility, and permits `not-needed-now` without a false obligation.
 - General lifecycle run capture: bounded `lifecycle` runs and `run_evidence` references may record stages from design through retrospective. Typed Store receipts prove only the requested mutation, and a visible `run-capture-unavailable` outcome never weakens repository authority or implies a background retry.
 - Packaging and dogfood validation: `packages/cli/package.json` defines the publishable surface, `scripts/copy-template-to-cli.mjs` prepares the bundled template, and validation preserves the order `packages/docs/template/` upstream -> package projection -> root dogfood -> representative installed project.
 
 ## System Boundaries
+
+Correct machine contracts do not define the default human presentation. A human surface and a machine surface can use different forms and information density. Both must preserve the same meaning, truth, safety, and auditability. The normal human path must preserve context, reveal meaning and relationships, show state and useful next actions, and keep internal detail out of the way until it is useful. See [PRD 49](49-human-experience-standard-and-intent.md).
 
 In scope, `make-docs` owns the publishable CLI at `packages/cli/`, the template authoring tree at `packages/docs/template/`, the shipped skill source tree at `packages/skills/`, the packaged registry at `packages/cli/skill-registry.json`, the repo-level packaging and validation scripts under `scripts/`, and the consumer-facing managed footprint consisting of configured root, `.make-docs/`, and `docs/` routers; `.make-docs/manifest.json`; `.make-docs/conflicts/`; optional `.make-docs/system/**` projections; on-demand `.make-docs/archive/**`, `docs/artifacts/**`, and persona asset directories; shared selected-skill payloads under `.make-docs/agentics/skills/**`; and generated harness skill stubs under project or home directories.
 
@@ -36,6 +43,9 @@ The product deliberately separates authoring authority, packaged provider conten
 Out of scope, Make Docs v2 owns neither Playbooks nor Protocols as document kinds, workflow engines, run models, package/compiler surfaces, default assets, interoperability promises, or Store APIs. Historical Playbook and Protocol designs, plans, work, evidence, and opaque legacy Store rows remain provenance, while a future standalone-product integration requires new owner-approved design and PRD authority. The product also does not currently publish `packages/docs`, `packages/skills`, or `packages/content` as standalone packages and does not define a live rendered-fragment pipeline for `packages/content/`.
 
 ## Current Limitations
+
+- Human Experience adoption is prospective. Existing authority remains valid until substantial work changes its human path. Structural checks can prove that required intent exists and uses the correct form. They cannot prove beauty, intuition, usefulness, or joy.
+- Testing governance is documentation-first in its first release. It can standardize selection, explanation, evidence, and gates before a future typed helper exists. It cannot remove the need for judgment about current decisions, maturity, qualified human execution, or material findings.
 
 - The installed provider inventory is complete for the selected product capabilities even when no local resources are projected. Local `none`, per-resource-type, or `all` projection selection is separate from provider availability; legacy prompt-inclusion or template/reference-mode fields are stale migration inputs rather than current selectors.
 - Built-in skills are distributed through a packaged registry plus remote fetches, not through bundled local skill payloads. `loadSkillRegistry` and `validateSkillRegistryManifest` in `packages/cli/src/skill-registry.ts` also support explicit local or pinned alternate-manifest policies, but the built-in entries still resolve through `resolveSkillSource` and `fetchRemote` in `packages/cli/src/skill-resolver.ts`; built-in skill installation is therefore more network-dependent than the base docs scaffold.
@@ -62,7 +72,31 @@ Out of scope, Make Docs v2 owns neither Playbooks nor Protocols as document kind
 - Rationale: Current product authority must match the accepted v2 boundary and missing-migration recovery direction before downstream work is derived.
 - Source: [Accepted recovery design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md) and [W19 R1 recovery plan](../plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md)
 
+### 2026-08-28 — W20 R0
+
+- Affected requirement or section: `Key Capabilities`, `Human Experience Product and Quality Boundary`, and `Current Limitations`.
+- Previous contract: Make Docs required correct lifecycle and product artifacts but did not define one product-wide standard for human understanding and experience.
+- Replacement contract: Make Docs now owns a canonical Human Experience Standard, conditional impact and intent, semantic alignment between human and machine surfaces, proportionate evidence, and prospective adoption through [PRD 49](49-human-experience-standard-and-intent.md).
+- Rationale: Technically correct artifacts can still expose internal models, lose continuity, hide relationships, and impose needless effort on people.
+- Source: [W20 R0 Human Experience Standard and Intent plan](../plans/2026-08-28-w20-r0-human-experience-standard-and-intent/00-overview.md)
+
+### 2026-08-28 — W21 R0
+
+- Affected requirement or section: `Key Capabilities` and `Current Limitations`.
+- Previous contract: The overview treated naive UAT as the main human testing capability and did not name one product-wide proportional testing model.
+- Replacement contract: The product exposes exactly four core testing types, current-decision selection, explicit gate effects, a humane testing experience, and conditional Unassisted Goal Testing.
+- Rationale: Make Docs must protect correctness without producing excess, early, duplicate, or needlessly difficult testing.
+- Source: [W21 R0 Proportionate Testing and Human-Centered Validation plan](../plans/2026-08-28-w21-r0-proportionate-testing-and-human-centered-validation/00-overview.md)
+
 ## Source Anchors
+
+- [Proportionate Testing and Human-Centered Validation design](../designs/2026-08-28-proportionate-testing-and-human-centered-validation.md)
+- [W21 R0 Proportionate Testing and Human-Centered Validation plan](../plans/2026-08-28-w21-r0-proportionate-testing-and-human-centered-validation/00-overview.md)
+- [Proportionate Testing and Human-Centered Validation](50-proportionate-testing-and-human-centered-validation.md)
+
+- [Human Experience Standard and Intent design](../designs/2026-08-28-human-experience-standard-and-intent.md)
+- [W20 R0 Human Experience Standard and Intent plan](../plans/2026-08-28-w20-r0-human-experience-standard-and-intent/00-overview.md)
+- [Human Experience Standard and Intent](49-human-experience-standard-and-intent.md)
 
 - [Accepted recovery design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md)
 - [W19 R1 recovery plan](../plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md)

@@ -20,6 +20,14 @@ This authority owns conformance lab sessions, operator modes, and authoritative 
 The requirements below define the owned components, behaviors, boundaries, and evidence expectations for this capability.
 ## Requirements
 
+### R-LAB-TEST Testing Executors and Human Experience
+
+1. Lab sessions must distinguish agent-run Automated Implementation Testing and Performance Testing from human-executed Guided Progress Review and Unassisted Goal Testing.
+2. Guided Progress Review uses an owner, maintainer, or developer with agent guidance and is always advisory or informational.
+3. Unassisted Goal Testing uses a qualified human and preserves public-path, isolation, and anti-coaching controls.
+4. Every testing session records the gate effect and must reject an unsupported blocking verdict.
+5. At least one installed-product session must show that the human testing request is shorter, easier to understand, goal-led, and non-duplicative compared with the prior technical walkthrough pattern.
+
 The requirements below are the normative authority. Their stable identifiers preserve traceability to the originating [conformance execution and lab-session design](../designs/2026-07-06-conformance-execution-and-lab-session-redesign.md), which is provenance rather than product authority.
 
 ### The Agent Drives, the Instruments Measure (R-EXEC)
@@ -88,6 +96,14 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: Results bind to the current six-dimension installed-product support tuple with applicable Skill/resource provenance, while an unselected optional Skill is blocked or uncovered only for its own tuple and does not invalidate direct routers, resources, CLI, or MCP.
 - Rationale: Lab evidence must remain honest and exact after package-specific scenarios leave the current product boundary, without turning optional agentics into a correctness prerequisite.
 - Source: [W19 R1 recovery design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md) and [accepted W19 R1 plan](../plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md)
+
+### 2026-08-28 — W21 R0
+
+- Affected requirement or section: requirements, operator modes, evidence, and support gates.
+- Previous contract: Lab sessions separated conformance and naive-UAT evidence but did not own the Guided Progress Review executor or a human testing experience proof.
+- Replacement contract: Lab sessions preserve all four PRD 50 executor and gate boundaries and include installed-product evidence of a shorter, more meaningful human test.
+- Rationale: The quality of the testing activity is part of Make Docs product quality.
+- Source: [W21 R0 Proportionate Testing and Human-Centered Validation plan](../plans/2026-08-28-w21-r0-proportionate-testing-and-human-centered-validation/00-overview.md)
 
 ## Source Anchors
 

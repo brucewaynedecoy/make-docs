@@ -11,6 +11,12 @@ This authority owns generated-document metadata, relationship fields, and lifecy
 The requirements below define the owned components, behaviors, boundaries, and evidence expectations for this capability.
 ## Requirements
 
+### Testing Decision Body Authority and Handoff
+
+The PRD 50 testing decision record is document-body authority in the first release. It does not add top-level frontmatter fields.
+
+Lifecycle handoffs must preserve the current decision, selected or skipped testing types, reason, executor, gate effect, valid evidence links, any accepted future obligation, and rerun trigger when these facts affect downstream work. Handoffs must not copy full testing policy or imply that a recorded candidate is mandatory.
+
 ### Canonical Metadata Layer
 
 Generated make-docs documents use YAML frontmatter as the canonical machine-readable metadata layer. Human-readable body sections remain required where existing contracts require them.
@@ -44,6 +50,15 @@ Generated documents add conditional metadata when the condition applies:
 | `follow_on` | Required for generated documents that contain an `## Intended Follow-On` section. |
 
 Playbooks and Protocols are not current document kinds and define no frontmatter keys, conditional fields, routing authority, or generated-document validation rules.
+
+### Human Experience Body Authority
+
+- Human Experience Intent is document-body authority. It is not frontmatter or a new metadata schema.
+- Governed designs use the stable body field names and conditional shapes defined by [PRD 49](49-human-experience-standard-and-intent.md).
+- Plans, PRDs, work, evidence, and review records link to the owning requirement or source artifact and record their own mapping or verdict. They do not copy the full intent section.
+- Current handoff metadata and `source` links carry traceability without a new Human Experience metadata key.
+- Project configuration cannot rename the body field names, change the allowed impact values, or weaken the conditional rules.
+- Existing artifacts remain valid under prospective adoption. A minor edit does not require unrelated metadata or body rewrites.
 
 ### Handoff Metadata
 
@@ -104,6 +119,8 @@ Later automation may add provider/cache provenance for tool resources, but that 
 Configuration overlays may change presentation labels in generated prose, but they must not rename canonical frontmatter fields, `kind` values, `persona`, route identifiers, prompt paths, source type values, lifecycle departure slugs, or `follow_on` keys unless a later approved product requirement changes this contract in its owning PRD.
 ## Non-Requirements
 
+- Human Experience Intent does not add `impact`, `affected_humans`, experience promises, hidden complexity, or evidence fields to YAML frontmatter.
+
 - This PRD does not backfill every historical document.
 - This PRD does not implement metadata validation.
 - This PRD does not define provider/cache provenance for tool resources.
@@ -111,6 +128,8 @@ Configuration overlays may change presentation labels in generated prose, but th
 - This PRD does not settle coordinate and prefix configurability beyond recording known coordinate metadata.
 - This PRD does not define Playbook- or Protocol-specific metadata, state, or handoffs.
 ## Acceptance Criteria
+
+- A governed design keeps one valid Human Experience Intent section in the body. Downstream handoffs preserve source and W/R lineage without copying that full section. Configuration cannot rename its field names or impact values.
 
 - Generated metadata requirements are linked from the PRD index and affected current authorities.
 - Generated templates must have `title`, `kind`, and `status` metadata.
@@ -122,6 +141,8 @@ Configuration overlays may change presentation labels in generated prose, but th
 
 The named paths, schemas, state records, metadata fields, and evidence shapes in Requirements are normative contracts for this capability.
 ## Integrations
+
+- [PRD 49](49-human-experience-standard-and-intent.md) owns Human Experience Intent semantics. This PRD owns its body-versus-metadata boundary and traceable lifecycle handoffs.
 
 This capability integrates with the adjacent current authorities linked from Requirements and Source Anchors; those authorities remain owners of their own boundaries.
 ## Rebuild Notes
@@ -156,7 +177,27 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Rationale: Generated-document metadata must remain independent of the retired workflow product model and align with the accepted bounded lifecycle recovery contract.
 - Source: [Accepted recovery design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md) and [W19 R1 recovery plan](../plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md)
 
+### 2026-08-28 — W20 R0
+
+- Affected requirement or section: conditional fields, handoff metadata, configuration boundary, non-requirements, acceptance criteria, and `Human Experience Body Authority`.
+- Previous contract: Generated-document metadata carried source and lifecycle relationships, but no authority stated where Human Experience Intent belongs.
+- Replacement contract: Human Experience Intent is body authority with stable conditional fields. Existing metadata and source links carry downstream traceability without a new schema key.
+- Rationale: Human intent must remain readable and adaptable without turning document frontmatter into a second product model.
+- Source: [W20 R0 Human Experience Standard and Intent plan](../plans/2026-08-28-w20-r0-human-experience-standard-and-intent/00-overview.md)
+
+### 2026-08-28 — W21 R0
+
+- Affected requirement or section: requirements, non-requirements, acceptance, contracts, and lifecycle handoffs.
+- Previous contract: Human Experience Intent was body authority, but no common testing decision or handoff boundary existed.
+- Replacement contract: Testing decisions remain compact body records, and handoffs preserve only the decision, effect, evidence, obligation, and rerun facts needed downstream.
+- Rationale: The testing model needs continuity without frontmatter growth or policy duplication.
+- Source: [W21 R0 Proportionate Testing and Human-Centered Validation plan](../plans/2026-08-28-w21-r0-proportionate-testing-and-human-centered-validation/00-overview.md)
+
 ## Source Anchors
+
+- [Human Experience Standard and Intent design](../designs/2026-08-28-human-experience-standard-and-intent.md)
+- [W20 R0 Human Experience Standard and Intent plan](../plans/2026-08-28-w20-r0-human-experience-standard-and-intent/00-overview.md)
+- [Human Experience Standard and Intent](49-human-experience-standard-and-intent.md)
 
 - [Accepted recovery design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md)
 - [W19 R1 recovery plan](../plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md)

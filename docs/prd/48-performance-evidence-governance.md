@@ -193,8 +193,20 @@ Expiry records current-use status, material-change triggers, time or release bou
 - [38 Global Store and Project State](38-global-store-and-project-state.md) owns optional operational run/evidence capture, typed receipts, privacy, and the repository-versus-machine-state boundary.
 - [43 Conformance Scenario Model and Execution Kits](43-conformance-scenario-model-and-execution-kits.md) and [44 Conformance Lab Sessions and Evidence](44-conformance-lab-sessions-and-evidence.md) retain their independent conformance scenarios, deterministic evidence bar, lab sessions, and evidence homes; they do not become a benchmark lab.
 - [45 Deferred Obligation Governance](45-deferred-obligation-governance.md) owns `O-###` identity and routing for `defer-required` outcomes and future remediation accepted through a waiver.
-- [46 Naive End-User Acceptance Testing](46-naive-end-user-acceptance-testing.md) owns perceived-slowness findings, user-goal evidence, and naive-UAT gates without certifying a quantitative performance profile.
+- [46 Unassisted Goal Testing](46-naive-end-user-acceptance-testing.md) owns perceived-slowness findings and unassisted human-goal evidence without certifying a quantitative performance profile.
+- [50 Proportionate Testing and Human-Centered Validation](50-proportionate-testing-and-human-centered-validation.md) owns the common current-decision record, human testing experience, shared gate effects, and cross-type evidence reuse. This PRD remains the detailed Performance Testing owner.
 - [25 TypeScript Runtime, CLI, MCP, and Operation Boundaries](25-typescript-runtime-cli-mcp-operation-boundaries.md) and [39 CLI Command Model and Operation Registry](39-cli-command-model-and-operation-registry.md) are future integration candidates only after the separate validator admission gate; they are not current operation authority for this capability.
+
+## Common Testing Standard Consumption
+
+Performance Testing must consume the shared testing decision from [PRD 50](50-proportionate-testing-and-human-centered-validation.md).
+
+- `required-now` is justified only by a current accepted outcome, feasibility limit, safety or resource boundary, material regression decision, external mandate, or dependency budget.
+- `characterize-now` is justified only when a current decision needs a baseline and the path is stable enough for the measurement to mean something.
+- `not-needed` or `not-needed-now` is the normal result when the product does not yet work as a coherent whole, the measured path will materially change, failure cannot change current direction, the proposed target is copied or intuitive, or simpler correctness or human-path work is the actual blocker.
+- MVP status is not an automatic exemption. It is a strong maturity signal that requires a current reason before sophisticated proof begins.
+- The gate effect is `blocking-current-work` or `blocking-claim-only` only when accepted current authority owns the protected hard outcome. Other performance work is advisory or informational.
+- A new phase number is not a rerun trigger. Valid unchanged `PERF-###` evidence is reused.
 
 ## Rebuild Notes
 
@@ -202,7 +214,19 @@ A clean-room rebuild must preserve applicability as a first-class decision, matu
 
 Rebuilders must not infer product targets from observed baselines, copy plan/work guardrails into PRDs, let execution packets redefine targets, treat expired or missing evidence as success, allow a waiver to count as pass, broaden a result beyond its supported scope, equate performance with conformance/UAT/release/support proof, or add a validator that makes product judgments or runs benchmarks. Documentation resources remain upstream-authored through [PRD 06](06-template-contracts-and-generated-assets.md) and resolved through [PRD 21](21-project-tool-directory-and-resource-tiers.md).
 
+## Requirement History
+
+### 2026-08-28 — W21 R0
+
+- Affected requirement or section: scope, integrations, and common testing standard consumption.
+- Previous contract: Performance governance already required applicability, maturity, finite budgets, evidence reuse, and owner-approved hard targets, but it did not consume one product-wide testing record or shared gate-effect vocabulary.
+- Replacement contract: Performance Testing keeps its full `PERF-###` model while consuming PRD 50 current-decision selection, maturity-before-sophistication, evidence reuse, and explicit gate effects.
+- Rationale: The existing performance guardrails must remain intact and become part of one coherent testing experience rather than an isolated specialist mode.
+- Source: [W21 R0 Proportionate Testing and Human-Centered Validation plan](../plans/2026-08-28-w21-r0-proportionate-testing-and-human-centered-validation/00-overview.md)
+
 ## Source Anchors
 
 - [Performance Testing Guardrails design](../designs/2026-08-12-performance-testing-guardrails.md)
 - [W19 R2 Performance Evidence Governance plan](../plans/2026-08-13-w19-r2-performance-evidence-governance/00-overview.md)
+- [W21 R0 Proportionate Testing and Human-Centered Validation plan](../plans/2026-08-28-w21-r0-proportionate-testing-and-human-centered-validation/00-overview.md)
+- [Proportionate Testing and Human-Centered Validation](50-proportionate-testing-and-human-centered-validation.md)

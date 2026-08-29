@@ -28,6 +28,12 @@ This authority owns harness-agnostic scenario definitions, per-target bindings, 
 
 ## Requirements
 
+### R-SCEN-TEST Proportionate Testing Failure Model
+
+Testing scenarios must carry product maturity, the current decision, available authority, expected selected and skipped testing types, executor boundaries, effort budget, stop condition, evidence and reuse state, gate effect, and the failure the scenario must reveal.
+
+The scenario set must include focused automated proof, justified expansion, unsupported release-grade work, an unstable MVP that rejects irrelevant production-grade performance work, a real feasibility cliff, non-gate Guided Progress Review, anti-coached Unassisted Goal Testing, valid `not-needed-now`, Human Experience evidence reuse, false-obligation prevention, and rejection of blocking verdicts without authority.
+
 ### Organization: Definitions by Domain, Evidence by Target (R-ORG)
 
 - R-ORG-1 (MUST): scenario definitions are harness-agnostic and live under `conformance/scenarios/<domain>/`. Domains and definitions represent current installed-product outcomes with an owning PRD; no domain or definition represents Playbook/Protocol authoring or execution, plugin or workflow-bundle installation, package compilation, generated outputs, marketplace registration, or packaging adapters.
@@ -133,6 +139,14 @@ Current requirements, loaders, tests, and claim surfaces resolve only this repo-
 - Replacement contract: The maintainer lab retains installed-product, Skill, CLI, MCP, system-resource, optional-agentics, and model/provider conformance only; Playbook/Protocol, plugin, workflow-bundle, compiler, adapter, marketplace, and generated-package scenarios are absent, while independent discovery and deterministic proof remain mandatory.
 - Rationale: Conformance must verify current supported surfaces without preserving removed product capabilities or weakening honest, instrumented evidence.
 - Source: [W19 R1 recovery design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md) and [accepted W19 R1 plan](../plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md)
+
+### 2026-08-28 — W21 R0
+
+- Affected requirement or section: requirements, scenario model, execution kits, and ingestion.
+- Previous contract: Conformance scenarios covered retained resource, Skill, UAT, and performance surfaces without one shared failure model for proportionality and human testing experience.
+- Replacement contract: Scenarios must reveal both missing justified proof and excess, early, duplicate, unauthorized, or needlessly difficult testing under PRD 50.
+- Rationale: A model that only proves successful execution cannot detect the testing behavior that made Make Docs costly and frustrating.
+- Source: [W21 R0 Proportionate Testing and Human-Centered Validation plan](../plans/2026-08-28-w21-r0-proportionate-testing-and-human-centered-validation/00-overview.md)
 
 ## Source Anchors
 
