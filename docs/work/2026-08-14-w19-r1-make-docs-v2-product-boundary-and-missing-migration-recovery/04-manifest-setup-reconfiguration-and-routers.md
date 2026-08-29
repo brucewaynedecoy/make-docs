@@ -65,6 +65,9 @@ Provider resources remain available independently of project projection. Setup a
 
 ### Closeout Notes
 
+- Decision authority commit `133fd63cc1e77639b5ce0846cb5408595386225d` records the accepted P4 testing and review rules.
+- The phase-entry review found no remaining blocker. P2 and P3 supplied the accepted resource and operation dependencies.
+
 #### Baseline and dependency evidence
 
 - Repository: Make Docs maintainer repository on `make-docs-v2`.
@@ -146,10 +149,10 @@ Correction and review budget:
 
 ### Tasks
 
-- [ ] t9: Implement explicit projection selection as `none`, one or more of the four resource types, or the full system set without reviving `prompts`, `templatesMode`, or `referencesMode` legacy authority.
-- [ ] t10: Record manifest identity, schema version, effective selections, provider/resource provenance, managed destination, source digest, installed digest, ownership class, and operation lineage required by the PRDs.
-- [ ] t11: Keep provider availability, local managed projection, explicit project override, project documentation, runtime state, and selected Skill payloads as distinct manifest/audit classes.
-- [ ] t12: Fail closed when an existing path lacks trustworthy ownership or when selection/provenance cannot be reconstructed; never treat name or destination alone as ownership proof.
+- [x] t9: Implement explicit projection selection as `none`, one or more of the four resource types, or the full system set without reviving `prompts`, `templatesMode`, or `referencesMode` legacy authority.
+- [x] t10: Record manifest identity, schema version, effective selections, provider/resource provenance, managed destination, source digest, installed digest, ownership class, and operation lineage required by the PRDs.
+- [x] t11: Keep provider availability, local managed projection, explicit project override, project documentation, runtime state, and selected Skill payloads as distinct manifest/audit classes.
+- [x] t12: Fail closed when an existing path lacks trustworthy ownership or when selection/provenance cannot be reconstructed; never treat name or destination alone as ownership proof.
 
 ### Acceptance criteria
 
@@ -166,17 +169,17 @@ Correction and review budget:
 ### Closeout Notes
 
 - Testing-mode decision(s): selection resolution, manifest round-trip, provenance, legacy-field rejection, and ambiguous-ownership fixtures.
-- Phase / capability status: selection and manifest authority complete; lifecycle planning remains open.
+- Phase / capability status: selection and manifest authority are complete in implementation commit `efebfa2927907ef63f0993b0b22e8a34f795a62c`.
 
 ## Stage 3 - Implement Dry-Run Lifecycle Plans And Routers
 
 ### Tasks
 
-- [ ] t13: Implement setup and reconfigure dry-run plans that enumerate intended creates, updates, preserves, conflicts, skips, removals, and stops before apply. Activate the P3-pending `project.surface.ensure` handler for `make-docs project surface ensure <archive|artifacts|assets>` and its MCP tool. Create only the selected on-demand directory and configured routers through the reviewed plan.
-- [ ] t14: Route managed-file conflicts through explicit review using canonical source and installed digests; never append-merge or overwrite as a substitute for ownership evidence.
-- [ ] t15: Generate or update bounded `AGENTS.md` and `CLAUDE.md` managed blocks only from evidence-backed installed capabilities and canonical CLI/MCP access paths.
-- [ ] t16: Ensure routers identify top-level prompt/system-workflow access without embedding resource bodies, UAT policy, hidden implementation guidance, Playbook/Protocol claims, or optional integration claims that were not selected.
-- [ ] t17: Preserve unmanaged router content byte-for-byte outside the owned block and fail closed on malformed, duplicated, or ambiguous managed blocks.
+- [x] t13: Implement setup and reconfigure dry-run plans that enumerate intended creates, updates, preserves, conflicts, skips, removals, and stops before apply. Activate the P3-pending `project.surface.ensure` handler for `make-docs project surface ensure <archive|artifacts|assets>` and its MCP tool. Create only the selected on-demand directory and configured routers through the reviewed plan.
+- [x] t14: Route managed-file conflicts through explicit review using canonical source and installed digests; never append-merge or overwrite as a substitute for ownership evidence.
+- [x] t15: Generate or update bounded `AGENTS.md` and `CLAUDE.md` managed blocks only from evidence-backed installed capabilities and canonical CLI/MCP access paths.
+- [x] t16: Ensure routers identify top-level prompt/system-workflow access without embedding resource bodies, UAT policy, hidden implementation guidance, Playbook/Protocol claims, or optional integration claims that were not selected.
+- [x] t17: Preserve unmanaged router content byte-for-byte outside the owned block and fail closed on malformed, duplicated, or ambiguous managed blocks.
 
 ### Acceptance criteria
 
@@ -194,17 +197,17 @@ Correction and review budget:
 ### Closeout Notes
 
 - Testing-mode decision(s): dry-run snapshots, conflict injection, managed-block idempotency, malformed-block, and capability-claim fixtures.
-- Phase / capability status: planning and routers complete; mutation lifecycle remains open.
+- Phase / capability status: dry-run planning, thin routers, and the `project.surface.ensure` CLI and MCP surfaces are complete in `efebfa2927907ef63f0993b0b22e8a34f795a62c`.
 
 ## Stage 4 - Implement Projection, Update, Uninstall, And Receipts
 
 ### Tasks
 
-- [ ] t18: Materialize only explicitly selected clean managed resources under `.make-docs/system/{contracts,prompts,references,templates}/` through the reviewed plan and shared ensure operation.
-- [ ] t19: Implement update so unchanged managed files advance deterministically, modified or ambiguous files enter review, project-owned overrides remain project-owned, and provider availability remains independent of projection.
-- [ ] t20: Implement uninstall so only proven owned matching bytes are removed, symlinks are unlinked without following targets, and parent directories with unmanaged descendants are preserved.
-- [ ] t21: Return typed lifecycle receipts that identify operation, project/manifest identity, selections, outcomes, conflicts, backup references where applicable, and commit time without claiming validation, acceptance, publication, or release.
-- [ ] t22: Preserve the accepted distinction between a dry-run/review result, repository mutation, Store receipt, validation evidence, and release recommendation.
+- [x] t18: Materialize only explicitly selected clean managed resources under `.make-docs/system/{contracts,prompts,references,templates}/` through the reviewed plan and shared ensure operation.
+- [x] t19: Implement update so unchanged managed files advance deterministically, modified or ambiguous files enter review, project-owned overrides remain project-owned, and provider availability remains independent of projection.
+- [x] t20: Implement uninstall so only proven owned matching bytes are removed, symlinks are unlinked without following targets, and parent directories with unmanaged descendants are preserved.
+- [x] t21: Return typed lifecycle receipts that identify operation, project/manifest identity, selections, outcomes, conflicts, backup references where applicable, and commit time without claiming validation, acceptance, publication, or release.
+- [x] t22: Preserve the accepted distinction between a dry-run/review result, repository mutation, Store receipt, validation evidence, and release recommendation.
 
 ### Acceptance criteria
 
@@ -221,16 +224,16 @@ Correction and review budget:
 ### Closeout Notes
 
 - Testing-mode decision(s): projection, update, uninstall, symlink, unmanaged-descendant, and receipt fixtures.
-- Phase / capability status: lifecycle behavior complete; confirmation remains open.
+- Phase / capability status: selected projection, update, safe project removal, and bounded mutation receipts are complete in `efebfa2927907ef63f0993b0b22e8a34f795a62c`.
 
 ## Stage 5 - Validate Lifecycle Safety
 
 ### Tasks
 
-- [ ] t23: Run focused setup, reconfigure, projection, router, update, uninstall, receipt, type, path-hygiene, and whitespace tests across clean, modified, ambiguous, missing, and legacy fixtures.
-- [ ] t24: Prove idempotent unchanged reruns reuse valid evidence, affected-only failures are retried within budget, and conflict or ambiguity never degrades to overwrite.
-- [ ] t25: Obtain independent review of selection, manifest provenance, router claims, conflict planning, removal safety, and receipts; correct only actionable defects within the finite budget.
-- [ ] t26: Record exact changed-file scope, validation evidence, nonblocking items, and P5 handoff without running migration, package projection, dogfood, release, or publication.
+- [x] t23: Run focused setup, reconfigure, projection, router, update, uninstall, receipt, type, path-hygiene, and whitespace tests across clean, modified, ambiguous, missing, and legacy fixtures.
+- [x] t24: Prove idempotent unchanged reruns reuse valid evidence, affected-only failures are retried within budget, and conflict or ambiguity never degrades to overwrite.
+- [x] t25: Obtain independent review of selection, manifest provenance, router claims, conflict planning, removal safety, and receipts; correct only actionable defects within the finite budget.
+- [x] t26: Record exact changed-file scope, validation evidence, nonblocking items, and P5 handoff without running migration, package projection, dogfood, release, or publication.
 
 ### Acceptance criteria
 
@@ -247,4 +250,21 @@ Correction and review budget:
 ### Closeout Notes
 
 - Testing-mode decision(s): deterministic lifecycle fixtures plus independent safety review.
-- Phase / capability status: P4 may close with evidence; P5 remains separately gated.
+- Phase / capability status: P4 is implemented, independently reviewed, owner-accepted, committed, and pushed through `efebfa2927907ef63f0993b0b22e8a34f795a62c`. P5 remains separately gated.
+- Validation evidence: the independent review passed the focused P4 and affected CLI tests, zero-error TypeScript check, build, path-hygiene check, whitespace check, package smoke check, and direct human-surface review. The closeout pass reran all 13 focused P4 tests, the zero-error TypeScript check, and the build successfully.
+- Human Experience Review: all applicable P4 experience promises are satisfied after the public project-help defect was corrected. Unassisted Goal Testing remains `not-needed-now` because no material unanswered unassisted-use question remains. Reconsider it if later evidence creates such a question.
+- P5 handoff: P4 supplies explicit manifest selections, resource provenance and ownership evidence, lifecycle plan snapshots with stale-plan rejection, safe project update and removal behavior, and bounded mutation receipts. P5 must add its lock, quiescence, backup, rollback, and migration controls before any destructive migration disposition.
+
+#### Coverage reconciliation
+
+| Candidate | Verdict | Reason |
+| --- | --- | --- |
+| PRD authority and risk register | `none` | The committed work implements the accepted PRD 05, 07, 15, 17, 18, 21, 22, and 39 contracts. It does not change product authority or add a new risk. |
+| P4 work record | `update-existing` | This file owns the phase tasks, validation evidence, completion state, and P5 handoff. |
+| W19 R1 work index | `update-existing` | The index must show the proved P4 completion and implementation commit. |
+| Project, developer, and user guides | `none` | P4 changes setup and lifecycle surfaces but adds no separate guide requirement. The shipped routers and command help are the owning user surfaces. |
+| Automated implementation testing | `none` | The committed focused suite already covers selection, provenance, dry run, conflicts, routers, projection, update, removal, receipts, and CLI/MCP parity. The closeout rerun passed all 13 focused tests. |
+| Human Experience Review | `update-existing` | This closeout note records the independent review result and the one corrected public-help defect. |
+| Unassisted Goal Testing | `none` | Current direct runs, focused interaction tests, source review, and package smoke evidence answer the applicable P4 questions. Reopen only if later evidence shows a material unassisted-use question. |
+| History | `create` | A new immutable P4 closeout breadcrumb records the accepted implementation and this coverage result. |
+| Deferred obligations and findings | `none` | P4 creates no new obligation or finding. Existing P5 migration and backup work remains in the W19 R1 backlog. |
