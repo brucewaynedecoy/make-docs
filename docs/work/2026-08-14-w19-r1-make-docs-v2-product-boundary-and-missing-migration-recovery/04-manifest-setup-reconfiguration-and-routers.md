@@ -34,21 +34,23 @@ Provider resources remain available independently of project projection. Setup a
 
 - O-001 remains separate W18 R3 work; O-002 remains superseded.
 - Q-019 is relevant only if this phase introduces interactive Persona setup UX; the ordinary setup/resource work must not broaden into that UX by implication.
-- No `NUAT-###` identity is invented. Any user-observable setup change must link canonical scenario authority or stop at the Stage 1 gap gate.
+- A user-visible setup or reconfiguration change does not by itself require Unassisted Goal Testing. P4 applies Human Experience Review to every applicable experience promise and can reuse suitable evidence.
+- Record `not-needed-now` for Unassisted Goal Testing when no material unassisted-use question remains. If the evidence is not sufficient, select the smallest additional testing activity that can answer the question.
+- Link or create a canonical scenario only when Unassisted Goal Testing is active or explicit current authority requires it. Do not invent a `NUAT-###` identity.
 - Findings and capability status remain owned by their canonical records.
 
 ## Stage 1 - Phase-Entry PRD Question And Risk Gate
 
 ### Tasks
 
-- [ ] t1: Verify the exact worktree, branch, HEAD, free disk, dirty-state allowlist, accepted P2/P3 closeouts, and implementation authorization; stop on unexpected user work or unsafe growth.
-- [ ] t2: Reread every Source PRD and PRD 03 from the live worktree and record each revision or content digest.
-- [ ] t3: Reevaluate at minimum Q-017, Q-018, R-004, R-006, R-014, and R-017; include Q-019 only if interactive Persona setup UX is introduced, preserve Q-017's per-project authority unless separately redesigned, and add newly relevant items.
-- [ ] t4: Record the required ID, digest, impact, classification (`blocking`, `impacted-nonblocking`, `unrelated`, `closed-regression-check`, or `new-authority-gap`), disposition, and rationale for every relevant item.
-- [ ] t5: Record an explicit no-blocker determination and finite phase correction/review budget before unlocking t8 when no blocker or gap remains.
-- [ ] t6: Stop before implementation for any blocker or authority gap and present an owner decision package with source anchors, affected phase and PRDs, bounded options and trade-offs, recommendation, consequences, exact PRD/register/history edits, focused validation, and a decision-only commit boundary; create no standalone decision file.
-- [ ] t7: Require canonical PRD/register/history changes, focused validation, a separate decision commit, and its recorded SHA before unlock; do not infer governance closure from work completion.
-- [ ] t8: Record the Stage 1 outcome, authority digests, accepted dependency evidence, and implementation unlock or stop result.
+- [x] t1: Verify the exact worktree, branch, HEAD, free disk, dirty-state allowlist, accepted P2/P3 closeouts, and implementation authorization; stop on unexpected user work or unsafe growth.
+- [x] t2: Reread every Source PRD and PRD 03 from the live worktree and record each revision or content digest.
+- [x] t3: Reevaluate at minimum Q-017, Q-018, R-004, R-006, R-014, and R-017; include Q-019 only if interactive Persona setup UX is introduced, preserve Q-017's per-project authority unless separately redesigned, and add newly relevant items.
+- [x] t4: Record the required ID, digest, impact, classification (`blocking`, `impacted-nonblocking`, `unrelated`, `closed-regression-check`, or `new-authority-gap`), disposition, and rationale for every relevant item.
+- [x] t5: Record an explicit no-blocker determination and finite phase correction/review budget before unlocking t8 when no blocker or gap remains.
+- [x] t6: Stop before implementation for any blocker or authority gap and present an owner decision package with source anchors, affected phase and PRDs, bounded options and trade-offs, recommendation, consequences, exact PRD/register/history edits, focused validation, and a decision-only commit boundary; create no standalone decision file.
+- [x] t7: Require canonical PRD/register/history changes, focused validation, a separate decision commit, and its recorded SHA before unlock; do not infer governance closure from work completion.
+- [x] t8: Record the Stage 1 outcome, authority digests, accepted dependency evidence, and implementation unlock or stop result.
 
 ### Acceptance criteria
 
@@ -63,8 +65,82 @@ Provider resources remain available independently of project projection. Setup a
 
 ### Closeout Notes
 
-- Testing-mode decision(s): setup/reconfigure user-observable candidates require canonical scenario routing; no scenario is invented here.
-- Phase / capability status: gate result pending.
+#### Baseline and dependency evidence
+
+- Repository: Make Docs maintainer repository on `make-docs-v2`.
+- Preflight HEAD: `26dd6dfd3affbfb08df9bd99c86b3e45ba431b59`.
+- The worktree was clean before the required phase-state record was created. The only allowed preflight state path is `.make-docs/state/phase-state.yaml`.
+- Free disk at preflight: 87 GB.
+- P2 dependency evidence: decision closeout `f7d11867` and resource-core implementation `6bf85e59`.
+- P3 dependency evidence: public-operation implementation `93749c9e`, provider follow-up `f2ed36c6`, and closeout `c13e99c5`.
+
+#### Authority digests
+
+The values below are Git blob IDs from the preflight HEAD.
+
+| Authority | Git blob |
+| --- | --- |
+| Recovery design | `a5ce662c1cf96c6154347a6d36dcc4d3af21b01a` |
+| W19 R1 plan overview | `dd7d39e130a679ebc7db4522d7b21351ed0717fd` |
+| W19 R1 work index | `2f68f009c52adb74ed9b061115ea09f2c77efd38` |
+| P4 work baseline | `0fc5ca25e0ba6e8a52e2ecf042da0537d8df9a9f` |
+| PRD 03 | `9904e0d72acbb07af490aabee974a9e3a08e6085` |
+| PRD 05 | `9cf32d380b06cbe59c919e84a7c6e89d80dabd04` |
+| PRD 07 | `366abab21cf921b3665273207261ac7a2f27a69d` |
+| PRD 15 | `c09afd8e739b5896d5afe23bf92cd94492a1815f` |
+| PRD 17 | `961bcf73fe40648111efba9f19b291762c7638b6` |
+| PRD 18 | `ae2e61f2ab53026b2e843796bc4b8dc32d637d48` |
+| PRD 21 | `59faa61c7aa2dc8588883fc422e76b1fa134da9e` |
+| PRD 22 | `95be2fb4d8bfcb3188099bd9f6af3957cbd5c60e` |
+| PRD 39 | `1e46d7d535ecd57a9809bc92cc18fbe58fdbad88` |
+| PRD 46 | `6902a83f8efddcd8df4ec9881a28360ea9b6e7ec` |
+| PRD 50 | `6b7346b870ff53e142daafa81d2fc9dc10421143` |
+
+#### Phase-entry classifications
+
+| Item | Classification | Disposition |
+| --- | --- | --- |
+| P2 closeout | `closed-regression-check` | Accepted resource-core dependency is present. |
+| P3 closeout | `closed-regression-check` | Accepted public-operation dependency is present. |
+| Q-017 | `impacted-nonblocking` | Keep the broader machine-level layout deferred. P4 keeps the installed-provider default and explicit project-local projection. |
+| Q-018 | `impacted-nonblocking` | Keep the broader configuration design open. P4 uses the current tool-owned manifest and accepted selection contract without redesigning configuration. |
+| Q-019 | `unrelated` | P4 does not add interactive Persona setup or change Persona primitives, storage, or binding. |
+| R-004 | `impacted-nonblocking` | Use focused consistency and path-hygiene proof for each P4 path or registry change. |
+| R-006 | `impacted-nonblocking` | One frozen classification and audit snapshot drives review, backup, update, uninstall, and receipts. |
+| R-014 | `impacted-nonblocking` | Land shared CLI and operation behavior before or with dependent router guidance. |
+| R-017 | `impacted-nonblocking` | Keep routers thin. Do not copy workflow policy or imply unselected Skills or plugins. |
+| Later Human Experience and testing routes | `impacted-nonblocking` | P4 owns safe router installation and reconciliation. W20 R0 and W21 R0 retain ownership of their policy resources and route content. P4 does not advertise content that is not installed. |
+| Setup-change testing activation | `new-authority-gap` | Resolved by the accepted decision below. |
+| Correction and review budget | `blocking` | Resolved by the accepted decision below. |
+| P4 implementation authorization | `blocking` | Controlled by the later implementation gate. It is not granted by this closeout. |
+
+#### Accepted decisions
+
+Testing selection:
+
+- P4 uses the current PRD 46 and PRD 50 testing-selection contract.
+- A user-visible setup or reconfiguration change does not by itself require Unassisted Goal Testing.
+- P4 still applies Human Experience Review to every applicable experience promise. The review can reuse suitable evidence.
+- Record `not-needed-now` for Unassisted Goal Testing when no material unassisted-use question remains.
+- If the evidence is not sufficient, select the smallest additional testing activity that can answer the question.
+- Link or create a canonical scenario only when Unassisted Goal Testing is active or explicit current authority requires it. Do not invent a `NUAT-###` identity.
+
+Correction and review budget:
+
+- P4 has at most two bounded correction attempts and two independent review cycles.
+- Each correction addresses only actionable defects inside the accepted P4 scope.
+- After each correction, rerun the affected checks and all required fixed gates.
+- A new product choice, authority conflict, dependency approval, or scope increase stops affected work and requires an owner decision.
+- If the budget is used before acceptance, stop and report the remaining defects, evidence, and recommended next decision. Do not continue through repeated unchanged attempts.
+
+#### Stage 1 result
+
+- No unresolved product question, risk, dependency, contradiction, or new authority gap blocks the documentation-only decision commit.
+- PRDs 46 and 50 already contain the accepted testing authority. PRD 03 needs no new item because the gap was stale P4 work wording, not a new product question or risk.
+- This P4 work file is the only documentation change needed for the accepted decisions.
+- Focused document validation and the separate documentation-only commit remain required.
+- P4 implementation remains locked until the documentation-only commit SHA is recorded and the owner gives separate implementation authorization.
+- Phase / capability status: Stage 1 preflight and owner decision review are complete. Implementation is not authorized.
 
 ## Stage 2 - Implement Selection And Manifest Authority
 
