@@ -19,6 +19,8 @@ import type {
   ManifestAuditRecord,
   ManifestFileEntry,
   ManifestHashAlgorithm,
+  ManifestOwnershipClass,
+  ManifestProvenanceState,
   SkillManifestSelectionSource,
   SkillSelectionProvenanceEntry,
   SkillExposureMetadata,
@@ -35,6 +37,8 @@ import type {
   SystemAssetMaterializationMode,
   SystemAssetOfflineExpectation,
   SystemAssetSelectionTrigger,
+  ProjectResourceType,
+  ResourceProjectionManifestState,
 } from "./types";
 import { classifyAgenticSkillFileRole } from "./agentic-skill-roles";
 import {
@@ -43,6 +47,7 @@ import {
   INSTRUCTION_KINDS,
   SYSTEM_ASSET_MATERIALIZATION_CLASSES,
   SYSTEM_ASSET_MATERIALIZATION_MODES,
+  PROJECT_RESOURCE_TYPES,
 } from "./types";
 import { parseManagedBlock } from "./managed-block";
 import { createEmptySystemAssetManifestState } from "./system-assets";
@@ -51,9 +56,15 @@ import {
   TOOL_DIRECTORY_MANIFEST_RELATIVE_PATH,
   TOOL_DIRECTORY_RELATIVE_PATH,
 } from "./tool-directory";
-import { hashText, normalizeRelativePath, readTextFile, writeTextFile } from "./utils";
+import {
+  assertManagedPathHasNoSymlinks,
+  hashText,
+  normalizeRelativePath,
+  readTextFile,
+  writeTextFile,
+} from "./utils";
 
-export const MANIFEST_SCHEMA_VERSION = 2;
+export const MANIFEST_SCHEMA_VERSION = 3;
 export const MAKE_DOCS_STATE_RELATIVE_DIR = TOOL_DIRECTORY_RELATIVE_PATH;
 export const MANIFEST_RELATIVE_PATH = TOOL_DIRECTORY_MANIFEST_RELATIVE_PATH;
 export const CONFLICTS_RELATIVE_DIR = TOOL_DIRECTORY_CONFLICTS_RELATIVE_DIR;
@@ -92,6 +103,7 @@ export function getManifestFileHash(relativePath: string, content: string): stri
 }
 
 export function loadManifest(targetDir: string): InstallManifest | null {
+  assertManagedPathHasNoSymlinks(targetDir, MANIFEST_RELATIVE_PATH);
   const manifestPath = getManifestPath(targetDir);
   if (!existsSync(manifestPath)) {
     return null;
@@ -134,6 +146,10 @@ export function migrateSelections(selections: unknown): InstallSelections {
     legacy.pluginSelectionProvenance !== undefined
       ? validatePluginSelectionProvenance(legacy.pluginSelectionProvenance)
       : undefined;
+  const resourceProjection =
+    "resourceProjection" in legacy && legacy.resourceProjection !== undefined
+      ? validateResourceProjectionSelection(legacy.resourceProjection)
+      : undefined;
 
   if (legacy.instructionKinds && !legacy.harnesses) {
     assertPlainObject(legacy.instructionKinds, "selections.instructionKinds");
@@ -167,6 +183,7 @@ export function migrateSelections(selections: unknown): InstallSelections {
       ...(pluginSelectionProvenance === undefined
         ? {}
         : { pluginSelectionProvenance }),
+      ...(resourceProjection === undefined ? {} : { resourceProjection }),
     };
     return migrated;
   }
@@ -188,6 +205,7 @@ export function migrateSelections(selections: unknown): InstallSelections {
     ...(pluginSelectionProvenance === undefined
       ? {}
       : { pluginSelectionProvenance }),
+    ...(resourceProjection === undefined ? {} : { resourceProjection }),
   };
 }
 
@@ -198,6 +216,7 @@ export function createManifest(
   skillFiles: string[],
   systemAssetMaterialization: SystemAssetManifestState,
   projectId: string,
+  resourceProjection?: ResourceProjectionManifestState,
 ): InstallManifest {
   return {
     schemaVersion: MANIFEST_SCHEMA_VERSION,
@@ -209,6 +228,7 @@ export function createManifest(
     selections: profile.selections,
     effectiveCapabilities: profile.effectiveCapabilities,
     systemAssetMaterialization,
+    ...(resourceProjection ? { resourceProjection } : {}),
     files,
     skillFiles: Array.from(new Set(skillFiles)).sort(),
   };
@@ -356,9 +376,9 @@ function validateAndMigrateManifest(
       value.schemaVersion,
       "manifest.schemaVersion",
     );
-    if (schemaVersion !== 1 && schemaVersion !== MANIFEST_SCHEMA_VERSION) {
+    if (schemaVersion !== 1 && schemaVersion !== 2 && schemaVersion !== MANIFEST_SCHEMA_VERSION) {
       throw new Error(
-        `manifest.schemaVersion must be 1 or ${MANIFEST_SCHEMA_VERSION}`,
+        `manifest.schemaVersion must be 1, 2, or ${MANIFEST_SCHEMA_VERSION}`,
       );
     }
     const systemAssetMaterialization =
@@ -376,6 +396,13 @@ function validateAndMigrateManifest(
       "projectId" in value && value.projectId !== undefined
         ? validateProjectId(value.projectId)
         : undefined;
+    const resourceProjection =
+      "resourceProjection" in value && value.resourceProjection !== undefined
+        ? validateResourceProjectionManifestState(
+            value.resourceProjection,
+            selections.resourceProjection,
+          )
+        : undefined;
 
     return {
       schemaVersion: MANIFEST_SCHEMA_VERSION,
@@ -392,6 +419,7 @@ function validateAndMigrateManifest(
         value.effectiveCapabilities,
       ),
       systemAssetMaterialization,
+      ...(resourceProjection ? { resourceProjection } : {}),
       files,
       skillFiles,
     };
@@ -473,6 +501,14 @@ function validateManifestFiles(
         entry.sourceId,
         `manifest.files.${managedPath}.sourceId`,
       ),
+      ...(entry.ownershipClass === undefined
+        ? {}
+        : {
+            ownershipClass: validateManifestOwnershipClass(
+              entry.ownershipClass,
+              `manifest.files.${managedPath}.ownershipClass`,
+            ),
+          }),
       ...("skillExposure" in entry
         ? {
             skillExposure: validateSkillExposureMetadata(
@@ -679,6 +715,253 @@ function validateEffectiveCapabilities(value: unknown): Capability[] {
     }
     return capability as Capability;
   });
+}
+
+function validateResourceProjectionSelection(value: unknown): ProjectResourceType[] {
+  if (!Array.isArray(value)) {
+    throw new Error("selections.resourceProjection must be an array");
+  }
+  return Array.from(
+    new Set(
+      value.map((item, index) => {
+        if (
+          typeof item !== "string" ||
+          !PROJECT_RESOURCE_TYPES.includes(item as ProjectResourceType)
+        ) {
+          throw new Error(
+            `selections.resourceProjection.${index} must be contract, prompt, reference, or template`,
+          );
+        }
+        return item as ProjectResourceType;
+      }),
+    ),
+  ).sort();
+}
+
+function validateManifestOwnershipClass(
+  value: unknown,
+  label: string,
+): ManifestOwnershipClass {
+  if (
+    value !== "managed-snapshot" &&
+    value !== "managed-block" &&
+    value !== "project-owned" &&
+    value !== "runtime-state" &&
+    value !== "selected-skill" &&
+    value !== "installed-provider" &&
+    value !== "managed-projection" &&
+    value !== "project-override"
+  ) {
+    throw new Error(`${label} must be a valid ownership class`);
+  }
+  return value;
+}
+
+function validateManifestProvenanceState(
+  value: unknown,
+  label: string,
+): ManifestProvenanceState {
+  if (
+    value !== "verified" &&
+    value !== "incomplete" &&
+    value !== "ambiguous" &&
+    value !== "contradictory"
+  ) {
+    throw new Error(`${label} must be a valid provenance state`);
+  }
+  return value;
+}
+
+function validateResourceProjectionManifestState(
+  value: unknown,
+  selectedResourceTypes: ProjectResourceType[] | undefined,
+): ResourceProjectionManifestState {
+  assertPlainObject(value, "manifest.resourceProjection");
+  const selectedTypes = validateResourceProjectionSelection(value.selectedTypes);
+  if (
+    selectedResourceTypes === undefined ||
+    JSON.stringify(selectedTypes) !== JSON.stringify(selectedResourceTypes)
+  ) {
+    throw new Error(
+      "manifest.resourceProjection.selectedTypes must equal selections.resourceProjection",
+    );
+  }
+  assertPlainObject(value.provider, "manifest.resourceProjection.provider");
+  assertPlainObject(value.resources, "manifest.resourceProjection.resources");
+  if (
+    value.provider.ownershipClass !== "installed-provider" ||
+    value.provider.provenanceState !== "verified"
+  ) {
+    throw new Error(
+      "manifest.resourceProjection.provider must have installed-provider ownership and verified provenance",
+    );
+  }
+  const provider = {
+    ownershipClass: "installed-provider" as const,
+    provenanceState: "verified" as const,
+    packageName: validateString(
+      value.provider.packageName,
+      "manifest.resourceProjection.provider.packageName",
+    ),
+    version: validateString(
+      value.provider.version,
+      "manifest.resourceProjection.provider.version",
+    ),
+    immutableRef: validateString(
+      value.provider.immutableRef,
+      "manifest.resourceProjection.provider.immutableRef",
+    ),
+    inventoryDigest: validateSha256Digest(
+      value.provider.inventoryDigest,
+      "manifest.resourceProjection.provider.inventoryDigest",
+    ),
+  };
+  const resources: ResourceProjectionManifestState["resources"] = {};
+  for (const [uri, rawEntry] of Object.entries(value.resources)) {
+    assertPlainObject(rawEntry, `manifest.resourceProjection.resources.${uri}`);
+    const type = validateResourceProjectionSelection([rawEntry.type])[0];
+    if (!type) {
+      throw new Error(`manifest.resourceProjection.resources.${uri}.type is required`);
+    }
+    const entryUri = validateString(
+      rawEntry.uri,
+      `manifest.resourceProjection.resources.${uri}.uri`,
+    );
+    if (entryUri !== uri) {
+      throw new Error(
+        `manifest.resourceProjection.resources.${uri}.uri must equal its map key`,
+      );
+    }
+    if (!selectedTypes.includes(type)) {
+      throw new Error(
+        `manifest.resourceProjection.resources.${uri}.type must be selected`,
+      );
+    }
+    const resourcePath = validateCanonicalResourcePath(
+      rawEntry.resourcePath,
+      `manifest.resourceProjection.resources.${uri}.resourcePath`,
+    );
+    const managedDestination = validateString(
+      rawEntry.managedDestination,
+      `manifest.resourceProjection.resources.${uri}.managedDestination`,
+    );
+    const typeDirectory = {
+      contract: "contracts",
+      prompt: "prompts",
+      reference: "references",
+      template: "templates",
+    }[type];
+    const canonicalDestination = `.make-docs/system/${typeDirectory}/${resourcePath}`;
+    const canonicalUri = `make-docs://system/${type}/${resourcePath}`;
+    if (uri !== canonicalUri || entryUri !== canonicalUri) {
+      throw new Error(
+        `manifest.resourceProjection.resources.${uri} must use canonical URI ${canonicalUri}`,
+      );
+    }
+    if (managedDestination !== canonicalDestination) {
+      throw new Error(
+        `manifest.resourceProjection.resources.${uri}.managedDestination must be ${canonicalDestination}`,
+      );
+    }
+    const ownershipClass = rawEntry.ownershipClass;
+    if (ownershipClass !== "managed-projection" && ownershipClass !== "project-override") {
+      throw new Error(
+        `manifest.resourceProjection.resources.${uri}.ownershipClass must be managed-projection or project-override`,
+      );
+    }
+    const selectionTrigger = rawEntry.selectionTrigger;
+    if (selectionTrigger !== "setup-selection" && selectionTrigger !== "reconfigure-selection") {
+      throw new Error(
+        `manifest.resourceProjection.resources.${uri}.selectionTrigger must be setup-selection or reconfigure-selection`,
+      );
+    }
+    if (rawEntry.operationLineage !== "W19 R1 P4") {
+      throw new Error(
+        `manifest.resourceProjection.resources.${uri}.operationLineage must be W19 R1 P4`,
+      );
+    }
+    if (rawEntry.hashAlgorithm !== "sha256") {
+      throw new Error(
+        `manifest.resourceProjection.resources.${uri}.hashAlgorithm must be sha256`,
+      );
+    }
+    const providerPackage = validateString(
+      rawEntry.providerPackage,
+      `manifest.resourceProjection.resources.${uri}.providerPackage`,
+    );
+    const providerVersion = validateString(
+      rawEntry.providerVersion,
+      `manifest.resourceProjection.resources.${uri}.providerVersion`,
+    );
+    const providerImmutableRef = validateString(
+      rawEntry.providerImmutableRef,
+      `manifest.resourceProjection.resources.${uri}.providerImmutableRef`,
+    );
+    if (
+      providerPackage !== provider.packageName ||
+      providerVersion !== provider.version ||
+      providerImmutableRef !== provider.immutableRef
+    ) {
+      throw new Error(
+        `manifest.resourceProjection.resources.${uri} provider identity must equal manifest.resourceProjection.provider`,
+      );
+    }
+    resources[uri] = {
+      uri: entryUri,
+      type,
+      resourcePath,
+      managedDestination,
+      ownershipClass,
+      provenanceState: validateManifestProvenanceState(
+        rawEntry.provenanceState,
+        `manifest.resourceProjection.resources.${uri}.provenanceState`,
+      ),
+      providerPackage,
+      providerVersion,
+      providerImmutableRef,
+      sourceDigest: validateSha256Digest(
+        rawEntry.sourceDigest,
+        `manifest.resourceProjection.resources.${uri}.sourceDigest`,
+      ),
+      installedDigest: validateSha256Digest(
+        rawEntry.installedDigest,
+        `manifest.resourceProjection.resources.${uri}.installedDigest`,
+      ),
+      hashAlgorithm: "sha256",
+      selectionTrigger,
+      operationLineage: "W19 R1 P4",
+      competingClaims: validateStringArray(
+        rawEntry.competingClaims,
+        `manifest.resourceProjection.resources.${uri}.competingClaims`,
+      ),
+    };
+  }
+  return {
+    selectedTypes,
+    provider,
+    resources,
+  };
+}
+
+function validateCanonicalResourcePath(value: unknown, label: string): string {
+  const resourcePath = validateString(value, label);
+  const segments = resourcePath.split("/");
+  if (
+    resourcePath.startsWith("/") ||
+    resourcePath.includes("\\") ||
+    segments.some((segment) => segment === "" || segment === "." || segment === "..")
+  ) {
+    throw new Error(`${label} must be a canonical relative resource path`);
+  }
+  return resourcePath;
+}
+
+function validateSha256Digest(value: unknown, label: string): string {
+  const digest = validateString(value, label);
+  if (!/^[a-f0-9]{64}$/.test(digest)) {
+    throw new Error(`${label} must be a lowercase sha256 digest`);
+  }
+  return digest;
 }
 
 function validateSystemAssetMaterializationMode(

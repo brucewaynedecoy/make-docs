@@ -486,7 +486,7 @@ personas:
       expect(readFileSync(path.join(targetDir, "README.md"), "utf8")).toBe(
         "# Existing project\n",
       );
-      expect(loadManifest(targetDir)?.schemaVersion).toBe(2);
+      expect(loadManifest(targetDir)?.schemaVersion).toBe(3);
     } finally {
       cleanupTempDir(targetDir);
     }

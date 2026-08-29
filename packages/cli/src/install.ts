@@ -3,6 +3,7 @@ import path from "node:path";
 import {
   CONFLICTS_RELATIVE_DIR,
   createManifest,
+  MANIFEST_RELATIVE_PATH,
   mintProjectId,
   writeManifest,
 } from "./manifest";
@@ -26,12 +27,17 @@ import type {
   SystemAssetMaterializationMode,
 } from "./types";
 import {
+  assertManagedPathHasNoSymlinks,
   ensureParentDir,
   pruneEmptyDirectories,
   readPackageMeta,
   relativePathToTarget,
   writeTextFile,
 } from "./utils";
+import {
+  assertLifecyclePlanSnapshotCurrent,
+  createLifecycleMutationReceipt,
+} from "./lifecycle-plan";
 
 export async function planInstall(options: {
   targetDir: string;
@@ -41,6 +47,7 @@ export async function planInstall(options: {
   managedFileConflictResolutions?: ManagedFileConflictResolutions;
   systemAssetMaterializationMode?: SystemAssetMaterializationMode;
   skillRegistry?: SkillRegistry;
+  operation?: "setup" | "setup.reconfigure" | "setup.sync";
 }): Promise<InstallPlan> {
   const packageMeta = options.packageMeta ?? readPackageMeta();
   const profile = resolveInstallProfile(options.selections);
@@ -53,6 +60,7 @@ export async function planInstall(options: {
     managedFileConflictResolutions: options.managedFileConflictResolutions,
     systemAssetMaterializationMode: options.systemAssetMaterializationMode,
     skillRegistry: options.skillRegistry,
+    operation: options.operation,
   });
 }
 
@@ -116,6 +124,11 @@ export function applyInstallPlan(options: {
   plan: InstallPlan;
   existingManifest: InstallManifest | null;
 }): ApplyResult {
+  if ((options.plan.stops?.length ?? 0) > 0) {
+    throw new Error(
+      `Cannot apply install plan because ownership or managed-block evidence is not trusted: ${options.plan.stops!.join(", ")}.`,
+    );
+  }
   const unresolvedConflicts = findReviewableManagedFileConflicts(options.plan);
   if (unresolvedConflicts.length > 0) {
     const paths = unresolvedConflicts.map((conflict) => conflict.relativePath).join(", ");
@@ -146,7 +159,37 @@ function applyInstallPlanInternal(options: {
   trackSkillFilesInManifestFiles: boolean;
 }): ApplyResult {
   const { targetDir, plan, existingManifest } = options;
-  const nextFiles = { ...(existingManifest?.files ?? {}) };
+  const p4ProjectionSelected = plan.profile.selections.resourceProjection !== undefined;
+  if (p4ProjectionSelected) {
+    assertManagedPathHasNoSymlinks(targetDir, MANIFEST_RELATIVE_PATH);
+    for (const action of plan.actions) {
+      if (isP4ProjectionAction(action)) {
+        assertManagedPathHasNoSymlinks(targetDir, action.relativePath);
+      }
+    }
+  }
+  if (plan.classificationSnapshot) {
+    assertLifecyclePlanSnapshotCurrent(targetDir, plan.classificationSnapshot);
+  }
+  if (
+    existingManifest &&
+    existingManifest.projectId &&
+    plan.actions.every((action) => action.type === "noop") &&
+    existingManifest.schemaVersion === 3 &&
+    JSON.stringify(existingManifest.selections) === JSON.stringify(plan.profile.selections) &&
+    JSON.stringify(existingManifest.resourceProjection ?? null) ===
+      JSON.stringify(plan.resourceProjection ?? null)
+  ) {
+    return {
+      manifest: existingManifest,
+      appliedActions: plan.actions,
+      conflictFiles: [],
+      mutationApplied: false,
+    };
+  }
+  const nextFiles: Record<string, import("./types").ManifestFileEntry> = {
+    ...(existingManifest?.files ?? {}),
+  };
   const nextSkillFiles = new Set(existingManifest?.skillFiles ?? []);
   const desiredSkillFiles = new Set(plan.desiredSkillFiles);
   const conflictFiles: string[] = [];
@@ -197,13 +240,30 @@ function applyInstallPlanInternal(options: {
       ? plan.systemAssetMaterialization
       : (existingManifest?.systemAssetMaterialization ?? plan.systemAssetMaterialization),
     projectId,
+    options.trackSkillFilesInManifestFiles
+      ? plan.resourceProjection
+      : existingManifest?.resourceProjection,
   );
+  const receipt = createLifecycleMutationReceipt({
+    operation: plan.operation ?? "setup",
+    projectId,
+    manifestSchemaVersion: manifest.schemaVersion,
+    profileId: manifest.profileId,
+    selectedResourceTypes: manifest.selections.resourceProjection ?? [],
+    actions: plan.actions,
+    committedAt: manifest.updatedAt,
+  });
+  if (p4ProjectionSelected) {
+    assertManagedPathHasNoSymlinks(targetDir, MANIFEST_RELATIVE_PATH);
+  }
   writeManifest(targetDir, manifest);
 
   return {
     manifest,
     appliedActions: plan.actions,
     conflictFiles,
+    receipt,
+    mutationApplied: true,
   };
 }
 
@@ -211,12 +271,18 @@ function applyAction(options: {
   targetDir: string;
   plan: InstallPlan;
   action: PlannedAction;
-  nextFiles: Record<string, { hash: string; sourceId: string }>;
+  nextFiles: Record<string, import("./types").ManifestFileEntry>;
   conflictFiles: string[];
 }): void {
   const { targetDir, plan, action, nextFiles, conflictFiles } = options;
   const absolutePath = relativePathToTarget(targetDir, action.relativePath);
   const desiredEntry = plan.desiredFiles[action.relativePath];
+  if (
+    plan.profile.selections.resourceProjection !== undefined &&
+    isP4ProjectionAction(action)
+  ) {
+    assertManagedPathHasNoSymlinks(targetDir, action.relativePath);
+  }
 
   switch (action.type) {
     case "create":
@@ -293,6 +359,11 @@ function applyAction(options: {
       throw new Error(`Unhandled action type: ${exhaustiveCheck}`);
     }
   }
+}
+
+function isP4ProjectionAction(action: PlannedAction): boolean {
+  return action.sourceId?.startsWith("router:") === true ||
+    action.sourceId?.startsWith("resource:") === true;
 }
 
 function applySkillExposureAction(options: {

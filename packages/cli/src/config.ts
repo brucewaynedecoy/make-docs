@@ -2,7 +2,7 @@ import { existsSync } from "node:fs";
 import path from "node:path";
 import { parseDocument } from "yaml";
 import { TOOL_DIRECTORY_CONFIG_RELATIVE_PATH } from "./tool-directory";
-import { readTextFile } from "./utils";
+import { assertManagedPathHasNoSymlinks, readTextFile } from "./utils";
 
 export const PERSONA_PRIMITIVES = ["agent", "maintainer", "user"] as const;
 export type PersonaPrimitive = (typeof PERSONA_PRIMITIVES)[number];
@@ -287,6 +287,7 @@ export function getPersonaLabel(config: MakeDocsConfig, slug: string): string {
 }
 
 export function loadMakeDocsConfig(targetDir: string): LoadedMakeDocsConfig {
+  assertManagedPathHasNoSymlinks(targetDir, TOOL_DIRECTORY_CONFIG_RELATIVE_PATH);
   const configPath = getMakeDocsConfigPath(targetDir);
   const defaults = createDefaultMakeDocsConfig();
 

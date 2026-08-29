@@ -1,4 +1,4 @@
-import { existsSync, lstatSync, readdirSync, readlinkSync, statSync } from "node:fs";
+import { existsSync, lstatSync, readdirSync, readlinkSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import {
@@ -278,7 +278,7 @@ function classifyManifestRecord(options: {
     return;
   }
 
-  if (!statSync(record.absolutePath).isFile()) {
+  if (!lstatSync(record.absolutePath).isFile()) {
     addPreserved(
       preservedPaths,
       record,
@@ -579,7 +579,7 @@ function classifyManifestPluginOwnershipRecord(options: {
     return;
   }
 
-  if (!statSync(record.absolutePath).isFile()) {
+  if (!lstatSync(record.absolutePath).isFile()) {
     addPreserved(
       preservedPaths,
       record,
@@ -843,7 +843,7 @@ function classifyFallbackRecord(options: {
     return;
   }
 
-  if (!statSync(record.absolutePath).isFile()) {
+  if (!lstatSync(record.absolutePath).isFile()) {
     addPreserved(
       preservedPaths,
       record,
@@ -1582,7 +1582,7 @@ function isWithinRoot(rootPath: string, candidatePath: string): boolean {
 }
 
 function getExistingPathKind(absolutePath: string): AuditPathKind {
-  return statSync(absolutePath).isDirectory() ? "directory" : "file";
+  return lstatSync(absolutePath).isDirectory() ? "directory" : "file";
 }
 
 function looksLikeMakeDocsManifest(filePath: string): boolean {

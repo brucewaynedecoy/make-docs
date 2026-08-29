@@ -5,11 +5,21 @@ import {
   getSystemAssetMaterializationPlan,
 } from "./catalog";
 import { classifyAgenticSkillFileRole } from "./agentic-skill-roles";
-import { getManifestFileHash } from "./manifest";
+import { getManifestFileHash, MANIFEST_RELATIVE_PATH } from "./manifest";
 import { parseManagedBlock, upsertManagedBlock } from "./managed-block";
 import { getDesiredSkillAssets, getRetiredManagedSkillAssets } from "./skill-catalog";
 import type { SkillRegistry } from "./skill-registry";
 import { createSystemAssetManifestState } from "./system-assets";
+import {
+  applyP4ManifestOwnership,
+  buildSelectedResourceProjection,
+  createThinRouterAssets,
+  resourceProjectionStops,
+} from "./project-projection";
+import {
+  annotateLifecycleActions,
+  createLifecyclePlanSnapshot,
+} from "./lifecycle-plan";
 import type {
   InstallManifest,
   InstallPlan,
@@ -27,7 +37,13 @@ import type {
   SystemAssetManifestState,
 } from "./types";
 import { DEFAULT_SYSTEM_ASSET_MATERIALIZATION_MODE, INSTRUCTION_KINDS } from "./types";
-import { hashText, readTextFile, relativePathToTarget, createRunId } from "./utils";
+import {
+  assertManagedPathHasNoSymlinks,
+  createRunId,
+  hashText,
+  readTextFile,
+  relativePathToTarget,
+} from "./utils";
 
 export async function createInstallPlan(options: {
   targetDir: string;
@@ -37,6 +53,7 @@ export async function createInstallPlan(options: {
   managedFileConflictResolutions?: ManagedFileConflictResolutions;
   systemAssetMaterializationMode?: SystemAssetMaterializationMode;
   skillRegistry?: SkillRegistry;
+  operation?: "setup" | "setup.reconfigure" | "setup.sync";
 }): Promise<InstallPlan> {
   const {
     targetDir,
@@ -46,15 +63,42 @@ export async function createInstallPlan(options: {
     managedFileConflictResolutions,
     systemAssetMaterializationMode = DEFAULT_SYSTEM_ASSET_MATERIALIZATION_MODE,
     skillRegistry,
+    operation = existingManifest ? "setup.sync" : "setup",
   } = options;
+  const p4ProjectionSelected = profile.selections.resourceProjection !== undefined;
+  if (p4ProjectionSelected) {
+    assertManagedPathHasNoSymlinks(targetDir, MANIFEST_RELATIVE_PATH);
+  }
+  const effectiveMaterializationMode = p4ProjectionSelected
+    ? "provider-backed"
+    : systemAssetMaterializationMode;
   const systemAssetMaterialization = getSystemAssetMaterializationPlan(
     profile,
-    systemAssetMaterializationMode,
+    effectiveMaterializationMode,
   );
-  const desiredAssets = getDesiredAssetsForMaterializationMode(
+  let desiredAssets = getDesiredAssetsForMaterializationMode(
     profile,
-    systemAssetMaterializationMode,
+    effectiveMaterializationMode,
   );
+  const selectedProjection = p4ProjectionSelected
+    ? buildSelectedResourceProjection({
+        profile,
+        selectionTrigger:
+          operation === "setup.reconfigure"
+            ? "reconfigure-selection"
+            : "setup-selection",
+      })
+    : null;
+  if (p4ProjectionSelected) {
+    const thinRouterPaths = new Set(
+      createThinRouterAssets(profile).map((asset) => asset.relativePath),
+    );
+    desiredAssets = [
+      ...desiredAssets.filter((asset) => !thinRouterPaths.has(asset.relativePath)),
+      ...createThinRouterAssets(profile),
+      ...(selectedProjection?.assets ?? []),
+    ].sort((left, right) => left.relativePath.localeCompare(right.relativePath));
+  }
   const fullSnapshotAssets = getDesiredAssetsForMaterializationMode(
     profile,
     DEFAULT_SYSTEM_ASSET_MATERIALIZATION_MODE,
@@ -103,12 +147,15 @@ export async function createInstallPlan(options: {
   const desiredFiles = Object.fromEntries(
     Object.entries(baseDesiredFiles).map(([relativePath, entry]) => [
       relativePath,
-      systemAssetManifestState.assets[relativePath]
-        ? {
+      applyP4ManifestOwnership(
+        relativePath,
+        systemAssetManifestState.assets[relativePath]
+          ? {
             ...entry,
             systemAsset: systemAssetManifestState.assets[relativePath],
           }
-        : entry,
+          : entry,
+      ),
     ]),
   );
 
@@ -137,6 +184,9 @@ export async function createInstallPlan(options: {
         `Skill exposure asset ${asset.relativePath} is missing from the desired skill file set.`,
       );
     }
+    if (p4ProjectionSelected) {
+      assertManagedPathHasNoSymlinks(targetDir, asset.relativePath);
+    }
 
     const absolutePath = relativePathToTarget(targetDir, asset.relativePath);
     const desiredHash = getManifestHashForAsset(asset);
@@ -161,6 +211,39 @@ export async function createInstallPlan(options: {
         relativePath: asset.relativePath,
         sourceId: asset.sourceId,
         contentHash: desiredHash,
+      });
+      continue;
+    }
+
+    if (
+      asset.sourceId.startsWith("resource:") &&
+      !hasVerifiedResourceOwnership(existingManifest, asset.relativePath, asset.sourceId)
+    ) {
+      conflictsRunId ??= createRunId();
+      actions.push({
+        type: "skip-conflict",
+        relativePath: asset.relativePath,
+        sourceId: asset.sourceId,
+        content: asset.content,
+        contentHash: desiredHash,
+        reason:
+          "Existing resource path lacks verified URI, provider, digest, destination, and ownership evidence.",
+      });
+      continue;
+    }
+
+    if (
+      isInstructionPath(asset.relativePath) &&
+      parseManagedBlock(currentContent).state === "malformed"
+    ) {
+      conflictsRunId ??= createRunId();
+      actions.push({
+        type: "skip-conflict",
+        relativePath: asset.relativePath,
+        sourceId: asset.sourceId,
+        content: asset.content,
+        contentHash: desiredHash,
+        reason: "The managed block is malformed or duplicated. Repair it before setup can continue.",
       });
       continue;
     }
@@ -265,6 +348,14 @@ export async function createInstallPlan(options: {
         continue;
       }
 
+      if (
+        p4ProjectionSelected &&
+        (manifestEntry.sourceId.startsWith("router:") ||
+          manifestEntry.sourceId.startsWith("resource:"))
+      ) {
+        assertManagedPathHasNoSymlinks(targetDir, relativePath);
+      }
+
       if (!lstatSync(absolutePath).isFile()) {
         conflictsRunId ??= createRunId();
         actions.push({
@@ -273,6 +364,21 @@ export async function createInstallPlan(options: {
           sourceId: manifestEntry.sourceId,
           reason:
             "Existing managed file path is no longer a regular file and will not be removed automatically.",
+        });
+        continue;
+      }
+
+      if (
+        manifestEntry.sourceId.startsWith("resource:") &&
+        !hasVerifiedResourceOwnership(existingManifest, relativePath, manifestEntry.sourceId)
+      ) {
+        conflictsRunId ??= createRunId();
+        actions.push({
+          type: "skip-conflict",
+          relativePath,
+          sourceId: manifestEntry.sourceId,
+          reason:
+            "Resource removal stopped because verified URI, provider, digest, destination, and ownership evidence is incomplete.",
         });
         continue;
       }
@@ -334,9 +440,15 @@ export async function createInstallPlan(options: {
     }
   }
 
-  const annotatedActions = actions
+  const annotatedActions = annotateLifecycleActions(actions
     .map(withAgenticRole)
-    .sort(comparePlannedActions);
+    .sort(comparePlannedActions));
+  const stops = Array.from(new Set([
+    ...resourceProjectionStops(annotatedActions),
+    ...annotatedActions
+      .filter((action) => action.reason?.includes("managed block is malformed"))
+      .map((action) => action.relativePath),
+  ])).sort();
 
   return {
     packageName: packageMeta.name,
@@ -347,6 +459,14 @@ export async function createInstallPlan(options: {
     desiredFiles,
     desiredSkillFiles: desiredSkillFiles.sort(),
     conflictsRunId,
+    operation,
+    ...(selectedProjection ? { resourceProjection: selectedProjection.state } : {}),
+    classificationSnapshot: createLifecyclePlanSnapshot(
+      targetDir,
+      annotatedActions,
+      [MANIFEST_RELATIVE_PATH],
+    ),
+    stops,
   };
 }
 
@@ -1252,4 +1372,29 @@ function getInstructionMigrationContent(
     content: getPlannedUpdateContent(asset, currentContent),
     reason: "Insert the make-docs managed block into the existing instruction file.",
   };
+}
+
+function hasVerifiedResourceOwnership(
+  manifest: InstallManifest | null,
+  relativePath: string,
+  sourceId: string,
+): boolean {
+  if (!manifest?.resourceProjection || !sourceId.startsWith("resource:")) {
+    return false;
+  }
+  const uri = sourceId.slice("resource:".length);
+  const entry = manifest.resourceProjection.resources[uri];
+  const manifestFile = manifest.files[relativePath];
+  return Boolean(
+    entry &&
+      entry.uri === uri &&
+      entry.managedDestination === relativePath &&
+      entry.ownershipClass === "managed-projection" &&
+      entry.provenanceState === "verified" &&
+      entry.competingClaims.length === 0 &&
+      entry.sourceDigest === entry.installedDigest &&
+      manifestFile?.ownershipClass === "managed-projection" &&
+      manifestFile.sourceId === sourceId &&
+      manifestFile.hash === entry.installedDigest,
+  );
 }

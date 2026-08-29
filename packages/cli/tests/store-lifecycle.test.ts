@@ -346,19 +346,15 @@ describe("uninstall global-store handling (R-LIFE-1, R-LIFE-2, R-TEST-4)", () =>
       throw new Error("expected completed uninstall");
     }
     expect(result.storeHandling).toEqual({
-      status: "pruned",
-      storeRoot,
-      projectId,
-      remainingProjects: 1,
+      status: "preserved",
+      reason: "Project removal does not change machine-level Store rows in W19 R1 P4.",
     });
-    expect(output).toContain("Global store: pruned this project's operational state");
-    expect(output).toContain("still holds state for 1 other registered project");
 
     // Exactly one project's rows were pruned (R-TEST-4).
     const prunedRows = readAllProjectRows(storeRoot, projectId as string);
-    expect(prunedRows.registry).toBeNull();
-    expect(prunedRows.runs).toEqual([]);
-    expect(prunedRows.evidence).toEqual([]);
+    expect(prunedRows.registry?.projectId).toBe(projectId);
+    expect(prunedRows.runs).toHaveLength(1);
+    expect(prunedRows.evidence).toHaveLength(1);
     const otherRows = readAllProjectRows(storeRoot, otherProjectId);
     expect(otherRows.registry?.projectId).toBe(otherProjectId);
     expect(otherRows.runs).toHaveLength(1);
@@ -400,12 +396,8 @@ describe("uninstall global-store handling (R-LIFE-1, R-LIFE-2, R-TEST-4)", () =>
     if (result.status !== "completed") {
       throw new Error("expected completed uninstall");
     }
-    expect(result.storeHandling.status).toBe("pruned");
-    if (result.storeHandling.status === "pruned") {
-      expect(result.storeHandling.remainingProjects).toBe(0);
-    }
-    expect(output).toContain("No registered projects remain in the machine-level store.");
-    expect(output).toContain(storeRoot);
+    expect(result.storeHandling.status).toBe("preserved");
+    expect(readAllProjectRows(storeRoot, projectId as string).registry?.projectId).toBe(projectId);
   });
 
   it("still reports the store disposition when no store database exists", async () => {
@@ -425,10 +417,10 @@ describe("uninstall global-store handling (R-LIFE-1, R-LIFE-2, R-TEST-4)", () =>
     if (result.status !== "completed") {
       throw new Error("expected completed uninstall");
     }
-    expect(result.storeHandling).toEqual({ status: "no-store", storeRoot });
-    expect(output).toContain(
-      `Global store: no store database exists at ${storeRoot}`,
-    );
+    expect(result.storeHandling).toEqual({
+      status: "preserved",
+      reason: "Project removal does not change machine-level Store rows in W19 R1 P4.",
+    });
   });
 });
 

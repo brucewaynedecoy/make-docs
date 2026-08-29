@@ -3,7 +3,13 @@ import os from "node:os";
 import path from "node:path";
 import { createAuditReport } from "./audit";
 import { parseManagedBlock } from "./managed-block";
-import { getManifestFileHash, getManifestPath, loadManifest } from "./manifest";
+import {
+  getManifestFileHash,
+  getManifestPath,
+  loadManifest,
+  MANIFEST_RELATIVE_PATH,
+} from "./manifest";
+import { assertManagedPathHasNoSymlinks } from "./utils";
 import type {
   AuditReport,
   CompatibilityDisposition,
@@ -610,6 +616,7 @@ function evaluateFallbackRecognition(targetDir: string): {
 }
 
 function readRawManifest(targetDir: string): RawManifestRead {
+  assertManagedPathHasNoSymlinks(targetDir, MANIFEST_RELATIVE_PATH);
   const manifestPath = getManifestPath(targetDir);
   if (!existsSync(manifestPath)) {
     return {

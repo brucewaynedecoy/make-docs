@@ -33,6 +33,7 @@ import type { SkillRegistry } from "./skill-registry";
 import {
   CAPABILITIES,
   HARNESSES,
+  PROJECT_RESOURCE_TYPES,
   type Capability,
   type Harness,
   type InstallProfile,
@@ -41,6 +42,7 @@ import {
   type ManagedFileConflictResolution,
   type ManagedFileConflictResolutions,
   type ReviewableManagedFileConflict,
+  type ProjectResourceType,
 } from "./types";
 import { formatInlineList } from "./utils";
 
@@ -177,6 +179,7 @@ export interface WizardOptionSelections {
   skills: boolean;
   skillScope: InstallSelections["skillScope"];
   selectedSkills: string[];
+  resourceProjection?: ProjectResourceType[];
 }
 
 export interface CapabilityStepState {
@@ -276,6 +279,7 @@ export function getWizardOptionSelections(
     skills: selections.skills,
     skillScope: selections.skillScope,
     selectedSkills: [...selections.selectedSkills].sort(),
+    resourceProjection: [...(selections.resourceProjection ?? [])].sort(),
   };
 }
 
@@ -374,6 +378,7 @@ export function applyWizardOptionSelections(
   next.selectedSkills = options.skills
     ? Array.from(new Set(options.selectedSkills)).sort()
     : [];
+  next.resourceProjection = Array.from(new Set(options.resourceProjection ?? [])).sort();
 
   return next;
 }
@@ -460,6 +465,7 @@ export function renderWizardReviewSummary(
     `- Harnesses: ${harnessSummary}`,
     `- ${OPTION_METADATA.skills.label}: ${skillsSummary}`,
     `- Selected skills: ${normalizedSelections.skills ? selectedSkillSummary : "n/a"}`,
+    `- Local resource projection: ${(normalizedSelections.resourceProjection ?? []).join(", ") || "none"}`,
   ].join("\n");
 }
 
@@ -977,10 +983,26 @@ async function promptForOptions(
     selectedSkills = [];
   }
 
+  const resourceProjection = await multiselect<ProjectResourceType>({
+    message: "Which system resources should also be copied into this project?",
+    withGuide: true,
+    initialValues: options.resourceProjection ?? [],
+    required: false,
+    options: PROJECT_RESOURCE_TYPES.map((resourceType) => ({
+      value: resourceType,
+      label: resourceType,
+      hint: "Optional project-local copy. The installed provider stays authoritative.",
+    })),
+  });
+  if (isCancel(resourceProjection)) {
+    return null;
+  }
+
   return {
     skills: skillsResult,
     skillScope,
     selectedSkills,
+    resourceProjection,
   };
 }
 

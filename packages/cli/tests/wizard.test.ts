@@ -178,12 +178,14 @@ describe("selection wizard", () => {
       skills: true,
       skillScope: "global",
       selectedSkills: ["decompose-codebase"],
+      resourceProjection: [],
     });
 
     expect(getWizardOptionSelections(selections)).toEqual({
       skills: true,
       skillScope: "global",
       selectedSkills: ["decompose-codebase"],
+      resourceProjection: [],
     });
     expect(selections.harnesses["claude-code"]).toBe(false);
     expect(selections.harnesses.codex).toBe(true);

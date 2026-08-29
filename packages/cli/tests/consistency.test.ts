@@ -52,8 +52,8 @@ const PLAYBOOK_DEFAULT_PARITY_PATHS = [
 
 const PATH_HYGIENE_PARITY_PATHS = [
   ".make-docs/scripts/check_path_hygiene.py",
-  "docs/AGENTS.md",
-  "docs/CLAUDE.md",
+  // W19 R1 P4 makes the shipped thin docs routers authoritative. Updating
+  // the maintainer dogfood instance remains a separate, excluded action.
   "docs/assets/archive/AGENTS.md",
   "docs/assets/archive/CLAUDE.md",
   ".make-docs/system/prompts/docs-path-hygiene-cleanup.prompt.md",

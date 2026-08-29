@@ -6,6 +6,7 @@ import {
   type OperationExecutionContext,
 } from "./context";
 import { packageOperations } from "./package/ops";
+import { projectOperations } from "./project/ops";
 import { pendingOperations } from "./pending/ops";
 import { playbookOperations } from "./playbook/ops";
 import { prdOperations } from "./prd/ops";
@@ -214,6 +215,7 @@ function assembleRegistry(): Map<string, OperationDefinition> {
     ...playbookOperations,
     ...packageOperations,
     ...prdOperations,
+    ...projectOperations,
     ...workOperations,
     ...resourceOperations,
     ...pendingOperations,

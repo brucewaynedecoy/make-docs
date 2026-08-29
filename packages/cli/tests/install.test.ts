@@ -344,7 +344,7 @@ describe("installer integration", () => {
       expect(
         plan.systemAssetMaterialization.materializationClasses["docs/work/AGENTS.md"],
       ).toBe("materialized-system-asset");
-      expect(manifest.schemaVersion).toBe(2);
+      expect(manifest.schemaVersion).toBe(3);
       expect(manifest.systemAssetMaterialization.mode).toBe("full-snapshot");
       expect(manifest.systemAssetMaterialization.sourceProvider).toBe("package");
       expect(manifest.systemAssetMaterialization.hashAlgorithm).toBe("sha256");
@@ -563,7 +563,7 @@ describe("installer integration", () => {
         const result = applyInstallPlan({ targetDir, plan, existingManifest });
         const manifest = result.manifest;
 
-        expect(manifest.schemaVersion).toBe(2);
+        expect(manifest.schemaVersion).toBe(3);
         expect(manifest.systemAssetMaterialization.mode).toBe(mode);
         expect(manifest.systemAssetMaterialization.assets["docs/work/AGENTS.md"]).toMatchObject({
           logicalAssetId: "docs/work/AGENTS.md",
@@ -622,7 +622,7 @@ describe("installer integration", () => {
       const installedContent = readFileSync(rootPath, "utf8");
       writeFileSync(
         rootPath,
-        installedContent.replace("same-named instruction file", "edited instruction file"),
+        installedContent.replace("make-docs resource list", "edited resource list"),
         "utf8",
       );
 
@@ -654,7 +654,7 @@ describe("installer integration", () => {
       ).toThrow(
         "Cannot apply install plan with unresolved managed-file conflicts: AGENTS.md.",
       );
-      expect(readFileSync(rootPath, "utf8")).toContain("edited instruction file");
+      expect(readFileSync(rootPath, "utf8")).toContain("edited resource list");
     } finally {
       cleanupTempDir(targetDir);
     }
@@ -797,7 +797,7 @@ describe("installer integration", () => {
 
       const manifest = loadManifest(targetDir)!;
 
-      expect(manifest.schemaVersion).toBe(2);
+      expect(manifest.schemaVersion).toBe(3);
       expect(manifest.files["AGENTS.md"]).toEqual({
         hash: hashText("legacy"),
         sourceId: "file:AGENTS.md",
@@ -1295,7 +1295,8 @@ describe("installer integration", () => {
       expect(
         existsSync(path.join(targetDir, ".make-docs/system/prompts/designs-to-plan.prompt.md")),
       ).toBe(false);
-      expect(docsRouter).toContain("docs/designs/");
+      expect(docsRouter).toContain("make-docs resource list");
+      expect(docsRouter).not.toContain("docs/designs/");
     } finally {
       cleanupTempDir(targetDir);
     }
@@ -1650,14 +1651,14 @@ describe("installer integration", () => {
       const installedContent = readFileSync(rootPath, "utf8");
       writeFileSync(
         rootPath,
-        installedContent.replace("same-named instruction file", "edited instruction file"),
+        installedContent.replace("make-docs resource list", "edited resource list"),
         "utf8",
       );
       const docsPath = path.join(targetDir, "docs/AGENTS.md");
       const docsInstalledContent = readFileSync(docsPath, "utf8");
       writeFileSync(
         docsPath,
-        docsInstalledContent.replace("Use `docs/` only as a router", "Use edited docs routing"),
+        docsInstalledContent.replace("make-docs resource read <uri>", "edited resource read"),
         "utf8",
       );
 
@@ -1706,7 +1707,7 @@ describe("installer integration", () => {
       const withUserContent = `Project-specific routing.\n\n${installedContent}\nLocal footer.\n`;
       writeFileSync(
         rootPath,
-        withUserContent.replace("same-named instruction file", "edited instruction file"),
+        withUserContent.replace("make-docs resource list", "edited resource list"),
         "utf8",
       );
 

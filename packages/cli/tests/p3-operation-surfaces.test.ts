@@ -50,12 +50,12 @@ afterEach(() => {
 });
 
 describe("W19 R1 P3 admitted operation surfaces", () => {
-  it("pins the exact 24-ID inventory, 7/17 split, lineages, handlers, and CLI paths", () => {
+  it("pins the exact 24-ID inventory and current P4 activation split", () => {
     const admitted = listAdmittedOperations();
     expect(admitted.map((entry) => entry.id)).toEqual([...ADMITTED_OPERATION_IDS]);
     expect(admitted).toHaveLength(24);
-    expect(admitted.filter((entry) => entry.status === "active")).toHaveLength(7);
-    expect(admitted.filter((entry) => entry.status === "pending")).toHaveLength(17);
+    expect(admitted.filter((entry) => entry.status === "active")).toHaveLength(8);
+    expect(admitted.filter((entry) => entry.status === "pending")).toHaveLength(16);
 
     for (const entry of admitted) {
       expect(typeof getOperation(entry.id).handler).toBe(
@@ -79,7 +79,7 @@ describe("W19 R1 P3 admitted operation surfaces", () => {
         .filter((entry) => entry.status === "pending")
         .map((entry) => [entry.id, entry.pendingLineage]),
     );
-    expect(lineages["project.surface.ensure"]).toBe("W19 R1 P4");
+    expect(lineages["project.surface.ensure"]).toBeUndefined();
     expect(Object.entries(lineages).filter(([id]) => id.startsWith("lifecycle."))).toHaveLength(10);
     expect(Object.entries(lineages).filter(([id]) => id.startsWith("uat."))).toHaveLength(6);
     expect(new Set(Object.entries(lineages).filter(([id]) => id.startsWith("lifecycle.")).map(([, value]) => value))).toEqual(new Set(["W19 R1 P6"]));
@@ -110,18 +110,15 @@ describe("W19 R1 P3 admitted operation surfaces", () => {
       pendingLineage: "W19 R1 P6",
       handlerAvailable: false,
     });
-    await expect(
-      runCli(["project", "surface", "ensure", "assets"]),
-    ).rejects.toMatchObject({
-      operation: "project.surface.ensure",
-      pendingLineage: "W19 R1 P4",
-    });
+    await expect(runCli(["project", "surface", "ensure", "assets"])).rejects.toThrow(
+      "trusted P4 manifest evidence",
+    );
     expect(() => getOperation("unknown.operation")).toThrow("Unknown operation identifier");
   });
 
   it("preserves typed pending fields through every CLI and MCP projection", async () => {
     const pending = listAdmittedOperations().filter((entry) => entry.status === "pending");
-    expect(pending).toHaveLength(17);
+    expect(pending).toHaveLength(16);
 
     for (const operation of pending) {
       let stderr = "";
@@ -149,7 +146,7 @@ describe("W19 R1 P3 admitted operation surfaces", () => {
       },
     });
     expect(humanError).toBe(
-      "Operation `project.surface.ensure` is a reserved registry identifier; its semantics land with W19 R1 P4.\n",
+      "This project does not have trusted P4 manifest evidence. Run `make-docs setup reconfigure` before you ensure a project surface.\n",
     );
 
     const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();

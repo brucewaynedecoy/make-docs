@@ -2,11 +2,11 @@ import { createHash } from "node:crypto";
 import {
   existsSync,
   mkdirSync,
+  lstatSync,
   readFileSync,
   readdirSync,
   rmdirSync,
   rmSync,
-  statSync,
   writeFileSync,
 } from "node:fs";
 import path from "node:path";
@@ -109,12 +109,14 @@ export function pruneEmptyDirectories(startDir: string, stopDir: string): void {
 }
 
 export function removeFileIfPresent(filePath: string): boolean {
-  if (!existsSync(filePath)) {
-    return false;
+  let stats;
+  try {
+    stats = lstatSync(filePath);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return false;
+    throw error;
   }
-
-  const stats = statSync(filePath);
-  if (!stats.isFile()) {
+  if (!stats.isFile() && !stats.isSymbolicLink()) {
     throw new Error(`Expected a regular file at ${filePath}, but found a different entry type.`);
   }
 
@@ -123,10 +125,12 @@ export function removeFileIfPresent(filePath: string): boolean {
 }
 
 export function removeManagedPathIfPresent(filePath: string): boolean {
-  if (!existsSync(filePath)) {
-    return false;
+  try {
+    lstatSync(filePath);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return false;
+    throw error;
   }
-
   rmSync(filePath, { recursive: true, force: false });
   return true;
 }
@@ -136,7 +140,7 @@ export function pruneDirectoryIfEmpty(directoryPath: string): boolean {
     return false;
   }
 
-  const stats = statSync(directoryPath);
+  const stats = lstatSync(directoryPath);
   if (!stats.isDirectory()) {
     throw new Error(`Expected a directory at ${directoryPath}, but found a different entry type.`);
   }
@@ -167,6 +171,38 @@ export function formatInlineList(items: string[]): string {
 
 export function relativePathToTarget(targetDir: string, relativePath: string): string {
   return path.isAbsolute(relativePath) ? path.normalize(relativePath) : path.join(targetDir, relativePath);
+}
+
+export function assertManagedPathHasNoSymlinks(
+  targetDir: string,
+  relativePath: string,
+): void {
+  const boundary = path.resolve(targetDir);
+  const destination = path.resolve(boundary, relativePath);
+  const relativeDestination = path.relative(boundary, destination);
+  if (
+    relativeDestination === ".." ||
+    relativeDestination.startsWith(`..${path.sep}`) ||
+    path.isAbsolute(relativeDestination)
+  ) {
+    throw new Error(`Managed path escapes the project target: ${relativePath}.`);
+  }
+
+  let current = boundary;
+  for (const segment of ["", ...relativeDestination.split(path.sep).filter(Boolean)]) {
+    if (segment) current = path.join(current, segment);
+    try {
+      if (lstatSync(current).isSymbolicLink()) {
+        const displayedPath = segment ? path.relative(boundary, current) : ".";
+        throw new Error(
+          `Managed path uses a symbolic link at ${displayedPath}: ${relativePath}.`,
+        );
+      }
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === "ENOENT") continue;
+      throw error;
+    }
+  }
 }
 
 export function exists(filePath: string): boolean {

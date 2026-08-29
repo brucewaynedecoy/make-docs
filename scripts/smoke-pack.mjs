@@ -88,16 +88,11 @@ const EXPECTED_READER_ASSET_PATHS = [
   "docs/assets/playbooks/agent/make-docs-lifecycle.playbook.md",
 ];
 
-const EXPECTED_SYSTEM_RESOURCE_PATHS = [
-  ".make-docs/AGENTS.md",
-  ".make-docs/CLAUDE.md",
-  ".make-docs/contracts/system/commit-message-convention.md",
-  ".make-docs/contracts/system/history-record-contract.md",
-  ".make-docs/references/system/lifecycle.md",
-  ".make-docs/system/prompts/request-to-design.prompt.md",
-  ".make-docs/scripts/check_path_hygiene.py",
-  ".make-docs/templates/system/work-index.md",
-  ".make-docs/templates/system/work-phase.md",
+const EXPECTED_PROVIDER_ONLY_ROUTER_PATHS = [
+  "AGENTS.md",
+  "CLAUDE.md",
+  "docs/AGENTS.md",
+  "docs/CLAUDE.md",
 ];
 
 const EXPECTED_SKILL_PATHS = [
@@ -225,12 +220,7 @@ function runPackageRunnerSmoke(options) {
     assertManifestPackageName(manifestPath, EXPECTED_PACKAGE_NAME);
     assertManifestSkillFiles(manifestPath, 0);
     assertManifestOmitsProjectConfig(manifestPath);
-    assertManifestContainsManagedFiles(manifestPath, [
-      ...EXPECTED_READER_ASSET_PATHS,
-      ...EXPECTED_SYSTEM_RESOURCE_PATHS,
-    ]);
-    assertInstalledInstructionTemplate(targetDir);
-    assertInstalledReaderFacingAssets(targetDir);
+    assertProviderOnlyDefaultInstall(targetDir, manifestPath);
     // The runner env sandboxes HOME, so the store bootstrap must land under
     // the sandbox home and never under the repository target.
     assertStoreBootstrapAndNoRepoStateWrites(
@@ -407,12 +397,7 @@ try {
       "Smoke pack bare invocation (installed) omitted the installed package line.",
     );
 
-    assertInstalledInstructionTemplate(targetDir);
-    assertInstalledReaderFacingAssets(targetDir);
-    assertManifestContainsManagedFiles(manifestPath, [
-      ...EXPECTED_READER_ASSET_PATHS,
-      ...EXPECTED_SYSTEM_RESOURCE_PATHS,
-    ]);
+    assertProviderOnlyDefaultInstall(targetDir, manifestPath);
     assertManifestOmitsProjectConfig(manifestPath);
 
     execFileSync(
@@ -913,24 +898,94 @@ function assertManifestOmitsSkillFilePrefixes(manifestPath, prefixes) {
   }
 }
 
-function assertManifestContainsManagedFiles(manifestPath, expectedPaths) {
+function assertProviderOnlyDefaultInstall(targetDir, manifestPath) {
   const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
   const files = manifest.files && typeof manifest.files === "object" ? manifest.files : {};
+  const trackedPaths = Object.keys(files).sort();
+  const expectedPaths = [...EXPECTED_PROVIDER_ONLY_ROUTER_PATHS].sort();
+  if (JSON.stringify(trackedPaths) !== JSON.stringify(expectedPaths)) {
+    throw new Error(
+      `Smoke pack provider-only setup tracked ${trackedPaths.join(", ") || "(none)"}; ` +
+        `expected only ${expectedPaths.join(", ")}.`,
+    );
+  }
 
-  for (const expectedPath of expectedPaths) {
+  if (manifest.schemaVersion !== 3) {
+    throw new Error(`Smoke pack provider-only manifest used schema ${manifest.schemaVersion}, expected 3.`);
+  }
+
+  const expectedSourceIds = {
+    "AGENTS.md": "router:codex:AGENTS.md",
+    "CLAUDE.md": "router:claude-code:CLAUDE.md",
+    "docs/AGENTS.md": "router:codex:docs/AGENTS.md",
+    "docs/CLAUDE.md": "router:claude-code:docs/CLAUDE.md",
+  };
+  for (const expectedPath of EXPECTED_PROVIDER_ONLY_ROUTER_PATHS) {
     const entry = files[expectedPath];
     if (!entry) {
-      throw new Error(`Smoke pack manifest did not track managed file ${expectedPath}.`);
+      throw new Error(`Smoke pack provider-only manifest did not track router ${expectedPath}.`);
     }
-
-    const sourcePath = expectedPath.startsWith(".make-docs/system/prompts/")
-      ? `.make-docs/prompts/system/${expectedPath.slice(".make-docs/system/prompts/".length)}`
-      : expectedPath;
-    if (entry.sourceId !== `file:${sourcePath}`) {
+    if (
+      entry.sourceId !== expectedSourceIds[expectedPath] ||
+      entry.ownershipClass !== "managed-block" ||
+      !/^[a-f0-9]{64}$/.test(entry.hash ?? "")
+    ) {
       throw new Error(
-        `Smoke pack manifest tracked ${expectedPath} with sourceId ${entry.sourceId}.`,
+        `Smoke pack provider-only manifest has invalid router evidence for ${expectedPath}.`,
       );
     }
+  }
+
+  const projection = manifest.resourceProjection;
+  const provider = projection?.provider;
+  if (
+    !projection ||
+    !Array.isArray(projection.selectedTypes) ||
+    projection.selectedTypes.length !== 0 ||
+    !projection.resources ||
+    Object.keys(projection.resources).length !== 0 ||
+    !Array.isArray(manifest.selections?.resourceProjection) ||
+    manifest.selections.resourceProjection.length !== 0 ||
+    provider?.ownershipClass !== "installed-provider" ||
+    provider?.provenanceState !== "verified" ||
+    provider?.packageName !== EXPECTED_PACKAGE_NAME ||
+    provider?.version !== manifest.packageVersion ||
+    provider?.immutableRef !== `package:${EXPECTED_PACKAGE_NAME}@${manifest.packageVersion}` ||
+    !/^[a-f0-9]{64}$/.test(provider?.inventoryDigest ?? "")
+  ) {
+    throw new Error("Smoke pack provider-only manifest has invalid provider or projection evidence.");
+  }
+
+  assertDirectoryEntries(targetDir, [".make-docs", "AGENTS.md", "CLAUDE.md", "docs"]);
+  assertDirectoryEntries(path.join(targetDir, ".make-docs"), ["manifest.json"]);
+  assertDirectoryEntries(path.join(targetDir, "docs"), ["AGENTS.md", "CLAUDE.md"]);
+
+  const routerContents = EXPECTED_PROVIDER_ONLY_ROUTER_PATHS.map((relativePath) => {
+    const content = readFileSync(path.join(targetDir, relativePath), "utf8");
+    assertOutputContains(
+      content,
+      "<!-- make-docs:begin -->",
+      `Smoke pack provider-only router ${relativePath} omitted its managed block.`,
+    );
+    assertOutputContains(
+      content,
+      "# Make Docs Router",
+      `Smoke pack provider-only router ${relativePath} omitted its title.`,
+    );
+    assertOutputContains(
+      content,
+      "make-docs resource list",
+      `Smoke pack provider-only router ${relativePath} omitted provider guidance.`,
+    );
+    assertOutputContains(
+      content,
+      "make-docs project surface ensure <archive|artifacts|assets>",
+      `Smoke pack provider-only router ${relativePath} omitted surface guidance.`,
+    );
+    return content;
+  });
+  if (new Set(routerContents).size !== 1) {
+    throw new Error("Smoke pack provider-only routers are not byte-identical.");
   }
 }
 
@@ -953,48 +1008,28 @@ function assertManifestOmitsProjectConfig(manifestPath) {
 }
 
 function assertPackedInstructionTemplate(packageRoot) {
-  const agentsRoot = path.join(packageRoot, "template/AGENTS.md");
-  const claudeRoot = path.join(packageRoot, "template/CLAUDE.md");
-  const agentsContent = readFileSync(agentsRoot, "utf8");
-  const claudeContent = readFileSync(claudeRoot, "utf8");
-  const makeDocsAgentsPath = path.join(packageRoot, "template/.make-docs/AGENTS.md");
-  const makeDocsClaudePath = path.join(packageRoot, "template/.make-docs/CLAUDE.md");
-
-  assertExists(makeDocsAgentsPath, "Packed template omitted template/.make-docs/AGENTS.md.");
-  assertExists(makeDocsClaudePath, "Packed template omitted template/.make-docs/CLAUDE.md.");
-  assertOutputContains(
-    readFileSync(makeDocsAgentsPath, "utf8"),
-    ".make-docs/contracts/system/",
-    "Packed .make-docs router omitted system contract routing.",
-  );
-  assertOutputContains(
-    agentsContent,
-    "<!-- make-docs:begin -->",
-    "Packed AGENTS.md template omitted the managed block marker.",
-  );
-  assertOutputContains(
-    agentsContent,
-    "read the same-named instruction file in `docs/`",
-    "Packed AGENTS.md template omitted the inline docs routing.",
-  );
-  assertOutputContains(
-    agentsContent,
-    "read `.make-docs/references/system/lifecycle.md`",
-    "Packed AGENTS.md template omitted the inline lifecycle routing.",
-  );
-  if (claudeContent !== agentsContent) {
-    throw new Error("Packed CLAUDE.md template did not mirror AGENTS.md.");
+  const contents = EXPECTED_PROVIDER_ONLY_ROUTER_PATHS.map((relativePath) => {
+    const content = readFileSync(path.join(packageRoot, "template", relativePath), "utf8");
+    assertOutputContains(
+      content,
+      "<!-- make-docs:begin -->",
+      `Packed thin router ${relativePath} omitted the managed block marker.`,
+    );
+    assertOutputContains(
+      content,
+      "# Make Docs Router",
+      `Packed thin router ${relativePath} omitted its title.`,
+    );
+    assertOutputContains(
+      content,
+      "make-docs resource list",
+      `Packed thin router ${relativePath} omitted provider guidance.`,
+    );
+    return content;
+  });
+  if (new Set(contents).size !== 1) {
+    throw new Error("Packed root and docs thin routers are not byte-identical.");
   }
-  assertOutputExcludes(
-    agentsContent,
-    ".make-docs/AGENTS.md",
-    "Packed AGENTS.md template still includes the dedicated instruction pointer.",
-  );
-  assertOutputExcludes(
-    claudeContent,
-    "@.make-docs/CLAUDE.md",
-    "Packed CLAUDE.md template still includes the dedicated instruction import.",
-  );
 }
 
 function assertPackedRouterGuidanceParity(packageRoot) {
@@ -1191,107 +1226,6 @@ function assertNoConformanceAssetsInTarball(packageRoot) {
       }
     }
   }
-}
-
-function assertInstalledInstructionTemplate(targetDir) {
-  const agentsContent = readFileSync(path.join(targetDir, "AGENTS.md"), "utf8");
-  const claudeContent = readFileSync(path.join(targetDir, "CLAUDE.md"), "utf8");
-  const makeDocsAgentsPath = path.join(targetDir, ".make-docs/AGENTS.md");
-  const makeDocsClaudePath = path.join(targetDir, ".make-docs/CLAUDE.md");
-
-  assertExists(makeDocsAgentsPath, "Smoke pack install omitted .make-docs/AGENTS.md.");
-  assertExists(makeDocsClaudePath, "Smoke pack install omitted .make-docs/CLAUDE.md.");
-  assertOutputContains(
-    readFileSync(makeDocsAgentsPath, "utf8"),
-    ".make-docs/contracts/system/",
-    "Smoke pack .make-docs router omitted system contract routing.",
-  );
-  assertOutputContains(
-    agentsContent,
-    "<!-- make-docs:begin -->",
-    "Smoke pack root AGENTS.md omitted the managed block marker.",
-  );
-  assertOutputContains(
-    agentsContent,
-    "read the same-named instruction file in `docs/`",
-    "Smoke pack root AGENTS.md omitted the inline docs routing.",
-  );
-  assertOutputContains(
-    agentsContent,
-    "read `.make-docs/references/system/lifecycle.md`",
-    "Smoke pack root AGENTS.md omitted the inline lifecycle routing.",
-  );
-  if (claudeContent !== agentsContent) {
-    throw new Error("Smoke pack root CLAUDE.md did not mirror AGENTS.md.");
-  }
-  assertOutputExcludes(
-    agentsContent,
-    ".make-docs/AGENTS.md",
-    "Smoke pack root AGENTS.md still includes the dedicated instruction pointer.",
-  );
-  assertOutputExcludes(
-    claudeContent,
-    "@.make-docs/CLAUDE.md",
-    "Smoke pack root CLAUDE.md still includes the dedicated instruction import.",
-  );
-}
-
-function assertInstalledReaderFacingAssets(targetDir) {
-  for (const relativePath of EXPECTED_READER_ASSET_PATHS) {
-    assertExists(
-      path.join(targetDir, relativePath),
-      `Smoke pack install did not produce ${relativePath}.`,
-    );
-  }
-  for (const relativePath of [
-    "docs/assets/breadcrumbs",
-    "docs/assets/history",
-    "docs/assets/guides",
-    "docs/guides",
-    "docs/library",
-  ]) {
-    assertMissing(
-      path.join(targetDir, relativePath),
-      `Smoke pack install still produced superseded default path ${relativePath}.`,
-    );
-  }
-
-  const assetsRouter = readFileSync(path.join(targetDir, "docs/assets/AGENTS.md"), "utf8");
-  assertOutputContains(
-    assetsRouter,
-    "docs/assets/library/<persona-slug>/",
-    "Smoke pack assets router omitted the canonical library asset namespace.",
-  );
-  assertOutputContains(
-    assetsRouter,
-    "docs/assets/playbooks/<persona-slug>/",
-    "Smoke pack assets router omitted the canonical playbook asset namespace.",
-  );
-  assertOutputContains(
-    assetsRouter,
-    "docs/assets/archive/**",
-    "Smoke pack assets router omitted the archive namespace handoff.",
-  );
-  assertOutputContains(
-    assetsRouter,
-    "docs/assets/artifacts/**",
-    "Smoke pack assets router omitted the artifact namespace handoff.",
-  );
-  assertOutputContains(
-    assetsRouter,
-    "docs/assets/archive/history/**",
-    "Smoke pack assets router omitted the archive history namespace handoff.",
-  );
-  assertOutputExcludes(
-    assetsRouter,
-    "docs/assets/breadcrumbs/**",
-    "Smoke pack assets router still advertises the superseded breadcrumb namespace.",
-  );
-  assertOutputExcludes(
-    assetsRouter,
-    "belong in `docs/archive/**`",
-    "Smoke pack assets router still advertises top-level docs/archive as a target.",
-  );
 }
 
 function rewritePackedSkillRegistry(packageRoot, baseUrl) {

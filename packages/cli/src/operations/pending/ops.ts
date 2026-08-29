@@ -21,13 +21,6 @@ function pending(
 }
 
 export const pendingOperations: OperationDefinition[] = [
-  pending(
-    "project.surface.ensure",
-    "Reserve the canonical project support-surface ensure operation.",
-    "W19 R1 P4",
-    "write",
-    z.object({ surface: z.enum(["archive", "artifacts", "assets"]) }).strict(),
-  ),
   pending("lifecycle.start", "Reserve general lifecycle run creation.", "W19 R1 P6", "write"),
   pending("lifecycle.show", "Reserve general lifecycle run inspection.", "W19 R1 P6"),
   pending("lifecycle.list", "Reserve general lifecycle run listing.", "W19 R1 P6"),

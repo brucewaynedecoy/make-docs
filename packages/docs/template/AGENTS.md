@@ -1,7 +1,8 @@
 <!-- make-docs:begin -->
-# Agent Instructions
+# Make Docs Router
 
-- When asked to create documentation for this project that is not `README.md`, read the same-named instruction file in `docs/` before writing.
-- For documentation lifecycle order or skip/reorder/revisit decisions, read `.make-docs/references/system/lifecycle.md` and surface departures from the default arc.
-- Before staging or committing changes, read and follow `.make-docs/contracts/system/commit-message-convention.md`.
+- List and read installed system resources with `make-docs resource list` and `make-docs resource read <uri>`. A project-local resource copy is optional.
+- Use `make-docs resource ensure <uri>` only for a resource selected during setup or reconfiguration and only after review.
+- Create an on-demand archive, artifact, or asset surface with `make-docs project surface ensure <archive|artifacts|assets>`.
+- Use `make-docs run` to discover current typed operations. Do not infer optional Skills, plugins, Playbooks, Protocols, or unavailable policy from this router.
 <!-- make-docs:end -->

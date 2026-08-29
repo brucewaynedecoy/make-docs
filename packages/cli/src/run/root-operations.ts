@@ -7,6 +7,7 @@ import type {
   ResourceReadOperationOutput,
 } from "../operations/resource";
 import { OperationError } from "../operations/types";
+import type { ProjectSurfaceEnsureOutput } from "../operations/project/ops";
 
 type ResourceOrigin = "effective" | "local" | "installed";
 type ResourceFormat = "table" | "json" | "raw";
@@ -209,7 +210,14 @@ export async function runResourceCommand(argv: string[]): Promise<void> {
 export async function runProjectCommand(argv: string[]): Promise<void> {
   if (argv.length === 0 || argv[0] === "--help" || argv[0] === "-h") {
     process.stdout.write(
-      "Usage: make-docs project surface ensure <archive|artifacts|assets>\n",
+      [
+        "Usage: make-docs project surface ensure <archive|artifacts|assets>",
+        "",
+        "The ensure command creates only the selected on-demand directory after it",
+        "checks the trusted project manifest and configured routers. It reports the",
+        "applied or unchanged state, plan dispositions, receipt, and next check.",
+        "",
+      ].join("\n"),
     );
     return;
   }
@@ -225,9 +233,31 @@ export async function runProjectCommand(argv: string[]): Promise<void> {
       "Use `make-docs project surface ensure <archive|artifacts|assets>`.",
     );
   }
-  await invokeOperation(
+  const invocation = await invokeOperation(
     "project.surface.ensure",
     { surface },
-    createExecutionContext({ surface: "cli", writesAllowed: false }),
+    createExecutionContext({ surface: "cli", writesAllowed: true }),
+  );
+  const value = invocation.value as unknown as ProjectSurfaceEnsureOutput;
+  const planLines = value.plan.actions.map((action) =>
+    `- ${action.disposition ?? action.type}: ${action.relativePath}`,
+  );
+  const state = value.dryRun
+    ? "planned only"
+    : value.receipt
+      ? "applied"
+      : "unchanged";
+  const receipt = value.receipt?.receiptId ?? (value.dryRun ? "none (dry run)" : "none (no write)");
+  process.stdout.write(
+    [
+      `Target: ${value.targetRoot}`,
+      `Project surface: ${value.surface}`,
+      `State: ${state}`,
+      "Plan dispositions:",
+      ...planLines,
+      `Receipt: ${receipt}`,
+      "Next: Run `make-docs setup --yes --dry-run` to confirm that managed project files remain current.",
+      "",
+    ].join("\n"),
   );
 }

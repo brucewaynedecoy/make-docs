@@ -10,6 +10,15 @@ export const HARNESSES = ["claude-code", "codex"] as const;
 
 export type Harness = (typeof HARNESSES)[number];
 
+export const PROJECT_RESOURCE_TYPES = [
+  "contract",
+  "prompt",
+  "reference",
+  "template",
+] as const;
+
+export type ProjectResourceType = (typeof PROJECT_RESOURCE_TYPES)[number];
+
 export const INSTRUCTION_KIND_TO_HARNESS: Record<InstructionKind, Harness> = {
   "AGENTS.md": "codex",
   "CLAUDE.md": "claude-code",
@@ -120,6 +129,12 @@ export interface InstallSelections {
   selectedPlugins: string[];
   pluginManifest?: PluginManifestSelectionSource;
   pluginSelectionProvenance?: PluginSelectionProvenanceEntry[];
+  /**
+   * Explicit project-local system-resource projection. An empty array means
+   * provider-only operation. Absence is reserved for pre-P4 manifests so
+   * compatibility code can fail closed instead of inventing past intent.
+   */
+  resourceProjection?: ProjectResourceType[];
 }
 
 export interface SkillManifestSelectionSource {
@@ -237,9 +252,97 @@ export interface SkillExposureMetadata {
 export interface ManifestFileEntry {
   hash: string;
   sourceId: string;
+  ownershipClass?: ManifestOwnershipClass;
   systemAsset?: ManifestSystemAssetEntry;
   skillExposure?: SkillExposureMetadata;
   agenticOwnership?: AgenticOwnershipMetadata;
+}
+
+export type ManifestOwnershipClass =
+  | "installed-provider"
+  | "managed-projection"
+  | "project-override"
+  | "managed-snapshot"
+  | "managed-block"
+  | "project-owned"
+  | "runtime-state"
+  | "selected-skill";
+
+export type ManifestProvenanceState =
+  | "verified"
+  | "incomplete"
+  | "ambiguous"
+  | "contradictory";
+
+export interface ManifestResourceProjectionEntry {
+  uri: string;
+  type: ProjectResourceType;
+  resourcePath: string;
+  managedDestination: string;
+  ownershipClass: "managed-projection" | "project-override";
+  provenanceState: ManifestProvenanceState;
+  providerPackage: string;
+  providerVersion: string;
+  providerImmutableRef: string;
+  sourceDigest: string;
+  installedDigest: string;
+  hashAlgorithm: "sha256";
+  selectionTrigger: "setup-selection" | "reconfigure-selection";
+  operationLineage: "W19 R1 P4";
+  competingClaims: string[];
+}
+
+export interface ResourceProjectionManifestState {
+  selectedTypes: ProjectResourceType[];
+  provider: {
+    ownershipClass: "installed-provider";
+    provenanceState: "verified";
+    packageName: string;
+    version: string;
+    immutableRef: string;
+    inventoryDigest: string;
+  };
+  resources: Record<string, ManifestResourceProjectionEntry>;
+}
+
+export type LifecyclePlanDisposition =
+  | "create"
+  | "update"
+  | "preserve"
+  | "conflict"
+  | "skip"
+  | "remove"
+  | "stop";
+
+export interface LifecyclePlanSnapshotEntry {
+  relativePath: string;
+  state: "missing" | "file" | "directory" | "symlink" | "other";
+  digest?: string;
+}
+
+export interface LifecyclePlanSnapshot {
+  id: string;
+  entries: LifecyclePlanSnapshotEntry[];
+}
+
+export interface LifecycleMutationReceipt {
+  schemaVersion: 1;
+  receiptId: string;
+  operation: string;
+  projectId: string;
+  manifestSchemaVersion: number;
+  profileId: string;
+  selectedResourceTypes: ProjectResourceType[];
+  outcomes: Record<LifecyclePlanDisposition, number>;
+  conflicts: string[];
+  backupReferences: string[];
+  committedAt: string;
+  claims: {
+    validated: false;
+    accepted: false;
+    published: false;
+    released: false;
+  };
 }
 
 export type AgenticSkillFileRole =
@@ -544,6 +647,7 @@ export interface InstallManifest {
   selections: InstallSelections;
   effectiveCapabilities: Capability[];
   systemAssetMaterialization: SystemAssetManifestState;
+  resourceProjection?: ResourceProjectionManifestState;
   files: Record<string, ManifestFileEntry>;
   skillFiles: string[];
 }
@@ -568,6 +672,7 @@ export interface PlannedAction {
   content?: string;
   contentHash?: string;
   reason?: string;
+  disposition?: LifecyclePlanDisposition;
 }
 
 export interface InstallPlan {
@@ -579,6 +684,10 @@ export interface InstallPlan {
   desiredFiles: Record<string, ManifestFileEntry>;
   desiredSkillFiles: string[];
   conflictsRunId?: string;
+  operation?: "setup" | "setup.reconfigure" | "setup.sync";
+  resourceProjection?: ResourceProjectionManifestState;
+  classificationSnapshot?: LifecyclePlanSnapshot;
+  stops?: string[];
 }
 
 export interface PackageMeta {
@@ -590,6 +699,8 @@ export interface ApplyResult {
   manifest: InstallManifest;
   appliedActions: PlannedAction[];
   conflictFiles: string[];
+  receipt?: LifecycleMutationReceipt;
+  mutationApplied: boolean;
 }
 
 export type AuditMode = "manifest-present" | "manifest-missing";

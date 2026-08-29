@@ -36,7 +36,9 @@ import type {
   InstallSelections,
   LifecyclePermissionsMode,
   PlannedAction,
+  ProjectResourceType,
 } from "./types";
+import { PROJECT_RESOURCE_TYPES } from "./types";
 import { PACKAGE_ROOT, readPackageMeta } from "./utils";
 import {
   promptForManagedFileConflictResolutions,
@@ -84,6 +86,7 @@ interface ParsedArgs {
   skillScope?: InstallSelections["skillScope"];
   selectedSkills?: string[];
   selectedSkillsValue?: string;
+  projectResources?: ProjectResourceType[];
   skillsManifest?: string;
   runArgs: string[];
 }
@@ -382,6 +385,7 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
     existingManifest,
     packageMeta,
     skillRegistry: effectiveSkillRegistry.registry,
+    operation: installIntent === "reconfigure" ? "setup.reconfigure" : "setup",
   });
 
   if (interactive) {
@@ -401,6 +405,7 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
         packageMeta,
         managedFileConflictResolutions,
         skillRegistry: effectiveSkillRegistry.registry,
+        operation: installIntent === "reconfigure" ? "setup.reconfigure" : "setup",
       });
     }
   }
@@ -421,6 +426,8 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
     targetDir,
     compatibilityClassification: freshInstallTarget ? null : compatibilityClassification,
     config: makeDocsConfig,
+    selectedResourceTypes: plan.profile.selections.resourceProjection,
+    stops: plan.stops ?? [],
   });
 
   if (parsed.dryRun) {
@@ -552,6 +559,7 @@ function printInstallStatus(options: {
       `Capabilities: ${capabilities.join(", ") || "none"}`,
       `Harnesses: ${harnesses.join(", ") || "none"}`,
       `Skills: ${manifest.selections.skills ? `${manifest.selections.selectedSkills.length} selected (${manifest.selections.skillScope} scope)` : "disabled"}`,
+      `Local resource projection: ${(manifest.selections.resourceProjection ?? []).join(", ") || "none"}`,
     );
   } else {
     lines.push("A manifest is present but could not be parsed.");
@@ -598,6 +606,12 @@ function resolveSelections(options: {
   const baseSelections = existingManifest ? existingManifest.selections : defaultSelections();
 
   const selections = cloneSelections(baseSelections);
+  if (
+    selections.resourceProjection === undefined &&
+    (!existingManifest || parsed.setupSubcommand === "reconfigure")
+  ) {
+    selections.resourceProjection = [];
+  }
 
   if (parsed.noDesigns) {
     selections.capabilities.designs = false;
@@ -631,6 +645,9 @@ function resolveSelections(options: {
       selections.selectedSkills = [...parsed.selectedSkills];
     }
   }
+  if (parsed.projectResources !== undefined) {
+    selections.resourceProjection = [...parsed.projectResources];
+  }
   return selections;
 }
 
@@ -645,7 +662,8 @@ function hasSelectionOverrides(parsed: ParsedArgs): boolean {
       parsed.noSkills ||
       parsed.skillsManifest ||
       parsed.skillScope ||
-      parsed.selectedSkills !== undefined,
+      parsed.selectedSkills !== undefined ||
+      parsed.projectResources !== undefined,
   );
 }
 
@@ -727,6 +745,9 @@ function getSelectionOverrideFlags(parsed: ParsedArgs): string[] {
   }
   if (parsed.selectedSkillsValue !== undefined) {
     flags.push("--selected-skills");
+  }
+  if (parsed.projectResources !== undefined) {
+    flags.push("--project-resources");
   }
 
   return flags;
@@ -886,12 +907,31 @@ function parseArgs(argv: string[]): ParsedArgs {
         parsed.selectedSkillsValue = value;
         break;
       }
+      case "--project-resources": {
+        const value = args.shift();
+        if (!value) {
+          throw new Error("`--project-resources` requires a comma-separated value, `all`, or `none`.");
+        }
+        parsed.projectResources = parseProjectResourcesValue(value);
+        break;
+      }
       default:
         throw new Error(`Unknown argument: ${arg}`);
     }
   }
 
   return parsed;
+}
+
+function parseProjectResourcesValue(value: string): ProjectResourceType[] {
+  if (value === "none") return [];
+  if (value === "all") return [...PROJECT_RESOURCE_TYPES];
+  const values = Array.from(new Set(value.split(",").map((entry) => entry.trim()).filter(Boolean)));
+  const invalid = values.filter((entry) => !PROJECT_RESOURCE_TYPES.includes(entry as ProjectResourceType));
+  if (invalid.length > 0 || values.length === 0) {
+    throw new Error(`\`--project-resources\` accepts ${PROJECT_RESOURCE_TYPES.join(", ")}, \`all\`, or \`none\`.`);
+  }
+  return (values as ProjectResourceType[]).sort();
 }
 
 function resolveParsedSelectedSkills(
@@ -1119,6 +1159,8 @@ function printPlan(options: {
   targetDir: string;
   compatibilityClassification: CompatibilityClassification | null;
   config: MakeDocsConfig;
+  selectedResourceTypes?: ProjectResourceType[];
+  stops: string[];
 }): void {
   const {
     actions,
@@ -1131,6 +1173,8 @@ function printPlan(options: {
     targetDir,
     compatibilityClassification,
     config,
+    selectedResourceTypes,
+    stops,
   } = options;
   const nonNoop = actions.filter((action) => action.type !== "noop");
   const renderedActions = getRenderedActions(actions);
@@ -1158,6 +1202,8 @@ function printPlan(options: {
           ]
         : []),
       `Selection source: ${selectionSource}`,
+      `Local resource projection: ${selectedResourceTypes === undefined ? "legacy install (not yet selected)" : selectedResourceTypes.join(", ") || "none"}`,
+      `Safety stops: ${stops.join(", ") || "none"}`,
       `Document kind labels: ${labels.documentKinds}`,
       `Lifecycle labels: ${labels.lifecycle}`,
       `Coordinate labels: ${labels.coordinates}`,
@@ -1499,7 +1545,11 @@ Skill options:
   --skill-manifest <file>       Use an explicit local skills manifest for this run.
   --skill-scope project|global   Choose whether skills install in the repo or the global Codex home.
   --selected-skills <csv|all|none>
-                                  Replace the selected skill set.`;
+                                  Replace the selected skill set.
+
+Resource options:
+  --project-resources <csv|all|none>
+                                  Copy only the selected system resource types into this project.`;
 
 function printHelp(command?: Command, setupSubcommand?: SetupSubcommand): void {
   if (command === "setup") {
@@ -1644,7 +1694,9 @@ Manage canonical project support surfaces.
 Usage:
   make-docs project surface ensure <archive|artifacts|assets>
 
-The reserved ensure operation is pending and names W19 R1 P4 when invoked.
+The ensure command creates only the selected on-demand directory after it
+checks the trusted project manifest and configured routers. It reports the
+applied or unchanged state, plan dispositions, receipt, and next check.
 `);
       return;
     case "resource":

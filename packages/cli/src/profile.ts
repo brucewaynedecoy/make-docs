@@ -90,6 +90,7 @@ export function resolveInstallProfile(
       selectedPlugins: [...selections.selectedPlugins].sort(),
       pluginManifest: selections.pluginManifest,
       pluginSelectionProvenance: selections.pluginSelectionProvenance ?? [],
+      resourceProjection: [...(selections.resourceProjection ?? [])].sort(),
     }),
   ).slice(0, 16);
 
