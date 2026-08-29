@@ -25,15 +25,17 @@ At each gate boundary, use the boundary handoff below. Do not stop after every i
 
 ### Boundary handoff
 
-Do not cross a gate without the required authority. Keep that control internal and make the transition easy for the user.
+Keep each authority boundary intact. Present the transition as a concrete next-step choice, not as a lock or blocker.
 
 1. Finish all routine validation and required state updates allowed by the current authority.
 2. Complete safe preparation for the normal next action. Safe preparation can resolve the committed baseline, derive the bounded scope from accepted authority, and draft or update the authorization capsule. It cannot implement, stage, commit, push, publish, deploy, make a product choice, create a task, or perform the next gated action.
 3. Give a short outcome in plain language. Include only evidence that matters to the next choice.
-4. If the normal next action needs permission, ask one direct question for that action. Do not give only a gate status or next-action pointer.
+4. If the normal next action needs permission, name the concrete work and ask whether the user wants it started. Do not describe it as locked, blocked, gated, unable to proceed, or waiting for approval.
 5. End the turn after the question. Start the gated action only after the user approves it.
 
 Do not require the user to quote a gate name, revision, SHA, capsule ID, or formal authorization sentence. A plain answer is sufficient when it clearly approves the bounded action just presented. Surface technical bindings only for ambiguity, conflict, stale state, audit, or a user request.
+
+If the user asks what the choice permits, describe the planned changes, stages, or effects. Do not restate the gate or answer only that approval is needed to start.
 
 ## 1. Preflight
 
@@ -108,7 +110,7 @@ Before the commit:
 - stage only the approved documents;
 - inspect the staged diff.
 
-After the commit, verify the subject, body, contents, commit SHA, and working-tree state. Record the SHA in phase state. Do not start implementation without approval. Prepare the bounded implementation authorization capsule, apply the boundary handoff, and ask whether to start implementation in a fresh task.
+After the commit, verify the subject, body, contents, commit SHA, and working-tree state. Record the SHA in phase state. Prepare the bounded implementation authorization capsule. Apply the boundary handoff and ask whether the user wants the planned implementation work started in a fresh task. Begin it only after the user says yes.
 
 ## 5. Implementation
 
@@ -129,7 +131,7 @@ When implementation is complete:
 - record files, task and stage completion, checks, dependencies, artifact growth, exclusions, user testing status, and residual risk in the implementation result;
 - in chat, summarize the outcome, material failed or incomplete checks, and risks that affect the review decision. Provide the full result when the user asks.
 
-Leave all changes unstaged and uncommitted. Do not perform the final independent review without approval. Apply the boundary handoff and ask whether to start independent review in a fresh task.
+Leave all changes unstaged and uncommitted. Apply the boundary handoff and ask whether the user wants the independent review started in a fresh task. Begin it only after the user says yes.
 
 For long work, a Codex goal can be used only inside this authorized implementation gate. Its end state must be the uncommitted implementation candidate. A goal cannot cross an owner gate.
 
@@ -143,7 +145,7 @@ Inspect scope, security, authorization, persistence, restart behavior, task trac
 
 If the review finds defects, assign bounded corrections when useful. Inspect every correction and rerun affected checks. Do not make new product choices or increase scope.
 
-Leave everything unstaged and uncommitted. Apply the boundary handoff. Summarize findings material to acceptance, then ask whether the owner accepts the reviewed candidate and authorizes its exact local commit.
+Leave everything unstaged and uncommitted. Apply the boundary handoff. Summarize findings that affect acceptance. Then ask whether the owner accepts the reviewed candidate and wants the exact reviewed local commit created.
 
 ## 7. Owner acceptance and implementation commit
 
@@ -153,7 +155,7 @@ Add required closeout evidence and history. Read the repository commit conventio
 
 After the commit, verify the subject, body, contents, commit SHA, and working-tree state. Record the implementation SHA.
 
-Do not push, publish, deploy, clean artifacts, or start post-implementation documentation work without approval. Apply the boundary handoff and ask whether to start post-implementation coverage and document reconciliation in a fresh task.
+Keep push, publication, deployment, and cleanup outside this boundary. Apply the boundary handoff and ask whether the user wants post-implementation coverage and document reconciliation started in a fresh task. Begin that work only after the user says yes.
 
 ## 8. Post-implementation coverage and document reconciliation
 
@@ -173,7 +175,7 @@ Read the repository commit convention. Stage only the approved documentation. In
 
 After the commit, verify the subject, body, contents, commit SHA, final phase state, and working-tree state. Mark the phase complete only when all gates pass.
 
-Do not begin the next phase without approval. Apply the boundary handoff and ask whether to start the next-phase preflight in a fresh task.
+Apply the boundary handoff and ask whether the user wants the next-phase preflight started in a fresh task. Begin it only after the user says yes.
 
 ## 10. Next phase
 

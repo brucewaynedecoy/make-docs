@@ -100,6 +100,8 @@ Treat gates as internal controls, not as a required chat format.
 - Give a short outcome and only the evidence material to the user's next choice. Include a commit SHA after a commit, but do not recite every routine check or unchanged boundary by default.
 - Before asking for the next permission, complete all safe transition preparation that does not cross the boundary. This can include required state updates, resolving the committed baseline, deriving the next bounded scope from accepted authority, and drafting or updating the authorization capsule.
 - When the recommended next action needs permission, ask one direct plain-language question. Do not merely report that another authorization is required.
+- Treat a normal authorization boundary as a user choice, not a blocker. Do not describe the next work as locked, blocked, gated, unable to proceed, or waiting for permission. State the concrete next work and ask whether the user wants it started. Use blocker language only when an actual blocker exists.
+- If the user asks what the choice permits, describe the planned changes, stages, or effects. Do not answer by restating the gate or by saying only that approval is needed to start.
 - Ordinary language is valid authorization when it clearly answers the bounded action the agent presented. Do not require the user to repeat a revision, SHA, capsule ID, gate name, or formal approval sentence.
 - Do not mention, promise, or plan worker or subagent use in the opening acknowledgment or an implementation request unless the user already selected `orchestrated` work or separately requested delegation.
 

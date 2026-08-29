@@ -108,6 +108,12 @@ After the documentation-only commit:
 The Phase 2 documentation commit is complete. The implementation scope is ready. Shall I start Phase 2 implementation in a fresh task?
 ```
 
+If the user asks what that work includes:
+
+```text
+It includes the planned Phase 2 code, template, test, and documentation changes for Stages 2 through 5.
+```
+
 After implementation:
 
 ```text
