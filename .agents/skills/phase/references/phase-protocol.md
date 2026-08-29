@@ -1,6 +1,6 @@
 # Phase Protocol
 
-This protocol controls one project phase. The live project authority can add stricter gates. It cannot silently remove the user approval boundaries in this file.
+This protocol controls one project phase. The live project authority can add stricter gates. It cannot silently remove required user permissions. One user request can provide permission for several gates when it clearly names the full outcome.
 
 ## Gate sequence
 
@@ -15,13 +15,13 @@ Use this order:
 7. Owner acceptance and implementation commit.
 8. Post-implementation coverage and document reconciliation.
 9. Final documentation-only commit.
-10. Next-phase preflight in a fresh task.
+10. Next-phase preflight.
 
-Run mode applies inside every gate. In `single_item` mode, process one authorized item and end the segment. In `continuous_segment` mode, continue through all authorized items until the recorded stop boundary.
+Run mode applies across the recorded segment. In `single_item` mode, process one authorized item and end the segment. In `continuous_segment` mode, continue through all authorized work until the recorded stop boundary.
 
-Do not infer a gate transition. One request can authorize many items inside one gate. It can also pair preflight with owner decision review when the user explicitly requests both. Every other gate transition keeps the separate authority rule stated in its section.
+Do not infer a protected action that the user did not authorize. One request can authorize many items and several gate transitions. Implementation, commit, push, publication, deployment, and next-phase work still need explicit authority, but that authority can be given once for a clearly bounded multi-gate outcome.
 
-At each gate boundary, use the boundary handoff below. Do not stop after every item in `continuous_segment` mode.
+At each gate boundary, continue when the next action is inside the authorized segment. Use the boundary handoff only when the next action is outside that segment. Do not stop after every item or internal gate in `continuous_segment` mode.
 
 ### Boundary handoff
 
@@ -30,8 +30,8 @@ Keep each authority boundary intact. Present the transition as a concrete next-s
 1. Finish all routine validation and required state updates allowed by the current authority.
 2. Complete safe preparation for the normal next action. Safe preparation can resolve the committed baseline, derive the bounded scope from accepted authority, and draft or update the authorization capsule. It cannot implement, stage, commit, push, publish, deploy, make a product choice, create a task, or perform the next gated action.
 3. Give a short outcome in plain language. Include only evidence that matters to the next choice.
-4. If the normal next action needs permission, name the concrete work and ask whether the user wants it started. Do not describe it as locked, blocked, gated, unable to proceed, or waiting for approval.
-5. End the turn after the question. Start the gated action only after the user approves it.
+4. If the normal next action is outside the current request, name all known remaining work and ask one combined question for the exact actions that need permission. Do not describe them as locked, blocked, gated, unable to proceed, or waiting for approval.
+5. End the turn after that question. If the current request already authorizes the next action, continue without a boundary message or restart prompt.
 
 Do not require the user to quote a gate name, revision, SHA, capsule ID, or formal authorization sentence. A plain answer is sufficient when it clearly approves the bounded action just presented. Surface technical bindings only for ambiguity, conflict, stale state, audit, or a user request.
 
@@ -97,11 +97,11 @@ Propagate only accepted decisions through every affected authority document. Kee
 
 Inspect the full documentation diff. Run the relevant document checks. Leave all changes unstaged and uncommitted.
 
-Apply the boundary handoff. Summarize the reconciliation and ask whether to create the documentation-only commit from the reviewed file set.
+If the current request authorizes the documentation-only commit, continue to Gate 4. Otherwise apply the boundary handoff and ask whether to create that commit from the reviewed file set.
 
 ## 4. Documentation-only commit
 
-This gate needs a separate user message that approves the reviewed file set, accepted decision IDs, and baseline.
+This gate needs explicit user authority for the reviewed file set, accepted decision IDs, and baseline. That authority can be part of the current multi-gate request.
 
 Before the commit:
 
@@ -110,11 +110,11 @@ Before the commit:
 - stage only the approved documents;
 - inspect the staged diff.
 
-After the commit, verify the subject, body, contents, commit SHA, and working-tree state. Record the SHA in phase state. Prepare the bounded implementation authorization capsule. Apply the boundary handoff and ask whether the user wants the planned implementation work started in a fresh task. Begin it only after the user says yes.
+After the commit, verify the subject, body, contents, commit SHA, and working-tree state. Record the SHA in phase state. Prepare the bounded implementation authorization capsule. If the current request authorizes implementation, continue to Gate 5. Otherwise apply the boundary handoff and ask whether the user wants the planned implementation work started.
 
 ## 5. Implementation
 
-Start this gate in a fresh task. Require explicit user authorization. Bind that authorization internally to the authorization capsule, state revision, committed authority revision, and baseline. The user's reply does not need to cite those values when it clearly approves the presented implementation scope.
+Require explicit user authorization. Bind that authorization internally to the authorization capsule, state revision, committed authority revision, and baseline. The user's request does not need to cite those values when it clearly approves the presented implementation scope. A fresh task is optional unless the repository or harness requires it.
 
 Reconfirm scope, exclusions, stages, checks, stop conditions, branch, HEAD, and working-tree state before edits begin.
 
@@ -131,13 +131,13 @@ When implementation is complete:
 - record files, task and stage completion, checks, dependencies, artifact growth, exclusions, user testing status, and residual risk in the implementation result;
 - in chat, summarize the outcome, material failed or incomplete checks, and risks that affect the review decision. Provide the full result when the user asks.
 
-Leave all changes unstaged and uncommitted. Apply the boundary handoff and ask whether the user wants the independent review started in a fresh task. Begin it only after the user says yes.
+Leave all changes unstaged and uncommitted. Independent review must use a reviewer that did not implement the candidate. If the authorized work method can provide that reviewer, continue to Gate 6. Otherwise apply the boundary handoff and ask once for the independent review arrangement. Do not require the user to create another task when an allowed independent reviewer is already available.
 
 For long work, a Codex goal can be used only inside this authorized implementation gate. Its end state must be the uncommitted implementation candidate. A goal cannot cross an owner gate.
 
 ## 6. Independent review
 
-Start this gate in a fresh task. Do not fork the implementation task.
+Use a reviewer that is independent from implementation. A fresh task is one valid method. An allowed independent worker is another. Do not treat an implementation-task fork that inherits its conclusions as independent.
 
 Treat the actual working tree and diff as the main evidence. Read the process, state, authorization capsule, governing documents, and implementation report only as supporting context.
 
@@ -145,38 +145,38 @@ Inspect scope, security, authorization, persistence, restart behavior, task trac
 
 If the review finds defects, assign bounded corrections when useful. Inspect every correction and rerun affected checks. Do not make new product choices or increase scope.
 
-Leave everything unstaged and uncommitted. Apply the boundary handoff. Summarize findings that affect acceptance. Then ask whether the owner accepts the reviewed candidate and wants the exact reviewed local commit created.
+Leave everything unstaged and uncommitted. Summarize findings that affect acceptance. If the current request already gives conditional acceptance and exact commit authority for a passing review, continue to Gate 7. Otherwise apply the boundary handoff and ask whether the owner accepts the reviewed candidate and wants the exact reviewed local commit created.
 
 ## 7. Owner acceptance and implementation commit
 
-This gate needs a separate user message that accepts the reviewed candidate and authorizes the exact local phase commit.
+This gate needs explicit user acceptance of the reviewed candidate and authority for the exact local phase commit. The current request can provide both, including conditional authority that applies only when independent review passes without a material gap. A request to commit the exact independently reviewed candidate counts as acceptance and commit authority unless the user says otherwise.
 
 Add required closeout evidence and history. Read the repository commit convention. Stage only the independently reviewed phase scope. Inspect the staged diff.
 
-After the commit, verify the subject, body, contents, commit SHA, and working-tree state. Record the implementation SHA.
+After the commit, verify the subject, body, contents, commit SHA, and working-tree state. Record the implementation SHA. Perform an authorized push and verify the remote result when the current request includes that action.
 
-Keep push, publication, deployment, and cleanup outside this boundary. Apply the boundary handoff and ask whether the user wants post-implementation coverage and document reconciliation started in a fresh task. Begin that work only after the user says yes.
+An implementation commit or push does not complete the phase while coverage reconciliation or the final documentation commit remains. If the current request authorizes phase closeout, continue to Gate 8 in the current task. Otherwise state that the implementation is committed or pushed but the phase is not complete. Apply the boundary handoff and ask one combined question to finish coverage reconciliation and the final documentation commit in the current task.
 
 ## 8. Post-implementation coverage and document reconciliation
 
-Start this gate in a fresh task after the implementation commit.
+Start after the implementation commit. Continue in the current task or resume in a later task. A fresh task is optional.
 
 Compare the committed result with the design, PRDs, plan, work backlog, tests, user evidence, and required history. Mark only work proved by the committed result. Record gaps and deferred work without hiding them.
 
 Edit only authorized documentation. Inspect the full diff and run document checks. Leave changes unstaged and uncommitted.
 
-Apply the boundary handoff. Summarize the coverage result and remaining material gaps, then ask whether to create the final documentation-only commit from the reviewed file set.
+Summarize the coverage result and remaining material gaps. If the current request authorizes the final documentation-only commit, continue to Gate 9. Otherwise apply the boundary handoff and ask whether to create that commit from the reviewed file set.
 
 ## 9. Final documentation-only commit
 
-This gate needs a separate user message that authorizes the reviewed final document scope.
+This gate needs explicit user authority for the reviewed final document scope. That authority can be part of the current closeout request.
 
 Read the repository commit convention. Stage only the approved documentation. Inspect the staged diff.
 
 After the commit, verify the subject, body, contents, commit SHA, final phase state, and working-tree state. Mark the phase complete only when all gates pass.
 
-Apply the boundary handoff and ask whether the user wants the next-phase preflight started in a fresh task. Begin it only after the user says yes.
+If the current request also authorizes the next-phase preflight, continue to Gate 10. Otherwise report that the phase is complete and stop. Do not ask for another action unless the user requested continued work.
 
 ## 10. Next phase
 
-Start the next phase only in a fresh task and only after the prior phase is complete. Run a new preflight from the current committed baseline.
+Start the next phase only after the prior phase is complete. Run a new preflight from the current committed baseline. The current task can continue when the user's request includes the next phase. A fresh task is optional unless a real independence or context need requires it.

@@ -25,7 +25,7 @@ Use [assets/phase-state.yaml](assets/phase-state.yaml) as the schema and creatio
 
 1. Read all applicable repository instructions.
 2. Locate the repository root and set the state path to `.make-docs/state/phase-state.yaml` under that root.
-3. Identify the phase, work file, process authority, current gate, and requested work segment.
+3. Identify the phase, work file, process authority, current gate, requested end state, and full authorized work segment.
 4. Select the progress mode and work method from the user request. Use `references/run-modes.md`. If the intended progress mode cannot be proved and the difference matters, prepare one bounded question and mark the unresolved mode as blocked.
 5. Verify the repository path, branch, full HEAD, and working-tree state. Preserve all unrelated or earlier user changes.
 6. Before broad preflight research or owner decision discussion, create or update the state record and its `run_mode` section as described below.
@@ -53,7 +53,9 @@ Treat canonical project documents and Git commits as product truth. Treat the ph
 - Before the first label for an item, activate it in the current gate tally. Before every label, reconcile the tally and render the label from its saved presentation position and the current gate total.
 - Write a changed gate total or repaired presentation order to the state before a later response uses it. Do not revise older chat messages.
 - If the existing state belongs to the same phase, preserve valid state and update only fields proved by current evidence.
-- If the existing state belongs to another incomplete phase, do not overwrite it. Record no transition and stop with one bounded conflict report.
+- If the existing state belongs to another incomplete phase, do not overwrite it. Reconcile it against current repository and commit evidence before treating it as a blocker.
+- If current evidence proves that the earlier phase work is complete and only the state is stale, repair the state and continue.
+- If real earlier-phase work remains, keep that phase active. Complete the remaining work in the current task when the current request authorizes it. If added authority is needed, ask one combined question for the exact remaining actions. Do not require another task only because the state names an earlier phase.
 - If the existing state belongs to a completed phase, initialize the new phase from the template and set its revision to the prior revision plus one.
 - Increase `revision` exactly once for each successful write. Reject a write if the on-disk revision changed after it was read.
 - Validate the YAML and required fields before replacement. Use a temporary file beside the state file. Replace the state file in one complete file operation when the environment supports it. Read the final file back after every write.
@@ -66,28 +68,33 @@ Treat canonical project documents and Git commits as product truth. Treat the ph
 
 ## Gate control
 
-Perform only the action that the current user request authorizes.
+Perform every action needed to reach the end state authorized by the current user request. Treat gate order as a validation sequence, not as a required series of chats or tasks.
 
 - Do not infer implementation authority from planning or decision approval.
 - Do not infer commit authority from review or acceptance.
 - Do not create or switch a branch or worktree without explicit user permission.
-- Do not push, publish, deploy, activate, or start the next phase without separate authority.
+- Do not push, publish, deploy, activate, or start the next phase without explicit authority.
 - Leave edits unstaged and uncommitted unless the user explicitly authorizes the exact commit boundary.
-- Progress mode does not grant authority. It controls continuation only inside the authorized segment.
+- One request can explicitly authorize multiple gates and protected actions. Do not ask for another approval at an internal gate when the current request already clearly authorizes the next action.
+- Progress mode does not grant authority. It controls continuation through the full segment that the user authorized.
+- Treat `finish the phase` or `close out the phase` as authority for routine remaining closeout checks, state updates, coverage work, and document reconciliation through a reviewed final-document candidate. Those phrases alone do not authorize a commit, push, publication, deployment, or the next phase.
+- Treat a request to close out and commit or push the phase as authority for the exact reviewed closeout commits or pushes named by the user. Recheck the exact file and remote scope before each protected action.
+- Treat a request to commit the exact independently reviewed implementation candidate as owner acceptance and commit authority for that boundary unless the user says otherwise. A request to push it also authorizes that exact push. Do not ask for a separate acceptance statement.
+- That implementation commit or push authority applies to the implementation boundary only. If coverage reconciliation or a final documentation commit remains, do not call the phase complete. Name the remaining closeout work and ask one combined question to finish it in the current task.
+- A request to start the next phase authorizes inspection of the prior phase and repair of stale phase state. It does not silently authorize unrequested prior-phase edits, commits, or pushes. If those actions remain, ask one combined question to finish them in the current task and then continue into the requested phase.
 - A new product choice, public contract change, dependency approval, authority conflict, or scope increase pauses affected downstream work. Present one decision package. In an authorized continuous decision interview, yield for the answer and then continue with the next in-scope item after the choice is settled.
 - Distinguish a yield for required input from the end of a work segment. Use the stop rules in `references/run-modes.md`.
 
-Use a fresh primary Codex task for each major authority or responsibility boundary:
+Use task boundaries to preserve independence or reduce context. Do not use them as approval gates.
 
-1. preflight and owner decisions;
-2. decision-document reconciliation;
-3. implementation coordination;
-4. independent review and owner acceptance;
-5. post-implementation coverage and final document reconciliation.
+- Keep implementation and its independent review separate. Use a fresh task or an independent reviewer when the harness and current permissions support it.
+- After independent review, the same review task can continue through any owner-accepted commit and closeout work that the user authorizes.
+- Preflight, decisions, documentation, implementation, and closeout can use separate tasks when that is useful. They do not require separate tasks merely because the gate changes.
+- Never ask the user to create a fresh task only to resume an incomplete phase or advance phase state.
 
 For a large phase, use one extra read-only preflight task and one or more owner-decision tasks grouped by a shared authority and read set. Do not create a new task for every small question.
 
-Do not fork the implementation task to perform independent review. Open a fresh task. A commit authorization can remain in the task that prepared and reviewed that exact commit boundary.
+Do not treat a fork that inherits the implementation task's conclusions as independent review. A commit authorization can remain in the task that prepared and independently reviewed that exact commit boundary.
 
 ## Communication
 
@@ -103,6 +110,7 @@ Treat gates as internal controls, not as a required chat format.
 - Treat a normal authorization boundary as a user choice, not a blocker. Do not describe the next work as locked, blocked, gated, unable to proceed, or waiting for permission. State the concrete next work and ask whether the user wants it started. Use blocker language only when an actual blocker exists.
 - If the user asks what the choice permits, describe the planned changes, stages, or effects. Do not answer by restating the gate or by saying only that approval is needed to start.
 - Ordinary language is valid authorization when it clearly answers the bounded action the agent presented. Do not require the user to repeat a revision, SHA, capsule ID, gate name, or formal approval sentence.
+- Before ending after a partial outcome, say whether the phase itself is complete. If it is not complete, name all known remaining closeout work and ask at most one combined question for the recommended continuation. Never present an implementation commit or push as phase completion while coverage reconciliation or a final documentation commit remains.
 - Do not mention, promise, or plan worker or subagent use in the opening acknowledgment or an implementation request unless the user already selected `orchestrated` work or separately requested delegation.
 
 ## Workers
@@ -119,4 +127,4 @@ Workers are optional. Use them only when the work divides into clear, bounded pa
 
 ## Finish
 
-Finish all routine work allowed inside the current boundary. Apply the communication rules above. If more authority is needed, stop before that action after asking the shortest clear question for the recommended next step.
+Continue through every gate inside the authorized segment until the requested end state is reached. Apply the communication rules above. If more authority is needed, stop before the first unauthorized action and ask one combined question that covers the remaining known closeout actions. Do not hand the user to another task unless independent review is still required and no independent reviewer is available in the current work method.

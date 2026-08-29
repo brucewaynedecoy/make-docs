@@ -4,7 +4,7 @@ Use these examples to start the main phase tasks. Replace the phase number and f
 
 The skill creates or updates `.make-docs/state/phase-state.yaml` at the start of each example. The user does not need to supply a state path.
 
-Each major step starts in a fresh Codex task. A commit approval can remain in the task that prepared and reviewed that exact commit boundary.
+Use separate Codex tasks when they improve independence or context size. Gate changes alone do not require a new task. Independent review needs a reviewer that did not implement the candidate; a fresh task is one way to provide that reviewer.
 
 ## Decision task
 
@@ -82,7 +82,7 @@ Correct only confirmed phase defects.
 Stop before owner acceptance and commit.
 ```
 
-Open a new task for this step. Do not fork the implementation task.
+Use a reviewer that did not implement the candidate. A fresh task is one valid method. Do not use an implementation-task fork that inherits its conclusions as the independent reviewer.
 
 ## Final document task
 
@@ -91,6 +91,27 @@ $phase Run the post-implementation coverage and document reconciliation
 for Phase 2 at implementation commit SHA.
 Stop before the final documentation-only commit.
 ```
+
+## Full phase closeout task
+
+```text
+$phase Finish Phase 4 closeout.
+Complete any remaining independent review, owner-accepted corrections, implementation commit, coverage reconciliation, and final documentation work.
+Create and push the exact reviewed implementation and documentation commits.
+Continue until Phase 4 is complete or you need a real product decision or blocker resolved.
+```
+
+This request authorizes one continuous closeout span. The agent still validates each gate. It does not ask for another approval when the request already authorizes the next action.
+
+If independent review is already complete:
+
+```text
+$phase Finish Phase 4 closeout from the completed independent review.
+Commit and push the reviewed implementation, complete coverage reconciliation, then commit and push the reviewed final documentation.
+Continue until Phase 4 is complete.
+```
+
+If a next-phase request finds an incomplete prior closeout, keep the earlier phase state and finish its remaining work in the current task. Ask one combined question only for protected actions that the user did not already authorize.
 
 ## Boundary handoffs and authorization replies
 
@@ -105,7 +126,7 @@ The Phase 2 documents are reconciled and the checks pass. Shall I create the doc
 After the documentation-only commit:
 
 ```text
-The Phase 2 documentation commit is complete. The implementation scope is ready. Shall I start Phase 2 implementation in a fresh task?
+The Phase 2 documentation commit is complete. The implementation scope is ready. Shall I start Phase 2 implementation?
 ```
 
 If the user asks what that work includes:
@@ -117,7 +138,7 @@ It includes the planned Phase 2 code, template, test, and documentation changes 
 After implementation:
 
 ```text
-Phase 2 implementation is complete and the checks pass. Shall I start the independent review in a fresh task?
+Phase 2 implementation is complete and the checks pass. Shall I arrange the independent review?
 ```
 
 After independent review:
@@ -126,10 +147,22 @@ After independent review:
 The independent review passed. Do you accept the Phase 2 implementation and want me to create the reviewed local commit?
 ```
 
+After the implementation commit or push when final closeout was not authorized:
+
+```text
+The Phase 2 implementation commit is pushed. Phase 2 still needs coverage reconciliation and its final documentation commit. Would you like me to finish both here and push the final documentation commit?
+```
+
+When a Phase 3 preflight request finds that Phase 2 still needs those actions:
+
+```text
+Phase 2 still needs coverage reconciliation and its final documentation commit. I can finish both here and then continue into Phase 3 preflight. Shall I do that and push the final documentation commit?
+```
+
 After final documentation:
 
 ```text
-Phase 2 is complete. Shall I start Phase 3 preflight in a fresh task?
+Phase 2 is complete.
 ```
 
 The user can answer with ordinary language such as `Yes`, `Go ahead`, or `Start Phase 2 implementation`. When the preceding question states one clear bounded action, do not require the user to repeat the capsule ID, state revision, baseline, commit SHA, gate name, or a formal authorization sentence.
