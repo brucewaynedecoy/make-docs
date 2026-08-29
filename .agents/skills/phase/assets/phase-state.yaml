@@ -1,0 +1,61 @@
+schema: phase-state/v1
+revision: 1
+state_path: .make-docs/state/phase-state.yaml
+created_at: null
+updated_at: null
+phase: null
+coordinate: null
+work_file: null
+
+gate:
+  current: preflight
+  status: initializing
+  next_allowed_action: establish_baseline
+
+baseline:
+  repository: null
+  branch: null
+  head: null
+  dirty_allowlist: []
+
+authority:
+  process_file: null
+  documents: []
+
+run_mode:
+  progression: null
+  execution: direct
+  segment:
+    start_gate: null
+    stop_before_gate: null
+    item_scope:
+      mode: all
+      ids: []
+  status: inactive
+  set_at_revision: null
+
+phase_items:
+  total: 0
+  items: []
+
+phase_tallies: {}
+
+decisions: []
+
+documentation:
+  reconciliation_status: pending
+  preimplementation_commit: null
+
+implementation:
+  authorization_capsule: null
+  authorization_state_revision: null
+  candidate_report: null
+  commit: null
+
+closeout:
+  coverage_status: pending
+  final_reconciliation_status: pending
+  final_documentation_commit: null
+  complete: false
+
+active_runs: []
