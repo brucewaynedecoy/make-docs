@@ -42,14 +42,14 @@ This phase keeps all deterministic policy and state-transition logic in the shar
 
 ### Tasks
 
-- [ ] t1: Verify the exact worktree, branch, HEAD, free disk, dirty-state allowlist, accepted P2 closeout, and implementation authorization; stop on unexpected user work or unsafe growth.
-- [ ] t2: Reread all Source PRDs and PRD 03 from the active worktree and record each revision or content digest.
-- [ ] t3: Reevaluate at minimum Q-001, Q-007, Q-023, Q-024, R-005, R-017, R-021, and R-025; include Q-012 and Q-013 only if live work introduces agentic or plugin scope, and add newly relevant items from the live reread.
-- [ ] t4: Record the required ID, digest, impact, classification (`blocking`, `impacted-nonblocking`, `unrelated`, `closed-regression-check`, or `new-authority-gap`), disposition, and rationale for every relevant item.
-- [ ] t5: Record an explicit no-blocker determination and finite correction/review budget before unlocking t8 when no blocker or gap remains.
-- [ ] t6: Stop before implementation for each blocker or authority gap and present an owner decision package with source anchors, affected phase and PRDs, bounded options and trade-offs, recommendation, consequences, exact PRD/register/history edits, focused validation, and a decision-only commit boundary; create no standalone decision file.
-- [ ] t7: Require canonical authority changes, focused validation, a separate decision commit, and its recorded SHA before unlock; task completion cannot close governed records implicitly.
-- [ ] t8: Record the Stage 1 result, authority digests, P2 dependency evidence, and implementation unlock or stop result.
+- [x] t1: Verify the exact worktree, branch, HEAD, free disk, dirty-state allowlist, accepted P2 closeout, and implementation authorization; stop on unexpected user work or unsafe growth.
+- [x] t2: Reread all Source PRDs and PRD 03 from the active worktree and record each revision or content digest.
+- [x] t3: Reevaluate at minimum Q-001, Q-007, Q-023, Q-024, R-005, R-017, R-021, and R-025; include Q-012 and Q-013 only if live work introduces agentic or plugin scope, and add newly relevant items from the live reread.
+- [x] t4: Record the required ID, digest, impact, classification (`blocking`, `impacted-nonblocking`, `unrelated`, `closed-regression-check`, or `new-authority-gap`), disposition, and rationale for every relevant item.
+- [x] t5: Record an explicit no-blocker determination and finite correction/review budget before unlocking t8 when no blocker or gap remains.
+- [x] t6: Stop before implementation for each blocker or authority gap and present an owner decision package with source anchors, affected phase and PRDs, bounded options and trade-offs, recommendation, consequences, exact PRD/register/history edits, focused validation, and a decision-only commit boundary; create no standalone decision file.
+- [x] t7: Require canonical authority changes, focused validation, a separate decision commit, and its recorded SHA before unlock; task completion cannot close governed records implicitly.
+- [x] t8: Record the Stage 1 result, authority digests, P2 dependency evidence, and implementation unlock or stop result.
 
 ### Acceptance criteria
 
@@ -64,8 +64,12 @@ This phase keeps all deterministic policy and state-transition logic in the shar
 
 ### Closeout Notes
 
+- Authority revision: all Source PRDs and PRD 03 were reread at the owner-approved decision-authority commit `dddb6d1645ac32e96d95812cb5a3c875052a52c5`, which is the common revision for the Stage 1 authority set.
+- Gate classification: Q-023 and Q-024 were blocking authority gaps and were closed by the approved staged compatibility exception and finite operation inventory. Q-001, Q-007, R-017, and R-025 were unrelated or deferred outside P3. R-005 and R-021 were closed regression checks for the context-aware bare command, adapter paths, and transport parity. Q-012 and Q-013 were not activated because P3 added no agentic or plugin scope.
+- Decision evidence: the owner approved Option 1, authorized the documentation-only commit and push, and then gave separate implementation authorization. Decision commit `dddb6d1645ac32e96d95812cb5a3c875052a52c5` was pushed before implementation started.
+- P2 dependency evidence: accepted P2 implementation commit `6bf85e59d0da488a053c242cca9509849e0ae8cd` supplied the resource identity and resolver core required by P3.
 - Testing-mode decision(s): public-surface parity candidates are identified; scenario execution remains P7.
-- Phase / capability status: gate result pending.
+- Phase / capability status: no P3 blocker remained after the decision commit. The owner gave explicit implementation authorization, and Stage 1 unlocked t9 with a finite implementation and review scope.
 
 ## Stage 2 - Register Retained Operations
 
@@ -187,7 +191,7 @@ This phase keeps all deterministic policy and state-transition logic in the shar
 - Locked legacy handoff: P5 must establish lock and quiescence before a legacy mutation. P8 must complete a fresh production-consumer trace, backup, and traced retirement before it removes a frozen Playbook or Protocol surface.
 - Historical independent coordinator gate: the coordinator independently reran the 106 focused tests, the package build, the selected MCP and seven-root CLI tests, policy, wave numbering, path hygiene, whitespace, PRD authority, changed-document link, and legacy-freeze checks. That gate passed the then-selected checks. The owner later rejected P3 acceptance and expanded the required gate to include the full remediation inventory in Stage 6.
 - Superseded classification: the earlier broad-repository-debt and nonblocking classification is superseded. The owner directed P3 to revisit the build stage under the lifecycle straddle rule. This explicit revisit departs from the default lifecycle arc because acceptance was rejected after the earlier focused gate.
-- Phase / capability status: P3 implementation and the independent quality gate pass after the explicit Stage 6 build-stage revisit. Independent review t24 is closed again. Owner acceptance is a separate gate and has not been granted. No commit or push is claimed. P4 remains separately gated.
+- Historical phase / capability status: P3 implementation and the independent quality gate passed after the explicit Stage 6 build-stage revisit. Independent review t24 was closed again. Owner acceptance and commit or push had not occurred at this historical checkpoint. Stage 6 and the final P3 history record supersede this status. P4 remains separately gated.
 
 ## Stage 6 - Revisit Build-Stage Acceptance Debt
 
@@ -226,4 +230,5 @@ This phase keeps all deterministic policy and state-transition logic in the shar
 - Repository gate evidence: `bash scripts/check-instruction-routers.sh`, `bash scripts/check-wave-numbering.sh`, and `git diff --check` passed. `python3 .make-docs/scripts/check_path_hygiene.py --repo-root . --format json` checked 86 files with zero errors. The PRD authority gate checked 37 PRDs, 1,028 Markdown files, 40 structured files, and 668 links with zero diagnostics.
 - Documentation and path evidence: the refreshed jdocmunch index contains 1,375 documents and 18,008 sections with zero broken links. The live retired prompt-root scan returned zero matches.
 - Manifest and audit evidence: the compiled audit reports zero `instruction-content-mismatch` paths and zero `managed-file-modified` paths. It preserves only the two root instruction files because they contain valid user content outside matching managed blocks, plus their 16 parent paths. All 89 manifest entries and their nested hashes match current bytes.
-- Phase / capability status: remediation tasks t26 through t32 are complete. P3 implementation and the independent quality gate pass, and t24 is closed again. The owner tested and accepted W19 R1 P3 on 2026-08-18. The owner explicitly authorized commit and push on 2026-08-18. No commit or push is claimed by this record yet.
+- Phase / capability status: remediation tasks t26 through t32 are complete. P3 implementation and the independent quality gate pass, and t24 is closed again. The owner tested and accepted W19 R1 P3 on 2026-08-18. Implementation commit `93749c9e7d17d4c1cf446d9456499de5fee59635` was pushed to `origin/make-docs-v2`. A later Party integration test found an installed-provider identity mismatch and local catalog-membership defect. Repair commit `f2ed36c6dabf65b7707a5a821d467b4704fc62df` corrected both defects and added full-snapshot provider coverage. The final gate passed the build, zero-error TypeScript check, 68 test files and 1,201 tests, 48 default-content tests, package smoke check, and diff checks. The owner completed the naive-style Party tests successfully. The repair commit was pushed, and no P3 code work remains.
+- Lifecycle departure: the final work-record and history reconciliation follows the pushed implementation and repair commits. The defect appeared during real-project testing after the initial owner acceptance and required a bounded repair loop. This late documentation closeout records that explicit straddle from the normal implement, coverage, and commit order.
