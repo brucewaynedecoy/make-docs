@@ -28,6 +28,7 @@ run_mode:
   segment:
     start_gate: null
     stop_before_gate: null
+    preimplementation_transition: null
     item_scope:
       mode: all
       ids: []

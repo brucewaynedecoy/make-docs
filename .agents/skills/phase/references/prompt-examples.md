@@ -115,7 +115,7 @@ If a next-phase request finds an incomplete prior closeout, keep the earlier pha
 
 ## Boundary handoffs and authorization replies
 
-Codex should keep the technical gate bindings in phase state and ask for the next action in plain language. Present more detail only when the scope changed, the state conflicts, the user asks, or the next choice needs it.
+Codex should keep the technical gate bindings in phase state. Present more detail only when the scope changed, the state conflicts, the user asks, or the next choice needs it. After preflight, ask about implementation only when the user previously said that this task should handle it.
 
 After decision-document reconciliation:
 
@@ -123,11 +123,21 @@ After decision-document reconciliation:
 The Phase 2 documents are reconciled and the checks pass. Shall I create the documentation-only commit from the reviewed file set?
 ```
 
-After the documentation-only commit:
+After the documentation-only commit when the user previously said that this task should handle implementation:
 
 ```text
-The Phase 2 documentation commit is complete. The implementation scope is ready. Shall I start Phase 2 implementation?
+The Phase 2 preflight and documentation are complete. Would you like me to start Phase 2 implementation?
 ```
+
+Ask this even when the earlier request already authorized implementation. It confirms that implementation should start now.
+
+After the documentation-only commit for a preflight-only request:
+
+```text
+The Phase 2 preflight and documentation are complete. Phase 2 is now ready for implementation.
+```
+
+Stop there. Do not offer to start implementation.
 
 If the user asks what that work includes:
 

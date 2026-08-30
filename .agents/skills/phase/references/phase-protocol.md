@@ -21,7 +21,7 @@ Run mode applies across the recorded segment. In `single_item` mode, process one
 
 Do not infer a protected action that the user did not authorize. One request can authorize many items and several gate transitions. Implementation, commit, push, publication, deployment, and next-phase work still need explicit authority, but that authority can be given once for a clearly bounded multi-gate outcome.
 
-At each gate boundary, continue when the next action is inside the authorized segment. Use the boundary handoff only when the next action is outside that segment. Do not stop after every item or internal gate in `continuous_segment` mode.
+At each gate boundary, continue when the next action is inside the authorized segment. Use the boundary handoff when an unauthorized action is still needed to complete the user's requested outcome. When the requested outcome is complete, report it and stop without offering later lifecycle work. Do not stop after every item or internal gate in `continuous_segment` mode. The transition from the documentation-only preflight commit into implementation always follows the recorded preimplementation transition below.
 
 ### Boundary handoff
 
@@ -30,8 +30,8 @@ Keep each authority boundary intact. Present the transition as a concrete next-s
 1. Finish all routine validation and required state updates allowed by the current authority.
 2. Complete safe preparation for the normal next action. Safe preparation can resolve the committed baseline, derive the bounded scope from accepted authority, and draft or update the authorization capsule. It cannot implement, stage, commit, push, publish, deploy, make a product choice, create a task, or perform the next gated action.
 3. Give a short outcome in plain language. Include only evidence that matters to the next choice.
-4. If the normal next action is outside the current request, name all known remaining work and ask one combined question for the exact actions that need permission. Do not describe them as locked, blocked, gated, unable to proceed, or waiting for approval.
-5. End the turn after that question. If the current request already authorizes the next action, continue without a boundary message or restart prompt.
+4. If completing the requested outcome needs an action outside the current authority, name all known required work and ask one combined question for the exact actions that need permission. Do not ask only because a later lifecycle action exists. Do not describe the required work as locked, blocked, gated, unable to proceed, or waiting for approval.
+5. End the turn after that question. If the current request already authorizes the next action, continue without a boundary message or restart prompt. The transition into implementation is the exception and always stops for the recorded preimplementation outcome.
 
 Do not require the user to quote a gate name, revision, SHA, capsule ID, or formal authorization sentence. A plain answer is sufficient when it clearly approves the bounded action just presented. Surface technical bindings only for ambiguity, conflict, stale state, audit, or a user request.
 
@@ -110,7 +110,14 @@ Before the commit:
 - stage only the approved documents;
 - inspect the staged diff.
 
-After the commit, verify the subject, body, contents, commit SHA, and working-tree state. Record the SHA in phase state. Prepare the bounded implementation authorization capsule. If the current request authorizes implementation, continue to Gate 5. Otherwise apply the boundary handoff and ask whether the user wants the planned implementation work started.
+After the commit, verify the subject, body, contents, commit SHA, and working-tree state. Record the SHA in phase state. Prepare the bounded implementation authorization capsule only when implementation is already in the user's stated task scope.
+
+Then follow `run_mode.segment.preimplementation_transition`:
+
+- For `confirm_start`, set the run status to `awaiting_owner` and ask: `The [phase] preflight and documentation are complete. Would you like me to start [phase] implementation?` Ask this even when the earlier request already authorized implementation. Start Gate 5 only after the user confirms that implementation should start now. If the user declines or defers, mark this segment complete and leave the phase ready for implementation.
+- For `report_ready`, set the segment status to `complete` and report: `The [phase] preflight and documentation are complete. [Phase] is now ready for implementation.` Stop without offering to start implementation.
+
+Do not describe implementation as locked, blocked, gated, unable to proceed, or waiting for approval unless a real blocker exists. Do not infer `confirm_start` only because implementation is the next lifecycle gate.
 
 ## 5. Implementation
 

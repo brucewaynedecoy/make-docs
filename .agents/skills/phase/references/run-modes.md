@@ -9,7 +9,7 @@ Select two separate controls before material work starts.
 Progress control:
 
 - `single_item`: process one authorized item, record the result, report the next pointer, and end the segment.
-- `continuous_segment`: process all authorized work through the recorded stop boundary. Continue across internal gates without a restart prompt when the user's request authorizes those actions. Present owner decisions one at a time.
+- `continuous_segment`: process all authorized work through the recorded stop boundary. Continue across internal gates without a restart prompt when the user's request authorizes those actions. Present owner decisions one at a time. Always stop for the recorded preimplementation transition after the documentation-only preflight commit.
 
 Work method:
 
@@ -41,6 +41,7 @@ run_mode:
   segment:
     start_gate: preflight
     stop_before_gate: decision_document_reconciliation
+    preimplementation_transition: report_ready
     item_scope:
       mode: all
       ids: []
@@ -54,6 +55,7 @@ Apply these rules:
 - `execution` is `direct` or `orchestrated`.
 - `start_gate` is the first gate in the authorized segment.
 - `stop_before_gate` is the first gate that the segment must not enter. It can be several gates after `start_gate` when one request authorizes a wider outcome.
+- `preimplementation_transition` is `confirm_start` or `report_ready`. Use `confirm_start` only when the user said that this task should handle implementation after preflight. Use `report_ready` for a preflight-only request or when no later implementation intent was stated.
 - `item_scope.mode` is `all` or `listed`.
 - `item_scope.ids` is empty for `all` and contains the exact authorized item IDs for `listed`.
 - `status` is `inactive`, `active`, `awaiting_owner`, `complete`, or `blocked`.
@@ -70,6 +72,7 @@ run_mode:
   segment:
     start_gate: independent_review
     stop_before_gate: next_phase_preflight
+    preimplementation_transition: report_ready
     item_scope:
       mode: all
       ids: []
@@ -79,7 +82,7 @@ run_mode:
 
 When another task resumes this span, use the state to recover progress and the requested end state. Reconfirm protected-action authority from the new user request. The stored span is not permission by itself.
 
-An active `phase-state/v1` file can gain `run_mode` without changing the schema name. If the section is absent, select the mode from the current user request and add it during the next guarded state write. Do not infer continuous progress only from earlier agent behavior.
+An active `phase-state/v1` file can gain `run_mode` and `preimplementation_transition` without changing the schema name. If either field is absent, select it from the current user request and add it during the next guarded state write. Default `preimplementation_transition` to `report_ready` when the user did not state that implementation should follow. Do not infer continuous progress or implementation intent only from earlier agent behavior.
 
 ## Yield and stop
 
@@ -114,15 +117,17 @@ Stop the segment when:
 
 Run mode never grants permission to edit files, implement, stage, commit, push, publish, deploy, or start another phase. The user's current request can grant one or more of those actions for a segment that spans several gates.
 
-Implementation, commit, push, publication, deployment, and next-phase work still need explicit authority. That authority can appear once in a request that clearly names the full outcome. Do not require a new user message at each gate when the current request already grants the next action.
+Implementation, commit, push, publication, deployment, and next-phase work still need explicit authority. That authority can appear once in a request that clearly names the full outcome. Do not require a new user message at each gate when the current request already grants the next action, except for the required start-now confirmation after the documentation-only preflight commit.
 
-At each gate transition, compare the next action with the current request and recorded segment. Continue when it is authorized. Apply the boundary handoff only when the next action falls outside that span.
+At each gate transition, compare the next action with the current request and recorded segment. Continue when it is authorized. Apply the boundary handoff only when the next action falls outside that span. At the transition into implementation, follow `preimplementation_transition` instead of continuing automatically.
+
+When `preimplementation_transition` is `confirm_start`, set `run_mode.status` to `awaiting_owner` and ask whether to start implementation now. Do this even when the earlier request already authorized implementation. If the user confirms, set the run status to `active` and enter implementation under the existing bounded authority. If the user declines or defers, set the segment status to `complete` and leave the phase ready for implementation. When the transition is `report_ready`, set the segment status to `complete`, report that the phase is ready for implementation, and stop without offering implementation.
 
 Independent review must remain independent from implementation. It can use a fresh task or an independent reviewer when available and allowed. Other gate transitions do not require a fresh task.
 
 A new product choice pauses affected downstream execution. If the current authorized segment is an owner decision interview, present the choice, yield for the answer, record it, and continue with the next in-scope item when safe.
 
-At an unauthorized gate boundary, use the boundary handoff in `phase-protocol.md`. The stop applies to the first unauthorized action. It does not prevent routine state updates, safe next-step preparation, or one concise combined approval question.
+When an unauthorized action is still needed to complete the requested outcome, use the boundary handoff in `phase-protocol.md`. The stop applies to the first unauthorized action. It does not prevent routine state updates, safe next-step preparation, or one concise combined approval question. When the requested outcome is complete, stop without offering later lifecycle work.
 
 ## Routine and worker continuation
 

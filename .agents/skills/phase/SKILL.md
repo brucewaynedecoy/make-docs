@@ -45,6 +45,7 @@ Treat canonical project documents and Git commits as product truth. Treat the ph
 - Create a missing file from the bundled state template. Replace template nulls with facts that are known. Keep unknown values null and mark the gate as initializing or blocked instead of inventing values.
 - At each task start, update `updated_at`, the proved baseline and coordinate fields, and an active-run entry when a stable run identifier is available.
 - Store progress and work-method control under `run_mode`. Record the authorized segment and its stop boundary. Follow `references/run-modes.md`.
+- Store `run_mode.segment.preimplementation_transition` as `confirm_start` only when the user said that this task should handle implementation after preflight. Store `report_ready` when the user requested only preflight or did not state that implementation should follow. Do not infer implementation intent from the phase lifecycle.
 - An explicit later user instruction can change `run_mode` for the remaining work. Increase the state revision and read the state back before using the new mode.
 - Keep `run_mode.status` as `awaiting_owner` when a continuous interview yields for an answer. A yield does not complete the work segment.
 - Store the stable phase item register under `phase_items`. Use it for questions, gaps, risks, contradictions, dependencies, and proofs that affect the active phase. Do not change the source IDs.
@@ -75,7 +76,8 @@ Perform every action needed to reach the end state authorized by the current use
 - Do not create or switch a branch or worktree without explicit user permission.
 - Do not push, publish, deploy, activate, or start the next phase without explicit authority.
 - Leave edits unstaged and uncommitted unless the user explicitly authorizes the exact commit boundary.
-- One request can explicitly authorize multiple gates and protected actions. Do not ask for another approval at an internal gate when the current request already clearly authorizes the next action.
+- One request can explicitly authorize multiple gates and protected actions. Do not ask for another approval at an internal gate when the current request already clearly authorizes the next action. The preimplementation transition after the documentation-only preflight commit is the exception below.
+- After the documentation-only preflight commit, do not start implementation in the same turn. If `preimplementation_transition` is `confirm_start`, ask whether the user wants implementation started now, even when the earlier request already authorized it. Treat this as a start-now confirmation, not as a request to repeat the scope or authority. If it is `report_ready`, report that the phase is ready for implementation and stop without offering to start it.
 - Progress mode does not grant authority. It controls continuation through the full segment that the user authorized.
 - Treat `finish the phase` or `close out the phase` as authority for routine remaining closeout checks, state updates, coverage work, and document reconciliation through a reviewed final-document candidate. Those phrases alone do not authorize a commit, push, publication, deployment, or the next phase.
 - Treat a request to close out and commit or push the phase as authority for the exact reviewed closeout commits or pushes named by the user. Recheck the exact file and remote scope before each protected action.
@@ -106,11 +108,11 @@ Treat gates as internal controls, not as a required chat format.
 - Keep state revisions, baseline bindings, authorization capsule IDs, stop conditions, and routine negative assurances in project state. Surface them only when they affect the user's decision, resolve a conflict, support an audit, or answer a request.
 - Give a short outcome and only the evidence material to the user's next choice. Include a commit SHA after a commit, but do not recite every routine check or unchanged boundary by default.
 - Before asking for the next permission, complete all safe transition preparation that does not cross the boundary. This can include required state updates, resolving the committed baseline, deriving the next bounded scope from accepted authority, and drafting or updating the authorization capsule.
-- When the recommended next action needs permission, ask one direct plain-language question. Do not merely report that another authorization is required.
-- Treat a normal authorization boundary as a user choice, not a blocker. Do not describe the next work as locked, blocked, gated, unable to proceed, or waiting for permission. State the concrete next work and ask whether the user wants it started. Use blocker language only when an actual blocker exists.
+- When completing the user's requested outcome needs more permission, ask one direct plain-language question. Do not ask about later lifecycle work that is outside the requested outcome. Do not merely report that another authorization is required.
+- Treat a needed authorization boundary as a user choice, not a blocker. Do not describe the next work as locked, blocked, gated, unable to proceed, or waiting for permission. State the concrete work needed to complete the request and ask whether the user wants it done. Use blocker language only when an actual blocker exists.
 - If the user asks what the choice permits, describe the planned changes, stages, or effects. Do not answer by restating the gate or by saying only that approval is needed to start.
 - Ordinary language is valid authorization when it clearly answers the bounded action the agent presented. Do not require the user to repeat a revision, SHA, capsule ID, gate name, or formal approval sentence.
-- Before ending after a partial outcome, say whether the phase itself is complete. If it is not complete, name all known remaining closeout work and ask at most one combined question for the recommended continuation. Never present an implementation commit or push as phase completion while coverage reconciliation or a final documentation commit remains.
+- At an ordinary segment end, report the completed segment. Do not add a negative status for later lifecycle work. Report whole-phase completion when the phase is complete. Describe remaining closeout work only when the user asked to finish the phase, requested closeout status, or must resolve a real blocker or decision.
 - Do not mention, promise, or plan worker or subagent use in the opening acknowledgment or an implementation request unless the user already selected `orchestrated` work or separately requested delegation.
 
 ## Workers
