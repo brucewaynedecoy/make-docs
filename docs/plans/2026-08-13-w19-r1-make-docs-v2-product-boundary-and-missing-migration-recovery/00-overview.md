@@ -207,10 +207,11 @@ Plan acceptance checks the complete directory, candidate/owner uniqueness, valid
 
 ## Unresolved Questions
 
-No accepted product-design question blocks this plan. Two bounded execution-time evidence questions remain:
+No accepted product-design question blocks this plan. One bounded execution-time evidence question remains:
 
 1. At the later implementation revision, does a production importer exist for any plugin/hook/extension/harness-adapter/packaging-conformance removal candidate? If not, retire it; if yes, reconcile its existing product owner before deletion.
-2. Which existing receipt fields safely generalize into `runs`/`run_evidence` without duplicating UAT evidence? Resolve from current schemas during PRD 38/39 reconciliation; do not invent fields here.
+
+W19 R1 P6 settled the former receipt question. P6 uses a dedicated `LifecycleStoreMutationReceipt` with only `schemaVersion`, `receiptId`, `operation`, `projectId`, `runId`, `storeSchemaVersion`, `resultingVersion`, and `committedAt`. Existing lifecycle and migration receipt types remain unchanged. The receipt proves only a Store transaction and carries no evidence payload or acceptance claim.
 
 ## Intended Follow-On
 

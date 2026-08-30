@@ -38,12 +38,12 @@ This phase implements migration checkpoint 9. The Store receives `runs` and `run
 
 ### Tasks
 
-- [ ] t1: Verify the exact worktree, branch, HEAD, free disk, dirty-state allowlist, accepted P5 closeout, active lock/quiescence, and implementation authorization; stop on unexpected user work or unsafe growth.
-- [ ] t2: Reread every Source PRD and PRD 03 from the live worktree and record each revision or content digest.
-- [ ] t3: Reevaluate at minimum Q-018, closed R-023 as a regression check, and the receipt-field generalization question; include Q-019 only if Persona storage is proposed and add newly relevant live items.
-- [ ] t4: Record each relevant item's ID or bounded gap label, digest, impact, classification (`blocking`, `impacted-nonblocking`, `unrelated`, `closed-regression-check`, or `new-authority-gap`), disposition, and rationale.
-- [ ] t5: Record an explicit no-blocker determination and finite migration/busy/failure/correction/review budget before unlocking t8 when no blocker or gap remains.
-- [ ] t6: Stop before implementation for any blocker or authority gap and present an owner decision package with source anchors, affected phase and PRDs, bounded options and trade-offs, recommendation, consequences, exact PRD/register/history edits, focused validation, and a decision-only commit boundary; create no standalone decision file.
+- [x] t1: Verify the exact worktree, branch, HEAD, free disk, dirty-state allowlist, accepted P5 closeout, active lock/quiescence, and implementation authorization; stop on unexpected user work or unsafe growth.
+- [x] t2: Reread every Source PRD and PRD 03 from the live worktree and record each revision or content digest.
+- [x] t3: Reevaluate at minimum Q-018, closed R-023 as a regression check, and the receipt-field generalization question; include Q-019 only if Persona storage is proposed and add newly relevant live items.
+- [x] t4: Record each relevant item's ID or bounded gap label, digest, impact, classification (`blocking`, `impacted-nonblocking`, `unrelated`, `closed-regression-check`, or `new-authority-gap`), disposition, and rationale.
+- [x] t5: Record an explicit no-blocker determination and finite migration/busy/failure/correction/review budget before unlocking t8 when no blocker or gap remains.
+- [x] t6: Stop before implementation for any blocker or authority gap and present an owner decision package with source anchors, affected phase and PRDs, bounded options and trade-offs, recommendation, consequences, exact PRD/register/history edits, focused validation, and a decision-only commit boundary; create no standalone decision file.
 - [ ] t7: Require canonical authority updates, focused validation, a separate decision commit, and its recorded SHA before unlock; never infer closure from a schema migration or task.
 - [ ] t8: Record the Stage 1 result, authority digests, P5 checkpoint evidence, receipt-field disposition, and implementation unlock or stop result.
 
@@ -51,7 +51,8 @@ This phase implements migration checkpoint 9. The Store receives `runs` and `run
 
 - Store authority, receipt generalization, and closed R-023 regression have explicit current dispositions.
 - Q-019 remains out of scope unless Persona storage is actually proposed.
-- Checkpoint 9 remains locked until every blocker is canonically resolved.
+- The P6 proof budget has exact fixture, platform, failure, correction, rerun, and review limits.
+- Checkpoint 9 remains locked until the accepted authority is committed and implementation receives separate authorization.
 
 ### Dependencies
 
@@ -61,7 +62,12 @@ This phase implements migration checkpoint 9. The Store receives `runs` and `run
 ### Closeout Notes
 
 - Testing-mode decision(s): transactional Store proof; no naive-UAT execution or scenario authority is introduced.
-- Phase / capability status: gate result pending.
+- Receipt decision: P6 uses a dedicated `LifecycleStoreMutationReceipt` with `schemaVersion: 1`, `receiptId`, `operation`, `projectId`, `runId`, `storeSchemaVersion`, `resultingVersion`, and `committedAt`. It proves only the Store transaction. Existing lifecycle and migration receipt types remain unchanged.
+- Finite proof budget: one pre-change review pass and at most 20 fixed test cases, split into six migration and legacy-data cases, four busy or concurrent-write cases, six lifecycle-transition and unavailable-capture cases, two evidence and privacy cases, and two receipt and CLI/MCP parity cases.
+- Failure, platform, and correction limits: at most five planned transaction failure points; native macOS, Linux execution, and fixed Windows drive, UNC, and path cases; at most two materially different correction attempts per defect and six correction attempts in total.
+- Review and rerun limits: one initial independent review, one follow-up review after corrections, one full candidate check, and one full confirmation check after material changes. Only affected checks may rerun after a changed input. Unchanged inputs cannot cause another run.
+- Exhaustion rule: budget exhaustion stops the affected work with evidence and an owner decision. P6 creates no performance target.
+- Phase / capability status: preflight decisions accepted. Checkpoint 9 still requires the documentation-only authority commit and separate implementation authorization.
 
 ## Stage 2 - Migrate The Store Transactionally
 
