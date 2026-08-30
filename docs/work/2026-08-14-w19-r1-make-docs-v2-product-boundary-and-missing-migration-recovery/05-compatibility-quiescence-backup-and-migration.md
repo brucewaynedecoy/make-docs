@@ -44,14 +44,14 @@ This phase builds the safety envelope and implements migration steps 1 through 8
 
 ### Tasks
 
-- [ ] t1: Verify the exact worktree, branch, HEAD, free disk, dirty-state allowlist, accepted P2–P4 closeouts, and implementation authorization; stop on unexpected user work or unsafe growth.
-- [ ] t2: Reread every Source PRD and PRD 03 from the live worktree and record each revision or content digest.
-- [ ] t3: Reevaluate at minimum Q-017, Q-018, R-006, R-014, and R-017 plus the live production-importer removal question; preserve Q-017's current per-project model unless separately redesigned and add newly relevant items.
-- [ ] t4: Record each relevant item's ID or bounded new-gap label, authority digest, impact, classification (`blocking`, `impacted-nonblocking`, `unrelated`, `closed-regression-check`, or `new-authority-gap`), disposition, and rationale.
-- [ ] t5: Record an explicit no-blocker determination and finite fixture/platform/correction/review budget before unlocking t8 when no blocker or gap remains.
-- [ ] t6: Stop before implementation for any blocker, unknown production consumer, or authority gap and present an owner decision package with source anchors, affected phase and PRDs, bounded options and trade-offs, recommendation, consequences, exact PRD/register/history edits, focused validation, and a decision-only commit boundary; create no standalone decision file.
-- [ ] t7: Require canonical authority changes, focused validation, a separate decision commit, and its recorded SHA before unlock; no task or trace result closes governance implicitly.
-- [ ] t8: Record the Stage 1 result, authority digests, dependency evidence, current production-consumer question disposition, and implementation unlock or stop result.
+- [x] t1: Verify the exact worktree, branch, HEAD, free disk, dirty-state allowlist, accepted P2–P4 closeouts, and implementation authorization; stop on unexpected user work or unsafe growth.
+- [x] t2: Reread every Source PRD and PRD 03 from the live worktree and record each revision or content digest.
+- [x] t3: Reevaluate at minimum Q-017, Q-018, R-006, R-014, and R-017 plus the live production-importer removal question; preserve Q-017's current per-project model unless separately redesigned and add newly relevant items.
+- [x] t4: Record each relevant item's ID or bounded new-gap label, authority digest, impact, classification (`blocking`, `impacted-nonblocking`, `unrelated`, `closed-regression-check`, or `new-authority-gap`), disposition, and rationale.
+- [x] t5: Record an explicit no-blocker determination and finite fixture/platform/correction/review budget before unlocking t8 when no blocker or gap remains.
+- [x] t6: Stop before implementation for any blocker, unknown production consumer, or authority gap and present an owner decision package with source anchors, affected phase and PRDs, bounded options and trade-offs, recommendation, consequences, exact PRD/register/history edits, focused validation, and a decision-only commit boundary; create no standalone decision file.
+- [x] t7: Require canonical authority changes, focused validation, a separate decision commit, and its recorded SHA before unlock; no task or trace result closes governance implicitly.
+- [x] t8: Record the Stage 1 result, authority digests, dependency evidence, current production-consumer question disposition, and implementation unlock or stop result.
 
 ### Acceptance criteria
 
@@ -66,8 +66,64 @@ This phase builds the safety envelope and implements migration steps 1 through 8
 
 ### Closeout Notes
 
-- Testing-mode decision(s): migration fixtures and rollback proof only; preserved artifacts are not relabeled as UAT evidence.
-- Phase / capability status: gate result pending.
+#### 2026-08-29 read-only baseline
+
+- Worktree: the repository root (`.`).
+- Branch: `make-docs-v2`.
+- HEAD: `2d8c322c550f6443b1897a05ffb5ed567d386d03`.
+- Disk: 86 GB was free at the gate check.
+- Dirty-state result: Only the untracked phase state directory was present before this approved document pass. No unexpected user work was found.
+- Dependency evidence: P2 is owner-accepted and present on `origin/make-docs-v2` at `6bf85e59`. P3 is owner-accepted and pushed through `f2ed36c6`. P4 is owner-accepted and pushed through `efebfa29`.
+- Authorization result: The owner authorized this document reconciliation. The owner did not authorize P5 implementation.
+
+#### Source authority digests
+
+| Authority | Git blob digest |
+| --- | --- |
+| [PRD 05](../../prd/05-installation-profile-and-manifest-lifecycle.md) | `9cf32d380b06cbe59c919e84a7c6e89d80dabd04` |
+| [PRD 15](../../prd/15-agent-instruction-ownership-and-managed-blocks.md) | `c09afd8e739b5896d5afe23bf92cd94492a1815f` |
+| [PRD 17](../../prd/17-system-asset-materialization-and-local-bootstrap.md) | `961bcf73fe40648111efba9f19b291762c7638b6` |
+| [PRD 18](../../prd/18-compatibility-classification-and-migration-safety.md) | `ae2e61f2ab53026b2e843796bc4b8dc32d637d48` |
+| [PRD 21](../../prd/21-project-tool-directory-and-resource-tiers.md) | `59faa61c7aa2dc8588883fc422e76b1fa134da9e` |
+| [PRD 22](../../prd/22-project-documentation-asset-model.md) | `95be2fb4d8bfcb3188099bd9f6af3957cbd5c60e` |
+| [PRD 25](../../prd/25-typescript-runtime-cli-mcp-operation-boundaries.md) | `4072acfab262cb0091fd55aa1d14b7f9f0092c00` |
+| [PRD 34](../../prd/34-playbook-authoring-contract-and-model.md) | `80cdb3ae2225f60ea39d23f250720fc620bca887` |
+| [PRD 35](../../prd/35-run-playbook-state-machine-and-portability.md) | `f0a6cc9ee02b9a34a1eda71ce2ea949ed075bbe3` |
+| [PRD 36](../../prd/36-playbook-packaging-compiler-and-harness-adapters.md) | `d48d9bc3e30ea59d7652ec2ee9a5bf23ce94b44d` |
+| [PRD 38](../../prd/38-global-store-and-project-state.md) | `b2991de7498005fd7efb382f9338b372b0c8d0e2` |
+| [PRD 03](../../prd/03-open-questions-and-risk-register.md) | `9904e0d72acbb07af490aabee974a9e3a08e6085` |
+
+#### Preflight item reconciliation
+
+| Item | Authority digest | Impact classification | Disposition and rationale |
+| --- | --- | --- | --- |
+| Baseline proof | `2d8c322c550f6443b1897a05ffb5ed567d386d03` | `closed-regression-check` | The worktree, branch, HEAD, disk, dirty state, and authorization were safe for a read-only gate. |
+| Source authority set | Digests in the table above | `closed-regression-check` | The live Source PRDs and PRD 03 were read and fixed to exact blob digests. No authority conflict was found. |
+| P2 closeout record | `6bf85e59d0da488a053c242cca9509849e0ae8cd` | `blocking` | P5-D001 closed the stale record gap. P2 is accepted and complete. This pass corrects the work record and adds the missing history record. P2 reopens only if new defect evidence appears. |
+| P3 and P4 dependencies | `f2ed36c6`; `efebfa29` | `closed-regression-check` | Both phases are accepted and pushed. Their current interfaces satisfy the P5 phase-entry dependency. |
+| Q-017 | `9904e0d72acbb07af490aabee974a9e3a08e6085` | `impacted-nonblocking` | Keep the current per-project model. The broader machine-level layout question stays open outside P5. |
+| Q-018 | `9904e0d72acbb07af490aabee974a9e3a08e6085` | `impacted-nonblocking` | P5 adds no public configuration key, format, or discovery surface. Q-018 stays open outside P5. |
+| R-006 | `9904e0d72acbb07af490aabee974a9e3a08e6085` | `impacted-nonblocking` | One frozen, reviewed snapshot must control plan, backup, apply, rollback, update, and uninstall. No new audit can occur between approval and a write. |
+| R-014 | `9904e0d72acbb07af490aabee974a9e3a08e6085` | `impacted-nonblocking` | P5 must land the TypeScript path-check operation and update all live consumers before hash-proven removal of the Python helper. |
+| R-017 | `9904e0d72acbb07af490aabee974a9e3a08e6085` | `impacted-nonblocking` | The system workflow stays the one policy authority. Optional agent files cannot copy that policy. |
+| Live legacy surface trace | `518772331b3628cb61d94aa24ff3e7971711b31b` | `impacted-nonblocking` | The 18 frozen Playbook and packaging operations are still in the registry, CLI, and MCP surfaces. P5 must preserve, freeze, and quiesce them. P8 owns a new removal trace, removal backup, and removal. |
+| Path helper consumer trace | `18912ff0755e561d12646ba51e81a7f0930132b4`; `8c922c2a72aa2ea198409ec5142ef4cfc48f09e7`; `b5ecfd6df8ff485a7deffc3ba62ef475719c4708` | `impacted-nonblocking` | The Python path helper still has live manifest, rule, consistency-test, and install-test consumers. P5 must update these consumers before removal. |
+| Finite evidence budget | `3037e481fbc358c73bf56cda3770f0c15f54c5e3` | `blocking` | P5-D002 closed the budget gap. The accepted budget is recorded below. |
+
+No item is `unrelated`. No `new-authority-gap` remains.
+
+#### Accepted owner decisions
+
+- P5-D001: Treat P2 as owner-accepted and complete at `6bf85e59`. Correct the stale P2 work record, the W19 index, and history. Reopen P2 only for new defect evidence.
+- P5-D002: Use at most 14 migration and safety fixtures. Run macOS checks directly. Use fixed behavior fixtures for Linux and Windows. Use one implementation pass. Allow at most two corrections that address different defects. Use one independent review and one confirmation review. Reuse evidence that did not change. Stop for an owner decision if the budget ends. P10 keeps native package and installed-project checks for all supported platforms.
+
+#### Stage 1 result and implementation gate
+
+- Testing-mode decision: Use migration fixtures and rollback proof only. Do not relabel preserved artifacts as UAT evidence.
+- No-blocker result: All P5 phase-entry questions now have an accepted decision or a controlled, nonblocking disposition. The current PRDs already own the required behavior. No PRD or risk-register edit is needed.
+- Production-consumer result: The frozen legacy operations and Python path helper still have live consumers. P5 must preserve or replace them in the order above. It must not remove them by assumption.
+- Decision boundary: This document-only preflight commit must exist and its SHA must be recorded before implementation can start.
+- Phase / capability status: The P5 phase-entry gate is complete. P5 implementation remains locked until the owner gives separate, explicit authorization after the document-only commit.
 
 ## Stage 2 - Classify, Lock, And Establish Quiescence
 
