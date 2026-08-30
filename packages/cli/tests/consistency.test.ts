@@ -888,12 +888,6 @@ describe("path hygiene contract", () => {
 });
 
 describe("optional skill package consistency", () => {
-  test("dogfood skill mirrors are not installed by default", () => {
-    for (const relativePath of [".agents/skills", ".claude/skills"]) {
-      expect(existsSync(path.join(REPO_ROOT, relativePath))).toBe(false);
-    }
-  });
-
   test("withdrawn lifecycle skill sources are removed from the skills workspace", () => {
     // D-020 stopgap: the four lifecycle skills were pulled from the shipped
     // registry and their source directories deleted; regeneration is owned

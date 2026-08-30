@@ -1031,12 +1031,30 @@ describe("installer integration", () => {
   test("skips skill installation when skills are disabled", async () => {
     const targetDir = createTempDir();
     try {
+      const localSkillPath = path.join(
+        targetDir,
+        ".agents/skills/local-phase/SKILL.md",
+      );
+      const localSkillContent = [
+        "---",
+        "name: local-phase",
+        "description: Project-owned local phase workflow.",
+        "---",
+        "",
+        "# Local phase",
+        "",
+        "Keep this project-owned skill.",
+        "",
+      ].join("\n");
+      mkdirSync(path.dirname(localSkillPath), { recursive: true });
+      writeFileSync(localSkillPath, localSkillContent, "utf8");
+
       const { manifest } = await installWithSelections(targetDir, (selections) => {
         selections.skills = false;
       });
 
       expect(existsSync(path.join(targetDir, ".claude/skills"))).toBe(false);
-      expect(existsSync(path.join(targetDir, ".agents/skills"))).toBe(false);
+      expect(readFileSync(localSkillPath, "utf8")).toBe(localSkillContent);
       expect(existsSync(path.join(targetDir, "CLAUDE.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "AGENTS.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/CLAUDE.md"))).toBe(true);
@@ -1044,6 +1062,11 @@ describe("installer integration", () => {
       expect(existsSync(path.join(targetDir, "docs/work/AGENTS.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/work/CLAUDE.md"))).toBe(true);
       expect(manifest.skillFiles).toEqual([]);
+      expect(
+        Object.keys(manifest.files).some((relativePath) =>
+          relativePath.includes(".agents/skills/local-phase"),
+        ),
+      ).toBe(false);
     } finally {
       cleanupTempDir(targetDir);
     }
@@ -2804,17 +2827,36 @@ describe("installer integration", () => {
     const targetDir = createTempDir();
     try {
       await syncSkillsOnly(targetDir, enableAllSkills);
-      const untracked = path.join(targetDir, ".claude/skills/local-note.md");
-      mkdirSync(path.dirname(untracked), { recursive: true });
-      writeFileSync(untracked, "local note\n", "utf8");
+      const localSkillPath = path.join(
+        targetDir,
+        ".agents/skills/local-phase/SKILL.md",
+      );
+      const localSkillContent = [
+        "---",
+        "name: local-phase",
+        "description: Project-owned local phase workflow.",
+        "---",
+        "",
+        "# Local phase",
+        "",
+        "Keep this project-owned skill.",
+        "",
+      ].join("\n");
+      mkdirSync(path.dirname(localSkillPath), { recursive: true });
+      writeFileSync(localSkillPath, localSkillContent, "utf8");
 
       const { manifest } = await syncSkillsOnly(targetDir, undefined, true);
 
       expect(existsSync(path.join(targetDir, ".claude/skills/archive-docs/SKILL.md"))).toBe(false);
       expect(existsSync(path.join(targetDir, ".agents/skills/archive-docs/SKILL.md"))).toBe(false);
-      expect(existsSync(untracked)).toBe(true);
+      expect(readFileSync(localSkillPath, "utf8")).toBe(localSkillContent);
       expect(manifest.files).toEqual({});
       expect(manifest.skillFiles).toEqual([]);
+      expect(
+        Object.keys(manifest.files).some((relativePath) =>
+          relativePath.includes(".agents/skills/local-phase"),
+        ),
+      ).toBe(false);
     } finally {
       cleanupTempDir(targetDir);
     }
