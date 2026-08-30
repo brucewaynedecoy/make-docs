@@ -80,7 +80,9 @@ Each package must state:
 6. what remains undecided;
 7. exact proposed decision language.
 
-When the question has two or three valid, bounded, mutually exclusive options, present the selection through the native structured choice control provided by the current harness and mode. Keep the package context and tally label visible before the control. Put the recommendation first, mark it `(Recommended)`, and give one short effect or tradeoff for each choice. If no native control is available, use a numbered Markdown list. Do not invent options or use this format for an open-ended question, a routine yes-or-no permission, or a case with only one safe option.
+When the question has two or three valid, bounded, mutually exclusive options, first check whether the current harness and mode provide a native structured choice control. Use the control when it is available. Keep the package context and tally label visible before the control. Put the recommendation first, mark it `(Recommended)`, and give one short effect or tradeoff for each choice. Do not invent options or use this format for an open-ended question, a routine yes-or-no permission, or a case with only one safe option.
+
+If the control is unavailable or cannot run in the current mode, continue with a compact Markdown fallback. Do not pause, switch modes, or ask the user to enable the control. Show the same numbered choices, then ask whether the user approves the recommended choice. Do not end with `Which option do you choose?` when a recommendation exists. Treat `Yes`, `Approved`, and equivalent plain language as selection of the recommendation. Accept another named choice directly. If the user declines without naming another choice, ask which alternative they prefer or what should change.
 
 Discuss only that package until the answer is clear. A native selection is explicit confirmation when the option states the full bounded outcome. Otherwise restate the exact resolution and obtain confirmation before recording it. Accept a free-form answer when the harness supports one.
 

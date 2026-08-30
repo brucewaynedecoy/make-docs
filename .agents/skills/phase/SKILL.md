@@ -117,7 +117,7 @@ Treat gates as internal controls, not as a required chat format.
 
 ## User choices
 
-When the user must choose among valid, bounded options, use a native structured choice control if the current harness and mode provide one.
+When the user must choose among valid, bounded options, first check whether the current harness and mode provide a native structured choice control. Use it when it is available.
 
 - Ask one decision at a time.
 - Present two or three mutually exclusive choices.
@@ -126,7 +126,10 @@ When the user must choose among valid, bounded options, use a native structured 
 - Keep the phase item label and source ID visible with the question.
 - Do not invent extra choices to satisfy this format.
 - Do not use a choice control for an open-ended question, a routine yes-or-no permission, or a case with only one safe option.
-- If no native choice control is available, use a numbered Markdown list.
+- If the control is unavailable or cannot run in the current mode, continue with a compact Markdown fallback. Do not pause, switch modes, or ask the user to enable the control.
+- In the fallback, show the numbered choices, then ask whether the user approves the recommended choice. Do not end with `Which option do you choose?` when a recommendation exists.
+- Treat `Yes`, `Approved`, and equivalent plain language as selection of the recommended choice.
+- If the user names another choice, accept it directly. If the user declines without naming another choice, ask which alternative they prefer or what should change.
 - Allow a free-form answer when the harness supports one.
 - A native selection counts as explicit confirmation when the option states the full bounded outcome. If the option is shorthand, restate the exact resolution and confirm it before recording the decision.
 

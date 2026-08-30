@@ -63,7 +63,22 @@ Which extension rule should Phase 2 use?
 2. Registered extensions — Adds flexibility but requires extension ownership rules.
 ```
 
-If no native choice control is available, present the same choices as the numbered Markdown list shown above. A native selection counts as explicit confirmation when its option states the full bounded outcome. Otherwise restate the exact resolution and confirm it before recording the decision.
+If the control is unavailable or cannot run in the current mode, continue with this compact Markdown fallback:
+
+```text
+2/12 - Type catalog and extension rule [Q-012B]
+
+Which extension rule should Phase 2 use?
+
+1. Exact catalog only (Recommended) — Keeps validation simple and predictable.
+2. Registered extensions — Adds flexibility but requires extension ownership rules.
+
+Do you approve the recommended exact-catalog rule?
+```
+
+Treat `Yes`, `Approved`, and equivalent plain language as selection of the recommendation. If the user names the other choice, accept it directly. If the user says no without naming another choice, ask which alternative they prefer or what should change. Do not pause or switch modes to obtain a native control.
+
+A native selection counts as explicit confirmation when its option states the full bounded outcome. Otherwise restate the exact resolution and confirm it before recording the decision.
 
 ### Resume an interview in a new task
 
