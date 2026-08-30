@@ -6,6 +6,55 @@ export {
 } from "./operations/context";
 export type { OperationExecutionContext, OperationSurface } from "./operations/context";
 export {
+  acquireProjectMigrationLock,
+  assertProjectMigrationLockActive,
+  assertReviewedMigrationSnapshotCurrent,
+  classifyMigrationCompatibility,
+  createReviewedMigrationSnapshot,
+  createVerifiedMigrationBackup,
+  executeInstallPlanMigration,
+  ImmutableMigrationCoordinator,
+  LEGACY_COMPATIBILITY_OPERATION_IDS,
+  MIGRATION_CHECKPOINTS,
+  MIGRATION_ROUTING_SURFACES,
+  MigrationSafetyError,
+  applyMigrationRoutingSurface,
+  planMigrationRoutingSurface,
+  releaseProjectMigrationLock,
+  removeTrustedPythonPathHelper,
+  restoreMigrationBackup,
+  verifyMigrationBackup,
+} from "./migration";
+export type {
+  InstallPlanMigrationResult,
+  MigrationAffectedPath,
+  MigrationCheckpointReceipt,
+  MigrationCompatibilityClassification,
+  MigrationCompatibilityFacets,
+  MigrationFilesystemState,
+  MigrationPathDisposition,
+  MigrationReceiptStatus,
+  MigrationRoutingSurface,
+  MigrationStoreState,
+  ProjectMigrationLock,
+  ReviewedMigrationSnapshot,
+  VerifiedMigrationBackup,
+} from "./migration";
+export {
+  failingPathHygieneFindings,
+  fixRepositoryRootPaths,
+  PATH_HYGIENE_ALLOW_TOKEN,
+  scanPathHygieneManifest,
+  scanPathHygieneText,
+  validateProjectPathHygiene,
+} from "./path-hygiene";
+export type {
+  PathHygieneFinding,
+  PathHygieneFindingKind,
+  PathHygieneScanResult,
+  PathHygieneValidationResult,
+} from "./path-hygiene";
+export {
   getOperation,
   hasOperation,
   invokeOperation,

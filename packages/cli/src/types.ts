@@ -688,6 +688,8 @@ export interface InstallPlan {
   resourceProjection?: ResourceProjectionManifestState;
   classificationSnapshot?: LifecyclePlanSnapshot;
   stops?: string[];
+  /** Internal staged-migration control. It never comes from CLI or MCP input. */
+  forceManifestWrite?: boolean;
 }
 
 export interface PackageMeta {

@@ -43,7 +43,7 @@ const LITERAL_LEGACY_COMPATIBILITY_IDENTIFIERS = [
   "package.ship",
 ] as const;
 
-const LITERAL_ADMITTED_IDENTIFIERS = [
+const LITERAL_P3_ADMITTED_IDENTIFIERS = [
   "prd.authority.validate",
   "work.item.resolve",
   "work.evidence.record",
@@ -70,6 +70,8 @@ const LITERAL_ADMITTED_IDENTIFIERS = [
   "uat.result.validate",
 ] as const;
 
+const LITERAL_P5_ADMITTED_IDENTIFIERS = ["project.path-hygiene.validate"] as const;
+
 /** Pruned per the migrated-operations inventory disposition (R-RUN-2). */
 const PRUNED_SEGMENTS = [
   "wave-resolve",
@@ -84,24 +86,30 @@ const PRUNED_SEGMENTS = [
 ];
 
 describe("operation registry contract", () => {
-  it("keeps the literal frozen baseline and admits exactly the 24 P3 identifiers", () => {
+  it("keeps the frozen 24 P3 admissions and records the separate P5 admission", () => {
     const ids = listOperations()
       .map((operation) => operation.id)
       .sort();
     expect([...LEGACY_COMPATIBILITY_OPERATION_IDS]).toEqual(
       LITERAL_LEGACY_COMPATIBILITY_IDENTIFIERS,
     );
-    expect([...ADMITTED_OPERATION_IDS]).toEqual(LITERAL_ADMITTED_IDENTIFIERS);
-    expect(listAdmittedOperations().map((entry) => entry.id)).toEqual(
-      LITERAL_ADMITTED_IDENTIFIERS,
+    expect(LITERAL_P3_ADMITTED_IDENTIFIERS).toHaveLength(24);
+    const admittedIds = [...ADMITTED_OPERATION_IDS];
+    expect(admittedIds.filter((id) => id !== "project.path-hygiene.validate")).toEqual(
+      LITERAL_P3_ADMITTED_IDENTIFIERS,
     );
+    expect(admittedIds.filter((id) => id === "project.path-hygiene.validate")).toEqual(
+      LITERAL_P5_ADMITTED_IDENTIFIERS,
+    );
+    expect(listAdmittedOperations().map((entry) => entry.id)).toEqual(admittedIds);
     expect(ids).toEqual(
       [
         ...LITERAL_LEGACY_COMPATIBILITY_IDENTIFIERS,
-        ...LITERAL_ADMITTED_IDENTIFIERS,
+        ...LITERAL_P3_ADMITTED_IDENTIFIERS,
+        ...LITERAL_P5_ADMITTED_IDENTIFIERS,
       ].sort(),
     );
-    expect(ids).toHaveLength(42);
+    expect(ids).toHaveLength(43);
   });
 
   it("every identifier follows the domain.verb / domain.object.verb convention", () => {

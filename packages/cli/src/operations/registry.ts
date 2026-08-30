@@ -13,6 +13,13 @@ import { prdOperations } from "./prd/ops";
 import { resourceOperations } from "./resource/ops";
 import { OperationError, type JsonValue } from "./types";
 import { workOperations } from "./work/ops";
+import {
+  enterLegacyCompatibilityOperation,
+  LEGACY_COMPATIBILITY_OPERATION_IDS,
+  resolveLegacyOperationProjectRoot,
+} from "../migration";
+
+export { LEGACY_COMPATIBILITY_OPERATION_IDS } from "../migration";
 
 /**
  * The operation registry (R-REG-1): the single source of truth for which
@@ -95,6 +102,7 @@ export const ADMITTED_OPERATION_IDS = [
   "resource.read",
   "resource.ensure",
   "project.surface.ensure",
+  "project.path-hygiene.validate",
   "lifecycle.start",
   "lifecycle.show",
   "lifecycle.list",
@@ -113,27 +121,6 @@ export const ADMITTED_OPERATION_IDS = [
   "uat.result.validate",
 ] as const;
 
-export const LEGACY_COMPATIBILITY_OPERATION_IDS = [
-  "playbook.validate",
-  "playbook.catalog",
-  "playbook.resolve",
-  "playbook.capabilities",
-  "playbook.start",
-  "playbook.invoke",
-  "playbook.status",
-  "playbook.next",
-  "playbook.advance",
-  "playbook.gate",
-  "playbook.resume",
-  "playbook.close",
-  "playbook.run.export",
-  "playbook.run.import",
-  "package.plan",
-  "package.surface-resolve",
-  "package.write",
-  "package.ship",
-] as const;
-
 const ADMITTED_CLI_PATHS: Record<(typeof ADMITTED_OPERATION_IDS)[number], [OperationCliRoot, string]> = {
   "prd.authority.validate": ["run", "prd authority validate"],
   "work.item.resolve": ["run", "work item resolve"],
@@ -143,6 +130,7 @@ const ADMITTED_CLI_PATHS: Record<(typeof ADMITTED_OPERATION_IDS)[number], [Opera
   "resource.read": ["resource", "read"],
   "resource.ensure": ["resource", "ensure"],
   "project.surface.ensure": ["project", "surface ensure"],
+  "project.path-hygiene.validate": ["project", "path-hygiene validate"],
   "lifecycle.start": ["run", "lifecycle start"],
   "lifecycle.show": ["run", "lifecycle show"],
   "lifecycle.list": ["run", "lifecycle list"],
@@ -166,6 +154,7 @@ const ADMITTED_CLI_USAGES: Partial<Record<(typeof ADMITTED_OPERATION_IDS)[number
   "resource.ensure": "make-docs resource ensure <uri>",
   "project.surface.ensure":
     "make-docs project surface ensure <archive|artifacts|assets>",
+  "project.path-hygiene.validate": "make-docs project path-hygiene validate",
 };
 
 export function operationDomain(id: string): string {
@@ -336,7 +325,17 @@ export async function invokeOperation(
   if (!handler) {
     throw new OperationError(`Active operation \`${id}\` has no handler.`);
   }
-  const value = (await handler(parsed.data, context)) as JsonValue;
+  const leaveLegacyOperation = enterLegacyCompatibilityOperation({
+    projectRoot: resolveLegacyOperationProjectRoot(context.cwd, parsed.data),
+    operationId: id,
+    mutates: definition.mutates === "write",
+  });
+  let value: JsonValue;
+  try {
+    value = (await handler(parsed.data, context)) as JsonValue;
+  } finally {
+    leaveLegacyOperation();
+  }
   return {
     operation: id,
     value,

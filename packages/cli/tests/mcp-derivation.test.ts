@@ -52,6 +52,7 @@ const EXPECTED_DERIVED_TOOL_NAMES: Record<string, string> = {
   "resource.read": "make_docs_resource_read",
   "resource.ensure": "make_docs_resource_ensure",
   "project.surface.ensure": "make_docs_project_surface_ensure",
+  "project.path-hygiene.validate": "make_docs_project_path_hygiene_validate",
   "lifecycle.start": "make_docs_lifecycle_start",
   "lifecycle.show": "make_docs_lifecycle_show",
   "lifecycle.list": "make_docs_lifecycle_list",
@@ -186,9 +187,9 @@ describe("MCP derivation parity (R-REG-2, R-MIG-3, R-CORE-1)", () => {
     );
   });
 
-  test("tool names are exactly the derived spellings for all 42 identifiers", () => {
+  test("tool names are exactly the derived spellings for all 43 identifiers", () => {
     const registryIds = listOperations().map((operation) => operation.id);
-    expect(registryIds).toHaveLength(42);
+    expect(registryIds).toHaveLength(43);
     expect(Object.keys(EXPECTED_DERIVED_TOOL_NAMES).sort()).toEqual([...registryIds].sort());
 
     const derivedByOperation = new Map(

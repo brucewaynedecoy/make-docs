@@ -50,12 +50,17 @@ afterEach(() => {
 });
 
 describe("W19 R1 P3 admitted operation surfaces", () => {
-  it("pins the exact 24-ID inventory and current P4 activation split", () => {
+  it("pins the exact 24 P3 IDs and records path hygiene as a separate P5 admission", () => {
     const admitted = listAdmittedOperations();
+    const p3Admitted = admitted.filter((entry) => entry.id !== "project.path-hygiene.validate");
+    const p5Admitted = admitted.filter((entry) => entry.id === "project.path-hygiene.validate");
     expect(admitted.map((entry) => entry.id)).toEqual([...ADMITTED_OPERATION_IDS]);
-    expect(admitted).toHaveLength(24);
-    expect(admitted.filter((entry) => entry.status === "active")).toHaveLength(8);
-    expect(admitted.filter((entry) => entry.status === "pending")).toHaveLength(16);
+    expect(p3Admitted).toHaveLength(24);
+    expect(p3Admitted.filter((entry) => entry.status === "active")).toHaveLength(8);
+    expect(p3Admitted.filter((entry) => entry.status === "pending")).toHaveLength(16);
+    expect(p5Admitted).toEqual([
+      expect.objectContaining({ id: "project.path-hygiene.validate", status: "active" }),
+    ]);
 
     for (const entry of admitted) {
       expect(typeof getOperation(entry.id).handler).toBe(

@@ -1,4 +1,4 @@
-import { existsSync, lstatSync, mkdirSync, readFileSync } from "node:fs";
+import { existsSync, lstatSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { z } from "zod";
 import { loadManifest, MANIFEST_RELATIVE_PATH } from "../../manifest";
@@ -12,6 +12,14 @@ import { getThinRouterManagedBody } from "../../project-projection";
 import type { LifecycleMutationReceipt, PlannedAction } from "../../types";
 import { HARNESS_TO_INSTRUCTION } from "../../types";
 import { assertManagedPathHasNoSymlinks, relativePathToTarget } from "../../utils";
+import {
+  applyMigrationRoutingSurface,
+  planMigrationRoutingSurface,
+} from "../../migration";
+import {
+  validateProjectPathHygiene,
+  type PathHygieneValidationResult,
+} from "../../path-hygiene";
 import type { OperationDefinition } from "../registry";
 import { OperationError } from "../types";
 
@@ -20,11 +28,12 @@ const inputSchema = z.object({
   targetRoot: z.string().min(1).optional(),
 }).strict();
 
-const SURFACE_PATHS = {
-  archive: ".make-docs/archive",
-  artifacts: "docs/artifacts",
-  assets: "docs/assets",
-} as const;
+const pathHygieneInputSchema = z.object({
+  targetRoot: z.string().min(1).optional(),
+  manifest: z.string().min(1).optional(),
+  includeSkills: z.boolean().optional(),
+  allowCommentToken: z.string().min(1).optional(),
+}).strict();
 
 export interface ProjectSurfaceEnsureOutput {
   schemaVersion: 1;
@@ -34,6 +43,8 @@ export interface ProjectSurfaceEnsureOutput {
   plan: { snapshotId: string; actions: PlannedAction[] };
   receipt: LifecycleMutationReceipt | null;
 }
+
+export type ProjectPathHygieneValidateOutput = PathHygieneValidationResult;
 
 export const projectOperations: OperationDefinition[] = [{
   id: "project.surface.ensure",
@@ -51,8 +62,9 @@ export const projectOperations: OperationDefinition[] = [{
       );
     }
     const actions: PlannedAction[] = [];
-    const surfacePath = SURFACE_PATHS[input.surface];
-    actions.push(planDirectory(targetRoot, surfacePath));
+    const surfaceAction = planMigrationRoutingSurface(targetRoot, input.surface);
+    const surfacePath = surfaceAction.relativePath;
+    actions.push(surfaceAction);
     for (const [harness, instruction] of Object.entries(HARNESS_TO_INSTRUCTION)) {
       if (!manifest.selections.harnesses[harness as keyof typeof HARNESS_TO_INSTRUCTION]) continue;
       for (const relativePath of [instruction, `docs/${instruction}`]) {
@@ -79,7 +91,7 @@ export const projectOperations: OperationDefinition[] = [{
       for (const action of actions) {
         assertManagedPathHasNoSymlinks(targetRoot, action.relativePath);
       }
-      if (actions[0]!.type === "create") mkdirSync(relativePathToTarget(targetRoot, surfacePath), { recursive: true });
+      applyMigrationRoutingSurface(targetRoot, surfaceAction);
     }
     const receipt = context.dryRun || actions[0]?.type === "noop"
       ? null
@@ -101,17 +113,20 @@ export const projectOperations: OperationDefinition[] = [{
       receipt,
     } satisfies ProjectSurfaceEnsureOutput;
   },
+}, {
+  id: "project.path-hygiene.validate",
+  summary: "Validate managed project paths with the TypeScript path-hygiene core.",
+  mutates: "read",
+  status: "active",
+  inputSchema: pathHygieneInputSchema,
+  handler(rawInput, context) {
+    const input = pathHygieneInputSchema.parse(rawInput);
+    const targetRoot = path.resolve(input.targetRoot ?? context.cwd);
+    return validateProjectPathHygiene({
+      projectRoot: targetRoot,
+      ...(input.manifest ? { manifestPath: input.manifest } : {}),
+      ...(input.includeSkills !== undefined ? { includeSkills: input.includeSkills } : {}),
+      ...(input.allowCommentToken ? { allowToken: input.allowCommentToken } : {}),
+    });
+  },
 }];
-
-function planDirectory(targetRoot: string, relativePath: string): PlannedAction {
-  assertManagedPathHasNoSymlinks(targetRoot, relativePath);
-  const absolutePath = relativePathToTarget(targetRoot, relativePath);
-  if (!existsSync(absolutePath)) {
-    return { type: "create", disposition: "create", relativePath, reason: "Selected project surface is absent." };
-  }
-  const stats = lstatSync(absolutePath);
-  if (!stats.isDirectory() || stats.isSymbolicLink()) {
-    throw new OperationError(`Selected project surface is not a safe directory: ${relativePath}.`);
-  }
-  return { type: "noop", disposition: "preserve", relativePath, reason: "Selected project surface already exists." };
-}

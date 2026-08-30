@@ -172,6 +172,7 @@ function applyInstallPlanInternal(options: {
     assertLifecyclePlanSnapshotCurrent(targetDir, plan.classificationSnapshot);
   }
   if (
+    !plan.forceManifestWrite &&
     existingManifest &&
     existingManifest.projectId &&
     plan.actions.every((action) => action.type === "noop") &&

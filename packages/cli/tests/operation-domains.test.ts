@@ -109,6 +109,7 @@ describe("operation domain modules", () => {
       "package.ship",
       "prd.authority.validate",
       "project.surface.ensure",
+      "project.path-hygiene.validate",
       "work.item.resolve",
       "work.evidence.record",
       "work.evidence.read",
@@ -132,7 +133,7 @@ describe("operation domain modules", () => {
       "uat.finding.validate",
       "uat.result.validate",
     ]);
-    expect(identifiers).toHaveLength(42);
+    expect(identifiers).toHaveLength(43);
 
     for (const domain of domains) {
       for (const command of domain.commands) {

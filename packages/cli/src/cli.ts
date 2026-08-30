@@ -20,6 +20,9 @@ import {
   planInstall,
 } from "./install";
 import { loadManifest, MANIFEST_RELATIVE_PATH } from "./manifest";
+import { executeInstallPlanMigration } from "./migration";
+import { createExecutionContext } from "./operations/context";
+import { invokeOperation } from "./operations/registry";
 import { runRunCommand } from "./run/cli";
 import { runProjectCommand, runResourceCommand } from "./run/root-operations";
 import { bootstrapGlobalStore, mirrorProjectManifest, withStoreDatabase } from "./store";
@@ -154,6 +157,10 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
   }
 
   if (parsed.command === "project") {
+    if (parsed.runArgs[0] === "path-hygiene" && parsed.runArgs[1] === "validate") {
+      await runProjectPathHygieneCommand(parsed.runArgs.slice(2));
+      return;
+    }
     await runProjectCommand(parsed.runArgs);
     return;
   }
@@ -302,7 +309,8 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
         output.write("Setup cancelled. The existing pre-v2 install was left untouched.\n");
         return;
       }
-      await runBackupCommand({ targetDir, permissions: "allow-all" });
+      // The fixed migration coordinator creates and verifies the one reviewed
+      // backup after it acquires the project lock and freezes the snapshot.
     }
   }
 
@@ -378,6 +386,11 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
     }
   }
 
+  assertExistingInstallSkillSelectionUnchanged({
+    existingManifest,
+    selections,
+  });
+
   const packageMeta = readPackageMeta();
   let plan = await planInstall({
     targetDir,
@@ -415,6 +428,8 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
   }
 
   const hasPlannedChanges = plan.actions.some((action) => action.type !== "noop");
+  const requiresProjectIdMigration = Boolean(existingManifest && !existingManifest.projectId);
+  const hasInstallMutation = hasPlannedChanges || requiresProjectIdMigration;
   printPlan({
     actions: plan.actions,
     dryRun: parsed.dryRun,
@@ -452,7 +467,7 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
     );
   }
 
-  if (interactive && !skipApplyConfirm && hasPlannedChanges) {
+  if (interactive && !skipApplyConfirm && hasInstallMutation) {
     const proceed = await confirm({
       message: getApplyConfirmationMessage({
         existingManifest,
@@ -470,11 +485,18 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
     }
   }
 
-  const applied = applyInstallPlan({
-    targetDir,
-    plan,
-    existingManifest,
-  });
+  const applied = !freshInstallTarget && hasInstallMutation
+    ? executeInstallPlanMigration({
+        projectRoot: targetDir,
+        compatibility: compatibilityClassification,
+        installPlan: plan,
+        existingManifest,
+      })
+    : applyInstallPlan({
+        targetDir,
+        plan,
+        existingManifest,
+      });
 
   // Explicit migration signal for pre-identifier installs (PRD 38 R-ID-1):
   // when an existing manifest predates the stable project identifier, this
@@ -487,7 +509,7 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
     );
   }
 
-  if (hasPlannedChanges) {
+  if (hasInstallMutation) {
     writeApplyCompletionSummary({
       existingManifest,
       installIntent,
@@ -535,6 +557,45 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
   }
 }
 
+async function runProjectPathHygieneCommand(argv: string[]): Promise<void> {
+  let targetRoot: string | undefined;
+  let manifest: string | undefined;
+  let includeSkills = false;
+  let allowCommentToken: string | undefined;
+  const args = [...argv];
+  while (args.length > 0) {
+    const arg = args.shift()!;
+    if (arg === "--target" || arg === "--target-root") {
+      const value = args.shift();
+      if (!value) throw new Error(`\`${arg}\` requires a path.`);
+      targetRoot = path.resolve(value);
+    } else if (arg === "--manifest") {
+      const value = args.shift();
+      if (!value) throw new Error("`--manifest` requires a path.");
+      manifest = value;
+    } else if (arg === "--include-skills") {
+      includeSkills = true;
+    } else if (arg === "--allow-comment-token") {
+      const value = args.shift();
+      if (!value) throw new Error("`--allow-comment-token` requires text.");
+      allowCommentToken = value;
+    } else {
+      throw new Error(`Unknown project path-hygiene option: \`${arg}\`.`);
+    }
+  }
+  const invocation = await invokeOperation(
+    "project.path-hygiene.validate",
+    {
+      ...(targetRoot ? { targetRoot } : {}),
+      ...(manifest ? { manifest } : {}),
+      ...(includeSkills ? { includeSkills } : {}),
+      ...(allowCommentToken ? { allowCommentToken } : {}),
+    },
+    createExecutionContext({ surface: "cli", cwd: targetRoot }),
+  );
+  output.write(`${JSON.stringify(invocation.value, null, 2)}\n`);
+}
+
 function inferInstallIntent(parsed: ParsedArgs): InstallIntent {
   return parsed.setupSubcommand === "reconfigure" ? "reconfigure" : "apply";
 }
@@ -568,7 +629,7 @@ function printInstallStatus(options: {
   lines.push(
     "",
     "Bare `make-docs` never syncs an existing install.",
-    "Use `make-docs setup` to sync, `make-docs setup reconfigure` to change selections, or `make-docs --help` for all commands.",
+    "Use `make-docs setup` to sync, `make-docs setup reconfigure` to change project selections, or `make-docs setup skills` to change skill selections.",
     "",
   );
   output.write(lines.join("\n"));
@@ -649,6 +710,47 @@ function resolveSelections(options: {
     selections.resourceProjection = [...parsed.projectResources];
   }
   return selections;
+}
+
+const EXISTING_INSTALL_SKILL_SELECTION_CHANGE_ERROR =
+  "Existing installs cannot change skill selections with `make-docs setup` or `make-docs setup reconfigure`. Use `make-docs setup skills` to change the enabled state, scope, selected skill names, manifest source, or selection provenance. No files were changed.";
+
+function assertExistingInstallSkillSelectionUnchanged(options: {
+  existingManifest: InstallManifest | null;
+  selections: InstallSelections;
+}): void {
+  const { existingManifest, selections } = options;
+  if (!existingManifest) {
+    return;
+  }
+
+  const existingSelections = existingManifest.selections;
+  const existingSkillNames = [...existingSelections.selectedSkills].sort();
+  const requestedSkillNames = [...selections.selectedSkills].sort();
+  const selectedSkillNamesChanged =
+    existingSkillNames.length !== requestedSkillNames.length ||
+    existingSkillNames.some((name, index) => name !== requestedSkillNames[index]);
+  const existingSkillBinding = JSON.stringify({
+    manifest: existingSelections.skillManifest ?? null,
+    provenance: [...(existingSelections.skillSelectionProvenance ?? [])].sort((left, right) =>
+      left.skillName.localeCompare(right.skillName),
+    ),
+  });
+  const requestedSkillBinding = JSON.stringify({
+    manifest: selections.skillManifest ?? null,
+    provenance: [...(selections.skillSelectionProvenance ?? [])].sort((left, right) =>
+      left.skillName.localeCompare(right.skillName),
+    ),
+  });
+
+  if (
+    existingSelections.skills !== selections.skills ||
+    existingSelections.skillScope !== selections.skillScope ||
+    selectedSkillNamesChanged ||
+    existingSkillBinding !== requestedSkillBinding
+  ) {
+    throw new Error(EXISTING_INSTALL_SKILL_SELECTION_CHANGE_ERROR);
+  }
 }
 
 function hasSelectionOverrides(parsed: ParsedArgs): boolean {
@@ -1421,7 +1523,8 @@ function renderNoopExplanation(options: {
 
   lines.push(
     "Useful next steps:",
-    "- Run `make-docs setup reconfigure` to change which docs, harnesses, or skills are managed.",
+    "- Run `make-docs setup reconfigure` to change which docs, harnesses, or project resources are managed.",
+    "- Run `make-docs setup skills` to change managed skills.",
     "- Run `make-docs --dry-run` after upgrading make-docs to preview future changes.",
   );
 
@@ -1551,6 +1654,31 @@ Resource options:
   --project-resources <csv|all|none>
                                   Copy only the selected system resource types into this project.`;
 
+const RECONFIGURE_SHARED_OPTIONS = `General options:
+  --target <dir>                 Operate on a different make-docs install directory.
+  --dry-run                      Show planned changes without writing files.
+  --yes                          Skip interactive prompts.
+  --help, -h                     Show help for this command.
+
+Content options:
+  --no-designs                   Skip docs/designs scaffolding.
+  --no-plans                     Skip docs/plans scaffolding.
+  --no-prd                       Skip docs/prd scaffolding.
+  --no-work                      Skip docs/work scaffolding.
+
+Harness options:
+  --no-codex                     Skip the Codex harness.
+  --no-claude-code               Skip the Claude Code harness.
+  Deprecated aliases: --no-agents, --no-claude
+
+Skill selections:
+  Existing installs keep their saved skill enabled state, scope, and names.
+  Use \`make-docs setup skills\` to change skill selections.
+
+Resource options:
+  --project-resources <csv|all|none>
+                                  Copy only the selected system resource types into this project.`;
+
 function printHelp(command?: Command, setupSubcommand?: SetupSubcommand): void {
   if (command === "setup") {
     switch (setupSubcommand) {
@@ -1566,13 +1694,13 @@ Non-interactive runs with --yes must include at least one selection flag.
 Usage:
   make-docs setup reconfigure [options]
 
-${SETUP_SHARED_OPTIONS}
+${RECONFIGURE_SHARED_OPTIONS}
 
 Examples:
   make-docs setup reconfigure
   make-docs setup reconfigure --target ~/Projects/example --dry-run
   make-docs setup reconfigure --yes --no-work
-  make-docs setup reconfigure --yes --no-codex --skill-scope global --selected-skills decompose-codebase
+  make-docs setup reconfigure --yes --no-codex --project-resources none
 `);
         return;
       case "skills":
@@ -1667,8 +1795,8 @@ Usage:
   make-docs setup remove [options]
 
 Subcommands:
-  reconfigure  Change saved selections for an existing install.
-  skills       Sync or remove managed skills.
+  reconfigure  Change saved project selections for an existing install.
+  skills       Change, sync, or remove managed skills.
   backup       Create a backup of managed files.
   remove       Remove this project's managed files, with an optional backup first.
 
@@ -1678,7 +1806,7 @@ Examples:
   make-docs setup
   make-docs setup --yes
   make-docs setup --target ~/Projects/example --dry-run
-  make-docs setup reconfigure --yes --no-skills
+  make-docs setup reconfigure --yes --no-work
   make-docs setup remove --backup
 `);
         return;
@@ -1693,10 +1821,14 @@ Manage canonical project support surfaces.
 
 Usage:
   make-docs project surface ensure <archive|artifacts|assets>
+  make-docs project path-hygiene validate [--target <dir>] [--manifest <path>] [--include-skills] [--allow-comment-token <text>]
 
 The ensure command creates only the selected on-demand directory after it
 checks the trusted project manifest and configured routers. It reports the
 applied or unchanged state, plan dispositions, receipt, and next check.
+
+The path-hygiene command validates managed text paths through the same typed
+operation that the MCP tool and migration checkpoint use.
 `);
       return;
     case "resource":
@@ -1793,6 +1925,7 @@ Usage:
   make-docs
   make-docs setup [reconfigure|skills|backup|remove] [options]
   make-docs project surface ensure <archive|artifacts|assets>
+  make-docs project path-hygiene validate [options]
   make-docs resource <list|read|ensure> [options]
   make-docs run <domain> <verb> [options]
   make-docs mcp

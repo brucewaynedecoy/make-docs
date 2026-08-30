@@ -183,6 +183,7 @@ describe("R-TEST-1: CLI run tree and MCP tool list are registry-derived with ful
 
     expect(registryIds.length).toBeGreaterThan(0);
     expect(nonRunRegistryIds).toEqual([
+      "project.path-hygiene.validate",
       "project.surface.ensure",
       "resource.ensure",
       "resource.list",

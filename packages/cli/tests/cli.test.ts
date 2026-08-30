@@ -593,64 +593,182 @@ personas:
     }
   });
 
-  test("applies selection flags on setup for an existing install", async () => {
+  test("rejects an existing-install skill enabled-state change before any write", async () => {
     const targetDir = createTempDir();
 
     try {
       await installManifest(targetDir, enableAllSkills);
-      const claudeSkillPath = path.join(targetDir, ".claude/skills/archive-docs");
-      const codexSkillPath = path.join(targetDir, ".agents/skills/archive-docs");
-      expect(existsSync(claudeSkillPath)).toBe(true);
-      expect(existsSync(codexSkillPath)).toBe(true);
+      const manifestPath = path.join(targetDir, ".make-docs/manifest.json");
+      const claudeSkillPath = path.join(targetDir, ".claude/skills/archive-docs/SKILL.md");
+      const codexSkillPath = path.join(targetDir, ".agents/skills/archive-docs/SKILL.md");
+      const manifestBefore = readFileSync(manifestPath);
+      const claudeSkillBefore = readFileSync(claudeSkillPath);
+      const codexSkillBefore = readFileSync(codexSkillPath);
       confirmMock.mockResolvedValue(true);
-      const { runCli } = await import("../src/cli");
 
-      await runCli(["setup", "--no-skills", "--target", targetDir]);
+      const error = await captureCliError(["setup", "--no-skills", "--target", targetDir]);
 
+      expect(error.message).toContain("Existing installs cannot change skill selections");
+      expect(error.message).toContain("Use `make-docs setup skills`");
       expect(runSelectionWizardMock).not.toHaveBeenCalled();
       expect(promptForManagedFileConflictResolutionsMock).not.toHaveBeenCalled();
-      expect(loadManifest(targetDir)?.selections.skills).toBe(false);
-      expect(loadManifest(targetDir)?.selections.selectedSkills).toEqual([]);
-      expect(existsSync(claudeSkillPath)).toBe(false);
-      expect(existsSync(codexSkillPath)).toBe(false);
+      expect(confirmMock).not.toHaveBeenCalled();
+      expect(readFileSync(manifestPath)).toEqual(manifestBefore);
+      expect(readFileSync(claudeSkillPath)).toEqual(claudeSkillBefore);
+      expect(readFileSync(codexSkillPath)).toEqual(codexSkillBefore);
     } finally {
       cleanupTempDir(targetDir);
     }
   });
 
-  test("applies interactive managed file conflict overwrite resolutions", async () => {
+  test("rejects existing-install skill source and provenance changes before any write", async () => {
+    const targetDir = createTempDir();
+    const firstSource = createLocalSkillManifestFixture();
+    const secondSource = createLocalSkillManifestFixture();
+
+    try {
+      const { runCli } = await import("../src/cli");
+      await runCli([
+        "setup",
+        "--yes",
+        "--skill-manifest",
+        firstSource.manifestPath,
+        "--selected-skills",
+        "acme-release",
+        "--target",
+        targetDir,
+      ]);
+      const manifestPath = path.join(targetDir, ".make-docs/manifest.json");
+      const sharedSkillPath = path.join(
+        targetDir,
+        ".make-docs/agentics/skills/acme-release/SKILL.md",
+      );
+      const codexSkillPath = path.join(targetDir, ".agents/skills/acme-release/SKILL.md");
+      const manifestBefore = readFileSync(manifestPath);
+      const sharedSkillBefore = readFileSync(sharedSkillPath);
+      const codexSkillBefore = readFileSync(codexSkillPath);
+
+      const sourceError = await captureCliError([
+        "setup",
+        "--yes",
+        "--skill-manifest",
+        secondSource.manifestPath,
+        "--selected-skills",
+        "acme-release",
+        "--target",
+        targetDir,
+      ]);
+      expect(sourceError.message).toContain("manifest source");
+      expect(sourceError.message).toContain("Use `make-docs setup skills`");
+      expect(readFileSync(manifestPath)).toEqual(manifestBefore);
+      expect(readFileSync(sharedSkillPath)).toEqual(sharedSkillBefore);
+      expect(readFileSync(codexSkillPath)).toEqual(codexSkillBefore);
+
+      const changedProvenanceManifest = JSON.parse(
+        readFileSync(firstSource.manifestPath, "utf8"),
+      );
+      changedProvenanceManifest.skills[0].provenance.label = "Changed local provenance";
+      writeFileSync(
+        firstSource.manifestPath,
+        `${JSON.stringify(changedProvenanceManifest, null, 2)}\n`,
+        "utf8",
+      );
+      const provenanceError = await captureCliError([
+        "setup",
+        "--yes",
+        "--skill-manifest",
+        firstSource.manifestPath,
+        "--selected-skills",
+        "acme-release",
+        "--target",
+        targetDir,
+      ]);
+      expect(provenanceError.message).toContain("selection provenance");
+      expect(readFileSync(manifestPath)).toEqual(manifestBefore);
+      expect(readFileSync(sharedSkillPath)).toEqual(sharedSkillBefore);
+      expect(readFileSync(codexSkillPath)).toEqual(codexSkillBefore);
+    } finally {
+      cleanupTempDir(targetDir);
+      cleanupTempDir(firstSource.rootDir);
+      cleanupTempDir(secondSource.rootDir);
+    }
+  });
+
+  test("routes a noop manifest-only project ID mint through migration safety", async () => {
+    const targetDir = createTempDir();
+
+    try {
+      await installManifest(targetDir);
+      const manifestPath = path.join(targetDir, ".make-docs/manifest.json");
+      const manifest = loadManifest(targetDir)!;
+      delete manifest.projectId;
+      writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
+      const before = loadManifest(targetDir)!;
+      const plan = await planInstall({
+        targetDir,
+        selections: before.selections,
+        existingManifest: before,
+        operation: "setup",
+      });
+      expect(plan.actions.every((action) => action.type === "noop")).toBe(true);
+
+      const { runCli } = await import("../src/cli");
+      await runCli(["setup", "--yes", "--target", targetDir]);
+
+      expect(loadManifest(targetDir)?.projectId).toMatch(
+        /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/,
+      );
+      const receiptDir = path.join(targetDir, ".make-docs/state/migration-receipts");
+      const receipts = readdirSync(receiptDir)
+        .map((name) => JSON.parse(readFileSync(path.join(receiptDir, name), "utf8")))
+        .filter((receipt) => receipt.status === "completed")
+        .sort((left, right) => left.checkpoint - right.checkpoint);
+      expect(receipts.map((receipt) => receipt.checkpoint)).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
+      expect(new Set(receipts.map((receipt) => receipt.snapshotId)).size).toBe(1);
+      const backupRoots = readdirSync(path.join(targetDir, ".make-docs/backup"));
+      expect(backupRoots).toHaveLength(1);
+      const backupManifest = JSON.parse(
+        readFileSync(
+          path.join(targetDir, ".make-docs/backup", backupRoots[0]!, "backup-manifest.json"),
+          "utf8",
+        ),
+      );
+      expect(backupManifest.entries).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            relativePath: ".make-docs/manifest.json",
+            copied: true,
+            verified: true,
+          }),
+        ]),
+      );
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("fails closed before overwriting a managed block without manifest ownership", async () => {
     const targetDir = createTempDir();
 
     try {
       writeConflictingRootInstruction(targetDir);
+      const agentsPath = path.join(targetDir, "AGENTS.md");
+      const agentsBefore = readFileSync(agentsPath);
       runSelectionWizardMock.mockResolvedValue(defaultSelections());
       promptForManagedFileConflictResolutionsMock.mockResolvedValue({
         "AGENTS.md": "overwrite",
       });
-      const { runCli } = await import("../src/cli");
 
-      await runCli(["setup", "--target", targetDir]);
+      const error = await captureCliError(["setup", "--target", targetDir]);
 
-      expect(promptForManagedFileConflictResolutionsMock).toHaveBeenCalledWith([
-        {
-          relativePath: "AGENTS.md",
-          group: "agent-instructions",
-          sourceId: "file:AGENTS.md",
-          instructionKind: "AGENTS.md",
-          scope: "managed-block",
-          reason:
-            "Existing conflicting make-docs managed block was skipped because no reassert resolution was provided.",
-        },
-      ]);
-      expect(readFileSync(path.join(targetDir, "AGENTS.md"), "utf8")).not.toBe(
-        `${renderManagedBlock("- Locally edited make-docs routing.\n")}\n`,
+      expect(error.message).toBe(
+        "Migration checkpoint 3 ended with status failed: The frozen classification does not permit reviewed mutation (ambiguous-ownership).",
       );
-      expect(loadManifest(targetDir)?.files["AGENTS.md"]).toEqual(
-        expect.objectContaining({ sourceId: "file:AGENTS.md" }),
-      );
-      expect(listConflictFiles(targetDir).some((file) => file.endsWith("/AGENTS.md"))).toBe(
-        false,
-      );
+      expect(runSelectionWizardMock).toHaveBeenCalledOnce();
+      expect(promptForManagedFileConflictResolutionsMock).toHaveBeenCalledOnce();
+      expect(readFileSync(agentsPath)).toEqual(agentsBefore);
+      expect(existsSync(path.join(targetDir, ".make-docs/manifest.json"))).toBe(false);
+      expect(listConflictFiles(targetDir)).toEqual([]);
     } finally {
       cleanupTempDir(targetDir);
     }
@@ -1217,7 +1335,7 @@ personas:
     }
   });
 
-  test("reconfigure can disable skills while preserving the stored skill scope", async () => {
+  test("rejects a reconfigure skill enabled-state change before any write", async () => {
     const targetDir = createTempDir();
     const fakeHome = createTempDir("make-docs-home-");
     const restoreHome = mockHomeDirectory(fakeHome);
@@ -1228,17 +1346,23 @@ personas:
         selections.skillScope = "global";
         selections.selectedSkills = ["decompose-codebase"];
       });
-      const { runCli } = await import("../src/cli");
+      const manifestPath = path.join(targetDir, ".make-docs/manifest.json");
+      const skillPath = path.join(fakeHome, ".make-docs/agentics/skills/decompose-codebase/SKILL.md");
+      const manifestBefore = readFileSync(manifestPath);
+      const skillBefore = readFileSync(skillPath);
 
-      await runCli(["setup", "reconfigure", "--yes", "--no-skills", "--target", targetDir]);
+      const error = await captureCliError([
+        "setup",
+        "reconfigure",
+        "--yes",
+        "--no-skills",
+        "--target",
+        targetDir,
+      ]);
 
-      const manifest = loadManifest(targetDir);
-      expect(manifest?.selections.skills).toBe(false);
-      expect(manifest?.selections.skillScope).toBe("global");
-      expect(manifest?.selections.selectedSkills).toEqual([]);
-      expect(
-        existsSync(path.join(targetDir, ".claude/skills/decompose-codebase")),
-      ).toBe(false);
+      expect(error.message).toContain("Use `make-docs setup skills`");
+      expect(readFileSync(manifestPath)).toEqual(manifestBefore);
+      expect(readFileSync(skillPath)).toEqual(skillBefore);
     } finally {
       restoreHome();
       cleanupTempDir(targetDir);
@@ -1246,45 +1370,46 @@ personas:
     }
   });
 
-  test("reconfigure can clear selected skills and change the skill scope", async () => {
-    const targetDir = createTempDir();
-    const fakeHome = createTempDir("make-docs-home-");
-    const restoreHome = mockHomeDirectory(fakeHome);
+  test("rejects reconfigure skill scope and selected-name changes before any write", async () => {
+    for (const skillChangeArgs of [
+      ["--skill-scope", "project"],
+      ["--selected-skills", "none"],
+    ]) {
+      const targetDir = createTempDir();
+      const fakeHome = createTempDir("make-docs-home-");
+      const restoreHome = mockHomeDirectory(fakeHome);
 
-    try {
-      await installManifest(targetDir, (selections) => {
-        selections.skills = true;
-        selections.skillScope = "global";
-        selections.selectedSkills = ["decompose-codebase"];
-      });
-      const { runCli } = await import("../src/cli");
+      try {
+        await installManifest(targetDir, (selections) => {
+          selections.skills = true;
+          selections.skillScope = "global";
+          selections.selectedSkills = ["decompose-codebase"];
+        });
+        const manifestPath = path.join(targetDir, ".make-docs/manifest.json");
+        const skillPath = path.join(
+          fakeHome,
+          ".make-docs/agentics/skills/decompose-codebase/SKILL.md",
+        );
+        const manifestBefore = readFileSync(manifestPath);
+        const skillBefore = readFileSync(skillPath);
 
-      await runCli([
-        "setup",
-        "reconfigure",
-        "--yes",
-        "--skill-scope",
-        "project",
-        "--selected-skills",
-        "none",
-        "--target",
-        targetDir,
-      ]);
+        const error = await captureCliError([
+          "setup",
+          "reconfigure",
+          "--yes",
+          ...skillChangeArgs,
+          "--target",
+          targetDir,
+        ]);
 
-      const manifest = loadManifest(targetDir);
-      expect(manifest?.selections.skills).toBe(true);
-      expect(manifest?.selections.skillScope).toBe("project");
-      expect(manifest?.selections.selectedSkills).toEqual([]);
-      expect(existsSync(path.join(targetDir, ".claude/skills/archive-docs"))).toBe(
-        false,
-      );
-      expect(
-        existsSync(path.join(targetDir, ".claude/skills/decompose-codebase")),
-      ).toBe(false);
-    } finally {
-      restoreHome();
-      cleanupTempDir(targetDir);
-      cleanupTempDir(fakeHome);
+        expect(error.message).toContain("Use `make-docs setup skills`");
+        expect(readFileSync(manifestPath)).toEqual(manifestBefore);
+        expect(readFileSync(skillPath)).toEqual(skillBefore);
+      } finally {
+        restoreHome();
+        cleanupTempDir(targetDir);
+        cleanupTempDir(fakeHome);
+      }
     }
   });
 
@@ -1547,7 +1672,10 @@ personas:
     expect(output).toContain("Non-interactive runs with --yes must include at least one selection flag");
     expect(output).toContain("--yes                          Skip interactive prompts.");
     expect(output).toContain("make-docs setup reconfigure --yes --no-work");
-    expect(output).toContain("--selected-skills <csv|all|none>");
+    expect(output).toContain("Use `make-docs setup skills` to change skill selections.");
+    expect(output).not.toContain("--selected-skills <csv|all|none>");
+    expect(output).not.toContain("--skill-scope project|global");
+    expect(output).not.toContain("--no-skills");
     expect(output).not.toContain("--optional-skills");
     expect(output).not.toContain("--no-prompts");
     expect(output).not.toContain("--templates required|all");
@@ -1602,8 +1730,10 @@ personas:
 
     expect(output).toContain("make-docs setup");
     expect(output).toContain("Subcommands:");
-    expect(output).toContain("reconfigure  Change saved selections for an existing install.");
-    expect(output).toContain("skills       Sync or remove managed skills.");
+    expect(output).toContain(
+      "reconfigure  Change saved project selections for an existing install.",
+    );
+    expect(output).toContain("skills       Change, sync, or remove managed skills.");
     expect(output).toContain("backup       Create a backup of managed files.");
     expect(output).toContain(
       "remove       Remove this project's managed files, with an optional backup first.",
