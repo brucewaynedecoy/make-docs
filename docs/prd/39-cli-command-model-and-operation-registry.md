@@ -61,6 +61,7 @@ The requirements below are the normative authority. Their stable identifiers pre
 
 - R-RUN-1 (MUST): the `run` surface exposes only registry operations. It contains active `run prd authority validate` and active `run work` commands for `item resolve`, `evidence record`, and `evidence read`. It contains pending `run lifecycle` commands for `start`, `show`, `list`, `checkpoint`, `pause`, `resume`, `attach-evidence`, `complete`, `fail`, and `abandon`. It also contains pending `run uat` commands for `scenario validate`, `persona resolve`, `target validate`, `evidence-reference validate`, `finding validate`, and `result validate`.
 - R-RUN-2 (MUST NOT): wave-status, work-phase-state, phase-plan, phase-gate decision, scope-guard, closeout judgment, generation judgment, and other derivation-heavy workflow policy are not registry operations or `run` commands.
+- R-RUN-3 (MUST): lifecycle adapters preserve the PRD 38 transition matrix without transport-specific changes. `show` and `list` read every status. `checkpoint` accepts `active` and `paused`. `attach-evidence` accepts every status but cannot change status or reopen a terminal run. `pause` accepts `active`; `resume` accepts `paused`; `complete` accepts `active`; and `fail` and `abandon` accept `active` or `paused`. Terminal runs reject checkpoints and later status transitions. CLI and MCP adapters return the same typed invalid-transition outcome for the same input.
 - The work domain remains bounded to one identity resolver and one evidence record-and-read pair keyed to the global-store Project State model. The PRD domain remains bounded to the read-only active-authority validator unless the owning PRDs are updated.
 
 - `make-docs resource list [--type <contract|prompt|reference|template>] [--prefix <path>] [--origin <effective|local|installed>] [--format table|json]` is deterministic and URI-sorted. `make-docs resource read <make-docs://system/...> [--origin <effective|local|installed>] [--format raw|json]` emits only bytes in raw mode and the versioned metadata/content envelope in JSON mode. Both are read-only. `make-docs resource ensure <make-docs://system/...>` is a reviewed mutation for exactly one selected local projection. All three operations use one resolver and project to MCP tools. Only list and read also back native MCP resources.
@@ -220,6 +221,14 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: P3 owns a 24-identifier nonlegacy inventory with exact active and pending states. P3 also freezes the separate legacy baseline. P4, P6, and P7 activate their handlers. P5 and P8 own the legacy stop and removal sequence.
 - Rationale: The approved decisions make adapter parity finite and prevent both false handler claims and partial legacy removal.
 - Source: [W19 R1 P3](../work/2026-08-14-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/03-operation-registry-cli-and-mcp.md)
+
+### 2026-08-30 — W19 R1 P6
+
+- Affected requirement or section: `Current Run Surface (R-RUN)`
+- Previous contract: the registry defined the lifecycle identifiers and transport projections, but it did not state the exact paused and terminal transition behavior that both transports must preserve.
+- Replacement contract: the CLI and MCP adapters share the accepted PRD 38 lifecycle matrix and return the same typed invalid-transition result.
+- Rationale: one transport-neutral rule prevents CLI and MCP behavior from drifting while P6 activates the ten lifecycle operations.
+- Source: accepted owner decision `P6-TRANSITIONS` in W19 R1 P6.
 
 ## Source Anchors
 

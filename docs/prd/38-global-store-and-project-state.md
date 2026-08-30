@@ -57,6 +57,7 @@ The requirements below are the normative authority. Their stable identifiers pre
 - R-PS-4 (MUST): every successful Store mutation returns a dedicated `LifecycleStoreMutationReceipt` with exactly `schemaVersion: 1`, `receiptId`, `operation`, `projectId`, `runId`, `storeSchemaVersion`, `resultingVersion`, and `committedAt`. The receipt identifier is a digest of the remaining receipt subject fields. Read-only operations return no mutation receipt. The receipt proves only the Store transaction; it does not prove a repository write, validation result, UAT result, publication, external delivery, or phase closure. The receipt carries no evidence payload, backup data, rollback data, or claim map. Existing lifecycle and migration receipt types remain unchanged.
 - R-PS-5 (MUST): `run-capture-unavailable` is a typed outcome that records no repository mutation and implies no automatic retry. It is non-blocking for repository workflows unless the user invoked a direct Store or run-capture gate that explicitly requires success.
 - R-PS-6 (MUST NOT): legacy `playbook_runs` data remains opaque, untouched, and excluded from current run listings. Setup, update, migration, and lifecycle commands do not convert, delete, infer, or merge it into `runs`; any future adoption requires separate accepted authority and an explicit reviewed migration.
+- R-PS-7 (MUST): `lifecycle.show` and `lifecycle.list` are valid for every run status. `lifecycle.checkpoint` is valid only for `active` or `paused` runs. `lifecycle.attach-evidence` is valid for every run status, but it does not change the run status or reopen a terminal run. `lifecycle.pause` is valid only from `active`; `lifecycle.resume` is valid only from `paused`; `lifecycle.complete` is valid only from `active`; and `lifecycle.fail` and `lifecycle.abandon` are valid only from `active` or `paused`. `completed`, `failed`, and `abandoned` runs reject checkpoints and every later status transition.
 
 ### Mirror Versus Relocated (R-MIR)
 
@@ -138,6 +139,15 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: The Store provides general lifecycle `runs` and bounded `run_evidence`, typed mutation receipts, stable manifest-backed project identity, transactional and platform-safe operation, explicit privacy controls, repository authority, separately authorized cleanup, and opaque untouched legacy `playbook_runs` excluded from current listings.
 - Rationale: Recovery requires a product-neutral operational Store that cannot overwrite repository truth, leak project content, or silently reinterpret removed Playbook/Protocol behavior.
 - Source: [Accepted W19 R1 recovery design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md) and [W19 R1 recovery plan](../plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md)
+
+### 2026-08-30 — W19 R1 P6
+
+- Affected requirement or section: `General Lifecycle Runs and Evidence (R-PS)`
+- Previous contract: P6 owned lifecycle state-transition validation, but current authority did not define the exact paused and terminal mutation matrix.
+- Replacement contract: reads are valid in every status; checkpoints are limited to active or paused runs; evidence references can be added without reopening a run; pause, resume, complete, fail, and abandon have explicit source-status rules; and terminal runs reject checkpoints and later status transitions.
+- Rationale: implementation and review need one deterministic matrix. The accepted model preserves audit evidence without allowing an evidence attachment to change lifecycle status.
+- Source: accepted owner decision `P6-TRANSITIONS` in W19 R1 P6.
+
 ## Source Anchors
 
 - [Performance Testing Guardrails design](../designs/2026-08-12-performance-testing-guardrails.md)

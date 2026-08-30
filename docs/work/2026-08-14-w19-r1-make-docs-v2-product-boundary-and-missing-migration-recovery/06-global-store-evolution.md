@@ -99,7 +99,7 @@ This phase implements migration checkpoint 9. The Store receives `runs` and `run
 
 ### Tasks
 
-- [ ] t13: Activate the P3-pending `lifecycle.start`, `lifecycle.show`, `lifecycle.list`, `lifecycle.checkpoint`, `lifecycle.pause`, `lifecycle.resume`, `lifecycle.attach-evidence`, `lifecycle.complete`, `lifecycle.fail`, and `lifecycle.abandon` handlers. Preserve the `make-docs run lifecycle <operation>` CLI paths and derived MCP tools. Implement PRD-defined transition validation and optimistic concurrency.
+- [ ] t13: Activate the P3-pending `lifecycle.start`, `lifecycle.show`, `lifecycle.list`, `lifecycle.checkpoint`, `lifecycle.pause`, `lifecycle.resume`, `lifecycle.attach-evidence`, `lifecycle.complete`, `lifecycle.fail`, and `lifecycle.abandon` handlers. Preserve the `make-docs run lifecycle <operation>` CLI paths and derived MCP tools. Implement PRD-defined transition validation and optimistic concurrency. Reads accept every status. Checkpoints accept `active` or `paused`. Evidence attachment accepts every status without changing status or reopening a terminal run. Pause accepts `active`; resume accepts `paused`; complete accepts `active`; and fail and abandon accept `active` or `paused`. Terminal runs reject checkpoints and later status transitions.
 - [ ] t14: Restrict current `run_type` and lifecycle/status vocabularies to the PRD-defined values; reject unknown values rather than converting them into arbitrary metadata.
 - [ ] t15: Store only bounded evidence references with kind, project-relative path or sanitized external reference, optional digest, and timestamp; reject bodies, screenshots, recordings, logs, prompts, secrets, credentials, and arbitrary payloads.
 - [ ] t16: Keep repository PRDs, work, scenarios, findings, evidence artifacts, gates, and history authoritative; Store rows are rebuildable operational projection and never close those records.
@@ -107,7 +107,7 @@ This phase implements migration checkpoint 9. The Store receives `runs` and `run
 
 ### Acceptance criteria
 
-- All transitions enforce optimistic version and legal-state rules.
+- All transitions enforce optimistic version and the exact PRD 38 legal-state matrix. CLI and MCP return the same typed invalid-transition outcome.
 - Evidence storage is reference-only, bounded, sanitized, and non-authoritative.
 - Unavailable capture has exact typed semantics and cannot trigger an unbounded retry loop.
 - Legacy rows never appear in current operations.
