@@ -1,7 +1,7 @@
 ---
 title: "Phase 5: Compatibility, Quiescence, Backup, and Migration"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W19 R1 P5"
 source:
   type: "prd"
@@ -129,10 +129,10 @@ No item is `unrelated`. No `new-authority-gap` remains.
 
 ### Tasks
 
-- [ ] t9: Implement the PRD-defined top-level compatibility states and resource, filesystem, manifest-provenance, Store, legacy-asset, path-safety, and optional-agentics facets with fail-closed typed outcomes.
-- [ ] t10: Acquire a project-scoped migration lock, record the exact repository/manifest identity, inventory affected paths and Store facets, and freeze one reviewed classification snapshot for plan, backup, apply, and rollback.
-- [ ] t11: Bind the P3 frozen Playbook/Protocol baseline and every known writer or discovery path to the reviewed P5 migration snapshot. Complete all P5 snapshot and backup duties for the P5 migration. Leave only the fresh trace and backup for removal of the frozen public surfaces to P8.
-- [ ] t12: Establish the public Playbook/Protocol quiescence stop barrier so legacy writers cannot start or resume. Stop if any writer or unknown consumer can bypass the barrier. Do not remove a frozen legacy registry, implementation, CLI, or MCP surface in P5.
+- [x] t9: Implement the PRD-defined top-level compatibility states and resource, filesystem, manifest-provenance, Store, legacy-asset, path-safety, and optional-agentics facets with fail-closed typed outcomes.
+- [x] t10: Acquire a project-scoped migration lock, record the exact repository/manifest identity, inventory affected paths and Store facets, and freeze one reviewed classification snapshot for plan, backup, apply, and rollback.
+- [x] t11: Bind the P3 frozen Playbook/Protocol baseline and every known writer or discovery path to the reviewed P5 migration snapshot. Complete all P5 snapshot and backup duties for the P5 migration. Leave only the fresh trace and backup for removal of the frozen public surfaces to P8.
+- [x] t12: Establish the public Playbook/Protocol quiescence stop barrier so legacy writers cannot start or resume. Stop if any writer or unknown consumer can bypass the barrier. Do not remove a frozen legacy registry, implementation, CLI, or MCP surface in P5.
 
 ### Acceptance criteria
 
@@ -150,17 +150,17 @@ No item is `unrelated`. No `new-authority-gap` remains.
 
 ### Closeout Notes
 
-- Testing-mode decision(s): facet classification, lock contention, stale snapshot, active writer, and unknown consumer fixtures.
-- Phase / capability status: safety snapshot and quiescence established; backup remains open.
+- Implementation commit `96582ab4` adds fail-closed compatibility facets, a project lock, and one reviewed snapshot for plan, backup, apply, and rollback.
+- The stop barrier rejects active writers and blocks new legacy writes. The Playbook and Protocol registry, implementation, CLI, and MCP surfaces remain present and quiesced for P8.
 
 ## Stage 3 - Back Up And Plan Explicit Dispositions
 
 ### Tasks
 
-- [ ] t13: Back up every file, directory entry, manifest/config state, router block, selected resource, and Store facet that may be transformed or removed, including metadata required to restore permissions, links, and ownership safely.
-- [ ] t14: Verify the backup inventory and restore plan before apply, record exported or preserved user content explicitly, and reject incomplete, unreadable, ambiguous, or root-escaping backup targets.
-- [ ] t15: Produce a dry-run plan giving every affected file one disposition: preserve as project-owned, export then replace, overwrite only when clean managed ownership is proven, skip, or stop.
-- [ ] t16: Enforce symlink unlink-without-following, unmanaged-descendant preservation, POSIX logical identity, Windows path/permission variance, sanitized external references, and secret/privacy exclusion in the plan.
+- [x] t13: Back up every file, directory entry, manifest/config state, router block, selected resource, and Store facet that may be transformed or removed, including metadata required to restore permissions, links, and ownership safely.
+- [x] t14: Verify the backup inventory and restore plan before apply, record exported or preserved user content explicitly, and reject incomplete, unreadable, ambiguous, or root-escaping backup targets.
+- [x] t15: Produce a dry-run plan giving every affected file one disposition: preserve as project-owned, export then replace, overwrite only when clean managed ownership is proven, skip, or stop.
+- [x] t16: Enforce symlink unlink-without-following, unmanaged-descendant preservation, POSIX logical identity, Windows path/permission variance, sanitized external references, and secret/privacy exclusion in the plan.
 
 ### Acceptance criteria
 
@@ -176,21 +176,21 @@ No item is `unrelated`. No `new-authority-gap` remains.
 
 ### Closeout Notes
 
-- Testing-mode decision(s): backup completeness, restore rehearsal, per-file disposition, symlink, permissions, and secret-exclusion fixtures.
-- Phase / capability status: backup and reviewed plan complete; apply remains open.
+- Implementation commit `96582ab4` verifies the backup inventory and restore record before apply. An incomplete, changed, unreadable, ambiguous, or root-escaping backup stops the migration.
+- Each reviewed file has one explicit disposition. The plan preserves user-owned, modified, ambiguous, historical, and opaque content. It does not follow symlink targets.
 
 ## Stage 4 - Implement The Immutable Migration Coordinator
 
 ### Tasks
 
-- [ ] t17: Encode the normative thirteen-step order as explicit monotonic checkpoints; reject skips, backward transitions, silent reorder, changed snapshot fingerprints, or apply without the active lock and quiescence barrier.
-- [ ] t18: Implement checkpoint 1 to classify once and freeze the reviewed evidence snapshot, and checkpoint 2 to verify backup plus preserved/exported user content before any transformation.
-- [ ] t19: Implement checkpoint 3 to mint or upgrade manifest identity/provenance without claiming ambiguous ownership and checkpoint 4 to install only the minimal manifest and configured routers.
-- [ ] t20: Implement checkpoint 5 to establish top-level prompt identity plus machine resource list/read operations before router fallback changes and checkpoint 6 to move or install only selected clean resources under `.make-docs/system/**`.
-- [ ] t21: Implement checkpoint 7 to establish on-demand archive, artifact, and Persona-testing routing before transforming only clean managed legacy paths.
-- [ ] t22: Implement checkpoint 8 to install TypeScript path-hygiene operations, update references, and remove a Python helper only when trusted hashes prove managed ownership and replacement parity.
-- [ ] t23: Represent checkpoints 9 through 13 as locked downstream prerequisites: P6 general Store tables, P7 Naive-UAT/Persona/Skill/evidence, P8 traced retirement, P9 explicitly selected agentics, and P10 fresh/package/dogfood/legacy validation.
-- [ ] t24: Persist typed paused, blocked, failed, rollback-required, and completed checkpoint receipts without treating a receipt as validation or permission to enter a downstream phase.
+- [x] t17: Encode the normative thirteen-step order as explicit monotonic checkpoints; reject skips, backward transitions, silent reorder, changed snapshot fingerprints, or apply without the active lock and quiescence barrier.
+- [x] t18: Implement checkpoint 1 to classify once and freeze the reviewed evidence snapshot, and checkpoint 2 to verify backup plus preserved/exported user content before any transformation.
+- [x] t19: Implement checkpoint 3 to mint or upgrade manifest identity/provenance without claiming ambiguous ownership and checkpoint 4 to install only the minimal manifest and configured routers.
+- [x] t20: Implement checkpoint 5 to establish top-level prompt identity plus machine resource list/read operations before router fallback changes and checkpoint 6 to move or install only selected clean resources under `.make-docs/system/**`.
+- [x] t21: Implement checkpoint 7 to establish on-demand archive, artifact, and Persona-testing routing before transforming only clean managed legacy paths.
+- [x] t22: Implement checkpoint 8 to install TypeScript path-hygiene operations, update references, and remove a Python helper only when trusted hashes prove managed ownership and replacement parity.
+- [x] t23: Represent checkpoints 9 through 13 as locked downstream prerequisites: P6 general Store tables, P7 Naive-UAT/Persona/Skill/evidence, P8 traced retirement, P9 explicitly selected agentics, and P10 fresh/package/dogfood/legacy validation.
+- [x] t24: Persist typed paused, blocked, failed, rollback-required, and completed checkpoint receipts without treating a receipt as validation or permission to enter a downstream phase.
 
 ### Acceptance criteria
 
@@ -206,18 +206,18 @@ No item is `unrelated`. No `new-authority-gap` remains.
 
 ### Closeout Notes
 
-- Testing-mode decision(s): transition table, checkpoint replay, snapshot drift, forced skip, downstream lock, and typed receipt fixtures.
-- Phase / capability status: checkpoints 1–8 implemented; 9–13 remain P6–P10 gates.
+- Implementation commit `96582ab4` adds the immutable thirteen-step coordinator. It rejects skips, replay, reorder, snapshot drift, lock loss, and unavailable product operations with typed receipts.
+- Checkpoints 1–8 are implemented. Checkpoints 9–13 remain locked to P6–P10. A P5 receipt does not grant access to a later checkpoint.
 
 ## Stage 5 - Prove Rollback And Safety
 
 ### Tasks
 
-- [ ] t25: Inject failures at every implemented checkpoint and prove rollback restores the pre-apply manifest, routers, managed bytes, preserved user content, links, and Store facet without following symlink targets.
-- [ ] t26: Prove lock loss, active-writer detection, snapshot drift, incomplete backup, ambiguous ownership, path escape, permission failure, and cross-platform mismatch stop safely with actionable typed outcomes.
-- [ ] t27: Run focused compatibility, migration, rollback, no-scripts/path-hygiene, PRD-authority regression, link, scope, and whitespace checks within the finite budget.
-- [ ] t28: Obtain independent review of classification, quiescence, backup, ordering, checkpoint boundaries, rollback, and preservation; correct only actionable defects within budget.
-- [ ] t29: Record exact migration interfaces, validation evidence, remaining nonblocking items, active quiescence requirements, and the locked checkpoint-9 handoff to P6.
+- [x] t25: Inject failures at every implemented checkpoint and prove rollback restores the pre-apply manifest, routers, managed bytes, preserved user content, links, and Store facet without following symlink targets.
+- [x] t26: Prove lock loss, active-writer detection, snapshot drift, incomplete backup, ambiguous ownership, path escape, permission failure, and cross-platform mismatch stop safely with actionable typed outcomes.
+- [x] t27: Run focused compatibility, migration, rollback, no-scripts/path-hygiene, PRD-authority regression, link, scope, and whitespace checks within the finite budget.
+- [x] t28: Obtain independent review of classification, quiescence, backup, ordering, checkpoint boundaries, rollback, and preservation; correct only actionable defects within budget.
+- [x] t29: Record exact migration interfaces, validation evidence, remaining nonblocking items, active quiescence requirements, and the locked checkpoint-9 handoff to P6.
 
 ### Acceptance criteria
 
@@ -234,5 +234,73 @@ No item is `unrelated`. No `new-authority-gap` remains.
 
 ### Closeout Notes
 
-- Testing-mode decision(s): failure injection, restore, cross-platform safety, and independent migration review.
-- Phase / capability status: P5 may close with evidence; checkpoint 9/P6 remains separately gated.
+- Failure injection proves bounded rollback or an explicit safe stop. User-owned, modified, ambiguous, historical, opaque, and newly created unmanaged content remains preserved.
+- P5 is complete and owner-accepted at implementation commit `96582ab4`. Test-boundary repair commit `7ef4bac2` is part of the reviewed result.
+
+#### Implementation And Independent Review
+
+P5 delivered fail-closed compatibility facets, a project-scoped lock, one reviewed migration snapshot, Playbook and Protocol quiescence without removal, verified backup and restore, explicit file dispositions, rollback and failure safety, and an immutable thirteen-step coordinator. Checkpoints 1–8 are active. Checkpoints 9–13 remain locked behind P6–P10. The implementation preserves user-owned, modified, ambiguous, historical, and opaque content.
+
+Independent review found no unresolved safety, ordering, scope, or candidate-test defect. Commit `7ef4bac2` repaired the test boundary. Ownership-based cleanup removes stale Make Docs-owned local skills. It preserves unrelated project-local skills.
+
+#### Exact Migration Interfaces
+
+- CLI entry paths: `make-docs setup` and `make-docs setup reconfigure`. `runCli` calls `executeInstallPlanMigration` for an existing non-fresh install with mutations.
+- Compatibility classification: `classifyMigrationCompatibility`.
+- Project lock: `acquireProjectMigrationLock` and `releaseProjectMigrationLock`.
+- Reviewed snapshot: `createReviewedMigrationSnapshot`.
+- Backup and restore: `createVerifiedMigrationBackup`, `verifyMigrationBackup`, and `restoreMigrationBackup`.
+- Coordinator: `ImmutableMigrationCoordinator` methods `advance`, `pause`, and `block`, with `MigrationCheckpointReceipt`.
+- Shared path-hygiene surface: operation ID `project.path-hygiene.validate`, CLI command `make-docs project path-hygiene validate`, and MCP tool `make_docs_project_path_hygiene_validate`.
+
+The full setup migration coordinator is CLI-only in P5. MCP exposes the shared path-hygiene operation. It does not expose the full setup migration.
+
+#### Final Validation
+
+- Focused P5 fixtures: 14/14 passed.
+- Affected tests: 185 passed.
+- Exact repair probes: 3/3 passed.
+- Full CLI suite: 1229/1229 passed.
+- `validate:defaults`: 47/47 passed.
+- TypeScript: passed.
+- Build: passed.
+- Path-hygiene parity: passed.
+- PRD authority: passed.
+- Diff check: passed.
+
+#### Human Experience Review
+
+| Human goal | Public surface | Evidence | Observation | Verdict | Reviewer limit | Follow-up |
+| --- | --- | --- | --- | --- | --- | --- |
+| Migrate a legacy Make Docs project without silent data loss, hidden sequence changes, or removal of content whose ownership is not proved. | CLI `make-docs setup` and `make-docs setup reconfigure` use the full migration path. CLI and MCP share only `project.path-hygiene.validate` for this P5 surface, through CLI command `make-docs project path-hygiene validate` and MCP tool `make_docs_project_path_hygiene_validate`. | The implementation diff, 14/14 focused fixtures, 185 affected tests, 3/3 repair probes, the full CLI suite, path-hygiene parity, rollback evidence, and independent review. | Unsafe ownership, path, writer, lock, snapshot, backup, and order states stop with typed outcomes. The coordinator preserves reviewed content and restores managed state after an injected failure. | The inspected evidence supports the human goal. The review found no unresolved human-experience defect. | This was an agent review of code, tests, terminal paths, and recorded evidence. It is not lived human judgment. It did not run a real legacy migration. | Recheck at P10. Recheck sooner if a real migration shows an unanswered user choice or error. |
+
+#### Coverage Reconciliation
+
+| Candidate | Verdict | Reason |
+| --- | --- | --- |
+| Current PRDs | `none` | Current PRDs already own the implemented behavior. No product authority changed. |
+| PRD history | `none` | P5 did not replace a current product contract. No history entry is needed. |
+| Risk register | `none` | P5 did not change a question, risk, or disposition. |
+| PRD index | `none` | P5 did not change PRD ownership, status, or navigation. |
+| P5 work record | `update-existing` | This record now carries task completion, implementation, review, validation, Human Experience Review, and handoff evidence. |
+| W19 R1 index | `update-existing` | The P5 row records completion, owner acceptance, and commit `96582ab4`. |
+| Developer guides | `none` | The change adds no developer workflow that needs guide coverage. |
+| User guides | `none` | The change adds no user workflow that needs guide coverage now. |
+| System guides and resources | `none` | No shipped default resource changed. |
+| Automated tests | `none` | Existing committed coverage is enough. |
+| Independent code and safety review | `update-existing` | This closeout records the independent review result. |
+| Owner acceptance | `update-existing` | The owner accepted implementation commit `96582ab4` and authorized this closeout. The current uncommitted documentation correction is not yet accepted as a document commit. |
+| Human Experience Review | `update-existing` | This closeout records the human goal, exact public surface, evidence, observation, verdict, reviewer limit, and follow-up. |
+| Knowledgeable manual interaction | `none` | No separate manual-only surface exists. CLI integration tests cover the terminal paths. Recheck if a manual-only surface appears. |
+| Naive UAT | `none / not-needed-now` | A useful unassisted migration cannot run now because P5 intentionally stops after checkpoint 8 and checkpoint 9 is locked. The complete 13-step legacy migration is not reachable in this slice. Current deterministic and Human Experience Review evidence remains applicable while checkpoint 9 is locked. Safe trigger: before the P10 release recommendation, after P6–P9 unlock checkpoints 9–12 and P10 can run all 13 checkpoints against an installed legacy-project fixture. W19 R1 P10 owns this trigger through [the existing P10 work file](./10-package-projection-dogfood-and-installed-project-validation.md). No new `O-###` item is needed because this route already exists. Recheck sooner if a new unassisted migration goal is added. |
+| Accessibility | `none` | No visual or assistive interface changed. |
+| Visual regression | `none` | No visual surface changed. |
+| Acceptance script | `none` | The phase does not need a separate acceptance script. |
+| Package and installed-project smoke | `none` | P10 owns package and installed-project smoke checks. |
+| Validation discovery links | `link-only` | Existing validation is sufficient. The committed [P5 fixture suite](../../../packages/cli/tests/p5-migration-safety.test.ts) and [migration implementation](../../../packages/cli/src/migration.ts) provide direct discovery links. |
+| History | `create` | One history breadcrumb records the P5 implementation, repair, review, validation, and coverage result. |
+| Deferred obligations and findings | `none` | P6 checkpoint 9 work is existing backlog. No deferred obligation or finding changed. |
+
+#### P6 Handoff
+
+P5 ends with checkpoints 1–8 complete. Checkpoint 9 stays locked. P6 remains separately gated and owns the global Store transaction.
