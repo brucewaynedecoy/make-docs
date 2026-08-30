@@ -91,6 +91,8 @@ Store facets use:
 - `supported-legacy`
 - `newer-unknown`
 - `corrupt`
+- `unknown`
+- `indeterminate`
 
 The safety lattice is monotonic. Any unknown, mixed, managed-modified, incomplete, ambiguous, contradictory, malformed, newer-unknown, corrupt, or contradictory-ownership state blocks unattended mutation for that facet. Confidence in one facet never overrides uncertainty in another.
 
@@ -118,7 +120,7 @@ The accepted order is normative for later PRD and backlog derivation:
 6. Move or install only selected clean local resources under `.make-docs/system/`.
 7. Establish on-demand archive, artifact, and persona-asset routing, then transform only clean managed legacy paths.
 8. Install TypeScript path-hygiene operations, update references, and remove only a hash-proven managed Python helper.
-9. Add general Store run tables while leaving `playbook_runs` opaque and untouched.
+9. Classify the Store before any setup mutation, then add general Store run tables and an internal checkpoint journal in one SQLite write transaction while leaving `playbook_runs` opaque and untouched.
 10. Rehome Naive-UAT system resources, add the thin first-party Skill adapter, reconcile `user` and `maintainer` execution with the `user` default, and establish `docs/assets/<persona-slug>/testing/`.
 11. Retire traced Playbook and Protocol runtime, packaging, tests, conformance, and support surfaces while preserving the quiescence barrier through validation.
 12. Install only explicitly selected, evidence-backed optional agentics.
@@ -131,7 +133,7 @@ No later backlog may reorder these stages silently. A proposed reorder must cite
 - Backup precedes every transformed or removed path and records preserved/exported user content.
 - Rollback restores the pre-migration filesystem backup and manifest receipt.
 - Rollback does not downgrade or delete independently advanced machine-local Store data.
-- Store migrations are ordered and transactional with their own recovery and compatibility checks.
+- Store migrations are ordered and transactional with their own recovery and compatibility checks. SQLite transaction rollback is the Store rollback boundary. Setup does not replace or restore the whole Store or its database after a Store migration commits.
 - Update repeats ownership/provenance classification and never overwrites managed-modified or ambiguous content unattended.
 - Uninstall removes only verified managed assets, reports retained project-owned content and Store state, and requires separate explicit authority to prune Store data.
 
@@ -165,6 +167,8 @@ The v2 run-type registry is closed to `lifecycle`. Lifecycle stages are limited 
 Supported statuses are `active`, `paused`, `completed`, `failed`, and `abandoned`. Registry operations cover start, show, list, checkpoint, pause, resume, attach evidence, complete, fail, and abandon.
 
 Every successful mutation returns a typed receipt containing run, operation, schema version, resulting optimistic version, and commit time. The receipt proves only the Store mutation. `run-capture-unavailable` leaves repository authority unchanged, creates no implied queue/retry, and is gate-required only when the gate directly tests Store migration or run capture.
+
+Checkpoint 9 classifies the Store before any setup mutation. Corrupt, unknown, newer, or indeterminate state stops setup without Store replacement or repair. The checkpoint-9 schema DDL, `user_version`, and one internal checkpoint-journal row commit in one SQLite write transaction. The transaction serializes writers and rolls back as one unit before commit. The journal contains checkpoint and receipt-projection metadata only. It contains no Store payload. The project-local checkpoint-9 migration receipt is an idempotent projection of the committed journal row. Setup retries a failed projection once. A second failure returns a typed checkpoint result and stops later setup work. A later setup uses the journal for projection recovery before a new setup mutation. Existing CLI and MCP operation identifiers do not change.
 
 ## Cross-Platform, Privacy, And Security
 

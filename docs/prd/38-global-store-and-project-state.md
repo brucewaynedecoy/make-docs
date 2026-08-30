@@ -43,6 +43,7 @@ The requirements below are the normative authority. Their stable identifiers pre
 - R-DB-2 (MUST): the database carries a schema version and a defined migration strategy; `update` applies migrations, and a database from a newer schema than the running CLI is handled explicitly rather than corrupted.
 - R-DB-3 (MUST): the database tolerates concurrent access from the CLI, the MCP server, and agent sessions through transactions, a defined locking discipline, and bounded busy retry; it must not rely on repository lock files or unsafe network-filesystem assumptions as the sole concurrency control.
 - R-DB-4 (MUST): the database has a defined recovery path; lost or corrupt operational state degrades gracefully — because the store holds operational state and not project knowledge, a missing database must not block reading the repository or re-establishing state, and must not be treated as data loss of project knowledge.
+- R-DB-5 (MUST): checkpoint 9 classifies the Store before any setup mutation and fails closed for corrupt, unknown, newer, or indeterminate state. Its schema DDL, `user_version`, and one internal checkpoint-journal row commit in one authoritative SQLite write transaction. This transaction is the Store rollback and cross-process serialization boundary. The journal contains only checkpoint and receipt-projection metadata and no Store payload. A failure before commit rolls back the transaction as one unit. After commit, setup must not replace or restore the whole Store or its database.
 
 ### Stable Project Identity (R-ID)
 
@@ -71,6 +72,7 @@ The requirements below are the normative authority. Their stable identifiers pre
 - R-LIFE-2 (MUST): project `setup remove` does not implicitly delete that project's Store rows. Removing Store state is a separate explicit reviewed action keyed by stable project identifier, must preserve opaque legacy tables, and must not affect other projects.
 - R-LIFE-3 (MUST): `update`, `setup`, and `setup reconfigure` classify Store schema state before mutation. Supported migrations run transactionally after review and backup when destructive; newer-unknown, corrupt, or ambiguous state fails closed without rewriting the database.
 - R-LIFE-4 (MUST): repository backup snapshots remain under project-local `.make-docs/backup/**`; the machine-level store does not absorb those snapshots or legacy root `.backup/**`. Tool `uninstall` handles the store explicitly, while project removal and repository backup use their own reviewed scopes and never delete repository content outside the approved project plan.
+- R-LIFE-5 (MUST): the project-local checkpoint-9 migration receipt is an idempotent projection of the committed checkpoint-journal row. Setup retries a failed receipt projection once. If both attempts fail, setup returns a typed checkpoint result, exits unsuccessfully, and makes no later setup mutation. A later setup uses the committed journal row to recover the projection before a new setup mutation. Receipt projection failure does not roll back, replace, or restore the committed Store.
 
 ### Privacy (R-PRIV)
 
@@ -89,6 +91,7 @@ The requirements below are the normative authority. Their stable identifiers pre
 - R-TEST-3 (MUST): a test asserts graceful degradation when the store database is missing or unreadable, confirming the repository remains readable and state can be re-established.
 - R-TEST-4 (MUST): tests assert project removal preserves Store rows unless separately authorized, explicit Store cleanup affects only the selected project, opaque `playbook_runs` remains unchanged and absent from current listings, and tool uninstall does not delete repository content.
 - R-TEST-5 (MUST): tests cover transactional recovery, bounded busy retry, privacy-safe export, path traversal and symlink rejection, Windows drive/UNC and case-collision handling, macOS case behavior, and Linux permissions without persisting secrets or document bodies.
+- R-TEST-6 (MUST): the finite P6 proof set covers checkpoint 9 through the integrated setup path, Store classification before setup mutation, cross-process writer serialization, one-transaction schema and journal commit, journal-based receipt recovery, and the typed stop result after two failed receipt-projection attempts. The proof also confirms that post-commit failure does not replace or restore the Store and that CLI and MCP operation identifiers do not change.
 
 This PRD fixes Store-not-repo placement of bounded operational state, platform-safe Store resolution, manifest-minted identity that is never path-keyed, the current `runs` and `run_evidence` model, typed receipts, opaque legacy `playbook_runs`, and the repository-authority boundary as non-substitutable. Physical SQL DDL, project-identifier generation, and global config and manifest serialization remain implementation choices within those requirements.
 
@@ -147,6 +150,14 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: reads are valid in every status; checkpoints are limited to active or paused runs; evidence references can be added without reopening a run; pause, resume, complete, fail, and abandon have explicit source-status rules; and terminal runs reject checkpoints and later status transitions.
 - Rationale: implementation and review need one deterministic matrix. The accepted model preserves audit evidence without allowing an evidence attachment to change lifecycle status.
 - Source: accepted owner decision `P6-TRANSITIONS` in W19 R1 P6.
+
+### 2026-08-30 — W19 R1 P6 safety design
+
+- Affected requirement or section: `The SQLite Database (R-DB)`, `Backup, Uninstall, and Upgrade (R-LIFE)`, and `Verification and Testability (R-TEST)`
+- Previous contract: checkpoint 9 required a transactional migration and safe recovery, but it did not define the commit boundary, journal authority, receipt-projection failure result, or post-commit restore prohibition.
+- Replacement contract: setup classifies the Store before mutation; checkpoint-9 DDL, `user_version`, and an internal metadata-only journal row commit in one SQLite write transaction; the project receipt projects from that journal; two projection failures return a typed stop result; and no whole-Store or database restore occurs after commit.
+- Rationale: one SQLite commit protects schema consistency and serializes writers. A journal-backed projection can recover without erasing later writes from another process or project.
+- Source: accepted owner decision `P6-SAFETY-DESIGN` in W19 R1 P6.
 
 ## Source Anchors
 

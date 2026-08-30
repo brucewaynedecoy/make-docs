@@ -94,6 +94,7 @@ The requirements below are the normative authority. Their stable identifiers pre
 - R-MIG-1 (MUST): no compatibility aliases exist; noncurrent command spellings fail with guidance naming the accepted command.
 - R-MIG-2 (MUST): `update`, `setup`, and `setup reconfigure` detect a pre-v2 configuration by its fingerprints and, when found, present a warning that itemizes the changes that could break on upgrade, followed by a choice between backing up and installing the latest version, which is recommended, and cancelling.
 - R-MIG-3 (MUST): MCP tool names are derived from the registry identifiers, so the MCP renames follow the same registry as the CLI.
+- R-MIG-4 (MUST): setup classifies the Store before any setup mutation and stops for corrupt, unknown, newer, or indeterminate state. Checkpoint-9 schema DDL, `user_version`, and its internal metadata-only journal row commit in one SQLite write transaction. The project-local migration receipt projects from that committed row. Setup retries a failed projection once. A second failure returns a typed checkpoint result, exits unsuccessfully, and stops later setup work. Setup does not replace or restore the whole Store or its database after commit. This behavior does not add or rename a CLI, registry, or MCP identifier.
 
 ### Registry Cohesion and Operation Admission (R-SEQ)
 
@@ -110,6 +111,7 @@ The requirements below are the normative authority. Their stable identifiers pre
 - R-TEST-4 (MUST): a test asserts that pre-v2 detection triggers the warning-and-choice flow and that `uninstall` confirms and does not delete repository content. A P3 baseline test asserts that every existing Playbook and Protocol registry entry, implementation, CLI surface, and MCP surface remains unchanged. No new legacy surface may appear.
 - R-TEST-5 (MUST): tests assert the exact 24-identifier nonlegacy inventory, the seven active and seventeen pending states, each pending lineage value, CLI-to-MCP parity in both directions, native MCP parity for resource list/read only, and typed pending refusal without a handler claim.
 - R-TEST-6 (MUST): focused lifecycle tests assert exact CLI/MCP receipt parity for every successful Store mutation and assert that read-only, failed, conflicted, unavailable, and rolled-back operations emit no success receipt.
+- R-TEST-7 (MUST): the finite P6 proof set invokes checkpoint 9 through integrated setup and covers pre-mutation Store classification, cross-process serialization, journal-based receipt recovery, and the typed stop result after two failed projection attempts. The proof confirms that no later setup mutation runs after that result and that the existing CLI and MCP identifier inventory is unchanged.
 
 The seven-command structure, context-aware bare command, machine-footprint `uninstall`, remote-execution-honest self-management, registry-derived surfaces, modular shared core with one-way dependencies, canonical resource grammar, registry-only lifecycle surface, compatibility rejection, and pre-v2 detection are non-substitutable. Implementations may choose the pre-v2 fingerprint set and warning copy, install-manager detection matrix, and internal operation-core module layout without changing registered identities.
 
@@ -229,6 +231,14 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: the CLI and MCP adapters share the accepted PRD 38 lifecycle matrix and return the same typed invalid-transition result.
 - Rationale: one transport-neutral rule prevents CLI and MCP behavior from drifting while P6 activates the ten lifecycle operations.
 - Source: accepted owner decision `P6-TRANSITIONS` in W19 R1 P6.
+
+### 2026-08-30 — W19 R1 P6 safety design
+
+- Affected requirement or section: `Command Compatibility and Upgrade Safety (R-MIG)` and `Verification and Testability (R-TEST)`
+- Previous contract: setup detected pre-v2 state, but registry authority did not define checkpoint-9 Store classification, its atomic journal boundary, or the result of repeated project receipt-projection failure.
+- Replacement contract: setup stops on unsafe Store classifications; one SQLite transaction commits the checkpoint-9 schema, version, and internal journal row; the project receipt is a recoverable journal projection; two projection failures return a typed stop result; and no operation identifier changes.
+- Rationale: CLI setup must expose a deterministic failure without weakening the shared registry and MCP identity contract.
+- Source: accepted owner decision `P6-SAFETY-DESIGN` in W19 R1 P6.
 
 ## Source Anchors
 

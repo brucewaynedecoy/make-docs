@@ -67,32 +67,34 @@ This phase implements migration checkpoint 9. The Store receives `runs` and `run
 - Failure, platform, and correction limits: at most five planned transaction failure points; native macOS, Linux execution, and fixed Windows drive, UNC, and path cases; at most two materially different correction attempts per defect and six correction attempts in total.
 - Review and rerun limits: one initial independent review, one follow-up review after corrections, one full candidate check, and one full confirmation check after material changes. Only affected checks may rerun after a changed input. Unchanged inputs cannot cause another run.
 - Exhaustion rule: budget exhaustion stops the affected work with evidence and an owner decision. P6 creates no performance target.
+- Safety design decision: checkpoint 9 uses pre-mutation Store classification, one SQLite transaction for schema DDL, `user_version`, and an internal metadata-only journal row, then an idempotent project receipt projection. Two projection failures return a typed stop result. No post-commit whole-Store or database restore occurs. The finite proof budget does not change.
 - Phase / capability status: preflight decisions accepted. Checkpoint 9 still requires the documentation-only authority commit and separate implementation authorization.
 
 ## Stage 2 - Migrate The Store Transactionally
 
 ### Tasks
 
-- [ ] t9: Add ordered idempotent schema migrations for general `runs` and `run_evidence` relations with stable project/run/evidence identities, lifecycle stages, statuses, checkpoints, optimistic versions, bounded metadata, and timestamps defined by PRD 38.
+- [ ] t9: Add ordered idempotent schema migrations for general `runs` and `run_evidence` relations with stable project/run/evidence identities, lifecycle stages, statuses, checkpoints, optimistic versions, bounded metadata, and timestamps defined by PRD 38. Add one internal checkpoint journal that stores only checkpoint and receipt-projection metadata and no Store payload.
 - [ ] t10: Preserve the existing `playbook_runs` relation and rows byte-semantically opaque and untouched; exclude them from current listings, conversions, inference, deletion, merging, and new foreign-key behavior.
-- [ ] t11: Apply the migration inside the P5 checkpoint-9 transaction/backup envelope with bounded busy handling, schema-version verification, rollback, and typed failure outcomes.
-- [ ] t12: Prove repeat application is idempotent, downgrade/restore behavior is bounded, and an interrupted migration cannot expose a partially upgraded current schema.
+- [ ] t11: Classify the Store before any setup mutation and fail closed for corrupt, unknown, newer, or indeterminate state. Commit checkpoint-9 schema DDL, `user_version`, and the internal journal row in one SQLite write transaction with bounded busy handling. Use that transaction as the Store rollback and cross-process serialization boundary. Do not replace or restore the whole Store or its database after commit.
+- [ ] t12: Prove repeat application is idempotent, the integrated fresh and existing setup paths cannot bypass checkpoint 9, concurrent writers serialize, and an interrupted migration cannot expose a partial current schema or journal.
 
 ### Acceptance criteria
 
 - `runs` and `run_evidence` match current PRD fields and constraints.
 - Legacy `playbook_runs` remains opaque and untouched.
-- Busy, interruption, and schema mismatch fail safely within finite budgets.
-- Migration checkpoint 9 is transactional and recoverable.
+- Busy, interruption, unsafe classification, and schema mismatch fail safely within finite budgets before later setup mutation.
+- Migration checkpoint 9 commits its schema, version, and internal journal as one transaction and recovers receipt projection from that journal.
+- A post-commit failure does not replace or restore the Store and cannot erase another process or project's write.
 
 ### Dependencies
 
 - Stage 1 unlock.
-- P5 frozen snapshot, active lock/quiescence, backup, and rollback.
+- P5 frozen snapshot, active lock/quiescence, and repository-filesystem backup and rollback.
 
 ### Closeout Notes
 
-- Testing-mode decision(s): fresh, existing, repeated, busy, interrupted, corrupt-version, rollback, and legacy-row fixtures.
+- Testing-mode decision(s): integrated fresh and existing setup, repeated, busy, cross-process, interrupted, unsafe-classification, journal-recovery, and legacy-row fixtures inside the existing finite case budget.
 - Phase / capability status: schema complete; operations remain open.
 
 ## Stage 3 - Implement General Run Operations And Evidence References
@@ -129,7 +131,7 @@ This phase implements migration checkpoint 9. The Store receives `runs` and `run
 
 - [ ] t18: Return a typed receipt for each successful Store mutation containing run identity, operation, Store schema version, resulting optimistic version, and commit time, plus only additional fields explicitly approved by the Stage 1 receipt-generalization disposition.
 - [ ] t19: Make receipt serialization stable across CLI and MCP while preserving the distinction between a Store commit and repository write, validation, publication, external delivery, UAT acceptance, or phase closure.
-- [ ] t20: Prove failed, conflicted, unavailable, and rolled-back mutations cannot emit a success receipt and that retry uses the latest explicit optimistic version rather than hidden repetition.
+- [ ] t20: Prove failed, conflicted, unavailable, and rolled-back lifecycle mutations cannot emit a success receipt and that retry uses the latest explicit optimistic version rather than hidden repetition. For checkpoint 9, project receipt persistence projects idempotently from the committed journal, retries once, and returns a typed stop result if both attempts fail.
 
 ### Acceptance criteria
 
@@ -137,6 +139,7 @@ This phase implements migration checkpoint 9. The Store receives `runs` and `run
 - CLI/MCP receipt projections are semantically identical.
 - Failure paths cannot produce false success receipts.
 - Receipt fields do not silently expand product authority.
+- A checkpoint-9 receipt-projection failure does not undo the committed Store. The journal supports later projection recovery.
 
 ### Dependencies
 
@@ -145,21 +148,22 @@ This phase implements migration checkpoint 9. The Store receives `runs` and `run
 
 ### Closeout Notes
 
-- Testing-mode decision(s): receipt schema, transport parity, false-success, conflict, and rollback tests.
+- Testing-mode decision(s): receipt schema, transport parity, false-success, conflict, checkpoint-journal projection, double projection failure, and recovery tests inside the existing finite case budget.
 - Phase / capability status: receipts complete; confirmation remains open.
 
 ## Stage 5 - Prove Data Safety And Unlock Checkpoint 10
 
 ### Tasks
 
-- [ ] t21: Run focused schema, migration, transition, concurrency, busy, evidence-reference, receipt, CLI/MCP parity, privacy, rollback, and whitespace validation within the finite budget.
+- [ ] t21: Run focused schema, integrated-setup migration, transition, cross-process concurrency, busy, evidence-reference, receipt, CLI/MCP parity, privacy, transactional rollback, journal recovery, typed double-projection-failure, and whitespace validation within the existing finite budget.
 - [ ] t22: Compare pre/post fixtures to prove every legacy `playbook_runs` row and unrelated Store table remains untouched and current listings exclude legacy rows.
-- [ ] t23: Obtain independent review of transactional safety, repository-vs-Store authority, receipt semantics, unavailable behavior, and legacy preservation; correct only actionable defects within budget.
+- [ ] t23: Obtain independent review of transactional safety, pre-mutation classification, cross-process serialization, journal recovery, typed projection failure, repository-vs-Store authority, receipt semantics, unavailable behavior, and legacy preservation; correct only actionable defects within budget.
 - [ ] t24: Record checkpoint-9 completion evidence, exact schema/operation versions, remaining nonblocking items, and the locked checkpoint-10/P7 handoff while keeping quiescence active.
 
 ### Acceptance criteria
 
 - Focused data-safety and failure-injection validation passes.
+- Integrated setup, cross-process serialization, journal recovery, and typed double-projection-failure checks pass inside the fixed 20-case and five-failure-point limits.
 - Independent review finds no unresolved material migration, authority, privacy, or receipt defect.
 - Checkpoint 9 closes without touching legacy Playbook state.
 - Checkpoint 10 remains separately gated and quiescence remains active.
