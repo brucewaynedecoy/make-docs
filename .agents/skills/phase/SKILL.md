@@ -115,6 +115,21 @@ Treat gates as internal controls, not as a required chat format.
 - At an ordinary segment end, report the completed segment. Do not add a negative status for later lifecycle work. Report whole-phase completion when the phase is complete. Describe remaining closeout work only when the user asked to finish the phase, requested closeout status, or must resolve a real blocker or decision.
 - Do not mention, promise, or plan worker or subagent use in the opening acknowledgment or an implementation request unless the user already selected `orchestrated` work or separately requested delegation.
 
+## User choices
+
+When the user must choose among valid, bounded options, use a native structured choice control if the current harness and mode provide one.
+
+- Ask one decision at a time.
+- Present two or three mutually exclusive choices.
+- Put the recommended choice first and mark it `(Recommended)`.
+- Give one short effect or tradeoff for each choice.
+- Keep the phase item label and source ID visible with the question.
+- Do not invent extra choices to satisfy this format.
+- Do not use a choice control for an open-ended question, a routine yes-or-no permission, or a case with only one safe option.
+- If no native choice control is available, use a numbered Markdown list.
+- Allow a free-form answer when the harness supports one.
+- A native selection counts as explicit confirmation when the option states the full bounded outcome. If the option is shorthand, restate the exact resolution and confirm it before recording the decision.
+
 ## Workers
 
 Workers are optional. Use them only when the work divides into clear, bounded parts.

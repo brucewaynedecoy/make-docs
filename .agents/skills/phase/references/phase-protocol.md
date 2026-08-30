@@ -80,7 +80,9 @@ Each package must state:
 6. what remains undecided;
 7. exact proposed decision language.
 
-Discuss only that package until the answer is clear. Restate the exact resolution. Obtain explicit user confirmation before recording it.
+When the question has two or three valid, bounded, mutually exclusive options, present the selection through the native structured choice control provided by the current harness and mode. Keep the package context and tally label visible before the control. Put the recommendation first, mark it `(Recommended)`, and give one short effect or tradeoff for each choice. If no native control is available, use a numbered Markdown list. Do not invent options or use this format for an open-ended question, a routine yes-or-no permission, or a case with only one safe option.
+
+Discuss only that package until the answer is clear. A native selection is explicit confirmation when the option states the full bounded outcome. Otherwise restate the exact resolution and obtain confirmation before recording it. Accept a free-form answer when the harness supports one.
 
 Record only the accepted resolution and control status. Do not reconcile project documents, implement, stage, or commit.
 

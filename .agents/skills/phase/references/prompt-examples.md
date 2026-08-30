@@ -50,6 +50,21 @@ The first number is the item's saved presentation position in the current gate. 
 
 When a new item interrupts an active item, the active item keeps its earlier position. The new item receives the next presentation position. Later unpresented items receive positions only when they are first presented.
 
+### Structured user choice
+
+When the current harness and mode provide a native structured choice control, use it for the bounded question and choices below. Do not name or require a harness-specific tool in the phase prompt.
+
+```text
+2/12 - Type catalog and extension rule [Q-012B]
+
+Which extension rule should Phase 2 use?
+
+1. Exact catalog only (Recommended) — Keeps validation simple and predictable.
+2. Registered extensions — Adds flexibility but requires extension ownership rules.
+```
+
+If no native choice control is available, present the same choices as the numbered Markdown list shown above. A native selection counts as explicit confirmation when its option states the full bounded outcome. Otherwise restate the exact resolution and confirm it before recording the decision.
+
 ### Resume an interview in a new task
 
 ```text
