@@ -21,7 +21,7 @@ import { getStoreDatabasePath } from "./paths";
  */
 
 /** Current schema version of the operational database (recorded in `PRAGMA user_version`). */
-export const CURRENT_STORE_SCHEMA_VERSION = 1;
+export const CURRENT_STORE_SCHEMA_VERSION = 2;
 
 /** Milliseconds a connection waits on a locked database before erroring. */
 export const STORE_BUSY_TIMEOUT_MS = 5000;
@@ -92,6 +92,63 @@ export const STORE_MIGRATIONS: StoreMigration[] = [
       `CREATE INDEX idx_work_evidence_project ON work_evidence (project_id)`,
     ],
   },
+  {
+    version: 2,
+    description:
+      "Checkpoint 9: general lifecycle runs and bounded evidence references, without changing legacy Playbook state.",
+    statements: [
+      `CREATE TABLE runs (
+        project_id TEXT NOT NULL CHECK (length(project_id) BETWEEN 1 AND 160),
+        run_id TEXT NOT NULL CHECK (length(run_id) BETWEEN 1 AND 160),
+        run_type TEXT NOT NULL CHECK (run_type = 'lifecycle'),
+        lifecycle_stage TEXT NOT NULL CHECK (lifecycle_stage IN (
+          'design', 'plan', 'prd', 'work', 'implementation', 'release', 'archive', 'retrospective'
+        )),
+        status TEXT NOT NULL CHECK (status IN (
+          'active', 'paused', 'completed', 'failed', 'abandoned'
+        )),
+        checkpoint TEXT CHECK (checkpoint IS NULL OR length(checkpoint) BETWEEN 1 AND 256),
+        version INTEGER NOT NULL CHECK (version >= 1),
+        metadata TEXT NOT NULL CHECK (length(metadata) <= 4096),
+        started_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        finished_at TEXT,
+        PRIMARY KEY (project_id, run_id)
+      )`,
+      `CREATE INDEX idx_runs_project_status
+       ON runs (project_id, status, started_at, run_id)`,
+      `CREATE TABLE run_evidence (
+        project_id TEXT NOT NULL CHECK (length(project_id) BETWEEN 1 AND 160),
+        run_id TEXT NOT NULL CHECK (length(run_id) BETWEEN 1 AND 160),
+        evidence_id TEXT NOT NULL CHECK (length(evidence_id) BETWEEN 1 AND 160),
+        evidence_kind TEXT NOT NULL CHECK (length(evidence_kind) BETWEEN 1 AND 64),
+        reference_type TEXT NOT NULL CHECK (reference_type IN ('project-path', 'external')),
+        reference_value TEXT NOT NULL CHECK (length(reference_value) BETWEEN 1 AND 2048),
+        digest TEXT CHECK (
+          digest IS NULL OR (
+            length(digest) = 71 AND
+            substr(digest, 1, 7) = 'sha256:' AND
+            substr(digest, 8) NOT GLOB '*[^0-9a-f]*'
+          )
+        ),
+        recorded_at TEXT NOT NULL,
+        PRIMARY KEY (project_id, run_id, evidence_id),
+        FOREIGN KEY (project_id, run_id) REFERENCES runs (project_id, run_id)
+      )`,
+      `CREATE INDEX idx_run_evidence_run
+       ON run_evidence (project_id, run_id, recorded_at, evidence_id)`,
+      `CREATE TABLE store_checkpoint_journal (
+        receipt_id TEXT PRIMARY KEY CHECK (length(receipt_id) = 71),
+        checkpoint INTEGER NOT NULL CHECK (checkpoint = 9),
+        project_root_digest TEXT NOT NULL CHECK (length(project_root_digest) = 64),
+        snapshot_id TEXT NOT NULL CHECK (length(snapshot_id) = 71),
+        committed_at TEXT NOT NULL,
+        receipt_json TEXT NOT NULL CHECK (length(receipt_json) BETWEEN 2 AND 16384)
+      )`,
+      `CREATE INDEX idx_store_checkpoint_journal_project
+       ON store_checkpoint_journal (project_root_digest, checkpoint, committed_at, receipt_id)`,
+    ],
+  },
 ];
 
 /** Thrown when the database was written by a newer CLI schema (R-DB-2). */
@@ -120,6 +177,56 @@ export class StoreUnavailableError extends Error {
     );
     this.name = "StoreUnavailableError";
   }
+}
+
+/** An existing Store needs the explicit checkpoint-9 migration path. */
+export class StoreMigrationRequiredError extends Error {
+  readonly databaseSchemaVersion: number;
+  readonly cliSchemaVersion: number;
+
+  constructor(databaseSchemaVersion: number, cliSchemaVersion: number, databasePath: string) {
+    super(
+      `The make-docs store database at ${databasePath} uses schema version ${databaseSchemaVersion} ` +
+        `and requires the explicit checkpoint-9 migration to version ${cliSchemaVersion}. ` +
+        "Run the reviewed Make Docs update or setup migration before other Store operations.",
+    );
+    this.name = "StoreMigrationRequiredError";
+    this.databaseSchemaVersion = databaseSchemaVersion;
+    this.cliSchemaVersion = cliSchemaVersion;
+  }
+}
+
+export type StoreCheckpoint9Classification =
+  | { state: "absent"; databasePath: string; schemaVersion: null }
+  | { state: "supported-current"; databasePath: string; schemaVersion: 2 }
+  | { state: "supported-legacy"; databasePath: string; schemaVersion: 1 }
+  | { state: "newer-unknown"; databasePath: string; schemaVersion: number; reason: string }
+  | { state: "corrupt"; databasePath: string; schemaVersion: null; reason: string }
+  | { state: "unknown"; databasePath: string; schemaVersion: number; reason: string }
+  | { state: "indeterminate"; databasePath: string; schemaVersion: null; reason: string };
+
+export type UnsafeStoreCheckpoint9Classification = Extract<
+  StoreCheckpoint9Classification,
+  { state: "newer-unknown" | "corrupt" | "unknown" | "indeterminate" }
+>;
+
+export class StoreCheckpoint9StateError extends Error {
+  constructor(readonly classification: UnsafeStoreCheckpoint9Classification) {
+    super(
+      `Checkpoint 9 stopped because the Store at ${classification.databasePath} ` +
+        `was classified as ${classification.state}: ${classification.reason}`,
+    );
+    this.name = "StoreCheckpoint9StateError";
+  }
+}
+
+export interface StoreCheckpoint9JournalEntry {
+  receiptId: string;
+  checkpoint: 9;
+  projectRootDigest: string;
+  snapshotId: string;
+  committedAt: string;
+  receiptJson: string;
 }
 
 export type SqliteDriverResult =
@@ -165,7 +272,9 @@ export interface OpenStoreDatabaseResult {
 }
 
 /**
- * Opens (creating and migrating as needed) the store database.
+ * Opens the store database. Fresh databases replay the full schema. Existing
+ * legacy databases always require the explicit checkpoint-9 migration entry
+ * point. The ordinary open path cannot bypass its journal transaction.
  *
  * - Missing file: created fresh at the current schema (R-DB-4).
  * - Corrupt file: quarantined next to the store and recreated fresh; the
@@ -174,7 +283,10 @@ export interface OpenStoreDatabaseResult {
  *   writing any table (R-DB-2).
  * - Missing driver: throws {@link StoreUnavailableError}.
  */
-export function openStoreDatabase(storeRoot: string): OpenStoreDatabaseResult {
+export function openStoreDatabase(
+  storeRoot: string,
+  options: { recoverCorrupt?: boolean } = {},
+): OpenStoreDatabaseResult {
   const driver = loadSqliteDriver();
   if (!driver.available) {
     throw new StoreUnavailableError(driver.reason);
@@ -190,7 +302,10 @@ export function openStoreDatabase(storeRoot: string): OpenStoreDatabaseResult {
 
   try {
     db = connect(driver.sqlite, databasePath, existed);
-  } catch {
+  } catch (error) {
+    if (options.recoverCorrupt === false) {
+      throw error;
+    }
     // The file exists but SQLite cannot use it: quarantine and recreate.
     quarantinedPath = quarantineDatabase(databasePath);
     recovered = true;
@@ -203,6 +318,14 @@ export function openStoreDatabase(storeRoot: string): OpenStoreDatabaseResult {
 
     if (startingVersion > CURRENT_STORE_SCHEMA_VERSION) {
       throw new StoreSchemaNewerError(
+        startingVersion,
+        CURRENT_STORE_SCHEMA_VERSION,
+        databasePath,
+      );
+    }
+
+    if (startingVersion > 0 && startingVersion < CURRENT_STORE_SCHEMA_VERSION) {
+      throw new StoreMigrationRequiredError(
         startingVersion,
         CURRENT_STORE_SCHEMA_VERSION,
         databasePath,
@@ -223,6 +346,224 @@ export function openStoreDatabase(storeRoot: string): OpenStoreDatabaseResult {
   } catch (error) {
     closeQuietly(db);
     throw error;
+  }
+}
+
+export interface StoreCheckpoint9MigrationResult {
+  databasePath: string;
+  previousSchemaVersion: number | null;
+  schemaVersion: number;
+  migrated: boolean;
+  journal: StoreCheckpoint9JournalEntry | null;
+}
+
+export type StoreCheckpoint9Requirement =
+  | "absent"
+  | "current"
+  | "migration-required";
+
+const VERSION_ONE_TABLES = ["playbook_runs", "projects", "work_evidence"] as const;
+const VERSION_TWO_TABLES = [
+  ...VERSION_ONE_TABLES,
+  "run_evidence",
+  "runs",
+  "store_checkpoint_journal",
+] as const;
+
+/** Classifies the Store without creating a directory, database, sidecar, or table. */
+export function classifyStoreCheckpoint9State(
+  storeRoot: string,
+): StoreCheckpoint9Classification {
+  const databasePath = getStoreDatabasePath(storeRoot);
+  if (!existsSync(databasePath)) {
+    return { state: "absent", databasePath, schemaVersion: null };
+  }
+  const driver = loadSqliteDriver();
+  if (!driver.available) {
+    return {
+      state: "indeterminate",
+      databasePath,
+      schemaVersion: null,
+      reason: driver.reason,
+    };
+  }
+  let db: StoreDatabase | null = null;
+  try {
+    db = new driver.sqlite.DatabaseSync(databasePath, { readOnly: true });
+    db.exec(`PRAGMA busy_timeout = ${STORE_BUSY_TIMEOUT_MS}`);
+    const check = db.prepare("PRAGMA quick_check").get() as
+      | { quick_check?: string }
+      | undefined;
+    if (check?.quick_check !== "ok") {
+      return {
+        state: "corrupt",
+        databasePath,
+        schemaVersion: null,
+        reason: `SQLite quick_check returned ${String(check?.quick_check ?? "no result")}`,
+      };
+    }
+    const schemaVersion = readUserVersion(db);
+    if (schemaVersion > CURRENT_STORE_SCHEMA_VERSION) {
+      return {
+        state: "newer-unknown",
+        databasePath,
+        schemaVersion,
+        reason: `schema version ${schemaVersion} is newer than supported version ${CURRENT_STORE_SCHEMA_VERSION}`,
+      };
+    }
+    if (schemaVersion !== 1 && schemaVersion !== CURRENT_STORE_SCHEMA_VERSION) {
+      return {
+        state: "unknown",
+        databasePath,
+        schemaVersion,
+        reason: `schema version ${schemaVersion} is not a supported checkpoint-9 input`,
+      };
+    }
+    const expectedTables = schemaVersion === 1 ? VERSION_ONE_TABLES : VERSION_TWO_TABLES;
+    const actualTables = new Set(
+      (db.prepare("SELECT name FROM sqlite_schema WHERE type = 'table'").all() as Array<{ name: string }>)
+        .map((row) => row.name),
+    );
+    const missingTables = expectedTables.filter((name) => !actualTables.has(name));
+    if (missingTables.length > 0) {
+      return {
+        state: "unknown",
+        databasePath,
+        schemaVersion,
+        reason: `required schema objects are missing: ${missingTables.join(", ")}`,
+      };
+    }
+    return schemaVersion === 1
+      ? { state: "supported-legacy", databasePath, schemaVersion }
+      : { state: "supported-current", databasePath, schemaVersion };
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : String(error);
+    return {
+      state: isCorruptDatabaseMessage(reason) ? "corrupt" : "indeterminate",
+      databasePath,
+      schemaVersion: null,
+      reason,
+    };
+  } finally {
+    closeQuietly(db);
+  }
+}
+
+/**
+ * Inspects an existing Store without recovery or schema writes. Checkpoint 9
+ * uses this before fresh-project and no-op install paths.
+ */
+export function inspectStoreCheckpoint9Requirement(
+  storeRoot: string,
+): StoreCheckpoint9Requirement {
+  const classification = classifyStoreCheckpoint9State(storeRoot);
+  if (classification.state === "absent") return "absent";
+  if (classification.state === "supported-current") return "current";
+  if (classification.state === "supported-legacy") return "migration-required";
+  throw new StoreCheckpoint9StateError(classification);
+}
+
+/**
+ * The only explicit checkpoint-9 Store migration entry point. Callers invoke
+ * it inside the reviewed immutable migration coordinator.
+ */
+export function migrateStoreDatabaseAtCheckpoint9(
+  storeRoot: string,
+  journal: StoreCheckpoint9JournalEntry,
+): StoreCheckpoint9MigrationResult {
+  const classification = classifyStoreCheckpoint9State(storeRoot);
+  if (
+    classification.state !== "absent" &&
+    classification.state !== "supported-legacy" &&
+    classification.state !== "supported-current"
+  ) {
+    throw new StoreCheckpoint9StateError(classification);
+  }
+  assertCheckpoint9JournalEntry(journal);
+  const driver = loadSqliteDriver();
+  if (!driver.available) throw new StoreUnavailableError(driver.reason);
+  mkdirSync(storeRoot, { recursive: true });
+  const databasePath = getStoreDatabasePath(storeRoot);
+  const db = connect(driver.sqlite, databasePath, classification.state !== "absent");
+  let startingVersion: number | null = null;
+  try {
+    db.exec("BEGIN IMMEDIATE");
+    startingVersion = readUserVersion(db);
+    assertCheckpoint9StateInsideTransaction(db, databasePath, startingVersion);
+    if (startingVersion === CURRENT_STORE_SCHEMA_VERSION) {
+      db.exec("COMMIT");
+      return {
+        databasePath,
+        previousSchemaVersion: startingVersion,
+        schemaVersion: CURRENT_STORE_SCHEMA_VERSION,
+        migrated: false,
+        journal: null,
+      };
+    }
+    for (const migration of STORE_MIGRATIONS) {
+      if (migration.version <= startingVersion) continue;
+      for (const statement of migration.statements) db.exec(statement);
+    }
+    db.prepare(
+      `INSERT INTO store_checkpoint_journal
+        (receipt_id, checkpoint, project_root_digest, snapshot_id, committed_at, receipt_json)
+       VALUES (?, 9, ?, ?, ?, ?)`,
+    ).run(
+      journal.receiptId,
+      journal.projectRootDigest,
+      journal.snapshotId,
+      journal.committedAt,
+      journal.receiptJson,
+    );
+    db.exec(`PRAGMA user_version = ${CURRENT_STORE_SCHEMA_VERSION}`);
+    db.exec("COMMIT");
+    return {
+      databasePath,
+      previousSchemaVersion: classification.state === "absent" ? null : startingVersion,
+      schemaVersion: CURRENT_STORE_SCHEMA_VERSION,
+      migrated: true,
+      journal,
+    };
+  } catch (error) {
+    try {
+      db.exec("ROLLBACK");
+    } catch {
+      // The transaction may already be closed.
+    }
+    throw error;
+  } finally {
+    closeQuietly(db);
+  }
+}
+
+export function readStoreCheckpoint9JournalEntry(
+  storeRoot: string,
+  projectRootDigest: string,
+): StoreCheckpoint9JournalEntry | null {
+  const classification = classifyStoreCheckpoint9State(storeRoot);
+  if (classification.state !== "supported-current") return null;
+  const driver = loadSqliteDriver();
+  if (!driver.available) throw new StoreUnavailableError(driver.reason);
+  const db = new driver.sqlite.DatabaseSync(classification.databasePath, { readOnly: true });
+  try {
+    const row = db.prepare(
+      `SELECT receipt_id, checkpoint, project_root_digest, snapshot_id, committed_at, receipt_json
+         FROM store_checkpoint_journal
+        WHERE project_root_digest = ? AND checkpoint = 9
+        ORDER BY committed_at DESC, receipt_id DESC
+        LIMIT 1`,
+    ).get(projectRootDigest) as Record<string, unknown> | undefined;
+    if (!row) return null;
+    return {
+      receiptId: String(row.receipt_id),
+      checkpoint: 9,
+      projectRootDigest: String(row.project_root_digest),
+      snapshotId: String(row.snapshot_id),
+      committedAt: String(row.committed_at),
+      receiptJson: String(row.receipt_json),
+    };
+  } finally {
+    closeQuietly(db);
   }
 }
 
@@ -322,6 +663,75 @@ function assertSchemaVersion(version: number): number {
     throw new Error(`Invalid store schema version: ${String(version)}`);
   }
   return version;
+}
+
+function assertCheckpoint9StateInsideTransaction(
+  db: StoreDatabase,
+  databasePath: string,
+  schemaVersion: number,
+): void {
+  const check = db.prepare("PRAGMA quick_check").get() as
+    | { quick_check?: string }
+    | undefined;
+  if (check?.quick_check !== "ok") {
+    throw new StoreCheckpoint9StateError({
+      state: "corrupt",
+      databasePath,
+      schemaVersion: null,
+      reason: `SQLite quick_check returned ${String(check?.quick_check ?? "no result")}`,
+    });
+  }
+  if (schemaVersion > CURRENT_STORE_SCHEMA_VERSION) {
+    throw new StoreCheckpoint9StateError({
+      state: "newer-unknown",
+      databasePath,
+      schemaVersion,
+      reason: `schema version ${schemaVersion} is newer than supported version ${CURRENT_STORE_SCHEMA_VERSION}`,
+    });
+  }
+  if (schemaVersion !== 0 && schemaVersion !== 1 && schemaVersion !== CURRENT_STORE_SCHEMA_VERSION) {
+    throw new StoreCheckpoint9StateError({
+      state: "unknown",
+      databasePath,
+      schemaVersion,
+      reason: `schema version ${schemaVersion} is not a supported checkpoint-9 input`,
+    });
+  }
+  const expectedTables = schemaVersion === 1
+    ? VERSION_ONE_TABLES
+    : schemaVersion === CURRENT_STORE_SCHEMA_VERSION
+      ? VERSION_TWO_TABLES
+      : [];
+  const actualTables = new Set(
+    (db.prepare("SELECT name FROM sqlite_schema WHERE type = 'table'").all() as Array<{ name: string }>)
+      .map((row) => row.name),
+  );
+  const missingTables = expectedTables.filter((name) => !actualTables.has(name));
+  if (missingTables.length > 0) {
+    throw new StoreCheckpoint9StateError({
+      state: "unknown",
+      databasePath,
+      schemaVersion,
+      reason: `required schema objects are missing: ${missingTables.join(", ")}`,
+    });
+  }
+}
+
+function assertCheckpoint9JournalEntry(entry: StoreCheckpoint9JournalEntry): void {
+  if (
+    !/^sha256:[0-9a-f]{64}$/.test(entry.receiptId) ||
+    entry.checkpoint !== 9 ||
+    !/^[0-9a-f]{64}$/.test(entry.projectRootDigest) ||
+    !/^sha256:[0-9a-f]{64}$/.test(entry.snapshotId) ||
+    entry.receiptJson.length < 2 ||
+    entry.receiptJson.length > 16384
+  ) {
+    throw new Error("The checkpoint-9 journal entry is invalid or exceeds its metadata bound.");
+  }
+}
+
+function isCorruptDatabaseMessage(message: string): boolean {
+  return /not a database|database disk image is malformed|file is not a database|malformed/i.test(message);
 }
 
 function closeQuietly(db: StoreDatabase | null): void {

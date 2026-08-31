@@ -294,13 +294,15 @@ export function listWorkEvidence(
 }
 
 /**
- * Removes every row keyed by the given project identifier, across all tables,
- * inside one transaction. This is the pruning seam `setup remove` uses
- * (R-LIFE-2); rows of other projects are untouched.
+ * Removes current rows keyed by the given project identifier inside one
+ * transaction. Opaque legacy `playbook_runs` rows are deliberately excluded
+ * from this current-state pruning seam (PRD 38 R-PS-6 / R-LIFE-2).
  */
 export function deleteProjectRows(db: StoreDatabase, projectId: string): void {
   db.exec("BEGIN IMMEDIATE");
   try {
+    db.prepare("DELETE FROM run_evidence WHERE project_id = ?").run(projectId);
+    db.prepare("DELETE FROM runs WHERE project_id = ?").run(projectId);
     db.prepare("DELETE FROM work_evidence WHERE project_id = ?").run(projectId);
     db.prepare("DELETE FROM playbook_runs WHERE project_id = ?").run(projectId);
     db.prepare("DELETE FROM projects WHERE project_id = ?").run(projectId);

@@ -338,10 +338,11 @@ describe("W19 R1 P5 migration and safety fixtures", () => {
     });
   });
 
-  it("fixture 9: runs fixed checkpoints 3 through 8, stays monotonic, and locks 9 through 13", async () => {
+  it("fixture 9: runs fixed checkpoints through 9, stays monotonic, and locks 10 through 13", async () => {
     const product = await fixedProductFixture();
     const result = executeInstallPlanMigration({
       projectRoot: product.root,
+      storeRoot: path.join(product.root, ".test-store"),
       compatibility: reviewedCompatibility(product.root),
       installPlan: product.plan,
       existingManifest: null,
@@ -350,6 +351,7 @@ describe("W19 R1 P5 migration and safety fixtures", () => {
     expect(result.migrationReceipts.map((receipt) => [receipt.checkpoint, receipt.status])).toEqual([
       [1, "completed"], [2, "completed"], [3, "completed"], [4, "completed"],
       [5, "completed"], [6, "completed"], [7, "completed"], [8, "completed"],
+      [9, "completed"],
     ]);
     expect(existsSync(path.join(product.root, ".make-docs/manifest.json"))).toBe(true);
     expect(existsSync(path.join(product.root, ".make-docs/archive"))).toBe(false);
@@ -384,9 +386,9 @@ describe("W19 R1 P5 migration and safety fixtures", () => {
       status: "failed",
       code: "product-operation-unavailable",
     });
-    expect(coordinator.advance(9)).toMatchObject({ status: "blocked", code: "downstream-checkpoint-locked" });
+    expect(coordinator.advance(10)).toMatchObject({ status: "blocked", code: "downstream-checkpoint-locked" });
     expect(MIGRATION_CHECKPOINTS.slice(8).map((item) => item.state)).toEqual([
-      "locked", "locked", "locked", "locked", "locked",
+      "implemented", "locked", "locked", "locked", "locked",
     ]);
   });
 
@@ -404,6 +406,7 @@ describe("W19 R1 P5 migration and safety fixtures", () => {
     );
     expect(() => executeInstallPlanMigration({
       projectRoot: root,
+      storeRoot: path.join(root, ".test-store"),
       compatibility: reviewedCompatibility(root),
       installPlan: plan,
       existingManifest: null,
@@ -540,6 +543,7 @@ describe("W19 R1 P5 migration and safety fixtures", () => {
       });
       expect(() => executeInstallPlanMigration({
         projectRoot: product.root,
+        storeRoot: path.join(product.root, ".test-store"),
         compatibility: reviewedCompatibility(product.root),
         installPlan: product.plan,
         existingManifest: null,

@@ -553,24 +553,20 @@ describe("R-TEST-4: pre-v2 migration safety, uninstall confirmation, and pruned 
     expect(exec).not.toHaveBeenCalled();
   });
 
-  test("lifecycle.checkpoint remains a typed pending P6 operation", async () => {
+  test("lifecycle.checkpoint is active through its unchanged CLI and MCP identifiers", async () => {
     expect(
       listOperations().find((operation) => operation.id === "lifecycle.checkpoint"),
     ).toMatchObject({
-      status: "pending",
-      pendingLineage: "W19 R1 P6",
+      status: "active",
       cli: { command: "make-docs run lifecycle checkpoint" },
     });
     expect(hasOperation("lifecycle.checkpoint")).toBe(true);
     expect(
       MAKE_DOCS_MCP_TOOLS.some((tool) => tool.name === "make_docs_lifecycle_checkpoint"),
     ).toBe(true);
-    await expect(runRunCommand(["lifecycle", "checkpoint"])).rejects.toMatchObject({
-      code: "operation-pending",
-      operation: "lifecycle.checkpoint",
-      pendingLineage: "W19 R1 P6",
-      handlerAvailable: false,
-    });
+    await expect(runRunCommand(["lifecycle", "checkpoint"])).rejects.toThrow(
+      /requires --run-id/,
+    );
   });
 
   test.each([...PRUNED_OPERATIONS])(

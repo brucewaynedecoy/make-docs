@@ -270,7 +270,7 @@ describe.skipIf(!sqliteAvailable)("D11 verification suite (PRD 38 R-TEST-1..4)",
       });
     }
 
-    it("prunes exactly one project's rows in a multi-project store and leaves both repositories untouched", () => {
+    it("prunes all rows for one project and leaves both repositories untouched", () => {
       const repoA = createRepoFixture(workDir, "repo-a");
       const repoB = createRepoFixture(workDir, "repo-b");
       bootstrapGlobalStore({ storeRoot });
@@ -290,7 +290,7 @@ describe.skipIf(!sqliteAvailable)("D11 verification suite (PRD 38 R-TEST-1..4)",
       });
 
       withStoreDatabase(storeRoot, (db) => {
-        // Every row of project A is gone, across all three tables.
+        // Every row for project A is gone.
         expect(readProjectRegistryEntry(db, repoA.projectId)).toBeNull();
         expect(listPlaybookRunRecords(db, repoA.projectId)).toEqual([]);
         expect(listWorkEvidence(db, { projectId: repoA.projectId })).toEqual([]);

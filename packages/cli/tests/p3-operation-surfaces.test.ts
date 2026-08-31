@@ -56,8 +56,8 @@ describe("W19 R1 P3 admitted operation surfaces", () => {
     const p5Admitted = admitted.filter((entry) => entry.id === "project.path-hygiene.validate");
     expect(admitted.map((entry) => entry.id)).toEqual([...ADMITTED_OPERATION_IDS]);
     expect(p3Admitted).toHaveLength(24);
-    expect(p3Admitted.filter((entry) => entry.status === "active")).toHaveLength(8);
-    expect(p3Admitted.filter((entry) => entry.status === "pending")).toHaveLength(16);
+    expect(p3Admitted.filter((entry) => entry.status === "active")).toHaveLength(18);
+    expect(p3Admitted.filter((entry) => entry.status === "pending")).toHaveLength(6);
     expect(p5Admitted).toEqual([
       expect.objectContaining({ id: "project.path-hygiene.validate", status: "active" }),
     ]);
@@ -85,9 +85,8 @@ describe("W19 R1 P3 admitted operation surfaces", () => {
         .map((entry) => [entry.id, entry.pendingLineage]),
     );
     expect(lineages["project.surface.ensure"]).toBeUndefined();
-    expect(Object.entries(lineages).filter(([id]) => id.startsWith("lifecycle."))).toHaveLength(10);
+    expect(Object.entries(lineages).filter(([id]) => id.startsWith("lifecycle."))).toHaveLength(0);
     expect(Object.entries(lineages).filter(([id]) => id.startsWith("uat."))).toHaveLength(6);
-    expect(new Set(Object.entries(lineages).filter(([id]) => id.startsWith("lifecycle.")).map(([, value]) => value))).toEqual(new Set(["W19 R1 P6"]));
     expect(new Set(Object.entries(lineages).filter(([id]) => id.startsWith("uat.")).map(([, value]) => value))).toEqual(new Set(["W19 R1 P7"]));
   });
 
@@ -104,15 +103,15 @@ describe("W19 R1 P3 admitted operation surfaces", () => {
 
   it("returns typed pending and unknown-ID failures", async () => {
     const pending = invokeOperation(
-      "lifecycle.start",
+      "uat.scenario.validate",
       {},
       createExecutionContext({ surface: "test", writesAllowed: true }),
     );
     await expect(pending).rejects.toBeInstanceOf(OperationPendingError);
     await expect(pending).rejects.toMatchObject({
       code: "operation-pending",
-      operation: "lifecycle.start",
-      pendingLineage: "W19 R1 P6",
+      operation: "uat.scenario.validate",
+      pendingLineage: "W19 R1 P7",
       handlerAvailable: false,
     });
     await expect(runCli(["project", "surface", "ensure", "assets"])).rejects.toThrow(
@@ -123,7 +122,7 @@ describe("W19 R1 P3 admitted operation surfaces", () => {
 
   it("preserves typed pending fields through every CLI and MCP projection", async () => {
     const pending = listAdmittedOperations().filter((entry) => entry.status === "pending");
-    expect(pending).toHaveLength(16);
+    expect(pending).toHaveLength(6);
 
     for (const operation of pending) {
       let stderr = "";

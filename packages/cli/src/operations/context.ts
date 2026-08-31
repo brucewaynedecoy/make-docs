@@ -85,6 +85,9 @@ export interface SerializedOperationError {
   recovery?: string;
   uri?: string;
   path?: string;
+  runId?: string;
+  currentStatus?: string;
+  allowedStatuses?: string[];
 }
 
 /** Stable machine error fields shared by CLI and MCP transport envelopes. */
@@ -107,6 +110,14 @@ export function serializeOperationError(error: unknown): SerializedOperationErro
     ...(typeof record.recovery === "string" ? { recovery: record.recovery } : {}),
     ...(typeof record.uri === "string" ? { uri: record.uri } : {}),
     ...(typeof record.path === "string" ? { path: record.path } : {}),
+    ...(typeof record.runId === "string" ? { runId: record.runId } : {}),
+    ...(typeof record.currentStatus === "string"
+      ? { currentStatus: record.currentStatus }
+      : {}),
+    ...(Array.isArray(record.allowedStatuses) &&
+    record.allowedStatuses.every((value) => typeof value === "string")
+      ? { allowedStatuses: [...record.allowedStatuses] as string[] }
+      : {}),
   };
 }
 

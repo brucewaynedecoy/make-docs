@@ -38,9 +38,15 @@ import {
 import type { CompatibilityClassification } from "./compatibility";
 import {
   CURRENT_STORE_SCHEMA_VERSION,
+  classifyStoreCheckpoint9State,
   getStoreDatabasePath,
   loadGlobalManifest,
+  migrateStoreDatabaseAtCheckpoint9,
+  readStoreCheckpoint9JournalEntry,
   resolveStoreRoot,
+  StoreCheckpoint9StateError,
+  type StoreCheckpoint9Classification,
+  type StoreCheckpoint9JournalEntry,
 } from "./store";
 import {
   resourceListOperation,
@@ -91,7 +97,7 @@ export const MIGRATION_CHECKPOINTS = [
   { checkpoint: 6, owner: "P5", state: "implemented", purpose: "selected-system-resources" },
   { checkpoint: 7, owner: "P5", state: "implemented", purpose: "on-demand-routing-and-clean-legacy-paths" },
   { checkpoint: 8, owner: "P5", state: "implemented", purpose: "typescript-path-hygiene" },
-  { checkpoint: 9, owner: "P6", state: "locked", purpose: "general-store-tables" },
+  { checkpoint: 9, owner: "P6", state: "implemented", purpose: "general-store-tables" },
   { checkpoint: 10, owner: "P7", state: "locked", purpose: "naive-uat-persona-skill-evidence" },
   { checkpoint: 11, owner: "P8", state: "locked", purpose: "traced-legacy-retirement" },
   { checkpoint: 12, owner: "P9", state: "locked", purpose: "selected-agentics" },
@@ -99,8 +105,8 @@ export const MIGRATION_CHECKPOINTS = [
 ] as const;
 
 export type MigrationCheckpoint = (typeof MIGRATION_CHECKPOINTS)[number]["checkpoint"];
-export type ImplementedMigrationCheckpoint = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
-export type LockedMigrationCheckpoint = 9 | 10 | 11 | 12 | 13;
+export type ImplementedMigrationCheckpoint = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
+export type LockedMigrationCheckpoint = 10 | 11 | 12 | 13;
 
 export type MigrationFilesystemState =
   | "absent"
@@ -115,7 +121,9 @@ export type MigrationStoreState =
   | "supported-current"
   | "supported-legacy"
   | "newer-unknown"
-  | "corrupt";
+  | "corrupt"
+  | "unknown"
+  | "indeterminate";
 
 export type MigrationPathSafetyState =
   | "safe"
@@ -196,6 +204,7 @@ export type MigrationSafetyCode =
   | "backup-incomplete"
   | "barrier-bypass"
   | "classification-blocked"
+  | "checkpoint-receipt-projection-failed"
   | "cross-platform-mismatch"
   | "helper-consumer-active"
   | "helper-hash-mismatch"
@@ -253,6 +262,47 @@ export interface MigrationCheckpointReceipt {
   };
 }
 
+export interface Checkpoint9ReceiptProjectionFailure {
+  schemaVersion: 1;
+  status: "receipt-projection-failed";
+  checkpoint: 9;
+  code: "checkpoint-receipt-projection-failed";
+  receiptId: string;
+  projectionAttempts: 2;
+  storeCommitted: true;
+  setupMayContinue: false;
+  message: string;
+}
+
+export class Checkpoint9ReceiptProjectionError extends MigrationSafetyError {
+  constructor(readonly checkpointResult: Checkpoint9ReceiptProjectionFailure) {
+    super(checkpointResult.code, checkpointResult.message);
+    this.name = "Checkpoint9ReceiptProjectionError";
+  }
+}
+
+export type MigrationCheckpointResult =
+  | MigrationCheckpointReceipt
+  | Checkpoint9ReceiptProjectionFailure;
+
+export type StoreCheckpoint9ExecutionResult =
+  | {
+      status: "not-required";
+      checkpoint: 9;
+      storeCommitted: boolean;
+      setupMayContinue: true;
+    }
+  | {
+      status: "completed";
+      checkpoint: 9;
+      storeCommitted: true;
+      setupMayContinue: true;
+      recoveredProjection: boolean;
+      projectionAttempts: 1 | 2;
+      receipt: MigrationCheckpointReceipt;
+    }
+  | Checkpoint9ReceiptProjectionFailure;
+
 interface BackupEntry {
   relativePath: string;
   backupPath: string | null;
@@ -285,13 +335,14 @@ const MIGRATION_ROUTING_PATHS: Record<MigrationRoutingSurface, string> = {
 };
 
 export interface InstallPlanMigrationResult extends ApplyResult {
-  migrationReceipts: MigrationCheckpointReceipt[];
+  migrationReceipts: MigrationCheckpointResult[];
   reviewedSnapshotId: string;
   backupManifestPath: string;
 }
 
 interface FixedMigrationProductPlan {
   projectRoot: string;
+  storeRoot: string;
   installPlan: InstallPlan;
   existingManifest: InstallManifest | null;
   currentManifest: InstallManifest | null;
@@ -864,8 +915,8 @@ export class ImmutableMigrationCoordinator {
     return this.persistReceipt("blocked", code, message, emptyRollback(), this.checkpoint);
   }
 
-  advance(next: MigrationCheckpoint): MigrationCheckpointReceipt {
-    if (next >= 9) {
+  advance(next: MigrationCheckpoint): MigrationCheckpointResult {
+    if (next >= 10) {
       const owner = MIGRATION_CHECKPOINTS.find((item) => item.checkpoint === next)!.owner;
       return this.block(
         "downstream-checkpoint-locked",
@@ -894,16 +945,31 @@ export class ImmutableMigrationCoordinator {
           `The frozen classification does not permit reviewed mutation (${this.snapshot.classification.blockers.join(", ") || "no accepted safety proof"}).`,
         );
       }
+      if (next === 9 && this.productPlan) {
+        const checkpoint9 = executeCheckpoint9WithLock({
+          lock: this.lock,
+          snapshot: this.snapshot,
+          storeRoot: this.productPlan.storeRoot,
+        });
+        if (checkpoint9.status === "receipt-projection-failed") {
+          return checkpoint9;
+        }
+        if (checkpoint9.status === "completed") {
+          this.checkpoint = next;
+          return checkpoint9.receipt;
+        }
+      }
       this.applyFixedProductOperation(next as ImplementedMigrationCheckpoint);
       if (next >= 3) this.refreshExpectedPathBinding();
       this.checkpoint = next;
-      return this.persistReceipt(
+      const receipt = this.persistReceipt(
         "completed",
         null,
         `Checkpoint ${next} completed under the frozen snapshot.`,
         emptyRollback(),
         next,
       );
+      return receipt;
     } catch (error) {
       const code =
         error instanceof MigrationSafetyError ? error.code : "classification-blocked";
@@ -920,7 +986,8 @@ export class ImmutableMigrationCoordinator {
         rollback = {
           attempted: true,
           completed: result.unrestoredPaths.length === 0,
-          ...result,
+          restoredPaths: result.restoredPaths,
+          unrestoredPaths: result.unrestoredPaths,
         };
       } catch {
         rollback = {
@@ -992,6 +1059,8 @@ export class ImmutableMigrationCoordinator {
         }
         return;
       }
+      case 9:
+        return;
     }
   }
 
@@ -1018,43 +1087,28 @@ export class ImmutableMigrationCoordinator {
     rollback: MigrationCheckpointReceipt["rollback"],
     checkpoint: number,
   ): MigrationCheckpointReceipt {
-    const createdAt = new Date().toISOString();
-    const subject = {
+    return persistMigrationReceipt(
+      this.lock,
+      this.snapshot.snapshotId,
       status,
-      checkpoint,
-      snapshotId: this.snapshot.snapshotId,
-      lockTokenDigest: digest(this.lock.token),
-      createdAt,
       code,
       message,
       rollback,
-    };
-    const receipt: MigrationCheckpointReceipt = {
-      schemaVersion: 1,
-      receiptId: `sha256:${digest(stableJson(subject))}`,
-      ...subject,
-      claims: {
-        validated: false,
-        accepted: false,
-        downstreamAuthorized: false,
-        released: false,
-      },
-    };
-    const receiptDir = path.join(this.lock.projectRoot, RECEIPT_DIR_RELATIVE_PATH);
-    mkdirSync(receiptDir, { recursive: true, mode: 0o700 });
-    writeJsonAtomic(path.join(receiptDir, `${receipt.receiptId.slice(7)}.json`), receipt);
-    return receipt;
+      checkpoint,
+    );
   }
 }
 
 export function executeInstallPlanMigration(input: {
   projectRoot: string;
+  storeRoot: string;
   compatibility: CompatibilityClassification;
   installPlan: InstallPlan;
   existingManifest: InstallManifest | null;
   backupId?: string;
 }): InstallPlanMigrationResult {
   const projectRoot = realpathSync(path.resolve(input.projectRoot));
+  assertStoreCheckpoint9SetupSafe(input.storeRoot);
   const unresolved = findReviewableManagedFileConflicts(input.installPlan);
   if (unresolved.length > 0 || (input.installPlan.stops?.length ?? 0) > 0) {
     throw new MigrationSafetyError(
@@ -1066,6 +1120,7 @@ export function executeInstallPlanMigration(input: {
   try {
     const productPlan = createFixedMigrationProductPlan(
       projectRoot,
+      input.storeRoot,
       input.installPlan,
       input.existingManifest,
     );
@@ -1084,10 +1139,13 @@ export function executeInstallPlanMigration(input: {
       ...(input.backupId ? { backupId: input.backupId } : {}),
     });
     const coordinator = new ImmutableMigrationCoordinator(lock, snapshot, backup, productPlan);
-    const migrationReceipts: MigrationCheckpointReceipt[] = [];
-    for (const checkpoint of [1, 2, 3, 4, 5, 6, 7, 8] as const) {
+    const migrationReceipts: MigrationCheckpointResult[] = [];
+    for (const checkpoint of [1, 2, 3, 4, 5, 6, 7, 8, 9] as const) {
       const receipt = coordinator.advance(checkpoint);
       migrationReceipts.push(receipt);
+      if (receipt.status === "receipt-projection-failed") {
+        throw new Checkpoint9ReceiptProjectionError(receipt);
+      }
       if (receipt.status !== "completed") {
         throw new MigrationSafetyError(
           receipt.code ?? "classification-blocked",
@@ -1106,8 +1164,190 @@ export function executeInstallPlanMigration(input: {
   }
 }
 
+/** Classifies the Store before setup creates a project lock or changes a file. */
+export function assertStoreCheckpoint9SetupSafe(
+  storeRoot: string,
+): StoreCheckpoint9Classification {
+  const classification = classifyStoreCheckpoint9State(storeRoot);
+  if (
+    classification.state === "corrupt" ||
+    classification.state === "unknown" ||
+    classification.state === "newer-unknown" ||
+    classification.state === "indeterminate"
+  ) {
+    throw new StoreCheckpoint9StateError(classification);
+  }
+  return classification;
+}
+
+/** Runs or recovers checkpoint 9 before fresh-project and no-op setup mutation. */
+export function executeStoreCheckpoint9Migration(input: {
+  projectRoot: string;
+  storeRoot: string;
+}): StoreCheckpoint9ExecutionResult {
+  const storeClassification = assertStoreCheckpoint9SetupSafe(input.storeRoot);
+  const projectRoot = realpathSync(path.resolve(input.projectRoot));
+  const lock = acquireProjectMigrationLock({ projectRoot });
+  try {
+    const classification: MigrationCompatibilityClassification = {
+      state: "clean-v2-full-snapshot",
+      disposition: "sync",
+      facets: {
+        resource: "absent",
+        filesystem: "absent",
+        manifestProvenance: "verified",
+        store: checkpoint9MigrationStoreState(storeClassification),
+        legacyAssets: "absent",
+        pathSafety: "safe",
+        optionalAgentics: "absent",
+      },
+      blockers: [],
+      unattendedSafe: true,
+      reviewedMigrationAllowed: true,
+    };
+    const createdAt = new Date().toISOString();
+    const snapshotSubject = {
+      schemaVersion: 1 as const,
+      createdAt,
+      repository: lock.repository,
+      classification,
+      paths: [] as MigrationPathSnapshot[],
+      legacyOperations: [...LEGACY_COMPATIBILITY_OPERATION_IDS],
+    };
+    const snapshot: ReviewedMigrationSnapshot = {
+      ...snapshotSubject,
+      snapshotId: `sha256:${digest(stableJson(snapshotSubject))}`,
+    };
+    bindQuiescenceToSnapshot(lock, snapshot.snapshotId);
+    return executeCheckpoint9WithLock({ lock, snapshot, storeRoot: input.storeRoot });
+  } finally {
+    releaseProjectMigrationLock(lock);
+  }
+}
+
+function executeCheckpoint9WithLock(input: {
+  lock: ProjectMigrationLock;
+  snapshot: ReviewedMigrationSnapshot;
+  storeRoot: string;
+}): StoreCheckpoint9ExecutionResult {
+  const classification = assertStoreCheckpoint9SetupSafe(input.storeRoot);
+  if (classification.state === "supported-current") {
+    const journal = readStoreCheckpoint9JournalEntry(
+      input.storeRoot,
+      input.lock.repository.projectRootDigest,
+    );
+    if (!journal) {
+      return {
+        status: "not-required",
+        checkpoint: 9,
+        storeCommitted: true,
+        setupMayContinue: true,
+      };
+    }
+    const receipt = receiptFromCheckpoint9Journal(journal);
+    return projectCheckpoint9Receipt(input.lock, receipt, true);
+  }
+
+  const receipt = createMigrationReceipt(
+    input.lock,
+    input.snapshot.snapshotId,
+    "completed",
+    null,
+    "Checkpoint 9 completed under the frozen Store snapshot.",
+    emptyRollback(),
+    9,
+  );
+  const journal: StoreCheckpoint9JournalEntry = {
+    receiptId: receipt.receiptId,
+    checkpoint: 9,
+    projectRootDigest: input.lock.repository.projectRootDigest,
+    snapshotId: receipt.snapshotId,
+    committedAt: receipt.createdAt,
+    receiptJson: JSON.stringify(receipt),
+  };
+  const migrated = migrateStoreDatabaseAtCheckpoint9(input.storeRoot, journal);
+  if (!migrated.journal) {
+    return {
+      status: "not-required",
+      checkpoint: 9,
+      storeCommitted: true,
+      setupMayContinue: true,
+    };
+  }
+  return projectCheckpoint9Receipt(input.lock, receipt, false);
+}
+
+function projectCheckpoint9Receipt(
+  lock: ProjectMigrationLock,
+  receipt: MigrationCheckpointReceipt,
+  recoveredProjection: boolean,
+): StoreCheckpoint9ExecutionResult {
+  let lastError: unknown;
+  for (const projectionAttempts of [1, 2] as const) {
+    try {
+      projectMigrationReceipt(lock, receipt);
+      return {
+        status: "completed",
+        checkpoint: 9,
+        storeCommitted: true,
+        setupMayContinue: true,
+        recoveredProjection,
+        projectionAttempts,
+        receipt,
+      };
+    } catch (error) {
+      lastError = error;
+    }
+  }
+  return {
+    schemaVersion: 1,
+    status: "receipt-projection-failed",
+    checkpoint: 9,
+    code: "checkpoint-receipt-projection-failed",
+    receiptId: receipt.receiptId,
+    projectionAttempts: 2,
+    storeCommitted: true,
+    setupMayContinue: false,
+    message: `Checkpoint 9 committed, but its project receipt could not be projected twice: ${errorMessage(lastError)}`,
+  };
+}
+
+function receiptFromCheckpoint9Journal(
+  journal: StoreCheckpoint9JournalEntry,
+): MigrationCheckpointReceipt {
+  const receipt = JSON.parse(journal.receiptJson) as MigrationCheckpointReceipt;
+  if (
+    receipt.schemaVersion !== 1 ||
+    receipt.receiptId !== journal.receiptId ||
+    receipt.checkpoint !== 9 ||
+    receipt.snapshotId !== journal.snapshotId ||
+    receipt.createdAt !== journal.committedAt
+  ) {
+    throw new MigrationSafetyError(
+      "classification-blocked",
+      "The checkpoint-9 journal receipt metadata is inconsistent.",
+    );
+  }
+  return receipt;
+}
+
+function checkpoint9MigrationStoreState(
+  classification: StoreCheckpoint9Classification,
+): MigrationStoreState {
+  switch (classification.state) {
+    case "absent": return "absent";
+    case "supported-current": return "supported-current";
+    case "supported-legacy": return "supported-legacy";
+    case "newer-unknown": return "newer-unknown";
+    case "corrupt": return "corrupt";
+    case "unknown": return "unknown";
+    case "indeterminate": return "indeterminate";
+  }
+}
+
 function createFixedMigrationProductPlan(
   projectRoot: string,
+  storeRoot: string,
   installPlan: InstallPlan,
   existingManifest: InstallManifest | null,
 ): FixedMigrationProductPlan {
@@ -1131,6 +1371,7 @@ function createFixedMigrationProductPlan(
   }
   return {
     projectRoot,
+    storeRoot,
     installPlan,
     existingManifest,
     currentManifest: existingManifest,
@@ -1247,6 +1488,7 @@ function classificationFromReviewedInstallPlan(
   compatibility: CompatibilityClassification,
   existingManifest: InstallManifest | null,
   installPlan: InstallPlan,
+  storeRoot = resolveStoreRoot(),
 ): MigrationCompatibilityClassification {
   const { evidence, auditReport } = compatibility;
   const manifestTrust = evidence.manifestTrust;
@@ -1307,7 +1549,7 @@ function classificationFromReviewedInstallPlan(
       resource: evidence.providerCacheTrust.trusted ? "managed-clean" : "unknown",
       filesystem,
       manifestProvenance,
-      store: inspectMigrationStoreFacet(),
+      store: inspectMigrationStoreFacet(storeRoot),
       legacyAssets,
       pathSafety:
         filesystemTrust.ambiguousFallbackPaths.length === 0 &&
@@ -1319,8 +1561,7 @@ function classificationFromReviewedInstallPlan(
   });
 }
 
-function inspectMigrationStoreFacet(): MigrationStoreState {
-  const storeRoot = resolveStoreRoot();
+function inspectMigrationStoreFacet(storeRoot: string): MigrationStoreState {
   const databasePath = getStoreDatabasePath(storeRoot);
   const globalManifestPath = path.join(storeRoot, "manifest.json");
   if (!existsSync(databasePath) && !existsSync(globalManifestPath)) return "absent";
@@ -1673,6 +1914,71 @@ function digestDirectory(directory: string): string {
     return [name, "other", stats.mode & 0o7777];
   });
   return digest(stableJson(entries));
+}
+
+function persistMigrationReceipt(
+  lock: ProjectMigrationLock,
+  snapshotId: string,
+  status: MigrationReceiptStatus,
+  code: MigrationSafetyCode | null,
+  message: string,
+  rollback: MigrationCheckpointReceipt["rollback"],
+  checkpoint: number,
+): MigrationCheckpointReceipt {
+  const receipt = createMigrationReceipt(
+    lock,
+    snapshotId,
+    status,
+    code,
+    message,
+    rollback,
+    checkpoint,
+  );
+  projectMigrationReceipt(lock, receipt);
+  return receipt;
+}
+
+function createMigrationReceipt(
+  lock: ProjectMigrationLock,
+  snapshotId: string,
+  status: MigrationReceiptStatus,
+  code: MigrationSafetyCode | null,
+  message: string,
+  rollback: MigrationCheckpointReceipt["rollback"],
+  checkpoint: number,
+): MigrationCheckpointReceipt {
+  const createdAt = new Date().toISOString();
+  const subject = {
+    status,
+    checkpoint,
+    snapshotId,
+    lockTokenDigest: digest(lock.token),
+    createdAt,
+    code,
+    message,
+    rollback,
+  };
+  const receipt: MigrationCheckpointReceipt = {
+    schemaVersion: 1,
+    receiptId: `sha256:${digest(stableJson(subject))}`,
+    ...subject,
+    claims: {
+      validated: false,
+      accepted: false,
+      downstreamAuthorized: false,
+      released: false,
+    },
+  };
+  return receipt;
+}
+
+function projectMigrationReceipt(
+  lock: ProjectMigrationLock,
+  receipt: MigrationCheckpointReceipt,
+): void {
+  const receiptDir = path.join(lock.projectRoot, RECEIPT_DIR_RELATIVE_PATH);
+  mkdirSync(receiptDir, { recursive: true, mode: 0o700 });
+  writeJsonAtomic(path.join(receiptDir, `${receipt.receiptId.slice(7)}.json`), receipt);
 }
 
 function sanitizeBackupId(value: string): string {

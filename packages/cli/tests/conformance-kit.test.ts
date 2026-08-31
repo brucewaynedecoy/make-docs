@@ -10,19 +10,26 @@
  * (nothing registered, nothing on the CLI tree or MCP).
  *
  * Test layer: unit (R-LAYER-1) — the kit generator, instrument templates,
- * and prompt rendering exercised in-process (the dry-run pipeline proof runs
- * through the operation core, and generated instruments run over a synthetic
- * fixture tree; no make-docs CLI process and no harness is ever driven).
+ * and prompt rendering are exercised in-process. Static command projection
+ * and active quiescence are checked on the materialized fixture. Generated
+ * instruments run over a synthetic fixture tree. No harness is ever driven.
  * They prove the lab machinery — they are NEVER harness-recognition
  * evidence, and internal tests passing is never evidence that a harness
  * recognizes or can use the output (R-LAYER-2, PRD 36 R-TEST-5).
  */
 
 import { spawnSync } from "node:child_process";
-import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import {
+  chmodSync,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  writeFileSync,
+} from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { describe, expect, test } from "vitest";
+import { beforeAll, describe, expect, test } from "vitest";
 import {
   CODEX_HARNESS_CAPABILITY_DESCRIPTOR,
   PI_HARNESS_CAPABILITY_DESCRIPTOR,
@@ -234,8 +241,10 @@ function readEvidence(kit: GeneratedConformanceKit, relative: string): string {
 /* ------------------------------------------------------------------------ */
 
 const pluginSpec = loadPackagingConformanceScenarioSpec(PLUGIN_SPEC_PATH);
-const pluginKitPromise: Promise<{ first: GeneratedConformanceKit; second: GeneratedConformanceKit }> =
-  (async () => {
+let pluginKitPromise: Promise<{ first: GeneratedConformanceKit; second: GeneratedConformanceKit }>;
+
+beforeAll(() => {
+  pluginKitPromise = (async () => {
     const shared = {
       spec: pluginSpec,
       harness: "codex",
@@ -253,6 +262,10 @@ const pluginKitPromise: Promise<{ first: GeneratedConformanceKit; second: Genera
     });
     return { first, second };
   })();
+  // Attach rejection handling in the test lifecycle. Individual tests still
+  // await the original promise and receive the same failure.
+  void pluginKitPromise.catch(() => undefined);
+});
 
 describe("kit generation over the committed definitions (R-KIT-1..2)", () => {
   test("generates the fixed session layout outside the repository", async () => {
@@ -282,6 +295,10 @@ describe("kit generation over the committed definitions (R-KIT-1..2)", () => {
     expect(config).toContain("harness-supported: satisfied");
     expect(config).toContain("project-trusted: satisfied");
     expect(config).toContain("symlink-or-copy-mirror: satisfied");
+    expect(JSON.parse(readFileSync(
+      path.join(kit.workspaceDir, ".make-docs", "state", "legacy-quiescence.json"),
+      "utf8",
+    ))).toMatchObject({ status: "active" });
     expect(
       existsSync(
         path.join(kit.workspaceDir, "docs/assets/playbooks/agent/conformance-skill-probe.playbook.md"),

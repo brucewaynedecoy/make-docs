@@ -131,7 +131,7 @@ describe("pruneProjectFromStore (R-LIFE-2)", () => {
     cleanupTempDir(workDir);
   });
 
-  it("prunes exactly one project's rows across every table, leaving other projects untouched", () => {
+  it("prunes all rows for one project and leaves other projects untouched", () => {
     if (!sqliteAvailable) {
       return;
     }

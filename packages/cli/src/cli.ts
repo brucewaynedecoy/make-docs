@@ -20,12 +20,21 @@ import {
   planInstall,
 } from "./install";
 import { loadManifest, MANIFEST_RELATIVE_PATH } from "./manifest";
-import { executeInstallPlanMigration } from "./migration";
+import {
+  Checkpoint9ReceiptProjectionError,
+  executeInstallPlanMigration,
+  executeStoreCheckpoint9Migration,
+} from "./migration";
 import { createExecutionContext } from "./operations/context";
 import { invokeOperation } from "./operations/registry";
 import { runRunCommand } from "./run/cli";
 import { runProjectCommand, runResourceCommand } from "./run/root-operations";
-import { bootstrapGlobalStore, mirrorProjectManifest, withStoreDatabase } from "./store";
+import {
+  bootstrapGlobalStore,
+  mirrorProjectManifest,
+  resolveStoreRoot,
+  withStoreDatabase,
+} from "./store";
 import { cloneSelections, defaultSelections, hasEffectiveCapabilities } from "./profile";
 import { applySkillRegistrySelectionMetadata } from "./skill-catalog";
 import {
@@ -485,9 +494,20 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
     }
   }
 
+  const storeRoot = resolveStoreRoot();
+  if (freshInstallTarget || !hasInstallMutation) {
+    const checkpoint9 = executeStoreCheckpoint9Migration({
+      projectRoot: targetDir,
+      storeRoot,
+    });
+    if (!checkpoint9.setupMayContinue) {
+      throw new Checkpoint9ReceiptProjectionError(checkpoint9);
+    }
+  }
   const applied = !freshInstallTarget && hasInstallMutation
     ? executeInstallPlanMigration({
         projectRoot: targetDir,
+        storeRoot,
         compatibility: compatibilityClassification,
         installPlan: plan,
         existingManifest,

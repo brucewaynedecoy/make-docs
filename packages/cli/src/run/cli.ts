@@ -29,6 +29,12 @@ import {
 import { OperationError, type JsonValue } from "../operations/types";
 import { ensureParentDir, writeTextFile } from "../utils";
 import { renderRunOperationText, resolveRunRenderMode } from "./render";
+import {
+  listLifecycleRuns,
+  resolveProjectIdentity,
+  resolveStoreRoot,
+  withStoreDatabase,
+} from "../store";
 
 /**
  * The top-level `make-docs run` command (R-REG-2, R-TOP-3). The command tree
@@ -151,6 +157,95 @@ function resolveRunIdOption(options: OperationOptions, operation: string): strin
     runId,
     last,
   });
+}
+
+/** Lifecycle run selector with the same prefix and --last rules as Playbook runs. */
+function resolveLifecycleRunIdOption(options: OperationOptions, operation: string): string {
+  const last = options.booleans.has("last");
+  const runId = options.values["run-id"];
+  if (last && runId) {
+    throw new OperationError("`--last` cannot be combined with `--run-id`; pass one selector.");
+  }
+  if (!last && !runId) {
+    throw new OperationError(`\`${operation}\` requires --run-id (or --last).`);
+  }
+  const repoRoot = resolveRepoRoot(options);
+  const identity = resolveProjectIdentity(repoRoot);
+  if (identity.status !== "resolved") {
+    if (last) {
+      throw new OperationError("`--last` requires a repository with a manifest-minted project identifier.");
+    }
+    return runId!;
+  }
+  let runs: ReturnType<typeof listLifecycleRuns>;
+  try {
+    runs = withStoreDatabase(
+      resolveStoreRoot(options.values["store-root"] ? { storeRoot: options.values["store-root"] } : {}),
+      (db) => listLifecycleRuns(db, identity.projectId),
+    );
+  } catch (error) {
+    if (!last) return runId!;
+    throw error;
+  }
+  if (last) {
+    const latest = [...runs].sort((left, right) =>
+      left.startedAt === right.startedAt
+        ? left.runId.localeCompare(right.runId)
+        : left.startedAt.localeCompare(right.startedAt),
+    ).pop();
+    if (!latest) {
+      throw new OperationError(
+        "`--last` found no lifecycle runs for this project; start one with `make-docs run lifecycle start`.",
+      );
+    }
+    return latest.runId;
+  }
+  if (runs.some((run) => run.runId === runId)) return runId!;
+  const candidates = runs
+    .map((run) => run.runId)
+    .filter((candidate) => candidate.startsWith(runId!))
+    .sort();
+  if (candidates.length === 1) return candidates[0]!;
+  if (candidates.length > 1) {
+    throw new OperationError(
+      `Run id prefix \`${runId}\` is ambiguous; candidates:\n${candidates
+        .map((candidate) => `  ${candidate}`)
+        .join("\n")}`,
+    );
+  }
+  return runId!;
+}
+
+function requiredPositiveInteger(
+  options: OperationOptions,
+  key: string,
+  operation: string,
+): number {
+  const raw = requiredValue(options, key, operation);
+  if (!/^[1-9][0-9]*$/.test(raw)) {
+    throw new OperationError(`\`${operation}\` requires --${key} to be a positive integer.`);
+  }
+  return Number(raw);
+}
+
+function optionalMetadata(options: OperationOptions): JsonValue | undefined {
+  const raw = options.values["metadata-json"];
+  return raw === undefined ? undefined : parseJsonPayload(raw, "metadata-json");
+}
+
+function lifecycleVersionedInput(
+  options: OperationOptions,
+  operationId: string,
+): RunCliInvocation {
+  const operation = operationPath(operationId);
+  return {
+    input: {
+      repoRoot: resolveRepoRoot(options),
+      ...optionalPathValue(options, "store-root", "storeRoot"),
+      runId: resolveLifecycleRunIdOption(options, operation),
+      expectedVersion: requiredPositiveInteger(options, "expected-version", operation),
+    },
+  };
 }
 
 function readJsonFile(filePath: string): unknown {
@@ -281,6 +376,63 @@ const RUN_CLI_ADAPTERS: Record<string, RunCliAdapter> = {
       targetRoot: path.resolve(options.values["target-root"] ?? "."),
     },
   }),
+  "lifecycle.start": (options) => ({
+    input: {
+      repoRoot: resolveRepoRoot(options),
+      ...optionalPathValue(options, "store-root", "storeRoot"),
+      runId: options.values["run-id"],
+      lifecycleStage: requiredValue(options, "stage", operationPath("lifecycle.start")),
+      checkpoint: options.values.checkpoint,
+      metadata: optionalMetadata(options),
+    },
+  }),
+  "lifecycle.show": (options) => ({
+    input: {
+      repoRoot: resolveRepoRoot(options),
+      ...optionalPathValue(options, "store-root", "storeRoot"),
+      runId: resolveLifecycleRunIdOption(options, operationPath("lifecycle.show")),
+    },
+  }),
+  "lifecycle.list": (options) => ({
+    input: {
+      repoRoot: resolveRepoRoot(options),
+      ...optionalPathValue(options, "store-root", "storeRoot"),
+    },
+  }),
+  "lifecycle.checkpoint": (options) => ({
+    input: {
+      repoRoot: resolveRepoRoot(options),
+      ...optionalPathValue(options, "store-root", "storeRoot"),
+      runId: resolveLifecycleRunIdOption(options, operationPath("lifecycle.checkpoint")),
+      expectedVersion: requiredPositiveInteger(
+        options,
+        "expected-version",
+        operationPath("lifecycle.checkpoint"),
+      ),
+      checkpoint: requiredValue(options, "checkpoint", operationPath("lifecycle.checkpoint")),
+      lifecycleStage: options.values.stage,
+      metadata: optionalMetadata(options),
+    },
+  }),
+  "lifecycle.pause": (options) => lifecycleVersionedInput(options, "lifecycle.pause"),
+  "lifecycle.resume": (options) => lifecycleVersionedInput(options, "lifecycle.resume"),
+  "lifecycle.attach-evidence": (options) => ({
+    input: {
+      ...lifecycleVersionedInput(options, "lifecycle.attach-evidence").input,
+      evidenceId: requiredValue(
+        options,
+        "evidence-id",
+        operationPath("lifecycle.attach-evidence"),
+      ),
+      evidenceKind: requiredValue(options, "kind", operationPath("lifecycle.attach-evidence")),
+      projectPath: options.values["project-path"],
+      externalReference: options.values["external-reference"],
+      digest: options.values.digest,
+    },
+  }),
+  "lifecycle.complete": (options) => lifecycleVersionedInput(options, "lifecycle.complete"),
+  "lifecycle.fail": (options) => lifecycleVersionedInput(options, "lifecycle.fail"),
+  "lifecycle.abandon": (options) => lifecycleVersionedInput(options, "lifecycle.abandon"),
   "playbook.validate": (options) => ({
     input: {
       repoRoot: resolveRepoRoot(options),

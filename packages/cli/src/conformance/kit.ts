@@ -16,18 +16,15 @@
  * command the kit emits is projected against the REAL command surface before
  * any session starts — `make-docs run` commands through the registry-derived
  * resolver, the authored CLI adapters, and each operation's input schema
- * (`adaptRunCliArgv`), other `make-docs` commands through the real CLI parser
- * (`validateMakeDocsCliArgv`) — and every `run package ship` step is then
- * driven END TO END through the operation core under the dry-run context
- * (plan -> preview -> write-with-no-writes via the shipped compiler and
- * descriptors) against the freshly materialized workspace. A definition that
- * cannot project to an accepted, stop-free command sequence fails generation
+ * (`adaptRunCliArgv`), and other `make-docs` commands through the real CLI
+ * parser (`validateMakeDocsCliArgv`). A definition that
+ * cannot project to an accepted command sequence fails generation
  * closed, naming the definition, target, and unprojectable element. The
  * three D-023 defect classes are structurally impossible in generated
  * output: missing support-evidence refs and missing `--yes` confirmations
- * fail the static projection, and unestablished precondition attestations
- * fail the dry-run pipeline because the kit's own workspace materialization
- * is what supplies them.
+ * fail the static projection. Workspace materialization supplies the declared
+ * precondition attestations and activates migration quiescence. P6 does not
+ * invoke the frozen Playbook package operations after that boundary.
  *
  * Kit generation home (R-HOME-1): this module is maintainer lab tooling
  * invoked through an npm script (`conformance:kit` ->
@@ -88,7 +85,6 @@ import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { runCli, validateMakeDocsCliArgv } from "../cli";
-import { createExecutionContext } from "../operations/context";
 import {
   FIRST_PARTY_HARNESS_CAPABILITY_DESCRIPTORS,
   computeHarnessContractDigest,
@@ -96,7 +92,7 @@ import {
   type HarnessDescriptorVerificationStatus,
   type HarnessLabInterrogation,
 } from "../operations/playbook-packaging";
-import { getOperation, invokeOperation, listOperations } from "../operations/registry";
+import { getOperation, listOperations } from "../operations/registry";
 import { OperationError } from "../operations/types";
 import { adaptRunCliArgv, listRunCliAdapters } from "../run/cli";
 import {
@@ -1381,7 +1377,7 @@ function buildSessionManifest(input: {
 }
 
 /* --------------------------------------------------------------------------
- * Workspace materialization and the dry-run pipeline proof
+ * Workspace materialization and the active-quiescence boundary
  * ------------------------------------------------------------------------ */
 
 const MKTEMP_WORKSPACE_PREFIX = /^WORKSPACE=\$\(mktemp -d\)\s*&&\s*/;
@@ -1422,50 +1418,6 @@ async function materializeSessionWorkspace(input: {
         projection.harness,
         `workspace-establishment step \`${step.run}\` failed during materialization: ${result.stderr || result.stdout || `exit ${String(result.status)}`}`,
       );
-    }
-  }
-}
-
-/**
- * The generation-time pipeline proof (R-KIT-3): every `run package ship`
- * session command is driven end to end through the operation core under the
- * dry-run context — plan, preview, and a write leg that plans instead of
- * writing — against the freshly materialized workspace, via the same shipped
- * compiler and descriptors the product uses. Anything short of a clean
- * `planned` result fails generation with the stops named.
- */
-async function proveShipCommandsExecutable(input: {
-  projection: ConformanceKitProjection;
-  workspaceDir: string;
-}): Promise<void> {
-  const { projection, workspaceDir } = input;
-  const shipSteps = [...projection.installCommandSteps, ...projection.uninstallCommandSteps].filter(
-    (entry) => entry.shipInvocationArgv.length > 0,
-  );
-  for (const entry of shipSteps) {
-    for (const argv of entry.shipInvocationArgv) {
-      const adapted = adaptRunCliArgv([...argv.slice(1), "--repo-root", workspaceDir]);
-      const invocation = await invokeOperation(
-        adapted.operationId,
-        adapted.invocation.input,
-        createExecutionContext({
-          surface: "cli",
-          writesAllowed: true,
-          dryRun: true,
-          approvals: adapted.invocation.context?.approvals ?? [],
-        }),
-      );
-      const result = invocation.value as { status?: string; stage?: string; stops?: { reason: string; message: string }[] };
-      if (result.status !== "planned") {
-        const stops = (result.stops ?? [])
-          .map((stop) => `${stop.reason}: ${stop.message}`)
-          .join("; ");
-        throw projectionError(
-          projection.spec,
-          projection.harness,
-          `command step \`${entry.step.run}\` aborted the dry-run packaging pipeline at ${result.stage ?? "unknown"} — ${stops || "no stop detail"}`,
-        );
-      }
     }
   }
 }
@@ -1586,8 +1538,6 @@ export async function generateConformanceKit(
     mkdirSync(evidenceDir, { recursive: true });
 
     await materializeSessionWorkspace({ projection, workspaceDir, repoRoot });
-    await proveShipCommandsExecutable({ projection, workspaceDir });
-
     const steps = renderSessionSteps(projection);
     const cliVersion = input.cliVersion ?? readCliVersion(repoRoot);
     const manifest = buildSessionManifest({ projection, sessionId, cliVersion, steps });

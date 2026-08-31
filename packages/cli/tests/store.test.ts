@@ -186,7 +186,7 @@ describe("local bootstrap independence (R-STORE-3, R-KEEP-2)", () => {
     process.env.MAKE_DOCS_HOME = originalStoreHome;
   });
 
-  it("installs byte-identical repository content with and without an existing store", async () => {
+  it("installs byte-identical managed content with and without an existing store", async () => {
     const targetWithoutStore = createTempDir("make-docs-target-a-");
     const targetWithStore = createTempDir("make-docs-target-b-");
     const freshStore = path.join(createTempDir("make-docs-store-a-"), "store");
@@ -209,8 +209,11 @@ describe("local bootstrap independence (R-STORE-3, R-KEEP-2)", () => {
       process.env.MAKE_DOCS_HOME = populatedStore;
       await runCli(["setup", "--yes", "--target", targetWithStore]);
 
-      const filesWithout = collectFiles(targetWithoutStore);
-      const filesWith = collectFiles(targetWithStore);
+      const migrationStatePrefix = ".make-docs/state/";
+      const filesWithout = collectFiles(targetWithoutStore)
+        .filter((relativePath) => !relativePath.startsWith(migrationStatePrefix));
+      const filesWith = collectFiles(targetWithStore)
+        .filter((relativePath) => !relativePath.startsWith(migrationStatePrefix));
       expect(filesWith).toEqual(filesWithout);
 
       for (const relativePath of filesWithout) {
@@ -432,7 +435,7 @@ describe.skipIf(!sqliteAvailable)("store database (stage 2)", () => {
     });
   }, 30_000);
 
-  it("carries the install registry and both project-state facets, and prunes by project id", () => {
+  it("carries the install registry and both project-state facets, and prunes all rows for one project", () => {
     bootstrapInto(storeRoot);
     withStoreDatabase(storeRoot, (db) => {
       upsertProjectRegistryEntry(db, {
@@ -474,7 +477,7 @@ describe.skipIf(!sqliteAvailable)("store database (stage 2)", () => {
       expect(evidence[0]?.payload).toEqual({ approvedBy: "reviewer" });
       expect(evidence[0]?.repoRoot).toBe("/tmp/project-a");
 
-      // Pruning one project's rows leaves every other project intact (R-LIFE-2 seam).
+      // Project pruning leaves every other project intact.
       deleteProjectRows(db, "proj-a");
       expect(readProjectRegistryEntry(db, "proj-a")).toBeNull();
       expect(readPlaybookRunRecord(db, "proj-a", "run-1")).toBeNull();
@@ -541,7 +544,7 @@ describe.skipIf(!sqliteAvailable)("store recovery (R-DB-4)", () => {
     });
   });
 
-  it("never blocks repository reads or installs when the database is corrupt", async () => {
+  it("keeps repository reads available but fails setup closed when the database is corrupt", async () => {
     const originalStoreHome = process.env.MAKE_DOCS_HOME;
     const targetDir = createTempDir("make-docs-target-");
     try {
@@ -554,10 +557,21 @@ describe.skipIf(!sqliteAvailable)("store recovery (R-DB-4)", () => {
       rmSync(`${databasePath}-wal`, { force: true });
       rmSync(`${databasePath}-shm`, { force: true });
       writeFileSync(databasePath, "garbage", "utf8");
+      const corruptBytes = readFileSync(databasePath);
+      const manifestBefore = readFileSync(
+        path.join(targetDir, ".make-docs", "manifest.json"),
+        "utf8",
+      );
 
       expect(loadManifest(targetDir)).not.toBeNull();
-      await expect(runCli(["setup", "--yes", "--target", targetDir])).resolves.toBeUndefined();
+      await expect(runCli(["setup", "--yes", "--target", targetDir])).rejects.toMatchObject({
+        classification: { state: "corrupt" },
+      });
       expect(loadManifest(targetDir)).not.toBeNull();
+      expect(readFileSync(path.join(targetDir, ".make-docs", "manifest.json"), "utf8"))
+        .toBe(manifestBefore);
+      expect(readFileSync(databasePath)).toEqual(corruptBytes);
+      expect(readdirSync(storeRoot).some((entry) => entry.includes(".corrupt-"))).toBe(false);
     } finally {
       process.env.MAKE_DOCS_HOME = originalStoreHome;
       cleanupTempDir(targetDir);
