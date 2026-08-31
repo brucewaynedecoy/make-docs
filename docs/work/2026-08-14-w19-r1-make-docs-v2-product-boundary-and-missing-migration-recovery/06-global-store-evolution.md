@@ -155,9 +155,9 @@ This phase implements migration checkpoint 9. The Store receives `runs` and `run
 
 ### Tasks
 
-- [ ] t21: Run focused schema, integrated-setup migration, transition, cross-process concurrency, busy, evidence-reference, receipt, CLI/MCP parity, privacy, transactional rollback, journal recovery, typed double-projection-failure, and whitespace validation within the existing finite budget.
+- [ ] t21: Run focused schema, integrated-setup migration, transition, cross-process concurrency, busy, evidence-reference, receipt, CLI/MCP parity, privacy, transactional rollback, journal recovery, typed double-projection-failure, and whitespace validation within the existing finite budget. Reconcile the R-KIT-3 proof without expanding the fixed 20-case Store budget or five planned Store failure points. Its existing focused conformance test set must cover the required deterministic copy, the exact four-path omission allowlist, fail-closed unknown paths and other differences, byte-level proof-copy equality, byte-level session-fixture stability through cleanup, byte-identical projected arguments before and after root binding, plan-stop failure, write-with-no-writes behavior, proof cleanup on success and failure, active quiescence in the real session workspace, no proof residue outside intended session outputs, an unchanged operator Store, and deterministic kit output.
 - [ ] t22: Compare pre/post fixtures to prove every legacy `playbook_runs` row and unrelated Store table remains untouched and current listings exclude legacy rows.
-- [ ] t23: Obtain independent review of transactional safety, pre-mutation classification, cross-process serialization, journal recovery, typed projection failure, repository-vs-Store authority, receipt semantics, unavailable behavior, and legacy preservation; correct only actionable defects within budget.
+- [ ] t23: Obtain independent review of transactional safety, pre-mutation classification, cross-process serialization, journal recovery, typed projection failure, repository-vs-Store authority, receipt semantics, unavailable behavior, legacy preservation, and the separation of the R-KIT-3 proof workspace from the quiesced session workspace; correct only actionable defects within budget.
 - [ ] t24: Record checkpoint-9 completion evidence, exact schema/operation versions, remaining nonblocking items, and the locked checkpoint-10/P7 handoff while keeping quiescence active.
 
 ### Acceptance criteria
@@ -168,6 +168,10 @@ This phase implements migration checkpoint 9. The Store receives `runs` and `run
 - Checkpoint 9 closes without touching legacy Playbook state.
 - Checkpoint 10 remains separately gated and quiescence remains active.
 - All ten lifecycle operation identifiers are active without a transport or identifier change.
+- R-KIT-3 keeps its end-to-end `package.ship` preview proof without running it after setup in the quiesced session workspace.
+- The proof workspace is a required deterministic copy of the freshly materialized session fixture; hand construction is prohibited. It omits only `.make-docs/state/migration.lock.json`, `.make-docs/state/legacy-quiescence.json`, `.make-docs/state/legacy-writers/`, and `.make-docs/state/migration-receipts/`. Byte-level relative-path and content checks reject any unknown migration path or other difference before execution and prove that the real session fixture stays unchanged through cleanup.
+- The proof root binds only through operation context or current working directory. The projected argument vector stays byte-identical and in the same order. The proof has no setup, uses a proof-local Store, fails on a plan stop, makes no writes, never counts as session evidence, and leaves no proof residue outside intended session outputs on success or failure. The operator Store remains unchanged.
+- The real session workspace keeps its active P5-through-P10 quiescence barrier, and equal inputs still produce deterministic kit output.
 
 ### Dependencies
 
