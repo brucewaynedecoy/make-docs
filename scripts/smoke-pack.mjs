@@ -992,7 +992,8 @@ function assertProviderOnlyDefaultInstall(targetDir, manifestPath) {
   }
 
   assertDirectoryEntries(targetDir, [".make-docs", "AGENTS.md", "CLAUDE.md", "docs"]);
-  assertDirectoryEntries(path.join(targetDir, ".make-docs"), ["AGENTS.md", "CLAUDE.md", "manifest.json", "system"]);
+  assertDirectoryEntries(path.join(targetDir, ".make-docs"), ["AGENTS.md", "CLAUDE.md", "manifest.json", "state", "system"]);
+  assertDirectoryEntries(path.join(targetDir, ".make-docs/state"), ["legacy-quiescence.json", "migration-receipts"]);
   assertDirectoryEntries(path.join(targetDir, ".make-docs/system"), ["AGENTS.md", "CLAUDE.md", "contracts", "prompts", "references", "templates"]);
   for (const type of ["contracts", "prompts", "references", "templates"]) {
     assertDirectoryEntries(path.join(targetDir, ".make-docs/system", type), ["AGENTS.md", "CLAUDE.md"]);
