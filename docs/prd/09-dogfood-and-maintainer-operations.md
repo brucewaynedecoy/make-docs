@@ -27,7 +27,7 @@ Re-seeding is deliberately manual. The docs package README requires maintainers 
 - Dogfood freshness is proven with targeted parity checks for files expected to match exactly. Router and managed-block checks remain mandatory for instruction surfaces; manual visual inspection alone is insufficient proof for an asset claimed current.
 - A managed ownership manifest or expanded parity allowlist may replace manual file enumeration only when it preserves project-owned exclusions and produces reviewable evidence.
 
-Historical migration docs still matter, but only as background. `docs/assets/archive/plans/2026-04-22-w9-r1-docs-assets-resource-namespace/04-dogfood-docs-migration.md` records earlier hidden and `docs/assets/**` resource layouts. Current routing authority is the live PRD set, machine-served system resources with optional `.make-docs/system/{contracts,prompts,references,templates}/**` projection, `.make-docs/archive/**`, `docs/artifacts/**`, and `docs/assets/<persona-slug>/testing/**`; old path names remain migration evidence, not active dogfood authority.
+Historical migration docs still matter, but only as background. `docs/assets/archive/plans/2026-04-22-w9-r1-docs-assets-resource-namespace/04-dogfood-docs-migration.md` records earlier hidden and `docs/assets/**` resource layouts. Current routing authority is the live PRD set, machine-served system-resource bodies, an always-local router skeleton with optional bodies under `.make-docs/system/{contracts,prompts,references,templates}/**`, `.make-docs/archive/**`, `docs/artifacts/**`, and `docs/assets/<persona-slug>/testing/**`; old path names remain migration evidence, not active dogfood authority.
 
 ## Integrations
 
@@ -47,7 +47,7 @@ Candidate items that should also surface in `03-open-questions-and-risk-register
 
 - Manual reseeding requires a scoped, reviewable freshness proof for every affected template-owned file; missing parity automation remains a release blocker rather than permission to rely on visual inspection alone.
 - Historical docs still reference superseded hidden-dot paths such as `docs/.references/`, `docs/.templates/`, and `docs/assets/config/manifest.json` in migration plans like `docs/assets/archive/plans/2026-04-22-w9-r1-docs-assets-resource-namespace/04-dogfood-docs-migration.md`. Those references are factual history, but easy to mistake for current routing authority.
-- `packages/content/` is described as reserved for future CLI-rendered fragments in `README.md:10-17` and exists as a top-level workspace directory, but this subsystem does not yet define active ownership or dogfood behavior for it.
+- Rendered JSON content fragments are a current non-goal. The owner approved retirement of the unused `packages/content/` placeholder. Future content-fragment work requires a new accepted design and owning PRD authority.
 
 ## Dogfood Evidence and Obligation Boundaries
 

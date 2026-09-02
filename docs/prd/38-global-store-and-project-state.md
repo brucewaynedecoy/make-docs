@@ -82,7 +82,7 @@ The requirements below are the normative authority. Their stable identifiers pre
 ### Preserved Prior Decisions (R-KEEP)
 
 - R-KEEP-1 (MUST): project `.make-docs/config.yaml` remains the optional, project-owned presentation overlay that never renames structure and is never routing authority; the global config does not change this.
-- R-KEEP-2 (MUST): system resources are machine-served by default with explicit optional provenance-aware project projection; the Store remains separate from the installed resource provider, projected `.make-docs/system/**` files, repository routers, and any pinned cache.
+- R-KEEP-2 (MUST): system-resource bodies are machine-served by default with explicit optional provenance-aware project projection; the Store remains separate from the installed resource provider, the always-local `.make-docs/system/**` router skeleton, projected resource bodies, repository routers, and any pinned cache.
 
 ### Verification and Testability (R-TEST)
 

@@ -58,8 +58,8 @@ The following conservative review prevents historical register content from bein
 
 | Existing record | Disposition | Rationale |
 |---|---|---|
-| D-009 | Remains a decision record, not migrated. | It reserves a possible future runtime name; it does not commit Make Docs to deliver that runtime. |
-| Q-004 | Remains an open question, not migrated. | It asks for a future selection decision and does not yet establish an accepted required outcome. |
+| D-009 | Closed in place, not migrated. | The owner approved retirement of `packages/content/`. Rendered JSON content fragments are a current non-goal. |
+| Q-004 | Closed in place, not migrated. | The owner approved removal of the unused package instead of keeping a reserved placeholder. |
 | Q-015 | Closed in place, not migrated. | The accepted W19 R1 boundary removes Make Docs Playbook execution, so an interactive Playbook run mode is not a current product option. |
 | Q-016 | Remains an open question, not migrated. | Its outcome and trigger are not yet accepted strongly enough to create an obligation. |
 | Q-017 | Remains an open question, not migrated. | It is a policy decision still awaiting owner resolution. |
@@ -210,7 +210,7 @@ The following pre-W19 R1 discussion is retained as non-normative historical cont
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Closed | The [accepted W19 R1 recovery design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md), [accepted recovery plan](../plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md), [PRD 21](./21-project-tool-directory-and-resource-tiers.md), and [PRD 22](./22-project-documentation-asset-model.md) now define the current target information architecture: optional projected peer system resources under `.make-docs/system/{contracts,prompts,references,templates}/**`, compatibility archive under `.make-docs/archive/**`, project artifacts under `docs/artifacts/**`, and Persona-scoped UAT evidence under `docs/assets/<persona-slug>/testing/**`. Historical hidden-dot, Library, Playbook, Protocol, guide, breadcrumb, and prior archive/history paths are migration inputs or lineage only, not target homes. | None. Keep historical references explicitly framed as lineage and preserve ambiguous or user-owned legacy content until an authorized migration disposition succeeds. |
+| Closed | The [accepted W19 R1 recovery design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md), [accepted recovery plan](../plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md), [PRD 21](./21-project-tool-directory-and-resource-tiers.md), and [PRD 22](./22-project-documentation-asset-model.md) now define the current target information architecture: an always-local router skeleton with optional peer system-resource bodies under `.make-docs/system/{contracts,prompts,references,templates}/**`, compatibility archive under `.make-docs/archive/**`, project artifacts under `docs/artifacts/**`, and Persona-scoped UAT evidence under `docs/assets/<persona-slug>/testing/**`. Historical hidden-dot, Library, Playbook, Protocol, guide, breadcrumb, and prior archive/history paths are migration inputs or lineage only, not target homes. | None. Keep historical references explicitly framed as lineage and preserve ambiguous or user-owned legacy content until an authorized migration disposition succeeds. |
 
 **Issue**: Historical records name hidden-dot and retired asset paths that could otherwise be mistaken for current routing.
 
@@ -242,15 +242,15 @@ The following pre-W19 R1 discussion is retained as historical context and does n
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Deferred | `packages/content/` is reserved but not active product surface. | Define the package/content contract before adding rendered content fragments. |
+| Closed | The owner approved retirement of the unused `packages/content/` package on 2026-09-02. Rendered JSON content fragments are a current non-goal. | Remove the package and all active reservation claims. A future content-fragment feature requires a new accepted design and owning PRD authority before implementation. |
 
 **Issue**: `README.md:10-17` reserves `packages/content/`, but there is no selector in `packages/cli/src/catalog.ts:64-85` and no command/help surface in `packages/cli/src/cli.ts:894-1019`.
 
 **Why it matters**: Future content fragments still have no shipping or ownership contract.
 
-**Recommendation**: Leave the package reserved until a specific content-fragment design exists.
+**Recommendation**: Remove the unused package. Do not reserve its name or directory.
 
-**To close**: An accepted design is incorporated into a genuinely new capability PRD, or into the owning current PRDs if the capability fits an existing subject, before `packages/content/` becomes active; that product authority defines ownership, packaging, rendering, dogfood, and release rules.
+**Closure proof**: The active package, workspace link, lockfile entry, and reservation claims are absent. Historical records can keep their original references. Any future content-fragment work starts with a new accepted design and owning PRD authority.
 
 ### D-010 Skills Authoring and Release Guidance Is Thin Relative to Runtime Dependence
 
@@ -288,7 +288,7 @@ The following pre-W19 R1 discussion is retained as historical context and does n
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Closed | Resolved by the installed [lifecycle anchor](../../.make-docs/references/system/lifecycle.md), its explicit default ordering and departure rules, and the current lifecycle and handoff authority in [14-lifecycle-workflow-and-coverage-passes.md](./14-lifecycle-workflow-and-coverage-passes.md). The shipped routers and stage outputs direct agents through the documentation-first arc without making it an inflexible runtime gate. | None. Preserve the lifecycle anchor, stage handoffs, and explicit departure recording through normal PRD and template maintenance. |
+| Closed | Resolved by the lifecycle anchor, whose corrected current path is `.make-docs/system/references/lifecycle.md`, its explicit default ordering and departure rules, and the current lifecycle and handoff authority in [14-lifecycle-workflow-and-coverage-passes.md](./14-lifecycle-workflow-and-coverage-passes.md). The shipped routers and stage outputs direct agents through the documentation-first arc without making it an inflexible runtime gate. | None. Preserve the lifecycle anchor, stage handoffs, and explicit departure recording through normal PRD and template maintenance. |
 
 **Issue**: Routers and contracts encode where artifacts live but not the order stages run. The design → plan → PRD → work → implement sequence was stated only in projected `.make-docs/system/prompts/` starters, which `.make-docs/system/prompts/AGENTS.md` marks as non-authoritative, so an agent could land on a plan and jump straight to implementing.
 
@@ -428,15 +428,15 @@ The following pre-W19 R1 discussion is retained as non-normative historical cont
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Two correlated gaps confirmed on 2026-07-04, both from the same pre-W18 implementing-agent era that produced the playbook drifts. First, the `custom/` directories under `.make-docs/contracts/`, `.make-docs/references/`, and `.make-docs/templates/` — each with router and agent-instruction files per configured harness — mandated by [21-project-tool-directory-and-resource-tiers.md](./21-project-tool-directory-and-resource-tiers.md) are never created by setup; the installed instance carries only the `system/` tiers. Second, the no-scripts migration lineage [25-typescript-runtime-cli-mcp-operation-boundaries.md](./25-typescript-runtime-cli-mcp-operation-boundaries.md) (W16 R3) intended operational scripts to be built into the CLI, yet `check_path_hygiene.py` still ships as a repo-local Python script at `.make-docs/scripts/check_path_hygiene.py` and the intended `.make-docs/scripts/` thin discovery shims — thin wrappers plus router files making CLI operations discoverable to agents — were never implemented. The shims half is now decided: on 2026-07-04 in the post-UAT scoping discussion the user resolved that the thin discovery shims will not be built — the W18 R11 operation registry plus MCP ([39-cli-command-model-and-operation-registry.md](./39-cli-command-model-and-operation-registry.md)) supersede them as the agent discovery mechanism, and the fix is router and agent-instruction doc updates pointing at `make-docs run` and the MCP tools. The item stays Open for the custom-tiers drift half and the `check_path_hygiene.py` CLI absorption; the custom-directories gap is additionally superseded in direction by the Q-017 instance-layout centralization lineage, which questions whether per-project replication of system tiers should exist at all. | Run a bounded PRD-conformance audit across the affected pre-W18 lineages (PRD 21, [25-typescript-runtime-cli-mcp-operation-boundaries.md](./25-typescript-runtime-cli-mcp-operation-boundaries.md), and adjacent same-era PRDs) to enumerate remaining drift in one sweep rather than serial discovery; implement the decided shims fix as router and agent-instruction doc updates pointing at `make-docs run` and the MCP tools; and sequence the custom-tier fix behind the Q-017 direction decision so setup does not start creating directories the centralization design would remove. |
+| Open - narrowed | The 2026-07-04 record combined three gaps. The 2026-09-02 authority correction supersedes the old custom-tier mandate: `.make-docs/system/<type>/` is the sole current resource tree, and no `.make-docs/<type>/custom/` tier is authorized. The owner had already rejected thin `.make-docs/scripts/` discovery shims because the operation registry and MCP are the discovery surfaces. The remaining open issue is that `check_path_hygiene.py` still ships as a repo-local Python script even though [25-typescript-runtime-cli-mcp-operation-boundaries.md](./25-typescript-runtime-cli-mcp-operation-boundaries.md) directs operational logic into the TypeScript CLI. | Keep custom tiers and thin script shims out of current scope. During the P4 router correction, point current router guidance only at accepted local resources, CLI resource fallback, and current typed operations. Separately absorb or explicitly disposition `check_path_hygiene.py` under PRD 25 before this item closes. |
 
-**Issue**: Setup never creates the PRD 21 `custom/` resource tiers, and the [25-typescript-runtime-cli-mcp-operation-boundaries.md](./25-typescript-runtime-cli-mcp-operation-boundaries.md) script migration stopped short of both building `check_path_hygiene.py` into the CLI and shipping the `.make-docs/scripts/` discovery shims, so two accepted pre-W18 mandates exist only as PRD text.
+**Issue**: The [25-typescript-runtime-cli-mcp-operation-boundaries.md](./25-typescript-runtime-cli-mcp-operation-boundaries.md) script migration stopped short of building `check_path_hygiene.py` into the CLI. The former custom-tier and thin-shim mandates are superseded and are not open implementation work.
 
-**Why it matters**: Unimplemented mandates from one implementing-agent era tend to cluster — this era also produced the playbook drifts — so each serially discovered gap suggests more; meanwhile users lack the sanctioned custom-override tier and agents lack the intended operation-discovery path, and the remaining Python script contradicts the no-scripts posture the [25-typescript-runtime-cli-mcp-operation-boundaries.md](./25-typescript-runtime-cli-mcp-operation-boundaries.md) lineage exists to enforce.
+**Why it matters**: Leaving superseded mandates open can recreate removed product surfaces. The remaining Python script also contradicts the no-scripts posture that PRD 25 exists to enforce.
 
-**Recommendation**: Audit the pre-W18 PRD set for implementation conformance in one bounded pass, land the decided shims fix as router and agent-instruction doc updates pointing at `make-docs run` and the MCP tools, and treat the custom-tier gap as an input to the Q-017 centralization design rather than implementing it as specified first.
+**Recommendation**: Keep the custom-tier and thin-shim decisions closed. Complete only the accepted router correction and the separately owned path-hygiene disposition.
 
-**To close**: The bounded conformance audit is recorded with each enumerated gap dispositioned, the router and agent-instruction docs point at the registry-derived surfaces in place of the never-built shims, `check_path_hygiene.py` is absorbed into the CLI or explicitly dispositioned, and the custom-tier gap is either implemented per PRD 21 or replaced by a Q-017 decision incorporated into PRD 21 and every other affected current product authority before implementation.
+**To close**: `check_path_hygiene.py` is absorbed into the CLI or explicitly dispositioned. No custom tier or thin script shim is introduced without new accepted design and owning PRD authority.
 
 ### D-020 Shipped Lifecycle Skills Instruct the Removed `make-docs operations` Command Surface
 
@@ -574,6 +574,20 @@ The following pre-W19 R1 discussion is retained as non-normative historical cont
 
 **Resolution**: Closed 2026-07-07. `conformance:kit` gained `--force` and `--disambiguator <slug>`. `--force` removes the existing root and regenerates fresh — guarded by `assertSessionRootForceRemovable` in `packages/cli/src/conformance/kit.ts`, which refuses any directory that is not demonstrably lab-owned (under `make-docs-conformance-lab/`, or carrying a generated `kit/manifest.json`), so a mistyped `--session-root` can never delete unrelated files. `--disambiguator` flows through `mintConformanceLabSessionId` into the session id and the default root so repeated same-day rounds get distinct readable ids; a non-slug disambiguator is rejected with a targeted message. The R-KIT-2 refusal message now names both escapes and this item. Both options thread through the single-scenario and `--first-pass-suite` paths. Proven by `packages/cli/tests/conformance-kit.test.ts` (`--force` replaces a superseded session leaving no stale evidence; `--force` refuses a non-lab directory; the no-force refusal names `--force`, `--disambiguator`, and D-028) and `packages/cli/tests/conformance-lab-session.test.ts` (a non-slug disambiguator is rejected). Full suite green (1075 tests across 62 files).
 
+### D-029 W19 R1 Resource Topology and Router Authority Drifted
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Confirmed - corrective work open | Commit `02002ba23` changed accepted authority from an always-local router skeleton with optional resource bodies to an optional whole-tree model. Commit `efebfa29` then reduced the installed documentation router and implemented that drift. | Correct the accepted design and owning PRDs, reopen P4, repair the runtime and templates, add safe legacy migration, and prove the install and reconfigure matrix before P4 closes again. |
+
+**Impact**: A project with no selected resource bodies can lose the `.make-docs/system/` routing tree. Its `docs/` router can also lose required lifecycle, design, planning, PRD, work, risk, artifact, Persona, UAT, coverage, history, and formatting guidance. P7 therefore cannot trust its current P4 dependency proof.
+
+**Corrective decision**: `.make-docs/system/<type>/` is the sole current resource tree for `contracts`, `prompts`, `references`, and `templates`. Configured-harness routers are always local at the project root, `docs/`, `.make-docs/`, `.make-docs/system/`, and each typed directory. Resource selection controls resource bodies only. Stable resource URIs do not change. Agents use a valid local body first and use `make-docs resource read <uri>` when the body is absent.
+
+**Controls**: Treat legacy `.make-docs/<type>/system/` content only as migration input. Move or remove only content with verified managed ownership and matching trusted bytes. Preserve unknown, modified, mixed, or conflicting content for review. Keep router ownership separate from resource-projection ownership in the manifest and lifecycle plans.
+
+**Closure proof**: Corrected authority is committed. Fresh install, reconfigure, legacy migration, modified-router, malformed-block, harness-selection, and uninstall tests pass. Template, generated package, and dogfood routers agree. A new P4 corrective closeout history record proves the accepted correction without changing the old history record or this open erratum. P7 refreshes its baseline and P4 dependency proof before its preflight continues.
+
 ## Open Questions
 
 ### Q-001 What Is the Long-Term Skills Delivery Contract?
@@ -622,15 +636,15 @@ The following pre-W19 R1 discussion is retained as non-normative historical cont
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Deferred | Reserved for future content-fragment work. | Draft a future design before making `packages/content/` active. |
+| Closed | The owner approved retirement of `packages/content/` on 2026-09-02. Rendered JSON content fragments are a current non-goal. | Remove the package and active reservation claims. Require a new accepted design and owning PRD authority before any future content-fragment implementation. |
 
 **Question**: How should `packages/content` participate in the product?
 
 **Why it matters**: `README.md:10-17` reserves the workspace, but there is no runtime integration point in `packages/cli/src/catalog.ts:64-85` or `scripts/smoke-pack.mjs:60-246`. Without an explicit answer, later content work will invent its own packaging and dogfood rules.
 
-**Recommendation**: Keep it reserved and inactive until a specific feature requires it.
+**Recommendation**: Remove the unused package and do not reserve the namespace.
 
-**To close**: An accepted design is incorporated into a genuinely new capability PRD, or into the owning current PRDs if the capability fits an existing subject, before `packages/content/` becomes active; that product authority defines content ownership, package inclusion, rendering, dogfood, and release checks. Explicit retirement must instead be recorded as a current non-goal in the owning PRD set.
+**Closure proof**: The package and active reservation claims are absent. Any future content-fragment work begins with new accepted design and PRD authority that defines ownership, packaging, rendering, dogfood, and release checks.
 
 ### Q-005 How Should Maintainers Prove Dogfood Freshness?
 
@@ -728,7 +742,7 @@ The following pre-W19 R1 discussion is retained as non-normative historical cont
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Closed | Prompts are first-class peer system resources. Their upstream source is `packages/docs/template/.make-docs/prompts/system/`, and the installed provider supplies them without requiring a project-local projection. A selected local projection uses `.make-docs/system/prompts/`. Prompts do not live under `.make-docs/references/**` or `docs/assets/**`. The [accepted design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md) defines the resource type and resolution order. The [P1 work record](../work/2026-08-14-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/01-upstream-documentation-authority.md) records the upstream authority. | None. Preserve the upstream source, installed-provider supply, and optional local-projection paths when prompts change. |
+| Closed | Prompts are first-class peer system resources. Their upstream source is `packages/docs/template/.make-docs/system/prompts/`, and the installed provider supplies them without requiring project-local resource bodies. A selected local body uses `.make-docs/system/prompts/`, whose configured-harness router remains present when no bodies are selected. Prompts do not live under `.make-docs/references/**` or `docs/assets/**`. The [accepted design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md) defines the resource type and resolution order. The [P1 work record](../work/2026-08-14-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/01-upstream-documentation-authority.md) records the earlier implementation path and is historical evidence. | None. Preserve the corrected upstream source, installed-provider supply, always-local router skeleton, and optional local resource bodies when prompts change. |
 
 **Question**: Resolved: prompts use the first-class `prompt` system-resource type. They do not use the reference namespace or reader-facing assets.
 
@@ -738,7 +752,7 @@ The following pre-W19 R1 discussion is retained as non-normative historical cont
 
 **To close**: The accepted design defines the prompt resource type and resolution order, and P1 establishes the upstream prompt home.
 
-**Resolution**: On 2026-08-17, the owner approved W19 R1 P2 Decision Package 1 Option A. Q-010 remains `Closed`. The old system-reference prompt path was stale. Prompts now use the upstream source `packages/docs/template/.make-docs/prompts/system/`, installed-provider supply, and optional selected local projection at `.make-docs/system/prompts/`.
+**Resolution**: On 2026-08-17, the owner approved W19 R1 P2 Decision Package 1 Option A. Q-010 remains `Closed`. The 2026-09-02 authority correction keeps the peer prompt type and stable URI decision, but corrects its upstream source to `packages/docs/template/.make-docs/system/prompts/`. The installed provider supplies prompt bodies. Selected local bodies use `.make-docs/system/prompts/`, whose configured-harness router is always local.
 
 ### Q-011 Should Coordinate and Prefix Conventions Be Configurable?
 
@@ -850,7 +864,7 @@ The following pre-W19 R1 discussion is retained as historical context and does n
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Deferred | The accepted W19 design and current PRDs separately redesign the P2 system-resource model. The installed provider is the default. A project can select an optional local projection at `.make-docs/system/{contracts,prompts,references,templates}/`. This accepted P2 scope does not settle the broader machine-store, symlink, replication-choice, configuration-layout, custom-tier, or script-absorption questions. | Keep the broader future design deferred. Do not add those wider layout or migration choices to P2. |
+| Deferred | The accepted W19 design and current PRDs separately redesign the P2 system-resource model. The installed provider is the default for resource bodies. A project can select optional local bodies at `.make-docs/system/{contracts,prompts,references,templates}/`, while the configured-harness router skeleton remains local. This accepted P2 scope does not settle the broader machine-store, symlink, replication-choice, configuration-layout, custom-tier, or script-absorption questions. | Keep the broader future design deferred. Do not add those wider layout or migration choices to P2. |
 
 **Question**: Beyond the accepted P2 installed-provider and optional-projection model, should a later design move more managed assets or mutable state to one machine-level home with links, replication choices, or read-only projections?
 

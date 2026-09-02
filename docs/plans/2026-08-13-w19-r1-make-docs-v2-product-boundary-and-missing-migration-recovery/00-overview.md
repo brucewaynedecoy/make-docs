@@ -89,7 +89,7 @@ Unknown or untraced surfaces remain removal candidates or absent capability; thi
 | Resource list/read through CLI and native MCP resources | `update-existing` | 07, 25, 39 | Command and MCP authority already exists. |
 | Setup/reconfigure selections and router behavior | `update-existing` | 05, 07, 15, 17, 21 | Installation, lifecycle, bootstrap, materialization, and resource-tier owners must agree. |
 | Manifest ownership/provenance, conflicts, backup, rollback, update, uninstall | `update-existing` | 05, 15, 18 | These own manifest lifecycle, initialization, and compatibility safety. |
-| Optional `.make-docs/system/{contracts,prompts,references,templates}/` projection and on-demand ensure | `update-existing` | 17, 21, 39 | Existing materialization, tool-directory, and operation owners cover it. |
+| Always-local `.make-docs/system/{contracts,prompts,references,templates}/` router skeleton, optional resource bodies, and on-demand ensure | `update-existing` | 17, 21, 39 | Existing materialization, tool-directory, and operation owners cover it. |
 | Preserve ambiguous/user-owned assets and legacy rows through quiescence | `update-existing` | 18, 34, 35, 36, 38 | Compatibility and Store owners govern preservation and retired subjects. |
 | Naive-UAT system workflow plus first-party Skill with CLI-only shims | `update-existing` | 08, 14, 25, 28, 46 | Skill, lifecycle, runtime, exposure, and UAT owners already exist. |
 | Configured `user`/`maintainer`, default `user` | `update-existing` | 46 and 47, paired | UAT execution and Persona schema cannot diverge. |

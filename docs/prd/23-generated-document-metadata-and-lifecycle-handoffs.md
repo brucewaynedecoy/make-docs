@@ -207,12 +207,12 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - [14 Lifecycle Workflow and Coverage Passes](14-lifecycle-workflow-and-coverage-passes.md)
 - [22 Project Documentation Asset Model](22-project-documentation-asset-model.md)
 - [47 Persona Model](47-persona-model.md)
-- `packages/docs/template/.make-docs/contracts/system/design-contract.md`
-- `packages/docs/template/.make-docs/contracts/system/output-contract.md`
-- `packages/docs/template/.make-docs/references/system/lifecycle.md`
-- `.make-docs/contracts/system/design-contract.md`
-- `.make-docs/contracts/system/output-contract.md`
-- `.make-docs/references/system/lifecycle.md`
+- `packages/docs/template/.make-docs/system/contracts/design-contract.md`
+- `packages/docs/template/.make-docs/system/contracts/output-contract.md`
+- `packages/docs/template/.make-docs/system/references/lifecycle.md`
+- `.make-docs/system/contracts/design-contract.md`
+- `.make-docs/system/contracts/output-contract.md`
+- `.make-docs/system/references/lifecycle.md`
 - `packages/cli/src/rules.ts`
 - `packages/cli/src/manifest.ts`
 - `packages/cli/src/audit.ts`

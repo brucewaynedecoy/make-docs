@@ -18,6 +18,8 @@ Deliver the first-party Naive-UAT system workflow, configured Persona resolution
 
 This phase implements migration checkpoint 10. Every activated execution resolves exactly one eligible configured `user` or `maintainer` Persona, defaulting to canonical `user` when none is supplied. Persona identity controls audience framing and evidence location; it never substitutes for independent tester isolation, installed-product scope, public information, or anti-coaching. Canonical evidence lives only under `docs/assets/<persona-slug>/testing/**`.
 
+P7 is paused during the W19 R1 P4 authority and router recovery. Preserve the accepted `P7-AUTHORITY` decision, the open D-005 and P7-BUDGET decisions, Persona and scenario meaning, and the six-operation meaning. After recovery, refresh the P7 baseline and re-prove the P4 dependency before preflight continues. Do not restart the completed preflight decisions, and do not authorize P7 implementation.
+
 ## Source PRD Docs
 
 - [PRD 08 — Skills Catalog and Distribution](../../prd/08-skills-catalog-and-distribution.md)

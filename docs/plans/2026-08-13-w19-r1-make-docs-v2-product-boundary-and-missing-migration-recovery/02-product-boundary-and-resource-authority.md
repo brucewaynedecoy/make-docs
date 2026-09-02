@@ -28,7 +28,7 @@ Current PRD authority must state:
 
 Contracts, prompts, references, and templates are peer system-resource types:
 
-| Type | Canonical role | Optional project projection |
+| Type | Canonical role | Optional project resource bodies |
 | --- | --- | --- |
 | `contracts` | Normative reusable behavior and validation contracts | `.make-docs/system/contracts/` |
 | `prompts` | First-class reusable workflow and agent instructions | `.make-docs/system/prompts/` |
@@ -56,7 +56,7 @@ The operation registry owns typed resource operations. The later PRD authority m
 
 - list resources by type and optional prefix;
 - read one resource by stable URI or type/path identity;
-- ensure an explicitly selected resource into optional local projection;
+- ensure an explicitly selected resource body into the always-local typed tree;
 - report source, ownership, and resolution;
 - return typed not-found, conflict, invalid-path, and provider-unavailable outcomes.
 
@@ -65,15 +65,15 @@ CLI and MCP are projections of the same operations:
 - installed CLI is the default resource list/read provider;
 - native MCP resources expose the same system-resource identities and content where supported;
 - MCP tools may provide typed ensure or lifecycle mutations, but native MCP resource reads must not be replaced by prompt text copied into tool descriptions;
-- optional local projection is not required for CLI/MCP availability; and
+- optional local resource bodies are not required for CLI/MCP availability; and
 - offline behavior is explicit and bounded by installed immutable content rather than hidden network fetches.
 
 ## Setup, Reconfiguration, And Router Authority
 
 Setup and reconfiguration select:
 
-- desired resource projection policy;
-- installed routers;
+- desired resource-body projection policy;
+- configured harnesses whose routers are always installed;
 - optional Skills/agentics;
 - ownership and conflict disposition; and
 - provider/package identity.
@@ -83,7 +83,7 @@ The focused implementation trace currently proves only:
 - `AGENTS.md -> codex`
 - `CLAUDE.md -> claude-code`
 
-PRDs must not claim additional router filenames or harness support without later evidence. Routers use resource identity and CLI/MCP availability; a missing local projection triggers an explicit ensure/list/read route or typed failure, never a hidden fallback mutation.
+PRDs must not claim additional router filenames or harness support without later evidence. Each configured harness receives its router at the project root, `docs/`, `.make-docs/`, `.make-docs/system/`, and all four typed directories. Resource selection controls bodies only. Routers use a valid local resource body first, then direct agents to `make-docs resource read <uri>` when the body is absent. A missing local body never triggers a hidden fallback mutation.
 
 ## Upstream And Projection Authority
 
@@ -111,7 +111,7 @@ Reusable Make Docs system resources are authored upstream in `packages/docs/temp
 | 10 | Packaging validation and release reference | Require package/provider parity and block release on mismatched resources. |
 | 16 | Repository validation and test organization | Assign focused resource, package, and dogfood checks to the correct layers. |
 | 17 | Scope; Requirements; Contracts and Data | Own resource materialization, bootstrap, identity, provenance, projection, and local-first resolution. |
-| 21 | Scope; Requirements; Contracts and Data | Own `.make-docs/system` tiers and optional project projection. |
+| 21 | Scope; Requirements; Contracts and Data | Own the always-local `.make-docs/system` router skeleton and optional resource-body projection. |
 | 23 | Metadata and lifecycle handoff sections | Remove Playbook/Protocol kinds and add only accepted resource metadata. |
 | 24 | Configuration/convention overlay | Define resource/router/selection keys and precedence without creating hidden product behavior. |
 | 25 | TypeScript Runtime Ownership; Required MCP Surface; Current MCP Surface; No-Scripts Migration Dependency; Operation-First Migration Sequence; Managed Removal and MCP Safety | Own typed resource operations, native MCP parity, provider behavior, and safe replacement ordering. |
@@ -160,6 +160,7 @@ This phase is ready for assembly when current PRD proposals:
 - preserve CLI/MCP availability without mandatory local projection;
 - distinguish URI, provider, projection, provenance, ownership, and trust;
 - name only evidence-backed routers;
+- require the configured-harness router skeleton even when no resource bodies are selected;
 - remove Playbook/Protocol authority without deleting provenance;
 - preserve upstream-first package/dogfood ordering; and
 - introduce no new PRD or unauthorized implementation.

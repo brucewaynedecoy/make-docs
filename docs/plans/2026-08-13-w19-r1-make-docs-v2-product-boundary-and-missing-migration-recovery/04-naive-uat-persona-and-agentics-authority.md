@@ -48,7 +48,7 @@ Naive UAT is exposed as a system workflow composed from first-class resources:
 - references;
 - applicable templates.
 
-Those resources define qualification, facilitator framing, scenario structure, activation, routing, evidence, and gate consumption. They are listable/readable through the installed CLI, exposed as native MCP resources where supported, and optionally projected under `.make-docs/system/{contracts,prompts,references,templates}/`.
+Those resources define qualification, facilitator framing, scenario structure, activation, routing, evidence, and gate consumption. They are listable/readable through the installed CLI, exposed as native MCP resources where supported, and their bodies are optionally projected under `.make-docs/system/{contracts,prompts,references,templates}/`. The typed directories and configured-harness routers remain local when the bodies are absent.
 
 The workflow resource set is the reusable authored authority. CLI code and Skills do not contain hidden prompt copies or alternate policy.
 

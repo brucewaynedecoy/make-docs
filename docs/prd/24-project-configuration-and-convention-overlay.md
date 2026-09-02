@@ -32,7 +32,7 @@ Configuration may affect only the approved overlay fields below. Persona entries
 
 Configuration must not rename or redirect canonical structure:
 
-- Repository paths such as `docs/designs/`, on-demand `.make-docs/archive/`, `docs/artifacts/`, `docs/assets/<persona-slug>/`, `.make-docs/`, or the optional `.make-docs/system/{contracts,prompts,references,templates}/` projection.
+- Repository paths such as `docs/designs/`, on-demand `.make-docs/archive/`, `docs/artifacts/`, `docs/assets/<persona-slug>/`, `.make-docs/`, or optional resource bodies under the always-local `.make-docs/system/{contracts,prompts,references,templates}/` router skeleton.
 - Frontmatter fields such as `title`, `kind`, `status`, `coordinate`, `persona`, `source`, `lifecycle`, or `follow_on`.
 - `kind` values, lifecycle departure slugs, source type values, route identifiers, prompt paths, skill names, harness names, manifest keys, operation ids, resource types, or `make-docs://system/<type>/<posix-relative-path>` identities.
 - Bounded lifecycle run stages, statuses, receipt fields, evidence types, or failure codes.

@@ -83,7 +83,7 @@ All first-party deterministic logic, including path hygiene, belongs in the Type
 | Package build projection | Bundled bytes used by the installed Make Docs CLI | An independently hand-maintained template authority |
 | Machine-installed Make Docs CLI | Canonical provider, identifier resolver, deterministic operation registry, and default system-resource list/read interface | A hidden dependency on project-local snapshots or agentics |
 | Project `.make-docs/manifest.json` | Project identity, selections, managed ownership, provenance, hashes, and migration evidence | Product requirements or an excuse to overwrite ambiguous files |
-| Project `.make-docs/system/` | Optional selected managed snapshots and explicit project-authored overrides | A mandatory full copy of every installed resource |
+| Project `.make-docs/system/` | Always-local configured-harness routers and typed directories, plus optional selected managed resource bodies and explicit project-authored overrides | A mandatory full copy of every installed resource body |
 | Project routers | Small, harness-appropriate progressive-disclosure entry points | Full duplicated contracts or opaque links to unavailable state |
 | Root `.make-docs/` and `docs/` in this repository | Dogfood projection plus project-authored repository authority | The upstream source for shipped defaults |
 | Machine Global Store | Local project registry, general run state, and evidence references | Repository product authority, document storage, or a cloud telemetry system |
@@ -126,11 +126,11 @@ Where the MCP SDK supports native resources, the Make Docs MCP server exposes th
 Every initialized or reconfigured project receives:
 
 - `.make-docs/manifest.json` with stable project identity and the resource, router, and optional-agentics selections;
-- root and `docs/` router blocks appropriate to each configured harness;
-- a small `.make-docs/` router for each configured harness that explains local-first resource resolution and CLI fallback;
+- configured-harness router blocks at the project root and `docs/`;
+- configured-harness routers at `.make-docs/`, `.make-docs/system/`, and `.make-docs/system/{contracts,prompts,references,templates}/`;
 - discoverability for `.make-docs/archive/`, `docs/artifacts/`, and `docs/assets/` even while those on-demand directories are absent.
 
-The default resource selection is machine-served with no project-local system-resource snapshots. Interactive setup and reconfiguration offer `none`, individual resource types, or `all` for local projection, explain portability and maintenance trade-offs, and show the resulting file plan before writing. Non-interactive operation requires explicit flags or saved manifest selections; it never broadens a prior selection silently.
+The default resource selection is machine-served with no project-local resource bodies. The always-local router skeleton and typed directories remain present for each configured harness. Interactive setup and reconfiguration offer `none`, individual resource types, or `all` for local resource-body projection, explain portability and maintenance trade-offs, and show the resulting file plan before writing. Non-interactive operation requires explicit flags or saved manifest selections; it never broadens a prior resource-body selection silently.
 
 Router selection is driven by configured harnesses, not by the presence of optional agentics. An unrecognized harness cannot receive an invented router contract. The CLI either uses a generic router explicitly supported by repository authority or reports that no router is available.
 
@@ -138,7 +138,7 @@ Reconfiguration reads and classifies the current manifest and filesystem before 
 
 ### 6. Local manifest, ownership, and provenance
 
-The next manifest schema revision must represent each project-local resource and router with these concepts:
+The next manifest schema revision must represent each project-local resource and router with these concepts. Router ownership is separate from resource-body projection selection and ownership:
 
 - stable resource URI and local path;
 - resource type and selection trigger;
@@ -164,7 +164,7 @@ Before any destructive migration, Make Docs creates a dated backup with a machin
 
 Uninstall removes only proven clean managed assets and managed router blocks. It preserves project-owned resources, modified managed resources, ambiguous content, archives, project documents, legacy Playbook data, and Global Store data unless an independently authorized option names those targets. Empty managed directories may be pruned only after confirming they contain no preserved descendants.
 
-### 8. Target information architecture and on-demand routers
+### 8. Target information architecture and always-local routers
 
 The target project shape is:
 
@@ -173,10 +173,15 @@ The target project shape is:
   manifest.json
   <configured harness routers>
   system/
+    <configured harness routers>
     contracts/
+      <configured harness routers>
     prompts/
+      <configured harness routers>
     references/
+      <configured harness routers>
     templates/
+      <configured harness routers>
   archive/
     <Make Docs-managed archival and provenance records>
 docs/
@@ -190,11 +195,11 @@ docs/
         <naive-UAT scenarios, outcomes, findings, and evidence>
 ```
 
-`.make-docs/system/`, `.make-docs/archive/`, `docs/artifacts/`, and `docs/assets/` are created only when selected or first needed. Empty placeholder directories do not ship. `docs/assets/library/`, `docs/assets/playbooks/`, and any Protocol equivalent are not target families.
+`.make-docs/system/` and its four typed directories are always present with configured-harness routers. Resource selection controls the resource bodies inside those directories only. `.make-docs/archive/`, `docs/artifacts/`, and `docs/assets/` are created only when first needed. Empty placeholders for those on-demand surfaces do not ship. `docs/assets/library/`, `docs/assets/playbooks/`, and any Protocol equivalent are not target families.
 
 The TypeScript operation registry owns one deterministic `project.surface.ensure` operation, exposed as `make-docs project surface ensure <archive|artifacts|assets>`. It creates the selected directory and the harness-appropriate local routers in one reviewed plan, records managed router ownership in the manifest, and leaves pre-existing content untouched. Direct manual creation remains possible, but Make Docs cannot then claim ownership without an explicit adoption flow.
 
-Always-present `docs/` routers describe all three possible downstream surfaces even while absent. They distinguish authority: `.make-docs/archive/` holds Make Docs-managed historical and provenance records; `docs/artifacts/` holds non-authoritative inputs; `docs/assets/<persona>/` holds persona-scoped reader-facing guides, assets, and testing evidence whose audience model comes from Persona authority. The `docs/assets/<persona>/testing/` subtree is created on demand for Naive UAT and receives the configured harness routers required for that testing surface. Each router points to a small installed system reference for qualification and creation details rather than duplicating the contract.
+Always-present `docs/` routers use the exact heading `# Documentation Router` and keep the approved documentation routing duties. They cover lifecycle, design, planning, PRD, work, risk, artifact, Persona, UAT, coverage, history, link, and formatting rules. They also describe all three possible downstream surfaces even while absent. They distinguish authority: `.make-docs/archive/` holds Make Docs-managed historical and provenance records; `docs/artifacts/` holds non-authoritative inputs; `docs/assets/<persona>/` holds persona-scoped reader-facing guides, assets, and testing evidence whose audience model comes from Persona authority. The `docs/assets/<persona>/testing/` subtree is created on demand for Naive UAT and receives the configured harness routers required for that testing surface. Routers tell agents to use a valid local resource body first and to use `make-docs resource read <uri>` when that body is absent. They point to installed system resources instead of copying reusable policy into router text. They do not infer Skills, plugins, Playbooks, Protocols, or unavailable policy.
 
 The authorized change-plan preflight must inventory current harness router filenames, generic fallback behavior, and the evidence supporting each claimed router contract. Only evidence-backed router shapes enter the plan; an absent or unsupported fallback is recorded as absent rather than invented.
 
@@ -218,7 +223,7 @@ Naive UAT is always executed as one configured persona. Make Docs v2 preserves `
 
 Playbook-shaped facilitator and tester assets do not survive as document kinds. The capability instead has two complementary delivery forms that share one contract:
 
-- A system workflow, its governing contracts, prompts or references, and applicable templates define qualification, facilitator framing, scenario structure, activation, routing, evidence, and phase-gate consumption. The installed CLI is the default list/read provider, native MCP exposes the same system resources where supported, and projects may optionally materialize them under `.make-docs/system/{contracts,prompts,references,templates}/`.
+- A system workflow, its governing contracts, prompts or references, and applicable templates define qualification, facilitator framing, scenario structure, activation, routing, evidence, and phase-gate consumption. The installed CLI is the default list/read provider, native MCP exposes the same system resources where supported, and projects may optionally materialize their bodies under `.make-docs/system/{contracts,prompts,references,templates}/`. The typed directories and configured-harness routers remain local even when the bodies are absent.
 - A first-party Naive-UAT Skill packages concise routing plus thin shim scripts for harnesses that cannot directly issue shell commands or use MCP. Every shim delegates to the same typed Make Docs CLI operations and may adapt arguments or return receipts only; it contains no UAT policy, target selection, evidence semantics, state machine, or other business logic. The Skill is a supported optional access adapter, not a second workflow authority or a correctness prerequisite.
 
 The TypeScript registry owns deterministic scenario identity, validation, persona resolution, evidence-reference, and lifecycle-run operations where current PRD authority requires them. Direct CLI, native MCP, system workflow, and Skill-assisted execution must resolve the same persona, operations, and typed results.
@@ -269,7 +274,7 @@ Before Stage 1, the migration acquires the exclusive project migration lock and 
 3. Mint or upgrade manifest identity and provenance without claiming ambiguous ownership.
 4. Install the minimal manifest and configured routers.
 5. Establish top-level prompt identity and the machine resource list/read operations before changing router fallbacks.
-6. Move or install only selected clean local system resources under `.make-docs/system/`.
+6. Install the always-local router skeleton under `.make-docs/system/`, then move or install only selected clean resource bodies under the typed directories.
 7. Establish on-demand archive, artifact, and persona-asset routing, then transform only clean managed legacy paths.
 8. Install TypeScript path-hygiene operations, update references, and remove only a hash-proven managed Python helper.
 9. Add general Store run tables while leaving `playbook_runs` opaque and untouched.
@@ -279,6 +284,8 @@ Before Stage 1, the migration acquires the exclusive project migration lock and 
 13. Validate fresh install, representative legacy migrations, package projection, and dogfood parity before any release recommendation.
 
 Rollback restores the pre-migration backup and manifest receipt. It does not downgrade or delete independently advanced Global Store data; Store migrations therefore require their own transactional recovery and compatibility checks.
+
+Legacy `.make-docs/<plural-type>/system/` content is migration input only. It is not a second current resource tree. Migration may move or remove a legacy file only when the accepted snapshot proves Make Docs ownership and the current bytes match trusted managed evidence. Unknown, modified, mixed, or conflicting content is preserved for explicit review.
 
 ### 14. Proportional proof and finite stop conditions
 

@@ -14,19 +14,22 @@ The requirements below define the owned components, behaviors, boundaries, and e
 Projection and compatibility modes:
 
 - The default is machine-served resolution from the installed package provider with no repository snapshot of system resources.
-- Local projection is optional and explicit. A selection may project none, one or more resource types, or the full system-resource inventory into `.make-docs/system/{contracts,prompts,references,templates}/`.
+- Local resource-body projection is optional and explicit. A selection may project none, one or more resource types, or the full system-resource inventory into `.make-docs/system/{contracts,prompts,references,templates}/`. The router skeleton and typed directories are not part of this selection.
 - A local projection is not a competing source of truth. The manifest records its provider origin, immutable provider version or ref, resource URI, expected hash, local path, and ownership state.
 - Existing `full-snapshot`, provider-backed, or pinned-cache installs are compatibility inputs, not alternate current authority. Migration classifies their provenance and either adopts a trustworthy projection, refreshes it through the managed-file safety path, or leaves divergent local content for review.
 - Remote providers and shared caches remain deferred until their trust, pinning, caching, confirmation, and recovery policy is authoritatively accepted.
 
 Local bootstrap:
 
-- Every install must materialize active root, `.make-docs/`, and docs instruction routers for the selected supported harnesses.
+- Every install must materialize active routers for each configured supported harness at the project root, `docs/`, `.make-docs/`, `.make-docs/system/`, and `.make-docs/system/{contracts,prompts,references,templates}/`.
 - Every install must keep `.make-docs/manifest.json`.
 - Every install must keep local config once v2 config exists.
 - Every install must keep local custom overlays and project-owned overrides.
-- The local bootstrap must include readable manifest/config state and router guidance that explains installed-provider resolution, selected projections, provenance, and unavailable-provider recovery.
+- The local bootstrap must include readable manifest/config state and router guidance that explains local-first resolution, installed-provider CLI fallback, selected resource bodies, provenance, and unavailable-provider recovery.
 - The local bootstrap is always repository-readable; the four content-resource families do not need local projection for CLI or MCP access.
+- Resource selection controls resource bodies only. It must never remove a configured-harness router or a typed router directory.
+- The `docs/` router must use the exact heading `# Documentation Router` and preserve its full routing duties for lifecycle, design, planning, PRD, work, risk, artifact, Persona, UAT, coverage, history, links, and formatting.
+- Routers must not infer Skills, plugins, Playbooks, Protocols, or any policy or capability that current product authority does not provide.
 
 System asset boundary:
 
@@ -36,7 +39,7 @@ System asset boundary:
 - Skills and plugins are not system assets for this contract. They remain selected agentic assets with their own delivery, selection, trust, and audit decisions.
 - Conformance-lab scenario specs, result records, raw transcripts, provider logs, and temporary run artifacts are not provider-resolved system assets. [20-agent-harness-conformance-and-support-claims.md](./20-agent-harness-conformance-and-support-claims.md), PRD 43, and PRD 44 keep them maintainer-only unless those owning PRDs are authoritatively updated to promote a reviewed subset.
 - `.make-docs/` holds manifest/config/bootstrap state and any selected local projection; `docs/assets/` remains readable project documentation assets. Manifests, conflicts, caches, and provider state do not move into `docs/assets/`.
-- [21-project-tool-directory-and-resource-tiers.md](./21-project-tool-directory-and-resource-tiers.md) extends this boundary by defining the optional `.make-docs/system/**` projection and project-owned overlays while preserving local bootstrap and keeping runtime state out of `docs/assets/**`.
+- [21-project-tool-directory-and-resource-tiers.md](./21-project-tool-directory-and-resource-tiers.md) extends this boundary by defining the always-local `.make-docs/system/**` router skeleton, optional resource bodies, and project-owned overlays while preserving local bootstrap and keeping runtime state out of `docs/assets/**`.
 - Playbooks and Protocols are not system-resource types, projection families, provider content kinds, or runtime authorities.
 
 - The machine-level operational Store at `~/.make-docs/` is distinct from the installed resource provider: it holds mutable registry state and bounded lifecycle `runs` and `run_evidence`, while shipped template resources remain package content. Legacy `playbook_runs` rows, when present, remain opaque and untouched by lifecycle migration. Store availability must not weaken repository bootstrap, resolver precedence, projection provenance, or conflict safety; `run-capture-unavailable` is ancillary when a command can otherwise complete.
@@ -54,6 +57,7 @@ Provider and cache provenance:
 
 Manifest provenance:
 
+- The manifest records router ownership separately from resource-body projection selection and provenance. A resource selection must not imply router removal.
 - The manifest records resource provenance before any local projection is treated as trustworthy.
 - For each projected or provider-resolved resource set, the manifest records provider, provider version or immutable ref, hash algorithm, expected hash set, stable resource URI, local path when projected, projection/ownership state, offline expectation, recovery guidance, and selection trigger.
 - Selection provenance must distinguish default machine-served access, explicit setup or reconfiguration choice, saved manifest reuse, and reviewed migration or adoption.
@@ -68,10 +72,19 @@ On-demand safety:
 - Provider refreshes must not overwrite local content invisibly.
 - Backup and uninstall must continue to operate from a reviewed audit snapshot and must not infer removability from provider availability alone.
 
+Legacy resource-tree migration:
+
+- `.make-docs/system/{contracts,prompts,references,templates}/` is the sole current local resource tree.
+- Legacy `.make-docs/{contracts,prompts,references,templates}/system/` content is migration input only.
+- Migration may move or remove a legacy file only when the accepted snapshot proves managed ownership and the current bytes match trusted evidence.
+- Unknown, modified, mixed, unowned, or conflicting legacy content is preserved for explicit review.
+- A legacy move completes before its source is removed, and a conflict stops the affected move without weakening the always-local router skeleton.
+
 Validation boundary:
 
 - Current package validation remains the baseline: `npm test -w packages/cli`, `npm run validate:defaults -w packages/cli`, `npm run build -w packages/cli`, `npm run smoke:pack`, template/package parity checks, bare-install checks proving no default skill files, and explicit selected-skill checks through `make-docs setup skills --selected-skills all`.
 - Resource validation must cover installed-provider availability without projection, all four peer resource types, URI normalization and traversal rejection, trustworthy local-first precedence, stale projection hashes, `resource.ensure` selection limits, on-demand conflict handling, CLI/MCP-tool parity, native MCP list/read parity where supported, and manifest compatibility.
+- Install and reconfigure validation must cover no resource bodies, one selected type, all selected types, selection removal, legacy-tree migration, modified routers, malformed or duplicated managed blocks, AGENTS-only, Claude-only, combined harnesses, and uninstall with mixed managed and project-owned files. Every case must keep the configured-harness router skeleton.
 ## Contracts and Data
 
 The named paths, schemas, state records, metadata fields, and evidence shapes in Requirements are normative contracts for this capability.
@@ -100,6 +113,16 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: The installed package provider is the default; contracts, prompts, references, and templates share stable URIs and one CLI/MCP resolver; local `.make-docs/system/**` projection is optional and provenance-aware; Playbooks and Protocols are absent; and the Store records bounded lifecycle runs and evidence while preserving legacy rows opaquely.
 - Rationale: Materialization authority must separate runtime availability from optional project projection and preserve recovery safety across existing installs.
 - Source: [Accepted recovery design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md) and [W19 R1 recovery plan](../plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md)
+
+### 2026-09-02 — W19 R1 authority correction
+
+- Date: 2026-09-02
+- Coordinate: W19 R1 P4 corrective work
+- Affected requirement or section: `Projection and compatibility modes`, `Local bootstrap`, `Manifest provenance`, `Legacy resource-tree migration`, and `Validation boundary`
+- Previous contract: Resource selection could be read as controlling the whole `.make-docs/system/` tree, and bootstrap required only root, `.make-docs/`, and docs routers.
+- Replacement contract: Resource selection controls bodies only. Every configured harness keeps routers at the root, `docs/`, `.make-docs/`, `.make-docs/system/`, and all four typed directories. The manifest tracks router ownership separately. Legacy per-type `system/` paths are guarded migration inputs only.
+- Rationale: Commit `02002ba23` changed accepted authority without owner approval, and commit `efebfa29` implemented a reduced router model. The correction restores the approved local routing system while keeping resource bodies optional and stable URIs unchanged.
+- Source: Owner-approved Make Docs Authority and Router Recovery Plan and [D-029](./03-open-questions-and-risk-register.md#d-029-w19-r1-resource-topology-and-router-authority-drift)
 
 ## Source Anchors
 

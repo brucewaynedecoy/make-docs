@@ -16,7 +16,7 @@ Make future PRD reconciliation decision-complete for initialization, reconfigura
 
 ## Manifest And Ownership Authority
 
-The manifest is the project-local identity and ownership authority for managed resources, routers, selected optional capabilities, and lifecycle receipts. It must distinguish:
+The manifest is the project-local identity and ownership authority for managed resources, routers, selected optional capabilities, and lifecycle receipts. Router ownership is separate from resource-body projection selection and ownership. It must distinguish:
 
 - verified managed ownership;
 - project-owned content;
@@ -42,12 +42,12 @@ Conflict planning is fail-closed. Setup, reconfiguration, update, uninstall, and
 
 The target project-local surfaces are:
 
-- optional managed resources under `.make-docs/system/{contracts,prompts,references,templates}/`;
+- an always-local configured-harness router skeleton under `.make-docs/system/{contracts,prompts,references,templates}/`, with optional managed resource bodies in the same typed directories;
 - archive material under `.make-docs/archive/` only when the lifecycle/archive authority says it belongs there;
 - generated product artifacts under `docs/artifacts/`;
 - persona-specific testing packets, executions, outcomes, findings, and evidence under `docs/assets/<persona-slug>/testing/`.
 
-Resource projection and archive/artifact/testing directories are created on demand. Setup does not populate every optional directory merely to advertise capability.
+The `.make-docs/system/` typed directories and routers are always installed. Resource bodies and archive/artifact/testing directories are created on demand. Setup does not populate optional resource bodies or on-demand project surfaces merely to advertise capability.
 
 Naive-UAT evidence never lives under `.make-docs/archive/` or `docs/artifacts/`.
 
@@ -115,9 +115,9 @@ The accepted order is normative for later PRD and backlog derivation:
 1. Classify once and freeze the reviewed evidence snapshot.
 2. Back up every path that may be transformed or removed and record preserved or exported user content.
 3. Mint or upgrade manifest identity and provenance without claiming ambiguous ownership.
-4. Install the minimal manifest and configured routers.
+4. Install the manifest and configured-harness routers at the project root, `docs/`, `.make-docs/`, `.make-docs/system/`, and all four typed directories.
 5. Establish top-level prompt identity and machine resource list/read operations before changing router fallbacks.
-6. Move or install only selected clean local resources under `.make-docs/system/`.
+6. Move or install only selected clean resource bodies under `.make-docs/system/`. Treat legacy `.make-docs/<type>/system/` paths as guarded migration inputs and preserve any file without verified managed ownership and matching trusted bytes.
 7. Establish on-demand archive, artifact, and persona-asset routing, then transform only clean managed legacy paths.
 8. Install TypeScript path-hygiene operations, update references, and remove only a hash-proven managed Python helper.
 9. Classify the Store before any setup mutation, then add general Store run tables and an internal checkpoint journal in one SQLite write transaction while leaving `playbook_runs` opaque and untouched.
@@ -191,9 +191,9 @@ Checkpoint 9 classifies the Store before any setup mutation. Corrupt, unknown, n
 | 09 | Maintainer/dogfood lifecycle | Keep dogfood downstream and prohibit recovery shortcuts. |
 | 10 | Package/release reference | Block release recommendation until Stage 13 validation. |
 | 15 | Initialization and adoption | Define existing-project classification, minimal installation, locks, and adoption disposition. |
-| 17 | Materialization/bootstrap requirements | Own selected projection and Stage 5-7 resource ordering. |
+| 17 | Materialization/bootstrap requirements | Own the always-local router skeleton, selected resource bodies, and Stage 5-7 resource ordering. |
 | 18 | Compatibility and migration safety | Own source states, dispositions, facets, safety lattice, quiescence, backup, rollback, and migration order. |
-| 21 | Resource tiers | Own optional `.make-docs/system` projection and on-demand creation. |
+| 21 | Resource tiers | Own the always-local `.make-docs/system` router skeleton and optional resource-body projection. |
 | 22 | Asset model and Persona Grouping Boundary | Own archive/artifact/testing destinations and prevent evidence misplacement. |
 | 25 | Runtime ownership, operation-first migration, managed removal | Own TypeScript path hygiene, typed migration operations, locking, and CLI/MCP safety. |
 | 38 | R-ID; R-STORE; R-PS | Own project identity, `runs`, `run_evidence`, typed receipts, privacy, and opaque `playbook_runs`. |

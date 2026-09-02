@@ -45,7 +45,7 @@ The existing Playbook and Protocol CLI and MCP surfaces are a staged compatibili
 
 ### Interactive Selection Contract
 
-- The setup and reconfigure wizard defaults to machine-served contracts, prompts, references, and templates with no eager project snapshot. It offers an explicit optional local projection choice of none, individual resource types, or all and shows the resulting `.make-docs/system/**` file plan before approval.
+- The setup and reconfigure wizard defaults to machine-served contract, prompt, reference, and template bodies with no eager project snapshot. It always plans the configured-harness router skeleton under `.make-docs/system/**`. It offers an explicit optional local body choice of none, individual resource types, or all and shows the resulting file plan before approval.
 - The retired `--no-prompts`, `--templates`, and `--references` spellings remain invalid rather than aliases. Non-interactive setup/reconfigure accepts only the canonical explicit projection input defined by the command model or the saved manifest selection and never infers or broadens a projection choice.
 - Full-install and skills-only selection surfaces present one explicitly selectable skill list. They do not render `Default`, `Optional`, `Required skills`, or `Optional skills` categories; every skill row is selectable and deselectable; and the highlighted detail panel plus bottom selected-skill summary and instructions remain.
 - Non-interactive opt-in selection, including `--selected-skills all`, may install first-party skills. The CLI has no `--optional-skills` alias and performs no compatibility migration for deprecated skill-selection state.
