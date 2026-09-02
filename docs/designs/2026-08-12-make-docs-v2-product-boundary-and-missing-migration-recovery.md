@@ -126,9 +126,10 @@ Where the MCP SDK supports native resources, the Make Docs MCP server exposes th
 Every initialized or reconfigured project receives:
 
 - `.make-docs/manifest.json` with stable project identity and the resource, router, and optional-agentics selections;
-- configured-harness router blocks at the project root and `docs/`;
+- an unconditional configured-harness router foundation at the project root, `docs/`, and `docs/assets/`;
 - configured-harness routers at `.make-docs/`, `.make-docs/system/`, and `.make-docs/system/{contracts,prompts,references,templates}/`;
-- discoverability for `.make-docs/archive/`, `docs/artifacts/`, and `docs/assets/` even while those on-demand directories are absent.
+- capability-local configured-harness routers at `docs/designs/`, `docs/plans/`, `docs/prd/`, and `docs/work/` only when the resolved effective profile enables the matching document type and its dependencies;
+- discoverability for `.make-docs/archive/`, `docs/artifacts/`, and `docs/assets/<persona-slug>/testing/` even while those on-demand directories are absent.
 
 The default resource selection is machine-served with no project-local resource bodies. The always-local router skeleton and typed directories remain present for each configured harness. Interactive setup and reconfiguration offer `none`, individual resource types, or `all` for local resource-body projection, explain portability and maintenance trade-offs, and show the resulting file plan before writing. Non-interactive operation requires explicit flags or saved manifest selections; it never broadens a prior resource-body selection silently.
 
@@ -186,20 +187,29 @@ The target project shape is:
     <Make Docs-managed archival and provenance records>
 docs/
   <always-present configured harness routers>
+  designs/
+    <configured harness routers when designs are effective>
+  plans/
+    <configured harness routers when plans are effective>
+  prd/
+    <configured harness routers when PRDs are effective>
+  work/
+    <configured harness routers when work is effective>
   artifacts/
     <non-authoritative source and analysis inputs>
   assets/
+    <configured harness routers at this root only>
     <persona-slug>/
       <reader guide or asset>
       testing/
         <naive-UAT scenarios, outcomes, findings, and evidence>
 ```
 
-`.make-docs/system/` and its four typed directories are always present with configured-harness routers. Resource selection controls the resource bodies inside those directories only. `.make-docs/archive/`, `docs/artifacts/`, and `docs/assets/` are created only when first needed. Empty placeholders for those on-demand surfaces do not ship. `docs/assets/library/`, `docs/assets/playbooks/`, and any Protocol equivalent are not target families.
+The unconditional router foundation for each configured harness is the project root, `docs/`, `docs/assets/`, `.make-docs/`, `.make-docs/system/`, and `.make-docs/system/{contracts,prompts,references,templates}/`. The resolved effective profile and its dependencies control the capability-local routers: `docs/designs/` for designs, `docs/plans/` for plans, `docs/prd/` for PRDs, and `docs/work/` for work. An all-four effective profile therefore has 13 router surfaces per harness. Two configured harnesses produce 26 router files. Resource projection controls the resource bodies inside the four typed system directories only. `docs/assets/` has one managed router at its root. Make Docs does not install managed routers below that root, including legacy `docs/assets/{archive,artifacts,library,playbooks}/` paths or Persona subdirectories. `.make-docs/archive/`, `docs/artifacts/`, and `docs/assets/<persona-slug>/testing/` are created only when first needed. Empty placeholders for those on-demand surfaces do not ship. Library, Playbook, and Protocol paths are not target families.
 
-The TypeScript operation registry owns one deterministic `project.surface.ensure` operation, exposed as `make-docs project surface ensure <archive|artifacts|assets>`. It creates the selected directory and the harness-appropriate local routers in one reviewed plan, records managed router ownership in the manifest, and leaves pre-existing content untouched. Direct manual creation remains possible, but Make Docs cannot then claim ownership without an explicit adoption flow.
+The TypeScript operation registry owns one deterministic `project.surface.ensure` operation, exposed as `make-docs project surface ensure <archive|artifacts|assets>`. The `archive` and `artifacts` targets create their on-demand directory and harness-appropriate local routers in one reviewed plan, record managed router ownership in the manifest, and leave pre-existing content untouched. The `assets` target remains supported even though `docs/assets/` is part of the unconditional foundation. It is idempotent when the root and configured-harness routers are current. When the root surface or its routers are missing, it may create or safely repair only that root surface under the normal ownership, managed-block, conflict, and review rules. It never creates Persona or testing children. Persona testing directories remain on demand and are routed by the one `docs/assets/` root router. Direct manual creation remains possible, but Make Docs cannot then claim ownership without an explicit adoption flow.
 
-Always-present `docs/` routers use the exact heading `# Documentation Router` and keep the approved documentation routing duties. They cover lifecycle, design, planning, PRD, work, risk, artifact, Persona, UAT, coverage, history, link, and formatting rules. They also describe all three possible downstream surfaces even while absent. They distinguish authority: `.make-docs/archive/` holds Make Docs-managed historical and provenance records; `docs/artifacts/` holds non-authoritative inputs; `docs/assets/<persona>/` holds persona-scoped reader-facing guides, assets, and testing evidence whose audience model comes from Persona authority. The `docs/assets/<persona>/testing/` subtree is created on demand for Naive UAT and receives the configured harness routers required for that testing surface. Routers tell agents to use a valid local resource body first and to use `make-docs resource read <uri>` when that body is absent. They point to installed system resources instead of copying reusable policy into router text. They do not infer Skills, plugins, Playbooks, Protocols, or unavailable policy.
+Always-present `docs/` routers use the exact heading `# Documentation Router` and keep the approved documentation routing duties. They cover lifecycle, design, planning, PRD, work, risk, artifact, Persona, UAT, coverage, history, link, and formatting rules. They also describe all three possible downstream surfaces even while absent. They distinguish authority: `.make-docs/archive/` holds Make Docs-managed historical and provenance records; `docs/artifacts/` holds non-authoritative inputs; `docs/assets/<persona>/` holds persona-scoped reader-facing guides, assets, and testing evidence whose audience model comes from Persona authority. The `docs/assets/<persona>/testing/` subtree is created on demand for Naive UAT and is routed by `docs/assets/`; it does not receive a managed subtree router. Routers tell agents to use a valid local resource body first and to use `make-docs resource read <uri>` when that body is absent. They point to installed system resources instead of copying reusable policy into router text. They do not infer Skills, plugins, Playbooks, Protocols, or unavailable policy.
 
 The authorized change-plan preflight must inventory current harness router filenames, generic fallback behavior, and the evidence supporting each claimed router contract. Only evidence-backed router shapes enter the plan; an absent or unsupported fallback is recorded as absent rather than invented.
 
@@ -272,10 +282,10 @@ Before Stage 1, the migration acquires the exclusive project migration lock and 
 1. Classify once and freeze the reviewed evidence snapshot.
 2. Back up every path that may be transformed or removed and record preserved or exported user content.
 3. Mint or upgrade manifest identity and provenance without claiming ambiguous ownership.
-4. Install the minimal manifest and configured routers.
+4. Install the manifest, the unconditional configured-router foundation, and only the capability-local documentation routers selected by the resolved effective profile and its dependencies.
 5. Establish top-level prompt identity and the machine resource list/read operations before changing router fallbacks.
 6. Install the always-local router skeleton under `.make-docs/system/`, then move or install only selected clean resource bodies under the typed directories.
-7. Establish on-demand archive, artifact, and persona-asset routing, then transform only clean managed legacy paths.
+7. Establish on-demand archive and artifact routers plus Persona-testing routing from the `docs/assets/` root, then transform only clean managed legacy paths.
 8. Install TypeScript path-hygiene operations, update references, and remove only a hash-proven managed Python helper.
 9. Add general Store run tables while leaving `playbook_runs` opaque and untouched.
 10. Rehome naive-UAT system resources, add the thin first-party Skill adapter, reconcile `user` and `maintainer` persona execution with the `user` default, and establish `docs/assets/<persona-slug>/testing/` evidence routing.

@@ -18,7 +18,7 @@ Deliver the first-party Naive-UAT system workflow, configured Persona resolution
 
 This phase implements migration checkpoint 10. Every activated execution resolves exactly one eligible configured `user` or `maintainer` Persona, defaulting to canonical `user` when none is supplied. Persona identity controls audience framing and evidence location; it never substitutes for independent tester isolation, installed-product scope, public information, or anti-coaching. Canonical evidence lives only under `docs/assets/<persona-slug>/testing/**`.
 
-The corrected P4 authority and runtime are committed through `40c4d231`, `e1bbec04`, `315dce5d`, `8763e9b`, and `2f36f72`. The P4 dependency proof is re-proved at `2f36f72`. The accepted `P7-AUTHORITY` decision remains in force. D-005 and P7-BUDGET remain open. Persona, scenario, risk, and six-operation meaning remain unchanged. The active P7 baseline binds to the final closeout commit before owner decision review resumes at D-005. Do not restart the completed preflight work, and do not authorize P7 implementation.
+[D-030](../../prd/03-open-questions-and-risk-register.md#d-030-w19-r1-documentation-surface-router-topology-was-omitted) proves that the P4 documentation-surface dependency at baseline `90b4fd8` is incomplete. P7 is paused again. The accepted `P7-AUTHORITY` decision remains in force. D-005 and P7-BUDGET remain open. Persona, scenario, risk, and six-operation meaning remain unchanged. After the P4 correction is accepted and a new final corrective closeout exists, refresh the baseline and dependency proof and resume owner decision review at D-005. Do not restart the completed preflight work, and do not authorize P7 implementation.
 
 ## Source PRD Docs
 
@@ -74,11 +74,11 @@ The corrected P4 authority and runtime are committed through `40c4d231`, `e1bbec
 ### Closeout Notes
 
 - Testing-mode decision(s): activated naive UAT, separate automated/conformance/accessibility/performance modes, and complete `none` routing are recorded distinctly.
-- Recovery proof baseline: branch `make-docs-v2`, committed HEAD `2f36f72085bca0f19cf50def0cecc452f455de73`, with P4 authority correction at `40c4d231`, content-package retirement at `e1bbec04`, runtime repair at `315dce5d`, package smoke proof at `8763e9b`, and the owner-approved documentation-router line cap at `2f36f72`.
-- Dependency result: corrected P4 authority, router topology, ownership, safe migration, package parity, and smoke proof are accepted. `P7-AUTHORITY` remains accepted. Persona, scenario, qualification, evidence, advisory gate, and stable `NUAT-###` meaning remain unchanged.
+- Recovery proof baseline: branch `make-docs-v2`, committed HEAD `90b4fd8d2bc8eb0bcbe722bf1d2e15b4b133905f`. D-030 marks this P4 closeout baseline incomplete for the documentation-surface router topology.
+- Dependency result: P4 documentation-surface recovery is pending. `P7-AUTHORITY` remains accepted. Persona, scenario, qualification, evidence, advisory gate, and stable `NUAT-###` meaning remain unchanged.
 - Operation result: `uat.scenario.validate`, `uat.persona.resolve`, `uat.target.validate`, `uat.evidence-reference.validate`, `uat.finding.validate`, and `uat.result.validate` remain pending P7 compatibility surfaces.
 - Risk result: R-001, R-002, R-008, R-017, R-021, and R-022 remain controlled. Q-019 and Q-022 remain outside current P7 scope.
-- Decision result: D-005 and P7-BUDGET remain open. The active baseline must bind to the final closeout commit before owner decision review resumes at D-005. Stage 1 remains open, and P7 implementation is not authorized.
+- Decision result: D-005 and P7-BUDGET remain open. After accepted P4 recovery and a new final corrective closeout, refresh the baseline and dependency proof and resume at D-005 without restarting preflight. Stage 1 remains open, and P7 implementation is not authorized.
 
 #### Recovery authority digests
 

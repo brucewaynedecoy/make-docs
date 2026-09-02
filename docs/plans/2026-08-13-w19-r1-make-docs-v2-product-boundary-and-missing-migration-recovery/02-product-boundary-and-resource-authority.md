@@ -83,7 +83,7 @@ The focused implementation trace currently proves only:
 - `AGENTS.md -> codex`
 - `CLAUDE.md -> claude-code`
 
-PRDs must not claim additional router filenames or harness support without later evidence. Each configured harness receives its router at the project root, `docs/`, `.make-docs/`, `.make-docs/system/`, and all four typed directories. Resource selection controls bodies only. Routers use a valid local resource body first, then direct agents to `make-docs resource read <uri>` when the body is absent. A missing local body never triggers a hidden fallback mutation.
+PRDs must not claim additional router filenames or harness support without later evidence. Each configured harness receives an unconditional router foundation at the project root, `docs/`, `docs/assets/`, `.make-docs/`, `.make-docs/system/`, and all four typed system directories. The resolved effective profile and its dependencies add capability-local routers at `docs/designs/`, `docs/plans/`, `docs/prd/`, and `docs/work/` only for effective document types. An all-four effective profile has 13 surfaces per harness, so two configured harnesses produce 26 router files. `docs/assets/` has one managed router at its root and no managed routers under legacy asset families or Persona subdirectories. `.make-docs/archive/` and `docs/artifacts/` receive routers only when those surfaces are created. Persona testing remains on demand and is routed from `docs/assets/`. Resource projection controls bodies only. Routers use a valid local resource body first, then direct agents to `make-docs resource read <uri>` when the body is absent. A missing local body never triggers a hidden fallback mutation.
 
 ## Upstream And Projection Authority
 

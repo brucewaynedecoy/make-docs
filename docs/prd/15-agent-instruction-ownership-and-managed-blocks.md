@@ -48,7 +48,7 @@ managed block, not the whole shared file:
 ### Initialization and Adoption Safety
 
 - Setup and reconfigure classify an existing instruction surface before creating or adopting any block. Classification records the file owner, detected marker shape, managed snapshot and hash, project-owned bytes outside the block, router intent, manifest claim, provenance state, and any competing claims.
-- A fresh project receives the minimal selected router footprint. System resources remain machine-served by default, so initialization does not require eager `.make-docs/system/**` materialization; an explicitly selected local projection is recorded separately with its own provenance.
+- A fresh project receives the configured-harness router foundation at the project root, `docs/`, `docs/assets/`, `.make-docs/`, `.make-docs/system/`, and the four typed system directories. The resolved effective profile and its dependencies control capability-local routers at `docs/designs/`, `docs/plans/`, `docs/prd/`, and `docs/work/`. `docs/assets/` has one managed router at its root and no managed routers below it. `.make-docs/archive/` and `docs/artifacts/` receive routers only when created. Persona testing remains on demand and is routed from the `docs/assets/` root. System resources remain machine-served by default, so initialization does not require eager resource-body materialization; an explicitly selected local projection is recorded separately with its own provenance.
 - Adoption is explicit and file-scoped. A verified canonical block may be adopted as `managed-snapshot`; existing noncanonical content is `project-owned` unless the user reviews an export-and-replace or proven-managed overwrite plan. Successful adoption records a typed receipt and the exact before/after snapshot in the project manifest.
 - Setup, reconfigure, update, migration, and uninstall acquire the project lifecycle lock before taking the classification snapshot and hold it through block transformation, manifest write, and validation. Missing, malformed, nested, duplicated, ambiguous, or contradictory markers or provenance fail closed before mutation.
 - Instruction and manifest paths are normalized project-relative POSIX paths and resolved beneath the approved repository root. Traversal, absolute substitution, case-collision, or symlink escape is rejected on Windows, macOS, and Linux.
@@ -115,6 +115,14 @@ Managed instruction files are compared and resolved at the managed-block boundar
 - Replacement contract: Routers point to the shared PRD 50 testing standard and then to specialized owners. They do not copy policy or activate all testing types.
 - Rationale: A small universal route gives agents shared judgment without making agent instruction files dense or brittle.
 - Source: [W21 R0 Proportionate Testing and Human-Centered Validation plan](../plans/2026-08-28-w21-r0-proportionate-testing-and-human-centered-validation/00-overview.md)
+
+### 2026-09-02 — W19 R1 P4 Documentation Surface Recovery
+
+- Affected requirement or section: `Initialization and Adoption Safety`
+- Previous contract: A fresh project received an undefined minimal router footprint.
+- Replacement contract: A fresh project receives the unconditional router foundation. The resolved effective profile and its dependencies control capability-local documentation routers. `docs/assets/` has one managed root router. Archive, artifact, and Persona testing surfaces remain on demand.
+- Rationale: D-030 found that the P4 authority and closeout omitted required documentation surfaces.
+- Source: [D-030](./03-open-questions-and-risk-register.md#d-030-w19-r1-documentation-surface-router-topology-was-omitted)
 
 ## Source Anchors
 

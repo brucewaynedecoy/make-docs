@@ -142,7 +142,7 @@ Register resource, general-run, and Naive-UAT operations; expose consistent CLI 
 
 ### 4. Manifest, Setup, Reconfiguration, And Routers
 
-Implement selection identity, dry-run conflict plans, evidence-backed `AGENTS.md`/`CLAUDE.md` routers, optional projection, update, uninstall, and typed receipts.
+Implement selection identity, dry-run conflict plans, and the unconditional `AGENTS.md`/`CLAUDE.md` router foundation at the project root, `docs/`, `docs/assets/`, `.make-docs/`, `.make-docs/system/`, and the four typed system directories. Add `docs/designs/`, `docs/plans/`, `docs/prd/`, and `docs/work/` routers only when the resolved effective profile and its dependencies enable the matching document type. Keep the root-only `docs/assets/` rule, on-demand archive/artifact/Persona-testing surfaces, optional resource-body projection that controls bodies only, update, uninstall, and typed receipts.
 
 ### 5. Compatibility, Quiescence, Backup, And Migration
 

@@ -55,7 +55,7 @@ The requirements below define the owned components, behaviors, boundaries, and e
   advisable-default-but-overridable `## Intended Follow-On`, mirroring design
   docs, so the chain stops breaking between stages. PRD 23 adds the generated
   metadata layer for these handoffs.
-- **Optional artifacts seed** — `docs/assets/artifacts/`, a zero-contract home for
+- **Optional artifacts seed** — on-demand `docs/artifacts/`, a zero-contract home for
   pre-design inputs, accommodating ideation and architecture as an input surface
   rather than contract-bound stages.
 
@@ -124,7 +124,7 @@ Lifecycle artifacts link to the accepted Human Experience Intent and record thei
   framing and evidence routing under [PRD 46](46-naive-end-user-acceptance-testing.md),
   while executor qualification remains separate.
 - Performance qualification records a non-Persona disposition separately from the base coverage action and optional adversarial-review verdict. The candidate data links any applicable canonical `PERF-###` profile, evidence validity, outcome, finding or waiver, finite-budget and stop state, unchanged-check fingerprint, supported scope, gate effect, and phase-close handoff; [PRD 48](48-performance-evidence-governance.md) owns the field semantics and no lifecycle record may invent or tighten a target.
-- An optional `docs/assets/artifacts/` directory with a light, zero-contract router.
+- An on-demand `docs/artifacts/` directory with a light, zero-contract router.
 
 ## Integrations
 

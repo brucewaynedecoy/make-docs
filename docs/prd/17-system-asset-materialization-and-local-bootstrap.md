@@ -21,13 +21,16 @@ Projection and compatibility modes:
 
 Local bootstrap:
 
-- Every install must materialize active routers for each configured supported harness at the project root, `docs/`, `.make-docs/`, `.make-docs/system/`, and `.make-docs/system/{contracts,prompts,references,templates}/`.
+- Every install must materialize the unconditional router foundation for each configured supported harness at the project root, `docs/`, `docs/assets/`, `.make-docs/`, `.make-docs/system/`, and `.make-docs/system/{contracts,prompts,references,templates}/`.
+- The resolved effective profile and its dependencies control the capability-local routers at `docs/designs/`, `docs/plans/`, `docs/prd/`, and `docs/work/`. An install must materialize only the routers for enabled document types.
+- The `docs/assets/` surface has one root router and no managed child routers. `.make-docs/archive/**`, `docs/artifacts/**`, and Persona asset or testing children beneath `docs/assets/` remain on-demand surfaces.
 - Every install must keep `.make-docs/manifest.json`.
 - Every install must keep local config once v2 config exists.
 - Every install must keep local custom overlays and project-owned overrides.
 - The local bootstrap must include readable manifest/config state and router guidance that explains local-first resolution, installed-provider CLI fallback, selected resource bodies, provenance, and unavailable-provider recovery.
 - The local bootstrap is always repository-readable; the four content-resource families do not need local projection for CLI or MCP access.
 - Resource selection controls resource bodies only. It must never remove a configured-harness router or a typed router directory.
+- `project.surface.ensure <archive|artifacts|assets>` remains valid. The `archive` and `artifacts` values create their on-demand surfaces. The `assets` value is idempotent when the unconditional root surface is current. It can create or safely repair that root surface under normal ownership rules, but it must not create Persona or testing children.
 - The `docs/` router must use the exact heading `# Documentation Router` and preserve its full routing duties for lifecycle, design, planning, PRD, work, risk, artifact, Persona, UAT, coverage, history, links, and formatting.
 - Routers must not infer Skills, plugins, Playbooks, Protocols, or any policy or capability that current product authority does not provide.
 
@@ -84,7 +87,7 @@ Validation boundary:
 
 - Current package validation remains the baseline: `npm test -w packages/cli`, `npm run validate:defaults -w packages/cli`, `npm run build -w packages/cli`, `npm run smoke:pack`, template/package parity checks, bare-install checks proving no default skill files, and explicit selected-skill checks through `make-docs setup skills --selected-skills all`.
 - Resource validation must cover installed-provider availability without projection, all four peer resource types, URI normalization and traversal rejection, trustworthy local-first precedence, stale projection hashes, `resource.ensure` selection limits, on-demand conflict handling, CLI/MCP-tool parity, native MCP list/read parity where supported, and manifest compatibility.
-- Install and reconfigure validation must cover no resource bodies, one selected type, all selected types, selection removal, legacy-tree migration, modified routers, malformed or duplicated managed blocks, AGENTS-only, Claude-only, combined harnesses, and uninstall with mixed managed and project-owned files. Every case must keep the configured-harness router skeleton.
+- Install and reconfigure validation must cover no resource bodies, one selected type, all selected types, selection removal, effective-profile document-router changes, legacy-tree migration, modified routers, malformed or duplicated managed blocks, AGENTS-only, Claude-only, combined harnesses, and uninstall with mixed managed and project-owned files. Every case must keep the unconditional configured-harness foundation. Validation must also cover idempotent `project.surface.ensure assets` behavior and prove that this operation creates no Persona or testing child.
 ## Contracts and Data
 
 The named paths, schemas, state records, metadata fields, and evidence shapes in Requirements are normative contracts for this capability.
@@ -123,6 +126,16 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: Resource selection controls bodies only. Every configured harness keeps routers at the root, `docs/`, `.make-docs/`, `.make-docs/system/`, and all four typed directories. The manifest tracks router ownership separately. Legacy per-type `system/` paths are guarded migration inputs only.
 - Rationale: Commit `02002ba23` changed accepted authority without owner approval, and commit `efebfa29` implemented a reduced router model. The correction restores the approved local routing system while keeping resource bodies optional and stable URIs unchanged.
 - Source: Owner-approved Make Docs Authority and Router Recovery Plan and [D-029](./03-open-questions-and-risk-register.md#d-029-w19-r1-resource-topology-and-router-authority-drift)
+
+### 2026-09-02 — W19 R1 documentation-surface correction
+
+- Date: 2026-09-02
+- Coordinate: W19 R1 P4 corrective work
+- Affected requirement or section: `Local bootstrap`, `On-demand safety`, and `Validation boundary`
+- Previous contract: The corrected bootstrap still omitted the `docs/assets/` foundation router and the profile-controlled document routers.
+- Replacement contract: Each configured harness has the full unconditional foundation, while the resolved effective profile and its dependencies control the four capability-local document routers. The `docs/assets/` router is root-only, and archive, artifact, and Persona testing children remain on demand.
+- Rationale: The runtime contract must match the separate documentation-surface correction without changing the closed system-resource correction.
+- Source: [D-030](./03-open-questions-and-risk-register.md#d-030-w19-r1-documentation-surface-router-topology-was-omitted)
 
 ## Source Anchors
 

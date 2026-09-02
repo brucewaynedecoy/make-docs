@@ -316,3 +316,43 @@ The accepted test matrix passed. The proof includes 1,255 CLI tests, 49 default 
 Independent review found no unresolved authority, migration, routing, ownership, or smoke-proof defect. The owner reviewed and accepted each implementation boundary. The [corrective closeout](../../assets/archive/history/2026-09-02-w19-r1-p4-router-recovery-closeout.md) records the result. The original P4 closeout and the open correction erratum remain unchanged as historical records.
 
 The P7 dependency proof is re-proved at `2f36f72`. `P7-AUTHORITY` remains accepted. D-005 and P7-BUDGET remain open. The active P7 baseline binds to the final closeout commit before owner decision review resumes at D-005. P7 implementation is not authorized.
+
+## Documentation Surface Recovery Reopened - 2026-09-02
+
+[D-030](../../prd/03-open-questions-and-risk-register.md#d-030-w19-r1-documentation-surface-router-topology-was-omitted) reopens P4 for a separate documentation-surface omission. D-029 remains closed as the system-resource router correction. The prior P4 closeouts remain unchanged as historical records. Baseline `90b4fd8` is incomplete for documentation-surface proof.
+
+### Commit roles
+
+- `02002ba23` is the authority gap.
+- `efebfa29` is the runtime and test regression.
+- `315dce5d` is an incomplete runtime correction.
+- `90b4fd8` is an incomplete P4 closeout.
+
+### Tasks
+
+- [ ] t1: Commit the owner-approved design, plan, PRD, risk-register, work, erratum, and P7 pause correction without changing runtime or generated output.
+- [ ] t2: Install the configured-harness router foundation at the project root, `docs/`, `docs/assets/`, `.make-docs/`, `.make-docs/system/`, and all four typed system directories.
+- [ ] t3: Add or remove the capability-local `docs/designs/`, `docs/plans/`, `docs/prd/`, and `docs/work/` routers from the resolved effective profile and its dependencies. Prove 13 surfaces per harness and 26 router files for an all-four, two-harness profile.
+- [ ] t4: Keep one managed router at the `docs/assets/` root. Keep `project.surface.ensure <archive|artifacts|assets>` valid. Make the `assets` target idempotent when the root surface is current, let it create or safely repair only that root surface under normal ownership rules when needed, and prevent it from creating Persona or testing children. Remove managed legacy asset-family and Persona-subdirectory router defaults only after the normal ownership and conflict checks pass. Keep `.make-docs/archive/` and `docs/artifacts/` routers on demand. Keep Persona testing on demand and route it from `docs/assets/`.
+- [ ] t5: Correct runtime, template, focused tests, generated package output, dogfood, and installed-project proof in bounded later candidates.
+- [ ] t6: Obtain a fresh independent read-only review and correct only actionable defects inside the accepted scope.
+- [ ] t7: Obtain owner acceptance and create a new final corrective closeout. Keep every prior closeout and erratum unchanged.
+- [ ] t8: Refresh the P7 baseline and P4 dependency proof after the accepted final closeout. Preserve `P7-AUTHORITY`, D-005, P7-BUDGET, and the accepted Persona, scenario, risk, and six-operation meaning.
+
+### Acceptance criteria
+
+- The active authority states one unconditional configured-harness router foundation and four profile-controlled capability-local documentation router surfaces.
+- An all-four effective profile has 13 surfaces per harness and 26 router files for two configured harnesses.
+- `docs/assets/` has one managed router at its root and no managed routers below it.
+- `.make-docs/archive/`, `docs/artifacts/`, and Persona testing remain on demand.
+- Resource projection controls bodies only and does not control the unconditional foundation or the profile-derived capability routers.
+- `project.surface.ensure assets` remains supported. It is idempotent when current, safely creates or repairs only the `docs/assets/` root surface when needed, and creates no Persona or testing child.
+- Runtime, templates, tests, generated package output, dogfood, and installed-project proof agree with the corrected authority.
+- Existing ownership, managed-block, migration, conflict, update, and removal safety rules remain in force.
+- A fresh independent reviewer reports no unresolved documentation-surface defect.
+- The owner accepts the correction before a new final corrective closeout is created.
+- P7 stays paused until the accepted final closeout refreshes its baseline and P4 dependency proof.
+
+### Current boundary
+
+This change is the authority correction candidate only. Runtime, template, tests, generated package output, independent review, owner acceptance, and final corrective closeout are not complete. P7 implementation is not authorized.

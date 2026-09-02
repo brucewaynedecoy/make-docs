@@ -42,12 +42,12 @@ Conflict planning is fail-closed. Setup, reconfiguration, update, uninstall, and
 
 The target project-local surfaces are:
 
-- an always-local configured-harness router skeleton under `.make-docs/system/{contracts,prompts,references,templates}/`, with optional managed resource bodies in the same typed directories;
+- an unconditional configured-harness router foundation at the project root, `docs/`, `docs/assets/`, `.make-docs/`, `.make-docs/system/`, and `.make-docs/system/{contracts,prompts,references,templates}/`, plus capability-local `docs/designs/`, `docs/plans/`, `docs/prd/`, and `docs/work/` routers only when the resolved effective profile and its dependencies enable the matching document type, with optional managed resource bodies in the typed system directories;
 - archive material under `.make-docs/archive/` only when the lifecycle/archive authority says it belongs there;
 - generated product artifacts under `docs/artifacts/`;
 - persona-specific testing packets, executions, outcomes, findings, and evidence under `docs/assets/<persona-slug>/testing/`.
 
-The `.make-docs/system/` typed directories and routers are always installed. Resource bodies and archive/artifact/testing directories are created on demand. Setup does not populate optional resource bodies or on-demand project surfaces merely to advertise capability.
+`docs/assets/` has one managed router at its root. Make Docs does not install managed routers under legacy asset families or Persona subdirectories. Resource bodies and `.make-docs/archive/`, `docs/artifacts/`, and Persona testing directories are created on demand. The archive and artifact surfaces receive routers when they are created. Persona testing is routed from `docs/assets/`. Setup does not populate optional resource bodies or on-demand project surfaces merely to advertise capability.
 
 Naive-UAT evidence never lives under `.make-docs/archive/` or `docs/artifacts/`.
 
@@ -115,10 +115,10 @@ The accepted order is normative for later PRD and backlog derivation:
 1. Classify once and freeze the reviewed evidence snapshot.
 2. Back up every path that may be transformed or removed and record preserved or exported user content.
 3. Mint or upgrade manifest identity and provenance without claiming ambiguous ownership.
-4. Install the manifest and configured-harness routers at the project root, `docs/`, `.make-docs/`, `.make-docs/system/`, and all four typed directories.
+4. Install the manifest and the unconditional configured-harness router foundation, then install only the capability-local documentation routers selected by the resolved effective profile and its dependencies.
 5. Establish top-level prompt identity and machine resource list/read operations before changing router fallbacks.
 6. Move or install only selected clean resource bodies under `.make-docs/system/`. Treat legacy `.make-docs/<type>/system/` paths as guarded migration inputs and preserve any file without verified managed ownership and matching trusted bytes.
-7. Establish on-demand archive, artifact, and persona-asset routing, then transform only clean managed legacy paths.
+7. Establish on-demand archive and artifact routers and route Persona testing from the `docs/assets/` root, then transform only clean managed legacy paths.
 8. Install TypeScript path-hygiene operations, update references, and remove only a hash-proven managed Python helper.
 9. Classify the Store before any setup mutation, then add general Store run tables and an internal checkpoint journal in one SQLite write transaction while leaving `playbook_runs` opaque and untouched.
 10. Rehome Naive-UAT system resources, add the thin first-party Skill adapter, reconcile `user` and `maintainer` execution with the `user` default, and establish `docs/assets/<persona-slug>/testing/`.

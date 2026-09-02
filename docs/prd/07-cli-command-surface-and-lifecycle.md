@@ -45,7 +45,7 @@ The existing Playbook and Protocol CLI and MCP surfaces are a staged compatibili
 
 ### Interactive Selection Contract
 
-- The setup and reconfigure wizard defaults to machine-served contract, prompt, reference, and template bodies with no eager project snapshot. It always plans the configured-harness router skeleton under `.make-docs/system/**`. It offers an explicit optional local body choice of none, individual resource types, or all and shows the resulting file plan before approval.
+- The setup and reconfigure wizard defaults to machine-served contract, prompt, reference, and template bodies with no eager project snapshot. It always plans the configured-harness router foundation at the project root, `docs/`, `docs/assets/`, `.make-docs/`, `.make-docs/system/`, and the four typed system directories. It adds `docs/designs/`, `docs/plans/`, `docs/prd/`, and `docs/work/` routers only when the resolved effective profile and its dependencies enable the matching document type. It plans only one managed router at the `docs/assets/` root. It keeps `.make-docs/archive/`, `docs/artifacts/`, and Persona testing on demand. It offers an explicit optional local body choice of none, individual resource types, or all and shows the resulting file plan before approval.
 - The retired `--no-prompts`, `--templates`, and `--references` spellings remain invalid rather than aliases. Non-interactive setup/reconfigure accepts only the canonical explicit projection input defined by the command model or the saved manifest selection and never infers or broadens a projection choice.
 - Full-install and skills-only selection surfaces present one explicitly selectable skill list. They do not render `Default`, `Optional`, `Required skills`, or `Optional skills` categories; every skill row is selectable and deselectable; and the highlighted detail panel plus bottom selected-skill summary and instructions remain.
 - Non-interactive opt-in selection, including `--selected-skills all`, may install first-party skills. The CLI has no `--optional-skills` alias and performs no compatibility migration for deprecated skill-selection state.
@@ -233,6 +233,14 @@ Code and documentation anchors:
 - Replacement contract: The seven-command tree adds `project` operations plus read-only `resource list` and `resource read`, defaults setup to machine-served resources with explicit optional projection during setup/reconfigure, binds file-scoped conflict decisions to one frozen classification snapshot, and makes backup, rollback, update, project removal, and machine uninstall fail closed while preserving uncertain, project-owned, and opaque legacy state.
 - Rationale: Recovery requires one inspectable command surface that exposes installed resources without local duplication and never converts ownership uncertainty into destructive automation.
 - Source: [Accepted W19 R1 recovery design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md) and [W19 R1 recovery plan](../plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md)
+
+### 2026-09-02 — W19 R1 P4 Documentation Surface Recovery
+
+- Affected requirement or section: `Interactive Selection Contract`
+- Previous contract: Setup and reconfigure planned the system-router skeleton but did not enumerate the full documentation-router topology.
+- Replacement contract: Setup and reconfigure always plan the unconditional foundation, derive capability-local documentation routers from the resolved effective profile and its dependencies, keep one root-only `docs/assets/` router, and keep archive, artifact, and Persona testing surfaces on demand.
+- Rationale: D-030 found that the P4 authority and closeout omitted required documentation surfaces.
+- Source: [D-030](./03-open-questions-and-risk-register.md#d-030-w19-r1-documentation-surface-router-topology-was-omitted)
 
 ## Source Anchors
 
