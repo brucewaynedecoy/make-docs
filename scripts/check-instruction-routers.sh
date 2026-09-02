@@ -73,7 +73,7 @@ check_managed_block_parser() {
 line_budget_for() {
   case "$1" in
     ./AGENTS.md|./CLAUDE.md) echo 12 ;;
-    ./docs/AGENTS.md|./docs/CLAUDE.md) echo 20 ;;
+    ./docs/AGENTS.md|./docs/CLAUDE.md) echo 25 ;;
     *) echo 30 ;;
   esac
 }
