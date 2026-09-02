@@ -14,9 +14,9 @@ applies-to:
 related:
   - ./workflows-how-make-docs-stages-fit-together.md
   - ./workflows-choosing-the-right-route-for-your-project.md
-  - ../../../../.make-docs/references/system/wave-model.md
-  - ../../../../.make-docs/contracts/system/history-record-contract.md
-  - ../../../../.make-docs/contracts/system/commit-message-convention.md
+  - ../../../../.make-docs/system/references/wave-model.md
+  - ../../../../.make-docs/system/contracts/history-record-contract.md
+  - ../../../../.make-docs/system/contracts/commit-message-convention.md
 ---
 
 # Understanding W/R/P Coordinates
@@ -37,7 +37,7 @@ Read `W13 R0 P3` as "wave 13, revision 0, phase 3."
 | `R0` | The first version of that initiative | Corrections or redos stay in the same wave and increment revision |
 | `P3` | The third phase inside that plan or backlog | Phase files, history records, and phase-level commits |
 
-The source of truth for the naming rules is [wave-model.md](../../../../.make-docs/references/system/wave-model.md).
+The source of truth for the naming rules is [wave-model.md](../../../../.make-docs/system/references/wave-model.md).
 
 ## Where Coordinates Belong
 
@@ -135,4 +135,4 @@ Use only what you know. Do not invent `P0` or another placeholder.
 
 - Use [How Make Docs Stages Fit Together](./workflows-how-make-docs-stages-fit-together.md) for the user mental model of how plans, PRDs, and backlogs connect.
 - Use [Choosing the Right Route for Your Project](./workflows-choosing-the-right-route-for-your-project.md) when the main question is route selection rather than naming.
-- Use [history-record-contract.md](../../../../.make-docs/contracts/system/history-record-contract.md) and [commit-message-convention.md](../../../../.make-docs/contracts/system/commit-message-convention.md) when you need the exact filename or commit formatting rules.
+- Use [history-record-contract.md](../../../../.make-docs/system/contracts/history-record-contract.md) and [commit-message-convention.md](../../../../.make-docs/system/contracts/commit-message-convention.md) when you need the exact filename or commit formatting rules.

@@ -44,9 +44,9 @@ Local CLI development reads the sibling template first, so template edits are vi
 Re-seed only template-owned files from `packages/docs/template/` back into repo-root `docs/`:
 
 - router files under `docs/`, `docs/assets/`, and capability directories
-- system contracts under `.make-docs/contracts/system/*.md`
-- system references and prompt starters under `.make-docs/references/system/**`
-- system templates under `.make-docs/templates/system/*.md`
+- system contracts under `.make-docs/system/contracts/*.md`
+- system references and prompt starters under `.make-docs/system/references/**`
+- system templates under `.make-docs/system/templates/*.md`
 - selected system helper scripts under `.make-docs/scripts/**`
 - managed project-asset routers under `docs/assets/{archive,artifacts,library,playbooks}/`
 

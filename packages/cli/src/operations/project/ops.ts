@@ -1,14 +1,24 @@
 import { existsSync, lstatSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { z } from "zod";
-import { loadManifest, MANIFEST_RELATIVE_PATH } from "../../manifest";
+import {
+  getManifestFileHash,
+  loadManifest,
+  MANIFEST_RELATIVE_PATH,
+  writeManifest,
+} from "../../manifest";
 import {
   assertLifecyclePlanSnapshotCurrent,
   createLifecycleMutationReceipt,
   createLifecyclePlanSnapshot,
 } from "../../lifecycle-plan";
 import { parseManagedBlock } from "../../managed-block";
-import { getThinRouterManagedBody } from "../../project-projection";
+import {
+  createProjectSurfaceRouterAssets,
+  createRouterOwnershipManifestEntry,
+  getThinRouterManagedBody,
+} from "../../project-projection";
+import { resolveInstallProfile } from "../../profile";
 import type { LifecycleMutationReceipt, PlannedAction } from "../../types";
 import { HARNESS_TO_INSTRUCTION } from "../../types";
 import { assertManagedPathHasNoSymlinks, relativePathToTarget } from "../../utils";
@@ -56,7 +66,7 @@ export const projectOperations: OperationDefinition[] = [{
     const input = inputSchema.parse(rawInput);
     const targetRoot = path.resolve(input.targetRoot ?? context.cwd);
     const manifest = loadManifest(targetRoot);
-    if (!manifest?.projectId || !manifest.resourceProjection) {
+    if (!manifest?.projectId || !manifest.resourceProjection || !manifest.routerOwnership) {
       throw new OperationError(
         "This project does not have trusted P4 manifest evidence. Run `make-docs setup reconfigure` before you ensure a project surface.",
       );
@@ -65,24 +75,91 @@ export const projectOperations: OperationDefinition[] = [{
     const surfaceAction = planMigrationRoutingSurface(targetRoot, input.surface);
     const surfacePath = surfaceAction.relativePath;
     actions.push(surfaceAction);
-    for (const [harness, instruction] of Object.entries(HARNESS_TO_INSTRUCTION)) {
-      if (!manifest.selections.harnesses[harness as keyof typeof HARNESS_TO_INSTRUCTION]) continue;
-      for (const relativePath of [instruction, `docs/${instruction}`]) {
-        assertManagedPathHasNoSymlinks(targetRoot, relativePath);
-        const entry = manifest.files[relativePath];
-        if (entry?.ownershipClass !== "managed-block") {
-          throw new OperationError(`Router ownership is not trusted for ${relativePath}. Run setup reconfigure and review the conflict.`);
-        }
-        const absolutePath = relativePathToTarget(targetRoot, relativePath);
-        if (!existsSync(absolutePath) || lstatSync(absolutePath).isSymbolicLink()) {
-          throw new OperationError(`Router evidence is missing or unsafe at ${relativePath}. Run setup reconfigure and review the plan.`);
-        }
-        const parsed = parseManagedBlock(readFileSync(absolutePath, "utf8"));
-        if (parsed.state !== "valid" || parsed.body !== getThinRouterManagedBody(relativePath)) {
-          throw new OperationError(`Router evidence changed or is malformed at ${relativePath}. Run setup reconfigure and review the conflict.`);
-        }
-        actions.push({ type: "noop", disposition: "preserve", relativePath, reason: "Configured router is valid and unchanged." });
+    for (const entry of Object.values(manifest.routerOwnership.routers)) {
+      if (entry.routerClass !== "bootstrap") continue;
+      const relativePath = entry.relativePath;
+      assertManagedPathHasNoSymlinks(targetRoot, relativePath);
+      const fileEntry = manifest.files[relativePath];
+      if (
+        fileEntry?.ownershipClass !== "managed-block" ||
+        fileEntry.sourceId !== entry.sourceId ||
+        entry.ownershipClass !== "managed-snapshot" ||
+        entry.provenanceState !== "verified" ||
+        entry.lifecycleDisposition !== "active" ||
+        entry.installedHash !== fileEntry.hash
+      ) {
+        throw new OperationError(`Router ownership is not trusted for ${relativePath}. Run setup reconfigure and review the conflict.`);
       }
+      const absolutePath = relativePathToTarget(targetRoot, relativePath);
+      if (!existsSync(absolutePath) || lstatSync(absolutePath).isSymbolicLink()) {
+        throw new OperationError(`Router evidence is missing or unsafe at ${relativePath}. Run setup reconfigure and review the plan.`);
+      }
+      const parsed = parseManagedBlock(readFileSync(absolutePath, "utf8"));
+      if (parsed.state !== "valid" || parsed.body !== getThinRouterManagedBody(relativePath)) {
+        throw new OperationError(`Router evidence changed or is malformed at ${relativePath}. Run setup reconfigure and review the conflict.`);
+      }
+      actions.push({ type: "noop", disposition: "preserve", relativePath, reason: "Configured router is valid and unchanged." });
+    }
+    const surfaceRouterAssets = createProjectSurfaceRouterAssets(
+      resolveInstallProfile(manifest.selections),
+      input.surface,
+    );
+    const surfaceRouterActions: PlannedAction[] = [];
+    for (const asset of surfaceRouterAssets) {
+      assertManagedPathHasNoSymlinks(targetRoot, asset.relativePath);
+      const absolutePath = relativePathToTarget(targetRoot, asset.relativePath);
+      const contentHash = getManifestFileHash(asset.relativePath, asset.content);
+      if (!contentHash) {
+        throw new OperationError(`Generated project surface router is malformed: ${asset.relativePath}.`);
+      }
+      if (!existsSync(absolutePath)) {
+        const action: PlannedAction = {
+          type: "create",
+          disposition: "create",
+          relativePath: asset.relativePath,
+          sourceId: asset.sourceId,
+          content: asset.content,
+          contentHash,
+          reason: "Configured project surface router is absent.",
+        };
+        actions.push(action);
+        surfaceRouterActions.push(action);
+        continue;
+      }
+      if (!lstatSync(absolutePath).isFile() || lstatSync(absolutePath).isSymbolicLink()) {
+        throw new OperationError(`Project surface router is not a safe file: ${asset.relativePath}.`);
+      }
+      const currentContent = readFileSync(absolutePath, "utf8");
+      const currentHash = getManifestFileHash(asset.relativePath, currentContent);
+      const fileEntry = manifest.files[asset.relativePath];
+      const ownershipEntry = manifest.routerOwnership.routers[asset.relativePath];
+      if (
+        currentContent !== asset.content ||
+        currentHash !== contentHash ||
+        fileEntry?.hash !== contentHash ||
+        fileEntry.sourceId !== asset.sourceId ||
+        fileEntry.ownershipClass !== "managed-block" ||
+        ownershipEntry?.sourceId !== asset.sourceId ||
+        ownershipEntry.routerClass !== "on-demand-surface" ||
+        ownershipEntry.ownershipClass !== "managed-snapshot" ||
+        ownershipEntry.provenanceState !== "verified" ||
+        ownershipEntry.lifecycleDisposition !== "active" ||
+        ownershipEntry.installedHash !== contentHash
+      ) {
+        throw new OperationError(
+          `Project surface router ownership or content requires explicit review: ${asset.relativePath}.`,
+        );
+      }
+      const action: PlannedAction = {
+        type: "noop",
+        disposition: "preserve",
+        relativePath: asset.relativePath,
+        sourceId: asset.sourceId,
+        contentHash,
+        reason: "Configured project surface router is valid and unchanged.",
+      };
+      actions.push(action);
+      surfaceRouterActions.push(action);
     }
     const snapshot = createLifecyclePlanSnapshot(targetRoot, actions);
     if (!context.dryRun) {
@@ -91,9 +168,38 @@ export const projectOperations: OperationDefinition[] = [{
       for (const action of actions) {
         assertManagedPathHasNoSymlinks(targetRoot, action.relativePath);
       }
-      applyMigrationRoutingSurface(targetRoot, surfaceAction);
+      applyMigrationRoutingSurface(targetRoot, surfaceAction, surfaceRouterActions);
+      const updatedAt = context.now();
+      const nextFiles = { ...manifest.files };
+      const nextRouters = { ...manifest.routerOwnership.routers };
+      for (const asset of surfaceRouterAssets) {
+        const contentHash = getManifestFileHash(asset.relativePath, asset.content)!;
+        nextFiles[asset.relativePath] = {
+          hash: contentHash,
+          sourceId: asset.sourceId,
+          ownershipClass: "managed-block",
+        };
+        const harness = asset.sourceId.split(":")[1] as keyof typeof HARNESS_TO_INSTRUCTION;
+        nextRouters[asset.relativePath] = createRouterOwnershipManifestEntry({
+          asset,
+          harness,
+          instructionKind: HARNESS_TO_INSTRUCTION[harness],
+          packageMeta: { name: manifest.packageName, version: manifest.packageVersion },
+          verifiedAt: updatedAt,
+          previous: manifest.routerOwnership.routers[asset.relativePath],
+        });
+      }
+      writeManifest(targetRoot, {
+        ...manifest,
+        updatedAt,
+        files: nextFiles,
+        routerOwnership: {
+          ...manifest.routerOwnership,
+          routers: nextRouters,
+        },
+      });
     }
-    const receipt = context.dryRun || actions[0]?.type === "noop"
+    const receipt = context.dryRun || actions.every((action) => action.type === "noop")
       ? null
       : createLifecycleMutationReceipt({
           operation: "project.surface.ensure",

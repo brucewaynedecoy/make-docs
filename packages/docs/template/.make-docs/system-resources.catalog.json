@@ -7,7 +7,7 @@
   "resourceTypes": [
     {
       "type": "contract",
-      "sourceRoot": ".make-docs/contracts/system",
+      "sourceRoot": ".make-docs/system/contracts",
       "include": [
         "*.md"
       ],
@@ -19,7 +19,7 @@
     },
     {
       "type": "prompt",
-      "sourceRoot": ".make-docs/prompts/system",
+      "sourceRoot": ".make-docs/system/prompts",
       "include": [
         "*.md"
       ],
@@ -30,7 +30,7 @@
     },
     {
       "type": "reference",
-      "sourceRoot": ".make-docs/references/system",
+      "sourceRoot": ".make-docs/system/references",
       "include": [
         "*.md"
       ],
@@ -41,7 +41,7 @@
     },
     {
       "type": "template",
-      "sourceRoot": ".make-docs/templates/system",
+      "sourceRoot": ".make-docs/system/templates",
       "include": [
         "*.md"
       ],

@@ -19,17 +19,17 @@ related:
   - ./skills-catalog-and-distribution-model.md
   - ../user/workflows-choosing-the-right-route-for-your-project.md
   - ../user/skills-decomposing-an-existing-codebase.md
-  - ../../../../.make-docs/templates/system/plan-prd.md
-  - ../../../../.make-docs/templates/system/plan-prd-decompose.md
-  - ../../../../.make-docs/templates/system/plan-prd-change.md
-  - ../../../../.make-docs/references/system/planning-workflow.md
-  - ../../../../.make-docs/references/system/execution-workflow.md
-  - ../../../../.make-docs/references/system/prd-change-management.md
+  - ../../../../.make-docs/system/templates/plan-prd.md
+  - ../../../../.make-docs/system/templates/plan-prd-decompose.md
+  - ../../../../.make-docs/system/templates/plan-prd-change.md
+  - ../../../../.make-docs/system/references/planning-workflow.md
+  - ../../../../.make-docs/system/references/execution-workflow.md
+  - ../../../../.make-docs/system/references/prd-change-management.md
 ---
 
 # Choosing the Right Make Docs Route
 
-> See `.make-docs/contracts/system/guide-contract.md` for frontmatter schema and slug rules.
+> See `.make-docs/system/contracts/guide-contract.md` for frontmatter schema and slug rules.
 
 ## Overview
 
@@ -57,9 +57,9 @@ These are the route-specific planning templates:
 
 | Route | Planning template | Typical execution mode |
 | --- | --- | --- |
-| Fresh baseline generation | [plan-prd.md](../../../../.make-docs/templates/system/plan-prd.md) | `full-set generation` |
-| Codebase decomposition | [plan-prd-decompose.md](../../../../.make-docs/templates/system/plan-prd-decompose.md) | `full-set generation` |
-| Active PRD change | [plan-prd-change.md](../../../../.make-docs/templates/system/plan-prd-change.md) | `active-set evolution` |
+| Fresh baseline generation | [plan-prd.md](../../../../.make-docs/system/templates/plan-prd.md) | `full-set generation` |
+| Codebase decomposition | [plan-prd-decompose.md](../../../../.make-docs/system/templates/plan-prd-decompose.md) | `full-set generation` |
+| Active PRD change | [plan-prd-change.md](../../../../.make-docs/system/templates/plan-prd-change.md) | `active-set evolution` |
 
 These are the change templates used once a task is already in active-set evolution:
 
@@ -213,4 +213,4 @@ Outside this guide. Route choice stays here; detailed skill entry points belong 
 
 - Use [Understanding the Make Docs Stage Model](./development-workflows-stage-model-and-artifact-relationships.md) for the conceptual model behind these route choices.
 - Use the companion user guide [Choosing the Right Route for Your Project](../user/workflows-choosing-the-right-route-for-your-project.md) for a simpler external explanation.
-- Use [planning-workflow.md](../../../../.make-docs/references/system/planning-workflow.md) and [execution-workflow.md](../../../../.make-docs/references/system/execution-workflow.md) when you need the exact decision and writing rules that back this guide.
+- Use [planning-workflow.md](../../../../.make-docs/system/references/planning-workflow.md) and [execution-workflow.md](../../../../.make-docs/system/references/execution-workflow.md) when you need the exact decision and writing rules that back this guide.

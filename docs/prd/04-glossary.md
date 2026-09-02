@@ -31,7 +31,7 @@ This glossary defines the typed and operational vocabulary used across the activ
 | Gate effect | One explicit testing effect: `blocking-current-work`, `blocking-claim-only`, `advisory`, `informational`, or `not-applicable`. | [PRD 50](50-proportionate-testing-and-human-centered-validation.md) |
 | Not needed now | A valid testing decision that evidence cannot change a current product, implementation, release, or human decision. It is not a failed test or a deferred obligation. | [PRD 45](45-deferred-obligation-governance.md), [PRD 50](50-proportionate-testing-and-human-centered-validation.md) |
 | Thin Skill | An explicitly selected optional access adapter whose shims only adapt arguments or format receipts while delegating to the same typed Make Docs CLI operations. It owns no policy, resource copies, state machine, evidence semantics, or correctness behavior. | [PRD 08](08-skills-catalog-and-distribution.md), [PRD 25](25-typescript-runtime-cli-mcp-operation-boundaries.md), [PRD 46](46-naive-end-user-acceptance-testing.md) |
-| Active PRD set | The current live PRD namespace rooted at `docs/prd/`, with a fixed core of `00` through `04` plus adaptive subsystem/reference docs `05+` as required by `.make-docs/contracts/system/output-contract.md`. | `.make-docs/contracts/system/output-contract.md`, `README.md` |
+| Active PRD set | The current live PRD namespace rooted at `docs/prd/`, with a fixed core of `00` through `04` plus adaptive subsystem/reference docs `05+` as required by `.make-docs/system/contracts/output-contract.md`. | `.make-docs/system/contracts/output-contract.md`, `README.md` |
 | Capability | One of `designs`, `plans`, `prd`, or `work`. Capabilities are the top-level docs families the installer can enable or disable. | `Capability` in `packages/cli/src/types.ts` |
 | Effective capability | The runtime-enabled form of a capability after prerequisite enforcement. A capability can remain selected but ineffective when its dependencies are disabled. | `CAPABILITY_DEPENDENCIES` and `resolveCapabilityState` in `packages/cli/src/profile.ts` |
 | Harness | One of `claude-code` or `codex`. Harness selection controls which root instruction file is active and which skill install roots are used. | `Harness` in `packages/cli/src/types.ts`; `getDesiredSkillAssets` in `packages/cli/src/skill-catalog.ts` |
@@ -87,7 +87,7 @@ This glossary defines the typed and operational vocabulary used across the activ
 - `docs/designs/2026-07-27-deferred-obligations-and-anti-orphan-governance.md`
 - `docs/designs/2026-07-27-true-naive-end-user-acceptance-testing.md`
 
-- `.make-docs/contracts/system/output-contract.md`
+- `.make-docs/system/contracts/output-contract.md`
 - `README.md`
 - `packages/cli/src/types.ts`
 - `packages/cli/src/profile.ts`

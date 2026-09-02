@@ -69,8 +69,8 @@ When you edit files in the template package, the repo-root `docs/` may become st
 Only template-owned files are re-seeded — never project-specific content:
 
 - **Router files** — `AGENTS.md` / `CLAUDE.md` in `docs/`, `docs/assets/`, `docs/assets/archive/`, `docs/assets/artifacts/`, `docs/assets/library/`, `docs/assets/playbooks/`, and capability directories
-- **System reference files** — `.make-docs/contracts/system/*.md` and `.make-docs/references/system/*.md` (contracts, workflows, wave model)
-- **System template files** — `.make-docs/templates/system/*.md` (structural starters)
+- **System reference files** — `.make-docs/system/contracts/*.md` and `.make-docs/system/references/*.md` (contracts, workflows, wave model)
+- **System template files** — `.make-docs/system/templates/*.md` (structural starters)
 - **System helper scripts** — selected files under `.make-docs/scripts/**`
 
 Project-specific content in `docs/` is **never overwritten** by re-seeding — those are authored artifacts, not template deliverables. That exclusion includes generated designs, plans, PRDs, work backlogs, local library guide bodies, local playbooks, archive history records, artifact review material, overlays, and project config unless a later accepted plan deliberately promotes a specific file into starter content.
@@ -89,7 +89,7 @@ Copy the changed files from `packages/docs/template/` to `docs/`:
 
 ```bash
 # Example: re-seed a new contract and updated routers
-cp packages/docs/template/.make-docs/contracts/system/guide-contract.md .make-docs/contracts/system/guide-contract.md
+cp packages/docs/template/.make-docs/system/contracts/guide-contract.md .make-docs/system/contracts/guide-contract.md
 cp packages/docs/template/docs/assets/library/AGENTS.md docs/assets/library/AGENTS.md
 cp packages/docs/template/docs/assets/library/CLAUDE.md docs/assets/library/CLAUDE.md
 ```
@@ -97,7 +97,7 @@ cp packages/docs/template/docs/assets/library/CLAUDE.md docs/assets/library/CLAU
 Verify the copies match:
 
 ```bash
-diff packages/docs/template/.make-docs/contracts/system/guide-contract.md .make-docs/contracts/system/guide-contract.md
+diff packages/docs/template/.make-docs/system/contracts/guide-contract.md .make-docs/system/contracts/guide-contract.md
 ```
 
 There is no automated re-seed script — it is intentionally manual so contributors review what they are propagating. Do not run a blind recursive copy from `packages/docs/template/docs/` into repo-root `docs/`; that would overwrite project-authored dogfood records. If the set of changed files is large, a bulk copy with verification works only when it stays limited to the template-owned surfaces below:
@@ -108,9 +108,9 @@ for f in $(find packages/docs/template/docs -name 'AGENTS.md' -o -name 'CLAUDE.m
   target="docs/${f#packages/docs/template/docs/}"
   cp "$f" "$target"
 done
-cp packages/docs/template/.make-docs/contracts/system/*.md .make-docs/contracts/system/
-cp packages/docs/template/.make-docs/references/system/*.md .make-docs/references/system/
-cp packages/docs/template/.make-docs/templates/system/*.md .make-docs/templates/system/
+cp packages/docs/template/.make-docs/system/contracts/*.md .make-docs/system/contracts/
+cp packages/docs/template/.make-docs/system/references/*.md .make-docs/system/references/
+cp packages/docs/template/.make-docs/system/templates/*.md .make-docs/system/templates/
 cp packages/docs/template/.make-docs/scripts/*.py .make-docs/scripts/
 ```
 

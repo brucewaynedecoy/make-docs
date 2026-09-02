@@ -274,22 +274,47 @@ export type ManifestProvenanceState =
   | "ambiguous"
   | "contradictory";
 
+export interface ManifestProvenanceClaim {
+  sourcePackage: string;
+  sourceVersion: string;
+  sourceImmutableRef: string;
+  evidenceRefs: string[];
+}
+
+export interface ManifestAdoptionReceipt {
+  receiptId: string;
+  adoptedAt: string;
+  priorOwnershipClass: "managed-snapshot";
+  evidenceRefs: string[];
+}
+
+export type ManifestLifecycleDisposition =
+  | "active"
+  | "preserved-export"
+  | "superseded-managed"
+  | "conflict";
+
 export interface ManifestResourceProjectionEntry {
   uri: string;
   type: ProjectResourceType;
   resourcePath: string;
   managedDestination: string;
-  ownershipClass: "managed-projection" | "project-override";
+  ownershipClass: "managed-snapshot" | "project-owned";
   provenanceState: ManifestProvenanceState;
   providerPackage: string;
   providerVersion: string;
   providerImmutableRef: string;
+  materializationMode: "provider-backed-copy";
   sourceDigest: string;
   installedDigest: string;
   hashAlgorithm: "sha256";
+  lastVerifiedAt: string;
+  lifecycleDisposition: ManifestLifecycleDisposition;
+  adoptionReceipt: ManifestAdoptionReceipt | null;
   selectionTrigger: "setup-selection" | "reconfigure-selection";
   operationLineage: "W19 R1 P4";
-  competingClaims: string[];
+  provenanceEvidence: string[];
+  competingClaims: ManifestProvenanceClaim[];
 }
 
 export interface ResourceProjectionManifestState {
@@ -303,6 +328,34 @@ export interface ResourceProjectionManifestState {
     inventoryDigest: string;
   };
   resources: Record<string, ManifestResourceProjectionEntry>;
+}
+
+export interface ManifestRouterOwnershipEntry {
+  relativePath: string;
+  harness: Harness;
+  instructionKind: InstructionKind;
+  ownershipClass: "managed-snapshot" | "project-owned";
+  routerClass: "bootstrap" | "on-demand-surface";
+  sourceId: string;
+  sourcePackage: string;
+  sourceVersion: string;
+  sourceImmutableRef: string;
+  materializationMode: "managed-block";
+  provenanceState: ManifestProvenanceState;
+  provenanceEvidence: string[];
+  competingClaims: ManifestProvenanceClaim[];
+  hashAlgorithm: "sha256";
+  expectedSourceHash: string;
+  installedHash: string;
+  lastVerifiedAt: string;
+  lifecycleDisposition: ManifestLifecycleDisposition;
+  adoptionReceipt: ManifestAdoptionReceipt | null;
+}
+
+export interface RouterOwnershipManifestState {
+  configuredHarnesses: Harness[];
+  operationLineage: "W19 R1 P4";
+  routers: Record<string, ManifestRouterOwnershipEntry>;
 }
 
 export type LifecyclePlanDisposition =
@@ -647,6 +700,7 @@ export interface InstallManifest {
   selections: InstallSelections;
   effectiveCapabilities: Capability[];
   systemAssetMaterialization: SystemAssetManifestState;
+  routerOwnership?: RouterOwnershipManifestState;
   resourceProjection?: ResourceProjectionManifestState;
   files: Record<string, ManifestFileEntry>;
   skillFiles: string[];
@@ -685,6 +739,7 @@ export interface InstallPlan {
   desiredSkillFiles: string[];
   conflictsRunId?: string;
   operation?: "setup" | "setup.reconfigure" | "setup.sync";
+  routerOwnership?: RouterOwnershipManifestState;
   resourceProjection?: ResourceProjectionManifestState;
   classificationSnapshot?: LifecyclePlanSnapshot;
   stops?: string[];

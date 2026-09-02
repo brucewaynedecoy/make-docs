@@ -11,21 +11,21 @@ import { readPackageFile, TEMPLATE_ROOT } from "../src/utils";
 const REPO_ROOT = path.resolve(TEMPLATE_ROOT, "..", "..", "..");
 
 const RISK_REGISTER_TEMPLATE_PATHS = [
-  ".make-docs/templates/system/prd-risk-register.md",
-  "packages/docs/template/.make-docs/templates/system/prd-risk-register.md",
+  ".make-docs/system/templates/prd-risk-register.md",
+  "packages/docs/template/.make-docs/system/templates/prd-risk-register.md",
   "packages/skills/decompose-codebase/assets/templates/prd-risk-register.md",
 ];
 
 const DOGFOOD_TEMPLATE_PARITY_PATHS = [
-  ".make-docs/templates/system/prd-risk-register.md",
-  ".make-docs/contracts/system/output-contract.md",
-  ".make-docs/references/system/prd-change-management.md",
+  ".make-docs/system/templates/prd-risk-register.md",
+  ".make-docs/system/contracts/output-contract.md",
+  ".make-docs/system/references/prd-change-management.md",
 ];
 
 const GUIDE_TEMPLATE_PARITY_PATHS = [
-  ".make-docs/contracts/system/guide-contract.md",
-  ".make-docs/templates/system/guide-developer.md",
-  ".make-docs/templates/system/guide-user.md",
+  ".make-docs/system/contracts/guide-contract.md",
+  ".make-docs/system/templates/guide-developer.md",
+  ".make-docs/system/templates/guide-user.md",
   ".make-docs/system/prompts/work-to-guides.prompt.md",
   "docs/assets/library/AGENTS.md",
   "docs/assets/library/CLAUDE.md",
@@ -57,32 +57,32 @@ const PATH_HYGIENE_PARITY_PATHS = [
   "docs/assets/archive/AGENTS.md",
   "docs/assets/archive/CLAUDE.md",
   ".make-docs/system/prompts/docs-path-hygiene-cleanup.prompt.md",
-  ".make-docs/references/system/AGENTS.md",
-  ".make-docs/references/system/CLAUDE.md",
-  ".make-docs/contracts/system/design-contract.md",
-  ".make-docs/contracts/system/guide-contract.md",
-  ".make-docs/contracts/system/history-record-contract.md",
-  ".make-docs/contracts/system/output-contract.md",
-  ".make-docs/references/system/path-and-link-hygiene.md",
+  ".make-docs/system/references/AGENTS.md",
+  ".make-docs/system/references/CLAUDE.md",
+  ".make-docs/system/contracts/design-contract.md",
+  ".make-docs/system/contracts/guide-contract.md",
+  ".make-docs/system/contracts/history-record-contract.md",
+  ".make-docs/system/contracts/output-contract.md",
+  ".make-docs/system/references/path-and-link-hygiene.md",
 ];
 
 const WORK_PHASE_TEMPLATE_PATHS = [
-  ".make-docs/templates/system/work-phase.md",
-  "packages/docs/template/.make-docs/templates/system/work-phase.md",
+  ".make-docs/system/templates/work-phase.md",
+  "packages/docs/template/.make-docs/system/templates/work-phase.md",
   "packages/skills/decompose-codebase/assets/templates/rebuild-backlog-phase.md",
 ];
 
 const RETIRED_PRD_CHANGE_TEMPLATE_PATHS = [
-  "packages/docs/template/.make-docs/templates/system/prd-change-addition.md",
-  "packages/docs/template/.make-docs/templates/system/prd-change-revision.md",
-  "packages/cli/template/.make-docs/templates/system/prd-change-addition.md",
-  "packages/cli/template/.make-docs/templates/system/prd-change-revision.md",
+  "packages/docs/template/.make-docs/system/templates/prd-change-addition.md",
+  "packages/docs/template/.make-docs/system/templates/prd-change-revision.md",
+  "packages/cli/template/.make-docs/system/templates/prd-change-addition.md",
+  "packages/cli/template/.make-docs/system/templates/prd-change-revision.md",
 ];
 
 const COMMIT_MESSAGE_CONVENTION_PATHS = [
-  ".make-docs/contracts/system/commit-message-convention.md",
-  "packages/docs/template/.make-docs/contracts/system/commit-message-convention.md",
-  "packages/cli/template/.make-docs/contracts/system/commit-message-convention.md",
+  ".make-docs/system/contracts/commit-message-convention.md",
+  "packages/docs/template/.make-docs/system/contracts/commit-message-convention.md",
+  "packages/cli/template/.make-docs/system/contracts/commit-message-convention.md",
 ];
 
 const GENERATED_DOCUMENT_TEMPLATE_METADATA = new Map<
@@ -125,7 +125,7 @@ const GENERATED_DOCUMENT_PROMPT_PATHS = [
 ];
 
 const LOCAL_PROMPT_PROJECTION_ROOT = ".make-docs/system/prompts/";
-const INSTALLED_PROMPT_SOURCE_ROOT = ".make-docs/prompts/system/";
+const INSTALLED_PROMPT_SOURCE_ROOT = ".make-docs/system/prompts/";
 
 function sourcePathForLocalAsset(relativePath: string): string {
   if (relativePath.startsWith(LOCAL_PROMPT_PROJECTION_ROOT)) {
@@ -255,7 +255,12 @@ describe("template completeness", () => {
     };
     walk(TEMPLATE_ROOT);
 
-    const unmanaged = templateFiles.filter((file) => !managedPaths.has(file));
+    const preservedLegacyPaths = new Set([
+      ".make-docs/contracts/system/playbook-contract.md",
+    ]);
+    const unmanaged = templateFiles.filter((file) =>
+      !managedPaths.has(file) && !preservedLegacyPaths.has(file),
+    );
 
     expect(unmanaged).toEqual([]);
   });
@@ -277,9 +282,9 @@ describe("template completeness", () => {
 
   test("generated document templates include PRD 23 metadata frontmatter", () => {
     for (const templateRoot of [
-      ".make-docs/templates/system",
-      "packages/cli/template/.make-docs/templates/system",
-      "packages/docs/template/.make-docs/templates/system",
+      ".make-docs/system/templates",
+      "packages/cli/template/.make-docs/system/templates",
+      "packages/docs/template/.make-docs/system/templates",
     ]) {
       for (const [fileName, expected] of GENERATED_DOCUMENT_TEMPLATE_METADATA) {
         const relativePath = path.join(templateRoot, fileName);
@@ -317,13 +322,13 @@ describe("template completeness", () => {
   test("metadata-bearing generated template copies match the package source", () => {
     for (const fileName of GENERATED_DOCUMENT_TEMPLATE_METADATA.keys()) {
       const sourceContents = readFileSync(
-        path.join(REPO_ROOT, "packages/docs/template/.make-docs/templates/system", fileName),
+        path.join(REPO_ROOT, "packages/docs/template/.make-docs/system/templates", fileName),
         "utf8",
       );
 
       for (const templateRoot of [
-        ".make-docs/templates/system",
-        "packages/cli/template/.make-docs/templates/system",
+        ".make-docs/system/templates",
+        "packages/cli/template/.make-docs/system/templates",
       ]) {
         const relativePath = path.join(templateRoot, fileName);
         expect(readFileSync(path.join(REPO_ROOT, relativePath), "utf8"), relativePath).toBe(
@@ -337,7 +342,7 @@ describe("template completeness", () => {
     const contents = readFileSync(
       path.join(
         REPO_ROOT,
-        "packages/docs/template/.make-docs/references/system/path-and-link-hygiene.md",
+        "packages/docs/template/.make-docs/system/references/path-and-link-hygiene.md",
       ),
       "utf8",
     );
@@ -348,7 +353,7 @@ describe("template completeness", () => {
     expect(contents).toContain("final target is missing");
   });
 
-  test("shipped Markdown guidance uses provider-safe prompt identities", () => {
+  test("shipped Markdown guidance uses canonical local paths and stable identities", () => {
     const templateRoot = path.join(REPO_ROOT, "packages/docs/template");
     const markdownFiles: string[] = [];
     const walk = (directory: string) => {
@@ -365,7 +370,7 @@ describe("template completeness", () => {
 
     const upstreamAuthorityPath = path.join(
       templateRoot,
-      ".make-docs/contracts/system/system-resource-contract.md",
+      ".make-docs/system/contracts/system-resource-contract.md",
     );
     for (const filePath of markdownFiles) {
       const contents = readFileSync(filePath, "utf8");
@@ -373,15 +378,14 @@ describe("template completeness", () => {
         continue;
       }
       expect(contents, filePath).not.toContain(".make-docs/prompts/system/");
-      expect(contents, filePath).not.toContain(".make-docs/system/prompts/");
     }
 
     const upstreamAuthority = readFileSync(upstreamAuthorityPath, "utf8");
     for (const sourceRoot of [
-      "packages/docs/template/.make-docs/contracts/system/",
-      "packages/docs/template/.make-docs/prompts/system/",
-      "packages/docs/template/.make-docs/references/system/",
-      "packages/docs/template/.make-docs/templates/system/",
+      "packages/docs/template/.make-docs/system/contracts/",
+      "packages/docs/template/.make-docs/system/prompts/",
+      "packages/docs/template/.make-docs/system/references/",
+      "packages/docs/template/.make-docs/system/templates/",
     ]) {
       expect(upstreamAuthority).toContain(sourceRoot);
     }
@@ -389,16 +393,99 @@ describe("template completeness", () => {
     expect(upstreamAuthority).toContain("make-docs://system/<type>/<posix-relative-path>");
     const runtimeContract = upstreamAuthority.slice(upstreamAuthority.indexOf("## Stable Identity"));
     expect(runtimeContract).not.toContain("packages/docs/template/.make-docs/");
-    expect(runtimeContract).not.toContain(".make-docs/prompts/system/");
     expect(runtimeContract).toContain("A project does not need a local copy of a resource.");
     expect(runtimeContract).toContain("Local projection is optional.");
 
     const designTemplate = readFileSync(
-      path.join(templateRoot, ".make-docs/templates/system/design.md"),
+      path.join(templateRoot, ".make-docs/system/templates/design.md"),
       "utf8",
     );
     expect(designTemplate).toContain("make-docs://system/prompt/{{PROMPT_FILE}}");
     expect(designTemplate).toContain("make-docs resource read");
+  });
+
+  test("live guidance and code use canonical resource paths outside approved legacy inputs", () => {
+    const roots = [
+      "README.md",
+      "packages/cli/README.md",
+      "packages/docs/README.md",
+      "packages/skills/decompose-codebase/assets/templates",
+      "docs/prd",
+      "docs/assets/library",
+      "packages/docs/template/.make-docs/system",
+      "packages/cli/src",
+    ];
+    const files: string[] = [];
+    const visit = (relativePath: string) => {
+      const absolutePath = path.join(REPO_ROOT, relativePath);
+      if (statSync(absolutePath).isDirectory()) {
+        for (const entry of readdirSync(absolutePath)) {
+          visit(path.join(relativePath, entry));
+        }
+      } else if (/\.(?:md|ts)$/.test(relativePath)) {
+        files.push(relativePath);
+      }
+    };
+    roots.forEach(visit);
+
+    for (const relativePath of files) {
+      if (relativePath === "packages/cli/src/tool-directory.ts") {
+        continue;
+      }
+      const contents = readFileSync(path.join(REPO_ROOT, relativePath), "utf8")
+        .replaceAll(".make-docs/contracts/system/playbook-contract.md", "")
+        .replaceAll("packages/docs/template/.make-docs/contracts/system/playbook-contract.md", "");
+      expect(contents, relativePath).not.toMatch(
+        /\.make-docs\/(?:contracts|prompts|references|templates)\/system(?:\/|\b)/,
+      );
+    }
+  });
+
+  test("each child output router pairs named local resources with exact CLI URI fallbacks", () => {
+    const cases = {
+      designs: [
+        [".make-docs/system/references/design-workflow.md", "make-docs://system/reference/design-workflow.md"],
+        [".make-docs/system/contracts/design-contract.md", "make-docs://system/contract/design-contract.md"],
+        [".make-docs/system/templates/design.md", "make-docs://system/template/design.md"],
+      ],
+      plans: [
+        [".make-docs/system/references/wave-model.md", "make-docs://system/reference/wave-model.md"],
+        [".make-docs/system/references/planning-workflow.md", "make-docs://system/reference/planning-workflow.md"],
+        [".make-docs/system/templates/plan-overview.md", "make-docs://system/template/plan-overview.md"],
+        [".make-docs/system/templates/plan-prd.md", "make-docs://system/template/plan-prd.md"],
+        [".make-docs/system/templates/plan-prd-decompose.md", "make-docs://system/template/plan-prd-decompose.md"],
+        [".make-docs/system/templates/plan-prd-change.md", "make-docs://system/template/plan-prd-change.md"],
+      ],
+      prd: [
+        [".make-docs/system/references/execution-workflow.md", "make-docs://system/reference/execution-workflow.md"],
+        [".make-docs/system/contracts/output-contract.md", "make-docs://system/contract/output-contract.md"],
+        [".make-docs/system/references/prd-change-management.md", "make-docs://system/reference/prd-change-management.md"],
+        [".make-docs/system/templates/prd-index.md", "make-docs://system/template/prd-index.md"],
+        [".make-docs/system/templates/prd-overview.md", "make-docs://system/template/prd-overview.md"],
+        [".make-docs/system/templates/prd-architecture.md", "make-docs://system/template/prd-architecture.md"],
+        [".make-docs/system/templates/prd-subsystem.md", "make-docs://system/template/prd-subsystem.md"],
+        [".make-docs/system/templates/prd-reference.md", "make-docs://system/template/prd-reference.md"],
+        [".make-docs/system/templates/prd-glossary.md", "make-docs://system/template/prd-glossary.md"],
+        [".make-docs/system/templates/prd-risk-register.md", "make-docs://system/template/prd-risk-register.md"],
+      ],
+      work: [
+        [".make-docs/system/references/wave-model.md", "make-docs://system/reference/wave-model.md"],
+        [".make-docs/system/references/execution-workflow.md", "make-docs://system/reference/execution-workflow.md"],
+        [".make-docs/system/templates/work-index.md", "make-docs://system/template/work-index.md"],
+        [".make-docs/system/templates/work-phase.md", "make-docs://system/template/work-phase.md"],
+      ],
+    } as const;
+    for (const [directory, pairs] of Object.entries(cases)) {
+      for (const fileName of ["AGENTS.md", "CLAUDE.md"]) {
+        const relativePath = `docs/${directory}/${fileName}`;
+        const contents = readFileSync(path.join(TEMPLATE_ROOT, relativePath), "utf8");
+        expect(contents, relativePath).toContain("make-docs resource read");
+        for (const [localPath, uri] of pairs) {
+          expect(contents, `${relativePath}: ${localPath}`).toContain(localPath);
+          expect(contents, `${relativePath}: ${uri}`).toContain(uri);
+        }
+      }
+    }
   });
 
   test("generated document prompts require PRD 23 metadata frontmatter", () => {
@@ -449,7 +536,7 @@ describe("commit message convention contract", () => {
 
   test("requires full fenced subject and body output", () => {
     const contents = readFileSync(
-      path.join(REPO_ROOT, ".make-docs/contracts/system/commit-message-convention.md"),
+      path.join(REPO_ROOT, ".make-docs/system/contracts/commit-message-convention.md"),
       "utf8",
     );
 
@@ -480,10 +567,10 @@ describe("work backlog task contract", () => {
 
   test("work backlog references document task IDs and plain acceptance criteria", () => {
     for (const relativePath of [
-      ".make-docs/contracts/system/output-contract.md",
-      ".make-docs/references/system/execution-workflow.md",
-      "packages/docs/template/.make-docs/contracts/system/output-contract.md",
-      "packages/docs/template/.make-docs/references/system/execution-workflow.md",
+      ".make-docs/system/contracts/output-contract.md",
+      ".make-docs/system/references/execution-workflow.md",
+      "packages/docs/template/.make-docs/system/contracts/output-contract.md",
+      "packages/docs/template/.make-docs/system/references/execution-workflow.md",
       "packages/skills/decompose-codebase/references/output-contract.md",
       "packages/skills/decompose-codebase/references/execution-workflow.md",
     ]) {
@@ -535,8 +622,8 @@ describe("risk register routing contract", () => {
 
   test("risk-register references keep unresolved state out of requirement history", () => {
     for (const relativePath of [
-      ".make-docs/references/system/prd-change-management.md",
-      "packages/docs/template/.make-docs/references/system/prd-change-management.md",
+      ".make-docs/system/references/prd-change-management.md",
+      "packages/docs/template/.make-docs/system/references/prd-change-management.md",
     ]) {
       const contents = readFileSync(path.join(REPO_ROOT, relativePath), "utf8");
 
@@ -688,8 +775,8 @@ describe("guide generation routing contract", () => {
 
   test("guide contract defines audience intent and future coverage handling", () => {
     for (const relativePath of [
-      ".make-docs/contracts/system/guide-contract.md",
-      "packages/docs/template/.make-docs/contracts/system/guide-contract.md",
+      ".make-docs/system/contracts/guide-contract.md",
+      "packages/docs/template/.make-docs/system/contracts/guide-contract.md",
     ]) {
       const contents = readFileSync(path.join(REPO_ROOT, relativePath), "utf8");
 
@@ -844,12 +931,12 @@ describe("path hygiene contract", () => {
     for (const relativePath of [
       "docs/AGENTS.md",
       "docs/CLAUDE.md",
-      ".make-docs/references/system/AGENTS.md",
-      ".make-docs/references/system/CLAUDE.md",
-      ".make-docs/contracts/system/design-contract.md",
-      ".make-docs/contracts/system/guide-contract.md",
-      ".make-docs/contracts/system/history-record-contract.md",
-      ".make-docs/contracts/system/output-contract.md",
+      ".make-docs/system/references/AGENTS.md",
+      ".make-docs/system/references/CLAUDE.md",
+      ".make-docs/system/contracts/design-contract.md",
+      ".make-docs/system/contracts/guide-contract.md",
+      ".make-docs/system/contracts/history-record-contract.md",
+      ".make-docs/system/contracts/output-contract.md",
     ]) {
       const contents = readFileSync(path.join(REPO_ROOT, relativePath), "utf8");
 
@@ -859,8 +946,8 @@ describe("path hygiene contract", () => {
 
   test("path hygiene separates reader assets from tool resources and runtime state", () => {
     for (const relativePath of [
-      ".make-docs/references/system/path-and-link-hygiene.md",
-      "packages/docs/template/.make-docs/references/system/path-and-link-hygiene.md",
+      ".make-docs/system/references/path-and-link-hygiene.md",
+      "packages/docs/template/.make-docs/system/references/path-and-link-hygiene.md",
     ]) {
       const contents = readFileSync(path.join(REPO_ROOT, relativePath), "utf8");
 
@@ -875,8 +962,8 @@ describe("path hygiene contract", () => {
 
   test("coverage-pass contract keeps verdict and persona-target axes separate", () => {
     for (const relativePath of [
-      ".make-docs/contracts/system/coverage-pass-contract.md",
-      "packages/docs/template/.make-docs/contracts/system/coverage-pass-contract.md",
+      ".make-docs/system/contracts/coverage-pass-contract.md",
+      "packages/docs/template/.make-docs/system/contracts/coverage-pass-contract.md",
     ]) {
       const contents = readFileSync(path.join(REPO_ROOT, relativePath), "utf8");
 

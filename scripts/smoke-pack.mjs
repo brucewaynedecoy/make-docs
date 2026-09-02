@@ -93,7 +93,38 @@ const EXPECTED_PROVIDER_ONLY_ROUTER_PATHS = [
   "CLAUDE.md",
   "docs/AGENTS.md",
   "docs/CLAUDE.md",
+  ".make-docs/AGENTS.md",
+  ".make-docs/CLAUDE.md",
+  ".make-docs/system/AGENTS.md",
+  ".make-docs/system/CLAUDE.md",
+  ".make-docs/system/contracts/AGENTS.md",
+  ".make-docs/system/contracts/CLAUDE.md",
+  ".make-docs/system/prompts/AGENTS.md",
+  ".make-docs/system/prompts/CLAUDE.md",
+  ".make-docs/system/references/AGENTS.md",
+  ".make-docs/system/references/CLAUDE.md",
+  ".make-docs/system/templates/AGENTS.md",
+  ".make-docs/system/templates/CLAUDE.md",
 ];
+
+const ROUTER_HEADINGS = {
+  "AGENTS.md": "# Agent Instructions",
+  "CLAUDE.md": "# Agent Instructions",
+  "docs/AGENTS.md": "# Documentation Router",
+  "docs/CLAUDE.md": "# Documentation Router",
+  ".make-docs/AGENTS.md": "# Make Docs System Router",
+  ".make-docs/CLAUDE.md": "# Make Docs System Router",
+  ".make-docs/system/AGENTS.md": "# System Resources Router",
+  ".make-docs/system/CLAUDE.md": "# System Resources Router",
+  ".make-docs/system/contracts/AGENTS.md": "# System Contracts Router",
+  ".make-docs/system/contracts/CLAUDE.md": "# System Contracts Router",
+  ".make-docs/system/prompts/AGENTS.md": "# System Prompts Router",
+  ".make-docs/system/prompts/CLAUDE.md": "# System Prompts Router",
+  ".make-docs/system/references/AGENTS.md": "# System References Router",
+  ".make-docs/system/references/CLAUDE.md": "# System References Router",
+  ".make-docs/system/templates/AGENTS.md": "# Templates Router",
+  ".make-docs/system/templates/CLAUDE.md": "# Templates Router",
+};
 
 const EXPECTED_SKILL_PATHS = [
   ".make-docs/agentics/skills/archive-docs/SKILL.md",
@@ -520,7 +551,7 @@ try {
     );
   }
 
-  const customFilePath = path.join(targetDir, ".make-docs/templates/custom-smoke.md");
+  const customFilePath = path.join(targetDir, ".make-docs/system/templates/custom-smoke.md");
   const customConfigPath = path.join(targetDir, ".make-docs/config.yaml");
   mkdirSync(path.dirname(customFilePath), { recursive: true });
   writeFileSync(customFilePath, "preserve this unmanaged smoke fixture\n", "utf8");
@@ -910,23 +941,19 @@ function assertProviderOnlyDefaultInstall(targetDir, manifestPath) {
     );
   }
 
-  if (manifest.schemaVersion !== 3) {
-    throw new Error(`Smoke pack provider-only manifest used schema ${manifest.schemaVersion}, expected 3.`);
+  if (manifest.schemaVersion !== 4) {
+    throw new Error(`Smoke pack provider-only manifest used schema ${manifest.schemaVersion}, expected 4.`);
   }
 
-  const expectedSourceIds = {
-    "AGENTS.md": "router:codex:AGENTS.md",
-    "CLAUDE.md": "router:claude-code:CLAUDE.md",
-    "docs/AGENTS.md": "router:codex:docs/AGENTS.md",
-    "docs/CLAUDE.md": "router:claude-code:docs/CLAUDE.md",
-  };
   for (const expectedPath of EXPECTED_PROVIDER_ONLY_ROUTER_PATHS) {
     const entry = files[expectedPath];
+    const harness = expectedPath.endsWith("AGENTS.md") ? "codex" : "claude-code";
+    const expectedSourceId = `router:${harness}:${expectedPath}`;
     if (!entry) {
       throw new Error(`Smoke pack provider-only manifest did not track router ${expectedPath}.`);
     }
     if (
-      entry.sourceId !== expectedSourceIds[expectedPath] ||
+      entry.sourceId !== expectedSourceId ||
       entry.ownershipClass !== "managed-block" ||
       !/^[a-f0-9]{64}$/.test(entry.hash ?? "")
     ) {
@@ -934,6 +961,14 @@ function assertProviderOnlyDefaultInstall(targetDir, manifestPath) {
         `Smoke pack provider-only manifest has invalid router evidence for ${expectedPath}.`,
       );
     }
+  }
+
+  const routerOwnership = manifest.routerOwnership;
+  if (
+    routerOwnership?.operationLineage !== "W19 R1 P4" ||
+    JSON.stringify(Object.keys(routerOwnership.routers ?? {}).sort()) !== JSON.stringify(expectedPaths)
+  ) {
+    throw new Error("Smoke pack provider-only manifest has invalid router ownership evidence.");
   }
 
   const projection = manifest.resourceProjection;
@@ -957,10 +992,14 @@ function assertProviderOnlyDefaultInstall(targetDir, manifestPath) {
   }
 
   assertDirectoryEntries(targetDir, [".make-docs", "AGENTS.md", "CLAUDE.md", "docs"]);
-  assertDirectoryEntries(path.join(targetDir, ".make-docs"), ["manifest.json"]);
+  assertDirectoryEntries(path.join(targetDir, ".make-docs"), ["AGENTS.md", "CLAUDE.md", "manifest.json", "system"]);
+  assertDirectoryEntries(path.join(targetDir, ".make-docs/system"), ["AGENTS.md", "CLAUDE.md", "contracts", "prompts", "references", "templates"]);
+  for (const type of ["contracts", "prompts", "references", "templates"]) {
+    assertDirectoryEntries(path.join(targetDir, ".make-docs/system", type), ["AGENTS.md", "CLAUDE.md"]);
+  }
   assertDirectoryEntries(path.join(targetDir, "docs"), ["AGENTS.md", "CLAUDE.md"]);
 
-  const routerContents = EXPECTED_PROVIDER_ONLY_ROUTER_PATHS.map((relativePath) => {
+  for (const relativePath of EXPECTED_PROVIDER_ONLY_ROUTER_PATHS) {
     const content = readFileSync(path.join(targetDir, relativePath), "utf8");
     assertOutputContains(
       content,
@@ -969,24 +1008,20 @@ function assertProviderOnlyDefaultInstall(targetDir, manifestPath) {
     );
     assertOutputContains(
       content,
-      "# Make Docs Router",
+      ROUTER_HEADINGS[relativePath],
       `Smoke pack provider-only router ${relativePath} omitted its title.`,
     );
     assertOutputContains(
       content,
-      "make-docs resource list",
-      `Smoke pack provider-only router ${relativePath} omitted provider guidance.`,
+      "make-docs resource read",
+      `Smoke pack provider-only router ${relativePath} omitted fallback guidance.`,
     );
-    assertOutputContains(
-      content,
-      "make-docs project surface ensure <archive|artifacts|assets>",
-      `Smoke pack provider-only router ${relativePath} omitted surface guidance.`,
-    );
-    return content;
-  });
-  if (new Set(routerContents).size !== 1) {
-    throw new Error("Smoke pack provider-only routers are not byte-identical.");
   }
+  assertOutputContains(
+    readFileSync(path.join(targetDir, "docs/AGENTS.md"), "utf8"),
+    "docs/designs/",
+    "Smoke pack provider-only documentation router omitted full routing duties.",
+  );
 }
 
 function assertManifestOmitsProjectConfig(manifestPath) {
@@ -1008,7 +1043,7 @@ function assertManifestOmitsProjectConfig(manifestPath) {
 }
 
 function assertPackedInstructionTemplate(packageRoot) {
-  const contents = EXPECTED_PROVIDER_ONLY_ROUTER_PATHS.map((relativePath) => {
+  for (const relativePath of EXPECTED_PROVIDER_ONLY_ROUTER_PATHS) {
     const content = readFileSync(path.join(packageRoot, "template", relativePath), "utf8");
     assertOutputContains(
       content,
@@ -1017,26 +1052,20 @@ function assertPackedInstructionTemplate(packageRoot) {
     );
     assertOutputContains(
       content,
-      "# Make Docs Router",
+      ROUTER_HEADINGS[relativePath],
       `Packed thin router ${relativePath} omitted its title.`,
     );
     assertOutputContains(
       content,
-      "make-docs resource list",
-      `Packed thin router ${relativePath} omitted provider guidance.`,
+      "make-docs resource read",
+      `Packed thin router ${relativePath} omitted fallback guidance.`,
     );
-    return content;
-  });
-  if (new Set(contents).size !== 1) {
-    throw new Error("Packed root and docs thin routers are not byte-identical.");
   }
 }
 
 function assertPackedRouterGuidanceParity(packageRoot) {
-  // W18 R10 runtime-state guidance: the packed `.make-docs/` routers must be
-  // byte-identical to this repo's dogfood copies (upstream-first, then
-  // dogfood), must no longer name `.make-docs/runs/` as a runtime-state
-  // location, and must name the machine-level global store.
+  // The packed `.make-docs/` routers must be byte-identical to this repo's
+  // dogfood copies after the upstream-first projection.
   for (const name of ["AGENTS.md", "CLAUDE.md"]) {
     const packedPath = path.join(packageRoot, "template/.make-docs", name);
     const dogfoodPath = path.join(repoRoot, ".make-docs", name);
@@ -1047,20 +1076,10 @@ function assertPackedRouterGuidanceParity(packageRoot) {
         `Packed template/.make-docs/${name} does not match the dogfood .make-docs/${name}.`,
       );
     }
-    assertOutputExcludes(
-      packed,
-      ".make-docs/runs",
-      `Packed .make-docs/${name} still names .make-docs/runs/ as a runtime-state location.`,
-    );
     assertOutputContains(
       packed,
-      "~/.make-docs",
-      `Packed .make-docs/${name} omitted the machine-level global store guidance.`,
-    );
-    assertOutputContains(
-      packed,
-      "work-execution evidence",
-      `Packed .make-docs/${name} omitted the work-execution evidence relocation guidance.`,
+      "make-docs resource read",
+      `Packed .make-docs/${name} omitted resource fallback guidance.`,
     );
   }
 }

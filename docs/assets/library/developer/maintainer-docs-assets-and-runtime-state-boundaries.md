@@ -41,7 +41,7 @@ That split matters in three places:
 | --- | --- | --- |
 | `docs/assets/**` | Managed project documentation assets and history records | `docs/assets/archive/history/`, `docs/assets/artifacts/`, `docs/assets/library/`, `docs/assets/playbooks/` |
 | visible docs directories | Authored or managed documentation content | `docs/designs/`, `docs/plans/`, `docs/prd/`, `docs/work/`, `docs/assets/library/` |
-| `.make-docs/{contracts,references,templates}/system/**`, `.make-docs/system/prompts/**`, and `.make-docs/scripts/**` | Shipped system machinery | `.make-docs/contracts/system/output-contract.md`, `.make-docs/references/system/lifecycle.md`, `.make-docs/system/prompts/`, `.make-docs/templates/system/`, `.make-docs/scripts/check_path_hygiene.py` |
+| `.make-docs/{contracts,references,templates}/system/**`, `.make-docs/system/prompts/**`, and `.make-docs/scripts/**` | Shipped system machinery | `.make-docs/system/contracts/output-contract.md`, `.make-docs/system/references/lifecycle.md`, `.make-docs/system/prompts/`, `.make-docs/system/templates/`, `.make-docs/scripts/check_path_hygiene.py` |
 | mutable `.make-docs/**` state | CLI runtime state | `.make-docs/manifest.json`, `.make-docs/conflicts/<run-id>/` |
 | machine-level `~/.make-docs/**` | Global store: machine-level operational state | `~/.make-docs/config.json`, `~/.make-docs/manifest.json`, `~/.make-docs/store.db` |
 

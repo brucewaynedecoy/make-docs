@@ -85,69 +85,68 @@ export const PROMPT_RULES: PromptRule[] = [
 ];
 
 const PLAN_TEMPLATE_PATHS = [
-  ".make-docs/templates/system/plan-overview.md",
-  ".make-docs/templates/system/plan-prd.md",
-  ".make-docs/templates/system/plan-prd-decompose.md",
-  ".make-docs/templates/system/plan-prd-change.md",
+  ".make-docs/system/templates/plan-overview.md",
+  ".make-docs/system/templates/plan-prd.md",
+  ".make-docs/system/templates/plan-prd-decompose.md",
+  ".make-docs/system/templates/plan-prd-change.md",
 ];
 
 const PRD_TEMPLATE_PATHS = [
-  ".make-docs/templates/system/prd-architecture.md",
-  ".make-docs/templates/system/prd-glossary.md",
-  ".make-docs/templates/system/prd-index.md",
-  ".make-docs/templates/system/prd-overview.md",
-  ".make-docs/templates/system/prd-reference.md",
-  ".make-docs/templates/system/prd-risk-register.md",
-  ".make-docs/templates/system/prd-subsystem.md",
+  ".make-docs/system/templates/prd-architecture.md",
+  ".make-docs/system/templates/prd-glossary.md",
+  ".make-docs/system/templates/prd-index.md",
+  ".make-docs/system/templates/prd-overview.md",
+  ".make-docs/system/templates/prd-reference.md",
+  ".make-docs/system/templates/prd-risk-register.md",
+  ".make-docs/system/templates/prd-subsystem.md",
 ];
 
 const WORK_TEMPLATE_PATHS = [
-  ".make-docs/templates/system/work-index.md",
-  ".make-docs/templates/system/work-phase.md",
+  ".make-docs/system/templates/work-index.md",
+  ".make-docs/system/templates/work-phase.md",
 ];
 
 const ALWAYS_TEMPLATE_PATHS = [
-  ".make-docs/templates/system/guide-developer.md",
-  ".make-docs/templates/system/guide-user.md",
-  ".make-docs/templates/system/history-record.md",
-  ".make-docs/templates/system/naive-uat-scenario.md",
+  ".make-docs/system/templates/guide-developer.md",
+  ".make-docs/system/templates/guide-user.md",
+  ".make-docs/system/templates/history-record.md",
+  ".make-docs/system/templates/naive-uat-scenario.md",
 ];
 
 const REQUIRED_REFERENCE_PATHS = {
   designs: [
-    ".make-docs/references/system/design-workflow.md",
-    ".make-docs/contracts/system/design-contract.md",
+    ".make-docs/system/references/design-workflow.md",
+    ".make-docs/system/contracts/design-contract.md",
   ],
   plans: [
-    ".make-docs/references/system/planning-workflow.md",
-    ".make-docs/contracts/system/output-contract.md",
-    ".make-docs/references/system/prd-change-management.md",
+    ".make-docs/system/references/planning-workflow.md",
+    ".make-docs/system/contracts/output-contract.md",
+    ".make-docs/system/references/prd-change-management.md",
   ],
   prd: [
-    ".make-docs/references/system/execution-workflow.md",
-    ".make-docs/contracts/system/output-contract.md",
-    ".make-docs/references/system/prd-change-management.md",
+    ".make-docs/system/references/execution-workflow.md",
+    ".make-docs/system/contracts/output-contract.md",
+    ".make-docs/system/references/prd-change-management.md",
   ],
   work: [
-    ".make-docs/references/system/execution-workflow.md",
-    ".make-docs/contracts/system/output-contract.md",
-    ".make-docs/references/system/prd-change-management.md",
+    ".make-docs/system/references/execution-workflow.md",
+    ".make-docs/system/contracts/output-contract.md",
+    ".make-docs/system/references/prd-change-management.md",
   ],
 } as const;
 
 const ALWAYS_REFERENCE_PATHS = [
-  ".make-docs/contracts/system/guide-contract.md",
-  ".make-docs/contracts/system/playbook-contract.md",
-  ".make-docs/contracts/system/deferred-obligation-contract.md",
-  ".make-docs/contracts/system/naive-uat-contract.md",
-  ".make-docs/references/system/wave-model.md",
-  ".make-docs/references/system/lifecycle.md",
-  ".make-docs/contracts/system/coverage-pass-contract.md",
-  ".make-docs/contracts/system/history-record-contract.md",
-  ".make-docs/contracts/system/commit-message-convention.md",
-  ".make-docs/contracts/system/system-resource-contract.md",
-  ".make-docs/references/system/path-and-link-hygiene.md",
-  ".make-docs/references/system/naive-uat-workflow.md",
+  ".make-docs/system/contracts/guide-contract.md",
+  ".make-docs/system/contracts/deferred-obligation-contract.md",
+  ".make-docs/system/contracts/naive-uat-contract.md",
+  ".make-docs/system/references/wave-model.md",
+  ".make-docs/system/references/lifecycle.md",
+  ".make-docs/system/contracts/coverage-pass-contract.md",
+  ".make-docs/system/contracts/history-record-contract.md",
+  ".make-docs/system/contracts/commit-message-convention.md",
+  ".make-docs/system/contracts/system-resource-contract.md",
+  ".make-docs/system/references/path-and-link-hygiene.md",
+  ".make-docs/system/references/naive-uat-workflow.md",
   ".make-docs/system-resources.catalog.json",
   ".make-docs/system-resources.schema.json",
 ];
@@ -191,7 +190,7 @@ export function getTemplatePaths(profile: InstallProfile): string[] {
   }
 
   if (profile.capabilityState.designs.effectiveSelection) {
-    paths.add(".make-docs/templates/system/design.md");
+    paths.add(".make-docs/system/templates/design.md");
   }
 
   if (profile.capabilityState.plans.effectiveSelection) {
@@ -231,7 +230,7 @@ export function getReferencePaths(profile: InstallProfile): string[] {
   }
 
   if (profile.effectiveCapabilities.length > 0) {
-    paths.add(".make-docs/references/system/harness-capability-matrix.md");
+    paths.add(".make-docs/system/references/harness-capability-matrix.md");
   }
 
   return Array.from(paths).sort();

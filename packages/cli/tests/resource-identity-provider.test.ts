@@ -155,7 +155,7 @@ describe("system-resource provider inventory", () => {
     const root = createProviderFixture("symlink");
     const target = path.join(root, "target.md");
     writeFileSync(target, "target");
-    const link = path.join(root, ".make-docs/contracts/system/link.md");
+    const link = path.join(root, ".make-docs/system/contracts/link.md");
     symlinkSync(target, link);
     const result = loadSystemResourceProvider({
       root,
@@ -180,8 +180,8 @@ function createProviderFixture(label: string): string {
     const directory = path.join(
       root,
       ".make-docs",
-      SYSTEM_RESOURCE_TYPE_DIRECTORIES[type],
       "system",
+      SYSTEM_RESOURCE_TYPE_DIRECTORIES[type],
     );
     mkdirSync(directory, { recursive: true });
     writeFileSync(path.join(directory, `${type}.md`), `${type} content\n`);
@@ -209,7 +209,7 @@ function createCatalog(): {
     defaultMediaType: "text/markdown; charset=utf-8",
     resourceTypes: SYSTEM_RESOURCE_TYPES.map((type) => ({
       type,
-      sourceRoot: `.make-docs/${SYSTEM_RESOURCE_TYPE_DIRECTORIES[type]}/system`,
+      sourceRoot: `.make-docs/system/${SYSTEM_RESOURCE_TYPE_DIRECTORIES[type]}`,
       include: ["*.md"],
       exclude: ["AGENTS.md", "CLAUDE.md"],
     })),

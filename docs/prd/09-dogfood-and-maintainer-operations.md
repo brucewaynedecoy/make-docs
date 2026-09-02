@@ -67,7 +67,7 @@ Repository-root installed Make Docs resources are dogfood projections of `packag
 - Previous contract: Current requirements were also represented by standalone editorial PRDs 19.
 - Replacement contract: The applicable current requirements are inline in this authority and its linked product owners; the standalone editorial records are retired from the active set.
 - Rationale: Active PRDs own product subjects and do not preserve editorial operations as product authority.
-- Source: [PRD Authority Maintenance](../../.make-docs/references/system/prd-change-management.md)
+- Source: [PRD Authority Maintenance](../../.make-docs/system/references/prd-change-management.md)
 
 
 ### 2026-08-08 — Not assigned
@@ -76,7 +76,7 @@ Repository-root installed Make Docs resources are dogfood projections of `packag
 - Previous contract: Later capability decisions were recorded as nested Change Notes that pointed to standalone editorial PRDs.
 - Replacement contract: Current requirements remain inline in this owning PRD and related product authorities are linked by product subject.
 - Rationale: The active PRD set must describe current product authority rather than the editorial operation that produced it.
-- Source: [PRD Authority Maintenance](../../.make-docs/references/system/prd-change-management.md)
+- Source: [PRD Authority Maintenance](../../.make-docs/system/references/prd-change-management.md)
 
 ## Source Anchors
 

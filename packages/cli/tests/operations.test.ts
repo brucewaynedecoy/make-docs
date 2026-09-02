@@ -387,7 +387,7 @@ describe("make-docs shared operations", () => {
       ["### D-005 Drift", "", "### Q-012 Question", "", "### R-014 Risk", ""].join("\n"),
     );
     writeFile(root, "docs/assets/archive/history/2026-06-26-w16-r3-example.md", "W16 R3\n");
-    writeFile(root, ".make-docs/contracts/system/commit-message-convention.md", "# Convention\n");
+    writeFile(root, ".make-docs/system/contracts/commit-message-convention.md", "# Convention\n");
     writeFile(root, "packages/cli/src/operations.ts", "export {}\n");
     writeFile(
       root,
@@ -417,7 +417,7 @@ describe("make-docs shared operations", () => {
       ["### D-005 Drift", "", "### Q-012 Question", "", "### R-014 Risk", "", "changed", ""].join("\n"),
     );
     writeFile(root, "docs/assets/archive/history/2026-06-26-w16-r3-example.md", "W16 R3 changed\n");
-    writeFile(root, ".make-docs/contracts/system/commit-message-convention.md", "# Convention\n\nChanged\n");
+    writeFile(root, ".make-docs/system/contracts/commit-message-convention.md", "# Convention\n\nChanged\n");
     writeFile(root, "packages/cli/src/operations.ts", "export const changed = true;\n");
     writeFile(
       root,
@@ -439,7 +439,7 @@ describe("make-docs shared operations", () => {
 
     expect(probe.files).toEqual([
       expect.objectContaining({
-        path: ".make-docs/contracts/system/commit-message-convention.md",
+        path: ".make-docs/system/contracts/commit-message-convention.md",
         category: "other",
       }),
       expect.objectContaining({ path: "docs/assets/archive/history/2026-06-26-w16-r3-example.md", category: "docs" }),
@@ -451,7 +451,7 @@ describe("make-docs shared operations", () => {
     ]);
     expect(probe.contracts).toEqual(
       expect.objectContaining({
-        commitConvention: { exists: true, paths: [".make-docs/contracts/system/commit-message-convention.md"] },
+        commitConvention: { exists: true, paths: [".make-docs/system/contracts/commit-message-convention.md"] },
       }),
     );
     expect(probe.riskRegister).toEqual(

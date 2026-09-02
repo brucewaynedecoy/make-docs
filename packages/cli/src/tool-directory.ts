@@ -9,19 +9,16 @@ export const TOOL_DIRECTORY_MANIFEST_RELATIVE_PATH = `${TOOL_DIRECTORY_RELATIVE_
 export const TOOL_DIRECTORY_CONFLICTS_RELATIVE_DIR = `${TOOL_DIRECTORY_RELATIVE_PATH}/conflicts`;
 export const TOOL_DIRECTORY_RUNS_RELATIVE_DIR = `${TOOL_DIRECTORY_RELATIVE_PATH}/runs`;
 export const TOOL_DIRECTORY_CONFIG_RELATIVE_PATH = `${TOOL_DIRECTORY_RELATIVE_PATH}/config.yaml`;
+export const TOOL_DIRECTORY_SYSTEM_RELATIVE_PATH = `${TOOL_DIRECTORY_RELATIVE_PATH}/system`;
 
 export const TOOL_RESOURCE_FAMILIES = [
   "contracts",
+  "prompts",
   "references",
   "templates",
-  "scripts",
 ] as const;
 
 export type ToolResourceFamily = (typeof TOOL_RESOURCE_FAMILIES)[number];
-
-export const TOOL_RESOURCE_TIERS = ["system", "custom"] as const;
-
-export type ToolResourceTier = (typeof TOOL_RESOURCE_TIERS)[number];
 
 export const RESERVED_AGENTICS_FAMILIES = ["skills", "plugins"] as const;
 
@@ -44,6 +41,7 @@ export const TOOL_RESOURCE_MATERIALIZATION_MODES =
 export type ToolResourceMaterializationMode = SystemAssetMaterializationMode;
 
 export const LEGACY_TOOL_RESOURCE_FAMILIES = [
+  "contracts",
   "prompts",
   "references",
   "templates",
@@ -53,10 +51,17 @@ export type LegacyToolResourceFamily =
   (typeof LEGACY_TOOL_RESOURCE_FAMILIES)[number];
 
 export const LEGACY_TOOL_RESOURCE_ROOTS = {
+  contracts: ".make-docs/contracts/system",
+  prompts: ".make-docs/prompts/system",
+  references: ".make-docs/references/system",
+  templates: ".make-docs/templates/system",
+} as const satisfies Record<LegacyToolResourceFamily, string>;
+
+const EARLIER_LEGACY_TOOL_RESOURCE_ROOTS = {
   prompts: "docs/assets/prompts",
   references: "docs/assets/references",
   templates: "docs/assets/templates",
-} as const satisfies Record<LegacyToolResourceFamily, string>;
+} as const;
 
 const LEGACY_REFERENCE_CONTRACT_FILES = new Set([
   "commit-message-convention.md",
@@ -74,29 +79,23 @@ export type SystemToolResourceMigrationFixture = {
   tier: "system";
 };
 
-export function getToolResourceTierPath(
-  family: ToolResourceFamily,
-  tier: ToolResourceTier,
-): string {
-  return `${TOOL_DIRECTORY_RELATIVE_PATH}/${family}/${tier}`;
+export function getToolResourcePath(family: ToolResourceFamily): string {
+  return `${TOOL_DIRECTORY_SYSTEM_RELATIVE_PATH}/${family}`;
+}
+
+export function getToolResourcePaths(): string[] {
+  return TOOL_RESOURCE_FAMILIES.map(getToolResourcePath);
 }
 
 export function getReservedAgenticsPath(family: ReservedAgenticsFamily): string {
   return `${TOOL_DIRECTORY_RELATIVE_PATH}/agentics/${family}`;
 }
 
-export function getToolResourceTierPaths(): string[] {
-  return TOOL_RESOURCE_FAMILIES.flatMap((family) =>
-    TOOL_RESOURCE_TIERS.map((tier) => getToolResourceTierPath(family, tier)),
-  );
-}
-
 export function isToolDirectorySystemResourcePath(relativePath: string): boolean {
-  return isToolDirectoryResourcePath(relativePath, "system");
-}
-
-export function isToolDirectoryCustomResourcePath(relativePath: string): boolean {
-  return isToolDirectoryResourcePath(relativePath, "custom");
+  const normalized = normalizeRelativePath(relativePath);
+  return TOOL_RESOURCE_FAMILIES.some((family) =>
+    pathContainsOrEquals(normalized, getToolResourcePath(family)),
+  );
 }
 
 export function isReservedAgenticsPath(relativePath: string): boolean {
@@ -139,6 +138,12 @@ export function getLegacyToolResourceFamily(
     }
   }
 
+  for (const [family, root] of Object.entries(EARLIER_LEGACY_TOOL_RESOURCE_ROOTS)) {
+    if (pathContainsOrEquals(normalized, root)) {
+      return family as LegacyToolResourceFamily;
+    }
+  }
+
   return null;
 }
 
@@ -146,42 +151,32 @@ export function getSystemToolResourceMigrationTarget(
   relativePath: string,
 ): string | null {
   const normalized = normalizeRelativePath(relativePath);
-  const family = getLegacyToolResourceFamily(normalized);
-  if (family === null) {
-    return null;
+
+  for (const family of LEGACY_TOOL_RESOURCE_FAMILIES) {
+    const root = LEGACY_TOOL_RESOURCE_ROOTS[family];
+    const resourcePath = getContainedRelativePath(root, normalized);
+    if (resourcePath !== null) {
+      return resourcePath === ""
+        ? getToolResourcePath(family)
+        : `${getToolResourcePath(family)}/${resourcePath}`;
+    }
   }
 
-  const relativeResourcePath = getContainedRelativePath(
-    LEGACY_TOOL_RESOURCE_ROOTS[family],
-    normalized,
-  );
-  if (relativeResourcePath === null) {
-    return null;
+  for (const [legacyFamily, root] of Object.entries(EARLIER_LEGACY_TOOL_RESOURCE_ROOTS)) {
+    const resourcePath = getContainedRelativePath(root, normalized);
+    if (resourcePath === null) {
+      continue;
+    }
+    const family =
+      legacyFamily === "references" && LEGACY_REFERENCE_CONTRACT_FILES.has(resourcePath)
+        ? "contracts"
+        : legacyFamily;
+    return resourcePath === ""
+      ? getToolResourcePath(family as ToolResourceFamily)
+      : `${getToolResourcePath(family as ToolResourceFamily)}/${resourcePath}`;
   }
 
-  const systemRoot = getLegacySystemResourceRoot(family, relativeResourcePath);
-  return relativeResourcePath === ""
-    ? systemRoot
-    : `${systemRoot}/${relativeResourcePath}`;
-}
-
-function getLegacySystemResourceRoot(
-  family: LegacyToolResourceFamily,
-  relativeResourcePath: string,
-): string {
-  if (family === "templates") {
-    return getToolResourceTierPath("templates", "system");
-  }
-
-  if (family === "prompts") {
-    return `${TOOL_DIRECTORY_RELATIVE_PATH}/system/prompts`;
-  }
-
-  if (LEGACY_REFERENCE_CONTRACT_FILES.has(relativeResourcePath)) {
-    return getToolResourceTierPath("contracts", "system");
-  }
-
-  return getToolResourceTierPath("references", "system");
+  return null;
 }
 
 export function createSystemToolResourceMigrationFixture(
@@ -213,16 +208,6 @@ export function createSystemToolResourceMigrationFixtures(
         fixture !== null,
     )
     .sort((left, right) => left.currentPath.localeCompare(right.currentPath));
-}
-
-function isToolDirectoryResourcePath(
-  relativePath: string,
-  tier: ToolResourceTier,
-): boolean {
-  const normalized = normalizeRelativePath(relativePath);
-  return TOOL_RESOURCE_FAMILIES.some((family) =>
-    pathContainsOrEquals(normalized, getToolResourceTierPath(family, tier)),
-  );
 }
 
 function pathContainsOrEquals(candidate: string, prefix: string): boolean {

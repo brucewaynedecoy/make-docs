@@ -217,8 +217,8 @@ Additional subsystem documents (`05-*` through `99-*`) are added as needed for f
 ## Customization
 
 - **Prompt resources** (`make-docs://system/prompt/<posix-relative-path>`) -- Read installed prompt bytes with `make-docs resource read`. Select a local projection only when the project needs one.
-- **Templates** (`.make-docs/templates/system/`) -- Modify these to change the structure of generated documents.
-- **Contracts and references** (`.make-docs/contracts/system/` and `.make-docs/references/system/`) -- Adjust naming conventions, required sections, lifecycle rules, and structural guidance.
+- **Templates** (`.make-docs/system/templates/`) -- Modify these to change the structure of generated documents.
+- **Contracts and references** (`.make-docs/system/contracts/` and `.make-docs/system/references/`) -- Adjust naming conventions, required sections, lifecycle rules, and structural guidance.
 - **Library and playbooks** (`docs/assets/library/` and `docs/assets/playbooks/`) -- Maintain persona-scoped reader-facing guides and procedural docs.
 - **Agent instructions** (`CLAUDE.md`, `AGENTS.md`, and per-directory variants) -- Tailor agent behavior to your team's conventions.
 

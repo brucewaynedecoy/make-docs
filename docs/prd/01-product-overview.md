@@ -60,7 +60,7 @@ Out of scope, Make Docs v2 owns neither Playbooks nor Protocols as document kind
 - Previous contract: Later capability decisions were recorded as nested Change Notes that pointed to standalone editorial PRDs.
 - Replacement contract: Current requirements remain inline in this owning PRD and related product authorities are linked by product subject.
 - Rationale: The active PRD set must describe current product authority rather than the editorial operation that produced it.
-- Source: [PRD Authority Maintenance](../../.make-docs/references/system/prd-change-management.md)
+- Source: [PRD Authority Maintenance](../../.make-docs/system/references/prd-change-management.md)
 
 ### 2026-08-14 — W19 R1
 

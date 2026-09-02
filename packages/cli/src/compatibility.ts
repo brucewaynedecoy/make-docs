@@ -9,7 +9,7 @@ import {
   loadManifest,
   MANIFEST_RELATIVE_PATH,
 } from "./manifest";
-import { assertManagedPathHasNoSymlinks } from "./utils";
+import { assertManagedPathHasNoSymlinks, readPackageFile } from "./utils";
 import type {
   AuditReport,
   CompatibilityDisposition,
@@ -101,9 +101,9 @@ const CANONICAL_FALLBACK_PATHS = [
   "docs/assets/artifacts/AGENTS.md",
   "docs/assets/archive/AGENTS.md",
   "docs/assets/library/AGENTS.md",
-  ".make-docs/references/system/lifecycle.md",
-  ".make-docs/contracts/system/guide-contract.md",
-  ".make-docs/templates/system/history-record.md",
+  ".make-docs/system/references/lifecycle.md",
+  ".make-docs/system/contracts/guide-contract.md",
+  ".make-docs/system/templates/history-record.md",
 ] as const;
 
 const OPTIONAL_LOCAL_BOOTSTRAP_PATHS = new Set([
@@ -348,7 +348,18 @@ function evaluateFilesystemTrust(
       continue;
     }
 
-    if (!manifestEntryMatches(entry, currentHash)) {
+    if (
+      (entry.sourceId.startsWith("router:") || entry.sourceId.startsWith("resource:")) &&
+      !hasTrustedLocalOwnershipProof(relativePath, entry, manifest)
+    ) {
+      modifiedPaths.push(relativePath);
+      continue;
+    }
+
+    if (
+      !manifestEntryMatches(entry, currentHash) &&
+      !isTrustedCurrentPackageRefresh(relativePath, entry, currentHash, manifest)
+    ) {
       modifiedPaths.push(relativePath);
     }
   }
@@ -383,6 +394,84 @@ function evaluateFilesystemTrust(
     nonMakeDocsPathCollisions: [],
     reasons,
   };
+}
+
+function hasTrustedLocalOwnershipProof(
+  relativePath: string,
+  entry: ManifestFileEntry,
+  manifest: InstallManifest,
+): boolean {
+  if (entry.sourceId.startsWith("router:")) {
+    const router = manifest.routerOwnership?.routers[relativePath];
+    return Boolean(
+      router?.sourceId === entry.sourceId &&
+      router.ownershipClass === "managed-snapshot" &&
+      router.provenanceState === "verified" &&
+      router.lifecycleDisposition === "active" &&
+      router.adoptionReceipt === null &&
+      router.expectedSourceHash === entry.hash &&
+      router.installedHash === entry.hash,
+    );
+  }
+  if (entry.sourceId.startsWith("resource:")) {
+    const uri = entry.sourceId.slice("resource:".length);
+    const resource = manifest.resourceProjection?.resources[uri];
+    return Boolean(
+      resource?.managedDestination === relativePath &&
+      resource.ownershipClass === "managed-snapshot" &&
+      resource.provenanceState === "verified" &&
+      resource.lifecycleDisposition === "active" &&
+      resource.adoptionReceipt === null &&
+      resource.sourceDigest === entry.hash &&
+      resource.installedDigest === entry.hash,
+    );
+  }
+  return true;
+}
+
+function isTrustedCurrentPackageRefresh(
+  relativePath: string,
+  entry: ManifestFileEntry,
+  currentHash: string,
+  manifest: InstallManifest,
+): boolean {
+  let ownershipTrusted = false;
+  if (entry.sourceId.startsWith("router:")) {
+    const router = manifest.routerOwnership?.routers[relativePath];
+    ownershipTrusted =
+      router?.sourceId === entry.sourceId &&
+      router.ownershipClass === "managed-snapshot" &&
+      router.provenanceState === "verified" &&
+      router.lifecycleDisposition === "active" &&
+      router.installedHash === entry.hash &&
+      router.expectedSourceHash === entry.hash;
+  } else if (entry.sourceId.startsWith("resource:")) {
+    ownershipTrusted = Object.values(manifest.resourceProjection?.resources ?? {}).some(
+      (resource) =>
+        resource.managedDestination === relativePath &&
+        `resource:${resource.uri}` === entry.sourceId &&
+        resource.ownershipClass === "managed-snapshot" &&
+        resource.provenanceState === "verified" &&
+        resource.lifecycleDisposition === "active" &&
+        resource.installedDigest === entry.hash,
+    );
+  } else if (entry.sourceId === `file:${relativePath}`) {
+    ownershipTrusted =
+      entry.systemAsset?.logicalAssetId === relativePath &&
+      entry.systemAsset.localPath === relativePath &&
+      entry.systemAsset.expectedHashes.includes(entry.hash);
+  }
+
+  if (!ownershipTrusted) {
+    return false;
+  }
+
+  try {
+    const packageHash = getManifestFileHash(relativePath, readPackageFile(relativePath));
+    return packageHash !== null && currentHash === packageHash;
+  } catch {
+    return false;
+  }
 }
 
 function evaluateBootstrapTrust(
@@ -736,11 +825,11 @@ function looksCanonicalMakeDocsContent(relativePath: string, content: string): b
     return true;
   }
 
-  if (relativePath === ".make-docs/references/system/lifecycle.md") {
+  if (relativePath === ".make-docs/system/references/lifecycle.md") {
     return content.includes("# Lifecycle Anchor") && content.includes("## Lifecycle Arc");
   }
 
-  if (relativePath === ".make-docs/templates/system/history-record.md") {
+  if (relativePath === ".make-docs/system/templates/history-record.md") {
     return (
       content.includes("ONE_LINE_SUMMARY") &&
       content.includes("## Changes")

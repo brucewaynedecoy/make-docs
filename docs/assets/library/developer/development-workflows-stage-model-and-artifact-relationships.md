@@ -17,18 +17,18 @@ applies-to:
 related:
   - ./development-workflows-choosing-the-right-route.md
   - ../user/workflows-how-make-docs-stages-fit-together.md
-  - ../../../../.make-docs/references/system/design-workflow.md
-  - ../../../../.make-docs/references/system/planning-workflow.md
-  - ../../../../.make-docs/references/system/execution-workflow.md
-  - ../../../../.make-docs/contracts/system/output-contract.md
-  - ../../../../.make-docs/references/system/prd-change-management.md
-  - ../../../../.make-docs/references/system/wave-model.md
+  - ../../../../.make-docs/system/references/design-workflow.md
+  - ../../../../.make-docs/system/references/planning-workflow.md
+  - ../../../../.make-docs/system/references/execution-workflow.md
+  - ../../../../.make-docs/system/contracts/output-contract.md
+  - ../../../../.make-docs/system/references/prd-change-management.md
+  - ../../../../.make-docs/system/references/wave-model.md
   - ../../../work/AGENTS.md
 ---
 
 # Understanding the Make Docs Stage Model
 
-> See `.make-docs/contracts/system/guide-contract.md` for frontmatter schema and slug rules.
+> See `.make-docs/system/contracts/guide-contract.md` for frontmatter schema and slug rules.
 
 ## Overview
 
@@ -81,12 +81,12 @@ Use these reference files as the authority for each part of the lifecycle:
 
 | Topic | Source of truth |
 | --- | --- |
-| Design routing and handoff | [design-workflow.md](../../../../.make-docs/references/system/design-workflow.md) |
-| Planning expectations | [planning-workflow.md](../../../../.make-docs/references/system/planning-workflow.md) |
-| Execution modes and writing order | [execution-workflow.md](../../../../.make-docs/references/system/execution-workflow.md) |
-| Active PRD shape and backlog coupling | [output-contract.md](../../../../.make-docs/contracts/system/output-contract.md) |
-| PRD change docs and annotations | [prd-change-management.md](../../../../.make-docs/references/system/prd-change-management.md) |
-| W/R lineage rules for plans and work | [wave-model.md](../../../../.make-docs/references/system/wave-model.md) |
+| Design routing and handoff | [design-workflow.md](../../../../.make-docs/system/references/design-workflow.md) |
+| Planning expectations | [planning-workflow.md](../../../../.make-docs/system/references/planning-workflow.md) |
+| Execution modes and writing order | [execution-workflow.md](../../../../.make-docs/system/references/execution-workflow.md) |
+| Active PRD shape and backlog coupling | [output-contract.md](../../../../.make-docs/system/contracts/output-contract.md) |
+| PRD change docs and annotations | [prd-change-management.md](../../../../.make-docs/system/references/prd-change-management.md) |
+| W/R lineage rules for plans and work | [wave-model.md](../../../../.make-docs/system/references/wave-model.md) |
 
 Two details are easy to miss:
 
@@ -166,7 +166,7 @@ That coupling matters because the backlog is supposed to implement the effective
 When generating or revising a work backlog, use the live authority chain before reaching for examples or installed skill assets:
 
 1. explicit user direction plus the accepted design, plan, PRD, and existing work artifacts for the current coordinate
-2. live repo contracts, especially [docs/work/AGENTS.md](../../../work/AGENTS.md), [execution-workflow.md](../../../../.make-docs/references/system/execution-workflow.md), [output-contract.md](../../../../.make-docs/contracts/system/output-contract.md), [wave-model.md](../../../../.make-docs/references/system/wave-model.md), and the current work templates
+2. live repo contracts, especially [docs/work/AGENTS.md](../../../work/AGENTS.md), [execution-workflow.md](../../../../.make-docs/system/references/execution-workflow.md), [output-contract.md](../../../../.make-docs/system/contracts/output-contract.md), [wave-model.md](../../../../.make-docs/system/references/wave-model.md), and the current work templates
 3. template/package source contracts when maintaining shipped make-docs assets
 4. archived backlogs only as style or lineage examples
 5. bundled skill references, generated harness stubs, and installed skill copies only as fallback evidence

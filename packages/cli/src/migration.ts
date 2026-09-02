@@ -834,6 +834,7 @@ export function planMigrationRoutingSurface(
 export function applyMigrationRoutingSurface(
   projectRoot: string,
   action: PlannedAction,
+  routerActions: readonly PlannedAction[] = [],
 ): void {
   if (!Object.values(MIGRATION_ROUTING_PATHS).includes(action.relativePath)) {
     throw new MigrationSafetyError(
@@ -841,15 +842,40 @@ export function applyMigrationRoutingSurface(
       `Unsupported migration routing path: ${action.relativePath}.`,
     );
   }
-  if (action.type === "noop") return;
-  if (action.type !== "create") {
+  if (action.type !== "noop" && action.type !== "create") {
     throw new MigrationSafetyError(
       "unsupported-product-action",
       `Unsupported migration routing action for ${action.relativePath}: ${action.type}.`,
     );
   }
-  assertManagedPathHasNoSymlinks(projectRoot, action.relativePath);
-  mkdirSync(relativePathToTarget(projectRoot, action.relativePath), { recursive: true });
+  if (action.type === "create") {
+    assertManagedPathHasNoSymlinks(projectRoot, action.relativePath);
+    mkdirSync(relativePathToTarget(projectRoot, action.relativePath), { recursive: true });
+  }
+  for (const routerAction of routerActions) {
+    if (
+      path.dirname(routerAction.relativePath) !== action.relativePath ||
+      !/\/(?:AGENTS|CLAUDE)\.md$/.test(routerAction.relativePath)
+    ) {
+      throw new MigrationSafetyError(
+        "unsupported-product-action",
+        `Unsupported project surface router path: ${routerAction.relativePath}.`,
+      );
+    }
+    if (routerAction.type === "noop") continue;
+    if (routerAction.type !== "create" || typeof routerAction.content !== "string") {
+      throw new MigrationSafetyError(
+        "unsupported-product-action",
+        `Unsupported project surface router action for ${routerAction.relativePath}: ${routerAction.type}.`,
+      );
+    }
+    assertManagedPathHasNoSymlinks(projectRoot, routerAction.relativePath);
+    writeFileSync(
+      relativePathToTarget(projectRoot, routerAction.relativePath),
+      routerAction.content,
+      { encoding: "utf8", flag: "wx" },
+    );
+  }
 }
 
 export function removeTrustedPythonPathHelper(input: {
@@ -1047,7 +1073,15 @@ export class ImmutableMigrationCoordinator {
         return;
       case 7:
         assertOnDemandRoutingAvailable(this.lock.projectRoot);
-        applyFixedInstallStage(product, 7, product.legacyActions);
+        applyFixedInstallStage(product, 7, [
+          ...product.legacyActions,
+          ...product.preservedActions.filter((action) =>
+            action.type === "noop" &&
+            product.installPlan.desiredFiles[action.relativePath] !== undefined &&
+            JSON.stringify(product.currentManifest?.files[action.relativePath] ?? null) !==
+              JSON.stringify(product.installPlan.desiredFiles[action.relativePath]),
+          ),
+        ]);
         return;
       case 8: {
         const result = validateProjectPathHygiene({ projectRoot: this.lock.projectRoot });

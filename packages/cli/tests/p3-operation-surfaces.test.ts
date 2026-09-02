@@ -533,7 +533,7 @@ function createProvider(): SystemResourceProviderInventory {
       defaultMediaType: "text/markdown; charset=utf-8",
       resourceTypes: SYSTEM_RESOURCE_TYPES.map((type) => ({
         type,
-        sourceRoot: `.make-docs/${SYSTEM_RESOURCE_TYPE_DIRECTORIES[type]}/system`,
+        sourceRoot: `.make-docs/system/${SYSTEM_RESOURCE_TYPE_DIRECTORIES[type]}`,
         include: ["*.md"],
         exclude: [],
       })),
@@ -543,8 +543,8 @@ function createProvider(): SystemResourceProviderInventory {
     const directory = path.join(
       root,
       ".make-docs",
-      SYSTEM_RESOURCE_TYPE_DIRECTORIES[type],
       "system",
+      SYSTEM_RESOURCE_TYPE_DIRECTORIES[type],
     );
     mkdirSync(directory, { recursive: true });
     writeFileSync(path.join(directory, `${type}.md`), `${type} bytes\n`);

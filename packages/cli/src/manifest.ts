@@ -17,10 +17,13 @@ import type {
   InstructionKind,
   ManifestAuditContext,
   ManifestAuditRecord,
+  ManifestAdoptionReceipt,
   ManifestFileEntry,
   ManifestHashAlgorithm,
+  ManifestLifecycleDisposition,
   ManifestOwnershipClass,
   ManifestProvenanceState,
+  ManifestProvenanceClaim,
   SkillManifestSelectionSource,
   SkillSelectionProvenanceEntry,
   SkillExposureMetadata,
@@ -39,6 +42,7 @@ import type {
   SystemAssetSelectionTrigger,
   ProjectResourceType,
   ResourceProjectionManifestState,
+  RouterOwnershipManifestState,
 } from "./types";
 import { classifyAgenticSkillFileRole } from "./agentic-skill-roles";
 import {
@@ -64,7 +68,7 @@ import {
   writeTextFile,
 } from "./utils";
 
-export const MANIFEST_SCHEMA_VERSION = 3;
+export const MANIFEST_SCHEMA_VERSION = 4;
 export const MAKE_DOCS_STATE_RELATIVE_DIR = TOOL_DIRECTORY_RELATIVE_PATH;
 export const MANIFEST_RELATIVE_PATH = TOOL_DIRECTORY_MANIFEST_RELATIVE_PATH;
 export const CONFLICTS_RELATIVE_DIR = TOOL_DIRECTORY_CONFLICTS_RELATIVE_DIR;
@@ -216,8 +220,14 @@ export function createManifest(
   skillFiles: string[],
   systemAssetMaterialization: SystemAssetManifestState,
   projectId: string,
-  resourceProjection?: ResourceProjectionManifestState,
+  routerOwnership: RouterOwnershipManifestState,
+  resourceProjection: ResourceProjectionManifestState,
 ): InstallManifest {
+  if (!routerOwnership || !resourceProjection) {
+    throw new Error(
+      "Schema 4 manifests require router ownership and resource projection proof.",
+    );
+  }
   return {
     schemaVersion: MANIFEST_SCHEMA_VERSION,
     projectId,
@@ -228,7 +238,8 @@ export function createManifest(
     selections: profile.selections,
     effectiveCapabilities: profile.effectiveCapabilities,
     systemAssetMaterialization,
-    ...(resourceProjection ? { resourceProjection } : {}),
+    routerOwnership,
+    resourceProjection,
     files,
     skillFiles: Array.from(new Set(skillFiles)).sort(),
   };
@@ -371,15 +382,30 @@ function validateAndMigrateManifest(
     const skillFiles = migrateSkillFiles(value.skillFiles);
     const selections = migrateSelections(value.selections);
     const files = validateManifestFiles(value.files);
+    const packageName = validateString(value.packageName, "manifest.packageName");
+    const packageVersion = validateString(value.packageVersion, "manifest.packageVersion");
 
     const schemaVersion = validateNumber(
       value.schemaVersion,
       "manifest.schemaVersion",
     );
-    if (schemaVersion !== 1 && schemaVersion !== 2 && schemaVersion !== MANIFEST_SCHEMA_VERSION) {
+    if (
+      schemaVersion !== 1 &&
+      schemaVersion !== 2 &&
+      schemaVersion !== 3 &&
+      schemaVersion !== MANIFEST_SCHEMA_VERSION
+    ) {
       throw new Error(
-        `manifest.schemaVersion must be 1, 2, or ${MANIFEST_SCHEMA_VERSION}`,
+        `manifest.schemaVersion must be 1, 2, 3, or ${MANIFEST_SCHEMA_VERSION}`,
       );
+    }
+    if (schemaVersion === MANIFEST_SCHEMA_VERSION) {
+      if (!("routerOwnership" in value) || value.routerOwnership === undefined) {
+        throw new Error("manifest.routerOwnership is required for schemaVersion 4");
+      }
+      if (!("resourceProjection" in value) || value.resourceProjection === undefined) {
+        throw new Error("manifest.resourceProjection is required for schemaVersion 4");
+      }
     }
     const systemAssetMaterialization =
       "systemAssetMaterialization" in value
@@ -401,17 +427,26 @@ function validateAndMigrateManifest(
         ? validateResourceProjectionManifestState(
             value.resourceProjection,
             selections.resourceProjection,
+            { name: packageName, version: packageVersion },
+            files,
+            systemAssetMaterialization,
+          )
+        : undefined;
+    const routerOwnership =
+      "routerOwnership" in value && value.routerOwnership !== undefined
+        ? validateRouterOwnershipManifestState(
+            value.routerOwnership,
+            files,
+            selections.harnesses,
+            { name: packageName, version: packageVersion },
           )
         : undefined;
 
     return {
-      schemaVersion: MANIFEST_SCHEMA_VERSION,
+      schemaVersion,
       ...(projectId === undefined ? {} : { projectId }),
-      packageName: validateString(value.packageName, "manifest.packageName"),
-      packageVersion: validateString(
-        value.packageVersion,
-        "manifest.packageVersion",
-      ),
+      packageName,
+      packageVersion,
       updatedAt: validateString(value.updatedAt, "manifest.updatedAt"),
       profileId: validateString(value.profileId, "manifest.profileId"),
       selections,
@@ -419,6 +454,7 @@ function validateAndMigrateManifest(
         value.effectiveCapabilities,
       ),
       systemAssetMaterialization,
+      ...(routerOwnership ? { routerOwnership } : {}),
       ...(resourceProjection ? { resourceProjection } : {}),
       files,
       skillFiles,
@@ -772,15 +808,368 @@ function validateManifestProvenanceState(
   return value;
 }
 
+function validateLocalOwnershipProof(
+  value: Record<string, unknown>,
+  options: {
+    label: string;
+    packageMeta: PackageMeta;
+    ownershipClass: "managed-snapshot" | "project-owned";
+    expectedMaterializationMode: "managed-block";
+  },
+) {
+  const sourcePackage = validateString(value.sourcePackage, `${options.label}.sourcePackage`);
+  const sourceVersion = validateString(value.sourceVersion, `${options.label}.sourceVersion`);
+  const sourceImmutableRef = validateString(
+    value.sourceImmutableRef,
+    `${options.label}.sourceImmutableRef`,
+  );
+  if (
+    sourcePackage !== options.packageMeta.name ||
+    sourceVersion !== options.packageMeta.version ||
+    sourceImmutableRef !== `package:${options.packageMeta.name}@${options.packageMeta.version}`
+  ) {
+    throw new Error(`${options.label} source identity must equal the manifest package`);
+  }
+  const provenanceState = validateManifestProvenanceState(
+    value.provenanceState,
+    `${options.label}.provenanceState`,
+  );
+  return {
+    sourcePackage,
+    sourceVersion,
+    sourceImmutableRef,
+    materializationMode: validateExactString(
+      value.materializationMode,
+      options.expectedMaterializationMode,
+      `${options.label}.materializationMode`,
+    ),
+    provenanceState,
+    provenanceEvidence: validateNonEmptyStringArray(
+      value.provenanceEvidence,
+      `${options.label}.provenanceEvidence`,
+    ),
+    competingClaims: validateProvenanceClaims(
+      value.competingClaims,
+      `${options.label}.competingClaims`,
+      provenanceState,
+    ),
+    hashAlgorithm: validateExactString(
+      value.hashAlgorithm,
+      "sha256",
+      `${options.label}.hashAlgorithm`,
+    ),
+    expectedSourceHash: validateSha256Digest(
+      value.expectedSourceHash,
+      `${options.label}.expectedSourceHash`,
+    ),
+    installedHash: validateSha256Digest(
+      value.installedHash,
+      `${options.label}.installedHash`,
+    ),
+    lastVerifiedAt: validateIsoTimestamp(
+      value.lastVerifiedAt,
+      `${options.label}.lastVerifiedAt`,
+    ),
+    lifecycleDisposition: validateLifecycleDisposition(
+      value.lifecycleDisposition,
+      `${options.label}.lifecycleDisposition`,
+    ),
+    adoptionReceipt: validateAdoptionReceipt(
+      value.adoptionReceipt,
+      `${options.label}.adoptionReceipt`,
+      options.ownershipClass,
+    ),
+  };
+}
+
+function validateProvenanceClaims(
+  value: unknown,
+  label: string,
+  state: ManifestProvenanceState,
+): ManifestProvenanceClaim[] {
+  if (!Array.isArray(value)) {
+    throw new Error(`${label} must be an array`);
+  }
+  const claims = value.map((claim, index) => {
+    const claimLabel = `${label}.${index}`;
+    assertPlainObject(claim, claimLabel);
+    return {
+      sourcePackage: validateString(claim.sourcePackage, `${claimLabel}.sourcePackage`),
+      sourceVersion: validateString(claim.sourceVersion, `${claimLabel}.sourceVersion`),
+      sourceImmutableRef: validateString(
+        claim.sourceImmutableRef,
+        `${claimLabel}.sourceImmutableRef`,
+      ),
+      evidenceRefs: validateNonEmptyStringArray(
+        claim.evidenceRefs,
+        `${claimLabel}.evidenceRefs`,
+      ),
+    };
+  });
+  const expectsClaims = state === "ambiguous" || state === "contradictory";
+  if (expectsClaims && claims.length < 2) {
+    throw new Error(`${label} must retain at least two evidenced source claims for ${state} provenance`);
+  }
+  if (!expectsClaims && claims.length !== 0) {
+    throw new Error(`${label} must be empty unless provenance is ambiguous or contradictory`);
+  }
+  return claims;
+}
+
+function validateAdoptionReceipt(
+  value: unknown,
+  label: string,
+  ownershipClass: "managed-snapshot" | "project-owned",
+): ManifestAdoptionReceipt | null {
+  if (ownershipClass === "managed-snapshot") {
+    if (value !== null) {
+      throw new Error(`${label} must be null for managed-snapshot ownership`);
+    }
+    return null;
+  }
+  assertPlainObject(value, label);
+  if (value.priorOwnershipClass !== "managed-snapshot") {
+    throw new Error(`${label}.priorOwnershipClass must be managed-snapshot`);
+  }
+  return {
+    receiptId: validateString(value.receiptId, `${label}.receiptId`),
+    adoptedAt: validateIsoTimestamp(value.adoptedAt, `${label}.adoptedAt`),
+    priorOwnershipClass: "managed-snapshot",
+    evidenceRefs: validateNonEmptyStringArray(value.evidenceRefs, `${label}.evidenceRefs`),
+  };
+}
+
+function validateNonEmptyStringArray(value: unknown, label: string): string[] {
+  const values = validateStringArray(value, label);
+  if (values.length === 0) {
+    throw new Error(`${label} must not be empty`);
+  }
+  return values;
+}
+
+function validateExactString<T extends string>(value: unknown, expected: T, label: string): T {
+  if (value !== expected) {
+    throw new Error(`${label} must be ${expected}`);
+  }
+  return expected;
+}
+
+function validateIsoTimestamp(value: unknown, label: string): string {
+  const timestamp = validateString(value, label);
+  if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?Z$/.test(timestamp) || Number.isNaN(Date.parse(timestamp))) {
+    throw new Error(`${label} must be an ISO 8601 UTC timestamp`);
+  }
+  return timestamp;
+}
+
+function validateLifecycleDisposition(value: unknown, label: string): ManifestLifecycleDisposition {
+  if (
+    value !== "active" &&
+    value !== "preserved-export" &&
+    value !== "superseded-managed" &&
+    value !== "conflict"
+  ) {
+    throw new Error(`${label} must be a valid lifecycle disposition`);
+  }
+  return value;
+}
+
+function validateRouterOwnershipManifestState(
+  value: unknown,
+  files: Record<string, ManifestFileEntry>,
+  selectedHarnessState: InstallSelections["harnesses"],
+  packageMeta: PackageMeta,
+): RouterOwnershipManifestState {
+  assertPlainObject(value, "manifest.routerOwnership");
+  if (value.operationLineage !== "W19 R1 P4") {
+    throw new Error("manifest.routerOwnership.operationLineage must be W19 R1 P4");
+  }
+  const configuredHarnesses = validateStringArray(
+    value.configuredHarnesses,
+    "manifest.routerOwnership.configuredHarnesses",
+  ).map((harness, index) => {
+    if (!HARNESSES.includes(harness as (typeof HARNESSES)[number])) {
+      throw new Error(
+        `manifest.routerOwnership.configuredHarnesses.${index} must be a valid harness`,
+      );
+    }
+    return harness as (typeof HARNESSES)[number];
+  });
+  if (new Set(configuredHarnesses).size !== configuredHarnesses.length) {
+    throw new Error("manifest.routerOwnership.configuredHarnesses must not contain duplicates");
+  }
+  const expectedHarnesses = configuredHarnesses.slice().sort();
+  const selectedHarnesses = Object.entries(selectedHarnessState)
+    .filter(([, selected]) => selected)
+    .map(([harness]) => harness as (typeof HARNESSES)[number])
+    .sort();
+  if (JSON.stringify(expectedHarnesses) !== JSON.stringify(selectedHarnesses)) {
+    throw new Error(
+      "manifest.routerOwnership.configuredHarnesses must exactly equal selections.harnesses",
+    );
+  }
+  assertPlainObject(value.routers, "manifest.routerOwnership.routers");
+  const routers: RouterOwnershipManifestState["routers"] = {};
+  for (const [relativePath, rawEntry] of Object.entries(value.routers)) {
+    assertPlainObject(rawEntry, `manifest.routerOwnership.routers.${relativePath}`);
+    const entryPath = validateString(
+      rawEntry.relativePath,
+      `manifest.routerOwnership.routers.${relativePath}.relativePath`,
+    );
+    if (entryPath !== relativePath || normalizeRelativePath(entryPath) !== entryPath) {
+      throw new Error(
+        `manifest.routerOwnership.routers.${relativePath}.relativePath must equal its canonical map key`,
+      );
+    }
+    const harness = validateString(
+      rawEntry.harness,
+      `manifest.routerOwnership.routers.${relativePath}.harness`,
+    ) as (typeof HARNESSES)[number];
+    if (!HARNESSES.includes(harness) || !expectedHarnesses.includes(harness)) {
+      throw new Error(
+        `manifest.routerOwnership.routers.${relativePath}.harness must be configured`,
+      );
+    }
+    const instructionKind = validateString(
+      rawEntry.instructionKind,
+      `manifest.routerOwnership.routers.${relativePath}.instructionKind`,
+    ) as InstructionKind;
+    if (!INSTRUCTION_KINDS.includes(instructionKind)) {
+      throw new Error(
+        `manifest.routerOwnership.routers.${relativePath}.instructionKind must be valid`,
+      );
+    }
+    const expectedInstruction =
+      harness === "codex" ? "AGENTS.md" : "CLAUDE.md";
+    if (instructionKind !== expectedInstruction) {
+      throw new Error(
+        `manifest.routerOwnership.routers.${relativePath}.instructionKind must match its harness`,
+      );
+    }
+    if (rawEntry.ownershipClass !== "managed-snapshot" && rawEntry.ownershipClass !== "project-owned") {
+      throw new Error(
+        `manifest.routerOwnership.routers.${relativePath}.ownershipClass must be managed-snapshot or project-owned`,
+      );
+    }
+    const routerClass = rawEntry.routerClass;
+    if (routerClass !== "bootstrap" && routerClass !== "on-demand-surface") {
+      throw new Error(
+        `manifest.routerOwnership.routers.${relativePath}.routerClass must be bootstrap or on-demand-surface`,
+      );
+    }
+    const allowedPaths =
+      routerClass === "bootstrap"
+        ? getBootstrapRouterPaths(instructionKind)
+        : getOnDemandRouterPaths(instructionKind);
+    if (!allowedPaths.includes(relativePath)) {
+      throw new Error(
+        `manifest.routerOwnership.routers.${relativePath} is not an allowed ${routerClass} router path`,
+      );
+    }
+    const sourceId = validateString(
+      rawEntry.sourceId,
+      `manifest.routerOwnership.routers.${relativePath}.sourceId`,
+    );
+    if (sourceId !== `router:${harness}:${relativePath}`) {
+      throw new Error(
+        `manifest.routerOwnership.routers.${relativePath}.sourceId must match its harness and path`,
+      );
+    }
+    const expectedFileOwnership = rawEntry.ownershipClass === "managed-snapshot"
+      ? "managed-block"
+      : "project-owned";
+    if (
+      files[relativePath]?.sourceId !== sourceId ||
+      files[relativePath]?.ownershipClass !== expectedFileOwnership
+    ) {
+      throw new Error(
+        `manifest.routerOwnership.routers.${relativePath} must match manifest.files ownership`,
+      );
+    }
+    const proof = validateLocalOwnershipProof(rawEntry, {
+      label: `manifest.routerOwnership.routers.${relativePath}`,
+      packageMeta,
+      ownershipClass: rawEntry.ownershipClass,
+      expectedMaterializationMode: "managed-block",
+    });
+    if (
+      proof.expectedSourceHash !== files[relativePath]?.hash ||
+      proof.installedHash !== files[relativePath]?.hash
+    ) {
+      throw new Error(
+        `manifest.routerOwnership.routers.${relativePath} hashes must match manifest.files`,
+      );
+    }
+    routers[relativePath] = {
+      relativePath,
+      harness,
+      instructionKind,
+      ownershipClass: rawEntry.ownershipClass,
+      routerClass,
+      sourceId,
+      ...proof,
+    };
+  }
+  for (const harness of expectedHarnesses) {
+    const instructionKind = harness === "codex" ? "AGENTS.md" : "CLAUDE.md";
+    for (const relativePath of getBootstrapRouterPaths(instructionKind)) {
+      if (!routers[relativePath]) {
+        throw new Error(
+          `manifest.routerOwnership.routers must include bootstrap router ${relativePath}`,
+        );
+      }
+    }
+  }
+  for (const [relativePath, file] of Object.entries(files)) {
+    if (!file.sourceId.startsWith("router:")) {
+      continue;
+    }
+    const router = routers[relativePath];
+    if (!router || router.sourceId !== file.sourceId) {
+      throw new Error(
+        `manifest.routerOwnership.routers must include managed router ${relativePath}`,
+      );
+    }
+  }
+  return {
+    configuredHarnesses: expectedHarnesses,
+    operationLineage: "W19 R1 P4",
+    routers,
+  };
+}
+
+function getBootstrapRouterPaths(instructionKind: InstructionKind): string[] {
+  return [
+    instructionKind,
+    `docs/${instructionKind}`,
+    `.make-docs/${instructionKind}`,
+    `.make-docs/system/${instructionKind}`,
+    `.make-docs/system/contracts/${instructionKind}`,
+    `.make-docs/system/prompts/${instructionKind}`,
+    `.make-docs/system/references/${instructionKind}`,
+    `.make-docs/system/templates/${instructionKind}`,
+  ];
+}
+
+function getOnDemandRouterPaths(instructionKind: InstructionKind): string[] {
+  return [
+    `.make-docs/archive/${instructionKind}`,
+    `docs/artifacts/${instructionKind}`,
+    `docs/assets/${instructionKind}`,
+  ];
+}
+
 function validateResourceProjectionManifestState(
   value: unknown,
   selectedResourceTypes: ProjectResourceType[] | undefined,
+  packageMeta: PackageMeta,
+  files: Record<string, ManifestFileEntry>,
+  systemAssetMaterialization: SystemAssetManifestState,
 ): ResourceProjectionManifestState {
   assertPlainObject(value, "manifest.resourceProjection");
   const selectedTypes = validateResourceProjectionSelection(value.selectedTypes);
   if (
-    selectedResourceTypes === undefined ||
-    JSON.stringify(selectedTypes) !== JSON.stringify(selectedResourceTypes)
+    JSON.stringify(selectedTypes) !== JSON.stringify(selectedResourceTypes ?? [])
   ) {
     throw new Error(
       "manifest.resourceProjection.selectedTypes must equal selections.resourceProjection",
@@ -864,9 +1253,9 @@ function validateResourceProjectionManifestState(
       );
     }
     const ownershipClass = rawEntry.ownershipClass;
-    if (ownershipClass !== "managed-projection" && ownershipClass !== "project-override") {
+    if (ownershipClass !== "managed-snapshot" && ownershipClass !== "project-owned") {
       throw new Error(
-        `manifest.resourceProjection.resources.${uri}.ownershipClass must be managed-projection or project-override`,
+        `manifest.resourceProjection.resources.${uri}.ownershipClass must be managed-snapshot or project-owned`,
       );
     }
     const selectionTrigger = rawEntry.selectionTrigger;
@@ -906,35 +1295,140 @@ function validateResourceProjectionManifestState(
         `manifest.resourceProjection.resources.${uri} provider identity must equal manifest.resourceProjection.provider`,
       );
     }
+    if (
+      providerPackage !== packageMeta.name ||
+      providerVersion !== packageMeta.version
+    ) {
+      throw new Error(
+        `manifest.resourceProjection.resources.${uri} provider identity must equal the manifest package`,
+      );
+    }
+    const provenanceState = validateManifestProvenanceState(
+      rawEntry.provenanceState,
+      `manifest.resourceProjection.resources.${uri}.provenanceState`,
+    );
+    const provenanceEvidence = validateNonEmptyStringArray(
+      rawEntry.provenanceEvidence,
+      `manifest.resourceProjection.resources.${uri}.provenanceEvidence`,
+    );
+    const competingClaims = validateProvenanceClaims(
+      rawEntry.competingClaims,
+      `manifest.resourceProjection.resources.${uri}.competingClaims`,
+      provenanceState,
+    );
+    const adoptionReceipt = validateAdoptionReceipt(
+      rawEntry.adoptionReceipt,
+      `manifest.resourceProjection.resources.${uri}.adoptionReceipt`,
+      ownershipClass,
+    );
+    const sourceDigest = validateSha256Digest(
+      rawEntry.sourceDigest,
+      `manifest.resourceProjection.resources.${uri}.sourceDigest`,
+    );
+    const installedDigest = validateSha256Digest(
+      rawEntry.installedDigest,
+      `manifest.resourceProjection.resources.${uri}.installedDigest`,
+    );
+    const fileEntry = files[managedDestination];
+    const expectedFileOwnership = ownershipClass === "managed-snapshot"
+      ? "managed-projection"
+      : "project-owned";
+    if (
+      fileEntry?.sourceId !== `resource:${uri}` ||
+      fileEntry.ownershipClass !== expectedFileOwnership ||
+      fileEntry.hash !== installedDigest
+    ) {
+      throw new Error(
+        `manifest.resourceProjection.resources.${uri} must match managed manifest.files ownership`,
+      );
+    }
     resources[uri] = {
       uri: entryUri,
       type,
       resourcePath,
       managedDestination,
       ownershipClass,
-      provenanceState: validateManifestProvenanceState(
-        rawEntry.provenanceState,
-        `manifest.resourceProjection.resources.${uri}.provenanceState`,
-      ),
+      provenanceState,
       providerPackage,
       providerVersion,
       providerImmutableRef,
-      sourceDigest: validateSha256Digest(
-        rawEntry.sourceDigest,
-        `manifest.resourceProjection.resources.${uri}.sourceDigest`,
+      materializationMode: validateExactString(
+        rawEntry.materializationMode,
+        "provider-backed-copy",
+        `manifest.resourceProjection.resources.${uri}.materializationMode`,
       ),
-      installedDigest: validateSha256Digest(
-        rawEntry.installedDigest,
-        `manifest.resourceProjection.resources.${uri}.installedDigest`,
-      ),
+      sourceDigest,
+      installedDigest,
       hashAlgorithm: "sha256",
+      lastVerifiedAt: validateIsoTimestamp(
+        rawEntry.lastVerifiedAt,
+        `manifest.resourceProjection.resources.${uri}.lastVerifiedAt`,
+      ),
+      lifecycleDisposition: validateLifecycleDisposition(
+        rawEntry.lifecycleDisposition,
+        `manifest.resourceProjection.resources.${uri}.lifecycleDisposition`,
+      ),
+      adoptionReceipt,
       selectionTrigger,
       operationLineage: "W19 R1 P4",
-      competingClaims: validateStringArray(
-        rawEntry.competingClaims,
-        `manifest.resourceProjection.resources.${uri}.competingClaims`,
-      ),
+      provenanceEvidence,
+      competingClaims,
     };
+  }
+  const requiredResources = new Map<string, string>();
+  const selectedDirectories = new Set(
+    selectedTypes.map((type) => ({
+      contract: "contracts",
+      prompt: "prompts",
+      reference: "references",
+      template: "templates",
+    })[type]),
+  );
+  for (const asset of Object.values(systemAssetMaterialization.assets)) {
+    const localPath = asset.localPath;
+    if (
+      !localPath ||
+      asset.materializationClass !== "deferred-system-asset" ||
+      asset.selectionTrigger !== "internal-materialization-mode"
+    ) {
+      continue;
+    }
+    const match = /^\.make-docs\/system\/(contracts|prompts|references|templates)\/(.+)$/.exec(localPath);
+    if (!match || !selectedDirectories.has(match[1])) {
+      continue;
+    }
+    const type = ({
+      contracts: "contract",
+      prompts: "prompt",
+      references: "reference",
+      templates: "template",
+    } as const)[match[1] as "contracts" | "prompts" | "references" | "templates"];
+    requiredResources.set(`make-docs://system/${type}/${match[2]}`, localPath);
+  }
+  for (const [relativePath, file] of Object.entries(files)) {
+    if (!file.sourceId.startsWith("resource:")) {
+      continue;
+    }
+    const uri = file.sourceId.slice("resource:".length);
+    if (!resources[uri] || resources[uri].managedDestination !== relativePath) {
+      throw new Error(
+        `manifest.resourceProjection.resources must include managed resource ${uri}`,
+      );
+    }
+  }
+  for (const [uri, localPath] of requiredResources) {
+    if (!resources[uri] || resources[uri].managedDestination !== localPath) {
+      throw new Error(
+        `manifest.resourceProjection.resources must include selected provider resource ${uri}`,
+      );
+    }
+  }
+  for (const uri of Object.keys(resources)) {
+    if (!requiredResources.has(uri)) {
+      throw new Error(
+        `manifest.resourceProjection.resources contains unselected or unmaterialized resource ${uri}`,
+      );
+    }
   }
   return {
     selectedTypes,

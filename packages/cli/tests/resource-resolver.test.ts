@@ -653,7 +653,7 @@ function createProvider(): SystemResourceProviderInventory {
   mkdirSync(path.join(root, ".make-docs"), { recursive: true });
   const resourceTypes = SYSTEM_RESOURCE_TYPES.map((type) => ({
     type,
-    sourceRoot: `.make-docs/${SYSTEM_RESOURCE_TYPE_DIRECTORIES[type]}/system`,
+    sourceRoot: `.make-docs/system/${SYSTEM_RESOURCE_TYPE_DIRECTORIES[type]}`,
     include: ["*.md"],
     exclude: ["AGENTS.md", "CLAUDE.md"],
   }));
@@ -668,7 +668,7 @@ function createProvider(): SystemResourceProviderInventory {
     }),
   );
   for (const type of SYSTEM_RESOURCE_TYPES) {
-    const directory = path.join(root, ".make-docs", SYSTEM_RESOURCE_TYPE_DIRECTORIES[type], "system");
+    const directory = path.join(root, ".make-docs", "system", SYSTEM_RESOURCE_TYPE_DIRECTORIES[type]);
     mkdirSync(directory, { recursive: true });
     writeFileSync(path.join(directory, `${type}.md`), `${type} content\n`);
   }

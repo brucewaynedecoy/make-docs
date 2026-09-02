@@ -268,7 +268,7 @@ function validateCatalog(
       );
     }
     seenTypes.add(entry.type);
-    const expectedRoot = `.make-docs/${SYSTEM_RESOURCE_TYPE_DIRECTORIES[entry.type]}/system`;
+    const expectedRoot = `.make-docs/system/${SYSTEM_RESOURCE_TYPE_DIRECTORIES[entry.type]}`;
     if (entry.sourceRoot !== expectedRoot) {
       return invalidCatalogType(
         `Catalog type ${entry.type} must use provider root ${expectedRoot}.`,

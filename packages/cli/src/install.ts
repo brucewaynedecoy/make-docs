@@ -176,8 +176,10 @@ function applyInstallPlanInternal(options: {
     existingManifest &&
     existingManifest.projectId &&
     plan.actions.every((action) => action.type === "noop") &&
-    existingManifest.schemaVersion === 3 &&
+    existingManifest.schemaVersion === 4 &&
     JSON.stringify(existingManifest.selections) === JSON.stringify(plan.profile.selections) &&
+    JSON.stringify(existingManifest.routerOwnership ?? null) ===
+      JSON.stringify(plan.routerOwnership ?? null) &&
     JSON.stringify(existingManifest.resourceProjection ?? null) ===
       JSON.stringify(plan.resourceProjection ?? null)
   ) {
@@ -228,6 +230,13 @@ function applyInstallPlanInternal(options: {
   // the apply already rewrites the manifest, so the minted identifier rides
   // the same write. An existing identifier is NEVER re-minted or changed.
   const projectId = existingManifest?.projectId ?? mintProjectId();
+  const routerOwnership = plan.routerOwnership ?? existingManifest?.routerOwnership;
+  const resourceProjection = plan.resourceProjection ?? existingManifest?.resourceProjection;
+  if (!routerOwnership || !resourceProjection) {
+    throw new Error(
+      "Schema 4 install apply requires router ownership and resource projection proof.",
+    );
+  }
 
   const manifest = createManifest(
     {
@@ -241,9 +250,8 @@ function applyInstallPlanInternal(options: {
       ? plan.systemAssetMaterialization
       : (existingManifest?.systemAssetMaterialization ?? plan.systemAssetMaterialization),
     projectId,
-    options.trackSkillFilesInManifestFiles
-      ? plan.resourceProjection
-      : existingManifest?.resourceProjection,
+    routerOwnership,
+    resourceProjection,
   );
   const receipt = createLifecycleMutationReceipt({
     operation: plan.operation ?? "setup",

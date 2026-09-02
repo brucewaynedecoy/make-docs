@@ -63,7 +63,7 @@ The default profile can create or manage:
 - `docs/prd/` for product requirement documents
 - `docs/work/` for implementation backlogs and task lists
 - `docs/assets/archive/`, `docs/assets/artifacts/`, `docs/assets/library/`, and `docs/assets/playbooks/` for people-and-agent-managed project documentation assets
-- `.make-docs/contracts/system/`, `.make-docs/references/system/`, `.make-docs/templates/system/`, and `.make-docs/scripts/` for make-docs system resources
+- `.make-docs/system/contracts/`, `.make-docs/system/references/`, `.make-docs/system/templates/`, and `.make-docs/scripts/` for make-docs system resources
 - root and per-directory `AGENTS.md` / `CLAUDE.md` instruction routers
 - `.make-docs/manifest.json` runtime state for future sync, backup, and uninstall operations
 - `.make-docs/conflicts/<run-id>/` review output when existing local files must not be overwritten

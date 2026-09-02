@@ -113,7 +113,7 @@ When closeout or the caller requires a session record, the pass updates the curr
 Lifecycle artifacts link to the accepted Human Experience Intent and record their own mapping, evidence, finding, verdict, or obligation. They do not copy the full intent block.
 
 - The coverage-pass contract at
-  `.make-docs/contracts/system/coverage-pass-contract.md` owns decision-frame
+  `.make-docs/system/contracts/coverage-pass-contract.md` owns decision-frame
   mechanics only; it defers content to `guide-contract.md`,
   `prd-change-management.md`, `history-record-contract.md`, and
   `output-contract.md`.
@@ -165,7 +165,7 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Previous contract: Current requirements were also represented by standalone editorial PRDs 31.
 - Replacement contract: The applicable current requirements are inline in this authority and its linked product owners; the standalone editorial records are retired from the active set.
 - Rationale: Active PRDs own product subjects and do not preserve editorial operations as product authority.
-- Source: [PRD Authority Maintenance](../../.make-docs/references/system/prd-change-management.md)
+- Source: [PRD Authority Maintenance](../../.make-docs/system/references/prd-change-management.md)
 
 
 ### 2026-08-08 — W16 R0

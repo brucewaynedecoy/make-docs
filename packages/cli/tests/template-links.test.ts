@@ -158,10 +158,10 @@ function diagnosticCodes(document: TemplateLinkDocument): string[] {
 describe("template link validation", () => {
   test("all shipped and skill templates pass raw and representative-render checks", () => {
     const upstreamTemplates = collectMarkdownFiles(
-      path.join(REPO_ROOT, "packages/docs/template/.make-docs/templates"),
+      path.join(REPO_ROOT, "packages/docs/template/.make-docs/system/templates"),
     );
     const shippedTemplates = collectMarkdownFiles(
-      path.join(REPO_ROOT, "packages/cli/template/.make-docs/templates"),
+      path.join(REPO_ROOT, "packages/cli/template/.make-docs/system/templates"),
     );
     const skillTemplates = collectMarkdownFiles(path.join(REPO_ROOT, "packages/skills")).filter(
       (filePath) => filePath.includes("/assets/templates/"),

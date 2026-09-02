@@ -2,7 +2,8 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, test } from "vitest";
-import { createManifest, loadManifest, writeManifest } from "../src/manifest";
+import { loadManifest, writeManifest } from "../src/manifest";
+import { createLegacyTestManifest } from "./helpers";
 import {
   createPluginManifestFileEntries,
   formatPluginSubstrateDryRunLines,
@@ -192,7 +193,7 @@ describe("plugin substrate", () => {
       exposureDeclarations(),
     );
     const files = createPluginManifestFileEntries(resolution);
-    const manifest = createManifest(
+    const manifest = createLegacyTestManifest(
       { name: "@brucewaynedecoy/make-docs", version: "0.0.0-test" },
       resolveInstallProfile(defaultSelections()),
       files,

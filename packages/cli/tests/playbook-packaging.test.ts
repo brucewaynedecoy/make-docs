@@ -16,7 +16,7 @@
 import { existsSync, lstatSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { afterEach, describe, expect, test, vi } from "vitest";
-import { createManifest, loadManifest, writeManifest } from "../src/manifest";
+import { loadManifest, writeManifest } from "../src/manifest";
 import {
   createPlaybookPackagePlan,
   FIRST_PARTY_HARNESS_PACKAGE_ADAPTERS,
@@ -37,7 +37,7 @@ import type {
 } from "../src/operations";
 import { defaultSelections, resolveInstallProfile } from "../src/profile";
 import { createEmptySystemAssetManifestState } from "../src/system-assets";
-import { cleanupTempDir, createTempDir } from "./helpers";
+import { cleanupTempDir, createLegacyTestManifest, createTempDir } from "./helpers";
 
 function writeFile(root: string, relativePath: string, content: string): string {
   const absolutePath = path.join(root, relativePath);
@@ -207,7 +207,7 @@ function validGeneratedOutputRecord(
 function writeMakeDocsManifest(root: string): void {
   writeManifest(
     root,
-    createManifest(
+    createLegacyTestManifest(
       { name: "@brucewaynedecoy/make-docs", version: "0.0.0-test" },
       resolveInstallProfile(defaultSelections()),
       {},
@@ -758,10 +758,10 @@ describe("playbook packaging schema foundation", () => {
     expect(result.conformanceRequirements[0]?.id).toBe("future-harness-fixture");
   });
 
-  test("exposes surface resolution through the CLI operation", async () => {
+  test("keeps legacy package surface resolution quiesced through the CLI operation", async () => {
     const writeSpy = vi.spyOn(process.stdout, "write").mockImplementation(() => true);
 
-    await runRunCommand([
+    await expect(runRunCommand([
       "package",
       "surface-resolve",
       "--package-id",
@@ -780,12 +780,9 @@ describe("playbook packaging schema foundation", () => {
       "project-trusted=satisfied",
       "--precondition",
       "symlink-or-copy-mirror=satisfied",
-    ]);
+    ])).rejects.toMatchObject({ code: "legacy-quiesced" });
 
-    const output = writeSpy.mock.calls.map((call) => String(call[0])).join("");
-    const parsed = JSON.parse(output) as ReturnType<typeof resolvePackageSurface>;
-    expect(parsed.status).toBe("ready");
-    expect(parsed.path).toBe(".codex/plugins/run-stack");
+    expect(writeSpy).not.toHaveBeenCalled();
   });
 
   test("writes accepted plugin packages through shared payloads, symlink exposure, and manifest ownership", () => {

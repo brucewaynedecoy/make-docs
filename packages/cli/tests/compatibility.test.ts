@@ -1,3 +1,4 @@
+import { writeFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
   classifyCompatibilityState,
@@ -117,7 +118,52 @@ describe("compatibility classifier", () => {
       "notes/AGENTS.md",
     );
   });
+
+  it("trusts a current schema-4 router refresh only with valid separate router ownership", async () => {
+    const fixtureCase = COMPATIBILITY_FIXTURE_CASES.find(
+      (candidate) => candidate.id === "clean-v2-provider-backed",
+    )!;
+    const fixture = await createCompatibilityFixture(fixtureCase);
+    try {
+      const baseline = structuredClone(fixture.manifest!);
+      const staleHash = "a".repeat(64);
+      baseline.files["AGENTS.md"]!.hash = staleHash;
+      baseline.files["AGENTS.md"]!.systemAsset!.expectedHashes = [staleHash];
+      baseline.systemAssetMaterialization.assets["AGENTS.md"]!.expectedHashes = [staleHash];
+      baseline.routerOwnership!.routers["AGENTS.md"]!.expectedSourceHash = staleHash;
+      baseline.routerOwnership!.routers["AGENTS.md"]!.installedHash = staleHash;
+      writeFixtureManifest(fixture.manifestPath, baseline);
+
+      const current = await classifyCompatibilityState({ targetDir: fixture.targetDir });
+      expect(current.state).toBe("clean-v2-provider-backed");
+      expect(current.evidence.filesystemTrust.modifiedPaths).toEqual([]);
+
+      const missingOwnership = structuredClone(baseline);
+      delete missingOwnership.routerOwnership;
+      writeFixtureManifest(fixture.manifestPath, missingOwnership);
+      const missing = await classifyCompatibilityState({ targetDir: fixture.targetDir });
+      expect(missing.state).toBe("malformed-manifest");
+      expect(missing.evidence.manifestTrust.parseable).toBe(false);
+
+      const malformedOwnership = structuredClone(baseline);
+      malformedOwnership.routerOwnership!.routers["AGENTS.md"]!.sourceId =
+        "router:codex:wrong.md";
+      writeFixtureManifest(fixture.manifestPath, malformedOwnership);
+      const malformed = await classifyCompatibilityState({ targetDir: fixture.targetDir });
+      expect(malformed.state).toBe("malformed-manifest");
+      expect(malformed.evidence.manifestTrust.parseable).toBe(false);
+    } finally {
+      cleanupTempDir(fixture.targetDir);
+    }
+  });
 });
+
+function writeFixtureManifest(
+  manifestPath: string,
+  manifest: NonNullable<Awaited<ReturnType<typeof createCompatibilityFixture>>["manifest"]>,
+): void {
+  writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
+}
 
 function getExpectedClassification(
   fixtureId: string,

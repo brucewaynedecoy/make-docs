@@ -3,7 +3,6 @@ import path from "node:path";
 import { afterEach, describe, expect, test } from "vitest";
 import {
   createPlaybookPackagePlan,
-  resolvePackageSurface,
   writePlaybookPackageOutputs,
 } from "../src/operations";
 import { createExecutionContext, OperationWriteDeniedError } from "../src/operations/context";
@@ -146,8 +145,8 @@ describe("package operation registry entries", () => {
     ).rejects.toThrow(OperationError);
   });
 
-  test("invokes package.surface-resolve as a read operation", async () => {
-    const invocation = await invokeOperation(
+  test("keeps legacy package.surface-resolve quiesced", async () => {
+    await expect(invokeOperation(
       "package.surface-resolve",
       {
         target: CODEX_PLUGIN_TARGET,
@@ -155,12 +154,7 @@ describe("package operation registry entries", () => {
         preconditions: CODEX_PLUGIN_PRECONDITIONS,
       },
       createExecutionContext({ surface: "test" }),
-    );
-
-    const result = invocation.value as unknown as ReturnType<typeof resolvePackageSurface>;
-    expect(result.status).toBe("ready");
-    expect(result.harnessId).toBe("codex");
-    expect(result.path).toContain("run-stack");
+    )).rejects.toMatchObject({ code: "legacy-quiesced" });
   });
 
   test("refuses package.write when the context does not allow writes", async () => {
@@ -228,13 +222,13 @@ describe("package operation registry entries", () => {
     );
   });
 
-  test("rejects a package.write plan payload that fails plan validation", async () => {
+  test("keeps legacy package.write quiesced before plan validation", async () => {
     await expect(
       invokeOperation(
         "package.write",
         { plan: { schemaVersion: 1 } },
         createExecutionContext({ surface: "test", writesAllowed: true, dryRun: true }),
       ),
-    ).rejects.toThrow(OperationError);
+    ).rejects.toMatchObject({ code: "legacy-quiesced" });
   });
 });

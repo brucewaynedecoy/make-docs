@@ -3,11 +3,13 @@ import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { applyInstallPlan, planInstall } from "../src/install";
+import { classifyCompatibilityState } from "../src/compatibility";
 import { createExecutionContext } from "../src/operations/context";
 import { invokeOperation, listAdmittedOperations } from "../src/operations/registry";
 import { defaultSelections } from "../src/profile";
 import { runCli, validateMakeDocsCliArgv } from "../src/cli";
 import { loadManifest, MANIFEST_RELATIVE_PATH } from "../src/manifest";
+import { executeInstallPlanMigration } from "../src/migration";
 import { runUninstallCommand } from "../src/uninstall";
 import { readPackageFile } from "../src/utils";
 
@@ -42,10 +44,12 @@ describe("W19 R1 P4 projection and lifecycle", () => {
     expect(applied.manifest.resourceProjection?.selectedTypes).toEqual(["prompt"]);
     expect(Object.values(applied.manifest.resourceProjection?.resources ?? {})).not.toHaveLength(0);
     expect(Object.values(applied.manifest.resourceProjection?.resources ?? {}).every((entry) =>
-      entry.type === "prompt" && entry.ownershipClass === "managed-projection" && entry.provenanceState === "verified",
+      entry.type === "prompt" && entry.ownershipClass === "managed-snapshot" && entry.provenanceState === "verified",
     )).toBe(true);
     expect(existsSync(path.join(targetDir, ".make-docs/system/prompts"))).toBe(true);
-    expect(existsSync(path.join(targetDir, ".make-docs/system/references"))).toBe(false);
+    expect(existsSync(path.join(targetDir, ".make-docs/system/references"))).toBe(true);
+    expect(existsSync(path.join(targetDir, ".make-docs/system/references/AGENTS.md"))).toBe(true);
+    expect(existsSync(path.join(targetDir, ".make-docs/system/references/lifecycle.md"))).toBe(false);
 
     const manifestPath = path.join(targetDir, MANIFEST_RELATIVE_PATH);
     const beforeManifest = readFileSync(manifestPath, "utf8");
@@ -58,17 +62,255 @@ describe("W19 R1 P4 projection and lifecycle", () => {
     expect(readFileSync(manifestPath, "utf8")).toBe(beforeManifest);
   });
 
-  it("installs the four thin routers from the upstream template authority", async () => {
+  it("installs the full router skeleton from the upstream template authority", async () => {
     const targetDir = mkdtempSync(path.join(os.tmpdir(), "make-docs-p4-router-source-"));
     roots.push(targetDir);
     const installed = await installProjection(targetDir, []);
-    for (const relativePath of ["AGENTS.md", "CLAUDE.md", "docs/AGENTS.md", "docs/CLAUDE.md"]) {
+    const surfaces = [
+      "",
+      "docs",
+      ".make-docs",
+      ".make-docs/system",
+      ".make-docs/system/contracts",
+      ".make-docs/system/prompts",
+      ".make-docs/system/references",
+      ".make-docs/system/templates",
+    ];
+    const relativePaths = surfaces.flatMap((surface) =>
+      ["AGENTS.md", "CLAUDE.md"].map((fileName) => surface ? `${surface}/${fileName}` : fileName),
+    );
+    for (const relativePath of relativePaths) {
       expect(readFileSync(path.join(targetDir, relativePath), "utf8")).toBe(
         readPackageFile(relativePath),
       );
       expect(installed.manifest.files[relativePath]).toMatchObject({
         ownershipClass: "managed-block",
       });
+    }
+    expect(Object.keys(installed.manifest.routerOwnership?.routers ?? {}).sort()).toEqual(
+      relativePaths.sort(),
+    );
+    expect(installed.manifest.resourceProjection?.resources).toEqual({});
+  });
+
+  it("refreshes stale managed-snapshot manifest hashes when package bytes are already current", async () => {
+    const targetDir = mkdtempSync(path.join(os.tmpdir(), "make-docs-p4-stale-snapshot-proof-"));
+    roots.push(targetDir);
+    const installed = await installProjection(targetDir);
+    const relativePath = "docs/assets/playbooks/agent/make-docs-lifecycle.playbook.md";
+    const manifestPath = path.join(targetDir, MANIFEST_RELATIVE_PATH);
+    const stale = structuredClone(installed.manifest);
+    const staleHash = "a".repeat(64);
+    stale.files[relativePath]!.hash = staleHash;
+    stale.files[relativePath]!.systemAsset!.expectedHashes = [staleHash];
+    stale.systemAssetMaterialization.assets[relativePath]!.expectedHashes = [staleHash];
+    writeFileSync(manifestPath, `${JSON.stringify(stale, null, 2)}\n`, "utf8");
+    const beforeBytes = readFileSync(path.join(targetDir, relativePath), "utf8");
+    const staleManifest = loadManifest(targetDir)!;
+    const selections = structuredClone(staleManifest.selections);
+    selections.resourceProjection = ["prompt"];
+
+    const plan = await planInstall({
+      targetDir,
+      selections,
+      existingManifest: staleManifest,
+      operation: "setup.reconfigure",
+    });
+    expect(plan.actions.find((action) => action.relativePath === relativePath)?.type).toBe("noop");
+    expect(plan.forceManifestWrite).toBe(true);
+    const storeRoot = mkdtempSync(path.join(os.tmpdir(), "make-docs-p4-stale-snapshot-store-"));
+    roots.push(storeRoot);
+    const compatibility = await classifyCompatibilityState({ targetDir });
+    const result = executeInstallPlanMigration({
+      projectRoot: targetDir,
+      storeRoot,
+      compatibility,
+      installPlan: plan,
+      existingManifest: staleManifest,
+    });
+
+    expect(result.mutationApplied).toBe(true);
+    expect(readFileSync(path.join(targetDir, relativePath), "utf8")).toBe(beforeBytes);
+    expect(result.manifest.files[relativePath]!.hash).not.toBe(staleHash);
+    expect(result.manifest.files[relativePath]!.systemAsset!.expectedHashes).toEqual([
+      result.manifest.files[relativePath]!.hash,
+    ]);
+    expect(result.manifest.systemAssetMaterialization.assets[relativePath]!.expectedHashes).toEqual([
+      result.manifest.files[relativePath]!.hash,
+    ]);
+  });
+
+  it("requires exact harness coverage and complete schema-4 ownership proof", async () => {
+    const targetDir = mkdtempSync(path.join(os.tmpdir(), "make-docs-p4-proof-"));
+    roots.push(targetDir);
+    const installed = await installProjection(targetDir, ["prompt"]);
+    const manifestPath = path.join(targetDir, MANIFEST_RELATIVE_PATH);
+    const writeCopy = (copy: typeof installed.manifest) => {
+      writeFileSync(manifestPath, `${JSON.stringify(copy, null, 2)}\n`, "utf8");
+    };
+    const rejectCases = [
+      {
+        label: "exactly equal selections.harnesses",
+        mutate(copy: typeof installed.manifest) {
+          copy.routerOwnership!.configuredHarnesses = [];
+        },
+      },
+      {
+        label: "exactly equal selections.harnesses",
+        mutate(copy: typeof installed.manifest) {
+          copy.routerOwnership!.configuredHarnesses = ["codex"];
+        },
+      },
+      {
+        label: "must not contain duplicates",
+        mutate(copy: typeof installed.manifest) {
+          copy.routerOwnership!.configuredHarnesses = ["claude-code", "codex", "codex"];
+        },
+      },
+      {
+        label: "harness must be configured",
+        mutate(copy: typeof installed.manifest) {
+          copy.selections.harnesses["claude-code"] = false;
+          copy.routerOwnership!.configuredHarnesses = ["codex"];
+        },
+      },
+      {
+        label: "must include bootstrap router",
+        mutate(copy: typeof installed.manifest) {
+          delete copy.routerOwnership!.routers["AGENTS.md"];
+        },
+      },
+      {
+        label: "expectedSourceHash",
+        mutate(copy: typeof installed.manifest) {
+          copy.routerOwnership!.routers["AGENTS.md"]!.expectedSourceHash = "bad";
+        },
+      },
+      {
+        label: "hashes must match manifest.files",
+        mutate(copy: typeof installed.manifest) {
+          const stale = "b".repeat(64);
+          copy.routerOwnership!.routers["AGENTS.md"]!.expectedSourceHash = stale;
+          copy.routerOwnership!.routers["AGENTS.md"]!.installedHash = stale;
+        },
+      },
+      {
+        label: "provenanceEvidence must not be empty",
+        mutate(copy: typeof installed.manifest) {
+          copy.routerOwnership!.routers["AGENTS.md"]!.provenanceEvidence = [];
+        },
+      },
+    ];
+    for (const rejectCase of rejectCases) {
+      const copy = structuredClone(installed.manifest);
+      rejectCase.mutate(copy);
+      writeCopy(copy);
+      expect(() => loadManifest(targetDir), rejectCase.label).toThrow(rejectCase.label);
+    }
+
+    for (const field of ["routerOwnership", "resourceProjection"] as const) {
+      const missingTopLevel = structuredClone(installed.manifest);
+      delete missingTopLevel[field];
+      writeCopy(missingTopLevel);
+      expect(() => loadManifest(targetDir)).toThrow(
+        `manifest.${field} is required for schemaVersion 4`,
+      );
+    }
+
+    const missingResourceProof = structuredClone(installed.manifest);
+    const selectedUri = Object.keys(missingResourceProof.resourceProjection!.resources)[0]!;
+    delete missingResourceProof.resourceProjection!.resources[selectedUri];
+    writeCopy(missingResourceProof);
+    expect(() => loadManifest(targetDir)).toThrow(
+      "manifest.resourceProjection.resources must include managed resource",
+    );
+
+    writeCopy(structuredClone(installed.manifest));
+    await invokeOperation(
+      "project.surface.ensure",
+      { surface: "assets", targetRoot: targetDir },
+      createExecutionContext({ surface: "test", cwd: targetDir, writesAllowed: true }),
+    );
+    const ensured = loadManifest(targetDir)!;
+    const onDemandPath = Object.values(ensured.routerOwnership!.routers)
+      .find((entry) => entry.routerClass === "on-demand-surface")!.relativePath;
+    delete ensured.routerOwnership!.routers[onDemandPath];
+    writeCopy(ensured);
+    expect(() => loadManifest(targetDir)).toThrow(
+      `manifest.routerOwnership.routers must include managed router ${onDemandPath}`,
+    );
+
+    const incomplete = structuredClone(installed.manifest);
+    incomplete.routerOwnership!.routers["AGENTS.md"]!.provenanceState = "incomplete";
+    writeCopy(incomplete);
+    expect(loadManifest(targetDir)?.routerOwnership?.routers["AGENTS.md"]?.provenanceState)
+      .toBe("incomplete");
+    const classification = await classifyCompatibilityState({ targetDir });
+    expect(classification.state).toBe("partial-install");
+    expect(classification.evidence.filesystemTrust.modifiedPaths).toContain("AGENTS.md");
+  });
+
+  it("keeps ensured surface routers through setup and reconfigure in every harness mode", async () => {
+    const harnessModes = [
+      { "claude-code": false, codex: true },
+      { "claude-code": true, codex: false },
+      { "claude-code": true, codex: true },
+    ] as const;
+    const surfaces = ["archive", "artifacts", "assets"] as const;
+    for (const harnesses of harnessModes) {
+      for (const surface of surfaces) {
+        for (const operation of ["setup.sync", "setup.reconfigure"] as const) {
+          const targetDir = mkdtempSync(path.join(os.tmpdir(), "make-docs-p4-surface-cycle-"));
+          roots.push(targetDir);
+          const selections = defaultSelections();
+          selections.harnesses = { ...harnesses };
+          selections.resourceProjection = [];
+          const initialPlan = await planInstall({ targetDir, selections, existingManifest: null });
+          const initial = applyInstallPlan({ targetDir, plan: initialPlan, existingManifest: null });
+          await invokeOperation(
+            "project.surface.ensure",
+            { surface, targetRoot: targetDir },
+            createExecutionContext({ surface: "test", cwd: targetDir, writesAllowed: true }),
+          );
+          const ensured = loadManifest(targetDir)!;
+          const ownedPaths = Object.values(ensured.routerOwnership!.routers)
+            .filter((entry) => entry.routerClass === "on-demand-surface")
+            .map((entry) => entry.relativePath)
+            .sort();
+          expect(ownedPaths).toHaveLength(Object.values(harnesses).filter(Boolean).length);
+
+          const nextPlan = await planInstall({
+            targetDir,
+            selections,
+            existingManifest: ensured,
+            operation,
+          });
+          expect(nextPlan.actions.filter((action) =>
+            ownedPaths.includes(action.relativePath) && action.type === "remove-managed"
+          )).toEqual([]);
+          applyInstallPlan({ targetDir, plan: nextPlan, existingManifest: ensured });
+          const afterSetup = loadManifest(targetDir)!;
+          expect(Object.keys(afterSetup.routerOwnership!.routers)).toEqual(
+            expect.arrayContaining(ownedPaths),
+          );
+
+          const ensuredAgain = await invokeOperation(
+            "project.surface.ensure",
+            { surface, targetRoot: targetDir },
+            createExecutionContext({ surface: "test", cwd: targetDir, writesAllowed: true }),
+          );
+          expect(ensuredAgain.value).toMatchObject({ receipt: null });
+          for (const relativePath of ownedPaths) {
+            expect(afterSetup.routerOwnership!.routers[relativePath]).toMatchObject({
+              ownershipClass: "managed-snapshot",
+              provenanceState: "verified",
+              materializationMode: "managed-block",
+              lifecycleDisposition: "active",
+              adoptionReceipt: null,
+            });
+          }
+        }
+      }
     }
   });
 
@@ -143,6 +385,13 @@ describe("W19 R1 P4 projection and lifecycle", () => {
       { label: "canonical relative", mutate: (copy: typeof applied.manifest) => { copy.resourceProjection!.resources[uri]!.resourcePath = "../escape.md"; } },
       { label: "managedDestination", mutate: (copy: typeof applied.manifest) => { copy.resourceProjection!.resources[uri]!.managedDestination = ".make-docs/system/references/wrong.md"; } },
       { label: "sha256", mutate: (copy: typeof applied.manifest) => { copy.resourceProjection!.resources[uri]!.sourceDigest = "bad"; } },
+      { label: "materializationMode", mutate: (copy: typeof applied.manifest) => { delete (copy.resourceProjection!.resources[uri] as Partial<typeof entry>).materializationMode; } },
+      { label: "lastVerifiedAt", mutate: (copy: typeof applied.manifest) => { copy.resourceProjection!.resources[uri]!.lastVerifiedAt = "not-a-time"; } },
+      { label: "lifecycleDisposition", mutate: (copy: typeof applied.manifest) => { delete (copy.resourceProjection!.resources[uri] as Partial<typeof entry>).lifecycleDisposition; } },
+      { label: "adoptionReceipt", mutate: (copy: typeof applied.manifest) => { copy.resourceProjection!.resources[uri]!.adoptionReceipt = { receiptId: "bad", adoptedAt: new Date().toISOString(), priorOwnershipClass: "managed-snapshot", evidenceRefs: ["review"] }; } },
+      { label: "provenanceEvidence", mutate: (copy: typeof applied.manifest) => { copy.resourceProjection!.resources[uri]!.provenanceEvidence = []; } },
+      { label: "competingClaims", mutate: (copy: typeof applied.manifest) => { copy.resourceProjection!.resources[uri]!.provenanceState = "ambiguous"; } },
+      { label: "must match managed manifest.files ownership", mutate: (copy: typeof applied.manifest) => { copy.resourceProjection!.resources[uri]!.installedDigest = "c".repeat(64); } },
     ];
     expect(entry.sourceDigest).toMatch(/^[a-f0-9]{64}$/);
     for (const invalidCase of invalidCases) {

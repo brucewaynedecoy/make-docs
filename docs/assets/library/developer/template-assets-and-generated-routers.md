@@ -16,7 +16,7 @@ related:
   - ./template-contracts-guide-authoring.md
   - ../../../prd/06-template-contracts-and-generated-assets.md
   - ../../../prd/02-architecture-overview.md
-  - ../../../../.make-docs/contracts/system/guide-contract.md
+  - ../../../../.make-docs/system/contracts/guide-contract.md
 ---
 
 # Template Assets and Generated Routers
@@ -37,8 +37,8 @@ The important current-state rule is that the installed docs surface is not a bli
 
 Template ownership starts in `packages/docs/template/`.
 
-- `packages/docs/template/.make-docs/contracts/system/*.md` and `packages/docs/template/.make-docs/references/system/*.md` hold authoritative workflow and contract files
-- `packages/docs/template/.make-docs/templates/system/*.md` holds structural starters
+- `packages/docs/template/.make-docs/system/contracts/*.md` and `packages/docs/template/.make-docs/system/references/*.md` hold authoritative workflow and contract files
+- `packages/docs/template/.make-docs/system/templates/*.md` holds structural starters
 - `packages/docs/template/.make-docs/scripts/**` holds selected helper scripts when shipped
 - `packages/docs/template/docs/assets/{archive,artifacts,library,playbooks}/` holds the managed project-asset namespace routers
 - `packages/docs/template/AGENTS.md` and the per-directory router files define authoring routes inside the shipped tree
@@ -61,7 +61,7 @@ The install profile decides which document-resource assets exist at all.
 - guide templates and guide-contract references are always installable
 - plan, PRD, and work templates appear only when their capabilities are effectively selected
 - prompt starters appear only when prompts are enabled and their required capabilities are present
-- `referencesMode: all` currently adds matching `.make-docs/references/system/**` assets; it does not create a second reference-selection system beyond that
+- `referencesMode: all` currently adds matching `.make-docs/system/references/**` assets; it does not create a second reference-selection system beyond that
 
 `packages/cli/src/catalog.ts` then turns those selected paths plus active instruction-router files into one `ResolvedAsset[]` set for planning and apply.
 
@@ -75,9 +75,9 @@ Current buildable families are:
 - `docs/` router instructions
 - `docs/assets/`, `docs/assets/archive/`, `docs/assets/artifacts/`, `docs/assets/library/`, and `docs/assets/playbooks/` router instructions
 - the design fallback trio:
-  - `.make-docs/references/system/design-workflow.md`
-  - `.make-docs/contracts/system/design-contract.md`
-  - `.make-docs/templates/system/design.md`
+  - `.make-docs/system/references/design-workflow.md`
+  - `.make-docs/system/contracts/design-contract.md`
+  - `.make-docs/system/templates/design.md`
 
 Everything else in the selected asset set is copied from the template package as a static file.
 
@@ -102,7 +102,7 @@ The renderer does not broadly rewrite the template package. It only handles thos
 Current renderer and PRD boundaries keep runtime state out of the document-resource namespace.
 
 Reader-facing document resources live under `docs/assets/library/**`, `docs/assets/playbooks/**`, `docs/assets/artifacts/**`, and `docs/assets/archive/**`. History and breadcrumb records are created on demand under `docs/assets/archive/history/**`.
-Tool-resource bootstrap files live under `.make-docs/**`, including `.make-docs/system/prompts/**`, `.make-docs/contracts/system/**`, and `.make-docs/templates/system/**`.
+Tool-resource bootstrap files live under `.make-docs/**`, including `.make-docs/system/prompts/**`, `.make-docs/system/contracts/**`, and `.make-docs/system/templates/**`.
 Runtime state lives under `.make-docs/**`, especially:
 
 - `.make-docs/manifest.json`
@@ -142,4 +142,4 @@ Those tests are the practical guardrails against drift between template source, 
 - [Guide Contracts and Authoring for make-docs](./template-contracts-guide-authoring.md)
 - [06 Template Contracts and Generated Assets](../../../prd/06-template-contracts-and-generated-assets.md)
 - [02 Architecture Overview](../../../prd/02-architecture-overview.md)
-- [Guide Contract](../../../../.make-docs/contracts/system/guide-contract.md)
+- [Guide Contract](../../../../.make-docs/system/contracts/guide-contract.md)

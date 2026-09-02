@@ -32,7 +32,7 @@ import { existsSync, lstatSync, mkdirSync, readFileSync, writeFileSync } from "n
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { createAuditReport } from "../src/audit";
-import { createManifest, loadManifest, writeManifest } from "../src/manifest";
+import { loadManifest, writeManifest } from "../src/manifest";
 import {
   bindPackageSupportTuple,
   capSupportStatusForTupleBinding,
@@ -45,7 +45,7 @@ import type { PlaybookPackagePlan, PlaybookPackageWriteResult } from "../src/ope
 import { defaultSelections, resolveInstallProfile } from "../src/profile";
 import { createEmptySystemAssetManifestState } from "../src/system-assets";
 import { runUninstallCommand } from "../src/uninstall";
-import { cleanupTempDir, createTempDir, mockSkillFetches } from "./helpers";
+import { cleanupTempDir, createLegacyTestManifest, createTempDir, mockSkillFetches } from "./helpers";
 
 const SUPPORT_EVIDENCE_REF =
   "docs/prd/36-playbook-packaging-compiler-and-harness-adapters.md";
@@ -70,7 +70,7 @@ function writeFile(root: string, relativePath: string, content: string): string 
 function writeMakeDocsManifest(root: string): void {
   writeManifest(
     root,
-    createManifest(
+    createLegacyTestManifest(
       { name: "@brucewaynedecoy/make-docs", version: "0.0.0-test" },
       resolveInstallProfile(defaultSelections()),
       {},

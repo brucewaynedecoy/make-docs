@@ -16,4 +16,4 @@ Define the canonical vocabulary used across this PRD set so humans and coding as
 
 ## Requirement History
 
-Optional and non-normative. Omit this section until a material prior terminology contract needs to remain visible. Current definitions above always win. For each entry, record the date, coordinate when known, affected term, previous contract, replacement contract, rationale, and source using `.make-docs/references/system/prd-change-management.md`.
+Optional and non-normative. Omit this section until a material prior terminology contract needs to remain visible. Current definitions above always win. For each entry, record the date, coordinate when known, affected term, previous contract, replacement contract, rationale, and source using `.make-docs/system/references/prd-change-management.md`.

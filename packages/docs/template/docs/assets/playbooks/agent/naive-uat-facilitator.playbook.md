@@ -26,7 +26,7 @@ Use this playbook when a `NUAT-###` scenario is active or when a phase-close tes
 Use authority in this order:
 
 1. The canonical `NUAT-###` scenario in the owning PRD plus the linked `O-###` when future work remains owed.
-2. `.make-docs/contracts/system/naive-uat-contract.md` and `.make-docs/contracts/system/deferred-obligation-contract.md`.
+2. `.make-docs/system/contracts/naive-uat-contract.md` and `.make-docs/system/contracts/deferred-obligation-contract.md`.
 3. The installed product build, supported-scope claim, and public resources allowed for the tester.
 4. Repo-local lifecycle, coverage, history, and PRD-maintenance authority needed to route the result.
 
@@ -37,25 +37,25 @@ dependencies:
   - id: naive-uat-contract
     kind: reference
     requirement: required
-    source: .make-docs/contracts/system/naive-uat-contract.md
+    source: .make-docs/system/contracts/naive-uat-contract.md
     used_by: [verify-scenario, prepare-run, observe-run, route-result]
     fallback: stop until the governing naive-UAT contract is available
   - id: deferred-obligation-contract
     kind: reference
     requirement: required
-    source: .make-docs/contracts/system/deferred-obligation-contract.md
+    source: .make-docs/system/contracts/deferred-obligation-contract.md
     used_by: [route-result]
     fallback: stop before routing any future-trigger `none` or deferred finding
   - id: coverage-pass-contract
     kind: reference
     requirement: required
-    source: .make-docs/contracts/system/coverage-pass-contract.md
+    source: .make-docs/system/contracts/coverage-pass-contract.md
     used_by: [route-result]
     fallback: record a manual routing note for follow-up review
   - id: history-record-contract
     kind: reference
     requirement: optional
-    source: .make-docs/contracts/system/history-record-contract.md
+    source: .make-docs/system/contracts/history-record-contract.md
     used_by: [route-result]
     fallback: summarize the durable delta in the final closeout response
 ```

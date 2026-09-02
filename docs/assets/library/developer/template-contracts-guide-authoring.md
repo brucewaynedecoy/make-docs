@@ -15,15 +15,15 @@ applies-to:
 related:
   - ./template-assets-and-generated-routers.md
   - ../../../prd/06-template-contracts-and-generated-assets.md
-  - ../../../../.make-docs/contracts/system/guide-contract.md
-  - ../../../../.make-docs/templates/system/guide-developer.md
-  - ../../../../.make-docs/templates/system/guide-user.md
+  - ../../../../.make-docs/system/contracts/guide-contract.md
+  - ../../../../.make-docs/system/templates/guide-developer.md
+  - ../../../../.make-docs/system/templates/guide-user.md
   - ../AGENTS.md
 ---
 
 # Guide Contracts and Authoring for make-docs
 
-> See `.make-docs/contracts/system/guide-contract.md` for the authoritative frontmatter schema and slug rules.
+> See `.make-docs/system/contracts/guide-contract.md` for the authoritative frontmatter schema and slug rules.
 
 ## Overview
 
@@ -36,7 +36,7 @@ Current guide authoring is contract-driven:
 - every guide starts with YAML frontmatter
 - guides are living docs, so filenames do not carry dates
 
-The contract is already shipped through `.make-docs/contracts/system/guide-contract.md`, the guide templates, and the generated `docs/` and `docs/assets/library/` routers. This guide explains how to apply that current contract when maintaining the guide library.
+The contract is already shipped through `.make-docs/system/contracts/guide-contract.md`, the guide templates, and the generated `docs/` and `docs/assets/library/` routers. This guide explains how to apply that current contract when maintaining the guide library.
 
 ## Guide Taxonomy
 
@@ -98,8 +98,8 @@ Publication routing is driven by `path`, not by creating nested folders under th
 
 Use this sequence when adding or revising a guide:
 
-1. Read `.make-docs/contracts/system/guide-contract.md`.
-2. Start from `.make-docs/templates/system/guide-developer.md` or `.make-docs/templates/system/guide-user.md`.
+1. Read `.make-docs/system/contracts/guide-contract.md`.
+2. Start from `.make-docs/system/templates/guide-developer.md` or `.make-docs/system/templates/guide-user.md`.
 3. Choose the audience directory and the final `path` value first.
 4. Name the file so its prefix exactly matches that `path`.
 5. Add `related` links instead of duplicating companion coverage.
@@ -128,12 +128,12 @@ Do not use guides for:
 - generated output templates themselves
 - runtime state definitions that belong in `.make-docs/**` or reference docs
 
-History records use `docs/assets/archive/history/` and follow `.make-docs/contracts/system/history-record-contract.md`, not the guide contract.
+History records use `docs/assets/archive/history/` and follow `.make-docs/system/contracts/history-record-contract.md`, not the guide contract.
 
 ## Related Resources
 
 - [Template Assets and Generated Routers](./template-assets-and-generated-routers.md)
-- [Guide Contract](../../../../.make-docs/contracts/system/guide-contract.md)
-- [Guide Template for Developers](../../../../.make-docs/templates/system/guide-developer.md)
-- [Guide Template for Users](../../../../.make-docs/templates/system/guide-user.md)
+- [Guide Contract](../../../../.make-docs/system/contracts/guide-contract.md)
+- [Guide Template for Developers](../../../../.make-docs/system/templates/guide-developer.md)
+- [Guide Template for Users](../../../../.make-docs/system/templates/guide-user.md)
 - [Library Router](../AGENTS.md)

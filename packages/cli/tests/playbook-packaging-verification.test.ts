@@ -111,7 +111,7 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterEach, describe, expect, test } from "vitest";
-import { createManifest, writeManifest } from "../src/manifest";
+import { writeManifest } from "../src/manifest";
 import {
   bindPackageSupportTuple,
   capSupportStatusForTupleBinding,
@@ -133,7 +133,7 @@ import { PLAYBOOK_DEPENDENCY_KINDS } from "../src/playbook";
 import type { PlaybookDependencyKind } from "../src/playbook";
 import { defaultSelections, resolveInstallProfile } from "../src/profile";
 import { createEmptySystemAssetManifestState } from "../src/system-assets";
-import { cleanupTempDir, collectFiles, createTempDir } from "./helpers";
+import { cleanupTempDir, collectFiles, createLegacyTestManifest, createTempDir } from "./helpers";
 
 const SUPPORT_EVIDENCE_REF =
   "docs/prd/36-playbook-packaging-compiler-and-harness-adapters.md";
@@ -154,7 +154,7 @@ function writeFile(root: string, relativePath: string, content: string): string 
 function writeMakeDocsManifest(root: string): void {
   writeManifest(
     root,
-    createManifest(
+    createLegacyTestManifest(
       { name: "@brucewaynedecoy/make-docs", version: "0.0.0-test" },
       resolveInstallProfile(defaultSelections()),
       {},

@@ -27,7 +27,7 @@ afterEach(() => {
 });
 
 describe("installed system-resource provider integration", () => {
-  it("resolves all 19 real full-snapshot prompts and excludes prompt routers", () => {
+  it("resolves all 19 real projected prompts and excludes prompt routers", () => {
     const provider = installedProvider();
     const manifest = loadManifest(REPO_ROOT);
     expect(manifest).not.toBeNull();
@@ -63,7 +63,7 @@ describe("installed system-resource provider integration", () => {
     for (const entry of prompts) {
       const localPath = projectionPath(entry);
       const asset = manifest.systemAssetMaterialization.assets[localPath];
-      expect(asset?.materializationMode).toBe("full-snapshot");
+      expect(asset?.materializationMode).toBe("provider-backed");
       expect(asset?.sourceImmutableRef).toBe(provider.provider.identity.immutableRef);
       expect(asset?.expectedHashes).toContain(entry.digest);
 

@@ -39,7 +39,7 @@ dependencies:
   - id: naive-uat-contract
     kind: reference
     requirement: required
-    source: .make-docs/contracts/system/naive-uat-contract.md
+    source: .make-docs/system/contracts/naive-uat-contract.md
     used_by: [confirm-qualification, attempt-goal, record-observations]
     fallback: stop and ask the facilitator for the governing naive-UAT contract
   - id: scenario-packet

@@ -193,7 +193,7 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Previous contract: Current requirements were also represented by standalone editorial PRDs 41.
 - Replacement contract: The applicable current requirements are inline in this authority and its linked product owners; the standalone editorial records are retired from the active set.
 - Rationale: Active PRDs own product subjects and do not preserve editorial operations as product authority.
-- Source: [PRD Authority Maintenance](../../.make-docs/references/system/prd-change-management.md)
+- Source: [PRD Authority Maintenance](../../.make-docs/system/references/prd-change-management.md)
 
 
 ### 2026-08-08 — W18 R11

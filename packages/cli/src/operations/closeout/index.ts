@@ -246,14 +246,14 @@ function discoverContracts(repoRoot: string): Record<string, JsonValue> {
     historyDir: ["docs/assets/archive/history"],
     riskRegister: ["docs/prd/03-open-questions-and-risk-register.md"],
     commitConvention: [
-      ".make-docs/contracts/system/commit-message-convention.md",
+      ".make-docs/system/contracts/commit-message-convention.md",
       "docs/assets/references/commit-message-convention.md",
     ],
     templateCommitConvention: [
-      "packages/docs/template/.make-docs/contracts/system/commit-message-convention.md",
+      "packages/docs/template/.make-docs/system/contracts/commit-message-convention.md",
       "packages/docs/template/docs/assets/references/commit-message-convention.md",
     ],
-    guideContract: [".make-docs/contracts/system/guide-contract.md"],
+    guideContract: [".make-docs/system/contracts/guide-contract.md"],
     developerGuides: ["docs/assets/library/developer"],
     userGuides: ["docs/assets/library/user"],
   };

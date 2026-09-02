@@ -11,7 +11,7 @@ import path from "node:path";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { createAuditReport } from "../src/audit";
 import { planInstall } from "../src/install";
-import { createManifest, loadManifest, writeManifest } from "../src/manifest";
+import { loadManifest, writeManifest } from "../src/manifest";
 import {
   createPluginManifestFileEntries,
   resolvePluginSubstrate,
@@ -28,7 +28,7 @@ import type {
 } from "../src/types";
 import { runUninstallCommand } from "../src/uninstall";
 import { hashText } from "../src/utils";
-import { mockSkillFetches } from "./helpers";
+import { createLegacyTestManifest, mockSkillFetches } from "./helpers";
 
 const tempRoots: string[] = [];
 const PLUGIN_ID = "product-development-review";
@@ -129,7 +129,7 @@ function createPluginManifest(
   targetDir: string,
   files: Record<string, ManifestFileEntry>,
 ): InstallManifest {
-  const manifest = createManifest(
+  const manifest = createLegacyTestManifest(
     { name: "@brucewaynedecoy/make-docs", version: "0.0.0-test" },
     resolveInstallProfile(createPluginSelections()),
     files,

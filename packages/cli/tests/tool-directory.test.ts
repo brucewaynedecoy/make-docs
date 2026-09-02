@@ -14,36 +14,27 @@ import {
   getLocalBootstrapPathsForMaterializationMode,
   getReservedAgenticsPath,
   getSystemToolResourceMigrationTarget,
-  getToolResourceTierPath,
-  getToolResourceTierPaths,
+  getToolResourcePath,
+  getToolResourcePaths,
   isReservedAgenticsPath,
-  isToolDirectoryCustomResourcePath,
   isToolDirectoryLocalBootstrapPath,
   isToolDirectoryRuntimeStatePath,
   isToolDirectorySystemResourcePath,
 } from "../src/tool-directory";
 
 describe("tool directory model", () => {
-  test("defines system and custom tiers for each tool resource family", () => {
-    expect(getToolResourceTierPaths()).toEqual([
-      ".make-docs/contracts/system",
-      ".make-docs/contracts/custom",
-      ".make-docs/references/system",
-      ".make-docs/references/custom",
-      ".make-docs/templates/system",
-      ".make-docs/templates/custom",
-      ".make-docs/scripts/system",
-      ".make-docs/scripts/custom",
+  test("defines one current system tree for each resource family", () => {
+    expect(getToolResourcePaths()).toEqual([
+      ".make-docs/system/contracts",
+      ".make-docs/system/prompts",
+      ".make-docs/system/references",
+      ".make-docs/system/templates",
     ]);
 
     for (const family of TOOL_RESOURCE_FAMILIES) {
-      expect(isToolDirectorySystemResourcePath(getToolResourceTierPath(family, "system"))).toBe(
-        true,
-      );
-      expect(isToolDirectoryCustomResourcePath(`${getToolResourceTierPath(family, "custom")}/local.md`)).toBe(
-        true,
-      );
+      expect(isToolDirectorySystemResourcePath(getToolResourcePath(family))).toBe(true);
     }
+    expect(isToolDirectorySystemResourcePath(".make-docs/contracts/custom/local.md")).toBe(false);
   });
 
   test("keeps runtime state separate from project-owned config and docs assets", () => {
@@ -57,7 +48,7 @@ describe("tool directory model", () => {
     expect(isToolDirectoryRuntimeStatePath(".make-docs/conflicts/run/file.md")).toBe(true);
     expect(isToolDirectoryRuntimeStatePath(".make-docs/runs/current/state.json")).toBe(true);
     expect(isToolDirectoryRuntimeStatePath(".make-docs/config.yaml")).toBe(false);
-    expect(isToolDirectoryRuntimeStatePath(".make-docs/templates/system/work-phase.md")).toBe(false);
+    expect(isToolDirectoryRuntimeStatePath(".make-docs/system/templates/work-phase.md")).toBe(false);
   });
 
   test("reserves agentics paths without treating them as resource tiers", () => {
@@ -67,19 +58,20 @@ describe("tool directory model", () => {
     expect(isReservedAgenticsPath(".make-docs/agentics/skills/work-on-wave")).toBe(true);
     expect(isReservedAgenticsPath(".make-docs/agentics/plugins/run-playbook")).toBe(true);
     expect(isToolDirectorySystemResourcePath(".make-docs/agentics/skills/work-on-wave")).toBe(false);
-    expect(isToolDirectoryCustomResourcePath(".make-docs/agentics/plugins/run-playbook")).toBe(false);
   });
 
   test("maps current docs assets tool resources to system migration targets", () => {
     expect(LEGACY_TOOL_RESOURCE_FAMILIES).toEqual([
+      "contracts",
       "prompts",
       "references",
       "templates",
     ]);
     expect(LEGACY_TOOL_RESOURCE_ROOTS).toEqual({
-      prompts: "docs/assets/prompts",
-      references: "docs/assets/references",
-      templates: "docs/assets/templates",
+      contracts: ".make-docs/contracts/system",
+      prompts: ".make-docs/prompts/system",
+      references: ".make-docs/references/system",
+      templates: ".make-docs/templates/system",
     });
 
     expect(
@@ -109,15 +101,15 @@ describe("tool directory model", () => {
       getSystemToolResourceMigrationTarget(
         "docs/assets/references/lifecycle.md",
       ),
-    ).toBe(".make-docs/references/system/lifecycle.md");
+    ).toBe(".make-docs/system/references/lifecycle.md");
     expect(
       getSystemToolResourceMigrationTarget(
         "docs/assets/references/guide-contract.md",
       ),
-    ).toBe(".make-docs/contracts/system/guide-contract.md");
+    ).toBe(".make-docs/system/contracts/guide-contract.md");
     expect(
       getSystemToolResourceMigrationTarget("docs/assets/templates/work-phase.md"),
-    ).toBe(".make-docs/templates/system/work-phase.md");
+    ).toBe(".make-docs/system/templates/work-phase.md");
     expect(
       getSystemToolResourceMigrationTarget("docs/assets/archive/design.md"),
     ).toBeNull();
@@ -141,13 +133,13 @@ describe("tool directory model", () => {
       {
         currentPath: "docs/assets/references/lifecycle.md",
         family: "references",
-        targetPath: ".make-docs/references/system/lifecycle.md",
+        targetPath: ".make-docs/system/references/lifecycle.md",
         tier: "system",
       },
       {
         currentPath: "docs/assets/templates/work-phase.md",
         family: "templates",
-        targetPath: ".make-docs/templates/system/work-phase.md",
+        targetPath: ".make-docs/system/templates/work-phase.md",
         tier: "system",
       },
     ]);

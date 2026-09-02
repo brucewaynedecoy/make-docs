@@ -6,12 +6,42 @@ import { vi } from "vitest";
 import { applyInstallPlan, planInstall } from "../src/install";
 import { getManifestPath, loadManifest, mintProjectId } from "../src/manifest";
 import { defaultSelections } from "../src/profile";
+import type {
+  InstallManifest,
+  InstallProfile,
+  ManifestFileEntry,
+  PackageMeta,
+  SystemAssetManifestState,
+} from "../src/types";
 import { assertNoRepoRunState, trackTempDir, untrackTempDir } from "./run-state-boundary";
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 const RAW_REPO_PREFIX = "https://raw.githubusercontent.com/brucewaynedecoy/make-docs/main/";
 
 export type TestInstallSelections = ReturnType<typeof defaultSelections>;
+
+export function createLegacyTestManifest(
+  packageMeta: PackageMeta,
+  profile: InstallProfile,
+  files: Record<string, ManifestFileEntry>,
+  skillFiles: string[],
+  systemAssetMaterialization: SystemAssetManifestState,
+  projectId: string,
+): InstallManifest {
+  return {
+    schemaVersion: 3,
+    projectId,
+    packageName: packageMeta.name,
+    packageVersion: packageMeta.version,
+    updatedAt: new Date().toISOString(),
+    profileId: profile.profileId,
+    selections: profile.selections,
+    effectiveCapabilities: profile.effectiveCapabilities,
+    systemAssetMaterialization,
+    files,
+    skillFiles,
+  };
+}
 
 /**
  * Renders one entry of the v2 fenced `playbook` dependencies block as builder

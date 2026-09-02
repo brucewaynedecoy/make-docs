@@ -333,7 +333,7 @@ describe("uninstall command", () => {
       });
       writeFileSync(path.join(targetDir, "AGENTS.md"), "custom root agents\n", "utf8");
       writeFileSync(path.join(targetDir, "CLAUDE.md"), "custom root claude\n", "utf8");
-      writeFileSync(path.join(targetDir, ".make-docs/templates/system/custom.md"), "keep me\n", "utf8");
+      writeFileSync(path.join(targetDir, ".make-docs/system/templates/custom.md"), "keep me\n", "utf8");
 
       const { result, output } = await captureUninstallRun({
         targetDir,
@@ -344,8 +344,8 @@ describe("uninstall command", () => {
       expectCompletedUninstall(result);
       expect(readFileSync(path.join(targetDir, "AGENTS.md"), "utf8")).toBe("custom root agents\n");
       expect(readFileSync(path.join(targetDir, "CLAUDE.md"), "utf8")).toBe("custom root claude\n");
-      expect(existsSync(path.join(targetDir, ".make-docs/templates/system/custom.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, ".make-docs/templates"))).toBe(true);
+      expect(existsSync(path.join(targetDir, ".make-docs/system/templates/custom.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, ".make-docs/system/templates"))).toBe(true);
       expect(existsSync(path.join(targetDir, ".make-docs/manifest.json"))).toBe(false);
       expect(output).toContain("Preserved paths");
     } finally {

@@ -11,8 +11,14 @@ import { getDesiredSkillAssets, getRetiredManagedSkillAssets } from "./skill-cat
 import type { SkillRegistry } from "./skill-registry";
 import { createSystemAssetManifestState } from "./system-assets";
 import {
+  getSystemToolResourceMigrationTarget,
+  isToolDirectorySystemResourcePath,
+} from "./tool-directory";
+import {
   applyP4ManifestOwnership,
   buildSelectedResourceProjection,
+  createProjectSurfaceRouterAssets,
+  createRouterOwnershipManifestState,
   createThinRouterAssets,
   resourceProjectionStops,
 } from "./project-projection";
@@ -80,29 +86,54 @@ export async function createInstallPlan(options: {
     profile,
     effectiveMaterializationMode,
   );
-  const selectedProjection = p4ProjectionSelected
-    ? buildSelectedResourceProjection({
-        profile,
-        selectionTrigger:
-          operation === "setup.reconfigure"
-            ? "reconfigure-selection"
-            : "setup-selection",
-      })
-    : null;
-  if (p4ProjectionSelected) {
-    const thinRouterPaths = new Set(
-      createThinRouterAssets(profile).map((asset) => asset.relativePath),
-    );
-    desiredAssets = [
-      ...desiredAssets.filter((asset) => !thinRouterPaths.has(asset.relativePath)),
-      ...createThinRouterAssets(profile),
-      ...(selectedProjection?.assets ?? []),
-    ].sort((left, right) => left.relativePath.localeCompare(right.relativePath));
-  }
+  const verifiedAt = new Date().toISOString();
+  const selectedProjection = buildSelectedResourceProjection({
+    profile,
+    selectionTrigger:
+      operation === "setup.reconfigure"
+        ? "reconfigure-selection"
+        : "setup-selection",
+    verifiedAt,
+    existingState: existingManifest?.resourceProjection,
+  });
+  const thinRouterAssets = createThinRouterAssets(profile);
+  const carriedOnDemandRouterAssets = getCarriedOnDemandRouterAssets({
+    targetDir,
+    profile,
+    existingManifest,
+  });
+  const routerAssets = [...thinRouterAssets, ...carriedOnDemandRouterAssets];
+  const thinRouterPaths = new Set(
+    thinRouterAssets.map((asset) => asset.relativePath),
+  );
   const fullSnapshotAssets = getDesiredAssetsForMaterializationMode(
     profile,
     DEFAULT_SYSTEM_ASSET_MATERIALIZATION_MODE,
   );
+  const preserveManagedSnapshotAssets = p4ProjectionSelected && existingManifest !== null;
+  const preservedFullSnapshotAssets = preserveManagedSnapshotAssets
+    ? fullSnapshotAssets.filter((asset) =>
+        existingManifest.files[asset.relativePath]?.systemAsset?.localPath === asset.relativePath &&
+        existingManifest.files[asset.relativePath]?.systemAsset?.expectedHashes.includes(
+          existingManifest.files[asset.relativePath]!.hash,
+        ) === true &&
+        !(
+          isToolDirectorySystemResourcePath(asset.relativePath) &&
+          !isInstructionPath(asset.relativePath)
+        ),
+      )
+    : [];
+  desiredAssets = [
+    ...desiredAssets.filter((asset) => !thinRouterPaths.has(asset.relativePath)),
+    ...preservedFullSnapshotAssets.filter((asset) => !thinRouterPaths.has(asset.relativePath)),
+    ...thinRouterAssets,
+    ...carriedOnDemandRouterAssets,
+    ...(selectedProjection?.assets ?? []),
+  ]
+    .filter((asset, index, assets) =>
+      assets.findIndex((candidate) => candidate.relativePath === asset.relativePath) === index,
+    )
+    .sort((left, right) => left.relativePath.localeCompare(right.relativePath));
   const desiredSkillAssets = await getDesiredSkillAssets(
     profile.selections,
     skillRegistry,
@@ -158,6 +189,10 @@ export async function createInstallPlan(options: {
       ),
     ]),
   );
+  const forceManifestWrite = existingManifest !== null && Object.entries(desiredFiles)
+    .some(([relativePath, entry]) =>
+      JSON.stringify(existingManifest.files[relativePath] ?? null) !== JSON.stringify(entry),
+    );
 
   const actions: PlannedAction[] = [];
   let conflictsRunId: string | undefined;
@@ -266,6 +301,25 @@ export async function createInstallPlan(options: {
       continue;
     }
 
+    if (
+      manifestEntry &&
+      currentHash === manifestEntry.hash &&
+      manifestEntry.sourceId === asset.sourceId &&
+      manifestEntry.systemAsset?.logicalAssetId === asset.relativePath &&
+      manifestEntry.systemAsset.localPath === asset.relativePath &&
+      manifestEntry.systemAsset.expectedHashes.includes(manifestEntry.hash)
+    ) {
+      actions.push({
+        type: "update",
+        relativePath: asset.relativePath,
+        sourceId: asset.sourceId,
+        content: asset.content,
+        contentHash: desiredHash,
+        reason: "Refresh the verified clean managed system asset.",
+      });
+      continue;
+    }
+
     const conflictClassification = classifyReviewableManagedFileConflictPath(
       asset.relativePath,
       { isDesiredSkillAsset: desiredSkillFileSet.has(asset.relativePath) },
@@ -321,6 +375,16 @@ export async function createInstallPlan(options: {
   if (existingManifest) {
     for (const [relativePath, manifestEntry] of Object.entries(existingManifest.files)) {
       if (relativePath in desiredFiles) {
+        continue;
+      }
+
+      if (relativePath === ".make-docs/contracts/system/playbook-contract.md") {
+        actions.push({
+          type: "skip",
+          relativePath,
+          sourceId: manifestEntry.sourceId,
+          reason: "Preserve the legacy Playbook contract outside the current system resource tree.",
+        });
         continue;
       }
 
@@ -386,10 +450,30 @@ export async function createInstallPlan(options: {
       const currentContent = readTextFile(absolutePath);
       const currentHash = getCurrentManifestHash(relativePath, currentContent);
       const legacyFullFileHash = hashText(currentContent);
+      const legacyMigrationTarget = getSystemToolResourceMigrationTarget(relativePath);
       const isCleanInstructionBlock =
         isInstructionPath(relativePath) &&
         currentHash === manifestEntry.hash &&
         instructionHasNoOutsideContent(currentContent);
+
+      if (
+        legacyMigrationTarget &&
+        !hasVerifiedLegacySystemResourceOwnership(
+          existingManifest,
+          relativePath,
+          manifestEntry,
+        )
+      ) {
+        conflictsRunId ??= createRunId();
+        actions.push({
+          type: "skip-conflict",
+          relativePath,
+          sourceId: manifestEntry.sourceId,
+          reason:
+            `Legacy system resource migration or removal at ${relativePath} stopped because managed ownership and trusted hashes are incomplete.`,
+        });
+        continue;
+      }
 
       if (
         currentHash === manifestEntry.hash &&
@@ -399,6 +483,12 @@ export async function createInstallPlan(options: {
           type: "remove-managed",
           relativePath,
           sourceId: manifestEntry.sourceId,
+          ...(legacyMigrationTarget && legacyMigrationTarget in desiredFiles
+            ? {
+                reason:
+                  `Remove verified legacy system resource after ${legacyMigrationTarget} is materialized.`,
+              }
+            : {}),
         });
         continue;
       }
@@ -460,13 +550,19 @@ export async function createInstallPlan(options: {
     desiredSkillFiles: desiredSkillFiles.sort(),
     conflictsRunId,
     operation,
-    ...(selectedProjection ? { resourceProjection: selectedProjection.state } : {}),
+    routerOwnership: createRouterOwnershipManifestState(profile, routerAssets, {
+      packageMeta,
+      verifiedAt,
+      existingState: existingManifest?.routerOwnership,
+    }),
+    resourceProjection: selectedProjection.state,
     classificationSnapshot: createLifecyclePlanSnapshot(
       targetDir,
       annotatedActions,
       [MANIFEST_RELATIVE_PATH],
     ),
     stops,
+    forceManifestWrite,
   };
 }
 
@@ -539,15 +635,45 @@ export async function createSkillsOnlyInstallPlan(options: {
     .map(withAgenticRole)
     .sort(comparePlannedActions);
 
+  const needsCurrentOwnershipProof =
+    !(remove && !existingManifest) &&
+    (!existingManifest?.routerOwnership || !existingManifest.resourceProjection);
+  const proofPlan = needsCurrentOwnershipProof
+    ? await createInstallPlan({
+        targetDir,
+        packageMeta,
+        profile: {
+          ...profile,
+          selections: {
+            ...profile.selections,
+            resourceProjection: [],
+          },
+        },
+        existingManifest,
+        operation: existingManifest ? "setup.sync" : "setup",
+      })
+    : null;
+  const routerActions = proofPlan?.actions.filter((action) =>
+    action.sourceId?.startsWith("router:"),
+  ) ?? [];
+  const routerDesiredFiles = Object.fromEntries(
+    Object.entries(proofPlan?.desiredFiles ?? {}).filter(([, entry]) =>
+      entry.sourceId.startsWith("router:"),
+    ),
+  );
+
   return {
     packageName: packageMeta.name,
     packageVersion: packageMeta.version,
     profile,
-    systemAssetMaterialization: createSkillsOnlySystemAssetMaterializationPlan(),
-    actions: annotatedActions,
-    desiredFiles,
+    systemAssetMaterialization:
+      proofPlan?.systemAssetMaterialization ?? createSkillsOnlySystemAssetMaterializationPlan(),
+    actions: [...routerActions, ...annotatedActions].sort(comparePlannedActions),
+    desiredFiles: { ...routerDesiredFiles, ...desiredFiles },
     desiredSkillFiles: desiredSkillFiles.sort(),
     conflictsRunId,
+    routerOwnership: proofPlan?.routerOwnership ?? existingManifest?.routerOwnership,
+    resourceProjection: proofPlan?.resourceProjection ?? existingManifest?.resourceProjection,
   };
 }
 
@@ -1069,6 +1195,11 @@ function isSkillExposurePath(relativePath: string): boolean {
 }
 
 function comparePlannedActions(left: PlannedAction, right: PlannedAction): number {
+  const leftLegacyRemoval = isLegacySystemResourceRemoval(left);
+  const rightLegacyRemoval = isLegacySystemResourceRemoval(right);
+  if (leftLegacyRemoval !== rightLegacyRemoval) {
+    return leftLegacyRemoval ? 1 : -1;
+  }
   if (left.relativePath === right.relativePath) {
     return getActionOrder(left) - getActionOrder(right);
   }
@@ -1082,6 +1213,41 @@ function comparePlannedActions(left: PlannedAction, right: PlannedAction): numbe
   }
 
   return left.relativePath.localeCompare(right.relativePath);
+}
+
+function isLegacySystemResourceRemoval(action: PlannedAction): boolean {
+  return (
+    action.type === "remove-managed" &&
+    action.reason?.startsWith("Remove verified legacy system resource after ") === true
+  );
+}
+
+function hasVerifiedLegacySystemResourceOwnership(
+  manifest: InstallManifest,
+  relativePath: string,
+  entry: InstallManifest["files"][string],
+): boolean {
+  if (entry.ownershipClass === "managed-projection") {
+    return hasVerifiedResourceOwnership(manifest, relativePath, entry.sourceId);
+  }
+  if (entry.ownershipClass === "managed-block") {
+    return (
+      entry.sourceId === `file:${relativePath}` ||
+      entry.sourceId.startsWith("router:")
+    );
+  }
+  if (
+    entry.ownershipClass !== undefined &&
+    entry.ownershipClass !== "managed-snapshot"
+  ) {
+    return false;
+  }
+  return (
+    entry.sourceId === `file:${relativePath}` &&
+    entry.systemAsset?.logicalAssetId === relativePath &&
+    entry.systemAsset.hashAlgorithm === "sha256" &&
+    entry.systemAsset.expectedHashes.includes(entry.hash)
+  );
 }
 
 function getActionOrder(action: PlannedAction): number {
@@ -1389,12 +1555,53 @@ function hasVerifiedResourceOwnership(
     entry &&
       entry.uri === uri &&
       entry.managedDestination === relativePath &&
-      entry.ownershipClass === "managed-projection" &&
+      entry.ownershipClass === "managed-snapshot" &&
       entry.provenanceState === "verified" &&
+      entry.lifecycleDisposition === "active" &&
       entry.competingClaims.length === 0 &&
       entry.sourceDigest === entry.installedDigest &&
       manifestFile?.ownershipClass === "managed-projection" &&
       manifestFile.sourceId === sourceId &&
       manifestFile.hash === entry.installedDigest,
   );
+}
+
+function getCarriedOnDemandRouterAssets(options: {
+  targetDir: string;
+  profile: InstallProfile;
+  existingManifest: InstallManifest | null;
+}): ResolvedAsset[] {
+  if (!options.existingManifest?.routerOwnership) {
+    return [];
+  }
+  const surfaceDirectories = {
+    archive: ".make-docs/archive",
+    artifacts: "docs/artifacts",
+    assets: "docs/assets",
+  } as const;
+  const assets: ResolvedAsset[] = [];
+  for (const [surface, directory] of Object.entries(surfaceDirectories)) {
+    if (!existsSync(path.join(options.targetDir, directory))) {
+      continue;
+    }
+    for (const asset of createProjectSurfaceRouterAssets(
+      options.profile,
+      surface as keyof typeof surfaceDirectories,
+    )) {
+      const proof = options.existingManifest.routerOwnership.routers[asset.relativePath];
+      const file = options.existingManifest.files[asset.relativePath];
+      if (
+        proof?.routerClass === "on-demand-surface" &&
+        proof.provenanceState === "verified" &&
+        proof.ownershipClass === "managed-snapshot" &&
+        proof.lifecycleDisposition === "active" &&
+        proof.sourceId === asset.sourceId &&
+        file?.sourceId === asset.sourceId &&
+        file.ownershipClass === "managed-block"
+      ) {
+        assets.push(asset);
+      }
+    }
+  }
+  return assets.sort((left, right) => left.relativePath.localeCompare(right.relativePath));
 }

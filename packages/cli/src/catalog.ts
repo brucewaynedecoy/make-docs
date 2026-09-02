@@ -1,17 +1,12 @@
 import {
   getPromptPaths,
   getPlaybookDefaultPaths,
-  getPromptsDirInstalled,
-  getReferenceDirInstalled,
   getReferencePaths,
   getScriptPaths,
-  getTemplateDirInstalled,
   getTemplatePaths,
 } from "./rules";
 import {
-  TOOL_RESOURCE_FAMILIES,
   getLocalBootstrapPathsForMaterializationMode,
-  getToolResourceTierPath,
 } from "./tool-directory";
 import type {
   InstallProfile,
@@ -24,14 +19,7 @@ import { DEFAULT_SYSTEM_ASSET_MATERIALIZATION_MODE } from "./types";
 import { getActiveInstructionKinds } from "./types";
 import { readPackageFile } from "./utils";
 
-const LOCAL_PROMPT_PROJECTION_ROOT = ".make-docs/system/prompts/";
-const INSTALLED_PROMPT_SOURCE_ROOT = ".make-docs/prompts/system/";
-
 function getPackageSourcePath(relativePath: string): string {
-  if (relativePath.startsWith(LOCAL_PROMPT_PROJECTION_ROOT)) {
-    return `${INSTALLED_PROMPT_SOURCE_ROOT}${relativePath.slice(LOCAL_PROMPT_PROJECTION_ROOT.length)}`;
-  }
-
   return relativePath;
 }
 
@@ -52,6 +40,12 @@ function addInstructionAssets(
 ): void {
   relativePaths.add(activeInstructionKind);
   relativePaths.add(`docs/${activeInstructionKind}`);
+  relativePaths.add(`.make-docs/${activeInstructionKind}`);
+  relativePaths.add(`.make-docs/system/${activeInstructionKind}`);
+  relativePaths.add(`.make-docs/system/contracts/${activeInstructionKind}`);
+  relativePaths.add(`.make-docs/system/prompts/${activeInstructionKind}`);
+  relativePaths.add(`.make-docs/system/references/${activeInstructionKind}`);
+  relativePaths.add(`.make-docs/system/templates/${activeInstructionKind}`);
   relativePaths.add(`docs/assets/${activeInstructionKind}`);
   relativePaths.add(`docs/assets/artifacts/${activeInstructionKind}`);
   relativePaths.add(`docs/assets/library/${activeInstructionKind}`);
@@ -74,19 +68,6 @@ function addInstructionAssets(
     relativePaths.add(`docs/work/${activeInstructionKind}`);
   }
 
-  if (getReferenceDirInstalled(profile)) {
-    relativePaths.add(`.make-docs/${activeInstructionKind}`);
-    relativePaths.add(`.make-docs/contracts/system/${activeInstructionKind}`);
-    relativePaths.add(`.make-docs/references/system/${activeInstructionKind}`);
-  }
-
-  if (getTemplateDirInstalled(profile)) {
-    relativePaths.add(`.make-docs/templates/system/${activeInstructionKind}`);
-  }
-
-  if (getPromptsDirInstalled(profile)) {
-    relativePaths.add(`.make-docs/system/prompts/${activeInstructionKind}`);
-  }
 }
 
 export function getDesiredAssets(profile: InstallProfile): ResolvedAsset[] {
@@ -152,7 +133,6 @@ export function getLocalBootstrapSystemAssetPaths(
   return Array.from(
     new Set([
       ...getLocalBootstrapPathsForMaterializationMode(mode),
-      ...getLocalCustomOverlayPaths(),
       ...getLocalBootstrapInstructionRouterPaths(profile),
     ]),
   ).sort();
@@ -207,13 +187,13 @@ function getLocalBootstrapInstructionRouterPaths(profile: InstallProfile): strin
   for (const instructionKind of getActiveInstructionKinds(profile.selections)) {
     relativePaths.add(instructionKind);
     relativePaths.add(`docs/${instructionKind}`);
+    relativePaths.add(`.make-docs/${instructionKind}`);
+    relativePaths.add(`.make-docs/system/${instructionKind}`);
+    relativePaths.add(`.make-docs/system/contracts/${instructionKind}`);
+    relativePaths.add(`.make-docs/system/prompts/${instructionKind}`);
+    relativePaths.add(`.make-docs/system/references/${instructionKind}`);
+    relativePaths.add(`.make-docs/system/templates/${instructionKind}`);
   }
 
   return Array.from(relativePaths).sort();
-}
-
-function getLocalCustomOverlayPaths(): string[] {
-  return TOOL_RESOURCE_FAMILIES.map((family) =>
-    getToolResourceTierPath(family, "custom"),
-  ).sort();
 }

@@ -15,7 +15,7 @@ This is the canonical reader-facing copy for the `agent` persona under the W9 R5
 
 ## Purpose
 
-This playbook is the agent persona's map for working through the make-docs lifecycle. It is not automation, does not enforce stage order, and does not gate work. Use the lifecycle anchor for ordering defaults: [lifecycle.md](../../../../.make-docs/references/system/lifecycle.md).
+This playbook is the agent persona's map for working through the make-docs lifecycle. It is not automation, does not enforce stage order, and does not gate work. Use the lifecycle anchor for ordering defaults: [lifecycle.md](../../../../.make-docs/system/references/lifecycle.md).
 
 ## When To Use
 
@@ -38,7 +38,7 @@ dependencies:
   - id: lifecycle-reference
     kind: reference
     requirement: required
-    source: .make-docs/references/system/lifecycle.md
+    source: .make-docs/system/references/lifecycle.md
     used_by: [identify-stage]
     fallback: stop and ask the user for the intended stage order
   - id: docs-router
@@ -50,25 +50,25 @@ dependencies:
   - id: system-templates
     kind: reference
     requirement: optional
-    source: .make-docs/templates/system/
+    source: .make-docs/system/templates/
     used_by: [produce-stage-artifact]
     fallback: author the artifact from the matching contract alone
   - id: coverage-pass-contract
     kind: reference
     requirement: required
-    source: .make-docs/contracts/system/coverage-pass-contract.md
+    source: .make-docs/system/contracts/coverage-pass-contract.md
     used_by: [run-coverage-pass]
     fallback: record manual coverage verdicts with reasons
   - id: deferred-obligation-contract
     kind: reference
     requirement: required
-    source: .make-docs/contracts/system/deferred-obligation-contract.md
+    source: .make-docs/system/contracts/deferred-obligation-contract.md
     used_by: [run-coverage-pass]
     fallback: stop before claiming future-trigger routing is complete
   - id: naive-uat-contract
     kind: reference
     requirement: required
-    source: .make-docs/contracts/system/naive-uat-contract.md
+    source: .make-docs/system/contracts/naive-uat-contract.md
     used_by: [run-coverage-pass]
     fallback: stop before claiming naive-UAT activation, a valid `none`, or acceptance outcomes
   - id: make-docs-cli
@@ -81,13 +81,13 @@ dependencies:
   - id: history-record-contract
     kind: reference
     requirement: required
-    source: .make-docs/contracts/system/history-record-contract.md
+    source: .make-docs/system/contracts/history-record-contract.md
     used_by: [record-handoff]
     fallback: summarize the handoff in the final response
   - id: commit-message-convention
     kind: reference
     requirement: required
-    source: .make-docs/contracts/system/commit-message-convention.md
+    source: .make-docs/system/contracts/commit-message-convention.md
     used_by: [enforce-commit-convention]
     fallback: draft the commit message for user review
 ```
@@ -204,7 +204,7 @@ Collect source material that can inform lifecycle work without treating that mat
 #### Suggested Assists
 
 - `docs/assets/artifacts/`
-- `.make-docs/references/system/path-and-link-hygiene.md`
+- `.make-docs/system/references/path-and-link-hygiene.md`
 
 #### Exit Criteria
 
@@ -235,9 +235,9 @@ Frame the problem, audience, constraints, and intended direction before detailed
 
 #### Suggested Assists
 
-- `.make-docs/references/system/design-workflow.md`
-- `.make-docs/contracts/system/design-contract.md`
-- `.make-docs/templates/system/design.md`
+- `.make-docs/system/references/design-workflow.md`
+- `.make-docs/system/contracts/design-contract.md`
+- `.make-docs/system/templates/design.md`
 
 #### Exit Criteria
 
@@ -267,8 +267,8 @@ Turn the selected direction into an executable route, coordinate lineage, and wo
 
 #### Suggested Assists
 
-- `.make-docs/references/system/planning-workflow.md`
-- `.make-docs/templates/system/`
+- `.make-docs/system/references/planning-workflow.md`
+- `.make-docs/system/templates/`
 - `docs/plans/`
 
 #### Exit Criteria
@@ -302,9 +302,9 @@ Define the current product or documentation contract that the work backlog shoul
 
 #### Suggested Assists
 
-- `.make-docs/references/system/execution-workflow.md`
-- `.make-docs/contracts/system/output-contract.md`
-- `.make-docs/references/system/prd-change-management.md`
+- `.make-docs/system/references/execution-workflow.md`
+- `.make-docs/system/contracts/output-contract.md`
+- `.make-docs/system/references/prd-change-management.md`
 - `docs/prd/03-open-questions-and-risk-register.md`
 
 #### Exit Criteria
@@ -336,8 +336,8 @@ Convert the effective PRD and plan into phase-sized implementation work.
 #### Suggested Assists
 
 - `docs/work/`
-- `.make-docs/templates/system/`
-- `.make-docs/references/system/execution-workflow.md`
+- `.make-docs/system/templates/`
+- `.make-docs/system/references/execution-workflow.md`
 
 #### Exit Criteria
 
@@ -402,7 +402,7 @@ Close the phase across documentation, history, PRD, guide/playbook coverage, val
 
 #### Suggested Assists
 
-- [coverage-pass-contract.md](../../../../.make-docs/contracts/system/coverage-pass-contract.md)
+- [coverage-pass-contract.md](../../../../.make-docs/system/contracts/coverage-pass-contract.md)
 
 #### Exit Criteria
 
@@ -436,7 +436,7 @@ Create a local commit for the completed phase and verify the phase can hand off 
 
 #### Suggested Assists
 
-- `.make-docs/contracts/system/commit-message-convention.md`
+- `.make-docs/system/contracts/commit-message-convention.md`
 - `phase_gate.py`
 - `checkpoint.py`
 
@@ -506,7 +506,7 @@ Move superseded planning or documentation material out of the active set while p
 
 - `archive-docs`
 - `docs/assets/archive/`
-- `.make-docs/references/system/path-and-link-hygiene.md`
+- `.make-docs/system/references/path-and-link-hygiene.md`
 
 #### Exit Criteria
 

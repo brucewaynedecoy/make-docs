@@ -21,7 +21,7 @@
 import { existsSync, lstatSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { afterEach, describe, expect, test } from "vitest";
-import { createManifest, writeManifest } from "../src/manifest";
+import { writeManifest } from "../src/manifest";
 import {
   CLAUDE_CODE_HARNESS_CAPABILITY_DESCRIPTOR,
   CODEX_HARNESS_CAPABILITY_DESCRIPTOR,
@@ -46,7 +46,7 @@ import {
 import type { HarnessCapabilityDescriptor, PlaybookPackagePlan } from "../src/operations";
 import { defaultSelections, resolveInstallProfile } from "../src/profile";
 import { createEmptySystemAssetManifestState } from "../src/system-assets";
-import { cleanupTempDir, createTempDir } from "./helpers";
+import { cleanupTempDir, createLegacyTestManifest, createTempDir } from "./helpers";
 
 const SUPPORT_EVIDENCE_REF = "docs/prd/36-playbook-packaging-compiler-and-harness-adapters.md";
 const PACKAGING_DESIGN_REF =
@@ -69,7 +69,7 @@ function writeFile(root: string, relativePath: string, content: string): string 
 function writeMakeDocsManifest(root: string): void {
   writeManifest(
     root,
-    createManifest(
+    createLegacyTestManifest(
       { name: "@brucewaynedecoy/make-docs", version: "0.0.0-test" },
       resolveInstallProfile(defaultSelections()),
       {},

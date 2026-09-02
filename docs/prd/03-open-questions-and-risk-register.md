@@ -1730,7 +1730,7 @@ The following pre-W19 R1 discussion is retained as historical context and does n
 - `packages/cli/src/audit.ts`
 - `scripts/copy-template-to-cli.mjs`
 - `scripts/smoke-pack.mjs`
-- `.make-docs/contracts/system/output-contract.md`
+- `.make-docs/system/contracts/output-contract.md`
 - `docs/designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md`
 - `docs/plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md`
 - `docs/designs/2026-08-12-performance-testing-guardrails.md`
