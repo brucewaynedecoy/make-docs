@@ -18,7 +18,7 @@ Deliver the first-party Naive-UAT system workflow, configured Persona resolution
 
 This phase implements migration checkpoint 10. Every activated execution resolves exactly one eligible configured `user` or `maintainer` Persona, defaulting to canonical `user` when none is supplied. Persona identity controls audience framing and evidence location; it never substitutes for independent tester isolation, installed-product scope, public information, or anti-coaching. Canonical evidence lives only under `docs/assets/<persona-slug>/testing/**`.
 
-P7 is paused during the W19 R1 P4 authority and router recovery. Preserve the accepted `P7-AUTHORITY` decision, the open D-005 and P7-BUDGET decisions, Persona and scenario meaning, and the six-operation meaning. After recovery, refresh the P7 baseline and re-prove the P4 dependency before preflight continues. Do not restart the completed preflight decisions, and do not authorize P7 implementation.
+The corrected P4 authority and runtime are committed through `40c4d231`, `e1bbec04`, `315dce5d`, `8763e9b`, and `2f36f72`. The P4 dependency proof is re-proved at `2f36f72`. The accepted `P7-AUTHORITY` decision remains in force. D-005 and P7-BUDGET remain open. Persona, scenario, risk, and six-operation meaning remain unchanged. The active P7 baseline binds to the final closeout commit before owner decision review resumes at D-005. Do not restart the completed preflight work, and do not authorize P7 implementation.
 
 ## Source PRD Docs
 
@@ -29,11 +29,13 @@ P7 is paused during the W19 R1 P4 authority and router recovery. Preserve the ac
 - [PRD 25 — TypeScript Runtime, CLI, and MCP Operation Boundaries](../../prd/25-typescript-runtime-cli-mcp-operation-boundaries.md)
 - [PRD 28 — Shared Agentics Installation and Harness Exposure](../../prd/28-shared-agentics-installation-and-harness-exposure.md)
 - [PRD 38 — Global Store and Project State](../../prd/38-global-store-and-project-state.md)
+- [PRD 39 — CLI Command Model and Operation Registry](../../prd/39-cli-command-model-and-operation-registry.md)
 - [PRD 43 — Conformance Scenario Model and Execution Kits](../../prd/43-conformance-scenario-model-and-execution-kits.md)
 - [PRD 44 — Conformance Lab Sessions and Evidence](../../prd/44-conformance-lab-sessions-and-evidence.md)
 - [PRD 45 — Deferred Obligation Governance](../../prd/45-deferred-obligation-governance.md)
 - [PRD 46 — Naive End-User Acceptance Testing](../../prd/46-naive-end-user-acceptance-testing.md)
 - [PRD 47 — Persona Model](../../prd/47-persona-model.md)
+- [PRD 50 — Proportionate Testing and Human-Centered Validation](../../prd/50-proportionate-testing-and-human-centered-validation.md)
 - [PRD 03 — Open Questions and Risk Register](../../prd/03-open-questions-and-risk-register.md)
 
 ## Source Obligations, Scenarios, And Findings
@@ -47,12 +49,12 @@ P7 is paused during the W19 R1 P4 authority and router recovery. Preserve the ac
 
 ### Tasks
 
-- [ ] t1: Verify the exact worktree, branch, HEAD, free disk, dirty-state allowlist, accepted P1–P6 closeouts, checkpoint-10 readiness, active quiescence, and implementation authorization; stop on unexpected user work or unsafe growth.
-- [ ] t2: Reread every Source PRD and PRD 03 from the live worktree and record each revision or content digest.
-- [ ] t3: Reevaluate at minimum Q-001, Q-007, D-005, R-001, R-002, R-008, R-017, R-021, and R-022; classify Q-019 and Q-022 as nonblocking unless interactive setup UX or an agentics-production pipeline enters scope, and add newly relevant items.
-- [ ] t4: Record each relevant item's ID or bounded gap label, authority digest, impact, classification (`blocking`, `impacted-nonblocking`, `unrelated`, `closed-regression-check`, or `new-authority-gap`), disposition, and rationale.
+- [x] t1: Verify the exact worktree, branch, HEAD, free disk, dirty-state allowlist, accepted P1–P6 closeouts, checkpoint-10 readiness, active quiescence, and implementation authorization; stop on unexpected user work or unsafe growth.
+- [x] t2: Reread every Source PRD and PRD 03 from the live worktree and record each revision or content digest.
+- [x] t3: Reevaluate at minimum Q-001, Q-007, D-005, R-001, R-002, R-008, R-017, R-021, and R-022; classify Q-019 and Q-022 as nonblocking unless interactive setup UX or an agentics-production pipeline enters scope, and add newly relevant items.
+- [x] t4: Record each relevant item's ID or bounded gap label, authority digest, impact, classification (`blocking`, `impacted-nonblocking`, `unrelated`, `closed-regression-check`, or `new-authority-gap`), disposition, and rationale.
 - [ ] t5: For D-005 specifically, if current PRD authority fully specifies the P7 thin selected-Skill payload delivery, record `impacted-nonblocking` with exact authority anchors; otherwise classify it as blocking or a new-authority gap and follow t6-t7. Record an explicit no-blocker determination, canonical scenario references or complete `none` routes, and finite execution/correction/review budget before unlocking t8 when no blocker or gap remains.
-- [ ] t6: Stop before implementation for any blocker, missing scenario authority, or authority gap and present an owner decision package with source anchors, affected phase and PRDs, bounded options and trade-offs, recommendation, consequences, exact PRD/register/history edits, focused validation, and a decision-only commit boundary; create no standalone decision file.
+- [x] t6: Stop before implementation for any blocker, missing scenario authority, or authority gap and present an owner decision package with source anchors, affected phase and PRDs, bounded options and trade-offs, recommendation, consequences, exact PRD/register/history edits, focused validation, and a decision-only commit boundary; create no standalone decision file.
 - [ ] t7: Require canonical PRD/register/history updates, focused validation, a separate decision commit, and its recorded SHA before unlock; task completion never closes governed records implicitly.
 - [ ] t8: Record the Stage 1 result, authority digests, checkpoint evidence, applicable scenario/obligation/finding trace, and implementation unlock or stop result.
 
@@ -72,7 +74,36 @@ P7 is paused during the W19 R1 P4 authority and router recovery. Preserve the ac
 ### Closeout Notes
 
 - Testing-mode decision(s): activated naive UAT, separate automated/conformance/accessibility/performance modes, and complete `none` routing are recorded distinctly.
-- Phase / capability status: gate result pending.
+- Recovery proof baseline: branch `make-docs-v2`, committed HEAD `2f36f72085bca0f19cf50def0cecc452f455de73`, with P4 authority correction at `40c4d231`, content-package retirement at `e1bbec04`, runtime repair at `315dce5d`, package smoke proof at `8763e9b`, and the owner-approved documentation-router line cap at `2f36f72`.
+- Dependency result: corrected P4 authority, router topology, ownership, safe migration, package parity, and smoke proof are accepted. `P7-AUTHORITY` remains accepted. Persona, scenario, qualification, evidence, advisory gate, and stable `NUAT-###` meaning remain unchanged.
+- Operation result: `uat.scenario.validate`, `uat.persona.resolve`, `uat.target.validate`, `uat.evidence-reference.validate`, `uat.finding.validate`, and `uat.result.validate` remain pending P7 compatibility surfaces.
+- Risk result: R-001, R-002, R-008, R-017, R-021, and R-022 remain controlled. Q-019 and Q-022 remain outside current P7 scope.
+- Decision result: D-005 and P7-BUDGET remain open. The active baseline must bind to the final closeout commit before owner decision review resumes at D-005. Stage 1 remains open, and P7 implementation is not authorized.
+
+#### Recovery authority digests
+
+| Authority | SHA-256 at `2f36f72` |
+| --- | --- |
+| PRD 03 | `8cf34ef235aa6b8ca89f5cd1cd3ab8726c2ed6ccd07b94e846f10bdc60c979b3` |
+| PRD 08 | `4a3176c5c3f7919c0e5ca2bef354c6cafb94c063a89b37d7502c446e8c7c3e26` |
+| PRD 14 | `266ecf49be2fd9f954be18bb616385accd8c68015747941fc96c7f93a79816cd` |
+| PRD 20 | `0842eccd974baa54c16d18f18c27afd0d48d4b59d6baaa2698affdc144f3e7db` |
+| PRD 22 | `72fcb0e9fee785a22bb9e0e7e2f13d1aa03828349b4a223b0565407ec3f10aad` |
+| PRD 25 | `27a816a1012dc26a05b6b740bcfcf39b334d18ab02cb883e3fa8075047c423bd` |
+| PRD 28 | `dd1be2f8ce21e836f78021ae46c10cc8cafeda5a17305017f2b4915745f0e484` |
+| PRD 38 | `55f1ed5f1e32ba808f4d429154df5015af0988911bce904f4cbfdab82582a8ea` |
+| PRD 39 | `6fc5e9c3876d1fc5f0081a7c737c03ef29dee94663cce34eb5c7214ea5eaeac4` |
+| PRD 43 | `c4f8f609fbef797ad39ebdbc2ea4020c091c01e11fb058980ed95c3e3bf6fda9` |
+| PRD 44 | `18dc491d3dc5c12e25618f47807aa4b0076342d4255b76907d07e56b0fb618f1` |
+| PRD 45 | `1614b8848f86775bb4edf23a57bdff4c9634b6fc3a495f8214a6b6000c2beba4` |
+| PRD 46 | `ee4ee09260caf74f4cf38884adc94dc2723bdaeb1f260b0c733caf24b9e19d7e` |
+| PRD 47 | `37da2bd631ce4164e60e00c2b92a355512adeeba82eb5c171ecb9c5e2b954e20` |
+| PRD 50 | `3ce54aae2fdc7bb13badc19bbe499a04a2290b2ff84c96ad738fa1e89d6adf1b` |
+| Naive-UAT contract | `11bc758ab9a7864d333e1f09a6c49c89605a20e0d455f6906104807e087673c5` |
+| Naive-UAT workflow reference | `14208efb7ead73f35f191c1fb20ba1f1bed6033329bbab060efb44107cebf50d` |
+| Naive-UAT scenario template | `2898401832b41f4e3b4eb3f709a7d76893362ed4a936a80baf8c9c9963eea5a3` |
+
+The three Naive-UAT resource digests match between the upstream template and the maintainer dogfood copy.
 
 ## Stage 2 - Install The System Workflow And Typed Access Paths
 

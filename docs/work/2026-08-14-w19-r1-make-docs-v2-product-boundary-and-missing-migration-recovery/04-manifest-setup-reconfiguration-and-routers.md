@@ -275,17 +275,17 @@ P4 is reopened because [D-029](../../prd/03-open-questions-and-risk-register.md#
 
 ### Tasks
 
-- [ ] t1: Commit the owner-approved design, PRD, risk-register, plan, and work-authority correction.
-- [ ] t2: Normalize the sole current resource tree to `.make-docs/system/<type>/` for contracts, prompts, references, and templates while keeping stable `make-docs://system/<type>/<path>` identities.
-- [ ] t3: Install configured-harness routers at the project root, `docs/`, `.make-docs/`, `.make-docs/system/`, and every typed directory in fresh setup and reconfiguration.
-- [ ] t4: Make resource selection control resource bodies only, and record router ownership separately from resource projection in plans and manifests.
-- [ ] t5: Restore the exact `# Documentation Router` heading and full routing duties, with valid local resource use first and `make-docs resource read <uri>` fallback when a body is absent. Do not infer Skills, plugins, Playbooks, Protocols, or unavailable policy.
-- [ ] t6: Treat legacy `.make-docs/<type>/system/` content only as migration input, move or remove only verified clean managed files, and preserve all unknown, modified, mixed, unowned, or conflicting content for review.
-- [ ] t7: Prove fresh install, selection change, legacy migration, router-conflict, harness-selection, and uninstall behavior across the accepted test matrix.
-- [ ] t8: Prove template, generated package, dogfood, and installed-project parity without hand-editing generated package copies.
-- [ ] t9: Obtain an independent read-only review of authority, implementation, migration safety, and routing behavior.
-- [ ] t10: Create a new P4 corrective closeout history record after acceptance. Keep the original closeout and the open correction erratum unchanged.
-- [ ] t11: Refresh the P7 baseline and P4 dependency proof after recovery. Preserve `P7-AUTHORITY`, D-005, P7-BUDGET, and the accepted Persona, scenario, and six-operation meaning.
+- [x] t1: Commit the owner-approved design, PRD, risk-register, plan, and work-authority correction.
+- [x] t2: Normalize the sole current resource tree to `.make-docs/system/<type>/` for contracts, prompts, references, and templates while keeping stable `make-docs://system/<type>/<path>` identities.
+- [x] t3: Install configured-harness routers at the project root, `docs/`, `.make-docs/`, `.make-docs/system/`, and every typed directory in fresh setup and reconfiguration.
+- [x] t4: Make resource selection control resource bodies only, and record router ownership separately from resource projection in plans and manifests.
+- [x] t5: Restore the exact `# Documentation Router` heading and full routing duties, with valid local resource use first and `make-docs resource read <uri>` fallback when a body is absent. Do not infer Skills, plugins, Playbooks, Protocols, or unavailable policy.
+- [x] t6: Treat legacy `.make-docs/<type>/system/` content only as migration input, move or remove only verified clean managed files, and preserve all unknown, modified, mixed, unowned, or conflicting content for review.
+- [x] t7: Prove fresh install, selection change, legacy migration, router-conflict, harness-selection, and uninstall behavior across the accepted test matrix.
+- [x] t8: Prove template, generated package, dogfood, and installed-project parity without hand-editing generated package copies.
+- [x] t9: Obtain an independent read-only review of authority, implementation, migration safety, and routing behavior.
+- [x] t10: Create a new P4 corrective closeout history record after acceptance. Keep the original closeout and the open correction erratum unchanged.
+- [x] t11: Refresh the P7 baseline and P4 dependency proof after recovery. Preserve `P7-AUTHORITY`, D-005, P7-BUDGET, and the accepted Persona, scenario, and six-operation meaning.
 
 ### Acceptance criteria
 
@@ -309,4 +309,10 @@ P4 is reopened because [D-029](../../prd/03-open-questions-and-risk-register.md#
 
 ### Closeout Notes
 
-Corrective work is open. No corrected implementation or renewed P4 acceptance is claimed here.
+The correction is complete. Commit `40c4d231` corrected the accepted authority. Commit `e1bbec04` retired the unused content package. Commit `315dce5d` restored the router topology, ownership model, migration controls, and runtime behavior. Commit `8763e9b` aligned the package smoke proof with the migration state that setup creates. Commit `2f36f72` raised only the documentation-router managed-block cap to the owner-approved 25 lines.
+
+The accepted test matrix passed. The proof includes 1,255 CLI tests, 49 default checks, 181 focused independent-review tests, the build, PRD authority validation, template parity, dogfood dry-run parity, `git diff --check`, and the full package smoke pack. The smoke pack passed through the `npx`, `pnpm dlx`, and `bun x` package-runner paths after its stale directory expectation was corrected.
+
+Independent review found no unresolved authority, migration, routing, ownership, or smoke-proof defect. The owner reviewed and accepted each implementation boundary. The [corrective closeout](../../assets/archive/history/2026-09-02-w19-r1-p4-router-recovery-closeout.md) records the result. The original P4 closeout and the open correction erratum remain unchanged as historical records.
+
+The P7 dependency proof is re-proved at `2f36f72`. `P7-AUTHORITY` remains accepted. D-005 and P7-BUDGET remain open. The active P7 baseline binds to the final closeout commit before owner decision review resumes at D-005. P7 implementation is not authorized.

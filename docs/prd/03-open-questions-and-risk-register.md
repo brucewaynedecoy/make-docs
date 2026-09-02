@@ -578,7 +578,7 @@ The following pre-W19 R1 discussion is retained as non-normative historical cont
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Confirmed - corrective work open | Commit `02002ba23` changed accepted authority from an always-local router skeleton with optional resource bodies to an optional whole-tree model. Commit `efebfa29` then reduced the installed documentation router and implemented that drift. | Correct the accepted design and owning PRDs, reopen P4, repair the runtime and templates, add safe legacy migration, and prove the install and reconfigure matrix before P4 closes again. |
+| Corrected and closed - 2026-09-02 | Commit `02002ba23` changed accepted authority from an always-local router skeleton with optional resource bodies to an optional whole-tree model. Commit `efebfa29` then reduced the installed documentation router and implemented that drift. Commits `40c4d231`, `e1bbec04`, `315dce5d`, `8763e9b`, and `2f36f72` corrected the authority, retired the unused content package, repaired the runtime, completed the package smoke proof, and set the owner-approved documentation-router line cap. | Keep the original closeout and correction erratum as historical records. Use the [corrective closeout](../assets/archive/history/2026-09-02-w19-r1-p4-router-recovery-closeout.md) as the current P4 proof. Resume P7 owner decision review at D-005 without authorizing implementation. |
 
 **Impact**: A project with no selected resource bodies can lose the `.make-docs/system/` routing tree. Its `docs/` router can also lose required lifecycle, design, planning, PRD, work, risk, artifact, Persona, UAT, coverage, history, and formatting guidance. P7 therefore cannot trust its current P4 dependency proof.
 
@@ -586,7 +586,7 @@ The following pre-W19 R1 discussion is retained as non-normative historical cont
 
 **Controls**: Treat legacy `.make-docs/<type>/system/` content only as migration input. Move or remove only content with verified managed ownership and matching trusted bytes. Preserve unknown, modified, mixed, or conflicting content for review. Keep router ownership separate from resource-projection ownership in the manifest and lifecycle plans.
 
-**Closure proof**: Corrected authority is committed. Fresh install, reconfigure, legacy migration, modified-router, malformed-block, harness-selection, and uninstall tests pass. Template, generated package, and dogfood routers agree. A new P4 corrective closeout history record proves the accepted correction without changing the old history record or this open erratum. P7 refreshes its baseline and P4 dependency proof before its preflight continues.
+**Closure proof**: Corrected authority and implementation are committed through `2f36f72`. Fresh install, reconfigure, legacy migration, modified-router, malformed-block, harness-selection, uninstall, build, validation, parity, instruction-router, and package smoke checks pass. Template, generated package, dogfood, and installed-project routers agree. Independent review found no unresolved defect. The [P4 corrective closeout](../assets/archive/history/2026-09-02-w19-r1-p4-router-recovery-closeout.md) proves the accepted correction without changing the old closeout or the correction erratum. P7 re-proved its P4 dependency at `2f36f72` and preserved `P7-AUTHORITY`, D-005, and P7-BUDGET. Its active baseline binds to the final closeout commit before owner decision review resumes at D-005.
 
 ## Open Questions
 
