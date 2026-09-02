@@ -198,7 +198,6 @@ Code and documentation anchors:
 - `packages/cli/README.md`
 - `docs/assets/archive/designs/2026-04-18-cli-help-backup-and-uninstall.md`
 - `docs/assets/archive/plans/2026-04-18-w7-r0-cli-help-backup-and-uninstall/00-overview.md`
-- `packages/content/package.json`
 
 ## Requirement History
 

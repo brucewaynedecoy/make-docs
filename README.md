@@ -11,7 +11,6 @@ packages/
   cli/           # The publishable installer CLI (npm package: @brucewaynedecoy/make-docs; bin: make-docs)
   docs/          # The shippable documentation template
     template/    # The template tree that gets copied into consumer projects
-  content/       # Reserved for CLI-rendered content fragments
   skills/        # Agent skills shipped alongside the template
 docs/            # This repo's own dogfood docs (design, planning, work tracking for make-docs itself)
 scripts/         # Repo-level orchestration (template sync, smoke-pack, router checks)

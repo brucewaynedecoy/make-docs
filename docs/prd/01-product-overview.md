@@ -114,7 +114,6 @@ Out of scope, Make Docs v2 owns neither Playbooks nor Protocols as document kind
 - `packages/docs/README.md`
 - `packages/skills/package.json`
 - `packages/skills/README.md`
-- `packages/content/package.json`
 - `packages/cli/src/cli.ts`
 - `packages/cli/src/profile.ts`
 - `packages/cli/src/types.ts`

@@ -244,7 +244,7 @@ The following pre-W19 R1 discussion is retained as historical context and does n
 | --- | --- | --- |
 | Closed | The owner approved retirement of the unused `packages/content/` package on 2026-09-02. Rendered JSON content fragments are a current non-goal. | Remove the package and all active reservation claims. A future content-fragment feature requires a new accepted design and owning PRD authority before implementation. |
 
-**Issue**: `README.md:10-17` reserves `packages/content/`, but there is no selector in `packages/cli/src/catalog.ts:64-85` and no command/help surface in `packages/cli/src/cli.ts:894-1019`.
+**Closure evidence**: Before retirement, the repository README reserved `packages/content/`, but the package had no selector or command/help surface. The package and its active reservation were removed under this decision.
 
 **Why it matters**: Future content fragments still have no shipping or ownership contract.
 
