@@ -153,12 +153,6 @@ const ALWAYS_REFERENCE_PATHS = [
 
 const ALWAYS_SCRIPT_PATHS = [".make-docs/scripts/check_path_hygiene.py"];
 
-const ALWAYS_PLAYBOOK_DEFAULT_PATHS = [
-  "docs/assets/playbooks/agent/make-docs-lifecycle.playbook.md",
-  "docs/assets/playbooks/agent/naive-uat-facilitator.playbook.md",
-  "docs/assets/playbooks/user/naive-uat-tester.playbook.md",
-];
-
 export function profileHasCapabilities(
   profile: InstallProfile,
   capabilities: Capability[],
@@ -176,10 +170,6 @@ export function getPromptPaths(profile: InstallProfile): string[] {
 
 export function getScriptPaths(_profile: InstallProfile): string[] {
   return [...ALWAYS_SCRIPT_PATHS];
-}
-
-export function getPlaybookDefaultPaths(_profile: InstallProfile): string[] {
-  return [...ALWAYS_PLAYBOOK_DEFAULT_PATHS];
 }
 
 export function getTemplatePaths(profile: InstallProfile): string[] {

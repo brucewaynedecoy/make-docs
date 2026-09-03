@@ -21,5 +21,5 @@ Pattern: `YYYY-MM-DD-w{W}-r{R}-<slug>/`
 - Always create the plan as a directory; even single-phase plans use the same shape with one `0N-<phase>.md` file.
 - Apply the date-slug-W/R naming; do not backdate plans.
 - Plans are written before execution, not retroactively.
-- Archived plans live in `docs/assets/archive/plans/`. Never archive unless explicitly asked. See `docs/assets/archive/AGENTS.md`.
+- Archived plans live in `.make-docs/archive/plans/`. Before first use, run `make-docs project surface ensure archive`. Never archive unless explicitly asked.
 <!-- make-docs:end -->

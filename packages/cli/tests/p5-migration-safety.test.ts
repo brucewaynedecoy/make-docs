@@ -356,7 +356,8 @@ describe("W19 R1 P5 migration and safety fixtures", () => {
     expect(existsSync(path.join(product.root, ".make-docs/manifest.json"))).toBe(true);
     expect(existsSync(path.join(product.root, ".make-docs/archive"))).toBe(false);
     expect(existsSync(path.join(product.root, "docs/artifacts"))).toBe(false);
-    expect(existsSync(path.join(product.root, "docs/assets"))).toBe(false);
+    expect(existsSync(path.join(product.root, "docs/assets"))).toBe(true);
+    expect(existsSync(path.join(product.root, "docs/assets/developer"))).toBe(false);
     const directHygiene = await invokeOperation(
       "project.path-hygiene.validate",
       { targetRoot: product.root },

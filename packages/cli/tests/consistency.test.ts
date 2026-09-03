@@ -27,21 +27,11 @@ const GUIDE_TEMPLATE_PARITY_PATHS = [
   ".make-docs/system/templates/guide-developer.md",
   ".make-docs/system/templates/guide-user.md",
   ".make-docs/system/prompts/work-to-guides.prompt.md",
-  "docs/assets/library/AGENTS.md",
-  "docs/assets/library/CLAUDE.md",
-  "docs/assets/playbooks/AGENTS.md",
-  "docs/assets/playbooks/CLAUDE.md",
 ];
 
 const READER_ASSET_ROUTER_PATHS = [
-  "docs/assets/archive/AGENTS.md",
-  "docs/assets/archive/CLAUDE.md",
-  "docs/assets/artifacts/AGENTS.md",
-  "docs/assets/artifacts/CLAUDE.md",
-  "docs/assets/library/AGENTS.md",
-  "docs/assets/library/CLAUDE.md",
-  "docs/assets/playbooks/AGENTS.md",
-  "docs/assets/playbooks/CLAUDE.md",
+  "docs/assets/AGENTS.md",
+  "docs/assets/CLAUDE.md",
 ];
 
 const PLAYBOOK_DEFAULT_PARITY_PATHS = [
@@ -52,10 +42,6 @@ const PLAYBOOK_DEFAULT_PARITY_PATHS = [
 
 const PATH_HYGIENE_PARITY_PATHS = [
   ".make-docs/scripts/check_path_hygiene.py",
-  // W19 R1 P4 makes the shipped thin docs routers authoritative. Updating
-  // the maintainer dogfood instance remains a separate, excluded action.
-  "docs/assets/archive/AGENTS.md",
-  "docs/assets/archive/CLAUDE.md",
   ".make-docs/system/prompts/docs-path-hygiene-cleanup.prompt.md",
   ".make-docs/system/references/AGENTS.md",
   ".make-docs/system/references/CLAUDE.md",
@@ -217,14 +203,15 @@ describe("default profile consistency", () => {
     }
   });
 
-  test("default scaffold includes reviewed playbook defaults", () => {
+  test("default scaffold excludes retired Playbook defaults", () => {
     const profile = resolveInstallProfile(defaultSelections());
     const managedPaths = new Set(getDesiredAssets(profile).map((asset) => asset.relativePath));
 
     for (const relativePath of PLAYBOOK_DEFAULT_PARITY_PATHS) {
-      expect(managedPaths.has(relativePath), relativePath).toBe(true);
-      expect(readPackageFile(relativePath), relativePath).toContain("kind: \"playbook\"");
-      expect(readPackageFile(relativePath), relativePath).toContain("stack: \"build\"");
+      expect(managedPaths.has(relativePath), relativePath).toBe(false);
+      expect(existsSync(path.join(REPO_ROOT, "packages/docs/template", relativePath))).toBe(false);
+      expect(existsSync(path.join(REPO_ROOT, "packages/cli/template", relativePath))).toBe(false);
+      expect(existsSync(path.join(REPO_ROOT, relativePath))).toBe(true);
     }
   });
 });
@@ -677,6 +664,7 @@ describe("risk register routing contract", () => {
       "D-027 The Conformance Kit Runs Whatever `make-docs` Is on PATH, Not the CLI It Was Generated From",
       "D-028 Same-Day Kit Regeneration Collides on the Deterministic Session Root With No Ergonomic Reset",
       "D-029 W19 R1 Resource Topology and Router Authority Drifted",
+      "D-030 W19 R1 Documentation Surface Router Topology Was Omitted",
     ]);
     expect(itemHeadings(questions)).toEqual([
       "Q-001 What Is the Long-Term Skills Delivery Contract?",
@@ -756,20 +744,19 @@ describe("risk register routing contract", () => {
 });
 
 describe("guide generation routing contract", () => {
-  test("guide routers require audience decisions and future coverage notes", () => {
+  test("the root asset routers route Persona assets and legacy inputs", () => {
     for (const relativePath of [
-      "docs/assets/library/AGENTS.md",
-      "docs/assets/library/CLAUDE.md",
-      "packages/docs/template/docs/assets/library/AGENTS.md",
-      "packages/docs/template/docs/assets/library/CLAUDE.md",
+      "docs/assets/AGENTS.md",
+      "docs/assets/CLAUDE.md",
+      "packages/docs/template/docs/assets/AGENTS.md",
+      "packages/docs/template/docs/assets/CLAUDE.md",
     ]) {
       const contents = readFileSync(path.join(REPO_ROOT, relativePath), "utf8");
 
-      expect(contents).toContain("developer`, `user`, `both`, `update-existing`, `link-only`, or `none");
-      expect(contents).toContain("re-check overlapping guides");
-      expect(contents).toContain("reciprocal links");
-      expect(contents).toContain("## Future Coverage");
-      expect(contents).toContain("Do not create design docs, architecture decisions, or PRD risk-register items solely to remember future guide work");
+      expect(contents).toContain("docs/assets/<persona-slug>/");
+      expect(contents).toContain("docs/assets/<persona-slug>/testing/");
+      expect(contents).toContain("legacy migration inputs");
+      expect(contents).toContain(".make-docs/system/<type>/");
     }
   });
 
@@ -789,34 +776,6 @@ describe("guide generation routing contract", () => {
     }
   });
 
-  test("reader-facing asset routers define guide and playbook namespace boundaries", () => {
-    for (const relativePath of [
-      "docs/assets/library/AGENTS.md",
-      "docs/assets/library/CLAUDE.md",
-      "packages/docs/template/docs/assets/library/AGENTS.md",
-      "packages/docs/template/docs/assets/library/CLAUDE.md",
-    ]) {
-      const contents = readFileSync(path.join(REPO_ROOT, relativePath), "utf8");
-
-      expect(contents).toContain("docs/assets/library/<persona-slug>/");
-      expect(contents).toContain("persona");
-      expect(contents).toContain("docs/assets/library/**");
-    }
-
-    for (const relativePath of [
-      "docs/assets/playbooks/AGENTS.md",
-      "docs/assets/playbooks/CLAUDE.md",
-      "packages/docs/template/docs/assets/playbooks/AGENTS.md",
-      "packages/docs/template/docs/assets/playbooks/CLAUDE.md",
-    ]) {
-      const contents = readFileSync(path.join(REPO_ROOT, relativePath), "utf8");
-
-      expect(contents).toContain("docs/assets/playbooks/<persona-slug>/");
-      expect(contents).toContain("not plugins");
-      expect(contents).toContain("docs/assets/archive/history/");
-    }
-  });
-
   test("dogfood guide contracts match the shipped template copies", () => {
     for (const relativePath of GUIDE_TEMPLATE_PARITY_PATHS) {
       const dogfoodContents = readFileSync(path.join(REPO_ROOT, relativePath), "utf8");
@@ -829,28 +788,17 @@ describe("guide generation routing contract", () => {
     }
   });
 
-  test("dogfood playbook defaults match the shipped template copies", () => {
+  test("dogfood Playbooks remain project content after shipped defaults retire", () => {
     for (const relativePath of PLAYBOOK_DEFAULT_PARITY_PATHS) {
-      const dogfoodContents = readFileSync(path.join(REPO_ROOT, relativePath), "utf8");
-      const templateContents = readFileSync(
-        path.join(REPO_ROOT, "packages", "docs", "template", sourcePathForLocalAsset(relativePath)),
-        "utf8",
-      );
-      const generatedContents = readFileSync(
-        path.join(REPO_ROOT, "packages", "cli", "template", relativePath),
-        "utf8",
-      );
-
-      expect(templateContents).toBe(dogfoodContents);
-      expect(generatedContents).toBe(templateContents);
-      expect(templateContents).toContain("status: \"accepted\"");
-      expect(templateContents).toMatch(/persona:\s+\"(agent|user)\"/);
+      expect(existsSync(path.join(REPO_ROOT, relativePath))).toBe(true);
+      expect(existsSync(path.join(REPO_ROOT, "packages/docs/template", relativePath))).toBe(false);
+      expect(existsSync(path.join(REPO_ROOT, "packages/cli/template", relativePath))).toBe(false);
     }
   });
 
-  test("the migrated default playbook validates with zero errors upstream and in the dogfood instance", () => {
+  test("the preserved dogfood Playbooks validate with zero errors", () => {
     for (const relativePath of PLAYBOOK_DEFAULT_PARITY_PATHS) {
-      for (const root of [path.join(REPO_ROOT, "packages", "docs", "template"), REPO_ROOT]) {
+      for (const root of [REPO_ROOT]) {
         const sourcePath = path.join(root, relativePath);
         const { model, diagnostics } = parseAndValidatePlaybook({
           sourcePath: relativePath,
@@ -899,8 +847,8 @@ describe("guide generation routing contract", () => {
     }
   }
 
-  test("every shipped default playbook validates with zero errors", () => {
-    expectZeroPlaybookErrors(path.join(REPO_ROOT, "packages", "docs", "template"));
+  test("the shipped template has no default Playbooks", () => {
+    expect(collectPlaybookPaths(path.join(REPO_ROOT, "packages", "docs", "template"))).toEqual([]);
   });
 
   test("every dogfood-instance playbook validates with zero errors", () => {

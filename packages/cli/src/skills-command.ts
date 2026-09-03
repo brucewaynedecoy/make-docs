@@ -271,6 +271,7 @@ function writeSkillsCompletion(options: {
     counts.generate +
     counts.update +
     counts["update-conflict"] +
+    counts["strip-managed-block"] +
     counts["remove-managed"];
   const verb = options.existingManifest ? "Updated" : "Installed";
   output.write(`${verb} skills (${changedCount} changed). Manifest: ${manifestPath}\n`);

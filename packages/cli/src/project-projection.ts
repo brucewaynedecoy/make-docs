@@ -20,6 +20,10 @@ import type {
 } from "./types";
 import { HARNESS_TO_INSTRUCTION } from "./types";
 import { parseManagedBlock } from "./managed-block";
+import {
+  getConfiguredRouterPaths,
+  isConfiguredRouterPath,
+} from "./router-paths";
 import { readPackageFile } from "./utils";
 
 const P4_OPERATION_LINEAGE = "W19 R1 P4" as const;
@@ -130,7 +134,7 @@ export function createThinRouterAssets(profile: InstallProfile): ResolvedAsset[]
     if (!profile.selections.harnesses[harness as keyof typeof HARNESS_TO_INSTRUCTION]) {
       continue;
     }
-    for (const relativePath of getAlwaysLocalRouterPaths(instructionKind)) {
+    for (const relativePath of getConfiguredRouterPaths(profile, instructionKind)) {
       assets.push({
         relativePath,
         assetClass: "scoped-static",
@@ -170,6 +174,7 @@ export function createRouterOwnershipManifestState(
         asset,
         harness,
         instructionKind,
+        profile,
         packageMeta: options.packageMeta,
         verifiedAt: options.verifiedAt ?? new Date().toISOString(),
         previous: options.existingState?.routers[asset.relativePath],
@@ -188,13 +193,18 @@ export function createRouterOwnershipManifestEntry(options: {
   asset: ResolvedAsset;
   harness: Harness;
   instructionKind: InstructionKind;
+  profile: InstallProfile;
   packageMeta: PackageMeta;
   verifiedAt: string;
   previous?: ManifestRouterOwnershipEntry;
 }): ManifestRouterOwnershipEntry {
   const expectedSourceHash = getRouterContentHash(options.asset);
   const sourceImmutableRef = `package:${options.packageMeta.name}@${options.packageMeta.version}`;
-  const routerClass = isAlwaysLocalRouterPath(options.asset.relativePath)
+  const routerClass = isConfiguredRouterPath(
+    options.profile,
+    options.asset.relativePath,
+    options.instructionKind,
+  )
     ? "bootstrap"
     : "on-demand-surface";
   const previous = options.previous;
@@ -250,7 +260,9 @@ export function createProjectSurfaceRouterAssets(
         relativePath,
         assetClass: "scoped-static" as const,
         sourceId: `router:${harness}:${relativePath}`,
-        content: renderProjectSurfaceRouter(surface),
+        content: surface === "assets"
+          ? readThinRouterContent(relativePath)
+          : renderProjectSurfaceRouter(surface),
       };
     })
     .sort((left, right) => compareCodeUnits(left.relativePath, right.relativePath));
@@ -294,9 +306,6 @@ export function getThinRouterManagedBody(relativePath: string): string {
 }
 
 function readThinRouterContent(relativePath: string): string {
-  if (!isAlwaysLocalRouterPath(relativePath)) {
-    throw new Error(`Unsupported thin router path: ${relativePath}.`);
-  }
   const content = readPackageFile(relativePath);
   const parsed = parseManagedBlock(content);
   if (
@@ -307,24 +316,6 @@ function readThinRouterContent(relativePath: string): string {
     throw new Error(`Upstream thin router must contain one managed block: ${relativePath}.`);
   }
   return content;
-}
-
-function getAlwaysLocalRouterPaths(instructionKind: InstructionKind): string[] {
-  return [
-    instructionKind,
-    `docs/${instructionKind}`,
-    `.make-docs/${instructionKind}`,
-    `.make-docs/system/${instructionKind}`,
-    `.make-docs/system/contracts/${instructionKind}`,
-    `.make-docs/system/prompts/${instructionKind}`,
-    `.make-docs/system/references/${instructionKind}`,
-    `.make-docs/system/templates/${instructionKind}`,
-  ];
-}
-
-function isAlwaysLocalRouterPath(relativePath: string): boolean {
-  const instructionKind = routerInstructionKind(relativePath);
-  return instructionKind !== null && getAlwaysLocalRouterPaths(instructionKind).includes(relativePath);
 }
 
 function routerInstructionKind(relativePath: string): InstructionKind | null {

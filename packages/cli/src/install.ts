@@ -13,6 +13,7 @@ import {
   createSkillsOnlyInstallPlan,
 } from "./planner";
 import { resolveInstallProfile } from "./profile";
+import { isRetiredTemplateOwnedChildRouterPath } from "./router-paths";
 import type { SkillRegistry } from "./skill-registry";
 import type {
   ApplyResult,
@@ -287,8 +288,15 @@ function applyAction(options: {
   const absolutePath = relativePathToTarget(targetDir, action.relativePath);
   const desiredEntry = plan.desiredFiles[action.relativePath];
   if (
-    plan.profile.selections.resourceProjection !== undefined &&
-    isP4ProjectionAction(action)
+    (
+      plan.profile.selections.resourceProjection !== undefined &&
+      isP4ProjectionAction(action)
+    ) ||
+    (
+      action.type === "remove-managed" &&
+      isRetiredTemplateOwnedChildRouterPath(action.relativePath)
+    ) ||
+    action.type === "strip-managed-block"
   ) {
     assertManagedPathHasNoSymlinks(targetDir, action.relativePath);
   }
@@ -339,6 +347,14 @@ function applyAction(options: {
       return;
     }
     case "skip": {
+      return;
+    }
+    case "strip-managed-block": {
+      if (typeof action.content !== "string") {
+        throw new Error(`Missing preserved content for ${action.type} action on ${action.relativePath}.`);
+      }
+      writeTextFile(absolutePath, action.content);
+      delete nextFiles[action.relativePath];
       return;
     }
     case "remove-managed": {

@@ -3,7 +3,7 @@
   "projectId": "831ddb50-b97a-47e2-9f2c-f491b27b8759",
   "packageName": "@brucewaynedecoy/make-docs",
   "packageVersion": "2.0.0-rc",
-  "updatedAt": "2026-09-02T16:26:12.233Z",
+  "updatedAt": "2026-09-02T22:24:24.294Z",
   "profileId": "1c3de2460ec257a6",
   "selections": {
     "capabilities": {
@@ -58,7 +58,17 @@
       "AGENTS.md",
       "CLAUDE.md",
       "docs/AGENTS.md",
-      "docs/CLAUDE.md"
+      "docs/CLAUDE.md",
+      "docs/assets/AGENTS.md",
+      "docs/assets/CLAUDE.md",
+      "docs/designs/AGENTS.md",
+      "docs/designs/CLAUDE.md",
+      "docs/plans/AGENTS.md",
+      "docs/plans/CLAUDE.md",
+      "docs/prd/AGENTS.md",
+      "docs/prd/CLAUDE.md",
+      "docs/work/AGENTS.md",
+      "docs/work/CLAUDE.md"
     ],
     "deferredSystemAssetPaths": [
       ".make-docs/scripts/check_path_hygiene.py",
@@ -118,28 +128,7 @@
       ".make-docs/system/templates/prd-risk-register.md",
       ".make-docs/system/templates/prd-subsystem.md",
       ".make-docs/system/templates/work-index.md",
-      ".make-docs/system/templates/work-phase.md",
-      "docs/assets/AGENTS.md",
-      "docs/assets/CLAUDE.md",
-      "docs/assets/archive/AGENTS.md",
-      "docs/assets/archive/CLAUDE.md",
-      "docs/assets/artifacts/AGENTS.md",
-      "docs/assets/artifacts/CLAUDE.md",
-      "docs/assets/library/AGENTS.md",
-      "docs/assets/library/CLAUDE.md",
-      "docs/assets/playbooks/AGENTS.md",
-      "docs/assets/playbooks/CLAUDE.md",
-      "docs/assets/playbooks/agent/make-docs-lifecycle.playbook.md",
-      "docs/assets/playbooks/agent/naive-uat-facilitator.playbook.md",
-      "docs/assets/playbooks/user/naive-uat-tester.playbook.md",
-      "docs/designs/AGENTS.md",
-      "docs/designs/CLAUDE.md",
-      "docs/plans/AGENTS.md",
-      "docs/plans/CLAUDE.md",
-      "docs/prd/AGENTS.md",
-      "docs/prd/CLAUDE.md",
-      "docs/work/AGENTS.md",
-      "docs/work/CLAUDE.md"
+      ".make-docs/system/templates/work-phase.md"
     ],
     "materializationClasses": {
       ".make-docs/AGENTS.md": "always-local-bootstrap",
@@ -160,6 +149,16 @@
       "CLAUDE.md": "always-local-bootstrap",
       "docs/AGENTS.md": "always-local-bootstrap",
       "docs/CLAUDE.md": "always-local-bootstrap",
+      "docs/assets/AGENTS.md": "always-local-bootstrap",
+      "docs/assets/CLAUDE.md": "always-local-bootstrap",
+      "docs/designs/AGENTS.md": "always-local-bootstrap",
+      "docs/designs/CLAUDE.md": "always-local-bootstrap",
+      "docs/plans/AGENTS.md": "always-local-bootstrap",
+      "docs/plans/CLAUDE.md": "always-local-bootstrap",
+      "docs/prd/AGENTS.md": "always-local-bootstrap",
+      "docs/prd/CLAUDE.md": "always-local-bootstrap",
+      "docs/work/AGENTS.md": "always-local-bootstrap",
+      "docs/work/CLAUDE.md": "always-local-bootstrap",
       ".make-docs/scripts/check_path_hygiene.py": "deferred-system-asset",
       ".make-docs/system-resources.catalog.json": "deferred-system-asset",
       ".make-docs/system-resources.schema.json": "deferred-system-asset",
@@ -217,28 +216,7 @@
       ".make-docs/system/templates/prd-risk-register.md": "deferred-system-asset",
       ".make-docs/system/templates/prd-subsystem.md": "deferred-system-asset",
       ".make-docs/system/templates/work-index.md": "deferred-system-asset",
-      ".make-docs/system/templates/work-phase.md": "deferred-system-asset",
-      "docs/assets/AGENTS.md": "deferred-system-asset",
-      "docs/assets/CLAUDE.md": "deferred-system-asset",
-      "docs/assets/archive/AGENTS.md": "deferred-system-asset",
-      "docs/assets/archive/CLAUDE.md": "deferred-system-asset",
-      "docs/assets/artifacts/AGENTS.md": "deferred-system-asset",
-      "docs/assets/artifacts/CLAUDE.md": "deferred-system-asset",
-      "docs/assets/library/AGENTS.md": "deferred-system-asset",
-      "docs/assets/library/CLAUDE.md": "deferred-system-asset",
-      "docs/assets/playbooks/AGENTS.md": "deferred-system-asset",
-      "docs/assets/playbooks/CLAUDE.md": "deferred-system-asset",
-      "docs/assets/playbooks/agent/make-docs-lifecycle.playbook.md": "deferred-system-asset",
-      "docs/assets/playbooks/agent/naive-uat-facilitator.playbook.md": "deferred-system-asset",
-      "docs/assets/playbooks/user/naive-uat-tester.playbook.md": "deferred-system-asset",
-      "docs/designs/AGENTS.md": "deferred-system-asset",
-      "docs/designs/CLAUDE.md": "deferred-system-asset",
-      "docs/plans/AGENTS.md": "deferred-system-asset",
-      "docs/plans/CLAUDE.md": "deferred-system-asset",
-      "docs/prd/AGENTS.md": "deferred-system-asset",
-      "docs/prd/CLAUDE.md": "deferred-system-asset",
-      "docs/work/AGENTS.md": "deferred-system-asset",
-      "docs/work/CLAUDE.md": "deferred-system-asset"
+      ".make-docs/system/templates/work-phase.md": "deferred-system-asset"
     },
     "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
     "assets": {
@@ -509,6 +487,176 @@
         ],
         "logicalAssetId": "docs/CLAUDE.md",
         "localPath": "docs/CLAUDE.md",
+        "materializationClass": "always-local-bootstrap",
+        "offlineExpectation": "local",
+        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
+        "selectionTrigger": "local-bootstrap"
+      },
+      "docs/assets/AGENTS.md": {
+        "materializationMode": "provider-backed",
+        "sourcePackage": "@brucewaynedecoy/make-docs",
+        "sourceProvider": "package",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
+        "hashAlgorithm": "sha256",
+        "expectedHashes": [
+          "d7ccf6d6fde49057b401b958ddd7cbcd310837ee8ded06ebca1813a05a9e89ed"
+        ],
+        "logicalAssetId": "docs/assets/AGENTS.md",
+        "localPath": "docs/assets/AGENTS.md",
+        "materializationClass": "always-local-bootstrap",
+        "offlineExpectation": "local",
+        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
+        "selectionTrigger": "local-bootstrap"
+      },
+      "docs/assets/CLAUDE.md": {
+        "materializationMode": "provider-backed",
+        "sourcePackage": "@brucewaynedecoy/make-docs",
+        "sourceProvider": "package",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
+        "hashAlgorithm": "sha256",
+        "expectedHashes": [
+          "d7ccf6d6fde49057b401b958ddd7cbcd310837ee8ded06ebca1813a05a9e89ed"
+        ],
+        "logicalAssetId": "docs/assets/CLAUDE.md",
+        "localPath": "docs/assets/CLAUDE.md",
+        "materializationClass": "always-local-bootstrap",
+        "offlineExpectation": "local",
+        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
+        "selectionTrigger": "local-bootstrap"
+      },
+      "docs/designs/AGENTS.md": {
+        "materializationMode": "provider-backed",
+        "sourcePackage": "@brucewaynedecoy/make-docs",
+        "sourceProvider": "package",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
+        "hashAlgorithm": "sha256",
+        "expectedHashes": [
+          "715d9dc7c6f058bef1def8ef9a4eff20fb2a2409fc7c0907f7856e211a5f53d6"
+        ],
+        "logicalAssetId": "docs/designs/AGENTS.md",
+        "localPath": "docs/designs/AGENTS.md",
+        "materializationClass": "always-local-bootstrap",
+        "offlineExpectation": "local",
+        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
+        "selectionTrigger": "local-bootstrap"
+      },
+      "docs/designs/CLAUDE.md": {
+        "materializationMode": "provider-backed",
+        "sourcePackage": "@brucewaynedecoy/make-docs",
+        "sourceProvider": "package",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
+        "hashAlgorithm": "sha256",
+        "expectedHashes": [
+          "715d9dc7c6f058bef1def8ef9a4eff20fb2a2409fc7c0907f7856e211a5f53d6"
+        ],
+        "logicalAssetId": "docs/designs/CLAUDE.md",
+        "localPath": "docs/designs/CLAUDE.md",
+        "materializationClass": "always-local-bootstrap",
+        "offlineExpectation": "local",
+        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
+        "selectionTrigger": "local-bootstrap"
+      },
+      "docs/plans/AGENTS.md": {
+        "materializationMode": "provider-backed",
+        "sourcePackage": "@brucewaynedecoy/make-docs",
+        "sourceProvider": "package",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
+        "hashAlgorithm": "sha256",
+        "expectedHashes": [
+          "49222c524a8168ade68cd6bfb0765918135178e99e2e0cce7175ca987f61d0e5"
+        ],
+        "logicalAssetId": "docs/plans/AGENTS.md",
+        "localPath": "docs/plans/AGENTS.md",
+        "materializationClass": "always-local-bootstrap",
+        "offlineExpectation": "local",
+        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
+        "selectionTrigger": "local-bootstrap"
+      },
+      "docs/plans/CLAUDE.md": {
+        "materializationMode": "provider-backed",
+        "sourcePackage": "@brucewaynedecoy/make-docs",
+        "sourceProvider": "package",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
+        "hashAlgorithm": "sha256",
+        "expectedHashes": [
+          "49222c524a8168ade68cd6bfb0765918135178e99e2e0cce7175ca987f61d0e5"
+        ],
+        "logicalAssetId": "docs/plans/CLAUDE.md",
+        "localPath": "docs/plans/CLAUDE.md",
+        "materializationClass": "always-local-bootstrap",
+        "offlineExpectation": "local",
+        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
+        "selectionTrigger": "local-bootstrap"
+      },
+      "docs/prd/AGENTS.md": {
+        "materializationMode": "provider-backed",
+        "sourcePackage": "@brucewaynedecoy/make-docs",
+        "sourceProvider": "package",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
+        "hashAlgorithm": "sha256",
+        "expectedHashes": [
+          "3434af408e58a40102a62a7fbcca52fb72ce18f3a6958d12e176a28b232d723c"
+        ],
+        "logicalAssetId": "docs/prd/AGENTS.md",
+        "localPath": "docs/prd/AGENTS.md",
+        "materializationClass": "always-local-bootstrap",
+        "offlineExpectation": "local",
+        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
+        "selectionTrigger": "local-bootstrap"
+      },
+      "docs/prd/CLAUDE.md": {
+        "materializationMode": "provider-backed",
+        "sourcePackage": "@brucewaynedecoy/make-docs",
+        "sourceProvider": "package",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
+        "hashAlgorithm": "sha256",
+        "expectedHashes": [
+          "3434af408e58a40102a62a7fbcca52fb72ce18f3a6958d12e176a28b232d723c"
+        ],
+        "logicalAssetId": "docs/prd/CLAUDE.md",
+        "localPath": "docs/prd/CLAUDE.md",
+        "materializationClass": "always-local-bootstrap",
+        "offlineExpectation": "local",
+        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
+        "selectionTrigger": "local-bootstrap"
+      },
+      "docs/work/AGENTS.md": {
+        "materializationMode": "provider-backed",
+        "sourcePackage": "@brucewaynedecoy/make-docs",
+        "sourceProvider": "package",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
+        "hashAlgorithm": "sha256",
+        "expectedHashes": [
+          "adc5ac00d7c15e0d85bb455ee28b0be3842e412570fad45725d4b1748d386d56"
+        ],
+        "logicalAssetId": "docs/work/AGENTS.md",
+        "localPath": "docs/work/AGENTS.md",
+        "materializationClass": "always-local-bootstrap",
+        "offlineExpectation": "local",
+        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
+        "selectionTrigger": "local-bootstrap"
+      },
+      "docs/work/CLAUDE.md": {
+        "materializationMode": "provider-backed",
+        "sourcePackage": "@brucewaynedecoy/make-docs",
+        "sourceProvider": "package",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
+        "hashAlgorithm": "sha256",
+        "expectedHashes": [
+          "adc5ac00d7c15e0d85bb455ee28b0be3842e412570fad45725d4b1748d386d56"
+        ],
+        "logicalAssetId": "docs/work/CLAUDE.md",
+        "localPath": "docs/work/CLAUDE.md",
         "materializationClass": "always-local-bootstrap",
         "offlineExpectation": "local",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
@@ -1499,329 +1647,6 @@
         "offlineExpectation": "reviewed-full-snapshot-fallback",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
         "selectionTrigger": "internal-materialization-mode"
-      },
-      "docs/assets/AGENTS.md": {
-        "materializationMode": "provider-backed",
-        "sourcePackage": "@brucewaynedecoy/make-docs",
-        "sourceProvider": "package",
-        "sourceVersion": "2.0.0-rc",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
-        "hashAlgorithm": "sha256",
-        "expectedHashes": [
-          "718bc88490f3de521d9d7f1db5f7634642665f560b8ff0187018ec0aaaef16df"
-        ],
-        "logicalAssetId": "docs/assets/AGENTS.md",
-        "localPath": "docs/assets/AGENTS.md",
-        "materializationClass": "deferred-system-asset",
-        "offlineExpectation": "reviewed-full-snapshot-fallback",
-        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
-        "selectionTrigger": "internal-materialization-mode"
-      },
-      "docs/assets/CLAUDE.md": {
-        "materializationMode": "provider-backed",
-        "sourcePackage": "@brucewaynedecoy/make-docs",
-        "sourceProvider": "package",
-        "sourceVersion": "2.0.0-rc",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
-        "hashAlgorithm": "sha256",
-        "expectedHashes": [
-          "718bc88490f3de521d9d7f1db5f7634642665f560b8ff0187018ec0aaaef16df"
-        ],
-        "logicalAssetId": "docs/assets/CLAUDE.md",
-        "localPath": "docs/assets/CLAUDE.md",
-        "materializationClass": "deferred-system-asset",
-        "offlineExpectation": "reviewed-full-snapshot-fallback",
-        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
-        "selectionTrigger": "internal-materialization-mode"
-      },
-      "docs/assets/archive/AGENTS.md": {
-        "materializationMode": "provider-backed",
-        "sourcePackage": "@brucewaynedecoy/make-docs",
-        "sourceProvider": "package",
-        "sourceVersion": "2.0.0-rc",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
-        "hashAlgorithm": "sha256",
-        "expectedHashes": [
-          "349d75d9676650f793f7e3bc047af543d95ab01ba140e3efc1a40b03923294f8"
-        ],
-        "logicalAssetId": "docs/assets/archive/AGENTS.md",
-        "localPath": "docs/assets/archive/AGENTS.md",
-        "materializationClass": "deferred-system-asset",
-        "offlineExpectation": "reviewed-full-snapshot-fallback",
-        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
-        "selectionTrigger": "internal-materialization-mode"
-      },
-      "docs/assets/archive/CLAUDE.md": {
-        "materializationMode": "provider-backed",
-        "sourcePackage": "@brucewaynedecoy/make-docs",
-        "sourceProvider": "package",
-        "sourceVersion": "2.0.0-rc",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
-        "hashAlgorithm": "sha256",
-        "expectedHashes": [
-          "349d75d9676650f793f7e3bc047af543d95ab01ba140e3efc1a40b03923294f8"
-        ],
-        "logicalAssetId": "docs/assets/archive/CLAUDE.md",
-        "localPath": "docs/assets/archive/CLAUDE.md",
-        "materializationClass": "deferred-system-asset",
-        "offlineExpectation": "reviewed-full-snapshot-fallback",
-        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
-        "selectionTrigger": "internal-materialization-mode"
-      },
-      "docs/assets/artifacts/AGENTS.md": {
-        "materializationMode": "provider-backed",
-        "sourcePackage": "@brucewaynedecoy/make-docs",
-        "sourceProvider": "package",
-        "sourceVersion": "2.0.0-rc",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
-        "hashAlgorithm": "sha256",
-        "expectedHashes": [
-          "1a1e0ae8b09268209ffa9a2b907e6781709730a6f9aed9fa2d664c07853bcba9"
-        ],
-        "logicalAssetId": "docs/assets/artifacts/AGENTS.md",
-        "localPath": "docs/assets/artifacts/AGENTS.md",
-        "materializationClass": "deferred-system-asset",
-        "offlineExpectation": "reviewed-full-snapshot-fallback",
-        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
-        "selectionTrigger": "internal-materialization-mode"
-      },
-      "docs/assets/artifacts/CLAUDE.md": {
-        "materializationMode": "provider-backed",
-        "sourcePackage": "@brucewaynedecoy/make-docs",
-        "sourceProvider": "package",
-        "sourceVersion": "2.0.0-rc",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
-        "hashAlgorithm": "sha256",
-        "expectedHashes": [
-          "1a1e0ae8b09268209ffa9a2b907e6781709730a6f9aed9fa2d664c07853bcba9"
-        ],
-        "logicalAssetId": "docs/assets/artifacts/CLAUDE.md",
-        "localPath": "docs/assets/artifacts/CLAUDE.md",
-        "materializationClass": "deferred-system-asset",
-        "offlineExpectation": "reviewed-full-snapshot-fallback",
-        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
-        "selectionTrigger": "internal-materialization-mode"
-      },
-      "docs/assets/library/AGENTS.md": {
-        "materializationMode": "provider-backed",
-        "sourcePackage": "@brucewaynedecoy/make-docs",
-        "sourceProvider": "package",
-        "sourceVersion": "2.0.0-rc",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
-        "hashAlgorithm": "sha256",
-        "expectedHashes": [
-          "1555eadff4fa63b0d84570bb63d7e14e64149200464d468d1ad168480743617d"
-        ],
-        "logicalAssetId": "docs/assets/library/AGENTS.md",
-        "localPath": "docs/assets/library/AGENTS.md",
-        "materializationClass": "deferred-system-asset",
-        "offlineExpectation": "reviewed-full-snapshot-fallback",
-        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
-        "selectionTrigger": "internal-materialization-mode"
-      },
-      "docs/assets/library/CLAUDE.md": {
-        "materializationMode": "provider-backed",
-        "sourcePackage": "@brucewaynedecoy/make-docs",
-        "sourceProvider": "package",
-        "sourceVersion": "2.0.0-rc",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
-        "hashAlgorithm": "sha256",
-        "expectedHashes": [
-          "1555eadff4fa63b0d84570bb63d7e14e64149200464d468d1ad168480743617d"
-        ],
-        "logicalAssetId": "docs/assets/library/CLAUDE.md",
-        "localPath": "docs/assets/library/CLAUDE.md",
-        "materializationClass": "deferred-system-asset",
-        "offlineExpectation": "reviewed-full-snapshot-fallback",
-        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
-        "selectionTrigger": "internal-materialization-mode"
-      },
-      "docs/assets/playbooks/AGENTS.md": {
-        "materializationMode": "provider-backed",
-        "sourcePackage": "@brucewaynedecoy/make-docs",
-        "sourceProvider": "package",
-        "sourceVersion": "2.0.0-rc",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
-        "hashAlgorithm": "sha256",
-        "expectedHashes": [
-          "f120fde80e4545d5ac2494b8a98aab9c9f6ef1d081734aeadafdfba8dc65fbb6"
-        ],
-        "logicalAssetId": "docs/assets/playbooks/AGENTS.md",
-        "localPath": "docs/assets/playbooks/AGENTS.md",
-        "materializationClass": "deferred-system-asset",
-        "offlineExpectation": "reviewed-full-snapshot-fallback",
-        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
-        "selectionTrigger": "internal-materialization-mode"
-      },
-      "docs/assets/playbooks/CLAUDE.md": {
-        "materializationMode": "provider-backed",
-        "sourcePackage": "@brucewaynedecoy/make-docs",
-        "sourceProvider": "package",
-        "sourceVersion": "2.0.0-rc",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
-        "hashAlgorithm": "sha256",
-        "expectedHashes": [
-          "f120fde80e4545d5ac2494b8a98aab9c9f6ef1d081734aeadafdfba8dc65fbb6"
-        ],
-        "logicalAssetId": "docs/assets/playbooks/CLAUDE.md",
-        "localPath": "docs/assets/playbooks/CLAUDE.md",
-        "materializationClass": "deferred-system-asset",
-        "offlineExpectation": "reviewed-full-snapshot-fallback",
-        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
-        "selectionTrigger": "internal-materialization-mode"
-      },
-      "docs/assets/playbooks/agent/make-docs-lifecycle.playbook.md": {
-        "materializationMode": "provider-backed",
-        "sourcePackage": "@brucewaynedecoy/make-docs",
-        "sourceProvider": "package",
-        "sourceVersion": "2.0.0-rc",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
-        "hashAlgorithm": "sha256",
-        "expectedHashes": [
-          "e85f779a85cd231cf55dcfbc005c3c44bb1be920e29ddc52af66cbbf20164ccc"
-        ],
-        "logicalAssetId": "docs/assets/playbooks/agent/make-docs-lifecycle.playbook.md",
-        "localPath": "docs/assets/playbooks/agent/make-docs-lifecycle.playbook.md",
-        "materializationClass": "deferred-system-asset",
-        "offlineExpectation": "reviewed-full-snapshot-fallback",
-        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
-        "selectionTrigger": "internal-materialization-mode"
-      },
-      "docs/designs/AGENTS.md": {
-        "materializationMode": "provider-backed",
-        "sourcePackage": "@brucewaynedecoy/make-docs",
-        "sourceProvider": "package",
-        "sourceVersion": "2.0.0-rc",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
-        "hashAlgorithm": "sha256",
-        "expectedHashes": [
-          "babf2797a1e456de724eda878d66b4a032ef70f66cfec7e837cdd498402d0b26"
-        ],
-        "logicalAssetId": "docs/designs/AGENTS.md",
-        "localPath": "docs/designs/AGENTS.md",
-        "materializationClass": "deferred-system-asset",
-        "offlineExpectation": "reviewed-full-snapshot-fallback",
-        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
-        "selectionTrigger": "internal-materialization-mode"
-      },
-      "docs/designs/CLAUDE.md": {
-        "materializationMode": "provider-backed",
-        "sourcePackage": "@brucewaynedecoy/make-docs",
-        "sourceProvider": "package",
-        "sourceVersion": "2.0.0-rc",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
-        "hashAlgorithm": "sha256",
-        "expectedHashes": [
-          "babf2797a1e456de724eda878d66b4a032ef70f66cfec7e837cdd498402d0b26"
-        ],
-        "logicalAssetId": "docs/designs/CLAUDE.md",
-        "localPath": "docs/designs/CLAUDE.md",
-        "materializationClass": "deferred-system-asset",
-        "offlineExpectation": "reviewed-full-snapshot-fallback",
-        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
-        "selectionTrigger": "internal-materialization-mode"
-      },
-      "docs/plans/AGENTS.md": {
-        "materializationMode": "provider-backed",
-        "sourcePackage": "@brucewaynedecoy/make-docs",
-        "sourceProvider": "package",
-        "sourceVersion": "2.0.0-rc",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
-        "hashAlgorithm": "sha256",
-        "expectedHashes": [
-          "4b27db644a9fad249975f33c1db70164d0ab9fdece8e6826ac4a283b7efefb7c"
-        ],
-        "logicalAssetId": "docs/plans/AGENTS.md",
-        "localPath": "docs/plans/AGENTS.md",
-        "materializationClass": "deferred-system-asset",
-        "offlineExpectation": "reviewed-full-snapshot-fallback",
-        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
-        "selectionTrigger": "internal-materialization-mode"
-      },
-      "docs/plans/CLAUDE.md": {
-        "materializationMode": "provider-backed",
-        "sourcePackage": "@brucewaynedecoy/make-docs",
-        "sourceProvider": "package",
-        "sourceVersion": "2.0.0-rc",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
-        "hashAlgorithm": "sha256",
-        "expectedHashes": [
-          "4b27db644a9fad249975f33c1db70164d0ab9fdece8e6826ac4a283b7efefb7c"
-        ],
-        "logicalAssetId": "docs/plans/CLAUDE.md",
-        "localPath": "docs/plans/CLAUDE.md",
-        "materializationClass": "deferred-system-asset",
-        "offlineExpectation": "reviewed-full-snapshot-fallback",
-        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
-        "selectionTrigger": "internal-materialization-mode"
-      },
-      "docs/prd/AGENTS.md": {
-        "materializationMode": "provider-backed",
-        "sourcePackage": "@brucewaynedecoy/make-docs",
-        "sourceProvider": "package",
-        "sourceVersion": "2.0.0-rc",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
-        "hashAlgorithm": "sha256",
-        "expectedHashes": [
-          "3434af408e58a40102a62a7fbcca52fb72ce18f3a6958d12e176a28b232d723c"
-        ],
-        "logicalAssetId": "docs/prd/AGENTS.md",
-        "localPath": "docs/prd/AGENTS.md",
-        "materializationClass": "deferred-system-asset",
-        "offlineExpectation": "reviewed-full-snapshot-fallback",
-        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
-        "selectionTrigger": "internal-materialization-mode"
-      },
-      "docs/prd/CLAUDE.md": {
-        "materializationMode": "provider-backed",
-        "sourcePackage": "@brucewaynedecoy/make-docs",
-        "sourceProvider": "package",
-        "sourceVersion": "2.0.0-rc",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
-        "hashAlgorithm": "sha256",
-        "expectedHashes": [
-          "3434af408e58a40102a62a7fbcca52fb72ce18f3a6958d12e176a28b232d723c"
-        ],
-        "logicalAssetId": "docs/prd/CLAUDE.md",
-        "localPath": "docs/prd/CLAUDE.md",
-        "materializationClass": "deferred-system-asset",
-        "offlineExpectation": "reviewed-full-snapshot-fallback",
-        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
-        "selectionTrigger": "internal-materialization-mode"
-      },
-      "docs/work/AGENTS.md": {
-        "materializationMode": "provider-backed",
-        "sourcePackage": "@brucewaynedecoy/make-docs",
-        "sourceProvider": "package",
-        "sourceVersion": "2.0.0-rc",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
-        "hashAlgorithm": "sha256",
-        "expectedHashes": [
-          "e50eccd4635b0201c47fa9e9dcb2c8b3216e5bbc186d379c470afc926a6ff312"
-        ],
-        "logicalAssetId": "docs/work/AGENTS.md",
-        "localPath": "docs/work/AGENTS.md",
-        "materializationClass": "deferred-system-asset",
-        "offlineExpectation": "reviewed-full-snapshot-fallback",
-        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
-        "selectionTrigger": "internal-materialization-mode"
-      },
-      "docs/work/CLAUDE.md": {
-        "materializationMode": "provider-backed",
-        "sourcePackage": "@brucewaynedecoy/make-docs",
-        "sourceProvider": "package",
-        "sourceVersion": "2.0.0-rc",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
-        "hashAlgorithm": "sha256",
-        "expectedHashes": [
-          "e50eccd4635b0201c47fa9e9dcb2c8b3216e5bbc186d379c470afc926a6ff312"
-        ],
-        "logicalAssetId": "docs/work/CLAUDE.md",
-        "localPath": "docs/work/CLAUDE.md",
-        "materializationClass": "deferred-system-asset",
-        "offlineExpectation": "reviewed-full-snapshot-fallback",
-        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
-        "selectionTrigger": "internal-materialization-mode"
       }
     }
   },
@@ -2215,6 +2040,246 @@
         "lastVerifiedAt": "2026-09-02T15:57:56.087Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null
+      },
+      "docs/assets/AGENTS.md": {
+        "relativePath": "docs/assets/AGENTS.md",
+        "harness": "codex",
+        "instructionKind": "AGENTS.md",
+        "ownershipClass": "managed-snapshot",
+        "routerClass": "bootstrap",
+        "sourceId": "router:codex:docs/assets/AGENTS.md",
+        "sourcePackage": "@brucewaynedecoy/make-docs",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
+        "materializationMode": "managed-block",
+        "provenanceState": "verified",
+        "provenanceEvidence": [
+          "package:@brucewaynedecoy/make-docs@2.0.0-rc",
+          "managed-source:router:codex:docs/assets/AGENTS.md"
+        ],
+        "competingClaims": [],
+        "hashAlgorithm": "sha256",
+        "expectedSourceHash": "d7ccf6d6fde49057b401b958ddd7cbcd310837ee8ded06ebca1813a05a9e89ed",
+        "installedHash": "d7ccf6d6fde49057b401b958ddd7cbcd310837ee8ded06ebca1813a05a9e89ed",
+        "lastVerifiedAt": "2026-09-02T22:05:14.032Z",
+        "lifecycleDisposition": "active",
+        "adoptionReceipt": null
+      },
+      "docs/assets/CLAUDE.md": {
+        "relativePath": "docs/assets/CLAUDE.md",
+        "harness": "claude-code",
+        "instructionKind": "CLAUDE.md",
+        "ownershipClass": "managed-snapshot",
+        "routerClass": "bootstrap",
+        "sourceId": "router:claude-code:docs/assets/CLAUDE.md",
+        "sourcePackage": "@brucewaynedecoy/make-docs",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
+        "materializationMode": "managed-block",
+        "provenanceState": "verified",
+        "provenanceEvidence": [
+          "package:@brucewaynedecoy/make-docs@2.0.0-rc",
+          "managed-source:router:claude-code:docs/assets/CLAUDE.md"
+        ],
+        "competingClaims": [],
+        "hashAlgorithm": "sha256",
+        "expectedSourceHash": "d7ccf6d6fde49057b401b958ddd7cbcd310837ee8ded06ebca1813a05a9e89ed",
+        "installedHash": "d7ccf6d6fde49057b401b958ddd7cbcd310837ee8ded06ebca1813a05a9e89ed",
+        "lastVerifiedAt": "2026-09-02T22:05:14.032Z",
+        "lifecycleDisposition": "active",
+        "adoptionReceipt": null
+      },
+      "docs/designs/AGENTS.md": {
+        "relativePath": "docs/designs/AGENTS.md",
+        "harness": "codex",
+        "instructionKind": "AGENTS.md",
+        "ownershipClass": "managed-snapshot",
+        "routerClass": "bootstrap",
+        "sourceId": "router:codex:docs/designs/AGENTS.md",
+        "sourcePackage": "@brucewaynedecoy/make-docs",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
+        "materializationMode": "managed-block",
+        "provenanceState": "verified",
+        "provenanceEvidence": [
+          "package:@brucewaynedecoy/make-docs@2.0.0-rc",
+          "managed-source:router:codex:docs/designs/AGENTS.md"
+        ],
+        "competingClaims": [],
+        "hashAlgorithm": "sha256",
+        "expectedSourceHash": "715d9dc7c6f058bef1def8ef9a4eff20fb2a2409fc7c0907f7856e211a5f53d6",
+        "installedHash": "715d9dc7c6f058bef1def8ef9a4eff20fb2a2409fc7c0907f7856e211a5f53d6",
+        "lastVerifiedAt": "2026-09-02T22:03:27.456Z",
+        "lifecycleDisposition": "active",
+        "adoptionReceipt": null
+      },
+      "docs/designs/CLAUDE.md": {
+        "relativePath": "docs/designs/CLAUDE.md",
+        "harness": "claude-code",
+        "instructionKind": "CLAUDE.md",
+        "ownershipClass": "managed-snapshot",
+        "routerClass": "bootstrap",
+        "sourceId": "router:claude-code:docs/designs/CLAUDE.md",
+        "sourcePackage": "@brucewaynedecoy/make-docs",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
+        "materializationMode": "managed-block",
+        "provenanceState": "verified",
+        "provenanceEvidence": [
+          "package:@brucewaynedecoy/make-docs@2.0.0-rc",
+          "managed-source:router:claude-code:docs/designs/CLAUDE.md"
+        ],
+        "competingClaims": [],
+        "hashAlgorithm": "sha256",
+        "expectedSourceHash": "715d9dc7c6f058bef1def8ef9a4eff20fb2a2409fc7c0907f7856e211a5f53d6",
+        "installedHash": "715d9dc7c6f058bef1def8ef9a4eff20fb2a2409fc7c0907f7856e211a5f53d6",
+        "lastVerifiedAt": "2026-09-02T22:03:27.456Z",
+        "lifecycleDisposition": "active",
+        "adoptionReceipt": null
+      },
+      "docs/plans/AGENTS.md": {
+        "relativePath": "docs/plans/AGENTS.md",
+        "harness": "codex",
+        "instructionKind": "AGENTS.md",
+        "ownershipClass": "managed-snapshot",
+        "routerClass": "bootstrap",
+        "sourceId": "router:codex:docs/plans/AGENTS.md",
+        "sourcePackage": "@brucewaynedecoy/make-docs",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
+        "materializationMode": "managed-block",
+        "provenanceState": "verified",
+        "provenanceEvidence": [
+          "package:@brucewaynedecoy/make-docs@2.0.0-rc",
+          "managed-source:router:codex:docs/plans/AGENTS.md"
+        ],
+        "competingClaims": [],
+        "hashAlgorithm": "sha256",
+        "expectedSourceHash": "49222c524a8168ade68cd6bfb0765918135178e99e2e0cce7175ca987f61d0e5",
+        "installedHash": "49222c524a8168ade68cd6bfb0765918135178e99e2e0cce7175ca987f61d0e5",
+        "lastVerifiedAt": "2026-09-02T22:03:27.456Z",
+        "lifecycleDisposition": "active",
+        "adoptionReceipt": null
+      },
+      "docs/plans/CLAUDE.md": {
+        "relativePath": "docs/plans/CLAUDE.md",
+        "harness": "claude-code",
+        "instructionKind": "CLAUDE.md",
+        "ownershipClass": "managed-snapshot",
+        "routerClass": "bootstrap",
+        "sourceId": "router:claude-code:docs/plans/CLAUDE.md",
+        "sourcePackage": "@brucewaynedecoy/make-docs",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
+        "materializationMode": "managed-block",
+        "provenanceState": "verified",
+        "provenanceEvidence": [
+          "package:@brucewaynedecoy/make-docs@2.0.0-rc",
+          "managed-source:router:claude-code:docs/plans/CLAUDE.md"
+        ],
+        "competingClaims": [],
+        "hashAlgorithm": "sha256",
+        "expectedSourceHash": "49222c524a8168ade68cd6bfb0765918135178e99e2e0cce7175ca987f61d0e5",
+        "installedHash": "49222c524a8168ade68cd6bfb0765918135178e99e2e0cce7175ca987f61d0e5",
+        "lastVerifiedAt": "2026-09-02T22:03:27.456Z",
+        "lifecycleDisposition": "active",
+        "adoptionReceipt": null
+      },
+      "docs/prd/AGENTS.md": {
+        "relativePath": "docs/prd/AGENTS.md",
+        "harness": "codex",
+        "instructionKind": "AGENTS.md",
+        "ownershipClass": "managed-snapshot",
+        "routerClass": "bootstrap",
+        "sourceId": "router:codex:docs/prd/AGENTS.md",
+        "sourcePackage": "@brucewaynedecoy/make-docs",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
+        "materializationMode": "managed-block",
+        "provenanceState": "verified",
+        "provenanceEvidence": [
+          "package:@brucewaynedecoy/make-docs@2.0.0-rc",
+          "managed-source:router:codex:docs/prd/AGENTS.md"
+        ],
+        "competingClaims": [],
+        "hashAlgorithm": "sha256",
+        "expectedSourceHash": "3434af408e58a40102a62a7fbcca52fb72ce18f3a6958d12e176a28b232d723c",
+        "installedHash": "3434af408e58a40102a62a7fbcca52fb72ce18f3a6958d12e176a28b232d723c",
+        "lastVerifiedAt": "2026-09-02T21:57:28.582Z",
+        "lifecycleDisposition": "active",
+        "adoptionReceipt": null
+      },
+      "docs/prd/CLAUDE.md": {
+        "relativePath": "docs/prd/CLAUDE.md",
+        "harness": "claude-code",
+        "instructionKind": "CLAUDE.md",
+        "ownershipClass": "managed-snapshot",
+        "routerClass": "bootstrap",
+        "sourceId": "router:claude-code:docs/prd/CLAUDE.md",
+        "sourcePackage": "@brucewaynedecoy/make-docs",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
+        "materializationMode": "managed-block",
+        "provenanceState": "verified",
+        "provenanceEvidence": [
+          "package:@brucewaynedecoy/make-docs@2.0.0-rc",
+          "managed-source:router:claude-code:docs/prd/CLAUDE.md"
+        ],
+        "competingClaims": [],
+        "hashAlgorithm": "sha256",
+        "expectedSourceHash": "3434af408e58a40102a62a7fbcca52fb72ce18f3a6958d12e176a28b232d723c",
+        "installedHash": "3434af408e58a40102a62a7fbcca52fb72ce18f3a6958d12e176a28b232d723c",
+        "lastVerifiedAt": "2026-09-02T21:57:28.582Z",
+        "lifecycleDisposition": "active",
+        "adoptionReceipt": null
+      },
+      "docs/work/AGENTS.md": {
+        "relativePath": "docs/work/AGENTS.md",
+        "harness": "codex",
+        "instructionKind": "AGENTS.md",
+        "ownershipClass": "managed-snapshot",
+        "routerClass": "bootstrap",
+        "sourceId": "router:codex:docs/work/AGENTS.md",
+        "sourcePackage": "@brucewaynedecoy/make-docs",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
+        "materializationMode": "managed-block",
+        "provenanceState": "verified",
+        "provenanceEvidence": [
+          "package:@brucewaynedecoy/make-docs@2.0.0-rc",
+          "managed-source:router:codex:docs/work/AGENTS.md"
+        ],
+        "competingClaims": [],
+        "hashAlgorithm": "sha256",
+        "expectedSourceHash": "adc5ac00d7c15e0d85bb455ee28b0be3842e412570fad45725d4b1748d386d56",
+        "installedHash": "adc5ac00d7c15e0d85bb455ee28b0be3842e412570fad45725d4b1748d386d56",
+        "lastVerifiedAt": "2026-09-02T22:03:27.456Z",
+        "lifecycleDisposition": "active",
+        "adoptionReceipt": null
+      },
+      "docs/work/CLAUDE.md": {
+        "relativePath": "docs/work/CLAUDE.md",
+        "harness": "claude-code",
+        "instructionKind": "CLAUDE.md",
+        "ownershipClass": "managed-snapshot",
+        "routerClass": "bootstrap",
+        "sourceId": "router:claude-code:docs/work/CLAUDE.md",
+        "sourcePackage": "@brucewaynedecoy/make-docs",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
+        "materializationMode": "managed-block",
+        "provenanceState": "verified",
+        "provenanceEvidence": [
+          "package:@brucewaynedecoy/make-docs@2.0.0-rc",
+          "managed-source:router:claude-code:docs/work/CLAUDE.md"
+        ],
+        "competingClaims": [],
+        "hashAlgorithm": "sha256",
+        "expectedSourceHash": "adc5ac00d7c15e0d85bb455ee28b0be3842e412570fad45725d4b1748d386d56",
+        "installedHash": "adc5ac00d7c15e0d85bb455ee28b0be3842e412570fad45725d4b1748d386d56",
+        "lastVerifiedAt": "2026-09-02T22:03:27.456Z",
+        "lifecycleDisposition": "active",
+        "adoptionReceipt": null
       }
     }
   },
@@ -2251,7 +2316,7 @@
         "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null,
-        "selectionTrigger": "reconfigure-selection",
+        "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
           "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
@@ -2276,7 +2341,7 @@
         "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null,
-        "selectionTrigger": "reconfigure-selection",
+        "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
           "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
@@ -2301,7 +2366,7 @@
         "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null,
-        "selectionTrigger": "reconfigure-selection",
+        "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
           "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
@@ -2326,7 +2391,7 @@
         "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null,
-        "selectionTrigger": "reconfigure-selection",
+        "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
           "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
@@ -2351,7 +2416,7 @@
         "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null,
-        "selectionTrigger": "reconfigure-selection",
+        "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
           "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
@@ -2376,7 +2441,7 @@
         "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null,
-        "selectionTrigger": "reconfigure-selection",
+        "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
           "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
@@ -2401,7 +2466,7 @@
         "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null,
-        "selectionTrigger": "reconfigure-selection",
+        "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
           "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
@@ -2426,7 +2491,7 @@
         "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null,
-        "selectionTrigger": "reconfigure-selection",
+        "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
           "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
@@ -2451,7 +2516,7 @@
         "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null,
-        "selectionTrigger": "reconfigure-selection",
+        "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
           "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
@@ -2476,7 +2541,7 @@
         "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null,
-        "selectionTrigger": "reconfigure-selection",
+        "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
           "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
@@ -2501,7 +2566,7 @@
         "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null,
-        "selectionTrigger": "reconfigure-selection",
+        "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
           "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
@@ -2526,7 +2591,7 @@
         "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null,
-        "selectionTrigger": "reconfigure-selection",
+        "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
           "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
@@ -2551,7 +2616,7 @@
         "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null,
-        "selectionTrigger": "reconfigure-selection",
+        "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
           "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
@@ -2576,7 +2641,7 @@
         "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null,
-        "selectionTrigger": "reconfigure-selection",
+        "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
           "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
@@ -2601,7 +2666,7 @@
         "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null,
-        "selectionTrigger": "reconfigure-selection",
+        "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
           "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
@@ -2626,7 +2691,7 @@
         "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null,
-        "selectionTrigger": "reconfigure-selection",
+        "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
           "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
@@ -2651,7 +2716,7 @@
         "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null,
-        "selectionTrigger": "reconfigure-selection",
+        "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
           "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
@@ -2676,7 +2741,7 @@
         "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null,
-        "selectionTrigger": "reconfigure-selection",
+        "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
           "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
@@ -2701,7 +2766,7 @@
         "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null,
-        "selectionTrigger": "reconfigure-selection",
+        "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
           "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
@@ -2726,7 +2791,7 @@
         "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null,
-        "selectionTrigger": "reconfigure-selection",
+        "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
           "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
@@ -2751,7 +2816,7 @@
         "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null,
-        "selectionTrigger": "reconfigure-selection",
+        "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
           "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
@@ -2776,7 +2841,7 @@
         "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null,
-        "selectionTrigger": "reconfigure-selection",
+        "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
           "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
@@ -2801,7 +2866,7 @@
         "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null,
-        "selectionTrigger": "reconfigure-selection",
+        "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
           "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
@@ -2826,7 +2891,7 @@
         "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null,
-        "selectionTrigger": "reconfigure-selection",
+        "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
           "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
@@ -2851,7 +2916,7 @@
         "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null,
-        "selectionTrigger": "reconfigure-selection",
+        "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
           "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
@@ -2876,7 +2941,7 @@
         "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null,
-        "selectionTrigger": "reconfigure-selection",
+        "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
           "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
@@ -2901,7 +2966,7 @@
         "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null,
-        "selectionTrigger": "reconfigure-selection",
+        "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
           "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
@@ -2926,7 +2991,7 @@
         "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null,
-        "selectionTrigger": "reconfigure-selection",
+        "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
           "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
@@ -2951,7 +3016,7 @@
         "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null,
-        "selectionTrigger": "reconfigure-selection",
+        "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
           "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
@@ -2976,7 +3041,7 @@
         "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null,
-        "selectionTrigger": "reconfigure-selection",
+        "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
           "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
@@ -3001,7 +3066,7 @@
         "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null,
-        "selectionTrigger": "reconfigure-selection",
+        "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
           "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
@@ -3026,7 +3091,7 @@
         "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null,
-        "selectionTrigger": "reconfigure-selection",
+        "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
           "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
@@ -3051,7 +3116,7 @@
         "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null,
-        "selectionTrigger": "reconfigure-selection",
+        "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
           "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
@@ -3076,7 +3141,7 @@
         "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null,
-        "selectionTrigger": "reconfigure-selection",
+        "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
           "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
@@ -3101,7 +3166,7 @@
         "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null,
-        "selectionTrigger": "reconfigure-selection",
+        "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
           "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
@@ -3126,7 +3191,7 @@
         "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null,
-        "selectionTrigger": "reconfigure-selection",
+        "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
           "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
@@ -3151,7 +3216,7 @@
         "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null,
-        "selectionTrigger": "reconfigure-selection",
+        "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
           "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
@@ -3176,7 +3241,7 @@
         "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null,
-        "selectionTrigger": "reconfigure-selection",
+        "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
           "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
@@ -3201,7 +3266,7 @@
         "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null,
-        "selectionTrigger": "reconfigure-selection",
+        "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
           "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
@@ -3226,7 +3291,7 @@
         "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null,
-        "selectionTrigger": "reconfigure-selection",
+        "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
           "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
@@ -3251,7 +3316,7 @@
         "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null,
-        "selectionTrigger": "reconfigure-selection",
+        "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
           "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
@@ -3276,7 +3341,7 @@
         "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null,
-        "selectionTrigger": "reconfigure-selection",
+        "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
           "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
@@ -3301,7 +3366,7 @@
         "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null,
-        "selectionTrigger": "reconfigure-selection",
+        "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
           "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
@@ -3326,7 +3391,7 @@
         "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null,
-        "selectionTrigger": "reconfigure-selection",
+        "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
           "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
@@ -3351,7 +3416,7 @@
         "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null,
-        "selectionTrigger": "reconfigure-selection",
+        "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
           "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
@@ -3376,7 +3441,7 @@
         "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null,
-        "selectionTrigger": "reconfigure-selection",
+        "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
           "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
@@ -3401,7 +3466,7 @@
         "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null,
-        "selectionTrigger": "reconfigure-selection",
+        "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
           "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
@@ -3426,7 +3491,7 @@
         "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null,
-        "selectionTrigger": "reconfigure-selection",
+        "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
           "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
@@ -3451,7 +3516,7 @@
         "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null,
-        "selectionTrigger": "reconfigure-selection",
+        "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
           "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
@@ -3476,7 +3541,7 @@
         "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null,
-        "selectionTrigger": "reconfigure-selection",
+        "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
           "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
@@ -3501,7 +3566,7 @@
         "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null,
-        "selectionTrigger": "reconfigure-selection",
+        "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
           "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
@@ -3526,7 +3591,7 @@
         "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null,
-        "selectionTrigger": "reconfigure-selection",
+        "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
           "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
@@ -3551,7 +3616,7 @@
         "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null,
-        "selectionTrigger": "reconfigure-selection",
+        "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
           "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
@@ -3576,7 +3641,7 @@
         "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null,
-        "selectionTrigger": "reconfigure-selection",
+        "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
           "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
@@ -3601,7 +3666,7 @@
         "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null,
-        "selectionTrigger": "reconfigure-selection",
+        "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
           "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
@@ -4163,8 +4228,8 @@
       "ownershipClass": "managed-block"
     },
     "docs/assets/AGENTS.md": {
-      "hash": "718bc88490f3de521d9d7f1db5f7634642665f560b8ff0187018ec0aaaef16df",
-      "sourceId": "file:docs/assets/AGENTS.md",
+      "hash": "d7ccf6d6fde49057b401b958ddd7cbcd310837ee8ded06ebca1813a05a9e89ed",
+      "sourceId": "router:codex:docs/assets/AGENTS.md",
       "systemAsset": {
         "materializationMode": "provider-backed",
         "sourcePackage": "@brucewaynedecoy/make-docs",
@@ -4173,108 +4238,20 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "718bc88490f3de521d9d7f1db5f7634642665f560b8ff0187018ec0aaaef16df"
+          "d7ccf6d6fde49057b401b958ddd7cbcd310837ee8ded06ebca1813a05a9e89ed"
         ],
         "logicalAssetId": "docs/assets/AGENTS.md",
         "localPath": "docs/assets/AGENTS.md",
-        "materializationClass": "deferred-system-asset",
-        "offlineExpectation": "reviewed-full-snapshot-fallback",
+        "materializationClass": "always-local-bootstrap",
+        "offlineExpectation": "local",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
-        "selectionTrigger": "internal-materialization-mode"
-      },
-      "ownershipClass": "managed-block"
-    },
-    "docs/assets/archive/AGENTS.md": {
-      "hash": "349d75d9676650f793f7e3bc047af543d95ab01ba140e3efc1a40b03923294f8",
-      "sourceId": "file:docs/assets/archive/AGENTS.md",
-      "systemAsset": {
-        "materializationMode": "provider-backed",
-        "sourcePackage": "@brucewaynedecoy/make-docs",
-        "sourceProvider": "package",
-        "sourceVersion": "2.0.0-rc",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
-        "hashAlgorithm": "sha256",
-        "expectedHashes": [
-          "349d75d9676650f793f7e3bc047af543d95ab01ba140e3efc1a40b03923294f8"
-        ],
-        "logicalAssetId": "docs/assets/archive/AGENTS.md",
-        "localPath": "docs/assets/archive/AGENTS.md",
-        "materializationClass": "deferred-system-asset",
-        "offlineExpectation": "reviewed-full-snapshot-fallback",
-        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
-        "selectionTrigger": "internal-materialization-mode"
-      },
-      "ownershipClass": "managed-block"
-    },
-    "docs/assets/archive/CLAUDE.md": {
-      "hash": "349d75d9676650f793f7e3bc047af543d95ab01ba140e3efc1a40b03923294f8",
-      "sourceId": "file:docs/assets/archive/CLAUDE.md",
-      "systemAsset": {
-        "materializationMode": "provider-backed",
-        "sourcePackage": "@brucewaynedecoy/make-docs",
-        "sourceProvider": "package",
-        "sourceVersion": "2.0.0-rc",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
-        "hashAlgorithm": "sha256",
-        "expectedHashes": [
-          "349d75d9676650f793f7e3bc047af543d95ab01ba140e3efc1a40b03923294f8"
-        ],
-        "logicalAssetId": "docs/assets/archive/CLAUDE.md",
-        "localPath": "docs/assets/archive/CLAUDE.md",
-        "materializationClass": "deferred-system-asset",
-        "offlineExpectation": "reviewed-full-snapshot-fallback",
-        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
-        "selectionTrigger": "internal-materialization-mode"
-      },
-      "ownershipClass": "managed-block"
-    },
-    "docs/assets/artifacts/AGENTS.md": {
-      "hash": "1a1e0ae8b09268209ffa9a2b907e6781709730a6f9aed9fa2d664c07853bcba9",
-      "sourceId": "file:docs/assets/artifacts/AGENTS.md",
-      "systemAsset": {
-        "materializationMode": "provider-backed",
-        "sourcePackage": "@brucewaynedecoy/make-docs",
-        "sourceProvider": "package",
-        "sourceVersion": "2.0.0-rc",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
-        "hashAlgorithm": "sha256",
-        "expectedHashes": [
-          "1a1e0ae8b09268209ffa9a2b907e6781709730a6f9aed9fa2d664c07853bcba9"
-        ],
-        "logicalAssetId": "docs/assets/artifacts/AGENTS.md",
-        "localPath": "docs/assets/artifacts/AGENTS.md",
-        "materializationClass": "deferred-system-asset",
-        "offlineExpectation": "reviewed-full-snapshot-fallback",
-        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
-        "selectionTrigger": "internal-materialization-mode"
-      },
-      "ownershipClass": "managed-block"
-    },
-    "docs/assets/artifacts/CLAUDE.md": {
-      "hash": "1a1e0ae8b09268209ffa9a2b907e6781709730a6f9aed9fa2d664c07853bcba9",
-      "sourceId": "file:docs/assets/artifacts/CLAUDE.md",
-      "systemAsset": {
-        "materializationMode": "provider-backed",
-        "sourcePackage": "@brucewaynedecoy/make-docs",
-        "sourceProvider": "package",
-        "sourceVersion": "2.0.0-rc",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
-        "hashAlgorithm": "sha256",
-        "expectedHashes": [
-          "1a1e0ae8b09268209ffa9a2b907e6781709730a6f9aed9fa2d664c07853bcba9"
-        ],
-        "logicalAssetId": "docs/assets/artifacts/CLAUDE.md",
-        "localPath": "docs/assets/artifacts/CLAUDE.md",
-        "materializationClass": "deferred-system-asset",
-        "offlineExpectation": "reviewed-full-snapshot-fallback",
-        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
-        "selectionTrigger": "internal-materialization-mode"
+        "selectionTrigger": "local-bootstrap"
       },
       "ownershipClass": "managed-block"
     },
     "docs/assets/CLAUDE.md": {
-      "hash": "718bc88490f3de521d9d7f1db5f7634642665f560b8ff0187018ec0aaaef16df",
-      "sourceId": "file:docs/assets/CLAUDE.md",
+      "hash": "d7ccf6d6fde49057b401b958ddd7cbcd310837ee8ded06ebca1813a05a9e89ed",
+      "sourceId": "router:claude-code:docs/assets/CLAUDE.md",
       "systemAsset": {
         "materializationMode": "provider-backed",
         "sourcePackage": "@brucewaynedecoy/make-docs",
@@ -4283,102 +4260,14 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "718bc88490f3de521d9d7f1db5f7634642665f560b8ff0187018ec0aaaef16df"
+          "d7ccf6d6fde49057b401b958ddd7cbcd310837ee8ded06ebca1813a05a9e89ed"
         ],
         "logicalAssetId": "docs/assets/CLAUDE.md",
         "localPath": "docs/assets/CLAUDE.md",
-        "materializationClass": "deferred-system-asset",
-        "offlineExpectation": "reviewed-full-snapshot-fallback",
+        "materializationClass": "always-local-bootstrap",
+        "offlineExpectation": "local",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
-        "selectionTrigger": "internal-materialization-mode"
-      },
-      "ownershipClass": "managed-block"
-    },
-    "docs/assets/library/AGENTS.md": {
-      "hash": "1555eadff4fa63b0d84570bb63d7e14e64149200464d468d1ad168480743617d",
-      "sourceId": "file:docs/assets/library/AGENTS.md",
-      "systemAsset": {
-        "materializationMode": "provider-backed",
-        "sourcePackage": "@brucewaynedecoy/make-docs",
-        "sourceProvider": "package",
-        "sourceVersion": "2.0.0-rc",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
-        "hashAlgorithm": "sha256",
-        "expectedHashes": [
-          "1555eadff4fa63b0d84570bb63d7e14e64149200464d468d1ad168480743617d"
-        ],
-        "logicalAssetId": "docs/assets/library/AGENTS.md",
-        "localPath": "docs/assets/library/AGENTS.md",
-        "materializationClass": "deferred-system-asset",
-        "offlineExpectation": "reviewed-full-snapshot-fallback",
-        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
-        "selectionTrigger": "internal-materialization-mode"
-      },
-      "ownershipClass": "managed-block"
-    },
-    "docs/assets/library/CLAUDE.md": {
-      "hash": "1555eadff4fa63b0d84570bb63d7e14e64149200464d468d1ad168480743617d",
-      "sourceId": "file:docs/assets/library/CLAUDE.md",
-      "systemAsset": {
-        "materializationMode": "provider-backed",
-        "sourcePackage": "@brucewaynedecoy/make-docs",
-        "sourceProvider": "package",
-        "sourceVersion": "2.0.0-rc",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
-        "hashAlgorithm": "sha256",
-        "expectedHashes": [
-          "1555eadff4fa63b0d84570bb63d7e14e64149200464d468d1ad168480743617d"
-        ],
-        "logicalAssetId": "docs/assets/library/CLAUDE.md",
-        "localPath": "docs/assets/library/CLAUDE.md",
-        "materializationClass": "deferred-system-asset",
-        "offlineExpectation": "reviewed-full-snapshot-fallback",
-        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
-        "selectionTrigger": "internal-materialization-mode"
-      },
-      "ownershipClass": "managed-block"
-    },
-    "docs/assets/playbooks/AGENTS.md": {
-      "hash": "f120fde80e4545d5ac2494b8a98aab9c9f6ef1d081734aeadafdfba8dc65fbb6",
-      "sourceId": "file:docs/assets/playbooks/AGENTS.md",
-      "systemAsset": {
-        "materializationMode": "provider-backed",
-        "sourcePackage": "@brucewaynedecoy/make-docs",
-        "sourceProvider": "package",
-        "sourceVersion": "2.0.0-rc",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
-        "hashAlgorithm": "sha256",
-        "expectedHashes": [
-          "f120fde80e4545d5ac2494b8a98aab9c9f6ef1d081734aeadafdfba8dc65fbb6"
-        ],
-        "logicalAssetId": "docs/assets/playbooks/AGENTS.md",
-        "localPath": "docs/assets/playbooks/AGENTS.md",
-        "materializationClass": "deferred-system-asset",
-        "offlineExpectation": "reviewed-full-snapshot-fallback",
-        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
-        "selectionTrigger": "internal-materialization-mode"
-      },
-      "ownershipClass": "managed-block"
-    },
-    "docs/assets/playbooks/CLAUDE.md": {
-      "hash": "f120fde80e4545d5ac2494b8a98aab9c9f6ef1d081734aeadafdfba8dc65fbb6",
-      "sourceId": "file:docs/assets/playbooks/CLAUDE.md",
-      "systemAsset": {
-        "materializationMode": "provider-backed",
-        "sourcePackage": "@brucewaynedecoy/make-docs",
-        "sourceProvider": "package",
-        "sourceVersion": "2.0.0-rc",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
-        "hashAlgorithm": "sha256",
-        "expectedHashes": [
-          "f120fde80e4545d5ac2494b8a98aab9c9f6ef1d081734aeadafdfba8dc65fbb6"
-        ],
-        "logicalAssetId": "docs/assets/playbooks/CLAUDE.md",
-        "localPath": "docs/assets/playbooks/CLAUDE.md",
-        "materializationClass": "deferred-system-asset",
-        "offlineExpectation": "reviewed-full-snapshot-fallback",
-        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
-        "selectionTrigger": "internal-materialization-mode"
+        "selectionTrigger": "local-bootstrap"
       },
       "ownershipClass": "managed-block"
     },
@@ -4405,8 +4294,8 @@
       "ownershipClass": "managed-block"
     },
     "docs/designs/AGENTS.md": {
-      "hash": "babf2797a1e456de724eda878d66b4a032ef70f66cfec7e837cdd498402d0b26",
-      "sourceId": "file:docs/designs/AGENTS.md",
+      "hash": "715d9dc7c6f058bef1def8ef9a4eff20fb2a2409fc7c0907f7856e211a5f53d6",
+      "sourceId": "router:codex:docs/designs/AGENTS.md",
       "systemAsset": {
         "materializationMode": "provider-backed",
         "sourcePackage": "@brucewaynedecoy/make-docs",
@@ -4415,20 +4304,20 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "babf2797a1e456de724eda878d66b4a032ef70f66cfec7e837cdd498402d0b26"
+          "715d9dc7c6f058bef1def8ef9a4eff20fb2a2409fc7c0907f7856e211a5f53d6"
         ],
         "logicalAssetId": "docs/designs/AGENTS.md",
         "localPath": "docs/designs/AGENTS.md",
-        "materializationClass": "deferred-system-asset",
-        "offlineExpectation": "reviewed-full-snapshot-fallback",
+        "materializationClass": "always-local-bootstrap",
+        "offlineExpectation": "local",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
-        "selectionTrigger": "internal-materialization-mode"
+        "selectionTrigger": "local-bootstrap"
       },
       "ownershipClass": "managed-block"
     },
     "docs/designs/CLAUDE.md": {
-      "hash": "babf2797a1e456de724eda878d66b4a032ef70f66cfec7e837cdd498402d0b26",
-      "sourceId": "file:docs/designs/CLAUDE.md",
+      "hash": "715d9dc7c6f058bef1def8ef9a4eff20fb2a2409fc7c0907f7856e211a5f53d6",
+      "sourceId": "router:claude-code:docs/designs/CLAUDE.md",
       "systemAsset": {
         "materializationMode": "provider-backed",
         "sourcePackage": "@brucewaynedecoy/make-docs",
@@ -4437,20 +4326,20 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "babf2797a1e456de724eda878d66b4a032ef70f66cfec7e837cdd498402d0b26"
+          "715d9dc7c6f058bef1def8ef9a4eff20fb2a2409fc7c0907f7856e211a5f53d6"
         ],
         "logicalAssetId": "docs/designs/CLAUDE.md",
         "localPath": "docs/designs/CLAUDE.md",
-        "materializationClass": "deferred-system-asset",
-        "offlineExpectation": "reviewed-full-snapshot-fallback",
+        "materializationClass": "always-local-bootstrap",
+        "offlineExpectation": "local",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
-        "selectionTrigger": "internal-materialization-mode"
+        "selectionTrigger": "local-bootstrap"
       },
       "ownershipClass": "managed-block"
     },
     "docs/plans/AGENTS.md": {
-      "hash": "4b27db644a9fad249975f33c1db70164d0ab9fdece8e6826ac4a283b7efefb7c",
-      "sourceId": "file:docs/plans/AGENTS.md",
+      "hash": "49222c524a8168ade68cd6bfb0765918135178e99e2e0cce7175ca987f61d0e5",
+      "sourceId": "router:codex:docs/plans/AGENTS.md",
       "systemAsset": {
         "materializationMode": "provider-backed",
         "sourcePackage": "@brucewaynedecoy/make-docs",
@@ -4459,20 +4348,20 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "4b27db644a9fad249975f33c1db70164d0ab9fdece8e6826ac4a283b7efefb7c"
+          "49222c524a8168ade68cd6bfb0765918135178e99e2e0cce7175ca987f61d0e5"
         ],
         "logicalAssetId": "docs/plans/AGENTS.md",
         "localPath": "docs/plans/AGENTS.md",
-        "materializationClass": "deferred-system-asset",
-        "offlineExpectation": "reviewed-full-snapshot-fallback",
+        "materializationClass": "always-local-bootstrap",
+        "offlineExpectation": "local",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
-        "selectionTrigger": "internal-materialization-mode"
+        "selectionTrigger": "local-bootstrap"
       },
       "ownershipClass": "managed-block"
     },
     "docs/plans/CLAUDE.md": {
-      "hash": "4b27db644a9fad249975f33c1db70164d0ab9fdece8e6826ac4a283b7efefb7c",
-      "sourceId": "file:docs/plans/CLAUDE.md",
+      "hash": "49222c524a8168ade68cd6bfb0765918135178e99e2e0cce7175ca987f61d0e5",
+      "sourceId": "router:claude-code:docs/plans/CLAUDE.md",
       "systemAsset": {
         "materializationMode": "provider-backed",
         "sourcePackage": "@brucewaynedecoy/make-docs",
@@ -4481,20 +4370,20 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "4b27db644a9fad249975f33c1db70164d0ab9fdece8e6826ac4a283b7efefb7c"
+          "49222c524a8168ade68cd6bfb0765918135178e99e2e0cce7175ca987f61d0e5"
         ],
         "logicalAssetId": "docs/plans/CLAUDE.md",
         "localPath": "docs/plans/CLAUDE.md",
-        "materializationClass": "deferred-system-asset",
-        "offlineExpectation": "reviewed-full-snapshot-fallback",
+        "materializationClass": "always-local-bootstrap",
+        "offlineExpectation": "local",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
-        "selectionTrigger": "internal-materialization-mode"
+        "selectionTrigger": "local-bootstrap"
       },
       "ownershipClass": "managed-block"
     },
     "docs/prd/AGENTS.md": {
       "hash": "3434af408e58a40102a62a7fbcca52fb72ce18f3a6958d12e176a28b232d723c",
-      "sourceId": "file:docs/prd/AGENTS.md",
+      "sourceId": "router:codex:docs/prd/AGENTS.md",
       "systemAsset": {
         "materializationMode": "provider-backed",
         "sourcePackage": "@brucewaynedecoy/make-docs",
@@ -4507,16 +4396,16 @@
         ],
         "logicalAssetId": "docs/prd/AGENTS.md",
         "localPath": "docs/prd/AGENTS.md",
-        "materializationClass": "deferred-system-asset",
-        "offlineExpectation": "reviewed-full-snapshot-fallback",
+        "materializationClass": "always-local-bootstrap",
+        "offlineExpectation": "local",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
-        "selectionTrigger": "internal-materialization-mode"
+        "selectionTrigger": "local-bootstrap"
       },
       "ownershipClass": "managed-block"
     },
     "docs/prd/CLAUDE.md": {
       "hash": "3434af408e58a40102a62a7fbcca52fb72ce18f3a6958d12e176a28b232d723c",
-      "sourceId": "file:docs/prd/CLAUDE.md",
+      "sourceId": "router:claude-code:docs/prd/CLAUDE.md",
       "systemAsset": {
         "materializationMode": "provider-backed",
         "sourcePackage": "@brucewaynedecoy/make-docs",
@@ -4529,16 +4418,16 @@
         ],
         "logicalAssetId": "docs/prd/CLAUDE.md",
         "localPath": "docs/prd/CLAUDE.md",
-        "materializationClass": "deferred-system-asset",
-        "offlineExpectation": "reviewed-full-snapshot-fallback",
+        "materializationClass": "always-local-bootstrap",
+        "offlineExpectation": "local",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
-        "selectionTrigger": "internal-materialization-mode"
+        "selectionTrigger": "local-bootstrap"
       },
       "ownershipClass": "managed-block"
     },
     "docs/work/AGENTS.md": {
-      "hash": "e50eccd4635b0201c47fa9e9dcb2c8b3216e5bbc186d379c470afc926a6ff312",
-      "sourceId": "file:docs/work/AGENTS.md",
+      "hash": "adc5ac00d7c15e0d85bb455ee28b0be3842e412570fad45725d4b1748d386d56",
+      "sourceId": "router:codex:docs/work/AGENTS.md",
       "systemAsset": {
         "materializationMode": "provider-backed",
         "sourcePackage": "@brucewaynedecoy/make-docs",
@@ -4547,20 +4436,20 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "e50eccd4635b0201c47fa9e9dcb2c8b3216e5bbc186d379c470afc926a6ff312"
+          "adc5ac00d7c15e0d85bb455ee28b0be3842e412570fad45725d4b1748d386d56"
         ],
         "logicalAssetId": "docs/work/AGENTS.md",
         "localPath": "docs/work/AGENTS.md",
-        "materializationClass": "deferred-system-asset",
-        "offlineExpectation": "reviewed-full-snapshot-fallback",
+        "materializationClass": "always-local-bootstrap",
+        "offlineExpectation": "local",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
-        "selectionTrigger": "internal-materialization-mode"
+        "selectionTrigger": "local-bootstrap"
       },
       "ownershipClass": "managed-block"
     },
     "docs/work/CLAUDE.md": {
-      "hash": "e50eccd4635b0201c47fa9e9dcb2c8b3216e5bbc186d379c470afc926a6ff312",
-      "sourceId": "file:docs/work/CLAUDE.md",
+      "hash": "adc5ac00d7c15e0d85bb455ee28b0be3842e412570fad45725d4b1748d386d56",
+      "sourceId": "router:claude-code:docs/work/CLAUDE.md",
       "systemAsset": {
         "materializationMode": "provider-backed",
         "sourcePackage": "@brucewaynedecoy/make-docs",
@@ -4569,14 +4458,14 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "e50eccd4635b0201c47fa9e9dcb2c8b3216e5bbc186d379c470afc926a6ff312"
+          "adc5ac00d7c15e0d85bb455ee28b0be3842e412570fad45725d4b1748d386d56"
         ],
         "logicalAssetId": "docs/work/CLAUDE.md",
         "localPath": "docs/work/CLAUDE.md",
-        "materializationClass": "deferred-system-asset",
-        "offlineExpectation": "reviewed-full-snapshot-fallback",
+        "materializationClass": "always-local-bootstrap",
+        "offlineExpectation": "local",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
-        "selectionTrigger": "internal-materialization-mode"
+        "selectionTrigger": "local-bootstrap"
       },
       "ownershipClass": "managed-block"
     },
@@ -4603,25 +4492,8 @@
     },
     "docs/assets/playbooks/agent/make-docs-lifecycle.playbook.md": {
       "hash": "e85f779a85cd231cf55dcfbc005c3c44bb1be920e29ddc52af66cbbf20164ccc",
-      "sourceId": "file:docs/assets/playbooks/agent/make-docs-lifecycle.playbook.md",
-      "systemAsset": {
-        "materializationMode": "provider-backed",
-        "sourcePackage": "@brucewaynedecoy/make-docs",
-        "sourceProvider": "package",
-        "sourceVersion": "2.0.0-rc",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
-        "hashAlgorithm": "sha256",
-        "expectedHashes": [
-          "e85f779a85cd231cf55dcfbc005c3c44bb1be920e29ddc52af66cbbf20164ccc"
-        ],
-        "logicalAssetId": "docs/assets/playbooks/agent/make-docs-lifecycle.playbook.md",
-        "localPath": "docs/assets/playbooks/agent/make-docs-lifecycle.playbook.md",
-        "materializationClass": "deferred-system-asset",
-        "offlineExpectation": "reviewed-full-snapshot-fallback",
-        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
-        "selectionTrigger": "internal-materialization-mode"
-      },
-      "ownershipClass": "managed-snapshot"
+      "sourceId": "project:docs/assets/playbooks/agent/make-docs-lifecycle.playbook.md",
+      "ownershipClass": "project-owned"
     },
     ".make-docs/system-resources.catalog.json": {
       "hash": "5ef65544536f88748116c79f7378d7e21d24531a071ca7cd475ef80190a981c1",

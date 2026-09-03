@@ -76,7 +76,7 @@ const PACKAGE_RUNNER_SMOKES = [
   },
 ];
 
-const EXPECTED_READER_ASSET_PATHS = [
+const RETIRED_READER_ASSET_DEFAULT_PATHS = [
   "docs/assets/archive/AGENTS.md",
   "docs/assets/archive/CLAUDE.md",
   "docs/assets/artifacts/AGENTS.md",
@@ -86,45 +86,33 @@ const EXPECTED_READER_ASSET_PATHS = [
   "docs/assets/playbooks/AGENTS.md",
   "docs/assets/playbooks/CLAUDE.md",
   "docs/assets/playbooks/agent/make-docs-lifecycle.playbook.md",
+  "docs/assets/playbooks/agent/naive-uat-facilitator.playbook.md",
+  "docs/assets/playbooks/user/naive-uat-tester.playbook.md",
 ];
 
-const EXPECTED_PROVIDER_ONLY_ROUTER_PATHS = [
-  "AGENTS.md",
-  "CLAUDE.md",
-  "docs/AGENTS.md",
-  "docs/CLAUDE.md",
-  ".make-docs/AGENTS.md",
-  ".make-docs/CLAUDE.md",
-  ".make-docs/system/AGENTS.md",
-  ".make-docs/system/CLAUDE.md",
-  ".make-docs/system/contracts/AGENTS.md",
-  ".make-docs/system/contracts/CLAUDE.md",
-  ".make-docs/system/prompts/AGENTS.md",
-  ".make-docs/system/prompts/CLAUDE.md",
-  ".make-docs/system/references/AGENTS.md",
-  ".make-docs/system/references/CLAUDE.md",
-  ".make-docs/system/templates/AGENTS.md",
-  ".make-docs/system/templates/CLAUDE.md",
-];
-
-const ROUTER_HEADINGS = {
-  "AGENTS.md": "# Agent Instructions",
-  "CLAUDE.md": "# Agent Instructions",
-  "docs/AGENTS.md": "# Documentation Router",
-  "docs/CLAUDE.md": "# Documentation Router",
-  ".make-docs/AGENTS.md": "# Make Docs System Router",
-  ".make-docs/CLAUDE.md": "# Make Docs System Router",
-  ".make-docs/system/AGENTS.md": "# System Resources Router",
-  ".make-docs/system/CLAUDE.md": "# System Resources Router",
-  ".make-docs/system/contracts/AGENTS.md": "# System Contracts Router",
-  ".make-docs/system/contracts/CLAUDE.md": "# System Contracts Router",
-  ".make-docs/system/prompts/AGENTS.md": "# System Prompts Router",
-  ".make-docs/system/prompts/CLAUDE.md": "# System Prompts Router",
-  ".make-docs/system/references/AGENTS.md": "# System References Router",
-  ".make-docs/system/references/CLAUDE.md": "# System References Router",
-  ".make-docs/system/templates/AGENTS.md": "# Templates Router",
-  ".make-docs/system/templates/CLAUDE.md": "# Templates Router",
+const ROUTER_HEADING_BY_DIRECTORY = {
+  ".": "# Agent Instructions",
+  "docs": "# Documentation Router",
+  "docs/assets": "# Document Assets Router",
+  "docs/designs": "# Designs Router",
+  "docs/plans": "# Plans Directory",
+  "docs/prd": "# PRD Router",
+  "docs/work": "# Work Directory",
+  ".make-docs": "# Make Docs System Router",
+  ".make-docs/system": "# System Resources Router",
+  ".make-docs/system/contracts": "# System Contracts Router",
+  ".make-docs/system/prompts": "# System Prompts Router",
+  ".make-docs/system/references": "# System References Router",
+  ".make-docs/system/templates": "# Templates Router",
 };
+
+function getRouterHeading(relativePath) {
+  const heading = ROUTER_HEADING_BY_DIRECTORY[path.posix.dirname(relativePath)];
+  if (!heading) {
+    throw new Error(`Smoke pack has no heading contract for router ${relativePath}.`);
+  }
+  return heading;
+}
 
 const EXPECTED_SKILL_PATHS = [
   ".make-docs/agentics/skills/archive-docs/SKILL.md",
@@ -339,7 +327,6 @@ try {
   const packageRoot = path.join(unpackDir, "package");
   const packedPackage = readPackedPackage(packageRoot);
   assertOnlyMakeDocsBin(packedPackage);
-  assertPackedInstructionTemplate(packageRoot);
   assertPackedRouterGuidanceParity(packageRoot);
   assertPackedReaderFacingTemplate(packageRoot);
   assertNoConformanceAssetsInTarball(packageRoot);
@@ -428,7 +415,8 @@ try {
       "Smoke pack bare invocation (installed) omitted the installed package line.",
     );
 
-    assertProviderOnlyDefaultInstall(targetDir, manifestPath);
+    const providerOnlyRouterPaths = assertProviderOnlyDefaultInstall(targetDir, manifestPath);
+    assertPackedInstructionTemplate(packageRoot, providerOnlyRouterPaths);
     assertManifestOmitsProjectConfig(manifestPath);
 
     execFileSync(
@@ -933,42 +921,51 @@ function assertProviderOnlyDefaultInstall(targetDir, manifestPath) {
   const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
   const files = manifest.files && typeof manifest.files === "object" ? manifest.files : {};
   const trackedPaths = Object.keys(files).sort();
-  const expectedPaths = [...EXPECTED_PROVIDER_ONLY_ROUTER_PATHS].sort();
-  if (JSON.stringify(trackedPaths) !== JSON.stringify(expectedPaths)) {
-    throw new Error(
-      `Smoke pack provider-only setup tracked ${trackedPaths.join(", ") || "(none)"}; ` +
-        `expected only ${expectedPaths.join(", ")}.`,
-    );
-  }
 
   if (manifest.schemaVersion !== 4) {
     throw new Error(`Smoke pack provider-only manifest used schema ${manifest.schemaVersion}, expected 4.`);
   }
 
-  for (const expectedPath of EXPECTED_PROVIDER_ONLY_ROUTER_PATHS) {
+  const routerOwnership = manifest.routerOwnership;
+  const expectedPaths = Object.keys(routerOwnership?.routers ?? {}).sort();
+  if (
+    routerOwnership?.operationLineage !== "W19 R1 P4" ||
+    JSON.stringify(routerOwnership.configuredHarnesses) !==
+      JSON.stringify(["claude-code", "codex"]) ||
+    expectedPaths.length !== 26
+  ) {
+    throw new Error("Smoke pack provider-only manifest has invalid router ownership evidence.");
+  }
+  if (JSON.stringify(trackedPaths) !== JSON.stringify(expectedPaths)) {
+    throw new Error(
+      `Smoke pack provider-only setup tracked ${trackedPaths.join(", ") || "(none)"}; ` +
+        `schema-4 router proof requires ${expectedPaths.join(", ")}.`,
+    );
+  }
+
+  for (const expectedPath of expectedPaths) {
     const entry = files[expectedPath];
     const harness = expectedPath.endsWith("AGENTS.md") ? "codex" : "claude-code";
+    const instructionKind = harness === "codex" ? "AGENTS.md" : "CLAUDE.md";
     const expectedSourceId = `router:${harness}:${expectedPath}`;
+    const ownershipEntry = routerOwnership.routers[expectedPath];
     if (!entry) {
       throw new Error(`Smoke pack provider-only manifest did not track router ${expectedPath}.`);
     }
     if (
       entry.sourceId !== expectedSourceId ||
       entry.ownershipClass !== "managed-block" ||
-      !/^[a-f0-9]{64}$/.test(entry.hash ?? "")
+      !/^[a-f0-9]{64}$/.test(entry.hash ?? "") ||
+      ownershipEntry?.relativePath !== expectedPath ||
+      ownershipEntry?.harness !== harness ||
+      ownershipEntry?.instructionKind !== instructionKind ||
+      ownershipEntry?.routerClass !== "bootstrap" ||
+      ownershipEntry?.sourceId !== expectedSourceId
     ) {
       throw new Error(
         `Smoke pack provider-only manifest has invalid router evidence for ${expectedPath}.`,
       );
     }
-  }
-
-  const routerOwnership = manifest.routerOwnership;
-  if (
-    routerOwnership?.operationLineage !== "W19 R1 P4" ||
-    JSON.stringify(Object.keys(routerOwnership.routers ?? {}).sort()) !== JSON.stringify(expectedPaths)
-  ) {
-    throw new Error("Smoke pack provider-only manifest has invalid router ownership evidence.");
   }
 
   const projection = manifest.resourceProjection;
@@ -998,9 +995,17 @@ function assertProviderOnlyDefaultInstall(targetDir, manifestPath) {
   for (const type of ["contracts", "prompts", "references", "templates"]) {
     assertDirectoryEntries(path.join(targetDir, ".make-docs/system", type), ["AGENTS.md", "CLAUDE.md"]);
   }
-  assertDirectoryEntries(path.join(targetDir, "docs"), ["AGENTS.md", "CLAUDE.md"]);
+  assertDirectoryEntries(path.join(targetDir, "docs"), [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "assets",
+    "designs",
+    "plans",
+    "prd",
+    "work",
+  ]);
 
-  for (const relativePath of EXPECTED_PROVIDER_ONLY_ROUTER_PATHS) {
+  for (const relativePath of expectedPaths) {
     const content = readFileSync(path.join(targetDir, relativePath), "utf8");
     assertOutputContains(
       content,
@@ -1009,7 +1014,7 @@ function assertProviderOnlyDefaultInstall(targetDir, manifestPath) {
     );
     assertOutputContains(
       content,
-      ROUTER_HEADINGS[relativePath],
+      getRouterHeading(relativePath),
       `Smoke pack provider-only router ${relativePath} omitted its title.`,
     );
     assertOutputContains(
@@ -1023,6 +1028,7 @@ function assertProviderOnlyDefaultInstall(targetDir, manifestPath) {
     "docs/designs/",
     "Smoke pack provider-only documentation router omitted full routing duties.",
   );
+  return expectedPaths;
 }
 
 function assertManifestOmitsProjectConfig(manifestPath) {
@@ -1043,8 +1049,8 @@ function assertManifestOmitsProjectConfig(manifestPath) {
   }
 }
 
-function assertPackedInstructionTemplate(packageRoot) {
-  for (const relativePath of EXPECTED_PROVIDER_ONLY_ROUTER_PATHS) {
+function assertPackedInstructionTemplate(packageRoot, routerPaths) {
+  for (const relativePath of routerPaths) {
     const content = readFileSync(path.join(packageRoot, "template", relativePath), "utf8");
     assertOutputContains(
       content,
@@ -1053,7 +1059,7 @@ function assertPackedInstructionTemplate(packageRoot) {
     );
     assertOutputContains(
       content,
-      ROUTER_HEADINGS[relativePath],
+      getRouterHeading(relativePath),
       `Packed thin router ${relativePath} omitted its title.`,
     );
     assertOutputContains(
@@ -1118,7 +1124,13 @@ function assertStoreBootstrapAndNoRepoStateWrites(storeRootDir, installTargetDir
 }
 
 function assertPackedReaderFacingTemplate(packageRoot) {
-  for (const relativePath of EXPECTED_READER_ASSET_PATHS) {
+  for (const relativePath of RETIRED_READER_ASSET_DEFAULT_PATHS) {
+    assertMissing(
+      path.join(packageRoot, "template", relativePath),
+      `Packed template still includes retired default ${relativePath}.`,
+    );
+  }
+  for (const relativePath of ["docs/assets/AGENTS.md", "docs/assets/CLAUDE.md"]) {
     assertExists(
       path.join(packageRoot, "template", relativePath),
       `Packed template omitted ${relativePath}.`,

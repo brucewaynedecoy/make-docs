@@ -68,7 +68,7 @@ When you edit files in the template package, the repo-root `docs/` may become st
 
 Only template-owned files are re-seeded — never project-specific content:
 
-- **Router files** — `AGENTS.md` / `CLAUDE.md` in `docs/`, `docs/assets/`, `docs/assets/archive/`, `docs/assets/artifacts/`, `docs/assets/library/`, `docs/assets/playbooks/`, and capability directories
+- **Router files** — `AGENTS.md` / `CLAUDE.md` at the project root, `docs/`, `docs/assets/`, `.make-docs/`, `.make-docs/system/`, the four typed system directories, and effective capability directories
 - **System reference files** — `.make-docs/system/contracts/*.md` and `.make-docs/system/references/*.md` (contracts, workflows, wave model)
 - **System template files** — `.make-docs/system/templates/*.md` (structural starters)
 - **System helper scripts** — selected files under `.make-docs/scripts/**`
@@ -81,7 +81,7 @@ Re-seed after any change to template-owned files:
 
 - Adding or updating a reference file (e.g., `guide-contract.md`)
 - Adding or updating a template file (e.g., `guide-developer.md`)
-- Changing router content (e.g., updating `docs/assets/library/AGENTS.md` to reference a new contract)
+- Changing router content (for example, updating `docs/assets/AGENTS.md` to route a new Persona asset rule)
 
 ### How to re-seed
 
@@ -90,8 +90,8 @@ Copy the changed files from `packages/docs/template/` to `docs/`:
 ```bash
 # Example: re-seed a new contract and updated routers
 cp packages/docs/template/.make-docs/system/contracts/guide-contract.md .make-docs/system/contracts/guide-contract.md
-cp packages/docs/template/docs/assets/library/AGENTS.md docs/assets/library/AGENTS.md
-cp packages/docs/template/docs/assets/library/CLAUDE.md docs/assets/library/CLAUDE.md
+cp packages/docs/template/docs/assets/AGENTS.md docs/assets/AGENTS.md
+cp packages/docs/template/docs/assets/CLAUDE.md docs/assets/CLAUDE.md
 ```
 
 Verify the copies match:

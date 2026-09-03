@@ -59,6 +59,7 @@ import {
   assertManagedPathHasNoSymlinks,
   relativePathToTarget,
 } from "./utils";
+import { isRetiredTemplateOwnedChildRouterPath } from "./router-paths";
 
 export const LEGACY_COMPATIBILITY_OPERATION_IDS = [
   "playbook.validate",
@@ -1513,7 +1514,8 @@ function mustPreserveOutsideP5(action: PlannedAction): boolean {
     action.skillExposure ||
     action.agenticOwnership ||
     action.agenticRole ||
-    /(?:^|\/)(?:playbooks?|protocols?)(?:\/|$)/i.test(action.relativePath) ||
+    (!isRetiredTemplateOwnedChildRouterPath(action.relativePath) &&
+      /(?:^|\/)(?:playbooks?|protocols?)(?:\/|$)/i.test(action.relativePath)) ||
     /^(?:\.agents\/|\.claude\/skills\/|\.make-docs\/agentics\/)/.test(action.relativePath),
   );
 }
@@ -1544,6 +1546,7 @@ function classificationFromReviewedInstallPlan(
       .filter((action) =>
         action.type === "update" ||
         action.type === "update-conflict" ||
+        action.type === "strip-managed-block" ||
         action.type === "remove-managed",
       )
       .map((action) => action.relativePath),

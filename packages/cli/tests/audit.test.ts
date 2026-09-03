@@ -777,14 +777,15 @@ describe("shared audit engine", () => {
       const manifest = await installWithSelections(targetDir, () => {}, "provider-backed");
       expect(manifest.systemAssetMaterialization.mode).toBe("provider-backed");
       expect(manifest.systemAssetMaterialization.deferredSystemAssetPaths).toContain(
-        "docs/work/AGENTS.md",
+        ".make-docs/system/references/path-and-link-hygiene.md",
       );
 
       const report = await runAudit({ targetDir, manifest });
       expectAuditMode(report, "manifest-present");
 
       const allEntries = collectAllEntries(report);
-      expect(findEntry(allEntries, "docs/work/AGENTS.md")).toBeUndefined();
+      expect(findEntry(allEntries, ".make-docs/system/references/path-and-link-hygiene.md"))
+        .toBeUndefined();
 
       const removableEntries = collectEntries(report, REMOVABLE_BUCKETS, ["removable"]);
       expect(findEntry(removableEntries, "docs/AGENTS.md"), summarizeAudit(report)).toBeDefined();

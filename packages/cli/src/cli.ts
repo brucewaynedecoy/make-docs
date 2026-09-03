@@ -1334,7 +1334,7 @@ function printPlan(options: {
       `Already current: ${noopCount}`,
       `Changes planned: ${nonNoop.length}`,
       `Generate: ${counts.create + counts.generate}`,
-      `Update: ${counts.update + counts["update-conflict"]}`,
+      `Update: ${counts.update + counts["update-conflict"] + counts["strip-managed-block"]}`,
       `Skip: ${counts.skip + counts["skip-conflict"]}`,
       `Remove: ${counts["remove-managed"]}`,
     ].join("\n"),
@@ -1357,6 +1357,7 @@ function countActions(actions: PlannedAction[]): Record<PlannedAction["type"], n
     "remove-managed": actions.filter((action) => action.type === "remove-managed").length,
     skip: actions.filter((action) => action.type === "skip").length,
     "skip-conflict": actions.filter((action) => action.type === "skip-conflict").length,
+    "strip-managed-block": actions.filter((action) => action.type === "strip-managed-block").length,
     update: actions.filter((action) => action.type === "update").length,
     "update-conflict": actions.filter((action) => action.type === "update-conflict").length,
   };
@@ -1588,6 +1589,7 @@ function getRenderedActionKind(action: PlannedAction): RenderedActionKind | null
       return "generate";
     case "update":
     case "update-conflict":
+    case "strip-managed-block":
       return "update";
     case "skip":
     case "skip-conflict":

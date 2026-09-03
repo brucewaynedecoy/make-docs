@@ -1,6 +1,5 @@
 import {
   getPromptPaths,
-  getPlaybookDefaultPaths,
   getReferencePaths,
   getScriptPaths,
   getTemplatePaths,
@@ -17,6 +16,7 @@ import type {
 } from "./types";
 import { DEFAULT_SYSTEM_ASSET_MATERIALIZATION_MODE } from "./types";
 import { getActiveInstructionKinds } from "./types";
+import { getConfiguredRouterPaths } from "./router-paths";
 import { readPackageFile } from "./utils";
 
 function getPackageSourcePath(relativePath: string): string {
@@ -38,36 +38,9 @@ function addInstructionAssets(
   activeInstructionKind: InstructionKind,
   relativePaths: Set<string>,
 ): void {
-  relativePaths.add(activeInstructionKind);
-  relativePaths.add(`docs/${activeInstructionKind}`);
-  relativePaths.add(`.make-docs/${activeInstructionKind}`);
-  relativePaths.add(`.make-docs/system/${activeInstructionKind}`);
-  relativePaths.add(`.make-docs/system/contracts/${activeInstructionKind}`);
-  relativePaths.add(`.make-docs/system/prompts/${activeInstructionKind}`);
-  relativePaths.add(`.make-docs/system/references/${activeInstructionKind}`);
-  relativePaths.add(`.make-docs/system/templates/${activeInstructionKind}`);
-  relativePaths.add(`docs/assets/${activeInstructionKind}`);
-  relativePaths.add(`docs/assets/artifacts/${activeInstructionKind}`);
-  relativePaths.add(`docs/assets/library/${activeInstructionKind}`);
-  relativePaths.add(`docs/assets/playbooks/${activeInstructionKind}`);
-  relativePaths.add(`docs/assets/archive/${activeInstructionKind}`);
-
-  if (profile.capabilityState.designs.effectiveSelection) {
-    relativePaths.add(`docs/designs/${activeInstructionKind}`);
+  for (const relativePath of getConfiguredRouterPaths(profile, activeInstructionKind)) {
+    relativePaths.add(relativePath);
   }
-
-  if (profile.capabilityState.plans.effectiveSelection) {
-    relativePaths.add(`docs/plans/${activeInstructionKind}`);
-  }
-
-  if (profile.capabilityState.prd.effectiveSelection) {
-    relativePaths.add(`docs/prd/${activeInstructionKind}`);
-  }
-
-  if (profile.capabilityState.work.effectiveSelection) {
-    relativePaths.add(`docs/work/${activeInstructionKind}`);
-  }
-
 }
 
 export function getDesiredAssets(profile: InstallProfile): ResolvedAsset[] {
@@ -157,10 +130,6 @@ function getDesiredSystemAssetPaths(profile: InstallProfile): Set<string> {
     relativePaths.add(scriptPath);
   }
 
-  for (const playbookPath of getPlaybookDefaultPaths(profile)) {
-    relativePaths.add(playbookPath);
-  }
-
   for (const instructionKind of getActiveInstructionKinds(profile.selections)) {
     addInstructionAssets(profile, instructionKind, relativePaths);
   }
@@ -185,14 +154,9 @@ function getLocalBootstrapInstructionRouterPaths(profile: InstallProfile): strin
   const relativePaths = new Set<string>();
 
   for (const instructionKind of getActiveInstructionKinds(profile.selections)) {
-    relativePaths.add(instructionKind);
-    relativePaths.add(`docs/${instructionKind}`);
-    relativePaths.add(`.make-docs/${instructionKind}`);
-    relativePaths.add(`.make-docs/system/${instructionKind}`);
-    relativePaths.add(`.make-docs/system/contracts/${instructionKind}`);
-    relativePaths.add(`.make-docs/system/prompts/${instructionKind}`);
-    relativePaths.add(`.make-docs/system/references/${instructionKind}`);
-    relativePaths.add(`.make-docs/system/templates/${instructionKind}`);
+    for (const relativePath of getConfiguredRouterPaths(profile, instructionKind)) {
+      relativePaths.add(relativePath);
+    }
   }
 
   return Array.from(relativePaths).sort();

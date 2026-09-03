@@ -12,6 +12,7 @@ import { loadManifest, MANIFEST_RELATIVE_PATH } from "../src/manifest";
 import { executeInstallPlanMigration } from "../src/migration";
 import { runUninstallCommand } from "../src/uninstall";
 import { readPackageFile } from "../src/utils";
+import { getLegacyIncompleteRouterPaths } from "../src/router-paths";
 
 const roots: string[] = [];
 
@@ -69,6 +70,11 @@ describe("W19 R1 P4 projection and lifecycle", () => {
     const surfaces = [
       "",
       "docs",
+      "docs/assets",
+      "docs/designs",
+      "docs/plans",
+      "docs/prd",
+      "docs/work",
       ".make-docs",
       ".make-docs/system",
       ".make-docs/system/contracts",
@@ -93,11 +99,226 @@ describe("W19 R1 P4 projection and lifecycle", () => {
     expect(installed.manifest.resourceProjection?.resources).toEqual({});
   });
 
+  it.each(["setup.sync", "setup.reconfigure"] as const)(
+    "repairs the exact legacy 16-router manifest during %s and rejects arbitrary partial sets",
+    async (operation) => {
+      const targetDir = mkdtempSync(path.join(os.tmpdir(), "make-docs-p4-legacy-router-"));
+      roots.push(targetDir);
+      const installed = await installProjection(targetDir, []);
+      const legacyPaths = new Set([
+        ...getLegacyIncompleteRouterPaths("AGENTS.md"),
+        ...getLegacyIncompleteRouterPaths("CLAUDE.md"),
+      ]);
+      const legacy = structuredClone(installed.manifest);
+      const removedPaths = Object.keys(legacy.routerOwnership!.routers)
+        .filter((relativePath) => !legacyPaths.has(relativePath))
+        .sort();
+      expect(removedPaths).toHaveLength(10);
+      for (const relativePath of removedPaths) {
+        rmSync(path.join(targetDir, relativePath), { force: true });
+        delete legacy.routerOwnership!.routers[relativePath];
+        delete legacy.files[relativePath];
+        delete legacy.systemAssetMaterialization.assets[relativePath];
+        delete legacy.systemAssetMaterialization.materializationClasses[relativePath];
+      }
+      legacy.systemAssetMaterialization.localBootstrapPaths =
+        legacy.systemAssetMaterialization.localBootstrapPaths.filter((relativePath) =>
+          !removedPaths.includes(relativePath)
+        );
+      const manifestPath = path.join(targetDir, MANIFEST_RELATIVE_PATH);
+      writeFileSync(manifestPath, `${JSON.stringify(legacy, null, 2)}\n`, "utf8");
+
+      const acceptedLegacy = loadManifest(targetDir)!;
+      expect(Object.keys(acceptedLegacy.routerOwnership!.routers)).toHaveLength(16);
+      const selections = structuredClone(acceptedLegacy.selections);
+      const repairPlan = await planInstall({
+        targetDir,
+        selections,
+        existingManifest: acceptedLegacy,
+        operation,
+      });
+      expect(repairPlan.actions.filter((action) =>
+        removedPaths.includes(action.relativePath) && action.type === "create"
+      )).toHaveLength(10);
+      const repaired = applyInstallPlan({
+        targetDir,
+        plan: repairPlan,
+        existingManifest: acceptedLegacy,
+      });
+      expect(Object.keys(repaired.manifest.routerOwnership!.routers)).toHaveLength(26);
+      for (const relativePath of removedPaths) {
+        expect(existsSync(path.join(targetDir, relativePath)), relativePath).toBe(true);
+      }
+
+      const arbitraryPartial = structuredClone(legacy);
+      const arbitraryMissingPath = getLegacyIncompleteRouterPaths("AGENTS.md")[0]!;
+      delete arbitraryPartial.routerOwnership!.routers[arbitraryMissingPath];
+      delete arbitraryPartial.files[arbitraryMissingPath];
+      delete arbitraryPartial.systemAssetMaterialization.assets[arbitraryMissingPath];
+      delete arbitraryPartial.systemAssetMaterialization.materializationClasses[arbitraryMissingPath];
+      arbitraryPartial.systemAssetMaterialization.localBootstrapPaths =
+        arbitraryPartial.systemAssetMaterialization.localBootstrapPaths.filter(
+          (relativePath) => relativePath !== arbitraryMissingPath,
+        );
+      writeFileSync(manifestPath, `${JSON.stringify(arbitraryPartial, null, 2)}\n`, "utf8");
+      expect(() => loadManifest(targetDir)).toThrow(
+        "must include bootstrap router",
+      );
+    },
+  );
+
+  it("accepts the exact legacy bootstrap set with valid archive and artifacts routers", async () => {
+    const targetDir = mkdtempSync(path.join(os.tmpdir(), "make-docs-p4-legacy-on-demand-"));
+    roots.push(targetDir);
+    await installProjection(targetDir, []);
+    for (const surface of ["archive", "artifacts"] as const) {
+      await invokeOperation(
+        "project.surface.ensure",
+        { surface, targetRoot: targetDir },
+        createExecutionContext({ surface: "test", cwd: targetDir, writesAllowed: true }),
+      );
+    }
+    const legacy = loadManifest(targetDir)!;
+    const legacyPaths = new Set([
+      ...getLegacyIncompleteRouterPaths("AGENTS.md"),
+      ...getLegacyIncompleteRouterPaths("CLAUDE.md"),
+    ]);
+    const removedPaths = Object.values(legacy.routerOwnership!.routers)
+      .filter((entry) => entry.routerClass === "bootstrap" && !legacyPaths.has(entry.relativePath))
+      .map((entry) => entry.relativePath);
+    for (const relativePath of removedPaths) {
+      rmSync(path.join(targetDir, relativePath), { force: true });
+      delete legacy.routerOwnership!.routers[relativePath];
+      delete legacy.files[relativePath];
+      delete legacy.systemAssetMaterialization.assets[relativePath];
+      delete legacy.systemAssetMaterialization.materializationClasses[relativePath];
+    }
+    legacy.systemAssetMaterialization.localBootstrapPaths =
+      legacy.systemAssetMaterialization.localBootstrapPaths.filter(
+        (relativePath) => !removedPaths.includes(relativePath),
+      );
+    const manifestPath = path.join(targetDir, MANIFEST_RELATIVE_PATH);
+    writeFileSync(manifestPath, `${JSON.stringify(legacy, null, 2)}\n`, "utf8");
+
+    const accepted = loadManifest(targetDir)!;
+    expect(Object.values(accepted.routerOwnership!.routers)
+      .filter((entry) => entry.routerClass === "bootstrap")).toHaveLength(16);
+    expect(Object.values(accepted.routerOwnership!.routers)
+      .filter((entry) => entry.routerClass === "on-demand-surface")).toHaveLength(4);
+    const repairPlan = await planInstall({
+      targetDir,
+      selections: accepted.selections,
+      existingManifest: accepted,
+      operation: "setup.sync",
+    });
+    const repaired = applyInstallPlan({ targetDir, plan: repairPlan, existingManifest: accepted });
+    expect(Object.values(repaired.manifest.routerOwnership!.routers)
+      .filter((entry) => entry.routerClass === "bootstrap")).toHaveLength(26);
+    expect(Object.values(repaired.manifest.routerOwnership!.routers)
+      .filter((entry) => entry.routerClass === "on-demand-surface")).toHaveLength(4);
+  });
+
+  it("accepts legacy docs/assets on-demand routers only as exact legacy repair input", async () => {
+    const targetDir = mkdtempSync(path.join(os.tmpdir(), "make-docs-p4-legacy-assets-"));
+    roots.push(targetDir);
+    const installed = await installProjection(targetDir, []);
+    const legacy = structuredClone(installed.manifest);
+    const legacyPaths = new Set([
+      ...getLegacyIncompleteRouterPaths("AGENTS.md"),
+      ...getLegacyIncompleteRouterPaths("CLAUDE.md"),
+    ]);
+    for (const relativePath of ["docs/assets/AGENTS.md", "docs/assets/CLAUDE.md"]) {
+      legacy.routerOwnership!.routers[relativePath]!.routerClass = "on-demand-surface";
+    }
+    const removedPaths = Object.values(legacy.routerOwnership!.routers)
+      .filter((entry) => entry.routerClass === "bootstrap" && !legacyPaths.has(entry.relativePath))
+      .map((entry) => entry.relativePath);
+    for (const relativePath of removedPaths) {
+      rmSync(path.join(targetDir, relativePath), { force: true });
+      delete legacy.routerOwnership!.routers[relativePath];
+      delete legacy.files[relativePath];
+      delete legacy.systemAssetMaterialization.assets[relativePath];
+      delete legacy.systemAssetMaterialization.materializationClasses[relativePath];
+    }
+    legacy.systemAssetMaterialization.localBootstrapPaths =
+      legacy.systemAssetMaterialization.localBootstrapPaths.filter(
+        (relativePath) => !removedPaths.includes(relativePath),
+      );
+    const manifestPath = path.join(targetDir, MANIFEST_RELATIVE_PATH);
+    writeFileSync(manifestPath, `${JSON.stringify(legacy, null, 2)}\n`, "utf8");
+
+    const accepted = loadManifest(targetDir)!;
+    expect(accepted.routerOwnership!.routers["docs/assets/AGENTS.md"]!.routerClass)
+      .toBe("on-demand-surface");
+    const repairPlan = await planInstall({
+      targetDir,
+      selections: accepted.selections,
+      existingManifest: accepted,
+      operation: "setup.sync",
+    });
+    const repaired = applyInstallPlan({ targetDir, plan: repairPlan, existingManifest: accepted });
+    expect(repaired.manifest.routerOwnership!.routers["docs/assets/AGENTS.md"]!.routerClass)
+      .toBe("bootstrap");
+    expect(repaired.manifest.routerOwnership!.routers["docs/assets/CLAUDE.md"]!.routerClass)
+      .toBe("bootstrap");
+
+    const partial = structuredClone(legacy);
+    const missingPath = getLegacyIncompleteRouterPaths("AGENTS.md")[0]!;
+    delete partial.routerOwnership!.routers[missingPath];
+    delete partial.files[missingPath];
+    delete partial.systemAssetMaterialization.assets[missingPath];
+    delete partial.systemAssetMaterialization.materializationClasses[missingPath];
+    partial.systemAssetMaterialization.localBootstrapPaths =
+      partial.systemAssetMaterialization.localBootstrapPaths.filter(
+        (relativePath) => relativePath !== missingPath,
+      );
+    writeFileSync(manifestPath, `${JSON.stringify(partial, null, 2)}\n`, "utf8");
+    expect(() => loadManifest(targetDir)).toThrow(
+      "legacy docs/assets on-demand entries only with the exact legacy bootstrap set",
+    );
+  });
+
+  it("refuses surface ensure on the exact legacy bootstrap set before writing", async () => {
+    const targetDir = mkdtempSync(path.join(os.tmpdir(), "make-docs-p4-legacy-surface-"));
+    roots.push(targetDir);
+    const installed = await installProjection(targetDir, []);
+    const legacy = structuredClone(installed.manifest);
+    const legacyPaths = new Set([
+      ...getLegacyIncompleteRouterPaths("AGENTS.md"),
+      ...getLegacyIncompleteRouterPaths("CLAUDE.md"),
+    ]);
+    for (const relativePath of Object.keys(legacy.routerOwnership!.routers)) {
+      if (legacyPaths.has(relativePath)) continue;
+      rmSync(path.join(targetDir, relativePath), { force: true });
+      delete legacy.routerOwnership!.routers[relativePath];
+      delete legacy.files[relativePath];
+      delete legacy.systemAssetMaterialization.assets[relativePath];
+      delete legacy.systemAssetMaterialization.materializationClasses[relativePath];
+    }
+    legacy.systemAssetMaterialization.localBootstrapPaths =
+      legacy.systemAssetMaterialization.localBootstrapPaths.filter((relativePath) =>
+        legacyPaths.has(relativePath)
+      );
+    const manifestPath = path.join(targetDir, MANIFEST_RELATIVE_PATH);
+    const before = `${JSON.stringify(legacy, null, 2)}\n`;
+    writeFileSync(manifestPath, before, "utf8");
+    expect(loadManifest(targetDir)).not.toBeNull();
+
+    await expect(invokeOperation(
+      "project.surface.ensure",
+      { surface: "assets", targetRoot: targetDir },
+      createExecutionContext({ surface: "test", cwd: targetDir, writesAllowed: true }),
+    )).rejects.toThrow("Run `make-docs setup reconfigure` first");
+    expect(readFileSync(manifestPath, "utf8")).toBe(before);
+    expect(existsSync(path.join(targetDir, "docs/assets/AGENTS.md"))).toBe(false);
+    expect(existsSync(path.join(targetDir, "docs/assets/CLAUDE.md"))).toBe(false);
+  });
+
   it("refreshes stale managed-snapshot manifest hashes when package bytes are already current", async () => {
     const targetDir = mkdtempSync(path.join(os.tmpdir(), "make-docs-p4-stale-snapshot-proof-"));
     roots.push(targetDir);
     const installed = await installProjection(targetDir);
-    const relativePath = "docs/assets/playbooks/agent/make-docs-lifecycle.playbook.md";
+    const relativePath = ".make-docs/system-resources.catalog.json";
     const manifestPath = path.join(targetDir, MANIFEST_RELATIVE_PATH);
     const stale = structuredClone(installed.manifest);
     const staleHash = "a".repeat(64);
@@ -228,7 +449,7 @@ describe("W19 R1 P4 projection and lifecycle", () => {
     writeCopy(structuredClone(installed.manifest));
     await invokeOperation(
       "project.surface.ensure",
-      { surface: "assets", targetRoot: targetDir },
+      { surface: "archive", targetRoot: targetDir },
       createExecutionContext({ surface: "test", cwd: targetDir, writesAllowed: true }),
     );
     const ensured = loadManifest(targetDir)!;
@@ -273,8 +494,19 @@ describe("W19 R1 P4 projection and lifecycle", () => {
             createExecutionContext({ surface: "test", cwd: targetDir, writesAllowed: true }),
           );
           const ensured = loadManifest(targetDir)!;
+          const surfaceDirectory = {
+            archive: ".make-docs/archive/",
+            artifacts: "docs/artifacts/",
+            assets: "docs/assets/",
+          }[surface];
+          const expectedRouterClass = surface === "assets"
+            ? "bootstrap"
+            : "on-demand-surface";
           const ownedPaths = Object.values(ensured.routerOwnership!.routers)
-            .filter((entry) => entry.routerClass === "on-demand-surface")
+            .filter((entry) =>
+              entry.routerClass === expectedRouterClass &&
+              entry.relativePath.startsWith(surfaceDirectory)
+            )
             .map((entry) => entry.relativePath)
             .sort();
           expect(ownedPaths).toHaveLength(Object.values(harnesses).filter(Boolean).length);
@@ -314,6 +546,37 @@ describe("W19 R1 P4 projection and lifecycle", () => {
     }
   });
 
+  it("repairs only the docs/assets root routers and preserves Persona testing content", async () => {
+    const targetDir = mkdtempSync(path.join(os.tmpdir(), "make-docs-p4-assets-root-"));
+    roots.push(targetDir);
+    await installProjection(targetDir, []);
+    const testingDir = path.join(targetDir, "docs/assets/developer/testing");
+    mkdirSync(testingDir, { recursive: true });
+    writeFileSync(path.join(testingDir, "evidence.md"), "project evidence\n", "utf8");
+    rmSync(path.join(targetDir, "docs/assets/AGENTS.md"));
+    rmSync(path.join(targetDir, "docs/assets/CLAUDE.md"));
+
+    const ensured = await invokeOperation(
+      "project.surface.ensure",
+      { surface: "assets", targetRoot: targetDir },
+      createExecutionContext({ surface: "test", cwd: targetDir, writesAllowed: true }),
+    );
+    expect(ensured.value).toMatchObject({ receipt: expect.any(Object) });
+    expect(existsSync(path.join(targetDir, "docs/assets/AGENTS.md"))).toBe(true);
+    expect(existsSync(path.join(targetDir, "docs/assets/CLAUDE.md"))).toBe(true);
+    expect(existsSync(path.join(targetDir, "docs/assets/developer/AGENTS.md"))).toBe(false);
+    expect(existsSync(path.join(targetDir, "docs/assets/developer/CLAUDE.md"))).toBe(false);
+    expect(readFileSync(path.join(testingDir, "evidence.md"), "utf8"))
+      .toBe("project evidence\n");
+
+    const repeated = await invokeOperation(
+      "project.surface.ensure",
+      { surface: "assets", targetRoot: targetDir },
+      createExecutionContext({ surface: "test", cwd: targetDir, writesAllowed: true }),
+    );
+    expect(repeated.value).toMatchObject({ receipt: null });
+  });
+
   it("invalidates a reviewed plan when its manifest authority changes", async () => {
     const targetDir = mkdtempSync(path.join(os.tmpdir(), "make-docs-p4-stale-"));
     roots.push(targetDir);
@@ -340,7 +603,7 @@ describe("W19 R1 P4 projection and lifecycle", () => {
       selections: defaultSelections(),
       existingManifest: null,
     });
-    expect(legacyPlan.desiredFiles["docs/assets/playbooks/agent/make-docs-lifecycle.playbook.md"]?.ownershipClass)
+    expect(legacyPlan.desiredFiles[".make-docs/system/contracts/output-contract.md"]?.ownershipClass)
       .toBe("managed-snapshot");
     expect(legacyPlan.desiredFiles["docs/AGENTS.md"]?.ownershipClass).toBe("managed-block");
 
@@ -718,9 +981,9 @@ describe("W19 R1 P4 projection and lifecycle", () => {
       const rendered = stdout.mock.calls.map(([chunk]) => String(chunk)).join("");
       expect(rendered).toContain(`Target: ${targetDir}`);
       expect(rendered).toContain("Project surface: assets");
-      expect(rendered).toContain("State: applied");
-      expect(rendered).toContain("- create: docs/assets");
-      expect(rendered).toMatch(/Receipt: sha256:[a-f0-9]{64}/);
+      expect(rendered).toContain("State: unchanged");
+      expect(rendered).toContain("- preserve: docs/assets");
+      expect(rendered).toContain("Receipt: none (no write)");
       expect(rendered).toContain("Next: Run `make-docs setup --yes --dry-run`");
 
       stdout.mockClear();

@@ -54,6 +54,13 @@ import {
   PROJECT_RESOURCE_TYPES,
 } from "./types";
 import { parseManagedBlock } from "./managed-block";
+import { resolveInstallProfile } from "./profile";
+import {
+  getConfiguredRouterPaths,
+  getLegacyAssetsOnDemandRouterPaths,
+  getLegacyIncompleteRouterPaths,
+  getOnDemandRouterPaths,
+} from "./router-paths";
 import { createEmptySystemAssetManifestState } from "./system-assets";
 import {
   TOOL_DIRECTORY_CONFLICTS_RELATIVE_DIR,
@@ -437,7 +444,7 @@ function validateAndMigrateManifest(
         ? validateRouterOwnershipManifestState(
             value.routerOwnership,
             files,
-            selections.harnesses,
+            selections,
             { name: packageName, version: packageVersion },
           )
         : undefined;
@@ -977,7 +984,7 @@ function validateLifecycleDisposition(value: unknown, label: string): ManifestLi
 function validateRouterOwnershipManifestState(
   value: unknown,
   files: Record<string, ManifestFileEntry>,
-  selectedHarnessState: InstallSelections["harnesses"],
+  selections: InstallSelections,
   packageMeta: PackageMeta,
 ): RouterOwnershipManifestState {
   assertPlainObject(value, "manifest.routerOwnership");
@@ -999,7 +1006,7 @@ function validateRouterOwnershipManifestState(
     throw new Error("manifest.routerOwnership.configuredHarnesses must not contain duplicates");
   }
   const expectedHarnesses = configuredHarnesses.slice().sort();
-  const selectedHarnesses = Object.entries(selectedHarnessState)
+  const selectedHarnesses = Object.entries(selections.harnesses)
     .filter(([, selected]) => selected)
     .map(([harness]) => harness as (typeof HARNESSES)[number])
     .sort();
@@ -1008,8 +1015,10 @@ function validateRouterOwnershipManifestState(
       "manifest.routerOwnership.configuredHarnesses must exactly equal selections.harnesses",
     );
   }
+  const profile = resolveInstallProfile(selections);
   assertPlainObject(value.routers, "manifest.routerOwnership.routers");
   const routers: RouterOwnershipManifestState["routers"] = {};
+  const transitionalLegacyOnDemandPaths = new Set<string>();
   for (const [relativePath, rawEntry] of Object.entries(value.routers)) {
     assertPlainObject(rawEntry, `manifest.routerOwnership.routers.${relativePath}`);
     const entryPath = validateString(
@@ -1057,14 +1066,19 @@ function validateRouterOwnershipManifestState(
         `manifest.routerOwnership.routers.${relativePath}.routerClass must be bootstrap or on-demand-surface`,
       );
     }
-    const allowedPaths =
-      routerClass === "bootstrap"
-        ? getBootstrapRouterPaths(instructionKind)
-        : getOnDemandRouterPaths(instructionKind);
-    if (!allowedPaths.includes(relativePath)) {
+    const allowedPaths = routerClass === "bootstrap"
+      ? getConfiguredRouterPaths(profile, instructionKind)
+      : getOnDemandRouterPaths(instructionKind);
+    const isTransitionalLegacyOnDemandPath =
+      routerClass === "on-demand-surface" &&
+      getLegacyAssetsOnDemandRouterPaths(instructionKind).includes(relativePath);
+    if (!allowedPaths.includes(relativePath) && !isTransitionalLegacyOnDemandPath) {
       throw new Error(
         `manifest.routerOwnership.routers.${relativePath} is not an allowed ${routerClass} router path`,
       );
+    }
+    if (isTransitionalLegacyOnDemandPath) {
+      transitionalLegacyOnDemandPaths.add(relativePath);
     }
     const sourceId = validateString(
       rawEntry.sourceId,
@@ -1110,13 +1124,30 @@ function validateRouterOwnershipManifestState(
       ...proof,
     };
   }
-  for (const harness of expectedHarnesses) {
+  const bootstrapPaths = Object.values(routers)
+    .filter((router) => router.routerClass === "bootstrap")
+    .map((router) => router.relativePath)
+    .sort();
+  const legacyBootstrapPaths = expectedHarnesses.flatMap((harness) => {
     const instructionKind = harness === "codex" ? "AGENTS.md" : "CLAUDE.md";
-    for (const relativePath of getBootstrapRouterPaths(instructionKind)) {
-      if (!routers[relativePath]) {
-        throw new Error(
-          `manifest.routerOwnership.routers must include bootstrap router ${relativePath}`,
-        );
+    return getLegacyIncompleteRouterPaths(instructionKind);
+  }).sort();
+  const isExactLegacyIncompleteInput =
+    JSON.stringify(bootstrapPaths) === JSON.stringify(legacyBootstrapPaths);
+  if (transitionalLegacyOnDemandPaths.size > 0 && !isExactLegacyIncompleteInput) {
+    throw new Error(
+      "manifest.routerOwnership.routers may use legacy docs/assets on-demand entries only with the exact legacy bootstrap set",
+    );
+  }
+  if (!isExactLegacyIncompleteInput) {
+    for (const harness of expectedHarnesses) {
+      const instructionKind = harness === "codex" ? "AGENTS.md" : "CLAUDE.md";
+      for (const relativePath of getConfiguredRouterPaths(profile, instructionKind)) {
+        if (!routers[relativePath]) {
+          throw new Error(
+            `manifest.routerOwnership.routers must include bootstrap router ${relativePath}`,
+          );
+        }
       }
     }
   }
@@ -1136,27 +1167,6 @@ function validateRouterOwnershipManifestState(
     operationLineage: "W19 R1 P4",
     routers,
   };
-}
-
-function getBootstrapRouterPaths(instructionKind: InstructionKind): string[] {
-  return [
-    instructionKind,
-    `docs/${instructionKind}`,
-    `.make-docs/${instructionKind}`,
-    `.make-docs/system/${instructionKind}`,
-    `.make-docs/system/contracts/${instructionKind}`,
-    `.make-docs/system/prompts/${instructionKind}`,
-    `.make-docs/system/references/${instructionKind}`,
-    `.make-docs/system/templates/${instructionKind}`,
-  ];
-}
-
-function getOnDemandRouterPaths(instructionKind: InstructionKind): string[] {
-  return [
-    `.make-docs/archive/${instructionKind}`,
-    `docs/artifacts/${instructionKind}`,
-    `docs/assets/${instructionKind}`,
-  ];
 }
 
 function validateResourceProjectionManifestState(

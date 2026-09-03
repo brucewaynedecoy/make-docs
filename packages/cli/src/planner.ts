@@ -26,6 +26,7 @@ import {
   annotateLifecycleActions,
   createLifecyclePlanSnapshot,
 } from "./lifecycle-plan";
+import { isRetiredTemplateOwnedChildRouterPath } from "./router-paths";
 import type {
   InstallManifest,
   InstallPlan,
@@ -189,7 +190,7 @@ export async function createInstallPlan(options: {
       ),
     ]),
   );
-  const forceManifestWrite = existingManifest !== null && Object.entries(desiredFiles)
+  let forceManifestWrite = existingManifest !== null && Object.entries(desiredFiles)
     .some(([relativePath, entry]) =>
       JSON.stringify(existingManifest.files[relativePath] ?? null) !== JSON.stringify(entry),
     );
@@ -378,6 +379,16 @@ export async function createInstallPlan(options: {
         continue;
       }
 
+      if (manifestEntry.ownershipClass === "project-owned") {
+        actions.push({
+          type: "skip",
+          relativePath,
+          sourceId: manifestEntry.sourceId,
+          reason: "Preserve project-owned content outside the current managed asset set.",
+        });
+        continue;
+      }
+
       if (relativePath === ".make-docs/contracts/system/playbook-contract.md") {
         actions.push({
           type: "skip",
@@ -389,6 +400,45 @@ export async function createInstallPlan(options: {
       }
 
       const absolutePath = relativePathToTarget(targetDir, relativePath);
+      if (
+        p4ProjectionSelected ||
+        isInstructionPath(relativePath) ||
+        isPreservedLegacyPlaybook(relativePath) ||
+        isRetiredTemplateOwnedChildRouterPath(relativePath)
+      ) {
+        assertManagedPathHasNoSymlinks(targetDir, relativePath);
+      }
+      if (isPreservedLegacyPlaybook(relativePath) && existsSync(absolutePath)) {
+        if (!lstatSync(absolutePath).isFile()) {
+          conflictsRunId ??= createRunId();
+          actions.push({
+            type: "skip-conflict",
+            relativePath,
+            sourceId: manifestEntry.sourceId,
+            reason:
+              "Legacy Playbook adoption stopped because the preserved path is not a regular file.",
+          });
+          continue;
+        }
+        const currentHash = hashText(readTextFile(absolutePath));
+        const projectSourceId = `project:${relativePath}`;
+        desiredFiles[relativePath] = {
+          hash: currentHash,
+          sourceId: projectSourceId,
+          ownershipClass: "project-owned",
+        };
+        forceManifestWrite = true;
+        actions.push({
+          type: "noop",
+          relativePath,
+          sourceId: projectSourceId,
+          contentHash: currentHash,
+          reason:
+            "Adopt the preserved legacy Playbook as project-owned content after the shipped default retires.",
+        });
+        continue;
+      }
+
       if (!existsSync(absolutePath)) {
         actions.push({
           type: "remove-managed",
@@ -410,14 +460,6 @@ export async function createInstallPlan(options: {
         }
         actions.push(action);
         continue;
-      }
-
-      if (
-        p4ProjectionSelected &&
-        (manifestEntry.sourceId.startsWith("router:") ||
-          manifestEntry.sourceId.startsWith("resource:"))
-      ) {
-        assertManagedPathHasNoSymlinks(targetDir, relativePath);
       }
 
       if (!lstatSync(absolutePath).isFile()) {
@@ -451,10 +493,19 @@ export async function createInstallPlan(options: {
       const currentHash = getCurrentManifestHash(relativePath, currentContent);
       const legacyFullFileHash = hashText(currentContent);
       const legacyMigrationTarget = getSystemToolResourceMigrationTarget(relativePath);
+      const parsedInstructionBlock = isInstructionPath(relativePath)
+        ? parseManagedBlock(currentContent)
+        : null;
       const isCleanInstructionBlock =
-        isInstructionPath(relativePath) &&
+        parsedInstructionBlock?.state === "valid" &&
         currentHash === manifestEntry.hash &&
         instructionHasNoOutsideContent(currentContent);
+      const hasOutsideInstructionContent =
+        parsedInstructionBlock?.state === "valid" &&
+        (
+          parsedInstructionBlock.prefix.trim().length > 0 ||
+          parsedInstructionBlock.suffix.trim().length > 0
+        );
 
       if (
         legacyMigrationTarget &&
@@ -489,6 +540,17 @@ export async function createInstallPlan(options: {
                   `Remove verified legacy system resource after ${legacyMigrationTarget} is materialized.`,
               }
             : {}),
+        });
+        continue;
+      }
+
+      if (currentHash === manifestEntry.hash && hasOutsideInstructionContent) {
+        actions.push({
+          type: "strip-managed-block",
+          relativePath,
+          sourceId: manifestEntry.sourceId,
+          content: `${parsedInstructionBlock.prefix}${parsedInstructionBlock.suffix}`,
+          reason: "Remove the clean managed block and preserve project content outside it.",
         });
         continue;
       }
@@ -564,6 +626,14 @@ export async function createInstallPlan(options: {
     stops,
     forceManifestWrite,
   };
+}
+
+function isPreservedLegacyPlaybook(relativePath: string): boolean {
+  return [
+    "docs/assets/playbooks/agent/make-docs-lifecycle.playbook.md",
+    "docs/assets/playbooks/agent/naive-uat-facilitator.playbook.md",
+    "docs/assets/playbooks/user/naive-uat-tester.playbook.md",
+  ].includes(relativePath);
 }
 
 export async function createSkillsOnlyInstallPlan(options: {
@@ -1577,7 +1647,6 @@ function getCarriedOnDemandRouterAssets(options: {
   const surfaceDirectories = {
     archive: ".make-docs/archive",
     artifacts: "docs/artifacts",
-    assets: "docs/assets",
   } as const;
   const assets: ResolvedAsset[] = [];
   for (const [surface, directory] of Object.entries(surfaceDirectories)) {

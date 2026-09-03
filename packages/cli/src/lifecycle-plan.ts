@@ -16,6 +16,7 @@ export function lifecycleDisposition(action: PlannedAction): LifecyclePlanDispos
     case "generate":
       return "create";
     case "update":
+    case "strip-managed-block":
       return "update";
     case "noop":
       return "preserve";

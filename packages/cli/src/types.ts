@@ -47,6 +47,7 @@ export type ActionType =
   | "update"
   | "update-conflict"
   | "skip-conflict"
+  | "strip-managed-block"
   | "remove-managed"
   | "generate";
 

@@ -19,6 +19,7 @@ import {
   getThinRouterManagedBody,
 } from "../../project-projection";
 import { resolveInstallProfile } from "../../profile";
+import { getConfiguredRouterPaths } from "../../router-paths";
 import type { LifecycleMutationReceipt, PlannedAction } from "../../types";
 import { HARNESS_TO_INSTRUCTION } from "../../types";
 import { assertManagedPathHasNoSymlinks, relativePathToTarget } from "../../utils";
@@ -71,13 +72,34 @@ export const projectOperations: OperationDefinition[] = [{
         "This project does not have trusted P4 manifest evidence. Run `make-docs setup reconfigure` before you ensure a project surface.",
       );
     }
+    const profile = resolveInstallProfile(manifest.selections);
+    const missingConfiguredRouters = manifest.routerOwnership.configuredHarnesses
+      .flatMap((harness) => {
+        const instructionKind = HARNESS_TO_INSTRUCTION[harness];
+        return getConfiguredRouterPaths(profile, instructionKind);
+      })
+      .filter((relativePath) =>
+        manifest.routerOwnership!.routers[relativePath]?.routerClass !== "bootstrap"
+      );
+    if (missingConfiguredRouters.length > 0) {
+      throw new OperationError(
+        `Configured router repair is required before a project surface can be ensured: ${missingConfiguredRouters.join(", ")}. Run \`make-docs setup reconfigure\` first.`,
+      );
+    }
     const actions: PlannedAction[] = [];
     const surfaceAction = planMigrationRoutingSurface(targetRoot, input.surface);
-    const surfacePath = surfaceAction.relativePath;
+    const surfaceRouterAssets = createProjectSurfaceRouterAssets(
+      profile,
+      input.surface,
+    );
+    const surfaceRouterPaths = new Set(
+      surfaceRouterAssets.map((asset) => asset.relativePath),
+    );
     actions.push(surfaceAction);
     for (const entry of Object.values(manifest.routerOwnership.routers)) {
       if (entry.routerClass !== "bootstrap") continue;
       const relativePath = entry.relativePath;
+      if (surfaceRouterPaths.has(relativePath)) continue;
       assertManagedPathHasNoSymlinks(targetRoot, relativePath);
       const fileEntry = manifest.files[relativePath];
       if (
@@ -100,11 +122,10 @@ export const projectOperations: OperationDefinition[] = [{
       }
       actions.push({ type: "noop", disposition: "preserve", relativePath, reason: "Configured router is valid and unchanged." });
     }
-    const surfaceRouterAssets = createProjectSurfaceRouterAssets(
-      resolveInstallProfile(manifest.selections),
-      input.surface,
-    );
     const surfaceRouterActions: PlannedAction[] = [];
+    const expectedRouterClass = input.surface === "assets"
+      ? "bootstrap"
+      : "on-demand-surface";
     for (const asset of surfaceRouterAssets) {
       assertManagedPathHasNoSymlinks(targetRoot, asset.relativePath);
       const absolutePath = relativePathToTarget(targetRoot, asset.relativePath);
@@ -140,7 +161,7 @@ export const projectOperations: OperationDefinition[] = [{
         fileEntry.sourceId !== asset.sourceId ||
         fileEntry.ownershipClass !== "managed-block" ||
         ownershipEntry?.sourceId !== asset.sourceId ||
-        ownershipEntry.routerClass !== "on-demand-surface" ||
+        ownershipEntry.routerClass !== expectedRouterClass ||
         ownershipEntry.ownershipClass !== "managed-snapshot" ||
         ownershipEntry.provenanceState !== "verified" ||
         ownershipEntry.lifecycleDisposition !== "active" ||
@@ -184,6 +205,7 @@ export const projectOperations: OperationDefinition[] = [{
           asset,
           harness,
           instructionKind: HARNESS_TO_INSTRUCTION[harness],
+          profile,
           packageMeta: { name: manifest.packageName, version: manifest.packageVersion },
           verifiedAt: updatedAt,
           previous: manifest.routerOwnership.routers[asset.relativePath],

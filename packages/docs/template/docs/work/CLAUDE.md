@@ -19,5 +19,5 @@ Output target for implementation backlogs. In v2, every backlog is a **directory
 - In phase files, preserve markdown task syntax in `### Tasks` (`- [ ] t1: ...`) and keep `### Acceptance criteria` as plain bullets.
 - Always create work as a directory; never a flat `.md` file.
 - Apply the date-W/R-slug naming; do not backdate.
-- Archived backlogs live in `docs/assets/archive/work/`. **Never archive unless explicitly asked.** See `docs/assets/archive/AGENTS.md`.
+- Archived backlogs live in `.make-docs/archive/work/`. Before first use, run `make-docs project surface ensure archive`. **Never archive unless explicitly asked.**
 <!-- make-docs:end -->

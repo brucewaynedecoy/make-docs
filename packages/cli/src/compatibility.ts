@@ -92,7 +92,9 @@ const STATE_DISPOSITIONS = {
   "unknown-shape": "manual-review-required",
 } as const satisfies Record<CompatibilitySourceState, CompatibilityDisposition>;
 
-const CANONICAL_FALLBACK_PATHS = [
+// Recognition fingerprints are legacy input evidence only. They do not define
+// the desired router topology. router-paths.ts remains the desired-state authority.
+const LEGACY_RECOGNITION_FINGERPRINT_PATHS = [
   "AGENTS.md",
   "CLAUDE.md",
   "docs/AGENTS.md",
@@ -652,7 +654,7 @@ function evaluateFallbackRecognition(targetDir: string): {
   const ambiguousFallbackPaths: string[] = [];
   const nonMakeDocsPathCollisions: string[] = [];
 
-  for (const relativePath of CANONICAL_FALLBACK_PATHS) {
+  for (const relativePath of LEGACY_RECOGNITION_FINGERPRINT_PATHS) {
     const absolutePath = path.join(targetDir, relativePath);
     if (!existsSync(absolutePath) || !statSync(absolutePath).isFile()) {
       continue;
@@ -667,8 +669,8 @@ function evaluateFallbackRecognition(targetDir: string): {
 
   for (const relativePath of walkFiles(targetDir)) {
     if (
-      !CANONICAL_FALLBACK_PATHS.includes(
-        relativePath as (typeof CANONICAL_FALLBACK_PATHS)[number],
+      !LEGACY_RECOGNITION_FINGERPRINT_PATHS.includes(
+        relativePath as (typeof LEGACY_RECOGNITION_FINGERPRINT_PATHS)[number],
       ) &&
       NON_PRODUCT_AGENT_FILENAMES.has(path.basename(relativePath)) &&
       !looksCanonicalMakeDocsContent(

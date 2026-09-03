@@ -20,5 +20,5 @@ Pattern: `YYYY-MM-DD-<slug>.md`
 - Designs are living documents — update them when decisions change.
 - Use `docs/designs/2026-06-25-v2-documentation-asset-ia-hard-move.md` as the superseding authority for v2 asset-IA path assumptions in earlier designs. Preserve old path text only when it is explicitly historical lineage.
 - Link to related plans, PRD docs, or work items where relevant.
-- Archived designs live in `docs/assets/archive/designs/`; never archive unless the user explicitly asks. See `docs/assets/archive/AGENTS.md`.
+- Archived designs live in `.make-docs/archive/designs/`. Before first use, run `make-docs project surface ensure archive`. Never archive unless the user explicitly asks.
 <!-- make-docs:end -->

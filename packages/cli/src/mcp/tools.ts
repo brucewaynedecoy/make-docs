@@ -381,6 +381,7 @@ function summarizeInstallPlan(
         counts.skipConflict += 1;
         break;
       case "update":
+      case "strip-managed-block":
         counts.update += 1;
         break;
       case "update-conflict":

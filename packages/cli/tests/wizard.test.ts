@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { createDefaultMakeDocsConfig } from "../src/config";
-import { defaultSelections } from "../src/profile";
+import { defaultSelections, resolveInstallProfile } from "../src/profile";
 import type { WizardSkillChoice } from "../src/skill-catalog";
 import type {
   Capability,
@@ -168,6 +168,23 @@ describe("selection wizard", () => {
     expect(selections.capabilities.plans).toBe(true);
     expect(selections.capabilities.prd).toBe(false);
     expect(selections.capabilities.work).toBe(false);
+  });
+
+  test("keeps work selected when setup also keeps its plans and prd prerequisites", () => {
+    const selections = applyCapabilitySelections(defaultSelections(), [
+      "plans",
+      "prd",
+      "work",
+    ]);
+    const profile = resolveInstallProfile(selections);
+
+    expect(selections.capabilities).toEqual({
+      designs: false,
+      plans: true,
+      prd: true,
+      work: true,
+    });
+    expect(profile.effectiveCapabilities).toEqual(["plans", "prd", "work"]);
   });
 
   test("maps grouped option answers back into install selections without mutating harnesses", () => {

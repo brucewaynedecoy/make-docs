@@ -4,6 +4,8 @@ import {
   mkdirSync,
   readFileSync,
   readlinkSync,
+  rmSync,
+  symlinkSync,
   writeFileSync,
 } from "node:fs";
 import os from "node:os";
@@ -17,7 +19,10 @@ import {
   planSkillsOnlyInstall,
 } from "../src/install";
 import { parseManagedBlock, renderManagedBlock } from "../src/managed-block";
+import { createLifecyclePlanSnapshot } from "../src/lifecycle-plan";
 import { loadManifest } from "../src/manifest";
+import { classifyCompatibilityState } from "../src/compatibility";
+import { executeInstallPlanMigration } from "../src/migration";
 import { defaultSelections, resolveInstallProfile } from "../src/profile";
 import {
   DEFAULT_SYSTEM_ASSET_MATERIALIZATION_MODE,
@@ -109,10 +114,6 @@ const FULL_PROFILE_INSTRUCTION_DIRS = [
   ".",
   "docs",
   "docs/assets",
-  "docs/assets/archive",
-  "docs/assets/artifacts",
-  "docs/assets/library",
-  "docs/assets/playbooks",
   "docs/designs",
   "docs/plans",
   "docs/prd",
@@ -344,7 +345,7 @@ describe("installer integration", () => {
       );
       expect(
         plan.systemAssetMaterialization.materializationClasses["docs/work/AGENTS.md"],
-      ).toBe("materialized-system-asset");
+      ).toBe("always-local-bootstrap");
       expect(manifest.schemaVersion).toBe(4);
       expect(manifest.systemAssetMaterialization.mode).toBe("full-snapshot");
       expect(manifest.systemAssetMaterialization.sourceProvider).toBe("package");
@@ -353,9 +354,9 @@ describe("installer integration", () => {
         hashAlgorithm: "sha256",
         logicalAssetId: "docs/work/AGENTS.md",
         localPath: "docs/work/AGENTS.md",
-        materializationClass: "materialized-system-asset",
+        materializationClass: "always-local-bootstrap",
         sourceProvider: "package",
-        selectionTrigger: "profile-selection",
+        selectionTrigger: "local-bootstrap",
       });
       expect(
         manifest.systemAssetMaterialization.assets["docs/work/AGENTS.md"].expectedHashes,
@@ -376,8 +377,8 @@ describe("installer integration", () => {
       expect(manifest.files[".make-docs/config.yaml"]).toBeUndefined();
       expect(manifest.systemAssetMaterialization.assets[".make-docs/config.yaml"]).toBeUndefined();
       expect(existsSync(path.join(targetDir, "docs/work/AGENTS.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, "docs/assets/artifacts/AGENTS.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, "docs/assets/artifacts/CLAUDE.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/assets/artifacts/AGENTS.md"))).toBe(false);
+      expect(existsSync(path.join(targetDir, "docs/assets/artifacts/CLAUDE.md"))).toBe(false);
       expect(
         existsSync(path.join(targetDir, ".make-docs/scripts/check_path_hygiene.py")),
       ).toBe(true);
@@ -398,19 +399,19 @@ describe("installer integration", () => {
       ).toBe(true);
       expect(existsSync(path.join(targetDir, ".make-docs/system/templates/guide-developer.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, ".make-docs/system/templates/guide-user.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, "docs/assets/library/AGENTS.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, "docs/assets/library/CLAUDE.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, "docs/assets/playbooks/AGENTS.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, "docs/assets/playbooks/CLAUDE.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/assets/library/AGENTS.md"))).toBe(false);
+      expect(existsSync(path.join(targetDir, "docs/assets/library/CLAUDE.md"))).toBe(false);
+      expect(existsSync(path.join(targetDir, "docs/assets/playbooks/AGENTS.md"))).toBe(false);
+      expect(existsSync(path.join(targetDir, "docs/assets/playbooks/CLAUDE.md"))).toBe(false);
       expect(
         existsSync(path.join(targetDir, "docs/assets/playbooks/agent/make-docs-lifecycle.playbook.md")),
-      ).toBe(true);
-      expect(existsSync(path.join(targetDir, "docs/assets/archive/AGENTS.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, "docs/assets/archive/CLAUDE.md"))).toBe(true);
+      ).toBe(false);
+      expect(existsSync(path.join(targetDir, "docs/assets/archive/AGENTS.md"))).toBe(false);
+      expect(existsSync(path.join(targetDir, "docs/assets/archive/CLAUDE.md"))).toBe(false);
       expect(existsSync(path.join(targetDir, "docs/assets/AGENTS.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/assets/CLAUDE.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, "docs/assets/archive/AGENTS.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, "docs/assets/archive/CLAUDE.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/assets/archive/AGENTS.md"))).toBe(false);
+      expect(existsSync(path.join(targetDir, "docs/assets/archive/CLAUDE.md"))).toBe(false);
       expect(existsSync(path.join(targetDir, "docs/assets/breadcrumbs"))).toBe(false);
       expect(existsSync(path.join(targetDir, "docs/assets/history"))).toBe(false);
       expect(existsSync(path.join(targetDir, "docs/assets/guides"))).toBe(false);
@@ -420,12 +421,6 @@ describe("installer integration", () => {
       expect(existsSync(path.join(targetDir, ".make-docs/system/references/CLAUDE.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/assets/library/agent"))).toBe(false);
 
-      const libraryRouter = readFileSync(path.join(targetDir, "docs/assets/library/AGENTS.md"), "utf8");
-      expect(libraryRouter).toContain("guide-contract.md");
-      expect(libraryRouter).toContain("developer`, `user`, `both`, `update-existing`, `link-only`, or `none");
-      expect(libraryRouter).toContain("re-check overlapping guides");
-      expect(libraryRouter).toContain("## Future Coverage");
-      expect(libraryRouter).not.toContain("docs/assets/library/agent");
       const assetsRouter = readFileSync(path.join(targetDir, "docs/assets/AGENTS.md"), "utf8");
       expect(assetsRouter).toContain("docs/assets/library/<persona-slug>/");
       expect(assetsRouter).toContain("docs/assets/playbooks/<persona-slug>/");
@@ -441,18 +436,11 @@ describe("installer integration", () => {
       expect(manifest.files[".make-docs/system/references/path-and-link-hygiene.md"]?.sourceId).toBe(
         "file:.make-docs/system/references/path-and-link-hygiene.md",
       );
-      expect(manifest.files["docs/assets/library/AGENTS.md"]?.sourceId).toBe(
-        "file:docs/assets/library/AGENTS.md",
-      );
-      expect(manifest.files["docs/assets/playbooks/AGENTS.md"]?.sourceId).toBe(
-        "file:docs/assets/playbooks/AGENTS.md",
-      );
-      expect(
-        manifest.files["docs/assets/playbooks/agent/make-docs-lifecycle.playbook.md"]?.sourceId,
-      ).toBe("file:docs/assets/playbooks/agent/make-docs-lifecycle.playbook.md");
-      expect(manifest.files["docs/assets/archive/AGENTS.md"]?.sourceId).toBe(
-        "file:docs/assets/archive/AGENTS.md",
-      );
+      expect(manifest.files["docs/assets/library/AGENTS.md"]).toBeUndefined();
+      expect(manifest.files["docs/assets/playbooks/AGENTS.md"]).toBeUndefined();
+      expect(manifest.files["docs/assets/playbooks/agent/make-docs-lifecycle.playbook.md"])
+        .toBeUndefined();
+      expect(manifest.files["docs/assets/archive/AGENTS.md"]).toBeUndefined();
     } finally {
       cleanupTempDir(targetDir);
     }
@@ -532,26 +520,12 @@ describe("installer integration", () => {
 
         expect(plan.systemAssetMaterialization.mode).toBe(mode);
         expect(plan.systemAssetMaterialization.localBootstrapPaths).toEqual([
-          ".make-docs/AGENTS.md",
-          ".make-docs/CLAUDE.md",
           ".make-docs/config.yaml",
           ".make-docs/manifest.json",
-          ".make-docs/system/AGENTS.md",
-          ".make-docs/system/CLAUDE.md",
-          ".make-docs/system/contracts/AGENTS.md",
-          ".make-docs/system/contracts/CLAUDE.md",
-          ".make-docs/system/prompts/AGENTS.md",
-          ".make-docs/system/prompts/CLAUDE.md",
-          ".make-docs/system/references/AGENTS.md",
-          ".make-docs/system/references/CLAUDE.md",
-          ".make-docs/system/templates/AGENTS.md",
-          ".make-docs/system/templates/CLAUDE.md",
-          "AGENTS.md",
-          "CLAUDE.md",
-          "docs/AGENTS.md",
-          "docs/CLAUDE.md",
-        ]);
-        expect(plan.systemAssetMaterialization.deferredSystemAssetPaths).toContain(
+          ...getInstructionPaths("AGENTS.md"),
+          ...getInstructionPaths("CLAUDE.md"),
+        ].sort());
+        expect(plan.systemAssetMaterialization.deferredSystemAssetPaths).not.toContain(
           "docs/work/AGENTS.md",
         );
         expect(plan.systemAssetMaterialization.deferredSystemAssetPaths).toContain(
@@ -567,7 +541,7 @@ describe("installer integration", () => {
         );
         expect(
           plan.systemAssetMaterialization.materializationClasses["docs/work/AGENTS.md"],
-        ).toBe("deferred-system-asset");
+        ).toBe("always-local-bootstrap");
 
         const result = applyInstallPlan({ targetDir, plan, existingManifest });
         const manifest = result.manifest;
@@ -576,15 +550,16 @@ describe("installer integration", () => {
         expect(manifest.systemAssetMaterialization.mode).toBe(mode);
         expect(manifest.systemAssetMaterialization.assets["docs/work/AGENTS.md"]).toMatchObject({
           logicalAssetId: "docs/work/AGENTS.md",
-          materializationClass: "deferred-system-asset",
-          offlineExpectation: "reviewed-full-snapshot-fallback",
-          selectionTrigger: "internal-materialization-mode",
+          localPath: "docs/work/AGENTS.md",
+          materializationClass: "always-local-bootstrap",
+          offlineExpectation: "local",
+          selectionTrigger: "local-bootstrap",
         });
         expect(
           manifest.systemAssetMaterialization.assets["docs/work/AGENTS.md"].expectedHashes,
         ).toHaveLength(1);
         expect(manifest.systemAssetMaterialization.assets["docs/work/AGENTS.md"].localPath).toBe(
-          undefined,
+          "docs/work/AGENTS.md",
         );
         expect(manifest.files["docs/AGENTS.md"].systemAsset).toMatchObject({
           logicalAssetId: "docs/AGENTS.md",
@@ -597,7 +572,7 @@ describe("installer integration", () => {
         expect(existsSync(path.join(targetDir, "docs/CLAUDE.md"))).toBe(true);
         expect(existsSync(path.join(targetDir, ".make-docs/manifest.json"))).toBe(true);
         expect(existsSync(path.join(targetDir, ".make-docs/config.yaml"))).toBe(false);
-        expect(existsSync(path.join(targetDir, "docs/work/AGENTS.md"))).toBe(false);
+        expect(existsSync(path.join(targetDir, "docs/work/AGENTS.md"))).toBe(true);
         expect(
           existsSync(path.join(targetDir, ".make-docs/system/references/path-and-link-hygiene.md")),
         ).toBe(false);
@@ -1281,15 +1256,15 @@ describe("installer integration", () => {
       expect(existsSync(path.join(targetDir, ".make-docs/system/templates/guide-developer.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, ".make-docs/system/templates/guide-user.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, ".make-docs/system/templates/history-record.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, "docs/assets/library/AGENTS.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, "docs/assets/library/CLAUDE.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, "docs/assets/playbooks/AGENTS.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, "docs/assets/playbooks/CLAUDE.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/assets/library/AGENTS.md"))).toBe(false);
+      expect(existsSync(path.join(targetDir, "docs/assets/library/CLAUDE.md"))).toBe(false);
+      expect(existsSync(path.join(targetDir, "docs/assets/playbooks/AGENTS.md"))).toBe(false);
+      expect(existsSync(path.join(targetDir, "docs/assets/playbooks/CLAUDE.md"))).toBe(false);
       expect(
         existsSync(path.join(targetDir, "docs/assets/playbooks/agent/make-docs-lifecycle.playbook.md")),
-      ).toBe(true);
-      expect(existsSync(path.join(targetDir, "docs/assets/archive/AGENTS.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, "docs/assets/archive/CLAUDE.md"))).toBe(true);
+      ).toBe(false);
+      expect(existsSync(path.join(targetDir, "docs/assets/archive/AGENTS.md"))).toBe(false);
+      expect(existsSync(path.join(targetDir, "docs/assets/archive/CLAUDE.md"))).toBe(false);
       expect(existsSync(path.join(targetDir, "docs/assets/AGENTS.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/assets/CLAUDE.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/assets/breadcrumbs"))).toBe(false);
@@ -1300,11 +1275,217 @@ describe("installer integration", () => {
       expect(existsSync(path.join(targetDir, ".make-docs/system/references/AGENTS.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, ".make-docs/system/references/CLAUDE.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/assets/library/agent"))).toBe(false);
-      expect(existsSync(path.join(targetDir, "docs/assets/archive/AGENTS.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, "docs/assets/archive/CLAUDE.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/assets/archive/AGENTS.md"))).toBe(false);
+      expect(existsSync(path.join(targetDir, "docs/assets/archive/CLAUDE.md"))).toBe(false);
       expect(existsSync(path.join(targetDir, ".make-docs/system/prompts/session-to-history-record.prompt.md"))).toBe(true);
     } finally {
       cleanupTempDir(targetDir);
+    }
+  });
+
+  test("retires a proved child router but preserves legacy Playbook project content", async () => {
+    const targetDir = createTempDir();
+    try {
+      const installed = await installWithSelections(targetDir, () => {});
+      const childRouterPath = "docs/assets/playbooks/AGENTS.md";
+      const childRouterContent = renderManagedBlock("# Retired child router\n");
+      const playbookPath = "docs/assets/playbooks/agent/project.playbook.md";
+      const playbookContent = "---\nkind: playbook\n---\n\n# Project Playbook\n";
+      mkdirSync(path.join(targetDir, "docs/assets/playbooks/agent"), { recursive: true });
+      writeFileSync(path.join(targetDir, childRouterPath), childRouterContent, "utf8");
+      writeFileSync(path.join(targetDir, playbookPath), playbookContent, "utf8");
+      const legacy = structuredClone(installed.manifest);
+      legacy.files[childRouterPath] = {
+        hash: hashText(parseManagedBlock(childRouterContent).body!),
+        sourceId: `file:${childRouterPath}`,
+        ownershipClass: "managed-block",
+      };
+      legacy.files[playbookPath] = {
+        hash: hashText(playbookContent),
+        sourceId: `file:${playbookPath}`,
+        ownershipClass: "project-owned",
+      };
+      writeManifestJson(targetDir, legacy);
+      const existingManifest = loadManifest(targetDir)!;
+
+      const plan = await planInstall({
+        targetDir,
+        selections: existingManifest.selections,
+        existingManifest,
+        operation: "setup.sync",
+      });
+      expect(getPlannedAction(plan, childRouterPath)).toMatchObject({
+        type: "remove-managed",
+      });
+      expect(getPlannedAction(plan, playbookPath)).toMatchObject({
+        type: "skip",
+      });
+      const storeRoot = createTempDir();
+      const compatibility = await classifyCompatibilityState({ targetDir });
+      const applied = executeInstallPlanMigration({
+        projectRoot: targetDir,
+        storeRoot,
+        compatibility,
+        installPlan: plan,
+        existingManifest,
+      });
+      cleanupTempDir(storeRoot);
+      expect(existsSync(path.join(targetDir, childRouterPath))).toBe(false);
+      expect(readFileSync(path.join(targetDir, playbookPath), "utf8")).toBe(playbookContent);
+      expect(applied.manifest.files[childRouterPath]).toBeUndefined();
+      expect(applied.manifest.files[playbookPath]).toBeDefined();
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("adopts retired shipped Playbooks as project-owned without changing their bytes", async () => {
+    const targetDir = createTempDir();
+    try {
+      const installed = await installWithSelections(targetDir, () => {});
+      const retiredPlaybooks = [
+        "docs/assets/playbooks/agent/make-docs-lifecycle.playbook.md",
+        "docs/assets/playbooks/agent/naive-uat-facilitator.playbook.md",
+        "docs/assets/playbooks/user/naive-uat-tester.playbook.md",
+      ];
+      const legacy = structuredClone(installed.manifest);
+      for (const relativePath of retiredPlaybooks) {
+        const content = `---\nkind: playbook\n---\n\n# Preserved ${relativePath}\n`;
+        mkdirSync(path.dirname(path.join(targetDir, relativePath)), { recursive: true });
+        writeFileSync(path.join(targetDir, relativePath), content, "utf8");
+        legacy.files[relativePath] = {
+          hash: hashText(content),
+          sourceId: `file:${relativePath}`,
+          ownershipClass: "managed-snapshot",
+        };
+      }
+
+      const plan = await planInstall({
+        targetDir,
+        selections: legacy.selections,
+        existingManifest: legacy,
+        operation: "setup.sync",
+      });
+      expect(plan.forceManifestWrite).toBe(true);
+      for (const relativePath of retiredPlaybooks) {
+        expect(getPlannedAction(plan, relativePath)).toMatchObject({
+          type: "noop",
+          sourceId: `project:${relativePath}`,
+        });
+      }
+
+      const applied = applyInstallPlan({
+        targetDir,
+        plan,
+        existingManifest: legacy,
+      });
+      for (const relativePath of retiredPlaybooks) {
+        expect(readFileSync(path.join(targetDir, relativePath), "utf8"))
+          .toBe(`---\nkind: playbook\n---\n\n# Preserved ${relativePath}\n`);
+        expect(applied.manifest.files[relativePath]).toEqual({
+          hash: hashText(readFileSync(path.join(targetDir, relativePath), "utf8")),
+          sourceId: `project:${relativePath}`,
+          ownershipClass: "project-owned",
+        });
+      }
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("rejects retired Playbook adoption through a symlinked parent", async () => {
+    const targetDir = createTempDir();
+    const outsideDir = createTempDir();
+    try {
+      const installed = await installWithSelections(targetDir, () => {});
+      const relativePath = "docs/assets/playbooks/agent/make-docs-lifecycle.playbook.md";
+      const content = "---\nkind: playbook\n---\n\n# Outside Playbook\n";
+      mkdirSync(path.join(outsideDir, "agent"), { recursive: true });
+      writeFileSync(path.join(outsideDir, "agent/make-docs-lifecycle.playbook.md"), content, "utf8");
+      symlinkSync(outsideDir, path.join(targetDir, "docs/assets/playbooks"));
+      const legacy = structuredClone(installed.manifest);
+      legacy.files[relativePath] = {
+        hash: hashText(content),
+        sourceId: `file:${relativePath}`,
+        ownershipClass: "managed-snapshot",
+      };
+
+      await expect(planInstall({
+        targetDir,
+        selections: legacy.selections,
+        existingManifest: legacy,
+        operation: "setup.sync",
+      })).rejects.toThrow("symbolic link");
+      expect(readFileSync(path.join(outsideDir, "agent/make-docs-lifecycle.playbook.md"), "utf8"))
+        .toBe(content);
+    } finally {
+      cleanupTempDir(targetDir);
+      cleanupTempDir(outsideDir);
+    }
+  });
+
+  test("rejects retired child-router removal through a symlinked parent", async () => {
+    const targetDir = createTempDir();
+    const outsideDir = createTempDir();
+    try {
+      const installed = await installWithSelections(targetDir, () => {});
+      const relativePath = "docs/assets/playbooks/AGENTS.md";
+      const content = renderManagedBlock("# Retired child router\n");
+      writeFileSync(path.join(outsideDir, "AGENTS.md"), content, "utf8");
+      symlinkSync(outsideDir, path.join(targetDir, "docs/assets/playbooks"));
+      const legacy = structuredClone(installed.manifest);
+      legacy.files[relativePath] = {
+        hash: hashText(parseManagedBlock(content).body!),
+        sourceId: `file:${relativePath}`,
+        ownershipClass: "managed-block",
+      };
+
+      await expect(planInstall({
+        targetDir,
+        selections: legacy.selections,
+        existingManifest: legacy,
+        operation: "setup.sync",
+      })).rejects.toThrow("symbolic link");
+      expect(readFileSync(path.join(outsideDir, "AGENTS.md"), "utf8")).toBe(content);
+    } finally {
+      cleanupTempDir(targetDir);
+      cleanupTempDir(outsideDir);
+    }
+  });
+
+  test("rejects a symlink swap before retired child-router removal is applied", async () => {
+    const targetDir = createTempDir();
+    const outsideDir = createTempDir();
+    try {
+      const installed = await installWithSelections(targetDir, () => {});
+      const relativePath = "docs/assets/playbooks/AGENTS.md";
+      const content = renderManagedBlock("# Retired child router\n");
+      mkdirSync(path.join(targetDir, "docs/assets/playbooks"), { recursive: true });
+      writeFileSync(path.join(targetDir, relativePath), content, "utf8");
+      const legacy = structuredClone(installed.manifest);
+      legacy.files[relativePath] = {
+        hash: hashText(parseManagedBlock(content).body!),
+        sourceId: `file:${relativePath}`,
+        ownershipClass: "managed-block",
+      };
+      const plan = await planInstall({
+        targetDir,
+        selections: legacy.selections,
+        existingManifest: legacy,
+        operation: "setup.sync",
+      });
+      expect(getPlannedAction(plan, relativePath)).toMatchObject({ type: "remove-managed" });
+
+      rmSync(path.join(targetDir, "docs/assets/playbooks"), { recursive: true });
+      writeFileSync(path.join(outsideDir, "AGENTS.md"), content, "utf8");
+      symlinkSync(outsideDir, path.join(targetDir, "docs/assets/playbooks"));
+
+      expect(() => applyInstallPlan({ targetDir, plan, existingManifest: legacy }))
+        .toThrow("symbolic link");
+      expect(readFileSync(path.join(outsideDir, "AGENTS.md"), "utf8")).toBe(content);
+    } finally {
+      cleanupTempDir(targetDir);
+      cleanupTempDir(outsideDir);
     }
   });
 
@@ -2137,12 +2318,16 @@ describe("installer integration", () => {
     const targetDir = createTempDir();
     try {
       await installWithSelections(targetDir, () => {});
+      writeFileSync(path.join(targetDir, "docs/work/project-note.md"), "project work\n", "utf8");
 
       await installWithSelections(targetDir, (selections) => {
         selections.capabilities.work = false;
       });
 
       expect(existsSync(path.join(targetDir, "docs/work/AGENTS.md"))).toBe(false);
+      expect(readFileSync(path.join(targetDir, "docs/work/project-note.md"), "utf8"))
+        .toBe("project work\n");
+      expect(existsSync(path.join(targetDir, "docs/work"))).toBe(true);
       expect(existsSync(path.join(targetDir, ".make-docs/system/prompts/designs-to-plan.prompt.md"))).toBe(
         true,
       );
@@ -2156,6 +2341,143 @@ describe("installer integration", () => {
       expect(existsSync(path.join(targetDir, ".make-docs/system/prompts/designs-to-plan.prompt.md"))).toBe(
         true,
       );
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("strips a clean deselected router block and preserves exact outside bytes", async () => {
+    const targetDir = createTempDir();
+    const storeRoot = createTempDir();
+    try {
+      const installed = await installWithSelections(targetDir, () => {});
+      const routerPath = path.join(targetDir, "docs/work/AGENTS.md");
+      const withOutside = `Project prefix.\n\n${readFileSync(routerPath, "utf8")}\n\nProject suffix.\n`;
+      const parsed = parseManagedBlock(withOutside);
+      expect(parsed.state).toBe("valid");
+      const preserved = `${parsed.prefix}${parsed.suffix}`;
+      writeFileSync(routerPath, withOutside, "utf8");
+      const selections = structuredClone(installed.manifest.selections);
+      selections.capabilities.work = false;
+
+      const plan = await planInstall({
+        targetDir,
+        selections,
+        existingManifest: installed.manifest,
+        operation: "setup.reconfigure",
+      });
+
+      expect(getPlannedAction(plan, "docs/work/AGENTS.md")).toMatchObject({
+        type: "strip-managed-block",
+        content: preserved,
+      });
+      const compatibility = await classifyCompatibilityState({ targetDir });
+      const applied = executeInstallPlanMigration({
+        projectRoot: targetDir,
+        storeRoot,
+        compatibility,
+        installPlan: plan,
+        existingManifest: installed.manifest,
+      });
+      expect(readFileSync(routerPath, "utf8")).toBe(preserved);
+      expect(applied.manifest.files["docs/work/AGENTS.md"]).toBeUndefined();
+      expect(applied.manifest.routerOwnership!.routers["docs/work/AGENTS.md"]).toBeUndefined();
+      expect(existsSync(path.dirname(routerPath))).toBe(true);
+    } finally {
+      cleanupTempDir(targetDir);
+      cleanupTempDir(storeRoot);
+    }
+  });
+
+  test("rejects a symlinked legacy capability router before block-strip planning", async () => {
+    const targetDir = createTempDir();
+    const outsideDir = createTempDir();
+    try {
+      const installed = await installWithSelections(targetDir, () => {});
+      const relativePath = "docs/work/AGENTS.md";
+      const withOutside = `Project prefix.\n\n${readFileSync(path.join(targetDir, relativePath), "utf8")}`;
+      writeFileSync(path.join(outsideDir, "AGENTS.md"), withOutside, "utf8");
+      rmSync(path.join(targetDir, "docs/work"), { recursive: true });
+      symlinkSync(outsideDir, path.join(targetDir, "docs/work"));
+      const selections = structuredClone(installed.manifest.selections);
+      delete selections.resourceProjection;
+      selections.capabilities.work = false;
+
+      await expect(planInstall({
+        targetDir,
+        selections,
+        existingManifest: installed.manifest,
+        operation: "setup.reconfigure",
+      })).rejects.toThrow("symbolic link");
+      expect(readFileSync(path.join(outsideDir, "AGENTS.md"), "utf8")).toBe(withOutside);
+    } finally {
+      cleanupTempDir(targetDir);
+      cleanupTempDir(outsideDir);
+    }
+  });
+
+  test("rejects a symlink swap before a legacy capability block strip is applied", async () => {
+    const targetDir = createTempDir();
+    const outsideDir = createTempDir();
+    try {
+      const installed = await installWithSelections(targetDir, () => {});
+      const relativePath = "docs/work/AGENTS.md";
+      const routerPath = path.join(targetDir, relativePath);
+      const withOutside = `Project prefix.\n\n${readFileSync(routerPath, "utf8")}\n`;
+      writeFileSync(routerPath, withOutside, "utf8");
+      const selections = structuredClone(installed.manifest.selections);
+      delete selections.resourceProjection;
+      selections.capabilities.work = false;
+      const plan = await planInstall({
+        targetDir,
+        selections,
+        existingManifest: installed.manifest,
+        operation: "setup.reconfigure",
+      });
+      expect(getPlannedAction(plan, relativePath)).toMatchObject({
+        type: "strip-managed-block",
+      });
+
+      rmSync(path.join(targetDir, "docs/work"), { recursive: true });
+      writeFileSync(path.join(outsideDir, "AGENTS.md"), withOutside, "utf8");
+      symlinkSync(outsideDir, path.join(targetDir, "docs/work"));
+      plan.classificationSnapshot = createLifecyclePlanSnapshot(targetDir, plan.actions);
+
+      expect(() => applyInstallPlan({
+        targetDir,
+        plan,
+        existingManifest: installed.manifest,
+      })).toThrow("symbolic link");
+      expect(readFileSync(path.join(outsideDir, "AGENTS.md"), "utf8")).toBe(withOutside);
+    } finally {
+      cleanupTempDir(targetDir);
+      cleanupTempDir(outsideDir);
+    }
+  });
+
+  test("fails closed and preserves a changed managed router block during deselection", async () => {
+    const targetDir = createTempDir();
+    try {
+      const installed = await installWithSelections(targetDir, () => {});
+      const routerPath = path.join(targetDir, "docs/work/AGENTS.md");
+      const parsed = parseManagedBlock(readFileSync(routerPath, "utf8"));
+      expect(parsed.state).toBe("valid");
+      const modified = `Project prefix.\n\n${renderManagedBlock(`${parsed.body}\nChanged managed line.\n`)}\n`;
+      writeFileSync(routerPath, modified, "utf8");
+      const selections = structuredClone(installed.manifest.selections);
+      selections.capabilities.work = false;
+
+      const plan = await planInstall({
+        targetDir,
+        selections,
+        existingManifest: installed.manifest,
+        operation: "setup.reconfigure",
+      });
+
+      expect(getPlannedAction(plan, "docs/work/AGENTS.md")).toMatchObject({
+        type: "skip-conflict",
+      });
+      expect(readFileSync(routerPath, "utf8")).toBe(modified);
     } finally {
       cleanupTempDir(targetDir);
     }
