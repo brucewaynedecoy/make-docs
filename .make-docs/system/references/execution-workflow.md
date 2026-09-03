@@ -161,7 +161,7 @@ If a fallback source is used, record which fallback was used and why.
 - In every stage, write `### Tasks` as markdown task list items using phase-local task IDs (`- [ ] t1: ...`, `- [x] t1: ...`) and write `### Acceptance criteria` as plain unordered bullets only.
 - Increment task IDs across the entire phase file without resetting in later stages. Do not renumber existing task IDs when inserting or completing work.
 - Include phase-level PRD traceability via `Source PRD Docs`.
-- When deferred-obligation or naive-UAT routing is active, include the relevant `O-###`, `NUAT-###`, and finding traceability plus phase/capability closeout language.
+- When deferred-obligation or Unassisted Goal Testing routing is active, include applicable `O-###`, `NUAT-###`, and finding traceability plus phase and capability closeout language. Do not invent an ID for `not-needed-now`.
 - Delta backlogs cite the updated or genuinely new authoritative PRDs that constrain implementation. Maintenance plans provide sequencing and history provides provenance; neither replaces current PRD authority.
 
 ## Final Validation
@@ -172,4 +172,4 @@ Before closing the task:
 2. Confirm the PRD index reflects the final catalog, status, and lineage.
 3. Confirm the backlog links to the relevant PRD docs.
 4. For authoritative PRD maintenance, confirm current requirements are inline, history is non-normative, every new PRD is a coherent product authority, and delta backlog traceability points to current PRDs rather than retired change records.
-5. When deferred-obligation or naive-UAT routing is in scope, confirm closeout records the affected `O-###` disposition, the `NUAT-###` scenario or a complete valid `none`, separate testing-mode decisions, evidence references, and explicit phase versus capability status.
+5. When deferred-obligation or Unassisted Goal Testing routing is in scope, confirm closeout records separate testing decisions, any applicable `O-###` disposition, any activated `NUAT-###` scenario, evidence references, and explicit phase versus capability status. Record `not-needed-now` without creating a scenario or obligation.

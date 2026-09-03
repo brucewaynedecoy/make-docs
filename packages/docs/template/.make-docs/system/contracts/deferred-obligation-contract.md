@@ -66,14 +66,14 @@ Do not create a second obligation register in plans, work, scenarios, or history
 
 ## Orphan Audit
 
-Phase closeout includes a non-persona orphan audit. The audit checks whether accepted future outcomes, deferred findings, valid future-trigger `none` decisions, or scope-narrowing claims are fully routed.
+Phase closeout includes a non-persona orphan audit. The audit checks whether accepted future outcomes, deferred findings, or scope-narrowing claims are fully routed. An Unassisted Goal Testing result of `not-needed-now` creates no obligation by itself.
 
 An orphan audit does not replace:
 
 - guide or system-resource coverage;
 - PRD reconciliation;
 - validation;
-- naive UAT;
+- Unassisted Goal Testing;
 - accessibility or other manual testing.
 
 A phase with an unresolved orphan does not claim capability completion.

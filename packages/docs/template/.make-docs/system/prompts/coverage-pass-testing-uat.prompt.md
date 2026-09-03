@@ -1,16 +1,34 @@
 ___
-name: Coverage Pass - Testing and UAT
-description: Runs the testing and UAT coverage pass for completed work using the coverage-pass contract.
+name: Coverage Pass - Testing
+description: Runs the proportionate testing coverage pass for completed work.
 ___
 
-Please run the testing and UAT coverage pass for the completed work context supplied with this request.
+Run the testing coverage pass for the completed work context supplied with this request.
 
-Before writing anything, read `.make-docs/system/contracts/coverage-pass-contract.md`, `.make-docs/system/contracts/history-record-contract.md`, and, when naive UAT or deferred future acceptance may be implicated, `.make-docs/system/contracts/naive-uat-contract.md` plus `.make-docs/system/contracts/deferred-obligation-contract.md`. Also read any repo-local test, validation, release, UAT, or acceptance documents that already own the changed surface. Treat those files as the authority; cite them in your closeout summary but do not restate their shared mechanics.
+Before writing, read `.make-docs/system/contracts/coverage-pass-contract.md` and `.make-docs/system/contracts/history-record-contract.md`. When Unassisted Goal Testing or an accepted future outcome can apply, also read `.make-docs/system/contracts/naive-uat-contract.md` and `.make-docs/system/contracts/deferred-obligation-contract.md`. Read the local test, validation, release, and acceptance documents that own the changed surface.
 
-Use the testing and UAT coverage surface from the coverage-pass contract. Enumerate every applicable candidate separately: automated validation, owner or architecture review, naive end-user UAT, knowledgeable visual or manual interaction, accessibility testing, visual-regression automation, acceptance scripts, smoke tests, no-test decisions, and validation-discoverability pointers.
+Use the testing coverage surface from the coverage-pass contract. Make a separate current decision for each applicable testing type. Consider automated implementation testing, performance testing, guided progress review, Unassisted Goal Testing, specialist accessibility testing, visual regression, conformance, smoke tests, no-test decisions, and validation links.
 
-Assign exactly one verdict to every candidate: `create`, `update-existing`, `link-only`, or `none`. Include a reason for each candidate, including `none`. For each activated naive-UAT execution, preserve the separate mode verdict and resolve exactly one configured Persona whose primitive is `user` or `maintainer`. Use the canonical `user` Persona when none is supplied. When `none` is valid, record the concrete reason, still-applicable validation, future observable trigger, durable owner, target coordinate, and linked `O-###` or current register route.
+For each testing decision, record:
 
-Apply the history idempotency rule in `coverage-pass-contract.md` for this session and follow `history-record-contract.md` for any history breadcrumb. Reference the validation checklist in `coverage-pass-contract.md` instead of restating it, and run focused validation for any changed files.
+- Testing type;
+- Decision informed;
+- Reason now;
+- Product maturity;
+- Scope;
+- Executor;
+- Gate effect;
+- Effort budget;
+- Stop condition;
+- Evidence retained; and
+- Rerun trigger.
 
-Close with a concise pass summary: verdict table, artifacts changed, validation run, no-test or no-UAT rationales, any activated `NUAT-###` or valid future-trigger `none` routing, and remaining handoffs. If commit-message work is needed, read `make-docs://system/prompt/work-to-commit-message.prompt.md` with `make-docs resource read`; do not create a duplicate commit-message starter.
+For Unassisted Goal Testing, activate a run only when it can answer a material current human-experience uncertainty, or when explicit current authority requires it. Otherwise record `not-needed-now`, the reason, and the evidence that already answers the uncertainty. Do not create a scenario or obligation only for this result.
+
+For each activated run, resolve one configured Persona whose primitive is `user` or `maintainer`. Use canonical `user` when none is supplied. Keep Persona selection separate from executor qualification. Use one result: `clear`, `friction`, `blocked`, or `invalid-run`. Keep the default gate effect advisory unless explicit current authority names a blocking effect.
+
+Reuse unchanged evidence. Expand testing only after a failure signal, a cross-cutting change, an explicit support claim, or accepted risk. Stop when the recorded budget or stop condition ends.
+
+Apply the history idempotency rule in `coverage-pass-contract.md`. Follow `history-record-contract.md` for any history record. Run focused validation for changed files.
+
+Close with a short summary of the testing decisions, files changed, validation run, any activated `NUAT-###`, any `not-needed-now` result, and remaining handoffs. If commit-message work is needed, read `make-docs://system/prompt/work-to-commit-message.prompt.md` with `make-docs resource read`.

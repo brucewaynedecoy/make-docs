@@ -178,11 +178,13 @@ Third-party sources must be labeled third-party even when they satisfy a first-p
 
 Purpose metadata may explain why a skill is useful, but it must not become a second source of deterministic workflow logic. Deterministic make-docs-owned behavior still belongs behind CLI/shared-core operations under [25-typescript-runtime-cli-mcp-operation-boundaries.md](25-typescript-runtime-cli-mcp-operation-boundaries.md).
 
-### First-Party Naive-UAT Skill Boundary
+### First-Party Unassisted Goal Testing Skill Boundary
 
-The first-party Naive-UAT Skill is a distributable, explicitly selected adapter for the `naive-uat` purpose. Core Naive-UAT execution remains complete through system workflow resources and the typed CLI/MCP operations owned by [25-typescript-runtime-cli-mcp-operation-boundaries.md](25-typescript-runtime-cli-mcp-operation-boundaries.md) and [46-naive-end-user-acceptance-testing.md](46-naive-end-user-acceptance-testing.md); local Skill installation or harness exposure is optional.
+The first-party Unassisted Goal Testing Skill is a distributable, explicitly selected adapter for the stable `naive-uat` purpose. Core Unassisted Goal Testing remains complete through system workflow resources and the typed CLI/MCP compatibility operations owned by [25-typescript-runtime-cli-mcp-operation-boundaries.md](25-typescript-runtime-cli-mcp-operation-boundaries.md) and [46-naive-end-user-acceptance-testing.md](46-naive-end-user-acceptance-testing.md); local Skill installation or harness exposure is optional.
 
 The Skill contains concise discovery and routing instructions plus thin shims only when a supported harness cannot directly issue shell commands or use MCP. Every shim delegates to the same typed Make Docs CLI operations and may adapt arguments or format returned receipts only. It must not duplicate tester qualification, installed-product targeting, anti-coaching rules, Persona resolution, scenario definitions, evidence semantics or destinations, finding and gate policy, prompts, templates, or run-state behavior.
+
+For W19 R1 P7 only, the selected first-party Unassisted Goal Testing Skill ships as a bundled local payload. Setup installs it through the canonical shared lifecycle and native harness projection. No remote fetch is required. The general Skill delivery question remains open in [D-005](03-open-questions-and-risk-register.md#d-005-skills-delivery-diverges-from-earlier-bundled-payload-expectations), [Q-001](03-open-questions-and-risk-register.md#q-001-what-is-the-long-term-skills-delivery-contract), and [Q-007](03-open-questions-and-risk-register.md#q-007-how-should-remote-skill-sources-be-constrained).
 
 ### Validation Boundary
 
@@ -197,12 +199,14 @@ Implementation must prove:
 - `--selected-skills all` and `none` are interpreted against the effective manifest
 - audit, backup, uninstall, and migration explain alternate-manifest and selection provenance
 - package contents include the evolved schema and validation fixtures
-- the first-party Naive-UAT Skill is absent from default installs and is installed only through explicit selection
-- every Naive-UAT shim delegates to a typed CLI operation and contains no duplicated UAT policy or business logic
+- the P7 package includes the bundled local first-party Unassisted Goal Testing Skill payload
+- the first-party Unassisted Goal Testing Skill is absent from default installs and is installed only through explicit selection
+- the selected first-party Unassisted Goal Testing Skill needs no remote fetch during P7 setup
+- every Unassisted Goal Testing shim delegates to a typed CLI operation and contains no duplicated policy or business logic
 
 ## Rebuild Notes
 
-A rebuild must preserve explicit selected-Skill semantics, manifest provenance and trust, safe ownership and removal, no default Skill installation, and the rule that deterministic Make Docs behavior belongs behind typed CLI/shared-core operations. The first-party Naive-UAT Skill remains an optional routing adapter and must never become a second UAT policy authority.
+A rebuild must preserve explicit selected-Skill semantics, manifest provenance and trust, safe ownership and removal, no default Skill installation, and the rule that deterministic Make Docs behavior belongs behind typed CLI/shared-core operations. The first-party Unassisted Goal Testing Skill remains an optional routing adapter and must never become a second policy authority. P7 uses its bundled local payload without closing the general selected-Skill delivery question.
 
 ## Requirement History
 
@@ -238,6 +242,14 @@ A rebuild must preserve explicit selected-Skill semantics, manifest provenance a
 - Replacement contract: The general Skills registry and explicit-selection model remain; `naive-uat` identifies an optional first-party Skill whose shims delegate only to typed CLI operations and contain no duplicated UAT policy, while Skills selection admits no plugin, hook, extension, workflow-bundle, or Playbook packaging surface.
 - Rationale: Core Naive-UAT behavior must remain available through system resources and CLI/MCP, with anti-coaching and evidence policy owned by the UAT authority rather than copied into a harness adapter.
 - Source: [W19 R1 recovery design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md) and [accepted W19 R1 plan](../plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md)
+
+### 2026-09-03 — W19 R1 P7
+
+- Affected requirement or section: `First-Party Unassisted Goal Testing Skill Boundary`
+- Previous contract: The first-party Skill was optional and thin, but P7 did not select its payload delivery mode.
+- Replacement contract: P7 ships this selected first-party Skill as a bundled local payload, uses the existing shared lifecycle and native harness projection, and requires no remote fetch. The general selected-Skill delivery question stays open.
+- Rationale: P7 needs a finite offline-capable payload contract without deciding the wider Skill delivery model assigned to later work.
+- Source: [W19 R1 P7 work record](../work/2026-08-14-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/07-naive-uat-workflow-persona-and-evidence.md) and [D-005](03-open-questions-and-risk-register.md#d-005-skills-delivery-diverges-from-earlier-bundled-payload-expectations)
 
 ## Source Anchors
 

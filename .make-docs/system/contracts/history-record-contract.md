@@ -91,9 +91,9 @@ All sub-sections under `## Documentation` are markdown tables with columns `Path
 
 If a sub-section has no entries, state `None this session.` in place of the table.
 
-When deferred obligations or naive UAT changed materially, summarize the durable delta once in `## Changes`: name the affected `O-###` or `NUAT-###`, the orphan-audit result when one matters, and the resulting scenario or finding disposition with links back to authority. Do not duplicate raw run logs, transcripts, or evidence payloads in history.
+When deferred obligations or Unassisted Goal Testing changed materially, summarize the durable delta once in `## Changes`. Name the affected `O-###` or `NUAT-###` when one exists. Record `not-needed-now` without inventing either ID. Include the orphan-audit result when it matters and link the resulting scenario or finding disposition to authority. Do not duplicate raw run logs, transcripts, or evidence payloads in history.
 
-History coverage remains one project record. When Naive UAT changed materially, it links the selected-Persona testing records without copying their packets, findings, or evidence.
+History coverage remains one project record. When Unassisted Goal Testing changed materially, it links the selected-Persona testing records without copying their packets, findings, or evidence.
 
 Example:
 

@@ -64,22 +64,33 @@ The governing invariant is that `docs/prd/` describes the current authoritative 
 
 Never use `create` for a document that describes an addition, enhancement, revision, removal, migration, reconciliation, or other editorial operation. PRD content remains governed by [prd-change-management.md](../../references/system/prd-change-management.md) and [output-contract.md](output-contract.md).
 
-### Testing And UAT Coverage
+### Testing Coverage
 
-Testing and UAT modes remain separate coverage candidates. Use the verdict spine directly: `create`, `update-existing`, `link-only`, or `none`.
+Keep each testing type as a separate current decision. Consider automated implementation testing, performance testing, guided progress review, Unassisted Goal Testing, specialist accessibility testing, visual regression, conformance, and owner or architecture review.
 
-Enumerate separate candidates when applicable for:
+Each testing decision records:
 
-- automated tests;
-- owner or architecture review;
-- naive end-user UAT;
-- knowledgeable visual or manual interaction;
-- accessibility testing;
-- visual-regression automation.
+- `Testing type`;
+- `Decision informed`;
+- `Reason now`;
+- `Product maturity`;
+- `Scope`;
+- `Executor`;
+- `Gate effect`;
+- `Effort budget`;
+- `Stop condition`;
+- `Evidence retained`; and
+- `Rerun trigger`.
 
-One candidate's evidence does not substitute for another candidate's verdict. Every activated Naive-UAT execution selects exactly one eligible configured Persona and defaults to the canonical `user` Persona when none is supplied. Persona selection controls audience framing and evidence routing. It does not replace tester qualification or create a second coverage verdict.
+Use the artifact verdict spine only for the files or links that support a testing decision. A test decision is not reduced to `create`, `update-existing`, `link-only`, or `none`.
 
-Use `create` when the work warrants a new validation command, manual-test scenario, naive-UAT scenario, or acceptance packet. Use `update-existing` when an existing scenario or validation note should be revised. Use `link-only` when existing coverage is sufficient but should be surfaced. Use `none` only when the completed slice cannot yet produce meaningful end-user signal or another explicit no-change rationale applies, and record the concrete reason, still-applicable validation, future observable trigger, durable owner, target coordinate, and linked `O-###` or current register route when later naive UAT remains owed.
+Activate Unassisted Goal Testing only when an unassisted attempt can answer a material current human-experience uncertainty, or when explicit current authority requires it. Otherwise record `not-needed-now`, the reason, and the evidence that already answers the uncertainty. Do not create a scenario or durable obligation only for this result.
+
+Each activated run selects one eligible configured Persona and defaults to canonical `user` when none is supplied. Persona selection controls audience framing and evidence routing. It does not prove executor qualification.
+
+Use one run result: `clear`, `friction`, `blocked`, or `invalid-run`. Keep the default gate effect advisory. Use a blocking effect only when explicit current authority names the result and the blocked outcome or claim.
+
+Reuse unchanged evidence. Expand the test boundary only after a failure signal, a cross-cutting change, an explicit support claim, or accepted risk.
 
 ## Persona Targets
 
@@ -122,7 +133,8 @@ At close of pass, confirm:
 7. History idempotency was applied for the current session.
 8. Changed docs have no unresolved placeholders such as `TODO`, `TBD`, or `{{...}}` unless the contract explicitly permits them.
 9. Focused validation was run for the files touched by the pass, including `git diff --check` when files changed.
-10. Testing/UAT output preserves separate mode verdicts and records one eligible configured Persona for each activated Naive-UAT execution.
+10. Testing output preserves separate type decisions, finite budgets, stop conditions, and evidence reuse.
+11. Each activated Unassisted Goal Test records one eligible configured Persona and a separately qualified executor.
 
 ## Defining A New Coverage Pass
 

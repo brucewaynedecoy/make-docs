@@ -68,7 +68,7 @@ handing off a report.
 The coverage-pass band is a repeatable lens used during build closeout.
 The Persona lens separates maintainer-facing coverage, user-facing coverage, and
 project/history coverage so one audience does not quietly substitute for another.
-Testing modes keep separate verdicts. Each activated Naive-UAT run also selects one eligible configured Persona for audience framing and evidence routing.
+Testing types keep separate decisions. Each activated Unassisted Goal Test selects one eligible configured Persona for audience framing and evidence routing. Persona selection does not prove executor qualification.
 
 ## Default Ordering
 

@@ -1,18 +1,18 @@
-# Naive UAT Contract
+# Unassisted Goal Testing Contract
 
 ## Purpose
 
-Use this contract for short naive-style user acceptance testing. `Naive` defines the session style. It does not require an uninformed person.
+Use this contract to decide whether an unassisted attempt can answer a material current human-experience question.
 
-A human must execute the session. The human can be the informed owner or another person. Prior product or implementation knowledge does not disqualify the human. An agent can prepare, facilitate, or record the session. An agent cannot execute the session or satisfy its acceptance requirement.
+The stable resource name and `naive-uat` workflow ID remain for compatibility. Current human-facing language uses Unassisted Goal Testing.
 
-The session can use a development, test, linked, or installed environment. It starts from a realistic visible state. During the scenario, the human uses public product guidance and public product surfaces. The session does not use hidden route coaching. The run records relevant prior knowledge, environment, public help used, interventions, outcome, and friction.
+An executor can be a human or an agent in a separate isolated context. The executor must not have private knowledge that reveals the tested route. The executor uses only the normally consumable product, realistic starting information, and allowed public resources.
 
-A configured Persona and richer evidence can be used when they help. They are not required for a valid run.
+A configured Persona can define audience framing and evidence routing. Persona selection does not prove executor qualification.
 
 ## System Workflow Composition
 
-The Naive-UAT workflow is complete through these peer system resources:
+The workflow is complete through these peer system resources:
 
 - `make-docs://system/contract/naive-uat-contract.md`
 - `make-docs://system/prompt/naive-uat-facilitator.prompt.md`
@@ -22,59 +22,62 @@ The Naive-UAT workflow is complete through these peer system resources:
 
 The installed provider supplies the resources by default. A project-local projection is optional.
 
-Direct CLI, native MCP, system-resource, and future thin-Skill paths must resolve the same resources, typed operations, and receipts. When a Persona is selected, each path must resolve it in the same way. A typed operation has fixed request and result fields. A Skill must not copy this policy.
+Direct CLI, native MCP, system-resource, and selected thin-Skill paths must resolve the same resources, typed operations, and receipts. The six stable `uat.*` validation operations are compatibility surfaces. A Skill must not copy this policy.
 
-## Human Executor And Session Boundary
+## Qualified Executor And Test Boundary
 
-A valid naive-style run:
+A valid run:
 
-- has a human executor;
-- can use an informed owner or another person;
-- can use a development, test, linked, or installed environment;
-- starts from a realistic visible state and the smallest meaningful public goal;
-- uses public product guidance and public product surfaces during the scenario;
-- avoids hidden route coaching and compensating shortcuts;
-- records relevant prior knowledge, environment, public help used, interventions, outcome, and friction.
+- uses a human or an agent in a separate isolated context;
+- proves that the executor has no repository access, private memory, implementation conversation, known-defect knowledge, hidden answer, successful-path knowledge, or project-specific path guidance beyond the tester packet;
+- uses only the product form that the intended audience normally consumes;
+- starts from realistic visible conditions;
+- uses only allowed public or realistic information;
+- avoids hidden route coaching and compensating shortcuts; and
+- records qualification, product identity, support scope, public help, interventions, observations, result, and material findings.
 
-Prior knowledge does not disqualify the human. The human's identity, role, or environment does not disqualify the run. No agent may block the human for any of those reasons.
+An agent execution is valid only when the separate context and access limits are proved. Self-attestation alone is not sufficient.
 
-An agent cannot be the executor. An agent-run scenario cannot satisfy naive UAT.
+A source checkout or development server qualifies only when the intended audience normally consumes that exact form.
 
-A run can record a selected Persona and use `docs/assets/<persona-slug>/testing/` when that structure is useful. Neither item is required.
+## Activation And `not-needed-now`
 
-## Activation And Valid `none`
+Unassisted Goal Testing activates only when an unassisted attempt can reveal a material current human-experience uncertainty that other evidence cannot answer well enough, or when explicit current product or release authority requires it.
 
-Enumerate user-observable-slice candidates at stage and phase close. Naive UAT activates at the earliest safe runnable boundary and no later than the phase gate when the smallest meaningful public goal can produce user signal. The environment can be development, test, linked, or installed.
+Useful triggers include:
 
-`none` is valid only when the completed slice cannot yet produce meaningful end-user signal. A valid `none` records:
+- a new mental model;
+- discoverability or orientation risk;
+- a costly wrong assumption;
+- weak recovery;
+- a relationship or state that implementers understand only from private knowledge;
+- a new public goal without applicable unassisted evidence; or
+- an explicit acceptance requirement.
 
-- the concrete reason;
-- the still-applicable validation on the internal slice;
-- the future observable trigger;
-- the durable owner;
-- the target coordinate;
-- the linked `O-###` or current register route.
+A user-observable slice, phase close, available executor, existing scenario, or desire for reassurance does not activate a test by itself.
 
-Unresolved "test later" language is invalid.
+`not-needed-now` is valid when no current decision justifies a run. Record the reason and the evidence that already answers the uncertainty. Do not create a scenario or durable obligation only to record this result.
 
-## Distinct Testing And Review Modes
+When an accepted future outcome remains owed, route it through the deferred-obligation contract with an owner, trigger, target, exit criteria, and reason. “Test later” alone is invalid.
 
-Naive UAT remains separate from:
+## Distinct Testing And Review Types
 
-- automated tests;
-- owner or architecture review;
+Unassisted Goal Testing remains separate from:
+
+- automated implementation testing;
+- performance testing;
+- guided progress review;
 - knowledgeable visual or manual exploration;
-- accessibility testing;
+- specialist accessibility testing;
 - visual-regression automation;
-- conformance or lab evidence.
+- conformance or lab evidence; and
+- owner or architecture review.
 
-One mode's success does not satisfy another mode's requirements.
+One type's evidence can inform a testing decision. It cannot be mislabeled as an unassisted attempt.
 
 ## Anti-Coaching
 
-Tester instructions must describe a realistic situation, goal, visible starting state, allowed public help, and genuine safety constraints without revealing the answer or route.
-
-Relevant prior knowledge is allowed. During the scenario, the human must still use public product guidance and public product surfaces. The facilitator must not use the human's prior knowledge as a hidden route or give a private shortcut.
+Tester instructions describe a realistic situation, goal, visible starting state, allowed public help, and genuine safety constraints. They do not reveal the answer or route.
 
 Do not leak:
 
@@ -83,131 +86,144 @@ Do not leak:
 - architecture knowledge;
 - hidden setup;
 - expected answers;
-- prescribed clicks, commands, or navigation shortcuts;
-- compensating instructions that hide discoverability defects.
+- prescribed clicks, commands, or navigation shortcuts; or
+- compensating instructions that hide a discoverability problem.
 
-Safety intervention is always allowed and must be recorded. Material assistance invalidates success and becomes `fail`, `revise`, or a restarted run with the intervention preserved.
+Safety intervention is always allowed and must be recorded. Material coaching makes the run `invalid-run`.
 
 ## Scenario Authority
 
-Canonical scenarios live in the active PRD that owns the primary external user outcome under a fixed `## Naive UAT Scenarios` section. They use stable append-only `NUAT-###` identifiers.
+Canonical scenarios live in the active PRD that owns the primary external outcome. They use stable append-only `NUAT-###` identifiers.
 
-The same goal keeps its ID and increments `scenario_version` for meaningful changes. Different goals receive new IDs.
+The same goal keeps its ID and increments `scenario_version` for a material change. A materially different goal, audience, support claim, or risk receives a new ID.
 
-Work files, plans, and history records do not become a second scenario authority.
+Work files, plans, and history records do not become a second scenario authority. A `not-needed-now` decision does not require a scenario.
 
-## Required Scenario Fields
+## Required Scenario And Decision Fields
+
+Each testing decision uses the common PRD 50 fields:
+
+| Field | Requirement |
+| --- | --- |
+| `testing_type` | Unassisted Goal Testing |
+| `decision_informed` | Current product, release, or human-experience decision |
+| `reason_now` | Activation reason or `not-needed-now` reason |
+| `product_maturity` | Relevant product state |
+| `scope` | Product, platform, audience, and support boundary |
+| `executor` | Qualified executor or `none` when no run occurs |
+| `gate_effect` | `advisory`, `blocking-current-work`, or `blocking-claim-only` |
+| `effort_budget` | Finite run and correction limit |
+| `stop_condition` | Condition that ends the work |
+| `evidence_retained` | Evidence needed for the decision |
+| `rerun_trigger` | Material change that justifies another run |
+
+An activated scenario also records:
 
 | Field | Requirement |
 | --- | --- |
 | `scenario_id` | Stable `NUAT-###` identity |
-| `scenario_version` | Version that increases for each meaningful change |
+| `scenario_version` | Version that increases for each material change |
 | `title` | Short product-language title |
 | `user_goal` | Real-world target outcome |
 | `source_requirements` | Owning requirement links |
-| `target_user` | External audience and assumptions |
-| `activation_coordinate` | First safe user-observable coordinate |
-| `future_trigger` | `active` or complete dormant trigger |
-| `obligation_ref` | Linked `O-###` or explicit `none` |
-| `supported_scope` | Platform, locale, input, accessibility, account, and network scope |
-| `build_identity` | Reproducible development, test, linked, or installed product identity |
-| `environment` | Development, test, linked, or installed environment used for the run |
+| `target_user` | Intended audience and assumptions |
+| `selected_persona` | One eligible configured Persona or canonical `user` default |
+| `build_identity` / `environment` | Reproducible product identity and normally consumable form |
 | `starting_state` | Realistic visible starting conditions |
-| `public_resources` | Exact allowed user-facing resources |
-| `prohibited_context` | Hidden route coaching and non-public product shortcuts forbidden during the scenario |
-| `tester_prompt` | Goal-oriented tester-visible packet |
+| `public_resources` | Exact allowed public resources |
+| `prohibited_context` | Private knowledge and hidden-route guidance |
+| `tester_prompt` | Goal-oriented tester packet |
 | `operator_success_outcomes` | Operator-only evaluation rules |
-| `setup` / `teardown` | Isolation, consent, capture, cleanup, restoration |
-| `evidence_requirements` | Required interaction, visual, accessibility, and completion evidence |
+| `setup` / `teardown` | Isolation, consent, capture, cleanup, and restoration |
+| `evidence_requirements` | Evidence needed for the current decision |
 | `severity_rules` | Base or project-specific escalation rule |
-| `timebox` | Optional observation window; expiration never silently means success |
-| `finding_route` | Owning PRD, work, and phase-gate route |
+| `finding_route` | Owning PRD, work, and gate route |
 
 ## Tester Packet Safety
 
-A single canonical scenario may render two views:
+One canonical scenario can render two views:
 
-1. an operator view containing the full record;
-2. a tester packet containing only the realistic situation, goal, visible starting state, allowed public resources, genuine constraints, consent notice, and tester-owned teardown steps.
+1. an operator view with the complete record;
+2. a tester packet with only the situation, goal, visible starting state, allowed public resources, genuine constraints, consent notice, and tester-owned teardown steps.
 
-Operator-only fields must remain explicitly marked and must not leak into the tester packet.
+Operator-only fields must not enter the tester packet.
 
-## Run And Finding Fields
+## Run, Result, And Finding Fields
 
-Every run records the exact scenario reference, human executor, relevant prior knowledge, build and environment, public guidance and product surfaces used, interventions, outcome, friction, observations, reproduction details, finding refs, and review disposition.
+Every run records the exact scenario reference, executor qualification, selected Persona, product build and environment, support scope, public guidance, interventions, result, observations, reproduction details, evidence references, finding references, and review disposition.
 
-A run can also record a selected Persona, Persona resolution, evidence root, and richer evidence refs when they are useful.
+Every finding records observed behavior, expected human outcome, severity, reproducibility, support scope, evidence, source requirement or promise, owner, and disposition.
 
-Every finding records observed behavior, expected user outcome, severity, reproducibility, support scope, evidence refs, source requirement, owner, and disposition.
+## Result Meanings
 
-## Outcome Meanings
-
-| Outcome | Meaning |
+| Result | Meaning |
 | --- | --- |
-| `pass` | Human completed the goal without hidden route coaching or an unresolved material barrier |
-| `fail` | Goal not completed, unsafe or incorrect behavior occurred, an agent acted as the executor, or hidden route coaching was required |
-| `revise` | Goal completed but discoverability, comprehension, terminology, recovery, or public instructions require revision |
-| `blocked` | Environment, account, platform, consent, dependency, or setup prevented a valid product attempt |
+| `clear` | The executor understood and attempted the goal without material hidden help or human-experience friction that changes the current decision. |
+| `friction` | The attempt exposed confusion, excess effort, a wrong mental model, weak recovery, or another material human-experience issue. |
+| `blocked` | The product or environment prevented a valid attempt. |
+| `invalid-run` | Coaching, prior private knowledge, broken setup, lost evidence, or another validity failure prevents a conclusion. |
+| `not-needed-now` | No current decision justifies an unassisted attempt. No run occurred. |
 
-`blocked` does not become `none` after observability activates.
-
-Prior knowledge, human identity, and use of a development, test, linked, or installed environment do not prevent a pass.
+One valid independent run can answer the bounded current uncertainty unless accepted risk or support authority requires more. More clear runs cannot erase an unresolved material finding.
 
 ## Severity Meanings
 
 | Severity | Meaning |
 | --- | --- |
 | `critical` | Credible safety, privacy, security, irreversible-data, unauthorized-external-effect, or severe accessibility risk |
-| `major` | Intended goal is impossible for the tested scope or requires private coaching or undocumented workaround |
-| `moderate` | Goal completes only with substantial confusion, repeated failure, or misleading mental model |
+| `major` | The intended goal is impossible for the tested scope or needs private coaching or an undocumented workaround |
+| `moderate` | The goal completes only with substantial confusion, repeated failure, or a misleading mental model |
 | `minor` | Bounded friction that does not threaten core completion |
 
-## Phase Gates And Capability Status
+## Gate Effects
 
-`pass` satisfies naive UAT only for the human-executed scenario version and support scope. An agent execution does not satisfy the gate. `fail`, `revise`, `blocked`, and unrun activated scenarios leave acceptance unsatisfied.
+The default gate effect is `advisory`.
 
-A phase must not claim capability completion while an activated scenario remains failed, revised, blocked, unrun, or tied to unresolved findings. When later work remains owed, route the disposition through PRD maintenance and `O-###` governance.
+A result is `blocking-current-work` or `blocking-claim-only` only when explicit current product or release authority names the result and the blocked outcome or claim.
+
+`friction` creates feedback or remediation. It does not automatically fail a phase. `blocked` and `invalid-run` prove no human conclusion. `not-needed-now` is not a failed or deferred test.
+
+Task or obligation completion cannot rewrite a result or close a finding.
 
 ## Evidence Boundary
 
-Repository-canonical:
+Repository-canonical material includes:
 
 - scenario identity and meaning;
-- target user and supported scope;
-- trigger and obligation routing;
-- run records, outcomes, findings, and dispositions;
-- finding meaning and disposition.
+- testing decisions and gate effects;
+- target audience and support scope;
+- run records, results, findings, and dispositions; and
+- approved evidence references.
 
-Optional repository evidence can include a selected Persona, an evidence path, a Persona-specific packet, evidence metadata, and approved evidence under `docs/assets/<persona-slug>/testing/`.
+Persona-specific packets, runs, findings, and approved evidence live under `docs/assets/<persona-slug>/testing/`.
 
-Operational or machine-local:
+Operational or machine-local state can contain run progress, timestamps, bounded Store receipts, and sanitized project-relative evidence references.
 
-- run progress and timestamps;
-- bounded Store receipts and sanitized evidence references.
-
-Large external captures may remain outside the repository when consent, retention, and privacy rules require it. When richer evidence exists, the run record keeps the approved reference and redaction state. Missing or corrupt required evidence makes the acceptance outcome unverified. Repository links alone never imply a pass.
+Large external captures can remain outside the repository when consent, retention, and privacy rules require it. Missing or corrupt required evidence prevents a conclusion.
 
 ## Compatibility
 
-Adopt the contract conservatively:
+Adopt this contract conservatively:
 
-- classify prior manual or UAT artifacts by what they actually prove;
-- do not relabel an agent run, automated run, or hidden-route walkthrough as naive UAT;
-- classify a knowledgeable human walkthrough by its session style, public-surface use, interventions, outcome, and friction;
-- move prior evidence only when ownership is proven;
-- preserve historical IDs, work coordinates, and archives;
+- preserve stable resource names, `NUAT-###` IDs, and `R-NUAT-*` anchors;
+- classify earlier manual or UAT artifacts by what they prove;
+- do not relabel an automated run or coached walkthrough as Unassisted Goal Testing;
+- preserve historical language in historical records;
+- keep the six typed `uat.*` validators as compatibility surfaces; and
 - stop instead of overwriting modified active project content.
 
 ## Future Automation Limits
 
-Future tooling may inventory candidates, render packets, facilitate a human run, record observations, or validate links and required fields. Automation and agents must not execute or satisfy naive UAT. They must not infer observability, decide intervention materiality, assign severity, interpret confusion, narrow support scope, cancel requirements, or resolve obligations.
+Future tooling can inventory candidates, render packets, facilitate runs, record observations, or validate links and required fields.
+
+Automation must not infer material human uncertainty, executor qualification, intervention materiality, finding severity, product acceptance, support narrowing, or requirement cancellation.
 
 ## Non-Goals
 
-- No `naive-tester` Persona.
-- No agent executor.
-- No hard gate based only on human identity, prior knowledge, Persona selection, evidence-root choice, or development, test, linked, or installed environment.
-- No implementation-shaped answer scripts for the tester.
-- No conformance, architecture review, automated tests, or accessibility testing substituted for naive UAT.
+- No automatic test because a phase has a user-observable slice.
+- No required `naive-tester` Persona.
+- No human-only executor rule.
+- No implementation-shaped answer script.
+- No other test or review type mislabeled as an unassisted attempt.
 - No Playbook or Protocol workflow, runner, or asset requirement.
-- No copied UAT policy in a Skill, plugin, hook, extension, or harness adapter.
+- No copied policy in a Skill, plugin, hook, extension, or harness adapter.

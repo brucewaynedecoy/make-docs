@@ -34,7 +34,7 @@ Describe what this work directory covers and how to navigate its phase files.
 - Keep phase files dependency-ordered.
 - Every phase file must include `## Source PRD Docs`.
 - Link every phase back to the relevant PRD docs.
-- When deferred obligations or naive UAT are in scope, inventory the source `O-###`, `NUAT-###`, and finding links plus the expected phase versus capability status here.
+- When deferred obligations or Unassisted Goal Testing are in scope, inventory applicable `O-###`, activated `NUAT-###`, and finding links plus the expected phase versus capability status. Record `not-needed-now` without inventing an ID.
 
 ## Intended Follow-On
 

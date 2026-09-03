@@ -70,7 +70,7 @@ Do not add prompt inclusion, template mode, reference mode, or another legacy re
 
 A system workflow is a named catalog composition of current contract, prompt, reference, and template URIs. It does not create a fifth resource type, generic workflow engine, Playbook, Protocol, Skill requirement, or local projection requirement.
 
-The Naive-UAT workflow is the first catalog composition. Its governing policy remains in `make-docs://system/contract/naive-uat-contract.md`.
+The Unassisted Goal Testing workflow is the first catalog composition. Its stable `naive-uat` ID and resource names remain for compatibility. Its governing policy remains in `make-docs://system/contract/naive-uat-contract.md`.
 
 ## Preserved Legacy Files
 

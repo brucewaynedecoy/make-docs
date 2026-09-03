@@ -18,7 +18,7 @@ Documentation should be portable across checkouts, machines, and users. Do not w
 
 - Use `docs/artifacts/**` for optional, non-authoritative source and analysis inputs.
 - Use `.make-docs/archive/**` for Make Docs-managed archive and provenance records.
-- Use `docs/assets/<persona-slug>/**` for Persona-scoped reader assets. Use `docs/assets/<persona-slug>/testing/**` for Naive-UAT packets, runs, findings, and approved evidence.
+- Use `docs/assets/<persona-slug>/**` for Persona-scoped reader assets. Use `docs/assets/<persona-slug>/testing/**` for Unassisted Goal Testing packets, runs, findings, and approved evidence.
 - Treat `docs/assets/archive/**`, `docs/assets/archive/history/**`, `docs/assets/artifacts/**`, `docs/assets/library/**`, and `docs/assets/playbooks/**` as legacy migration inputs, not current shipped targets.
 - Current selected local resource projections live under `.make-docs/system/<resource-type>/**`. Installed-provider resources remain available without a local projection.
 - Routers, scripts, selected agentic payloads, config, manifest, conflicts, and provider state are not content-resource types.

@@ -21,7 +21,7 @@ coordinate: "{{COORDINATE}}"
 ## Changes
 
 Summarize what was touched this session. Use prose, a short file tree, a table, or optional sub-sections — whichever best fits the work.
-When deferred obligations or naive UAT changed materially, add one concise delta naming the affected `O-###` or `NUAT-###`, the orphan-audit outcome when relevant, and the resulting scenario or finding disposition with links back to authority.
+When deferred obligations or Unassisted Goal Testing changed materially, add one concise delta. Name an affected `O-###` or `NUAT-###` when one exists. Record `not-needed-now` without inventing an ID. Include the orphan-audit outcome when relevant and link the resulting scenario or finding disposition to authority.
 
 ```text
 {{REPO_ROOT}}/

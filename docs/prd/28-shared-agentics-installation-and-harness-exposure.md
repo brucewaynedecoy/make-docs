@@ -82,7 +82,9 @@ Shared payloads may instruct agents to call make-docs CLI or MCP operations for 
 
 Core Make Docs behavior is complete through project routers, system resources, CLI operations, and MCP surfaces without installed agentics. Selected Skills may improve discovery and sequencing or adapt access for a supported harness, but they must delegate deterministic behavior to the same typed operations and return the same receipts.
 
-The first-party Naive-UAT Skill is a supported optional payload. Its shims follow [08-skills-catalog-and-distribution.md](08-skills-catalog-and-distribution.md): they adapt arguments or receipt formatting only, carry no tester qualification, anti-coaching, scenario, evidence, finding, gate, or run-state policy, and never become a correctness prerequisite.
+The first-party Unassisted Goal Testing Skill is a supported optional payload. Its shims follow [08-skills-catalog-and-distribution.md](08-skills-catalog-and-distribution.md): they adapt arguments or receipt formatting only, carry no tester qualification, anti-coaching, scenario, evidence, finding, gate, or run-state policy, and never become a correctness prerequisite.
+
+For W19 R1 P7 only, this selected first-party Skill arrives as a bundled local payload. Setup installs it into the shared store and projects it through the native harness paths above. P7 requires no remote fetch. This bounded choice does not settle the general selected-Skill delivery model.
 
 Make Docs has no general plugin, hook, extension, workflow-bundle, Playbook-generated Skill, or harness-adapter installation contract. An agentic integration may enter this store only after a traced non-Playbook purpose, an existing owning PRD, real harness capability evidence, explicit selection, and install/uninstall authority exist; [30-plugin-substrate-and-workflow-bundles.md](30-plugin-substrate-and-workflow-bundles.md) owns that admission boundary.
 
@@ -110,7 +112,7 @@ Shared agentics are written only when the user explicitly selects Skills through
 - Backup and uninstall use one reviewed audit snapshot.
 - Empty managed `.make-docs/agentics/**` parent directories are pruned after selected-agentics removal only when audit proves no unmanaged descendants remain.
 - Cross-platform validation proves symlink-preferred behavior and copy-mirror fallback without relying on generic stubs.
-- The optional Naive-UAT Skill remains absent from default installs, delegates only to typed CLI operations, and does not duplicate UAT policy.
+- The optional Unassisted Goal Testing Skill remains absent from default installs, delegates only to typed CLI operations, and does not duplicate testing policy.
 - Core routers, resources, CLI, and MCP remain complete when no Skill is selected or exposed.
 ## Contracts and Data
 
@@ -147,6 +149,14 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: Shared installation and native exposure retain explicitly selected Skills only; core operation is complete without agentics, the first-party Naive-UAT Skill is optional and CLI-delegating, and no plugin, hook, extension, workflow bundle, Playbook-generated output, or untraced adapter is admitted.
 - Rationale: Optional agentics must have a traced non-Playbook purpose and honest harness evidence, while unsupported plugin and Playbook packaging infrastructure must not remain a current product promise.
 - Source: [W19 R1 recovery design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md) and [accepted W19 R1 plan](../plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md)
+
+### 2026-09-03 — W19 R1 P7
+
+- Affected requirement or section: `Optional Agentics Boundary`
+- Previous contract: The shared lifecycle and native harness projection were fixed, but P7 had no payload origin for the first-party Unassisted Goal Testing Skill.
+- Replacement contract: P7 uses a bundled local payload and no remote fetch for this one selected first-party Skill. The general selected-Skill delivery model stays open.
+- Rationale: P7 can use the existing ownership and exposure contract without expanding the decision to all Skills.
+- Source: [W19 R1 P7 work record](../work/2026-08-14-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/07-naive-uat-workflow-persona-and-evidence.md) and [D-005](03-open-questions-and-risk-register.md#d-005-skills-delivery-diverges-from-earlier-bundled-payload-expectations)
 
 ## Source Anchors
 

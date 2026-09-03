@@ -151,7 +151,7 @@ Use the matching template in `.make-docs/system/templates/` and preserve these r
 | `work-index.md` | `## Purpose`, `## Phase Map`, `## Usage Notes`, `## Intended Follow-On` |
 | `work-phase.md` | `## Purpose`, `## Overview`, `## Source PRD Docs`, repeatable `## Stage {{STAGE_NUMBER}} - {{STAGE_NAME}}` headings with `### Tasks`, `### Acceptance criteria`, and `### Dependencies` |
 
-When deferred-obligation or naive-UAT routing is active, work indexes also inventory source `O-###` and `NUAT-###` authorities plus capability-status expectations, and work phases link the applicable obligations, scenarios, findings, separate testing-mode decisions, and phase or capability closeout status without becoming a second authority.
+When deferred-obligation or Unassisted Goal Testing routing is active, work indexes inventory applicable `O-###` and `NUAT-###` authorities plus capability-status expectations. Work phases link applicable obligations, activated scenarios, findings, separate testing decisions, and phase or capability closeout status without becoming a second authority. A `not-needed-now` result does not require a scenario or obligation.
 
 Product overview, architecture, subsystem, reference, glossary, and other requirement-owning PRDs may include an optional `## Requirement History` section immediately before `## Source Anchors`. Current normative requirements remain in the main body and always win. History is non-normative and uses the dated entry contract in `.make-docs/system/references/prd-change-management.md`. The PRD index and living risk register use their own navigation and item-history contracts instead.
 
@@ -179,7 +179,7 @@ For PRD indexes, use route `work-backlog-generation` and recommend creating or
 updating the work backlog from the PRD set.
 For work indexes, use route `implementation-loop` and recommend starting with
 the first applicable phase in the backlog.
-When deferred-obligation or naive-UAT routing is active, preserve `O-###`, `NUAT-###`, finding, and capability-status traceability in the coordinate handoff.
+When deferred-obligation or Unassisted Goal Testing routing is active, preserve applicable `O-###`, activated `NUAT-###`, finding, and capability-status traceability in the coordinate handoff. A `not-needed-now` result does not require an ID.
 
 ## Work Phase Structure Rules
 
