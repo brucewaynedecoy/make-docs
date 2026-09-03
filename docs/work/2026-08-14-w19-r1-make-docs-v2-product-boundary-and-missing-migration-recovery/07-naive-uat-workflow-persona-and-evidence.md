@@ -18,7 +18,7 @@ Deliver the first-party Naive-UAT system workflow, configured Persona resolution
 
 This phase implements migration checkpoint 10. Every activated execution resolves exactly one eligible configured `user` or `maintainer` Persona, defaulting to canonical `user` when none is supplied. Persona identity controls audience framing and evidence location; it never substitutes for independent tester isolation, installed-product scope, public information, or anti-coaching. Canonical evidence lives only under `docs/assets/<persona-slug>/testing/**`.
 
-[D-030](../../prd/03-open-questions-and-risk-register.md#d-030-w19-r1-documentation-surface-router-topology-was-omitted) proves that the P4 documentation-surface dependency at baseline `90b4fd8` is incomplete. P7 is paused again. The accepted `P7-AUTHORITY` decision remains in force. D-005 and P7-BUDGET remain open. Persona, scenario, risk, and six-operation meaning remain unchanged. After the P4 correction is accepted and a new final corrective closeout exists, refresh the baseline and dependency proof and resume owner decision review at D-005. Do not restart the completed preflight work, and do not authorize P7 implementation.
+[D-030](../../prd/03-open-questions-and-risk-register.md#d-030-w19-r1-documentation-surface-router-topology-was-omitted) is corrected and closed. The P7 baseline and P4 dependency proof are refreshed at `2f07b568`. The accepted `P7-AUTHORITY` decision remains in force. D-005 and P7-BUDGET remain open. Persona, scenario, risk, and six-operation meaning remain unchanged. The owner interview resumes at D-005 without restarting the completed preflight work. P7 implementation is not authorized.
 
 ## Source PRD Docs
 
@@ -74,21 +74,21 @@ This phase implements migration checkpoint 10. Every activated execution resolve
 ### Closeout Notes
 
 - Testing-mode decision(s): activated naive UAT, separate automated/conformance/accessibility/performance modes, and complete `none` routing are recorded distinctly.
-- Recovery proof baseline: branch `make-docs-v2`, committed HEAD `90b4fd8d2bc8eb0bcbe722bf1d2e15b4b133905f`. D-030 marks this P4 closeout baseline incomplete for the documentation-surface router topology.
-- Dependency result: P4 documentation-surface recovery is pending. `P7-AUTHORITY` remains accepted. Persona, scenario, qualification, evidence, advisory gate, and stable `NUAT-###` meaning remain unchanged.
+- Recovery proof baseline: branch `make-docs-v2`, committed HEAD `2f07b5682d54039bd0386a4cbab9fb351f2a2c88`.
+- Dependency result: P4 documentation-surface recovery is complete. The authority, exact topology, safe migration and ownership behavior, template and package parity, installed-project repair, independent review, and owner acceptance are proved through `2f07b568`. `P7-AUTHORITY` remains accepted. Persona, scenario, qualification, evidence, advisory gate, and stable `NUAT-###` meaning remain unchanged.
 - Operation result: `uat.scenario.validate`, `uat.persona.resolve`, `uat.target.validate`, `uat.evidence-reference.validate`, `uat.finding.validate`, and `uat.result.validate` remain pending P7 compatibility surfaces.
 - Risk result: R-001, R-002, R-008, R-017, R-021, and R-022 remain controlled. Q-019 and Q-022 remain outside current P7 scope.
-- Decision result: D-005 and P7-BUDGET remain open. After accepted P4 recovery and a new final corrective closeout, refresh the baseline and dependency proof and resume at D-005 without restarting preflight. Stage 1 remains open, and P7 implementation is not authorized.
+- Decision result: D-005 and P7-BUDGET remain open. The owner interview resumes at D-005 without restarting preflight. Stage 1 remains open, and P7 implementation is not authorized.
 
 #### Recovery authority digests
 
-| Authority | SHA-256 at `2f36f72` |
+| Authority | SHA-256 at `2f07b568` |
 | --- | --- |
-| PRD 03 | `8cf34ef235aa6b8ca89f5cd1cd3ab8726c2ed6ccd07b94e846f10bdc60c979b3` |
+| PRD 03 | `77bfba5b1bf50866afe8e3c142b2b8f35462b30de2647558021f5b9f18c1789f` |
 | PRD 08 | `4a3176c5c3f7919c0e5ca2bef354c6cafb94c063a89b37d7502c446e8c7c3e26` |
-| PRD 14 | `266ecf49be2fd9f954be18bb616385accd8c68015747941fc96c7f93a79816cd` |
+| PRD 14 | `f282463de35e5bc771bf6536461411a6ed871b9409682f309b5fbe9f437a262e` |
 | PRD 20 | `0842eccd974baa54c16d18f18c27afd0d48d4b59d6baaa2698affdc144f3e7db` |
-| PRD 22 | `72fcb0e9fee785a22bb9e0e7e2f13d1aa03828349b4a223b0565407ec3f10aad` |
+| PRD 22 | `ba7d7a0423c2ed720059c58191bcf7cab8a3c5ee769852dd0fc2ac023bffe913` |
 | PRD 25 | `27a816a1012dc26a05b6b740bcfcf39b334d18ab02cb883e3fa8075047c423bd` |
 | PRD 28 | `dd1be2f8ce21e836f78021ae46c10cc8cafeda5a17305017f2b4915745f0e484` |
 | PRD 38 | `55f1ed5f1e32ba808f4d429154df5015af0988911bce904f4cbfdab82582a8ea` |
@@ -104,6 +104,8 @@ This phase implements migration checkpoint 10. Every activated execution resolve
 | Naive-UAT scenario template | `2898401832b41f4e3b4eb3f709a7d76893362ed4a936a80baf8c9c9963eea5a3` |
 
 The three Naive-UAT resource digests match between the upstream template and the maintainer dogfood copy.
+
+PRD 03, PRD 14, and PRD 22 changed from the prior recovery digest set. At baseline `2f07b568`, PRD 03 adds D-030 and still records the correction as open. This closeout candidate closes D-030 outside that baseline hash. PRD 14 uses the current `docs/artifacts/` path. PRD 22 defines the root-only `docs/assets/` router and profile-controlled documentation routers. The remaining source PRD digests are unchanged. The refresh found no change to the accepted P7 Persona, scenario, qualification, evidence, advisory-gate, or six-operation meaning.
 
 ## Stage 2 - Install The System Workflow And Typed Access Paths
 
