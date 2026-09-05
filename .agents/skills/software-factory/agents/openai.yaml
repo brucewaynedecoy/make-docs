@@ -1,0 +1,6 @@
+interface:
+  display_name: "Software Factory"
+  short_description: "Coordinate backlog work, review, and correction"
+  default_prompt: "Use $software-factory to complete the selected backlog work with subagents."
+policy:
+  allow_implicit_invocation: false

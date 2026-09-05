@@ -1,0 +1,6 @@
+interface:
+  display_name: "Preflight"
+  short_description: "Settle phase choices in clear, brief language"
+  default_prompt: "Use $preflight to review the target phase and settle its needed choices."
+policy:
+  allow_implicit_invocation: false
