@@ -238,5 +238,5 @@ export function validateUatCheckpoint10(root: string) {
   const provider = loadInstalledSystemResourceProvider();
   if (!provider.ok || UAT_WORKFLOW_RESOURCES.some((uri) => !provider.value.resources.some((entry) => entry.identity.uri === uri))) fail("invalid-input", "Checkpoint 10 requires the complete workflow provider.");
   if (uatOperations.length !== 6 || uatOperations.some((item) => item.status !== "active" || !item.handler || item.mutates !== "read")) fail("invalid-input", "Checkpoint 10 requires all six read-only UAT handlers.");
-  return { checkpoint: 10, persona: resolvePersona(root), operations: uatOperations.map((item) => item.id), quiescence: "preserved", next_checkpoint: 11, next_checkpoint_state: "locked" };
+  return { checkpoint: 10, persona: resolvePersona(root), operations: uatOperations.map((item) => item.id), quiescence: "preserved", next_checkpoint: 11, next_checkpoint_state: "implemented" };
 }

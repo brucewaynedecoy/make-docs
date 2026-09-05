@@ -16,3 +16,6 @@ export * from "./meta-verification";
 export * from "./registry";
 export * from "./scenario";
 export * from "./tuple";
+
+export * from "./historical-contract";
+export * from "./lab-target";

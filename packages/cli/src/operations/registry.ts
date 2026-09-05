@@ -5,29 +5,20 @@ import {
   OperationWriteDeniedError,
   type OperationExecutionContext,
 } from "./context";
-import { packageOperations } from "./package/ops";
 import { lifecycleOperations } from "./lifecycle/registry-ops";
 import { projectOperations } from "./project/ops";
 import { uatOperations } from "./uat/ops";
-import { playbookOperations } from "./playbook/ops";
 import { prdOperations } from "./prd/ops";
 import { resourceOperations } from "./resource/ops";
 import { OperationError, type JsonValue } from "./types";
 import { workOperations } from "./work/ops";
-import {
-  enterLegacyCompatibilityOperation,
-  LEGACY_COMPATIBILITY_OPERATION_IDS,
-  resolveLegacyOperationProjectRoot,
-} from "../migration";
-
-export { LEGACY_COMPATIBILITY_OPERATION_IDS } from "../migration";
 
 /**
  * The operation registry (R-REG-1): the single source of truth for which
  * deterministic operations exist. Identifiers follow `domain.verb` or
  * `domain.object.verb` — lowercase, dot-separated, hyphenated multiword
  * segments — and are stable and append-only. The CLI `run` tree, the MCP
- * tool list, and Playbook `operation:` steps are three surfaces derived
+ * tool list are surfaces derived
  * from or conformance-checked against this registry (R-REG-2, R-SURF-1).
  */
 
@@ -56,7 +47,7 @@ export interface OperationCliProjection {
 }
 
 export interface OperationDefinition<TInput = unknown, TOutput = unknown> {
-  /** Stable registry identifier, e.g. `playbook.catalog`. */
+  /** Stable registry identifier, e.g. `resource.list`. */
   id: string;
   summary: string;
   mutates: OperationMutation;
@@ -164,7 +155,7 @@ export function operationDomain(id: string): string {
 
 /**
  * CLI display path of an identifier: its dot segments as argv tokens under
- * `make-docs run` (`playbook.catalog` -> `playbook catalog`). This is the
+ * `make-docs run` (`resource.list` -> `resource list`). This is the
  * single derivation rule the `run` command tree is built from (R-REG-2);
  * surfaces and the runner reuse it rather than hand-maintaining command
  * strings.
@@ -192,7 +183,7 @@ export function operationCliProjection(id: string): OperationCliProjection {
  * The human CLI command form of a registered operation (R-TIER-1): the
  * command a reader runs by hand when the runner cannot execute the operation
  * itself. Derived from the registry identifier via {@link operationCliPath};
- * throws for unknown identifiers so a Playbook step can never present a
+ * throws for unknown identifiers so a caller can never present a
  * command the CLI does not accept.
  */
 export function operationCliCommand(id: string): string {
@@ -202,8 +193,6 @@ export function operationCliCommand(id: string): string {
 function assembleRegistry(): Map<string, OperationDefinition> {
   const registry = new Map<string, OperationDefinition>();
   const definitions: OperationDefinition[] = [
-    ...playbookOperations,
-    ...packageOperations,
     ...prdOperations,
     ...projectOperations,
     ...workOperations,
@@ -251,10 +240,6 @@ export function listOperations(): OperationDescriptor[] {
 
 export function listAdmittedOperations(): OperationDescriptor[] {
   return ADMITTED_OPERATION_IDS.map((id) => describeOperation(id));
-}
-
-export function listLegacyCompatibilityOperations(): OperationDescriptor[] {
-  return LEGACY_COMPATIBILITY_OPERATION_IDS.map((id) => describeOperation(id));
 }
 
 function describeOperation(id: string): OperationDescriptor {
@@ -306,7 +291,7 @@ export async function invokeOperation(
   if (definition.mutates === "write" && !context.writesAllowed) {
     throw new OperationWriteDeniedError(
       `Operation \`${id}\` mutates state and requires write permission from the calling surface ` +
-        "(CLI write flags, MCP allowWrite=true, or a Playbook safety grant).",
+        "(CLI write flags or MCP allowWrite=true).",
     );
   }
   for (const approval of definition.requiredApprovals ?? []) {
@@ -327,17 +312,7 @@ export async function invokeOperation(
   if (!handler) {
     throw new OperationError(`Active operation \`${id}\` has no handler.`);
   }
-  const leaveLegacyOperation = enterLegacyCompatibilityOperation({
-    projectRoot: resolveLegacyOperationProjectRoot(context.cwd, parsed.data),
-    operationId: id,
-    mutates: definition.mutates === "write",
-  });
-  let value: JsonValue;
-  try {
-    value = (await handler(parsed.data, context)) as JsonValue;
-  } finally {
-    leaveLegacyOperation();
-  }
+  const value = (await handler(parsed.data, context)) as JsonValue;
   return {
     operation: id,
     value,

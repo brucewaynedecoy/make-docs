@@ -1,12 +1,11 @@
 import { OperationError } from "./types";
 
 /**
- * The surface an operation invocation originates from. The three registry
- * surfaces are the CLI `run` command, the MCP tools, and Playbook
- * `operation:` steps (R-SURF-1); `test` exists so the core is invocable
+ * The surface an operation invocation originates from. The registry
+ * surfaces are the CLI commands and MCP tools; `test` keeps the core invocable
  * without any surface loaded (R-TEST-2).
  */
-export type OperationSurface = "cli" | "mcp" | "playbook-step" | "test";
+export type OperationSurface = "cli" | "mcp" | "test";
 
 /**
  * Injected execution context for operation handlers (R-CORE-1).
@@ -23,7 +22,7 @@ export interface OperationExecutionContext {
   cwd: string;
   /**
    * Whether mutating operations may write. Surfaces set this from their own
-   * grant model (CLI flags, MCP `allowWrite`, Playbook safety declarations);
+   * grant model (CLI flags or MCP `allowWrite`);
    * enforcement itself happens in the core, not in the surface.
    */
   writesAllowed: boolean;

@@ -25,6 +25,10 @@ related:
 
 # Packaging Shareable Playbook Workflows
 
+<!-- retired-claim-surface: w19-r1-p8 -->
+> Historical source only after W19 R1 P8. Playbooks and Protocols are retired Make Docs capabilities. The commands, packaging mappings, and support claims below describe prior behavior. They do not describe current product support. The prior body and links remain for provenance.
+
+
 This guide explains the v2 model for turning Make Docs Playbooks into shareable agentic outputs. The current package exposes the underlying operation commands for package planning, surface resolution, and accepted package writes; broader user-facing packaging workflows may add friendlier prompts or plugin surfaces later.
 
 ## What Packaging Means

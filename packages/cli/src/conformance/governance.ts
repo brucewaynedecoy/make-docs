@@ -1,72 +1,12 @@
 /**
- * The W18 R9 P4 support-claim governance (PRD 20 R-GOV-1..2; W18 R9 P4
- * t1-t6). This module is the human-facing half of the tuple registry: it owns
- * how support claims may be PHRASED anywhere support language appears — docs,
- * READMEs, guides, registry notes, generated package records — and binds that
- * wording to tuple status so no claim runs ahead of its tuple's evidence.
- *
- * The rules encoded here (R-GOV-1, R-GOV-2):
- * - A public claim states only what a `conformance-validated` tuple proves;
- *   until a tuple is conformance-validated, wording MUST distinguish a Make
- *   Docs generated output from a harness-recognized plugin.
- * - A `pass-with-caveats` result surfaces its caveats in any claim derived
- *   from it — the caveats ride the wording itself, never a footnote elsewhere.
- * - The lab thresholds are preserved (PRD 20): one passing, maintainer-
- *   reviewed conformance run per tuple is the minimum for nominal support
- *   wording, and repeated reviewed runs are the stronger threshold for a more
- *   confident claim. Stronger commendation language appears only behind that
- *   stronger threshold.
- *
- * Ownership boundaries (R-SCOPE-1, R-KEEP-1): status derivation stays owned
- * by `registry.ts` (R-REG-2..3) and the bar by `scenario.ts` (R-BAR-1) —
- * governance CONSUMES a derived status and derives wording from it, never the
- * other way around. The reviewer statuses and support-claim uses
- * (`nominal-tuple`, `stronger-claim-candidate`) are the lab's own result
- * vocabulary (PRD 20), consumed unchanged as the threshold inputs.
- *
- * Implementer decisions recorded here (D8 freedoms):
- * - Wording is DERIVED, not authored: {@link renderConformanceSupportClaim}
- *   is the single seam that turns a registry entry into public claim wording,
- *   so the R-GOV-1 rule is code, and hand-authored prose can only ever
- *   restate (never exceed) what the derivation permits.
- * - Review is read from receipts: the compact recorded run deliberately does
- *   not carry `reviewerStatus` (it is a projection, and review happens on the
- *   full result record), so {@link deriveSupportClaimStrength} reads each
- *   qualifying run's committed result record via its `recordRef` — the same
- *   receipts discipline as the Phase 3 R-TEST-1 check. A missing or invalid
- *   record fails closed to unreviewed: a claim can never be stronger than the
- *   evidence a reviewer can actually open.
- * - The registry status and the public claim are two gates, not one: a tuple
- *   can be `conformance-validated` (status derivation needs a qualifying run,
- *   not a review) while public wording stays withheld until the run is
- *   maintainer-reviewed, because the lab's claim gate requires review for any
- *   public wording. Status is evidence bookkeeping; wording is governance.
- * - Claim surfaces are DECLARED data ({@link CONFORMANCE_CLAIM_SURFACES}),
- *   each carrying a machine-checked `support-claim-state` marker (an HTML
- *   comment, invisible to readers) asserting the registry's current
- *   conformance-validated count. When a tuple advances, every claim surface's
- *   marker goes stale and {@link listSupportClaimGovernanceErrors} fails the
- *   build until the surface's wording is reviewed and its marker updated —
- *   that is the t4 mechanical promotion path for wording: claim wording can
- *   advance only when the exact tuple advances, and it cannot silently NOT
- *   advance conversations either. A vocabulary sweep over the reader-facing
- *   roots catches support language appearing on an undeclared surface.
- * - The packaging lineage's support statuses are capped against the registry
- *   ({@link capSupportStatusForConformanceRegistry}) as a maintainer-side
- *   check-layer gate: the registry is maintainer-only content (R-KEEP-1,
- *   R-TEST-3) and is not available to a user-side planner run, so this cap is
- *   enforced by the repository suite over the committed registry and the
- *   first-party descriptors, not by shipping the registry.
+ * Current support-claim checks over exact evidence tuples and reviewed records.
+ * The P8 historical guide allowlist does not grant current support.
+ * Retired scenario records cannot qualify for a current claim.
  */
 
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
-import {
-  FIRST_PARTY_HARNESS_CAPABILITY_DESCRIPTORS,
-} from "../operations/playbook-packaging/descriptors";
-import { outputKindForProfile } from "../operations/playbook-packaging/capability-descriptor";
 import { OperationError } from "../operations/types";
-import type { PlaybookPackageSupportStatus } from "../operations/playbook-packaging/types";
 import {
   CONFORMANCE_TUPLE_STATUS_MEANINGS,
   runQualifiesForConformanceValidation,
@@ -301,146 +241,6 @@ export function renderConformanceSupportClaim(
 }
 
 /* --------------------------------------------------------------------------
- * Mechanical promotion for the packaging lineage (t4, t5; R-GOV-1, R-REG-3).
- * ------------------------------------------------------------------------ */
-
-/**
- * The highest packaging support status the registry permits for a tuple: the
- * W18 R5/PRD 36 generated-output claims and the W18 R8 adapter support
- * statuses may read `validated` only when the exact registry tuple is
- * `conformance-validated` — an unregistered tuple permits nothing beyond
- * `provisional`, so no parallel or prose-only support surface can exist
- * (R-REG-1).
- */
-export function derivePackageSupportStatusCeilingFromRegistry(
-  entry: ConformanceTupleRegistryEntry | null,
-): Extract<PlaybookPackageSupportStatus, "provisional" | "validated"> {
-  return entry !== null && entry.status === "conformance-validated" ? "validated" : "provisional";
-}
-
-/**
- * The registry cap, composing with the W18 R8 verification and tuple-binding
- * caps: a `validated` claim whose registry tuple is not `conformance-validated`
- * is held at `provisional`. This is the third, maintainer-side gate — the
- * registry is maintainer-only content, so this cap is enforced by the
- * repository suite over the committed registry, not at user-side plan time.
- */
-export function capSupportStatusForConformanceRegistry(
-  status: PlaybookPackageSupportStatus,
-  entry: ConformanceTupleRegistryEntry | null,
-): PlaybookPackageSupportStatus {
-  if (status === "validated" && derivePackageSupportStatusCeilingFromRegistry(entry) !== "validated") {
-    return "provisional";
-  }
-  return status;
-}
-
-/**
- * The first-party descriptor placement tuples — the exact claims the W18 R5
- * through W18 R8 lineages carry as provisional — rebuilt from the descriptors
- * so the promotion wiring can be checked against the packaging source of
- * truth rather than a hand-copied list.
- */
-export function listFirstPartyDescriptorPlacementTuples(): ConformanceSupportTuple[] {
-  const tuples: ConformanceSupportTuple[] = [];
-  for (const descriptor of FIRST_PARTY_HARNESS_CAPABILITY_DESCRIPTORS) {
-    for (const container of descriptor.containers) {
-      const outputKind = outputKindForProfile(container.profile);
-      for (const placement of container.layout.placements) {
-        tuples.push({
-          scenario: null,
-          harness: descriptor.harnessId,
-          surface: placement.surface,
-          scope: placement.scope,
-          outputKind,
-          generatedOutputKind:
-            placement.scope === "export-only"
-              ? "export-only-file"
-              : outputKind === "plugin"
-                ? "generated-plugin"
-                : "generated-skills-bundle",
-          modelOrProvider: null,
-          runtime: null,
-        });
-      }
-    }
-  }
-  return tuples;
-}
-
-/**
- * Asserts the t4/t5 wiring between the packaging lineage and the registry:
- * every first-party descriptor placement claim has exactly one registry tuple
- * (its promotion path), every registry tuple anchors back to a descriptor
- * placement (no parallel support surface, R-REG-1), no tuple below
- * `conformance-validated` permits a ceiling above `provisional` — so an
- * adapter status advances beyond provisional only through tuple evidence
- * (PRD 36 R-ADAPT-1, R-PROV-3) — and a tuple with no authored scenario and no
- * evidence states its absence in notes rather than implying coverage
- * (R-SCEN-2). Returns human-readable errors; empty means the wiring holds.
- */
-export function listPackagingSupportRegistryAgreementErrors(input: {
-  registry: RegistryTuples;
-}): string[] {
-  const errors: string[] = [];
-  const entriesByKey = new Map(
-    input.registry.tuples.map((entry) => [conformanceTupleKey(entry.tuple), entry]),
-  );
-  const placementKeys = new Set<string>();
-  for (const tuple of listFirstPartyDescriptorPlacementTuples()) {
-    const key = conformanceTupleKey(tuple);
-    placementKeys.add(key);
-    if (!entriesByKey.has(key)) {
-      errors.push(
-        `first-party placement tuple \`${key}\` has no registry entry; a provisional claim without ` +
-          "a registry tuple has no promotion path (R-GOV-1, R-REG-3)",
-      );
-    }
-  }
-  for (const entry of input.registry.tuples) {
-    const boundKey = conformanceTupleKey({
-      ...entry.tuple,
-      scenario: null,
-      modelOrProvider: null,
-      runtime: null,
-    });
-    if (!placementKeys.has(boundKey)) {
-      errors.push(
-        `registry entry \`${entry.id}\` anchors to no first-party descriptor placement; support ` +
-          "surfaces stay in one registry, never in parallel (R-REG-1)",
-      );
-    }
-    const ceiling = derivePackageSupportStatusCeilingFromRegistry(entry);
-    if (entry.status !== "conformance-validated" && ceiling !== "provisional") {
-      errors.push(
-        `registry entry \`${entry.id}\` at \`${entry.status}\` permits ceiling \`${ceiling}\`; ` +
-          "a status advances beyond provisional only through tuple evidence (R-GOV-1, PRD 36 R-ADAPT-1/R-PROV-3)",
-      );
-    }
-    if (
-      capSupportStatusForConformanceRegistry("validated", entry) === "validated" &&
-      entry.status !== "conformance-validated"
-    ) {
-      errors.push(
-        `registry entry \`${entry.id}\` lets a validated claim through without conformance evidence (R-GOV-1)`,
-      );
-    }
-    if (
-      entry.plannedScenarios.length === 0 &&
-      entry.evidence.length === 0 &&
-      entry.recordedRuns.length === 0 &&
-      entry.notes.length === 0
-    ) {
-      errors.push(
-        `registry entry \`${entry.id}\` has no scenario, evidence, run, or note; absence must be ` +
-          "reported, never implied as covered (R-SCEN-2)",
-      );
-    }
-  }
-  return errors;
-}
-
-/* --------------------------------------------------------------------------
  * Claim surfaces: the wording rule encoded where support language lives
  * (t1, t4, t6; R-GOV-1).
  * ------------------------------------------------------------------------ */
@@ -466,15 +266,6 @@ export const CONFORMANCE_CLAIM_SURFACES: readonly ConformanceClaimSurface[] = [
     label: "conformance assets README",
   },
   {
-    relativePath: "docs/assets/library/user/playbooks-packaging-shareable-agent-workflows.md",
-    label: "user packaging guide",
-  },
-  {
-    relativePath:
-      "docs/assets/library/developer/playbooks-development-packaging-and-harness-adapters.md",
-    label: "developer packaging guide",
-  },
-  {
     relativePath:
       "docs/assets/library/developer/conformance-lab-scenario-and-result-contracts.md",
     label: "developer conformance-lab guide",
@@ -496,6 +287,13 @@ export const CONFORMANCE_CLAIM_SURFACE_SWEEP_ROOTS = [
 
 /** The status vocabulary whose presence makes a reader-facing doc a claim surface. */
 export const CONFORMANCE_CLAIM_VOCABULARY_MARKER = "conformance-validated";
+
+/** Exact historical guides retained by the P8 decision. No general marker exemption. */
+const RETIRED_CLAIM_SURFACES = new Set([
+  "docs/assets/library/developer/playbooks-development-packaging-and-harness-adapters.md",
+  "docs/assets/library/user/playbooks-packaging-shareable-agent-workflows.md",
+]);
+
 
 const SUPPORT_CLAIM_STATE_MARKER_PATTERN =
   /<!--\s*support-claim-state:\s*conformance-validated=(\d+)\/(\d+)\s*-->/g;
@@ -520,7 +318,7 @@ function walkMarkdownFiles(root: string): string[] {
   while (pending.length > 0) {
     const current = pending.pop()!;
     for (const dirent of readdirSync(current, { withFileTypes: true })) {
-      if (dirent.name === "node_modules" || dirent.name === ".git") {
+      if (dirent.name === "node_modules" || dirent.name === ".git" || dirent.name === "history") {
         continue;
       }
       const absolute = path.join(current, dirent.name);
@@ -611,6 +409,12 @@ export function listSupportClaimGovernanceErrors(input: {
     const candidates = absolute.endsWith(".md") ? [absolute] : walkMarkdownFiles(absolute);
     for (const candidate of candidates) {
       const relative = path.relative(input.repoRoot, candidate).split(path.sep).join("/");
+      if (RETIRED_CLAIM_SURFACES.has(relative)) {
+        if (!readFileSync(candidate, "utf8").includes("<!-- retired-claim-surface: w19-r1-p8 -->")) {
+          errors.push(`Historical guide ${relative} lacks its explicit P8 retired-claim-surface marker.`);
+        }
+        continue;
+      }
       if (declaredPaths.has(relative)) {
         continue;
       }

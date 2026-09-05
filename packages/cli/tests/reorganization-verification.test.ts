@@ -218,9 +218,9 @@ describe("R-TEST-1: CLI run tree and MCP tool list are registry-derived with ful
 
     // CLI side: the same comparison the parity assertion performs must
     // report an identifier filtered out of a copy of the adapter list...
-    const runIdsMissingOne = listRunCliAdapters().filter((id) => id !== "playbook.catalog");
+    const runIdsMissingOne = listRunCliAdapters().filter((id) => id !== "work.item.resolve");
     expect(diffIdentifierSets(runRegistryIds, runIdsMissingOne).onlyInLeft).toContain(
-      "playbook.catalog",
+      "work.item.resolve",
     );
     // ...and an identifier present on the surface but absent from the registry.
     const runIdsWithExtra = [...listRunCliAdapters(), "bogus.operation"];
@@ -231,8 +231,8 @@ describe("R-TEST-1: CLI run tree and MCP tool list are registry-derived with ful
     // MCP side: the shipped conformance helper reports the same failure
     // modes (deeper derivation coverage lives in tests/mcp-derivation.test.ts).
     const derived = listDerivedMcpOperationTools();
-    const filtered = derived.filter((tool) => tool.operation !== "playbook.catalog");
-    expect(verifyDerivedMcpToolParity(filtered).missingOperations).toContain("playbook.catalog");
+    const filtered = derived.filter((tool) => tool.operation !== "work.item.resolve");
+    expect(verifyDerivedMcpToolParity(filtered).missingOperations).toContain("work.item.resolve");
     const withUnknown = [
       ...derived,
       { name: "make_docs_bogus_operation", operation: "bogus.operation" },
@@ -256,25 +256,18 @@ describe("R-TEST-2: operations execute through the core with no CLI parser or MC
     }
   });
 
-  test("playbook.catalog executes via the core seam and returns structured output with test provenance", async () => {
-    const root = createTempDir("make-docs-reorg-catalog-");
+  test("PRD authority validation executes via the core with test provenance", async () => {
+    const root = createTempDir("make-docs-reorg-prd-");
     tempRoots.push(root);
-    mkdirSync(path.join(root, "docs/work"), { recursive: true });
-    writePlaybook(root, "user", "run-stack", "Run Stack");
-
+    mkdirSync(path.join(root, "docs/prd"), { recursive: true });
     const invocation = await invokeOperation(
-      "playbook.catalog",
-      { repoRoot: root },
+      "prd.authority.validate",
+      { targetRoot: root },
       createExecutionContext({ surface: "test" }),
     );
-
-    const value = invocation.value as { repoRoot: string; entries: Array<{ ref: string }> };
-    expect(value.repoRoot).toBe(root);
-    expect(value.entries.map((entry) => entry.ref)).toContain("user/run-stack");
+    expect(invocation.value).toEqual(expect.objectContaining({ prdFilesScanned: 0 }));
     expect(invocation.provenance).toEqual({
-      operation: "playbook.catalog",
-      domain: "playbook",
-      source: "test",
+      operation: "prd.authority.validate", domain: "prd", source: "test",
     });
   });
 
@@ -355,7 +348,7 @@ describe("R-TEST-2: operations execute through the core with no CLI parser or MC
   });
 });
 
-describe("R-TEST-3: run exposes no tool lifecycle operation and Playbook steps cannot reach it", () => {
+describe("R-TEST-3: run exposes no tool lifecycle operation", () => {
   test.each([...LIFECYCLE_COMMANDS])(
     "`%s` is not an operation on any registry surface",
     async (lifecycle) => {
@@ -384,15 +377,8 @@ describe("R-TEST-3: run exposes no tool lifecycle operation and Playbook steps c
     },
   );
 
-  test("a Playbook `operation:` step cannot invoke tool lifecycle", async () => {
-    // A Playbook `operation:` step resolves through the same registry
-    // dispatch as every other surface (surface "playbook-step"), so an
-    // identifier that does not resolve there is unreachable from a Playbook.
-    // The playbook validator has no registry-resolution seam today (it
-    // enforces only that a deterministic step declares an `operation` or
-    // `command` form — see src/playbook/validator/workflow.ts), which means
-    // this dispatch rejection IS the enforcement point.
-    const context = createExecutionContext({ surface: "playbook-step", writesAllowed: true });
+  test("core dispatch cannot invoke tool lifecycle", async () => {
+    const context = createExecutionContext({ surface: "test", writesAllowed: true });
     for (const lifecycle of LIFECYCLE_COMMANDS) {
       await expect(invokeOperation(lifecycle, {}, context)).rejects.toThrow(
         /Unknown operation identifier/,

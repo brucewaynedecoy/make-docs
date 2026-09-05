@@ -1,0 +1,496 @@
+{
+  "record": "make-docs.conformance.tuple-registry",
+  "schemaVersion": 1,
+  "statuses": {
+    "provisional": "No conformance evidence yet; the output may be generated but its recognition and usability are unverified.",
+    "implementation-validated": "Internal unit and integration tests prove the generated files and structure, but no real-harness evidence exists.",
+    "conformance-validated": "A real-harness scenario has met the install-discover-invoke-uninstall evidence bar (R-BAR-1)."
+  },
+  "verdictDerivation": {
+    "advancesToConformanceValidated": {
+      "verdicts": [
+        "pass",
+        "pass-with-caveats"
+      ],
+      "passWithCaveatsRequiresSurfacedCaveats": true,
+      "requiredEvidenceBarStages": [
+        "install",
+        "discover",
+        "invoke",
+        "uninstall"
+      ]
+    },
+    "neverAdvances": [
+      "inconsistent",
+      "unsupported",
+      "blocked"
+    ],
+    "implementationValidatedRequires": "internal-test evidence refs only; internal tests are never harness-recognition evidence (R-BAR-2, R-LAYER-2)",
+    "realHarnessProbesNeverAdvance": "real-harness-probe evidence refs record observations outside the lab protocol; they never advance a status in either direction",
+    "faithfulSimulation": "R-BAR-1 admits a faithfully simulated harness: every recorded run states `simulated`, a simulated run may advance a tuple only when its scenario spec declares reviewed faithful-simulation mechanics (D8), and its result record names the mechanics used"
+  },
+  "tuples": [
+    {
+      "id": "codex-plugin-native-project",
+      "tuple": {
+        "scenario": null,
+        "harness": "codex",
+        "surface": "native",
+        "scope": "project",
+        "outputKind": "plugin",
+        "generatedOutputKind": "generated-plugin",
+        "modelOrProvider": null,
+        "runtime": null
+      },
+      "status": "implementation-validated",
+      "evidence": [
+        {
+          "kind": "internal-test",
+          "ref": "packages/cli/tests/playbook-packaging-compiler.test.ts",
+          "note": "W18 R8 P2 shape assertions: a written Codex plugin is a multi-file harness-native tree carrying `.codex-plugin/plugin.json`, per-skill `skills/{id}/SKILL.md`, and a generated `registration/marketplace.json`, symlink-exposed at `.codex/plugins/{packageId}` — file and structure evidence only, never harness recognition (R-TEST-5, R-LAYER-2)."
+        },
+        {
+          "kind": "internal-test",
+          "ref": "packages/cli/tests/playbook-packaging-adapters.test.ts",
+          "note": "W18 R8 P3 R-ADAPT-2 shape assertions: the plugin folder shape and marketplace entry naming the install path — structure evidence only, never harness recognition (R-TEST-5, R-LAYER-2)."
+        },
+        {
+          "kind": "real-harness-probe",
+          "ref": "docs/prd/03-open-questions-and-risk-register.md",
+          "note": "NEGATIVE recognition probe (2026-07-03, Codex v0.142.4, recorded on register item R-021): the generated plugin at `.codex/plugins/{packageId}` was neither listed under Codex's workspace plugins nor discovered via Add Marketplace pointed at multiple local roots, with no discovered-but-broken intermediate state. The `verified` Codex descriptor shapes cite the design document, not a live harness. This probe never moves a status; it is the opening input for the W18 R9 P2 Codex-first scenarios, and the real Codex contract must be re-examined before any recognition claim."
+        }
+      ],
+      "recordedRuns": [],
+      "plannedScenarios": [
+        "packaging/plugin-marketplace-install",
+        "packaging/uninstall-backup-cleanliness"
+      ],
+      "notes": [
+        "Implementation-validated means exactly what it says: internal tests prove the generated files and structure, and the 2026-07-03 real-harness probe recorded above contradicts recognition — this tuple must not be described as Codex-recognized in any wording until a qualifying recorded run exists (R-GOV-1).",
+        "The packaging/plugin-marketplace-install definition's Codex target binding carries the discovery kit that is the recorded plan for resolving the R-021 negative probe: ground truth for what the real Codex version accepts is established first, then the generated shapes are diffed against it, and only then are the bar assertions attempted."
+      ]
+    },
+    {
+      "id": "codex-plugin-native-global",
+      "tuple": {
+        "scenario": null,
+        "harness": "codex",
+        "surface": "native",
+        "scope": "global",
+        "outputKind": "plugin",
+        "generatedOutputKind": "generated-plugin",
+        "modelOrProvider": null,
+        "runtime": null
+      },
+      "status": "provisional",
+      "evidence": [],
+      "recordedRuns": [],
+      "plannedScenarios": [],
+      "notes": [
+        "The global-scope write path is exercised only through the R-MKT registration-seam suite (generate-only decisions), not by a file-and-structure test of the written global tree; no internal or harness evidence proves this tuple's generated output."
+      ]
+    },
+    {
+      "id": "codex-plugin-native-export-only",
+      "tuple": {
+        "scenario": null,
+        "harness": "codex",
+        "surface": "native",
+        "scope": "export-only",
+        "outputKind": "plugin",
+        "generatedOutputKind": "export-only-file",
+        "modelOrProvider": null,
+        "runtime": null
+      },
+      "status": "implementation-validated",
+      "evidence": [
+        {
+          "kind": "internal-test",
+          "ref": "packages/cli/tests/playbook-packaging.test.ts",
+          "note": "Export-only write test: the exported tree carries `.codex-plugin/plugin.json` under `.make-docs/exports/playbook-packages/{packageId}` with no manifest update and no exposure — file and structure evidence only, never harness recognition (R-TEST-5, R-LAYER-2)."
+        }
+      ],
+      "recordedRuns": [],
+      "plannedScenarios": [],
+      "notes": [
+        "Export-only output is never installed by Make Docs, so the D4 bar applies to whatever install flow a user performs by hand; this tuple stays below conformance-validated until a scenario drives that flow against a real harness."
+      ]
+    },
+    {
+      "id": "codex-skills-bundle-native-project",
+      "tuple": {
+        "scenario": null,
+        "harness": "codex",
+        "surface": "native",
+        "scope": "project",
+        "outputKind": "skills-bundle",
+        "generatedOutputKind": "generated-skills-bundle",
+        "modelOrProvider": null,
+        "runtime": null
+      },
+      "status": "provisional",
+      "evidence": [],
+      "recordedRuns": [],
+      "plannedScenarios": [
+        "packaging/skills-bundle-discovery-invocation",
+        "packaging/dependency-check-both-directions",
+        "packaging/uninstall-backup-cleanliness"
+      ],
+      "notes": [
+        "Only surface resolution (path lowering to `.agents/skills/{packageId}/SKILL.md`) is asserted for this tuple; no internal test writes and structurally proves a Codex skills bundle, and no harness evidence exists."
+      ]
+    },
+    {
+      "id": "codex-skills-bundle-agents-standard-project",
+      "tuple": {
+        "scenario": null,
+        "harness": "codex",
+        "surface": "agents-standard",
+        "scope": "project",
+        "outputKind": "skills-bundle",
+        "generatedOutputKind": "generated-skills-bundle",
+        "modelOrProvider": null,
+        "runtime": null
+      },
+      "status": "provisional",
+      "evidence": [],
+      "recordedRuns": [],
+      "plannedScenarios": [
+        "packaging/skills-bundle-discovery-invocation",
+        "packaging/dependency-check-both-directions"
+      ],
+      "notes": [
+        "Surface resolution and exposure-mode fallback are asserted (symlink and copy-mirror lowering), but no internal test writes and structurally proves a Codex skills bundle end to end, and no harness evidence exists."
+      ]
+    },
+    {
+      "id": "codex-skills-bundle-agents-standard-global",
+      "tuple": {
+        "scenario": null,
+        "harness": "codex",
+        "surface": "agents-standard",
+        "scope": "global",
+        "outputKind": "skills-bundle",
+        "generatedOutputKind": "generated-skills-bundle",
+        "modelOrProvider": null,
+        "runtime": null
+      },
+      "status": "provisional",
+      "evidence": [],
+      "recordedRuns": [],
+      "plannedScenarios": [],
+      "notes": [
+        "No internal file-and-structure test and no harness evidence exists for the global-scope Codex skills bundle."
+      ]
+    },
+    {
+      "id": "codex-skills-bundle-agents-standard-export-only",
+      "tuple": {
+        "scenario": null,
+        "harness": "codex",
+        "surface": "agents-standard",
+        "scope": "export-only",
+        "outputKind": "skills-bundle",
+        "generatedOutputKind": "export-only-file",
+        "modelOrProvider": null,
+        "runtime": null
+      },
+      "status": "provisional",
+      "evidence": [],
+      "recordedRuns": [],
+      "plannedScenarios": [],
+      "notes": [
+        "No internal file-and-structure test and no harness evidence exists for the export-only Codex skills bundle."
+      ]
+    },
+    {
+      "id": "claude-code-plugin-native-project",
+      "tuple": {
+        "scenario": null,
+        "harness": "claude-code",
+        "surface": "native",
+        "scope": "project",
+        "outputKind": "plugin",
+        "generatedOutputKind": "generated-plugin",
+        "modelOrProvider": null,
+        "runtime": null
+      },
+      "status": "implementation-validated",
+      "evidence": [
+        {
+          "kind": "internal-test",
+          "ref": "packages/cli/tests/playbook-packaging-compiler.test.ts",
+          "note": "W18 R8 P2 write test: the written Claude Code plugin carries `plugin.json` referencing `hooks/hooks.json` with event-bound steps lowered to the descriptor's hook points — file and structure evidence only, never harness recognition (R-TEST-5, R-LAYER-2)."
+        }
+      ],
+      "recordedRuns": [],
+      "plannedScenarios": [],
+      "notes": [
+        "The Claude Code adapter contract itself is `provisional` (R-ADAPT-3 shapes unreviewed against the real Claude Code plugin contract), so even structure-level confidence is bounded by the declared, unverified layout."
+      ]
+    },
+    {
+      "id": "claude-code-plugin-native-global",
+      "tuple": {
+        "scenario": null,
+        "harness": "claude-code",
+        "surface": "native",
+        "scope": "global",
+        "outputKind": "plugin",
+        "generatedOutputKind": "generated-plugin",
+        "modelOrProvider": null,
+        "runtime": null
+      },
+      "status": "provisional",
+      "evidence": [],
+      "recordedRuns": [],
+      "plannedScenarios": [],
+      "notes": [
+        "No internal file-and-structure test and no harness evidence exists for the global-scope Claude Code plugin; the adapter contract is also provisional (R-ADAPT-3)."
+      ]
+    },
+    {
+      "id": "claude-code-plugin-native-export-only",
+      "tuple": {
+        "scenario": null,
+        "harness": "claude-code",
+        "surface": "native",
+        "scope": "export-only",
+        "outputKind": "plugin",
+        "generatedOutputKind": "export-only-file",
+        "modelOrProvider": null,
+        "runtime": null
+      },
+      "status": "provisional",
+      "evidence": [],
+      "recordedRuns": [],
+      "plannedScenarios": [],
+      "notes": [
+        "No internal file-and-structure test and no harness evidence exists for the export-only Claude Code plugin; the adapter contract is also provisional (R-ADAPT-3)."
+      ]
+    },
+    {
+      "id": "claude-code-skills-bundle-native-project",
+      "tuple": {
+        "scenario": null,
+        "harness": "claude-code",
+        "surface": "native",
+        "scope": "project",
+        "outputKind": "skills-bundle",
+        "generatedOutputKind": "generated-skills-bundle",
+        "modelOrProvider": null,
+        "runtime": null
+      },
+      "status": "provisional",
+      "evidence": [],
+      "recordedRuns": [],
+      "plannedScenarios": [],
+      "notes": [
+        "Only surface resolution (path lowering to `.claude/skills/{packageId}/SKILL.md`) is asserted for this tuple; no internal test writes and structurally proves the native-surface bundle, and no harness evidence exists."
+      ]
+    },
+    {
+      "id": "claude-code-skills-bundle-agents-standard-project",
+      "tuple": {
+        "scenario": null,
+        "harness": "claude-code",
+        "surface": "agents-standard",
+        "scope": "project",
+        "outputKind": "skills-bundle",
+        "generatedOutputKind": "generated-skills-bundle",
+        "modelOrProvider": null,
+        "runtime": null
+      },
+      "status": "implementation-validated",
+      "evidence": [
+        {
+          "kind": "internal-test",
+          "ref": "packages/cli/tests/playbook-packaging-compiler.test.ts",
+          "note": "W18 R8 P2 write tests: the written multi-skill bundle carries a root index `SKILL.md`, one skill per Playbook, and `.make-docs/dependencies.json` with per-kind dependency materialization — file and structure evidence only, never harness recognition (R-TEST-5, R-LAYER-2)."
+        },
+        {
+          "kind": "internal-test",
+          "ref": "packages/cli/tests/playbook-packaging-lifecycle.test.ts",
+          "note": "Lifecycle write tests: the written bundle and its symlink exposure classify by ownership record and stay cleanly removable — file and lifecycle evidence only, never harness recognition (R-TEST-5, R-LAYER-2)."
+        }
+      ],
+      "recordedRuns": [],
+      "plannedScenarios": [],
+      "notes": [
+        "The Claude Code adapter contract itself is `provisional` (R-ADAPT-3), so even structure-level confidence is bounded by the declared, unverified layout."
+      ]
+    },
+    {
+      "id": "claude-code-skills-bundle-agents-standard-global",
+      "tuple": {
+        "scenario": null,
+        "harness": "claude-code",
+        "surface": "agents-standard",
+        "scope": "global",
+        "outputKind": "skills-bundle",
+        "generatedOutputKind": "generated-skills-bundle",
+        "modelOrProvider": null,
+        "runtime": null
+      },
+      "status": "provisional",
+      "evidence": [],
+      "recordedRuns": [],
+      "plannedScenarios": [],
+      "notes": [
+        "No internal file-and-structure test and no harness evidence exists for the global-scope Claude Code skills bundle."
+      ]
+    },
+    {
+      "id": "claude-code-skills-bundle-agents-standard-export-only",
+      "tuple": {
+        "scenario": null,
+        "harness": "claude-code",
+        "surface": "agents-standard",
+        "scope": "export-only",
+        "outputKind": "skills-bundle",
+        "generatedOutputKind": "export-only-file",
+        "modelOrProvider": null,
+        "runtime": null
+      },
+      "status": "provisional",
+      "evidence": [],
+      "recordedRuns": [],
+      "plannedScenarios": [],
+      "notes": [
+        "No internal file-and-structure test and no harness evidence exists for the export-only Claude Code skills bundle."
+      ]
+    },
+    {
+      "id": "pi-plugin-native-project",
+      "tuple": {
+        "scenario": null,
+        "harness": "pi",
+        "surface": "native",
+        "scope": "project",
+        "outputKind": "plugin",
+        "generatedOutputKind": "generated-plugin",
+        "modelOrProvider": null,
+        "runtime": null
+      },
+      "status": "implementation-validated",
+      "evidence": [
+        {
+          "kind": "internal-test",
+          "ref": "packages/cli/tests/playbook-packaging-adapters.test.ts",
+          "note": "W18 R8 P3 write test: the written Pi native container is an extension carrying `extension.json` and bundled skills, exposed at `.pi/extensions/{packageId}`, with no hook artifact ever emitted — file and structure evidence only, never harness recognition (R-TEST-5, R-LAYER-2)."
+        }
+      ],
+      "recordedRuns": [],
+      "plannedScenarios": [],
+      "notes": [
+        "Every Pi path and manifest filename is inferred: the Pi adapter contract is `provisional` (R-ADAPT-4), and Pi is a FUTURE conformance harness per R-SCEN-2 — its scenarios are not part of the required first pass, and this entry exists so that absence is reported rather than implied as covered.",
+        "Reported scenario-absence linkage (R-SCEN-2 as re-expressed by PRD 43 R-SCHEMA-2): the four first-pass packaging definitions under conformance/scenarios/packaging/ bind only Codex targets; no definition binds a pi target, this entry's plannedScenarios is deliberately empty, and Pi conformance remains a reported uncovered-target gap rather than implied coverage."
+      ]
+    },
+    {
+      "id": "pi-plugin-native-global",
+      "tuple": {
+        "scenario": null,
+        "harness": "pi",
+        "surface": "native",
+        "scope": "global",
+        "outputKind": "plugin",
+        "generatedOutputKind": "generated-plugin",
+        "modelOrProvider": null,
+        "runtime": null
+      },
+      "status": "provisional",
+      "evidence": [],
+      "recordedRuns": [],
+      "plannedScenarios": [],
+      "notes": [
+        "No internal file-and-structure test and no harness evidence exists; Pi is a future conformance harness whose absence is reported, never implied as covered (R-SCEN-2).",
+        "Reported scenario-absence linkage (R-SCEN-2 as re-expressed by PRD 43 R-SCHEMA-2): the four first-pass packaging definitions under conformance/scenarios/packaging/ bind only Codex targets; no definition binds a pi target, this entry's plannedScenarios is deliberately empty, and Pi conformance remains a reported uncovered-target gap rather than implied coverage."
+      ]
+    },
+    {
+      "id": "pi-plugin-native-export-only",
+      "tuple": {
+        "scenario": null,
+        "harness": "pi",
+        "surface": "native",
+        "scope": "export-only",
+        "outputKind": "plugin",
+        "generatedOutputKind": "export-only-file",
+        "modelOrProvider": null,
+        "runtime": null
+      },
+      "status": "provisional",
+      "evidence": [],
+      "recordedRuns": [],
+      "plannedScenarios": [],
+      "notes": [
+        "No internal file-and-structure test and no harness evidence exists; Pi is a future conformance harness whose absence is reported, never implied as covered (R-SCEN-2).",
+        "Reported scenario-absence linkage (R-SCEN-2 as re-expressed by PRD 43 R-SCHEMA-2): the four first-pass packaging definitions under conformance/scenarios/packaging/ bind only Codex targets; no definition binds a pi target, this entry's plannedScenarios is deliberately empty, and Pi conformance remains a reported uncovered-target gap rather than implied coverage."
+      ]
+    },
+    {
+      "id": "pi-skills-bundle-agents-standard-project",
+      "tuple": {
+        "scenario": null,
+        "harness": "pi",
+        "surface": "agents-standard",
+        "scope": "project",
+        "outputKind": "skills-bundle",
+        "generatedOutputKind": "generated-skills-bundle",
+        "modelOrProvider": null,
+        "runtime": null
+      },
+      "status": "provisional",
+      "evidence": [],
+      "recordedRuns": [],
+      "plannedScenarios": [],
+      "notes": [
+        "Only surface resolution (path lowering to `.agents/skills/{packageId}/SKILL.md`) is asserted for this tuple; no internal test writes and structurally proves a Pi skills bundle, and Pi is a future conformance harness (R-SCEN-2).",
+        "Reported scenario-absence linkage (R-SCEN-2 as re-expressed by PRD 43 R-SCHEMA-2): the four first-pass packaging definitions under conformance/scenarios/packaging/ bind only Codex targets; no definition binds a pi target, this entry's plannedScenarios is deliberately empty, and Pi conformance remains a reported uncovered-target gap rather than implied coverage."
+      ]
+    },
+    {
+      "id": "pi-skills-bundle-agents-standard-global",
+      "tuple": {
+        "scenario": null,
+        "harness": "pi",
+        "surface": "agents-standard",
+        "scope": "global",
+        "outputKind": "skills-bundle",
+        "generatedOutputKind": "generated-skills-bundle",
+        "modelOrProvider": null,
+        "runtime": null
+      },
+      "status": "provisional",
+      "evidence": [],
+      "recordedRuns": [],
+      "plannedScenarios": [],
+      "notes": [
+        "No internal file-and-structure test and no harness evidence exists; Pi is a future conformance harness whose absence is reported, never implied as covered (R-SCEN-2).",
+        "Reported scenario-absence linkage (R-SCEN-2 as re-expressed by PRD 43 R-SCHEMA-2): the four first-pass packaging definitions under conformance/scenarios/packaging/ bind only Codex targets; no definition binds a pi target, this entry's plannedScenarios is deliberately empty, and Pi conformance remains a reported uncovered-target gap rather than implied coverage."
+      ]
+    },
+    {
+      "id": "pi-skills-bundle-agents-standard-export-only",
+      "tuple": {
+        "scenario": null,
+        "harness": "pi",
+        "surface": "agents-standard",
+        "scope": "export-only",
+        "outputKind": "skills-bundle",
+        "generatedOutputKind": "export-only-file",
+        "modelOrProvider": null,
+        "runtime": null
+      },
+      "status": "provisional",
+      "evidence": [],
+      "recordedRuns": [],
+      "plannedScenarios": [],
+      "notes": [
+        "No internal file-and-structure test and no harness evidence exists; Pi is a future conformance harness whose absence is reported, never implied as covered (R-SCEN-2).",
+        "Reported scenario-absence linkage (R-SCEN-2 as re-expressed by PRD 43 R-SCHEMA-2): the four first-pass packaging definitions under conformance/scenarios/packaging/ bind only Codex targets; no definition binds a pi target, this entry's plannedScenarios is deliberately empty, and Pi conformance remains a reported uncovered-target gap rather than implied coverage."
+      ]
+    }
+  ]
+}

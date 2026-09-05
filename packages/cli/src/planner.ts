@@ -5,7 +5,8 @@ import {
   getSystemAssetMaterializationPlan,
 } from "./catalog";
 import { classifyAgenticSkillFileRole } from "./agentic-skill-roles";
-import { getManifestFileHash, MANIFEST_RELATIVE_PATH } from "./manifest";
+import { getManifestFileHash, MANIFEST_RELATIVE_PATH, RETIRED_PLAYBOOK_CONTRACT_PATH,
+  RETIRED_PLAYBOOK_CONTRACT_HASH, hasTrustedRetiredPlaybookContractOwnership } from "./manifest";
 import { parseManagedBlock, upsertManagedBlock } from "./managed-block";
 import { getDesiredSkillAssets, getRetiredManagedSkillAssets } from "./skill-catalog";
 import type { SkillRegistry } from "./skill-registry";
@@ -389,12 +390,23 @@ export async function createInstallPlan(options: {
         continue;
       }
 
-      if (relativePath === ".make-docs/contracts/system/playbook-contract.md") {
+      if (relativePath === RETIRED_PLAYBOOK_CONTRACT_PATH) {
+        let clean = false;
+        try {
+          assertManagedPathHasNoSymlinks(targetDir, relativePath);
+          const retiredPath = relativePathToTarget(targetDir, relativePath);
+          clean = hasTrustedRetiredPlaybookContractOwnership(manifestEntry) &&
+            (!existsSync(retiredPath) || (lstatSync(retiredPath).isFile() &&
+              hashText(readTextFile(retiredPath)) === RETIRED_PLAYBOOK_CONTRACT_HASH));
+        } catch { /* An unsafe or ambiguous legacy path is preserved. */ }
         actions.push({
-          type: "skip",
+          type: clean ? "remove-managed" : "skip",
           relativePath,
           sourceId: manifestEntry.sourceId,
-          reason: "Preserve the legacy Playbook contract outside the current system resource tree.",
+          ...(clean ? { contentHash: RETIRED_PLAYBOOK_CONTRACT_HASH } : {}),
+          reason: clean
+            ? "Retire the verified shipped Playbook contract at checkpoint 11 after backup."
+            : "Preserve the legacy Playbook contract because trusted ownership and unchanged regular-file bytes are not proved.",
         });
         continue;
       }

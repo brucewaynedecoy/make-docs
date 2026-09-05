@@ -17,7 +17,6 @@ export const LIFECYCLE_LABEL_KEYS = [
   "implementation",
   "history",
   "guide",
-  "playbook",
 ] as const;
 
 export const DOCUMENT_KIND_LABEL_KEYS = [
@@ -27,7 +26,6 @@ export const DOCUMENT_KIND_LABEL_KEYS = [
   "work",
   "history",
   "guide",
-  "playbook",
 ] as const;
 
 export const COORDINATE_LABEL_KEYS = ["wave", "revision", "phase"] as const;
@@ -36,27 +34,15 @@ export const HARNESS_CAPABILITY_IDS = [
   "goal_managed_execution",
   "long_running_runs",
   "resume_after_interrupt",
-  "parallel_playbook_runs",
   "subagent_delegation",
   "user_gate_prompts",
 ] as const;
-
-/**
- * Packaging-precondition states absorbable from project config (W18 R12 P3;
- * PRD 39 R-FLAG-2). Mirrors `PackageAdapterPreconditionState` in the
- * playbook-packaging types; config stays convenience, never authority — the
- * CLI merges these under explicit `--precondition` flags, which always win,
- * and a missing block changes no behavior. This follows the
- * `harnessCapabilities` precedent from PRD 24.
- */
-export const PACKAGING_PRECONDITION_STATES = ["satisfied", "unknown", "unsupported"] as const;
 
 export type LifecycleLabelKey = (typeof LIFECYCLE_LABEL_KEYS)[number];
 export type DocumentKindLabelKey = (typeof DOCUMENT_KIND_LABEL_KEYS)[number];
 export type CoordinateLabelKey = (typeof COORDINATE_LABEL_KEYS)[number];
 export type HarnessCapabilityId = (typeof HARNESS_CAPABILITY_IDS)[number];
 export type HarnessCapabilityReviewStatus = "reviewed" | "unreviewed";
-export type PackagingPreconditionState = (typeof PACKAGING_PRECONDITION_STATES)[number];
 
 export interface MakeDocsPersonaConfig {
   slug: string;
@@ -73,11 +59,6 @@ export interface HarnessCapabilityRecord {
   caveats: string[];
 }
 
-export interface MakeDocsPackagingConfig {
-  /** Precondition-state defaults keyed by adapter precondition id (R-FLAG-2). */
-  preconditions: Record<string, PackagingPreconditionState>;
-}
-
 export interface MakeDocsConfig {
   labels: {
     lifecycle: Record<LifecycleLabelKey, string>;
@@ -87,7 +68,6 @@ export interface MakeDocsConfig {
   personas: MakeDocsPersonaConfig[];
   generatedProse: Record<string, string>;
   harnessCapabilities: HarnessCapabilityRecord[];
-  packaging: MakeDocsPackagingConfig;
 }
 
 export interface MakeDocsConfigDiagnostic {
@@ -127,9 +107,7 @@ const TOP_LEVEL_KEYS = new Set([
   "personas",
   "generatedProse",
   "harnessCapabilities",
-  "packaging",
 ]);
-const PACKAGING_KEYS = new Set(["preconditions"]);
 const LABEL_GROUP_KEYS = new Set(["lifecycle", "documentKinds", "coordinates"]);
 const PERSONA_KEYS = new Set(["slug", "label", "description", "primitive"]);
 const HARNESS_CAPABILITY_RECORD_KEYS = new Set([
@@ -202,7 +180,6 @@ export function createDefaultMakeDocsConfig(): MakeDocsConfig {
         implementation: "implementation",
         history: "history",
         guide: "guide",
-        playbook: "playbook",
       },
       documentKinds: {
         design: "design",
@@ -211,7 +188,6 @@ export function createDefaultMakeDocsConfig(): MakeDocsConfig {
         work: "work",
         history: "history",
         guide: "guide",
-        playbook: "playbook",
       },
       coordinates: {
         wave: "Wave",
@@ -221,7 +197,6 @@ export function createDefaultMakeDocsConfig(): MakeDocsConfig {
     },
     generatedProse: {},
     harnessCapabilities: [],
-    packaging: { preconditions: {} },
     personas: [
       {
         slug: "agent",
@@ -351,7 +326,6 @@ export function loadMakeDocsConfig(targetDir: string): LoadedMakeDocsConfig {
   applyGeneratedProse(parsed.generatedProse, config, configPath, diagnostics);
   applyPersonas(parsed.personas, config, configPath, diagnostics);
   applyHarnessCapabilities(parsed.harnessCapabilities, config, configPath, diagnostics);
-  applyPackaging(parsed.packaging, config, configPath, diagnostics);
 
   if (diagnostics.length > 0) {
     return invalidConfigResult(configPath, diagnostics);
@@ -693,65 +667,6 @@ function applyHarnessCapabilities(
   config.harnessCapabilities = records;
 }
 
-/**
- * The `packaging` config block (W18 R12 P3; PRD 39 R-FLAG-2): precondition
- * state defaults absorbed by the CLI packaging adapters. Values are validated
- * against the shared precondition-state vocabulary; keys are adapter
- * precondition identifiers and stay freeform (they name adapter contract
- * preconditions, not renamable prose).
- */
-function applyPackaging(
-  value: unknown,
-  config: MakeDocsConfig,
-  filePath: string,
-  diagnostics: MakeDocsConfigDiagnostic[],
-): void {
-  if (value === undefined) {
-    return;
-  }
-
-  if (!isPlainObject(value)) {
-    addInvalidTypeDiagnostic(diagnostics, filePath, "packaging", "an object");
-    return;
-  }
-
-  validateKeys({
-    allowedKeys: PACKAGING_KEYS,
-    diagnostics,
-    filePath,
-    keyPath: "packaging",
-    value,
-  });
-
-  const preconditions = value.preconditions;
-  if (preconditions === undefined) {
-    return;
-  }
-  if (!isPlainObject(preconditions)) {
-    addInvalidTypeDiagnostic(diagnostics, filePath, "packaging.preconditions", "an object");
-    return;
-  }
-
-  const states: Record<string, PackagingPreconditionState> = {};
-  for (const [id, state] of Object.entries(preconditions)) {
-    const keyPath = joinKeyPath("packaging.preconditions", id);
-    if (
-      typeof state !== "string" ||
-      !PACKAGING_PRECONDITION_STATES.includes(state as PackagingPreconditionState)
-    ) {
-      addInvalidTypeDiagnostic(
-        diagnostics,
-        filePath,
-        keyPath,
-        `one of ${PACKAGING_PRECONDITION_STATES.join(", ")}`,
-      );
-      continue;
-    }
-    states[id] = state as PackagingPreconditionState;
-  }
-  config.packaging.preconditions = states;
-}
-
 function parseHarnessCapabilityMap(
   value: unknown,
   keyPath: string,
@@ -775,6 +690,8 @@ function parseHarnessCapabilityMap(
 
   const capabilities: HarnessCapabilityRecord["capabilities"] = {};
   for (const [key, enabled] of Object.entries(value)) {
+    // Preserve known legacy config as opaque input. It has no current effect.
+    if (key === "parallel_playbook_runs") continue;
     const capabilityPath = joinKeyPath(keyPath, key);
     if (!HARNESS_CAPABILITY_IDS.includes(key as HarnessCapabilityId)) {
       diagnostics.push({
@@ -804,6 +721,11 @@ function validateKeys(options: {
 }): void {
   const { allowedKeys, diagnostics, filePath, keyPath, value } = options;
   for (const key of Object.keys(value)) {
+    // These old fields may coexist with current Persona and Skill settings.
+    // Ignore their values without validating, rendering, or rewriting them.
+    if ((keyPath === "" && key === "packaging") ||
+        ((keyPath === "labels.lifecycle" || keyPath === "labels.documentKinds") &&
+          (key === "playbook" || key === "protocol"))) continue;
     if (allowedKeys.has(key)) {
       continue;
     }

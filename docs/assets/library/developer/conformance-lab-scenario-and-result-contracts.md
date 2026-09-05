@@ -33,6 +33,9 @@ related:
 
 # Conformance Lab Scenario and Result Contracts
 
+> Current scope after W19 R1 P8: the four packaging scenarios are retired. No current scenario set replaces them. The current tuple registry has zero entries. Old sources and fixture files stay at their original paths for history. The exact old registry is in `conformance/history/w19-r1-p8-tuple-registry.json`. Old results cannot prove current Skill, lifecycle, or harness support. Compiler-specific commands and mappings below are historical records. Shared session tools, instruments, record readers, and support-claim checks remain. New kit generation requires an explicit lab target; no first-party packaging descriptor is enabled. The former first-pass suite returns a retirement error.
+
+
 ## Overview
 
 The conformance lab is maintainer-only evidence infrastructure. It helps maintainers test make-docs behavior across agent harnesses and harness-selected models before making support claims. It does not replace package validation, and it is not installed into consumer projects by default.
@@ -250,7 +253,7 @@ The lab's five verdicts are consumed unchanged: `inconsistent`, `unsupported`, a
 
 Non-run evidence refs carry one of two kinds. `internal-test` refs are the only support for `implementation-validated` and must name the repository test file that proves the generated output. `real-harness-probe` refs record out-of-protocol real-harness observations — positive or negative — that inform and warn but never move a status in either direction. The first probe on record is negative: the 2026-07-03 hand-run Codex v0.142.4 recognition probe (register item [R-021](../../../prd/03-open-questions-and-risk-register.md)) rides the `codex-plugin-native-project` tuple with a governance note that its subject must never be worded as recognized; it opens the first-pass packaging definitions' Codex target bindings rather than substituting for them.
 
-### Current Seed
+### Historical Seed
 
 The registry is seeded with the exact first-party descriptor placement matrix from W18 R8 — twenty tuples (seven Codex, seven Claude Code, six Pi), parity-tested against `FIRST_PARTY_HARNESS_CAPABILITY_DESCRIPTORS` so the seed cannot silently miss or invent a placement. The honesty posture:
 
@@ -446,7 +449,7 @@ The R-TEST-3 boundary is enforced on three surfaces, and all three state the sam
 
 ## Support-Claim Governance
 
-<!-- support-claim-state: conformance-validated=0/20 -->
+<!-- support-claim-state: conformance-validated=0/0 -->
 
 Since W18 R9 Phase 4 ([the phase backlog](../../../work/2026-07-01-w18-r9-playbook-and-package-conformance/04-support-claim-governance.md)), the claim gate this guide states in Verdicts and Support Claims is encoded in `packages/cli/src/conformance/governance.ts` (PRD 20 R-GOV-1..2) and enforced in the standard suite through `packages/cli/tests/conformance-governance.test.ts`. The rule: a public claim states only what a `conformance-validated` tuple proves; until then wording distinguishes a Make Docs generated output from a harness-recognized plugin, and a `pass-with-caveats` result surfaces its caveats in any claim derived from it.
 

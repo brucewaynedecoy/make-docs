@@ -13,7 +13,6 @@ export const GENERATED_DOCUMENT_KINDS = [
   "work",
   "history",
   "guide",
-  "playbook",
 ] as const;
 
 export const FOLLOW_ON_ROUTES = [
@@ -445,9 +444,9 @@ function validatePersonaScope(options: {
   }
 }
 
-function personaScopeFromPath(sourcePath: string): { surface: "library" | "playbook"; persona: string } | null {
+function personaScopeFromPath(sourcePath: string): { surface: "library"; persona: string } | null {
   const normalized = sourcePath.split("\\").join("/");
-  const match = normalized.match(/(?:^|\/)(?:packages\/docs\/template\/)?docs\/assets\/(library|playbooks)\/([^/]+)\/[^/]+\.md$/);
+  const match = normalized.match(/(?:^|\/)(?:packages\/docs\/template\/)?docs\/assets\/(library)\/([^/]+)\/[^/]+\.md$/);
   if (!match) {
     return null;
   }
@@ -456,7 +455,7 @@ function personaScopeFromPath(sourcePath: string): { surface: "library" | "playb
     return null;
   }
   return {
-    surface: match[1] === "playbooks" ? "playbook" : "library",
+    surface: "library",
     persona,
   };
 }

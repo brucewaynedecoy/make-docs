@@ -1,5 +1,8 @@
 # Conformance Assets Router
 
+> Current scope after W19 R1 P8: the four packaging scenarios are retired. No current scenario set replaces them. The current tuple registry has zero entries. Old sources and fixture files stay at their original paths for history. The exact old registry is in `conformance/history/w19-r1-p8-tuple-registry.json`. Old results cannot prove current Skill, lifecycle, or harness support. Compiler-specific commands and mappings below are historical records. Shared session tools, instruments, record readers, and support-claim checks remain. New kit generation requires an explicit lab target; no first-party packaging descriptor is enabled. The former first-pass suite returns a retirement error.
+
+
 This repo-root directory holds the maintainer-only conformance asset family: the tuple registry (`tuple-registry.json`), harness-agnostic scenario definitions organized by domain (`scenarios/<domain>/`, currently `scenarios/packaging/`), fixture Playbooks (`fixtures/`), and future compact result records organized by execution target (`results/<harness>/`).
 
 - Read [README.md](README.md) first; it documents the formats, the evidence rules, and why this family lives at the repo root (outside `docs/assets/` and outside `packages/`).

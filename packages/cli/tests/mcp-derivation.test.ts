@@ -9,7 +9,6 @@ import {
   MAKE_DOCS_MCP_TOOLS,
   verifyDerivedMcpToolParity,
 } from "../src/mcp/tools";
-import { createPlaybookPackagePlan } from "../src/operations";
 import { listOperations } from "../src/operations/registry";
 import { loadSqliteDriver } from "../src/store";
 import { cleanupTempDir, createTempDir, writeMinimalManifest } from "./helpers";
@@ -24,26 +23,6 @@ const sqliteAvailable = loadSqliteDriver().available;
  */
 
 const EXPECTED_DERIVED_TOOL_NAMES: Record<string, string> = {
-  "playbook.validate": "make_docs_playbook_validate",
-  "playbook.catalog": "make_docs_playbook_catalog",
-  "playbook.resolve": "make_docs_playbook_resolve",
-  "playbook.capabilities": "make_docs_playbook_capabilities",
-  "playbook.start": "make_docs_playbook_start",
-  "playbook.invoke": "make_docs_playbook_invoke",
-  "playbook.status": "make_docs_playbook_status",
-  "playbook.next": "make_docs_playbook_next",
-  "playbook.advance": "make_docs_playbook_advance",
-  "playbook.gate": "make_docs_playbook_gate",
-  "playbook.resume": "make_docs_playbook_resume",
-  "playbook.close": "make_docs_playbook_close",
-  "playbook.run.export": "make_docs_playbook_run_export",
-  "playbook.run.import": "make_docs_playbook_run_import",
-  "package.plan": "make_docs_package_plan",
-  "package.surface-resolve": "make_docs_package_surface_resolve",
-  "package.write": "make_docs_package_write",
-  // Appended by W18 R12 P3 (PRD 41 R-GRAM-3): ship derives like every other
-  // operation; this is the ONLY agent-facing surface change of the round.
-  "package.ship": "make_docs_package_ship",
   "prd.authority.validate": "make_docs_prd_authority_validate",
   "work.item.resolve": "make_docs_work_item_resolve",
   "work.evidence.record": "make_docs_work_evidence_record",
@@ -94,54 +73,6 @@ function writeFile(root: string, relativePath: string, content: string): string 
   return absolutePath;
 }
 
-function writePlaybook(root: string, persona: string, slug: string, title: string): string {
-  return writeFile(
-    root,
-    `docs/assets/playbooks/${persona}/${slug}.md`,
-    [
-      "---",
-      `title: ${title}`,
-      "kind: playbook",
-      "status: accepted",
-      `persona: ${persona}`,
-      "stack: run",
-      `summary: ${title} summary.`,
-      "---",
-      "",
-      `# ${title}`,
-      "",
-      "## Purpose",
-      "",
-      "Use this playbook when the matching workflow goal is active.",
-      "",
-      "## Inputs and Authority",
-      "",
-      "- User request.",
-      "",
-      "## Procedure",
-      "",
-      "1. Resolve the playbook.",
-      "",
-      "## Gates and Decisions",
-      "",
-      "- Stop when user review is required.",
-      "",
-      "## Assists",
-      "",
-      "- Assists are optional unless the playbook says otherwise.",
-      "",
-      "## Outputs and Handoff",
-      "",
-      "- Record the expected output or handoff artifact.",
-      "",
-      "## Validation",
-      "",
-      "- Confirm the workflow completed or report why it stopped.",
-      "",
-    ].join("\n"),
-  );
-}
-
 describe("MCP derivation parity (R-REG-2, R-MIG-3, R-CORE-1)", () => {
   const tempRoots: string[] = [];
 
@@ -163,8 +94,8 @@ describe("MCP derivation parity (R-REG-2, R-MIG-3, R-CORE-1)", () => {
     // The check reads the live registry: a deliberately injected mismatch
     // must fail in both directions.
     const derived = listDerivedMcpOperationTools();
-    const filtered = derived.filter((tool) => tool.operation !== "playbook.catalog");
-    expect(verifyDerivedMcpToolParity(filtered).missingOperations).toContain("playbook.catalog");
+    const filtered = derived.filter((tool) => tool.operation !== "resource.list");
+    expect(verifyDerivedMcpToolParity(filtered).missingOperations).toContain("resource.list");
 
     const withUnknown = [
       ...derived,
@@ -178,7 +109,7 @@ describe("MCP derivation parity (R-REG-2, R-MIG-3, R-CORE-1)", () => {
     expect(duplicateParity.missingOperations).toContain(derived[0]!.operation);
 
     const misspelled = derived.map((tool) =>
-      tool.operation === "playbook.status"
+      tool.operation === "lifecycle.show"
         ? { ...tool, name: "make_docs_playbook_run_read" }
         : tool,
     );
@@ -187,9 +118,9 @@ describe("MCP derivation parity (R-REG-2, R-MIG-3, R-CORE-1)", () => {
     );
   });
 
-  test("tool names are exactly the derived spellings for all 43 identifiers", () => {
+  test("tool names are exactly the derived spellings for all 25 identifiers", () => {
     const registryIds = listOperations().map((operation) => operation.id);
-    expect(registryIds).toHaveLength(43);
+    expect(registryIds).toHaveLength(25);
     expect(Object.keys(EXPECTED_DERIVED_TOOL_NAMES).sort()).toEqual([...registryIds].sort());
 
     const derivedByOperation = new Map(
@@ -214,8 +145,8 @@ describe("MCP derivation parity (R-REG-2, R-MIG-3, R-CORE-1)", () => {
   });
 
   test("write operations without allowWrite are refused by the core, not the tool", async () => {
-    await expect(callMakeDocsMcpTool("make_docs_package_write", {})).rejects.toThrow(
-      "Operation `package.write` mutates state and requires write permission from the calling surface",
+    await expect(callMakeDocsMcpTool("make_docs_work_evidence_record", {})).rejects.toThrow(
+      "Operation `work.evidence.record` mutates state and requires write permission from the calling surface",
     );
 
     // No per-tool write conditional survives in the MCP adapter (R-CORE-1).
@@ -226,239 +157,9 @@ describe("MCP derivation parity (R-REG-2, R-MIG-3, R-CORE-1)", () => {
     expect(toolsSource).not.toContain("allowWrite !== true");
   });
 
-  test("the W18 R7 progression write tools are core-gated behind allowWrite", async () => {
-    // The identifiers reserved for the W18 R7 state machine are active; the
-    // mutating ones refuse without allowWrite exactly like every other write.
-    for (const writeId of [
-      "playbook.advance",
-      "playbook.gate",
-      "playbook.resume",
-      "playbook.close",
-    ]) {
-      await expect(
-        callMakeDocsMcpTool(deriveMcpToolName(writeId), { runId: "run-1" }),
-      ).rejects.toThrow(
-        `Operation \`${writeId}\` mutates state and requires write permission from the calling surface`,
-      );
-    }
-  });
-
-  test.skipIf(!sqliteAvailable)(
-    "the progression operations behave identically through the derived MCP tools (t11)",
-    async () => {
-      const root = createTempDir("make-docs-mcp-progression-");
-      tempRoots.push(root);
-      writeMinimalManifest(root);
-      const storeRoot = path.join(createTempDir("make-docs-mcp-progression-store-"), "store");
-      tempRoots.push(path.dirname(storeRoot));
-      writeFile(
-        root,
-        "docs/assets/playbooks/user/ship.playbook.md",
-        [
-          "---",
-          'title: "Ship"',
-          'kind: "playbook"',
-          'persona: "user"',
-          'status: "accepted"',
-          'stack: "run"',
-          'summary: "Ship summary."',
-          'schema: "make-docs.playbook.v2"',
-          'workflowSchema: "make-docs.workflow.v1"',
-          "---",
-          "",
-          "# Ship",
-          "",
-          "## Purpose",
-          "",
-          "Ship the workflow.",
-          "",
-          "## When To Use",
-          "",
-          "Use in MCP parity tests.",
-          "",
-          "## Inputs",
-          "",
-          "- User direction first.",
-          "",
-          "## Dependencies",
-          "",
-          "```playbook",
-          "dependencies:",
-          "  - id: make-docs-cli",
-          "    kind: cli",
-          "    requirement: required",
-          "    source: package install",
-          "    used_by: [check]",
-          "    fallback: stop with install guidance",
-          "```",
-          "",
-          "## Workflow",
-          "",
-          "```playbook",
-          "workflow:",
-          "  id: ship",
-          "  state_model: make-docs.workflow-state.v1",
-          "  routing: linear",
-          "steps:",
-          "  - id: check",
-          "    title: Check the playbook catalog",
-          "    executor: cli",
-          "    role: check",
-          "    activation: sequential",
-          "    mode: deterministic",
-          "    requires: [make-docs-cli]",
-          "    operation: playbook.catalog",
-          "  - id: record",
-          "    title: Record the handoff",
-          "    executor: agent",
-          "    role: activity",
-          "    activation: sequential",
-          "    instructions: Record the handoff artifact.",
-          "```",
-          "",
-          "## Step Guidance",
-          "",
-          "Run the steps in order.",
-          "",
-          "## Gates",
-          "",
-          "- None.",
-          "",
-          "## Outputs",
-          "",
-          "- Record the handoff artifact.",
-          "",
-          "## Validation",
-          "",
-          "- Every step reports an outcome.",
-          "",
-          "## Packaging Notes",
-          "",
-          "No packaging hints.",
-          "",
-        ].join("\n"),
-      );
-      const shared = { repoRoot: root, storeRoot, runId: "mcp-run" };
-
-      const started = await callMakeDocsMcpTool("make_docs_playbook_start", {
-        ...shared,
-        ref: "user/ship",
-        harness: "codex",
-        allowWrite: true,
-      });
-      const startedState = (started.result as { state: Record<string, unknown> }).state;
-      expect(startedState.cursor).toEqual({ kind: "step", id: "check" });
-
-      const next = await callMakeDocsMcpTool("make_docs_playbook_next", shared);
-      expect(next.result).toEqual(
-        expect.objectContaining({
-          position: "step",
-          next: expect.objectContaining({ stepId: "check" }),
-        }),
-      );
-
-      const advanced = await callMakeDocsMcpTool("make_docs_playbook_advance", {
-        ...shared,
-        outcome: "completed",
-        evidenceRefs: ["mcp-evidence.md"],
-        allowWrite: true,
-      });
-      // W18 R7 P3: advance returns the transitioned state plus the
-      // mode-execution report.
-      expect(advanced.result).toEqual(
-        expect.objectContaining({
-          state: expect.objectContaining({
-            cursor: { kind: "step", id: "record" },
-            evidenceRefs: ["mcp-evidence.md"],
-          }),
-          execution: expect.objectContaining({ action: "recorded", outcome: "completed" }),
-        }),
-      );
-
-      const closed = await callMakeDocsMcpTool("make_docs_playbook_close", {
-        ...shared,
-        terminalStatus: "completed",
-        allowWrite: true,
-      });
-      expect(closed.result).toEqual(
-        expect.objectContaining({ status: "completed", terminalStatus: "completed" }),
-      );
-
-      const status = await callMakeDocsMcpTool("make_docs_playbook_status", shared);
-      expect(status.result).toEqual(expect.objectContaining({ terminalStatus: "completed" }));
-    },
-  );
-
-  test("named approvals flow through the context to the implementation", async () => {
-    const root = createTempDir("make-docs-mcp-derivation-approvals-");
-    tempRoots.push(root);
-    writeMinimalManifest(root);
-    writePlaybook(root, "user", "run-stack", "Run Stack");
-    const plan = createPlaybookPackagePlan({
-      repoRoot: root,
-      refs: ["user/run-stack"],
-      target: CODEX_PLUGIN_TARGET,
-      supportEvidenceRefs: [SUPPORT_EVIDENCE_REF],
-    }).plan;
-    const artifact = plan.generatedArtifacts.find(
-      (candidate) => candidate.outputKind === plan.target.outputKind,
-    )!;
-    // Pre-existing, differing generated output inside the canonical payload
-    // tree: the impl stops unless the caller granted the reviewed-overwrite
-    // approval. Since W18 R8 P2 the artifact path is the container root of
-    // the compiled multi-file distributable.
-    writeFile(root, `${artifact.path}/.codex-plugin/plugin.json`, "{ \"stale\": true }\n");
-
-    const withoutApproval = await callMakeDocsMcpTool("make_docs_package_write", {
-      repoRoot: root,
-      plan,
-      preconditions: CODEX_PLUGIN_PRECONDITIONS,
-      allowWrite: true,
-      dryRun: true,
-    });
-    const blocked = withoutApproval.result as { stops: Array<{ reason: string }> };
-    expect(blocked.stops.map((stop) => stop.reason)).toContain("ownership-review-required");
-
-    const withApproval = await callMakeDocsMcpTool("make_docs_package_write", {
-      repoRoot: root,
-      plan,
-      preconditions: CODEX_PLUGIN_PRECONDITIONS,
-      allowWrite: true,
-      dryRun: true,
-      approvals: ["reviewed-overwrite"],
-    });
-    const ready = withApproval.result as { stops: Array<{ reason: string }>; status: string };
-    expect(ready.stops).toEqual([]);
-    expect(ready.status).toBe("ready");
-  });
-
-  test("dryRun rides the context: package.write plans without writing", async () => {
-    const root = createTempDir("make-docs-mcp-derivation-dry-run-");
-    tempRoots.push(root);
-    writeMinimalManifest(root);
-    writePlaybook(root, "user", "run-stack", "Run Stack");
-    const plan = createPlaybookPackagePlan({
-      repoRoot: root,
-      refs: ["user/run-stack"],
-      target: CODEX_PLUGIN_TARGET,
-      supportEvidenceRefs: [SUPPORT_EVIDENCE_REF],
-    }).plan;
-
-    const payload = await callMakeDocsMcpTool("make_docs_package_write", {
-      repoRoot: root,
-      plan,
-      preconditions: CODEX_PLUGIN_PRECONDITIONS,
-      allowWrite: true,
-      dryRun: true,
-    });
-    const result = payload.result as { status: string; lines: string[] };
-    expect(result.status).toBe("ready");
-    expect(result.lines).toContain("Writes executed: no");
-  });
-
   test("derived descriptors mark write operations and carry operation input schemas", () => {
     const descriptors = new Map(MAKE_DOCS_MCP_TOOLS.map((tool) => [tool.name, tool]));
-    const writeTool = descriptors.get("make_docs_package_write")!;
+    const writeTool = descriptors.get("make_docs_work_evidence_record")!;
     expect(writeTool.description).toContain("allowWrite=true");
     expect(Object.keys(writeTool.inputSchema)).toEqual(
       expect.arrayContaining(["allowWrite", "dryRun", "approvals"]),
@@ -466,19 +167,19 @@ describe("MCP derivation parity (R-REG-2, R-MIG-3, R-CORE-1)", () => {
 
     // The progression identifiers are active with derived typed inputs:
     // playbook.next is a read tool with no allowWrite argument, and
-    // playbook.advance is a write tool exposing its typed input contract.
-    const nextTool = descriptors.get("make_docs_playbook_next")!;
+    // Current lifecycle tools expose typed inputs and core write gating.
+    const nextTool = descriptors.get("make_docs_lifecycle_show")!;
     expect(nextTool.description).not.toContain("Pending");
     expect(Object.keys(nextTool.inputSchema)).toEqual(
       expect.arrayContaining(["runId", "dryRun", "approvals"]),
     );
     expect(Object.keys(nextTool.inputSchema)).not.toContain("allowWrite");
-    const advanceTool = descriptors.get("make_docs_playbook_advance")!;
+    const advanceTool = descriptors.get("make_docs_lifecycle_checkpoint")!;
     expect(Object.keys(advanceTool.inputSchema)).toEqual(
-      expect.arrayContaining(["runId", "outcome", "evidenceRefs", "allowWrite"]),
+      expect.arrayContaining(["runId", "checkpoint", "expectedVersion", "allowWrite"]),
     );
 
-    const readTool = descriptors.get("make_docs_playbook_catalog")!;
+    const readTool = descriptors.get("make_docs_lifecycle_list")!;
     expect(Object.keys(readTool.inputSchema)).not.toContain("allowWrite");
     expect(Object.keys(readTool.inputSchema)).toEqual(
       expect.arrayContaining(["repoRoot", "dryRun", "approvals"]),

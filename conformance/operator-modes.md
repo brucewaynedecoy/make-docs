@@ -1,5 +1,8 @@
 # Operator Modes — How a Lab Session Gets Driven
 
+> Current scope after W19 R1 P8: the four packaging scenarios are retired. No current scenario set replaces them. The current tuple registry has zero entries. Old sources and fixture files stay at their original paths for history. The exact old registry is in `conformance/history/w19-r1-p8-tuple-registry.json`. Old results cannot prove current Skill, lifecycle, or harness support. Compiler-specific commands and mappings below are historical records. Shared session tools, instruments, record readers, and support-claim checks remain. New kit generation requires an explicit lab target; no first-party packaging descriptor is enabled. The former first-pass suite returns a retirement error.
+
+
 This is executable protocol content, not a guide. It documents how a maintainer runs a conformance **lab session** end to end, in any of three first-class modes. Every mode produces evidence through the *same* three things — a generated **kit**, its deterministic **instruments**, and the fail-closed **ingestion** step — so the driving mode never changes what counts as evidence. Read [README.md](README.md) first for the tuple registry, the scenario definitions, and the evidence rules; read the [developer conformance-lab guide](../docs/assets/library/developer/conformance-lab-scenario-and-result-contracts.md) for the contracts these commands exercise.
 
 The contracts here are PRD 44 R-EXEC-1..3 and R-MODE-1..2, and PRD 43 R-ING-1..2. The vocabulary is lab-session vocabulary throughout (PRD 44 R-NAME-1): a *session* has a *session workspace*, *session evidence*, and a *session manifest*; "run" survives only as the registry's `recordedRuns` noun and the `run` CLI command, never for a lab operation.

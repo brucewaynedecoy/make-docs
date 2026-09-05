@@ -3,11 +3,11 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSyn
 import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { acquireProjectMigrationLock, releaseProjectMigrationLock, enterLegacyCompatibilityOperation, MIGRATION_CHECKPOINTS } from "../src/migration";
+import { acquireProjectMigrationLock, releaseProjectMigrationLock, enterLegacyCompatibilityOperation, MIGRATION_CHECKPOINTS, LEGACY_COMPATIBILITY_OPERATION_IDS } from "../src/migration";
 import { runCli } from "../src/cli";
 import { callMakeDocsMcpTool, deriveMcpToolName } from "../src/mcp/tools";
 import { createExecutionContext } from "../src/operations/context";
-import { invokeOperation, getOperation, LEGACY_COMPATIBILITY_OPERATION_IDS } from "../src/operations/registry";
+import { invokeOperation, getOperation } from "../src/operations/registry";
 import { loadInstalledSystemResourceProvider } from "../src/operations/resource/provider";
 import { UAT_WORKFLOW_RESOURCES, validateUatCheckpoint10 } from "../src/operations/uat/ops";
 import { scenarioSchema, decisionSchema } from "../src/operations/uat/schemas";
@@ -167,9 +167,9 @@ describe("P7 fixed focused budget", () => {
   });
   it("C1 UAT is read-only and legacy operation set stays frozen", () => {
     const f=fixture();
-    expect(validateUatCheckpoint10(f.root)).toMatchObject({ checkpoint:10, next_checkpoint:11, next_checkpoint_state:"locked" });
+    expect(validateUatCheckpoint10(f.root)).toMatchObject({ checkpoint:10, next_checkpoint:11, next_checkpoint_state:"implemented" });
     expect(MIGRATION_CHECKPOINTS.find((item)=>item.checkpoint===10)?.state).toBe("implemented");
-    expect(MIGRATION_CHECKPOINTS.find((item)=>item.checkpoint===11)?.state).toBe("locked");
+    expect(MIGRATION_CHECKPOINTS.find((item)=>item.checkpoint===11)?.state).toBe("implemented");
     const lock=acquireProjectMigrationLock({projectRoot:f.root});
     try { expect(()=>enterLegacyCompatibilityOperation({projectRoot:f.root,operationId:"playbook.start",mutates:true})).toThrow(); }
     finally { releaseProjectMigrationLock(lock); }

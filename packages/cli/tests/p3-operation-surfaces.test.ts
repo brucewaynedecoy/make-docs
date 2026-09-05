@@ -1,3 +1,4 @@
+import { LEGACY_COMPATIBILITY_OPERATION_IDS } from "../src/migration";
 import { createHash } from "node:crypto";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync, existsSync } from "node:fs";
 import os from "node:os";
@@ -23,7 +24,6 @@ import {
   ADMITTED_OPERATION_IDS,
   getOperation,
   invokeOperation,
-  LEGACY_COMPATIBILITY_OPERATION_IDS,
   listAdmittedOperations,
   operationCliCommand,
 } from "../src/operations/registry";
@@ -89,13 +89,13 @@ describe("W19 R1 P3 admitted operation surfaces", () => {
     expect(new Set(Object.entries(lineages).filter(([id]) => id.startsWith("uat.")).map(([, value]) => value))).toEqual(new Set());
   });
 
-  it("keeps the 14 Playbook and four Playbook-package registry projections frozen", () => {
+  it("rejects the 14 retired Playbook and four package registry projections", () => {
     expect(LEGACY_COMPATIBILITY_OPERATION_IDS).toHaveLength(18);
     expect(LEGACY_COMPATIBILITY_OPERATION_IDS.filter((id) => id.startsWith("playbook."))).toHaveLength(14);
     expect(LEGACY_COMPATIBILITY_OPERATION_IDS.filter((id) => id.startsWith("package."))).toHaveLength(4);
     expect(LEGACY_COMPATIBILITY_OPERATION_IDS.some((id) => id.startsWith("protocol."))).toBe(false);
     for (const id of LEGACY_COMPATIBILITY_OPERATION_IDS) {
-      expect(operationCliCommand(id)).toBe(`make-docs run ${id.split(".").join(" ")}`);
+      expect(() => operationCliCommand(id)).toThrow("Unknown operation identifier");
       expect(deriveMcpToolName(id)).toBe(`make_docs_${id.replace(/[.-]/g, "_")}`);
     }
   });

@@ -724,7 +724,7 @@ personas:
         .map((name) => JSON.parse(readFileSync(path.join(receiptDir, name), "utf8")))
         .filter((receipt) => receipt.status === "completed")
         .sort((left, right) => left.checkpoint - right.checkpoint);
-      expect(receipts.map((receipt) => receipt.checkpoint)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+      expect(receipts.map((receipt) => receipt.checkpoint)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
       expect(new Set(receipts.map((receipt) => receipt.snapshotId)).size).toBe(1);
       const backupRoots = readdirSync(path.join(targetDir, ".make-docs/backup"));
       expect(backupRoots).toHaveLength(1);

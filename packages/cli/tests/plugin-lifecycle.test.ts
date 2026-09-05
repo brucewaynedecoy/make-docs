@@ -12,12 +12,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { createAuditReport } from "../src/audit";
 import { planInstall } from "../src/install";
 import { loadManifest, writeManifest } from "../src/manifest";
-import {
-  createPluginManifestFileEntries,
-  resolvePluginSubstrate,
-  type PluginArtifactDefinition,
-  type PluginHarnessExposureDeclaration,
-} from "../src/plugin-substrate";
+import legacyPluginFixture from "./fixtures/legacy-plugin-lifecycle.json";
 import { defaultSelections, resolveInstallProfile } from "../src/profile";
 import { createEmptySystemAssetManifestState } from "../src/system-assets";
 import type {
@@ -37,61 +32,6 @@ function createTempRoot(): string {
   const root = mkdtempSync(path.join(tmpdir(), "make-docs-plugin-lifecycle-"));
   tempRoots.push(root);
   return root;
-}
-
-function pluginDefinition(
-  overrides: Partial<PluginArtifactDefinition> = {},
-): PluginArtifactDefinition {
-  return {
-    pluginId: PLUGIN_ID,
-    title: "Product Development Review",
-    summary: "Review product-development work through a supported harness plugin.",
-    status: "provisional",
-    sourceManifest: {
-      manifestId: "first-party-plugins",
-      displayName: "Make Docs first-party plugins",
-      source: "built-in",
-    },
-    ref: "package:first-party/product-development-review",
-    version: "0.0.0-test",
-    digest: "sha256:plugin-digest",
-    provenance: "make-docs first-party plugin fixture",
-    trustPolicy: {
-      kind: "first-party",
-      description: "Bundled make-docs fixture.",
-    },
-    supportedHarnesses: ["codex", "claude-code"],
-    supportStatus: "provisional",
-    payload: [
-      {
-        installPath: "plugin.json",
-        content: "{\"name\":\"product-development-review\"}\n",
-      },
-      {
-        installPath: "README.md",
-        content: "# Product Development Review\n",
-      },
-    ],
-    ...overrides,
-  };
-}
-
-function nativeCodexExposure(): PluginHarnessExposureDeclaration {
-  return {
-    harness: "codex",
-    exposureKind: "native",
-    pathTemplate: ".agents/plugins/{pluginId}",
-  };
-}
-
-function generatedClaudeExposure(): PluginHarnessExposureDeclaration {
-  return {
-    harness: "claude-code",
-    exposureKind: "generated-adapter",
-    pathTemplate: ".claude/plugins/{pluginId}/plugin.json",
-    adapterContent: "{\"adapter\":\"claude-code\"}\n",
-    adapterDigest: "sha256:adapter-digest",
-  };
 }
 
 function createPluginSelections() {
@@ -183,13 +123,6 @@ function writeCopyMirrorExposure(
   for (const mirror of exposure.copyMirrorAssets) {
     writeProjectFile(targetDir, mirror.relativePath, mirror.content);
   }
-}
-
-function activateCopyMirrorExposure(
-  exposure: ResolvedPluginExposureAsset,
-): void {
-  exposure.pluginExposure.mode = "copy-mirror";
-  exposure.agenticOwnership.exposureMode = "copy-mirror";
 }
 
 function addCopyMirrorEntries(
@@ -289,18 +222,14 @@ describe("plugin lifecycle safety", () => {
     "classifies plugin payloads, symlink exposures, generated adapters, and stale symlink-child records",
     async () => {
       const targetDir = createTempRoot();
-      const resolution = resolvePluginSubstrate(
-        pluginDefinition(),
-        { scope: "project" },
-        [nativeCodexExposure(), generatedClaudeExposure()],
-      );
+      const resolution = structuredClone(legacyPluginFixture.full) as { payloadAssets: ResolvedPluginPayloadAsset[]; exposureAssets: ResolvedPluginExposureAsset[] };
       const codexExposure = resolution.exposureAssets.find(
         (asset) => asset.pluginExposure.harness === "codex",
       )!;
       const claudeExposure = resolution.exposureAssets.find(
         (asset) => asset.pluginExposure.harness === "claude-code",
       )!;
-      const files = createPluginManifestFileEntries(resolution);
+      const files = structuredClone(resolution.exposureAssets[0]?.pluginExposure.mode === "copy-mirror" ? legacyPluginFixture.mirrorFiles : legacyPluginFixture.fullFiles) as Record<string, ManifestFileEntry>;
       addCopyMirrorEntries(files, codexExposure);
 
       expect(files[`${codexExposure.relativePath}/plugin.json`]).toBeDefined();
@@ -358,14 +287,9 @@ describe("plugin lifecycle safety", () => {
 
   test("classifies clean and modified plugin copy-mirror exposures", async () => {
     const targetDir = createTempRoot();
-    const resolution = resolvePluginSubstrate(
-      pluginDefinition({ supportedHarnesses: ["codex"] }),
-      { scope: "project" },
-      [nativeCodexExposure()],
-    );
+    const resolution = structuredClone(legacyPluginFixture.mirror) as { payloadAssets: ResolvedPluginPayloadAsset[]; exposureAssets: ResolvedPluginExposureAsset[] };
     const codexExposure = resolution.exposureAssets[0]!;
-    activateCopyMirrorExposure(codexExposure);
-    const files = createPluginManifestFileEntries(resolution);
+    const files = structuredClone(resolution.exposureAssets[0]?.pluginExposure.mode === "copy-mirror" ? legacyPluginFixture.mirrorFiles : legacyPluginFixture.fullFiles) as Record<string, ManifestFileEntry>;
 
     writePluginPayloads(targetDir, resolution.payloadAssets);
     writeCopyMirrorExposure(targetDir, codexExposure);

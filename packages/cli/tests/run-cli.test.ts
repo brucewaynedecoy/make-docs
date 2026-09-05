@@ -40,104 +40,6 @@ function createWaveFixture(): { root: string; waveDir: string; projectId: string
   return { root, waveDir, projectId };
 }
 
-/** A conformant W18 R6 playbook with a step, a gate, and a follow-on step. */
-function progressionPlaybook(): string {
-  return [
-    "---",
-    'title: "Ship"',
-    'kind: "playbook"',
-    'persona: "user"',
-    'status: "accepted"',
-    'stack: "run"',
-    'summary: "Ship summary."',
-    'schema: "make-docs.playbook.v2"',
-    'workflowSchema: "make-docs.workflow.v1"',
-    "---",
-    "",
-    "# Ship",
-    "",
-    "## Purpose",
-    "",
-    "Ship the documented workflow.",
-    "",
-    "## When To Use",
-    "",
-    "Use when the workflow goal is active.",
-    "",
-    "## Inputs",
-    "",
-    "- User direction first, then repo-local Make Docs contracts.",
-    "",
-    "## Dependencies",
-    "",
-    "```playbook",
-    "dependencies:",
-    "  - id: make-docs-cli",
-    "    kind: cli",
-    "    requirement: required",
-    "    source: package install",
-    "    used_by: [check]",
-    "    fallback: stop with install guidance",
-    "```",
-    "",
-    "## Workflow",
-    "",
-    "```playbook",
-    "workflow:",
-    "  id: ship",
-    "  state_model: make-docs.workflow-state.v1",
-    "  routing: linear",
-    "steps:",
-    "  - id: check",
-    "    title: Check the playbook catalog",
-    "    executor: cli",
-    "    role: check",
-    "    activation: sequential",
-    "    mode: deterministic",
-    "    requires: [make-docs-cli]",
-    "    operation: playbook.catalog",
-    "  - id: review",
-    "    title: Review the catalog output",
-    "    executor: human",
-    "    role: gate",
-    "    activation: sequential",
-    "    mode: delegated",
-    "    instructions: Review the catalog output and approve or reject.",
-    "    gate:",
-    "      resolved_by: user",
-    "      evidence: review note",
-    "      unattended: false",
-    "  - id: record",
-    "    title: Record the handoff",
-    "    executor: agent",
-    "    role: activity",
-    "    activation: sequential",
-    "    instructions: Record the handoff artifact.",
-    "```",
-    "",
-    "## Step Guidance",
-    "",
-    "Run the steps in order and report the results.",
-    "",
-    "## Gates",
-    "",
-    "- Stop at the review gate until the user decides.",
-    "",
-    "## Outputs",
-    "",
-    "- Record the handoff artifact.",
-    "",
-    "## Validation",
-    "",
-    "- The catalog check exits zero.",
-    "",
-    "## Packaging Notes",
-    "",
-    "No packaging hints.",
-    "",
-  ].join("\n");
-}
-
 function captureStdout() {
   const spy = vi.spyOn(process.stdout, "write").mockImplementation(() => true);
   return {
@@ -170,13 +72,13 @@ describe("make-docs run command (W18 R11, R-REG-2, R-TOP-3)", () => {
       id: "work.item.resolve",
       rest: ["W18 R11 P1"],
     });
-    expect(resolveRunOperationPath(["playbook", "resolve", "user/run-stack"])).toEqual({
-      id: "playbook.resolve",
-      rest: ["user/run-stack"],
+    expect(resolveRunOperationPath(["lifecycle", "show", "--run-id", "run-1"])).toEqual({
+      id: "lifecycle.show",
+      rest: ["--run-id", "run-1"],
     });
-    expect(resolveRunOperationPath(["package", "surface-resolve", "--harness", "codex"])).toEqual({
-      id: "package.surface-resolve",
-      rest: ["--harness", "codex"],
+    expect(resolveRunOperationPath(["uat", "persona", "resolve", "--persona", "user"])).toEqual({
+      id: "uat.persona.resolve",
+      rest: ["--persona", "user"],
     });
   });
 
@@ -186,18 +88,6 @@ describe("make-docs run command (W18 R11, R-REG-2, R-TOP-3)", () => {
       .map((operation) => operation.id);
     const adapterIds = listRunCliAdapters();
     expect([...adapterIds].sort()).toEqual([...registryIds].sort());
-  });
-
-  test("invokes a cheap read operation end-to-end (playbook.catalog)", async () => {
-    const root = createTempDir("make-docs-run-cli-catalog-");
-    tempRoots.push(root);
-    const stdout = captureStdout();
-
-    await runRunCommand(["playbook", "catalog", "--repo-root", root]);
-
-    const parsed = JSON.parse(stdout.output()) as { repoRoot: string; entries: unknown[] };
-    expect(parsed.repoRoot).toBe(root);
-    expect(Array.isArray(parsed.entries)).toBe(true);
   });
 
   test("invokes work.item.resolve end-to-end against a wave fixture", async () => {
@@ -248,86 +138,6 @@ describe("make-docs run command (W18 R11, R-REG-2, R-TOP-3)", () => {
     // The valid-operations listing is derived from the registry.
     await expect(runRunCommand(["playbook", "fly"])).rejects.toThrow(/work evidence record/);
   });
-
-  test("progression adapters name their required flags (playbook.advance, playbook.close)", async () => {
-    await expect(runRunCommand(["playbook", "advance"])).rejects.toThrow(
-      /`playbook advance` requires --run-id/,
-    );
-    // --outcome is optional as of W18 R7 P3: without it the step's execution
-    // mode decides what advance does (R-MODE-1), so the adapter passes the
-    // call through to the engine, which then fails on the missing run
-    // identity rather than on a missing flag.
-    const bareRoot = createTempDir("make-docs-run-cli-advance-");
-    tempRoots.push(bareRoot);
-    await expect(
-      runRunCommand(["playbook", "advance", "--run-id", "run-1", "--repo-root", bareRoot]),
-    ).rejects.toThrow(/Cannot use the global store/);
-    await expect(
-      runRunCommand(["playbook", "close", "--run-id", "run-1"]),
-    ).rejects.toThrow(/`playbook close` requires --terminal-status/);
-  });
-
-  test.skipIf(!sqliteAvailable)(
-    "the progression operations round-trip under `run playbook` (t10)",
-    async () => {
-      const root = createTempDir("make-docs-run-cli-playbook-");
-      tempRoots.push(root);
-      writeMinimalManifest(root);
-      const storeRoot = path.join(createTempDir("make-docs-run-cli-playbook-store-"), "store");
-      tempRoots.push(path.dirname(storeRoot));
-      writeFile(root, "docs/assets/playbooks/user/ship.playbook.md", progressionPlaybook());
-
-      const invoke = async (argv: string[]): Promise<Record<string, unknown>> => {
-        const stdout = captureStdout();
-        await runRunCommand([
-          ...argv,
-          "--repo-root",
-          root,
-          "--store-root",
-          storeRoot,
-          "--run-id",
-          "cli-run",
-        ]);
-        const output = stdout.output();
-        stdout.spy.mockRestore();
-        return JSON.parse(output) as Record<string, unknown>;
-      };
-
-      const started = await invoke(["playbook", "start", "user/ship", "--harness", "codex"]);
-      expect((started.state as Record<string, unknown>).cursor).toEqual({
-        kind: "step",
-        id: "check",
-      });
-
-      const next = await invoke(["playbook", "next"]);
-      expect(next.position).toBe("step");
-      expect((next.next as Record<string, unknown>).stepId).toBe("check");
-
-      const advanced = await invoke([
-        "playbook",
-        "advance",
-        "--outcome",
-        "completed",
-        "--evidence-ref",
-        "docs/prd/35-run-playbook-state-machine-and-portability.md",
-      ]);
-      expect((advanced.execution as Record<string, unknown>).action).toBe("recorded");
-      expect((advanced.state as Record<string, unknown>).cursor).toEqual({
-        kind: "gate",
-        id: "review",
-      });
-
-      const gated = await invoke(["playbook", "gate", "--decision", "approve"]);
-      expect(gated.cursor).toEqual({ kind: "step", id: "record" });
-
-      const resumed = await invoke(["playbook", "resume", "--resume-hint", "picked back up"]);
-      expect(resumed.status).toBe("running");
-
-      const closed = await invoke(["playbook", "close", "--terminal-status", "cancelled"]);
-      expect(closed.terminalStatus).toBe("cancelled");
-      expect((await invoke(["playbook", "status"])).terminalStatus).toBe("cancelled");
-    },
-  );
 
   test.skipIf(!sqliteAvailable)(
     "work evidence record/read round-trips through the run command",

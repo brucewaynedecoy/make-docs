@@ -20,7 +20,6 @@ import {
   CONFORMANCE_EVIDENCE_BAR_STAGES,
   CONFORMANCE_RUN_VERDICTS,
   CONFORMANCE_SUPPORT_TUPLE_DIMENSIONS,
-  CONFORMANCE_TUPLE_ADDED_DIMENSIONS,
   CONFORMANCE_TUPLE_REGISTRY_PATH,
   CONFORMANCE_TUPLE_STATUSES,
   CONFORMANCE_TUPLE_STATUS_MEANINGS,
@@ -42,12 +41,9 @@ import {
   type ConformanceTupleRegistry,
   type ConformanceTupleRegistryEntry,
 } from "../src/conformance";
-import { outputKindForProfile } from "../src/operations/playbook-packaging/capability-descriptor";
-import { FIRST_PARTY_HARNESS_CAPABILITY_DESCRIPTORS } from "../src/operations/playbook-packaging/descriptors";
-import {
-  PACKAGE_SUPPORT_TUPLE_DIMENSIONS,
-  bindPackageSupportTuple,
-} from "../src/operations/playbook-packaging/support-binding";
+
+
+
 import { TEMPLATE_ROOT } from "../src/utils";
 
 const REPO_ROOT = path.resolve(TEMPLATE_ROOT, "..", "..", "..");
@@ -61,7 +57,7 @@ const CODEX_PLUGIN_TARGET = {
 
 function unboundCodexTuple(): ConformanceSupportTuple {
   return bindConformanceSupportTuple({
-    claim: bindPackageSupportTuple({ target: CODEX_PLUGIN_TARGET }),
+    claim: bindTestClaim({ target: CODEX_PLUGIN_TARGET }),
     generatedOutputKind: "generated-plugin",
   });
 }
@@ -69,7 +65,7 @@ function unboundCodexTuple(): ConformanceSupportTuple {
 function qualifyingRun(overrides: Partial<ConformanceRecordedRun> = {}): ConformanceRecordedRun {
   return {
     runId: "run-0001",
-    scenario: "packaging/plugin-marketplace-install",
+    scenario: "packaging/unit-evidence-fixture",
     runDate: "2026-07-04",
     verdict: "pass",
     caveats: [],
@@ -124,18 +120,6 @@ describe("the eight-field support tuple (t1/t2, R-TUPLE-1)", () => {
     ]);
   });
 
-  test("extends the W18 R8 P4 packaging claim tuple by exactly the generated-output kind (R-SCOPE-1)", () => {
-    // Consume-and-extend, never redefine: the seven packaging claim
-    // dimensions all appear, in the same relative order, and the single
-    // addition is `generatedOutputKind` inserted after `outputKind`.
-    const packagingDims = [...PACKAGE_SUPPORT_TUPLE_DIMENSIONS];
-    const withoutAddition = CONFORMANCE_SUPPORT_TUPLE_DIMENSIONS.filter(
-      (dimension) => dimension !== "generatedOutputKind",
-    );
-    expect(withoutAddition).toEqual(packagingDims);
-    expect(CONFORMANCE_TUPLE_ADDED_DIMENSIONS).toEqual(["generatedOutputKind"]);
-  });
-
   test("binds from a packaging support-claim tuple with evidence-owned dimensions unbound", () => {
     const tuple = unboundCodexTuple();
     expect(tuple).toEqual({
@@ -161,7 +145,7 @@ describe("the eight-field support tuple (t1/t2, R-TUPLE-1)", () => {
   test("refuses an unresolved `auto` surface: a claim broader than any evidence", () => {
     expect(() =>
       bindConformanceSupportTuple({
-        claim: bindPackageSupportTuple({
+        claim: bindTestClaim({
           target: { ...CODEX_PLUGIN_TARGET, surface: "auto" },
         }),
         generatedOutputKind: "generated-plugin",
@@ -171,7 +155,7 @@ describe("the eight-field support tuple (t1/t2, R-TUPLE-1)", () => {
 
   test("run metadata is the only seam that binds scenario, model/provider, and runtime (t2)", () => {
     const bound = bindRunMetadataOntoConformanceTuple(unboundCodexTuple(), {
-      scenario: "packaging/plugin-marketplace-install",
+      scenario: "packaging/unit-evidence-fixture",
       modelOrProvider: "anthropic",
       runtime: "codex-cli",
     });
@@ -330,7 +314,7 @@ describe("registry validation fails closed (t3/t4, R-REG-1/2)", () => {
     expect(() => validateConformanceTupleRegistry(document)).toThrow("unbound tuple dimensions");
 
     const bound = bindRunMetadataOntoConformanceTuple(unboundCodexTuple(), {
-      scenario: "packaging/plugin-marketplace-install",
+      scenario: "packaging/unit-evidence-fixture",
       modelOrProvider: "anthropic",
       runtime: "codex-cli",
     });
@@ -440,143 +424,6 @@ describe("registry validation fails closed (t3/t4, R-REG-1/2)", () => {
   });
 });
 
-describe("the seeded W18 R8 adapter registry (t6, R-REG-1..3)", () => {
-  const registry = loadConformanceTupleRegistry({ repoRoot: REPO_ROOT });
-
-  test("lives at the R-REG-1 home and validates against the fail-closed loader", () => {
-    expect(CONFORMANCE_TUPLE_REGISTRY_PATH).toBe(
-      "conformance/tuple-registry.json",
-    );
-    expect(registry.record).toBe("make-docs.conformance.tuple-registry");
-    expect(registry.tuples.length).toBeGreaterThan(0);
-  });
-
-  test("carries exactly the first-party adapter placement tuples: registry and descriptors cannot drift", () => {
-    // Every W18 R8 first-party descriptor placement — (harness, surface,
-    // scope) per container profile — must appear as exactly one registry
-    // tuple, and the registry must carry nothing else. The generated-output
-    // kind is the ownership-record kind the writer emits: export-only scopes
-    // produce `export-only-file` records; installed scopes produce the
-    // generated container record.
-    const expected = new Set<string>();
-    for (const descriptor of FIRST_PARTY_HARNESS_CAPABILITY_DESCRIPTORS) {
-      for (const container of descriptor.containers) {
-        const outputKind = outputKindForProfile(container.profile);
-        for (const placement of container.layout.placements) {
-          const generatedOutputKind =
-            placement.scope === "export-only"
-              ? "export-only-file"
-              : outputKind === "plugin"
-                ? "generated-plugin"
-                : "generated-skills-bundle";
-          expected.add(
-            conformanceTupleKey({
-              scenario: null,
-              harness: descriptor.harnessId,
-              surface: placement.surface,
-              scope: placement.scope,
-              outputKind,
-              generatedOutputKind,
-              modelOrProvider: null,
-              runtime: null,
-            }),
-          );
-        }
-      }
-    }
-    const actual = new Set(registry.tuples.map((entry) => conformanceTupleKey(entry.tuple)));
-    expect([...actual].sort()).toEqual([...expected].sort());
-    expect(registry.tuples).toHaveLength(expected.size);
-  });
-
-  test("represents the absence of real-harness evidence honestly: nothing is conformance-validated", () => {
-    expect(queryConformanceTuples(registry, { status: "conformance-validated" })).toEqual([]);
-    for (const entry of registry.tuples) {
-      expect(entry.recordedRuns, entry.id).toEqual([]);
-      // Every unproven tuple keeps its evidence-owned dimensions unbound.
-      expect(listUnboundConformanceTupleDimensions(entry.tuple), entry.id).toEqual([
-        "scenario",
-        "modelOrProvider",
-        "runtime",
-      ]);
-      expect(CONFORMANCE_TUPLE_STATUSES).toContain(entry.status);
-    }
-  });
-
-  test("every status links to its evidence: internal-test refs exist on disk, provisional entries say why", () => {
-    for (const entry of registry.tuples) {
-      if (entry.status === "implementation-validated") {
-        const internalRefs = entry.evidence.filter(
-          (evidenceRef) => evidenceRef.kind === "internal-test",
-        );
-        expect(internalRefs.length, entry.id).toBeGreaterThan(0);
-        for (const evidenceRef of internalRefs) {
-          expect(
-            existsSync(path.join(REPO_ROOT, evidenceRef.ref)),
-            `${entry.id}: ${evidenceRef.ref}`,
-          ).toBe(true);
-          // The R-TEST-5/R-LAYER-2 boundary rides every citation: internal
-          // tests are never harness-recognition evidence.
-          expect(evidenceRef.note, entry.id).toMatch(/never harness recognition/i);
-        }
-      } else {
-        // Provisional entries carry no internal-test refs (or they would
-        // derive differently) and explain the evidence gap in notes.
-        expect(entry.status, entry.id).toBe("provisional");
-        expect(entry.notes.length, entry.id).toBeGreaterThan(0);
-      }
-    }
-  });
-
-  test("the negative Codex recognition probe (R-021) is recorded and advances nothing", () => {
-    const entry = getConformanceTupleEntry(registry, unboundCodexTuple());
-    expect(entry).not.toBeNull();
-    expect(entry!.id).toBe("codex-plugin-native-project");
-    const probe = entry!.evidence.find(
-      (evidenceRef) => evidenceRef.kind === "real-harness-probe",
-    );
-    expect(probe).toBeDefined();
-    expect(probe!.ref).toBe("docs/prd/03-open-questions-and-risk-register.md");
-    expect(probe!.note).toContain("NEGATIVE");
-    expect(probe!.note).toContain("Codex v0.142.4");
-    // The probe neither advances nor demotes: the status stays exactly what
-    // the internal file-and-structure tests derive.
-    expect(entry!.status).toBe("implementation-validated");
-    expect(deriveConformanceTupleStatus(entry!)).toBe("implementation-validated");
-  });
-
-  test("Pi tuples report future-scenario absence rather than implying coverage (R-SCEN-2)", () => {
-    const piEntries = queryConformanceTuples(registry, { harness: "pi" });
-    expect(piEntries.length).toBeGreaterThan(0);
-    for (const entry of piEntries) {
-      expect(entry.recordedRuns, entry.id).toEqual([]);
-      expect(entry.notes.join(" "), entry.id).toContain("R-SCEN-2");
-    }
-  });
-
-  test("the registry is queryable by exact dimension and status (R-REG-1)", () => {
-    const codexPlugins = queryConformanceTuples(registry, {
-      harness: "codex",
-      outputKind: "plugin",
-    });
-    expect(codexPlugins.map((entry) => entry.id).sort()).toEqual([
-      "codex-plugin-native-export-only",
-      "codex-plugin-native-global",
-      "codex-plugin-native-project",
-    ]);
-    const implementationValidated = queryConformanceTuples(registry, {
-      status: "implementation-validated",
-    });
-    expect(implementationValidated.map((entry) => entry.id).sort()).toEqual([
-      "claude-code-plugin-native-project",
-      "claude-code-skills-bundle-agents-standard-project",
-      "codex-plugin-native-export-only",
-      "codex-plugin-native-project",
-      "pi-plugin-native-project",
-    ]);
-    // `null` matches only unbound dimensions; every seeded tuple is unbound.
-    expect(queryConformanceTuples(registry, { scenario: null })).toHaveLength(
-      registry.tuples.length,
-    );
-  });
-});
+function bindTestClaim(input: { target: Omit<ConformanceSupportTuple, "scenario" | "modelOrProvider" | "runtime" | "generatedOutputKind" | "surface"> & { surface: "native" | "agents-standard" | "auto" } }) {
+  return { ...input.target, scenario: null, modelOrProvider: null, runtime: null };
+}

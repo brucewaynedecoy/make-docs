@@ -1874,8 +1874,8 @@ Usage:
   make-docs run <domain> <verb> [options]
 
 Examples:
-  make-docs run playbook catalog --repo-root .
-  make-docs run playbook status --run-id <run-id>
+  make-docs run lifecycle list --repo-root .
+  make-docs run lifecycle show --run-id <run-id>
   make-docs run package plan --harness codex --output-kind plugin --surface native --scope project user/run-stack
   make-docs run work item resolve 'W18 R11 P2'
 `);
@@ -1979,7 +1979,7 @@ Examples:
   make-docs setup skills --dry-run
   make-docs setup remove --backup
   make-docs resource list
-  make-docs run playbook catalog
+  make-docs run lifecycle list
   make-docs mcp
 
 Use --help or -h with any command for command-specific options and examples.

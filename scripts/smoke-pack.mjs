@@ -624,8 +624,7 @@ try {
   );
 
   // ---- W18 R11 P6 (t5): five-command-tree spellings through the packed
-  // tarball — bare invocation (fresh context), `run playbook status`,
-  // `run package plan`, `update`, and `uninstall`. Every invocation carries
+  // tarball — bare invocation, retired route refusal, update, and uninstall. Every invocation carries
   // the sandboxed MAKE_DOCS_HOME so the real ~/.make-docs is never touched.
 
   // Bare invocation, fresh context: guidance only, no writes, non-TTY safe.
@@ -650,109 +649,12 @@ try {
     "Smoke pack bare invocation (fresh) wrote into the target directory.",
   );
 
-  // `run playbook start` + `run playbook status` against a playbook fixture
-  // repo. Run state is relocated-canonical in the sandboxed global store
-  // (PRD 35 R-STORE-1/R-STORE-2), keyed by the fixture's manifest-minted
-  // project identifier; nothing may land under the fixture repository.
+  // Retired workflow entry points must fail in the packed CLI.
   const runFixtureDir = registerAuxSmokeDir("make-docs-run-fixture-");
-  writeRunPlaybookFixture(runFixtureDir);
-  const startOutput = execFileSync(
-    "node",
-    [
-      packedMakeDocs,
-      "run",
-      "playbook",
-      "start",
-      "user/run-stack",
-      "--harness",
-      "codex",
-      "--run-id",
-      "smoke-run",
-      "--repo-root",
-      runFixtureDir,
-    ],
-    { encoding: "utf8", env: packedCliEnv },
-  );
-  const started = JSON.parse(startOutput);
-  if (started?.state?.runId !== "smoke-run" || started?.state?.playbookRef !== "user/run-stack") {
-    throw new Error(`Smoke pack run playbook start returned unexpected state:\n${startOutput}`);
-  }
-  if (!started?.projectId || started?.state?.projectId !== started.projectId) {
-    throw new Error(`Smoke pack run playbook start did not key run state by project id:\n${startOutput}`);
-  }
-  assertMissing(
-    path.join(runFixtureDir, ".make-docs/runs"),
-    "Smoke pack run playbook start wrote run state under the fixture repository (PRD 35 R-STORE-1).",
-  );
-
-  const statusOutput = execFileSync(
-    "node",
-    [
-      packedMakeDocs,
-      "run",
-      "playbook",
-      "status",
-      "--run-id",
-      "smoke-run",
-      "--repo-root",
-      runFixtureDir,
-    ],
-    { encoding: "utf8", env: packedCliEnv },
-  );
-  const runStatus = JSON.parse(statusOutput);
-  if (runStatus?.runId !== "smoke-run" || runStatus?.playbookRef !== "user/run-stack") {
-    throw new Error(`Smoke pack run playbook status returned unexpected state:\n${statusOutput}`);
-  }
-
-  // A bogus run id fails with the structured operation error, not a crash.
-  const bogusStatus = runPackedCliExpectingFailure(packedMakeDocs, [
-    "run",
-    "playbook",
-    "status",
-    "--run-id",
-    "no-such-run",
-    "--repo-root",
-    runFixtureDir,
-  ]);
-  assertOutputContains(
-    bogusStatus.stderr,
-    "No Playbook run state found for run id `no-such-run`.",
-    "Smoke pack run playbook status did not report the unknown-run error.",
-  );
-
-  // `run package plan` with the codex plugin target (mirrors
-  // tests/registry-package-ops.test.ts fixture shape).
-  const planOutput = execFileSync(
-    "node",
-    [
-      packedMakeDocs,
-      "run",
-      "package",
-      "plan",
-      "user/run-stack",
-      "--harness",
-      "codex",
-      "--output-kind",
-      "plugin",
-      "--surface",
-      "native",
-      "--scope",
-      "project",
-      "--support-evidence-ref",
-      "docs/prd/36-playbook-packaging-compiler-and-harness-adapters.md",
-      "--repo-root",
-      runFixtureDir,
-    ],
-    { encoding: "utf8", env: packedCliEnv },
-  );
-  const packagePlan = JSON.parse(planOutput);
-  if (
-    packagePlan?.plan?.target?.harness !== "codex" ||
-    packagePlan?.plan?.target?.outputKind !== "plugin" ||
-    !Array.isArray(packagePlan?.plan?.generatedArtifacts) ||
-    packagePlan.plan.generatedArtifacts.length === 0
-  ) {
-    throw new Error(`Smoke pack run package plan returned an unexpected plan:\n${planOutput}`);
+  writeLegacyContentFixture(runFixtureDir);
+  for (const args of [["run", "playbook", "status"], ["run", "package", "plan"], ["run", "protocol", "list"]]) {
+    const refusal = runPackedCliExpectingFailure(packedMakeDocs, [...args, "--repo-root", runFixtureDir]);
+    assertOutputContains(refusal.stderr, "Unknown make-docs run operation", "Packed CLI did not reject a retired operation.");
   }
 
   // `update`: the packed direct-node invocation matches no persistent-install
@@ -1457,12 +1359,9 @@ function ensureTrailingSlash(value) {
 }
 
 /**
- * Minimal repo fixture for the `run playbook`/`run package` smokes: a
- * `docs/work/` anchor so repo-root discovery stays inside the fixture, plus
- * one accepted run-stack playbook (mirrors the tests/registry-package-ops
- * fixture shape).
+ * Opaque legacy project content for packed CLI refusal and uninstall preservation.
  */
-function writeRunPlaybookFixture(fixtureDir) {
+function writeLegacyContentFixture(fixtureDir) {
   mkdirSync(path.join(fixtureDir, "docs/work"), { recursive: true });
   // Run state is keyed by the manifest-minted project identifier (PRD 35
   // R-STORE-2), so the fixture carries a minimal manifest with one.

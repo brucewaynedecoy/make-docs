@@ -9,7 +9,6 @@ import {
   getOperation,
   hasOperation,
   invokeOperation,
-  LEGACY_COMPATIBILITY_OPERATION_IDS,
   listAdmittedOperations,
   listOperations,
   OPERATION_ID_PATTERN,
@@ -90,9 +89,7 @@ describe("operation registry contract", () => {
     const ids = listOperations()
       .map((operation) => operation.id)
       .sort();
-    expect([...LEGACY_COMPATIBILITY_OPERATION_IDS]).toEqual(
-      LITERAL_LEGACY_COMPATIBILITY_IDENTIFIERS,
-    );
+    for (const id of LITERAL_LEGACY_COMPATIBILITY_IDENTIFIERS) expect(hasOperation(id)).toBe(false);
     expect(LITERAL_P3_ADMITTED_IDENTIFIERS).toHaveLength(24);
     const admittedIds = [...ADMITTED_OPERATION_IDS];
     expect(admittedIds.filter((id) => id !== "project.path-hygiene.validate")).toEqual(
@@ -104,12 +101,11 @@ describe("operation registry contract", () => {
     expect(listAdmittedOperations().map((entry) => entry.id)).toEqual(admittedIds);
     expect(ids).toEqual(
       [
-        ...LITERAL_LEGACY_COMPATIBILITY_IDENTIFIERS,
         ...LITERAL_P3_ADMITTED_IDENTIFIERS,
         ...LITERAL_P5_ADMITTED_IDENTIFIERS,
       ].sort(),
     );
-    expect(ids).toHaveLength(43);
+    expect(ids).toHaveLength(25);
   });
 
   it("every identifier follows the domain.verb / domain.object.verb convention", () => {

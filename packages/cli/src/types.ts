@@ -433,139 +433,6 @@ export type PluginTrustPolicyKind =
   | "manual-review-required";
 export type PluginSourceKind = "built-in" | "file" | "remote-pinned";
 
-export const WORKFLOW_BUNDLE_FAMILIES = [
-  "idea-brainstorm",
-  "scaffold",
-  "change-request-iterate",
-  "use-run",
-] as const;
-
-export type WorkflowBundleFamily = (typeof WORKFLOW_BUNDLE_FAMILIES)[number];
-
-export const WORKFLOW_BUNDLE_AUDIENCES = [
-  "maintainer",
-  "non-maintainer",
-  "end-user",
-] as const;
-
-export type WorkflowBundleAudience =
-  (typeof WORKFLOW_BUNDLE_AUDIENCES)[number];
-
-export const WORKFLOW_BUNDLE_EXPOSURE_BOUNDARIES = [
-  "maintainer-only",
-  "non-maintainer-request-capture",
-  "non-maintainer-guided-change",
-  "end-user-run-stack",
-] as const;
-
-export type WorkflowBundleExposureBoundary =
-  (typeof WORKFLOW_BUNDLE_EXPOSURE_BOUNDARIES)[number];
-
-export const WORKFLOW_BUNDLE_MUTATION_AUTHORITIES = [
-  "request-capture-only",
-  "plan-first",
-  "authorized-mutation",
-  "run-stack",
-] as const;
-
-export type WorkflowBundleMutationAuthority =
-  (typeof WORKFLOW_BUNDLE_MUTATION_AUTHORITIES)[number];
-
-export const PLUGIN_PACKAGE_BOUNDARY_STATES = [
-  "included",
-  "excluded",
-  "deferred",
-] as const;
-
-export type PluginPackageBoundaryState =
-  (typeof PLUGIN_PACKAGE_BOUNDARY_STATES)[number];
-
-export type PluginSupportSurface =
-  | "cli"
-  | "mcp"
-  | "plugin"
-  | "skills-bundle"
-  | "run-playbook"
-  | "harness-native";
-
-export type PluginSupportClaimWording =
-  | "provisional"
-  | "validated"
-  | "unsupported";
-
-export type PluginConformanceScenarioStatus =
-  | "candidate"
-  | "implemented"
-  | "passed"
-  | "failed"
-  | "deferred";
-
-export interface PluginPackageBoundary {
-  pluginPayloads: PluginPackageBoundaryState;
-  pluginManifests: PluginPackageBoundaryState;
-  nativeExposures: PluginPackageBoundaryState;
-  generatedAdapters: PluginPackageBoundaryState;
-  conformanceLabRecords: "excluded";
-  generatedLocalRunArtifacts: "excluded";
-  unreviewedGeneratedOutputs: "excluded";
-  decisionEvidence: string[];
-}
-
-export interface PluginSupportClaim {
-  claimId: string;
-  status: PluginSupportStatus;
-  surface: PluginSupportSurface;
-  wording: PluginSupportClaimWording;
-  evidenceRefs: string[];
-  pluginId?: string;
-  bundleId?: string;
-  playbookRef?: string;
-  harness?: string;
-  modelProvider?: string;
-  runtime?: string;
-}
-
-export interface PluginConformanceScenarioCandidate {
-  scenarioId: string;
-  claimId: string;
-  status: PluginConformanceScenarioStatus;
-  required: boolean;
-  dimensions: {
-    pluginId?: string;
-    bundleId?: string;
-    playbookRef?: string;
-    harness?: string;
-    modelProvider?: string;
-    runtime?: string;
-    surface?: PluginSupportSurface;
-  };
-  evidenceRefs: string[];
-}
-
-export interface WorkflowBundleRunPlaybookBoundary {
-  mode: "generic-run-playbook";
-  orchestrator: "w18-r4-run-playbook";
-  storageContract: "docs/assets/playbooks";
-  pluginPackagingRequired: false;
-  playbookRefs: string[];
-}
-
-export interface WorkflowBundleMetadata {
-  bundleId: string;
-  title: string;
-  summary: string;
-  family: WorkflowBundleFamily;
-  audiences: WorkflowBundleAudience[];
-  exposureBoundary: WorkflowBundleExposureBoundary;
-  mutationAuthority: WorkflowBundleMutationAuthority;
-  requestCapture: boolean;
-  authorizedMutation: boolean;
-  runPlaybook?: WorkflowBundleRunPlaybookBoundary;
-  supportClaims: PluginSupportClaim[];
-  conformanceScenarios: PluginConformanceScenarioCandidate[];
-  packageBoundary: PluginPackageBoundary;
-}
-
 export interface PluginTrustPolicy {
   kind: PluginTrustPolicyKind;
   description?: string;
@@ -617,8 +484,9 @@ export interface PluginArtifactMetadata {
   supportedHarnesses: Harness[];
   scope: AgenticScope;
   supportStatus: PluginSupportStatus;
-  workflowBundles?: WorkflowBundleMetadata[];
-  packageBoundary?: PluginPackageBoundary;
+  /** Opaque historical metadata. Current code does not interpret these fields. */
+  workflowBundles?: unknown[];
+  packageBoundary?: unknown;
 }
 
 export interface PluginExposureMetadata {

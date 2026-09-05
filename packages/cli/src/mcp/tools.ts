@@ -107,7 +107,7 @@ const HAND_DEFINED_MCP_TOOLS: (MakeDocsMcpToolDescriptor & { name: HandDefinedMc
 /**
  * MCP tool-name derivation rule (R-MIG-3): `make_docs_` + the registry
  * identifier with its `.` and `-` separators mapped to `_`
- * (`playbook.catalog` -> `make_docs_playbook_catalog`,
+ * (`resource.list` -> `make_docs_resource_list`,
  * `package.surface-resolve` -> `make_docs_package_surface_resolve`).
  */
 export function deriveMcpToolName(operationId: string): string {

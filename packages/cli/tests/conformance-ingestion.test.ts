@@ -263,12 +263,9 @@ describe("fail-closed measurement (R-ING-1)", () => {
     expect(result.record.evidenceBar).toEqual({ install: false, discover: false, invoke: false, uninstall: false });
     expect(result.record.verdict).toBe("unsupported");
 
-    const registry = loadConformanceTupleRegistry({ repoRoot: REPO_ROOT });
+    const registry = loadConformanceTupleRegistry({ repoRoot: REPO_ROOT, registryPath: path.join(REPO_ROOT, "conformance/history/w19-r1-p8-tuple-registry.json") });
     const entry = registry.tuples.find((candidate) => candidate.id === "codex-plugin-native-project")!;
-    const statusBefore = entry.status;
-    const advanced = bindIngestedResultToRegistryEntry({ entry, spec: PLUGIN_SPEC, result });
-    expect(advanced.status).toBe(statusBefore);
-    expect(advanced.status).not.toBe("conformance-validated");
+    expect(() => bindIngestedResultToRegistryEntry({ entry, spec: PLUGIN_SPEC, result })).toThrow("Retired conformance scenarios");
   });
 });
 
@@ -328,32 +325,6 @@ describe("attestations are structurally distinguishable from measurements (R-EXE
     );
     expect(embellished.record.evidenceBar).toEqual(base.record.evidenceBar);
     expect(embellished.record.evidenceBar.discover).toBe(false);
-  });
-});
-
-describe("pass path advances the tuple through the one seam (R-ING-2)", () => {
-  test("a full instrument-confirmed pass advances the tuple to conformance-validated", () => {
-    const result = ingest({ discover: "recognition-ok" });
-    expect(result.record.verdict).toBe("pass");
-    const registry = loadConformanceTupleRegistry({ repoRoot: REPO_ROOT });
-    const entry = registry.tuples.find((candidate) => candidate.id === "codex-plugin-native-project")!;
-    const advanced = bindIngestedResultToRegistryEntry({ entry, spec: PLUGIN_SPEC, result });
-    expect(advanced.status).toBe("conformance-validated");
-    expect(deriveConformanceTupleStatus(advanced)).toBe("conformance-validated");
-  });
-
-  test("bindIngestedResultToRegistryEntry is a pass-through to the one recording seam", () => {
-    const result = ingest({ discover: "recognition-ok" });
-    const registry = loadConformanceTupleRegistry({ repoRoot: REPO_ROOT });
-    const entry = registry.tuples.find((candidate) => candidate.id === "codex-plugin-native-project")!;
-    const viaHelper = bindIngestedResultToRegistryEntry({ entry, spec: PLUGIN_SPEC, result });
-    const viaSeam = recordConformanceRunOnRegistryEntry({
-      entry,
-      spec: PLUGIN_SPEC,
-      record: result.record,
-      recordRef: result.recordRef,
-    });
-    expect(viaHelper).toEqual(viaSeam);
   });
 });
 

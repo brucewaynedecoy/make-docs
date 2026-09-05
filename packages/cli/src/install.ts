@@ -5,6 +5,7 @@ import {
   createManifest,
   MANIFEST_RELATIVE_PATH,
   mintProjectId,
+  RETIRED_PLAYBOOK_CONTRACT_PATH,
   writeManifest,
 } from "./manifest";
 import {
@@ -160,6 +161,10 @@ function applyInstallPlanInternal(options: {
   trackSkillFilesInManifestFiles: boolean;
 }): ApplyResult {
   const { targetDir, plan, existingManifest } = options;
+  if (plan.actions.some((action) => action.type === "remove-managed" &&
+      action.relativePath === RETIRED_PLAYBOOK_CONTRACT_PATH)) {
+    throw new Error("Retired Playbook contract removal requires reviewed migration checkpoint 11.");
+  }
   const p4ProjectionSelected = plan.profile.selections.resourceProjection !== undefined;
   if (p4ProjectionSelected) {
     assertManagedPathHasNoSymlinks(targetDir, MANIFEST_RELATIVE_PATH);

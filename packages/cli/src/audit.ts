@@ -13,6 +13,9 @@ import {
   getManifestAuditContext,
   getManifestPath,
   MANIFEST_RELATIVE_PATH,
+  RETIRED_PLAYBOOK_CONTRACT_PATH,
+  RETIRED_PLAYBOOK_CONTRACT_HASH,
+  hasTrustedRetiredPlaybookContractOwnership,
 } from "./manifest";
 import { parseManagedBlock } from "./managed-block";
 import { defaultSelections, resolveInstallProfile } from "./profile";
@@ -42,7 +45,7 @@ import {
   type InstallSelections,
   type ManifestAuditRecord,
 } from "./types";
-import { hashText, PACKAGE_ROOT, readTextFile, relativePathToTarget } from "./utils";
+import { assertManagedPathHasNoSymlinks, hashText, PACKAGE_ROOT, readTextFile, relativePathToTarget } from "./utils";
 
 const SHARED_AGENTICS_SKILL_DIR = ".make-docs/agentics/skills";
 const SHARED_AGENTICS_PLUGIN_DIR = ".make-docs/agentics/plugins";
@@ -170,6 +173,19 @@ async function classifyManifestPresent(options: {
   );
 
   for (const record of sortAuditEntries([...manifestCandidates.values()])) {
+    if (record.path === RETIRED_PLAYBOOK_CONTRACT_PATH) {
+      let trusted = hasTrustedRetiredPlaybookContractOwnership(manifest.files[record.path]);
+      try {
+        assertManagedPathHasNoSymlinks(targetDir, record.path);
+        trusted &&= existsSync(record.absolutePath) && lstatSync(record.absolutePath).isFile() &&
+          hashText(readTextFile(record.absolutePath)) === RETIRED_PLAYBOOK_CONTRACT_HASH;
+      } catch { trusted = false; }
+      addPreserved(preservedPaths, record, createReason(trusted ? "managed-file-hash-match" : "managed-file-modified",
+        trusted
+          ? "The retired contract is trusted legacy input. Only reviewed migration checkpoint 11 may remove it."
+          : "The retired contract lacks trusted ownership or bytes, or has a symlink path, and must be preserved."));
+      continue;
+    }
     classifyManifestRecord({
       targetDir,
       record,

@@ -17,8 +17,6 @@ export type OperationDomainName =
   | "closeout"
   | "work"
   | "lifecycle"
-  | "playbook"
-  | "playbook-packaging"
   | "prd";
 
 export interface OperationProvenance {

@@ -53,10 +53,11 @@ import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { z } from "zod";
 import {
-  GENERATED_OUTPUT_RECORD_KINDS,
-  PLAYBOOK_PACKAGE_OUTPUT_KINDS,
-  PLAYBOOK_PACKAGE_SCOPES,
-} from "../operations/playbook-packaging/types";
+  isRetiredConformanceScenario,
+  CONFORMANCE_RECORD_KINDS,
+  CONFORMANCE_OUTPUT_KINDS,
+  CONFORMANCE_SCOPES,
+} from "./historical-contract";
 import { OperationError } from "../operations/types";
 import {
   conformanceTupleKey,
@@ -236,7 +237,7 @@ export function runMeetsEvidenceBar(run: ConformanceRecordedRun): boolean {
  * absence of evidence, not evidence.
  */
 export function runQualifiesForConformanceValidation(run: ConformanceRecordedRun): boolean {
-  if (!runMeetsEvidenceBar(run)) {
+  if (isRetiredConformanceScenario(run.scenario) || !runMeetsEvidenceBar(run)) {
     return false;
   }
   if (run.verdict === "pass") {
@@ -276,9 +277,9 @@ const tupleSchema = z.object({
   // Never `auto`: a registry tuple is exact, and `auto` would be a claim
   // broader than its evidence (R-TUPLE-1).
   surface: z.enum(CONFORMANCE_TUPLE_SURFACES),
-  scope: z.enum(PLAYBOOK_PACKAGE_SCOPES),
-  outputKind: z.enum(PLAYBOOK_PACKAGE_OUTPUT_KINDS),
-  generatedOutputKind: z.enum(GENERATED_OUTPUT_RECORD_KINDS),
+  scope: z.enum(CONFORMANCE_SCOPES),
+  outputKind: z.enum(CONFORMANCE_OUTPUT_KINDS),
+  generatedOutputKind: z.enum(CONFORMANCE_RECORD_KINDS),
   modelOrProvider: z.string().min(1).nullable(),
   runtime: z.string().min(1).nullable(),
 });

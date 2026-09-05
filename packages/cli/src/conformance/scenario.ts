@@ -1,3 +1,4 @@
+import { isRetiredConformanceScenario } from "./historical-contract";
 /**
  * The packaging conformance scenario contract and evidence bar
  * (PRD 43 R-BAR-1..2, R-ORG-1, R-SCHEMA-1..3, R-DISC-1;
@@ -150,16 +151,8 @@ export const REQUIRED_FIRST_PASS_TARGET = "codex";
  * runnability check consumes this constant; absence of any of these
  * definitions is a failure, never a silent gap.
  */
-export const REQUIRED_FIRST_PASS_SCENARIOS = {
-  "packaging/skills-bundle-discovery-invocation":
-    "a generated skills bundle appears as a skill in the target harness and can be invoked",
-  "packaging/plugin-marketplace-install":
-    "a generated plugin appears through a marketplace, installs, exposes its bundled skills, and is usable in a new thread",
-  "packaging/dependency-check-both-directions":
-    "generated dependency checks surface missing tools and pass when the dependencies are present",
-  "packaging/uninstall-backup-cleanliness":
-    "uninstall and backup remove managed generated outputs without orphaning empty managed directories or deleting user-authored files",
-} as const;
+/** The former first-pass packaging cases are retired. No replacement set is approved. */
+export const REQUIRED_FIRST_PASS_SCENARIOS: Record<string, string> = {};
 export type RequiredFirstPassScenarioId = keyof typeof REQUIRED_FIRST_PASS_SCENARIOS;
 
 /**
@@ -380,7 +373,7 @@ const packagingExtensionSchema = z
     /** Nothing destructive against a maintainer working tree (R-KEEP-1). */
     workspacePolicy: z.literal("disposable-fixture-workspace"),
     /** Repo-relative v2-form source Playbooks the scenario packages. */
-    fixturePlaybooks: z.array(z.string().min(1)).min(1),
+    fixturePlaybooks: z.array(z.string().min(1)),
     /** Execution-target bindings keyed by harness id (R-SCHEMA-1..2). */
     targets: z.record(slugSchema, targetBindingSchema),
   })
@@ -657,7 +650,7 @@ export function loadPackagingConformanceScenarioSpecs(
     }
     seen.add(spec.scenarioId);
   }
-  return specs;
+  return specs.filter((spec) => !isRetiredConformanceScenario(spec.scenarioId));
 }
 
 /* --------------------------------------------------------------------------
@@ -982,6 +975,9 @@ export function recordConformanceRunOnRegistryEntry(input: {
   /** Repo-relative path where the compact result record is committed. */
   recordRef: string;
 }): ConformanceTupleRegistryEntry {
+  if (isRetiredConformanceScenario(input.spec.scenarioId)) {
+    throw new OperationError("Retired conformance scenarios cannot record current support evidence.");
+  }
   const { entry, spec, record, recordRef } = input;
   const label = `conformance tuple registry entry \`${entry.id}\``;
   if (record.scenarioId !== spec.scenarioId) {

@@ -17,6 +17,7 @@ import {
   rmSync,
   symlinkSync,
   utimesSync,
+  unlinkSync,
   writeFileSync,
 } from "node:fs";
 import path from "node:path";
@@ -31,7 +32,10 @@ import type {
   ResourceProjectionManifestState,
   SystemAssetManifestState,
 } from "./types";
-import { MANIFEST_RELATIVE_PATH } from "./manifest";
+import { MANIFEST_RELATIVE_PATH, writeManifest, RETIRED_PLAYBOOK_CONTRACT_PATH,
+  RETIRED_PLAYBOOK_CONTRACT_HASH, hasTrustedRetiredPlaybookContractOwnership } from "./manifest";
+import { listOperations } from "./operations/registry";
+import { loadInstalledSystemResourceProvider } from "./operations/resource/provider";
 import {
   applyInstallPlan,
   findReviewableManagedFileConflicts,
@@ -101,14 +105,14 @@ export const MIGRATION_CHECKPOINTS = [
   { checkpoint: 8, owner: "P5", state: "implemented", purpose: "typescript-path-hygiene" },
   { checkpoint: 9, owner: "P6", state: "implemented", purpose: "general-store-tables" },
   { checkpoint: 10, owner: "P7", state: "implemented", purpose: "naive-uat-persona-skill-evidence" },
-  { checkpoint: 11, owner: "P8", state: "locked", purpose: "traced-legacy-retirement" },
+  { checkpoint: 11, owner: "P8", state: "implemented", purpose: "traced-legacy-retirement" },
   { checkpoint: 12, owner: "P9", state: "locked", purpose: "selected-agentics" },
   { checkpoint: 13, owner: "P10", state: "locked", purpose: "package-dogfood-legacy-validation" },
 ] as const;
 
 export type MigrationCheckpoint = (typeof MIGRATION_CHECKPOINTS)[number]["checkpoint"];
-export type ImplementedMigrationCheckpoint = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
-export type LockedMigrationCheckpoint = 11 | 12 | 13;
+export type ImplementedMigrationCheckpoint = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11;
+export type LockedMigrationCheckpoint = 12 | 13;
 
 export type MigrationFilesystemState =
   | "absent"
@@ -352,6 +356,7 @@ interface FixedMigrationProductPlan {
   promptIdentityActions: PlannedAction[];
   resourceActions: PlannedAction[];
   legacyActions: PlannedAction[];
+  retirementActions: PlannedAction[];
   preservedActions: PlannedAction[];
   appliedActions: PlannedAction[];
   conflictFiles: string[];
@@ -944,7 +949,7 @@ export class ImmutableMigrationCoordinator {
   }
 
   advance(next: MigrationCheckpoint): MigrationCheckpointResult {
-    if (next >= 11) {
+    if (next >= 12) {
       const owner = MIGRATION_CHECKPOINTS.find((item) => item.checkpoint === next)!.owner;
       return this.block(
         "downstream-checkpoint-locked",
@@ -1100,7 +1105,52 @@ export class ImmutableMigrationCoordinator {
       case 10:
         validateUatCheckpoint10(this.lock.projectRoot);
         return;
+      case 11:
+        this.applyTracedRetirement(product);
+        return;
     }
+  }
+
+  private applyTracedRetirement(product: FixedMigrationProductPlan): void {
+    validateRetirementProductBoundary();
+    for (const action of product.retirementActions) {
+      const original = this.snapshot.paths.find((entry) => entry.relativePath === action.relativePath);
+      if (!original || original.ownership !== "managed-clean" ||
+          original.disposition !== "overwrite-managed-clean" ||
+          !["file", "missing"].includes(original.entryType) ||
+          action.relativePath !== RETIRED_PLAYBOOK_CONTRACT_PATH ||
+          action.type !== "remove-managed" ||
+          action.sourceId !== `file:${RETIRED_PLAYBOOK_CONTRACT_PATH}` ||
+          action.contentHash !== RETIRED_PLAYBOOK_CONTRACT_HASH ||
+          !hasTrustedRetiredPlaybookContractOwnership(product.existingManifest?.files[action.relativePath]) ||
+          (original.entryType === "file" && original.digest !== RETIRED_PLAYBOOK_CONTRACT_HASH)) {
+        throw new MigrationSafetyError("ambiguous-ownership", "Checkpoint 11 rejects an unproved retirement action.");
+      }
+      assertManagedPathHasNoSymlinks(product.projectRoot, action.relativePath);
+    }
+    // The reviewed action set is finite. Never recurse or prune a legacy directory.
+    for (const action of product.retirementActions) {
+      assertMigrationLockTokenActive(this.lock);
+      assertBarrierBoundToSnapshot(this.lock, this.snapshot.snapshotId);
+      assertManagedPathHasNoSymlinks(product.projectRoot, action.relativePath);
+      const file = path.join(product.projectRoot, action.relativePath);
+      if (existsSync(file) && (!lstatSync(file).isFile() || digest(readFileSync(file)) !== RETIRED_PLAYBOOK_CONTRACT_HASH)) {
+        throw new MigrationSafetyError("snapshot-drift", "The retired contract bytes changed before removal.");
+      }
+      if (existsSync(file)) unlinkSync(file);
+      delete product.currentManifest!.files[action.relativePath];
+      product.appliedActions.push(action);
+    }
+    if (product.retirementActions.length > 0) writeManifest(product.projectRoot, product.currentManifest!);
+    for (const action of product.retirementActions) {
+      if (existsSync(path.join(product.projectRoot, action.relativePath)) ||
+          product.currentManifest?.files[action.relativePath]) {
+        throw new MigrationSafetyError("snapshot-drift", "Checkpoint 11 retirement validation failed.");
+      }
+    }
+    assertMigrationLockTokenActive(this.lock);
+    assertBarrierBoundToSnapshot(this.lock, this.snapshot.snapshotId);
+    validateRetirementProductBoundary();
   }
 
   private assertExpectedPathBinding(): void {
@@ -1135,6 +1185,15 @@ export class ImmutableMigrationCoordinator {
       rollback,
       checkpoint,
     );
+  }
+}
+
+function validateRetirementProductBoundary(): void {
+  const retired = listOperations().filter((operation) => /^(playbook|protocol|package)\./.test(operation.id));
+  const provider = loadInstalledSystemResourceProvider();
+  if (retired.length || !provider.ok || provider.value.resources.some((resource) =>
+    /(?:playbook|protocol)/i.test(resource.identity.uri))) {
+    throw new MigrationSafetyError("product-operation-unavailable", "Checkpoint 11 requires retired runtime and resource routes to be absent.");
   }
 }
 
@@ -1179,7 +1238,7 @@ export function executeInstallPlanMigration(input: {
     });
     const coordinator = new ImmutableMigrationCoordinator(lock, snapshot, backup, productPlan);
     const migrationReceipts: MigrationCheckpointResult[] = [];
-    for (const checkpoint of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] as const) {
+    for (const checkpoint of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] as const) {
       const receipt = coordinator.advance(checkpoint);
       migrationReceipts.push(receipt);
       if (receipt.status === "receipt-projection-failed") {
@@ -1394,9 +1453,13 @@ function createFixedMigrationProductPlan(
   const promptIdentityActions: PlannedAction[] = [];
   const resourceActions: PlannedAction[] = [];
   const legacyActions: PlannedAction[] = [];
+  const retirementActions: PlannedAction[] = [];
   const preservedActions: PlannedAction[] = [];
   for (const action of installPlan.actions) {
-    if (action.sourceId?.startsWith("router:")) {
+    if (action.relativePath === RETIRED_PLAYBOOK_CONTRACT_PATH) {
+      if (action.type === "remove-managed") retirementActions.push(action);
+      else preservedActions.push(action);
+    } else if (action.sourceId?.startsWith("router:")) {
       routerActions.push(action);
     } else if (action.sourceId?.startsWith("resource:")) {
       resourceActions.push(action);
@@ -1418,6 +1481,7 @@ function createFixedMigrationProductPlan(
     promptIdentityActions,
     resourceActions,
     legacyActions,
+    retirementActions,
     preservedActions,
     appliedActions: [],
     conflictFiles: [],

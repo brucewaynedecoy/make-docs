@@ -5,7 +5,6 @@ import { describe, expect, test } from "vitest";
 import { getDesiredAssets } from "../src/catalog";
 import { listShippedConformanceAssetErrors } from "../src/conformance";
 import { parseManagedBlock } from "../src/managed-block";
-import { parseAndValidatePlaybook } from "../src/playbook";
 import { defaultSelections, resolveInstallProfile } from "../src/profile";
 import { getDesiredSkillAssets } from "../src/skill-catalog";
 import { loadSkillRegistry } from "../src/skill-registry";
@@ -277,9 +276,7 @@ describe("template completeness", () => {
     };
     walk(TEMPLATE_ROOT);
 
-    const preservedLegacyPaths = new Set([
-      ".make-docs/contracts/system/playbook-contract.md",
-    ]);
+    const preservedLegacyPaths = new Set<string>();
     const unmanaged = templateFiles.filter((file) =>
       !managedPaths.has(file) && !preservedLegacyPaths.has(file) && !bundledSkillSources.has(file),
     );
@@ -831,28 +828,10 @@ describe("guide generation routing contract", () => {
     }
   });
 
-  test("the preserved dogfood Playbooks validate with zero errors", () => {
-    for (const relativePath of PLAYBOOK_DEFAULT_PARITY_PATHS) {
-      for (const root of [REPO_ROOT]) {
-        const sourcePath = path.join(root, relativePath);
-        const { model, diagnostics } = parseAndValidatePlaybook({
-          sourcePath: relativePath,
-          source: readFileSync(sourcePath, "utf8"),
-        });
-
-        expect(diagnostics.filter((diagnostic) => diagnostic.severity === "error"), sourcePath).toEqual([]);
-        expect(model.runnable, sourcePath).toBe(true);
-        expect(model.identity.fileForm, sourcePath).toBe("playbook-suffix");
-        const persona = relativePath.split("/").at(-2);
-        const slug = path.basename(relativePath, ".playbook.md");
-        expect(model.identity.canonicalRef, sourcePath).toBe(`${persona}/${slug}`);
-      }
-    }
-  });
-
   function collectPlaybookPaths(instanceRoot: string): string[] {
     const playbooksRoot = path.join(instanceRoot, "docs", "assets", "playbooks");
     const playbookPaths: string[] = [];
+    if (!existsSync(playbooksRoot)) return playbookPaths;
     for (const persona of readdirSync(playbooksRoot)) {
       const personaDir = path.join(playbooksRoot, persona);
       if (!statSync(personaDir).isDirectory()) {
@@ -867,27 +846,8 @@ describe("guide generation routing contract", () => {
     return playbookPaths;
   }
 
-  function expectZeroPlaybookErrors(instanceRoot: string): void {
-    const playbookPaths = collectPlaybookPaths(instanceRoot);
-    expect(playbookPaths.length).toBeGreaterThan(0);
-    for (const playbookPath of playbookPaths) {
-      const relativePath = path.relative(instanceRoot, playbookPath);
-      const { model, diagnostics } = parseAndValidatePlaybook({
-        sourcePath: relativePath.split(path.sep).join("/"),
-        source: readFileSync(playbookPath, "utf8"),
-      });
-
-      expect(diagnostics.filter((diagnostic) => diagnostic.severity === "error"), playbookPath).toEqual([]);
-      expect(model.runnable, playbookPath).toBe(true);
-    }
-  }
-
   test("the shipped template has no default Playbooks", () => {
     expect(collectPlaybookPaths(path.join(REPO_ROOT, "packages", "docs", "template"))).toEqual([]);
-  });
-
-  test("every dogfood-instance playbook validates with zero errors", () => {
-    expectZeroPlaybookErrors(REPO_ROOT);
   });
 });
 

@@ -1,5 +1,3 @@
-import { mkdirSync, writeFileSync } from "node:fs";
-import path from "node:path";
 import { afterEach, describe, expect, test, vi } from "vitest";
 import { runCli } from "../src/cli";
 import { createMakeDocsMcpServer } from "../src/mcp/server";
@@ -8,13 +6,6 @@ import {
   callMakeDocsMcpTool,
 } from "../src/mcp/tools";
 import { cleanupTempDir, createTempDir } from "./helpers";
-
-function writeFile(root: string, relativePath: string, content: string): string {
-  const absolutePath = path.join(root, relativePath);
-  mkdirSync(path.dirname(absolutePath), { recursive: true });
-  writeFileSync(absolutePath, content, "utf8");
-  return absolutePath;
-}
 
 describe("make-docs MCP runtime", () => {
   const tempRoots: string[] = [];
@@ -26,7 +17,7 @@ describe("make-docs MCP runtime", () => {
     }
   });
 
-  test("declares a shipped MCP tool surface (6 hand-defined + 43 derived)", () => {
+  test("declares a shipped MCP tool surface (6 hand-defined + 25 derived)", () => {
     expect(createMakeDocsMcpServer()).toBeDefined();
     expect(MAKE_DOCS_MCP_TOOLS.map((tool) => tool.name)).toEqual([
       // Hand-defined non-operation tools.
@@ -37,26 +28,6 @@ describe("make-docs MCP runtime", () => {
       "make_docs_compatibility_classify",
       "make_docs_install_plan",
       // Derived from the operation registry (R-REG-2, R-MIG-3).
-      "make_docs_playbook_validate",
-      "make_docs_playbook_catalog",
-      "make_docs_playbook_resolve",
-      "make_docs_playbook_capabilities",
-      "make_docs_playbook_start",
-      "make_docs_playbook_invoke",
-      "make_docs_playbook_status",
-      "make_docs_playbook_next",
-      "make_docs_playbook_advance",
-      "make_docs_playbook_gate",
-      "make_docs_playbook_resume",
-      "make_docs_playbook_close",
-      "make_docs_playbook_run_export",
-      "make_docs_playbook_run_import",
-      "make_docs_package_plan",
-      "make_docs_package_surface_resolve",
-      "make_docs_package_write",
-      // W18 R12 P3 (R-GRAM-3): the appended `package.ship` composite derives
-      // to MCP exactly like every other registry operation.
-      "make_docs_package_ship",
       "make_docs_prd_authority_validate",
       "make_docs_project_surface_ensure",
       "make_docs_project_path_hygiene_validate",
@@ -154,120 +125,22 @@ describe("make-docs MCP runtime", () => {
     expect(result.actions.map((action) => action.relativePath)).toContain("AGENTS.md");
   });
 
-  test("delegates playbook MCP tools to operation-domain functions", async () => {
-    const root = createTempDir("make-docs-mcp-playbooks-");
-    tempRoots.push(root);
-    writeFile(
-      root,
-      ".make-docs/config.yaml",
-      [
-        "harnessCapabilities:",
-        "  - harness: codex",
-        "    reviewStatus: reviewed",
-        "    capabilities:",
-        "      goal_managed_execution: true",
-        "",
-      ].join("\n"),
-    );
-    writeFile(
-      root,
-      "docs/assets/playbooks/user/use-system.md",
-      [
-        "---",
-        "title: Use System",
-        "kind: playbook",
-        "status: accepted",
-        "persona: user",
-        "stack: run",
-        "summary: Use the installed system.",
-        "---",
-        "",
-        "# Use System",
-        "",
-        "## Purpose",
-        "",
-        "Use this playbook when the matching workflow goal is active.",
-        "",
-        "## Inputs and Authority",
-        "",
-        "- User request.",
-        "- Repo-local Make Docs contracts.",
-        "",
-        "## Procedure",
-        "",
-        "1. Resolve the playbook.",
-        "2. Follow the documented steps in order.",
-        "",
-        "## Gates and Decisions",
-        "",
-        "- Stop when user review is required.",
-        "",
-        "## Assists",
-        "",
-        "- CLI, MCP, plugin, subagent, or skill assists are optional unless the playbook says otherwise.",
-        "",
-        "## Outputs and Handoff",
-        "",
-        "- Record the expected output or handoff artifact.",
-        "",
-        "## Validation",
-        "",
-        "- Confirm the workflow completed or report why it stopped.",
-        "",
-      ].join("\n"),
-    );
-
-    const catalog = await callMakeDocsMcpTool("make_docs_playbook_catalog", {
-      repoRoot: root,
-    });
-    const resolution = await callMakeDocsMcpTool("make_docs_playbook_resolve", {
-      repoRoot: root,
-      ref: "user/use-system",
-      requestedStack: "run",
-    });
-    const capabilities = await callMakeDocsMcpTool("make_docs_playbook_capabilities", {
-      repoRoot: root,
-      harness: "codex",
-      requiredCapabilities: ["goal_managed_execution"],
-    });
-
-    expect(catalog.result).toEqual(
-      expect.objectContaining({
-        entries: [
-          expect.objectContaining({ ref: "user/use-system", stack: "run" }),
-        ],
-      }),
-    );
-    expect(resolution.result).toEqual(
-      expect.objectContaining({
-        mode: "qualified-ref",
-        entry: expect.objectContaining({ ref: "user/use-system" }),
-      }),
-    );
-    expect(capabilities.result).toEqual(
-      expect.objectContaining({
-        status: "ready",
-        satisfiedRequired: ["goal_managed_execution"],
-      }),
-    );
-  });
-
-  test("requires explicit approval before writing playbook run state through MCP", async () => {
+  test("requires explicit approval before starting a lifecycle run through MCP", async () => {
     await expect(
-      callMakeDocsMcpTool("make_docs_playbook_start", {
+      callMakeDocsMcpTool("make_docs_lifecycle_start", {
         repoRoot: ".",
-        ref: "user/use-system",
-        harness: "codex",
+        lifecycleStage: "implementation",
       }),
     ).rejects.toThrow("mutates state and requires write permission");
   });
 
-  test("requires explicit approval before invoking playbook runs through MCP", async () => {
+  test("requires explicit approval before changing a lifecycle checkpoint through MCP", async () => {
     await expect(
-      callMakeDocsMcpTool("make_docs_playbook_invoke", {
+      callMakeDocsMcpTool("make_docs_lifecycle_checkpoint", {
         repoRoot: ".",
-        ref: "user/use-system",
-        harness: "codex",
+        runId: "test-run",
+        expectedVersion: 1,
+        checkpoint: "Review complete",
       }),
     ).rejects.toThrow("mutates state and requires write permission");
   });

@@ -110,7 +110,6 @@ personas:
           goal_managed_execution: true,
           long_running_runs: true,
           resume_after_interrupt: true,
-          parallel_playbook_runs: false,
           subagent_delegation: false,
           user_gate_prompts: true,
         },
@@ -289,47 +288,6 @@ harnessNames:
         keyPath: "personas[1].slug",
       }),
     );
-  });
-
-  // W18 R12 P3 (PRD 41 R-FLAG-2): the packaging.preconditions block.
-  test("accepts a packaging preconditions block and rejects unknown states", () => {
-    const targetDir = createTempDir();
-    writeConfig(
-      targetDir,
-      `packaging:
-  preconditions:
-    harness-supported: satisfied
-    project-trusted: unknown
-`,
-    );
-
-    const loaded = loadMakeDocsConfig(targetDir);
-    expect(loaded.valid).toBe(true);
-    expect(loaded.config.packaging.preconditions).toEqual({
-      "harness-supported": "satisfied",
-      "project-trusted": "unknown",
-    });
-
-    writeConfig(
-      targetDir,
-      `packaging:
-  preconditions:
-    harness-supported: definitely
-  extras: true
-`,
-    );
-    const invalid = loadMakeDocsConfig(targetDir);
-    expect(invalid.valid).toBe(false);
-    expect(invalid.diagnostics).toEqual([
-      expect.objectContaining({
-        code: "unknown-key",
-        keyPath: "packaging.extras",
-      }),
-      expect.objectContaining({
-        code: "invalid-type",
-        keyPath: "packaging.preconditions.harness-supported",
-      }),
-    ]);
   });
 
   test("rejects invalid harness capability ids and review statuses", () => {

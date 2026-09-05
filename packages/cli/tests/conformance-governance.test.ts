@@ -30,14 +30,10 @@ import {
   SUPPORT_CLAIM_WORDING_RULE,
   SUPPORT_CLAIM_WORDING_RULE_CORE,
   bindConformanceSupportTuple,
-  capSupportStatusForConformanceRegistry,
   conformanceResultRecordRelativePath,
   conformanceTupleKey,
   deriveSupportClaimStrength,
-  derivePackageSupportStatusCeilingFromRegistry,
   listCommittedResultRecordClaimUseErrors,
-  listFirstPartyDescriptorPlacementTuples,
-  listPackagingSupportRegistryAgreementErrors,
   listSupportClaimGovernanceErrors,
   loadConformanceTupleRegistry,
   loadPackagingConformanceScenarioSpecs,
@@ -50,7 +46,7 @@ import {
   type ConformanceTupleRegistryEntry,
   type PackagingConformanceResultRecord,
 } from "../src/conformance";
-import { bindPackageSupportTuple } from "../src/operations/playbook-packaging/support-binding";
+
 import { TEMPLATE_ROOT } from "../src/utils";
 import { cleanupTempDir, createTempDir } from "./helpers";
 
@@ -58,7 +54,7 @@ const REPO_ROOT = path.resolve(TEMPLATE_ROOT, "..", "..", "..");
 
 function codexPluginTuple(): ConformanceSupportTuple {
   return bindConformanceSupportTuple({
-    claim: bindPackageSupportTuple({
+    claim: bindTestClaim({
       target: { harness: "codex", outputKind: "plugin", surface: "native", scope: "project" },
     }),
     generatedOutputKind: "generated-plugin",
@@ -68,7 +64,7 @@ function codexPluginTuple(): ConformanceSupportTuple {
 function recordedRun(overrides: Partial<ConformanceRecordedRun> = {}): ConformanceRecordedRun {
   return {
     runId: "run-0001",
-    scenario: "packaging/plugin-marketplace-install",
+    scenario: "packaging/unit-evidence-fixture",
     runDate: "2026-07-04",
     verdict: "pass",
     caveats: [],
@@ -103,7 +99,7 @@ function resultRecordFixture(
   return validatePackagingConformanceResultRecord({
     schemaVersion: "conformance.result.v1",
     resultId: "run-0001",
-    scenarioId: "packaging/plugin-marketplace-install",
+    scenarioId: "packaging/unit-evidence-fixture",
     scenarioVersion: "1.0.0",
     runDate: "2026-07-04",
     makeDocsVersion: "0.0.0-test",
@@ -257,7 +253,7 @@ describe("R-GOV-1 wording derivation: the single claim-rendering seam (t1, t2)",
       const runs = writeRecords(root, [resultRecordFixture({ reviewerStatus: "unreviewed" })]);
       const boundTuple: ConformanceSupportTuple = {
         ...codexPluginTuple(),
-        scenario: "packaging/plugin-marketplace-install",
+        scenario: "packaging/unit-evidence-fixture",
         modelOrProvider: "anthropic",
         runtime: "codex-cli",
       };
@@ -289,7 +285,7 @@ describe("R-GOV-1 wording derivation: the single claim-rendering seam (t1, t2)",
       ]);
       const boundTuple: ConformanceSupportTuple = {
         ...codexPluginTuple(),
-        scenario: "packaging/plugin-marketplace-install",
+        scenario: "packaging/unit-evidence-fixture",
         modelOrProvider: "anthropic",
         runtime: "codex-cli",
       };
@@ -303,7 +299,7 @@ describe("R-GOV-1 wording derivation: the single claim-rendering seam (t1, t2)",
       expect(claim.wording).toContain(
         `Conformance-validated for exactly this tuple (\`${conformanceTupleKey(boundTuple)}\`)`,
       );
-      expect(claim.wording).toContain("packaging/plugin-marketplace-install");
+      expect(claim.wording).toContain("packaging/unit-evidence-fixture");
       expect(claim.wording).toContain("install-discover-invoke-uninstall");
       // Every caveat rides the wording itself, never a footnote elsewhere.
       expect(claim.caveats).toEqual(caveats);
@@ -331,7 +327,7 @@ describe("R-GOV-1 wording derivation: the single claim-rendering seam (t1, t2)",
       ]);
       const boundTuple: ConformanceSupportTuple = {
         ...codexPluginTuple(),
-        scenario: "packaging/plugin-marketplace-install",
+        scenario: "packaging/unit-evidence-fixture",
         modelOrProvider: "anthropic",
         runtime: "codex-cli",
       };
@@ -344,104 +340,6 @@ describe("R-GOV-1 wording derivation: the single claim-rendering seam (t1, t2)",
     } finally {
       cleanupTempDir(root);
     }
-  });
-});
-
-describe("mechanical promotion for the W18 R5..R8 provisional claims (t4, t5)", () => {
-  const registry = loadConformanceTupleRegistry({ repoRoot: REPO_ROOT });
-
-  test("the committed registry wires every first-party lineage claim to its promotion path", () => {
-    expect(listPackagingSupportRegistryAgreementErrors({ registry })).toEqual([]);
-    // The descriptor placements and the registry are the same twenty claims.
-    expect(listFirstPartyDescriptorPlacementTuples()).toHaveLength(registry.tuples.length);
-  });
-
-  test("the registry ceiling holds every claim at provisional until its exact tuple advances", () => {
-    for (const entry of registry.tuples) {
-      // No tuple is conformance-validated today, so no claim may read validated.
-      expect(derivePackageSupportStatusCeilingFromRegistry(entry), entry.id).toBe("provisional");
-      expect(capSupportStatusForConformanceRegistry("validated", entry), entry.id).toBe(
-        "provisional",
-      );
-      // Non-validated statuses pass through the cap untouched.
-      expect(capSupportStatusForConformanceRegistry("provisional", entry), entry.id).toBe(
-        "provisional",
-      );
-      expect(capSupportStatusForConformanceRegistry("unsupported", entry), entry.id).toBe(
-        "unsupported",
-      );
-    }
-    // An unregistered tuple has no promotion path at all.
-    expect(derivePackageSupportStatusCeilingFromRegistry(null)).toBe("provisional");
-    expect(capSupportStatusForConformanceRegistry("validated", null)).toBe("provisional");
-  });
-
-  test("a qualifying recorded run advances the exact tuple, flips its ceiling, and stales every claim surface marker", () => {
-    const specs = loadPackagingConformanceScenarioSpecs({ repoRoot: REPO_ROOT });
-    const spec = specs.find((s) => s.scenarioId === "packaging/plugin-marketplace-install")!;
-    const entry = registry.tuples.find((e) => e.id === "codex-plugin-native-project")!;
-    const record = resultRecordFixture({ resultId: "run-promotion-fixture" });
-    const advanced = recordConformanceRunOnRegistryEntry({
-      entry,
-      spec,
-      record,
-      recordRef: "conformance/results/codex/run-promotion-fixture.json",
-    });
-    // The exact tuple advances and its wording ceiling advances with it —
-    // and ONLY this tuple: every other entry's ceiling is untouched.
-    expect(advanced.status).toBe("conformance-validated");
-    expect(derivePackageSupportStatusCeilingFromRegistry(advanced)).toBe("validated");
-    expect(capSupportStatusForConformanceRegistry("validated", advanced)).toBe("validated");
-    // The state marker every claim surface carries goes stale, so the
-    // governance check forces a wording review on the same change (t4).
-    const advancedRegistry = {
-      tuples: registry.tuples.map((e) => (e.id === entry.id ? advanced : e)),
-    };
-    expect(renderSupportClaimStateMarker(advancedRegistry)).not.toBe(
-      renderSupportClaimStateMarker(registry),
-    );
-    const errors = listSupportClaimGovernanceErrors({
-      registry: advancedRegistry,
-      repoRoot: REPO_ROOT,
-    });
-    const staleErrors = errors.filter((error) => error.includes("stale support-claim-state"));
-    expect(staleErrors).toHaveLength(CONFORMANCE_CLAIM_SURFACES.length);
-  });
-
-  test("blocked and future-harness absence stays visible: Pi entries report absence rather than implying coverage", () => {
-    const piEntries = registry.tuples.filter((entry) => entry.tuple.harness === "pi");
-    expect(piEntries.length).toBeGreaterThan(0);
-    for (const entry of piEntries) {
-      expect(entry.status, entry.id).not.toBe("conformance-validated");
-      expect(entry.plannedScenarios, entry.id).toEqual([]);
-      expect(entry.notes.join(" "), entry.id).toContain("R-SCEN-2");
-    }
-    // Dropping an entry's notes makes the absence silent — and flagged.
-    const silenced = {
-      tuples: registry.tuples.map((entry) =>
-        entry.id === "pi-plugin-native-global" ? { ...entry, notes: [] } : entry,
-      ),
-    };
-    expect(
-      listPackagingSupportRegistryAgreementErrors({ registry: silenced }).join("\n"),
-    ).toContain("R-SCEN-2");
-  });
-
-  test("an unanchored registry entry or a placement without an entry breaks the wiring loudly", () => {
-    const rogue = entryFixture({
-      id: "rogue-harness-entry",
-      tuple: { ...codexPluginTuple(), harness: "rogue-harness" },
-    });
-    expect(
-      listPackagingSupportRegistryAgreementErrors({
-        registry: { tuples: [...registry.tuples, rogue] },
-      }).join("\n"),
-    ).toContain("anchors to no first-party descriptor placement");
-    expect(
-      listPackagingSupportRegistryAgreementErrors({
-        registry: { tuples: registry.tuples.slice(1) },
-      }).join("\n"),
-    ).toContain("has no registry entry");
   });
 });
 
@@ -475,7 +373,7 @@ describe("claim surfaces: the wording rule encoded where support language lives 
       const marker = renderSupportClaimStateMarker({ tuples: [entryFixture()] });
       const compliant =
         `${marker}\nSupport wording ${SUPPORT_CLAIM_WORDING_RULE_CORE} (see tuple-registry.json).\n`;
-      const [readme, userGuide, devGuide, labGuide] = CONFORMANCE_CLAIM_SURFACES;
+      const [readme, labGuide] = CONFORMANCE_CLAIM_SURFACES;
       const write = (surface: { relativePath: string }, content: string) => {
         const absolute = path.join(root, surface.relativePath);
         mkdirSync(path.dirname(absolute), { recursive: true });
@@ -484,14 +382,13 @@ describe("claim surfaces: the wording rule encoded where support language lives 
       write(readme!, compliant);
       // Stale marker: asserts a count the registry does not derive.
       write(
-        userGuide!,
+        readme!,
         `<!-- support-claim-state: conformance-validated=5/20 -->\n` +
           `Support wording ${SUPPORT_CLAIM_WORDING_RULE_CORE} (see tuple-registry.json).\n`,
       );
       // Missing rule core.
-      write(devGuide!, `${marker}\nSee tuple-registry.json.\n`);
       // Missing registry reference.
-      write(labGuide!, `${marker}\nSupport wording ${SUPPORT_CLAIM_WORDING_RULE_CORE}.\n`);
+      write(labGuide!, `${marker}\nNo support wording or registry reference.\n`);
       const errors = listSupportClaimGovernanceErrors({
         registry: { tuples: [entryFixture()] },
         repoRoot: root,
@@ -570,19 +467,19 @@ describe("the by-target result-record layout (PRD 43 R-ORG-2; W18 R13 P1 t7)", (
       conformanceResultRecordRelativePath({
         harness: "codex",
         runDate: "2026-07-06",
-        scenarioId: "packaging/plugin-marketplace-install",
+        scenarioId: "packaging/unit-evidence-fixture",
         sequence: 1,
       }),
-    ).toBe("conformance/results/codex/2026-07-06-plugin-marketplace-install-001.json");
+    ).toBe("conformance/results/codex/2026-07-06-unit-evidence-fixture-001.json");
     // The outcome slug never carries the domain or a harness token.
     expect(
       conformanceResultRecordRelativePath({
         harness: "claude-code",
         runDate: "2026-07-06",
-        scenarioId: "packaging/uninstall-backup-cleanliness",
+        scenarioId: "packaging/unit-removal-fixture",
         sequence: 12,
       }),
-    ).toBe("conformance/results/claude-code/2026-07-06-uninstall-backup-cleanliness-012.json");
+    ).toBe("conformance/results/claude-code/2026-07-06-unit-removal-fixture-012.json");
     expect(() =>
       conformanceResultRecordRelativePath({
         harness: "codex",
@@ -595,7 +492,7 @@ describe("the by-target result-record layout (PRD 43 R-ORG-2; W18 R13 P1 t7)", (
       conformanceResultRecordRelativePath({
         harness: "codex",
         runDate: "2026-07-06",
-        scenarioId: "packaging/plugin-marketplace-install",
+        scenarioId: "packaging/unit-evidence-fixture",
         sequence: 0,
       }),
     ).toThrow("positive integer");
@@ -674,3 +571,7 @@ describe("committed result-record claim-use gates (t2, t3)", () => {
     }
   });
 });
+
+function bindTestClaim(input: { target: Omit<ConformanceSupportTuple, "scenario" | "modelOrProvider" | "runtime" | "generatedOutputKind" | "surface"> & { surface: "native" | "agents-standard" | "auto" } }) {
+  return { ...input.target, scenario: null, modelOrProvider: null, runtime: null };
+}

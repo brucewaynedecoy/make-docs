@@ -1,97 +1,19 @@
+import { listLabTargetErrors } from "./lab-target";
 /**
- * The per-target conformance execution kit (PRD 43 R-KIT-1..3, R-INST-1..2,
- * R-PROMPT-1, R-DISC-1, R-HOME-1..2; PRD 44 R-EXEC-1..3, R-NAME-1..2;
- * W18 R13 P2 t2-t9).
- *
- * A kit is the executable projection of one harness-agnostic scenario
- * definition for one execution target, generated on demand into a disposable
- * lab-session root OUTSIDE the repository with the fixed R-KIT-2 layout:
- * `<session-root>/kit/` (prompts, instruments, manifest, rendered step
- * script), `<session-root>/workspace/` (the materialized fixture project the
- * target operates in), and `<session-root>/evidence/` (instrument outputs
- * and transcripts). Nothing a session produces is ever written under the
- * repository; discarding the session root discards every session artifact.
- *
- * Executable-by-construction (R-KIT-3, closing register item D-023): every
- * command the kit emits is projected against the REAL command surface before
- * any session starts — `make-docs run` commands through the registry-derived
- * resolver, the authored CLI adapters, and each operation's input schema
- * (`adaptRunCliArgv`), and other `make-docs` commands through the real CLI
- * parser (`validateMakeDocsCliArgv`). A definition that
- * cannot project to an accepted command sequence fails generation
- * closed, naming the definition, target, and unprojectable element. The
- * three D-023 defect classes are structurally impossible in generated
- * output: missing support-evidence refs and missing `--yes` confirmations
- * fail the static projection. Workspace materialization supplies the declared
- * precondition attestations and activates migration quiescence. P6 does not
- * invoke the frozen Playbook package operations after that boundary.
- *
- * Kit generation home (R-HOME-1): this module is maintainer lab tooling
- * invoked through an npm script (`conformance:kit` ->
- * `packages/cli/scripts/conformance-kit.ts`). It is deliberately NOT
- * registered in the operation registry and NOT exposed on the shipped CLI
- * command tree or MCP surface (both derive from the registry, so the
- * registry assertion in {@link listConformanceLabShippedSurfaceViolations}
- * covers all three surfaces): shipping it would advertise a maintainer-lab
- * capability whose required assets R-TEST-3 structurally excludes from every
- * install — the D-022 category error repeated at the command level. The
- * W18 R11 parity rule is preserved vacuously; the revisit seam is recorded
- * on register item Q-022.
- *
- * Harness knowledge single home (R-HOME-2): everything harness-specific a
- * kit renders — version and launch commands, listing-capture forms, placement
- * roots, workspace conventions — comes from the harness capability
- * descriptor (including its lab-facing interrogation block). This module
- * carries NO table of harness facts; a target whose descriptor lacks the
- * interrogation knowledge a kit needs fails generation closed naming the
- * descriptor gap, never inventing the fact.
- *
- * Implementer decisions recorded here (W18 R13 P2):
- * - Setup-step absorption: the definition's leading no-bar-stage command
- *   steps (before the first bar-staged step) are the workspace-establishment
- *   steps; kit generation EXECUTES them to materialize `workspace/` — the
- *   committed step text is the single source, never re-transcribed into
- *   generator logic (the D-023 root cause was hand-transcription drift).
- *   `WORKSPACE=$(mktemp -d)` is replaced by the kit-owned workspace path;
- *   `make-docs` setup invocations run in-process through {@link runCli} with
- *   `--target` bound to the workspace; everything else runs through `bash`.
- * - Command steps carrying a `discover` or `invoke` bar stage have no
- *   instrument projection and fail generation closed; the current
- *   definitions drive those stages through harness actions, measured by the
- *   discover listing captures and the invoke probe scan.
- * - Instruments are self-contained Node scripts (`node:` builtins only, no
- *   third-party imports, no network modules, no clock, no randomness) that
- *   resolve the session root relative to their own location, so generated
- *   kits contain no absolute paths and equal inputs yield byte-identical
- *   kits (the determinism tests pin this).
- * - The invoke markers are derived from the definition's invoke assertions
- *   and its fixture Playbooks (the `MAKE-DOCS-CONFORMANCE-*` /
- *   `make-docs-conformance-*` spellings) — fixture facts, not harness facts,
- *   so R-HOME-2 is untouched; a definition whose invoke stage names no
- *   deterministic marker fails generation.
- * - No timestamps are minted here: the session id and date are caller
- *   inputs ({@link mintConformanceLabSessionId}), keeping generation
- *   deterministic for equal inputs.
- * - This module imports the CLI composition root (`src/cli.ts`) — the one
- *   declared exemption to the R-CORE-2 dependency-direction guard (see
- *   `tests/operation-dependency-direction.test.ts`): executable-by-
- *   construction requires the REAL parser and the real `setup` path, and a
- *   parallel reimplementation would be exactly the D-023 drift; the lab
- *   driver consumes the composition root the way the repository tests do,
- *   and never the other way around.
+ * Shared maintainer lab kit and deterministic instrument generation.
+ * P8 removes built-in packaging targets and refuses retired scenarios.
+ * Callers supply explicit lab target facts; no compiler or adapter is used.
+ * The real CLI parser remains the command authority. Evidence stays outside
+ * the repository and generation grants no support claim.
  */
 
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { runCli, validateMakeDocsCliArgv } from "../cli";
-import {
-  FIRST_PARTY_HARNESS_CAPABILITY_DESCRIPTORS,
-  computeHarnessContractDigest,
-  type HarnessCapabilityDescriptor,
-  type HarnessDescriptorVerificationStatus,
-  type HarnessLabInterrogation,
-} from "../operations/playbook-packaging";
+import { createHash } from "node:crypto";
+import type { ConformanceLabTarget, LabVerificationStatus, LabInterrogation } from "./lab-target";
+import { isRetiredConformanceScenario } from "./historical-contract";
 import { getOperation, listOperations } from "../operations/registry";
 import { OperationError } from "../operations/types";
 import { adaptRunCliArgv, listRunCliAdapters } from "../run/cli";
@@ -186,7 +108,7 @@ export interface ConformanceSessionManifest {
   generationInputs: {
     cliVersion: string;
     descriptorContractDigest: string;
-    descriptorVerificationStatus: HarnessDescriptorVerificationStatus;
+    descriptorVerificationStatus: LabVerificationStatus;
     targetParameters: Record<string, string>;
   };
   layout: { kit: "kit"; workspace: "workspace"; evidence: "evidence" };
@@ -222,7 +144,7 @@ export interface GenerateConformanceKitInput {
   /** ISO date used to mint the session id when `sessionId` is absent. */
   sessionDate?: string;
   /** Capability-descriptor override for tests and additive future harnesses. */
-  descriptors?: HarnessCapabilityDescriptor[];
+  descriptors?: ConformanceLabTarget[];
   /** Recorded in the manifest's generation inputs; derived from the repo when absent. */
   cliVersion?: string;
   /**
@@ -317,8 +239,6 @@ export function listMakeDocsInvocations(command: string): string[][] {
 
 interface ProjectedCommandStep {
   step: Extract<PackagingConformanceScenarioStep, { kind: "command" }>;
-  /** `make-docs run <path>` registry ids the step dispatches, in order. */
-  shipInvocationArgv: string[][];
 }
 
 /** The classified projection of one (definition, target) pair. */
@@ -326,8 +246,8 @@ export interface ConformanceKitProjection {
   spec: PackagingConformanceScenarioSpec;
   harness: string;
   binding: PackagingScenarioTargetBinding;
-  descriptor: HarnessCapabilityDescriptor;
-  interrogation: HarnessLabInterrogation;
+  descriptor: ConformanceLabTarget;
+  interrogation: LabInterrogation;
   /** Leading no-bar-stage command steps executed by generation. */
   setupSteps: Extract<PackagingConformanceScenarioStep, { kind: "command" }>[];
   /** Every step from the first bar-staged step on, in definition order. */
@@ -352,28 +272,13 @@ function projectionError(spec: PackagingConformanceScenarioSpec, harness: string
  * marker) plus registration-file directories. The descriptor — never a
  * kit-local table — carries every one of these paths (R-HOME-2).
  */
-export function listHarnessPlacementRoots(descriptor: HarnessCapabilityDescriptor): string[] {
-  const roots = new Set<string>();
-  for (const container of descriptor.containers) {
-    for (const placement of container.layout.placements) {
-      if (placement.scope !== "project") {
-        continue;
-      }
-      const marker = placement.pathTemplate.indexOf("{packageId}");
-      const prefix = marker === -1 ? placement.pathTemplate : placement.pathTemplate.slice(0, marker);
-      const root = prefix.replace(/\/+$/, "");
-      if (root.length > 0) {
-        roots.add(root);
-      }
-    }
-    for (const registrationFile of container.layout.registrationFiles) {
-      const dir = path.posix.dirname(registrationFile);
-      if (dir !== "." && dir.length > 0) {
-        roots.add(dir);
-      }
+export function listHarnessPlacementRoots(descriptor: ConformanceLabTarget): string[] {
+  for (const root of descriptor.placementRoots) {
+    if (!root || path.posix.isAbsolute(root) || root.split("/").includes("..") || root.includes("\\")) {
+      throw new OperationError("Lab placement roots must be workspace-relative paths.");
     }
   }
-  return [...roots].sort();
+  return [...new Set(descriptor.placementRoots)].sort();
 }
 
 const INVOKE_MARKER_PATTERNS = [/MAKE-DOCS-CONFORMANCE-[A-Z0-9-]+/g, /make-docs-conformance-[a-z0-9-]+/g];
@@ -436,19 +341,6 @@ function validateMakeDocsArgv(input: {
         `command step \`${step.run}\` projects to operation \`${adapted.operationId}\` but its input is rejected: ${issues}`,
       );
     }
-    // D-023 defect class 1: an install-stage packaging command without the
-    // support-evidence ref would hard-stop the planner mid-session.
-    if (
-      step.barStage === "install" &&
-      (adapted.operationId === "package.ship" || adapted.operationId === "package.plan") &&
-      (adapted.options.arrays["support-evidence-ref"] ?? []).length === 0
-    ) {
-      throw projectionError(
-        spec,
-        harness,
-        `install-stage command \`${step.run}\` carries no --support-evidence-ref; the planner hard-stops without one`,
-      );
-    }
     return { runOperationId: adapted.operationId };
   }
   try {
@@ -488,17 +380,22 @@ export function projectConformanceKit(input: {
   spec: PackagingConformanceScenarioSpec;
   harness: string;
   repoRoot?: string;
-  descriptors?: HarnessCapabilityDescriptor[];
+  descriptors?: ConformanceLabTarget[];
 }): ConformanceKitProjection {
   const { spec, harness } = input;
+  if (isRetiredConformanceScenario(spec.scenarioId)) {
+    throw projectionError(spec, harness, "this scenario is retired from current coverage; its source is historical only");
+  }
   const repoRoot = path.resolve(input.repoRoot ?? ".");
   const binding = getScenarioTargetBinding(spec, harness);
-  const descriptor = (input.descriptors ?? FIRST_PARTY_HARNESS_CAPABILITY_DESCRIPTORS).find(
+  const descriptor = (input.descriptors ?? []).find(
     (candidate) => candidate.harnessId === harness,
   );
   if (!descriptor) {
     throw projectionError(spec, harness, "no harness capability descriptor exists for the target");
   }
+  const targetErrors = listLabTargetErrors(descriptor);
+  if (targetErrors.length > 0) throw projectionError(spec, harness, targetErrors.join("; "));
   if (!descriptor.labInterrogation) {
     throw projectionError(
       spec,
@@ -538,17 +435,13 @@ export function projectConformanceKit(input: {
       continue;
     }
     const invocations = listMakeDocsInvocations(step.run);
-    const shipInvocationArgv: string[][] = [];
     for (const argv of invocations) {
-      const { runOperationId } = validateMakeDocsArgv({ argv, spec, harness, step, repoRoot });
-      if (runOperationId === "package.ship") {
-        shipInvocationArgv.push(argv);
-      }
+      validateMakeDocsArgv({ argv, spec, harness, step, repoRoot });
     }
     if (step.barStage === "install") {
-      installCommandSteps.push({ step, shipInvocationArgv });
+      installCommandSteps.push({ step });
     } else if (step.barStage === "uninstall") {
-      uninstallCommandSteps.push({ step, shipInvocationArgv });
+      uninstallCommandSteps.push({ step });
     } else if (step.barStage === "discover" || step.barStage === "invoke") {
       throw projectionError(
         spec,
@@ -592,7 +485,7 @@ export function projectConformanceKit(input: {
     throw projectionError(
       spec,
       harness,
-      "no deterministic invocation marker is derivable from the definition's invoke assertions or fixture Playbooks; the invoke stage cannot be instrumented (R-INST-1)",
+      "no deterministic invocation marker is derivable from the definition's invoke assertions or source fixtures; the invoke stage cannot be instrumented (R-INST-1)",
     );
   }
 
@@ -1336,7 +1229,7 @@ function buildSessionManifest(input: {
     registryTupleIds: [...binding.registryTupleIds],
     generationInputs: {
       cliVersion: input.cliVersion,
-      descriptorContractDigest: computeHarnessContractDigest(descriptor),
+      descriptorContractDigest: createHash("sha256").update(JSON.stringify(descriptor)).digest("hex"),
       descriptorVerificationStatus: descriptor.verification.status,
       targetParameters: { ...(binding.parameters ?? {}) },
     },
@@ -1606,7 +1499,7 @@ export async function generateFirstPassConformanceKitSuite(input: {
   harness?: string;
   repoRoot?: string;
   sessionDate?: string;
-  descriptors?: HarnessCapabilityDescriptor[];
+  descriptors?: ConformanceLabTarget[];
   cliVersion?: string;
   /** Distinguishes repeated same-day suites; flows into every session id (D-028). */
   disambiguator?: string;
@@ -1617,6 +1510,9 @@ export async function generateFirstPassConformanceKitSuite(input: {
   const harness = input.harness ?? REQUIRED_FIRST_PASS_TARGET;
   const specs = loadPackagingConformanceScenarioSpecs({ repoRoot });
   const requiredIds = Object.keys(REQUIRED_FIRST_PASS_SCENARIOS);
+  if (requiredIds.length === 0) {
+    throw new OperationError("The former first-pass packaging suite is retired. No current replacement suite is approved.");
+  }
   const kits: GeneratedConformanceKit[] = [];
   for (const scenarioId of requiredIds) {
     const spec = specs.find((candidate) => candidate.scenarioId === scenarioId);

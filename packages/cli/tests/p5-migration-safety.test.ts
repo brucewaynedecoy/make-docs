@@ -27,6 +27,7 @@ import {
   executeInstallPlanMigration,
   ImmutableMigrationCoordinator,
   MIGRATION_CHECKPOINTS,
+  LEGACY_COMPATIBILITY_OPERATION_IDS,
   MigrationSafetyError,
   releaseProjectMigrationLock,
   removeTrustedPythonPathHelper,
@@ -38,7 +39,7 @@ import type { CompatibilityClassification } from "../src/compatibility";
 import { createExecutionContext } from "../src/operations/context";
 import {
   invokeOperation,
-  listLegacyCompatibilityOperations,
+  getOperation,
   operationCliCommand,
 } from "../src/operations/registry";
 import { callMakeDocsMcpTool, deriveMcpToolName } from "../src/mcp/tools";
@@ -245,12 +246,13 @@ describe("W19 R1 P5 migration and safety fixtures", () => {
     expect(() => acquireProjectMigrationLock({ projectRoot: root })).toThrow("legacy writers are active");
     leave();
     const lock = acquireProjectMigrationLock({ projectRoot: root });
-    expect(listLegacyCompatibilityOperations()).toHaveLength(18);
+    expect(LEGACY_COMPATIBILITY_OPERATION_IDS).toHaveLength(18);
+    for (const id of LEGACY_COMPATIBILITY_OPERATION_IDS) expect(() => getOperation(id)).toThrow("Unknown operation");
     await expect(invokeOperation(
       "playbook.catalog",
       { repoRoot: root },
       createExecutionContext({ cwd: root }),
-    )).rejects.toMatchObject({ code: "legacy-quiesced" });
+    )).rejects.toThrow("Unknown operation");
     expect(existsSync(lock.lockPath)).toBe(true);
     releaseProjectMigrationLock(lock);
     expect(() => enterLegacyCompatibilityOperation({
@@ -338,7 +340,7 @@ describe("W19 R1 P5 migration and safety fixtures", () => {
     });
   });
 
-  it("fixture 9: runs fixed checkpoints through 10, stays monotonic, and locks 11 through 13", async () => {
+  it("fixture 9: runs fixed checkpoints through 11, stays monotonic, and locks 12 through 13", async () => {
     const product = await fixedProductFixture();
     const result = executeInstallPlanMigration({
       projectRoot: product.root,
@@ -351,7 +353,7 @@ describe("W19 R1 P5 migration and safety fixtures", () => {
     expect(result.migrationReceipts.map((receipt) => [receipt.checkpoint, receipt.status])).toEqual([
       [1, "completed"], [2, "completed"], [3, "completed"], [4, "completed"],
       [5, "completed"], [6, "completed"], [7, "completed"], [8, "completed"],
-      [9, "completed"], [10, "completed"],
+      [9, "completed"], [10, "completed"], [11, "completed"],
     ]);
     expect(existsSync(path.join(product.root, ".make-docs/manifest.json"))).toBe(true);
     expect(existsSync(path.join(product.root, ".make-docs/archive"))).toBe(false);
@@ -387,9 +389,9 @@ describe("W19 R1 P5 migration and safety fixtures", () => {
       status: "failed",
       code: "product-operation-unavailable",
     });
-    expect(coordinator.advance(11)).toMatchObject({ status: "blocked", code: "downstream-checkpoint-locked" });
+    expect(coordinator.advance(12)).toMatchObject({ status: "blocked", code: "downstream-checkpoint-locked" });
     expect(MIGRATION_CHECKPOINTS.slice(8).map((item) => item.state)).toEqual([
-      "implemented", "implemented", "locked", "locked", "locked",
+      "implemented", "implemented", "implemented", "locked", "locked",
     ]);
   });
 

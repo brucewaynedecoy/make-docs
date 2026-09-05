@@ -2,6 +2,18 @@ import { randomUUID } from "node:crypto";
 import os from "node:os";
 import { existsSync } from "node:fs";
 import path from "node:path";
+
+/** Trusted bytes of the shipped contract retired by W19 R1 P8; never a current resource. */
+export const RETIRED_PLAYBOOK_CONTRACT_PATH = ".make-docs/contracts/system/playbook-contract.md";
+export const RETIRED_PLAYBOOK_CONTRACT_HASH = "3f7a1e18bedfb129ebba712a035dd08be413059b7402a6b29951417c1902ee11";
+
+export function hasTrustedRetiredPlaybookContractOwnership(
+  entry: { hash?: string; sourceId?: string; ownershipClass?: string } | undefined,
+): boolean {
+  return Boolean(entry && entry.sourceId === `file:${RETIRED_PLAYBOOK_CONTRACT_PATH}` &&
+    entry.hash === RETIRED_PLAYBOOK_CONTRACT_HASH &&
+    (entry.ownershipClass === undefined || entry.ownershipClass === "managed-snapshot"));
+}
 import type {
   AgenticExposureMode,
   AgenticFileRole,
