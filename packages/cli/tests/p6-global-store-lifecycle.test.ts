@@ -249,6 +249,9 @@ describe.skipIf(!sqliteAvailable)("W19 R1 P6 global Store lifecycle candidate", 
       setupMayContinue: false,
       message: expect.stringContaining("could not be projected twice"),
     });
+    if (stopped.status !== "receipt-projection-failed") {
+      throw new Error("Expected the forced checkpoint receipt projection failure.");
+    }
     const committed = rawDatabase(path.join(root, "store.db"));
     try {
       expect(readUserVersion(committed)).toBe(2);

@@ -456,6 +456,9 @@ describe("W19 R1 P5 migration and safety fixtures", () => {
     ];
     expect(receipts.map((receipt) => receipt.status)).toEqual(["paused", "blocked", "completed"]);
     for (const receipt of receipts) {
+      if (receipt.status === "receipt-projection-failed") {
+        throw new Error("Expected a persisted checkpoint receipt, not a projection failure.");
+      }
       expect(receipt.claims).toEqual({
         validated: false,
         accepted: false,
