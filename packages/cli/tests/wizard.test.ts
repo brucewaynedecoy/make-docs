@@ -410,6 +410,10 @@ describe("selection wizard", () => {
         description:
           "Audit and clean Markdown docs formatting drift, hard-wrapped prose, list spacing, and document-contract issues.",
       },
+      {
+        name: "naive-uat",
+        description: "Thin CLI access to the shared Unassisted Goal Testing workflow.",
+      },
     ]);
     expect(result?.skillScope).toBe("global");
     expect(result?.selectedSkills).toEqual(["decompose-codebase"]);

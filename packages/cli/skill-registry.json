@@ -86,6 +86,17 @@
         "label": "make-docs canonical purpose",
         "manifestId": "make-docs.first-party"
       }
+    },
+    {
+      "id": "naive-uat",
+      "label": "Unassisted Goal Testing",
+      "description": "Access the shared Unassisted Goal Testing workflow.",
+      "order": 55,
+      "provenance": {
+        "kind": "first-party",
+        "label": "make-docs canonical purpose",
+        "manifestId": "make-docs.first-party"
+      }
     }
   ],
   "skills": [
@@ -234,6 +245,27 @@
           "installPath": "assets/templates/rebuild-backlog-phase.md"
         }
       ]
+    },
+    {
+      "name": "naive-uat",
+      "displayName": "Unassisted Goal Testing",
+      "source": "local:template/.make-docs/agentics/skills/naive-uat",
+      "entryPoint": "SKILL.md",
+      "installName": "naive-uat",
+      "description": "Thin CLI access to the shared Unassisted Goal Testing workflow.",
+      "purposes": [
+        "naive-uat"
+      ],
+      "supportedHarnesses": [
+        "claude-code",
+        "codex"
+      ],
+      "provenance": {
+        "kind": "first-party",
+        "label": "make-docs bundled local Skill",
+        "manifestId": "make-docs.first-party"
+      },
+      "assets": []
     }
   ]
 }

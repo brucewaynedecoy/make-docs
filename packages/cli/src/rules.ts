@@ -147,6 +147,7 @@ const ALWAYS_REFERENCE_PATHS = [
   ".make-docs/system/contracts/system-resource-contract.md",
   ".make-docs/system/references/path-and-link-hygiene.md",
   ".make-docs/system/references/naive-uat-workflow.md",
+  ".make-docs/system/references/naive-uat-validation.md",
   ".make-docs/system-resources.catalog.json",
   ".make-docs/system-resources.schema.json",
 ];

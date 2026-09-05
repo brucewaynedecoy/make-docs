@@ -125,12 +125,15 @@ const EXPECTED_SKILL_PATHS = [
   ".make-docs/agentics/skills/decompose-codebase/SKILL.md",
   ".make-docs/agentics/skills/decompose-codebase/references/mcp-playbook.md",
   ".make-docs/agentics/skills/decompose-codebase/assets/templates/decomposition-plan.md",
+  ".make-docs/agentics/skills/naive-uat/SKILL.md",
   ".claude/skills/archive-docs",
   ".claude/skills/cleanup-docs",
   ".claude/skills/decompose-codebase",
+  ".claude/skills/naive-uat",
   ".agents/skills/archive-docs",
   ".agents/skills/cleanup-docs",
   ".agents/skills/decompose-codebase",
+  ".agents/skills/naive-uat",
 ];
 
 // The four lifecycle skills were withdrawn from the shipped registry by the
@@ -169,6 +172,7 @@ const EXPECTED_ALL_SKILLS = [
   "archive-docs",
   "cleanup-docs",
   "decompose-codebase",
+  "naive-uat",
 ];
 
 const LEGACY_SKILL_PATHS = [
@@ -1273,6 +1277,8 @@ function rewritePackedSkillRegistry(packageRoot, baseUrl) {
 }
 
 function rewriteSkillSource(source, baseUrl) {
+  // Keep the P7 local bundle in the packed resolver path, without a fixture URL.
+  if (source === "local:template/.make-docs/agentics/skills/naive-uat") return source;
   const normalizedSource = source.startsWith("url:") ? source.slice("url:".length) : source;
   const marker = "/packages/skills/";
   const markerIndex = normalizedSource.indexOf(marker);

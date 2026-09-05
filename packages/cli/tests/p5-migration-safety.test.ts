@@ -338,7 +338,7 @@ describe("W19 R1 P5 migration and safety fixtures", () => {
     });
   });
 
-  it("fixture 9: runs fixed checkpoints through 9, stays monotonic, and locks 10 through 13", async () => {
+  it("fixture 9: runs fixed checkpoints through 10, stays monotonic, and locks 11 through 13", async () => {
     const product = await fixedProductFixture();
     const result = executeInstallPlanMigration({
       projectRoot: product.root,
@@ -351,7 +351,7 @@ describe("W19 R1 P5 migration and safety fixtures", () => {
     expect(result.migrationReceipts.map((receipt) => [receipt.checkpoint, receipt.status])).toEqual([
       [1, "completed"], [2, "completed"], [3, "completed"], [4, "completed"],
       [5, "completed"], [6, "completed"], [7, "completed"], [8, "completed"],
-      [9, "completed"],
+      [9, "completed"], [10, "completed"],
     ]);
     expect(existsSync(path.join(product.root, ".make-docs/manifest.json"))).toBe(true);
     expect(existsSync(path.join(product.root, ".make-docs/archive"))).toBe(false);
@@ -387,9 +387,9 @@ describe("W19 R1 P5 migration and safety fixtures", () => {
       status: "failed",
       code: "product-operation-unavailable",
     });
-    expect(coordinator.advance(10)).toMatchObject({ status: "blocked", code: "downstream-checkpoint-locked" });
+    expect(coordinator.advance(11)).toMatchObject({ status: "blocked", code: "downstream-checkpoint-locked" });
     expect(MIGRATION_CHECKPOINTS.slice(8).map((item) => item.state)).toEqual([
-      "implemented", "locked", "locked", "locked", "locked",
+      "implemented", "implemented", "locked", "locked", "locked",
     ]);
   });
 

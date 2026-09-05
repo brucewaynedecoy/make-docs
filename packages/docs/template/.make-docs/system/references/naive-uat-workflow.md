@@ -58,3 +58,7 @@ Stop the run when:
 - the accepted effort budget ends.
 
 Record `blocked` when the product or environment prevents a valid attempt. Record `invalid-run` when setup, coaching, private knowledge, or lost evidence prevents a conclusion.
+
+## Typed Helper Access
+
+For input fields and read-only CLI/MCP validation, read `make-docs://system/reference/naive-uat-validation.md`. The helpers check records and references. They do not make qualification or human-experience judgments.

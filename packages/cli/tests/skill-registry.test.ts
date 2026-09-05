@@ -61,16 +61,19 @@ describe("skill registry", () => {
       "workflow-execution",
       "plan-creation",
       "migration-support",
+      "naive-uat",
     ]);
     expect(registry.skills.map((skill) => skill.name)).toEqual([
       "archive-docs",
       "cleanup-docs",
       "decompose-codebase",
+      "naive-uat",
     ]);
     expect(getSkillRegistryNames(registry)).toEqual([
       "archive-docs",
       "cleanup-docs",
       "decompose-codebase",
+      "naive-uat",
     ]);
     expect(
       registry.skills.every((skill) => !("required" in skill)),

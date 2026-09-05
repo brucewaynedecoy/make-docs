@@ -156,6 +156,7 @@ describe("skills-only UI", () => {
       "archive-docs",
       "decompose-codebase",
       "cleanup-docs",
+      "naive-uat",
     ]);
     expect(renderer.seenSkillStates[0]?.selectedSkills).toEqual([
       "archive-docs",

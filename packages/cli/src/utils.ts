@@ -30,7 +30,7 @@ export function findPackageRoot(fromUrl: string): string {
   return current;
 }
 
-function resolveTemplateRoot(packageRoot: string): string {
+export function resolveTemplateRoot(packageRoot: string): string {
   const sibling = path.resolve(packageRoot, "..", "docs", "template");
   if (existsSync(sibling)) {
     return sibling;

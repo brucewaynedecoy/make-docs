@@ -369,7 +369,7 @@ describe.skipIf(!sqliteAvailable)("W19 R1 P6 global Store lifecycle candidate", 
       ).toBeUndefined();
     });
     expect(MIGRATION_CHECKPOINTS.find((item) => item.checkpoint === 9)?.state).toBe("implemented");
-    expect(MIGRATION_CHECKPOINTS.find((item) => item.checkpoint === 10)?.state).toBe("locked");
+    expect(MIGRATION_CHECKPOINTS.find((item) => item.checkpoint === 10)?.state).toBe("implemented");
   });
 
   test("7: a successful mutation returns only the exact minimal receipt fields", () => {

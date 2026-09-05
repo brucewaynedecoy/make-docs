@@ -686,6 +686,21 @@ const RUN_CLI_ADAPTERS: Record<string, RunCliAdapter> = {
   }),
 };
 
+function parseUatPayload(raw: string): Record<string, unknown> {
+  const value = parseJsonPayload(raw, "payload-json");
+  if (value === null || typeof value !== "object" || Array.isArray(value)) throw new OperationError("UAT --payload-json must contain an object.");
+  return value;
+}
+
+// UAT uses the shared typed payload; transports do not own validation policy.
+for (const operation of listOperations().filter((entry) => entry.domain === "uat")) {
+  RUN_CLI_ADAPTERS[operation.id] = (options) => ({
+    input: options.values["payload-json"] === undefined
+      ? { ...optionalPathValue(options, "target-root", "targetRoot"), ...(options.values.persona === undefined ? {} : { persona: options.values.persona }) }
+      : parseUatPayload(options.values["payload-json"]),
+  });
+}
+
 // Pending run projections have no semantics to adapt. They still resolve to
 // their reserved identifiers and the registry returns the typed lineage
 // refusal before input validation. Active adapters remain explicit above.

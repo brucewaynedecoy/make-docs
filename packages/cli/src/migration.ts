@@ -1,3 +1,4 @@
+import { validateUatCheckpoint10 } from "./operations/uat/ops";
 import { createHash, randomUUID } from "node:crypto";
 import {
   chmodSync,
@@ -99,15 +100,15 @@ export const MIGRATION_CHECKPOINTS = [
   { checkpoint: 7, owner: "P5", state: "implemented", purpose: "on-demand-routing-and-clean-legacy-paths" },
   { checkpoint: 8, owner: "P5", state: "implemented", purpose: "typescript-path-hygiene" },
   { checkpoint: 9, owner: "P6", state: "implemented", purpose: "general-store-tables" },
-  { checkpoint: 10, owner: "P7", state: "locked", purpose: "naive-uat-persona-skill-evidence" },
+  { checkpoint: 10, owner: "P7", state: "implemented", purpose: "naive-uat-persona-skill-evidence" },
   { checkpoint: 11, owner: "P8", state: "locked", purpose: "traced-legacy-retirement" },
   { checkpoint: 12, owner: "P9", state: "locked", purpose: "selected-agentics" },
   { checkpoint: 13, owner: "P10", state: "locked", purpose: "package-dogfood-legacy-validation" },
 ] as const;
 
 export type MigrationCheckpoint = (typeof MIGRATION_CHECKPOINTS)[number]["checkpoint"];
-export type ImplementedMigrationCheckpoint = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
-export type LockedMigrationCheckpoint = 10 | 11 | 12 | 13;
+export type ImplementedMigrationCheckpoint = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
+export type LockedMigrationCheckpoint = 11 | 12 | 13;
 
 export type MigrationFilesystemState =
   | "absent"
@@ -943,11 +944,11 @@ export class ImmutableMigrationCoordinator {
   }
 
   advance(next: MigrationCheckpoint): MigrationCheckpointResult {
-    if (next >= 10) {
+    if (next >= 11) {
       const owner = MIGRATION_CHECKPOINTS.find((item) => item.checkpoint === next)!.owner;
       return this.block(
         "downstream-checkpoint-locked",
-        `Checkpoint ${next} is locked to ${owner} and cannot run in P5.`,
+        `Checkpoint ${next} is locked to ${owner} and cannot run before its owning phase.`,
       );
     }
     if (next !== this.checkpoint + 1) {
@@ -1096,6 +1097,9 @@ export class ImmutableMigrationCoordinator {
       }
       case 9:
         return;
+      case 10:
+        validateUatCheckpoint10(this.lock.projectRoot);
+        return;
     }
   }
 
@@ -1175,7 +1179,7 @@ export function executeInstallPlanMigration(input: {
     });
     const coordinator = new ImmutableMigrationCoordinator(lock, snapshot, backup, productPlan);
     const migrationReceipts: MigrationCheckpointResult[] = [];
-    for (const checkpoint of [1, 2, 3, 4, 5, 6, 7, 8, 9] as const) {
+    for (const checkpoint of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] as const) {
       const receipt = coordinator.advance(checkpoint);
       migrationReceipts.push(receipt);
       if (receipt.status === "receipt-projection-failed") {

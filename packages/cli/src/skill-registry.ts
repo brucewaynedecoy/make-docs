@@ -1,6 +1,6 @@
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import { readTextFile } from "./utils";
+import { readTextFile, resolveTemplateRoot } from "./utils";
 
 export type SkillManifestSourcePolicyKind =
   | "first-party"
@@ -77,12 +77,15 @@ export type EffectiveSkillRegistrySource =
 
 const REGISTRY_FILENAME = "skill-registry.json";
 const FIRST_PARTY_MANIFEST_ID = "make-docs.first-party";
+// D-005 permits only the P7 UGT payload to use bundled first-party delivery.
+const BUNDLED_UGT_SOURCE = "local:template/.make-docs/agentics/skills/naive-uat";
 const FIRST_PARTY_PURPOSE_IDS = new Set([
   "archive-management",
   "codebase-decomposition",
   "documentation-maintenance",
   "lifecycle-closeout",
   "workflow-execution",
+  "naive-uat",
   "plan-creation",
   "migration-support",
 ]);
@@ -279,7 +282,9 @@ function validateEntry(
   if (source === null || entryPoint === null || installName === null)
     return null;
 
-  if (sourcePolicy.kind !== "local" && !isRemoteSource(source)) {
+  const bundledUgt = sourcePolicy.kind === "first-party" &&
+    name === "naive-uat" && source === BUNDLED_UGT_SOURCE;
+  if (sourcePolicy.kind !== "local" && !isRemoteSource(source) && !bundledUgt) {
     errors.push(
       `skill \`${name}\` must use a remote source URL unless the manifest source policy is local`,
     );
@@ -663,6 +668,21 @@ function normalizeLocalSkillSources(
   registry: SkillRegistry,
   registryPath: string,
 ): SkillRegistry {
+  if (registry.sourcePolicy.kind === "first-party") {
+    return {
+      ...registry,
+      skills: registry.skills.map((skill) => {
+        if (skill.source !== BUNDLED_UGT_SOURCE) return skill;
+        return {
+          ...skill,
+          source: pathToFileURL(path.join(
+            resolveTemplateRoot(path.dirname(path.resolve(registryPath))),
+            ".make-docs/agentics/skills/naive-uat",
+          )).href,
+        };
+      }),
+    };
+  }
   if (registry.sourcePolicy.kind !== "local") {
     return registry;
   }

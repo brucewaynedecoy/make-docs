@@ -1,12 +1,15 @@
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, expect, test } from "vitest";
 import { getDesiredAssets } from "../src/catalog";
 import { listShippedConformanceAssetErrors } from "../src/conformance";
 import { parseManagedBlock } from "../src/managed-block";
 import { parseAndValidatePlaybook } from "../src/playbook";
 import { defaultSelections, resolveInstallProfile } from "../src/profile";
-import { readPackageFile, TEMPLATE_ROOT } from "../src/utils";
+import { getDesiredSkillAssets } from "../src/skill-catalog";
+import { loadSkillRegistry } from "../src/skill-registry";
+import { PACKAGE_ROOT, readPackageFile, TEMPLATE_ROOT } from "../src/utils";
 
 const REPO_ROOT = path.resolve(TEMPLATE_ROOT, "..", "..", "..");
 
@@ -223,11 +226,43 @@ describe("template completeness", () => {
     }
   });
 
-  test("every file in the template is covered by the asset pipeline", () => {
+  test("every file in the template is covered by the asset pipeline", async () => {
     const profile = resolveInstallProfile(defaultSelections());
     const managedPaths = new Set(
       getDesiredAssets(profile).map((asset) => asset.relativePath),
     );
+    // Bundled Skills are selected payloads, not default system assets. Resolve
+    // their registry entries through the real Skill pipeline to prove ownership.
+    const registry = loadSkillRegistry(PACKAGE_ROOT);
+    const bundledSkillSources = new Set<string>();
+    expect(await getDesiredSkillAssets(defaultSelections(), registry)).toEqual([]);
+    for (const entry of registry.skills.filter((skill) => skill.source.startsWith("file:"))) {
+      const sourceRoot = fileURLToPath(entry.source);
+      const sourceRelative = path.relative(TEMPLATE_ROOT, sourceRoot);
+      if (sourceRelative.startsWith("..") || path.isAbsolute(sourceRelative)) continue;
+      const selections = defaultSelections();
+      selections.skills = true;
+      selections.selectedSkills = [entry.name];
+      const assets = await getDesiredSkillAssets(selections, registry);
+      const payloads = [
+        { source: entry.entryPoint, installPath: entry.entryPoint },
+        ...entry.assets,
+      ];
+      for (const payload of payloads) {
+        const sourcePath = path.join(sourceRoot, payload.source);
+        const sourceLocalPath = localPathForPackageSource(path.relative(TEMPLATE_ROOT, sourcePath));
+        const installPath = path.join(".make-docs/agentics/skills", entry.installName, payload.installPath);
+        const asset = assets.find((candidate) => candidate.relativePath === installPath);
+        expect(asset, sourceLocalPath).toBeDefined();
+        expect(asset!.sourceId, sourceLocalPath).toMatch(/^skill:shared:/);
+        if (!asset || !("content" in asset)) {
+          throw new Error(`Expected a content-bearing Skill payload: ${sourceLocalPath}`);
+        }
+        expect(Buffer.from(asset.content), sourceLocalPath).toEqual(readFileSync(sourcePath));
+        expect(managedPaths.has(installPath), sourceLocalPath).toBe(false);
+        bundledSkillSources.add(sourceLocalPath);
+      }
+    }
 
     const templateFiles: string[] = [];
     const walk = (dir: string) => {
@@ -246,7 +281,7 @@ describe("template completeness", () => {
       ".make-docs/contracts/system/playbook-contract.md",
     ]);
     const unmanaged = templateFiles.filter((file) =>
-      !managedPaths.has(file) && !preservedLegacyPaths.has(file),
+      !managedPaths.has(file) && !preservedLegacyPaths.has(file) && !bundledSkillSources.has(file),
     );
 
     expect(unmanaged).toEqual([]);

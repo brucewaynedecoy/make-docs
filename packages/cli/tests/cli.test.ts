@@ -21,6 +21,7 @@ const ALL_SKILL_NAMES = [
   "archive-docs",
   "cleanup-docs",
   "decompose-codebase",
+  "naive-uat",
 ];
 
 vi.mock("../src/wizard", () => ({
@@ -723,7 +724,7 @@ personas:
         .map((name) => JSON.parse(readFileSync(path.join(receiptDir, name), "utf8")))
         .filter((receipt) => receipt.status === "completed")
         .sort((left, right) => left.checkpoint - right.checkpoint);
-      expect(receipts.map((receipt) => receipt.checkpoint)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+      expect(receipts.map((receipt) => receipt.checkpoint)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
       expect(new Set(receipts.map((receipt) => receipt.snapshotId)).size).toBe(1);
       const backupRoots = readdirSync(path.join(targetDir, ".make-docs/backup"));
       expect(backupRoots).toHaveLength(1);
@@ -1009,6 +1010,7 @@ personas:
         "archive-docs",
         "cleanup-docs",
         "decompose-codebase",
+        "naive-uat",
       ]);
       expect(manifest?.skillFiles).toContain(".claude/skills/archive-docs");
       expect(manifest?.skillFiles).toContain(".claude/skills/cleanup-docs");
@@ -1491,7 +1493,7 @@ personas:
           targetDir,
         ]),
       ).rejects.toThrow(
-        "Unknown selected skill `unknown-skill`. Valid skills: archive-docs, cleanup-docs, decompose-codebase.",
+        "Unknown selected skill `unknown-skill`. Valid skills: archive-docs, cleanup-docs, decompose-codebase, naive-uat.",
       );
     } finally {
       cleanupTempDir(targetDir);

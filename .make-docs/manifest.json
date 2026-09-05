@@ -3110,10 +3110,10 @@
         "providerVersion": "2.0.0-rc",
         "providerImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "materializationMode": "provider-backed-copy",
-        "sourceDigest": "96fa822be55804527f4fafb17ec1413e76f097b32e41f8c0f4a9a2cfebb0a100",
-        "installedDigest": "96fa822be55804527f4fafb17ec1413e76f097b32e41f8c0f4a9a2cfebb0a100",
+        "sourceDigest": "458aece3ff063a95918db5e51f50b500c7ecf517a1f0e074d339104a95c47ac8",
+        "installedDigest": "458aece3ff063a95918db5e51f50b500c7ecf517a1f0e074d339104a95c47ac8",
         "hashAlgorithm": "sha256",
-        "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
+        "lastVerifiedAt": "2026-09-04T23:46:38.269Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null,
         "selectionTrigger": "setup-selection",
@@ -3335,10 +3335,10 @@
         "providerVersion": "2.0.0-rc",
         "providerImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "materializationMode": "provider-backed-copy",
-        "sourceDigest": "4a3cc23242954cc28ba51b993484dfc24b25071bf852156d3ec312b4b6a35490",
-        "installedDigest": "4a3cc23242954cc28ba51b993484dfc24b25071bf852156d3ec312b4b6a35490",
+        "sourceDigest": "5de0b4fe66edfc6c7a79dd3d3d4bd4d2d63584f49e77935a9333467acfc6cebc",
+        "installedDigest": "5de0b4fe66edfc6c7a79dd3d3d4bd4d2d63584f49e77935a9333467acfc6cebc",
         "hashAlgorithm": "sha256",
-        "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
+        "lastVerifiedAt": "2026-09-04T23:46:38.269Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null,
         "selectionTrigger": "setup-selection",
@@ -5046,7 +5046,7 @@
       "ownershipClass": "managed-projection"
     },
     ".make-docs/system/references/naive-uat-workflow.md": {
-      "hash": "96fa822be55804527f4fafb17ec1413e76f097b32e41f8c0f4a9a2cfebb0a100",
+      "hash": "458aece3ff063a95918db5e51f50b500c7ecf517a1f0e074d339104a95c47ac8",
       "sourceId": "resource:make-docs://system/reference/naive-uat-workflow.md",
       "systemAsset": {
         "materializationMode": "provider-backed",
@@ -5056,7 +5056,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "96fa822be55804527f4fafb17ec1413e76f097b32e41f8c0f4a9a2cfebb0a100"
+          "458aece3ff063a95918db5e51f50b500c7ecf517a1f0e074d339104a95c47ac8"
         ],
         "logicalAssetId": ".make-docs/system/references/naive-uat-workflow.md",
         "localPath": ".make-docs/system/references/naive-uat-workflow.md",
@@ -5244,7 +5244,7 @@
       "ownershipClass": "managed-projection"
     },
     ".make-docs/system/templates/naive-uat-scenario.md": {
-      "hash": "4a3cc23242954cc28ba51b993484dfc24b25071bf852156d3ec312b4b6a35490",
+      "hash": "5de0b4fe66edfc6c7a79dd3d3d4bd4d2d63584f49e77935a9333467acfc6cebc",
       "sourceId": "resource:make-docs://system/template/naive-uat-scenario.md",
       "systemAsset": {
         "materializationMode": "provider-backed",
@@ -5254,7 +5254,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "4a3cc23242954cc28ba51b993484dfc24b25071bf852156d3ec312b4b6a35490"
+          "5de0b4fe66edfc6c7a79dd3d3d4bd4d2d63584f49e77935a9333467acfc6cebc"
         ],
         "logicalAssetId": ".make-docs/system/templates/naive-uat-scenario.md",
         "localPath": ".make-docs/system/templates/naive-uat-scenario.md",

@@ -82,6 +82,7 @@ describe("skill catalog", () => {
       "archive-docs",
       "decompose-codebase",
       "cleanup-docs",
+      "naive-uat",
     ]);
     expect(choices[0]).toMatchObject({
       name: "archive-docs",

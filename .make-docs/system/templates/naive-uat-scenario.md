@@ -31,6 +31,7 @@ Use `not-needed-now` without a scenario when no current decision justifies a run
 | User Goal | {{REAL_WORLD_GOAL}} |
 | Source Requirements | {{PRD_LINKS_AND_ANCHORS}} |
 | Target User | {{INTENDED_AUDIENCE}} |
+| Current Uncertainty | {{MATERIAL_CURRENT_QUESTION}} |
 | Selected Persona | {{ELIGIBLE_PERSONA_OR_DEFAULT_USER}} |
 | Supported Scope | {{PLATFORM_LOCALE_INPUT_ACCESSIBILITY_ACCOUNT_NETWORK_SCOPE}} |
 | Product Build And Environment | {{REPRODUCIBLE_NORMALLY_CONSUMABLE_PRODUCT_IDENTITY}} |

@@ -8,7 +8,7 @@ import {
 import { packageOperations } from "./package/ops";
 import { lifecycleOperations } from "./lifecycle/registry-ops";
 import { projectOperations } from "./project/ops";
-import { pendingOperations } from "./pending/ops";
+import { uatOperations } from "./uat/ops";
 import { playbookOperations } from "./playbook/ops";
 import { prdOperations } from "./prd/ops";
 import { resourceOperations } from "./resource/ops";
@@ -209,7 +209,7 @@ function assembleRegistry(): Map<string, OperationDefinition> {
     ...workOperations,
     ...resourceOperations,
     ...lifecycleOperations,
-    ...pendingOperations,
+    ...uatOperations,
   ];
   for (const definition of definitions) {
     if (!OPERATION_ID_PATTERN.test(definition.id)) {
