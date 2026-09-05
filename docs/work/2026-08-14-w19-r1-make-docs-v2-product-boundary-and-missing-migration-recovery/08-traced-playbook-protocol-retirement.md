@@ -43,6 +43,7 @@ This phase implements migration checkpoint 11 under the still-active P5 lock and
 - O-001 remains separate W18 R3 work; O-002 is superseded and must not be reopened as replacement exposure work.
 - Existing `NUAT-###`, conformance, finding, evidence, archive, history, and work identifiers remain stable provenance even when their old text mentions Playbooks or Protocols.
 - A current trace may identify a blocker or removal candidate; it cannot close a risk, question, support claim, finding, or capability by itself.
+- The owner-approved P8 scope retires `dependency-check-both-directions`, `plugin-marketplace-install`, `skills-bundle-discovery-invocation`, and `uninstall-backup-cleanliness` from current coverage. Their prior results and stable references remain historical evidence. Shared lab tools that serve current capabilities remain in scope for preservation.
 
 ## Stage 1 - Phase-Entry PRD Question And Risk Gate
 
@@ -71,8 +72,13 @@ This phase implements migration checkpoint 11 under the still-active P5 lock and
 
 ### Closeout Notes
 
-- Testing-mode decision(s): removal proof and preserved regression/conformance evidence only; historical scenarios are not rewritten.
-- Phase / capability status: gate result pending.
+- Owner decision, 2026-09-05: retire the four named legacy packaging scenarios from current coverage. Do not retarget them during P8. Preserve their source history, results, evidence links, and shared lab tools that serve current product capabilities. Retired results do not prove current Skill, lifecycle, or harness support.
+- Combined effect: current coverage loses the four compiler-dependent cases and their current lab/support mappings. Their old records remain readable. This decision does not remove generic selected-Skill support, the first-party Naive-UAT Skill, current lifecycle behavior, or shared lab tools with an accepted current consumer.
+- Authority result: [PRD 03](../../prd/03-open-questions-and-risk-register.md) and [PRD 43](../../prd/43-conformance-scenario-model-and-execution-kits.md) record the accepted scope. The P7 work and history closeout is recorded separately. See the [P8 preflight history](../../../.make-docs/archive/history/2026-09-05-w19-r1-p8-preflight-decision-closeout.md) for this document-only closeout.
+- Testing-mode decision(s): use focused document authority, task structure, path, link, and whitespace checks for this update. P8 implementation still requires removal, absence, preservation, rollback, and affected current-feature checks. P9 and P10 keep their existing planned checks; this decision adds no duty to replace the four retired cases. No new support claim or Naive-UAT run is created by this decision.
+- Removal approach: bind the finite candidate list to fresh manifest, source, package, public-route, test, and consumer evidence. Give each candidate one explicit removal, retention, historical, opaque-state, or stop result. Record the fixture, correction, and review budget before Stage 1 unlock. This document update does not supply or approve that budget.
+- Preflight status: product choices are settled and document reconciliation passed focused validation. This document-only preflight is ready for closeout. The separate decision commit required by t7 remains outstanding. No commit SHA is recorded because no commit was authorized or made.
+- Phase / capability status: P8 implementation is not authorized and has not started. Stage 1 unlock remains pending. Fresh removal-boundary trace, authority digests, replacement proof, backup/restore coverage, lock/quiescence checks, finite budget, and the explicit no-blocker/no-unknown-consumer result must be recorded before removal. All task checkboxes remain open because this review does not complete those combined gates or implementation tasks.
 
 ## Stage 2 - Freeze The Removal Set
 
@@ -98,7 +104,7 @@ This phase implements migration checkpoint 11 under the still-active P5 lock and
 ### Closeout Notes
 
 - Testing-mode decision(s): trace freshness, ownership, hash, package/registry inventory, and preservation classification checks.
-- Phase / capability status: removal set frozen; mutation remains open.
+- Phase / capability status: removal set and backup proof remain pending. No removal is authorized by the preflight document closeout.
 
 ## Stage 3 - Remove Proven Retired Surfaces
 
@@ -107,7 +113,7 @@ This phase implements migration checkpoint 11 under the still-active P5 lock and
 - [ ] t13: Remove the P3-frozen Playbook/Protocol registry entries, implementations, CLI surfaces, and MCP surfaces as one traced set only where current ownership and replacement safety are proven. Remove related runtime models, parsers, resolvers, runners, state-machine handlers, and live documentation claims in the same bounded change. Do not leave a partial public route.
 - [ ] t14: Remove traced packaging/compiler, adapter-registry, generated payload, default asset, manifest/catalog, and release expectations for Playbooks/Protocols.
 - [ ] t15: Remove only traced Playbook/Protocol-dependent plugin, hook, extension, workflow-bundle, and harness-adapter surfaces that have no independent accepted authority; preserve generic selected-Skill infrastructure and the thin Naive-UAT Skill.
-- [ ] t16: Remove or retarget current tests, fixtures, conformance scenarios, lab mappings, and support claims only when they assert removed behavior; retain historical evidence and tests for replacement safety, preservation, and absence.
+- [ ] t16: Retire `dependency-check-both-directions`, `plugin-marketplace-install`, `skills-bundle-discovery-invocation`, and `uninstall-backup-cleanliness` from current coverage and their current lab/support mappings. Do not retarget these scenarios in P8. Remove other current tests or fixtures only where the fresh trace proves they assert removed behavior. Preserve historical source and result references, shared lab tools that serve current capabilities, and tests for replacement safety, preservation, and absence. Do not count retired results as new support evidence.
 - [ ] t17: Update lifecycle audit/update/uninstall inventories so removed owned assets are recognized as legacy removal candidates without broad directory pruning or inferred ownership.
 
 ### Acceptance criteria
@@ -117,6 +123,7 @@ This phase implements migration checkpoint 11 under the still-active P5 lock and
 - Independently authorized resource, run, UAT, Skill, and lifecycle behavior remains intact.
 - Only proven owned bytes/surfaces are removed.
 - Audit/update/uninstall can disposition old managed assets without touching ambiguous or user content.
+- The four approved legacy packaging scenarios no longer count as current coverage. Their history and results remain available. P9 and P10 keep their existing test scope.
 
 ### Dependencies
 
@@ -126,7 +133,7 @@ This phase implements migration checkpoint 11 under the still-active P5 lock and
 ### Closeout Notes
 
 - Testing-mode decision(s): targeted removal, replacement regression, lifecycle disposition, and rollback checks.
-- Phase / capability status: retired surfaces removed; preservation and proof remain open.
+- Phase / capability status: removal has not started. Removal and preservation proof remain pending.
 
 ## Stage 4 - Preserve Project And Legacy Material
 
@@ -152,7 +159,7 @@ This phase implements migration checkpoint 11 under the still-active P5 lock and
 ### Closeout Notes
 
 - Testing-mode decision(s): before/after byte inventories, symlink/unmanaged-descendant fixtures, legacy Store comparison, and archive-link checks.
-- Phase / capability status: preservation proven; final confirmation remains open.
+- Phase / capability status: preservation proof and final confirmation remain pending.
 
 ## Stage 5 - Validate Checkpoint 11
 

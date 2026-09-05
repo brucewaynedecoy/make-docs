@@ -1,7 +1,7 @@
 ---
 title: "Phase 7: Unassisted Goal Testing Workflow, Persona, and Evidence"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W19 R1 P7"
 source:
   type: "prd"
@@ -18,7 +18,7 @@ Deliver the first-party Unassisted Goal Testing system workflow, configured Pers
 
 This phase implements migration checkpoint 10. Every activated execution resolves exactly one eligible configured `user` or `maintainer` Persona, defaulting to canonical `user` when none is supplied. Persona identity controls audience framing and evidence location. It never substitutes for executor qualification, isolation, normally consumable product scope, public information, or anti-coaching. Canonical evidence lives only under `docs/assets/<persona-slug>/testing/**`.
 
-[D-030](../../prd/03-open-questions-and-risk-register.md#d-030-w19-r1-documentation-surface-router-topology-was-omitted) is corrected and closed. The P4 runtime proof baseline is `2f07b568`. The final P4 corrective closeout is `9c52bfa`. `P7-AUTHORITY`, D-005, and P7-BUDGET are accepted. The six `uat.*` validators remain compatibility surfaces. The general Skill delivery question remains open. P7 implementation is not authorized.
+[D-030](../../prd/03-open-questions-and-risk-register.md#d-030-w19-r1-documentation-surface-router-topology-was-omitted) is corrected and closed. The P4 runtime proof baseline is `2f07b568`. The final P4 corrective closeout is `9c52bfa`. `P7-AUTHORITY`, D-005, and P7-BUDGET are accepted. The six `uat.*` validators remain compatibility surfaces. The general Skill delivery question remains with P9. P7 was accepted and committed at `03a8dfdd`. Checkpoint 10 is complete. Checkpoint 11 remains locked. The documentation closeout below records the accepted proof and its limits.
 
 ## Source PRD Docs
 
@@ -56,8 +56,8 @@ This phase implements migration checkpoint 10. Every activated execution resolve
 - [x] t4: Record each relevant item's ID or bounded gap label, authority digest, impact, classification (`blocking`, `impacted-nonblocking`, `unrelated`, `closed-regression-check`, or `new-authority-gap`), disposition, and rationale.
 - [x] t5: Record D-005 as accepted for P7 only. Use a bundled local first-party Unassisted Goal Testing Skill payload, the canonical shared lifecycle, native harness projection, and no remote fetch. Keep the general Skill delivery question open. Record the preimplementation Unassisted Goal Testing result as `not-needed-now` and record the finite execution, correction, and review budget.
 - [x] t6: Stop before implementation for any blocker, missing scenario authority, or authority gap and present an owner decision package with source anchors, affected phase and PRDs, bounded options and trade-offs, recommendation, consequences, exact PRD, register, work, system-resource, and history edits, focused validation, and a documentation-only preflight commit boundary. Create no standalone decision file.
-- [ ] t7: Require canonical PRD, register, work, system-resource, and history updates, focused validation, a separate documentation-only preflight commit, and its recorded SHA before unlock. Task completion never closes governed records implicitly.
-- [ ] t8: After the documentation-only preflight commit, record the Stage 1 result, authority digests, checkpoint evidence, applicable scenario, obligation, and finding trace, and the implementation-ready result.
+- [x] t7: Require canonical PRD, register, work, system-resource, and history updates, focused validation, a separate documentation-only preflight commit, and its recorded SHA before unlock. Task completion never closes governed records implicitly.
+- [x] t8: After the documentation-only preflight commit, record the Stage 1 result, authority digests, checkpoint evidence, applicable scenario, obligation, and finding trace, and the implementation-ready result.
 
 ### Acceptance criteria
 
@@ -79,7 +79,7 @@ This phase implements migration checkpoint 10. Every activated execution resolve
 - Dependency result: P4 documentation-surface recovery is complete. The authority, exact topology, safe migration and ownership behavior, template and package parity, installed-project repair, independent review, and owner acceptance are proved through `2f07b568`. `P7-AUTHORITY` remains accepted. Persona, scenario, qualification, evidence, advisory gate, and stable `NUAT-###` meaning remain unchanged.
 - Operation result: `uat.scenario.validate`, `uat.persona.resolve`, `uat.target.validate`, `uat.evidence-reference.validate`, `uat.finding.validate`, and `uat.result.validate` remain pending P7 compatibility surfaces.
 - Risk result: R-001, R-002, R-008, R-017, R-021, and R-022 remain controlled. Q-019 and Q-022 remain outside current P7 scope.
-- Decision result: `P7-AUTHORITY`, D-005, and P7-BUDGET are accepted. D-005 is bounded to P7. Q-001, Q-007, and the general D-005 delivery choice remain open. The documentation-only preflight commit remains to be approved. Stage 1 remains open until that commit exists. P7 implementation is not authorized.
+- Decision result: `P7-AUTHORITY`, D-005, and P7-BUDGET are accepted. D-005 is bounded to P7. Q-001, Q-007, and the general D-005 delivery choice remain open. The documentation-only preflight commit is `92195b8f`. Stage 1 is complete. The later accepted implementation is `03a8dfdd`. These records replace the earlier unapproved and unstarted status; the recovery digests below remain historical entry evidence.
 
 #### Accepted Preflight Decisions
 
@@ -136,10 +136,10 @@ PRD 03, PRD 14, and PRD 22 changed from the prior recovery digest set. At baseli
 
 ### Tasks
 
-- [ ] t9: Install the P1-authored Unassisted Goal Testing contracts, prompts, references, and applicable templates as provider-backed system workflow resources available without local projection.
-- [ ] t10: Compose qualification, facilitator framing, Persona selection, scenario binding, execution, evidence, finding, disposition, and gate behavior from those governing resources without embedding policy in routers or transports.
-- [ ] t11: Activate the P3-pending `uat.scenario.validate`, `uat.persona.resolve`, `uat.target.validate`, `uat.evidence-reference.validate`, `uat.finding.validate`, and `uat.result.validate` handlers. Preserve their six `make-docs run uat` CLI paths and derived MCP tools. Connect system-workflow entry paths to the same operations and normalized outcomes. Reuse the P6 lifecycle operations instead of defining UAT lifecycle duplicates.
-- [ ] t12: Preserve the documentation-first sequence: canonical workflow resources and schemas must validate before runtime automation or optional Skill delivery is enabled.
+- [x] t9: Install the P1-authored Unassisted Goal Testing contracts, prompts, references, and applicable templates as provider-backed system workflow resources available without local projection.
+- [x] t10: Compose qualification, facilitator framing, Persona selection, scenario binding, execution, evidence, finding, disposition, and gate behavior from those governing resources without embedding policy in routers or transports.
+- [x] t11: Activate the P3-pending `uat.scenario.validate`, `uat.persona.resolve`, `uat.target.validate`, `uat.evidence-reference.validate`, `uat.finding.validate`, and `uat.result.validate` handlers. Preserve their six `make-docs run uat` CLI paths and derived MCP tools. Connect system-workflow entry paths to the same operations and normalized outcomes. Reuse the P6 lifecycle operations instead of defining UAT lifecycle duplicates.
+- [x] t12: Preserve the documentation-first sequence: canonical workflow resources and schemas must validate before runtime automation or optional Skill delivery is enabled.
 
 ### Acceptance criteria
 
@@ -157,17 +157,17 @@ PRD 03, PRD 14, and PRD 22 changed from the prior recovery digest set. At baseli
 ### Closeout Notes
 
 - Testing-mode decision(s): resource composition, access-path parity, and policy-duplication checks.
-- Phase / capability status: core workflow available; Persona/evidence behavior remains open.
+- Phase / capability status: complete. Cases O1–O8 and D1 cover shared operation behavior, malformed input, provider access without a local snapshot or Skill, and resource/schema parity. Documentation authority was committed at `92195b8f` before the implementation at `03a8dfdd`.
 
 ## Stage 3 - Resolve Persona And Canonical Evidence Routing
 
 ### Tasks
 
-- [ ] t13: Resolve exactly one configured Persona for every activated run, accepting only eligible `user` or `maintainer` primitives, failing closed on explicit unknown/ineligible values, and defaulting to canonical `user` only when no Persona is supplied.
-- [ ] t14: Keep selected Persona identity distinct from `target_user` and tester qualification; a `maintainer` Persona changes framing and evidence slug but grants no private implementation knowledge.
-- [ ] t15: Derive and validate the canonical Persona slug, record explicit/default resolution provenance, and route packets, executions, outcomes, findings, dispositions, and evidence only under `docs/assets/<persona-slug>/testing/**`.
-- [ ] t16: Reject UAT evidence destinations under `.make-docs/archive/**`, `docs/artifacts/**`, a generic non-Persona testing directory, or any path that escapes the selected Persona scope.
-- [ ] t17: Preserve project ownership and conflict review for existing Persona testing content; migration may move only proven material and never treats directory placement as scenario or Persona authority.
+- [x] t13: Resolve exactly one configured Persona for every activated run, accepting only eligible `user` or `maintainer` primitives, failing closed on explicit unknown/ineligible values, and defaulting to canonical `user` only when no Persona is supplied.
+- [x] t14: Keep selected Persona identity distinct from `target_user` and tester qualification; a `maintainer` Persona changes framing and evidence slug but grants no private implementation knowledge.
+- [x] t15: Derive and validate the canonical Persona slug, record explicit/default resolution provenance, and route packets, executions, outcomes, findings, dispositions, and evidence only under `docs/assets/<persona-slug>/testing/**`.
+- [x] t16: Reject UAT evidence destinations under `.make-docs/archive/**`, `docs/artifacts/**`, a generic non-Persona testing directory, or any path that escapes the selected Persona scope.
+- [x] t17: Preserve project ownership and conflict review for existing Persona testing content; migration may move only proven material and never treats directory placement as scenario or Persona authority.
 
 ### Acceptance criteria
 
@@ -184,16 +184,16 @@ PRD 03, PRD 14, and PRD 22 changed from the prior recovery digest set. At baseli
 ### Closeout Notes
 
 - Testing-mode decision(s): user default, maintainer selection, invalid Persona, slug, path escape, prohibited destination, and existing-content fixtures.
-- Phase / capability status: Persona/evidence routing complete; optional Skill remains open.
+- Phase / capability status: complete. Cases P1–P4, E2, and C2 cover default and explicit Persona selection, invalid input, required qualification records, evidence paths and digests, and preservation after refused adoption. The helpers read records; they do not certify real executor isolation.
 
 ## Stage 4 - Deliver The Thin Optional Unassisted Goal Testing Skill
 
 ### Tasks
 
-- [ ] t18: Add the first-party Unassisted Goal Testing Skill to upstream shipped Skill authority as an explicit optional selection, never a bare-install or automatic dependency. Ship its P7 payload in the local bundle.
-- [ ] t19: Limit the Skill to thin CLI-delegating shims for discovery and invocation; keep qualification, Persona, scenario, evidence, finding, and gate business logic in governing resources and typed operations.
-- [ ] t20: Install the bundled local payload through the canonical shared selected-Skill lifecycle and validated harness-native exposure contract. Require no remote fetch. Do not create Playbook-generated content, a plugin namespace, workflow bundle, or harness-adapter registry.
-- [ ] t21: Prove uninstall, update, backup, and copy-mirror/symlink behavior preserves user and custom harness content and removes only proven owned Skill material.
+- [x] t18: Add the first-party Unassisted Goal Testing Skill to upstream shipped Skill authority as an explicit optional selection, never a bare-install or automatic dependency. Ship its P7 payload in the local bundle.
+- [x] t19: Limit the Skill to thin CLI-delegating shims for discovery and invocation; keep qualification, Persona, scenario, evidence, finding, and gate business logic in governing resources and typed operations.
+- [x] t20: Install the bundled local payload through the canonical shared selected-Skill lifecycle and validated harness-native exposure contract. Require no remote fetch. Do not create Playbook-generated content, a plugin namespace, workflow bundle, or harness-adapter registry.
+- [x] t21: Prove uninstall, update, backup, and copy-mirror/symlink behavior preserves user and custom harness content and removes only proven owned Skill material.
 
 ### Acceptance criteria
 
@@ -210,18 +210,18 @@ PRD 03, PRD 14, and PRD 22 changed from the prior recovery digest set. At baseli
 ### Closeout Notes
 
 - Testing-mode decision(s): explicit-selection, absent-Skill core completeness, shim line/scope, delegation, install/update/uninstall, and harness exposure checks.
-- Phase / capability status: optional Skill complete; activated execution semantics remain open.
+- Phase / capability status: complete. Cases S1–S4 cover explicit bundled selection, no remote fetch, backup/update, native symlink and forced copy-mirror exposure on macOS, owned removal, and changed/custom content preservation. The project did not select this Skill, so no dogfood Skill was installed. P10 retains native Linux/Windows and full harness proof.
 
 ## Stage 5 - Preserve Qualification, Scenario, Finding, And Gate Semantics
 
 ### Tasks
 
-- [ ] t22: Enforce qualified executor isolation, separate context, no repository or private memory, normally consumable product scope, public-information limits, anti-coaching, and isolation evidence before an activated run begins. Allow a human or an agent in a separate isolated context that satisfies PRD 46.
-- [ ] t23: Bind each activated execution to a canonical versioned `NUAT-###` scenario, installed-build identity, target user/goal, supported scope, starting state, public resources, prohibited context, tester prompt, hidden operator outcomes, setup/teardown, evidence requirements, severity rules, and finding route.
-- [ ] t24: Preserve separate testing decisions and the common PRD 50 decision fields. Use `not-needed-now` when no current decision justifies Unassisted Goal Testing. Create an `O-###` route only when an accepted future outcome remains owed.
-- [ ] t25: Record run, observation, outcome, evidence, severity, reproducibility, finding, disposition, waiver, and phase-gate linkage without allowing automated tests, conformance, performance, knowledgeable walkthroughs, or owner review to substitute.
-- [ ] t26: Preserve the exact `clear`, `friction`, `blocked`, `invalid-run`, and `not-needed-now` meanings. Keep the default gate effect advisory. Allow blocking only when explicit current authority names the blocked result and outcome. Do not let an obligation, waiver, expiration, timebox, or missing evidence rewrite a result. Preserve one-valid-run sufficiency for its exact uncertainty and scope. Keep reruns affected-only.
-- [ ] t27: Project only bounded non-authoritative run/evidence references and receipts to the Store while keeping scenarios, findings, evidence, and gate authority in the repository.
+- [x] t22: Enforce qualified executor isolation, separate context, no repository or private memory, normally consumable product scope, public-information limits, anti-coaching, and isolation evidence before an activated run begins. Allow a human or an agent in a separate isolated context that satisfies PRD 46.
+- [x] t23: Bind each activated execution to a canonical versioned `NUAT-###` scenario, installed-build identity, target user/goal, supported scope, starting state, public resources, prohibited context, tester prompt, hidden operator outcomes, setup/teardown, evidence requirements, severity rules, and finding route.
+- [x] t24: Preserve separate testing decisions and the common PRD 50 decision fields. Use `not-needed-now` when no current decision justifies Unassisted Goal Testing. Create an `O-###` route only when an accepted future outcome remains owed.
+- [x] t25: Record run, observation, outcome, evidence, severity, reproducibility, finding, disposition, waiver, and phase-gate linkage without allowing automated tests, conformance, performance, knowledgeable walkthroughs, or owner review to substitute.
+- [x] t26: Preserve the exact `clear`, `friction`, `blocked`, `invalid-run`, and `not-needed-now` meanings. Keep the default gate effect advisory. Allow blocking only when explicit current authority names the blocked result and outcome. Do not let an obligation, waiver, expiration, timebox, or missing evidence rewrite a result. Preserve one-valid-run sufficiency for its exact uncertainty and scope. Keep reruns affected-only.
+- [x] t27: Project only bounded non-authoritative run/evidence references and receipts to the Store while keeping scenarios, findings, evidence, and gate authority in the repository.
 
 ### Acceptance criteria
 
@@ -239,16 +239,16 @@ PRD 03, PRD 14, and PRD 22 changed from the prior recovery digest set. At baseli
 ### Closeout Notes
 
 - Testing-mode decision(s): Unassisted Goal Testing plus separate automated, conformance, performance, accessibility, and guided-review decisions.
-- Phase / capability status: end-to-end semantics complete; confirmation remains open.
+- Phase / capability status: complete for the governing workflow and optional read-only validators. Cases P4 and E1–E4 check qualification records, current scenario/build references, evidence and findings, exact decision links, and advisory/blocking authority. No unassisted run was activated. Tasks t22, t23, and t25 do not assert an observed run outcome or prove lived isolation. Task t27 retains the optional P6 lifecycle route; it adds no UAT Store writer. With no run, there is no UAT receipt to project. This is a conditional no-write disposition, not proof of UAT Store writes.
 
 ## Stage 6 - Validate Checkpoint 10
 
 ### Tasks
 
-- [ ] t28: Run no more than 24 focused cases within P7-BUDGET: eight operation and CLI/MCP parity cases; four Persona and qualification cases; four scenario, evidence, finding, and gate cases; four Skill lifecycle and harness exposure cases; two checkpoint, migration, and quiescence cases; and two package, dogfood, and path cases. Test no more than eight named failure paths.
-- [ ] t29: Prove no UAT evidence is written under `.make-docs/archive/**` or `docs/artifacts/**`, no policy is duplicated in the Skill, and no Playbook/Protocol/plugin business surface is reintroduced.
-- [ ] t30: Obtain one independent review of the paired PRD 46/47 implementation and one follow-up review after material correction. Allow no more than two materially different correction attempts per defect and six correction attempts in total. Stop and return to the owner if a limit ends.
-- [ ] t31: Record checkpoint-10 evidence, applicable scenario, obligation, and finding traces or the `not-needed-now` decision, remaining nonblocking items, and the locked checkpoint-11/P8 handoff while keeping quiescence active.
+- [x] t28: Run no more than 24 focused cases within P7-BUDGET: eight operation and CLI/MCP parity cases; four Persona and qualification cases; four scenario, evidence, finding, and gate cases; four Skill lifecycle and harness exposure cases; two checkpoint, migration, and quiescence cases; and two package, dogfood, and path cases. Test no more than eight named failure paths.
+- [x] t29: Prove no UAT evidence is written under `.make-docs/archive/**` or `docs/artifacts/**`, no policy is duplicated in the Skill, and no Playbook/Protocol/plugin business surface is reintroduced.
+- [x] t30: Obtain one independent review of the paired PRD 46/47 implementation and one follow-up review after material correction. Allow no more than two materially different correction attempts per defect and six correction attempts in total. Stop and return to the owner if a limit ends.
+- [x] t31: Record checkpoint-10 evidence, applicable scenario, obligation, and finding traces or the `not-needed-now` decision, remaining nonblocking items, and the locked checkpoint-11/P8 handoff while keeping quiescence active.
 
 ### Acceptance criteria
 
@@ -266,4 +266,59 @@ PRD 03, PRD 14, and PRD 22 changed from the prior recovery digest set. At baseli
 ### Closeout Notes
 
 - Testing-mode decision(s): Unassisted Goal Testing and every separate testing type retain independent decisions. Record `not-needed-now` unless material current uncertainty activates a canonical scenario. If activated, allow one run and one affected rerun.
-- Phase / capability status: P7/checkpoint 10 may close with evidence; P8/checkpoint 11 remains separately gated.
+- Phase / capability status: P7/checkpoint 10 is complete and owner-accepted at `03a8dfdd`. Case C1 proves checkpoint-10 availability and refusal of a legacy writer while quiescence is active. Checkpoint 11 remains locked. P8 removal work needs its own entry proof and implementation authority.
+
+## Accepted Implementation Closeout — 2026-09-05
+
+P7 is complete within its accepted scope. The six validators share CLI/MCP handlers. Provider resources work without a local snapshot or Skill. The optional Skill uses the accepted bundled payload and shared ownership rules. The validators check recorded data and current references. They cannot decide qualification, semantic coaching, severity, accepted finding closure, or human understanding.
+
+This is an explicit lifecycle revisit. The owner asked for the missing work and history updates after the code commit. The code and its tests are unchanged in this documentation pass. The preflight commit is `92195b8f`. The P7 implementation commit is `03a8dfdd`. The separate P5/P6 test type fix is `08aa166c`.
+
+### Evidence And Review
+
+| Evidence | Recorded result and limit |
+| --- | --- |
+| [Implementation report](../../../.make-docs/state/p7-implementation-report.md) and [Skill report](../../../.make-docs/state/p7-skill-report.md) | The fixed 24-case inventory covers O1–O8, P1–P4, E1–E4, S1–S4, C1–C2, and D1–D2. Eight failure families were retained. These reports describe the earlier candidate; the later correction records below control its final result. |
+| [Correction report](../../../.make-docs/state/p7-correction-report.md) and [Skill correction report](../../../.make-docs/state/p7-skill-correction-report.md) | Corrected four semantic defects and the operation, checkpoint, catalog, and asset checks. No new focused case or failure family was added. |
+| [Independent follow-up](../../../.make-docs/state/p7-independent-followup.md) | All four semantic findings were resolved. A new test type error remained. The helper preserves an unresolved `clear` record but returns an unverified conclusion when it has findings. A person owns accepted disposition. |
+| [Final test correction](../../../.make-docs/state/p7-final-test-correction-report.md) | One explicit file-asset guard removed the new type error. The affected test passed. Only three proved P5/P6 baseline errors remained. The coordinator checked this exact delta against the reviewed snapshot. |
+| [Recorded coordinator checks](../../../.make-docs/state/phase-state.yaml) | The full confirmation passed 1,311 tests in 74 files. The package smoke retry passed. These checks preceded the final test-only guard. They were not rerun after that guard or the later P5/P6 guards. |
+| [Separate baseline fix](../../../.make-docs/state/p7-baseline-fix-report.md) | The later P5/P6 guard-only fix passed 34 existing tests and typecheck with zero errors. Git records it separately at `08aa166c`. |
+
+The original six correction attempts were exhausted. The owner then approved an eight-attempt extension, one full confirmation, one package smoke retry, and the reserved follow-up review. The owner approved one further test-only correction after that extension ended. The final correction used one attempt. This records the approved extensions; it does not claim the original cap was sufficient.
+
+The owner accepted the final candidate and authorized its commit with: “Please go ahead and stage and commit the current fixes; then perform the fixes for those three remaining errors from previous phases.” The accepted 29-file snapshot matches current P7 content. Its only later file differences are the two P5/P6 test guards in `08aa166c`. Some administrative fields in the saved phase state still describe earlier gates. The explicit approval, correction reports, and Git commits control this closeout.
+
+### Human Experience Review
+
+The human goal is to find the testing workflow, choose an eligible Persona, and check a scenario or evidence record through the same public operations. The reviewed surfaces are provider resources, CLI/MCP responses, the optional Skill, and Persona testing paths. Automated cases show consistent operations, explicit default/invalid Persona handling, bounded error results, and preservation of user content. Independent review reproduced the four semantic defects and confirmed their fixes. The final guard correction preserved the reviewed byte assertion.
+
+This evidence supports the accepted record-checking and workflow behavior. It does not prove that a new user understands the workflow, that a real executor stayed isolated, or that native Linux/Windows installations work. No lived human test or owner walkthrough was performed. A new material human uncertainty triggers a separate testing decision. P10 retains native platform and installed-project proof. P9 retains the general Skill delivery choice.
+
+### Closeout Coverage
+
+| Candidate | Verdict | Reason and result |
+| --- | --- | --- |
+| P7 work and phase index | `update-existing` | Replace stale preflight status with the accepted implementation, test limits, and locked P8 handoff. |
+| P7 history | `create` | Add one dated breadcrumb for this late documentation closeout. See the [history record](../../../.make-docs/archive/history/2026-09-05-w19-r1-p7-implementation-closeout.md). |
+| User workflow and maintainer helper resources | `link-only` | The accepted implementation already owns workflow, scenario, and validation guidance. The reports link their exact upstream and dogfood changes. No new guide is needed for this status repair. |
+| PRD 46/47/50 | `none` | The accepted implementation follows their current Persona, qualification, evidence, and testing rules. This closeout grants no new product behavior or human judgment. |
+| Obligations, scenarios, and findings | `none` | No run was activated. `not-needed-now` remains valid. No scenario, obligation, waiver, finding closure, or capability claim is created. O-001 remains separate work; O-002 remains superseded. |
+| Legacy packaging and later support claims | `none` | P8 owns the approved retirement work. P9 and P10 retain their existing delivery and support proof. |
+
+### Separate Testing Decisions
+
+Each row is a separate current decision. Product maturity is the accepted P7 implementation at `03a8dfdd`, with the separate test type fix at `08aa166c`. Scope is the six validators, provider workflow, optional Skill, and checkpoint 10 unless the row narrows it. No test run is added by this documentation pass.
+
+| Testing type | Decision informed | Reason now | Executor | Gate effect | Effort budget | Stop condition | Evidence retained | Rerun trigger |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Automated implementation testing | Accept the bounded behavior and package | Recorded proof covers current changes | Implementation agents and coordinator | Implementation acceptance evidence | Fixed 24 cases and eight failure families; approved correction and confirmation limits above | Accepted candidate and affected guard checks complete | Reports and recorded full/smoke outcomes above | Material code change or failed check |
+| Performance testing | Add a new performance claim | Not needed now; this closeout makes no new speed or scale claim | None | Advisory | No added run | Record the no-change claim | Existing scope and test inventory | Performance signal or new support claim |
+| Guided progress review | Resolve a current walkthrough question | Not needed now; no new question requires a walkthrough | None | Advisory | No added run | Record current review limits | Human Experience Review above | Owner request or unclear public task |
+| Unassisted Goal Testing | Decide if an extra unassisted attempt changes P7 acceptance | `not-needed-now`; no material current human uncertainty was identified by the bounded review | None | Advisory | No run | Focused proof and review complete | Implementation testing decision and review above | Material human uncertainty or changed public goal |
+| Specialist accessibility testing | Resolve an access barrier | Not needed now; no new access barrier was identified in this document repair | None | Advisory | No added run | Record the current boundary | Public surface and reviewer limits above | Reported barrier or changed interaction |
+| Visual regression | Detect a changed visual surface | Not needed now; no visual surface changes in this closeout | None | Advisory | No added run | Confirm document-only scope | Changed file list | Changed visual output |
+| Conformance | Expand platform or harness support | No expansion here; macOS plus fixed Linux/Windows path cases remain bounded | Prior test agents; no new executor | P10 retains support-claim proof | No added matrix | Preserve current claim limits | Skill report, D2, and package outcome | P10 entry or a changed support claim |
+| Owner or architecture review | Accept P7 within its stated limits | Owner accepted the corrected candidate | Independent reviewer, coordinator, and owner | P7 acceptance only | One review, one reserved follow-up, and authorized exact correction check | Material findings resolved and commit authorized | Follow-up, final correction, owner quote, and `03a8dfdd` | New material defect or scope change |
+
+The phase gate is closed for the accepted P7 implementation. This does not close a testing finding or widen a support claim. P8/checkpoint 11 remains locked until its own required entry proof and authority are complete.

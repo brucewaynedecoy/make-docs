@@ -59,12 +59,13 @@ The scenario set must include focused automated proof, justified expansion, unsu
 - R-SCEN-2 (MUST): a selected-Skill scenario verifies explicit selection, native discovery, delegation to the current typed operation, receipt/result parity with direct CLI/MCP use, and clean removal. It does not validate duplicated Skill-local business logic because such logic is prohibited.
 - R-SCEN-3 (MUST): a Naive-UAT Skill scenario proves routing and operation delegation only. Tester qualification, installed-product targeting, anti-coaching, Persona choice, scenario semantics, evidence destination, findings, and gates remain PRD-owned policy and are not re-authored in the kit.
 - R-SCEN-4 (MUST): no required or planned scenario id, fixture, expected-evidence table, registry tuple, or support claim may name a Playbook, Protocol, plugin, workflow bundle, package compiler, generated plugin, generated Skill bundle, marketplace install, or packaging dependency-materialization outcome as current coverage.
+- R-SCEN-5 (MUST): the legacy plugin marketplace install, generated Skill-bundle discovery/invocation, packaging dependency-check, and generated-output backup/uninstall scenarios are historical coverage only. Their specs, results, and evidence remain preserved. They are not replacement scenarios for current Skills or installed-product behavior, and their results never establish current support.
 
 ### Per-Target Disposable Execution Kits (R-KIT)
 
 - R-KIT-1 (MUST): a kit is generated on demand for one definition/target pair or one target's current suite into a disposable lab-session workspace outside the repository. It contains a prepared installed-product fixture, target prompts, deterministic instrument scripts, and a manifest recording definition id, target, tuple ids, generation inputs, current CLI/runtime identity, precondition attestations, and the expected-evidence table.
 - R-KIT-2 (MUST): the workspace layout is `<session-root>/kit/`, `<session-root>/workspace/`, and `<session-root>/evidence/`. The workspace is disposable by default, discarded after ingestion, and never written under the repository or repo-local `.make-docs/`.
-- R-KIT-3 (MUST): kit generation derives every emitted command and resource operation from the current registered public surface. It fails before session start when a current definition cannot project to an accepted command or operation sequence. The real session workspace runs setup normally and keeps P5-through-P10 quiescence active. P6 does not require or preserve a successful `package.ship` proof over frozen legacy Playbook package operations. P8 owns removal of the legacy package conformance surfaces or an owner-approved retargeting. A future non-Playbook packaging conformance design requires new owner authority.
+- R-KIT-3 (MUST): kit generation derives every emitted command and resource operation from the current registered public surface. It fails before session start when a current definition cannot project to an accepted command or operation sequence. The real session workspace runs setup normally and keeps P5-through-P10 quiescence active. P6 does not require or preserve a successful `package.ship` proof over frozen legacy Playbook package operations. Legacy packaging scenarios are not current kit targets. Generic lab tools remain in scope when they serve a traced current product feature. A future non-Playbook packaging conformance design requires new owner authority.
 - R-KIT-4 (MUST): the target operates the installed product and public interface. Internal modules, private repository shortcuts, fabricated harness behavior, or direct mutation of expected outputs are prohibited evidence paths.
 
 ### Maintainer Lab Home (R-HOME)
@@ -163,6 +164,14 @@ Current requirements, loaders, tests, and claim surfaces resolve only this repo-
 - Replacement contract: P6 proves static projection, active quiescence, and migration safety only. It does not require a successful proof over frozen Playbook package operations. P8 owns removal of those legacy conformance surfaces or an owner-approved retargeting. A future non-Playbook packaging conformance design requires new owner authority.
 - Rationale: P6 must not weaken the P5-through-P10 legacy-writer barrier to preserve a conformance proof for product surfaces that W19 removed from current coverage.
 - Source: [W19 R1 P6 work authority](../work/2026-08-14-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/06-global-store-evolution.md)
+
+### 2026-09-05 — W19 R1 P8 preflight
+
+- Affected requirement or section: R-SCEN-5 and R-KIT-3.
+- Previous contract: P8 could remove the legacy package conformance surfaces or retarget them with owner approval.
+- Replacement contract: all four legacy packaging scenarios are historical coverage only. Their specs, results, and evidence are preserved. Current kits exclude them. Generic lab tools remain where they serve a traced current feature.
+- Rationale: the owner approved retirement from current coverage without P8 replacement scenarios. Existing P9 and P10 validation scope remains unchanged. Historical results do not establish current support.
+- Source: [W19 R1 P8 approved retirement scope](../work/2026-08-14-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/08-traced-playbook-protocol-retirement.md).
 
 ## Source Anchors
 
