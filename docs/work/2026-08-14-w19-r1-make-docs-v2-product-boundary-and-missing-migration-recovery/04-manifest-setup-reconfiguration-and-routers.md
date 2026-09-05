@@ -72,7 +72,7 @@ Provider resources remain available independently of project projection. Setup a
 
 - Repository: Make Docs maintainer repository on `make-docs-v2`.
 - Preflight HEAD: `26dd6dfd3affbfb08df9bd99c86b3e45ba431b59`.
-- The worktree was clean before the required phase-state record was created. The only allowed preflight state path is `.make-docs/state/phase-state.yaml`.
+- The worktree was clean before the then-used Phase skill created its local preflight tracker. That tracker was retired on 2026-09-05 and is no longer required.
 - Free disk at preflight: 87 GB.
 - P2 dependency evidence: decision closeout `f7d11867` and resource-core implementation `6bf85e59`.
 - P3 dependency evidence: public-operation implementation `93749c9e`, provider follow-up `f2ed36c6`, and closeout `c13e99c5`.

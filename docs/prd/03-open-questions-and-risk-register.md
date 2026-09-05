@@ -629,6 +629,20 @@ The following record preserves the prior claims, findings, and close conditions.
 
 **Closure proof**: Authority and runtime agree on the exact router topology through `2f07b568`. The proof includes 1,287 CLI tests, 48 default checks, 118 focused independent-review tests, the build, the full package smoke pack, `git diff --check`, and the 25-line router cap. The external `Test-Agent` reconfigure added the expected 10 missing router files with no unrelated removal, and the next preview was a 26-file no-op. Independent review found no unresolved authority, migration, routing, or ownership defect. The owner accepted both correction candidates. The [final corrective closeout](../../.make-docs/archive/history/2026-09-03-w19-r1-p4-documentation-surface-recovery-closeout.md) records this proof without changing prior history.
 
+### D-031 Migration State Remains in the Project Despite the Store Boundary
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | The Phase skill cleanup does not resolve the separate CLI migration-state defect. No product or Store change is approved by this record. | Review the existing P5/P6 migration behavior against PRD 38 before selecting a repair. |
+
+**Issue**: Make Docs migration code uses `.make-docs/state/` for checkpoint receipts, a quiescence marker that stops legacy writes, and writer records. These files belong to the distributable CLI behavior. They are separate from the deleted project-local Phase skill's trackers. [PRD 38, R-BND-1 and R-BND-2](./38-global-store-and-project-state.md#the-boundary-principle-r-bnd) place tool operational state in the global Store. [P5 Stage 2](../work/2026-08-14-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/05-compatibility-quiescence-backup-and-migration.md#stage-2---classify-lock-and-establish-quiescence) owns migration locking and legacy-write control. [P5 Stage 4, t24](../work/2026-08-14-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/05-compatibility-quiescence-backup-and-migration.md#stage-4---implement-the-immutable-migration-coordinator) requires stored checkpoint results. [P6 Stage 4, t20](../work/2026-08-14-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/06-global-store-evolution.md#stage-4---return-typed-mutation-receipts) explicitly requires a project receipt copied from the committed Store journal. That local copy conflicts with the storage boundary even though the Store already records the checkpoint commit.
+
+**Why it matters**: Removing the Phase skill does not stop the CLI from creating local operational files. Deleting those files alone does not fix the product behavior. Adding new Store tables without checking the existing journal could also duplicate state already held by the Store.
+
+**Recommendation**: Keep this defect separate from the Phase skill cleanup. Assess which migration records are still required and what the existing Store already supports. Do not assume that all local files need replacement records. The current cleanup leaves CLI migration records and the live Store unchanged. Any proposed product or Store change requires a separate, disclosed decision from the owner.
+
+**To close**: The owner accepts a bounded repair for the existing P5/P6 behavior. Its tests prove that supported migration operations meet the PRD 38 storage boundary and preserve required recovery behavior. The repair accounts for existing local migration records without treating them as permission to resume work or deleting them without review.
+
 ## Open Questions
 
 ### Q-001 What Is the Long-Term Skills Delivery Contract?

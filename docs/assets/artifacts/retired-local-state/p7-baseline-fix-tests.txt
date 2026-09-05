@@ -1,0 +1,176 @@
+
+ RUN  v3.2.6 .
+
+·····│
+◇  Information ────────────────────────────────────────────────────────────────╮
+│                                                                              │
+│  Target: <temp-dir>/make-docs-p6-fres  │
+│  h-project-kEPmX6                                                            │
+│  Mode: first install                                                         │
+│  Manifest: <temp-dir>/make-docs-p6-fr  │
+│  esh-project-kEPmX6/.make-docs/manifest.json (will be created)               │
+│  Installed version: none detected                                            │
+│  Package version: @brucewaynedecoy/make-docs 2.0.0-rc                        │
+│  Selection source: default selections                                        │
+│  Local resource projection: none                                             │
+│  Safety stops: none                                                          │
+│  Document kind labels: design=design, plan=plan, prd=PRD, work=work,         │
+│  history=history, guide=guide, playbook=playbook                             │
+│  Lifecycle labels: design=design, plan=plan, prd=PRD, work=work,             │
+│  implementation=implementation, history=history, guide=guide,                │
+│  playbook=playbook                                                           │
+│  Coordinate labels: wave=Wave, revision=Revision, phase=Phase                │
+│  Persona labels: agent=Agent, developer=Developer, user=User                 │
+│  Managed files evaluated: 26                                                 │
+│  Already current: 0                                                          │
+│  Changes planned: 26                                                         │
+│  Generate: 26                                                                │
+│  Update: 0                                                                   │
+│  Skip: 0                                                                     │
+│  Remove: 0                                                                   │
+│                                                                              │
+├──────────────────────────────────────────────────────────────────────────────╯
+│
+◇  Planned file operations ────────────────────────────╮
+│                                                      │
+│  - generate: .make-docs/AGENTS.md                    │
+│  - generate: .make-docs/CLAUDE.md                    │
+│  - generate: .make-docs/system/AGENTS.md             │
+│  - generate: .make-docs/system/CLAUDE.md             │
+│  - generate: .make-docs/system/contracts/AGENTS.md   │
+│  - generate: .make-docs/system/contracts/CLAUDE.md   │
+│  - generate: .make-docs/system/prompts/AGENTS.md     │
+│  - generate: .make-docs/system/prompts/CLAUDE.md     │
+│  - generate: .make-docs/system/references/AGENTS.md  │
+│  - generate: .make-docs/system/references/CLAUDE.md  │
+│  - generate: .make-docs/system/templates/AGENTS.md   │
+│  - generate: .make-docs/system/templates/CLAUDE.md   │
+│  - generate: AGENTS.md                               │
+│  - generate: CLAUDE.md                               │
+│  - generate: docs/AGENTS.md                          │
+│  - generate: docs/CLAUDE.md                          │
+│  - generate: docs/assets/AGENTS.md                   │
+│  - generate: docs/assets/CLAUDE.md                   │
+│  - generate: docs/designs/AGENTS.md                  │
+│  - generate: docs/designs/CLAUDE.md                  │
+│  - generate: docs/plans/AGENTS.md                    │
+│  - generate: docs/plans/CLAUDE.md                    │
+│  - generate: docs/prd/AGENTS.md                      │
+│  - generate: docs/prd/CLAUDE.md                      │
+│  - generate: docs/work/AGENTS.md                     │
+│  - generate: docs/work/CLAUDE.md                     │
+│                                                      │
+├──────────────────────────────────────────────────────╯
+
+Installed make-docs 2.0.0-rc into <temp-dir>/make-docs-p6-fresh-project-kEPmX6.
+··│
+◇  Information ────────────────────────────────────────────────────────────────╮
+│                                                                              │
+│  Target: <temp-dir>/make-docs-p6-fres  │
+│  h-project-kEPmX6                                                            │
+│  Mode: existing install sync                                                 │
+│  Manifest: <temp-dir>/make-docs-p6-fr  │
+│  esh-project-kEPmX6/.make-docs/manifest.json (found)                         │
+│  Installed version: 2.0.0-rc                                                 │
+│  Package version: @brucewaynedecoy/make-docs 2.0.0-rc                        │
+│  Compatibility state: clean-v2-provider-backed                               │
+│  Disposition: sync                                                           │
+│  Selection source: saved manifest selections                                 │
+│  Local resource projection: none                                             │
+│  Safety stops: none                                                          │
+│  Document kind labels: design=design, plan=plan, prd=PRD, work=work,         │
+│  history=history, guide=guide, playbook=playbook                             │
+│  Lifecycle labels: design=design, plan=plan, prd=PRD, work=work,             │
+│  implementation=implementation, history=history, guide=guide,                │
+│  playbook=playbook                                                           │
+│  Coordinate labels: wave=Wave, revision=Revision, phase=Phase                │
+│  Persona labels: agent=Agent, developer=Developer, user=User                 │
+│  Managed files evaluated: 26                                                 │
+│  Already current: 26                                                         │
+│  Changes planned: 0                                                          │
+│  Generate: 0                                                                 │
+│  Update: 0                                                                   │
+│  Skip: 0                                                                     │
+│  Remove: 0                                                                   │
+│                                                                              │
+├──────────────────────────────────────────────────────────────────────────────╯
+│
+◇  Results ──────────────────────────────────────────────────────────────────╮
+│                                                                            │
+│  No managed file changes are needed.                                       │
+│  Every managed file already matched the desired content.                   │
+│                                                                            │
+│  Useful next steps:                                                        │
+│  - Run `make-docs setup reconfigure` to change which docs, harnesses, or   │
+│  project resources are managed.                                            │
+│  - Run `make-docs setup skills` to change managed skills.                  │
+│  - Run `make-docs --dry-run` after upgrading make-docs to preview future   │
+│  changes.                                                                  │
+│                                                                            │
+├────────────────────────────────────────────────────────────────────────────╯
+···│
+◇  Information ────────────────────────────────────────────────────────────────╮
+│                                                                              │
+│  Target: <temp-dir>/make-docs-p6-proj  │
+│  ection-stop-62C3VY                                                          │
+│  Mode: first install                                                         │
+│  Manifest: <temp-dir>/make-docs-p6-pr  │
+│  ojection-stop-62C3VY/.make-docs/manifest.json (will be created)             │
+│  Installed version: none detected                                            │
+│  Package version: @brucewaynedecoy/make-docs 2.0.0-rc                        │
+│  Selection source: default selections                                        │
+│  Local resource projection: none                                             │
+│  Safety stops: none                                                          │
+│  Document kind labels: design=design, plan=plan, prd=PRD, work=work,         │
+│  history=history, guide=guide, playbook=playbook                             │
+│  Lifecycle labels: design=design, plan=plan, prd=PRD, work=work,             │
+│  implementation=implementation, history=history, guide=guide,                │
+│  playbook=playbook                                                           │
+│  Coordinate labels: wave=Wave, revision=Revision, phase=Phase                │
+│  Persona labels: agent=Agent, developer=Developer, user=User                 │
+│  Managed files evaluated: 26                                                 │
+│  Already current: 0                                                          │
+│  Changes planned: 26                                                         │
+│  Generate: 26                                                                │
+│  Update: 0                                                                   │
+│  Skip: 0                                                                     │
+│  Remove: 0                                                                   │
+│                                                                              │
+├──────────────────────────────────────────────────────────────────────────────╯
+│
+◇  Planned file operations ────────────────────────────╮
+│                                                      │
+│  - generate: .make-docs/AGENTS.md                    │
+│  - generate: .make-docs/CLAUDE.md                    │
+│  - generate: .make-docs/system/AGENTS.md             │
+│  - generate: .make-docs/system/CLAUDE.md             │
+│  - generate: .make-docs/system/contracts/AGENTS.md   │
+│  - generate: .make-docs/system/contracts/CLAUDE.md   │
+│  - generate: .make-docs/system/prompts/AGENTS.md     │
+│  - generate: .make-docs/system/prompts/CLAUDE.md     │
+│  - generate: .make-docs/system/references/AGENTS.md  │
+│  - generate: .make-docs/system/references/CLAUDE.md  │
+│  - generate: .make-docs/system/templates/AGENTS.md   │
+│  - generate: .make-docs/system/templates/CLAUDE.md   │
+│  - generate: AGENTS.md                               │
+│  - generate: CLAUDE.md                               │
+│  - generate: docs/AGENTS.md                          │
+│  - generate: docs/CLAUDE.md                          │
+│  - generate: docs/assets/AGENTS.md                   │
+│  - generate: docs/assets/CLAUDE.md                   │
+│  - generate: docs/designs/AGENTS.md                  │
+│  - generate: docs/designs/CLAUDE.md                  │
+│  - generate: docs/plans/AGENTS.md                    │
+│  - generate: docs/plans/CLAUDE.md                    │
+│  - generate: docs/prd/AGENTS.md                      │
+│  - generate: docs/prd/CLAUDE.md                      │
+│  - generate: docs/work/AGENTS.md                     │
+│  - generate: docs/work/CLAUDE.md                     │
+│                                                      │
+├──────────────────────────────────────────────────────╯
+························
+
+ Test Files  2 passed (2)
+      Tests  34 passed (34)
+   Start at  07:52:27
+   Duration  3.01s (transform 1.01s, setup 0ms, collect 2.17s, tests 2.71s, environment 0ms, prepare 166ms)

@@ -1,0 +1,9 @@
+
+ RUN  v3.2.6 .
+
+----·-------------------------------
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 35 skipped (36)
+   Start at  07:45:47
+   Duration  2.67s (transform 1.13s, setup 0ms, collect 1.85s, tests 39ms, environment 1ms, prepare 89ms)

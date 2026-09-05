@@ -4,6 +4,8 @@ Status: Non-authoritative draft for owner review. This document proposes skill b
 
 Date: 2026-09-05.
 
+**Later status — 2026-09-05:** The owner retired the old Phase skill after trying the three new skills. References to that skill below describe the original study. They do not ask agents to use or restore it. The [retained evidence](retired-local-state/README.md) records the narrow cleanup.
+
 Source: [Reviewed intent](2026-09-05-project-local-skills-intent.md), with the owner's later confirmation of three skills and the Make Docs planning boundary.
 
 ## Intended Result
@@ -272,7 +274,7 @@ Keep ordinary behavior in the entry file. Add a reference only when its detail i
 
 Do not add empty folders, copied policy manuals, or scripts without a use. Do not make each skill load the other two. When several skills are explicitly requested, carry their applicable guidance into worker briefs within the same assignment.
 
-The existing phase skill remains untouched. These are project-local assets. They do not change Make Docs template source, installed resources, routing, or lifecycle documents.
+The original implementation scope left the then-existing Phase skill untouched. The owner later retired it, as noted above. These are project-local assets. They do not change Make Docs template source, installed resources, routing, or lifecycle documents.
 
 ## Behavioral Evaluation Before Use
 

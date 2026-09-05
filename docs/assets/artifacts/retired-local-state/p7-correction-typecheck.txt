@@ -1,0 +1,8 @@
+packages/cli/tests/consistency.test.ts(258,35): error TS2339: Property 'content' does not exist on type 'ResolvedInstallAsset'.
+  Property 'content' does not exist on type 'ResolvedSkillExposureAsset'.
+packages/cli/tests/p5-migration-safety.test.ts(459,22): error TS2339: Property 'claims' does not exist on type 'MigrationCheckpointResult'.
+  Property 'claims' does not exist on type 'Checkpoint9ReceiptProjectionFailure'.
+packages/cli/tests/p6-global-store-lifecycle.test.ts(260,46): error TS2339: Property 'receiptId' does not exist on type 'StoreCheckpoint9ExecutionResult'.
+  Property 'receiptId' does not exist on type '{ status: "not-required"; checkpoint: 9; storeCommitted: boolean; setupMayContinue: true; }'.
+packages/cli/tests/p6-global-store-lifecycle.test.ts(271,37): error TS2339: Property 'receiptId' does not exist on type 'StoreCheckpoint9ExecutionResult'.
+  Property 'receiptId' does not exist on type '{ status: "not-required"; checkpoint: 9; storeCommitted: boolean; setupMayContinue: true; }'.

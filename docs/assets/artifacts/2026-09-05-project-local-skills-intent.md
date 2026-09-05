@@ -4,6 +4,8 @@ Status: Draft for owner review. This is an input to later design work. It sets n
 
 Date: 2026-09-05.
 
+**Later status — 2026-09-05:** The owner retired the old Phase skill after trying the three new skills. References to that skill below describe the original study. They do not ask agents to use or restore it. The [retained evidence](retired-local-state/README.md) records the narrow cleanup.
+
 ## Purpose
 
 Create project-local skills that help the owner make clear choices and trust agents to complete the work they requested. Keep human effort low. Keep the agreed product direction intact. Let the owner choose how much work to run and how much help to use.
@@ -115,17 +117,19 @@ The skill should remain useful in its own right. It should have no planned end-o
 - **Built-in state:** Use supported Make Docs v2 global Store operations when durable lifecycle progress is needed. Do not create `.make-docs/state/` or another skill-owned tracker. Keep substantive project knowledge in its existing documents. Present any proposed change or extension to Make Docs state support and obtain explicit owner approval before making it.
 - **Honest limits:** Instructions guide agent behavior. They do not by themselves enforce isolation, exclusive file writes, spending limits, or reliable recovery. Use existing tool controls where those guarantees are needed. State any remaining limits.
 
-This work uses Make Docs' existing state feature within its supported scope. Its fit for each required continuity need remains to be checked. It does not choose a new state schema, agent roster, transport, workflow engine, or model. It does not modify Make Docs, repair Party, replace the existing phase skill, or install either external factory.
+This work uses Make Docs' existing state feature within its supported scope. Its fit for each required continuity need remains to be checked. It does not choose a new state schema, agent roster, transport, workflow engine, or model. It does not modify Make Docs, repair Party, replace the then-existing phase skill, or install either external factory.
 
 ## What the Sources Add
 
-### Bear Note and Existing Phase Skill
+### Bear Note and Retired Phase Skill
 
 The live Bear note keeps a clear owner, coordinator, and implementation-agent split. It asks the coordinator to translate choices, supervise work, inspect real changes, and return findings for correction. These are useful foundations.
 
 The note also requires separate permission at every transition and limits implementation to one phase. Copying it verbatim would not satisfy the new request for optional preflight and flexible work size. Its strengths should inform the design without silently fixing the new skills to that process.
 
-The current [phase skill](../../../.agents/skills/phase/SKILL.md) was inspected as source material only. Its [run modes](../../../.agents/skills/phase/references/run-modes.md) require saved control fields. Its [tally rules](../../../.agents/skills/phase/references/preflight-item-tally.md) require a separate register and presentation order. The skill also requires a start-now confirmation after the preflight documentation commit, even when implementation was requested earlier.
+The then-existing Phase skill was inspected as source material only. Its run modes required saved control fields. Its tally rules required a separate register and presentation order. The skill also required a start-now confirmation after the preflight documentation commit, even when implementation was requested earlier.
+
+The retired source remains in local Git at `45dc1c22`, under `.agents/skills/phase/`: `SKILL.md`, `references/run-modes.md`, and `references/preflight-item-tally.md`. These paths identify historical source files, not installed skills.
 
 These are concrete sources of process overhead. Their presence does not prove that all state or approval controls are harmful. The new design should justify the controls it retains. No token-saving claim has been measured.
 
