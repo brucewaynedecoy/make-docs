@@ -33,8 +33,8 @@ This phase must make the standard easy for an agent to find and apply. It must n
 
 Author upstream first:
 
-- `packages/docs/template/.make-docs/contracts/system/human-experience-contract.md`
-- `packages/docs/template/.make-docs/references/system/human-experience.md`
+- `packages/docs/template/.make-docs/system/contracts/human-experience-contract.md`
+- `packages/docs/template/.make-docs/system/references/human-experience.md`
 
 Use these stable URIs:
 

@@ -5,7 +5,7 @@ status: "active"
 coordinate: "W20 R0"
 follow_on:
   route: "implementation-loop"
-  next_prompt: ".make-docs/references/system/execution-workflow.md"
+  next_prompt: ".make-docs/system/references/execution-workflow.md"
   why: "The backlog is the implementation queue derived from the plan and PRD contract."
   coordinate_handoff: "Carry this backlog's W/R coordinate into phase history records and commits, adding the active P coordinate for each phase."
 source:
@@ -48,7 +48,7 @@ After both backlogs are ready, implement W20 first. Then implement W21 against t
 
 | Phase | File | Outcome |
 | --- | --- | --- |
-| 1 | [01-prd-authority-and-requirement-trace.md](01-prd-authority-and-requirement-trace.md) | Lock current PRD authority, requirement trace, product surfaces, and proof ownership before source edits. |
+| 1 | [01-prd-authority-and-requirement-trace.md](01-prd-authority-and-requirement-trace.md) | Complete and owner-authorized for closeout: [authority, source/test ownership, and proof map](01-prd-authority-and-requirement-trace.md#read-this-first). The known baseline defaults failure is disclosed; P2 needs separate authority. |
 | 2 | [02-contract-reference-and-design-entry.md](02-contract-reference-and-design-entry.md) | Add the canonical contract, interpretation reference, conditional design section, stable resource access, and structural checks. |
 | 3 | [03-lifecycle-propagation-and-routing.md](03-lifecycle-propagation-and-routing.md) | Carry the human goal and promises through plans, PRDs, work, routers, prompts, handoffs, and durable deferrals. |
 | 4 | [04-evidence-review-and-acceptance.md](04-evidence-review-and-acceptance.md) | Apply required Human Experience Review and select only the proportionate testing needed for current decisions. |
@@ -56,7 +56,7 @@ After both backlogs are ready, implement W20 first. Then implement W21 against t
 
 ## Usage Notes
 
-- Start Phase 1 only after the owner gives separate implementation authority.
+- The owner authorized P1 implementation, then P1 closeout and a local commit on 2026-09-08. This authority ends at P1. P2, publication, and release need separate authority.
 - Complete phases in order. A later phase can inspect future work, but it cannot close before its dependencies close.
 - Use phase-local task IDs. IDs start at `t1` in each phase and continue across that phase's stages.
 - Treat PRD 49 and the listed owner PRDs as product authority. Use the plan only for order, context, and scope provenance.
@@ -77,6 +77,8 @@ After both backlogs are ready, implement W20 first. Then implement W21 against t
 This handoff is advisory-default-but-overridable. It is authoritative unless the user explicitly overrides it. It is not an implementation approval.
 
 - Route: `implementation-loop`
-- Next step: After owner approval, start with Phase 1 and continue phase by phase.
-- Why: This backlog turns the accepted Human Experience design, plan, and PRDs into a bounded implementation and proof queue.
-- Coordinate Handoff: Carry `W20 R0` into phase history records and commits. Add the active P coordinate for each phase.
+- Next Prompt: `.make-docs/system/references/execution-workflow.md`
+- Why: The backlog is the implementation queue derived from the plan and PRD contract.
+- Coordinate Handoff: Carry this backlog's W/R coordinate into phase history records and commits, adding the active P coordinate for each phase.
+
+Current next step: Use the [closed P1 result and limits](01-prd-authority-and-requirement-trace.md#coverage-and-closeout) for P2 planning. The owner has authorized the local P1 commit. P2 is ready for separate implementation authority. This handoff does not authorize P2 work, publication, or release.

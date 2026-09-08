@@ -40,9 +40,9 @@ The conditional section is necessary but not sufficient. Structural validation c
 
 ### Tasks
 
-- [ ] t1: Add `packages/docs/template/.make-docs/contracts/system/human-experience-contract.md` as the sole normative source for the Human Experience Standard.
+- [ ] t1: Add `packages/docs/template/.make-docs/system/contracts/human-experience-contract.md` as the sole normative source for the Human Experience Standard.
 - [ ] t2: Define `direct`, `indirect`, and `none`, the conditional section forms, field order, design position, lifecycle propagation, evidence levels, validation limits, and prospective activation in the contract.
-- [ ] t3: Add `packages/docs/template/.make-docs/references/system/human-experience.md` with adaptable guidance for commands, interfaces, documents, APIs, workflows, file trees, and indirect effects.
+- [ ] t3: Add `packages/docs/template/.make-docs/system/references/human-experience.md` with adaptable guidance for commands, interfaces, documents, APIs, workflows, file trees, and indirect effects.
 - [ ] t4: Add examples and counterexamples for orientation, continuity, meaning, information amount, next action, recovery, control, terminology, human-and-machine separation, and valid `none` cases.
 - [ ] t5: Review the reference to ensure that it explains the contract without adding a second policy source.
 

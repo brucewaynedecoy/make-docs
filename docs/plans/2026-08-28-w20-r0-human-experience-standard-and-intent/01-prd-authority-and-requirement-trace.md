@@ -20,7 +20,7 @@ This phase preserves the main reason for the work. Make Docs must not treat a te
 
 - [Plan overview](00-overview.md)
 - [Human Experience Standard and Intent design](../../designs/2026-08-28-human-experience-standard-and-intent.md)
-- [PRD authority-maintenance rules](../../../.make-docs/references/system/prd-change-management.md)
+- [PRD authority-maintenance rules](../../../.make-docs/system/references/prd-change-management.md)
 
 ## Preconditions
 

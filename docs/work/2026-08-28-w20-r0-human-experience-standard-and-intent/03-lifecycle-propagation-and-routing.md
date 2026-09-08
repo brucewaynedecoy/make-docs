@@ -43,7 +43,7 @@ The result must let an agent plan complex work without turning the backlog into 
 
 ### Tasks
 
-- [ ] t1: Update `packages/docs/template/.make-docs/references/system/lifecycle.md` so Human Experience is a cross-cutting lens and not a new stage.
+- [ ] t1: Update `packages/docs/template/.make-docs/system/references/lifecycle.md` so Human Experience is a cross-cutting lens and not a new stage.
 - [ ] t2: Define the local action at design, plan, PRD, work, implementation, review, coverage, acceptance, release, and retrospective points.
 - [ ] t3: Require design to record impact and intent before product and architecture decisions.
 - [ ] t4: Require planning to map each promise to PRD authority, a product or resource surface, a work phase, an evidence source or selected testing type, and a durable deferral route.

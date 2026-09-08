@@ -114,15 +114,15 @@ Later testing authority:
 
 Required system authority:
 
-- `.make-docs/contracts/system/design-contract.md`
-- `.make-docs/contracts/system/output-contract.md`
-- `.make-docs/contracts/system/coverage-pass-contract.md`
-- `.make-docs/contracts/system/naive-uat-contract.md`
-- `.make-docs/references/system/lifecycle.md`
-- `.make-docs/references/system/design-workflow.md`
-- `.make-docs/references/system/planning-workflow.md`
-- `.make-docs/references/system/prd-change-management.md`
-- `.make-docs/references/system/execution-workflow.md`
+- `.make-docs/system/contracts/design-contract.md`
+- `.make-docs/system/contracts/output-contract.md`
+- `.make-docs/system/contracts/coverage-pass-contract.md`
+- `.make-docs/system/contracts/naive-uat-contract.md`
+- `.make-docs/system/references/lifecycle.md`
+- `.make-docs/system/references/design-workflow.md`
+- `.make-docs/system/references/planning-workflow.md`
+- `.make-docs/system/references/prd-change-management.md`
+- `.make-docs/system/references/execution-workflow.md`
 - the design, plan, PRD, work, coverage, and UAT templates and prompts that route these authorities
 
 Delivery authority:
@@ -462,12 +462,9 @@ Plan acceptance authorizes the PRD-maintenance gate only when the owner separate
 
 ## Intended Follow-On
 
-Route: `prd-generation`
+- Route: `prd-generation`
+- Next Prompt: `.make-docs/system/prompts/plan-to-prd-change.prompt.md`
+- Why: The Human Experience Standard must become current product authority before implementation work changes contracts, templates, lifecycle routing, validation, or installed projects.
+- Coordinate Handoff: Carry W20 R0 into maintained PRD requirement history, source links, and one downstream W20 R0 delta backlog.
 
-Next Prompt: [plan-to-prd-change.prompt.md](../../../.make-docs/system/prompts/plan-to-prd-change.prompt.md) (`make-docs://system/prompt/plan-to-prd-change.prompt.md`)
-
-Next step: Create PRD 49 and apply the bounded current-authority updates listed in this plan.
-
-Why: The human experience standard must become current product authority before a backlog can turn it into contract, template, lifecycle, validation, delivery, and conformance work. This order preserves the reason for the enhancement and prevents later tasks from reducing it to document structure.
-
-Coordinate Handoff: Carry W20 R0 into requirement-history entries, source links, and one downstream W20 R0 delta backlog.
+This is the plan's original handoff. PRD maintenance is now complete. Use the [current backlog](../../work/2026-08-28-w20-r0-human-experience-standard-and-intent/00-index.md) for current execution status. The P1 implementation request does not authorize P2.
