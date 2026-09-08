@@ -146,6 +146,8 @@ Maintainer-dogfood capability status is currently `Capability status unverified`
 
 **W19 R1 P7 disposition**: For W19 R1 P7 only, the selected first-party Unassisted Goal Testing Skill ships as a bundled local payload. Setup installs it through the canonical shared lifecycle and native harness projection. No remote fetch is required. The general Skill delivery question remains open.
 
+**W19 R1 P9 disposition (2026-09-05)**: The owner selected no optional integrations for P9. D-005, Q-001, and Q-007 remain open but do not block this `none` selection. The optional bundled local `naive-uat` Skill shipped in P7 remains available unchanged. This choice adds no integration or support claim. The [P9 preflight record](../work/2026-08-14-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/09-optional-agentics.md#stage-1---phase-entry-prd-question-and-risk-gate) keeps core checks and checkpoint evidence pending.
+
 **Prior discussion and resolutions (retained)**
 
 - Prior status: `Open`.

@@ -65,6 +65,10 @@ This phase may legitimately resolve to `not applicable` when no integration is e
 ### Closeout Notes
 
 - Testing-mode decision(s): selected integrations receive their canonical conformance/UAT candidates; `none` selection records no execution.
+- Owner preflight choice (2026-09-05): “No integrations in P9 (Recommended)”. The exact P9 selection is `none`.
+- Basis: [PRD 08](../../prd/08-skills-catalog-and-distribution.md), [PRD 28](../../prd/28-shared-agentics-installation-and-harness-exposure.md), and [PRD 30](../../prd/30-plugin-substrate-and-workflow-bundles.md) permit complete core use without optional integrations. Requirement-change disposition: `none`; current product requirements already cover this choice.
+- [D-005](../../prd/03-open-questions-and-risk-register.md#d-005-skills-delivery-diverges-from-earlier-bundled-payload-expectations), Q-001, and Q-007 remain open but do not block this selection. The optional bundled local `naive-uat` Skill shipped in P7 remains available unchanged.
+- Scope: no integration mutation or new support claim. Core checks, independent phase review, and checkpoint-12 `not applicable` evidence remain pending. This preflight record does not complete Stage 1 or authorize implementation. P10/checkpoint 13 remains separately gated.
 - Phase / capability status: gate result pending.
 
 ## Stage 2 - Prove Core Completeness And Bound Selection
