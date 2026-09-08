@@ -7,6 +7,10 @@
 - Do not infer optional Skills, plugins, Playbooks, Protocols, or unavailable policy from this router.
 <!-- make-docs:end -->
 
+# Agent Responses
+
+- Whenever possible, describe what you're doing or are proposing using tactile terms, e.g., what the user will *see*, *feel*, *experience*, etc., and be able to verify based on their tactile feedback.  This does not need to be overly verbose, but it should at minimum sum up your points and/or what you are proposing into something tactile and real for the user.  When your responses must provide the user with operational, functional, and/or technical details, do so; but also include a nice summary sub-section at the end which summarizes your points into this tactile feedback-friendly format.
+
 # Maintainer Dogfooding — Upstream First, Then Dogfood
 
 This repository is the Make Docs **maintainer repo** and, at the same time, a **dogfood instance** of Make Docs. Do not author Make Docs system resources or default assets in this repo's own installed instance. Author them **upstream** in the shipped template source of truth at `packages/docs/template/` (which mirrors `.make-docs/` and `docs/`), then **dogfood** them **downstream** into this repo's installed instance at `./.make-docs/` and `./docs/`.
