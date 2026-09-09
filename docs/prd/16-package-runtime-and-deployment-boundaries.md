@@ -49,7 +49,8 @@ MCP and shared-contract boundary:
 
 - MCP must ship as part of v2 and is TypeScript-owned.
 - [25-typescript-runtime-cli-mcp-operation-boundaries.md](./25-typescript-runtime-cli-mcp-operation-boundaries.md) defines the required TypeScript MCP surface: `make-docs mcp` exposes hand-defined read/plan tools, registry-derived operation tools, and native MCP resources where the SDK supports them; CLI resource list/read and MCP resource discovery/read share one resolver and stable `make-docs://system/<type>/<posix-relative-path>` identities, and writes require the shared permission, dry-run, approval, and parity proof.
-- `.make-docs/manifest.json`, package metadata needed for installed-project provenance, audit safety expectations, backup/uninstall behavior, migration behavior, deterministic operation semantics, and user-visible command semantics are TypeScript package product contracts.
+- The global Store installation ledger, package metadata needed for installed-project provenance, audit safety expectations, backup/uninstall behavior, migration behavior, deterministic operation semantics, and user-visible command semantics are TypeScript package product contracts. `.make-docs/config.yaml` is declarative project knowledge. A local `.make-docs/manifest.json` or state directory is only a bounded legacy input; package preparation, installation, and dogfood must not restore it as current state.
+- Package and installed-tree checks preserve the on-demand assets root, shared `docs/assets/project/**` inputs, and effective Persona paths owned by PRDs [22](22-project-documentation-asset-model.md) and [47](47-persona-model.md). Effective Persona discovery must not require the Store. No-CLI asset authoring follows the always-present docs router and valid declarative config.
 - [17-system-asset-materialization-and-local-bootstrap.md](./17-system-asset-materialization-and-local-bootstrap.md) extends this boundary to system-resource delivery: the installed provider supplies bodies without a repository snapshot, the `.make-docs/system/**` router skeleton is always local, and any optional local resource bodies must preserve provenance, conflict review, audit safety, backup, uninstall, and manifest compatibility.
 - [18-compatibility-classification-and-migration-safety.md](./18-compatibility-classification-and-migration-safety.md) extends this boundary to existing-install compatibility: TypeScript CLI and MCP paths must preserve the same classifier, source-state taxonomy, disposition semantics, manifest compatibility, and single-audit safety model.
 
@@ -100,6 +101,16 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: The TypeScript package ships an installed provider for peer contract, prompt, reference, and template resources; CLI and native MCP access share stable resource identity and one resolver; local projection is optional; package preparation preserves the template-upstream/package/root-dogfood order; and no Playbook or Protocol runtime ships.
 - Rationale: Package and deployment authority must expose the accepted v2 resource boundary without turning generated copies or repository dogfood into competing sources of truth.
 - Source: [Accepted recovery design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md) and [W19 R1 recovery plan](../plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md)
+
+### 2026-09-09 — W19 R4
+
+- Date: 2026-09-09
+- Coordinate: W19 R4
+- Affected requirement or section: Current product scope, command footprint, and package state boundary.
+- Previous contract: The current body retained eager assets-root or local-manifest footprint language and, where applicable, the separate docs/artifacts destination.
+- Replacement contract: Installation state is Store-owned. Assets and their configured-harness root routers are on demand; shared inputs use docs/assets/project and audience assets use effective Persona slugs. Always-present documentation exposes defaults without the CLI.
+- Rationale: Keep overview, command, and package consumers aligned with their current asset, config, Persona, and Store owners.
+- Source: [Project Assets and Persona Discovery](../designs/2026-09-09-project-assets-and-persona-discovery.md), [W19 R4 plan](../plans/2026-09-09-w19-r4-project-assets-and-persona-discovery/00-overview.md), [Store ownership](38-global-store-and-project-state.md). Runtime R4 implementation has not started.
 
 ## Source Anchors
 

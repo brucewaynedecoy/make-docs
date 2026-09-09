@@ -34,45 +34,45 @@ This authority owns Persona primitives, configured Persona entries, execution el
 
 Personas have two layers:
 
-- Primitive: one of `agent`, `maintainer`, or `user`.
-- Persona: a configured audience entry with `slug`, `label`, `description`, and `primitive`.
+- Primitive: either `user` or `maintainer`.
+- Persona: an audience entry with `slug`, `label`, `description`, and `primitive`.
 
-The default persona set is:
+A human or an agent can fill either audience role. Actor technology is not an audience primitive. The only built-in entries are:
 
 ```yaml
 personas:
-  - slug: agent
-    label: Agent
-    description: "Agents executing make-docs workflows, coverage passes, closeout, and lifecycle tasks."
-    primitive: agent
-  - slug: developer
-    label: Developer
-    description: "Maintainers, contributors, integrators, operators, validation owners, and extension authors."
-    primitive: maintainer
   - slug: user
     label: User
-    description: "People using the shipped product, reading task guidance, or adopting a documented workflow."
+    description: "People or agents that use the project or its documented workflows."
     primitive: user
+  - slug: maintainer
+    label: Maintainer
+    description: "People or agents that build, operate, maintain, or extend the project."
+    primitive: maintainer
 ```
 
-Custom personas must use the same schema. A custom `slug` must be lowercase kebab-case and unique in the configured persona set. A custom `primitive` must map to `agent`, `maintainer`, or `user`.
+The effective set starts with both built-ins. An absent or empty/comment-only config, an absent `personas` key, and an empty `personas` list retain both entries. Explicit null, wrong-type, or malformed config and Persona values produce diagnostics instead of an invented effective set. Configured entries merge by slug. Custom entries extend the set and require all four fields. A built-in override may change `label` and `description`; omitted display fields inherit their defaults. A supplied built-in `primitive` must equal its fixed mapping. Built-in slugs and mappings cannot be removed, renamed, or reclassified.
 
-Configuration may relabel persona display text, but generated persona frontmatter stores the persona slug, not the label.
+Every slug must be unique lowercase kebab-case. Slugs must be safe single path segments: no separators, traversal, absolute paths, drive prefixes, or encoded path escapes. `project` is reserved for shared assets and cannot be a Persona slug. A custom primitive must be `user` or `maintainer`. An unknown primitive, duplicate slug, malformed entry, or attempted built-in change fails with a clear error and leaves config untouched.
 
-The configured set must retain the canonical `user` slug mapped to the `user` primitive. It is the deterministic no-input Persona for Naive UAT. A configured Persona is eligible for explicit Naive-UAT selection only when its primitive is `user` or `maintainer`; an `agent`-primitive Persona is ineligible even when an agent is the isolated execution actor.
+There is no built-in `agent` or `developer` slug. A custom `agent` or `developer` entry is possible only with an explicit valid audience mapping. Migration must not infer that mapping from its name. Only verified use of the former shipped `developer` default can support a reviewed move to `maintainer`.
+
+Canonical `user` remains the no-input UAT audience. Generated `persona` frontmatter stores the resolved slug, not its label. The resolver and validators in `packages/cli/src/config.ts` and the shared Persona operation must apply this one contract.
 
 ### Frontmatter Authority
 
-The `persona` YAML frontmatter field is canonical only where a current product contract explicitly defines an artifact as Persona-bearing. This PRD defines that field's value as a configured Persona slug; it does not establish a general Persona-scoped document family.
+The `persona` YAML frontmatter field records the configured primary-audience slug where an owning contract defines a Persona-bearing artifact. Audience assets under `docs/assets/<persona-slug>/**` follow the metadata contract in [PRD 23](23-generated-document-metadata-and-lifecycle-handoffs.md). Shared inputs under `docs/assets/project/**` are not assigned a Persona merely because they are project material.
 
-`docs/assets/library/**`, including former `docs/assets/library/<persona-slug>/` publication or grouping, is a bounded migration input under PRD22 rather than a v2 target. Directory placement is never Persona authority. Where an applicable current contract provides both a Persona-bearing path and `persona` frontmatter, validators report drift instead of inferring or rewriting Persona from the directory.
+Directory placement helps discovery; it never overrides explicit metadata. Validators report unknown slugs and path/metadata disagreement instead of inferring or rewriting a Persona. The `project` segment is not a valid frontmatter Persona.
+
+Former `docs/assets/library/**` paths are finite migration inputs under [PRD 22](22-project-documentation-asset-model.md). Reviewed moves repair active Persona metadata and live links together. Historical statements retain the audience and outcomes they recorded; migration must not rewrite those facts as current claims.
 
 ### Affected-Human and Experience Boundary
 
 - Persona answers `for whom`. Human Experience Intent answers `to what end and with what experience`.
 - For `direct` and `indirect` impact, `Affected humans` can use configured Persona slugs, clear human roles, or both.
 - Use a configured Persona when the project already has a suitable one. Do not invent a Persona only to complete Human Experience Intent.
-- An `agent` Persona does not count as a human. Agent-facing work can still affect people who author, review, operate, maintain, recover, or rely on the result.
+- An audience role filled by an agent does not prove a human effect or lived human experience. Agent-facing work can still affect people who author, review, operate, maintain, recover, or rely on the result.
 - The Human Experience capability does not change the Persona schema, eligibility rules, frontmatter authority, evidence-path routing, canonical `user` default, or independent tester boundary.
 - See [PRD 49](49-human-experience-standard-and-intent.md) for the impact and intent model.
 
@@ -84,9 +84,11 @@ The configuration overlay may relabel presentation vocabulary but must not renam
 
 ### Testing and UAT Boundary
 
-Unassisted Goal Testing remains a distinct testing decision. When Persona resolution applies, an activated execution resolves exactly one configured Persona. Resolution uses an explicitly supplied Persona whose primitive is `user` or `maintainer`; when none is supplied, it uses the canonical `user` Persona; an unknown, invalid, or `agent`-primitive selection fails closed. The actual selected slug controls `docs/assets/<persona-slug>/testing/**` routing.
+Unassisted Goal Testing remains a distinct testing decision. When Persona resolution applies, an activated execution resolves exactly one effective Persona. Explicit input must name an entry mapped to `user` or `maintainer`; omitted input resolves to canonical `user`. Unknown or invalid input fails closed. The actual selected slug controls `docs/assets/<persona-slug>/testing/**` routing.
 
-The qualified executor in [46 Unassisted Goal Testing](46-naive-end-user-acceptance-testing.md#r-nuat-scope-qualified-tester-and-installed-product) remains an independent isolation and evidence boundary, not a Persona entry. Selecting `maintainer` describes the tested audience and does not permit source access, private implementation knowledge, coaching, or any weakening of public-path rules.
+The execution actor is a separate field of the test evidence. A human or agent filling the selected audience role does not establish tester qualification. [PRD 46](46-naive-end-user-acceptance-testing.md#r-nuat-scope-qualified-tester-and-installed-product) retains its isolation, prior-knowledge, public-path, environment, and evidence checks. An agent may execute only where that contract permits and with its required isolation proof. Selecting `maintainer` never permits private source access or coaching.
+
+Persona selection cannot certify lived human understanding, satisfaction, or a Human Experience Review. The applicable human-review evidence and reviewer limits remain required.
 
 ## Contracts and Data
 
@@ -141,6 +143,16 @@ Preserve stable Persona slugs, primitive values, and `persona` frontmatter autho
 - Replacement contract: Persona supports audience framing for human testing; the owner, maintainer, or developer can join Guided Progress Review; and PRD 46 independently proves Unassisted Goal Test qualification.
 - Rationale: Guided and unassisted activities need different human roles, and Persona must not silently certify independence.
 - Source: [W21 R0 Proportionate Testing and Human-Centered Validation plan](../plans/2026-08-28-w21-r0-proportionate-testing-and-human-centered-validation/00-overview.md)
+
+### 2026-09-09 — W19 R4
+
+- Date: 2026-09-09
+- Coordinate: W19 R4
+- Affected requirement or section: Persona Schema; Frontmatter Authority; Testing and UAT Boundary.
+- Previous contract: Three primitives and agent/developer/user defaults separated actor technology from human audience roles. Only user was retained as a mandatory built-in.
+- Replacement contract: Two primitives and fixed user/maintainer built-ins describe audience roles. Config extends defaults by safe slug; metadata and reviewed migration preserve audience meaning. Tester qualification remains independent.
+- Rationale: Make audience roles useful for humans and agents without adding a false human-review claim.
+- Source: [Project Assets and Persona Discovery](../designs/2026-09-09-project-assets-and-persona-discovery.md), [W19 R4 plan](../plans/2026-09-09-w19-r4-project-assets-and-persona-discovery/00-overview.md). Delivery is tracked by the single-phase R4 backlog; runtime implementation has not started.
 
 ## Source Anchors
 

@@ -43,7 +43,7 @@ Authority inputs:
 
 ## W20 Dependency and Scope Boundary
 
-**Current dependency, 2026-09-09:** The owner accepted the completed [W19 R3 Store state interrupt](../2026-09-09-w19-r3-store-owned-installation-and-migration-state/00-index.md) and requested another interrupt package after its commit. W20 and W21 remain paused while that package is planned. No link is added before the package exists. W21 remains downstream of W20. Neither interrupt closeout nor new-package planning authorizes W20 or W21 implementation. Existing W21 tasks and the accepted testing direction remain unchanged.
+**Current dependency, 2026-09-09:** W19 R3 is accepted and committed at `dabd0b36`. W20 and W21 remain paused for the [W19 R4 asset and Persona recovery interrupt](../../plans/2026-09-09-w19-r4-project-assets-and-persona-discovery/00-overview.md). Its single-phase package awaits backlog review and acceptance. R4 drafting and completion do not authorize W20 or W21 implementation. Existing W21 tasks and the accepted testing direction remain unchanged.
 
 Implement W20 R0 first. W20 must supply the Human Experience Intent, its lifecycle propagation, and the required Human Experience Review that W21 consumes.
 

@@ -62,6 +62,7 @@ It does not activate merely because a user-observable slice exists. It does not 
 - R-NUAT-SCOPE-3 (MUST): an agent can execute only when isolated in a separate context with no repository access, private memory, implementation conversation, or project-specific path guidance beyond the tester packet. Self-attestation alone is not sufficient evidence.
 - R-NUAT-SCOPE-4 (MUST): the tested form is normally consumable by the intended audience. A source checkout or development server qualifies only when the intended audience normally consumes that exact form.
 - R-NUAT-SCOPE-5 (MUST): selected Persona and target-user framing help define audience and evidence routing. They do not prove qualification or weaken isolation.
+- R-NUAT-SCOPE-6 (MUST): `user` and `maintainer` are audience roles that may be filled by a person or an agent. Resolving either role does not identify or qualify the execution actor. The test records actor identity and qualification evidence separately. The agent isolation rule above and the requirements for lived human review remain unchanged.
 
 ### R-NUAT-ACTIVATE User-Observable Slices and Valid `none`
 
@@ -273,6 +274,16 @@ Author the system workflow upstream under `packages/docs/template/`. Keep operat
 - Replacement contract: Unassisted Goal Testing activates only for a material current human uncertainty or explicit authority, uses diagnostic result language, is advisory by default, permits `not-needed-now` without a false obligation, and remains distinct from non-gate Guided Progress Review.
 - Rationale: Human testing must reveal gaps in understanding without becoming repetitive sign-off work or forcing unstable products through ceremonial acceptance.
 - Source: [W21 R0 Proportionate Testing and Human-Centered Validation plan](../plans/2026-08-28-w21-r0-proportionate-testing-and-human-centered-validation/00-overview.md)
+
+### 2026-09-09 — W19 R4
+
+- Date: 2026-09-09
+- Coordinate: W19 R4
+- Affected requirement or section: R-NUAT-SCOPE Qualified Tester and Installed Product.
+- Previous contract: Persona selected an audience while actor qualification was separate, but the old Persona model also had an agent primitive.
+- Replacement contract: User and maintainer are audience roles that either actor type can fill. Actor identity, qualification, and isolation evidence remain separate and unchanged.
+- Rationale: Prevent broader audience eligibility from weakening unassisted testing or human-review evidence.
+- Source: [Project Assets and Persona Discovery](../designs/2026-09-09-project-assets-and-persona-discovery.md), [W19 R4 plan](../plans/2026-09-09-w19-r4-project-assets-and-persona-discovery/00-overview.md). Delivery is tracked by the single-phase R4 backlog; runtime implementation has not started.
 
 ## Source Anchors
 

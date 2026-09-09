@@ -55,7 +55,7 @@ The requirements below define the owned components, behaviors, boundaries, and e
   advisable-default-but-overridable `## Intended Follow-On`, mirroring design
   docs, so the chain stops breaking between stages. PRD 23 adds the generated
   metadata layer for these handoffs.
-- **Optional artifacts seed** — on-demand `docs/artifacts/`, a zero-contract home for
+- **Optional artifacts seed** — on-demand `docs/assets/project/`, a zero-contract home for
   pre-design inputs, accommodating ideation and architecture as an input surface
   rather than contract-bound stages.
 
@@ -96,7 +96,7 @@ Display labels may vary, but this mapping may not. `covered` and `rejected` are 
 
 ### Persona and History Boundaries
 
-Most adversarial candidates use `persona_target: none` because they challenge authority, implementation boundaries, or support claims. A configured persona slug is required only for persona-scoped content or audience-specific usability. The pass must use the configured persona set and must not invent an adversarial-review-specific persona schema.
+Most adversarial candidates use `persona_target: none` because they challenge authority, implementation boundaries, or support claims. A configured persona slug is required only for persona-scoped content or audience-specific usability. The pass must use the effective Persona set (defaults plus configuration) and must not invent an adversarial-review-specific persona schema.
 
 When closeout or the caller requires a session record, the pass updates the current-session history record or creates one if absent; it never creates duplicate current-session entries. Exploratory runs may return verdicts without history mutation only when they explicitly report that no history artifact changed.
 
@@ -117,14 +117,14 @@ Lifecycle artifacts link to the accepted Human Experience Intent and record thei
   mechanics only; it defers content to `guide-contract.md`,
   `prd-change-management.md`, `history-record-contract.md`, and
   `output-contract.md`.
-- A Persona-target axis reads the configured Persona set when an owning activity
+- A Persona-target axis reads the effective Persona set (defaults plus configuration) when an owning activity
   needs audience resolution. [PRD 47](47-persona-model.md) owns stable primitives
   and defaults. Guided Progress Review uses a human role without requiring a
   Persona. Unassisted Goal Testing can resolve one eligible Persona for audience
   framing and evidence routing under [PRD 46](46-naive-end-user-acceptance-testing.md),
   while executor qualification remains separate.
 - Performance qualification records a non-Persona disposition separately from the base coverage action and optional adversarial-review verdict. The candidate data links any applicable canonical `PERF-###` profile, evidence validity, outcome, finding or waiver, finite-budget and stop state, unchanged-check fingerprint, supported scope, gate effect, and phase-close handoff; [PRD 48](48-performance-evidence-governance.md) owns the field semantics and no lifecycle record may invent or tighten a target.
-- An on-demand `docs/artifacts/` directory with a light, zero-contract router.
+- Shared inputs use content-driven `docs/assets/project/**` under the short `docs/assets/` root router. No extra artifact-family router or empty child scaffold is required.
 
 ## Integrations
 
@@ -157,6 +157,11 @@ When performance qualification is applicable, the same phase-close record separa
 ## Rebuild Notes
 
 A rebuild must preserve the requirement identifiers, stable semantic anchors, ownership boundaries, and failure-safe behavior stated here. Implementation evidence does not silently weaken this authority.
+
+### Shared Asset and Audience Routing
+
+R-ASSET-LIFECYCLE-1 (MUST): optional pre-design inputs and shared project material use `docs/assets/project/**`; audience assets use `docs/assets/<persona-slug>/**`. The first needed content creates its path. Neither directory placement nor asset creation promotes content to product authority or adds a lifecycle stage. Resolve shipped defaults plus configured Personas under PRD 47. Ordinary lifecycle work can continue when optional CLI capture is unavailable; no local operational fallback is permitted.
+
 ## Requirement History
 
 ### 2026-08-08 — Not assigned
@@ -198,6 +203,14 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: Lifecycle selects only the four testing types that can change a current decision, treats Human Experience Review as a lens, keeps Guided Progress Review non-blocking, makes Unassisted Goal Testing conditional and advisory by default, and consumes explicit gate effects and rerun triggers.
 - Rationale: Phase-close rigor must protect current decisions without creating duplicate human work, false gates, or obligations for tests that are not useful now.
 - Source: [W21 R0 Proportionate Testing and Human-Centered Validation plan](../plans/2026-08-28-w21-r0-proportionate-testing-and-human-centered-validation/00-overview.md)
+
+### 2026-09-09 — W19 R4 Asset and Persona Recovery
+
+- Affected requirement or section: `Shared Asset and Audience Routing` and current asset, bootstrap, migration, or storage statements in this owner.
+- Previous contract: Optional pre-design inputs used docs/artifacts/ and a separate artifact router. Prior dated records retain their historical claims.
+- Replacement contract: Shared material uses `docs/assets/project/`; audience assets use on-demand Persona children; archives remain `.make-docs/archive/`. Short routing exposes defaults and configured harness files without a CLI. Reviewed layout moves use the R3 Store service and verify content and links. Existing local-state prose is aligned with the completed R3 boundary.
+- Rationale: Finish the missed consolidation requirement and remove active instructions that can restore legacy paths. This is the W19 R4 draft implementation target, not a runtime completion claim.
+- Source: [asset and Persona design](../designs/2026-09-09-project-assets-and-persona-discovery.md); [W19 R4 plan](../plans/2026-09-09-w19-r4-project-assets-and-persona-discovery/00-overview.md).
 
 ## Source Anchors
 

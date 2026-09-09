@@ -68,7 +68,7 @@ The order below retains the legacy resource transformation sequence after the St
 4. Save the pending installation plan in the Store and install configured routers through the recorded operation. Commit final installed ownership and the completion receipt only after all planned outputs are verified.
 5. Establish top-level prompt identity and machine resource list/read operations before changing router fallbacks.
 6. Move or install only selected clean local resources under `.make-docs/system/**`.
-7. Establish on-demand archive, artifact, and persona-testing routing, then transform only clean managed legacy paths.
+7. Establish on-demand archive, artifact, and persona-testing routing, then transform clean managed legacy paths or exact project-content moves separately approved under the reviewed layout contract below.
 8. Install TypeScript path-hygiene operations, update references, and remove only a hash-proven managed Python helper.
 9. Confirm general Store run tables are ready from the prerequisite transaction. Leave `playbook_runs` opaque and untouched. Do not create a project-local receipt.
 10. Rehome naive-UAT system resources, add the thin first-party Skill adapter, reconcile `user` and `maintainer` execution with the `user` default, and establish `docs/assets/<persona-slug>/testing/**`.
@@ -87,7 +87,7 @@ Migration safety:
 - Migration must not move runtime state into `docs/**` or move project knowledge into the machine Store.
 - Each affected file receives an explicit disposition: preserve as project-owned, export then replace, overwrite only when clean managed ownership is proven, skip, or stop. Append-merge is not ownership evidence, and a batch choice must still resolve to a file-scoped plan.
 - Migration must not reintroduce append-merge ownership for instruction files.
-- Migration may change only the selected facets in the reviewed plan. It preserves unselected and user-owned content, including legacy Library, Playbook, Protocol, archive, history, breadcrumb, guide, artifact, persona, script, config, and agentics material.
+- Migration may change only the selected facets in the reviewed plan. It preserves unselected content and all user-owned bytes; a reviewed layout operation may relocate explicitly selected project-owned files without adopting their ownership. Protected material includes legacy Library, Playbook, Protocol, archive, history, breadcrumb, guide, artifact, persona, script, config, and agentics material.
 - Repository and manifest paths are normalized as project-relative POSIX paths. Classification and mutation reject traversal, absolute-path substitution, unsafe Windows drive or UNC forms, case-folding collisions, symlink escape, and reads or writes outside explicit project and machine roots.
 
 Backup-and-reinstall safety:
@@ -151,6 +151,21 @@ Performance adoption integrates with [PRD 48](./48-performance-evidence-governan
 ## Rebuild Notes
 
 A rebuild must preserve the requirement identifiers, stable semantic anchors, ownership boundaries, and failure-safe behavior stated here. Implementation evidence does not silently weaken this authority.
+
+### Reviewed Project Layout Recovery
+
+R-ASSET-MIG-1 (MUST): `project layout preview` inventories every selected legacy file and empty directory, its ownership or provenance, expected bytes or empty state, destination, planned link edits, and blockers. Its review digest binds the full inventory, map, config-derived audience resolution, and links. The read-only preview writes neither Store nor project.
+
+R-ASSET-MIG-2 (MUST): `project layout prepare --review <digest> --mode cli|manual` recomputes that snapshot and stops on drift. It records the complete reviewed intent, byte identities, recovery copies, and explicit conflicts in the R3 Store service before any project mutation. Repeated `--map <source>=<destination>` values are project-relative, bounded, and included in the digest. A missing or unsafe Store stops this required operation without local fallback.
+
+R-ASSET-MIG-3 (MUST): `project layout apply <operation-id>` executes a CLI-mode plan. `project layout verify <operation-id>` validates a manual-mode plan after a person or agent follows its exact instructions. Both use the same byte, source, destination, and link expectations. Preparation releases the live process lock, while the pending Store operation blocks conflicting supported writes. Apply and verify reacquire the normal lock. Existing `project state status` and `project state recover` expose pending work and recovery; no separate migration engine or local journal is allowed.
+
+R-ASSET-MIG-4 (MUST): remove inventoried obsolete empty system directories only after an empty-state recheck; never prune current required system-router directories. Map shared `docs/artifacts/**` and `docs/assets/artifacts/**` into `docs/assets/project/**`; adopted legacy archives into `.make-docs/archive/**`; proved legacy Library audiences into their effective Persona paths; and retired Playbooks into `.make-docs/archive/legacy-playbooks/**`. Preserve relative content structure. A former default `developer` maps to `maintainer` only with proof; a custom `developer` or any `agent` slug needs an explicit reviewed decision. Unknown source purpose, ambiguous audience, changed content, collision, link escape, or conflicting metadata blocks the affected move.
+
+R-ASSET-MIG-5 (MUST): an explicit reviewed move may relocate project-owned or modified content without transferring ownership to the product. Copy and verify expected destination bytes and planned links before exact source removal. An identical destination needs byte and provenance checks; a differing one requires a new reviewed map. Preserve substantive historical bytes and past claims. Record only the exact mechanical link repairs and verify their targets. Manual verification must detect new source entries, unexpected leftovers, changed destinations, and unresolved links. It keeps the operation pending on any mismatch and cannot infer completion from a successful command exit.
+
+R-ASSET-MIG-6 (MUST): test complete and partial CLI/manual moves, resumption, concurrent writer exclusion, changed inputs, unsafe paths, conflicting destinations, real project content, and empty-directory cleanup. Completion permits only named, verified archival or backup exclusions outside active legacy routing. Ordinary work without the CLI remains valid; it does not authorize unreviewed legacy cleanup.
+
 ## Requirement History
 
 ### 2026-08-08 — W10 R3
@@ -175,6 +190,14 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: The Store is ready before project mutation. Import and cleanup are verified. Scoped rollback uses Store authority and preserves later user edits. At package acceptance on 2026-09-09, implementation had not started. The owner later accepted the delivered result recorded in the W19 R3 phase closeout.
 - Rationale: Make Docs tool state needs one Store authority. Project knowledge remains local.
 - Source: [Store-owned installation and migration state design](../designs/2026-09-09-store-owned-installation-and-migration-state.md) and [W19 R3 plan](../plans/2026-09-09-w19-r3-store-owned-installation-and-migration-state/00-overview.md).
+
+### 2026-09-09 — W19 R4 Asset and Persona Recovery
+
+- Affected requirement or section: `Reviewed Project Layout Recovery` and current asset, bootstrap, migration, or storage statements in this owner.
+- Previous contract: Legacy transformations allowed only clean managed moves and had no reviewed, resumable path for relocation of real project content. Prior dated records retain their historical claims.
+- Replacement contract: Shared material uses `docs/assets/project/`; audience assets use on-demand Persona children; archives remain `.make-docs/archive/`. Short routing exposes defaults and configured harness files without a CLI. Reviewed layout moves use the R3 Store service and verify content and links. Existing local-state prose is aligned with the completed R3 boundary.
+- Rationale: Finish the missed consolidation requirement and remove active instructions that can restore legacy paths. This is the W19 R4 draft implementation target, not a runtime completion claim.
+- Source: [asset and Persona design](../designs/2026-09-09-project-assets-and-persona-discovery.md); [W19 R4 plan](../plans/2026-09-09-w19-r4-project-assets-and-persona-discovery/00-overview.md).
 
 ## Source Anchors
 

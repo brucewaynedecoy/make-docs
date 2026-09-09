@@ -127,8 +127,9 @@ Governed work must apply the principles that matter to its human goal:
 3. Human Experience Intent answers `to what end and with what experience`.
 4. `Affected humans` can use configured Persona slugs, clear human roles, or both.
 5. A project must not invent a Persona only to complete the Human Experience Intent section.
-6. An `agent` Persona does not count as a human.
-7. The first release must not change the Persona schema.
+6. `user` and `maintainer` are the two audience primitives under [PRD 47](47-persona-model.md). Either role may be filled by a human or an agent. There is no separate `agent` primitive.
+7. A Persona label does not prove that an affected actor is human. Work consumed by an agent must still identify the people who operate, maintain, recover, review, or rely on its result when human impact exists.
+8. Agent execution does not establish lived human understanding, satisfaction, or Human Experience acceptance. Preserve the actual reviewer, evidence, and limits. Audience configuration cannot relax those requirements.
 
 ### R-HX-07 Lifecycle Propagation
 
@@ -153,7 +154,7 @@ Governed work must apply the principles that matter to its human goal:
 7. The first release must include at least one realistic installed-product flow that proves an actual human-facing improvement.
 8. Human Experience Review applies orientation, continuity, meaning, information amount, next action, recovery, and control as a lens over suitable evidence. It must not require a duplicate activity when existing evidence answers the accepted promise.
 9. An agent can draft intent, find likely issues, compare a result with promises, and prepare evidence.
-10. An agent cannot replace the qualified human executor for an Unassisted Goal Test. An agent cannot self-certify joy or lived human experience.
+10. Any agent execution of an Unassisted Goal Test must satisfy PRD 46's separate qualification and isolation rules. It cannot replace evidence of lived human experience where that evidence is required. An agent cannot self-certify joy or human understanding.
 
 ### R-HX-09 Completion and Obligations
 
@@ -299,6 +300,16 @@ The implementation must update upstream template authority first. It must then p
 - Replacement contract: Human Experience Review is a required acceptance lens that records a conclusion against each applicable promise while reusing suitable evidence, and PRD 50 selects the smallest additional testing activity only when evidence is insufficient. Unassisted Goal Testing is conditional and advisory by default under PRD 46.
 - Rationale: The Human Experience Standard must govern the built result without creating a fifth testing type, duplicate evidence, ceremonial human work, or false phase gates.
 - Source: [W21 R0 Proportionate Testing and Human-Centered Validation plan](../plans/2026-08-28-w21-r0-proportionate-testing-and-human-centered-validation/00-overview.md)
+
+### 2026-09-09 — W19 R4
+
+- Date: 2026-09-09
+- Coordinate: W19 R4
+- Affected requirement or section: R-HX-06 Persona Boundary; R-HX-08 Proportionate Evidence.
+- Previous contract: The boundary referred to an agent Persona and a first-release prohibition on schema changes.
+- Replacement contract: Two audience roles can be filled by either actor type. A role label does not establish human effect or lived human experience, and actual review evidence remains required.
+- Rationale: Keep the human standard intact while Persona authority changes its audience model.
+- Source: [Project Assets and Persona Discovery](../designs/2026-09-09-project-assets-and-persona-discovery.md), [W19 R4 plan](../plans/2026-09-09-w19-r4-project-assets-and-persona-discovery/00-overview.md). Delivery is tracked by the single-phase R4 backlog; runtime implementation has not started.
 
 ## Source Anchors
 

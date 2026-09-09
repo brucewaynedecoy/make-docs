@@ -29,9 +29,9 @@ Current package mechanics therefore split into two modes: local development work
 | Bin validation | After unpacking, the script reads the packed `package.json` and asserts the package exposes only the `make-docs` bin before invoking it. | `scripts/smoke-pack.mjs` (`packedPackageJson`, `packedMakeDocs`) |
 | Package-runner validation | Smoke-pack invokes the packed tarball through `npx --package`, `pnpm dlx`, and `bun x --package` into isolated temp working directories, targets, `HOME`, and package-manager cache roots. | `scripts/smoke-pack.mjs` |
 | Skills validation | Smoke-pack rewrites the packed skill registry to a repo-backed fixture server, runs `make-docs setup skills --dry-run`, installs the base package, verifies shared skill payloads plus native harness exposure, and asserts stale generated stubs, legacy duplicated payloads, or unsafe fallback artifacts are absent. | `scripts/smoke-pack.mjs` |
-| Installer validation | The same smoke run verifies `.make-docs/manifest.json`, `docs/AGENTS.md`, a second idempotent `setup --yes` run with no staged conflicts, and the later project-removal and machine-uninstall boundaries. | `scripts/smoke-pack.mjs` |
-| Project backup and removal validation | Smoke-pack creates unmanaged project files, runs `setup backup`, then `setup remove`, and confirms managed project files and the manifest are removed while unmanaged files survive and new backup state lands under `.make-docs/backup/**`; legacy root `.backup/**` remains protected when present. | `scripts/smoke-pack.mjs` (`setup backup`, `setup remove`) |
-| Machine uninstall validation | In a sandboxed machine environment, smoke-pack proves that top-level `uninstall` refuses without confirmation and that `uninstall --yes` removes the Global Store without modifying repository content. | `scripts/smoke-pack.mjs` (`uninstallRefusal`, `uninstallOutput`) |
+| Installer validation | Smoke proves the Store installation record, absent local operational manifest/state, configured documentation routers, repeat setup with no unintended changes, and project-removal boundaries. | `scripts/smoke-pack.mjs` |
+| Project backup and removal validation | Smoke verifies Store-owned backup/restore metadata and completion, local backup payload copies, safe managed project removal, preserved unmanaged content, and protected legacy root `.backup/**`. | `scripts/smoke-pack.mjs` |
+| Machine uninstall validation | Sandboxed uninstall proves separate binary-removal confirmation and Store cleanup choice. The Store remains by default, including with `--yes`; only explicit `--remove-store` enters reviewed Store cleanup. | `scripts/smoke-pack.mjs`; [PRD 39](39-cli-command-model-and-operation-registry.md) |
 
 The smoke script is therefore more than a tarball smoke test. It is the encoded proof that prepack bundling, remote package-runner execution, packaged installation, skill distribution, backup, and uninstall still agree on the same release surface (`scripts/smoke-pack.mjs`).
 
@@ -72,7 +72,7 @@ The current prerelease state uses Apache-2.0 licensing, scoped package identity,
 - Packed npm validation exercises `packages/cli/template/` after copy/prepack, and package README, tarball allowlist wording, maintainer docs, and smoke-pack expectations agree with the template-first source-of-truth order in [06-template-contracts-and-generated-assets.md](./06-template-contracts-and-generated-assets.md).
 - Package validation commands may be lab scenario steps, but a green package validation run is not a public harness/model support claim without reviewed result records under [20-agent-harness-conformance-and-support-claims.md](./20-agent-harness-conformance-and-support-claims.md).
 - Package copy, smoke-pack, and dry-run checks prove the `.make-docs/**` tool resources owned by [21-project-tool-directory-and-resource-tiers.md](./21-project-tool-directory-and-resource-tiers.md) without moving runtime state into `docs/assets/**`.
-- [22-project-documentation-asset-model.md](./22-project-documentation-asset-model.md) owns package proof of managed project paths, while [47-persona-model.md](./47-persona-model.md) owns persona-fixture semantics. Packed validation covers `.make-docs/system/{contracts,prompts,references,templates}/**`, `.make-docs/archive/**`, `docs/artifacts/**`, and `docs/assets/<persona-slug>/testing/**`, proves on-demand paths are not emitted as empty placeholders, and treats legacy guide, Library, Playbook, Protocol, archive, history, breadcrumb, and former resource paths as migration inputs rather than shipped v2 targets.
+- [22-project-documentation-asset-model.md](./22-project-documentation-asset-model.md) owns package proof of managed project paths, while [47-persona-model.md](./47-persona-model.md) owns persona-fixture semantics. Packed validation covers `.make-docs/system/{contracts,prompts,references,templates}/**`, `.make-docs/archive/**`, `docs/assets/project/**`, and `docs/assets/<persona-slug>/testing/**`, proves on-demand paths are not emitted as empty placeholders, and treats legacy guide, Library, Playbook, Protocol, archive, history, breadcrumb, and former resource paths as migration inputs rather than shipped v2 targets.
 - Packed validation proves copied templates preserve required frontmatter and YAML/body handoff consistency under [23-generated-document-metadata-and-lifecycle-handoffs.md](./23-generated-document-metadata-and-lifecycle-handoffs.md).
 - Packed validation proves every default config template follows source-first copy rules and install/reconfigure flows preserve local `.make-docs/config.yaml` under [24-project-configuration-and-convention-overlay.md](./24-project-configuration-and-convention-overlay.md).
 - Packed npm validation keeps the public command taxonomy aligned with TypeScript behavior and proves remote package-runner behavior, TypeScript-owned runtime/version disclosure, required MCP availability, and CLI/MCP operation-contract parity before MCP surfaces are implementation-ready under [25-typescript-runtime-cli-mcp-operation-boundaries.md](./25-typescript-runtime-cli-mcp-operation-boundaries.md).
@@ -104,6 +104,12 @@ The current prerelease state uses Apache-2.0 licensing, scoped package identity,
 
 Release validation must prove that the packed CLI receives its managed template payload from `packages/docs/template/`, that the dogfood projection is intentionally synchronized where applicable, and that generated package copies are non-authoritative build artifacts.
 
+### Asset Layout Package Acceptance
+
+R-ASSET-PACK-1 (MUST): the package acceptance matrix proves two retained defaults and custom merging, CLI-free discovery, no eager assets directory, root-only configured-harness routers on demand, and absence of obsolete empty families across source, package, install, upgrade, and repeat. Include real file trees, not only Git-tracked paths.
+
+R-ASSET-PACK-2 (MUST): prove exact destination and link mapping for legacy system, archive, artifact, Library, and Playbook cohorts; collisions, changed inputs, interruption, recovery, and repeated verification; and CLI/manual equivalence. Reuse the R3 Store failure and no-local-state boundary. A drafting pass records known baseline test failures without changing runtime code or treating them as a pass.
+
 ## Requirement History
 
 ### 2026-08-08 — Not assigned
@@ -122,6 +128,14 @@ Release validation must prove that the packed CLI receives its managed template 
 - Replacement contract: Current requirements remain inline in this owning PRD and related product authorities are linked by product subject.
 - Rationale: The active PRD set must describe current product authority rather than the editorial operation that produced it.
 - Source: [PRD Authority Maintenance](../../.make-docs/system/references/prd-change-management.md)
+
+### 2026-09-09 — W19 R4 Asset and Persona Recovery
+
+- Affected requirement or section: `Asset Layout Package Acceptance` and current asset, bootstrap, migration, or storage statements in this owner.
+- Previous contract: Package proof named docs/artifacts/, a local manifest, local backup state, and bundled Store removal with machine uninstall. Prior dated records retain their historical claims.
+- Replacement contract: Shared material uses `docs/assets/project/`; audience assets use on-demand Persona children; archives remain `.make-docs/archive/`. Short routing exposes defaults and configured harness files without a CLI. Reviewed layout moves use the R3 Store service and verify content and links. Existing local-state prose is aligned with the completed R3 boundary.
+- Rationale: Finish the missed consolidation requirement and remove active instructions that can restore legacy paths. This is the W19 R4 draft implementation target, not a runtime completion claim.
+- Source: [asset and Persona design](../designs/2026-09-09-project-assets-and-persona-discovery.md); [W19 R4 plan](../plans/2026-09-09-w19-r4-project-assets-and-persona-discovery/00-overview.md).
 
 ## Source Anchors
 

@@ -44,7 +44,7 @@ Generated documents add conditional metadata when the condition applies:
 | Field | Requirement |
 | --- | --- |
 | `coordinate` | Required when W/R/P lineage is known or when the document is the authority for a downstream coordinate handoff. Unknown levels are omitted, not filled with dummy values. |
-| `persona` | Required for persona-scoped guides; value is the canonical persona slug from the configured persona set in [47-persona-model.md](./47-persona-model.md). |
+| `persona` | Required for Persona-scoped guides and any other artifact whose owning current contract requires it. The value is an effective configured slug under [PRD 47](47-persona-model.md). Shared `docs/assets/project/**` inputs do not gain this field from their path. |
 | `source` | Required when the document derives from an explicit source other than the immediately prior lifecycle artifact. |
 | `lifecycle` | Required when a generation step skips, reorders, revisits, or straddles the default lifecycle. |
 | `follow_on` | Required for generated documents that contain an `## Intended Follow-On` section. |
@@ -113,6 +113,12 @@ Later automation may add provider/cache provenance for tool resources, but that 
 - Generated documents created during a run carry the canonical metadata and relationship fields in this PRD. When a generated output includes an `## Intended Follow-On` section, its `follow_on` metadata and body projection must agree as required by Handoff Metadata.
 - Lifecycle operations return typed receipts. A completed receipt identifies the run, operation, resulting state, and any authorized output/evidence references; paused and failed receipts preserve the checkpoint or typed failure without inventing document metadata. Mutable `runs` and `run_evidence` remain Store records rather than reader-facing document frontmatter.
 - Configuration overlays may supply labels, defaults, and presentation, but they never change canonical lifecycle routing, artifact ownership, metadata keys, receipt fields, or output destinations.
+
+### Persona Metadata and Reviewed Moves
+
+The canonical `persona` field names the audience, not whether its reader or executor is human or agent. Current primitives and built-ins are owned by [PRD 47](47-persona-model.md#persona-schema). Metadata readers report unknown values and path/Persona disagreement; they do not infer an audience from a directory.
+
+An accepted layout map repairs current Persona fields, active frontmatter source links, and live Markdown links when their destinations change. Each repair records the exact old and new reference. Historical statements and recorded outcomes retain their original meaning. A custom `developer` or old `agent` value must not be silently rewritten to `maintainer`. Mechanical link repair does not create a new authority claim or alter a prior acceptance fact.
 
 ### Configuration Boundary
 
@@ -192,6 +198,16 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: Testing decisions remain compact body records, and handoffs preserve only the decision, effect, evidence, obligation, and rerun facts needed downstream.
 - Rationale: The testing model needs continuity without frontmatter growth or policy duplication.
 - Source: [W21 R0 Proportionate Testing and Human-Centered Validation plan](../plans/2026-08-28-w21-r0-proportionate-testing-and-human-centered-validation/00-overview.md)
+
+### 2026-09-09 — W19 R4
+
+- Date: 2026-09-09
+- Coordinate: W19 R4
+- Affected requirement or section: Conditional Fields; Persona Metadata and Reviewed Moves.
+- Previous contract: Persona metadata referred to configured audience slugs without the two-role merge contract or an explicit live-link repair boundary.
+- Replacement contract: Persona metadata uses effective slugs. Shared inputs gain no Persona from placement. Reviewed active references change together while historical facts retain their meaning.
+- Rationale: Keep audience identity stable and avoid converting a file move into a change to historical authority.
+- Source: [Project Assets and Persona Discovery](../designs/2026-09-09-project-assets-and-persona-discovery.md), [W19 R4 plan](../plans/2026-09-09-w19-r4-project-assets-and-persona-discovery/00-overview.md). Delivery is tracked by the single-phase R4 backlog; runtime implementation has not started.
 
 ## Source Anchors
 

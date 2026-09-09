@@ -23,17 +23,17 @@ Projection and compatibility modes:
 
 Local bootstrap:
 
-- Every install must materialize the unconditional router foundation for each configured supported harness at the project root, `docs/`, `docs/assets/`, `.make-docs/`, `.make-docs/system/`, and `.make-docs/system/{contracts,prompts,references,templates}/`.
+- Every install must materialize the unconditional router foundation for each configured supported harness at the project root, `docs/`, `.make-docs/`, `.make-docs/system/`, and `.make-docs/system/{contracts,prompts,references,templates}/`.
 - The resolved effective profile and its dependencies control the capability-local routers at `docs/designs/`, `docs/plans/`, `docs/prd/`, and `docs/work/`. An install must materialize only the routers for enabled document types.
-- The `docs/assets/` surface has one root router and no managed child routers. `.make-docs/archive/**`, `docs/artifacts/**`, and Persona asset or testing children beneath `docs/assets/` remain on-demand surfaces.
+- The on-demand `docs/assets/` surface has configured-harness root routers and no managed child routers. `.make-docs/archive/**`, `docs/assets/project/**`, and Persona asset or testing children beneath `docs/assets/` remain on-demand surfaces.
 - Every installed checkout must have a Store-owned installation record and declarative project identity under PRD 24. `.make-docs/manifest.json` is legacy transfer input only.
 - Every install must keep local config once v2 config exists.
 - Every install must keep local custom overlays and project-owned overrides.
 - The local bootstrap must include readable declarative identity/config and CLI guidance for Store installation status and router guidance that explains local-first resolution, installed-provider CLI fallback, selected resource bodies, provenance, and unavailable-provider recovery.
 - The local bootstrap is always repository-readable; the four content-resource families do not need local projection for CLI or MCP access.
 - Resource selection controls resource bodies only. It must never remove a configured-harness router or a typed router directory.
-- `project.surface.ensure <archive|artifacts|assets>` remains valid. The `archive` and `artifacts` values create their on-demand surfaces. The `assets` value is idempotent when the unconditional root surface is current. It can create or safely repair that root surface under normal ownership rules, but it must not create Persona or testing children.
-- The `docs/` router must use the exact heading `# Documentation Router` and preserve its full routing duties for lifecycle, design, planning, PRD, work, risk, artifact, Persona, UAT, coverage, history, links, and formatting.
+- `project.surface.ensure <archive|artifacts|assets>` remains valid. `archive` creates its on-demand root. `assets` creates or safely adopts the on-demand assets root and configured-harness root routers. The compatibility `artifacts` value ensures only the assets root and configured root routers, then reports `docs/assets/project/` as the shared-content destination. It creates neither an empty `project` child nor old `docs/artifacts/`. Help and results distinguish the ensured root from the destination that content will create. No value creates empty project, Persona, or testing children or changes system-resource selection.
+- The `docs/` router uses the exact heading `# Documentation Router`. It gives short entry routes to lifecycle, design, planning, PRD, work, risk, assets, Persona, testing, history, links, and formatting authority. It states CLI-free audience defaults and configured asset-router filenames under PRD 15 without copying full policy bodies.
 - Routers must not infer Skills, plugins, Playbooks, Protocols, or any policy or capability that current product authority does not provide.
 
 System asset boundary:
@@ -83,7 +83,7 @@ Legacy resource-tree migration:
 
 - `.make-docs/system/{contracts,prompts,references,templates}/` is the sole current local resource tree.
 - Legacy `.make-docs/{contracts,prompts,references,templates}/system/` content is migration input only.
-- Migration may move or remove a legacy file only when the accepted snapshot proves managed ownership and the current bytes match trusted evidence.
+- Ordinary managed-resource migration may move or remove a legacy file only when the accepted snapshot proves managed ownership and matching bytes. The separate reviewed layout operation in PRD 18 may relocate explicitly approved project-owned content without changing ownership.
 - Unknown, modified, mixed, unowned, or conflicting legacy content is preserved for explicit review.
 - A legacy move completes before its source is removed, and a conflict stops the affected move without weakening the always-local router skeleton.
 
@@ -91,7 +91,7 @@ Validation boundary:
 
 - Current package validation remains the baseline: `npm test -w packages/cli`, `npm run validate:defaults -w packages/cli`, `npm run build -w packages/cli`, `npm run smoke:pack`, template/package parity checks, bare-install checks proving no default skill files, and explicit selected-skill checks through `make-docs setup skills --selected-skills all`.
 - Resource validation must cover installed-provider availability without projection, all four peer resource types, URI normalization and traversal rejection, trustworthy local-first precedence, stale projection hashes, `resource.ensure` selection limits, on-demand conflict handling, CLI/MCP-tool parity, native MCP list/read parity where supported, and manifest compatibility.
-- Install and reconfigure validation must cover no resource bodies, one selected type, all selected types, selection removal, effective-profile document-router changes, legacy-tree migration, modified routers, malformed or duplicated managed blocks, AGENTS-only, Claude-only, combined harnesses, and uninstall with mixed managed and project-owned files. Every case must keep the unconditional configured-harness foundation. Validation must also cover idempotent `project.surface.ensure assets` behavior and prove that this operation creates no Persona or testing child.
+- Install and reconfigure validation must cover no resource bodies, one selected type, all selected types, selection removal, effective-profile document-router changes, legacy-tree migration, modified routers, malformed or duplicated managed blocks, AGENTS-only, Claude-only, combined harnesses, and uninstall with mixed managed and project-owned files. Every case must keep the unconditional configured-harness foundation. Validation must also cover absent fresh assets roots, CLI-free discovery, first-use and idempotent `project.surface.ensure assets`, configured root routers, and no empty project, Persona, or testing child.
 ## Contracts and Data
 
 The named paths, schemas, state records, metadata fields, and evidence shapes in Requirements are normative contracts for this capability.
@@ -101,6 +101,13 @@ This capability integrates with the adjacent current authorities linked from Req
 ## Rebuild Notes
 
 A rebuild must preserve the requirement identifiers, stable semantic anchors, ownership boundaries, and failure-safe behavior stated here. Implementation evidence does not silently weaken this authority.
+
+### CLI-Free Asset Discovery
+
+R-ASSET-BOOT-1 (MUST): short, always-present documentation routing carries the two defaults, shared-material destination, config path, and exact configured asset-router filenames under PRD 15. This supports ordinary asset work without the CLI, Store, local system-resource bodies, assets directory, or prior memory. Required CLI installation and layout state remains mandatory in the Store; optional capture failure does not block ordinary work.
+
+R-ASSET-BOOT-2 (MUST): `project.surface.ensure assets` creates or safely adopts only the assets root and configured-harness root routers. Child directories appear only for actual content. The current typed system-router skeleton is unaffected. Review and remove obsolete empty system directories separately from this required skeleton; handle nonempty legacy resources through PRD 18.
+
 ## Requirement History
 
 ### 2026-08-08 — W10 R2
@@ -148,6 +155,14 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: The local bootstrap keeps identity/config and routers. Store evidence owns projection trust, installation state, and required write safety. At package acceptance on 2026-09-09, implementation had not started. The owner later accepted the delivered result recorded in the W19 R3 phase closeout.
 - Rationale: Make Docs tool state needs one Store authority. Project knowledge remains local.
 - Source: [Store-owned installation and migration state design](../designs/2026-09-09-store-owned-installation-and-migration-state.md) and [W19 R3 plan](../plans/2026-09-09-w19-r3-store-owned-installation-and-migration-state/00-overview.md).
+
+### 2026-09-09 — W19 R4 Asset and Persona Recovery
+
+- Affected requirement or section: `CLI-Free Asset Discovery` and current asset, bootstrap, migration, or storage statements in this owner.
+- Previous contract: Bootstrap always created docs/assets/; artifacts had a separate destination; assets ensure assumed that root already existed. Prior dated records retain their historical claims.
+- Replacement contract: Shared material uses `docs/assets/project/`; audience assets use on-demand Persona children; archives remain `.make-docs/archive/`. Short routing exposes defaults and configured harness files without a CLI. Reviewed layout moves use the R3 Store service and verify content and links. Existing local-state prose is aligned with the completed R3 boundary.
+- Rationale: Finish the missed consolidation requirement and remove active instructions that can restore legacy paths. This is the W19 R4 draft implementation target, not a runtime completion claim.
+- Source: [asset and Persona design](../designs/2026-09-09-project-assets-and-persona-discovery.md); [W19 R4 plan](../plans/2026-09-09-w19-r4-project-assets-and-persona-discovery/00-overview.md).
 
 ## Source Anchors
 

@@ -106,6 +106,26 @@ The requirements below are the normative authority. Their stable identifiers pre
 - R-STATE-4 (MUST): human output names the current result, what changed, what remains, and the safe next action. JSON is a versioned typed result with the same facts. Typed failure distinguishes unavailable or unsafe Store, identity conflict, active writer, unsupported legacy input, changed content, and pending recovery. CLI and MCP derive from the same registered operation and input schema.
 - R-STATE-5 (MUST): these two installation-state operations extend the historical P3 inventory. Existing identifiers and general lifecycle receipt meanings remain stable. New operation admission does not reactivate retired commands.
 
+### Persona and Layout Commands (R-LAYOUT)
+
+- R-LAYOUT-1 (MUST): the registry admits `project.persona.list`, `project.layout.preview`, `project.layout.prepare`, `project.layout.apply`, and `project.layout.verify` with the canonical projections below. These remain within the existing `project` domain; no new top-level command is introduced.
+- R-LAYOUT-2 (MUST): Persona list resolves shipped defaults plus declarative config without opening or requiring the Store. It reports effective entries and display-field origin without changing config, identity, or directories. Layout preview reads its full inventory and exact mapping without mutation.
+- R-LAYOUT-3 (MUST): preparation recomputes and matches the review digest before saving the full operation intent and required recovery evidence in the Store. Its `cli` or `manual` mode is explicit. It returns a Store operation ID and releases the live process lock. The pending operation still blocks conflicting managed changes.
+- R-LAYOUT-4 (MUST): apply accepts only a prepared CLI-mode operation. Verify accepts only a prepared manual-mode operation. Both check the recorded source, destination, bytes, config-derived audience mapping, and link expectations before completion. Missing bytes, changed inputs, unresolved links, or unexplained leftovers leave the work incomplete.
+- R-LAYOUT-5 (MUST): repeated `--map` options contain project-relative `source=destination` pairs. Traversal, unsafe aliases, invalid audience destinations, and paths outside the allowed project scope fail closed. The digest binds the inventory, mapping, relevant config, and planned link edits. A caller cannot use map syntax to bypass provenance or ownership checks.
+- R-LAYOUT-6 (MUST): preparation, apply, and verification obey the shared write-permission and Store requirements. `project state status` and `project state recover` expose the same pending operation. There is no local state fallback. Manual moves receive their exact reviewed instructions only after successful preparation.
+- R-LAYOUT-7 (MUST): registry state reflects actual delivery. An admitted pending entry names its delivery lineage and returns a typed pending result until its handler and parity checks exist. Package drafting alone is not an active-handler claim.
+
+| Registry identifier | Canonical CLI |
+| --- | --- |
+| `project.persona.list` | `make-docs project persona list [--target-root <path>] [--json]` |
+| `project.layout.preview` | `make-docs project layout preview [--map <source>=<destination>] [--target-root <path>] [--json]` |
+| `project.layout.prepare` | `make-docs project layout prepare --review <digest> --mode cli\|manual [--map <source>=<destination>] [--target-root <path>] [--json]` |
+| `project.layout.apply` | `make-docs project layout apply <operation-id> [--target-root <path>] [--json]` |
+| `project.layout.verify` | `make-docs project layout verify <operation-id> [--target-root <path>] [--json]` |
+
+Persona, asset, config, and runtime semantics remain owned by PRDs [47](47-persona-model.md), [22](22-project-documentation-asset-model.md), [24](24-project-configuration-and-convention-overlay.md), and [25](25-typescript-runtime-cli-mcp-operation-boundaries.md). The existing `project.surface.ensure assets` operation creates only the on-demand assets root and configured-harness routers. It does not create empty children.
+
 ### Registry Cohesion and Operation Admission (R-SEQ)
 
 - R-SEQ-1 (MUST): the operation core, registry, and command tree form one coherent release surface; every retained operation is behind the registry, and no parallel or half-routed dispatcher exists.
@@ -265,6 +285,16 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: Tool uninstall preserves the Store by default. Store removal requires the separate explicit `--remove-store` choice and PRD 38's reviewed cleanup safeguards. `--yes` alone does not select Store removal.
 - Rationale: CLI removal and Store deletion have separate authority. Retained installation, recovery, and legacy records must not be lost through a binary-only removal request.
 - Source: [PRD 38 R-LIFE-1](38-global-store-and-project-state.md#backup-uninstall-and-upgrade-r-life), [accepted Store design](../designs/2026-09-09-store-owned-installation-and-migration-state.md), and [W19 R3 implementation evidence](../work/2026-09-09-w19-r3-store-owned-installation-and-migration-state/01-store-state-cutover.md#implementation-evidence-running).
+
+### 2026-09-09 — W19 R4
+
+- Date: 2026-09-09
+- Coordinate: W19 R4
+- Affected requirement or section: Persona and Layout Commands (R-LAYOUT).
+- Previous contract: Project commands did not define effective Persona discovery or a reviewed permanent layout change sequence.
+- Replacement contract: The project domain defines Persona list and layout preview, prepare, apply, and verify with one registry contract and explicit Store-writing preparation.
+- Rationale: Provide a repeatable public command path without local migration plans or ambiguous completion.
+- Source: [Project Assets and Persona Discovery](../designs/2026-09-09-project-assets-and-persona-discovery.md), [W19 R4 plan](../plans/2026-09-09-w19-r4-project-assets-and-persona-discovery/00-overview.md). Delivery is tracked by the single-phase R4 backlog; runtime implementation has not started.
 
 ## Source Anchors
 

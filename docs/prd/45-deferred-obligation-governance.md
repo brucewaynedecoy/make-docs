@@ -153,7 +153,7 @@ Storage boundaries are:
 | Requirement, design, plan, work, acceptance, and history links | Their existing repository artifacts |
 | Audit execution progress and sign-offs | Unified Project State in the machine-level Global Store |
 | Durable audit decisions | PRD register and affected repository authorities |
-| Session summary | `docs/assets/archive/history/` |
+| Session summary | `.make-docs/archive/history/` |
 | Optional query projection | Rebuildable, non-authoritative database projection |
 
 ## Integrations
@@ -195,6 +195,10 @@ Future deterministic support may detect missing sections, duplicate IDs, invalid
 - The current capability does not require a dedicated CLI, MCP tool, validator, evidence kind, table, or migration.
 - No automatic merge, commit, push, publish, or release gate.
 
+### Session History Location
+
+R-OBL-HISTORY-1 (MUST): obligation session summaries use `.make-docs/archive/history/` under current PRD 22 authority. Old `docs/assets/archive/history/` records are legacy migration inputs. A reviewed move preserves their meaning and identity; it does not change obligation status or create a second live register.
+
 ## Requirement History
 
 ### 2026-08-14 — W19 R1
@@ -212,6 +216,14 @@ Future deterministic support may detect missing sections, duplicate IDs, invalid
 - Replacement contract: Testing creates an obligation only for an accepted future outcome with complete routing. `not-needed-now`, declined guided review, and skipped advisory testing do not create obligations or gates.
 - Rationale: Anti-orphan governance must preserve real owed work without manufacturing procedural debt.
 - Source: [W21 R0 Proportionate Testing and Human-Centered Validation plan](../plans/2026-08-28-w21-r0-proportionate-testing-and-human-centered-validation/00-overview.md)
+
+### 2026-09-09 — W19 R4 Asset and Persona Recovery
+
+- Affected requirement or section: `Session History Location` and current asset, bootstrap, migration, or storage statements in this owner.
+- Previous contract: The session-summary storage row still named docs/assets/archive/history/ despite current archive authority. Prior dated records retain their historical claims.
+- Replacement contract: Session summaries use .make-docs/archive/history/. Reviewed migration preserves record identity and meaning without changing obligation status.
+- Rationale: Finish the missed consolidation requirement and remove active instructions that can restore legacy paths. This is the W19 R4 draft implementation target, not a runtime completion claim.
+- Source: [asset and Persona design](../designs/2026-09-09-project-assets-and-persona-discovery.md); [W19 R4 plan](../plans/2026-09-09-w19-r4-project-assets-and-persona-discovery/00-overview.md).
 
 ## Source Anchors
 

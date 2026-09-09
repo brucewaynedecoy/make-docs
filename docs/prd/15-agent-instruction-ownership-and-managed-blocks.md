@@ -54,7 +54,7 @@ managed block, not the whole shared file:
 ### Initialization and Adoption Safety
 
 - Setup and reconfigure classify an existing instruction surface before creating or adopting any block. Classification records the file owner, detected marker shape, managed snapshot and hash, project-owned bytes outside the block, router intent, manifest claim, provenance state, and any competing claims.
-- A fresh project receives the configured-harness router foundation at the project root, `docs/`, `docs/assets/`, `.make-docs/`, `.make-docs/system/`, and the four typed system directories. The resolved effective profile and its dependencies control capability-local routers at `docs/designs/`, `docs/plans/`, `docs/prd/`, and `docs/work/`. `docs/assets/` has one managed router at its root and no managed routers below it. `.make-docs/archive/` and `docs/artifacts/` receive routers only when created. Persona testing remains on demand and is routed from the `docs/assets/` root. System resources remain machine-served by default, so initialization does not require eager resource-body materialization; an explicitly selected local projection is recorded separately with its own provenance.
+- A fresh project receives the configured-harness router foundation at the project root, `docs/`, `.make-docs/`, `.make-docs/system/`, and the four typed system directories. The resolved effective profile and its dependencies control capability-local routers at `docs/designs/`, `docs/plans/`, `docs/prd/`, and `docs/work/`. On-demand `docs/assets/` has configured-harness root routers and no managed routers below it. `.make-docs/archive/` and `docs/assets/` receive configured-harness root routers only when created. Persona testing remains on demand and is routed from the `docs/assets/` root. System resources remain machine-served by default, so initialization does not require eager resource-body materialization; an explicitly selected local projection is recorded separately with its own provenance.
 - Adoption is explicit and file-scoped. A verified canonical block may be adopted as `managed-snapshot`; existing noncanonical content is `project-owned` unless the user reviews an export-and-replace or proven-managed overwrite plan. Successful adoption records a typed receipt, before/after snapshot identifiers, digests, bounded provenance, and content references in the Store-owned installation record. File and block bodies remain in verified provider, backup, or approved content-copy locations.
 - Setup, reconfigure, update, migration, and uninstall acquire the Store-owned checkout lock before taking the classification snapshot and hold it through block transformation, manifest write, and validation. Missing, malformed, nested, duplicated, ambiguous, or contradictory markers or provenance fail closed before mutation.
 - Instruction member paths held in the Store are normalized project-relative POSIX paths and resolved beneath the approved repository root. The operational manifest itself lives outside the repository in the Store. Traversal, absolute substitution, case-collision, or symlink escape is rejected on Windows, macOS, and Linux.
@@ -88,6 +88,14 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 ### Managed-Block Conflict Resolution
 
 Managed instruction files are compared and resolved at the managed-block boundary. User-authored text outside the block is always preserved. A divergent block requires one explicit disposition: preserve it as project-owned, export it and replace with the selected managed snapshot, overwrite only when clean managed provenance is proven, skip the file, or stop the operation. Non-interactive execution must not guess, append-merge is not ownership evidence, and whole-file hashing or replacement is invalid for a file that Make Docs owns only by managed block. Uninstall removes only a verified clean managed block from the frozen reviewed snapshot; it preserves divergent, project-owned, ambiguous, contradictory, marker-damaged, and surrounding user content and prunes no shared instruction file.
+
+### Discovery Without the CLI
+
+R-ASSET-ROUTER-1 (MUST): always-present documentation routing names `user` and `maintainer`, explains that either audience can be human or agent, names shared `docs/assets/project/`, and points to `.make-docs/config.yaml` for display overrides and custom entries. It remains sufficient when config, assets, CLI, projected resource bodies, and prior task memory are absent. Detailed policy stays in the owning resources.
+
+R-ASSET-ROUTER-2 (MUST): the documentation router declares `Asset router files: AGENTS.md, CLAUDE.md`, listing only the filenames selected by the reviewed harness configuration. Use template-owned static variants or selection. This declaration guides authoring; it does not prove installed ownership. Without the CLI, an agent may create short assets-root instructions for exactly those declared files when content needs the root. It must not infer harness selection from its own actor identity. Missing or malformed declarations require an explicit project choice before router creation, while ordinary content work remains possible.
+
+R-ASSET-ROUTER-3 (MUST): root asset routers stay within the existing short-router budget and contain no repeated full testing or migration procedure. No managed child router or empty child directory is created by default.
 
 ## Requirement History
 
@@ -137,6 +145,14 @@ Managed instruction files are compared and resolved at the managed-block boundar
 - Replacement contract: Adoption and locking use Store state. Shipped guidance directs agents to CLI state operations. At package acceptance on 2026-09-09, implementation had not started. The owner later accepted the delivered result recorded in the W19 R3 phase closeout.
 - Rationale: Make Docs tool state needs one Store authority. Project knowledge remains local.
 - Source: [Store-owned installation and migration state design](../designs/2026-09-09-store-owned-installation-and-migration-state.md) and [W19 R3 plan](../plans/2026-09-09-w19-r3-store-owned-installation-and-migration-state/00-overview.md).
+
+### 2026-09-09 — W19 R4 Asset and Persona Recovery
+
+- Affected requirement or section: `Discovery Without the CLI` and current asset, bootstrap, migration, or storage statements in this owner.
+- Previous contract: Configured documentation bootstrap always included docs/assets/ and did not define CLI-free default and harness discovery. Prior dated records retain their historical claims.
+- Replacement contract: Shared material uses `docs/assets/project/`; audience assets use on-demand Persona children; archives remain `.make-docs/archive/`. Short routing exposes defaults and configured harness files without a CLI. Reviewed layout moves use the R3 Store service and verify content and links. Existing local-state prose is aligned with the completed R3 boundary.
+- Rationale: Finish the missed consolidation requirement and remove active instructions that can restore legacy paths. This is the W19 R4 draft implementation target, not a runtime completion claim.
+- Source: [asset and Persona design](../designs/2026-09-09-project-assets-and-persona-discovery.md); [W19 R4 plan](../plans/2026-09-09-w19-r4-project-assets-and-persona-discovery/00-overview.md).
 
 ## Source Anchors
 

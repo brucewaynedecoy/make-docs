@@ -12,6 +12,8 @@ The existing drift, question, decision, and risk sections use `Open`, `Confirmin
 
 This register also tracks cross-cutting workflow, lifecycle, contract, and product-evolution decisions and risks that reach beyond the CLI, install, and packaging surface, including items not yet scoped to a specific wave.
 
+Current asset and Persona repair is tracked by [D-032](#d-032-project-asset-consolidation-and-persona-discovery-remain-incomplete). Current operational state follows PRD 38 and closed D-031. Dated controls and earlier path choices in this register retain their historical meaning; they do not override the current owning PRD or restore a superseded destination.
+
 ## Deferred Obligations
 
 This is the authoritative, append-only register for accepted-but-incomplete Make Docs outcomes. IDs use `O-###` and are never reused. Records may be corrected or enriched in place, but terminal records remain present for traceability.
@@ -619,6 +621,8 @@ The following record preserves the prior claims, findings, and close conditions.
 | --- | --- | --- |
 | Corrected and closed - 2026-09-03 | The W19 R1 authority, runtime, tests, and P4 closeout did not enforce the full documentation-surface router topology. Commit `8f8a1bf2` corrected the authority and reopened P4. Commit `2f07b568` restored the required setup, reconfigure, migration, template, package, dogfood, and test behavior. Every configured harness now receives the unconditional foundation. The resolved effective profile and its dependencies add only the applicable capability-local routers. | Keep every prior P4 closeout and correction erratum as historical records. Use the [documentation-surface corrective closeout](../../.make-docs/archive/history/2026-09-03-w19-r1-p4-documentation-surface-recovery-closeout.md) as the current D-030 proof. Resume the P7 owner interview at D-005 without authorizing implementation. |
 
+**Current path authority, 2026-09-09:** The controls and closure proof below record the 2026-09-03 correction. They remain historical evidence. W19 R4 now replaces its unconditional assets-root and separate artifact-home requirements under [D-032](#d-032-project-asset-consolidation-and-persona-discovery-remain-incomplete). D-030 is not reopened.
+
 **Separate ownership**: D-029 remains closed as the system-resource router correction. D-030 owns the separate documentation-surface omission. It does not expand or rewrite D-029's historical claim.
 
 **Commit roles**: `02002ba23` is the authority gap. `efebfa29` is the runtime and test regression. `315dce5d` is an incomplete runtime correction. `90b4fd8` is an incomplete P4 closeout.
@@ -648,6 +652,24 @@ The following record preserves the prior claims, findings, and close conditions.
 **2026-09-09 validation baseline**: PRD authority validation passes for 39 active PRDs. The defaults suite passes 45 of 46 tests. Its existing `consistency.test.ts:669` drift-list check expects D-001 through D-030 and fails on this already-present D-031. W19 R3 includes the test correction. This baseline is not permission to ignore a new failure.
 
 **2026-09-09 implementation scope check**: The entry audit found that PRD 39 and tool uninstall still bundled Store deletion with binary removal, including `--yes`. [PRD 39 R-SELF-1](39-cli-command-model-and-operation-registry.md#tool-self-management-r-self) now agrees with [PRD 38 R-LIFE-1](38-global-store-and-project-state.md#backup-uninstall-and-upgrade-r-life): preserve the Store by default, require the separate explicit `--remove-store` choice, and apply reviewed cleanup safeguards. This remains within the existing defect and single phase. [Running work evidence](../work/2026-09-09-w19-r3-store-owned-installation-and-migration-state/01-store-state-cutover.md#implementation-evidence-running) records verification. Package and owner acceptance were still pending at that scope check; the closure evidence above records their later completion. No live global uninstall or Store deletion was run during this scope check.
+
+### D-032 Project Asset Consolidation and Persona Discovery Remain Incomplete
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open — package drafted 2026-09-09 | Finish the missed project-asset consolidation requirement. Shared material belongs at `docs/assets/project/`; audience assets use `docs/assets/<persona-slug>/`; archives remain `.make-docs/archive/`. Expose fixed `user` and `maintainer` defaults without a CLI or assets directory. | Review the [design](../designs/2026-09-09-project-assets-and-persona-discovery.md), [W19 R4 plan](../plans/2026-09-09-w19-r4-project-assets-and-persona-discovery/00-overview.md), and [one-phase backlog](../work/2026-09-09-w19-r4-project-assets-and-persona-discovery/00-index.md). Implementation is not authorized by package drafting. W20 and W21 remain paused. |
+
+**Observed gap:** Earlier work changed documentation paths more than once. The [W9 asset move](../designs/2026-06-25-v2-documentation-asset-ia-hard-move.md), [W9 correction](../designs/2026-06-25-v2-library-and-archive-history-ia-correction.md), W19 recovery, and [D-030](#d-030-w19-r1-documentation-surface-router-topology-was-omitted) retain that lineage. D-030 proved its then-current router contract. It did not finish the consolidated shared-material home or CLI-free audience discovery now required by the owner. This is missed consolidation work, not a new product idea. Do not erase the prior decisions or imply that one historic path always governed every period.
+
+**Current impact:** An unconditional assets root, the separate `docs/artifacts/` target, three former Persona defaults, and active old routers can send a fresh agent to the wrong home. The reviewed tree also contains obsolete empty system/template directories and real archive, Library, and Playbook content. Empty-directory removal alone cannot satisfy the requirement. Neither a blanket retained-path list nor a manual shell cleanup proves the result.
+
+**Authority inventory:** PRDs 01, 02, 05, 06, 07, 09, 10, 14, 15, 17, 18, 21–25, 39, 45–47, and 49 contain affected active boundaries or downstream references. PRDs 04, 06, 09, 10, 16, and 25 also retain old local-manifest or removal wording. Correct that prose to the accepted R3 Store boundary; it is not evidence that the closed R3 runtime failed. The final package audit checks all active PRDs and leaves historical requirement entries and source references as provenance.
+
+**Required result:** Defaults merge with custom configuration and reserve `project` as shared material. Short always-present documentation routing exposes defaults, config, and exact configured asset-router files. Fresh setup creates no assets directory. First content creates only needed paths and configured root routers. A permanent CLI preview/prepare/apply/verify path gives each legacy entry an exact reviewed destination and link disposition. It reuses the R3 Store journal and recovery service, supports verified manual or agent-assisted moves, stops on changed bytes or conflicts, and proves completion with no unexplained active legacy leftovers. Required CLI state cannot fall back locally; ordinary project work remains possible without CLI capture.
+
+**Gate:** One W19 R4 implementation phase owns all changes, finite proof, reviewed dogfood transfer, and acceptance. Backlog review and owner acceptance precede implementation. No runtime code, shipped template, installed router, content migration, or Store transition is changed by this package. W20/W21 require separate resume authority after the interrupt closes.
+
+**Package validation baseline, 2026-09-09:** `make-docs run prd authority validate --target-root . --json` passes with no diagnostics. `npm run validate:defaults` passes 48 of 49 checks. Its sole failure is `packages/cli/tests/consistency.test.ts:669`: the exact drift-heading list stops at D-031 and rejects the newly added D-032. W19 R4 t12 must make the check append-safe while retaining existing-record, duplicate-ID, and link checks. The package does not change code to hide this baseline failure.
 
 ## Open Questions
 

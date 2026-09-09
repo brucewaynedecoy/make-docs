@@ -40,7 +40,7 @@ Presentation configuration may affect only the approved overlay fields below. Pe
 
 Configuration must not rename or redirect canonical structure:
 
-- Repository paths such as `docs/designs/`, on-demand `.make-docs/archive/`, `docs/artifacts/`, `docs/assets/<persona-slug>/`, `.make-docs/`, or optional resource bodies under the always-local `.make-docs/system/{contracts,prompts,references,templates}/` router skeleton.
+- Repository paths such as `docs/designs/`, on-demand `.make-docs/archive/`, `docs/assets/project/`, `docs/assets/<persona-slug>/`, `.make-docs/`, or optional resource bodies under the always-local `.make-docs/system/{contracts,prompts,references,templates}/` router skeleton.
 - Frontmatter fields such as `title`, `kind`, `status`, `coordinate`, `persona`, `source`, `lifecycle`, or `follow_on`.
 - `kind` values, lifecycle departure slugs, source type values, route identifiers, prompt paths, skill names, harness names, manifest keys, operation ids, resource types, or `make-docs://system/<type>/<posix-relative-path>` identities.
 - Bounded lifecycle run stages, statuses, receipt fields, evidence types, or failure codes.
@@ -49,11 +49,19 @@ Configuration must not rename or redirect canonical structure:
 
 ### Persona Configuration
 
-Configured persona entries follow the current schema in [47-persona-model.md](./47-persona-model.md) and use `slug`, `label`, `description`, and `primitive`.
+Configured Persona entries follow [PRD 47](47-persona-model.md#persona-schema) and retain `slug`, `label`, `description`, and `primitive`. `slug` is the stable value; `label` and `description` are display fields; `primitive` is either `user` or `maintainer`. Either audience role can be filled by a person or an agent.
 
-`slug` is the stable automation value. `label` is display text. `description` explains the audience boundary. `primitive` maps to one of `agent`, `maintainer`, or `user`.
+Resolve shipped `user -> user` and `maintainer -> maintainer` entries first, then merge configured entries by slug. An absent or empty/comment-only config, absent `personas`, or empty list retains both defaults. An explicit null or wrong-type config value or Persona value is invalid and produces a diagnostic. Custom entries extend the set. Built-in entries can override display fields while retaining their fixed slug and primitive; omitted display fields inherit defaults. Custom entries require all four fields.
 
-Persona-scoped guide frontmatter stores the persona slug. Directory placement remains secondary discovery structure.
+Reject duplicate or unsafe slugs, reserved `project`, invalid primitives, malformed entries, and built-in removal or reclassification. Do not rewrite config on error. Keep project comments and unrelated fields. The former shipped `developer` and `agent` values are migration inputs, not new implicit defaults. Ambiguous custom meanings require a reviewed choice. Ordinary file authoring without the CLI can continue, but it must not claim that invalid custom config was resolved.
+
+Where its owning contract requires `persona` frontmatter, store the effective slug. Directory placement remains secondary discovery structure.
+
+### Effective Persona Discovery
+
+The shared config resolver in `packages/cli/src/config.ts` supplies the effective entries and the origin of their display fields to all consumers. `make-docs project persona list` reads this result without creating or opening the Store, minting project identity, changing config, or creating directories. It works before `docs/assets/` exists and reports malformed config clearly.
+
+The always-present `docs/` router states the two defaults, `docs/assets/project/`, and `.make-docs/config.yaml`, with a canonical resource pointer. The docs router also declares the exact selected asset-router filenames with an `Asset router files:` line. This bounded declaration is routing guidance, not a second installation record. An agent without the CLI can use the declaration, shared rules, and valid local config for ordinary file authoring and the required root routers. It must not infer harnesses from its own actor type or read raw Store tables. Missing or invalid router declarations require an explicit project choice before router creation; ordinary content can continue. Missing tooling does not authorize substitute operational state in the project. Command syntax and CLI/MCP parity belong to PRDs [39](39-cli-command-model-and-operation-registry.md#persona-and-layout-commands-r-layout) and [25](25-typescript-runtime-cli-mcp-operation-boundaries.md#asset-and-config-boundaries).
 
 ### Coordinate Labels
 
@@ -75,7 +83,7 @@ This PRD does not mint a replacement harness-capability schema. An optional agen
 
 Validation must reject structural rename attempts, including attempts to rename `persona`, redefine `kind` values, replace route identifiers, redirect canonical paths, or change primitive names.
 
-Validation must cover absent config defaults, valid custom personas, invalid primitive values, duplicate persona slugs, invalid structural rename attempts, legacy Playbook-oriented harness capability inputs as non-activating compatibility data, generated prose that uses configured labels, CLI output that applies labels without changing routing, package-template parity, dogfood parity, local config preservation, and unchanged behavior for canonical metadata readers.
+Validation must cover absent config, absent and empty Persona lists, inherited built-ins, valid custom extensions, built-in label/description overrides, attempted built-in removal or reclassification, reserved and unsafe slugs, invalid primitive values, duplicate persona slugs, invalid structural rename attempts, legacy Playbook-oriented harness capability inputs as non-activating compatibility data, generated prose that uses configured labels, CLI output that applies labels without changing routing, package-template parity, dogfood parity, local config preservation, and unchanged behavior for canonical metadata readers.
 
 ### Source-First Templates
 
@@ -93,7 +101,7 @@ If a default config template is introduced, it starts in `packages/docs/template
 - `.make-docs/config.yaml` has a documented schema and loader boundary, and every current reader and writer uses that boundary.
 - Config readers preserve canonical routing and metadata behavior when config is absent, valid, or invalid.
 - Structural rename attempts produce diagnostics rather than alternate schemas.
-- Persona config validation covers defaults, custom entries, duplicate slugs, invalid primitives, and unknown frontmatter persona slugs.
+- Persona discovery works with no config, no assets directory, and no Store. Validation covers the two defaults, custom extensions, safe overrides, invalid entries, and unknown frontmatter slugs. A no-CLI reader can find the same defaults and config boundary in the always-present docs router.
 - Legacy harness capability records do not activate behavior or become an alternate routing schema; any future evidence-backed presentation requires separate owning authority.
 - Resource and lifecycle surfaces may consume reviewed presentation or harness hints without treating config as URI, resolver, operation, state-machine, receipt, or support-claim authority.
 - Package and dogfood validation prove any default config template follows source-first copy rules and local config preservation.
@@ -133,6 +141,16 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: Config carries portable declarative identity and desired settings. Applied installation facts and checkout bindings remain Store-only. At package acceptance on 2026-09-09, implementation had not started. The owner later accepted the delivered result recorded in the W19 R3 phase closeout.
 - Rationale: Make Docs tool state needs one Store authority. Project knowledge remains local.
 - Source: [Store-owned installation and migration state design](../designs/2026-09-09-store-owned-installation-and-migration-state.md) and [W19 R3 plan](../plans/2026-09-09-w19-r3-store-owned-installation-and-migration-state/00-overview.md).
+
+### 2026-09-09 — W19 R4
+
+- Date: 2026-09-09
+- Coordinate: W19 R4
+- Affected requirement or section: Persona Configuration; Effective Persona Discovery; Validation.
+- Previous contract: Configured entries used agent, maintainer, or user primitives without a guaranteed merge of two built-ins or pre-assets discovery.
+- Replacement contract: Defaults are fixed user and maintainer mappings. Custom entries extend them; safe display overrides inherit omitted fields. Store-free discovery and the docs router expose the same effective rules.
+- Rationale: Make defaults discoverable with missing config, assets, CLI, or Store while preserving declarative ownership.
+- Source: [Project Assets and Persona Discovery](../designs/2026-09-09-project-assets-and-persona-discovery.md), [W19 R4 plan](../plans/2026-09-09-w19-r4-project-assets-and-persona-discovery/00-overview.md). Delivery is tracked by the single-phase R4 backlog; runtime implementation has not started.
 
 ## Source Anchors
 

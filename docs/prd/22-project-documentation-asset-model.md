@@ -13,7 +13,7 @@ The requirements below define the owned components, behaviors, boundaries, and e
 
 ### Managed Project Asset Namespace
 
-The canonical v2 information architecture is:
+The canonical information architecture is:
 
 ```text
 .make-docs/
@@ -22,35 +22,44 @@ The canonical v2 information architecture is:
     prompts/
     references/
     templates/
-  archive/
+  archive/                 # on demand
 docs/
-  artifacts/
-  designs/  # when designs are effective
-  plans/    # when plans are effective
-  prd/      # when PRDs are effective
-  work/     # when work is effective
-  assets/
-    <configured-harness router at this root only>
-    <persona-slug>/
-      testing/
+  designs/                 # when designs are effective
+  plans/                   # when plans are effective
+  prd/                     # when PRDs are effective
+  work/                    # when work is effective
+  assets/                  # on demand
+    <configured-harness routers at this root only>
+    project/               # only when shared content needs it
+    <persona-slug>/         # only when audience content needs it
+      testing/             # only when testing content needs it
 ```
 
-The unconditional configured-harness router foundation is the project root, `docs/`, `docs/assets/`, `.make-docs/`, `.make-docs/system/`, and the four typed system directories. The resolved effective profile and its dependencies control capability-local routers at `docs/designs/`, `docs/plans/`, `docs/prd/`, and `docs/work/`. `docs/assets/` has one managed router at its root. Make Docs does not install managed routers under `docs/assets/archive/`, `docs/assets/artifacts/`, `docs/assets/library/`, `docs/assets/playbooks/`, or Persona subdirectories. The typed system directories contain resource bodies and project overrides only when they are explicitly selected or accepted. The default provider-backed install does not eagerly materialize the full system-resource body snapshot. `.make-docs/archive/**` is Make Docs lifecycle archive storage. `docs/artifacts/**` holds project-owned pre-design or supporting source material. `docs/assets/<persona-slug>/testing/**` is the only current project home for persona-specific UAT rendered tester packets, executions, outcomes, findings, dispositions, evidence metadata, and approved evidence. The archive, artifact, and Persona testing surfaces are on demand. The archive and artifact surfaces receive routers when created. Persona testing is routed from `docs/assets/`. Blank installs must not create empty placeholders for the on-demand surfaces.
+The unconditional configured-harness router foundation is the project root, `docs/`, `.make-docs/`, `.make-docs/system/`, and its four typed system directories. Effective capabilities and their dependencies control routers at `docs/designs/`, `docs/plans/`, `docs/prd/`, and `docs/work/`. Fresh setup must not create `docs/assets/` or empty asset children.
 
-`docs/**` is repository-authoritative project knowledge, not a home for machine-local operational state. Canonical `NUAT-###` scenario identity and version remain with the active PRD that owns the external outcome, while every current UAT packet, execution, outcome, finding, disposition, evidence record, and approved evidence payload belongs under the selected Persona slug's `docs/assets/<persona-slug>/testing/**` tree and is bound to that canonical scenario version or content digest. `.make-docs/archive/**` and `docs/artifacts/**` are prohibited UAT evidence destinations. Make Docs v2 defines no Library, Playbook, or Protocol target family.
+`project.surface.ensure assets` creates or safely adopts only the assets root and its selected-harness routers when needed. It creates no `project`, Persona, `testing`, Library, Playbook, archive, or artifact child. Managed assets routers exist only at `docs/assets/`; the root router remains short and links to the canonical resources for detailed rules. On-demand archive creation supplies the archive routers. Ordinary content creation can create its required parent path without the CLI.
+
+Typed system directories contain resource bodies or accepted project overrides only when explicitly selected. Default installation does not eagerly copy the full system-resource body snapshot. `.make-docs/archive/**` is the current lifecycle archive. Make Docs v2 defines no active Library, Playbook, Protocol, or separate artifact target family.
+
+`docs/**` contains project knowledge, not machine operational state. Asset placement does not confer PRD authority. Canonical `NUAT-###` identity and version stay with the owning active PRD. Persona testing packets, executions, findings, dispositions, evidence metadata, and approved evidence stay under `docs/assets/<persona-slug>/testing/**` and bind to that scenario version or digest. Shared inputs and archive paths are not UAT evidence destinations.
 
 ### Canonical and Legacy Path Rules
 
-The canonical namespace and its treatment of legacy surfaces are:
+Legacy content receives an exact reviewed disposition:
 
-| Legacy or governed surface | Canonical surface | Current requirement |
+| Source surface | Reviewed destination or action | Required proof |
 | --- | --- | --- |
-| `docs/artifacts/**` | `docs/artifacts/**` | This is the canonical project-owned artifact surface; migration preserves existing content and provenance. |
-| `docs/assets/guides/**`, `docs/guides/**`, `docs/assets/library/**` | project-owned location selected during review | These are bounded migration inputs, not v2 managed target families; preserve content and lineage rather than silently relocating or deleting it. |
-| `docs/library/playbooks/**`, `docs/assets/playbooks/**`, Protocol-shaped assets | project-owned location selected during review | Make Docs v2 does not enumerate or execute Playbooks or Protocols; existing assets remain opaque project content unless an independent capability later adopts them. |
-| `docs/archive/**`, `docs/assets/archive/**`, `docs/assets/history/**`, `docs/assets/breadcrumbs/**` | `.make-docs/archive/**` when explicitly adopted | These are bounded legacy archive/history facets. Migration preserves user-owned records and requires reviewed provenance before moving them into the managed lifecycle archive. |
-| `docs/assets/{prompts,references,templates}/**`, `.make-docs/{contracts,prompts,references,templates,scripts}/system/**` | `.make-docs/system/{contracts,prompts,references,templates}/**` | The router skeleton and typed directories are always local. Resource bodies default to machine service and local body projection is optional, provenance-aware, and limited to selected resource types and paths. |
-| Persona-specific UAT packets, executions, outcomes, findings, dispositions, and evidence under legacy paths | `docs/assets/<persona-slug>/testing/**` | Migration preserves Persona association and user ownership; only proven material moves, and directory placement does not replace scenario or Persona authority. |
+| `docs/artifacts/**`, `docs/assets/artifacts/**` | `docs/assets/project/**` | Preserve relative content paths and provenance; resolve collisions explicitly. |
+| Proved `docs/assets/library/user/**` | `docs/assets/user/**` | Verify audience association and repair active links and metadata. |
+| `docs/assets/library/developer/**` proved to use the former shipped default | `docs/assets/maintainer/**` | Prove the shipped-default mapping; a custom `developer` entry is not that proof. |
+| Other Library audiences, old guides, `agent` entries, or ambiguous custom values | Explicit reviewed configured-audience or shared-input destination | Resolve intended audience and ownership; never map by slug alone. |
+| Retired `docs/assets/playbooks/**` | `.make-docs/archive/legacy-playbooks/**` | Preserve the old relative tree as historical material; never activate or execute it. |
+| Proved legacy archive/history/breadcrumb surfaces | `.make-docs/archive/**` | Preserve archive structure and historical provenance after explicit adoption. |
+| Old system-resource paths | `.make-docs/system/<type>/**` for proved supported resources | Require explicit disposition for modified, mixed, unknown, or conflicting content. |
+| Exact inventoried empty obsolete directories and parents | Empty-safe removal | Recheck each directory; no nonempty parent removal. |
+| Legacy Persona testing material | `docs/assets/<persona-slug>/testing/**` | Preserve actual Persona and scenario association; metadata remains authoritative. |
+
+No source-name match alone authorizes a move or deletion. An identical destination still requires byte and provenance verification before duplicate-source cleanup. Different destination bytes block until a reviewed mapping resolves the conflict.
 
 ### Template, Dogfood, and Package Flow
 
@@ -65,18 +74,31 @@ Implementation must audit and update duplicated path knowledge across CLI source
 
 ### Persona Grouping Boundary
 
-The actual selected Persona slug controls only the path segment used to organize and route current UAT packets, executions, outcomes, findings, dispositions, and evidence. That grouping is not a second canonical scenario, Persona, outcome, finding, or evidence authority: [46 Naive End-User Acceptance Testing](46-naive-end-user-acceptance-testing.md) owns UAT semantics and scenario binding, and [47 Persona Model](47-persona-model.md) owns eligibility, defaulting, slug resolution, metadata, and path/persona drift.
+A resolved Persona slug groups audience assets under `docs/assets/<persona-slug>/**`. It is a discovery path, not a second authority for Persona, scenario, outcome, finding, or evidence. [PRD 47](47-persona-model.md) owns the two primitives, built-in defaults, custom slug resolution, and path/metadata drift. [PRD 23](23-generated-document-metadata-and-lifecycle-handoffs.md) owns document metadata. [PRD 46](46-naive-end-user-acceptance-testing.md) owns UAT semantics and scenario binding.
+
+### Shared Project Inputs and Persona Assets
+
+`docs/assets/project/**` holds shared, non-authoritative source and analysis inputs. `docs/assets/<persona-slug>/**` holds audience assets. Neither placement replaces the owning product requirement or metadata contract. The reserved `project` segment cannot resolve as a Persona.
+
+Before the assets root exists, the always-present `docs/` router states the two default audiences, the shared-input path, the local config location, and a canonical reference pointer. This short guidance works without a CLI. The always-present docs router declares `Asset router files: AGENTS.md, CLAUDE.md` with only the filenames selected for the project's configured harnesses. That declaration is routing guidance, not installed ownership evidence. Without the CLI, authors use it and the short shared asset rules to create exactly those root instruction files. They must not infer harness choice from the execution actor or read raw Store records. A missing or invalid declaration requires an explicit project choice before router creation; ordinary content authoring can continue. With the CLI, the read-only Persona discovery operation shows the same effective entries. Detailed testing, authoring, and migration policy stays in canonical system resources rather than the assets router.
+
+### Reviewed Layout Migration
+
+The permanent layout operations use one content-bound review map and the global Store journal owned by [PRD 38](38-global-store-and-project-state.md). Preview has no writes. Preparation rechecks inventory, config-derived audience mapping, destinations, and link edits before it saves intent. CLI application and manual verification complete only after exact source, destination, byte, and link checks pass. A changed source, new file, unexpected leftover, unsafe path, unknown ownership, or unresolved collision keeps the operation pending or blocks preparation.
+
+Every reviewed entry names its source kind, digest or verified empty-directory observation, provenance, destination, action, and expected result. Historical facts remain unchanged. Mechanical live-link repairs record old and new targets. Archive and backup exclusions must be explicit non-active provenance. CLI failure never creates a project-local migration plan, lock, receipt, or checkpoint. [PRD 39](39-cli-command-model-and-operation-registry.md#persona-and-layout-commands-r-layout) owns the public commands.
+
 ## Non-Requirements
 
 - This PRD does not implement the file migration.
 - This PRD does not define plugin behavior or create a current Playbook or Protocol product surface.
 - This PRD does not make adversarial review a persona-scoped asset by default. [14-lifecycle-workflow-and-coverage-passes.md](14-lifecycle-workflow-and-coverage-passes.md) owns the optional adversarial-review candidate contract.
-- This PRD does not require blank installs to pre-create `.make-docs/archive/**`, `docs/artifacts/**`, or Persona testing directories. Those surfaces are on demand, while the `docs/assets/` root router is always local.
+- This PRD does not require blank installs to pre-create `.make-docs/archive/**`, `docs/assets/project/**`, or Persona testing directories. Those surfaces are on demand, and the always-present `docs/` router supplies discovery before assets exist.
 - This PRD does not move tool resources back into `docs/assets/**`.
 - This PRD does not redefine system-resource resolution mechanics owned by PRD 17 and PRD 21; it owns the project target paths and placement boundaries only.
 ## Acceptance Criteria
 
-- The active PRD set makes `.make-docs/system/{contracts,prompts,references,templates}/**`, `.make-docs/archive/**`, `docs/artifacts/**`, and `docs/assets/<persona-slug>/testing/**` the canonical target surfaces. It keeps the configured-harness foundation unconditional, makes the four documentation-capability routers follow the resolved effective profile and its dependencies, keeps only one managed router at the `docs/assets/` root, keeps archive, artifact, and Persona testing surfaces on demand, and keeps resource-body projection optional and provenance-aware.
+- The active PRD set makes `.make-docs/system/{contracts,prompts,references,templates}/**`, `.make-docs/archive/**`, `docs/assets/project/**`, and `docs/assets/<persona-slug>/testing/**` the canonical target surfaces. It keeps the configured-harness foundation unconditional, makes the four documentation-capability routers follow the resolved effective profile and its dependencies, creates assets-root routers only on demand, keeps shared and Persona children content-driven, and keeps resource-body projection optional and provenance-aware.
 - The active PRD set treats legacy guide, Library, Playbook, Protocol, archive, history, breadcrumb, and old system-resource paths as bounded compatibility facets whose user-owned contents are preserved until an explicit reviewed disposition succeeds.
 - `Q-009` remains closed by the persona schema owned exclusively by [47-persona-model.md](./47-persona-model.md); this PRD neither defines nor overrides that schema.
 - `R-011` cites PRD 47 for persona authority, and `R-013` cites this PRD for migration targets; no current requirement cites this PRD as Playbook or Protocol storage authority.
@@ -114,6 +136,16 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: `docs/assets/` is an unconditional router root with no managed routers below it. The four documentation-capability routers follow the resolved effective profile and its dependencies. `.make-docs/archive/`, `docs/artifacts/`, and Persona testing remain on demand.
 - Rationale: D-030 found that the P4 authority and closeout omitted required documentation surfaces.
 - Source: [D-030](./03-open-questions-and-risk-register.md#d-030-w19-r1-documentation-surface-router-topology-was-omitted)
+
+### 2026-09-09 — W19 R4
+
+- Date: 2026-09-09
+- Coordinate: W19 R4
+- Affected requirement or section: Managed Project Asset Namespace; Canonical and Legacy Path Rules; Persona Grouping Boundary.
+- Previous contract: The assets root was unconditional, shared inputs used docs/artifacts, and audience assets outside UAT had no current target family.
+- Replacement contract: Assets and its root routers are on demand. Shared inputs use docs/assets/project; audience assets use effective Persona slugs. Exact reviewed migration records byte, link, and historical dispositions.
+- Rationale: Remove misleading empty families and make every retained source destination clear.
+- Source: [Project Assets and Persona Discovery](../designs/2026-09-09-project-assets-and-persona-discovery.md), [W19 R4 plan](../plans/2026-09-09-w19-r4-project-assets-and-persona-discovery/00-overview.md). Delivery is tracked by the single-phase R4 backlog; runtime implementation has not started.
 
 ## Source Anchors
 

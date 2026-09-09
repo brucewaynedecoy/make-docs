@@ -88,11 +88,17 @@ Playbooks and Protocols have no runtime, registry, compiler, package, or MCP sur
 
 ### Asset and Config Boundaries
 
-MCP must not expose hidden provider state as the only way to understand a repository. Local manifest/config/router bootstrap remains mandatory, while local system-resource projection is optional.
+MCP must not expose hidden provider state as the only way to understand a repository. Local declarative config and the always-present documentation routers keep the project understandable. Installation ownership and operational records belong only to the global Store under [PRD 38](38-global-store-and-project-state.md); a local manifest is not required or restored. Local system-resource bodies remain optional.
 
 The resource resolver accepts only stable system-resource URIs, resolves a trustworthy selected local projection before the installed provider, and rejects traversal, invalid type segments, stale or divergent projected content, and unavailable provider state with typed errors. Projection provenance records provider, version or immutable ref, hash algorithm, hash set, local path, ownership state, offline expectation, and recovery guidance.
 
-Configuration overlays are presentation inputs. CLI commands, MCP tools/resources, plugin surfaces, and skills route through canonical paths, manifest keys, route identifiers, resource URIs, operation ids, lifecycle stages/statuses, skill names, and harness names.
+The shared Persona resolver reads shipped defaults and valid declarative config without Store access. `project.persona.list` and `project.layout.preview` are read-only operations. Persona discovery performs no bootstrap or directory creation. Layout preview binds its inventory, map, config-derived audience resolution, and planned link edits in the returned review digest.
+
+`project.layout.prepare`, `project.layout.apply`, and `project.layout.verify` reuse the Store installation journal, checkout identity, lock, and recovery contracts. Preparation saves the full reviewed intent before any CLI move or instructed manual move. It releases the live process lock while the durable pending operation blocks conflicting managed writes. Application or verification records completion only after the saved source, destination, bytes, and link expectations match. Missing Store access stops required state-writing work; no project-local plan cache or parallel migration engine is permitted.
+
+Ordinary project-owned asset authoring remains possible without the CLI. The docs router and config expose the destination and audience rules. This permission does not authorize unreviewed legacy cleanup or local tool-state capture. CLI and MCP project the same operation inputs, results, read/write classification, dry-run behavior, and approval boundary. [PRD 39](39-cli-command-model-and-operation-registry.md#persona-and-layout-commands-r-layout) owns exact command grammar.
+
+Configuration supplies declarative identity, desired settings, audience mappings, and approved presentation fields. It cannot rename canonical paths, resource URIs, operation identifiers, lifecycle states, or harness identifiers. `packages/cli/src/config.ts` and `packages/cli/src/operations/project/` are the shared runtime owners.
 
 ### Naive-UAT Operation Boundary
 
@@ -210,6 +216,16 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: CLI resource list/read and native MCP resource discovery/read where supported share one resolver and stable peer-resource URIs; local projection is optional and provenance-aware; bounded lifecycle operations use general run/evidence records and typed receipts; and Playbooks and Protocols have no runtime or operation authority.
 - Rationale: The TypeScript runtime boundary must expose one deterministic contract across human and agent surfaces without reintroducing the retired workflow product model.
 - Source: [Accepted recovery design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md) and [W19 R1 recovery plan](../plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md)
+
+### 2026-09-09 — W19 R4
+
+- Date: 2026-09-09
+- Coordinate: W19 R4
+- Affected requirement or section: Asset and Config Boundaries.
+- Previous contract: Local manifest/config/router bootstrap was described as mandatory, and no shared layout preview/prepare/apply/verify boundary existed.
+- Replacement contract: Declarative config and routers remain local; installation state remains in Store. Persona discovery and layout preview are read-only. Prepared layout changes reuse the Store journal and recovery contract.
+- Rationale: Remove conflicting local-state guidance and make manual and CLI migration share exact verification.
+- Source: [Project Assets and Persona Discovery](../designs/2026-09-09-project-assets-and-persona-discovery.md), [W19 R4 plan](../plans/2026-09-09-w19-r4-project-assets-and-persona-discovery/00-overview.md). Delivery is tracked by the single-phase R4 backlog; runtime implementation has not started.
 
 ## Source Anchors
 
