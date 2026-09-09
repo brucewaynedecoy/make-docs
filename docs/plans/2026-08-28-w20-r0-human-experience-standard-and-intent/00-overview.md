@@ -25,6 +25,8 @@ follow_on:
 
 ## Purpose
 
+**Current execution pause, 2026-09-09:** W20 R0 is paused after accepted P2 for the [W19 R3 Store state interrupt](../2026-09-09-w19-r3-store-owned-installation-and-migration-state/00-overview.md). The [work index](../../work/2026-08-28-w20-r0-human-experience-standard-and-intent/00-index.md#interrupt-pause) owns the current stop point. Preserve accepted results and phase task IDs. The interrupt must complete before a separate owner decision can resume W20 R0 implementation.
+
 Make Docs helps people and agents organize difficult work. It preserves facts, choices, requirements, plans, evidence, and gates. This is a major product strength.
 
 The same strength can produce a serious failure. An agent can build a result that is technically correct and complete, but hard for a person to understand or use. The agent can expose records, fields, identifiers, states, and internal relationships because those items are easy to state and prove. The result can function while the human remains unsure about meaning, continuity, current state, or the next useful action.

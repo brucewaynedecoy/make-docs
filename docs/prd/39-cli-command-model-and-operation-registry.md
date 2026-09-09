@@ -11,6 +11,8 @@ source:
 
 ## Purpose
 
+Accepted target: the owner accepted the [W19 R3 package](../plans/2026-09-09-w19-r3-store-owned-installation-and-migration-state/00-overview.md), including its work backlog, on 2026-09-09. The requested next step is an implementation plan after the package commit. Implementation has not started. Existing code anchors describe implementation evidence, not proof that this target is delivered.
+
 This document defines the current product contract for the CLI command grammar, reusable operation registry, and human/agent rendering boundary. Normative requirements are stated in the sections below; Requirement History is provenance only.
 ## Scope
 
@@ -94,7 +96,15 @@ The requirements below are the normative authority. Their stable identifiers pre
 - R-MIG-1 (MUST): no compatibility aliases exist; noncurrent command spellings fail with guidance naming the accepted command.
 - R-MIG-2 (MUST): `update`, `setup`, and `setup reconfigure` detect a pre-v2 configuration by its fingerprints and, when found, present a warning that itemizes the changes that could break on upgrade, followed by a choice between backing up and installing the latest version, which is recommended, and cancelling.
 - R-MIG-3 (MUST): MCP tool names are derived from the registry identifiers, so the MCP renames follow the same registry as the CLI.
-- R-MIG-4 (MUST): setup classifies the Store before any setup mutation and stops for corrupt, unknown, newer, or indeterminate state. Checkpoint-9 schema DDL, `user_version`, and its internal metadata-only journal row commit in one SQLite write transaction. The project-local migration receipt projects from that committed row. Setup retries a failed projection once. A second failure returns a typed checkpoint result, exits unsuccessfully, and stops later setup work. Setup does not replace or restore the whole Store or its database after commit. This behavior does not add or rename a CLI, registry, or MCP identifier.
+- R-MIG-4 (MUST): setup classifies and bootstraps the external Store before project mutation. Schema changes and their journal commit in one transaction. All project-operation receipts and recovery progress remain in the Store. A required Store failure stops the affected operation and returns a typed result with safe next steps. There is no local receipt projection or retry path. Recovery never replaces the whole Store after commit.
+
+### Installation State Commands (R-STATE)
+
+- R-STATE-1 (MUST): `make-docs project state status [--target-root <path>] [--json]` is read-only. The shared operation id is `project.state.status`. It reports Store availability, project and checkout binding, installed-state trust, pending or failed operation ids, migration outcome, and safe next actions. It creates no database, lock, project file, import, or mutation receipt.
+- R-STATE-2 (MUST): `make-docs project state recover <operation-id> --resume|--rollback [--target-root <path>] [--dry-run] [--json]` uses shared operation id `project.state.recover`. Exactly one recovery action is required. The operation must belong to the target checkout. Dry-run reports the exact proposed changes without writes. Apply uses the recorded plan, Store lock, and verified bytes; changed or unknown evidence stops mutation.
+- R-STATE-3 (MUST): existing setup preview/apply owns the one-time transfer of local operational files. It shows Store records to import and exact files to remove. The status and recovery commands do not add an implicit migration or expand ownership.
+- R-STATE-4 (MUST): human output names the current result, what changed, what remains, and the safe next action. JSON is a versioned typed result with the same facts. Typed failure distinguishes unavailable or unsafe Store, identity conflict, active writer, unsupported legacy input, changed content, and pending recovery. CLI and MCP derive from the same registered operation and input schema.
+- R-STATE-5 (MUST): these two installation-state operations extend the historical P3 inventory. Existing identifiers and general lifecycle receipt meanings remain stable. New operation admission does not reactivate retired commands.
 
 ### Registry Cohesion and Operation Admission (R-SEQ)
 
@@ -111,7 +121,7 @@ The requirements below are the normative authority. Their stable identifiers pre
 - R-TEST-4 (MUST): a test asserts that pre-v2 detection triggers the warning-and-choice flow and that `uninstall` confirms and does not delete repository content. A P3 baseline test asserts that every existing Playbook and Protocol registry entry, implementation, CLI surface, and MCP surface remains unchanged. No new legacy surface may appear.
 - R-TEST-5 (MUST): tests assert the exact 24-identifier nonlegacy inventory, the seven active and seventeen pending states, each pending lineage value, CLI-to-MCP parity in both directions, native MCP parity for resource list/read only, and typed pending refusal without a handler claim.
 - R-TEST-6 (MUST): focused lifecycle tests assert exact CLI/MCP receipt parity for every successful Store mutation and assert that read-only, failed, conflicted, unavailable, and rolled-back operations emit no success receipt.
-- R-TEST-7 (MUST): the finite P6 proof set invokes checkpoint 9 through integrated setup and covers pre-mutation Store classification, cross-process serialization, journal-based receipt recovery, and the typed stop result after two failed projection attempts. The proof confirms that no later setup mutation runs after that result and that the existing CLI and MCP identifier inventory is unchanged.
+- R-TEST-7 (MUST): integrated and packed CLI tests cover Store bootstrap, legacy transfer, competing writers, interrupted operations, resume, rollback, unsafe Store roots, clone bindings, and repeat setup. CLI and MCP use one service and matching typed results. Assert no local operational manifest, state directory, receipt, or lock is created.
 
 The seven-command structure, context-aware bare command, machine-footprint `uninstall`, remote-execution-honest self-management, registry-derived surfaces, modular shared core with one-way dependencies, canonical resource grammar, registry-only lifecycle surface, compatibility rejection, and pre-v2 detection are non-substitutable. Implementations may choose the pre-v2 fingerprint set and warning copy, install-manager detection matrix, and internal operation-core module layout without changing registered identities.
 
@@ -144,7 +154,7 @@ Code anchors:
 ### Run-Id and Flag Ergonomics (R-RUNID, R-FLAG)
 
 - R-RUNID-1 (MUST): run identifiers keep their sortable internal form, but every `--run-id` acceptor resolves an unambiguous prefix, and a `--last` alias selects the most recent run for the resolved project; an ambiguous prefix fails listing the candidates.
-- R-FLAG-1 (MUST): `--repo-root` defaults to the nearest ancestor of the working directory carrying `.make-docs/manifest.json`; `--store-root` defaults to the real global store; both flags remain as overrides.
+- R-FLAG-1 (MUST): `--repo-root` resolves the target from explicit input or the nearest valid declarative project identity/config and Store binding. A legacy local manifest is a classification input only. `--store-root` defaults to the platform user Store and rejects project-contained roots or symlink aliases under PRD 38. Neither override permits a local state fallback.
 - R-FLAG-2 (SHOULD): command convenience defaults may come from `.make-docs/config.yaml`, with explicit flags always overriding; config remains presentation and convenience, never resource, operation, lifecycle, or routing authority, consistent with [24-project-configuration-and-convention-overlay.md](24-project-configuration-and-convention-overlay.md).
 
 ### Noise (R-NOISE)
@@ -239,6 +249,14 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: setup stops on unsafe Store classifications; one SQLite transaction commits the checkpoint-9 schema, version, and internal journal row; the project receipt is a recoverable journal projection; two projection failures return a typed stop result; and no operation identifier changes.
 - Rationale: CLI setup must expose a deterministic failure without weakening the shared registry and MCP identity contract.
 - Source: accepted owner decision `P6-SAFETY-DESIGN` in W19 R1 P6.
+
+### 2026-09-09 — W19 R3
+
+- Affected requirement or section: R-MIG, R-STATE, R-FLAG, R-TEST
+- Previous contract: Setup projected a local checkpoint-9 receipt and retried twice. Root discovery depended on a local operational manifest. No installation state status/recovery command was defined.
+- Replacement contract: Setup uses Store-only operation records. Typed project state status and recovery share CLI/MCP behavior. Target resolution uses declarative identity and Store bindings. The owner accepted this target with the work backlog on 2026-09-09. Implementation has not started.
+- Rationale: Make Docs tool state needs one Store authority. Project knowledge remains local.
+- Source: [Store-owned installation and migration state design](../designs/2026-09-09-store-owned-installation-and-migration-state.md) and [W19 R3 plan](../plans/2026-09-09-w19-r3-store-owned-installation-and-migration-state/00-overview.md).
 
 ## Source Anchors
 

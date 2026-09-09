@@ -2,6 +2,8 @@
 
 ## Purpose
 
+Accepted target: the owner accepted the [W19 R3 package](../plans/2026-09-09-w19-r3-store-owned-installation-and-migration-state/00-overview.md), including its work backlog, on 2026-09-09. The requested next step is an implementation plan after the package commit. Implementation has not started. Existing code anchors describe implementation evidence, not proof that this target is delivered.
+
 This document defines the current product contract for agent-instruction ownership, managed blocks, and conflict-safe preservation. Normative requirements are stated in the sections below; Requirement History is provenance only.
 ## Scope
 
@@ -45,13 +47,17 @@ managed block, not the whole shared file:
 - The router does not copy the full standard, impact rules, section form, principles, or evidence model.
 - Human Experience discovery does not require a Skill. A Skill can remain an optional aid and cannot become a second authority.
 
+### State Guidance
+
+- R-ROUTER-STATE-1 (MUST): shipped routers and system guidance direct agents to the CLI for Make Docs installation, migration, locking, receipt, and recovery state in the global Store. They must not instruct agents to create or edit `.make-docs/state/`, a local operational manifest, or an equivalent local mirror. Project history and optional work tracking remain local knowledge. Upstream resources are changed before downstream dogfood copies.
+
 ### Initialization and Adoption Safety
 
 - Setup and reconfigure classify an existing instruction surface before creating or adopting any block. Classification records the file owner, detected marker shape, managed snapshot and hash, project-owned bytes outside the block, router intent, manifest claim, provenance state, and any competing claims.
 - A fresh project receives the configured-harness router foundation at the project root, `docs/`, `docs/assets/`, `.make-docs/`, `.make-docs/system/`, and the four typed system directories. The resolved effective profile and its dependencies control capability-local routers at `docs/designs/`, `docs/plans/`, `docs/prd/`, and `docs/work/`. `docs/assets/` has one managed router at its root and no managed routers below it. `.make-docs/archive/` and `docs/artifacts/` receive routers only when created. Persona testing remains on demand and is routed from the `docs/assets/` root. System resources remain machine-served by default, so initialization does not require eager resource-body materialization; an explicitly selected local projection is recorded separately with its own provenance.
-- Adoption is explicit and file-scoped. A verified canonical block may be adopted as `managed-snapshot`; existing noncanonical content is `project-owned` unless the user reviews an export-and-replace or proven-managed overwrite plan. Successful adoption records a typed receipt and the exact before/after snapshot in the project manifest.
-- Setup, reconfigure, update, migration, and uninstall acquire the project lifecycle lock before taking the classification snapshot and hold it through block transformation, manifest write, and validation. Missing, malformed, nested, duplicated, ambiguous, or contradictory markers or provenance fail closed before mutation.
-- Instruction and manifest paths are normalized project-relative POSIX paths and resolved beneath the approved repository root. Traversal, absolute substitution, case-collision, or symlink escape is rejected on Windows, macOS, and Linux.
+- Adoption is explicit and file-scoped. A verified canonical block may be adopted as `managed-snapshot`; existing noncanonical content is `project-owned` unless the user reviews an export-and-replace or proven-managed overwrite plan. Successful adoption records a typed receipt, before/after snapshot identifiers, digests, bounded provenance, and content references in the Store-owned installation record. File and block bodies remain in verified provider, backup, or approved content-copy locations.
+- Setup, reconfigure, update, migration, and uninstall acquire the Store-owned checkout lock before taking the classification snapshot and hold it through block transformation, manifest write, and validation. Missing, malformed, nested, duplicated, ambiguous, or contradictory markers or provenance fail closed before mutation.
+- Instruction member paths held in the Store are normalized project-relative POSIX paths and resolved beneath the approved repository root. The operational manifest itself lives outside the repository in the Store. Traversal, absolute substitution, case-collision, or symlink escape is rejected on Windows, macOS, and Linux.
 
 Code anchors:
 
@@ -123,6 +129,14 @@ Managed instruction files are compared and resolved at the managed-block boundar
 - Replacement contract: A fresh project receives the unconditional router foundation. The resolved effective profile and its dependencies control capability-local documentation routers. `docs/assets/` has one managed root router. Archive, artifact, and Persona testing surfaces remain on demand.
 - Rationale: D-030 found that the P4 authority and closeout omitted required documentation surfaces.
 - Source: [D-030](./03-open-questions-and-risk-register.md#d-030-w19-r1-documentation-surface-router-topology-was-omitted)
+
+### 2026-09-09 — W19 R3
+
+- Affected requirement or section: State Guidance; Initialization and Adoption Safety
+- Previous contract: Adoption evidence went into a project manifest and local state guidance was not explicitly forbidden.
+- Replacement contract: Adoption and locking use Store state. Shipped guidance directs agents to CLI state operations. The owner accepted this target with the work backlog on 2026-09-09. Implementation has not started.
+- Rationale: Make Docs tool state needs one Store authority. Project knowledge remains local.
+- Source: [Store-owned installation and migration state design](../designs/2026-09-09-store-owned-installation-and-migration-state.md) and [W19 R3 plan](../plans/2026-09-09-w19-r3-store-owned-installation-and-migration-state/00-overview.md).
 
 ## Source Anchors
 

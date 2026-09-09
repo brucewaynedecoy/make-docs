@@ -2,6 +2,8 @@
 
 ## Purpose
 
+Accepted target: the owner accepted the [W19 R3 package](../plans/2026-09-09-w19-r3-store-owned-installation-and-migration-state/00-overview.md), including its work backlog, on 2026-09-09. The requested next step is an implementation plan after the package commit. Implementation has not started. Existing code anchors describe implementation evidence, not proof that this target is delivered.
+
 This document defines the current product contract for system-resource provenance, optional local projection, cache safety, and local bootstrap. Normative requirements are stated in the sections below; Requirement History is provenance only.
 ## Scope
 
@@ -24,10 +26,10 @@ Local bootstrap:
 - Every install must materialize the unconditional router foundation for each configured supported harness at the project root, `docs/`, `docs/assets/`, `.make-docs/`, `.make-docs/system/`, and `.make-docs/system/{contracts,prompts,references,templates}/`.
 - The resolved effective profile and its dependencies control the capability-local routers at `docs/designs/`, `docs/plans/`, `docs/prd/`, and `docs/work/`. An install must materialize only the routers for enabled document types.
 - The `docs/assets/` surface has one root router and no managed child routers. `.make-docs/archive/**`, `docs/artifacts/**`, and Persona asset or testing children beneath `docs/assets/` remain on-demand surfaces.
-- Every install must keep `.make-docs/manifest.json`.
+- Every installed checkout must have a Store-owned installation record and declarative project identity under PRD 24. `.make-docs/manifest.json` is legacy transfer input only.
 - Every install must keep local config once v2 config exists.
 - Every install must keep local custom overlays and project-owned overrides.
-- The local bootstrap must include readable manifest/config state and router guidance that explains local-first resolution, installed-provider CLI fallback, selected resource bodies, provenance, and unavailable-provider recovery.
+- The local bootstrap must include readable declarative identity/config and CLI guidance for Store installation status and router guidance that explains local-first resolution, installed-provider CLI fallback, selected resource bodies, provenance, and unavailable-provider recovery.
 - The local bootstrap is always repository-readable; the four content-resource families do not need local projection for CLI or MCP access.
 - Resource selection controls resource bodies only. It must never remove a configured-harness router or a typed router directory.
 - `project.surface.ensure <archive|artifacts|assets>` remains valid. The `archive` and `artifacts` values create their on-demand surfaces. The `assets` value is idempotent when the unconditional root surface is current. It can create or safely repair that root surface under normal ownership rules, but it must not create Persona or testing children.
@@ -41,11 +43,11 @@ System asset boundary:
 - Mutable project artifacts are not provider-resolved system assets. This includes designs, plans, PRDs, work backlogs, authored guides, history records, local custom overlays, and local config.
 - Skills and plugins are not system assets for this contract. They remain selected agentic assets with their own delivery, selection, trust, and audit decisions.
 - Conformance-lab scenario specs, result records, raw transcripts, provider logs, and temporary run artifacts are not provider-resolved system assets. [20-agent-harness-conformance-and-support-claims.md](./20-agent-harness-conformance-and-support-claims.md), PRD 43, and PRD 44 keep them maintainer-only unless those owning PRDs are authoritatively updated to promote a reviewed subset.
-- `.make-docs/` holds manifest/config/bootstrap state and any selected local projection; `docs/assets/` remains readable project documentation assets. Manifests, conflicts, caches, and provider state do not move into `docs/assets/`.
+- `.make-docs/` holds project-owned identity/config, bootstrap routers, optional resource bodies, and approved content copies. The Store owns manifests, conflict decisions, cache metadata, provider/projection metadata, audit state, and migration/recovery records. Cache payloads remain under the existing provider/content contract and are separate from the operational Store. Operational records never move into `docs/assets/` or another project directory.
 - [21-project-tool-directory-and-resource-tiers.md](./21-project-tool-directory-and-resource-tiers.md) extends this boundary by defining the always-local `.make-docs/system/**` router skeleton, optional resource bodies, and project-owned overlays while preserving local bootstrap and keeping runtime state out of `docs/assets/**`.
 - Playbooks and Protocols are not system-resource types, projection families, provider content kinds, or runtime authorities.
 
-- The machine-level operational Store at `~/.make-docs/` is distinct from the installed resource provider: it holds mutable registry state and bounded lifecycle `runs` and `run_evidence`, while shipped template resources remain package content. Legacy `playbook_runs` rows, when present, remain opaque and untouched by lifecycle migration. Store availability must not weaken repository bootstrap, resolver precedence, projection provenance, or conflict safety; `run-capture-unavailable` is ancillary when a command can otherwise complete.
+- The machine-level Store is separate from the installed resource provider. It holds required installation ownership, provenance, operation progress, and bounded lifecycle records under PRD 38. Missing Store evidence prevents trusting a local managed projection or mutating it. Packaged-provider reads and repository knowledge remain available. Ancillary `run-capture-unavailable` applies only to optional lifecycle capture.
 
 Provider and cache provenance:
 
@@ -59,6 +61,8 @@ Provider and cache provenance:
 - Remote sources are deferred as a provider class until their pinning, caching, trust, confirmation, and recovery policy is resolved.
 
 Manifest provenance:
+
+- R-RESOURCE-STATE-1 (MUST): all resource and router provenance is held in the Store-owned installation record. Reads never import a local operational manifest silently. A local resource can shadow the provider only when current Store evidence verifies its selected identity and bytes. Missing or unsafe Store evidence uses the packaged provider or returns a typed unavailable result. It does not create local state.
 
 - The manifest records router ownership separately from resource-body projection selection and provenance. A resource selection must not imply router removal.
 - The manifest records resource provenance before any local projection is treated as trustworthy.
@@ -136,6 +140,14 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: Each configured harness has the full unconditional foundation, while the resolved effective profile and its dependencies control the four capability-local document routers. The `docs/assets/` router is root-only, and archive, artifact, and Persona testing children remain on demand.
 - Rationale: The runtime contract must match the separate documentation-surface correction without changing the closed system-resource correction.
 - Source: [D-030](./03-open-questions-and-risk-register.md#d-030-w19-r1-documentation-surface-router-topology-was-omitted)
+
+### 2026-09-09 — W19 R3
+
+- Affected requirement or section: Requirements
+- Previous contract: Every install kept a local manifest. Store capture failure was ancillary without a required-state exception.
+- Replacement contract: The local bootstrap keeps identity/config and routers. Store evidence owns projection trust, installation state, and required write safety. The owner accepted this target with the work backlog on 2026-09-09. Implementation has not started.
+- Rationale: Make Docs tool state needs one Store authority. Project knowledge remains local.
+- Source: [Store-owned installation and migration state design](../designs/2026-09-09-store-owned-installation-and-migration-state.md) and [W19 R3 plan](../plans/2026-09-09-w19-r3-store-owned-installation-and-migration-state/00-overview.md).
 
 ## Source Anchors
 

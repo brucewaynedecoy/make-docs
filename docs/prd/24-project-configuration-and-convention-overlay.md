@@ -2,6 +2,8 @@
 
 ## Purpose
 
+Accepted target: the owner accepted the [W19 R3 package](../plans/2026-09-09-w19-r3-store-owned-installation-and-migration-state/00-overview.md), including its work backlog, on 2026-09-09. The requested next step is an implementation plan after the package commit. Implementation has not started. Existing code anchors describe implementation evidence, not proof that this target is delivered.
+
 This document defines the current product contract for project-owned configuration and convention overlays over canonical Make Docs semantics. Normative requirements are stated in the sections below; Requirement History is provenance only.
 ## Scope
 
@@ -13,13 +15,19 @@ The requirements below define the owned components, behaviors, boundaries, and e
 
 ### Optional Project-Owned Config
 
-`.make-docs/config.yaml` is optional project-owned configuration. If absent, make-docs uses shipped defaults.
+`.make-docs/config.yaml` is project-owned declarative configuration. Presentation fields remain optional and use shipped defaults when absent. Setup preserves or adds a stable project identifier for Store binding. This identity is project knowledge, not evidence of installed ownership.
 
 Install, reconfigure, provider refresh, package sync, cache recovery, audit, backup, and uninstall planning must preserve existing project-owned config unless a later accepted plan defines an explicit user-approved replacement flow.
 
+### Declarative Identity and Settings
+
+- R-CONFIG-STATE-1 (MUST): local config may hold stable project identity and desired settings that are meaningful to share, including selected capabilities, harnesses, Skills, and resource projection intent. It must not hold applied versions, effective installation facts, ownership hashes, receipts, checkpoints, checkout ids, locks, writer records, or recovery data.
+- R-CONFIG-STATE-2 (MUST): setup previews and preserves existing config fields and comments when adding identity or supported desired settings. Unsupported, conflicting, or malformed config stops automatic transfer. The CLI must not replace a user's config merely to remove a local manifest.
+- R-CONFIG-STATE-3 (MUST): a clone may share project identity and desired settings. Only the Store's verified checkout binding proves local installation ownership. Changes to desired settings require the normal reviewed setup path before applied state changes.
+
 ### Presentation Overlay
 
-Configuration may affect only the approved overlay fields below. Persona entries carry the stable audience mapping owned by Persona authority; all other entries in this section are presentation-only:
+Presentation configuration may affect only the approved overlay fields below. Persona entries carry the stable audience mapping owned by Persona authority; all other entries in this section are presentation-only:
 
 - Display labels for lifecycle concepts and document kinds in generated prose.
 - Display labels for coordinate parts in generated prose and CLI output.
@@ -55,7 +63,7 @@ A configured prefix-style label may influence generated explanations of filename
 
 ### Rendering Surfaces
 
-CLI, MCP, plugin, and skill surfaces consume config as rendering input, not routing authority. Commands, validators, resource resolvers, lifecycle handlers, and package-template checks resolve canonical paths and identifiers before applying configured labels to user-visible text. [25-typescript-runtime-cli-mcp-operation-boundaries.md](25-typescript-runtime-cli-mcp-operation-boundaries.md) applies this rule to CLI/MCP parity: config cannot change operation inputs, stable system-resource URIs, resolver precedence, or returned resource bytes. [08-skills-catalog-and-distribution.md](08-skills-catalog-and-distribution.md), [28-shared-agentics-installation-and-harness-exposure.md](28-shared-agentics-installation-and-harness-exposure.md), and [30-plugin-substrate-and-workflow-bundles.md](30-plugin-substrate-and-workflow-bundles.md) apply the same boundary to optional agentics: labels appear only after canonical ids, payload paths, harnesses, and source provenance resolve. [14-lifecycle-workflow-and-coverage-passes.md](14-lifecycle-workflow-and-coverage-passes.md) applies the rule to lifecycle review: labels may affect presentation only after canonical target, stage, status, verdict, handoff owner, and receipt data resolve.
+CLI, MCP, plugin, and skill surfaces consume presentation fields as rendering input. Declarative identity and desired settings use their typed setup contracts. Config does not rename routes or supply operational authority. Commands, validators, resource resolvers, lifecycle handlers, and package-template checks resolve canonical paths and identifiers before applying configured labels to user-visible text. [25-typescript-runtime-cli-mcp-operation-boundaries.md](25-typescript-runtime-cli-mcp-operation-boundaries.md) applies this rule to CLI/MCP parity: config cannot change operation inputs, stable system-resource URIs, resolver precedence, or returned resource bytes. [08-skills-catalog-and-distribution.md](08-skills-catalog-and-distribution.md), [28-shared-agentics-installation-and-harness-exposure.md](28-shared-agentics-installation-and-harness-exposure.md), and [30-plugin-substrate-and-workflow-bundles.md](30-plugin-substrate-and-workflow-bundles.md) apply the same boundary to optional agentics: labels appear only after canonical ids, payload paths, harnesses, and source provenance resolve. [14-lifecycle-workflow-and-coverage-passes.md](14-lifecycle-workflow-and-coverage-passes.md) applies the rule to lifecycle review: labels may affect presentation only after canonical target, stage, status, verdict, handoff owner, and receipt data resolve.
 
 ### Harness Capability Records
 
@@ -117,6 +125,14 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: Config remains a presentation overlay over canonical resource URIs, operation ids, lifecycle stages/statuses, receipts, and accepted on-demand archive/artifact/persona-asset paths; legacy Playbook-oriented harness capability values do not activate behavior and no replacement schema is minted here; and Playbooks and Protocols define no metadata, configuration, operation, or package authority.
 - Rationale: Project-owned configuration must not recreate the retired workflow product model or fork the accepted resource and lifecycle contracts.
 - Source: [Accepted recovery design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md) and [W19 R1 recovery plan](../plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md)
+
+### 2026-09-09 — W19 R3
+
+- Affected requirement or section: Optional Project-Owned Config; Declarative Identity and Settings; Rendering Surfaces
+- Previous contract: Config was optional and mainly a presentation/Persona overlay. Stable project identity lived in the operational manifest.
+- Replacement contract: Config carries portable declarative identity and desired settings. Applied installation facts and checkout bindings remain Store-only. The owner accepted this target with the work backlog on 2026-09-09. Implementation has not started.
+- Rationale: Make Docs tool state needs one Store authority. Project knowledge remains local.
+- Source: [Store-owned installation and migration state design](../designs/2026-09-09-store-owned-installation-and-migration-state.md) and [W19 R3 plan](../plans/2026-09-09-w19-r3-store-owned-installation-and-migration-state/00-overview.md).
 
 ## Source Anchors
 

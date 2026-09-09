@@ -43,6 +43,8 @@ Authority inputs:
 
 ## W20 Dependency and Scope Boundary
 
+**Current dependency, 2026-09-09:** W20 R0 is paused for the [W19 R3 Store state interrupt](../2026-09-09-w19-r3-store-owned-installation-and-migration-state/00-index.md). W21 remains downstream of W20. Interrupt completion does not authorize W20 or W21 implementation. Existing W21 tasks and the accepted testing direction remain unchanged.
+
 Implement W20 R0 first. W20 must supply the Human Experience Intent, its lifecycle propagation, and the required Human Experience Review that W21 consumes.
 
 Start W21 implementation only after the owner accepts enough W20 evidence for this dependency. A later W20 finding can still become a W21 input through normal finding and obligation rules.

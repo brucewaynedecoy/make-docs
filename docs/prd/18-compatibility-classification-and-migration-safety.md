@@ -2,6 +2,8 @@
 
 ## Purpose
 
+Accepted target: the owner accepted the [W19 R3 package](../plans/2026-09-09-w19-r3-store-owned-installation-and-migration-state/00-overview.md), including its work backlog, on 2026-09-09. The requested next step is an implementation plan after the package commit. Implementation has not started. Existing code anchors describe implementation evidence, not proof that this target is delivered.
+
 This document defines the current product contract for compatibility classification, conservative migration, and failure-safe adoption. Normative requirements are stated in the sections below; Requirement History is provenance only.
 ## Scope
 
@@ -13,8 +15,8 @@ The requirements below define the owned components, behaviors, boundaries, and e
 
 Classification priority:
 
-1. Determine whether `.make-docs/manifest.json` exists and can be parsed.
-2. If present, validate schema, package identity, stable project identity, saved projection selections, managed file and block records, skill records, resource provenance, and every competing ownership claim for v2 manifests.
+1. Resolve the external Store and declarative project identity. Classify Store safety and the checkout binding. Inspect `.make-docs/manifest.json` only as a legacy transfer input.
+2. Validate the Store installation record or supported legacy input: schema, package identity, project and checkout identity, saved selections, ownership, hashes, resource provenance, and competing claims. A clone or missing Store cannot inherit ownership from project identity alone.
 3. Compare recorded hashes, managed snapshots, selected-skill outputs, selected `.make-docs/system/**` projections, routers, and other owned paths against the filesystem without following links outside the approved project or machine root.
 4. If the manifest is absent or unusable, use only conservative fallback recognition for known make-docs-managed paths and canonical content.
 5. If fallback recognition is ambiguous, stop before mutation.
@@ -52,23 +54,23 @@ Classification is monotonic and fail-closed: incomplete, ambiguous, contradictor
 
 ### Quiescence and Mutation Barrier
 
-- Before the first migration write, Make Docs must acquire an exclusive project lifecycle lock and establish a durable quiescence barrier at every public legacy Playbook/Protocol discovery or write boundary, including CLI, MCP, plugin, skill, and helper entry points.
-- The barrier remains held through backup, transformation, validation, manifest replacement, and receipt publication. If any bypass exists, any writer remains active, or the lock cannot be proved exclusive, migration fails closed before mutation.
+- R-MIG-STORE-1 (MUST): before project mutation, classify and safely initialize or migrate the external Store under its bootstrap lock. Then acquire the Store-owned checkout lock and establish the writer exclusion barrier. No lock, marker, or writer record is written in the project. An old CLI or helper that cannot obey this lock must be stopped before transfer.
+- The Store barrier remains held through backup, transformation, validation, final installation-record commit, and receipt publication. Migration stops before mutation when a supported writer bypasses it, a known legacy writer remains active, or supported-writer exclusion cannot be proved. An unsupported old binary launched later is outside this guarantee under PRD 38 R-XFER-6.
 - Quiescence does not authorize interpretation or conversion of legacy Playbook/Protocol content or `playbook_runs`; those remain opaque and preserved unless a separate accepted authority explicitly adopts them.
 
 ### Ordered Migration
 
-The migration order is normative and cannot be silently reordered:
+The order below retains the legacy resource transformation sequence after the Store safety prerequisite. Store classification, bootstrap locking, schema readiness, checkout binding, and durable operation intent now precede every project write. This replaces the former checkpoint-9 timing for creating Store state. It does not remove any content-preservation checkpoint:
 
 1. Classify once and freeze the reviewed evidence snapshot.
 2. Back up every path that may be transformed or removed and record preserved or exported user content.
-3. Mint or upgrade manifest identity and provenance without claiming ambiguous ownership.
-4. Install the minimal manifest and configured routers.
+3. Preserve or establish declarative project identity and bind verified installation provenance in the Store without claiming ambiguous ownership.
+4. Save the pending installation plan in the Store and install configured routers through the recorded operation. Commit final installed ownership and the completion receipt only after all planned outputs are verified.
 5. Establish top-level prompt identity and machine resource list/read operations before changing router fallbacks.
 6. Move or install only selected clean local resources under `.make-docs/system/**`.
 7. Establish on-demand archive, artifact, and persona-testing routing, then transform only clean managed legacy paths.
 8. Install TypeScript path-hygiene operations, update references, and remove only a hash-proven managed Python helper.
-9. Add general Store run tables while leaving `playbook_runs` opaque and untouched.
+9. Confirm general Store run tables are ready from the prerequisite transaction. Leave `playbook_runs` opaque and untouched. Do not create a project-local receipt.
 10. Rehome naive-UAT system resources, add the thin first-party Skill adapter, reconcile `user` and `maintainer` execution with the `user` default, and establish `docs/assets/<persona-slug>/testing/**`.
 11. Retire traced Playbook and Protocol runtime, packaging, tests, conformance, and support surfaces while preserving the quiescence barrier through validation.
 12. Install only explicitly selected, evidence-backed optional agentics.
@@ -77,6 +79,8 @@ The migration order is normative and cannot be silently reordered:
 A proposed reorder must cite this authority, explain how every earlier safety invariant remains preserved, and receive owner approval before implementation planning or mutation.
 
 Migration safety:
+
+- R-MIG-STORE-3 (MUST): supported legacy operational files are imported and read back from the Store before exact verified source cleanup. Preserve unknown, malformed, changed, symlinked, or actively written files. Record partial cleanup in the Store so a repeat resumes safely. Do not delete `.make-docs/state/` merely because its name is known.
 
 - Migration must not silently overwrite user-modified content.
 - Migration must not broaden skill selection or install skill files by default.
@@ -90,15 +94,15 @@ Backup-and-reinstall safety:
 
 - Run one audit/classification pass.
 - Show the exact files that will be backed up, removed, preserved, and skipped.
-- Create a dated backup and machine-readable backup manifest before any destructive action; the manifest records source, destination, ownership/provenance classification, content digest, and restoration order for every affected path.
+- Create and verify dated content copies before destructive action. Record source, destination, ownership, digest, and restoration order in the Store. A local backup description may explain the copies but is not automatic restoration authority.
 - Remove only files the same reviewed audit result marks removable.
 - Install fresh from the selected v2 mode after removal.
 - Never re-audit between user approval, backup, removal, and reinstall.
 
 Rollback:
 
-- Rollback is restore-from-backup, not an implicit inverse migration. It restores the filesystem and project manifest together from the approved backup manifest; the machine Store is operational state and is not an independent repository rollback authority.
-- Rollback automation must consume the same backup manifest and path metadata that backup created, use the held lifecycle lock, and emit a typed restoration receipt. Partial failure preserves the journal and remaining backup, reports restored and unrestored paths, and stops rather than declaring success.
+- R-MIG-STORE-2 (MUST): rollback restores verified content copies and the affected checkout's installation record through the same Store-owned operation. The Store owns restoration order and progress. Recheck expected bytes before each restore and stop on later user changes. Never restore the whole Store to repair one project.
+- Rollback automation must consume the Store's verified backup index and path metadata, use the held Store checkout lock, and emit a typed restoration receipt. Partial failure preserves the journal and remaining backup, reports restored and unrestored paths, and stops rather than declaring success.
 - `update`, project removal, and machine uninstall use the same fail-closed classification and reviewed-snapshot boundary. They remove only verified clean managed assets or managed blocks, preserve project-owned, modified, mixed, unknown, archive, project-documentation, and opaque legacy state, and prune directories only when the approved snapshot proves them empty and safe.
 
 TypeScript CLI/MCP compatibility:
@@ -164,6 +168,14 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: Classification is fail-closed across top-level states plus resource, filesystem, manifest-provenance, Store, legacy-asset, path-safety, and optional-agentics facets; one locked snapshot governs explicit file dispositions, backup, transform, rollback, update, uninstall, and cross-platform release validation while opaque legacy state and user-owned content remain preserved.
 - Rationale: Recovery must make ownership uncertainty non-destructive and make every migration repeatable, reviewable, restorable, and unable to race a legacy writer.
 - Source: [Accepted W19 R1 recovery design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md) and [W19 R1 recovery plan](../plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md)
+### 2026-09-09 — W19 R3
+
+- Affected requirement or section: Classification priority; Quiescence and Mutation Barrier; Ordered Migration; Rollback
+- Previous contract: The legacy order installed a local manifest before Store checkpoint 9. Rollback used the project manifest and local backup metadata.
+- Replacement contract: The Store is ready before project mutation. Import and cleanup are verified. Scoped rollback uses Store authority and preserves later user edits. The owner accepted this target with the work backlog on 2026-09-09. Implementation has not started.
+- Rationale: Make Docs tool state needs one Store authority. Project knowledge remains local.
+- Source: [Store-owned installation and migration state design](../designs/2026-09-09-store-owned-installation-and-migration-state.md) and [W19 R3 plan](../plans/2026-09-09-w19-r3-store-owned-installation-and-migration-state/00-overview.md).
+
 ## Source Anchors
 
 - `docs/designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md`

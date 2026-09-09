@@ -2,6 +2,8 @@
 
 ## Purpose
 
+Accepted target: the owner accepted the [W19 R3 package](../plans/2026-09-09-w19-r3-store-owned-installation-and-migration-state/00-overview.md), including its work backlog, on 2026-09-09. The requested next step is an implementation plan after the package commit. Implementation has not started. Existing code anchors describe implementation evidence, not proof that this target is delivered.
+
 This document defines the current product contract for the project tool directory, system resources, custom overlays, and resource tiers. Normative requirements are stated in the sections below; Requirement History is provenance only.
 ## Scope
 
@@ -16,8 +18,7 @@ Directory model:
 ```text
 .make-docs/
   config.yaml
-  manifest.json
-  conflicts/
+  conflicts/              # approved content copies only; no live state
   <configured harness routers>
   archive/                # on-demand managed history/provenance
   system/                 # always-local configured-harness router
@@ -37,7 +38,7 @@ Resource tiers and identity:
 
 - `contract`, `prompt`, `reference`, and `template` are peer system-resource types. A resource is identified as `make-docs://system/<type>/<posix-relative-path>` independent of provider or projection origin.
 - The installed package provider is the ordinary runtime tier. It exposes the complete selected resource inventory without requiring repository copies.
-- `.make-docs/system/**` is the sole current local resource tree. Its router skeleton is always local. Resource bodies are an optional managed projection tier. Its plural directory families map to the singular URI types; projected files retain provider/version/hash/ownership provenance in `.make-docs/manifest.json`.
+- `.make-docs/system/**` is the sole current local resource tree. Its router skeleton is always local. Resource bodies are an optional managed projection tier. Its plural directory families map to the singular URI types; projected files retain provider/version/hash/ownership provenance in the Store-owned installation record.
 - Project-authored config, documents, overlays, and Skills are not system resources and do not receive `make-docs://system/...` identity. Legacy or user-authored plugin artifacts are migration and ownership inputs only and likewise receive no system-resource identity.
 - Playbooks and Protocols are not resource types, directory families, or project-tool authorities.
 
@@ -51,8 +52,10 @@ Resolution and materialization:
 
 Runtime state and bootstrap:
 
-- `manifest.json`, `conflicts/`, provider/projection metadata, audit state, and bounded migration journals are project-local runtime state and must not move into `docs/assets/` for tidiness. General lifecycle `runs` and `run_evidence` live in the machine Store, not the project tool directory.
-- Bootstrap includes configured-harness instruction routers, `.make-docs/manifest.json`, optional local config, project-owned overlays, and readable guidance explaining local-first resource use, CLI fallback, resource-body selection, provenance, and recovery.
+- Approved local backup or export files are content copies. Their readable descriptions are not live operation state or automatic restoration authority. Project history and work-specific tracking remain local knowledge.
+
+- R-LOCAL-STATE-1 (MUST): `.make-docs/` contains no current Make Docs operational state. Installation manifests, applied selections, conflict decisions, provider/projection metadata, audit state, locks, receipts, and recovery journals live in the global Store. `.make-docs/state/` and `.make-docs/manifest.json` are supported legacy transfer inputs only. No renamed local directory or mirror may replace them.
+- Bootstrap includes configured-harness routers, declarative project identity/config, project-owned overlays, and readable guidance for CLI Store status, resource selection, provenance, and recovery.
 - Managed instruction routers continue to use managed blocks.
 - Router text must not send agents into hidden provider-only state without a local explanation.
 - The manifest records router ownership separately from resource-body projection selection and ownership.
@@ -114,6 +117,14 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: Each configured harness has the full unconditional foundation, while the resolved effective profile and its dependencies control the four capability-local document routers. The `docs/assets/` router is root-only. Archive and artifact surfaces and Persona testing children remain on demand. `project.surface.ensure assets` remains supported and cannot create a Persona child.
 - Rationale: The project-tool contract must match the separate documentation-surface correction without changing the closed system-resource correction.
 - Source: [D-030](./03-open-questions-and-risk-register.md#d-030-w19-r1-documentation-surface-router-topology-was-omitted)
+
+### 2026-09-09 — W19 R3
+
+- Affected requirement or section: Directory model; Runtime state and bootstrap
+- Previous contract: The directory model required a local manifest and described conflicts, audit state, and migration journals as project-local runtime state.
+- Replacement contract: No current operational state belongs in the project. Local settings, content, and inert backup copies remain allowed. The owner accepted this target with the work backlog on 2026-09-09. Implementation has not started.
+- Rationale: Make Docs tool state needs one Store authority. Project knowledge remains local.
+- Source: [Store-owned installation and migration state design](../designs/2026-09-09-store-owned-installation-and-migration-state.md) and [W19 R3 plan](../plans/2026-09-09-w19-r3-store-owned-installation-and-migration-state/00-overview.md).
 
 ## Source Anchors
 

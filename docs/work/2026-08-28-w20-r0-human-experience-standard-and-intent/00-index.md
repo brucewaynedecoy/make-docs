@@ -17,6 +17,12 @@ source:
 
 This backlog is a directory. Use this index first. Then use the phase files in order.
 
+## Interrupt Pause
+
+W20 R0 is paused for the [W19 R3 Store state interrupt](../2026-09-09-w19-r3-store-owned-installation-and-migration-state/00-index.md). P1 and P2 remain accepted and closed. P3 has not started. Preserve all existing task IDs and accepted evidence.
+
+W19 R3 must complete before W20 R0 can resume. The owner accepted its package and backlog on 2026-09-09. Its next step after the requested package commit is an implementation plan. That acceptance does not resume W20. After the owner accepts the interrupt result, review its handoff against the P3 entry conditions and obtain separate authority to resume W20 implementation.
+
 ## Purpose
 
 Implement the Human Experience Standard as a small, shared Make Docs rule that stays visible from design through acceptance.
@@ -81,4 +87,4 @@ This handoff is advisory-default-but-overridable. It is authoritative unless the
 - Why: The backlog is the implementation queue derived from the plan and PRD contract.
 - Coordinate Handoff: Carry this backlog's W/R coordinate into phase history records and commits, adding the active P coordinate for each phase.
 
-Current next step: Use the [closed P2 result and evidence](02-contract-reference-and-design-entry.md#coverage-and-handoff) for P3 planning. The owner authorized P2 closeout and a local commit on 2026-09-08. P3 implementation, publication, and release need separate authority.
+Current next step: Keep W20 R0 paused until the [W19 R3 interrupt](../2026-09-09-w19-r3-store-owned-installation-and-migration-state/00-index.md) is complete. Then use the interrupt handoff and the [closed P2 result and evidence](02-contract-reference-and-design-entry.md#coverage-and-handoff) for P3 planning. The owner authorized P2 closeout and a local commit on 2026-09-08. P3 implementation, publication, and release need separate authority.
