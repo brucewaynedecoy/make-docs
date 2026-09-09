@@ -62,6 +62,8 @@ Stage exit: Verified legacy records transfer safely once, corrected writers enfo
 
 Replace tests that require or omit local operational state. Inspect full fixture trees. Correct shipped rules upstream in `packages/docs/template/`, including runtime-state, manifest, path-hygiene, routing, recovery, and package expectation text. Add bounded supersession links to active historical entry points. Do not rewrite completed evidence. Repair the existing risk-list test so it validates the live register rather than a fixed D-030 ceiling.
 
+Make the optional capture rule explicit in shipped agent guidance. If the CLI is unavailable, ordinary project work continues with a clear capture-unavailable notice. The same applies when optional capture fails with the CLI present. Neither case permits direct Store writes, local fallback state, queued writes, or a false success claim. Project documents, history, and optional work backlog updates remain valid. Required Store recording for CLI-managed changes remains mandatory under PRD 38 R-PS-8 and R-TEST-7.
+
 Build the CLI and verify the actual package contents. Use isolated fixture projects and Store roots for destructive/failure tests. After package proof passes and the accepted implementation scope permits the concrete reviewed transfer, run the corrected CLI against the dogfood instance. Save its preview, exact applied scope, read-back, and later-update evidence. Do not use source tests as proof of the installed binary. Do not manually delete receipts to simulate successful migration.
 
 ### Verification Set
@@ -74,7 +76,7 @@ Build the CLI and verify the actual package contents. Use isolated fixture proje
 | V4 — Crash recovery | Faults before/after backup, file replacement, per-step journal update, final commit, transfer commit and source deletion | Resume/rollback is bounded and repeatable; unknown user changes and unrelated Store rows survive. |
 | V5 — Legacy and compatibility | Completed/incomplete/invalid/unknown records, snapshots, active old writer, prior supported package | Useful records import once; unknown files survive; cleanup follows read-back; corrected writers reject incompatible Store state; prior-package limits are documented; known active old writers block transfer. |
 | V6 — Public experience | Packaged CLI plain/JSON status and dry-run/apply recovery transcripts | States and next action are distinct; no SQL or hidden repair required; modes and checkout ownership enforced. |
-| V7 — Guidance and package | Upstream search, generated defaults, package smoke, relevant documentation and runtime suites | Active instructions and shipped output match Store ownership; no test ignores prohibited state. Baseline defects are explicitly resolved or reported. |
+| V7 — Guidance and package | Upstream search, generated defaults, package smoke, relevant documentation and runtime suites; missing CLI and failed optional capture cases paired with required Store failure | Active instructions and shipped output match Store ownership; no test ignores prohibited state. Ordinary work continues with an accurate unavailable notice when optional capture is unavailable; no direct Store write, local fallback, queued write, or false success. Required Store failure still stops managed changes safely. Baseline defects are explicitly resolved or reported. |
 | V8 — Dogfood and Human Experience Review | Reviewed transfer, file inventory, Store read-back, repeat update; HX-1 through HX-4 review | Local state stays absent, retained content is intact, and each promise has evidence, observation, conclusion, reviewer and limits. |
 
 Use focused automated tests for safety and recovery. Broaden only for affected shared callers or unresolved failures. Functional pass, system-resource coverage, manual-test selection, and Unassisted Goal Testing selection remain separate decisions. Reuse suitable evidence in Human Experience Review.
@@ -94,6 +96,7 @@ Keep implementation acceptance, commit, publication, and W20 resumption explicit
 - The local operational manifest is safely retired with useful provenance retained.
 - Supported legacy records transfer with verified read-back and narrow deletion.
 - Normal and failure paths do not recreate `.make-docs/state/` or another operational substitute.
+- Ordinary project work continues when the CLI is unavailable or optional capture fails. Required Store recording for CLI-managed changes remains mandatory.
 - Public status/recovery and compatible writer behavior match current PRDs.
 - Upstream instructions, tests, packaged CLI, and the dogfood result agree.
 - HX-1 through HX-4 have real reviewed evidence and stated reviewer limits.

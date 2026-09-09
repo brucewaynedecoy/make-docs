@@ -64,6 +64,10 @@ All CLI, registry, and MCP paths use the same state service. Existing Store tabl
 
 The CLI must never use `.make-docs/state/`, another project folder, project Git metadata, or a local manifest as an operational fallback. Failure to use the required Store stops the operation before project mutation. Read-only inspection can still explain the failure without creating the Store or writing the project.
 
+If the CLI is not installed or cannot be invoked, ordinary project work can continue. The agent reports that Make Docs state capture was unavailable. It must not claim a successful capture, write directly to the Store, create local fallback state, or queue a later write. Project documents, history breadcrumbs, and optional work backlog updates remain valid project content. They must not become substitutes for Make Docs operational records.
+
+The same rule applies when the CLI is present but optional general lifecycle capture fails. Required state for CLI-executed installs, upgrades, migrations, and other managed changes is different. Those operations already have the CLI available and must save their required Store records. If that fails, stop before further project changes and preserve recovery evidence. Optional capture failure never waives this rule. The Store preparation rules in D4 apply to these managed operations, not to ordinary project edits.
+
 ### D2. Local files contain knowledge and payloads
 
 | Local content | Rule |
@@ -144,6 +148,8 @@ Update the owning PRDs now through this drafting pass. During accepted implement
 Tests must inspect the full project tree for prohibited operational files. They must not omit `.make-docs/state/` to obtain a passing comparison. A fresh setup, update, repeat setup, resource operation, conflict flow, removal, failure, and retry must not create local operational records. Legacy-input fixtures may contain them before transfer only. Store failure must not create a substitute.
 
 Personal agent memory is not product authority. No memory edits are authorized by this drafting task. A separately authorized memory update can point to the accepted rule, but it is not a dependency for making the CLI correct.
+
+Shipped agent guidance must explain the missing CLI case in D1. Verify ordinary project work with the CLI unavailable, optional capture failure with the CLI present, and required Store failure during a CLI-managed change. The first two cases allow work to continue with an accurate notice and no fallback state. The last case must stop safely. This clarification stays within the existing W19 R3 phase.
 
 ## Alternatives Considered
 
